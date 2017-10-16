@@ -317,6 +317,8 @@ function _detalhes:LoadConfig()
 			if (not _detalhes_database.last_version or _detalhes_database.last_version ~= _detalhes.userversion) then
 				_detalhes.is_version_first_run = true
 			end
+			--_detalhes.is_version_first_run = true
+			--_detalhes_database.last_realversion = 126
 			
 	--> profile
 	

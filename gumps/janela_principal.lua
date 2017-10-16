@@ -8890,7 +8890,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> SELEÇÃO DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local modo_selecao_button_click = function()
 		if (_detalhes.instances_menu_click_to_open) then
-			modo_selecao_on_enter (instancia.baseframe.cabecalho.modo_selecao.widget, _, true, true)
+			if (instancia.LastMenuOpened == "mode" and GameCooltipFrame1:IsShown()) then
+				GameCooltip:ShowMe (false)
+				instancia.LastMenuOpened = nil
+			else		
+				modo_selecao_on_enter (instancia.baseframe.cabecalho.modo_selecao.widget, _, true, true)
+				instancia.LastMenuOpened = "mode"
+			end
 		else
 			_detalhes:OpenOptionsWindow (instancia)
 		end
@@ -8916,7 +8922,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local segmento_button_click = function (self, button, param1)
 		if (_detalhes.instances_menu_click_to_open) then
-			segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+			if (instancia.LastMenuOpened == "segments" and GameCooltipFrame1:IsShown()) then
+				GameCooltip:ShowMe (false)
+				instancia.LastMenuOpened = nil
+			else
+				segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+				instancia.LastMenuOpened = "segments"
+			end
 		else
 			click_to_change_segment (instancia, button)
 		end
@@ -8944,7 +8956,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> SELECIONAR O ATRIBUTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local atributo_button_click = function()
 		if (_detalhes.instances_menu_click_to_open) then
-			atributo_on_enter (instancia.baseframe.cabecalho.atributo.widget, _, true, true)
+			if (instancia.LastMenuOpened == "attributes" and GameCooltipFrame1:IsShown()) then
+				GameCooltip:ShowMe (false)
+				instancia.LastMenuOpened = nil
+			else
+				atributo_on_enter (instancia.baseframe.cabecalho.atributo.widget, _, true, true)
+				instancia.LastMenuOpened = "attributes"
+			end
 		end
 	end
 	
@@ -8991,7 +9009,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	local reset_func = function()
 		if (_detalhes.instances_menu_click_to_open) then
-			reset_button_onenter (instancia.baseframe.cabecalho.reset, _, true, true)
+			if (instancia.LastMenuOpened == "reset" and GameCooltipFrame1:IsShown()) then
+				GameCooltip:ShowMe (false)
+				instancia.LastMenuOpened = nil
+			else
+				reset_button_onenter (instancia.baseframe.cabecalho.reset, _, true, true)
+				instancia.LastMenuOpened = "reset"
+			end
 		else
 			if (not _detalhes.disable_reset_button) then
 				_detalhes.tabela_historico:resetar() 

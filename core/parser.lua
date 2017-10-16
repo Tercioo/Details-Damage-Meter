@@ -130,6 +130,15 @@
 		[201364] = 218617, --warrior rampage
 		[201363] = 218617, --warrior rampage
 		
+		[85384] = 96103, --warrior raging blow
+		[85288] = 96103, --warrior raging blow
+		
+		[163558] = 5308, --warrior execute
+		[217955] = 5308, --warrior execute
+		[217956] = 5308, --warrior execute
+		[217957] = 5308, --warrior execute
+		[224253] = 5308, --warrior execute
+		
 		[222031] = 199547, --deamonhunter ChaosStrike
 		[200685] = 199552, --deamonhunter Blade Dance
 		[210155] = 210153, --deamonhunter Death Sweep

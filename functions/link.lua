@@ -3216,8 +3216,12 @@
 							if (can_add	) then
 								if (filter_name ~= "") then
 									local spellName = GetSpellInfo (spellID)
-									spellName = lower (spellName)
-									if (not spellName:find (lower_FilterSpellName)) then
+									if (spellName) then
+										spellName = lower (spellName)
+										if (not spellName:find (lower_FilterSpellName)) then
+											can_add = false
+										end
+									else
 										can_add = false
 									end
 								end
@@ -3345,8 +3349,12 @@
 							if (can_add	) then
 								if (filter_name ~= "") then
 									local spellName = GetSpellInfo (spellID)
-									spellName = lower (spellName)
-									if (not spellName:find (lower_FilterSpellName)) then
+									if (spellName) then
+										spellName = lower (spellName)
+										if (not spellName:find (lower_FilterSpellName)) then
+											can_add = false
+										end
+									else
 										can_add = false
 									end
 								end

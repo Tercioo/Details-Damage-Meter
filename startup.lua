@@ -1253,7 +1253,7 @@ function _G._detalhes:Start()
 				end
 			end
 		end
-		
+	
 	--> check is this is the first run of this version
 		if (self.is_version_first_run) then
 
@@ -1301,7 +1301,7 @@ function _G._detalhes:Start()
 					
 					local text1 = f:CreateFontString (nil, "overlay", "GameFontNormal")
 					text1:SetPoint ("topleft", f, "topleft", 60, -210)
-					text1:SetText ("Yeah, another popup window, but it's for a good cause: has been added new features for content creators, check it out at the options panel > Streamer Settings, thank you!")
+					text1:SetText ("Yeap, another popup window, but it's for a good cause: has been added new features for content creators, check it out at the options panel > Streamer Settings, thank you!")
 					text1:SetSize (400, 200)
 					text1:SetJustifyV ("top")
 					text1:SetJustifyH ("left")
@@ -1312,9 +1312,34 @@ function _G._detalhes:Start()
 					ipad:SetPoint ("topleft", bg, "topleft", 474, -279)
 					ipad:SetTexCoord (110/512, 240/512, 163/512, 251/512)
 					
+					local playerteam = f:CreateTexture (nil, "overlay")
+					playerteam:SetTexture ([[Interface\Addons\Details\images\icons2]])
+					playerteam:SetSize (250, 61)
+					playerteam:SetPoint ("topleft", bg, "topleft", 50, -289)
+					playerteam:SetTexCoord (259/512, 509/512, 186/512, 247/512)
+					
+					local eventtracker = f:CreateTexture (nil, "overlay")
+					eventtracker:SetTexture ([[Interface\Addons\Details\images\icons2]])
+					eventtracker:SetSize (256, 50)
+					eventtracker:SetPoint ("topleft", bg, "topleft", 50, -370)
+					eventtracker:SetTexCoord (0.5, 1, 134/512, 184/512)
+					
 					local closebutton = _detalhes.gump:CreateButton (f, function() f:Hide() end, 100, 24, "CLOSE")
 					closebutton:SetPoint ("topleft", bg, "topleft", 400, -405)
 					closebutton:InstallCustomTexture()
+					
+					C_Timer.After (5, function()
+						local StreamerPlugin = _detalhes:GetPlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
+						if (StreamerPlugin) then
+							local tPluginSettings = _detalhes:GetPluginSavedTable ("DETAILS_PLUGIN_STREAM_OVERLAY")
+							if (tPluginSettings) then
+								local bIsPluginEnabled = tPluginSettings.enabled
+								if (bIsPluginEnabled and _detalhes.streamer_config) then
+									_detalhes.streamer_config.use_animation_accel = true
+								end
+							end
+						end
+					end)
 				end
 			end
 			--]]
