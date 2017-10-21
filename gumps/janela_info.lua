@@ -4583,7 +4583,7 @@ function gump:CriaJanelaInfo()
 						end
 						
 						local blink = _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL2") or 0
-						if (blink < 10) then
+						if (type (blink) == "number" and blink < 10) then
 							_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL2", blink+1)
 							if (not tab.glow.Flash) then
 								gump:CreateFlashAnimation (tab.glow)
