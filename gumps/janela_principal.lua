@@ -2249,6 +2249,14 @@ local icon_frame_on_enter = function (self)
 				end
 			end
 			
+			if (RaiderIO and RaiderIO.GetScore) then
+				local mythicPlusScore = RaiderIO.GetScore (name)
+				if (mythicPlusScore and mythicPlusScore.allScore) then
+					GameCooltip:AddLine ("Mythic+ Score:", mythicPlusScore.allScore, 1, "white", "white")
+					_detalhes:AddTooltipBackgroundStatusbar()
+				end
+			end
+			
 			GameCooltip:SetOption ("FixedHeight", height)
 			
 			GameCooltip:ShowCooltip()
@@ -2374,7 +2382,7 @@ local icon_frame_on_click_up = function (self, button)
 			local diff = combat:GetDifficulty()
 			local bossInfo = combat:GetBossInfo()
 			
-			if (attribute == 1 or attribute == 2 and bossInfo) then --if bossInfo is nil, means the combat isn't a boss
+			if ((attribute == 1 or attribute == 2) and bossInfo) then --if bossInfo is nil, means the combat isn't a boss
 				local db = _detalhes.OpenStorage()
 				if (db and bossInfo.id) then
 					local haveData = _detalhes.storage:HaveDataForEncounter (diff, bossInfo.id, true) --attempt to index local 'bossInfo' (a nil value)
