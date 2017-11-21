@@ -570,7 +570,8 @@ function _G._detalhes:Start()
 					for i = #segmentsToMerge, 1, -1 do
 						local segment = segmentsToMerge [i]
 						if (segment == _detalhes.tabela_vigente) then
-							_detalhes:Msg ("unhandled exception > merged trash segment is current segment > MergeTrashCleanup() is scheduled:", isFromSchedule)
+							--this exception still exists but is handled now
+							--_detalhes:Msg ("unhandled exception > merged trash segment is current segment > MergeTrashCleanup() is scheduled:", isFromSchedule)
 							--happened after killing one mob and leaving the dungeon, lots of /reload has done inside the dungeon
 						end
 					end
@@ -680,7 +681,8 @@ function _G._detalhes:Start()
 				for i = #segmentsToMerge, 1, -1 do
 					local segment = segmentsToMerge [i]
 					if (segment == _detalhes.tabela_vigente) then
-						_detalhes:Msg ("unhandled exception > merged trash segment is current segment > MergeRemainingTrashAfterAllBossesDone()")
+						--this exception still exists but is handled now
+						--_detalhes:Msg ("unhandled exception > merged trash segment is current segment > MergeRemainingTrashAfterAllBossesDone()")
 					end
 				end
 				
@@ -1598,7 +1600,7 @@ function _G._detalhes:Start()
 	_detalhes.chat_embed:CheckChatEmbed (true)
 	
 	--_detalhes:SetTutorialCVar ("MEMORY_USAGE_ALERT1", false)
-	if (not _detalhes:GetTutorialCVar ("MEMORY_USAGE_ALERT1")) then
+	if (not _detalhes:GetTutorialCVar ("MEMORY_USAGE_ALERT1") and false) then --> disabled the warning
 		function _detalhes:AlertAboutMemoryUsage()
 			if (DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) then
 				return _detalhes:ScheduleTimer ("AlertAboutMemoryUsage", 30)
