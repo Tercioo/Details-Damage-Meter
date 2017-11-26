@@ -75,7 +75,13 @@ function _G._detalhes:Start()
 --> initialize
 
 	--> build frames
-
+	
+		--> plugin container
+			self:CreatePluginWindowContainer()
+			self:InitializeForge() --to install into the container plugin
+			self:InitializeRaidHistoryWindow()
+			self:InitializeOptionsWindow()
+			
 		--> bookmarks
 			if (self.switch.InitSwitch) then
 				--self.switch:InitSwitch()

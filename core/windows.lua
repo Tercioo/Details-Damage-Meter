@@ -1164,18 +1164,36 @@
 	function _detalhes:OpenTranslateWindow()
 		
 	end
+	
+	
 
 --> raid history window ~history
+
+	function _detalhes:InitializeRaidHistoryWindow()
+		local DetailsRaidHistoryWindow = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent)
+		DetailsRaidHistoryWindow.Frame = DetailsRaidHistoryWindow
+		DetailsRaidHistoryWindow.__name = "Statistics"
+		DetailsRaidHistoryWindow.real_name = "DETAILS_STATISTICS"
+		DetailsRaidHistoryWindow.__icon = [[Interface\PvPRankBadges\PvPRank08]]
+		DetailsPluginContainerWindow.EmbedPlugin (DetailsRaidHistoryWindow, DetailsRaidHistoryWindow, true)
+	
+		function DetailsRaidHistoryWindow.RefreshWindow()
+			_detalhes:OpenRaidHistoryWindow()
+		end
+	end
+	
 	function _detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name, _history_type)
 	
-		if (not _G.DetailsRaidHistoryWindow) then
+		if (not DetailsRaidHistoryWindow or not DetailsRaidHistoryWindow.Initialized) then
 		
 			local db = _detalhes.storage:OpenRaidStorage()
 			if (not db) then
 				return _detalhes:Msg (Loc ["STRING_GUILDDAMAGERANK_DATABASEERROR"])
 			end
+			
+			DetailsRaidHistoryWindow.Initialized = true
 		
-			local f = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent, "ButtonFrameTemplate")
+			local f = DetailsRaidHistoryWindow or CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent) --, "ButtonFrameTemplate"
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
@@ -1187,6 +1205,46 @@
 			
 			f.Mode = 2
 			
+			f.bg1 = f:CreateTexture (nil, "background")
+			f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+			f.bg1:SetAlpha (0.7)
+			f.bg1:SetVertexColor (0.27, 0.27, 0.27)
+			f.bg1:SetVertTile (true)
+			f.bg1:SetHorizTile (true)
+			f.bg1:SetSize (790, 454)
+			f.bg1:SetAllPoints()
+			
+			f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			f:SetBackdropColor (.5, .5, .5, .5)
+			f:SetBackdropBorderColor (0, 0, 0, 1)
+			
+			--> menu title bar
+				local titlebar = CreateFrame ("frame", nil, f)
+				titlebar:SetPoint ("topleft", f, "topleft", 2, -3)
+				titlebar:SetPoint ("topright", f, "topright", -2, -3)
+				titlebar:SetHeight (20)
+				titlebar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+				titlebar:SetBackdropColor (.5, .5, .5, 1)
+				titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+				
+			--> menu title
+				local titleLabel = _detalhes.gump:NewLabel (titlebar, titlebar, nil, "titulo", "Statistics", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+				titleLabel:SetPoint ("center", titlebar , "center")
+				titleLabel:SetPoint ("top", titlebar , "top", 0, -5)
+				
+			--> close button
+				f.Close = CreateFrame ("button", "$parentCloseButton", f)
+				f.Close:SetPoint ("right", titlebar, "right", -2, 0)
+				f.Close:SetSize (16, 16)
+				f.Close:SetNormalTexture (_detalhes.gump.folder .. "icons")
+				f.Close:SetHighlightTexture (_detalhes.gump.folder .. "icons")
+				f.Close:SetPushedTexture (_detalhes.gump.folder .. "icons")
+				f.Close:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
+				f.Close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
+				f.Close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+				f.Close:SetAlpha (0.7)
+				f.Close:SetScript ("OnClick", function() f:Hide() end)
+				
 			if (not _detalhes:GetTutorialCVar ("HISTORYPANEL_TUTORIAL")) then
 				local tutorialFrame = CreateFrame ("frame", "$parentTutorialFrame", f)
 				tutorialFrame:SetPoint ("center", f, "center")
@@ -1227,9 +1285,25 @@
 			--separate menu and main list
 			local div = f:CreateTexture (nil, "artwork")
 			div:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-MetalBorder-Left]])
-			div:SetAlpha (0.3)
+			div:SetAlpha (0.1)
 			div:SetPoint ("topleft", f, "topleft", 180, -64)
-			div:SetHeight (460)
+			div:SetHeight (574)
+			
+			local blackdiv = f:CreateTexture (nil, "artwork")
+			blackdiv:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			blackdiv:SetVertexColor (0, 0, 0)
+			blackdiv:SetAlpha (1)
+			blackdiv:SetPoint ("topleft", f, "topleft", 187, -65)
+			blackdiv:SetHeight (507)
+			blackdiv:SetWidth (200)
+			
+			local blackdiv = f:CreateTexture (nil, "artwork")
+			blackdiv:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			blackdiv:SetVertexColor (0, 0, 0)
+			blackdiv:SetAlpha (0.7)
+			blackdiv:SetPoint ("topleft", f, "topleft", 0, 0)
+			blackdiv:SetPoint ("bottomleft", f, "bottomleft", 0, 0)
+			blackdiv:SetWidth (200)
 			
 			--select history or guild rank
 			local options_switch_template = _detalhes.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
@@ -1400,10 +1474,10 @@
 				f.LatestSelection.PlayerName = DetailsRaidHistoryWindow.select_player2.value
 			end)
 			
-			f.TitleText:SetText ("Details! Raid Ranking")
+			--f.TitleText:SetText ("Details! Raid Ranking")
 			--f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
-			f.portrait:SetTexture ([[Interface\PVPFrame\PvPPrestigeIcons]])
-			f.portrait:SetTexCoord (270/1024, 384/1024, 128/512, 256/512)
+			--f.portrait:SetTexture ([[Interface\PVPFrame\PvPPrestigeIcons]])
+			--f.portrait:SetTexCoord (270/1024, 384/1024, 128/512, 256/512)
 			--f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
 			
 			local dropdown_size = 160
@@ -1434,6 +1508,7 @@
 			end
 			local raid_dropdown = gump:CreateDropDown (f, build_raid_list, 1, dropdown_size, 20, "select_raid")
 			local raid_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_RAID"] .. ":", _, _, "GameFontNormal", "select_raid_label")
+			raid_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			
 			--> select boss:
 			local on_boss_select = function (_, _, boss)
@@ -1444,6 +1519,7 @@
 			end
 			local boss_dropdown = gump:CreateDropDown (f, build_boss_list, 1, dropdown_size, 20, "select_boss")
 			local boss_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_BOSS"] .. ":", _, _, "GameFontNormal", "select_boss_label")
+			boss_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
 			--> select difficulty:
 			local on_diff_select = function (_, _, diff)
@@ -1456,6 +1532,7 @@
 			end
 			local diff_dropdown = gump:CreateDropDown (f, build_diff_list, 1, dropdown_size, 20, "select_diff")
 			local diff_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_DIFF"] .. ":", _, _, "GameFontNormal", "select_diff_label")
+			diff_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			
 			--> select role:
 			local on_role_select = function (_, _, role)
@@ -1469,6 +1546,7 @@
 			end
 			local role_dropdown = gump:CreateDropDown (f, build_role_list, 1, dropdown_size, 20, "select_role")
 			local role_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_ROLE"] .. ":", _, _, "GameFontNormal", "select_role_label")
+			role_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			
 			--> select guild:
 			local on_guild_select = function (_, _, guild)
@@ -1479,7 +1557,8 @@
 			end
 			local guild_dropdown = gump:CreateDropDown (f, build_guild_list, 1, dropdown_size, 20, "select_guild")
 			local guild_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_GUILD"] .. ":", _, _, "GameFontNormal", "select_guild_label")
-
+			guild_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			
 			--> select playerbase:
 			local on_player_select = function (_, _, player)
 				on_select()
@@ -1492,6 +1571,7 @@
 			end
 			local player_dropdown = gump:CreateDropDown (f, build_player_list, 1, dropdown_size, 20, "select_player")
 			local player_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE"] .. ":", _, _, "GameFontNormal", "select_player_label")
+			player_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
 			--> select player:
 			local on_player2_select = function (_, _, player)
@@ -1522,7 +1602,8 @@
 			end
 			local player2_dropdown = gump:CreateDropDown (f, build_player2_list, 1, dropdown_size, 20, "select_player2")
 			local player2_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] .. ":", _, _, "GameFontNormal", "select_player2_label")
-
+			player2_dropdown:SetTemplate (gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			
 			function f:UpdateDropdowns (DoNotSelectRaid)
 				
 				local currentGuild = guild_dropdown.value
@@ -1775,8 +1856,9 @@
 				end
 			end
 			
-			local fillpanel = gump:NewFillPanel (f, {}, "$parentFP", "fillpanel", 630, 400, false, false, true, nil)
-			fillpanel:SetPoint ("topleft", f, "topleft", 200, -65)
+			local fillpanel = gump:NewFillPanel (f, {}, "$parentFP", "fillpanel", 710, 501, false, false, true, nil)
+			fillpanel:SetPoint ("topleft", f, "topleft", 195, -65)
+
 			
 			function f:BuildGuildRankTable (encounterTable, guild, role)
 				
@@ -2009,6 +2091,7 @@
 		end
 		
 		--> table means some button send the request - nil for other ways
+		
 		if (type (_raid) == "table" or (not _raid and not _boss and not _difficulty and not _role and not _guild and not _player_base and not _player_name)) then
 			local f = _G.DetailsRaidHistoryWindow
 			if (f.LatestSelection) then
@@ -2090,6 +2173,7 @@
 			_G.DetailsRaidHistoryWindow:Refresh (_player_name)
 		end
 
+		DetailsPluginContainerWindow.OpenPlugin (DetailsRaidHistoryWindow)
 	end
 	
 --> feedback window
@@ -6268,3 +6352,21 @@ end
 C_Timer.After (1, function()
 	--Details:OpenOptionsWindow(Details:GetInstance(1))
 end)
+
+
+function _detalhes:FormatBackground (f)
+	f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+	f:SetBackdropColor (.5, .5, .5, .5)
+	f:SetBackdropBorderColor (0, 0, 0, 1)
+	
+	if (not f.__background) then
+		f.__background = f:CreateTexture (nil, "background")
+	end
+	
+	f.__background:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+	f.__background:SetAlpha (0.7)
+	f.__background:SetVertexColor (0.27, 0.27, 0.27)
+	f.__background:SetVertTile (true)
+	f.__background:SetHorizTile (true)
+	f.__background:SetAllPoints()
+end

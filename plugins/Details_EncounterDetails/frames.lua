@@ -1982,7 +1982,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	local already_added = {}
 	local build_dbm_bars = function()
 		local t = {}
-		local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
+		local db = _detalhes.boss_mods_timers
 		if (db) then
 			wipe (already_added)
 			local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
@@ -2015,7 +2015,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	
 	local build_bigwigs_bars = function()
 		local t = {}
-		local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
+		local db = _detalhes.boss_mods_timers
 		if (db) then
 			wipe (already_added)
 			local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
@@ -2485,14 +2485,14 @@ end
 	local frame = BossFrame
 	
 	local mouse_down = function()
-					frame:StartMoving()
-					frame.isMoving = true
+					--frame:StartMoving()
+					--frame.isMoving = true
 				end
 				
 	local mouse_up = function()
 					if (frame.isMoving) then
-						frame:StopMovingOrSizing()
-						frame.isMoving = false
+					--	frame:StopMovingOrSizing()
+					--	frame.isMoving = false
 					end
 				end
 	

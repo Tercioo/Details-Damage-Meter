@@ -3,9 +3,9 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 4836
+		_detalhes.build_counter = 4912
 		_detalhes.userversion = "v7.3.0." .. _detalhes.build_counter
-		_detalhes.realversion = 127 --core version
+		_detalhes.realversion = 128 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		Details = _detalhes
 
@@ -50,6 +50,7 @@ do
 			_detalhes.parser_frame:Hide()
 		--> quais raides devem ser guardadas no histórico
 			_detalhes.InstancesToStoreData = {
+				[1712] = true, --Antorus, the Burning Throne
 				[1676] = true, --Tomb of Sargeras
 				--[1648] = true, --Trial of Valor
 				--[1530] = true, --Nighthold

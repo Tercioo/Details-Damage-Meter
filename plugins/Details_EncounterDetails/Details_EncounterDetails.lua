@@ -473,11 +473,9 @@ local function CreatePluginFrames (data)
 		
 	end
 	
-	
-	
 	--> user clicked on button, need open or close window
 	function EncounterDetails:OpenWindow()
-		if (EncounterDetails.open) then
+		if (EncounterDetails.Frame:IsShown()) then
 			return EncounterDetails:CloseWindow()
 		end
 		
@@ -508,6 +506,8 @@ local function CreatePluginFrames (data)
 
 		C_Timer.After (3, function() EncounterDetails:ShowTutorial() end)
 
+		DetailsPluginContainerWindow.OpenPlugin (EncounterDetails)
+		
 		return true
 	end
 	
@@ -2102,6 +2102,11 @@ function EncounterDetails:OnEvent (_, event, ...)
 					[6] = "MONSTER_PARTY",
 					[7] = "MONSTER_YELL",
 				}
+				
+				--> embed the plugin into the plugin window
+				if (DetailsPluginContainerWindow) then
+					DetailsPluginContainerWindow.EmbedPlugin (EncounterDetails, EncounterDetails.Frame)
+				end
 				
 			end
 		end

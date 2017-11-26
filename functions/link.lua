@@ -2829,23 +2829,38 @@
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> forge
 
+	function _detalhes:InitializeForge()
+		local DetailsForgePanel = _detalhes.gump:CreateSimplePanel (UIParent, 960, 600, "Aura Forge", "DetailsForgePanel")
+		DetailsForgePanel.Frame = DetailsForgePanel
+		DetailsForgePanel.__name = "Aura Forge"
+		DetailsForgePanel.real_name = "DETAILS_FORGE"
+		DetailsForgePanel.__icon = [[Interface\MINIMAP\Vehicle-HammerGold-3]]
+		DetailsPluginContainerWindow.EmbedPlugin (DetailsForgePanel, DetailsForgePanel, true)
+		
+		function DetailsForgePanel.RefreshWindow()
+			_detalhes:OpenForge()
+		end
+	end
+	
 	function _detalhes:OpenForge()
 	
-		if (not DetailsForgePanel) then
+		if (not DetailsForgePanel or not DetailsForgePanel.Initialized) then
 		
 			local fw = _detalhes:GetFramework()
 			local lower = string.lower
 			
+			DetailsForgePanel.Initialized = true
+			
 			--main frame
-			local f = _detalhes.gump:CreateSimplePanel (UIParent, 960, 600, "Details! Forge", "DetailsForgePanel")
+			local f = DetailsForgePanel or _detalhes.gump:CreateSimplePanel (UIParent, 960, 600, "Details! Forge", "DetailsForgePanel")
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
 			f:SetMovable (true)
 			f.Title:SetTextColor (1, .8, .2)
 			
-			f:SetBackdropColor (unpack (_detalhes.default_backdropcolor))
-
+			
+			
 			local have_plugins_enabled
 			
 			for id, instanceTable in pairs (_detalhes.EncounterInformation) do
@@ -2905,6 +2920,21 @@
 				end
 				wipe (spell_already_added)
 			end)
+			
+			f.bg1 = f:CreateTexture (nil, "background")
+			f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+			f.bg1:SetAlpha (0.7)
+			f.bg1:SetVertexColor (0.27, 0.27, 0.27)
+			f.bg1:SetVertTile (true)
+			f.bg1:SetHorizTile (true)
+			f.bg1:SetSize (790, 454)
+			f.bg1:SetAllPoints()
+			
+			f:SetBackdropColor (unpack (_detalhes.default_backdropcolor))
+			
+			f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			f:SetBackdropColor (.5, .5, .5, .5)
+			f:SetBackdropBorderColor (0, 0, 0, 1)
 			
 			local no_func = function()end
 			local nothing_to_show = {}
@@ -3276,7 +3306,7 @@
 				end,
 				fill_name = "DetailsForgeAllSpellsFillPanel",
 			}
-
+			
 			
 			-----------------------------------------------
 			
@@ -3688,6 +3718,32 @@
 			
 			-----------------------------------------------
 			
+			fw:InstallTemplate ("button", "DETAILS_FORGE_TEXTENTRY_TEMPLATE", {
+				backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}, --edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, 
+				backdropcolor = {0, 0, 0, .1},
+				--backdropbordercolor = {0, 0, 0, 1},
+				--width = 160,
+				--height = 18,
+			})
+			
+			--scroll gradient
+			local blackdiv = f:CreateTexture (nil, "artwork")
+			blackdiv:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			blackdiv:SetVertexColor (0, 0, 0)
+			blackdiv:SetAlpha (1)
+			blackdiv:SetPoint ("topleft", f, "topleft", 170, -100)
+			blackdiv:SetHeight (461)
+			blackdiv:SetWidth (200)
+			
+			--big gradient
+			local blackdiv = f:CreateTexture (nil, "artwork")
+			blackdiv:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			blackdiv:SetVertexColor (0, 0, 0)
+			blackdiv:SetAlpha (0.7)
+			blackdiv:SetPoint ("topleft", f, "topleft", 0, 0)
+			blackdiv:SetPoint ("bottomleft", f, "bottomleft", 0, 0)
+			blackdiv:SetWidth (200)
+			
 			local select_module = function (a, b, module_number)
 			
 				if (current_module ~= module_number) then
@@ -3711,13 +3767,13 @@
 					
 					local fillpanel = module.fill_panel
 					if (not fillpanel) then
-						fillpanel = fw:NewFillPanel (f, module.header, module.fill_name, nil, 740, 480, module.fill_gettotal, module.fill_fillrows, false)
+						fillpanel = fw:NewFillPanel (f, module.header, module.fill_name, nil, 740, 481, module.fill_gettotal, module.fill_fillrows, false)
 						fillpanel:SetPoint (170, -80)
 						fillpanel.module = module
 						
 						local background = fillpanel:CreateTexture (nil, "background")
 						background:SetAllPoints()
-						background:SetColorTexture (0, 0, 0, 0.8)
+						background:SetColorTexture (0, 0, 0, 0.2)
 						
 						module.fill_panel = fillpanel
 					end
@@ -3730,6 +3786,13 @@
 					
 					fillpanel:Show()
 					fillpanel:Refresh()
+					
+					for o = 1, #fillpanel.scrollframe.lines do
+						for i = 1, #fillpanel.scrollframe.lines [o].entry_inuse do
+							--> text entry
+							fillpanel.scrollframe.lines [o].entry_inuse [i]:SetTemplate (fw:GetTemplate ("button", "DETAILS_FORGE_TEXTENTRY_TEMPLATE"))
+						end
+					end
 				end
 			end
 			
@@ -3758,8 +3821,9 @@
 				local b = fw:CreateButton (f, select_module, 140, 20, module.name, i)
 				b.tooltip = module.desc
 				b.textalign = "<"
+				b.textsize = 10
 				
-				b:SetIcon ([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]])
+				b:SetIcon ([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], nil, nil, nil, nil, {1, 1, 1, 0.7})
 				b:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 				
 				if (lastButton) then
@@ -3788,6 +3852,8 @@
 		else
 			DetailsForgePanel.FirstRun = true
 		end
+		
+		DetailsPluginContainerWindow.OpenPlugin (DetailsForgePanel)
 		
 	end
 
