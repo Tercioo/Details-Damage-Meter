@@ -41,10 +41,9 @@ functions\playerclass.lua
 functions\timedata.lua
 functions\report.lua
 functions\rowanimation.lua
+functions\raidinfo.lua
 
 core\timemachine.lua
-
-
 
 gumps\anime.lua
 gumps\anime.xml
