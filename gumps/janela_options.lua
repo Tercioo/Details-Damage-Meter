@@ -87,6 +87,7 @@ function _detalhes:InitializeOptionsWindow()
 	f.real_name = "DETAILS_OPTIONS"
 	f.__icon = [[Interface\Scenarios\ScenarioIcon-Interact]]
 	DetailsPluginContainerWindow.EmbedPlugin (f, f, true)
+	f:Hide()
 
 	function f.RefreshWindow()
 		if (not _G.DetailsOptionsWindow.instance) then
