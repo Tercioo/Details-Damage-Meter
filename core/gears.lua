@@ -1400,7 +1400,7 @@ function _detalhes.OpenStorage()
 end
 
 function _detalhes:StoreEncounter (combat)
-
+	
 	combat = combat or _detalhes.tabela_vigente
 	
 	if (not combat) then
@@ -1409,7 +1409,7 @@ function _detalhes:StoreEncounter (combat)
 		end
 		return
 	end
-
+	
 	local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
 	
 	if (not store_instances [mapID]) then
@@ -1433,7 +1433,7 @@ function _detalhes:StoreEncounter (combat)
 	
 	--> check for heroic and mythic
 	if (storageDebug or (diff == 15 or diff == 16)) then --test on raid finder  ' or diff == 17' -- normal mode: diff == 14 or 
-
+	
 		--> check the guild name
 		local match = 0
 		local guildName = select (1, GetGuildInfo ("player"))
@@ -1455,7 +1455,7 @@ function _detalhes:StoreEncounter (combat)
 			end
 		else
 			if (_detalhes.debug) then
-				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
+				print ("|cFFFFFF00Details! Storage|r: player isn't in a guild.")
 			end
 			return
 		end
@@ -1477,9 +1477,15 @@ function _detalhes:StoreEncounter (combat)
 		if (not db and _detalhes.CreateStorageDB) then
 			db = _detalhes:CreateStorageDB()
 			if (not db) then
+				if (_detalhes.debug) then
+					print ("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
+				end
 				return
 			end
 		elseif (not db) then
+			if (_detalhes.debug) then
+				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
+			end
 			return
 		end
 		
@@ -1546,16 +1552,16 @@ function _detalhes:StoreEncounter (combat)
 			end
 		end
 		
+		--> add the encounter data
 		tinsert (encounter_database, this_combat_data)
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! Storage|r: combat data added to encounter database.")
+		end
 
-		--print ("|cFFFFFF00Details! Storage|r: encounter saved!")
-		
 		local myrole = UnitGroupRolesAssigned ("player")
 		local mybest, onencounter = _detalhes.storage:GetBestFromPlayer (diff, encounter_id, myrole, _detalhes.playername, true) --> get dps or hps
 		local myBestDps = mybest [1] / onencounter.elapsed
-		
-		--print (myrole, mybest and mybest[1], mybest and mybest[2], mybest and mybest[3], onencounter and onencounter.date)
-		
+
 		if (mybest) then
 			local d_one = 0
 			if (myrole == "DAMAGER" or myrole == "TANK") then

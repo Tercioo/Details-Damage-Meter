@@ -4009,6 +4009,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 		
+		--> wipe encounter data if changing map while the encounter table is poiting to argus encounter ~REMOVE on 8.0
+		if (_detalhes.encounter_table and _detalhes.encounter_table.id == 2092) then
+			_table_wipe (_detalhes.encounter_table)
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) map changed with encounter table pointing to argus encounter, wiping the encounter table.")
+			end
+		end
+		
 		_detalhes.time_type = _detalhes.time_type_original
 		
 		_detalhes:CheckChatOnZoneChange (zoneType)
