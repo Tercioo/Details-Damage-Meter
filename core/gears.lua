@@ -958,7 +958,8 @@ local encounter_is_current_tier = function (encounterID)
 	if (OnlyFromCurrentRaidTier) then
 		local mapID = _detalhes:GetInstanceIdFromEncounterId (encounterID)
 		if (mapID) then
-			if (_detalhes.current_raid_tier_mapid ~= mapID) then
+			--> if isn'y the mapID in the table to save data
+			if (not _detalhes.InstancesToStoreData [mapID]) then
 				return false
 			end
 		end

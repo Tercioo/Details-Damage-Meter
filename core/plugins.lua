@@ -454,13 +454,24 @@
 			LibWindow.SavePosition (f)
 			
 		--> menu background
-			local menuBackground = CreateFrame ("frame", nil, f)
+			local menuBackground = CreateFrame ("frame", "$parentMenuFrame", f)
 			_detalhes:FormatBackground (menuBackground)
 
 			--> point
 			menuBackground:SetPoint ("topright", f, "topleft", -2, 0)
 			menuBackground:SetPoint ("bottomright", f, "bottomleft", -2, 0)
 			menuBackground:SetWidth (f.MenuButtonWidth + 6)
+			
+			local bigdog = _detalhes.gump:NewImage (menuBackground, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+			bigdog:SetPoint ("bottomleft", custom_window, "bottomleft", 0, 1)
+			bigdog:SetAlpha (0.3)
+			
+			local bigdogRow = menuBackground:CreateTexture (nil, "artwork")
+			bigdogRow:SetPoint ("bottomleft", menuBackground, "bottomleft", 1, 1)
+			bigdogRow:SetPoint ("bottomright", menuBackground, "bottomright", -1, 1)
+			bigdogRow:SetHeight (20)
+			bigdogRow:SetColorTexture (.5, .5, .5, .1)
+			bigdogRow:Hide()
 
 		--> plugins menu title bar
 			local titlebar_plugins = CreateFrame ("frame", nil, menuBackground)

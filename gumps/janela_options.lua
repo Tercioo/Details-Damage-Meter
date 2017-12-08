@@ -238,7 +238,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		window_icon:SetTexCoord (0, 0.054199, 0.591308, 0.646972) --605 663
 
 		--> title
-		local title = g:NewLabel (window, nil, "$parentTitleLabel", "title", Loc ["STRING_OPTIONS_WINDOW"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+		local title = g:NewLabel (window, nil, "$parentTitleLabel", "title", "Details! " .. Loc ["STRING_OPTIONS_WINDOW"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 		title:SetPoint ("center", window, "center")
 		title:SetPoint ("top", window, "top", 0, -28)
 		

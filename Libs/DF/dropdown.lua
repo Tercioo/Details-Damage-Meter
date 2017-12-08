@@ -483,7 +483,13 @@ function DetailsFrameworkDropDownOptionClick (button)
 		
 	--> exec function if any
 		if (button.table.onclick) then
-			button.table.onclick (button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)	
+		
+			local success, errorText = pcall (button.table.onclick, button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
+			if (not success) then
+				error ("Details! Framework: dropdown " .. button:GetParent():GetParent():GetParent().MyObject:GetName() ..  " error: " .. errorText)
+			end
+			
+			--button.table.onclick (button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)	
 		end
 		
 	--> set the value of selected option in main object

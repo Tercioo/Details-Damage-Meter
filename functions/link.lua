@@ -1731,12 +1731,25 @@
 			local f = CreateFrame ("frame", "DetailsAuraPanel", UIParent)
 			f:SetSize (800, 600)
 			f:SetPoint ("center", UIParent, "center", 0, 150)
-			f:SetFrameStrata ("HIGH")
+			f:SetFrameStrata ("DIALOG")
 			f:EnableMouse (true)
 			f:SetMovable (true)
 			f:SetToplevel (true)
-			f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-			f:SetBackdropColor (24/255, 24/255, 24/255, .8)
+			
+			--f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			--f:SetBackdropColor (24/255, 24/255, 24/255, .8)
+			--f:SetBackdropBorderColor (0, 0, 0, 1)
+			
+			f.bg1 = f:CreateTexture (nil, "background")
+			f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+			f.bg1:SetAlpha (0.8)
+			f.bg1:SetVertexColor (0.27, 0.27, 0.27)
+			f.bg1:SetVertTile (true)
+			f.bg1:SetHorizTile (true)
+			f.bg1:SetSize (790, 454)
+			f.bg1:SetAllPoints()
+			f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			f:SetBackdropColor (.5, .5, .5, .7)
 			f:SetBackdropBorderColor (0, 0, 0, 1)
 			
 			--register to libwindow
@@ -1745,6 +1758,12 @@
 			LibWindow.RestorePosition (f)
 			LibWindow.MakeDraggable (f)
 			LibWindow.SavePosition (f)
+			
+			f:SetScript ("OnMouseDown", function (self, button)
+				if (button == "RightButton") then
+					f:Hide()
+				end
+			end)
 			
 			--titlebar
 			f.TitleBar = CreateFrame ("frame", "$parentTitleBar", f)
@@ -1771,7 +1790,6 @@
 			--title
 			f.Title = f.TitleBar:CreateFontString ("$parentTitle", "overlay", "GameFontNormal")
 			f.Title:SetPoint ("center", f.TitleBar, "center")
-			f.Title:SetTextColor (.8, .8, .8, 1)
 			f.Title:SetText ("Details! Create Aura")
 
 			local fw = _detalhes:GetFramework()
@@ -1808,13 +1826,13 @@
 			aura_type:SetPoint ("left", aura_type_label, "right", 2, 0)
 			aura_type:Hide()
 			
-			local Icon_IconAuraType = fw:CreateImage (f, [[Interface\AddOns\Details\images\icons2]], 32, 32, "overlay", {119/512, 151/512, 176/512, 208/512}, nil, nil)
+			local Icon_IconAuraType = fw:CreateImage (f, [[Interface\AddOns\Details\images\icons2]], 32, 32, "overlay", {200/512, 232/512, 336/512, 368/512}, nil, nil)
 			Icon_IconAuraType:SetPoint ("topleft", aura_type_label, "bottomleft", 10, -16)
 			
-			local Icon_StatusbarAuraType = fw:CreateImage (f, [[Interface\AddOns\Details\images\icons2]], 92, 12, "overlay", {154/512, 246/512, 176/512, 188/512}, nil, nil)
+			local Icon_StatusbarAuraType = fw:CreateImage (f, [[Interface\AddOns\Details\images\icons2]], 92, 12, "overlay", {235/512, 327/512, 336/512, 348/512}, nil, nil)
 			Icon_StatusbarAuraType:SetPoint ("topleft", aura_type_label, "bottomleft", 60, -26)
-
-			local Icon_TextOnlyAuraType = fw:CreateImage (f, [[Interface\AddOns\Details\images\icons2]], 57, 8, "overlay", {169/512, 225/512, 200/512, 207/512}, nil, nil)
+			
+			local Icon_TextOnlyAuraType = fw:CreateImage (f, [[Interface\AddOns\Details\images\icons2]], 57, 8, "overlay", {250/512, 306/512, 360/512, 367/512}, nil, nil)
 			Icon_TextOnlyAuraType:SetPoint ("topleft", aura_type_label, "bottomleft", 170, -28)
 			
 			local AuraTypeSelectedColor = {1, 1, 1, 0.3}
@@ -2830,7 +2848,7 @@
 --> forge
 
 	function _detalhes:InitializeForge()
-		local DetailsForgePanel = _detalhes.gump:CreateSimplePanel (UIParent, 960, 600, "Aura Forge", "DetailsForgePanel")
+		local DetailsForgePanel = _detalhes.gump:CreateSimplePanel (UIParent, 960, 600, "Details! Aura Forge", "DetailsForgePanel")
 		DetailsForgePanel.Frame = DetailsForgePanel
 		DetailsForgePanel.__name = "Aura Forge"
 		DetailsForgePanel.real_name = "DETAILS_FORGE"
@@ -2864,7 +2882,7 @@
 			local have_plugins_enabled
 			
 			for id, instanceTable in pairs (_detalhes.EncounterInformation) do
-				if (id == _detalhes.current_raid_tier_mapid) then
+				if (_detalhes.InstancesToStoreData [id]) then
 					have_plugins_enabled = true
 					break
 				end
@@ -2930,7 +2948,7 @@
 			f.bg1:SetSize (790, 454)
 			f.bg1:SetAllPoints()
 			
-			f:SetBackdropColor (unpack (_detalhes.default_backdropcolor))
+			--f:SetBackdropColor (unpack (_detalhes.default_backdropcolor))
 			
 			f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 			f:SetBackdropColor (.5, .5, .5, .5)

@@ -963,7 +963,7 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 	for index, t in ipairs (rows) do 
 		panel.AddRow (panel, t)
 	end
-	
+
 	local refresh_fillbox = function (self)
 	
 		local offset = FauxScrollFrame_GetOffset (self)

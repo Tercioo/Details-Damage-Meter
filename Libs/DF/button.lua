@@ -155,6 +155,14 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	local smember_function = function (_object, _value)
 		return _rawset (_object, "func", _value)
 	end
+	--> param1
+	local smember_param1 = function (_object, _value)
+		return _rawset (_object, "param1", _value)
+	end
+	--> param2
+	local smember_param2 = function (_object, _value)
+		return _rawset (_object, "param2", _value)
+	end
 	--> text color
 	local smember_textcolor = function (_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
@@ -225,6 +233,8 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	ButtonMetaFunctions.SetMembers ["height"] = smember_height
 	ButtonMetaFunctions.SetMembers ["text"] = smember_text
 	ButtonMetaFunctions.SetMembers ["clickfunction"] = smember_function
+	ButtonMetaFunctions.SetMembers ["param1"] = smember_param1
+	ButtonMetaFunctions.SetMembers ["param2"] = smember_param2
 	ButtonMetaFunctions.SetMembers ["textcolor"] = smember_textcolor
 	ButtonMetaFunctions.SetMembers ["textfont"] = smember_textfont
 	ButtonMetaFunctions.SetMembers ["textsize"] = smember_textsize
@@ -861,9 +871,21 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 			(button.mouse_down+0.5 > GetTime() and button:IsMouseOver())
 		) then
 			if (buttontype == "LeftButton") then
-				button.MyObject.func (button, buttontype, button.MyObject.param1, button.MyObject.param2)
+			
+				local success, errorText = pcall (button.MyObject.func, button, buttontype, button.MyObject.param1, button.MyObject.param2)
+				if (not success) then
+					error ("Details! Framework: button " .. button:GetName() ..  " error: " .. errorText)
+				end
+			
+				--button.MyObject.func (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			else
-				button.MyObject.funcright (button, buttontype, button.MyObject.param1, button.MyObject.param2)
+			
+				local success, errorText = pcall (button.MyObject.funcright, button, buttontype, button.MyObject.param1, button.MyObject.param2)
+				if (not success) then
+					error ("Details! Framework: button " .. button:GetName() ..  " error: " .. errorText)
+				end
+			
+				--button.MyObject.funcright (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			end
 		end
 	end
@@ -918,6 +940,21 @@ function ButtonMetaFunctions:SetTemplate (template)
 		self:SetIcon (i.texture, i.width, i.height, i.layout, i.texcoord, i.color, i.textdistance, i.leftpadding)
 	end
 	
+	if (template.textsize) then
+		self.textsize = template.textsize
+	end
+	
+	if (template.textfont) then
+		self.textfont = template.textfont
+	end
+	
+	if (template.textcolor) then
+		self.textcolor = template.textcolor
+	end
+	
+	if (template.textalign) then
+		self.textalign = template.textalign
+	end
 end
 
 ------------------------------------------------------------------------------------------------------------

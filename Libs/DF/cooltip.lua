@@ -30,15 +30,18 @@ function DF:CreateCoolTip()
 	--> Cooltip Startup
 ----------------------------------------------------------------------
 
+	--> if a cooltip is already created with a higher version
 	if (_G.GameCooltip2 and _G.GameCooltip2.version >= version) then
 		return
 	end
 
-	--> Start Cooltip Table
-		local CoolTip = {version = version}
+	--> initialize
+		local CoolTip = {
+			version = version
+		}
 		_G.GameCooltip2 = CoolTip
 	
-	--> Containers
+	--> containers
 		CoolTip.LeftTextTable = {}
 		CoolTip.LeftTextTableSub = {}
 		CoolTip.RightTextTable = {}
@@ -148,7 +151,7 @@ function DF:CreateCoolTip()
 		
 		CoolTip._default_font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
 		
-	--> Create Frames
+	--> create frames
 	
 		--> main frame
 		local frame1
@@ -200,7 +203,7 @@ function DF:CreateCoolTip()
 		DF:FadeFrame (frame1, 0)
 		DF:FadeFrame (frame2, 0)
 
-		--> button containers
+		--> line container
 		frame1.Lines = {}
 		frame2.Lines = {}
 
@@ -265,13 +268,14 @@ function DF:CreateCoolTip()
 		CoolTip.buttonClicked = false
 		
 		frame1:SetScript ("OnEnter", function (self)
-			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then --> menu
+			--> is cooltip a menu?
+			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
 				CoolTip.active = true
 				CoolTip.mouseOver = true
 				CoolTip.had_interaction = true
 				self:SetScript ("OnUpdate", nil)
 				DF:FadeFrame (self, 0)
-				--rever
+				
 				if (CoolTip.sub_menus) then
 					DF:FadeFrame (frame2, 0)
 				end
@@ -387,191 +391,200 @@ function DF:CreateCoolTip()
 		end
 
 		local OnEnterUpdateButton = function (self, elapsed)
-									elapsedTime = elapsedTime+elapsed
-									if (elapsedTime > 0.001) then
-										--> search key: ~onenterupdatemain
-										CoolTip:ShowSub (self.index)
-										CoolTip.last_button = self.index
-										self:SetScript ("OnUpdate", nil)
-									end
-								end
-								
-		local OnLeaveUpdateButton = function (self, elapsed)
-								elapsedTime = elapsedTime+elapsed
-								if (elapsedTime > 0.7) then
-									if (not CoolTip.active and not CoolTip.buttonClicked) then
-										DF:FadeFrame (frame1, 1)
-										DF:FadeFrame (frame2, 1)
-							
-									elseif (not CoolTip.active) then
-										DF:FadeFrame (frame1, 1)
-										DF:FadeFrame (frame2, 1)
-									end
-									frame1:SetScript ("OnUpdate", nil)
-								end
-							end
-		
-		function CoolTip:NewMainButton (i)
-			local botao = CoolTip:CreateButton (i, frame1, "GameCooltipMainButton"..i)
-			
-			--> serach key: ~onenter
-			botao:SetScript ("OnEnter", function()
-							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
-								CoolTip.active = true
-								CoolTip.mouseOver = true
-								CoolTip.had_interaction = true
-
-								frame1:SetScript ("OnUpdate", nil)
-								frame2:SetScript ("OnUpdate", nil)
-
-								botao.background:Show()
-								
-								if (CoolTip.OptionsTable.IconBlendModeHover) then
-									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendModeHover)
-								else
-									botao.leftIcon:SetBlendMode ("BLEND")
-								end
-
-								if (CoolTip.PopupFrameTable [botao.index]) then
-									local on_enter, on_leave, param1, param2 = unpack (CoolTip.PopupFrameTable [botao.index])
-									if (on_enter) then
-										xpcall (on_enter, geterrorhandler(), frame1, param1, param2)
-									end
-								
-								elseif (CoolTip.IndexesSub [botao.index] and CoolTip.IndexesSub [botao.index] > 0) then
-									if (CoolTip.OptionsTable.SubMenuIsTooltip) then
-										CoolTip:ShowSub (botao.index)
-										botao.index = i
-									else
-										if (CoolTip.last_button) then
-											CoolTip:ShowSub (CoolTip.last_button)
-										else
-											CoolTip:ShowSub (botao.index)
-										end
-										elapsedTime = 0
-										botao.index = i
-										botao:SetScript ("OnUpdate", OnEnterUpdateButton)									
-									end
-
-								else
-									--hide second frame
-									DF:FadeFrame (frame2, 1)
-									CoolTip.last_button = nil
-								end
-							else
-								CoolTip.mouseOver = true
-								CoolTip.had_interaction = true
-							end
-						end)
-						
-			botao:SetScript ("OnLeave", function()
-							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
-								CoolTip.active = false
-								CoolTip.mouseOver = false
-								botao:SetScript ("OnUpdate", nil)
-								
-								botao.background:Hide()
-								
-								if (CoolTip.OptionsTable.IconBlendMode) then
-									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
-									botao.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
-								else
-									botao.leftIcon:SetBlendMode ("BLEND")
-									botao.rightIcon:SetBlendMode ("BLEND")
-								end
-								
-								if (CoolTip.PopupFrameTable [botao.index]) then
-									local on_enter, on_leave, param1, param2 = unpack (CoolTip.PopupFrameTable [botao.index])
-									if (on_leave) then
-										xpcall (on_leave, geterrorhandler(), frame1, param1, param2)
-									end
-								end
-								
-								elapsedTime = 0
-								frame1:SetScript ("OnUpdate", OnLeaveUpdateButton)
-								--CoolTip:HideSub (i)
-							else
-								CoolTip.active = false
-								elapsedTime = 0
-								frame1:SetScript ("OnUpdate", OnLeaveUpdateButton)
-								CoolTip.mouseOver = false
-							end
-			end)	
-			
-			return botao
+			elapsedTime = elapsedTime+elapsed
+			if (elapsedTime > 0.001) then
+				--> search key: ~onenterupdatemain
+				CoolTip:ShowSub (self.index)
+				CoolTip.last_button = self.index
+				self:SetScript ("OnUpdate", nil)
+			end
 		end
 		
+		local OnLeaveUpdateButton = function (self, elapsed)
+			elapsedTime = elapsedTime+elapsed
+			if (elapsedTime > 0.7) then
+				if (not CoolTip.active and not CoolTip.buttonClicked) then
+					DF:FadeFrame (frame1, 1)
+					DF:FadeFrame (frame2, 1)
+		
+				elseif (not CoolTip.active) then
+					DF:FadeFrame (frame1, 1)
+					DF:FadeFrame (frame2, 1)
+				end
+				frame1:SetScript ("OnUpdate", nil)
+			end
+		end
+		
+		local OnEnterMainButton = function (self)
+			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not self.isDiv) then
+				CoolTip.active = true
+				CoolTip.mouseOver = true
+				CoolTip.had_interaction = true
+
+				frame1:SetScript ("OnUpdate", nil)
+				frame2:SetScript ("OnUpdate", nil)
+
+				self.background:Show()
+				
+				if (CoolTip.OptionsTable.IconBlendModeHover) then
+					self.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendModeHover)
+				else
+					self.leftIcon:SetBlendMode ("BLEND")
+				end
+
+				if (CoolTip.PopupFrameTable [self.index]) then
+					local on_enter, on_leave, param1, param2 = unpack (CoolTip.PopupFrameTable [self.index])
+					if (on_enter) then
+						xpcall (on_enter, geterrorhandler(), frame1, param1, param2)
+					end
+				
+				elseif (CoolTip.IndexesSub [self.index] and CoolTip.IndexesSub [self.index] > 0) then
+					if (CoolTip.OptionsTable.SubMenuIsTooltip) then
+						CoolTip:ShowSub (self.index)
+						self.index = self.ID
+					else
+						if (CoolTip.last_button) then
+							CoolTip:ShowSub (CoolTip.last_button)
+						else
+							CoolTip:ShowSub (self.index)
+						end
+						elapsedTime = 0
+						self.index = self.ID
+						self:SetScript ("OnUpdate", OnEnterUpdateButton)									
+					end
+
+				else
+					--hide second frame
+					DF:FadeFrame (frame2, 1)
+					CoolTip.last_button = nil
+				end
+			else
+				CoolTip.mouseOver = true
+				CoolTip.had_interaction = true
+			end
+		end
+		
+		local OnLeaveMainButton = function (self)
+			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not self.isDiv) then
+				CoolTip.active = false
+				CoolTip.mouseOver = false
+				self:SetScript ("OnUpdate", nil)
+				
+				self.background:Hide()
+				
+				if (CoolTip.OptionsTable.IconBlendMode) then
+					self.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+					self.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+				else
+					self.leftIcon:SetBlendMode ("BLEND")
+					self.rightIcon:SetBlendMode ("BLEND")
+				end
+				
+				if (CoolTip.PopupFrameTable [self.index]) then
+					local on_enter, on_leave, param1, param2 = unpack (CoolTip.PopupFrameTable [self.index])
+					if (on_leave) then
+						xpcall (on_leave, geterrorhandler(), frame1, param1, param2)
+					end
+				end
+				
+				elapsedTime = 0
+				frame1:SetScript ("OnUpdate", OnLeaveUpdateButton)
+			else
+				CoolTip.active = false
+				elapsedTime = 0
+				frame1:SetScript ("OnUpdate", OnLeaveUpdateButton)
+				CoolTip.mouseOver = false
+			end
+		end
+		
+		function CoolTip:NewMainButton (i)
+			local newButton = CoolTip:CreateButton (i, frame1, "GameCooltipMainButton"..i)
+			
+			--> serach key: ~onenter
+			newButton.ID = i
+			newButton:SetScript ("OnEnter", OnEnterMainButton)
+			newButton:SetScript ("OnLeave", OnLeaveMainButton)
+			
+			return newButton
+		end
+		
+		--> buttons for the secondary frame
+		
 		local OnLeaveUpdateButtonSec = function (self, elapsed)
-								elapsedTime = elapsedTime+elapsed
-								if (elapsedTime > 0.7) then
-									if (not CoolTip.active and not CoolTip.buttonClicked) then
-										DF:FadeFrame (frame1, 1)
-										DF:FadeFrame (frame2, 1)
-									elseif (not CoolTip.active) then
-										DF:FadeFrame (frame1, 1)
-										DF:FadeFrame (frame2, 1)
-									end
-									frame2:SetScript ("OnUpdate", nil)
-								end
-							end
+			elapsedTime = elapsedTime+elapsed
+			if (elapsedTime > 0.7) then
+				if (not CoolTip.active and not CoolTip.buttonClicked) then
+					DF:FadeFrame (frame1, 1)
+					DF:FadeFrame (frame2, 1)
+				elseif (not CoolTip.active) then
+					DF:FadeFrame (frame1, 1)
+					DF:FadeFrame (frame2, 1)
+				end
+				frame2:SetScript ("OnUpdate", nil)
+			end
+		end
+		
+		local OnEnterSecondaryButton = function (self)
+			if (CoolTip.OptionsTable.SubMenuIsTooltip) then
+				return CoolTip:Close()
+			end
+			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not self.isDiv) then
+				CoolTip.active = true
+				CoolTip.mouseOver = true
+				CoolTip.had_interaction = true
+				
+				self.background:Show()
+				
+				if (CoolTip.OptionsTable.IconBlendModeHover) then
+					self.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendModeHover)
+				else
+					self.leftIcon:SetBlendMode ("BLEND")
+				end
+				
+				frame1:SetScript ("OnUpdate", nil)
+				frame2:SetScript ("OnUpdate", nil)
+				
+				DF:FadeFrame (frame1, 0)
+				DF:FadeFrame (frame2, 0)
+			else
+				CoolTip.mouseOver = true
+				CoolTip.had_interaction = true
+			end
+		end
+		
+		local OnLeaveSecondaryButton = function (self)
+			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
+				CoolTip.active = false
+				CoolTip.mouseOver = false
+				
+				self.background:Hide()
+				
+				if (CoolTip.OptionsTable.IconBlendMode) then
+					self.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+					self.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+				else
+					self.leftIcon:SetBlendMode ("BLEND")
+					self.rightIcon:SetBlendMode ("BLEND")
+				end
+				
+				elapsedTime = 0
+				frame2:SetScript ("OnUpdate", OnLeaveUpdateButtonSec)
+			else
+				CoolTip.active = false
+				CoolTip.mouseOver = false
+				elapsedTime = 0
+				frame2:SetScript ("OnUpdate", OnLeaveUpdateButtonSec)
+			end
+		end
 		
 		function CoolTip:NewSecondaryButton (i)
-			local botao = CoolTip:CreateButton (i, frame2, "GameCooltipSecButton"..i)
+			local newButton = CoolTip:CreateButton (i, frame2, "GameCooltipSecButton"..i)
 			
-			botao:SetScript ("OnEnter", function()
-							if (CoolTip.OptionsTable.SubMenuIsTooltip) then
-								return CoolTip:Close()
-							end
-							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
-								CoolTip.active = true
-								CoolTip.mouseOver = true
-								CoolTip.had_interaction = true
-								
-								botao.background:Show()
-								
-								if (CoolTip.OptionsTable.IconBlendModeHover) then
-									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendModeHover)
-								else
-									botao.leftIcon:SetBlendMode ("BLEND")
-								end
-								
-								frame1:SetScript ("OnUpdate", nil)
-								frame2:SetScript ("OnUpdate", nil)
-								
-								DF:FadeFrame (frame1, 0)
-								DF:FadeFrame (frame2, 0)
-							else
-								CoolTip.mouseOver = true
-								CoolTip.had_interaction = true
-							end
-						end)
-
-			botao:SetScript ("OnLeave", function()
-							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
-								CoolTip.active = false
-								CoolTip.mouseOver = false
-								
-								botao.background:Hide()
-								
-								if (CoolTip.OptionsTable.IconBlendMode) then
-									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
-									botao.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
-								else
-									botao.leftIcon:SetBlendMode ("BLEND")
-									botao.rightIcon:SetBlendMode ("BLEND")
-								end
-								
-								elapsedTime = 0
-								frame2:SetScript ("OnUpdate", OnLeaveUpdateButtonSec)
-							else
-								CoolTip.active = false
-								CoolTip.mouseOver = false
-								elapsedTime = 0
-								frame2:SetScript ("OnUpdate", OnLeaveUpdateButtonSec)
-							end
-			end)
+			newButton.ID = i
+			newButton:SetScript ("OnEnter", OnEnterSecondaryButton)
+			newButton:SetScript ("OnLeave", OnLeaveSecondaryButton)
 			
-			return botao
+			return newButton
 		end	
 		
 ----------------------------------------------------------------------
@@ -615,51 +628,62 @@ function DF:CreateCoolTip()
 			CoolTip:ShowSelectedTexture (frame)
 		end
 		
-		local OnClickFunctionButtonPrincipal = function (self, button)
-					if (CoolTip.IndexesSub [self.index] and CoolTip.IndexesSub [self.index] > 0) then
-						CoolTip:ShowSub (self.index)
-						CoolTip.last_button = self.index
-					end
-					
-					CoolTip.buttonClicked = true
-					CoolTip:SetSelectedAnchor (frame1, self)
-					
-					if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-						CoolTip:ShowSelectedTexture (frame1)
-						
-					end
-					CoolTip.SelectedIndexMain = self.index
-					
-					if (CoolTip.FunctionsTableMain [self.index]) then
-						local parameterTable = CoolTip.ParametersTableMain [self.index]
-						CoolTip.FunctionsTableMain [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
-					end
+		local OnClickFunctionMainButton = function (self, button)
+			if (CoolTip.IndexesSub [self.index] and CoolTip.IndexesSub [self.index] > 0) then
+				CoolTip:ShowSub (self.index)
+				CoolTip.last_button = self.index
+			end
+			
+			CoolTip.buttonClicked = true
+			CoolTip:SetSelectedAnchor (frame1, self)
+			
+			if (not CoolTip.OptionsTable.NoLastSelectedBar) then
+				CoolTip:ShowSelectedTexture (frame1)
+			end
+			CoolTip.SelectedIndexMain = self.index
+			
+			if (CoolTip.FunctionsTableMain [self.index]) then
+				local parameterTable = CoolTip.ParametersTableMain [self.index]
+				local func = CoolTip.FunctionsTableMain [self.index]
+				--> passing nil as the first parameter was a design mistake
+				--CoolTip.FunctionsTableMain [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
+				local okay, errortext = pcall (func, nil, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
+				if (not okay) then
+					print ("Cooltip OnClick Error:", errortext)
 				end
-				
-		local OnClickFunctionButtonSecundario = function (self, button)
-					CoolTip.buttonClicked = true
-					
-					CoolTip:SetSelectedAnchor (frame2, self)
-					
-					if (CoolTip.FunctionsTableSub [self.mainIndex] and CoolTip.FunctionsTableSub [self.mainIndex] [self.index]) then
-						local parameterTable = CoolTip.ParametersTableSub [self.mainIndex] [self.index]
-						CoolTip.FunctionsTableSub [self.mainIndex] [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
-					end
-					
-					local botao_p = frame1.Lines [self.mainIndex]
-					CoolTip:SetSelectedAnchor (frame1, botao_p)
+			end
+		end
+		
+		local OnClickFunctionSecondaryButton = function (self, button)
+			CoolTip.buttonClicked = true
+			
+			CoolTip:SetSelectedAnchor (frame2, self)
+			
+			if (CoolTip.FunctionsTableSub [self.mainIndex] and CoolTip.FunctionsTableSub [self.mainIndex] [self.index]) then
+				local parameterTable = CoolTip.ParametersTableSub [self.mainIndex] [self.index]
+				local func = CoolTip.FunctionsTableSub [self.mainIndex] [self.index]
+				--CoolTip.FunctionsTableSub [self.mainIndex] [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
+				local okay, errortext = pcall (func, nil, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
+				if (not okay) then
+					print ("Cooltip OnClick Error:", errortext)
+				end
+			end
+			
+			local botao_p = frame1.Lines [self.mainIndex]
+			CoolTip:SetSelectedAnchor (frame1, botao_p)
 
-					if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-						CoolTip:ShowSelectedTexture (frame1)
-					end
-					
-					CoolTip.SelectedIndexMain = self.mainIndex
-					CoolTip.SelectedIndexSec [self.mainIndex] = self.index
-					
-				end
+			if (not CoolTip.OptionsTable.NoLastSelectedBar) then
+				CoolTip:ShowSelectedTexture (frame1)
+			end
+			
+			CoolTip.SelectedIndexMain = self.mainIndex
+			CoolTip.SelectedIndexSec [self.mainIndex] = self.index
+		end
+		
+		
+		--> format functions
 		
 		function CoolTip:TextAndIcon (index, frame, menuButton, leftTextTable, rightTextTable, leftIconTable, rightIconTable, isSub)
-
 			--> reset width
 			menuButton.leftText:SetWidth (0)
 			menuButton.leftText:SetHeight (0)
@@ -1010,7 +1034,7 @@ function DF:CreateCoolTip()
 			end
 			
 			--> register click function
-			menuButton:SetScript ("OnClick", OnClickFunctionButtonPrincipal)
+			menuButton:SetScript ("OnClick", OnClickFunctionMainButton)
 			menuButton:Show()
 		end
 
@@ -1044,7 +1068,7 @@ function DF:CreateCoolTip()
 				frame2.w = stringWidth
 			end
 
-			menuButton:SetScript ("OnClick", OnClickFunctionButtonSecundario)
+			menuButton:SetScript ("OnClick", OnClickFunctionSecondaryButton)
 			menuButton:Show()
 
 			return true

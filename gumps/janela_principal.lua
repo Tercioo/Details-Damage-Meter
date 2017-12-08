@@ -5826,7 +5826,8 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:AddMenu (1, _detalhes.OpenForge)
 		CoolTip:AddIcon ([[Interface\MINIMAP\Vehicle-HammerGold-3]], 1, 1, 16, 16, 0, 1, 0, 1)
 		
-		CoolTip:AddLine (Loc ["STRING_MODE_OPENGUILDDAMAGERANK"])
+		--> statistics
+		CoolTip:AddLine ("Statistics") --curse localization isn't adding new strings (and I deleted the old one)
 		CoolTip:AddMenu (1, _detalhes.OpenRaidHistoryWindow)
 		CoolTip:AddIcon ([[Interface\PvPRankBadges\PvPRank08]], 1, 1, 16, 16, 0, 1, 0, 1)
 		

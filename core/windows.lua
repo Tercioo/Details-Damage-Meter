@@ -1192,7 +1192,7 @@
 			end
 			
 			DetailsRaidHistoryWindow.Initialized = true
-		
+			
 			local f = DetailsRaidHistoryWindow or CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent) --, "ButtonFrameTemplate"
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
@@ -1228,9 +1228,9 @@
 				titlebar:SetBackdropBorderColor (0, 0, 0, 1)
 				
 			--> menu title
-				local titleLabel = _detalhes.gump:NewLabel (titlebar, titlebar, nil, "titulo", "Statistics", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+				local titleLabel = _detalhes.gump:NewLabel (titlebar, titlebar, nil, "titulo", "Details! " .. Loc ["STRING_STATISTICS"], "GameFontNormal", 12) --{227/255, 186/255, 4/255}
 				titleLabel:SetPoint ("center", titlebar , "center")
-				titleLabel:SetPoint ("top", titlebar , "top", 0, -5)
+				titleLabel:SetPoint ("top", titlebar , "top", 0, -4)
 				
 			--> close button
 				f.Close = CreateFrame ("button", "$parentCloseButton", f)
@@ -1254,7 +1254,7 @@
 				insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize=1})
 				tutorialFrame:SetBackdropColor (0, 0, 0, 1)
 				
-				tutorialFrame.Title = _detalhes.gump:CreateLabel (tutorialFrame, Loc ["STRING_MODE_OPENGUILDDAMAGERANK"], 12, "orange")
+				tutorialFrame.Title = _detalhes.gump:CreateLabel (tutorialFrame, "Statistics" , 12, "orange") --curse localization isn't adding new strings (and I deleted the old one)
 				tutorialFrame.Title:SetPoint ("top", tutorialFrame, "top", 0, -5)
 				
 				tutorialFrame.Desc = _detalhes.gump:CreateLabel (tutorialFrame, Loc ["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"], 12)
