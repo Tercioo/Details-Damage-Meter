@@ -2729,6 +2729,27 @@ local do_SMA = function (value, max_value)
 	
 end
 
+local chart_panel_onresize = function (self)
+	local width, height = self:GetSize()
+	local spacement = width - 78 - 60
+	spacement = spacement / 16
+	
+	for i = 1, 17 do
+		local label = self.TimeLabels [i]
+		label:SetPoint ("bottomleft", self, "bottomleft", 78 + ((i-1)*spacement), 13)
+		label.line:SetHeight (height - 45)
+	end
+	
+	local spacement = (self.Graphic:GetHeight()) / 8
+	for i = 1, 8 do
+		self ["dpsamt"..i]:SetPoint ("TOPLEFT", self, "TOPLEFT", 27, -25 + (-(spacement* (i-1))) )
+		self ["dpsamt"..i].line:SetWidth (width-20)
+	end
+	
+	self.Graphic:SetSize (width - 135, height - 67)
+	self.Graphic:SetPoint ("topleft", self, "topleft", 108, -35)
+end
+
 local chart_panel_add_data = function (self, graphicData, color, name, elapsed_time, lineTexture, smoothLevel, firstIndex)
 
 	local f = self
@@ -2863,28 +2884,11 @@ local chart_panel_add_data = function (self, graphicData, color, name, elapsed_t
 	
 	f:SetTime (max_time)
 	
+	chart_panel_onresize (f)
+	
 end
 
-local chart_panel_onresize = function (self)
-	local width, height = self:GetSize()
-	local spacement = width - 78 - 60
-	spacement = spacement / 16
-	
-	for i = 1, 17 do
-		local label = self.TimeLabels [i]
-		label:SetPoint ("bottomleft", self, "bottomleft", 78 + ((i-1)*spacement), 13)
-		label.line:SetHeight (height - 45)
-	end
-	
-	local spacement = (self.Graphic:GetHeight()) / 8
-	for i = 1, 8 do
-		self ["dpsamt"..i]:SetPoint ("TOPLEFT", self, "TOPLEFT", 27, -25 + (-(spacement* (i-1))) )
-		self ["dpsamt"..i].line:SetWidth (width-20)
-	end
-	
-	self.Graphic:SetSize (width - 135, height - 67)
-	self.Graphic:SetPoint ("topleft", self, "topleft", 108, -35)
-end
+
 
 local chart_panel_vlines_on = function (self)
 	for i = 1, 17 do
