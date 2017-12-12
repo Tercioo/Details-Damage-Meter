@@ -1172,7 +1172,7 @@
 	function _detalhes:InitializeRaidHistoryWindow()
 		local DetailsRaidHistoryWindow = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent)
 		DetailsRaidHistoryWindow.Frame = DetailsRaidHistoryWindow
-		DetailsRaidHistoryWindow.__name = "Statistics"
+		DetailsRaidHistoryWindow.__name = Loc ["STRING_STATISTICS"]
 		DetailsRaidHistoryWindow.real_name = "DETAILS_STATISTICS"
 		DetailsRaidHistoryWindow.__icon = [[Interface\PvPRankBadges\PvPRank08]]
 		DetailsPluginContainerWindow.EmbedPlugin (DetailsRaidHistoryWindow, DetailsRaidHistoryWindow, true)
@@ -1289,6 +1289,8 @@
 			div:SetPoint ("topleft", f, "topleft", 180, -64)
 			div:SetHeight (574)
 			
+			--gradient
+			--[=[
 			local blackdiv = f:CreateTexture (nil, "artwork")
 			blackdiv:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
 			blackdiv:SetVertexColor (0, 0, 0)
@@ -1304,6 +1306,7 @@
 			blackdiv:SetPoint ("topleft", f, "topleft", 0, 0)
 			blackdiv:SetPoint ("bottomleft", f, "bottomleft", 0, 0)
 			blackdiv:SetWidth (200)
+			--]=]
 			
 			--select history or guild rank
 			local options_switch_template = _detalhes.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")

@@ -845,6 +845,8 @@ local menus2 = {
 			return true
 		end
 		
+		--[=[
+		--> gradient
 		local blackdiv = window:CreateTexture (nil, "artwork")
 		blackdiv:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
 		blackdiv:SetVertexColor (0, 0, 0)
@@ -852,6 +854,7 @@ local menus2 = {
 		blackdiv:SetPoint ("topleft", window.frame, "topleft", 0, 0)
 		blackdiv:SetPoint ("bottomleft", window.frame, "bottomleft", 0, 0)
 		blackdiv:SetWidth (200)
+		--]=]
 		
 		--move buttons creation to loading process
 		function window:create_left_menu()

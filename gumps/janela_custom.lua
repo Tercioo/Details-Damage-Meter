@@ -79,16 +79,35 @@
 		_G.DetailsCustomPanel:Hide()
 	end
 
+	
+	function _detalhes:InitializeCustomDisplayWindow()
+		local DetailsCustomPanel = CreateFrame ("frame", "DetailsCustomPanel", UIParent)
+		DetailsCustomPanel.Frame = DetailsCustomPanel
+		DetailsCustomPanel.__name = "Custom Display"
+		DetailsCustomPanel.real_name = "DETAILS_CUSTOMDISPLAY"
+		DetailsCustomPanel.__icon = [[Interface\FriendsFrame\UI-FriendsList-Small-Up]]
+		DetailsPluginContainerWindow.EmbedPlugin (DetailsCustomPanel, DetailsCustomPanel, true)
+	
+		function DetailsCustomPanel.RefreshWindow()
+			_detalhes:OpenCustomDisplayWindow()
+		end
+	end
+	
 	function _detalhes:OpenCustomDisplayWindow()
 
-		if (not _G.DetailsCustomPanel) then
+		if (not _G.DetailsCustomPanel or not DetailsCustomPanel.Initialized) then
+		
+		DetailsPluginContainerWindow.OpenPlugin (DetailsCustomPanel)
 	
 			local GameCooltip = GameCooltip
+			DetailsCustomPanel.Initialized = true
 	
 			--> main frame
-			local custom_window = _CreateFrame ("frame", "DetailsCustomPanel", UIParent)
+			local custom_window = DetailsCustomPanel or _CreateFrame ("frame", "DetailsCustomPanel", UIParent)
+			local f = custom_window
+			
 			custom_window:SetPoint ("center", UIParent, "center")
-			custom_window:SetSize (850, 370)
+			custom_window:SetSize (850, 500)
 			custom_window:EnableMouse (true)
 			custom_window:SetMovable (true)
 			custom_window:SetScript ("OnMouseDown", function (self, button)
@@ -114,17 +133,49 @@
 			end)
 			
 			tinsert (UISpecialFrames, "DetailsCustomPanel")
-			
-			--> background texture
-			custom_window.background = custom_window:CreateTexture (nil, "border")
-			custom_window.background:SetTexture ([[Interface\AddOns\Details\images\custom_bg]])
-			custom_window.background:SetPoint ("topleft", custom_window, "topleft")
-			--custom_window.background:Hide()
-			
-			local bigdog = gump:NewImage (custom_window, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
-			bigdog:SetPoint ("bottomleft", custom_window, "bottomleft", 15, 9)
-			bigdog:SetAlpha (0.5)
 
+			
+			--> menu title bar
+				local titlebar = CreateFrame ("frame", nil, f)
+				titlebar:SetPoint ("topleft", f, "topleft", 2, -3)
+				titlebar:SetPoint ("topright", f, "topright", -2, -3)
+				titlebar:SetHeight (20)
+				titlebar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+				titlebar:SetBackdropColor (.5, .5, .5, 1)
+				titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+				
+			--> menu title
+				local titleLabel = _detalhes.gump:NewLabel (titlebar, titlebar, nil, "titulo", "Details! Custom Displays", "GameFontNormal", 12)
+				titleLabel:SetPoint ("center", titlebar , "center")
+				titleLabel:SetPoint ("top", titlebar , "top", 0, -4)
+				
+			--> close button
+				f.Close = CreateFrame ("button", "$parentCloseButton", f)
+				f.Close:SetPoint ("right", titlebar, "right", -2, 0)
+				f.Close:SetSize (16, 16)
+				f.Close:SetNormalTexture (_detalhes.gump.folder .. "icons")
+				f.Close:SetHighlightTexture (_detalhes.gump.folder .. "icons")
+				f.Close:SetPushedTexture (_detalhes.gump.folder .. "icons")
+				f.Close:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
+				f.Close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
+				f.Close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+				f.Close:SetAlpha (0.7)
+				f.Close:SetScript ("OnClick", function() f:Hide() end)			
+			
+			--> background
+				f.bg1 = f:CreateTexture (nil, "background")
+				f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+				f.bg1:SetAlpha (0.7)
+				f.bg1:SetVertexColor (0.27, 0.27, 0.27)
+				f.bg1:SetVertTile (true)
+				f.bg1:SetHorizTile (true)
+				f.bg1:SetAllPoints()
+				
+				f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+				f:SetBackdropColor (.5, .5, .5, .5)
+				f:SetBackdropBorderColor (0, 0, 0, 1)
+				
+			
 			--> close button
 			custom_window.close = _CreateFrame ("button", nil, custom_window, "UIPanelCloseButton")
 			custom_window.close:SetSize (32, 32)
@@ -136,35 +187,9 @@
 			custom_window.close:SetScript ("OnHide", function()
 				_detalhes:CloseCustomDisplayWindow()
 			end)
-
-			--> title
-			custom_window.title = gump:NewLabel (custom_window, nil, nil, nil, "Custom Display", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-			custom_window.title:SetPoint ("center", custom_window, "center")
-			custom_window.title:SetPoint ("top", custom_window, "top", 0, -18)
 			
-			--> icon
-			custom_window.icon = custom_window:CreateTexture (nil, "background")
-			custom_window.icon:SetPoint ("topleft", custom_window, "topleft", 4, 0)
-			custom_window.icon:SetSize (64, 64)
-			custom_window.icon:SetDrawLayer ("background", 2)
-			custom_window.icon:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
-			custom_window.icon:SetTexCoord (0, 0.25, 0.25, 0.5)
 
-			--> menu background
-			custom_window.menubackground = custom_window:CreateTexture (nil, "background")
-			custom_window.menubackground:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
-			custom_window.menubackground:SetPoint ("topleft", custom_window, "topleft", 19, -34)
-			custom_window.menubackground:SetSize (151, 326)
-			custom_window.menubackground:SetDrawLayer ("background", 1)
-			custom_window.menubackground:SetAlpha (0.75)
-			
-			--> select panel background
-			custom_window.selectbackground = custom_window:CreateTexture (nil, "background")
-			custom_window.selectbackground:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
-			custom_window.selectbackground:SetPoint ("topleft", custom_window, "topleft", 175, -36)
-			custom_window.selectbackground:SetSize (666, 324)
-			custom_window.selectbackground:SetDrawLayer ("background", 1)
-			custom_window.selectbackground:SetAlpha (0.75)
+
 			
 			DetailsCustomPanel.BoxType = 1
 			DetailsCustomPanel.IsEditing = false

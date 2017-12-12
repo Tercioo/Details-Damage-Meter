@@ -525,6 +525,7 @@
 					backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 					backdropcolor = {0, 0, 0, .5},
 					backdropbordercolor = {0, 0, 0, 1},
+					onentercolor = {0.3, 0.3, 0.3, .5},
 				}
 			)
 			_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE", 
@@ -532,6 +533,7 @@
 					backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 					backdropcolor = {0, 0, 0, .5},
 					backdropbordercolor = {1, 1, 0, 1},
+					onentercolor = {0.3, 0.3, 0.3, .5},
 				}
 			)
 		

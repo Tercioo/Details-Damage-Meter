@@ -81,6 +81,8 @@ function _G._detalhes:Start()
 			self:InitializeForge() --to install into the container plugin
 			self:InitializeRaidHistoryWindow()
 			self:InitializeOptionsWindow()
+			self:InitializeAuraCreationWindow()
+			self:InitializeCustomDisplayWindow()
 			
 		--> bookmarks
 			if (self.switch.InitSwitch) then

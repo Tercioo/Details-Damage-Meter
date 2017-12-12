@@ -5822,12 +5822,12 @@ local build_mode_list = function (self, elapsed)
 		GameCooltip:AddLine ("$div")
 		
 		--> forge and history buttons
-		CoolTip:AddLine (Loc ["STRING_MODE_OPENFORGE"])
+		CoolTip:AddLine (Loc ["STRING_SPELLLIST"])
 		CoolTip:AddMenu (1, _detalhes.OpenForge)
 		CoolTip:AddIcon ([[Interface\MINIMAP\Vehicle-HammerGold-3]], 1, 1, 16, 16, 0, 1, 0, 1)
 		
 		--> statistics
-		CoolTip:AddLine ("Statistics") --curse localization isn't adding new strings (and I deleted the old one)
+		CoolTip:AddLine (Loc ["STRING_STATISTICS"])
 		CoolTip:AddMenu (1, _detalhes.OpenRaidHistoryWindow)
 		CoolTip:AddIcon ([[Interface\PvPRankBadges\PvPRank08]], 1, 1, 16, 16, 0, 1, 0, 1)
 		
