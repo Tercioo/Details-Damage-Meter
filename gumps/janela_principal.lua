@@ -5661,11 +5661,9 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:SetOption ("YSpacingMod", 1)
 		
 		CoolTip:SetOption ("HeighMod", 3)
+		CoolTip:SetOption ("SubFollowButton", true)
 		
 		_detalhes:SetTooltipMinWidth()
-		
-		--CoolTip:SetOption ("FixedHeight", 106)
-		--CoolTip:SetOption ("FixedWidthSub", 146)
 		
 		CoolTip:AddLine (Loc ["STRING_MODE_GROUP"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 2, true)
@@ -5693,12 +5691,8 @@ local build_mode_list = function (self, elapsed)
 			end
 			
 			CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-			
-			if (amt <= 3) then
-				CoolTip:SetOption ("SubFollowButton", true)
-			end
 		end
-		
+
 		CoolTip:AddLine (Loc ["STRING_MODE_SELF"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 1, true)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0, 32/256, 0, 1)
@@ -6008,6 +6002,8 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:SetOption ("FixedWidthSub", 195)
 		CoolTip:SetOption ("RightTextWidth", 105)
 		CoolTip:SetOption ("RightTextHeight", 12)
+		
+		CoolTip:SetOption ("SubFollowButton", true)
 	
 		----------- segments
 		local menuIndex = 0

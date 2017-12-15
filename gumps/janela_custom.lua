@@ -34,9 +34,57 @@
 	local _IsAltKeyDown = IsAltKeyDown --api local
 	local _IsShiftKeyDown = IsShiftKeyDown --api local
 	local _IsControlKeyDown = IsControlKeyDown --api local
-
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
+	
+	local CONST_MENU_X_POSITION = 10
+	local CONST_MENU_Y_POSITION = -40
+	local CONST_MENU_WIDTH = 160
+	local CONST_MENU_HEIGHT = 20
+	
+	local CONST_INFOBOX_X_POSITION = 220
+	local CONST_EDITBUTTONS_X_POSITION = 560
+	
+	local CONST_EDITBOX_Y_POSITION = -200
+	local CONST_EDITBOX_WIDTH = 900
+	local CONST_EDITBOX_HEIGHT = 370
+	
+	local CONST_EDITBOX_BUTTON_WIDTH = 80
+	local CONST_EDITBOX_BUTTON_HEIGHT = 20
+	
+	local CONST_BUTTON_TEMPLATE = gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	local CONST_TEXTENTRY_TEMPLATE = gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	
+	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS", {
+		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+		backdropcolor = {1, 1, 1, .5},
+		backdropbordercolor = {0, 0, 0, 1},
+		textcolor = "white",
+		textsize = 10,
+		icon = {texture = [[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]]},
+	})
+	
+	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX", {
+		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+		backdropcolor = {.2, .2, .2, 0.6},
+		backdropbordercolor = {0, 0, 0, 1},
+	})
+	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED", {
+		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+		backdropcolor = {.2, .2, .2, 1},
+		backdropbordercolor = {0, 0, 0, 1},
+	})
+	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON", {
+		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+		backdropcolor = {.2, .2, .2, 1},
+		backdropbordercolor = {0, 0, 0, 1},
+	})
+	
+	local CONST_CODETEXTENTRY_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX")
+	local CONST_CODETEXTENTRYEXPANDED_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED")
+	local CONST_CODETEXTENTRYBUTTON_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON")
+	local CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS")
 	
 	local atributos = _detalhes.atributos
 	local sub_atributos = _detalhes.sub_atributos
@@ -58,10 +106,10 @@
 		["script"] = true,
 		["tooltip"] = true,
 	}
-
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> create the window
-
+	
 	function _detalhes:CloseCustomDisplayWindow()
 	
 		--> cancel editing or creation
@@ -78,12 +126,11 @@
 		--> hide the frame
 		_G.DetailsCustomPanel:Hide()
 	end
-
 	
 	function _detalhes:InitializeCustomDisplayWindow()
 		local DetailsCustomPanel = CreateFrame ("frame", "DetailsCustomPanel", UIParent)
 		DetailsCustomPanel.Frame = DetailsCustomPanel
-		DetailsCustomPanel.__name = "Custom Display"
+		DetailsCustomPanel.__name = "Custom Displays"
 		DetailsCustomPanel.real_name = "DETAILS_CUSTOMDISPLAY"
 		DetailsCustomPanel.__icon = [[Interface\FriendsFrame\UI-FriendsList-Small-Up]]
 		DetailsPluginContainerWindow.EmbedPlugin (DetailsCustomPanel, DetailsCustomPanel, true)
@@ -94,7 +141,7 @@
 	end
 	
 	function _detalhes:OpenCustomDisplayWindow()
-
+	
 		if (not _G.DetailsCustomPanel or not DetailsCustomPanel.Initialized) then
 		
 		DetailsPluginContainerWindow.OpenPlugin (DetailsCustomPanel)
@@ -160,7 +207,10 @@
 				f.Close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
 				f.Close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
 				f.Close:SetAlpha (0.7)
-				f.Close:SetScript ("OnClick", function() f:Hide() end)			
+				f.Close:SetScript ("OnClick", function() _detalhes:CloseCustomDisplayWindow() end)			
+				f.Close:SetScript ("OnHide", function()
+					_detalhes:CloseCustomDisplayWindow()
+				end)
 			
 			--> background
 				f.bg1 = f:CreateTexture (nil, "background")
@@ -174,23 +224,7 @@
 				f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 				f:SetBackdropColor (.5, .5, .5, .5)
 				f:SetBackdropBorderColor (0, 0, 0, 1)
-				
-			
-			--> close button
-			custom_window.close = _CreateFrame ("button", nil, custom_window, "UIPanelCloseButton")
-			custom_window.close:SetSize (32, 32)
-			custom_window.close:SetPoint ("topright", custom_window, "topright", 5, -8)
-			custom_window.close:SetFrameLevel (custom_window:GetFrameLevel()+2)
-			custom_window.close:SetScript ("OnClick", function() 
-				_detalhes:CloseCustomDisplayWindow()
-			end)
-			custom_window.close:SetScript ("OnHide", function()
-				_detalhes:CloseCustomDisplayWindow()
-			end)
-			
 
-
-			
 			DetailsCustomPanel.BoxType = 1
 			DetailsCustomPanel.IsEditing = false
 			DetailsCustomPanel.IsImporting = false
@@ -680,11 +714,10 @@
 				
 				custom_window.codeeditor:Show()
 				DetailsCustomPanel.CodeEditing = code
-				DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_DONE"])
+				
+				DetailsCustomPanel:SetAcceptButtonText ("Save Code") --Loc ["STRING_CUSTOM_DONE"]
 			end
-			
 
-			
 			--> left menu
 			custom_window.menu = {}
 			local menu_start = -50
@@ -692,45 +725,21 @@
 			menu_up_frame:SetFrameLevel (custom_window:GetFrameLevel()+2)
 			
 			local onenter = function (self)
-				self.icontexture:SetVertexColor (1, 1, 1, 1)
+				--self.icontexture:SetVertexColor (1, 1, 1, 1)
 			end
 			local onleave = function (self)
-				self.icontexture:SetVertexColor (.9, .9, .9, 1)
+				--self.icontexture:SetVertexColor (.9, .9, .9, 1)
 			end
 			
 			function custom_window:CreateMenuButton (label, icon, clickfunc, param1, param2, tooltip, name, coords)
-			
 				local index = #custom_window.menu+1
+
+				local button = gump:NewButton (self, nil, "$parent" .. name, nil, CONST_MENU_WIDTH, CONST_MENU_HEIGHT, clickfunc, param1, param2, nil, label)
+				button:SetPoint ("topleft", self, "topleft", CONST_MENU_X_POSITION, CONST_MENU_Y_POSITION + ((index-1)*-23))
 				
-				local circle = menu_up_frame:CreateTexture (nil, "overlay")
-				circle:SetSize (128*0.5, 82*0.5)
-				circle:SetPoint ("topleft", self, "topleft", 13, ((82*0.5)*index*-1) + menu_start)
-				circle:SetTexture ("Interface\\Glues\\CHARACTERCREATE\\AlternateForm")
-				circle:SetTexCoord (0, 1, 0, 0.3203125)
-				circle:SetDrawLayer ("overlay", 4)
+				button:SetTemplate (CONST_BUTTON_TEMPLATE)
+				button:SetIcon (icon, CONST_MENU_HEIGHT-4, CONST_MENU_HEIGHT-4, "overlay", {.1, .9, .1, .9})
 				
-				local texture = menu_up_frame:CreateTexture (nil, "overlay")
-				texture:SetSize (128*0.23, 82*0.32)
-				texture:SetTexture (icon)
-				--texture:SetDesaturated (true)
-				texture:SetVertexColor (.9, .9, .9, 1)
-				if (coords) then
-					texture:SetTexCoord (unpack (coords))
-				else
-					texture:SetTexCoord (5/64, 60/64, 4/64, 62/64)
-				end
-				texture:SetPoint ("topleft", circle, "topleft", 5, -9)
-				texture:SetDrawLayer ("overlay", 3)
-				
-				local fillgap = menu_up_frame:CreateTexture (nil, "overlay")
-				fillgap:SetDrawLayer ("overlay", 2)
-				fillgap:SetTexture (0, 0, 0, 1)
-				fillgap:SetSize (2, 10)
-				fillgap:SetPoint ("left", texture, "right")
-				
-				local button = gump:NewButton (self, nil, "$parent" .. name, nil, 110, 20, clickfunc, param1, param2, nil, label)
-				button:SetPoint ("topleft", circle, "topright", -32, -14)
-				button:InstallCustomTexture()
 				button:SetHook ("OnEnter", onenter)
 				button:SetHook ("OnLeave", onleave)
 				button.widget.icontexture = texture
@@ -767,14 +776,14 @@
 				GameCooltip:Hide()
 				DetailsCustomPanel:StartEdit (custom_object)
 			end
-			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EDIT"], "Interface\\ICONS\\INV_Inscription_RunescrollOfFortitude_Red", build_menu, start_edit, nil, nil, "Edit", {0.07, 0.93, 0.07, 0.93}) --> localize
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EDIT"], "Interface\\ICONS\\INV_Inscription_RunescrollOfFortitude_Red", build_menu, start_edit, nil, nil, "Edit", {0.07, 0.93, 0.07, 0.93})
 			
 			--> remove button
 			local remove_display = function (_, _, custom_object, index)
 				GameCooltip:Hide()
 				DetailsCustomPanel:RemoveDisplay (custom_object, index)
 			end
-			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_REMOVE"], "Interface\\ICONS\\Spell_BrokenHeart", build_menu, remove_display, nil, nil, "Remove", {1, 0, 0, 1}) --> localize
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_REMOVE"], "Interface\\ICONS\\Spell_BrokenHeart", build_menu, remove_display, nil, nil, "Remove", {1, 0, 0, 1})
 			
 			--> export button
 			local export_display = function (_, _, custom_object, index)
@@ -798,10 +807,11 @@
 				local encoded = _detalhes._encode:Encode (serialized_table)
 				
 				if (not custom_window.ExportBox) then
-					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentExportBox", "ExportBox", 842, 20)
-					editbox:SetPoint ("topleft", DetailsCustomPanel, "bottomleft", 10, 0)
-					editbox:SetPoint ("topright", DetailsCustomPanel, "bottomright")
+					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentExportBox", "ExportBox", CONST_EDITBOX_WIDTH, 20)
+					editbox:SetPoint ("bottomleft", custom_window, "bottomleft", 10, 6)
+					--editbox:SetPoint ("bottomright", custom_window, "bottomright", -10, 6)
 					editbox:SetAutoFocus (false)
+					editbox:SetTemplate (CONST_TEXTENTRY_TEMPLATE)
 					editbox:SetHook ("OnEditFocusLost", function() 
 						editbox:Hide()
 					end)
@@ -830,12 +840,13 @@
 				
 				if (not custom_window.ImportBox) then
 				
-					local export_string = gump:NewLabel (custom_window, custom_window, "$parenImportLabel", "exportLabel", Loc ["STRING_CUSTOM_PASTE"], "GameFontNormal")
-					export_string:SetPoint ("topleft", DetailsCustomPanel, "bottomleft", 10, -5)
-				
-					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentImportBox", "ImportBox", 772 - export_string.width - 2, 20)
+					local export_string = gump:NewLabel (custom_window, custom_window, "$parenImportLabel", "exportLabel", "Import String:", "GameFontNormal") --Loc ["STRING_CUSTOM_PASTE"]
+					export_string:SetPoint ("bottomleft", DetailsCustomPanel, "bottomleft", 10, 8)
+					
+					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentImportBox", "ImportBox", CONST_EDITBOX_WIDTH - export_string.width - CONST_EDITBOX_BUTTON_WIDTH - 4, 20)
 					editbox:SetPoint ("left", export_string, "right", 2, 0)
 					editbox:SetAutoFocus (false)
+					editbox:SetTemplate (CONST_TEXTENTRY_TEMPLATE)
 					
 					local import = function()
 						local text = editbox:GetText()
@@ -876,8 +887,8 @@
 						custom_window.ImportConfirm:Hide()
 					end
 					
-					local okey_button = gump:NewButton (custom_window, nil, "$parentImportConfirm", "ImportConfirm", 65, 18, import, nil, nil, nil, Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
-					okey_button:InstallCustomTexture()
+					local okey_button = gump:NewButton (custom_window, nil, "$parentImportConfirm", "ImportConfirm", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, import, nil, nil, nil, Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
+					okey_button:SetTemplate (CONST_BUTTON_TEMPLATE)
 					okey_button:SetPoint ("left", editbox, "right", 2, 0)
 				end
 				
@@ -914,15 +925,12 @@
 				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
 				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
 			}
-
+			
 			--> create box
 			local attribute_box = _CreateFrame ("frame", nil, custom_window)
 			attribute_box:SetPoint ("topleft", custom_window, "topleft", 200, -60)
 			attribute_box:SetSize (180, 260)
-			--attribute_box:SetBackdrop ({
-			--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
-			--	tile = true, tileSize = 16})
-			--attribute_box:SetBackdropColor (1, 1, 1, 1)
+			attribute_box:Hide()
 			
 			local button_onenter = function (self)
 				self:SetBackdropColor (.3, .3, .3, .3)
@@ -932,8 +940,6 @@
 				self:SetBackdropColor (0, 0, 0, .2)
 				self.icon:SetBlendMode ("BLEND")
 			end
-
-			--960 1020 68 101
 			
 			local selected_left = attribute_box:CreateTexture (nil, "overlay")
 			selected_left:SetTexture ([[Interface\Store\Store-Main]])
@@ -958,44 +964,41 @@
 			selected_center:SetPoint ("left", selected_left, "right")
 			selected_center:SetPoint ("right", selected_right, "left")
 			
-			--selected_center:SetHorizTile (true)
-			--selected_center:SetVertTile (true)
-			
 			local p = 0.0625 --> 32/512
 			
 			for i = 1, 10 do
 			
 				if (attributes [i]) then
 			
-				local button = _CreateFrame ("button", "DetailsCustomPanelAttributeMenu" .. i, attribute_box)
-				button:SetPoint ("topleft", attribute_box, "topleft", 2, ((i-1)*23*-1) + (-26))
-				button:SetPoint ("topright", attribute_box, "topright", 2, ((i-1)*23*-1) + (-26))
-				button:SetHeight (20)
-				
-				button:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16})
-				button:SetBackdropColor (0, 0, 0, .2)
-				
-				button:SetScript ("OnEnter", button_onenter)
-				button:SetScript ("OnLeave", button_onleave)
-				
-				button.attribute_table = attributes [i]
-				
-				if (attributes [i] and not attributes [i].attribute) then
-					custom_window.script_button_attribute = button
-				end
-				
-				button:SetScript ("OnClick", select_attribute)
-				
-				button.icon = button:CreateTexture (nil, "overlay")
-				button.icon:SetPoint ("left", button, "left", 6, 0)
-				button.icon:SetSize (22, 22)
-				button.icon:SetTexture ([[Interface\AddOns\Details\images\custom_icones]])
-				button.icon:SetTexCoord (p*(i-1), p*(i), 0, 1)
-				
-				button.text = button:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-				button.text:SetPoint ("left", button.icon, "right", 4, 0)
-				button.text:SetText (attributes [i] and attributes [i].label or "")
-				button.text:SetTextColor (.9, .9, .9, 1)
+					local button = _CreateFrame ("button", "DetailsCustomPanelAttributeMenu" .. i, attribute_box)
+					button:SetPoint ("topleft", attribute_box, "topleft", 2, ((i-1)*23*-1) + (-26))
+					button:SetPoint ("topright", attribute_box, "topright", 2, ((i-1)*23*-1) + (-26))
+					button:SetHeight (20)
+					
+					button:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16})
+					button:SetBackdropColor (0, 0, 0, .2)
+					
+					button:SetScript ("OnEnter", button_onenter)
+					button:SetScript ("OnLeave", button_onleave)
+					
+					button.attribute_table = attributes [i]
+					
+					if (attributes [i] and not attributes [i].attribute) then
+						custom_window.script_button_attribute = button
+					end
+					
+					button:SetScript ("OnClick", select_attribute)
+					
+					button.icon = button:CreateTexture (nil, "overlay")
+					button.icon:SetPoint ("left", button, "left", 6, 0)
+					button.icon:SetSize (22, 22)
+					button.icon:SetTexture ([[Interface\AddOns\Details\images\custom_icones]])
+					button.icon:SetTexCoord (p*(i-1), p*(i), 0, 1)
+					
+					button.text = button:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+					button.text:SetPoint ("left", button.icon, "right", 4, 0)
+					button.text:SetText (attributes [i] and attributes [i].label or "")
+					button.text:SetTextColor (.9, .9, .9, 1)
 				
 				end
 			end
@@ -1004,19 +1007,16 @@
 			local box0 = _CreateFrame ("frame", "DetailsCustomPanelBox0", custom_window)
 			custom_window.box0 = box0
 			box0:SetSize (450, 360)
-			--box0:SetBackdrop ({
-			--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
-			--	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-			--	tile = true, tileSize = 16, edgeSize = 12})
-			--box0:SetBackdropColor (0, 0, 0, .5)
-			box0:SetPoint ("topleft", attribute_box, "topright", 26, 10)
+
+			box0:SetPoint ("topleft", custom_window, "topleft", CONST_INFOBOX_X_POSITION, CONST_MENU_Y_POSITION-4)
 			
 			--name
 				local name_label = gump:NewLabel (box0, box0, "$parenNameLabel", "name", Loc ["STRING_CUSTOM_NAME"], "GameFontHighlightLeft") --> localize-me
-				name_label:SetPoint ("topleft", box0, "topleft", 10, -20)
+				name_label:SetPoint ("topleft", box0, "topleft", 10, 0)
 				
 				local name_field = gump:NewTextEntry (box0, nil, "$parentNameEntry", "nameentry", 200, 20)
 				name_field:SetPoint ("left", name_label, "left", 62, 0)
+				name_field:SetTemplate (CONST_TEXTENTRY_TEMPLATE)
 				name_field.tooltip = Loc ["STRING_CUSTOM_NAME_DESC"]
 				custom_window.name_field = name_field
 				
@@ -1026,6 +1026,7 @@
 				
 				local author_field = gump:NewTextEntry (box0, nil, "$parentAuthorEntry", "authorentry", 200, 20)
 				author_field:SetPoint ("left", author_label, "left", 62, 0)
+				author_field:SetTemplate (CONST_TEXTENTRY_TEMPLATE)
 				author_field.tooltip = Loc ["STRING_CUSTOM_AUTHOR_DESC"]
 				author_field:SetText (UnitName ("player") .. "-" .. GetRealmName())
 				custom_window.author_field = author_field
@@ -1036,6 +1037,7 @@
 				
 				local desc_field = gump:NewTextEntry (box0, nil, "$parentDescEntry", "descentry", 200, 20)
 				desc_field:SetPoint ("left", desc_label, "left", 62, 0)
+				desc_field:SetTemplate (CONST_TEXTENTRY_TEMPLATE)
 				desc_field.tooltip = Loc ["STRING_CUSTOM_DESCRIPTION_DESC"]
 				custom_window.desc_field = desc_field
 
@@ -1059,13 +1061,14 @@
 
 			--cancel
 				local cancel_button = gump:NewButton (box0, nil, "$parentCancelButton", "cancelbutton", 130, 20, DetailsCustomPanel.CancelFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CANCEL"])
-				cancel_button:SetPoint ("bottomleft", attribute_box, "bottomright", 37, -10)
-				cancel_button:InstallCustomTexture()
+				--cancel_button:SetPoint ("bottomleft", attribute_box, "bottomleft", 2, 0)
+				cancel_button:SetPoint ("topleft", icon_label, "bottomleft", 0, -10)
+				cancel_button:SetTemplate (CONST_BUTTON_TEMPLATE)
 				
 			--accept
 				local accept_button = gump:NewButton (box0, nil, "$parentAcceptButton", "acceptbutton", 130, 20, DetailsCustomPanel.AcceptFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CREATE"])
 				accept_button:SetPoint ("left", cancel_button, "right", 2, 0)
-				accept_button:InstallCustomTexture()
+				accept_button:SetTemplate (CONST_BUTTON_TEMPLATE)
 				
 				cancel_button:SetFrameLevel (500)
 				accept_button:SetFrameLevel (500)
@@ -1074,13 +1077,7 @@
 				local box1 = _CreateFrame ("frame", "DetailsCustomPanelBox1", custom_window)
 				custom_window.box1 = box1
 				box1:SetSize (450, 180)
-				--box1:SetBackdrop ({
-				--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
-				--	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-				--	tile = true, tileSize = 16, edgeSize = 12})
-				--box1:SetBackdropColor (1, 0, 0, .9)
 				box1:SetPoint ("topleft", icon_label.widget, "bottomleft", -10, -20)
-				
 				box1:SetFrameLevel (box0:GetFrameLevel()+1)
 			
 				--source
@@ -1147,7 +1144,8 @@
 					modelFrameBackgroundIcon:SetPoint ("center", modelFrameBackground, "center")
 					modelFrameBackgroundIcon:SetTexture ([[Interface\CHARACTERFRAME\Disconnect-Icon]])
 					modelFrameBackgroundIcon:SetVertexColor (.5, .5, .5, 0.7)
-					
+					modelFrameBackground:Hide()
+					modelFrameBackgroundIcon:Hide()
 					
 					local selectedEncounterActor = function (actorName, model)
 						source_field:SetText (actorName)
@@ -1688,37 +1686,41 @@
 			
 				--edit main code
 				local maincode_button = gump:NewButton (box2, nil, "$parentMainCodeButton", "maiccodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 1, nil, nil, Loc ["STRING_CUSTOM_EDIT_SEARCH_CODE"])
-				maincode_button:SetPoint ("topleft", box2, "topleft", 10, -15)
+				maincode_button:SetPoint ("topleft", custom_window, "topleft", CONST_EDITBUTTONS_X_POSITION, CONST_MENU_Y_POSITION)
 				maincode_button.tooltip = Loc ["STRING_CUSTOM_EDITCODE_DESC"]
-				maincode_button:InstallCustomTexture (nil, nil, nil, nil, true)
+				maincode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				--edit tooltip code
 				local tooltipcode_button = gump:NewButton (box2, nil, "$parentTooltipCodeButton", "tooltipcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 2, nil, nil, Loc ["STRING_CUSTOM_EDIT_TOOLTIP_CODE"])
 				tooltipcode_button:SetPoint ("topleft", maincode_button, "bottomleft", 0, -8)
 				tooltipcode_button.tooltip = Loc ["STRING_CUSTOM_EDITTOOLTIP_DESC"]
-				tooltipcode_button:InstallCustomTexture (nil, nil, nil, nil, true)
+				tooltipcode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				--edit total code
 				local totalcode_button = gump:NewButton (box2, nil, "$parentTotalCodeButton", "totalcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 3, nil, nil, "Edit Total Code")
 				totalcode_button:SetPoint ("topleft", tooltipcode_button, "bottomleft", 0, -8)
 				totalcode_button.tooltip = "This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."
-				totalcode_button:InstallCustomTexture (nil, nil, nil, nil, true)
+				totalcode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				--edit percent code
 				local percentcode_button = gump:NewButton (box2, nil, "$parentPercentCodeButton", "percentcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 4, nil, nil, "Edit Percent Code")
 				percentcode_button:SetPoint ("topleft", totalcode_button, "bottomleft", 0, -8)
 				percentcode_button.tooltip = "Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."
-				percentcode_button:InstallCustomTexture (nil, nil, nil, nil, true)
+				percentcode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				box2:Hide()
 			
 			--> create the code editbox
-				local code_editor = gump:NewSpecialLuaEditorEntry (custom_window, 420, 238, "codeeditor", "$parentCodeEditor")
-				code_editor:SetPoint ("topleft", attribute_box, "topright", 30, 0)
+				local code_editor = gump:NewSpecialLuaEditorEntry (custom_window, CONST_EDITBOX_WIDTH, CONST_EDITBOX_HEIGHT, "codeeditor", "$parentCodeEditor")
+				code_editor:SetPoint ("topleft", custom_window, "topleft", CONST_MENU_X_POSITION, CONST_EDITBOX_Y_POSITION)
 				code_editor:SetFrameLevel (custom_window:GetFrameLevel()+4)
-				code_editor:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
-				tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
-				code_editor:SetBackdropColor (0, 0, 0, 1)
+				code_editor:SetBackdrop (nil)
+				
+				--> create a background area where the code editor is
+				local codeEditorBackground = gump:NewButton (custom_window, nil, nil, nil, 1, 1, function()end)
+				codeEditorBackground:SetAllPoints (code_editor)
+				codeEditorBackground:SetTemplate (CONST_CODETEXTENTRY_TEMPLATE)
+				
 				code_editor:Hide()
 				code_editor.font_size = 11
 				
@@ -1727,22 +1729,24 @@
 				
 				local expand_func = function()
 					if (code_editor.expanded) then
-						code_editor:SetSize (420, 238)
+						code_editor:SetSize (CONST_EDITBOX_WIDTH, CONST_EDITBOX_HEIGHT)
 						code_editor.expanded = nil
+						codeEditorBackground:SetTemplate (CONST_CODETEXTENTRY_TEMPLATE)
 						
-						custom_window.box0.cancelbutton:SetPoint ("bottomleft", attribute_box, "bottomright", 37, -10)
+						--custom_window.box0.cancelbutton:SetPoint ("bottomleft", attribute_box, "bottomright", 37, -10)
 						--custom_window.box0.acceptbutton:SetPoint ("left", cancel_button, "right", 2, 0)
 					else
-						code_editor:SetSize (950, 800)
+						code_editor:SetSize (CONST_EDITBOX_WIDTH, CONST_EDITBOX_HEIGHT*1.9)
 						code_editor.expanded = true
+						codeEditorBackground:SetTemplate (CONST_CODETEXTENTRYEXPANDED_TEMPLATE)
 						
-						custom_window.box0.cancelbutton:SetPoint ("bottomleft", attribute_box, "bottomright", -237, -10)
+						--custom_window.box0.cancelbutton:SetPoint ("bottomleft", attribute_box, "bottomright", -237, -10)
 						--custom_window.box0.acceptbutton:SetPoint
 					end
 				end
 				
-				local font_change = function (size)
-					if (size) then
+				local font_change = function (_, _, increase)
+					if (increase) then
 						local file, size, flags = code_editor.editbox:GetFont()
 						code_editor.font_size = code_editor.font_size + 1
 						code_editor.editbox:SetFont (file, code_editor.font_size, flags)
@@ -1799,16 +1803,25 @@
 				local supportFrame = CreateFrame ("frame", "$parentSupportFrame", custom_window)
 				supportFrame:SetFrameLevel (500)
 				
-				local expand = gump:NewButton (supportFrame, nil, "$parentExpand", "expandbutton", 8, 10, expand_func, 4, nil, nil, "^")
-				expand:SetPoint ("bottomleft", code_editor, "topleft", 3, 0)
-				local font_size1 = gump:NewButton (supportFrame, nil, "$parentFont1", "font1button", 8, 10, font_change, true, nil, nil, "+")
-				font_size1:SetPoint ("left", expand, "right", -4, 2)
-				local font_size2 = gump:NewButton (supportFrame, nil, "$parentFont2", "font2button", 8, 10, font_change, nil, nil, nil, "-")
-				font_size2:SetPoint ("left", font_size1, "right", -4, 2)
-				local apply1 = gump:NewButton (supportFrame, nil, "$parentApply", "applybutton", 8, 10, apply_code, nil, nil, nil, "apply")
-				apply1:SetPoint ("left", font_size2, "right", -4, 1)
-				local open_API = gump:NewButton (supportFrame, nil, "$parentOpenAPI", "openAPIbutton", 8, 10, _detalhes.OpenAPI, nil, nil, nil, "Open Details! API")
-				open_API:SetPoint ("left", apply1, "right", -4, -1)
+				local expand = gump:NewButton (supportFrame, nil, "$parentExpand", "expandbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, expand_func, 4, nil, nil, "Expand")
+				expand:SetPoint ("bottomleft", code_editor, "topleft", 0, 1)
+				expand:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
+				
+				local font_size1 = gump:NewButton (supportFrame, nil, "$parentFont1", "font1button", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, font_change, nil, nil, nil, "Aa")
+				font_size1:SetPoint ("left", expand, "right", 2, 0)
+				font_size1:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
+				
+				local font_size2 = gump:NewButton (supportFrame, nil, "$parentFont2", "font2button", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, font_change, true, nil, nil, "aA")
+				font_size2:SetPoint ("left", font_size1, "right", 2, 0)
+				font_size2:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
+				
+				local apply1 = gump:NewButton (supportFrame, nil, "$parentApply", "applybutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, apply_code, nil, nil, nil, "Apply")
+				apply1:SetPoint ("left", font_size2, "right", 2, 0)
+				apply1:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
+				
+				local open_API = gump:NewButton (supportFrame, nil, "$parentOpenAPI", "openAPIbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, _detalhes.OpenAPI, nil, nil, nil, "API")
+				open_API:SetPoint ("left", apply1, "right", 2, 0)
+				open_API:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
 				
 				code_editor:SetScript ("OnShow", function()
 					expand:Show()
@@ -1834,7 +1847,8 @@
 			--> select damage
 				DetailsCustomPanelAttributeMenu1:Click()
 		else
-			_G.DetailsCustomPanel:Show()
+			DetailsPluginContainerWindow.OpenPlugin (DetailsCustomPanel)
+			--_G.DetailsCustomPanel:Show()
 		end
 	end
 	
