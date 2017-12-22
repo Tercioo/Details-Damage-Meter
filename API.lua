@@ -1,15 +1,106 @@
-This is a short document for Details! API, describing attributes, combat, container, actor.
-It still is incomplete, we are working on.
-
-This is a diagram showing the structure: http://i.imgur.com/vyTjpFh.png
+-- API list to be visualized ingame
+-- you may access .txt APIs in the Details! root folder
 
 
+--[=[
 
-Attributes:
-=======================================
-All these keys are globals:
+	Attributes List
+	Object: Combat
+	Object: Container
+	Object: Actor
+	Keys for Damage Actor
+	Keys for Healing Actor
+	Keys for Energy Actor
+	Keys for Misc Actor
+	General Functions
+	Custom Displays
+	Object: Custom Container
+
+--]=]
+
+Details.APITopics = {
+	"Basic Stuff",
+	"Global Constant List",
+	"Object: Combat",
+	"Object: Container",
+	"Object: Actor",
+	"Keys for Damage Actor",
+	"Keys for Healing Actor",
+	"Keys for Energy Actor",
+	"Keys for Misc Actor",
+	"General Functions",
+	"Custom Displays",
+	"Object: Custom Container",
+}
+
+local titleColor = "FFAAFFAA"
+local descColor = "FFBBBBBB"
+local codeColor = "FFFFFFFF"
+
+Details.APIText = {
+
+	--general calls
+[[
+@TITLE- Getting the current combat:@
+
+local currentCombat = Details:GetCurrentCombat()
+
+
+@TITLE- Getting a specific combat:@
+
+@CODElocal desiredCombat = Details:GetCombat (segmentID = DETAILS_SEGMENTID_CURRENT)@
+
+@DESCFor overall use DETAILS_SEGMENTID_OVERALL, for older segments use the combat index (1 ... 25) new combats are always added to index 1.@
+
+
+@TITLE- Getting a player:@
+
+@DESCThere's several ways to get a player object, the quick way is:@
+
+@CODElocal actorObject = Details:GetActor (segmentID = DETAILS_SEGMENTID_CURRENT, attributeID = DETAILS_ATTRIBUTE_DAMAGE, playerName)@
+
+@DESCThe segmentID is the same as described on GetCombat(), attributeID is the ID for the attribute type.
+there is an alias which receives the player name as the first parameter: Details:GetPlayer (playerName, segmentID, attributeID), combat also accept GetActor(): combat:GetActor (attributeID, playerName).
+Retriving actors is expensive, try to cache the object once you have it.
+@
+
+
+@TITLE- Getting the damage done and dps of a player:@
+
+@CODElocal combat = Details:GetCurrentTime()
+local actor = Details:GetActor (DETAILS_SEGMENTID_CURRENT, DETAILS_ATTRIBUTE_DAMAGE, "MyCharacterName")
+
+local damageDone = actor.total
+local combatTime = combat:GetCombatTime()
+
+local effectiveDPS = damageDone / combatTime
+local activeDPS = damageDone / actor:Tempo()@
+
+
+@TITLE- Getting all players in a combat:@
+
+@CODElocal combat = Details:GetCurrentCombat()
+local actorContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
+
+for _, actorObject in actorContainer:ListActors() do
+    if (actorObject:IsPlayer()) then
+        --this is a player
+    end
+end@
+
+]],
+
+	--attribute list
+[[
+Attribute Indexes:
 
 DETAILS_ATTRIBUTE_DAMAGE = 1
+DETAILS_ATTRIBUTE_HEAL = 2
+DETAILS_ATTRIBUTE_ENERGY = 3
+DETAILS_ATTRIBUTE_MISC = 4
+
+Sub Attribute Indexes:
+
 DETAILS_SUBATTRIBUTE_DAMAGEDONE = 1
 DETAILS_SUBATTRIBUTE_DPS = 2
 DETAILS_SUBATTRIBUTE_DAMAGETAKEN = 3
@@ -17,22 +108,23 @@ DETAILS_SUBATTRIBUTE_FRIENDLYFIRE = 4
 DETAILS_SUBATTRIBUTE_FRAGS = 5
 DETAILS_SUBATTRIBUTE_ENEMIES = 6
 DETAILS_SUBATTRIBUTE_VOIDZONES = 7
+DETAILS_SUBATTRIBUTE_BYSPELLS = 8
 
-DETAILS_ATTRIBUTE_HEAL = 2
 DETAILS_SUBATTRIBUTE_HEALDONE = 1
 DETAILS_SUBATTRIBUTE_HPS = 2
 DETAILS_SUBATTRIBUTE_OVERHEAL = 3
 DETAILS_SUBATTRIBUTE_HEALTAKEN = 4
 DETAILS_SUBATTRIBUTE_HEALENEMY = 5
 DETAILS_SUBATTRIBUTE_HEALPREVENTED = 6
+DETAILS_SUBATTRIBUTE_HEALABSORBED = 7
 
-DETAILS_ATTRIBUTE_ENERGY = 3
 DETAILS_SUBATTRIBUTE_REGENMANA = 1
 DETAILS_SUBATTRIBUTE_REGENRAGE = 2
 DETAILS_SUBATTRIBUTE_REGENENERGY = 3
 DETAILS_SUBATTRIBUTE_REGENRUNE = 4
+DETAILS_SUBATTRIBUTE_RESOURCES = 5
+DETAILS_SUBATTRIBUTE_ALTERNATEPOWER = 6
 
-DETAILS_ATTRIBUTE_MISC = 4
 DETAILS_SUBATTRIBUTE_CCBREAK = 1
 DETAILS_SUBATTRIBUTE_RESS = 2
 DETAILS_SUBATTRIBUTE_INTERRUPT = 3
@@ -42,96 +134,31 @@ DETAILS_SUBATTRIBUTE_DCOOLDOWN = 6
 DETAILS_SUBATTRIBUTE_BUFFUPTIME = 7
 DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 
+Segment Types:
 
+DETAILS_SEGMENTTYPE_GENERIC = 0
+DETAILS_SEGMENTTYPE_OVERALL = 1
+DETAILS_SEGMENTTYPE_DUNGEON_TRASH = 5
+DETAILS_SEGMENTTYPE_DUNGEON_BOSS = 6
+DETAILS_SEGMENTTYPE_RAID_TRASH = 7
+DETAILS_SEGMENTTYPE_RAID_BOSS = 8
+DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC = 10
+DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH = 11
+DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL = 12
+DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL = 13
+DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS = 14
+DETAILS_SEGMENTTYPE_PVP_ARENA = 20
+DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = 21
 
-TL;DR
-=======================================
-Details! has three main objects: Combat, Container and Actor:
-
-"Combat" holds containers, when a fight is gone, the "Current Combat" is placed inside the History Segment.
-"Container" holds Actors.
-"Actor" has members telling what the player or npc has made in the combat.
-
-"Combat" has 4 indexes: [1] holds the Damage Container [2] Healing [3] Energy [4] Misc.
-These indexes are called "Attributes"
-
-"Actor" has different data depending on which container the actor are, for instance, if is a Damage Actor, it will have members like damage_taken, friendly fire,
-if is a Healing Actor, it will have members for overheal, absorbs etc.
-Actors also have tables for spells and targets.
-An Actor only is created inside a container when it performs an action which fits the container, for instance, if the player didn't restored any energy/mana/rage, etc,
-it won't have an actor inside the Energy Container.
-
-"History Segment" is a table, it holds combat objects of previous combats.
-
-==========
-|    COMBAT     | = { [1] = {DAMAGE CONTAINER}, [2] = {HEAL CONTAINER}, [3] = {ENERGY CONTAINER}, [4] = {MISC CONTAINER} }
-==========
-
-============
-|    CONTAINER    | = { ACTORS }
-============
-
-==========
-|      ACTOR     | = {attribute_keys, spells = {}, targets = {}}
-==========
-attribute keys are the members which holds all the totals made by the actor (see more below).
-spells = {spellid = {SPELL}} targets = {["targetname"] = amount}
-
-
-
-Getting Details! Object:
-=======================================
-Just get the global 'Details', for instance:
-local details = _G.Details
-
-
-
-Important Functions:
-=======================================
-Details:Format (number, formatString)
-if formatString is nil, Format uses current format chosen on details options panel.
-
-Details:GetActorsOnDamageCache()
-only usable while in combat, it returns a numeric table with all damage actors in the group (combatlog flag matching 0x00000007).
-this table can be freely sorted.
-
-Details:GetActorsOnHealingCache()
-only usable while in combat, it returns a numeric table with all healing actors in the group (combatlog flag matching 0x00000007).
-this table can be freely sorted.
-
-*For out of combat, energy and misc containers or get all actors even pets, enemies etc, you may use Container:SortByKey(key) and Container:ListActors().
-
-
-
-Getting a Combat Object:
-=======================================
-combat = Details:GetCurrentCombat()
-returns the current combat object.
-
-combat = Details:GetCombat (combat)
-returns the requested combat object.
-if 'combat' is omitted, returns the current combat.
-combat can be a number: -1 for overall, 0 for current and > 0 for past segments (1, 2, 3, ...).
-combat also can be a string "overall" or "current".
-
-history_segment_container = Details:GetCombatSegments()
-returns the numeric table containing all past segments.
-
-
-
-Gettings an Actor:
-=======================================
-local actor = Details:GetActor (combat = "current", attribute = DETAILS_ATTRIBUTE_DAMAGE, actorname = Details.playername)
-returns the actor for the requested combat, attribute and actor name.
-if some parameter are omitted, it uses the default value which are current combat, damage container and the name of the player character.
-
-
-
+Segment IDs:
+DETAILS_SEGMENTID_OVERALL = -1
+DETAILS_SEGMENTID_CURRENT = 0
+]],
+	
+	
+	--combat object
+[[
 Combat Object:
-=======================================
-A Combat object is a table with 4 numerical indexes holding: damage, healing, energy and misc containers.
-function for combat objects:
-
 actor = combat:GetActor ( attribute, character_name ) or actor = combat ( attribute, character_name )
 returns an actor object
 
@@ -211,40 +238,11 @@ returns the combat identification (see segment types).
 
 alternatePowerTable = combat:GetAlteranatePower()
 returns a table containing information about alternate power gains from players.
+]],
+	
 
---------------------------------------------------------------------
-
-Other Calls:
-
-Details:GetCombatNumber()
-returns the current unique combat number counter.
-combat number is a unique number given to each combat started, this number won't 
-reset when data is wiped and each character have its own combat number counter.
-
-Details:IsInCombat()
-returns if Details! is in combat or not.
-
-Details:IsInEncounter()
-returns if Details! is in a raid encounter combat.
-
-damage, healing, energy, misc = Details:GetAllActors (combat, actorname)
-returns all the four actor objects for the requested combat and actor.
-combat must be a combat object.
-
-Details:UnpackDeathTable (deathTable)
-break a death table returning the data from it:
-playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown = Details:UnpackDeathTable (deathTable)
-
-
-isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo (combat:GetMythicDungeonInfo())
-extract information from the mythic dungeon table for the combat.
-
-Container Object:
-=======================================
-
-A container is used to store actors, each combat have four containers, one for each attribute.
-There is spell containers which holds the spells used by actors, spell containers are more limited and have only few functions.
-
+	--container object
+[[
 ipairs() = container:ListActors()
 returns a iterated table of actors inside the container.
 Usage: 'for index, actor in container:ListActors() do'
@@ -278,14 +276,11 @@ total = container:GetTotalOnRaid (key = "total", combat)
 similar to GetTotal, but only counts the total of raid members.
 combat is the combat object owner of this container.
 *only works for actor container
-
-
-Actor Object:
-=======================================
-
-Holds keys, spells and targets of a character.
-Actor can be anything, player, npc, pet, boss, enemy, etc.
-
+]],
+	
+	
+	--actor object
+[[
 name = actor:name()
 returns the actor's name.
 
@@ -336,19 +331,11 @@ returns the class color.
 
 texture, left, right, top, bottom = actor:GetClassIcon()
 returns the icon texture path and the texture's texcoords.
-
-
-
-Spell and Target Tables:
-=======================================
-Target and Spells are simple tables and has different member names and keys for each attribute.
-See below how each one is named on each attribute.
-
-
-
-Keys for Damage Actors:
-=======================================
-
+]],
+	
+	
+	--damage actor members
+[[
 members:
 actor.total = total of damage done.
 actor.total_without_pet = without pet.
@@ -371,8 +358,8 @@ spell.counter = how many hits this spell made.
 spell.id = spellid
 
 spell.successful_casted = how many times this spell has been casted successfully (only for enemies).
-	- players has its own spell cast counter inside Misc Container with the member "spell_cast".
-	- the reason os this is spell_cast holds all spells regardless of its attribute (can hold healing/damage/energy/misc).
+- players has its own spell cast counter inside Misc Container with the member "spell_cast".
+- the reason os this is spell_cast holds all spells regardless of its attribute (can hold healing/damage/energy/misc).
 
 spell.m_amt = multistrike hits.
 spell.m_dmg = multistrike damage.
@@ -399,12 +386,11 @@ spell.targets = hash table containing {["targetname"] = total damage done by thi
 Getting Dps:
 For activity time: DPS = actor.total / actor:Tempo() 
 For effective time: DPS = actor.total / combat:GetCombatTime()
-
-
-
-Keys for Healing Actors:
-=======================================
-
+]],
+	
+	
+	--healing actor members
+[[
 members:
 actor.total = total of healing done.
 actor.totalover = total of overheal.
@@ -453,12 +439,11 @@ spell.targets_absorbs = hash table containing {["targetname"] = total absorbs by
 Getting Hps:
 For activity time: HPS = actor.total / actor:Tempo() 
 For effective time: HPS = actor.total / combat:GetCombatTime()
-
-
-
-Keys for Energy Actors:
-=======================================
-
+]],
+	
+	
+	--energy actor members
+[[
 actor.total = total of energy generated.
 actor.received = total of energy received.
 actor.resource = total of resource generated.
@@ -474,11 +459,11 @@ counter = how many times this spell restored energy.
 id = spellid
 
 targets = hash table containing {["targetname"] = total energy produced towards this target}
-
-
-
-Keys for Misc Actors:
-=======================================
+]],
+	
+	
+	--misc actor members
+[[
 these members and tables may not be present on all actors, depends what the actor performs during the combat, these tables are created on the fly by the parser.
 
 - Crowd Control Done:
@@ -557,12 +542,11 @@ spell:
 spell.cc_break = amount of CC broken by this spell.
 spell.cc_break_oque = hash table with {[CC spellid] = amount}
 spell.targets = hash table with {["targetname"] = amount}.
-
-
-
-Other API Calls:
-=======================================
-
+]],
+	
+	
+	--general functions
+[[
 Details:GetSourceFromNpcId (npcId)
 return the npc name for the specific npcId.
 this is a expensive function, once you get a valid result, store the npc name somewhere.
@@ -599,167 +583,198 @@ Set the amount of lines to store on death log.
 
 npcId = Details:GetNpcIdFromGuid (guid)
 Extract the npcId from the actor guid.
-
-
-
-Examples:
-======================================= ---
-
-1) Get the player damage, heal, dps and hps:
-
-local combat = Details:GetCurrentCombat()
-local damageActor = combat:GetActor (DETAILS_ATTRIBUTE_DAMAGE, UnitName ("player"))
-local healingActor = combat:GetActor (DETAILS_ATTRIBUTE_HEAL, UnitName ("player"))
-or
-local damageActor = Details:GetActor ("current", DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
-local healingActor = Details:GetActor ("current", DETAILS_ATTRIBUTE_HEAL, Details.playername)
-
-local totalDamage, totalHeal = damageActor.total, healingActor.total
-
-local effectiveDps, effectiveHps = totalDamage / combat:GetCombatTime(), totalHeal / combat:GetCombatTime()
-local activeDps, activeHps = totalDamage / damageActor:Tempo(), totalHeal / healingActor:Tempo()
-
-
-2) Get a list of all overhealing:
-
--- get the combat, here we want the current combat:
-local combat = Details:GetCurrentCombat()
-
--- as we want all players, we get here the container which stores all healing actors:
-local healingContainer = combat:GetContainer (DETAILS_ATTRIBUTE_HEAL)
-
--- sort the container with the key "totalover" - we got this key from "Keys for Healing Actors":
-healingContainer:SortByKey ("totalover")
-
--- now just iterate among the actors:
-local actorsFound = 0
-for i, actor in healingContainer:ListActors() do
-
-	-- inside the container has all entities which made any heal during the combat, here we check if the actor is a player for our group.
-	if (actor:IsGroupPlayer()) then
-		actorsFound = actorsFound + 1
-	end
-end
-
-
-3) Damage done to an add called "Grand Corruptor U'rogg":
-
-local combat = Details:GetCurrentCombat()
-local damageContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
-local targetName = "Grand Corruptor U'rogg"
-
-there is two ways for do this:
-
-1 - with an external table:
-
-	local actorsAmount = {}
-	for i, actor in damageContainer:ListActors() do
-		local amount = actor.targets [targetName]
-		if (amount and amount >= 1) then
-			tinsert (actorsAmount, {name = actor:name(), total = amount})
-		end
-	end
-
-	table.sort (actorsAmount, function (a,b) return a.total > b.total end)
-
-2 - replacing the member "custom" on the actor:
-
-	for i, actor in damageContainer:ListActors() do
-		if (actor:IsGroupPlayer()) then
-			local amount = actor.targets [targetName]
-			if (amount and amount >= 1) then
-				actor.custom = amount
-			else
-				actor.custom = 0
-			end
-		else
-			actor.custom = 0
-		end
-	end
-
-	damageContainer:SortByKey ("custom")
-
-	local actorsDamagedTheTarget = 0
-	for i, actor in damageContainer:ListActors() do
-		actorsDamagedTheTarget = actorsDamagedTheTarget + 1
-	end
-
-
-4) Get everyone who took damage from an ability:
-
-local combat = Details:GetCurrentCombat()
-local damageContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
-
-local targetSpell = 183449 --Felfire Volley from hellfire assault encounter
-local sourceNpc = "Gorebound Felcaster"
---in cases of multi-language auras or displays, we doesn't want to hardcode the npc name.
-sourceNpc = damageContainer:GetSpellSource (targetSpell)
-
---reset the custom member on all actors:
-for i, actor in damageContainer:ListActors() do
-	actor.custom = 0
-end
-
-local source = damageContainer:GetActor (sourceNpc)
-local felfireVolleySpell = source:GetSpell (targetSpell)
-if (felfireVolleySpell) then
-	for playerName, amount in pairs (felfireVolleySpell.targets) do
-		--players who took damage from this ability
-		--now this result may be placed on a external table or .custom may also be used
-		local targetActor = damageContainer:GetActor (playerName)
-		targetActor.custom = amount
-	end
-end
-
-damageContainer:SortByKey ("custom")
-
-
-5) Get damage taken by an enemy
-
-local combat = Details:GetCurrentCombat()
-local damageContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
-
---get the npc name for multi-language auras or displays.
-local npcName = Details:GetSourceFromNpcId (90409) -- "Gorebound Felcaster"
-if (not npcName) then
-	npcName = Details:GetSourceFromNpcId (93931) -- "Gorebound Felcaster"
-end
---once we get a valid npcName, we need to cache the name since GetSourceFromNpcId is an expensive call.
-aura_env.npcName = npcName -- for weakauras
-Details.cache_npc_ids [93931] = npcName --for details!
-Details.cache_npc_ids [90409] = npcName --for details!
-
--- here, there is two ways:
-
-1 - iterage among all actor and get their .targets [npcName].
-
-	for i, actor in damageContainer:ListActors() do
-		local amount = actor.targets [npcName]
-		if (amount and amount >= 1) then
-			player.custom = amount
-		else
-			player.custom = 0
-		end
-	end
+]], 
 	
-	damageContainer:SortByKey ("custom")
+	
+	--custom displays
+[[
+Cstom Display is a special display where users can set their own rules on searching for what show in the window.
+There is 4 scripts which compose the display:
+
+Required:
+Search - this is the main script, it's responsible to build a list of actors to show in the window.
+
+Optional:
+Tooltip - it runs when the user hover over a bar.
+Total - runs when showing the bar, and helps format the total done.
+Percent - also runs when showing the bar, it formats the percentage amount.
 
 
-2 - get the npc actor and its damage_from table.
+Search Code:
+- The script receives 3 parameters: *Combat, *CustomContainer and *Instance.
+*Combat - is the reference for the selected combat shown in the window (the one selected on segments menu).
+*CustomContainer - is the place where the display mantain stored the results, Details! get the content inside the container and use to update the window.
+*Instance - is the reference of the window where the custom display is shown.
 
-	local actor = damageContainer:GetActor (npcName)
-	if (actor) then
-		--reset the custom member on all actors:
-		for i, actor in damageContainer:ListActors() do
-			actor.custom = 0
+- Also, the script must return three values: total made by all players, the amount of the top player and the amount of players found by the script.
+- The search script basically begins getting these three parameters and declaring our three return values:
+
+local Combat, CustomContainer, Instance = ...
+local total, top, amount = 0, 0, 0
+
+- Then, we build our search for wherever we want to show, here we are building an example for Damage Done by Pets and Guardians.
+- So, as we are working with damage, we want to get a list of Actors from the Damage Container of the combat and iterate it with ipairs:
+
+local damage_container = combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
+for i, actor in ipairs( damage_container ) do
+	--do stuff
+end
+
+- Actor, can be anything, a monster, player, boss, etc, so, we need to check if actor is a pet:
+
+if (actor:IsPetOrGuardian()) then
+	--do stuff
+end
+
+- Now we found a pet, we need to get the damage done and find who is the owner of this pet, after that, we also need to check if the owner is a player:
+
+local petOwner = actor.owner
+if (petOwner:IsPlayer()) then
+	local petDamage = actor.total
+end
+
+- The next step is add the pet owner into the CustomContainer:
+
+CustomContainer:AddValue (petOwner, petDamage)
+
+- And in the and, we need to get the total, top and amount values. This is generally calculated inside our loop above, but just calling the API for the result is more handy:
+
+total, top = CustomContainer:GetTotalAndHighestValue()
+amount = CustomContainer:GetNumActors()
+return total, top, amount
+
+
+The finished script looks like this:
+
+local Combat, CustomContainer, Instance = ...
+local total, top, amount = 0, 0, 0
+
+local damage_container = Combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
+for i, actor in ipairs( damage_container ) do
+	if (actor:IsPetOrGuardian()) then
+		local petOwner = actor.owner
+		if (petOwner:IsPlayer()) then
+			local petDamage = actor.total
+			CustomContainer:AddValue( petOwner, petDamage )
 		end
-		for playerName, _ in pairs (actor.damage_from) do
-			local player = damageContainer:GetActor (playerName)
-			if (player:IsPlayer()) then --we only want players. pets always has their damage merged on its owner damage.
-				player.custom = actor.targets [npcName]
-			end
-		end
-		
-		damageContainer:SortByKey ("custom")
 	end
+end
 
+total, top = CustomContainer:GetTotalAndHighestValue()
+amount = CustomContainer:GetNumActors()
+
+return total, top, amount
+
+
+Tooltip Code:
+- The script receives 3 parameters: *Actor, *Combat and *Instance. This script has no return value.
+*Actor - in our case, actor is the petOwner.
+
+local Actor, Combat, Instance = ...
+local Format = Details:GetCurrentToKFunction()
+
+- What we want where is show all pets the player used in the combat and how much damage each one made.
+- The member .pets gives us a table with pet names that belongs to the actor.
+
+local actorPets = Actor.pets
+
+- Next move is iterate this table and get the pet actor from the combat.
+- In Details! always use ">= 1" not "> 0", also when not using our format functions, use at least floor()
+
+for i, petName in ipairs( actorPets ) do
+	local petActor = Combat( DETAILS_ATTRIBUTE_DAMAGE, petName)
+	if (petActor and petActor.total >= 1) then
+		--do stuff
+	end
+end
+
+- With the pet in hands, what we have to do now is add this pet to our tooltip.
+- Details! uses 'GameCooltip' which is slight different than 'GameTooltip':
+
+GameCooltip:AddLine( petName, Format( nil, petActor.total ) )
+Details:AddTooltipBackgroundStatusbar()
+
+
+The finished script looks like this:
+
+local Actor, Combat, Instance = ...
+local Format = Details:GetCurrentToKFunction()
+
+local actorPets = Actor.pets
+
+for i, petName in ipairs( actorPets ) do
+	local petActor = Combat( DETAILS_ATTRIBUTE_DAMAGE, petName)
+	if (petActor and petActor.total >= 1) then
+		GameCooltip:AddLine( petName, Format( nil, petActor.total ) )
+		Details:AddTooltipBackgroundStatusbar()
+	end
+end
+
+
+
+Total Code and Percent Code:
+- Details! build the total and the percent automatically, these scripts are for special cases where you want to show something different, e.g. convert total into seconds/minutes.
+- Both scripts receives 5 parameters, three are new to us:
+*Value - the total made by this actor.
+*Top - the value made by the rank 1 actor.
+*Total - the total made by all actors.
+
+local value, top, total, combat, instance = ...
+local result = floor (value)
+return total
+]], 
+	
+	
+	--custom container
+[[
+Custom Container Object:
+A custom container is primarily used when building custom displays.
+Is used to hold values for any kind of actor in Details! and also any other table as long as it has a ".name" or ".id" key.
+
+value = is a number indicating the actor's score, the container doesn't know what kind of actor it is holding, if is a damage actor, energy, a spell, so, it is just nominated 'value'.
+
+container:GetValue ( actor )
+returns the current value for the requested actor.
+
+container:AddValue ( actor, amountToAdd, checkTop, nameComplement )
+actor is any actor object or any other table containing a member "name" or "id", e.g. {name = "Jeff"} {id = 186451}
+amountToAdd is the amount to add to this actor on the container.
+checkTop is for some special cases when the top value needs to be calculated immediately.
+nameComplement is a string to add on the end of the actor's name, for instance, in cases where the actor is a spell and its name is generated by the container.
+returns the current value for the actor.
+
+container:SetValue (actor, amount, nameComplement)
+actor is any actor object or any other table containing a member "name" or "id", e.g. {name = "Jeff"} {id = 186451}
+amount is the amount to set to this actor on the container.
+nameComplement is a string to add on the end of the actor's name, for instance, in cases where the actor is a spell and its name is generated by the container.
+
+container:HasActor (actor)
+return true if the container holds a reference for 'actor'.
+
+container:GetNumActors()
+returns the amount of actors present inside the container.
+
+container:GetTotalAndHighestValue()
+return 'total' and 'top' values.
+total is the total of value of all actors together.
+top is the amount of value of the actor with more value.
+
+container:WipeCustomActorContainer()
+removes all data from a custom container.
+this is automatically performed when the search script runs.
+]]
+}
+
+for i = 1, #Details.APIText do
+	local text = Details.APIText [i]
+	
+	--add the color to the text
+	text = text:gsub ([[@TITLE]], "|c" .. titleColor)
+	text = text:gsub ([[@CODE]], "|c" .. codeColor)
+	text = text:gsub ([[@DESC]], "|c" .. descColor)
+	
+	--add the end color
+	text = text:gsub ([[@]], "|r")
+	
+	Details.APIText [i] = text
+end

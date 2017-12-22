@@ -4971,6 +4971,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return _detalhes:GetActor (_combat, 1, _actorname), _detalhes:GetActor (_combat, 2, _actorname), _detalhes:GetActor (_combat, 3, _actorname), _detalhes:GetActor (_combat, 4, _actorname)
 	end
 	
+	--> get player
+	function _detalhes:GetPlayer (_actorname, _combat, _attribute)
+		return _detalhes:GetActor (_combat, _attribute, _actorname)
+	end
+	
 	--> get an actor
 	function _detalhes:GetActor (_combat, _attribute, _actorname)
 

@@ -23,6 +23,7 @@ locales\Details-zhTW.lua
 boot.lua
 indent.lua
 core\util.lua
+API.lua
 
 functions\profiles.lua
 functions\hooks.lua

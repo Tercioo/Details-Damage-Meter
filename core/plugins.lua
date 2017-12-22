@@ -624,7 +624,7 @@
 			newButton.textsize = 10
 			
 			--> set icon
-			newButton:SetIcon (pluginObject.__icon)
+			newButton:SetIcon (pluginObject.__icon, nil, nil, nil, pluginObject.__iconcoords, pluginObject.__iconcolor, 4)
 			
 			--> add it to menu table
 			tinsert (f.MenuButtons, newButton)

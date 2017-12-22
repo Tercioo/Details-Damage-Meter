@@ -81,6 +81,8 @@
 		backdropbordercolor = {0, 0, 0, 1},
 	})
 	
+	gump:NewColor ("DETAILS_CUSTOMDISPLAY_ICON", .7, .6, .5, 1)
+	
 	local CONST_CODETEXTENTRY_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX")
 	local CONST_CODETEXTENTRYEXPANDED_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED")
 	local CONST_CODETEXTENTRYBUTTON_TEMPLATE = gump:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON")
@@ -132,7 +134,10 @@
 		DetailsCustomPanel.Frame = DetailsCustomPanel
 		DetailsCustomPanel.__name = "Custom Displays"
 		DetailsCustomPanel.real_name = "DETAILS_CUSTOMDISPLAY"
-		DetailsCustomPanel.__icon = [[Interface\FriendsFrame\UI-FriendsList-Small-Up]]
+		--DetailsCustomPanel.__icon = [[Interface\FriendsFrame\UI-FriendsList-Small-Up]]
+		DetailsCustomPanel.__icon = [[Interface\AddOns\Details\images\icons]]
+		DetailsCustomPanel.__iconcoords = {412/512, 441/512, 43/512, 79/512}
+		DetailsCustomPanel.__iconcolor = "DETAILS_CUSTOMDISPLAY_ICON"
 		DetailsPluginContainerWindow.EmbedPlugin (DetailsCustomPanel, DetailsCustomPanel, true)
 	
 		function DetailsCustomPanel.RefreshWindow()
@@ -738,7 +743,7 @@
 				button:SetPoint ("topleft", self, "topleft", CONST_MENU_X_POSITION, CONST_MENU_Y_POSITION + ((index-1)*-23))
 				
 				button:SetTemplate (CONST_BUTTON_TEMPLATE)
-				button:SetIcon (icon, CONST_MENU_HEIGHT-4, CONST_MENU_HEIGHT-4, "overlay", {.1, .9, .1, .9})
+				button:SetIcon (icon, CONST_MENU_HEIGHT-4, CONST_MENU_HEIGHT-4, "overlay", {.1, .9, .1, .9}, nil, 4)
 				
 				button:SetHook ("OnEnter", onenter)
 				button:SetHook ("OnLeave", onleave)
