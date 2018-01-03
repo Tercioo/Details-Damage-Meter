@@ -36,6 +36,7 @@ Details.APITopics = {
 local titleColor = "FFAAFFAA"
 local descColor = "FFBBBBBB"
 local codeColor = "FFFFFFFF"
+local luacomentColor = "FF707070"
 
 Details.APIText = {
 
@@ -48,7 +49,7 @@ local currentCombat = Details:GetCurrentCombat()
 
 @TITLE- Getting a specific combat:@
 
-@CODElocal desiredCombat = Details:GetCombat (segmentID = DETAILS_SEGMENTID_CURRENT)@
+@CODElocal combat = Details:GetCombat (segmentID = DETAILS_SEGMENTID_CURRENT)@
 
 @DESCFor overall use DETAILS_SEGMENTID_OVERALL, for older segments use the combat index (1 ... 25) new combats are always added to index 1.@
 
@@ -57,7 +58,7 @@ local currentCombat = Details:GetCurrentCombat()
 
 @DESCThere's several ways to get a player object, the quick way is:@
 
-@CODElocal actorObject = Details:GetActor (segmentID = DETAILS_SEGMENTID_CURRENT, attributeID = DETAILS_ATTRIBUTE_DAMAGE, playerName)@
+@CODElocal player = Details:GetActor (segmentID = DETAILS_SEGMENTID_CURRENT, attributeID = DETAILS_ATTRIBUTE_DAMAGE, "PlayerName")@
 
 @DESCThe segmentID is the same as described on GetCombat(), attributeID is the ID for the attribute type.
 there is an alias which receives the player name as the first parameter: Details:GetPlayer (playerName, segmentID, attributeID), combat also accept GetActor(): combat:GetActor (attributeID, playerName).
@@ -67,14 +68,18 @@ Retriving actors is expensive, try to cache the object once you have it.
 
 @TITLE- Getting the damage done and dps of a player:@
 
-@CODElocal combat = Details:GetCurrentTime()
-local actor = Details:GetActor (DETAILS_SEGMENTID_CURRENT, DETAILS_ATTRIBUTE_DAMAGE, "MyCharacterName")
+@CODElocal combat = Details:GetCurrentCombat()
 
-local damageDone = actor.total
+@COMMENT--if the player is from a different realm, use 'playername-realmname'@
+local player = combat:GetActor (DETAILS_ATTRIBUTE_DAMAGE, "PlayerName")
+
+local damageDone = player.total
 local combatTime = combat:GetCombatTime()
 
 local effectiveDPS = damageDone / combatTime
-local activeDPS = damageDone / actor:Tempo()@
+
+@COMMENT--player:Tempo() returns the activity time@
+local activeDPS = damageDone / player:Tempo()@
 
 
 @TITLE- Getting all players in a combat:@
@@ -82,9 +87,10 @@ local activeDPS = damageDone / actor:Tempo()@
 @CODElocal combat = Details:GetCurrentCombat()
 local actorContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
 
-for _, actorObject in actorContainer:ListActors() do
-    if (actorObject:IsPlayer()) then
-        --this is a player
+for _, actor in actorContainer:ListActors() do
+    @COMMENT--check if this actor is a player@
+    if (actor:IsPlayer()) then
+        @COMMENT--is a player@
     end
 end@
 
@@ -92,14 +98,14 @@ end@
 
 	--attribute list
 [[
-Attribute Indexes:
+@TITLEAttribute Indexes:@
 
 DETAILS_ATTRIBUTE_DAMAGE = 1
 DETAILS_ATTRIBUTE_HEAL = 2
 DETAILS_ATTRIBUTE_ENERGY = 3
 DETAILS_ATTRIBUTE_MISC = 4
 
-Sub Attribute Indexes:
+@TITLESub Attribute Indexes:@
 
 DETAILS_SUBATTRIBUTE_DAMAGEDONE = 1
 DETAILS_SUBATTRIBUTE_DPS = 2
@@ -134,7 +140,7 @@ DETAILS_SUBATTRIBUTE_DCOOLDOWN = 6
 DETAILS_SUBATTRIBUTE_BUFFUPTIME = 7
 DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 
-Segment Types:
+@TITLESegment Types:@
 
 DETAILS_SEGMENTTYPE_GENERIC = 0
 DETAILS_SEGMENTTYPE_OVERALL = 1
@@ -150,94 +156,103 @@ DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS = 14
 DETAILS_SEGMENTTYPE_PVP_ARENA = 20
 DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = 21
 
-Segment IDs:
+@TITLESegment IDs:@
+
 DETAILS_SEGMENTID_OVERALL = -1
 DETAILS_SEGMENTID_CURRENT = 0
+
+@TITLEPotions:@
+
+DETAILS_HEALTH_POTION_LIST = {[SpellID] = true, ...}
+DETAILS_HEALTH_POTION_ID = 188016
+DETAILS_REJU_POTION_ID = 188018
+
 ]],
 	
 	
 	--combat object
 [[
-Combat Object:
+@TITLECombat Object:@
+
 actor = combat:GetActor ( attribute, character_name ) or actor = combat ( attribute, character_name )
-returns an actor object
+@COMMENTreturns an actor object@
 
 characterList = combat:GetActorList ( attribute )
-returns a numeric table with all actors of the specific attribute, contains players, npcs, pets, etc.
+@COMMENTreturns a numeric table with all actors of the specific attribute, contains players, npcs, pets, etc.@
 
 combatName = combat:GetCombatName ( try_to_find )
-returns the segment name, e.g. "Trainning Dummy", if try_to_find is true, it searches the combat for a enemy name.
+@COMMENTreturns the segment name, e.g. "Trainning Dummy", if try_to_find is true, it searches the combat for a enemy name.@
 
 bossInfo = combat:GetBossInfo()
-returns the table containing informations about the boss encounter.
-table members: name, zone, mapid, diff, diff_string, id, ej_instance_id, killed, index
+@COMMENTreturns the table containing informations about the boss encounter.
+table members: name, zone, mapid, diff, diff_string, id, ej_instance_id, killed, index@
 
 battlegroudInfo = combat:GetPvPInfo()
-returns the table containing infos about the battlegroud:
-table members: name, mapid
+@COMMENTreturns the table containing infos about the battlegroud:
+table members: name, mapid@
 
 arenaInfo = combat:GetArenaInfo()
-returns the table containing infos about the arena:
-table members: name, mapid, zone
+@COMMENTreturns the table containing infos about the arena:
+table members: name, mapid, zone@
 
 time = combat:GetCombatTime()
-returns the length of the combat in seconds, if the combat is in progress, returns the current elapsed time.
+@COMMENTreturns the length of the combat in seconds, if the combat is in progress, returns the current elapsed time.@
 
 minutes, seconds = GetFormatedCombatTime()
-returns the combat time formated with minutes and seconds.
+@COMMENTreturns the combat time formated with minutes and seconds.@
 
 startDate, endDate = combat:GetDate()
-returns the start and end date as %H:%M:%S.
+@COMMENTreturns the start and end date as %H:%M:%S.@
 
 isTrash = combat:IsTrash()
-returns true if the combat is a trash segment.
+@COMMENTreturns true if the combat is a trash segment.@
 
 encounterDiff = combat:GetDifficulty()
-returns the difficulty number of the raid encounter.
+@COMMENTreturns the difficulty number of the raid encounter.@
 
 deaths = combat:GetDeaths()
-returns a numeric table containing the deaths, table is ordered by first death to last death.
+@COMMENTreturns a numeric table containing the deaths, table is ordered by first death to last death.@
 
 combatNumber = combat:GetCombatNumber()
-returns the unique ID number for the combat.
+@COMMENTreturns the unique ID number for the combat.@
 
 container = combat:GetContainer ( attribute )
-returns the container table for the requested attribute.
+@COMMENTreturns the container table for the requested attribute.@
 
 roster = combat:GetRoster()
-returns a hash table with player names preset in the raid group at the start of the combat.
+@COMMENTreturns a hash table with player names preset in the raid group at the start of the combat.@
 
 chartData = combat:GetTimeData ( chart_data_name )
-returns the table containing the data for create a chart.
+@COMMENTreturns the table containing the data for create a chart.@
 
 start_at = GetStartTime()
-returns the GetTime() of when the combat started.
+@COMMENTreturns the GetTime() of when the combat started.@
 
 ended_at = GetEndTime()
-returns the GetTime() of when the combat ended.
+@COMMENTreturns the GetTime() of when the combat ended.@
 
 DETAILS_TOTALS_ONLYGROUP = true
 
 total = combat:GetTotal ( attribute, subAttribute [, onlyGroup] )
-returns the total of the requested attribute.
+@COMMENTreturns the total of the requested attribute.@
 
 mythictInfo = combat:GetMythicDungeonInfo()
-returns a table with information about the mythic dungeon encounter.
+@COMMENTreturns a table with information about the mythic dungeon encounter.@
 
 mythicTrashInfo = combat:GetMythicDungeonTrashInfo()
-returns a table with information about the trash cleanup for this combat.
+@COMMENTreturns a table with information about the trash cleanup for this combat.@
 
 isMythicDungeonSegment = combat:IsMythicDungeon()
-returns if the segment is from a mythic dungeon.
+@COMMENTreturns if the segment is from a mythic dungeon.@
 
 isMythicDungeonOverallSegment = combat:IsMythicDungeonOverall()
-returns if the segment is an overall mythic dungeon segment.
+@COMMENTreturns if the segment is an overall mythic dungeon segment.@
 
 combatType = combat:GetCombatType()
-returns the combat identification (see segment types).
+@COMMENTreturns the combat identification (see segment types).@
 
 alternatePowerTable = combat:GetAlteranatePower()
-returns a table containing information about alternate power gains from players.
+@COMMENTreturns a table containing information about alternate power gains from players.@
 ]],
 	
 
@@ -772,6 +787,7 @@ for i = 1, #Details.APIText do
 	text = text:gsub ([[@TITLE]], "|c" .. titleColor)
 	text = text:gsub ([[@CODE]], "|c" .. codeColor)
 	text = text:gsub ([[@DESC]], "|c" .. descColor)
+	text = text:gsub ([[@COMMENT]], "|c" .. luacomentColor)
 	
 	--add the end color
 	text = text:gsub ([[@]], "|r")

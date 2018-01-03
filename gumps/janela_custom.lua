@@ -344,15 +344,17 @@
 				self.author_field:SetText (custom_object:GetAuthor())
 				self.author_field:Disable()
 				
+				custom_window.codeeditor:SetText ("")
+				
 				if (custom_object:IsScripted()) then
 				
 					custom_window.script_button_attribute:Click()
-					
+				
 					DetailsCustomPanel.code1 = custom_object:GetScript()
 					DetailsCustomPanel.code2 = custom_object:GetScriptToolip()
 					DetailsCustomPanel.code3 = custom_object:GetScriptTotal() or DetailsCustomPanel.code3_default
 					DetailsCustomPanel.code4 = custom_object:GetScriptPercent() or DetailsCustomPanel.code4_default
-					
+				
 				else
 				
 					local attribute = custom_object:GetAttribute()
@@ -1680,11 +1682,6 @@
 				local box2 = _CreateFrame ("frame", "DetailsCustomPanelBox2", custom_window)
 				custom_window.box2 = box2
 				box2:SetSize (450, 180)
-				--box2:SetBackdrop ({
-				--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
-				--	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-				--	tile = true, tileSize = 16, edgeSize = 12})
-				--box2:SetBackdropColor (1, 0, 0, .9)
 				box2:SetPoint ("topleft", icon_label.widget, "bottomleft", -10, -20)
 				
 				box2:SetFrameLevel (box0:GetFrameLevel()+1)
