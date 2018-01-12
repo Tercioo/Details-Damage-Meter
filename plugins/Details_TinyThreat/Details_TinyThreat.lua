@@ -198,17 +198,16 @@ local function CreatePluginFrames (data)
 	
 		local instance = ThreatMeter:GetPluginInstance()
 		
-		row.textsize = instance.row_info.font_size
-		
-		local font = SharedMedia:Fetch ("font", instance.row_info.font_face, true) or instance.row_info.font_face
-		
-		--print (font, instance.row_info.font_face)
-		
-		row.textfont = font
-		row.texture = instance.row_info.texture
-		row.shadow = instance.row_info.textL_outline
-		
-		row.width = instance.baseframe:GetWidth()-5
+		if (instance) then
+			local font = SharedMedia:Fetch ("font", instance.row_info.font_face, true) or instance.row_info.font_face
+			
+			row.textsize = instance.row_info.font_size
+			row.textfont = font
+			row.texture = instance.row_info.texture
+			row.shadow = instance.row_info.textL_outline
+			
+			row.width = instance.baseframe:GetWidth()-5
+		end
 	end
 	
 	function ThreatMeter:RefreshRows()

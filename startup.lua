@@ -83,6 +83,7 @@ function _G._detalhes:Start()
 			self:InitializeOptionsWindow()
 			self:InitializeAuraCreationWindow()
 			self:InitializeCustomDisplayWindow()
+			self:InitializeAPIWindow()
 			
 		--> bookmarks
 			if (self.switch.InitSwitch) then
@@ -1671,7 +1672,14 @@ function _G._detalhes:Start()
 		C_Timer.After (2, reset_player_detail_window)
 	end
 	
-	_detalhes.tooltip.tooltip_max_abilities = 5
+	--enforce to show 6 abilities on the tooltip
+	_detalhes.tooltip.tooltip_max_abilities = 6
+	
+	--enforce to use the new animation code
+	if (_detalhes.streamer_config) then
+		_detalhes.streamer_config.use_animation_accel = true
+	end
+	
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()

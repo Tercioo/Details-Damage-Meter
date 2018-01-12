@@ -1,4 +1,4 @@
---[[ options panel file --]]
+	--[[ options panel file --]]
 
 --[[
 	search for "~number" without the quotes to quick access the page:
@@ -2507,6 +2507,7 @@ function window:CreateFrame18()
 				window:CreateLineBackground2 (frame18, "ClearCacheSlider", "ClearCacheLabel", "Reduces the chance of getting a serial number overlap when working with multiple realms.")
 				
 			--> advanced animations
+			--[[
 				g:NewLabel (frame18, _, "$parentAdvancedAnimationsLabel", "AdvancedAnimationsLabel", "Use Animation Acceleration", "GameFontHighlightLeft")
 				g:NewSwitch (frame18, _, "$parentAdvancedAnimationsSlider", "AdvancedAnimationsSlider", 60, 20, _, _, _detalhes.streamer_config.use_animation_accel, nil, nil, nil, nil, options_switch_template)
 
@@ -2519,8 +2520,8 @@ function window:CreateFrame18()
 				end
 				
 				window:CreateLineBackground2 (frame18, "AdvancedAnimationsSlider", "AdvancedAnimationsLabel", "Animation speed changes accordly to the amount of space the bar needs to travel.")
-				
-				
+			--]]	
+			
 		--> anchoring
 		local x = window.left_start_at
 		titleFrame18:SetPoint (x, window.title_y_pos)
@@ -2554,7 +2555,7 @@ function window:CreateFrame18()
 			{"QuickDetectionLabel"},
 			{"DisableMythicDungeonLabel"},
 			{"ClearCacheLabel"},
-			{"AdvancedAnimationsLabel"},
+			--{"AdvancedAnimationsLabel"},
 		}
 		
 		window:arrange_menu (frame18, right_side, window.right_start_at, window.top_start_at)
@@ -11678,7 +11679,7 @@ end --> if not window
 		_G.DetailsOptionsWindow18QuickDetectionSlider.MyObject:SetValue (_detalhes.streamer_config.quick_detection)
 		_G.DetailsOptionsWindow18DisableMythicDungeonSlider.MyObject:SetValue (_detalhes.streamer_config.disable_mythic_dungeon)
 		_G.DetailsOptionsWindow18ClearCacheSlider.MyObject:SetValue (_detalhes.streamer_config.reset_spec_cache)
-		_G.DetailsOptionsWindow18AdvancedAnimationsSlider.MyObject:SetValue (_detalhes.streamer_config.use_animation_accel)
+		--_G.DetailsOptionsWindow18AdvancedAnimationsSlider.MyObject:SetValue (_detalhes.streamer_config.use_animation_accel)
 		
 		--> window 17
 		_G.DetailsOptionsWindow17CombatAlphaDropdown.MyObject:Select (editing_instance.hide_in_combat_type, true)

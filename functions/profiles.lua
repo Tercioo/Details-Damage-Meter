@@ -1017,7 +1017,7 @@ local default_profile = {
 		pvp_as_group = true,
 		use_battleground_server_parser = true,
 		force_activity_time_pvp = true,
-		death_tooltip_width = 300,
+		death_tooltip_width = 350,
 		override_spellids = true,
 		all_players_are_group = false,
 	
@@ -1087,7 +1087,7 @@ local default_profile = {
 			no_alerts = false,
 			quick_detection = false,
 			faster_updates = false,
-			use_animation_accel = false,
+			use_animation_accel = true,
 		},
 	
 	--> tooltip
