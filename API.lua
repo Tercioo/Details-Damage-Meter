@@ -51,7 +51,7 @@ local currentCombat = Details:GetCurrentCombat()
 
 @CODElocal combat = Details:GetCombat (segmentID = DETAILS_SEGMENTID_CURRENT)@
 
-@DESCFor overall use DETAILS_SEGMENTID_OVERALL, for older segments use the combat index (1 ... 25) new combats are always added to index 1.@
+@DESCFor overall use DETAILS_SEGMENTID_OVERALL, for older segments use the combat index (1 ... 25), when the current combat ends, it is added to index 1 on the old segments table.@
 
 
 @TITLE- Getting a player:@

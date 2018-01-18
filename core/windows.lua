@@ -3831,10 +3831,23 @@
 			
 			local f = DetailsAPIPanel or gump:CreateSimplePanel (UIParent, 700, 480, "Details! API", "DetailsAPIPanel")
 			DetailsAPIPanel.Initialized = true
-
+			
 			local text_box = gump:NewSpecialLuaEditorEntry (f, 685, 540, "text", "$parentTextEntry", true)
 			text_box:SetPoint ("topleft", f, "topleft", 220, -40)
 			text_box:SetBackdrop (nil)
+			
+			--background
+			f.bg1 = f:CreateTexture (nil, "background")
+			f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+			f.bg1:SetAlpha (0.8)
+			f.bg1:SetVertexColor (0.27, 0.27, 0.27)
+			f.bg1:SetVertTile (true)
+			f.bg1:SetHorizTile (true)
+			f.bg1:SetSize (790, 454)
+			f.bg1:SetAllPoints()
+			f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			f:SetBackdropColor (.5, .5, .5, .7)
+			f:SetBackdropBorderColor (0, 0, 0, 1)			
 			
 			--> create a background area where the text editor is
 			local TextEditorBackground = gump:NewButton (f, nil, nil, nil, 1, 1, function()end)
@@ -3854,9 +3867,10 @@
 				local title = topics [i]
 				local button = gump:CreateButton (f, select_topic, 200, 20, title, i)
 				
-				button:SetTemplate (gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+				button:SetTemplate (gump:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 				button:SetPoint ("topleft", f, "topleft", 5, (-i*22)-30)
 				button:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]], nil, nil, nil, nil, nil, nil, 2)
+				button:SetWidth (200)
 			end
 			
 			select_topic (nil, nil, 1)

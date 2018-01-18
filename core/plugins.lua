@@ -5,25 +5,6 @@
 	local _detalhes = _G._detalhes
 	DETAILSPLUGIN_ALWAYSENABLED = 0x1
 	
-	
-	--> templates
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE", 
-			{
-				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
-				backdropcolor = {0, 0, 0, .5},
-				backdropbordercolor = {0, 0, 0, .5},
-				onentercolor = {0.3, 0.3, 0.3, .5},
-			}
-		)
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE", 
-			{
-				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
-				backdropcolor = {0, 0, 0, .5},
-				backdropbordercolor = {1, 1, 0, 1},
-				onentercolor = {0.3, 0.3, 0.3, .5},
-			}
-		)
-	
 	--> consts
 		local CONST_PLUGINWINDOW_MENU_WIDTH = 150
 		local CONST_PLUGINWINDOW_MENU_HEIGHT = 22
@@ -628,6 +609,17 @@
 			
 			--> add it to menu table
 			tinsert (f.MenuButtons, newButton)
+			
+			if (#f.MenuButtons == 1) then
+				local teste = _detalhes.gump:NewButton (f, _, "$parentOpenFeedbackButton", nil, 160, 20, _detalhes.OpenFeedbackWindow, nil, nil, nil, "Hellow Woirld", 1)
+				teste:SetPoint ("top", menuBackground, "top", 0, f.MenuY + ( (1-1) * -f.MenuButtonHeight ) - 1 - 350)
+				teste:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+				teste.textalign = "left"
+				teste.textcolor = "white"
+				teste.textsize = 10
+				teste:SetIcon ("Interface\\FriendsFrame\\UI-Toast-BroadcastIcon", nil, nil, nil, {4/32, 27/32, 5/32, 25/32}, {1, 1, 1, 0.8}, 4, 2)
+				
+			end
 			
 			return newButton
 		end

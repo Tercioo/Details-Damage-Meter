@@ -721,13 +721,13 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	
 	local borderframe = CreateFrame ("Frame", name, parent)
 	borderframe:SetSize (w, h)
-
+	
 	if (member) then
 		parent [member] = borderframe
 	end
 	
 	local scrollframe = CreateFrame ("ScrollFrame", name, borderframe, "DetailsFrameworkEditBoxMultiLineTemplate")
-
+	
 	scrollframe:SetScript ("OnSizeChanged", function (self)
 		scrollframe.editbox:SetSize (self:GetSize())
 	end)

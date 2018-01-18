@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 5183
+		_detalhes.build_counter = 5198
 		_detalhes.userversion = "v7.3.0." .. _detalhes.build_counter
 		_detalhes.realversion = 128 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
@@ -184,6 +184,52 @@ do
 			_detalhes.default_backdropbordercolor = {0, 0, 0, 1}
 			
 	--> Plugins
+	
+		--> plugin templates
+	
+		_detalhes.gump:NewColor ("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
+	
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE", 
+			{
+				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+				backdropcolor = {0, 0, 0, .5},
+				backdropbordercolor = {0, 0, 0, .5},
+				onentercolor = {0.3, 0.3, 0.3, .5},
+			}
+		)
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE", 
+			{
+				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+				backdropcolor = {0, 0, 0, .5},
+				backdropbordercolor = {1, 1, 0, 1},
+				onentercolor = {0.3, 0.3, 0.3, .5},
+			}
+		)
+		
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE", 
+			{
+				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+				backdropcolor = {1, 1, 1, .5},
+				backdropbordercolor = {0, 0, 0, 1},
+				onentercolor = {1, 1, 1, .9},
+				textcolor = "DETAILS_PLUGIN_BUTTONTEXT_COLOR",
+				textsize = 10,
+				width = 120,
+				height = 20,
+			}
+		)
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE", 
+			{
+				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+				backdropcolor = {1, 1, 1, .5},
+				backdropbordercolor = {1, .7, 0, 1},
+				onentercolor = {1, 1, 1, .9},
+				textcolor = "DETAILS_PLUGIN_BUTTONTEXT_COLOR",
+				textsize = 10,
+				width = 120,
+				height = 20,
+			}
+		)	
 	
 		_detalhes.PluginsGlobalNames = {}
 		_detalhes.PluginsLocalizedNames = {}

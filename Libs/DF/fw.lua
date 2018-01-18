@@ -1,5 +1,5 @@
 
-local dversion = 62
+local dversion = 63
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1054,7 +1054,21 @@ DF.slider_templates ["OPTIONS_SLIDER_TEMPLATE"] = {
 	thumbcolor = {0, 0, 0, 0.5},
 }
 
-function DF:InstallTemplate (widget_type, template_name, template)
+function DF:InstallTemplate (widget_type, template_name, template, parent_name)
+
+	local newTemplate = {}
+	
+	--if has a parent, just copy the parent to the new template
+	if (parent_name and type (parent_name) == "string") then
+		local parentTemplate = DF:GetTemplate (widget_type, parent_name)
+		if (parentTemplate) then
+			DF.table.copy (newTemplate, parentTemplate)
+		end
+	end
+	
+	--copy the template passed into the new template
+	DF.table.copy (newTemplate, template)
+
 	widget_type = string.lower (widget_type)
 	
 	local template_table
@@ -1070,9 +1084,9 @@ function DF:InstallTemplate (widget_type, template_name, template)
 		template_table = DF.slider_templates
 	end
 
-	template_table [template_name] = template
+	template_table [template_name] = newTemplate
 	
-	return template
+	return newTemplate
 end
 
 function DF:GetTemplate (widget_type, template_name)

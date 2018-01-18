@@ -67,6 +67,12 @@ local TEXTENTRY_HEIGHT = 18
 local DROPDOWN_WIDTH = 160
 local COLOR_BUTTON_WIDTH = 160
 
+
+
+local CONST_BUTTON_TEMPLATE = g:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE")
+
+
+
 _detalhes.options_window_background = [[Interface\AddOns\Details\images\options_window]]
 
 function _detalhes:SetOptionsWindowTexture (texture)
@@ -510,13 +516,6 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 		g:NewColor ("C_OptionsButtonOrange", 0.9999, 0.8196, 0, 1)
 		
-		local extra_buttons_on_enter = function (self, capsule)
-			capsule.textcolor = "yellow"
-		end
-		local extra_buttons_on_leave = function (self, capsule)
-			capsule.textcolor = "C_OptionsButtonOrange"
-		end
-		
 		local create_test_bars_func = function()
 			_detalhes.CreateTestBars()
 			if (not _detalhes.test_bar_update) then
@@ -527,10 +526,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		end
 		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, create_test_bars_func, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 41, 12)
-		fillbars.textalign = "left"
-		fillbars.textcolor = "C_OptionsButtonOrange"
-		fillbars:SetHook ("OnEnter", extra_buttons_on_enter)
-		fillbars:SetHook ("OnLeave", extra_buttons_on_leave)
+		fillbars:SetTemplate (CONST_BUTTON_TEMPLATE)
 		
 		local fillbars_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		fillbars_image:SetPoint ("right", fillbars, "left", -1, 0)
@@ -539,10 +535,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 
 		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, "change_log", nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
 		changelog:SetPoint ("left", fillbars, "right", 10, 0)
-		changelog.textalign = "left"
-		changelog.textcolor = "C_OptionsButtonOrange"
-		changelog:SetHook ("OnEnter", extra_buttons_on_enter)
-		changelog:SetHook ("OnLeave", extra_buttons_on_leave)
+		changelog:SetTemplate (CONST_BUTTON_TEMPLATE)
 		
 		local changelog_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		changelog_image:SetPoint ("right", changelog, "left", -1, 0)
@@ -551,10 +544,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 	
 		local feedback_button = g:NewButton (window, _, "$parentOpenFeedbackButton", nil, 80, 14, _detalhes.OpenFeedbackWindow, nil, nil, nil, Loc ["STRING_OPTIONS_SENDFEEDBACK"], 1)
 		feedback_button:SetPoint ("left", changelog, "right", 10, 0)
-		feedback_button.textalign = "left"
-		feedback_button.textcolor = "C_OptionsButtonOrange"
-		feedback_button:SetHook ("OnEnter", extra_buttons_on_enter)
-		feedback_button:SetHook ("OnLeave", extra_buttons_on_leave)
+		feedback_button:SetTemplate (CONST_BUTTON_TEMPLATE)
 		
 		local feedback_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		feedback_image:SetPoint ("right", feedback_button, "left", -1, 0)

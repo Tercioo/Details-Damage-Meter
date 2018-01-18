@@ -3,7 +3,7 @@
 	
 	--> default weaktable
 	_detalhes.weaktable = {__mode = "v"}
-
+	
 	--> globals
 	--[[global]] DETAILS_WA_AURATYPE_ICON = 1
 	--[[global]] DETAILS_WA_AURATYPE_TEXT = 2
@@ -26,7 +26,24 @@
 	--[[global]] DETAILS_WA_TRIGGER_INTERRUPT = 11
 	--[[global]] DETAILS_WA_TRIGGER_DISPELL = 12
 	
-	--weak auras
+	--templates
+	
+	_detalhes:GetFramework():InstallTemplate ("button", "DETAILS_FORGE_TEXTENTRY_TEMPLATE", {
+		backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}, --edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, 
+		backdropcolor = {0, 0, 0, .1},
+	})
+	
+	local CONST_BUTTON_TEMPLATE = _detalhes:GetFramework():InstallTemplate ("button", "DETAILS_FORGE_BUTTON_TEMPLATE", {
+		width = 140,
+	},
+	"DETAILS_PLUGIN_BUTTON_TEMPLATE")
+	
+	local CONST_BUTTONSELECTED_TEMPLATE = _detalhes:GetFramework():InstallTemplate ("button", "DETAILS_FORGE_BUTTONSELECTED_TEMPLATE", {
+		width = 140,
+	}, 
+	"DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE")
+	
+	--weak auras	
 	
 	local text_dispell_prototype = {
 		["outline"] = true,
@@ -1752,6 +1769,7 @@
 			f:SetMovable (true)
 			f:SetToplevel (true)
 			
+			--background
 			f.bg1 = f:CreateTexture (nil, "background")
 			f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
 			f.bg1:SetAlpha (0.8)
@@ -2290,9 +2308,13 @@
 			
 			local create_button = fw:CreateButton (f, create_func, 106, 20, L["STRING_CREATEAURA"])
 			create_button:SetTemplate (slider_template)
+			create_button:SetTemplate (_detalhes.gump:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+			create_button:SetWidth (160)
 			
 			local cancel_button = fw:CreateButton (f, function() name_textentry:ClearFocus(); f:Hide() end, 106, 20, "Cancel")
-			cancel_button:SetTemplate (slider_template)
+			cancel_button:SetTemplate (_detalhes.gump:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+			cancel_button:SetWidth (160)
+			
 			
 			create_button:SetIcon ([[Interface\Buttons\UI-CheckBox-Check]], nil, nil, nil, {0.125, 0.875, 0.125, 0.875}, nil, 4, 2)
 			cancel_button:SetIcon ([[Interface\Buttons\UI-GroupLoot-Pass-Down]], nil, nil, nil, {0.125, 0.875, 0.125, 0.875}, nil, 4, 2)
@@ -3766,13 +3788,7 @@
 			
 			-----------------------------------------------
 			
-			fw:InstallTemplate ("button", "DETAILS_FORGE_TEXTENTRY_TEMPLATE", {
-				backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}, --edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, 
-				backdropcolor = {0, 0, 0, .1},
-				--backdropbordercolor = {0, 0, 0, 1},
-				--width = 160,
-				--height = 18,
-			})
+
 
 			local select_module = function (a, b, module_number)
 			
@@ -3787,9 +3803,9 @@
 				end
 				
 				for index, button in ipairs (buttons) do
-					button.textcolor = "white"
+					button:SetTemplate (CONST_BUTTON_TEMPLATE)
 				end
-				buttons[module_number].textcolor = "orange"
+				buttons[module_number]:SetTemplate (CONST_BUTTONSELECTED_TEMPLATE)
 				
 				local module = all_modules [module_number]
 				if (module) then
@@ -3850,11 +3866,10 @@
 				local module = all_modules [i]
 				local b = fw:CreateButton (f, select_module, 140, 20, module.name, i)
 				b.tooltip = module.desc
-				b.textalign = "<"
-				b.textsize = 10
 				
+				b:SetTemplate (CONST_BUTTON_TEMPLATE)
 				b:SetIcon ([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], nil, nil, nil, nil, {1, 1, 1, 0.7})
-				b:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+				b:SetWidth (140)
 				
 				if (lastButton) then
 					if (brackets [i]) then
