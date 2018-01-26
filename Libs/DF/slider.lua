@@ -583,6 +583,25 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 		self:SetScript ("OnUpdate", on_update)
 	end)
 	
+	local do_precision = function (text)
+		if (type (text) == "string" and text:find ("%.")) then
+			local left, right = strsplit (".", text)
+			left = tonumber (left)
+			right = tonumber (right)
+			
+			if (left and right) then
+				local newString = tostring (left) .. "." .. tostring (right)
+				local newNumber = tonumber (newString)
+				
+				if (newNumber) then
+					return newNumber
+				end
+			end
+		end
+		
+		return tonumber (text)
+	end
+	
 	function DFSliderMetaFunctions:TypeValue()
 		if (not self.isSwitch) then
 		
@@ -601,24 +620,20 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 					editbox:ClearFocus()
 					editbox:Hide()
 					editbox:GetParent().MyObject.typing_value = false
-					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
+					editbox:GetParent().MyObject.value = tonumber (editbox:GetText()) --do_precision (editbox:GetText())
 				end)
 				
 				editbox:SetScript ("OnEscapePressed", function()
 					editbox:ClearFocus()
 					editbox:Hide()
 					editbox:GetParent().MyObject.typing_value = false
-					editbox:GetParent().MyObject.value = tonumber (self.typing_value_started)
+					editbox:GetParent().MyObject.value = self.typing_value_started --do_precision (self.typing_value_started)
 				end)
 
 				editbox:SetScript ("OnTextChanged", function()
 					editbox:GetParent().MyObject.typing_can_change = true
-					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
+					editbox:GetParent().MyObject.value = tonumber (editbox:GetText()) --do_precision 
 					editbox:GetParent().MyObject.typing_can_change = false
-					
-					-- esse self fica como o primeiro a ser alterado
-					--print ("text changed", self:GetName())
-					--print ()
 				end)
 				
 				DFSliderMetaFunctions.editbox_typevalue = editbox
@@ -703,14 +718,14 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 		if (slider.MyObject.useDecimals) then
 			amt = slider:GetValue()
 		else
-			amt = _math_floor (slider:GetValue())
+			amt = do_precision (slider:GetValue())
 		end
-	
+		
 		if (slider.MyObject.typing_value and not slider.MyObject.typing_can_change) then
 			slider.MyObject:SetValue (slider.MyObject.typing_value_started)
 			return
 		end
-
+	
 		table_insert (slider.MyObject.previous_value, 1, amt)
 		table_remove (slider.MyObject.previous_value, 4)
 		
@@ -910,7 +925,7 @@ function DF:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defa
 	if (not container) then
 		container = parent
 	end
-
+	
 --> defaults
 	ltext = ltext or "OFF"
 	rtext = rtext or "ON"
@@ -1096,11 +1111,18 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	--> default members:
 		SliderObject.lockdown = false
 		SliderObject.container = container
-		SliderObject.useDecimals = isDecemal or false
 		
 	SliderObject.slider = CreateFrame ("slider", name, parent)
 	SliderObject.widget = SliderObject.slider
 
+	SliderObject.useDecimals = isDecemal or false
+	
+	if (SliderObject.useDecimals) then
+		SliderObject.slider:SetValueStep (0.01)
+	else
+		SliderObject.slider:SetValueStep (step)
+	end
+	
 	if (not APISliderFunctions) then
 		APISliderFunctions = true
 		local idx = getmetatable (SliderObject.slider).__index
@@ -1119,7 +1141,6 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	SliderObject.slider:SetHeight (h)
 	SliderObject.slider:SetOrientation ("horizontal")
 	SliderObject.slider:SetMinMaxValues (min, max)
-	SliderObject.slider:SetValueStep (step)
 	SliderObject.slider:SetValue (defaultv)
 	SliderObject.ivalue = defaultv
 

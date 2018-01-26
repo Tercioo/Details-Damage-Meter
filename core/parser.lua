@@ -163,6 +163,9 @@
 	local SPELLID_PALADIN_GBOM_AURA = 203528
 	local SPELLID_PALADIN_GBOM_DAMAGE = 205729
 	
+	--> ignore warlock life tap, since it's bugged
+	local SPELLID_WARLOCK_LIFETAP = 1454
+	
 	local SPELLNAME_SHAMAN_SLASH = GetSpellInfo (195222)
 	local SPELLNAME_PALADIN_GBOM = GetSpellInfo (203528)
 	
@@ -2631,6 +2634,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		elseif (not alvo_name) then
 			return
 		end
+		
+		--> ignore warlock life tap
+		if (spellid == SPELLID_WARLOCK_LIFETAP) then
+			return
+		end
 
 	------------------------------------------------------------------------------------------------
 	--> check if is energy or resource
@@ -2655,8 +2663,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 --Player-3208-0A085522,"Licelystiri-Nemesis",0x511,0x0,
 --Player-3208-0A085522,"Licelystiri-Nemesis",0x511,0x0,
 --162243,"Demon's Bite",0x1,Player-3208-0A085522,0000000000000000,233158,242700,3555,662,17,70,100,0,1030.46,3134.93,660,28,0,17,100		
-		
-	------------------------------------------------------------------------------------------------
+	
+------------------------------------------------------------------------------------------------
 	--> get actors
 
 		--> main actor
