@@ -1405,7 +1405,7 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 		if (not shieldname) then
 			owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount = spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid
 		end
-		
+	
 		if (ignored_shields [shieldid]) then
 			return
 		
@@ -1441,7 +1441,7 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 	end
 
 	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
-	
+
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 	
@@ -2157,7 +2157,8 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 							escudo [alvo_name][spellid][who_name] = 0
 
 							if (overheal and overheal > 0) then
-								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+								--> removing the nil at the end before true for is_shield, I have no documentation change about it, not sure the reason why it was addded
+								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, true) --0, 0, nil, true
 							else
 								return
 							end
