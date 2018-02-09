@@ -110,22 +110,39 @@
 			if (_detalhes.custom_function_cache [instance.customName]) then
 				func = _detalhes.custom_function_cache [instance.customName]
 			else
-				func = loadstring (custom_object.script)
+				local errortext
+				func, errortext = loadstring (custom_object.script)
 				if (func) then
 					_detalhes.custom_function_cache [instance.customName] = func
+				else
+					_detalhes:Msg ("|cFFFF9900error compiling code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
 				end
 
-				local tooltip_script  = custom_object.tooltip and loadstring (custom_object.tooltip)
-				if (tooltip_script) then
-					_detalhes.custom_function_cache [instance.customName .. "Tooltip"] = tooltip_script
+				if (custom_object.tooltip) then
+					local tooltip_script, errortext = loadstring (custom_object.tooltip)
+					if (tooltip_script) then
+						_detalhes.custom_function_cache [instance.customName .. "Tooltip"] = tooltip_script
+					else
+						_detalhes:Msg ("|cFFFF9900error compiling tooltip code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+					end
 				end
-				local total_script = custom_object.total_script and loadstring (custom_object.total_script)
-				if (total_script) then
-					_detalhes.custom_function_cache [instance.customName .. "Total"] = total_script
+				
+				if (custom_object.total_script) then
+					local total_script, errortext = loadstring (custom_object.total_script)
+					if (total_script) then
+						_detalhes.custom_function_cache [instance.customName .. "Total"] = total_script
+					else
+						_detalhes:Msg ("|cFFFF9900error compiling total code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+					end
 				end
-				local percent_script = custom_object.percent_script and loadstring (custom_object.percent_script)
-				if (percent_script) then
-					_detalhes.custom_function_cache [instance.customName .. "Percent"] = percent_script
+				
+				if (custom_object.percent_script) then
+					local percent_script, errortext = loadstring (custom_object.percent_script)
+					if (percent_script) then
+						_detalhes.custom_function_cache [instance.customName .. "Percent"] = percent_script
+					else
+						_detalhes:Msg ("|cFFFF9900error compiling percent code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+					end
 				end
 			end
 			
@@ -133,9 +150,6 @@
 				_detalhes:Msg (Loc ["STRING_CUSTOM_FUNC_INVALID"], func)
 				_detalhes:EndRefresh (instance, 0, combat, combat [1])
 			end
-			
-			--> call the loop function
-			--total, top, amount = func (combat, instance_container, instance)
 			
 			okey, total, top, amount = _pcall (func, combat, instance_container, instance)
 			if (not okey) then
@@ -470,7 +484,7 @@
 	end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> custom object functions
-
+	
 	local actor_class_color_r, actor_class_color_g, actor_class_color_b
 	
 	function atributo_custom:UpdateBar (row_container, index, percentage_type, rank, total, top, instance, is_forced, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
@@ -484,14 +498,14 @@
 		
 		local percent
 		local okey
-
+		
 		if (percent_script) then
 			--local value, top, total, combat, instance = ...
 			okey, percent = _pcall (percent_script, self.value, top, total, combat, instance, self)
 			if (not okey) then
 				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", percent)
 				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
-			end			
+			end
 		else
 			if (percentage_type == 1) then
 				percent = _cstr ("%.1f", self.value / total * 100)
@@ -503,7 +517,11 @@
 		if (not bars_show_data [3]) then
 			percent = ""
 		else
-			percent = percent .. "%"
+			if (percent) then
+				percent = percent .. "%"
+			else
+				percent = ""
+			end
 		end
 
 		if (total_script) then
@@ -930,6 +948,9 @@
 		if (custom_object:IsScripted()) then
 			if (custom_object.tooltip) then
 				local func = _detalhes.custom_function_cache [instance.customName .. "Tooltip"]
+				if (func) then
+					
+				end
 				local okey, errortext = _pcall (func, actor, instance.showing, instance)
 				if (not okey) then
 					_detalhes:Msg ("|cFFFF9900error on custom display tooltip function|r:", errortext)

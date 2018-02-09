@@ -25,6 +25,9 @@
 
 	local end_window_spacement = 0
 	
+	--prefix used on sync statistics
+	local CONST_GUILD_SYNC = "GS"
+	
 --> settings
 
 	local animation_speed = 33
@@ -1170,7 +1173,7 @@
 	
 	
 
---> raid history window ~history
+--> raid history window ~history ~statistics
 
 	function _detalhes:InitializeRaidHistoryWindow()
 		local DetailsRaidHistoryWindow = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent)
@@ -1351,6 +1354,13 @@
 			GuildRankCheckBox:SetAsCheckBox()
 			
 			local guild_sync = function()
+			
+				f.RequestedAmount = 0
+				f.DownloadedAmount = 0
+				f.EstimateSize = 0
+				f.DownloadedSize = 0
+				f.SyncStartTime = time()
+			
 				_detalhes.storage:DBGuildSync()
 				f.GuildSyncButton:Disable()
 				
@@ -1407,6 +1417,45 @@
 			local GuildSyncButton = _detalhes.gump:CreateButton (f, guild_sync, 130, 20, Loc ["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"], nil, nil, nil, "GuildSyncButton", nil, nil, options_button_template, options_text_template)
 			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
 			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
+			
+			--> listen to comm events
+				local eventListener = _detalhes:CreateEventListener()
+
+				function eventListener:OnCommReceived (event, length, prefix, playerName, realmName, detailsVersion, guildSyncID, data)
+					if (prefix == CONST_GUILD_SYNC) then
+						--received a list of encounter IDs
+						if (guildSyncID == "L") then
+							
+						--received one encounter table
+						elseif (guildSyncID == "A") then
+							f.DownloadedAmount = f.DownloadedAmount + 1
+							
+							--size = 1 byte per characters in the string
+							f.EstimateSize = length * f.RequestedAmount > f.EstimateSize and length * f.RequestedAmount or f.RequestedAmount
+							f.DownloadedSize = f.DownloadedSize + length
+							local downloadSpeed = f.DownloadedSize / (time() - f.SyncStartTime) 
+							
+							f.SyncText:SetText ("working [downloading " .. f.DownloadedAmount .. "/" .. f.RequestedAmount .. ", " .. format ("%.2f", downloadSpeed/1024) .. "Kbps]")
+						end
+					end
+				end
+				
+				function eventListener:OnCommSent (event, length, prefix, playerName, realmName, detailsVersion, guildSyncID, missingIDs, arg8, arg9)
+					if (prefix == CONST_GUILD_SYNC) then
+						--requested a list of encounters
+						if (guildSyncID == "R") then
+							
+						
+						--requested to download a selected list of encounter tables
+						elseif (guildSyncID == "G") then
+							f.RequestedAmount = f.RequestedAmount + #missingIDs
+							f.SyncText:SetText ("working [downloading " .. f.DownloadedAmount .. "/" .. f.RequestedAmount .. "]")
+						end
+					end
+				end
+				
+				eventListener:RegisterEvent ("COMM_EVENT_RECEIVED", "OnCommReceived")
+				eventListener:RegisterEvent ("COMM_EVENT_SENT", "OnCommSent")
 			
 			function f.BuildReport()
 				if (f.LatestResourceTable) then

@@ -254,8 +254,8 @@
 							--loop end
 							
 							--if not managed inside the loop, get the values of total, top and amount
-							total, top = Container:GetTotalAndHighestValue()
-							amount = Container:GetNumActors()
+							total, top = CustomContainer:GetTotalAndHighestValue()
+							amount = CustomContainer:GetNumActors()
 							
 							--return the values
 							return total, top, amount
@@ -1726,6 +1726,21 @@
 				code_editor:SetPoint ("topleft", custom_window, "topleft", CONST_MENU_X_POSITION, CONST_EDITBOX_Y_POSITION)
 				code_editor:SetFrameLevel (custom_window:GetFrameLevel()+4)
 				code_editor:SetBackdrop (nil)
+				code_editor:HookScript ("OnUpdate", function()
+					local script = code_editor:GetText()
+					local func, errortext = loadstring (script)
+					if (not func) then
+						local firstLine = strsplit ("\n", script, 2)
+						errortext = errortext:gsub (firstLine, "")
+						errortext = errortext:gsub ("%[string \"", "")
+						errortext = errortext:gsub ("...\"]:", "")
+						errortext = "Line " .. errortext
+						DetailsCustomPanel.ErrorString.text = errortext
+					else
+						DetailsCustomPanel.ErrorString.text = ""
+					end
+					--
+				end)
 				
 				--> create a background area where the code editor is
 				local codeEditorBackground = gump:NewButton (custom_window, nil, nil, nil, 1, 1, function()end)
@@ -1833,6 +1848,11 @@
 				local open_API = gump:NewButton (supportFrame, nil, "$parentOpenAPI", "openAPIbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, _detalhes.OpenAPI, nil, nil, nil, "API")
 				open_API:SetPoint ("left", apply1, "right", 2, 0)
 				open_API:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
+				
+				local errorString = gump:CreateLabel (supportFrame)
+				errorString:SetPoint ("left", open_API, "right", 10, 0)
+				errorString.color = "red"
+				DetailsCustomPanel.ErrorString = errorString
 				
 				code_editor:SetScript ("OnShow", function()
 					expand:Show()

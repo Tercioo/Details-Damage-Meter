@@ -56,9 +56,10 @@
 			["BUFF_UPDATE_DEBUFFPOWER"] = {},
 			
 		--> network
-			["REALM_CHANNEL_ENTER"] = {},
-			["REALM_CHANNEL_LEAVE"] = {},
-		
+			["REALM_CHANNEL_ENTER"] = {}, --deprecated (realm channels are disabled)
+			["REALM_CHANNEL_LEAVE"] = {}, --deprecated
+			["COMM_EVENT_RECEIVED"] = {}, --added on core 129
+			["COMM_EVENT_SENT"] = {}, --added on core 129
 	}
 
 	local function AlreadyRegistred (_tables, _object)
@@ -109,6 +110,8 @@ local common_events = {
 	["ZONE_TYPE_CHANGED"] = true,
 	["REALM_CHANNEL_ENTER"] = true,
 	["REALM_CHANNEL_LEAVE"] = true,
+	["COMM_EVENT_RECEIVED"] = true,
+	["COMM_EVENT_SENT"] = true,
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -228,7 +231,7 @@ local common_events = {
 	
 	--> Send Event
 	function _detalhes:SendEvent (event, object, ...)
-
+		
 		--> send event to all registred plugins
 		
 		if (event == "PLUGIN_DISABLED" or event == "PLUGIN_ENABLED") then

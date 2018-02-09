@@ -483,7 +483,8 @@
 			bigdogRow:SetHeight (20)
 			bigdogRow:SetColorTexture (.5, .5, .5, .1)
 			bigdogRow:Hide()
-
+			
+			--
 		--> plugins menu title bar
 			local titlebar_plugins = CreateFrame ("frame", nil, menuBackground)
 			titlebar_plugins:SetPoint ("topleft", menuBackground, "topleft", 2, -3)
@@ -510,7 +511,16 @@
 		
 		--> scripts
 			f:SetScript ("OnShow", function()
-				
+				--check if the window isn't out of screen
+				C_Timer.After (1, function()
+					local right = f:GetRight()
+					if (right and right > GetScreenWidth() + 500) then
+						f:ClearAllPoints()
+						f:SetPoint ("center", UIParent, "center", 0, 0)
+						LibWindow.SavePosition (f)
+						_detalhes:Msg ("detected options panel out of screen, position has reset")
+					end
+				end)
 			end)
 			
 			f:SetScript ("OnHide", function()

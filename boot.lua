@@ -3,9 +3,9 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 5231
+		_detalhes.build_counter = 5282
 		_detalhes.userversion = "v7.3.0." .. _detalhes.build_counter
-		_detalhes.realversion = 128 --core version
+		_detalhes.realversion = 129 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		Details = _detalhes
 

@@ -518,7 +518,7 @@ function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instance)
 end
 
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)
-
+	
 	morte ["dead"] = true --> marca que esta tabela é uma tabela de mortes, usado no controla na hora de montar o tooltip
 	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
 	
@@ -539,7 +539,7 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 		_setmetatable (morte, {__call = RefreshBarraMorte}) 
 		morte._custom = true
 	end
-
+	
 	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. morte [3]:gsub (("%-.*"), ""))
 	esta_barra.texto_direita:SetText (morte [6])
 	

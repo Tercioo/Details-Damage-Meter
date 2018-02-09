@@ -603,83 +603,84 @@ Extract the npcId from the actor guid.
 	
 	--custom displays
 [[
-Cstom Display is a special display where users can set their own rules on searching for what show in the window.
-There is 4 scripts which compose the display:
+@TITLECustom Displays@
+@DESCis a special display where users can set their own rules.
+There is 4 scripts which composes a custom display:@
 
-Required:
-Search - this is the main script, it's responsible to build a list of actors to show in the window.
+@TITLERequired:@
+@DESCSearch: the main script, it's responsible to search and build what the window will show.@
 
-Optional:
-Tooltip - it runs when the user hover over a bar.
-Total - runs when showing the bar, and helps format the total done.
-Percent - also runs when showing the bar, it formats the percentage amount.
+@TITLEOptional:@
+@DESCTooltip: runs when the user hover over a bar.
+Total: helps format the total done number.
+Percent: formats the percent number amount.@
 
 
-Search Code:
-- The script receives 3 parameters: *Combat, *CustomContainer and *Instance.
+@TITLESearch Code:@
+@DESC- The script receives 3 parameters: *Combat, *CustomContainer and *Instance.
 *Combat - is the reference for the selected combat shown in the window (the one selected on segments menu).
 *CustomContainer - is the place where the display mantain stored the results, Details! get the content inside the container and use to update the window.
 *Instance - is the reference of the window where the custom display is shown.
 
 - Also, the script must return three values: total made by all players, the amount of the top player and the amount of players found by the script.
-- The search script basically begins getting these three parameters and declaring our three return values:
+- The search script basically begins getting these three parameters and declaring our three return values:@
 
-local Combat, CustomContainer, Instance = ...
-local total, top, amount = 0, 0, 0
+@CODElocal Combat, CustomContainer, Instance = ...
+local total, top, amount = 0, 0, 0@
 
-- Then, we build our search for wherever we want to show, here we are building an example for Damage Done by Pets and Guardians.
-- So, as we are working with damage, we want to get a list of Actors from the Damage Container of the combat and iterate it with ipairs:
+@DESC- Then, we build our search for wherever we want to show, here we are building an example for Damage Done by Pets and Guardians.
+- So, as we are working with damage, we want to get a list of Actors from the Damage Container of the combat and iterate it with ipairs:@
 
-local damage_container = combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
+@CODElocal damage_container = combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
 for i, actor in ipairs( damage_container ) do
 	--do stuff
-end
+end@
 
-- Actor, can be anything, a monster, player, boss, etc, so, we need to check if actor is a pet:
+@DESC- Actor, can be anything, a monster, player, boss, etc, so, we need to check if actor is a pet:@
 
-if (actor:IsPetOrGuardian()) then
+@CODEif (actor:IsPetOrGuardian()) then
 	--do stuff
-end
+end@
 
-- Now we found a pet, we need to get the damage done and find who is the owner of this pet, after that, we also need to check if the owner is a player:
+@DESC- Now we found a pet, we need to get the damage done and find who is the owner of this pet, after that, we also need to check if the owner is a player:@
 
-local petOwner = actor.owner
+@CODElocal petOwner = actor.owner
 if (petOwner:IsPlayer()) then
 	local petDamage = actor.total
-end
+end@
 
-- The next step is add the pet owner into the CustomContainer:
+@DESC- The next step is add the pet owner into the CustomContainer:@
 
-CustomContainer:AddValue (petOwner, petDamage)
+@CODECustomContainer:AddValue (petOwner, petDamage)@
 
-- And in the and, we need to get the total, top and amount values. This is generally calculated inside our loop above, but just calling the API for the result is more handy:
+@DESC- And in the and, we need to get the total, top and amount values. This is generally calculated inside our loop above, but just calling the API for the result is more handy:@
 
-total, top = CustomContainer:GetTotalAndHighestValue()
+@CODEtotal, top = CustomContainer:GetTotalAndHighestValue()
 amount = CustomContainer:GetNumActors()
-return total, top, amount
+return total, top, amount@
 
 
-The finished script looks like this:
-
+@DESCThe finished script looks like this:@
+@CODE
 local Combat, CustomContainer, Instance = ...
 local total, top, amount = 0, 0, 0
 
 local damage_container = Combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
 for i, actor in ipairs( damage_container ) do
-	if (actor:IsPetOrGuardian()) then
-		local petOwner = actor.owner
-		if (petOwner:IsPlayer()) then
-			local petDamage = actor.total
-			CustomContainer:AddValue( petOwner, petDamage )
-		end
-	end
+ if (actor:IsPetOrGuardian()) then
+  local petOwner = actor.owner
+  if (petOwner:IsPlayer()) then
+   local petDamage = actor.total
+   CustomContainer:AddValue( petOwner, petDamage )
+  end
+ end
 end
 
 total, top = CustomContainer:GetTotalAndHighestValue()
 amount = CustomContainer:GetNumActors()
 
 return total, top, amount
-
+@
 
 Tooltip Code:
 - The script receives 3 parameters: *Actor, *Combat and *Instance. This script has no return value.
@@ -697,10 +698,10 @@ local actorPets = Actor.pets
 - In Details! always use ">= 1" not "> 0", also when not using our format functions, use at least floor()
 
 for i, petName in ipairs( actorPets ) do
-	local petActor = Combat( DETAILS_ATTRIBUTE_DAMAGE, petName)
-	if (petActor and petActor.total >= 1) then
-		--do stuff
-	end
+ local petActor = Combat( DETAILS_ATTRIBUTE_DAMAGE, petName)
+ if (petActor and petActor.total >= 1) then
+  --do stuff
+ end
 end
 
 - With the pet in hands, what we have to do now is add this pet to our tooltip.
