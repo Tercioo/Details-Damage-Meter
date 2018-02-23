@@ -43,6 +43,7 @@ functions\timedata.lua
 functions\report.lua
 functions\rowanimation.lua
 functions\raidinfo.lua
+functions\dungeon.lua
 
 core\timemachine.lua
 

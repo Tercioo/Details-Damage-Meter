@@ -1307,6 +1307,9 @@ local default_global_data = {
 			boss_dedicated_segment = true, --
 			make_overall_when_done = true, --
 			make_overall_boss_only = false, --
+			show_damage_graphic = true,
+			last_mythicrun_chart = {},
+			mythicrun_chart_frame = {},
 		},
 	
 	--> plugin window positions

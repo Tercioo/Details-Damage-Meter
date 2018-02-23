@@ -2143,8 +2143,7 @@ local icon_frame_on_enter = function (self)
 		elseif (actor.dead_at) then
 			
 		
-		else
-			--> is a normal actor
+		elseif (actor.name) then --ensure it's an actor table
 		
 			local serial = actor.serial
 			local name = actor:name()
