@@ -6,7 +6,7 @@
 
 --local pointer to details object
 local Details = _G._detalhes
-local debugmode = true
+local debugmode = false
 
 --constants
 local CONST_USE_PLAYER_EDPS = false
@@ -166,8 +166,6 @@ function mythicDungeonCharts:OnBossDefeated()
 	local segmentType = currentCombat:GetCombatType()
 	local bossInfo = currentCombat:GetBossInfo()
 	
-	print (mythicDungeonCharts.ChartTable, mythicDungeonCharts.ChartTable.Running, segmentType, bossInfo)
-	
 	if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running and bossInfo) then
 
 		local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
@@ -214,7 +212,10 @@ function mythicDungeonCharts:OnStartMythicDungeon()
 	
 	mythicDungeonCharts.ChartTable.Ticker = C_Timer.NewTicker (1, tickerCallback)
 	
-	_detalhes.mythic_plus.last_mythicrun_chart = mythicDungeonCharts.ChartTable
+	--save the chart for development
+	if (debugmode) then
+		_detalhes.mythic_plus.last_mythicrun_chart = mythicDungeonCharts.ChartTable
+	end
 end
 
 function mythicDungeonCharts:OnEndMythicDungeon()
@@ -229,7 +230,7 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 		
 		mythicDungeonCharts:Debug ("Dungeon ended, chart data capture stopped")
 		
-		mythicDungeonCharts.ShowChart()
+		C_Timer.After (_detalhes.mythic_plus.delay_to_show_graphic or 5, mythicDungeonCharts.ShowChart)
 	else
 		mythicDungeonCharts:Debug ("Dungeon ended, no chart data was running")
 	end
@@ -276,6 +277,13 @@ function mythicDungeonCharts.ShowChart()
 		f.BossWidgetsFrame = CreateFrame ("frame", "$parentBossFrames", f)
 		f.BossWidgetsFrame:SetFrameLevel (f:GetFrameLevel()+10)
 		f.BossWidgetsFrame.Widgets = {}
+		
+		local closeButton = CreateFrame ("button", "$parentCloseButton", f, "UIPanelCloseButton")
+		closeButton:GetNormalTexture():SetDesaturated (true)
+		closeButton:SetWidth (20)
+		closeButton:SetHeight (20)
+		closeButton:SetPoint ("topright", f, "topright", 0, -3)
+		closeButton:SetFrameLevel (f:GetFrameLevel()+16)
 		
 		function f.ChartFrame.RefreshBossTimeline (self, bossTable, elapsedTime)
 			
@@ -328,14 +336,20 @@ function mythicDungeonCharts.ShowChart()
 		end
 
 	end
-
+	
 	mythicDungeonCharts.Frame.ChartFrame:Reset()
 	
-	if (not mythicDungeonCharts.ChartTable) then
-		--load the last mythic dungeon run chart
-		local t = {}
-		Details:GetFramework().table.copy (t, Details.mythic_plus.last_mythicrun_chart)
-		mythicDungeonCharts.ChartTable = t
+	if (not mythicDungeonCharts.ChartTable and debugmode) then
+		--development
+		if (Details.mythic_plus.last_mythicrun_chart) then
+			--load the last mythic dungeon run chart
+			local t = {}
+			Details:GetFramework().table.copy (t, Details.mythic_plus.last_mythicrun_chart)
+			mythicDungeonCharts.ChartTable = t
+		end
+	else
+		f:Hide()
+		return
 	end
 	
 	local charts = mythicDungeonCharts.ChartTable.Players
@@ -394,7 +408,6 @@ function mythicDungeonCharts.ShowChart()
 		--]=]
 	end
 	
-	
 	mythicDungeonCharts.Frame.ChartFrame:RefreshBossTimeline (mythicDungeonCharts.ChartTable.BossDefeated, mythicDungeonCharts.ChartTable.ElapsedTime)
 	
 	--generate boss time table
@@ -406,17 +419,19 @@ function mythicDungeonCharts.ShowChart()
 		tinsert (bossTimeTable, bossTable[1] - combatTime)
 	end
 	
-	mythicDungeonCharts.Frame.ChartFrame:AddOverlay (bossTimeTable, {1, 1, 1, 0.05}, "Boss Combat Time", "")
+	mythicDungeonCharts.Frame.ChartFrame:AddOverlay (bossTimeTable, {1, 1, 1, 0.05}, "Show Boss", "")
 	
+	--local phrase = " Average Dps (under development)\npress Escape to hide, Details! Alpha Build." .. _detalhes.build_counter .. "." .. _detalhes.realversion
+	local phrase = "Details!: Average Dps for "
 	
-	local phrase = " Average Dps (under development)\npress Escape to hide, Details! Alpha Build." .. _detalhes.build_counter .. "." .. _detalhes.realversion
-	
-	mythicDungeonCharts.Frame.ChartFrame:SetTitle (mythicDungeonCharts.ChartTable.DungeonName and mythicDungeonCharts.ChartTable.DungeonName .. phrase or phrase)
+	mythicDungeonCharts.Frame.ChartFrame:SetTitle (mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
 	Details:GetFramework():SetFontSize (mythicDungeonCharts.Frame.ChartFrame.chart_title, 14)
 	
-	
+	mythicDungeonCharts.Frame:Show()
 end
 
---C_Timer.After (1, mythicDungeonCharts.ShowChart)
+if (debugmode) then
+	C_Timer.After (1, mythicDungeonCharts.ShowChart)
+end
 
 -- endd

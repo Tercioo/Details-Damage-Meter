@@ -2483,6 +2483,19 @@ function window:CreateFrame18()
 				
 				window:CreateLineBackground2 (frame18, "DisableMythicDungeonSlider", "DisableMythicDungeonLabel", "Threat mythic dungeon segments as common segments: no trash merge, no mythic run overall, segments wraps on entering and leaving combat.")
 				
+			--> disable chart at the end of a mythic dungeon
+				g:NewLabel (frame18, _, "$parentDisableMythicDungeonChartLabel", "DisableMythicDungeonChartLabel", "Show Mythic Dungeon Damage Graphic", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentDisableMythicDungeonChartSlider", "DisableMythicDungeonChartSlider", 60, 20, _, _, _detalhes.mythic_plus.show_damage_graphic, nil, nil, nil, nil, options_switch_template)
+
+				frame18.DisableMythicDungeonChartSlider:SetPoint ("left", frame18.DisableMythicDungeonChartLabel, "right", 2)
+				frame18.DisableMythicDungeonChartSlider:SetAsCheckBox()
+				frame18.DisableMythicDungeonChartSlider.OnSwitch = function (_, _, value)
+					_detalhes.mythic_plus.show_damage_graphic = not _detalhes.mythic_plus.show_damage_graphic
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "DisableMythicDungeonChartSlider", "DisableMythicDungeonChartLabel", "At the end of a mythic dungeon run, show a graphic with the DPS of each player.")
+				
 			--> clear cache
 				g:NewLabel (frame18, _, "$parentClearCacheLabel", "ClearCacheLabel", "Clear Cache on New Event", "GameFontHighlightLeft")
 				g:NewSwitch (frame18, _, "$parentClearCacheSlider", "ClearCacheSlider", 60, 20, _, _, _detalhes.streamer_config.reset_spec_cache, nil, nil, nil, nil, options_switch_template)
@@ -2544,6 +2557,7 @@ function window:CreateFrame18()
 			{"FasterUpdatesLabel"},
 			{"QuickDetectionLabel"},
 			{"DisableMythicDungeonLabel"},
+			{"DisableMythicDungeonChartLabel"},
 			{"ClearCacheLabel"},
 			--{"AdvancedAnimationsLabel"},
 		}
@@ -11668,6 +11682,7 @@ end --> if not window
 		_G.DetailsOptionsWindow18FasterUpdatesSlider.MyObject:SetValue (_detalhes.streamer_config.faster_updates)
 		_G.DetailsOptionsWindow18QuickDetectionSlider.MyObject:SetValue (_detalhes.streamer_config.quick_detection)
 		_G.DetailsOptionsWindow18DisableMythicDungeonSlider.MyObject:SetValue (_detalhes.streamer_config.disable_mythic_dungeon)
+		_G.DetailsOptionsWindow18DisableMythicDungeonChartSlider.MyObject:SetValue (_detalhes.mythic_plus.show_damage_graphic)
 		_G.DetailsOptionsWindow18ClearCacheSlider.MyObject:SetValue (_detalhes.streamer_config.reset_spec_cache)
 		--_G.DetailsOptionsWindow18AdvancedAnimationsSlider.MyObject:SetValue (_detalhes.streamer_config.use_animation_accel)
 		

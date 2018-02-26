@@ -1308,6 +1308,7 @@ local default_global_data = {
 			make_overall_when_done = true, --
 			make_overall_boss_only = false, --
 			show_damage_graphic = true,
+			delay_to_show_graphic = 5,
 			last_mythicrun_chart = {},
 			mythicrun_chart_frame = {},
 		},
