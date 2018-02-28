@@ -165,27 +165,32 @@ function mythicDungeonCharts:OnBossDefeated()
 	local currentCombat = Details:GetCurrentCombat()
 	local segmentType = currentCombat:GetCombatType()
 	local bossInfo = currentCombat:GetBossInfo()
+	local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 	
-	if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running and bossInfo) then
+	if (mythicLevel and mythicLevel > 0) then
+		if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running and bossInfo) then
 
-		local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
-		tinsert (mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
-		mythicDungeonCharts:Debug ("Boss defeated, time saved", currentCombat:GetCombatTime())
-	else
-		if (mythicDungeonCharts.ChartTable.EndTime ~= -1) then
-			local now = time()
-			--check if the dungeon just ended
-			if (mythicDungeonCharts.ChartTable.EndTime + 2 >= now) then
-			
-				if (bossInfo) then
-					local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
-					tinsert (mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
-					mythicDungeonCharts:Debug ("Boss defeated, time saved, but used time aproximation:", mythicDungeonCharts.ChartTable.EndTime + 2, now, currentCombat:GetCombatTime())
-				end
-			end
+			local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
+			tinsert (mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
+			mythicDungeonCharts:Debug ("Boss defeated, time saved", currentCombat:GetCombatTime())
 		else
-			mythicDungeonCharts:Debug ("Boss defeated, but no chart capture is running")
+			if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.EndTime ~= -1) then
+				local now = time()
+				--check if the dungeon just ended
+				if (mythicDungeonCharts.ChartTable.EndTime + 2 >= now) then
+				
+					if (bossInfo) then
+						local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
+						tinsert (mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
+						mythicDungeonCharts:Debug ("Boss defeated, time saved, but used time aproximation:", mythicDungeonCharts.ChartTable.EndTime + 2, now, currentCombat:GetCombatTime())
+					end
+				end
+			else
+				mythicDungeonCharts:Debug ("Boss defeated, but no chart capture is running")
+			end
 		end
+	else
+		mythicDungeonCharts:Debug ("Boss defeated, but isn't a mythic dungeon boss fight")
 	end
 end
 
