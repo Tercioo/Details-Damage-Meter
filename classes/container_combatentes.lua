@@ -209,7 +209,7 @@
 			if (_bit_band (flag, OBJECT_TYPE_PLAYER) ~= 0) then
 			
 				if (not _detalhes.ignore_nicktag) then
-					novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
+					novo_objeto.displayName = _detalhes:GetNickname (nome, false, true) --> serial, default, silent
 				end
 				if (not novo_objeto.displayName) then
 					if (_detalhes.remove_realm_from_name) then

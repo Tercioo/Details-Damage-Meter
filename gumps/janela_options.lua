@@ -4062,7 +4062,7 @@ function window:CreateFrame1()
 				_detalhes:Msg (errortext)
 			end
 			--> we call again here, because if not accepted the box return the previous value and if successful accepted, update the value for formated string.
-			local nick = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
+			local nick = _detalhes:GetNickname (UnitName ("player"), UnitName ("player"), true)
 
 			frame1.nicknameEntry.text = nick
 			_G.DetailsOptionsWindow1AvatarNicknameLabel:SetText (nick)
@@ -4286,8 +4286,8 @@ function window:CreateFrame1()
 	
 	--> avatar
 	
-		local avatar = NickTag:GetNicknameAvatar (UnitGUID ("player"), NICKTAG_DEFAULT_AVATAR, true)
-		local background, cords, color = NickTag:GetNicknameBackground (UnitGUID ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
+		local avatar = NickTag:GetNicknameAvatar (UnitName ("player"), NICKTAG_DEFAULT_AVATAR, true)
+		local background, cords, color = NickTag:GetNicknameBackground (UnitName ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
 		
 		frame1.avatarPreview.texture = avatar
 		frame1.avatarPreview2.texture = background
@@ -11946,7 +11946,7 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow5FixedTextColor.MyObject:SetColor (unpack (editing_instance.row_info.fixed_text_color))
 		
-		_G.DetailsOptionsWindow1NicknameEntry.MyObject.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true) or ""
+		_G.DetailsOptionsWindow1NicknameEntry.MyObject.text = _detalhes:GetNickname (UnitName ("player"), UnitName ("player"), true) or ""
 		_G.DetailsOptionsWindow1TTDropdown.MyObject:Select (_detalhes.time_type, true)
 		
 		_G.DetailsOptionsWindow.MyObject.instance = instance
@@ -11986,8 +11986,8 @@ end --> if not window
 		
 		window:Show()
 
-		local avatar = NickTag:GetNicknameAvatar (UnitGUID ("player"), NICKTAG_DEFAULT_AVATAR, true)
-		local background, cords, color = NickTag:GetNicknameBackground (UnitGUID ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
+		local avatar = NickTag:GetNicknameAvatar (UnitName ("player"), NICKTAG_DEFAULT_AVATAR, true)
+		local background, cords, color = NickTag:GetNicknameBackground (UnitName ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
 
 		_G.DetailsOptionsWindow1AvatarPreviewTexture.MyObject.texture = avatar
 		_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject.texture = background
@@ -12002,7 +12002,7 @@ end --> if not window
 			_G.DetailsOptionsWindow1.HaveAvatar = false
 		end
 
-		local nick = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
+		local nick = _detalhes:GetNickname (UnitName ("player"), UnitName ("player"), true)
 		_G.DetailsOptionsWindow1AvatarNicknameLabel:SetText (nick)
 		
 		if (window.update_wallpaper_info) then

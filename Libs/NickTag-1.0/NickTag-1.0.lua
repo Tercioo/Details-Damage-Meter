@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 9
+local major, minor = "NickTag-1.0", 10
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -48,7 +48,7 @@ end
 	local queue_send = {}
 	local last_queue = 0
 	local is_updating = false
-	NickTag.debug = false
+	NickTag.debug = true
 	
 	local GetGuildRosterInfo = GetGuildRosterInfo
 
@@ -77,8 +77,8 @@ end
 		return target
 	end
 	
-	function NickTag:Msg (text)
-		print ("|cFFFFFF00NickTag:|r",text)
+	function NickTag:Msg (text, text2)
+		print ("|cFFFFFF00NickTag:|r",text, text2 or "")
 	end
 	
 	local enUS = LibStub("AceLocale-3.0"):NewLocale ("NickTag-1.0", "enUS", true)
@@ -86,6 +86,7 @@ end
 		enUS ["STRING_ERROR_1"] = "Your nickname is too long, max of 12 characters is allowed."
 		enUS ["STRING_ERROR_2"] = "Only letters and two spaces are allowed."
 		enUS ["STRING_ERROR_3"] = "You can't use the same letter three times consecutively, two spaces consecutively or more then two spaces."
+		enUS ["STRING_ERROR_4"] = "Name isn't a valid string."
 		enUS ["STRING_INVALID_NAME"] = "Invalid Name"
 	end
 	
@@ -94,6 +95,7 @@ end
 		ptBR ["STRING_ERROR_1"] = "Seu apelido esta muito longo, o maximo permitido sao 12 caracteres."
 		ptBR ["STRING_ERROR_2"] = "Apenas letras, numeros e espacos sao permitidos no apelido."
 		ptBR ["STRING_ERROR_3"] = "Voce nao pode usar a mesma letra mais de 2 vezes consecutivas, dois espacos consecutivos ou mais de 2 espacos."
+		ptBR ["STRING_ERROR_4"] = "Nome nao eh uma string valida."
 		ptBR ["STRING_INVALID_NAME"] = "Nome Invalido"
 	end
 	
@@ -210,8 +212,12 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --> send and receive functions
 
-	function NickTag:OnReceiveComm (_, data, _, source)
-
+	function NickTag:OnReceiveComm (prefix, data, channel, source)
+	
+		if (not source) then
+			return
+		end
+	
 		local _type, serial, arg3, name, realm, version =  select (2, NickTag:Deserialize (data))
 
 		--> 0x1: received a full persona
@@ -219,47 +225,92 @@ end
 			local receivedPersona = arg3
 			version = name
 			
-			if (serial ~= NickTag:GetSerial() and (version and version == minor)) then
+			if (not receivedPersona or type (receivedPersona) ~= "table") then
+				if (NickTag.debug) then
+					NickTag:Msg ("FULLPERSONA received but it's invalid ", source)
+				end
+				return
+			end
+			
+			if (source ~= UnitName ("player") and (version and version == minor) and receivedPersona) then
 
-				local storedPersona = NickTag:GetNicknameTable (serial)
+				local storedPersona = NickTag:GetNicknameTable (source)
 				if (not storedPersona) then
-					storedPersona = NickTag:Create (serial)
+					storedPersona = NickTag:Create (source)
 				end
 				
 				if (storedPersona [CONST_INDEX_REVISION] < receivedPersona [CONST_INDEX_REVISION]) then
 					storedPersona [CONST_INDEX_REVISION] = receivedPersona [CONST_INDEX_REVISION]
 					
 					--> we need to check if the received nickname fit in our rules.
-					--local allowNickName = NickTag:CheckName (receivedPersona [CONST_INDEX_NICKNAME])
-					--if (allowNickName) then
-					--	storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
-					--else
-						--storedPersona [CONST_INDEX_NICKNAME] = LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]
-					--end
+					local allowNickName = NickTag:CheckName (receivedPersona [CONST_INDEX_NICKNAME])
+					if (allowNickName) then
+						storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
+					else
+						storedPersona [CONST_INDEX_NICKNAME] = LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]
+					end
 					
 					storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
 					
 					--> update the rest
-					storedPersona [CONST_INDEX_AVATAR_PATH] = receivedPersona [CONST_INDEX_AVATAR_PATH]
-					storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]
-					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]
-					storedPersona [CONST_INDEX_BACKGROUND_PATH] = receivedPersona [CONST_INDEX_BACKGROUND_PATH]
-					storedPersona [CONST_INDEX_BACKGROUND_COLOR] = receivedPersona [CONST_INDEX_BACKGROUND_COLOR]
+						--avatar path
+						storedPersona [CONST_INDEX_AVATAR_PATH] = type (receivedPersona [CONST_INDEX_AVATAR_PATH]) == "string" and receivedPersona [CONST_INDEX_AVATAR_PATH] or ""
+						
+						--avatar texcoord
+						if (type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
+							
+						elseif (type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "table") then
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = storedPersona [CONST_INDEX_AVATAR_TEXCOORD] or {}
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] or 0
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] or 1
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] or 0
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] or 1
+						else
+							storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
+						end
+						
+						--background texcoord
+						if (type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "boolean") then
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
+							
+						elseif (type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "table") then
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] or {}
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] or 0
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] or 1
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] or 0
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] or 1
+						else
+							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
+						end						
+						
+						--background path
+						storedPersona [CONST_INDEX_BACKGROUND_PATH] = type (receivedPersona [CONST_INDEX_BACKGROUND_PATH]) == "string" and receivedPersona [CONST_INDEX_BACKGROUND_PATH] or ""
+						
+						--background color
+						if (type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR]) == "table") then
+							storedPersona [CONST_INDEX_BACKGROUND_COLOR] = storedPersona [CONST_INDEX_BACKGROUND_COLOR] or {}
+							storedPersona [CONST_INDEX_BACKGROUND_COLOR][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1] or 1
+							storedPersona [CONST_INDEX_BACKGROUND_COLOR][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2] or 1
+							storedPersona [CONST_INDEX_BACKGROUND_COLOR][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3] or 1
+						else
+							storedPersona [CONST_INDEX_BACKGROUND_COLOR] = {1, 1, 1}
+						end
 				end
 			end
 		
 		--> 0x2: received a revision version from a guy which logon in the game
 		elseif (_type == CONST_COMM_LOGONREVISION) then
 		
-			if (UnitName ("player") == name) then
+			if (UnitName ("player") == source) then
 				return
 			end
 		
 			local receivedRevision = arg3
-			local storedPersona = NickTag:GetNicknameTable (serial)
+			local storedPersona = NickTag:GetNicknameTable (source)
 			
 			if (NickTag.debug) then
-				NickTag:Msg ("LOGONREVISION from: " .. name .. " rev: " .. receivedRevision)
+				NickTag:Msg ("LOGONREVISION rev: " .. receivedRevision .. " source: " .. source)
 			end
 			
 			if (type (version) ~= "number" or version ~= minor) then
@@ -267,41 +318,30 @@ end
 			end
 			
 			if (not storedPersona or storedPersona [CONST_INDEX_REVISION] < receivedRevision) then
-				--> not sure how connected realms will work, but guess this will be fine
-				if (realm ~= GetRealmName()) then
-					name = name .. "-" .. realm
-				end
-				
 				--> put in queue our request for receive a updated persona
-				NickTag:ScheduleTimer ("QueueRequest", math.random (10, 60), name)
+				NickTag:ScheduleTimer ("QueueRequest", math.random (10, 60), source)
 				
 				if (NickTag.debug) then
-					NickTag:Msg ("LOGONREVISION from: " .. name .. " |cFFFF0000is out of date|r, queueing a request persona.")
+					NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFFFF0000is out of date|r, queueing a request persona.")
 				end
 			else
 				if (NickTag.debug) then
-					NickTag:Msg ("LOGONREVISION from: " .. name .. " |cFF00FF00is up to date.")
+					NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFF00FF00is up to date.")
 				end
 			end
 			
 		--> 0x3: someone requested my persona, so i need to send to him
 		elseif (_type == CONST_COMM_REQUESTPERSONA) then
-		
 			if (type (version) ~= "number" or version ~= minor) then
 				return
-			end
-		
-			--> not sure how connected realms will work, but guess this will be fine
-			if (realm ~= GetRealmName()) then
-				name = name .. "-" .. realm
 			end
 			
 			--> queue to send our persona for requested person
 			if (NickTag.debug) then
-				NickTag:Msg ("REQUESTPERSONA from: " .. name .. ", the request has been placed in queue.")
+				NickTag:Msg ("REQUESTPERSONA from: " .. source .. ", the request has been placed in queue.")
 			end
 			
-			NickTag:QueueSend (name)
+			NickTag:QueueSend (source)
 		end
 
 	end
@@ -463,19 +503,14 @@ end
 
 	--> after logon, we send our revision, who needs update my persona will send 0x3 (request persona) to me and i send back 0x1 (send persona)
 	function NickTag:SendRevision()
-	
-		local battlegroup_serial = NickTag:GetSerial()
-		if (not battlegroup_serial) then
-			return
-		end
-		
-		local myPersona = NickTag:GetNicknameTable (battlegroup_serial)
+		local playerName = UnitName ("player")
+		local myPersona = NickTag:GetNicknameTable (playerName)
 		if (myPersona) then
 			if (NickTag.debug) then
 				NickTag:Msg ("SendRevision() -> SENT")
 			end
 			if (IsInGuild()) then
-				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, battlegroup_serial, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
+				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, 0, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
 			end
 		end
 	end
@@ -497,21 +532,19 @@ end
 				NickTag:Msg ("SendPersona() -> sent to " .. target)
 			end
 		end
-		local battlegroup_serial = NickTag:GetSerial()
-		if (not battlegroup_serial) then
-			return
-		end
 		
 		--> auto change nickname if we have a invalid nickname
-		if (NickTag:GetNickname (UnitGUID ("player")) == LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]) then
-			local nick_table = NickTag:GetNicknameTable (UnitGUID ("player"))
-			nick_table [CONST_INDEX_NICKNAME] = UnitName ("player")
+		if (NickTag:GetNickname (UnitName ("player")) == LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]) then
+			local nickTable = NickTag:GetNicknameTable (UnitName ("player"))
+			if (nickTable) then
+				nickTable [CONST_INDEX_NICKNAME] = UnitName ("player")
+			end
 		end
 		
 		if (target) then
 			--> was requested
 			if (IsInGuild()) then
-				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, battlegroup_serial, NickTag:GetNicknameTable (battlegroup_serial), minor), "WHISPER", target)
+				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, 0, NickTag:GetNicknameTable (UnitName ("player")), minor), "WHISPER", target)
 			end
 		else
 			--> updating my own persona
@@ -520,7 +553,7 @@ end
 			NickTag:IncRevision()
 			--> broadcast over guild channel
 			if (IsInGuild()) then
-				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, battlegroup_serial, NickTag:GetNicknameTable (battlegroup_serial), minor), "GUILD")
+				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, 0, NickTag:GetNicknameTable (UnitName ("player")), minor), "GUILD")
 			end
 		end
 	end
@@ -531,15 +564,14 @@ end
 	--> reset cache
 	function NickTag:ResetCache()
 	
-		local guid = UnitGUID ("player")
+		local playerName = UnitName ("player")
 		
-		if (guid) then
-			local player = NickTag:GetNicknameTable (guid)
+		if (playerName) then
+			local player = NickTag:GetNicknameTable (playerName)
 			if (player and pool.last_version == minor) then
-				local serial = NickTag:GetSerial (guid)
-				for this_serial, _ in pairs (pool) do
-					if (this_serial ~= serial) then
-						pool [this_serial] = nil
+				for thisPlayerName, _ in pairs (pool) do
+					if (thisPlayerName ~= playerName) then
+						pool [thisPlayerName] = nil
 					end
 				end
 				--vardump (pool)
@@ -606,8 +638,12 @@ end
 	--> we need to keep game smooth checking and formating nicknames.
 	--> SetNickname and names comming from other player need to be check.
 	function NickTag:CheckName (name)
-	
+		
 		--> as nicktag only work internally in the guild, we think that is not necessary a work filter to avoid people using bad language.
+		
+		if (type (name) ~= "string") then
+			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_4"] --> error 4 = name isn't a valid string
+		end
 		
 		name = trim (name)
 		
@@ -642,34 +678,33 @@ end
 
 	--> set the "player" nickname and schedule for send updated persona
 	function NickTag:SetNickname (name)
+	
 		--> check data before
 		assert (type (name) == "string", "NickTag 'SetNickname' expects a string on #1 argument.")
 		
 		--> check if the nickname is okey to allowed to use.
 		local okey, errortype = NickTag:CheckName (name)
 		if (not okey) then
+			if (NickTag.debug) then
+				NickTag:Msg ("SetNickname() invalid name ", name)
+			end
 			return false, errortype
 		end
 		
 		--> here we format the text to match titles, e.g converts name like "JASON NICKSHOW" into "Jason Nickshow". 
 		name = name:gsub ("(%a)([%w_']*)", titlecase)
 		
-		--> get player serial, note that serials are unique between battlegroups and we are using serial instead of full GUID just for reduce memory usage, 
-		--> e.g guids are strings with 18 characters, serials are 8 digits number (or 9).
-		local battlegroup_serial = NickTag:GetSerial()
-		if (not battlegroup_serial) then
-			return
-		end
+		local playerName = UnitName ("player")
 		
 		--> get the full nick table.
-		local nick_table = NickTag:GetNicknameTable (battlegroup_serial)
-		if (not nick_table) then
-			nick_table = NickTag:Create (battlegroup_serial, true)
+		local nickTable = NickTag:GetNicknameTable (playerName)
+		if (not nickTable) then
+			nickTable = NickTag:Create (playerName, true)
 		end
 		
 		--> change the nickname for the player nick table.
-		if (nick_table [CONST_INDEX_NICKNAME] ~= name) then
-			nick_table [CONST_INDEX_NICKNAME] = name
+		if (nickTable [CONST_INDEX_NICKNAME] ~= name) then
+			nickTable [CONST_INDEX_NICKNAME] = name
 			
 			--> send the update for script which need it.
 			NickTag.callbacks:Fire ("NickTag_Update", CONST_INDEX_NICKNAME)
@@ -679,6 +714,11 @@ end
 			if (not NickTag.send_scheduled) then
 				NickTag.send_scheduled = true
 				NickTag:ScheduleTimer ("SendPersona", 1)
+			end
+			
+		else
+			if (NickTag.debug) then
+				NickTag:Msg ("SetNickname() name is the same on the pool ", name, nickTable [CONST_INDEX_NICKNAME])
 			end
 		end
 		
@@ -694,30 +734,27 @@ end
 		end
 		
 		--> check data before
-		assert (texture and l and r and t and b, "NickTag 'SetAvatar' bad format. Usage NickTag:SetAvatar (texturepath [, L, R, T, B] or texturepath [, {L, R, T, B}])")
+		assert (texture and l and r and t and b, "NickTag 'SetNicknameAvatar' bad format. Usage NickTag:SetAvatar (texturepath [, L, R, T, B] or texturepath [, {L, R, T, B}])")
 		
-		local battlegroup_serial = NickTag:GetSerial()
-		if (not battlegroup_serial) then
-			return
+		local playerName = UnitName ("player")
+		
+		local nickTable = NickTag:GetNicknameTable (playerName)
+		if (not nickTable) then
+			nickTable = NickTag:Create (playerName, true)
 		end
 		
-		local nick_table = NickTag:GetNicknameTable (battlegroup_serial)
-		if (not nick_table) then
-			nick_table = NickTag:Create (battlegroup_serial, true)
-		end
-		
-		if (nick_table [CONST_INDEX_AVATAR_PATH] ~= texture) then
-			nick_table [CONST_INDEX_AVATAR_PATH] = texture
+		if (nickTable [CONST_INDEX_AVATAR_PATH] ~= texture) then
+			nickTable [CONST_INDEX_AVATAR_PATH] = texture
 			
 			--> by default, CONST_INDEX_AVATAR_TEXCOORD comes as boolean false
-			if (type (nick_table [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
-				nick_table [CONST_INDEX_AVATAR_TEXCOORD] = {}
+			if (type (nickTable [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
+				nickTable [CONST_INDEX_AVATAR_TEXCOORD] = {}
 			end
 			
-			nick_table [CONST_INDEX_AVATAR_TEXCOORD][1] = l
-			nick_table [CONST_INDEX_AVATAR_TEXCOORD][2] = r
-			nick_table [CONST_INDEX_AVATAR_TEXCOORD][3] = t
-			nick_table [CONST_INDEX_AVATAR_TEXCOORD][4] = b
+			nickTable [CONST_INDEX_AVATAR_TEXCOORD][1] = l
+			nickTable [CONST_INDEX_AVATAR_TEXCOORD][2] = r
+			nickTable [CONST_INDEX_AVATAR_TEXCOORD][3] = t
+			nickTable [CONST_INDEX_AVATAR_TEXCOORD][4] = b
 			
 			NickTag.callbacks:Fire ("NickTag_Update", CONST_INDEX_AVATAR_PATH)
 			
@@ -749,29 +786,26 @@ end
 			color = {1, 1, 1}
 		end
 	
-		local battlegroup_serial = NickTag:GetSerial()
-		if (not battlegroup_serial) then
-			return
-		end
+		local playerName = UnitName ("player")
 		
-		local nick_table = NickTag:GetNicknameTable (battlegroup_serial)
-		if (not nick_table) then
-			nick_table = NickTag:Create (battlegroup_serial, true)
+		local nickTable = NickTag:GetNicknameTable (playerName)
+		if (not nickTable) then
+			nickTable = NickTag:Create (playerName, true)
 		end
 	
 		local need_sync = false
-		if (nick_table [CONST_INDEX_BACKGROUND_PATH] ~= path) then
-			nick_table [CONST_INDEX_BACKGROUND_PATH] = path
+		if (nickTable [CONST_INDEX_BACKGROUND_PATH] ~= path) then
+			nickTable [CONST_INDEX_BACKGROUND_PATH] = path
 			need_sync = true
 		end
 		
-		if (nick_table [CONST_INDEX_BACKGROUND_TEXCOORD] ~= texcoord) then
-			nick_table [CONST_INDEX_BACKGROUND_TEXCOORD] = texcoord
+		if (nickTable [CONST_INDEX_BACKGROUND_TEXCOORD] ~= texcoord) then
+			nickTable [CONST_INDEX_BACKGROUND_TEXCOORD] = texcoord
 			need_sync = true
 		end
 		
-		if (nick_table [CONST_INDEX_BACKGROUND_COLOR] ~= color) then
-			nick_table [CONST_INDEX_BACKGROUND_COLOR] = color
+		if (nickTable [CONST_INDEX_BACKGROUND_COLOR] ~= color) then
+			nickTable [CONST_INDEX_BACKGROUND_COLOR] = color
 			need_sync = true
 		end
 		
@@ -787,162 +821,110 @@ end
 		return true
 	end	
 
-	function NickTag:GetNickname (serial, default, silent)
+	function NickTag:GetNickname (playerName, default, silent)
 		if (not silent) then
-			assert (serial, "NickTag 'GetNickname' expects a number or string on #1 argument.")
+			assert (type (playerName) == "string", "NickTag 'GetNickname' expects a string or string on #1 argument.")
 		end
 		
-		if (type (serial) == "string") then
-			serial = NickTag:GetSerial (serial, silent)
+		local _table = pool [playerName]
+		if (not _table) then
+			return default or nil
 		end
-		
-		if (serial) then
-			local _table = pool [serial]
-			if (not _table) then
-				return default or nil
-			end
-			return _table [CONST_INDEX_NICKNAME] or default or nil
-		end
+		return _table [CONST_INDEX_NICKNAME] or default or nil
 	end
 	
 	--> return the avatar and the texcoord.
-	function NickTag:GetNicknameAvatar (serial, default, silent)
+	function NickTag:GetNicknameAvatar (playerName, default, silent)
 		if (not silent) then
-			assert (serial, "NickTag 'GetAvatar' expects a number or string on #1 argument.")
+			assert (type (playerName) == "string", "NickTag 'GetNicknameAvatar' expects a string or string on #1 argument.")
 		end
 		
-		if (type (serial) == "string") then
-			serial = NickTag:GetSerial (serial, silent)
-		end
+		local _table = pool [playerName]
 		
-		if (serial) then
-			local _table = pool [serial]
-			if (not _table and default) then
-				return default, {0, 1, 0, 1}
-			elseif (not _table) then
-				return "", {0, 1, 0, 1}
-			end
-			return _table [CONST_INDEX_AVATAR_PATH] or default or "", _table [CONST_INDEX_AVATAR_TEXCOORD] or {0, 1, 0, 1}
+		if (not _table and default) then
+			return default, {0, 1, 0, 1}
+		elseif (not _table) then
+			return "", {0, 1, 0, 1}
 		end
+		return _table [CONST_INDEX_AVATAR_PATH] or default or "", _table [CONST_INDEX_AVATAR_TEXCOORD] or {0, 1, 0, 1}
 	end
 
-	function NickTag:GetNicknameBackground (serial, default_path, default_texcoord, default_color, silent)
+	function NickTag:GetNicknameBackground (playerName, default_path, default_texcoord, default_color, silent)
 		if (not silent) then
-			assert (serial, "NickTag 'GetNicknameBackground' expects a number or string on #1 argument.")
+			assert (type (playerName) == "string", "NickTag 'GetNicknameBackground' expects a string or string on #1 argument.")
 		end
 		
-		if (type (serial) == "string") then
-			serial = NickTag:GetSerial (serial, silent)
-		end
-		
-		if (serial) then
-			local _table = pool [serial]
-			if (not _table) then
-				return default_path, default_texcoord, default_color
-			end
-			return _table [CONST_INDEX_BACKGROUND_PATH] or default_path, _table [CONST_INDEX_BACKGROUND_TEXCOORD] or default_texcoord, _table [CONST_INDEX_BACKGROUND_COLOR] or default_color
-		else
+		local _table = pool [playerName]
+		if (not _table) then
 			return default_path, default_texcoord, default_color
 		end
+		return _table [CONST_INDEX_BACKGROUND_PATH] or default_path, _table [CONST_INDEX_BACKGROUND_TEXCOORD] or default_texcoord, _table [CONST_INDEX_BACKGROUND_COLOR] or default_color
 	end
 	
 	--> get the full nicktag table 
-	function NickTag:GetNicknameTable (serial, silent)
+	function NickTag:GetNicknameTable (playerName, silent)
 		--> check data before
 		if (not silent) then
-			assert (serial, "NickTag 'Get' expects a number on #1 argument.")
+			assert (type (playerName) == "string", "NickTag 'GetNicknameTable' expects a string on #1 argument.")
 		else
-			if (not serial) then
+			if (not playerName or type (playerName) ~= "string") then
 				return
 			end
 		end
 		
-		if (type (serial) == "string") then
-			serial = NickTag:GetSerial (serial, silent)
-			if (not serial) then
-				return
-			end
-		end
-		
-		return pool [serial]
+		return pool [playerName]
 	end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 	
 	--> create a empty nick table for the player
-	function NickTag:Create (serial, isSelf)
+	function NickTag:Create (playerName, isSelf)
 		--> check data before
-		assert (type (serial) == "number", "NickTag 'Create' expects a number on #1 argument.")
+		assert (type (playerName) == "string", "NickTag 'Create' expects a string on #1 argument.")
 		
 		--> check if alredy exists
-		local alredy_have = pool [serial]
-		if (alredy_have) then
-			return alredy_have
+		local alredyHave = pool [playerName]
+		if (alredyHave) then
+			return alredyHave
 		end
 		
 		--> create the table: 
-		local n = { UnitName ("player"), --[1] player nickname
-		false, --[2] avatar texture path
-		false, --[3] avatar texture coord
-		false, --[4] background texture path
-		false, --[5] background texcoord
-		false, --[6] background color
-		1 --[7] revision
+		local newTable = { 
+			UnitName ("player"), --[1] player nickname
+			false, --[2] avatar texture path
+			false, --[3] avatar texture coord
+			false, --[4] background texture path
+			false, --[5] background texcoord
+			false, --[6] background color
+			1 --[7] revision
 		}
 		
 		--> if not my persona, set revision to 0, this make always get update after creation
 		if (not isSelf) then
-			n [CONST_INDEX_REVISION] = 0
+			newTable [CONST_INDEX_REVISION] = 0
 		end
 		
-		pool [serial] = n
-		return n
+		pool [playerName] = newTable
+		return newTable
 	end
 
 	--> inc the revision of the player persona after update nick or avatar
 	function NickTag:IncRevision()
-		local battlegroup_serial = NickTag:GetSerial()
-		if (not battlegroup_serial) then
-			return
+		local playerName = UnitName ("player")
+		local nickTable = NickTag:GetNicknameTable (playerName)
+		if (not nickTable) then
+			nickTable = NickTag:Create (playerName, true)
 		end
 		
-		local nick_table = NickTag:GetNicknameTable (battlegroup_serial)
-		if (not nick_table) then
-			nick_table = NickTag:Create (battlegroup_serial, true)
-		end
-		
-		nick_table [CONST_INDEX_REVISION] = nick_table [CONST_INDEX_REVISION] + 1
+		nickTable [CONST_INDEX_REVISION] = nickTable [CONST_INDEX_REVISION] + 1
 		
 		return true
 	end
 
-	--> convert GUID into serial number
+	--> convert GUID into serial number (deprecated, it uses player name - realm name)
 	function NickTag:GetSerial (serial, silent)
-		if (not serial) then
-			local guid = UnitGUID ("player")
-			if (not guid) then
-				return
-			end
-			serial = select ( 3, strsplit ( "-", guid ) )
-		else
-			if (not silent) then
-				assert (type (serial) == "string", "NickTag 'GetSerial' expects a GUID string on #1 parameter"..serial)
-				assert (string.len (serial) > 13, "NickTag 'GetSerial' expects a GUID string on #1 parameter")
-			else
-				if (type (serial) ~= "string") then
-					return
-				elseif (string.len (serial) < 14) then
-					return
-				end
-			end
-
-			serial = select ( 3, strsplit ( "-", serial ) )
-		end
-		if (not serial) then
-			return
-		end
-		return tonumber ("0x" .. serial)
+		return 0
 	end
 	
 	--> choose avatar window
