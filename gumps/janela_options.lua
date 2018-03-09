@@ -666,7 +666,6 @@ local menus2 = {
 		Loc ["STRING_OPTIONSMENU_SPELLS"], --15
 		Loc ["STRING_OPTIONSMENU_DATACHART"], --16
 		Loc ["STRING_OPTIONSMENU_AUTOMATIC"], --17
-		--Loc ["STRING_OPTIONSMENU_MISC"], --18
 		"Streamer Settings", --18
 		Loc ["STRING_OPTIONSMENU_DATAFEED"], --19
 		Loc ["STRING_OPTIONSMENU_TOOLTIP"], --20
@@ -12010,9 +12009,14 @@ end --> if not window
 		end
 		
 		if (section) then
+		
+			
+		
 			local button = window.menu_buttons [section]
-			local mouse_up_hook = button.OnMouseUpHook
-			mouse_up_hook (button.widget)
+			button:Click()
+			
+			--local mouse_up_hook = button.OnMouseUpHook
+			--mouse_up_hook (button.widget)
 		end
 
 		DetailsOptionsWindow.loading_settings = nil

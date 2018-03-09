@@ -11,7 +11,7 @@ Description: Allows for easy creation of graphs
 --Thanks to Nelson Minar for catching several errors where width was being used instead of height (damn copy and paste >_>)
 
 local major = "LibGraph-2.0"
-local minor = 90000 + tonumber(("$Revision: 54 $"):match("(%d+)"))
+local minor = 90000 + tonumber(("$Revision: 55 $"):match("(%d+)"))
 
 
 --Search for just Addon\\ at the front since the interface part often gets trimmed
@@ -1747,7 +1747,7 @@ function GraphFunctions:RefreshLineGraph()
 	for k1, series in pairs(self.Data) do
 		local LastPoint
 		LastPoint = nil
-
+		
 		for k2, point in pairs(series.Points) do
 			if LastPoint then
 				local TPoint = {x = point[1]; y = point[2]}
@@ -1755,7 +1755,8 @@ function GraphFunctions:RefreshLineGraph()
 				TPoint.x = Width * (TPoint.x - self.XMin) / (self.XMax - self.XMin)
 				TPoint.y = Height * (TPoint.y - self.YMin) / (self.YMax - self.YMin)
 
-				self:DrawLine(self, LastPoint.x, LastPoint.y, TPoint.x, TPoint.y, 32, series.Color, nil, series.LineTexture)
+				--tercioo: send the data index to DrawLine so custom draw functions know what they are drawing
+				self:DrawLine(self, LastPoint.x, LastPoint.y, TPoint.x, TPoint.y, 32, series.Color, nil, series.LineTexture, k1)
 
 				LastPoint = TPoint
 			else

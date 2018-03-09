@@ -48,7 +48,7 @@ end
 	local queue_send = {}
 	local last_queue = 0
 	local is_updating = false
-	NickTag.debug = true
+	NickTag.debug = false
 	
 	local GetGuildRosterInfo = GetGuildRosterInfo
 
@@ -77,8 +77,10 @@ end
 		return target
 	end
 	
-	function NickTag:Msg (text, text2)
-		print ("|cFFFFFF00NickTag:|r",text, text2 or "")
+	function NickTag:Msg (...)
+		if (NickTag.debug) then
+			print ("|cFFFFFF00NickTag:|r", ...)
+		end
 	end
 	
 	local enUS = LibStub("AceLocale-3.0"):NewLocale ("NickTag-1.0", "enUS", true)
@@ -226,9 +228,7 @@ end
 			version = name
 			
 			if (not receivedPersona or type (receivedPersona) ~= "table") then
-				if (NickTag.debug) then
-					NickTag:Msg ("FULLPERSONA received but it's invalid ", source)
-				end
+				NickTag:Msg ("FULLPERSONA received but it's invalid ", source)
 				return
 			end
 			
@@ -296,6 +296,8 @@ end
 						else
 							storedPersona [CONST_INDEX_BACKGROUND_COLOR] = {1, 1, 1}
 						end
+						
+						NickTag:Msg ("FULLPERSONA received and updated for character: ", source, "new nickname: ", receivedPersona [CONST_INDEX_NICKNAME])
 				end
 			end
 		
@@ -309,9 +311,7 @@ end
 			local receivedRevision = arg3
 			local storedPersona = NickTag:GetNicknameTable (source)
 			
-			if (NickTag.debug) then
-				NickTag:Msg ("LOGONREVISION rev: " .. receivedRevision .. " source: " .. source)
-			end
+			NickTag:Msg ("LOGONREVISION rev: ", receivedRevision, " source: ", source)
 			
 			if (type (version) ~= "number" or version ~= minor) then
 				return
@@ -321,13 +321,9 @@ end
 				--> put in queue our request for receive a updated persona
 				NickTag:ScheduleTimer ("QueueRequest", math.random (10, 60), source)
 				
-				if (NickTag.debug) then
-					NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFFFF0000is out of date|r, queueing a request persona.")
-				end
+				NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFFFF0000is out of date|r, queueing a request persona.")
 			else
-				if (NickTag.debug) then
-					NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFF00FF00is up to date.")
-				end
+				NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFF00FF00is up to date.")
 			end
 			
 		--> 0x3: someone requested my persona, so i need to send to him
@@ -337,9 +333,7 @@ end
 			end
 			
 			--> queue to send our persona for requested person
-			if (NickTag.debug) then
-				NickTag:Msg ("REQUESTPERSONA from: " .. source .. ", the request has been placed in queue.")
-			end
+			NickTag:Msg ("REQUESTPERSONA from: " .. source .. ", the request has been placed in queue.")
 			
 			NickTag:QueueSend (source)
 		end
@@ -364,9 +358,7 @@ end
 		
 		local _, numOnlineMembers = GetNumGuildMembers()
 
-		if (NickTag.debug) then
-			NickTag:Msg ("IsOnline(): " .. numOnlineMembers .. " online members.")
-		end
+		NickTag:Msg ("IsOnline(): " .. numOnlineMembers .. " online members.")
 		
 		for i = 1, numOnlineMembers do
 			local player_name = GetGuildRosterInfo (i)
@@ -406,20 +398,14 @@ end
 				local name = queue_send [1]
 				table.remove (queue_send, 1)
 			
-				if (NickTag.debug) then
-					NickTag:Msg ("QUEUE -> ready to send persona to " .. name)
-				end
+				NickTag:Msg ("QUEUE -> ready to send persona to " .. name)
 				
 				--> check if the player is online
 				if (NickTag:IsOnline (name)) then
-					if (NickTag.debug) then
-						NickTag:Msg ("QUEUE -> " .. name .. " is online, running SendPersona().")
-					end
+					NickTag:Msg ("QUEUE -> " .. name .. " is online, running SendPersona().")
 					NickTag:SendPersona (name)
 				else
-					if (NickTag.debug) then
-						NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
-					end
+					NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
 				end
 				
 				if (#queue_send == 0 and #queue_request == 0) then
@@ -431,20 +417,14 @@ end
 				local name = queue_request [1]
 				table.remove (queue_request, 1)
 				
-				if (NickTag.debug) then
-					NickTag:Msg ("QUEUE -> ready to request the persona of " .. name)
-				end
+				NickTag:Msg ("QUEUE -> ready to request the persona of " .. name)
 				
 				--> check if the player is online
 				if (NickTag:IsOnline (name)) then
-					if (NickTag.debug) then
-						NickTag:Msg ("QUEUE -> " .. name .. " is online, running RequestPersona().")
-					end
+					NickTag:Msg ("QUEUE -> " .. name .. " is online, running RequestPersona().")
 					NickTag:RequestPersona (name)
 				else
-					if (NickTag.debug) then
-						NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
-					end
+					NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
 				end
 				
 				if (#queue_request == 0 and #queue_request == 0) then
@@ -458,9 +438,7 @@ end
 	end)
 	
 	function NickTag:StopRosterUpdates()
-		if (NickTag.debug) then
-			NickTag:Msg ("ROSTER -> updates has been stopped")
-		end
+		NickTag:Msg ("ROSTER -> updates has been stopped")
 		if (NickTag.UpdateRosterTimer) then
 			NickTag:CancelTimer (NickTag.UpdateRosterTimer)
 		end
@@ -470,19 +448,13 @@ end
 	end
 	
 	function NickTag:StartRosterUpdates()
-		if (NickTag.debug) then
-			NickTag:Msg ("ROSTER -> updates has been actived")
-		end
+		NickTag:Msg ("ROSTER -> updates has been actived")
 		event_frame:RegisterEvent ("GUILD_ROSTER_UPDATE")
 		if (not NickTag.UpdateRosterTimer) then
 			NickTag.UpdateRosterTimer = NickTag:ScheduleRepeatingTimer ("UpdateRoster", 12)
-			if (NickTag.debug) then
-				NickTag:Msg ("ROSTER -> new update thread created.")
-			end
+			NickTag:Msg ("ROSTER -> new update thread created.")
 		else
-			if (NickTag.debug) then
-				NickTag:Msg ("ROSTER -> a update thread already exists.")
-			end
+			NickTag:Msg ("ROSTER -> a update thread already exists.")
 		end
 		is_updating = true
 	end
@@ -506,9 +478,7 @@ end
 		local playerName = UnitName ("player")
 		local myPersona = NickTag:GetNicknameTable (playerName)
 		if (myPersona) then
-			if (NickTag.debug) then
-				NickTag:Msg ("SendRevision() -> SENT")
-			end
+			NickTag:Msg ("SendRevision() -> SENT")
 			if (IsInGuild()) then
 				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, 0, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
 			end
@@ -517,9 +487,7 @@ end
 	
 	--> i received 0x2 and his persona is out of date here, so i need to send 0x3 to him and him will send 0x1.
 	function NickTag:RequestPersona (target)
-		if (NickTag.debug) then
-			NickTag:Msg ("RequestPersona() -> requesting of " .. target)
-		end
+		NickTag:Msg ("RequestPersona() -> requesting of " .. target)
 		if (IsInGuild()) then
 			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_REQUESTPERSONA, 0, 0, UnitName ("player"), GetRealmName(), minor), "WHISPER", target)
 		end
@@ -528,9 +496,9 @@ end
 	--> this broadcast my persona to entire guild when i update my persona or send my persona to someone who doesn't have it or need to update.
 	function NickTag:SendPersona (target)
 		if (target) then
-			if (NickTag.debug) then
-				NickTag:Msg ("SendPersona() -> sent to " .. target)
-			end
+			NickTag:Msg ("SendPersona() -> sent to " .. target)
+		else
+			NickTag:Msg ("SendPersona() -> broadcast")
 		end
 		
 		--> auto change nickname if we have a invalid nickname
@@ -549,7 +517,7 @@ end
 		else
 			--> updating my own persona
 			NickTag.send_scheduled = false
-			--> need to increase 1 revision
+			--> broadcast only happen when something has changed on the local player persona, it needs to increase the revision before sending
 			NickTag:IncRevision()
 			--> broadcast over guild channel
 			if (IsInGuild()) then
@@ -685,9 +653,7 @@ end
 		--> check if the nickname is okey to allowed to use.
 		local okey, errortype = NickTag:CheckName (name)
 		if (not okey) then
-			if (NickTag.debug) then
-				NickTag:Msg ("SetNickname() invalid name ", name)
-			end
+			NickTag:Msg ("SetNickname() invalid name ", name)
 			return false, errortype
 		end
 		
@@ -717,9 +683,7 @@ end
 			end
 			
 		else
-			if (NickTag.debug) then
-				NickTag:Msg ("SetNickname() name is the same on the pool ", name, nickTable [CONST_INDEX_NICKNAME])
-			end
+			NickTag:Msg ("SetNickname() name is the same on the pool ", name, nickTable [CONST_INDEX_NICKNAME])
 		end
 		
 		return true

@@ -2576,6 +2576,17 @@ end
 
 local realign_labels = function (self)
 	
+	if (not self.ShowHeader) then
+		for _, box in ipairs (self.BoxLabels) do
+			box.check:Hide()
+			box.button:Hide()
+			box.border:Hide()
+			box.box:Hide()
+			box.text:Hide()
+		end
+		return
+	end
+	
 	local width = self:GetWidth() - 108
 	
 	local first_box = self.BoxLabels [1]
@@ -2600,6 +2611,14 @@ local realign_labels = function (self)
 		else
 			break
 		end
+	end
+	
+	if (self.HeaderOnlyIndicator) then
+		for _, box in ipairs (self.BoxLabels) do
+				box.check:Hide()
+			box.button:Hide()
+		end
+		return
 	end
 	
 end
@@ -2687,7 +2706,7 @@ local chart_panel_add_overlay = function (self, overlayData, color, name, icon)
 		draw_overlay (self, this_overlay, overlayData, color)
 
 		tinsert (self.OData, {overlayData, color or line_default_color})
-		if (name) then
+		if (name and self.HeaderShowOverlays) then
 			self:AddLabel (color or line_default_color, name, "overlay", #self.OData)
 		end
 	end
@@ -2811,7 +2830,7 @@ local chart_panel_onresize = function (self)
 	
 	for i = 1, 17 do
 		local label = self.TimeLabels [i]
-		label:SetPoint ("bottomleft", self, "bottomleft", 78 + ((i-1)*spacement), 13)
+		label:SetPoint ("bottomleft", self, "bottomleft", 78 + ((i-1)*spacement), self.TimeLabelsHeight)
 		label.line:SetHeight (height - 45)
 	end
 	
@@ -2960,8 +2979,8 @@ local chart_panel_add_data = function (self, graphicData, color, name, elapsed_t
 	f:SetTime (max_time)
 	
 	chart_panel_onresize (f)
-	
 end
+
 
 
 
@@ -3049,31 +3068,15 @@ function DF:CreateChartPanel (parent, w, h, name)
 	local title = DF:NewLabel (f, nil, "$parentTitle", "chart_title", "Chart!", nil, 20, {1, 1, 0})
 	title:SetPoint ("topleft", f, "topleft", 110, -13)
 
-	local bottom_texture = DF:NewImage (f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
-	bottom_texture:SetColorTexture (0, 0, 0, .6)
-	bottom_texture:SetPoint ("bottomleft", f, "bottomleft", 8, 7)
-	bottom_texture:SetPoint ("bottomright", f, "bottomright", -8, 7)
-
 	f.Overlays = {}
 	f.OverlaysAmount = 1
 	
 	f.BoxLabels = {}
 	f.BoxLabelsAmount = 1
 	
-	f.TimeLabels = {}
-	for i = 1, 17 do 
-		local time = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		time:SetText ("00:00")
-		time:SetPoint ("bottomleft", f, "bottomleft", 78 + ((i-1)*36), 13)
-		f.TimeLabels [i] = time
-		
-		local line = f:CreateTexture (nil, "border")
-		line:SetSize (1, h-45)
-		line:SetColorTexture (1, 1, 1, .1)
-		line:SetPoint ("bottomleft", time, "topright", 0, -10)
-		line:Hide()
-		time.line = line
-	end
+	f.ShowHeader = true
+	f.HeaderOnlyIndicator = false
+	f.HeaderShowOverlays = true
 	
 	--graphic
 		local g = LibStub:GetLibrary("LibGraph-2.0"):CreateGraphLine (name .. "Graphic", f, "topleft","topleft", 108, -35, w - 120, h - 67)
@@ -3097,11 +3100,12 @@ function DF:CreateChartPanel (parent, w, h, name)
 		f.Graphic = g
 		f.GData = {}
 		f.OData = {}
+		f.ChartFrames = {}
 	
 	--div lines
 		for i = 1, 8, 1 do
 			local line = g:CreateTexture (nil, "overlay")
-			line:SetColorTexture (1, 1, 1, .2)
+			line:SetColorTexture (1, 1, 1, .05)
 			line:SetWidth (670)
 			line:SetHeight (1.1)
 		
@@ -3111,8 +3115,34 @@ function DF:CreateChartPanel (parent, w, h, name)
 			s:SetPoint ("topleft", f, "topleft", 27, -61 + (-(24.6*i)))
 		
 			line:SetPoint ("topleft", s, "bottom", -27, 0)
+			line:SetPoint ("topright", g, "right", 0, 0)
 			s.line = line
 		end
+	
+	--create time labels and the bottom texture to use as a background to these labels
+		f.TimeLabels = {}
+		f.TimeLabelsHeight = 16
+		
+		for i = 1, 17 do 
+			local time = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			time:SetText ("00:00")
+			time:SetPoint ("bottomleft", f, "bottomleft", 78 + ((i-1)*36), f.TimeLabelsHeight)
+			f.TimeLabels [i] = time
+			
+			local line = f:CreateTexture (nil, "border")
+			line:SetSize (1, h-45)
+			line:SetColorTexture (1, 1, 1, .1)
+			line:SetPoint ("bottomleft", time, "topright", 0, -10)
+			line:Hide()
+			time.line = line
+		end	
+		
+		local bottom_texture = DF:NewImage (f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
+		bottom_texture:SetColorTexture (.1, .1, .1, .7)
+		bottom_texture:SetPoint ("topright", g, "bottomright", 0, 0)
+		bottom_texture:SetPoint ("bottomleft", f, "bottomleft", 8, 12)
+	
+	
 	
 	f.SetTime = chart_panel_align_timelabels
 	f.EnableVerticalLines = chart_panel_vlines_on

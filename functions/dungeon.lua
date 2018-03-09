@@ -252,7 +252,7 @@ function mythicDungeonCharts.ShowChart()
 		mythicDungeonCharts.Frame = CreateFrame ("frame", "DetailsMythicDungeonChartFrame", UIParent)
 		local f = mythicDungeonCharts.Frame
 
-		f:SetSize (1210, 600)
+		f:SetSize (1200, 620)
 		f:SetPoint ("center", UIParent, "center", 0, 0)
 		f:SetFrameStrata ("LOW")
 		f:EnableMouse (true)
@@ -260,6 +260,23 @@ function mythicDungeonCharts.ShowChart()
 		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 		f:SetBackdropColor (0, 0, 0, 0.9)
 		f:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		--titlebar
+			local titlebar = CreateFrame ("frame", nil, f)
+			titlebar:SetPoint ("topleft", f, "topleft", 2, -3)
+			titlebar:SetPoint ("topright", f, "topright", -2, -3)
+			titlebar:SetHeight (20)
+			titlebar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			titlebar:SetBackdropColor (.5, .5, .5, 1)
+			titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+			
+			--> title
+			local titleLabel = _detalhes.gump:NewLabel (titlebar, titlebar, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+			titleLabel:SetPoint ("center", titlebar , "center")
+			titleLabel:SetPoint ("top", titlebar , "top", 0, -5)
+			f.TitleText = titleLabel
+		
+		_detalhes:FormatBackground (f)
 		
 		tinsert (UISpecialFrames, "DetailsMythicDungeonChartFrame")
 		
@@ -271,11 +288,23 @@ function mythicDungeonCharts.ShowChart()
 		LibWindow.SavePosition (f)
 		
 		f.ChartFrame = Details:GetFramework():CreateChartPanel (f, 1200, 600, "DetailsMythicDungeonChartGraphicFrame")
-		f.ChartFrame:SetPoint ("topleft", f, "topleft", 5, 0)
+		f.ChartFrame:SetPoint ("topleft", f, "topleft", 5, -20)
+		
+		f.ChartFrame.FrameInUse = {}
+		f.ChartFrame.FrameFree = {}
+		f.ChartFrame.TextureID = 1
+		
+		f.ChartFrame.ShowHeader = true
+		f.ChartFrame.HeaderOnlyIndicator = true
+		f.ChartFrame.HeaderShowOverlays = false
+		
+		f.ChartFrame.Graphic.DrawLine = mythicDungeonCharts.CustomDrawLine
 		
 		f.ChartFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 		f.ChartFrame:SetBackdropColor (0, 0, 0, 0.0)
 		f.ChartFrame:SetBackdropBorderColor (0, 0, 0, 0)
+		
+		f.ChartFrame:EnableMouse (false)
 		
 		f.ChartFrame.CloseButton:Hide()
 		
@@ -283,12 +312,67 @@ function mythicDungeonCharts.ShowChart()
 		f.BossWidgetsFrame:SetFrameLevel (f:GetFrameLevel()+10)
 		f.BossWidgetsFrame.Widgets = {}
 		
+		f.BossWidgetsFrame.GraphPin = f.BossWidgetsFrame:CreateTexture (nil, "overlay")
+		f.BossWidgetsFrame.GraphPin:SetTexture ([[Interface\BUTTONS\UI-RadioButton]])
+		f.BossWidgetsFrame.GraphPin:SetTexCoord (17/64, 32/64, 0, 1)
+		f.BossWidgetsFrame.GraphPin:SetSize (16, 16)
+		
+		f.BossWidgetsFrame.GraphPinGlow = f.BossWidgetsFrame:CreateTexture (nil, "artwork")
+		f.BossWidgetsFrame.GraphPinGlow:SetTexture ([[Interface\Calendar\EventNotificationGlow]])
+		f.BossWidgetsFrame.GraphPinGlow:SetTexCoord (0, 1, 0, 1)
+		f.BossWidgetsFrame.GraphPinGlow:SetSize (14, 14)
+		f.BossWidgetsFrame.GraphPinGlow:SetBlendMode ("ADD")
+		f.BossWidgetsFrame.GraphPinGlow:SetPoint ("center", f.BossWidgetsFrame.GraphPin, "center", 0, 0)
+		
 		local closeButton = CreateFrame ("button", "$parentCloseButton", f, "UIPanelCloseButton")
 		closeButton:GetNormalTexture():SetDesaturated (true)
 		closeButton:SetWidth (20)
 		closeButton:SetHeight (20)
 		closeButton:SetPoint ("topright", f, "topright", 0, -3)
 		closeButton:SetFrameLevel (f:GetFrameLevel()+16)
+		
+		local configButton = CreateFrame ("button", "$parentConfigButton", f)
+		configButton:SetWidth (14)
+		configButton:SetHeight (14)
+		configButton:SetPoint ("right", closeButton, "left", -2, 0)
+		configButton:SetFrameLevel (f:GetFrameLevel()+16)
+		configButton:SetScript ("OnClick", function()
+			local lowerInstance = _detalhes:GetLowerInstanceNumber()
+			if (lowerInstance) then
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lowerInstance), false, 15)
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lowerInstance), false, 15)
+			else
+				local instance1 = _detalhes:GetInstance (1)
+				if (instance1) then
+					_detalhes:OpenOptionsWindow (instance1, false, 18)
+				end
+			end
+		end)
+		
+		local gearImage = configButton:CreateTexture (nil, "overlay")
+		gearImage:SetAllPoints()
+		gearImage:SetTexture ([[Interface\BUTTONS\UI-OptionsButton]])
+		gearImage:SetDesaturated (true)
+		gearImage:SetVertexColor (.4, .4, .4, 1)
+		local gearImage = configButton:CreateTexture (nil, "highlight")
+		gearImage:SetAllPoints()
+		gearImage:SetTexture ([[Interface\BUTTONS\UI-OptionsButton]])
+		gearImage:SetDesaturated (true)
+		--gearImage:SetVertexColor (.4, .4, .4, 1)
+		
+		local leftDivisorLine = f.BossWidgetsFrame:CreateTexture (nil, "overlay")
+		leftDivisorLine:SetSize (2, f.ChartFrame.Graphic:GetHeight())
+		leftDivisorLine:SetColorTexture (1, 1, 1, 1)
+		leftDivisorLine:SetPoint ("bottomleft", f.ChartFrame.Graphic.TextFrame, "bottomleft", -2, 0)
+		
+		local bottomDivisorLine = f.BossWidgetsFrame:CreateTexture (nil, "overlay")
+		bottomDivisorLine:SetSize (f.ChartFrame.Graphic:GetWidth(), 2)
+		bottomDivisorLine:SetColorTexture (1, 1, 1, 1)
+		bottomDivisorLine:SetPoint ("bottomleft", f.ChartFrame.Graphic.TextFrame, "bottomleft", 0, 0)
+		
+		f.ChartFrame.Graphic:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f.ChartFrame.Graphic:SetBackdropColor (.5, .50, .50, 0.8)
+		f.ChartFrame.Graphic:SetBackdropBorderColor (0, 0, 0, 0.5)
 		
 		function f.ChartFrame.RefreshBossTimeline (self, bossTable, elapsedTime)
 			
@@ -358,20 +442,27 @@ function mythicDungeonCharts.ShowChart()
 	end
 	
 	local charts = mythicDungeonCharts.ChartTable.Players
+	local classDuplicated = {}
 	
+	mythicDungeonCharts.PlayerGraphIndex = {}
+
 	for playerName, playerTable in pairs (charts) do
 		
 		local chartData = playerTable.ChartData
 		local lineName = playerTable.Name
 		
-		local lineColor = {1, 1, 1, 1}
-		local classColor = RAID_CLASS_COLORS [playerTable.Class]
-		if (classColor) then
-			lineColor [1] = classColor.r
-			lineColor [2] = classColor.g
-			lineColor [3] = classColor.b
-			
-			--print (playerName, playerTable.Class)
+		classDuplicated [playerTable.Class] = (classDuplicated [playerTable.Class] or 0) + 1
+		
+		local lineColor
+		if (playerTable.Class) then
+			local classColor = mythicDungeonCharts.ClassColors [playerTable.Class .. classDuplicated [playerTable.Class]]
+			if (classColor) then
+				lineColor = {classColor.r, classColor.g, classColor.b}
+			else
+				lineColor = {1, 1, 1}
+			end
+		else
+			lineColor = {1, 1, 1}
 		end
 		
 		local combatTime = mythicDungeonCharts.ChartTable.ElapsedTime
@@ -389,8 +480,9 @@ function mythicDungeonCharts.ShowChart()
 		end
 		chartData.max_value = maxValue
 		
-		mythicDungeonCharts.Frame.ChartFrame:AddLine (chartData, lineColor, lineName, combatTime, texture, "SMA")		
-
+		mythicDungeonCharts.Frame.ChartFrame:AddLine (chartData, lineColor, lineName, combatTime, texture, "SMA")
+		tinsert (mythicDungeonCharts.PlayerGraphIndex, playerName)
+		
 		--[=[
 		local smoothFactor = 0.075
 		local forecastSmoothFactor = 1 - smoothFactor
@@ -429,11 +521,223 @@ function mythicDungeonCharts.ShowChart()
 	--local phrase = " Average Dps (under development)\npress Escape to hide, Details! Alpha Build." .. _detalhes.build_counter .. "." .. _detalhes.realversion
 	local phrase = "Details!: Average Dps for "
 	
-	mythicDungeonCharts.Frame.ChartFrame:SetTitle (mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
+	mythicDungeonCharts.Frame.ChartFrame:SetTitle ("")
 	Details:GetFramework():SetFontSize (mythicDungeonCharts.Frame.ChartFrame.chart_title, 14)
+	
+	mythicDungeonCharts.Frame.TitleText:SetText (mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
 	
 	mythicDungeonCharts.Frame:Show()
 end
+
+local showID = 0
+local HideTooltip = function (ticker)
+	if (showID == ticker.ShowID) then
+		GameCooltip2:Hide()
+		mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPin:Hide()
+		mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPinGlow:Hide()
+	end
+end
+local PixelFrameOnEnter = function (self)
+	local playerName = self.PlayerName
+	--get the percent from the pixel height relative to the chart window
+	local dps = self.Height / mythicDungeonCharts.Frame.ChartFrame:GetHeight()
+	--multiply the max dps with the percent
+	dps = mythicDungeonCharts.Frame.ChartFrame.Graphic.max_value * dps
+	
+	mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPin:SetPoint ("center", self, "center", 0, 0)
+	mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPin:Show()
+	mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPinGlow:Show()
+
+	GameCooltip2:Preset (2)
+	GameCooltip2:SetOption ("FixedWidth", 100)
+	GameCooltip2:SetOption ("TextSize", 10)
+	local onlyName = _detalhes:GetOnlyName (playerName)
+	GameCooltip2:AddLine (onlyName)
+	
+	local classIcon, L, R, B, T = _detalhes:GetClassIcon (mythicDungeonCharts.ChartTable.Players [playerName].Class)
+	GameCooltip2:AddIcon (classIcon, 1, 1, 16, 16, L, R, B, T)
+	
+	GameCooltip2:AddLine (Details:GetCurrentToKFunction()(nil, floor (dps)))
+	
+	GameCooltip2:SetOwner (self)
+	GameCooltip2:Show()
+	showID = showID + 1
+end
+local PixelFrameOnLeave = function (self)
+	local timer = C_Timer.NewTimer (1, HideTooltip)
+	timer.ShowID = showID
+end
+
+local TAXIROUTE_LINEFACTOR = 128 / 126 -- Multiplying factor for texture coordinates
+local TAXIROUTE_LINEFACTOR_2 = TAXIROUTE_LINEFACTOR / 2 -- Half of that
+function mythicDungeonCharts:CustomDrawLine (C, sx, sy, ex, ey, w, color, layer, linetexture, graphIndex)
+	local relPoint = "BOTTOMLEFT"
+	
+	if sx == ex then
+		if sy == ey then
+			return
+		else
+			return self:DrawVLine(C, sx, sy, ey, w, color, layer)
+		end
+	elseif sy == ey then
+		return self:DrawHLine(C, sx, ex, sy, w, color, layer)
+	end
+	
+	if not C.GraphLib_Lines then
+		C.GraphLib_Lines = {}
+		C.GraphLib_Lines_Used = {}
+	end
+	
+	local T = tremove(C.GraphLib_Lines) or C:CreateTexture(nil, "ARTWORK")
+	
+	if linetexture then --> this data series texture
+		T:SetTexture(linetexture)
+	elseif C.CustomLine then --> overall chart texture
+		T:SetTexture(C.CustomLine)
+	else --> no texture assigned, use default
+		T:SetTexture(TextureDirectory.."line")
+	end
+	
+	tinsert(C.GraphLib_Lines_Used, T)
+
+	T:SetDrawLayer(layer or "ARTWORK")
+
+	T:SetVertexColor(color[1], color[2], color[3], color[4])
+	-- Determine dimensions and center point of line
+	local dx, dy = ex - sx, ey - sy
+	local cx, cy = (sx + ex) / 2, (sy + ey) / 2
+
+	-- Normalize direction if necessary
+	if (dx < 0) then
+		dx, dy = -dx, -dy
+	end
+
+	-- Calculate actual length of line
+	local l = sqrt((dx * dx) + (dy * dy))
+
+	-- Sin and Cosine of rotation, and combination (for later)
+	local s, c = -dy / l, dx / l
+	local sc = s * c
+
+	-- Calculate bounding box size and texture coordinates
+	local Bwid, Bhgt, BLx, BLy, TLx, TLy, TRx, TRy, BRx, BRy
+	if (dy >= 0) then
+		Bwid = ((l * c) - (w * s)) * TAXIROUTE_LINEFACTOR_2
+		Bhgt = ((w * c) - (l * s)) * TAXIROUTE_LINEFACTOR_2
+		BLx, BLy, BRy = (w / l) * sc, s * s, (l / w) * sc
+		BRx, TLx, TLy, TRx = 1 - BLy, BLy, 1 - BRy, 1 - BLx
+		TRy = BRx
+	else
+		Bwid = ((l * c) + (w * s)) * TAXIROUTE_LINEFACTOR_2
+		Bhgt = ((w * c) + (l * s)) * TAXIROUTE_LINEFACTOR_2
+		BLx, BLy, BRx = s * s, -(l / w) * sc, 1 + (w / l) * sc
+		BRy, TLx, TLy, TRy = BLx, 1 - BRx, 1 - BLx, 1 - BLy
+		TRx = TLy
+	end
+
+	-- Thanks Blizzard for adding (-)10000 as a hard-cap and throwing errors!
+	-- The cap was added in 3.1.0 and I think it was upped in 3.1.1
+	-- (way less chance to get the error)
+	if TLx > 10000 then TLx = 10000 elseif TLx < -10000 then TLx = -10000 end
+	if TLy > 10000 then TLy = 10000 elseif TLy < -10000 then TLy = -10000 end
+	if BLx > 10000 then BLx = 10000 elseif BLx < -10000 then BLx = -10000 end
+	if BLy > 10000 then BLy = 10000 elseif BLy < -10000 then BLy = -10000 end
+	if TRx > 10000 then TRx = 10000 elseif TRx < -10000 then TRx = -10000 end
+	if TRy > 10000 then TRy = 10000 elseif TRy < -10000 then TRy = -10000 end
+	if BRx > 10000 then BRx = 10000 elseif BRx < -10000 then BRx = -10000 end
+	if BRy > 10000 then BRy = 10000 elseif BRy < -10000 then BRy = -10000 end
+
+	-- Set texture coordinates and anchors
+	T:ClearAllPoints()
+	T:SetTexCoord(TLx, TLy, BLx, BLy, TRx, TRy, BRx, BRy)
+	T:SetPoint("BOTTOMLEFT", C, relPoint, cx - Bwid, cy - Bhgt)
+	T:SetPoint("TOPRIGHT", C, relPoint, cx + Bwid, cy + Bhgt)
+	T:Show()
+	
+	--[=
+	
+	local playerName = mythicDungeonCharts.PlayerGraphIndex [graphIndex]
+	if (mythicDungeonCharts.Frame.ChartFrame.TextureID % 3 == 0 and playerName) then
+	
+		local pixelFrame = tremove (mythicDungeonCharts.Frame.ChartFrame.FrameFree)
+		if (not pixelFrame) then
+			local newFrame = CreateFrame ("frame", nil, mythicDungeonCharts.Frame.ChartFrame)
+			newFrame:SetSize (1, 1)
+
+			--newFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 2, tile = true})
+			--newFrame:SetBackdropColor (0, 0, 0, 1)
+			newFrame:SetScript ("OnEnter", PixelFrameOnEnter)
+			newFrame:SetScript ("OnLeave", PixelFrameOnLeave)
+			
+			pixelFrame = newFrame
+		end
+		
+		pixelFrame:SetPoint("BOTTOMLEFT", C, relPoint, cx - Bwid, cy - Bhgt)
+		pixelFrame:SetPoint("TOPRIGHT", C, relPoint, cx + Bwid, cy + Bhgt)
+		
+		tinsert (mythicDungeonCharts.Frame.ChartFrame.FrameInUse, pixelFrame)
+		pixelFrame.PlayerName = playerName
+		pixelFrame.Height = ey
+		
+	end
+	
+	mythicDungeonCharts.Frame.ChartFrame.TextureID = mythicDungeonCharts.Frame.ChartFrame.TextureID + 1
+	--]=]
+	
+	return T
+end
+
+
+mythicDungeonCharts.ClassColors = {
+	["HUNTER1"] = { r = 0.67, g = 0.83, b = 0.45, colorStr = "ffabd473" },
+	["HUNTER2"] = { r = 0.47, g = 0.63, b = 0.25, colorStr = "ffabd473" },
+	["HUNTER3"] = { r = 0.27, g = 0.43, b = 0.05, colorStr = "ffabd473" },
+	
+	["WARLOCK1"] = { r = 0.53, g = 0.53, b = 0.93, colorStr = "ff8788ee" },
+	["WARLOCK2"] = { r = 0.33, g = 0.33, b = 0.73, colorStr = "ff8788ee" },
+	["WARLOCK3"] = { r = 0.13, g = 0.13, b = 0.53, colorStr = "ff8788ee" },
+	
+	["PRIEST1"] = { r = 1.0, g = 1.0, b = 1.0, colorStr = "ffffffff" },
+	["PRIEST2"] = { r = 0.8, g = 0.8, b = 0.8, colorStr = "ffffffff" },
+	["PRIEST3"] = { r = 0.6, g = 0.6, b = 0.6, colorStr = "ffffffff" },
+	
+	["PALADIN1"] = { r = 0.96, g = 0.55, b = 0.73, colorStr = "fff58cba" },
+	["PALADIN2"] = { r = 0.76, g = 0.35, b = 0.53, colorStr = "fff58cba" },
+	["PALADIN3"] = { r = 0.56, g = 0.15, b = 0.33, colorStr = "fff58cba" },
+	
+	["MAGE1"] = { r = 0.25, g = 0.78, b = 0.92, colorStr = "ff3fc7eb" },
+	["MAGE2"] = { r = 0.05, g = 0.58, b = 0.72, colorStr = "ff3fc7eb" },
+	["MAGE3"] = { r = 0.0, g = 0.38, b = 0.52, colorStr = "ff3fc7eb" },
+	
+	["ROGUE1"] = { r = 1.0, g = 0.96, b = 0.41, colorStr = "fffff569" },
+	["ROGUE2"] = { r = 0.8, g = 0.76, b = 0.21, colorStr = "fffff569" },
+	["ROGUE3"] = { r = 0.6, g = 0.56, b = 0.01, colorStr = "fffff569" },
+	
+	["DRUID1"] = { r = 1.0, g = 0.49, b = 0.04, colorStr = "ffff7d0a" },
+	["DRUID2"] = { r = 0.8, g = 0.29, b = 0.04, colorStr = "ffff7d0a" },
+	["DRUID3"] = { r = 0.6, g = 0.09, b = 0.04, colorStr = "ffff7d0a" },
+	
+	["SHAMAN1"] = { r = 0.0, g = 0.44, b = 0.87, colorStr = "ff0070de" },
+	["SHAMAN2"] = { r = 0.0, g = 0.24, b = 0.67, colorStr = "ff0070de" },
+	["SHAMAN3"] = { r = 0.0, g = 0.04, b = 0.47, colorStr = "ff0070de" },
+	
+	["WARRIOR1"] = { r = 0.78, g = 0.61, b = 0.43, colorStr = "ffc79c6e" },
+	["WARRIOR2"] = { r = 0.58, g = 0.41, b = 0.23, colorStr = "ffc79c6e" },
+	["WARRIOR3"] = { r = 0.38, g = 0.21, b = 0.03, colorStr = "ffc79c6e" },
+	
+	["DEATHKNIGHT1"] = { r = 0.77, g = 0.12 , b = 0.23, colorStr = "ffc41f3b" },
+	["DEATHKNIGHT2"] = { r = 0.57, g = 0.02 , b = 0.03, colorStr = "ffc41f3b" },
+	["DEATHKNIGHT3"] = { r = 0.37, g = 0.02 , b = 0.03, colorStr = "ffc41f3b" },
+	
+	["MONK1"] = { r = 0.0, g = 1.00 , b = 0.59, colorStr = "ff00ff96" },
+	["MONK2"] = { r = 0.0, g = 0.8 , b = 0.39, colorStr = "ff00ff96" },
+	["MONK3"] = { r = 0.0, g = 0.6 , b = 0.19, colorStr = "ff00ff96" },
+	
+	["DEMONHUNTER1"] = { r = 0.64, g = 0.19, b = 0.79, colorStr = "ffa330c9" },
+	["DEMONHUNTER2"] = { r = 0.44, g = 0.09, b = 0.59, colorStr = "ffa330c9" },
+	["DEMONHUNTER3"] = { r = 0.24, g = 0.09, b = 0.39, colorStr = "ffa330c9" },
+};
+
 
 if (debugmode) then
 	C_Timer.After (1, mythicDungeonCharts.ShowChart)
