@@ -713,6 +713,50 @@
 			f:Hide()
 		end
 		
+		--[=[
+			Function to be used on macros to open a plugin, signature:
+			Details:OpenPlugin (PLUGIN_ABSOLUTE_NAME)
+			Details:OpenPlugin (PluginObject)
+			Details:OpenPlugin ("Plugin Name")
+			
+			Example: /run Details:OpenPlugin ("Time Line")
+		--]=]
+		
+		function _detalhes:OpenPlugin (wildcard)
+			if (type (wildcard) == "string") then
+			
+				--> check if passed a plugin absolute name
+				local pluginObject = _detalhes:GetPlugin (wildcard)
+				if (pluginObject) then
+					f.OpenPlugin (pluginObject)
+					return true
+				end
+				
+				--> check if passed a plugin name, remove spaces and make it lower case
+				wildcard = string.lower (wildcard)
+				wildcard = wildcard:gsub ("%s", "")
+				
+				for index, pluginInfoTable in ipairs (_detalhes.ToolBar.Menu) do
+					local pluginName = pluginInfoTable [1]
+					pluginName = string.lower (pluginName)
+					pluginName = pluginName:gsub ("%s", "")
+					
+					if (pluginName ==  wildcard) then
+						local pluginObject = pluginInfoTable [3]
+						f.OpenPlugin (pluginObject)
+						return true
+					end
+				end
+			
+			--> check if passed a plugin object
+			elseif (type (wildcard) == "table") then
+				if (wildcard.__name) then
+					f.OpenPlugin (wildcard)
+					return true
+				end
+			end
+		end
+		
 		
 	end
 	
