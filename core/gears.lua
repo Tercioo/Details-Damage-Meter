@@ -22,6 +22,10 @@ function _detalhes:UpdateGears()
 	
 end
 
+function _detalhes:GetCoreVersion()
+	return _detalhes.realversion
+end
+
 ------------------------------------------------------------------------------------------------------------
 --> chat hooks
 

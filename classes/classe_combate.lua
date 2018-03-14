@@ -126,6 +126,10 @@
 		return self.last_events_tables
 	end
 	
+	function combate:GetCombatId()
+		return self.combat_id
+	end
+	
 	function combate:GetCombatNumber()
 		return self.combat_counter
 	end

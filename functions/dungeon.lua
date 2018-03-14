@@ -437,7 +437,7 @@ function mythicDungeonCharts.ShowChart()
 			mythicDungeonCharts.ChartTable = t
 		end
 	else
-		f:Hide()
+		mythicDungeonCharts.Frame:Hide()
 		return
 	end
 	
