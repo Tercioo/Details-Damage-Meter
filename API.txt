@@ -93,15 +93,13 @@ if formatString is nil, Format uses current format chosen on details options pan
 
 Details:GetActorsOnDamageCache()
 only usable while in combat, it returns a numeric table with all damage actors in the group (combatlog flag matching 0x00000007).
-this table can be freely sorted.
+the table is always sorted and only contains players in the raid or party.
 
 Details:GetActorsOnHealingCache()
 only usable while in combat, it returns a numeric table with all healing actors in the group (combatlog flag matching 0x00000007).
-this table can be freely sorted.
+the table is always sorted and only contains players in the raid or party.
 
 *For out of combat, energy and misc containers or get all actors even pets, enemies etc, you may use Container:SortByKey(key) and Container:ListActors().
-
-
 
 Getting a Combat Object:
 =======================================
@@ -119,7 +117,7 @@ returns the numeric table containing all past segments.
 
 
 
-Gettings an Actor:
+Getting an Actor:
 =======================================
 local actor = Details:GetActor (combat = "current", attribute = DETAILS_ATTRIBUTE_DAMAGE, actorname = Details.playername)
 returns the actor for the requested combat, attribute and actor name.
@@ -172,7 +170,10 @@ deaths = combat:GetDeaths()
 returns a numeric table containing the deaths, table is ordered by first death to last death.
 
 combatNumber = combat:GetCombatNumber()
-returns the unique ID number for the combat.
+returns an ID for the combat, this number is unique among other combats.
+
+combatId = combat:GetCombatId()
+returns an ID for the combat, this number represents valid combat, it may have the same ID of a previous invalid combat.
 
 container = combat:GetContainer ( attribute )
 returns the container table for the requested attribute.
@@ -211,6 +212,8 @@ returns the combat identification (see segment types).
 
 alternatePowerTable = combat:GetAlteranatePower()
 returns a table containing information about alternate power gains from players.
+
+
 
 --------------------------------------------------------------------
 

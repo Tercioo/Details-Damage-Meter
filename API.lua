@@ -214,7 +214,10 @@ deaths = combat:GetDeaths()
 @COMMENTreturns a numeric table containing the deaths, table is ordered by first death to last death.@
 
 combatNumber = combat:GetCombatNumber()
-@COMMENTreturns the unique ID number for the combat.@
+@COMMENTreturns an ID for the combat, this number is unique among other combats.@
+
+combatId = combat:GetCombatId()
+@COMMENTreturns an ID for the combat, this number represents valid combat, it may have the same ID of a previous invalid combat.@
 
 container = combat:GetContainer ( attribute )
 @COMMENTreturns the container table for the requested attribute.@

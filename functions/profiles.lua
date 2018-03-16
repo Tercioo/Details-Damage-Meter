@@ -904,6 +904,7 @@ local default_profile = {
 		
 	--> PvP
 		only_pvp_frags = false,
+		color_by_arena_team = true,
 
 	--> window settings
 		max_window_size = {width = 480, height = 450},

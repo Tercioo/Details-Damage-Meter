@@ -311,7 +311,7 @@
 				elseif (actor.owner) then
 					return _unpack (_detalhes.class_colors [actor.owner.classe or "UNKNOW"])
 
-				elseif (actor.arena_team) then
+				elseif (actor.arena_team and _detalhes.color_by_arena_team) then
 					if (actor.arena_team == 0) then
 						return _unpack (_detalhes.class_colors.ARENA_GREEN)
 					else
