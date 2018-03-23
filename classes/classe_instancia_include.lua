@@ -228,6 +228,7 @@ _detalhes.instance_defaults = {
 				icon_file = [[Interface\AddOns\Details\images\classes_small]],
 				no_icon = false,
 				start_after_icon = true,
+				icon_grayscale = false,
 			--percent type
 				percent_type = 1,
 			--backdrop

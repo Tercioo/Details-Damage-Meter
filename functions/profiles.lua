@@ -905,6 +905,7 @@ local default_profile = {
 	--> PvP
 		only_pvp_frags = false,
 		color_by_arena_team = true,
+		show_arena_role_icon = true,
 
 	--> window settings
 		max_window_size = {width = 480, height = 450},
@@ -1014,6 +1015,7 @@ local default_profile = {
 		overall_clear_newboss = true,
 		overall_clear_newchallenge = true,
 		overall_clear_logout = false,
+		data_cleanup_logout = false,
 		close_shields = false,
 		pvp_as_group = true,
 		use_battleground_server_parser = true,

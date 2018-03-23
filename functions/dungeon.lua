@@ -7,6 +7,7 @@
 --local pointer to details object
 local Details = _G._detalhes
 local debugmode = false
+local verbosemode = true
 
 --constants
 local CONST_USE_PLAYER_EDPS = false
@@ -20,10 +21,11 @@ Should the chart data be volatile?
 --]=]
 
 local mythicDungeonCharts = Details:CreateEventListener()
+_G.DetailsMythicDungeonChartHandler = mythicDungeonCharts
 
 function mythicDungeonCharts:Debug (...)
-	if (debugmode) then
-		print ("Details! DungeonCharts (debug.Alpha " .. Details.build_counter .. "." .. Details.realversion .. " ): ", ...)
+	if (debugmode or verbosemode) then
+		print ("Details! DungeonCharts: ", ...)
 	end
 end
 
@@ -198,6 +200,9 @@ function mythicDungeonCharts:OnStartMythicDungeon()
 
 	if (not Details.mythic_plus.show_damage_graphic) then
 		mythicDungeonCharts:Debug ("Dungeon started, no capturing mythic dungeon chart data, disabled on profile")
+		if (verbosemode) then
+			mythicDungeonCharts:Debug ("OnStartMythicDungeon() not allowed")
+		end
 		return
 	else
 		mythicDungeonCharts:Debug ("Dungeon started, new capture started")
@@ -221,6 +226,10 @@ function mythicDungeonCharts:OnStartMythicDungeon()
 	if (debugmode) then
 		_detalhes.mythic_plus.last_mythicrun_chart = mythicDungeonCharts.ChartTable
 	end
+
+	if (verbosemode) then
+		mythicDungeonCharts:Debug ("OnStartMythicDungeon() success")
+	end
 end
 
 function mythicDungeonCharts:OnEndMythicDungeon()
@@ -235,15 +244,25 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 		
 		mythicDungeonCharts:Debug ("Dungeon ended, chart data capture stopped")
 		
-		C_Timer.After (_detalhes.mythic_plus.delay_to_show_graphic or 5, mythicDungeonCharts.ShowChart)
+		_detalhes.mythic_plus.delay_to_show_graphic = 20
+		C_Timer.After (_detalhes.mythic_plus.delay_to_show_graphic or 20, mythicDungeonCharts.ShowChart)
+		
+		if (verbosemode) then
+			mythicDungeonCharts:Debug ("OnEndMythicDungeon() success")
+		end
 	else
 		mythicDungeonCharts:Debug ("Dungeon ended, no chart data was running")
+		if (verbosemode) then
+			mythicDungeonCharts:Debug ("OnEndMythicDungeon() fail")
+		end
 	end
 end
 
 mythicDungeonCharts:RegisterEvent ("COMBAT_MYTHICDUNGEON_START", "OnStartMythicDungeon")
 mythicDungeonCharts:RegisterEvent ("COMBAT_MYTHICDUNGEON_END", "OnEndMythicDungeon")
 mythicDungeonCharts:RegisterEvent ("COMBAT_BOSS_DEFEATED", "OnBossDefeated")
+
+-- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
 
 function mythicDungeonCharts.ShowChart()
 
@@ -324,41 +343,93 @@ function mythicDungeonCharts.ShowChart()
 		f.BossWidgetsFrame.GraphPinGlow:SetBlendMode ("ADD")
 		f.BossWidgetsFrame.GraphPinGlow:SetPoint ("center", f.BossWidgetsFrame.GraphPin, "center", 0, 0)
 		
+		--> show animation
+			--> single animation group
+			local MainAnimationGroup = f:CreateAnimationGroup ("fAnimationGroup")
+			MainAnimationGroup:SetLooping ("NONE")
+
+			--> widgets:
+
+			----------------------------------------------
+
+			local NewTexture1  = f:CreateTexture ("NewTexture1Texture", "ARTWORK")
+			NewTexture1:SetTexture ([[Interface\Scenarios\ScenarioParts]])
+			NewTexture1:SetDrawLayer ("ARTWORK", 0)
+			NewTexture1:SetPoint ("center", f, "center", 0, 0)
+			NewTexture1:SetSize (1200, 600)
+			NewTexture1:SetTexCoord (0.0010000000149012, 0.63868587493897, 0.0010000000149012, 0.19874391555786)
+
+			--> animations for NewTexture1
+--[[
+			NewTexture1.scale = MainAnimationGroup:CreateAnimation ("SCALE")
+			NewTexture1.scale:SetTarget (f)
+			NewTexture1.scale:SetOrder (1)
+			NewTexture1.scale:SetDuration (0.090000038147)
+			NewTexture1.scale:SetStartDelay (0)
+			NewTexture1.scale:SetEndDelay (0)
+			NewTexture1.scale:SetFromScale (1, 1)
+			NewTexture1.scale:SetToScale (1.10, 1.10)
+			NewTexture1.scale:SetOrigin ("center", 0, 0)
+			NewTexture1.scale = MainAnimationGroup:CreateAnimation ("SCALE")
+			NewTexture1.scale:SetTarget (f)
+			NewTexture1.scale:SetOrder (2)
+			NewTexture1.scale:SetDuration (0.090000038147)
+			NewTexture1.scale:SetStartDelay (0)
+			NewTexture1.scale:SetEndDelay (0)
+			NewTexture1.scale:SetFromScale (1.10, 1.10)
+			NewTexture1.scale:SetToScale (1, 1)
+			NewTexture1.scale:SetOrigin ("center", 0, 0)
+--]]			
+			NewTexture1.alpha = MainAnimationGroup:CreateAnimation ("ALPHA")
+			NewTexture1.alpha:SetTarget (f)
+			NewTexture1.alpha:SetOrder (1)
+			NewTexture1.alpha:SetDuration (0.090000038147)
+			NewTexture1.alpha:SetStartDelay (0)
+			NewTexture1.alpha:SetEndDelay (0)
+			NewTexture1.alpha:SetFromAlpha (0)
+			NewTexture1.alpha:SetToAlpha (0.5)
+			NewTexture1.alpha = MainAnimationGroup:CreateAnimation ("ALPHA")
+			NewTexture1.alpha:SetTarget (f)
+			NewTexture1.alpha:SetOrder (2)
+			NewTexture1.alpha:SetDuration (0.090000038147)
+			NewTexture1.alpha:SetStartDelay (0)
+			NewTexture1.alpha:SetEndDelay (0)
+			NewTexture1.alpha:SetFromAlpha (0.5)
+			NewTexture1.alpha:SetToAlpha (1)			
+
+			MainAnimationGroup:SetScript ("OnPlay", function()
+				NewTexture1:Hide()
+			end)	
+			MainAnimationGroup:SetScript ("OnFinished", function()
+				NewTexture1:Hide()
+			end)
+
+		f:Hide()
+		
+		function f.ShowChartFrame()
+			f:Show()
+			MainAnimationGroup:Play()
+		end
+			
 		local closeButton = CreateFrame ("button", "$parentCloseButton", f, "UIPanelCloseButton")
 		closeButton:GetNormalTexture():SetDesaturated (true)
-		closeButton:SetWidth (20)
-		closeButton:SetHeight (20)
-		closeButton:SetPoint ("topright", f, "topright", 0, -3)
+		closeButton:SetWidth (24)
+		closeButton:SetHeight (24)
+		closeButton:SetPoint ("topright", f, "topright", 0, -1)
 		closeButton:SetFrameLevel (f:GetFrameLevel()+16)
 		
-		local configButton = CreateFrame ("button", "$parentConfigButton", f)
-		configButton:SetWidth (14)
-		configButton:SetHeight (14)
-		configButton:SetPoint ("right", closeButton, "left", -2, 0)
-		configButton:SetFrameLevel (f:GetFrameLevel()+16)
-		configButton:SetScript ("OnClick", function()
-			local lowerInstance = _detalhes:GetLowerInstanceNumber()
-			if (lowerInstance) then
-				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lowerInstance), false, 15)
-				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lowerInstance), false, 15)
-			else
-				local instance1 = _detalhes:GetInstance (1)
-				if (instance1) then
-					_detalhes:OpenOptionsWindow (instance1, false, 18)
-				end
-			end
-		end)
-		
-		local gearImage = configButton:CreateTexture (nil, "overlay")
-		gearImage:SetAllPoints()
-		gearImage:SetTexture ([[Interface\BUTTONS\UI-OptionsButton]])
-		gearImage:SetDesaturated (true)
-		gearImage:SetVertexColor (.4, .4, .4, 1)
-		local gearImage = configButton:CreateTexture (nil, "highlight")
-		gearImage:SetAllPoints()
-		gearImage:SetTexture ([[Interface\BUTTONS\UI-OptionsButton]])
-		gearImage:SetDesaturated (true)
-		--gearImage:SetVertexColor (.4, .4, .4, 1)
+		--enabled box
+		-- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
+		local on_switch_enable = function (_, _, state)
+			_detalhes.mythic_plus.show_damage_graphic = state
+		end
+		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch (f, on_switch_enable, _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", Details.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		enabledSwitch:SetAsCheckBox()
+		enabledSwitch.tooltip = "Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."
+		enabledLabel:SetPoint ("right", closeButton, "left", -22, 0)
+		enabledSwitch:SetSize (16, 16)
+		Details.gump:SetFontColor (enabledLabel, "gray")
+		enabledSwitch.checked_texture:SetVertexColor (.6, .6, .6)
 		
 		local leftDivisorLine = f.BossWidgetsFrame:CreateTexture (nil, "overlay")
 		leftDivisorLine:SetSize (2, f.ChartFrame.Graphic:GetHeight())
@@ -428,17 +499,28 @@ function mythicDungeonCharts.ShowChart()
 	
 	mythicDungeonCharts.Frame.ChartFrame:Reset()
 	
-	if (not mythicDungeonCharts.ChartTable and debugmode) then
-		--development
-		if (Details.mythic_plus.last_mythicrun_chart) then
-			--load the last mythic dungeon run chart
-			local t = {}
-			Details:GetFramework().table.copy (t, Details.mythic_plus.last_mythicrun_chart)
-			mythicDungeonCharts.ChartTable = t
+	if (not mythicDungeonCharts.ChartTable) then
+		if (debugmode) then
+			--development
+			if (Details.mythic_plus.last_mythicrun_chart) then
+				--load the last mythic dungeon run chart
+				local t = {}
+				Details:GetFramework().table.copy (t, Details.mythic_plus.last_mythicrun_chart)
+				mythicDungeonCharts.ChartTable = t
+				mythicDungeonCharts:Debug ("no valid data, saved data loaded")
+			else
+				mythicDungeonCharts:Debug ("no valid data and no saved data, canceling")
+				mythicDungeonCharts.Frame:Hide()
+				return
+			end
+		else
+			mythicDungeonCharts.Frame:Hide()
+			mythicDungeonCharts:Debug ("no data found, canceling")
+			if (verbosemode) then
+				mythicDungeonCharts:Debug ("mythicDungeonCharts.ShowChart() failed: no chart table")
+			end
+			return
 		end
-	else
-		mythicDungeonCharts.Frame:Hide()
-		return
 	end
 	
 	local charts = mythicDungeonCharts.ChartTable.Players
@@ -526,7 +608,11 @@ function mythicDungeonCharts.ShowChart()
 	
 	mythicDungeonCharts.Frame.TitleText:SetText (mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
 	
-	mythicDungeonCharts.Frame:Show()
+	mythicDungeonCharts.Frame.ShowChartFrame()
+	
+	if (verbosemode) then
+		mythicDungeonCharts:Debug ("mythicDungeonCharts.ShowChart() success")
+	end
 end
 
 local showID = 0

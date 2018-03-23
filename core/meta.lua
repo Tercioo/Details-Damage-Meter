@@ -711,6 +711,13 @@
 						_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 					end
 				end
+				
+			--> clear all segments on logoff
+				if (_detalhes.data_cleanup_logout) then
+					_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+					_detalhes.tabela_overall = nil
+					_detalhes_database.tabela_overall = nil
+				end
 			
 			--> clear customs
 				_detalhes.clear:c_atributo_custom()

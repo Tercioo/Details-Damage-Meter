@@ -2660,7 +2660,7 @@ end
 	end
 
 	if (enemy) then
-		if (arena_enemy) then
+		if (arena_enemy and _detalhes.show_arena_role_icon) then
 			if (UsingCustomLeftText) then
 				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
 			else
@@ -2682,7 +2682,7 @@ end
 			end
 		end
 	else
-		if (arena_ally) then
+		if (arena_ally and _detalhes.show_arena_role_icon) then
 			if (UsingCustomLeftText) then
 				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
 			else
