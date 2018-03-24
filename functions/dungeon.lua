@@ -7,7 +7,7 @@
 --local pointer to details object
 local Details = _G._detalhes
 local debugmode = false
-local verbosemode = true
+local verbosemode = false
 
 --constants
 local CONST_USE_PLAYER_EDPS = false
