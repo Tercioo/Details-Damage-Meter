@@ -6768,7 +6768,7 @@ function window:CreateFrame5()
 		
 		window:CreateLineBackground2 (frame5, "textLeftOutlineSmallSlider", "textLeftOutlineSmallLabel", "Text Outline")
 		
-	--> outline small color
+	--> left outline small color
 		local left_outline_small_callback = function (button, r, g, b, a)
 			local instance = _G.DetailsOptionsWindow.instance
 			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
@@ -6832,6 +6832,52 @@ function window:CreateFrame5()
 		end
 
 		window:CreateLineBackground2 (frame5, "textRightOutlineSlider", "textRightOutlineLabel", Loc ["STRING_OPTIONS_TEXT_ROUTILINE_DESC"])
+	
+	
+	--> right outline small
+		g:NewSwitch (frame5, _, "$parentTextRightOutlineSmallSlider", "textRightOutlineSmallSlider", 60, 20, _, _, instance.row_info.textR_outline_small, nil, nil, nil, nil, options_switch_template)
+		g:NewLabel (frame5, _, "$parentTextRightOutlineSmallLabel", "textRightOutlineSmallLabel", "Outline", "GameFontHighlightLeft")
+		
+		frame5.textRightOutlineSmallSlider:SetPoint ("left", frame5.textRightOutlineSmallLabel, "right", 2)
+		frame5.textRightOutlineSmallSlider:SetAsCheckBox()
+		frame5.textRightOutlineSmallSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+			--(13, smalloutline_Right, smalloutlinecolor_Right, smalloutline_right, smalloutlinecolor_right)
+			--14 15 16 17
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame5, "textRightOutlineSmallSlider", "textRightOutlineSmallLabel", "Text Outline")
+		
+	--> right outline small color
+		local right_outline_small_callback = function (button, r, g, b, a)
+			local instance = _G.DetailsOptionsWindow.instance
+			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		g:NewColorPickButton (frame5, "$parentOutlineSmallColorRight", "OutlineSmallColorRight", right_outline_small_callback, false, options_button_template)
+		local OutlineSmallColorTextRight = g:NewLabel (frame5, _, "$parentOutlineSmallLabelRight", "OutlineSmallColorLabelRight", "Outline Color", "GameFontHighlightRight")
+		frame5.OutlineSmallColorRight:SetPoint ("left", OutlineSmallColorTextRight, "right", 2, 0)
+
+		window:CreateLineBackground2 (frame5, "OutlineSmallColorRight", "OutlineSmallColorLabelRight", "Outline Color")	
 	
 	--> percent type
 		local onSelectPercent = function (_, instance, percentType)
@@ -7290,6 +7336,9 @@ function window:CreateFrame5()
 		local right_side = {
 			{"RightTextAnchorLabel", 1, true},
 			{"textRightOutlineLabel", 2},
+			{"textRightOutlineSmallLabel", 2},
+			{"OutlineSmallColorLabelRight", 2},
+			
 			{"classColorsRightTextLabel", 3},
 			
 			{"RightTextShowTotalLabel", 4, true},
@@ -11483,13 +11532,19 @@ end --> if not window
 		
 		local r, g, b, a = unpack (editing_instance.row_info.textL_outline_small_color)
 		_G.DetailsOptionsWindow5OutlineSmallColorLeft.MyObject:SetColor (r, g, b, a)
-	
+		
 		_G.DetailsOptionsWindow5TextLeftOutlineSmallSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5TextLeftOutlineSmallSlider.MyObject:SetValue (editing_instance.row_info.textL_outline_small)
 		
-		
 		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetValue (editing_instance.row_info.textL_outline)
+		--
+		local r, g, b, a = unpack (editing_instance.row_info.textR_outline_small_color)
+		_G.DetailsOptionsWindow5OutlineSmallColorRight.MyObject:SetColor (r, g, b, a)
+		
+		_G.DetailsOptionsWindow5TextRightOutlineSmallSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TextRightOutlineSmallSlider.MyObject:SetValue (editing_instance.row_info.textR_outline_small)
+		
 		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetValue (editing_instance.row_info.textR_outline)
 		

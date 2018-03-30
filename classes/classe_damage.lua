@@ -1,4 +1,5 @@
 -- damage object
+--2672
 
 	local _detalhes = 		_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
@@ -2401,6 +2402,8 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			else
 				porcentagem = porcentagem .. "%"
 			end
+			
+			--(bars_show_data [3] and bars_show_data [2] and bars_separator or "")
 			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
 		end
 		
@@ -2660,11 +2663,21 @@ end
 	end
 
 	if (enemy) then
-		if (arena_enemy and _detalhes.show_arena_role_icon) then
-			if (UsingCustomLeftText) then
-				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
+		if (arena_enemy) then
+			if (_detalhes.show_arena_role_icon) then
+				--> show arena role icon
+				if (UsingCustomLeftText) then
+					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
+				else
+					bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName)
+				end
 			else
-				bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName)
+				--don't show arena role icon
+				if (UsingCustomLeftText) then
+					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, " ", self, instance.showing))
+				else
+					bar.texto_esquerdo:SetText (bar_number .. " " .. self.displayName)
+				end
 			end
 		else
 			if (_detalhes.faction_against == "Horde") then

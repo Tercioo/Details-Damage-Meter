@@ -8,6 +8,7 @@
 local Details = _G._detalhes
 local debugmode = false
 local verbosemode = false
+local _
 
 --constants
 local CONST_USE_PLAYER_EDPS = false
