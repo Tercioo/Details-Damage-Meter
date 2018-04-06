@@ -115,6 +115,11 @@ combat also can be a string "overall" or "current".
 history_segment_container = Details:GetCombatSegments()
 returns the numeric table containing all past segments.
 
+Details:ResetSegmentData()
+reset the segment data including the overall segment
+
+Details:ResetSegmentOverallData()
+reset only the overall segment
 
 
 Getting an Actor:

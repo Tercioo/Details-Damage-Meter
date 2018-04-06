@@ -281,6 +281,22 @@ function mythicDungeonCharts.ShowChart()
 		f:SetBackdropColor (0, 0, 0, 0.9)
 		f:SetBackdropBorderColor (0, 0, 0, 1)
 		
+		--minimized frame
+		mythicDungeonCharts.FrameMinimized = CreateFrame ("frame", "DetailsMythicDungeonChartFrameminimized", UIParent)
+		local fMinimized = mythicDungeonCharts.FrameMinimized
+
+		fMinimized:SetSize (160, 24)
+		fMinimized:SetPoint ("center", UIParent, "center", 0, 0)
+		fMinimized:SetFrameStrata ("LOW")
+		fMinimized:EnableMouse (true)
+		fMinimized:SetMovable (true)
+		fMinimized:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		fMinimized:SetBackdropColor (0, 0, 0, 0.9)
+		fMinimized:SetBackdropBorderColor (0, 0, 0, 1)
+		fMinimized:Hide()
+		
+		f.IsMinimized = false
+		
 		--titlebar
 			local titlebar = CreateFrame ("frame", nil, f)
 			titlebar:SetPoint ("topleft", f, "topleft", 2, -3)
@@ -295,8 +311,24 @@ function mythicDungeonCharts.ShowChart()
 			titleLabel:SetPoint ("center", titlebar , "center")
 			titleLabel:SetPoint ("top", titlebar , "top", 0, -5)
 			f.TitleText = titleLabel
+			
+		--titlebar when minimized
+			local titlebarMinimized = CreateFrame ("frame", nil, fMinimized)
+			titlebarMinimized:SetPoint ("topleft", fMinimized, "topleft", 2, -3)
+			titlebarMinimized:SetPoint ("topright", fMinimized, "topright", -2, -3)
+			titlebarMinimized:SetHeight (20)
+			titlebarMinimized:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			titlebarMinimized:SetBackdropColor (.5, .5, .5, 1)
+			titlebarMinimized:SetBackdropBorderColor (0, 0, 0, 1)
+			
+			--> title
+			local titleLabelMinimized = _detalhes.gump:NewLabel (titlebarMinimized, titlebarMinimized, nil, "titulo", "Dungeon Run Chart", "GameFontHighlightLeft", 10, {227/255, 186/255, 4/255})
+			titleLabelMinimized:SetPoint ("left", titlebarMinimized , "left", 4, 0)
+			--titleLabelMinimized:SetPoint ("top", titlebarMinimized , "top", 0, -5)
+			f.TitleTextMinimized = titleLabelMinimized
 		
 		_detalhes:FormatBackground (f)
+		_detalhes:FormatBackground (fMinimized)
 		
 		tinsert (UISpecialFrames, "DetailsMythicDungeonChartFrame")
 		
@@ -306,6 +338,11 @@ function mythicDungeonCharts.ShowChart()
 		LibWindow.RestorePosition (f)
 		LibWindow.MakeDraggable (f)
 		LibWindow.SavePosition (f)
+		
+		LibWindow.RegisterConfig (fMinimized, Details.mythic_plus.mythicrun_chart_frame_minimized)
+		LibWindow.RestorePosition (fMinimized)
+		LibWindow.MakeDraggable (fMinimized)
+		LibWindow.SavePosition (fMinimized)
 		
 		f.ChartFrame = Details:GetFramework():CreateChartPanel (f, 1200, 600, "DetailsMythicDungeonChartGraphicFrame")
 		f.ChartFrame:SetPoint ("topleft", f, "topleft", 5, -20)
@@ -361,26 +398,7 @@ function mythicDungeonCharts.ShowChart()
 			NewTexture1:SetTexCoord (0.0010000000149012, 0.63868587493897, 0.0010000000149012, 0.19874391555786)
 
 			--> animations for NewTexture1
---[[
-			NewTexture1.scale = MainAnimationGroup:CreateAnimation ("SCALE")
-			NewTexture1.scale:SetTarget (f)
-			NewTexture1.scale:SetOrder (1)
-			NewTexture1.scale:SetDuration (0.090000038147)
-			NewTexture1.scale:SetStartDelay (0)
-			NewTexture1.scale:SetEndDelay (0)
-			NewTexture1.scale:SetFromScale (1, 1)
-			NewTexture1.scale:SetToScale (1.10, 1.10)
-			NewTexture1.scale:SetOrigin ("center", 0, 0)
-			NewTexture1.scale = MainAnimationGroup:CreateAnimation ("SCALE")
-			NewTexture1.scale:SetTarget (f)
-			NewTexture1.scale:SetOrder (2)
-			NewTexture1.scale:SetDuration (0.090000038147)
-			NewTexture1.scale:SetStartDelay (0)
-			NewTexture1.scale:SetEndDelay (0)
-			NewTexture1.scale:SetFromScale (1.10, 1.10)
-			NewTexture1.scale:SetToScale (1, 1)
-			NewTexture1.scale:SetOrigin ("center", 0, 0)
---]]			
+		
 			NewTexture1.alpha = MainAnimationGroup:CreateAnimation ("ALPHA")
 			NewTexture1.alpha:SetTarget (f)
 			NewTexture1.alpha:SetOrder (1)
@@ -404,20 +422,80 @@ function mythicDungeonCharts.ShowChart()
 			MainAnimationGroup:SetScript ("OnFinished", function()
 				NewTexture1:Hide()
 			end)
-
+		
 		f:Hide()
 		
 		function f.ShowChartFrame()
-			f:Show()
-			MainAnimationGroup:Play()
+			if (f.IsMinimized) then
+				f.IsMinimized = false
+				fMinimized:Hide()
+				f:Show()
+			else
+				f:Show()
+				MainAnimationGroup:Play()
+			end
 		end
-			
+		
 		local closeButton = CreateFrame ("button", "$parentCloseButton", f, "UIPanelCloseButton")
 		closeButton:GetNormalTexture():SetDesaturated (true)
 		closeButton:SetWidth (24)
 		closeButton:SetHeight (24)
 		closeButton:SetPoint ("topright", f, "topright", 0, -1)
 		closeButton:SetFrameLevel (f:GetFrameLevel()+16)
+		
+		local minimizeButton = CreateFrame ("button", "$parentCloseButton", f, "UIPanelCloseButton")
+		minimizeButton:GetNormalTexture():SetDesaturated (true)
+		minimizeButton:SetWidth (24)
+		minimizeButton:SetHeight (24)
+		minimizeButton:SetPoint ("right", closeButton, "left", 2, 0)
+		minimizeButton:SetFrameLevel (f:GetFrameLevel()+16)
+		minimizeButton:SetNormalTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+		minimizeButton:SetPushedTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+		minimizeButton:SetHighlightTexture ([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
+		
+		local closeButtonWhenMinimized = CreateFrame ("button", "$parentCloseButton", fMinimized, "UIPanelCloseButton")
+		closeButtonWhenMinimized:GetNormalTexture():SetDesaturated (true)
+		closeButtonWhenMinimized:SetWidth (24)
+		closeButtonWhenMinimized:SetHeight (24)
+		closeButtonWhenMinimized:SetPoint ("topright", fMinimized, "topright", 0, -1)
+		closeButtonWhenMinimized:SetFrameLevel (fMinimized:GetFrameLevel()+16)
+		
+		local minimizeButtonWhenMinimized = CreateFrame ("button", "$parentCloseButton", fMinimized, "UIPanelCloseButton")
+		minimizeButtonWhenMinimized:GetNormalTexture():SetDesaturated (true)
+		minimizeButtonWhenMinimized:SetWidth (24)
+		minimizeButtonWhenMinimized:SetHeight (24)
+		minimizeButtonWhenMinimized:SetPoint ("right", closeButtonWhenMinimized, "left", 2, 0)
+		minimizeButtonWhenMinimized:SetFrameLevel (fMinimized:GetFrameLevel()+16)
+		minimizeButtonWhenMinimized:SetNormalTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+		minimizeButtonWhenMinimized:SetPushedTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+		minimizeButtonWhenMinimized:SetHighlightTexture ([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
+		
+		closeButtonWhenMinimized:SetScript ("OnClick", function()
+			f.IsMinimized = false
+			fMinimized:Hide()
+			minimizeButtonWhenMinimized:SetNormalTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+			minimizeButtonWhenMinimized:SetPushedTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+		end)
+		
+		--> replace the default click function
+		local minimize_func = function (self)
+			if (f.IsMinimized) then
+				f.IsMinimized = false
+				fMinimized:Hide()
+				f:Show()
+				minimizeButtonWhenMinimized:SetNormalTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
+				minimizeButtonWhenMinimized:SetPushedTexture ([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
+			else
+				f.IsMinimized = true
+				f:Hide()
+				fMinimized:Show()
+				minimizeButtonWhenMinimized:SetNormalTexture ([[Interface\BUTTONS\UI-Panel-CollapseButton-Up]])
+				minimizeButtonWhenMinimized:SetPushedTexture ([[Interface\BUTTONS\UI-Panel-CollapseButton-Up]])
+			end
+		end
+		
+		minimizeButton:SetScript ("OnClick", minimize_func)
+		minimizeButtonWhenMinimized:SetScript ("OnClick", minimize_func)
 		
 		--enabled box
 		-- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
@@ -427,10 +505,10 @@ function mythicDungeonCharts.ShowChart()
 		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch (f, on_switch_enable, _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", Details.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
 		enabledSwitch:SetAsCheckBox()
 		enabledSwitch.tooltip = "Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."
-		enabledLabel:SetPoint ("right", closeButton, "left", -22, 0)
+		enabledLabel:SetPoint ("right", minimizeButton, "left", -22, 0)
 		enabledSwitch:SetSize (16, 16)
 		Details.gump:SetFontColor (enabledLabel, "gray")
-		enabledSwitch.checked_texture:SetVertexColor (.6, .6, .6)
+		enabledSwitch.checked_texture:SetVertexColor (.75, .75, .75)
 		
 		local leftDivisorLine = f.BossWidgetsFrame:CreateTexture (nil, "overlay")
 		leftDivisorLine:SetSize (2, f.ChartFrame.Graphic:GetHeight())
