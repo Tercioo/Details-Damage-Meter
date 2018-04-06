@@ -229,6 +229,54 @@ local common_events = {
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 	
+	local dispatch_error = function (name, errortext)
+		_detalhes:Msg ((name or "<no context>"), " |cFFFF9900error|r: ", errortext)
+	end
+	
+	--> safe call an external func with payload and without telling who is calling
+	function _detalhes:QuickDispatchEvent (func, event, ...)
+		if (type (func) ~= "function") then
+			return
+		elseif (type (event) ~= "string") then
+			return
+		end
+		
+		local okay, errortext = pcall (func, event, ...)
+		
+		if (not okay) then
+			--> trigger an error msg
+			dispatch_error (_, errortext)
+			
+			return
+		end
+		
+		return true
+	end
+	
+	--> quick dispatch with context, send the caller object within the payload
+	function _detalhes:QuickDispatchEventWithContext (context, func, event, ...)
+		if (type (context) ~= "table") then
+			return
+		elseif (type (func) ~= "function") then
+			return
+		elseif (type (event) ~= "string") then
+			return
+		end
+		
+		local okay, errortext = pcall (func, context, event, ...)
+		
+		if (not okay) then
+			--> attempt to get the context name
+			local objectName = context.__name or context._name or context.name or context.Name
+			--> trigger an error msg
+			dispatch_error (objectName, errortext)
+			
+			return
+		end
+		
+		return true
+	end
+
 	--> Send Event
 	function _detalhes:SendEvent (event, object, ...)
 		
@@ -238,45 +286,71 @@ local common_events = {
 			return object:OnDetailsEvent (event, ...)
 		
 		elseif (not object) then
+			--> iterate among all plugins which registered a function for this event
 			for _, PluginObject in ipairs (_detalhes.RegistredEvents[event]) do
-				if (PluginObject.__eventtable) then --if passed a function to callback
-					if (PluginObject [1].Enabled and PluginObject [1].__enabled) then
+			
+				--> when __eventtable is true, the plugin registered a function or method name to callback
+				--> if is false, we call OnDetailsEvent method on the plugin 
+				if (PluginObject.__eventtable) then 
+					
+					local pluginTable = PluginObject [1]
+					
+					--> check if the plugin is enabled
+					if (pluginTable.Enabled and pluginTable.__enabled) then
+					
+						--> check if fegistered a function
 						if (type (PluginObject [2]) == "function") then
-							PluginObject [2] (event, ...)
+							local func = PluginObject [2]
+							_detalhes:QuickDispatchEvent (func, event, ...)
+							--PluginObject [2] (event, ...)
+						
+						--> if not it must be a method name
 						else
-							PluginObject [1] [PluginObject [2]] (PluginObject, event, ...)
+							local methodName = PluginObject [2]
+							local func = pluginTable [methodName]
+							
+							_detalhes:QuickDispatchEventWithContext (pluginTable, func, event, ...)
+							--PluginObject [1] [PluginObject [2]] (PluginObject, event, ...)
 						end
 					end
-				else --if no function (only registred the event) sent the event to OnDetailsEvent
+					
+				--if no function (only registred the event) sent the event to OnDetailsEvent
+				else 
 					if (PluginObject.Enabled and PluginObject.__enabled) then
-						PluginObject:OnDetailsEvent (event, ...)
+						_detalhes:QuickDispatchEventWithContext (PluginObject, PluginObject.OnDetailsEvent, event, ...)
+						--PluginObject:OnDetailsEvent (event, ...)
 					end
 				end
 			end
 			
+		--> plugin notifications (does not send to listeners)
 		elseif (type (object) == "string" and object == "SEND_TO_ALL") then
 			
 			for _, PluginObject in ipairs (_detalhes.RaidTables.Plugins) do 
 				if (PluginObject.__enabled) then
-					PluginObject:OnDetailsEvent (event)
+					_detalhes:QuickDispatchEventWithContext (PluginObject, PluginObject.OnDetailsEvent, event)
+					--PluginObject:OnDetailsEvent (event)
 				end
 			end
 			
 			for _, PluginObject in ipairs (_detalhes.SoloTables.Plugins) do 
 				if (PluginObject.__enabled) then
-					PluginObject:OnDetailsEvent (event)
+					_detalhes:QuickDispatchEventWithContext (PluginObject, PluginObject.OnDetailsEvent, event)
+					--PluginObject:OnDetailsEvent (event)
 				end
 			end
 			
 			for _, PluginObject in ipairs (_detalhes.ToolBar.Plugins) do 
 				if (PluginObject.__enabled) then
-					PluginObject:OnDetailsEvent (event)
+					_detalhes:QuickDispatchEventWithContext (PluginObject, PluginObject.OnDetailsEvent, event)
+					--PluginObject:OnDetailsEvent (event)
 				end
 			end
 		else
-		--> send the event only for requested plugin
+			--> send the event only for requested plugin
 			if (object.Enabled and object.__enabled) then
-				return object:OnDetailsEvent (event, ...)
+				return _detalhes:QuickDispatchEventWithContext (object, object.OnDetailsEvent, event, ...)
+				--return object:OnDetailsEvent (event, ...)
 			end
 		end
 	end
