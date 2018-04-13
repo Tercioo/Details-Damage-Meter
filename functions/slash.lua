@@ -54,6 +54,39 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes:ShutDownAllInstances()
 		end
 	
+	elseif (command == "softhide") then
+		for instanceID, instance in _detalhes:ListInstances() do
+			if (instance:IsEnabled()) then
+				if (instance.hide_in_combat_type > 1) then
+					instance:SetWindowAlphaForCombat (true)
+				end
+			end
+		end
+	
+	elseif (command == "softshow") then
+		for instanceID, instance in _detalhes:ListInstances() do
+			if (instance:IsEnabled()) then
+				if (instance.hide_in_combat_type > 1) then
+					instance:SetWindowAlphaForCombat (false)
+				end
+			end
+		end
+	
+	elseif (command == "softtoggle") then
+		for instanceID, instance in _detalhes:ListInstances() do
+			if (instance:IsEnabled()) then
+				if (instance.hide_in_combat_type > 1) then
+					if (instance.baseframe:GetAlpha() > 0.1) then
+						--show
+						instance:SetWindowAlphaForCombat (true)
+					else
+						--hide
+						instance:SetWindowAlphaForCombat (false)
+					end
+				end
+			end
+		end
+	
 	elseif (command == Loc ["STRING_SLASH_SHOW"] or command == Loc ["STRING_SLASH_SHOW_ALIAS1"] or command == "show") then
 	
 		_detalhes.LastShowCommand = GetTime()

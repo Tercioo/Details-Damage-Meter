@@ -235,21 +235,32 @@ end
 
 function mythicDungeonCharts:OnEndMythicDungeon()
 	if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running) then
+	
+		--> stop capturinfg
 		mythicDungeonCharts.ChartTable.Running = false
 		mythicDungeonCharts.ChartTable.ElapsedTime = time() - mythicDungeonCharts.ChartTable.StartTime
 		mythicDungeonCharts.ChartTable.EndTime = time()
 		mythicDungeonCharts.ChartTable.Ticker:Cancel()
-		
+
 		local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 		mythicDungeonCharts.ChartTable.DungeonName = name
 		
-		mythicDungeonCharts:Debug ("Dungeon ended, chart data capture stopped")
+		--> check if is inside the dungeon
+		--> many players just leave the dungeon in order the re-enter and start the run again, the chart window is showing in these cases data to an imcomplete run.
+		local isInsideDungeon = IsInInstance()
+		if (not isInsideDungeon) then
+			mythicDungeonCharts:Debug ("OnEndMythicDungeon() player wasn't inside the dungeon.")
+			return
+		end
+	
+		mythicDungeonCharts:Debug ("Dungeon ended successfully, chart data capture stopped, scheduling to open the window.")
 		
+		--> the run is valid, schedule to open the chart window
 		_detalhes.mythic_plus.delay_to_show_graphic = 20
 		C_Timer.After (_detalhes.mythic_plus.delay_to_show_graphic or 20, mythicDungeonCharts.ShowChart)
 		
 		if (verbosemode) then
-			mythicDungeonCharts:Debug ("OnEndMythicDungeon() success")
+			mythicDungeonCharts:Debug ("OnEndMythicDungeon() success!")
 		end
 	else
 		mythicDungeonCharts:Debug ("Dungeon ended, no chart data was running")
