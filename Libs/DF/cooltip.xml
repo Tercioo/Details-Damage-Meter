@@ -101,7 +101,7 @@
 				</Texture>
 				
 				<!-- banner image -->
-				<Texture name="$parent_UpperImage2" hidden="true" parentKey="upperImage2" file = "">
+				<Texture name="$parent_UpperImage2" hidden="true" parentKey="upperImage2">
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="-3"/>
 						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP" x="0" y="-3"/>
@@ -111,7 +111,7 @@
 			
 			<Layer level="OVERLAY">
 				<!-- upper image2 -->
-				<Texture name="$parent_UpperImage" hidden="true" parentKey="upperImage" file = "">
+				<Texture name="$parent_UpperImage" hidden="true" parentKey="upperImage">
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="-3"/>
 						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP" x="0" y="-3"/>

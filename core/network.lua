@@ -296,7 +296,7 @@
 			
 			local IDs = _detalhes.storage:GetIDsToGuildSync()
 			
-			if (IDs [1]) then
+			if (IDs and IDs [1]) then
 				local from = UnitName ("player")
 				local realm = GetRealmName()
 				_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (CONST_GUILD_SYNC, from, realm, _detalhes.realversion, "L", IDs), "WHISPER", chr_name)
@@ -308,7 +308,7 @@
 		elseif (type == "L") then --RoC - the player received the IDs list and send back which IDs he doesn't have
 			local MissingIDs = _detalhes.storage:CheckMissingIDsToGuildSync (data)
 			
-			if (MissingIDs [1]) then
+			if (MissingIDs and MissingIDs [1]) then
 				local from = UnitName ("player")
 				local realm = GetRealmName()
 				_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (CONST_GUILD_SYNC, from, realm, _detalhes.realversion, "G", MissingIDs), "WHISPER", chr_name)
@@ -318,7 +318,7 @@
 		elseif (type == "G") then --RoS - the 'server' send the encounter dps table to the player which requested
 			local EncounterData = _detalhes.storage:BuildEncounterDataToGuildSync (data)
 			
-			if (EncounterData [1]) then
+			if (EncounterData and EncounterData [1]) then
 				local task = C_Timer.NewTicker (4, function (task)
 					task.TickID = task.TickID + 1
 					local data = task.EncounterData [task.TickID]

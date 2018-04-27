@@ -1009,6 +1009,11 @@ end
 --remote call RoS
 function _detalhes.storage:GetIDsToGuildSync()
 	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (db) then
+		return
+	end
+	
 	local IDs = {}
 	
 	--build the encounter ID list
@@ -1037,6 +1042,10 @@ end
 --local call RoC - received the encounter IDS - need to know which fights is missing
 function _detalhes.storage:CheckMissingIDsToGuildSync (IDsList)
 	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (db) then
+		return
+	end
 	
 	if (type (IDsList) ~= "table") then
 		if (_detalhes.debug) then
@@ -1071,6 +1080,10 @@ end
 --remote call RoS - build the encounter list from the IDsList
 function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (db) then
+		return
+	end
 	
 	if (type (IDsList) ~= "table") then
 		if (_detalhes.debug) then
@@ -1132,6 +1145,10 @@ end
 function _detalhes.storage:AddGuildSyncData (data, source)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
+	if (db) then
+		return
+	end
+	
 	local AddedAmount = 0
 	_detalhes.LastGuildSyncReceived = GetTime()
 	
@@ -1189,6 +1206,11 @@ end
 
 function _detalhes.storage:ListDiffs()
 	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (db) then
+		return
+	end
+	
 	local t = {}
 	for diff, _ in pairs (db) do
 		tinsert (t, diff)
@@ -1198,6 +1220,10 @@ end
 
 function _detalhes.storage:ListEncounters (diff)
 	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (db) then
+		return
+	end
 	
 	local t = {}
 	if (diff) then
@@ -1221,6 +1247,10 @@ end
 function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
 	local db = _detalhes.storage:OpenRaidStorage()
 
+	if (db) then
+		return
+	end
+	
 	local t = {}
 	assert (type (playername) == "string", "PlayerName must be a string.")
 
@@ -1576,9 +1606,13 @@ function _detalhes:StoreEncounter (combat)
 			end
 			
 			if (myBestDps > d_one) then
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:ToK2 (d_one), _detalhes:ToK2 (myBestDps), onencounter.date, mybest[2]))
+				if (not _detalhes.deny_score_messages) then
+					print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:ToK2 (d_one), _detalhes:ToK2 (myBestDps), onencounter.date, mybest[2]))
+				end
 			else
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:ToK2 (d_one)))
+				if (not _detalhes.deny_score_messages) then
+					print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:ToK2 (d_one)))
+				end
 			end
 		end
 		
@@ -1594,7 +1628,10 @@ function _detalhes:StoreEncounter (combat)
 				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName} --, 2, UnitName ("player")
 				--local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
 				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
-				instance:InstanceAlert (Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, _detalhes.update_warning_timeout, func, true)
+				
+				if (not _detalhes.deny_score_messages) then
+					instance:InstanceAlert (Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, _detalhes.update_warning_timeout, func, true)
+				end
 			end
 		end
 	else
