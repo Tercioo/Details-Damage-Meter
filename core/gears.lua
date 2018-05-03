@@ -9,7 +9,13 @@ local floor = floor
 
 local GetNumGroupMembers = GetNumGroupMembers
 local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
-local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
+
+local LibGroupInSpecT
+if (_detalhes.IsBFAClient) then
+	--nop
+else
+	LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
+end
 
 local storageDebug = false
 local store_instances = _detalhes.InstancesToStoreData

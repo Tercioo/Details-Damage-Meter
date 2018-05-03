@@ -985,6 +985,7 @@ local default_profile = {
 		report_to_who = "",
 		report_heal_links = false,
 		report_schema = 1,
+		deny_score_messages = false,
 		
 	--> colors
 		default_bg_color = 0.0941,
@@ -1409,7 +1410,22 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 	local savedTable = _detalhes.mythic_dungeon_currentsaved
 	local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 	local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
-	local ejID = EJ_GetCurrentInstance()
+	
+	local ejID = 0
+	
+	if (_detalhes.IsBFAClient) then
+		local mapID =  C_Map.GetBestMapForUnit ("player")
+		
+		if (not mapID) then
+			return
+		end
+		
+		if (mapID) then
+			ejID = EJ_GetInstanceForMap (mapID) or 0
+		end
+	else
+		ejID = EJ_GetCurrentInstance() or 0
+	end
 
 	--> is there a saved state for the dungeon?
 	if (savedTable.started) then

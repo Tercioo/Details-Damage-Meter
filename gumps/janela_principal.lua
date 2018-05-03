@@ -1923,7 +1923,7 @@ local barra_scripts_onleave = function (self)
 	self.mouse_over = false
 	OnLeaveMainWindow (self._instance, self)
 	
-	_GameTooltip:Hide()
+	--_GameTooltip:Hide()
 	GameCooltip:ShowMe (false)
 	
 	self:SetBackdrop (barra_backdrop_onleave)	
@@ -2268,7 +2268,7 @@ local icon_frame_on_enter = function (self)
 end
 local icon_frame_on_leave = function (self)
 	GameCooltip:Hide()
-	GameTooltip:Hide()
+	--GameTooltip:Hide()
 	
 	if (self.row.icone_classe:GetTexture() ~= "") then
 		--self.row.icone_classe:SetSize (self.row.icone_classe:GetWidth()-1, self.row.icone_classe:GetWidth()-1)

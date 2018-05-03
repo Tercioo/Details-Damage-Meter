@@ -475,7 +475,9 @@ end
 				local instance1 = _detalhes:GetInstance (1)
 				local instance2 = _detalhes:GetInstance (2)
 				
-				_detalhes:CheckCoupleWindows (instance1, instance2)
+				if (not instance1.ignore_mass_showhide and not instance2.ignore_mass_showhide) then
+					_detalhes:CheckCoupleWindows (instance1, instance2)
+				end
 			end
 		end
 	end

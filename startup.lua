@@ -245,16 +245,17 @@ function _G._detalhes:Start()
 		--> load parser capture options
 			self:CaptureRefresh()
 		--> register parser events
+			if (not _detalhes.IsBFAClient) then
+				self.listener:RegisterEvent ("SPELL_SUMMON")
+				self.listener:RegisterEvent ("PARTY_MEMBERS_CHANGED")
+				self.listener:RegisterEvent ("PARTY_CONVERTED_TO_RAID")
+			end
 			
 			self.listener:RegisterEvent ("PLAYER_REGEN_DISABLED")
 			self.listener:RegisterEvent ("PLAYER_REGEN_ENABLED")
-			self.listener:RegisterEvent ("SPELL_SUMMON")
 			self.listener:RegisterEvent ("UNIT_PET")
-
-			self.listener:RegisterEvent ("PARTY_MEMBERS_CHANGED")
-			self.listener:RegisterEvent ("GROUP_ROSTER_UPDATE")
-			self.listener:RegisterEvent ("PARTY_CONVERTED_TO_RAID")
 			
+			self.listener:RegisterEvent ("GROUP_ROSTER_UPDATE")
 			self.listener:RegisterEvent ("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			
 			self.listener:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
@@ -284,6 +285,11 @@ function _G._detalhes:Start()
 			--> check if can enabled the immersino stuff
 			
 			function immersionFrame.CheckIfCanEnableImmersion()
+			
+				if (_detalhes.IsBFAClient) then
+					return
+				end
+			
 				local mapFileName = GetMapInfo()	
 				if (mapFileName and mapFileName:find ("InvasionPoint")) then
 					self.immersion_enabled = true
@@ -980,8 +986,22 @@ function _G._detalhes:Start()
 				
 				local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 				local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
-				local ejID = EJ_GetCurrentInstance()
 				
+				local ejID
+				
+				if (_detalhes.IsBFAClient) then
+					local mapID = C_Map.GetBestMapForUnit ("player")
+					
+					if (not mapID) then
+						--print ("Details! exeption handled: zone has no map")
+						return
+					end
+					
+					ejID = EJ_GetInstanceForMap (mapID) or 0
+				else
+					ejID = EJ_GetCurrentInstance()
+				end
+
 				--> setup the mythic run info
 				self.MythicPlus.Started = true
 				self.MythicPlus.DungeonName = zoneName

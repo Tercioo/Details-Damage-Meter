@@ -22,7 +22,7 @@
 		_detalhes:ToggleWindows()
 	</Binding>
 
-	<Binding name="DETAILS_TOOGGLE_WINDOW1" description="Toggle window 1." header="DETAILS_KEYBIND_WINDOW_CONTROL" category="Details!">
+	<Binding name="DETAILS_TOOGGLE_WINDOW1" description="Toggle window 1." category="Details!">
 		_detalhes:ToggleWindow (1)
 	</Binding>
 	<Binding name="DETAILS_TOOGGLE_WINDOW2" description="Toggle window 2." category="Details!">

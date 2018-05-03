@@ -683,13 +683,18 @@
 	}
 
 	function _detalhes:IsInCity()
-		SetMapToCurrentZone()
-		local mapFileName, _, _, _, microDungeonMapName = GetMapInfo()
+		if (_detalhes.IsBFAClient) then
+			return false
+		else
+			SetMapToCurrentZone()
+			local mapFileName, _, _, _, microDungeonMapName = GetMapInfo()
+			
+			if (city_zones [mapFileName]) then
+				return true
+			elseif (microDungeonMapName and type (microDungeonMapName) == "string" and sub_zones [microDungeonMapName]) then
+				return true
+			end
 		
-		if (city_zones [mapFileName]) then
-			return true
-		elseif (microDungeonMapName and type (microDungeonMapName) == "string" and sub_zones [microDungeonMapName]) then
-			return true
 		end
 	end
 

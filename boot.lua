@@ -12,6 +12,11 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
 
+		local version, build, date, tocversion = GetBuildInfo()
+		--in case someone is using details! retail version on BFA beta
+		--also when BFA launches, it should work in case the player doesn't update it
+		_detalhes.IsBFAClient = tocversion >= 80000
+
 do 
 
 	local _detalhes = _G._detalhes

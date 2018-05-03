@@ -2586,10 +2586,22 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 	AlternatePowerEnableFrame:SetScript ("OnEvent", function (self, event)
 		if (event == "UNIT_POWER_BAR_SHOW") then
-			AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER")
+		
+			if (_detalhes.IsBFAClient) then
+				AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER_UPDATE")
+			else
+				AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER")
+			end
+			
 			AlternatePowerEnableFrame.IsRunning = true
 		elseif (AlternatePowerEnableFrame.IsRunning and (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED")) then -- and not InCombatLockdown()
-			AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER")
+			
+			if (_detalhes.IsBFAClient) then
+				AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER_UPDATE")
+			else
+				AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER")
+			end
+			
 			AlternatePowerEnableFrame.IsRunning = false
 		end
 	end)
@@ -3511,7 +3523,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		for i = 1, (_GetNumGroupMembers() + (unit_type == "party" and -1 or 0)) do 
 			for auraIndex = 1, 40 do
 				--gbom
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
+				
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId
+				
+				if (_detalhes.IsBFAClient) then
+					name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
+				else
+					name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
+				end
+				
 				if (name and caster and (UnitInRaid (caster) or UnitInParty (caster))) then
 					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
 						local source_serial = UnitGUID (caster)
@@ -3532,7 +3552,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (unit_type == "party") then
 			for auraIndex = 1, 40 do
 				--gbom
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
+				
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId
+				
+				if (_detalhes.IsBFAClient) then
+					name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
+				else
+					name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
+				end
+				
 				if (name and caster and (UnitInParty (caster))) then
 					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
 						local source_serial = UnitGUID (caster)
@@ -3561,7 +3589,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				return unpack (real_source)
 			else
 				--query the player buffs if not found on cache
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
+				
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId
+				
+				if (_detalhes.IsBFAClient) then
+					name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
+				else
+					name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
+				end
+				
 				if (name) then
 					local source_serial = UnitGUID (caster)
 					if (source_serial) then
@@ -4685,6 +4721,21 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 	
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
+	
+	
+		-- 8.0 changed
+		if (_detalhes.IsBFAClient) then
+			local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+			
+			local funcao = token_list [token]
+			if (funcao) then
+				return funcao (nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+			end
+			
+			return
+		end
+
+	
 		local funcao = token_list [token]
 
 --		if (token == "COMBATANT_INFO") then
@@ -4694,7 +4745,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 --		if (who_name == "Ditador") then
 --			print (token, alvo_name, ...)
 --		end
-		
+
 		if (funcao) then
 			--if (token ~= "SPELL_AURA_REFRESH" and token ~= "SPELL_AURA_REMOVED" and token ~= "SPELL_AURA_APPLIED") then
 			--	print ("running func:", token)

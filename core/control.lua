@@ -111,12 +111,26 @@
 		end
 	
 		local boss_found = function (index, name, zone, mapid, diff, encounterid)
-		
-			local ejid = EJ_GetCurrentInstance()
-			if (ejid == 0) then
-				ejid = _detalhes:GetInstanceEJID()
+			
+			local ejid
+			
+			if (_detalhes.IsBFAClient) then
+				local mapID = C_Map.GetBestMapForUnit ("player")
+				if (mapID) then
+					ejid = EJ_GetInstanceForMap (mapID)
+				end
+				
+				if (not mapID) then
+					--print ("Details! exeption handled: zone has no map")
+					return
+				end
+			else
+				ejid = EJ_GetCurrentInstance()
+				if (ejid == 0) then
+					ejid = _detalhes:GetInstanceEJID()
+				end
 			end
-		
+
 			local boss_table = {
 				index = index,
 				name = name,
@@ -519,10 +533,23 @@
 				local encounterID, encounterName, difficultyID, raidSize, endStatus = unpack (from_encounter_end)
 				if (encounterID) then
 					local ZoneName, InstanceType, DifficultyID, DifficultyName, _, _, _, ZoneMapID = GetInstanceInfo()
-					local ejid = EJ_GetCurrentInstance()
-					if (ejid == 0) then
-						ejid = _detalhes:GetInstanceEJID()
+					
+					local ejid
+					if (_detalhes.IsBFAClient) then
+						local mapID = C_Map.GetBestMapForUnit ("player")
+						
+						if (not mapID) then
+							mapID = 0
+						end
+						
+						ejid = EJ_GetInstanceForMap (mapID)
+					else
+						ejid = EJ_GetCurrentInstance()
+						if (ejid == 0) then
+							ejid = _detalhes:GetInstanceEJID()
+						end
 					end
+					
 					local _, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (ZoneMapID, encounterID)
 
 					_detalhes.tabela_vigente.is_boss = {

@@ -62,7 +62,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 89 $"):match ("(%d+)") or 0)
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", 90
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -86,14 +86,14 @@ local INSPECT_TIMEOUT = 10 -- If we get no notification within 10s, give up on u
 
 local MAX_ATTEMPTS = 2
 
---@debug@
+--[===[@debug@
 lib.debug = false
 local function debug (...)
   if lib.debug then  -- allow programmatic override of debug output by client addons
     print (...) 
   end
 end
---@end-debug@
+--@end-debug@]===]
 
 function lib.events:OnUsed(target, eventname)
   if eventname == INSPECT_READY_EVENT then
@@ -172,6 +172,7 @@ local UnitIsConnected                 = _G.UnitIsConnected
 local UnitIsPlayer                    = _G.UnitIsPlayer
 local UnitIsUnit                      = _G.UnitIsUnit
 local UnitName                        = _G.UnitName
+local SendAddonMessage                = C_ChatInfo and C_ChatInfo.SendAddonMessage or SendAddonMessage -- XXX 8.0 compat
 
 
 local global_spec_id_roles_detailed = {
@@ -254,7 +255,11 @@ function lib:PLAYER_LOGIN ()
   frame:RegisterEvent ("UNIT_NAME_UPDATE")
   frame:RegisterEvent ("UNIT_AURA")
   frame:RegisterEvent ("CHAT_MSG_ADDON")
-  RegisterAddonMessagePrefix (COMMS_PREFIX)
+  if C_ChatInfo then -- XXX 8.0 compat
+    C_ChatInfo.RegisterAddonMessagePrefix (COMMS_PREFIX)
+  else
+    RegisterAddonMessagePrefix (COMMS_PREFIX)
+  end
 
   local guid = UnitGUID ("player")
   local info = self:BuildInfo ("player")
@@ -312,8 +317,8 @@ function lib:GetCachedTalentInfo (class_id, tier, col, group, is_inspect, unit)
   local talents = self.static_cache.talents
   local talent_id, name, icon, sel, avail = GetTalentInfo (tier, col, group, is_inspect, unit)
   if not talent_id or not class_id then
-    --@debug@
-    debug ("GetCachedTalentInfo("..tostring(class_id)..","..tier..","..col..","..group..","..tostring(is_inspect)..","..tostring(unit)..") returned nil") --@end-debug@
+    --[===[@debug@
+    debug ("GetCachedTalentInfo("..tostring(class_id)..","..tier..","..col..","..group..","..tostring(is_inspect)..","..tostring(unit)..") returned nil") --@end-debug@]===]
     return {}
   end
   talents[class_id] = talents[class_id] or {}
@@ -393,8 +398,8 @@ end
 function lib:Refresh (unit)
   local guid = UnitGUID (unit)
   if not guid then return end
-  --@debug@
-  debug ("Refreshing "..unit) --@end-debug@
+  --[===[@debug@
+  debug ("Refreshing "..unit) --@end-debug@]===]
   if not self.state.mainq[guid] then
     self.state.staleq[guid] = 1
     self.frame:Show ()
@@ -413,8 +418,8 @@ function lib:ProcessQueues ()
   local staleq = self.state.staleq
 
   if not next (mainq) and next(staleq) then
-    --@debug@
-    debug ("Main queue empty, swapping main and stale queues") --@end-debug@
+    --[===[@debug@
+    debug ("Main queue empty, swapping main and stale queues") --@end-debug@]===]
     self.state.mainq, self.state.staleq = self.state.staleq, self.state.mainq
     mainq, staleq = staleq, mainq
   end
@@ -423,17 +428,17 @@ function lib:ProcessQueues ()
     -- If there was an inspect going, it's timed out, so either retry or move it to stale queue
     local guid = self.state.current_guid
     if guid then
-      --@debug@
-      debug ("Inspect timed out for "..guid) --@end-debug@
+      --[===[@debug@
+      debug ("Inspect timed out for "..guid) --@end-debug@]===]
 
       local count = mainq and mainq[guid] or (MAX_ATTEMPTS + 1)
       if not self:GuidToUnit (guid) then
-        --@debug@
-        debug ("No longer applicable, removing from queues") --@end-debug@
+        --[===[@debug@
+        debug ("No longer applicable, removing from queues") --@end-debug@]===]
         mainq[guid], staleq[guid] = nil, nil
       elseif count > MAX_ATTEMPTS then
-        --@debug@
-        debug ("Excessive retries, moving to stale queue") --@end-debug@
+        --[===[@debug@
+        debug ("Excessive retries, moving to stale queue") --@end-debug@]===]
         mainq[guid], staleq[guid] = nil, 1
       else
         mainq[guid] = count + 1
@@ -447,16 +452,16 @@ function lib:ProcessQueues ()
   for guid,count in pairs (mainq) do
     local unit = self:GuidToUnit (guid)
     if not unit then
-      --@debug@
-      debug ("No longer applicable, removing from queues") --@end-debug@
+      --[===[@debug@
+      debug ("No longer applicable, removing from queues") --@end-debug@]===]
       mainq[guid], staleq[guid] = nil, nil
     elseif not CanInspect (unit) or not UnitIsConnected (unit) then
-      --@debug@
-      debug ("Cannot inspect "..unit..", aka "..(UnitName(unit) or "nil")..", moving to stale queue") --@end-debug@
+      --[===[@debug@
+      debug ("Cannot inspect "..unit..", aka "..(UnitName(unit) or "nil")..", moving to stale queue") --@end-debug@]===]
       mainq[guid], staleq[guid] = nil, 1
     else
-      --@debug@
-      debug ("Inspecting "..unit..", aka "..(UnitName(unit) or "nil")) --@end-debug@
+      --[===[@debug@
+      debug ("Inspecting "..unit..", aka "..(UnitName(unit) or "nil")) --@end-debug@]===]
       mainq[guid] = count + 1
       self.state.current_guid = guid
       NotifyInspect (unit)
@@ -553,8 +558,8 @@ function lib:INSPECT_READY (guid)
     if guid == self.state.current_guid then
       self.state.current_guid = nil -- Got what we asked for
       finalize = true
-      --@debug@
-      debug ("Got inspection data for requested guid "..guid) --@end-debug@
+      --[===[@debug@
+      debug ("Got inspection data for requested guid "..guid) --@end-debug@]===]
     end
 
     local mainq, staleq = self.state.mainq, self.state.staleq
@@ -642,8 +647,8 @@ function lib:SendLatestSpecData ()
     datastr = datastr..COMMS_DELIM..0
   end
 
-  --@debug@
-  debug ("Sending LGIST update to "..scope) --@end-debug@
+  --[===[@debug@
+  debug ("Sending LGIST update to "..scope) --@end-debug@]===]
   SendAddonMessage(COMMS_PREFIX, datastr, scope)
 end
 
@@ -667,8 +672,8 @@ msg_idx.end_talents    = msg_idx.talents + MAX_TALENT_TIERS - 1
 
 function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   if prefix ~= COMMS_PREFIX or scope ~= self.commScope then return end
-  --@debug@
-  debug ("Incoming LGIST update from "..(scope or "nil").."/"..(sender or "nil")..": "..(datastr:gsub(COMMS_DELIM,";") or "nil")) --@end-debug@
+  --[===[@debug@
+  debug ("Incoming LGIST update from "..(scope or "nil").."/"..(sender or "nil")..": "..(datastr:gsub(COMMS_DELIM,";") or "nil")) --@end-debug@]===]
 
   local data = { strsplit (COMMS_DELIM,datastr) }
   local fmt = data[msg_idx.fmt]
@@ -735,8 +740,8 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   mainq[guid], staleq[guid] = need_inspect, want_inspect
   if need_inspect or want_inspect then self.frame:Show () end
 
-  --@debug@
-  debug ("Firing LGIST update event for unit "..unit..", GUID "..guid) --@end-debug@
+  --[===[@debug@
+  debug ("Firing LGIST update event for unit "..unit..", GUID "..guid) --@end-debug@]===]
   self.events:Fire (UPDATE_EVENT, guid, unit, info)
   self.events:Fire (QUEUE_EVENT)
 end
@@ -791,8 +796,8 @@ function lib:UNIT_AURA (unit)
       if UnitIsVisible (unit) then
         if info.not_visible then
           info.not_visible = nil
-          --@debug@
-          debug (unit..", aka "..(UnitName(unit) or "nil")..", is now visible") --@end-debug@
+          --[===[@debug@
+          debug (unit..", aka "..(UnitName(unit) or "nil")..", is now visible") --@end-debug@]===]
           if not self.state.mainq[guid] then
             self.state.staleq[guid] = 1
             self.frame:Show ()
@@ -800,11 +805,11 @@ function lib:UNIT_AURA (unit)
           end
         end
       elseif UnitIsConnected (unit) then
-        --@debug@
+        --[===[@debug@
         if not info.not_visible then
           debug (unit..", aka "..(UnitName(unit) or "nil")..", is no longer visible")
         end
-        --@end-debug@
+        --@end-debug@]===]
         info.not_visible = true
       end
     end
