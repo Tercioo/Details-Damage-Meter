@@ -133,7 +133,7 @@ function _detalhes:ContainerSortMisc (container, amount, keyName2)
 	_table_sort (container,  _detalhes.SortKeySimpleMisc)
 	
 	if (amount) then 
-		for i = amount, 1, -1 do --> de trás pra frente
+		for i = amount, 1, -1 do --> de trï¿½s pra frente
 			if (container[i][keyName] < 1) then
 				amount = amount-1
 			else
@@ -543,8 +543,8 @@ end
 
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)
 	
-	morte ["dead"] = true --> marca que esta tabela é uma tabela de mortes, usado no controla na hora de montar o tooltip
-	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
+	morte ["dead"] = true --> marca que esta tabela ï¿½ uma tabela de mortes, usado no controla na hora de montar o tooltip
+	local esta_barra = instancia.barras[qual_barra] --> pega a referï¿½ncia da barra na janela
 	
 	if (not esta_barra) then
 		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
@@ -604,14 +604,14 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 	
-	if (#showing._ActorTable < 1) then --> não há barras para mostrar
+	if (#showing._ActorTable < 1) then --> nï¿½o hï¿½ barras para mostrar
 		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 	end
 	
 	local total = 0	
 	instancia.top = 0
 	
-	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
+	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instï¿½ncia
 	local conteudo = showing._ActorTable
 	local amount = #conteudo
 	local modo = instancia.modo
@@ -646,7 +646,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 	else	
 		
-		--> pega qual a sub key que será usada
+		--> pega qual a sub key que serï¿½ usada
 		if (sub_atributo == 1) then --> CC BREAKS
 			keyName = "cc_break"
 		elseif (sub_atributo == 2) then --> RESS
@@ -669,7 +669,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	
 	if (keyName == "dead") then 
 		local mortes = tabela_do_combate.last_events_tables
-		--> não precisa reordenar, uma vez que sempre vai da na ordem do último a morrer até o primeiro
+		--> nï¿½o precisa reordenar, uma vez que sempre vai da na ordem do ï¿½ltimo a morrer atï¿½ o primeiro
 		-- _table_sort (mortes, function (m1, m2) return m1[2] < m2[2] end) -- [1] = tabela com a morte [2] = tempo [3] = nome do jogador
 		instancia.top = 1
 		total = #mortes
@@ -683,16 +683,16 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 		end
 		
-		--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
+		--estra mostrando ALL entï¿½o posso seguir o padrï¿½o correto? primeiro, atualiza a scroll bar...
 		instancia:AtualizarScrollBar (total)
 		
-		--depois faz a atualização normal dele através dos_ iterators
+		--depois faz a atualizaï¿½ï¿½o normal dele atravï¿½s dos_ iterators
 		local qual_barra = 1
 		local barras_container = instancia.barras
 		local percentage_type = instancia.row_info.percent_type
 
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-			if (mortes[i]) then --> correção para um raro e desconhecido problema onde mortes[i] é nil
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+			if (mortes[i]) then --> correï¿½ï¿½o para um raro e desconhecido problema onde mortes[i] ï¿½ nil
 				atributo_misc:DeadAtualizarBarra (mortes[i], qual_barra, i, instancia)
 				qual_barra = qual_barra+1
 			end
@@ -706,8 +706,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			--> faz o sort da categoria e retorna o amount corrigido
 			_table_sort (conteudo, _detalhes.SortIfHaveKey)
 			
-			--> não mostrar resultados com zero
-			for i = amount, 1, -1 do --> de trás pra frente
+			--> nï¿½o mostrar resultados com zero
+			for i = amount, 1, -1 do --> de trï¿½s pra frente
 				if (not conteudo[i][keyName] or conteudo[i][keyName] < 1) then
 					amount = amount - 1
 				else
@@ -725,8 +725,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 			_table_sort (conteudo, _detalhes.SortIfHaveKey)
 			
-			--> não mostrar resultados com zero
-			for i = amount, 1, -1 do --> de trás pra frente
+			--> nï¿½o mostrar resultados com zero
+			for i = amount, 1, -1 do --> de trï¿½s pra frente
 				if (not conteudo[i][keyName] or conteudo[i][keyName] < 1) then
 					amount = amount - 1
 				else
@@ -746,11 +746,11 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				_table_sort (conteudo, _detalhes.SortGroupIfHaveKey)
 			--end
 			for index, player in _ipairs (conteudo) do
-				if (player.grupo) then --> é um player e esta em grupo
+				if (player.grupo) then --> ï¿½ um player e esta em grupo
 					if (not player[keyName] or player[keyName] < 1) then --> dano menor que 1, interromper o loop
 						amount = index - 1
 						break
-					elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
+					elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? nï¿½o daria pra pega-lo com uma chave [1] nad grupo == true?
 						instancia.top = conteudo[1][keyName]
 					end
 					
@@ -771,15 +771,15 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		return total, keyName, instancia.top, amount
 	end
 	
-	if (amount < 1) then --> não há barras para mostrar
+	if (amount < 1) then --> nï¿½o hï¿½ barras para mostrar
 		instancia:EsconderScrollBar() --> precisaria esconder a scroll bar
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
-	--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
+	--estra mostrando ALL entï¿½o posso seguir o padrï¿½o correto? primeiro, atualiza a scroll bar...
 	instancia:AtualizarScrollBar (amount)
 	
-	--depois faz a atualização normal dele através dos_ iterators
+	--depois faz a atualizaï¿½ï¿½o normal dele atravï¿½s dos_ iterators
 	local qual_barra = 1
 	local barras_container = instancia.barras
 	local percentage_type = instancia.row_info.percent_type
@@ -796,13 +796,13 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
 			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 			qual_barra = qual_barra+1
 		end
 		
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
-		for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+		for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
 			if (conteudo[i]) then
 				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				qual_barra = qual_barra+1
@@ -826,7 +826,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		end
 	end
 	
-	--> beta, hidar barras não usadas durante um refresh forçado
+	--> beta, hidar barras nï¿½o usadas durante um refresh forï¿½ado
 	if (forcar) then
 		if (instancia.modo == 2) then --> group
 			for i = qual_barra, instancia.rows_fit_in_window  do
@@ -843,7 +843,7 @@ local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, is_dead, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 
-	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
+	local esta_barra = instancia.barras[qual_barra] --> pega a referï¿½ncia da barra na janela
 	
 	if (not esta_barra) then
 		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
@@ -936,8 +936,8 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 			return self:RefreshBarra (esta_barra, instancia)
 			
 		else
-			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
-			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
+			--> agora esta comparando se a tabela da barra ï¿½ diferente da tabela na atualizaï¿½ï¿½o anterior
+			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posiï¿½ï¿½o ou se ela apenas serï¿½ atualizada
 			
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
@@ -950,7 +950,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				
 				return self:RefreshBarra (esta_barra, instancia)
 				
-			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
+			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela entï¿½o compara a porcentagem
 				--> apenas atualizar
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
@@ -987,7 +987,7 @@ end
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
 
 
----------> TOOLTIPS BIFURCAÇÃO ~tooltip
+---------> TOOLTIPS BIFURCAï¿½ï¿½O ~tooltip
 function atributo_misc:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 	GameTooltip:ClearLines()
@@ -1992,14 +1992,14 @@ end
 --------------------------------------------- // JANELA DETALHES // ---------------------------------------------
 
 
----------> DETALHES BIFURCAÇÃO
+---------> DETALHES BIFURCAï¿½ï¿½O
 function atributo_misc:MontaInfo()
 	if (info.sub_atributo == 3) then --> interrupt
 		return self:MontaInfoInterrupt()
 	end
 end
 
----------> DETALHES bloco da direita BIFURCAÇÃO
+---------> DETALHES bloco da direita BIFURCAï¿½ï¿½O
 function atributo_misc:MontaDetalhes (spellid, barra)
 	if (info.sub_atributo == 3) then --> interrupt
 		return self:MontaDetalhesInterrupt (spellid, barra)
@@ -2053,18 +2053,18 @@ function atributo_misc:MontaInfoInterrupt()
 
 		barra = barras [index]
 
-		if (not barra) then --> se a barra não existir, criar ela então
+		if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
 			
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
-			barra.on_focus = false --> isso aqui é a parte da seleção e desceleção
+			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
+			barra.on_focus = false --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 		end
 
-		--> isso aqui é tudo da seleção e desceleção das barras
+		--> isso aqui ï¿½ tudo da seleï¿½ï¿½o e desceleï¿½ï¿½o das barras
 		
 		if (not info.mostrando_mouse_over) then
 			if (tabela[1] == self.detalhes) then --> tabela [1] = spellid = spellid que esta na caixa da direita
-				if (not barra.on_focus) then --> se a barra não tiver no foco
+				if (not barra.on_focus) then --> se a barra nï¿½o tiver no foco
 					barra.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
 					barra.on_focus = true
 					if (not info.mostrando) then
@@ -2091,7 +2091,7 @@ function atributo_misc:MontaInfoInterrupt()
 		
 		barra.icone:SetTexture (tabela[5])
 
-		barra.minha_tabela = self --> grava o jogador na barrinho... é estranho pq todas as barras vão ter o mesmo valor do jogador
+		barra.minha_tabela = self --> grava o jogador na barrinho... ï¿½ estranho pq todas as barras vï¿½o ter o mesmo valor do jogador
 		barra.show = tabela[1] --> grava o spellid na barra
 		barra:Show() --> mostra a barra
 
@@ -2146,7 +2146,7 @@ function atributo_misc:MontaInfoInterrupt()
 		end	
 		
 		barra.minha_tabela = self --> grava o jogador na tabela
-		barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso é necessário?
+		barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso ï¿½ necessï¿½rio?
 
 		barra:Show()
 	end
@@ -2193,9 +2193,9 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 	for index, tabela in _ipairs (habilidades_alvos) do
 		barra = barras [index]
 
-		if (not barra) then --> se a barra não existir, criar ela então
+		if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
+			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 		end
 		
 		if (index == 1) then
@@ -2446,7 +2446,7 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 
 	local host_combat = combat_object or _detalhes.tabela_overall
 
-	--> criar uma shadow desse ator se ainda não tiver uma
+	--> criar uma shadow desse ator se ainda nï¿½o tiver uma
 	local overall_misc = host_combat [4]
 	local shadow = overall_misc._ActorTable [overall_misc._NameIndexTable [actor.nome]]
 

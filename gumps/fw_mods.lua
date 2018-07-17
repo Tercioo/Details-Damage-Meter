@@ -607,7 +607,7 @@ function gump:NewScrollBar (master, slave, x, y)
 		self.precionado = false
 		self:SetScript ("OnUpdate", nil)
 	end)
-	--> isso aqui pra quando o slider ativar, o scroll fica na  posição zero
+	--> isso aqui pra quando o slider ativar, o scroll fica na  posiï¿½ï¿½o zero
 	botao_cima:SetScript ("OnEnable", function (self)
 		local current = slider_gump:GetValue()
 		if (current == 0) then

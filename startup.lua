@@ -81,7 +81,11 @@ function _G._detalhes:Start()
 			self:InitializeForge() --to install into the container plugin
 			self:InitializeRaidHistoryWindow()
 			self:InitializeOptionsWindow()
-			self:InitializeAuraCreationWindow()
+			
+			C_Timer.After (2, function()
+				self:InitializeAuraCreationWindow()
+			end)
+			
 			self:InitializeCustomDisplayWindow()
 			self:InitializeAPIWindow()
 			self:InitializeRunCodeWindow()
@@ -537,7 +541,7 @@ function _G._detalhes:Start()
 					--> immediatly finishes the segment just started
 					self:SairDoCombate()
 					
-					--o combate agora é _tabela_vigente e [1] na tabela de overall
+					--o combate agora ï¿½ _tabela_vigente e [1] na tabela de overall
 					--seria necessario passar essa tabela para [2] na overall
 					local segmentHistory = self:GetCombatSegments()
 					
@@ -1191,7 +1195,7 @@ function _G._detalhes:Start()
 			end)
 			
 
-			--fazer a captura de dados para o gráfico ao iniciar a corrida e parar ao sair da dungeon ou terminar a run.
+			--fazer a captura de dados para o grï¿½fico ao iniciar a corrida e parar ao sair da dungeon ou terminar a run.
 			
 			------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			
@@ -1306,7 +1310,7 @@ function _G._detalhes:Start()
 				
 				C_Timer.After (5, function()
 					
-					_detalhes:Msg ("Some settings has been reseted for 8.0.1 patch.")
+					--_detalhes:Msg ("Some settings has been reseted for 8.0.1 patch.")
 					
 					--> check and reset minimalistic skin to the new minimalistic
 						local oldColor = {
@@ -1324,7 +1328,7 @@ function _G._detalhes:Start()
 										if (_detalhes.gump:IsNearlyEqual (instanceColor[3], oldColor[3])) then
 											if (_detalhes.gump:IsNearlyEqual (instanceColor[4], oldColor[4])) then
 											
-												_detalhes:Msg ("Updating the Minimalistic skin.")
+												--_detalhes:Msg ("Updating the Minimalistic skin.")
 											
 												instance:ChangeSkin ("Minimalistic v2")
 												instance:ChangeSkin ("Minimalistic")

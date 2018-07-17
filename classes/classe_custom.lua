@@ -459,13 +459,13 @@
 				
 				gump:Fade (row1, "out")
 				
-				for i = iter_last, instance.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+				for i = iter_last, instance.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
 					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					qual_barra = qual_barra+1
 				end
 			
 			else
-				for i = instance.barraS[2], instance.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+				for i = instance.barraS[2], instance.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
 					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					qual_barra = qual_barra+1
 				end
@@ -600,8 +600,8 @@
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			else
-				--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
-				if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
+				--> agora esta comparando se a tabela da barra ï¿½ diferente da tabela na atualizaï¿½ï¿½o anterior
+				if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posiï¿½ï¿½o ou se ela apenas serï¿½ atualizada
 				
 					esta_barra:SetValue (esta_porcentagem)
 				
@@ -614,7 +614,7 @@
 					
 					return self:RefreshBarra (esta_barra, instancia)
 					
-				elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
+				elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela entï¿½o compara a porcentagem
 					--> apenas atualizar
 					if (_detalhes.is_using_row_animations) then
 						

@@ -118,7 +118,7 @@ function _detalhes:ContainerSortResources (container, amount, keyName2)
 	_table_sort (container,  _detalhes.SortKeySimpleResources)
 	
 	if (amount) then 
-		for i = amount, 1, -1 do --> de trás pra frente
+		for i = amount, 1, -1 do --> de trï¿½s pra frente
 			if (container[i][keyName] < 1) then
 				amount = amount-1
 			else
@@ -271,7 +271,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 	local showing = tabela_do_combate [class_type]
 
-	if (#showing._ActorTable < 1) then --> não há barras para mostrar
+	if (#showing._ActorTable < 1) then --> nï¿½o hï¿½ barras para mostrar
 		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 	end
 	
@@ -304,7 +304,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			_table_sort (conteudo, _detalhes.SortKeyGroupResources)
 			
 			for index, player in _ipairs (conteudo) do
-				if (player.grupo) then --> é um player e esta em grupo
+				if (player.grupo) then --> ï¿½ um player e esta em grupo
 					if (player.resource < 1) then --> dano menor que 1, interromper o loop
 						amount = index - 1
 						break
@@ -343,7 +343,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			qual_barra = qual_barra+1
 		end
 		
-		--> beta, hidar barras não usadas durante um refresh forçado
+		--> beta, hidar barras nï¿½o usadas durante um refresh forï¿½ado
 		if (forcar) then
 			if (instancia.modo == 2) then --> group
 				for i = qual_barra, instancia.rows_fit_in_window  do
@@ -455,7 +455,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		return total, keyName, instancia.top, amount
 	end
 	
-	if (amount < 1) then --> não há barras para mostrar
+	if (amount < 1) then --> nï¿½o hï¿½ barras para mostrar
 		instancia:EsconderScrollBar()
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
@@ -531,32 +531,32 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			gump:Fade (row1, "out")
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[1], iter_last-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = instancia.barraS[1], iter_last-1, 1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 				qual_barra = qual_barra+1
 			else
-				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 			end
 
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 				qual_barra = qual_barra+1
 			else
-				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 			end
@@ -587,31 +587,31 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			gump:Fade (row1, "out")
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = iter_last-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = iter_last-1, instancia.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 				qual_barra = qual_barra+1
 			else
-				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 			end
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 				qual_barra = qual_barra+1
 			else
-				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instância, index, total, valor da 1º barra
+				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar sï¿½ o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --> instï¿½ncia, index, total, valor da 1ï¿½ barra
 					qual_barra = qual_barra+1
 				end
 			end
@@ -637,7 +637,7 @@ end
 
 function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 
-	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
+	local esta_barra = instancia.barras[qual_barra] --> pega a referï¿½ncia da barra na janela
 	
 	if (not esta_barra) then
 		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
@@ -728,8 +728,8 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 			return self:RefreshBarra (esta_barra, instancia)
 			
 		else
-			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
-			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
+			--> agora esta comparando se a tabela da barra ï¿½ diferente da tabela na atualizaï¿½ï¿½o anterior
+			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posiï¿½ï¿½o ou se ela apenas serï¿½ atualizada
 			
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
@@ -742,7 +742,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				
 				return self:RefreshBarra (esta_barra, instancia)
 				
-			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
+			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela entï¿½o compara a porcentagem
 				--> apenas atualizar
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
@@ -783,7 +783,7 @@ function atributo_energy:KeyNames (sub_atributo)
 	return "total"
 end
 
----------> TOOLTIPS BIFURCAÇÃO
+---------> TOOLTIPS BIFURCAï¿½ï¿½O
 
 local resource_bg_color = {.1, .1, .1, 0.6}
 local resource_bg_coords = {.6, 0.1, 0, 0.64453125}
@@ -988,14 +988,14 @@ end
 
 --------------------------------------------- // JANELA DETALHES // ---------------------------------------------
 
----------> DETALHES BIFURCAÇÃO
+---------> DETALHES BIFURCAï¿½ï¿½O
 function atributo_energy:MontaInfo()
 	if (info.sub_atributo <= 4) then
 		return self:MontaInfoRegenRecebido()
 	end
 end
 
----------> DETALHES bloco da direita BIFURCAÇÃO
+---------> DETALHES bloco da direita BIFURCAï¿½ï¿½O
 function atributo_energy:MontaDetalhes (spellid, barra)
 	if (info.sub_atributo <= 4) then
 		return self:MontaDetalhesRegenRecebido (spellid, barra)
@@ -1228,7 +1228,7 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 	
 		barra = barras [index]
 
-		if (not barra) then --> se a barra não existir, criar ela então
+		if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
 			barra.textura:SetStatusBarColor (1, 1, 1, 1)
 		end
@@ -1347,11 +1347,11 @@ end
 			end
 		end
 		
-	--> restaura e liga o ator com a sua shadow durante a inicialização
+	--> restaura e liga o ator com a sua shadow durante a inicializaï¿½ï¿½o
 	
 		function atributo_energy:r_onlyrefresh_shadow (actor)
 		
-			--> criar uma shadow desse ator se ainda não tiver uma
+			--> criar uma shadow desse ator se ainda nï¿½o tiver uma
 				local overall_energy = _detalhes.tabela_overall [3]
 				local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
 
@@ -1399,7 +1399,7 @@ end
 		
 			local host_combat = combat_object or _detalhes.tabela_overall
 		
-			--> criar uma shadow desse ator se ainda não tiver uma
+			--> criar uma shadow desse ator se ainda nï¿½o tiver uma
 				local overall_energy = host_combat [3]
 				local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
 

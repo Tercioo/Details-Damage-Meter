@@ -1731,7 +1731,13 @@
 		DetailsAuraPanel.Frame = DetailsAuraPanel
 		DetailsAuraPanel.__name = L["STRING_CREATEAURA"]
 		DetailsAuraPanel.real_name = "DETAILS_CREATEAURA"
-		DetailsAuraPanel.__icon = [[Interface\BUTTONS\UI-GroupLoot-DE-Up]]
+		
+		if (_G.WeakAuras) then 
+			DetailsAuraPanel.__icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]]
+		else
+			DetailsAuraPanel.__icon = [[Interface\BUTTONS\UI-GroupLoot-DE-Up]]
+		end
+		
 		DetailsPluginContainerWindow.EmbedPlugin (DetailsAuraPanel, DetailsAuraPanel, true)
 	
 		function DetailsAuraPanel.RefreshWindow()

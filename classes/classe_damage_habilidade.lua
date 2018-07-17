@@ -105,27 +105,27 @@
 			self.counter = self.counter + 1
 		
 			if (resisted and resisted > 0) then
-				self.r_dmg = self.r_dmg+amount --> tabela.total é o total de dano
-				self.r_amt = self.r_amt+1 --> tabela.total é o total de dano
+				self.r_dmg = self.r_dmg+amount --> tabela.total ï¿½ o total de dano
+				self.r_amt = self.r_amt+1 --> tabela.total ï¿½ o total de dano
 			end
 			
 			if (blocked and blocked > 0) then
-				self.b_dmg = self.b_dmg+amount --> amount é o total de dano
-				self.b_amt = self.b_amt+1 --> amount é o total de dano
+				self.b_dmg = self.b_dmg+amount --> amount ï¿½ o total de dano
+				self.b_amt = self.b_amt+1 --> amount ï¿½ o total de dano
 			end
 			
 			if (absorbed and absorbed > 0) then
-				self.a_dmg = self.a_dmg+amount --> amount é o total de dano
-				self.a_amt = self.a_amt+1 --> amount é o total de dano
+				self.a_dmg = self.a_dmg+amount --> amount ï¿½ o total de dano
+				self.a_amt = self.a_amt+1 --> amount ï¿½ o total de dano
 			end
 		
 			if (glacing) then
-				self.g_dmg = self.g_dmg+amount --> amount é o total de dano
-				self.g_amt = self.g_amt+1 --> amount é o total de dano
+				self.g_dmg = self.g_dmg+amount --> amount ï¿½ o total de dano
+				self.g_amt = self.g_amt+1 --> amount ï¿½ o total de dano
 
 			elseif (critical) then
-				self.c_dmg = self.c_dmg+amount --> amount é o total de dano
-				self.c_amt = self.c_amt+1 --> amount é o total de dano
+				self.c_dmg = self.c_dmg+amount --> amount ï¿½ o total de dano
+				self.c_amt = self.c_amt+1 --> amount ï¿½ o total de dano
 				if (amount > self.c_max) then
 					self.c_max = amount
 				end

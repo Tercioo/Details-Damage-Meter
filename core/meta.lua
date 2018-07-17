@@ -40,7 +40,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
-	--> reconstrói o mapa do container
+	--> reconstrï¿½i o mapa do container
 		local function ReconstroiMapa (tabela)
 			local mapa = {}
 			for i = 1, #tabela._ActorTable do
@@ -116,7 +116,7 @@
 			
 				_detalhes.refresh:r_atributo_custom()
 			
-			--> container de pets e histórico
+			--> container de pets e histï¿½rico
 				_detalhes.refresh:r_container_pets (_detalhes.tabela_pets)
 				_detalhes.refresh:r_historico (_detalhes.tabela_historico)
 
@@ -150,7 +150,7 @@
 			
 				local is_in_instance = select (1, IsInInstance())
 			
-			--> inicia a recuperação das tabelas e montagem do overall
+			--> inicia a recuperaï¿½ï¿½o das tabelas e montagem do overall
 				if (#tabelas_do_historico > 0) then
 					for index, combate in _ipairs (tabelas_do_historico) do
 						
@@ -246,7 +246,7 @@
 							end
 						end
 						
-						--> reconstrói a tabela dos pets
+						--> reconstrï¿½i a tabela dos pets
 						for class_type, atributo in _ipairs (todos_atributos) do
 							for _, esta_classe in _ipairs (atributo) do
 								if (esta_classe.ownerName) then --> nome do owner
@@ -522,7 +522,7 @@
 				for class_type, _tabela in _ipairs (todos_atributos) do
 					local conteudo = _tabela._ActorTable
 
-					--> Limpa tabelas que não estejam em grupo
+					--> Limpa tabelas que nï¿½o estejam em grupo
 					if (conteudo) then
 						if (_detalhes.clear_ungrouped) then
 						--if (not _detalhes.clear_ungrouped) then
@@ -598,11 +598,11 @@
 				
 					local conteudo = _tabela._ActorTable
 
-					--> Limpa tabelas que não estejam em grupo
+					--> Limpa tabelas que nï¿½o estejam em grupo
 					if (conteudo) then
 
 						if (_detalhes.clear_ungrouped) then
-						--não deleta dummies e actors de fora do grupo
+						--nï¿½o deleta dummies e actors de fora do grupo
 						--if (not _detalhes.clear_ungrouped) then
 						
 							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
@@ -657,7 +657,7 @@
 													_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
 												end
 											end
-											--> não precisa diminuir o total dos buffs e debuffs
+											--> nï¿½o precisa diminuir o total dos buffs e debuffs
 											if (myself.cooldowns_defensive) then 
 												_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
 												if (myself.grupo) then
@@ -797,7 +797,7 @@
 		--> reseta o cache do parser
 		_detalhes:ClearParserCache()
 		
-		--> limpa barras que não estão sendo usadas nas instâncias.
+		--> limpa barras que nï¿½o estï¿½o sendo usadas nas instï¿½ncias.
 		for index, instancia in _ipairs (_detalhes.tabela_instancias) do 
 			if (instancia.barras and instancia.barras [1]) then
 				for i, barra in _ipairs (instancia.barras) do 
@@ -938,7 +938,7 @@
 			limpados = limpados + FazColeta (_combate, tipo, lastevent)
 		end
 
-		--> limpa a tabela overall para o atributo atual (limpa para os 4, um de cada vez através do ipairs)
+		--> limpa a tabela overall para o atributo atual (limpa para os 4, um de cada vez atravï¿½s do ipairs)
 		local _overall_combat = _detalhes.tabela_overall	
 		local conteudo = _overall_combat [tipo]._ActorTable
 		local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
@@ -952,13 +952,13 @@
 				can_garbage = true
 			end
 		
-			if (can_garbage) then --> não há referências a este objeto
+			if (can_garbage) then --> nï¿½o hï¿½ referï¿½ncias a este objeto
 
 				if (not _actor.owner) then --> pet
 					_actor:subtract_total (_overall_combat)
 				end
 
-				--> apaga a referência deste jogador na tabela overall
+				--> apaga a referï¿½ncia deste jogador na tabela overall
 				_iter.cleaned = _iter.cleaned+1
 				
 				_table_remove (conteudo, _iter.index)

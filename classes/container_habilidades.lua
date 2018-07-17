@@ -96,7 +96,7 @@ local _
 	end
 
 	function _detalhes.refresh:r_container_habilidades (container, shadow)
-		--> reconstrói meta e indexes
+		--> reconstrï¿½i meta e indexes
 			_setmetatable (container, _detalhes.container_habilidades)
 			container.__index = _detalhes.container_habilidades
 			local func_criacao = container_habilidades:FuncaoDeCriacao (container.tipo)

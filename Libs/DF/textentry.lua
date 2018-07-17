@@ -879,7 +879,7 @@ local AutoComplete_OnEnterPressed = function (editboxWidget)
 		editboxWidget:SetCursorPosition (editboxWidget.end_selection)
 		editboxWidget:HighlightText (0, 0)
 		editboxWidget.end_selection = nil
-		--editboxWidget:Insert (" ") --estava causando a adição de uma palavra a mais quando o próximo catactere for um espaço
+		--editboxWidget:Insert (" ") --estava causando a adiï¿½ï¿½o de uma palavra a mais quando o prï¿½ximo catactere for um espaï¿½o
 	else
 		if (editboxWidget:IsMultiLine()) then
 			editboxWidget:Insert ("\n")
@@ -950,7 +950,7 @@ local AutoComplete_OnChar = function (editboxWidget, char, capsule)
 		return
 	end
 	
-	--reseta a palavra se acabou de ganhar focus e apertou espaço
+	--reseta a palavra se acabou de ganhar focus e apertou espaï¿½o
 	if (editboxWidget.focusGained and char == " ") then
 		capsule.lastword = ""
 		editboxWidget.focusGained = nil

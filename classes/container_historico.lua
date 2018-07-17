@@ -223,7 +223,7 @@ function _detalhes:CanAddCombatToOverall (tabela)
 	return false
 end
 
---> sai do combate, chamou adicionar a tabela ao histórico
+--> sai do combate, chamou adicionar a tabela ao histï¿½rico
 function historico:adicionar (tabela)
 
 	local tamanho = #self.tabelas
@@ -231,7 +231,7 @@ function historico:adicionar (tabela)
 	--> verifica se precisa dar UnFreeze()
 	if (tamanho < _detalhes.segments_amount) then --> vai preencher um novo index vazio
 		local ultima_tabela = self.tabelas[tamanho]
-		if (not ultima_tabela) then --> não ha tabelas no historico, esta será a #1
+		if (not ultima_tabela) then --> nï¿½o ha tabelas no historico, esta serï¿½ a #1
 			--> pega a tabela do combate atual
 			ultima_tabela = tabela
 		end
@@ -336,12 +336,12 @@ function historico:adicionar (tabela)
 		
 	end
 
-	--> verifica se precisa apagar a última tabela do histórico
+	--> verifica se precisa apagar a ï¿½ltima tabela do histï¿½rico
 	if (#self.tabelas > _detalhes.segments_amount) then
 		
 		local combat_removed, combat_index
 		
-		--> verifica se estão dando try em um boss e remove o combate menos relevante
+		--> verifica se estï¿½o dando try em um boss e remove o combate menos relevante
 		local bossid = tabela.is_boss and tabela.is_boss.id
 		
 		local last_segment = self.tabelas [#self.tabelas]
@@ -391,12 +391,12 @@ function historico:adicionar (tabela)
 		
 	end
 	
-	--> chama a função que irá atualizar as instâncias com segmentos no histórico
+	--> chama a funï¿½ï¿½o que irï¿½ atualizar as instï¿½ncias com segmentos no histï¿½rico
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos_AfterCombat, self)
 	--_detalhes:InstanciaCallFunction (_detalhes.AtualizarJanela)
 end
 
---> verifica se tem alguma instancia congelada mostrando o segmento recém liberado
+--> verifica se tem alguma instancia congelada mostrando o segmento recï¿½m liberado
 function _detalhes:CheckFreeze (instancia, index_liberado, tabela)
 	if (instancia.freezed) then --> esta congelada
 		if (instancia.segmento == index_liberado) then
@@ -427,7 +427,7 @@ function historico:resetar_overall()
 		_detalhes:Msg (Loc ["STRING_ERASE_IN_COMBAT"])
 		_detalhes.schedule_remove_overall = true
 	else
-		--> fecha a janela de informações do jogador
+		--> fecha a janela de informaï¿½ï¿½es do jogador
 		_detalhes:FechaJanelaInfo()
 		
 		_detalhes.tabela_overall = combate:NovaTabela()
@@ -459,7 +459,7 @@ function historico:resetar()
 	--> stop bar testing if any
 	_detalhes:StopTestBarUpdate()
 	
-	if (_detalhes.tabela_vigente.verifica_combate) then --> finaliza a checagem se esta ou não no combate
+	if (_detalhes.tabela_vigente.verifica_combate) then --> finaliza a checagem se esta ou nï¿½o no combate
 		_detalhes:CancelTimer (_detalhes.tabela_vigente.verifica_combate)
 	end
 	
@@ -475,7 +475,7 @@ function historico:resetar()
 	_detalhes.schedule_store_boss_encounter = nil
 	_detalhes.schedule_remove_overall = nil
 	
-	--> fecha a janela de informações do jogador
+	--> fecha a janela de informaï¿½ï¿½es do jogador
 	_detalhes:FechaJanelaInfo()
 	
 	--> empty temporary tables
@@ -493,7 +493,7 @@ function historico:resetar()
 	end
 	
 	_detalhes:LimparPets()
-	_detalhes:ResetSpecCache (true) --> forçar
+	_detalhes:ResetSpecCache (true) --> forï¿½ar
 	
 	-- novo container de historico
 	_detalhes.tabela_historico = historico:NovoHistorico() --joga fora a tabela antiga e cria uma nova

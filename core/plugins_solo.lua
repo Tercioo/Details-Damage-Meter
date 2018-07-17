@@ -86,7 +86,7 @@
 		if (show) then
 		
 			--> salvar a janela normal
-			if (self.mostrando ~= "solo") then --> caso o addon tenha ligado ja no painel solo, não precisa rodar isso aqui
+			if (self.mostrando ~= "solo") then --> caso o addon tenha ligado ja no painel solo, nï¿½o precisa rodar isso aqui
 				self:SaveMainWindowPosition()
 
 				if (self.rolagem) then
@@ -95,7 +95,7 @@
 				self.need_rolagem = false
 
 				self.baseframe:EnableMouseWheel (false)
-				gump:Fade (self, 1, nil, "barras") --> escondendo a janela da instância [instância [force hide [velocidade [hidar o que]]]]
+				gump:Fade (self, 1, nil, "barras") --> escondendo a janela da instï¿½ncia [instï¿½ncia [force hide [velocidade [hidar o que]]]]
 				self.mostrando = "solo"
 			end
 			
@@ -110,7 +110,7 @@
 			_detalhes.solo = self.meu_id
 			--self:AtualizaSliderSolo (0)
 
-			if (not self.posicao.solo.w) then --> primeira vez que o solo mode é executado nessa instância
+			if (not self.posicao.solo.w) then --> primeira vez que o solo mode ï¿½ executado nessa instï¿½ncia
 				self.baseframe:SetWidth (300)
 				self.baseframe:SetHeight (300)
 				self:SaveMainWindowPosition()
@@ -153,7 +153,7 @@
 				end
 			end
 
-			_detalhes.solo = nil --> destranca a janela solo para ser usada em outras  instâncias
+			_detalhes.solo = nil --> destranca a janela solo para ser usada em outras  instï¿½ncias
 			self.mostrando = "normal"
 			self:RestoreMainWindowPosition()
 			
@@ -172,7 +172,7 @@
 			end
 			
 			--> calcula se existem barras, etc...
-			if (not self.rows_fit_in_window) then --> as barras não forma iniciadas ainda
+			if (not self.rows_fit_in_window) then --> as barras nï¿½o forma iniciadas ainda
 				self.rows_fit_in_window = _math_floor (self.baseframe.BoxBarrasAltura / self.row_height)
 				if (self.rows_created < self.rows_fit_in_window) then
 					for i  = #self.barras+1, self.rows_fit_in_window do
@@ -278,14 +278,14 @@
 		
 		for SpellId, DebuffTable in _pairs (SoloDebuffUptime) do
 			if (DebuffTable.start) then
-				DebuffTable.duration = DebuffTable.duration + (_detalhes._tempo - DebuffTable.start) --> time do parser será igual ao time()?
+				DebuffTable.duration = DebuffTable.duration + (_detalhes._tempo - DebuffTable.start) --> time do parser serï¿½ igual ao time()?
 				DebuffTable.start = nil
 			end
 			DebuffTable.Active = false
 		end
 	end
 
-	--> Buffs terá em todos os Solo Modes
+	--> Buffs terï¿½ em todos os Solo Modes
 	function _detalhes.SoloTables:CatchBuffs()
 		--> reset bufftables
 		_detalhes.SoloTables.SoloBuffUptime = _detalhes.SoloTables.SoloBuffUptime or {}

@@ -552,7 +552,7 @@ do
 		_detalhes.switch.current_instancia = nil
 	end
 	
-	--> limitação: não tenho como pegar o base frame da instância por aqui
+	--> limitaï¿½ï¿½o: nï¿½o tenho como pegar o base frame da instï¿½ncia por aqui
 	frame.close = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "", {rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}}, "DetailsSwitchPanelClose")
 	frame.close:SetPoint ("topleft", frame, "topleft")
 	frame.close:SetPoint ("bottomright", frame, "bottomright")
@@ -1095,7 +1095,7 @@ function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
 end
 
 -- nao tem suporte a solo mode tank mode
--- nao tem suporte a custom até agora, não sei como vai ficar
+-- nao tem suporte a custom atï¿½ agora, nï¿½o sei como vai ficar
 
 function _detalhes.switch:InitSwitch()
 	local instancia = _detalhes.tabela_instancias [1]
@@ -1173,7 +1173,7 @@ function _detalhes.switch:Update()
 		if (options and options.sub_atributo) then
 			if (options.atributo == 5) then --> custom
 				local CustomObject = _detalhes.custom [options.sub_atributo]
-				if (not CustomObject) then --> ele já foi deletado
+				if (not CustomObject) then --> ele jï¿½ foi deletado
 					icone = [[Interface\AddOns\Details\images\icons]]
 					coords = add_coords
 					name = Loc ["STRING_SWITCH_CLICKME"]

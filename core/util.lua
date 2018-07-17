@@ -1113,8 +1113,8 @@ end
 		
 		if (_type (frame) == "table") then 
 		
-			if (frame.meu_id) then --> ups, é uma instância
-				if (parametros == "barras") then --> hida todas as barras da instância
+			if (frame.meu_id) then --> ups, ï¿½ uma instï¿½ncia
+				if (parametros == "barras") then --> hida todas as barras da instï¿½ncia
 					if (velocidade) then
 						for i = 1, frame.rows_created, 1 do
 							gump:Fade (frame.barras[i], tipo, velocidade)
@@ -1127,7 +1127,7 @@ end
 						end
 						return
 					end
-				elseif (parametros == "hide_barras") then --> hida todas as barras da instância
+				elseif (parametros == "hide_barras") then --> hida todas as barras da instï¿½ncia
 					for i = 1, frame.rows_created, 1 do
 						local esta_barra = frame.barras[i]
 						if (esta_barra.fading_in or esta_barra.fading_out) then
@@ -1150,10 +1150,10 @@ end
 		
 		velocidade = velocidade or 0.3
 		
-		--> esse ALL aqui pode dar merda com as instâncias não ativadas
-		if (frame == "all") then --> todas as instâncias
+		--> esse ALL aqui pode dar merda com as instï¿½ncias nï¿½o ativadas
+		if (frame == "all") then --> todas as instï¿½ncias
 			for _, instancia in _ipairs (_detalhes.tabela_instancias) do
-				if (parametros == "barras") then --> hida todas as barras da instância
+				if (parametros == "barras") then --> hida todas as barras da instï¿½ncia
 					for i = 1, instancia.rows_created, 1 do
 						gump:Fade (instancia.barras[i], tipo, velocidade+(i/10))
 					end
@@ -1164,11 +1164,11 @@ end
 
 			if (frame:GetAlpha() == 0 and frame.hidden and not frame.fading_out) then --> ja esta escondida
 				return
-			elseif (frame.fading_in) then --> ja esta com uma animação, se for true
+			elseif (frame.fading_in) then --> ja esta com uma animaï¿½ï¿½o, se for true
 				return
 			end
 			
-			if (frame.fading_out) then --> se tiver uma animação de aparecer em andamento se for true
+			if (frame.fading_out) then --> se tiver uma animaï¿½ï¿½o de aparecer em andamento se for true
 				frame.fading_out = false
 			end
 
@@ -1181,11 +1181,11 @@ end
 		elseif (_upper (tipo) == "OUT") then --> aparecer
 			if (frame:GetAlpha() == 1 and not frame.hidden and not frame.fading_in) then --> ja esta na tela
 				return
-			elseif (frame.fading_out) then --> já ta com fading out
+			elseif (frame.fading_out) then --> jï¿½ ta com fading out
 				return
 			end
 			
-			if (frame.fading_in) then --> se tiver uma animação de hidar em andamento se for true
+			if (frame.fading_in) then --> se tiver uma animaï¿½ï¿½o de hidar em andamento se for true
 				frame.fading_in = false
 			end
 			
@@ -1196,7 +1196,7 @@ end
 			frame.fadeInfo.finishedFunc = fade_OUT_finished_func
 			frame.fadeInfo.finishedArg1 = frame
 				
-		elseif (tipo == 0) then --> força o frame a ser mostrado
+		elseif (tipo == 0) then --> forï¿½a o frame a ser mostrado
 			frame.hidden = false
 			frame.faded = false
 			frame.fading_out = false
@@ -1204,7 +1204,7 @@ end
 			frame:Show()
 			frame:SetAlpha (1)
 			
-		elseif (tipo == 1) then --> força o frame a ser hidado
+		elseif (tipo == 1) then --> forï¿½a o frame a ser hidado
 			frame.hidden = true
 			frame.faded = true
 			frame.fading_out = false
@@ -1215,11 +1215,11 @@ end
 		elseif (tipo == -1) then --> apenas da fade sem hidar
 			if (frame:GetAlpha() == 0 and frame.hidden and not frame.fading_out) then --> ja esta escondida
 				return
-			elseif (frame.fading_in) then --> ja esta com uma animação, se for true
+			elseif (frame.fading_in) then --> ja esta com uma animaï¿½ï¿½o, se for true
 				return
 			end
 			
-			if (frame.fading_out) then --> se tiver uma animação de aparecer em andamento se for true
+			if (frame.fading_out) then --> se tiver uma animaï¿½ï¿½o de aparecer em andamento se for true
 				frame.fading_out = false
 			end
 
@@ -1235,7 +1235,7 @@ end
 			frame:Show()
 			
 			if (currentApha < value) then
-				if (frame.fading_in) then --> se tiver uma animação de hidar em andamento se for true
+				if (frame.fading_in) then --> se tiver uma animaï¿½ï¿½o de hidar em andamento se for true
 					frame.fading_in = false
 					frame.fadeInfo.finishedFunc = nil
 				end
@@ -1246,7 +1246,7 @@ end
 				frame.fadeInfo.finishedArg1 = frame
 
 			else
-				if (frame.fading_out) then --> se tiver uma animação de hidar em andamento se for true
+				if (frame.fading_out) then --> se tiver uma animaï¿½ï¿½o de hidar em andamento se for true
 					frame.fading_out = false
 					frame.fadeInfo.finishedFunc = nil
 				end

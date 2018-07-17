@@ -273,7 +273,7 @@
 	function _detalhes:interrupt_announcer (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
 	
 		-- add novo canal Self.
-		-- no canal self ele mostra todos os interrupts além do meu.
+		-- no canal self ele mostra todos os interrupts alï¿½m do meu.
 		
 		-- add canal self pras mortes tbm?
 	

@@ -32,7 +32,7 @@
 		if (token == "BUFF_UPTIME" or token == "DEBUFF_UPTIME") then
 			_newMiscSpell.uptime = 0
 			_newMiscSpell.actived = false
-			_newMiscSpell.activedamt = 0 --são quantos estao ativados no momento
+			_newMiscSpell.activedamt = 0 --sï¿½o quantos estao ativados no momento
 			_newMiscSpell.refreshamt = 0
 			_newMiscSpell.appliedamt = 0
 			

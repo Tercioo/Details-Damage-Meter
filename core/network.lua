@@ -699,7 +699,7 @@
 		end
 	end
 
-	--> entrar no canal após logar no servidor
+	--> entrar no canal apï¿½s logar no servidor
 	function _detalhes:EnterChatChannel()
 		if (not _detalhes.realm_sync or not CONST_REALM_SYNC_ENABLED) then
 			return

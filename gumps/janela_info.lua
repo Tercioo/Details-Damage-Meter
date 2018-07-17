@@ -56,7 +56,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 
 	--> _detalhes.info_jogador armazena o jogador que esta sendo mostrado na janela de detalhes
 	if (info.jogador and info.jogador == jogador and self and info.atributo and self.atributo == info.atributo and self.sub_atributo == info.sub_atributo and not refresh) then
-		_detalhes:FechaJanelaInfo() --> se clicou na mesma barra então fecha a janela de detalhes
+		_detalhes:FechaJanelaInfo() --> se clicou na mesma barra entï¿½o fecha a janela de detalhes
 		return
 	elseif (not jogador) then
 		_detalhes:FechaJanelaInfo()
@@ -76,13 +76,13 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 		end
 	end
 	
-	--> passar os parâmetros para dentro da tabela da janela.
+	--> passar os parï¿½metros para dentro da tabela da janela.
 
 	info.ativo = true --> sinaliza o addon que a janela esta aberta
 	info.atributo = self.atributo --> instancia.atributo -> grava o atributo (damage, heal, etc)
 	info.sub_atributo = self.sub_atributo --> instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
 	info.jogador = jogador --> de qual jogador (objeto classe_damage)
-	info.instancia = self --> salva a referência da instância que pediu o info
+	info.instancia = self --> salva a referï¿½ncia da instï¿½ncia que pediu o info
 	
 	info.target_text = Loc ["STRING_TARGETS"] .. ":"
 	info.target_member = "total"
@@ -320,9 +320,9 @@ function gump:TrocaBackgroundInfo()
 	end
 end
 
---> self é qualquer coisa que chamar esta função
+--> self ï¿½ qualquer coisa que chamar esta funï¿½ï¿½o
 ------------------------------------------------------------------------------------------------------------------------------
--- é chamado pelo click no X e pelo reset do historico
+-- ï¿½ chamado pelo click no X e pelo reset do historico
 function _detalhes:FechaJanelaInfo (fromEscape)
 	if (info.ativo) then --> se a janela tiver aberta
 		--janela_info:Hide()
@@ -379,7 +379,7 @@ function gump:HidaAllDetalheInfo()
 end
 
 
---> seta os scripts da janela de informações
+--> seta os scripts da janela de informaï¿½ï¿½es
 local mouse_down_func = function (self, button)
 	if (button == "LeftButton") then
 		info:StartMoving()
@@ -412,7 +412,7 @@ local function seta_scripts (este_gump)
 	este_gump.container_alvos.gump:SetScript ("OnMouseDown", mouse_down_func)
 	este_gump.container_alvos.gump:SetScript ("OnMouseUp", mouse_up_func)
 
-	--> botão fechar
+	--> botï¿½o fechar
 	este_gump.close_button:SetScript ("OnClick", function (self) 
 		_detalhes:FechaJanelaInfo()
 	end)
@@ -432,7 +432,7 @@ function gump:HidaDetalheInfo (index)
 	info.bg:Hide()
 end
 
---> cria a barra de detalhes a direita da janela de informações
+--> cria a barra de detalhes a direita da janela de informaï¿½ï¿½es
 ------------------------------------------------------------------------------------------------------------------------------
 
 local detalhe_infobg_onenter = function (self)
@@ -513,7 +513,7 @@ function info:SetDetailInfoConfigs (texture, color, x, y)
 	end
 end
 
---> determina qual a pocisão que a barra de detalhes vai ocupar
+--> determina qual a pocisï¿½o que a barra de detalhes vai ocupar
 ------------------------------------------------------------------------------------------------------------------------------
 function gump:SetaDetalheInfoAltura (index, xmod, ymod)
 	local info = _detalhes.janela_info.grupos_detalhes [index]
@@ -573,7 +573,7 @@ function gump:SetaDetalheInfoAltura (index, xmod, ymod)
 	info.bg:Hide()
 end
 
---> seta o conteúdo da barra de detalhes
+--> seta o conteï¿½do da barra de detalhes
 ------------------------------------------------------------------------------------------------------------------------------
 function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6)
 	local info = _detalhes.janela_info.grupos_detalhes [index]
@@ -638,7 +638,7 @@ function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6
 	
 end
 
---> cria as 5 caixas de detalhes infos que serão usados
+--> cria as 5 caixas de detalhes infos que serï¿½o usados
 ------------------------------------------------------------------------------------------------------------------------------
 local function cria_barras_detalhes()
 	_detalhes.janela_info.grupos_detalhes = {}
@@ -1500,7 +1500,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
 	este_gump.bg1:SetDrawLayer ("BORDER", 1)
 
-	--> botão de fechar
+	--> botï¿½o de fechar
 	este_gump.close_button = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
 	este_gump.close_button:SetWidth (32)
 	este_gump.close_button:SetHeight (32)
@@ -1509,7 +1509,7 @@ function gump:CriaJanelaInfo()
 	este_gump.close_button:SetFrameLevel (este_gump:GetFrameLevel()+5)	
 	
 	
-	--> ícone da magia selecionada para mais detalhes
+	--> ï¿½cone da magia selecionada para mais detalhes
 	este_gump.bg_icone_bg = este_gump:CreateTexture (nil, "ARTWORK")
 	este_gump.bg_icone_bg:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -15, -12)
 	este_gump.bg_icone_bg:SetTexture ("Interface\\AddOns\\Details\\images\\icone_bg_fundo")
@@ -1521,7 +1521,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg_icone:SetTexture ("Interface\\AddOns\\Details\\images\\icone_bg")
 	este_gump.bg_icone:Show()
 	
-	--> botão de opções
+	--> botï¿½o de opï¿½ï¿½es
 	local open_options = function()
 		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
 		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
@@ -1532,7 +1532,7 @@ function gump:CriaJanelaInfo()
 	este_gump.options_button.button:GetNormalTexture():SetDesaturated (true)
 	este_gump.options_button.tooltip = "Select Skin"
 	
-	--> desativando o botão de config
+	--> desativando o botï¿½o de config
 	este_gump.options_button:Hide()
 	
 	--> titulo
@@ -1748,7 +1748,7 @@ function gump:CriaJanelaInfo()
 
 	este_gump.SetClassIcon = default_icon_change
 
-	--> botão de reportar da caixa da esquerda, onde fica as barras principais
+	--> botï¿½o de reportar da caixa da esquerda, onde fica as barras principais
 	este_gump.report_esquerda = gump:NewDetailsButton (SWW, este_gump, nil, _detalhes.Reportar, este_gump, 1, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
 	--este_gump.report_esquerda:SetPoint ("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  281, 3)
@@ -1756,13 +1756,13 @@ function gump:CriaJanelaInfo()
 	este_gump.report_esquerda:SetFrameLevel (este_gump:GetFrameLevel()+2)
 	este_gump.topleft_report = este_gump.report_esquerda
 	
-	--> botão de reportar da caixa dos alvos
+	--> botï¿½o de reportar da caixa dos alvos
 	este_gump.report_alvos = gump:NewDetailsButton (SWW, este_gump, nil, _detalhes.Reportar, este_gump, 3, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
 	este_gump.report_alvos:SetPoint ("BOTTOMRIGHT", este_gump.container_alvos, "TOPRIGHT",  -2, -1)
 	este_gump.report_alvos:SetFrameLevel (3) --> solved inactive problem
 
-	--> botão de reportar da caixa da direita, onde estão os 5 quadrados
+	--> botï¿½o de reportar da caixa da direita, onde estï¿½o os 5 quadrados
 	este_gump.report_direita = gump:NewDetailsButton (SWW, este_gump, nil, _detalhes.Reportar, este_gump, 2, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
 	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -10, -70)	
@@ -3058,7 +3058,7 @@ function gump:CriaJanelaInfo()
 				
 				table.sort (player_2_spells_sorted, _detalhes.Sort2)
 				player_2_top = (player_2_spells_sorted [1] and player_2_spells_sorted [1] [2]) or 0
-				--se não existir uma magia no jogador e o jogador tiver um pet, ele não vai encontrar um valor em [1] e dar
+				--se nï¿½o existir uma magia no jogador e o jogador tiver um pet, ele nï¿½o vai encontrar um valor em [1] e dar
 				-- ~pet
 				player_2_spell_info = {}
 				for index, spelltable in _ipairs (player_2_spells_sorted) do 
@@ -4875,7 +4875,7 @@ function _detalhes.janela_info:monta_relatorio (botao)
 	
 	local report_lines
 	
-	if (botao == 1) then --> botão da esquerda
+	if (botao == 1) then --> botï¿½o da esquerda
 		
 
 		if (atributo == 1 and sub_atributo == 4) then --> friendly fire
@@ -4911,7 +4911,7 @@ function _detalhes.janela_info:monta_relatorio (botao)
 			end
 		end
 		
-	elseif (botao == 3) then --> botão dos alvos
+	elseif (botao == 3) then --> botï¿½o dos alvos
 	
 		if (atributo == 1 and sub_atributo == 3) then
 			print (Loc ["STRING_ACTORFRAME_NOTHING"])
@@ -4929,7 +4929,7 @@ function _detalhes.janela_info:monta_relatorio (botao)
 			end
 		end
 		
-	elseif (botao == 2) then --> botão da direita
+	elseif (botao == 2) then --> botï¿½o da direita
 	
 			--> diferentes tipos de amostragem na caixa da direita
 		     --dano                       --damage done                 --dps                                 --heal
@@ -5070,7 +5070,7 @@ function _detalhes.janela_info:monta_relatorio (botao)
 	--local report_lines = {"Details! Relatorio para ".._detalhes.sub_atributos [self.atributo].lista [self.sub_atributo]}
 
 	
-	--> pega o conteúdo da janela da direita
+	--> pega o conteï¿½do da janela da direita
 	
 	return instancia:envia_relatorio (report_lines)
 end
@@ -5092,8 +5092,8 @@ local row_on_enter = function (self)
 	end
 	
 	--> aumenta o tamanho da barra
-	self:SetHeight (17) --> altura determinada pela instância
-	--> poe a barra com alfa 1 ao invés de 0.9
+	self:SetHeight (17) --> altura determinada pela instï¿½ncia
+	--> poe a barra com alfa 1 ao invï¿½s de 0.9
 	self:SetAlpha(1)
 
 	--> troca a cor da barra enquanto o mouse estiver em cima dela
@@ -5101,7 +5101,7 @@ local row_on_enter = function (self)
 	self:SetBackdropColor (0.8, 0.8, 0.8, 0.3)
 	
 	if (self.isAlvo) then --> monta o tooltip do alvo
-		--> talvez devesse escurecer a janela no fundo... pois o tooltip é transparente e pode confundir
+		--> talvez devesse escurecer a janela no fundo... pois o tooltip ï¿½ transparente e pode confundir
 		GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 		
 		if (self.spellid == "enemies") then --> damage taken enemies
@@ -5137,9 +5137,9 @@ local row_on_enter = function (self)
 		self.icone:SetAlpha (1)
 		
 		--> mostrar temporariamente o conteudo da barra nas caixas de detalhes
-		if (not info.mostrando) then --> não esta mostrando nada na direita
-			info.mostrando = self --> agora o mostrando é igual a esta barra
-			info.mostrando_mouse_over = true --> o conteudo da direta esta sendo mostrado pq o mouse esta passando por cima do bagulho e não pq foi clicado
+		if (not info.mostrando) then --> nï¿½o esta mostrando nada na direita
+			info.mostrando = self --> agora o mostrando ï¿½ igual a esta barra
+			info.mostrando_mouse_over = true --> o conteudo da direta esta sendo mostrado pq o mouse esta passando por cima do bagulho e nï¿½o pq foi clicado
 			info.showing = self._index --> diz  o index da barra que esta sendo mostrado na direita
 
 			info.jogador.detalhes = self.show --> minha tabela = jogador = jogador.detales = spellid ou nome que esta sendo mostrado na direita
@@ -5176,7 +5176,7 @@ local row_on_leave = function (self)
 		--> volta com a alfa antiga da barra
 		self.icone:SetAlpha (1)
 		
-		--> remover o conteúdo que estava sendo mostrado na direita
+		--> remover o conteï¿½do que estava sendo mostrado na direita
 		if (info.mostrando_mouse_over) then
 			info.mostrando = nil
 			info.mostrando_mouse_over = false
@@ -5223,13 +5223,13 @@ local row_on_mouseup = function (self, button)
 	if ((self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		--> setar os textos
 		
-		if (self.isMain) then --> se não for uma barra de alvo
+		if (self.isMain) then --> se nï¿½o for uma barra de alvo
 		
 			local barra_antiga = info.mostrando			
 			if (barra_antiga and not info.mostrando_mouse_over) then
 			
 				barra_antiga.textura:SetStatusBarColor (1, 1, 1, 1) --> volta a textura normal
-				barra_antiga.on_focus = false --> não esta mais no foco
+				barra_antiga.on_focus = false --> nï¿½o esta mais no foco
 
 				--> clicou na mesma barra
 				if (barra_antiga == self) then --> 
@@ -5452,10 +5452,10 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	local janela = info.container_barras.gump
 
 	local esta_barra = _CreateFrame ("Button", "Details_infobox1_bar_"..index, info.container_barras.gump)
-	esta_barra:SetHeight (16) --> altura determinada pela instância
+	esta_barra:SetHeight (16) --> altura determinada pela instï¿½ncia
 	esta_barra.index = index
 
-	local y = (index-1)*17 --> 17 é a altura da barra
+	local y = (index-1)*17 --> 17 ï¿½ a altura da barra
 	y = y*-1 --> baixo
 	
 	esta_barra:SetPoint ("LEFT", janela, "LEFT")
@@ -5502,8 +5502,8 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	
 	info.barras1 [index] = esta_barra --> barra adicionada
 	
-	esta_barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
-	esta_barra.on_focus = false --> isso aqui é a parte da seleção e desceleção
+	esta_barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
+	esta_barra.on_focus = false --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 	
 	return esta_barra
 end
@@ -5518,9 +5518,9 @@ function gump:CriaNovaBarraInfo2 (instancia, index)
 	local janela = info.container_alvos.gump
 
 	local esta_barra = _CreateFrame ("Button", "Details_infobox2_bar_"..index, info.container_alvos.gump)
-	esta_barra:SetHeight (16) --> altura determinada pela instância
+	esta_barra:SetHeight (16) --> altura determinada pela instï¿½ncia
 
-	local y = (index-1)*17 --> 17 é a altura da barra
+	local y = (index-1)*17 --> 17 ï¿½ a altura da barra
 	y = y*-1 --> baixo
 	
 	esta_barra:SetPoint ("LEFT", janela, "LEFT")

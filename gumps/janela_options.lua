@@ -576,8 +576,8 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 	--> left panel buttons
 
 	--mudando a ordem do menu
-	--menus_settings = { muda a pocição de qual menu será mostrado
-	--menus = { muda a pocição do text no menu
+	--menus_settings = { muda a pociï¿½ï¿½o de qual menu serï¿½ mostrado
+	--menus = { muda a pociï¿½ï¿½o do text no menu
 	
 	--> index dos menus
 	local menus_settings = {
@@ -912,7 +912,7 @@ local menus2 = {
 			[18] = {}, --miscellaneous settings
 			[19] = {}, --data feed widgets
 			[20] = {}, --tooltips
-		} --> vai armazenar os frames das opções
+		} --> vai armazenar os frames das opï¿½ï¿½es
 		
 		
 		function window:create_box_no_scroll (n)
@@ -2271,8 +2271,8 @@ function window:CreateFrame18()
 		local titleFrame18Desc = g:NewLabel (frame18, _, "$parentTitleDescText", "TitleDescTextLabel", "Set of tools for streamers, youtubers and broadcasters in general", "GameFontNormal", 10, "white")
 		titleFrame18Desc:SetSize (450, 20)
 		
-		--fazer os headers com espaço para images
-		--fazer o botão para abrir o painel de opçopoes
+		--fazer os headers com espaï¿½o para images
+		--fazer o botï¿½o para abrir o painel de opï¿½opoes
 		
 		--> streamer plugin - a.k.a. player spell tracker 
 			--> title anchor
@@ -9067,7 +9067,7 @@ function window:CreateFrame9()
 		
 		--> wallpaper
 		
-			--> primeiro o botão de editar a imagem
+			--> primeiro o botï¿½o de editar a imagem
 			local callmeback = function (width, height, overlayColor, alpha, texCoords)
 				local instance = _G.DetailsOptionsWindow.instance
 				instance:InstanceWallpaper (nil, nil, alpha, texCoords, width, height, overlayColor)
@@ -9451,7 +9451,7 @@ function window:CreateFrame9()
 			if (value) then
 				--> primeira vez que roda:
 				if (not instance.wallpaper.texture) then
-					--[[ 7.1.5 isn't sending the background on the 5º return value ~cleanup
+					--[[ 7.1.5 isn't sending the background on the 5ï¿½ return value ~cleanup
 					local spec = GetSpecialization()
 					if (spec) then
 						local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
@@ -10590,7 +10590,7 @@ function window:CreateFrame11()
 		test_custom_text.tooltip = "Click to test!"
 	
 		--esquema para ativar ou desativar certos cooldowns
-			--botão que abre um gump estilo welcome, com as spells pegas na lista de cooldowns
+			--botï¿½o que abre um gump estilo welcome, com as spells pegas na lista de cooldowns
 		
 		g:NewButton (frame11, _, "$parentCooldownIgnoreButton", "CooldownIgnoreButton", window.buttons_width, 18, function()
 			if (not DetailsAnnounceSelectCooldownIgnored) then
@@ -10739,7 +10739,7 @@ function window:CreateFrame11()
 		end)
 		window:CreateLineBackground2 (frame11, "DeathsAmountSlider", "DeathsAmountLabel", Loc ["STRING_OPTIONS_RT_DEATHS_FIRST_DESC"])
 		
-		--dropdown para WHERE onde anunciar se só em raid e party
+		--dropdown para WHERE onde anunciar se sï¿½ em raid e party
 		local on_select_channel = function (self, _, channel)
 			_detalhes.announce_deaths.where = channel
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)

@@ -143,12 +143,12 @@ function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo most
 
 	local cabe = self.rows_fit_in_window --> quantas barras cabem na janela
 
-	if (not self.barraS[1]) then --primeira vez que as barras estão aparecendo
+	if (not self.barraS[1]) then --primeira vez que as barras estï¿½o aparecendo
 		self.barraS[1] = 1 --primeira barra
 		if (cabe < x) then --se a quantidade a ser mostrada for maior que o que pode ser mostrado
 			self.barraS[2] = cabe -- B = o que pode ser mostrado
 		else
-			self.barraS[2] = x -- contrário B = o que esta sendo mostrado
+			self.barraS[2] = x -- contrï¿½rio B = o que esta sendo mostrado
 		end
 	end
 	
@@ -161,13 +161,13 @@ function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo most
 			end
 			self.need_rolagem = true
 			
-			self.barraS[2] = cabe --> B é o total que cabe na barra
-		else --> Do contrário B é o total de barras
+			self.barraS[2] = cabe --> B ï¿½ o total que cabe na barra
+		else --> Do contrï¿½rio B ï¿½ o total de barras
 			self.rows_showing = x
 			self.barraS[2] = x
 		end
 	else
-		if (x > self.rows_showing) then --> tem mais barras mostrando agora do que na última atualização
+		if (x > self.rows_showing) then --> tem mais barras mostrando agora do que na ï¿½ltima atualizaï¿½ï¿½o
 			self.rows_showing = x
 			local nao_mostradas = self.rows_showing - self.rows_fit_in_window
 			local slider_height = nao_mostradas*self.row_height
@@ -178,10 +178,10 @@ function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo most
 			self.rows_showing = x
 			local nao_mostradas = self.rows_showing - self.rows_fit_in_window
 			
-			if (nao_mostradas < 1) then  --> se estiver mostrando menos do que realmente cabe não precisa scrollbar
+			if (nao_mostradas < 1) then  --> se estiver mostrando menos do que realmente cabe nï¿½o precisa scrollbar
 				self:EsconderScrollBar()
 			else
-				--> contrário, basta atualizar o tamanho da scroll
+				--> contrï¿½rio, basta atualizar o tamanho da scroll
 				local slider_height = nao_mostradas*self.row_height
 				self.scroll.scrollMax = slider_height
 				self.scroll:SetMinMaxValues (0, slider_height)
@@ -197,16 +197,16 @@ function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo most
 	end
 end
 
---> self é a janela das barras
+--> self ï¿½ a janela das barras
 local function move_barras (self, elapsed)
 	self._move_func.time = self._move_func.time+elapsed
 	if (self._move_func.time > 0.01) then
-		if (self._move_func.instancia.bgdisplay_loc == self._move_func._end) then --> se o tamanho atual é igual ao final declarado
+		if (self._move_func.instancia.bgdisplay_loc == self._move_func._end) then --> se o tamanho atual ï¿½ igual ao final declarado
 			self:SetScript ("OnUpdate", nil)
 			self._move_func = nil
 		else
 			self._move_func.time = 0
-			self._move_func.instancia.bgdisplay_loc = self._move_func.instancia.bgdisplay_loc + self._move_func.inc --> inc é -1 ou 1 e irá crescer ou diminuir a janela
+			self._move_func.instancia.bgdisplay_loc = self._move_func.instancia.bgdisplay_loc + self._move_func.inc --> inc ï¿½ -1 ou 1 e irï¿½ crescer ou diminuir a janela
 			
 			for index = 1, self._move_func.instancia.rows_fit_in_window do
 				self._move_func.instancia.barras [index]:SetWidth (self:GetWidth()+self._move_func.instancia.bgdisplay_loc-3)
@@ -224,7 +224,7 @@ local function move_barras (self, elapsed)
 	end
 end
 
---> self é a instância
+--> self ï¿½ a instï¿½ncia
 function _detalhes:MoveBarrasTo (destino)
 	local janela = self.baseframe
 
@@ -319,8 +319,8 @@ function _detalhes:EsconderScrollBar (sem_animacao, force)
 		for index = 1, self.rows_fit_in_window do
 			self.barras [index]:SetWidth (self.baseframe:GetWidth() - 5) --> -5 space between row end and window right border
 		end
-		self.bgdisplay:SetPoint ("bottomright", self.baseframe, "bottomright", 0, 0) -- voltar o background na pocição inicial
-		self.bar_mod = 0 -- zera o bar mod, uma vez que as barras vão estar na pocisão inicial
+		self.bgdisplay:SetPoint ("bottomright", self.baseframe, "bottomright", 0, 0) -- voltar o background na pociï¿½ï¿½o inicial
+		self.bar_mod = 0 -- zera o bar mod, uma vez que as barras vï¿½o estar na pocisï¿½o inicial
 		self.bgdisplay_loc = -2
 		if (self.baseframe:GetScript ("OnUpdate") and self.baseframe:GetScript ("OnUpdate") == move_barras) then
 			self.baseframe:SetScript ("OnUpdate", nil)
@@ -432,8 +432,8 @@ _detalhes.OnEnterMainWindow = OnEnterMainWindow
 local function VPL (instancia, esta_instancia)
 	--> conferir esquerda
 	if (instancia.ponto4.x-0.5 < esta_instancia.ponto1.x) then --> a janela esta a esquerda
-		if (instancia.ponto4.x+20 > esta_instancia.ponto1.x) then --> a janela esta a menos de 20 pixels de distância
-			if (instancia.ponto4.y < esta_instancia.ponto1.y + 100 and instancia.ponto4.y > esta_instancia.ponto1.y - 100) then --> a janela esta a +20 ou -20 pixels de distância na vertical
+		if (instancia.ponto4.x+20 > esta_instancia.ponto1.x) then --> a janela esta a menos de 20 pixels de distï¿½ncia
+			if (instancia.ponto4.y < esta_instancia.ponto1.y + 100 and instancia.ponto4.y > esta_instancia.ponto1.y - 100) then --> a janela esta a +20 ou -20 pixels de distï¿½ncia na vertical
 				return 1
 			end
 		end
@@ -444,8 +444,8 @@ end
 local function VPB (instancia, esta_instancia)
 	--> conferir baixo
 	if (instancia.ponto1.y+(20 * instancia.window_scale) < esta_instancia.ponto2.y - (16 * esta_instancia.window_scale)) then --> a janela esta em baixo
-		if (instancia.ponto1.x > esta_instancia.ponto2.x-100 and instancia.ponto1.x < esta_instancia.ponto2.x+100) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
-			if (instancia.ponto1.y+(20 * instancia.window_scale) > esta_instancia.ponto2.y - (36 * esta_instancia.window_scale)) then --> esta a 20 pixels de distância
+		if (instancia.ponto1.x > esta_instancia.ponto2.x-100 and instancia.ponto1.x < esta_instancia.ponto2.x+100) then --> a janela esta a 20 pixels de distï¿½ncia para a esquerda ou para a direita
+			if (instancia.ponto1.y+(20 * instancia.window_scale) > esta_instancia.ponto2.y - (36 * esta_instancia.window_scale)) then --> esta a 20 pixels de distï¿½ncia
 				return 2
 			end
 		end
@@ -456,8 +456,8 @@ end
 local function VPR (instancia, esta_instancia)
 	--> conferir lateral direita
 	if (instancia.ponto2.x+0.5 > esta_instancia.ponto3.x) then --> a janela esta a direita
-		if (instancia.ponto2.x-20 < esta_instancia.ponto3.x) then --> a janela esta a menos de 20 pixels de distância
-			if (instancia.ponto2.y < esta_instancia.ponto3.y + 100 and instancia.ponto2.y > esta_instancia.ponto3.y - 100) then --> a janela esta a +20 ou -20 pixels de distância na vertical
+		if (instancia.ponto2.x-20 < esta_instancia.ponto3.x) then --> a janela esta a menos de 20 pixels de distï¿½ncia
+			if (instancia.ponto2.y < esta_instancia.ponto3.y + 100 and instancia.ponto2.y > esta_instancia.ponto3.y - 100) then --> a janela esta a +20 ou -20 pixels de distï¿½ncia na vertical
 				return 3
 			end
 		end
@@ -468,7 +468,7 @@ end
 local function VPT (instancia, esta_instancia)
 	--> conferir cima
 	if (instancia.ponto3.y - (16 * instancia.window_scale) > esta_instancia.ponto4.y + (20 * esta_instancia.window_scale)) then --> a janela esta em cima
-		if (instancia.ponto3.x > esta_instancia.ponto4.x-100 and instancia.ponto3.x < esta_instancia.ponto4.x+100) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
+		if (instancia.ponto3.x > esta_instancia.ponto4.x-100 and instancia.ponto3.x < esta_instancia.ponto4.x+100) then --> a janela esta a 20 pixels de distï¿½ncia para a esquerda ou para a direita
 			if (esta_instancia.ponto4.y+(40 * esta_instancia.window_scale) > instancia.ponto3.y - (16 * instancia.window_scale)) then
 				return 4
 			end
@@ -626,7 +626,7 @@ local movement_onupdate = function (self, elapsed)
 		
 		if (tempo_movendo and tempo_movendo < 0) then
 
-			if (precisa_ativar) then --> se a instância estiver fechada
+			if (precisa_ativar) then --> se a instï¿½ncia estiver fechada
 				gump:Fade (instancia_alvo.baseframe, "ALPHA", 0.2)
 				gump:Fade (instancia_alvo.baseframe.cabecalho.ball, "ALPHA", 0.2)
 				gump:Fade (instancia_alvo.baseframe.cabecalho.atributo_icon, "ALPHA", 0.2)
@@ -839,7 +839,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			local need_start = not instancia_alvo.iniciada
 			precisa_ativar = not instancia_alvo.ativa
 			
-			if (need_start) then --> se a instância não tiver sido aberta ainda
+			if (need_start) then --> se a instï¿½ncia nï¿½o tiver sido aberta ainda
 
 				local lower_instance = _detalhes:GetLowerInstanceNumber()
 				--print (lower_instance, instancia_alvo.meu_id, DEATHGRAPHICS_BUTTON:GetParent():GetName())
@@ -911,7 +911,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			instancia:AtualizaPontos()
 			
 			local esquerda, baixo, direita, cima
-			local meu_id = instancia.meu_id --> id da instância que esta sendo movida
+			local meu_id = instancia.meu_id --> id da instï¿½ncia que esta sendo movida
 			
 			local isVertical = instancia_alvo.verticalSnap
 			local isHorizontal = instancia_alvo.horizontalSnap
@@ -1352,7 +1352,7 @@ function _detalhes:InstanciasHorizontais (instancia)
 	local checking = instancia
 	
 	local check_index_anterior = _detalhes.tabela_instancias [instancia.meu_id-1]
-	if (check_index_anterior) then --> possiu uma instância antes de mim
+	if (check_index_anterior) then --> possiu uma instï¿½ncia antes de mim
 		if (check_index_anterior.snap[3] and check_index_anterior.snap[3] == instancia.meu_id) then --> o index negativo vai para a esquerda
 			for i = instancia.meu_id-1, 1, -1 do 
 				local esta_instancia = _detalhes.tabela_instancias [i]
@@ -2912,7 +2912,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 	scrollbar:SetScript ("OnValueChanged", function (self)
 		local ultimo = self.ultimo
 		local meu_valor = self:GetValue()
-		if (ultimo == meu_valor) then --> não mudou
+		if (ultimo == meu_valor) then --> nï¿½o mudou
 			return
 		end
 		
@@ -2949,11 +2949,11 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 		if (meu_valor > ultimo) then --> scroll down
 		
 			local B = instancia.barraS[2]
-			if (B < (instancia.rows_showing or 0)) then --> se o valor maximo não for o máximo de barras a serem mostradas	
+			if (B < (instancia.rows_showing or 0)) then --> se o valor maximo nï¿½o for o mï¿½ximo de barras a serem mostradas	
 				local precisa_passar = ((B+1) * instancia.row_height) - (instancia.row_height*instancia.rows_fit_in_window)
 				--if (meu_valor > precisa_passar) then --> o valor atual passou o valor que precisa passar pra locomover
 				if (true) then --> testing by pass row check
-					local diff = meu_valor - ultimo --> pega a diferença de H
+					local diff = meu_valor - ultimo --> pega a diferenï¿½a de H
 					diff = diff / instancia.row_height --> calcula quantas barras ele pulou
 					diff = _math_ceil (diff) --> arredonda para cima
 					if (instancia.barraS[2]+diff > (instancia.rows_showing or 0) and ultimo > 0) then
@@ -4265,7 +4265,7 @@ function _detalhes:SetBarSpecIconSettings (enabled, iconfile, fulltrack)
 		end
 		if (not have_enabled) then
 			_detalhes.track_specs = false
-			_detalhes:ResetSpecCache (true) --> forçar
+			_detalhes:ResetSpecCache (true) --> forï¿½ar
 		end
 	end
 	
@@ -4842,7 +4842,7 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 	end
 	
 	if (not wallpaper.texture and not texture) then
-	--[[ 7.1.5 isn't sending the background on the 5º return value ~cleanup
+	--[[ 7.1.5 isn't sending the background on the 5ï¿½ return value ~cleanup
 		local spec = GetSpecialization()
 		if (spec) then
 			local _, _, _, _, _background = GetSpecializationInfo (spec)
@@ -4916,7 +4916,7 @@ function _detalhes:GetTextures()
 	t [9] = self.baseframe.barra_direita
 	t [10] = self.baseframe.UPFrame
 	return t
-	--atributo_icon é uma exceção
+	--atributo_icon ï¿½ uma exceï¿½ï¿½o
 end
 
 function _detalhes:SetWindowAlphaForInteract (alpha)
@@ -4939,8 +4939,8 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 		if (self.combat_changes_alpha) then --> combat alpha
 			self:InstanceAlpha (self.combat_changes_alpha)
 			self:SetIconAlpha (self.combat_changes_alpha, nil, true)
-			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
-			self.baseframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
+			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate ï¿½ absoluta
+			self.baseframe:SetAlpha (self.combat_changes_alpha) --alpha do combate ï¿½ absoluta
 		else
 			self:InstanceAlpha (alpha)
 			self:SetIconAlpha (alpha, nil, true)
@@ -4961,7 +4961,7 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	
 end
 
--- ~autohide ãutohide
+-- ~autohide ï¿½utohide
 function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 
 	local amount, rowsamount, menuamount
@@ -5322,7 +5322,7 @@ function gump:CriaRodape (baseframe, instancia)
 		
 		baseframe.statusbar:Hide()
 	
-	--> frame invisível
+	--> frame invisï¿½vel
 	baseframe.DOWNFrame = CreateFrame ("frame", "DetailsDownFrame" .. instancia.meu_id, baseframe)
 	baseframe.DOWNFrame:SetPoint ("left", baseframe.rodape.esquerdo, "right", 0, 10)
 	baseframe.DOWNFrame:SetPoint ("right", baseframe.rodape.direita, "left", 0, 10)
@@ -5827,7 +5827,7 @@ local build_mode_list = function (self, elapsed)
 		
 			local _this_instance = _detalhes.tabela_instancias [index]
 			
-			if (not _this_instance.ativa) then --> só reabre se ela estiver ativa
+			if (not _this_instance.ativa) then --> sï¿½ reabre se ela estiver ativa
 			
 				--> pegar o que ela ta mostrando
 				local atributo = _this_instance.atributo
@@ -6277,7 +6277,7 @@ local build_segment_list = function (self, elapsed)
 								local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 								if (index and name and encounterID) then
 									--EJ_SelectInstance (instanceID)
-									--creature info pode ser sempre 1, não usar o index do boss
+									--creature info pode ser sempre 1, nï¿½o usar o index do boss
 									local id, name, description, displayInfo, iconImage = EJ_GetCreatureInfo (1, encounterID)
 									if (iconImage) then
 										CoolTip:AddIcon (iconImage, 2, "top", 128, 64)
@@ -6606,7 +6606,7 @@ local build_segment_list = function (self, elapsed)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
 			end
 			
-			--> fill é a quantidade de menu que esta sendo mostrada
+			--> fill ï¿½ a quantidade de menu que esta sendo mostrada
 			if (instancia.segmento == 0) then
 				if (fill - 2 == menuIndex) then
 					CoolTip:SetLastSelected ("main", fill + 0)
@@ -6683,7 +6683,7 @@ local build_segment_list = function (self, elapsed)
 				--CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.2, false, false, "Skyline")
 			end
 			
-			--> fill é a quantidade de menu que esta sendo mostrada
+			--> fill ï¿½ a quantidade de menu que esta sendo mostrada
 			if (instancia.segmento == -1) then
 				if (fill - 2 == menuIndex) then
 					CoolTip:SetLastSelected ("main", fill + 1)
@@ -6855,7 +6855,7 @@ function _detalhes:ChangeSkin (skin_name)
 		self.baseframe.cabecalho.ball:SetTexture (skin_file) --> bola esquerda
 		self.baseframe.cabecalho.emenda:SetTexture (skin_file) --> emenda que liga a bola a textura do centro
 		
-		self.baseframe.cabecalho.ball_r:SetTexture (skin_file) --> bola direita onde fica o botão de fechar
+		self.baseframe.cabecalho.ball_r:SetTexture (skin_file) --> bola direita onde fica o botï¿½o de fechar
 		self.baseframe.cabecalho.top_bg:SetTexture (skin_file) --> top background
 		
 		self.baseframe.barra_esquerda:SetTexture (skin_file) --> barra lateral
@@ -6872,10 +6872,10 @@ function _detalhes:ChangeSkin (skin_name)
 		self.baseframe.rodape.esquerdo_nostatusbar:SetTexture (skin_file) --> rodape direito
 		self.baseframe.rodape.direita_nostatusbar:SetTexture (skin_file) --> rodape direito
 		
-		self.baseframe.button_stretch.texture:SetTexture (skin_file) --> botão de esticar a janela
+		self.baseframe.button_stretch.texture:SetTexture (skin_file) --> botï¿½o de esticar a janela
 		
-		self.baseframe.resize_direita.texture:SetTexture (skin_file) --> botão de redimencionar da direita
-		self.baseframe.resize_esquerda.texture:SetTexture (skin_file) --> botão de redimencionar da esquerda
+		self.baseframe.resize_direita.texture:SetTexture (skin_file) --> botï¿½o de redimencionar da direita
+		self.baseframe.resize_esquerda.texture:SetTexture (skin_file) --> botï¿½o de redimencionar da esquerda
 		
 		self.break_snap_button:SetNormalTexture (skin_file) --> cadeado
 		self.break_snap_button:SetDisabledTexture (skin_file)
@@ -8154,7 +8154,7 @@ function _detalhes:HideSideBars (instancia)
 	self.baseframe.barra_direita:Hide()
 	self.baseframe.barra_fundo:Hide()
 	
-	--self:SetBarGrowDirection() --já é chamado no toolbarside
+	--self:SetBarGrowDirection() --jï¿½ ï¿½ chamado no toolbarside
 	--passando true - apenas atulizar as anchors
 	self:ToolbarSide (nil, true)
 end
@@ -8359,7 +8359,7 @@ end
 		self:Disable()
 		self.instancia:DesativarInstancia() 
 		
-		--> não há mais instâncias abertas, então manda msg alertando
+		--> nï¿½o hï¿½ mais instï¿½ncias abertas, entï¿½o manda msg alertando
 		if (_detalhes.opened_windows == 0) then
 			_detalhes:Msg (Loc ["STRING_CLOSEALL"])
 		end
@@ -8905,7 +8905,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 	baseframe.cabecalho.fechar:SetScript ("OnClick", close_button_onclick)
 	
-	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
+	--> bola do canto esquedo superior --> primeiro criar a armaï¿½ï¿½o para apoiar as texturas
 	baseframe.cabecalho.ball_point = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.cabecalho.ball_point:SetPoint ("bottomleft", baseframe, "topleft", -37, 0)
 	baseframe.cabecalho.ball_point:SetWidth (64)
@@ -8958,7 +8958,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.top_bg:SetWidth (512)
 	baseframe.cabecalho.top_bg:SetHeight (128)
 
-	--> frame invisível
+	--> frame invisï¿½vel
 	baseframe.UPFrame = CreateFrame ("frame", "DetailsUpFrameInstance"..instancia.meu_id, baseframe)
 	baseframe.UPFrame:SetPoint ("left", baseframe.cabecalho.ball, "right", 0, -53)
 	baseframe.UPFrame:SetPoint ("right", baseframe.cabecalho.ball_r, "left", 0, -53)
@@ -8972,7 +8972,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 	BGFrame_scripts (baseframe.UPFrame, baseframe, instancia)
 	
-	--> corrige o vão entre o baseframe e o upframe
+	--> corrige o vï¿½o entre o baseframe e o upframe
 	baseframe.UPFrameConnect = CreateFrame ("frame", "DetailsAntiGap"..instancia.meu_id, baseframe)
 	baseframe.UPFrameConnect:SetPoint ("bottomleft", baseframe, "topleft", 0, -1)
 	baseframe.UPFrameConnect:SetPoint ("bottomright", baseframe, "topright", 0, -1)
@@ -9026,12 +9026,12 @@ function gump:CriaCabecalho (baseframe, instancia)
 	instancia.menu_points = {MenuAnchorLeft, MenuAnchorRight}
 	instancia.menu2_points = {Menu2AnchorRight}
 	
--- botões	
+-- botï¿½es	
 ------------------------------------------------------------------------------------------------------------------------------------------------- 	
 
 	local CoolTip = _G.GameCooltip
 
-	--> SELEÇÃO DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
+	--> SELEï¿½ï¿½O DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local modo_selecao_button_click = function()
 		if (_detalhes.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "mode" and GameCooltipFrame1:IsShown()) then
@@ -9083,7 +9083,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.segmento.widget._instance = instancia
 	baseframe.cabecalho.segmento:SetPoint ("left", baseframe.cabecalho.modo_selecao, "right", 0, 0)
 	
-	--> ativa botão do meio e direito
+	--> ativa botï¿½o do meio e direito
 	baseframe.cabecalho.segmento:SetClickFunction (segmento_button_click, nil, nil, "rightclick")
 
 	baseframe.cabecalho.segmento:SetScript ("OnEnter", segmento_on_enter)

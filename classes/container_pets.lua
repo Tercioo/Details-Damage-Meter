@@ -96,7 +96,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		return pet_nome .." <"..dono_nome..">", dono_nome, dono_serial, dono_flags
 	else
 		
-		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --> é um pet
+		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --> ï¿½ um pet
 			if (not _detalhes.pets_no_owner [pet_serial] and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
 				_detalhes.pets_no_owner [pet_serial] = {pet_nome, pet_flags}
 				_detalhes:Msg ("couldn't find the owner of the pet:", pet_nome)
@@ -106,7 +106,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		end
 	end
 	
-	--> não pode encontrar o dono do pet, coloca-lo na ignore
+	--> nï¿½o pode encontrar o dono do pet, coloca-lo na ignore
 	
 	return
 end
@@ -124,7 +124,7 @@ function container_pets:Unpet (...)
 			container_pets:Remover (existing_pet_serial)
 			_detalhes.pets_players [owner_serial] = nil
 		end
-		--verifica se há um pet novo deste jogador
+		--verifica se hï¿½ um pet novo deste jogador
 		local pet_serial = _UnitGUID (unitid .. "pet")
 		if (pet_serial) then
 			if (not _detalhes.tabela_pets.pets [pet_serial]) then
@@ -230,7 +230,7 @@ function _detalhes:LimparPets()
 			_new_PetTable [PetSerial] = PetTable
 		end
 	end
-	--a tabela antiga será descartada pelo garbage collector.
+	--a tabela antiga serï¿½ descartada pelo garbage collector.
 	--_table_wipe (_detalhes.tabela_pets.pets)
 	_detalhes.tabela_pets.pets = _new_PetTable
 	_detalhes:UpdateContainerCombatentes()

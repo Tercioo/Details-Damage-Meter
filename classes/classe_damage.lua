@@ -151,7 +151,7 @@
 				_table_sort (container,  _detalhes.SortKeySimple)
 				
 				if (amount) then 
-					for i = amount, 1, -1 do --> de trás pra frente
+					for i = amount, 1, -1 do --> de trï¿½s pra frente
 						if (container[i][keyName] < 1) then
 							amount = amount-1
 						else
@@ -258,7 +258,7 @@
 				for index, player in _ipairs (container) do
 					local npcid1 = _detalhes:GetNpcIdFromGuid (player.serial)
 					--p rint (player.nome, npcid1, ignored_enemy_npcs [npcid1])
-					if (_bit_band (player.flag_original, 0x00000060) ~= 0 and not ignored_enemy_npcs [npcid1]) then --> é um inimigo
+					if (_bit_band (player.flag_original, 0x00000060) ~= 0 and not ignored_enemy_npcs [npcid1]) then --> ï¿½ um inimigo
 						total = total + player [keyName]
 					else
 						amount = index-1
@@ -886,8 +886,8 @@
 	end
 	
 	function atributo_damage:AtualizarBySpell (tabela, qual_barra, colocacao, instancia)
-		tabela ["byspell"] = true --> marca que esta tabela é uma tabela de frags, usado no controla na hora de montar o tooltip
-		local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
+		tabela ["byspell"] = true --> marca que esta tabela ï¿½ uma tabela de frags, usado no controla na hora de montar o tooltip
+		local esta_barra = instancia.barras [qual_barra] --> pega a referï¿½ncia da barra na janela
 		
 		if (not esta_barra) then
 			print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra .. " " .. colocacao)
@@ -924,7 +924,7 @@
 		
 		local spell_damage = tabela [2] -- spell_damage passar por uma ToK function, precisa ser number
 		if (not bars_show_data [1]) then
-			spell_damage = tabela [2] --damage taken by spell não tem PS, então é obrigado a passar o dano total
+			spell_damage = tabela [2] --damage taken by spell nï¿½o tem PS, entï¿½o ï¿½ obrigado a passar o dano total
 		end
 		if (not bars_show_data [3]) then
 			porcentagem = ""
@@ -977,7 +977,7 @@
 		local name = frag [1]
 		local GameCooltip = GameCooltip
 		
-		--> mantendo a função o mais low level possível
+		--> mantendo a funï¿½ï¿½o o mais low level possï¿½vel
 		local damage_container = instancia.showing [1]
 		
 		local frag_actor = damage_container._ActorTable [damage_container._NameIndexTable [ name ]]
@@ -994,7 +994,7 @@
 			
 				local damager_actor = damage_container._ActorTable [damage_container._NameIndexTable [ aggressor ]]
 				
-				if (damager_actor and not damager_actor.owner) then --> checagem por causa do total e do garbage collector que não limpa os names que deram dano
+				if (damager_actor and not damager_actor.owner) then --> checagem por causa do total e do garbage collector que nï¿½o limpa os names que deram dano
 					local target_amount = damager_actor.targets [name]
 					if (target_amount) then
 						damage_taken_table [#damage_taken_table+1] = {aggressor, target_amount, damager_actor.classe}
@@ -1065,8 +1065,8 @@
 
 	function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instancia)
 
-		tabela ["frags"] = true --> marca que esta tabela é uma tabela de frags, usado no controla na hora de montar o tooltip
-		local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
+		tabela ["frags"] = true --> marca que esta tabela ï¿½ uma tabela de frags, usado no controla na hora de montar o tooltip
+		local esta_barra = instancia.barras [qual_barra] --> pega a referï¿½ncia da barra na janela
 		
 		if (not esta_barra) then
 			print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
@@ -1308,7 +1308,7 @@
 	
 		local t = {}
 		for index, void_table in ipairs (tooltip_void_zone_temp) do
-			--irá reportar dano zero também
+			--irï¿½ reportar dano zero tambï¿½m
 			if (void_table[1] and type (void_table[1]) == "string" and void_table[2] and void_table[3] and type (void_table[3]) == "table") then
 				print (void_table[1], void_table[2], void_table[3])
 			
@@ -1463,7 +1463,7 @@
 
 	function atributo_misc:AtualizarVoidZone (qual_barra, colocacao, instancia)
 
-		--> pega a referência da barra na janela
+		--> pega a referï¿½ncia da barra na janela
 		local esta_barra = instancia.barras [qual_barra]
 		
 		if (not esta_barra) then
@@ -1560,7 +1560,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 
-	--> não há barras para mostrar -- not have something to show
+	--> nï¿½o hï¿½ barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then 
 		if (_detalhes.debug) then
 			_detalhes.showing_ActorTable_Timer = _detalhes.showing_ActorTable_Timer or 0
@@ -1581,12 +1581,12 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 	local using_cache = false
 	
-	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
+	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instï¿½ncia
 	local conteudo = showing._ActorTable --> pega a lista de jogadores -- get actors table from container
 	local amount = #conteudo
 	local modo = instancia.modo
 	
-	--> pega qual a sub key que será usada --sub keys
+	--> pega qual a sub key que serï¿½ usada --sub keys
 	if (exportar) then
 	
 		if (_type (exportar) == "boolean") then 		
@@ -1779,7 +1779,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 						elseif (source:IsGroupPlayer()) then -- friendly fire
 						
 							local AllSpells = source.friendlyfire [character.nome] and source.friendlyfire [character.nome].spells
-							if (AllSpells) then -- se não existir pode ter vindo de um pet, talvez
+							if (AllSpells) then -- se nï¿½o existir pode ter vindo de um pet, talvez
 								for spellid, on_player in pairs (AllSpells) do
 									if (on_player and on_player >= 1) then
 									
@@ -1872,7 +1872,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			if (actor.boss_debuff) then
 				index = index + 1
 			
-				--pega no container de dano o actor responsável por aplicar o debuff
+				--pega no container de dano o actor responsï¿½vel por aplicar o debuff
 				local twin_damage_actor = showing._NameIndexTable [actor.damage_twin] or showing._NameIndexTable ["[*] " .. actor.damage_twin]
 				
 				if (twin_damage_actor) then
@@ -2048,7 +2048,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			--
 			if (not using_cache) then
 				for index, player in _ipairs (conteudo) do
-					if (player.grupo) then --> é um player e esta em grupo
+					if (player.grupo) then --> ï¿½ um player e esta em grupo
 						if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
 							amount = index - 1
 							break
@@ -2076,7 +2076,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		return total, keyName, instancia.top, amount
 	end
 
-	if (amount < 1) then --> não há barras para mostrar
+	if (amount < 1) then --> nï¿½o hï¿½ barras para mostrar
 		if (forcar) then
 			if (instancia.modo == 2) then --> group
 				for i = 1, instancia.rows_fit_in_window  do
@@ -2276,7 +2276,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
-				-- /run print (_detalhes:GetInstance(1).barraS[2]) -- vai do 5 ao 1 -- qual barra começa no 1 -- i = 5 até 1 -- player 5 atualiza na barra 1 / player 1 atualiza na barra 5
+				-- /run print (_detalhes:GetInstance(1).barraS[2]) -- vai do 5 ao 1 -- qual barra comeï¿½a no 1 -- i = 5 atï¿½ 1 -- player 5 atualiza na barra 1 / player 1 atualiza na barra 5
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do 
 					if (conteudo[i]) then
 						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
@@ -2298,7 +2298,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		instancia:fazer_animacoes (qual_barra - 1)
 	end
 	
-	--> beta, hidar barras não usadas durante um refresh forçado
+	--> beta, hidar barras nï¿½o usadas durante um refresh forï¿½ado
 	if (forcar) then
 		if (instancia.modo == 2) then --> group
 			for i = qual_barra, instancia.rows_fit_in_window  do
@@ -2323,9 +2323,9 @@ local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 -- ~atualizar ~barra
 function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
-							-- instância, container das barras, qual barra, colocação, total?, sub atributo, forçar refresh, key
+							-- instï¿½ncia, container das barras, qual barra, colocaï¿½ï¿½o, total?, sub atributo, forï¿½ar refresh, key
 	
-	local esta_barra = barras_container [qual_barra] --> pega a referência da barra na janela
+	local esta_barra = barras_container [qual_barra] --> pega a referï¿½ncia da barra na janela
 	
 	if (not esta_barra) then
 		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
@@ -2334,11 +2334,11 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 	local tabela_anterior = esta_barra.minha_tabela
 	
-	esta_barra.minha_tabela = self --> grava uma referência desse objeto na barra
-	self.minha_barra = esta_barra --> grava uma referência da barra no objeto
+	esta_barra.minha_tabela = self --> grava uma referï¿½ncia desse objeto na barra
+	self.minha_barra = esta_barra --> grava uma referï¿½ncia da barra no objeto
 
-	esta_barra.colocacao = lugar --> salva na barra qual a colocação mostrada.
-	self.colocacao = lugar --> salva no objeto qual a colocação mostrada
+	esta_barra.colocacao = lugar --> salva na barra qual a colocaï¿½ï¿½o mostrada.
+	self.colocacao = lugar --> salva no objeto qual a colocaï¿½ï¿½o mostrada
 
 	local damage_total = self.total --> total de dano que este jogador deu
 	local dps
@@ -2352,7 +2352,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
 	end
 
-	--> tempo da shadow não é calculado pela timemachine
+	--> tempo da shadow nï¿½o ï¿½ calculado pela timemachine
 	if ( (_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or instancia.segmento == -1) then
 		if (instancia.segmento == -1 and combat_time == 0) then
 			local p = _detalhes.tabela_vigente (1, self.nome)
@@ -2374,7 +2374,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			dps = damage_total/self:Tempo() --calcula o dps deste objeto
 			self.last_dps = dps --salva o dps dele
 		else
-			if (self.last_dps == 0) then --> não calculou o dps dele ainda mas entrou em standby
+			if (self.last_dps == 0) then --> nï¿½o calculou o dps dele ainda mas entrou em standby
 				dps = damage_total/self:Tempo()
 				self.last_dps = dps
 			else
@@ -2607,7 +2607,7 @@ end
 		end
 	else
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-			--> setando o valor  mesmo com animações pq o barra esta hidada com o value do último actor que ela mostrou
+			--> setando o valor  mesmo com animaï¿½ï¿½es pq o barra esta hidada com o value do ï¿½ltimo actor que ela mostrou
 			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
 				esta_barra:SetValue (esta_porcentagem)
@@ -2620,8 +2620,8 @@ end
 
 			return self:RefreshBarra (esta_barra, instancia)
 		else
-			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
-			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
+			--> agora esta comparando se a tabela da barra ï¿½ diferente da tabela na atualizaï¿½ï¿½o anterior
+			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posiï¿½ï¿½o ou se ela apenas serï¿½ atualizada
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
@@ -2633,7 +2633,7 @@ end
 				
 				return self:RefreshBarra (esta_barra, instancia)
 				
-			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
+			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela entï¿½o compara a porcentagem
 				--> apenas atualizar
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
@@ -2832,7 +2832,7 @@ end
 
 
 
----------> TOOLTIPS BIFURCAÇÃO
+---------> TOOLTIPS BIFURCAï¿½ï¿½O
 -- ~tooltip
 function atributo_damage:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
@@ -3175,7 +3175,7 @@ function atributo_damage:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, 
 		local inimigo = actor.nome
 		local custom_name = inimigo .. " -" .. Loc ["STRING_CUSTOM_ENEMY_DT"]
 
-		--> procura se já tem um custom:
+		--> procura se jï¿½ tem um custom:
 		for index, CustomObject in _ipairs (_detalhes.custom) do
 			if (CustomObject:GetName() == custom_name) then
 				--> fix for not saving funcs on logout
@@ -3374,7 +3374,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		for nome, _ in _pairs (agressores) do --who damaged the player
 			--get the aggressor
 			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
-			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+			if (este_agressor) then --> checagem por causa do total e do garbage collector que nï¿½o limpa os nomes que deram dano
 				local name = nome
 				local table_added
 				local damage_amount = este_agressor.targets [self.nome]
@@ -3632,7 +3632,7 @@ end
 --------------------------------------------- // JANELA DETALHES // ---------------------------------------------
 
 
----------> DETALHES BIFURCAÇÃO
+---------> DETALHES BIFURCAï¿½ï¿½O
 function atributo_damage:MontaInfo()
 	if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 6) then --> damage done & dps
 		return self:MontaInfoDamageDone()
@@ -3643,7 +3643,7 @@ function atributo_damage:MontaInfo()
 	end
 end
 
----------> DETALHES bloco da direita BIFURCAÇÃO
+---------> DETALHES bloco da direita BIFURCAï¿½ï¿½O
 function atributo_damage:MontaDetalhes (spellid, barra, instancia)
 	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
 		return self:MontaDetalhesDamageDone (spellid, barra, instancia)
@@ -3652,7 +3652,7 @@ function atributo_damage:MontaDetalhes (spellid, barra, instancia)
 	elseif (info.sub_atributo == 4) then
 		return self:MontaDetalhesFriendlyFire (spellid, barra, instancia)
 	elseif (info.sub_atributo == 6) then
-		if (_bit_band (self.flag_original, 0x00000400) ~= 0) then --é um jogador
+		if (_bit_band (self.flag_original, 0x00000400) ~= 0) then --ï¿½ um jogador
 			return self:MontaDetalhesDamageDone (spellid, barra, instancia)
 		end
 		return self:MontaDetalhesEnemy (spellid, barra, instancia)
@@ -3705,7 +3705,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 		
 		if (not info.mostrando_mouse_over) then
 			if (tabela[1] == self.detalhes) then --> tabela [1] = NOME = NOME que esta na caixa da direita
-				if (not barra.on_focus) then --> se a barra não tiver no foco
+				if (not barra.on_focus) then --> se a barra nï¿½o tiver no foco
 					barra.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
 					barra.on_focus = true
 					if (not info.mostrando) then
@@ -3938,7 +3938,7 @@ end
 --[[exported]] function _detalhes:FocusLock (row, spellid)
 	if (not info.mostrando_mouse_over) then
 		if (spellid == self.detalhes) then --> tabela [1] = spellid = spellid que esta na caixa da direita
-			if (not row.on_focus) then --> se a barra não tiver no foco
+			if (not row.on_focus) then --> se a barra nï¿½o tiver no foco
 				row.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
 				row.on_focus = true
 				if (not info.mostrando) then
@@ -4107,9 +4107,9 @@ function atributo_damage:MontaInfoDamageDone()
 		for index, tabela in _ipairs (meus_agressores) do
 			barra = barras [index]
 
-			if (not barra) then --> se a barra não existir, criar ela então
+			if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 				barra = gump:CriaNovaBarraInfo2 (instancia, index)
-				barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
+				barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 			end
 			
 			if (index == 1) then
@@ -4150,7 +4150,7 @@ function atributo_damage:MontaInfoDamageDone()
 			end
 			
 			barra.minha_tabela = self --> grava o jogador na tabela
-			barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso é necessário?
+			barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso ï¿½ necessï¿½rio?
 			
 			-- no lugar do spell id colocar o que?
 			barra.spellid = "enemies"
@@ -4226,7 +4226,7 @@ function atributo_damage:MontaInfoDamageDone()
 			end
 			
 			barra.minha_tabela = self --> grava o jogador na tabela
-			barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso é necessário?
+			barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso ï¿½ necessï¿½rio?
 			
 			-- no lugar do spell id colocar o que?
 			barra.spellid = tabela[5]
@@ -4251,7 +4251,7 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 
 	local friendlyfire = self.friendlyfire
 
-	local ff_table = self.friendlyfire [nome] --> assumindo que nome é o nome do Alvo que tomou dano // bastaria pegar a tabela de habilidades dele
+	local ff_table = self.friendlyfire [nome] --> assumindo que nome ï¿½ o nome do Alvo que tomou dano // bastaria pegar a tabela de habilidades dele
 	if (not ff_table) then
 		return
 	end
@@ -4272,9 +4272,9 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 	for index, tabela in _ipairs (minhas_magias) do
 		barra = barras [index]
 
-		if (not barra) then --> se a barra não existir, criar ela então
+		if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
+			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 		end
 		
 		if (index == 1) then
@@ -4347,9 +4347,9 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 	for index, tabela in _ipairs (target_pool) do
 		barra = barras [index]
 
-		if (not barra) then --> se a barra não existir, criar ela então
+		if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
+			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 		end
 		
 		if (index == 1) then
@@ -4437,9 +4437,9 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 	for index, tabela in _ipairs (minhas_magias) do
 		barra = barras [index]
 
-		if (not barra) then --> se a barra não existir, criar ela então
+		if (not barra) then --> se a barra nï¿½o existir, criar ela entï¿½o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
+			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui ï¿½ a parte da seleï¿½ï¿½o e desceleï¿½ï¿½o
 		end
 		
 		if (index == 1) then
@@ -4897,7 +4897,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core functions
 
-	--> limpa as tabelas temporárias ao resetar
+	--> limpa as tabelas temporï¿½rias ao resetar
 		function atributo_damage:ClearTempTables()
 			for i = #ntable, 1, -1 do
 				ntable [i] = nil
@@ -4950,9 +4950,9 @@ end
 			--actor.last_events_table = _detalhes:CreateActorLastEventTable()
 		end
 		
-	--> restaura e liga o ator com a sua shadow durante a inicialização (startup function)
+	--> restaura e liga o ator com a sua shadow durante a inicializaï¿½ï¿½o (startup function)
 		function atributo_damage:r_onlyrefresh_shadow (actor)
-			--> criar uma shadow desse ator se ainda não tiver uma
+			--> criar uma shadow desse ator se ainda nï¿½o tiver uma
 				local overall_dano = _detalhes.tabela_overall [1]
 				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
 				
@@ -5014,7 +5014,7 @@ end
 	
 			local host_combat = combat_object or _detalhes.tabela_overall
 			
-			--> criar uma shadow desse ator se ainda não tiver uma
+			--> criar uma shadow desse ator se ainda nï¿½o tiver uma
 				local overall_dano = host_combat [1]
 				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
 				

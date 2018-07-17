@@ -94,8 +94,8 @@
 			end
 			
 			if (critical) then
-				self.c_curado = self.c_curado+amount --> amount é o total de dano
-				self.c_amt = self.c_amt+1 --> amount é o total de dano
+				self.c_curado = self.c_curado+amount --> amount ï¿½ o total de dano
+				self.c_amt = self.c_amt+1 --> amount ï¿½ o total de dano
 				if (amount > self.c_max) then
 					self.c_max = amount
 				end

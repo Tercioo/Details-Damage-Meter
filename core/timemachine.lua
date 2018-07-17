@@ -35,7 +35,7 @@
 							jogador:HoldOn (false)
 						end
 					else
-						if (not jogador.on_hold) then --> não ta pausado, precisa por em pausa
+						if (not jogador.on_hold) then --> nï¿½o ta pausado, precisa por em pausa
 							--> verifica se esta castando alguma coisa que leve + que 3 segundos
 							jogador:HoldOn (true)
 						end
@@ -54,7 +54,7 @@
 							jogador:HoldOn (false)
 						end
 					else
-						if (not jogador.on_hold) then --> não ta pausado, precisa por em pausa
+						if (not jogador.on_hold) then --> nï¿½o ta pausado, precisa por em pausa
 							--> verifica se esta castando alguma coisa que leve + que 10 segundos
 							jogador:HoldOn (true)
 						end

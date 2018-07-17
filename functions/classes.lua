@@ -13,12 +13,12 @@ do
 		_detalhes.timeMachine.__index = _detalhes.timeMachine
 		setmetatable (_detalhes.timeMachine, _detalhes)
 
-	-------- classe da tabela que armazenará todos os combates efetuados
+	-------- classe da tabela que armazenarï¿½ todos os combates efetuados
 		_detalhes.historico = {}
 		_detalhes.historico.__index = _detalhes.historico
 		setmetatable (_detalhes.historico, _detalhes)
 
-	---------------- classe da tabela onde serão armazenados cada combate efetuado
+	---------------- classe da tabela onde serï¿½o armazenados cada combate efetuado
 			_detalhes.combate = {}
 			_detalhes.combate.__index = _detalhes.combate
 			setmetatable (_detalhes.combate, _detalhes.historico)
@@ -58,17 +58,17 @@ do
 					_detalhes.container_habilidades.__index = _detalhes.container_habilidades
 					setmetatable (_detalhes.container_habilidades, _detalhes.combate)
 
-	---------------------------------------- classe das habilidades que dão cura
+	---------------------------------------- classe das habilidades que dï¿½o cura
 						_detalhes.habilidade_cura = {}
 						_detalhes.habilidade_cura.__index = _detalhes.habilidade_cura
 						setmetatable (_detalhes.habilidade_cura, _detalhes.container_habilidades)
 						
-	---------------------------------------- classe das habilidades que dão danos
+	---------------------------------------- classe das habilidades que dï¿½o danos
 						_detalhes.habilidade_dano = {}
 						_detalhes.habilidade_dano.__index = _detalhes.habilidade_dano
 						setmetatable (_detalhes.habilidade_dano, _detalhes.container_habilidades)
 						
-	---------------------------------------- classe das habilidades que dão e_energy
+	---------------------------------------- classe das habilidades que dï¿½o e_energy
 						_detalhes.habilidade_e_energy = {}
 						_detalhes.habilidade_e_energy.__index = _detalhes.habilidade_e_energy
 						setmetatable (_detalhes.habilidade_e_energy, _detalhes.container_habilidades)
