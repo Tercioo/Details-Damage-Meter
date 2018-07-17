@@ -8,6 +8,7 @@
 	<Script file="picture.lua"/>
 	<Script file="slider.lua"/>
 	<Script file="scrollbar.lua"/>
+	<Script file="spells.lua"/>
 	<Script file="math.lua"/>
 	
 	<Include file="tutorial_alert.xml"/>

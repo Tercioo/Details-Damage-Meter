@@ -29,6 +29,40 @@ end
 
 local PanelMetaFunctions = _G [DF.GlobalWidgetControlNames ["panel"]]
 
+--> mixin for options functions
+DF.OptionsFunctions = {
+	SetOption = function (self, optionName, optionValue)
+		if (self.options) then
+			self.options [optionName] = optionValue
+		else
+			self.options = {}
+			self.options [optionName] = optionValue
+		end
+	end,
+	
+	GetOption = function (self, optionName)
+		return self.options and self.options [optionName]
+	end,
+	
+	GetAllOptions = function (self)
+		if (self.options) then
+			local optionsTable = {}
+			for key, _ in pairs (self.options) do
+				optionsTable [#optionsTable + 1] = key
+			end
+			return optionsTable
+		else
+			return {}
+		end
+	end,
+	
+	BuildOptionsTable = function (self, defaultOptions, userOptions)
+		self.options = self.options or {}
+		DF.table.deploy (self.options, userOptions or {})
+		DF.table.deploy (self.options, defaultOptions or {})
+	end
+}
+
 ------------------------------------------------------------------------------------------------------------
 --> metatables
 
@@ -1216,19 +1250,21 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 	
 		DF.IconPickFrame = CreateFrame ("frame", "DetailsFrameworkIconPickFrame", UIParent)
 		tinsert (UISpecialFrames, "DetailsFrameworkIconPickFrame")
-		DF.IconPickFrame:SetFrameStrata ("DIALOG")
+		DF.IconPickFrame:SetFrameStrata ("TOOLTIP")
 		
 		DF.IconPickFrame:SetPoint ("center", UIParent, "center")
 		DF.IconPickFrame:SetWidth (350)
-		DF.IconPickFrame:SetHeight (227)
+		DF.IconPickFrame:SetHeight (277)
 		DF.IconPickFrame:EnableMouse (true)
 		DF.IconPickFrame:SetMovable (true)
+		
+		DF:CreateTitleBar (DF.IconPickFrame, "Icon Picker")
 		
 		DF.IconPickFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 
 		DF.IconPickFrame:SetBackdropBorderColor (0, 0, 0)
 		DF.IconPickFrame:SetBackdropColor (24/255, 24/255, 24/255, .8)
-		DF.IconPickFrame:SetFrameLevel (1)
+		DF.IconPickFrame:SetFrameLevel (5000)
 		
 		DF.IconPickFrame:SetScript ("OnMouseDown", function (self)
 			if (not self.isMoving) then
@@ -1249,16 +1285,29 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 		
 		DF.IconPickFrame.preview =  CreateFrame ("frame", nil, UIParent)
 		DF.IconPickFrame.preview:SetFrameStrata ("tooltip")
+		DF.IconPickFrame.preview:SetFrameLevel (6001)
 		DF.IconPickFrame.preview:SetSize (76, 76)
+		
+		local preview_image_bg = DF:NewImage (DF.IconPickFrame.preview, nil, 76, 76)
+		preview_image_bg:SetDrawLayer ("background", 0)
+		preview_image_bg:SetAllPoints (DF.IconPickFrame.preview)
+		preview_image_bg:SetColorTexture (0, 0, 0)
+		
 		local preview_image = DF:NewImage (DF.IconPickFrame.preview, nil, 76, 76)
 		preview_image:SetAllPoints (DF.IconPickFrame.preview)
+		
 		DF.IconPickFrame.preview.icon = preview_image
 		DF.IconPickFrame.preview:Hide()
 		
+		--serach
 		DF.IconPickFrame.searchLabel =  DF:NewLabel (DF.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "search:", font, size, color)
-		DF.IconPickFrame.searchLabel:SetPoint ("topleft", DF.IconPickFrame, "topleft", 12, -20)
+		DF.IconPickFrame.searchLabel:SetPoint ("topleft", DF.IconPickFrame, "topleft", 12, -36)
+		DF.IconPickFrame.searchLabel:SetTemplate (DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
+		
 		DF.IconPickFrame.search = DF:NewTextEntry (DF.IconPickFrame, nil, "$parentSearchBox", nil, 140, 20)
 		DF.IconPickFrame.search:SetPoint ("left", DF.IconPickFrame.searchLabel, "right", 2, 0)
+		DF.IconPickFrame.search:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+		
 		DF.IconPickFrame.search:SetHook ("OnTextChanged", function() 
 			DF.IconPickFrame.searching = DF.IconPickFrame.search:GetText()
 			if (DF.IconPickFrame.searching == "") then
@@ -1273,12 +1322,48 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 			end
 		end)
 		
+		--manually enter the icon path
+		DF.IconPickFrame.customIcon = DF:CreateLabel (DF.IconPickFrame, "Icon Path:", DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
+		DF.IconPickFrame.customIcon:SetPoint ("bottomleft", DF.IconPickFrame, "bottomleft", 12, 16)
+		
+		DF.IconPickFrame.customIconEntry = DF:CreateTextEntry (DF.IconPickFrame, function()end, 200, 20, "CustomIconEntry", _, _, DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+		DF.IconPickFrame.customIconEntry:SetPoint ("left", DF.IconPickFrame.customIcon, "right", 2, 0)
+		
+		DF.IconPickFrame.customIconEntry:SetHook ("OnTextChanged", function() 
+			DF.IconPickFrame.preview:SetPoint ("bottom", DF.IconPickFrame.customIconEntry.widget, "top", 0, 2)
+			DF.IconPickFrame.preview.icon:SetTexture (DF.IconPickFrame.customIconEntry:GetText())
+			DF.IconPickFrame.preview:Show()
+		end)
+		
+		DF.IconPickFrame.customIconEntry:SetHook ("OnEnter", function() 
+			DF.IconPickFrame.preview:SetPoint ("bottom", DF.IconPickFrame.customIconEntry.widget, "top", 0, 2)
+			DF.IconPickFrame.preview.icon:SetTexture (DF.IconPickFrame.customIconEntry:GetText())
+			DF.IconPickFrame.preview:Show()
+		end)
+		
 		--> close button
 		local close_button = CreateFrame ("button", nil, DF.IconPickFrame, "UIPanelCloseButton")
 		close_button:SetWidth (32)
 		close_button:SetHeight (32)
 		close_button:SetPoint ("TOPRIGHT", DF.IconPickFrame, "TOPRIGHT", -8, -7)
 		close_button:SetFrameLevel (close_button:GetFrameLevel()+2)
+		close_button:SetAlpha (0) --just hide, it is used below
+		
+		--> accept custom icon button
+		local accept_custom_icon = function()
+			local path = DF.IconPickFrame.customIconEntry:GetText()
+			
+			DF:QuickDispatch (DF.IconPickFrame.callback, path, DF.IconPickFrame.param1, DF.IconPickFrame.param2)
+			
+			if (DF.IconPickFrame.click_close) then
+				close_button:Click()
+			end
+		end
+		
+		DF.IconPickFrame.customIconAccept = DF:CreateButton (DF.IconPickFrame, accept_custom_icon, 82, 20, "Accept", nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"), DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
+		DF.IconPickFrame.customIconAccept:SetPoint ("left", DF.IconPickFrame.customIconEntry, "right", 2, 0)
+		
+		--fill with icons
 		
 		local MACRO_ICON_FILENAMES = {}
 		local SPELLNAMES_CACHE = {}
@@ -1320,18 +1405,25 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 			GetLooseMacroIcons (MACRO_ICON_FILENAMES)
 			GetMacroIcons (MACRO_ICON_FILENAMES)
 			GetMacroItemIcons (MACRO_ICON_FILENAMES)
-
+			
+			--reset the custom icon text entry
+			DF.IconPickFrame.customIconEntry:SetText ("")
+			--reset the search text entry
+			DF.IconPickFrame.search:SetText ("")
 		end)
 		
 		DF.IconPickFrame:SetScript ("OnHide", function()
 			wipe (MACRO_ICON_FILENAMES)
+			DF.IconPickFrame.preview:Hide()
 			collectgarbage()
 		end)
 		
 		DF.IconPickFrame.buttons = {}
 		
 		local OnClickFunction = function (self) 
-			DF.IconPickFrame.callback (self.icon:GetTexture(), DF.IconPickFrame.param1, DF.IconPickFrame.param2)
+		
+			DF:QuickDispatch (DF.IconPickFrame.callback, self.icon:GetTexture(), DF.IconPickFrame.param1, DF.IconPickFrame.param2)
+			
 			if (DF.IconPickFrame.click_close) then
 				close_button:Click()
 			end
@@ -1362,7 +1454,7 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i+1
 			
-			newcheck:SetPoint ("topleft", DF.IconPickFrame, "topleft", 12 + (i*30), -40)
+			newcheck:SetPoint ("topleft", DF.IconPickFrame, "topleft", 12 + (i*30), -60)
 			newcheck:SetID (i+1)
 			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
@@ -1455,6 +1547,7 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 		end
 		
 		local scroll = CreateFrame ("ScrollFrame", "DetailsFrameworkIconPickFrameScroll", DF.IconPickFrame, "ListScrollFrameTemplate")
+		DF:ReskinSlider (scroll)
 
 		local ChecksFrame_Update = function (self)
 
@@ -1527,7 +1620,7 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 
 		DF.IconPickFrame.updateFunc = ChecksFrame_Update
 		
-		scroll:SetPoint ("topleft", DF.IconPickFrame, "topleft", -18, -37)
+		scroll:SetPoint ("topleft", DF.IconPickFrame, "topleft", -18, -58)
 		scroll:SetWidth (330)
 		scroll:SetHeight (178)
 		scroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (scroll, offset, 20, ChecksFrame_Update) end)
@@ -1609,9 +1702,12 @@ local SimplePanel_frame_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], e
 local SimplePanel_frame_backdrop_color = {0, 0, 0, 0.9}
 local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 
+--with_label was making the frame stay in place while its parent moves
+--the slider was anchoring to with_label and here here were anchoring the slider again
 function DF:CreateScaleBar (frame, config)
-	local scaleBar = DF:CreateSlider (frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"), DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
-	scaleBar:SetPoint ("right", frame.Close, "left", -26, 0)
+	local scaleBar, text = DF:CreateSlider (frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"), DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
+	--scaleBar:SetPoint ("right", frame.Close, "left", -26, 0)
+	text:SetPoint ("topleft", frame, "topleft", 12, -7)
 	scaleBar:SetFrameLevel (DF.FRAMELEVEL_OVERLAY)
 	scaleBar.OnValueChanged = function (_, _, value)
 		config.scale = value
@@ -1622,6 +1718,10 @@ function DF:CreateScaleBar (frame, config)
 	scaleBar:SetHook ("OnMouseUp", function()
 		frame:SetScale (config.scale)
 	end)
+	
+	scaleBar:SetAlpha (0.2)
+	
+	return scaleBar
 end
 
 local no_options = {}
@@ -3531,13 +3631,18 @@ function DF:CreateTabContainer (parent, title, frame_name, frame_list, options_t
 		tabButton.mainFrame = mainFrame
 		DF.TabContainerFunctions.CreateUnderlineGlow (tabButton)
 		
+		local right_click_to_back
 		if (i == 1) then
-			local right_click_to_back = DF:CreateLabel (f, "right click to close", 10, "gray")
+			right_click_to_back = DF:CreateLabel (f, "right click to close", 10, "gray")
 			right_click_to_back:SetPoint ("bottomright", f, "bottomright", -1, 0)
 			f.IsFrontPage = true
 		else
-			local right_click_to_back = DF:CreateLabel (f, "right click to go back to main menu", 10, "gray")
+			right_click_to_back = DF:CreateLabel (f, "right click to go back to main menu", 10, "gray")
 			right_click_to_back:SetPoint ("bottomright", f, "bottomright", -1, 0)
+		end
+		
+		if (options_table.hide_click_label) then
+			right_click_to_back:Hide()
 		end
 		
 		f:SetScript ("OnMouseDown", DF.TabContainerFunctions.OnMouseDown)
@@ -3607,6 +3712,18 @@ local simple_list_box_GetOrCreateWidget = function (self)
 		widget:SetHook ("OnEnter", simple_list_box_onenter)
 		widget:SetHook ("OnLeave", simple_list_box_onleave)
 		widget.textcolor = self.options.textcolor
+		widget.textsize = self.options.text_size
+		widget.onleave_backdrop = self.options.backdrop_color
+		
+		widget.XButton = DF:CreateButton (widget, function()end, 16, 16)
+		widget.XButton:SetPoint ("topright", widget.widget, "topright")
+		widget.XButton:SetIcon ([[Interface\BUTTONS\UI-Panel-MinimizeButton-Up]], 16, 16, "overlay", nil, nil, 0, -4, 0, false)
+		widget.XButton.icon:SetDesaturated (true)
+		
+		if (not self.options.show_x_button) then
+			widget.XButton:Hide()
+		end
+		
 		tinsert (self.widgets, widget)
 	end
 	self.nextWidget = self.nextWidget + 1
@@ -3620,16 +3737,29 @@ local simple_list_box_RefreshWidgets = function (self)
 		local widget = self:GetOrCreateWidget()
 		widget:SetPoint ("topleft", self, "topleft", 1, -self.options.row_height * (self.nextWidget-2) - 4)
 		widget:SetPoint ("topright", self, "topright", -1, -self.options.row_height * (self.nextWidget-2) - 4)
+		
 		widget:SetClickFunction (self.func, value)
+		
+		if (self.options.show_x_button) then
+			widget.XButton:SetClickFunction (self.options.x_button_func, value)
+			widget.XButton.value = value
+			widget.XButton:Show()
+		else
+			widget.XButton:Hide()
+		end
+		
 		widget.value = value
 		
 		if (self.options.icon) then
 			if (type (self.options.icon) == "string" or type (self.options.icon) == "number") then
-				widget:SetIcon (self.options.icon, self.options.row_height, self.options.row_height)
+				local coords = type (self.options.iconcoords) == "table" and self.options.iconcoords or {0, 1, 0, 1}
+				widget:SetIcon (self.options.icon, self.options.row_height - 2, self.options.row_height - 2, "overlay", coords)
+				
 			elseif (type (self.options.icon) == "function") then
 				local icon = self.options.icon (value)
 				if (icon) then
-					widget:SetIcon (icon, self.options.row_height, self.options.row_height)
+					local coords = type (self.options.iconcoords) == "table" and self.options.iconcoords or {0, 1, 0, 1}
+					widget:SetIcon (icon, self.options.row_height - 2, self.options.row_height - 2, "overlay", coords)
 				end
 			end
 		else
@@ -3652,6 +3782,10 @@ local simple_list_box_RefreshWidgets = function (self)
 		end
 		
 		widget.value = value
+		
+		local r, g, b, a = DF:ParseColors (self.options.backdrop_color)
+		widget:SetBackdropColor (r, g, b, a)
+		
 		widget:Show()
 		amt = amt + 1
 	end
@@ -3669,7 +3803,12 @@ local default_options = {
 	width = 230, 
 	icon = false, 
 	text = "",
+	text_size = 10,
 	textcolor = "wheat",
+	
+	backdrop_color = {1, 1, 1, .5},
+	panel_border_color = {0, 0, 0, 0.5},
+	
 	onenter = function (self, capsule)
 		if (capsule) then
 			capsule.textcolor = "white"
@@ -3697,15 +3836,26 @@ function DF:CreateSimpleListBox (parent, name, title, empty_text, list_table, on
 	f.nextWidget = 1
 	f.list_table = list_table
 	f.func = function (self, button, value)
-		onclick (value)
+		--onclick (value)
+		DF:QuickDispatch (onclick, value)
 		f:Refresh()
 	end
 	f.widgets = {}
-	f:SetBackdrop (backdrop)
-	f:SetBackdropColor (0, 0, 0, 0.3)
-	f:SetBackdropBorderColor (0, 0, 0, 0.5)
+	
+	DF:ApplyStandardBackdrop (f)
+	
 	f.options = options or {}
 	self.table.deploy (f.options, default_options)
+	
+	if (f.options.x_button_func) then
+		local original_X_function = f.options.x_button_func
+		f.options.x_button_func = function (self, button, value)
+			DF:QuickDispatch (original_X_function, value)
+			f:Refresh()
+		end
+	end
+	
+	f:SetBackdropBorderColor (unpack (f.options.panel_border_color))
 	
 	f:SetSize (f.options.width + 2, f.options.height)
 	
@@ -3899,6 +4049,8 @@ end
 function DF:CreateScrollBox (parent, name, refresh_func, data, width, height, line_amount, line_height, create_line_func, auto_amount, no_scroll)
 	local scroll = CreateFrame ("scrollframe", name, parent, "FauxScrollFrameTemplate")
 	
+	DF:ApplyStandardBackdrop (scroll)
+	
 	scroll:SetSize (width, height)
 	scroll.LineAmount = line_amount
 	scroll.LineHeight = line_height
@@ -3949,4 +4101,834 @@ function DF:CreateResizeGrips (parent)
 		
 		return leftResizer, rightResizer
 	end
+end
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~keybind
+
+
+--------------------------------
+--> keybind frame ~key
+
+
+local ignoredKeys = {
+	["LSHIFT"] = true,
+	["RSHIFT"] = true,
+	["LCTRL"] = true,
+	["RCTRL"] = true,
+	["LALT"] = true,
+	["RALT"] = true,
+	["UNKNOWN"] = true,
+}
+
+local mouseKeys = {
+	["LeftButton"] = "type1",
+	["RightButton"] = "type2",
+	["MiddleButton"] = "type3",
+	["Button4"] = "type4",
+	["Button5"] = "type5",
+	["Button6"] = "type6",
+	["Button7"] = "type7",
+	["Button8"] = "type8",
+	["Button9"] = "type9",
+	["Button10"] = "type10",
+	["Button11"] = "type11",
+	["Button12"] = "type12",
+	["Button13"] = "type13",
+	["Button14"] = "type14",
+	["Button15"] = "type15",
+	["Button16"] = "type16",
+}
+
+local keysToMouse = {
+	["type1"] = "LeftButton",
+	["type2"] = "RightButton",
+	["type3"] = "MiddleButton",
+	["type4"] = "Button4",
+	["type5"] = "Button5",
+	["type6"] = "Button6",
+	["type7"] = "Button7",
+	["type8"] = "Button8",
+	["type9"] = "Button9",
+	["type10"] = "Button10",
+	["type11"] = "Button11",
+	["type12"] = "Button12",
+	["type13"] = "Button13",
+	["type14"] = "Button14",
+	["type15"] = "Button15",
+	["type16"] = "Button16",
+}
+
+local keybind_set_data = function (self, new_data_table)
+	self.Data = new_data_table
+	self.keybindScroll:UpdateScroll()
+end
+
+function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_amount, line_height)
+	
+	local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
+	local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	
+	local SCROLL_ROLL_AMOUNT = line_amount
+	
+	--keybind set frame
+	local new_keybind_frame = CreateFrame ("frame", name, parent)
+	new_keybind_frame:SetSize (width, height)
+	
+	-- keybind scrollframe
+	local keybindScroll = CreateFrame ("scrollframe", "$parentScrollFrame", new_keybind_frame, "FauxScrollFrameTemplate")
+	keybindScroll:SetSize (1019, 348)
+	keybindScroll.Frames = {}
+	new_keybind_frame.keybindScroll = keybindScroll
+	
+	--waiting the player to press a key
+	new_keybind_frame.IsListening = false
+	
+	--check for valid data table
+	if (type (data) ~= "table") then
+		print ("error: data must be a table. DF > CreateKeybindBox()")
+		return
+	end
+
+	if (not next (data)) then
+		--> build data table for the character class
+		local _, unitClass = UnitClass ("player")
+		if (unitClass) then
+			local specIds = DF:GetClassSpecIDs (unitClass)
+			if (specIds) then
+				for _, specId in ipairs (specIds) do
+					data [specId] = {}
+				end
+			end
+		end
+	end
+	
+	new_keybind_frame.Data = data
+	new_keybind_frame.SetData = keybind_set_data
+	
+	new_keybind_frame.EditingSpec = DF:GetCurrentSpec()
+	new_keybind_frame.CurrentKeybindEditingSet = new_keybind_frame.Data [new_keybind_frame.EditingSpec]
+	
+	local allSpecButtons = {}
+	local switch_spec = function (self, button, specID)
+		new_keybind_frame.EditingSpec = specID
+		new_keybind_frame.CurrentKeybindEditingSet = new_keybind_frame.Data [specID]
+		
+		for _, button in ipairs (allSpecButtons) do
+			button.selectedTexture:Hide()
+		end
+		self.MyObject.selectedTexture:Show()
+		
+		--feedback ao jogador uma vez que as keybinds podem ter o mesmo valor
+		C_Timer.After (.04, function() new_keybind_frame:Hide() end)
+		C_Timer.After (.06, function() new_keybind_frame:Show() end)
+		
+		--atualiza a scroll
+		keybindScroll:UpdateScroll()
+	end
+
+	--choose which spec to use
+	local spec1 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec1 Placeholder Text", 1, _, _, "SpecButton1", _, 0, options_button_template, options_text_template)
+	local spec2 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec2 Placeholder Text", 1, _, _, "SpecButton2", _, 0, options_button_template, options_text_template)
+	local spec3 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec3 Placeholder Text", 1, _, _, "SpecButton3", _, 0, options_button_template, options_text_template)
+	local spec4 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec4 Placeholder Text", 1, _, _, "SpecButton4", _, 0, options_button_template, options_text_template)
+	
+	--format the button label and icon with the spec information
+	local className, class = UnitClass ("player")
+	local i = 1
+	local specIds = DF:GetClassSpecIDs (class)
+	
+	for index, specId in ipairs (specIds) do
+		local button = new_keybind_frame ["SpecButton" .. index]
+		local spec_id, spec_name, spec_description, spec_icon, spec_background, spec_role, spec_class = GetSpecializationInfoByID (specId)
+		button.text = spec_name
+		button:SetClickFunction (switch_spec, specId)
+		button:SetIcon (spec_icon)
+		button.specID = specId
+		
+		local selectedTexture = button:CreateTexture (nil, "background")
+		selectedTexture:SetAllPoints()
+		selectedTexture:SetColorTexture (1, 1, 1, 0.5)
+		if (specId ~= new_keybind_frame.EditingSpec) then
+			selectedTexture:Hide()
+		end
+		button.selectedTexture = selectedTexture
+		
+		tinsert (allSpecButtons, button)
+		i = i + 1
+	end
+	
+	local specsTitle = DF:CreateLabel (new_keybind_frame, "Config keys for spec:", 12, "silver")
+	specsTitle:SetPoint ("topleft", new_keybind_frame, "topleft", 10, mainStartY)
+	
+	keybindScroll:SetPoint ("topleft", specsTitle.widget, "bottomleft", 0, -120)
+	
+	spec1:SetPoint ("topleft", specsTitle, "bottomleft", 0, -10)
+	spec2:SetPoint ("topleft", specsTitle, "bottomleft", 0, -30)
+	spec3:SetPoint ("topleft", specsTitle, "bottomleft", 0, -50)
+	if (class == "DRUID") then
+		spec4:SetPoint ("topleft", specsTitle, "bottomleft", 0, -70)
+	end
+	
+	local enter_the_key = CreateFrame ("frame", nil, new_keybind_frame)
+	enter_the_key:SetFrameStrata ("tooltip")
+	enter_the_key:SetSize (200, 60)
+	enter_the_key:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+	enter_the_key:SetBackdropColor (0, 0, 0, 1)
+	enter_the_key:SetBackdropBorderColor (1, 1, 1, 1)
+	enter_the_key.text = DF:CreateLabel (enter_the_key, "- Press a keyboard key to bind.\n- Click to bind a mouse button.\n- Press escape to cancel.", 11, "orange")
+	enter_the_key.text:SetPoint ("center", enter_the_key, "center")
+	enter_the_key:Hide()
+	
+	local registerKeybind = function (self, key) 
+		if (ignoredKeys [key]) then
+			return
+		end
+		if (key == "ESCAPE") then
+			enter_the_key:Hide()
+			new_keybind_frame.IsListening = false
+			new_keybind_frame:SetScript ("OnKeyDown", nil)
+			return
+		end
+		
+		local bind = (IsShiftKeyDown() and "SHIFT-" or "") .. (IsControlKeyDown() and "CTRL-" or "") .. (IsAltKeyDown() and "ALT-" or "")
+		bind = bind .. key
+	
+		--adiciona para a tabela de keybinds
+		local keybind = new_keybind_frame.CurrentKeybindEditingSet [self.keybindIndex]
+		keybind.key = bind
+		
+		new_keybind_frame.IsListening = false
+		new_keybind_frame:SetScript ("OnKeyDown", nil)
+		
+		enter_the_key:Hide()
+		new_keybind_frame.keybindScroll:UpdateScroll()
+		
+		DF:QuickDispatch (callback)
+	end
+	
+	local set_keybind_key = function (self, button, keybindIndex)
+		if (new_keybind_frame.IsListening) then
+			key = mouseKeys [button] or button
+			return registerKeybind (new_keybind_frame, key)
+		end
+		new_keybind_frame.IsListening = true
+		new_keybind_frame.keybindIndex = keybindIndex
+		new_keybind_frame:SetScript ("OnKeyDown", registerKeybind)
+		
+		enter_the_key:Show()
+		enter_the_key:SetPoint ("bottom", self, "top")
+	end
+	
+	local new_key_bind = function (self, button, specID)
+		tinsert (new_keybind_frame.CurrentKeybindEditingSet, {key = "-none-", action = "_target", actiontext = ""})
+		FauxScrollFrame_SetOffset (new_keybind_frame.keybindScroll, max (#new_keybind_frame.CurrentKeybindEditingSet-SCROLL_ROLL_AMOUNT, 0))
+		new_keybind_frame.keybindScroll:UpdateScroll()
+	end	
+	
+	local set_action_text = function (keybindIndex, _, text)
+		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
+		keybind.actiontext = text
+		DF:QuickDispatch (callback)
+	end
+	
+	local set_action_on_espace_press = function (textentry, capsule)
+		capsule = capsule or textentry.MyObject
+		local keybind = new_keybind_frame.CurrentKeybindEditingSet [capsule.CurIndex]
+		textentry:SetText (keybind.actiontext)
+		DF:QuickDispatch (callback)
+	end
+	
+	local lock_textentry = {
+		["_target"] = true,
+		["_taunt"] = true,
+		["_interrupt"] = true,
+		["_dispel"] = true,
+		["_spell"] = false,
+		["_macro"] = false,
+	}
+	
+	local change_key_action = function (self, keybindIndex, value)
+		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
+		keybind.action = value
+		new_keybind_frame.keybindScroll:UpdateScroll()
+		DF:QuickDispatch (callback)
+	end
+	local fill_action_dropdown = function()
+	
+		local locClass, class = UnitClass ("player")
+		
+		local taunt = ""
+		local interrupt = ""
+		local dispel = ""
+		
+		if (type (dispel) == "table") then
+			local dispelString = "\n"
+			for specID, spellid in pairs (dispel) do
+				local specid, specName = GetSpecializationInfoByID (specID)
+				local spellName = GetSpellInfo (spellid)
+				dispelString = dispelString .. "|cFFE5E5E5" .. specName .. "|r: |cFFFFFFFF" .. spellName .. "\n"
+			end
+			dispel = dispelString
+		else
+			dispel = ""
+		end
+		
+		return {
+			--{value = "_target", label = "Target", onclick = change_key_action, desc = "Target the unit"},
+			--{value = "_taunt", label = "Taunt", onclick = change_key_action, desc = "Cast the taunt spell for your class\n\n|cFFFFFFFFSpell: " .. taunt},
+			--{value = "_interrupt", label = "Interrupt", onclick = change_key_action, desc = "Cast the interrupt spell for your class\n\n|cFFFFFFFFSpell: " .. interrupt},
+			--{value = "_dispel", label = "Dispel", onclick = change_key_action, desc = "Cast the interrupt spell for your class\n\n|cFFFFFFFFSpell: " .. dispel},
+			{value = "_spell", label = "Cast Spell", onclick = change_key_action, desc = "Type the spell name in the text box"},
+			{value = "_macro", label = "Run Macro", onclick = change_key_action, desc = "Type your macro in the text box"},
+		}
+	end
+	
+	local copy_keybind = function (self, button, keybindIndex)
+		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
+		for specID, t in pairs (new_keybind_frame.Data) do
+			if (specID ~= new_keybind_frame.EditingSpec) then
+				local key = CopyTable (keybind)
+				local specid, specName = GetSpecializationInfoByID (specID)
+				tinsert (new_keybind_frame.Data [specID], key)
+				DF:Msg ("Keybind copied to " .. specName)
+			end
+		end
+		DF:QuickDispatch (callback)
+	end
+	
+	local delete_keybind = function (self, button, keybindIndex)
+		tremove (new_keybind_frame.CurrentKeybindEditingSet, keybindIndex)
+		new_keybind_frame.keybindScroll:UpdateScroll()
+		DF:QuickDispatch (callback)
+	end
+	
+	local newTitle = DF:CreateLabel (new_keybind_frame, "Create a new Keybind:", 12, "silver")
+	newTitle:SetPoint ("topleft", new_keybind_frame, "topleft", 200, mainStartY)
+	local createNewKeybind = DF:CreateButton (new_keybind_frame, new_key_bind, 160, 20, "New Key Bind", 1, _, _, "NewKeybindButton", _, 0, options_button_template, options_text_template)
+	createNewKeybind:SetPoint ("topleft", newTitle, "bottomleft", 0, -10)
+	--createNewKeybind:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]])
+
+	local update_keybind_list = function (self)
+		
+		local keybinds = new_keybind_frame.CurrentKeybindEditingSet
+		FauxScrollFrame_Update (self, #keybinds, SCROLL_ROLL_AMOUNT, 21)
+		local offset = FauxScrollFrame_GetOffset (self)
+		
+		for i = 1, SCROLL_ROLL_AMOUNT do
+			local index = i + offset
+			local f = self.Frames [i]
+			local data = keybinds [index]
+
+			if (data) then
+				--index
+				f.Index.text = index
+				--keybind
+				local keyBindText = keysToMouse [data.key] or data.key
+				
+				keyBindText = keyBindText:gsub ("type1", "LeftButton")
+				keyBindText = keyBindText:gsub ("type2", "RightButton")
+				keyBindText = keyBindText:gsub ("type3", "MiddleButton")
+				
+				f.KeyBind.text = keyBindText
+				f.KeyBind:SetClickFunction (set_keybind_key, index, nil, "left")
+				f.KeyBind:SetClickFunction (set_keybind_key, index, nil, "right")
+				--action
+				f.ActionDrop:SetFixedParameter (index)
+				f.ActionDrop:Select (data.action)
+				--action text
+				f.ActionText.text = data.actiontext
+				f.ActionText:SetEnterFunction (set_action_text, index)
+				f.ActionText.CurIndex = index
+				
+				if (lock_textentry [data.action]) then
+					f.ActionText:Disable()
+				else
+					f.ActionText:Enable()
+				end
+				
+				--copy
+				f.Copy:SetClickFunction (copy_keybind, index)
+				--delete
+				f.Delete:SetClickFunction (delete_keybind, index)
+				
+				f:Show()
+			else
+				f:Hide()
+			end
+		end
+		
+		self:Show()
+	end
+	
+
+	
+	keybindScroll:SetScript ("OnVerticalScroll", function (self, offset)
+		FauxScrollFrame_OnVerticalScroll (self, offset, 21, update_keybind_list)
+	end)
+	keybindScroll.UpdateScroll = update_keybind_list
+	
+	local backdropColor = {.3, .3, .3, .3}
+	local backdropColorOnEnter = {.6, .6, .6, .6}
+	local on_enter = function (self)
+		self:SetBackdropColor (unpack (backdropColorOnEnter))
+	end
+	local on_leave = function (self)
+		self:SetBackdropColor (unpack (backdropColor))
+	end
+	
+	local font = "GameFontHighlightSmall"
+	
+	for i = 1, SCROLL_ROLL_AMOUNT do
+		local f = CreateFrame ("frame", "$KeyBindFrame" .. i, keybindScroll)
+		f:SetSize (1009, 20)
+		f:SetPoint ("topleft", keybindScroll, "topleft", 0, -(i-1)*29)
+		f:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f:SetBackdropColor (unpack (backdropColor))
+		f:SetScript ("OnEnter", on_enter)
+		f:SetScript ("OnLeave", on_leave)
+		tinsert (keybindScroll.Frames, f)
+		
+		f.Index = DF:CreateLabel (f, "1")
+		f.KeyBind = DF:CreateButton (f, set_key_bind, 100, 20, "", _, _, _, "SetNewKeybindButton", _, 0, options_button_template, options_text_template)
+		f.ActionDrop = DF:CreateDropDown (f, fill_action_dropdown, 0, 120, 20, "ActionDropdown", _, options_dropdown_template)
+		f.ActionText = DF:CreateTextEntry (f, function()end, 660, 20, "TextBox", _, _, options_dropdown_template)
+		f.Copy = DF:CreateButton (f, copy_keybind, 20, 20, "", _, _, _, "CopyKeybindButton", _, 0, options_button_template, options_text_template)
+		f.Delete = DF:CreateButton (f, delete_keybind, 16, 20, "", _, _, _, "DeleteKeybindButton", _, 2, options_button_template, options_text_template)
+		
+		f.Index:SetPoint ("left", f, "left", 10, 0)
+		f.KeyBind:SetPoint ("left", f, "left", 43, 0)
+		f.ActionDrop:SetPoint ("left", f, "left", 150, 0)
+		f.ActionText:SetPoint ("left", f, "left", 276, 0)
+		f.Copy:SetPoint ("left", f, "left", 950, 0)
+		f.Delete:SetPoint ("left", f, "left", 990, 0)
+		
+		f.Copy:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]], nil, nil, nil, nil, nil, nil, 4)
+		f.Delete:SetIcon ([[Interface\Buttons\UI-StopButton]], nil, nil, nil, nil, nil, nil, 4)
+		
+		f.Copy.tooltip = "copy this keybind to other specs"
+		f.Delete.tooltip = "erase this keybind"
+		
+		--editbox
+		f.ActionText:SetJustifyH ("left")
+		f.ActionText:SetHook ("OnEscapePressed", set_action_on_espace_press)
+		f.ActionText:SetHook ("OnEditFocusGained", function()
+			local playerSpells = {}
+			local tab, tabTex, offset, numSpells = GetSpellTabInfo (2)
+			for i = 1, numSpells do
+				local index = offset + i
+				local spellType, spellId = GetSpellBookItemInfo (index, "player")
+				if (spellType == "SPELL") then
+					local spellName = GetSpellInfo (spellId)
+					tinsert (playerSpells, spellName)
+				end
+			end
+			f.ActionText.WordList = playerSpells
+		end)
+		
+		f.ActionText:SetAsAutoComplete ("WordList")
+	end
+	
+	local header = CreateFrame ("frame", "$parentOptionsPanelFrameHeader", keybindScroll)
+	header:SetPoint ("bottomleft", keybindScroll, "topleft", 0, 2)
+	header:SetPoint ("bottomright", keybindScroll, "topright", 0, 2)
+	header:SetHeight (16)
+	
+	header.Index = DF:CreateLabel  (header, "Index", DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	header.Key = DF:CreateLabel  (header, "Key", DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	header.Action = DF:CreateLabel  (header, "Action", DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	header.Macro = DF:CreateLabel  (header, "Spell Name / Macro", DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	header.Copy = DF:CreateLabel  (header, "Copy", DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	header.Delete = DF:CreateLabel  (header, "Delete", DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	
+	header.Index:SetPoint ("left", header, "left", 10, 0)
+	header.Key:SetPoint ("left", header, "left", 43, 0)
+	header.Action:SetPoint ("left", header, "left", 150, 0)
+	header.Macro:SetPoint ("left", header, "left", 276, 0)
+	header.Copy:SetPoint ("left", header, "left", 950, 0)
+	header.Delete:SetPoint ("left", header, "left", 990, 0)
+
+	new_keybind_frame:SetScript ("OnShow", function()
+		
+		--new_keybind_frame.EditingSpec = EnemyGrid.CurrentSpec
+		--new_keybind_frame.CurrentKeybindEditingSet = EnemyGrid.CurrentKeybindSet
+		
+		for _, button in ipairs (allSpecButtons) do
+			if (new_keybind_frame.EditingSpec ~= button.specID) then
+				button.selectedTexture:Hide()
+			else
+				button.selectedTexture:Show()
+			end
+		end
+		
+		keybindScroll:UpdateScroll()
+	end)
+	
+	new_keybind_frame:SetScript ("OnHide", function()
+		if (new_keybind_frame.IsListening) then
+			new_keybind_frame.IsListening = false
+			new_keybind_frame:SetScript ("OnKeyDown", nil)
+		end
+	end)
+
+	return new_keybind_frame
+end
+
+function DF:BuildKeybindFunctions (data, prefix)
+
+	--~keybind
+	local classLoc, class = UnitClass ("player")
+	local bindingList = data
+	
+	local bindString = "self:ClearBindings();"
+	local bindKeyBindTypeFunc = [[local unitFrame = ...;]]
+	local bindMacroTextFunc = [[local unitFrame = ...;]]
+	local isMouseBinding
+	
+	for i = 1, #bindingList do
+		local bind = bindingList [i]
+		local bindType
+		
+		--which button to press
+		if (bind.key:find ("type")) then
+			local keyNumber = tonumber (bind.key:match ("%d"))
+			bindType = keyNumber
+			isMouseBinding = true
+		else
+			bindType = prefix .. "" .. i
+			bindString = bindString .. "self:SetBindingClick (0, '" .. bind.key .. "', self:GetName(), '" .. bindType .. "');"
+			bindType = "-" .. prefix .. "" .. i
+			isMouseBinding = nil
+		end
+		
+		--keybind type
+		local shift, alt, ctrl = bind.key:match ("SHIFT"), bind.key:match ("ALT"), bind.key:match ("CTRL")
+		local CommandKeys = alt and alt .. "-" or ""
+		CommandKeys = ctrl and CommandKeys .. ctrl .. "-" or CommandKeys
+		CommandKeys = shift and CommandKeys .. shift .. "-" or CommandKeys
+		
+		local keyBindType
+		if (isMouseBinding) then
+			keyBindType = [[unitFrame:SetAttribute ("@COMMANDtype@BINDTYPE", "macro");]]
+		else
+			keyBindType = [[unitFrame:SetAttribute ("type@BINDTYPE", "macro");]]
+		end
+		
+		keyBindType = keyBindType:gsub ("@BINDTYPE", bindType)
+		keyBindType = keyBindType:gsub ("@COMMAND", CommandKeys)
+		bindKeyBindTypeFunc = bindKeyBindTypeFunc .. keyBindType
+		
+		--spell or macro
+		if (bind.action == "_spell") then
+			local macroTextLine
+			if (isMouseBinding) then
+				macroTextLine = [[unitFrame:SetAttribute ("@COMMANDmacrotext@BINDTYPE", "/cast [@mouseover] @SPELL");]]
+			else
+				macroTextLine = [[unitFrame:SetAttribute ("macrotext@BINDTYPE", "/cast [@mouseover] @SPELL");]]
+			end
+			macroTextLine = macroTextLine:gsub ("@BINDTYPE", bindType)
+			macroTextLine = macroTextLine:gsub ("@SPELL", bind.actiontext)
+			macroTextLine = macroTextLine:gsub ("@COMMAND", CommandKeys)
+			bindMacroTextFunc = bindMacroTextFunc .. macroTextLine
+			
+		elseif (bind.action == "_macro") then
+			local macroTextLine
+			if (isMouseBinding) then
+				macroTextLine = [[unitFrame:SetAttribute ("@COMMANDmacrotext@BINDTYPE", "@MACRO");]]
+			else
+				macroTextLine = [[unitFrame:SetAttribute ("macrotext@BINDTYPE", "@MACRO");]]
+			end
+			macroTextLine = macroTextLine:gsub ("@BINDTYPE", bindType)
+			macroTextLine = macroTextLine:gsub ("@MACRO", bind.actiontext)
+			macroTextLine = macroTextLine:gsub ("@COMMAND", CommandKeys)
+			bindMacroTextFunc = bindMacroTextFunc .. macroTextLine
+			
+		end
+	end
+	
+	--~key
+	local bindTypeFuncLoaded = loadstring (bindKeyBindTypeFunc)
+	local bindMacroFuncLoaded = loadstring (bindMacroTextFunc)
+	
+	if (not bindMacroFuncLoaded or not bindTypeFuncLoaded) then
+		return
+	end
+	
+	return bindString, bindTypeFuncLoaded, bindMacroFuncLoaded
+end
+
+
+function DF:SetKeybindsOnProtectedFrame (frame, bind_string, bind_type_func, bind_macro_func)
+	
+	bind_type_func (frame)
+	bind_macro_func (frame)
+	frame:SetAttribute ("_onenter", bind_string)
+	
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~standard backdrop
+
+function DF:ApplyStandardBackdrop (f, darkTheme, alphaScale)
+	alphaScale = alphaScale or 1.0
+
+	if (darkTheme) then
+		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Cooldown\cooldown2]], tileSize = 32, tile = true})
+		f:SetBackdropBorderColor (0, 0, 0, 1)
+		f:SetBackdropColor (.54, .54, .54, .54 * alphaScale)
+	else
+		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f:SetBackdropBorderColor (0, 0, 0, 1)
+		f:SetBackdropColor (0, 0, 0, 0.2 * alphaScale)
+	end
+	
+	if (not f.__background) then
+		f.__background = f:CreateTexture (nil, "background")
+	end
+	
+	f.__background:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
+	f.__background:SetVertexColor (0.27, 0.27, 0.27)
+	f.__background:SetAlpha (0.8 * alphaScale)
+	f.__background:SetVertTile (true)
+	f.__background:SetHorizTile (true)
+	f.__background:SetAllPoints()
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~title bar
+
+DF.TitleFunctions = {
+
+	SetTitle = function (self, titleText, titleColor, font, size)
+		self.TitleLabel:SetText (titleText or self.TitleLabel:GetText())
+		
+		if (titleColor) then
+			local r, g, b, a = DF:ParseColors (titleColor)
+			self.TitleLabel:SetTextColor (r, g, b, a)
+		end
+		
+		if (font) then
+			DF:SetFontFace (self.TitleLabel, font)
+		end
+		
+		if (size) then
+			DF:SetFontSize (self.TitleLabel, size)
+		end
+	end
+	
+	
+}
+
+function DF:CreateTitleBar (f, titleText)
+
+	local titleBar = CreateFrame ("frame", f:GetName() and f:GetName() .. "TitleBar" or nil, f)
+	titleBar:SetPoint ("topleft", f, "topleft", 2, -3)
+	titleBar:SetPoint ("topright", f, "topright", -2, -3)
+	titleBar:SetHeight (20)
+	titleBar:SetBackdrop (SimplePanel_frame_backdrop) --it's an upload from this file
+	titleBar:SetBackdropColor (.2, .2, .2, 1)
+	titleBar:SetBackdropBorderColor (0, 0, 0, 1)
+	
+	local closeButton = CreateFrame ("button", titleBar:GetName() and titleBar:GetName() .. "CloseButton" or nil, titleBar)
+	closeButton:SetSize (16, 16)
+	closeButton:SetNormalTexture (DF.folder .. "icons")
+	closeButton:SetHighlightTexture (DF.folder .. "icons")
+	closeButton:SetPushedTexture (DF.folder .. "icons")
+	closeButton:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
+	closeButton:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
+	closeButton:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+	closeButton:SetAlpha (0.7)
+	closeButton:SetScript ("OnClick", simple_panel_close_click) --upvalue from this file
+	
+	local titleLabel = titleBar:CreateFontString (titleBar:GetName() and titleBar:GetName() .. "TitleText" or nil, "overlay", "GameFontNormal")
+	titleLabel:SetTextColor (.8, .8, .8, 1)
+	titleLabel:SetText (titleText or "")
+	
+	--anchors
+	closeButton:SetPoint ("right", titleBar, "right", -2, 0)
+	titleLabel:SetPoint ("center", titleBar, "center")
+	
+	--members
+	f.TitleBar = titleBar
+	f.CloseButton = closeButton
+	f.TitleLabel = titleLabel
+	
+	DF:Mixin (f, DF.TitleFunctions)
+	
+	return titleBar
+end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~icon row
+
+DF.IconRowFunctions = {
+	
+	GetIcon = function (self)
+		local iconFrame = self.IconPool [self.NextIcon]
+		
+		if (not iconFrame) then
+			local newIconFrame = CreateFrame ("cooldown", "$parentIconCooldown" .. self.NextIcon, self, "CooldownFrameTemplate")
+			newIconFrame:SetSize (self.options.icon_width, self.options.icon_height)
+			
+			newIconFrame.Texture = newIconFrame:CreateTexture (nil, "background")
+			newIconFrame.Texture:SetAllPoints()
+			
+			newIconFrame.Text = newIconFrame:CreateFontString (nil, "overlay", "GameFontNormal")
+			newIconFrame.Text:SetPoint ("center")
+			newIconFrame.Text:Hide()
+			
+			newIconFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+			newIconFrame:SetBackdropBorderColor (0, 0, 0, 0)
+			newIconFrame:EnableMouse (false)
+			
+			self.IconPool [self.NextIcon] = newIconFrame
+			iconFrame = newIconFrame
+		end
+		
+		iconFrame:ClearAllPoints()
+		
+		local anchor = self.options.anchor
+		local anchorTo = self.NextIcon == 1 and self or self.IconPool [self.NextIcon - 1]
+		local xPadding = self.NextIcon == 1 and self.options.left_padding or self.options.icon_padding
+		local growDirection = self.options.grow_direction
+
+		if (growDirection == 1) then --grow to right
+			if (self.NextIcon == 1) then
+				iconFrame:SetPoint ("left", anchorTo, "left", xPadding, 0)
+			else
+				iconFrame:SetPoint ("left", anchorTo, "right", xPadding, 0)
+			end
+			
+		elseif (growDirection == 2) then --grow to left
+			if (self.NextIcon == 1) then
+				iconFrame:SetPoint ("right", anchorTo, "right", xPadding, 0)
+			else
+				iconFrame:SetPoint ("right", anchorTo, "left", xPadding, 0)
+			end
+			
+		end
+		
+		DF:SetFontColor (iconFrame.Text, self.options.text_color)
+		
+		self.NextIcon = self.NextIcon + 1
+		return iconFrame
+	end,
+	
+	SetIcon = function (self, spellId, borderColor, startTime, duration)
+		local spellName, _, spellIcon = GetSpellInfo (spellId)
+		
+		if (spellIcon) then
+			local iconFrame = self:GetIcon()
+			iconFrame.Texture:SetTexture (spellIcon)
+			iconFrame.Texture:SetTexCoord (unpack (self.options.texcoord))
+			
+			if (borderColor) then
+				iconFrame:SetBackdropBorderColor (Plater:ParseColors (borderColor))
+			else
+				iconFrame:SetBackdropBorderColor (0, 0, 0 ,0)
+			end			
+
+			if (startTime) then
+				CooldownFrame_Set (iconFrame, startTime, duration, true, true)
+				
+				if (self.options.show_text) then
+					iconFrame.Text:Show()
+					iconFrame.Text:SetText (floor (startTime + duration - GetTime()))
+				else
+					iconFrame.Text:Hide()
+				end
+			else
+				iconFrame.Text:Hide()
+			end
+
+			iconFrame:Show()
+			
+			--> update the size of the frame
+			self:SetWidth ((self.options.left_padding * 2) + (self.options.icon_padding * (self.NextIcon-2)) + (self.options.icon_width * (self.NextIcon - 1)))
+
+			--> show the frame
+			self:Show()
+			
+			return iconFrame
+		end
+	end,
+	
+	ClearIcons = function (self)
+		for i = 1, self.NextIcon -1 do
+			self.IconPool [i]:Hide()
+		end
+		self.NextIcon = 1
+		self:Hide()
+	end,
+	
+	GetIconGrowDirection = function (self)
+		local side = self.options.anchor.side
+		
+		if (side == 1) then
+			return 1
+		elseif (side == 2) then
+			return 2
+		elseif (side == 3) then
+			return 1		
+		elseif (side == 4) then
+			return 1
+		elseif (side == 5) then
+			return 2
+		elseif (side == 6) then
+			return 1
+		elseif (side == 7) then
+			return 2
+		elseif (side == 8) then
+			return 1
+		elseif (side == 9) then
+			return 1
+		elseif (side == 10) then
+			return 1
+		elseif (side == 11) then
+			return 2
+		elseif (side == 12) then
+			return 1
+		elseif (side == 13) then
+			return 1
+		end
+	end
+}
+
+local default_icon_row_options = {
+	icon_width = 20, 
+	icon_height = 20, 
+	texcoord = {.1, .9, .1, .9},
+	show_text = true,
+	text_color = {1, 1, 1, 1},
+	left_padding = 2, --distance between right and left
+	top_padding = 2, --distance between top and bottom 
+	icon_padding = 2, --distance between each icon
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	backdrop_color = {0, 0, 0, 0.5},
+	backdrop_border_color = {0, 0, 0, 1},
+	anchor = {side = 6, x = 2, y = 0},
+	grow_direction = 1, --1 = to right 2 = to left
+}
+
+function DF:CreateIconRow (parent, name, options)
+	local f = CreateFrame ("frame", name, parent)
+	f.IconPool = {}
+	f.NextIcon = 1
+	
+	DF:Mixin (f, DF.IconRowFunctions)
+	DF:Mixin (f, DF.OptionsFunctions)
+	
+	f:BuildOptionsTable (default_icon_row_options, options)
+	
+	f:SetSize (f.options.icon_width, f.options.icon_height + (f.options.top_padding * 2))
+	f:SetBackdrop (f.options.backdrop)
+	f:SetBackdropColor (unpack (f.options.backdrop_color))
+	f:SetBackdropBorderColor (unpack (f.options.backdrop_border_color))
+	
+	return f
 end

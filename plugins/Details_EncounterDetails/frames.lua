@@ -1196,6 +1196,10 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			button:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 		end
 		
+		if (not BossFrame:IsShown()) then
+			Details:OpenPlugin ("DETAILS_PLUGIN_ENCOUNTER_DETAILS")
+		end
+		
 		BossFrame.DBMBars:Hide()
 		BossFrame.BigWigsBars:Hide()
 		BossFrame.label_dbm_bars:Hide()
@@ -2027,10 +2031,11 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	npc_id2:Hide()
 	
 	--
-	local label_dbm_bars = DetailsFrameWork:CreateLabel (BossFrame, "DBM Bars:", 11, nil, "GameFontHighlightSmall")
-	label_dbm_bars:SetPoint ("topleft", BossFrame, "topleft", 10, -160)
-	local label_bw_bars = DetailsFrameWork:CreateLabel (BossFrame, "Big Wigs Bars:", 11, nil, "GameFontHighlightSmall")
-	label_bw_bars:SetPoint ("topleft", BossFrame, "topleft", 10, -205)
+	local label_dbm_bars = DetailsFrameWork:CreateLabel (BossFrame, "Create Big Timer Announcer (DBM):", 11, nil, "GameFontHighlightSmall")
+	label_dbm_bars:SetPoint ("topleft", BossFrame, "topleft", 10, -200)
+	
+	local label_bw_bars = DetailsFrameWork:CreateLabel (BossFrame, "Create Big Timer Announcer (BW):", 11, nil, "GameFontHighlightSmall")
+	label_bw_bars:SetPoint ("topleft", BossFrame, "topleft", 10, -250)
 	
 	BossFrame.label_dbm_bars = label_dbm_bars
 	BossFrame.label_bw_bars = label_bw_bars
@@ -2112,9 +2117,15 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 
 	local dropdown_dbm_bars = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentDBMBarsDropdown", "DBMBars", 160, 20, build_dbm_bars, 1)
 	dropdown_dbm_bars:SetPoint ("topleft", label_dbm_bars, "bottomleft", -1, -2)
+	dropdown_dbm_bars:SetTemplate (DetailsFrameWork:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+	dropdown_dbm_bars:SetWidth (200)
+	dropdown_dbm_bars.tooltip = "Create a weakaura to show a big countdown when a boss ability is coming"
 	
 	local dropdown_bw_bars = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentBigWigsBarsDropdown", "BigWigsBars", 160, 20, build_bigwigs_bars, 1)
 	dropdown_bw_bars:SetPoint ("topleft", label_bw_bars, "bottomleft", -1, -2)
+	dropdown_bw_bars:SetTemplate (DetailsFrameWork:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+	dropdown_bw_bars:SetWidth (200)
+	dropdown_bw_bars.tooltip = "Create a weakaura to show a big countdown when a boss ability is coming"
 	
 	dropdown_dbm_bars:Hide()
 	dropdown_bw_bars:Hide()

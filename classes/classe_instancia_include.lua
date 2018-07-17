@@ -131,6 +131,9 @@ _detalhes.instance_defaults = {
 		bars_sort_direction = 1,
 	--left to right or right to left bars
 		bars_inverted = false,
+	--toolbar icons file
+		--toolbar_icon_file = [[Interface\AddOns\Details\images\toolbar_icons_grayscale]],
+		toolbar_icon_file = [[Interface\AddOns\Details\images\toolbar_icons]],
 	--menus:
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1}, --mode segment attribute report on top position

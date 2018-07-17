@@ -10,7 +10,7 @@ function _detalhes:PlayGlow (frame)
 	frame.shine:Show()
 	frame.shine.animIn:Play()
 	
-	PlaySound ("LFG_Rewards", "master")
+	--PlaySound ("LFG_Rewards", "master")
 end
 
 --> WatchFrame copy, got removed on WoD

@@ -686,8 +686,9 @@ local menus2 = {
 	}
 	window.is_window_settings = is_window_settings
 	
+		--~new
 		local newIcon = g:CreateImage (window, [[Interface\AddOns\Details\images\icons2]], 62*0.6, 40*0.6, "overlay", {443/512, 505/512, 306/512, 346/512})
-		newIcon:SetPoint ("topleft", window.widget, "topleft", 135, -351)
+		--newIcon:SetPoint ("topleft", window.widget, "topleft", 135, -351)
 	
 		local select_options = function (options_type, true_index)
 			
@@ -1612,7 +1613,7 @@ function window:CreateFrame20()
 			window:CreateLineBackground2 (frame20, "TooltipTextColorPickAnchor", "TooltipTextColorAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"])
 		
 		-- text size
-		g:NewLabel (frame20, _, "$parentTooltipTextSizeLabel", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE"], "GameFontHighlightLeft")
+		g:NewLabel (frame20, _, "$parentTooltipTextSizeLabel", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, tonumber (_detalhes.tooltip.fontsize), nil, nil, nil, options_slider_template)
 		--config_slider (s)
 	
@@ -1641,7 +1642,7 @@ function window:CreateFrame20()
 			return fonts 
 		end
 
-		g:NewLabel (frame20, _, "$parentTooltipFontLabel", "TooltipFontLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTFACE"] , "GameFontHighlightLeft")
+		g:NewLabel (frame20, _, "$parentTooltipFontLabel", "TooltipFontLabel", Loc ["STRING_OPTIONS_TEXT_FONT"] , "GameFontHighlightLeft")
 		local d = g:NewDropDown (frame20, _, "$parentTooltipFontDropdown", "TooltipFontDropdown", DROPDOWN_WIDTH, dropdown_height, build_tooltip_menu, _detalhes.tooltip.fontface, options_dropdown_template)
 		
 		frame20.TooltipFontDropdown:SetPoint ("left", frame20.TooltipFontLabel, "right", 2)
@@ -3894,7 +3895,7 @@ function window:CreateFrame14()
 			return fonts 
 		end
 
-		g:NewLabel (frame14, _, "$parentAttributeFontLabel", "attributeFontLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_FONT"], "GameFontHighlightLeft")
+		g:NewLabel (frame14, _, "$parentAttributeFontLabel", "attributeFontLabel", Loc ["STRING_OPTIONS_TEXT_FONT"], "GameFontHighlightLeft")
 		local d = g:NewDropDown (frame14, _, "$parentAttributeFontDropdown", "attributeFontDropdown", DROPDOWN_WIDTH, dropdown_height, build_font_menu, instance.attribute_text.text_face, options_dropdown_template)
 		
 		frame14.attributeFontDropdown:SetPoint ("left", frame14.attributeFontLabel, "right", 2)
@@ -3902,7 +3903,7 @@ function window:CreateFrame14()
 		window:CreateLineBackground2 (frame14, "attributeFontDropdown", "attributeFontLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_FONT_DESC"])
 		
 	--size
-		g:NewLabel (frame14, _, "$parentAttributeTextSizeLabel", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE"], "GameFontHighlightLeft")
+		g:NewLabel (frame14, _, "$parentAttributeTextSizeLabel", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, tonumber ( instance.attribute_text.text_size), nil, nil, nil, options_slider_template)
 		--config_slider (s)
 	
@@ -4437,7 +4438,7 @@ function window:CreateFrame1()
 				_detalhes.gump:ColorPick (_G.DetailsOptionsWindow1SetWindowColorButton, r, g, b, a, windowcolor_callback)
 			end
 		
-			g:NewButton (frame1, _, "$parentSetWindowColorButton", "SetWindowColorButton", window.buttons_width, window.buttons_height, change_color, nil, nil, nil, "Change Color", 1, options_button_template)
+			g:NewButton (frame1, _, "$parentSetWindowColorButton", "SetWindowColorButton", window.buttons_width, window.buttons_height, change_color, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGECOLOR"], 1, options_button_template)
 			--frame1.SetWindowColorButton:InstallCustomTexture (nil, nil, nil, nil, nil, true)
 			
 			window:CreateLineBackground2 (frame1, "SetWindowColorButton", "SetWindowColorButton", "Shortcut to modify the window color.\nFor more options check out |cFFFFFF00Window Settings|r section.", nil, {1, 0.8, 0}, button_color_rgb)
@@ -6548,6 +6549,26 @@ function window:CreateFrame4()
 		titulo_bars_desc:SetPoint (x, window.title_y_pos2)
 
 		local left_side = {
+			--basic
+			{frame4.RowGeneralAnchorLabel, 1, true},
+			
+			{frame4.rowHeightLabel, 1},
+			{frame4.BarSpacementLabel, 1},
+			{"DisableBarHighlightLabel", 1},
+			
+			{"GrowLabel", 2, true},
+			{"OrientationLabel", 2},
+			{"SortLabel", 2},
+
+			--backdrop
+			{frame4.BackdropAnchorLabel, 3, true},
+			{frame4.BackdropColorLabel, 3},
+			{frame4.BackdropEnabledLabel, 3},
+			{frame4.BackdropSizeLabel, 3},
+			{frame4.BackdropBorderTextureLabel, 3},
+		}
+		
+		local right_side = {
 			--textures
 			{frame4.rowUpperTextureLabel, 1, true},
 			{frame4.textureLabel, 2},
@@ -6566,23 +6587,6 @@ function window:CreateFrame4()
 			{frame4.barStartLabel, 13},			
 		}
 		
-		local right_side = {
-			--basic
-			{frame4.RowGeneralAnchorLabel, 1, true},
-			{"GrowLabel", 2},
-			{"OrientationLabel", 3},
-			{"SortLabel", 4},
-			{frame4.rowHeightLabel, 5, true},
-			{frame4.BarSpacementLabel, 6},
-			{"DisableBarHighlightLabel", 7},
-			--backdrop
-			{frame4.BackdropAnchorLabel, 8, true},
-			{frame4.BackdropColorLabel, 9},
-			{frame4.BackdropEnabledLabel, 10},
-			{frame4.BackdropSizeLabel, 11},
-			{frame4.BackdropBorderTextureLabel, 12},
-		}
-
 		window:arrange_menu (frame4, left_side, x, window.top_start_at)
 		window:arrange_menu (frame4, right_side, 360, window.top_start_at)
 
@@ -6590,7 +6594,7 @@ end
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Appearance - Texts 6
+-- Appearance - Texts ~5
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function window:CreateFrame5()
 
@@ -6752,9 +6756,7 @@ function window:CreateFrame5()
 		frame5.textLeftOutlineSmallSlider:SetAsCheckBox()
 		frame5.textLeftOutlineSmallSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-			--(13, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right)
-			--14 15 16 17
-			
+	
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
@@ -7205,7 +7207,6 @@ function window:CreateFrame5()
 		window:CreateLineBackground2 (frame5, "RightTextShowPSSlider", "RightTextShowPSLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PS_DESC"])
 		
 		-- percent
-
 		g:NewSwitch (frame5, _, "$parentRightTextShowPercentSlider", "RightTextShowPercentSlider", 60, 20, _, _, instance.row_info.textR_show_data [3], nil, nil, nil, nil, options_switch_template)
 		g:NewLabel (frame5, _, "$parentRightTextShowPercentLabel", "RightTextShowPercentLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT"], "GameFontHighlightLeft")
 		
@@ -7241,7 +7242,7 @@ function window:CreateFrame5()
 			
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
-
+		
 		local BracketTable = {
 			{value = "(", label = "(", onclick = onSelectBracket, icon = ""},
 			{value = "{", label = "{", onclick = onSelectBracket, icon = ""},
@@ -7254,7 +7255,6 @@ function window:CreateFrame5()
 		end
 		
 		local d = g:NewDropDown (frame5, _, "$parentBracketDropdown", "BracketDropdown", 60, dropdown_height, buildBracketMenu, nil, options_dropdown_template)
-
 		
 		g:NewLabel (frame5, _, "$parentBracketLabel", "BracketLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET"], "GameFontHighlightLeft")
 		frame5.BracketDropdown:SetPoint ("left", frame5.BracketLabel, "right", 2)
@@ -7292,15 +7292,15 @@ function window:CreateFrame5()
 		end
 		
 		local d = g:NewDropDown (frame5, _, "$parentSeparatorDropdown", "SeparatorDropdown", 60, dropdown_height, buildSeparatorMenu, nil, options_dropdown_template)
-
+		
 		
 		g:NewLabel (frame5, _, "$parentSeparatorLabel", "SeparatorLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR"], "GameFontHighlightLeft")
 		frame5.SeparatorDropdown:SetPoint ("left", frame5.SeparatorLabel, "right", 2)
-
+		
 		window:CreateLineBackground2 (frame5, "SeparatorDropdown", "SeparatorLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR_DESC"])
 		
 	--> anchors
-	
+		
 		--general anchor
 		g:NewLabel (frame5, _, "$parentRowTextGeneralAnchor", "RowGeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
 		
@@ -7315,6 +7315,12 @@ function window:CreateFrame5()
 		titulo_texts_desc:SetPoint (x, window.title_y_pos2)
 
 		local left_side = {
+			{"RowGeneralAnchorLabel", 7, true},
+			{frame5.fonsizeLabel, 8}, --text size
+			{frame5.fontLabel, 9},--text fontface
+			{frame5.fixedTextColorLabel, 10},
+			{frame5.percentLabel, 11, true},
+			
 			{"LeftTextAnchorLabel", 1, true},
 			{"textLeftOutlineLabel", 2},
 			{"textLeftOutlineSmallLabel", 2},
@@ -7323,12 +7329,6 @@ function window:CreateFrame5()
 			{"PositionNumberLabel", 4},
 			{"cutomLeftTextLabel", 5, true},
 			{"cutomLeftTextEntryLabel", 6},
-			
-			{"RowGeneralAnchorLabel", 7, true},
-			{frame5.fonsizeLabel, 8}, --text size
-			{frame5.fontLabel, 9},--text fontface
-			{frame5.fixedTextColorLabel, 10},
-			{frame5.percentLabel, 11, true},
 		}
 		
 		window:arrange_menu (frame5, left_side, x, window.top_start_at)
@@ -8606,7 +8606,7 @@ function window:CreateFrame7()
 		window:CreateLineBackground2 (frame7, "fontDropdown", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE_DESC"])	
 		
 		--> menu text size
-		g:NewLabel (frame7, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE"], "GameFontHighlightLeft")
+		g:NewLabel (frame7, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame7, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, _detalhes.font_sizes.menus, nil, nil, nil, options_slider_template)
 	
 		frame7.MenuTextSizeSlider:SetPoint ("left", frame7.MenuTextSizeLabel, "right", 2)
@@ -11209,8 +11209,32 @@ function window:CreateFrame12()
 end
 	
 	--> create the frames
-	if (UnitAffectingCombat ("player")) then
+	if (InCombatLockdown()) then
 
+		window.IsLoading = true
+
+		if (not _detalhes.LoadingOptionsPanelFrame) then
+			_detalhes.LoadingOptionsPanelFrame = CreateFrame ("frame", "LoadingOptionsPanelFrame", UIParent)
+			_detalhes.LoadingOptionsPanelFrame:SetSize (390, 75)
+			_detalhes.LoadingOptionsPanelFrame:SetPoint ("center")
+			_detalhes.LoadingOptionsPanelFrame:SetFrameStrata ("TOOLTIP")
+			_detalhes.gump:ApplyStandardBackdrop (_detalhes.LoadingOptionsPanelFrame)
+			_detalhes.LoadingOptionsPanelFrame:SetBackdropBorderColor (1, 0.8, 0.1)
+			
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingLabel1 = _detalhes.gump:CreateLabel (_detalhes.LoadingOptionsPanelFrame, "Details! is Safe Loading the Options Panel During Combat")
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingLabel2 = _detalhes.gump:CreateLabel (_detalhes.LoadingOptionsPanelFrame, "This may take only a few seconds")
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingImage1 = _detalhes.gump:CreateImage (_detalhes.LoadingOptionsPanelFrame, [[Interface\DialogFrame\UI-Dialog-Icon-AlertOther]], 32, 32)
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingLabel1.align = "center"
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingLabel2.align = "center"
+			
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingLabel1:SetPoint ("center", 16, 10)
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingLabel2:SetPoint ("center", 16, -5)
+			_detalhes.LoadingOptionsPanelFrame.IsLoadingImage1:SetPoint ("left", 10, 0)
+			
+			_detalhes.LoadingOptionsPanelFrame.ProgressBar = _detalhes.gump:CreateBar (_detalhes.LoadingOptionsPanelFrame, "Details Serenity", 300, 20, 0)
+			_detalhes.LoadingOptionsPanelFrame.ProgressBar:SetPoint ("center", 0, -25)
+		end
+	
 		local panel_index = 1
 		local percent_string = g:NewLabel (window, nil, nil, "percent_string", "loading: 0%", "GameFontNormal", 12)
 		percent_string.textcolor = "white"
@@ -11232,10 +11256,14 @@ end
 				last_pressed = first_button
 				first_button.widget.text:SetPoint ("left", first_button.widget, "left", 3, -1)
 				first_button.textcolor = selected_textcolor
-
+				
+				_detalhes.LoadingOptionsPanelFrame:Hide()
+				window.IsLoading = false
+			else
+				percent_string.text = "wait... " .. math.floor (step * panel_index) .. "%"
+				_detalhes.LoadingOptionsPanelFrame.ProgressBar.value = (step * panel_index)
 			end
-			
-			percent_string.text = "wait... " .. math.floor (step * panel_index) .. "%"
+
 			panel_index = panel_index + 1
 			
 		end
@@ -12099,7 +12127,12 @@ end --> if not window
 	window:Show()
 	
 	function DetailsOptionsWindow.OpenInPluginPanel()
-		for i = 1, #window.options do
+		if (not window.options) then
+			--might be loading in combat
+			return
+		end
+		
+		for i = 1, #window.options do	
 			local frame = window.options [i][1]
 			if (frame) then
 				frame:EnableMouse (false)

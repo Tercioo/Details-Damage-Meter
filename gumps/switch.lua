@@ -438,19 +438,23 @@ do
 		all_switch.cursor_x, all_switch.cursor_y = floor (cursor_x), floor (cursor_y)
 		all_switch:SetScript ("OnUpdate", on_update_all_switch)
 		
+		--[=[
 		all_switch.wallpaper:SetTexture (_detalhes.tooltip.menus_bg_texture)
 		all_switch.wallpaper:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
 		all_switch.wallpaper:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
 		all_switch.wallpaper:SetDesaturated (true)
+		--]=]
 		
-		--the background on cooltip at the menus, are transparent
-		--all_switch.background:SetTexture ("Interface\\AddOns\\Details\\Libs\\DF\\cooltip_background")
-		--all_switch.background:SetTexCoord (0.10546875, 0.89453125, 0, 1)
-		--all_switch.background:SetVertexColor (0.2, 0.2, 0.2, 1)
-		
+		--[=[
 		all_switch:SetBackdrop (_detalhes.tooltip_backdrop)
 		all_switch:SetBackdropColor (0.09019, 0.09019, 0.18823, 1)
 		all_switch:SetBackdropBorderColor (unpack (_detalhes.tooltip_border_color))
+		--]=]
+		
+		--updated colors (these colors are set inside the janela_principal file
+		all_switch:SetBackdrop (_detalhes.menu_backdrop_config.menus_backdrop)
+		all_switch:SetBackdropColor (unpack (_detalhes.menu_backdrop_config.menus_backdropcolor))
+		all_switch:SetBackdropBorderColor (unpack (_detalhes.menu_backdrop_config.menus_bordercolor))
 		
 	end) 
 	

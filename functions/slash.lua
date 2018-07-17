@@ -1536,14 +1536,68 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 			
 			
 		end
-		
-		
+	
+	--BFA BETA
+	elseif (msg == "update") then
+		_detalhes:CopyPaste ([[https://www.wowinterface.com/downloads/info23056-DetailsDamageMeter8.07.3.5.html]])
 	
 	else
 		
 		--if (_detalhes.opened_windows < 1) then
 		--	_detalhes:CriarInstancia()
 		--end
+		
+		if (command) then
+			--> check if the line passed is a parameters in the default profile
+			if (_detalhes.default_profile [command]) then
+				if (rest and (rest ~= "" and rest ~= " ")) then
+					local whichType = type (_detalhes.default_profile [command])
+					
+					--> attempt to cast the passed value to the same value as the type in the profile
+					if (whichType == "number") then
+						rest = tonumber (rest)
+						if (rest) then
+							_detalhes [command] = rest
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' set to " .. rest)
+						else
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' expects a number")
+						end
+						
+					elseif (whichType == "string") then
+						rest = tostring (rest)
+						if (rest) then
+							_detalhes [command] = rest
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' set to " .. rest)
+						else
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' expects a string")
+						end
+						
+					elseif (whichType == "boolean") then
+						if (rest == "true") then
+							_detalhes [command] = true
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' set to true")
+							
+						elseif (rest == "false") then
+							_detalhes [command] = false
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' set to false")
+							
+						else
+							print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' expects true or false")
+						end
+					end
+				
+				else
+					local value = _detalhes [command]
+					if (type (value) == "boolean") then
+						value = value and "true" or "false"
+					end
+					print (Loc ["STRING_DETAILS1"] .. "config '" .. command .. "' current value is: " .. value)
+				end
+				
+				return
+			end
+			
+		end
 		
 		print (" ")
 		print (Loc ["STRING_DETAILS1"] .. "" .. _detalhes.userversion .. " [|cFFFFFF00CORE: " .. _detalhes.realversion .. "|r] " ..  Loc ["STRING_COMMAND_LIST"] .. ":")

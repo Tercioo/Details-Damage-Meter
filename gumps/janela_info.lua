@@ -459,6 +459,7 @@ function gump:CriaDetalheInfo (index)
 	
 	info.bg = _CreateFrame ("StatusBar", "DetailsPlayerDetailsWindow_DetalheInfoBG" .. index, _detalhes.janela_info.container_detalhes)
 	info.bg:SetStatusBarTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2")
+	info.bg:SetStatusBarColor (1, 1, 1, .84)
 	info.bg:SetMinMaxValues (0, 100)
 	info.bg:SetValue (100)
 	info.bg:SetSize (320, 47)
@@ -1277,34 +1278,60 @@ local elvui_skin = function()
 	end
 	
 	--scrollbar
-	window.container_barras.cima:SetNormalTexture ([[Interface\Buttons\Arrow-Up-Up]])
-	window.container_barras.cima:SetPushedTexture ([[Interface\Buttons\Arrow-Up-Down]])
-	window.container_barras.cima:SetDisabledTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
-	window.container_barras.cima:GetNormalTexture():ClearAllPoints()
-	window.container_barras.cima:GetPushedTexture():ClearAllPoints()
-	window.container_barras.cima:GetDisabledTexture():ClearAllPoints()
-	window.container_barras.cima:GetNormalTexture():SetPoint ("center", window.container_barras.cima, "center", 1, 1)
-	window.container_barras.cima:GetPushedTexture():SetPoint ("center", window.container_barras.cima, "center", 1, 1)
-	window.container_barras.cima:GetDisabledTexture():SetPoint ("center", window.container_barras.cima, "center", 1, 1)
-	window.container_barras.cima:SetSize (16, 16)
-	window.container_barras.cima:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
-	window.container_barras.cima:SetBackdropColor (0, 0, 0, 0.3)
-	window.container_barras.cima:SetBackdropBorderColor (0, 0, 0, 1)
+	do
+		--get textures
+		local normalTexture = window.container_barras.cima:GetNormalTexture()
+		local pushedTexture = window.container_barras.cima:GetPushedTexture()
+		local disabledTexture = window.container_barras.cima:GetDisabledTexture()
+		
+		--set the new textures
+		normalTexture:SetTexture ([[Interface\Buttons\Arrow-Up-Up]])
+		pushedTexture:SetTexture ([[Interface\Buttons\Arrow-Up-Down]])
+		disabledTexture:SetTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
+		
+		normalTexture:SetPoint ("topleft", window.container_barras.cima, "topleft", 1, 0)
+		normalTexture:SetPoint ("bottomright", window.container_barras.cima, "bottomright", 1, 0)
+		pushedTexture:SetPoint ("topleft", window.container_barras.cima, "topleft", 1, 0)
+		pushedTexture:SetPoint ("bottomright", window.container_barras.cima, "bottomright", 1, 0)
+		disabledTexture:SetPoint ("topleft", window.container_barras.cima, "topleft", 1, 0)
+		disabledTexture:SetPoint ("bottomright", window.container_barras.cima, "bottomright", 1, 0)
+		
+		disabledTexture:SetAlpha (0.5)
+
+		window.container_barras.cima:SetSize (16, 16)
+		window.container_barras.cima:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+		window.container_barras.cima:SetBackdropColor (0, 0, 0, 0.3)
+		window.container_barras.cima:SetBackdropBorderColor (0, 0, 0, 1)
+	end
 	
-	window.container_barras.baixo:SetNormalTexture ([[Interface\Buttons\Arrow-Down-Up]])
-	window.container_barras.baixo:SetPushedTexture ([[Interface\Buttons\Arrow-Down-Down]])
-	window.container_barras.baixo:SetDisabledTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
-	window.container_barras.baixo:GetNormalTexture():ClearAllPoints()
-	window.container_barras.baixo:GetPushedTexture():ClearAllPoints()
-	window.container_barras.baixo:GetDisabledTexture():ClearAllPoints()
-	window.container_barras.baixo:GetNormalTexture():SetPoint ("center", window.container_barras.baixo, "center", 1, -5)
-	window.container_barras.baixo:GetPushedTexture():SetPoint ("center", window.container_barras.baixo, "center", 1, -5)
-	window.container_barras.baixo:GetDisabledTexture():SetPoint ("center", window.container_barras.baixo, "center", 1, -5)
-	window.container_barras.baixo:SetSize (16, 16)
-	window.container_barras.baixo:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
-	window.container_barras.baixo:SetBackdropColor (0, 0, 0, 0.35)
-	window.container_barras.baixo:SetBackdropBorderColor (0, 0, 0, 1)
-	
+	do
+		--get textures
+		local normalTexture = window.container_barras.baixo:GetNormalTexture()
+		local pushedTexture = window.container_barras.baixo:GetPushedTexture()
+		local disabledTexture = window.container_barras.baixo:GetDisabledTexture()
+		
+		--set the new textures
+		normalTexture:SetTexture ([[Interface\Buttons\Arrow-Down-Up]])
+		pushedTexture:SetTexture ([[Interface\Buttons\Arrow-Down-Down]])
+		disabledTexture:SetTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
+		
+		normalTexture:SetPoint ("topleft", window.container_barras.baixo, "topleft", 1, -4)
+		normalTexture:SetPoint ("bottomright", window.container_barras.baixo, "bottomright", 1, -4)
+		
+		pushedTexture:SetPoint ("topleft", window.container_barras.baixo, "topleft", 1, -4)
+		pushedTexture:SetPoint ("bottomright", window.container_barras.baixo, "bottomright", 1, -4)
+
+		disabledTexture:SetPoint ("topleft", window.container_barras.baixo, "topleft", 1, -4)
+		disabledTexture:SetPoint ("bottomright", window.container_barras.baixo, "bottomright", 1, -4)
+		
+		disabledTexture:SetAlpha (0.5)
+		
+		window.container_barras.baixo:SetSize (16, 16)
+		window.container_barras.baixo:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+		window.container_barras.baixo:SetBackdropColor (0, 0, 0, 0.3)
+		window.container_barras.baixo:SetBackdropBorderColor (0, 0, 0, 1)
+	end
+
 	window.container_barras.slider:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
 	window.container_barras.slider:SetBackdropColor (0, 0, 0, 0.35)
 	window.container_barras.slider:SetBackdropBorderColor (0, 0, 0, 1)
@@ -1312,40 +1339,73 @@ local elvui_skin = function()
 	window.container_barras.slider:Altura (164)
 	window.container_barras.slider:cimaPoint (0, 13)
 	window.container_barras.slider:baixoPoint (0, -13)
+	
 	window.container_barras.slider.thumb:SetTexture ([[Interface\AddOns\Details\images\icons2]])
 	window.container_barras.slider.thumb:SetTexCoord (482/512, 492/512, 104/512, 120/512)
 	window.container_barras.slider.thumb:SetSize (12, 12)
 	window.container_barras.slider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
 	
 	--
-	window.container_alvos.cima:SetNormalTexture ([[Interface\Buttons\Arrow-Up-Up]])
-	window.container_alvos.cima:SetPushedTexture ([[Interface\Buttons\Arrow-Up-Down]])
-	window.container_alvos.cima:SetDisabledTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
-	window.container_alvos.cima:GetNormalTexture():ClearAllPoints()
-	window.container_alvos.cima:GetPushedTexture():ClearAllPoints()
-	window.container_alvos.cima:GetDisabledTexture():ClearAllPoints()
-	window.container_alvos.cima:GetNormalTexture():SetPoint ("center", window.container_alvos.cima, "center", 1, 1)
-	window.container_alvos.cima:GetPushedTexture():SetPoint ("center", window.container_alvos.cima, "center", 1, 1)
-	window.container_alvos.cima:GetDisabledTexture():SetPoint ("center", window.container_alvos.cima, "center", 1, 1)
-	window.container_alvos.cima:SetSize (16, 16)
-	window.container_alvos.cima:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
-	window.container_alvos.cima:SetBackdropColor (0, 0, 0, 0.3)
-	window.container_alvos.cima:SetBackdropBorderColor (0, 0, 0, 1)
 	
-	window.container_alvos.baixo:SetNormalTexture ([[Interface\Buttons\Arrow-Down-Up]])
-	window.container_alvos.baixo:SetPushedTexture ([[Interface\Buttons\Arrow-Down-Down]])
-	window.container_alvos.baixo:SetDisabledTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
-	window.container_alvos.baixo:GetNormalTexture():ClearAllPoints()
-	window.container_alvos.baixo:GetPushedTexture():ClearAllPoints()
-	window.container_alvos.baixo:GetDisabledTexture():ClearAllPoints()
-	window.container_alvos.baixo:GetNormalTexture():SetPoint ("center", window.container_alvos.baixo, "center", 1, -5)
-	window.container_alvos.baixo:GetPushedTexture():SetPoint ("center", window.container_alvos.baixo, "center", 1, -5)
-	window.container_alvos.baixo:GetDisabledTexture():SetPoint ("center", window.container_alvos.baixo, "center", 1, -5)
-	window.container_alvos.baixo:SetSize (16, 16)
-	window.container_alvos.baixo:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
-	window.container_alvos.baixo:SetBackdropColor (0, 0, 0, 0.35)
-	window.container_alvos.baixo:SetBackdropBorderColor (0, 0, 0, 1)
 	
+	do
+		local f = window.container_alvos
+		
+		--get textures
+		local normalTexture = f.cima:GetNormalTexture()
+		local pushedTexture = f.cima:GetPushedTexture()
+		local disabledTexture = f.cima:GetDisabledTexture()
+		
+		--set the new textures
+		normalTexture:SetTexture ([[Interface\Buttons\Arrow-Up-Up]])
+		pushedTexture:SetTexture ([[Interface\Buttons\Arrow-Up-Down]])
+		disabledTexture:SetTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
+		
+		normalTexture:SetPoint ("topleft", f.cima, "topleft", 1, 0)
+		normalTexture:SetPoint ("bottomright", f.cima, "bottomright", 1, 0)
+		pushedTexture:SetPoint ("topleft", f.cima, "topleft", 1, 0)
+		pushedTexture:SetPoint ("bottomright", f.cima, "bottomright", 1, 0)
+		disabledTexture:SetPoint ("topleft", f.cima, "topleft", 1, 0)
+		disabledTexture:SetPoint ("bottomright", f.cima, "bottomright", 1, 0)
+		
+		disabledTexture:SetAlpha (0.5)
+
+		f.cima:SetSize (16, 16)
+		f.cima:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+		f.cima:SetBackdropColor (0, 0, 0, 0.3)
+		f.cima:SetBackdropBorderColor (0, 0, 0, 1)
+	end
+	
+	do
+		local f = window.container_alvos
+		
+		--get textures
+		local normalTexture = f.baixo:GetNormalTexture()
+		local pushedTexture = f.baixo:GetPushedTexture()
+		local disabledTexture = f.baixo:GetDisabledTexture()
+		
+		--set the new textures
+		normalTexture:SetTexture ([[Interface\Buttons\Arrow-Down-Up]])
+		pushedTexture:SetTexture ([[Interface\Buttons\Arrow-Down-Down]])
+		disabledTexture:SetTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
+		
+		normalTexture:SetPoint ("topleft", f.baixo, "topleft", 1, -4)
+		normalTexture:SetPoint ("bottomright", f.baixo, "bottomright", 1, -4)
+		
+		pushedTexture:SetPoint ("topleft", f.baixo, "topleft", 1, -4)
+		pushedTexture:SetPoint ("bottomright", f.baixo, "bottomright", 1, -4)
+
+		disabledTexture:SetPoint ("topleft", f.baixo, "topleft", 1, -4)
+		disabledTexture:SetPoint ("bottomright", f.baixo, "bottomright", 1, -4)
+		
+		disabledTexture:SetAlpha (0.5)
+		
+		f.baixo:SetSize (16, 16)
+		f.baixo:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+		f.baixo:SetBackdropColor (0, 0, 0, 0.3)
+		f.baixo:SetBackdropBorderColor (0, 0, 0, 1)
+	end
+
 	window.container_alvos.slider:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
 	window.container_alvos.slider:SetBackdropColor (0, 0, 0, 0.35)
 	window.container_alvos.slider:SetBackdropBorderColor (0, 0, 0, 1)
@@ -1383,7 +1443,7 @@ local elvui_skin = function()
 end
 _detalhes:InstallPDWSkin ("ElvUI", {func = elvui_skin, author = "Details! Team", version = "v1.0", desc = "Skin compatible with ElvUI addon."})
 
---> search key: ~create ~inicio
+--> search key: ~create ~inicio ~start
 function gump:CriaJanelaInfo()
 
 	--> cria a janela em si
@@ -1411,6 +1471,9 @@ function gump:CriaJanelaInfo()
 	local SWW = este_gump.SummaryWindowWidgets
 	SWW:SetAllPoints()
 	tinsert (SummaryWidgets, SWW)
+	
+	local scaleBar = Details.gump:CreateScaleBar (este_gump, Details.player_details_window)
+	este_gump:SetScale (Details.player_details_window.scale)
 	
 	--classic:
 	--este_gump:SetWidth (590)
@@ -1542,17 +1605,27 @@ function gump:CriaJanelaInfo()
 	
 -------------------------------------------------
 
-
 	local alpha_bgs = 1
 
 	-- backgrounds das 5 boxes do lado direito
 		local right_background_X = 457
+		local right_background_Y = {-85, -136, -191, -246, -301}
+		
+		for i = 1, 5 do
+			local right_background1 = CreateFrame ("frame", "DetailsPlayerDetailsWindow_right_background" .. i, SWW)
+			right_background1:EnableMouse (false)
+			right_background1:SetPoint ("topleft", este_gump, "topleft", right_background_X, right_background_Y [i])
+			right_background1:SetSize (220, 43)
+			Details.gump:ApplyStandardBackdrop (right_background1)
+			este_gump ["right_background" .. i] = right_background1
+		end
+
+--[=[		
 		local right_background1 = SWW:CreateTexture ("DetailsPlayerDetailsWindow_right_background1", "background")
 		right_background1:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 		right_background1:SetPoint ("topleft", este_gump, "topleft", right_background_X, -85)
 		right_background1:SetSize (220, 43)
 		right_background1:SetAlpha (alpha_bgs)
-		este_gump.right_background1 = right_background1
 		
 		local right_background2 = SWW:CreateTexture ("DetailsPlayerDetailsWindow_right_background2", "background")
 		right_background2:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
@@ -1581,7 +1654,8 @@ function gump:CriaJanelaInfo()
 		right_background5:SetSize (220, 48)
 		right_background5:SetAlpha (alpha_bgs)
 		este_gump.right_background5 = right_background5
-	
+--]=]
+
 	-- fundos especiais de friendly fire e outros
 		este_gump.bg1_sec_texture = SWW:CreateTexture ("DetailsPlayerDetailsWindow_BG1_SEC_Texture", "BORDER")
 		este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 4)
@@ -1630,16 +1704,26 @@ function gump:CriaJanelaInfo()
 	--> cria o container onde vai abrigar os alvos do jogador
 	cria_container_alvos (este_gump, SWW)
 
-	local leftbars1_backgound = SWW:CreateTexture (nil, "background")
-	leftbars1_backgound:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+--	local leftbars1_backgound = SWW:CreateTexture (nil, "background")
+--	leftbars1_backgound:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+--	leftbars1_backgound:SetSize (303, 149)
+--	leftbars1_backgound:SetAlpha (alpha_bgs)
+--	este_gump.leftbars1_backgound = leftbars1_backgound
+	
+	local leftbars1_backgound = CreateFrame ("frame", "DetailsPlayerDetailsWindow_Left_SpellsBackground", SWW)
+	leftbars1_backgound:EnableMouse (false)
 	leftbars1_backgound:SetSize (303, 149)
 	leftbars1_backgound:SetAlpha (alpha_bgs)
+	leftbars1_backgound:SetFrameLevel (SWW:GetFrameLevel())
+	Details.gump:ApplyStandardBackdrop (leftbars1_backgound)
 	este_gump.leftbars1_backgound = leftbars1_backgound
 	
-	local leftbars2_backgound = SWW:CreateTexture (nil, "background")
-	leftbars2_backgound:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	local leftbars2_backgound = CreateFrame ("frame", "DetailsPlayerDetailsWindow_Left_TargetBackground", SWW)
+	leftbars2_backgound:EnableMouse (false)
 	leftbars2_backgound:SetSize (303, 122)
 	leftbars2_backgound:SetAlpha (alpha_bgs)
+	leftbars2_backgound:SetFrameLevel (SWW:GetFrameLevel())
+	Details.gump:ApplyStandardBackdrop (leftbars2_backgound)
 	este_gump.leftbars2_backgound = leftbars2_backgound
 	
 	leftbars1_backgound:SetPoint ("topleft", este_gump.container_barras, "topleft", -3, 3)
@@ -2408,8 +2492,8 @@ function gump:CriaJanelaInfo()
 		
 		local scroll_createline = function (self, index)
 			local line = CreateFrame ("button", "$parentLine" .. index, self)
-			line:SetPoint ("topleft", self, "topleft", 0, -((index-1)*(scroll_line_height+1)))
-			line:SetSize (scroll_width, scroll_line_height)
+			line:SetPoint ("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)))
+			line:SetSize (scroll_width -2, scroll_line_height)
 			line:SetScript ("OnEnter", line_onenter)
 			line:SetScript ("OnLeave", line_onleave)
 			line:SetScript ("OnClick", line_onclick)
@@ -2418,7 +2502,7 @@ function gump:CriaJanelaInfo()
 			line:SetBackdropColor (0, 0, 0, 0.2)
 			
 			local icon = line:CreateTexture ("$parentIcon", "overlay")
-			icon:SetSize (scroll_line_height, scroll_line_height)
+			icon:SetSize (scroll_line_height -2 , scroll_line_height - 2)
 			local name = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
 			local uptime = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
 			local apply = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
@@ -2471,6 +2555,9 @@ function gump:CriaJanelaInfo()
 					local line = self:GetLine (i)
 					line.spellID = aura.spellID
 					line.Icon:SetTexture (aura [1])
+					
+					line.Icon:SetTexCoord (.1, .9, .1, .9)
+
 					line.Name:SetText (aura [2])
 					line.Uptime:SetText (DF:IntegerToTimer (aura [3]) .. " (|cFFBBAAAA" .. floor (aura [6]) .. "%|r)")
 					line.Apply:SetText (aura [4])
@@ -2531,9 +2618,7 @@ function gump:CriaJanelaInfo()
 			local line = buffScroll:CreateLine (scroll_createline)
 			line.AuraType = "BUFF"
 		end
-		buffScroll:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
-		buffScroll:SetBackdropColor (0, 0, 0, .4)		
-		
+		DF:ReskinSlider (buffScroll)
 		tab.BuffScroll = buffScroll
 		
 		--debuff scroll
@@ -2556,16 +2641,14 @@ function gump:CriaJanelaInfo()
 		waLabel2:SetPoint (728, -10)
 		create_titledesc_frame (waLabel2.widget, "create weak aura")
 
-		
 		local debuffScroll = DF:CreateScrollBox (frame, "$parentDebuffUptimeScroll", scroll_buff_refresh, {}, scroll_width, 340, scroll_line_amount, scroll_line_height)
 		debuffScroll:SetPoint ("topleft", frame, "topleft", 405, -30)
 		for i = 1, scroll_line_amount do 
 			local line = debuffScroll:CreateLine (scroll_createline)
 			line.AuraType = "DEBUFF"
 		end
-		debuffScroll:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
-		debuffScroll:SetBackdropColor (0, 0, 0, .4)		
-		
+		DF:ReskinSlider (debuffScroll)
+
 		tab.DebuffScroll = debuffScroll
 	end
 	
@@ -4066,6 +4149,7 @@ function gump:CriaJanelaInfo()
 				bar:SetPoint ("topright", parent, "topright", -4, y)
 				bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
 				bar:SetStatusBarColor (.5, .5, .5, 1)
+				bar:SetAlpha (ALPHA_BLEND_AMOUNT)
 				
 				bar:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 				bar:SetBackdropColor (1, 1, 1, 0.1)
@@ -4350,6 +4434,9 @@ function gump:CriaJanelaInfo()
 			frame1:SetBackdropColor (unpack (frame_backdrop_color))
 			frame1:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
 			
+			--override backdrop settings and use the framework defaults
+			Details.gump:ApplyStandardBackdrop (frame1)
+			
 			frame1.bars = {}
 			frame1.tab = tab
 			frame1.tooltip = create_tooltip ("DetailsPlayerComparisonBox1Tooltip")
@@ -4380,6 +4467,9 @@ function gump:CriaJanelaInfo()
 			target1.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget1Tooltip")
 			target1.tooltip:SetWidth (spell_compare_frame_width[1])
 			
+			--override backdrop settings and use the framework defaults
+			Details.gump:ApplyStandardBackdrop (target1)
+			
 			--criar as barras do target1
 			for i = 1, targetBars do
 				create_bar ("DetailsPlayerComparisonTarget1Bar"..i, target1, i, true, true)
@@ -4396,6 +4486,9 @@ function gump:CriaJanelaInfo()
 			frame2:SetBackdrop (frame_backdrop)
 			frame2:SetBackdropColor (unpack (frame_backdrop_color))
 			frame2:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
+			
+			--override backdrop settings and use the framework defaults
+			Details.gump:ApplyStandardBackdrop (frame2)
 			
 			frame2.bars = {}
 			frame2.tooltip = create_tooltip ("DetailsPlayerComparisonBox2Tooltip")
@@ -4440,6 +4533,9 @@ function gump:CriaJanelaInfo()
 			target2.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget2Tooltip")
 			target2.tooltip:SetWidth (spell_compare_frame_width[2])
 			
+			--override backdrop settings and use the framework defaults
+			Details.gump:ApplyStandardBackdrop (target2)
+			
 			--criar as barras do target2
 			for i = 1, targetBars do
 				create_bar ("DetailsPlayerComparisonTarget2Bar"..i, target2, i, nil, true)
@@ -4452,6 +4548,9 @@ function gump:CriaJanelaInfo()
 			frame3:SetBackdrop (frame_backdrop)
 			frame3:SetBackdropColor (unpack (frame_backdrop_color))
 			frame3:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
+			
+			--override backdrop settings and use the framework defaults
+			Details.gump:ApplyStandardBackdrop (frame3)
 			
 			frame3.bars = {}
 			frame3.tooltip = create_tooltip ("DetailsPlayerComparisonBox3Tooltip")
@@ -4495,6 +4594,9 @@ function gump:CriaJanelaInfo()
 			target3.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget3Tooltip")
 			target3.tooltip:SetWidth (spell_compare_frame_width[3])
 			
+			--override backdrop settings and use the framework defaults
+			Details.gump:ApplyStandardBackdrop (target3)
+			
 			--criar as barras do target1
 			for i = 1, targetBars do
 				create_bar ("DetailsPlayerComparisonTarget3Bar"..i, target3, i, nil, true)
@@ -4534,7 +4636,7 @@ function gump:CriaJanelaInfo()
 							end
 						end
 						
-						local match_percentage = same_spells / my_spells_total * 100
+						local match_percentage = same_spells / max (my_spells_total, 0.000001) * 100
 
 						if (match_percentage > 30) then
 							tinsert (tabOBject.players, actor)
@@ -4608,8 +4710,6 @@ function gump:CriaJanelaInfo()
 			end
 			
 			if (amt_positive < 2) then
-				--_detalhes.player_details_tabs[1]:Hide()
-				--_detalhes.player_details_tabs[1]:SetPoint ("BOTTOMLEFT", info.container_barras, "TOPLEFT",  390 - (67 * (2-1)), 1)
 				_detalhes.player_details_tabs[1]:SetPoint ("BOTTOMLEFT", info.container_barras, "TOPLEFT",  490 - (94 * (1-0)), 1)
 			end
 			
@@ -4638,7 +4738,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 	if (not tabname) then
 		tabname = "unnamed"
 	end
-
+	
 	local index = #_detalhes.player_details_tabs
 	
 	local newtab = CreateFrame ("button", "DetailsInfoWindowTab" .. index, info, "ChatTabTemplate")
@@ -4648,11 +4748,9 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 	newtab:SetWidth (100)
 	newtab.middleTexture:SetWidth (70)
 	
-	
-	
 	newtab:SetText (localized_name)
 	_G ["DetailsInfoWindowTab" .. index .. "Text"]:SetWidth (70)
-
+	
 	newtab:SetFrameStrata ("HIGH")
 	newtab:SetFrameLevel (info:GetFrameLevel()+1)
 	newtab:Hide()
@@ -4686,28 +4784,19 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 	end
 	
 	newtab.frame:SetBackdrop({
-			--bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]], tile = true, tileSize = 512,
-			--edgeFile = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-WoodBorder]], edgeSize = 32,
-			edgeFile = [[Interface\Buttons\WHITE8X8]], 
-			edgeSize = 1, 
-			--bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
-			bgFile = [[Interface\AddOns\Details\images\background]],
-			tileSize = 64, 
-			tile = true,
-			insets = {left = 0, right = 0, top = 0, bottom = 0}}
-		)
-		
-		--newtab.frame:SetBackdropColor (.5, .50, .50, 1)
-		newtab.frame:SetBackdropColor (0, 0, 0, 0.3)
-		newtab.frame:SetBackdropBorderColor (.3, .3, .3, 0)
-		
-		--local f = CreateFrame ("frame", nil, newtab)
-		--f:Set
-	
-	
+		edgeFile = [[Interface\Buttons\WHITE8X8]], 
+		edgeSize = 1, 
+		bgFile = [[Interface\AddOns\Details\images\background]],
+		tileSize = 64, 
+		tile = true,
+		insets = {left = 0, right = 0, top = 0, bottom = 0}}
+	)
+
+	newtab.frame:SetBackdropColor (0, 0, 0, 0.3)
+	newtab.frame:SetBackdropBorderColor (.3, .3, .3, 0)
+
 	newtab.frame:SetPoint ("TOPLEFT", info.container_barras, "TOPLEFT", 0, 2)
 	newtab.frame:SetPoint ("bottomright", info, "bottomright", -3, 3)
-	--newtab.frame:SetPoint ("TOPLEFT", info, "TOPLEFT", 19, -76)
 	newtab.frame:SetSize (569, 274)
 	
 	newtab.frame:Hide()
@@ -5450,7 +5539,7 @@ function gump:CriaNovaBarraInfo2 (instancia, index)
 	esta_barra.icone:SetHeight (14)
 	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
-	esta_barra:SetAlpha (0.9)
+	esta_barra:SetAlpha (ALPHA_BLEND_AMOUNT)
 	esta_barra.icone:SetAlpha (1)
 	
 	esta_barra.isAlvo = true

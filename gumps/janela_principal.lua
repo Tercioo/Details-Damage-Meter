@@ -118,12 +118,26 @@ end
 	local menus_backdrop = {
 		edgeFile = [[Interface\Buttons\WHITE8X8]],
 		edgeSize=1,
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+		--bgFile="Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+		--bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
+		bgFile = [[Interface\AddOns\Details\images\background]],
 		tileSize=16,
 		tile=true,
 		insets = {top=0, right=0, left=0, bottom=0}
 	}
+	local menus_backdropcolor = {.2, .2, .2, 0.85}
+	local menus_backdropcolor_sec = {.2, .2, .2, 0.90}
 	local menus_bordercolor = {0, 0, 0, .25}
+	
+	--menus are ignoring the value set on the profile
+	
+	_detalhes.menu_backdrop_config = {
+		menus_backdrop = menus_backdrop,
+		menus_backdropcolor = menus_backdropcolor,
+		menus_backdropcolor_sec = menus_backdropcolor_sec,
+		menus_bordercolor = menus_bordercolor,
+	}
+	
 	
 function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo mostrado
 
@@ -4417,7 +4431,8 @@ local fast_ps_func = function (self)
 						local new_dps = _math_floor (actor.total / combat_time)
 						local formated_dps = tok_functions [ps_type] (_, new_dps)
 
-						row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
+						--row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
+						row.texto_direita:SetText (( row.texto_direita:GetText() or "" ):gsub (dps_text, formated_dps))
 						row.ps_text = formated_dps
 					end
 				end
@@ -5420,7 +5435,7 @@ function _detalhes:ToolbarMenuSetButtonsOptions (spacement, shadow)
 	return self:ToolbarMenuSetButtons()
 end
 
--- search key: ~buttons
+-- search key: ~buttons ~icons
 
 local tbuttons = {}
 function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report, _reset, _close)
@@ -5470,10 +5485,11 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 	local space = self.menu_icons.space
 	local shadow = self.menu_icons.shadow
 	
+	local toolbar_icon_file = self.toolbar_icon_file
+	
 	local total_buttons_shown = 0
 	
 	--> normal buttons
-
 	if (self.menu_anchor.side == 1) then
 		for index, button in _ipairs (tbuttons) do
 			if (self.menu_icons [index]) then
@@ -5492,15 +5508,9 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 
 				button:SetSize (16*size, 16*size)
 				
-				if (shadow) then
-					button:SetNormalTexture ([[Interface\AddOns\Details\images\toolbar_icons_shadow]])
-					button:SetHighlightTexture ([[Interface\AddOns\Details\images\toolbar_icons_shadow]])
-					button:SetPushedTexture ([[Interface\AddOns\Details\images\toolbar_icons_shadow]])
-				else
-					button:SetNormalTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
-					button:SetHighlightTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
-					button:SetPushedTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
-				end
+				button:SetNormalTexture (toolbar_icon_file)
+				button:SetHighlightTexture (toolbar_icon_file)
+				button:SetPushedTexture (toolbar_icon_file)
 				
 				total_buttons_shown = total_buttons_shown + 1
 			else
@@ -5525,18 +5535,12 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 				button:SetParent (self.baseframe)
 				button:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
 				button:Show()
-
+				
 				button:SetSize (16*size, 16*size)
 				
-				if (shadow) then
-					button:SetNormalTexture ([[Interface\AddOns\Details\images\toolbar_icons_shadow]])
-					button:SetHighlightTexture ([[Interface\AddOns\Details\images\toolbar_icons_shadow]])
-					button:SetPushedTexture ([[Interface\AddOns\Details\images\toolbar_icons_shadow]])
-				else
-					button:SetNormalTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
-					button:SetHighlightTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
-					button:SetPushedTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
-				end
+				button:SetNormalTexture (toolbar_icon_file)
+				button:SetHighlightTexture (toolbar_icon_file)
+				button:SetPushedTexture (toolbar_icon_file)
 				
 				total_buttons_shown = total_buttons_shown + 1
 			else
@@ -5546,28 +5550,97 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 	end
 	
 	--> plugins buttons
+	
+	local pluginFirstIcon = true
+	if (not self.baseframe.cabecalho.PluginIconsSeparator) then
+		self.baseframe.cabecalho.PluginIconsSeparator = self.baseframe:CreateTexture (nil, "overlay")
+		self.baseframe.cabecalho.PluginIconsSeparator:SetTexture ([[Interface\FriendsFrame\StatusIcon-Offline]])
+
+		local color = 0
+		self.baseframe.cabecalho.PluginIconsSeparator:SetVertexColor (color, color, color)
+		self.baseframe.cabecalho.PluginIconsSeparator:SetAlpha (0.2)
+		
+		local scale = 0.4
+		self.baseframe.cabecalho.PluginIconsSeparator:SetSize (16 * scale, 16 * scale)
+	end
+	
+	self.baseframe.cabecalho.PluginIconsSeparator:Hide()
+	
 	if (self:IsLowerInstance()) then
 		if (#_detalhes.ToolBar.Shown > 0) then
 		
 			local last_plugin_icon
 			
+			if (#_detalhes.ToolBar.Shown > 0) then
+				self.baseframe.cabecalho.PluginIconsSeparator:Show()
+				self.baseframe.cabecalho.PluginIconsSeparator:ClearAllPoints()
+				self.baseframe.cabecalho.PluginIconsSeparator.widget = self.baseframe.cabecalho.PluginIconsSeparator
+			end
+			
 			for index, button in ipairs (_detalhes.ToolBar.Shown) do 
 				button:ClearAllPoints()
 				
 				if (got_anchor) then
+					if (pluginFirstIcon) then
+						-- space = space + 6 --was adding an extra padding between plugin icons
+					end
+				
 					if (self.plugins_grow_direction == 2) then --right
 						if (self.menu_anchor.side == 1) then --left
-							button:SetPoint ("left", self.lastIcon.widget or self.lastIcon, "right", space, 0)
+						
+							local temp_space = space
+						
+							if (pluginFirstIcon) then
+								temp_space = temp_space / 3
+								self.baseframe.cabecalho.PluginIconsSeparator:SetPoint ("left", last_plugin_icon or self.lastIcon.widget or self.lastIcon, "right", temp_space, 0)
+								self.lastIcon = self.baseframe.cabecalho.PluginIconsSeparator
+							end
+						
+							button:SetPoint ("left", self.lastIcon.widget or self.lastIcon, "right", temp_space, 0)
+							
 						elseif (self.menu_anchor.side == 2) then --right
-							button:SetPoint ("left", last_plugin_icon or self.firstIcon.widget or self.firstIcon, "right", space, 0)
+						
+							local temp_space = space
+						
+							if (pluginFirstIcon) then
+								temp_space = temp_space / 3
+								self.baseframe.cabecalho.PluginIconsSeparator:SetPoint ("left", last_plugin_icon or self.firstIcon.widget or self.firstIcon, "right", temp_space, 0)
+								self.lastIcon = self.baseframe.cabecalho.PluginIconsSeparator
+							end
+
+							button:SetPoint ("left", last_plugin_icon or self.lastIcon.widget or self.firstIcon, "right", temp_space, 0)
+
 						end
+						
 					elseif (self.plugins_grow_direction == 1) then --left
 						if (self.menu_anchor.side == 1) then --left
-							button:SetPoint ("right", last_plugin_icon or self.firstIcon.widget or self.firstIcon, "left", -space, 0)
+						
+							local temp_space = space
+						
+							if (pluginFirstIcon) then
+								temp_space = temp_space / 3
+								self.baseframe.cabecalho.PluginIconsSeparator:SetPoint ("right", last_plugin_icon or self.firstIcon.widget or self.firstIcon, "left", -temp_space, 0)
+								self.lastIcon = self.baseframe.cabecalho.PluginIconsSeparator
+							end
+						
+							button:SetPoint ("right", last_plugin_icon or self.lastIcon.widget or self.firstIcon, "left", -temp_space, 0)
+							
 						elseif (self.menu_anchor.side == 2) then --right
-							button:SetPoint ("right", self.lastIcon.widget or self.lastIcon, "left", -space, 0)
+						
+							local temp_space = space
+						
+							if (pluginFirstIcon) then
+								temp_space = temp_space / 3
+								self.baseframe.cabecalho.PluginIconsSeparator:SetPoint ("right", last_plugin_icon or self.lastIcon.widget or self.lastIcon, "left", -temp_space, 0)
+								self.lastIcon = self.baseframe.cabecalho.PluginIconsSeparator
+								
+							end
+							
+							button:SetPoint ("right", last_plugin_icon or self.lastIcon.widget or self.firstIcon, "left", -temp_space, 0)
 						end
 					end
+					
+					pluginFirstIcon = false
 				else
 					button:SetPoint (point1, anchor_frame, point2)
 					self.firstIcon = button
@@ -5641,6 +5714,16 @@ function _detalhes:SetTooltipMinWidth()
 	GameCooltip:SetOption ("MinWidth", 155)
 end
 
+function _detalhes:FormatCooltipBackdrop()
+
+	local CoolTip = GameCooltip
+
+	CoolTip:SetBackdrop (1, menus_backdrop, menus_backdropcolor, menus_bordercolor)
+	CoolTip:SetBackdrop (2, menus_backdrop, menus_backdropcolor_sec, menus_bordercolor)
+	--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+
+end
+
 local build_mode_list = function (self, elapsed)
 
 	local CoolTip = GameCooltip
@@ -5697,7 +5780,7 @@ local build_mode_list = function (self, elapsed)
 				end
 			end
 			
-			CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+			--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		end
 
 		CoolTip:AddLine (Loc ["STRING_MODE_SELF"])
@@ -5713,7 +5796,7 @@ local build_mode_list = function (self, elapsed)
 					CoolTip:AddMenu (2, _detalhes.SoloTables.EnableSoloMode, instancia, ptable [4], true, ptable [1], ptable [2], true)
 				end
 			end
-			CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+			--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		end
 		
 		--> window control
@@ -5817,7 +5900,7 @@ local build_mode_list = function (self, elapsed)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 2, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
 		GameCooltip:AddMenu (2, _detalhes.close_instancia_func, instancia.baseframe.cabecalho.fechar)
 		
-		CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		
 		--> space
 		GameCooltip:AddLine ("$div")
@@ -5842,15 +5925,17 @@ local build_mode_list = function (self, elapsed)
 		
 		--> finishes the menu
 		_detalhes:SetMenuOwner (self, instancia)
-		CoolTip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
-		CoolTip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
-		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		
+		--apply the backdrop settings to the menu
+		_detalhes:FormatCooltipBackdrop()
 		
 		show_anti_overlap (instancia, self, "top")
 		
 		CoolTip:ShowCooltip()
 	end
 end
+
+
 
 function _detalhes:SetMenuOwner (self, instance)
 
@@ -6219,12 +6304,12 @@ local build_segment_list = function (self, elapsed)
 										end
 									end
 								else
-									CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
+									--CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
 								end
 							end
 						else
 							--> wallpaper = main window
-							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+							--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					
 					elseif (thisCombat.is_pvp) then
@@ -6239,7 +6324,7 @@ local build_segment_list = function (self, elapsed)
 							end
 						else
 							--> wallpaper = main window
-							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+							--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					
 					elseif (thisCombat.is_arena) then
@@ -6254,7 +6339,7 @@ local build_segment_list = function (self, elapsed)
 							end
 						else
 							--> wallpaper = main window
-							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+							--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					else
 						enemy = thisCombat.enemy
@@ -6274,7 +6359,7 @@ local build_segment_list = function (self, elapsed)
 							CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color, true)
 						else
 							--> wallpaper = main window
-							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+							--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 						
 					end
@@ -6298,7 +6383,7 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
 					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
-					CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 				
 				if (menuIndex) then
@@ -6473,7 +6558,7 @@ local build_segment_list = function (self, elapsed)
 					end
 				else
 					--> wallpaper = main window
-					CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 				
 			elseif (_detalhes.tabela_vigente.is_pvp) then
@@ -6487,7 +6572,7 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, {1, 1, 1, 0.5}, true)
 				else
 					--> wallpaper = main window
-					CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 			end					
 
@@ -6497,7 +6582,7 @@ local build_segment_list = function (self, elapsed)
 				end
 			else
 				--> wallpaper = main window
-				CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+				--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 			end
 			
 			if (not segment_info_added) then
@@ -6520,7 +6605,7 @@ local build_segment_list = function (self, elapsed)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_vigente.data_inicio, 2, "white", "white")
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
 			end
-							
+			
 			--> fill é a quantidade de menu que esta sendo mostrada
 			if (instancia.segmento == 0) then
 				if (fill - 2 == menuIndex) then
@@ -6539,17 +6624,17 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], _, 1, "white")
 		CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
 		CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
-		
+			
 			local enemy_name = _detalhes.tabela_overall.overall_enemy_name
-		
+			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy_name, 2, "white", "white")
 			
 			local combat_time = _detalhes.tabela_overall:GetCombatTime()
 			local minutos, segundos = _math_floor (combat_time / 60), _math_floor (combat_time % 60)
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-	
-			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsComparisonBackground]], {0.085, 166/256, 0, 1}, {.42, .4, .4, 0.9}, true)
+			
+			--CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsComparisonBackground]], {0.085, 166/256, 0, 1}, {.42, .4, .4, 0.9}, true)
 			
 			if (_detalhes.tooltip.submenu_wallpaper) then
 				--CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9}, true)
@@ -6621,19 +6706,21 @@ local build_segment_list = function (self, elapsed)
 		
 		CoolTip:SetOption ("ButtonHeightMod", -4)
 		CoolTip:SetOption ("ButtonsYMod", -10)
-		CoolTip:SetOption ("YSpacingMod", 4)
+		CoolTip:SetOption ("YSpacingMod", 1)
 		
 		CoolTip:SetOption ("ButtonHeightModSub", 4)
 		CoolTip:SetOption ("ButtonsYModSub", 0)
 		CoolTip:SetOption ("YSpacingModSub", -4)
 		
 		CoolTip:SetOption ("HeighMod", 12)
+		
 		_detalhes:SetTooltipMinWidth()
 
-		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-
-		CoolTip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
-		CoolTip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
+		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		--CoolTip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+		--CoolTip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
+		
+		_detalhes:FormatCooltipBackdrop()
 		
 		show_anti_overlap (instancia, self, "top")
 		
@@ -6795,6 +6882,29 @@ function _detalhes:ChangeSkin (skin_name)
 		self.break_snap_button:SetHighlightTexture (skin_file, "ADD")
 		self.break_snap_button:SetPushedTexture (skin_file)
 
+	--> update toolbar icons
+	do
+		local toolbar_icon_file = self.toolbar_icon_file
+		if (not toolbar_icon_file) then
+			toolbar_icon_file = [[Interface\AddOns\Details\images\toolbar_icons]]
+		end
+
+		local toolbar_buttons = {}
+		toolbar_buttons [1] = self.baseframe.cabecalho.modo_selecao
+		toolbar_buttons [2] = self.baseframe.cabecalho.segmento
+		toolbar_buttons [3] = self.baseframe.cabecalho.atributo
+		toolbar_buttons [4] = self.baseframe.cabecalho.report
+		toolbar_buttons [5] = self.baseframe.cabecalho.reset
+		toolbar_buttons [6] = self.baseframe.cabecalho.fechar
+		
+		for i = 1, #toolbar_buttons do
+			local button = toolbar_buttons [i]
+			button:SetNormalTexture (toolbar_icon_file)
+			button:SetHighlightTexture (toolbar_icon_file)
+			button:SetPushedTexture (toolbar_icon_file)
+		end
+	end
+		
 ----------> icon anchor and size
 	
 	if (self.modo == 1 or self.modo == 4 or self.atributo == 5) then -- alone e raid
@@ -6884,7 +6994,6 @@ function _detalhes:ChangeSkin (skin_name)
 		self:SetBackdropTexture()
 
 	--> refresh all bars
-		
 		self:InstanceRefreshRows()
 
 	--> update menu saturation
@@ -6909,7 +7018,7 @@ function _detalhes:ChangeSkin (skin_name)
 		_detalhes.ToolBar:ReorganizeIcons (true) --call self:SetMenuAlpha()
 		
 	--> refresh options panel if opened
-		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown() and not _G.DetailsOptionsWindow.IsLoading) then
 			_detalhes:OpenOptionsWindow (self)
 		end
 
@@ -8186,13 +8295,12 @@ end
 		
 		GameCooltip:Reset()
 		GameCooltip:SetType ("menu")
-		GameCooltip:SetOption ("ButtonsYMod", -2)
+		
+		GameCooltip:SetOption ("ButtonsYMod", -6)
+		GameCooltip:SetOption ("HeighMod", 6)
 		GameCooltip:SetOption ("YSpacingMod", -3)
 		GameCooltip:SetOption ("TextHeightMod", 0)
 		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
-		
-		GameCooltip:SetOption ("ButtonsYMod", -3)
-		GameCooltip:SetOption ("HeighMod", 3)
 		
 		_detalhes:SetTooltipMinWidth()
 		
@@ -8206,8 +8314,10 @@ end
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
 		
-		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+		_detalhes:FormatCooltipBackdrop()
+		
+		--GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		--GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
@@ -8380,21 +8490,22 @@ local report_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:Reset()
 	
 	GameCooltip:SetType ("menu")
-	GameCooltip:SetOption ("ButtonsYMod", -3)
-	GameCooltip:SetOption ("YSpacingMod", 0)
+	GameCooltip:SetOption ("ButtonsYMod", -6)
+	GameCooltip:SetOption ("HeighMod", 6)
+	GameCooltip:SetOption ("YSpacingMod", -1)
 	GameCooltip:SetOption ("TextHeightMod", 0)
 	GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
-	
-	GameCooltip:SetOption ("ButtonsYMod", -3)
-	GameCooltip:SetOption ("HeighMod", 3)
-	
+
 	_detalhes:SetTooltipMinWidth()
 	
 	_detalhes:CheckLastReportsIntegrity()
 	
 	local last_reports = _detalhes.latest_report_table
 	if (#last_reports > 0) then
-		for index = #last_reports, 1, -1 do
+		local amountReports = #last_reports
+		amountReports = math.min (amountReports, 10)
+	
+		for index = amountReports, 1, -1 do
 			local report = last_reports [index]
 			local instance_number, attribute, subattribute, amt, report_where, custom_name = unpack (report)
 			
@@ -8416,8 +8527,10 @@ local report_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 	GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 	
-	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-	GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+	_detalhes:FormatCooltipBackdrop()
+	
+	--GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+	--GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
 	
 	show_anti_overlap (instancia, self, "top")
 	_detalhes:SetMenuOwner (self, instancia)
@@ -8476,25 +8589,33 @@ local atributo_on_enter = function (self, motion, forced, from_click)
 	
 	if (_detalhes.solo and _detalhes.solo == instancia.meu_id) then
 		_detalhes:MontaSoloOption (instancia)
+		
 	elseif (instancia:IsRaidMode()) then
+	
 		local have_plugins = _detalhes:MontaRaidOption (instancia)
 		if (not have_plugins) then
 			GameCooltip:SetType ("tooltip")
 			GameCooltip:SetOption ("ButtonsYMod", 0)
-			GameCooltip:SetOption ("YSpacingMod", 0)
+			
 			GameCooltip:SetOption ("TextHeightMod", 0)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 			GameCooltip:AddLine ("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 			GameCooltip:AddIcon ([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
 			GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+			
 		end
+		
 	else
 		_detalhes:MontaAtributosOption (instancia)
+		GameCooltip:SetOption ("YSpacingMod", -1)
+		GameCooltip:SetOption ("YSpacingModSub", -2)
 	end
 	
-	GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
-	GameCooltip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
+	--GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+	--GameCooltip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+	
+	_detalhes:FormatCooltipBackdrop()
 	
 	_detalhes:SetMenuOwner (self, instancia)
 	if (instancia.toolbar_side == 2) then --bottom
@@ -8509,7 +8630,7 @@ local atributo_on_leave = function (self, motion, forced, from_click)
 	local baseframe = instancia.baseframe
 	
 	OnLeaveMainWindow (instancia, self, 3)
-
+	
 	hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
 	
 	if (instancia.desaturated_menu) then
@@ -8645,6 +8766,9 @@ local modo_selecao_on_leave = function (self)
 	end
 end
 
+
+
+-- these can 
 local title_bar_icons = {
 	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {0/256, 32/256, 0, 1}},
 	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {32/256, 64/256, 0, 1}},
@@ -8652,7 +8776,15 @@ local title_bar_icons = {
 	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {96/256, 128/256, 0, 1}},
 	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {128/256, 160/256, 0, 1}},
 }
-function _detalhes:GetTitleBarIconsTexture (button)
+function _detalhes:GetTitleBarIconsTexture (button, instance)
+	if (instance or self.meu_id) then
+		local textureFile = self.toolbar_icon_file or instance.toolbar_icon_file
+		local t = title_bar_icons [button]
+		if (t and textureFile) then
+			t.texture = textureFile
+		end
+		return t or title_bar_icons
+	end
 	return title_bar_icons [button] or title_bar_icons
 end
 

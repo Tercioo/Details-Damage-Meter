@@ -43,7 +43,12 @@ function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
 		if (keeptext) then
 			news_window:Text ((DetailsNewsWindowText:GetText() or "") .. "\n\n" .. s)
 		else
-			news_window:Text (s)
+			if (dumpvalues) then
+				news_window.DumpTableFrame:SetText (s)
+				-- /run Details:DumpTable (C_NamePlate)
+			else
+				news_window:Text (s)
+			end
 		end
 	else
 	
@@ -73,7 +78,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		frame:SetWidth (512)
 		frame:SetHeight (512)
 		tinsert (UISpecialFrames, "DetailsNewsWindow")
-		
+
 		frame:SetScript ("OnMouseDown", function(self, button)
 			if (self.isMoving) then
 				return
@@ -100,6 +105,19 @@ function _detalhes:CreateOrOpenNewsWindow()
 		reinstall:SetPoint ("left", textura, "right", 2, -2)
 		reinstall.text = Loc ["STRING_NEWS_REINSTALL"]
 
+		local dumpFrame = g:NewSpecialLuaEditorEntry (frame, 500, 512, "DumpTable", "$parentDumpTable", false)
+		local dumpFrame = g:CreateTextEntry (frame, function()end, 500, 512, "DumpTable", "$parentDumpTable")
+		dumpFrame.editbox:SetMultiLine (true)
+		
+		dumpFrame:SetPoint ("topleft", frame, "topleft", 8, -68)
+		dumpFrame:SetBackdrop (nil)
+		dumpFrame.editbox:SetBackdrop (nil)
+		dumpFrame.editbox:SetJustifyH ("left")
+		dumpFrame.editbox:SetJustifyV ("top")
+		
+		--dumpFrame.editor:SetBackdrop (nil)
+		frame.DumpTableFrame = dumpFrame
+		
 		local frame_upper = CreateFrame ("scrollframe", nil, frame)
 		local frame_lower = CreateFrame ("frame", "DetailsNewsWindowLower", frame_upper)
 		frame_lower:SetSize (450, 2000)

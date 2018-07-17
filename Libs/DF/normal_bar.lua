@@ -212,6 +212,11 @@ local BarMetaFunctions = _G [DF.GlobalWidgetControlNames ["normal_bar"]]
 
 		return _object._texture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
+	--> background color
+	local smember_backgroundcolor = function (_object, _value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
+		return _object.background:SetVertexColor (_value1, _value2, _value3, _value4)
+	end
 	--> icon
 	local smember_icon = function (_object, _value)
 		if (type (_value) == "table") then
@@ -255,6 +260,20 @@ local BarMetaFunctions = _G [DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 		return
 	end
+	--> background texture
+	local smember_backgroundtexture = function (_object, _value)
+		if (_value:find ("\\")) then
+			_object.background:SetTexture (_value)
+		else
+			local file = SharedMedia:Fetch ("statusbar", _value)
+			if (file) then
+				_object.background:SetTexture (file)
+			else
+				_object.background:SetTexture (_value)
+			end
+		end
+		return
+	end
 	--> font face
 	local smember_textfont = function (_object, _value)
 		DF:SetFontFace (_object.textleft, _value)
@@ -286,8 +305,10 @@ local BarMetaFunctions = _G [DF.GlobalWidgetControlNames ["normal_bar"]]
 	BarMetaFunctions.SetMembers["righttext"] = smember_rtext
 	BarMetaFunctions.SetMembers["lefttext"] = smember_ltext
 	BarMetaFunctions.SetMembers["color"] = smember_color
+	BarMetaFunctions.SetMembers["backgroundcolor"] = smember_backgroundcolor
 	BarMetaFunctions.SetMembers["icon"] = smember_icon
 	BarMetaFunctions.SetMembers["texture"] = smember_texture
+	BarMetaFunctions.SetMembers["backgroundtexture"] = smember_backgroundtexture
 	BarMetaFunctions.SetMembers["fontsize"] = smember_textsize
 	BarMetaFunctions.SetMembers["fontface"] = smember_textfont
 	BarMetaFunctions.SetMembers["fontcolor"] = smember_textcolor

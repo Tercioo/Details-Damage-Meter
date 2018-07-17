@@ -13,7 +13,7 @@
 --> details api functions
 
 	--> create a button which will be displayed on tooltip
-	function _detalhes.ToolBar:NewPluginToolbarButton (func, icon, pluginname, tooltip, w, h, framename)
+	function _detalhes.ToolBar:NewPluginToolbarButton (func, icon, pluginname, tooltip, w, h, framename, menu_function)
 
 		--> random name if nameless
 		if (not framename) then
@@ -36,6 +36,7 @@
 		
 		--> tooltip and function on click
 		button.tooltip = tooltip
+		button.menu = menu_function
 		button:SetScript ("OnClick", func)
 		
 		--> textures
@@ -164,6 +165,33 @@ end
 		end
 	
 		if (button.tooltip) then
+			if (button.menu) then
+				_detalhes.gump:QuickDispatch (button.menu)
+				
+				local next_check = 0.8
+				
+				--check if the mouse is still interacting with the menu or with the button
+				button:SetScript ("OnUpdate", function (self, elapsed)
+					next_check = next_check - elapsed
+					
+					if (next_check < 0) then
+						if (not GameCooltipFrame1:IsMouseOver() and not button:IsMouseOver()) then
+							GameCooltip2:Hide()
+							button:SetScript ("OnUpdate", nil)
+							return
+						end
+						next_check = 0.8
+					end
+				end)
+				
+				--disable the hider menu if the cooltip is required in another place
+				hooksecurefunc (GameCooltip2, "ShowCooltip", function()
+					button:SetScript ("OnUpdate", nil)
+				end)
+				
+				return
+			end
+		
 			GameCooltip:Hide()
 			local plugin_object = _detalhes:GetPlugin (button.__name)
 			
@@ -174,10 +202,10 @@ end
 			_detalhes:SetFontSize (f.desc, _detalhes.font_sizes.menus)
 			_detalhes:SetFontFace (f.desc, _detalhes.font_faces.menus)
 			
-			f.background:SetTexture (_detalhes.tooltip.menus_bg_texture)
+			--f.background:SetTexture (_detalhes.tooltip.menus_bg_texture)
 			f.background:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
 			f.background:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
-			f.background:SetDesaturated (true)
+			--f.background:SetDesaturated (true)
 			
 			f.BackdropTable.bgFile = _detalhes.tooltip_backdrop.bgFile
 			f.BackdropTable.edgeFile = [[Interface\Buttons\WHITE8X8]] --_detalhes.tooltip_backdrop.edgeFile
@@ -193,6 +221,8 @@ end
 			f:SetPoint ("bottom", button, "top", 0, 10)
 			f:Show()
 			--SharedMedia:Fetch ("font", "Friz Quadrata TT")
+			
+			
 		end
 	end
 	--[[global]] function DetailsToolbarButtonOnLeave (button)

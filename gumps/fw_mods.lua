@@ -491,7 +491,7 @@ end
 
 function gump:NewScrollBar (master, slave, x, y)
 
-	local slider_gump = CreateFrame ("Slider", nil, master)
+	local slider_gump = CreateFrame ("Slider", master:GetName() and master:GetName() .. "SliderGump" or "DetailsSliderGump" .. math.random (1, 10000000), master)
 	slider_gump.scrollMax = 560 --default - tamanho da janela de fundo
 
 	-- ///// SLIDER /////
@@ -513,30 +513,30 @@ function gump:NewScrollBar (master, slave, x, y)
 	slider_gump:SetValue(0)
 	slider_gump.ultimo = 0
 
-	local botao_cima = CreateFrame ("Button", nil, master)
+	local botao_cima = CreateFrame ("Button", slider_gump:GetName() .. "UpButton", master)
 	
+	botao_cima:SetWidth (29)
+	botao_cima:SetHeight (32)
+	botao_cima:SetNormalTexture ([[Interface\Buttons\Arrow-Up-Up]])
+	botao_cima:SetPushedTexture ([[Interface\Buttons\Arrow-Up-Down]])
+	botao_cima:SetDisabledTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
+	botao_cima:Show()
+	botao_cima:Disable()
+
 	botao_cima:SetPoint ("BOTTOM", slider_gump, "TOP", 0, -12)
 	botao_cima.x = 0
 	botao_cima.y = -12
 	
-	botao_cima:SetWidth (29)
-	botao_cima:SetHeight (32)
-	botao_cima:SetNormalTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
-	botao_cima:SetPushedTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Down")
-	botao_cima:SetDisabledTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Disabled")
-	botao_cima:Show()
-	botao_cima:Disable()
-	
-	local botao_baixo = CreateFrame ("Button", nil, master)
+	local botao_baixo = CreateFrame ("Button", slider_gump:GetName() .. "DownButton", master)
 	botao_baixo:SetPoint ("TOP", slider_gump, "BOTTOM", 0, 12)
 	botao_baixo.x = 0
 	botao_baixo.y = 12
 	
 	botao_baixo:SetWidth (29)
 	botao_baixo:SetHeight (32)
-	botao_baixo:SetNormalTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollDownButton-Up")
-	botao_baixo:SetPushedTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollDownButton-Down")
-	botao_baixo:SetDisabledTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollDownButton-Disabled")	
+	botao_baixo:SetNormalTexture ([[Interface\Buttons\Arrow-Down-Up]])
+	botao_baixo:SetPushedTexture ([[Interface\Buttons\Arrow-Down-Down]])
+	botao_baixo:SetDisabledTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
 	botao_baixo:Show()
 	botao_baixo:Disable()
 

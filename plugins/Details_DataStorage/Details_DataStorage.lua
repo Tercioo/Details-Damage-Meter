@@ -29,7 +29,9 @@ f:SetScript ("OnEvent", function (self, event, addonName)
 			end
 		end
 		
-		print ("|cFFFFFF00Details! Storage|r: loaded!")
+		if (_detalhes and _detalhes.debug) then
+			print ("|cFFFFFF00Details! Storage|r: loaded!")
+		end
 		DETAILS_STORAGE_LOADED = true
 		
 	end

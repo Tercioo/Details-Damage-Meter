@@ -279,10 +279,11 @@
 				return format ("%.2f", numero/1000000000) .. "B"
 			elseif (numero > 1000000) then
 				return _string_format ("%.2f", numero/1000000) .. "M"
-			elseif (numero > 1000) then
+			elseif (numero > 999) then
 				return _string_format ("%.1f", numero/1000) .. "K"
 			end
-			return _string_format ("%.1f", numero)
+			
+			return _string_format ("%.0f", numero)
 		end
 		
 		function _detalhes:ToK2 (numero)
@@ -295,7 +296,8 @@
 			elseif (numero > 999) then
 				return _string_format ("%.1f", (numero/1000)) .. "K"
 			end
-			return _string_format ("%.1f", numero)
+			
+			return _string_format ("%.0f", numero)
 		end
 		
 		--> short numbers no numbers after comma
@@ -307,6 +309,7 @@
 			elseif (numero > 1000) then
 				return _string_format ("%.0f", numero/1000) .. "K"
 			end
+			
 			return _string_format ("%.0f", numero)
 		end
 	
@@ -316,7 +319,8 @@
 			elseif (numero > 1000) then
 				return _string_format ("%.1f", numero/1000) .. "k"
 			end
-			return _string_format ("%.1f", numero)
+			
+			return _string_format ("%.0f", numero)
 		end
 		
 		function _detalhes:ToK2Min (numero)
@@ -327,7 +331,8 @@
 			elseif (numero > 999) then
 				return _string_format ("%.1f", (numero/1000)) .. "k"
 			end
-			return _string_format ("%.1f", numero)
+			
+			return _string_format ("%.0f", numero)
 		end
 		
 		--> short numbers no numbers after comma
@@ -337,6 +342,7 @@
 			elseif (numero > 1000) then
 				return _string_format ("%.0f", numero/1000) .. "k"
 			end
+			
 			return _string_format ("%.0f", numero)
 		end
 		
@@ -347,6 +353,7 @@
 			elseif (numero > 1000) then
 				return _string_format ("%.1f", numero/1000) .. "K"
 			end
+			
 			return numero
 		end
 		
@@ -581,7 +588,7 @@
 				s = s .. space .. "[" .. key .. "] = |cFFffc1f4" .. value .. "|r\n"
 				
 			elseif (tpe == "function") then
-				s = s .. space .. "[" .. key .. "] = function()\n"
+				s = s .. space .. "|cFFa9a9ff[|r" .. key .. "|cFFa9a9ff]|r = |cFFa9a9fffunction()|r\n"
 				
 			elseif (tpe == "boolean") then
 				s = s .. space .. "[" .. key .. "] = |cFF99d0ff" .. (value and "true" or "false") .. "|r\n"

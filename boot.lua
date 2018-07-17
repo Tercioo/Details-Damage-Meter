@@ -1,21 +1,17 @@
- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 5572
-		_detalhes.userversion = "v7.3.5." .. _detalhes.build_counter
-		_detalhes.realversion = 130 --core version
+		_detalhes.build_counter = 5985
+		_detalhes.userversion = "v8.0.1." .. _detalhes.build_counter
+		_detalhes.realversion = 131 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
+		_detalhes.BFACORE = 131
 		Details = _detalhes
-
+		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
-
-		local version, build, date, tocversion = GetBuildInfo()
-		--in case someone is using details! retail version on BFA beta
-		--also when BFA launches, it should work in case the player doesn't update it
-		_detalhes.IsBFAClient = tocversion >= 80000
 
 do 
 
@@ -165,6 +161,15 @@ do
 			_detalhes.instance_title_text_timer = {}
 		--> player detail skin
 			_detalhes.playerdetailwindow_skins = {}
+		
+		--> auto run code
+		_detalhes.RunCodeTypes = {
+			{Name = "On Initialization", Desc = "Run code when Details! initialize or when a profile is changed.", Value = 1, ProfileKey = "on_init"},
+			{Name = "On Zone Changed", Desc = "Run code when the zone where the player is in has changed (e.g. entered in a raid).", Value = 2, ProfileKey = "on_zonechanged"},
+			{Name = "On Enter Combat", Desc = "Run code when the player enters in combat.", Value = 3, ProfileKey = "on_entercombat"},
+			{Name = "On Leave Combat", Desc = "Run code when the player left combat.", Value = 4, ProfileKey = "on_leavecombat"},
+			{Name = "On Spec Change", Desc = "Run code when the player has changed its specialization.", Value = 5, ProfileKey = "on_specchanged"},
+		}
 		
 		--> tooltip
 			_detalhes.tooltip_backdrop = {

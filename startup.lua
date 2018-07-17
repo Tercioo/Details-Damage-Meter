@@ -84,6 +84,8 @@ function _G._detalhes:Start()
 			self:InitializeAuraCreationWindow()
 			self:InitializeCustomDisplayWindow()
 			self:InitializeAPIWindow()
+			self:InitializeRunCodeWindow()
+			self:InitializePlaterIntegrationWindow()
 			
 		--> bookmarks
 			if (self.switch.InitSwitch) then
@@ -180,7 +182,7 @@ function _G._detalhes:Start()
 			end
 			
 			--> refresh lower instance plugin icons and skin
-			_detalhes.ToolBar:ReorganizeIcons() 
+			_detalhes.ToolBar:ReorganizeIcons()
 			--> refresh skin for other windows
 			if (lower_instance) then
 				for i = lower_instance+1, #self.tabela_instancias do
@@ -245,17 +247,16 @@ function _G._detalhes:Start()
 		--> load parser capture options
 			self:CaptureRefresh()
 		--> register parser events
-			if (not _detalhes.IsBFAClient) then
-				self.listener:RegisterEvent ("SPELL_SUMMON")
-				self.listener:RegisterEvent ("PARTY_MEMBERS_CHANGED")
-				self.listener:RegisterEvent ("PARTY_CONVERTED_TO_RAID")
-			end
 			
 			self.listener:RegisterEvent ("PLAYER_REGEN_DISABLED")
 			self.listener:RegisterEvent ("PLAYER_REGEN_ENABLED")
+			--self.listener:RegisterEvent ("SPELL_SUMMON") --triggering error on 8.0
 			self.listener:RegisterEvent ("UNIT_PET")
-			
+
+			--self.listener:RegisterEvent ("PARTY_MEMBERS_CHANGED") --triggering error on 8.0
 			self.listener:RegisterEvent ("GROUP_ROSTER_UPDATE")
+			--self.listener:RegisterEvent ("PARTY_CONVERTED_TO_RAID") --triggering error on 8.0
+			
 			self.listener:RegisterEvent ("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			
 			self.listener:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
@@ -286,22 +287,23 @@ function _G._detalhes:Start()
 			
 			function immersionFrame.CheckIfCanEnableImmersion()
 			
-				if (_detalhes.IsBFAClient) then
-					return
-				end
-			
-				local mapFileName = GetMapInfo()	
-				if (mapFileName and mapFileName:find ("InvasionPoint")) then
-					self.immersion_enabled = true
-					if (immersionFrame.DevelopmentDebug) then
-						print ("Details!", "CheckIfCanEnableImmersion() > immersion enabled.")
-					end
-				else
-					if (self.immersion_enabled) then
+				local mapID =  C_Map.GetBestMapForUnit ("player")
+				if (mapID) then
+					local mapFileName = C_Map.GetMapInfo (mapID)
+					mapFileName = mapFileName and mapFileName.name
+					
+					if (mapFileName and mapFileName:find ("InvasionPoint")) then
+						self.immersion_enabled = true
 						if (immersionFrame.DevelopmentDebug) then
-							print ("Details!", "CheckIfCanEnableImmersion() > immersion disabled.")
+							print ("Details!", "CheckIfCanEnableImmersion() > immersion enabled.")
 						end
-						self.immersion_enabled = nil
+					else
+						if (self.immersion_enabled) then
+							if (immersionFrame.DevelopmentDebug) then
+								print ("Details!", "CheckIfCanEnableImmersion() > immersion disabled.")
+							end
+							self.immersion_enabled = nil
+						end
 					end
 				end
 			end
@@ -452,7 +454,7 @@ function _G._detalhes:Start()
 					local instance = self:GetInstance (lower_instance)
 					if (instance) then
 						local func = {function() end}
-						instance:InstanceAlert ("Showing Mythic+ Overall Segment", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 6, func, true)
+						instance:InstanceAlert ("Showing Mythic+ Run Segment", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 6, func, true)
 					end
 				end
 			end
@@ -987,21 +989,17 @@ function _G._detalhes:Start()
 				local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 				local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
 				
-				local ejID
 				
-				if (_detalhes.IsBFAClient) then
-					local mapID = C_Map.GetBestMapForUnit ("player")
-					
-					if (not mapID) then
-						--print ("Details! exeption handled: zone has no map")
-						return
-					end
-					
-					ejID = EJ_GetInstanceForMap (mapID) or 0
-				else
-					ejID = EJ_GetCurrentInstance()
+				local mapID = C_Map.GetBestMapForUnit ("player")
+				
+				if (not mapID) then
+					--print ("Details! exeption handled: zone has no map")
+					return
 				end
-
+				
+				local ejID = EJ_GetInstanceForMap (mapID)
+				--local ejID = EJ_GetCurrentInstance()
+				
 				--> setup the mythic run info
 				self.MythicPlus.Started = true
 				self.MythicPlus.DungeonName = zoneName
@@ -1275,7 +1273,7 @@ function _G._detalhes:Start()
 		end
 		
 	--> send feedback panel if the user got 100 or more logons with details
-		if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
+		if (self.tutorial.logons == 100) then --  and self.tutorial.logons < 104
 			if (not self.tutorial.feedback_window1 and not _detalhes.streamer_config.no_alerts) then
 				--> check if isn't inside an instance
 				if (_detalhes:IsInCity()) then
@@ -1287,7 +1285,6 @@ function _G._detalhes:Start()
 	
 	--> check is this is the first run of this version
 		if (self.is_version_first_run) then
-
 			local enable_reset_warning = true
 		
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
@@ -1303,6 +1300,58 @@ function _G._detalhes:Start()
 			
 			-->  show streamer update panel
 			--[
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.BFACORE and enable_reset_warning) then
+			
+				--> BFA launch
+				
+				C_Timer.After (5, function()
+					
+					_detalhes:Msg ("Some settings has been reseted for 8.0.1 patch.")
+					
+					--> check and reset minimalistic skin to the new minimalistic
+						local oldColor = {
+							0.333333333333333, -- [1]
+							0.333333333333333, -- [2]
+							0.333333333333333, -- [3]
+							0.3777777777777, -- [4]	
+						}
+					
+						for ID, instance in _detalhes:ListInstances() do
+							if (instance:IsEnabled()) then
+								local instanceColor = instance.color
+								if (_detalhes.gump:IsNearlyEqual (instanceColor[1], oldColor[1])) then
+									if (_detalhes.gump:IsNearlyEqual (instanceColor[2], oldColor[2])) then
+										if (_detalhes.gump:IsNearlyEqual (instanceColor[3], oldColor[3])) then
+											if (_detalhes.gump:IsNearlyEqual (instanceColor[4], oldColor[4])) then
+											
+												_detalhes:Msg ("Updating the Minimalistic skin.")
+											
+												instance:ChangeSkin ("Minimalistic v2")
+												instance:ChangeSkin ("Minimalistic")
+											end
+										end
+									end
+								end
+							end
+						end
+					
+					--> apply some new settings:
+						_detalhes.show_arena_role_icon = false --don't  show the arena icon by default
+						_detalhes.segments_amount = 18
+						_detalhes.segments_amount_to_save = 18
+						_detalhes.use_row_animations = true
+						_detalhes.update_speed = math.min (0.33, _detalhes.update_speed)
+						_detalhes.death_tooltip_width = math.max (_detalhes.death_tooltip_width, 350)
+						_detalhes.use_battleground_server_parser = false
+						
+					--> wipe item level cache
+						wipe (_detalhes.item_level_pool)
+					
+				end)
+			
+			end
+			
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 127 and enable_reset_warning) then
 				if (not _detalhes:GetTutorialCVar ("STREAMER_FEATURES_POPUP1")) then
 					_detalhes:SetTutorialCVar ("STREAMER_FEATURES_POPUP1", true)
@@ -1700,6 +1749,85 @@ function _G._detalhes:Start()
 		_detalhes.streamer_config.use_animation_accel = true
 	end
 	
+	--> auto run scripts
+		local codeTable = _detalhes.run_code
+		_detalhes.AutoRunCode = {}
+		
+		--> compile and store code
+		function _detalhes:RecompileAutoRunCode()
+			for codeKey, code in pairs (codeTable) do
+				local func, errorText = loadstring (code)
+				if (func) then
+					_detalhes.AutoRunCode [codeKey] = func
+				else
+					--> if the code didn't pass, create a dummy function for it without triggering errors
+					_detalhes.AutoRunCode [codeKey] = function() end
+				end
+			end
+		end
+		
+		_detalhes:RecompileAutoRunCode()
+		
+		--> function to dispatch events
+		function _detalhes:DispatchAutoRunCode (codeKey)
+			local func = _detalhes.AutoRunCode [codeKey]
+			_detalhes.gump:QuickDispatch (func)
+		end
+		
+		--> auto run frame to dispatch scrtips for some events that details! doesn't handle
+		local auto_run_code_dispatch = CreateFrame ("frame")
+		auto_run_code_dispatch:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
+		
+		auto_run_code_dispatch.OnEventFunc = function (self, event)
+			--> ignore events triggered more than once in a small time window
+			if (auto_run_code_dispatch [event] and not auto_run_code_dispatch [event]._cancelled) then
+				return
+			end
+		
+			if (event == "PLAYER_SPECIALIZATION_CHANGED") then
+				--> create a trigger for the event, many times it is triggered more than once
+				--> so if the event is triggered a second time, it will be ignored
+				local newTimer = C_Timer.NewTimer (1, function()
+					_detalhes:DispatchAutoRunCode ("on_specchanged")
+					
+					--> clear and invalidate the timer
+					auto_run_code_dispatch [event]:Cancel()
+					auto_run_code_dispatch [event] = nil
+				end)
+				
+				--> store the trigger
+				auto_run_code_dispatch [event] = newTimer
+			end
+		end
+		
+		auto_run_code_dispatch:SetScript ("OnEvent", auto_run_code_dispatch.OnEventFunc)
+		
+		--> dispatch scripts at startup
+		C_Timer.After (2, function()
+			_detalhes:DispatchAutoRunCode ("on_init")
+			_detalhes:DispatchAutoRunCode ("on_specchanged")
+			_detalhes:DispatchAutoRunCode ("on_zonechanged")
+			
+			if (InCombatLockdown()) then
+				_detalhes:DispatchAutoRunCode ("on_entercombat")
+			else
+				_detalhes:DispatchAutoRunCode ("on_leavecombat")
+			end
+		end)
+		
+	--> Plater integration
+		C_Timer.After (2, function()
+			_detalhes:RefreshPlaterIntegration()
+		end)
+
+	
+	--BFA BETA
+	C_Timer.After (1, function()
+		if (ScriptErrorsFrame and ScriptErrorsFrame:IsShown()) then
+			--ScriptErrorsFrame:Hide()
+		end
+	end)
+
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()

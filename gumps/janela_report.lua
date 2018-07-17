@@ -57,7 +57,6 @@ local _UIParent = UIParent --> wow api locals
 		local t = _detalhes.latest_report_table [index]
 		
 		if (t) then
-		
 			if (not DetailsReportWindow) then
 				gump:CriaJanelaReport()
 				DetailsReportWindow:Hide()
@@ -74,12 +73,6 @@ local _UIParent = UIParent --> wow api locals
 			instance:monta_relatorio()
 			
 			instance:SetDisplay (nil, cattribute, csubattribute)
-			
-			if (index > 5) then
-				local t = _detalhes.latest_report_table [index]
-				tremove (_detalhes.latest_report_table, index)
-				tinsert (_detalhes.latest_report_table, 1, t)
-			end
 			
 			GameCooltip:Hide()
 		end
@@ -965,7 +958,7 @@ local function cria_drop_down (este_gump)
 				local last_reports = _detalhes.latest_report_table
 				if (#last_reports > 0) then
 					local i = 1
-					for index = 1, min (#last_reports, 10) do
+					for index = 1, min (#last_reports, 8) do
 						local b = window.recently_report_buttons [i]
 						local report = last_reports [index]
 						local instance_number, attribute, subattribute, amt, report_where = unpack (report)

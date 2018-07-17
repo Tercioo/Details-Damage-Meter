@@ -1,4 +1,4 @@
-## Interface: 70300
+## Interface: 80000
 ## Title: Details Vanguard (plugin)
 ## Notes: Plugin for Details
 ## SavedVariablesPerCharacter: _detalhes_databaseVanguard

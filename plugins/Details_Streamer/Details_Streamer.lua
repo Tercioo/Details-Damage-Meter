@@ -145,7 +145,7 @@ local function CreatePluginFrames()
 	titlebar:SetBackdropColor (.1, .1, .1, .9)
 	titlebar.text = titlebar:CreateFontString (nil, "overlay", "GameFontNormal")
 	titlebar.text:SetPoint ("center", titlebar, "center")
-	titlebar.text:SetText ("Details!: Streamer")
+	titlebar.text:SetText ("Details! Streamer: Action Tracker")
 	titlebar:SetScript ("OnEnter", function (self) 
 		GameTooltip:SetOwner (self)
 		GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
@@ -305,8 +305,8 @@ local function CreatePluginFrames()
 	
 	
 	
-
-
+	
+	
 	--> scroll frame
 	local autoscroll = CreateFrame ("scrollframe", "Details_StreamOverlayScrollFrame", SOF, "FauxScrollFrameTemplate")
 	autoscroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, StreamOverlay.UpdateLines) end)
@@ -461,8 +461,10 @@ local function CreatePluginFrames()
 		f:SetPoint ("topleft", SOF, "topleft", 0, h)
 		f:SetPoint ("topright", SOF, "topright", 0, h)
 
+		--backdrop color not editable
 		f:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		f:SetBackdropBorderColor (0, 0, 0, 0)
+		--f:SetBackdropColor (0, 0, 0, 0)
 		
 		local icon1 = statusbar:CreateTexture (nil, "overlay")
 		local icon2 = statusbar:CreateTexture (nil, "overlay")
@@ -834,7 +836,7 @@ function StreamOverlay:CastFinished (castid)
 	local target = CastsTable [castid].Target
 	local caststart = CastsTable [castid].CastStart
 	local hascasttime = CastsTable [castid].HasCastTime
-
+	
 	if (ban_spells [spellid]) then
 		return
 	end
@@ -896,7 +898,7 @@ listener.track_spell_cast = function()
 					
 				elseif (castinfo.IsChanneled) then
 					--> casting a channeled spell
-					local name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo ("player")
+					local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo ("player")
 
 					if (name) then
 						startTime = startTime / 1000
@@ -920,7 +922,7 @@ listener.track_spell_cast = function()
 
 				else
 					--> still casting
-					local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, interrupt = UnitCastingInfo ("player")
+					local spell, displayName, icon, startTime, endTime, isTradeSkill, castID, interrupt = UnitCastingInfo ("player")
 					if (spell) then
 						startTime = startTime / 1000
 						endTime = endTime / 1000
@@ -1042,53 +1044,71 @@ end
 	--print (self, event, ...)
 
 	if (event == "UNIT_SPELLCAST_SENT") then
-		local unitID, spell, rank, target, id = ...
+		
+		local unitID, target, castGUID, spellID = ...
+		--local unitID, spell, rank, target, id = ...
+		spell = GetSpellInfo (spellID)
+		
+		--print (spell, ...)
+		
 		if (unitID == "player") then
-			CastsTable [id] = {Target = target, Id = id, CastStart = GetTime()}
-			lastChannelSpell = id
+			CastsTable [castGUID] = {Target = target or "", Id = castGUID, CastStart = GetTime()}
+			lastChannelSpell = castGUID
 			lastspell = spell
-			lastcastid = id
+			lastspellID = spellID
+			lastcastid = castGUID
 		end
 	
 	elseif (event == "UNIT_SPELLCAST_START") then
-		local unitID, spell, rank, id, spellID = ...
-		if (unitID == "player" and CastsTable [id]) then
-			CastsTable [id].SpellId = spellID
-			CastsTable [id].HasCastTime = true
-			StreamOverlay:CastStart (id)
+		--print ("UNIT_SPELLCAST_START", ...)
+		
+		--spell, rank, id, 
+		local unitID, castGUID, spellID = ...
+		
+		if (unitID == "player" and CastsTable [castGUID]) then
+			CastsTable [castGUID].SpellId = spellID
+			CastsTable [castGUID].HasCastTime = true
+			StreamOverlay:CastStart (castGUID)
 		end
 	
 	elseif (event == "UNIT_SPELLCAST_INTERRUPTED") then
-		local unitID, spell, rank, id, spellID = ...
+		--local unitID, spell, rank, id, spellID = ...
+		local unitID, castGUID, spellID = ...
+		--print ("UNIT_SPELLCAST_INTERRUPTED", ...)
 		
-		if (unitID == "player" and CastsTable [id]) then
-			CastsTable [id].Interrupted = true
+		if (unitID == "player" and CastsTable [castGUID]) then
+			CastsTable [castGUID].Interrupted = true
 		end
 
 	--> channels isn't passing the CastID / cast id for channels is always Zero.
 	elseif (event == "UNIT_SPELLCAST_CHANNEL_STOP") then
-		local unitID, spell, rank, id, spellID = ...
+		--local unitID, spell, rank, id, spellID = ...
+		local unitID, castGUID, spellID = ...
 		
 		if (unitID == "player") then
-			id = lastchannelid
+			castGUID = lastchannelid
 		
-			if (not CastsTable [id]) then
+			if (not CastsTable [castGUID]) then
 				--print ("not", " - ", id, " - ", lastChannelSpell)
-				id = lastChannelSpell
-				if (not id or not CastsTable [id]) then
+				castGUID = lastChannelSpell
+				if (not castGUID or not CastsTable [castGUID]) then
 					return
 				end
 			end
-			CastsTable [id].Interrupted = true
+			CastsTable [castGUID].Interrupted = true
 			ischanneling = false
 			lastchannelid = nil
 		end
 	
 	elseif (event == "UNIT_SPELLCAST_CHANNEL_START") then
-		local unitID, spell, rank, id, spellID = ...
-		if (unitID == "player" and (CastsTable [id] or spell == lastspell)) then
-			if (id == 0) then
-				id = lastcastid
+		--local unitID, spell, rank, id, spellID = ...
+		--print ("UNIT_SPELLCAST_CHANNEL_START", ...)
+		
+		local unitID, castGUID, spellID = ...
+		
+		if (unitID == "player" and (CastsTable [castGUID] or spellID == lastspellID)) then
+			if (castGUID == "" or not castGUID) then
+				castGUID = lastcastid
 			end
 			
 			if (ischanneling) then
@@ -1096,36 +1116,41 @@ end
 				CastsTable [lastchannelid].Interrupted = true
 			end
 			
-			if (not CastsTable [id]) then
+			if (not CastsTable [castGUID]) then
 				--print ("not", " - ", id, " - ", lastChannelSpell)
-				id = lastChannelSpell
+				castGUID = lastChannelSpell
 			end
 			
-			CastsTable [id].HasCastTime = true
-			CastsTable [id].IsChanneled = true
-			CastsTable [id].SpellId = spellID
-			lastchannelid = id
+			CastsTable [castGUID].HasCastTime = true
+			CastsTable [castGUID].IsChanneled = true
+			CastsTable [castGUID].SpellId = spellID
+			lastchannelid = castGUID
 			ischanneling = true
 			
+			local spell = GetSpellInfo (spellID)
 			channelspells [spell] = true
 			
-			StreamOverlay:CastStart (id)
+			StreamOverlay:CastStart (castGUID)
 		end
 	
 	elseif (event == "UNIT_SPELLCAST_SUCCEEDED") then
-		local unitID, spell, rank, id, spellID = ...
+		--local unitID, spell, rank, id, spellID = ...
+		local unitID, castGUID, spellID = ...
+		local spell = GetSpellInfo (spellID)
 		
-		if (unitID == "player" and CastsTable[id] and not channelspells [spell]) then
-			if (CastsTable[id].HasCastTime and not CastsTable[id].IsChanneled) then
+		--print (spell, ...)
+		
+		if (unitID == "player" and CastsTable[castGUID] and not channelspells [spell]) then
+			if (CastsTable[castGUID].HasCastTime and not CastsTable[castGUID].IsChanneled) then
 				--> a cast (non channeled) just successful finished
-				CastsTable [id].Success = true
-				StreamOverlay:CastFinished (id)
+				CastsTable [castGUID].Success = true
+				StreamOverlay:CastFinished (castGUID)
 				
-			elseif (not CastsTable[id].HasCastTime) then
+			elseif (not CastsTable[castGUID].HasCastTime) then
 				--> instant cast finished
-				CastsTable [id].SpellId = spellID
-				CastsTable [id].Success = true
-				StreamOverlay:CastFinished (id)
+				CastsTable [castGUID].SpellId = spellID
+				CastsTable [castGUID].Success = true
+				StreamOverlay:CastFinished (castGUID)
 			end
 		end
 	end
@@ -1354,7 +1379,7 @@ end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function StreamOverlay.OpenOptionsPanel()
+function StreamOverlay.OpenOptionsPanel (from_options_panel)
 
 	if (not StreamOverlayOptionsPanel) then
 	
@@ -1366,7 +1391,7 @@ function StreamOverlay.OpenOptionsPanel()
 		local options_slider_template = fw:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
 		local options_button_template = fw:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
 		
-		local options_frame = StreamOverlay:CreatePluginOptionsFrame ("StreamOverlayOptionsPanel", "Details!: Streamer", 1)
+		local options_frame = StreamOverlay:CreatePluginOptionsFrame ("StreamOverlayOptionsPanel", "Details! Streamer: Action Tracker", 1)
 		options_frame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 		options_frame:SetBackdropColor (0, 0, 0, 0.5)
 		options_frame:SetBackdropBorderColor (0, 0, 0, 1)
@@ -1837,10 +1862,27 @@ function StreamOverlay.OpenOptionsPanel()
 			
 		end
 		
+		options_frame:SetScript ("OnHide", function()
+			if (StreamOverlay.FromOptionsPanel) then
+				--> reopen the options panel
+				C_Timer.After (0.2, function()
+					Details:OpenOptionsWindow(Details:GetInstance(1))
+				end)
+			end
+		end)
+		
 	end
 	
 	StreamOverlayOptionsPanel:Show()
-
+	StreamOverlay.FromOptionsPanel = from_options_panel
+	if (from_options_panel) then
+		if (DetailsOptionsWindow) then
+			C_Timer.After (0.2, function()
+				DetailsOptionsWindow:Hide()
+			end)
+		end
+	end
+	
 end
 
 
@@ -1909,7 +1951,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				
 				StreamOverlay:SetPluginDescription ("Show in real time the spells you are casting.\n\nThe viewer can now follow what you are doing, what spells you are casting, learn your rotation.\n\nAlso tells who is the target and its class/spec on raiding or role if you are in arena.\n\nWhen you die, the panel is filled with your death log.")
 				
-				if (StreamOverlay.db.is_first_run) then
+				if (StreamOverlay.db.is_first_run) then --problem with setting the plugin as disabled
 					if (Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
 						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
 						StreamOverlay.db.is_first_run = false
@@ -1919,10 +1961,10 @@ function StreamOverlay:OnEvent (_, event, ...)
 				end
 				
 				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
-					
+
 					local show_frame = function()
 					
-						if ((DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) or not Details:GetTutorialCVar ("MEMORY_USAGE_ALERT1") or not StreamOverlay.db.is_first_run) then
+						if ((DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) or not StreamOverlay.db.is_first_run) then
 							return
 						end
 						
@@ -1982,6 +2024,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 				_detalhes.table.deploy (ptable, StreamOverlay.db) --local settings deploy stuff which non exist on profile
 				
 				Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] = ptable
+				
+				
 				
 			end
 		end

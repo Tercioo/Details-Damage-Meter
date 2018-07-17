@@ -33,6 +33,9 @@
 	local _GetSpellInfo = _detalhes.getspellinfo --details api
 	local _string_replace = _detalhes.string.replace --details api
 
+	--show more information about spells
+	local debugmode = false
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
@@ -2679,7 +2682,7 @@ local InBarIconPadding = 0
 				if (UsingCustomLeftText) then
 					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, " ", self, instance.showing))
 				else
-					bar.texto_esquerdo:SetText (bar_number .. " " .. self.displayName)
+					bar.texto_esquerdo:SetText (bar_number .. self.displayName)
 				end
 			end
 		else
@@ -3863,7 +3866,11 @@ end
 	end
 	
 	if (type (index) == "number") then
-		row.texto_esquerdo:SetText (index .. ". " .. name)
+		if (debugmode) then
+			row.texto_esquerdo:SetText (index .. ". " .. name .. " (" .. spellid .. ")")
+		else
+			row.texto_esquerdo:SetText (index .. ". " .. name)
+		end
 	else
 		row.texto_esquerdo:SetText (name)
 	end
@@ -3915,7 +3922,7 @@ end
 			row.textura:SetStatusBarColor (1, 1, 1)
 		end
 	else
-		if (spellid == 98021) then
+		if (spellid == 98021) then --spirit linkl
 			row.textura:SetStatusBarColor (1, 0.4, 0.4)
 		else
 			row.textura:SetStatusBarColor (1, 1, 1)

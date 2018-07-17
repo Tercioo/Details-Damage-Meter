@@ -332,21 +332,16 @@ do
 	end
 	
 	function _detalhes:GetCurrentDungeonBossListFromEJ()
-
-		local EJ_CInstance
-	
-		if (_detalhes.IsBFAClient) then
-			local mapID = C_Map.GetBestMapForUnit ("player")
-			
-			if (not mapID) then
-				--print ("Details! exeption handled: zone has no map")
-				return
-			end
-			
-			EJ_CInstance = EJ_GetInstanceForMap (mapID)
-		else
-			EJ_CInstance = EJ_GetCurrentInstance()
+		--local EJ_CInstance = EJ_GetCurrentInstance()
+		
+		local mapID = C_Map.GetBestMapForUnit ("player")
+		
+		if (not mapID) then
+			--print ("Details! exeption handled: zone has no map")
+			return
 		end
+		
+		local EJ_CInstance = EJ_GetInstanceForMap(mapID)
 		
 		if (EJ_CInstance and EJ_CInstance ~= 0) then
 			if (_detalhes.encounter_dungeons [EJ_CInstance]) then

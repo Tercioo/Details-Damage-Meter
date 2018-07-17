@@ -338,7 +338,6 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 --> scripts
 
 	local OnEnter = function (slider)
-	
 		if (_rawget (slider.MyObject, "lockdown")) then
 			return
 		end
@@ -362,8 +361,8 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 			GameCooltip2:AddLine (slider.MyObject.have_tooltip)
 			GameCooltip2:ShowCooltip (slider, "tooltip")
 		else
-			GameCooltip2:Preset (1)
-			GameCooltip2:AddLine ("Right Click to Type the Value")
+			GameCooltip2:Preset (2)
+			GameCooltip2:AddLine ("Right Click to Type the Value", "", 1, "", "", 10)
 			GameCooltip2:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
 			GameCooltip2:ShowCooltip (slider, "tooltip")
 		end
@@ -396,7 +395,6 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 
 	local f = CreateFrame ("frame", "DetailsFrameworkSliderButtons1", UIParent)
 	f:Hide()
-	--f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 5})
 	f:SetHeight (18)
 	
 	local t = 0
@@ -413,8 +411,9 @@ local DFSliderMetaFunctions = _G [DF.GlobalWidgetControlNames ["slider"]]
 	function f:ShowMe (host)
 		f:SetPoint ("bottomleft", host, "topleft", -3, -5)
 		f:SetPoint ("bottomright", host, "topright", 3, -5)
-		f:SetFrameStrata (host:GetFrameStrata())
-		f:SetFrameLevel (host:GetFrameLevel())
+		--f:SetFrameStrata (host:GetFrameStrata())
+		f:SetFrameStrata ("FULLSCREEN")
+		f:SetFrameLevel (host:GetFrameLevel() + 1000)
 		f:Show()
 		if (f.is_going_hide) then
 			f:SetScript ("OnUpdate", nil)
@@ -1146,7 +1145,6 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 
 	SliderObject.slider:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8})
 	SliderObject.slider:SetBackdropColor (0.9, 0.7, 0.7, 1.0)
-	--SliderObject.slider:SetBackdropColor (0, 0, 0, 1)
 
 	SliderObject.thumb = SliderObject.slider:CreateTexture (nil, "artwork")
 	SliderObject.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")

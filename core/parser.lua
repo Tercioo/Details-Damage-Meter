@@ -38,11 +38,15 @@
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
-	local defensive_cooldown_spell_list = _detalhes.DefensiveCooldownSpells --details local
-	local defensive_cooldown_spell_list_no_buff = _detalhes.DefensiveCooldownSpellsNoBuff --details local
-	local cc_spell_list = _detalhes.CrowdControlSpells --details local
+
+	--local cc_spell_list = _detalhes.CrowdControlSpells --details local
+	local cc_spell_list = DetailsFramework.CrowdControlSpells
+	
 	local container_combatentes = _detalhes.container_combatentes --details local
 	local container_habilidades = _detalhes.container_habilidades --details local
+	
+	--> localize the cooldown table from the framework
+	local defensive_cooldowns = DetailsFramework.CooldownsAllDeffensive
 	
 	local spell_damage_func = _detalhes.habilidade_dano.Add --details local
 	local spell_damageMiss_func = _detalhes.habilidade_dano.AddMiss --details local
@@ -156,6 +160,8 @@
 		[233498] = 233490, --Unstable Affliction
 		[233499] = 233490, --Unstable Affliction
 	}
+	
+	_detalhes.OverridedSpellIds = override_spellId
 	
 	--> stormlash and greater blessing of the might
 	local SPELLID_SHAMAN_SLASH_AURA = 195222
@@ -338,6 +344,9 @@
 			who_flags = 0xa48
 			who_serial = ""
 		end
+		
+		--fix for MOTHER Uldir Raid
+		
 		
 		--> Fix for mage prismatic crystal
 		--local npcId = _detalhes:GetNpcIdFromGuid (alvo_serial)
@@ -1211,6 +1220,13 @@
 			return
 		end
 		
+		if (spellid == 268871 or spellid == 267833) then
+			--print ("IGNORING summon of a Corrupted Blood Clone for player", who_name)
+			--5/17 18:16:48.886  SPELL_SUMMON,Creature-0-4028-1861-987-136949-00007DF137,"Corrupted Blood Clone",0xa18,0x0,Creature-0-4028-1861-987-136315-00007DF140,"Remnant of Corruption",0xa28,0x0,267833,"Defense Grid",0x1
+			--5/17 18:16:49.601  SPELL_SUMMON,Player-970-000BDB1F,"Fhqwhgads-Anduin",0x514,0x2,Creature-0-4028-1861-987-136949-00007DF141,"Corrupted Blood Clone",0xa28,0x0,268871,"Corrupted Blood Clone",0x1
+			return
+		end
+		
 --4/22 18:07:54.369  SPELL_SUMMON,Player-3296-009371B2,"FaÃ§ade-Anasterian(US)",0x514,0x0,Creature-0-3198-1448-2131-90477-0000380DAA,"Blood Globule",0xa28,0x0,180410,"Heart Seeker",0x1
 --5/4 15:45:24.222  SPELL_SUMMON,Player-3296-009576DD,"Ã€lÃ«x-Brill(EU)",0x40514,0x0,Creature-0-2083-1448-25606-90513-000047BE44,"Fel Blood Globule",0xa28,0x0,180413,"Heart Seeker",0x1
 
@@ -1786,13 +1802,6 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 					else
 						escudo [alvo_name] [spellid] [who_name] = amount
 					end
-			
-			------------------------------------------------------------------------------------------------
-			--> defensive cooldowns
-				elseif (defensive_cooldown_spell_list [spellid]) then
-					--> usou cooldown
-					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
-
 			end
 
 	------------------------------------------------------------------------------------------------
@@ -2021,12 +2030,6 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 					else
 						-- escudo não encontrado :(
 					end
-
-			------------------------------------------------------------------------------------------------
-			--> defensive cooldowns
-				elseif (defensive_cooldown_spell_list [spellid]) then
-					--> usou cooldown
-					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 					
 			------------------------------------------------------------------------------------------------
 			--> recording buffs
@@ -2349,7 +2352,7 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 				
 				--death log
 					
-					--local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (alvo_name, spellname, nil, "HARMFUL")
+					--local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (alvo_name, spellname, nil, "HARMFUL")
 					--UnitAura ("Kastfall", "Gulp Frog Toxin", nil, "HARMFUL")
 					--print ("Hello World", spellname, name)
 					
@@ -2586,22 +2589,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 	AlternatePowerEnableFrame:SetScript ("OnEvent", function (self, event)
 		if (event == "UNIT_POWER_BAR_SHOW") then
-		
-			if (_detalhes.IsBFAClient) then
-				AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER_UPDATE")
-			else
-				AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER")
-			end
-			
+			AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER_UPDATE") -->  8.0
 			AlternatePowerEnableFrame.IsRunning = true
 		elseif (AlternatePowerEnableFrame.IsRunning and (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED")) then -- and not InCombatLockdown()
-			
-			if (_detalhes.IsBFAClient) then
-				AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER_UPDATE")
-			else
-				AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER")
-			end
-			
+			AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER_UPDATE")
 			AlternatePowerEnableFrame.IsRunning = false
 		end
 	end)
@@ -3013,13 +3004,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--> foi um jogador que castou
 		if (raid_members_cache [who_serial]) then
 			--> check if is a cooldown :D
-			if (defensive_cooldown_spell_list_no_buff [spellid]) then
+			if (defensive_cooldowns [spellid]) then
 				--> usou cooldown
 				if (not alvo_name) then
-					if (defensive_cooldown_spell_list_no_buff [spellid][3] == 1) then
+					if (DetailsFramework.CooldownsDeffense [spellid]) then
 						alvo_name = who_name
-					else
+						
+					elseif (DetailsFramework.CooldownsRaid [spellid]) then
 						alvo_name = Loc ["STRING_RAID_WIDE"]
+						
+					else
+						alvo_name = "--x--x--"
 					end
 				end
 				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
@@ -3236,7 +3231,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 		if (not cc_spell_list [spellid]) then
-			--return print ("nao ta na lista")
+			return 
+			--print ("NO CC:", spellid, spellname, extraSpellID, extraSpellName)
 		end
 
 		if (_bit_band (who_flags, AFFILIATION_GROUP) == 0) then
@@ -3523,15 +3519,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		for i = 1, (_GetNumGroupMembers() + (unit_type == "party" and -1 or 0)) do 
 			for auraIndex = 1, 40 do
 				--gbom
-				
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId
-				
-				if (_detalhes.IsBFAClient) then
-					name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
-				else
-					name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
-				end
-				
+				local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
 				if (name and caster and (UnitInRaid (caster) or UnitInParty (caster))) then
 					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
 						local source_serial = UnitGUID (caster)
@@ -3552,15 +3540,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (unit_type == "party") then
 			for auraIndex = 1, 40 do
 				--gbom
-				
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId
-				
-				if (_detalhes.IsBFAClient) then
-					name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
-				else
-					name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
-				end
-				
+				local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
 				if (name and caster and (UnitInParty (caster))) then
 					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
 						local source_serial = UnitGUID (caster)
@@ -3589,15 +3569,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				return unpack (real_source)
 			else
 				--query the player buffs if not found on cache
-				
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId
-				
-				if (_detalhes.IsBFAClient) then
-					name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
-				else
-					name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
-				end
-				
+				local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
 				if (name) then
 					local source_serial = UnitGUID (caster)
 					if (source_serial) then
@@ -4154,6 +4126,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--end
 		end
 		
+		_detalhes:DispatchAutoRunCode ("on_zonechanged")
+		
 		_detalhes:SchedulePetUpdate (7)
 		_detalhes:CheckForPerformanceProfile()
 	end
@@ -4336,6 +4310,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				instancia:SetCombatAlpha (nil, nil, true)
 			end
 		end
+		
+		_detalhes:DispatchAutoRunCode ("on_entercombat")
 	end
 	
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
@@ -4454,6 +4430,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:CaptureSet (false, "spellcast", false, 10)
 		end
 
+		_detalhes:DispatchAutoRunCode ("on_leavecombat")
 	end
 
 	function _detalhes.parser_functions:ROLE_CHANGED_INFORM (...)
@@ -4713,44 +4690,24 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			tinsert (_detalhes_global.exit_log, "8 - Saving nicktag cache.")
 			_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
 	end)
-		
+	
 	--> end
 	
 	-- ~parserstart ~startparser
 	
 	
 	
-	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
-	
-	
+	function _detalhes.OnParserEvent()
 		-- 8.0 changed
-		if (_detalhes.IsBFAClient) then
-			local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
-			
-			local funcao = token_list [token]
-			if (funcao) then
-				return funcao (nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
-			end
-			
-			return
-		end
-
-	
-		local funcao = token_list [token]
-
---		if (token == "COMBATANT_INFO") then
---			print ("COMBATANT_INFO", evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2)
---		end
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 		
---		if (who_name == "Ditador") then
---			print (token, alvo_name, ...)
---		end
-
+		local funcao = token_list [token]
+		
 		if (funcao) then
 			--if (token ~= "SPELL_AURA_REFRESH" and token ~= "SPELL_AURA_REMOVED" and token ~= "SPELL_AURA_APPLIED") then
 			--	print ("running func:", token)
 			--end
-			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
+			return funcao (nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		else
 			return
 		end

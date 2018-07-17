@@ -376,7 +376,7 @@ local function CreatePluginFrames (data)
 				local aggro = topThreat [6] * (CheckInteractDistance ("target", 3) and 1.1 or 1.3)
 				
 				pullRow:SetLeftText ("Pull Aggro At")
-				local realPercent = _math_floor (aggro / topThreat [6] * 100)
+				local realPercent = _math_floor (aggro / max (topThreat [6], 0.01) * 100)
 				pullRow:SetRightText ("+" .. ThreatMeter:ToK2 (aggro - myThreat) .. " (" .. _math_floor (_math_abs ((myThreat / aggro * 100) - realPercent)) .. "%)") --
 				pullRow:SetValue (100)
 				

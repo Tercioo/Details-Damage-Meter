@@ -517,7 +517,87 @@ local function CreatePluginFrames (data)
 		return true
 	end
 	
-	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\AddOns\\Details_EncounterDetails\\images\\icon", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 16, 16, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
+	local cooltip_menu = function()
+		
+		local CoolTip = GameCooltip2
+		
+		CoolTip:Reset()
+		CoolTip:SetType ("menu")
+		
+		CoolTip:SetOption ("TextSize", Details.font_sizes.menus)
+		CoolTip:SetOption ("TextFont", Details.font_faces.menus)		
+		
+		CoolTip:SetOption ("ButtonHeightModSub", -2)
+		CoolTip:SetOption ("ButtonHeightMod", -5)
+		
+		CoolTip:SetOption ("ButtonsYModSub", -3)
+		CoolTip:SetOption ("ButtonsYMod", -6)
+		
+		CoolTip:SetOption ("YSpacingModSub", -3)
+		CoolTip:SetOption ("YSpacingMod", 1)
+		
+		CoolTip:SetOption ("HeighMod", 3)
+		CoolTip:SetOption ("SubFollowButton", true)
+		
+		Details:SetTooltipMinWidth()
+		
+		--build the header
+		
+--		CoolTip:AddLine (Loc ["STRING_PLUGIN_NAME"])
+--		CoolTip:AddIcon (ENCOUNTERDETAILS_BUTTON.__icon, 1, 1, 20, 20)
+--		CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "main")
+		
+--		GameCooltip:AddLine ("$div")
+		
+		--build the menu options
+			
+			--summary
+			CoolTip:AddLine ("Encounter Summary")
+			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "main")
+			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 0, 0.1015625, 0, 0.505625)
+		
+			--chart
+			CoolTip:AddLine ("Damage Graphic")
+			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "graph")
+			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 0.1271875, 0.21875, 0, 0.505625)
+			
+			--emotes
+			CoolTip:AddLine ("Boss Emotes")
+			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "emotes")
+			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 91/256, 116/256, 0, 0.505625)
+			
+			--weakauras
+			CoolTip:AddLine ("Create Encounter Weakauras")
+			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "spellsauras")
+			
+			if (_G.WeakAuras) then
+				CoolTip:AddIcon ([[Interface\AddOns\WeakAuras\Media\Textures\icon]], 1, 1, 20, 20)
+			else
+				CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 121/256, 146/256, 0, 0.505625)
+			end
+
+			--phases
+			CoolTip:AddLine ("Damage by Boss Phase")
+			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "phases")
+			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 151/256, 176/256, 0, 0.505625)
+			
+			--
+			
+			local textPoint = {"left", "left", 4, 0}
+			
+			local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+			
+			--CoolTip:SetBannerImage (1, [[]], 200, 22, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path
+			--CoolTip:SetBannerText (1, Loc ["STRING_PLUGIN_NAME"], textPoint, {1, 1, 1}, 14, SharedMedia:Fetch ("font", _detalhes.tooltip.fontface)) --> text [1] nickname
+		
+		--apply the backdrop settings to the menu
+		Details:FormatCooltipBackdrop()
+		CoolTip:SetOwner (ENCOUNTERDETAILS_BUTTON, "bottom", "top", 0, 0)
+		CoolTip:ShowCooltip()
+		
+	end
+	
+	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\AddOns\\Details_EncounterDetails\\images\\icon", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 16, 16, "ENCOUNTERDETAILS_BUTTON", cooltip_menu) --"Interface\\COMMON\\help-i"
 	EncounterDetails.ToolbarButton.shadow = true --> loads icon_shadow.tga when the instance is showing icons with shadows
 	
 	--> setpoint anchors mod if needed
@@ -1987,7 +2067,10 @@ local events_to_track = {
 }
 
 local enemy_spell_pool
-local CLEvents = function (self, event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, school, aura_type)
+local CLEvents = function (self, event)
+
+	local time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, school, aura_type = CombatLogGetCurrentEventInfo()
+
 	if (events_to_track [token] and _bit_band (who_flags or 0x0, 0x00000060) ~= 0) then
 		local t = enemy_spell_pool [spellid]
 		if (not t) then

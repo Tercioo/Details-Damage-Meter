@@ -121,6 +121,14 @@ function DF:CreateCoolTip()
 			["SelectedRightAnchorMod"] = true,
 		}
 		
+		CoolTip.AliasList = {
+			["VerticalOffset"] = "ButtonsYMod",
+			["VerticalPadding"] = "YSpacingMod",
+			["LineHeightSizeOffset"] = "ButtonHeightMod",
+			["FrameHeightSizeOffset"] = "HeighMod",
+			
+		}
+		
 		CoolTip.OptionsTable = {}
 	
 		--cprops
@@ -1824,14 +1832,18 @@ function DF:CreateCoolTip()
 			CoolTip:SetOption ("HeightAnchorMod", 0)
 		end
 		
-		function CoolTip:SetOption (option, value)
+		function CoolTip:SetOption (optionName, value)
+		
+			--> check for name alias
+			optionName = CoolTip.AliasList [optionName] or optionName
+		
 			--> check if this options exists
-			if (not CoolTip.OptionsList [option]) then
+			if (not CoolTip.OptionsList [optionName]) then
 				return --> error
 			end
-			
+		
 			--> set options
-			CoolTip.OptionsTable [option] = value
+			CoolTip.OptionsTable [optionName] = value
 		end
 
 ----------------------------------------------------------------------

@@ -6,6 +6,17 @@ local _UnitName = UnitName
 local _UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
 
+--BFA TODO LIST:
+
+--[=[
+
+flask
+food
+runes
+feats
+
+--]=]
+
 local flask_list = {
 	[188033] = true, --Flask of the Seventh Demon
 	[188031] = true, --Flask of the Whispered Pact

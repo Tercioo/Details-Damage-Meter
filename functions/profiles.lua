@@ -893,7 +893,7 @@ local default_profile = {
 				1, -- [2]
 				0, -- [3]
 			},
-			},
+		},
 
 	--> minimap
 		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1, text_format = 3},
@@ -905,11 +905,11 @@ local default_profile = {
 	--> PvP
 		only_pvp_frags = false,
 		color_by_arena_team = true,
-		show_arena_role_icon = true,
+		show_arena_role_icon = false,
 
 	--> window settings
 		max_window_size = {width = 480, height = 450},
-		new_window_size = {width = 320, height = 130},
+		new_window_size = {width = 310, height = 158},
 		window_clamp = {-8, 0, 21, -14},
 		disable_window_groups = false,
 		disable_reset_button = false,
@@ -927,8 +927,8 @@ local default_profile = {
 		},
 		
 	--> segments
-		segments_amount = 12,
-		segments_amount_to_save = 5,
+		segments_amount = 18,
+		segments_amount_to_save = 18,
 		segments_panic_mode = false,
 		segments_auto_erase = 1,
 		
@@ -958,15 +958,20 @@ local default_profile = {
 		numerical_system_symbols = "auto",
 	
 	--> performance
-		use_row_animations = false,
+		use_row_animations = true,
+		--default animation speed - % per second
 		animation_speed = 33,
+		--percent to trigger fast speed - if the percent is hiogher than this it will increase the speed
 		animation_speed_triggertravel = 5,
+		--minumim speed multiplication value
 		animation_speed_mintravel = 0.45,
+		--max speed multiplication value
 		animation_speed_maxtravel = 3,
+
 		animate_scroll = false,
 		use_scroll = false,
 		scroll_speed = 2,
-		update_speed = 1,
+		update_speed = 0.20,
 		time_type = 2,
 		time_type_original = 2,
 		memory_threshold = 3,
@@ -1019,7 +1024,7 @@ local default_profile = {
 		data_cleanup_logout = false,
 		close_shields = false,
 		pvp_as_group = true,
-		use_battleground_server_parser = true,
+		use_battleground_server_parser = false,
 		force_activity_time_pvp = true,
 		death_tooltip_width = 350,
 		override_spellids = true,
@@ -1079,7 +1084,7 @@ local default_profile = {
 			font_color = {1, 1, 1, 1},
 			font_shadow = "NONE",
 			font_face = "Friz Quadrata TT",
-			update_interval = 0.10,
+			update_interval = 0.30,
 			sample_size = 5, --in seconds
 		},
 		
@@ -1250,6 +1255,7 @@ local default_global_data = {
 		realm_sync = true,
 		spell_school_cache = {},
 		global_plugin_database = {},
+		
 	--> switch tables
 		switchSaved = {slots = 4, table = {
 			{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done
@@ -1258,6 +1264,7 @@ local default_global_data = {
 			{["atributo"] = 4, ["sub_atributo"] = 5}, --deaths
 		}},
 		report_pos = {1, 1},
+		
 	--> tutorial
 		tutorial = {
 			logons = 0, 
@@ -1268,6 +1275,7 @@ local default_global_data = {
 			bookmark_tutorial = false,
 			ctrl_click_close_tutorial = false,
 		},
+		
 		performance_profiles = {
 			["RaidFinder"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
 			["Raid15"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
@@ -1278,12 +1286,16 @@ local default_global_data = {
 			["Arena"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
 			["Dungeon"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
 		},
-	--> auras
+		
+	--> auras (wa auras created from the aura panel)
 		details_auras = {},
+		
 	--> ilvl
 		item_level_pool = {},
+		
 	--> latest report
 		latest_report_table = {},
+		
 	--> death recap
 		death_recap = {
 			enabled = true,
@@ -1297,8 +1309,10 @@ local default_global_data = {
 		},
 		spell_pool = {},
 		encounter_spell_pool = {},
+		
 	--> aura creation frame libwindow
 		createauraframe = {},
+		
 	--> min health done on the death report
 		deathlog_healingdone_min = 1,
 		
@@ -1320,7 +1334,37 @@ local default_global_data = {
 	
 	--> plugin window positions
 		plugin_window_pos = {},
-
+	
+	--> run code
+		run_code = {
+			["on_specchanged"] = "\n-- run when the player changes its spec",
+			["on_zonechanged"] = "\n-- when the player changes zone, this code will run",
+			["on_init"] = "\n-- code to run when Details! initializes, put here code which only will run once\n-- this also will run then the profile is changed\n\n--size of the death log tooltip in the Deaths display (default 350)\nDetails.death_tooltip_width = 350;\n\n--when in arena or battleground, details! silently switch to activity time (goes back to the old setting on leaving, default true)\nDetails.force_activity_time_pvp = true;\n\n--speed of the bar animations (default 33)\nDetails.animation_speed = 33;\n\n--threshold to trigger slow or fast speed (default 0.45)\nDetails.animation_speed_mintravel = 0.45;\n\n--call to update animations\nDetails:RefreshAnimationFunctions();\n\n--max window size, does require a /reload to work (default 480 x 450)\nDetails.max_window_size.width = 480;\nDetails.max_window_size.height = 450;\n\n--use the arena team color as the class color (default true)\nDetails.color_by_arena_team = true;\n\n--use the role icon in the player bar when inside an arena (default false)\nDetails.show_arena_role_icon = false;\n\n--how much time the update warning is shown (default 10)\nDetails.update_warning_timeout = 10;",
+			["on_leavecombat"] = "\n-- this code runs when the player leave combat",
+			["on_entercombat"] = "\n-- this code runs when the player enters in combat",
+		},
+		
+	--> plater integration
+		plater = {
+			realtime_dps_enabled = false,
+			realtime_dps_size = 12,
+			realtime_dps_color = {1, 1, 0, 1},
+			realtime_dps_shadow = true,
+			realtime_dps_anchor = {side = 7, x = 0, y = 0},
+			--
+			realtime_dps_player_enabled = false,
+			realtime_dps_player_size = 12,
+			realtime_dps_player_color = {1, 1, 0, 1},
+			realtime_dps_player_shadow = true,
+			realtime_dps_player_anchor = {side = 7, x = 0, y = 0},
+			--
+			damage_taken_enabled = false,
+			damage_taken_size = 12,
+			damage_taken_color = {1, 1, 0, 1},
+			damage_taken_shadow = true,
+			damage_taken_anchor = {side = 7, x = 0, y = 0},
+			
+		}
 }
 
 _detalhes.default_global_data = default_global_data
@@ -1411,20 +1455,18 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 	local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 	local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
 	
+	--local ejID = EJ_GetCurrentInstance() --removed on 8.0
+	
+	local mapID =  C_Map.GetBestMapForUnit ("player")
+	
+	if (not mapID) then
+		return
+	end
+	
 	local ejID = 0
 	
-	if (_detalhes.IsBFAClient) then
-		local mapID =  C_Map.GetBestMapForUnit ("player")
-		
-		if (not mapID) then
-			return
-		end
-		
-		if (mapID) then
-			ejID = EJ_GetInstanceForMap (mapID) or 0
-		end
-	else
-		ejID = EJ_GetCurrentInstance() or 0
+	if (mapID) then
+		ejID = EJ_GetInstanceForMap (mapID) or 0
 	end
 
 	--> is there a saved state for the dungeon?

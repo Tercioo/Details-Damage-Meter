@@ -537,6 +537,10 @@ function DetailsFrameworkDropDownOptionOnEnter (frame)
 			GameCooltip2:SetOption ("TextFont", frame.table.descfont)
 		end
 		
+		if (frame.table.tooltipwidth) then
+			GameCooltip2:SetOption ("FixedWidth", frame.table.tooltipwidth)
+		end
+		
 		GameCooltip2:SetHost (frame, "topleft", "topright", 10, 0)
 		
 		GameCooltip2:ShowCooltip (nil, "tooltip")

@@ -404,6 +404,12 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	end
 
 -- icon
+	function ButtonMetaFunctions:GetIconTexture()
+		if (self.icon) then
+			return self.icon:GetTexture()
+		end
+	end
+	
 	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding, textheight, short_method)
 		if (not self.icon) then
 			self.icon = self:CreateTexture (nil, "artwork")
