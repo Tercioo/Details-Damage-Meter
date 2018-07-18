@@ -1823,15 +1823,8 @@ function _G._detalhes:Start()
 		C_Timer.After (2, function()
 			_detalhes:RefreshPlaterIntegration()
 		end)
-
-	
-	--BFA BETA
-	C_Timer.After (1, function()
-		if (ScriptErrorsFrame and ScriptErrorsFrame:IsShown()) then
-			--ScriptErrorsFrame:Hide()
-		end
-	end)
-
+		
+	C_Timer.After (0.5, function() if (ScriptErrorsFrame) then ScriptErrorsFrame:Hide() end end)
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()
