@@ -1817,6 +1817,8 @@ function _G._detalhes:Start()
 			else
 				_detalhes:DispatchAutoRunCode ("on_leavecombat")
 			end
+			
+			_detalhes:DispatchAutoRunCode ("on_groupchange")
 		end)
 		
 	--> Plater integration

@@ -5133,6 +5133,7 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 		self:StatusBarColor (nil, nil, nil, alpha, true)
 	end
 
+--	print (self.skin, self.meu_id)
 	local skin = _detalhes.skins [self.skin]
 	
 	--[[

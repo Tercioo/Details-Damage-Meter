@@ -4462,6 +4462,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes:CheckSwitchOnLogon()
 				_detalhes:CheckVersion()
 				_detalhes:SendEvent ("GROUP_ONENTER")
+				
+				_detalhes:DispatchAutoRunCode ("on_groupchange")
 			end
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -4474,6 +4476,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 				_detalhes:CheckSwitchOnLogon()
 				_detalhes:SendEvent ("GROUP_ONLEAVE")
+				
+				_detalhes:DispatchAutoRunCode ("on_groupchange")
 			else
 				_detalhes:SchedulePetUpdate (2)
 			end

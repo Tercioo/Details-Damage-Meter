@@ -1,5 +1,5 @@
 
-local dversion = 83
+local dversion = 85
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1542,7 +1542,8 @@ local frameshake_update_all = function (parent, deltaTime)
 	end
 end
 
-local frameshake_play = function (parent, shakeObject, scaleX, scaleY)
+--> scale direction scales the X and Y coordinates, scale strength scales the amplitude and frequency
+local frameshake_play = function (parent, shakeObject, scaleDirection, scaleAmplitude, scaleFrequency, scaleDuration)
 
 	--> check if is already playing
 	if (shakeObject.TimeLeft > 0) then
@@ -1585,8 +1586,11 @@ local frameshake_play = function (parent, shakeObject, scaleX, scaleY)
 		shakeObject.IsFadingOutTime = 0
 		
 		--> apply custom scale
-		shakeObject.ScaleX = scaleX or shakeObject.OriginalScaleX
-		shakeObject.ScaleY = scaleY or shakeObject.OriginalScaleY
+		shakeObject.ScaleX = (scaleDirection or 1) * shakeObject.OriginalScaleX
+		shakeObject.ScaleY = (scaleDirection or 1) * shakeObject.OriginalScaleY
+		shakeObject.Frequency = (scaleFrequency or 1) * shakeObject.OriginalFrequency
+		shakeObject.Amplitude = (scaleAmplitude or 1) * shakeObject.OriginalAmplitude
+		shakeObject.Duration = (scaleDuration or 1) * shakeObject.OriginalDuration
 		
 		--> update the time left
 		shakeObject.TimeLeft = shakeObject.Duration
@@ -1629,6 +1633,9 @@ function DF:CreateFrameShake (parent, duration, amplitude, frequency, absoluteSi
 	
 	frameShake.OriginalScaleX = frameShake.ScaleX
 	frameShake.OriginalScaleY = frameShake.ScaleY
+	frameShake.OriginalFrequency = frameShake.Frequency
+	frameShake.OriginalAmplitude = frameShake.Amplitude
+	frameShake.OriginalDuration = frameShake.Duration
 	
 	if (type (anchorPoints) ~= "table") then
 		frameShake.IsDynamicAnchor = true
