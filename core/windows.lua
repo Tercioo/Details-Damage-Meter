@@ -1118,52 +1118,9 @@
 		end	
 	end
 
---> tutorial bookmark
+--> tutorial bookmark (removed)
 	function _detalhes:TutorialBookmark (instance)
-	
 		_detalhes:SetTutorialCVar ("ATTRIBUTE_SELECT_TUTORIAL1", true)
-		
-		local func = function()
-			local f = CreateFrame ("frame", nil, instance.baseframe)
-			f:SetAllPoints();
-			f:SetFrameStrata ("FULLSCREEN")
-			f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
-			f:SetBackdropColor (0, 0, 0, 0.8)
-			
-			f.alert = CreateFrame ("frame", "DetailsTutorialBookmarkAlert", UIParent, "ActionBarButtonSpellActivationAlert")
-			f.alert:SetPoint ("topleft", f, "topleft")
-			f.alert:SetPoint ("bottomright", f, "bottomright")
-			f.alert.animOut:Stop()
-			f.alert.animIn:Play()
-			
-			f.text = f:CreateFontString (nil, "overlay", "GameFontNormal")
-			f.text:SetText (Loc ["STRING_MINITUTORIAL_BOOKMARK1"])
-			f.text:SetWidth (f:GetWidth()-15)
-			f.text:SetPoint ("center", f)
-			f.text:SetJustifyH ("center")
-			
-			f.bg = f:CreateTexture (nil, "border")
-			f.bg:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]])
-			f.bg:SetAllPoints()
-			f.bg:SetAlpha (0.8)
-			
-			f.textbg = f:CreateTexture (nil, "artwork")
-			f.textbg:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-RecentHeader]])
-			f.textbg:SetPoint ("center", f)
-			f.textbg:SetAlpha (0.4)
-			f.textbg:SetTexCoord (0, 1, 0, 24/32)
-
-			f:SetScript ("OnMouseDown", function (self, button)
-				if (button == "RightButton") then
-					f.alert.animIn:Stop()
-					f.alert.animOut:Play()
-					_detalhes.switch:ShowMe (instance)
-					f:Hide()
-				end
-			end)
-		end
-		
-		_detalhes:GetFramework():ShowTutorialAlertFrame ("How to Use Bookmarks", "switch fast between displays", func)
 	end
 
 --> translate window

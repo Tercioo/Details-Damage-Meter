@@ -152,6 +152,10 @@ end
 function _detalhes:GetInstance (id)
 	return _detalhes.tabela_instancias [id]
 end
+--> user friendly alias
+function _detalhes:GetWindow (id)
+	return _detalhes.tabela_instancias [id]
+end
 
 function _detalhes:GetId()
 	return self.meu_id
@@ -281,7 +285,11 @@ end
 function _detalhes:IsAtiva()
 	return self.ativa
 end
+
 --> english alias
+function _detalhes:IsShown()
+	return self.ativa
+end
 function _detalhes:IsEnabled()
 	return self.ativa
 end
@@ -333,6 +341,10 @@ end
 		end
 	end
 
+	--> alias
+	function _detalhes:HideWindow()
+		return self:DesativarInstancia()
+	end
 	function _detalhes:ShutDown()
 		return self:DesativarInstancia()
 	end
@@ -538,6 +550,9 @@ end
 	end
 
 	--> alias
+	function _detalhes:ShowWindow (temp)
+		return self:AtivarInstancia (temp)
+	end
 	function _detalhes:EnableInstance (temp)
 		return self:AtivarInstancia (temp)
 	end

@@ -4704,6 +4704,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 		if (textL_outline_small) then
 			local c = textL_outline_small_color
 			row.texto_esquerdo:SetShadowColor (c[1], c[2], c[3], c[4])
+			--row.texto_esquerdo:SetShadowOffset (3, -2)
 		else
 			row.texto_esquerdo:SetShadowColor (0, 0, 0, 0)
 		end

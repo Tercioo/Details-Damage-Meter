@@ -1826,6 +1826,7 @@ function _G._detalhes:Start()
 			_detalhes:RefreshPlaterIntegration()
 		end)
 	
+	--[=[
 	--> suppress warnings for the first few seconds
 	CLOSE_SCRIPTERRORWINDOW = function()
 		if (ScriptErrorsFrame) then
@@ -1837,6 +1838,7 @@ function _G._detalhes:Start()
 		ScriptErrorsFrame:Hide()
 	end
 	C_Timer.After (5, function() _G ["CLOSE_SCRIPTERRORWINDOW"] = nil end)
+	--]=]
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()
