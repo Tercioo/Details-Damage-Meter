@@ -173,9 +173,9 @@ end
 					local y_up = window1.toolbar_side == 1 and -20 or 0
 					local y_down = (window1.show_statusbar and 14 or 0) + (window1.toolbar_side == 2 and 20 or 0)
 					
-					window1.baseframe:SetPoint ("topleft", ChatFrameBackground, "topleft", 0, y_up)
-					window1.baseframe:SetPoint ("bottomright", ChatFrameBackground, "bottomright", 0, y_down)
-					
+					window1.baseframe:SetPoint ("topleft", ChatFrameBackground, "topleft", 0, y_up + _detalhes.chat_tab_embed.y_offset)
+					window1.baseframe:SetPoint ("bottomright", ChatFrameBackground, "bottomright", _detalhes.chat_tab_embed.x_offset, y_down)
+
 					window1:LockInstance (true)
 					window1:SaveMainWindowPosition()
 					
@@ -221,11 +221,11 @@ end
 					local width = ChatFrameBackground:GetWidth() / 2
 					local height = ChatFrameBackground:GetHeight() - y_down + y_up
 					
-					window1.baseframe:SetSize (width, height)
-					window2.baseframe:SetSize (width, height)
+					window1.baseframe:SetSize (width + (_detalhes.chat_tab_embed.x_offset/2), height + _detalhes.chat_tab_embed.y_offset)
+					window2.baseframe:SetSize (width + (_detalhes.chat_tab_embed.x_offset/2), height + _detalhes.chat_tab_embed.y_offset)
 					
-					window1.baseframe:SetPoint ("topleft", ChatFrameBackground, "topleft", 0, y_up)
-					window2.baseframe:SetPoint ("topright", ChatFrameBackground, "topright", 0, y_up)
+					window1.baseframe:SetPoint ("topleft", ChatFrameBackground, "topleft", 0, y_up + _detalhes.chat_tab_embed.y_offset)
+					window2.baseframe:SetPoint ("topright", ChatFrameBackground, "topright", _detalhes.chat_tab_embed.x_offset, y_up + _detalhes.chat_tab_embed.y_offset)
 				
 					window1:SaveMainWindowPosition()
 					window2:SaveMainWindowPosition()

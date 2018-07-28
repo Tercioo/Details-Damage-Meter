@@ -1040,6 +1040,8 @@ local default_profile = {
 			enabled = false,
 			tab_name = "",
 			single_window = false,
+			x_offset = 0,
+			y_offset = 0,
 		},
 	
 	--> broadcaster options

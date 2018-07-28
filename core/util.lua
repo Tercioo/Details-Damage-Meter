@@ -456,27 +456,36 @@
 	--> replacing data for custom texts
 	_detalhes.string = {}
 	
-	local left_side_func
-	local right_side_func
+	local function_cache = {}
+	local arguments_cache = {}
+	local parameters_cache = {}
 	
-	local args
 	local replace_arg = function (i)
-		return args [tonumber(i)]
+		return arguments_cache [tonumber(i)]
 	end
 	local run_function = function (str)
+		--> cache functions
+		local func = function_cache [str]
+		if (not func) then
+			func = loadstring (str)
+			function_cache [str] = func
+		end
 	
-		--str = [[local player, combat = ...;]] .. str
-	
-		local okey, value = _pcall (loadstring (str), args[4], args[5])
+		local okey, value = _pcall (func, parameters_cache [1], parameters_cache [2])
 		if (not okey) then
-			_detalhes:Msg ("|cFFFF9900error on custom text function|r:", value)
+			_detalhes:Msg ("|cFFFF9900error on custom text|r:", value)
 			return 0
 		end
 		return value or 0
 	end
 
-	function _detalhes.string.replace (str, ...)
-		args = {...}
+	function _detalhes.string.replace (str, v1, v2, v3, v4, v5)
+		arguments_cache [1] = v1
+		arguments_cache [2] = v2
+		arguments_cache [3] = v3
+		parameters_cache [1] = v4
+		parameters_cache [2] = v5
+		
 		return (str:gsub ("{data(%d+)}", replace_arg):gsub ("{func(.-)}", run_function)) 
 	end
 	

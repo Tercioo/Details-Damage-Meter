@@ -5829,6 +5829,38 @@ function window:CreateFrame3()
 		
 		window:CreateLineBackground2 (frame3, "ChatTabEmbed2WindowsSlider", "ChatTabEmbed2WindowsLabel", Loc ["STRING_OPTIONS_TABEMB_SINGLE_DESC"])
 		
+		--> size correction - width
+			g:NewLabel (frame3, _, "$parentChatTabEmbedSizeCorrectionLabel", "ChatTabEmbedSizeCorrectionLabel", "Width Offset", "GameFontHighlightLeft")
+			local s = g:NewSlider (frame3, _, "$parentChatTabEmbedSizeCorrectionSlider", "ChatTabEmbedSizeCorrectionSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -100, 100, 1, tonumber (_detalhes.chat_tab_embed.x_offset), nil, nil, nil, options_slider_template)
+
+			frame3.ChatTabEmbedSizeCorrectionSlider:SetPoint ("left", frame3.ChatTabEmbedSizeCorrectionLabel, "right", 2)
+			frame3.ChatTabEmbedSizeCorrectionSlider:SetHook ("OnValueChange", function (self, instance, amount) 
+				_detalhes.chat_tab_embed.x_offset = amount
+				
+				if (_detalhes.chat_embed.enabled) then
+					_detalhes.chat_embed:DoEmbed()
+				end
+				
+				_detalhes:SendOptionsModifiedEvent (instance)
+			end)	
+			window:CreateLineBackground2 (frame3, "ChatTabEmbedSizeCorrectionSlider", "ChatTabEmbedSizeCorrectionLabel", "Fine tune the size of the window while embeded in the chat.")
+		---------
+		--> size correction - height
+			g:NewLabel (frame3, _, "$parentChatTabEmbedSizeCorrection2Label", "ChatTabEmbedSizeCorrection2Label", "Height Offset", "GameFontHighlightLeft")
+			local s = g:NewSlider (frame3, _, "$parentChatTabEmbedSizeCorrection2Slider", "ChatTabEmbedSizeCorrection2Slider", SLIDER_WIDTH, SLIDER_HEIGHT, -100, 100, 1, tonumber (_detalhes.chat_tab_embed.y_offset), nil, nil, nil, options_slider_template)
+
+			frame3.ChatTabEmbedSizeCorrection2Slider:SetPoint ("left", frame3.ChatTabEmbedSizeCorrection2Label, "right", 2)
+			frame3.ChatTabEmbedSizeCorrection2Slider:SetHook ("OnValueChange", function (self, instance, amount) 
+				_detalhes.chat_tab_embed.y_offset = amount
+				
+				if (_detalhes.chat_embed.enabled) then
+					_detalhes.chat_embed:DoEmbed()
+				end
+				
+				_detalhes:SendOptionsModifiedEvent (instance)
+			end)	
+			window:CreateLineBackground2 (frame3, "ChatTabEmbedSizeCorrection2Slider", "ChatTabEmbedSizeCorrection2Label", "Fine tune the size of the window while embeded in the chat.")
+		--------
 	
 	--> extra Options -~-extra
 		g:NewLabel (frame3, _, "$parentSkinExtraOptionsAnchor", "SkinExtraOptionsAnchor", Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"], "GameFontNormal")
@@ -5873,6 +5905,8 @@ function window:CreateFrame3()
 			{"ChatTabEmbedEnabledLabel", 2}, 
 			{"ChatTabEmbedNameLabel", 3}, 
 			{"ChatTabEmbed2WindowsLabel", 4}, 
+			{"ChatTabEmbedSizeCorrectionLabel"},
+			{"ChatTabEmbedSizeCorrection2Label"},
 			
 			{"SkinExtraOptionsAnchor", 5, true},
 		}
@@ -11453,6 +11487,8 @@ end --> if not window
 		_G.DetailsOptionsWindow3ChatTabEmbedEnabledSlider.MyObject:SetValue (_detalhes.chat_tab_embed.enabled)
 		_G.DetailsOptionsWindow3ChatTabEmbedNameEntry.MyObject.text = _detalhes.chat_tab_embed.tab_name
 		_G.DetailsOptionsWindow3ChatTabEmbed2WindowsSlider.MyObject:SetValue (_detalhes.chat_tab_embed.single_window)
+		_G.DetailsOptionsWindow3ChatTabEmbedSizeCorrectionSlider.MyObject:SetValue (_detalhes.chat_tab_embed.x_offset)
+		_G.DetailsOptionsWindow3ChatTabEmbedSizeCorrection2Slider.MyObject:SetValue (_detalhes.chat_tab_embed.y_offset)
 		
 		--> hide all
 		for name, _ in pairs (_detalhes.skins) do

@@ -142,25 +142,32 @@ do
 		[102342] = 105, -- Ironbark
 		[33763] = 105, -- Lifebloom
 		[88423] = 105, -- Nature's Cure
-		--[8936] = 105, -- Regrowth -overlap
 		[18562] = 105, -- Swiftmend
 		
 		-- Beast Mastery Hunter:
 		[19574] = 253, -- Bestial Wrath
 		[82692] = 253, -- Focus Fire
 		[53257] = 253, -- Cobra Strikes
-		[19574] = 253, -- Bestial Wrath
-
+		[217200] = 253, --Barbed Shot
+		[193455] = 253, --Cobra Shot
+		
 		-- Marksmanship Hunter:
-		[53209] = 254, -- Chimaera Shot
 		[3045] = 254, -- Rapid Fire
+		[257045] = 254, --Rapid Fire
 		[19434] = 254, -- Aimed Shot
+		[193526] = 254, --Trueshot
+		[185358] = 254, --Arcane Shot
+		[186387] = 254, --Bursting Shot
 		
 		-- Survival Hunter:
-		[3674] = 255, -- Black Arrow
-		[53301] = 255, -- Explosive Shot
-		[87935] = 255, -- Serpent Sting
-		[259491] = 255, -- Serpent Sting
+		[190925] = 255, --Harpoon
+		[186289] = 255, --Aspect of the Eagle
+		[259491] = 255, --Serpent Sting
+		[187708] = 255, --Carve
+		[259495] = 255, --Wildfire Bomb
+		[195645] = 255, --Wing Clip
+		[186270] = 255, --Raptor Strike
+		[187707] = 255, --Muzzle
 		
 		-- Arcane Mage:
 		[153626] = 62, -- Arcane Orb

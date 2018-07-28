@@ -7291,6 +7291,7 @@ function _detalhes:SetTitleBarText (text)
 	end
 end
 
+-- ~titletext
 function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow, timer_encounter, timer_bg, timer_arena)
 
 	if (type (enabled) ~= "boolean") then

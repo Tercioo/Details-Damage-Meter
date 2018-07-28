@@ -356,9 +356,18 @@ end
 --> desativando a inst�ncia ela fica em stand by e apenas hida a janela ~shutdown ~close ~fechar
 	function _detalhes:DesativarInstancia()
 	
-		local lower = _detalhes:GetLowerInstanceNumber()
-
 		self.ativa = false
+		_detalhes.opened_windows = _detalhes.opened_windows-1
+	
+		if (not self.baseframe) then
+			--> windown isn't initialized yet
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) called HideWindow() but the window isn't initialized yet.")
+			end
+			return
+		end
+	
+		local lower = _detalhes:GetLowerInstanceNumber()
 		_detalhes:GetLowerInstanceNumber()
 		
 		if (lower == self.meu_id) then
@@ -370,7 +379,6 @@ end
 			_detalhes.switch:CloseMe()
 		end
 		
-		_detalhes.opened_windows = _detalhes.opened_windows-1
 		self:ResetaGump()
 		
 		--gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_in))
