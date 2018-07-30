@@ -162,7 +162,6 @@ do
 		-- Survival Hunter:
 		[190925] = 255, --Harpoon
 		[186289] = 255, --Aspect of the Eagle
-		[259491] = 255, --Serpent Sting
 		[187708] = 255, --Carve
 		[259495] = 255, --Wildfire Bomb
 		[195645] = 255, --Wing Clip

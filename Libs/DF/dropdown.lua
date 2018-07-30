@@ -311,7 +311,8 @@ local function isOptionVisible (thisOption)
 end
 
 function DropDownMetaFunctions:Refresh()
-	local menu = self.func()
+	--> do a safe call
+	local menu =  DF:Dispatch (self.func, self)
 
 	if (#menu == 0) then
 		self:NoOption (true)
@@ -371,7 +372,7 @@ function DropDownMetaFunctions:Select (optionName, byOptionNumber)
 		return false
 	end
 
-	local menu = self.func()
+	local menu =  DF:Dispatch (self.func, self)
 
 	if (#menu == 0) then
 		self:NoOption (true)
@@ -951,7 +952,6 @@ function DF:NewDropDown (parent, container, name, member, w, h, func, default, t
 	DropDownObject.widget = DropDownObject.dropdown
 	
 	DropDownObject.__it = {nil, nil}
-	--_G [name] = DropDownObject
 
 	if (not APIDropDownFunctions) then
 		APIDropDownFunctions = true

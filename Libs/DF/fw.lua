@@ -1,5 +1,5 @@
 
-local dversion = 86
+local dversion = 87
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -129,6 +129,12 @@ local embed_functions = {
 	"CreateFrameShake",
 }
 
+DF.WidgetFunctions = {
+	GetCapsule = function (self)
+		return self.MyObject
+	end,
+}
+
 DF.table = {}
 
 function DF:GetFrameworkFolder()
@@ -156,6 +162,22 @@ function DF:FadeFrame (frame, t)
 		frame:SetAlpha (0)
 		frame:Hide()
 	end
+end
+
+function DF.table.addunique (t, index, value)
+	if (not value) then
+		value = index
+		index = #t + 1
+	end
+
+	for i = 1, #t do
+		if (t[i] == value) then
+			return false
+		end
+	end
+	
+	tinsert (t, index, value)
+	return true
 end
 
 function DF.table.reverse (t)
@@ -362,6 +384,18 @@ end
 function DF:trim (s)
 	local from = s:match"^%s*()"
 	return from > #s and "" or s:match(".*%S", from)
+end
+
+function DF:TruncateText (fontString, maxWidth)
+	local text = fontString:GetText()
+	
+	while (fontString:GetStringWidth() > maxWidth) do
+		text = strsub (text, 1, #text - 1)
+		fontString:SetText (text)
+		if (string.len (text) <= 1) then
+			break
+		end
+	end	
 end
 
 function DF:Msg (msg)
@@ -2093,6 +2127,21 @@ function DF:QuickDispatch (func, ...)
 	return true
 end
 
+function DF:Dispatch (func, ...)
+	if (type (func) ~= "function") then
+		return dispatch_error (_, "Dispatch required a function.")
+	end
+
+	local okay, result1, result2, result3, result4 = xpcall (func, geterrorhandler(), ...)
+	
+	if (not okay) then
+		return nil
+	end
+	
+	return result1, result2, result3, result4
+end
+
+--/run local a, b =32,3; local f=function(c,d) return c+d, 2, 3;end; print (xpcall(f,geterrorhandler(),a,b))
 
 
 --doo elsee 

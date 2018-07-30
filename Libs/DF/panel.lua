@@ -4939,3 +4939,217 @@ function DF:CreateIconRow (parent, name, options)
 	
 	return f
 end
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> ~header
+
+DF.HeaderFunctions = {
+	AddFrameToHeaderAlignment = function (self, frame)
+		self.FramesToAlign = self.FramesToAlign or {}
+		tinsert (self.FramesToAlign, frame)
+	end,
+
+	AlignWithHeader = function (self, headerFrame, anchor)
+		local headerFrames = headerFrame.HeadersCreated
+		anchor = anchor or "topleft"
+		
+		for i = 1, #self.FramesToAlign do
+			local frame = self.FramesToAlign [i]
+			frame:ClearAllPoints()
+			
+			local headerFrame = headerFrames [i]
+			frame:SetPoint (anchor, self, anchor, headerFrame.XPosition, 0)
+		end
+	end,
+}
+
+DF.HeaderCoreFunctions = {
+	SetHeaderTable = function (self, newTable)
+		self.HeadersCreated = self.HeadersCreated or {}
+		self.HeaderTable = newTable
+		self.NextHeader = 1
+		self.HeaderWidth = 0
+		self.HeaderHeight = 0
+		self:Refresh()
+	end,
+	
+	Refresh = function (self)
+	
+		--> refresh background frame
+		self:SetBackdrop (self.options.backdrop)
+		self:SetBackdropColor (unpack (self.options.backdrop_color))
+		self:SetBackdropBorderColor (unpack (self.options.backdrop_border_color))
+	
+		--> reset all header frames
+		for i = 1, #self.HeadersCreated do
+			self.HeadersCreated [i].InUse = false
+			self.HeadersCreated [i]:Hide()
+		end
+	
+		local previousHeaderFrame
+		local growDirection = string.lower (self.options.grow_direction)
+	
+		--> update header frames
+		local headerSize = #self.HeaderTable
+		for i = 1, headerSize do
+			local headerFrame = self:GetNextHeader()
+			self:UpdateHeaderFrame (headerFrame, i)
+			
+			--> grow direction
+			if (not previousHeaderFrame) then
+				headerFrame:SetPoint ("topleft", self, "topleft", 0, 0)
+			else
+				if (growDirection == "right") then
+					headerFrame:SetPoint ("topleft", previousHeaderFrame, "topright", self.options.padding, 0)
+				elseif (growDirection == "left") then
+					headerFrame:SetPoint ("topright", previousHeaderFrame, "topleft", -self.options.padding, 0)
+				elseif (growDirection == "bottom") then
+					headerFrame:SetPoint ("topleft", previousHeaderFrame, "bottomleft", 0, -self.options.padding)
+				elseif (growDirection == "top") then
+					headerFrame:SetPoint ("bottomleft", previousHeaderFrame, "topleft", 0, self.options.padding)
+				end
+			end
+			
+			previousHeaderFrame = headerFrame
+		end
+		
+		self:SetSize (self.HeaderWidth, self.HeaderHeight)
+
+	end,
+	
+	UpdateHeaderFrame = function (self, headerFrame, headerIndex)
+		local headerData = self.HeaderTable [headerIndex]
+		
+		if (headerData.icon) then
+			headerFrame.Icon:SetTexture (headerData.icon)
+			
+			if (headerData.texcoord) then
+				headerFrame.Icon:SetTexCoord (unpack (headerData.texcoord))
+			else
+				headerFrame.Icon:SetTexCoord (0, 1, 0, 1)
+			end
+			
+			headerFrame.Icon:SetPoint ("left", headerFrame, "left", self.options.padding, 0)
+			headerFrame.Icon:Show()
+		end
+		
+		if (headerData.text) then
+			headerFrame.Text:SetText (headerData.text)
+			
+			--> text options
+			DF:SetFontColor (headerFrame.Text, self.options.text_color)
+			DF:SetFontSize (headerFrame.Text, self.options.text_size)
+			DF:SetFontOutline (headerFrame.Text, self.options.text_shadow)
+			
+			--> point
+			if (not headerData.icon) then
+				headerFrame.Text:SetPoint ("left", headerFrame, "left", self.options.padding, 0)
+			else
+				headerFrame.Text:SetPoint ("left", headerFrame.Icon, "right", self.options.padding, 0)
+			end
+			
+			headerFrame.Text:Show()
+		end
+		
+		--> size
+		if (headerData.width) then
+			headerFrame:SetWidth (headerData.width)
+		end
+		if (headerData.height) then
+			headerFrame:SetHeight (headerData.height)
+		end
+		
+		headerFrame.XPosition = self.HeaderWidth-- + self.options.padding
+		headerFrame.YPosition = self.HeaderHeight-- + self.options.padding
+		
+		--> add the header piece size to the total header size
+		local growDirection = string.lower (self.options.grow_direction)
+		
+		if (growDirection == "right" or growDirection == "left") then
+			self.HeaderWidth = self.HeaderWidth + headerFrame:GetWidth() + self.options.padding
+			self.HeaderHeight = math.max (self.HeaderHeight, headerFrame:GetHeight())
+			
+		elseif (growDirection == "top" or growDirection == "bottom") then
+			self.HeaderWidth =  math.max (self.HeaderWidth, headerFrame:GetWidth())
+			self.HeaderHeight = self.HeaderHeight + headerFrame:GetHeight() + self.options.padding
+		end
+
+		headerFrame:Show()
+		headerFrame.InUse = true
+	end,
+	
+	RefreshHeader = function (self, headerFrame)
+		headerFrame:SetSize (self.options.header_width, self.options.header_height)
+		headerFrame:SetBackdrop (self.options.header_backdrop)
+		headerFrame:SetBackdropColor (unpack (self.options.header_backdrop_color))
+		headerFrame:SetBackdropBorderColor (unpack (self.options.header_backdrop_border_color))
+		
+		headerFrame:ClearAllPoints()
+		
+		headerFrame.Icon:SetTexture ("")
+		headerFrame.Icon:Hide()
+		headerFrame.Text:SetText ("")
+		headerFrame.Text:Hide()
+	end,
+	
+	GetNextHeader = function (self)
+		local nextHeader = self.NextHeader
+		local headerFrame = self.HeadersCreated [nextHeader]
+		
+		if (not headerFrame) then
+			local newHeader = CreateFrame ("frame", "$parentHeaderIndex" .. nextHeader, self)
+			
+			DF:CreateImage (newHeader, "", self.options.header_height, self.options.header_height, "ARTWORK", nil, "Icon", "$parentIcon")
+			DF:CreateLabel (newHeader, "", self.options.text_size, self.options.text_color, "GameFontNormal", "Text", "$parentText", "ARTWORK")
+			
+			tinsert (self.HeadersCreated, newHeader)
+			headerFrame = newHeader
+		end
+		
+		self:RefreshHeader (headerFrame)
+		self.NextHeader = self.NextHeader + 1
+		return headerFrame
+	end,
+	
+	NextHeader = 1,
+	HeaderWidth = 0,
+	HeaderHeight = 0,
+}
+
+local default_header_options = {
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	backdrop_color = {0, 0, 0, 0.2},
+	backdrop_border_color = {0.1, 0.1, 0.1, .2},
+
+	text_color = {1, 1, 1, 1},
+	text_size = 10,
+	text_shadow = false,
+	grow_direction = "RIGHT",
+	padding = 2,
+	
+	--each piece of the header
+	header_backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	header_backdrop_color = {0, 0, 0, 0.5},
+	header_backdrop_border_color = {0, 0, 0, 0},
+	header_width = 120,
+	header_height = 20,
+
+}
+
+function DF:CreateHeader (parent, headerTable, options)
+	local f = CreateFrame ("frame", "$parentHeaderLine", parent)
+	
+	DF:Mixin (f, DF.OptionsFunctions)
+	DF:Mixin (f, DF.HeaderCoreFunctions)
+	
+	f:BuildOptionsTable (default_header_options, options)
+	
+	f:SetBackdrop (f.options.backdrop)
+	f:SetBackdropColor (unpack (f.options.backdrop_color))
+	f:SetBackdropBorderColor (unpack (f.options.backdrop_border_color))
+	
+	f:SetHeaderTable (headerTable)
+	
+	return f
+end

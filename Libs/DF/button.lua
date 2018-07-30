@@ -1031,6 +1031,8 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 		ButtonObject.options = {OnGrab = false}
 
 	ButtonObject.button = CreateFrame ("button", name, parent)
+	DF:Mixin (ButtonObject.button, DF.WidgetFunctions)
+	
 	build_button (ButtonObject.button)
 	
 	ButtonObject.widget = ButtonObject.button

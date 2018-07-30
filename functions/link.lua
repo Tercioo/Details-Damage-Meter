@@ -1985,7 +1985,7 @@
 				{name = "Buff on You", value = 11}, --4
 				{name = "Buff on Target", value = 12},
 				{name = "Buff on Focus", value = 13},
-				{name = "Spell Cast Started", value = 21},
+				{name = "Spell Cast Started", value = 21}, --7
 				{name = "Spell Cast Successful", value = 22},
 				{name = "DBM Time Bar", value = 31},
 				{name = "BigWigs Time Bar", value = 32},
@@ -3914,6 +3914,9 @@
 			function f:refresh()
 				select_module (nil, nil, current_module)
 			end
+			
+			f.SelectModule = select_module
+			f.AllModules = all_modules
 
 			f:InstallModule (encounter_spells_module)
 			f:InstallModule (all_spells_module)
