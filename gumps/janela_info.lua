@@ -5349,7 +5349,7 @@ local target_on_enter = function (self)
 	
 	if (barra.show and type (barra.show) == "number") then
 		local actor = barra.other_actor or info.jogador
-		local spell = actor.spells:PegaHabilidade (barra.show)
+		local spell = actor.spells and actor.spells:PegaHabilidade (barra.show)
 		if (spell) then
 		
 			local ActorTargetsSortTable = {}

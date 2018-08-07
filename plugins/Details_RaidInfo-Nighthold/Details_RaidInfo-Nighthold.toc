@@ -1,6 +1,0 @@
-## Interface: 70300
-## Title: Details: Nighthold
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-Details_RaidInfo-Nighthold.lua

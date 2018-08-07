@@ -734,12 +734,26 @@
 			local tempo_do_combate = _detalhes.tabela_vigente:GetCombatTime()
 			local invalid_combat
 			
-			if ((tempo_do_combate >= _detalhes.minimum_combat_time or not _detalhes.tabela_historico.tabelas[1]) and not _detalhes.tabela_vigente.discard_segment) then
+			local zoneName, zoneType = GetInstanceInfo()
+			if (not _detalhes.tabela_vigente.discard_segment and (zoneType == "none" or tempo_do_combate >= _detalhes.minimum_combat_time or not _detalhes.tabela_historico.tabelas[1])) then
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do hist�rico
-				
-				_detalhes:CanSendMissData()
+				--8.0.1 miss data isn't required at the moment, spells like akari's soul has been removed from the game
+				--_detalhes:CanSendMissData()
 			else
 				invalid_combat = _detalhes.tabela_vigente
+				
+				--> tutorial about the combat time < then 'minimum_combat_time'
+				local hasSeenTutorial = _detalhes:GetTutorialCVar ("MIN_COMBAT_TIME")
+				if (not hasSeenTutorial) then
+					local lower_instance = _detalhes:GetLowerInstanceNumber()
+					if (lower_instance) then
+						lower_instance = _detalhes:GetInstance (lower_instance)
+						if (lower_instance) then
+							lower_instance:InstanceAlert ("combat ignored: less than 5 seconds.", {[[Interface\BUTTONS\UI-GROUPLOOT-PASS-DOWN]], 18, 18, false, 0, 1, 0, 1}, 20, {function() Details:Msg ("combat ignored: elapsed time less than 5 seconds."); Details:Msg ("add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time.") end})
+							_detalhes:SetTutorialCVar ("MIN_COMBAT_TIME", true)
+						end
+					end
+				end
 				
 				--in case of a forced discard segment, just check a second time if we have a previous combat.
 				if (not _detalhes.tabela_historico.tabelas[1]) then
@@ -1609,7 +1623,7 @@
 					if (instancia.rows_showing == 0 and instancia:GetSegment() == -1) then -- -1 overall data
 						if (not instancia:IsShowingOverallDataWarning()) then
 							local tutorial = _detalhes:GetTutorialCVar ("OVERALLDATA_WARNING1") or 0
-							if ((type (tutorial) == "number") and (tutorial < 10)) then
+							if ((type (tutorial) == "number") and (tutorial < 6)) then
 								_detalhes:SetTutorialCVar ("OVERALLDATA_WARNING1", tutorial + 1)
 								instancia:ShowOverallDataWarning (true)
 							end

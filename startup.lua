@@ -1295,7 +1295,12 @@ function _G._detalhes:Start()
 			if (lower_instance) then
 				lower_instance = _detalhes:GetInstance (lower_instance)
 				if (lower_instance and _detalhes.latest_news_saw ~= _detalhes.userversion) then
-					lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {_detalhes.OpenNewsWindow})
+					C_Timer.After (10, function()
+						if (lower_instance:IsEnabled()) then
+							lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {_detalhes.OpenNewsWindow}, true)
+							Details:Msg ("A new version has been installed: /details news")
+						end
+					end)
 				end
 			end
 			
@@ -1825,6 +1830,9 @@ function _G._detalhes:Start()
 		C_Timer.After (2, function()
 			_detalhes:RefreshPlaterIntegration()
 		end)
+		
+	--> override the overall data flag on this release only (remove on the release)
+	Details.overall_flag = 0x10
 	
 	--[=[
 	--> suppress warnings for the first few seconds

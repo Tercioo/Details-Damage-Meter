@@ -1016,7 +1016,8 @@ local default_profile = {
 		cloud_capture = true,
 	
 	--> combat
-		minimum_combat_time = 5,
+		minimum_combat_time = 5, --combats with less then this in elapsed time is discarted
+		minimum_overall_combat_time = 10, --minimum time the combat must have to be added into the overall data
 		overall_flag = 0x10,
 		overall_clear_newboss = true,
 		overall_clear_newchallenge = true,

@@ -14,7 +14,7 @@ local SOF = StreamOverlay.Frame
 local fw = StreamOverlay.gump 
 local player_name
 
-StreamOverlay.CurrentVersion = "v1.1"
+StreamOverlay.CurrentVersion = "v1.2"
 
 --> mantaing the tables for casts, has hash indexes of numbers pointing to tables, tables inside store data of the UNIT_CAST events
 --> also mantain information about the cast, if is done, interrupted, channeled, instant.
@@ -1859,7 +1859,6 @@ function StreamOverlay.OpenOptionsPanel (from_options_panel)
 			end
 			options_frame.NewProfileButton = Details.gump:CreateButton (options_frame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 			options_frame.NewProfileButton:SetPoint ("left", dropdown_profile, "right", 4, 0)
-			
 		end
 		
 		options_frame:SetScript ("OnHide", function()
@@ -2013,7 +2012,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 				SOF:RegisterEvent ("PLAYER_LOGOUT")
 				
 				--profile name
-				local pname = UnitName ("player") .. " - " .. GetRealmName()
+				SOF.PlayerNameProfile = UnitName ("player") .. " - " .. GetRealmName()
+				local pname = SOF.PlayerNameProfile
 				--default if is first run
 				local next_pname = next (Details_StreamerDB.profiles or {})
 				Details_StreamerDB.characters [pname] = Details_StreamerDB.characters [pname] or next_pname or pname
@@ -2031,10 +2031,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 		end
 		
 	elseif (event == "PLAYER_LOGOUT") then
-		
-		local pname = UnitName ("player") .. " - " .. GetRealmName()
+		local pname = SOF.PlayerNameProfile
 		Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] = StreamOverlay.db
-		
 	end
 end
 

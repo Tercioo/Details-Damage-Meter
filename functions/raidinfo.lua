@@ -3,6 +3,105 @@
 --> install data for raiding tiers
 
 do
+	--> data for Uldir (BFA tier 1)
+	
+--	UldirRaid_BossFaces.tga
+--	UldirRaid_Icon256x128.tga
+	
+	local INSTANCE_EJID = 1031
+	local INSTANCE_MAPID = 1148
+	local HDIMAGESPATH = "Details\\images\\raid"
+	local HDFILEPREFIX = "UldirRaid"
+	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "Loadingscreen_NazmirRaid", {0, 1, 285/1024, 875/1024}
+	local EJ_LOREBG = "UI-EJ-LOREBG-Uldir"
+	
+	local PORTRAIT_LIST = {
+		2176749, --Taloc - Taloc
+		2176741, --MOTHER - MOTHER
+		2176725, --Fetid Devourer - Fetid Devourer
+		2176761, --Zek'voz - Zek'voz, Herald of N'zoth
+		2176757, --Vectis - Vectis
+		2176762, --Zul - Zul, Reborn
+		2176742, --Mythrax the Unraveler - Mythrax the Unraveler
+		2176728, --G'huun - G'huun
+	}
+	
+	local ENCOUNTER_ID_CL = {
+		2144, 2141, 2128, 2136, 2134, 2145, 2135, 2122,
+		[2144] = 1, --Taloc - Taloc
+		[2141] = 2, --MOTHER - MOTHER
+		[2128] = 3, --Fetid Devourer - Fetid Devourer
+		[2136] = 4, --Zek'voz - Zek'voz, Herald of N'zoth
+		[2134] = 5, --Vectis - Vectis
+		[2145] = 6, --Zul - Zul, Reborn
+		[2135] = 7, --Mythrax the Unraveler - Mythrax the Unraveler
+		[2122] = 8, --G'huun - G'huun
+	}
+	
+	local ENCOUNTER_ID_EJ = {
+		2168, 2167, 2146, 2169, 2166, 2195, 2194, 2147,
+		[2168] = 1, --Taloc
+		[2167] = 2, --MOTHER
+		[2146] = 3, --Fetid Devourer
+		[2169] = 4, --Zek'voz, Herald of N'zoth
+		[2166] = 5, --Vectis
+		[2195] = 6, --Zul, Reborn
+		[2194] = 7, --Mythrax the Unraveler
+		[2147] = 8, --G'huun
+	}
+	
+	--> install the raid
+	C_Timer.After (10, function()
+
+		--load encounter journal
+		EJ_SelectInstance (INSTANCE_EJID)
+
+		local InstanceName = EJ_GetInstanceInfo (INSTANCE_EJID)
+
+		--build the boss name list
+		local BOSSNAMES = {}
+		local ENCOUNTERS = {}
+		
+		for i = 1, #PORTRAIT_LIST do
+			local bossName = EJ_GetEncounterInfoByIndex (i, INSTANCE_EJID)
+			if (bossName) then
+				tinsert (BOSSNAMES, bossName)
+				local encounterTable = {
+					boss = bossName,
+					--portrait = "Interface\\EncounterJournal\\" .. PORTRAIT_LIST [i],
+					portrait = PORTRAIT_LIST [i],
+				}
+				tinsert (ENCOUNTERS, encounterTable)
+			else
+				break
+			end
+		end
+		
+		_detalhes:InstallEncounter ({
+			id = INSTANCE_MAPID, --map id
+			ej_id = INSTANCE_EJID, --encounter journal id
+			name = InstanceName,
+			icons = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_BossFaces",
+			icon = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_Icon256x128",
+			is_raid = true,
+			backgroundFile = {file = "Interface\\Glues\\LOADINGSCREENS\\" .. LOADINGSCREEN_FILE, coords = LOADINGSCREEN_COORDS},
+			backgroundEJ = "Interface\\EncounterJournal\\" .. EJ_LOREBG,
+			
+			encounter_ids = ENCOUNTER_ID_EJ,
+			encounter_ids2 = ENCOUNTER_ID_CL,
+			boss_names = BOSSNAMES,
+			encounters = ENCOUNTERS,
+			
+			boss_ids = { 
+				--npc ids
+			},
+		})
+	end)
+
+end
+
+
+do
 	--> data for Antorus, the Burning Throne raid
 	
 --	AntorusRaid_BossFaces
@@ -112,4 +211,3 @@ do
 	Details:ScheduleTimer ("ScheduleInstallRaidDataForAntorus", 2)
 	
 end
-

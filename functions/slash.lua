@@ -25,7 +25,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)
 		
-	elseif (command == Loc ["STRING_SLASH_HISTORY"] or command == "history" or command == "score" or command == "rank" or command == "ranking" or command == "statistics") then
+	elseif (command == Loc ["STRING_SLASH_HISTORY"] or command == "history" or command == "score" or command == "rank" or command == "ranking" or command == "statistics" or command == "stats") then
 		_detalhes:OpenRaidHistoryWindow()
 	
 	elseif (command == Loc ["STRING_SLASH_TOGGLE"] or command == "toggle") then
@@ -161,6 +161,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"] or command == "news" or command == "updates") then
 		_detalhes:OpenNewsWindow()
+	
+	elseif (command == "spells") then
+		Details.OpenForge()
+		DetailsForgePanel.SelectModule (_, _, 2)
 	
 	elseif (command == "feedback") then
 		_detalhes.OpenFeedbackWindow()

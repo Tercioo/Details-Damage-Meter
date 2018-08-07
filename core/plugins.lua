@@ -402,27 +402,12 @@
 			insets = {left = 1, right = 1, top = 1, bottom = 1}})
 			options_frame:SetBackdropColor (0, 0, 0, .7)
 
-			local texturetitle = options_frame:CreateTexture (nil, "artwork")
-			texturetitle:SetTexture ([[Interface\CURSOR\Interact]])
-			texturetitle:SetTexCoord (0, 1, 0, 1)
-			texturetitle:SetVertexColor (1, 1, 1, 1)
-			texturetitle:SetPoint ("topleft", options_frame, "topleft", 2, -3)
-			texturetitle:SetWidth (36)
-			texturetitle:SetHeight (36)
-			
-			local title = _detalhes.gump:NewLabel (options_frame, nil, "$parentTitle", nil, title, nil, 20, "yellow")
-			title:SetPoint ("left", texturetitle, "right", 2, -1)
-			_detalhes:SetFontOutline (title, true)
+			Details.gump:ApplyStandardBackdrop (options_frame)
+			Details.gump:CreateTitleBar (options_frame, title)
 
 			local bigdog = _detalhes.gump:NewImage (options_frame, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 110, 120, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 			bigdog:SetPoint ("bottomright", options_frame, "bottomright", -3, 0)
 			bigdog:SetAlpha (.25)
-			
-			local c = CreateFrame ("Button", nil, options_frame, "UIPanelCloseButton")
-			c:SetWidth (32)
-			c:SetHeight (32)
-			c:SetPoint ("TOPRIGHT",  options_frame, "TOPRIGHT", -3, -3)
-			c:SetFrameLevel (options_frame:GetFrameLevel()+1)
 			
 			return options_frame
 		end

@@ -1733,9 +1733,10 @@ function _detalhes:RefreshLockedState()
 	return true
 end
 
-local lockFunctionOnClick = function (button, button_type, button2)
+local lockFunctionOnClick = function (button, button_type, button2, isFromOptionsButton)
 
-	if (_detalhes.disable_lock_ungroup_buttons) then
+	--isFromOptionsButton is true when the call if from the button in the display section of the options panel
+	if (_detalhes.disable_lock_ungroup_buttons and isFromOptionsButton ~= true) then
 		return
 	end
 
@@ -1749,8 +1750,12 @@ local lockFunctionOnClick = function (button, button_type, button2)
 		baseframe.instance.isLocked = false
 		button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
 		button:SetWidth (button.label:GetStringWidth()+2)
-		baseframe.resize_direita:SetAlpha (1)
-		baseframe.resize_esquerda:SetAlpha (1)
+		
+		if (not _detalhes.disable_lock_ungroup_buttons) then
+			baseframe.resize_direita:SetAlpha (1)
+			baseframe.resize_esquerda:SetAlpha (1)
+		end
+		
 		button:ClearAllPoints()
 		button:SetPoint ("right", baseframe.resize_direita, "left", -1, 1.5)	
 	else
@@ -5071,7 +5076,6 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 		if (self:IsLowerInstance()) then
 			for _, ThisButton in _ipairs (_detalhes.ToolBar.Shown) do
 				ThisButton:SetAlpha (alpha)
-				--print (ThisButton:GetName())
 			end
 		end
 
@@ -5671,6 +5675,13 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 				total_buttons_shown = total_buttons_shown + 1
 			end
 		end
+		
+		if (self.baseframe.cabecalho.PluginIconsSeparator:IsShown()) then
+			if (self.baseframe.cabecalho.modo_selecao:GetAlpha() == 0) then
+				self.baseframe.cabecalho.PluginIconsSeparator:Hide()
+			end
+		end
+		
 	end
 	
 	self.total_buttons_shown = total_buttons_shown
@@ -7447,28 +7458,40 @@ function _detalhes:SetBackdropTexture (texturename)
 	
 end
 
--- ~alpha (transparency of buttons on the toolbar)
+-- ~alpha (transparency of buttons on the toolbar) ~autohide ãutohide ~menuauto
 function _detalhes:SetAutoHideMenu (left, right, interacting)
+
+	--30/07/2018: the separation by left and right menu icons doesn't exists for years, but it was still active in the code making
+	--the toolbar icons show on initialization even when the options to auto hide them enabled.
+	--the code to set the alpha was already updated to only one anhor (left) but this function was still calling to update the right anchor (deprecated)
 
 	if (interacting) then
 		if (self.is_interacting) then
 			if (self.auto_hide_menu.left) then
 				local r, g, b = unpack (self.color_buttons)
 				self:InstanceButtonsColors (r, g, b, 1, true, true) --no save, only left
+				
+				if (self.baseframe.cabecalho.PluginIconsSeparator) then
+					self.baseframe.cabecalho.PluginIconsSeparator:Show()
+				end
 			end
-			if (self.auto_hide_menu.right) then
-				local r, g, b = unpack (self.color_buttons)
-				self:InstanceButtonsColors (r, g, b, 1, true, nil, true) --no save, only right
-			end
+--			if (self.auto_hide_menu.right) then
+--				local r, g, b = unpack (self.color_buttons)
+--				self:InstanceButtonsColors (r, g, b, 1, true, nil, true) --no save, only right
+--			end
 		else
 			if (self.auto_hide_menu.left) then
 				local r, g, b = unpack (self.color_buttons)
 				self:InstanceButtonsColors (r, g, b, 0, true, true) --no save, only left
+				
+				if (self.baseframe.cabecalho.PluginIconsSeparator) then
+					self.baseframe.cabecalho.PluginIconsSeparator:Hide()
+				end
 			end
-			if (self.auto_hide_menu.right) then
-				local r, g, b = unpack (self.color_buttons)
-				self:InstanceButtonsColors (r, g, b, 0, true, nil, true) --no save, only right
-			end
+--			if (self.auto_hide_menu.right) then
+--				local r, g, b = unpack (self.color_buttons)
+--				self:InstanceButtonsColors (r, g, b, 0, true, nil, true) --no save, only right
+--			end
 		end
 		return
 	end
@@ -7484,18 +7507,31 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 	self.auto_hide_menu.right = right
 	
 	local r, g, b = unpack (self.color_buttons)
-	
+
 	if (not left) then
 		--auto hide is off
 		self:InstanceButtonsColors (r, g, b, 1, true, true) --no save, only left
+		
+		if (self.baseframe.cabecalho.PluginIconsSeparator) then
+			self.baseframe.cabecalho.PluginIconsSeparator:Show()
+		end
 	else
 		if (self.is_interacting) then
 			self:InstanceButtonsColors (r, g, b, 1, true, true) --no save, only left
+			
+			if (self.baseframe.cabecalho.PluginIconsSeparator) then
+				self.baseframe.cabecalho.PluginIconsSeparator:Show()
+			end
 		else
 			self:InstanceButtonsColors (0, 0, 0, 0, true, true) --no save, only left
+			
+			if (self.baseframe.cabecalho.PluginIconsSeparator) then
+				self.baseframe.cabecalho.PluginIconsSeparator:Hide()
+			end
 		end
 	end
-	
+
+--[=[	
 	if (not right) then
 		--auto hide is off
 		self:InstanceButtonsColors (r, g, b, 1, true, nil, true) --no save, only right
@@ -7506,7 +7542,8 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 			self:InstanceButtonsColors (0, 0, 0, 0, true, nil, true) --no save, only right
 		end
 	end
-	
+--]=]
+
 	self:RefreshAttributeTextSize()
 	--auto_hide_menu = {left = false, right = false},
 

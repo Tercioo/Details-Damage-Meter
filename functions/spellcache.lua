@@ -55,9 +55,6 @@ do
 		end
 	end
 	
-	--[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\AddOns\Details\images\melee.tga]]},
-	--[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\AddOns\Details\images\autoshot.tga]]},
-	
 	local default_user_spells = {
 		[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\ICONS\INV_Sword_04]]},
 		[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\ICONS\INV_Weapon_Bow_07]]},
@@ -71,27 +68,25 @@ do
 		[98021] = {name = Loc ["STRING_SPIRIT_LINK_TOTEM"]},
 		
 		[44461] = {name = GetSpellInfo (44461) .. " (" .. Loc ["STRING_EXPLOSION"] .. ")"}, --> Living Bomb (explosion)
-		
-		[161576] = {name = GetSpellInfo (161576) .. " (" .. Loc ["STRING_EXPLOSION"] .. ")"}, --> Ko'ragh's Overflowing Energy (explosion)
-		[161612] = {name = GetSpellInfo (161576) .. " (" .. Loc ["STRING_CAUGHT"] .. ")"}, --> Ko'ragh's Overflowing Energy (caught)
-		
-		[158336] = {name = GetSpellInfo (158336) .. " (" .. Loc ["STRING_WAVE"] .. " #1)"}, --> Twins Ogron Pulverize waves.
-		[158417] = {name = GetSpellInfo (158417) .. " (" .. Loc ["STRING_WAVE"] .. " #2)"}, --> Twins Ogron Pulverize waves.
-		[158420] = {name = GetSpellInfo (158420) .. " (" .. Loc ["STRING_WAVE"] .. " #3)"}, --> Twins Ogron Pulverize waves.
-		
+	
 		[59638] = {name = GetSpellInfo (59638) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Frost Bolt (mage)
 		[88082] = {name = GetSpellInfo (88082) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Fireball (mage)
 		
 		[94472] = {name = GetSpellInfo (94472) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Atonement critical hit (priest)
 		
-		[33778] = {name = GetSpellInfo (33778) .. " (bloom)"}, --lifebloom (bloom)
+		[33778] = {name = GetSpellInfo (33778) .. " (Bloom)"}, --lifebloom (bloom)
 		
 		[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
 		[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
 		
-		[213786] = {name = GetSpellInfo (213786) .. " (trinket)"},
-		[214350] = {name = GetSpellInfo (214350) .. " (trinket)"},
-		[224078] = {name = GetSpellInfo (224078) .. " (trinket)"},
+		[212739] = {name = GetSpellInfo (212739) .. " (Main Target)"}, --DK Epidemic
+		[215969] = {name = GetSpellInfo (215969) .. " (AoE)"}, --DK Epidemic
+		
+		[70890] = {name = GetSpellInfo (70890) .. " (Shadow)"}, --DK Scourge Strike
+		[55090] = {name = GetSpellInfo (55090) .. " (Physical)"}, --DK Scourge Strike
+		
+		[49184] = {name = GetSpellInfo (49184) .. " (Main Target)"}, --DK Howling Blast
+		[237680] = {name = GetSpellInfo (237680) .. " (AoE)"}, --DK Howling Blast
 
 	}
 	

@@ -1312,13 +1312,13 @@
 			GuildRankCheckBox:SetAsCheckBox()
 			
 			local guild_sync = function()
-			
+				
 				f.RequestedAmount = 0
 				f.DownloadedAmount = 0
 				f.EstimateSize = 0
 				f.DownloadedSize = 0
 				f.SyncStartTime = time()
-			
+				
 				_detalhes.storage:DBGuildSync()
 				f.GuildSyncButton:Disable()
 				
@@ -2286,6 +2286,9 @@
 		if (not _G.DetailsClassColorManager) then
 			gump:CreateSimplePanel (UIParent, 300, 280, Loc ["STRING_OPTIONS_CLASSCOLOR_MODIFY"], "DetailsClassColorManager")
 			local panel = _G.DetailsClassColorManager
+			
+			_detalhes.gump:ApplyStandardBackdrop (panel)
+			
 			local upper_panel = CreateFrame ("frame", nil, panel)
 			upper_panel:SetAllPoints (panel)
 			upper_panel:SetFrameLevel (panel:GetFrameLevel()+3)
@@ -2371,8 +2374,9 @@
 	function _detalhes:OpenBookmarkConfig()
 	
 		if (not _G.DetailsBookmarkManager) then
-			gump:CreateSimplePanel (UIParent, 300, 480, Loc ["STRING_OPTIONS_MANAGE_BOOKMARKS"], "DetailsBookmarkManager")
+			gump:CreateSimplePanel (UIParent, 465, 460, Loc ["STRING_OPTIONS_MANAGE_BOOKMARKS"], "DetailsBookmarkManager")
 			local panel = _G.DetailsBookmarkManager
+			_detalhes.gump:ApplyStandardBackdrop (panel)
 			panel.blocks = {}
 			
 			local clear_func = function (self, button, id)
@@ -2430,18 +2434,19 @@
 				else
 					--par
 					local o = i-1
-					clear:SetPoint (150, (( o*10 ) * -1) - 35) --right
+					clear:SetPoint (250, (( o*10 ) * -1) - 35) --right
 				end
 			
 				local set = gump:CreateButton (panel, set_att, 16, 16, nil, i)
 				set:SetPoint ("left", clear, "right")
-				set:SetPoint ("right", clear, "right", 110, 0)
+				set:SetPoint ("right", clear, "right", 180, 0)
 				set:SetBackdrop (button_backdrop)
 				set:SetBackdropColor (0, 0, 0, 0.5)
 				set:SetHook ("OnEnter", set_onenter)
 				set:SetHook ("OnLeave", set_onleave)
 			
-				set:InstallCustomTexture (nil, nil, nil, nil, true)
+				--set:InstallCustomTexture (nil, nil, nil, nil, true)
+				set:SetTemplate (gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 				
 				local bg_texture = gump:CreateImage (set, [[Interface\AddOns\Details\images\bar_skyline]], 135, 30, "background")
 				bg_texture:SetAllPoints()
@@ -2453,11 +2458,12 @@
 				local label = gump:CreateLabel (set, "")
 				label:SetPoint ("left", icon, "right", 2, 0)
 
-				tinsert (panel.blocks, {icon = icon, label = label, bg = set.bg})
+				tinsert (panel.blocks, {icon = icon, label = label, bg = set.bg, button = set})
 			end
 			
 			local normal_coords = {0, 1, 0, 1}
 			local unknown_coords = {157/512, 206/512, 39/512,  89/512}
+			
 			function panel:Refresh()
 				local bookmarks = _detalhes.switch.table
 				
@@ -2486,11 +2492,14 @@
 							this_block.icon.texcoord = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [2]
 							this_block.bg:SetVertexColor (.4, .4, .4, .6)
 						end
+						
+						this_block.button:SetAlpha (1)
 					else
 						this_block.label.text = "-- x -- x --"
 						this_block.icon.texture = [[Interface\AddOns\Details\images\icons]]
 						this_block.icon.texcoord = unknown_coords
-						this_block.bg:SetVertexColor (.4, .1, .1, .12)
+						this_block.bg:SetVertexColor (.1, .1, .1, .12)
+						this_block.button:SetAlpha (0.3)
 					end
 				end
 			end
@@ -6533,3 +6542,50 @@ function _detalhes:FormatBackground (f)
 	f.__background:SetHorizTile (true)
 	f.__background:SetAllPoints()
 end
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> dump table frame
+
+function Details:DumpTable (t)
+	return Details:Dump (t)
+end
+
+function Details:Dump (t)
+	if (not DetailsDumpFrame) then
+		DetailsDumpFrame = DetailsFramework:CreateSimplePanel (UIParent)
+		DetailsDumpFrame:SetSize (700, 600)
+		DetailsDumpFrame:SetTitle ("Details! Dump Table [|cFFFF3333Ready Only|r]")
+		
+		local text_editor = DetailsFramework:NewSpecialLuaEditorEntry (DetailsDumpFrame, 680, 560, "Editbox", "$parentEntry", true)
+		text_editor:SetPoint ("topleft", DetailsDumpFrame, "topleft", 10, -30)
+		
+		text_editor.scroll:SetBackdrop (nil)
+		text_editor.editbox:SetBackdrop (nil)
+		text_editor:SetBackdrop (nil)
+		
+		DetailsFramework:ReskinSlider (text_editor.scroll)
+		
+		if (not text_editor.__background) then
+			text_editor.__background = text_editor:CreateTexture (nil, "background")
+		end
+		
+		text_editor:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+		text_editor:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		text_editor.__background:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
+		text_editor.__background:SetVertexColor (0.27, 0.27, 0.27)
+		text_editor.__background:SetAlpha (0.8)
+		text_editor.__background:SetVertTile (true)
+		text_editor.__background:SetHorizTile (true)
+		text_editor.__background:SetAllPoints()	
+	end
+	
+	t = t or {}
+	local s = Details.table.dump (t)
+	DetailsDumpFrame.Editbox:SetText (s)
+	DetailsDumpFrame:Show()
+end
+

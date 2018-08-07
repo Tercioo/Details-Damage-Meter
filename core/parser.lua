@@ -90,10 +90,12 @@
 	--> ignore deaths
 		local ignore_death = {}
 	--> special items
-		--local soul_capacitor = {} --> trinket from Socrethar the Eternal --WOD only
+
 		local paladin_gbom = {} --greater blessing of might
 		local shaman_slash = {} --storm slash
 		local shaman_slash_timers = {} --storm slash
+		local monk_guard_talent = {} --guard talent for bm monks
+		
 		local source_cache = {} --store the source's guid, name and flag
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -168,6 +170,7 @@
 	local SPELLID_SHAMAN_SLASH_DAMAGE = 195256
 	local SPELLID_PALADIN_GBOM_AURA = 203528
 	local SPELLID_PALADIN_GBOM_DAMAGE = 205729
+	local SPELLID_MONK_GUARD = 115295
 	
 	--> ignore warlock life tap, since it's bugged
 	local SPELLID_WARLOCK_LIFETAP = 1454
@@ -345,58 +348,11 @@
 			who_serial = ""
 		end
 		
-		--fix for MOTHER Uldir Raid
-		
-		
-		--> Fix for mage prismatic crystal
-		--local npcId = _detalhes:GetNpcIdFromGuid (alvo_serial)
-		--if (npcId == 76933) then
+		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then --prismatic crystal (mage)
+		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then --soul effigy (warlock)
 		--	return
 		--end
 		
-		--using pattern, calling API is too slow here
-		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then
-		if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then
-			return
-		end
-		
-		--Erupting Reflection on kiljaeden encounter on ToS
-		--REMOVE THIS ON 7.3 RELEASE
-		if (_current_encounter_id == 2051) then --2051 = kiljaeden
-		
-			--tank add
-			if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-119107%-%w+$")) then
-				if (_encounter_kiljaeden_wailingreflection_loc == "Wailing Reflection") then
-					_encounter_kiljaeden_wailingreflection_loc = GetSpellInfo (236378)
-				end
-				alvo_name = _encounter_kiljaeden_wailingreflection_loc
-			elseif (who_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-119107%-%w+$")) then
-				if (_encounter_kiljaeden_wailingreflection_loc == "Wailing Reflection") then
-					_encounter_kiljaeden_wailingreflection_loc = GetSpellInfo (236378)
-				end
-				who_name = _encounter_kiljaeden_wailingreflection_loc
-			end
-		
-			--dps add
-			if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-119206%-%w+$")) then
-				if (_encounter_kiljaeden_eruptingreflection_loc == "Erupting Reflection") then
-					_encounter_kiljaeden_eruptingreflection_loc = GetSpellInfo (236710)
-				end
-				alvo_name = _encounter_kiljaeden_eruptingreflection_loc
-			elseif (who_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-119206%-%w+$")) then
-				if (_encounter_kiljaeden_eruptingreflection_loc == "Erupting Reflection") then
-					_encounter_kiljaeden_eruptingreflection_loc = GetSpellInfo (236710)
-				end
-				who_name = _encounter_kiljaeden_eruptingreflection_loc
-			end
-		end
-		
-		--> Second try with :find
-		-- it's 20% faster when comparing Npcs serials, but very slow when comparing other things.
-		--if (alvo_serial:find ("-76933-")) then
-		--	return
-		--end
-
 		--> if the parser are allowed to replace spellIDs
 		if (is_using_spellId_override) then
 			spellid = override_spellId [spellid] or spellid
@@ -411,7 +367,7 @@
 			--> spirit link toten
 			elseif (spellid == 98021) then
 				return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-				
+			
 			--> Light of the Martyr - paladin spell which causes damage to the caster it self
 			elseif (spellid == 196917) then -- or spellid == 183998 < healing part
 				local healingActor = healing_cache [who_name]
@@ -426,7 +382,7 @@
 			elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
 				who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags, SPELLNAME_SHAMAN_SLASH)
 			
-			--> Rogue's Akaari's Soul - Soul Rip
+			--> Rogue's Akaari's Soul - q
 			elseif (spellid == 220893) then
 				if (who_flags and _bit_band (who_flags, REACTION_MINE) ~= 0) then
 					who_serial, who_name, who_flags = UnitGUID ("player"), _detalhes.playername, 0x00000417
@@ -434,7 +390,7 @@
 			end
 		end
 	
-	------------------------------------------------------------------------------------------------	
+	------------------------------------------------------------------------------------------------
 	--> check if need start an combat
 	
 		if (not _in_combat) then
@@ -567,14 +523,14 @@
 		elseif (jogador_alvo.grupo) then --> source = arena enemy or friendly player
 
 			--> record avoidance only for tank actors
-			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
+			if (tanks_members_cache [alvo_serial]) then
 			
 				--> monk's stagger
 				if (jogador_alvo.classe == "MONK") then
 					if (absorbed) then
 						--> the absorbed amount was staggered and should not be count as damage taken now
 						--> this absorbed will hit the player with the stagger debuff
-						amount = (amount or 0) - absorbed 
+						amount = (amount or 0) - absorbed
 					end
 				else
 					--> advanced damage taken
@@ -831,6 +787,8 @@
 
 	
 	function parser:MonkStagger_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+		--> special behavior for monk stagger debuff periodic damage
+		
 		
 		--> tag the container to refresh
 			_current_damage_container.need_refresh = true
@@ -840,12 +798,12 @@
 			
 			if (not este_jogador) then --> pode ser um desconhecido ou um pet
 				este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
-				if (meu_dono) then --> ï¿½ um pet
+				if (meu_dono) then --> é um pet
 					if (who_serial ~= "") then
 						damage_cache_pets [who_serial] = este_jogador
 						damage_cache_petsOwners [who_serial] = meu_dono
 					end
-					--conferir se o dono jï¿½ esta no cache
+					--conferir se o dono já esta no cache
 					if (not damage_cache [meu_dono.serial] and meu_dono.serial ~= "") then
 						damage_cache [meu_dono.serial] = meu_dono
 					end
@@ -858,16 +816,13 @@
 								damage_cache [who_name] = este_jogador
 								local _, _, icon = _GetSpellInfo (spellid or 1)
 								este_jogador.spellicon = icon
-								--print ("no serial actor", spellname, who_name, "added to cache.")
-							else
-								--_detalhes:Msg ("Unknown actor with unknown serial ", spellname, who_name)
 							end
 						end
 					end
 				end
 				
 			elseif (meu_dono) then
-				--> ï¿½ um pet
+				--> é um pet
 				who_name = who_name .. " <" .. meu_dono.nome .. ">"
 			end
 		
@@ -1293,7 +1248,6 @@
 	function parser:heal_denied (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellidAbsorb, spellnameAbsorb, spellschoolAbsorb, serialHealer, nameHealer, flagsHealer, flags2Healer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
 	
 	--	print (who_name, alvo_name, nameHealer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
-	
 		if (not _in_combat) then
 			return
 		end
@@ -1367,51 +1321,7 @@
 		
 		--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
 		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, amountDenied, spellidHeal, token, nameHealer, overhealing)
-		
-		
-	--print ("|token:", token, "|time:", time, "|whoserial:", who_serial, "|whoname:", who_name, "|whoflags:", who_flags, "|alvoserial:", alvo_serial, "|alvoname:", alvo_name, "|alvoflags", alvo_flags, "|alvoflags2:", alvo_flags2, "|spellidAbsorb:", spellidAbsorb, "|spellnameABsorb", spellnameAbsorb, "|spellschoolAbsorb", spellschoolAbsorb, "|serialhealer:", serialHealer, "|nameHealer:", nameHealer, "|flagsHealer:", flagsHealer, "|flagsHealer2:", flags2Healer, "|spellidHeal:", spellidHeal, "|spellnameHeal:", spellnameHeal, "|typeHeal:", typeHeal, "|amountDenied:", amountDenied)
-		
-		
-	--[[
-		1 toekn SPELL_HEAL_ABSORBED 
-		2 time 1493837437.157 
-		3 who serial Player-3209-0514A56A 
-		4 who name Bombadï¿½o 
-		5 who flags 1297 
-		6 alvo serial Player-3209-0514A56A 
-		7 alvo name Bombadï¿½o 
-		8 alvo flags 1297
-		9 alvo flags2 0
-		10 spellid 116888 
-		11 spellname Shroud of Purgatory 
-		12 school 12
-		
-		13 GUID - Player-3209-0514A56A 
-		14 PLAYERNAME - Bombadï¿½o 
-		15 FLAGS 1297
-		16 FLAGS2 0
-		17 SPELLID 116888
-		18 SPELLNAME Healing Potion 
-		19 ? 1
-		20 ? 2677
-		primeiro actor ï¿½ o quem comandou o absorb
-		o segundo ï¿½ a vitima seguido da magia que o primeiro actor usou pra o absorb
-		o terceiro ï¿½ a vitima com a magia que ela usou e foi absorvida
-		5/3 11:54:58.346  SPELL_HEAL_ABSORBED,
-		Player-3209-051429E9,"Mephisstoo-Azralon",0x10548,0x0,Player-3209-05144527,"Keyspell-Azralon",0x511,0x0,223929,"Necrotic Wound",0x28,Player-3209-05144527,"Keyspell-Azralon",0x511,0x0,188016,"Ancient Healing Potion",0x1,254466		
-		
-		--heal pot spellID: 28495 - heal 2841
 
-		1 SPELL_HEAL_ABSORBED 2 1493837944.856 3 Player-3209-0514A56A 4 Bombadï¿½o 5 1297 6 Player-3209-0514A56A 7 Bombadï¿½o 8 1297 9 0 10 116888 11 Shroud of Purgatory 12 32 13 Player-3209-0514A56A 14 Bombadï¿½o 15 1297 16 0 17 116888 18 Healing Potion 19 1 20 1860 21 nil 22 nil 23 nil 24 nil 25 nil 26 nil 27 nil	
-	
-		1 SPELL_HEAL_ABSORBED 2 1493839447.257 3 Player-3209-0514A56A 4 Bombadï¿½o 5 1297 6 Player-3209-0514A56A 7 Bombadï¿½o 8 1297 9 0 10 nil 11 nil 12 nil 13 Player-3209-05DE3E42 14 Yakumile 15 1298 16 0 17 116888 18 Holy Word: Serenity 19 2 20 2690 21 nil 22 nil 		
-
-		1 SPELL_HEAL_ABSORBED 2 1493840761.019 3 Player-3209-0514A56A 4 Bombadï¿½o 5 1297 6 Player-3209-0514A56A 7 Bombadï¿½o 8 1297 9 0 10 nil 11 nil 12 nil 13 Player-57-06AB4689 14 Yakumile 15 1298 16 0 17 116888 18 Circle of Healing 19 2 20 673 21 nil 22 nil 23 nil 24 nil 25 nil 26 nil 27 nil
-		
-oken: SPELL_HEAL_ABSORBED ime: 1493841853.862 |whoserial: Player-3209-0514A56A |whoname: Bombadï¿½o |whoflags: 1297 |alvoserial: Player-3209-0514A56A |alvoname: Bombadï¿½o |alvoflags 1297 |alvoflags2: 0 |spellidAbsorb: 116888 |spellnameABsorb Shroud of Purgatory |spellschoolAbsorb 32 |serialhealer: Player-3209-0514A56A 
-ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |spellnameHeal: Healing Potion ypeHeal: 1 |amountDenied: 870		
-		
---]]	
 	end
 	
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
@@ -1761,9 +1671,6 @@ ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |
 					ignore_death [who_name] = true
 					return
 					
-				--elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 (soul eruption 184559) --REMOVE ON LEGION LAUNCH
-				--	soul_capacitor [who_serial] = _tempo
-					
 				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
 					--> handle the buff on parser time
 					if (shaman_slash_timers [who_serial] and shaman_slash_timers [who_serial] [alvo_serial]) then
@@ -1776,6 +1683,10 @@ ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |
 				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
 					--> handle the buff on parser time
 					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial, true, who_name, who_flags)
+					
+				elseif (spellid == SPELLID_MONK_GUARD) then
+					--> BfA monk talent
+					monk_guard_talent [who_serial] = amount
 					
 				end
 
@@ -2121,7 +2032,7 @@ ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |
 	--> handle shields
 
 		if (tipo == "BUFF") then
-		
+
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
 				if (_recording_buffs_and_debuffs) then
@@ -2134,9 +2045,6 @@ ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |
 					end
 				end
 				
-				--if (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 REMOVE ON LEGION LAUNCH
-				--	soul_capacitor [who_serial] = nil
-					
 				if (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
 					--as @Kihra from WCL mentioned, slash has a travel time, the hit may land after the buff has gone
 					local delay_timer = _detalhes:ScheduleTimer ("HandleSlashUnbuff", 2.5, shaman_slash, who_serial, alvo_serial)
@@ -2147,6 +2055,13 @@ ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |
 				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
 					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial)
 
+				elseif (spellid == SPELLID_MONK_GUARD) then
+					--> BfA monk talent
+					if (monk_guard_talent [who_serial]) then
+						local damage_prevented = monk_guard_talent [who_serial] - (amount or 0)
+						parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, damage_prevented, _math_ceil (amount or 0), 0, 0, true)
+					end
+					
 				end
 				
 			------------------------------------------------------------------------------------------------
@@ -2159,22 +2074,13 @@ ameHealer: Bombadï¿½o |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |
 							local overheal = escudo [alvo_name][spellid][who_name]
 							escudo [alvo_name][spellid][who_name] = 0
 
-							if (overheal and overheal > 0) then
+							--> can't use monk guard since its overheal is computed inside the unbuff
+							if (overheal and overheal > 0 and spellid ~= SPELLID_MONK_GUARD) then
 								--> removing the nil at the end before true for is_shield, I have no documentation change about it, not sure the reason why it was addded
 								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, true) --0, 0, nil, true
 							else
 								return
 							end
-							
-						--- pre 6.0
-							--local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
-							
-							--local absorb = escudo_antigo - amount
-							--local overheal = escudo_antigo - absorb
-							
-							--escudo [alvo_name][spellid][who_name] = nil
-							
-							--return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, nil, true) --> ï¿½ltimo parametro IS_SHIELD
 						end
 						escudo [alvo_name][spellid][who_name] = 0
 					end
@@ -3507,6 +3413,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe (source_cache)
 		wipe (paladin_gbom)
 		wipe (shaman_slash)
+		wipe (monk_guard_talent)
 	end
 	
 	function parser:Handle3rdPartyBuffs_OnEncounterStart()
@@ -4869,6 +4776,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			local role = _UnitGroupRolesAssigned (name)
 			if (role == "TANK") then
 				tanks_members_cache [_UnitGUID ("player")] = true
+			else
+				local spec = GetSpecialization()
+				if (spec and spec ~= 0) then
+					if (GetSpecializationRole (spec) == "TANK") then
+						tanks_members_cache [_UnitGUID ("player")] = true
+					end
+				end
 			end
 		end
 		
@@ -4987,7 +4901,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		return nil
 	end
-
+	
 	function _detalhes:GetAllActors (_combat, _actorname)
 		return _detalhes:GetActor (_combat, 1, _actorname), _detalhes:GetActor (_combat, 2, _actorname), _detalhes:GetActor (_combat, 3, _actorname), _detalhes:GetActor (_combat, 4, _actorname)
 	end

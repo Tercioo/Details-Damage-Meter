@@ -38,7 +38,6 @@ function _detalhes:GetCombatSegments()
 	return _detalhes.tabela_historico.tabelas
 end
 
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal
 
@@ -49,7 +48,9 @@ function historico:NovoHistorico()
 end
 
 function historico:adicionar_overall (tabela)
-	if (tabela:GetCombatTime() <= 10) then
+
+	local zoneName, zoneType = GetInstanceInfo()
+	if (zoneType ~= "none" and tabela:GetCombatTime() <= _detalhes.minimum_overall_combat_time) then
 		return
 	end
 

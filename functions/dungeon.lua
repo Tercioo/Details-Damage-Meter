@@ -730,7 +730,7 @@ local PixelFrameOnEnter = function (self)
 	local onlyName = _detalhes:GetOnlyName (playerName)
 	GameCooltip2:AddLine (onlyName)
 	
-	local classIcon, L, R, B, T = _detalhes:GetClassIcon (mythicDungeonCharts.ChartTable.Players [playerName].Class)
+	local classIcon, L, R, B, T = _detalhes:GetClassIcon (mythicDungeonCharts.ChartTable.Players [playerName] and mythicDungeonCharts.ChartTable.Players [playerName].Class)
 	GameCooltip2:AddIcon (classIcon, 1, 1, 16, 16, L, R, B, T)
 	
 	GameCooltip2:AddLine (Details:GetCurrentToKFunction()(nil, floor (dps)))

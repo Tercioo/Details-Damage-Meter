@@ -1,6 +1,0 @@
-## Interface: 70300
-## Title: Details: Emerald Nightmare
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-Details_RaidInfo-EmeraldNightmare.lua

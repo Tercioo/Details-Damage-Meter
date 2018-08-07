@@ -581,7 +581,13 @@
 			
 			local tpe = _type (value)
 			
-			if (type (key) ~= "string") then
+			if (type (key) == "function") then
+				key = "#function#"
+			elseif (type (key) == "table") then
+				key = "#table#"
+			end
+			
+			if (type (key) ~= "string" and type (key) ~= "number") then
 				key = "unknown?"
 			end
 			

@@ -489,7 +489,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 	return editbox
 end
 
-function gump:NewScrollBar (master, slave, x, y)
+function gump:NewScrollBar2 (master, slave, x, y)
 
 	local slider_gump = CreateFrame ("Slider", master:GetName() and master:GetName() .. "SliderGump" or "DetailsSliderGump" .. math.random (1, 10000000), master)
 	slider_gump.scrollMax = 560 --default - tamanho da janela de fundo

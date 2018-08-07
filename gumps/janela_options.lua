@@ -4366,7 +4366,7 @@ function window:CreateFrame1()
 		
 		
 		--lock unlock
-			g:NewButton (frame1, _, "$parentLockButton", "LockButton", window.buttons_width, window.buttons_height, _detalhes.lock_instance_function, nil, nil, nil, Loc ["STRING_OPTIONS_WC_LOCK"], 1, options_button_template)
+			g:NewButton (frame1, _, "$parentLockButton", "LockButton", window.buttons_width, window.buttons_height, _detalhes.lock_instance_function, true, true, nil, Loc ["STRING_OPTIONS_WC_LOCK"], 1, options_button_template)
 			--frame1.LockButton:InstallCustomTexture (nil, nil, nil, nil, nil, true)
 
 			window:CreateLineBackground2 (frame1, "LockButton", "LockButton", Loc ["STRING_OPTIONS_WC_LOCK_DESC"], nil, {1, 0.8, 0}, button_color_rgb)

@@ -1,6 +1,0 @@
-## Interface: 70300
-## Title: Details: Tomb of Sargeras
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-Details_RaidInfo-TombOfSargeras.lua
