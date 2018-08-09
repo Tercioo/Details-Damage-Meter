@@ -4353,8 +4353,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--unit was nil, nameplate might bug here, it should track after the event
 		if (_detalhes.zone_type == "none" and unit) then
 			local serial = UnitGUID (unit)
-			--> the serial is valid and isn't the player?
-			if (serial and serial ~= UnitGUID ("player")) then
+			--> the serial is valid and isn't THE player and the serial is from a player?
+			if (serial and serial ~= UnitGUID ("player") and serial:find ("Player")) then
 				_detalhes.duel_candidates [serial] = GetTime()
 				
 				local playerName = _detalhes:GetCLName (unit)
