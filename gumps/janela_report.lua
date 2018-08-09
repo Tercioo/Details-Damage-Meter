@@ -345,7 +345,6 @@ local function cria_drop_down (este_gump)
 		end
 	
 		local build_list = function()
-		
 			local output_array = {}
 		
 			for index, case in ipairs (lista) do 
@@ -355,7 +354,8 @@ local function cria_drop_down (este_gump)
 			end
 			
 			local channels = {_GetChannelList()} --> coloca o resultado em uma tabela .. {id1, canal1, id2, canal2}
-			for i = 1, #channels, 2 do --> total de canais
+			--09/august/2018: GetChannelList passed to return 3 values for each channel instead of 2
+			for i = 1, #channels, 3 do --> total de canais
 				output_array [#output_array + 1] = {iconsize = iconsize, value = "CHANNEL|"..channels [i+1], label = channels [i]..". "..channels [i+1], onclick = on_click, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], texcoord = {0.3046875, 0.4453125, 0.109375, 0.390625}, iconcolor = {149/255, 112/255, 112/255}}
 			end
 			

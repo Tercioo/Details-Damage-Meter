@@ -2659,7 +2659,7 @@ local set_text_size = function (bar, instance)
 end
 
 --> this is the in bar icon (icon inside the player bar, like faction or role icon) padding, icon has the row height as is width and height - padding
-local InBarIconPadding = 0
+local InBarIconPadding = 6
 
 --[[ exported]] function _detalhes:SetBarLeftText (bar, instance, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
 

@@ -43,6 +43,8 @@
 	local CONST_CLOUD_DATARC = "CE"
 	local CONST_CLOUD_EQUALIZE = "EQ"
 	
+	local CONST_PVP_ENEMY = "PP"
+	
 	local CONST_ROGUE_SR = "SR" --soul rip from akaari's soul (LEGION ONLY)
 	
 	_detalhes.network.ids = {
@@ -59,6 +61,8 @@
 		["WIPE_CALL"] = CONST_WIPE_CALL,
 		
 		["GUILD_SYNC"] = CONST_GUILD_SYNC,
+		
+		["PVP_ENEMY"] = CONST_PVP_ENEMY,
 		
 		["MISSDATA_ROGUE_SOULRIP"] = CONST_ROGUE_SR, --soul rip from akaari's soul (LEGION ONLY)
 	}
@@ -374,6 +378,12 @@
 		end
 	end
 	
+	function _detalhes.network.ReceivedEnemyPlayer (player, realm, core_version, data)
+		-- ["PVP_ENEMY"] = CONST_PVP_ENEMY,
+	end
+	
+	
+	
 	_detalhes.network.functions = {
 		[CONST_HIGHFIVE_REQUEST] = _detalhes.network.HighFive_Request,
 		[CONST_HIGHFIVE_DATA] = _detalhes.network.HighFive_DataReceived,
@@ -390,6 +400,8 @@
 		[CONST_GUILD_SYNC] = _detalhes.network.GuildSync,
 		
 		[CONST_ROGUE_SR] = _detalhes.network.HandleMissData, --soul rip from akaari's soul (LEGION ONLY)
+		
+		[CONST_PVP_ENEMY] = _detalhes.network.ReceivedEnemyPlayer,
 	}
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

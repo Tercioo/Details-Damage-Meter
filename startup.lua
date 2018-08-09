@@ -278,6 +278,8 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("PLAYER_ROLES_ASSIGNED")
 			self.listener:RegisterEvent ("ROLE_CHANGED_INFORM")
 			
+			self.listener:RegisterEvent ("UNIT_FACTION")
+			
 			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
 			
 			--test immersion stuff

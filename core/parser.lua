@@ -103,6 +103,7 @@
 
 	local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
+	local duel_candidates = _detalhes.duel_candidates
 	
 	local OBJECT_TYPE_ENEMY = 0x00000040
 	local OBJECT_TYPE_PLAYER = 0x00000400
@@ -668,10 +669,16 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> firendly fire
-
-		if (
-			(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
-			(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
+		if (	
+			(
+				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
+				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
+			)
+			and
+			(
+				--> if the target isn't a pvp duel target
+				not jogador_alvo.enemy and not este_jogador.enemy
+			)
 		) then
 		
 			--> ignore soul link (damage from the warlock on his pet)
@@ -4340,6 +4347,50 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes:DispatchAutoRunCode ("on_leavecombat")
 	end
 
+	--> this is mostly triggered when the player enters in a dual against another player
+	function _detalhes.parser_functions:UNIT_FACTION (unit)
+		--> check if outdoors
+		--unit was nil, nameplate might bug here, it should track after the event
+		if (_detalhes.zone_type == "none" and unit) then
+			local serial = UnitGUID (unit)
+			--> the serial is valid and isn't the player?
+			if (serial and serial ~= UnitGUID ("player")) then
+				_detalhes.duel_candidates [serial] = GetTime()
+				
+				local playerName = _detalhes:GetCLName (unit)
+				
+				--> check if the player is inside the current combat and flag the objects
+				if (playerName and _current_combat) then
+					local enemyPlayer1 = _current_combat:GetActor (1, playerName)
+					local enemyPlayer2 = _current_combat:GetActor (2, playerName)
+					local enemyPlayer3 = _current_combat:GetActor (3, playerName)
+					local enemyPlayer4 = _current_combat:GetActor (4, playerName)
+					if (enemyPlayer1) then
+						--> set to show when the player is solo play
+						enemyPlayer1.grupo = true
+						enemyPlayer1.enemy = true
+						if (IsInGroup()) then
+							--> broadcast the enemy to group members so they can "watch" the damage
+							
+						end
+					end
+					if (enemyPlayer2) then
+						enemyPlayer2.grupo = true
+						enemyPlayer2.enemy = true
+					end
+					if (enemyPlayer3) then
+						enemyPlayer3.grupo = true
+						enemyPlayer3.enemy = true
+					end
+					if (enemyPlayer4) then
+						enemyPlayer4.grupo = true
+						enemyPlayer4.enemy = true
+					end
+				end
+			end
+		end
+	end
+	
 	function _detalhes.parser_functions:ROLE_CHANGED_INFORM (...)
 		if (_detalhes.last_assigned_role ~= _UnitGroupRolesAssigned ("player")) then
 			_detalhes:CheckSwitchOnLogon (true)

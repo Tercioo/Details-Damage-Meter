@@ -247,6 +247,15 @@
 					end
 				end
 				
+				--> pvp duel
+				if (_detalhes.duel_candidates [serial]) then
+					--> check if is recent
+					if (_detalhes.duel_candidates [serial]+20 > GetTime()) then
+						novo_objeto.grupo = true
+						novo_objeto.enemy = true
+					end
+				end
+				
 				if (_detalhes.is_in_arena) then
 				
 					local my_team_color = GetBattlefieldArenaFaction()
