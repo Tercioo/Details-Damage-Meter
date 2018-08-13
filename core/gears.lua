@@ -1704,16 +1704,48 @@ local offhand_ismain = {
 	["128867"] = true, --paladin prot / oathseeker
 }
 
-function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
-	local guid = UnitGUID (player .. "-" .. realm)
-	if (not guid) then
-		guid = UnitGUID (player)
-		if (not guid) then
-			return
+function _detalhes:IlvlFromNetwork (player, realm, core, serialNumber, itemLevel, talentsSelected, currentSpec)
+	if (_detalhes.debug) then
+		local talents = "Invalid Talents"
+		if (type (talentsSelected) == "table") then
+			talents = ""
+			for i = 1, #talentsSelected do
+				talents = talents .. talentsSelected [i] .. ","
+			end
+		end
+		_detalhes:Msg ("(debug) Received PlayerInfo Data: " .. (player or "Invalid Player Name") .. " | " .. (itemLevel or "Invalid Item Level") .. " | " .. (currentSpec or "Invalid Spec") .. " | " .. talents  .. " | " .. (serialNumber or "Invalid Serial"))
+	end
+
+	if (not player) then
+		return
+	end
+	
+	--> older versions of details wont send serial nor talents nor spec
+	if (not serialNumber or not itemLevel or not talentsSelected or not currentSpec) then
+		--if any data is invalid, abort
+		return
+	end
+
+	if (type (serialNumber) ~= "string") then
+		return
+	end
+
+	--store the item level
+	if (type (itemLevel) == "number") then
+		_detalhes.item_level_pool [serialNumber] = {name = player, ilvl = itemLevel, time = time()}
+	end
+	
+	--store talents
+	if (type (talentsSelected) == "table") then
+		if (talentsSelected [1]) then
+			_detalhes.cached_talents [serialNumber] = talentsSelected
 		end
 	end
 	
-	_detalhes.item_level_pool [guid] = {name = player, ilvl = ilvl, time = time()}
+	--store the spec the player is playing
+	if (type (currentSpec) == "number") then
+		_detalhes.cached_specs [serialNumber] = currentSpec
+	end
 end
 
 --> test

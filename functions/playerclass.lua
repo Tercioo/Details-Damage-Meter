@@ -506,3 +506,37 @@ function _detalhes:AddRoleIcon (player_name, role, size)
 
 	return player_name
 end
+
+function _detalhes:AddClassOrSpecIcon (playerName, class, spec, iconSize, useAlphaIcons)
+
+	local size = iconSize or 16
+	
+	if (spec) then
+		local specString = ""
+		local L, R, T, B = unpack (_detalhes.class_specs_coords [spec])
+		if (L) then
+			if (useAlphaIcons) then
+				specString = "|TInterface\\AddOns\\Details\\images\\spec_icons_normal_alpha:" .. size .. ":" .. size .. ":0:0:512:512:" .. (L * 512) .. ":" .. (R * 512) .. ":" .. (T * 512) .. ":" .. (B * 512) .. "|t"
+			else
+				specString = "|TInterface\\AddOns\\Details\\images\\spec_icons_normal:" .. size .. ":" .. size .. ":0:0:512:512:" .. (L * 512) .. ":" .. (R * 512) .. ":" .. (T * 512) .. ":" .. (B * 512) .. "|t"
+			end
+			return specString .. " " .. playerName
+		end
+	end
+	
+	if (class) then
+		local classString = ""
+		local L, R, T, B = unpack (_detalhes.class_coords [class])
+		if (L) then
+			local imageSize = 128
+			if (useAlphaIcons) then
+				classString = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:" .. size .. ":" .. size .. ":0:0:" .. imageSize .. ":" .. imageSize .. ":" .. (L * imageSize) .. ":" .. (R * imageSize) .. ":" .. (T * imageSize) .. ":" .. (B * imageSize) .. "|t"
+			else
+				classString = "|TInterface\\AddOns\\Details\\images\\classes_small:" .. size .. ":" .. size .. ":0:0:" .. imageSize .. ":" .. imageSize .. ":" .. (L * imageSize) .. ":" .. (R * imageSize) .. ":" .. (T * imageSize) .. ":" .. (B * imageSize) .. "|t"
+			end
+			return classString .. " " .. playerName
+		end
+	end
+	
+	return playerName
+end

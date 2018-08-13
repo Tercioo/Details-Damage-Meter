@@ -1428,6 +1428,38 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 		
 		instance:InstanceAlert ("Boss Defeated! Show Ranking", icon, 10, func, true)
 	
+	elseif (msg == "spec") then
+	
+	local spec = GetSpecialization()
+	if (spec) then
+		local specID = GetSpecializationInfo (spec)
+		if (specID and specID ~= 0) then
+			print ("Current SpecID: ", specID)
+		end
+	end
+		
+	
+	elseif (msg == "senditemlevel") then
+		_detalhes:SentMyItemLevel()
+		print ("Item level dispatched.")
+	
+	elseif (msg == "talents") then
+		local talents = {}
+		for i = 1, 7 do
+			for o = 1, 3 do
+				local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1)
+				if (selected) then
+					tinsert (talents, talentID)
+					break
+				end
+			end
+		end
+		
+		print ("talentID", "name", "texture", "selected", "available", "spellID", "unknown", "row", "column", "unknown", "unknown")
+		for i = 1, #talents do
+			print (GetTalentInfoByID (talents [i]))
+		end
+	
 	elseif (msg == "merge") then
 		
 		--> at this point, details! should not be in combat

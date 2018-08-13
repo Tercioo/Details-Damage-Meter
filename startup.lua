@@ -279,6 +279,8 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("ROLE_CHANGED_INFORM")
 			
 			self.listener:RegisterEvent ("UNIT_FACTION")
+			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
+			self.listener:RegisterEvent ("PLAYER_TALENT_UPDATE")
 			
 			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
 			

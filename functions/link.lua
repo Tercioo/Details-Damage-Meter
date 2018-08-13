@@ -4061,6 +4061,8 @@ local create_deathrecap_line = function (parent, n)
 	_detalhes.gump:SetFontColor (amount, "red")
 	_detalhes.gump:SetFontColor (timeAt, "gray")
 	_detalhes.gump:SetFontColor (sourceName, "yellow")
+	
+	_detalhes.gump:SetFontSize (sourceName, 10)
 
 	--text alpha
 	timeAt:SetAlpha (textAlpha)
@@ -4299,6 +4301,8 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 				DeathRecapFrame.Unavailable:Show()
 				return
 			end
+			
+			
 			--get the death events from the blizzard's recap
 			ArtificialDeathLog = _detalhes.BuildDeathTableFromRecap (RecapID)
 		end
@@ -4360,9 +4364,11 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 				end
 			end
 
-			
 			--tem menos que 10 eventos com grande dano dentro dos ultimos 5 segundos
 			--precisa preencher com danos pequenos
+			
+			--print ("1 BiggestDamageHits:", #BiggestDamageHits)
+			
 			if (#BiggestDamageHits < 10) then
 				for i = #events, 1, -1 do
 					local event = events [i]
@@ -4393,7 +4399,7 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 			table.sort (BiggestDamageHits, function (t1, t2) 
 				return t1[4] > t2[4]
 			end)
-			
+
 			local events = BiggestDamageHits
 			
 			local maxHP = t [5]
@@ -4411,18 +4417,61 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 				local source = event [6]
 				local overkill = event [10] or 0
 				
+				--print ("3 loop", i, type (evType), evType)
+				
 				if (type (evType) == "boolean" and evType) then
 					
 					local line = Details.DeathRecap.Lines [lineIndex]
-					
+					--print ("4 loop", i, line)
 					if (line) then
 						line.timeAt:SetText (format ("%.1f", eventTime - timeOfDeath) .. "s")
 						line.spellIcon:SetTexture (spellIcon)
 						line.TopFader:Hide()
 						--line.spellIcon:SetTexCoord (.1, .9, .1, .9)
-						
 						--line.sourceName:SetText ("|cFFC6B0D9" .. source .. "|r")
-						line.sourceName:SetText (spellName)
+						
+						--parse source and cut the length of the string after setting the spellname and source
+						local sourceClass = _detalhes:GetClass (source)
+						local sourceSpec = _detalhes:GetSpec (source)
+						
+						if (not sourceClass) then
+							local combat = Details:GetCurrentCombat()
+							if (combat) then
+								local sourceActor = combat:GetActor (1, source)
+								if (sourceActor) then
+									sourceClass = sourceActor.classe
+								end
+							end
+						end
+						
+						if (not sourceSpec) then
+							local combat = Details:GetCurrentCombat()
+							if (combat) then
+								local sourceActor = combat:GetActor (1, source)
+								if (sourceActor) then
+									sourceSpec = sourceActor.spec
+								end
+							end
+						end
+						
+						--> remove real name or owner name
+						source = _detalhes:GetOnlyName (source)
+						--> remove owner name
+						source = source:gsub ((" <.*"), "")
+						
+						--> if a player?
+						if (_detalhes.player_class [sourceClass]) then
+							source = _detalhes:AddClassOrSpecIcon (source, sourceClass, sourceSpec, 16, true)
+							
+						elseif (sourceClass == "PET") then
+							source = _detalhes:AddClassOrSpecIcon (source, sourceClass)
+						
+						end
+
+						--> remove the dot signal from the spell name
+						spellName = spellName:gsub (L["STRING_DOT"], "")
+						
+						line.sourceName:SetText (spellName .. " (" .. "|cFFC6B0D9" .. source .. "|r" .. ")")
 						
 						if (amount > 1000) then
 							--line.amount:SetText ("-" .. _detalhes:ToK (amount))

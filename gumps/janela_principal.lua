@@ -7236,6 +7236,7 @@ function _detalhes:RefreshAttributeTextSize()
 	end
 end
 
+-- ~encounter ~timer
 function _detalhes:CheckForTextTimeCounter (combat_start)
 	if (combat_start) then
 		if (_detalhes.tabela_vigente.is_boss) then

@@ -1,5 +1,5 @@
 
-local dversion = 94
+local dversion = 96
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -261,6 +261,19 @@ elseif (GetLocale() == "zhCN") then
 	symbol_1K, symbol_10K, symbol_1B = "千", "万", "亿"
 elseif (GetLocale() == "zhTW") then
 	symbol_1K, symbol_10K, symbol_1B = "千", "萬", "億"
+end
+
+function DF:GetAsianNumberSymbols()
+	if (GetLocale() == "koKR") then
+		return "천", "만", "억"
+	elseif (GetLocale() == "zhCN") then
+		return "千", "万", "亿"
+	elseif (GetLocale() == "zhTW") then
+		return "千", "萬", "億"
+	else
+		--> return korean as default (if the language is western)
+		return "천", "만", "억"
+	end
 end
 
 if (symbol_1K) then
@@ -1205,6 +1218,17 @@ if (clientLanguage == "enGB") then
 end
 
 DF.ClientLanguage = clientLanguage
+
+--> returns which region the language the client is running, return "western", "russia" or "asia"
+function DF:GetClientRegion()
+	if (clientLanguage == "zhCN" or clientLanguage == "koKR" or clientLanguage == "zhTW") then
+		return "asia"
+	elseif (clientLanguage == "ruRU") then
+		return "russia"
+	else
+		return "western"
+	end
+end
 
 --> return the best font to use for the client language
 function DF:GetBestFontForLanguage (language, western, cyrillic, china, korean, taiwan)

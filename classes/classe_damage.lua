@@ -1562,7 +1562,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 	--> n�o h� barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then 
-		if (_detalhes.debug) then
+		
+		if (_detalhes.debug and false) then
 			_detalhes.showing_ActorTable_Timer = _detalhes.showing_ActorTable_Timer or 0
 			if (time() > _detalhes.showing_ActorTable_Timer) then
 				_detalhes:Msg ("(debug) nothing to show -> #showing._ActorTable < 1")
@@ -2014,7 +2015,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				end
 			
 				if (#conteudo < 1) then
-					if (_detalhes.debug) then
+					if (_detalhes.debug and false) then
 						_detalhes.showing_ActorTable_Timer2 = _detalhes.showing_ActorTable_Timer2 or 0
 						if (time() > _detalhes.showing_ActorTable_Timer2) then
 							_detalhes:Msg ("(debug) nothing to show -> #conteudo < 1 (using cache)")
@@ -2086,7 +2087,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		end
 		instancia:EsconderScrollBar() --> precisaria esconder a scroll bar
 		
-		if (_detalhes.debug) then
+		if (_detalhes.debug and false) then
 			_detalhes.showing_ActorTable_Timer2 = _detalhes.showing_ActorTable_Timer2 or 0
 			if (time() > _detalhes.showing_ActorTable_Timer2) then
 				_detalhes:Msg ("(debug) nothing to show -> amount < 1")

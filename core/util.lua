@@ -807,17 +807,20 @@ end
 
 		_detalhes:TimeDataTick()
 		_detalhes:BrokerTick()
-
-		if (_detalhes.zone_type == "pvp" or _detalhes.zone_type == "arena" or _InCombatLockdown()) then
+		
+		if ((_detalhes.zone_type == "pvp" and _detalhes.use_battleground_server_parser) or _detalhes.zone_type == "arena" or _InCombatLockdown()) then
 			return true
+			
 		elseif (_UnitAffectingCombat("player")) then
 			return true
+			
 		elseif (_IsInRaid()) then
 			for i = 1, _GetNumGroupMembers(), 1 do
 				if (_UnitAffectingCombat ("raid"..i)) then
 					return true
 				end
 			end
+			
 		elseif (_IsInGroup()) then
 			for i = 1, _GetNumGroupMembers()-1, 1 do
 				if (_UnitAffectingCombat ("party"..i)) then
@@ -827,12 +830,14 @@ end
 		end
 		
 		--> don't leave the combat if is in the argus encounter ~REMOVE on 8.0
+		--[=[
 		if (_detalhes.encounter_table and _detalhes.encounter_table.id == 2092) then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) in argus encounter, cannot leave the combat.")
 			end
 			return true
 		end
+		--]=]
 		
 		--mythic dungeon test
 		if (_detalhes.MythicPlus.Started and _detalhes.mythic_plus.always_in_combat) then

@@ -1,5 +1,6 @@
-local MAJOR, MINOR = "LibItemUpgradeInfo-1.0", 27
+local MAJOR, MINOR = "LibItemUpgradeInfo-1.0", 30
 local type,tonumber,select,strsplit,GetItemInfoFromHyperlink=type,tonumber,select,strsplit,GetItemInfoFromHyperlink
+local unpack,GetDetailedItemLevelInfo=unpack,GetDetailedItemLevelInfo
 local library,previous = _G.LibStub:NewLibrary(MAJOR, MINOR)
 local lib=library --#lib Needed to keep Eclipse LDT happy
 if not lib then return end
@@ -19,18 +20,18 @@ Caching system
 3	itemRarity	Number	The quality of the item. The value is 0 to 7, which represents Poor to Heirloom. This appears to include gains from upgrades/bonuses.
 4	itemLevel	Number	The item level of this item, not including item levels gained from upgrades. There is currently no API to get the item level including upgrades/bonuses.
 5	itemMinLevel	Number	The minimum level required to use the item, 0 meaning no level requirement.
-6	itemType	String	The type of the item: Armor, Weapon, Quest, Key, etc. (localized)
-7	itemSubType	String	The sub-type of the item: Enchanting, Cloth, Sword, etc. See itemType. (localized)
+6	itemType	String	The type of the item: Armor, Weapon, Quest, Key, etc.
+7	itemSubType	String	The sub-type of the item: Enchanting, Cloth, Sword, etc. See itemType.
 8	itemStackCount	Number	How many of the item per stack: 20 for Runecloth, 1 for weapon, 100 for Alterac Ram Hide, etc.
 9	itemEquipLoc	String	The type of inventory equipment location in which the item may be equipped, or "" if it can't be equippable. The string returned is also the name of a global string variable e.g. if "INVTYPE_WEAPONMAINHAND" is returned, _G["INVTYPE_WEAPONMAINHAND"] will be the localized, displayable name of the location.
 10	iconFileDataID	Number	The FileDataID for the icon texture for the item.
 11	itemSellPrice	Number	The price, in copper, a vendor is willing to pay for this item, 0 for items that cannot be sold.
 12	itemClassID	Number	This is the numerical value that determines the string to display for 'itemType'.
 13	itemSubClassID	Number	This is the numerical value that determines the string to display for 'itemSubType'
-14 ? number
-15 ? number
-16 ? ?
-17 ? boolean
+14	bindType	Number	Item binding type: 0 - none; 1 - on pickup; 2 - on equip; 3 - on use; 4 - quest.
+15	expacID	Number
+16	itemSetID	Number
+17	isCraftingReagent bool
 --]]
 -- ItemLink Constants
 local i_Name=1
@@ -46,7 +47,7 @@ local i_EquipLoc=9
 local i_TextureId=10
 local i_SellPrice=11
 local i_ClassID=12
-local i_SubCkass_ID=13
+local i_SubClass_ID=13
 local i_unk1=14
 local i_unk2=15
 local i_unk3=16
@@ -66,19 +67,26 @@ lib.itemcache=lib.itemcache or
 			local itemLink=cached[2]
 			if not itemLink then return nil end
 			local itemID=lib:GetItemID(itemLink)
-			local name=cached[1]
+			local quality=cached[3]
+			local cacheIt=true
+			if quality==LE_ITEM_QUALITY_ARTIFACT then 
+				local relic1, relic2, relic3 = select(4,strsplit(':', itemLink))
+				if relic1 and relic1 ~= '' and not oGetItemInfo(relic1) then cacheIt = false end
+				if relic2 and relic2 ~= '' and not oGetItemInfo(relic2) then cacheIt = false end
+				if relic3 and relic3 ~= '' and not oGetItemInfo(relic3) then cacheIt = false end
+			end
 			cached.englishClass=GetItemClassInfo(cached[12])
 			cached.englishSubClass=GetItemSubClassInfo(cached[12],cached[13])
-			rawset(table,itemLink,cached)
-			rawset(table,itemID,cached)
-			rawset(table,name,cached)
+			if cacheIt then
+				rawset(table,key,cached)
+			end
 			table.miss=table.miss+1
 			return cached
 		end
 
 	})
 end
-local cache,select,unpack=lib.itemcache,select,unpack
+local cache=lib.itemcache
 local	function CachedGetItemInfo(key,index)
 	if not key then return nil end
 	index=index or 1
@@ -159,10 +167,18 @@ local boePattern=_G.ITEM_BIND_ON_EQUIP
 local bopPattern=_G.ITEM_BIND_ON_PICKUP
 local boaPattern1=_G.ITEM_BIND_TO_BNETACCOUNT
 local boaPattern2=_G.ITEM_BNETACCOUNTBOUND
+local patterns={
+  [soulboundPattern]="soulbound",
+  [boePattern]="boe",
+  [bopPattern]="bop",
+  [boaPattern1]="boa",
+  [boaPattern2]="boa",
+}
 
 local scanningTooltip
 local anchor
-local tipCache = lib.tipCache or setmetatable({},{__index=function(table,key) return {} end})
+lib.tipCache = lib.tipCache or setmetatable({},{__index=function(table,key) return {} end})
+local tipCache = lib.tipCache
 local emptytable={}
 
 local function ScanTip(itemLink,itemLevel,show)
@@ -170,7 +186,8 @@ local function ScanTip(itemLink,itemLevel,show)
 		itemLink=CachedGetItemInfo(itemLink,2)
 		if not itemLink then return emptytable end
 	end
-	if true or type(tipCache[itemLink].ilevel)=="nil" then
+	if type(tipCache[itemLink].ilevel)=="nil"then -- or not tipCache[itemLink].cached then
+		local cacheIt=true
 		if not scanningTooltip then
 			anchor=CreateFrame("Frame")
 			anchor:Hide()
@@ -190,34 +207,57 @@ local function ScanTip(itemLink,itemLevel,show)
 		-- line 2 may be the item level, or it may be a modifier like "Heroic"
 		-- check up to line 6 just in case
 		local ilevel,soulbound,bop,boe,boa,heirloom
-		if quality==LE_ITEM_QUALITY_ARTIFACT and itemLevel then ilevel=itemLevel end
+		if quality==LE_ITEM_QUALITY_ARTIFACT and itemLevel then 
+			local relic1, relic2, relic3 = select(4,strsplit(':', itemLink))
+			if relic1 and relic1 ~= '' and not CachedGetItemInfo(relic1) then cacheIt = false end
+			if relic2 and relic2 ~= '' and not CachedGetItemInfo(relic2) then cacheIt = false end
+			if relic3 and relic3 ~= '' and not CachedGetItemInfo(relic3) then cacheIt = false end
+			ilevel=itemLevel 
+		end
 		if show then
 			for i=1,12 do
 				local l, ltext = _G["LibItemUpgradeInfoTooltipTextLeft"..i], nil		
 				local r, rtext  = _G["LibItemUpgradeInfoTooltipTextRight"..i], nil
-				ltext=l:GetText()
-				rtext=r:GetText()
-				pp(i,ltext,' - ',rtext)		
+				if l then
+  				ltext=l:GetText()
+  				rtext=r:GetText()
+  				_G.print(i,ltext,' - ',rtext)
+				end		
 			end
 		end
+    tipCache[itemLink]={
+      ilevel=nil,
+      soulbound=nil,
+      bop=nil,
+      boe=nil,
+      boa=nil,
+      cached=cacheIt
+    }
+    local c=tipCache[itemLink]
 		for i = 2, 6 do
 			local label, text = _G["LibItemUpgradeInfoTooltipTextLeft"..i], nil
 			if label then text=label:GetText() end
 			if text then
-				if ilevel==nil then ilevel = tonumber(text:match(itemLevelPattern)) end
-				if soulbound==nil then soulbound = text:find(soulboundPattern) end
-				if bop==nil then bop = text:find(bopPattern) end
-				if boe==nil then boe = text:find(boePattern) end
-				if boa==nil then boa = text:find(boaPattern1) end
-				if boa==nil then boa = text:find(boaPattern2) end
+        if show then _G.print("|cFFFFFF00".. text .. "|r") end
+				if c.ilevel==nil then c.ilevel = tonumber(text:match(itemLevelPattern)) end
+				for pattern,key in pairs(patterns) do
+          if type(c[key])=="nil" then
+            if text:find(pattern) then
+              if show then _G.print(text , "matched",pattern) end
+ 				      c[key]=true
+            end
+          end
+        end
 			end
 		end
-		tipCache[itemLink]={
-			ilevel=ilevel or itemLevel,
-			soulbound=soulbound,
-			bop=bop,
-			boe=boe
-		}
+		c.ilevel=c.ilevel or itemLevel
+		itemLevel=GetDetailedItemLevelInfo(itemLink)
+		if type(c.ilevel)=="number" then
+		  c.ilevel=math.max(c.ilevel,itemLevel)
+		else
+		  c.ilevel=itemLevel
+	  end
+		
 		scanningTooltip:Hide()
 	end
 	return tipCache[itemLink]
@@ -480,8 +520,54 @@ end
 --   #function The new function
 
 --@do-not-package--
+local slots={
+INVSLOT_AMMO    = INVSLOT_AMMO,
+INVSLOT_HEAD    = INVSLOT_HEAD,
+INVSLOT_NECK    = INVSLOT_NECK,
+INVSLOT_SHOULDER  = INVSLOT_SHOULDER,
+INVSLOT_BODY    = INVSLOT_BODY,
+INVSLOT_CHEST   = INVSLOT_CHEST,
+INVSLOT_WAIST   = INVSLOT_WAIST,
+INVSLOT_LEGS    = INVSLOT_LEGS,
+INVSLOT_FEET    = INVSLOT_FEET,
+INVSLOT_WRIST   = INVSLOT_WRIST,
+INVSLOT_HAND    = INVSLOT_HAND,
+INVSLOT_FINGER1 = INVSLOT_FINGER1,
+INVSLOT_FINGER2 = INVSLOT_FINGER2,
+INVSLOT_TRINKET1  = INVSLOT_TRINKET1,
+INVSLOT_TRINKET2  = INVSLOT_TRINKET2,
+INVSLOT_BACK    = INVSLOT_BACK,
+INVSLOT_MAINHAND  = INVSLOT_MAINHAND,
+INVSLOT_OFFHAND = INVSLOT_OFFHAND,
+INVSLOT_RANGED    = INVSLOT_RANGED,
+INVSLOT_TABARD    = INVSLOT_TABARD,
+}
+local INVSLOT_FIRST_EQUIPPED = INVSLOT_FIRST_EQUIPPED;
+local INVSLOT_LAST_EQUIPPED = INVSLOT_LAST_EQUIPPED
+_G.SLASH_CHECKSLOT1="/checkslot"
+SlashCmdList['CHECKSLOT'] = function(args,chatframe)
+  _G.print(args)
+  local slot=strsplit(' ',args)
+  if not slot or slot=="" then
+    DevTools_Dump(slots)
+    return
+  end
+  slot=tonumber(slot)
+  local itemlink=GetInventoryItemLink("player",slot)
+  if itemlink then
+    for k,v in pairs(slots) do
+      if slot==v then _G.print("Item in " , k) break end
+    end
+    _G.print(itemlink)
+    DevTools_Dump({GetDetailedItemLevelInfo(itemlink)})
+    print(itemlink)
+    _G.print(lib:ScanTip(itemlink))
+  end
+end
 function lib:ScanTip(itemLink)
-	local GameTooltip=LibItemUpgradeInfoTooltip
+  --self.itemcache[itemLink]=nil
+  self.tipCache[itemLink]=nil
+	local GameTooltip=_G.LibItemUpgradeInfoTooltip
 	if GameTooltip then
 		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 		GameTooltip:SetHyperlink(itemLink)

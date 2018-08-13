@@ -74,6 +74,66 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> comm functions
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> item level
+	function _detalhes:SentMyItemLevel()
+		--> only send if in group
+		if (not IsInGroup() and not IsInRaid()) then
+			return
+		end
+		
+		--> check the player level
+		local playerLevel = UnitLevel ("player")
+		if (not playerLevel) then
+			return
+		elseif (playerLevel < 60) then
+			return
+		end
+		
+		--> delay to sent information again
+		if (_detalhes.LastPlayerInfoSync and _detalhes.LastPlayerInfoSync+10 > GetTime()) then
+			--do not send info if recently sent
+			return
+		end
+	
+		--> get player item level
+		local overall, equipped = GetAverageItemLevel()
+		
+		--> get player talents
+		local talents = {}
+		for i = 1, 7 do
+			for o = 1, 3 do
+				local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1)
+				if (selected) then
+					tinsert (talents, talentID)
+					break
+				end
+			end
+		end
+		
+		--> get the spec ID
+		local spec = GetSpecialization()
+		local currentSpec
+		if (spec) then
+			local specID = GetSpecializationInfo (spec)
+			if (specID and specID ~= 0) then
+				currentSpec = specID
+			end
+		end
+		
+		--> get the character serial number
+		local serial = UnitGUID ("player")
+		
+		_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, serial, equipped, talents, currentSpec)
+		
+		_detalhes.LastPlayerInfoSync = GetTime()
+	end
+	
+	function _detalhes.network.ItemLevel_Received (player, realm, core_version, serial, itemlevel, talents, spec)
+		_detalhes:IlvlFromNetwork (player, realm, core_version, serial, itemlevel, talents, spec)
+	end
+
+--high five
 	function _detalhes.network.HighFive_Request()
 		return _detalhes:SendRaidData (CONST_HIGHFIVE_DATA, _detalhes.userversion)
 	end
@@ -412,7 +472,7 @@
 		local prefix, player, realm, dversion, arg6, arg7, arg8, arg9 =  _select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) network received:", prefix, "length:",string.len (data))
+			_detalhes:Msg ("(debug) network received:", prefix, "length:", string.len (data))
 		end
 		
 		--event
@@ -633,17 +693,6 @@
 		end
 	end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> item level
-	function _detalhes:SentMyItemLevel()
-		local overall, equipped = GetAverageItemLevel()
-		_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, equipped)
-	end
-	
-	function _detalhes.network.ItemLevel_Received (player, realm, core_version, itemlevel)
-		_detalhes:IlvlFromNetwork (player, realm, core_version, itemlevel)
-	end
-	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> update
 

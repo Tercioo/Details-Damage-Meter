@@ -264,6 +264,7 @@
 						novo_objeto.arena_ally = true
 						novo_objeto.arena_team = my_team_color
 					else --> is enemy
+						novo_objeto.enemy = true
 						novo_objeto.arena_enemy = true
 						novo_objeto.arena_team = 1 - my_team_color
 					end

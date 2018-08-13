@@ -572,6 +572,13 @@
 				end
 			end
 			
+			--> send item level after a combat if is in raid or party group
+			if (IsInGroup() or IsInRaid()) then
+				C_Timer.After (1, function()
+					_detalhes:SentMyItemLevel()
+				end)
+			end
+			
 			if (not _detalhes.tabela_vigente.is_boss) then
 
 				if (_detalhes.tabela_vigente.is_pvp or _detalhes.tabela_vigente.is_arena) then

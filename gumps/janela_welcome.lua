@@ -4,7 +4,7 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local g =	_detalhes.gump
 local _
-function _detalhes:OpenWelcomeWindow ()
+function _detalhes:OpenWelcomeWindow()
 
 	GameCooltip:Close()
 	local window = _G.DetailsWelcomeWindow
@@ -759,9 +759,25 @@ local window_openned_at = time()
 		NumeralType1_text:SetPoint ("topleft", window, "topleft", 40, -150)
 		
 		local NumeralType2_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		NumeralType2_text:SetText ("1천 = 1.000 |cFFFFCC00| |r1만 = 10.000 |cFFFFCC00| |r10만 = 100.000 |cFFFFCC00| |r100만 = 1.000.000")
+		
+		
+		local asian1K, asian10K, asian1B = _detalhes.gump:GetAsianNumberSymbols()
+		local asianNumerals = "1" .. asian1K .. " = 1.000 \n1" .. asian10K .. " = 10.000 \n10" .. asian10K .. " = 100.000 \n100" .. asian10K .. " = 1.000.000"
+		
+		--> if region is western it'll be using Korean symbols, set a font on the dropdown so it won't show ?????
+		local clientRegion = _detalhes.gump:GetClientRegion()
+		if (clientRegion == "western" or clientRegion == "russia") then
+			_detalhes.gump:SetFontFace (NumeralType2_text, _detalhes.gump:GetBestFontForLanguage ("koKR"))
+			
+		else
+			_detalhes.gump:SetFontFace (NumeralType2_text, _detalhes.gump:GetBestFontForLanguage())
+		end		
+	
+		--> set the text
+		NumeralType2_text:SetText (asianNumerals)
+		
 		NumeralType2_text:SetWidth (500)
-		NumeralType2_text:SetHeight (40)
+		NumeralType2_text:SetHeight (80)
 		NumeralType2_text:SetJustifyH ("left")
 		NumeralType2_text:SetJustifyV ("top")
 		NumeralType2_text:SetTextColor (.8, .8, .8, 1)

@@ -518,7 +518,8 @@
 			amount = absorbed + (amount or 0)
 		end
 		
-		if (este_jogador.grupo and not este_jogador.arena_enemy) then --> source = friendly player
+		if (este_jogador.grupo and not este_jogador.arena_enemy and not este_jogador.enemy) then --> source = friendly player and not an enemy player
+			--dano to adversario estava caindo aqui por nao estar checando .enemy
 			_current_gtotal [1] = _current_gtotal [1]+amount
 			
 		elseif (jogador_alvo.grupo) then --> source = arena enemy or friendly player
@@ -4209,6 +4210,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_DISABLED (...)
+		if (_detalhes.zone_type == "pvp" and not _detalhes.use_battleground_server_parser) then
+			if (_in_combat) then
+				_detalhes:SairDoCombate()
+			end
+			_detalhes:EntrarEmCombate()
+		end
+	
 		if (not _detalhes:CaptureGet ("damage")) then
 			_detalhes:EntrarEmCombate()
 		end
@@ -4347,8 +4355,37 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes:DispatchAutoRunCode ("on_leavecombat")
 	end
 
+	function _detalhes.parser_functions:PLAYER_TALENT_UPDATE()
+		if (IsInGroup() or IsInRaid()) then
+			if (_detalhes.SendTalentTimer and not _detalhes.SendTalentTimer._cancelled) then
+				_detalhes.SendTalentTimer:Cancel()
+			end
+			_detalhes.SendTalentTimer = C_Timer.NewTimer (11, function()
+				_detalhes:SentMyItemLevel()
+			end)
+		end
+	end
+	
+	function _detalhes.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
+		if (IsInGroup() or IsInRaid()) then
+			if (_detalhes.SendTalentTimer and not _detalhes.SendTalentTimer._cancelled) then
+				_detalhes.SendTalentTimer:Cancel()
+			end
+			_detalhes.SendTalentTimer = C_Timer.NewTimer (11, function()
+				_detalhes:SentMyItemLevel()
+			end)
+		end
+	end
+	
 	--> this is mostly triggered when the player enters in a dual against another player
 	function _detalhes.parser_functions:UNIT_FACTION (unit)
+	
+		if (true) then
+			--> disable until figure out how to make this work properlly
+			--> at the moment this event is firing at bgs, arenas, etc making horde icons to show at random
+			return
+		end
+	
 		--> check if outdoors
 		--unit was nil, nameplate might bug here, it should track after the event
 		if (_detalhes.zone_type == "none" and unit) then
