@@ -76,7 +76,7 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> item level
-	function _detalhes:SentMyItemLevel()
+	function _detalhes:SendCharacterData()
 		--> only send if in group
 		if (not IsInGroup() and not IsInRaid()) then
 			return
@@ -124,7 +124,18 @@
 		--> get the character serial number
 		local serial = UnitGUID ("player")
 		
-		_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, serial, equipped, talents, currentSpec)
+		if (IsInRaid()) then
+			_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, serial, equipped, talents, currentSpec)
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sent ilevel data to Raid")
+			end
+			
+		elseif (IsInGroup()) then
+			_detalhes:SendPartyData (CONST_ITEMLEVEL_DATA, serial, equipped, talents, currentSpec)
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sent ilevel data to Party")
+			end
+		end
 		
 		_detalhes.LastPlayerInfoSync = GetTime()
 	end
@@ -624,19 +635,38 @@
 	end
 	
 	function _detalhes:SendRaidData (type, ...)
-		if (IsInRaid (LE_PARTY_CATEGORY_INSTANCE) and IsInInstance()) then
+	
+		local isInInstanceGroup = IsInRaid (LE_PARTY_CATEGORY_INSTANCE)
+	
+		if (isInInstanceGroup) then
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "INSTANCE_CHAT")
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sent comm to INSTANCE raid group")
+			end
 		else
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "RAID")
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sent comm to LOCAL raid group")
+			end
 		end
 	end
 	
 	function _detalhes:SendPartyData (type, ...)
-		if (IsInGroup (LE_PARTY_CATEGORY_INSTANCE) and IsInInstance()) then
+		
+		local isInInstanceGroup = IsInGroup (LE_PARTY_CATEGORY_INSTANCE)
+		
+		if (isInInstanceGroup) then
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "INSTANCE_CHAT")
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sent comm to INSTANCE party group")
+			end
 		else
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "PARTY")
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sent comm to LOCAL party group")
+			end
 		end
+		
 	end
 	
 	function _detalhes:SendRaidOrPartyData (type, ...)

@@ -4051,19 +4051,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 	end
 	
-	function _detalhes.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
-		local specIndex = GetSpecialization()
-		if (specIndex) then
-			local specID = GetSpecializationInfo (specIndex)
-			if (specID and specID ~= 0) then
-				local guid = UnitGUID ("player")
-				if (guid) then
-					_detalhes.cached_specs [guid] = specID
-				end
-			end
-		end
-	end
-	
 	-- ~encounter
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
 		if (_detalhes.debug) then
@@ -4361,18 +4348,29 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes.SendTalentTimer:Cancel()
 			end
 			_detalhes.SendTalentTimer = C_Timer.NewTimer (11, function()
-				_detalhes:SentMyItemLevel()
+				_detalhes:SendCharacterData()
 			end)
 		end
 	end
 	
 	function _detalhes.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
+		local specIndex = GetSpecialization()
+		if (specIndex) then
+			local specID = GetSpecializationInfo (specIndex)
+			if (specID and specID ~= 0) then
+				local guid = UnitGUID ("player")
+				if (guid) then
+					_detalhes.cached_specs [guid] = specID
+				end
+			end
+		end
+		
 		if (IsInGroup() or IsInRaid()) then
 			if (_detalhes.SendTalentTimer and not _detalhes.SendTalentTimer._cancelled) then
 				_detalhes.SendTalentTimer:Cancel()
 			end
 			_detalhes.SendTalentTimer = C_Timer.NewTimer (11, function()
-				_detalhes:SentMyItemLevel()
+				_detalhes:SendCharacterData()
 			end)
 		end
 	end
@@ -4459,6 +4457,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes:SendEvent ("GROUP_ONENTER")
 				
 				_detalhes:DispatchAutoRunCode ("on_groupchange")
+				
+				wipe (_detalhes.trusted_characters)
+				C_Timer.After (5, _detalhes.ScheduleSyncPlayerActorData)
 			end
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -4473,6 +4474,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes:SendEvent ("GROUP_ONLEAVE")
 				
 				_detalhes:DispatchAutoRunCode ("on_groupchange")
+				
+				wipe (_detalhes.trusted_characters)
 			else
 				_detalhes:SchedulePetUpdate (2)
 			end

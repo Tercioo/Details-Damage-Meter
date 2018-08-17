@@ -3,9 +3,9 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 6177
+		_detalhes.build_counter = 6189
 		_detalhes.userversion = "v8.0.1." .. _detalhes.build_counter
-		_detalhes.realversion = 132 --core version
+		_detalhes.realversion = 133 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		_detalhes.BFACORE = 131
 		Details = _detalhes
@@ -116,6 +116,9 @@ do
 			_detalhes.encounter_table = {}
 			_detalhes.encounter_counter = {}
 			_detalhes.encounter_dungeons = {}
+		--> reliable char data sources
+		--> actors that are using details! and sent character data, we don't need query inspect on these actors
+			_detalhes.trusted_characters = {}
 		--> informa��es sobre a arena atual
 			_detalhes.arena_table = {}
 			_detalhes.arena_info = {

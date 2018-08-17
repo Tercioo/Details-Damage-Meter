@@ -1440,7 +1440,7 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 		
 	
 	elseif (msg == "senditemlevel") then
-		_detalhes:SentMyItemLevel()
+		_detalhes:SendCharacterData()
 		print ("Item level dispatched.")
 	
 	elseif (msg == "talents") then

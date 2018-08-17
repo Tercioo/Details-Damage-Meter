@@ -1726,6 +1726,9 @@ function _detalhes:IlvlFromNetwork (player, realm, core, serialNumber, itemLevel
 		return
 	end
 
+	--> won't inspect this actor
+	_detalhes.trusted_characters [serialNumber] = true
+	
 	if (type (serialNumber) ~= "string") then
 		return
 	end
@@ -2063,7 +2066,8 @@ function ilvl_core:Loop()
 		return
 	end
 
-	if (inspecting [guid]) then
+	--> if already inspecting or the actor is in the list of trusted actors
+	if (inspecting [guid] or _detalhes.trusted_characters [guid]) then
 		return
 	end
 
@@ -2107,7 +2111,7 @@ end
 
 function ilvl_core:OnEnter()
 	if (IsInRaid()) then
-		_detalhes:SentMyItemLevel()
+		_detalhes:SendCharacterData()
 	end
 	
 	if (can_start_loop()) then
