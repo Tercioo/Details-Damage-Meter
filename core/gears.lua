@@ -2173,7 +2173,7 @@ function _detalhes:GetTalents (guid)
 	return _detalhes.cached_talents [guid]
 end
 
-function _detalhes:GetSpec (guid)
+function _detalhes:GetSpecFromSerial (guid)
 	return _detalhes.cached_specs [guid]
 end
 

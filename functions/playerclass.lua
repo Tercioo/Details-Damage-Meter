@@ -12,6 +12,25 @@ do
 
 	local unknown_class_coords = {0.75, 1, 0.75, 1}
 	
+	function _detalhes:GetIconTexture (iconType, withAlpha)
+		iconType = string.lower (iconType)
+		
+		if (iconType == "spec") then
+			if (withAlpha) then
+				return [[Interface\AddOns\Details\images\spec_icons_normal_alpha]]
+			else
+				return [[Interface\AddOns\Details\images\spec_icons_normal]]
+			end
+			
+		elseif (iconType == "class") then
+			if (withAlpha) then
+				return [[Interface\AddOns\Details\images\classes_small_alpha]]
+			else
+				return [[Interface\AddOns\Details\images\classes_small]]
+			end
+		end
+	end
+	
 	-- try get the class from actor name
 	function _detalhes:GetClass (name)
 		local _, class = _UnitClass (name)
@@ -38,6 +57,17 @@ do
 	end
 	
 	local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
+	
+	local roles = {
+		DAMAGER = {421/512, 466/512, 381/512, 427/512},
+		HEALER = {467/512, 512/512, 381/512, 427/512},
+		TANK = {373/512, 420/512, 381/512, 427/512},
+		NONE = {0, 50/512, 110/512, 150/512},
+	} 
+	function _detalhes:GetRoleIcon (role)
+		return [[Interface\AddOns\Details\images\icons2]], unpack (roles [role])
+	end
+	
 	function _detalhes:GetClassIcon (class)
 	
 		local c
@@ -60,6 +90,12 @@ do
 			return [[Interface\AddOns\Details\images\classes_small]], 0.25, 0.49609375, 0.75, 1
 		else
 			return [[Interface\AddOns\Details\images\classes_small]], _unpack (_detalhes.class_coords [c])
+		end
+	end
+	
+	function _detalhes:GetSpecIcon (spec)
+		if (spec) then
+			return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack (_detalhes.class_specs_coords [spec])
 		end
 	end
 	
@@ -179,7 +215,7 @@ do
 	
 	-- try get the spec from actor name
 	function _detalhes:GetSpec (name)
-	
+
 		local guid = UnitGUID (name)
 		if (guid) then
 			local spec = _detalhes.cached_specs [guid]

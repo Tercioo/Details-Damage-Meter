@@ -1,71 +1,37 @@
 
-local _UnitAura = UnitAura
-local _GetSpellInfo = GetSpellInfo
-local _UnitClass = UnitClass
-local _UnitName = UnitName
-local _UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local UnitAura = UnitAura
+local UnitBuff = UnitBuff
+local GetSpellInfo = GetSpellInfo
+local UnitClass = UnitClass
+local UnitName = UnitName
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
 
---BFA TODO LIST:
+local DF = DetailsFramework
 
---[=[
-
-flask
-food
-runes
-feats
-
---]=]
-
-local flask_list = {
-	[188033] = true, --Flask of the Seventh Demon
-	[188031] = true, --Flask of the Whispered Pact
-	[188034] = true, --Flask of the Countless Armies
-	[188035] = true, --Flask of Ten Thousand Scars
-}
+--> build the list of buffs to track
+local flask_list = DetailsFramework.FlaskIDs
 
 local food_list = {
-	tier1 = {
-		[201330] = true, --225 haste - 201496
-		[201334] = true, --225 versatility - 201498
-		[201332] = true, --225 mastery - 201497
-		[201223] = true, --225 critical - 201413
+	tier1 = {},
+	tier2 = {},
+	tier3 = {},
+}
+
+for spellID, power in pairs (DetailsFramework.FoodIDs) do
+	if (power == 41) then
+		food_list.tier1 [spellID] = true
 		
-		[201499] = true, --deals damage - Spiced Rib Roast
-	},
-	
-	tier2 = {
-		[225598] = true, --300 haste - 201501
-		[225600] = true, --300 versatility - 201503
-		[225599] = true, --300 mastery - 201502
-		[225597] = true, --300 critical - 201500
-		[225601] = true, --deals damage - 201504
-	},
-	
-	tier3 = {
-		[225603] = true, --375 haste - 201506
-		[225605] = true, --375 versatility - 201508
-		[225604] = true, --375 mastery - 201507
-		[225602] = true, --375 critical - 201505
-		[225606] = true, --deals damage - 201511
-	},
-}
+	elseif (power == 55) then
+		food_list.tier2 [spellID] = true
+		
+	elseif (power >= 75) then
+		food_list.tier3 [spellID] = true
+		
+	end
+end
 
-local runes_id = {
-	[224001] = true,
-}
-
-local feasts = { --7.2
-	[201638] = true, -- 500 str
-	[201639] = true, -- 500 agi
-	[201640] = true, -- 500 int
-	[201641] = true, -- 700 stam
-
-	[201636] = true, -- 400 int
-	[201634] = true, -- 400 str
-	[201635] = true, -- 400 agi
-	[201637] = true, -- 600 stam
-}
+local runes_id = DetailsFramework.RuneIDs
 
 -- 
 
@@ -119,6 +85,9 @@ end
 		
 		local empty_table = {}
 		
+		local PlayerData = {}
+		local UpdateSpeed = .3
+		
 		function DetailsRaidCheck:OnDetailsEvent (event, ...)
 			
 			if (event == "ZONE_TYPE_CHANGED") then
@@ -165,6 +134,23 @@ end
 		DetailsRaidCheck.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (DetailsRaidCheck.empty_function, [[Interface\AddOns\Details_RaidCheck\icon]], Loc ["STRING_RAIDCHECK_PLUGIN_NAME"], "", 16, 16, "RAIDCHECK_PLUGIN_BUTTON")
 		DetailsRaidCheck.ToolbarButton.shadow = true --> loads icon_shadow.tga when the instance is showing icons with shadows
 		
+		function DetailsRaidCheck.GetPlayerAmount()
+			local playerAmount = GetNumGroupMembers()
+			
+			--limit to 20 if in mythic raid and the option is enabled
+			local _, _, difficulty = GetInstanceInfo()
+			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and playerAmount > 20) then
+				playerAmount = 20
+			end
+			
+			--reduce in 1 if the player is only in party
+			if (not IsInRaid()) then
+				playerAmount = playerAmount - 1
+			end
+			
+			return playerAmount
+		end
+		
 		function DetailsRaidCheck:SetGreenIcon()
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then
@@ -206,33 +192,28 @@ end
 		end
 
 		local show_panel = CreateFrame ("frame", nil, UIParent)
-		show_panel:SetSize (505, 300)
 		show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
 		show_panel:SetClampedToScreen (true)
 		show_panel:SetFrameStrata ("TOOLTIP")
 		
-		show_panel.wallpaper = show_panel:CreateTexture (nil, "background")
-		show_panel.wallpaper:SetDrawLayer ("background", 4)
-		show_panel.wallpaper:SetPoint ("topleft", show_panel, "topleft", 4, -4)
-		show_panel.wallpaper:SetPoint ("bottomright", show_panel, "bottomright", -4, 4)
-		
-		show_panel:SetBackdrop (_detalhes.tooltip_backdrop)
-		show_panel:SetBackdropColor (0.09019, 0.09019, 0.18823, 1)
-		show_panel:SetBackdropBorderColor (unpack (_detalhes.tooltip_border_color))
-		show_panel.wallpaper:SetTexture (_detalhes.tooltip.menus_bg_texture)
-		show_panel.wallpaper:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
-		show_panel.wallpaper:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
-		show_panel.wallpaper:SetDesaturated (true)
-		
 		--
 		
-		local bottom_gradient = show_panel:CreateTexture (nil, "artwork")
-		bottom_gradient:SetPoint ("bottomleft", show_panel, "bottomleft", 2, 2)
-		bottom_gradient:SetPoint ("bottomright", show_panel, "bottomright", -2, 2)
-		bottom_gradient:SetTexture ("Interface\\AddOns\\Details\\images\\skins\\elvui")
-		bottom_gradient:SetTexCoord (0.0480000019073486, 0.298000011444092, 0.755999984741211, 0.630999984741211) --0.63
-		bottom_gradient:SetHeight (45)
+		--copying style from the all displays menu
+		show_panel:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+		show_panel:SetBackdropColor (0.05, 0.05, 0.05, 0.3)
+		show_panel.background = show_panel:CreateTexture ("DetailsAllAttributesFrameBackground111", "background")
+		show_panel.background:SetDrawLayer ("background", 2)
+		show_panel.background:SetPoint ("topleft", show_panel, "topleft", 4, -4)
+		show_panel.background:SetPoint ("bottomright", show_panel, "bottomright", -4, 4)
+		show_panel.wallpaper = show_panel:CreateTexture ("DetailsAllAttributesFrameWallPaper111", "background")
+		show_panel.wallpaper:SetDrawLayer ("background", 4)
+		show_panel.wallpaper:SetPoint ("topleft", show_panel, "topleft", 4, -4)
+		show_panel.wallpaper:SetPoint ("bottomright", show_panel, "bottomright", -4, 4)		
 
+		show_panel:SetBackdrop (_detalhes.menu_backdrop_config.menus_backdrop)
+		show_panel:SetBackdropColor (unpack (_detalhes.menu_backdrop_config.menus_backdropcolor))
+		show_panel:SetBackdropBorderColor (unpack (_detalhes.menu_backdrop_config.menus_bordercolor))
+		
 		--
 		
 		local report_string1 = show_panel:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -242,147 +223,192 @@ end
 		DetailsRaidCheck:SetFontSize (report_string1, 10)
 		DetailsRaidCheck:SetFontColor (report_string1, "white")
 		report_string1:SetAlpha (0.6)
-		--
-		
-		local food_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		food_title:SetJustifyH ("center")
-		food_title:SetPoint ("topleft", show_panel, "topleft", 17, -20)
-		food_title:SetText ("No Food")
-		food_title:SetTextColor (1, 0.8, 0.8)
-		
-		local food_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		food_str:SetJustifyH ("left")
-		food_str:SetPoint ("topleft", food_title, "topleft", -9, -20)
-		
-		local food_image = show_panel:CreateTexture (nil, "artwork")
-		--food_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		food_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		food_image:SetPoint ("topleft", food_title, "topleft", -11, 3)
-		food_image:SetSize (food_title:GetStringWidth()+20, 19) --208, 48
-		food_image:SetVertexColor (.65, .65, .65)
 		
 		--
 		
-		local flask_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		flask_title:SetJustifyH ("center")
-		flask_title:SetPoint ("topleft", show_panel, "topleft", 110, -20)
-		flask_title:SetText ("No Flask")
-		flask_title:SetTextColor (1, 0.8, 0.8)
+		--header and scroll
+		local headerTable = {
+			{text = "Player Name", width = 160},
+			{text = "Talents", width = 150},
+			{text = "Item Level", width = 80},
+			{text = "Food", width = 80},
+			{text = "Flask", width = 80},
+			{text = "Rune", width = 80},
+			{text = "Pre-Pot", width = 80},
+		}
+		local headerOptions = {
+			padding = 2,
+		}
 		
-		local flask_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		flask_str:SetJustifyH ("left")
-		flask_str:SetPoint ("topleft", flask_title, "topleft", -9, -20)
+		DetailsRaidCheck.Header = DF:CreateHeader (show_panel, headerTable, headerOptions)
+		DetailsRaidCheck.Header:SetPoint ("topleft", show_panel, "topleft", 10, -10)
 		
-		local flask_image = show_panel:CreateTexture (nil, "artwork")
-		--flask_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		flask_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		flask_image:SetPoint ("topleft", flask_title, "topleft", -11, 3)
-		flask_image:SetSize (flask_title:GetStringWidth()+20, 19) --208, 48
-		flask_image:SetVertexColor (.65, .65, .65)
+		--options
+		local scroll_width = 722
+		local scroll_lines = 30
+		local scroll_line_height = 16
+		local scroll_height = scroll_lines * scroll_line_height
+		local backdrop_color = {.2, .2, .2, 0.2}
+		local backdrop_color_on_enter = {.8, .8, .8, 0.4}
+		local y = -10
+		local headerY = y - 2
+		local scrollY = headerY - 20
+		
+		show_panel:SetSize (722 + 20, 540)
+		
+		--create line for the scroll
+		local scroll_createline = function (self, index)
+		
+			local line = CreateFrame ("button", "$parentLine" .. index, self)
+			line:SetPoint ("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)) - 1)
+			line:SetSize (scroll_width - 2, scroll_line_height)
+			line:SetScript ("OnEnter", line_onenter)
+			line:SetScript ("OnLeave", line_onleave)
+			
+			line:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+			line:SetBackdropColor (unpack (backdrop_color))
+			
+			DF:Mixin (line, DetailsFramework.HeaderFunctions)
+			
+			--role icon
+			local roleIcon = DF:CreateImage (line, nil, scroll_line_height, scroll_line_height)
+			
+			--spec icon
+			local specIcon = DF:CreateImage (line, nil, scroll_line_height, scroll_line_height)
+				specIcon:SetPoint ("left", roleIcon, "right", 2, 0)
+				
+			--player name
+			local playerName = DF:CreateLabel (line)
+				playerName:SetPoint ("left", specIcon, "right", 2, 0)
+			
+			--talents
+			local talent_row_options = {
+				icon_width = 16, 
+				icon_height = 16, 
+				texcoord = {.1, .9, .1, .9},
+				show_text = false,
+			}
+			local talentsRow = DF:CreateIconRow (line, "$parentTalentIconsRow", talent_row_options)
+			
+			--item level
+			local itemLevel = DF:CreateLabel (line)
+			
+			--no food
+			local noFood = DF:CreateLabel (line)
+			--no flask
+			local noFlask = DF:CreateLabel (line)
+			--no rune
+			local noRune = DF:CreateLabel (line)
+			--no pre pot
+			local noPrePot = DF:CreateLabel (line)
+			
+			line:AddFrameToHeaderAlignment (roleIcon)
+			line:AddFrameToHeaderAlignment (talentsRow)
+			line:AddFrameToHeaderAlignment (itemLevel)
+			line:AddFrameToHeaderAlignment (noFood)
+			line:AddFrameToHeaderAlignment (noFlask)
+			line:AddFrameToHeaderAlignment (noRune)
+			line:AddFrameToHeaderAlignment (noPrePot)
+			
+			line:AlignWithHeader (DetailsRaidCheck.Header, "left")
+			
+			line.RoleIcon = roleIcon
+			line.SpecIcon = specIcon
+			line.PlayerName = playerName
+			line.TalentsRow = talentsRow
+			line.ItemLevel = itemLevel
+			line.NoFood = noFood
+			line.NoFlask = noFlask
+			line.NoRune = noRune
+			line.NoPrePot = noPrePot
+			
+			return line
+		end		
+		
+		local noFoodText = "|cFFFF2222X|r"
+		
+		--refresh scroll
+		local scroll_refresh = function (self, data, offset, total_lines)
+			
+			local dataInOrder = {}
 
-		--
-		
-		local focus_aug = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		focus_aug:SetJustifyH ("center")
-		focus_aug:SetPoint ("topleft", show_panel, "topleft", 205, -20)
-		--focus_aug:SetText ("Augmentation")
-		focus_aug:SetText ("No Rune")
-		focus_aug:SetTextColor (0.8, 0.8, 1)
-		
-		local focus_aug2 = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		focus_aug2:SetJustifyH ("left")
-		focus_aug2:SetPoint ("topleft", focus_aug, "topleft", -9, -20)
-		
-		local focus_aug_image2 = show_panel:CreateTexture (nil, "artwork")
-		--focus_aug_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		focus_aug_image2:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		focus_aug_image2:SetPoint ("topleft", focus_aug, "topleft", -11, 3)
-		focus_aug_image2:SetSize (focus_aug:GetStringWidth()+22, 19) --208, 48
-		focus_aug_image2:SetVertexColor (.65, .65, .65)
-		
-		--
-		
-		local prepot_title2 = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		prepot_title2:SetJustifyH ("center")
-		prepot_title2:SetPoint ("topleft", show_panel, "topleft", 300, -20)
-		prepot_title2:SetText ("No Pre Pot")
-		prepot_title2:SetTextColor (1, 0.8, 0.8)
-		
-		local prepot_str2 = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		prepot_str2:SetJustifyH ("left")
-		prepot_str2:SetPoint ("topleft", prepot_title2, "topleft", -9, -20)
-		
-		local prepot_image2 = show_panel:CreateTexture (nil, "artwork")
-		--prepot_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		prepot_image2:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		prepot_image2:SetPoint ("topleft", prepot_title2, "topleft", -11, 3)
-		prepot_image2:SetSize (prepot_title2:GetStringWidth()+22, 19) --208, 48
-		prepot_image2:SetVertexColor (.65, .65, .65)
+			for i = 1, #data do
+				dataInOrder [#dataInOrder+1] = data [i]
+			end
 
-		--
-		local ilvl_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		ilvl_title:SetJustifyH ("center")
-		ilvl_title:SetPoint ("topleft", show_panel, "topleft", 400, -20)
-		ilvl_title:SetText ("Item LvL")
-		ilvl_title:SetTextColor (0.8, 1, 0.8)
+			table.sort (dataInOrder, DF.SortOrder1R)
+			data = dataInOrder
 		
-		local ilvl_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		ilvl_str:SetJustifyH ("left")
-		ilvl_str:SetPoint ("topleft", ilvl_title, "topleft", -11, -20)
+			for i = 1, total_lines do
+				local index = i + offset
+				local playerTable = data [index]
+				
+				if (playerTable) then
+					local line = self:GetLine (i)
+					if (line) then
+						
+						local roleTexture, L, R, T, B = _detalhes:GetRoleIcon (playerTable.Role or "NONE")
+						
+						line.RoleIcon:SetTexture (roleTexture)
+						line.RoleIcon:SetTexCoord (L, R, T, B)
+						
+						if (playerTable.Spec) then
+							local texture, L, R, T, B = _detalhes:GetSpecIcon (playerTable.Spec)
+							line.SpecIcon:SetTexture (texture)
+							line.SpecIcon:SetTexCoord (L, R, T, B)
+						else
+							local texture, L, R, T, B = _detalhes:GetClassIcon (playerTable.Class)
+							line.SpecIcon:SetTexture (texture)
+							line.SpecIcon:SetTexCoord (L, R, T, B)
+						end
+						
+						line.TalentsRow:ClearIcons()
+						
+						if (playerTable.Talents) then
+							for i = 1, #playerTable.Talents do
+								local talent = playerTable.Talents [i]
+								local talentID, name, texture, selected, available = GetTalentInfoByID (talent)
+								line.TalentsRow:SetIcon (false, false, false, false, texture)
+							end
+						end
+						
+					--	line.TalentsRow = talentsRow
+						
+						line.PlayerName.text = playerTable.Name
+						line.ItemLevel.text = floor (playerTable.ILevel.ilvl or 0)
+						line.NoFood.text = playerTable.Food and noFoodText or ""
+						line.NoFlask.text = playerTable.Flask and noFoodText or ""
+						line.NoRune.text = playerTable.Rune and noFoodText or ""
+						line.NoPrePot.text = playerTable.PrePot and noFoodText or ""
+						
+						--[=[
+							Name = unitName,
+							Class = unitClass,
+							Role = unitRole,
+							Spec = unitSpec,
+							ILevel = itemLevelTable,
+							Talents = talentsTable,
+							Food = DetailsRaidCheck.havefood_table [unitName],
+							Flask = DetailsRaidCheck.haveflask_table [unitName],
+							PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
+							Rune = DetailsRaidCheck.havefocusaug_table [unitName],
+						--]=]
+					end
+				end
+			end
+			
+		end
 		
-		local ilvl_image = show_panel:CreateTexture (nil, "artwork")
-		--ilvl_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		ilvl_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		ilvl_image:SetPoint ("topleft", ilvl_title, "topleft", -11, 3)
-		ilvl_image:SetSize (ilvl_title:GetStringWidth()+22, 19) --208, 48
-		ilvl_image:SetVertexColor (.65, .65, .65)
+		--create scroll
+		local mainScroll = DF:CreateScrollBox (show_panel, "$parentMainScroll", scroll_refresh, PlayerData, scroll_width, scroll_height, scroll_lines, scroll_line_height)
+		DF:ReskinSlider (mainScroll)
+		mainScroll.HideScrollBar = true
+		mainScroll:SetPoint ("topleft", show_panel, "topleft", 10, scrollY)
 		
-		--DISABLED
-		local bestfood_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		bestfood_title:SetJustifyH ("center")
-		bestfood_title:SetPoint ("topleft", show_panel, "topleft", 400, -20)
-		bestfood_title:SetText ("125 Food")
-		bestfood_title:SetTextColor (0.8, 1, 0.8)
-		
-		local bestfood_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		bestfood_str:SetJustifyH ("left")
-		bestfood_str:SetPoint ("topleft", bestfood_title, "topleft", -11, -20)
-		
-		local bestfood_image = show_panel:CreateTexture (nil, "artwork")
-		--bestfood_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		bestfood_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		bestfood_image:SetPoint ("topleft", bestfood_title, "topleft", -11, 3)
-		bestfood_image:SetSize (bestfood_title:GetStringWidth()+22, 19) --208, 48
-		bestfood_image:SetVertexColor (.65, .65, .65)
-		
-		bestfood_title:Hide()
-		bestfood_str:Hide()
-		bestfood_image:Hide()
-		
-		--
-		--DISABLED
-		local prepot_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		prepot_title:SetJustifyH ("center")
-		prepot_title:SetPoint ("topleft", show_panel, "topleft", 410, -20)
-		prepot_title:SetText ("Used Pre Pot")
-		prepot_title:SetTextColor (0.8, 1, 0.8)
-		
-		local prepot_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		prepot_str:SetJustifyH ("left")
-		prepot_str:SetPoint ("topleft", prepot_title, "topleft", -11, -20)
-		
-		local prepot_image = show_panel:CreateTexture (nil, "artwork")
-		--prepot_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		prepot_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		prepot_image:SetPoint ("topleft", prepot_title, "topleft", -11, 3)
-		prepot_image:SetSize (prepot_title:GetStringWidth()+22, 19) --208, 48
-		prepot_image:SetVertexColor (.65, .65, .65)
-		
-		prepot_title:Hide()
-		prepot_str:Hide()
-		prepot_image:Hide()		
-		
-		--
+		--create lines
+		for i = 1, scroll_lines do 
+			mainScroll:CreateLine (scroll_createline)
+		end
 		
 		show_panel:Hide()
 		
@@ -449,11 +475,11 @@ end
 				for i = 1, amt, 1 do
 				
 					local unitID = get_unit_id (i)
-					local role = _UnitGroupRolesAssigned (unitID)
+					local role = UnitGroupRolesAssigned (unitID)
 			
 					if (role == "DAMAGER" or (role == "HEALER" and DetailsRaidCheck.db.pre_pot_healers) or (role == "TANK" and DetailsRaidCheck.db.pre_pot_tanks)) then
 				
-						local playerName, realmName = _UnitName (unitID)
+						local playerName, realmName = UnitName (unitID)
 						if (realmName and realmName ~= "") then
 							playerName = playerName .. "-" .. realmName
 						end
@@ -509,194 +535,94 @@ end
 			
 		end)
 		
+		
+		
 		local update_panel = function (self, elapsed)
+			show_panel.NextUpdate = show_panel.NextUpdate - elapsed
+			
+			if (show_panel.NextUpdate > 0) then
+				return
+			end
 
+			show_panel.NextUpdate = UpdateSpeed
+			
 			if (not IsInRaid() and not IsInGroup()) then
 				return
 			end
-		
-			local amount1, amount2, amount3, amount4, amount5, amount6, amount7  = 0, 0, 0, 0, 0, 0, 0
-
-			--item lvl
-			self.one_second = self.one_second + elapsed
-			if (self.one_second > 5) then
-				self.one_second = 0
-				local ilvl = ""
-				local average = 0
-				for _, ilvl_char in ipairs (_detalhes.ilevel:GetInOrder()) do
-					local _, class = _UnitClass (ilvl_char [1])
-
-					if (class) then
-						local coords = CLASS_ICON_TCOORDS [class]
-						local class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
-						
-						ilvl = ilvl .. class_color .. DetailsRaidCheck:GetOnlyName (ilvl_char [1]) .. "|r: " .. floor (ilvl_char[2]) .. "\n"
-						average = average + ilvl_char[2]
-						amount7 = amount7 + 1
-					end
-				end
-				
-				average = average / amount7
-				ilvl = ilvl .. "\n"
-				ilvl = ilvl .. "|TInterface\\TARGETINGFRAME\\PetBadge-Humanoid:12:12:0:-5:32:32:2:30:2:30|t Average: " .. format ("%.2f", average) .. "\n"
-				
-				ilvl_str:SetText (ilvl)
-				
-				self.last_ilvl_amount = amount7 + 2
-			else
-				amount7 = self.last_ilvl_amount or 0
-			end
-			--t.name, t.ilvl, t.time
 			
-			--food
-			local s, f, p, n = "", "", "", ""
-			
-			local amt = GetNumGroupMembers()
-			local _, _, difficulty = GetInstanceInfo()
-			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
-				amt = 20
-			end
+			wipe (PlayerData)
 
-			for i = 1, amt, 1 do
+			local groupTypeID = IsInRaid() and "raid" or "party"
 			
-				--UNITID
-				local unitID = get_unit_id (i)
-				local name = UnitName (unitID)
+			local playerAmount = DetailsRaidCheck.GetPlayerAmount()
+			
+			for i = 1, playerAmount do
+				local unitID = groupTypeID .. i
+				local unitName = UnitName (unitID)
+				local cleuName = _detalhes:GetCLName (unitID)
+				local unitSerial = UnitGUID (unitID)
+				local _, unitClass = UnitClass (unitID)
+				local unitRole = UnitGroupRolesAssigned (unitID)
+				local unitSpec = _detalhes:GetSpecFromSerial (unitSerial) or _detalhes:GetSpec (cleuName)
+				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
+				local talentsTable = _detalhes:GetTalents (unitSerial)
 				
-				--FOOD
-				if (not DetailsRaidCheck.havefood_table [name]) then
-					local _, class = _UnitClass (name)
-					local class_color = "FFFFFFFF"
-					
-					if (class) then
-						local coords = CLASS_ICON_TCOORDS [class]
-						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
-					end
-				
-					s = s .. class_color .. DetailsRaidCheck:GetOnlyName (name) .. "|r\n"
-					
-					amount1 = amount1 + 1
-				end
-				
-				--FLASK
-				if (not DetailsRaidCheck.haveflask_table [name]) then
-					local _, class = _UnitClass (name)
-					local class_color = "FFFFFFFF"
-					
-					if (class) then
-						local coords = CLASS_ICON_TCOORDS [class]
-						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
-					end
-					f = f .. class_color .. DetailsRaidCheck:GetOnlyName (name) .. "|r\n"
-					
-					amount2 = amount2 + 1
-				end
-				
+				tinsert (PlayerData, {
+					Name = unitName,
+					Class = unitClass,
+					Role = unitRole,
+					Spec = unitSpec,
+					ILevel = itemLevelTable,
+					Talents = talentsTable,
+					Food = DetailsRaidCheck.havefood_table [unitName],
+					Flask = DetailsRaidCheck.haveflask_table [unitName],
+					PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
+					Rune = DetailsRaidCheck.havefocusaug_table [unitName],
+				})
 			end
 			
-			food_str:SetText (s)
-			flask_str:SetText (f)
-
-			--DID PRE POT
-			for player_name, potid in pairs (DetailsRaidCheck.usedprepot_table) do
-				local name, _, icon = _GetSpellInfo (potid)
-				local _, class = _UnitClass (player_name)
-				local class_color = "FFFFFFFF"
+			if (not IsInRaid()) then
+				--> add the player data
+				local unitID = "player"
 				
-				if (class) then
-					class_color = RAID_CLASS_COLORS [class].colorStr
-				end
-
-				p = p .. "|T" .. icon .. ":12:12:0:-5:64:64:0:64:0:64|t |c" .. class_color .. DetailsRaidCheck:GetOnlyName (player_name) .. "|r\n"
+				local unitName = UnitName (unitID)
+				local cleuName = _detalhes:GetCLName (unitID)
+				local unitSerial = UnitGUID (unitID)
+				local _, unitClass = UnitClass (unitID)
+				local unitRole = UnitGroupRolesAssigned (unitID)
+				local unitSpec = _detalhes:GetSpecFromSerial (unitSerial) or _detalhes:GetSpec (cleuName)
+				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
+				local talentsTable = _detalhes:GetTalents (unitSerial)
 				
-				amount3 = amount3 + 1
+				tinsert (PlayerData, {
+					Name = unitName,
+					Class = unitClass,
+					Role = unitRole,
+					Spec = unitSpec,
+					ILevel = itemLevelTable,
+					Talents = talentsTable,
+					Food = DetailsRaidCheck.havefood_table [unitName],
+					Flask = DetailsRaidCheck.haveflask_table [unitName],
+					PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
+					Rune = DetailsRaidCheck.havefocusaug_table [unitName],
+				})
 			end
-			
-			--NO PRE POT
-			local amt = GetNumGroupMembers()
-			local _, _, difficulty = GetInstanceInfo()
-			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
-				amt = 20
-			end
-			
-			for i = 1, amt, 1 do
 
-				local unitID = get_unit_id (i)
-			
-				local role = _UnitGroupRolesAssigned (unitID)
-			
-				if (role == "DAMAGER" or (role == "HEALER" and DetailsRaidCheck.db.pre_pot_healers) or (role == "TANK" and DetailsRaidCheck.db.pre_pot_tanks)) then
-					local playerName, realmName = _UnitName (unitID)
-					if (realmName and realmName ~= "") then
-						playerName = playerName .. "-" .. realmName
-					end
-					
-					if (not DetailsRaidCheck.usedprepot_table [playerName]) then
-						local _, class = _UnitClass (playerName)
-						local class_color = "|cFFFFFFFF"
-						
-						if (class) then
-							local coords = CLASS_ICON_TCOORDS [class]
-							class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
-						end
-					
-						n = n .. class_color .. DetailsRaidCheck:GetOnlyName (playerName) .. "|r\n"
-						
-						amount4 = amount4 + 1
-					end
-				end
-
-			end
-			
-			prepot_str:SetText (p)
-			prepot_str2:SetText (n)
-			
-			-- NO RUNE
-			n = ""
-			
-			local amt = GetNumGroupMembers()
-			local _, _, difficulty = GetInstanceInfo()
-			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
-				amt = 20
-			end
-			
-			for i = 1, amt do
-			
-				local unitID = get_unit_id (i)
-				local name = UnitName (unitID)
-				
-				if (not DetailsRaidCheck.havefocusaug_table [name]) then
-					local _, class = _UnitClass (name)
-					local class_color = "FFFFFFFF"
-					
-					if (class) then
-						local coords = CLASS_ICON_TCOORDS [class]
-						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
-					end
-				
-					n = n .. class_color .. DetailsRaidCheck:GetOnlyName (name) .. "|r\n"
-					
-					amount5 = amount5 + 1
-				end
-				
-			end
-			
-			focus_aug2:SetText (n)
-
-			local bigger = math.max (amount1, amount2, amount3, amount4, amount5, amount6, amount7)
-			show_panel:SetHeight (100 + (bigger * 10))
-			
+			mainScroll:Refresh()
 		end
 		
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnEnter", function (self)
 			show_panel:Show()
-			show_panel.one_second = 6
+			show_panel:ClearAllPoints()
+			show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
+			show_panel.NextUpdate = UpdateSpeed
+			update_panel (show_panel, 1)
 			show_panel:SetScript ("OnUpdate", update_panel)
 		end)
 		
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnLeave", function (self)
-			show_panel:Hide()
 			show_panel:SetScript ("OnUpdate", nil)
+			show_panel:Hide()
 		end)
 		
 		function DetailsRaidCheck:CheckZone (...)
@@ -718,8 +644,8 @@ end
 			if (not zone_type) then
 				zone_type = select (2, GetInstanceInfo())
 			end
-			if (zone_type == "raid" or zone_type == "party") then
 			
+			if (zone_type == "raid" or zone_type == "party") then
 				DetailsRaidCheck:ShowToolbarIcon (DetailsRaidCheck.ToolbarButton, "star")
 			
 				DetailsRaidCheck.on_raid = true
@@ -728,7 +654,6 @@ end
 					DetailsRaidCheck:StartTrackBuffs()
 				end
 			else
-			
 				DetailsRaidCheck:HideToolbarIcon (DetailsRaidCheck.ToolbarButton)
 			
 				DetailsRaidCheck.on_raid = false
@@ -741,65 +666,58 @@ end
 		
 		function DetailsRaidCheck:BuffTrackTick()
 			
-			for player_name, have in pairs (DetailsRaidCheck.haveflask_table) do
-				DetailsRaidCheck.haveflask_table [player_name] = nil
-			end
-			for player_name, have in pairs (DetailsRaidCheck.havefood_table) do
-				DetailsRaidCheck.havefood_table [player_name] = nil
-			end
-			for player_name, have in pairs (DetailsRaidCheck.havefocusaug_table) do
-				DetailsRaidCheck.havefocusaug_table [player_name] = nil
-			end
+			wipe (DetailsRaidCheck.haveflask_table)
+			wipe (DetailsRaidCheck.havefood_table)
+			wipe (DetailsRaidCheck.havefocusaug_table)
 			
-			local amt_players = GetNumGroupMembers()
+			local playerAmount = DetailsRaidCheck.GetPlayerAmount()
 			local with_flask, with_food = 0, 0
 			
-			for i = 1, amt_players, 1 do
+			for i = 1, playerAmount do
 			
 				local unitID = get_unit_id (i)
-				local name = _UnitName (unitID)
+				local name = UnitName (unitID)
 				
-				for buffIndex = 1, 41 do
-					local bname, _, _, _, _, _, _, _, _, _, spellid  = _UnitAura (unitID, buffIndex, nil, "HELPFUL")
+				for buffIndex = 1, 40 do
+					local bname, _, _, _, _, _, _, _, _, _, spellid  = UnitBuff (unitID, buffIndex)
 					
-					if (bname and flask_list [spellid]) then
-						DetailsRaidCheck.haveflask_table [name] = spellid
-						with_flask = with_flask + 1
-					end
-					
-					if (bname and feasts [spellid]) then
-						DetailsRaidCheck.havefood_table [name] = 1
-						with_food = with_food + 1
-					end
-					
-					if (DetailsRaidCheck.db.food_tier1) then
-						if (bname and food_list.tier1 [spellid]) then
-							DetailsRaidCheck.havefood_table [name] = 1
-							with_food = with_food + 1
+					if (bname) then
+						if (flask_list [spellid]) then
+							DetailsRaidCheck.haveflask_table [name] = spellid
+							with_flask = with_flask + 1
 						end
-					end
-					
-					if (DetailsRaidCheck.db.food_tier2) then
-						if (bname and food_list.tier2 [spellid]) then
-							DetailsRaidCheck.havefood_table [name] = 2
-							with_food = with_food + 1
+						
+						if (DetailsRaidCheck.db.food_tier1) then
+							if (food_list.tier1 [spellid]) then
+								DetailsRaidCheck.havefood_table [name] = 1
+								with_food = with_food + 1
+							end
 						end
-					end
-					
-					if (DetailsRaidCheck.db.food_tier3) then
-						if (bname and food_list.tier3 [spellid]) then
-							DetailsRaidCheck.havefood_table [name] = 3
-							with_food = with_food + 1
+						
+						if (DetailsRaidCheck.db.food_tier2) then
+							if (food_list.tier2 [spellid]) then
+								DetailsRaidCheck.havefood_table [name] = 2
+								with_food = with_food + 1
+							end
 						end
-					end
-					
-					if (bname and runes_id [spellid]) then
-						DetailsRaidCheck.havefocusaug_table [name] = spellid
+						
+						if (DetailsRaidCheck.db.food_tier3) then
+							if (food_list.tier3 [spellid]) then
+								DetailsRaidCheck.havefood_table [name] = 3
+								with_food = with_food + 1
+							end
+						end
+						
+						if (runes_id [spellid]) then
+							DetailsRaidCheck.havefocusaug_table [name] = spellid
+						end
+					else
+						break
 					end
 				end
 			end
 			
-			if (with_food == amt_players and with_flask == amt_players) then
+			if (with_food == playerAmount and with_flask == playerAmount) then
 				DetailsRaidCheck:SetGreenIcon()
 			else
 				DetailsRaidCheck:SetRedIcon()
@@ -831,7 +749,6 @@ end
 		end
 		
 		function DetailsRaidCheck:StopTrackBuffs()
-			
 			if (DetailsRaidCheck.tracking_buffs) then
 				DetailsRaidCheck.tracking_buffs = false
 				
@@ -843,7 +760,6 @@ end
 					DetailsRaidCheck:CancelTimer (DetailsRaidCheck.tracking_buffs_process)
 				end
 			end
-			
 		end
 
 	end
@@ -887,21 +803,21 @@ local build_options_panel = function()
 			get = function() return DetailsRaidCheck.db.food_tier1 end,
 			set = function (self, fixedparam, value) DetailsRaidCheck.db.food_tier1 = value end,
 			desc = "Consider players using Tier 1 food.",
-			name = "Food Tier 1 [225]"
+			name = "Food Tier 1 [41]"
 		},
 		{
 			type = "toggle",
 			get = function() return DetailsRaidCheck.db.food_tier2 end,
 			set = function (self, fixedparam, value) DetailsRaidCheck.db.food_tier2 = value end,
 			desc = "Consider players using Tier 2 food.",
-			name = "Food Tier 2 [300]"
+			name = "Food Tier 2 [55]"
 		},
 		{
 			type = "toggle",
 			get = function() return DetailsRaidCheck.db.food_tier3 end,
 			set = function (self, fixedparam, value) DetailsRaidCheck.db.food_tier3 = value end,
 			desc = "Consider players using Tier 3 food.",
-			name = "Food Tier 3 [375]"
+			name = "Food Tier 3 [>= 75]"
 		},
 	}
 	
@@ -958,3 +874,5 @@ end
 			end
 		end
 	end	
+	
+-- doo

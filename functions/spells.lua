@@ -1,5 +1,5 @@
 do
-
+--doq
 	local _detalhes = 		_G._detalhes
 	
 	_detalhes.PotionList = {
@@ -17,12 +17,12 @@ do
 --		[175821] = true, --draenic pure rage potion
 
 		--> Legion
-		[188028] = true, --Potion of the Old War
-		[188027] = true, --Potion of Deadly Grace
-		[188029] = true, --Unbending Potion
-		[188017] = true, --Ancient Mana Potion
-		[188030] = true, --Leytorrent Potion
-		[229206] = true, --Potion of Prolongued Power
+--		[188028] = true, --Potion of the Old War
+--		[188027] = true, --Potion of Deadly Grace
+--		[188029] = true, --Unbending Potion
+--		[188017] = true, --Ancient Mana Potion
+--		[188030] = true, --Leytorrent Potion
+--		[229206] = true, --Potion of Prolongued Power
 		
 		--mana and heal potions
 --		[188016] = true, --Ancient Healing Potion
@@ -34,6 +34,11 @@ do
 --		[188034] = true, --Flask of the Countless Armies
 --		[188035] = true, --Flask of Ten Thousand Scars
 	}
+	
+	--import potion list from the framework
+	for spellID, _ in pairs (DetailsFramework.PotionIDs) do
+		_detalhes.PotionList [spellID] = true
+	end
 	
 	_detalhes.SpecSpellList = { --~spec
 	

@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 6189
+		_detalhes.build_counter = 6221
 		_detalhes.userversion = "v8.0.1." .. _detalhes.build_counter
 		_detalhes.realversion = 133 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
@@ -336,6 +336,13 @@ do
 			HEALER = "72:130:2:60",
 			TANK = "5:63:69:127",
 			NONE = "139:196:69:127",
+		}
+		
+		_detalhes.role_texcoord_normalized = {
+			DAMAGER = {72/256, 130/256, 69/256, 127/256},
+			HEALER = {72/256, 130/256, 2/256, 60/256},
+			TANK = {5/256, 63/256, 69/256, 127/256},
+			NONE = {139/256, 196/256, 69/256, 127/256},
 		}
 		
 		_detalhes.player_class = {
