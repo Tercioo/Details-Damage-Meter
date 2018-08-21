@@ -1311,8 +1311,21 @@ function _G._detalhes:Start()
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
 			
-			-->  show streamer update panel
-			--[
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 134 and enable_reset_warning) then
+				C_Timer.After (10, function()
+					for ID, instance in _detalhes:ListInstances() do
+						if (instance:IsEnabled()) then
+							local lineHeight = instance.row_info.height
+							local textSize = instance.row_info.font_size
+							if (lineHeight <= textSize) then
+								instance.row_info.height = textSize + 2
+								instance.row_info.font_size = textSize - 1
+							end
+						end
+					end
+				end)
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.BFACORE and enable_reset_warning) then
 			
 				--> BFA launch

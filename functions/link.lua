@@ -2991,7 +2991,7 @@
 				end
 			end
 			
-			if (not have_plugins_enabled) then
+			if (not have_plugins_enabled and false) then
 				local nopluginLabel = f:CreateFontString (nil, "overlay", "GameFontNormal")
 				local nopluginIcon = f:CreateTexture (nil, "overlay")
 				nopluginIcon:SetPoint ("bottomleft", f, "bottomleft", 10, 10)
@@ -3597,6 +3597,87 @@
 			
 			-----------------------------------------------
 			
+			local npc_ids_module = {
+				name = "Npc IDs",
+				desc = "Show a list of known npc IDs",
+				filters_widgets = function()
+					if (not DetailsForgeEncounterNpcIDsFilterPanel) then
+					
+						local w = CreateFrame ("frame", "DetailsForgeEncounterNpcIDsFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 164, -40)
+						--npc name filter
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Npc Name" .. ": ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeEncounterNpcIDsFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+						entry:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+						--
+					end
+					return DetailsForgeEncounterNpcIDsFilterPanel
+				end,
+				search = function()
+					local t = {}
+					
+					local filter_name = DetailsForgeEncounterNpcIDsFilter:GetText()
+					local lower_FilterNpcName = lower (filter_name)
+					
+					local npcPool = _detalhes.npcid_pool
+					for npcID, npcName in pairs (npcPool) do
+						local can_add = true
+						
+						if (lower_FilterNpcName ~= "") then
+							if (not lower (npcName):find (lower_FilterNpcName)) then
+								can_add = false
+							end
+						end
+						
+						if (can_add) then
+							tinsert (t, {npcID, npcName})
+						end
+						
+						table.sort (t, DetailsFramework.SortOrder2R)
+					end
+					
+					return t
+				end,
+				
+				header = {
+					{name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
+					{name = "NpcID", width = 100, type = "entry", func = no_func},
+					{name = "Npc Name", width = 200, type = "entry", func = no_func},
+				},
+				
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						local events = ""
+						if (EncounterSpellEvents and EncounterSpellEvents [data[1]]) then
+							for token, _ in pairs (EncounterSpellEvents [data[1]].token) do
+								token = token:gsub ("SPELL_", "")
+								events = events .. token .. ",  "
+							end
+							events = events:sub (1, #events - 3)
+						end
+
+						return {
+							index,
+							data[1],
+							data[2]
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeNpcIDsFillPanel",
+			}	
+			
+			-----------------------------------------------
+			
 			local dbm_open_aura_creator = function (row)
 				local data = all_modules [3].data [row]
 				
@@ -3723,7 +3804,6 @@
 				end,
 				fill_name = "DetailsForgeDBMBarsFillPanel",
 			}
-
 			
 			-----------------------------------------------
 			
@@ -3921,6 +4001,8 @@
 			f:InstallModule (encounter_spells_module)
 			f:InstallModule (all_spells_module)
 			
+			f:InstallModule (npc_ids_module)
+			
 			f:InstallModule (dbm_timers_module)
 			f:InstallModule (bigwigs_timers_module)
 			
@@ -3929,8 +4011,8 @@
 			f:InstallModule (all_pets_module)
 
 			local brackets = {
-				[3] = true, 
-				[5] = true
+				[4] = true, 
+				[6] = true
 			}
 			local lastButton
 			

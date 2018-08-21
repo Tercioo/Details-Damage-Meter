@@ -567,7 +567,7 @@ end
 				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
 				local talentsTable = _detalhes:GetTalents (unitSerial)
 				
-				tinsert (PlayerData, {
+				tinsert (PlayerData, {unitName,
 					Name = unitName,
 					Class = unitClass,
 					Role = unitRole,
@@ -594,7 +594,7 @@ end
 				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
 				local talentsTable = _detalhes:GetTalents (unitSerial)
 				
-				tinsert (PlayerData, {
+				tinsert (PlayerData, {unitName,
 					Name = unitName,
 					Class = unitClass,
 					Role = unitRole,
