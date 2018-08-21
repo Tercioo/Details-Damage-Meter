@@ -39,7 +39,6 @@
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
 
-	--local cc_spell_list = _detalhes.CrowdControlSpells --details local
 	local cc_spell_list = DetailsFramework.CrowdControlSpells
 	
 	local container_combatentes = _detalhes.container_combatentes --details local
@@ -84,19 +83,13 @@
 	--> tanks
 		local tanks_members_cache = setmetatable ({}, _detalhes.weaktable)
 	--> damage and heal last events
-		local last_events_cache = {} --> placeholder
+		local last_events_cache = {} --> initialize table (placeholder)
 	--> pets
-		local container_pets = {} --> place holder
+		local container_pets = {} --> initialize table (placeholder)
 	--> ignore deaths
 		local ignore_death = {}
-	--> special items
-
-		local paladin_gbom = {} --greater blessing of might
-		local shaman_slash = {} --storm slash
-		local shaman_slash_timers = {} --storm slash
+	--> spell containers for special cases
 		local monk_guard_talent = {} --guard talent for bm monks
-		
-		local source_cache = {} --store the source's guid, name and flag
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -105,19 +98,19 @@
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
 	local duel_candidates = _detalhes.duel_candidates
 	
-	local OBJECT_TYPE_ENEMY = 0x00000040
-	local OBJECT_TYPE_PLAYER = 0x00000400
-	local OBJECT_TYPE_PETS = 0x00003000
-	local AFFILIATION_GROUP = 0x00000007
-	local REACTION_FRIENDLY = 0x00000010 
-	local REACTION_MINE = 0x00000001 
+	local OBJECT_TYPE_ENEMY	=	0x00000040
+	local OBJECT_TYPE_PLAYER 	=	0x00000400
+	local OBJECT_TYPE_PETS 	=	0x00003000
+	local AFFILIATION_GROUP 	=	0x00000007
+	local REACTION_FRIENDLY 	=	0x00000010 
+	local REACTION_MINE 		=	0x00000001 
 	
-	local ENVIRONMENTAL_FALLING_NAME = Loc ["STRING_ENVIRONMENTAL_FALLING"]
-	local ENVIRONMENTAL_DROWNING_NAME = Loc ["STRING_ENVIRONMENTAL_DROWNING"]
-	local ENVIRONMENTAL_FATIGUE_NAME = Loc ["STRING_ENVIRONMENTAL_FATIGUE"]
-	local ENVIRONMENTAL_FIRE_NAME = Loc ["STRING_ENVIRONMENTAL_FIRE"]
-	local ENVIRONMENTAL_LAVA_NAME = Loc ["STRING_ENVIRONMENTAL_LAVA"]
-	local ENVIRONMENTAL_SLIME_NAME = Loc ["STRING_ENVIRONMENTAL_SLIME"]
+	local ENVIRONMENTAL_FALLING_NAME	= Loc ["STRING_ENVIRONMENTAL_FALLING"]
+	local ENVIRONMENTAL_DROWNING_NAME	= Loc ["STRING_ENVIRONMENTAL_DROWNING"]
+	local ENVIRONMENTAL_FATIGUE_NAME	= Loc ["STRING_ENVIRONMENTAL_FATIGUE"]
+	local ENVIRONMENTAL_FIRE_NAME		= Loc ["STRING_ENVIRONMENTAL_FIRE"]
+	local ENVIRONMENTAL_LAVA_NAME		= Loc ["STRING_ENVIRONMENTAL_LAVA"]
+	local ENVIRONMENTAL_SLIME_NAME	= Loc ["STRING_ENVIRONMENTAL_SLIME"]
 	
 	local RAID_TARGET_FLAGS = {
 		[128] = true, --0x80 skull
@@ -166,42 +159,42 @@
 	
 	_detalhes.OverridedSpellIds = override_spellId
 	
-	--> stormlash and greater blessing of the might
-	local SPELLID_SHAMAN_SLASH_AURA = 195222
-	local SPELLID_SHAMAN_SLASH_DAMAGE = 195256
-	local SPELLID_PALADIN_GBOM_AURA = 203528
-	local SPELLID_PALADIN_GBOM_DAMAGE = 205729
+	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
+	local SPELLID_WARLOCK_SOULLINK = 108446
+	--> when checking if can start a new combat, ignore the damage from warlock's burning rush
+	local SPELLID_WARLOCK_BURNINGRUSH = 111400
+	--> brewmaster monk guard talent
 	local SPELLID_MONK_GUARD = 115295
-	
-	--> ignore warlock life tap, since it's bugged
-	local SPELLID_WARLOCK_LIFETAP = 1454
-	
-	local SPELLNAME_SHAMAN_SLASH = GetSpellInfo (195222)
-	local SPELLNAME_PALADIN_GBOM = GetSpellInfo (203528)
+	--> brewmaster monk stagger mechanics
+	local SPELLID_MONK_STAGGER = 124255
+	--> restoration shaman spirit link totem
+	local SPELLID_SHAMAN_SLT = 98021
+	--> holy paladin light of the martyr
+	local SPELLID_PALADIN_LIGHTMARTYR = 196917
 	
 	--> spells with special treatment
 	local special_damage_spells = {
-		[98021] = true, --> Spirit Link Toten
-		[96917] = true, --> Light of the Martyr
-		[SPELLID_PALADIN_GBOM_DAMAGE] = true,
-		[SPELLID_SHAMAN_SLASH_DAMAGE] = true,
-		[220893] = true, --> Akaari's Soul
-		[124255] = true, --> Stagger
+		[SPELLID_SHAMAN_SLT] = true, --> Spirit Link Toten
+		[SPELLID_PALADIN_LIGHTMARTYR] = true, --> Light of the Martyr
+		[SPELLID_MONK_STAGGER] = true, --> Stagger
 	}
 	
 	--> is parser allowed to replace spellIDs?
-	local is_using_spellId_override = false
+		local is_using_spellId_override = false
 	
 	--> recording data options flags
 		local _recording_self_buffs = false
 		local _recording_ability_with_buffs = false
 		local _recording_healing = false
 		local _recording_buffs_and_debuffs = false
+		
 	--> in combat flag
 		local _in_combat = false
 		local _current_encounter_id
+		
 	--> deathlog
 		local _death_event_amt = 16
+		
 	--> hooks
 		local _hook_cooldowns = false
 		local _hook_deaths = false
@@ -212,11 +205,6 @@
 		local _hook_deaths_container = _detalhes.hooks ["HOOK_DEATH"]
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
-
-	--> kil jaeden encounter:
-	--> REMOVE THIS ON 7.3 RELEASE
-	local _encounter_kiljaeden_eruptingreflection_loc = "Erupting Reflection"
-	local _encounter_kiljaeden_wailingreflection_loc = "Wailing Reflection"
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
@@ -248,8 +236,7 @@
 			return
 		end
 		_detalhes.LastPullMsg = time()
-	
-		--local hitLine = self.HitBy or "|cFFFFFF00First Hit|r: *?* from *?* "
+
 		local hitLine = self.HitBy or "|cFFFFBB00First Hit|r: *?*"
 		local targetLine = ""
 		
@@ -314,16 +301,15 @@
 				end
 			end
 			
-			_detalhes:Msg ("|cFFFFBB00Your Best Score|r:", _detalhes:ToK2 ((value) / combatTime) .. " [|cFFFFFF00Guild Rank: " .. rank .. "|r]")
+			_detalhes:Msg ("|cFFFFBB00Your Best Score|r:", _detalhes:ToK2 ((value) / combatTime) .. " [|cFFFFFF00Guild Rank: " .. rank .. "|r]") --> localize-me
 			
 			if ((not combatTime or combatTime == 0) and not _detalhes.SyncWarning) then
-				_detalhes:Msg ("|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r")
+				_detalhes:Msg ("|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r") --> localize-me
 				_detalhes.SyncWarning = true
 			end
 		end
 		
 	end
-	
 	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 	
@@ -362,32 +348,21 @@
 		--> avoid doing spellID checks on each iteration
 		if (special_damage_spells [spellid]) then
 			--> stagger
-			if (spellid == 124255) then
+			if (spellid == SPELLID_MONK_STAGGER) then
 				return parser:MonkStagger_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 			
 			--> spirit link toten
-			elseif (spellid == 98021) then
+			elseif (spellid == SPELLID_SHAMAN_SLT) then
 				return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 			
 			--> Light of the Martyr - paladin spell which causes damage to the caster it self
-			elseif (spellid == 196917) then -- or spellid == 183998 < healing part
+			elseif (spellid == SPELLID_PALADIN_LIGHTMARTYR) then -- or spellid == 183998 < healing part
 				local healingActor = healing_cache [who_name]
 				if (healingActor and healingActor.spells) then
 					healingActor.total = healingActor.total - (amount or 0)
 				end
 				return --> ignore this event
 			
-			--> paladin and shaman special conditions, change source
-			elseif (spellid == SPELLID_PALADIN_GBOM_DAMAGE) then
-				who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags, SPELLNAME_PALADIN_GBOM)
-			elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
-				who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags, SPELLNAME_SHAMAN_SLASH)
-			
-			--> Rogue's Akaari's Soul - q
-			elseif (spellid == 220893) then
-				if (who_flags and _bit_band (who_flags, REACTION_MINE) ~= 0) then
-					who_serial, who_name, who_flags = UnitGUID ("player"), _detalhes.playername, 0x00000417
-				end
 			end
 		end
 	
@@ -395,7 +370,7 @@
 	--> check if need start an combat
 	
 		if (not _in_combat) then
-			if (	token ~= "SPELL_PERIODIC_DAMAGE" and spellid ~= SPELLID_PALADIN_GBOM_DAMAGE and
+			if (	token ~= "SPELL_PERIODIC_DAMAGE" and
 				( 
 					(who_flags and _bit_band (who_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (who_name) )
 					or 
@@ -424,7 +399,7 @@
 				--> entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atr�s
 				if (token == "SPELL_PERIODIC_DAMAGE" and who_name == _detalhes.playername) then
 					--> ignora burning rush se o jogador estiver fora de combate
-					if (spellid == 111400) then
+					if (spellid == SPELLID_WARLOCK_BURNINGRUSH) then
 						return
 					end
 					--> faz o calculo dos 10 segundos
@@ -681,9 +656,8 @@
 				not jogador_alvo.enemy and not este_jogador.enemy
 			)
 		) then
-		
-			--> ignore soul link (damage from the warlock on his pet)
-			if (spellid == 108446) then
+
+			if (spellid == SPELLID_WARLOCK_SOULLINK) then
 				return
 			end
 
@@ -1183,19 +1157,15 @@
 			return
 		end
 		
+		--> MOTHER encounter in Uldir is triggering the summon of the add as it was a pet from the player the crossed rooms REMOVE WHEN BFA IS DONE
 		if (spellid == 268871 or spellid == 267833) then
 			--print ("IGNORING summon of a Corrupted Blood Clone for player", who_name)
 			--5/17 18:16:48.886  SPELL_SUMMON,Creature-0-4028-1861-987-136949-00007DF137,"Corrupted Blood Clone",0xa18,0x0,Creature-0-4028-1861-987-136315-00007DF140,"Remnant of Corruption",0xa28,0x0,267833,"Defense Grid",0x1
 			--5/17 18:16:49.601  SPELL_SUMMON,Player-970-000BDB1F,"Fhqwhgads-Anduin",0x514,0x2,Creature-0-4028-1861-987-136949-00007DF141,"Corrupted Blood Clone",0xa28,0x0,268871,"Corrupted Blood Clone",0x1
+			--4/22 18:07:54.369  SPELL_SUMMON,Player-3296-009371B2,"Façade-Anasterian(US)",0x514,0x0,Creature-0-3198-1448-2131-90477-0000380DAA,"Blood Globule",0xa28,0x0,180410,"Heart Seeker",0x1
+			--5/4 15:45:24.222  SPELL_SUMMON,Player-3296-009576DD,"Àlëx-Brill(EU)",0x40514,0x0,Creature-0-2083-1448-25606-90513-000047BE44,"Fel Blood Globule",0xa28,0x0,180413,"Heart Seeker",0x1
 			return
 		end
-		
---4/22 18:07:54.369  SPELL_SUMMON,Player-3296-009371B2,"Façade-Anasterian(US)",0x514,0x0,Creature-0-3198-1448-2131-90477-0000380DAA,"Blood Globule",0xa28,0x0,180410,"Heart Seeker",0x1
---5/4 15:45:24.222  SPELL_SUMMON,Player-3296-009576DD,"Àlëx-Brill(EU)",0x40514,0x0,Creature-0-2083-1448-25606-90513-000047BE44,"Fel Blood Globule",0xa28,0x0,180413,"Heart Seeker",0x1
-
-		--if (spellid and (spellid == 180410 or spellid == 180413)) then -- Heart Seeker --> WOD Kilrogg encounter
-		--	return
-		--end
 		
 		if (not who_name) then
 			who_name = "[*] " .. spellName
@@ -1404,7 +1374,7 @@
 		end
 		
 		--> spirit link toten
-		if (spellid == 98021) then
+		if (spellid == SPELLID_SHAMAN_SLT) then
 			return parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
 		end
 		
@@ -1678,19 +1648,6 @@
 					parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 					ignore_death [who_name] = true
 					return
-					
-				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
-					--> handle the buff on parser time
-					if (shaman_slash_timers [who_serial] and shaman_slash_timers [who_serial] [alvo_serial]) then
-						_detalhes:CancelTimer (shaman_slash_timers [who_serial] [alvo_serial])
-						shaman_slash_timers [who_serial] [alvo_serial] = nil
-					end
-					
-					parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial, true, who_name, who_flags)
-					
-				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
-					--> handle the buff on parser time
-					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial, true, who_name, who_flags)
 					
 				elseif (spellid == SPELLID_MONK_GUARD) then
 					--> BfA monk talent
@@ -2053,17 +2010,7 @@
 					end
 				end
 				
-				if (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
-					--as @Kihra from WCL mentioned, slash has a travel time, the hit may land after the buff has gone
-					local delay_timer = _detalhes:ScheduleTimer ("HandleSlashUnbuff", 2.5, shaman_slash, who_serial, alvo_serial)
-					shaman_slash_timers [who_serial] = shaman_slash_timers [who_serial] or {}
-					shaman_slash_timers [who_serial] [alvo_serial] = delay_timer
-					--parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial)
-				
-				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
-					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial)
-
-				elseif (spellid == SPELLID_MONK_GUARD) then
+				if (spellid == SPELLID_MONK_GUARD) then
 					--> BfA monk talent
 					if (monk_guard_talent [who_serial]) then
 						local damage_prevented = monk_guard_talent [who_serial] - (amount or 0)
@@ -2550,11 +2497,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not who_name) then
 			who_name = "[*] "..spellname
 		elseif (not alvo_name) then
-			return
-		end
-		
-		--> ignore warlock life tap
-		if (spellid == SPELLID_WARLOCK_LIFETAP) then
 			return
 		end
 
@@ -3406,145 +3348,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
-
-	--[[	
-		paladin buffs = {}
-		player = paladin buffs [ target GUID  ]
-		
-		paladin buffs [ GUID ] = {sourceGUID, sourceGUID, sourceGUID, offset = X}
-		it's a table with a indexed side and a hash side
-		on index side, there is GUIDs of all paladins that buffed the player
-		on the hash side, there is a member 'offset' which points the index of the next paladin to attribute the damage to
-	--]]
 	
 	function parser:WipeSourceCache()
-		wipe (source_cache)
-		wipe (paladin_gbom)
-		wipe (shaman_slash)
 		wipe (monk_guard_talent)
-	end
-	
-	function parser:Handle3rdPartyBuffs_OnEncounterStart()
-		--> wipe and rebuild the list
-		parser:WipeSourceCache()
-		local get_name = _detalhes.GetCLName
-		
-		local unit_type = IsInRaid() and "raid" or "party"
-		
-		for i = 1, (_GetNumGroupMembers() + (unit_type == "party" and -1 or 0)) do 
-			for auraIndex = 1, 40 do
-				--gbom
-				local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
-				if (name and caster and (UnitInRaid (caster) or UnitInParty (caster))) then
-					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
-						local source_serial = UnitGUID (caster)
-						local target_serial = UnitGUID (unit_type .. i)
-						local name, flag = get_name (_, caster), 0x514
-						parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
-						
-					elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
-						local source_serial = UnitGUID (caster)
-						local target_serial = UnitGUID (unit_type .. i)
-						local name, flag = get_name (_, caster), 0x514
-						parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
-					end
-				end
-			end
-		end
-		
-		if (unit_type == "party") then
-			for auraIndex = 1, 40 do
-				--gbom
-				local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
-				if (name and caster and (UnitInParty (caster))) then
-					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
-						local source_serial = UnitGUID (caster)
-						local target_serial = UnitGUID ("player")
-						local name, flag = get_name (_, caster), 0x514
-						parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
-						
-					elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
-						local source_serial = UnitGUID (caster)
-						local target_serial = UnitGUID ("player")
-						local name, flag = get_name (_, caster), 0x514
-						parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
-					end
-				end
-			end
-		end
-	end
-	
-	function parser:GetRealHitSourceFromBuffOwner (container, actor_serial, actor_name, actor_flags, spellname) --actor can be anything, a player, pet, etc
-		local target_buffs = container [actor_serial]
-		if (target_buffs) then
-			local real_source = source_cache [target_buffs [target_buffs.offset]]
-			--> set the next source
-			target_buffs.offset = (target_buffs.offset % #target_buffs) + 1
-			if (real_source) then
-				return unpack (real_source)
-			else
-				--query the player buffs if not found on cache
-				local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
-				if (name) then
-					local source_serial = UnitGUID (caster)
-					if (source_serial) then
-						parser:Handle3rdPartyBuff (container, source_serial, actor_serial, true, _detalhes:GetCLName (caster), 0x514)
-					end
-				end
-				return actor_serial, actor_name, actor_flags
-			end
-		end
-		return actor_serial, actor_name, actor_flags
-	end
-	
-	function parser:Handle3rdPartyBuff (container, source, target, is_applying, name, flags) --source/target are GUIDs/is_applying bool/name and flag are from the caster
-		if (is_applying) then
-			local target_buffs = container [target]
-			if (not target_buffs) then
-				--> create the source pool
-				container [target] = {source, ["offset"] = 1}
-				--> add the source to source cache
-				if (not source_cache [source]) then
-					source_cache [source] = {source, name, flags}
-				end
-			else
-				--> is already on the pool
-				for i = 1, #target_buffs do
-					if (target_buffs [i] == source) then
-						--target_buffs.offset = i
-						return
-					end
-				end
-				target_buffs [#target_buffs+1] = source
-				--target_buffs.offset = #target_buffs
-			end
-		else
-			local target_buffs = container [target]
-			if (target_buffs) then
-				for i = 1, #target_buffs do
-					if (target_buffs [i] == source) then
-						tremove (target_buffs, i)
-						if (#target_buffs == 0) then
-							--> drop the table
-							container [target] = nil
-						else
-							--> if the target was the last index, the offset is nil
-							if (not target_buffs [i]) then
-								target_buffs.offset = target_buffs.offset - 1
-							end
-						end
-						return
-					end
-				end
-			end
-		end
-	end
-	
-	function _detalhes:HandleSlashUnbuff (shaman_slash, who_serial, alvo_serial)
-		--local container, who_serial, alvo_serial = unpack (data)
---		print ("slash unbuff:", shaman_slash, who_serial, alvo_serial)
-		parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial)
-		shaman_slash_timers [who_serial] [alvo_serial] = nil
 	end
 
 	local token_list = {
@@ -4127,10 +3933,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local encounter_table, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (zoneMapID, encounterID)
 		if (encounter_table) then
 			_detalhes.encounter_table.index = boss_index
-		end
-		
-		if (not _detalhes.MythicPlus.Started or (_detalhes.MythicPlus.Started and not _in_combat)) then
-			parser:Handle3rdPartyBuffs_OnEncounterStart()
 		end
 		
 	end

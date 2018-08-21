@@ -2894,8 +2894,6 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				meu_tempo = instancia.showing:GetCombatTime()
 			end
 			
-			--print ("time:", meu_tempo)
-			
 			--add actor spells
 			for _spellid, _skill in _pairs (ActorSkillsContainer) do
 				ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo}
@@ -3116,7 +3114,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				
 				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\MobileAppIcons]], 2*130/1024, 3*130/1024, 5*130/1024, 6*130/1024)
 				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic10]], 0, 1, 0, 1)
-				_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64)
+				_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64) --localize-me
 				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 				_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				
