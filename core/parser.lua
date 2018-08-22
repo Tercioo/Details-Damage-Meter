@@ -316,6 +316,63 @@
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
+		--> context: incendiary ammunition isn't telling who is the source, so if the hunter is in a raid or party group it'll assign the damage to a random hunter
+		--> this has been reported several times to Blizzard, we expect a fix on their side soon
+		--> this "fix" gives the damage of incendiary to a random hunter in the raid/party, which is better than nothing
+		if (spellid == 265092) then
+			if (not who_name) then
+				local zoneName, zoneType, _, _, _, _, _, zoneMapID = GetInstanceInfo()
+				local hunters = {}
+				
+				if (zoneType == "raid" and IsInRaid()) then
+					for i = 1, GetNumGroupMembers() do
+						local _, class = UnitClass ("raid" .. i)
+						if (class == "HUNTER") then
+							local unitName = UnitName ("raid" .. i)
+							if (unitName) then
+								local guid, name = UnitGUID ("raid" .. i), _detalhes:GetCLName ("raid" .. i)
+								if (guid and name) then
+									tinsert (hunters, {guid, name})
+								end
+							end
+						end
+					end
+					
+				elseif (zoneType == "party" and IsInGroup()) then
+					for i = 1, GetNumGroupMembers()-1 do
+						local _, class = UnitClass ("party" .. i)
+						if (class == "HUNTER") then
+							local unitName = UnitName ("party" .. i)
+							if (unitName) then
+								local guid, name = UnitGUID ("party" .. i), _detalhes:GetCLName ("party" .. i)
+								if (guid and name) then
+									tinsert (hunters, {guid, name})
+								end
+							end
+						end
+					end
+					
+					local _, class = UnitClass ("player")
+					if (class == "HUNTER") then
+						local unitName = UnitName ("player")
+						if (unitName) then
+							local guid, name = UnitGUID ("player"), _detalhes:GetCLName ("player")
+							if (guid and name) then
+								tinsert (hunters, {guid, name})
+							end
+						end
+					end
+				end
+				
+				local size = #hunters
+				if (size > 0) then
+					local randomHunter = math.random (size)
+					local hunterSelected = hunters [randomHunter]
+					who_serial, who_name, who_flags = hunterSelected [1], hunterSelected [2], 0x514
+				end
+			end
+		end	
+
 		if (who_serial == "") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> � um pet
 				--> pets must have a serial
@@ -365,7 +422,7 @@
 			
 			end
 		end
-	
+		
 	------------------------------------------------------------------------------------------------
 	--> check if need start an combat
 	
