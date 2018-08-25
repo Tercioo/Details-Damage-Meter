@@ -2082,7 +2082,7 @@ function gump:CriaJanelaInfo()
 			local spellsBox = CreateFrame ("frame", nil, frame)
 			_detalhes.gump:ApplyStandardBackdrop (spellsBox)
 			spellsBox:SetPoint ("topleft", absorbsBox, "topright", 10, 0)
-			spellsBox:SetSize (300, 160 * 2 + 5)
+			spellsBox:SetSize (346, 160 * 2 + 5)
 		
 			local spells_text = spellsBox:CreateFontString (nil, "artwork", "GameFontNormal")
 			spells_text:SetText ("Spells")
@@ -2106,13 +2106,15 @@ function gump:CriaJanelaInfo()
 			
 			y = y - padding
 			
-			for i = 1, 18 do 
+			for i = 1, 40 do 
 				local frame_tooltip = CreateFrame ("frame", nil, spellsBox)
-				frame_tooltip:SetPoint ("topleft", spellsBox, "topleft", 20, y + ((i-1)*16)*-1)
-				frame_tooltip:SetSize (150, 14)
+				frame_tooltip:SetPoint ("topleft", spellsBox, "topleft", 5, y + ((i-1)*17)*-1)
+				frame_tooltip:SetSize (spellsBox:GetWidth()-10, 16)
 				frame_tooltip:SetScript ("OnEnter", frame_tooltip_onenter)
 				frame_tooltip:SetScript ("OnLeave", frame_tooltip_onleave)
+				frame_tooltip:Hide()
 				
+				frame_tooltip:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 512})
 				frame_tooltip:SetBackdropColor (.5, .5, .5, .1)
 				
 				local icon = frame_tooltip:CreateTexture (nil, "artwork")
@@ -2333,9 +2335,10 @@ function gump:CriaJanelaInfo()
 						local label1, label2 = unpack (tab ["healer" .. i])
 						if (myReceivedHeal [i]) then
 							local name = myReceivedHeal [i][1]
-							if (name:find ("-")) then
-								name = name:gsub (("-.*"), "")
-							end
+							
+							name = _detalhes:GetOnlyName (name)
+							--name = _detalhes:RemoveOwnerName (name)
+							
 							label1:SetText (name .. ":")
 							local class = myReceivedHeal [i][3]
 							if (class) then
@@ -2378,29 +2381,30 @@ function gump:CriaJanelaInfo()
 				--> cooldowns
 				local index_used = 1
 				local misc_player = combat (4, player.nome)
+				local encounter_time = combat:GetCombatTime()
 				
 				if (misc_player) then
 					if (misc_player.cooldowns_defensive_spells) then
 						local minha_tabela = misc_player.cooldowns_defensive_spells._ActorTable
 						local buffUpdateSpells = misc_player.buff_uptime_spells -- ._ActorTable
-						local encounter_time = combat:GetCombatTime()
-						
+
 						local cooldowns_usados = {}
 						
 						for _spellid, _tabela in pairs (minha_tabela) do
 							cooldowns_usados [#cooldowns_usados+1] = {_spellid, _tabela.counter}
 						end
 
-						if (#cooldowns_usados > 1) then
-						
+						if (#cooldowns_usados > 0) then
+
 							table.sort (cooldowns_usados, _detalhes.Sort2)
 						
 							for i = 1, #cooldowns_usados do
 								local esta_habilidade = cooldowns_usados[i]
 								local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 								
-								local label1, label2, icon1, framebg = unpack (tab ["spell" .. i])
+								local label1, label2, icon1, framebg = unpack (tab ["spell" .. index_used])
 								framebg.spellid = esta_habilidade[1]
+								framebg:Show()
 								
 								--> attempt to get the buff update
 								local spellInfo = buffUpdateSpells:GetSpell (framebg.spellid)
@@ -2409,7 +2413,7 @@ function gump:CriaJanelaInfo()
 								else
 									label2:SetText (esta_habilidade[2])
 								end
-								
+
 								--> update the line
 								label1:SetText (nome_magia .. ":")
 								
@@ -2422,11 +2426,58 @@ function gump:CriaJanelaInfo()
 					end
 				end
 				
-				for i = index_used, 18 do
+				local cooldownInfo = DetailsFramework.CooldownsInfo
+				
+				--> see cooldowns that other players used in this actor
+				for playerName, _ in pairs (combat.raid_roster) do
+					if (playerName ~= player.nome) then
+						local miscPlayer = combat (4, playerName)
+						if (miscPlayer) then
+							if (miscPlayer.cooldowns_defensive_spells) then
+								local cooldowns = miscPlayer.cooldowns_defensive_spells
+								for spellID, spellTable in cooldowns:ListActors() do
+									local targets = spellTable.targets
+									if (targets) then
+										for targetName, amountCasted in pairs (targets) do
+											if (targetName == player.nome) then
+												local spellName, _, spellIcon = _GetSpellInfo (spellID)
+												local label1, label2, icon1, framebg = unpack (tab ["spell" .. index_used])
+												framebg.spellid = spellID
+												framebg:Show()
+												
+												--> attempt to get the buff update
+												local info = cooldownInfo [spellID]
+												local cooldownDuration = info and info.duration or 0
+												
+												if (cooldownDuration > 0) then
+													label2:SetText (amountCasted .. " (" .. "|cFFFFFF00" .. miscPlayer.nome .. "|r " .. floor (cooldownDuration / encounter_time * 100) .. "% uptime)")
+												else
+													label2:SetText (amountCasted)
+												end
+												
+												--> update the line
+												label1:SetText (spellName .. ":")
+												
+												icon1:SetTexture (spellIcon)
+												icon1:SetTexCoord (0.0625, 0.953125, 0.0625, 0.953125)
+												
+												index_used = index_used + 1
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+				
+				
+				for i = index_used, 40 do
 					local label1, label2, icon1, framebg = unpack (tab ["spell" .. i])
 					
 					framebg.spellid = nil
-					label1:SetText ("-- -- -- --")
+					framebg:Hide()
+					label1:SetText ("")
 					label2:SetText ("")
 					icon1:SetTexture (nil)
 				end

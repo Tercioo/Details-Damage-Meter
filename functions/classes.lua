@@ -115,6 +115,14 @@ do
 		end
 		return self.nome:gsub (("%-.*"), "")
 	end
+	
+	function _detalhes:RemoveOwnerName (string)
+		if (string) then
+			return string:gsub ((" <.*"), "")
+		end
+		return self.nome:gsub ((" <.*"), "")
+	end
+	
 	function _detalhes:GetCLName (id)
 		local name, realm = UnitName (id)
 		if (name) then
