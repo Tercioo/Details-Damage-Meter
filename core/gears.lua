@@ -9,8 +9,8 @@ local floor = floor
 
 local GetNumGroupMembers = GetNumGroupMembers
 local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
---local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
-local LibGroupInSpecT = false
+local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
+--local LibGroupInSpecT = false
 
 local storageDebug = false
 local store_instances = _detalhes.InstancesToStoreData
@@ -1679,31 +1679,6 @@ local MAX_INSPECT_AMOUNT = 1
 local MIN_ILEVEL_TO_STORE = 50
 local LOOP_TIME = 7
 
---if the item is an artifact off-hand, get the item level of the main hand
-local artifact_offhands = {
-	["133959"] = true, --mage fire
-	["128293"] = true, --dk frost
-	["127830"] = true, --dh havoc
-	["128831"] = true, --dh vengeance
-	["128859"] = true, --druid feral
-	["128822"] = true, --druid guardian
-	["133948"] = true, --monk ww
-	["133958"] = true, --priest shadow
-	["128869"] = true, --rogue assassination
-	["134552"] = true, --rogue outlaw
-	["128479"] = true, --rogue subtlety
-	["128936"] = true, --shaman elemental
-	["128873"] = true, --shaman en
-	["128934"] = true, --shaman resto
-}
-
---if the artifact has its main piece as the offhand, when scaning the main hand get the ilevel of the off-hand.
-local offhand_ismain = {
-	["137246"] = true, --warlock demo / spine of thalkiel
-	["128288"] = true, --warrior prot / scaleshard
-	["128867"] = true, --paladin prot / oathseeker
-}
-
 function _detalhes:IlvlFromNetwork (player, realm, core, serialNumber, itemLevel, talentsSelected, currentSpec)
 	if (_detalhes.debug) then
 		local talents = "Invalid Talents"
@@ -1754,6 +1729,7 @@ end
 --> test
 --/run _detalhes.ilevel:CalcItemLevel ("player", UnitGUID("player"), true)
 --/run wipe (_detalhes.item_level_pool)
+
 function ilvl_core:CalcItemLevel (unitid, guid, shout)
 	
 	if (type (unitid) == "table") then
@@ -1770,64 +1746,17 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		local failed = 0
 		
 		for equip_id = 1, 17 do
-
 			if (equip_id ~= 4) then --shirt slot
 				local item = GetInventoryItemLink (unitid, equip_id)
 				if (item) then
 					local _, _, itemRarity, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
 					if (iLevel) then
-						
-						--local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
-						--> upgrades handle by LibItemUpgradeInfo-1.0
-						--> http://www.wowace.com/addons/libitemupgradeinfo-1-0/
-
-						if (equip_id == 16) then --main hand
-							local itemId = select (2, strsplit (":", item))
-							--print (itemId, offhand_ismain [itemId], UnitName (unitid))
-							--128867 nil Lithedora EmeraldDream
-							if (offhand_ismain [itemId]) then
-								local offHand = GetInventoryItemLink (unitid, 17)
-								if (offHand) then
-									local iName, _, itemRarity, offHandILevel, _, _, _, _, equipSlot = GetItemInfo (offHand)
-									if (offHandILevel) then
-										item = offHand
-										iLevel = offHandILevel
-									end
-								end
-							end
-							
-						elseif (equip_id == 17) then --off-hand
-							local itemId = select (2, strsplit (":", item))
-							if (artifact_offhands [itemId]) then
-								local mainHand = GetInventoryItemLink (unitid, 16)
-								if (mainHand) then
-									local iName, _, itemRarity, mainHandILevel, _, _, _, _, equipSlot = GetItemInfo (mainHand)
-									if (iLevel) then
-										item = mainHand
-										iLevel = mainHandILevel
-									end
-								end
-							end
-						end
-						
 						if (ItemUpgradeInfo) then
 							local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
 							item_level = item_level + (ilvl or iLevel)
 						else
 							item_level = item_level + iLevel
 						end
-
-						--> timewarped
-						--[[
-						if (upgradeTypeID == "512" and bonusID1 == "615") then
-							item_level = item_level + 660
-							if (bonusID2 == "656") then
-								item_level = item_level + 15
-							end
-						else
-							item_level = item_level + iLevel
-						end
-						--]]
 						
 						--> 16 = main hand 17 = off hand
 						-->  if using a two-hand, ignore the off hand slot
@@ -1851,7 +1780,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		--> register
 		if (average > 0) then
 			if (shout) then
-				_detalhes:Msg (name .. " item level: " .. average)
+				_detalhes:Msg (UnitName(unitid) .. " item level: " .. average)
 			end
 			
 			if (average > MIN_ILEVEL_TO_STORE) then

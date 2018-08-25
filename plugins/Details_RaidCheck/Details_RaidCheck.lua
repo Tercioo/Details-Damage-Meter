@@ -12,6 +12,9 @@ local DF = DetailsFramework
 --> build the list of buffs to track
 local flask_list = DetailsFramework.FlaskIDs
 
+local is_drinking = 257428
+local localizedFoodDrink
+
 local food_list = {
 	tier1 = {},
 	tier2 = {},
@@ -63,7 +66,7 @@ end
 	tinsert (UISpecialFrames, "DetailsRaidCheck")
 	DetailsRaidCheck:SetPluginDescription (Loc ["STRING_RAIDCHECK_PLUGIN_DESC"])
 
-	local version = "v0.6"
+	local version = "v2.0"
 	
 	local debugmode = false
 	--local debugmode = true
@@ -78,6 +81,7 @@ end
 		DetailsRaidCheck.focusaug_table = {}
 		DetailsRaidCheck.haveflask_table = {}
 		DetailsRaidCheck.havefood_table = {}
+		DetailsRaidCheck.iseating_table = {}
 		DetailsRaidCheck.havefocusaug_table = {}
 		
 		DetailsRaidCheck.on_raid = false
@@ -86,7 +90,7 @@ end
 		local empty_table = {}
 		
 		local PlayerData = {}
-		local UpdateSpeed = .3
+		local UpdateSpeed = 0.5
 		
 		function DetailsRaidCheck:OnDetailsEvent (event, ...)
 			
@@ -99,19 +103,12 @@ end
 				DetailsRaidCheck.usedprepot_table, DetailsRaidCheck.focusaug_table = select (1, ...)
 
 			elseif (event == "COMBAT_PLAYER_LEAVE") then
-				
-				if (DetailsRaidCheck.on_raid) then
-					DetailsRaidCheck:StartTrackBuffs()
-				end
 			
 			elseif (event == "COMBAT_PLAYER_ENTER") then
 				
-				if (DetailsRaidCheck.on_raid) then
-					DetailsRaidCheck:StopTrackBuffs()
-				end
-				
 			elseif (event == "DETAILS_STARTED") then
 
+				localizedFoodDrink = GetSpellInfo (is_drinking)
 				DetailsRaidCheck:CheckZone()
 				
 			elseif (event == "PLUGIN_DISABLED") then
@@ -247,14 +244,14 @@ end
 		local scroll_width = 722
 		local scroll_lines = 30
 		local scroll_line_height = 16
-		local scroll_height = scroll_lines * scroll_line_height
+		local scroll_height = (scroll_lines * scroll_line_height) + scroll_lines + 2
 		local backdrop_color = {.2, .2, .2, 0.2}
 		local backdrop_color_on_enter = {.8, .8, .8, 0.4}
 		local y = -10
 		local headerY = y - 2
 		local scrollY = headerY - 20
 		
-		show_panel:SetSize (722 + 20, 540)
+		show_panel:SetSize (722 + 20, 580)
 		
 		--create line for the scroll
 		local scroll_createline = function (self, index)
@@ -287,6 +284,7 @@ end
 				icon_height = 16, 
 				texcoord = {.1, .9, .1, .9},
 				show_text = false,
+				icon_padding = 2,
 			}
 			local talentsRow = DF:CreateIconRow (line, "$parentTalentIconsRow", talent_row_options)
 			
@@ -294,21 +292,21 @@ end
 			local itemLevel = DF:CreateLabel (line)
 			
 			--no food
-			local noFood = DF:CreateLabel (line)
+			local FoodIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
 			--no flask
-			local noFlask = DF:CreateLabel (line)
+			local FlaskIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
 			--no rune
-			local noRune = DF:CreateLabel (line)
+			local RuneIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
 			--no pre pot
-			local noPrePot = DF:CreateLabel (line)
+			local PrePotIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
 			
 			line:AddFrameToHeaderAlignment (roleIcon)
 			line:AddFrameToHeaderAlignment (talentsRow)
 			line:AddFrameToHeaderAlignment (itemLevel)
-			line:AddFrameToHeaderAlignment (noFood)
-			line:AddFrameToHeaderAlignment (noFlask)
-			line:AddFrameToHeaderAlignment (noRune)
-			line:AddFrameToHeaderAlignment (noPrePot)
+			line:AddFrameToHeaderAlignment (FoodIndicator)
+			line:AddFrameToHeaderAlignment (FlaskIndicator)
+			line:AddFrameToHeaderAlignment (RuneIndicator)
+			line:AddFrameToHeaderAlignment (PrePotIndicator)
 			
 			line:AlignWithHeader (DetailsRaidCheck.Header, "left")
 			
@@ -317,17 +315,18 @@ end
 			line.PlayerName = playerName
 			line.TalentsRow = talentsRow
 			line.ItemLevel = itemLevel
-			line.NoFood = noFood
-			line.NoFlask = noFlask
-			line.NoRune = noRune
-			line.NoPrePot = noPrePot
+			line.FoodIndicator = FoodIndicator
+			line.FlaskIndicator = FlaskIndicator
+			line.RuneIndicator = RuneIndicator
+			line.PrePotIndicator = PrePotIndicator
 			
 			return line
 		end		
 		
-		local noFoodText = "|cFFFF2222X|r"
-		
 		--refresh scroll
+		local has_food_icon = {texture = [[Interface\Scenarios\ScenarioIcon-Check]], coords = {0, 1, 0, 1}}
+		local eating_food_icon = {texture = [[Interface\AddOns\Details\images\icons]], coords = {225/512, 249/512, 35/512, 63/512}}
+		
 		local scroll_refresh = function (self, data, offset, total_lines)
 			
 			local dataInOrder = {}
@@ -336,7 +335,8 @@ end
 				dataInOrder [#dataInOrder+1] = data [i]
 			end
 
-			table.sort (dataInOrder, DF.SortOrder1R)
+			table.sort (dataInOrder, DF.SortOrder2)
+			--table.sort (dataInOrder, DF.SortOrder1R) --alphabetical
 			data = dataInOrder
 		
 			for i = 1, total_lines do
@@ -371,28 +371,32 @@ end
 								line.TalentsRow:SetIcon (false, false, false, false, texture)
 							end
 						end
-						
-					--	line.TalentsRow = talentsRow
+
+						local classColor = Details.class_colors [playerTable.Class]
+						if (classColor) then
+							line:SetBackdropColor (unpack (classColor))
+						else
+							line:SetBackdropColor (unpack (backdrop_color))
+						end
 						
 						line.PlayerName.text = playerTable.Name
-						line.ItemLevel.text = floor (playerTable.ILevel.ilvl or 0)
-						line.NoFood.text = playerTable.Food and noFoodText or ""
-						line.NoFlask.text = playerTable.Flask and noFoodText or ""
-						line.NoRune.text = playerTable.Rune and noFoodText or ""
-						line.NoPrePot.text = playerTable.PrePot and noFoodText or ""
+						line.ItemLevel.text = floor (playerTable.ILevel and playerTable.ILevel.ilvl or 0)
 						
-						--[=[
-							Name = unitName,
-							Class = unitClass,
-							Role = unitRole,
-							Spec = unitSpec,
-							ILevel = itemLevelTable,
-							Talents = talentsTable,
-							Food = DetailsRaidCheck.havefood_table [unitName],
-							Flask = DetailsRaidCheck.haveflask_table [unitName],
-							PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
-							Rune = DetailsRaidCheck.havefocusaug_table [unitName],
-						--]=]
+						if (playerTable.Food) then
+							line.FoodIndicator.texture = has_food_icon.texture
+							line.FoodIndicator.texcoord = has_food_icon.coords
+							
+						elseif (playerTable.Eating) then
+							line.FoodIndicator.texture = eating_food_icon.texture
+							line.FoodIndicator.texcoord = eating_food_icon.coords
+							
+						else
+							line.FoodIndicator.texture = ""
+						end
+						
+						line.FlaskIndicator.texture = playerTable.Flask and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
+						line.RuneIndicator.texture = playerTable.Rune and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
+						line.PrePotIndicator.texture = playerTable.PrePot and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
 					end
 				end
 			end
@@ -404,6 +408,7 @@ end
 		DF:ReskinSlider (mainScroll)
 		mainScroll.HideScrollBar = true
 		mainScroll:SetPoint ("topleft", show_panel, "topleft", 10, scrollY)
+		mainScroll:Refresh()
 		
 		--create lines
 		for i = 1, scroll_lines do 
@@ -440,12 +445,14 @@ end
 					local unitID = get_unit_id (i)
 					
 					local name = UnitName (unitID)
-					if (not DetailsRaidCheck.havefood_table [name]) then
-						added [name] = true
+					local unitSerial = UnitGUID (unitID)
+					
+					if (not DetailsRaidCheck.havefood_table [unitSerial]) then
+						added [unitSerial] = true
 						s = s .. DetailsRaidCheck:GetOnlyName (name) .. " "
 					end
 					
-					if (not DetailsRaidCheck.haveflask_table [name] and not added [name]) then
+					if (not DetailsRaidCheck.haveflask_table [unitSerial] and not added [unitSerial]) then
 						s = s .. DetailsRaidCheck:GetOnlyName (name) .. " "
 					end
 				end
@@ -514,8 +521,11 @@ end
 				
 				for i = 1, amt do
 					local unitID = get_unit_id (i)
+					
 					local name = UnitName (unitID)
-					if (not DetailsRaidCheck.havefocusaug_table [name]) then
+					local unitSerial = UnitGUID (unitID)
+					
+					if (not DetailsRaidCheck.havefocusaug_table [unitSerial]) then
 						s = s .. DetailsRaidCheck:GetOnlyName (name) .. " "
 					end
 				end
@@ -534,9 +544,7 @@ end
 			end
 			
 		end)
-		
-		
-		
+
 		local update_panel = function (self, elapsed)
 			show_panel.NextUpdate = show_panel.NextUpdate - elapsed
 			
@@ -561,23 +569,28 @@ end
 				local unitName = UnitName (unitID)
 				local cleuName = _detalhes:GetCLName (unitID)
 				local unitSerial = UnitGUID (unitID)
-				local _, unitClass = UnitClass (unitID)
+				local _, unitClass, unitClassID = UnitClass (unitID)
 				local unitRole = UnitGroupRolesAssigned (unitID)
 				local unitSpec = _detalhes:GetSpecFromSerial (unitSerial) or _detalhes:GetSpec (cleuName)
 				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
 				local talentsTable = _detalhes:GetTalents (unitSerial)
+
+				--> order by class > alphabetically by the unit name
+				unitClassID = ((unitClassID + 128) ^ 3) + tonumber (string.byte (unitName, 1) .. "" .. string.byte (unitName, 2))
 				
-				tinsert (PlayerData, {unitName,
+				tinsert (PlayerData, {unitName, unitClassID,
 					Name = unitName,
 					Class = unitClass,
+					Serial = unitSerial,
 					Role = unitRole,
 					Spec = unitSpec,
 					ILevel = itemLevelTable,
 					Talents = talentsTable,
-					Food = DetailsRaidCheck.havefood_table [unitName],
-					Flask = DetailsRaidCheck.haveflask_table [unitName],
+					Food = DetailsRaidCheck.havefood_table [unitSerial],
+					Flask = DetailsRaidCheck.haveflask_table [unitSerial],
 					PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
-					Rune = DetailsRaidCheck.havefocusaug_table [unitName],
+					Rune = DetailsRaidCheck.havefocusaug_table [unitSerial],
+					Eating = DetailsRaidCheck.iseating_table [unitSerial],
 				})
 			end
 			
@@ -588,23 +601,27 @@ end
 				local unitName = UnitName (unitID)
 				local cleuName = _detalhes:GetCLName (unitID)
 				local unitSerial = UnitGUID (unitID)
-				local _, unitClass = UnitClass (unitID)
+				local _, unitClass, unitClassID = UnitClass (unitID)
 				local unitRole = UnitGroupRolesAssigned (unitID)
 				local unitSpec = _detalhes:GetSpecFromSerial (unitSerial) or _detalhes:GetSpec (cleuName)
 				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
 				local talentsTable = _detalhes:GetTalents (unitSerial)
+
+				unitClassID = ((unitClassID + 128) ^ 3) + tonumber (string.byte (unitName, 1) .. "" .. string.byte (unitName, 2))
 				
-				tinsert (PlayerData, {unitName,
+				tinsert (PlayerData, {unitName, unitClassID,
 					Name = unitName,
 					Class = unitClass,
+					Serial = unitSerial,
 					Role = unitRole,
 					Spec = unitSpec,
 					ILevel = itemLevelTable,
 					Talents = talentsTable,
-					Food = DetailsRaidCheck.havefood_table [unitName],
-					Flask = DetailsRaidCheck.haveflask_table [unitName],
+					Food = DetailsRaidCheck.havefood_table [unitSerial],
+					Flask = DetailsRaidCheck.haveflask_table [unitSerial],
 					PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
-					Rune = DetailsRaidCheck.havefocusaug_table [unitName],
+					Rune = DetailsRaidCheck.havefocusaug_table [unitSerial],
+					Eating = DetailsRaidCheck.iseating_table [unitSerial],
 				})
 			end
 
@@ -618,27 +635,16 @@ end
 			show_panel.NextUpdate = UpdateSpeed
 			update_panel (show_panel, 1)
 			show_panel:SetScript ("OnUpdate", update_panel)
+			DetailsRaidCheck:StartTrackBuffs()
 		end)
 		
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnLeave", function (self)
 			show_panel:SetScript ("OnUpdate", nil)
 			show_panel:Hide()
+			DetailsRaidCheck:StopTrackBuffs()
 		end)
 		
 		function DetailsRaidCheck:CheckZone (...)
-		
-			if (debugmode) then
-				DetailsRaidCheck:ShowToolbarIcon (DetailsRaidCheck.ToolbarButton, "star")
-			
-				DetailsRaidCheck.on_raid = true
-				
-				if (not DetailsRaidCheck.in_combat) then
-					DetailsRaidCheck:StartTrackBuffs()
-				end
-				
-				return
-			end
-		
 			zone_type = select (1, ...)
 			
 			if (not zone_type) then
@@ -647,118 +653,111 @@ end
 			
 			if (zone_type == "raid" or zone_type == "party") then
 				DetailsRaidCheck:ShowToolbarIcon (DetailsRaidCheck.ToolbarButton, "star")
-			
 				DetailsRaidCheck.on_raid = true
-				
-				if (not DetailsRaidCheck.in_combat) then
-					DetailsRaidCheck:StartTrackBuffs()
-				end
 			else
 				DetailsRaidCheck:HideToolbarIcon (DetailsRaidCheck.ToolbarButton)
-			
 				DetailsRaidCheck.on_raid = false
+			end
+		end
+		
+		function DetailsRaidCheck:CheckUnitBuffs (unitID, consumableTable)
+			local name = UnitName (unitID)
+			local unitSerial = UnitGUID (unitID)
+		
+			for buffIndex = 1, 40 do
+				local bname, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellid = UnitBuff (unitID, buffIndex)
 				
-				if (DetailsRaidCheck.tracking_buffs) then
-					DetailsRaidCheck:StopTrackBuffs()
+				if (bname) then
+					if (flask_list [spellid]) then
+						DetailsRaidCheck.haveflask_table [unitSerial] = spellid
+						consumableTable.Flask = consumableTable.Flask + 1
+					end
+					
+					if (DetailsRaidCheck.db.food_tier1) then
+						if (food_list.tier1 [spellid]) then
+							DetailsRaidCheck.havefood_table [unitSerial] = 1
+							consumableTable.Food = consumableTable.Food + 1
+						end
+					end
+					
+					if (DetailsRaidCheck.db.food_tier2) then
+						if (food_list.tier2 [spellid]) then
+							DetailsRaidCheck.havefood_table [unitSerial] = 2
+							consumableTable.Food = consumableTable.Food + 1
+						end
+					end
+					
+					if (DetailsRaidCheck.db.food_tier3) then
+						if (food_list.tier3 [spellid]) then
+							DetailsRaidCheck.havefood_table [unitSerial] = 3
+							consumableTable.Food = consumableTable.Food + 1
+						end
+					end
+					
+					if (runes_id [spellid]) then
+						DetailsRaidCheck.havefocusaug_table [unitSerial] = spellid
+					end
+					
+					if (bname == localizedFoodDrink) then
+						DetailsRaidCheck.iseating_table [unitSerial] = true
+					end
+				else
+					break
 				end
 			end
 		end
 		
 		function DetailsRaidCheck:BuffTrackTick()
-			
 			wipe (DetailsRaidCheck.haveflask_table)
 			wipe (DetailsRaidCheck.havefood_table)
 			wipe (DetailsRaidCheck.havefocusaug_table)
+			wipe (DetailsRaidCheck.iseating_table)
 			
 			local playerAmount = DetailsRaidCheck.GetPlayerAmount()
-			local with_flask, with_food = 0, 0
+			
+			local hasConsumables = {
+				Flask = 0,
+				Food = 0,
+			}
 			
 			for i = 1, playerAmount do
-			
 				local unitID = get_unit_id (i)
-				local name = UnitName (unitID)
-				
-				for buffIndex = 1, 40 do
-					local bname, _, _, _, _, _, _, _, _, _, spellid  = UnitBuff (unitID, buffIndex)
-					
-					if (bname) then
-						if (flask_list [spellid]) then
-							DetailsRaidCheck.haveflask_table [name] = spellid
-							with_flask = with_flask + 1
-						end
-						
-						if (DetailsRaidCheck.db.food_tier1) then
-							if (food_list.tier1 [spellid]) then
-								DetailsRaidCheck.havefood_table [name] = 1
-								with_food = with_food + 1
-							end
-						end
-						
-						if (DetailsRaidCheck.db.food_tier2) then
-							if (food_list.tier2 [spellid]) then
-								DetailsRaidCheck.havefood_table [name] = 2
-								with_food = with_food + 1
-							end
-						end
-						
-						if (DetailsRaidCheck.db.food_tier3) then
-							if (food_list.tier3 [spellid]) then
-								DetailsRaidCheck.havefood_table [name] = 3
-								with_food = with_food + 1
-							end
-						end
-						
-						if (runes_id [spellid]) then
-							DetailsRaidCheck.havefocusaug_table [name] = spellid
-						end
-					else
-						break
-					end
-				end
+				DetailsRaidCheck:CheckUnitBuffs (unitID, hasConsumables)
 			end
 			
-			if (with_food == playerAmount and with_flask == playerAmount) then
+			if (not IsInRaid()) then
+				--> track buffs on the player it self
+				DetailsRaidCheck:CheckUnitBuffs ("player", hasConsumables)
+				
+				--> increase the amount of players in 1 since DetailsRaidCheck.GetPlayerAmount() returns total - 1
+				playerAmount = playerAmount + 1
+			end
+			
+			if (hasConsumables.Food == playerAmount and hasConsumables.Flask == playerAmount) then
 				DetailsRaidCheck:SetGreenIcon()
 			else
 				DetailsRaidCheck:SetRedIcon()
 			end
-			
 		end
 		
---		DETAILS_PLUGIN_RAIDCHECK
---		/run vardump (DETAILS_PLUGIN_RAIDCHECK.havefood_table)
---		DETAILS_PLUGIN_RAIDCHECK.tracking_buffs
---		/run DETAILS_PLUGIN_RAIDCHECK:StartTrackBuffs()
---		/run DETAILS_PLUGIN_RAIDCHECK:StopTrackBuffs()
-		
 		function DetailsRaidCheck:StartTrackBuffs()
-			
 			if (not DetailsRaidCheck.tracking_buffs) then
 				DetailsRaidCheck.tracking_buffs = true
 				
-				table.wipe (DetailsRaidCheck.haveflask_table)
-				table.wipe (DetailsRaidCheck.havefood_table)
+				DetailsRaidCheck:BuffTrackTick()
 				
-				if (DetailsRaidCheck.tracking_buffs_process) then
-					DetailsRaidCheck:CancelTimer (DetailsRaidCheck.tracking_buffs_process)
+				if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick._cancelled) then
+					DetailsRaidCheck.UpdateBuffsTick:Cancel()
 				end
-				
-				DetailsRaidCheck.tracking_buffs_process = DetailsRaidCheck:ScheduleRepeatingTimer ("BuffTrackTick", 1)
+				DetailsRaidCheck.UpdateBuffsTick = C_Timer.NewTicker (UpdateSpeed-0.01, DetailsRaidCheck.BuffTrackTick)
 			end
 			
 		end
 		
 		function DetailsRaidCheck:StopTrackBuffs()
-			if (DetailsRaidCheck.tracking_buffs) then
-				DetailsRaidCheck.tracking_buffs = false
-				
-				if (DetailsRaidCheck.tracking_buffs_process) then
-					DetailsRaidCheck:CancelTimer (DetailsRaidCheck.tracking_buffs_process)
-				end
-			else
-				if (DetailsRaidCheck.tracking_buffs_process) then
-					DetailsRaidCheck:CancelTimer (DetailsRaidCheck.tracking_buffs_process)
-				end
+			DetailsRaidCheck.tracking_buffs = false
+			if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick._cancelled) then
+				DetailsRaidCheck.UpdateBuffsTick:Cancel()
 			end
 		end
 
@@ -766,9 +765,11 @@ end
 
 local build_options_panel = function()
 
-	local options_frame = DetailsRaidCheck:CreatePluginOptionsFrame ("DetailsRaidCheckOptionsWindow", "Details Raid Check Options", 1)
+	local options_frame = DetailsRaidCheck:CreatePluginOptionsFrame ("DetailsRaidCheckOptionsWindow", "Details! Raid Check Options", 1)
 
 	local menu = {
+	
+		{type = "label", get = function() return "General Settings:" end, text_template = DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE")},
 		{
 			type = "toggle",
 			get = function() return DetailsRaidCheck.db.pre_pot_healers end,
@@ -787,9 +788,11 @@ local build_options_panel = function()
 			type = "toggle",
 			get = function() return DetailsRaidCheck.db.mythic_1_4 end,
 			set = function (self, fixedparam, value) DetailsRaidCheck.db.mythic_1_4 = value end,
-			desc = "When raiding on Mythic difficult, only tracks the first 4 groups.",
-			name = "Mythic Special Tracker"
+			desc = "When raiding on Mythic difficult, only check the first 4 groups.",
+			name = "Mythic 1-4 Group Only"
 		},
+		
+		--[=[
 		{
 			type = "toggle",
 			get = function() return DetailsRaidCheck.db.use_report_panel end,
@@ -797,7 +800,11 @@ local build_options_panel = function()
 			desc = "If enabled, clicking to report open the report panel instead (to be able to choose where to send the report).",
 			name = "Use Report Panel"
 		},
+		--]=]
 		
+		{type = "breakline"},
+		
+		{type = "label", get = function() return "Food Level Tracking:" end, text_template = DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE")},
 		{
 			type = "toggle",
 			get = function() return DetailsRaidCheck.db.food_tier1 end,
@@ -821,7 +828,13 @@ local build_options_panel = function()
 		},
 	}
 	
-	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 180)
+	local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
+	local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -45, 180, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
 end
 

@@ -1011,6 +1011,9 @@ local default_profile = {
 			["aura"] = true,
 			["spellcast"] = true,
 		},
+		
+	--> bookmark
+		bookmark_text_size = 11,
 	
 	--> cloud capture
 		cloud_capture = true,

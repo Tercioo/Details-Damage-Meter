@@ -1851,6 +1851,15 @@ function _G._detalhes:Start()
 	--> override the overall data flag on this release only (remove on the release)
 	Details.overall_flag = 0x10
 	
+	local _, playerClass = UnitClass ("player")
+	if (playerClass == "HUNTER") then
+		if (time() < (1535035367 + 1296000)) then --show until setember 6th
+			if (math.random(1, 3) == 3) then
+				Details:Msg ("Hunter, Incendiary Ammunition is bugged and won't show in the damage meter outside dungeons and raids. Blizzard is aware of the issue, hold on for a fix.")
+			end
+		end
+	end
+	
 	--[=[
 	--> suppress warnings for the first few seconds
 	CLOSE_SCRIPTERRORWINDOW = function()

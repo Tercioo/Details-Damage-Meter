@@ -542,10 +542,32 @@ do
 		GameCooltip:Hide()
 	end)	
 	
+	window_color:Hide()
+	options_button:Hide()
+	forge_button:Hide()
+	history_button:Hide()
+	
+---------------------------------------------------------------------------------------------------------------------------
+
+	--show animation
+	local animHub = _detalhes.gump:CreateAnimationHub (frame, function() frame:Show() end)
+	_detalhes.gump:CreateAnimation (animHub, "scale", 1, 0.04, 0, 1, 1, 1, "LEFT", 0, 0)
+	_detalhes.gump:CreateAnimation (animHub, "alpha", 1, 0.04, 0, 1)
+	frame.ShowAnimation = animHub
+
+	--hide animation
+	local animHub = _detalhes.gump:CreateAnimationHub (frame, function() frame:Show() end, function() frame:Hide() end)
+	_detalhes.gump:CreateAnimation (animHub, "scale", 1, 0.04, 1, 1, 0, 1, "RIGHT", 0, 0)
+	_detalhes.gump:CreateAnimation (animHub, "alpha", 1, 0.04, 1, 0)
+	frame.HideAnimation = animHub
+
 ---------------------------------------------------------------------------------------------------------------------------
 	
 	function _detalhes.switch:CloseMe()
-		_detalhes.switch.frame:Hide()
+		--_detalhes.switch.frame:Hide()
+		
+		_detalhes.switch.frame.HideAnimation:Play()
+		
 		GameCooltip:Hide()
 		_detalhes.switch.frame:SetBackdropColor (0, 0, 0, .7)
 		_detalhes.switch.current_instancia:StatusBarAlert (nil)
@@ -560,7 +582,7 @@ do
 	frame:Hide()
 	
 	_detalhes.switch.frame = frame
-	_detalhes.switch.button_height = 20
+	_detalhes.switch.button_height = 24
 end
 
 _detalhes.switch.buttons = {}
@@ -890,7 +912,8 @@ function _detalhes.switch:ShowMe (instancia)
 	_detalhes.switch:Update()
 	
 	_detalhes.switch.frame:SetScale (instancia.window_scale)
-	_detalhes.switch.frame:Show()
+	--_detalhes.switch.frame:Show()
+	_detalhes.switch.frame.ShowAnimation:Play()
 	
 	if (not _detalhes.tutorial.bookmark_tutorial) then
 	
@@ -1224,7 +1247,7 @@ function _detalhes.switch:Update()
 		button.button2.texto:SetText (name)
 		local text_width = button.button2.texto:GetStringWidth()
 		while (text_width > _detalhes.switch.text_size) do
-			_detalhes:SetFontSize (button.button2.texto, 9)
+			_detalhes:SetFontSize (button.button2.texto, _detalhes.bookmark_text_size)
 			local text = button.button2.texto:GetText()
 			text = strsub (text, 1, #text-1)
 			button.button2.texto:SetText (text)
@@ -1267,7 +1290,7 @@ function _detalhes.switch:Update()
 			y = y + _detalhes.switch.button_height
 			jump = false
 		else
-			x = x + 125
+			x = x + 1254
 			jump = true
 		end
 		
@@ -1349,7 +1372,7 @@ function _detalhes.switch:Resize (precisa_mostrar)
 				break
 			end
 		end
-		y = y + y_increment
+		y = y + y_increment + 2
 	end
 	
 	_detalhes.switch.slots = i-1
@@ -1524,7 +1547,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 
 	--botao dentro da caixa
 	local button = CreateFrame ("button", "DetailsSwitchPanelButton_1_"..index, frame) --botao com o icone
-	button:SetSize (15, 15) 
+	button:SetSize (15, 24) 
 	button:SetPoint ("topleft", frame, "topleft", x, -y)
 	button:SetScript ("OnMouseDown", left_box_on_click)
 	button:SetScript ("OnEnter", oniconenter)
@@ -1534,7 +1557,6 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	
 	--borda
 	button.fundo = button:CreateTexture (nil, "overlay")
-	--button.fundo:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.fundo:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
 	button.fundo:SetWidth (26)
 	button.fundo:SetHeight (24)
@@ -1544,7 +1566,6 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	local fundo_x = -3
 	local fundo_y = -5
 	button.line = button:CreateTexture (nil, "background")
---	button.line:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line:SetWidth (85)
 	button.line:SetPoint ("topleft", button, "topright", fundo_x-14, 0)
@@ -1553,7 +1574,6 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	
 	--fundo marrom 2
 	button.line2 = button:CreateTexture (nil, "background")
---	button.line2:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line2:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line2:SetWidth (85)
 	button.line2:SetPoint ("topleft", button, "topright", fundo_x, 0)
@@ -1588,7 +1608,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button2.texto:SetPoint ("left", button, "right", 5, -1)
 	button2.texto:SetTextColor (.9, .9, .9, .9)
 	
-	_detalhes:SetFontSize (button2.texto, 10)
+	_detalhes:SetFontSize (button2.texto, _detalhes.bookmark_text_size)
 	
 	button.texto = button2.texto
 	
