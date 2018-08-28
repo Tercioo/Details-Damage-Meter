@@ -532,6 +532,7 @@
 			end
 			if (type (value) == "number") then
 				row.texto_direita:SetText (SelectedToKFunction (_, value) .. bars_brackets[1] .. percent .. bars_brackets[2])
+				
 			else
 				row.texto_direita:SetText (value .. bars_brackets[1] .. percent .. bars_brackets[2])
 			end
@@ -634,11 +635,11 @@
 					esta_barra.last_value = esta_porcentagem
 				end
 			end
-
+	
 		end
 		
 	end
-
+	
 	function atributo_custom:RefreshBarra (esta_barra, instancia, from_resize)
 		
 		local class, enemy, arena_enemy, arena_ally = self.classe, self.enemy, self.arena_enemy, self.arena_ally
@@ -2359,7 +2360,7 @@
 			desc = "Show overall damage done on the fly.",
 			source = false,
 			target = false,
-			script_version = 2,
+			script_version = 3,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -2466,12 +2467,16 @@
 
 				--build the string
 				local ToK = Details:GetCurrentToKFunction()
-				local s = ToK (_, total / OverallCombatTime)
-				s = ToK (_, total) .. " (" .. s .. ", "
+				local s = ToK (_, value / OverallCombatTime)
+				
+				if (instance.row_info.textR_show_data[3]) then
+				    s = ToK (_, value) .. " (" .. s .. ", "
+				else
+				    s = ToK (_, value) .. " (" .. s
+				end
 
 				return s
 			]],
-			
 		}
 
 		local have = false

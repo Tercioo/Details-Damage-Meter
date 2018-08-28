@@ -93,9 +93,13 @@ do
 		end
 	end
 	
-	function _detalhes:GetSpecIcon (spec)
+	function _detalhes:GetSpecIcon (spec, useAlpha)
 		if (spec) then
-			return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack (_detalhes.class_specs_coords [spec])
+			if (useAlpha) then
+				return [[Interface\AddOns\Details\images\spec_icons_normal_alpha]], unpack (_detalhes.class_specs_coords [spec])
+			else
+				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack (_detalhes.class_specs_coords [spec])
+			end
 		end
 	end
 	
@@ -212,6 +216,10 @@ do
 	end
 	
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	function _detalhes:GetSpecByGUID (unitSerial)
+		return _detalhes.cached_specs [unitSerial]
+	end
 	
 	-- try get the spec from actor name
 	function _detalhes:GetSpec (name)

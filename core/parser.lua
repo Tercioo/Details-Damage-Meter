@@ -151,10 +151,13 @@
 		[193315] = 197834, --rogue Saber Slash
 		[202822] = 202823, --rogue greed
 		
-		[233496] = 233490, --Unstable Affliction
-		[233497] = 233490, --Unstable Affliction
-		[233498] = 233490, --Unstable Affliction
-		[233499] = 233490, --Unstable Affliction
+		[233496] = 233490, --warlock Unstable Affliction
+		[233497] = 233490, --warlock Unstable Affliction
+		[233498] = 233490, --warlock Unstable Affliction
+		[233499] = 233490, --warlock Unstable Affliction
+		
+		[280720] = 282449, --rogue Secret Technique
+		[280719] = 282449, --rogue Secret Technique
 	}
 	
 	_detalhes.OverridedSpellIds = override_spellId
@@ -315,63 +318,6 @@
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-
-		--> context: incendiary ammunition isn't telling who is the source, so if the hunter is in a raid or party group it'll assign the damage to a random hunter
-		--> this has been reported several times to Blizzard, we expect a fix on their side soon
-		--> this "fix" gives the damage of incendiary to a random hunter in the raid/party, which is better than nothing
-		if (spellid == 265092) then
-			if (not who_name) then
-				local zoneName, zoneType, _, _, _, _, _, zoneMapID = GetInstanceInfo()
-				local hunters = {}
-				
-				if (zoneType == "raid" and IsInRaid()) then
-					for i = 1, GetNumGroupMembers() do
-						local _, class = UnitClass ("raid" .. i)
-						if (class == "HUNTER") then
-							local unitName = UnitName ("raid" .. i)
-							if (unitName) then
-								local guid, name = UnitGUID ("raid" .. i), _detalhes:GetCLName ("raid" .. i)
-								if (guid and name) then
-									tinsert (hunters, {guid, name})
-								end
-							end
-						end
-					end
-					
-				elseif (zoneType == "party" and IsInGroup()) then
-					for i = 1, GetNumGroupMembers()-1 do
-						local _, class = UnitClass ("party" .. i)
-						if (class == "HUNTER") then
-							local unitName = UnitName ("party" .. i)
-							if (unitName) then
-								local guid, name = UnitGUID ("party" .. i), _detalhes:GetCLName ("party" .. i)
-								if (guid and name) then
-									tinsert (hunters, {guid, name})
-								end
-							end
-						end
-					end
-					
-					local _, class = UnitClass ("player")
-					if (class == "HUNTER") then
-						local unitName = UnitName ("player")
-						if (unitName) then
-							local guid, name = UnitGUID ("player"), _detalhes:GetCLName ("player")
-							if (guid and name) then
-								tinsert (hunters, {guid, name})
-							end
-						end
-					end
-				end
-				
-				local size = #hunters
-				if (size > 0) then
-					local randomHunter = math.random (size)
-					local hunterSelected = hunters [randomHunter]
-					who_serial, who_name, who_flags = hunterSelected [1], hunterSelected [2], 0x514
-				end
-			end
-		end	
 
 		if (who_serial == "") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> � um pet
@@ -710,7 +656,10 @@
 			and
 			(
 				--> if the target isn't a pvp duel target
-				not jogador_alvo.enemy and not este_jogador.enemy
+				not jogador_alvo.enemy and not este_jogador.enemy and
+				--> specific rules for encounters
+				_current_encounter_id ~= 2113 and --Waycrest Manor HeartsbaneTriad boss (it has mind control)
+				_current_encounter_id ~= 2132 -- Shrine of the Storms Lord Stormsong (it has mind control)
 			)
 		) then
 
