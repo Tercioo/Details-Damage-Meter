@@ -2267,6 +2267,7 @@ local icon_frame_on_enter = function (self)
 				end
 			end
 			
+			--[=[
 			if (RaiderIO and RaiderIO.GetScore) then
 				local mythicPlusScore = RaiderIO.GetScore (name)
 				if (mythicPlusScore and mythicPlusScore.allScore) then
@@ -2274,6 +2275,7 @@ local icon_frame_on_enter = function (self)
 					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 			end
+			--]=]
 			
 			GameCooltip:SetOption ("FixedHeight", height)
 			
