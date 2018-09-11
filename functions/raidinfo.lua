@@ -9,7 +9,7 @@ do
 --	UldirRaid_Icon256x128.tga
 	
 	local INSTANCE_EJID = 1031
-	local INSTANCE_MAPID = 1148
+	local INSTANCE_MAPID = 1861
 	local HDIMAGESPATH = "Details\\images\\raid"
 	local HDFILEPREFIX = "UldirRaid"
 	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "Loadingscreen_NazmirRaid", {0, 1, 285/1024, 875/1024}

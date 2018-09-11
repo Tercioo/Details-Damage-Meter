@@ -1851,6 +1851,19 @@ inspect_frame:SetScript ("OnEvent", function (self, event, ...)
 			ilvl_core:ScheduleTimer ("CalcItemLevel", 4, t)
 			ilvl_core:ScheduleTimer ("CalcItemLevel", 8, t)
 		end
+	else
+		if (IsInRaid()) then
+			--get the unitID
+			local serial = ...
+			if (serial and type (serial) == "string") then
+				for i = 1, GetNumGroupMembers() do
+					if (UnitGUID ("raid" .. i) == serial) then
+						ilvl_core:ScheduleTimer ("CalcItemLevel", 2, {"raid" .. i, serial})
+						ilvl_core:ScheduleTimer ("CalcItemLevel", 4, {"raid" .. i, serial})
+					end
+				end
+			end
+		end
 	end
 end)
 
@@ -2118,6 +2131,10 @@ if (LibGroupInSpecT) then
 			i = i + 1
 		end
 		_detalhes.cached_talents [guid] = talents
+		
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) received GroupInSpecT_Update from user", guid)
+		end
 		
 		--> update spec
 		if (info.global_spec_id and info.global_spec_id ~= 0) then

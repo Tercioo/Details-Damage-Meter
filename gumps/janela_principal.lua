@@ -2171,7 +2171,7 @@ local icon_frame_on_enter = function (self)
 			local talents = _detalhes.cached_talents [serial]
 			local ilvl = _detalhes.ilevel:GetIlvl (serial)
 			
-			local icon_size = 16
+			local icon_size = 20
 			
 			local instance = _detalhes:GetInstance (self.row.instance_id)
 			
@@ -2203,13 +2203,13 @@ local icon_frame_on_enter = function (self)
 			if (talents) then
 				for i = 1, #talents do
 					local talentID, name, texture, selected, available = GetTalentInfoByID (talents [i])
-					talent_string = talent_string ..  " |T" .. texture .. ":" .. 15 .. ":" .. 15 ..":0:0:64:64:4:60:4:60|t"
+					talent_string = talent_string ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
 				end
 			end
 			
 			local got_info
 			if (ilvl) then
-				GameCooltip:AddLine (STAT_AVERAGE_ITEM_LEVEL .. ":", ilvl and floor (ilvl.ilvl) or "??") --> Loc from GlobalStrings.lua
+				GameCooltip:AddLine (STAT_AVERAGE_ITEM_LEVEL .. ":" , ilvl and "|T:" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t" .. floor (ilvl.ilvl) or "|T:" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t ??") --> Loc from GlobalStrings.lua
 				_detalhes:AddTooltipBackgroundStatusbar()
 				got_info = true
 			end
@@ -2227,11 +2227,11 @@ local icon_frame_on_enter = function (self)
 			GameCooltip:SetOption ("MinButtonHeight", 15)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 			
-			local height = 52
+			local height = 64
 			if (not got_info) then
 				GameCooltip:AddLine (Loc ["STRING_QUERY_INSPECT"], nil, 1, "orange")
 				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, icon_size, 8/512, 70/512, 224/512, 306/512)
-				height = 42
+				height = 54
 			end
 
 			local combat = instance:GetShowingCombat()

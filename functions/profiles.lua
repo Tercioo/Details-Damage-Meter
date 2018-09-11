@@ -1341,6 +1341,7 @@ local default_global_data = {
 			last_mythicrun_chart = {},
 			mythicrun_chart_frame = {},
 			mythicrun_chart_frame_minimized = {},
+			mythicrun_chart_frame_ready = {},
 		},
 	
 	--> plugin window positions

@@ -203,7 +203,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	end
 	
 	function EncounterDetails:CreateRow (index, container, x_mod, y_mod, width_mod)
-
+		
 		local barra = CreateFrame ("Button", "Details_"..container:GetName().."_barra_"..index, container)
 		
 		x_mod = x_mod or 0
@@ -211,7 +211,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		
 		barra:SetWidth (200+width_mod) --> tamanho da barra de acordo com o tamanho da janela
 		barra:SetHeight (16) --> altura determinada pela instância
-
+		
 		local y = (index-1)*17
 		y_mod = y_mod or 0
 		y = y + y_mod
@@ -221,28 +221,28 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		barra:SetPoint ("RIGHT", container, "RIGHT", width_mod, 0)
 		barra:SetPoint ("TOP", container, "TOP", 0, y)
 		barra:SetFrameLevel (container:GetFrameLevel() + 1)
-
+		
 		barra:EnableMouse (true)
 		barra:RegisterForClicks ("LeftButtonDown","RightButtonUp")	
-
+		
 		EncounterDetails:CreateRowTexture (barra)
-
+		
 		barra:SetBackdrop (BackdropDefault)
 		EncounterDetails.SetBarBackdrop_OnLeave (barra)
 		
 		--> icone
 		barra.icone = barra.textura:CreateTexture (nil, "OVERLAY")
-		barra.icone:SetWidth (14)
-		barra.icone:SetHeight (14)
+		barra.icone:SetWidth (16)
+		barra.icone:SetHeight (16)
 		barra.icone:SetPoint ("RIGHT", barra.textura, "LEFT", 0+20, 0)
 		
-		barra:SetAlpha(0.9)
+		barra:SetAlpha (0.9)
 		barra.icone:SetAlpha (0.8)
 		
 		EncounterDetails:SetRowScripts (barra, index, container)
 		
 		container.barras [index] = barra
-
+		
 		return barra
 	end	
 	
@@ -2073,7 +2073,8 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 							local spellname, _, spellicon = _GetSpellInfo (spell)
 							tinsert (t, {label = spellname, value = {timer_table [2], spellname, spellIcon or spellicon, timer_table.id, timer_table [7]}, icon = spellIcon or spellicon, onclick = on_select_dbm_bar})
 						else
-							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spell)
+							--local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spell)
+							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = C_EncounterJournal.GetSectionInfo (spell)
 							tinsert (t, {label = title, value = {timer_table [2], title, spellIcon or abilityIcon, timer_table.id, timer_table [7]}, icon = spellIcon or abilityIcon, onclick = on_select_dbm_bar})
 						end
 						already_added [spell] = true
@@ -2100,7 +2101,8 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 							local spellname = timer_table [2]:gsub (" %(.%)", "")
 							tinsert (t, {label = spellname, value = {timer_table [2], spellname, timer_table [5], timer_table.id}, icon = timer_table [5], onclick = on_select_bw_bar})
 						elseif (int_spell < 0) then
-							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (int_spell))
+							--local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (int_spell))
+							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = C_EncounterJournal.GetSectionInfo (abs (int_spell))
 							tinsert (t, {label = title, value = {timer_table [2], title, timer_table [5] or abilityIcon, timer_table.id}, icon = timer_table [5] or abilityIcon, onclick = on_select_bw_bar})
 						else
 							local spellname, _, spellicon = _GetSpellInfo (int_spell)
@@ -2642,7 +2644,7 @@ end
 		frame.Widgets [#frame.Widgets+1] = dano_recebido_bg
 		
 		DetailsFrameWork:NewLabel (dano_recebido_bg, dano_recebido_bg, nil, "damagetaken_title", "Damage Taken per Player", "GameFontHighlight") --localize-me
-		dano_recebido_bg.damagetaken_title:SetPoint ("BOTTOMLEFT", container_damagetaken_window, "TOPLEFT", 5, 0)
+		dano_recebido_bg.damagetaken_title:SetPoint ("BOTTOMLEFT", container_damagetaken_window, "TOPLEFT", 5, 1)
 		
 		container_damagetaken_frame:SetBackdrop (backdrop)
 		container_damagetaken_frame:SetBackdropBorderColor (0,0,0,0)
@@ -2696,7 +2698,7 @@ end
 		frame.Widgets [#frame.Widgets+1] = container_habilidades_frame
 		
 		DetailsFrameWork:NewLabel (habilidades_inimigas_bg, habilidades_inimigas_bg, nil, "habilidades_title", "Damage Taken by Spell", "GameFontHighlight") --localize-me
-		habilidades_inimigas_bg.habilidades_title:SetPoint ("BOTTOMLEFT", container_habilidades_window, "TOPLEFT", 5, 0)
+		habilidades_inimigas_bg.habilidades_title:SetPoint ("BOTTOMLEFT", container_habilidades_window, "TOPLEFT", 5, 1)
 		
 		container_habilidades_frame:SetBackdrop (backdrop)
 		container_habilidades_frame:SetBackdropBorderColor (0,0,0,0)
@@ -2740,7 +2742,7 @@ end
 		frame.Widgets [#frame.Widgets+1] = container_adds_window
 		container_adds_frame.barras = {}
 		
-		local adds_total_string = DetailsFrameWork:CreateLabel (container_adds_window, "damage done")
+		local adds_total_string = DetailsFrameWork:CreateLabel (container_adds_window, "damage taken")
 		adds_total_string.textcolor = "gray"
 		adds_total_string.textsize = 9
 		adds_total_string:SetPoint ("bottomright",  container_adds_window, "topright", 0, 3)
@@ -2757,8 +2759,8 @@ end
 		container_adds_window:SetScrollChild (container_adds_frame)
 		container_adds_window:SetPoint ("TOPLEFT", container_damagetaken_window, "topright", CONST_BOX_HORIZONTAL_SPACING, 0)
 
-		DetailsFrameWork:NewLabel (container_adds_window, container_adds_window, nil, "titulo", Loc ["STRING_ADDS"], "GameFontHighlight")
-		container_adds_window.titulo:SetPoint ("bottomleft", container_adds_window, "topleft", 0, 0)
+		DetailsFrameWork:NewLabel (container_adds_window, container_adds_window, nil, "titulo", "Enemy Damage Taken", "GameFontHighlight")
+		container_adds_window.titulo:SetPoint ("bottomleft", container_adds_window, "topleft", 0, 1)
 		
 		DetailsFrameWork:NewScrollBar (container_adds_window, container_adds_frame, 4, -16)
 		container_adds_window.slider:Altura (BOX_HEIGHT - 31)
@@ -2803,7 +2805,7 @@ end
 		container_interrupt_window:SetPoint ("TOPLEFT", container_adds_window, "TOPRIGHT", CONST_BOX_HORIZONTAL_SPACING, 0)
 
 		DetailsFrameWork:NewLabel (container_interrupt_window, container_interrupt_window, nil, "titulo", Loc ["STRING_INTERRUPTS"], "GameFontHighlight")
-		container_interrupt_window.titulo:SetPoint ("bottomleft", container_interrupt_window, "topleft", 0, 0)
+		container_interrupt_window.titulo:SetPoint ("bottomleft", container_interrupt_window, "topleft", 0, 1)
 		
 		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, 4, -16)
 		container_interrupt_window.slider:Altura (BOX_HEIGHT-31)
@@ -2849,7 +2851,7 @@ end
 		container_dispell_window:SetPoint ("TOPLEFT", container_adds_window, "BOTTOMLEFT", 0, CONST_BOX_VERTICAL_SPACING)
 
 		DetailsFrameWork:NewLabel (container_dispell_window, container_dispell_window, nil, "titulo", Loc ["STRING_DISPELLS"], "GameFontHighlight")
-		container_dispell_window.titulo:SetPoint ("bottomleft", container_dispell_window, "topleft", 0, 0)
+		container_dispell_window.titulo:SetPoint ("bottomleft", container_dispell_window, "topleft", 0, 1)
 		
 		DetailsFrameWork:NewScrollBar (container_dispell_window, container_dispell_frame, 4, -16)
 		container_dispell_window.slider:Altura (BOX_HEIGHT-31)
@@ -2899,7 +2901,7 @@ end
 		container_dead_window:SetPoint ("TOPLEFT", container_dispell_window, "TOPRIGHT", CONST_BOX_HORIZONTAL_SPACING, 0)
 		
 		DetailsFrameWork:NewLabel (container_dead_window, container_dead_window, nil, "titulo", Loc ["STRING_DEATH_LOG"], "GameFontHighlight")
-		container_dead_window.titulo:SetPoint ("bottomleft", container_dead_window, "topleft", 0, 0)
+		container_dead_window.titulo:SetPoint ("bottomleft", container_dead_window, "topleft", 0, 1)
 		
 		DetailsFrameWork:NewScrollBar (container_dead_window, container_dead_frame, 4, -16)
 		container_dead_window.slider:Altura (BOX_HEIGHT-31)

@@ -277,6 +277,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 					lastcooldown = event
 				
 				elseif (evtype == 4) then
+					--> debuff
 					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s [x" .. amount .. "] " .. spellname .. " (" .. source .. ")", "debuff (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon)
 					GameCooltip:AddStatusBar (100, 1, "purple", true)

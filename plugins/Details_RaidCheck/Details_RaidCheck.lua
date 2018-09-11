@@ -576,7 +576,7 @@ end
 				local talentsTable = _detalhes:GetTalents (unitSerial)
 
 				--> order by class > alphabetically by the unit name
-				unitClassID = ((unitClassID + 128) ^ 3) + tonumber (string.byte (unitName, 1) .. "" .. string.byte (unitName, 2))
+				unitClassID = ((unitClassID + 128) ^ 4) + tonumber (string.byte (unitName, 1) .. "" .. string.byte (unitName, 2))
 				
 				tinsert (PlayerData, {unitName, unitClassID,
 					Name = unitName,
@@ -607,7 +607,7 @@ end
 				local itemLevelTable = _detalhes.ilevel:GetIlvl (unitSerial)
 				local talentsTable = _detalhes:GetTalents (unitSerial)
 
-				unitClassID = ((unitClassID + 128) ^ 3) + tonumber (string.byte (unitName, 1) .. "" .. string.byte (unitName, 2))
+				unitClassID = ((unitClassID + 128) ^ 4) + tonumber (string.byte (unitName, 1) .. "" .. string.byte (unitName, 2))
 				
 				tinsert (PlayerData, {unitName, unitClassID,
 					Name = unitName,

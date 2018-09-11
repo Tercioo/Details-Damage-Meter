@@ -6,9 +6,11 @@
 
 --local pointer to details object
 local Details = _G._detalhes
-local debugmode = false
-local verbosemode = false
+local debugmode = false --print debug lines
+local verbosemode = false --auto open the chart panel
 local _
+
+local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --constants
 local CONST_USE_PLAYER_EDPS = false
@@ -252,12 +254,12 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 			mythicDungeonCharts:Debug ("OnEndMythicDungeon() player wasn't inside the dungeon.")
 			return
 		end
-	
+		
 		mythicDungeonCharts:Debug ("Dungeon ended successfully, chart data capture stopped, scheduling to open the window.")
 		
 		--> the run is valid, schedule to open the chart window
-		_detalhes.mythic_plus.delay_to_show_graphic = 20
-		C_Timer.After (_detalhes.mythic_plus.delay_to_show_graphic or 20, mythicDungeonCharts.ShowChart)
+		_detalhes.mythic_plus.delay_to_show_graphic = 5
+		C_Timer.After (_detalhes.mythic_plus.delay_to_show_graphic or 5, mythicDungeonCharts.ShowReadyPanel)
 		
 		if (verbosemode) then
 			mythicDungeonCharts:Debug ("OnEndMythicDungeon() success!")
@@ -275,14 +277,70 @@ mythicDungeonCharts:RegisterEvent ("COMBAT_MYTHICDUNGEON_END", "OnEndMythicDunge
 mythicDungeonCharts:RegisterEvent ("COMBAT_BOSS_DEFEATED", "OnBossDefeated")
 
 -- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
+-- /run _G.DetailsMythicDungeonChartHandler.ShowReadyPanel()
+
+--show a small panel telling the chart is ready to show
+function mythicDungeonCharts.ShowReadyPanel()
+	
+	--check if is enabled
+	if (not _detalhes.mythic_plus.show_damage_graphic) then
+		return
+	end
+	
+	--create the panel
+	if (not mythicDungeonCharts.ReadyFrame) then
+		mythicDungeonCharts.ReadyFrame = CreateFrame ("frame", "DetailsMythicDungeoReadyFrame", UIParent)
+		local f = mythicDungeonCharts.ReadyFrame
+		
+		f:SetSize (255, 80)
+		f:SetPoint ("center", UIParent, "center", 300, 0)
+		f:SetFrameStrata ("LOW")
+		f:EnableMouse (true)
+		f:SetMovable (true)
+		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f:SetBackdropColor (0, 0, 0, 0.9)
+		f:SetBackdropBorderColor (0, 0, 0, 1)
+		DetailsFramework:ApplyStandardBackdrop (f)
+		DetailsFramework:CreateTitleBar (f, "Details! Dungeon Chart is Ready!")
+		
+		--register to libwindow
+		local LibWindow = LibStub ("LibWindow-1.1")
+		LibWindow.RegisterConfig (f, Details.mythic_plus.mythicrun_chart_frame_ready)
+		LibWindow.RestorePosition (f)
+		LibWindow.MakeDraggable (f)
+		LibWindow.SavePosition (f)
+		
+		--show button
+		f.ShowButton = DetailsFramework:CreateButton (f, function() mythicDungeonCharts.ShowChart(); f:Hide() end, 80, 20, Loc ["STRING_SLASH_SHOW"])
+		f.ShowButton:SetTemplate (DetailsFramework:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+		f.ShowButton:SetPoint ("topright", f, "topright", -5, -30)
+		
+		--discart button
+		f.DiscartButton = DetailsFramework:CreateButton (f, function() f:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
+		f.DiscartButton:SetTemplate (DetailsFramework:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+		f.DiscartButton:SetPoint ("right", f.ShowButton, "left", -5, 0)
+		
+		--disable feature check box (dont show this again)
+		local on_switch_enable = function (self, _, value)
+			_detalhes.mythic_plus.show_damage_graphic = not value
+		end
+		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch (f, on_switch_enable, not _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		notAgainSwitch:ClearAllPoints()
+		notAgainLabel:SetPoint ("left", notAgainSwitch, "right", 2, 0)
+		notAgainSwitch:SetPoint ("bottomleft", f, "bottomleft", 5, 5)
+		notAgainSwitch:SetAsCheckBox()
+	end
+	
+	mythicDungeonCharts.ReadyFrame:Show()
+end
 
 function mythicDungeonCharts.ShowChart()
 
 	if (not mythicDungeonCharts.Frame) then
-
+		
 		mythicDungeonCharts.Frame = CreateFrame ("frame", "DetailsMythicDungeonChartFrame", UIParent)
 		local f = mythicDungeonCharts.Frame
-
+		
 		f:SetSize (1200, 620)
 		f:SetPoint ("center", UIParent, "center", 0, 0)
 		f:SetFrameStrata ("LOW")
@@ -295,7 +353,7 @@ function mythicDungeonCharts.ShowChart()
 		--minimized frame
 		mythicDungeonCharts.FrameMinimized = CreateFrame ("frame", "DetailsMythicDungeonChartFrameminimized", UIParent)
 		local fMinimized = mythicDungeonCharts.FrameMinimized
-
+		
 		fMinimized:SetSize (160, 24)
 		fMinimized:SetPoint ("center", UIParent, "center", 0, 0)
 		fMinimized:SetFrameStrata ("LOW")
@@ -391,49 +449,7 @@ function mythicDungeonCharts.ShowChart()
 		f.BossWidgetsFrame.GraphPinGlow:SetSize (14, 14)
 		f.BossWidgetsFrame.GraphPinGlow:SetBlendMode ("ADD")
 		f.BossWidgetsFrame.GraphPinGlow:SetPoint ("center", f.BossWidgetsFrame.GraphPin, "center", 0, 0)
-		
-		--> show animation
-			--> single animation group
-			local MainAnimationGroup = f:CreateAnimationGroup ("fAnimationGroup")
-			MainAnimationGroup:SetLooping ("NONE")
 
-			--> widgets:
-
-			----------------------------------------------
-
-			local NewTexture1  = f:CreateTexture ("NewTexture1Texture", "ARTWORK")
-			NewTexture1:SetTexture ([[Interface\Scenarios\ScenarioParts]])
-			NewTexture1:SetDrawLayer ("ARTWORK", 0)
-			NewTexture1:SetPoint ("center", f, "center", 0, 0)
-			NewTexture1:SetSize (1200, 600)
-			NewTexture1:SetTexCoord (0.0010000000149012, 0.63868587493897, 0.0010000000149012, 0.19874391555786)
-
-			--> animations for NewTexture1
-		
-			NewTexture1.alpha = MainAnimationGroup:CreateAnimation ("ALPHA")
-			NewTexture1.alpha:SetTarget (f)
-			NewTexture1.alpha:SetOrder (1)
-			NewTexture1.alpha:SetDuration (0.090000038147)
-			NewTexture1.alpha:SetStartDelay (0)
-			NewTexture1.alpha:SetEndDelay (0)
-			NewTexture1.alpha:SetFromAlpha (0)
-			NewTexture1.alpha:SetToAlpha (0.5)
-			NewTexture1.alpha = MainAnimationGroup:CreateAnimation ("ALPHA")
-			NewTexture1.alpha:SetTarget (f)
-			NewTexture1.alpha:SetOrder (2)
-			NewTexture1.alpha:SetDuration (0.090000038147)
-			NewTexture1.alpha:SetStartDelay (0)
-			NewTexture1.alpha:SetEndDelay (0)
-			NewTexture1.alpha:SetFromAlpha (0.5)
-			NewTexture1.alpha:SetToAlpha (1)			
-
-			MainAnimationGroup:SetScript ("OnPlay", function()
-				NewTexture1:Hide()
-			end)	
-			MainAnimationGroup:SetScript ("OnFinished", function()
-				NewTexture1:Hide()
-			end)
-		
 		f:Hide()
 		
 		function f.ShowChartFrame()
@@ -443,7 +459,6 @@ function mythicDungeonCharts.ShowChart()
 				f:Show()
 			else
 				f:Show()
-				MainAnimationGroup:Play()
 			end
 		end
 		
