@@ -2160,7 +2160,7 @@ local icon_frame_on_enter = function (self)
 			end
 		
 		elseif (actor.dead_at) then
-			
+		
 		
 		elseif (actor.name) then --ensure it's an actor table
 		
@@ -2289,7 +2289,10 @@ local icon_frame_on_enter = function (self)
 end
 local icon_frame_on_leave = function (self)
 	GameCooltip:Hide()
-	--GameTooltip:Hide()
+	
+	if (GameTooltip and GameTooltip:IsShown()) then
+		GameTooltip:Hide()
+	end
 	
 	if (self.row.icone_classe:GetTexture() ~= "") then
 		--self.row.icone_classe:SetSize (self.row.icone_classe:GetWidth()-1, self.row.icone_classe:GetWidth()-1)

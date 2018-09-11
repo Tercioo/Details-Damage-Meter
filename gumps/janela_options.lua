@@ -188,6 +188,9 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 		window.using_skin = 1
 		
+		local scaleBar = Details.gump:CreateScaleBar (DetailsOptionsWindow, Details.options_window)
+		DetailsOptionsWindow:SetScale (Details.options_window.scale)
+		
 		DetailsOptionsWindow.instance = instance
 		DetailsOptionsWindow.loading_settings = true
 		

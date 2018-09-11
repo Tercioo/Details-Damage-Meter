@@ -926,6 +926,10 @@ local default_profile = {
 			scale = 1,
 		},
 		
+		options_window = {
+			scale = 1,
+		},
+		
 	--> segments
 		segments_amount = 18,
 		segments_amount_to_save = 18,

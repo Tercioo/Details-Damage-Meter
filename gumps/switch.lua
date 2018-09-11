@@ -156,6 +156,10 @@ do
 	all_switch.wallpaper:SetPoint ("bottomright", all_switch, "bottomright", -4, 4)
 	all_switch.buttons = {}
 	
+	all_switch.ShowAnimation = _detalhes.gump:CreateAnimationHub (all_switch, function() all_switch:Show() end)
+	_detalhes.gump:CreateAnimation (all_switch.ShowAnimation, "scale", 1, 0.04, 1, 0, 1, 1, "BOTTOM", 0, 0)
+	_detalhes.gump:CreateAnimation (all_switch.ShowAnimation, "alpha", 1, 0.04, 0, 1)
+	
 	all_switch:SetScript ("OnMouseDown", function (self, button)
 		if (button == "RightButton") then
 			self:Hide()
@@ -232,7 +236,9 @@ do
 		GameCooltip:Hide()
 		all_switch:ClearAllPoints()
 		all_switch:SetPoint ("bottom", self.baseframe.UPFrame, "top", 4)
-		all_switch:Show()
+		
+		all_switch.ShowAnimation:Play()
+		--all_switch:Show()
 		
 		if (_detalhes.switch.frame:IsShown()) then
 			_detalhes.switch:CloseMe()

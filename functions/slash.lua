@@ -386,28 +386,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 		    DEFAULT_CHAT_FRAME:AddMessage(msg, 1,0.7,0.5)
 		end
 		
-	elseif (msg == "ej") then
-		function PrintAllEncounterSections(encounterID, difficultyID)
-			EJ_SetDifficulty(difficultyID)
-			local stack, encounter, _, _, curSectionID = {}, EJ_GetEncounterInfo(encounterID)
-			print(stack, encounter, _, _, curSectionID)
-			repeat
-				local title, desc, depth, icon, model, siblingID, nextSectionID, filteredByDifficulty, link, _, f1, f2, f3, f4 = EJ_GetSectionInfo(curSectionID)
-				if not filteredByDifficulty then
-					--print(("  "):rep(depth) .. link .. ": " .. desc)
-					--npcs nao tem icone e possuel modelo diferente de zero.
-					--spells tem icone e possuel modelo = zero
-					print (title, icon, model, siblingID)
-				end
-				table.insert(stack, siblingID)
-				table.insert(stack, nextSectionID)
-				curSectionID = table.remove(stack)
-			until not curSectionID
-		end
-		
-		-- Print everything in 25-man Normal Madness of Deathwing:
-		PrintAllEncounterSections (869, 4)		
-		
 	elseif (msg == "time") then
 		print ("GetTime()", GetTime())
 		print ("time()", time())
@@ -1323,6 +1301,9 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 		
 		instance:InstanceAlert ("Boss Defeated! Show Ranking", icon, 10, func, true)
 	
+	elseif (msg == "scroll" or msg == "scrolldamage" or msg == "scrolling") then
+		Details:ScrollDamage()
+	
 	elseif (msg == "spec") then
 	
 	local spec = GetSpecialization()
@@ -1436,6 +1417,47 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 		_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset)
 		_detalhes:InstanciaCallFunction (_detalhes.ResetaGump)
 		_detalhes:AtualizaGumpPrincipal (-1, true)
+	
+	elseif (msg == "ej") then	
+	
+		local result = {}
+		local spellIDs = {}
+	
+		--uldir
+		EJ_SelectInstance (1031) 
+		
+		-- pega o root section id do boss
+		local name, description, encounterID, rootSectionID, link = EJ_GetEncounterInfo (2168) --taloc (primeiro boss de Uldir)
+		
+		--overview
+		local sectionInfo = C_EncounterJournal.GetSectionInfo (rootSectionID)
+		local nextID = {sectionInfo.siblingSectionID}
+		
+		while (nextID [1]) do
+			--> get the deepest section in the hierarchy
+			local ID = tremove (nextID)
+			local sectionInfo = C_EncounterJournal.GetSectionInfo (ID)
+			
+			if (sectionInfo) then
+				tinsert (result, sectionInfo)
+				
+				if (sectionInfo.spellID and type (sectionInfo.spellID) == "number" and sectionInfo.spellID ~= 0) then
+					tinsert (spellIDs, sectionInfo.spellID)
+				end
+				
+				local nextChild, nextSibling = sectionInfo.firstChildSectionID, sectionInfo.siblingSectionID
+				if (nextSibling) then
+					tinsert (nextID, nextSibling)
+				end
+				if (nextChild) then
+					tinsert (nextID, nextChild)
+				end
+			else
+				break
+			end
+		end
+		
+		Details:DumpTable (result)
 	
 	elseif (msg == "record") then	
 			

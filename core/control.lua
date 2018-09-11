@@ -1497,11 +1497,19 @@
 			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.8)
 		end
 		
-		function _detalhes:AddTooltipBackgroundStatusbar (side)
+		function _detalhes:AddTooltipBackgroundStatusbar (side, value, useSpark)
+			_detalhes.tooltip.background [4] = 0.8
+			_detalhes.tooltip.icon_size.W = 16
+			_detalhes.tooltip.icon_size.H = 16
+			
+			value = value or 100
+			
 			if (not side) then
-				GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
+				local r, g, b, a = unpack (_detalhes.tooltip.background)
+				GameCooltip:AddStatusBar (value, 1, r, g, b, a, useSpark, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+				
 			else
-				GameCooltip:AddStatusBar (100, 2, unpack (_detalhes.tooltip.background))
+				GameCooltip:AddStatusBar (value, 2, unpack (_detalhes.tooltip.background))
 			end
 		end
 		
@@ -1524,13 +1532,16 @@
 			end
 		end
 		
-		local bgColor, borderColor = {0.37, 0.37, 0.37, .75}, {.30, .30, .30, .3}
+		local bgColor, borderColor = {0, 0, 0, 0.8}, {0, 0, 0, 0} --{0.37, 0.37, 0.37, .75}, {.30, .30, .30, .3}
 		
 		function _detalhes:BuildInstanceBarTooltip (frame)
 			local GameCooltip = GameCooltip
 			
 			GameCooltip:Reset()
 			GameCooltip:SetType ("tooltip")
+
+			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.98))
+			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
 			
 			GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
 			GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
@@ -1540,14 +1551,13 @@
 			
 			GameCooltip:SetOption ("LeftBorderSize", -4)
 			GameCooltip:SetOption ("RightBorderSize", 4)
-			GameCooltip:SetOption ("ButtonsYMod", 4)
-			
 			GameCooltip:SetOption ("RightTextMargin", 0)
-			
-			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.9))
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
+			GameCooltip:SetOption ("VerticalOffset", 8) 
+			GameCooltip:SetOption ("AlignAsBlizzTooltip", true)
+			GameCooltip:SetOption ("AlignAsBlizzTooltipFrameHeightOffset", -8)
+			GameCooltip:SetOption ("LineHeightSizeOffset", 4)
+			GameCooltip:SetOption ("VerticalPadding", -4)
 
-			--GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color) --{.090, .090, .188, .1}
 			GameCooltip:SetBackdrop (1, _detalhes.cooltip_preset2_backdrop, bgColor, borderColor)
 			
 			local myPoint = _detalhes.tooltip.anchor_point
@@ -1556,6 +1566,7 @@
 			local y_Offset = _detalhes.tooltip.anchor_offset[2]
 			
 			if (_detalhes.tooltip.anchored_to == 1) then
+				
 				GameCooltip:SetHost (frame, myPoint, anchorPoint, x_Offset, y_Offset)
 			else
 				GameCooltip:SetHost (DetailsTooltipAnchor, myPoint, anchorPoint, x_Offset, y_Offset)

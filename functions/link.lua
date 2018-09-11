@@ -3647,7 +3647,7 @@
 				header = {
 					{name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
 					{name = "NpcID", width = 100, type = "entry", func = no_func},
-					{name = "Npc Name", width = 200, type = "entry", func = no_func},
+					{name = "Npc Name", width = 400, type = "entry", func = no_func},
 				},
 				
 				fill_panel = false,
@@ -4551,6 +4551,9 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 						end
 
 						--> remove the dot signal from the spell name
+						if (not spellName) then
+							spellName = "*?*"
+						end
 						spellName = spellName:gsub (L["STRING_DOT"], "")
 						
 						line.sourceName:SetText (spellName .. " (" .. "|cFFC6B0D9" .. source .. "|r" .. ")")

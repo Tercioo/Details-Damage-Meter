@@ -1253,12 +1253,27 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	local ActorTotal = self [actor_key]
 	
+	--add actor spells
 	for _spellid, _skill in _pairs (ActorSkillsContainer) do 
 		local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
 		if (_skill [skill_key] > 0) then
 			_table_insert (ActorHealingTable, {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo, _skill.total})
 		end
 	end
+	
+	--add actor pets
+	for petIndex, petName in _ipairs (self:Pets()) do
+		local petActor = instancia.showing[class_type]:PegarCombatente (nil, petName)
+		if (petActor) then
+			for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+				if (_skill [skill_key] > 0) then
+					local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
+					ActorHealingTable [#ActorHealingTable+1] = {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo, _skill.total, petName:gsub ((" <.*"), "")}
+				end
+			end
+		end
+	end
+	
 	_table_sort (ActorHealingTable, _detalhes.Sort2)
 	
 	--> TOP Curados
@@ -1295,21 +1310,36 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	local icon_size = _detalhes.tooltip.icon_size
 	local icon_border = _detalhes.tooltip.icon_border_texcoord
 	
+	local topAbility = ActorHealingTable [1] and ActorHealingTable [1][2] or 0
+	
 	for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTable) do
 		if (ActorHealingTable[i][2] < 1) then
 			break
 		end
+		
+		local spellName = ActorHealingTable[i][4][1]
+		
+		local petName = ActorHealingTable[i][7]
+		if (petName) then
+			spellName = spellName .. " (|cFFCCBBBB" .. petName .. "|r)"
+		end
+		
 		if (instancia.sub_atributo == 2) then --> hps
-			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (spellName ..": ", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			
 		elseif (instancia.sub_atributo == 3) then --> overheal
 			local overheal = ActorHealingTable[i][2]
 			local total = ActorHealingTable[i][6]
-			GameCooltip:AddLine (ActorHealingTable[i][4][1] .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][2])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (spellName .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][2])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			
 		else
-			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", FormatTooltipNumber (_, ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (spellName ..": ", FormatTooltipNumber (_, ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			
 		end
+		
 		GameCooltip:AddIcon (ActorHealingTable[i][4][3], nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
-		_detalhes:AddTooltipBackgroundStatusbar()
+		
+		_detalhes:AddTooltipBackgroundStatusbar (false, ActorHealingTable[i][2] / topAbility * 100)
 	end
 	
 	if (instancia.sub_atributo == 6) then
@@ -1321,6 +1351,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	end
 	
 	local container = instancia.showing [2]
+	local topTarget = ActorHealingTargets [1] and ActorHealingTargets [1][2] or 0
 	
 	if (instancia.sub_atributo == 1) then -- 1 or 2 -> healing done or hps
 	
@@ -1351,7 +1382,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 				GameCooltip:AddStatusBar (100, 1, .5, .5, .5, .7)
 			else
 				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", FormatTooltipNumber (_, ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
-				_detalhes:AddTooltipBackgroundStatusbar()
+				_detalhes:AddTooltipBackgroundStatusbar (false, ActorHealingTargets[i][2] / topTarget * 100)
 			end
 			
 			local targetActor = container:PegarCombatente (nil, ActorHealingTargets[i][1])
@@ -1362,9 +1393,9 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 					classe = "UNKNOW"
 				end
 				if (classe == "UNKNOW") then
-					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, icon_size.W, icon_size.H, .25, .5, 0, 1)
 				else
-					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, icon_size.W, icon_size.H, _unpack (_detalhes.class_coords [classe]))
 				end
 			end
 		end
@@ -1442,7 +1473,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 					GameCooltip:AddLine (n, FormatTooltipNumber (_, _table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				end
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, icon_size.W, icon_size.H, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
 		

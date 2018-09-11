@@ -1851,20 +1851,7 @@ function _G._detalhes:Start()
 		
 	--> override the overall data flag on this release only (remove on the release)
 	Details.overall_flag = 0x10
-	
-	--[=[
-	--> suppress warnings for the first few seconds
-	CLOSE_SCRIPTERRORWINDOW = function()
-		if (ScriptErrorsFrame) then
-			ScriptErrorsFrame:Hide()
-		end
-	end
-	if (ScriptErrorsFrame) then
-		ScriptErrorsFrame:HookScript ("OnShow", CLOSE_SCRIPTERRORWINDOW)
-		ScriptErrorsFrame:Hide()
-	end
-	C_Timer.After (5, function() _G ["CLOSE_SCRIPTERRORWINDOW"] = nil end)
-	--]=]
+
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()

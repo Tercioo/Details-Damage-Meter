@@ -2873,6 +2873,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 		r, g, b = unpack (_detalhes.class_colors [self.classe])
 	end
 
+	--> habilidades
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	do
 		--> TOP HABILIDADES
 		
@@ -2945,9 +2949,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 			end
 			
-			--> habilidades
-			local icon_size = _detalhes.tooltip.icon_size
-			local icon_border = _detalhes.tooltip.icon_border_texcoord
+			local topAbility = ActorSkillsSortTable [1] and ActorSkillsSortTable [1][2] or 0
 			
 			if (#ActorSkillsSortTable > 0) then
 				for i = 1, _math_min (tooltip_max_abilities, #ActorSkillsSortTable) do
@@ -2971,13 +2973,14 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					end
 					
 					GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
-					_detalhes:AddTooltipBackgroundStatusbar()
+					_detalhes:AddTooltipBackgroundStatusbar (false, totalDamage/topAbility*100)
 				end
 			else
 				GameCooltip:AddLine (Loc ["STRING_NO_SPELL"])
 			end
 			
 		--> MOSTRA INIMIGOS
+			local topEnemy = ActorTargetsSortTable [1] and ActorTargetsSortTable [1][2] or 0
 			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
 				
 				_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #ActorTargetsSortTable, [[Interface\Addons\Details\images\icons]], 0, 0.03125, 0.126953125, 0.15625)
@@ -3001,11 +3004,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				for i = 1, _math_min (max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
 					GameCooltip:AddLine (este_inimigo[1]..": ", FormatTooltipNumber (_, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
-					--GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
-					--GameCooltip:AddIcon ([[Interface\CHARACTERFRAME\UI-StateIcon]], nil, nil, 14, 14, 33/64, 61/64, 31/64, 60/64)
-					--GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], nil, nil, 14, 14, 0, 1, 0, 15/16)
-					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, 12, 12, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
-					_detalhes:AddTooltipBackgroundStatusbar()
+					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, icon_size.W, icon_size.H, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
+					_detalhes:AddTooltipBackgroundStatusbar (false, este_inimigo[2] / topEnemy * 100)
 				end
 			end
 	end
@@ -3072,6 +3072,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			ismaximized = true
 		end
 		
+		local topPet = totais [1] and totais [1][2] or 0
 		for index, _table in _ipairs (totais) do
 			
 			if (_table [2] > 0 and (index <= _detalhes.tooltip.tooltip_max_pets or ismaximized)) then
@@ -3097,8 +3098,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				else
 					GameCooltip:AddLine (n, FormatTooltipNumber (_,  _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				end
-				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+				
+				_detalhes:AddTooltipBackgroundStatusbar (false, _table [2] / topPet * 100)
+				
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, icon_size.W, icon_size.H, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
 			

@@ -1448,7 +1448,9 @@ function _detalhes:StoreEncounter (combat)
 	
 	local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
 	
-	if (not store_instances [mapID]) then
+	local bossCLEUID = combat.boss_info and combat.boss_info.id
+	
+	if (not store_instances [mapID] and not _detalhes.EncountersToStoreData [bossCLEUID]) then
 		if (_detalhes.debug) then
 			print ("|cFFFFFF00Details! Storage|r: instance not allowed.")
 		end
