@@ -2608,6 +2608,22 @@ end
 		options:SetPoint ("left", segmentos, "right", 10, 0)
 		options:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 		options:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
+		
+	--> macro box
+		BossFrame.MacroEditBox = DetailsFrameWork:CreateTextEntry (frame, function()end, 300, 20)
+		BossFrame.MacroEditBox:SetPoint ("left", options, "right", 10, 0)
+		BossFrame.MacroEditBox:SetAlpha (0.5)
+		BossFrame.MacroEditBox:SetText ("/run Details:OpenPlugin ('Encounter Details')")
+		BossFrame.MacroEditBox:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+		BossFrame.MacroEditBox:SetSize (360, 20)
+		
+		BossFrame.MacroEditBox:HookScript ("OnEditFocusGained", function()
+			C_Timer.After (0, function() BossFrame.MacroEditBox:HighlightText() end)
+		end)
+		
+		BossFrame.MacroEditBox.BackgroundLabel = DetailsFrameWork:CreateLabel (BossFrame.MacroEditBox, "macro")
+		BossFrame.MacroEditBox.BackgroundLabel:SetPoint ("left", BossFrame.MacroEditBox, "left", 6, 0)
+		BossFrame.MacroEditBox.BackgroundLabel:SetTextColor (.3, .3, .3, .98)
 	
 	--> Caixa do Dano total tomado pela Raid
 	
