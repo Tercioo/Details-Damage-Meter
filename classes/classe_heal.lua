@@ -2473,6 +2473,11 @@ end
 				local tempo = end_time - actor.start_time
 				shadow.start_time = shadow.start_time - tempo
 
+			--> pets (add unique pet names)
+			for _, petName in _ipairs (actor.pets) do
+				DetailsFramework.table.addunique (shadow.pets, petName)
+			end
+				
 			--> total de cura (captura de dados)
 				shadow.total = shadow.total + actor.total
 			--> total de overheal (captura de dados)

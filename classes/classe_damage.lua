@@ -4010,7 +4010,6 @@ function atributo_damage:MontaInfoDamageDone()
 		info:SetTopRightTexts()
 	end
 	
-
 	--> add pets
 	local ActorPets = self.pets
 	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
@@ -5014,9 +5013,10 @@ end
 		
 		function atributo_damage:r_connect_shadow (actor, no_refresh, combat_object)
 	
+			--check if there's a custom combat, if not just use the overall container
 			local host_combat = combat_object or _detalhes.tabela_overall
 			
-			--> criar uma shadow desse ator se ainda n�o tiver uma
+			--check if the host combat object has a shadow actor for this actor, if not, just create one new
 				local overall_dano = host_combat [1]
 				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
 				
@@ -5036,7 +5036,7 @@ end
 					shadow.end_time = time()
 				end
 
-			--> restaura a meta e indexes ao ator
+			--check if need to restore meta tables and indexes for this actor
 			if (not no_refresh) then
 				_detalhes.refresh:r_atributo_damage (actor, shadow)
 			end
@@ -5049,7 +5049,12 @@ end
 				
 				local tempo = end_time - actor.start_time
 				shadow.start_time = shadow.start_time - tempo
-				
+			
+			--> pets (add unique pet names)
+			for _, petName in _ipairs (actor.pets) do
+				DetailsFramework.table.addunique (shadow.pets, petName)
+			end
+			
 			--> total de dano (captura de dados)
 				shadow.total = shadow.total + actor.total				
 				shadow.totalabsorbed = shadow.totalabsorbed + actor.totalabsorbed
@@ -5114,7 +5119,7 @@ end
 						end
 					end
 				end
-				
+			
 			--> copia o container de friendly fire (captura de dados)
 				for target_name, ff_table in _pairs (actor.friendlyfire) do 
 					--> cria ou pega a shadow

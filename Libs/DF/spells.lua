@@ -604,6 +604,7 @@ DF.CrowdControlSpells = {
 	[710] = "WARLOCK", --Banish
 
 	[118] = "MAGE", --Polymorph
+	[61305] = "MAGE", --Polymorph (black cat)
 	[82691] = "MAGE", --Ring of Frost (debuff spellid)
 	[122] = "MAGE", --Frost Nova
 	[157997] = "MAGE", --Ice Nova
@@ -623,6 +624,7 @@ DF.CrowdControlSpells = {
 	[408] = "ROGUE", --Kidney Shot
 	[6770] = "ROGUE", --Sap
 	[1776] = "ROGUE", --Gouge
+	[199804] = "ROGUE", --Between the Eyes
 	
 	[853] = "PALADIN", --Hammer of Justice
 	[20066] = "PALADIN", --Repentance (talent)

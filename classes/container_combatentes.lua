@@ -18,6 +18,8 @@
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	
+	local AddUnique = DetailsFramework.table.addunique --framework
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
@@ -485,7 +487,6 @@
 		
 		if (container_pets [serial]) then --> � um pet reconhecido
 			--[[statistics]]-- _detalhes.statistics.container_pet_calls = _detalhes.statistics.container_pet_calls + 1
-			
 			local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
 			if (nome_dele and dono_nome) then
 				nome = nome_dele
@@ -541,7 +542,7 @@
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "damage")
 				
 				if (dono_do_pet) then
-					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
+					AddUnique (dono_do_pet.pets, nome)
 				end
 				
 				if (self.shadow) then
@@ -575,7 +576,7 @@
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "heal")
 				
 				if (dono_do_pet) then
-					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
+					AddUnique (dono_do_pet.pets, nome)
 				end
 				
 				if (self.shadow) then
@@ -602,7 +603,7 @@
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "energy")
 				
 				if (dono_do_pet) then
-					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
+					AddUnique (dono_do_pet.pets, nome)
 				end
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
@@ -620,11 +621,9 @@
 				
 				local shouldScanOnce = get_actor_class (novo_objeto, nome, flag, serial)
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "misc")
-				
-				--local teste_classe = 
-				
+
 				if (dono_do_pet) then
-					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
+					AddUnique (dono_do_pet.pets, nome)
 				end
 
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player

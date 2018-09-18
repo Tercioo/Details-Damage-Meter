@@ -4820,10 +4820,11 @@ DF.IconRowFunctions = {
 			local cooldownFrame = CreateFrame ("cooldown", "$parentIconCooldown" .. self.NextIcon, newIconFrame, "CooldownFrameTemplate")
 			cooldownFrame:SetAllPoints()
 			cooldownFrame:EnableMouse (false)
+			cooldownFrame:SetFrameLevel (newIconFrame:GetFrameLevel()+1)
 			
-			newIconFrame.Text = cooldownFrame:CreateFontString (nil, "overlay", "GameFontNormal")
-			newIconFrame.Text:SetPoint ("center")
-			newIconFrame.Text:Hide()
+			newIconFrame.CountdownText = cooldownFrame:CreateFontString (nil, "overlay", "GameFontNormal")
+			newIconFrame.CountdownText:SetPoint ("center")
+			newIconFrame.CountdownText:Hide()
 			
 			newIconFrame.Desc = newIconFrame:CreateFontString (nil, "overlay", "GameFontNormal")
 			newIconFrame.Desc:SetPoint ("bottom", newIconFrame, "top", 0, 2)
@@ -4858,7 +4859,7 @@ DF.IconRowFunctions = {
 			
 		end
 		
-		DF:SetFontColor (iconFrame.Text, self.options.text_color)
+		DF:SetFontColor (iconFrame.CountdownText, self.options.text_color)
 		
 		self.NextIcon = self.NextIcon + 1
 		return iconFrame
@@ -4889,14 +4890,14 @@ DF.IconRowFunctions = {
 				CooldownFrame_Set (iconFrame.Cooldown, startTime, duration, true, true)
 				
 				if (self.options.show_text) then
-					iconFrame.Text:Show()
-					iconFrame.Text:SetText (floor (startTime + duration - GetTime()))
+					iconFrame.CountdownText:Show()
+					iconFrame.CountdownText:SetText (floor (startTime + duration - GetTime()))
 					
 				else
-					iconFrame.Text:Hide()
+					iconFrame.CountdownText:Hide()
 				end
 			else
-				iconFrame.Text:Hide()
+				iconFrame.CountdownText:Hide()
 			end
 			
 			if (descText and self.options.desc_text) then

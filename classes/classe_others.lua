@@ -2473,6 +2473,11 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 	if (not no_refresh) then
 		_detalhes.refresh:r_atributo_misc (actor, shadow)
 	end
+	
+	--> pets (add unique pet names)
+	for _, petName in _ipairs (actor.pets) do
+		DetailsFramework.table.addunique (shadow.pets, petName)
+	end
 
 	if (actor.spell_cast) then
 		if (not shadow.spell_cast) then

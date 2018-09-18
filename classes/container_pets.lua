@@ -43,7 +43,19 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	--> buscar pelo pet no container de pets
 	local busca = self.pets [pet_serial]
 	if (busca) then
-		return pet_nome .." <"..busca[1]..">", busca[1], busca[2], busca[3] --> [1] dono nome [2] dono serial [3] dono flag
+
+			--in merging operations, make sure to not add the owner name a second time in the name
+		
+			--check if the pet name already has the owner name in, if not, add it
+			if (not pet_nome:find ("<")) then
+				--get the owner name
+				local ownerName = busca[1]
+				--add the owner name to the pet name
+				pet_nome = pet_nome .. " <".. ownerName ..">"
+			end
+			
+			return pet_nome, busca[1], busca[2], busca[3] --> [1] dono nome [2] dono serial [3] dono flag
+
 	end
 	
 	--> buscar pelo pet na raide
@@ -93,7 +105,12 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	
 	if (dono_nome) then
 		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true} --> adicionada a flag emulada
-		return pet_nome .." <"..dono_nome..">", dono_nome, dono_serial, dono_flags
+		
+		if (not pet_nome:find ("<")) then
+			pet_nome = pet_nome .. " <".. dono_nome ..">"
+		end
+		
+		return pet_nome, dono_nome, dono_serial, dono_flags
 	else
 		
 		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --> � um pet
@@ -225,8 +242,9 @@ end
 function _detalhes:LimparPets()
 	--> elimina pets antigos
 	local _new_PetTable = {}
+	--> minimum of 90 minutes to clean a pet from the pet table data
 	for PetSerial, PetTable in _pairs (_detalhes.tabela_pets.pets) do 
-		if ( (PetTable[4] + _detalhes.intervalo_coleta > _detalhes._tempo + 1) or (PetTable[5] and PetTable[4] + 43200 > _detalhes._tempo) ) then
+		if ( (PetTable[4] + 5400 > _detalhes._tempo + 1) or (PetTable[5] and PetTable[4] + 43200 > _detalhes._tempo) ) then
 			_new_PetTable [PetSerial] = PetTable
 		end
 	end

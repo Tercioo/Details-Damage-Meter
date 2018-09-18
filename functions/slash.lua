@@ -211,6 +211,28 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print ("|cFF00FF00No error occured!|r")
 		end
 	
+	elseif (msg == "tr") then
+		
+		local f = CreateFrame ("frame", nil, UIParent)
+		f:SetSize (300, 300)
+		f:SetPoint ("center")
+		
+--		/run TTT:SetTexture ("Interface\\1024.tga")
+		local texture = f:CreateTexture ("TTT", "background")
+		texture:SetAllPoints()
+		texture:SetTexture ("Interface\\1023.tga")
+		
+		local A = DetailsFramework:CreateAnimationHub (texture)
+		
+		local b = DetailsFramework:CreateAnimation (A, "ROTATION", 1, 40, 360)
+		b:SetTarget (texture)
+		A:Play()
+		
+		C_Timer.NewTicker (1, function()
+			texture:SetTexCoord (math.random(), math.random(), math.random(), math.random(), math.random(), math.random(), math.random(), math.random())
+		end)
+		
+	
 	elseif (msg == "realmsync") then
 		
 		_detalhes.realm_sync = not _detalhes.realm_sync
@@ -1374,7 +1396,8 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 			startDate = lastSegment:GetDate()
 		end
 		
-		_detalhes:Msg ("done merging " .. segmentsAdded .. " segments.")
+		newCombat.is_trash = false
+		_detalhes:Msg ("done merging, segments: " .. segmentsAdded .. ", total time: " .. DetailsFramework:IntegerToTimer (totalTime))
 
 		--[[ --mythic+ debug
 		--> tag the segment as mythic overall segment

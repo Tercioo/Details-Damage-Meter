@@ -4335,7 +4335,29 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 	
 		--segment to use
 		local death = _detalhes.tabela_vigente.last_events_tables
-	
+		
+		--see if this segment has a death for the player
+		local foundPlayer = false
+		for index = #death, 1, -1 do
+			if (death [index] [3] == _detalhes.playername) then
+				foundPlayer = true
+				break
+			end
+		end
+
+		--in case a combat has been created after the player death, the death won't be at the current segment
+		if (not foundPlayer) then
+			local segmentHistory = _detalhes:GetCombatSegments()
+			for i = 1, 2 do
+				local segment = segmentHistory [1]
+				if (segment and segment ~= _detalhes.tabela_vigente) then
+					if (_detalhes.tabela_vigente.start_time - 3 < segment.end_time) then
+						death = segment.last_events_tables
+					end
+				end
+			end
+		end
+		
 		--segments
 		if (_detalhes.death_recap.show_segments) then
 			local last_index = 0

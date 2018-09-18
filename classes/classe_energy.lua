@@ -1422,6 +1422,11 @@ end
 					_detalhes.refresh:r_atributo_energy (actor, shadow)
 				end
 			
+			--> pets (add unique pet names)
+			for _, petName in _ipairs (actor.pets) do
+				DetailsFramework.table.addunique (shadow.pets, petName)
+			end
+			
 			--> total das energias (captura de dados)
 				shadow.total = shadow.total + actor.total
 				shadow.received = shadow.received + actor.received

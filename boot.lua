@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 6449
+		_detalhes.build_counter = 6458
 		_detalhes.userversion = "v8.0.1." .. _detalhes.build_counter
 		_detalhes.realversion = 134 --core version
 		_detalhes.APIVersion = _detalhes.realversion --core version
@@ -511,6 +511,7 @@ do
 		SharedMedia:Register ("statusbar", "Skyline", [[Interface\AddOns\Details\images\bar_skyline]])
 		SharedMedia:Register ("statusbar", "WorldState Score", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
 		SharedMedia:Register ("statusbar", "DGround", [[Interface\AddOns\Details\images\bar_background]])
+		SharedMedia:Register ("statusbar", "Details Flat", [[Interface\AddOns\Details\images\bar_background]])
 		
 		--window bg and bar border
 		SharedMedia:Register ("background", "Details Ground", [[Interface\AddOns\Details\images\background]])

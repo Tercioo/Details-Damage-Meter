@@ -78,6 +78,8 @@
 		local energy_cache = setmetatable ({}, _detalhes.weaktable)
 	--> misc
 		local misc_cache = setmetatable ({}, _detalhes.weaktable)
+		local misc_cache_pets = setmetatable ({}, _detalhes.weaktable)
+		local misc_cache_petsOwners = setmetatable ({}, _detalhes.weaktable)
 	--> party & raid members
 		local raid_members_cache = setmetatable ({}, _detalhes.weaktable)
 	--> tanks
@@ -424,7 +426,7 @@
 		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial] or damage_cache [who_name], damage_cache_petsOwners [who_serial]
 		
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
-		
+
 			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			
 			if (meu_dono) then --> ï¿½ um pet
@@ -462,7 +464,6 @@
 		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial] or damage_cache [alvo_name], damage_cache_petsOwners [alvo_serial]
 		
 		if (not jogador_alvo) then
-		
 			jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 			
 			if (alvo_dono) then
@@ -2843,11 +2844,28 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--> get actors
 
 		--> main actor
-		local este_jogador = misc_cache [who_name]
+		
+		local este_jogador, meu_dono = misc_cache [who_serial] or misc_cache_pets [who_serial] or misc_cache [who_name], misc_cache_petsOwners [who_serial]
+		--local este_jogador = misc_cache [who_name]
+		
 		if (not este_jogador) then
+		
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --> se nï¿½o for um pet, adicionar no cache
-				misc_cache [who_name] = este_jogador
+			
+			if (meu_dono) then --> é um pet
+				if (who_serial ~= "") then
+					misc_cache_pets [who_serial] = este_jogador
+					misc_cache_petsOwners [who_serial] = meu_dono
+				end
+				
+				--conferir se o dono já esta no cache
+				if (not misc_cache [meu_dono.serial] and meu_dono.serial ~= "") then
+					misc_cache [meu_dono.serial] = meu_dono
+				end
+			else
+				if (who_flags) then
+					misc_cache [who_name] = este_jogador
+				end
 			end
 		end
 		
@@ -4569,7 +4587,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			amount = amount + 1
 		end
 		print ("parser misc_cache", amount)
-		
 		print ("group damage", #_detalhes.cache_damage_group)
 		print ("group damage", #_detalhes.cache_healing_group)
 	end
@@ -4589,6 +4606,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_table_wipe (healing_cache)
 		_table_wipe (energy_cache)
 		_table_wipe (misc_cache)
+		_table_wipe (misc_cache_pets)
+		_table_wipe (misc_cache_petsOwners)
+		
 		_table_wipe (ignore_death)
 	
 		damage_cache = setmetatable ({}, _detalhes.weaktable)
@@ -4600,7 +4620,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		energy_cache = setmetatable ({}, _detalhes.weaktable)
 		
 		misc_cache = setmetatable ({}, _detalhes.weaktable)
-		
+		misc_cache_pets = setmetatable ({}, _detalhes.weaktable)
+		misc_cache_petsOwners = setmetatable ({}, _detalhes.weaktable)
 	end
 	
 	function parser:RevomeActorFromCache (actor_serial, actor_name)
@@ -4611,6 +4632,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			healing_cache [actor_name] = nil
 			energy_cache [actor_name] = nil
 			misc_cache [actor_name] = nil
+			misc_cache_pets [actor_name] = nil
+			misc_cache_petsOwners [actor_name] = nil
 		end
 		if (actor_serial) then
 			damage_cache [actor_serial] = nil
@@ -4619,6 +4642,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			healing_cache [actor_serial] = nil
 			energy_cache [actor_serial] = nil
 			misc_cache [actor_serial] = nil
+			misc_cache_pets [actor_serial] = nil
+			misc_cache_petsOwners [actor_serial] = nil
 		end
 	end
 
