@@ -5,7 +5,7 @@ if (not Loc) then
 end 
 
 Loc ["STRING_PLUGIN_NAME"] = "Encounter Details"
-Loc ["STRING_WINDOW_TITLE"] = "Encounter Details"
+Loc ["STRING_WINDOW_TITLE"] = "Details! Encounter Info"
 Loc ["STRING_TOTAL_DAMAGE"] = "Total Damage"
 Loc ["STRING_TOTAL_HEAL"] = "Total Heal"
 Loc ["STRING_SHOW_ALL_DATA"] = "Show overall data"

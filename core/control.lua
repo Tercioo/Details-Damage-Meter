@@ -697,6 +697,9 @@
 					end
 
 					if (from_encounter_end) then
+						if (_detalhes.encounter_table.start) then
+							_detalhes.tabela_vigente:SetStartTime (_detalhes.encounter_table.start)
+						end
 						_detalhes.tabela_vigente:SetEndTime (_detalhes.encounter_table ["end"] or GetTime())
 					end
 

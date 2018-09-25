@@ -20,6 +20,8 @@
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
 	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --wow api local
 	local _GetTime = GetTime
+	
+	local _CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
 	local _cstr = string.format --lua local
 	local _table_insert = table.insert --lua local
@@ -184,6 +186,13 @@
 		[SPELLID_MONK_STAGGER] = true, --> Stagger
 	}
 	
+	--> damage spells to ignore
+	local damage_spells_to_ignore = {
+		--the damage that the warlock apply to its pet through soullink is ignored
+		--it is not useful for damage done or friendly fire
+		[SPELLID_WARLOCK_SOULLINK] = true,
+	}
+	
 	--> is parser allowed to replace spellIDs?
 		local is_using_spellId_override = false
 	
@@ -338,6 +347,11 @@
 			who_name = "[*] " .. spellname
 			who_flags = 0xa48
 			who_serial = ""
+		end
+		
+		--> check if the spell isn't in the backlist
+		if (damage_spells_to_ignore [spellid]) then
+			return
 		end
 		
 		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then --prismatic crystal (mage)
@@ -649,26 +663,27 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> firendly fire
-		if (	
+		if (
+			--removed deprecated friendly fire rules (25/09/2018)
+			--general rules for friendly fire
 			(
-				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
-				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
+				--rule 1: if the source and target are friedly to each other
+				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) --or --ajdt d' brx
+				--rule 2
+				--(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
 			)
+			--rule 3
 			and
 			(
+				true
 				--> if the target isn't a pvp duel target
-				not jogador_alvo.enemy and not este_jogador.enemy and
+				--not jogador_alvo.enemy and not este_jogador.enemy
 				--> specific rules for encounters
-				_current_encounter_id ~= 2113 and --Waycrest Manor HeartsbaneTriad boss (it has mind control)
-				_current_encounter_id ~= 2132 -- Shrine of the Storms Lord Stormsong (it has mind control)
+				--_current_encounter_id ~= 2113 and --Waycrest Manor HeartsbaneTriad boss (it has mind control)
+				--_current_encounter_id ~= 2132 -- Shrine of the Storms Lord Stormsong (it has mind control)
 			)
 		) then
 
-			if (spellid == SPELLID_WARLOCK_SOULLINK) then
-				return
-			end
-
-			--> record death log (o erro era o pet, n�o tinha tabela ent�o dava erro)
 			if (este_jogador.grupo) then --> se tiver ele n�o adiciona o evento l� em cima
 				local t = last_events_cache [alvo_name]
 				
@@ -1405,19 +1420,19 @@
 	------------------------------------------------------------------------------------------------
 	--> get actors
 
-		local este_jogador, meu_dono = healing_cache [who_name]
+		local este_jogador, meu_dono = healing_cache [who_serial]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono and who_flags) then --> se n�o for um pet, adicionar no cache
-				healing_cache [who_name] = este_jogador
+			if (not meu_dono and who_flags and who_serial ~= "") then --> se n�o for um pet, adicionar no cache
+				healing_cache [who_serial] = este_jogador
 			end
 		end
 
-		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
+		local jogador_alvo, alvo_dono = healing_cache [alvo_serial]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			if (not alvo_dono and alvo_flags) then
-				healing_cache [alvo_name] = jogador_alvo
+			if (not alvo_dono and alvo_flags and alvo_serial ~= "") then
+				healing_cache [alvo_serial] = jogador_alvo
 			end
 		end
 		
@@ -1574,19 +1589,19 @@
 	function parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
 	
 	--> get actors
-		local este_jogador, meu_dono = healing_cache [who_name]
+		local este_jogador, meu_dono = healing_cache [who_serial]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			if (not meu_dono and who_flags) then --> se n�o for um pet, adicionar no cache
-				healing_cache [who_name] = este_jogador
+				healing_cache [who_serial] = este_jogador
 			end
 		end
 
-		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
+		local jogador_alvo, alvo_dono = healing_cache [alvo_serial]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 			if (not alvo_dono and alvo_flags) then
-				healing_cache [alvo_name] = jogador_alvo
+				healing_cache [alvo_serial] = jogador_alvo
 			end
 		end
 		
@@ -1856,7 +1871,7 @@
 				if (damager_object and (damager_object.classe ~= "UNKNOW" and damager_object.classe ~= "UNGROUPPLAYER")) then
 					este_jogador.classe = damager_object.classe
 				else
-					local healing_object = healing_cache [who_name]
+					local healing_object = healing_cache [who_serial]
 					if (healing_object and (healing_object.classe ~= "UNKNOW" and healing_object.classe ~= "UNGROUPPLAYER")) then
 						este_jogador.classe = healing_object.classe
 					end
@@ -3920,7 +3935,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--print (encounterID, encounterName, difficultyID, raidSize)
 		_detalhes.encounter_table.phase = 1
 		
-		--_detalhes.encounter_table ["start"] = time()
+		--store the encounter time inside the encounter table for the encounter plugin
 		_detalhes.encounter_table ["start"] = _GetTime()
 		_detalhes.encounter_table ["end"] = nil
 		
@@ -3991,8 +4006,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 		--_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
 		_detalhes.latest_ENCOUNTER_END = _GetTime()
-		
-		--_detalhes.encounter_table ["end"] = time() - 0.4
 		_detalhes.encounter_table ["end"] = _GetTime() -- 0.351
 		
 		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
@@ -4007,6 +4020,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		else
 			if ((_detalhes.tabela_vigente:GetEndTime() or 0) + 2 >= _detalhes.encounter_table ["end"]) then
+				_detalhes.tabela_vigente:SetStartTime (_detalhes.encounter_table ["start"])
 				_detalhes.tabela_vigente:SetEndTime (_detalhes.encounter_table ["end"])
 				_detalhes:AtualizaGumpPrincipal (-1, true)
 			end
@@ -4033,7 +4047,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not _detalhes:CaptureGet ("damage")) then
 			_detalhes:EntrarEmCombate()
 		end
-
+	
 		--> essa parte do solo mode ainda sera usada?
 		if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then --> solo mode
 			local esta_instancia = _detalhes.tabela_instancias[_detalhes.solo]
@@ -4047,11 +4061,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 		
 		_detalhes:DispatchAutoRunCode ("on_entercombat")
+		
+		_detalhes.tabela_vigente.CombatStartedAt = GetTime()
 	end
 	
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
-		
+	
+		--elapsed combat time
 		_detalhes.LatestCombatDone = GetTime()
+		_detalhes.tabela_vigente.CombatEndedAt = GetTime()
+		_detalhes.tabela_vigente.TotalElapsedCombatTime = _detalhes.tabela_vigente.CombatEndedAt - (_detalhes.tabela_vigente.CombatStartedAt or 0)
 		
 		_current_encounter_id = nil
 		
@@ -4522,25 +4541,19 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--> end
 	
 	-- ~parserstart ~startparser
-	
-	
-	
+
 	function _detalhes.OnParserEvent()
 		-- 8.0 changed
-		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = _CombatLogGetCurrentEventInfo()
 		
 		local funcao = token_list [token]
-		
 		if (funcao) then
-			--if (token ~= "SPELL_AURA_REFRESH" and token ~= "SPELL_AURA_REMOVED" and token ~= "SPELL_AURA_APPLIED") then
-			--	print ("running func:", token)
-			--end
 			return funcao (nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		else
 			return
 		end
-		
 	end
+	
 	_detalhes.parser_frame:SetScript ("OnEvent", _detalhes.OnParserEvent)
 
 	function _detalhes:UpdateParser()
@@ -4629,7 +4642,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			damage_cache [actor_name] = nil
 			damage_cache_pets [actor_name] = nil
 			damage_cache_petsOwners [actor_name] = nil
-			healing_cache [actor_name] = nil
+			healing_cache [actor_serial] = nil
 			energy_cache [actor_name] = nil
 			misc_cache [actor_name] = nil
 			misc_cache_pets [actor_name] = nil
@@ -4927,7 +4940,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				actor.total = damageDone
 				actor.classe = classToken or "UNKNOW"
 				
-			elseif (name ~= "Unknown") then
+			elseif (name ~= "Unknown" and type (name) == "string" and string.len (name) > 1) then
 				local guid = _UnitGUID (name)
 				if (guid) then
 					local flag
@@ -4949,8 +4962,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 				actor.total = healingDone
 				actor.classe = classToken or "UNKNOW"
-				
-			elseif (name ~= "Unknown") then
+			
+			elseif (name ~= "Unknown" and type (name) == "string" and string.len (name) > 1) then
+			--elseif (name ~= "Unknown") then
 				local guid = _UnitGUID (name)
 				if (guid) then
 					local flag

@@ -4892,9 +4892,10 @@ DF.IconRowFunctions = {
 				if (self.options.show_text) then
 					iconFrame.CountdownText:Show()
 					iconFrame.CountdownText:SetText (floor (startTime + duration - GetTime()))
-					
+					iconFrame.Cooldown:SetHideCountdownNumbers (true)
 				else
 					iconFrame.CountdownText:Hide()
+					iconFrame.Cooldown:SetHideCountdownNumbers (false)
 				end
 			else
 				iconFrame.CountdownText:Hide()

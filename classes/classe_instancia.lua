@@ -3407,6 +3407,16 @@ function _detalhes:envia_relatorio (linhas, custom)
 	local channel = to_who:find ("CHANNEL")
 	local is_btag = to_who:find ("REALID")
 	
+	local send_report_channel = function (timerObject)
+		_SendChatMessage (timerObject.Arg1, timerObject.Arg2, timerObject.Arg3, timerObject.Arg4)
+	end
+	
+	local send_report_bnet = function (timerObject)
+		BNSendWhisper (timerObject.Arg1, timerObject.Arg2)
+	end
+	
+	local delay = 200
+	
 	if (channel) then
 		
 		channel = to_who:gsub ((".*|"), "")
@@ -3415,8 +3425,13 @@ function _detalhes:envia_relatorio (linhas, custom)
 			if (channel == "Trade") then
 				channel = "Trade - City"
 			end
+			
 			local channelName = GetChannelName (channel)
-			_SendChatMessage (linhas[i], "CHANNEL", nil, channelName)
+			local timer = C_Timer.NewTimer (i * delay / 1000, send_report_channel)
+			timer.Arg1 = linhas[i]
+			timer.Arg2 = "CHANNEL"
+			timer.Arg3 = nil
+			timer.Arg4 = channelName
 		end
 		
 		return
@@ -3426,8 +3441,10 @@ function _detalhes:envia_relatorio (linhas, custom)
 		local id = to_who:gsub ((".*|"), "")
 		local presenceID = tonumber (id)
 		
-		for i = 1, #linhas do 
-			BNSendWhisper (presenceID, linhas[i])
+		for i = 1, #linhas do
+			local timer = C_Timer.NewTimer (i * delay / 1000, send_report_bnet)
+			timer.Arg1 = presenceID
+			timer.Arg2 = linhas[i]
 		end
 		
 		return
@@ -3442,7 +3459,11 @@ function _detalhes:envia_relatorio (linhas, custom)
 		end
 		
 		for i = 1, #linhas do 
-			_SendChatMessage (linhas[i], to_who, nil, alvo)
+			local timer = C_Timer.NewTimer (i * delay / 1000, send_report_channel)
+			timer.Arg1 = linhas[i]
+			timer.Arg2 = to_who
+			timer.Arg3 = nil
+			timer.Arg4 = alvo
 		end
 		return
 		
@@ -3467,22 +3488,29 @@ function _detalhes:envia_relatorio (linhas, custom)
 		end
 		
 		for i = 1, #linhas do 
-			_SendChatMessage (linhas[i], to_who, nil, alvo)
+			local timer = C_Timer.NewTimer (i * delay / 1000, send_report_channel)
+			timer.Arg1 = linhas[i]
+			timer.Arg2 = to_who
+			timer.Arg3 = nil
+			timer.Arg4 = alvo
 		end
 
 		return
 	end
 	
 	if (to_who == "RAID" or to_who == "PARTY") then
-		--LE_PARTY_CATEGORY_HOME - default
-		--LE_PARTY_CATEGORY_INSTANCE - player's automatic group
 		if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
 			to_who = "INSTANCE_CHAT"
 		end
 	end
 	
 	for i = 1, #linhas do 
-		_SendChatMessage (linhas[i], to_who)
+		local timer = C_Timer.NewTimer (i * delay / 1000, send_report_channel)
+		timer.Arg1 = linhas[i]
+		timer.Arg2 = to_who
+		timer.Arg3 = nil
+		timer.Arg4 = nil
+		
 	end
 	
 end
