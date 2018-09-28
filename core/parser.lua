@@ -376,12 +376,8 @@
 			
 			--> Light of the Martyr - paladin spell which causes damage to the caster it self
 			elseif (spellid == SPELLID_PALADIN_LIGHTMARTYR) then -- or spellid == 183998 < healing part
-				local healingActor = healing_cache [who_name]
-				if (healingActor and healingActor.spells) then
-					healingActor.total = healingActor.total - (amount or 0)
-				end
-				return --> ignore this event
-			
+				return parser:LOTM_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+				
 			end
 		end
 		
@@ -931,6 +927,73 @@
 		
 	end
 	
+	--special rule for LOTM
+	function parser:LOTM_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+	
+		if (absorbed) then
+			amount = absorbed + (amount or 0)
+		end
+	
+		local healingActor = healing_cache [who_serial]
+		if (healingActor and healingActor.spells) then
+			healingActor.total = healingActor.total - (amount or 0)
+			
+			local spellTable = healingActor.spells:GetSpell (183998)
+			if (spellTable) then
+				spellTable.anti_heal = (spellTable.anti_heal or 0) + amount
+			end
+		end
+		
+		local t = last_events_cache [who_name]
+		
+		if (not t) then
+			t = _current_combat:CreateLastEventsTable (who_name)
+		end
+		
+		local i = t.n
+		
+		local this_event = t [i]
+		
+		if (not this_event) then
+			return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
+		end
+		
+		this_event [1] = true --> true if this is a damage || false for healing
+		this_event [2] = spellid --> spellid || false if this is a battle ress line
+		this_event [3] = amount --> amount of damage or healing
+		this_event [4] = time --> parser time
+		this_event [5] = _UnitHealth (who_name) --> current unit heal
+		this_event [6] = who_name --> source name
+		this_event [7] = absorbed
+		this_event [8] = school
+		this_event [9] = true --> friendly fire
+		this_event [10] = overkill
+		
+		i = i + 1
+		
+		if (i == _death_event_amt+1) then
+			t.n = 1
+		else
+			t.n = i
+		end	
+		
+		local damageActor = damage_cache [who_serial]
+		if (damageActor) then
+			--damage taken
+			damageActor.damage_taken = damageActor.damage_taken + amount
+			if (not damageActor.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
+				damageActor.damage_from [who_name] = true
+			end
+			
+			--friendly fire
+			damageActor.friendlyfire_total = damageActor.friendlyfire_total + amount
+			local friend = damageActor.friendlyfire [who_name] or damageActor:CreateFFTable (who_name)
+			friend.total = friend.total + amount
+			friend.spells [spellid] = (friend.spells [spellid] or 0) + amount
+		end
+	end
+	
+	--special rule of SLT
 	function parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 		
 		--> damager
@@ -1288,19 +1351,19 @@
 	------------------------------------------------------------------------------------------------
 	--> get actors
 
-		local este_jogador, meu_dono = healing_cache [who_name]
+		local este_jogador, meu_dono = healing_cache [who_serial]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono and who_flags) then --> se n�o for um pet, adicionar no cache
-				healing_cache [who_name] = este_jogador
+			if (not meu_dono and who_flags and who_serial ~= "") then --> se n�o for um pet, adicionar no cache
+				healing_cache [who_serial] = este_jogador
 			end
 		end
-
-		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
+		
+		local jogador_alvo, alvo_dono = healing_cache [alvo_serial]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			if (not alvo_dono and alvo_flags) then
-				healing_cache [alvo_name] = jogador_alvo
+			if (not alvo_dono and alvo_flags and also_serial ~= "") then
+				healing_cache [alvo_serial] = jogador_alvo
 			end
 		end
 		
@@ -1592,7 +1655,7 @@
 		local este_jogador, meu_dono = healing_cache [who_serial]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono and who_flags) then --> se n�o for um pet, adicionar no cache
+			if (not meu_dono and who_flags and who_serial ~= "") then --> se n�o for um pet, adicionar no cache
 				healing_cache [who_serial] = este_jogador
 			end
 		end
@@ -1600,7 +1663,7 @@
 		local jogador_alvo, alvo_dono = healing_cache [alvo_serial]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			if (not alvo_dono and alvo_flags) then
+			if (not alvo_dono and alvo_flags and alvo_serial ~= "") then
 				healing_cache [alvo_serial] = jogador_alvo
 			end
 		end

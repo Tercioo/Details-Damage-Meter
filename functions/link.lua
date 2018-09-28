@@ -4136,7 +4136,7 @@ local create_deathrecap_line = function (parent, n)
 	timeAt:SetPoint ("left", line, "left", 2, 0)
 	spellIcon:SetPoint ("left", line, "left", 50, 0)
 	sourceName:SetPoint ("left", line, "left", 82, 0)
-	amount:SetPoint ("left", line, "left", 220, 0)
+	amount:SetPoint ("left", line, "left", 240, 0)
 	lifePercent:SetPoint ("left", line, "left", 320, 0)
 	
 	--text colors
@@ -4624,9 +4624,11 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID, fromChat)
 						end
 						
 						spellName = spellName:gsub (L["STRING_DOT"], "")
+						--print ("link.lua", L["STRING_DOT"], spellName, spellName:find (L["STRING_DOT"]), spellName:gsub (L["STRING_DOT"], ""))
 						source = source or ""
 						
 						line.sourceName:SetText (spellName .. " (" .. "|cFFC6B0D9" .. source .. "|r" .. ")")
+						DetailsFramework:TruncateText (line.sourceName, 185)
 						
 						if (amount > 1000) then
 							--line.amount:SetText ("-" .. _detalhes:ToK (amount))
@@ -4642,7 +4644,7 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID, fromChat)
 						
 						if (_detalhes.death_recap.show_life_percent) then
 							line.lifePercent:Show()
-							line.amount:SetPoint ("left", line, "left", 220, 0)
+							line.amount:SetPoint ("left", line, "left", 240, 0)
 							line.lifePercent:SetPoint ("left", line, "left", 320, 0)
 						else
 							line.lifePercent:Hide()

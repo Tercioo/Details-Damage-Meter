@@ -1256,8 +1256,17 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	--add actor spells
 	for _spellid, _skill in _pairs (ActorSkillsContainer) do 
 		local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
-		if (_skill [skill_key] > 0) then
-			_table_insert (ActorHealingTable, {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo, _skill.total})
+		if (_skill [skill_key] > 0 or _skill.anti_heal) then
+			_table_insert (ActorHealingTable, {
+				_spellid, 
+				_skill [skill_key], 
+				_skill [skill_key]/ActorTotal*100, 
+				{SkillName, nil, SkillIcon}, 
+				_skill [skill_key]/meu_tempo, 
+				_skill.total,
+				false,
+				_skill.anti_heal,
+			})
 		end
 	end
 	
@@ -1268,7 +1277,15 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 			for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
 				if (_skill [skill_key] > 0) then
 					local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
-					ActorHealingTable [#ActorHealingTable+1] = {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo, _skill.total, petName:gsub ((" <.*"), "")}
+					ActorHealingTable [#ActorHealingTable+1] = {
+						_spellid, 
+						_skill [skill_key], 
+						_skill [skill_key]/ActorTotal*100, 
+						{SkillName, nil, SkillIcon}, 
+						_skill [skill_key]/meu_tempo, 
+						_skill.total, 
+						petName:gsub ((" <.*"), "")
+					}
 				end
 			end
 		end
@@ -1314,7 +1331,10 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTable) do
 		if (ActorHealingTable[i][2] < 1) then
-			break
+			local antiHeal = ActorHealingTable[i][8]
+			if (not antiHeal) then
+				break
+			end
 		end
 		
 		local spellName = ActorHealingTable[i][4][1]
@@ -1325,15 +1345,34 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		end
 		
 		if (instancia.sub_atributo == 2) then --> hps
-			GameCooltip:AddLine (spellName ..": ", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+		
+			local formatedTotal = FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5]))
+			local antiHeal = ActorHealingTable[i][8]
+			if (antiHeal) then
+				formatedTotal = formatedTotal .. " [|cFFFF5500" .. FormatTooltipNumber (_, _math_floor (antiHeal)) .." " .. Loc ["STRING_DAMAGE"] .."|r] "
+			end
+			
+			GameCooltip:AddLine (spellName ..": ", formatedTotal .. " (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 			
 		elseif (instancia.sub_atributo == 3) then --> overheal
 			local overheal = ActorHealingTable[i][2]
 			local total = ActorHealingTable[i][6]
-			GameCooltip:AddLine (spellName .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][2])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			local formatedTotal = FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][2]))
+			
+			local antiHeal = ActorHealingTable[i][8]
+			if (antiHeal) then
+				formatedTotal = formatedTotal .. " [|cFFFF5500" .. FormatTooltipNumber (_, _math_floor (antiHeal)) .." " .. Loc ["STRING_DAMAGE"] .."|r] "
+			end
+			
+			GameCooltip:AddLine (spellName .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", formatedTotal .. " (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 			
 		else
-			GameCooltip:AddLine (spellName ..": ", FormatTooltipNumber (_, ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			local formatedTotal = FormatTooltipNumber (_, ActorHealingTable[i][2])
+			local antiHeal = ActorHealingTable[i][8]
+			if (antiHeal) then
+				formatedTotal = formatedTotal .. " [|cFFFF5500" .. FormatTooltipNumber (_, _math_floor (antiHeal)) .." " .. Loc ["STRING_DAMAGE"] .."|r] "
+			end
+			GameCooltip:AddLine (spellName ..": ", formatedTotal .. " (" .. _cstr ("%.1f", ActorHealingTable[i][3]) .. "%)")
 			
 		end
 		
@@ -1804,7 +1843,15 @@ function atributo_heal:MontaInfoHealingDone()
 	
 	for spellid, tabela in _pairs (tabela) do
 		local nome, rank, icone = _GetSpellInfo (spellid)
-		_table_insert (minhas_curas, {spellid, tabela.total, tabela.total/total*100, nome, icone})
+		_table_insert (minhas_curas, {
+			spellid, 
+			tabela.total, 
+			tabela.total/total*100, 
+			nome, 
+			icone,
+			false, --not a pet
+			tabela.anti_heal,
+		})
 	end
 
 	--> add pets
@@ -1817,7 +1864,14 @@ function atributo_heal:MontaInfoHealingDone()
 			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo (_spellid)
-				_table_insert (minhas_curas, {_spellid, _skill.total, _skill.total/total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+				_table_insert (minhas_curas, {
+					_spellid, 
+					_skill.total, 
+					_skill.total/total*100, 
+					nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", 
+					icone, 
+					PetActor
+				})
 			end
 		end
 	end
@@ -1848,6 +1902,9 @@ function atributo_heal:MontaInfoHealingDone()
 			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], formated_value, max_, tabela[3], tabela[5], true)
 		else
 			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+			if (tabela [7]) then
+				formated_value = formated_value .. " [|cFFFF5500" .. SelectedToKFunction (_, _math_floor (tabela [7])) .." " .. Loc ["STRING_DAMAGE"] .."|r] "
+			end
 			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], formated_value, max_, tabela[3], tabela[5], true)
 		end
 
@@ -2075,11 +2132,12 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 	end
 end
 
-local absorbed_table = {c = {1, 1, 1, 0.5}, p = 0}
-local overhealing_table = {c = {0.5, 0.1, 0.1, 0.9}, p = 0}
-local normal_table = {c = {1, 1, 1, 0.5}, p = 0}
-local multistrike_table = {c = {1, 1, 1, 0.5}, p = 0}
-local critical_table = {c = {1, 1, 1, 0.5}, p = 0}
+local absorbed_table = {c = {1, 1, 1, 0.4}, p = 0}
+local overhealing_table = {c = {0.5, 0.1, 0.1, 0.4}, p = 0}
+local anti_heal_table = {c = {0.5, 0.1, 0.1, 0.4}, p = 0}
+local normal_table = {c = {1, 1, 1, 0.4}, p = 0}
+local multistrike_table = {c = {1, 1, 1, 0.4}, p = 0}
+local critical_table = {c = {1, 1, 1, 0.4}, p = 0}
 
 local data_table = {}
 local t1, t2, t3, t4 = {}, {}, {}, {}
@@ -2236,6 +2294,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 		end
 		
 	--> MULTISTRIKE
+		--[=[
 		if (esta_magia.m_amt > 0) then
 		
 			local multistrike_hits = esta_magia.m_amt
@@ -2259,21 +2318,39 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			t3[8] = multistrike_hits .. " [|cFFC0C0C0" .. _cstr ("%.1f", multistrike_hits / total_hits * 100) .. "%|r]"
 
 		end
-		
+		--]=]
 	end
-	
 
-	
 	_table_sort (data, _detalhes.Sort1)
 	
-	for i = #data+1, 3 do --> para o overheal aparecer na ultima barra
-		data[i] = nil
-	end
+--	for i = #data+1, 2 do --> para o antiheal aparecer na penultima barra
+--		data[i] = nil
+--	end	
+	
+	--> anti heal
+		if (esta_magia.anti_heal and esta_magia.anti_heal > 0) then
+			local porcentagem_anti_heal = esta_magia.anti_heal / meu_total * 100
+			data[3] = t3
+			
+			anti_heal_table.p = porcentagem_anti_heal
+			
+			t3[1] = esta_magia.anti_heal
+			t3[2] = anti_heal_table
+			t3[3] = "Anti Heal"
+			
+			t3[4] = ""
+			t3[5] = ""
+			t3[6] = ""
+			t3[7] = ""
+			t3[8] = _detalhes:comma_value (esta_magia.anti_heal) .. " / " .. _cstr ("%.1f", porcentagem_anti_heal) .. "%"
+		end
+	
+--	for i = #data+1, 3 do --> para o overheal aparecer na ultima barra
+--		data[i] = nil
+--	end
 	
 	--> overhealing
-
 		if (overheal > 0) then
-		
 			local porcentagem_overheal = overheal/meu_total*100
 			data[4] = t4
 			
@@ -2293,7 +2370,6 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			t4[6] = ""
 			t4[7] = ""
 			t4[8] = _detalhes:comma_value (overheal) .. " / " .. _cstr ("%.1f", porcentagem_overheal) .. "%"
-			
 		end
 	
 	for index = 1, 4 do

@@ -3363,6 +3363,10 @@ do
 		[127] = {name = STRING_SCHOOL_CHAOS, formated = "|cFFFF1111" .. STRING_SCHOOL_CHAOS .. "|r", hex = "FFFF1111", rgb = {255, 17, 17}, decimals = {1.0000, 0.0667, 0.0667}},
 	}
 	
+	_detalhes.OverrideSpellSchool = {
+		--[196917] = 126, --light of the martyr - from holy to fire
+	}
+	
 	function _detalhes:GetSpellSchoolName (school)
 		return _detalhes.spells_school [school] and _detalhes.spells_school [school].name or ""
 	end

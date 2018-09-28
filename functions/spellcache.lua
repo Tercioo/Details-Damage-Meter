@@ -55,6 +55,10 @@ do
 		end
 	end
 	
+	local lightOfTheMartyr_Name, _, lightOfTheMartyr_Icon = _GetSpellInfo (196917)
+	lightOfTheMartyr_Name = lightOfTheMartyr_Name or "Deprecated Spell - Light of the Martyr"
+	lightOfTheMartyr_Icon = lightOfTheMartyr_Icon or ""
+	
 	local default_user_spells = {
 		[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\ICONS\INV_Sword_04]]},
 		[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\ICONS\INV_Weapon_Bow_07]]},
@@ -64,6 +68,8 @@ do
 		[6] = {name = Loc ["STRING_ENVIRONMENTAL_FIRE"], icon = [[Interface\ICONS\INV_SummerFest_FireSpirit]]},
 		[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
 		[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
+		
+		[196917] = {name = lightOfTheMartyr_Name .. " (" .. Loc ["STRING_DAMAGE"] .. ")", icon = lightOfTheMartyr_Icon},
 		
 		[98021] = {name = Loc ["STRING_SPIRIT_LINK_TOTEM"]},
 		

@@ -560,8 +560,10 @@ function gump:SetaDetalheInfoAltura (index, xmod, ymod)
 	info.dano_porcento:SetPoint ("TOPRIGHT", background, "TOPRIGHT", -x + right, y + (-24))
 	info.dano_dps:SetPoint ("TOPRIGHT", background, "TOPRIGHT", -x + right, y + (-44))
 	
-	info.bg:SetPoint ("TOPLEFT", background, "TOPLEFT", 0, 0)
-	info.bg:SetHeight (background:GetHeight())
+	info.bg:SetPoint ("TOPLEFT", background, "TOPLEFT", 1, -1)
+	info.bg:SetHeight (background:GetHeight() - 2)
+	info.bg:SetWidth (info.bg:GetWidth() - 2) --ofcourse why not
+	
 	info.bg_end:SetPoint ("LEFT", info.bg, "LEFT", info.bg:GetValue()*2.19, 0)
 	info.bg_end:SetHeight (background:GetHeight()+2)
 	info.bg_end:SetWidth (6)
@@ -581,10 +583,10 @@ function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6
 	if (p) then
 		if (_type (p) == "table") then
 			info.bg:SetValue (p.p)
-			--info.bg:SetStatusBarColor (p.c[1], p.c[2], p.c[3], p.c[4] or 1)
+			info.bg:SetStatusBarColor (p.c[1], p.c[2], p.c[3], p.c[4] or 1)
 		else
 			info.bg:SetValue (p)
-			--info.bg:SetStatusBarColor (1, 1, 1, 0.5)
+			info.bg:SetStatusBarColor (1, 1, 1, .5)
 		end
 		
 		--if (index == 1) then
