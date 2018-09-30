@@ -1502,8 +1502,8 @@
 		
 		function _detalhes:AddTooltipBackgroundStatusbar (side, value, useSpark)
 			_detalhes.tooltip.background [4] = 0.8
-			_detalhes.tooltip.icon_size.W = 16
-			_detalhes.tooltip.icon_size.H = 16
+			_detalhes.tooltip.icon_size.W = _detalhes.tooltip.line_height
+			_detalhes.tooltip.icon_size.H = _detalhes.tooltip.line_height
 			
 			value = value or 100
 			

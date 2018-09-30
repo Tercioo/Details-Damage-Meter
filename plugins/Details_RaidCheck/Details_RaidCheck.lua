@@ -214,12 +214,20 @@ end
 		--
 		
 		local report_string1 = show_panel:CreateFontString (nil, "overlay", "GameFontNormal")
-		report_string1:SetPoint ("bottomleft", show_panel, "bottomleft", 10, 10)
+		report_string1:SetPoint ("bottomleft", show_panel, "bottomleft", 10, 8)
 		report_string1:SetText ("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:225:307|t Report No Food/Flask  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:328:409|t Report No Pre-Pot  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:126:204|t Report No Rune  |  |cFFFFFFFFShift+Click: Options|r") 
 
+		local using_details_string1 = show_panel:CreateFontString (nil, "overlay", "GameFontNormal")
+		using_details_string1:SetPoint ("bottomleft", show_panel, "bottomleft", 10, 22)
+		using_details_string1:SetText ("Receives dynamic updates from other Details! users when they change talents and gear")
+		
 		DetailsRaidCheck:SetFontSize (report_string1, 10)
 		DetailsRaidCheck:SetFontColor (report_string1, "white")
 		report_string1:SetAlpha (0.6)
+		
+		DetailsRaidCheck:SetFontSize (using_details_string1, 10)
+		DetailsRaidCheck:SetFontColor (using_details_string1, "white")
+		using_details_string1:SetAlpha (0.6)
 		
 		--
 		
@@ -227,11 +235,12 @@ end
 		local headerTable = {
 			{text = "Player Name", width = 160},
 			{text = "Talents", width = 150},
-			{text = "Item Level", width = 80},
-			{text = "Food", width = 80},
-			{text = "Flask", width = 80},
-			{text = "Rune", width = 80},
-			{text = "Pre-Pot", width = 80},
+			{text = "Item Level", width = 70},
+			{text = "Food", width = 50},
+			{text = "Flask", width = 50},
+			{text = "Rune", width = 50},
+			{text = "Pre-Pot Last Try", width = 100},
+			{text = "Using Details!", width = 100},
 		}
 		local headerOptions = {
 			padding = 2,
@@ -299,6 +308,8 @@ end
 			local RuneIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
 			--no pre pot
 			local PrePotIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
+			--using details!
+			local DetailsIndicator = DF:CreateImage (line, "", scroll_line_height, scroll_line_height)
 			
 			line:AddFrameToHeaderAlignment (roleIcon)
 			line:AddFrameToHeaderAlignment (talentsRow)
@@ -307,6 +318,7 @@ end
 			line:AddFrameToHeaderAlignment (FlaskIndicator)
 			line:AddFrameToHeaderAlignment (RuneIndicator)
 			line:AddFrameToHeaderAlignment (PrePotIndicator)
+			line:AddFrameToHeaderAlignment (DetailsIndicator)
 			
 			line:AlignWithHeader (DetailsRaidCheck.Header, "left")
 			
@@ -319,6 +331,7 @@ end
 			line.FlaskIndicator = FlaskIndicator
 			line.RuneIndicator = RuneIndicator
 			line.PrePotIndicator = PrePotIndicator
+			line.DetailsIndicator = DetailsIndicator
 			
 			return line
 		end		
@@ -397,6 +410,7 @@ end
 						line.FlaskIndicator.texture = playerTable.Flask and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
 						line.RuneIndicator.texture = playerTable.Rune and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
 						line.PrePotIndicator.texture = playerTable.PrePot and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
+						line.DetailsIndicator.texture = playerTable.UseDetails and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
 					end
 				end
 			end
@@ -591,6 +605,7 @@ end
 					PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
 					Rune = DetailsRaidCheck.havefocusaug_table [unitSerial],
 					Eating = DetailsRaidCheck.iseating_table [unitSerial],
+					UseDetails = Details.trusted_characters [unitSerial],
 				})
 			end
 			
@@ -622,6 +637,7 @@ end
 					PrePot = DetailsRaidCheck.usedprepot_table [cleuName],
 					Rune = DetailsRaidCheck.havefocusaug_table [unitSerial],
 					Eating = DetailsRaidCheck.iseating_table [unitSerial],
+					UseDetails = Details.trusted_characters [unitSerial],
 				})
 			end
 

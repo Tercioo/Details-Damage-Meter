@@ -531,10 +531,10 @@
 					end
 				end
 			end
-			    
+			
 			--> search actors which used the spell shown in the bar
 			local spell = character.spells._ActorTable [from_spell]
-			    
+			
 			if (spell) then
 				for targetname, amount in pairs (spell.targets) do
 				    
@@ -619,6 +619,8 @@
 		
 		local top = Targets[1] and Targets[1][2]
 
+		local lineHeight = _detalhes.tooltip.line_height
+		
 		for index, t in ipairs (Targets) do
 			GameCooltip:AddLine (_detalhes:GetOnlyName(t[1]), _detalhes:ToK (t[2]) .. " (" .. _cstr ("%.1f", t[2]/total*100) .. "%)")
 			local class, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
@@ -626,10 +628,17 @@
 			GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.8, false,  byspell_tooltip_background)
 		    
 			if (class) then
-				local texture, l, r, t, b = _detalhes:GetClassIcon (class)
-				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+				local specID = _detalhes:GetSpec (t[1])
+				if (specID) then
+					local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
+					GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+				else
+					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, lineHeight, lineHeight, l, r, t, b)
+				end
+				
 			elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
-				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, lineHeight, lineHeight, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
 
@@ -1027,6 +1036,8 @@
 			frags_tooltip_table = damage_taken_table
 			frags_tooltip_table.damage_total = total
 			
+			local lineHeight = _detalhes.tooltip.line_height
+			
 			if (#damage_taken_table > 0) then
 				for i = 1, math.min (min, #damage_taken_table) do 
 					local t = damage_taken_table [i]
@@ -1038,9 +1049,16 @@
 					end
 					
 					if (classe == "UNKNOW") then
-						GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+						GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
 					else
-						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+					
+						local specID = _detalhes:GetSpec (t[1])
+						if (specID) then
+							local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
+							GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+						else
+							GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, lineHeight, lineHeight, _unpack (_detalhes.class_coords [classe]))
+						end
 					end
 					
 					local _, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
@@ -1310,8 +1328,6 @@
 		for index, void_table in ipairs (tooltip_void_zone_temp) do
 			--ir� reportar dano zero tamb�m
 			if (void_table[1] and type (void_table[1]) == "string" and void_table[2] and void_table[3] and type (void_table[3]) == "table") then
-				print (void_table[1], void_table[2], void_table[3])
-			
 				local actor_table = {_detalhes:GetOnlyName (void_table[1])}
 				local m, s = _math_floor (void_table[3].uptime / 60), _math_floor (void_table[3].uptime % 60)
 				if (m > 0) then
@@ -1417,6 +1433,8 @@
 		tooltip_void_zone_temp.spellid = actor.damage_spellid
 		tooltip_void_zone_temp.current_actor = actor
 		
+		local lineHeight = _detalhes.tooltip.line_height
+		
 		for index, t in _ipairs (tooltip_void_zone_temp) do
 		
 			if (t[3] == 0) then
@@ -1433,10 +1451,16 @@
 			end
 			
 			local classe = _detalhes:GetClass (t[1])
-			if (classe) then	
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, 14, 14, unpack (_detalhes.class_coords [classe]))
+			if (classe) then
+				local specID = _detalhes:GetSpec (t[1])
+				if (specID) then
+					local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
+					GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+				else
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], nil, nil, lineHeight, lineHeight, unpack (_detalhes.class_coords [classe]))
+				end
 			else
-				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
 			end
 			
 			local _, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
@@ -2967,9 +2991,9 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					end
 					
 					if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
-						GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_, totalDamage) .." (".._cstr("%.1f", totalDamage/ActorDamage*100).."%)")
+						GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_, totalDamage) .." (".._cstr("%.1f", totalDamage/ActorDamage*100).."%)")
 					else
-						GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_, _math_floor (totalDPS)) .." (".._cstr("%.1f", totalDamage/ActorDamage*100).."%)")
+						GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_, _math_floor (totalDPS)) .." (".._cstr("%.1f", totalDamage/ActorDamage*100).."%)")
 					end
 					
 					GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
@@ -3003,7 +3027,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 				for i = 1, _math_min (max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
-					GameCooltip:AddLine (este_inimigo[1]..": ", FormatTooltipNumber (_, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
+					GameCooltip:AddLine (este_inimigo[1], FormatTooltipNumber (_, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
 					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, icon_size.W, icon_size.H, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
 					_detalhes:AddTooltipBackgroundStatusbar (false, este_inimigo[2] / topEnemy * 100)
 				end
@@ -3117,7 +3141,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				
 				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\MobileAppIcons]], 2*130/1024, 3*130/1024, 5*130/1024, 6*130/1024)
 				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic10]], 0, 1, 0, 1)
-				_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64) --localize-me
+				_detalhes:AddTooltipSpellHeaderText ("Damage by Encounter Phase", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64) --localize-me
 				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 				_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				
@@ -3273,14 +3297,14 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 	-- enemy damage taken
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_TAKEN_FROM"], headerColor, i-1, [[Interface\Buttons\UI-MicroStream-Red]], 0.1875, 0.8125, 0.15625, 0.78125)
 	GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-	
-	--GameCooltip:AddStatusBar (100, 1, 0.7, g, b, 1)
+
 	_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
 
 	--> build the tooltip
-	
 	local top = (tooltip_temp_table [1] and tooltip_temp_table [1][2]) or 0
 	tooltip_temp_table.damage_total = damage_taken
+	
+	local lineHeight = _detalhes.tooltip.line_height
 	
 	for o = 1, i-1 do
 
@@ -3288,25 +3312,26 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 		local total = tooltip_temp_table [o][2]
 		local player_name = _detalhes:GetOnlyName (player:name())
 	
-		if (player_name:find (_detalhes.playername)) then
-			GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)", nil, "yellow")
-		else
-			GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
-		end
+		GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
 		
 		local classe = player:class()
 		if (not classe) then
 			classe = "UNKNOW"
 		end
 		if (classe == "UNKNOW") then
-			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
 		else
-			GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			local specID = player.spec
+			if (specID) then
+				local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
+				GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+			else
+				GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, lineHeight, lineHeight, _unpack (_detalhes.class_coords [classe]))
+			end
 		end
 		
 		local r, g, b = unpack (_detalhes.class_colors [classe])
 		GameCooltip:AddStatusBar (total/top*100, 1, r, g, b, 1, false, enemies_background)
-		--_detalhes:AddTooltipBackgroundStatusbar()
 
 	end
 	
@@ -3317,7 +3342,6 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 	GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES_DONE"], FormatTooltipNumber (_, _math_floor (self.total)))
 	local half = 0.00048828125
 	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
-	--_detalhes:AddTooltipBackgroundStatusbar()
 	GameCooltip:AddStatusBar (0, 1, r, g, b, 1, false, enemies_background)
 	
 	local heal_actor = instancia.showing (2, self.nome)
@@ -3327,23 +3351,14 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"], 0)
 	end
 	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
-	--_detalhes:AddTooltipBackgroundStatusbar()
 	GameCooltip:AddStatusBar (0, 1, r, g, b, 1, false, enemies_background)
 	
 	GameCooltip:AddLine (" ")
 	_detalhes:AddTooltipReportLineText()
 	
-	--> clean up
-	--for o = 1, #tooltip_temp_table do
-	--	local t = tooltip_temp_table [o]
-	--	t[2] = 0
-	--	t[1] = 0
-	--end
-	
 	GameCooltip:SetOption ("YSpacingMod", 0)
 	
 	return true
-	
 end
 
 ---------> DAMAGE TAKEN
@@ -3475,16 +3490,17 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 			
 			for _, spell in _ipairs (all_spells) do
 				local spellname, _, spellicon = _GetSpellInfo (spell [1])
-				GameCooltip:AddLine (spellname .. " (|cFFFFFF00" .. spell [3] .. "|r): ", FormatTooltipNumber (_, spell [2]).." (" .. _cstr ("%.1f", (spell [2] / damage_taken) * 100).."%)")
+				GameCooltip:AddLine (spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (_, spell [2]).." (" .. _cstr ("%.1f", (spell [2] / damage_taken) * 100).."%)")
 				GameCooltip:AddIcon (spellicon, 1, 1, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 				_detalhes:AddTooltipBackgroundStatusbar()
 			end
 			
 		else
+			local aggressorName = _detalhes:GetOnlyName (meus_agressores[i][1])
 			if (ismaximized and meus_agressores[i][1]:find (_detalhes.playername)) then
-				GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
+				GameCooltip:AddLine (aggressorName, FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
 			else
-				GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
+				GameCooltip:AddLine (aggressorName, FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
 			end
 			local classe = meus_agressores[i][3]
 			
@@ -3493,9 +3509,9 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 			end
 			
 			if (classe == "UNKNOW") then
-				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, icon_size.W, icon_size.H, .25, .5, 0, 1)
 			else
-				GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, icon_size.W, icon_size.H, _unpack (_detalhes.class_coords [classe]))
 			end
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
@@ -3506,7 +3522,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		GameCooltip:AddLine (" ")
 		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], FormatTooltipNumber (_, _math_floor (self.total)))
 		local half = 0.00048828125
-		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
+		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, icon_size.W, icon_size.H, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
 		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		local heal_actor = instancia.showing (2, self.nome)
@@ -3515,7 +3531,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		else
 			GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], 0)
 		end
-		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
+		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, icon_size.W, icon_size.H, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
 		_detalhes:AddTooltipBackgroundStatusbar()
 		
 	end
@@ -3539,6 +3555,10 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 
 	local tabela_do_combate = instancia.showing
 	local showing = tabela_do_combate [class_type]
+
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	local lineHeight = _detalhes.tooltip.line_height
 	
 	local DamagedPlayers = {}
 	local Skills = {}
@@ -3549,14 +3569,13 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 			DamagedPlayers [#DamagedPlayers+1] = {target_name, ff_table.total, actor.classe}
 			for spellid, amount in _pairs (ff_table.spells) do
 				Skills [spellid] = (Skills [spellid] or 0) + amount
-				--Skills [#Skills+1] = {spellid, amount}
 			end
 		end
 	end
 	
 	_table_sort (DamagedPlayers, _detalhes.Sort2)
 
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #DamagedPlayers, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.224609375, 0.056640625, 0.140625)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #DamagedPlayers, _detalhes.tooltip_target_icon.file, unpack (_detalhes.tooltip_target_icon.coords))
 	
 	local ismaximized = false
 	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
@@ -3579,21 +3598,25 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 			classe = "UNKNOW"
 		end
 
-		GameCooltip:AddLine (DamagedPlayers[i][1]..": ", FormatTooltipNumber (_, DamagedPlayers[i][2]).." (".._cstr("%.1f", DamagedPlayers[i][2]/FriendlyFireTotal*100).."%)")
-		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
+		GameCooltip:AddLine (_detalhes:GetOnlyName (DamagedPlayers[i][1]), FormatTooltipNumber (_, DamagedPlayers[i][2]).." (".._cstr("%.1f", DamagedPlayers[i][2]/FriendlyFireTotal*100).."%)")
+		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, lineHeight, lineHeight)
 		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		if (classe == "UNKNOW") then
-			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
+			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, lineHeight, lineHeight, _unpack (_detalhes.class_coords ["UNKNOW"]))
 		else
-			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			local specID = _detalhes:GetSpec (DamagedPlayers[i][1])
+			if (specID) then
+				local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
+				GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
+			else
+				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, lineHeight, lineHeight, _unpack (_detalhes.class_coords [classe]))
+			end
 		end
 		
 	end
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
-
-	GameCooltip:AddIcon ([[Interface\PVPFrame\bg-down-on]], 1, 1, 14, 14, 0, 1, 0, 1)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, 1, _detalhes.tooltip_spell_icon.file, unpack (_detalhes.tooltip_spell_icon.coords))
 	
 	local ismaximized = false
 	if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
@@ -3610,9 +3633,6 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 		max_abilities2 = 99
 	end
 	
-	local icon_size = _detalhes.tooltip.icon_size
-	local icon_border = _detalhes.tooltip.icon_border_texcoord
-	
 	--spells usadas no friendly fire
 	local SpellsInOrder = {}
 	for spellID, amount in _pairs (Skills) do
@@ -3622,7 +3642,7 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	
 	for i = 1, _math_min (max_abilities2, #SpellsInOrder) do
 		local nome, _, icone = _GetSpellInfo (SpellsInOrder[i][1])
-		GameCooltip:AddLine (nome .. ": ", FormatTooltipNumber (_, SpellsInOrder[i][2]).." (".._cstr("%.1f", SpellsInOrder[i][2]/FriendlyFireTotal*100).."%)")
+		GameCooltip:AddLine (nome, FormatTooltipNumber (_, SpellsInOrder[i][2]).." (".._cstr("%.1f", SpellsInOrder[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon (icone, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipBackgroundStatusbar()
 	end	
@@ -3895,6 +3915,13 @@ end
 		end
 	else
 		row.icone:SetTexture ("")
+	end
+	
+	if (not row.IconUpBorder) then
+		row.IconUpBorder = CreateFrame ("frame", nil, row)
+		row.IconUpBorder:SetAllPoints (row.icone)
+		row.IconUpBorder:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+		row.IconUpBorder:SetBackdropBorderColor (0, 0, 0, 0.75)
 	end
 	
 	if (texCoords) then

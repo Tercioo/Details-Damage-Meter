@@ -1318,9 +1318,10 @@ function _G._detalhes:Start()
 							local lineHeight = instance.row_info.height
 							local textSize = instance.row_info.font_size
 							if (lineHeight-1 <= textSize) then
-								instance.row_info.height = 21
-								instance.row_info.font_size = 16
-								instance:ChangeSkin()
+							-- no need this, scheduled to code cleanup
+							--	instance.row_info.height = 21
+							--	instance.row_info.font_size = 16
+							--	instance:ChangeSkin()
 							end
 						end
 					end

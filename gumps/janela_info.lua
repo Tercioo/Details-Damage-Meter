@@ -5187,8 +5187,8 @@ local row_on_enter = function (self)
 		end
 	
 		--> da zoom no icone
-		self.icone:SetWidth (17)
-		self.icone:SetHeight (17)	
+		self.icone:SetWidth (18)
+		self.icone:SetHeight (18)	
 		--> poe a alfa do icone em 1.0
 		self.icone:SetAlpha (1)
 		
@@ -5227,8 +5227,8 @@ local row_on_leave = function (self)
 	
 	if (self.isMain) then
 		--> retira o zoom no icone
-		self.icone:SetWidth (14)
-		self.icone:SetHeight (14)
+		self.icone:SetWidth (16)
+		self.icone:SetHeight (16)
 		--> volta com a alfa antiga da barra
 		self.icone:SetAlpha (1)
 		
@@ -5545,8 +5545,8 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	esta_barra.miniframe:SetScript ("OnLeave", miniframe_func_on_leave)
 	
 	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
-	esta_barra.icone:SetWidth (14)
-	esta_barra.icone:SetHeight (14)
+	esta_barra.icone:SetWidth (16)
+	esta_barra.icone:SetHeight (16)
 	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
 	esta_barra:SetAlpha(0.9)
@@ -5591,8 +5591,8 @@ function gump:CriaNovaBarraInfo2 (instancia, index)
 
 	--> icone
 	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
-	esta_barra.icone:SetWidth (14)
-	esta_barra.icone:SetHeight (14)
+	esta_barra.icone:SetWidth (16)
+	esta_barra.icone:SetHeight (16)
 	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
 	esta_barra:SetAlpha (ALPHA_BLEND_AMOUNT)

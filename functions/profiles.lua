@@ -1146,7 +1146,10 @@ local default_profile = {
 			menus_bg_texture = [[Interface\SPELLBOOK\Spellbook-Page-1]],
 			
 			icon_border_texcoord = {L = 5/64, R = 59/64, T = 5/64, B = 59/64},
-			icon_size = {W = 13, H = 13}
+			icon_size = {W = 13, H = 13},
+			
+			--height used on tooltips at displays such as damage taken by spell
+			line_height = 17,
 		},
 	
 }

@@ -1171,7 +1171,7 @@
 			desc = Loc ["STRING_CUSTOM_POT_DEFAULT_DESC"],
 			source = false,
 			target = false,
-			script_version = 3,
+			script_version = 4,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -1192,7 +1192,8 @@
 					local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 					if (debuff_uptime_container) then
 					    --potion of focus (can't use as pre-potion, so, its amount is always 1
-					    local focus_potion = debuff_uptime_container [188030] --Legion
+					    local focus_potion = debuff_uptime_container [DETAILS_FOCUS_POTION_ID]
+
 					    if (focus_potion) then
 						total = total + 1
 						found_potion = true
@@ -1209,7 +1210,7 @@
 					if (buff_uptime_container) then
 					    
 					    --potion of the jade serpent
-					    local jade_serpent_potion = buff_uptime_container [188027] --Legion
+					    local jade_serpent_potion = buff_uptime_container [DETAILS_INT_POTION_ID]
 					    if (jade_serpent_potion) then
 						local used = jade_serpent_potion.activedamt
 						if (used > 0) then
@@ -1224,7 +1225,7 @@
 					    end
 					    
 					    --potion of mogu power
-					    local mogu_power_potion = buff_uptime_container [188028] --Legion
+					    local mogu_power_potion = buff_uptime_container [DETAILS_STR_POTION_ID]
 					    if (mogu_power_potion) then
 						local used = mogu_power_potion.activedamt
 						if (used > 0) then
@@ -1239,7 +1240,7 @@
 					    end
 					    
 					    --mana potion
-					    local mana_potion = buff_uptime_container [188017] --Legion
+					    local mana_potion = buff_uptime_container [DETAILS_MANA_POTION_ID]
 					    if (mana_potion) then
 						local used = mana_potion.activedamt
 						if (used > 0) then
@@ -1254,7 +1255,7 @@
 					    end
 					    
 					    --potion of prolongued power
-					    local prolongued_power = buff_uptime_container [229206] --Legion
+					    local prolongued_power = buff_uptime_container [DETAILS_AGI_POTION_ID]
 					    if (prolongued_power) then
 						local used = prolongued_power.activedamt
 						if (used > 0) then
@@ -1269,7 +1270,7 @@
 					    end
 					    
 					    --potion of the mountains
-					    local mountains_potion = buff_uptime_container [188029] --Legion
+					    local mountains_potion = buff_uptime_container [DETAILS_STAMINA_POTION_ID]
 					    if (mountains_potion) then
 						local used = mountains_potion.activedamt
 						if (used > 0) then
@@ -1300,12 +1301,12 @@
 			--get the debuff container for potion of focus
 			local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 			if (debuff_uptime_container) then
-			    local focus_potion = debuff_uptime_container [188030] --Legion
+			    local focus_potion = debuff_uptime_container [DETAILS_FOCUS_POTION_ID]
 			    if (focus_potion) then
-				local name, _, icon = GetSpellInfo (188030) --Legion
+				local name, _, icon = GetSpellInfo (DETAILS_FOCUS_POTION_ID)
 				GameCooltip:AddLine (name, 1) --> can use only 1 focus potion (can't be pre-potion)
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 			    end
 			end
 
@@ -1313,48 +1314,48 @@
 			local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 			if (buff_uptime_container) then
 			    --potion of the jade serpent
-			    local jade_serpent_potion = buff_uptime_container [188027] --Legion
+			    local jade_serpent_potion = buff_uptime_container [DETAILS_INT_POTION_ID]
 			    if (jade_serpent_potion) then
-				local name, _, icon = GetSpellInfo (188027) --Legion
+				local name, _, icon = GetSpellInfo (DETAILS_INT_POTION_ID)
 				GameCooltip:AddLine (name, jade_serpent_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 			    end
 			    
 			    --potion of mogu power
-			    local mogu_power_potion = buff_uptime_container [188028] --Legion
+			    local mogu_power_potion = buff_uptime_container [DETAILS_STR_POTION_ID]
 			    if (mogu_power_potion) then
-				local name, _, icon = GetSpellInfo (188028) --Legion
+				local name, _, icon = GetSpellInfo (DETAILS_STR_POTION_ID)
 				GameCooltip:AddLine (name, mogu_power_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 			    end
 			    
 			    --mana potion
-			    local mana_potion = buff_uptime_container [188017] --Legion
+			    local mana_potion = buff_uptime_container [DETAILS_MANA_POTION_ID]
 			    if (mana_potion) then
-				local name, _, icon = GetSpellInfo (188017) --Legion
+				local name, _, icon = GetSpellInfo (DETAILS_MANA_POTION_ID)
 				GameCooltip:AddLine (name, mana_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 			    end
 			    
 			    --prolongued power
-			    local prolongued_power = buff_uptime_container [229206] --Legion
+			    local prolongued_power = buff_uptime_container [DETAILS_AGI_POTION_ID]
 			    if (prolongued_power) then
-				local name, _, icon = GetSpellInfo (229206) --Legion
+				local name, _, icon = GetSpellInfo (DETAILS_AGI_POTION_ID)
 				GameCooltip:AddLine (name, prolongued_power.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 			    end
 			    
 			    --potion of the mountains
-			    local mountains_potion = buff_uptime_container [188029] --Legion
+			    local mountains_potion = buff_uptime_container [DETAILS_STAMINA_POTION_ID]
 			    if (mountains_potion) then
-				local name, _, icon = GetSpellInfo (188029) --Legion
+				local name, _, icon = GetSpellInfo (DETAILS_STAMINA_POTION_ID)
 				GameCooltip:AddLine (name, mountains_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 			    end
 			end
 		]]
@@ -1381,7 +1382,7 @@
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --		/run _detalhes:AddDefaultCustomDisplays()
 
-		local Healthstone = {
+			local Healthstone = {
 			name = Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"],
 			icon = [[Interface\ICONS\warlock_ healthstone]],
 			attribute = false,
@@ -1431,21 +1432,21 @@
 			local hs = actor:GetSpell (6262)
 			if (hs) then
 				GameCooltip:AddLine (select (1, GetSpellInfo(6262)),  _detalhes:ToK(hs.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (6262)), 1, 1, 16, 16)
+				GameCooltip:AddIcon (select (3, GetSpellInfo (6262)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
 			
 			local pot = actor:GetSpell (DETAILS_HEALTH_POTION_ID)
 			if (pot) then
 				GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_HEALTH_POTION_ID)),  _detalhes:ToK(pot.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_HEALTH_POTION_ID)), 1, 1, 16, 16)
+				GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_HEALTH_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
 			
 			local pot = actor:GetSpell (DETAILS_REJU_POTION_ID)
 			if (pot) then
 				GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_REJU_POTION_ID)),  _detalhes:ToK(pot.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_REJU_POTION_ID)), 1, 1, 16, 16)
+				GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_REJU_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
 
@@ -1453,7 +1454,7 @@
 			]],
 			percent_script = false,
 			total_script = false,
-			script_version = 13,
+			script_version = 14,
 		}
 --	/run _detalhes:AddDefaultCustomDisplays()
 		local have = false
@@ -1617,7 +1618,7 @@
 			desc = "Show the crowd control amount for each player.",
 			source = false,
 			target = false,
-			script_version = 9,
+			script_version = 11,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amount = 0, 0, 0
@@ -1651,7 +1652,7 @@
 				    local name, _, icon = GetSpellInfo (spell [1])
 				    GameCooltip:AddLine (name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
-				    GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				end
 
 				local targets = {}
@@ -1672,9 +1673,9 @@
 				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (target [1])
 				    if (class and class ~= "UNKNOW") then
 					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
-					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height, l, r, t, b)
 				    else
-					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, 14, 14)
+					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    end
 				    --
 				end
@@ -1721,7 +1722,7 @@
 			desc = "Show the amount of crowd control received for each player.",
 			source = false,
 			target = false,
-			script_version = 1,
+			script_version = 2,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amt = 0, 0, 0
@@ -1793,7 +1794,7 @@
 				    local name, _, icon = GetSpellInfo (spell [1])
 				    GameCooltip:AddLine (name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
-				    GameCooltip:AddIcon (icon, 1, 1, 14, 14)    
+				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)    
 				end
 
 				_detalhes:AddTooltipSpellHeaderText ("From", "yellow", #from)
@@ -1806,9 +1807,9 @@
 				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (t [1])
 				    if (class and class ~= "UNKNOW") then
 					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
-					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height, l, r, t, b)
 				    else
-					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, 14, 14)
+					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    end     
 				    
 				end
@@ -2135,7 +2136,7 @@
 			desc = Loc ["STRING_CUSTOM_DAMAGEONSKULL_DESC"],
 			source = false,
 			target = false,
-			script_version = 2,
+			script_version = 3,
 			script = [[
 				--get the parameters passed
 				local Combat, CustomContainer, Instance = ...
@@ -2185,7 +2186,7 @@
 				if (DamageOnStar) then
 				    --RAID_TARGET_8 is the built-in localized word for 'Skull'.
 				    GameCooltip:AddLine (RAID_TARGET_8 .. ":", format_func (_, DamageOnStar))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_8", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_8", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 			]],
@@ -2227,7 +2228,7 @@
 			desc = Loc ["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET_DESC"],
 			source = false,
 			target = false,
-			script_version = 2,
+			script_version = 3,
 			script = [[
 				--get the parameters passed
 				local Combat, CustomContainer, Instance = ...
@@ -2273,49 +2274,49 @@
 				local DamageOnStar = RaidTargets [1]
 				if (DamageOnStar) then
 				    GameCooltip:AddLine (RAID_TARGET_1 .. ":", format_func (_, DamageOnStar))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_1", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_1", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnCircle = RaidTargets [2]
 				if (DamageOnCircle) then
 				    GameCooltip:AddLine (RAID_TARGET_2 .. ":", format_func (_, DamageOnCircle))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_2", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_2", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnDiamond = RaidTargets [4]
 				if (DamageOnDiamond) then
 				    GameCooltip:AddLine (RAID_TARGET_3 .. ":", format_func (_, DamageOnDiamond))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_3", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_3", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnTriangle = RaidTargets [8]
 				if (DamageOnTriangle) then
 				    GameCooltip:AddLine (RAID_TARGET_4 .. ":", format_func (_, DamageOnTriangle))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_4", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_4", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnMoon = RaidTargets [16]
 				if (DamageOnMoon) then
 				    GameCooltip:AddLine (RAID_TARGET_5 .. ":", format_func (_, DamageOnMoon))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_5", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_5", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnSquare = RaidTargets [32]
 				if (DamageOnSquare) then
 				    GameCooltip:AddLine (RAID_TARGET_6 .. ":", format_func (_, DamageOnSquare))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_6", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_6", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnCross = RaidTargets [64]
 				if (DamageOnCross) then
 				    GameCooltip:AddLine (RAID_TARGET_7 .. ":", format_func (_, DamageOnCross))
-				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_7", 1, 1, 14, 14)
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_7", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 			]],
@@ -2360,7 +2361,7 @@
 			desc = "Show overall damage done on the fly.",
 			source = false,
 			target = false,
-			script_version = 3,
+			script_version = 4,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -2448,7 +2449,7 @@
 					
 					GameCooltip:AddLine (spellName, format_func (_, total))
 					Details:AddTooltipBackgroundStatusbar()
-					GameCooltip:AddIcon (spellIcon, 1, 1, 14, 14)
+					GameCooltip:AddIcon (spellIcon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    end
 				end
 			]],

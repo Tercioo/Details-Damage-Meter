@@ -783,7 +783,7 @@ function atributo_energy:KeyNames (sub_atributo)
 	return "total"
 end
 
----------> TOOLTIPS BIFURCA��O
+---------> TOOLTIPS BIFURCA��O ~tooltip
 
 local resource_bg_color = {.1, .1, .1, 0.6}
 local resource_bg_coords = {.6, 0.1, 0, 0.64453125}
@@ -909,9 +909,9 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 		end
 	
 		local nome_magia, _, icone_magia = _GetSpellInfo (spell [1])
-		GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_,  spell [2]).." (".._cstr("%.1f", (spell [2]/total_regenerado) * 100).."%)")
+		GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_,  spell [2]).." (".._cstr("%.1f", (spell [2]/total_regenerado) * 100).."%)")
 		GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
-		_detalhes:AddTooltipBackgroundStatusbar()
+		_detalhes:AddTooltipBackgroundStatusbar (false, spell [2] / energy_tooltips_table [1][2] * 100)
 	end
 	
 	--> players
@@ -968,7 +968,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 			break
 		end
 	
-		GameCooltip:AddLine (source [1]..": ", FormatTooltipNumber (_,  source [2]).." (".._cstr("%.1f", (source [2] / total_regenerado) * 100).."%)")
+		GameCooltip:AddLine (source [1], FormatTooltipNumber (_,  source [2]).." (".._cstr("%.1f", (source [2] / total_regenerado) * 100).."%)")
 		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		local classe = source [3]
@@ -976,9 +976,9 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 			classe = "UNKNOW"
 		end
 		if (classe == "UNKNOW") then
-			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, icon_size.W, icon_size.H, .25, .5, 0, 1)
 		else
-			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, icon_size.W, icon_size.H, _unpack (_detalhes.class_coords [classe]))
 		end
 		
 	end
