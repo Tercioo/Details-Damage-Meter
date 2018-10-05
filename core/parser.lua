@@ -506,6 +506,9 @@
 		if (absorbed) then
 			amount = absorbed + (amount or 0)
 		end
+		if (overkill and overkill > 0) then
+			amount = amount - overkill
+		end
 		
 		if (este_jogador.grupo and not este_jogador.arena_enemy and not este_jogador.enemy) then --> source = friendly player and not an enemy player
 			--dano to adversario estava caindo aqui por nao estar checando .enemy
@@ -658,25 +661,13 @@
 		end
 		
 	------------------------------------------------------------------------------------------------
-	--> firendly fire
+	--> firendly fire ~friendlyfire
 		if (
 			--removed deprecated friendly fire rules (25/09/2018)
 			--general rules for friendly fire
 			(
-				--rule 1: if the source and target are friedly to each other
-				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) --or --ajdt d' brx
-				--rule 2
-				--(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
-			)
-			--rule 3
-			and
-			(
-				true
-				--> if the target isn't a pvp duel target
-				--not jogador_alvo.enemy and not este_jogador.enemy
-				--> specific rules for encounters
-				--_current_encounter_id ~= 2113 and --Waycrest Manor HeartsbaneTriad boss (it has mind control)
-				--_current_encounter_id ~= 2132 -- Shrine of the Storms Lord Stormsong (it has mind control)
+				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or
+				(raid_members_cache [who_serial] and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0)
 			)
 		) then
 

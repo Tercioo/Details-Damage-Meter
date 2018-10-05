@@ -282,8 +282,6 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
 			self.listener:RegisterEvent ("PLAYER_TALENT_UPDATE")
 			
-			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
-			
 			--test immersion stuff
 			------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------			
 			
