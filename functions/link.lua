@@ -2532,6 +2532,8 @@
 			DetailsAuraPanel.IconSizeSlider:SetValue (DetailsAuraPanel.other_values.text_size)
 		end
 		
+		spellname = spellname or ""
+		
 		DetailsAuraPanel.name.text = spellname .. " (d!)"
 		DetailsAuraPanel.spellname.text = spellname
 		DetailsAuraPanel.AuraSpellId.text = tostring (spellid)

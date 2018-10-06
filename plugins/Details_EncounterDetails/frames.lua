@@ -182,12 +182,12 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		row.textura = CreateFrame ("StatusBar", nil, row)
 		row.textura:SetAllPoints (row)
 		local t = row.textura:CreateTexture (nil, "overlay")
-		t:SetTexture ("Interface\\AddOns\\Details\\images\\bar_serenity")
-		--t:SetTexture ("Interface\\AddOns\\Details\\images\\bar_skyline")
+		t:SetTexture (EncounterDetails.Frame.DefaultBarTexture)
+
 		row.t = t
 		row.textura:SetStatusBarTexture (t)
-		row.textura:SetStatusBarColor(.5, .5, .5, 0)
-		row.textura:SetMinMaxValues(0,100)
+		row.textura:SetStatusBarColor (.5, .5, .5, 0)
+		row.textura:SetMinMaxValues (0,100)
 		
 		row.texto_esquerdo = row.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 		row.texto_esquerdo:SetPoint ("LEFT", row.textura, "LEFT", 22, -1)
@@ -209,10 +209,12 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		x_mod = x_mod or 0
 		width_mod = width_mod or 0
 		
-		barra:SetWidth (200+width_mod) --> tamanho da barra de acordo com o tamanho da janela
-		barra:SetHeight (16) --> altura determinada pela instância
+		local default_height = EncounterDetails.Frame.DefaultBarHeight
 		
-		local y = (index-1)*17
+		barra:SetWidth (200 + width_mod) --> tamanho da barra de acordo com o tamanho da janela
+		barra:SetHeight (default_height) --> altura determinada pela instância
+		
+		local y = (index-1)*(default_height + 1)
 		y_mod = y_mod or 0
 		y = y + y_mod
 		y = y*-1 --> baixo
@@ -232,9 +234,9 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		
 		--> icone
 		barra.icone = barra.textura:CreateTexture (nil, "OVERLAY")
-		barra.icone:SetWidth (16)
-		barra.icone:SetHeight (16)
-		barra.icone:SetPoint ("RIGHT", barra.textura, "LEFT", 0+20, 0)
+		barra.icone:SetWidth (default_height)
+		barra.icone:SetHeight (default_height)
+		barra.icone:SetPoint ("RIGHT", barra.textura, "LEFT", 20, 0)
 		
 		barra:SetAlpha (0.9)
 		barra.icone:SetAlpha (0.8)
@@ -1366,9 +1368,16 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	BossFrame.buttonSwitchNormal:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE"))
 	BossFrame.buttonSwitchNormal:SetWidth (BUTTON_WIDTH)
 	
+	--phases
+	BossFrame.buttonSwitchPhases = _detalhes.gump:CreateButton (BossFrame, BossFrame.switch, BUTTON_WIDTH, BUTTON_HEIGHT, "Phases", "phases")
+	BossFrame.buttonSwitchPhases:SetPoint ("left", BossFrame.buttonSwitchNormal, "right", HEADER_MENUBUTTONS_SPACEMENT, 0)
+	BossFrame.buttonSwitchPhases:SetIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 18, 18, "overlay", {151/256, 176/256, 0, 0.505625})
+	BossFrame.buttonSwitchPhases:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+	BossFrame.buttonSwitchPhases:SetWidth (BUTTON_WIDTH)
+	
 	--chart
 	BossFrame.buttonSwitchGraphic = _detalhes.gump:CreateButton (BossFrame, BossFrame.switch, BUTTON_WIDTH, BUTTON_HEIGHT, "Charts", "graph")
-	BossFrame.buttonSwitchGraphic:SetPoint ("left", BossFrame.buttonSwitchNormal, "right", HEADER_MENUBUTTONS_SPACEMENT, 0)
+	BossFrame.buttonSwitchGraphic:SetPoint ("left", BossFrame.buttonSwitchPhases, "right", HEADER_MENUBUTTONS_SPACEMENT, 0)
 	BossFrame.buttonSwitchGraphic:SetIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 18, 18, "overlay", {0.1271875, 0.21875, 0, 0.505625})
 	BossFrame.buttonSwitchGraphic:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 	BossFrame.buttonSwitchGraphic:SetWidth (BUTTON_WIDTH)
@@ -1386,14 +1395,6 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	BossFrame.buttonSwitchSpellsAuras:SetIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 18, 18, "overlay", {121/256, 146/256, 0, 0.505625})
 	BossFrame.buttonSwitchSpellsAuras:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 	BossFrame.buttonSwitchSpellsAuras:SetWidth (BUTTON_WIDTH)
-	
-	--phases
-	BossFrame.buttonSwitchPhases = _detalhes.gump:CreateButton (BossFrame, BossFrame.switch, BUTTON_WIDTH, BUTTON_HEIGHT, "Phases", "phases")
-	BossFrame.buttonSwitchPhases:SetPoint ("left", BossFrame.buttonSwitchSpellsAuras, "right", HEADER_MENUBUTTONS_SPACEMENT, 0)
-	BossFrame.buttonSwitchPhases:SetIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 18, 18, "overlay", {151/256, 176/256, 0, 0.505625})
-	BossFrame.buttonSwitchPhases:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-	BossFrame.buttonSwitchPhases:SetWidth (BUTTON_WIDTH)
-	
 
 	BossFrame.AllButtons = {BossFrame.buttonSwitchNormal, BossFrame.buttonSwitchGraphic, BossFrame.buttonSwitchBossEmotes, BossFrame.buttonSwitchSpellsAuras, BossFrame.buttonSwitchPhases}
 	
@@ -2155,7 +2156,7 @@ PhaseFrame.CurrentSegment = {}
 PhaseFrame.PhaseButtons = {}
 EncounterDetailsPhaseFrame:Hide()
 
-local ScrollWidth, ScrollHeight, ScrollLineAmount, ScrollLineHeight = 250, 410, 20, 20
+local ScrollWidth, ScrollHeight, ScrollLineAmount, ScrollLineHeight = 250, 420, 20, 20
 local PhasesY = -88
 local AnchorY = -120
 
@@ -2233,6 +2234,7 @@ function PhaseFrame.OnSelectPhase (phaseSelected)
 		tinsert (PhaseFrame.DamageTable, {charName, amount})
 	end
 	table.sort (PhaseFrame.DamageTable, function(a, b) return a[2] > b[2] end)
+	
 	table.wipe (PhaseFrame.HealingTable)
 	for charName, amount in pairs (phaseData.heal [phaseSelected]) do
 		tinsert (PhaseFrame.HealingTable, {charName, amount})
@@ -2249,7 +2251,7 @@ end
 local PhaseSelectLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Select Phase:", 12, "orange")
 local DamageLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Damage Done")
 local HealLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Healing Done")
-local PhaseTimersLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Phase Timers")
+local PhaseTimersLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Time Spent on Each Phase")
 
 local report_damage = function (IsCurrent, IsReverse, AmtLines)
 	local result = {}
@@ -2314,8 +2316,11 @@ for i = 1, 10 do
 end
 
 local ScrollRefresh = function (self, data, offset, total_lines)
-	local ToK = _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
-	local RemoveRealm = _detalhes.GetOnlyName
+	local formatToK = Details:GetCurrentToKFunction()
+	local removeRealm = _detalhes.GetOnlyName
+	
+	local topValue = data [1] and data [1][2]
+	
 	for i = 1, ScrollLineAmount do
 		local index = i + offset
 		local player = data [index]
@@ -2325,8 +2330,15 @@ local ScrollRefresh = function (self, data, offset, total_lines)
 			
 			line.icon:SetTexture (texture)
 			line.icon:SetTexCoord (L, R, T, B)
-			line.name:SetText (RemoveRealm (_, player[1]))
-			line.done:SetText (ToK (_, player[2]))
+			line.name:SetText (index .. ". " .. removeRealm (_, player[1]))
+			line.done:SetText (formatToK (_, player[2]) .. " (" .. format ("%.1f", player[2] / topValue * 100) .. "%)")
+			line.statusbar:SetValue (player[2] / topValue * 100)
+			local actorClass = Details:GetClass (player[1])
+			if (actorClass) then
+				line.statusbar:SetColor (actorClass)
+			else
+				line.statusbar:SetColor ("silver")
+			end
 		end
 	end
 end
@@ -2339,7 +2351,6 @@ local line_onleave = function (self)
 	self:SetBackdropColor (unpack (BGColorDefault))
 end
 
-
 local ScrollCreateLine = function (self, index)
 	local line = CreateFrame ("button", "$parentLine" .. index, self)
 	line:SetPoint ("topleft", self, "topleft", 0, -((index-1)*(ScrollLineHeight+1)))
@@ -2350,20 +2361,30 @@ local ScrollCreateLine = function (self, index)
 	
 	line:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 	line:SetBackdropColor (unpack (BGColorDefault))
+
+	local statusBar = 	DetailsFrameWork:CreateBar (line, EncounterDetails.Frame.DefaultBarTexture, 1, 1, 100)
+	statusBar:SetAllPoints (line)
+	statusBar.backgroundtexture = EncounterDetails.Frame.DefaultBarTexture
+	statusBar.backgroundcolor = {.3, .3, .3, .3}
 	
-	local icon = line:CreateTexture ("$parentIcon", "overlay")
+	local icon = statusBar:CreateTexture ("$parentIcon", "overlay")
 	icon:SetSize (ScrollLineHeight, ScrollLineHeight)
-	local name = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (name, 9)
+	
+	local name = statusBar:CreateFontString ("$parentName", "overlay", "GameFontNormal")
+	_detalhes.gump:SetFontSize (name, 10)
 	icon:SetPoint ("left", line, "left", 2, 0)
 	name:SetPoint ("left", icon, "right", 2, 0)
 	_detalhes.gump:SetFontColor (name, "white")
-	local done = line:CreateFontString ("$parentDone", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (done, 9)
+	
+	local done = statusBar:CreateFontString ("$parentDone", "overlay", "GameFontNormal")
+	_detalhes.gump:SetFontSize (done, 10)
+	_detalhes.gump:SetFontColor (done, "white")
 	done:SetPoint ("right", line, "right", -2, 0)
+	
 	line.icon = icon
 	line.name = name
 	line.done = done
+	line.statusbar = statusBar
 	name:SetHeight (10)
 	name:SetJustifyH ("left")
 	return line
@@ -2410,10 +2431,11 @@ local PhaseBarOnClick = function (self)
 	--report
 end
 
+--cria as linhas mostrando o tempo decorride de cada phase
 for i = 1, 10 do
 	local line = CreateFrame ("button", "$parentPhaseBar" .. i, PhaseFrame)
 	line:SetPoint ("topleft", PhaseTimersLabel.widget, "bottomleft", 0, -((i-1)*(31)) - 4)
-	line:SetSize (ScrollWidth, 30)
+	line:SetSize (175, 30)
 	line:SetScript ("OnEnter", PhaseBarOnEnter)
 	line:SetScript ("OnLeave", PhaseBarOnLeave)
 	line:SetScript ("OnClick", PhaseBarOnClick)
@@ -2431,7 +2453,7 @@ for i = 1, 10 do
 	
 	icon:SetPoint ("left", line, "left", 2, 0)
 	name:SetPoint ("left", icon, "right", 2, 0)
-	done:SetPoint ("right", line, "right", -2, 0)
+	done:SetPoint ("right", line, "right", -3, 0)
 	
 	line.icon = icon
 	line.name = name
@@ -2442,12 +2464,12 @@ for i = 1, 10 do
 	tinsert (PhaseFrame.PhasesBars, line)
 end
 
---cria a linha do segmento para a compara ção, é o que fica na parte direita da tela
+--cria a linha do segmento para a comparação, é o que fica na parte direita da tela
 --ele é acessado para mostrar quando passar o mouse sobre uma das barras de phase
 for i = 1, 20 do
 	local line = CreateFrame ("button", "$parentSegmentCompareBar" .. i, PhaseFrame)
-	line:SetPoint ("topleft", PhaseTimersLabel.widget, "bottomleft", ScrollWidth+10, -((i-1)*(ScrollLineHeight+1)) - 4)
-	line:SetSize (ScrollWidth, ScrollLineHeight)
+	line:SetPoint ("topleft", PhaseTimersLabel.widget, "bottomleft", 175+10, -((i-1)*(ScrollLineHeight+1)) - 4)
+	line:SetSize (150, ScrollLineHeight)
 	
 	line:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 	line:SetBackdropColor (unpack (BGColorDefault))
@@ -2701,7 +2723,6 @@ end
 		container_habilidades_frame.barras = {}
 
 		--label titulo % background
-		
 		local habilidades_inimigas_bg = CreateFrame ("Frame", nil, frame)
 		habilidades_inimigas_bg:SetWidth (BOX_WIDTH)
 		habilidades_inimigas_bg:SetHeight (16)

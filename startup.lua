@@ -90,6 +90,7 @@ function _G._detalhes:Start()
 			self:InitializeAPIWindow()
 			self:InitializeRunCodeWindow()
 			self:InitializePlaterIntegrationWindow()
+			self:InitializeMacrosWindow()
 			
 		--> bookmarks
 			if (self.switch.InitSwitch) then

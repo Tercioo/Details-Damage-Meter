@@ -5606,7 +5606,7 @@ function DF:CreateLoadFilterParser (callback)
 			DF.CurrentPlayerRole = assignedRole
 		end
 		
-		print ("Plater Script Update:", event, ...)
+		--print ("Plater Script Update:", event, ...)
 		
 		DF:QuickDispatch (callback, f.EncounterIDCached)
 	end)

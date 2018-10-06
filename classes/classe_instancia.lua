@@ -1899,6 +1899,20 @@ function _detalhes:Resize (w, h)
 	return true
 end
 
+--/run Details:GetWindow(1):ToggleMaxSize()
+function _detalhes:ToggleMaxSize()
+	if (self.is_in_max_size) then
+		self.is_in_max_size = false
+		self:SetSize (self.original_width, self.original_height)
+	else
+		local original_width, original_height = self:GetSize()
+		self.original_width, self.original_height = original_width, original_height
+		self.is_in_max_size = true
+		self:SetSize (original_width, 450)
+		
+	end
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 function _detalhes:PostponeSwitchToCurrent (instance)

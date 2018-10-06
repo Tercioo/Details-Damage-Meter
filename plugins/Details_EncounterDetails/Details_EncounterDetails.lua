@@ -33,6 +33,9 @@ local EncounterDetails = _detalhes:NewPluginObject ("Details_EncounterDetails", 
 tinsert (UISpecialFrames, "Details_EncounterDetails")
 --> Main Frame
 local EncounterDetailsFrame = EncounterDetails.Frame
+EncounterDetailsFrame.DefaultBarHeight = 20
+EncounterDetailsFrame.CooltipStatusbarAlpha = .65
+EncounterDetailsFrame.DefaultBarTexture = "Interface\\AddOns\\Details\\images\\bar_serenity"
 
 EncounterDetails:SetPluginDescription ("Raid encounters summary, show basic stuff like dispels, interrupts and also graphic charts, boss emotes and the Weakaura Creation Tool.")
 
@@ -48,6 +51,20 @@ local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
 EncounterDetails.name = "Encounter Details"
 EncounterDetails.debugmode = false
+
+function EncounterDetails:FormatCooltipSettings()
+	GameCooltip:SetType ("tooltip")
+	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_serenity]])
+	GameCooltip:SetOption ("StatusBarHeightMod", 0)
+	GameCooltip:SetOption ("FixedWidth", 280)
+	GameCooltip:SetOption ("TextSize", 11)
+	GameCooltip:SetOption ("LeftBorderSize", -4)
+	GameCooltip:SetOption ("RightBorderSize", 5)
+	GameCooltip:SetOption ("ButtonsYMod", 0)
+	GameCooltip:SetOption ("YSpacingMod", -1)
+end
+
+EncounterDetails.CooltipLineHeight = 18
 
 local ability_type_table = {
 	[0x1] = "|cFF00FF00"..Loc ["STRING_HEAL"].."|r", 
@@ -615,28 +632,6 @@ local function CreatePluginFrames (data)
 	
 end
 
-local IsShiftKeyDown = IsShiftKeyDown
-
-local shift_monitor = function (self)
-	if (IsShiftKeyDown()) then
-		local spellname = GetSpellInfo (self.spellid)
-		if (spellname) then
-			if (GameCooltip) then
-				GameCooltip:Hide()
-			end
-			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
-			GameTooltip:SetSpellByID (self.spellid)
-			GameTooltip:Show()
-			self.showing_spelldesc = true
-		end
-	else
-		if (self.showing_spelldesc) then
-			self:GetScript ("OnEnter") (self)
-			self.showing_spelldesc = false
-		end
-	end
-end
-
 local sort_damage_from = function (a, b) 
 	if (a[3] ~= "PET" and b[3] ~= "PET") then 
 		return a[2] > b[2] 
@@ -766,13 +761,13 @@ end
 				GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		end
 
+		--death log cooltip settings
 		GameCooltip:SetOption ("StatusBarHeightMod", -6)
 		GameCooltip:SetOption ("FixedWidth", 300)
 		GameCooltip:SetOption ("TextSize", 9)
 		GameCooltip:SetOption ("LeftBorderSize", -4)
 		GameCooltip:SetOption ("RightBorderSize", 5)
 		GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_serenity]])
-		--GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
 		GameCooltip:SetBackdrop (1, _detalhes.cooltip_preset2_backdrop, bgColor, borderColor)
 		
 		GameCooltip:ShowCooltip()
@@ -793,11 +788,18 @@ local function DispellInfo (dispell, barra)
 	for index, tabela in _ipairs (tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		if (not coords) then
-			GameCooltip:AddLine (tabela[1], tabela[2], 1, "white", "orange")
+			GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), tabela[2], 1, "white", "orange")
 			GameCooltip:AddIcon ("Interface\\GossipFrame\\DailyActiveQuestIcon")
 		else
-			GameCooltip:AddLine (tabela[1], tabela[2], 1, "white", "orange")
-			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+			GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), tabela[2], 1, "white", "orange")
+			
+			local specID = Details:GetSpec (tabela[1])
+			if (specID) then
+				local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
+				GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
+			else
+				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+			end
 		end
 	end
 	
@@ -826,13 +828,21 @@ local function KickBy (magia, barra)
 	local spellName, _, spellIcon = GetSpellInfo (barra.texto_esquerdo:GetText())
 	GameCooltip:AddLine (barra.texto_esquerdo:GetText())
 	if (spellIcon) then
-		GameCooltip:AddIcon (spellIcon, nil, 1, 14, 14, 5/64, 59/64, 5/64, 59/64)
+		GameCooltip:AddIcon (spellIcon, nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, 5/64, 59/64, 5/64, 59/64)
 	end
 	
 	for index, tabela in _ipairs (tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
-		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]) .. ": ", tabela[2], 1, "white")
-		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), tabela[2], 1, "white")
+		
+		local specID = Details:GetSpec (tabela[1])
+		if (specID) then
+			local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
+			GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
+		else
+			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+		end
+		
 		GameCooltip:AddStatusBar (100, 1, .3, .3, .3, .3, false, false, false)
 	end
 	
@@ -872,12 +882,25 @@ local function EnemySkills (habilidade, barra)
 	for index, tabela in _ipairs (tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		
-		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]) .. ": ", ToK (_, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
+		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), ToK (_, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
 		local r, g, b, a = unpack (_detalhes.tooltip.background)
-		GameCooltip:AddStatusBar (tabela[2] / topValue * 100, 1, r, g, b, a, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		
-		if (coords) then
-			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+		local actorClass = Details:GetClass (tabela[1])
+		if (actorClass) then
+			local r, g, b = Details:GetClassColor (actorClass)
+			GameCooltip:AddStatusBar (tabela[2] / topValue * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+		else
+			GameCooltip:AddStatusBar (tabela[2] / topValue * 100, 1, r, g, b, a, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+		end		
+		
+		local specID = Details:GetSpec (tabela[1])
+		if (specID) then
+			local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
+			GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
+		else
+			if (coords) then
+				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+			end
 		end
 	end
 	
@@ -885,7 +908,7 @@ local function EnemySkills (habilidade, barra)
 	if (spellname) then
 		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
 		GameTooltip:SetSpellByID (barra.spellid)
-		GameTooltip:SetPoint ("topright", GameCooltipFrame1, "topleft", -2, 0)
+		GameTooltip:SetPoint ("right", barra, "left", -2, 0)
 		GameTooltip:Show()
 	end
 	
@@ -907,7 +930,6 @@ local function DamageTakenDetails (jogador, barra)
 		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
 			local habilidades = este_agressor.spells._ActorTable
 			for id, habilidade in _pairs (habilidades) do 
-			--print ("oi - " .. este_agressor.nome)
 				local alvos = habilidade.targets
 				for target_name, amount in _pairs (alvos) do 
 					if (target_name == jogador.nome) then
@@ -940,10 +962,10 @@ local function DamageTakenDetails (jogador, barra)
 			teve_melee = true
 		end
 		
-		GameCooltip:AddLine (nome_magia..": ", ToK (_, meus_agressores[i][2]) .. " (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", 1, "white")
-		GameCooltip:AddStatusBar (meus_agressores[i][2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+		GameCooltip:AddLine (nome_magia, ToK (_, meus_agressores[i][2]) .. " (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", 1, "white")
+		GameCooltip:AddStatusBar (meus_agressores[i][2] / topDamage * 100, 1, .3, .3, .3, .6, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		
-		GameCooltip:AddIcon (icone_magia, nil, 1, 14, 14)
+		GameCooltip:AddIcon (icone_magia, nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, .1, .9, .1, .9)
 	end
 	
 	if (teve_melee) then
@@ -1062,23 +1084,15 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 		
 			self.mouse_over = true
 			
-			self:SetHeight (17)
-			self:SetAlpha(1)
+			self:SetHeight (EncounterDetails.Frame.DefaultBarHeight + 1)
+			self:SetAlpha (1)
 			
 			EncounterDetails.SetBarBackdrop_OnEnter (self)
 			
 			--GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 			GameCooltip:Preset (2)
 			GameCooltip:SetOwner (self)
-			
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
-			GameCooltip:SetOption ("StatusBarHeightMod", 0)
-			GameCooltip:SetOption ("FixedWidth", 280)
-			GameCooltip:SetOption ("TextSize", 10)
-			GameCooltip:SetOption ("LeftBorderSize", -4)
-			GameCooltip:SetOption ("RightBorderSize", 5)
-			GameCooltip:SetOption ("ButtonsYMod", 0)
-			GameCooltip:SetOption ("YSpacingMod", -1)
+			EncounterDetails:FormatCooltipSettings()
 			
 			if (not self.TTT) then --> tool tip type
 				return
@@ -1086,8 +1100,6 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			
 			if (self.TTT == "damage_taken") then --> damage taken
 				DamageTakenDetails (self.jogador, barra)
-				
-			elseif (self.TTT == "adds_container") then
 			
 			elseif (self.TTT == "habilidades_inimigas") then --> enemy abilytes
 				self.spellid = self.jogador [4]
@@ -1104,8 +1116,6 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			elseif (self.TTT == "morte") then --> deaths
 				KillInfo (self.jogador, self) --> aqui 2
 			end
-
-			--GameTooltip:Show()
 			
 			GameCooltip:Show()
 		end)
@@ -1119,7 +1129,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 				return
 			end
 			
-			self:SetHeight (16)
+			self:SetHeight (EncounterDetails.Frame.DefaultBarHeight)
 			self:SetAlpha (0.9)
 
 			EncounterDetails.SetBarBackdrop_OnLeave (self)
@@ -1295,11 +1305,18 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra.textura:SetValue (jogador.damage_taken/dano_do_primeiro *100)
 				end
 				
-				barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-				if (EncounterDetails.class_coords [jogador.classe]) then
-					barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
+				local specID = Details:GetSpec (jogador.nome)
+				if (specID) then
+					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
+					barra.icone:SetTexture (texture)
+					barra.icone:SetTexCoord (l, r, t, b)
+				else
+					barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+					if (EncounterDetails.class_coords [jogador.classe]) then
+						barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
+					end
 				end
-				
+
 				barra:Show()
 				quantidade = quantidade + 1
 			end
@@ -1322,6 +1339,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local habilidades_poll = {}
 		
 		--> pega as magias contínuas presentes em todas as fases
+		--deprecated
 		if (boss_info and boss_info.continuo) then
 			for index, spellid in _ipairs (boss_info.continuo) do 
 				habilidades_poll [spellid] = true
@@ -1329,6 +1347,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		end
 
 		--> pega as habilidades que pertence especificamente a cada fase
+		--deprecated
 		if (boss_info and boss_info.phases) then
 			for fase_id, fase in _ipairs (boss_info.phases) do 
 				if (fase.spells) then
@@ -1370,7 +1389,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						--> adiciona ao [1] total de dano que esta habilidade causou
 						esta_habilidade[1] = esta_habilidade[1] + habilidade.total
 						
-						 --> adiciona ao [3] total do jogador que castou
+						--> adiciona ao [3] total do jogador que castou
 						if (not esta_habilidade[3][jogador.nome]) then
 							esta_habilidade[3][jogador.nome] = 0
 						end
@@ -1603,7 +1622,6 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		--> montou a tabela, agora precisa mostrar no painel
 
 		local function _DanoFeito (self)
-		
 			self.textura:SetBlendMode ("ADD")
 		
 			local barra = self:GetParent()
@@ -1613,15 +1631,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			GameCooltip:Preset (2)
 			GameCooltip:SetOwner (self)
 			
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
-			GameCooltip:SetOption ("StatusBarHeightMod", 0)
-			GameCooltip:SetOption ("FixedWidth", 280)
-			GameCooltip:SetOption ("TextSize", 10)
-			GameCooltip:SetOption ("LeftBorderSize", -4)
-			GameCooltip:SetOption ("RightBorderSize", 5)
-			GameCooltip:SetOption ("ButtonsYMod", 0)
-			GameCooltip:SetOption ("YSpacingMod", -1)
-			GameCooltip:SetType ("tooltip")
+			EncounterDetails:FormatCooltipSettings()
 			
 			GameCooltip:AddLine (barra.texto_esquerdo:GetText().." ".. "Damage Done")
 			
@@ -1630,10 +1640,23 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local dano_em_total = tabela.dano_em_total
 			for _, esta_tabela in _pairs (dano_em) do 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
+				GameCooltip:AddLine (EncounterDetails:GetOnlyName (esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
 				
-				GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
-				GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+				local specID = Details:GetSpec (esta_tabela[1])
+				if (specID) then
+					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
+					GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
+				else
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+				end
+				
+				local actorClass = Details:GetClass (esta_tabela[1])
+				if (actorClass) then
+					local r, g, b = Details:GetClassColor (actorClass)
+					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+				else
+					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+				end
 			end
 			
 			GameCooltip:AddLine (" ")
@@ -1650,15 +1673,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			GameCooltip:Preset (2)
 			GameCooltip:SetOwner (self)
 			
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
-			GameCooltip:SetOption ("StatusBarHeightMod", 0)
-			GameCooltip:SetOption ("FixedWidth", 280)
-			GameCooltip:SetOption ("TextSize", 10)
-			GameCooltip:SetOption ("LeftBorderSize", -4)
-			GameCooltip:SetOption ("RightBorderSize", 5)
-			GameCooltip:SetOption ("ButtonsYMod", 0)
-			GameCooltip:SetOption ("YSpacingMod", -1)
-			GameCooltip:SetType ("tooltip")
+			EncounterDetails:FormatCooltipSettings()
 			
 			GameCooltip:AddLine (barra.texto_esquerdo:GetText().." "..Loc ["STRING_DAMAGE_TAKEN"])
 			
@@ -1669,12 +1684,25 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				if (coords) then
-					GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, "white", "orange")
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
-					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+					GameCooltip:AddLine (EncounterDetails:GetOnlyName (esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, "white", "orange", nil, nil, "MONOCHRONE")
 					
+					local specID = Details:GetSpec (esta_tabela[1])
+					if (specID) then
+						local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
+						GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
+					else					
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
+					end
+					
+					local actorClass = Details:GetClass (esta_tabela[1])
+					if (actorClass) then
+						local r, g, b = Details:GetClassColor (actorClass)
+						GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+					else
+						GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+					end
 				else
-					GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)")
+					GameCooltip:AddLine (esta_tabela[1], _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)")
 					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 				end
 			end
@@ -1717,8 +1745,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra.report_text = "Details! Tamage Taken of "
 				add_damage_done.report_text = "Details! Damage Done of "
 				add_damage_done.barra = barra
-				add_damage_done:SetWidth (16)
-				add_damage_done:SetHeight (16)
+				add_damage_done:SetWidth (EncounterDetails.CooltipLineHeight)
+				add_damage_done:SetHeight (EncounterDetails.CooltipLineHeight)
 				add_damage_done:EnableMouse (true)
 				add_damage_done:SetResizable (false)
 				add_damage_done:SetPoint ("left", barra, "left", 0, 0)
@@ -1863,7 +1891,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 			
 			barra.icone:SetTexture (icone_magia)
-			--barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
+			barra.icone:SetTexCoord (.1, .9, .1, .9)
 			
 			barra:Show()
 			
@@ -1966,7 +1994,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 			
 			barra.icone:SetTexture (icone_magia)
-			--barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
+			barra.icone:SetTexCoord (.1, .9, .1, .9)
 			
 			barra:Show()
 			

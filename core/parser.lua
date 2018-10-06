@@ -86,6 +86,8 @@
 		local raid_members_cache = setmetatable ({}, _detalhes.weaktable)
 	--> tanks
 		local tanks_members_cache = setmetatable ({}, _detalhes.weaktable)
+	--> bitfield swap cache
+		local bitfield_swap_cache = {}
 	--> damage and heal last events
 		local last_events_cache = {} --> initialize table (placeholder)
 	--> pets
@@ -163,6 +165,17 @@
 		[280720] = 282449, --rogue Secret Technique
 		[280719] = 282449, --rogue Secret Technique
 	}
+	
+	local bitfield_debuffs_ids = _detalhes.BitfieldSwapDebuffsIDs
+	local bitfield_debuffs = {}
+	for _, spellid in ipairs (bitfield_debuffs_ids) do
+		local spellname = GetSpellInfo (spellid)
+		if (spellname) then
+			bitfield_debuffs [spellname] = true
+		else
+			bitfield_debuffs [spellid] = true
+		end
+	end
 	
 	_detalhes.OverridedSpellIds = override_spellId
 	
@@ -659,18 +672,24 @@
 				end
 			end
 		end
-		
+	
 	------------------------------------------------------------------------------------------------
 	--> firendly fire ~friendlyfire
-		if (
-			--removed deprecated friendly fire rules (25/09/2018)
-			--general rules for friendly fire
-			(
-				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or
-				(raid_members_cache [who_serial] and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0)
-			)
-		) then
-
+		local is_friendly_fire = false
+		if (bitfield_swap_cache [who_serial] or meu_dono and bitfield_swap_cache [meu_dono.serial]) then
+			if (jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) then
+				is_friendly_fire = true
+			end
+		else
+			if (bitfield_swap_cache [alvo_serial] or alvo_dono and bitfield_swap_cache [alvo_dono.serial]) then
+			else
+				if ((jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) and (este_jogador.grupo or meu_dono and meu_dono.grupo)) then
+					is_friendly_fire = true
+				end
+			end
+		end
+		
+		if (is_friendly_fire) then
 			if (este_jogador.grupo) then --> se tiver ele n�o adiciona o evento l� em cima
 				local t = last_events_cache [alvo_name]
 				
@@ -1770,6 +1789,10 @@
 					if (cc_spell_list [spellid]) then
 						parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 					end
+					
+					if (bitfield_debuffs [spellname] and raid_members_cache [alvo_serial]) then
+						bitfield_swap_cache [alvo_serial] = true
+					end
 				
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
@@ -2014,7 +2037,7 @@
 						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, "DEBUFF_UPTIME_REFRESH", amount)
 					end
 				end
-		
+				
 				if (_recording_ability_with_buffs) then
 					if (who_name == _detalhes.playername) then
 					
@@ -2092,7 +2115,6 @@
 						local damage_prevented = monk_guard_talent [who_serial] - (amount or 0)
 						parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, damage_prevented, _math_ceil (amount or 0), 0, 0, true)
 					end
-					
 				end
 				
 			------------------------------------------------------------------------------------------------
@@ -2146,7 +2168,11 @@
 						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, "DEBUFF_UPTIME_OUT")
 					end
 				end
-			
+				
+				if (bitfield_debuffs [spellname] and alvo_serial) then
+					bitfield_swap_cache [alvo_serial] = nil
+				end
+				
 				if (_recording_ability_with_buffs) then
 			
 					if (who_name == _detalhes.playername) then
@@ -4238,6 +4264,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:CaptureSet (false, "spellcast", false, 10)
 		end
 
+		_table_wipe (bitfield_swap_cache)
+		
 		_detalhes:DispatchAutoRunCode ("on_leavecombat")
 	end
 
@@ -4718,6 +4746,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 		_table_wipe (raid_members_cache)
 		_table_wipe (tanks_members_cache)
+		_table_wipe (bitfield_swap_cache)
 		
 		local roster = _detalhes.tabela_vigente.raid_roster
 		

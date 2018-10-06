@@ -21,6 +21,13 @@ local is_exception = {
 function _detalhes:SaveLocalInstanceConfig()
 
 	for index, instance in _detalhes:ListInstances() do
+		--> check for the max size toggle, don't save it
+		if (instance.is_in_max_size) then
+			instance.is_in_max_size = false
+			instance:SetSize (instance.original_width, instance.original_height)
+		end
+		
+		--> save local instance data
 		local a1, a2 = instance:GetDisplay()
 		
 		local t = {

@@ -562,10 +562,7 @@
 			
 			--> show the plugin window
 			if (pluginObject.RefreshWindow and callRefresh) then
-				local okay, errortext = pcall (pluginObject.RefreshWindow)
-				if (not okay) then
-					f.DebugMsg (errortext)
-				end
+				DetailsFramework:QuickDispatch (pluginObject.RefreshWindow)
 			end
 			
 			--> highlight the plugin button on the menu
@@ -708,6 +705,8 @@
 		--]=]
 		
 		function _detalhes:OpenPlugin (wildcard)
+			local originalName = wildcard
+			
 			if (type (wildcard) == "string") then
 			
 				--> check if passed a plugin absolute name
@@ -740,6 +739,8 @@
 					return true
 				end
 			end
+			
+			Details:Msg ("|cFFFF7700plugin not found|r:|cFFFFFF00", (originalName or wildcard), "|rcheck if it is enabled in the addons control panel.") --localize-me
 		end
 		
 		
