@@ -5230,7 +5230,7 @@ local CreateCurrentDpsFrame = function (parent, name)
 
 	--> labels for mythic dungeon / group party
 		local labelGroupDamage = f:CreateFontString (nil, "overlay", "GameFontNormal")
-		labelGroupDamage:SetText ("Group DPS")
+		labelGroupDamage:SetText ("Real Time Group DPS")
 		DF:SetFontSize (labelGroupDamage, 14)
 		DF:SetFontOutline (labelGroupDamage, "NONE")
 		

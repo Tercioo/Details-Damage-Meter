@@ -20,6 +20,7 @@
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
 	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --wow api local
 	local _GetTime = GetTime
+	local _select = select
 	
 	local _CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
@@ -35,6 +36,7 @@
 	local _type = type --lua local
 	local _math_ceil = math.ceil --lua local
 	local _table_wipe = table.wipe --lua local
+	local _strsplit = strsplit
 
 	local _GetSpellInfo = _detalhes.getspellinfo --details api
 	local escudo = _detalhes.escudos --details local
@@ -94,6 +96,8 @@
 		local container_pets = {} --> initialize table (placeholder)
 	--> ignore deaths
 		local ignore_death = {}
+	--> temp ignored 
+		
 	--> spell containers for special cases
 		local monk_guard_talent = {} --guard talent for bm monks
 		
@@ -232,6 +236,17 @@
 		local _hook_deaths_container = _detalhes.hooks ["HOOK_DEATH"]
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
+		
+	--> encoutner rules
+		local ignored_npc_ids = {
+			--amorphous cyst g'huun Uldir - ignore damage done to this npcs
+			["138185"] = true,
+			["141264"] = true, --trash
+			["134034"] = true, --boss room 
+			["138323"] = true,
+			["141265"] = true,
+		}
+		
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
@@ -367,10 +382,20 @@
 			return
 		end
 		
-		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then --prismatic crystal (mage)
-		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then --soul effigy (warlock)
-		--	return
-		--end
+		--rules of specific encounters
+		if (_current_encounter_id == 2122 or _current_encounter_id == 2135) then --g'huun and mythrax --REMOVE ON 9.0 LAUNCH
+			--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then --soul effigy (warlock) --50% more slow than the method below
+		
+			--check if the target is the amorphous cyst
+			--for some reason, mythrax fights has some sort of damage on amorphous cyst as well, dunno why
+			if (alvo_serial) then
+				local npcid = _select (6, _strsplit ("-", alvo_serial)) -- cost 3 / 1000000
+				if (npcid and ignored_npc_ids [npcid]) then
+					--print ("IGNORED:", alvo_name, npcid)
+					return
+				end
+			end
+		end
 		
 		--> if the parser are allowed to replace spellIDs
 		if (is_using_spellId_override) then
