@@ -21,6 +21,7 @@
 	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --wow api local
 	local _GetTime = GetTime
 	local _select = select
+	local _UnitBuff = UnitBuff
 	
 	local _CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
@@ -97,7 +98,7 @@
 	--> ignore deaths
 		local ignore_death = {}
 	--> temp ignored 
-		
+		local ignore_actors = {}
 	--> spell containers for special cases
 		local monk_guard_talent = {} --guard talent for bm monks
 		
@@ -195,6 +196,8 @@
 	local SPELLID_SHAMAN_SLT = 98021
 	--> holy paladin light of the martyr
 	local SPELLID_PALADIN_LIGHTMARTYR = 196917
+	--> blood shield g'huun
+	local SPELLNAME_BLOODSHIELD = GetSpellInfo (263217)
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -237,10 +240,13 @@
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
 		
+	--> G'Huun blood shield
+		local _track_ghuun_bloodshield --REMOVE ON 9.0 PATCH
+		
 	--> encoutner rules
 		local ignored_npc_ids = {
 			--amorphous cyst g'huun Uldir - ignore damage done to this npcs
-			["138185"] = true,
+			["138185"] = true, --boss room mythic
 			["141264"] = true, --trash
 			["134034"] = true, --boss room 
 			["138323"] = true,
@@ -353,6 +359,24 @@
 		
 	end
 	
+--[=[
+[1]="Blood Shield",
+[2]=538744,
+[3]=0,
+[5]=0,
+[6]=0,
+[7]="nameplate12",
+[8]=false,
+[9]=false,
+[10]=263217,
+[11]=false,
+[12]=false,
+[13]=false,
+[14]=false,
+[15]=1
+--]=]	
+	
+	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 	
 	------------------------------------------------------------------------------------------------
@@ -382,6 +406,11 @@
 			return
 		end
 		
+		--check if the target actor isn't in the temp blacklist
+		--if (ignore_actors [alvo_serial]) then
+		--	return
+		--end
+		
 		--rules of specific encounters
 		if (_current_encounter_id == 2122 or _current_encounter_id == 2135) then --g'huun and mythrax --REMOVE ON 9.0 LAUNCH
 			--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then --soul effigy (warlock) --50% more slow than the method below
@@ -390,13 +419,26 @@
 			--for some reason, mythrax fights has some sort of damage on amorphous cyst as well, dunno why
 			if (alvo_serial) then
 				local npcid = _select (6, _strsplit ("-", alvo_serial)) -- cost 3 / 1000000
-				if (npcid and ignored_npc_ids [npcid]) then
-					--print ("IGNORED:", alvo_name, npcid)
-					return
+				if (npcid) then
+					if (ignored_npc_ids [npcid]) then
+						--print ("IGNORED:", alvo_name, npcid)
+						return
+					end
+					
+					if (_track_ghuun_bloodshield and npcid == "132998") then
+						local hasBloodShield = _UnitBuff ("boss1", 1)
+						if (not hasBloodShield or hasBloodShield ~= SPELLNAME_BLOODSHIELD) then
+							--print ("Details Shuting down damage filter on ghuun", hasBloodShield)
+							_track_ghuun_bloodshield = nil
+						else
+							--print ("Details Ghuun Has Blood Shield Damage Ignored", hasBloodShield)
+							return
+						end
+					end
 				end
 			end
 		end
-		
+
 		--> if the parser are allowed to replace spellIDs
 		if (is_using_spellId_override) then
 			spellid = override_spellId [spellid] or spellid
@@ -2119,7 +2161,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--> handle shields
-
+	
 		if (tipo == "BUFF") then
 
 			------------------------------------------------------------------------------------------------
@@ -4031,6 +4073,19 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		_current_encounter_id = encounterID
 		
+		if (_current_encounter_id == 2122) then --g'huun --REMOVE ON 9,0 PATCH
+			C_Timer.After (1, function()
+				local boss1GUID = UnitGUID ("boss1")
+				if (boss1GUID) then
+					local npcid = _select (6, _strsplit ("-", boss1GUID))
+					if (npcid and npcid == "132998") then --is g'huun?
+						--print ("Details! Ignoring now damage on G'huun!")
+						_track_ghuun_bloodshield = true
+					end
+				end
+			end)
+		end
+		
 		local dbm_mod, dbm_time = _detalhes.encounter_table.DBM_Mod, _detalhes.encounter_table.DBM_ModTime
 		_table_wipe (_detalhes.encounter_table)
 		
@@ -4178,6 +4233,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes.tabela_vigente.TotalElapsedCombatTime = _detalhes.tabela_vigente.CombatEndedAt - (_detalhes.tabela_vigente.CombatStartedAt or 0)
 		
 		_current_encounter_id = nil
+		_track_ghuun_bloodshield = nil --REMOVE ON PATCH 9.0
 		
 		--> playing alone, just finish the combat right now
 		if (not _IsInGroup() and not IsInRaid()) then	
@@ -4290,10 +4346,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		_table_wipe (bitfield_swap_cache)
+		_table_wipe (ignore_actors)
 		
 		_detalhes:DispatchAutoRunCode ("on_leavecombat")
 	end
-
+	
 	function _detalhes.parser_functions:PLAYER_TALENT_UPDATE()
 		if (IsInGroup() or IsInRaid()) then
 			if (_detalhes.SendTalentTimer and not _detalhes.SendTalentTimer._cancelled) then
@@ -4413,8 +4470,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				wipe (_detalhes.trusted_characters)
 				C_Timer.After (5, _detalhes.ScheduleSyncPlayerActorData)
 			end
+			
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()
+			
 			if (not _detalhes.in_group) then
 				--> saiu do grupo
 				_detalhes:IniciarColetaDeLixo (true)
@@ -4429,7 +4488,18 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				
 				wipe (_detalhes.trusted_characters)
 			else
+				--> ainda esta no grupo
 				_detalhes:SchedulePetUpdate (2)
+				
+				--> send char data
+				if (_detalhes.SendCharDataOnGroupChange and not _detalhes.SendCharDataOnGroupChange._cancelled) then
+					return
+				end
+				_detalhes.SendCharDataOnGroupChange = C_Timer.NewTimer (11, function()
+					_detalhes:SendCharacterData()
+					_detalhes.SendCharDataOnGroupChange = nil
+				end)
+
 			end
 		end
 		
@@ -4772,6 +4842,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_table_wipe (raid_members_cache)
 		_table_wipe (tanks_members_cache)
 		_table_wipe (bitfield_swap_cache)
+		_table_wipe (ignore_actors)
 		
 		local roster = _detalhes.tabela_vigente.raid_roster
 		
