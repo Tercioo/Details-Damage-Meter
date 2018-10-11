@@ -228,7 +228,10 @@
 		
 	--> deathlog
 		local _death_event_amt = 16
-		
+	
+	--> map type
+		local _is_in_instance = false
+	
 	--> hooks
 		local _hook_cooldowns = false
 		local _hook_deaths = false
@@ -743,16 +746,26 @@
 	------------------------------------------------------------------------------------------------
 	--> firendly fire ~friendlyfire
 		local is_friendly_fire = false
-		if (bitfield_swap_cache [who_serial] or meu_dono and bitfield_swap_cache [meu_dono.serial]) then
-			if (jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) then
-				is_friendly_fire = true
-			end
-		else
-			if (bitfield_swap_cache [alvo_serial] or alvo_dono and bitfield_swap_cache [alvo_dono.serial]) then
-			else
-				if ((jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) and (este_jogador.grupo or meu_dono and meu_dono.grupo)) then
+		
+		if (_is_in_instance) then
+			if (bitfield_swap_cache [who_serial] or meu_dono and bitfield_swap_cache [meu_dono.serial]) then
+				if (jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) then
 					is_friendly_fire = true
 				end
+			else
+				if (bitfield_swap_cache [alvo_serial] or alvo_dono and bitfield_swap_cache [alvo_dono.serial]) then
+				else
+					if ((jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) and (este_jogador.grupo or meu_dono and meu_dono.grupo)) then
+						is_friendly_fire = true
+					end
+				end
+			end
+		else
+			if (
+				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
+				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
+			) then
+				is_friendly_fire = true
 			end
 		end
 		
@@ -3922,6 +3935,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		parser:WipeSourceCache()
 		
+		_is_in_instance = false
+		
+		if (zoneType == "party" or zoneType == "raid") then
+			_is_in_instance = true
+		end
+		
 		if (_detalhes.last_zone_type ~= zoneType) then
 			_detalhes:SendEvent ("ZONE_TYPE_CHANGED", nil, zoneType)
 			_detalhes.last_zone_type = zoneType
@@ -5131,6 +5150,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					actor = _current_damage_container:PegarCombatente (guid, name, flag, true)
 					actor.total = _detalhes:GetOrderNumber()
 					actor.classe = classToken or "UNKNOW"
+					
+					if (flag == 0x548) then
+						--oponent
+						actor.enemy = true
+					end
 				end
 			end
 			
@@ -5155,6 +5179,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					actor = _current_heal_container:PegarCombatente (guid, name, flag, true)
 					actor.total = _detalhes:GetOrderNumber()
 					actor.classe = classToken or "UNKNOW"
+					
+					if (flag == 0x548) then
+						--oponent
+						actor.enemy = true
+					end
 				end
 			end
 			
