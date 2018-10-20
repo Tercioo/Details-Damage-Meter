@@ -1,5 +1,5 @@
 
-local dversion = 114
+local dversion = 116
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -233,25 +233,43 @@ function DF.table.dump (t, s, deep)
 	for i = 1, deep do
 		space = space .. "   "
 	end
+	
 	for key, value in pairs (t) do
 		local tpe = _type (value)
-		if (type (key) ~= "string") then
+		
+		if (type (key) == "function") then
+			key = "#function#"
+		elseif (type (key) == "table") then
+			key = "#table#"
+		end	
+		
+		if (type (key) ~= "string" and type (key) ~= "number") then
 			key = "unknown?"
-		end		
+		end
+		
 		if (tpe == "table") then
-			s = s .. space .. "[" .. key .. "] = |cFFa9ffa9table {|r\n"
+			if (type (key) == "number") then
+				s = s .. space .. "[" .. key .. "] = |cFFa9ffa9 {|r\n"
+			else
+				s = s .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9 {|r\n"
+			end
 			s = s .. DF.table.dump (value, nil, deep+1)
-			s = s .. space .. "|cFFa9ffa9}|r\n"
+			s = s .. space .. "|cFFa9ffa9},|r\n"
+			
 		elseif (tpe == "string") then
-			s = s .. space .. "[" .. key .. "] = '|cFFfff1c1" .. value .. "|r'\n"
+			s = s .. space .. "[\"" .. key .. "\"] = \"|cFFfff1c1" .. value .. "|r\",\n"
+			
 		elseif (tpe == "number") then
-			s = s .. space .. "[" .. key .. "] = |cFFffc1f4" .. value .. "|r\n"
+			s = s .. space .. "[\"" .. key .. "\"] = |cFFffc1f4" .. value .. "|r,\n"
+			
 		elseif (tpe == "function") then
-			s = s .. space .. "[" .. key .. "] = function()\n"
+			s = s .. space .. "[\"" .. key .. "\"] = function()end,\n"
+			
 		elseif (tpe == "boolean") then
-			s = s .. space .. "[" .. key .. "] = |cFF99d0ff" .. (value and "true" or "false") .. "|r\n"
+			s = s .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
 		end
 	end
+	
 	return s
 end
 
@@ -2441,6 +2459,33 @@ function DF:Dispatch (func, ...)
 	
 	return result1, result2, result3, result4
 end
+
+--[=[
+	DF:CoreDispatch (func, context, ...)
+	safe call a function making a error window with what caused, the context and traceback of the error
+	this func is only used inside the framework for sensitive calls where the func must run without errors
+	@func = the function which will be called
+	@context = what made the function be called
+	... parameters to pass in the function call
+--]=]
+function DF:CoreDispatch (context, func, ...)
+	if (type (func) ~= "function") then
+		local stack = debugstack(2)
+		local errortext = "D!Framework " .. context .. " error: invalid function to call\n====================\n" .. stack .. "\n====================\n"
+		error (errortext)
+	end
+	
+	local okay, result1, result2, result3, result4 = pcall (func, ...)
+	
+	if (not okay) then
+		local stack = debugstack (2)
+		local errortext = "D!Framework (" .. context .. ") error: " .. result1 .. "\n====================\n" .. stack .. "\n====================\n"
+		error (errortext)
+	end
+	
+	return result1, result2, result3, result4
+end
+
 
 --/run local a, b =32,3; local f=function(c,d) return c+d, 2, 3;end; print (xpcall(f,geterrorhandler(),a,b))
 function DF_CALC_PERFORMANCE()

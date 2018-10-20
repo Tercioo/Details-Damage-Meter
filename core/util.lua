@@ -248,6 +248,7 @@
 		function _detalhes:NoToK (numero)
 			return _math_floor (numero)
 		end
+		
 		-- thanks http://richard.warburton.it
 		function _detalhes:comma_value (n)
 			if (not n) then return "0" end
@@ -256,6 +257,10 @@
 				return "0"
 			end
 			local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
+			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+		end
+		function _detalhes:comma_value_raw (n)
+			local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
 		
@@ -385,6 +390,10 @@
 				return "0"
 			end
 			local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
+			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+		end
+		function _detalhes:comma_value_raw (n)
+			local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
 		
@@ -592,21 +601,25 @@
 			end
 			
 			if (tpe == "table") then
-				s = s .. space .. "[" .. key .. "] = |cFFa9ffa9table {|r\n"
+				if (type (key) == "number") then
+					s = s .. space .. "[" .. key .. "] = |cFFa9ffa9table {|r\n"
+				else
+					s = s .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9table {|r\n"
+				end
 				s = s .. _detalhes.table.dump (value, nil, deep+1)
 				s = s .. space .. "|cFFa9ffa9}|r\n"
 				
 			elseif (tpe == "string") then
-				s = s .. space .. "[" .. key .. "] = '|cFFfff1c1" .. value .. "|r'\n"
+				s = s .. space .. "[\"" .. key .. "\"] = '|cFFfff1c1" .. value .. "|r'\n"
 				
 			elseif (tpe == "number") then
-				s = s .. space .. "[" .. key .. "] = |cFFffc1f4" .. value .. "|r\n"
+				s = s .. space .. "[\"" .. key .. "\"] = |cFFffc1f4" .. value .. "|r\n"
 				
 			elseif (tpe == "function") then
-				s = s .. space .. "|cFFa9a9ff[|r" .. key .. "|cFFa9a9ff]|r = |cFFa9a9fffunction()|r\n"
+				s = s .. space .. "|cFFa9a9ff[\"|r" .. key .. "|cFFa9a9ff\"]|r = |cFFa9a9fffunction()|r\n"
 				
 			elseif (tpe == "boolean") then
-				s = s .. space .. "[" .. key .. "] = |cFF99d0ff" .. (value and "true" or "false") .. "|r\n"
+				s = s .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r\n"
 				
 			end
 			

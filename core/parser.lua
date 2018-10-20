@@ -589,8 +589,10 @@
 		if (absorbed) then
 			amount = absorbed + (amount or 0)
 		end
-		if (overkill and overkill > 0) then
-			amount = amount - overkill
+		if (_is_in_instance) then
+			if (overkill and overkill > 0) then
+				amount = amount - overkill
+			end
 		end
 		
 		if (este_jogador.grupo and not este_jogador.arena_enemy and not este_jogador.enemy) then --> source = friendly player and not an enemy player

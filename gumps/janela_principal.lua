@@ -2267,6 +2267,19 @@ local icon_frame_on_enter = function (self)
 				end
 			end
 			
+			local attribute, subAttribute = instance:GetDisplay()
+			if (attribute == 1) then
+				local realDps = actor.total / instance:GetShowingCombat():GetCombatTime()
+				local dpsValue = _detalhes:comma_value_raw (realDps)
+				if (dpsValue) then
+					local total, decimal = strsplit (".", dpsValue)
+					total = total .. "." .. (decimal and decimal:match("^%d"))
+					GameCooltip:AddLine ("Dps:", total)
+					_detalhes:AddTooltipBackgroundStatusbar()
+					GameCooltip:AddIcon ("", 1, 1, 1, 18)
+				end
+			end
+			
 			--[=[
 			if (RaiderIO and RaiderIO.GetScore) then
 				local mythicPlusScore = RaiderIO.GetScore (name)
