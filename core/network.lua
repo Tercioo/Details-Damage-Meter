@@ -370,7 +370,6 @@
 			end
 			
 			local IDs = _detalhes.storage:GetIDsToGuildSync()
-			
 			if (IDs and IDs [1]) then
 				local from = UnitName ("player")
 				local realm = GetRealmName()

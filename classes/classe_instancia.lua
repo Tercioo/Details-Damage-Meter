@@ -865,27 +865,29 @@ function _detalhes:BaseFrameSnap()
 	for lado, snap_to in _pairs (self.snap) do
 		local instancia_alvo = _detalhes.tabela_instancias [snap_to]
 
-		if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-			if (lado == 1) then --> a esquerda
-				instancia_alvo.baseframe:SetPoint ("TOPRIGHT", my_baseframe, "TOPLEFT")
-				
-			elseif (lado == 2) then --> em baixo
-				local statusbar_y_mod = 0
-				if (not self.show_statusbar) then
-					statusbar_y_mod = 14
-				end
-				instancia_alvo.baseframe:SetPoint ("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-				
-			elseif (lado == 3) then --> a direita
-				instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT")
-				
-			elseif (lado == 4) then --> em cima
-				local statusbar_y_mod = 0
-				if (not instancia_alvo.show_statusbar) then
-					statusbar_y_mod = -14
-				end
-				instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+		if (instancia_alvo) then
+			if (instancia_alvo.ativa and instancia_alvo.baseframe) then
+				if (lado == 1) then --> a esquerda
+					instancia_alvo.baseframe:SetPoint ("TOPRIGHT", my_baseframe, "TOPLEFT")
+					
+				elseif (lado == 2) then --> em baixo
+					local statusbar_y_mod = 0
+					if (not self.show_statusbar) then
+						statusbar_y_mod = 14
+					end
+					instancia_alvo.baseframe:SetPoint ("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+					
+				elseif (lado == 3) then --> a direita
+					instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT")
+					
+				elseif (lado == 4) then --> em cima
+					local statusbar_y_mod = 0
+					if (not instancia_alvo.show_statusbar) then
+						statusbar_y_mod = -14
+					end
+					instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
 
+				end
 			end
 		end
 	end

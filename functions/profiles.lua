@@ -561,10 +561,8 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 	if (_detalhes.initializing) then
 		_detalhes.profile_loaded = true
 	end
-		
-	--> end
 
-		return true	
+	return true	
 end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1156,6 +1154,8 @@ local default_profile = {
 
 _detalhes.default_profile = default_profile
 
+
+
 -- aqui fica as propriedades do jogador que n�o ser�o armazenadas no profile
 local default_player_data = {
 
@@ -1514,3 +1514,189 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 		savedTable.started = false
 	end
 end
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+--~export ~ import ~profile
+
+local exportProfileBlacklist = {
+	custom = true,
+	cached_specs = true,
+	cached_talents = true,
+	combat_id = true,
+	combat_counter = true,
+	mythic_dungeon_currentsaved = true,
+	nick_tag_cache = true,
+	plugin_database = true,
+	character_data = true,
+	active_profile = true,
+	SoloTablesSaved = true,
+	RaidTablesSaved = true,
+	savedStyles = true,
+	benchmark_db = true,
+	rank_window = true,
+	last_realversion = true,
+	last_version = true,
+	__profiles = true,
+	latest_news_saw = true,
+	always_use_profile = true,
+	always_use_profile_name = true,
+	always_use_profile_exception = true,
+	savedStyles = true,
+	savedTimeCaptures = true,
+	lastUpdateWarning = true,
+	spell_school_cache = true,
+	global_plugin_database = true,
+	details_auras = true,
+	item_level_pool = true,
+	latest_report_table = true,
+	boss_mods_timers = true,
+	spell_pool = true,
+	encounter_spell_pool = true,
+	npcid_pool = true,
+	createauraframe = true,
+	mythic_plus = true,
+	plugin_window_pos = true,
+	switchSaved = true,
+}
+
+--transform the current profile into a string which can be shared in the internet
+function Details:ExportCurrentProfile()
+	--save the current profile
+	Details:SaveProfile()
+	
+	--data saved inside the profile
+	local profileObject = Details:GetProfile (Details:GetCurrentProfileName())
+	if (not profileObject) then
+		Details:Msg ("fail to get the current profile.")
+		return false
+	end
+	
+	--data saved individual for each character
+	local defaultPlayerData = Details.default_player_data
+	local playerData = {}
+	--data saved for the account
+	local defaultGlobalData = Details.default_global_data
+	local globaData = {}
+	
+	--fill player and global data tables
+	for key, _ in pairs (defaultPlayerData) do
+		if (not exportProfileBlacklist[key]) then
+			if (type (Details[key]) == "table") then
+				playerData [key] = DetailsFramework.table.copy ({}, Details[key])
+			else
+				playerData [key] = Details[key]
+			end
+		end
+	end
+	for key, _ in pairs (defaultGlobalData) do
+		if (not exportProfileBlacklist[key]) then
+			if (type (Details[key]) == "table") then
+				globaData [key] = DetailsFramework.table.copy ({}, Details[key])
+			else
+				globaData [key] = Details[key]
+			end
+		end
+	end
+	
+	local exportedData = {
+		profile = profileObject,
+		playerData = playerData,
+		globaData = globaData,
+		version = 1,
+	}
+
+	local compressedData = Details:CompressData (exportedData, "print")
+	return compressedData
+end
+
+function Details:ImportProfile (profileString, newProfileName)
+
+	if (not newProfileName or type (newProfileName) ~= "string" or string.len (newProfileName) < 2) then
+		Details:Msg ("invalid profile name or profile name is too short.") --localize-me
+		return
+	end
+	
+	profileString = DetailsFramework:Trim (profileString)
+	local currentDataVersion = 1
+	
+	local dataTable = Details:DecompressData (profileString, "print")
+	if (dataTable) then
+	
+		local profileObject = Details:GetProfile (newProfileName, false)
+		if (not profileObject) then
+			--profile doesn't exists, create new
+			profileObject = Details:CreateProfile (newProfileName)
+			if (not profileObject) then
+				Details:Msg ("failed to create a new profile.")--localize-me
+				return
+			end
+		end
+		
+		local profileData, playerData, globalData, version = dataTable.profile, dataTable.playerData, dataTable.globaData, dataTable.version
+		
+		if (version < currentDataVersion) then
+			--perform update in the sereived settings
+		end
+		
+		--character data defaults
+		local defaultPlayerData = Details.default_player_data
+		--global data defaults
+		local defaultGlobalData = Details.default_global_data
+		--profile defaults
+		local defaultProfileData = Details.default_profile
+		
+		--transfer player and global data tables from the profile to details object
+		for key, _ in pairs (defaultPlayerData) do
+			local importedValue = playerData[key]
+			if (importedValue ~= nil) then
+				if (type (importedValue) == "table") then
+					Details [key] = DetailsFramework.table.copy ({}, importedValue)
+				else
+					Details [key] = importedValue
+				end
+			end
+		end
+		
+		for key, _ in pairs (defaultGlobalData) do
+			local importedValue = globalData[key]
+			if (importedValue ~= nil) then
+				if (type (importedValue) == "table") then
+					Details [key] = DetailsFramework.table.copy ({}, importedValue)
+				else
+					Details [key] = importedValue
+				end
+			end
+		end
+		
+		--transfer data from the imported profile to the new profile object
+		for key, _ in pairs (defaultProfileData) do
+			local importedValue = profileData[key]
+			if (importedValue ~= nil) then
+				if (type (importedValue) == "table") then
+					profileObject [key] = DetailsFramework.table.copy ({}, importedValue)
+				else
+					profileObject [key] = importedValue
+				end
+			end
+		end
+		
+		--transfer instance data to the new created profile
+		profileObject.instances = DetailsFramework.table.copy ({}, profileData.instances)
+		
+		Details:ApplyProfile (newProfileName)
+		
+		Details:Msg ("profile successfully imported.")--localize-me
+		return true
+	else
+		Details:Msg ("failed to decompress profile data.")--localize-me
+	end
+end
+
+
+
+
+

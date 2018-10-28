@@ -5188,11 +5188,11 @@ function window:CreateFrame13()
 		window:CreateLineBackground2 (frame13, select_profileErase_dropdown, select_profileErase_label, Loc ["STRING_OPTIONS_PROFILES_ERASE_DESC"])
 		
 	--> reset profile
-	
+		
 		function _detalhes:RefreshOptionsAfterProfileReset()
 			_detalhes:OpenOptionsWindow (_detalhes:GetInstance(1))
 		end
-	
+		
 		local reset_profile = function()
 			local current_instance = _G.DetailsOptionsWindow.instance
 			_detalhes:ResetProfile (_detalhes:GetCurrentProfileName())
@@ -5200,7 +5200,6 @@ function window:CreateFrame13()
 		end
 		
 		local profile_reset_button = g:NewButton (frame13, _, "$parentProfileResetButton", "profileResetButton", window.buttons_width, 18, reset_profile, nil, nil, nil, Loc ["STRING_OPTIONS_PROFILES_RESET"], nil, options_button_template)
-		--profile_reset_button:InstallCustomTexture (nil, nil, nil, nil, nil, true)
 		frame13.profileResetButton:SetIcon ([[Interface\Buttons\UI-RefreshButton]], 14, 14, nil, {0, 1, 0, 0.9375}, nil, 4, 2)
 		frame13.profileResetButton:SetTextColor (button_color_rgb)
 		
@@ -5208,6 +5207,57 @@ function window:CreateFrame13()
 		hiddenlabel:SetPoint ("left", profile_reset_button, "left")
 		
 		window:CreateLineBackground2 (frame13, "profileResetButton", "profileResetButton", Loc ["STRING_OPTIONS_PROFILES_RESET_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
+		
+	--> import export functions
+		local export_profile = function()
+			local str = Details:ExportCurrentProfile()
+			if (str) then
+				_detalhes:ShowImportWindow (str, nil, "Details! Export Profile")
+				
+				--[=[ debug
+				local uncompress = Details:DecompressData (str, "print")
+				if (uncompress) then
+					Details:Dump (uncompress)
+				else
+					print ("failed...")
+				end
+				--]=]
+			end
+		end
+		
+		local import_profile = function()
+			--when clicking in the okay button in the import window, it send the text in the first argument
+			_detalhes:ShowImportWindow ("", function (profileString)
+				if (type (profileString) ~= "string" or string.len (profileString) < 2) then
+					return
+				end
+				
+				--prompt text panel returns what the user inserted in the text field in the first argument
+				DetailsFramework:ShowTextPromptPanel ("Insert a Name for the New Profile:", function (newProfileName)
+					Details:ImportProfile (profileString, newProfileName)
+				end)
+			end, "Details! Import Profile (paste string)")
+		end	
+		
+	--> import profile
+		local profileImportButton = g:NewButton (frame13, _, "$parentProfileImportButton", "profileImportButton", window.buttons_width, 18, import_profile, nil, nil, nil, "Import Profile", nil, options_button_template) --> localize-me
+		frame13.profileImportButton:SetIcon ([[Interface\BUTTONS\UI-GuildButton-OfficerNote-Up]], 14, 14, nil, {0, 1, 0, 1}, nil, 4, 2)
+		frame13.profileImportButton:SetTextColor (button_color_rgb)
+		
+		local hiddenlabel = g:NewLabel (frame13, _, "$parentProfileImportButtonLabel", "profileImportButtonLabel", "", "GameFontHighlightLeft")
+		hiddenlabel:SetPoint ("left", profileImportButton, "left")
+		
+		window:CreateLineBackground2 (frame13, "profileImportButton", "profileImportButton", "Import current profile", nil, {1, 0.8, 0}, button_color_rgb)
+		
+	-->  export profile
+		local profileExportButton = g:NewButton (frame13, _, "$parentProfileExportButton", "profileExportButton", window.buttons_width, 18, export_profile, nil, nil, nil, "Export Current Profile", nil, options_button_template) --> localize-me
+		frame13.profileExportButton:SetIcon ([[Interface\Buttons\UI-GuildButton-MOTD-Up]], 14, 14, nil, {1, 0, 0, 1}, nil, 4, 2)
+		frame13.profileExportButton:SetTextColor (button_color_rgb)
+		
+		local hiddenlabel = g:NewLabel (frame13, _, "$parentProfileExportButtonLabel", "profileExportButtonLabel", "", "GameFontHighlightLeft")
+		hiddenlabel:SetPoint ("left", profileExportButton, "left")
+		
+		window:CreateLineBackground2 (frame13, "profileExportButton", "profileExportButton", "Export current profile", nil, {1, 0.8, 0}, button_color_rgb)
 		
 	--> save window position within profile
 	
@@ -5245,6 +5295,8 @@ function window:CreateFrame13()
 			{select_profileCopy_label, 7},
 			{select_profileErase_label, 8},
 			{profile_reset_button, 9, true},
+			{profileExportButton},
+			{profileImportButton},
 			
 		}
 		
@@ -5311,69 +5363,6 @@ function window:CreateFrame3()
 	custom_texture_cancel:SetHook ("OnLeave", function (self, capsule)
 		self:GetNormalTexture():SetBlendMode("BLEND")
 	end)
-	
-	
-	
-	
-	
-	--> import box
-	function frame3:CreateImportBox()
-		local textbox = g:NewSpecialLuaEditorEntry (frame3, 443, 80, "TextBox", "$parentTextBox", true)
-		textbox:SetPoint ("bottomleft", frame3, "bottomleft", 30, 30)
-		textbox:SetFrameLevel (frame3:GetFrameLevel()+6)
-		textbox:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
-		tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
-		textbox:SetBackdropColor (0, 0, 0, 1)
-		textbox:Hide()
-		
-		frame3.TextBox.editbox:SetScript ("OnEditFocusGained", function (self) self:HighlightText() end)
-		
-		local close_export_box = function()
-			textbox:ClearFocus()
-			textbox:Hide()
-		end
-		
-		--export
-		local close_export = g:NewButton (textbox, nil, "$parentClose", "export_close_button", 24, 24, close_export_box, nil, nil, [[Interface\Buttons\UI-CheckBox-Check]])
-		close_export:SetPoint (10, 18)
-		local close_export_label = g:NewLabel (textbox, nil, nil, "export_close", Loc ["STRING_OPTIONS_CHART_CLOSE"])
-		close_export_label:SetPoint ("left", close_export, "right", 2, 0)
-		local copy_export_label = g:NewLabel (textbox, nil, nil, "export_copy", Loc ["STRING_OPTIONS_SAVELOAD_EXPORT_COPY"])
-		copy_export_label:SetPoint ("bottomright", textbox, "topright", -6, 1)
-		
-		--import
-		local doimport = function()
-			
-			local text = textbox:GetText()
-			
-			local decode = _detalhes._encode:Decode (text)
-			if (type (decode) ~= "string") then
-				_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
-				return
-			end
-			
-			local unserialize = select (2, _detalhes:Deserialize (decode))
-			
-			if (type (unserialize) == "table") then
-				_detalhes.savedStyles [#_detalhes.savedStyles+1] = unserialize
-				_detalhes:Msg (Loc ["STRING_OPTIONS_SAVELOAD_IMPORT_OKEY"])
-				textbox:Hide()
-			else
-				_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
-				return
-			end
-		end
-		
-		local accept_import = g:NewButton (textbox, nil, "$parentAccept", "import_accept_button", 24, 24, doimport, nil, nil, [[Interface\Buttons\UI-CheckBox-Check]])
-		accept_import:SetPoint (10, 18)
-		local accept_import_label = g:NewLabel (textbox, nil, nil, "import_accept_label", Loc ["STRING_OPTIONS_CHART_IMPORT"])
-		accept_import_label:SetPoint ("left", accept_import, "right", 2, 0)
-		
-		local cancel_changes = g:NewButton (textbox, nil, "$parentCancel", "import_cancel_button", 20, 20, close_export_box, nil, nil, [[Interface\PetBattles\DeadPetIcon]])
-		cancel_changes:SetPoint (100, 17)
-		local cancel_changes_label = g:NewLabel (textbox, nil, nil, "import_cancel_label", Loc ["STRING_OPTIONS_CHART_CANCEL"])
-		cancel_changes_label:SetPoint ("left", cancel_changes, "right", 2, 0)
-	end
 	
 	--> Skin
 		local titulo_skin = g:NewLabel (frame3, _, "$parentTituloSkin", "tituloSkinLabel", Loc ["STRING_OPTIONS_SKIN_A"], "GameFontNormal", 16)
@@ -5568,11 +5557,9 @@ function window:CreateFrame3()
 		g:NewLabel (frame3, _, "$parentmakeDefaultLabel", "makeDefaultLabel", "", "GameFontHighlightLeft")
 		
 		g:NewButton (frame3, _, "$parentToAllStyleButton", "applyToAll", 160, 18, applyToAll, nil, nil, nil, Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"], 1, options_button_template)
-		--frame3.applyToAll:InstallCustomTexture (nil, nil, nil, nil, nil, true)
 		window:CreateLineBackground2 (frame3, "applyToAll", "applyToAll", Loc ["STRING_OPTIONS_SAVELOAD_APPLYALL_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
 		
 		g:NewButton (frame3, _, "$parentMakeDefaultButton", "makeDefault", 160, 18, makeDefault, nil, nil, nil, Loc ["STRING_OPTIONS_SAVELOAD_MAKEDEFAULT"], nil, options_button_template)
-		--frame3.makeDefault:InstallCustomTexture (nil, nil, nil, nil, nil, true)
 		window:CreateLineBackground2 (frame3, "makeDefault", "makeDefault", Loc ["STRING_OPTIONS_SAVELOAD_STD_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
 		
 		frame3.toAllStyleLabel:SetPoint ("left", frame3.applyToAll, "left")
@@ -5699,28 +5686,12 @@ function window:CreateFrame3()
 		g:NewLabel (frame3, _, "$parentExportCustomSkinLabel", "ExportCustomSkinLabel", Loc ["STRING_OPTIONS_SAVELOAD_EXPORT"], "GameFontHighlightLeft")
 		--
 		local onSelectCustomSkinToExport = function (_, _, index)
-			if (not frame3.TextBox) then
-				frame3:CreateImportBox()
+			local compressedData = Details:CompressData (_detalhes.savedStyles [index], "print")
+			if (compressedData) then
+				_detalhes:ShowImportWindow (compressedData, nil, "Details! Export Skin")
+			else
+				Details:Msg ("failed to export skin.") --localize-me
 			end
-			
-			frame3.TextBox.import_accept_button:Hide()
-			frame3.TextBox.import_accept_label:Hide()
-			frame3.TextBox.import_cancel_button:Hide()
-			frame3.TextBox.import_cancel_label:Hide()
-			
-			frame3.TextBox.export_close_button:Show()
-			frame3.TextBox.export_close:Show()
-			frame3.TextBox.export_copy:Show()
-			
-			frame3.TextBox:Show()
-			
-			local serialized = _detalhes:Serialize (_detalhes.savedStyles [index])
-			local encoded = _detalhes._encode:Encode (serialized)
-			
-			frame3.TextBox:SetText (encoded)
-			frame3.TextBox.editbox:HighlightText()
-			frame3.TextBox.editbox:SetFocus (true)
-			
 			_G.DetailsOptionsWindow3CustomSkinExportDropdown.MyObject:Select (false)
 		end
 
@@ -5743,22 +5714,29 @@ function window:CreateFrame3()
 	--> Import Button
 	
 		local import_saved = function()
-			if (not frame3.TextBox) then
-				frame3:CreateImportBox()
-			end
+			--when clicking in the okay button in the import window, it send the text in the first argument
+			_detalhes:ShowImportWindow ("", function (skinString)
+				if (type (skinString) ~= "string" or string.len (skinString) < 2) then
+					return
+				end
+
+				skinString = DetailsFramework:Trim (skinString)
+
+				local dataTable = Details:DecompressData (skinString, "print")
+				if (dataTable) then
+					--add the new skin
+					_detalhes.savedStyles [#_detalhes.savedStyles+1] = dataTable
+					_detalhes:Msg (Loc ["STRING_OPTIONS_SAVELOAD_IMPORT_OKEY"])
+					
+					--refresh skin dropdowns
+					_G.DetailsOptionsWindow3CustomSkinLoadDropdown.MyObject:Refresh()
+					_G.DetailsOptionsWindow3CustomSkinRemoveDropdown.MyObject:Refresh()
+					_G.DetailsOptionsWindow3CustomSkinExportDropdown.MyObject:Refresh()
+				else
+					Details:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
+				end
 			
-			frame3.TextBox.import_accept_button:Show()
-			frame3.TextBox.import_accept_label:Show()
-			frame3.TextBox.import_cancel_button:Show()
-			frame3.TextBox.import_cancel_label:Show()
-			
-			frame3.TextBox.export_close_button:Hide()
-			frame3.TextBox.export_close:Hide()
-			frame3.TextBox.export_copy:Hide()
-			
-			frame3.TextBox:SetText ("")
-			frame3.TextBox:Show()
-			frame3.TextBox:SetFocus (true)
+			end, "Details! Import Skin (paste string)") --localize-me
 			
 		end
 	
@@ -5882,6 +5860,7 @@ function window:CreateFrame3()
 		--general anchor
 		g:NewLabel (frame3, _, "$parentSkinSelectionAnchor", "SkinSelectionAnchorLabel", Loc ["STRING_OPTIONS_SKIN_SELECT_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame3, _, "$parentSkinPresetAnchor", "SkinPresetAnchorLabel", Loc ["STRING_OPTIONS_SKIN_PRESETS_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame3, _, "$parentSkinPresetConfigAnchor", "SkinPresetConfigAnchorLabel", Loc ["STRING_OPTIONS_SKIN_PRESETSCONFIG_ANCHOR"], "GameFontNormal")
 		
 		frame3.saveStyle:SetPoint ("left", frame3.saveStyleName, "right", 2)
 		
@@ -5897,7 +5876,8 @@ function window:CreateFrame3()
 			{"SkinPresetAnchorLabel", 4, true},
 			{"saveSkinLabel", 5},
 			
-			{"loadCustomSkinLabel", 6, true},
+			{"SkinPresetConfigAnchorLabel", 6, true},
+			{"loadCustomSkinLabel"},
 			{"removeCustomSkinLabel", 7},
 			{"ExportCustomSkinLabel", 8},
 			

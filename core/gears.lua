@@ -967,6 +967,8 @@ local encounter_is_current_tier = function (encounterID)
 			if (not _detalhes.InstancesToStoreData [mapID]) then
 				return false
 			end
+		else
+			return false
 		end
 	end
 	return true
@@ -1011,7 +1013,7 @@ end
 function _detalhes.storage:GetIDsToGuildSync()
 	local db = _detalhes.storage:OpenRaidStorage()
 	
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -1044,7 +1046,7 @@ end
 function _detalhes.storage:CheckMissingIDsToGuildSync (IDsList)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -1082,7 +1084,7 @@ end
 function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -1146,7 +1148,7 @@ end
 function _detalhes.storage:AddGuildSyncData (data, source)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -1208,7 +1210,7 @@ end
 function _detalhes.storage:ListDiffs()
 	local db = _detalhes.storage:OpenRaidStorage()
 	
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -1222,7 +1224,7 @@ end
 function _detalhes.storage:ListEncounters (diff)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -1248,7 +1250,7 @@ end
 function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
 	local db = _detalhes.storage:OpenRaidStorage()
 
-	if (db) then
+	if (not db) then
 		return
 	end
 	
@@ -2148,5 +2150,71 @@ if (LibGroupInSpecT) then
 		--print ("LibGroupInSpecT Received from", info.name, info.global_spec_id)
 	end
 	LibGroupInSpecT.RegisterCallback (_detalhes, "GroupInSpecT_Update", "LibGroupInSpecT_UpdateReceived")
+end
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+--compress data
+
+-- ~compress ~zip ~export ~import ~deflate ~serialize
+function Details:CompressData (data, dataType)
+	local LibDeflate = LibStub:GetLibrary ("LibDeflate")
+	local LibAceSerializer = LibStub:GetLibrary ("AceSerializer-3.0")
+	
+	if (LibDeflate and LibAceSerializer) then
+		local dataSerialized = LibAceSerializer:Serialize (data)
+		if (dataSerialized) then
+			local dataCompressed = LibDeflate:CompressDeflate (dataSerialized, {level = 9})
+			if (dataCompressed) then
+				if (dataType == "print") then
+					local dataEncoded = LibDeflate:EncodeForPrint (dataCompressed)
+					return dataEncoded
+					
+				elseif (dataType == "comm") then
+					local dataEncoded = LibDeflate:EncodeForWoWAddonChannel (dataCompressed)
+					return dataEncoded
+				end
+			end
+		end
+	end
+end
+
+function Details:DecompressData (data, dataType)
+	local LibDeflate = LibStub:GetLibrary ("LibDeflate")
+	local LibAceSerializer = LibStub:GetLibrary ("AceSerializer-3.0")
+	
+	if (LibDeflate and LibAceSerializer) then
+		
+		local dataCompressed
+		
+		if (dataType == "print") then
+			dataCompressed = LibDeflate:DecodeForPrint (data)
+			if (not dataCompressed) then
+				Details:Msg ("couldn't decode the data.")
+				return false
+			end
+
+		elseif (dataType == "comm") then
+			dataCompressed = LibDeflate:DecodeForWoWAddonChannel (data)
+			if (not dataCompressed) then
+				Details:Msg ("couldn't decode the data.")
+				return false
+			end
+		end
+		
+		local dataSerialized = LibDeflate:DecompressDeflate (dataCompressed)
+		if (not dataSerialized) then
+			Details:Msg ("couldn't uncompress the data.")
+			return false
+		end
+		
+		local okay, data = LibAceSerializer:Deserialize (dataSerialized)
+		if (not okay) then
+			Details:Msg ("couldn't unserialize the data.")
+			return false
+		end
+		
+		return data
+	end
 end
 
