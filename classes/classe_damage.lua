@@ -1522,28 +1522,27 @@
 			porcentagem = _cstr ("%.1f", self.damage / top * 100)
 		end
 		
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
+		local bars_show_data = instancia.row_info.textR_show_data
+		local bars_brackets = instancia:GetBarBracket()
+		local bars_separator = instancia:GetBarSeparator()
+
+		if (not bars_show_data [1]) then
+			formated_damage = ""
+		end
+		if (not bars_show_data [2]) then
+			formated_dps = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
 		else
-		
-			local bars_show_data = instancia.row_info.textR_show_data
-			local bars_brackets = instancia:GetBarBracket()
-			local bars_separator = instancia:GetBarSeparator()
+			porcentagem = porcentagem .. "%"
+		end
 
-			if (not bars_show_data [1]) then
-				formated_damage = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_dps = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
-			else
-				porcentagem = porcentagem .. "%"
-			end
-			
-			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
-
+		local rightText = formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2]
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing, instancia, rightText))
+		else
+			esta_barra.texto_direita:SetText (rightText)
 		end
 
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
@@ -2416,23 +2415,23 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		local formated_dps = SelectedToKFunction (_, dps)
 		esta_barra.ps_text = formated_dps
 
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing))
+		if (not bars_show_data [1]) then
+			formated_damage = ""
+		end
+		if (not bars_show_data [2]) then
+			formated_dps = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
 		else
-			if (not bars_show_data [1]) then
-				formated_damage = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_dps = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
-			else
-				porcentagem = porcentagem .. "%"
-			end
-			
-			--(bars_show_data [3] and bars_show_data [2] and bars_separator or "")
-			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
+			porcentagem = porcentagem .. "%"
+		end
+		
+		local rightText = formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2]
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing, instancia, rightText))
+		else
+			esta_barra.texto_direita:SetText (rightText)
 		end
 		
 		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100)
@@ -2452,46 +2451,49 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			diff_from_topdps = instancia.player_top_dps - raw_dps
 		end
 	
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self, instancia.showing))
+		local rightText
+		if (diff_from_topdps) then
+			local threshold = diff_from_topdps / instancia.player_top_dps_threshold * 100
+			if (threshold < 100) then
+				threshold = _math_abs (threshold - 100)
+			else
+				threshold = 5
+			end
+			
+			local rr, gg, bb = _detalhes:percent_color ( threshold )
+			
+			rr, gg, bb = _detalhes:hex (_math_floor (rr*255)), _detalhes:hex (_math_floor (gg*255)), "28"
+			local color_percent = "" .. rr .. gg .. bb .. ""
+			
+			if (not bars_show_data [1]) then
+				formated_dps = ""
+			end
+			if (not bars_show_data [2]) then
+				color_percent = ""
+			else
+				color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (_, _math_floor (diff_from_topdps)) .. "|r" .. bars_brackets[2]
+			end
+			
+			rightText = formated_dps .. color_percent
 		else
 			
-			if (diff_from_topdps) then
-				local threshold = diff_from_topdps / instancia.player_top_dps_threshold * 100
-				if (threshold < 100) then
-					threshold = _math_abs (threshold - 100)
-				else
-					threshold = 5
-				end
-				
-				local rr, gg, bb = _detalhes:percent_color ( threshold )
-				
-				rr, gg, bb = _detalhes:hex (_math_floor (rr*255)), _detalhes:hex (_math_floor (gg*255)), "28"
-				local color_percent = "" .. rr .. gg .. bb .. ""
-				
-				if (not bars_show_data [1]) then
-					formated_dps = ""
-				end
-				if (not bars_show_data [2]) then
-					color_percent = ""
-				else
-					color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (_, _math_floor (diff_from_topdps)) .. "|r" .. bars_brackets[2]
-				end
-				
-				esta_barra.texto_direita:SetText (formated_dps .. color_percent)
-			else
-				
-				local icon = "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t "
-				if (not bars_show_data [1]) then
-					formated_dps = ""
-				end
-				if (not bars_show_data [2]) then
-					icon = ""
-				end
-				
-				esta_barra.texto_direita:SetText (formated_dps .. icon)
+			local icon = "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t "
+			if (not bars_show_data [1]) then
+				formated_dps = ""
 			end
+			if (not bars_show_data [2]) then
+				icon = ""
+			end
+			
+			rightText = formated_dps .. icon
 		end
+
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self, instancia.showing, instancia, rightText))
+		else
+			esta_barra.texto_direita:SetText (rightText)
+		end
+
 		esta_porcentagem = _math_floor ((dps/instancia.top) * 100)
 		
 	elseif (sub_atributo == 3) then --> mostrando damage taken
@@ -2502,21 +2504,23 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		local formated_dtps = SelectedToKFunction (_, dtps)
 		esta_barra.ps_text = formated_dtps
 
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing))
+		if (not bars_show_data [1]) then
+			formated_damage_taken = ""
+		end
+		if (not bars_show_data [2]) then
+			formated_dtps = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
 		else
-			if (not bars_show_data [1]) then
-				formated_damage_taken = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_dtps = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
-			else
-				porcentagem = porcentagem .. "%"
-			end
-			esta_barra.texto_direita:SetText (formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. porcentagem .. bars_brackets[2])
+			porcentagem = porcentagem .. "%"
+		end
+		
+		local rightText = formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. porcentagem .. bars_brackets[2]
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing, instancia, rightText))
+		else
+			esta_barra.texto_direita:SetText (rightText)
 		end
 		
 		esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100)
@@ -2525,20 +2529,20 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 		local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
 
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self, instancia.showing))
+		if (not bars_show_data [1]) then
+			formated_friendly_fire = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
 		else
+			porcentagem = porcentagem .. "%"
+		end
 		
-			if (not bars_show_data [1]) then
-				formated_friendly_fire = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
-			else
-				porcentagem = porcentagem .. "%"
-			end
-		
-			esta_barra.texto_direita:SetText (formated_friendly_fire .. bars_brackets[1] .. porcentagem ..  bars_brackets[2])
+		local rightText = formated_friendly_fire .. bars_brackets[1] .. porcentagem ..  bars_brackets[2]
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self, instancia.showing, instancia, rightText))
+		else
+			esta_barra.texto_direita:SetText (rightText)
 		end
 		esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100)
 	
@@ -2550,51 +2554,26 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		local formated_dtps = SelectedToKFunction (_, dtps)
 		esta_barra.ps_text = formated_dtps
 
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing))
+		if (not bars_show_data [1]) then
+			formated_damage_taken = ""
+		end
+		if (not bars_show_data [2]) then
+			formated_dtps = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
 		else
-			if (not bars_show_data [1]) then
-				formated_damage_taken = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_dtps = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
-			else
-				porcentagem = porcentagem .. "%"
-			end
-			esta_barra.texto_direita:SetText (formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. porcentagem .. bars_brackets[2])
+			porcentagem = porcentagem .. "%"
+		end
+		
+		local rightText = formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. porcentagem .. bars_brackets[2]
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing, instancia, rightText))
+		else
+			esta_barra.texto_direita:SetText (rightText)
 		end
 		
 		esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100)
-	
-		--[[
-		dps = _math_floor (dps)
-		local formated_damage = SelectedToKFunction (_, damage_total)
-		local formated_dps = SelectedToKFunction (_, dps)
-		esta_barra.ps_text = formated_dps
-	
-		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing))
-		else
-		
-			if (not bars_show_data [1]) then
-				formated_damage = ""
-			end
-			if (not bars_show_data [2]) then
-				formated_dps = ""
-			end
-			if (not bars_show_data [3]) then
-				porcentagem = ""
-			else
-				porcentagem = porcentagem .. "%"
-			end
-			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
-
-		end
-		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100)
-		--]]
 	end
 
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
@@ -2697,46 +2676,52 @@ local InBarIconPadding = 6
 		if (arena_enemy) then
 			if (_detalhes.show_arena_role_icon) then
 				--> show arena role icon
+				local leftText = bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName
 				if (UsingCustomLeftText) then
-					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
+					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing, instance, leftText))
 				else
-					bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName)
+					bar.texto_esquerdo:SetText (leftText)
 				end
 			else
 				--don't show arena role icon
+				local leftText = bar_number .. self.displayName
 				if (UsingCustomLeftText) then
-					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, " ", self, instance.showing))
+					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, " ", self, instance.showing, instance, leftText))
 				else
-					bar.texto_esquerdo:SetText (bar_number .. self.displayName)
+					bar.texto_esquerdo:SetText (leftText)
 				end
 			end
 		else
 			if (_detalhes.faction_against == "Horde") then
+				local leftText = bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:0:32:0:32|t"..self.displayName
 				if (UsingCustomLeftText) then
-					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:0:32:0:32|t", self, instance.showing))
+					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:0:32:0:32|t", self, instance.showing, instance, leftText))
 				else
-					bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+					bar.texto_esquerdo:SetText (leftText) --seta o texto da esqueda -- HORDA
 				end
 			else --alliance
+				local leftText = bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:32:64:0:32|t"..self.displayName
 				if (UsingCustomLeftText) then
-					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:32:64:0:32|t", self, instance.showing))
+					bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:32:64:0:32|t", self, instance.showing, instance, leftText))
 				else
-					bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+					bar.texto_esquerdo:SetText (leftText) --seta o texto da esqueda -- ALLY
 				end
 			end
 		end
 	else
 		if (arena_ally and _detalhes.show_arena_role_icon) then
+			local leftText = bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName
 			if (UsingCustomLeftText) then
-				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
+				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing, instance, leftText))
 			else
-				bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. (instance.row_info.height - InBarIconPadding)..":"..(instance.row_info.height - InBarIconPadding) .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName)
+				bar.texto_esquerdo:SetText (leftText)
 			end
 		else
+			local leftText = bar_number .. self.displayName
 			if (UsingCustomLeftText) then
-				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "", self, instance.showing))
+				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "", self, instance.showing, instance, leftText))
 			else
-				bar.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
+				bar.texto_esquerdo:SetText (leftText) --seta o texto da esqueda
 			end
 		end
 	end

@@ -637,23 +637,23 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_hps = SelectedToKFunction (_, hps)
 			esta_barra.ps_text = formated_hps
 		
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self, instancia.showing))
+			if (not bars_show_data [1]) then
+				formated_heal = ""
+			end
+			if (not bars_show_data [2]) then
+				formated_hps = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
 			else
+				porcentagem = porcentagem .. "%"
+			end
 			
-				if (not bars_show_data [1]) then
-					formated_heal = ""
-				end
-				if (not bars_show_data [2]) then
-					formated_hps = ""
-				end
-				if (not bars_show_data [3]) then
-					porcentagem = ""
-				else
-					porcentagem = porcentagem .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_heal .. bars_brackets[1] .. formated_hps .. bars_separator .. porcentagem .. bars_brackets[2])
+			local rightText = formated_heal .. bars_brackets[1] .. formated_hps .. bars_separator .. porcentagem .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
 			end
 			esta_porcentagem = _math_floor ((healing_total/instancia.top) * 100)
 			
@@ -664,24 +664,25 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_hps = SelectedToKFunction (_, hps)
 			esta_barra.ps_text = formated_hps
 			
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self, instancia.showing))
-			else
-			
-				if (not bars_show_data [1]) then
-					formated_hps = ""
-				end
-				if (not bars_show_data [2]) then
-					formated_heal = ""
-				end
-				if (not bars_show_data [3]) then
-					porcentagem = ""
-				else
-					porcentagem = porcentagem .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_hps .. bars_brackets[1] .. formated_heal .. bars_separator .. porcentagem .. bars_brackets[2])
+			if (not bars_show_data [1]) then
+				formated_hps = ""
 			end
+			if (not bars_show_data [2]) then
+				formated_heal = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			
+			local rightText = formated_hps .. bars_brackets[1] .. formated_heal .. bars_separator .. porcentagem .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
+			end
+			
 			esta_porcentagem = _math_floor ((hps/instancia.top) * 100)
 			
 		elseif (sub_atributo == 3) then --> mostrando overall
@@ -695,62 +696,64 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			rr, gg, bb = _detalhes:hex (_math_floor (rr*255)), _detalhes:hex (_math_floor (gg*255)), _detalhes:hex (_math_floor (bb*255))
 			overheal_percent = "|cFF" .. rr .. gg .. bb .. overheal_percent .. "|r"
 			
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_overheal, "", overheal_percent, self, instancia.showing))
-			else
-			
-				if (not bars_show_data [1]) then
-					formated_overheal = ""
-				end
-				if (not bars_show_data [3]) then
-					overheal_percent = ""
-				else
-					overheal_percent = overheal_percent .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_overheal .. bars_brackets[1] .. overheal_percent .. bars_brackets[2])
+			if (not bars_show_data [1]) then
+				formated_overheal = ""
 			end
+			if (not bars_show_data [3]) then
+				overheal_percent = ""
+			else
+				overheal_percent = overheal_percent .. "%"
+			end
+			
+			local rightText = formated_overheal .. bars_brackets[1] .. overheal_percent .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_overheal, "", overheal_percent, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
+			end
+			
 			esta_porcentagem = _math_floor ((self.totalover/instancia.top) * 100)
 			
 		elseif (sub_atributo == 4) then --> mostrando healing taken
 		
 			local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
 			
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_healtaken, "", porcentagem, self, instancia.showing))
-			else
-			
-				if (not bars_show_data [1]) then
-					formated_healtaken = ""
-				end
-				if (not bars_show_data [3]) then
-					porcentagem = ""
-				else
-					porcentagem = porcentagem .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_healtaken .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+			if (not bars_show_data [1]) then
+				formated_healtaken = ""
 			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			
+			local rightText = formated_healtaken .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_healtaken, "", porcentagem, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
+			end
+			
 			esta_porcentagem = _math_floor ((self.healing_taken/instancia.top) * 100)
 		
 		elseif (sub_atributo == 5) then --> mostrando enemy heal
 		
 			local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
 		
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_enemyheal, "", porcentagem, self, instancia.showing))
+			if (not bars_show_data [1]) then
+				formated_enemyheal = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
 			else
-			
-				if (not bars_show_data [1]) then
-					formated_enemyheal = ""
-				end
-				if (not bars_show_data [3]) then
-					porcentagem = ""
-				else
-					porcentagem = porcentagem .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_enemyheal .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+				porcentagem = porcentagem .. "%"
+			end
+		
+			local rightText = formated_enemyheal .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_enemyheal, "", porcentagem, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
 			end
 			esta_porcentagem = _math_floor ((self.heal_enemy_amt/instancia.top) * 100)
 			
@@ -758,20 +761,20 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		
 			local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
 		
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing))
+			if (not bars_show_data [1]) then
+				formated_absorbs = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
 			else
+				porcentagem = porcentagem .. "%"
+			end
 			
-				if (not bars_show_data [1]) then
-					formated_absorbs = ""
-				end
-				if (not bars_show_data [3]) then
-					porcentagem = ""
-				else
-					porcentagem = porcentagem .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+			local rightText = formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
 			end
 			esta_porcentagem = _math_floor ((self.totalabsorb/instancia.top) * 100)
 			
@@ -779,20 +782,20 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			
 			local formated_absorbs = SelectedToKFunction (_, self.totaldenied)
 		
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing))
+			if (not bars_show_data [1]) then
+				formated_absorbs = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
 			else
+				porcentagem = porcentagem .. "%"
+			end
 			
-				if (not bars_show_data [1]) then
-					formated_absorbs = ""
-				end
-				if (not bars_show_data [3]) then
-					porcentagem = ""
-				else
-					porcentagem = porcentagem .. "%"
-				end
-			
-				esta_barra.texto_direita:SetText (formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+			local rightText = formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing, instancia, rightText))
+			else
+				esta_barra.texto_direita:SetText (rightText)
 			end
 			esta_porcentagem = _math_floor ((self.totaldenied/instancia.top) * 100)
 			

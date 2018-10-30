@@ -225,27 +225,27 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 		porcentagem = _cstr ("%.1f", self.resource / instancia.top * 100)
 	end
 	
-	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_resource, formated_rps, porcentagem, self))
-	else
-	
-		local bars_show_data = instancia.row_info.textR_show_data
-		local bars_brackets = instancia:GetBarBracket()
-		local bars_separator = instancia:GetBarSeparator()
+	local bars_show_data = instancia.row_info.textR_show_data
+	local bars_brackets = instancia:GetBarBracket()
+	local bars_separator = instancia:GetBarSeparator()
 
-		if (not bars_show_data [1]) then
-			formated_resource = ""
-		end
-		if (not bars_show_data [2]) then
-			formated_rps = ""
-		end
-		if (not bars_show_data [3]) then
-			porcentagem = ""
-		else
-			porcentagem = porcentagem .. "%"
-		end
-		
-		esta_barra.texto_direita:SetText (formated_resource .. bars_brackets[1] .. formated_rps .. bars_separator .. porcentagem .. bars_brackets[2])
+	if (not bars_show_data [1]) then
+		formated_resource = ""
+	end
+	if (not bars_show_data [2]) then
+		formated_rps = ""
+	end
+	if (not bars_show_data [3]) then
+		porcentagem = ""
+	else
+		porcentagem = porcentagem .. "%"
+	end
+	
+	local rightText = formated_resource .. bars_brackets[1] .. formated_rps .. bars_separator .. porcentagem .. bars_brackets[2]
+	if (UsingCustomRightText) then
+		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_resource, formated_rps, porcentagem, self, instancia.showing, instancia, rightText))
+	else
+		esta_barra.texto_direita:SetText (rightText)
 	end
 	
 	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
@@ -665,20 +665,21 @@ function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra,
 	local esta_porcentagem = _math_floor ((esta_e_energy_total/instancia.top) * 100)
 
 	local formated_energy = SelectedToKFunction (_, esta_e_energy_total)
-	
-	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_energy, "", porcentagem, self, instancia.showing))
+
+	if (not bars_show_data [1]) then
+		formated_energy = ""
+	end
+	if (not bars_show_data [3]) then
+		porcentagem = ""
 	else
-		if (not bars_show_data [1]) then
-			formated_energy = ""
-		end
-		if (not bars_show_data [3]) then
-			porcentagem = ""
-		else
-			porcentagem = porcentagem .. "%"
-		end
+		porcentagem = porcentagem .. "%"
+	end
 	
-		esta_barra.texto_direita:SetText (formated_energy .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+	local rightText = formated_energy .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+	if (UsingCustomRightText) then
+		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_energy, "", porcentagem, self, instancia.showing, instancia, rightText))
+	else
+		esta_barra.texto_direita:SetText (rightText)
 	end
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip

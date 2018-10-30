@@ -873,21 +873,20 @@ function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, l
 	
 	local esta_porcentagem = _math_floor ((meu_total/instancia.top) * 100)
 
-	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, meu_total, "", porcentagem, self, instancia.showing))
+	if (not bars_show_data [1]) then
+		meu_total = ""
+	end
+	if (not bars_show_data [3]) then
+		porcentagem = ""
 	else
+		porcentagem = porcentagem .. "%"
+	end
 	
-		if (not bars_show_data [1]) then
-			meu_total = ""
-		end
-		if (not bars_show_data [3]) then
-			porcentagem = ""
-		else
-			porcentagem = porcentagem .. "%"
-		end
-	
-		esta_barra.texto_direita:SetText (meu_total .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
-
+	local rightText = meu_total .. bars_brackets[1] .. porcentagem .. bars_brackets[2]
+	if (UsingCustomRightText) then
+		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, meu_total, "", porcentagem, self, instancia.showing, instancia, rightText))
+	else
+		esta_barra.texto_direita:SetText (rightText)
 	end
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip

@@ -538,10 +538,11 @@
 			end
 		else
 			local formated_value = SelectedToKFunction (_, self.value)
+			local rightText = formated_value .. bars_brackets[1] .. percent .. bars_brackets[2]
 			if (UsingCustomRightText) then
-				row.texto_direita:SetText (_string_replace (instance.row_info.textR_custom_text, formated_value, "", percent, self))
+				row.texto_direita:SetText (_string_replace (instance.row_info.textR_custom_text, formated_value, "", percent, self, combat, instance, rightText))
 			else
-				row.texto_direita:SetText (formated_value .. bars_brackets[1] .. percent .. bars_brackets[2])
+				row.texto_direita:SetText (rightText)
 			end
 		end
 		

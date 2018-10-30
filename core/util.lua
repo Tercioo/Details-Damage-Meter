@@ -480,7 +480,7 @@
 			function_cache [str] = func
 		end
 	
-		local okey, value = _pcall (func, parameters_cache [1], parameters_cache [2])
+		local okey, value = _pcall (func, parameters_cache [1], parameters_cache [2], parameters_cache [3], parameters_cache [4])
 		if (not okey) then
 			_detalhes:Msg ("|cFFFF9900error on custom text|r:", value)
 			return 0
@@ -488,12 +488,14 @@
 		return value or 0
 	end
 
-	function _detalhes.string.replace (str, v1, v2, v3, v4, v5)
+	function _detalhes.string.replace (str, v1, v2, v3, v4, v5, v6, v7)
 		arguments_cache [1] = v1
 		arguments_cache [2] = v2
 		arguments_cache [3] = v3
 		parameters_cache [1] = v4
 		parameters_cache [2] = v5
+		parameters_cache [3] = v6
+		parameters_cache [4] = v7
 		
 		return (str:gsub ("{data(%d+)}", replace_arg):gsub ("{func(.-)}", run_function)) 
 	end

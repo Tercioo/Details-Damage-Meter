@@ -3035,7 +3035,7 @@
 	
 --> row text editor
 
-	local panel = _detalhes:CreateWelcomePanel ("DetailsWindowOptionsBarTextEditor", nil, 650, 230, true)
+	local panel = _detalhes:CreateWelcomePanel ("DetailsWindowOptionsBarTextEditor", nil, 1150, 600, true)
 	panel:SetPoint ("center", UIParent, "center")
 	panel:Hide()
 	panel:SetFrameStrata ("FULLSCREEN")
@@ -3058,7 +3058,7 @@
 	local y = -32
 	local buttonTemplate = Details.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
 	
-	local textentry = _detalhes.gump:NewSpecialLuaEditorEntry (panel, 450, 185, "editbox", "$parentEntry", true)
+	local textentry = _detalhes.gump:NewSpecialLuaEditorEntry (panel, 950, 555, "editbox", "$parentEntry")
 	textentry:SetPoint ("topleft", panel, "topleft", 10, y)
 	Details.gump:ApplyStandardBackdrop (textentry)
 	Details.gump:SetFontSize (textentry.editbox, 14)
@@ -3193,7 +3193,7 @@
 	color_button:SetTemplate (buttonTemplate)
 	
 	func_button:SetPoint ("topright", panel, "topright", -12, y - (20*3))
-	color_button:SetPoint ("topright", panel, "topright", -12, y - (20*4))
+	--color_button:SetPoint ("topright", panel, "topright", -12, y - (20*4))
 	func_button:SetTemplate (buttonTemplate)
 	
 	color_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"]
