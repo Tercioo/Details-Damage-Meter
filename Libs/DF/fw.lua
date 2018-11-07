@@ -1,5 +1,5 @@
 
-local dversion = 117
+local dversion = 121
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -19,6 +19,11 @@ local string_match = string.match
 
 SMALL_NUMBER = 0.000001
 ALPHA_BLEND_AMOUNT = 0.8400251
+
+DF.AuthorInfo = {
+	Name = "Tercioo",
+	Discord = "https://discord.gg/AGSzAZX",
+}
 
 --> will always give a very random name for our widgets
 local init_counter = math.random (1, 1000000)
@@ -2687,6 +2692,7 @@ DF.CLEncounterID = {
 function DF:GetCLEncounterIDs()
 	return DF.CLEncounterID
 end
+
 
 --doo elsee 
 --was doing double loops due to not enought height

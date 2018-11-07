@@ -424,9 +424,7 @@
 		f:SetBackdropColor (0, 0, 0, 0.3)
 	
 		f:Hide()
-		
 
-		
 		--> members
 			f.MenuX = CONST_PLUGINWINDOW_MENU_X
 			f.MenuY = CONST_PLUGINWINDOW_MENU_Y
@@ -452,6 +450,19 @@
 		--> menu background
 			local menuBackground = CreateFrame ("frame", "$parentMenuFrame", f)
 			_detalhes:FormatBackground (menuBackground)
+			
+		--> statusbar
+			local statusBar = CreateFrame ("frame", nil, menuBackground)
+			statusBar:SetPoint ("topleft", menuBackground, "bottomleft", 0, 1)
+			statusBar:SetPoint ("topright", f, "bottomright", 0, 1)
+			statusBar:SetHeight (20)
+			_detalhes.gump:ApplyStandardBackdrop (statusBar)
+			statusBar:SetAlpha (1)
+			_detalhes.gump:BuildStatusbarAuthorInfo (statusBar)
+			--
+			local right_click_to_back = _detalhes.gump:CreateLabel (statusBar, "right click to close", 10, "gray")
+			right_click_to_back:SetPoint ("bottomright", statusBar, "bottomright", -1, 5)
+			right_click_to_back:SetAlpha (.4)
 
 			--> point
 			menuBackground:SetPoint ("topright", f, "topleft", -2, 0)

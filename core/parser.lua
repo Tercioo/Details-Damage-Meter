@@ -171,6 +171,7 @@
 		[233499] = 233490, --warlock Unstable Affliction
 		
 		[261947] = 261977, --monk fist of the white tiger talent
+		
 	}
 	
 	local bitfield_debuffs_ids = _detalhes.BitfieldSwapDebuffsIDs
@@ -184,6 +185,7 @@
 		end
 	end
 	
+	--expose the override spells table to external scripts
 	_detalhes.OverridedSpellIds = override_spellId
 	
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
@@ -214,6 +216,9 @@
 		--it is not useful for damage done or friendly fire
 		[SPELLID_WARLOCK_SOULLINK] = true,
 	}
+	
+	--> expose the ignore spells table to external scripts
+	_detalhes.SpellsToIgnore = damage_spells_to_ignore
 	
 	--> is parser allowed to replace spellIDs?
 		local is_using_spellId_override = false

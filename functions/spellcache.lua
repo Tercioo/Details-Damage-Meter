@@ -94,6 +94,8 @@ do
 		[49184] = {name = GetSpellInfo (49184) .. " (Main Target)"}, --DK Howling Blast
 		[237680] = {name = GetSpellInfo (237680) .. " (AoE)"}, --DK Howling Blast
 		
+		[228649] = {name = GetSpellInfo (228649) .. " (Passive)"}, --Monk Mistweaver Blackout kick - Passive Teachings of the Monastery
+		
 		--> bfa trinkets
 		[278155] = {name = GetSpellInfo (278155) .. " (Trinket)"}, --[Twitching Tentacle of Xalzaix]
 		[279664] = {name = GetSpellInfo (279664) .. " (Trinket)"}, --[Vanquished Tendril of G'huun]

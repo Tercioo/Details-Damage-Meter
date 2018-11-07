@@ -162,6 +162,35 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"] or command == "news" or command == "updates") then
 		_detalhes:OpenNewsWindow()
 	
+	elseif (command == "debugwindow") then
+		
+		local window1 = Details:GetWindow(1)
+		if (window1) then
+			local state = {
+				ParentName = window1.baseframe:GetParent():GetName(),
+				Alpha = window1.baseframe:GetAlpha(),
+				IsShown = window1.baseframe:IsShown(),
+				IsOpen = window1:IsEnabled() and true or false,
+				NumPoints = window1.baseframe:GetNumPoints(),
+			}
+			
+			for i = 1, window1.baseframe:GetNumPoints() do
+				state ["Point" .. i] = {window1.baseframe:GetPoint (i)}
+			end
+			
+			local parent = window1.baseframe:GetParent()
+			
+			state ["ParentInfo"] = {
+				Alpha = parent:GetAlpha(),
+				IsShown = parent:IsShown(),
+				NumPoints = parent:GetNumPoints(),
+			}
+			
+			Details:Dump (state)
+		else
+			Details:Msg ("Window 1 not found.")
+		end
+	
 	elseif (command == "spells") then
 		Details.OpenForge()
 		DetailsForgePanel.SelectModule (_, _, 2)
