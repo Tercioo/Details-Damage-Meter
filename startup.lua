@@ -1292,6 +1292,9 @@ function _G._detalhes:Start()
 	
 	--> check is this is the first run of this version
 		if (self.is_version_first_run) then
+		
+		
+		
 			local enable_reset_warning = true
 		
 			local lower_instance = _detalhes:GetLowerInstanceNumber()

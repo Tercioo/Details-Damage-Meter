@@ -7046,3 +7046,4 @@ function _detalhes:ShowImportWindow (defaultText, confirmFunc, titleText)
 		DetailsExportWindow.ImportEditor.editbox:HighlightText (0)
 	end)
 end
+

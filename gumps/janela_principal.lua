@@ -9197,6 +9197,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> REPORTAR ~report ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local report_func = function()
 		instancia:Reportar ("INSTANCE" .. instancia.meu_id)
+		GameCooltip2:Hide()
 	end
 	baseframe.cabecalho.report = gump:NewButton (baseframe, nil, "DetailsReportButton"..instancia.meu_id, nil, 8, 16, report_func)
 	baseframe.cabecalho.report:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)

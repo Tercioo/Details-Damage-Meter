@@ -4626,6 +4626,7 @@ function _detalhes.OpenDetailsDeathRecap (segment, RecapID, fromChat)
 						end
 						
 						spellName = spellName:gsub (L["STRING_DOT"], "")
+						spellName = spellName:gsub ("[*] ", "")
 						--print ("link.lua", L["STRING_DOT"], spellName, spellName:find (L["STRING_DOT"]), spellName:gsub (L["STRING_DOT"], ""))
 						source = source or ""
 						

@@ -3415,7 +3415,8 @@ function _detalhes:envia_relatorio (linhas, custom)
 	_detalhes:DelayUpdateReportWindowRecentlyReported()
 	
 	if (_detalhes.report_where == "COPY") then
-		return _detalhes:SendReportTextWindow (linhas)
+		_detalhes:SendReportTextWindow (linhas)
+		return
 	end
 	
 	local to_who = _detalhes.report_where

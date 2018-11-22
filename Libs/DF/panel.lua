@@ -6314,17 +6314,18 @@ DF.DataScrollFunctions = {
 		line.Date = date
 		line.Text = text
 		
+		line.backdrop_color = self.options.backdrop_color or {.1, .1, .1, .3}
+		line.backdrop_color_highlight = self.options.backdrop_color_highlight or {.3, .3, .3, .5}
+		
 		return line
 	end,
 	
 	LineOnEnter = function (self)
-		local parent = self:GetParent()
-		self:SetBackdropColor (unpack (parent.options.backdrop_color_highlight))
+		self:SetBackdropColor (unpack (self.backdrop_color_highlight))
 	end,
 	
 	LineOnLeave = function (self)
-		local parent = self:GetParent()
-		self:SetBackdropColor (unpack (parent.options.backdrop_color))
+		self:SetBackdropColor (unpack (self.backdrop_color))
 	end,
 	
 	OnClick = function (self)
@@ -6340,6 +6341,10 @@ DF.DataScrollFunctions = {
 			line.Text.text = data [4] or ""
 		else
 			line.Text.text = data [2] or ""
+		end
+		
+		if (line:GetParent().OnUpdateLineHook) then
+			DF:CoreDispatch ((line:GetName() or "ScrollBoxDataScrollUpdateLineHook") .. ":UpdateLineHook()", line:GetParent().OnUpdateLineHook, line, lineIndex, data)
 		end
 	end,
 }
@@ -6482,6 +6487,8 @@ function DF:CreateNewsFrame (parent, name, options, newsTable, db)
 	else
 		newsScroll:SetPoint ("topleft", f, "topleft", 5, -30)
 	end
+	
+	f.NewsScroll = newsScroll
 	
 	return f
 end

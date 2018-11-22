@@ -138,35 +138,29 @@ local _UIParent = UIParent --> wow api locals
 	function _detalhes:SendReportTextWindow (lines)
 	
 		if (not _detalhes.copypasteframe) then
-			_detalhes.copypasteframe = CreateFrame ("editbox", "DetailsCopyPasteFrame2", UIParent)
+			_detalhes.copypasteframe = CreateFrame ("frame", "DetailsCopyPasteFrame2", UIParent)
 			_detalhes.copypasteframe:SetFrameStrata ("TOOLTIP")
 			_detalhes.copypasteframe:SetPoint ("CENTER", UIParent, "CENTER", 0, 50)
 			tinsert (UISpecialFrames, "DetailsCopyPasteFrame2")
 			_detalhes.copypasteframe:SetSize (400, 400)
-			_detalhes.copypasteframe:SetBackdrop ({bgFile = "Interface\\ACHIEVEMENTFRAME\\UI-Achievement-Parchment-Horizontal-Desaturated", 
-				edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", 
-				tile = true, tileSize = 16, edgeSize = 8,
-				insets = {left = 0, right = 0, top = 0, bottom = 0},})
-			_detalhes.copypasteframe:SetBackdropColor (0, 0, 0, 0.9)
-			_detalhes.copypasteframe:SetAutoFocus (false)
-			_detalhes.copypasteframe:SetMultiLine (true)
-			_detalhes.copypasteframe:SetFontObject ("GameFontHighlightSmall")
 			_detalhes.copypasteframe:Hide()
 			
-			local title = _detalhes.copypasteframe:CreateFontString (nil, "overlay", "GameFontNormal")
-			title:SetPoint ("bottomleft", _detalhes.copypasteframe, "topleft", 2, 2)
-			title:SetText ("Press Ctrl + C and paste wherever you want, press any key to close.")
-			title:SetJustifyH ("left")
+			DetailsFramework:ApplyStandardBackdrop (_detalhes.copypasteframe)
+			DetailsFramework:CreateTitleBar (_detalhes.copypasteframe, "Export Text")
 			
-			local texture = _detalhes.copypasteframe:CreateTexture (nil, "overlay")
-			texture:SetTexture (0, 0, 0, 1)
-			texture:SetSize (400, 25)
-			texture:SetPoint ("bottomleft", _detalhes.copypasteframe, "topleft")
+			local editBox = CreateFrame ("editbox", nil, _detalhes.copypasteframe)
+			editBox:SetPoint ("topleft", _detalhes.copypasteframe, "topleft", 2, -26)
+			editBox:SetPoint ("bottomright", _detalhes.copypasteframe, "bottomright", -2, 2)
+			editBox:SetAutoFocus (false)
+			editBox:SetMultiLine (true)
+			editBox:SetFontObject ("GameFontHighlightSmall")
 			
-			_detalhes.copypasteframe:SetScript ("OnEditFocusGained", function() _detalhes.copypasteframe:HighlightText() end)
-			_detalhes.copypasteframe:SetScript ("OnEditFocusLost", function() _detalhes.copypasteframe:Hide() end)
-			_detalhes.copypasteframe:SetScript ("OnEscapePressed", function() _detalhes.copypasteframe:SetFocus (false); _detalhes.copypasteframe:Hide() end)
-			_detalhes.copypasteframe:SetScript ("OnChar", function() _detalhes.copypasteframe:SetFocus (false); _detalhes.copypasteframe:Hide() end)
+			editBox:SetScript ("OnEditFocusGained", function() editBox:HighlightText() end)
+			editBox:SetScript ("OnEditFocusLost", function() _detalhes.copypasteframe:Hide() end)
+			editBox:SetScript ("OnEscapePressed", function() editBox:SetFocus (false); _detalhes.copypasteframe:Hide() end)
+			editBox:SetScript ("OnChar", function() editBox:SetFocus (false); _detalhes.copypasteframe:Hide() end)
+			
+			_detalhes.copypasteframe.EditBox = editBox
 		end
 		
 		local s = ""
@@ -175,10 +169,9 @@ local _UIParent = UIParent --> wow api locals
 		end
 		
 		_detalhes.copypasteframe:Show()
-		_detalhes.copypasteframe:SetText (s)
-		_detalhes.copypasteframe:HighlightText()
-		_detalhes.copypasteframe:SetFocus (true)
-
+		_detalhes.copypasteframe.EditBox:SetText (s)
+		_detalhes.copypasteframe.EditBox:HighlightText()
+		_detalhes.copypasteframe.EditBox:SetFocus (true)
 	end
 
 	
@@ -186,6 +179,8 @@ local _UIParent = UIParent --> wow api locals
 
 	function _detalhes:Reportar (param2, options, arg3, id)
 
+		GameCooltip2:Hide()
+	
 		if (not _detalhes.janela_report) then
 			_detalhes.janela_report = gump:CriaJanelaReport()
 		end
@@ -609,6 +604,8 @@ local function cria_drop_down (este_gump)
 	local elvui_skin = function()
 	
 		local window = DetailsReportWindow
+		
+		local anchorX = 10
 	
 		local b_onenter = function (self)
 			self:SetBackdropColor (0.4, 0.4, 0.4, 0.6)
@@ -651,7 +648,7 @@ local function cria_drop_down (este_gump)
 		
 		window.dropdown:ClearAllPoints()
 		window.dropdown:SetWidth (155)
-		window.dropdown:SetPoint ("topleft", window, "topleft", 175, -30)
+		window.dropdown:SetPoint ("topleft", window, "topleft", anchorX, -30)
 		window.dropdown:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		window.dropdown:SetBackdropBorderColor (0, 0, 0, 0.5)
@@ -700,7 +697,7 @@ local function cria_drop_down (este_gump)
 		_G [reverse_checkbox:GetName().."Text"]:SetPoint ("left", reverse_checkbox, "right", 2, 0)
 		
 		window.enviar:ClearAllPoints()
-		window.enviar:SetPoint ("topleft", reverse_checkbox, "bottomleft", 0, -8)
+		window.enviar:SetPoint ("bottom", window, "bottom", 0, 10)
 		window.enviar:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		window.enviar:SetBackdropBorderColor (0, 0, 0, 0.5)
@@ -709,8 +706,10 @@ local function cria_drop_down (este_gump)
 		window.enviar.Middle:Hide()
 		window.enviar.Right:Hide()
 		
-		window:SetWidth (342)
-		window:SetHeight (190)
+		window.enviar:SetSize (342/2 - 15, 20)
+		
+		window:SetWidth (342/2 + 5)
+		window:SetHeight (195)
 		window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
 		window:SetBackdropColor (1, 1, 1, 1)
 		window:SetBackdropBorderColor (0, 0, 0, 1)
@@ -746,6 +745,9 @@ local function cria_drop_down (este_gump)
 		window.title:SetParent (_G [window:GetName() .. "ElvUITitleBar"])
 		window.title:SetTextColor (.8, .8, .8, 1)
 		window.title:Show()
+		
+		
+		window:SetClampedToScreen (true)
 		
 		for _, widget in ipairs (window.elvui_widgets) do
 			widget:Show()
@@ -973,7 +975,8 @@ local function cria_drop_down (este_gump)
 							b.icon:SetVertexColor (unpack (artwork.color or {}))
 						end
 						
-						b:Show()
+						--b:Show()
+						b:Hide()
 						i = i + 1
 					end
 				end
@@ -987,7 +990,7 @@ local function cria_drop_down (este_gump)
 			
 			local last_reported_label = window:CreateFontString (nil, "overlay", "GameFontNormal")
 			window.last_reported_label = last_reported_label
-			window.last_reported_label:SetText (Loc ["STRING_REPORTHISTORY"] .. ":")
+			window.last_reported_label:SetText (Loc ["STRING_REPORTHISTORY"] .. ":") --this string could be removed from localization
 			
 			for i = 1, window.max_last_buttons do
 				local b = CreateFrame ("button", "DetailsReportWindowRRB" .. i, window)
@@ -1001,14 +1004,29 @@ local function cria_drop_down (este_gump)
 				b:SetScript ("OnClick", recently_on_click)
 				tinsert (window.recently_report_buttons, b)
 			end
+			
+			history_Background:Hide()
+			separador:Hide()
+			window.last_reported_label:Hide()
 
 		--> scritps
+		
+			local flashTexture = window:CreateTexture (nil, "background") 
+			flashTexture:SetColorTexture (1, 1, 1)
+			flashTexture:SetAllPoints()
+			
+			local onShowAnimation = DetailsFramework:CreateAnimationHub (flashTexture, function() flashTexture:Show() end, function() flashTexture:Hide() end)
+			DetailsFramework:CreateAnimation (onShowAnimation, "ALPHA", 1, .2, 0, .10)
+			DetailsFramework:CreateAnimation (onShowAnimation, "ALPHA", 2, .2, .10, 0)
+		
 			window:SetScript ("OnShow", function (self)
 				local dropdown = window.select.MyObject
 				local where = _detalhes.report_where
 				
 				local list = window.dropdown_func()
 				local found
+				
+				onShowAnimation:Play()
 				
 				for index, option in ipairs (list) do
 					if (option.value == where) then
@@ -1046,7 +1064,7 @@ local function cria_drop_down (este_gump)
 				_detalhes.last_report_id = nil
 			end)
 	
-		--> bot�o de fechar
+		--> close button
 		window.fechar = CreateFrame ("Button", nil, window, "UIPanelCloseButton")
 		window.fechar:SetScript ("OnClick", function()
 			gump:Fade (window, 1)
