@@ -3520,6 +3520,27 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				local t = {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true, ["last_cooldown"] = este_jogador.last_cooldown, ["dead_at"] = decorrido}
 				
 				_table_insert (_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
+				
+				--> check if this is a mythic+ run
+				local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+				if (mythicLevel and type (mythicLevel) == "number" and mythicLevel >= 2) then --several checks to be future proof
+					--> more checks for integrity
+					if (_detalhes.tabela_overall and _detalhes.tabela_overall.last_events_tables) then
+						--> this is a mythi dungeon run, add the death to overall data
+						--> need to adjust the time of death, since this will show all deaths in the mythic run
+						--> first copy the table
+						local overallDeathTable = DetailsFramework.table.copy ({}, t)
+						
+						--> get the elapsed time
+						local decorrido = _GetTime() - _detalhes.tabela_overall:GetStartTime()
+						local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+						
+						overallDeathTable [6] = minutos.."m "..segundos.."s"
+						overallDeathTable.dead_at = decorrido
+						
+						_table_insert (_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables + 1, overallDeathTable)
+					end
+				end
 
 				--> reseta a pool
 				last_events_cache [alvo_name] = nil
