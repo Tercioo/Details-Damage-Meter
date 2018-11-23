@@ -1,5 +1,5 @@
 
-local dversion = 122
+local dversion = 123
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -389,6 +389,24 @@ end
 function DF:SetFontColor (fontString, r, g, b, a)
 	r, g, b, a = DF:ParseColors (r, g, b, a)
 	fontString:SetTextColor (r, g, b, a)
+end
+
+function DF:AddClassColorToText (text, class)
+	if (type (class) ~= "string") then
+		return DF:RemoveRealName (text)
+		
+	elseif (class == "UNKNOW" or class == "PET") then
+		return DF:RemoveRealName (text)
+	end
+	
+	local color = RAID_CLASS_COLORS [class]
+	if (color) then
+		text = "|c" .. color.colorStr .. DF:RemoveRealName (text) .. "|r"
+	else
+		return DF:RemoveRealName (text)
+	end
+	
+	return text
 end
 
 function DF:GetFontSize (fontString)
