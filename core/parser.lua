@@ -4829,7 +4829,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		print ("group damage", #_detalhes.cache_damage_group)
 		print ("group damage", #_detalhes.cache_healing_group)
 	end
-	
+
 	function _detalhes:GetActorsOnDamageCache()
 		return _detalhes.cache_damage_group
 	end

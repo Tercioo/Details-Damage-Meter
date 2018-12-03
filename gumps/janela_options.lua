@@ -4088,6 +4088,25 @@ function window:CreateFrame1()
 		local box = g:NewTextEntry (frame1, _, "$parentNicknameEntry", "nicknameEntry", SLIDER_WIDTH, TEXTENTRY_HEIGHT, onPressEnter, nil, nil, nil, nil, options_dropdown_template)
 		box:SetFontObject ("SystemFont_Outline_Small")
 		
+		--create a reset nickname button
+			g:NewButton (box, _, "$parentResetNicknameButton", "resetNicknameButton", 16, 16, function()
+				Details:ResetPlayerPersona()
+				local playerName = UnitName ("player")
+				local playerPersona = Details:GetNicknameTable (playerName)
+				
+				if (playerPersona) then
+					box:SetText (playerPersona[1])
+				end
+			end)
+			frame1.resetNicknameButton = box.resetNicknameButton
+			frame1.resetNicknameButton:SetPoint ("left", box, "right", 0, 0)
+			frame1.resetNicknameButton:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+			frame1.resetNicknameButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+			frame1.resetNicknameButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+			frame1.resetNicknameButton:GetNormalTexture():SetDesaturated (true)
+			frame1.resetNicknameButton.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
+		---------
+			
 		frame1.nicknameEntry:SetPoint ("left", frame1.nicknameLabel, "right", 2, 0)
 
 		window:CreateLineBackground2 (frame1, "nicknameEntry", "nicknameLabel", Loc ["STRING_OPTIONS_NICKNAME_DESC"])

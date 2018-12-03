@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 10
+local major, minor = "NickTag-1.0", 11
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -31,8 +31,6 @@ end
 	local CONST_INDEX_REVISION = 7
 
 	local CONST_COMM_FULLPERSONA = 1
-	local CONST_COMM_LOGONREVISION = 2
-	local CONST_COMM_REQUESTPERSONA = 3
 	
 	--[[global]] NICKTAG_DEFAULT_AVATAR = [[Interface\EncounterJournal\UI-EJ-BOSS-Default]]
 	--[[global]] NICKTAG_DEFAULT_BACKGROUND = [[Interface\PetBattles\Weather-ArcaneStorm]]
@@ -44,13 +42,7 @@ end
 	_G.NickTag = NickTag --> nicktag object over global container
 
 	local pool = {default = true} --> pointer to the cache pool and the default pool if no cache
-	local queue_request = {}
-	local queue_send = {}
-	local last_queue = 0
-	local is_updating = false
 	NickTag.debug = false
-	
-	local GetGuildRosterInfo = GetGuildRosterInfo
 
 	LibStub:GetLibrary ("AceComm-3.0"):Embed (NickTag)
 	LibStub:GetLibrary ("AceSerializer-3.0"):Embed (NickTag)
@@ -67,7 +59,8 @@ end
 		"GetNicknameAvatar",
 		"GetNicknameBackground",
 		"GetNicknameTable",
-		"NickTagSetCache"
+		"NickTagSetCache",
+		"ResetPlayerPersona"
 	}
 	function NickTag:Embed (target)
 		for k, v in pairs (embed_functions) do
@@ -239,7 +232,9 @@ end
 					storedPersona = NickTag:Create (source)
 				end
 				
-				if (storedPersona [CONST_INDEX_REVISION] < receivedPersona [CONST_INDEX_REVISION]) then
+				--what's the point of the revision if there's no more revision checks? -- feels deprecated
+				--will leave this as a comment for now, might remove in the future
+				--if (storedPersona [CONST_INDEX_REVISION] < receivedPersona [CONST_INDEX_REVISION]) then
 					storedPersona [CONST_INDEX_REVISION] = receivedPersona [CONST_INDEX_REVISION]
 					
 					--> we need to check if the received nickname fit in our rules.
@@ -253,281 +248,134 @@ end
 					storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
 					
 					--> update the rest
-						--avatar path
-						storedPersona [CONST_INDEX_AVATAR_PATH] = type (receivedPersona [CONST_INDEX_AVATAR_PATH]) == "string" and receivedPersona [CONST_INDEX_AVATAR_PATH] or ""
+					--avatar path
+					storedPersona [CONST_INDEX_AVATAR_PATH] = type (receivedPersona [CONST_INDEX_AVATAR_PATH]) == "string" and receivedPersona [CONST_INDEX_AVATAR_PATH] or ""
+					
+					--avatar texcoord
+					if (type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
 						
-						--avatar texcoord
-						if (type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
-							
-						elseif (type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "table") then
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = storedPersona [CONST_INDEX_AVATAR_TEXCOORD] or {}
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] or 0
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] or 1
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] or 0
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] or 1
-						else
-							storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
-						end
+					elseif (type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "table") then
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = storedPersona [CONST_INDEX_AVATAR_TEXCOORD] or {}
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] or 0
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] or 1
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] or 0
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] or 1
+					else
+						storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
+					end
+					
+					--background texcoord
+					if (type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "boolean") then
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
 						
-						--background texcoord
-						if (type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "boolean") then
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
-							
-						elseif (type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "table") then
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] or {}
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] or 0
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] or 1
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] or 0
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] or 1
-						else
-							storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
-						end						
-						
-						--background path
-						storedPersona [CONST_INDEX_BACKGROUND_PATH] = type (receivedPersona [CONST_INDEX_BACKGROUND_PATH]) == "string" and receivedPersona [CONST_INDEX_BACKGROUND_PATH] or ""
-						
-						--background color
-						if (type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR]) == "table") then
-							storedPersona [CONST_INDEX_BACKGROUND_COLOR] = storedPersona [CONST_INDEX_BACKGROUND_COLOR] or {}
-							storedPersona [CONST_INDEX_BACKGROUND_COLOR][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1] or 1
-							storedPersona [CONST_INDEX_BACKGROUND_COLOR][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2] or 1
-							storedPersona [CONST_INDEX_BACKGROUND_COLOR][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3] or 1
-						else
-							storedPersona [CONST_INDEX_BACKGROUND_COLOR] = {1, 1, 1}
-						end
-						
-						NickTag:Msg ("FULLPERSONA received and updated for character: ", source, "new nickname: ", receivedPersona [CONST_INDEX_NICKNAME])
-				end
+					elseif (type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "table") then
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] or {}
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] or 0
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] or 1
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] or 0
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] or 1
+					else
+						storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
+					end						
+					
+					--background path
+					storedPersona [CONST_INDEX_BACKGROUND_PATH] = type (receivedPersona [CONST_INDEX_BACKGROUND_PATH]) == "string" and receivedPersona [CONST_INDEX_BACKGROUND_PATH] or ""
+					
+					--background color
+					if (type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR]) == "table") then
+						storedPersona [CONST_INDEX_BACKGROUND_COLOR] = storedPersona [CONST_INDEX_BACKGROUND_COLOR] or {}
+						storedPersona [CONST_INDEX_BACKGROUND_COLOR][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1] or 1
+						storedPersona [CONST_INDEX_BACKGROUND_COLOR][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2] or 1
+						storedPersona [CONST_INDEX_BACKGROUND_COLOR][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3] or 1
+					else
+						storedPersona [CONST_INDEX_BACKGROUND_COLOR] = {1, 1, 1}
+					end
+					
+					NickTag:Msg ("FULLPERSONA received and updated for character: ", source, "new nickname: ", receivedPersona [CONST_INDEX_NICKNAME])
+				--end
 			end
-		
-		--> 0x2: received a revision version from a guy which logon in the game
-		elseif (_type == CONST_COMM_LOGONREVISION) then
-		
-			if (UnitName ("player") == source) then
-				return
-			end
-		
-			local receivedRevision = arg3
-			local storedPersona = NickTag:GetNicknameTable (source)
-			
-			NickTag:Msg ("LOGONREVISION rev: ", receivedRevision, " source: ", source)
-			
-			if (type (version) ~= "number" or version ~= minor) then
-				return
-			end
-			
-			if (not storedPersona or storedPersona [CONST_INDEX_REVISION] < receivedRevision) then
-				--> put in queue our request for receive a updated persona
-				NickTag:ScheduleTimer ("QueueRequest", math.random (10, 60), source)
-				
-				NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFFFF0000is out of date|r, queueing a request persona.")
-			else
-				NickTag:Msg ("LOGONREVISION from: " .. source .. " |cFF00FF00is up to date.")
-			end
-			
-		--> 0x3: someone requested my persona, so i need to send to him
-		elseif (_type == CONST_COMM_REQUESTPERSONA) then
-			if (type (version) ~= "number" or version ~= minor) then
-				return
-			end
-			
-			--> queue to send our persona for requested person
-			NickTag:Msg ("REQUESTPERSONA from: " .. source .. ", the request has been placed in queue.")
-			
-			NickTag:QueueSend (source)
+
 		end
 
 	end
 
 	NickTag:RegisterComm ("NickTag", "OnReceiveComm")
 	
-	function NickTag:UpdateRoster()
-		--> do not update roster if is in combat
-		if (not UnitAffectingCombat ("player")) then
-			GuildRoster()
-		end
-	end
+	--frame for listening to event
+	NickTag.EventFrame = NickTag.EventFrame or CreateFrame ("frame")
+	NickTag.EventFrame.InfoSendCooldown = 0
 	
-	function NickTag:IsOnline (name)
-	
-		local isShownOffline = GetGuildRosterShowOffline()
-		if (isShownOffline) then
-			SetGuildRosterShowOffline (false)
-		end
-		
-		local _, numOnlineMembers = GetNumGuildMembers()
-
-		NickTag:Msg ("IsOnline(): " .. numOnlineMembers .. " online members.")
-		
-		for i = 1, numOnlineMembers do
-			local player_name = GetGuildRosterInfo (i)
-			if (player_name:find (name)) then
-				if (isShownOffline) then
-					SetGuildRosterShowOffline (true)
-				end
-				return true
+	function NickTag.OnEvent (self, event, ...)
+		if (NickTag.EventFrame.InfoSendCooldown > time()) then
+			if (not NickTag.EventFrame.ScheduledSend or NickTag.EventFrame.ScheduledSend._cancelled) then
+				NickTag.EventFrame.ScheduledSend = C_Timer.NewTimer (30, NickTag.SendPersona)
 			end
-		end
-		if (isShownOffline) then
-			SetGuildRosterShowOffline (true)
-		end
-		return false
-	end
-	
-	local event_frame = CreateFrame ("frame", nil, UIParent)
-	event_frame:Hide()
-	event_frame:SetScript ("OnEvent", function (_, _, local_update)
-		if (not local_update) then
-		
-			--> roster was been updated
-			if (last_queue < time()) then
-				last_queue = time()+11
-			else
-				return
-			end
-			
-			--> do not share if we are in combat
-			if (UnitAffectingCombat ("player")) then
-				return
-			end
-			
-			--> start with send requested personas
-			if (#queue_send > 0) then
-
-				local name = queue_send [1]
-				table.remove (queue_send, 1)
-			
-				NickTag:Msg ("QUEUE -> ready to send persona to " .. name)
-				
-				--> check if the player is online
-				if (NickTag:IsOnline (name)) then
-					NickTag:Msg ("QUEUE -> " .. name .. " is online, running SendPersona().")
-					NickTag:SendPersona (name)
-				else
-					NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
-				end
-				
-				if (#queue_send == 0 and #queue_request == 0) then
-					NickTag:StopRosterUpdates()
-				end
-				
-			elseif (#queue_request > 0) then
-
-				local name = queue_request [1]
-				table.remove (queue_request, 1)
-				
-				NickTag:Msg ("QUEUE -> ready to request the persona of " .. name)
-				
-				--> check if the player is online
-				if (NickTag:IsOnline (name)) then
-					NickTag:Msg ("QUEUE -> " .. name .. " is online, running RequestPersona().")
-					NickTag:RequestPersona (name)
-				else
-					NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
-				end
-				
-				if (#queue_request == 0 and #queue_request == 0) then
-					NickTag:StopRosterUpdates()
-				end
-				
-			else
-				NickTag:StopRosterUpdates()
-			end
-		end
-	end)
-	
-	function NickTag:StopRosterUpdates()
-		NickTag:Msg ("ROSTER -> updates has been stopped")
-		if (NickTag.UpdateRosterTimer) then
-			NickTag:CancelTimer (NickTag.UpdateRosterTimer)
-		end
-		NickTag.UpdateRosterTimer = nil
-		event_frame:UnregisterEvent ("GUILD_ROSTER_UPDATE")
-		is_updating = false
-	end
-	
-	function NickTag:StartRosterUpdates()
-		NickTag:Msg ("ROSTER -> updates has been actived")
-		event_frame:RegisterEvent ("GUILD_ROSTER_UPDATE")
-		if (not NickTag.UpdateRosterTimer) then
-			NickTag.UpdateRosterTimer = NickTag:ScheduleRepeatingTimer ("UpdateRoster", 12)
-			NickTag:Msg ("ROSTER -> new update thread created.")
 		else
-			NickTag:Msg ("ROSTER -> a update thread already exists.")
-		end
-		is_updating = true
-	end
-	
-	--> we queue data for roster update and also check for combat
-	function NickTag:QueueRequest (name)
-		table.insert (queue_request, name)
-		if (not is_updating) then
-			NickTag:StartRosterUpdates()
-		end
-	end
-	function NickTag:QueueSend (name)
-		table.insert (queue_send, name)
-		if (not is_updating) then
-			NickTag:StartRosterUpdates()
-		end
-	end
-
-	--> after logon, we send our revision, who needs update my persona will send 0x3 (request persona) to me and i send back 0x1 (send persona)
-	function NickTag:SendRevision()
-		local playerName = UnitName ("player")
-		local myPersona = NickTag:GetNicknameTable (playerName)
-		if (myPersona) then
-			NickTag:Msg ("SendRevision() -> SENT")
-			if (IsInGuild()) then
-				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, 0, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
-			end
+			NickTag:SendPersona()
 		end
 	end
 	
-	--> i received 0x2 and his persona is out of date here, so i need to send 0x3 to him and him will send 0x1.
-	function NickTag:RequestPersona (target)
-		NickTag:Msg ("RequestPersona() -> requesting of " .. target)
-		if (IsInGuild()) then
-			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_REQUESTPERSONA, 0, 0, UnitName ("player"), GetRealmName(), minor), "WHISPER", target)
-		end
-	end
+	--when the roster changes or the player enters the game, send the persona to guild mates
+	--send on roster update can only happen every 30 seconds, if is on cooldown, it'll schedule an update
+	NickTag.EventFrame:RegisterEvent ("GROUP_ROSTER_UPDATE")
+	NickTag.EventFrame:RegisterEvent ("PLAYER_LOGIN")
+	
+	NickTag.EventFrame:SetScript ("OnEvent", NickTag.OnEvent)
 
-	--> this broadcast my persona to entire guild when i update my persona or send my persona to someone who doesn't have it or need to update.
-	function NickTag:SendPersona (target)
-		if (target) then
-			NickTag:Msg ("SendPersona() -> sent to " .. target)
-		else
-			NickTag:Msg ("SendPersona() -> broadcast")
+	--send the persona in the guild comm chanel
+	function NickTag:SendPersona()
+
+		--check if the player has a persona
+		local nickTable = NickTag:GetNicknameTable (UnitName ("player"), true)
+		if (not nickTable) then
+			return
 		end
+		NickTag:Msg ("SendPersona() -> broadcast")
 		
-		--> auto change nickname if we have a invalid nickname
+		if (NickTag.EventFrame.ScheduledSend and not NickTag.EventFrame.ScheduledSend._cancelled) then
+			NickTag.EventFrame.ScheduledSend:Cancel()
+		end
+		NickTag.EventFrame.ScheduledSend = nil
+		NickTag.EventFrame.InfoSendCooldown = time() + 29
+		
+		--> updating my own persona
+		NickTag.send_scheduled = false
+		
+		--> auto change nickname if we have an invalid nickname
 		if (NickTag:GetNickname (UnitName ("player")) == LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]) then
-			local nickTable = NickTag:GetNicknameTable (UnitName ("player"))
-			if (nickTable) then
-				nickTable [CONST_INDEX_NICKNAME] = UnitName ("player")
-			end
+			nickTable [CONST_INDEX_NICKNAME] = UnitName ("player")
 		end
-		
-		if (target) then
-			--> was requested
-			if (IsInGuild()) then
-				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, 0, NickTag:GetNicknameTable (UnitName ("player")), minor), "WHISPER", target)
-			end
-		else
-			--> updating my own persona
-			NickTag.send_scheduled = false
-			--> broadcast only happen when something has changed on the local player persona, it needs to increase the revision before sending
-			NickTag:IncRevision()
-			--> broadcast over guild channel
-			if (IsInGuild()) then
-				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, 0, NickTag:GetNicknameTable (UnitName ("player")), minor), "GUILD")
-			end
+
+		--> broadcast over guild channel
+		if (IsInGuild()) then
+			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, 0, NickTag:GetNicknameTable (UnitName ("player")), minor), "GUILD")
 		end
+
 	end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
---> on logon stuff
+--> cache stuff
+
+	--> this will clear the information about the player within nicktag cache
+	function NickTag:ResetPlayerPersona()
+		local playerName = UnitName ("player")
+		
+		if (playerName) then
+			local playerPersona = NickTag:GetNicknameTable (playerName)
+			if (playerPersona) then
+				playerPersona [CONST_INDEX_NICKNAME] = playerName
+				playerPersona [CONST_INDEX_AVATAR_PATH] = false
+				playerPersona [CONST_INDEX_AVATAR_TEXCOORD] = false
+				playerPersona [CONST_INDEX_BACKGROUND_PATH] = false
+				playerPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = false
+				playerPersona [CONST_INDEX_BACKGROUND_COLOR] = false
+				playerPersona [CONST_INDEX_REVISION] = playerPersona [CONST_INDEX_REVISION] + 1
+				
+				C_Timer.After (1, NickTag.SendPersona)
+			end
+		end
+	end
 	
 	--> reset cache
 	function NickTag:ResetCache()
@@ -574,8 +422,6 @@ end
 		if (time() > pool.nextreset) then
 			NickTag:ResetCache()
 		end
-		
-		NickTag:ScheduleTimer ("SendRevision", 30)
 	end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -602,6 +448,7 @@ end
 			count_spaces = count_spaces + 1
 		end
 	end
+
 	
 	--> we need to keep game smooth checking and formating nicknames.
 	--> SetNickname and names comming from other player need to be check.
@@ -672,6 +519,9 @@ end
 		if (nickTable [CONST_INDEX_NICKNAME] ~= name) then
 			nickTable [CONST_INDEX_NICKNAME] = name
 			
+			--increase the table revision
+			NickTag:IncRevision()
+			
 			--> send the update for script which need it.
 			NickTag.callbacks:Fire ("NickTag_Update", CONST_INDEX_NICKNAME)
 			
@@ -709,6 +559,9 @@ end
 		
 		if (nickTable [CONST_INDEX_AVATAR_PATH] ~= texture) then
 			nickTable [CONST_INDEX_AVATAR_PATH] = texture
+			
+			--increase the table revision
+			NickTag:IncRevision()
 			
 			--> by default, CONST_INDEX_AVATAR_TEXCOORD comes as boolean false
 			if (type (nickTable [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
@@ -774,6 +627,10 @@ end
 		end
 		
 		if (need_sync) then
+		
+			--increase the table revision
+			NickTag:IncRevision()
+		
 			NickTag.callbacks:Fire ("NickTag_Update", CONST_INDEX_BACKGROUND_PATH)
 			
 			if (not NickTag.send_scheduled) then

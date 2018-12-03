@@ -147,7 +147,7 @@
 			elseif (numero > 1000) then
 				return _string_format ("%.1f", numero/1000) .. symbol_1K
 			end
-			return numero
+			return _string_format ("%.0f", numero)
 		end
 
 		function _detalhes:ToK2 (numero)
@@ -185,7 +185,7 @@
 			elseif (numero > 1000) then
 				return _string_format ("%.1f", numero/1000) .. symbol_1K
 			end
-			return numero
+			return _string_format ("%.0f", numero)
 		end
 		
 		function _detalhes:ToK2Min (numero)

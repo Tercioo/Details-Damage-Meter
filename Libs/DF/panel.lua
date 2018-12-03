@@ -5039,7 +5039,20 @@ DF.IconRowFunctions = {
 				
 				if (self.options.show_text) then
 					iconFrame.CountdownText:Show()
-					iconFrame.CountdownText:SetText (floor (startTime + duration - GetTime()))
+					
+					local formattedTime = floor (startTime + duration - GetTime())
+					
+					if (formattedTime >= 3600) then
+						formattedTime = floor (formattedTime / 3600) .. "h"
+						
+					elseif (formattedTime >= 60) then
+						formattedTime = floor (formattedTime / 60) .. "m"
+						
+					else
+						formattedTime = floor (formattedTime)
+					end
+					
+					iconFrame.CountdownText:SetText (formattedTime)
 					iconFrame.Cooldown:SetHideCountdownNumbers (true)
 				else
 					iconFrame.CountdownText:Hide()
@@ -5621,23 +5634,46 @@ end
 
 function DF:PassLoadFilters (loadTable, encounterID)
 	--class
+	local passLoadClass
 	if (loadTable.class.Enabled) then
 		local _, classFileName = UnitClass ("player")
 		if (not loadTable.class [classFileName]) then
 			return false
+		else
+			passLoadClass = true
 		end
 	end
 	
 	--spec
 	if (loadTable.spec.Enabled) then
-		local specIndex = GetSpecialization()
-		if (specIndex) then
-			local specID = GetSpecializationInfo (specIndex)
-			if (not loadTable.spec [specID]) then
+		local canCheckTalents = true
+		
+		if (passLoadClass) then
+			--if is allowed to load on this class, check if the talents isn't from another class
+			local _, classFileName = UnitClass ("player")
+			local specsForThisClass = DF:GetClassSpecIDs (classFileName)
+			
+			canCheckTalents = false
+			
+			for _, specID in ipairs (specsForThisClass) do
+				if (loadTable.spec [specID]) then
+					--theres a talent for this class
+					canCheckTalents = true
+					break
+				end
+			end
+		end
+		
+		if (canCheckTalents) then
+			local specIndex = GetSpecialization()
+			if (specIndex) then
+				local specID = GetSpecializationInfo (specIndex)
+				if (not loadTable.spec [specID]) then
+					return false
+				end
+			else
 				return false
 			end
-		else
-			return false
 		end
 	end
 	

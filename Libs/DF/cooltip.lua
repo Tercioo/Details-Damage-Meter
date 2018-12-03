@@ -3378,6 +3378,31 @@ function DF:CreateCoolTip()
 		end
 	end
 	
+	function CoolTip:QuickTooltip (host, ...)
+		
+		CoolTip:Preset (2)
+		CoolTip:SetHost (host)
+		
+		for i = 1, select ("#", ...) do
+			local line = select (i, ...)
+			CoolTip:AddLine (line)
+		end
+		
+		CoolTip:ShowCooltip()
+	end
+	
+	function CoolTip:InjectQuickTooltip (host, ...)
+		host.CooltipQuickTooltip = {...}
+		host:HookScript ("OnEnter", function()
+			CoolTip:QuickTooltip (host, unpack (host.CooltipQuickTooltip))
+		end)
+		host:HookScript ("OnLeave", function()
+			CoolTip:Hide()
+		end)
+	end
+	
+	
+	
 	return CoolTip
 	
 end
