@@ -552,6 +552,8 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local feedback_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		feedback_image:SetPoint ("right", feedback_button, "left", -1, 0)
 		
+		feedback_button:Hide()
+		
 	--> translate
 --[[
 		local translate_button = g:NewButton (window, _, "$parentOpenTranslateButton", nil, 140, 14, _detalhes.OpenTranslateWindow, nil, nil, nil, Loc ["STRING_TRANSLATE_LANGUAGE"], 1)

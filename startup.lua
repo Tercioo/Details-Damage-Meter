@@ -1858,3 +1858,12 @@ function _G._detalhes:Start()
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()
+
+
+
+
+
+
+
+
+
