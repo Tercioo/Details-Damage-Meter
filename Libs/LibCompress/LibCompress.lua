@@ -5,12 +5,12 @@
 -- Authors: jjsheets and Galmok of European Stormrage (Horde)
 -- Email : sheets.jeff@gmail.com and galmok@gmail.com
 -- Licence: GPL version 2 (General Public License)
--- Revision: $Revision: 81 $
--- Date: $Date: 2018-02-25 06:31:34 +0000 (Sun, 25 Feb 2018) $
+-- Revision: $Revision: 83 $
+-- Date: $Date: 2018-07-03 14:33:48 +0000 (Tue, 03 Jul 2018) $
 ----------------------------------------------------------------------------------
 
 
-local LibCompress = LibStub:NewLibrary("LibCompress", 90000 + tonumber(("$Revision: 81 $"):match("%d+")))
+local LibCompress = LibStub:NewLibrary("LibCompress", 90000 + tonumber(("$Revision: 83 $"):match("%d+")))
 
 if not LibCompress then return end
 
@@ -938,19 +938,19 @@ function LibCompress:GetEncodeTable(reservedChars, escapeChars, mapChars)
 		c = string_sub(encodeBytes, i, i)
 		if not encode_translate[c] then
 			-- this loop will update escapeChar and r
-			while r < 256 and taken[string_char(r)] do
+			while r >= 256 or taken[string_char(r)] do
 				r = r + 1
 				if r > 255 then -- switch to next escapeChar
-					if escapeChar == "" then -- we are out of escape chars and we need more!
-						return nil, "Out of escape characters"
-					end
-
 					codecTable["decode_search"..tostring(escapeCharIndex)] = escape_for_gsub(escapeChar).."([".. escape_for_gsub(table_concat(decode_search)).."])"
 					codecTable["decode_translate"..tostring(escapeCharIndex)] = decode_translate
 					table_insert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
 
 					escapeCharIndex  = escapeCharIndex + 1
 					escapeChar = string_sub(escapeChars, escapeCharIndex, escapeCharIndex)
+
+					if escapeChar == "" then -- we are out of escape chars and we need more!
+						return nil, "Out of escape characters"
+					end
 
 					r = 0
 					decode_search = {}
@@ -980,7 +980,6 @@ function LibCompress:GetEncodeTable(reservedChars, escapeChars, mapChars)
 
 	encode_func = assert(loadstring("return function(self, str) return str:gsub(self.encode_search, self.encode_translate); end"))()
 	decode_func = assert(loadstring(decode_func_string))()
-
 	codecTable.encode_search = encode_search
 	codecTable.encode_translate = encode_translate
 	codecTable.Encode = encode_func
