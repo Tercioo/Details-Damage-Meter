@@ -1059,7 +1059,7 @@ local default_profile = {
 				locked = false,
 				width = 250,
 				height = 300,
-				backdrop_color = {0, 0, 0, 0.2},
+				backdrop_color = {.16, .16, .16, .47},
 				show_title = true,
 				strata = "LOW",
 			},

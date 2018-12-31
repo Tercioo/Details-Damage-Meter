@@ -6062,6 +6062,8 @@ local CreateEventTrackerFrame = function (parent, name)
 			end
 			
 			f:SetBackdropColor (unpack (_detalhes.event_tracker.frame.backdrop_color))
+			scrollframe.__background:SetVertexColor (unpack (_detalhes.event_tracker.frame.backdrop_color))
+			
 			f:SetFrameStrata (_detalhes.event_tracker.frame.strata)
 			
 			_detalhes:UpdateWorldTrackerLines()
@@ -6100,8 +6102,9 @@ local CreateEventTrackerFrame = function (parent, name)
 		local is_enemy = function (flag)
 			return bit.band (flag, OBJECT_TYPE_ENEMY) ~= 0
 		end
-		combatLog:SetScript ("OnEvent", function (self, event, time, token, hidding, caster_serial, caster_name, caster_flags, caster_flags2, target_serial, target_name, target_flags, target_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+		combatLog:SetScript ("OnEvent", function (self, event)
 			
+			local time, token, hidding, caster_serial, caster_name, caster_flags, caster_flags2, target_serial, target_name, target_flags, target_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool = CombatLogGetCurrentEventInfo()
 			local added = false
 			
 			--> defensive cooldown
