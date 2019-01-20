@@ -1246,6 +1246,9 @@ local default_player_data = {
 			last_difficulty = 15,
 			last_raid = "",
 		},
+		
+	--> death panel buttons
+		on_death_menu = true,
 }
 
 _detalhes.default_player_data = default_player_data

@@ -4,8 +4,8 @@ if (not Loc) then
 	return 
 end 
 
-Loc ["STRING_PLUGIN_NAME"] = "Encounter Details"
-Loc ["STRING_WINDOW_TITLE"] = "Details! Encounter Info"
+Loc ["STRING_PLUGIN_NAME"] = "Encounter Breakdown"
+Loc ["STRING_WINDOW_TITLE"] = "Details! Encounter Breakdown"
 Loc ["STRING_TOTAL_DAMAGE"] = "Total Damage"
 Loc ["STRING_TOTAL_HEAL"] = "Total Heal"
 Loc ["STRING_SHOW_ALL_DATA"] = "Show overall data"

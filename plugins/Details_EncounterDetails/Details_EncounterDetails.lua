@@ -3,6 +3,13 @@ local Loc = AceLocale:GetLocale ("Details_EncounterDetails")
 local Graphics = LibStub:GetLibrary("LibGraph-2.0")
 local _ 
 
+local isDebug = false
+local function DebugMessage (...)
+	if (isDebug) then
+		print ("|cFFFFFF00EBreakDown|r:", ...)
+	end
+end
+
 --> Needed locals
 local _GetTime = GetTime --> wow api local
 local _UFC = UnitAffectingCombat --> wow api local
@@ -49,7 +56,7 @@ local sort_by_name = function (t1, t2) return t1.nome < t2.nome end
 
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
-EncounterDetails.name = "Encounter Details"
+EncounterDetails.name = "Encounter Breakdown"
 EncounterDetails.debugmode = false
 
 function EncounterDetails:FormatCooltipSettings()
@@ -390,7 +397,7 @@ local function CreatePluginFrames (data)
 		
 		local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlertButton1", EncounterDetails.ToolbarButton, "MicroButtonAlertTemplate")
 		alert:SetFrameLevel (302)
-		alert.label = "Click here (on the skull icon) to bring the Encounter Details panel"
+		alert.label = "Click here (on the skull icon) to bring the Encounter Breakdown panel"
 		alert.Text:SetSpacing (4)
 		alert:SetClampedToScreen (true)
 		MicroButtonAlert_SetText (alert, alert.label)
@@ -491,8 +498,19 @@ local function CreatePluginFrames (data)
 		
 	end
 	
+	EncounterDetailsFrame:HookScript ("OnShow", function()
+		C_Timer.After (0.1, function()
+			if (not EncounterDetails.LastOpenedTime or EncounterDetails.LastOpenedTime + 2 < GetTime()) then
+				if (_detalhes.AddOnStartTime and _detalhes.AddOnStartTime + 30 < GetTime()) then
+					EncounterDetails:OpenAndRefresh()
+				end
+			end
+		end)
+	end)
+	
 	--> user clicked on button, need open or close window
 	function EncounterDetails:OpenWindow()
+		
 		if (EncounterDetails.Frame:IsShown()) then
 			return EncounterDetails:CloseWindow()
 		end
@@ -1144,23 +1162,45 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	local frame = EncounterDetailsFrame --alias
 
+	DebugMessage ("OpenAndRefresh() called")
+	
+	EncounterDetails.LastOpenedTime = GetTime()
+	
+	_G [frame:GetName().."SegmentsDropdown"].MyObject:Refresh()
+	
 	if (segment) then
 		_combat_object = EncounterDetails:GetCombat (segment)
 		EncounterDetails._segment = segment
+		
+		DebugMessage ("there's a segment to use:", segment, _combat_object, _combat_object and _combat_object.is_boss)
+		
 	else
+		DebugMessage ("no segment has been passed, looping segments to find one.")
+	
 		local historico = _detalhes.tabela_historico.tabelas
+		local foundABoss = false
+		
 		for index, combate in ipairs (historico) do 
 			if (combate.is_boss and combate.is_boss.index) then
-				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (index)
 				EncounterDetails._segment = index
 				_combat_object = combate
+				
+				DebugMessage ("segment found: ", index, combate:GetCombatName(), combate.is_trash)
+				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (index, true)
+				
+				foundABoss = index
 				break
 			end
+		end
+		
+		if (not foundABoss) then
+			DebugMessage ("boss not found during the segment loop")
 		end
 	end
 	
 	if (not _combat_object) then
 		EncounterDetails:Msg ("no combat found.")
+		DebugMessage ("_combat_object is nil, EXIT")
 		return
 	end
 	
@@ -1181,22 +1221,40 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	end
 	
 	if (not _combat_object.is_boss) then
-		for _, combat in _ipairs (EncounterDetails:GetCombatSegments()) do 
+	
+		DebugMessage ("_combat_object is not a boss, trying another loop in the segments")
+		
+		local foundSegment
+		for index, combat in _ipairs (EncounterDetails:GetCombatSegments()) do 
 			if (combat.is_boss and EncounterDetails:GetBossDetails (combat.is_boss.mapid, combat.is_boss.index)) then
 				_combat_object = combat
+				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (index, true)
+				
+				DebugMessage ("found another segment during another loop", index, combat:GetCombatName(), combat.is_trash)
+				foundSegment = true
 				break
 			end
 		end
+		
+		if (not foundSegment) then
+			DebugMessage ("boss not found during the second loop segment")
+		end
+		
 		if (not _combat_object.is_boss) then
+			DebugMessage ("_combat_object still isn't a boss segment, trying to get the last segment shown.")
 			if (EncounterDetails.LastSegmentShown) then
 				_combat_object = EncounterDetails.LastSegmentShown
+				DebugMessage ("found the last segment shown, using it.")
 			else
+				DebugMessage ("the segment isn't a boss, EXIT.")
 				return
 			end
 		end
 	end
 	
 	--> the segment is a boss
+	
+	DebugMessage ("segment are OKAY, updating the panel")
 	
 	boss_id = _combat_object.is_boss.index
 	map_id = _combat_object.is_boss.mapid

@@ -76,7 +76,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	
 	local build_options_panel = function()
 	
-		local options_frame = EncounterDetails:CreatePluginOptionsFrame ("EncounterDetailsOptionsWindow", "Encounter Details Options", 2)
+		local options_frame = EncounterDetails:CreatePluginOptionsFrame ("EncounterDetailsOptionsWindow", "Encounter Breakdown Options", 2)
 		
 		-- 1 = only when inside a raid map
 		-- 2 = only when in raid group
@@ -132,7 +132,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 				type = "toggle",
 				get = function() return EncounterDetails.db.hide_on_combat end,
 				set = function (self, fixedparam, value) EncounterDetails.db.hide_on_combat = value end,
-				desc = "Encounter Details window automatically close when you enter in combat.",
+				desc = "Encounter Breakdown window automatically close when you enter in combat.",
 				name = "Hide on Combat"
 			},
 			{
@@ -2635,7 +2635,7 @@ end
 		BossFrame.MacroEditBox = DetailsFrameWork:CreateTextEntry (frame, function()end, 300, 20)
 		BossFrame.MacroEditBox:SetPoint ("left", options, "right", 10, 0)
 		BossFrame.MacroEditBox:SetAlpha (0.5)
-		BossFrame.MacroEditBox:SetText ("/run Details:OpenPlugin ('Encounter Details')")
+		BossFrame.MacroEditBox:SetText ("/run Details:OpenPlugin ('Encounter Breakdown')")
 		BossFrame.MacroEditBox:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 		BossFrame.MacroEditBox:SetSize (360, 20)
 		

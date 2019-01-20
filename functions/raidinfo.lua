@@ -3,6 +3,194 @@
 --> install data for raiding tiers
 
 do
+	--> data for Crucible of Storms (BFA tier 1)
+	
+	local INSTANCE_EJID = 1177
+	local INSTANCE_MAPID = 0 --TBD
+	local HDIMAGESPATH = "Details\\images\\raid"
+	local HDFILEPREFIX = "CrucibleRaid"
+	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "LoadingScreen_Seapriestraid_wide_BattleforAzeroth", {0, 1, 285/1024, 875/1024}
+	local EJ_LOREBG = "UI-EJ-LOREBG-CrucibleOfStorms"
+	
+	local PORTRAIT_LIST = {
+		2497795, --Zaxasj the Speaker - The Restless Cabal
+		2497794, --Uu'nat - Uu'nat, Harbinger of the Void
+	}
+	
+	local ENCOUNTER_ID_CL = {
+		2269, 2273,
+		[2269] = 1, --The Restless Cabal
+		[2273] = 2, --Uu'nat, Harbinger of the Void
+	}
+	
+	local ENCOUNTER_ID_EJ = {
+		2328, 2332,
+		[2328] = 1, --The Restless Cabal
+		[2332] = 2, --Uu'nat, Harbinger of the Void
+	}
+	
+	--> install the raid
+	C_Timer.After (10, function()
+
+		--load encounter journal
+		EJ_SelectInstance (INSTANCE_EJID)
+
+		local InstanceName = EJ_GetInstanceInfo (INSTANCE_EJID)
+
+		--build the boss name list
+		local BOSSNAMES = {}
+		local ENCOUNTERS = {}
+		
+		for i = 1, #PORTRAIT_LIST do
+			local bossName = EJ_GetEncounterInfoByIndex (i, INSTANCE_EJID)
+			if (bossName) then
+				tinsert (BOSSNAMES, bossName)
+				local encounterTable = {
+					boss = bossName,
+					--portrait = "Interface\\EncounterJournal\\" .. PORTRAIT_LIST [i],
+					portrait = PORTRAIT_LIST [i],
+				}
+				tinsert (ENCOUNTERS, encounterTable)
+			else
+				break
+			end
+		end
+		
+		_detalhes:InstallEncounter ({
+			id = INSTANCE_MAPID, --map id
+			ej_id = INSTANCE_EJID, --encounter journal id
+			name = InstanceName,
+			icons = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_BossFaces",
+			icon = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_Icon256x128",
+			is_raid = true,
+			backgroundFile = {file = "Interface\\Glues\\LOADINGSCREENS\\" .. LOADINGSCREEN_FILE, coords = LOADINGSCREEN_COORDS},
+			backgroundEJ = "Interface\\EncounterJournal\\" .. EJ_LOREBG,
+			
+			encounter_ids = ENCOUNTER_ID_EJ,
+			encounter_ids2 = ENCOUNTER_ID_CL,
+			boss_names = BOSSNAMES,
+			encounters = ENCOUNTERS,
+			
+			boss_ids = { 
+				--npc ids
+			},
+		})
+	end)
+
+end
+
+do
+	--> data for Battle for Dazar'alor (BFA tier 1)
+	
+--	DazaralorRaid_BossFaces.tga --TBD
+--	DazaralorRaid_Icon256x128.tga --TBD
+	
+	local INSTANCE_EJID = 1176
+	local INSTANCE_MAPID = 2070
+	local HDIMAGESPATH = "Details\\images\\raid"
+	local HDFILEPREFIX = "DazaralorRaid"
+	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "LoadScreen_ZuldazarRaid_Wide", {0, 1, 285/1024, 875/1024}
+	local EJ_LOREBG = "UI-EJ-LOREBG-BattleOfDazaralor"
+	
+	local PORTRAIT_LIST = {
+		2497778, --Frida Ironbellows - Champion of the Light
+		2497783, --Grong - Grong, the Jungle Lord
+		2529383, --Manceroy Flamefist - Jadefire Masters
+		2497790, --Opulence - Opulence
+		2497779, --Pa'ku's Aspect - Conclave of the Chosen
+		2497784, --King Rastakhan - King Rastakhan
+		2497788, --High Tinker Mekkatorque - High Tinker Mekkatorque
+		2497786, --Laminaria - Stormwall Blockade
+		2497785, --Lady Jaina Proudmoore - Lady Jaina Proudmoore
+	}
+	
+	local ENCOUNTER_ID_CL = {
+		2265, 2263, 2266, 2271, 2268, 2272, 2276, 2280, 2281,
+		[2265] = 1, --Champion of the Light
+		[2263] = 2, --Grong, the Jungle Lord
+		[2266] = 3, --Jadefire Masters
+		[2271] = 4, --Opulence
+		[2268] = 5, --Conclave of the Chosen
+		[2272] = 6, --King Rastakhan
+		[2276] = 7, --High Tinker Mekkatorque
+		[2280] = 8, --Stormwall Blockade
+		[2281] = 9, --Lady Jaina Proudmoore
+	}
+	
+	local ENCOUNTER_ID_EJ = {
+		2333, 2325, 2341, 2342, 2330, 2335, 2334, 2337, 2343,
+		[2333] = 1, --Champion of the Light
+		[2325] = 2, --Grong, the Jungle Lord
+		[2341] = 3, --Jadefire Masters
+		[2342] = 4, --Opulence
+		[2330] = 5, --Conclave of the Chosen
+		[2335] = 6, --King Rastakhan
+		[2334] = 7, --High Tinker Mekkatorque
+		[2337] = 8, --Stormwall Blockade
+		[2343] = 9, --Lady Jaina Proudmoore
+	}
+	
+	--> install the raid
+	C_Timer.After (10, function()
+
+		--load encounter journal
+		EJ_SelectInstance (INSTANCE_EJID)
+
+		local InstanceName = EJ_GetInstanceInfo (INSTANCE_EJID)
+
+		--build the boss name list
+		local BOSSNAMES = {}
+		local ENCOUNTERS = {}
+		
+		for i = 1, #PORTRAIT_LIST do
+			local bossName = EJ_GetEncounterInfoByIndex (i, INSTANCE_EJID)
+			if (bossName) then
+				tinsert (BOSSNAMES, bossName)
+				local encounterTable = {
+					boss = bossName,
+					--portrait = "Interface\\EncounterJournal\\" .. PORTRAIT_LIST [i],
+					portrait = PORTRAIT_LIST [i],
+				}
+				tinsert (ENCOUNTERS, encounterTable)
+			else
+				break
+			end
+		end
+		
+		_detalhes:InstallEncounter ({
+			id = INSTANCE_MAPID, --map id
+			ej_id = INSTANCE_EJID, --encounter journal id
+			name = InstanceName,
+			icons = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_BossFaces",
+			icon = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_Icon256x128",
+			is_raid = true,
+			backgroundFile = {file = "Interface\\Glues\\LOADINGSCREENS\\" .. LOADINGSCREEN_FILE, coords = LOADINGSCREEN_COORDS},
+			backgroundEJ = "Interface\\EncounterJournal\\" .. EJ_LOREBG,
+			
+			encounter_ids = ENCOUNTER_ID_EJ,
+			encounter_ids2 = ENCOUNTER_ID_CL,
+			boss_names = BOSSNAMES,
+			encounters = ENCOUNTERS,
+			
+			boss_ids = { 
+				--npc ids
+			},
+		})
+	end)
+
+end
+
+
+
+
+
+
+
+
+
+
+
+do
 	--> data for Uldir (BFA tier 1)
 	
 --	UldirRaid_BossFaces.tga

@@ -10888,6 +10888,19 @@ function window:CreateFrame11()
 		
 		window:CreateLineBackground2 (frame11, "EnabledFirstHitSlider", "EnabledFirstHitLabel", Loc ["STRING_OPTIONS_RT_FIRST_HIT_DESC"])
 		
+		--> death menu
+		g:NewLabel (frame11, _, "$parentShowDeathMenuLabel", "ShowDeathMenuLabel", "Show Death Menu", "GameFontHighlightLeft") --localize-me
+		g:NewSwitch (frame11, _, "$parentShowDeathMenuSlider", "ShowDeathMenuSlider", 60, 20, _, _, _detalhes.on_death_menu, nil, nil, nil, nil, options_switch_template)
+
+		frame11.ShowDeathMenuSlider:SetPoint ("left", frame11.ShowDeathMenuLabel, "right", 2)
+		frame11.ShowDeathMenuSlider:SetAsCheckBox()
+		frame11.ShowDeathMenuSlider.OnSwitch = function (_, _, value)
+			_detalhes.on_death_menu = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame11, "ShowDeathMenuSlider", "ShowDeathMenuLabel", "Show a panel below the Release / Death Recap panel with some shortcuts for Raid Leaders.") --localize-me
+		
 	--> anchors
 	
 		--announcers anchor
@@ -10934,6 +10947,7 @@ function window:CreateFrame11()
 			{"AnnouncersOther", 6, true},
 			{"EnabledPrePotLabel", 7},
 			{"EnabledFirstHitLabel", 8},
+			{"ShowDeathMenuLabel", 9},
 		}
 		
 		window:arrange_menu (frame11, right_side, window.right_start_at, window.top_start_at)

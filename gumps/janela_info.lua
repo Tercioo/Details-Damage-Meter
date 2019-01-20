@@ -1785,6 +1785,14 @@ function gump:CriaJanelaInfo()
 	
 	--> tabs:
 	--> tab default
+	
+	local iconTableSummary = {
+		texture = [[Interface\AddOns\Details\images\icons]],
+		coords = {238/512, 255/512, 0, 18/512},
+		width = 16,
+		height = 16,
+	}
+	
 	_detalhes:CreatePlayerDetailsTab ("Summary", Loc ["STRING_SPELLS"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject) --[2] condition
 				if (playerObject) then 
@@ -1799,7 +1807,8 @@ function gump:CriaJanelaInfo()
 					tab.frame:Hide()
 				end
 			end,
-			nil --[5] oncreate
+			nil, --[5] oncreate
+			iconTableSummary --icon table
 	)
 		
 		--> search key: ~avoidance --> begining of avoidance tab
@@ -2498,6 +2507,14 @@ function gump:CriaJanelaInfo()
 --]]
 		end
 		
+		local iconTableAvoidance = {
+			texture = [[Interface\AddOns\Details\images\icons]],
+			--coords = {363/512, 381/512, 0/512, 17/512},
+			coords = {384/512, 402/512, 19/512, 38/512},
+			width = 16,
+			height = 16,
+		}		
+		
 		_detalhes:CreatePlayerDetailsTab ("Avoidance", Loc ["STRING_INFO_TAB_AVOIDANCE"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject)  --[2] condition
 				if (playerObject.isTank) then 
@@ -2511,7 +2528,8 @@ function gump:CriaJanelaInfo()
 			
 			nil, --[4] onclick
 			
-			avoidance_create --[5] oncreate
+			avoidance_create, --[5] oncreate
+			iconTableAvoidance
 		)
 	
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2744,6 +2762,13 @@ function gump:CriaJanelaInfo()
 		end		
 	end
 
+	local iconTableAuras = {
+		texture = [[Interface\AddOns\Details\images\icons]],
+		coords = {257/512, 278/512, 0/512, 19/512},
+		width = 16,
+		height = 16,
+	}	
+	
 	_detalhes:CreatePlayerDetailsTab ("Auras", "Auras", --[1] tab name [2] localized name
 		function (tabOBject, playerObject)  --[2] condition
 			return true
@@ -2753,7 +2778,8 @@ function gump:CriaJanelaInfo()
 		
 		nil, --[4] onclick
 		
-		auras_tab_create --[5] oncreate
+		auras_tab_create, --[5] oncreate
+		iconTableAuras --icon table
 	)
 
 
@@ -4665,6 +4691,13 @@ function gump:CriaJanelaInfo()
 		
 		
 		-- ~compare
+		local iconTableCompare = {
+			texture = [[Interface\AddOns\Details\images\icons]],
+			--coords = {363/512, 381/512, 0/512, 17/512},
+			coords = {383/512, 403/512, 0/512, 15/512},
+			width = 16,
+			height = 14,
+		}
 		_detalhes:CreatePlayerDetailsTab ("Compare", Loc ["STRING_INFO_TAB_COMPARISON"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject)  --[2] condition
 				
@@ -4716,7 +4749,8 @@ function gump:CriaJanelaInfo()
 			
 			nil, --[4] onclick
 			
-			compare_create --[5] oncreate
+			compare_create, --[5] oncreate
+			iconTableCompare --icon table
 		)
 	
 	-- ~tab ~tabs
@@ -4757,11 +4791,14 @@ function gump:CriaJanelaInfo()
 				
 					tab:Show()
 					amt_positive = amt_positive + 1
-					
-					--tab:SetPoint ("BOTTOMLEFT", info.container_barras, "TOPLEFT",  490 - (94 * (amt_positive-1)), 1) --left to right
 					tab:ClearAllPoints()
-					tab:SetPoint ("bottomright", info, "topright",  -17 - (94 * (amt_positive-1)), -74) --right to left
 					
+					--get the button width
+					local buttonTemplate = gump:GetTemplate ("button", "DETAILS_TAB_BUTTON_TEMPLATE")
+					local buttonWidth = buttonTemplate.width + 1
+					
+					PixelUtil.SetSize (tab, buttonTemplate.width, buttonTemplate.height)
+					PixelUtil.SetPoint (tab, "bottomright", info, "topright",  -9 - (buttonWidth * (amt_positive-1)), -72)
 					tab:SetAlpha (0.8)
 				else
 					tab.frame:Hide()
@@ -4774,7 +4811,6 @@ function gump:CriaJanelaInfo()
 			end
 			
 			_detalhes.player_details_tabs[1]:Click()
-			
 		end
 
 		este_gump:SetScript ("OnHide", function (self)
@@ -4794,56 +4830,63 @@ end
 
 _detalhes.player_details_tabs = {}
 
-function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, fillfunction, onclick, oncreate)
+function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, fillfunction, onclick, oncreate, iconSettings)
 	if (not tabname) then
 		tabname = "unnamed"
 	end
 	
 	local index = #_detalhes.player_details_tabs
 	
-	local newtab = CreateFrame ("button", "DetailsInfoWindowTab" .. index, info, "ChatTabTemplate")
-	newtab.textWidth = 90
+	--create a button for the tab
+	local newTabButton = gump:CreateButton (info, onclick, 20, 20)
+	newTabButton:SetTemplate ("DETAILS_TAB_BUTTON_TEMPLATE")
+	if (tabname == "Summary") then
+		newTabButton:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
+	end
+	newTabButton:SetText (localized_name)
+	newTabButton:SetFrameStrata ("HIGH")
+	newTabButton:SetFrameLevel (info:GetFrameLevel()+1)
+	newTabButton:Hide()
 	
-	newtab:SetParent (info)
-	newtab:SetWidth (100)
-	newtab.middleTexture:SetWidth (70)
+	newTabButton.condition = condition
+	newTabButton.tabname = tabname
+	newTabButton.localized_name = localized_name
+	newTabButton.onclick = onclick
+	newTabButton.fillfunction = fillfunction
+	newTabButton.last_actor = {}
 	
-	newtab:SetText (localized_name)
-	_G ["DetailsInfoWindowTab" .. index .. "Text"]:SetWidth (70)
+	newTabButton.frame = CreateFrame ("frame", "DetailsPDWTabFrame" .. tabname, UIParent)
+	newTabButton.frame:SetParent (info)
+	newTabButton.frame:SetFrameStrata ("HIGH")
+	newTabButton.frame:SetFrameLevel (info:GetFrameLevel()+5)
+	newTabButton.frame:EnableMouse (true)
 	
-	newtab:SetFrameStrata ("HIGH")
-	newtab:SetFrameLevel (info:GetFrameLevel()+1)
-	newtab:Hide()
+	if (iconSettings) then
+		local texture = iconSettings.texture
+		local coords = iconSettings.coords
+		local width = iconSettings.width
+		local height = iconSettings.height
+		
+		local overlay, textdistance, leftpadding, textheight, short_method --nil
+		
+		newTabButton:SetIcon (texture, width, height, "overlay", coords, overlay, textdistance, leftpadding, textheight, short_method)
+	end
 	
-	newtab.condition = condition
-	newtab.tabname = tabname
-	newtab.localized_name = localized_name
-	newtab.onclick = onclick
-	newtab.fillfunction = fillfunction
-	newtab.last_actor = {}
-	
-	--> frame
-	newtab.frame = CreateFrame ("frame", "DetailsPDWTabFrame" .. tabname, UIParent)
-	newtab.frame:SetParent (info)
-	newtab.frame:SetFrameStrata ("HIGH")
-	newtab.frame:SetFrameLevel (info:GetFrameLevel()+5)
-	newtab.frame:EnableMouse (true)
-	
-	if (newtab.fillfunction) then
-		newtab.frame:SetScript ("OnShow", function()
-			if (newtab.last_actor == info.jogador) then
+	if (newTabButton.fillfunction) then
+		newTabButton.frame:SetScript ("OnShow", function()
+			if (newTabButton.last_actor == info.jogador) then
 				return
 			end
-			newtab.last_actor = info.jogador
-			newtab:fillfunction (info.jogador, info.instancia.showing)
+			newTabButton.last_actor = info.jogador
+			newTabButton:fillfunction (info.jogador, info.instancia.showing)
 		end)
 	end
 	
 	if (oncreate) then
-		oncreate (newtab, newtab.frame)
+		oncreate (newTabButton, newTabButton.frame)
 	end
 	
-	newtab.frame:SetBackdrop({
+	newTabButton.frame:SetBackdrop({
 		edgeFile = [[Interface\Buttons\WHITE8X8]], 
 		edgeSize = 1, 
 		bgFile = [[Interface\AddOns\Details\images\background]],
@@ -4851,55 +4894,45 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 		tile = true,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}}
 	)
-
-	newtab.frame:SetBackdropColor (0, 0, 0, 0.3)
-	newtab.frame:SetBackdropBorderColor (.3, .3, .3, 0)
-
-	newtab.frame:SetPoint ("TOPLEFT", info.container_barras, "TOPLEFT", 0, 2)
-	newtab.frame:SetPoint ("bottomright", info, "bottomright", -3, 3)
-	newtab.frame:SetSize (569, 274)
 	
-	newtab.frame:Hide()
+	newTabButton.frame:SetBackdropColor (0, 0, 0, 0.3)
+	newTabButton.frame:SetBackdropBorderColor (.3, .3, .3, 0)
+
+	newTabButton.frame:SetPoint ("TOPLEFT", info.container_barras, "TOPLEFT", 0, 2)
+	newTabButton.frame:SetPoint ("bottomright", info, "bottomright", -3, 3)
+	newTabButton.frame:SetSize (569, 274)
 	
-	--> adicionar ao container
-	_detalhes.player_details_tabs [#_detalhes.player_details_tabs+1] = newtab
+	newTabButton.frame:Hide()
+	
+	_detalhes.player_details_tabs [#_detalhes.player_details_tabs+1] = newTabButton
 	
 	if (not onclick) then
 		--> hide all tabs
-		newtab:SetScript ("OnClick", function() 
+		newTabButton:SetScript ("OnClick", function() 
 			for _, tab in _ipairs (_detalhes.player_details_tabs) do
 				tab.frame:Hide()
-				tab.leftSelectedTexture:SetVertexColor (1, 1, 1, 1)
-				tab.middleSelectedTexture:SetVertexColor (1, 1, 1, 1)
-				tab.rightSelectedTexture:SetVertexColor (1, 1, 1, 1)
+				tab:SetTemplate ("DETAILS_TAB_BUTTON_TEMPLATE")
 			end
 			
-			newtab.leftSelectedTexture:SetVertexColor (1, .7, 0, 1)
-			newtab.middleSelectedTexture:SetVertexColor (1, .7, 0, 1)
-			newtab.rightSelectedTexture:SetVertexColor (1, .7, 0, 1)
-			newtab.frame:Show()
+			newTabButton:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
+			newTabButton.frame:Show()
 		end)
 	else
 		--> custom
-		newtab:SetScript ("OnClick", function() 
+		newTabButton:SetScript ("OnClick", function() 
 			for _, tab in _ipairs (_detalhes.player_details_tabs) do
 				tab.frame:Hide()
-				tab.leftSelectedTexture:SetVertexColor (1, 1, 1, 1)
-				tab.middleSelectedTexture:SetVertexColor (1, 1, 1, 1)
-				tab.rightSelectedTexture:SetVertexColor (1, 1, 1, 1)
+				tab:SetTemplate ("DETAILS_TAB_BUTTON_TEMPLATE")
 			end
 			
-			newtab.leftSelectedTexture:SetVertexColor (1, .7, 0, 1)
-			newtab.middleSelectedTexture:SetVertexColor (1, .7, 0, 1)
-			newtab.rightSelectedTexture:SetVertexColor (1, .7, 0, 1)
-			
+			newTabButton:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
 			onclick()
 		end)
 	end
 	
-	newtab:SetScript ("PostClick", function (self)
-		CurrentTab = self.tabname
-		
+	newTabButton:SetScript ("PostClick", function (self)
+		CurrentTab = self.tabname or self.MyObject.tabname
+
 		if (CurrentTab ~= "Summary") then
 			for _, widget in ipairs (SummaryWidgets) do
 				widget:Hide()
@@ -4911,12 +4944,6 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 		end
 	end)
 	
-	--> remove os scripts padroes
-	newtab:SetScript ("OnDoubleClick", nil)
-	newtab:SetScript ("OnEnter", nil)
-	newtab:SetScript ("OnLeave", nil)
-	newtab:SetScript ("OnDragStart", nil)
-
 end
 
 function _detalhes.janela_info:monta_relatorio (botao)

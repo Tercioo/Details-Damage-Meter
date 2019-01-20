@@ -4860,6 +4860,212 @@ function _detalhes:OpenPlayerDetails (window)
 	end
 end
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> extra buttons at the death options (release, death recap)
+
+local detailsOnDeathMenu = CreateFrame ("frame", "DetailsOnDeathMenu", UIParent)
+detailsOnDeathMenu:SetHeight (30)
+detailsOnDeathMenu.Debug = false
+detailsOnDeathMenu:RegisterEvent ("PLAYER_REGEN_ENABLED")
+detailsOnDeathMenu:RegisterEvent ("ENCOUNTER_END")
+DetailsFramework:ApplyStandardBackdrop (detailsOnDeathMenu)
+detailsOnDeathMenu:SetAlpha (0.75)
+
+--disable text
+detailsOnDeathMenu.disableLabel = _detalhes.gump:CreateLabel (detailsOnDeathMenu, "you can disable this at /details > Raid Tools", 9)
+
+detailsOnDeathMenu.warningLabel = _detalhes.gump:CreateLabel (detailsOnDeathMenu, "", 11)
+detailsOnDeathMenu.warningLabel.textcolor = "red"
+detailsOnDeathMenu.warningLabel:SetPoint ("bottomleft", detailsOnDeathMenu, "bottomleft", 5, 2)
+detailsOnDeathMenu.warningLabel:Hide()
+
+detailsOnDeathMenu:SetScript ("OnEvent", function (self, event, ...)
+	if (event == "ENCOUNTER_END") then --event == "PLAYER_REGEN_ENABLED" or 
+		print ("encounter ended")
+		C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
+	end
+end)
+
+function detailsOnDeathMenu.OpenEncounterBreakdown()
+	if (not _detalhes:GetPlugin ("DETAILS_PLUGIN_ENCOUNTER_DETAILS")) then
+		detailsOnDeathMenu.warningLabel.text = "Encounter Breakdown plugin is disabled! Please enable it in the Addon Control Panel."
+		detailsOnDeathMenu.warningLabel:Show()
+		C_Timer.After (5, function()
+			detailsOnDeathMenu.warningLabel:Hide()
+		end)
+	end
+
+	Details:OpenPlugin ("Encounter Breakdown")
+end
+
+function detailsOnDeathMenu.OpenPlayerEndurance()
+	if (not _detalhes:GetPlugin ("DETAILS_PLUGIN_DEATH_GRAPHICS")) then
+		detailsOnDeathMenu.warningLabel.text = "Advanced Death Logs plugin is disabled! Please enable it (or download) in the Addon Control Panel."
+		detailsOnDeathMenu.warningLabel:Show()
+		C_Timer.After (5, function()
+			detailsOnDeathMenu.warningLabel:Hide()
+		end)
+	end
+
+	DetailsPluginContainerWindow.OnMenuClick (nil, nil, "DETAILS_PLUGIN_DEATH_GRAPHICS", true)
+	
+	C_Timer.After (0, function()
+		local a = Details_DeathGraphsModeEnduranceButton and Details_DeathGraphsModeEnduranceButton.MyObject:Click()
+	end)
+end
+
+function detailsOnDeathMenu.OpenPlayerSpells()
+	
+	local window1 = Details:GetWindow (1)
+	local window2 = Details:GetWindow (2)
+	local window3 = Details:GetWindow (3)
+	local window4 = Details:GetWindow (4)
+	
+	local assignedRole = UnitGroupRolesAssigned ("player")
+	if (assignedRole == "HEALER") then
+		if (window1 and window1:GetDisplay() == 2) then
+			Details:OpenPlayerDetails(1)
+			
+		elseif (window2 and window2:GetDisplay() == 2) then
+			Details:OpenPlayerDetails(2)
+			
+		elseif (window3 and window3:GetDisplay() == 2) then
+			Details:OpenPlayerDetails(3)
+			
+		elseif (window4 and window4:GetDisplay() == 2) then
+			Details:OpenPlayerDetails(4)
+			
+		else
+			Details:OpenPlayerDetails (1)
+		end
+	else
+		if (window1 and window1:GetDisplay() == 1) then
+			Details:OpenPlayerDetails(1)
+			
+		elseif (window2 and window2:GetDisplay() == 1) then
+			Details:OpenPlayerDetails(2)
+			
+		elseif (window3 and window3:GetDisplay() == 1) then
+			Details:OpenPlayerDetails(3)
+			
+		elseif (window4 and window4:GetDisplay() == 1) then
+			Details:OpenPlayerDetails(4)
+			
+		else
+			Details:OpenPlayerDetails (1)
+		end
+	end
+
+end
+
+--encounter breakdown button
+detailsOnDeathMenu.breakdownButton = _detalhes.gump:CreateButton (detailsOnDeathMenu, detailsOnDeathMenu.OpenEncounterBreakdown, 120, 20, "Encounter Breakdown", "breakdownButton")
+detailsOnDeathMenu.breakdownButton:SetTemplate (_detalhes.gump:GetTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+detailsOnDeathMenu.breakdownButton:SetPoint ("topleft", detailsOnDeathMenu, "topleft", 5, -5)
+detailsOnDeathMenu.breakdownButton:Hide()
+
+--player endurance button
+detailsOnDeathMenu.enduranceButton = _detalhes.gump:CreateButton (detailsOnDeathMenu, detailsOnDeathMenu.OpenPlayerEndurance, 120, 20, "Player Endurance", "enduranceButton")
+detailsOnDeathMenu.enduranceButton:SetTemplate (_detalhes.gump:GetTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+detailsOnDeathMenu.enduranceButton:SetPoint ("topleft", detailsOnDeathMenu.breakdownButton, "topright", 2, 0)
+detailsOnDeathMenu.enduranceButton:Hide()
+
+--spells
+detailsOnDeathMenu.spellsButton = _detalhes.gump:CreateButton (detailsOnDeathMenu, detailsOnDeathMenu.OpenPlayerSpells, 48, 20, "Spells", "SpellsButton")
+detailsOnDeathMenu.spellsButton:SetTemplate (_detalhes.gump:GetTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+detailsOnDeathMenu.spellsButton:SetPoint ("topleft", detailsOnDeathMenu.enduranceButton, "topright", 2, 0)
+detailsOnDeathMenu.spellsButton:Hide()
+
+function detailsOnDeathMenu.CanShowPanel()
+	if (StaticPopup_Visible ("DEATH")) then
+		if (not _detalhes.on_death_menu) then
+			return
+		end
+
+		if (detailsOnDeathMenu.Debug) then
+			return true
+		end
+		
+		--> check if the player just wiped in an encounter
+		if (IsInRaid()) then
+			local isInInstance = IsInInstance()
+			if (isInInstance) then
+				--> check if all players in the raid are out of combat
+				for i = 1, GetNumGroupMembers() do
+					if (UnitAffectingCombat ("raid" .. i)) then
+						C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
+						return false
+					end
+				end
+				
+				if (_detalhes.in_combat) then
+					C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
+					return false
+				end
+				
+				return true
+			end
+		end
+	end
+end
+
+function detailsOnDeathMenu.ShowPanel()
+	if (not detailsOnDeathMenu.CanShowPanel()) then
+		return
+	end
+	
+	if (ElvUI) then
+		detailsOnDeathMenu:SetPoint ("topleft", StaticPopup1, "bottomleft", 0, -1)
+		detailsOnDeathMenu:SetPoint ("topright", StaticPopup1, "bottomright", 0, -1)
+	else
+		detailsOnDeathMenu:SetPoint ("topleft", StaticPopup1, "bottomleft", 4, 2)
+		detailsOnDeathMenu:SetPoint ("topright", StaticPopup1, "bottomright", -4, 2)
+	end
+	
+	detailsOnDeathMenu.breakdownButton:Show()
+	detailsOnDeathMenu.enduranceButton:Show()
+	detailsOnDeathMenu.spellsButton:Show()
+	
+	detailsOnDeathMenu:Show()
+	
+	detailsOnDeathMenu:SetHeight (30)
+	
+	if (not _detalhes:GetTutorialCVar ("DISABLE_ONDEATH_PANEL")) then
+		detailsOnDeathMenu.disableLabel:Show()
+		detailsOnDeathMenu.disableLabel:SetPoint ("bottomleft", detailsOnDeathMenu, "bottomleft", 5, 1)
+		detailsOnDeathMenu.disableLabel.color = "gray"
+		detailsOnDeathMenu.disableLabel.alpha = 0.5
+		detailsOnDeathMenu:SetHeight (detailsOnDeathMenu:GetHeight() + 10)
+		
+		if (math.random (1, 3) == 3) then
+			_detalhes:SetTutorialCVar ("DISABLE_ONDEATH_PANEL", true)
+		end
+	end
+end
+
+hooksecurefunc ("StaticPopup_Show", function (which, text_arg1, text_arg2, data, insertedFrame)
+	--print (which, text_arg1, text_arg2, data, insertedFrame)
+	--print ("popup Show:", which)
+	if (which == "DEATH") then
+		--StaticPopup1
+		if (detailsOnDeathMenu.Debug) then
+			C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
+		end
+	end
+end)
+
+hooksecurefunc ("StaticPopup_Hide", function (which, data)
+--	if (which and which:find ("EQUIP")) then
+--		return
+--	end
+	
+	--print ("popup Hide:", which)
+	
+	if (which == "DEATH") then
+		detailsOnDeathMenu:Hide()
+	end
+end)
+
 
 
 --endd
