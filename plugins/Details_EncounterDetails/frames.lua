@@ -251,7 +251,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	function EncounterDetails:JB_AtualizaContainer (container, amt, barras_total)
 		barras_total = barras_total or 6
 		if (amt >= barras_total and container.ultimo ~= amt) then
-			local tamanho = 17*amt
+			local tamanho = (EncounterDetails.Frame.DefaultBarHeight + 1) * amt
 			container:SetHeight (tamanho)
 			container.window.slider:Update()
 			container.window.ultimo = amt
@@ -1227,6 +1227,11 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		
 		elseif (to == "spellsauras") then 
 		
+			_detalhes:SetTutorialCVar ("ENCOUNTER_BREAKDOWN_SPELLAURAS", true)
+			if (EncounterDetails.Frame.buttonSwitchSpellsAuras.AntsFrame) then
+				EncounterDetails.Frame.buttonSwitchSpellsAuras.AntsFrame:Hide()
+			end
+		
 			hide_Summary()
 			
 			BossFrame.raidbackground:Show()
@@ -1262,7 +1267,12 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			BossFrame.buttonSwitchSpellsAuras:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE"))
 		
 		elseif (to == "emotes") then 
-
+		
+			_detalhes:SetTutorialCVar ("ENCOUNTER_BREAKDOWN_EMOTES", true)
+			if (EncounterDetails.Frame.buttonSwitchBossEmotes.AntsFrame) then
+				EncounterDetails.Frame.buttonSwitchBossEmotes.AntsFrame:Hide()
+			end
+			
 			--hide boss frames
 			for _, frame in _ipairs (BossFrame.Widgets) do 
 				frame:Hide()
@@ -1302,6 +1312,11 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		
 		elseif (to == "phases") then 
 		
+			_detalhes:SetTutorialCVar ("ENCOUNTER_BREAKDOWN_PHASES", true)
+			if (EncounterDetails.Frame.buttonSwitchPhases.AntsFrame) then
+				EncounterDetails.Frame.buttonSwitchPhases.AntsFrame:Hide()
+			end
+			
 			hide_Summary()
 			hide_Graph()
 			hide_Emote()
@@ -1314,6 +1329,11 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			BossFrame.buttonSwitchPhases:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE"))
 		
 		elseif (to == "graph") then 
+			
+			_detalhes:SetTutorialCVar ("ENCOUNTER_BREAKDOWN_CHART", true)
+			if (EncounterDetails.Frame.buttonSwitchGraphic.AntsFrame) then
+				EncounterDetails.Frame.buttonSwitchGraphic.AntsFrame:Hide()
+			end
 			
 			EncounterDetails:BuildDpsGraphic()
 			if (not _G.DetailsRaidDpsGraph) then
