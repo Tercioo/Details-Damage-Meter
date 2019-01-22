@@ -4,8 +4,8 @@
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		
-		_detalhes.build_counter = 6861
-		_detalhes.alpha_build_counter = 6861 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 6866
+		_detalhes.alpha_build_counter = 6866 --if this is higher than the regular counter, use it instead
 		_detalhes.userversion = "v8.1.0." .. _detalhes.build_counter
 		_detalhes.realversion = 135 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
@@ -85,6 +85,7 @@ do
 				269131, --BFA Shrine of the Storm Ancient Mindbender
 				260900, --BFA Waycrest Manor Heartsbane Triad Soul Manipulation
 				260926, --BFA Waycrest Manor Heartsbane Triad Soul Manipulation
+				284995, --BFA Battle of Dazar'alor King Rastakhan Zombie Dust
 			}
 			
 			--must fail in map and encounter id to not store data

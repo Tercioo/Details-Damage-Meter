@@ -202,6 +202,8 @@
 	local SPELLID_PALADIN_LIGHTMARTYR = 196917
 	--> blood shield g'huun
 	local SPELLNAME_BLOODSHIELD = GetSpellInfo (263217)
+	--> unliving Bwonsamdi
+	local SPELLNAME_UNLIVING = GetSpellInfo (284377)
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -422,7 +424,21 @@
 		--end
 		
 		--rules of specific encounters
-		if (_current_encounter_id == 2122 or _current_encounter_id == 2135) then --g'huun and mythrax --REMOVE ON 9.0 LAUNCH
+		if (_current_encounter_id == 2272) then --king rastakhan --REMOVE ON 9.0 LAUNCH
+			if (alvo_serial) then
+				local npcid = _select (6, _strsplit ("-", alvo_serial))
+				if (npcid == "145644") then --Bwonsamdi
+					--Bwonsamdi has two buffs: unliving and aura of death, checking the two first buff indexes
+					local hasUnlivingBuff1 = _UnitBuff ("boss2", 1)
+					local hasUnlivingBuff2 = _UnitBuff ("boss2", 2)
+					if (hasUnlivingBuff1 == SPELLNAME_UNLIVING or hasUnlivingBuff2 == SPELLNAME_UNLIVING) then
+						--> ignore the damage while Bwonsamdi is immune
+						return
+					end
+				end
+			end
+		
+		elseif (_current_encounter_id == 2122 or _current_encounter_id == 2135) then --g'huun and mythrax --REMOVE ON 9.0 LAUNCH
 			--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then --soul effigy (warlock) --50% more slow than the method below
 		
 			--check if the target is the amorphous cyst
@@ -1351,6 +1367,13 @@
 			return
 		end
 		
+		if (alvo_serial and type (alvo_serial) == "string") then
+			--Ice Block from Jaina encounter REMOVE WHEN BFA IS DONE
+			if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-148522%-%w+$")) then
+				return
+			end
+		end
+
 		if (not who_name) then
 			who_name = "[*] " .. spellName
 		end
