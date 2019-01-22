@@ -6868,7 +6868,7 @@ DF.HealthFrameFunctions = {
 				self.healAbsorbIndicator:Show()
 				self.healAbsorbIndicator:SetWidth (max (1, min (width * healAbsorbPercent, abs (healthPercent - 1) * width)))
 				self.healAbsorbIndicator:SetPoint ("topleft", self, "topleft", width * healthPercent, 0)
-				self.healAbsorbIndicator:SetPoint ("bottomleft", self, bottom"left", width * healthPercent, 0)
+				self.healAbsorbIndicator:SetPoint ("bottomleft", self, "bottomleft", width * healthPercent, 0)
 			else
 				self.healAbsorbIndicator:Hide()
 			end

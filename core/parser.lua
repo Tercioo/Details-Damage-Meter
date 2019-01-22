@@ -204,6 +204,8 @@
 	local SPELLNAME_BLOODSHIELD = GetSpellInfo (263217)
 	--> unliving Bwonsamdi
 	local SPELLNAME_UNLIVING = GetSpellInfo (284377)
+	--> discharge apetagonizer core
+	local SPELLNAME_GRONG_CORE = GetSpellInfo (285660)
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -424,7 +426,13 @@
 		--end
 		
 		--rules of specific encounters
-		if (_current_encounter_id == 2272) then --king rastakhan --REMOVE ON 9.0 LAUNCH
+
+		if (_current_encounter_id == 2263) then --grong --REMOVE ON 9.0 LAUNCH
+			if (spellid == 285660 or spellname == SPELLNAME_GRONG_CORE) then
+				return
+			end
+		
+		elseif (_current_encounter_id == 2272) then --king rastakhan --REMOVE ON 9.0 LAUNCH
 			if (alvo_serial) then
 				local npcid = _select (6, _strsplit ("-", alvo_serial))
 				if (npcid == "145644") then --Bwonsamdi
