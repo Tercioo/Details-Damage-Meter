@@ -4881,7 +4881,6 @@ detailsOnDeathMenu.warningLabel:Hide()
 
 detailsOnDeathMenu:SetScript ("OnEvent", function (self, event, ...)
 	if (event == "ENCOUNTER_END") then --event == "PLAYER_REGEN_ENABLED" or 
-		print ("encounter ended")
 		C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
 	end
 end)

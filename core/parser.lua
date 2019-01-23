@@ -206,6 +206,7 @@
 	local SPELLNAME_UNLIVING = GetSpellInfo (284377)
 	--> discharge apetagonizer core
 	local SPELLNAME_GRONG_CORE = GetSpellInfo (285660)
+	local SPELLNAME_GRONG_CORE_ALLIANCE = GetSpellInfo (286435)
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -428,7 +429,7 @@
 		--rules of specific encounters
 
 		if (_current_encounter_id == 2263) then --grong --REMOVE ON 9.0 LAUNCH
-			if (spellid == 285660 or spellname == SPELLNAME_GRONG_CORE) then
+			if (spellid == 285660 or spellname == SPELLNAME_GRONG_CORE or spellid == 286435 or spellname == SPELLNAME_GRONG_CORE_ALLIANCE) then
 				return
 			end
 		

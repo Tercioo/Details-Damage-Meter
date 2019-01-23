@@ -1208,7 +1208,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	end
 	
 	if (not _combat_object) then
-		EncounterDetails:Msg ("no combat found.")
+		--EncounterDetails:Msg ("no combat found.")
 		DebugMessage ("_combat_object is nil, EXIT")
 		return
 	end

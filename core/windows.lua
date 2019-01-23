@@ -4697,6 +4697,8 @@
 			text_box:SetPoint ("topleft", f, "topleft", 220, -40)
 			text_box:SetBackdrop (nil)
 			
+			DetailsFramework:ReskinSlider (text_box.scroll)
+			
 			--background
 			f.bg1 = f:CreateTexture (nil, "background")
 			f.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)

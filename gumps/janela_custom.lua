@@ -817,15 +817,11 @@
 					end
 				end
 				
-				local serialized_table = _detalhes:Serialize (export_object)
-				--local zip = LibStub:GetLibrary ("LibCompress"):CompressHuffman (serialized_table)
-				--local encoded = _detalhes._encode:Encode (zip)
-				local encoded = _detalhes._encode:Encode (serialized_table)
+				local encoded = Details:CompressData (export_object, "print")
 				
 				if (not custom_window.ExportBox) then
 					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentExportBox", "ExportBox", CONST_EDITBOX_WIDTH, 20)
 					editbox:SetPoint ("bottomleft", custom_window, "bottomleft", 10, 6)
-					--editbox:SetPoint ("bottomright", custom_window, "bottomright", -10, 6)
 					editbox:SetAutoFocus (false)
 					editbox:SetTemplate (CONST_TEXTENTRY_TEMPLATE)
 					editbox:SetHook ("OnEditFocusLost", function() 
@@ -834,6 +830,16 @@
 					editbox:SetHook ("OnChar", function() 
 						editbox:Hide()
 					end)
+					
+					local flashTexture = editbox:CreateTexture (nil, "overlay")
+					flashTexture:SetColorTexture (1, 1, 1)
+					flashTexture:SetAllPoints()
+					flashTexture:SetAlpha (0)
+					
+					local flashAnimHub = DetailsFramework:CreateAnimationHub (flashTexture)
+					DetailsFramework:CreateAnimation (flashAnimHub, "alpha", 1, 0.2, 0, 1)
+					DetailsFramework:CreateAnimation (flashAnimHub, "alpha", 2, 0.2, 1, 0)
+					editbox.FlashAnimation = flashAnimHub
 				end
 				
 				if (custom_window.ImportBox) then
@@ -846,6 +852,8 @@
 				custom_window.ExportBox:SetText (encoded)
 				custom_window.ExportBox:HighlightText()
 				custom_window.ExportBox:SetFocus()
+				
+				custom_window.ExportBox.FlashAnimation:Play()
 				
 			end
 			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EXPORT"], "Interface\\ICONS\\INV_Misc_Gift_01", build_menu, export_display, nil, nil, "Export", {0.00, 0.9, 0.07, 0.93}) --> localize
@@ -867,26 +875,17 @@
 					local import = function()
 						local text = editbox:GetText()
 						
-						local decode = _detalhes._encode:Decode (text)
-						--local unzip = LibStub:GetLibrary ("LibCompress"):DecompressHuffman (decode)
-						--local deserialized_object = select (2, _detalhes:Deserialize (unzip))
+						local deserialized_object = Plater.DecompressData (text, "print")
 						
-						if (type (decode) ~= "string") then
+						if (not deserialized_object) then
 							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
-							return
+							return						
 						end
 						
-						local deserialized_object = select (2, _detalhes:Deserialize (decode))
-
 						if (DetailsCustomPanel.CodeEditing) then
 							DetailsCustomPanel:CancelFunc()
 						end
 
-						if (type (deserialized_object) == "string") then
-							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
-							return
-						end
-						
 						setmetatable (deserialized_object, _detalhes.atributo_custom)
 						deserialized_object.__index = _detalhes.atributo_custom
 						

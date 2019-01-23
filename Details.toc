@@ -1,5 +1,5 @@
 ## Interface: 80100
-## Title: Details
+## Title: Details! Damage Meter
 ## Notes: Computes detailed infos about combats.
 ## SavedVariables: _detalhes_global
 ## SavedVariablesPerCharacter: _detalhes_database

@@ -2188,6 +2188,9 @@ function Details:DecompressData (data, dataType)
 		local dataCompressed
 		
 		if (dataType == "print") then
+		
+			data = DetailsFramework:Trim (data)
+		
 			dataCompressed = LibDeflate:DecodeForPrint (data)
 			if (not dataCompressed) then
 				Details:Msg ("couldn't decode the data.")

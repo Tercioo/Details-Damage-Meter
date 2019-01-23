@@ -1030,6 +1030,8 @@ local create_panel_entry = function (self, row)
 	editbox:SetBackdropBorderColor (1, 1, 1, 0.1)
 	editbox.editbox.current_bordercolor = {1, 1, 1, 0.1}
 	
+	editbox:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+	
 	tinsert (row.entry_available, editbox)
 end
 
