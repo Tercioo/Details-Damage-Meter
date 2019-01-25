@@ -7343,6 +7343,7 @@ DF.CastFrameFunctions = {
 		SparkTexture = [[Interface\CastingBar\UI-CastingBar-Spark]],
 		SparkWidth = 16,
 		SparkHeight = 16,
+		SparkOffset = 0,
 	},
 	
 	Initialize = function (self)
@@ -7458,7 +7459,7 @@ DF.CastFrameFunctions = {
 				end
 			end
 			
-			--> check if passed an event
+			--> check if passed an event (not begin used at the moment)
 			if (event) then
 				if (event == UNIT_SPELLCAST_STOP or event == UNIT_SPELLCAST_CHANNEL_STOP) then
 					isFinished = true
@@ -7468,13 +7469,12 @@ DF.CastFrameFunctions = {
 		
 		--> the cast is finished
 		if (isFinished) then
-			self.finished = true
-			self:SetValue (self.maxValue)
-			self:UpdateCastColor()
-			self.Spark:Hide()
-			
-			--animations
-			self:Animation_FadeOut()
+			if (self.casting) then
+				self.UNIT_SPELLCAST_STOP (self, self.unit, self.unit, self.castID, self.spellID)
+
+			elseif (self.channeling) then
+				self.UNIT_SPELLCAST_CHANNEL_STOP (self, self.unit, self.unit, self.castID, self.spellID)
+			end
 			
 			return true
 		end
@@ -7549,7 +7549,11 @@ DF.CastFrameFunctions = {
 		
 		--just to make sure it isn't casting
 		if (not timerObject.castBar.casting and not timerObject.castBar.channeling) then
-			timerObject.castBar:Animation_FadeOut()
+			if (not timerObject.castBar.Settings.NoFadeEffects) then
+				timerObject.castBar:Animation_FadeOut()
+			else
+				timerObject.castBar:Hide()
+			end
 		end
 	end,
 	
@@ -7636,7 +7640,7 @@ DF.CastFrameFunctions = {
 			DF_CalcCpuUsage ("CastBar-OnEvent")
 			return
 		end
-		
+
 		local eventFunc = self [event]
 		if (eventFunc) then
 			eventFunc (self, unit, ...)
@@ -7682,12 +7686,12 @@ DF.CastFrameFunctions = {
 		
 		--update spark position
 		local sparkPosition = self.value / self.maxValue * self:GetWidth()
-		self.Spark:SetPoint ("center", self, "left", sparkPosition, 0)
+		self.Spark:SetPoint ("center", self, "left", sparkPosition + self.Settings.SparkOffset, 0)
 		
 		--in order to allow the lazy tick run, it must return true, it tell that the cast didn't finished
 		return true
 	end,
-	
+
 	--> tick function for channeling casts
 	OnTick_Channeling = function (self, deltaTime)
 		self.value = self.value - deltaTime
@@ -7700,7 +7704,7 @@ DF.CastFrameFunctions = {
 		
 		--update spark position
 		local sparkPosition = self.value / self.maxValue * self:GetWidth()
-		self.Spark:SetPoint ("center", self, "left", sparkPosition, 0)
+		self.Spark:SetPoint ("center", self, "left", sparkPosition + self.Settings.SparkOffset, 0)
 		
 		return true
 	end,
@@ -7941,47 +7945,64 @@ DF.CastFrameFunctions = {
 	
 	UNIT_SPELLCAST_STOP = function (self, unit, ...)
 		local unitID, castID, spellID = ...
-		
 		if (self.castID == castID) then
 			self.Spark:Hide()
-			self.percentText:Hide()self.percentText:Hide()
-			self:SetValue (self.maxValue or select (2, self:GetMinMaxValues()) or 1)
+			self.percentText:Hide()
+			
+			local value = self:GetValue()
+			local _, maxValue = self:GetMinMaxValues()
+			self:SetValue (self.maxValue or maxValue or 1)
 			
 			self.casting = nil
 			self.finished = true
 			
 			if (not self:HasScheduledHide()) then
 				--> check if settings has no fade option or if its parents are not visible
-				if (self.Settings.NoFadeEffects or not self:IsVisible()) then
+				if (not self:IsVisible()) then
 					self:Hide()
+					
+				elseif (self.Settings.NoFadeEffects) then
+					self:ScheduleToHide (0.3)
+					
 				else
 					self:Animation_Flash()
 					self:Animation_FadeOut()
 				end
 			end
+			
+			self:UpdateCastColor()
 		end
 	end,
 
 	UNIT_SPELLCAST_CHANNEL_STOP = function (self, unit, ...)
-		local unitID, castGUID, spellID = ...
+		local unitID, castID, spellID = ...
 		
-		if (self.channeling) then
+		if (self.channeling and castID == self.castID) then
 			self.Spark:Hide()
 			self.percentText:Hide()
-			self:SetValue (self.maxValue or select (2, self:GetMinMaxValues()) or 1)
+			
+			local value = self:GetValue()
+			local _, maxValue = self:GetMinMaxValues()
+			self:SetValue (self.maxValue or maxValue or 1)
 			
 			self.channeling = nil
 			self.finished = true
 
 			if (not self:HasScheduledHide()) then
 				--> check if settings has no fade option or if its parents are not visible
-				if (self.Settings.NoFadeEffects or not self:IsVisible()) then
+				if (not self:IsVisible()) then
 					self:Hide()
+					
+				elseif (self.Settings.NoFadeEffects) then
+					self:ScheduleToHide (0.3)
+					
 				else
 					self:Animation_Flash()
 					self:Animation_FadeOut()
 				end
 			end
+			
+			self:UpdateCastColor()
 		end	
 	end,
 
@@ -8008,7 +8029,7 @@ DF.CastFrameFunctions = {
 	
 	UNIT_SPELLCAST_INTERRUPTED = function (self, unit, ...)
 		local unitID, castID, spellID = ...
-		
+
 		if (self.casting and castID == self.castID and not self.fadeOut) then
 			self.casting = nil
 			self.channeling = nil
@@ -8100,14 +8121,15 @@ function DF:CreateCastBar (parent, name, settingsOverride)
 			castBar.Text:SetDrawLayer ("overlay", 1)
 			
 			castBar.BorderShield = castBar:CreateTexture (nil, "overlay")
-			castBar.BorderShield:SetDrawLayer ("overlay", 2)
+			castBar.BorderShield:SetDrawLayer ("overlay", 5)
 			castBar.BorderShield:Hide()
 			
 			castBar.Icon = castBar:CreateTexture (nil, "overlay")
-			castBar.Icon:SetDrawLayer ("overlay", 1)
+			castBar.Icon:SetDrawLayer ("overlay", 4)
 			castBar.Icon:Hide()
 			
 			castBar.Spark = castBar:CreateTexture (nil, "overlay")
+			castBar.Spark:SetDrawLayer ("overlay", 3)
 			castBar.Spark:SetBlendMode ("ADD")
 			
 			--time left on the cast

@@ -1,6 +1,6 @@
 ## Interface: 80100
-## Title: Details Raid Check (plugin)
-## Notes: Show a icon on Details title bar showing flask, food, pre-pots.
+## Title: Details!: Raid Check (plugin)
+## Notes: Show talents and item level for all members in your group, also shows food and flask state.
 ## RequiredDeps: Details
 
 #@no-lib-strip@

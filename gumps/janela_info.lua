@@ -4738,11 +4738,34 @@ function gump:CriaJanelaInfo()
 				end
 				
 				if (#tabOBject.players > 0) then
+					--tutorial flash
+					local blink = _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL2") or 0
+					if (type (blink) == "number" and blink < 10) then
+					
+						if (not tabOBject.FlashAnimation) then
+							local flashAnimation = tabOBject:CreateTexture (nil, "overlay")
+							flashAnimation:SetPoint ("topleft", tabOBject.widget, "topleft", 1, -1)
+							flashAnimation:SetPoint ("bottomright", tabOBject.widget, "bottomright", -1, 1)
+							flashAnimation:SetColorTexture (1, 1, 1)
+
+							local flashHub = DetailsFramework:CreateAnimationHub (flashAnimation, function() flashAnimation:Show() end, function() flashAnimation:Hide() end)
+							DetailsFramework:CreateAnimation (flashHub, "alpha", 1, 1, 0, 0.3)
+							DetailsFramework:CreateAnimation (flashHub, "alpha", 2, 1, 0.45, 0)
+							flashHub:SetLooping ("REPEAT")
+							
+							tabOBject.FlashAnimation = flashHub
+						end
+						
+						_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL2", blink+1)
+
+						tabOBject.FlashAnimation:Play()
+					end
+					
 					return true
 				end
 				
 				--return false
-				return true
+				return true --debug?
 			end, 
 			
 			compare_fill, --[3] fill function
@@ -4777,16 +4800,7 @@ function gump:CriaJanelaInfo()
 							alert:SetPoint ("bottom", tab, "top", 5, 28)
 							alert:Show()
 						end
-						
-						local blink = _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL2") or 0
-						if (type (blink) == "number" and blink < 10) then
-							_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL2", blink+1)
-							if (not tab.glow.Flash) then
-								gump:CreateFlashAnimation (tab.glow)
-							end
-							tab.glow:Flash (4.5, 0.8, 6, false, 0, 0, "NONE")
-						end
-						
+
 					end
 				
 					tab:Show()
@@ -4800,6 +4814,7 @@ function gump:CriaJanelaInfo()
 					PixelUtil.SetSize (tab, buttonTemplate.width, buttonTemplate.height)
 					PixelUtil.SetPoint (tab, "bottomright", info, "topright",  -9 - (buttonWidth * (amt_positive-1)), -72)
 					tab:SetAlpha (0.8)
+					
 				else
 					tab.frame:Hide()
 					tab:Hide()

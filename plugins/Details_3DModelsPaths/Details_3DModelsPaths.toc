@@ -1,5 +1,5 @@
 ## Interface: 80100
-## Title: Details! 3D Model Viewer
+## Title: Details!: 3D Model Viewer
 ## Notes: When the 3d models option is enabled, this tool is used to select which model will be used on the window's rows.
 ## DefaultState: Enabled
 ## LoadOnDemand: 1
