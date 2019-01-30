@@ -428,7 +428,7 @@
 		
 		--rules of specific encounters
 
-		if (_current_encounter_id == 2263) then --grong --REMOVE ON 9.0 LAUNCH
+		if (_current_encounter_id == 2263 or _current_encounter_id == 2284) then --grong --REMOVE ON 9.0 LAUNCH
 			if (spellid == 285660 or spellname == SPELLNAME_GRONG_CORE or spellid == 286435 or spellname == SPELLNAME_GRONG_CORE_ALLIANCE) then
 				return
 			end
