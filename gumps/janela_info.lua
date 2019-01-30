@@ -4797,7 +4797,7 @@ function gump:CriaJanelaInfo()
 							alert.ArrowUP:Show()
 							alert.ArrowGlowUP:Show()
 							alert.Text:SetText (Loc ["STRING_INFO_TUTORIAL_COMPARISON1"])
-							alert:SetPoint ("bottom", tab, "top", 5, 28)
+							alert:SetPoint ("bottom", tab.widget or tab, "top", 5, 28)
 							alert:Show()
 						end
 
