@@ -21,7 +21,7 @@
 	local _UnitGUID = UnitGUID --wow api local
 	local _UnitName = UnitName --wow api local
 	local _GetTime = GetTime
-
+	
 	local _IsAltKeyDown = IsAltKeyDown
 	local _IsShiftKeyDown = IsShiftKeyDown
 	local _IsControlKeyDown = IsControlKeyDown
@@ -758,6 +758,15 @@
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do hist�rico
 				--8.0.1 miss data isn't required at the moment, spells like akari's soul has been removed from the game
 				--_detalhes:CanSendMissData()
+				
+				--the combat is valid, see if the user is sharing data with somebody
+				if (_detalhes.shareData) then
+					local zipData = Details:CompressData (_detalhes.tabela_vigente, "comm")
+					if (zipData) then
+						print ("has zip data")
+					end
+				end
+				
 			else
 				invalid_combat = _detalhes.tabela_vigente
 				

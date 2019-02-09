@@ -43,6 +43,8 @@
 	local CONST_CLOUD_DATARC = "CE"
 	local CONST_CLOUD_EQUALIZE = "EQ"
 	
+	local CONST_CLOUD_SHAREDATA = "SD"
+	
 	local CONST_PVP_ENEMY = "PP"
 	
 	local CONST_ROGUE_SR = "SR" --soul rip from akaari's soul (LEGION ONLY)
@@ -65,6 +67,8 @@
 		["PVP_ENEMY"] = CONST_PVP_ENEMY,
 		
 		["MISSDATA_ROGUE_SOULRIP"] = CONST_ROGUE_SR, --soul rip from akaari's soul (LEGION ONLY)
+		
+		["CLOUD_SHAREDATA"] = CONST_CLOUD_SHAREDATA,
 	}
 	
 	local plugins_registred = {}
@@ -341,6 +345,19 @@
 				_detalhes:CallWipe()
 			end
 		end
+	end
+	
+	--received an entire segment data from a user that is sharing with  the 'player'
+	function _detalhes.network.Cloud_SharedData (player, realm, core_version, data)
+	
+		if (core_version ~= _detalhes.realversion) then
+			if (core_version > _detalhes.realversion) then
+				--_detalhes:Msg ("your Details! is out dated and cannot perform the action, please update it.")
+			end
+			return false
+		end
+
+		
 	end
 	
 	--guild sync R = someone pressed the sync button

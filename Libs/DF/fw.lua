@@ -1,5 +1,5 @@
 
-local dversion = 134
+local dversion = 136
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -208,11 +208,13 @@ end
 --> copy from table2 to table1 overwriting values
 function DF.table.copy (t1, t2)
 	for key, value in pairs (t2) do 
-		if (type (value) == "table") then
-			t1 [key] = t1 [key] or {}
-			DF.table.copy (t1 [key], t2 [key])
-		else
-			t1 [key] = value
+		if (key ~= "__index") then
+			if (type (value) == "table") then
+				t1 [key] = t1 [key] or {}
+				DF.table.copy (t1 [key], t2 [key])
+			else
+				t1 [key] = value
+			end
 		end
 	end
 	return t1

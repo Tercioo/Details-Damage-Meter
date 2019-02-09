@@ -1857,7 +1857,7 @@
 			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
 			source = false,
 			target = false,
-			script_version = 5,
+			script_version = 6,
 			script = [[
 				--get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1865,8 +1865,11 @@
 				local total, top, amount = 0, 0, 0
 
 				local player
-				local role = UnitGroupRolesAssigned ("player")
 				local pet_attribute
+				
+				local role = UnitGroupRolesAssigned ("player")
+				local spec = GetSpecialization()
+				role = spec and GetSpecializationRole (spec) or role
 
 				if (role == "DAMAGER") then
 					player = combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
