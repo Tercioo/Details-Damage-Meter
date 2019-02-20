@@ -1,5 +1,5 @@
 
-local dversion = 136
+local dversion = 139
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -87,6 +87,9 @@ local embed_functions = {
 	"GetNpcIdFromGuid",
 	"ShowFeedbackPanel",
 	"SetAsOptionsPanel",
+	"GetPlayerRole",
+	"GetCharacterTalents",
+	"GetCharacterPvPTalents",
 	
 	"CreateDropDown",
 	"CreateButton",
@@ -2762,10 +2765,35 @@ DF.CLEncounterID = {
 	{ID = 2122, Name = "G'huun"},
 }
 
+function DF:GetPlayerRole()
+	local assignedRole = UnitGroupRolesAssigned ("player")
+	if (assignedRole == "NONE") then
+		local spec = GetSpecialization()
+		return spec and GetSpecializationRole (spec) or "NONE"
+	end
+	return assignedRole
+end
+
 function DF:GetCLEncounterIDs()
 	return DF.CLEncounterID
 end
 
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> delta seconds reader
+
+if (not DetailsFrameworkDeltaTimeFrame) then
+	CreateFrame ("frame", "DetailsFrameworkDeltaTimeFrame", UIParent)
+end
+
+local deltaTimeFrame = DetailsFrameworkDeltaTimeFrame
+deltaTimeFrame:SetScript ("OnUpdate", function (self, deltaTime)
+	self.deltaTime = deltaTime
+end)
+
+function GetWorldDeltaSeconds()
+	return deltaTimeFrame.deltaTime
+end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> debug

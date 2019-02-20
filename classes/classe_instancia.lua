@@ -329,7 +329,6 @@ end
 			self.sub_atributo_last = table_deepcopy (config.sub_atributo_last)
 			self.isLocked = config.isLocked
 			self.last_raid_plugin = config.last_raid_plugin
-			
 		end
 	end
 
@@ -578,7 +577,7 @@ end
 		end
 		
 		if (not self.iniciada) then
-			self:RestauraJanela (self.meu_id)
+			self:RestauraJanela (self.meu_id) --parece que esta chamando o ativar instance denovo...
 		else
 			_detalhes.opened_windows = _detalhes.opened_windows+1
 		end
@@ -1453,10 +1452,10 @@ end
 --> ao reiniciar o addon esta fun��o � rodada para recriar a janela da inst�ncia
 --> search key: ~restaura ~inicio ~start
 function _detalhes:RestauraJanela (index, temp, load_only)
-		
+
 	--> load
 		self:LoadInstanceConfig()
-		
+
 	--> reset internal stuff
 		self.sub_atributo_last = self.sub_atributo_last or {1, 1, 1, 1, 1}
 		self.rolagem = false
@@ -1476,8 +1475,9 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 		self.last_modo = self.last_modo or modo_grupo
 		self.cached_bar_width = self.cached_bar_width or 0
 		self.row_height = self.row_info.height + self.row_info.space.between
-		
+
 	--> create frames
+		local isLocked = self.isLocked
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
 		self.baseframe = _baseframe
 		self.bgframe = _bgframe
@@ -1486,6 +1486,8 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 		_baseframe:EnableMouseWheel (false)
 		self.alturaAntiga = _baseframe:GetHeight()
 		
+		--self.isLocked = isLocked --window isn't locked when just created it
+
 	--> change the attribute
 		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --> passando true no 5� valor para a fun��o ignorar a checagem de valores iguais
 	
@@ -1493,13 +1495,13 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 		if (self.wallpaper.enabled) then
 			self:InstanceWallpaper (true)
 		end
-		
+
 	--> set the color of this instance window
 		self:InstanceColor (self.color)
 		
 	--> scrollbar
 		self:EsconderScrollBar (true)
-	
+
 	--> check snaps
 		self.snap = self.snap or {}
 

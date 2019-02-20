@@ -3726,7 +3726,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 		if (instancia.isLocked) then
 			instancia.isLocked = not instancia.isLocked
-			lockFunctionOnClick (baseframe.lock_button)
+			lockFunctionOnClick (baseframe.lock_button, nil, nil, true)
 		end
 	
 		gump:Fade (baseframe.lock_button, -1, 3.0)

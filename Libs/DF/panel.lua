@@ -6147,7 +6147,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 		
 		--create radio group for mythic+ affixes
 			local affixes = {}
-			for i = 2, 50 do
+			for i = 2, 1000 do
 				local affixName, desc, texture = C_ChallengeMode.GetAffixInfo (i)
 				if (affixName) then
 					tinsert (affixes, {
@@ -7322,7 +7322,7 @@ DF.CastFrameFunctions = {
 		--colour the castbar statusbar by the type of the cast
 		Colors = {
 			Casting = DF:CreateColorTable (1, 0.73, .1, 1),
-			Channeling = DF:CreateColorTable (0, 1, 0, 1),
+			Channeling = DF:CreateColorTable (1, 0.73, .1, 1),
 			Finished = DF:CreateColorTable (0, 1, 0, 1),
 			NonInterruptible = DF:CreateColorTable (.7, .7, .7, 1),
 			Failed = DF:CreateColorTable (.4, .4, .4, 1),
@@ -7883,12 +7883,12 @@ DF.CastFrameFunctions = {
 	
 	UNIT_SPELLCAST_CHANNEL_START = function (self, unit, ...)
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo (unit)
-		
+
 		--> is valid?
 		if (not self:IsValid (unit, name, isTradeSkill, true)) then
 			return
 		end
-		
+
 		--> setup cast
 			self.casting = nil
 			self.channeling = true
@@ -8465,6 +8465,10 @@ end
 					else
 						self.border:Hide()
 					end
+					
+					if (not self.Settings.ShowUnitName) then
+						self.unitName:Hide()
+					end
 				else
 					self:UnregisterEvents()
 					self.healthBar:SetUnit (nil)
@@ -8605,7 +8609,6 @@ end
 		--> misc
 		UpdateName = function (self)
 			if (not self.Settings.ShowUnitName) then
-				self.unitName:Hide()
 				return
 			end
 			
