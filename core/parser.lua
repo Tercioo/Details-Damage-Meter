@@ -4631,52 +4631,59 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	-- ~load
-	function _detalhes.parser_functions:ADDON_LOADED (...)
+	local start_details = function()
+		if (not _detalhes.gump) then
+			--> failed to load the framework.
+			
+			if (not _detalhes.instance_load_failed) then
+				_detalhes:CreatePanicWarning()
+			end
+			_detalhes.instance_load_failed.text:SetText ("Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension.")
+			
+			return
+		end
 	
+		--> cooltip
+		if (not _G.GameCooltip) then
+			_detalhes.popup = _G.GameCooltip
+		else
+			_detalhes.popup = _G.GameCooltip
+		end
+	
+		--> check group
+		_detalhes.in_group = IsInGroup() or IsInRaid()
+	
+		--> write into details object all basic keys and default profile
+		_detalhes:ApplyBasicKeys()
+		--> check if is first run, update keys for character and global data
+		_detalhes:LoadGlobalAndCharacterData()
+		
+		--> details updated and not reopened the game client
+		if (_detalhes.FILEBROKEN) then
+			return
+		end
+		
+		--> load all the saved combats
+		_detalhes:LoadCombatTables()
+		--> load the profiles
+		_detalhes:LoadConfig()
+		
+		_detalhes:UpdateParserGears()
+		--_detalhes:Start()
+	end
+	
+	function _detalhes.parser_functions:ADDON_LOADED (...)
 		local addon_name = _select (1, ...)
-		
 		if (addon_name == "Details") then
-		
-			if (not _detalhes.gump) then
-				--> failed to load the framework.
-				
-				if (not _detalhes.instance_load_failed) then
-					_detalhes:CreatePanicWarning()
-				end
-				_detalhes.instance_load_failed.text:SetText ("Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension.")
-				
-				return
-			end
-		
-			--> cooltip
-			if (not _G.GameCooltip) then
-				_detalhes.popup = _G.GameCooltip
-			else
-				_detalhes.popup = _G.GameCooltip
-			end
-		
-			--> check group
-			_detalhes.in_group = IsInGroup() or IsInRaid()
-		
-			--> write into details object all basic keys and default profile
-			_detalhes:ApplyBasicKeys()
-			--> check if is first run, update keys for character and global data
-			_detalhes:LoadGlobalAndCharacterData()
-			
-			--> details updated and not reopened the game client
-			if (_detalhes.FILEBROKEN) then
-				return
-			end
-			
-			--> load all the saved combats
-			_detalhes:LoadCombatTables()
-			--> load the profiles
-			_detalhes:LoadConfig()
-			
-			_detalhes:UpdateParserGears()
-			_detalhes:Start()
+			start_details()
 		end	
 	end
+	
+	local playerLogin = CreateFrame ("frame")
+	playerLogin:RegisterEvent ("PLAYER_LOGIN")
+	playerLogin:SetScript ("OnEvent", function()
+		Details:Start()
+	end)
 	
 	function _detalhes.parser_functions:PET_BATTLE_OPENING_START (...)
 		_detalhes.pet_battle = true
