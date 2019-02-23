@@ -875,6 +875,7 @@
 			
 			_detalhes.StoreSpells()
 			
+			_detalhes:RunScheduledEventsAfterCombat()
 		end
 
 		function _detalhes:GetPlayersInArena()
