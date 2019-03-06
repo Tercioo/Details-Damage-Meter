@@ -557,7 +557,16 @@ local function CreatePluginFrames (data)
 				local dblock = tframe.debuffs_blocks [i]
 				if (dblock.support.spellid == spellid) then
 					local debuff_name = GetSpellInfo (spellid)
-					local _, _, icon, count, _, duration, expirationTime = _UnitDebuff (who_name, debuff_name)
+					
+					local icon, count, duration, expirationTime = "", 0, 0, 0
+					
+					for i = 1, 40 do --doq
+						local auraName, icon1, count1, _, duration1, expirationTime1 = _UnitDebuff (who_name, i)
+						if (auraName == debuff_name) then
+							icon, count, duration, expirationTime = icon1, count1, duration1, expirationTime1
+							break
+						end
+					end
 					
 					dblock.texture:SetTexture (icon)
 					if (count and count > 0) then
@@ -604,17 +613,28 @@ local function CreatePluginFrames (data)
 	
 	function Vanguard:DebuffApplied (who_name, spellid)
 		local tank_index = Vanguard.TankHashNames [who_name]
-		
+
 		if (tank_index) then
+
 			local tframe = Vanguard.TankBlocks [tank_index]
 			if (tframe.debuffs_using < 3) then
+
 				local next_index = tframe.debuffs_next_index
 				if (next_index) then
+
 					local dblock = tframe.debuffs_blocks [next_index]
+					local icon, count, duration, expirationTime
 					
 					local debuff_name = GetSpellInfo (spellid)
-					local _, _, icon, count, _, duration, expirationTime = _UnitDebuff (who_name, debuff_name)
 					
+					for i = 1, 40 do --doq
+						local auraName, icon1, count1, _, duration1, expirationTime1 = _UnitDebuff (who_name, i)
+						if (auraName == debuff_name) then
+							icon, count, duration, expirationTime = icon1, count1, duration1, expirationTime1
+							break
+						end
+					end
+
 					if (not icon) then
 						return
 					end
@@ -679,7 +699,7 @@ local ignored_debuffs = {
 function Vanguard:TrackDebuffsAlreadyApplied()
 	for tank_name, block_index in pairs (Vanguard.TankHashNames) do
 		for i = 1, 41 do
-			local _, _, icon, count, _, duration, expirationTime, unitCaster, _, _, spellid = _UnitDebuff (tank_name, i)
+			local auraName, icon, count, _, duration, expirationTime, unitCaster, _, _, spellid = _UnitDebuff (tank_name, i)
 			if (icon and spellid and not ignored_debuffs [spellid]) then
 				Vanguard:DebuffApplied (tank_name, spellid)
 			end
@@ -760,10 +780,16 @@ Vanguard.OpenOptionsPanel = function()
 	VanguardOptionsWindow:Show()
 end
 
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
+
 function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, who_flags, _, alvo_serial, alvo_name, alvo_flags, _, spellid, spellname, spellschool, tipo)
 
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
-
+		
+		local arg1, token, time, who_serial, who_name, who_flags, _, alvo_serial, alvo_name, alvo_flags, _, spellid, spellname, spellschool, tipo = CombatLogGetCurrentEventInfo()
+		
+		--print (token, Vanguard.TankHashNames [alvo_name], alvo_name, tipo, Vanguard.Running)
+		
 		if (token == "SPELL_AURA_APPLIED") then
 			if (Vanguard.TankHashNames [alvo_name] and tipo == "DEBUFF" and Vanguard.Running and not ignored_debuffs [spellid]) then
 				Vanguard:DebuffApplied (alvo_name, spellid)

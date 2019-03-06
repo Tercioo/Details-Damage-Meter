@@ -268,7 +268,7 @@
 			["141265"] = true,
 		}
 		
-	
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
@@ -447,6 +447,23 @@
 				end
 			end
 		
+		elseif (_current_encounter_id == 2087) then --Yazma - Atal'Dazar --REMOVE ON 9.0 LAUNCH
+			--rename the add created by the soulrend ability
+			if (alvo_serial) then
+				local npcid = _select (6, _strsplit ("-", alvo_serial))
+				if (npcid == "125828") then --soulrend add
+					alvo_name = "Soulrend Add"
+				end
+			end
+			
+			if (who_serial) then
+				local npcid = _select (6, _strsplit ("-", who_serial))
+				if (npcid == "125828") then --soulrend add
+					who_name = "Soulrend Add"
+				end
+			end
+		
+		
 		elseif (_current_encounter_id == 2122 or _current_encounter_id == 2135) then --g'huun and mythrax --REMOVE ON 9.0 LAUNCH
 			--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then --soul effigy (warlock) --50% more slow than the method below
 		
@@ -614,7 +631,7 @@
 		
 		--> last event
 		este_jogador.last_event = _tempo
-
+		
 	------------------------------------------------------------------------------------------------
 	--> group checks and avoidance
 
