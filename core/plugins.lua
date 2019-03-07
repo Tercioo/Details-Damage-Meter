@@ -284,11 +284,17 @@
 		local NewPlugin = {__options = PluginOptions, __enabled = true, RegisterEvent = register_event_func, UnregisterEvent = unregister_event_func}
 		
 		local Frame = CreateFrame ("Frame", FrameName, UIParent)
-		Frame:RegisterEvent ("ADDON_LOADED")
+		Frame:RegisterEvent ("PLAYER_LOGIN")
 		Frame:RegisterEvent ("PLAYER_LOGOUT")
-		Frame:SetScript ("OnEvent", function(event, ...) 
+		
+		Frame:SetScript ("OnEvent", function(self, event, ...) 
 			if (NewPlugin.OnEvent) then
-				return NewPlugin:OnEvent (event, ...) 
+				if (event == "PLAYER_LOGIN") then
+					NewPlugin:OnEvent (self, "ADDON_LOADED", NewPlugin.Frame:GetName())
+					NewPlugin.Frame:Hide()
+					return
+				end
+				return NewPlugin:OnEvent (self, event, ...) 
 			end
 		end)
 		
@@ -634,6 +640,7 @@
 		
 		--> a plugin request to be embed into the main plugin window		
 		function f.EmbedPlugin (pluginObject, frame, isUtility)
+		
 			--> check if the plugin has a frame
 			if (not pluginObject.Frame) then
 				f.DebugMsg ("plugin doesn't have a frame.")

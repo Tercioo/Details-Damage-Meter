@@ -20,7 +20,7 @@ local _math_abs = math.abs
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
 --> Create the plugin Object
-local ThreatMeter = _detalhes:NewPluginObject ("Details_Threat")
+local ThreatMeter = _detalhes:NewPluginObject ("Details_TinyThreat")
 --> Main Frame
 local ThreatMeterFrame = ThreatMeter.Frame
 
