@@ -6,7 +6,8 @@ local LibWindow = LibStub ("LibWindow-1.1")
 local _
 
 --> create the plugin object
-local StreamOverlay = _detalhes:NewPluginObject ("Details_StreamOverlay", DETAILSPLUGIN_ALWAYSENABLED)
+-- "Details_StreamOverlay" is the old name
+local StreamOverlay = _detalhes:NewPluginObject ("Details_Streamer", DETAILSPLUGIN_ALWAYSENABLED)
 --tinsert (UISpecialFrames, "Details_StreamOverlays")
 --> main frame (shortcut)
 local SOF = StreamOverlay.Frame
