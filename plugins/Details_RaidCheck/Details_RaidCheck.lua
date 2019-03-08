@@ -62,8 +62,8 @@ end
 --> localization
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details")
 --> create the plugin object
-	local DetailsRaidCheck = _detalhes:NewPluginObject ("DetailsRaidCheck", DETAILSPLUGIN_ALWAYSENABLED)
-	tinsert (UISpecialFrames, "DetailsRaidCheck")
+	local DetailsRaidCheck = _detalhes:NewPluginObject ("Details_RaidCheck", DETAILSPLUGIN_ALWAYSENABLED)
+	tinsert (UISpecialFrames, "Details_RaidCheck")
 	DetailsRaidCheck:SetPluginDescription (Loc ["STRING_RAIDCHECK_PLUGIN_DESC"])
 
 	local version = "v2.0"
