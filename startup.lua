@@ -336,7 +336,7 @@ function _G._detalhes:Start()
 			
 			-- ~mythic ~dungeon
 			local newFrame = CreateFrame ("frame", "DetailsMythicPlusFrame", UIParent)
-			newFrame.DevelopmentDebug = true
+			newFrame.DevelopmentDebug = false
 			
 			--[
 				newFrame:RegisterEvent ("CHALLENGE_MODE_START")

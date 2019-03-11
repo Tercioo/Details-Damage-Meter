@@ -6162,6 +6162,7 @@ local build_segment_list = function (self, elapsed)
 		local dungeon_run_id = false
 		
 		--> history table (segments container)
+		local isMythicDungeon = false
 		for i = _detalhes.segments_amount, 1, -1 do
 			
 			if (i <= fill) then
@@ -6176,6 +6177,16 @@ local build_segment_list = function (self, elapsed)
 					--print (thisCombat.is_boss.name, thisCombat.instance_type, _detalhes:GetRaidIcon (thisCombat.is_boss.mapid), thisCombat.is_boss.ej_instance_id)
 
 					if (thisCombat.is_mythic_dungeon_segment) then
+					
+						if (not isMythicDungeon) then
+							--GameCooltip:AddLine ("$div", nil, nil, -5, -13)
+							isMythicDungeon = thisCombat.is_mythic_dungeon_run_id
+						else
+							if (isMythicDungeon ~= thisCombat.is_mythic_dungeon_run_id) then
+							--	GameCooltip:AddLine ("$div", nil, nil, -5, -13)
+								isMythicDungeon = thisCombat.is_mythic_dungeon_run_id
+							end
+						end
 					
 						local mythicDungeonInfo = thisCombat:GetMythicDungeonInfo()
 					
@@ -6208,11 +6219,12 @@ local build_segment_list = function (self, elapsed)
 								
 							else
 								if (segmentID == "trashoverall") then
-									--CoolTip:AddLine (encounterName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
-									CoolTip:AddLine ((encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
+									local trashIcon = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:14:58:98:160|t"
+									CoolTip:AddLine (trashIcon .. "" .. (encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
 									CoolTip:AddLine ((encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
 								else
-									CoolTip:AddLine ((encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
+									local skull = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:496:512:0:16|t"
+									CoolTip:AddLine (skull .. "" .. (encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
 									CoolTip:AddLine ((encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
 								end
 								CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
@@ -6240,7 +6252,7 @@ local build_segment_list = function (self, elapsed)
 								
 								--wasted time
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 								
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 2, "white", "white")
 								
@@ -6251,7 +6263,7 @@ local build_segment_list = function (self, elapsed)
 								
 								--wasted time
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 								
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
 								
@@ -6266,6 +6278,7 @@ local build_segment_list = function (self, elapsed)
 							CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
 							CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
 							
+							CoolTip:AddStatusBar (100, 1, .3, .3, .3, 0.2, false, false, "Skyline")
 						else
 							--> the combat has mythic dungeon tag but doesn't have a mythic dungeon table information
 							--> so this is a trash cleanup segment
@@ -6293,7 +6306,8 @@ local build_segment_list = function (self, elapsed)
 						segment_info_added = true
 						
 					elseif (thisCombat.is_boss and thisCombat.is_boss.name) then
-					
+						
+						isMythicDungeon = false
 						local try_number = thisCombat.is_boss.try_number
 						local combat_time = thisCombat:GetCombatTime()
 					
@@ -6367,6 +6381,7 @@ local build_segment_list = function (self, elapsed)
 						end
 					
 					elseif (thisCombat.is_pvp) then
+						isMythicDungeon = false
 						CoolTip:AddLine (thisCombat.is_pvp.name, _, 1, battleground_color)
 						enemy = thisCombat.is_pvp.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
@@ -6382,6 +6397,7 @@ local build_segment_list = function (self, elapsed)
 						end
 					
 					elseif (thisCombat.is_arena) then
+						isMythicDungeon = false
 						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
 						enemy = thisCombat.is_arena.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
@@ -6396,6 +6412,7 @@ local build_segment_list = function (self, elapsed)
 							--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					else
+						isMythicDungeon = false
 						enemy = thisCombat.enemy
 						if (enemy) then
 							CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
@@ -6533,7 +6550,7 @@ local build_segment_list = function (self, elapsed)
 						
 						--wasted time
 						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 						
 						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. _detalhes.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
 						
@@ -6547,7 +6564,7 @@ local build_segment_list = function (self, elapsed)
 						
 						--wasted time
 						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 						
 					else
 						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
