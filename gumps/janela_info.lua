@@ -37,6 +37,11 @@ local CONST_TARGET_HEIGHT = 18
 --self = instancia
 --jogador = classe_damage ou classe_heal
 
+--return the combat being used to show the data in the opened breakdown window
+function Details:GetCombatFromBreakdownWindow()
+	return info.instancia and info.instancia.showing
+end
+
 function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDown, ControlKeyDown)
 
 	--print (debugstack())

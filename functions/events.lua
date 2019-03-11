@@ -28,6 +28,8 @@
 			["DETAILS_DATA_SEGMENTREMOVED"] = {},
 		
 		--> combat
+			["COMBAT_ENCOUNTER_START"] = {},
+			["COMBAT_ENCOUNTER_END"] = {},
 			["COMBAT_PLAYER_ENTER"] = {},
 			["COMBAT_PLAYER_LEAVE"] = {},
 			["COMBAT_PLAYER_TIMESTARTED"] = {},
@@ -90,6 +92,8 @@ local common_events = {
 	["DETAILS_OPTIONS_MODIFIED"] = true,
 	["DETAILS_DATA_RESET"] = true,
 	["DETAILS_DATA_SEGMENTREMOVED"] = true,
+	["COMBAT_ENCOUNTER_START"] = true,
+	["COMBAT_ENCOUNTER_END"] = true,
 	["COMBAT_PLAYER_ENTER"] = true,
 	["COMBAT_PLAYER_LEAVE"] = true,
 	["COMBAT_PLAYER_TIMESTARTED"] = true,

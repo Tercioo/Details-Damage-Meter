@@ -8978,6 +8978,7 @@ DF.TimeLineBlockFunctions = {
 		local timelineData = lineData.timeline
 		
 		for i = 1, #timelineData do
+
 			local blockInfo = timelineData [i]
 			
 			local time = blockInfo [1]
@@ -8986,7 +8987,7 @@ DF.TimeLineBlockFunctions = {
 			local text = blockInfo [4]
 			local icon = blockInfo [5]
 			local tooltip = blockInfo [6]
-			
+
 			local xOffset = pixelPerSecond * time
 			local width = pixelPerSecond * length
 			

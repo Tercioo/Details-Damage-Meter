@@ -337,6 +337,10 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internals
 
+	function combate:CreateNewCombatTable()
+		return combate:NovaTabela()
+	end
+
 	--class constructor
 	function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 
@@ -394,6 +398,10 @@
 		--> time data container
 		esta_tabela.TimeData = _detalhes:TimeDataCreateCombatTables()
 		esta_tabela.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
+		
+		--> for external plugin usage
+		esta_tabela.spells_cast_timeline = {}
+		esta_tabela.cleu_timeline = {}
 		
 		--> Skill cache (not used)
 		esta_tabela.CombatSkillCache = {}

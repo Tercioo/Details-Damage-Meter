@@ -1,5 +1,5 @@
 
-local dversion = 141
+local dversion = 143
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -356,6 +356,22 @@ function DF:CommaValue (value)
 	--source http://richard.warburton.it
 	local left, num, right = string_match (value, '^([^%d]*%d)(%d*)(.-)$')
 	return left .. (num:reverse():gsub ('(%d%d%d)','%1,'):reverse()) .. right
+end
+
+function DF:GroupIterator (func, ...)
+	if (IsInRaid()) then
+		for i = 1, GetNumGroupMembers() do
+			DF:QuickDispatch (func, "raid" .. i, ...)
+		end
+	
+	elseif (IsInGroup()) then
+		for i = 1, GetNumGroupMembers() - 1 do
+			DF:QuickDispatch (func, "party" .. i, ...)
+		end
+	
+	else
+		DF:QuickDispatch (func, "player", ...)
+	end
 end
 
 function DF:IntegerToTimer (value)

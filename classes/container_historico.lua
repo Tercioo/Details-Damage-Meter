@@ -272,17 +272,17 @@ function historico:adicionar (tabela)
 	local canAddToOverall = _detalhes:CanAddCombatToOverall (tabela)
 	
 	if (canAddToOverall) then
-		if (InCombatLockdown()) then
-			_detalhes:ScheduleAddCombatToOverall (tabela)
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) overall data flag match > in combat scheduling overall addition.")
-			end
-		else
+		--if (InCombatLockdown()) then
+		--	_detalhes:ScheduleAddCombatToOverall (tabela)
+		--	if (_detalhes.debug) then
+		--		_detalhes:Msg ("(debug) overall data flag match > in combat scheduling overall addition.")
+		--	end
+		--else
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) overall data flag match addind the combat to overall data.")
 			end
 			historico:adicionar_overall (tabela)
-		end
+		--end
 	end
 	
 	--> erase trash segments

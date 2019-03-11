@@ -6236,11 +6236,25 @@ local build_segment_list = function (self, elapsed)
 							if (segmentID == "trashoverall") then
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
 								local totalRealTime = endedAt - startedAt
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. _detalhes.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
+								local wasted = totalRealTime - decorrido
+								
+								--wasted time
+								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+								
+								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 2, "white", "white")
+								
 							elseif (isMythicOverallSegment) then
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
 								local totalRealTime = endedAt - startedAt
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime) .. " [|cFFFF3300" .. _detalhes.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
+								local wasted = totalRealTime - decorrido
+								
+								--wasted time
+								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+								
+								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
+								
 							else
 								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
 							end
@@ -6513,13 +6527,27 @@ local build_segment_list = function (self, elapsed)
 					
 					if (segmentID == "trashoverall") then
 						local totalRealTime = endedAt - startedAt
+						local wasted = totalRealTime - decorrido
+						
 						CoolTip:AddLine (Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						
+						--wasted time
+						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
+						
 						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. _detalhes.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
 						
 					elseif (isMythicOverallSegment) then
 						CoolTip:AddLine (Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
 						local totalRealTime = endedAt - startedAt
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime) .. " [|cFFFF3300" .. _detalhes.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
+						local wasted = totalRealTime - decorrido
+						
+						
+						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
+						
+						--wasted time
+						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.55, false, false, "Skyline")
 						
 					else
 						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")

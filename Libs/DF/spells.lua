@@ -677,6 +677,7 @@ DF.CrowdControlSpells = {
 	[217832] = "DEMONHUNTER", --Imprison
 	[200166] = "DEMONHUNTER", --Metamorphosis
 	[207685] = "DEMONHUNTER", --Sigil of Misery
+	[211881] = "DEMONHUNTER", -- Fel Eruption
 }
 
 DF.SpecIds = {

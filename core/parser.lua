@@ -4232,6 +4232,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.encounter_table.index = boss_index
 		end
 		
+		_detalhes:SendEvent ("COMBAT_ENCOUNTER_START", nil, ...)
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
@@ -4248,7 +4249,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) the zone type is 'party', ignoring ENCOUNTER_END.")
 			end
-			return
+			--return --rnu encounter end for dungeons as well
 		end
 	
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
@@ -4285,6 +4286,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
+		_detalhes:SendEvent ("COMBAT_ENCOUNTER_END", nil, ...)
+		
 		_table_wipe (_detalhes.encounter_table)
 		
 		return true
@@ -4484,6 +4487,24 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	end
 	
+	function _detalhes.parser_functions:CHALLENGE_MODE_START (...)
+		--> send mythic dungeon start event
+		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+		if (difficultyID == 8) then
+			_detalhes:SendEvent ("COMBAT_MYTHICDUNGEON_START")
+		end
+	
+	end
+	
+	function _detalhes.parser_functions:CHALLENGE_MODE_COMPLETED (...)
+		--> send mythic dungeon end event
+		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+		if (difficultyID == 8) then
+			_detalhes:SendEvent ("COMBAT_MYTHICDUNGEON_END")
+		end
+		
+	end
+
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
 
 		if (_detalhes.debug) then
