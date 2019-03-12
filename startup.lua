@@ -790,9 +790,13 @@ function _G._detalhes:Start()
 					local segmentsToMerge = {}
 					
 					--> check if there is trash segments after the last boss. need to merge these segments with the trash segment of the last boss
-					if (_detalhes.mythic_plus.merge_boss_trash and not self.MythicPlus.IsRestoredState and not fromZoneLeft) then --and false
-						--> is the current combat not a boss fight? this means a combat was opened after the mythic run completed
+					if (_detalhes.mythic_plus.merge_boss_trash and not self.MythicPlus.IsRestoredState and not fromZoneLeft) then
+						--> is the current combat not a boss fight? 
+						--> this mean a combat was opened after the last boss of the dungeon was killed
 						if (not self.tabela_vigente.is_boss and self.tabela_vigente:GetCombatTime() > 5) then
+							
+							Details:Debug ("last segment isn't a boss segment, need to merge it with latest trash segment.")
+							
 							if (newFrame.DevelopmentDebug) then
 								print ("Details!", "MythicDungeonFinished() > the last combat isn't a boss fight, might have trash after bosses done.")
 							end
@@ -822,6 +826,7 @@ function _G._detalhes:Start()
 										
 										--> merge this segment
 										tinsert (segmentsToMerge, pastCombat)
+										Details:Debug ("segment " .. i .. " added to merge after last boss.")
 										
 										if (newFrame.DevelopmentDebug) then
 											print ("MythicDungeonFinished() > found after last boss combat")
@@ -832,7 +837,7 @@ function _G._detalhes:Start()
 						end
 					end
 					
-					if (#segmentsToMerge > 0) then --and false
+					if (#segmentsToMerge > 0) then
 						if (newFrame.DevelopmentDebug) then
 							print ("Details!", "MythicDungeonFinished() > found ", #segmentsToMerge, "segments after the last boss")
 						end
@@ -865,7 +870,11 @@ function _G._detalhes:Start()
 							--	end
 							--	_detalhes.schedule_mythicdungeon_endtrash_merge = true
 							--end
+						else
+							Details:Debug ("failed to find the trash overall for the last boss of the dungeon.")
 						end
+					else
+						Details:Debug ("no trash segments detected after the last boss in the dungeon.")
 					end
 					
 					--> merge segments

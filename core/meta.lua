@@ -860,6 +860,11 @@
 		
 		--local links_removed = 0
 		
+		--do not collect things in a mythic+ dungeon segment
+		if (_combate.is_mythic_dungeon_trash or _combate.is_mythic_dungeon_run_id or _combate.is_mythic_dungeon_segment) then
+			return 0
+		end
+		
 		while (_iter.data) do
 		
 			local _actor = _iter.data

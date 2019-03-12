@@ -1355,9 +1355,16 @@
 			local energy_container = _detalhes.tabela_vigente [3]
 			local misc_container = _detalhes.tabela_vigente [4]
 			
+			local mythicDungeonRun = _detalhes.tabela_vigente.is_mythic_dungeon_segment
+			
 			for class_type, container in _ipairs ({damage_container, healing_container}) do 
 			
 				for _, actor in _ipairs (container._ActorTable) do 
+				
+					if (mythicDungeonRun) then
+						actor.fight_component = true
+					end
+					
 					if (actor.grupo) then
 						if (class_type == 1 or class_type == 2) then
 							for target_name, amount in _pairs (actor.targets) do 
