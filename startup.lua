@@ -795,7 +795,7 @@ function _G._detalhes:Start()
 						--> this mean a combat was opened after the last boss of the dungeon was killed
 						if (not self.tabela_vigente.is_boss and self.tabela_vigente:GetCombatTime() > 5) then
 							
-							Details:Debug ("last segment isn't a boss segment, need to merge it with latest trash segment.")
+							Details:Msg ("last segment isn't a boss segment, need to merge it with latest trash segment.")
 							
 							if (newFrame.DevelopmentDebug) then
 								print ("Details!", "MythicDungeonFinished() > the last combat isn't a boss fight, might have trash after bosses done.")
@@ -826,7 +826,7 @@ function _G._detalhes:Start()
 										
 										--> merge this segment
 										tinsert (segmentsToMerge, pastCombat)
-										Details:Debug ("segment " .. i .. " added to merge after last boss.")
+										Details:Msg ("segment " .. i .. " added to merge after last boss.")
 										
 										if (newFrame.DevelopmentDebug) then
 											print ("MythicDungeonFinished() > found after last boss combat")
@@ -871,10 +871,10 @@ function _G._detalhes:Start()
 							--	_detalhes.schedule_mythicdungeon_endtrash_merge = true
 							--end
 						else
-							Details:Debug ("failed to find the trash overall for the last boss of the dungeon.")
+							Details:Msg ("failed to find the trash overall for the last boss of the dungeon.")
 						end
 					else
-						Details:Debug ("no trash segments detected after the last boss in the dungeon.")
+						Details:Msg ("no trash segments detected after the last boss in the dungeon.")
 					end
 					
 					--> merge segments
