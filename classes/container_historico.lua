@@ -291,6 +291,7 @@ function historico:adicionar (tabela)
 		local container_damage = _segundo_combate [1]
 		local container_heal = _segundo_combate [2]
 		
+		--regular cleanup
 		for _, jogador in ipairs (container_damage._ActorTable) do 
 			--> remover a tabela de last events
 			jogador.last_events_table =  nil
@@ -312,7 +313,7 @@ function historico:adicionar (tabela)
 		
 			local _terceiro_combate = self.tabelas[3]
 		
-			if (_terceiro_combate) then
+			if (_terceiro_combate and not _terceiro_combate.is_mythic_dungeon_segment) then
 			
 				if ((_terceiro_combate.is_trash and not _terceiro_combate.is_boss) or (_terceiro_combate.is_temporary)) then
 					--> verificar novamente a time machine

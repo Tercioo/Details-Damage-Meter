@@ -939,12 +939,12 @@
 			
 			if (not este_jogador) then --> pode ser um desconhecido ou um pet
 				este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
-				if (meu_dono) then --> é um pet
+				if (meu_dono) then --> ï¿½ um pet
 					if (who_serial ~= "") then
 						damage_cache_pets [who_serial] = este_jogador
 						damage_cache_petsOwners [who_serial] = meu_dono
 					end
-					--conferir se o dono já esta no cache
+					--conferir se o dono jï¿½ esta no cache
 					if (not damage_cache [meu_dono.serial] and meu_dono.serial ~= "") then
 						damage_cache [meu_dono.serial] = meu_dono
 					end
@@ -963,7 +963,7 @@
 				end
 				
 			elseif (meu_dono) then
-				--> é um pet
+				--> ï¿½ um pet
 				who_name = who_name .. " <" .. meu_dono.nome .. ">"
 			end
 		
@@ -3085,13 +3085,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			
-			if (meu_dono) then --> é um pet
+			if (meu_dono) then --> ï¿½ um pet
 				if (who_serial ~= "") then
 					misc_cache_pets [who_serial] = este_jogador
 					misc_cache_petsOwners [who_serial] = meu_dono
 				end
 				
-				--conferir se o dono já esta no cache
+				--conferir se o dono jï¿½ esta no cache
 				if (not misc_cache [meu_dono.serial] and meu_dono.serial ~= "") then
 					misc_cache [meu_dono.serial] = meu_dono
 				end

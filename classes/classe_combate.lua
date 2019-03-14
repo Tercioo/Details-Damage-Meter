@@ -653,9 +653,9 @@
 					shadow = _detalhes.atributo_misc:r_connect_shadow (actor, true, custom_combat)
 				end
 				
-				shadow.boss_fight_component = actor.boss_fight_component
-				shadow.fight_component = actor.fight_component
-				shadow.grupo = actor.grupo
+				shadow.boss_fight_component = actor.boss_fight_component or shadow.boss_fight_component
+				shadow.fight_component = actor.fight_component or shadow.fight_component
+				shadow.grupo = actor.grupo or shadow.grupo
 			end
 		end
 		

@@ -531,16 +531,17 @@
 							while (_iter.data) do --search key: ~deletar ~apagar
 								local can_erase = true
 								
-								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or _iter.data.pvp_component) then
+								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or _iter.data.pvp_component or _iter.data.fight_component) then
 									can_erase = false
 								else
+									
 									local owner = _iter.data.owner
 									if (owner) then 
 										local owner_actor = _combate [class_type]._NameIndexTable [owner.nome]
 										if (owner_actor) then 
 											local owner_actor = _combate [class_type]._ActorTable [owner_actor]
 											if (owner_actor) then 
-												if (owner.grupo or owner.boss or owner.boss_fight_component) then
+												if (owner.grupo or owner.boss or owner.boss_fight_component or owner.fight_component) then
 													can_erase = false
 												end
 											end
@@ -594,115 +595,117 @@
 					end
 				end
 				
-				for class_type, _tabela in _ipairs (todos_atributos) do
-				
-					local conteudo = _tabela._ActorTable
+				if (not _combate.is_mythic_dungeon_segment) then
+					for class_type, _tabela in _ipairs (todos_atributos) do
+					
+						local conteudo = _tabela._ActorTable
 
-					--> Limpa tabelas que n�o estejam em grupo
-					if (conteudo) then
+						--> Limpa tabelas que n�o estejam em grupo
+						if (conteudo) then
 
-						if (_detalhes.clear_ungrouped) then
-						--n�o deleta dummies e actors de fora do grupo
-						--if (not _detalhes.clear_ungrouped) then
-						
-							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
+							if (_detalhes.clear_ungrouped) then
+							--n�o deleta dummies e actors de fora do grupo
+							--if (not _detalhes.clear_ungrouped) then
+							
+								local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
 
-							while (_iter.data) do --search key: ~deletar ~apagar
-								local can_erase = true
-								
-								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter or _iter.data.pvp_component) then
-									can_erase = false
-								else
-									local owner = _iter.data.owner
-									if (owner) then 
-										local owner_actor = _combate [class_type]._NameIndexTable [owner.nome]
-										if (owner_actor) then 
-											local owner_actor = _combate [class_type]._ActorTable [owner_actor]
+								while (_iter.data) do --search key: ~deletar ~apagar
+									local can_erase = true
+									
+									if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter or _iter.data.pvp_component or _iter.data.fight_component) then
+										can_erase = false
+									else
+										local owner = _iter.data.owner
+										if (owner) then 
+											local owner_actor = _combate [class_type]._NameIndexTable [owner.nome]
 											if (owner_actor) then 
-												if (owner.grupo or owner.boss or owner.boss_fight_component) then
-													can_erase = false
+												local owner_actor = _combate [class_type]._ActorTable [owner_actor]
+												if (owner_actor) then 
+													if (owner.grupo or owner.boss or owner.boss_fight_component or owner.fight_component) then
+														can_erase = false
+													end
 												end
 											end
 										end
 									end
+									
+									if (can_erase) then 
+										
+										if (not _iter.data.owner) then --> pet
+											local myself = _iter.data
+										
+											if (myself.tipo == class_type_dano or myself.tipo == class_type_cura) then
+												_combate.totals [myself.tipo] = _combate.totals [myself.tipo] - myself.total
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] = _combate.totals_grupo [myself.tipo] - myself.total
+												end
+												
+											elseif (myself.tipo == class_type_e_energy) then
+												_combate.totals [myself.tipo] [myself.powertype] = _combate.totals [myself.tipo] [myself.powertype] - myself.total
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] [myself.powertype] = _combate.totals_grupo [myself.tipo] [myself.powertype] - myself.total
+												end
+												
+											elseif (myself.tipo == class_type_misc) then
+												if (myself.cc_break) then 
+													_combate.totals [myself.tipo] ["cc_break"] = _combate.totals [myself.tipo] ["cc_break"] - myself.cc_break 
+													if (myself.grupo) then
+														_combate.totals_grupo [myself.tipo] ["cc_break"] = _combate.totals_grupo [myself.tipo] ["cc_break"] - myself.cc_break 
+													end
+												end
+												if (myself.ress) then 
+													_combate.totals [myself.tipo] ["ress"] = _combate.totals [myself.tipo] ["ress"] - myself.ress
+													if (myself.grupo) then
+														_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
+													end
+												end
+												--> n�o precisa diminuir o total dos buffs e debuffs
+												if (myself.cooldowns_defensive) then 
+													_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
+													if (myself.grupo) then
+														_combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] = _combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
+													end
+												end
+												if (myself.interrupt) then 
+													_combate.totals [myself.tipo] ["interrupt"] = _combate.totals [myself.tipo] ["interrupt"] - myself.interrupt 
+													if (myself.grupo) then
+														_combate.totals_grupo [myself.tipo] ["interrupt"] = _combate.totals_grupo [myself.tipo] ["interrupt"] - myself.interrupt 
+													end
+												end
+												if (myself.dispell) then 
+													_combate.totals [myself.tipo] ["dispell"] = _combate.totals [myself.tipo] ["dispell"] - myself.dispell 
+													if (myself.grupo) then
+														_combate.totals_grupo [myself.tipo] ["dispell"] = _combate.totals_grupo [myself.tipo] ["dispell"] - myself.dispell 
+													end
+												end
+												if (myself.dead) then 
+													_combate.totals [myself.tipo] ["dead"] = _combate.totals [myself.tipo] ["dead"] - myself.dead 
+													if (myself.grupo) then
+														_combate.totals_grupo [myself.tipo] ["dead"] = _combate.totals_grupo [myself.tipo] ["dead"] - myself.dead 
+													end
+												end
+											end						
+										end
+
+										_table_remove (conteudo, _iter.index)
+										_iter.cleaned = _iter.cleaned + 1
+										_iter.data = conteudo [_iter.index]
+									else
+										_iter.index = _iter.index + 1
+										_iter.data = conteudo [_iter.index]
+									end
 								end
 								
-								if (can_erase) then 
-									
-									if (not _iter.data.owner) then --> pet
-										local myself = _iter.data
-									
-										if (myself.tipo == class_type_dano or myself.tipo == class_type_cura) then
-											_combate.totals [myself.tipo] = _combate.totals [myself.tipo] - myself.total
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] = _combate.totals_grupo [myself.tipo] - myself.total
-											end
-											
-										elseif (myself.tipo == class_type_e_energy) then
-											_combate.totals [myself.tipo] [myself.powertype] = _combate.totals [myself.tipo] [myself.powertype] - myself.total
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] [myself.powertype] = _combate.totals_grupo [myself.tipo] [myself.powertype] - myself.total
-											end
-											
-										elseif (myself.tipo == class_type_misc) then
-											if (myself.cc_break) then 
-												_combate.totals [myself.tipo] ["cc_break"] = _combate.totals [myself.tipo] ["cc_break"] - myself.cc_break 
-												if (myself.grupo) then
-													_combate.totals_grupo [myself.tipo] ["cc_break"] = _combate.totals_grupo [myself.tipo] ["cc_break"] - myself.cc_break 
-												end
-											end
-											if (myself.ress) then 
-												_combate.totals [myself.tipo] ["ress"] = _combate.totals [myself.tipo] ["ress"] - myself.ress
-												if (myself.grupo) then
-													_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
-												end
-											end
-											--> n�o precisa diminuir o total dos buffs e debuffs
-											if (myself.cooldowns_defensive) then 
-												_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
-												if (myself.grupo) then
-													_combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] = _combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
-												end
-											end
-											if (myself.interrupt) then 
-												_combate.totals [myself.tipo] ["interrupt"] = _combate.totals [myself.tipo] ["interrupt"] - myself.interrupt 
-												if (myself.grupo) then
-													_combate.totals_grupo [myself.tipo] ["interrupt"] = _combate.totals_grupo [myself.tipo] ["interrupt"] - myself.interrupt 
-												end
-											end
-											if (myself.dispell) then 
-												_combate.totals [myself.tipo] ["dispell"] = _combate.totals [myself.tipo] ["dispell"] - myself.dispell 
-												if (myself.grupo) then
-													_combate.totals_grupo [myself.tipo] ["dispell"] = _combate.totals_grupo [myself.tipo] ["dispell"] - myself.dispell 
-												end
-											end
-											if (myself.dead) then 
-												_combate.totals [myself.tipo] ["dead"] = _combate.totals [myself.tipo] ["dead"] - myself.dead 
-												if (myself.grupo) then
-													_combate.totals_grupo [myself.tipo] ["dead"] = _combate.totals_grupo [myself.tipo] ["dead"] - myself.dead 
-												end
-											end
-										end						
-									end
-
-									_table_remove (conteudo, _iter.index)
-									_iter.cleaned = _iter.cleaned + 1
-									_iter.data = conteudo [_iter.index]
-								else
-									_iter.index = _iter.index + 1
-									_iter.data = conteudo [_iter.index]
+								if (_iter.cleaned > 0) then
+									ReconstroiMapa (_tabela)
 								end
+								
 							end
-							
-							if (_iter.cleaned > 0) then
-								ReconstroiMapa (_tabela)
-							end
-							
 						end
+						
 					end
 					
-				end
-
+				end --end is mythic dungeon segment
 			end
 			
 			--> panic mode

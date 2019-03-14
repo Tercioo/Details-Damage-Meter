@@ -9378,4 +9378,73 @@ f:Hide()
 
 --]=]
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> error message box
+
+function DF:ShowErrorMessage (errorMessage, titleText)
+	
+	if (not DF.ErrorMessagePanel) then
+		local f = CreateFrame ("frame", "DetailsFrameworkErrorMessagePanel", UIParent) 
+		f:SetSize (400, 120)
+		f:SetFrameStrata ("FULLSCREEN")
+		f:SetPoint ("center", UIParent, "center", 0, 100)
+		f:EnableMouse (true)
+		f:SetMovable (true)
+		f:RegisterForDrag ("LeftButton")
+		f:SetScript ("OnDragStart", function() f:StartMoving() end)
+		f:SetScript ("OnDragStop", function() f:StopMovingOrSizing() end)
+		f:SetScript ("OnMouseDown", function (self, button) if (button == "RightButton") then f:Hide() end end)
+		tinsert (UISpecialFrames, "DetailsFrameworkErrorMessagePanel")
+		DF.ErrorMessagePanel = f
+		
+		DF:CreateTitleBar (f, "Details! Framework Error!")
+		DF:ApplyStandardBackdrop (f)
+		
+		local errorLabel = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		errorLabel:SetPoint ("top", f, "top", 0, -25)
+		errorLabel:SetJustifyH ("center")
+		errorLabel:SetSize (360, 66)
+		f.errorLabel = errorLabel
+
+		local button_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+		local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+
+		local closeButton = DF:CreateButton (f, nil, 60, 20, "close", nil, nil, nil, nil, nil, nil, options_dropdown_template)
+		closeButton:SetPoint ("bottom", f, "bottom", 0, 5)
+		f.closeButton = closeButton
+		
+		closeButton:SetClickFunction (function()
+			f:Hide()
+		end)
+
+		f.ShowAnimation = DF:CreateAnimationHub (f, function() 
+			f:SetBackdropBorderColor (0, 0, 0, 0) 
+			f.TitleBar:SetBackdropBorderColor (0, 0, 0, 0) 
+		end, function() 
+			f:SetBackdropBorderColor (0, 0, 0, 1) 
+			f.TitleBar:SetBackdropBorderColor (0, 0, 0, 1) 
+		end)
+		DF:CreateAnimation (f.ShowAnimation, "scale", 1, .075, .2, .2, 1.1, 1.1, "center", 0, 0)
+		DF:CreateAnimation (f.ShowAnimation, "scale", 2, .075, 1, 1, .90, .90, "center", 0, 0)
+		
+		f.FlashTexture = f:CreateTexture (nil, "overlay")
+		f.FlashTexture:SetColorTexture (1, 1, 1, 1)
+		f.FlashTexture:SetAllPoints()
+		
+		f.FlashAnimation = DF:CreateAnimationHub (f.FlashTexture, function() f.FlashTexture:Show() end, function() f.FlashTexture:Hide() end)
+		DF:CreateAnimation (f.FlashAnimation, "alpha", 1, .075, 0, .05)
+		DF:CreateAnimation (f.FlashAnimation, "alpha", 2, .075, .1, 0)
+		
+		f:Hide()
+	end
+
+	DF.ErrorMessagePanel:Show()
+	DF.ErrorMessagePanel.errorLabel:SetText (errorMessage)
+	DF.ErrorMessagePanel.TitleLabel:SetText (titleText)
+	DF.ErrorMessagePanel.ShowAnimation:Play()
+	DF.ErrorMessagePanel.FlashAnimation:Play()
+end
+
+
+
 --functionn falsee truee breakk elsea endz 

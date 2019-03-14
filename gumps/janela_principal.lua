@@ -7531,7 +7531,7 @@ function _detalhes:SetBackdropTexture (texturename)
 	
 end
 
--- ~alpha (transparency of buttons on the toolbar) ~autohide ãutohide ~menuauto
+-- ~alpha (transparency of buttons on the toolbar) ~autohide ï¿½utohide ~menuauto
 function _detalhes:SetAutoHideMenu (left, right, interacting)
 
 	--30/07/2018: the separation by left and right menu icons doesn't exists for years, but it was still active in the code making

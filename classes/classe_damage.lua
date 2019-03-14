@@ -5048,10 +5048,18 @@ end
 					shadow.end_time = time()
 				end
 
+			shadow.boss_fight_component = actor.boss_fight_component or shadow.boss_fight_component
+			shadow.fight_component = actor.fight_component or shadow.fight_component
+			shadow.grupo = actor.grupo or shadow.grupo
+			
 			--check if need to restore meta tables and indexes for this actor
 			if (not no_refresh) then
 				_detalhes.refresh:r_atributo_damage (actor, shadow)
 			end
+			
+			--a referência do .owner pode ter sido apagada?
+			--os 2 segmentos foram juntados porém a referência do owner de um pet criado ali em cima deve ser nula?
+			--teria que analisar se o novo objecto é de um pet e colocar a referência do owner no pet novamente, ou pelo menos verificar se a referência é valida
 			
 			--> tempo decorrido (captura de dados)
 				local end_time = actor.end_time
@@ -5063,9 +5071,19 @@ end
 				shadow.start_time = shadow.start_time - tempo
 			
 			--> pets (add unique pet names)
-			for _, petName in _ipairs (actor.pets) do
-				DetailsFramework.table.addunique (shadow.pets, petName)
-			end
+				for _, petName in _ipairs (actor.pets) do
+					local hasPet = false
+					for i = 1, #shadow.pets do
+						if (shadow.pets[i] == petName) then
+							hasPet = true
+							break
+						end
+					end
+					
+					if (not hasPet) then
+						shadow.pets [#shadow.pets+1] = petName
+					end
+				end
 			
 			--> total de dano (captura de dados)
 				shadow.total = shadow.total + actor.total				
@@ -5170,6 +5188,21 @@ atributo_damage.__add = function (tabela1, tabela2)
 	--> soma o damage_from
 		for nome, _ in _pairs (tabela2.damage_from) do 
 			tabela1.damage_from [nome] = true
+		end
+	
+		--> pets (add unique pet names)
+		for _, petName in _ipairs (tabela2.pets) do
+			local hasPet = false
+			for i = 1, #tabela1.pets do
+				if (tabela1.pets[i] == petName) then
+					hasPet = true
+					break
+				end
+			end
+			
+			if (not hasPet) then
+				tabela1.pets [#tabela1.pets+1] = petName
+			end
 		end
 	
 	--> soma os containers de alvos
