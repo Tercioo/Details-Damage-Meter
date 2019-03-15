@@ -478,13 +478,14 @@
 			_detalhes.leaving_combat = true
 			_detalhes.last_combat_time = _tempo
 			
-			if (_detalhes.schedule_remove_overall and not from_encounter_end and not InCombatLockdown()) then
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) found schedule overall data deletion.")
-				end
-				_detalhes.schedule_remove_overall = false
-				_detalhes.tabela_historico:resetar_overall()
-			end
+			--deprecated (combat are now added immediatelly since there's no script run too long)
+			--if (_detalhes.schedule_remove_overall and not from_encounter_end and not InCombatLockdown()) then
+			--	if (_detalhes.debug) then
+			--		_detalhes:Msg ("(debug) found schedule overall data deletion.")
+			--	end
+			--	_detalhes.schedule_remove_overall = false
+			--	_detalhes.tabela_historico:resetar_overall()
+			--end
 			
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
@@ -706,13 +707,11 @@
 					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid or 0, _detalhes.tabela_vigente.is_boss.index or 0)
 					if (bossFunction) then
 						if (_bit_band (bossFunctionType, 0x2) ~= 0) then --end of combat
-							if (not InCombatLockdown() and not UnitAffectingCombat ("player") and not _detalhes.logoff_saving_data) then
+							if (not _detalhes.logoff_saving_data) then
 								local successful, errortext = pcall (bossFunction, _detalhes.tabela_vigente)
 								if (not successful) then
 									_detalhes:Msg ("error occurred on Encounter Boss Function:", errortext)
 								end
-							else
-								_detalhes.schedule_boss_function_run = bossFunction
 							end
 						end
 					end

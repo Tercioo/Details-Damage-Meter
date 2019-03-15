@@ -146,7 +146,7 @@ function historico:adicionar_overall (tabela)
 	
 end
 
-function _detalhes:ScheduleAddCombatToOverall (combat)
+function _detalhes:ScheduleAddCombatToOverall (combat) --deprecated (15/03/2019)
 	local canAdd = _detalhes:CanAddCombatToOverall (combat)
 	if (canAdd) then
 		_detalhes.schedule_add_to_overall = _detalhes.schedule_add_to_overall or {}
@@ -162,7 +162,7 @@ function _detalhes:CanAddCombatToOverall (tabela)
 	end
 	
 	--> already scheduled to add
-	if (_detalhes.schedule_add_to_overall) then
+	if (_detalhes.schedule_add_to_overall) then --deprecated
 		for _, combat in ipairs (_detalhes.schedule_add_to_overall) do
 			if (combat == tabela) then
 				return false
@@ -425,10 +425,10 @@ function _detalhes:OverallOptions (reset_new_boss, reset_new_challenge, reset_on
 end
 
 function historico:resetar_overall()
-	if (InCombatLockdown()) then
-		_detalhes:Msg (Loc ["STRING_ERASE_IN_COMBAT"])
-		_detalhes.schedule_remove_overall = true
-	else
+	--if (InCombatLockdown()) then
+	--	_detalhes:Msg (Loc ["STRING_ERASE_IN_COMBAT"])
+	--	_detalhes.schedule_remove_overall = true
+	--else
 		--> fecha a janela de informa��es do jogador
 		_detalhes:FechaJanelaInfo()
 		
@@ -441,10 +441,10 @@ function historico:resetar_overall()
 			end
 		end
 		
-		if (_detalhes.schedule_add_to_overall) then
+		if (_detalhes.schedule_add_to_overall) then --deprecated
 			wipe (_detalhes.schedule_add_to_overall)
 		end
-	end
+	--end
 	
 	--> stop bar testing if any
 	_detalhes:StopTestBarUpdate()
@@ -475,7 +475,7 @@ function historico:resetar()
 	--> clear other schedules
 	_detalhes.schedule_flag_boss_components = nil
 	_detalhes.schedule_store_boss_encounter = nil
-	_detalhes.schedule_remove_overall = nil
+	--_detalhes.schedule_remove_overall = nil
 	
 	--> fecha a janela de informa��es do jogador
 	_detalhes:FechaJanelaInfo()
@@ -490,7 +490,7 @@ function historico:resetar()
 	_table_wipe (_detalhes.tabela_overall)
 	_table_wipe (_detalhes.spellcache)
 	
-	if (_detalhes.schedule_add_to_overall) then
+	if (_detalhes.schedule_add_to_overall) then --deprecated
 		wipe (_detalhes.schedule_add_to_overall)
 	end
 	

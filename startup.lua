@@ -594,7 +594,7 @@ function _G._detalhes:Start()
 				local lastSegment
 				
 				--> add segments
-				for _, pastCombat in ipairs (segmentsToMerge) do
+				for i, pastCombat in ipairs (segmentsToMerge) do
 					overallCombat = overallCombat + pastCombat
 					if (newFrame.DevelopmentDebug) then
 						print ("MergeRemainingTrashAfterAllBossesDone() >  segment added")
@@ -609,6 +609,8 @@ function _G._detalhes:Start()
 						endDate = whenEnded
 					end
 					lastSegment = pastCombat
+					
+					Details:Msg ("segment " .. i .. " merged.")
 				end
 				
 				--> set the segment time / using a sum of combat times, this combat time is reliable
@@ -635,14 +637,21 @@ function _G._detalhes:Start()
 				end
 				
 				--> should delete the trash segments after the merge?
+				Details:Msg ("merge finished, starting clean up of merged segments.")
+				
 				if (_detalhes.mythic_plus.delete_trash_after_merge) then
 					local segmentHistory = self:GetCombatSegments()
 					for _, pastCombat in ipairs (segmentsToMerge) do
 						for i = #segmentHistory, 1, -1 do
 							local segment = segmentHistory [i]
-							if (segment == pastCombat and _detalhes.tabela_vigente ~= segment) then
-								--> remove the segment
-								tremove (segmentHistory, i)
+							if (segment == pastCombat) then
+								if (_detalhes.tabela_vigente ~= segment) then
+									--> remove the segment
+									tremove (segmentHistory, i)
+									Details:Msg ("segment " .. i .. " removed.")
+								else
+									Details:Msg ("error removing segment " .. i .. ", reason: the segment is the current segment.")
+								end
 								break
 							end
 						end
@@ -655,7 +664,6 @@ function _G._detalhes:Start()
 					--> clear the segments to merge table
 					for i = #segmentsToMerge, 1, -1 do
 						tremove (segmentsToMerge, i)
-						
 						--> notify plugins about a segment deleted
 						self:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
 					end
@@ -849,6 +857,7 @@ function _G._detalhes:Start()
 							local pastCombat = segmentHistory [i]
 							if (pastCombat and pastCombat.is_mythic_dungeon and pastCombat.is_mythic_dungeon.SegmentID == "trashoverall") then
 								latestTrashOverall = pastCombat
+								Details:Msg ("found last trash overall on segment " .. i .. ", starting the merge.")
 								break
 							end
 						end
@@ -863,6 +872,7 @@ function _G._detalhes:Start()
 								if (newFrame.DevelopmentDebug) then
 									print ("Details!", "MythicDungeonFinished() > not in combat, merging last pack of trash now")
 								end
+
 								newFrame.MergeRemainingTrashAfterAllBossesDone()
 							--else
 							--	if (newFrame.DevelopmentDebug) then
