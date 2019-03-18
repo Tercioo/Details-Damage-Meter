@@ -399,8 +399,9 @@
 		esta_tabela.TimeData = _detalhes:TimeDataCreateCombatTables()
 		esta_tabela.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
 		
-		--> for external plugin usage
+		--> for external plugin usage, these tables are guaranteed to be saved with the combat
 		esta_tabela.spells_cast_timeline = {}
+		esta_tabela.aura_timeline = {}
 		esta_tabela.cleu_timeline = {}
 		
 		--> Skill cache (not used)

@@ -101,3 +101,5 @@ core\parser.lua
 functions\loaddata.lua
 
 startup.lua
+
+functions\api2.lua

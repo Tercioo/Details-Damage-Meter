@@ -609,8 +609,6 @@ function _G._detalhes:Start()
 						endDate = whenEnded
 					end
 					lastSegment = pastCombat
-					
-					Details:Msg ("segment " .. i .. " merged.")
 				end
 				
 				--> set the segment time / using a sum of combat times, this combat time is reliable
@@ -637,28 +635,46 @@ function _G._detalhes:Start()
 				end
 				
 				--> should delete the trash segments after the merge?
-				Details:Msg ("merge finished, starting clean up of merged segments.")
-				
 				if (_detalhes.mythic_plus.delete_trash_after_merge) then
+					local removedCurrentSegment = false
 					local segmentHistory = self:GetCombatSegments()
 					for _, pastCombat in ipairs (segmentsToMerge) do
 						for i = #segmentHistory, 1, -1 do
 							local segment = segmentHistory [i]
 							if (segment == pastCombat) then
-								if (_detalhes.tabela_vigente ~= segment) then
-									--> remove the segment
-									tremove (segmentHistory, i)
-									Details:Msg ("segment " .. i .. " removed.")
-								else
-									Details:Msg ("error removing segment " .. i .. ", reason: the segment is the current segment.")
+								--> remove the segment
+								if (_detalhes.tabela_vigente == segment) then
+									removedCurrentSegment = true
 								end
+								tremove (segmentHistory, i)
 								break
 							end
 						end
 					end
+					
 					for i = #segmentsToMerge, 1, -1 do
 						tremove (segmentsToMerge, i)
 					end
+
+					if (removedCurrentSegment) then
+						--> find another current segment
+						local segmentHistory = self:GetCombatSegments()
+						_detalhes.tabela_vigente = segmentHistory [1]
+						
+						if (not _detalhes.tabela_vigente) then
+							--> assuming there's no segment from the dungeon run
+							self:EntrarEmCombate()
+							self:SairDoCombate()
+						end
+						
+						--> update all windows
+						self:InstanciaCallFunction (self.gump.Fade, "in", nil, "barras")
+						self:InstanciaCallFunction (self.AtualizaSegmentos)
+						self:InstanciaCallFunction (self.AtualizaSoloMode_AfertReset)
+						self:InstanciaCallFunction (self.ResetaGump)
+						self:AtualizaGumpPrincipal (-1, true)
+					end
+					
 					self:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
 				else
 					--> clear the segments to merge table
@@ -803,8 +819,6 @@ function _G._detalhes:Start()
 						--> this mean a combat was opened after the last boss of the dungeon was killed
 						if (not self.tabela_vigente.is_boss and self.tabela_vigente:GetCombatTime() > 5) then
 							
-							Details:Msg ("last segment isn't a boss segment, need to merge it with latest trash segment.")
-							
 							if (newFrame.DevelopmentDebug) then
 								print ("Details!", "MythicDungeonFinished() > the last combat isn't a boss fight, might have trash after bosses done.")
 							end
@@ -834,7 +848,6 @@ function _G._detalhes:Start()
 										
 										--> merge this segment
 										tinsert (segmentsToMerge, pastCombat)
-										Details:Msg ("segment " .. i .. " added to merge after last boss.")
 										
 										if (newFrame.DevelopmentDebug) then
 											print ("MythicDungeonFinished() > found after last boss combat")
@@ -857,7 +870,6 @@ function _G._detalhes:Start()
 							local pastCombat = segmentHistory [i]
 							if (pastCombat and pastCombat.is_mythic_dungeon and pastCombat.is_mythic_dungeon.SegmentID == "trashoverall") then
 								latestTrashOverall = pastCombat
-								Details:Msg ("found last trash overall on segment " .. i .. ", starting the merge.")
 								break
 							end
 						end
@@ -880,11 +892,7 @@ function _G._detalhes:Start()
 							--	end
 							--	_detalhes.schedule_mythicdungeon_endtrash_merge = true
 							--end
-						else
-							Details:Msg ("failed to find the trash overall for the last boss of the dungeon.")
 						end
-					else
-						Details:Msg ("no trash segments detected after the last boss in the dungeon.")
 					end
 					
 					--> merge segments

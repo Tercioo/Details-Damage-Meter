@@ -6366,7 +6366,6 @@ DF.DataScrollFunctions = {
 	LineOnEnter = function (self)
 		self:SetBackdropColor (unpack (self.backdrop_color_highlight))
 	end,
-	
 	LineOnLeave = function (self)
 		self:SetBackdropColor (unpack (self.backdrop_color))
 	end,
@@ -8805,16 +8804,34 @@ local timeline_options = {
 	--how many pixels will be use to represent 1 second
 	pixels_per_second = 20,
 
+	scale_min = 0.15,
+	scale_max = 1,
+	
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 	backdrop_color = {0, 0, 0, 0.2},
 	backdrop_color_highlight = {.2, .2, .2, 0.4},
 	backdrop_border_color = {0.1, 0.1, 0.1, .2},
 	
+	slider_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	slider_backdrop_color = {0, 0, 0, 0.2},
+	slider_backdrop_border_color = {0.1, 0.1, 0.1, .2},
+	
 	title_template = "ORANGE_FONT_TEMPLATE",
 	text_tempate = "OPTIONS_FONT_TEMPLATE",
 	
-	on_enter = DF.DataScrollFunctions.LineOnEnter,
-	on_leave = DF.DataScrollFunctions.LineOnLeave,
+	on_enter = function (self)
+		self:SetBackdropColor (unpack (self.backdrop_color_highlight))
+	end,
+	on_leave = function (self)
+		self:SetBackdropColor (unpack (self.backdrop_color))
+	end,
+	
+	block_on_enter = function (self)
+	
+	end,	
+	block_on_leave = function (self)
+	
+	end,
 }
 
 local elapsedtime_frame_options = {
@@ -8831,7 +8848,7 @@ local elapsedtime_frame_options = {
 	distance = 200, --distance in pixels between each label informing the time
 	distance_min = 50, --minimum distance in pixels
 	draw_line = true, --if true it'll draw a vertical line to represent a segment
-	draw_line_color = {1, 1, 1, 0.3},
+	draw_line_color = {1, 1, 1, 0.2},
 	draw_line_thickness = 1,
 }
 
@@ -8967,6 +8984,7 @@ DF.TimeLineBlockFunctions = {
 		--this is the title and icon of the title
 		if (lineData.icon) then
 			self.icon:SetTexture (lineData.icon)
+			self.icon:SetTexCoord (.1, .9, .1, .9)	
 			self.text:SetText (lineData.text or "")
 			self.text:SetPoint ("left", self.icon.widget, "right", 2, 0)
 		else
@@ -8975,32 +8993,70 @@ DF.TimeLineBlockFunctions = {
 			text:SetPoint ("left", self, "left", 2, 0)
 		end
 		
+		if (self.dataIndex % 2 == 1) then
+			self:SetBackdropColor (0, 0, 0, 0)
+		else
+			local r, g, b, a = unpack (self.backdrop_color)
+			self:SetBackdropColor (r, g, b, a)
+		end
+		
+		self:SetWidth (5000)
+		
 		local timelineData = lineData.timeline
+		local spellId = lineData.spellId
+		local useIconOnBlock = data.useIconOnBlocks
 		
 		for i = 1, #timelineData do
-
 			local blockInfo = timelineData [i]
 			
 			local time = blockInfo [1]
 			local length = blockInfo [2]
-			local color = blockInfo [3] or defaultColor
-			local text = blockInfo [4]
-			local icon = blockInfo [5]
-			local tooltip = blockInfo [6]
+			local isAura = blockInfo [3]
+			local auraDuration = blockInfo [4]
 
 			local xOffset = pixelPerSecond * time
 			local width = pixelPerSecond * length
 			
+			if (time < -0.2) then
+				xOffset = xOffset / 2.5
+			end
+			
 			local block = self:GetBlock (i)
 			block:Show()
 			PixelUtil.SetPoint (block, "left", self, "left", xOffset + headerWidth, 0)
-			PixelUtil.SetSize (block, width, self:GetHeight())
-			block.background:SetVertexColor (unpack (color))
+
+			block.info.spellId = spellId
+			block.info.time = time
+			block.info.duration = auraDuration
 			
-			--guess where it is anchored
-			--guess it's size
-			--both taking in consideration the scroll scale
-			
+			if (useIconOnBlock) then
+				block.icon:SetTexture (lineData.icon)
+				block.icon:SetTexCoord (.1, .9, .1, .9)
+				block.icon:SetAlpha (.834)
+				block.icon:SetSize (self:GetHeight(), self:GetHeight())
+				
+				if (time < -0.2) then
+					block.icon:SetDesaturated (true)
+				else
+					block.icon:SetDesaturated (false)
+				end
+				
+				PixelUtil.SetSize (block, self:GetHeight(), self:GetHeight())
+				
+				if (isAura) then
+					block.auraLength:Show()
+					block.auraLength:SetWidth (pixelPerSecond * isAura)
+					block:SetWidth (pixelPerSecond * isAura)
+				else
+					block.auraLength:Hide()
+				end
+				
+				block.background:SetVertexColor (0, 0, 0, 0)
+			else
+				block.background:SetVertexColor (unpack (color))
+				PixelUtil.SetSize (block, width, self:GetHeight())
+				block.auraLength:Hide()
+			end
 		end
 	end,
 	
@@ -9014,14 +9070,26 @@ DF.TimeLineBlockFunctions = {
 			background:SetColorTexture (1, 1, 1, 1)
 			local icon = block:CreateTexture (nil, "artwork")
 			local text = block:CreateFontString (nil, "artwork")
+			local auraLength = block:CreateTexture (nil, "border")
 			
 			background:SetAllPoints()
 			icon:SetPoint ("left")
 			text:SetPoint ("left", icon, "left", 2, 0)
+			auraLength:SetPoint ("topleft", icon, "topleft", 0, 0)
+			auraLength:SetPoint ("bottomleft", icon, "bottomleft", 0, 0)
+			auraLength:SetColorTexture (1, 1, 1, 1)
+			auraLength:SetVertexColor (1, 1, 1, 0.1)
 			
 			block.icon = icon
 			block.text = text
 			block.background = background
+			block.auraLength = auraLength
+			
+			block:SetScript ("OnEnter", self:GetParent():GetParent().options.block_on_enter)
+			block:SetScript ("OnLeave", self:GetParent():GetParent().options.block_on_leave)
+			
+			block:SetMouseClickEnabled (false)
+			block.info = {}
 		end
 		
 		return block
@@ -9060,8 +9128,9 @@ DF.TimeLineFunctions = {
 			end
 			line:SetSize (1, self.options.line_height) --width is set when updating the frame
 			
-			line:SetScript ("OnEnter",	self.options.on_enter)
-			line:SetScript ("OnLeave",	self.options.on_leave)
+			line:SetScript ("OnEnter", self.options.on_enter)
+			line:SetScript ("OnLeave", self.options.on_leave)
+			line:SetMouseClickEnabled (false)
 			
 			line:SetBackdrop (self.options.backdrop)
 			line:SetBackdropColor (unpack (self.options.backdrop_color))
@@ -9092,13 +9161,7 @@ DF.TimeLineFunctions = {
 		
 	end,
 	
-	--~todo ~doing
-	--+ just finished the blocks alignment and scale, looks to be working okay
-	--+ at the moment the with and height doesn't look correct, the height is way to much and the width looks too short
-	--+ make the blocks start AFTER the title, currently it is in from of them
-	--+ need to create the time line with font string to show the time elapsed
-	--+ make them to scale with a scale bar
-	
+	--todo
 	--make the on enter and leave tooltips
 	--set icons and texts
 	--skin the sliders
@@ -9110,8 +9173,10 @@ DF.TimeLineFunctions = {
 	
 		--calculate the total width
 		local pixelPerSecond = self.options.pixels_per_second
-		local totalLength = self.data.length
+		local totalLength = self.data.length or 1
 		local currentScale = self.currentScale
+		
+		self.scaleSlider:Enable()
 		
 		--how many pixels represent 1 second
 		local bodyWidth = totalLength * pixelPerSecond * currentScale
@@ -9165,42 +9230,11 @@ DF.TimeLineFunctions = {
 		self.data = data
 		self:RefreshTimeLine()
 	end,
-	
-
-	--[=[
-		receives a table with
-		--should be tables of indexes? to save memory on not using hash names
-		
-		header = {icon = "", name = ""}, --player name and player icon / need support for more things like boss casts / can be spell name and the icon of the spell / must be as generic as possible
-		data = {time = when it happened, duration = size of the bar, spellID for tooltip, tooltip = {what to add to Cooltip} } --numeric table with data of spells used
-		
-		will it scroll vertically too in case there's more data to show?
-		i think it can without any problem since the scroll bar does scroll on both directions
-		
-		parts it'll need
-			- a time line
-			- a scructure of lines (rows)
-			- two sliders for vertical and horizontal
-		
-		how the zoom scaling will work?
-		a slider in the bottom side of the main slider
-		it starts in 0.5?
-		
-		how it will zoom?
-			- change the scale? problem is the height will also be modified, so NO
-			
-			- change the width of each bar
-			- change the timeline time
-			- change the max value of the main slider
-			
-		
-	--]=]
-	
 
 }
 
 --creates a regular scroll in horizontal position
-function DF:CreateTimeLineFrame (parent, name, options)
+function DF:CreateTimeLineFrame (parent, name, options, timelineOptions)
 
 	local width = options and options.width or timeline_options.width
 	local height = options and options.height or timeline_options.height
@@ -9212,7 +9246,7 @@ function DF:CreateTimeLineFrame (parent, name, options)
 	
 	frameCanvas.data = {}
 	frameCanvas.lines = {}
-	frameCanvas.currentScale = 1
+	frameCanvas.currentScale = 0.5
 	frameCanvas:SetSize (width, height)
 	frameCanvas:SetBackdrop({
 			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
@@ -9232,50 +9266,33 @@ function DF:CreateTimeLineFrame (parent, name, options)
 	frameCanvas:BuildOptionsTable (timeline_options, options)	
 	
 	--create elapsed time frame
-	frameCanvas.elapsedTimeFrame = DF:CreateElapsedTimeFrame (frameBody)
+	frameCanvas.elapsedTimeFrame = DF:CreateElapsedTimeFrame (frameBody, frameCanvas:GetName() and frameCanvas:GetName() .. "ElapsedTimeFrame", timelineOptions)
 	
 	--create horizontal slider
 		local horizontalSlider = CreateFrame ("slider", nil, parent)
 		horizontalSlider.bg = horizontalSlider:CreateTexture (nil, "background")
 		horizontalSlider.bg:SetAllPoints (true)
 		horizontalSlider.bg:SetTexture (0, 0, 0, 0.5)
-		
+
+		horizontalSlider:SetBackdrop (frameCanvas.options.slider_backdrop)
+		horizontalSlider:SetBackdropColor (unpack (frameCanvas.options.slider_backdrop_color))
+		horizontalSlider:SetBackdropBorderColor (unpack(frameCanvas.options.slider_backdrop_border_color))
+
 		horizontalSlider.thumb = horizontalSlider:CreateTexture (nil, "OVERLAY")
-		horizontalSlider.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
-		horizontalSlider.thumb:SetSize (25, 25)
+		horizontalSlider.thumb:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+		horizontalSlider.thumb:SetTexCoord (478/512, 496/512, 104/512, 120/512)
+		horizontalSlider.thumb:SetSize (20, 18)
+		horizontalSlider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
 		
 		horizontalSlider:SetThumbTexture (horizontalSlider.thumb)
 		horizontalSlider:SetOrientation ("horizontal")
-		horizontalSlider:SetSize (width, 20)
+		horizontalSlider:SetSize (width + 20, 20)
 		horizontalSlider:SetPoint ("topleft", frameCanvas, "bottomleft")
 		horizontalSlider:SetMinMaxValues (0, scrollWidth)
 		horizontalSlider:SetValue (0)
 		horizontalSlider:SetScript ("OnValueChanged", function (self)
-		      frameCanvas:SetHorizontalScroll (self:GetValue())
+			frameCanvas:SetHorizontalScroll (self:GetValue())
 		end)
-		
-		--[=[
-		frameCanvas:EnableMouseWheel (true)
-		frameCanvas:SetScript ("OnMouseWheel", function (self, delta)
-			delta = delta * -1
-			
-			local current = horizontalSlider:GetValue()
-			
-			if (IsShiftKeyDown() and (delta > 0)) then
-				horizontalSlider:SetValue(0)
-				
-			elseif (IsShiftKeyDown() and (delta < 0)) then
-				horizontalSlider:SetValue (scrollWidth)
-				
-			elseif ((delta < 0) and (current < scrollWidth)) then
-				horizontalSlider:SetValue (current + 20)
-				
-			elseif ((delta > 0) and (current > 1)) then
-				horizontalSlider:SetValue (current - 20)
-				
-			end
-		end)
-		--]=]
 		
 		frameCanvas.horizontalSlider = horizontalSlider
 	
@@ -9284,65 +9301,107 @@ function DF:CreateTimeLineFrame (parent, name, options)
 		scaleSlider.bg = scaleSlider:CreateTexture (nil, "background")
 		scaleSlider.bg:SetAllPoints (true)
 		scaleSlider.bg:SetTexture (0, 0, 0, 0.5)
+		scaleSlider:Disable()
+		frameCanvas.scaleSlider = scaleSlider
+		
+		scaleSlider:SetBackdrop (frameCanvas.options.slider_backdrop)
+		scaleSlider:SetBackdropColor (unpack (frameCanvas.options.slider_backdrop_color))
+		scaleSlider:SetBackdropBorderColor (unpack(frameCanvas.options.slider_backdrop_border_color))
 		
 		scaleSlider.thumb = scaleSlider:CreateTexture (nil, "OVERLAY")
-		scaleSlider.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
-		scaleSlider.thumb:SetSize (25, 25)
+		scaleSlider.thumb:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+		scaleSlider.thumb:SetTexCoord (478/512, 496/512, 104/512, 120/512)
+		scaleSlider.thumb:SetSize (20, 18)
+		scaleSlider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
 		
 		scaleSlider:SetThumbTexture (scaleSlider.thumb)
 		scaleSlider:SetOrientation ("horizontal")
-		scaleSlider:SetSize (width, 20)
+		scaleSlider:SetSize (width + 20, 20)
 		scaleSlider:SetPoint ("topleft", horizontalSlider, "bottomleft", 0, -2)
-		scaleSlider:SetMinMaxValues (0.1, 1)
-		scaleSlider:SetValue (1)
+		scaleSlider:SetMinMaxValues (frameCanvas.options.scale_min, frameCanvas.options.scale_max)
+		scaleSlider:SetValue (DF:GetRangeValue (frameCanvas.options.scale_min, frameCanvas.options.scale_max, 0.5))
+
 		scaleSlider:SetScript ("OnValueChanged", function (self)
 			local current = scaleSlider:GetValue()
 			frameCanvas.currentScale = current
 			frameCanvas:RefreshTimeLine()
 		end)
-	
+
 	--create vertical slider
 		local verticalSlider = CreateFrame ("slider", nil, parent)
 		verticalSlider.bg = verticalSlider:CreateTexture (nil, "background")
 		verticalSlider.bg:SetAllPoints (true)
 		verticalSlider.bg:SetTexture (0, 0, 0, 0.5)
 		
+		verticalSlider:SetBackdrop (frameCanvas.options.slider_backdrop)
+		verticalSlider:SetBackdropColor (unpack (frameCanvas.options.slider_backdrop_color))
+		verticalSlider:SetBackdropBorderColor (unpack(frameCanvas.options.slider_backdrop_border_color))
+		
 		verticalSlider.thumb = verticalSlider:CreateTexture (nil, "OVERLAY")
-		verticalSlider.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
-		verticalSlider.thumb:SetSize (25, 25)
+		verticalSlider.thumb:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+		verticalSlider.thumb:SetTexCoord (482/512, 492/512, 104/512, 120/512)
+		verticalSlider.thumb:SetSize (12, 12)
+		verticalSlider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
 		
 		verticalSlider:SetThumbTexture (verticalSlider.thumb)
 		verticalSlider:SetOrientation ("vertical")
-		verticalSlider:SetSize (20, height)
-		verticalSlider:SetPoint ("topleft", frameCanvas, "topright", 2, 0)
+		verticalSlider:SetSize (20, height - 2)
+		verticalSlider:SetPoint ("topleft", frameCanvas, "topright", 0, 0)
 		verticalSlider:SetMinMaxValues (0, scrollHeight)
 		verticalSlider:SetValue (0)
 		verticalSlider:SetScript ("OnValueChanged", function (self)
 		      frameCanvas:SetVerticalScroll (self:GetValue())
 		end)
 		
+		frameCanvas.verticalSlider = verticalSlider
+
+	--mouse scroll
 		frameCanvas:EnableMouseWheel (true)
 		frameCanvas:SetScript ("OnMouseWheel", function (self, delta)
-			delta = delta
+			local minValue, maxValue = horizontalSlider:GetMinMaxValues()
+			local currentHorizontal = horizontalSlider:GetValue()
 			
-			local current = verticalSlider:GetValue()
+			if (IsShiftKeyDown() and delta < 0) then
+				local amountToScroll = frameBody:GetHeight() / 20
+				verticalSlider:SetValue (verticalSlider:GetValue() + amountToScroll)
+				
+			elseif (IsShiftKeyDown() and delta > 0) then
+				local amountToScroll = frameBody:GetHeight() / 20
+				verticalSlider:SetValue (verticalSlider:GetValue() - amountToScroll)
+				
+			elseif (IsControlKeyDown() and delta > 0) then
+				scaleSlider:SetValue (min (scaleSlider:GetValue() + 0.1, 1))
 			
-			if (IsShiftKeyDown() and (delta > 0)) then
-				verticalSlider:SetValue(0)
+			elseif (IsControlKeyDown() and delta < 0) then
+				scaleSlider:SetValue (max (scaleSlider:GetValue() - 0.1, 0.15))
 				
-			elseif (IsShiftKeyDown() and (delta < 0)) then
-				verticalSlider:SetValue (scrollWidth)
+			elseif (delta < 0 and currentHorizontal < maxValue) then
+				local amountToScroll = frameBody:GetWidth() / 20
+				horizontalSlider:SetValue (currentHorizontal + amountToScroll)
 				
-			elseif ((delta < 0) and (current < scrollWidth)) then
-				verticalSlider:SetValue (current + 20)
-				
-			elseif ((delta > 0) and (current > 1)) then
-				verticalSlider:SetValue (current - 20)
+			elseif (delta > 0 and maxValue > 1) then
+				local amountToScroll = frameBody:GetWidth() / 20
+				horizontalSlider:SetValue (currentHorizontal - amountToScroll)
 				
 			end
 		end)
 		
-		frameCanvas.verticalSlider = verticalSlider
+	--mouse drag
+	frameBody:SetScript ("OnMouseDown", function (self, button)
+		local x = GetCursorPosition()
+		self.MouseX = x
+		
+		frameBody:SetScript ("OnUpdate", function (self, deltaTime)
+			local x = GetCursorPosition()
+			local deltaX = self.MouseX - x
+			local current = horizontalSlider:GetValue()
+			horizontalSlider:SetValue (current + (deltaX * 1.2) * ((IsShiftKeyDown() and 2) or (IsAltKeyDown() and 0.5) or 1))
+			self.MouseX = x
+		end)
+	end)
+	frameBody:SetScript ("OnMouseUp", function (self, button)
+		frameBody:SetScript ("OnUpdate", nil)
+	end)
 	
 	return frameCanvas
 end
