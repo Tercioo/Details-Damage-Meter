@@ -42,6 +42,27 @@ function Details:GetCombatFromBreakdownWindow()
 	return info.instancia and info.instancia.showing
 end
 
+--return the window that requested to open the player breakdown window
+function Details:GetActiveWindowFromBreakdownWindow()
+	return info.instancia
+end
+
+--return if the breakdown window is showing damage or heal
+function Details:GetDisplayTypeFromBreakdownWindow()
+	return info.atributo, info.sub_atributo
+end
+
+--return the actor object in use by the breakdown window
+function Details:GetPlayerObjectFromBreakdownWindow()
+	return info.jogador
+end
+
+--english alias
+--window object from Details:GetWindow(n) and playerObject from Details:GetPlayer(playerName, attribute)
+function Details:OpenPlayerBreakdown (windowObject, playerObject)
+	windowObject:AbreJanelaInfo (playerObject)
+end
+
 function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDown, ControlKeyDown)
 
 	--print (debugstack())

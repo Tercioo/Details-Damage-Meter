@@ -2204,6 +2204,24 @@ function DF:ShowPromptPanel (message, func_true, func_false)
 			end
 		end)
 		
+		f.ShowAnimation = DF:CreateAnimationHub (f, function() 
+			f:SetBackdropBorderColor (0, 0, 0, 0) 
+			f.TitleBar:SetBackdropBorderColor (0, 0, 0, 0) 
+		end, function() 
+			f:SetBackdropBorderColor (0, 0, 0, 1) 
+			f.TitleBar:SetBackdropBorderColor (0, 0, 0, 1) 
+		end)
+		DF:CreateAnimation (f.ShowAnimation, "scale", 1, .075, .2, .2, 1.1, 1.1, "center", 0, 0)
+		DF:CreateAnimation (f.ShowAnimation, "scale", 2, .075, 1, 1, .90, .90, "center", 0, 0)
+		
+		f.FlashTexture = f:CreateTexture (nil, "overlay")
+		f.FlashTexture:SetColorTexture (1, 1, 1, 1)
+		f.FlashTexture:SetAllPoints()
+		
+		f.FlashAnimation = DF:CreateAnimationHub (f.FlashTexture, function() f.FlashTexture:Show() end, function() f.FlashTexture:Hide() end)
+		DF:CreateAnimation (f.FlashAnimation, "alpha", 1, .075, 0, .25)
+		DF:CreateAnimation (f.FlashAnimation, "alpha", 2, .075, .35, 0)
+		
 		f:Hide()
 		DF.promtp_panel = f
 	end
@@ -2215,6 +2233,9 @@ function DF:ShowPromptPanel (message, func_true, func_false)
 	DF.promtp_panel.button_false.false_function = func_false
 	
 	DF.promtp_panel:Show()
+	
+	DF.promtp_panel.ShowAnimation:Play()
+	DF.promtp_panel.FlashAnimation:Play()
 end
 
 
