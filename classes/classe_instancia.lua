@@ -2636,6 +2636,9 @@ end
 function _detalhes:ChangeIcon (icon)
 	
 	local skin = _detalhes.skins [self.skin]
+	if (not skin) then
+		skin = _detalhes.skins [_detalhes.default_skin_to_use]
+	end
 	
 	if (not self.hide_icon) then
 		if (skin.icon_on_top) then
@@ -2702,6 +2705,15 @@ function _detalhes:ChangeIcon (icon)
 			self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
 			if (self.menu_attribute_string) then
 				self.baseframe.cabecalho.atributo_icon:SetPoint ("right", self.menu_attribute_string.widget, "left", -4, -1)
+			end
+			
+			if (skin.attribute_icon_anchor) then
+				self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
+				self.baseframe.cabecalho.atributo_icon:SetPoint ("topleft", self.baseframe.cabecalho.ball_point, "topleft", skin.attribute_icon_anchor[1], skin.attribute_icon_anchor[2])
+			end
+			
+			if (skin.attribute_icon_size) then
+				self.baseframe.cabecalho.atributo_icon:SetSize (unpack (skin.attribute_icon_size))
 			end
 
 		--	local icon_anchor = skin.icon_anchor_main
@@ -3533,3 +3545,5 @@ function _detalhes:envia_relatorio (linhas, custom)
 	end
 	
 end
+
+-- enda elsef

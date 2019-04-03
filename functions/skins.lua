@@ -63,6 +63,9 @@ local _
 		left_corner_anchor_bottom = {-107, 0},
 		right_corner_anchor_bottom = {96, 0},
 		
+		attribute_icon_anchor = {34, -6},
+		attribute_icon_size = {24, 24},
+		
 		micro_frames = {left = "DETAILS_STATUSBAR_PLUGIN_THREAT"},
 		
 		instance_cprops = {
@@ -1322,8 +1325,258 @@ local _
 		right_corner_anchor_bottom = {96, 0},
 		
 		instance_cprops = {
-			menu_anchor = {5, 1},
-			hide_icon = true,
+			["show_statusbar"] = false,
+			["menu_icons_size"] = 1,
+			["color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["menu_anchor"] = {
+				-18, -- [1]
+				1, -- [2]
+				["side"] = 1,
+			},
+			["bg_r"] = 0.0941176470588235,
+			["bars_inverted"] = false,
+			["following"] = {
+				["enabled"] = false,
+				["bar_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["color_buttons"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["bars_sort_direction"] = 1,
+			["hide_in_combat_type"] = 1,
+			["stretch_button_side"] = 1,
+			["row_show_animation"] = {
+				["anim"] = "Fade",
+				["options"] = {
+				},
+			},
+			["bars_grow_direction"] = 1,
+			["tooltip"] = {
+				["n_abilities"] = 3,
+				["n_enemies"] = 3,
+			},
+			["bg_alpha"] = 0.424401819705963,
+			["instance_button_anchor"] = {
+				-27, -- [1]
+				1, -- [2]
+			},
+			["attribute_text"] = {
+				["show_timer"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["shadow"] = false,
+				["side"] = 1,
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+					0.798004299402237, -- [4]
+				},
+				["custom_text"] = "{name}",
+				["text_face"] = "Arial Narrow",
+				["anchor"] = {
+					74, -- [1]
+					2, -- [2]
+				},
+				["text_size"] = 14,
+				["enable_custom_text"] = false,
+				["enabled"] = true,
+			},
+			["menu_alpha"] = {
+				["enabled"] = false,
+				["onenter"] = 1,
+				["iconstoo"] = true,
+				["ignorebars"] = false,
+				["onleave"] = 1,
+			},
+			["menu_anchor_down"] = {
+				5, -- [1]
+				1, -- [2]
+			},
+			["strata"] = "LOW",
+			["statusbar_info"] = {
+				["alpha"] = 1,
+				["overlay"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["menu_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+				true, -- [4]
+				true, -- [5]
+				false, -- [6]
+				["space"] = 1,
+				["shadow"] = false,
+			},
+			["micro_displays_side"] = 2,
+			["micro_displays_locked"] = true,
+			["window_scale"] = 1,
+			["auto_hide_menu"] = {
+				["left"] = false,
+				["right"] = false,
+			},
+			["desaturated_menu"] = false,
+			["plugins_grow_direction"] = 2,
+			["hide_icon"] = true,
+			["auto_current"] = true,
+			["toolbar_side"] = 1,
+			["bg_g"] = 0.0941176470588235,
+			["backdrop_texture"] = "Details Ground",
+			["show_sidebars"] = true,
+			["wallpaper"] = {
+				["enabled"] = true,
+				["texture"] = "Interface\\ACHIEVEMENTFRAME\\UI-Achievement-Stat-Buttons",
+				["texcoord"] = {
+					0.00100000001490116, -- [1]
+					1, -- [2]
+					0.758000030517578, -- [3]
+					1, -- [4]
+				},
+				["overlay"] = {
+					0.999997794628143, -- [1]
+					0.999997794628143, -- [2]
+					0.999997794628143, -- [3]
+					0.498038113117218, -- [4]
+				},
+				["anchor"] = "all",
+				["height"] = 225.999969482422,
+				["alpha"] = 0.498039245605469,
+				["width"] = 265.999969482422,
+			},
+			["total_bar"] = {
+				["enabled"] = false,
+				["only_in_group"] = true,
+				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
+				["color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["row_info"] = {
+				["textR_outline"] = false,
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
+				["textL_outline"] = false,
+				["textR_outline_small"] = true,
+				["textR_show_data"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["textL_enable_custom_text"] = false,
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["space"] = {
+					["right"] = -3,
+					["left"] = 1,
+					["between"] = 1,
+				},
+				["texture_background_class_color"] = false,
+				["start_after_icon"] = false,
+				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
+				["backdrop"] = {
+					["enabled"] = false,
+					["size"] = 11,
+					["color"] = {
+						1, -- [1]
+						1, -- [2]
+						1, -- [3]
+						1, -- [4]
+					},
+					["texture"] = "Details BarBorder 2",
+				},
+				["models"] = {
+					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+					["upper_alpha"] = 0.5,
+					["lower_enabled"] = false,
+					["lower_alpha"] = 0.1,
+					["upper_enabled"] = false,
+				},
+				["texture_custom_file"] = "Interface\\AddOns\\Details\\images\\bar_skyline_2",
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_skyline",
+				["use_spec_icons"] = true,
+				["textR_bracket"] = "(",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
+				["icon_grayscale"] = false,
+				["font_size"] = 17,
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
+				["textR_enable_custom_text"] = false,
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["fixed_texture_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+				["textL_show_number"] = true,
+				["textL_outline_small_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					1, -- [4]
+				},
+				["textL_outline_small"] = true,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["texture"] = "Skyline",
+				["texture_custom"] = "AddOns\\Details\\images\\bar_skyline_2",
+				["percent_type"] = 1,
+				["texture_background"] = "DGround",
+				["textR_outline_small_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					1, -- [4]
+				},
+				["textL_class_colors"] = false,
+				["textR_class_colors"] = false,
+				["alpha"] = 1,
+				["no_icon"] = false,
+				["icon_offset"] = {
+					-2, -- [1]
+					0, -- [2]
+				},
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["font_face"] = "Accidental Presidency",
+				["texture_class_colors"] = true,
+				["fixed_texture_background_color"] = {
+					0.113725490196078, -- [1]
+					0.113725490196078, -- [2]
+					0.113725490196078, -- [3]
+					0.42424601316452, -- [4]
+				},
+				["fast_ps_update"] = false,
+				["textR_separator"] = ",",
+				["height"] = 22.4808311462402,
+			},
+			["toolbar_icon_file"] = "Interface\\AddOns\\Details\\images\\toolbar_icons2",
+			["grab_on_top"] = false,
+			["bg_b"] = 0.0941176470588235,
 		},
 		
 		--> control scripts for aninations

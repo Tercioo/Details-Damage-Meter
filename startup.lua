@@ -920,6 +920,25 @@ function _G._detalhes:Start()
 						self:CaptureSet (false, "energy", false, 15)
 						self:CaptureSet (false, "spellcast", false, 15)
 					end
+					
+					--> store data
+					--[=[
+					local expansion = tostring (select (4, GetBuildInfo())):match ("%d%d")
+					if (expansion and type (expansion) == "string" and string.len (expansion) == 2) then
+						local expansionDungeonData = _detalhes.dungeon_data [expansion]
+						if (not expansionDungeonData) then
+							expansionDungeonData = {}
+							_detalhes.dungeon_data [expansion] = expansionDungeonData
+						end
+						
+						--store information about the dungeon run
+						--the the dungeon ID, can't be localized
+						--players in the group
+						--difficulty level
+						--
+						
+					end
+					--]=]
 				end
 			end
 

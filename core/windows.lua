@@ -5700,7 +5700,7 @@ local CreateEventTrackerFrame = function (parent, name)
 			
 			--> set its backdrop
 			line:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-			line:SetBackdropColor (1, 1, 1, 0.75)
+			--line:SetBackdropColor (1, 1, 1, 0.75)
 			
 			--> statusbar
 			local statusbar = CreateFrame ("statusbar", "$parentStatusBar", line)
@@ -5884,9 +5884,9 @@ local CreateEventTrackerFrame = function (parent, name)
 					line.LeftText:SetText (_detalhes:GetOnlyName (ability [ABILITYTABLE_CASTERNAME]))
 					
 					if (ability [ABILITYTABLE_ISENEMY]) then
-						line:SetBackdropColor (1, .3, .3, 0.75)
+						line:SetBackdropColor (1, .3, .3, 0.5)
 					else
-						line:SetBackdropColor (1, 1, 1, 0.75)
+						line:SetBackdropColor (1, 1, 1, 0.5)
 					end
 					
 					if (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_COOLDOWN) then
@@ -6081,16 +6081,9 @@ local CreateEventTrackerFrame = function (parent, name)
 		scrollframe:SetBackdropColor (0, 0, 0, 0)
 		
 		--> get tables used inside the combat parser
-		local cooldownList1 = _detalhes.DefensiveCooldownSpellsNoBuff
-		local cooldownList2 = _detalhes.DefensiveCooldownSpells
-		
-		local attackCooldownsList1 = _detalhes.AttackCooldownSpells
-		
-		local crowdControlList1 = _detalhes.CrowdControlSpells
-		
-		--> remove thise spells on shipping
-		--cooldownList1 [194679] = {60, 10}
-		--cooldownList1 [221699] = {60, 10}
+		local cooldownListFromFramework = DetailsFramework.CooldownsAllDeffensive
+		local attackCooldownsFromFramework = DetailsFramework.CooldownsAttack
+		local crowdControlFromFramework = DetailsFramework.CrowdControlSpells
 		
 		local combatLog = CreateFrame ("frame")
 		combatLog:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
@@ -6099,28 +6092,35 @@ local CreateEventTrackerFrame = function (parent, name)
 		
 		--> combat parser
 		local is_player = function (flag)
+			if (not flag) then
+				return false
+			end
 			return bit.band (flag, OBJECT_TYPE_PLAYER) ~= 0
 		end
 		local is_enemy = function (flag)
+			if (not flag) then
+				return false
+			end
 			return bit.band (flag, OBJECT_TYPE_ENEMY) ~= 0
 		end
+		
 		combatLog:SetScript ("OnEvent", function (self, event)
 			
 			local time, token, hidding, caster_serial, caster_name, caster_flags, caster_flags2, target_serial, target_name, target_flags, target_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool = CombatLogGetCurrentEventInfo()
 			local added = false
 			
 			--> defensive cooldown
-			if (token == "SPELL_CAST_SUCCESS" and (cooldownList1 [spellid] or cooldownList2 [spellid]) and is_player (caster_flags)) then 
+			if (token == "SPELL_CAST_SUCCESS" and (cooldownListFromFramework [spellid]) and is_player (caster_flags)) then 
 				tinsert (CurrentShowing, 1, {SPELLTYPE_COOLDOWN, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 				
 			--> offensive cooldown
-			elseif (token == "SPELL_CAST_SUCCESS" and (attackCooldownsList1 [spellid]) and is_player (caster_flags)) then 
+			elseif (token == "SPELL_CAST_SUCCESS" and (attackCooldownsFromFramework [spellid]) and is_player (caster_flags)) then 
 				tinsert (CurrentShowing, 1, {SPELLTYPE_OFFENSIVE, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 			
 			--> crowd control
-			elseif (token == "SPELL_AURA_APPLIED" and (crowdControlList1 [spellid])) then
+			elseif (token == "SPELL_AURA_APPLIED" and (crowdControlFromFramework [spellid])) then
 				--check if isnt a pet
 				if (target_flags and is_player (target_flags)) then
 					tinsert (CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})

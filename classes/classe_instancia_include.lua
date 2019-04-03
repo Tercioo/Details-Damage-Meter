@@ -232,6 +232,8 @@ _detalhes.instance_defaults = {
 				no_icon = false,
 				start_after_icon = true,
 				icon_grayscale = false,
+			--icon offset
+				icon_offset = {0, 0}, --x y
 			--percent type
 				percent_type = 1,
 			--backdrop

@@ -9029,6 +9029,18 @@ function window:CreateFrame9()
 			
 			local onSelectSecTexture = function (self, instance, texturePath) 
 				
+				local textureOptions = window.WallpaperTextureOptions
+				local selectedTextureOption
+				for textureBracket, textureTables in pairs (textureOptions) do
+					for i = 1, #textureTables do
+						local textureTable = textureTables [i]
+						if (textureTable.value == texturePath) then
+							selectedTextureOption = textureTable
+							break
+						end
+					end
+				end
+				
 				if (texturePath:find ("TALENTFRAME")) then
 				
 					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125}, nil, nil, {1, 1, 1, 1})
@@ -9076,13 +9088,13 @@ function window:CreateFrame9()
 					end
 				
 				else
-				
-					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
+					local texCoords = selectedTextureOption and selectedTextureOption.texcoord
+					instance:InstanceWallpaper (texturePath, nil, nil, texCoords or {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
 					
 					if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 						for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 							if (this_instance ~= instance) then
-								this_instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
+								this_instance:InstanceWallpaper (texturePath, nil, nil, texCoords or {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
 							end
 						end
 					end
@@ -9104,6 +9116,13 @@ function window:CreateFrame9()
 			end
 		
 			local subMenu = {
+				
+				["DESIGN"] = {
+					{value = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]], label = "Horizontal Gradient", onclick = onSelectSecTexture, icon = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]], texcoord = nil},
+					{value = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Highlight]], label = "Golden Highlight", onclick = onSelectSecTexture, icon = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Highlight]], texcoord = {0.35, 0.655, 0.0390625, 0.859375}},
+					{value = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Stat-Buttons]], label = "Gray Gradient", onclick = onSelectSecTexture, icon = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Stat-Buttons]], texcoord = {0, 1, 97/128, 1}},
+					{value = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Borders]], label = "Orange Gradient", onclick = onSelectSecTexture, icon = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Borders]], texcoord = {160/512, 345/512, 80/256, 130/256}},
+				},
 				
 				["ARCHEOLOGY"] = {
 					{value = [[Interface\ARCHEOLOGY\Arch-BookCompletedLeft]], label = "Book Wallpaper", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-BookCompletedLeft]], texcoord = nil},
@@ -9283,6 +9302,8 @@ function window:CreateFrame9()
 					{value = [[Interface\TALENTFRAME\bg-warrior-protection]], label = "Protection", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_warrior_defensivestance]], texcoord = nil}
 				},
 			}
+			
+			window.WallpaperTextureOptions = subMenu
 		
 			local buildBackgroundMenu2 = function() 
 				return  subMenu [frame9.backgroundDropdown.value] or {label = "", value = 0}
@@ -9294,6 +9315,7 @@ function window:CreateFrame9()
 			end
 		
 			local backgroundTable = {
+				{value = "DESIGN", label = "Design", onclick = onSelectMainTexture, icon = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]]},
 				{value = "ARCHEOLOGY", label = "Archeology", onclick = onSelectMainTexture, icon = [[Interface\ARCHEOLOGY\Arch-Icon-Marker]]},
 				{value = "CREDITS", label = "Burning Crusade", onclick = onSelectMainTexture, icon = [[Interface\ICONS\TEMP]]},
 				{value = "LOGOS", label = "Logos", onclick = onSelectMainTexture, icon = [[Interface\WorldStateFrame\ColumnIcon-FlagCapture0]]},

@@ -2411,12 +2411,16 @@ local icon_frame_create_animation = function()
 end
 
 local icon_frame_on_click_down = function (self)
-	self:GetParent():GetParent().icone_classe:SetPoint ("left", self:GetParent():GetParent(), "left", 1, -1)
+	local instanceID = self.instance_id
+	local instanceObject = Details:GetInstance (instanceID)
+	self:GetParent():GetParent().icone_classe:SetPoint ("left", self:GetParent():GetParent(), "left", instanceObject.row_info.icon_offset[1] + 1, instanceObject.row_info.icon_offset[2] + -1)
 end
 
 local icon_frame_on_click_up = function (self, button)
 
-	self:GetParent():GetParent().icone_classe:SetPoint ("left", self:GetParent():GetParent(), "left")
+	local instanceID = self.instance_id
+	local instanceObject = Details:GetInstance (instanceID)
+	self:GetParent():GetParent().icone_classe:SetPoint ("left", self:GetParent():GetParent(), "left", instanceObject.row_info.icon_offset[1], instanceObject.row_info.icon_offset[2])
 
 	if (button == "LeftButton") then
 		--> open the rank panel
@@ -4085,6 +4089,7 @@ function gump:CriaNovaBarra (instancia, index)
 	icon_frame:SetPoint ("topleft", icone_classe, "topleft")
 	icon_frame:SetPoint ("bottomright", icone_classe, "bottomright")
 	icon_frame:SetFrameLevel (new_row.statusbar:GetFrameLevel()+1)
+	icon_frame.instance_id = instancia.meu_id
 	icon_frame.row = new_row
 	new_row.icon_frame = icon_frame
 	
@@ -4603,6 +4608,8 @@ function _detalhes:InstanceRefreshRows (instancia)
 		end
 		
 		local icon_force_grayscale = self.row_info.icon_grayscale
+		
+		local icon_offset_x, icon_offset_y = unpack (self.row_info.icon_offset)
 	
 	--custom right text
 		local custom_right_text_enabled = self.row_info.textR_enable_custom_text
@@ -4663,7 +4670,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 				row.icone_classe:Hide()
 			else
 				row.icone_classe:ClearAllPoints()
-				row.icone_classe:SetPoint ("left", row, "left")
+				row.icone_classe:SetPoint ("left", row, "left", icon_offset_x, icon_offset_y)
 				row.icone_classe:Show()
 				
 				if (start_after_icon) then
@@ -4695,7 +4702,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 			else
 			
 				row.icone_classe:ClearAllPoints()
-				row.icone_classe:SetPoint ("right", row, "right")
+				row.icone_classe:SetPoint ("right", row, "right", icon_offset_x, icon_offset_y)
 				row.icone_classe:Show()
 				
 				if (start_after_icon) then
@@ -5167,6 +5174,12 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 
 --	print (self.skin, self.meu_id)
 	local skin = _detalhes.skins [self.skin]
+	if (not skin) then --the skin isn't available any more
+		Details:Msg ("Skin " .. (self.skin or "?") .. " not found, changing to 'Minimalistic'.")
+		Details:Msg ("Recommended to change the skin in the option panel > Skin Selection.")
+		skin = _detalhes.skins ["Minimalistic"]
+		self.skin = "Minimalistic"
+	end
 	
 	--[[
 	self.baseframe.rodape.esquerdo:SetVertexColor (red, green, blue)

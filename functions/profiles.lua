@@ -1383,7 +1383,11 @@ local default_global_data = {
 			damage_taken_shadow = true,
 			damage_taken_anchor = {side = 7, x = 0, y = 0},
 			
-		}
+		},
+	
+	--> dungeon information
+		dungeon_data = {},
+		
 }
 
 _detalhes.default_global_data = default_global_data
