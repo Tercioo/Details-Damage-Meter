@@ -6848,6 +6848,57 @@ function _detalhes:RefreshMicroDisplays()
 	_detalhes.StatusBar:UpdateOptions (self)
 end
 
+
+--from weakauras, list of functions to block on scripts
+--source https://github.com/WeakAuras/WeakAuras2/blob/520951a4b49b64cb49d88c1a8542d02bbcdbe412/WeakAuras/AuraEnvironment.lua#L66
+local blockedFunctions = {
+	-- Lua functions that may allow breaking out of the environment
+	getfenv = true,
+	getfenv = true,
+	loadstring = true,
+	pcall = true,
+	xpcall = true,
+	getglobal = true,
+	
+	-- blocked WoW API
+	SendMail = true,
+	SetTradeMoney = true,
+	AddTradeMoney = true,
+	PickupTradeMoney = true,
+	PickupPlayerMoney = true,
+	TradeFrame = true,
+	MailFrame = true,
+	EnumerateFrames = true,
+	RunScript = true,
+	AcceptTrade = true,
+	SetSendMailMoney = true,
+	EditMacro = true,
+	SlashCmdList = true,
+	DevTools_DumpCommand = true,
+	hash_SlashCmdList = true,
+	CreateMacro = true,
+	SetBindingMacro = true,
+	GuildDisband = true,
+	GuildUninvite = true,
+	securecall = true,
+	
+	--additional
+	setmetatable = true,
+}
+
+--function filter
+local functionFilter = setmetatable ({}, {__index = function (env, key)
+	if (key == "_G") then
+		return env
+		
+	elseif (blockedFunctions [key]) then
+		return nil
+		
+	else	
+		return _G [key]
+	end
+end})
+
 function _detalhes:ChangeSkin (skin_name)
 
 	if (not skin_name) then
@@ -7128,22 +7179,39 @@ function _detalhes:ChangeSkin (skin_name)
 	--> set the scale
 		self:SetWindowScale()
 	
-	-->: refresh lock buttons
+	--> refresh lock buttons
 		self:RefreshLockedState()
 	
+	--> clear any control sscript running in this instance
+	self.bgframe:SetScript ("OnUpdate", nil)
+	self.bgframe.skin_script = nil
+	
+	--> check if the skin has control scripts to run
 	if (not just_updating or _detalhes.initializing) then
-		if (this_skin.callback) then
-			this_skin:callback (self, just_updating)
+		local callbackFunc = this_skin.callback
+		if (callbackFunc) then
+			setfenv (callbackFunc, functionFilter)
+			local okey, result = pcall (callbackFunc, this_skin, self, just_updating)
+			if (not okey) then
+				_detalhes:Msg ("|cFFFF9900error on skin callback function|r:", result)
+			end
 		end
 		
 		if (this_skin.control_script) then
-			if (this_skin.control_script_on_start) then
-				this_skin:control_script_on_start (self)
+			local onStartScript = this_skin.control_script_on_start
+			if (onStartScript) then
+				setfenv (onStartScript, functionFilter)
+				local okey, result = pcall (onStartScript, this_skin, self)
+				if (not okey) then
+					_detalhes:Msg ("|cFFFF9900error on skin control on start function|r:", result)
+				end
 			end
-			self.bgframe:SetScript ("OnUpdate", this_skin.control_script)
+			
+			local controlFunc = this_skin.control_script
+			setfenv (controlFunc, functionFilter)
+			self.bgframe:SetScript ("OnUpdate", controlFunc)
 			self.bgframe.skin_script = true
 			self.bgframe.skin = this_skin
-			--self.bgframe.skin_script_instance = true
 		end
 	end
 

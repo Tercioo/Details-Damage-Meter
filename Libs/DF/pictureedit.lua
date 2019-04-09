@@ -10,6 +10,7 @@ local _
 	window:SetPoint ("center", UIParent, "center")
 	window:SetResizable (true)
 	window:SetMovable (true)
+	window:SetClampedToScreen (true)
 	tinsert (UISpecialFrames, "DetailsFrameworkImageEdit")
 	window:SetFrameStrata ("TOOLTIP")
 	window:SetMaxResize (650, 500)

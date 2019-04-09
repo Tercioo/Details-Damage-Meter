@@ -462,6 +462,55 @@
 	
 --------end of ToK functions----
 
+	--from weakauras, list of functions to block on scripts
+	--source https://github.com/WeakAuras/WeakAuras2/blob/520951a4b49b64cb49d88c1a8542d02bbcdbe412/WeakAuras/AuraEnvironment.lua#L66
+	local blockedFunctions = {
+		-- Lua functions that may allow breaking out of the environment
+		getfenv = true,
+		getfenv = true,
+		loadstring = true,
+		pcall = true,
+		xpcall = true,
+		getglobal = true,
+		
+		-- blocked WoW API
+		SendMail = true,
+		SetTradeMoney = true,
+		AddTradeMoney = true,
+		PickupTradeMoney = true,
+		PickupPlayerMoney = true,
+		TradeFrame = true,
+		MailFrame = true,
+		EnumerateFrames = true,
+		RunScript = true,
+		AcceptTrade = true,
+		SetSendMailMoney = true,
+		EditMacro = true,
+		SlashCmdList = true,
+		DevTools_DumpCommand = true,
+		hash_SlashCmdList = true,
+		CreateMacro = true,
+		SetBindingMacro = true,
+		GuildDisband = true,
+		GuildUninvite = true,
+		securecall = true,
+		
+		--additional
+		setmetatable = true,
+	}
+	
+	local functionFilter = setmetatable ({}, {__index = function (env, key)
+		if (key == "_G") then
+			return env
+			
+		elseif (blockedFunctions [key]) then
+			return nil
+			
+		else	
+			return _G [key]
+		end
+	end})
+
 	--> replacing data for custom texts
 	_detalhes.string = {}
 	
@@ -474,9 +523,14 @@
 	end
 	local run_function = function (str)
 		--> cache functions
-		local func = function_cache [str]
+		local func, errortext = function_cache [str]
 		if (not func) then
 			func = loadstring (str)
+			if (not func) then
+				_detalhes:Msg ("|cFFFF9900error compiling script on custom text|r: ", errortext)
+				return 0
+			end
+			setfenv (func, functionFilter)
 			function_cache [str] = func
 		end
 	

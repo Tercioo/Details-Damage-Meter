@@ -48,7 +48,8 @@ Details.API_Description = {}
 --[=[
 	Details.SegmentElapsedTime (segment)
 --=]=]
-Details.API_Description.SegmentElapsedTime = {
+tinsert (Details.API_Description, {
+	name = "SegmentElapsedTime",
 	desc = "Return the total elapsed time of a segment.",
 	parameters = {
 		{
@@ -65,7 +66,8 @@ Details.API_Description.SegmentElapsedTime = {
 			desc = "Number representing the elapsed time of a combat.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.SegmentElapsedTime (segment)
 	segment = segment or 0
@@ -81,7 +83,8 @@ end
 --[=[
 	Details.UnitDamage (unitId, segment)
 --=]=]
-Details.API_Description.UnitDamage = {
+tinsert (Details.API_Description, {
+	name = "UnitDamage",
 	desc = "Query the damage of a unit.",
 	parameters = {
 		{
@@ -104,7 +107,8 @@ Details.API_Description.UnitDamage = {
 			desc = "Number representing the unit damage.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.UnitDamage (unitId, segment)
 	segment = segment or 0
@@ -128,7 +132,8 @@ end
 --[=[
 	Details.UnitSpellDamage (unitId, spellId, segment)
 --=]=]
-Details.API_Description.UnitSpellDamage = {
+tinsert (Details.API_Description, {
+	name = "UnitSpellDamage",
 	desc = "Query the total damage done of a spell casted by the unit.",
 	parameters = {
 		{
@@ -157,7 +162,8 @@ Details.API_Description.UnitSpellDamage = {
 			desc = "Number representing the spell damage done.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.UnitSpellDamage (unitId, spellId, segment)
 	segment = segment or 0
@@ -198,7 +204,8 @@ end
 --[=[
 	Details.UnitSpells (unitId, segment)
 --=]=]
-Details.API_Description.UnitSpells = {
+tinsert (Details.API_Description, {
+	name = "UnitDamageSpells",
 	desc = "Return a numeric table with spells IDs used by the unit.",
 	parameters = {
 		{
@@ -221,9 +228,10 @@ Details.API_Description.UnitSpells = {
 			desc = "Number representing the spell damage done.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
-function Details.UnitSpells (unitId, segment)
+function Details.UnitDamageSpells (unitId, segment)
 	segment = segment or 0
 	local combatObject = getCombatObject (segment)
 
@@ -251,7 +259,8 @@ end
 --[=[
 	Details.UnitDamageTaken (unitId, segment)
 --=]=]
-Details.API_Description.UnitDamageTaken = {
+tinsert (Details.API_Description, {
+	name = "UnitDamageTaken",
 	desc = "Query the unit damage taken.",
 	parameters = {
 		{
@@ -274,7 +283,8 @@ Details.API_Description.UnitDamageTaken = {
 			desc = "Number representing the damage taken by the unit.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.UnitDamageTaken (unitId, segment)
 	segment = segment or 0
@@ -297,7 +307,8 @@ end
 --[=[
 	Details.UnitDamageOnUnit (unitId, targetUnitId, segment)
 --=]=]
-Details.API_Description.UnitDamageOnUnit = {
+tinsert (Details.API_Description, {
+	name = "UnitDamageOnUnit",
 	desc = "Query the unit damage done on another unit.",
 	parameters = {
 		{
@@ -326,7 +337,8 @@ Details.API_Description.UnitDamageOnUnit = {
 			desc = "Number representing the damage done by the unit on the target unit.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.UnitDamageOnUnit (unitId, targetUnitId, segment)
 	segment = segment or 0
@@ -350,7 +362,8 @@ end
 --[=[
 	Details.UnitDamageTakenFromSpell (unitId, spellId, segment)
 --=]=]
-Details.API_Description.UnitDamageTakenFromSpell = {
+tinsert (Details.API_Description, {
+	name = "UnitDamageTakenFromSpell",
 	desc = "Query the unit damage taken from a spell.",
 	parameters = {
 		{
@@ -379,7 +392,8 @@ Details.API_Description.UnitDamageTakenFromSpell = {
 			desc = "Number representing the damage taken by the unit from a spell.",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.UnitDamageTakenFromSpell (unitId, spellId, segment)
 	segment = segment or 0
@@ -413,7 +427,8 @@ end
 --[=[
 	Details.UnitDamageInfo (unitId, segment)
 --=]=]
-Details.API_Description.UnitDamageInfo = {
+tinsert (Details.API_Description, {
+	name = "UnitDamageInfo",
 	desc = "Return a table with damage information.",
 	parameters = {
 		{
@@ -436,7 +451,8 @@ Details.API_Description.UnitDamageInfo = {
 			desc = "Table containing damage information, keys are: .total, .totalWithoutPet, .damageAbsorbed, .damageTaken, .friendlyFire and .activityTime",
 		}
 	},
-}
+	type = 1, --damage
+})
 
 function Details.UnitDamageInfo (unitId, segment)
 	segment = segment or 0
@@ -476,7 +492,8 @@ end
 --[=[
 	Details.UnitSpellInfo (unitId, spellId, segment)
 --=]=]
-Details.API_Description.UnitSpellInfo = {
+tinsert (Details.API_Description, {
+	name = "UnitDamageSpellInfo",
 	desc = "Return a table with the spell damage information.",
 	parameters = {
 		{
@@ -505,9 +522,10 @@ Details.API_Description.UnitSpellInfo = {
 			desc = "Table containing damage information, keys are: '.total', '.spellId', '.count', '.name', '.casted', '.regularMin', '.regularMax', '.regularAmount', '.regularDamage', '.criticalMin', '.criticalMax', '.criticalAmount', '.criticalDamage'",
 		}
 	},
-}
+	type = 1, --damage
+})
 
-function Details.UnitSpellInfo (unitId, spellId, segment)
+function Details.UnitDamageSpellInfo (unitId, spellId, segment)
 	segment = segment or 0
 	local combatObject = getCombatObject (segment)
 	

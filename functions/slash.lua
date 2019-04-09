@@ -21,6 +21,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (command == "api") then
 		_detalhes.OpenAPI()
+		
+		
 	
 	elseif (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)

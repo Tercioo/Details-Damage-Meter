@@ -1623,7 +1623,9 @@ function _G._detalhes:Start()
 	
 	--> open welcome
 	if (self.is_first_run) then
-		_detalhes:OpenWelcomeWindow()
+		C_Timer.After (1, function() --wait details full load the rest of the systems before executing the welcome window
+			_detalhes:OpenWelcomeWindow()
+		end)
 	end
 	
 	--> load broadcaster tools
@@ -1733,11 +1735,61 @@ function _G._detalhes:Start()
 		local codeTable = _detalhes.run_code
 		_detalhes.AutoRunCode = {}
 		
+		--from weakauras, list of functions to block on scripts
+		--source https://github.com/WeakAuras/WeakAuras2/blob/520951a4b49b64cb49d88c1a8542d02bbcdbe412/WeakAuras/AuraEnvironment.lua#L66
+		local blockedFunctions = {
+			-- Lua functions that may allow breaking out of the environment
+			getfenv = true,
+			getfenv = true,
+			loadstring = true,
+			pcall = true,
+			xpcall = true,
+			getglobal = true,
+			
+			-- blocked WoW API
+			SendMail = true,
+			SetTradeMoney = true,
+			AddTradeMoney = true,
+			PickupTradeMoney = true,
+			PickupPlayerMoney = true,
+			TradeFrame = true,
+			MailFrame = true,
+			EnumerateFrames = true,
+			RunScript = true,
+			AcceptTrade = true,
+			SetSendMailMoney = true,
+			EditMacro = true,
+			SlashCmdList = true,
+			DevTools_DumpCommand = true,
+			hash_SlashCmdList = true,
+			CreateMacro = true,
+			SetBindingMacro = true,
+			GuildDisband = true,
+			GuildUninvite = true,
+			securecall = true,
+			
+			--additional
+			setmetatable = true,
+		}
+		
+		local functionFilter = setmetatable ({}, {__index = function (env, key)
+			if (key == "_G") then
+				return env
+				
+			elseif (blockedFunctions [key]) then
+				return nil
+				
+			else	
+				return _G [key]
+			end
+		end})
+		
 		--> compile and store code
 		function _detalhes:RecompileAutoRunCode()
 			for codeKey, code in pairs (codeTable) do
 				local func, errorText = loadstring (code)
 				if (func) then
+					setfenv (func, functionFilter)
 					_detalhes.AutoRunCode [codeKey] = func
 				else
 					--> if the code didn't pass, create a dummy function for it without triggering errors

@@ -168,6 +168,55 @@
 
 	local tick_time = 0
 	
+	--from weakauras, list of functions to block on scripts
+	--source https://github.com/WeakAuras/WeakAuras2/blob/520951a4b49b64cb49d88c1a8542d02bbcdbe412/WeakAuras/AuraEnvironment.lua#L66
+	local blockedFunctions = {
+		-- Lua functions that may allow breaking out of the environment
+		getfenv = true,
+		getfenv = true,
+		loadstring = true,
+		pcall = true,
+		xpcall = true,
+		getglobal = true,
+		
+		-- blocked WoW API
+		SendMail = true,
+		SetTradeMoney = true,
+		AddTradeMoney = true,
+		PickupTradeMoney = true,
+		PickupPlayerMoney = true,
+		TradeFrame = true,
+		MailFrame = true,
+		EnumerateFrames = true,
+		RunScript = true,
+		AcceptTrade = true,
+		SetSendMailMoney = true,
+		EditMacro = true,
+		SlashCmdList = true,
+		DevTools_DumpCommand = true,
+		hash_SlashCmdList = true,
+		CreateMacro = true,
+		SetBindingMacro = true,
+		GuildDisband = true,
+		GuildUninvite = true,
+		securecall = true,
+		
+		--additional
+		setmetatable = true,
+	}
+	
+	local functionFilter = setmetatable ({}, {__index = function (env, key)
+		if (key == "_G") then
+			return env
+			
+		elseif (blockedFunctions [key]) then
+			return nil
+			
+		else	
+			return _G [key]
+		end
+	end})
+	
 	--> starting a combat
 	function _detalhes:TimeDataCreateCombatTables()
 		
@@ -189,13 +238,18 @@
 			
 				if (type (t [INDEX_FUNCTION]) == "string") then
 					--> user
-					local func = loadstring (t [INDEX_FUNCTION])
+					local func, errortext = loadstring (t [INDEX_FUNCTION])
 					if (func) then
+						setfenv (func, functionFilter)
 						tinsert (exec, { func = func, data = data, attributes = table_deepcopy (t [INDEX_MATRIX]), is_user = true })
+					else
+						_detalhes:Msg ("|cFFFF9900error compiling script for time data (charts)|r: ", errortext)
 					end
 				else
 					--> plugin
-					tinsert (exec, { func = t [INDEX_FUNCTION], data = data, attributes = table_deepcopy (t [INDEX_MATRIX]) })
+					local func = t [INDEX_FUNCTION]
+					setfenv (func, functionFilter)
+					tinsert (exec, { func = func, data = data, attributes = table_deepcopy (t [INDEX_MATRIX]) })
 				end
 			
 			end
