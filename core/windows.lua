@@ -4832,6 +4832,8 @@
 			local returnLines = {}
 			local currentSelected = 1
 			
+			local api = Details.API_Description.namespaces[1].api
+			
 			--on select api on the menu
 			local onSelectAPI = function (self)
 				local apiName = apiFunctionNames [self.index]
@@ -4841,7 +4843,7 @@
 				end
 				
 				--fill the box in the right with information about the API
-				local apiInfo = Details.API_Description [self.index]
+				local apiInfo = api [self.index]
 				if (not apiInfo) then
 					Details:Msg ("API information for api not found", apiName)
 					return
@@ -4870,9 +4872,9 @@
 				returnValues = returnValues .. " = "
 				
 				if (parameters ~= "") then
-					Api2Frame.ApiCopy.text = returnValues .. apiName .. "( " .. parameters .. " )"
+					Api2Frame.ApiCopy.text = returnValues .. "Details." .. apiName .. "( " .. parameters .. " )"
 				else
-					Api2Frame.ApiCopy.text = returnValues .. apiName .. "()"
+					Api2Frame.ApiCopy.text = returnValues .. "Details." .. apiName .. "()"
 				end
 				
 				Api2Frame.ApiCopy:SetFocus (true)
@@ -4935,7 +4937,7 @@
 				end
 			end
 			
-			for apiIndex, apiDesc in ipairs (Details.API_Description) do
+			for apiIndex, apiDesc in ipairs (api) do
 				tinsert (apiFunctionNames, apiDesc.name)
 			end
 			
@@ -4943,7 +4945,7 @@
 			DetailsFramework:ReskinSlider (api2ScrollMenu)
 			api2ScrollMenu:SetPoint ("topleft", Api2Frame, "topleft", 10, yStart)
 			Api2Frame.scrollMenu = api2ScrollMenu
-		
+			
 			local lineOnEnter = function (self)
 				self:SetBackdropColor (unpack (backdropColorOnEnter))
 			end
@@ -4987,6 +4989,10 @@
 				--api desc
 				Api2Frame.ApiFunctionDesc = DetailsFramework:CreateLabel (Api2Frame)
 				Api2Frame.ApiFunctionDesc:SetPoint ("topleft", Api2Frame.ApiFunctionName, "bottomleft", 0, -2)
+				Api2Frame.ApiFunctionDesc.width = infoWidth
+				Api2Frame.ApiFunctionDesc.height = 22
+				Api2Frame.ApiFunctionDesc.valign = "top"
+				
 				--api func to copy
 				local apiCopyString = DetailsFramework:CreateLabel (Api2Frame, "Copy String", 12, "orange")
 				apiCopyString:SetPoint ("topleft", Api2Frame.ApiFunctionDesc, "bottomleft", 0, -20)
@@ -4995,13 +5001,13 @@
 				Api2Frame.ApiCopy:SetTemplate (DetailsFramework:GetTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX"))
 				
 				--parameters
-				local parametersYStart = yStart - 100
+				local parametersYStart = yStart - 110
 				local parametersString = DetailsFramework:CreateLabel (Api2Frame, "Parameters", 12, "orange")
 				parametersString:SetPoint ("topleft", Api2Frame, "topleft", xAnchorPoint, parametersYStart)
 				
 				parametersYStart = parametersYStart - 20
 				
-				local space1, space2, space3 = 100, 200, 300
+				local space1, space2, space3 = 150, 300, 450
 				local parametersHeader = CreateFrame ("frame", nil, Api2Frame)
 				parametersHeader:SetSize (infoWidth, 20)
 				parametersHeader:SetPoint ("topleft", Api2Frame, "topleft", xAnchorPoint, parametersYStart)
@@ -5021,7 +5027,7 @@
 					GameCooltip2:SetOwner (self)
 					
 					--fill the box in the right with information about the API
-					local apiInfo = Details.API_Description [currentSelected]
+					local apiInfo = api [currentSelected]
 					if (not apiInfo) then
 						return
 					end
