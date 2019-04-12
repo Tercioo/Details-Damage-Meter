@@ -4810,7 +4810,7 @@
 			local scrollWidth = 200
 			local scrollHeight = 570
 			local lineHeight = 20
-			local lineAmount = 20
+			local lineAmount = 25
 			local backdropColor = {.2, .2, .2, 0.2}
 			local backdropColorOnEnter = {.8, .8, .8, 0.4}
 			local backdropColorSelected = {1, 1, .8, 0.4}
@@ -4948,6 +4948,22 @@
 			
 			local lineOnEnter = function (self)
 				self:SetBackdropColor (unpack (backdropColorOnEnter))
+				
+				local apiName = apiFunctionNames [self.index]
+				if (not apiName) then
+					return
+				end
+				
+				--fill the box in the right with information about the API
+				local apiInfo = api [self.index]
+				if (not apiInfo) then
+					return
+				end
+				
+				GameCooltip2:Preset(2)
+				GameCooltip2:SetOwner (self, "left", "right", 2, 0)
+				GameCooltip2:AddLine (apiInfo.desc)
+				GameCooltip2:ShowCooltip()
 			end
 			
 			local lineOnLeave = function (self)
@@ -4956,6 +4972,8 @@
 				else
 					self:SetBackdropColor (unpack (backdropColor))
 				end
+				
+				GameCooltip2:Hide()
 			end
 			
 			--create lines

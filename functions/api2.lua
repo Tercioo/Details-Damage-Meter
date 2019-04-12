@@ -88,6 +88,8 @@ Details.API_Description = {
 	},
 }
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> ~segments
 
 --[=[
 	Details.SegmentElapsedTime (segment)
@@ -125,10 +127,10 @@ function Details.SegmentElapsedTime (segment)
 end
 
 --[=[
-	Details.SegmentOffensiveUnits (segment)
+	Details.SegmentDamagingUnits (segment)
 --=]=]
 tinsert (Details.API_Description.namespaces[1].api, {
-	name = "SegmentOffensiveUnits",
+	name = "SegmentDamagingUnits",
 	desc = "Return a numeric (ipairs) table with name of units that inflicted damage on the segment.",
 	parameters = {
 		{
@@ -166,7 +168,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 	type = 1, --damage
 })
 
-function Details.SegmentOffensiveUnits (includePlayerUnits, includeEnemyUnits, includeFriendlyPetUnits, segment)
+function Details.SegmentDamagingUnits (includePlayerUnits, includeEnemyUnits, includeFriendlyPetUnits, segment)
 	segment = segment or 0
 	if (type (includePlayerUnits) ~= "boolean") then
 		includePlayerUnits = true
@@ -201,6 +203,88 @@ function Details.SegmentOffensiveUnits (includePlayerUnits, includeEnemyUnits, i
 	
 	return units
 end
+
+
+--[=[
+	Details.SegmentHealingUnits (segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "SegmentHealingUnits",
+	desc = "Return a numeric (ipairs) table with name of units that inflicted healing on the segment.",
+	parameters = {
+		{
+			name = "includePlayerUnits",
+			type = "boolean",
+			default = "true",
+			desc = "Include names of player units, e.g. name of players in your dungeon or raid group.",
+		},
+		{
+			name = "includeEnemyUnits",
+			type = "boolean",
+			default = "false",
+			desc = "Include names of enemy units, e.g. name of a boss and their adds.",
+		},
+		{
+			name = "includeFriendlyPetUnits",
+			type = "boolean",
+			default = "false",
+			desc = "Include names of player pets.",
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitNames",
+			type = "table",
+			desc = "A table with unit names.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.SegmentHealingUnits (includePlayerUnits, includeEnemyUnits, includeFriendlyPetUnits, segment)
+	segment = segment or 0
+	if (type (includePlayerUnits) ~= "boolean") then
+		includePlayerUnits = true
+	end
+	
+	local combatObject = getCombatObject (segment)
+	
+	local units = {}
+	local nextIndex = 1
+	
+	if (not combatObject) then
+		return units
+	end
+	
+	local damageContainer = combatObject:GetContainer (DETAILS_ATTRIBUTE_HEAL)
+	for i = 1, #damageContainer._ActorTable do
+		local playerObject = damageContainer._ActorTable [i]
+		
+		if (includePlayerUnits and playerObject.grupo) then
+			units [nextIndex] = playerObject:GetName()
+			nextIndex = nextIndex + 1
+		
+		elseif (includeEnemyUnits and playerObject:IsEnemy()) then
+			units [nextIndex] = playerObject:GetName()
+			nextIndex = nextIndex + 1
+			
+		elseif (includeFriendlyPetUnits and playerObject:IsPetOrGuardian()) then
+			units [nextIndex] = playerObject:GetName()
+			nextIndex = nextIndex + 1
+		end
+	end
+	
+	return units
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> ~damage
 
 --[=[
 	Details.UnitDamage (unitId, segment)
@@ -379,7 +463,7 @@ function Details.UnitDamageBySpell (unitId, spellId, isLiteral, segment)
 	end
 	
 	local spellObject, spellId = getSpellObject (playerObject, spellId, isLiteral)
-	print (spellObject, spellId, isLiteral)
+
 	if (spellObject) then
 		return spellObject.total
 	else
@@ -404,7 +488,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 		{
 			name = "spellId",
 			type = "number",
-			desc = "Id of a spell to query its damage to an unit. Accept spell names.",
+			desc = "Id of a spell to query its damage information. Accept spell names.",
 			required = true,
 		},
 		{
@@ -424,7 +508,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 		{
 			name = "spellDamageInfo",
 			type = "table",
-			desc = "Table containing damage information, keys are: '.total', '.spellId', '.count', '.name', '.casted', '.regularMin', '.regularMax', '.regularAmount', '.regularDamage', '.criticalMin', '.criticalMax', '.criticalAmount', '.criticalDamage'",
+			desc = "Table containing damage information, keys are: '.total', '.spellId', '.count', '.name', '.casted', '.regularMin', '.regularMax', '.regularHits', '.regularDamage', '.criticalMin', '.criticalMax', '.criticalHits', '.criticalDamage'",
 		}
 	},
 	type = 1, --damage
@@ -452,11 +536,11 @@ function Details.UnitDamageSpellInfo (unitId, spellId, isLiteral, segment)
 		casted = 0,
 		regularMin = 0,
 		regularMax = 0,
-		regularAmount = 0,
+		regularHits = 0,
 		regularDamage = 0,
 		criticalMin = 0,
 		criticalMax = 0,
-		criticalAmount = 0,
+		criticalHits = 0,
 		criticalDamage = 0,
 	}
 	
@@ -495,11 +579,11 @@ function Details.UnitDamageSpellInfo (unitId, spellId, isLiteral, segment)
 		spellInfo.name = spellName
 		spellInfo.regularMin = spellObject.n_min
 		spellInfo.regularMax = spellObject.n_max
-		spellInfo.regularAmount = spellObject.n_amt
+		spellInfo.regularHits = spellObject.n_amt
 		spellInfo.regularDamage = spellObject.n_dmg
 		spellInfo.criticalMin = spellObject.c_min
 		spellInfo.criticalMax = spellObject.c_max
-		spellInfo.criticalAmount = spellObject.c_amt
+		spellInfo.criticalHits = spellObject.c_amt
 		spellInfo.criticalDamage = spellObject.c_dmg
 	end
 	
@@ -626,7 +710,7 @@ function Details.UnitDamageTaken (unitId, segment)
 		return 0
 	end
 	
-	return playerObject.damage_taken
+	return floor (playerObject.damage_taken)
 end
 
 --[=[
@@ -761,11 +845,11 @@ end
 
 
 --[=[
-	Details.UnitOffensiveSpells (unitId, segment)
+	Details.UnitDamagingSpells (unitId, segment)
 --=]=]
 tinsert (Details.API_Description.namespaces[1].api, {
-	name = "UnitOffensiveSpells",
-	desc = "Return a numeric (ipairs) table with spells IDs used by the unit.",
+	name = "UnitDamagingSpells",
+	desc = "Return a numeric (ipairs) table with spells IDs used by the unit to apply damage.",
 	parameters = {
 		{
 			name = "unitId",
@@ -782,15 +866,15 @@ tinsert (Details.API_Description.namespaces[1].api, {
 	},
 	returnValues = {
 		{
-			name = "unitSpellDamage",
-			type = "number",
-			desc = "Number representing the spell damage done.",
+			name = "unitOffinsiveSpells",
+			type = "table",
+			desc = "Table with spellIds of spells the unit used to apply damage.",
 		}
 	},
 	type = 1, --damage
 })
 
-function Details.UnitOffensiveSpells (unitId, segment)
+function Details.UnitDamagingSpells (unitId, segment)
 	segment = segment or 0
 	local combatObject = getCombatObject (segment)
 
@@ -815,10 +899,10 @@ function Details.UnitOffensiveSpells (unitId, segment)
 end
 
 --[=[
-	Details.UnitOffensiveTargets (unitId, segment)
+	Details.UnitDamagingTargets (unitId, segment)
 --=]=]
 tinsert (Details.API_Description.namespaces[1].api, {
-	name = "UnitOffensiveTargets",
+	name = "UnitDamagingTargets",
 	desc = "Return a numeric (ipairs) table with names of targets the unit inflicted damage. You may query the amount of damage with Details.UnitDamageOnUnit( unitId, targetName ).",
 	parameters = {
 		{
@@ -844,7 +928,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 	type = 1, --damage
 })
 
-function Details.UnitOffensiveTargets (unitId, segment)
+function Details.UnitDamagingTargets (unitId, segment)
 	segment = segment or 0
 	local combatObject = getCombatObject (segment)
 	
@@ -869,11 +953,11 @@ end
 
 
 --[=[
-	Details.UnitOffensivePets (unitId, segment)
+	Details.UnitDamagingPets (unitId, segment)
 --=]=]
 tinsert (Details.API_Description.namespaces[1].api, {
-	name = "UnitOffensivePets",
-	desc = "Return a numeric (ipairs) table with all pet names the unit has. Individual pet information can be queried with Details.UnitDamage( petName ).",
+	name = "UnitDamagingPets",
+	desc = "Return a numeric (ipairs) table with all pet names the unit used to apply damage. Individual pet information can be queried with Details.UnitDamage( petName ).",
 	parameters = {
 		{
 			name = "unitId",
@@ -892,13 +976,13 @@ tinsert (Details.API_Description.namespaces[1].api, {
 		{
 			name = "petNames",
 			type = "table",
-			desc = "Table containing names of all pets the unit has.",
+			desc = "Table containing names of all pets the unit used to apply damage.",
 		}
 	},
 	type = 1, --damage
 })
 
-function Details.UnitOffensivePets (unitId, segment)
+function Details.UnitDamagingPets (unitId, segment)
 	segment = segment or 0
 	local combatObject = getCombatObject (segment)
 	
@@ -922,6 +1006,745 @@ function Details.UnitOffensivePets (unitId, segment)
 end
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> ~healing
 
+
+--[=[
+	Details.UnitHealing (unitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealing",
+	desc = "Query the healing done of a unit.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitHealingDone",
+			type = "number",
+			desc = "Number representing the unit healing.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealing (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return 0
+	end
+	
+	return floor (playerObject.total or 0)
+end
+
+
+--[=[
+	Details.UnitHealingInfo (unitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingInfo",
+	desc = "Return a table with healing information.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "healingInfo",
+			type = "table",
+			desc = "Table containing damage information, keys are: .total, .totalWithoutPet, .totalOverhealWithoutPet, .overhealing, .absorbed, .healingDenied, .healingEnemy, .healingTaken, .activityTime",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingInfo (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	
+	local healingInfo = {
+		total = 0,
+		totalWithoutPet = 0,
+		totalOverhealWithoutPet = 0,
+		overhealing = 0,
+		absorbed = 0,
+		healingDenied = 0,
+		healingEnemy = 0,
+		healingTaken = 0,
+		activityTime = 0,
+	}
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return healingInfo
+	end
+	
+	healingInfo.total = floor (playerObject.total)
+	healingInfo.totalWithoutPet = floor (playerObject.total_without_pet)
+	healingInfo.totalOverhealWithoutPet = floor (playerObject.totalover_without_pet)
+	healingInfo.overhealing = floor (playerObject.totalover)
+	healingInfo.absorbed = floor (playerObject.totalabsorb)
+	healingInfo.healingDenied = floor (playerObject.totaldenied)
+	healingInfo.healingEnemy = floor (playerObject.heal_enemy_amt)
+	healingInfo.healingTaken = floor (playerObject.healing_taken)
+	healingInfo.activityTime = playerObject:Tempo()
+
+	return healingInfo
+end
+
+
+
+--[=[
+	Details.UnitHealingBySpell (unitId, spellId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingBySpell",
+	desc = "Query the total healing done of a spell casted by the unit.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "spellId",
+			type = "number",
+			desc = "Id of a spell to query the healing done. Accept spell names.",
+			required = true,
+		},
+		{
+			name = "isLiteral",
+			type = "boolean",
+			default = "true",
+			desc = "Search for the spell without transforming the spellId into a spell name before the search.",
+		},
+		{
+			name = "segment",
+			default = "0",
+			type = "number",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitSpellHealing",
+			type = "number",
+			desc = "Number representing the spell healing done.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingBySpell (unitId, spellId, isLiteral, segment)
+	if (type (isLiteral) ~= "boolean") then
+		isLiteral = true
+	end
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return 0
+	end
+	
+	local spellObject, spellId = getSpellObject (playerObject, spellId, isLiteral)
+	
+	if (spellObject) then
+		return spellObject.total
+	else
+		return 0
+	end
+end
+
+
+
+
+--[=[
+	Details.UnitHealingSpellInfo (unitId, spellId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingSpellInfo",
+	desc = "Return a table with the spell healing information.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "spellId",
+			type = "number",
+			desc = "Id of a spell to query its healing information. Accept spell names.",
+			required = true,
+		},
+		{
+			name = "isLiteral",
+			type = "boolean",
+			default = "true",
+			desc = "Search for the spell without transforming the spellId into a spell name before the search.",
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "spellHealingInfo",
+			type = "table",
+			desc = "Table containing damage information, keys are: '.total', '.spellId', '.count', '.name', '.casted', '.regularMin', '.regularMax', '.regularAmount', '.regularDamage', '.criticalMin', '.criticalMax', '.criticalAmount', '.criticalDamage'",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingSpellInfo (unitId, spellId, isLiteral, segment)
+	if (type (isLiteral) ~= "boolean") then
+		isLiteral = true
+	end
+	segment = segment or 0
+	
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+
+	local spellInfo = {
+		total = 0,
+		spellId = 0,
+		count = 0,
+		name = "",
+		casted = 0,
+		regularMin = 0,
+		regularMax = 0,
+		regularHits = 0,
+		regularHealing = 0,
+		criticalMin = 0,
+		criticalMax = 0,
+		criticalHits = 0,
+		criticalHealing = 0,
+	}
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return spellInfo
+	end
+	
+	local spellObject, spellId = getSpellObject (playerObject, spellId, isLiteral)
+	if (not spellObject) then
+		return spellInfo
+	end
+
+	local miscPlayerObject = getActorObjectFromCombat (combatObject, 4, unitName)
+	if (miscPlayerObject) then
+		local spellName = GetSpellInfo (spellId)
+		local castedAmount = miscPlayerObject.spell_cast and miscPlayerObject.spell_cast [spellId]
+		
+		if (castedAmount) then
+			spellInfo.casted = castedAmount
+		else
+			for castedSpellId, castedAmount in pairs (miscPlayerObject.spell_cast) do
+				local castedSpellName = GetSpellInfo (castedSpellId)
+				if (castedSpellName == spellName) then
+					spellInfo.casted = castedAmount
+					break
+				end
+			end
+		end
+	end
+	
+	if (spellObject) then
+		spellInfo.total = spellObject.total
+		spellInfo.count = spellObject.counter
+		spellInfo.spellId = spellId
+		spellInfo.name = spellName
+		spellInfo.regularMin = spellObject.n_min
+		spellInfo.regularMax = spellObject.n_max
+		spellInfo.regularHits = spellObject.n_amt
+		spellInfo.regularHealing = spellObject.n_dmg
+		spellInfo.criticalMin = spellObject.c_min
+		spellInfo.criticalMax = spellObject.c_max
+		spellInfo.criticalHits = spellObject.c_amt
+		spellInfo.criticalHealing = spellObject.c_dmg
+	end
+	
+	return spellInfo
+end
+
+
+--[=[
+	Details.UnitHealingSpellOnUnit (unitId, spellId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingSpellOnUnit",
+	desc = "Query the healing done of a spell into a specific target.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "spellId",
+			type = "number",
+			desc = "Id of a spell to query its healing done to an unit. Accept spell names.",
+			required = true,
+		},
+		{
+			name = "targetUnitId",
+			type = "string",
+			desc = "Name or ID of an unit, example: 'Thrall', 'Jaina', 'player', 'target', 'raid5'.",
+			required = true,
+		},
+		{
+			name = "isLiteral",
+			type = "boolean",
+			default = "true",
+			desc = "Search for the spell without transforming the spellId into a spell name before the search.",
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitHealingSpellOnUnit",
+			type = "number",
+			desc = "Healing done by the spell into the target.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingSpellOnUnit (unitId, spellId, targetUnitId, isLiteral, segment)
+	if (type (isLiteral) ~= "boolean") then
+		isLiteral = true
+	end
+	segment = segment or 0
+	
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return 0
+	end
+	
+	local spellObject, spellId = getSpellObject (playerObject, spellId, isLiteral)
+	if (spellObject) then
+		local targetName = getUnitName (targetUnitId)
+		return spellObject.targets [targetName] or 0
+	else
+		return 0
+	end
+end
+
+
+
+--[=[
+	Details.UnitHealingTaken (unitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingTaken",
+	desc = "Query the unit healing taken.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitHealingTaken",
+			type = "number",
+			desc = "Number representing the healing taken by the unit.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingTaken (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return 0
+	end
+	
+	return floor (playerObject.healing_taken)
+end
+
+
+
+--[=[
+	Details.UnitHealingOnUnit (unitId, targetUnitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingOnUnit",
+	desc = "Query the unit healing done on another unit.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "targetUnitId",
+			type = "string",
+			desc = "Name or ID of an unit, example: 'Thrall', 'Jaina', 'player', 'target', 'raid5'.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitHealingOnUnit",
+			type = "number",
+			desc = "Number representing the healing done by the unit on the target unit.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingOnUnit (unitId, targetUnitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return 0
+	end
+	
+	local targetName = getUnitName (targetUnitId)
+	return playerObject.targets [targetName] or 0
+end
+
+
+
+
+--[=[
+	Details.UnitHealingTakenFromSpell (unitId, spellId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingTakenFromSpell",
+	desc = "Query the unit healing taken from a spell.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "spellId",
+			type = "number",
+			desc = "Id of a spell to query its healing to an unit. Accept spell names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitHealingTakenFromSpell",
+			type = "number",
+			desc = "Number representing the healing taken by the unit from a spell.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingTakenFromSpell (unitId, spellId, isLiteral, segment)
+	segment = segment or 0
+	if (type (isLiteral) ~= "boolean") then
+		isLiteral = true
+	end
+	
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	local healingContainer = combatObject:GetContainer (DETAILS_ATTRIBUTE_HEAL)
+	
+	local totalHealingTaken = 0
+	if (isLiteral and type (spellId) == "number") then
+		for i = 1, #healingContainer._ActorTable do
+			for thisSpellId, spellObject in pairs (healingContainer._ActorTable [i].spells._ActorTable) do
+				if (thisSpellId == spellId) then
+					totalHealingTaken = totalHealingTaken + (spellObject.targets [unitName] or 0)
+				end
+			end
+		end
+	else
+		local spellName = GetSpellInfo (spellId) or spellId
+		for i = 1, #healingContainer._ActorTable do
+			for thisSpellId, spellObject in pairs (healingContainer._ActorTable [i].spells._ActorTable) do
+				local thisSpellName = GetSpellInfo (thisSpellId)
+				if (thisSpellName == spellName) then
+					totalHealingTaken = totalHealingTaken + (spellObject.targets [unitName] or 0)
+				end
+			end
+		end
+	end
+
+	return totalHealingTaken
+end
+
+
+
+--[=[
+	Details.UnitHealingSpells (unitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingSpells",
+	desc = "Return a numeric (ipairs) table with spells IDs used by the unit to apply healing.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitHealingSpells",
+			type = "table",
+			desc = "Table with spellIds of spells the unit used to apply healing.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingSpells (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+
+	if (not combatObject) then
+		return {}
+	end
+	
+	local unitName = getUnitName (unitId)
+
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return {}
+	end
+	
+	local unitSpells = playerObject.spells._ActorTable
+	local resultTable = {}
+	for spellId, spellObject in pairs (unitSpells) do
+		resultTable [#resultTable + 1] = spellId
+	end
+	
+	return resultTable
+end
+
+
+--[=[
+	Details.UnitHealingTargets (unitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingTargets",
+	desc = "Return a numeric (ipairs) table with names of targets the unit applied heal. You may query the amount of damage with Details.UnitHealingOnUnit( unitId, targetName ).",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "healingTargetNames",
+			type = "table",
+			desc = "Table containing names of all targets the unit applied heal.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingTargets (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	local healingTargetNames = {}
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return healingTargetNames
+	end
+	
+	for targetName, _ in pairs (playerObject.targets) do
+		healingTargetNames [#healingTargetNames + 1] = targetName
+	end
+	
+	return healingTargetNames
+end
+
+
+
+--[=[
+	Details.UnitHealingPets (unitId, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitHealingPets",
+	desc = "Return a numeric (ipairs) table with all pet names the unit used to apply healing. Individual pet information can be queried with Details.UnitHealing( petName ).",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "petNames",
+			type = "table",
+			desc = "Table containing names of all pets the unit used to apply heal.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.UnitHealingPets (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	local petNames = {}
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 2, unitName)
+	if (not playerObject) then
+		return petNames
+	end
+	
+	for i = 1, #playerObject.pets do
+		petNames [#petNames + 1] = playerObject.pets [i]
+	end
+	
+	return petNames
+end
 
 --stop auto complete: doo ende endp elsez 
