@@ -1867,6 +1867,8 @@ function atributo_heal:MontaInfoHealingDone()
 			tabela.anti_heal,
 		})
 	end
+	
+	info:SetStatusbarText()
 
 	--> add pets
 	local ActorPets = self.pets

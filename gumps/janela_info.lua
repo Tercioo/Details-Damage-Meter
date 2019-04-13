@@ -33,6 +33,12 @@ local IconTexCoord = {5/64, 59/64, 5/64, 59/64}
 local CONST_BAR_HEIGHT = 20
 local CONST_TARGET_HEIGHT = 18
 
+local PLAYER_DETAILS_WINDOW_WIDTH = 790
+local PLAYER_DETAILS_WINDOW_HEIGHT = 474
+
+local PLAYER_DETAILS_STATUSBAR_HEIGHT = 20
+local PLAYER_DETAILS_STATUSBAR_ALPHA = 1
+
 ------------------------------------------------------------------------------------------------------------------------------
 --self = instancia
 --jogador = classe_damage ou classe_heal
@@ -1231,7 +1237,7 @@ local elvui_skin = function()
 	window.container_barras:SetSize (419, 195)
 	window.container_barras:SetPoint ("TOPLEFT", window, "TOPLEFT", 2, -76)
 	--target container
-	window.container_alvos:SetPoint ("BOTTOMLEFT", window, "BOTTOMLEFT", 2, 6)
+	window.container_alvos:SetPoint ("BOTTOMLEFT", window, "BOTTOMLEFT", 2, 6 + PLAYER_DETAILS_STATUSBAR_HEIGHT)
 	window.container_alvos:SetSize (418, 150)
 	
 	--texts
@@ -1492,9 +1498,10 @@ function gump:CriaJanelaInfo()
 
 	--> propriedades da janela
 	este_gump:SetPoint ("CENTER", UIParent)
-	--este_gump:SetWidth (640)
-	este_gump:SetWidth (790)
-	este_gump:SetHeight (454)
+
+	este_gump:SetWidth (PLAYER_DETAILS_WINDOW_WIDTH)
+	este_gump:SetHeight (PLAYER_DETAILS_WINDOW_HEIGHT)
+	
 	este_gump:EnableMouse (true)
 	este_gump:SetResizable (false)
 	este_gump:SetMovable (true)
@@ -1800,6 +1807,30 @@ function gump:CriaJanelaInfo()
 	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -10, -70)	
 	este_gump.report_direita:Show()
 	
+	--> statusbar
+	local statusBar = CreateFrame ("frame", nil, este_gump)
+	statusBar:SetPoint ("bottomleft", este_gump, "bottomleft")
+	statusBar:SetPoint ("bottomright", este_gump, "bottomright")
+	statusBar:SetHeight (PLAYER_DETAILS_STATUSBAR_HEIGHT)
+	DetailsFramework:ApplyStandardBackdrop (statusBar)
+	statusBar:SetAlpha (PLAYER_DETAILS_STATUSBAR_ALPHA)
+	
+	statusBar.Text = DetailsFramework:CreateLabel (statusBar)
+	statusBar.Text:SetPoint ("left", 2, 0)
+	
+	function este_gump:SetStatusbarText (text, fontSize, fontColor)
+		if (not text) then
+			este_gump:SetStatusbarText ("Details! Damage Meter | Use '/details stats' for statistics", 10, "gray")
+			return
+		end
+		statusBar.Text.text = text
+		statusBar.Text.fontsize = fontSize
+		statusBar.Text.fontcolor = fontColor
+	end
+	
+	--set default text
+	este_gump:SetStatusbarText()
+
 	--> apply default skin
 	_detalhes:ApplyPDWSkin()
 	
@@ -1844,7 +1875,7 @@ function gump:CriaJanelaInfo()
 		--> Percent Desc
 			local percent_desc = frame:CreateFontString (nil, "artwork", "GameFontNormal")
 			percent_desc:SetText ("Percent values are comparisons with the previous try.")
-			percent_desc:SetPoint ("bottomleft", frame, "bottomleft", 13, 13)
+			percent_desc:SetPoint ("bottomleft", frame, "bottomleft", 13, 13 + PLAYER_DETAILS_STATUSBAR_HEIGHT)
 			percent_desc:SetTextColor (.5, .5, .5, 1)
 		
 		--> SUMMARY

@@ -3994,7 +3994,6 @@ function atributo_damage:MontaInfoDamageDone()
 	end
 	
 	--damage rank
-	--este_gump:SetTopRightTexts (text1, text2, size, color, font)	
 	local combat = instancia:GetShowingCombat()
 	local diff = combat:GetDifficulty()
 	local attribute, subattribute = instancia:GetDisplay()
@@ -4007,19 +4006,16 @@ function atributo_damage:MontaInfoDamageDone()
 			if (bestRank) then
 				--> discover which are the player position in the guild rank
 				local playerTable, onEncounter, rankPosition = _detalhes.storage:GetPlayerGuildRank (diff, combat:GetBossInfo().id, "damage", self.nome, true)
-				
-				local text1 = self.nome .. " on " .. combat:GetBossInfo().name .. ":"
-				local text2 = "Guild Rank: " .. (rankPosition or "x") .. " Best Dps: " .. _detalhes:ToK2 ((bestRank[1] or 0) / encounterTable.elapsed) .. " (" .. encounterTable.date:gsub (".*%s", "") .. ")"
-				
-				info:SetTopRightTexts (text1, text2, 9, "gray", font)
+				local text1 = self.nome .. " Guild Rank on " .. (combat:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. _detalhes:ToK2 ((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub (".*%s", "") .. ")"
+				info:SetStatusbarText (text1, 10, "gray")
 			else
-				info:SetTopRightTexts()
+				info:SetStatusbarText()
 			end
 		else
-			info:SetTopRightTexts()
+			info:SetStatusbarText()
 		end
 	else
-		info:SetTopRightTexts()
+		info:SetStatusbarText()
 	end
 	
 	--> add pets
