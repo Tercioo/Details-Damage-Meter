@@ -4709,30 +4709,37 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		end
 	
 	--> multistrike
-		if (esta_magia.m_amt > 0) then
-		
-			local normal_hits = esta_magia.m_amt
-			local normal_dmg = esta_magia.m_dmg
+		--[=[
+			if (esta_magia.m_amt > 0) then
 			
-			local media_normal = normal_dmg/normal_hits
-			local T = (meu_tempo*normal_dmg)/esta_magia.total
-			local P = media/media_normal*100
-			T = P*T/100
-			
-			data[#data+1] = t4
-			multistrike_table.p = esta_magia.m_amt/total_hits*100
+				local normal_hits = esta_magia.m_amt
+				local normal_dmg = esta_magia.m_dmg
+				
+				local media_normal = normal_dmg/normal_hits
+				local T = (meu_tempo*normal_dmg)/esta_magia.total
+				local P = media/media_normal*100
+				T = P*T/100
+				
+				data[#data+1] = t4
+				multistrike_table.p = esta_magia.m_amt/total_hits*100
 
-			t4[1] = esta_magia.m_amt
-			t4[2] = multistrike_table
-			t4[3] = Loc ["STRING_MULTISTRIKE_HITS"]
-			t4[4] = "On Critical: " .. esta_magia.m_crit
-			t4[5] = "On Normals: " .. (esta_magia.m_amt - esta_magia.m_crit)
-			t4[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/esta_magia.m_amt)
-			t4[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/T)
-			t4[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"
+				t4[1] = esta_magia.m_amt
+				t4[2] = multistrike_table
+				t4[3] = Loc ["STRING_MULTISTRIKE_HITS"]
+				t4[4] = "On Critical: " .. esta_magia.m_crit
+				t4[5] = "On Normals: " .. (esta_magia.m_amt - esta_magia.m_crit)
+				t4[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/esta_magia.m_amt)
+				t4[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/T)
+				t4[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"
 
-		end
-		
+			end
+		--]=]
+
+	--_detalhes:BuildPlayerDetailsSpellChart()
+	--DetailsPlayerDetailSmallChart.ShowChart (_detalhes.janela_info.grupos_detalhes [5].bg, info.instancia.showing, info.instancia.showing.cleu_events, self.nome, false, spellid, 1, 2, 3, 4, 5, 6, 7, 8, 15)
+	
+	--> spell damage chart
+	--events: 1 2 3 4 5 6 7 8 15
 		
 	
 	_table_sort (data, _detalhes.Sort1)
@@ -4745,6 +4752,89 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		gump:HidaDetalheInfo (i)
 	end
 	
+end
+
+function _detalhes:BuildPlayerDetailsSpellChart()
+	local playerDetailSmallChart = DetailsPlayerDetailSmallChart
+	
+	if (not playerDetailSmallChart) then
+	
+		playerDetailSmallChart = CreateFrame ("frame", "DetailsPlayerDetailSmallChart", info)
+		DetailsFramework:ApplyStandardBackdrop (playerDetailSmallChart)
+		playerDetailSmallChart.Lines = {}
+		
+		for i = 1, 200 do
+			local texture = playerDetailSmallChart:CreateTexture (nil, "artwork")
+			texture:SetColorTexture (1, 1, 1, 1)
+			tinsert (playerDetailSmallChart.Lines, texture)
+		end
+		
+		--_detalhes.janela_info.grupos_detalhes [index]
+		function playerDetailSmallChart.ShowChart (parent, combatObject, cleuData, playerName, targetName, spellId, ...)
+			local tokenIdList = {}
+			local eventList = {}
+			
+			--build the list of tokens
+			for i = 1, select ("#", ... ) do
+				local tokenId = select (i, ...)
+				tokenIdList [tokenId] = true
+			end
+			
+			--check which lines can be added
+			local index = 1
+			local peakValue = 0
+			
+			for i = 1, cleuData.n -1 do
+				local event = cleuData [i]
+				if (event [2]) then --index 2 = token
+					local playerNameFilter = playerName and playerName == event [3]
+					local targetNameFilter = targetName and targetName == event [4]
+					local spellIdFilter = spellId and spellId == event [5]
+					
+					if (playerNameFilter or targetNameFilter or spellIdFilter) then
+						eventList [index] = cleuData [i]
+						if (peakValue < cleuData [i] [6]) then
+							peakValue = cleuData [i] [6]
+						end
+						index = index + 1
+					end
+				end
+			end
+
+			--200 lines, adjust the mini chart
+			playerDetailSmallChart:SetPoint ("topleft", parent, "topleft")
+			playerDetailSmallChart:SetPoint ("bottomright", parent, "bottomright")
+			
+			--update lines
+			local width = playerDetailSmallChart:GetWidth()
+			local combatTime = combatObject:GetCombatTime()
+			local secondsPerBar = combatTime / 200
+			local barWidth = width / 200
+			local barHeight = playerDetailSmallChart:GetHeight()
+			
+			local currentTime = eventList [1][1]
+			local currentIndex = 1
+			local eventAmount = #eventList
+			
+			for i = 1, #playerDetailSmallChart.Lines do
+				playerDetailSmallChart.Lines [i]:SetWidth (width / 200)
+				playerDetailSmallChart.Lines [i]:SetHeight (1)
+				
+				for o = currentIndex, eventAmount do
+					if (eventList [o][1] <= currentTime + secondsPerBar or eventList [o][1] >= currentTime) then
+						playerDetailSmallChart.Lines [i]:SetPoint ("bottomleft", playerDetailSmallChart, "bottomleft", barWidth  * (i - 1), 0)
+						playerDetailSmallChart.Lines [i]:SetWidth (barWidth)
+						playerDetailSmallChart.Lines [i]:SetHeight (eventList [o][6] / peakValue * barHeight)
+					else
+						currentIndex = o
+						break
+					end
+				end
+				
+				currentTime = currentTime + secondsPerBar
+			end
+		end
+	end
 end
 
 function atributo_damage:MontaTooltipDamageTaken (esta_barra, index)

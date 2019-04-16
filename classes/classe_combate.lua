@@ -378,6 +378,7 @@
 		--> start/end time (duration)
 		esta_tabela.data_fim = 0
 		esta_tabela.data_inicio = 0
+		esta_tabela.tempo_start = _tempo
 		
 		--> record deaths
 		esta_tabela.last_events_tables = {}
@@ -403,6 +404,11 @@
 		esta_tabela.spells_cast_timeline = {}
 		esta_tabela.aura_timeline = {}
 		esta_tabela.cleu_timeline = {}
+		
+		--> cleu events
+		esta_tabela.cleu_events = {
+			n = 1 --event counter
+		}
 		
 		--> Skill cache (not used)
 		esta_tabela.CombatSkillCache = {}

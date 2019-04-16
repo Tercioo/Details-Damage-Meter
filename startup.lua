@@ -1083,6 +1083,20 @@ function _G._detalhes:Start()
 					--nothing
 
 				elseif (event == "COMBAT_MYTHICDUNGEON_START") then
+				
+					local lower_instance = _detalhes:GetLowerInstanceNumber()
+					if (lower_instance) then
+						lower_instance = _detalhes:GetInstance (lower_instance)
+						if (lower_instance) then
+							C_Timer.After (3, function()
+								if (lower_instance:IsEnabled()) then
+									--todo, need localization
+									lower_instance:InstanceAlert ("Details!" .. " " .. "Damage" .. " " .. "Meter", {[[Interface\AddOns\Details\images\minimap]], 16, 16, false}, 3, {function() end}, false, true)
+								end
+							end)
+						end
+					end
+				
 					--> ignore the event if ignoring mythic dungeon special treatment
 					if (_detalhes.streamer_config.disable_mythic_dungeon) then
 						return

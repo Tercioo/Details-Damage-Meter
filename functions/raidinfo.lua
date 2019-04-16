@@ -6,7 +6,7 @@ do
 	--> data for Crucible of Storms (BFA tier 1)
 	
 	local INSTANCE_EJID = 1177
-	local INSTANCE_MAPID = 0 --TBD
+	local INSTANCE_MAPID = 2096
 	local HDIMAGESPATH = "Details\\images\\raid"
 	local HDFILEPREFIX = "CrucibleRaid"
 	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "LoadingScreen_Seapriestraid_wide_BattleforAzeroth", {0, 1, 285/1024, 875/1024}
