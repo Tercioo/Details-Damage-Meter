@@ -17,7 +17,7 @@ local getCombatObject = function (segmentNumber)
 	elseif (segmentNumber == 0) then
 		combatObject = _detalhes.tabela_vigente
 	else
-		combatObject = _detalhes.tabela_historico.tabelas [segment]
+		combatObject = _detalhes.tabela_historico.tabelas [segmentNumber]
 	end
 	
 	return combatObject
@@ -112,7 +112,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 			desc = "Number representing the elapsed time of a combat.",
 		}
 	},
-	type = 1, --damage
+	type = 0, --misc
 })
 
 function Details.SegmentElapsedTime (segment)
@@ -284,6 +284,159 @@ function Details.SegmentHealingUnits (includePlayerUnits, includeEnemyUnits, inc
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> unit ~information
+--[=[
+	Details.UnitInfo (unitId, segment)
+--=]=]
+
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitInfo",
+	desc = "Query basic information about the unit, like class and spec.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitInfo",
+			type = "table",
+			desc = "A table with information about the unit, the table contains: .class, .spec, .guid, .role, .isPlayer, .isEnemy, .isPet, .isArenaFriendly, .isArenaEnemy, .arenaTeam.",
+		}
+	},
+	type = 0, --misc
+})
+
+
+function Details.UnitInfo (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	local unitInfo = {
+		class = "UNKNOW", --old typo in details
+		spec = 0,
+		guid = "",
+		role = "NONE",
+		isPlayer = false,
+		isEnemy = false,
+		isPet = false,
+		isArenaFriendly = false,
+		isArenaEnemy = false,
+		arenaTeam = false,
+	}
+	
+	if (not combatObject) then
+		return unitInfo
+	end
+	
+	local unitName = getUnitName (unitId)
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 1, unitName)
+	if (not playerObject) then
+		return unitInfo
+	end
+	
+	unitInfo.class = playerObject.classe or "UNKNOW"
+	unitInfo.spec = playerObject.spec or 0
+	unitInfo.guid = playerObject.serial or ""
+	unitInfo.role = playerObject.role or "NONE"
+	unitInfo.isPlayer = playerObject:IsPlayer()
+	unitInfo.isEnemy = playerObject:IsEnemy()
+	unitInfo.isPet = playerObject:IsPetOrGuardian()
+	unitInfo.isArenaFriendly = playerObject.arena_ally or false
+	unitInfo.isArenaEnemy = playerObject.arena_enemy or false
+	unitInfo.arenaTeam = playerObject.arena_team or false
+
+	return unitInfo
+end
+
+--[=[
+	Details.UnitTexture (unitId, segment)
+--=]=]
+
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitTexture",
+	desc = "Query the icon and texcoords for the class and spec icon.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "textureInfo",
+			type = "table",
+			desc = "A table containing texture paths for class and spec icons plus the texture coordinates (texture:SetTexCoord), the table contains: .classTexture, .classLeft, .classRight, .classTop, .classBottom, .specTexture, .specLeft, .specRight, .specTop, .specBottom.",
+		}
+	},
+	type = 0, --misc
+})
+
+
+function Details.UnitTexture (unitId, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	local textureInfo = {
+		classTexture = [[Interface\LFGFRAME\LFGROLE_BW]],
+		classLeft = 0.25,
+		classRight = 0.5,
+		classTop = 0,
+		classBottom = 1,
+		specTexture = [[Interface\LFGFRAME\LFGROLE_BW]],
+		specLeft = 0.25,
+		specRight = 0.5,
+		specTop = 0,
+		specBottom = 1,
+	}
+	
+	if (not combatObject) then
+		return textureInfo
+	end
+	
+	local unitName = getUnitName (unitId)
+	
+	local playerObject = getActorObjectFromCombat (combatObject, 1, unitName)
+	if (not playerObject) then
+		return textureInfo
+	end
+	
+	local texture, left, right, top, bottom = playerObject:GetClassIcon()
+	textureInfo.classTexture = texture
+	textureInfo.classLeft = left
+	textureInfo.classRight = right
+	textureInfo.classTop = top
+	textureInfo.classBottom = bottom
+	
+	local texture, left, right, top, bottom = Details:GetSpecIcon (playerObject.spec)
+	textureInfo.specTexture = texture
+	textureInfo.specLeft = left
+	textureInfo.specRight = right
+	textureInfo.specTop = top
+	textureInfo.specBottom = bottom
+	
+	return textureInfo
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> ~damage
 
 --[=[
@@ -333,7 +486,6 @@ function Details.UnitDamage (unitId, segment)
 	
 	return floor (playerObject.total or 0)
 end
-
 
 --[=[
 	Details.UnitDamageInfo (unitId, segment)

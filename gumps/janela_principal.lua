@@ -3042,9 +3042,9 @@ local hide_click_func = function()
 	--empty
 end
 
-function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash)
+function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
 	
-	if (_detalhes.streamer_config.no_alerts) then
+	if (not forceAlert and _detalhes.streamer_config.no_alerts) then
 		return
 	end
 	

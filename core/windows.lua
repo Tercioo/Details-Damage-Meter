@@ -4810,7 +4810,7 @@
 			local scrollWidth = 200
 			local scrollHeight = 570
 			local lineHeight = 20
-			local lineAmount = 25
+			local lineAmount = 27
 			local backdropColor = {.2, .2, .2, 0.2}
 			local backdropColorOnEnter = {.8, .8, .8, 0.4}
 			local backdropColorSelected = {1, 1, .8, 0.4}
