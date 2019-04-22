@@ -283,6 +283,46 @@ function Details.SegmentHealingUnits (includePlayerUnits, includeEnemyUnits, inc
 	return units
 end
 
+--[=[
+	Details.SegmentPhases (segment)
+--=]=]
+
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "SegmentPhases",
+	desc = "Return a numeric (ipairs) table with phase numbers available on the segment.",
+	parameters = {
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "phaseNumbers",
+			type = "table",
+			desc = "A table containing numbers representing phases of the encounter, these numbers can used with UnitDamageByPhase().",
+		}
+	},
+	type = 0, --misc
+})
+
+function Details.SegmentPhases (segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	local phaseData = combatObject.PhaseData
+	
+	local phases = {}
+	for phaseChangeId, phaseTable in ipairs (phaseData) do
+		local phaseNumber = phaseTable [1]
+		DetailsFramework.table.addunique (phases, phaseNumber)
+	end
+	
+	return phases
+end
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> unit ~information
 --[=[
@@ -485,6 +525,66 @@ function Details.UnitDamage (unitId, segment)
 	end
 	
 	return floor (playerObject.total or 0)
+end
+
+
+--[=[
+	Details.UnitDamageByPhase (unitId, phaseNumber, segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "UnitDamageByPhase",
+	desc = "Query the damage of a unit but only for a specific phase of a boss encounter.",
+	parameters = {
+		{
+			name = "unitId",
+			type = "string",
+			desc = "The ID of an unit, example: 'player', 'target', 'raid5'. Accept unit names.",
+			required = true,
+		},
+		{
+			name = "phaseNumber",
+			type = "number",
+			desc = "The phase number of an encounter. Some encounters has transition phases considered 'phase 1.5'. You may query SegmentPhases() to know which phases the encounter has.",
+			required = true,
+		},
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "unitDamage",
+			type = "number",
+			desc = "Number representing the unit damage on the encounter phase.",
+		}
+	},
+	type = 1, --damage
+})
+
+function Details.UnitDamageByPhase (unitId, phaseNumber, segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	if (not phaseNumber) then
+		return 0
+	end
+	
+	local unitName = getUnitName (unitId)
+	
+	local damagePhaseData = combatObject.PhaseData.damage [phaseNumber]
+	if (not damagePhaseData) then
+		return 0
+	end
+	
+	local phaseDamage = damagePhaseData [unitName] or 0
+	return floor (phaseDamage)
 end
 
 --[=[
