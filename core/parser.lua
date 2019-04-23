@@ -212,6 +212,8 @@
 	--> discharge apetagonizer core
 	local SPELLNAME_GRONG_CORE = GetSpellInfo (285660)
 	local SPELLNAME_GRONG_CORE_ALLIANCE = GetSpellInfo (286435)
+	--> storm of annihilation
+	local SPELLANAME_STORM_OF_ANNIHILATION = GetSpellInfo (284601)
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -433,8 +435,13 @@
 		--end
 		
 		--rules of specific encounters
-
-		if (_current_encounter_id == 2263 or _current_encounter_id == 2284) then --grong --REMOVE ON 9.0 LAUNCH
+		
+		if (_current_encounter_id == 2273) then --Uu'nat  --REMOVE ON 9.0 LAUNCH
+			if (spellname == SPELLANAME_STORM_OF_ANNIHILATION or spellid == 284601) then
+				--return --this is parsed as friendly fire
+			end
+		
+		elseif (_current_encounter_id == 2263 or _current_encounter_id == 2284) then --grong --REMOVE ON 9.0 LAUNCH
 			if (spellid == 285660 or spellname == SPELLNAME_GRONG_CORE or spellid == 286435 or spellname == SPELLNAME_GRONG_CORE_ALLIANCE) then
 				return
 			end
