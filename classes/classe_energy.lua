@@ -796,9 +796,7 @@ function atributo_energy:ToolTip (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 5) then --resources
 
 		local resource_string = _detalhes.resource_strings [self.resource_type]
-		
 		if (resource_string) then
-		
 			local icon = _detalhes.resource_icons [self.resource_type]
 	
 			GameCooltip:AddLine (resource_string, _cstr ("%.2f", self.resource / instancia.showing:GetCombatTime()) .. " per minute", 1, "white")

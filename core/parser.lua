@@ -2750,6 +2750,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end)
 
+	-- ~energy ~resource
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
 	
 	------------------------------------------------------------------------------------------------
@@ -2874,7 +2875,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> MISC 	search key: ~cooldown											|
 -----------------------------------------------------------------------------------------------------------------------------------------
-
+	
 	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 	
 	------------------------------------------------------------------------------------------------
@@ -2977,7 +2978,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	
-	--serach key: ~interrupt
+	--serach key: ~interrupts
 	function parser:interrupt (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
 
 	------------------------------------------------------------------------------------------------
@@ -4193,6 +4194,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		_current_encounter_id = encounterID
+		_detalhes.boss1_health_percent = 1
 		
 		if (_current_encounter_id == 2122) then --g'huun --REMOVE ON 9,0 PATCH
 			C_Timer.After (1, function()

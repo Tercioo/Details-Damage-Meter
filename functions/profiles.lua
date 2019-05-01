@@ -1385,9 +1385,11 @@ local default_global_data = {
 			
 		},
 	
-	--> dungeon information
+	--> dungeon information - can be accessed by plugins and third party mods
 		dungeon_data = {},
-		
+	
+	--> raid information - can be accessed by plugins and third party mods
+		raid_data = {},
 }
 
 _detalhes.default_global_data = default_global_data

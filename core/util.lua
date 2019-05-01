@@ -871,11 +871,24 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
+	function _detalhes:HealthTick()
+		if (UnitExists ("boss1") and IsInRaid() and IsInInstance()) then
+			local health = (UnitHealth ("boss1") or 0) / (UnitHealthMax ("boss1") or 0)
+			if (_detalhes.boss1_health_percent) then
+				if (_detalhes.boss1_health_percent < health) then
+					return
+				end
+			end
+			_detalhes.boss1_health_percent = health
+		end
+	end
+
 	--> is in combat yet?
 	function _detalhes:EstaEmCombate()
 
 		_detalhes:TimeDataTick()
 		_detalhes:BrokerTick()
+		_detalhes:HealthTick()
 		
 		if ((_detalhes.zone_type == "pvp" and _detalhes.use_battleground_server_parser) or _detalhes.zone_type == "arena" or _InCombatLockdown()) then
 			return true

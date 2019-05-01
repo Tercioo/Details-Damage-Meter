@@ -92,6 +92,47 @@ Details.API_Description = {
 --> ~segments
 
 --[=[
+	Details.SegmentInfo (segment)
+--=]=]
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "SegmentInfo",
+	desc = "Return a table containing information about the segment.",
+	parameters = {
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "segmentInfo",
+			type = "table",
+			desc = "Table containing the following members: ",
+		}
+	},
+	type = 0, --misc
+})
+
+function Details.SegmentInfo (segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	local segmentInfo = {
+		
+	}
+	
+	if (not combatObject) then
+		return segmentInfo
+	end
+	
+	
+	
+	return segmentInfo
+end
+
+--[=[
 	Details.SegmentElapsedTime (segment)
 --=]=]
 tinsert (Details.API_Description.namespaces[1].api, {
@@ -284,6 +325,79 @@ function Details.SegmentHealingUnits (includePlayerUnits, includeEnemyUnits, inc
 end
 
 --[=[
+	Details.SegmentTotalDamage (segment)
+--=]=]
+
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "SegmentTotalDamage",
+	desc = "Query the total damage done in the segment and only by players in the group.",
+	parameters = {
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "totalDamage",
+			type = "number",
+			desc = "Amount of damage done by players in the group.",
+		}
+	},
+	type = 1, --damage
+})
+
+function Details.SegmentTotalDamage (segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	return floor (combatObject.totals_grupo [1])
+end
+
+
+--[=[
+	Details.SegmentTotalHealing (segment)
+--=]=]
+
+tinsert (Details.API_Description.namespaces[1].api, {
+	name = "SegmentTotalHealing",
+	desc = "Query the total healing done in the segment and only by players in the group.",
+	parameters = {
+		{
+			name = "segment",
+			type = "number",
+			default = "0",
+			desc = "Which segment to retrive data, default value is zero (current segment). Use -1 for overall data or value from 1 to 25 for other segments.",
+		},
+	},
+	returnValues = {
+		{
+			name = "totalHealing",
+			type = "number",
+			desc = "Amount of healing done by players in the group.",
+		}
+	},
+	type = 2, --healing
+})
+
+function Details.SegmentTotalHealing (segment)
+	segment = segment or 0
+	local combatObject = getCombatObject (segment)
+	
+	if (not combatObject) then
+		return 0
+	end
+	
+	return floor (combatObject.totals_grupo [2])
+end
+
+--[=[
 	Details.SegmentPhases (segment)
 --=]=]
 
@@ -312,9 +426,14 @@ function Details.SegmentPhases (segment)
 	segment = segment or 0
 	local combatObject = getCombatObject (segment)
 	
+	local phases = {}
+	
+	if (not combatObject) then
+		return phases
+	end	
+	
 	local phaseData = combatObject.PhaseData
 	
-	local phases = {}
 	for phaseChangeId, phaseTable in ipairs (phaseData) do
 		local phaseNumber = phaseTable [1]
 		DetailsFramework.table.addunique (phases, phaseNumber)
