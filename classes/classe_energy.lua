@@ -74,6 +74,8 @@ function atributo_energy:NovaTabela (serial, nome, link)
 		tipo = class_type,
 
 		total = alphabetical,
+		totalover = alphabetical,
+		passiveover = alphabetical,
 		received = alphabetical,
 		resource = alphabetical,
 		alternatepower = alphabetical,
@@ -241,7 +243,7 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 		porcentagem = porcentagem .. "%"
 	end
 	
-	local rightText = formated_resource .. bars_brackets[1] .. formated_rps .. bars_separator .. porcentagem .. bars_brackets[2]
+	local rightText = formated_resource .. bars_brackets[1] .. formated_rps .. " r/s" .. bars_separator .. porcentagem .. bars_brackets[2]
 	if (UsingCustomRightText) then
 		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_resource, formated_rps, porcentagem, self, instancia.showing, instancia, rightText))
 	else
@@ -799,7 +801,7 @@ function atributo_energy:ToolTip (instancia, numero, barra, keydown)
 		if (resource_string) then
 			local icon = _detalhes.resource_icons [self.resource_type]
 	
-			GameCooltip:AddLine (resource_string, _cstr ("%.2f", self.resource / instancia.showing:GetCombatTime()) .. " per minute", 1, "white")
+			GameCooltip:AddLine (resource_string, floor (self.resource) .. " (" .. _cstr ("%.2f", self.resource / instancia.showing:GetCombatTime()) .. " per second)", 1, "white")
 			GameCooltip:AddIcon (icon.file, 1, 1, 16, 16, unpack (icon.coords))
 			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], resource_bg_coords, resource_bg_color, true)
 			
@@ -914,7 +916,6 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	end
 	
 	--> players
-	
 	reset_tooltips_table()
 	i = 1
 
@@ -981,6 +982,35 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 		end
 		
 	end
+
+	--> player generators
+	local allGeneratorSpells = {}
+	local allGenerated = 0
+	for spellid, spellObject in _pairs (self.spells._ActorTable) do
+		tinsert (allGeneratorSpells, {spellObject, spellObject.total, spellObject.totalover})
+		allGenerated = allGenerated + spellObject.total
+	end
+
+	table.sort (allGeneratorSpells, _detalhes.Sort2)
+	
+	_detalhes:AddTooltipSpellHeaderText (self.nome .. " Generators", headerColor, #allGeneratorSpells, [[Interface\HELPFRAME\HelpIcon-HotIssues]], 0.21875, 0.78125, 0.21875, 0.78125)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
+	
+	for i = 1, #allGeneratorSpells do
+		local thisGenerator = allGeneratorSpells [i]
+		local spellName, _, spellIcon = GetSpellInfo (thisGenerator[1].id)
+		GameCooltip:AddLine (spellName, FormatTooltipNumber (_,  thisGenerator[2]) .. " (|cFFFF5555overflow: " .. FormatTooltipNumber (_,  thisGenerator[3]) .. "|r | " .. _cstr ("%.1f", (thisGenerator[2] / allGenerated) * 100).."%)")
+		GameCooltip:AddIcon (spellIcon, nil, nil, icon_size.W, icon_size.H, .1, .9, .1, .9)
+		_detalhes:AddTooltipBackgroundStatusbar()
+	end
+	
+	--auto regen overflow
+	_detalhes:AddTooltipSpellHeaderText (self.nome .. " Auto Regen Overflow", headerColor, 1, [[Interface\CHARACTERFRAME\Disconnect-Icon]], 0.3, 0.7, 0.3, 0.7)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
+	
+	GameCooltip:AddLine ("Auto Regen Overflow", FormatTooltipNumber (_,  self.passiveover) .. " ( " .. _cstr ("%.1f",  self.passiveover / (self.passiveover + self.total) * 100)  .. "%)")
+	GameCooltip:AddIcon ([[Interface\COMMON\Indicator-Red]], nil, nil, icon_size.W, icon_size.H)
+	_detalhes:AddTooltipBackgroundStatusbar()
 	
 	return true
 end

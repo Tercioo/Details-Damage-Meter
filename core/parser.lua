@@ -91,6 +91,8 @@
 		local raid_members_cache = setmetatable ({}, _detalhes.weaktable)
 	--> tanks
 		local tanks_members_cache = setmetatable ({}, _detalhes.weaktable)
+	--> auto regen
+		local auto_regen_cache = setmetatable ({}, _detalhes.weaktable)
 	--> bitfield swap cache
 		local bitfield_swap_cache = {}
 	--> damage and heal last events
@@ -276,6 +278,20 @@
 			["141265"] = true,
 		}
 		
+	--> regen overflow
+		local auto_regen_power_specs = {
+			[103] = Enum.PowerType.Energy, --druid feral
+			[259] = Enum.PowerType.Energy, --rogue ass
+			[260] = Enum.PowerType.Energy, --rogue outlaw
+			[261] = Enum.PowerType.Energy, --rogue sub
+			[254] = Enum.PowerType.Focus, --hunter mm
+			[253] = Enum.PowerType.Focus, --hunter bm
+			[255] = Enum.PowerType.Focus, --hunter survival
+			[268] = Enum.PowerType.Energy, --monk brewmaster
+			[269] = Enum.PowerType.Energy, --monk windwalker
+		}
+		local _auto_regen_thread
+		local AUTO_REGEN_PRECISION = 2
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
@@ -2750,8 +2766,27 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end)
 
+	local regen_power_overflow_check = function()
+		if (not _in_combat) then
+			return
+		end
+		
+		for playerName, powerType in _pairs (auto_regen_cache) do 
+			local currentPower = UnitPower (playerName, powerType) or 0
+			local maxPower = UnitPowerMax (playerName, powerType) or 1
+			
+			if (currentPower == maxPower) then
+				--power overflow
+				local energyObject = energy_cache [playerName]
+				if (energyObject) then
+					energyObject.passiveover = energyObject.passiveover + AUTO_REGEN_PRECISION
+				end
+			end
+		end
+	end
+	
 	-- ~energy ~resource
-	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
+	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overpower, powertype, altpower)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2773,10 +2808,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--> check if is valid
 		if (not energy_types [powertype] and not is_resource) then
 			return
+			
 		elseif (is_resource) then
 			powertype = is_resource
 			amount = 0
 		end
+		
+		overpower = overpower or 0
 		
 		--[[statistics]]-- _detalhes.statistics.energy_calls = _detalhes.statistics.energy_calls + 1
 
@@ -2833,6 +2871,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 		if (not is_resource) then
 		
+			--amount = amount - overpower
+		
 			--> add to targets
 			este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
 		
@@ -2845,6 +2885,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			--> regen produced amount
 			este_jogador.total = este_jogador.total + amount
+			este_jogador.totalover = este_jogador.totalover + overpower
 	
 			--> target regenerated amount
 			jogador_alvo.received = jogador_alvo.received + amount
@@ -2861,7 +2902,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		
 			--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
-			return spell_energy_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
+			return spell_energy_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype, overpower)
 			
 		else
 			--> is a resource
@@ -5085,6 +5126,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 		_table_wipe (raid_members_cache)
 		_table_wipe (tanks_members_cache)
+		_table_wipe (auto_regen_cache)
 		_table_wipe (bitfield_swap_cache)
 		_table_wipe (ignore_actors)
 		
@@ -5101,6 +5143,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (role == "TANK") then
 					tanks_members_cache [_UnitGUID ("raid"..i)] = true
 				end
+				
+				if (auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("raid" .. i)]]) then
+					auto_regen_cache [name] = auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("raid" .. i)]]
+				end
 			end
 			
 		elseif (_IsInGroup()) then
@@ -5115,6 +5161,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (role == "TANK") then
 					tanks_members_cache [_UnitGUID ("party"..i)] = true
 				end
+				
+				if (auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("party" .. i)]]) then
+					auto_regen_cache [name] = auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("party" .. i)]]
+				end
 			end
 			
 			--player
@@ -5126,6 +5176,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			local role = _UnitGroupRolesAssigned (name)
 			if (role == "TANK") then
 				tanks_members_cache [_UnitGUID ("player")] = true
+			end
+			
+			if (auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("player")]]) then
+				auto_regen_cache [name] = auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("player")]]
 			end
 		else
 			local name = GetUnitName ("player", true)
@@ -5143,6 +5197,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 						tanks_members_cache [_UnitGUID ("player")] = true
 					end
 				end
+			end
+			
+			if (auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("player")]]) then
+				auto_regen_cache [name] = auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("player")]]
 			end
 		end
 		
@@ -5190,6 +5248,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--_recording_took_damage = _detalhes.RecordRealTimeTookDamage
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 		_in_combat = _detalhes.in_combat
+		
+		if (_in_combat) then
+			if (not _auto_regen_thread or _auto_regen_thread._cancelled) then
+				_auto_regen_thread = C_Timer.NewTicker (AUTO_REGEN_PRECISION / 10, regen_power_overflow_check)
+			end
+		else
+			if (_auto_regen_thread and not _auto_regen_thread._cancelled) then
+				_auto_regen_thread:Cancel()
+				_auto_regen_thread = nil
+			end
+		end
 		
 		if (_detalhes.hooks ["HOOK_COOLDOWN"].enabled) then
 			_hook_cooldowns = true
