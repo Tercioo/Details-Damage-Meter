@@ -3384,7 +3384,10 @@
 				OnClick = function (self, button)
 				
 					if (button == "LeftButton") then
-					
+						if (IsControlKeyDown()) then
+							_detalhes:ToggleWindows()
+							return
+						end
 						--> 1 = open options panel
 						if (_detalhes.minimap.onclick_what_todo == 1) then
 							local lower_instance = _detalhes:GetLowerInstanceNumber()
@@ -3410,7 +3413,7 @@
 								_detalhes:ShutDownAllInstances()
 							end
 						end
-						
+
 					elseif (button == "RightButton") then
 					
 						GameTooltip:Hide()
@@ -3493,6 +3496,7 @@
 						tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP12"])
 					end
 					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP2"])
+					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP3"])
 				end,
 			})
 			
@@ -7466,7 +7470,3 @@ function Details:ShowApi2()
 
 
 end
-
-
-
-
