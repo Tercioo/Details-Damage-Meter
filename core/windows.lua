@@ -3496,7 +3496,7 @@
 						tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP12"])
 					end
 					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP2"])
-					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP3"])
+					tooltip:AddLine ("|cFFCFCFCFctrl + left click|r: show/hide windows")
 				end,
 			})
 			
