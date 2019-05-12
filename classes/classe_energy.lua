@@ -200,7 +200,7 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 	local esta_barra = instancia.barras [qual_barra]
 	
 	if (not esta_barra) then
-		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
+		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..colocacao)
 		return
 	end
 	

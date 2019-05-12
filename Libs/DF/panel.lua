@@ -2151,9 +2151,9 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~prompt
-function DF:ShowPromptPanel (message, func_true, func_false)
+function DF:ShowPromptPanel (message, func_true, func_false, no_repeated, width)
 	
-	if (not DF.prompt_panel) then
+	if (not DetailsFrameworkPromptSimple) then
 		local f = CreateFrame ("frame", "DetailsFrameworkPromptSimple", UIParent) 
 		f:SetSize (400, 80)
 		f:SetFrameStrata ("DIALOG")
@@ -2227,6 +2227,18 @@ function DF:ShowPromptPanel (message, func_true, func_false)
 	end
 	
 	assert (type (func_true) == "function" and type (func_false) == "function", "ShowPromptPanel expects two functions.")
+
+	if (no_repeated) then
+		if (DF.promtp_panel:IsShown()) then
+			return
+		end
+	end
+	
+	if (width) then
+		DF.promtp_panel:SetWidth (width)
+	else
+		DF.promtp_panel:SetWidth (400)
+	end
 	
 	DF.promtp_panel.prompt:SetText (message)
 	DF.promtp_panel.button_true.true_function = func_true

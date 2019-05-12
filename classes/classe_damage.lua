@@ -4602,7 +4602,14 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		
 		local misc_actor = info.instancia.showing (4, self:name())
 		if (misc_actor) then
-			local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [esta_magia.id] and misc_actor.debuff_uptime_spells._ActorTable [esta_magia.id].uptime
+			
+			local uptime_spellid = esta_magia.id
+			--if (uptime_spellid == 233490) then
+			--	uptime_spellid = 233496
+			--	uptime_spellid = 233490
+			--end
+			
+			local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [uptime_spellid] and misc_actor.debuff_uptime_spells._ActorTable [uptime_spellid].uptime
 			if (debuff_uptime) then
 				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor (debuff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
