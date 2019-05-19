@@ -947,9 +947,17 @@
 		if (not spell) then
 			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
 			spell.spellschool = spelltype or school
+			if (not spell.raid_targets) then
+				spell.raid_targets = {}
+			end
 			if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
 				_detalhes.spell_school_cache [spellname] = spelltype or school
 			end
+		end
+	
+		--> raid targets for spell
+		if (RAID_TARGET_FLAGS [alvo_flags2]) then
+			spell.raid_targets [alvo_flags2] = (spell.raid_targets [alvo_flags2] or 0) + amount
 		end
 		
 		if (_is_storing_cleu) then
