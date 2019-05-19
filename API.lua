@@ -400,6 +400,7 @@ spell.a_amt = amount of times this spell got absorbed.
 spell.a_dmg = total damage while absorbed.
 
 spell.targets = hash table containing {["targetname"] = total damage done by this spell on this target}
+spell.raid_targets = table containing {["raidmark"] = total damage done by this spell on this raid mark}
 
 Getting Dps:
 For activity time: DPS = actor.total / actor:Tempo() 
