@@ -191,6 +191,8 @@ _detalhes.instance_defaults = {
 				textR_separator = ",",
 			--left text bar number
 				textL_show_number = true,
+			--translit text
+				textL_translit_text = false,
 			--if text class color are false, this color will be used
 				fixed_text_color = {1, 1, 1},
 			--left text outline effect

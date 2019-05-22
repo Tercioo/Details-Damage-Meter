@@ -6696,6 +6696,30 @@ function window:CreateFrame5()
 		
 		window:CreateLineBackground2 (frame5, "PositionNumberSlider", "PositionNumberLabel", Loc ["STRING_OPTIONS_TEXT_LPOSITION_DESC"])
 		
+
+	--> left translit text
+		g:NewSwitch (frame5, _, "$parentTranslitTextSlider", "TranslitTextSlider", 60, 20, _, _, instance.row_info.textL_translit_text, nil, nil, nil, nil, options_switch_template)
+		g:NewLabel (frame5, _, "$parentTranslitTextLabel", "TranslitTextLabel", Loc ["STRING_OPTIONS_TEXT_LTRANSLIT"], "GameFontHighlightLeft")
+		
+		frame5.TranslitTextSlider:SetPoint ("left", frame5.TranslitTextLabel, "right", 2)
+		frame5.TranslitTextSlider:SetAsCheckBox()
+		frame5.TranslitTextSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame5, "TranslitTextSlider", "TranslitTextLabel", Loc ["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"])
+
+
 	--> right outline
 		g:NewSwitch (frame5, _, "$parentTextRightOutlineSlider", "textRightOutlineSlider", 60, 20, _, _, instance.row_info.textR_outline, nil, nil, nil, nil, options_switch_template)
 		g:NewLabel (frame5, _, "$parentTextRightOutlineLabel", "textRightOutlineLabel", Loc ["STRING_OPTIONS_TEXT_LOUTILINE"], "GameFontHighlightLeft")
@@ -7210,8 +7234,9 @@ function window:CreateFrame5()
 			{"OutlineSmallColorLabelLeft", 2},
 			{"classColorsLeftTextLabel", 3},
 			{"PositionNumberLabel", 4},
-			{"cutomLeftTextLabel", 5, true},
-			{"cutomLeftTextEntryLabel", 6},
+			{"TranslitTextLabel", 5},
+			{"cutomLeftTextLabel", 6, true},
+			{"cutomLeftTextEntryLabel", 7},
 		}
 		
 		window:arrange_menu (frame5, left_side, x, window.top_start_at)
@@ -11461,6 +11486,9 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetValue (editing_instance.row_info.textL_show_number)
+
+		_G.DetailsOptionsWindow5TranslitTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TranslitTextSlider.MyObject:SetValue (editing_instance.row_info.textL_translit_text)
 
 		_G.DetailsOptionsWindow5BracketDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5SeparatorDropdown.MyObject:SetFixedParameter (editing_instance)

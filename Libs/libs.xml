@@ -18,4 +18,5 @@
 	<Include file="LibItemUpgradeInfo-1.0\LibItemUpgradeInfo-1.0.xml"/>
 	<Include file="LibGroupInSpecT-1.1\lib.xml"/>
 	<Include file="DF\load.xml"/>
+	<Include file="LibTranslit-1.0\LibTranslit-1.0.lua"/>
 </Ui>

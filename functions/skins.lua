@@ -180,6 +180,7 @@ local _
 					0, -- [3]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "Details Serenity",
 				["models"] = {
@@ -445,6 +446,7 @@ local _
 					0, -- [3]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "BantoBar",
 				["use_spec_icons"] = true,
@@ -591,6 +593,7 @@ local _
 					0, -- [3]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "Details Serenity",
 				["models"] = {
@@ -892,6 +895,7 @@ local _
 					1, -- [4]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["fixed_texture_background_color"] = {
 					0, -- [1]
 					0.0862745098039216, -- [2]
@@ -1203,6 +1207,7 @@ local _
 				["use_spec_icons"] = true,
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["texture"] = "Skyline",
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
 				["textR_enable_custom_text"] = false,
@@ -1535,6 +1540,7 @@ local _
 					0, -- [3]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["textL_outline_small_color"] = {
 					0, -- [1]
 					0, -- [2]
@@ -1811,6 +1817,7 @@ local _
 					0, -- [3]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "Skyline",
 				["use_spec_icons"] = true,
@@ -2028,6 +2035,7 @@ local _
 				["texture_class_colors"] = true,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["fixed_texture_color"] = {0.862745098039216,0.862745098039216,0.862745098039216,1},
 			},
 			["bars_grow_direction"] = 1,
@@ -2310,6 +2318,7 @@ local _
 					1, -- [4]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["use_spec_icons"] = true,
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "DGround",
@@ -2513,6 +2522,7 @@ local _
 					0, -- [3]
 				},
 				["textL_show_number"] = true,
+				["textL_translit_text"] = false,
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["fixed_texture_background_color"] = {
