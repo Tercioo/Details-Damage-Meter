@@ -16,6 +16,6 @@
 	<Include file="LibCompress\lib.xml"/>
 	<Include file="LibDeflate\lib.xml"/>
 	<Include file="LibItemUpgradeInfo-1.0\LibItemUpgradeInfo-1.0.xml"/>
-	<Include file="LibGroupInSpecT-1.1\lib.xml"/>
+	<!-- <Include file="LibGroupInSpecT-1.1\lib.xml"/> temp disabled due to classic-->
 	<Include file="DF\load.xml"/>
 </Ui>

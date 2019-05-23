@@ -18,7 +18,7 @@
 	local _IsInRaid = IsInRaid --wow api local
 	local _IsInGroup = IsInGroup --wow api local
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
-	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --wow api local
+	local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
 	local _GetTime = GetTime
 	local _select = select
 	local _UnitBuff = UnitBuff
@@ -361,7 +361,7 @@
 			else
 				local db = _detalhes.GetStorage()
 				
-				local role = UnitGroupRolesAssigned ("player")
+				local role = _UnitGroupRolesAssigned ("player")
 				local isDamage = (role == "DAMAGER") or (role == "TANK") --or true
 				local bestRank, encounterTable = _detalhes.storage:GetBestFromPlayer (diff, encounterID, isDamage and "damage" or "healing", _detalhes.playername, true)
 				
@@ -4641,9 +4641,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 	
 	function _detalhes.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
-		local specIndex = GetSpecialization()
+	
+		--some parts of details! does call this function, check first for past expansions
+		if (DetailsFramework.IsClassicWow()) then
+			return
+		end
+	
+		local specIndex = DetailsFramework.GetSpecialization()
 		if (specIndex) then
-			local specID = GetSpecializationInfo (specIndex)
+			local specID = DetailsFramework.GetSpecializationInfo (specIndex)
 			if (specID and specID ~= 0) then
 				local guid = UnitGUID ("player")
 				if (guid) then
@@ -5191,9 +5197,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (role == "TANK") then
 				tanks_members_cache [_UnitGUID ("player")] = true
 			else
-				local spec = GetSpecialization()
+				local spec = DetailsFramework.GetSpecialization()
 				if (spec and spec ~= 0) then
-					if (GetSpecializationRole (spec) == "TANK") then
+					if (DetailsFramework.GetSpecializationRole (spec) == "TANK") then
 						tanks_members_cache [_UnitGUID ("player")] = true
 					end
 				end

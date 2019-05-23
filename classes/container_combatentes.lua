@@ -19,6 +19,7 @@
 	local _pairs = pairs --lua local
 	
 	local AddUnique = DetailsFramework.table.addunique --framework
+	local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --framework
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -290,7 +291,7 @@
 							if (name == nome) then
 								local spec = GetArenaOpponentSpec (i)
 								if (spec) then
-									local id, name, description, icon, role, class = GetSpecializationInfoByID (spec) --thanks pas06
+									local id, name, description, icon, role, class = DetailsFramework.GetSpecializationInfoByID (spec) --thanks pas06
 									novo_objeto.role = role
 									novo_objeto.classe = class
 									novo_objeto.enemy = true

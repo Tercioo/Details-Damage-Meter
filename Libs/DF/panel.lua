@@ -14,6 +14,8 @@ local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
 
+local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
+
 local cleanfunction = function() end
 local APIFrameFunctions
 
@@ -4459,7 +4461,7 @@ function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_
 	
 	for index, specId in ipairs (specIds) do
 		local button = new_keybind_frame ["SpecButton" .. index]
-		local spec_id, spec_name, spec_description, spec_icon, spec_background, spec_role, spec_class = GetSpecializationInfoByID (specId)
+		local spec_id, spec_name, spec_description, spec_icon, spec_background, spec_role, spec_class = DetailsFramework.GetSpecializationInfoByID (specId)
 		button.text = spec_name
 		button:SetClickFunction (switch_spec, specId)
 		button:SetIcon (spec_icon)
@@ -4584,9 +4586,9 @@ function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_
 		if (type (dispel) == "table") then
 			local dispelString = "\n"
 			for specID, spellid in pairs (dispel) do
-				local specid, specName = GetSpecializationInfoByID (specID)
+				local specid, specName = DetailsFramework.GetSpecializationInfoByID (specID)
 				local spellName = GetSpellInfo (spellid)
-				dispelString = dispelString .. "|cFFE5E5E5" .. specName .. "|r: |cFFFFFFFF" .. spellName .. "\n"
+				dispelString = dispelString .. "|cFFE5E5E5" .. (specName or "") .. "|r: |cFFFFFFFF" .. spellName .. "\n"
 			end
 			dispel = dispelString
 		else
@@ -4608,9 +4610,9 @@ function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_
 		for specID, t in pairs (new_keybind_frame.Data) do
 			if (specID ~= new_keybind_frame.EditingSpec) then
 				local key = CopyTable (keybind)
-				local specid, specName = GetSpecializationInfoByID (specID)
+				local specid, specName = DetailsFramework.GetSpecializationInfoByID (specID)
 				tinsert (new_keybind_frame.Data [specID], key)
-				DF:Msg ("Keybind copied to " .. specName)
+				DF:Msg ("Keybind copied to " .. (specName or ""))
 			end
 		end
 		DF:QuickDispatch (callback)
@@ -5653,9 +5655,9 @@ function DF:CreateLoadFilterParser (callback)
 		elseif (event == "PLAYER_ROLES_ASSIGNED") then
 			local assignedRole = UnitGroupRolesAssigned ("player")
 			if (assignedRole == "NONE") then
-				local spec = GetSpecialization()
+				local spec = DetailsFramework.GetSpecialization()
 				if (spec) then
-					assignedRole = GetSpecializationRole (spec)
+					assignedRole = DetailsFramework.GetSpecializationRole (spec)
 				end
 			end
 			
@@ -5705,9 +5707,9 @@ function DF:PassLoadFilters (loadTable, encounterID)
 		end
 		
 		if (canCheckTalents) then
-			local specIndex = GetSpecialization()
+			local specIndex = DetailsFramework.GetSpecialization()
 			if (specIndex) then
-				local specID = GetSpecializationInfo (specIndex)
+				local specID = DetailsFramework.GetSpecializationInfo (specIndex)
 				if (not loadTable.spec [specID]) then
 					return false
 				end
@@ -5767,9 +5769,9 @@ function DF:PassLoadFilters (loadTable, encounterID)
 	if (loadTable.role.Enabled) then
 		local assignedRole = UnitGroupRolesAssigned ("player")
 		if (assignedRole == "NONE") then
-			local spec = GetSpecialization()
+			local spec = DetailsFramework.GetSpecialization()
 			if (spec) then
-				assignedRole = GetSpecializationRole (spec)
+				assignedRole = DetailsFramework.GetSpecializationRole (spec)
 			end
 		end
 		if (not loadTable.role [assignedRole]) then
@@ -5927,7 +5929,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 		--create the radio group for character spec
 			local specs = {}
 			for _, specID in ipairs (DF:GetClassSpecIDs (select (2, UnitClass ("player")))) do
-				local specID, specName, specDescription, specIcon, specBackground, specRole, specClass = GetSpecializationInfoByID (specID)
+				local specID, specName, specDescription, specIcon, specBackground, specRole, specClass = DetailsFramework.GetSpecializationInfoByID (specID)
 				tinsert (specs, {
 					name = specName,
 					set = f.OnRadioCheckboxClick,

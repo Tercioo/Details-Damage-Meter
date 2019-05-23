@@ -423,7 +423,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--[[ get the EJ_ raid id
 		local wantRaids = true -- set false to get 5-man list
 		for i=1,1000 do
-		    instanceID,name,description,bgImage,buttonImage,loreImage, dungeonAreaMapID, link = EJ_GetInstanceByIndex(i,wantRaids)
+		    instanceID,name,description,bgImage,buttonImage,loreImage, dungeonAreaMapID, link = DetailsFramework.EncounterJournal.EJ_GetInstanceByIndex(i,wantRaids)
 		    if not instanceID then break end
 		    DEFAULT_CHAT_FRAME:AddMessage(      instanceID.." "..name ,1,0.7,0.5)
 		end
@@ -432,7 +432,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local iid=362
 
 		for i=1, 100 do
-		    local name, description, encounterID, rootSectionID, link = EJ_GetEncounterInfoByIndex (i, iid)
+		    local name, description, encounterID, rootSectionID, link = DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, iid)
 
 		    if not encounterID then break end
 		    local msg = encounterID .. " , " ..  name .. ", ".. rootSectionID.. ", "..link
@@ -1156,20 +1156,20 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 		)
 		
 	elseif (msg == "ejloot") then
-		EJ_SelectInstance (669) -- hellfire citadel
-		EJ_SetDifficulty (16)
+		DetailsFramework.EncounterJournal.EJ_SelectInstance (669) -- hellfire citadel
+		DetailsFramework.EncounterJournal.EJ_SetDifficulty (16)
 		
 		local r = {}
 		local total = 0
 		
 		for i = 1, 100 do
-			local name, description, encounterID, rootSectionID, link = EJ_GetEncounterInfoByIndex (i, 669)
+			local name, description, encounterID, rootSectionID, link = DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, 669)
 			if (name) then
-				EJ_SelectEncounter (encounterID)
-				print (name, encounterID, EJ_GetNumLoot())
+				DetailsFramework.EncounterJournal.EJ_SelectEncounter (encounterID)
+				print (name, encounterID, DetailsFramework.EncounterJournal.EJ_GetNumLoot())
 
-				for o = 1, EJ_GetNumLoot() do
-					local name, icon, slot, armorType, itemID, link, encounterID = EJ_GetLootInfoByIndex (o)
+				for o = 1, DetailsFramework.EncounterJournal.EJ_GetNumLoot() do
+					local name, icon, slot, armorType, itemID, link, encounterID = DetailsFramework.EncounterJournal.EJ_GetLootInfoByIndex (o)
 					r[slot] = r[slot] or {}
 					tinsert (r[slot], {itemID, encounterID})
 					total = total + 1
@@ -1359,9 +1359,9 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 	
 	elseif (msg == "spec") then
 	
-	local spec = GetSpecialization()
+	local spec = DetailsFramework.GetSpecialization()
 	if (spec) then
-		local specID = GetSpecializationInfo (spec)
+		local specID = DetailsFramework.GetSpecializationInfo (spec)
 		if (specID and specID ~= 0) then
 			print ("Current SpecID: ", specID)
 		end
@@ -1478,10 +1478,10 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 		local spellIDs = {}
 	
 		--uldir
-		EJ_SelectInstance (1031) 
+		DetailsFramework.EncounterJournal.EJ_SelectInstance (1031) 
 		
 		-- pega o root section id do boss
-		local name, description, encounterID, rootSectionID, link = EJ_GetEncounterInfo (2168) --taloc (primeiro boss de Uldir)
+		local name, description, encounterID, rootSectionID, link = DetailsFramework.EncounterJournal.EJ_GetEncounterInfo (2168) --taloc (primeiro boss de Uldir)
 		
 		--overview
 		local sectionInfo = C_EncounterJournal.GetSectionInfo (rootSectionID)
