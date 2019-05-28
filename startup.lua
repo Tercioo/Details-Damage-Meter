@@ -339,7 +339,7 @@ function _G._detalhes:Start()
 			local newFrame = CreateFrame ("frame", "DetailsMythicPlusFrame", UIParent)
 			newFrame.DevelopmentDebug = false
 			
-			--disabling the mythic+ feature if the user is playing in wow classic
+			--disabnling the mythic+ feature if the user is playing in wow classic
 			if (not DetailsFramework.IsClassicWow()) then
 				newFrame:RegisterEvent ("CHALLENGE_MODE_START")
 				newFrame:RegisterEvent ("CHALLENGE_MODE_COMPLETED")
@@ -1875,14 +1875,6 @@ function _G._detalhes:Start()
 
 	--> override the overall data flag on this release only (remove on the next release)
 	--Details.overall_flag = 0x10
-	
-	--show warning message about classic beta
-	
-	if (not DetailsFramework.IsClassicWow()) then
-		print ("|CFFFFFF00[Tercioo]: this version of Details! is being ported to Classic WoW, bugs may appear here on BfA, report at Discord (/details discord).")
-	else
-		print ("|CFFFFFF00[Tercioo]: thanks for testing Details! Damage Meter for Classic WoW, report bugs at Discord (/details discord).")
-	end
 
 end
 

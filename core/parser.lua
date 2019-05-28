@@ -3636,7 +3636,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_table_insert (_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
 				
 				--> check if this is a mythic+ run
-				local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() --classic wow doesn't not have C_ChallengeMode API
+				local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 				if (mythicLevel and type (mythicLevel) == "number" and mythicLevel >= 2) then --several checks to be future proof
 					--> more checks for integrity
 					if (_detalhes.tabela_overall and _detalhes.tabela_overall.last_events_tables) then

@@ -164,10 +164,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"] or command == "news" or command == "updates") then
 		_detalhes:OpenNewsWindow()
 	
-	elseif (command == "discord") then
-		_detalhes:CopyPaste ("https://discord.gg/AGSzAZX")
-	
-	
 	elseif (command == "debugwindow") then
 		
 		local window1 = Details:GetWindow(1)
