@@ -713,7 +713,7 @@ end
 	end
 
 	function _detalhes:CriarInstancia (_, id)
-		
+
 		if (id and _type (id) == "boolean") then
 			
 			if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
