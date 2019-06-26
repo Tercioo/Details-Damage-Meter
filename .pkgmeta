@@ -1,16 +1,7 @@
 move-folders:
-    Details/plugins/Details_DmgRank: Details_DmgRank
     Details/plugins/Details_EncounterDetails: Details_EncounterDetails
-    Details/plugins/Details_SpellDetails: Details_SpellDetails
-    Details/plugins/Details_TimeAttack: Details_TimeAttack
     Details/plugins/Details_TinyThreat: Details_TinyThreat
     Details/plugins/Details_Vanguard: Details_Vanguard
     Details/plugins/Details_DataStorage: Details_DataStorage
-    Details/plugins/Details_3DModelsPaths: Details_3DModelsPaths
     Details/plugins/Details_RaidCheck: Details_RaidCheck
-    Details/plugins/Details_DpsTuning: Details_DpsTuning
     Details/plugins/Details_Streamer: Details_Streamer
-    Details/plugins/Details_RaidInfo-EmeraldNightmare: Details_RaidInfo-EmeraldNightmare
-    Details/plugins/Details_RaidInfo-Nighthold: Details_RaidInfo-Nighthold
-    Details/plugins/Details_RaidInfo-TrialOfValor: Details_RaidInfo-TrialOfValor
-    Details/plugins/Details_RaidInfo-TombOfSargeras: Details_RaidInfo-TombOfSargeras
