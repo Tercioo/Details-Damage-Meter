@@ -235,7 +235,8 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 					
 					local overkill = event [10] or 0
 					if (overkill > 0) then
-						amount = amount - overkill
+						--overkill was being reduced twice, here and inside parser
+						--amount = amount - overkill
 						overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
 						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s |cFFFFFF00" .. spellname .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 					else
