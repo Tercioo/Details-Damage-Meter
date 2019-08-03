@@ -8,8 +8,8 @@ do
 	local INSTANCE_EJID = 1179
 	local INSTANCE_MAPID = 2164
 	local HDIMAGESPATH = "Details\\images\\raid"
-	local HDFILEPREFIX = "DazaralorRaid"
-	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "LoadingScreen_Nazjatar_RAID", {0, 1, 285/1024, 875/1024}
+	local HDFILEPREFIX = "EternalPalaceRaid"
+	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "Expansion07\\Main\\LoadingScreen_Nazjatar_RAID", {0, 1, 285/1024, 875/1024}
 	local EJ_LOREBG = "UI-EJ-LOREBG-EternalPalace"
 	
 	local PORTRAIT_LIST = {
@@ -24,7 +24,7 @@ do
 	}
 	
 	local ENCOUNTER_ID_CL = {
-		2298, 2289, 2305, 2304, 2303, 2311, 2293, 2299
+		2298, 2289, 2305, 2304, 2303, 2311, 2293, 2299,
 		[2298] = 1, --Abyssal Commander Sivara
 		[2289] = 2, --Blackwater Behemoth
 		[2305] = 3, --Radiance of Azshara
@@ -36,7 +36,7 @@ do
 	}
 	
 	local ENCOUNTER_ID_EJ = {
-		2352, 2347, 2353, 2354, 2351, 2359, 2349
+		2352, 2347, 2353, 2354, 2351, 2359, 2349,
 		[2352] = 1, --Abyssal Commander Sivara
 		[2347] = 2, --Blackwater Behemoth
 		[2353] = 3, --Radiance of Azshara

@@ -72,7 +72,7 @@ do
 				[2070] = true, --Battle for Dazaralor (BFA) GetInstanceInfo
 				[1148] = true, --Uldir (BFA) uiMapID
 				[1861] = true, --Uldir (BFA) from GetInstanceInfo
-				
+				[2164] = true, --Eternal Palace
 			}
 			
 			--must fail in map and encounter id to not store data
@@ -100,6 +100,15 @@ do
 				[2269] = 1, --The Restless Cabal
 				[2273] = 2, --Uu'nat, Harbinger of the Void
 				
+				[2298] = 1, --Abyssal Commander Sivara
+				[2289] = 2, --Blackwater Behemoth
+				[2305] = 3, --Radiance of Azshara
+				[2304] = 4, --Lady Ashvane
+				[2303] = 5, --Orgozoa
+				[2311] = 6, --The Queen's Court
+				[2293] = 7, --Za'qul, Harbinger of Ny'alotha
+				[2299] = 8, --Queen Azshara
+				
 				--EJID
 				[2168] = 1, --Taloc
 				[2167] = 2, --MOTHER
@@ -122,6 +131,16 @@ do
 				
 				[2328] = 1, --The Restless Cabal
 				[2332] = 2, --Uu'nat, Harbinger of the Void
+				
+				[2352] = 1, --Abyssal Commander Sivara
+				[2347] = 2, --Blackwater Behemoth
+				[2353] = 3, --Radiance of Azshara
+				[2354] = 4, --Lady Ashvane
+				[2351] = 5, --Orgozoa
+				[2359] = 6, --The Queen's Court
+				[2349] = 7, --Za'qul, Harbinger of Ny'alotha
+				[2361] = 8, --Queen Azshara
+				
 			
 			}
 			
