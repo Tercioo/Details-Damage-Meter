@@ -5154,9 +5154,9 @@ end
 				_detalhes.refresh:r_atributo_damage (actor, shadow)
 			end
 			
-			--a referência do .owner pode ter sido apagada?
-			--os 2 segmentos foram juntados porém a referência do owner de um pet criado ali em cima deve ser nula?
-			--teria que analisar se o novo objecto é de um pet e colocar a referência do owner no pet novamente, ou pelo menos verificar se a referência é valida
+			--a referï¿½ncia do .owner pode ter sido apagada?
+			--os 2 segmentos foram juntados porï¿½m a referï¿½ncia do owner de um pet criado ali em cima deve ser nula?
+			--teria que analisar se o novo objecto ï¿½ de um pet e colocar a referï¿½ncia do owner no pet novamente, ou pelo menos verificar se a referï¿½ncia ï¿½ valida
 			
 			--> tempo decorrido (captura de dados)
 				local end_time = actor.end_time

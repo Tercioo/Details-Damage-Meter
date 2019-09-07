@@ -1,0 +1,10 @@
+lightweight tag 5bd30e291f18247a7ed005a957407eab6f25176a v8.2.0.7177.140
+Author:	Tercioo <terciob19@hotmail.com>
+Date:	Sat Aug 17 09:50:52 2019 -0300
+
+commit 5bd30e291f18247a7ed005a957407eab6f25176a
+Author: Tercioo <terciob19@hotmail.com>
+Date:   Sat Aug 17 09:50:52 2019 -0300
+
+    Fixed bookmark panel where sometimes it gives errors, version number correction and fixed the classic version warning.
+

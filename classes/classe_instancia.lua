@@ -573,7 +573,7 @@ end
 		
 		if (lower == self.meu_id) then
 			--> os icones dos plugins precisam ser hostiados nessa instancia.
-			_detalhes.ToolBar:ReorganizeIcons (true) --> não precisa recarregar toda a skin
+			_detalhes.ToolBar:ReorganizeIcons (true) --> nï¿½o precisa recarregar toda a skin
 		end
 		
 		if (not self.iniciada) then
