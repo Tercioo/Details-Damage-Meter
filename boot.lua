@@ -4,7 +4,7 @@
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		
-		_detalhes.build_counter = 7183
+		_detalhes.build_counter = 7184
 		_detalhes.alpha_build_counter = 7183 --if this is higher than the regular counter, use it instead
 		_detalhes.game_version = "v8.2.0"
 		_detalhes.userversion = "v8.2.0." .. _detalhes.build_counter

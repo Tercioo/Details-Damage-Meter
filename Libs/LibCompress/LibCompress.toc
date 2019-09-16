@@ -1,4 +1,4 @@
-﻿## Interface: 70300
+## Interface: 70300
 
 ## Title: Lib: Compress
 ## Notes: Compression and Decompression library

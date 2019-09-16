@@ -15,3 +15,14 @@ Libs/DF/feedback_sites.blp
 Libs/DF/icons.blp
 Libs/DF/mail.blp
 plugins/Details_EncounterDetails/images/boss_icons.png
+locales/Details-zhTW.lua
+locales/Details-zhCN.lua
+locales/Details-ruRU.lua
+locales/Details-ptBR.lua
+locales/Details-koKR.lua
+locales/Details-itIT.lua
+locales/Details-frFR.lua
+locales/Details-esMX.lua
+locales/Details-esES.lua
+locales/Details-enUS.lua
+locales/Details-deDE.lua
