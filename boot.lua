@@ -4,10 +4,10 @@
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		
-		_detalhes.build_counter = 7193
-		_detalhes.alpha_build_counter = 7193 --if this is higher than the regular counter, use it instead
-		_detalhes.game_version = "v8.2.0"
-		_detalhes.userversion = "v8.2.0." .. _detalhes.build_counter
+		_detalhes.build_counter = 7203
+		_detalhes.alpha_build_counter = 7203 --if this is higher than the regular counter, use it instead
+		_detalhes.game_version = "v8.2.5"
+		_detalhes.userversion = "v8.2.5." .. _detalhes.build_counter
 		_detalhes.realversion = 140 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
@@ -27,8 +27,8 @@ do
 
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 --[[
-|cFFFFFF00v8.2.0.7193.140 (|cFFFFCC00September 21th, 2019|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Libraries update.\n\n
+|cFFFFFF00v8.2.5.7203.140 (|cFFFFCC00September 28th, 2019|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00-|r Applyed fixes for 8.2.5.0.5 wow version update.\n\n
 |cFFFFFF00-|r Fixed several bugs on custom made displays.\n\n
 --]]
 
