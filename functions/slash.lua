@@ -836,28 +836,28 @@ function SlashCmdList.DETAILS (msg, editbox)
 			Details.RefreshUserList()
 		end)
 		C_Timer.After (0.6, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 		C_Timer.After (0.9, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 		C_Timer.After (1.3, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 		C_Timer.After (1.6, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 		C_Timer.After (3, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 		C_Timer.After (4, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)	
 		C_Timer.After (5, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 		C_Timer.After (8, function()
-			Details.RefreshUserList()
+			Details.RefreshUserList (true)
 		end)
 	
 	elseif (command == "names") then
@@ -1693,7 +1693,12 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 	end
 end
 
-function Details.RefreshUserList()
+function Details.RefreshUserList (ignoreIfHidden)
+
+	if (ignoreIfHidden and DetailsUserPanel and not DetailsUserPanel:IsShown()) then
+		return
+	end
+
 	local newList = DetailsFramework.table.copy ({}, _detalhes.users or {})
 
 	table.sort (newList, function(t1, t2)
