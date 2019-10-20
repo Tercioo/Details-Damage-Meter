@@ -1413,8 +1413,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			
 				for buffIndex = 1, 41 do
 					local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (RaidIndex, buffIndex, nil, "HELPFUL")
-					if (name and UnitIsUnit (unitCaster, RaidIndex)) then
-
+					if (name and unitCaster and UnitExists (RaidIndex) and UnitIsUnit (unitCaster, RaidIndex)) then
 						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellid, name, in_or_out)
 
 						if (in_or_out == "BUFF_UPTIME_IN") then
@@ -1457,7 +1456,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		for groupIndex = 1, _GetNumGroupMembers() - 1 do
 			for buffIndex = 1, 41 do
 				local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..groupIndex, buffIndex, nil, "HELPFUL")
-				if (name and UnitIsUnit (unitCaster, "party" .. groupIndex)) then
+				if (name and unitCaster and UnitExists ("party" .. groupIndex) and UnitIsUnit (unitCaster, "party" .. groupIndex)) then
 				
 					local playerName, realmName = _UnitName ("party"..groupIndex)
 					local playerGUID = _UnitGUID ("party"..groupIndex)
@@ -1485,7 +1484,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		--player it self
 		for buffIndex = 1, 41 do
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
-			if (name and UnitIsUnit (unitCaster, "player")) then
+			if (name and unitCaster and UnitIsUnit (unitCaster, "player")) then
 				local playerName = _UnitName ("player")
 				local playerGUID = _UnitGUID ("player")
 				if (playerGUID) then
