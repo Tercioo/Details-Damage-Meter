@@ -125,7 +125,7 @@ size = number, adjust the size of the border.
 color = table, {r, g, b, a}
 texture = string, edge name for SharedMedia:Fetch ("border", texture)
 
-instance:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext)
+instance:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext, translittest)
 size = number, text size
 font = string, text font, e.g "Arrial Narrow"
 fixedcolor = table with {r, b, g, a} or html color string (e.g. "blue").
