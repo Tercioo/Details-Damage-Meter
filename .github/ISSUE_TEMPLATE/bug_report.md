@@ -7,6 +7,9 @@ assignees: ''
 
 ---
 
+### **Before Start!**
+**Make sure the bug also happen when Details! is the only addon enabled.**
+
 **Game and Details! version**
 Use /details to grab these two.
 
