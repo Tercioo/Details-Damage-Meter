@@ -1579,7 +1579,7 @@
 		
 		--[[statistics]]-- _detalhes.statistics.absorbs_calls = _detalhes.statistics.absorbs_calls + 1
 		
-		if (not shieldname) then
+		if (_type(shieldname) == "boolean") then
 			owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount = spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid
 		end
 	
