@@ -395,6 +395,25 @@
 		end	
 	end
 	
+	--> check pet owner name with correct declension for ruRU locale
+	local find_name_declension = function (petTooltip, playerName)
+		if (GetLocale() ~= "ruRU") then
+			return petTooltip:find(playerName)
+		end
+		
+		for gender = 1, 2 do
+			for declensionSet = 1, GetNumDeclensionSets(playerName, gender) do
+				--> check genitive case of player name
+				local genitive = DeclineName(playerName, gender, declensionSet)
+				if petTooltip:find(genitive) then
+					return true
+				end
+			end
+		end
+		
+		return false
+	end
+
 	local find_pet_owner = function (serial, nome, flag, self)
 		if (not _detalhes.tabela_vigente) then
 			return
@@ -409,7 +428,7 @@
 			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
 				local pName = playerName
 				playerName = playerName:gsub ("%-.*", "") --remove realm name
-				if (text1:find (playerName)) then
+				if (find_name_declension(text1, playerName)) then
 					return find_pet_found_owner (pName, serial, nome, flag, self)
 				end
 			end
@@ -421,7 +440,7 @@
 			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
 				local pName = playerName
 				playerName = playerName:gsub ("%-.*", "") --remove realm name
-				if (text2:find (playerName)) then
+				if (find_name_declension(text2, playerName)) then
 					return find_pet_found_owner (pName, serial, nome, flag, self)
 				end
 			end
