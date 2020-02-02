@@ -401,7 +401,8 @@
 			return petTooltip:find(playerName)
 		end
 		
-		for gender = 1, 2 do
+		--> 2 - male, 3 - female
+		for gender = 2, 3 do
 			for declensionSet = 1, GetNumDeclensionSets(playerName, gender) do
 				--> check genitive case of player name
 				local genitive = DeclineName(playerName, gender, declensionSet)
