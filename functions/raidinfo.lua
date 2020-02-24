@@ -143,7 +143,7 @@ do
 	}
 	
 	local ENCOUNTER_ID_EJ = {
-		2352, 2347, 2353, 2354, 2351, 2359, 2349,
+		2352, 2347, 2353, 2354, 2351, 2359, 2349, 2361,
 		[2352] = 1, --Abyssal Commander Sivara
 		[2347] = 2, --Blackwater Behemoth
 		[2353] = 3, --Radiance of Azshara
