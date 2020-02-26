@@ -28,7 +28,7 @@ do
 	}
 	
 	local ENCOUNTER_ID_CL = {
-		2329, 2327, 2334, 2328, 2333, 2335, 2343, 2345, 2336, 2331, 2337, 2334,
+		2329, 2327, 2334, 2328, 2333, 2335, 2343, 2345, 2336, 2331, 2337, 2344,
 		[2329] = 1, --Wrathion, the Black Emperor
 		[2327] = 2, --Maut
 		[2334] = 3, --Prophet Skitra
@@ -40,7 +40,7 @@ do
 		[2336] = 9, --Vexiona
 		[2331] = 10, --Ra-den the Despoiled
 		[2337] = 11, --Carapace of N'Zoth
-		[2334] = 12, --N'Zoth, the Corruptor
+		[2344] = 12, --N'Zoth, the Corruptor
 	}
 	
 	local ENCOUNTER_ID_EJ = {
@@ -143,7 +143,7 @@ do
 	}
 	
 	local ENCOUNTER_ID_EJ = {
-		2352, 2347, 2353, 2354, 2351, 2359, 2349,
+		2352, 2347, 2353, 2354, 2351, 2359, 2349, 2361,
 		[2352] = 1, --Abyssal Commander Sivara
 		[2347] = 2, --Blackwater Behemoth
 		[2353] = 3, --Radiance of Azshara
