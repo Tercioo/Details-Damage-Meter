@@ -284,6 +284,26 @@
 			["141265"] = true,
 		}
 		
+		-- ignoring spells with an integer and units with a string is counter-intuitive,
+		-- so instead use helper functions to coerce ID to string
+		-- and add to ignored unit table
+		local IgnoreUnit = function(id)
+			if (id) then
+				ignored_npc_ids[tostring(id)] = true
+			end
+		end
+
+		-- allow batch ignores via table of unit IDs
+		local IgnoreUnits = function(ids)
+			for _,id in ipairs(ids) do
+				ignored_npc_ids[tostring(id)] = true
+			end
+		end
+
+		--> expose the unit ignore helpers to external scripts
+		_detalhes.IgnoreUnit = IgnoreUnit
+		_detalhes.IgnoreUnits = IgnoreUnits
+
 	--> regen overflow
 		local auto_regen_power_specs = {
 			[103] = Enum.PowerType.Energy, --druid feral
@@ -451,6 +471,17 @@
 			return
 		end
 		
+		--> check if unit is in the blacklist
+		if (alvo_serial) then
+			local npcid = _select (6, _strsplit ("-", alvo_serial))
+
+			if (npcid) then
+				if (ignored_npc_ids[npcid]) then
+					return
+				end
+			end
+		end
+
 		--check if the target actor isn't in the temp blacklist
 		--if (ignore_actors [alvo_serial]) then
 		--	return
@@ -507,11 +538,6 @@
 			if (alvo_serial) then
 				local npcid = _select (6, _strsplit ("-", alvo_serial)) -- cost 3 / 1000000
 				if (npcid) then
-					if (ignored_npc_ids [npcid]) then
-						--print ("IGNORED:", alvo_name, npcid)
-						return
-					end
-					
 					if (_track_ghuun_bloodshield and npcid == "132998") then
 						local hasBloodShield = _UnitBuff ("boss1", 1)
 						if (not hasBloodShield or hasBloodShield ~= SPELLNAME_BLOODSHIELD) then
