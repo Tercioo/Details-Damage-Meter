@@ -28,3 +28,4 @@ locales/Details-enUS.lua
 locales/Details-deDE.lua
 Libs/LibTranslit/.pkgmeta
 a.lua
+functions/pack2.lua

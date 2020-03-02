@@ -4,14 +4,14 @@
 
 do
 	--> data for Ny'alotha the Waking City (BFA tier 4)
-	
+	--F:\World of Warcraft\_retail_\BlizzardInterfaceArt\Interface\GLUES\LOADINGSCREENS\Expansion07\Main\LOADINGSCREEN_NzothRAID
 	local INSTANCE_EJID = 1180
 	local INSTANCE_MAPID = 2217
-	local HDIMAGESPATH = "Details\\images\\raid"
+	local HDIMAGESPATH = [[Details\images\raid]]
 	local HDFILEPREFIX = "NyalothaRaid"
-	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "Expansion07\\Main\\LoadingScreen_Nzothraid", {0, 1, 285/1024, 875/1024}
+	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = [[Expansion07\Main\LOADINGSCREEN_NzothRAID]], {0, 1, 285/1024, 875/1024}
 	local EJ_LOREBG = "UI-EJ-LOREBG-Nyalotha"
-	
+
 	local PORTRAIT_LIST = {
 		3256385, --Wrathion - Wrathion, the Black Emperor
 		3256380, --Maut
@@ -77,7 +77,6 @@ do
 				tinsert (BOSSNAMES, bossName)
 				local encounterTable = {
 					boss = bossName,
-					--portrait = "Interface\\EncounterJournal\\" .. PORTRAIT_LIST [i],
 					portrait = PORTRAIT_LIST [i],
 				}
 				tinsert (ENCOUNTERS, encounterTable)
@@ -85,7 +84,7 @@ do
 				break
 			end
 		end
-		
+
 		_detalhes:InstallEncounter ({
 			id = INSTANCE_MAPID, --map id
 			ej_id = INSTANCE_EJID, --encounter journal id
@@ -93,7 +92,7 @@ do
 			icons = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_BossFaces",
 			icon = "Interface\\AddOns\\" .. HDIMAGESPATH .. "\\" .. HDFILEPREFIX .. "_Icon256x128",
 			is_raid = true,
-			backgroundFile = {file = "Interface\\Glues\\LOADINGSCREENS\\" .. LOADINGSCREEN_FILE, coords = LOADINGSCREEN_COORDS},
+			backgroundFile = {file = [[Interface\GLUES\LOADINGSCREENS\]] .. LOADINGSCREEN_FILE, coords = LOADINGSCREEN_COORDS},
 			backgroundEJ = "Interface\\EncounterJournal\\" .. EJ_LOREBG,
 			
 			encounter_ids = ENCOUNTER_ID_EJ,
