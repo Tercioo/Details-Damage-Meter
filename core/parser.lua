@@ -1534,7 +1534,7 @@
 				end
 			end
 			local damage = reflection_damage[who_serial] and reflection_damage[who_serial][spellid]
-			local reflectionreflection = reflection_auras[alvo_serial]
+			local reflection = reflection_auras[alvo_serial]
 			if (damage) then
 				--> damage ocurred first, so we have its data
 				amount = reflection_damage[who_serial][spellid].amount
