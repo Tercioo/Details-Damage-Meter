@@ -2580,7 +2580,7 @@ function window:CreateFrame17()
 			{value = 5, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_5"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = texCoords},
 			{value = 6, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_6"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = texCoords},
 			{value = 7, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_7"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = texCoords, desc = Loc ["STRING_OPTIONS_COMBAT_ALPHA_6"] .. " + " .. Loc ["STRING_OPTIONS_COMBAT_ALPHA_3"]},
-			{value = 8, label = "In Battlegound", onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = texCoords},
+			{value = 8, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_8"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = texCoords},
 		}
 		local buildTypeCombatAlpha = function()
 			return typeCombatAlpha
