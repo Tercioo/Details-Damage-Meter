@@ -7466,7 +7466,7 @@ function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 		
 		elseif (self.hide_in_combat_type == 8) then --"In Battlegrounds"
 			local isInInstance = IsInInstance()
-			if (isInInstance or _detalhes.zone_type == "pvp") then
+			if (isInInstance and _detalhes.zone_type == "pvp") then
 				self:SetWindowAlphaForCombat (true, true) --> hida a janela
 			else
 				self:SetWindowAlphaForCombat (false) --> deshida a janela
