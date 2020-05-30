@@ -656,7 +656,8 @@ DF.CrowdControlSpells = {
 	[209753] = "DRUID", --Cyclone (from pvp talent)
 	[33786] = "DRUID", --Cyclone (from pvp talent - resto druid)
 	
-	[3355] = "HUNTER", --Freezing Trap
+    [3355] = "HUNTER", --Freezing Trap
+	[3355] = "HUNTER", --Diamond Ice (from pvp talent)
 	[19577] = "HUNTER", --Intimidation
 	[190927] = "HUNTER", --Harpoon
 	[162480] = "HUNTER", --Steel Trap

@@ -1708,7 +1708,8 @@ do
 		--hunter
 			[117405]	= true, -- Binding Shot
 			[64803]	= true, -- Entrapment
-			[3355]	= true, -- Freezing trap
+            [3355]	= true, -- Freezing trap
+			[203340]	= true, -- Diamond Ice (pvp talent)
 			[24394]	= true, -- Intimidation (pet)
 			[128405]	= true, -- Narrow Escape
 			[136634]	= true, -- Narrow Wscape
