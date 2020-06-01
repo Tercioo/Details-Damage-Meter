@@ -466,7 +466,7 @@
 --]=]	
 	
 	
-	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, isreflected)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -502,7 +502,8 @@
 
 		------------------------------------------------------------------------------------------------
 		--> spell reflection
-		if (who_serial == alvo_serial and not reflection_ignore[spellid]) then
+		if (who_serial == alvo_serial and not reflection_ignore[spellid]) then --~reflect
+
 			--> this spell could've been reflected, check it
 			if (reflection_events[who_serial] and reflection_events[who_serial][spellid] and time-reflection_events[who_serial][spellid].time > 3.5 and (not reflection_debuffs[who_serial] or (reflection_debuffs[who_serial] and not reflection_debuffs[who_serial][spellid]))) then
 				--> here we check if we have to filter old reflection data
@@ -518,23 +519,27 @@
 					reflection_events[who_serial] = nil
 				end
 			end
+
 			local reflection = reflection_events[who_serial] and reflection_events[who_serial][spellid]
 			if (reflection) then
 				--> if we still have the reflection data then we conclude it was reflected
+
+				--extend the duration of the timer to catch the rare channelling spells
 				reflection_events[who_serial][spellid].time = time
-				--> extend the duration of the timer to catch the rare channelling spells
 				
+				--crediting the source of the reflection aura
 				who_serial = reflection.who_serial
 				who_name = reflection.who_name
 				who_flags = reflection.who_flags
-				-- crediting the source of the reflection aura
 				
-				spellid = reflection.spellid 
+				--data of the aura that caused the reflection
+				print("2", spellid, GetSpellInfo(spellid))
+				isreflected = spellid --which spell was reflected
+				spellid = reflection.spellid --which spell made the reflection
 				spellname = reflection.spellname
 				spelltype = reflection.spelltype
-				--> data of the aura that caused the reflection
-				
-				return parser:spell_dmg(token,time,who_serial,who_name,who_flags,alvo_serial,alvo_name,alvo_flags,alvo_flags2,spellid,spellname,spelltype,amount,-1,nil,nil,nil,nil,false,false,false,false)
+			
+				return parser:spell_dmg(token,time,who_serial,who_name,who_flags,alvo_serial,alvo_name,alvo_flags,alvo_flags2,spellid,spellname,0x400,amount,-1,nil,nil,nil,nil,false,false,false,false, isreflected)
 			else
 				--> saving information about this damage because it may occurred before a reflect event
 				reflection_damage[who_serial] = reflection_damage[who_serial] or {}
@@ -1080,6 +1085,10 @@
 			if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
 				_detalhes.spell_school_cache [spellname] = spelltype or school
 			end
+
+			if (isreflected) then
+				spell.isReflection = true
+			end
 		end
 		
 		if (_is_storing_cleu) then
@@ -1087,7 +1096,7 @@
 			_current_combat_cleu_events.n = _current_combat_cleu_events.n + 1
 		end
 		
-		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, isoffhand)
+		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, isoffhand, isreflected)
 	end
 
 	
@@ -1443,6 +1452,7 @@
 		local este_jogador = damage_cache [who_serial]
 		if (not este_jogador) then
 			--este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (nil, who_name)
+			local meu_dono
 			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			if (not este_jogador) then
 				return --> just return if actor doen't exist yet
@@ -1517,7 +1527,7 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> spell reflection
-		elseif (missType == "REFLECT" and reflection_auras[alvo_serial]) then
+		elseif (missType == "REFLECT" and reflection_auras[alvo_serial]) then --~reflect
 			--> a reflect event and we have the reflecting aura data
 			if (reflection_damage[who_serial] and reflection_damage[who_serial][spellid] and time-reflection_damage[who_serial][spellid].time > 3.5 and (not reflection_debuffs[who_serial] or (reflection_debuffs[who_serial] and not reflection_debuffs[who_serial][spellid]))) then
 				--> here we check if we have to filter old damage data
@@ -1537,8 +1547,10 @@
 			local reflection = reflection_auras[alvo_serial]
 			if (damage) then
 				--> damage ocurred first, so we have its data
-				amount = reflection_damage[who_serial][spellid].amount
+				local amount = reflection_damage[who_serial][spellid].amount
 				
+				print("1", spellid, GetSpellInfo(spellid))
+				local isreflected = spellid --which spell was reflected
 				alvo_serial = reflection.who_serial
 				alvo_name = reflection.who_name
 				alvo_flags = reflection.who_flags
@@ -1553,7 +1565,8 @@
 					--> this is so bad at clearing, there should be a better way of handling this
 					reflection_damage[who_serial] = nil
 				end
-				return parser:spell_dmg(token,time,alvo_serial,alvo_name,alvo_flags,who_serial,who_name,who_flags,nil,spellid,spellname,spelltype,amount,-1,nil,nil,nil,nil,false,false,false,false)
+
+				return parser:spell_dmg(token,time,alvo_serial,alvo_name,alvo_flags,who_serial,who_name,who_flags,nil,spellid,spellname,spelltype,amount,-1,nil,nil,nil,nil,false,false,false,false, isreflected)
 			else
 				--> saving information about this reflect because it occurred before the damage event
 				reflection_events[who_serial] = reflection_events[who_serial] or {}
@@ -2090,7 +2103,7 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> spell reflection
-		if (reflection_spellid[spellid]) then
+		if (reflection_spellid[spellid]) then --~reflect
 			--> this is a spell reflect aura
 			--> we save the info on who received this aura and from whom
 			--> this will be used to credit this spell as the one doing the damage
