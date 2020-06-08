@@ -533,7 +533,7 @@
 				who_flags = reflection.who_flags
 				
 				--data of the aura that caused the reflection
-				print("2", spellid, GetSpellInfo(spellid))
+				--print("2", spellid, GetSpellInfo(spellid))
 				isreflected = spellid --which spell was reflected
 				spellid = reflection.spellid --which spell made the reflection
 				spellname = reflection.spellname
@@ -1549,7 +1549,7 @@
 				--> damage ocurred first, so we have its data
 				local amount = reflection_damage[who_serial][spellid].amount
 				
-				print("1", spellid, GetSpellInfo(spellid))
+				--print("1", spellid, GetSpellInfo(spellid))
 				local isreflected = spellid --which spell was reflected
 				alvo_serial = reflection.who_serial
 				alvo_name = reflection.who_name
