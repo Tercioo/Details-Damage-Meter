@@ -825,7 +825,7 @@ do
 			[132764]	=	"HUNTER", -- "Dire Beast"
 			[160206]	=	"HUNTER", -- "Lone Wolf: Power of the Primates"
 			[13813]	=	"HUNTER", -- "Explosive Trap"
-			[60192]	=	"HUNTER", -- "Freezing Trap"
+			[187650]	=	"HUNTER", -- "Freezing Trap"
 			[172106]	=	"HUNTER", -- "Aspect of the Fox"
 			[162537]	=	"HUNTER", -- "Poisoned Ammo"
 			[162536]	=	"HUNTER", -- "Incendiary Ammo"
@@ -1649,6 +1649,7 @@ do
 		[33786] 	= true, -- Cyclone
 		
 		--> hunter
+		[203337] 	= true, -- Diamond Ice (pvp talent)
 		
 		--> mage
 		
@@ -1708,8 +1709,8 @@ do
 		--hunter
 			[117405]	= true, -- Binding Shot
 			[64803]	= true, -- Entrapment
-            [3355]	= true, -- Freezing trap
-			[203340]	= true, -- Diamond Ice (pvp talent)
+			[3355]	= true, -- Freezing Trap
+			[203337]	= true, -- Diamond Ice (pvp talent)
 			[24394]	= true, -- Intimidation (pet)
 			[128405]	= true, -- Narrow Escape
 			[136634]	= true, -- Narrow Wscape
@@ -1748,7 +1749,7 @@ do
 			[115078]	= true, -- Paralysis
 			[116705]	= true, -- Spear Hand Strike
 			[142895]	= true, -- Incapacitated (ring of peace)
-	    
+		
 		--paladin
 			[31935]	= true, -- Avenger's Shield
 			[105421]	= true, -- Blinding light
@@ -1768,7 +1769,7 @@ do
 			[15487]	= true, -- Silence
 			[131556]	= true, -- Sin and Punishment
 			[114404]	= true, -- Void Tendril's Grasp
-	    
+		
 		--rogue
 			[2094]	= true, -- Blind
 			[1833]	= true, -- Cheap shot
@@ -1786,7 +1787,7 @@ do
 			[118905]	= true, -- Static Charge
 			[51490]	= true, -- Thunderstorm
 			[57994]	= true, -- Wind Shear
-	    
+		
 		--warlock
 			[89766]	= true, -- Axe Toss (Felguard)
 			[111397]	= true, -- Blood Horror
@@ -2211,8 +2212,10 @@ do
 				[194407] = 1, --Spitting Cobra (talent)
 				
 				[186265] = 2, --Aspect of the Turtle
+				[109304] = 2, --Exhilaration
 				
 				[19577] = 5, --Intimidation
+				[187650] = 5, --Freezing Trap
 			},
 			--marksmanship
 			[254] = {
@@ -2232,6 +2235,7 @@ do
 				[109304] = 2, --Exhilaration
 				
 				[19577] = 5, --Intimidation
+				[187650] = 5, --Freezing Trap
 			},
 
 		--MONK
