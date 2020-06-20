@@ -375,9 +375,11 @@ local function CreatePluginFrames (data)
 				local topThreat = ThreatMeter.player_list_indexes [1]
 				local aggro = topThreat [6] * (CheckInteractDistance ("target", 3) and 1.1 or 1.3)
 				
-				pullRow:SetLeftText ("Pull Aggro At")
-				local realPercent = _math_floor (aggro / max (topThreat [6], 0.01) * 100)
-				pullRow:SetRightText ("+" .. ThreatMeter:ToK2 (aggro - myThreat) .. " (" .. _math_floor (_math_abs ((myThreat / aggro * 100) - realPercent)) .. "%)") --
+				if ThreatMeterFrame.ShowPercentText then
+					pullRow:SetLeftText ("Pull Aggro At")
+					local realPercent = _math_floor (aggro / max (topThreat [6], 0.01) * 100)
+					pullRow:SetRightText ("+" .. ThreatMeter:ToK2 (aggro - myThreat) .. " (" .. _math_floor (_math_abs ((myThreat / aggro * 100) - realPercent)) .. "%)") --
+				end
 				pullRow:SetValue (100)
 				
 				local myPercentToAggro = myThreat / aggro * 100
@@ -408,9 +410,11 @@ local function CreatePluginFrames (data)
 					
 					local pct = threat_actor [2]
 					
-					thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", pct) .. "%)")
+					if ThreatMeterFrame.ShowPercentText then
+						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", pct) .. "%)")
+					end
 					thisRow:SetValue (pct)
-					
+
 					if (options.useplayercolor and threat_actor [1] == player) then
 						thisRow:SetColor (_unpack (options.playercolor))
 						
@@ -451,7 +455,9 @@ local function CreatePluginFrames (data)
 						--thisRow.textleft:SetTextColor (unpack (RAID_CLASS_COLORS [threat_actor [5]]))
 						local role = threat_actor [4]
 						thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
-						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
+						if ThreatMeterFrame.ShowPercentText then
+							thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
+						end
 						thisRow:SetValue (threat_actor [2])
 						
 						if (options.useplayercolor) then
