@@ -904,6 +904,7 @@ local set_switch_func = function (self, newFunction)
 end
 
 local set_as_checkbok = function (self)
+	if self.is_checkbox and self.checked_texture then return end
 	local checked = self:CreateTexture (self:GetName() .. "CheckTexture", "overlay")
 	checked:SetTexture ([[Interface\Buttons\UI-CheckBox-Check]])
 	checked:SetPoint ("center", self.button, "center", -1, -1)

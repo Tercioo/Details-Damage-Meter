@@ -4379,8 +4379,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.last_zone_type = zoneType
 			
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
-				if (instancia.ativa and instancia.hide_in_combat_type ~= 1) then --> 1 = none, we doesn't need to call
-					instancia:SetCombatAlpha (nil, nil, true)
+				if (instancia.ativa) then
+					instancia:AdjustAlphaByContext(true)
 				end
 			end
 		end
@@ -4672,8 +4672,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 		
 		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
-			if (instancia.ativa and instancia.hide_in_combat_type ~= 1) then --> 1 = none, we doesn't need to call
-				instancia:SetCombatAlpha (nil, nil, true)
+			if (instancia.ativa) then --> 1 = none, we doesn't need to call
+				instancia:AdjustAlphaByContext(true)
 			end
 		end
 		
@@ -4757,8 +4757,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 		
 		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
-			if (instancia.ativa and instancia.hide_in_combat_type ~= 1) then --> 1 = none, we doesn't need to call
-				instancia:SetCombatAlpha (nil, nil, true)
+			if (instancia.ativa) then --> 1 = none, we doesn't need to call
+				instancia:AdjustAlphaByContext(true)
 			end
 		end
 		
@@ -5033,7 +5033,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes:IniciarColetaDeLixo (true)
 				_detalhes:WipePets()
 				_detalhes:SchedulePetUpdate (1)
-				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
+				_detalhes:InstanceCall (_detalhes.AdjustAlphaByContext)
+				
 				_detalhes:CheckSwitchOnLogon()
 				_detalhes:CheckVersion()
 				_detalhes:SendEvent ("GROUP_ONENTER")
@@ -5053,7 +5054,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes:WipePets()
 				_detalhes:SchedulePetUpdate (1)
 				_table_wipe (_detalhes.details_users)
-				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
+				_detalhes:InstanceCall (_detalhes.AdjustAlphaByContext)
 				_detalhes:CheckSwitchOnLogon()
 				_detalhes:SendEvent ("GROUP_ONLEAVE")
 				
@@ -5202,7 +5203,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					if (_detalhes.debug) then
 						_detalhes:Msg ("(debug 2) restoring windows after Pet Battle.")
 					end
-					instance:SetCombatAlpha (nil, nil, true)
+					instance:AdjustAlphaByContext(true)
 				end
 			end
 		end

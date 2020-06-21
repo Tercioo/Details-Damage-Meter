@@ -1,5 +1,5 @@
 
-local dversion = 184
+local dversion = 187
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -1057,7 +1057,7 @@ end
 
 	--volatile menu can be called several times, each time all settings are reset and a new menu is built using the same widgets
 	function DF:BuildMenuVolatile (parent, menu, x_offset, y_offset, height, use_two_points, text_template, dropdown_template, switch_template, switch_is_box, slider_template, button_template, value_change_hook)
-		
+
 		if (not parent.widget_list) then
 			DF:SetAsOptionsPanel (parent)
 		end
@@ -1093,15 +1093,20 @@ end
 					local label = getMenuWidgetVolative(parent, "label", widgetIndexes)
 					widget_created = label
 
-					label.text = widget_table.get() or widget_table.text or ""
-					label.color = widget_table.color
-					label.fontface = widget_table.font
-
 					if (widget_table.text_template or text_template) then
 						label:SetTemplate(widget_table.text_template or text_template)
 					else
 						label.fontsize = widget_table.size or 10
 					end
+					
+					if (label.fontface) then
+						label.fontface = widget_table.font or "GameFontHighlightSmall"
+					end
+					if (widget_table.color) then
+						label.fontcolor = widget_table.color
+					end
+					
+					label.text = widget_table.get() or widget_table.text or ""
 
 					label._get = widget_table.get
 					label.widget_type = "label"
@@ -1211,15 +1216,16 @@ end
 					local slider = getMenuWidgetVolative(parent, "slider", widgetIndexes)
 					widget_created = slider
 
-					slider.slider:SetMinMaxValues (widget_table.min, widget_table.max)
-					slider.slider:SetValue (widget_table.get())
-					slider.ivalue = slider.slider:GetValue()
-
 					if (widget_table.usedecimals) then
 						slider.slider:SetValueStep (0.01)
 					else
 						slider.slider:SetValueStep (widget_table.step)
 					end
+					slider.useDecimals = widget_table.usedecimals
+
+					slider.slider:SetMinMaxValues (widget_table.min, widget_table.max)
+					slider.slider:SetValue (widget_table.get())
+					slider.ivalue = slider.slider:GetValue()
 
 					slider:SetTemplate(slider_template)
 
@@ -1366,7 +1372,10 @@ end
 					textentry:SetPoint ("left", textentry.hasLabel, "right", 2)
 					textentry.hasLabel:SetPoint (cur_x, cur_y)
 
-					--> text entry doesn't trigger global callback
+					if (value_change_hook) then
+						textentry:SetHook("OnEnterPressed", value_change_hook)
+						textentry:SetHook("OnEditFocusLost", value_change_hook)
+					end
 					
 					--> hook list
 					if (widget_table.hooks) then
@@ -2040,8 +2049,6 @@ function DF:GetBestFontForLanguage (language, western, cyrillic, china, korean, 
 	end
 end
 
---DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
---DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
 DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = DF:GetBestFontForLanguage()}
 DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = DF:GetBestFontForLanguage()}
 
@@ -3310,6 +3317,21 @@ function DF_CALC_PERFORMANCE()
 		F:SetScript ("OnUpdate", nil)
 	end)
 end
+
+DF.ClassIndexToFileName = {
+	[6] = "DEATHKNIGHT",
+	[1] = "WARRIOR",
+	[4] = "ROGUE",
+	[8] = "MAGE",
+	[5] = "PRIEST",
+	[3] = "HUNTER",
+	[9] = "WARLOCK",
+	[12] = "DEMONHUNTER",
+	[7] = "SHAMAN",
+	[11] = "DRUID",
+	[10] = "MONK",
+	[2] = "PALADIN",
+}
 
 DF.ClassFileNameToIndex = {
 	["DEATHKNIGHT"] = 6,

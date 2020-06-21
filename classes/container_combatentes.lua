@@ -473,6 +473,11 @@
 		end
 	end
 
+	--english alias
+	function container_combatentes:GetOrCreateActor (serial, nome, flag, criar)
+		return self:PegarCombatente (serial, nome, flag, criar)
+	end
+
 	function container_combatentes:PegarCombatente (serial, nome, flag, criar)
 
 		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1

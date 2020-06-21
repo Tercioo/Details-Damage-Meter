@@ -4228,7 +4228,7 @@ DF.ScrollBoxFunctions.Refresh = function (self)
 	
 	local offset = 0
 	if (self.IsFauxScroll) then
-		FauxScrollFrame_Update (self, #self.data, self.LineAmount, self.LineHeight+1)
+		FauxScrollFrame_Update (self, #self.data, self.LineAmount, self.LineHeight)
 		offset = FauxScrollFrame_GetOffset (self)
 	end	
 	

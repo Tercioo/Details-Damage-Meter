@@ -54,10 +54,6 @@ side = number, 1 = left, 2 = right, set the anchor point for buttons on window's
 instance:SetFrameStrata (strata)
 strata = string, "BACKGROUND", "LOW", "MEDIUM", "HIGH" or "DIALOG".
 
-instance:SetCombatAlpha (modify_type, alpha_amount)
-modify_type = number, 1 = none, 2 = While In Combat, 3 = "While Out of Combat", 4 = "While Out of a Group" (can be only one type)
-alpha_amount = number, the amount of alpha.
-
 instance:ChangeSkin (skin_name)
 skin_name = string, the name of the skin to apply.
 if skin name is nil, it reaply all config based on the window's config table.
