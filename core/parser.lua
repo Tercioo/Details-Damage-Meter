@@ -1639,10 +1639,13 @@
 		end
 		
 		--print ()
-
+		--petTable:Add
 		_detalhes.tabela_pets:Adicionar (alvo_serial, alvo_name, alvo_flags, who_serial, who_name, who_flags)
 		
 		--print ("SUMMON", alvo_name, _detalhes.tabela_pets.pets, _detalhes.tabela_pets.pets [alvo_serial], alvo_serial)
+
+		--debug summons:
+		--print("summon:", who_name, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 		
 		return
 	end

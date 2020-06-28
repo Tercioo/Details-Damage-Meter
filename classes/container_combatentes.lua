@@ -23,6 +23,9 @@
 	
 	local AddUnique = DetailsFramework.table.addunique --framework
 	local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --framework
+
+	local GetNumDeclensionSets = _G.GetNumDeclensionSets
+	local DeclineName = _G.DeclineName
 	
 	local GetLocale = _G.GetLocale
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

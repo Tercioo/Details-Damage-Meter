@@ -5044,7 +5044,7 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 				end
 			end
 		else
-			amount = self.color [4]
+			amount = self.color[4]
 			menuamount = 1
 			rowsamount = 1
 		end
@@ -5069,7 +5069,7 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 		self.baseframe:Show()
 		self.baseframe:SetAlpha (1)
 		
-		self:InstanceAlpha (amount)
+		self:InstanceAlpha (min (amount, self.color[4]))
 		gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
 		gump:Fade (self.baseframe, "ALPHAANIM", rowsamount)
 		self:SetIconAlpha (menuamount)
@@ -7400,46 +7400,28 @@ function _detalhes:UpdateClickThrough()
 	end
 end
 
---endd
-
 function _detalhes:DelayedCheckCombatAlpha (instance, alpha)
-	if ((UnitAffectingCombat("player") or InCombatLockdown())) then
+	if (UnitAffectingCombat("player") or InCombatLockdown()) then
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
-	else
-		instance:SetWindowAlphaForCombat (false, false, alpha) --> deshida a janela
 	end
 end
 
 function _detalhes:DelayedCheckOutOfCombatAlpha (instance, alpha)
-	if (UnitAffectingCombat("player") or InCombatLockdown()) then
-		instance:SetWindowAlphaForCombat (false, false, alpha) --> deshida a janela
-	else
+	if (not UnitAffectingCombat("player") and not InCombatLockdown()) then
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 	end
 end
 
-function _detalhes:DelayedCheckOutOfCombatAndGroupAlpha (instance, alpha, invert)
+function _detalhes:DelayedCheckOutOfCombatAndGroupAlpha (instance, alpha)
 	if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
-		if (invert) then
-			if (UnitAffectingCombat("player") or InCombatLockdown()) then
-				instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
-				instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
-			else
-				instance:SetWindowAlphaForCombat (false, false, alpha) --> deshida a janela
-			end
+		if (UnitAffectingCombat("player") or InCombatLockdown()) then
+			instance:SetWindowAlphaForCombat (false, false, alpha) --> deshida a janela
 		else
-			if (UnitAffectingCombat("player") or InCombatLockdown()) then
-				instance:SetWindowAlphaForCombat (false, false, alpha) --> deshida a janela
-			else
-				instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
-				instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
-			end
+			instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
+			instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 		end
-	else
-		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
-		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 	end
 end
 
@@ -7462,137 +7444,114 @@ function _detalhes:AdjustAlphaByContext(interacting)
 
 	--not in group
 	if (self.hide_on_context[3].enabled) then
-		hasRuleEnabled = true
-		if (_detalhes.in_group) then
-			if (self.hide_on_context[3].inverse) then
+		if (self.hide_on_context[3].inverse) then
+			--while in group
+			if (_detalhes.in_group) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
-			else
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 3)) --> deshida a janela
+				hasRuleEnabled = true
 			end
 		else
-			if (self.hide_on_context[3].inverse) then
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 3)) --> deshida a janela
-			else
+			--while not in group
+			if (not _detalhes.in_group) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
+				hasRuleEnabled = true
 			end
 		end
 	end
 
 	--while not inside instance
 	if (self.hide_on_context[4].enabled) then
-		hasRuleEnabled = true
 		local isInInstance = IsInInstance()
-		if (not self.hide_on_context[4].inverse) then
-			if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 4)) --> deshida a janela
-			else
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
-			end
-		else
-			if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
-			else
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 4)) --> deshida a janela
-			end
+		if (not isInInstance or (not _detalhes.zone_type == "raid" and not _detalhes.zone_type == "party")) then
+			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
+			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
+			hasRuleEnabled = true
 		end
 	end
 
 	--while inside instance
 	if (self.hide_on_context[5].enabled) then
-		hasRuleEnabled = true
 		local isInInstance = IsInInstance()
-		if (not self.hide_on_context[5].inverse) then
-			if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
-			else
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 5)) --> deshida a janela
-			end
-		else
-			if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 5)) --> deshida a janela
-			else
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
-			end
+		if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
+			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
+			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
+			hasRuleEnabled = true
 		end
 	end
 
 	--raid debug (inside instance + out of combat)
 	if (self.hide_on_context[6].enabled) then
-		hasRuleEnabled = true
-		_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self, getAlphaByContext(self, 6), self.hide_on_context[6].inverse)
+		if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
+			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self, getAlphaByContext(self, 6))
+		end
 	end
 
 	--in battleground
 	if (self.hide_on_context[7].enabled) then
-		hasRuleEnabled = true
 		local isInInstance = IsInInstance()
 		if (isInInstance and _detalhes.zone_type == "pvp") then
+			--player is inside a battleground
 			if (not self.hide_on_context[7].inverse) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --> hida a janela
 			else
 				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 7)) --> deshida a janela
 			end
+			hasRuleEnabled = true
+
 		else
+			--player is not inside a battleground
 			if (not self.hide_on_context[7].inverse) then
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 7)) --> deshida a janela
+				--there's no inverse rule: do nothing
+				--self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 7)) --> deshida a janela
 			else
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --> hida a janela
+				hasRuleEnabled = true
 			end
 		end
 	end
 
 	--mythic+
 	if (self.hide_on_context[8].enabled) then
-		hasRuleEnabled = true
-		if (_G.DetailsMythicPlusFrame.IsDoingMythicDungeon) then
+		if (_G.DetailsMythicPlusFrame and _G.DetailsMythicPlusFrame.IsDoingMythicDungeon) then
+			--player is inside a dungeon mythic+
 			if (not self.hide_on_context[8].inverse) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --> hida a janela
 			else
 				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 8)) --> deshida a janela
 			end
+			hasRuleEnabled = true
+
 		else
 			if (not self.hide_on_context[8].inverse) then
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 8)) --> deshida a janela
+				--there's no inverse rule: do nothing
+				--self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 8)) --> deshida a janela
 			else
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --> hida a janela
+				hasRuleEnabled = true
 			end
 		end
 	end
 
 	--in combat
 	if (self.hide_on_context[1].enabled) then
-		if (self.hide_on_context[1].inverse) then
-			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
-		else
-			_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
-		end
-		hasRuleEnabled = true
+		_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
 	end
 
 	--out of combat
 	if (self.hide_on_context[2].enabled) then
-		hasRuleEnabled = true
-		if (self.hide_on_context[2].inverse) then
-			_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
-		else
-			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
-		end
+		_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
 	end
 
 	--if no rule is enabled, show the window
 	if (not hasRuleEnabled) then
-		self:SetWindowAlphaForCombat (true, true, 100)
-		self:SetWindowAlphaForCombat (true, true, 100)
+		self:SetWindowAlphaForCombat(false)
+		self:SetWindowAlphaForCombat(false)
 	end
 end
 

@@ -2676,6 +2676,11 @@ function window:CreateFrame17()
 			line.reverseCheckbox = reverseCheckbox
 			line.alphaSlider = alphaSlider
 
+			--disable the invert checkbox for some options
+			if (i == 1 or i == 2 or i == 4 or i == 5 or i == 6) then
+				reverseCheckbox:Disable()
+			end
+
 			frame17.AutoHideOptions[i] = line
 		end
 
