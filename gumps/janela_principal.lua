@@ -5058,6 +5058,7 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 		--
 		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
 		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+		gump:Fade (self.windowSwitchButton, _unpack (_detalhes.windows_fade_in))
 		self:SetIconAlpha (nil, true)
 		
 		if (_detalhes.debug) then
