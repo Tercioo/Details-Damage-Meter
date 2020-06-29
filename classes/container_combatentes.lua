@@ -405,11 +405,12 @@
 	--> check pet owner name with correct declension for ruRU locale (from user 'denis-kam' on github)
 	local find_name_declension = function (petTooltip, playerName)
 		--> 2 - male, 3 - female
-		for gender = 2, 3 do
+		for gender = 3, 2, -1 do
 			for declensionSet = 1, GetNumDeclensionSets(playerName, gender) do
 				--> check genitive case of player name
 				local genitive = DeclineName(playerName, gender, declensionSet)
 				if petTooltip:find(genitive) then
+					--print("found genitive: ", gender, declensionSet, playerName, petTooltip:find(genitive))
 					return true
 				end
 			end
@@ -440,6 +441,7 @@
 					if (find_name_declension (text1, playerName)) then
 						return find_pet_found_owner (pName, serial, nome, flag, self)
 					else
+						--print("not found declension (1):", pName, nome)
 						if (text1:find (playerName)) then
 							return find_pet_found_owner (pName, serial, nome, flag, self)
 						end
@@ -463,6 +465,7 @@
 					if (find_name_declension (text2, playerName)) then
 						return find_pet_found_owner (pName, serial, nome, flag, self)
 					else
+						--print("not found declension (2):", pName, nome)
 						if (text2:find (playerName)) then
 							return find_pet_found_owner (pName, serial, nome, flag, self)
 						end
