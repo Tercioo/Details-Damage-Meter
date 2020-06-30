@@ -388,6 +388,7 @@ end
 		gump:Fade (self.baseframe.cabecalho.ball, 1)
 		gump:Fade (self.baseframe, 1)
 		gump:Fade (self.rowframe, 1)
+		gump:Fade (self.windowSwitchButton, 1)
 		
 		self:Desagrupar (-1)
 		
