@@ -594,6 +594,7 @@ end
 		gump:Fade (self.baseframe.cabecalho.ball, 0)
 		gump:Fade (self.baseframe, 0)
 		gump:Fade (self.rowframe, 0)
+		gump:Fade (self.windowSwitchButton, 0)
 		
 		self:SetMenuAlpha()
 		
