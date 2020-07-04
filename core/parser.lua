@@ -5186,9 +5186,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
 			if (instance.ativa) then
 				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug 1) hidding windows for Pet Battle.")
+					_detalhes:Msg ("(debug) hidding windows for Pet Battle.")
 				end
-				instance:SetWindowAlphaForCombat (true, true)
+				instance:SetWindowAlphaForCombat (true, true, 0)
 			end
 		end
 	end
@@ -5197,17 +5197,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes.pet_battle = false
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
 			if (instance.ativa) then
-				if (instance.hide_in_combat_type == 1) then
-					if (_detalhes.debug) then
-						_detalhes:Msg ("(debug 1) restoring windows after Pet Battle.")
-					end
-					instance:SetWindowAlphaForCombat()
-				else
-					if (_detalhes.debug) then
-						_detalhes:Msg ("(debug 2) restoring windows after Pet Battle.")
-					end
-					instance:AdjustAlphaByContext(true)
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) Pet Battle finished, calling AdjustAlphaByContext().")
 				end
+				instance:AdjustAlphaByContext(true)
 			end
 		end
 	end
