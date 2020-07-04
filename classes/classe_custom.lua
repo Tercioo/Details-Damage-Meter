@@ -578,20 +578,40 @@
 		end
 
 		if (total_script) then
-			local okey, value = _pcall (total_script, self.value, top, total, combat, instance, self)
+			local okey, value, persecond  = _pcall (total_script, self.value, top, total, combat, instance, self)
 			if (not okey) then
 				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", value)
 				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 			end
+			--If both Per Second and Percent aren't enabled, then we don't need a separator.
+			if (not (bars_show_data[2] and bars_show_data[3]) ) then
+				bars_separator = ""
+			end
+		
 			if (type (value) == "number") then
-				row.texto_direita:SetText (SelectedToKFunction (_, value) .. bars_brackets[1] .. percent .. bars_brackets[2])
-				
-			else
-				row.texto_direita:SetText (value .. bars_brackets[1] .. percent .. bars_brackets[2])
+				value = SelectedToKFunction(_, value)
+			end
+		
+			if (type (persecond) == "number") then
+				persecond = SelectedToKFunction(_, persecond)
+			elseif (not persecond) then
+				persecond = ""
+			end
+			
+			--If either Per Second or Percent are enabled, show brackets and values, otherwise no brackets
+			if ( bars_show_data[3] or (bars_show_data[2] and persecond ~= "")) then
+				row.texto_direita:SetText (value .. bars_brackets[1] .. persecond .. bars_separator .. percent .. bars_brackets[2])
+			else	
+				row.texto_direita:SetText (value)
 			end
 		else
 			local formated_value = SelectedToKFunction (_, self.value)
+			
 			local rightText = formated_value .. bars_brackets[1] .. percent .. bars_brackets[2]
+			--If Percent isn't enabled, don't show brackets
+			if (not bars_show_data[3]) then
+				rightText = formated_value
+			end
 			if (UsingCustomRightText) then
 				row.texto_direita:SetText (_string_replace (instance.row_info.textR_custom_text, formated_value, "", percent, self, combat, instance, rightText))
 			else
