@@ -594,7 +594,7 @@
 		
 			if (type (persecond) == "number") then
 				persecond = SelectedToKFunction(_, persecond)
-			elseif (not persecond) then
+			elseif (not persecond or not bars_show_data[2]) then
 				persecond = ""
 			end
 			
