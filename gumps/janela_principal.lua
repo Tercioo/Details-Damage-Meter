@@ -5011,6 +5011,8 @@ end
 -- ~autohide �utohide
 function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alphaAmount)
 
+--print(entering_in_combat, "|", true_hide, "|", alphaAmount)
+
 	local amount, rowsamount, menuamount
 
 	--get the values
@@ -5055,10 +5057,12 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 	
 	--apply
 	if (true_hide and amount == 0) then
-		--
-		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
-		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
-		gump:Fade (self.windowSwitchButton, _unpack (_detalhes.windows_fade_in))
+		self.baseframe:Hide()
+		self.rowframe:Hide()
+		self.windowSwitchButton:Hide()
+		--gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
+		--gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+		--gump:Fade (self.windowSwitchButton, _unpack (_detalhes.windows_fade_in))
 		self:SetIconAlpha (nil, true)
 		
 		if (_detalhes.debug) then
