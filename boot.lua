@@ -633,6 +633,7 @@ do
 		SharedMedia:Register ("statusbar", "WorldState Score", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
 		SharedMedia:Register ("statusbar", "DGround", [[Interface\AddOns\Details\images\bar_background]])
 		SharedMedia:Register ("statusbar", "Details Flat", [[Interface\AddOns\Details\images\bar_background]])
+		SharedMedia:Register ("statusbar", "LiteStep", [[Interface\AddOns\Details\images\LiteStep]])
 		
 		--window bg and bar border
 		SharedMedia:Register ("background", "Details Ground", [[Interface\AddOns\Details\images\background]])
