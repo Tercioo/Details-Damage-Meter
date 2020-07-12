@@ -846,7 +846,6 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			if (need_start) then --> se a inst�ncia n�o tiver sido aberta ainda
 
 				local lower_instance = _detalhes:GetLowerInstanceNumber()
-				--print (lower_instance, instancia_alvo.meu_id, DEATHGRAPHICS_BUTTON:GetParent():GetName())
 			
 				instancia_alvo:RestauraJanela (instancia_alvo.meu_id, true)
 				if (instancia_alvo:IsSoloMode()) then
@@ -2051,8 +2050,6 @@ local barra_scripts_onmouseup = function (self, button)
 				return _detalhes:ReportSingleLine (self._instance, self)
 			end
 			
-			--print (self.minha_tabela)
-			-- /dump DetailsBarra_1_1.minha_tabela
 			if (not self.minha_tabela) then
 				return _detalhes:Msg ("this bar is waiting update.")
 			end
@@ -3994,7 +3991,6 @@ function _detalhes:SetBarGrowDirection (direction)
 	else
 		for index = 1, #bars do
 			bars [index]:SetWidth (baseframe:GetWidth() + self.row_info.space.right)
-			--print (bars [index]:GetWidth(), baseframe:GetWidth())
 		end
 	end
 end
@@ -5011,8 +5007,6 @@ end
 -- ~autohide �utohide
 function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alphaAmount)
 
---print(entering_in_combat, "|", true_hide, "|", alphaAmount)
-
 	local amount, rowsamount, menuamount
 
 	--get the values
@@ -5052,8 +5046,6 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 		end
 		self.combat_changes_alpha = nil
 	end
-
-	--print ("baseframe:",amount,"rowframe:",rowsamount,"menu:",menuamount)
 	
 	--apply
 	if (true_hide and amount == 0) then
@@ -5186,7 +5178,6 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 		self:StatusBarColor (nil, nil, nil, alpha, true)
 	end
 
---	print (self.skin, self.meu_id)
 	local skin = _detalhes.skins [self.skin]
 	if (not skin) then --the skin isn't available any more
 		Details:Msg ("Skin " .. (self.skin or "?") .. " not found, changing to 'Minimalistic'.")
@@ -5448,8 +5439,6 @@ function _detalhes:SetIconAlpha (alpha, hide, no_animations)
 	SetIconAlphaCacheButtonsTable [4] = self.baseframe.cabecalho.report
 	SetIconAlphaCacheButtonsTable [5] = self.baseframe.cabecalho.reset
 	SetIconAlphaCacheButtonsTable [6] = self.baseframe.cabecalho.fechar
-
-	print("SetIconAlpha" , alpha, hide, no_animations)
 
 	for index, button in _ipairs (SetIconAlphaCacheButtonsTable) do
 		if (self.menu_icons [index]) then
@@ -6206,8 +6195,6 @@ local build_segment_list = function (self, elapsed)
 					
 					segments_used = segments_used + 1
 
-					--print (thisCombat.is_boss.name, thisCombat.instance_type, _detalhes:GetRaidIcon (thisCombat.is_boss.mapid), thisCombat.is_boss.ej_instance_id)
-
 					if (thisCombat.is_mythic_dungeon_segment) then
 					
 						if (not isMythicDungeon) then
@@ -6939,7 +6926,6 @@ function _detalhes:ChangeSkin (skin_name)
 	if (not just_updating) then
 
 		--> skin updater
-		--print ("debug", self.meu_id, self.iniciada, self.baseframe, self.bgframe)
 		if (self.bgframe.skin_script) then
 			self.bgframe:SetScript ("OnUpdate", nil)
 			self.bgframe.skin_script = false
