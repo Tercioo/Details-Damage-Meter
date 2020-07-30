@@ -148,7 +148,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 	if (not window or not window.Initialized) then
 
 		local options_button_template = g:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
-		local options_dropdown_template = g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		local options_dropdown_template = DetailsFramework:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 		local options_slider_template = g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
 		local options_switch_template = g:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE")
 		
