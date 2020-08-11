@@ -239,7 +239,7 @@ DF.CooldownsBySpec = {
 	--DEMON HUNTER
 		--havoc
 		[577] = {
-			[200166] = 1, --Metamorphosis
+			[162264] = 1, --Metamorphosis
 			[206491] = 1, --Nemesis (talent)
 
 			[196555] = 2, --Netherwalk (talent)
@@ -544,7 +544,7 @@ DF.CooldownsInfo = {
 	[108199] = {cooldown = 120, duration = false, talent = false, charges = 1, class = "DEATHKNIGHT", type = 5}, --Gorefiend's Grasp (utility)
 	
 	--> demon hunter
-	[200166] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
+	[162264] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
 	[206491] = {cooldown = 120, duration = 60, talent = 22547, charges = 1, class = "DEMONHUNTER", type = 1}, --Nemesis (talent)
 	[196555] = {cooldown = 120, duration = 5, talent = 21865, charges = 1, class = "DEMONHUNTER", type = 2}, --Netherwalk (talent)
 	[196718] = {cooldown = 180, duration = 8, talent = false, charges = 1, class = "DEMONHUNTER", type = 4}, --Darkness
