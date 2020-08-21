@@ -616,6 +616,7 @@ end
 			self:ToolbarSide()
 			self:AttributeMenu()
 			
+			--[=[ --this block was showing back the window after using /details hide, It's probably a leftover from the new Auto Hide and the old one.
 			_detalhes.WindowAutoHideTick = _detalhes.WindowAutoHideTick or {}
 			if (_detalhes.WindowAutoHideTick [self.meu_id]) then
 				_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
@@ -631,6 +632,7 @@ end
 					_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
 				end
 			end)
+			--]=]
 		else
 			self:AdjustAlphaByContext(true)
 		end

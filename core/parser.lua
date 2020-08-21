@@ -222,6 +222,8 @@
 
 		[32175] = 17364, -- shaman Stormstrike (from Turkar on github)
 		[32176] = 17364, -- shaman Stormstrike
+
+		[271685] = 281686, --Heed my Call
 		
 	}
 	

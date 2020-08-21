@@ -1,5 +1,5 @@
 
-local dversion = 193
+local dversion = 194
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -1083,7 +1083,9 @@ end
 		height = height*-1
 
 		for index, widget_table in ipairs(menu) do
-
+			
+			local widget_created
+			
 			if (not widget_table.novolatile) then
 
 				--step a line
@@ -1414,7 +1416,9 @@ end
 					max_x = 0
 				end
 
-				widget_created:Show()
+				if widget_created then
+					widget_created:Show()
+				end
 			end
 		end
 
