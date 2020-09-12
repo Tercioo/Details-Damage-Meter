@@ -440,6 +440,7 @@ local DFSliderMetaFunctions = _G[DF.GlobalWidgetControlNames ["slider"]]
 	end
 	
 	function f:ShowMe (host)
+		f:SetParent(host)
 		f:SetPoint ("bottomleft", host, "topleft", -3, -5)
 		f:SetPoint ("bottomright", host, "topright", 3, -5)
 		--f:SetFrameStrata (host:GetFrameStrata())
