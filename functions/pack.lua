@@ -112,12 +112,15 @@ function Details.packFunctions.PackCombatData(combatObject, flags)
             end
         end
 
-        --print("finished export", exportedString) --debug
+        --print("finished export (debug):", exportedString) --debug
+        print("uncompressed (debug):", format("%.2f", #exportedString/1024), "KBytes")
 
         --compress
         local LibDeflate = _G.LibStub:GetLibrary("LibDeflate")
         local dataCompressed = LibDeflate:CompressDeflate(exportedString, {level = 9})
         local dataEncoded = LibDeflate:EncodeForWoWAddonChannel(dataCompressed)
+
+        print("encoded for WowAddonChannel (debug):", format("%.2f", #dataEncoded/1024), "KBytes")
 
         return dataEncoded
 end
@@ -401,7 +404,7 @@ function Details.packFunctions.PackDamage(combatObject)
         local spellContainer = actor.spells._ActorTable
 
         --reserve an index to tell the length of spells
-        actorDamageInfo [currentIndex + 1] = 0
+        actorDamageInfo [#actorDamageInfo + 1] = 0
         local reservedSpellSizeIndex = #actorDamageInfo
         local totalSpellIndexes = 0
 
@@ -409,35 +412,33 @@ function Details.packFunctions.PackDamage(combatObject)
             local spellDamage = spellInfo.total
             local spellHits = spellInfo.counter
             local spellTargets = spellInfo.targets
-            local spellCasts = 0
 
-            actorDamageInfo [currentIndex + 1] = floor(spellId)
-            actorDamageInfo [currentIndex + 1] = floor(spellDamage)
-            actorDamageInfo [currentIndex + 1] = floor(spellHits)
+            actorDamageInfo [#actorDamageInfo + 1] = floor(spellId)
+            actorDamageInfo [#actorDamageInfo + 1] = floor(spellDamage)
+            actorDamageInfo [#actorDamageInfo + 1] = floor(spellHits)
 
             --build targets
-            local targetsSize = Details.packFunctions.CountTableEntriesValid(spellTargets)
-            actorDamageInfo[#actorDamageInfo + 1] = targetsSize
-            totalSpellIndexes = totalSpellIndexes + 3 + targetsSize
+            local targetsSize = Details.packFunctions.CountTableEntriesValid(spellTargets) * 2
+            actorDamageInfo [#actorDamageInfo + 1] = targetsSize
 
             for actorName, damageDone in pairs(spellTargets) do
                 local actorInfoIndex = actorInformationIndexes[actorName]
                 if (actorInfoIndex) then
-                    actorDamageInfo[#actorDamageInfo + 1] = actorInfoIndex
-                    actorDamageInfo[#actorDamageInfo + 1] = floor(damageDone)
+                    actorDamageInfo [#actorDamageInfo + 1] = actorInfoIndex
+                    actorDamageInfo [#actorDamageInfo + 1] = floor(damageDone)
                     spellSize = spellSize + 2
                 end
             end
 
-            spellSize = spellSize + 1
+            --+3: spellId, damage, spellHits
+            --+1: the index that tell the size of targets
+            totalSpellIndexes = totalSpellIndexes + 3 + targetsSize + 1
+            spellSize = spellSize + 1 --debug
         end
 
         --amount of indexes spells are using
         actorDamageInfo[reservedSpellSizeIndex] = totalSpellIndexes
-
     end
-
-    print ("spellSize (debug):", spellSize, #actorDamageInfo)
 end
 
 --------------------------------------------------------------------------------------------------------------------------------
@@ -463,7 +464,7 @@ function Details.packFunctions.UnPackDamage(currentCombat, combatData, tablePosi
         --check if all damage actors has been processed
         --if there's no actor name it means it reached the end
         if (not actorName) then
-            print("damage END index:", i, actorReference, "tablePosition:", tablePosition, "value:", combatData[tablePosition])
+            print("damage END index (debug):", i, actorReference, "tablePosition:", tablePosition, "value:", combatData[tablePosition])
             break
         end
 
@@ -472,6 +473,7 @@ function Details.packFunctions.UnPackDamage(currentCombat, combatData, tablePosi
         --set the actor class, spec and group
         actorObject.classe = class
         actorObject.spec = spec
+        
         actorObject.grupo = isActorInGroup(class, actorFlag)
 
         --> copy back the base damage
@@ -503,17 +505,17 @@ function Details.packFunctions.UnPackDamage(currentCombat, combatData, tablePosi
 
         --> copy back the actor spells
             --amount of indexes used to store spells for this actor
-            local spellsSize = tonumber(combatData[tablePosition]) --[7]
+            local spellsSize = tonumber(combatData [tablePosition]) --[7]
             tablePosition = tablePosition + 1
 
             local spellIndex = tablePosition
             while(spellIndex < tablePosition + spellsSize) do
-                local spellId = combatData [spellIndex] --[1]
-                local spellDamage = combatData [spellIndex+1] --[2]
-                local spellHits = combatData [spellIndex+2] --[3]
+                local spellId = tonumber(combatData [spellIndex]) --[1]
+                local spellDamage = tonumber(combatData [spellIndex+1]) --[2]
+                local spellHits = tonumber(combatData [spellIndex+2]) --[3]
 
                 local targetsSize = combatData [spellIndex+3] --[4]
-                local targetTable = Details.packFunctions.UnpackTable(combatData, spellIndex+4, true)
+                local targetTable = Details.packFunctions.UnpackTable(combatData, spellIndex+3, true)
 
                 local spellObject = actorObject.spells:PegaHabilidade(spellId, true) --this one need some translation
                 spellObject.total = spellDamage
@@ -523,6 +525,7 @@ function Details.packFunctions.UnPackDamage(currentCombat, combatData, tablePosi
                 spellIndex = spellIndex + targetsSize + 4
             end
 
+            tablePosition = tablePosition + spellsSize --increase table position
     end
 
     return tablePosition
@@ -659,7 +662,7 @@ function Details.packFunctions.UnPackCombatData(packedCombatData)
     local flags = tonumber(combatData[INDEX_EXPORT_FLAG])
 
     local tablePosition = TOTAL_INDEXES_FOR_COMBAT_INFORMATION + 1 --[[ +1 to jump to damage ]]
-    --tablePosition now have the first index of the actorInforTable
+    --tablePosition now have the first index of the actorInfoTable
 
     --stop the combat if already in one
     if (Details.in_combat) then
