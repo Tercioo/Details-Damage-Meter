@@ -1,6 +1,7 @@
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ("Details")
 local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+local DF = _G.DetailsFramework
 
 ---------------------------------------------------------------------------------------------
 
@@ -24,6 +25,9 @@ local _unpack = unpack
 local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
 ---------------------------------------------------------------------------------------------
 
+local DB_ANIMATION_TIME_DILATATION = 0.515321
+
+
 local _cstr = string.format --> lua library local
 local _table_insert = table.insert --> lua library local
 local _table_remove = table.remove --> lua library local
@@ -40,6 +44,8 @@ local _table_sort = table.sort
 local Vanguard = _detalhes:NewPluginObject ("Details_Vanguard")
 --> Main Frame
 local VanguardFrame = Vanguard.Frame
+
+local onUpdateFrame = CreateFrame("frame")
 
 Vanguard:SetPluginDescription ("Show debuffs on each tanks in the raid, also shows incoming heal and damage and the last hits you took.")
 
@@ -66,14 +72,15 @@ local function CreatePluginFrames (data)
 			if (not Vanguard.db.first_run) then
 				Vanguard.db.first_run = true
 				
-				local welcome = CreateFrame ("frame", nil, UIParent)
+				local welcome = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
 				welcome:SetFrameStrata ("TOOLTIP")
 				welcome:SetPoint ("center", UIParent, "center")
 				welcome:SetSize (400, 175)
-				welcome:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
-				bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 130, insets = {left = 1, right = 1, top = 5, bottom = 5}})
+				--welcome:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
+				--bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 130, insets = {left = 1, right = 1, top = 5, bottom = 5}})
+				DF:ApplyStandardBackdrop(welcome)
 				
-				local str = _detalhes.gump:CreateLabel (welcome, "Welcome to Vanguard!\n\n\n- The green-left bar represents the incoming healing plus absorbs on the tank.\n\n- The red-right tries to calculate the incoming damage taking the total damage suffered by the tank on the last 5 seconds.", nil, nil, "GameFontNormal")
+				local str = _detalhes.gump:CreateLabel (welcome, "Welcome to Vanguard!\n\n\n- The green-left bar represents the incoming healing plus absorbs on the tank.\n\n- The red-right show the incoming damage.\n\n- Click anywhere to show options.", nil, nil, "GameFontNormal")
 				str:SetPoint (15, -15)
 				str:SetWidth (375)
 				
@@ -145,24 +152,19 @@ local function CreatePluginFrames (data)
 			
 		end
 	end
-
-	-- não vamos mais mostrar o jogador
-	-- somente barra de inc heal + absorbs
-	-- somente barra de vida
-	
-	-- option tank square size
-	
 	
 	--> list with tank names
 	Vanguard.TankList = {} --> tanks
 	Vanguard.TankHashNames = {} --> tanks
 	Vanguard.TankBlocks = {} --> tank frames
+	Vanguard.TankIncDamage = {} --> tank damage taken from last 5 seconds
 	
 	--> search for tanks in the raid or party group 
 	function Vanguard:IdentifyTanks()
 	
 		table.wipe (Vanguard.TankList)
 		table.wipe (Vanguard.TankHashNames)
+		table.wipe (Vanguard.TankIncDamage)
 		
 		if (IsInRaid()) then
 		
@@ -177,6 +179,7 @@ local function CreatePluginFrames (data)
 					if (not Vanguard.TankHashNames [name]) then
 						Vanguard.TankList [#Vanguard.TankList+1] = name
 						Vanguard.TankHashNames [name] = #Vanguard.TankList
+						Vanguard.TankIncDamage [name] = {}
 					end
 				end
 			end
@@ -194,6 +197,7 @@ local function CreatePluginFrames (data)
 					if (not Vanguard.TankHashNames [name]) then
 						Vanguard.TankList [#Vanguard.TankList+1] = name
 						Vanguard.TankHashNames [name] = #Vanguard.TankList
+						Vanguard.TankIncDamage [name] = {}
 					end
 				end
 			end
@@ -208,6 +212,7 @@ local function CreatePluginFrames (data)
 				if (not Vanguard.TankHashNames [name]) then
 					Vanguard.TankList [#Vanguard.TankList+1] = name
 					Vanguard.TankHashNames [name] = #Vanguard.TankList
+					Vanguard.TankIncDamage [name] = {}
 				end
 			end
 		
@@ -220,6 +225,7 @@ local function CreatePluginFrames (data)
 			if (not Vanguard.TankHashNames [name]) then
 				Vanguard.TankList [#Vanguard.TankList+1] = name
 				Vanguard.TankHashNames [name] = #Vanguard.TankList
+				Vanguard.TankIncDamage [name] = {}
 			end
 		end
 		
@@ -237,6 +243,10 @@ local function CreatePluginFrames (data)
 				bar:SetRightText ("")
 				bar:SetRightColor (.25, 0, 0, 1)
 				bar:SetLeftColor (0, .25, 0, 1)
+				bar:SetHeight(Vanguard.db.bar_height)
+				bar:SetTexture(SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
+				bar.div:SetHeight(Vanguard.db.bar_height*2)
+				bar.div:SetAlpha(0.79)
 				bar:Show()
 			end
 		else
@@ -328,14 +338,14 @@ local function CreatePluginFrames (data)
 	function Vanguard:CreateTankBlock (index)
 		--frame
 		
-		local f = CreateFrame ("button", "VanguardTankBlock" .. index, VanguardFrame)
+		local f = CreateFrame ("button", "VanguardTankBlock" .. index, VanguardFrame, "BackdropTemplate")
 		f.SetTank = SetTank
 		f:SetSize (Vanguard.db.tank_block_size or 150, 50)
 		
 		f:SetScript ("OnMouseUp", on_click)
 		
 		if (index == 1) then
-			f:SetPoint ("bottomleft", VanguardFrame, "bottomleft", 5 + ((index-1) * 155), 5)
+			f:SetPoint ("bottomleft", VanguardFrame, "bottomleft", 0 + ((index-1) * 155), 0)
 		else
 			f:SetPoint ("left", Vanguard.TankBlocks [index-1], "right", 5, 0)
 		end
@@ -344,113 +354,112 @@ local function CreatePluginFrames (data)
 		f:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
 		f:SetBackdropBorderColor (0, 0, 0, 1)
 		
-		--statusbar
-		f.statusbar = CreateFrame ("statusbar", nil, f)
-		f.statusbar:SetPoint ("topleft", f, "topleft", 1, -1)
-		f.statusbar:SetPoint ("bottomright", f, "bottomright", -1, 1)
-		f.texture = f.statusbar:CreateTexture (nil, "artwork")
-		f.statusbar:SetStatusBarTexture (f.texture)
-		f.statusbar:SetMinMaxValues (0, 100)
-		f.statusbar:SetValue (100)
-
-		f.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
+		--tank health bar
+			f.statusbar = CreateFrame ("statusbar", nil, f, "BackdropTemplate")
+			f.statusbar:SetPoint ("topleft", f, "topleft", 1, -1)
+			f.statusbar:SetPoint ("bottomright", f, "bottomright", -1, 1)
+			--health bar texture
+			f.texture = f.statusbar:CreateTexture (nil, "artwork")
+			f.statusbar:SetStatusBarTexture (f.texture)
+			f.statusbar:SetMinMaxValues (0, 100)
+			f.statusbar:SetValue (100)
+			f.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
+			
+			--spec icon
+			f.specicon = f.statusbar:CreateTexture (nil, "overlay")
+			f.specicon:SetPoint ("topleft", f, "topleft", 5, -5)
+			f.specicon:SetSize (14, 14)
+			
+			--tank name
+			f.tankname = f.statusbar:CreateFontString (nil, "overlay", "GameFontNormal")
+			f.tankname:SetPoint ("left", f.specicon, "right", 2, 0)
 		
-		--spec icon
-		f.specicon = f.statusbar:CreateTexture (nil, "overlay")
-		f.specicon:SetPoint ("topleft", f, "topleft", 5, -5)
-		f.specicon:SetSize (14, 14)
-		
-		--tank name
-		f.tankname = f.statusbar:CreateFontString (nil, "overlay", "GameFontNormal")
-		f.tankname:SetPoint ("left", f.specicon, "right", 2, 0)
-		
-		--debuff icons
-		f.debufficons = {}
+			--debuff icons
+			f.debufficons = {}
 		
 		--inc heals inc damage
-		f.heal_inc = framework:NewSplitBar (VanguardFrame, VanguardFrame, "VanguardDamageVsHeal" .. index, "DamageVsHeal" .. index, 294, 14)
-		f.heal_inc:SetPoint ("topleft", VanguardFrame, "topleft", 3, -3 + ((index - 1) * -16))
-		f.heal_inc:SetPoint ("topright", VanguardFrame, "topright", -3, -3 + ((index - 1) * -16))
+			f.heal_inc = framework:NewSplitBar (VanguardFrame, VanguardFrame, "VanguardDamageVsHeal" .. index, "DamageVsHeal" .. index, 294, Vanguard.db.bar_height)
+			f.heal_inc:SetTexture(SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
+			f.heal_inc:SetPoint ("topleft", VanguardFrame, "topleft", 0, ((index - 1) * -Vanguard.db.bar_height))
+			f.heal_inc:SetPoint ("topright", VanguardFrame, "topright", 0, ((index - 1) * -Vanguard.db.bar_height))
 		
-		f.heal_inc.fontsize = 10
-		f.heal_inc.righticon = "Interface\\ICONS\\misc_arrowleft"
-		f.heal_inc.iconright:SetVertexColor (1, .5, .5, 1)
-		
-		f.heal_inc:SetScript ("OnMouseUp", on_click)
+			f.heal_inc.fontsize = 10
+			
+			_G [f.heal_inc:GetName() .. "_IconRight"]:SetSize(1, 1)
+			f.heal_inc.righticon = ""
 
-		--debuffs blocks
-		f.debuffs_blocks = {}
-		f.debuffs_using = 0
-		f.debuffs_next_index = 1
+			f.heal_inc.iconright:SetVertexColor (1, .5, .5, 1)
 		
-		for i = 1, 3 do
-			local support_frame = CreateFrame ("frame", nil, f)
-			support_frame:SetFrameLevel (f:GetFrameLevel()+1)
-			support_frame:SetSize (24, 24)
-			support_frame:SetScript ("OnMouseUp", on_click)
-			
-			--support_frame:SetScript ("OnEnter", debuff_on_enter)
-			--support_frame:SetScript ("OnLeave", debuff_on_leave)
-			
-			local texture = support_frame:CreateTexture (nil, "overlay")
-			texture:SetSize (24, 24)
-			
-			local y = 3
-			
-			if (i == 1) then --> left
-				support_frame:SetPoint ("left", f, "left", 5, 0)
-				support_frame:SetPoint ("bottom", f, "bottom", 0, y)
+			f.heal_inc:SetScript ("OnMouseUp", on_click)
+
+			--debuffs blocks
+			f.debuffs_blocks = {}
+			f.debuffs_using = 0
+			f.debuffs_next_index = 1
+		
+			for i = 1, 3 do
+				local support_frame = CreateFrame ("frame", nil, f, "BackdropTemplate")
+				support_frame:SetFrameLevel (f:GetFrameLevel()+1)
+				support_frame:SetSize (24, 24)
+				support_frame:SetScript ("OnMouseUp", on_click)
 				
-				texture:SetPoint ("left", f, "left", 5, 0)
-				texture:SetPoint ("bottom", f, "bottom", 0, y)
+				local texture = support_frame:CreateTexture (nil, "overlay")
+				texture:SetSize (24, 24)
 				
-			elseif (i == 2) then --> center
-				support_frame:SetPoint ("center", f, "center", 0, 0)
-				support_frame:SetPoint ("bottom", f, "bottom", 0, y)
+				local y = 3
 				
-				texture:SetPoint ("center", f, "center", 0, 0)
-				texture:SetPoint ("bottom", f, "bottom", 0, y)
+				if (i == 1) then --> left
+					support_frame:SetPoint ("left", f, "left", 5, 0)
+					support_frame:SetPoint ("bottom", f, "bottom", 0, y)
+					
+					texture:SetPoint ("left", f, "left", 5, 0)
+					texture:SetPoint ("bottom", f, "bottom", 0, y)
+					
+				elseif (i == 2) then --> center
+					support_frame:SetPoint ("center", f, "center", 0, 0)
+					support_frame:SetPoint ("bottom", f, "bottom", 0, y)
+					
+					texture:SetPoint ("center", f, "center", 0, 0)
+					texture:SetPoint ("bottom", f, "bottom", 0, y)
+					
+				elseif (i == 3) then --> right
+					support_frame:SetPoint ("right", f, "right", -5, 0)
+					support_frame:SetPoint ("bottom", f, "bottom", 0, y)
+					
+					texture:SetPoint ("right", f, "right", -5, 0)
+					texture:SetPoint ("bottom", f, "bottom", 0, y)
+					
+				end
+
+				local dblock = CreateFrame ("cooldown", "VanguardTankBlock" .. index.. "Cooldown" .. i, support_frame, "CooldownFrameTemplate, BackdropTemplate")
+				dblock:SetAlpha (0.7)
+				dblock:SetPoint ("topleft", texture, "topleft")
+				dblock:SetPoint ("bottomright", texture, "bottomright")
+				dblock:SetScript ("OnMouseUp", on_click)
+				dblock.texture = texture
 				
-			elseif (i == 3) then --> right
-				support_frame:SetPoint ("right", f, "right", -5, 0)
-				support_frame:SetPoint ("bottom", f, "bottom", 0, y)
-				
-				texture:SetPoint ("right", f, "right", -5, 0)
-				texture:SetPoint ("bottom", f, "bottom", 0, y)
-				
+				dblock:SetScript ("OnEnter", debuff_on_enter)
+				dblock:SetScript ("OnLeave", debuff_on_leave)
+
+				local stack = dblock:CreateFontString (nil, "overlay", "GameFontNormal")
+				stack:SetPoint ("bottomright", dblock, "bottomright", 8, 0)
+				local stack_bg = dblock:CreateTexture (nil, "artwork")
+				stack_bg:SetTexture (0, 0, 0)
+				stack_bg:SetPoint ("bottomright", dblock, "bottomright", 8, 0)
+				stack_bg:SetSize (12, 12)
+
+				dblock.stack = stack
+				dblock.stack_bg = stack_bg
+				dblock.support = support_frame
+
+				f.debuffs_blocks [i] = dblock
 			end
 
-			local dblock = CreateFrame ("cooldown", "VanguardTankBlock" .. index.. "Cooldown" .. i, support_frame, "CooldownFrameTemplate")
-			dblock:SetAlpha (0.7)
-			dblock:SetPoint ("topleft", texture, "topleft")
-			dblock:SetPoint ("bottomright", texture, "bottomright")
-			dblock:SetScript ("OnMouseUp", on_click)
-			dblock.texture = texture
-			
-			dblock:SetScript ("OnEnter", debuff_on_enter)
-			dblock:SetScript ("OnLeave", debuff_on_leave)
-
-			local stack = dblock:CreateFontString (nil, "overlay", "GameFontNormal")
-			stack:SetPoint ("bottomright", dblock, "bottomright", 8, 0)
-			local stack_bg = dblock:CreateTexture (nil, "artwork")
-			stack_bg:SetTexture (0, 0, 0)
-			stack_bg:SetPoint ("bottomright", dblock, "bottomright", 8, 0)
-			stack_bg:SetSize (12, 12)
-			
-			dblock.stack = stack
-			dblock.stack_bg = stack_bg
-			dblock.support = support_frame
-			
-			f.debuffs_blocks [i] = dblock
-		end
-		
 		Vanguard.TankBlocks [index] = f
-		
 		Vanguard:ResetBars()
-		
 		return f
 	end
-	
+
 	function Vanguard:RefreshTanks()
 
 		Vanguard:ResetBlocks()
@@ -470,6 +479,59 @@ local function CreatePluginFrames (data)
 		end
 	end
 
+	function Vanguard.AnimateLeftWithAccel(self, deltaTime)
+		local distance = (self.AnimationStart - self.AnimationEnd) / self.CurrentHealthMax * 100	--scale 1 - 100
+		local minTravel = min (distance / 10, 3) -- 10 = trigger distance to max speed 3 = speed scale on max travel
+		local maxTravel = max (minTravel, 0.45) -- 0.45 = min scale speed on low travel speed
+		local calcAnimationSpeed = (self.CurrentHealthMax * (deltaTime * DB_ANIMATION_TIME_DILATATION)) * maxTravel --re-scale back to unit health, scale with delta time and scale with the travel speed
+		
+		self.AnimationStart = self.AnimationStart - (calcAnimationSpeed)
+		self:SetSplit (self.AnimationStart)
+		self.CurrentHealth = self.AnimationStart
+		
+		if (self.Spark) then
+			self.Spark:SetPoint ("center", self, "left", self.AnimationStart / self.CurrentHealthMax * self:GetWidth(), 0)
+			self.Spark:Show()
+		end
+		
+		if (self.AnimationStart-1 <= self.AnimationEnd) then
+			self:SetSplit (self.AnimationEnd)
+			self.CurrentHealth = self.AnimationEnd
+			self.IsAnimating = false
+			if (self.Spark) then
+				self.Spark:Hide()
+			end
+		end
+	end
+
+	function Vanguard.AnimateRightWithAccel(self, deltaTime)
+		local distance = (self.AnimationEnd - self.AnimationStart) / self.CurrentHealthMax * 100	--scale 1 - 100 basis
+		local minTravel = math.min (distance / 10, 3) -- 10 = trigger distance to max speed 3 = speed scale on max travel
+		local maxTravel = math.max (minTravel, 0.45) -- 0.45 = min scale speed on low travel speed
+		local calcAnimationSpeed = (self.CurrentHealthMax * (deltaTime * DB_ANIMATION_TIME_DILATATION)) * maxTravel --re-scale back to unit health, scale with delta time and scale with the travel speed
+		
+		self.AnimationStart = self.AnimationStart + (calcAnimationSpeed)
+		self:SetSplit (self.AnimationStart)
+		self.CurrentHealth = self.AnimationStart
+		
+		if (self.AnimationStart+1 >= self.AnimationEnd) then
+			self:SetSplit (self.AnimationEnd)
+			self.CurrentHealth = self.AnimationEnd
+			self.IsAnimating = false
+		end
+	end
+
+	onUpdateFrame.onUpdate = function(self, deltaTime)
+		--do healthbar animation ~animation ~healthbar
+		for tank_name, block_index in pairs (Vanguard.TankHashNames) do
+			local tframe = Vanguard.TankBlocks [block_index]
+			local bar = tframe.heal_inc
+			if (bar.IsAnimating) then
+				bar.AnimateFunc(bar, deltaTime)
+			end
+		end
+	end
+
 	function Vanguard:TrackIncoming()
 		
 		for tank_name, block_index in pairs (Vanguard.TankHashNames) do
@@ -477,23 +539,33 @@ local function CreatePluginFrames (data)
 			local shields = UnitGetTotalAbsorbs (tank_name) or 0
 			local heals = UnitGetIncomingHeals (tank_name) or 0
 		
-			local events_table = Vanguard.CurrentCombat.player_last_events [tank_name] 
+			local events_table = Vanguard.CurrentCombat.player_last_events [tank_name]
 			local taken = 0
+			local timeNow = time()
+
 			if (events_table) then
 				for _, event in ipairs (events_table) do
-					if (event [1] and event [4]+5 > time()) then --> damage
+					if (event[1] and event[4]+5 > timeNow) then --damage event
 						taken = taken + event [3]
 					end
 				end
-				
-				taken = taken / 3.5
+
+				tinsert(Vanguard.TankIncDamage, 1, taken)
+				tremove(Vanguard.TankIncDamage, 41)
+
+				--taken = taken / 3.5
 			end
-			
+
 			local tframe = Vanguard.TankBlocks [block_index]
-			tframe.heal_inc:SetLeftText (Vanguard:ToK (shields + heals) .. " (|cFFFFFF55A: " .. Vanguard:ToK (shields) .. "|r)")
+				
+			--split animation
+			tframe.heal_inc:SetLeftText (Vanguard:ToK (shields + heals) .. " [|cFFFFFF55" .. Vanguard:ToK (shields) .. "|r]")
 			tframe.heal_inc:SetRightText (Vanguard:ToK ( _math_floor (taken)))
 			
 			heals = heals + shields
+
+			local oldValue = tframe.heal_inc:GetValue()
+			local currentValue = 0
 			
 			if (taken > 0 and heals > 0) then
 				if (taken > heals) then 
@@ -503,50 +575,69 @@ local function CreatePluginFrames (data)
 					p = p / 2
 					p = p + 50
 					p = _math_abs (p - 100)
-					tframe.heal_inc:SetSplit (p)
+					--tframe.heal_inc:SetSplit (p)
+					currentValue = p
 				else
 					local p = taken / heals * 100
 					p = _math_abs (p - 100)
 					p = p / 2
 					p = p + 50
 					
-					tframe.heal_inc:SetSplit (p)
+					--tframe.heal_inc:SetSplit (p)
+					currentValue = p
 				end
+
 			elseif (taken > 0) then
-				tframe.heal_inc:SetSplit (6)
+				--tframe.heal_inc:SetSplit (6)
+				currentValue = 1
+
 			elseif (heals > 0) then
-				tframe.heal_inc:SetSplit (94)
+				--tframe.heal_inc:SetSplit (94)
+				currentValue = 99
 			end
+
+			--~animation
+			tframe.heal_inc.oldValue = oldValue
+			tframe.heal_inc.currentValue = currentValue--tframe.heal_inc:GetValue()
+			
+			tframe.heal_inc.CurrentHealthMax = 100
+			tframe.heal_inc.AnimationStart = tframe.heal_inc.oldValue
+			tframe.heal_inc.AnimationEnd = tframe.heal_inc.currentValue
+			
+			tframe.heal_inc.IsAnimating = true
+			
+			if (tframe.heal_inc.AnimationEnd > tframe.heal_inc.AnimationStart) then
+				tframe.heal_inc.AnimateFunc = Vanguard.AnimateRightWithAccel
+			else
+				tframe.heal_inc.AnimateFunc = Vanguard.AnimateLeftWithAccel
+			end
+
 		
 		end
 	end
 	
 	function Vanguard:CombatStart()
-	
 		Vanguard.Running = true
 		VanguardFrame:RegisterEvent ("UNIT_HEALTH")
-		VanguardFrame:RegisterEvent ("UNIT_HEALTH_FREQUENT")
-		--Vanguard:TrackDebuffsAlreadyApplied()
 		VanguardFrame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 		
 		if (Vanguard.track_incoming) then
 			Vanguard:CancelTimer (Vanguard.track_incoming)
 		end
 		Vanguard.track_incoming = Vanguard:ScheduleRepeatingTimer ("TrackIncoming", 0.1)
-		
+		onUpdateFrame:SetScript("OnUpdate", onUpdateFrame.onUpdate)
 	end
 	
 	function Vanguard:CombatEnd()
-	
 		Vanguard.Running = false
 		VanguardFrame:UnregisterEvent ("UNIT_HEALTH")
-		VanguardFrame:UnregisterEvent ("UNIT_HEALTH_FREQUENT")
 		VanguardFrame:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 	
 		if (Vanguard.track_incoming) then
 			Vanguard:CancelTimer (Vanguard.track_incoming)
 		end
 	
+		onUpdateFrame:SetScript("OnUpdate", nil)
 	end
 	
 	function Vanguard:DebuffRefreshed (who_name, spellid)
@@ -560,7 +651,7 @@ local function CreatePluginFrames (data)
 					
 					local icon, count, duration, expirationTime = "", 0, 0, 0
 					
-					for i = 1, 40 do --doq
+					for i = 1, 40 do
 						local auraName, icon1, count1, _, duration1, expirationTime1 = _UnitDebuff (who_name, i)
 						if (auraName == debuff_name) then
 							icon, count, duration, expirationTime = icon1, count1, duration1, expirationTime1
@@ -711,25 +802,34 @@ local build_options_panel = function()
 
 	local options_frame = Vanguard:CreatePluginOptionsFrame ("VanguardOptionsWindow", "Vanguard Options", 1)
 	
-		local tank_texture_set = function (_, _, value) 
-			Vanguard.db.tank_block_texture = value;
-			Vanguard:RefreshTanks();
-		end
-		
-		local texture_icon = [[Interface\TARGETINGFRAME\UI-PhasingIcon]]
-		local texture_icon = [[Interface\AddOns\Details\images\icons]]
-		local texture_icon_size = {14, 14}
-		local texture_texcoord = {469/512, 505/512, 249/512, 284/512}
-		
-		local textures = SharedMedia:HashTable ("statusbar")
-		local texTable = {}
-		for name, texturePath in pairs (textures) do 
-			texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath, onclick = tank_texture_set, icon = texture_icon, texcoord = texture_texcoord}
-		end
-		table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
-		
-		local tank_texture_menu = texTable
+	local tank_texture_set = function (_, _, value) 
+		Vanguard.db.tank_block_texture = value;
+		Vanguard:ResetBars()
+		Vanguard:RefreshTanks()
+	end
 	
+	local texture_icon = [[Interface\TARGETINGFRAME\UI-PhasingIcon]]
+	local texture_icon = [[Interface\AddOns\Details\images\icons]]
+	local texture_icon_size = {14, 14}
+	local texture_texcoord = {469/512, 505/512, 249/512, 284/512}
+	
+	local textures = SharedMedia:HashTable ("statusbar")
+	local texTable = {}
+	for name, texturePath in pairs (textures) do 
+		texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath, onclick = tank_texture_set, icon = texture_icon, texcoord = texture_texcoord}
+	end
+	table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+	
+	local tank_texture_menu = texTable
+	
+
+	--templates
+	local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
+	local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+
 	local menu = {
 		{
 			type = "toggle",
@@ -766,11 +866,23 @@ local build_options_panel = function()
 			desc = "Choose the texture used on tank blocks.",
 			name = "Tank Block Texture"
 		},
-		
+		{
+			type = "range",
+			get = function() return Vanguard.db.bar_height end,
+			set = function (self, fixedparam, value)
+				Vanguard.db.bar_height = value
+				Vanguard:ResetBars()
+				Vanguard:RefreshTanks()
+			end,
+			min = 10,
+			max = 50,
+			step = 1,
+			desc = "Inc Damage Heigth",
+			name = "Inc Damage Heigth",
+		},
 	}
-	
-	Vanguard:GetFramework():BuildMenu (options_frame, menu, 15, -75, 260)
-	
+
+	Vanguard:GetFramework():BuildMenu (options_frame, menu, 15, -50, 260, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 end
 
 Vanguard.OpenOptionsPanel = function()
@@ -817,7 +929,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 
 		end
 	
-	elseif (event == "UNIT_HEALTH" or event == "UNIT_HEALTH_FREQUENT") then
+	elseif (event == "UNIT_HEALTH") then
 		Vanguard:HealthChanged (arg1)
 		
 	elseif (event == "ADDON_LOADED") then
@@ -833,20 +945,24 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 				
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				local default_saved_table = {
-					show_inc_bars = false,
-					tank_block_size = 150, 
+					show_inc_bars = true,
+					tank_block_size = 150,
+					tank_block_height = 40,
 					tank_block_color = {0.24705882, 0.0039215, 0, 0.8},
 					tank_block_texture = "Details Serenity",
 					first_run = false,
+					bar_height = 24,
 				}
 
 				--> Install
 				function Vanguard:OnDetailsEvent() end --> dummy func to stop warnings.
 				
-				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v2.0", default_saved_table)
+				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Tercio", "v2.1", default_saved_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
+
+				Vanguard.db.first_run = false
 				
 				--> create widgets
 				CreatePluginFrames()

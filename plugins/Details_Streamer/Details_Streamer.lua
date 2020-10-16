@@ -138,7 +138,7 @@ local function CreatePluginFrames()
 	end
 	
 	--> title bar, only shown when the frame isn't locked
-	local titlebar = CreateFrame ("frame", "DetailsStreamerTitlebar", SOF)
+	local titlebar = CreateFrame ("frame", "DetailsStreamerTitlebar", SOF, "BackdropTemplate")
 	titlebar:SetHeight (20)
 	titlebar:SetPoint ("bottomleft", SOF, "topleft")
 	titlebar:SetPoint ("bottomright", SOF, "topright")
@@ -238,8 +238,8 @@ local function CreatePluginFrames()
 	end
 	
 	--> two resizers
-	local left_resize = CreateFrame ("button", "DetailsStreamerLeftResizer", SOF)
-	local right_resize = CreateFrame ("button", "DetailsStreamerRightResizer", SOF)
+	local left_resize = CreateFrame ("button", "DetailsStreamerLeftResizer", SOF, "BackdropTemplate")
+	local right_resize = CreateFrame ("button", "DetailsStreamerRightResizer", SOF, "BackdropTemplate")
 	left_resize:SetPoint ("bottomleft", SOF, "bottomleft")
 	right_resize:SetPoint ("bottomright", SOF, "bottomright")
 	left_resize:SetSize (16, 16)
@@ -309,7 +309,7 @@ local function CreatePluginFrames()
 	
 	
 	--> scroll frame
-	local autoscroll = CreateFrame ("scrollframe", "Details_StreamOverlayScrollFrame", SOF, "FauxScrollFrameTemplate")
+	local autoscroll = CreateFrame ("scrollframe", "Details_StreamOverlayScrollFrame", SOF, "FauxScrollFrameTemplate, BackdropTemplate")
 	autoscroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, StreamOverlay.UpdateLines) end)
 	
 	--> looks like this isn't working
@@ -443,8 +443,8 @@ local function CreatePluginFrames()
 	
 		local index = #StreamOverlay.battle_lines+1
 	
-		local f = CreateFrame ("frame", "StreamOverlayBar" .. index, SOF)
-		local statusbar = CreateFrame ("StatusBar", "StreamOverlayBar" .. index .. "StatusBar", f)
+		local f = CreateFrame ("frame", "StreamOverlayBar" .. index, SOF, "BackdropTemplate")
+		local statusbar = CreateFrame ("StatusBar", "StreamOverlayBar" .. index .. "StatusBar", f, "BackdropTemplate")
 		local statusbar_texture = statusbar:CreateTexture (nil, "border")
 		statusbar_texture:SetTexture (1, 1, 1, 0.15)
 		statusbar:SetStatusBarColor (0, 0, 0, 0)
@@ -1024,10 +1024,9 @@ local ACTIONS = 0
 local ACTIONS_EVENT_TIME = {}
 local AMP_Tick = C_Timer.NewTicker (1, function()
 	APM = ACTIONS * 60
-	--print ("APM:", APM)
 	ACTIONS = 0
 end)
-local APM_FRAME = CreateFrame ("frame", "DetailsAPMFrame", UIParent)
+local APM_FRAME = CreateFrame ("frame", "DetailsAPMFrame", UIParent, "BackdropTemplate")
 APM_FRAME:RegisterEvent ("PLAYER_STARTED_MOVING")
 APM_FRAME:RegisterEvent ("PLAYER_STOPPED_MOVING")
 APM_FRAME:SetScript ("OnEvent", function()
@@ -1039,18 +1038,13 @@ listener:SetScript ("OnEvent", function (self, event, ...)
 if (event ~= "UNIT_SPELLCAST_SENT" and event ~= "UNIT_SPELLCAST_SUCCEEDED" and ACTIONS_EVENT_TIME [event] ~= GetTime()) then
 	ACTIONS = ACTIONS + 1
 	ACTIONS_EVENT_TIME [event] = GetTime()
-	--print (event, GetTime())
 end
-
-	--print (self, event, ...)
 
 	if (event == "UNIT_SPELLCAST_SENT") then
 		
 		local unitID, target, castGUID, spellID = ...
 		--local unitID, spell, rank, target, id = ...
 		spell = GetSpellInfo (spellID)
-		
-		--print (spell, ...)
 		
 		if (unitID == "player") then
 			CastsTable [castGUID] = {Target = target or "", Id = castGUID, CastStart = GetTime()}
@@ -1061,8 +1055,6 @@ end
 		end
 	
 	elseif (event == "UNIT_SPELLCAST_START") then
-		--print ("UNIT_SPELLCAST_START", ...)
-		
 		--spell, rank, id, 
 		local unitID, castGUID, spellID = ...
 		
@@ -1075,7 +1067,6 @@ end
 	elseif (event == "UNIT_SPELLCAST_INTERRUPTED") then
 		--local unitID, spell, rank, id, spellID = ...
 		local unitID, castGUID, spellID = ...
-		--print ("UNIT_SPELLCAST_INTERRUPTED", ...)
 		
 		if (unitID == "player" and CastsTable [castGUID]) then
 			CastsTable [castGUID].Interrupted = true
@@ -1090,7 +1081,6 @@ end
 			castGUID = lastchannelid
 		
 			if (not CastsTable [castGUID]) then
-				--print ("not", " - ", id, " - ", lastChannelSpell)
 				castGUID = lastChannelSpell
 				if (not castGUID or not CastsTable [castGUID]) then
 					return
@@ -1102,8 +1092,6 @@ end
 		end
 	
 	elseif (event == "UNIT_SPELLCAST_CHANNEL_START") then
-		--local unitID, spell, rank, id, spellID = ...
-		--print ("UNIT_SPELLCAST_CHANNEL_START", ...)
 		
 		local unitID, castGUID, spellID = ...
 		
@@ -1118,7 +1106,6 @@ end
 			end
 			
 			if (not CastsTable [castGUID]) then
-				--print ("not", " - ", id, " - ", lastChannelSpell)
 				castGUID = lastChannelSpell
 			end
 			
@@ -1139,8 +1126,6 @@ end
 		local unitID, castGUID, spellID = ...
 		local spell = GetSpellInfo (spellID)
 		
-		--print (spell, ...)
-		
 		if (unitID == "player" and CastsTable[castGUID] and not channelspells [spell]) then
 			if (CastsTable[castGUID].HasCastTime and not CastsTable[castGUID].IsChanneled) then
 				--> a cast (non channeled) just successful finished
@@ -1156,8 +1141,6 @@ end
 		end
 	end
 	
-	--print (event, ...)
-
 end)
 
 local format_time = function (v) return "-" .. format ("%.2f", v) end
@@ -1263,7 +1246,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 --on screen hps dps
 
-local screen_frame = CreateFrame ("frame", "StreamerOverlayDpsHpsFrame", UIParent)
+local screen_frame = CreateFrame ("frame", "StreamerOverlayDpsHpsFrame", UIParent, "BackdropTemplate")
 screen_frame:SetSize (70, 20)
 screen_frame:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 screen_frame:SetBackdropColor (.1, .1, .1, .9)
@@ -1944,7 +1927,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				StreamOverlay.DefaultConfigTable = default_options_table
 				
 				--> Install
-				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Streamer", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", StreamOverlay.CurrentVersion, default_options_table)
+				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Action Tracker", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", StreamOverlay.CurrentVersion, default_options_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
@@ -1974,7 +1957,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 						
 						StreamOverlay.ShowWelcomeFrame:Cancel()
 						
-						local welcome_window = CreateFrame ("frame", "StreamOverlayWelcomeWindow", UIParent)
+						local welcome_window = CreateFrame ("frame", "StreamOverlayWelcomeWindow", UIParent, "BackdropTemplate")
 						welcome_window:SetPoint ("center", UIParent, "center")
 						welcome_window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 						welcome_window:SetBackdropColor (0, 0, 0, 0.5)
@@ -1984,13 +1967,13 @@ function StreamOverlay:OnEvent (_, event, ...)
 						local icon = welcome_window:CreateTexture (nil, "overlay")
 						icon:SetTexture ([[Interface\MINIMAP\MOVIERECORDINGICON]])
 						local title = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
-						title:SetText ("Details!: Streamer (plugin)")
+						title:SetText ("Details!: Action Tracker (plugin)")
 						StreamOverlay:SetFontSize (title, 20)
 						
 						local text1 = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
-						text1:SetText ("If you are a Streamer or Youtuber, you might want to take a look at the Details! Streamer plugin.")
+						text1:SetText ("If you are a Streamer or Youtuber, you might want to take a look at the Details! Action Tracker plugin.")
 						local text2 = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
-						text2:SetText ("Go to Options Panel -> Plugin Management and enable the Streamer plugin.")
+						text2:SetText ("Go to Options Panel -> Plugin Management and enable the Action Tracker plugin.")
 						
 						icon:SetPoint ("topleft", welcome_window, "topleft", 10, -60)
 						
@@ -2070,7 +2053,7 @@ function StreamOverlay:CreateMinimapIcon()
 			end,
 			
 			OnTooltipShow = function (tooltip)
-				tooltip:AddLine ("Details!: Streamer", 1, 1, 1)
+				tooltip:AddLine ("Details!: Action Tracker", 1, 1, 1)
 				tooltip:AddLine ("|cFFFF7700Left Click|r: open options.")
 				tooltip:AddLine ("|cFFFF7700Right Click|r: hide this icon.")
 			end,

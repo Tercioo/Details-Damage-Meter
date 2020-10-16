@@ -164,7 +164,7 @@ local function CreatePluginFrames (data)
 			
 			--_detalhes:TimeDataRegister ("Raid Damage Done", damage_done_func, {last_damage = 0, max_damage = 0}, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true)
 			_detalhes:TimeDataRegister ("Raid Damage Done", string_damage_done_func, nil, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
-
+			
 			if (EncounterDetails.db.show_icon == 4) then
 				EncounterDetails:ShowIcon()
 			elseif (EncounterDetails.db.show_icon == 5) then
@@ -262,7 +262,7 @@ local function CreatePluginFrames (data)
 	end
 	
 	
-	--desativado, agora ele é gerenciado dentro do proprio details!
+	--desativado, agora ele ï¿½ gerenciado dentro do proprio details!
 	function EncounterDetails:CreateCallbackListeners()
 	
 		EncounterDetails.DBM_timers = {}
@@ -272,7 +272,7 @@ local function CreatePluginFrames (data)
 		local current_table_dbm = {}
 		local current_table_bigwigs = {}
 	
-		local event_frame = CreateFrame ("frame", nil, UIParent)
+		local event_frame = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
 		event_frame:SetScript ("OnEvent", function (self, event, ...)
 			if (event == "ENCOUNTER_START") then
 				local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
@@ -395,6 +395,7 @@ local function CreatePluginFrames (data)
 			return
 		end
 		
+		--[=[
 		local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlertButton1", EncounterDetails.ToolbarButton, "MicroButtonAlertTemplate")
 		alert:SetFrameLevel (302)
 		alert.label = "Click here (on the skull icon) to bring the Encounter Breakdown panel"
@@ -404,7 +405,7 @@ local function CreatePluginFrames (data)
 		alert:SetPoint ("bottom", EncounterDetails.ToolbarButton, "top", 0, 22)
 		alert.CloseButton:HookScript ("OnClick", hook_AlertButtonCloseButton)
 		alert:Show()
-		
+		--]=]
 		--print ("showing ballon")
 	end
 	
@@ -435,54 +436,7 @@ local function CreatePluginFrames (data)
 	end
 	
 	function EncounterDetails:ShowTutorial()
-	--EncounterDetails.db.AlertTutorialStep = 1
-		if (not EncounterDetails.Frame:IsShown()) then
-			return
-		end
-		
-		local antTable = {
-			Throttle = 0.050,
-			AmountParts = 15,
-			TexturePartsWidth = 167.4,
-			TexturePartsHeight = 83.6,
-			TextureWidth = 512,
-			TextureHeight = 512,
-			BlendMode = "ADD",
-			Color = color,
-			Texture = [[Interface\AddOns\Plater\images\ants_rectangle]],
-		}
-		
-		local left, right, top, bottom = 0, 0, 4, -6
-		local DF = DetailsFrameWork
-		
-		if (not Details:GetTutorialCVar ("ENCOUNTER_BREAKDOWN_CHART")) then
-			local f = DF:CreateAnts (EncounterDetails.Frame.buttonSwitchGraphic.widget, antTable, -27 + (left or 0), 25 + (right or 0), 5 + (top or 0), -7 + (bottom or 0))
-			f:SetFrameLevel (EncounterDetails.Frame:GetFrameLevel() + 1)
-			f:SetAlpha (ALPHA_BLEND_AMOUNT - 0.549845)
-			EncounterDetails.Frame.buttonSwitchGraphic.AntsFrame = f
-		end
-		
-		if (not Details:GetTutorialCVar ("ENCOUNTER_BREAKDOWN_PHASES")) then
-			local f = DF:CreateAnts (EncounterDetails.Frame.buttonSwitchPhases.widget, antTable, -27 + (left or 0), 25 + (right or 0), 5 + (top or 0), -7 + (bottom or 0))
-			f:SetFrameLevel (EncounterDetails.Frame:GetFrameLevel() + 1)
-			f:SetAlpha (ALPHA_BLEND_AMOUNT - 0.549845)
-			EncounterDetails.Frame.buttonSwitchPhases.AntsFrame = f
-		end
-		
-		if (not Details:GetTutorialCVar ("ENCOUNTER_BREAKDOWN_EMOTES")) then
-			local f = DF:CreateAnts (EncounterDetails.Frame.buttonSwitchBossEmotes.widget, antTable, -27 + (left or 0), 25 + (right or 0), 5 + (top or 0), -7 + (bottom or 0))
-			f:SetFrameLevel (EncounterDetails.Frame:GetFrameLevel() + 1)
-			f:SetAlpha (ALPHA_BLEND_AMOUNT - 0.549845)
-			EncounterDetails.Frame.buttonSwitchBossEmotes.AntsFrame = f
-		end
-		
-		if (not Details:GetTutorialCVar ("ENCOUNTER_BREAKDOWN_SPELLAURAS")) then
-			local f = DF:CreateAnts (EncounterDetails.Frame.buttonSwitchSpellsAuras.widget, antTable, -27 + (left or 0), 25 + (right or 0), 5 + (top or 0), -7 + (bottom or 0))
-			f:SetFrameLevel (EncounterDetails.Frame:GetFrameLevel() + 1)
-			f:SetAlpha (ALPHA_BLEND_AMOUNT - 0.549845)
-			EncounterDetails.Frame.buttonSwitchSpellsAuras.AntsFrame = f
-		end
-
+		--deprecated
 	end
 	
 	EncounterDetailsFrame:HookScript ("OnShow", function()
@@ -631,7 +585,7 @@ local function CreatePluginFrames (data)
 	_detalhes.EncounterDetailsTempWindow (EncounterDetails)
 	_detalhes.EncounterDetailsTempWindow = nil
 	
-	--> ~remover ~autoabrir ãbrir ~abrir ~auto
+	--> ~remover ~autoabrir ï¿½brir ~abrir ~auto
 	--C_Timer.After (.5, EncounterDetails.OpenWindow)
 	
 	
@@ -844,8 +798,8 @@ local function KickBy (magia, barra)
 	
 	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
-	local spellName, _, spellIcon = GetSpellInfo (barra.texto_esquerdo:GetText())
-	GameCooltip:AddLine (barra.texto_esquerdo:GetText())
+	local spellName, _, spellIcon = GetSpellInfo (barra.lineText1:GetText())
+	GameCooltip:AddLine (barra.lineText1:GetText())
 	if (spellIcon) then
 		GameCooltip:AddIcon (spellIcon, nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, 5/64, 59/64, 5/64, 59/64)
 	end
@@ -893,7 +847,7 @@ local function EnemySkills (habilidade, barra)
 	
 	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
-	GameCooltip:AddLine (barra.texto_esquerdo:GetText() .. " Damage Done")
+	GameCooltip:AddLine (barra.lineText1:GetText() .. " Damage Done")
 	
 	local ToK = _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
 	
@@ -948,7 +902,7 @@ local function DamageTakenDetails (jogador, barra)
 	
 	for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
 		local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
-		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+		if (este_agressor) then --> checagem por causa do total e do garbage collector que nï¿½o limpa os nomes que deram dano
 			local habilidades = este_agressor.spells._ActorTable
 			for id, habilidade in _pairs (habilidades) do 
 				local alvos = habilidade.targets
@@ -963,7 +917,7 @@ local function DamageTakenDetails (jogador, barra)
 
 	_table_sort (meus_agressores, _detalhes.Sort2)
 	
-	GameCooltip:AddLine (barra.texto_esquerdo:GetText() .. " Damage Taken")
+	GameCooltip:AddLine (barra.lineText1:GetText() .. " Damage Taken")
 
 	local max = #meus_agressores
 	if (max > 20) then
@@ -1013,9 +967,9 @@ function _detalhes:BossInfoRowClick (barra, param1)
 
 	local reportar
 	
-	if (barra.TTT == "morte" or true) then --> deaths -- todos os boxes estão usando cooltip, por isso o 'true'.
+	if (barra.TTT == "morte" or true) then --> deaths -- todos os boxes estï¿½o usando cooltip, por isso o 'true'.
 		
-		reportar = {barra.report_text .. " " .. (barra.texto_esquerdo and barra.texto_esquerdo:GetText() or barra:GetParent() and barra:GetParent().texto_esquerdo and barra:GetParent().texto_esquerdo:GetText() or "")}
+		reportar = {barra.report_text .. " " .. (barra.lineText1 and barra.lineText1:GetText() or barra:GetParent() and barra:GetParent().lineText1 and barra:GetParent().lineText1:GetText() or "")}
 		local beginAt = 1
 		if (barra.TTT == "damage_taken" or barra.TTT == "habilidades_inimigas" or barra.TTT == "total_interrupt" or barra.TTT == "add") then
 			beginAt = 2
@@ -1176,6 +1130,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	_G [frame:GetName().."SegmentsDropdown"].MyObject:Refresh()
 	
+	EncounterDetailsFrame.ShowType = EncounterDetails.db.last_section_selected
+
 	if (segment) then
 		_combat_object = EncounterDetails:GetCombat (segment)
 		EncounterDetails._segment = segment
@@ -1221,9 +1177,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	if (EncounterDetails.debugmode and not _combat_object.is_boss) then
 		_combat_object.is_boss = {
-			index = 1, 
+			index = 1,
 			name = "Immerseus",
-			zone = "Siege of Orggrimar", 
+			zone = "Siege of Orggrimar",
 			mapid = 1136, 
 			encounter = "Immerseus"
 		}
@@ -1266,12 +1222,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	--> the segment is a boss
 	
-	DebugMessage ("segment are OKAY, updating the panel")
-	
 	boss_id = _combat_object.is_boss.index
 	map_id = _combat_object.is_boss.mapid
 	boss_info = _detalhes:GetBossDetails (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
 	
+	EncounterDetails.Frame.switch(EncounterDetailsFrame.ShowType)
+
 	if (EncounterDetailsFrame.ShowType == "phases") then
 		EncounterDetailsPhaseFrame.OnSelectPhase (1)
 	
@@ -1280,13 +1236,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 	elseif (EncounterDetailsFrame.ShowType == "spellsauras") then
 		--refresh spells and auras
-		local actor = EncounterDetails.build_actor_menu() [1]
-		actor = actor and actor.value
-		if (actor) then
-			_G [EncounterDetailsFrame:GetName() .. "EnemyActorSpellsDropdown"].MyObject:Select (actor)
-			EncounterDetails.update_enemy_spells (actor)
-		end
+		--EncounterDetails.SpellScrollframe:Refresh()
 		EncounterDetails.update_enemy_spells()
+		EncounterDetails.update_bossmods()
 	end
 
 	EncounterDetails.LastSegmentShown = _combat_object
@@ -1340,7 +1292,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		for index, jogador in _ipairs (DamageContainer._ActorTable) do
 			--> ta em ordem de quem tomou mais dano.
 			
-			if (not jogador.grupo) then --> só aparecer nego da raid
+			if (not jogador.grupo) then --> sï¿½ aparecer nego da raid
 				break
 			end
 			
@@ -1348,19 +1300,19 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local barra = container.barras [index]
 				if (not barra) then
 					barra = EncounterDetails:CreateRow (index, container, 1, 0, -1)
-					_detalhes:SetFontSize (barra.texto_esquerdo, CONST_FONT_SIZE)
-					_detalhes:SetFontSize (barra.texto_direita, CONST_FONT_SIZE)
+					_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
+					_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
 					barra.TTT = "damage_taken" -- tool tip type --> damage taken
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! "..Loc ["STRING_DAMAGE_TAKEN_REPORT"] 
 				end
 
 				if (jogador.nome:find ("-")) then
-					barra.texto_esquerdo:SetText (jogador.nome:gsub (("-.*"), ""))
+					barra.lineText1:SetText (jogador.nome:gsub (("-.*"), ""))
 				else
-					barra.texto_esquerdo:SetText (jogador.nome)
+					barra.lineText1:SetText (jogador.nome)
 				end
 				
-				barra.texto_direita:SetText (ToK (_, jogador.damage_taken))
+				barra.lineText4:SetText (ToK (_, jogador.damage_taken))
 				
 				_detalhes:name_space (barra)
 				
@@ -1408,7 +1360,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	--> Container Overall Habilidades Inimigas ~damage taken by spell
 		local habilidades_poll = {}
 		
-		--> pega as magias contínuas presentes em todas as fases
+		--> pega as magias contï¿½nuas presentes em todas as fases
 		--deprecated
 		if (boss_info and boss_info.continuo) then
 			for index, spellid in _ipairs (boss_info.continuo) do 
@@ -1450,7 +1402,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				for id, habilidade in _pairs (habilidades) do
 					--if (habilidades_poll [id]) then
 						--> esse jogador usou uma habilidade do boss
-						local esta_habilidade = habilidades_usadas [id] --> tabela não numerica, pq diferentes monstros podem castar a mesma magia
+						local esta_habilidade = habilidades_usadas [id] --> tabela nï¿½o numerica, pq diferentes monstros podem castar a mesma magia
 						if (not esta_habilidade) then 
 							esta_habilidade = {0, {}, {}, id} --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 							habilidades_usadas [id] = esta_habilidade
@@ -1470,7 +1422,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						local alvos = habilidade.targets
 						for target_name, amount in _pairs (alvos) do 
 						
-							--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
+							--> ele tem o nome do jogador, vamos ver se este alvo ï¿½ realmente um jogador verificando na tabela do combate
 							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
 							if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
 								if (not esta_habilidade[2] [target_name]) then 
@@ -1489,7 +1441,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				for id, habilidade in _pairs (habilidades) do
 					if (habilidades_poll [id]) then
 						--> esse jogador usou uma habilidade do boss
-						local esta_habilidade = habilidades_usadas [id] --> tabela não numerica, pq diferentes monstros podem castar a mesma magia
+						local esta_habilidade = habilidades_usadas [id] --> tabela nï¿½o numerica, pq diferentes monstros podem castar a mesma magia
 						if (not esta_habilidade) then 
 							esta_habilidade = {0, {}, {}, id} --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 							habilidades_usadas [id] = esta_habilidade
@@ -1509,7 +1461,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						local alvos = habilidade.targets
 						for target_name, amount in _pairs (alvos) do 
 						
-							--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
+							--> ele tem o nome do jogador, vamos ver se este alvo ï¿½ realmente um jogador verificando na tabela do combate
 							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
 							if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
 								if (not esta_habilidade[2] [target_name]) then 
@@ -1567,15 +1519,15 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra = EncounterDetails:CreateRow (index, container, 1, 0, -1)
 					barra.TTT = "habilidades_inimigas" -- tool tip type --enemy abilities
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! " .. Loc ["STRING_ABILITY_DAMAGE"]
-					_detalhes:SetFontSize (barra.texto_esquerdo, CONST_FONT_SIZE)
-					_detalhes:SetFontSize (barra.texto_direita, CONST_FONT_SIZE)
+					_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
+					_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
 					barra.t:SetVertexColor (1, .8, .8, .8)
 				end
 				
 				local nome_magia, _, icone_magia = _GetSpellInfo (habilidade[4])
 
-				barra.texto_esquerdo:SetText (nome_magia) --  .. " (|cFFa0a0a0" .. habilidade[4] .. "|r)
-				barra.texto_direita:SetText (ToK (_, habilidade[1]))
+				barra.lineText1:SetText (nome_magia) --  .. " (|cFFa0a0a0" .. habilidade[4] .. "|r)
+				barra.lineText4:SetText (ToK (_, habilidade[1]))
 				
 				_detalhes:name_space (barra)
 				
@@ -1614,7 +1566,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	--> Identificar os ADDs da luta:
 	
-		--> declara a pool onde serão armazenados os adds existentas na luta
+		--> declara a pool onde serï¿½o armazenados os adds existentas na luta
 		local adds_pool = {}
 	
 		--> pega as habilidades que pertence especificamente a cada fase
@@ -1637,14 +1589,14 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		for index, jogador in _ipairs (DamageContainer._ActorTable) do
 		
-			--> só estou interessado nos adds, conferir pelo nome
+			--> sï¿½ estou interessado nos adds, conferir pelo nome
 			if (adds_pool [_detalhes:GetNpcIdFromGuid (jogador.serial)] or (
 				jogador.flag_original and
 				bit.band (jogador.flag_original, 0x00000060) ~= 0 and
 				(not jogador.owner or (_bit_band (jogador.owner.flag_original, 0x00000060) ~= 0 and not jogador.owner.grupo and _bit_band (jogador.owner.flag_original, 0x00000400) == 0)) and --isn't a pet or the owner isn't a player
 				not jogador.grupo and
 				_bit_band (jogador.flag_original, 0x00000400) == 0
-			)) then --> é um inimigo ou neutro
+			)) then --> ï¿½ um inimigo ou neutro
 			
 				local nome = jogador.nome
 				
@@ -1703,7 +1655,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			EncounterDetails:FormatCooltipSettings()
 			
-			GameCooltip:AddLine (barra.texto_esquerdo:GetText().." ".. "Damage Done")
+			GameCooltip:AddLine (barra.lineText1:GetText().." ".. "Damage Done")
 			
 			local topDamage = dano_em[1] and dano_em[1][2]
 			
@@ -1750,7 +1702,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			EncounterDetails:FormatCooltipSettings()
 			
-			GameCooltip:AddLine (barra.texto_esquerdo:GetText().." "..Loc ["STRING_DAMAGE_TAKEN"])
+			GameCooltip:AddLine (barra.lineText1:GetText().." "..Loc ["STRING_DAMAGE_TAKEN"])
 			
 			local damage_from_total = tabela.damage_from_total
 			local topDamage = damage_from[1] and damage_from[1][2]
@@ -1830,7 +1782,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra:SetScript ("OnLeave", _OnHide)
 				barra:HookScript ("OnMouseDown", EncounterDetails.BossInfoRowClick)
 				
-				local add_damage_done = _CreateFrame ("Button", nil, barra)
+				local add_damage_done = _CreateFrame ("Button", nil, barra, "BackdropTemplate")
 				barra.report_text = "Details! Tamage Taken of "
 				add_damage_done.report_text = "Details! Damage Done of "
 				add_damage_done.barra = barra
@@ -1853,19 +1805,19 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				add_damage_done:SetScript ("OnLeave", _OnHide)
 				add_damage_done:SetScript ("OnClick", EncounterDetails.BossInfoRowClick)
 				
-				barra.texto_esquerdo:SetPoint ("left", add_damage_done, "right", 2, 0)
+				barra.lineText1:SetPoint ("left", add_damage_done, "right", 2, 0)
 				barra.textura:SetStatusBarTexture (nil)
 				
-				_detalhes:SetFontSize (barra.texto_esquerdo, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.texto_direita, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
 				
 				barra.TTT = "add"
 				add_damage_done.TTT = "add"
 			end
 
-			barra.texto_esquerdo:SetText (addName)
-			barra.texto_direita:SetText (_detalhes:ToK (esta_tabela.damage_from_total))
-			barra.texto_esquerdo:SetSize (barra:GetWidth() - barra.texto_direita:GetStringWidth() - 34, 15)
+			barra.lineText1:SetText (addName)
+			barra.lineText4:SetText (_detalhes:ToK (esta_tabela.damage_from_total))
+			barra.lineText1:SetSize (barra:GetWidth() - barra.lineText4:GetStringWidth() - 34, 15)
 			
 			barra.jogador = esta_tabela --> barra.jogador agora tem a tabela com --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 			
@@ -1903,7 +1855,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local habilidades_interrompidas = {}
 		
 		for index, jogador in _ipairs (misc._ActorTable) do
-			if (not jogador.grupo) then --> só aparecer nego da raid
+			if (not jogador.grupo) then --> sï¿½ aparecer nego da raid
 				break
 			end
 			
@@ -1914,11 +1866,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					--> vai ter [spellid] = quantidade
 					
 					for spellid, amt in _pairs (oque_interrompi) do 
-						if (not habilidades_interrompidas [spellid]) then --> se a spell não tiver na pool, cria a tabela dela
+						if (not habilidades_interrompidas [spellid]) then --> se a spell nï¿½o tiver na pool, cria a tabela dela
 							habilidades_interrompidas [spellid] = {{}, 0, spellid} --> tabela com quem interrompeu e o total de vezes que a habilidade foi interrompida
 						end
 						
-						if (not habilidades_interrompidas [spellid] [1] [jogador.nome]) then --> se o jogador não tiver na pool dessa habilidade interrompida, cria um indice pra ele.
+						if (not habilidades_interrompidas [spellid] [1] [jogador.nome]) then --> se o jogador nï¿½o tiver na pool dessa habilidade interrompida, cria um indice pra ele.
 							habilidades_interrompidas [spellid] [1] [jogador.nome] = {0, jogador.classe}
 						end
 						
@@ -1943,8 +1895,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local barra = container.barras [index]
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 0, -6)
-				_detalhes:SetFontSize (barra.texto_esquerdo, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.texto_direita, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
 				barra.TTT = "total_interrupt" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPTS_OF"]
 				barra:SetWidth (155)
@@ -1962,9 +1914,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				end
 			end
 			
-			barra.texto_esquerdo:SetText (nome_magia)
+			barra.lineText1:SetText (nome_magia)
 			local total = successful + tabela [2]
-			barra.texto_direita:SetText (tabela [2] .. " / ".. total)
+			barra.lineText4:SetText (tabela [2] .. " / ".. total)
 			
 			_detalhes:name_space (barra)
 			
@@ -2012,7 +1964,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local habilidades_dispeladas = {}
 		
 		for index, jogador in _ipairs (misc._ActorTable) do
-			if (not jogador.grupo) then --> só aparecer nego da raid
+			if (not jogador.grupo) then --> sï¿½ aparecer nego da raid
 				break
 			end
 
@@ -2026,11 +1978,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					--print ("dispell: " .. jogador.classe .. " nome: " .. jogador.nome)
 					
 					for spellid, amt in _pairs (oque_dispelei) do 
-						if (not habilidades_dispeladas [spellid]) then --> se a spell não tiver na pool, cria a tabela dela
+						if (not habilidades_dispeladas [spellid]) then --> se a spell nï¿½o tiver na pool, cria a tabela dela
 							habilidades_dispeladas [spellid] = {{}, 0, spellid} --> tabela com quem dispolou e o total de vezes que a habilidade foi dispelada
 						end
 						
-						if (not habilidades_dispeladas [spellid] [1] [jogador.nome]) then --> se o jogador não tiver na pool dessa habilidade interrompida, cria um indice pra ele.
+						if (not habilidades_dispeladas [spellid] [1] [jogador.nome]) then --> se o jogador nï¿½o tiver na pool dessa habilidade interrompida, cria um indice pra ele.
 							habilidades_dispeladas [spellid] [1] [jogador.nome] = {0, jogador.classe}
 							--print (jogador.nome)
 							--print (jogador.classe)
@@ -2057,8 +2009,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local barra = container.barras [index]
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 3, -6)
-				_detalhes:SetFontSize (barra.texto_esquerdo, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.texto_direita, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
 				barra.TTT = "dispell" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_DISPELLS_OF"]
 				barra:SetWidth (160)
@@ -2066,8 +2018,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			local nome_magia, _, icone_magia = _GetSpellInfo (tabela [3])
 			
-			barra.texto_esquerdo:SetText (nome_magia)
-			barra.texto_direita:SetText (tabela [2])
+			barra.lineText1:SetText (nome_magia)
+			barra.lineText4:SetText (tabela [2])
 			
 			_detalhes:name_space (barra)
 			
@@ -2107,10 +2059,10 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		quantidade = 0
 	
-		-- boss_info.spells_info o erro de lua do boss é a habilidade dele que não foi declarada ainda
+		-- boss_info.spells_info o erro de lua do boss ï¿½ a habilidade dele que nï¿½o foi declarada ainda
 	
 		local mortes = _combat_object.last_events_tables
-		local habilidades_info = boss_info and boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --> então esse erro é das habilidades que não tao
+		local habilidades_info = boss_info and boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --> entï¿½o esse erro ï¿½ das habilidades que nï¿½o tao
 	
 		for index, tabela in _ipairs (mortes) do
 			--> {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
@@ -2119,8 +2071,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra = EncounterDetails:CreateRow (index, container, 3, 0, 1)
 				barra.TTT = "morte" -- tool tip type
 				barra.report_text = "Details! " .. Loc ["STRING_DEAD_LOG"]
-				_detalhes:SetFontSize (barra.texto_esquerdo, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.texto_direita, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
 				barra:SetWidth (169)
 				
 				local overlayTexture = barra:CreateTexture (nil, "overlay")
@@ -2132,12 +2084,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 
 			if (tabela [3]:find ("-")) then
-				barra.texto_esquerdo:SetText (index..". "..tabela [3]:gsub (("-.*"), ""))
+				barra.lineText1:SetText (index..". "..tabela [3]:gsub (("-.*"), ""))
 			else
-				barra.texto_esquerdo:SetText (index..". "..tabela [3])
+				barra.lineText1:SetText (index..". "..tabela [3])
 			end
 
-			barra.texto_direita:SetText (tabela [6])
+			barra.lineText4:SetText (tabela [6])
 			
 			_detalhes:name_space (barra)
 			
@@ -2239,6 +2191,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 					encounter_timers_dbm = {},
 					encounter_timers_bw = {},
 					window_scale = 1,
+					last_section_selected = "main",
 				}
 
 				--> Install
@@ -2285,7 +2238,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 				EncounterDetailsFrame:RegisterEvent ("ENCOUNTER_END")
 				EncounterDetails.EnemySpellPool = EncounterDetails.charsaved.encounter_spells
 				enemy_spell_pool = EncounterDetails.EnemySpellPool
-				EncounterDetails.CLEvents = CreateFrame ("frame", nil, UIParent)
+				EncounterDetails.CLEvents = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
 				EncounterDetails.CLEvents:SetScript ("OnEvent", CLEvents)
 				EncounterDetails.CLEvents:Hide()
 				

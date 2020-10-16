@@ -1,12 +1,12 @@
 
-local dversion = 195
+local dversion = 211
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not DF) then
 	DetailsFrameworkCanLoad = false
-	return 
+	return
 end
 
 DetailsFrameworkCanLoad = true
@@ -1059,7 +1059,7 @@ end
 
 	--volatile menu can be called several times, each time all settings are reset and a new menu is built using the same widgets
 	function DF:BuildMenuVolatile (parent, menu, x_offset, y_offset, height, use_two_points, text_template, dropdown_template, switch_template, switch_is_box, slider_template, button_template, value_change_hook)
-
+		
 		if (not parent.widget_list) then
 			DF:SetAsOptionsPanel (parent)
 		end
@@ -1068,6 +1068,8 @@ end
 		local cur_x = x_offset
 		local cur_y = y_offset
 		local max_x = 0
+
+		local latestInlineWidget
 
 		local widgetIndexes = {
 			label = 1,
@@ -1083,9 +1085,15 @@ end
 		height = height*-1
 
 		for index, widget_table in ipairs(menu) do
-			
+
 			local widget_created
-			
+			if (latestInlineWidget) then
+				if (not widget_table.inline) then
+					latestInlineWidget = nil
+					cur_y = cur_y - 20
+				end
+			end
+
 			if (not widget_table.novolatile) then
 
 				--step a line
@@ -1097,20 +1105,18 @@ end
 					local label = getMenuWidgetVolative(parent, "label", widgetIndexes)
 					widget_created = label
 
+					label.text = widget_table.get() or widget_table.text or ""
+					label.color = widget_table.color
+
+					if (widget_table.font) then
+						label.fontface = widget_table.font
+					end
+
 					if (widget_table.text_template or text_template) then
 						label:SetTemplate(widget_table.text_template or text_template)
 					else
 						label.fontsize = widget_table.size or 10
 					end
-					
-					if (label.fontface) then
-						label.fontface = widget_table.font or "GameFontHighlightSmall"
-					end
-					if (widget_table.color) then
-						label.fontcolor = widget_table.color
-					end
-					
-					label.text = widget_table.get() or widget_table.text or ""
 
 					label._get = widget_table.get
 					label.widget_type = "label"
@@ -1189,6 +1195,13 @@ end
 						for hookName, hookFunc in pairs (widget_table.hooks) do
 							switch:SetHook (hookName, hookFunc)
 						end
+					end
+
+					if (widget_table.width) then
+						switch:SetWidth(widget_table.width)
+					end
+					if (widget_table.height) then
+						switch:SetHeight(widget_table.height)
 					end
 
 					switch.hasLabel.text = widget_table.name .. (use_two_points and ": " or "")
@@ -1332,7 +1345,18 @@ end
 					button.textsize = textTemplate.size
 					button.text = widget_table.name
 
-					button:SetPoint (cur_x, cur_y)
+					if (widget_table.inline) then
+						if (latestInlineWidget) then
+							button:SetPoint ("left", latestInlineWidget, "right", 2, 0)
+							latestInlineWidget = button
+						else
+							button:SetPoint (cur_x, cur_y)
+							latestInlineWidget = button
+						end
+					else
+						button:SetPoint (cur_x, cur_y)
+					end
+
 					button.tooltip = widget_table.desc
 					button.widget_type = "execute"
 					
@@ -1343,6 +1367,13 @@ end
 						for hookName, hookFunc in pairs (widget_table.hooks) do
 							button:SetHook (hookName, hookFunc)
 						end
+					end
+
+					if (widget_table.width) then
+						button:SetWidth(widget_table.width)
+					end
+					if (widget_table.height) then
+						button:SetHeight(widget_table.height)
 					end
 
 					if (widget_table.id) then
@@ -1360,7 +1391,7 @@ end
 					local textentry = getMenuWidgetVolative(parent, "textentry", widgetIndexes)
 					widget_created = textentry
 
-					textentry:SetCommitFunction(widget_table.func)
+					textentry:SetCommitFunction(widget_table.func or widget_table.set)
 					textentry:SetTemplate(widget_table.template or widget_table.button_template or button_template)
 					textentry:SetSize(widget_table.width or 120, widget_table.height or 18)
 
@@ -1368,18 +1399,15 @@ end
 					textentry.text = widget_table.get()
 					textentry._get = widget_table.get
 					textentry.widget_type = "textentry"
-					textentry:SetHook ("OnEnterPressed", widget_table.set)
-					textentry:SetHook ("OnEditFocusLost", widget_table.set)
+					textentry:SetHook ("OnEnterPressed", widget_table.func or widget_table.set)
+					textentry:SetHook ("OnEditFocusLost", widget_table.func or widget_table.set)
 
 					textentry.hasLabel.text = widget_table.name .. (use_two_points and ": " or "")
 					textentry.hasLabel:SetTemplate(widget_table.text_template or text_template)
 					textentry:SetPoint ("left", textentry.hasLabel, "right", 2)
 					textentry.hasLabel:SetPoint (cur_x, cur_y)
 
-					if (value_change_hook) then
-						textentry:SetHook("OnEnterPressed", value_change_hook)
-						textentry:SetHook("OnEditFocusLost", value_change_hook)
-					end
+					--> text entry doesn't trigger global callback
 					
 					--> hook list
 					if (widget_table.hooks) then
@@ -1403,10 +1431,12 @@ end
 					tinsert (disable_on_combat, widget_created)
 				end
 			
-				if (widget_table.spacement) then
-					cur_y = cur_y - 30
-				else
-					cur_y = cur_y - 20
+				if (not widget_table.inline) then
+					if (widget_table.spacement) then
+						cur_y = cur_y - 30
+					else
+						cur_y = cur_y - 20
+					end
 				end
 				
 				if (widget_table.type == "breakline" or cur_y < height) then
@@ -1415,7 +1445,7 @@ end
 					line_widgets_created = 0
 					max_x = 0
 				end
-
+				
 				if widget_created then
 					widget_created:Show()
 				end
@@ -1436,12 +1466,20 @@ end
 		local max_x = 0
 		local line_widgets_created = 0 --how many widgets has been created on this line loop pass
 		
+		local latestInlineWidget
+
 		height = abs ((height or parent:GetHeight()) - abs (y_offset) + 20)
 		height = height*-1
 		
-		for index, widget_table in ipairs (menu) do 
+		for index, widget_table in ipairs (menu) do
 		
 			local widget_created
+			if (latestInlineWidget) then
+				if (not widget_table.inline) then
+					latestInlineWidget = nil
+					cur_y = cur_y - 28
+				end
+			end
 		
 			if (widget_table.type == "blank" or widget_table.type == "space") then
 				-- do nothing
@@ -1522,7 +1560,14 @@ end
 						switch:SetHook (hookName, hookFunc)
 					end
 				end
-				
+
+				if (widget_table.width) then
+					switch:SetWidth(widget_table.width)
+				end
+				if (widget_table.height) then
+					switch:SetHeight(widget_table.height)
+				end
+
 				local label = DF:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name .. (use_two_points and ": " or ""), "GameFontNormal", widget_table.text_template or text_template or 12)
 				if (widget_table.boxfirst) then
 					switch:SetPoint (cur_x, cur_y)
@@ -1647,21 +1692,44 @@ end
 					button:InstallCustomTexture()
 				end
 
-				button:SetPoint (cur_x, cur_y)
+				if (widget_table.inline) then
+					if (latestInlineWidget) then
+						button:SetPoint ("left", latestInlineWidget, "right", 2, 0)
+						latestInlineWidget = button
+					else
+						button:SetPoint (cur_x, cur_y)
+						latestInlineWidget = button
+					end
+				else
+					button:SetPoint (cur_x, cur_y)
+				end
+
 				button.tooltip = widget_table.desc
 				button.widget_type = "execute"
 				
-				--> execute doesn't trigger global callback
+				--notice: execute doesn't trigger global callback
 				
-				--> hook list
+				--button icon
+				if (widget_table.icontexture) then
+					button:SetIcon(widget_table.icontexture, nil, nil, nil, widget_table.icontexcoords, nil, nil, 2)
+				end
+
+				--hook list
 				if (widget_table.hooks) then
 					for hookName, hookFunc in pairs (widget_table.hooks) do
 						button:SetHook (hookName, hookFunc)
 					end
-				end				
+				end
 
 				if (widget_table.id) then
 					parent.widgetids [widget_table.id] = button
+				end
+
+				if (widget_table.width) then
+					button:SetWidth(widget_table.width)
+				end
+				if (widget_table.height) then
+					button:SetHeight(widget_table.height)
 				end
 				
 				local size = button:GetWidth() + 4
@@ -1677,13 +1745,13 @@ end
 				line_widgets_created = line_widgets_created + 1
 				
 			elseif (widget_table.type == "textentry") then
-				local textentry = DF:CreateTextEntry (parent, widget_table.func, 120, 18, nil, "$parentWidget" .. index, nil, button_template)
+				local textentry = DF:CreateTextEntry (parent, widget_table.func or widget_table.set, 120, 18, nil, "$parentWidget" .. index, nil, button_template)
 				textentry.tooltip = widget_table.desc
 				textentry.text = widget_table.get()
 				textentry._get = widget_table.get
 				textentry.widget_type = "textentry"
-				textentry:SetHook ("OnEnterPressed", widget_table.set)
-				textentry:SetHook ("OnEditFocusLost", widget_table.set)
+				textentry:SetHook ("OnEnterPressed", widget_table.func or widget_table.set)
+				textentry:SetHook ("OnEditFocusLost", widget_table.func or widget_table.set)
 
 				local label = DF:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name .. (use_two_points and ": " or ""), "GameFontNormal", widget_table.text_template or text_template or 12)
 				textentry:SetPoint ("left", label, "right", 2)
@@ -1721,10 +1789,12 @@ end
 				tinsert (disable_on_combat, widget_created)
 			end
 		
-			if (widget_table.spacement) then
-				cur_y = cur_y - 30
-			else
-				cur_y = cur_y - 20
+			if (not widget_table.inline) then
+				if (widget_table.spacement) then
+					cur_y = cur_y - 30
+				else
+					cur_y = cur_y - 20
+				end
 			end
 			
 			if (widget_table.type == "breakline" or cur_y < height) then
@@ -2055,6 +2125,8 @@ function DF:GetBestFontForLanguage (language, western, cyrillic, china, korean, 
 	end
 end
 
+--DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
+--DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
 DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = DF:GetBestFontForLanguage()}
 DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = DF:GetBestFontForLanguage()}
 
@@ -2232,8 +2304,9 @@ function DF:SetHook (hookType, func)
 			if (not isRemoval) then
 				tinsert (self.HookList [hookType], func)
 			end
-		else 
+		else
 			if (DF.debug) then
+				print (debugstack())
 				error ("Details! Framework: invalid function for widget " .. self.WidgetType .. ".")
 			end
 		end
@@ -2709,6 +2782,7 @@ local glow_overlay_play = function (self)
 		self.animOut:Stop()
 	end
 	if (not self.animIn:IsPlaying()) then
+		self.animIn:Stop()
 		self.animIn:Play()
 	end
 end
@@ -3097,9 +3171,11 @@ function DF:ReskinSlider (slider, heightOffset)
 		slider.cima:GetPushedTexture():SetPoint ("center", slider.cima, "center", 1, 1)
 		slider.cima:GetDisabledTexture():SetPoint ("center", slider.cima, "center", 1, 1)
 		slider.cima:SetSize (16, 16)
+		--[=[
 		slider.cima:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
 		slider.cima:SetBackdropColor (0, 0, 0, 0.3)
 		slider.cima:SetBackdropBorderColor (0, 0, 0, 1)
+		]=]
 		
 		slider.baixo:SetNormalTexture ([[Interface\Buttons\Arrow-Down-Up]])
 		slider.baixo:SetPushedTexture ([[Interface\Buttons\Arrow-Down-Down]])
@@ -3111,6 +3187,7 @@ function DF:ReskinSlider (slider, heightOffset)
 		slider.baixo:GetPushedTexture():SetPoint ("center", slider.baixo, "center", 1, -5)
 		slider.baixo:GetDisabledTexture():SetPoint ("center", slider.baixo, "center", 1, -5)
 		slider.baixo:SetSize (16, 16)
+		--[=[
 		slider.baixo:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
 		slider.baixo:SetBackdropColor (0, 0, 0, 0.35)
 		slider.baixo:SetBackdropBorderColor (0, 0, 0, 1)
@@ -3118,6 +3195,7 @@ function DF:ReskinSlider (slider, heightOffset)
 		slider.slider:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
 		slider.slider:SetBackdropColor (0, 0, 0, 0.35)
 		slider.slider:SetBackdropBorderColor (0, 0, 0, 1)
+		]=]
 		
 		--slider.slider:Altura (164)
 		slider.slider:cimaPoint (0, 13)
@@ -3156,10 +3234,11 @@ function DF:ReskinSlider (slider, heightOffset)
 			disabledTexture:SetPoint ("bottomright", slider.ScrollBar.ScrollUpButton, "bottomright", offset, 0)
 			
 			slider.ScrollBar.ScrollUpButton:SetSize (16, 16)
+			--[=[
 			slider.ScrollBar.ScrollUpButton:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = "Interface\\Tooltips\\UI-Tooltip-Background"})
 			slider.ScrollBar.ScrollUpButton:SetBackdropColor (0, 0, 0, 0.3)
 			slider.ScrollBar.ScrollUpButton:SetBackdropBorderColor (0, 0, 0, 1)
-			
+			]=]
 			--it was having problems with the texture anchor when calling ClearAllPoints() and setting new points different from the original
 			--now it is using the same points from the original with small offsets tp align correctly
 		end
@@ -3189,9 +3268,11 @@ function DF:ReskinSlider (slider, heightOffset)
 			disabledTexture:SetPoint ("bottomright", slider.ScrollBar.ScrollDownButton, "bottomright", offset, -4)
 			
 			slider.ScrollBar.ScrollDownButton:SetSize (16, 16)
+			--[=[
 			slider.ScrollBar.ScrollDownButton:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = "Interface\\Tooltips\\UI-Tooltip-Background"})
 			slider.ScrollBar.ScrollDownButton:SetBackdropColor (0, 0, 0, 0.3)
 			slider.ScrollBar.ScrollDownButton:SetBackdropBorderColor (0, 0, 0, 1)
+			]=]
 
 			--<Anchor point="TOP" relativePoint="BOTTOM"/>
 			--slider.ScrollBar.ScrollDownButton:SetPoint ("top", slider.ScrollBar, "bottom", 0, 0)
@@ -3211,10 +3292,11 @@ function DF:ReskinSlider (slider, heightOffset)
 		slider.ScrollBar.ThumbTexture:SetSize (12, 8)
 		
 		--
-		
+		--[=[
 		slider.ScrollBar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = "Interface\\Tooltips\\UI-Tooltip-Background"})
 		slider.ScrollBar:SetBackdropColor (0, 0, 0, 0.35)
 		slider.ScrollBar:SetBackdropBorderColor (0, 0, 0, 1)
+		]=]
 	end
 end
 
@@ -3300,7 +3382,7 @@ function DF:CoreDispatch (context, func, ...)
 	local okay, result1, result2, result3, result4 = pcall (func, ...)
 	
 	if (not okay) then
-		local stack = debugstack (2)
+		local stack = debugstack(2)
 		local errortext = "D!Framework (" .. context .. ") error: " .. result1 .. "\n====================\n" .. stack .. "\n====================\n"
 		error (errortext)
 	end
@@ -3338,6 +3420,7 @@ DF.ClassIndexToFileName = {
 	[10] = "MONK",
 	[2] = "PALADIN",
 }
+
 
 DF.ClassFileNameToIndex = {
 	["DEATHKNIGHT"] = 6,
@@ -3907,12 +3990,13 @@ end
 do    
     local get = function(self)
         local object = tremove(self.notUse, #self.notUse)
-		if (object) then
+        if (object) then
             tinsert(self.inUse, object)
 			return object, false
+			
         else
             --need to create the new object
-			local newObject = self.newObjectFunc(self, unpack(self.payload))
+            local newObject = self.newObjectFunc(self, unpack(self.payload))
             if (newObject) then
 				tinsert(self.inUse, newObject)
 				return newObject, true
@@ -3957,7 +4041,7 @@ do
 
 	--return the amount of objects 
 		local getamount = function(self)
-			return #self.notUse + #self.inUse
+			return #self.notUse + #self.inUse, #self.notUse, #self.inUse
 		end
     
     local poolMixin = {
@@ -3990,4 +4074,122 @@ do
 	end
     
 end
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+--> forbidden functions on scripts
+
+	--these are functions which scripts cannot run due to security issues
+	local forbiddenFunction = {
+		--block mail, trades, action house, banks
+		["C_AuctionHouse"] 	= true,
+		["C_Bank"] = true,
+		["C_GuildBank"] = true,
+		["SetSendMailMoney"] = true,
+		["SendMail"]		= true,
+		["SetTradeMoney"]	= true,
+		["AddTradeMoney"]	= true,
+		["PickupTradeMoney"]	= true,
+		["PickupPlayerMoney"]	= true,
+		["AcceptTrade"]		= true,
+
+		--frames
+		["BankFrame"] 		= true,
+		["TradeFrame"]		= true,
+		["GuildBankFrame"] 	= true,
+		["MailFrame"]		= true,
+		["EnumerateFrames"] = true,
+
+		--block run code inside code
+		["RunScript"] = true,
+		["securecall"] = true,
+		["getfenv"] = true,
+		["getfenv"] = true,
+		["loadstring"] = true,
+		["pcall"] = true,
+		["xpcall"] = true,
+		["getglobal"] = true,
+		["setmetatable"] = true,
+		["DevTools_DumpCommand"] = true,
+
+		--avoid creating macros
+		["SetBindingMacro"] = true,
+		["CreateMacro"] = true,
+		["EditMacro"] = true,
+		["hash_SlashCmdList"] = true,
+		["SlashCmdList"] = true,
+
+		--block guild commands
+		["GuildDisband"] = true,
+		["GuildUninvite"] = true,
+
+		--other things
+		["C_GMTicketInfo"] = true,
+
+		--deny messing addons with script support
+		["PlaterDB"] = true,
+		["_detalhes_global"] = true,
+		["WeakAurasSaved"] = true,
+	}
+
+	local C_RestrictedSubFunctions = {
+		["C_GuildInfo"] = {
+			["RemoveFromGuild"] = true,
+		},
+	}
+
+	--not in use, can't find a way to check within the environment handle
+	local addonRestrictedFunctions = {
+		["DetailsFramework"] = {
+			["SetEnvironment"] = true,
+		},
+
+		["Plater"] = {
+			["ImportScriptString"] = true,
+			["db"] = true,
+		},
+
+		["WeakAuras"] = {
+			["Add"] = true,
+			["AddMany"] = true,
+			["Delete"] = true,
+			["NewAura"] = true,
+		},
+	}
+
+    local C_SubFunctionsTable = {}
+    for globalTableName, functionTable in pairs(C_RestrictedSubFunctions) do
+        C_SubFunctionsTable [globalTableName] = {}
+        for functionName, functionObject in pairs(_G[globalTableName]) do
+            if (not functionTable[functionName]) then
+                C_SubFunctionsTable [globalTableName][functionName] = functionObject
+            end
+        end
+    end
+	
+	DF.DefaultSecureScriptEnvironmentHandle = {
+		__index = function (env, key)
+
+			if (forbiddenFunction[key]) then
+				return nil
+
+			elseif (key == "_G") then
+				return env
+				
+			elseif (C_SubFunctionsTable[key]) then
+				return C_SubFunctionsTable[key]
+			end
+
+			return _G[key]
+		end
+	}
+
+	function DF:SetEnvironment(func, environmentHandle)
+		environmentHandle = environmentHandle or DF.DefaultSecureScriptEnvironmentHandle
+
+		local newEnvironment = {}
+
+		setmetatable(newEnvironment, environmentHandle)
+		_G.setfenv(func, newEnvironment)
+	end
 

@@ -30,3 +30,4 @@ Libs/LibTranslit/.pkgmeta
 a.lua
 functions/pack2.lua
 *.json
+*.afphoto

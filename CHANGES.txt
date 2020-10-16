@@ -1,10 +1,10 @@
-lightweight tag 5bd30e291f18247a7ed005a957407eab6f25176a v8.2.0.7177.140
-Author:	Tercioo <terciob19@hotmail.com>
-Date:	Sat Aug 17 09:50:52 2019 -0300
+lightweight tag 899ac439a17c19a799d30a6a2a0e2faf5cc215e1 DetailsRetail.8.3.0.7348.141
+Author:	Tercio Jose <terciob19@hotmail.com>
+Date:	Mon Jul 6 11:27:35 2020 -0300
 
-commit 5bd30e291f18247a7ed005a957407eab6f25176a
-Author: Tercioo <terciob19@hotmail.com>
-Date:   Sat Aug 17 09:50:52 2019 -0300
+commit 899ac439a17c19a799d30a6a2a0e2faf5cc215e1
+Author: Tercio Jose <terciob19@hotmail.com>
+Date:   Mon Jul 6 11:27:35 2020 -0300
 
-    Fixed bookmark panel where sometimes it gives errors, version number correction and fixed the classic version warning.
+    Fixed an issue affecting the Auto Hide for some users
 
