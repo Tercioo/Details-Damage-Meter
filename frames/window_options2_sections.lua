@@ -2176,7 +2176,7 @@ do
 
             {--encounter time
                 type = "toggle",
-                get = function() return currentInstance.attribute_text.show_timer and true end,
+                get = function() return currentInstance.attribute_text.show_timer and true or false end,
                 set = function (self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()

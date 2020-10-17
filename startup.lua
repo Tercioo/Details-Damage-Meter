@@ -463,6 +463,9 @@ function Details:StartMeUp() --I'll never stop!
 
 	--force the group edit be always enabled when Details! starts
 	_detalhes.options_group_edit = true
+
+	--remove standard skin on 9.0.1
+		_detalhes.standard_skin = false
 	
 	--enforce to use the new animation code
 	if (_detalhes.streamer_config) then
