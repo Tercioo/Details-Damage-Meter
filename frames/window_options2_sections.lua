@@ -575,6 +575,16 @@ do
                 name = "Reset Nickname",
                 desc = "Reset Nickname",
             },
+            {--ignore nicknames
+                type = "toggle",
+                get = function() return _detalhes.ignore_nicktag end,
+                set = function (self, fixedparam, value)
+                    _detalhes.ignore_nicktag = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_IGNORENICKNAME"],
+                desc = Loc ["STRING_OPTIONS_IGNORENICKNAME_DESC"],
+            },
 
             {type = "blank"},
 

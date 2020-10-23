@@ -99,7 +99,7 @@
 		local top = 0
 		local amount = 0
 		
-		--> check if is a custom script
+		--> check if is a custom script (if has .script)
 		if (custom_object:IsScripted()) then
 
 			--> be save reseting the values on every refresh
@@ -155,7 +155,7 @@
 				_detalhes:EndRefresh (instance, 0, combat, combat [1])
 			end
 			
-			okey, total, top, amount = _pcall (func, combat, instance_container, instance)
+			local okey, total, top, amount = _pcall (func, combat, instance_container, instance)
 			if (not okey) then
 				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", total)
 				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
@@ -165,10 +165,10 @@
 			top = top or 0
 			amount = amount or 0
 			
-		else
+		else --does not have a .script
 			--> get the attribute
-			local attribute = custom_object:GetAttribute()
-			
+			local attribute = custom_object:GetAttribute() --"damagedone"
+
 			--> get the custom function (actor, source, target, spellid)
 			local func = atributo_custom [attribute]
 			
@@ -317,8 +317,12 @@
 				end
 			end
 
-			for _, actor in _ipairs (combat_container) do 
+			for _, actor in _ipairs (combat_container) do
 				if (actor.grupo) then
+					if (not func) then
+						Details:Msg("error on class_custom 'func' is invalid, backtrace:", debugstack())
+						return
+					end
 					local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
 
 					if (actortotal > 0) then
