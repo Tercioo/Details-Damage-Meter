@@ -3883,6 +3883,9 @@ DF.TabContainerFunctions.SelectIndex = function (self, fixedParam, menuIndex)
 	end
 	
 	mainFrame.AllFrames[menuIndex]:Show()
+	if mainFrame.AllFrames[menuIndex].RefreshOptions then
+		mainFrame.AllFrames[menuIndex]:RefreshOptions()
+	end
 	if (mainFrame.ButtonSelectedBorderColor) then
 		mainFrame.AllButtons[menuIndex]:SetBackdropBorderColor (unpack (mainFrame.ButtonSelectedBorderColor))
 	end
