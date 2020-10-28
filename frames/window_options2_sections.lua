@@ -2,6 +2,28 @@ if (true) then
     --return
 end
 
+--[[
+    search '~10' to go directly to tooltips settings
+
+    ~01 - display
+    ~02 - skins
+    ~03 - bars general
+    ~04 - bars texts
+    ~05 - title bar
+    ~06 - body setings
+    ~07 - status bar
+    ~08 - plugins
+    ~09 - profiles
+    ~10 - tooltips
+    ~11 - datafeed
+    ~12 - wallpaper
+    ~13 - automation
+    ~14 - raid tools
+    ~15 - broadcaster
+    ~16 - custom spells
+    ~17 - charts data
+--]]
+
 
 local Details = _G.Details
 local DF = _G.DetailsFramework
@@ -3947,6 +3969,7 @@ do
 end
 
 
+-- ~11 ~datafeed
 do
     local buildSection = function(sectionFrame)
 
@@ -4092,7 +4115,8 @@ do
 end
 
 
-do --~wallpaper
+-- ~12 ~wallpaper
+do
     local buildSection = function(sectionFrame)
 
 		--> callback from the image editor
@@ -4497,7 +4521,9 @@ do --~wallpaper
     tinsert(Details.optionsSection, buildSection)
 end
 
-do -- ~automation ~auto hide
+
+-- ~13 ~automation ~auto hide
+do
     local buildSection = function(sectionFrame)
 
     --> auto switch options
@@ -4920,6 +4946,7 @@ do -- ~automation ~auto hide
 end
 
 
+-- ~14 ~raidtools ~tools
 do --raid tools
     local buildSection = function(sectionFrame)
 
@@ -5374,6 +5401,7 @@ do --raid tools
 end
 
 
+-- ~15 ~broadcaster
 do
     local buildSection = function(sectionFrame)
 
@@ -5611,6 +5639,7 @@ do
 end
 
 
+-- ~16 ~customspells ~spells
 do
     local buildSection = function(sectionFrame)
 
@@ -5770,6 +5799,7 @@ do
 end
 
 
+-- ~17 ~charts data
 do
     local buildSection = function(sectionFrame)
 

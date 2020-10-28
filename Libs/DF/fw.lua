@@ -1,6 +1,6 @@
 
 
-local dversion = 213
+local dversion = 214
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -612,8 +612,8 @@ function DF:TruncateText (fontString, maxWidth)
 	end	
 end
 
-function DF:Msg (msg)
-	print ("|cFFFFFFAA" .. (self.__name or "FW Msg:") .. "|r ", msg)
+function DF:Msg (msg, ...)
+	print ("|cFFFFFFAA" .. (self.__name or "FW Msg:") .. "|r ", msg, ...)
 end
 
 function DF:GetNpcIdFromGuid (guid)

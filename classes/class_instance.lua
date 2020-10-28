@@ -594,7 +594,6 @@ end
 	end
 	
 	function _detalhes:AtivarInstancia (temp)
-	
 		self.ativa = true
 		self.cached_bar_width = self.cached_bar_width or 0
 
@@ -608,10 +607,13 @@ end
 		end
 		
 		if (not self.iniciada) then
-			self:RestauraJanela (self.meu_id) --parece que esta chamando o ativar instance denovo...
+			self:RestauraJanela (self.meu_id, nil, true) --parece que esta chamando o ativar instance denovo... passei true no load_only vamos ver o resultado
+			self.iniciada = true
 		else
 			_detalhes.opened_windows = _detalhes.opened_windows+1
 		end
+
+		self:ChangeSkin() --carrega a skin aqui que era antes feito dentro do restaura janela
 
 		_detalhes:TrocaTabela (self, nil, nil, nil, true)
 
@@ -627,9 +629,7 @@ end
 		gump:Fade (self.windowSwitchButton, 0)
 		
 		self:SetMenuAlpha()
-		
 		self.baseframe.cabecalho.fechar:Enable()
-		
 		self:ChangeIcon()
 
 		if (not temp) then
@@ -645,28 +645,10 @@ end
 			self:ToolbarMenuButtons()
 			self:ToolbarSide()
 			self:AttributeMenu()
-			
-			--[=[ --this block was showing back the window after using /details hide, It's probably a leftover from the new Auto Hide and the old one.
-			_detalhes.WindowAutoHideTick = _detalhes.WindowAutoHideTick or {}
-			if (_detalhes.WindowAutoHideTick [self.meu_id]) then
-				_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
-			end
-			_detalhes.WindowAutoHideTick [self.meu_id] = C_Timer.NewTicker (10, function()
-				if (self.last_interaction) then
-					if (self.last_interaction + 10 < _detalhes._tempo) then
-						self:AdjustAlphaByContext(true)
-						_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
-					end
-				else
-					self:AdjustAlphaByContext(true)
-					_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
-				end
-			end)
-			--]=]
 		else
 			self:AdjustAlphaByContext(true)
 		end
-		
+
 		self:DesaturateMenu()
 		
 		self:CheckFor_EnabledTrashSuppression()
@@ -674,7 +656,6 @@ end
 		if (not temp and not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, self)
 		end
-
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -735,7 +716,6 @@ end
 		end
 		
 		table.remove (_detalhes.tabela_instancias, id)
-
 	end
 
 
