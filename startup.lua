@@ -458,6 +458,9 @@ function Details:StartMeUp() --I'll never stop!
 		C_Timer.After(2, reset_player_detail_window)
 	end
 	
+	--coach feature startup
+	Details.Coach.StartUp()
+
 	--enforce to show 6 abilities on the tooltip
 	--_detalhes.tooltip.tooltip_max_abilities = 6 freeeeeedooommmmm
 

@@ -5132,7 +5132,7 @@ do --raid tools
 
             {--auto current segment
                 type = "toggle",
-                get = function() return currentInstance.auto_current end,
+                get = function() return Details.announce_interrupts.enabled end,
                 set = function (self, fixedparam, value)
                     if (value) then
                         _detalhes:EnableInterruptAnnouncer()

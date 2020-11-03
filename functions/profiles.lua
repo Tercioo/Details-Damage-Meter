@@ -1100,6 +1100,9 @@ _detalhes.default_profile = default_profile
 
 -- aqui fica as propriedades do jogador que n�o ser�o armazenadas no profile
 local default_player_data = {
+		coach = {
+			enabled = false,
+		},
 
 	--> force all fonts to have this outline
 		force_font_outline = "",

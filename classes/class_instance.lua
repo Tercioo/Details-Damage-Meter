@@ -608,13 +608,13 @@ end
 		
 		if (not self.iniciada) then
 			self:RestauraJanela (self.meu_id, nil, true) --parece que esta chamando o ativar instance denovo... passei true no load_only vamos ver o resultado
+			--tiny threat parou de funcionar depois de /reload depois dessa mudança, talvez tenha algo para carregar ainda
 			self.iniciada = true
 		else
 			_detalhes.opened_windows = _detalhes.opened_windows+1
 		end
 
 		self:ChangeSkin() --carrega a skin aqui que era antes feito dentro do restaura janela
-
 		_detalhes:TrocaTabela (self, nil, nil, nil, true)
 
 		if (self.hide_icon) then
@@ -634,7 +634,7 @@ end
 
 		if (not temp) then
 			if (self.modo == modo_raid) then
-				_detalhes.RaidTables:EnableRaidMode (self)
+				_detalhes.RaidTables:EnableRaidMode(self)
 				
 			elseif (self.modo == modo_alone) then
 				self:SoloMode (true)
@@ -656,6 +656,14 @@ end
 		if (not temp and not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, self)
 		end
+
+		if (self.modo == modo_raid) then
+			_detalhes.RaidTables:EnableRaidMode(self)
+			
+		elseif (self.modo == modo_alone) then
+			self:SoloMode (true)
+		end
+
 	end
 ------------------------------------------------------------------------------------------------------------------------
 

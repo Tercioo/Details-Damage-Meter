@@ -28,6 +28,7 @@ API.lua
 functions\profiles.lua
 functions\hooks.lua
 functions\bossmods.lua
+functions\coach.lua
 functions\skins.lua
 functions\boss.lua
 functions\spells.lua

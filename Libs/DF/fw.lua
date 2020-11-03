@@ -1,6 +1,6 @@
 
 
-local dversion = 214
+local dversion = 215
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -609,7 +609,26 @@ function DF:TruncateText (fontString, maxWidth)
 		if (string.len (text) <= 1) then
 			break
 		end
-	end	
+	end
+	
+	DF:CleanTruncateUTF8String(text)
+	fontString:SetText (text)
+end
+
+function DF:CleanTruncateUTF8String(text)
+	if type(text) == "string" and text ~= "" then
+		local b1 = (#text > 0) and strbyte(strsub(text, #text, #text)) or nil
+		local b2 = (#text > 1) and strbyte(strsub(text, #text-1, #text)) or nil
+		local b3 = (#text > 2) and strbyte(strsub(text, #text-2, #text)) or nil
+		if b1 and b1 >= 194 and b1 <= 244 then
+			text = strsub (text, 1, #text - 1)
+		elseif b2 and b2 >= 224 and b2 <= 244 then
+			text = strsub (text, 1, #text - 2)
+		elseif b3 and b3 >= 240 and b3 <= 244 then
+			text = strsub (text, 1, #text - 3)
+		end
+	end
+	return text
 end
 
 function DF:Msg (msg, ...)
