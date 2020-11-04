@@ -853,7 +853,13 @@ end
 		_detalhes:BrokerTick()
 		_detalhes:HealthTick()
 		
-		if ((_detalhes.zone_type == "pvp" and _detalhes.use_battleground_server_parser) or _detalhes.zone_type == "arena" or _InCombatLockdown()) then
+		if (Details.Coach.Server.IsEnabled()) then
+			if (Details.debug) then
+				print("coach server is enabled, can't leave combat...")
+			end
+			return true
+
+		elseif ((_detalhes.zone_type == "pvp" and _detalhes.use_battleground_server_parser) or _detalhes.zone_type == "arena" or _InCombatLockdown()) then
 			return true
 			
 		elseif (_UnitAffectingCombat("player")) then
@@ -872,13 +878,6 @@ end
 					return true
 				end
 			end
-
-		elseif (Details.Coach.Server.IsEnabled()) then
-			if (Details.debug) then
-				print("coach server is enabled, can't leave combat...")
-			end
-			return true
-
 		end
 
 	
