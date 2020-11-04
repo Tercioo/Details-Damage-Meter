@@ -376,9 +376,16 @@
 			return
 		end
 
+		if (_detalhes.debug) then
+			print("Details Coach Received Comm", player, realm, core_version, msgType, data)
+		end
+
 		local sourcePlayer = Ambiguate(player .. "-" .. realm, "none")
 		local playerName = UnitName("player")
 		if (playerName == sourcePlayer) then
+			if (_detalhes.debug) then
+				print("Details Coach Received Comm | RETURN | playerName == sourcePlayer", playerName , sourcePlayer)
+			end
 			return
 		end
 
@@ -409,6 +416,9 @@
 			Details.Coach.Server.CombatEnded()
 
 		elseif (msgType == "CS") then --Coach Start (raid leader notifying other members of the group)
+			if (_detalhes.debug) then
+				print("Details Coach received 'CE' a new coach is active, coach name:", sourcePlayer)
+			end
 			Details.Coach.Client.EnableCoach(sourcePlayer)
 
 		elseif (msgType == "CE") then --Coach End (raid leader notifying other members of the group)

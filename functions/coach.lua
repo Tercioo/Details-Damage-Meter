@@ -34,7 +34,9 @@ Details.Coach = {
 
 function Details.Coach.AskRLForCoachStatus(raidLeaderName)
     Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, UnitName("player"), GetRealmName(), Details.realversion, "CIEA"), "WHISPER", raidLeaderName)
-    Details:Msg("asked the raid leader the coach status.")
+    if (_detalhes.debug) then
+        Details:Msg("asked the raid leader the coach status.")
+    end
 end
 
 function Details.Coach.SendRLCombatStartNotify(raidLeaderName)
@@ -61,6 +63,10 @@ end
 
 --send data to raid leader
 function Details.Coach.Client.SendDataToRL()
+    if (_detalhes.debug) then
+        print("Details Coach sending data to RL.")
+    end
+    
     local data = Details.packFunctions.GetAllData()
     if (data and Details.Coach.Client.coachName) then
         Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, UnitName("player"), GetRealmName(), Details.realversion, "CDT", data), "WHISPER", Details.Coach.Client.coachName)
@@ -83,7 +89,9 @@ function Details.Coach.StartUp()
                 local raidLeaderName = Details:GetRaidLeader()
                 if (raidLeaderName) then
                     --client ask for the raid leader if the Coach is enabled, GetRaidLeader returns nil is the user isn't in raid
-                    Details:Msg("sent ask to raid leader, is coach?")
+                    if (_detalhes.debug) then
+                        Details:Msg("sent ask to raid leader, is coach?")
+                    end
                     Details.Coach.AskRLForCoachStatus(raidLeaderName)
                 end
             end
@@ -100,7 +108,9 @@ function Details.Coach.StartUp()
                 if (isInRaidZone()) then
                     local raidLeaderName = Details:GetRaidLeader()
                     if (raidLeaderName) then
-                        Details:Msg("sent ask to raid leader, is coach?")
+                        if (_detalhes.debug) then
+                            Details:Msg("sent ask to raid leader, is coach?")
+                        end
                         Details.Coach.AskRLForCoachStatus(raidLeaderName)
                     end
                 end
@@ -280,9 +290,15 @@ end
 --a player in the raid asked to be the coach of the group
 function Details.Coach.Client.EnableCoach(raidLeaderName)
     if (not IsInRaid()) then
+        if (_detalhes.debug) then
+            print("Details Coach can't enable coach on client: isn't in raid")
+        end
         return
 
     elseif (not UnitIsGroupLeader(raidLeaderName)) then
+        if (_detalhes.debug) then
+            print("Details Coach can't enable coach on client: the unit passed isn't the raid leader")
+        end
         return
     end
 
