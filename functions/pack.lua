@@ -384,11 +384,15 @@ function Details.packFunctions.PackDamage(combatObject)
 
     --get the player object from the combat > damage container
     local playerName = UnitName("player")
-    local playerOBject = combatObject:GetActor(DETAILS_ATTRIBUTE_DAMAGE, playerName)
-    tinsert(actorsToPack, playerOBject)
+    local playerObject = combatObject:GetActor(DETAILS_ATTRIBUTE_DAMAGE, playerName)
+    if (not playerObject) then
+        return
+    end
+
+    tinsert(actorsToPack, playerObject)
 
     --get the list of pets the player own
-    local playerPets = playerOBject.pets
+    local playerPets = playerObject.pets
     for _, petName in ipairs(playerPets) do
         local petObject = combatObject:GetActor(DETAILS_ATTRIBUTE_DAMAGE, petName)
         if (petObject) then
@@ -590,11 +594,15 @@ function Details.packFunctions.PackHeal(combatObject)
 
     --get the player object from the combat > damage container
     local playerName = UnitName("player")
-    local playerOBject = combatObject:GetActor(DETAILS_ATTRIBUTE_HEAL, playerName)
-    tinsert(actorsToPack, playerOBject)
+    local playerObject = combatObject:GetActor(DETAILS_ATTRIBUTE_HEAL, playerName)
+    if (not playerObject) then
+        return
+    end
+
+    tinsert(actorsToPack, playerObject)
 
     --get the list of pets the player own
-    local playerPets = playerOBject.pets
+    local playerPets = playerObject.pets
     for _, petName in ipairs(playerPets) do
         local petObject = combatObject:GetActor(DETAILS_ATTRIBUTE_HEAL, petName)
         if (petObject) then
@@ -784,6 +792,12 @@ end
 --what this function receives?
 --@packedCombatData: packed combat, ready to be unpacked
 function Details.packFunctions.UnPackCombatData(packedCombatData)
+
+    if (true) then
+        print("Details is calling the wrong function UnPackCombatData()")
+        return
+    end
+
     local LibDeflate = _G.LibStub:GetLibrary("LibDeflate")
     local dataCompressed = LibDeflate:DecodeForWoWAddonChannel(packedCombatData)
     local combatDataString = LibDeflate:DecompressDeflate(dataCompressed)

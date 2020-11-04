@@ -874,9 +874,14 @@ end
 			end
 
 		elseif (Details.Coach.Server.IsEnabled()) then
+			if (Details.debug) then
+				print("coach server is enabled, can't leave combat...")
+			end
 			return true
+
 		end
-		
+
+	
 		--> don't leave the combat if is in the argus encounter ~REMOVE on 8.0
 		--[=[
 		if (_detalhes.encounter_table and _detalhes.encounter_table.id == 2092) then
@@ -890,6 +895,12 @@ end
 		--mythic dungeon test
 		if (_detalhes.MythicPlus.Started and _detalhes.mythic_plus.always_in_combat) then
 			return true
+		end
+
+		if (not Details.Coach.Server.IsEnabled()) then
+			if (Details.debug) then
+				Details:Msg("coach is disabled, the combat is now over!")
+			end
 		end
 
 		_detalhes:SairDoCombate()

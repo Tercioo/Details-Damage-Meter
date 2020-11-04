@@ -347,7 +347,7 @@
 	end
 	
 	function _detalhes.network.Wipe_Call (player, realm, core_version, ...)
-		local chr_name = Ambiguate (player .. "-" .. realm, "none")
+		local chr_name = Ambiguate(player, "none")
 		if (UnitIsGroupLeader (chr_name)) then
 			if (UnitIsInMyGuild (chr_name)) then
 				_detalhes:CallWipe()
@@ -429,7 +429,7 @@
 			if (UnitIsGroupLeader("player")) then
 				if (Details.Coach.Server.IsEnabled()) then
 					--update the current combat with new information
-					
+					Details.packFunctions.DeployUnpackedCombatData(data)
 				end
 			end
 		end
@@ -441,7 +441,7 @@
 	--guild sync A = received missing encounters, add them
 	
 	function _detalhes.network.GuildSync (player, realm, core_version, type, data)
-		local chr_name = Ambiguate (player .. "-" .. realm, "none")
+		local chr_name = Ambiguate(player, "none")
 		
 		if (UnitName ("player") == chr_name) then
 			return
