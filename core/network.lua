@@ -380,7 +380,8 @@
 			print("Details Coach Received Comm", player, realm, core_version, msgType, data)
 		end
 
-		local sourcePlayer = Ambiguate(player .. "-" .. realm, "none")
+		local sourcePlayer = Ambiguate(player, "none")
+		
 		local playerName = UnitName("player")
 		if (playerName == sourcePlayer) then
 			if (_detalhes.debug) then
@@ -572,9 +573,10 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> register comm
 
-	function _detalhes:CommReceived (_, data, _, source)
+	function _detalhes:CommReceived (commPrefix, data, channel, source)
 	
 		local prefix, player, realm, dversion, arg6, arg7, arg8, arg9 =  _select (2, _detalhes:Deserialize (data))
+		player = source
 		
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) network received:", prefix, "length:", string.len (data))
