@@ -1602,7 +1602,7 @@ Damage Update Status: @INSTANCEDAMAGESTATUS
 			
 		else
 			Details:Msg("coach disabled.")
-			Details.DisableCoach()
+			Details.Coach.Disable()
 		end
 
 	elseif (msg == "9") then

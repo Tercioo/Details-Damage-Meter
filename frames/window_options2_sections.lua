@@ -402,6 +402,15 @@ do
                 name = Loc ["STRING_OPTIONS_BG_UNIQUE_SEGMENT"],
                 desc = Loc ["STRING_OPTIONS_BG_UNIQUE_SEGMENT_DESC"],
             },
+            {--battleground show enemies
+                type = "toggle",
+                get = function() return _detalhes.pvp_as_group end,
+                set = function (self, fixedparam, value)
+                    _detalhes.pvp_as_group = value
+                 end,
+                name = Loc ["STRING_OPTIONS_BG_ALL_ALLY"],
+                desc = Loc ["STRING_OPTIONS_BG_ALL_ALLY_DESC"],
+            },
 
             {type = "blank"},
 
