@@ -535,12 +535,21 @@
 			novo_objeto.flag_original = flag
 			novo_objeto.serial = serial
 
+			--> seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
+			novo_objeto.classe = "UNKNOW"
+			local forceClass
+
 			--get the aID (actor id)
 			if (serial:match("^C")) then
 				novo_objeto.aID = tostring(Details:GetNpcIdFromGuid(serial))
 				
 				if (Details.immersion_special_units) then
-					novo_objeto.grupo = Details.Immersion.IsNpcInteresting(novo_objeto.aID)
+					local shouldBeInGroup, class = Details.Immersion.IsNpcInteresting(novo_objeto.aID)
+					novo_objeto.grupo = shouldBeInGroup
+					if (class) then
+						novo_objeto.classe = class
+						forceClass = novo_objeto.classe
+					end
 				end
 
 			elseif (serial:match("^P")) then
@@ -558,14 +567,6 @@
 					end
 				end
 			end
-
-			--> seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
-			novo_objeto.classe = "UNKNOW"
-
---8/11 00:57:49.096  SPELL_DAMAGE,
---Creature-0-2084-1220-24968-110715-00002BF677,"Archmage Modera",0x2111,0x0,
---Creature-0-2084-1220-24968-94688-00002BF6A7,"Diseased Grub",0x10a48,0x0,
---220128,"Frost Nova",0x10,Creature-0-2084-1220-24968-94688-00002BF6A7,0000000000000000,63802,311780,0,0,1,0,0,0,4319.26,4710.75,110,10271,-1,16,0,0,0,nil,nil,nil
 
 		-- tipo do container
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
@@ -716,8 +717,13 @@
 					
 					_detalhes_global.debug_chr_log = _detalhes_global.debug_chr_log .. logLine
 				end
-			end			
+			end	
 			
+			--only happens with npcs from immersion feature
+			if (forceClass) then
+				novo_objeto.classe = forceClass
+			end
+
 			return novo_objeto, dono_do_pet, nome
 		else
 			return nil, nil, nil

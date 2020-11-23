@@ -41,24 +41,32 @@ end
 
 function Details.Coach.SendRLCombatStartNotify(raidLeaderName)
     Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, UnitName("player"), GetRealmName(), Details.realversion, "CCS"), "WHISPER", raidLeaderName)
-    Details:Msg("sent to raid leader a combat start notification.")
+    if (_detalhes.debug) then
+        Details:Msg("sent to raid leader a combat start notification.")
+    end
 end
 
 function Details.Coach.SendRLCombatEndNotify(raidLeaderName)
     Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, UnitName("player"), GetRealmName(), Details.realversion, "CCE"), "WHISPER", raidLeaderName)
-    Details:Msg("sent to raid leader a combat end notification.")
+    if (_detalhes.debug) then
+        Details:Msg("sent to raid leader a combat end notification.")
+    end
 end
 
 --the coach is no more a coach
 function Details.Coach.SendRaidCoachEndNotify()
     Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, UnitName("player"), GetRealmName(), Details.realversion, "CE"), "RAID")
-    Details:Msg("sent to raid a coach end notification.")
+    if (_detalhes.debug) then
+        Details:Msg("sent to raid a coach end notification.")
+    end
 end
 
 --there's a new coach, notify players
 function Details.Coach.SendRaidCoachStartNotify()
     Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, UnitName("player"), GetRealmName(), Details.realversion, "CS"), "RAID")
-    Details:Msg("sent to raid a coach start notification.")
+    if (_detalhes.debug) then
+        Details:Msg("sent to raid a coach start notification.")
+    end
 end
 
 --send data to raid leader
@@ -133,7 +141,9 @@ function Details.Coach.StartUp()
                 if (UnitIsGroupAssistant("player")) then
                     local raidLeaderName = Details.Coach.Client.GetLeaderName()
                     if (raidLeaderName) then
-                        Details:Msg("i'm a raid assistant, sent combat start notification to raid leader.")
+                        if (_detalhes.debug) then
+                            Details:Msg("i'm a raid assistant, sent combat start notification to raid leader.")
+                        end
                         Details.Coach.SendRLCombatStartNotify(raidLeaderName)
                     end
                 end
@@ -154,7 +164,9 @@ function Details.Coach.StartUp()
                 if (UnitIsGroupAssistant("player")) then
                     local raidLeaderName = Details.Coach.Client.GetLeaderName()
                     if (raidLeaderName) then
-                        Details:Msg("i'm a raid assistant, sent combat end notification to raid leader.")
+                        if (_detalhes.debug) then
+                            Details:Msg("i'm a raid assistant, sent combat end notification to raid leader.")
+                        end
                         Details.Coach.SendRLCombatEndNotify(raidLeaderName)
                     end
                 end
@@ -170,7 +182,9 @@ function Details.Coach.StartUp()
             if (isInRaidZone()) then
                 --the raid leader entered a raid instance
                 Details.Coach.Disable()
-                Details:Msg("Coach feature stopped: you entered in a raid instance.")
+                if (_detalhes.debug) then
+                    Details:Msg("Coach feature stopped: you entered in a raid instance.")
+                end
             end
             return
         else
@@ -179,7 +193,9 @@ function Details.Coach.StartUp()
                 if (UnitIsGroupLeader("player")) then --player is the raid leader
                     if (not Details.Coach.Server.IsEnabled()) then --the coach feature isn't running
                         Details.Coach.Server.EnableCoach()
-                        Details:Msg("Coach feature is now running, if this come as surprise, use '/details coach' to disable.")
+                        if (_detalhes.debug) then
+                            Details:Msg("Coach feature is now running, if this come as surprise, use '/details coach' to disable.")
+                        end
                     end
                 end
                 return
@@ -193,7 +209,9 @@ function Details.Coach.StartUp()
                     if (not Details.Coach.Client.IsEnabled()) then
                         local raidLeaderName = Details:GetRaidLeader()
                         if (raidLeaderName) then
-                            Details:Msg("sent ask to raid leader, is coach?")
+                            if (_detalhes.debug) then
+                                Details:Msg("sent ask to raid leader, is coach?")
+                            end
                             Details.Coach.AskRLForCoachStatus(raidLeaderName)
                             return
                         end
@@ -248,19 +266,25 @@ end
 --the player used '/details coach' or it's Details! initialization
 function Details.Coach.Server.EnableCoach(fromStartup)
     if (not IsInRaid()) then
-        Details:Msg("cannot enabled coach: not in raid.")
+        if (_detalhes.debug) then
+            Details:Msg("cannot enabled coach: not in raid.")
+        end
         Details.coach.enabled = false
         Details.Coach.Server.enabled = false
         return
 
     elseif (not UnitIsGroupLeader("player")) then
-        Details:Msg("cannot enabled coach: you aren't the raid leader.")
+        if (_detalhes.debug) then
+            Details:Msg("cannot enabled coach: you aren't the raid leader.")
+        end
         Details.coach.enabled = false
         Details.Coach.Server.enabled = false
         return
 
     elseif (isInRaidZone()) then
-        Details:Msg("cannot enabled coach: you are inside a raid zone.")
+        if (_detalhes.debug) then
+            Details:Msg("cannot enabled coach: you are inside a raid zone.")
+        end
         Details.coach.enabled = false
         Details.Coach.Server.enabled = false
         return
@@ -276,7 +300,9 @@ function Details.Coach.Server.EnableCoach(fromStartup)
     Details.Coach.EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
     if (fromStartup) then
-        Details:Msg("coach feature enabled, welcome back captain!")
+        if (_detalhes.debug) then
+            Details:Msg("coach feature enabled, welcome back captain!")
+        end
     end
 end
 
@@ -308,7 +334,9 @@ function Details.Coach.Client.EnableCoach(raidLeaderName)
     --enable group roster to know if the raid leader has changed
     Details.Coach.EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-    Details:Msg("there's a new coach: ", raidLeaderName)
+    if (_detalhes.debug) then
+        Details:Msg("there's a new coach: ", raidLeaderName)
+    end
 end
 
 --raid leader received a notification that a new combat has started
@@ -367,7 +395,9 @@ Details.Coach.EventFrame:SetScript("OnEvent", function(event, ...)
                         local unitName = UnitName("raid" .. i)
                         if (_G.Ambiguate(unitName .. "-" .. GetRealmName(), "none") ~= Details.Coach.Client.coachName) then
                             --the raid leader has changed, finish the coach feature on the client
-                            Details:Msg("raid leader has changed, coach feature has been disabled.")
+                            if (_detalhes.debug) then
+                                Details:Msg("raid leader has changed, coach feature has been disabled.")
+                            end
                             Details.Coach.Client.CoachEnd()
                         end
                         break
@@ -382,7 +412,9 @@ Details.Coach.EventFrame:SetScript("OnEvent", function(event, ...)
                 if (not Details.Coach.Server.IsEnabled()) then
                     if (IsInRaid()) then
                         if (not isInRaidZone()) then
-                            Details:Msg("you're now the coach of the group.")
+                            if (_detalhes.debug) then
+                                Details:Msg("you're now the coach of the group.")
+                            end
                             --delay to set the new leader to give time for SendRaidCoachEndNotify()
                             _G.C_Timer.After(3, Details.Coach.Server.EnableCoach)
                         end
@@ -393,7 +425,9 @@ Details.Coach.EventFrame:SetScript("OnEvent", function(event, ...)
             --player isn't the raid leader, check if the player is the coach and disable the feature
             if (Details.Coach.IsEnabled()) then
                 if (Details.Coach.Server.IsEnabled()) then
-                    Details:Msg("you're not the raid leader, disabling the coach feature.")
+                    if (_detalhes.debug) then
+                        Details:Msg("you're not the raid leader, disabling the coach feature.")
+                    end
                     Details.Coach.Disable()
                 end
             end

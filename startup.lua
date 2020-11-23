@@ -53,6 +53,8 @@ function Details:StartMeUp() --I'll never stop!
 			self:InitializeRunCodeWindow()
 			self:InitializePlaterIntegrationWindow()
 			self:InitializeMacrosWindow()
+
+			--self:InitializeCDTrackerWindow()
 			
 		--custom window
 			self.custom = self.custom or {}

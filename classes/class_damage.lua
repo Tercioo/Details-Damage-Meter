@@ -4708,7 +4708,10 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	table.wipe (data)
 
 	--> GERAL
-		local media = esta_magia.total/total_hits
+		local media = 0
+		if (total_hits > 0) then
+			media = esta_magia.total/total_hits
+		end
 		
 		local this_dps = nil
 		if (esta_magia.counter > esta_magia.c_amt) then

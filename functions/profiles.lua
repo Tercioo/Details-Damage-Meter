@@ -1104,6 +1104,17 @@ local default_player_data = {
 			enabled = false,
 		},
 
+	--> cd tracker
+		cd_tracker = {
+			pos = {},
+			enabled = false,
+			cds_enabled = {},
+			show_conditions = {
+				only_in_group = true,
+				only_inside_instance = true,
+			}
+		},
+
 	--> force all fonts to have this outline
 		force_font_outline = "",
 

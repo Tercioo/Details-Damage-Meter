@@ -31,3 +31,4 @@ a.lua
 functions/pack2.lua
 *.json
 *.afphoto
+wowapi.lua

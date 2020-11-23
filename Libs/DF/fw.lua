@@ -1,6 +1,6 @@
 
 
-local dversion = 215
+local dversion = 220
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -611,7 +611,7 @@ function DF:TruncateText (fontString, maxWidth)
 		end
 	end
 	
-	DF:CleanTruncateUTF8String(text)
+	text = DF:CleanTruncateUTF8String(text)
 	fontString:SetText (text)
 end
 
@@ -3399,13 +3399,13 @@ function DF:CoreDispatch (context, func, ...)
 		error (errortext)
 	end
 	
-	local okay, result1, result2, result3, result4 = pcall (func, ...)
-	
-	if (not okay) then
-		local stack = debugstack(2)
-		local errortext = "D!Framework (" .. context .. ") error: " .. result1 .. "\n====================\n" .. stack .. "\n====================\n"
-		error (errortext)
-	end
+	local okay, result1, result2, result3, result4 = xpcall(func, geterrorhandler(), ...)
+
+	--if (not okay) then --when using pcall
+		--local stack = debugstack(2)
+		--local errortext = "D!Framework (" .. context .. ") error: " .. result1 .. "\n====================\n" .. stack .. "\n====================\n"
+		--error (errortext)
+	--end
 	
 	return result1, result2, result3, result4
 end
@@ -4204,10 +4204,9 @@ end
 		end
 	}
 
-	function DF:SetEnvironment(func, environmentHandle)
+	function DF:SetEnvironment(func, environmentHandle, newEnvironment)
 		environmentHandle = environmentHandle or DF.DefaultSecureScriptEnvironmentHandle
-
-		local newEnvironment = {}
+		newEnvironment = newEnvironment or {}
 
 		setmetatable(newEnvironment, environmentHandle)
 		_G.setfenv(func, newEnvironment)
