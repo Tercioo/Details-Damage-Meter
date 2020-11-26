@@ -849,7 +849,6 @@
 				value = _detalhes:GetOrderNumber(),
 				is_custom = true,
 				color = actor.color,
-				icone = actor.icon or actor.icone
 			}, atributo_custom.mt)
 			
 			new_actor.name_complement = name_complement
