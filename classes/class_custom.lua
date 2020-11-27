@@ -157,7 +157,7 @@
 			
 			local okey, _total, _top, _amount = _pcall (func, combat, instance_container, instance)
 			if (not okey) then
-				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", total)
+				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", _total)
 				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 			end
 			
@@ -757,6 +757,9 @@
 	-- ~add
 	function atributo_custom:AddValue (actor, actortotal, checktop, name_complement)
 		local actor_table = self:GetActorTable (actor, name_complement)
+		if (not getmetatable(actor)) then
+			_setmetatable(actor,atributo_custom.mt)
+		end
 		actor_table.my_actor = actor
 		actor_table.value = actor_table.value + actortotal
 		
@@ -845,6 +848,7 @@
 				classe = class,
 				value = _detalhes:GetOrderNumber(),
 				is_custom = true,
+				color = actor.color,
 			}, atributo_custom.mt)
 			
 			new_actor.name_complement = name_complement

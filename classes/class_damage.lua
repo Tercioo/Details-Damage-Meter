@@ -330,6 +330,8 @@
 				else
 					if (not is_player_class [actor.classe] and actor.flag_original and _bit_band (actor.flag_original, 0x00000020) ~= 0) then --> neutral
 						return _unpack (Details.class_colors.NEUTRAL)
+					elseif (actor.color) then
+						return _unpack(actor.color)
 					else
 						return _unpack (Details.class_colors [actor.classe or "UNKNOW"])
 					end
