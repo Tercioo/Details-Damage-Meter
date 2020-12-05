@@ -27,6 +27,7 @@ function DF.SavedVars.GetOrCreateAddonSavedTablesPlayerList(addonFrame)
     return addonGlobalSavedTable.__savedVarsByGUID
 end
 
+--addon statup
 function DF.SavedVars.LoadSavedVarsForPlayer(addonFrame)
     local playerSerial = UnitGUID("player")
 
