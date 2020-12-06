@@ -429,7 +429,7 @@
 			if (UnitIsGroupLeader("player")) then
 				if (Details.Coach.Server.IsEnabled()) then
 					--update the current combat with new information
-					Details.packFunctions.DeployUnpackedCombatData(data)
+					Details.packFunctions.DeployPackedCombatData(data)
 				end
 			end
 		end
