@@ -71,7 +71,6 @@ function Details.CooldownTracking.CooldownListWipedFunc()
 end
 
 function Details.CooldownTracking.CooldownUpdateFunc()
-    print("cooldown update...")
     Details.CooldownTracking.RefreshScreenPanel()
 end
 
@@ -92,10 +91,11 @@ function Details.CooldownTracking.RefreshScreenPanel()
         libWindow.RegisterConfig(screenPanel, _detalhes.ocd_tracker.pos)
         libWindow.MakeDraggable(screenPanel)
         libWindow.RestorePosition(screenPanel)
+
+        screenPanel.bars = {}
     end
 
     local screenPanel = _G.DetailsOnlineCDTrackerScreenPanel
-    screenPanel.bars = {}
 
     function screenPanel.HideAllBars()
         for _, bar in ipairs (screenPanel.bars) do
@@ -127,11 +127,11 @@ function Details.CooldownTracking.RefreshScreenPanel()
     end
 
     for playerName, allPlayerCooldowns in pairs(cooldownsAvailable) do
-        local _, _, classId = UnitClass(playerName)
+        local _, classEngName, classId = UnitClass(playerName)
         if (classId) then
             for spellId, cooldownInfo in pairs(allPlayerCooldowns) do
                 if (cooldownsEnabled[spellId]) then
-                    cooldownsOrganized[classId][#cooldownsOrganized[classId]+1] = {playerName, cooldownInfo[1], cooldownInfo[2], classId, spellId} --playerName, spellId, timeLeft, chargesLeft
+                    cooldownsOrganized[classId][#cooldownsOrganized[classId]+1] = {playerName, cooldownInfo[1], cooldownInfo[2], classId, spellId, classEngName}
                     --local spellName = GetSpellInfo(spellId) --debug
                     --print("Cooldown Added", playerName, spellName) --debug
                 end
@@ -147,47 +147,50 @@ function Details.CooldownTracking.RefreshScreenPanel()
     screenPanel.HideAllBars()
 
     local cooldownIndex = 1
+    local xAnchor = 1
+
     for classId = 1, 12 do --12 classes
         local t = cooldownsOrganized[classId]
         for i = 1, #t do
             local bar = screenPanel.bars[cooldownIndex]
             if (not bar) then
-                bar = DF:CreateBar(screenPanel, [[Interface\AddOns\Details\images\bar_serenity]], width-2, bar_height-1, 100)
-                bar:SetPoint("topleft", screenPanel, "topleft", 1, (cooldownIndex-1)*bar_height)
-                tinsert(screenPanel.bars, bar)
+                if (cooldownIndex % 11 == 0) then
+                    xAnchor = xAnchor + width + 2
+                end
 
-                bar:SetHook("OnTimerEnd", function()
-                    bar:Show()
-                    bar:SetValue(100)
-                    bar.timer_texture:Hide()
-                    bar.timer_textureR:Hide()
-                    bar.div_timer:Hide()
-                    bar.timer = false
-                    return true
-                end)
+                local newBar = DF:CreateTimeBar(screenPanel, [[Interface\AddOns\Details\images\bar_serenity]], width-2, bar_height-2, 100, nil, "DetailsOCDBar" .. cooldownIndex)
+                newBar:SetPoint("topleft", screenPanel, "topleft", xAnchor, (cooldownIndex-1) * bar_height * -1)
+
+                tinsert(screenPanel.bars, newBar)
+                bar = newBar
             end
 
-            local cooldownTable = t[i]
-            local spellName, _, spellIcon = GetSpellInfo(cooldownTable[5])
-            bar:SetLeftText(cooldownTable[1])
-            bar:SetIcon(spellIcon, {.1, .9, .1, .9})
+            cooldownIndex = cooldownIndex + 1
 
-            bar:CancelTimerBar(true)
+            bar:Show()
+
+            local cooldownTable = t[i]
+            local _, _, spellIcon = GetSpellInfo(cooldownTable[5])
+            bar:SetLeftText(cooldownTable[1])
+            bar:SetIcon(spellIcon, .1, .9, .1, .9)
+
+            local classColor = C_ClassColor.GetClassColor(cooldownTable[6])
+            bar:SetStatusBarColor(classColor.r, classColor.g, classColor.b)
 
             local timeLeft = cooldownTable[2]
             if (timeLeft > 0) then
+                bar.spellId = cooldownTable[5]
                 bar:SetTimer(timeLeft)
             else
+                bar:SetMinMaxValues(0, 100)
                 bar:SetValue(100)
             end
-
-            bar:Show()
-            --print("Shown Bar", cooldownIndex) --debug
-            cooldownIndex = cooldownIndex + 1
         end
     end
 
-    DetailsOnlineCDTrackerScreenPanel:Show()
+    cooldownIndex = cooldownIndex - 1
+    screenPanel:SetSize(width + xAnchor, cooldownIndex * (bar_height))
+    screenPanel:Show()
 end
 
 function Details.OpenCDTrackerWindow()
@@ -265,14 +268,14 @@ function Details.OpenCDTrackerWindow()
 
                 for spellId, cooldownType in pairs(cooldownTable) do
                     if (not alreadyAdded[spellId]) then
-                        if (cooldownType == 3 or cooldownType == 4) then
+                        if (cooldownType == 3 or cooldownType == 4 or cooldownType == 1 or cooldownType == 2) then
                             local spellName, _, spellIcon = GetSpellInfo(spellId)
                             if (spellName) then
                                 cooldownList[#cooldownList+1] = {
                                     type = "toggle",
                                     get = function()
                                             if (cooldownProfile[spellId] == nil) then
-                                                if (cooldownType == 3 or cooldownType == 4) then
+                                                if (cooldownType == 3 or cooldownType == 4 or cooldownType == 1 or cooldownType == 2) then
                                                     cooldownProfile[spellId] = true
                                                 end
                                             end

@@ -217,8 +217,11 @@ LIB_RAID_STATUS_CAN_LOAD = false
             local callbackTable = raidStatusLib.commHandler.commCallback[dataTypePrefix]
             --convert to table
             local dataAsTable = {strsplit(",", data)}
+
             --remove the first index (prefix)
             tremove(dataAsTable, 1)
+            --Details:Dump(dataAsTable)
+
             --trigger callbacks
             for i = 1, #callbackTable do
                 callbackTable[i](dataAsTable, sender)
@@ -676,7 +679,7 @@ LIB_RAID_STATUS_CAN_LOAD = false
             --is a ticker already exists, might be the cooldown of a charge
             --if the ticker isn't about to expire, just keep the timer
             --when the ticker finishes it'll check again for charges
-            if (existingTicker.startTime + existingTicker.cooldownTime - GetTime() > 2) then
+            if (existingTicker.startTime + existingTicker.cooldownTimeLeft - GetTime() > 2) then
                 return
             end
 
@@ -763,9 +766,9 @@ LIB_RAID_STATUS_CAN_LOAD = false
     raidStatusLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNUPDATE_PREFIX, function(data, sourceName)
         --get data
         local dataAsArray = data
-        local spellId = tonumber(dataAsArray[2])
-        local cooldownTimer = tonumber(dataAsArray[3])
-        local charges = tonumber(dataAsArray[4])
+        local spellId = tonumber(dataAsArray[1])
+        local cooldownTimer = tonumber(dataAsArray[2])
+        local charges = tonumber(dataAsArray[3])
 
         --check integraty
         if (not spellId or spellId == 0) then
@@ -823,25 +826,29 @@ LIB_RAID_STATUS_CAN_LOAD = false
     function raidStatusLib.cooldownManager.GetCooldownStatus(spellId)
         --check if is a charge spell
         local cooldownInfo = LIB_RAID_STATUS_COOLDOWNS_INFO[spellId]
-        if (cooldownInfo.charges and cooldownInfo.charges > 1) then
-            local chargesAvailable, chargesTotal, start, duration = GetSpellCharges(spellId)
+        if (cooldownInfo) then
+            if (cooldownInfo.charges and cooldownInfo.charges > 1) then
+                local chargesAvailable, chargesTotal, start, duration = GetSpellCharges(spellId)
 
-            if (chargesAvailable == chargesTotal) then
-                return 0, chargesTotal --all charges are ready to use
+                if (chargesAvailable == chargesTotal) then
+                    return 0, chargesTotal --all charges are ready to use
+                else
+                    --return the time to the next charge
+                    local timeLeft = start + duration - GetTime()
+                    return ceil(timeLeft), chargesAvailable
+                end
+
             else
-                --return the time to the next charge
-                local timeLeft = start + duration - GetTime()
-                return ceil(timeLeft), chargesAvailable
+                local start, duration = GetSpellCooldown(spellId)
+                if (start == 0) then --cooldown is ready
+                    return 0, 1
+                else
+                    local timeLeft = start + duration - GetTime()
+                    return ceil(timeLeft), 0
+                end
             end
-
         else
-            local start, duration = GetSpellCooldown(spellId)
-            if (start == 0) then --cooldown is ready
-                return 0, 1
-            else
-                local timeLeft = start + duration - GetTime()
-                return ceil(timeLeft), 0
-            end
+            return diagnosticError("cooldownManager|GetCooldownStatus()|cooldownInfo not found|", spellId)
         end
     end
 
