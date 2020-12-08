@@ -4,7 +4,7 @@
 --terminei de fazer a restruturação da comm dos cooldowns, agora não existe mais o comando _FULL, cooldowns sempre são mandados separadamente
 
 local major = "LibRaidStatus-1.0"
-local CONST_LIB_VERSION = 4
+local CONST_LIB_VERSION = 5
 LIB_RAID_STATUS_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -23,7 +23,7 @@ LIB_RAID_STATUS_CAN_LOAD = false
     --print failures (when the function return an error) results to chat
     local CONST_DIAGNOSTIC_ERRORS = true
     --print the data to be sent and data received from comm
-    local CONST_DIAGNOSTIC_COMM = true
+    local CONST_DIAGNOSTIC_COMM = false
 
     local CONST_COMM_PREFIX = "LRS"
     local CONST_COMM_COOLDOWNUPDATE_PREFIX = "U"
