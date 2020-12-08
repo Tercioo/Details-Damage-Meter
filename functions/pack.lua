@@ -153,6 +153,10 @@ function Details.packFunctions.PackCombatData(combatObject, flags)
 
 --if true then return exportedString end
 
+        if (isDebugging) then
+            print(exportedString)
+        end
+
         --compress
         local LibDeflate = _G.LibStub:GetLibrary("LibDeflate")
         local dataCompressed = LibDeflate:CompressDeflate(exportedString, {level = 9})
@@ -1010,7 +1014,8 @@ function Details.packFunctions.UnpackTable(table, index, isPair, valueAsTable, a
     return result
 end
 
---what this function receives?
+--DEPRECATED
+--what this function receives:
 --@packedCombatData: packed combat, ready to be unpacked
 function Details.packFunctions.UnPackCombatData(packedCombatData)
 

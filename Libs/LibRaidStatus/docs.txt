@@ -1,0 +1,99 @@
+
+Functions:
+
+local playerGearInfo = raidStatusLib.gearManager.GetPlayerGearTable(playerName)
+playerGearInfo = {
+    .durability = number
+    .ilevel = number
+    .noGems = {socketId}
+    .noEnchants = {socketId}
+}
+
+
+
+Callbacks available
+
+"CooldownListUpdate": triggers when the lib received a list of cooldowns from another player in the group.
+
+function MyAddonObject.OnReceiveCooldownListUpdate(unitName, cooldownTable)
+    --foreach player in the cooldown table
+    for unitName, playerCooldownTable in pairs(cooldownTable) do
+        for spellId, cooldownInfoTable in pairs(playerCooldownTable) do
+            --if timeLeft is zero, the spell is ready
+            local timeLeft = cooldownInfoTable[1]
+            --in some cases the spell is on cooldown but there's a charge to use
+            local charges = cooldownInfoTable[2]
+        end
+    end
+
+    --get the cooldowns for the unit which got the cooldown update
+    local unitCooldownTable = cooldownTable[unitName]
+    for spellId, cooldownInfoTable in pairs(unitCooldownTable) do
+        --if timeLeft is zero, the spell is ready
+        local timeLeft = cooldownInfoTable[1]
+        --in some cases the spell is on cooldown but there's a charge to use
+        local charges = cooldownInfoTable[2]
+    end
+end
+raidStatusLib.RegisterCallback(MyAddonObject, "CooldownListUpdate", "OnReceiveCooldownListUpdate")
+
+
+"CooldownUpdate": triggered when any unit in the group used a cooldown or the timeleft got an update
+
+function MyAddonObject.OnReceiveCooldownUpdate(unitName, spellId, cooldownTimeLeft, charges, playerCooldownTable)
+    local unitCooldowns = cooldownTable[unitName]
+    local cooldownTimeLeft2 = unitCooldowns[spellId]
+    print("is iqual:", cooldownTimeLeft == cooldownTimeLeft2)
+
+    --get the cooldowns for the unit which got the cooldown update
+    for spellId, cooldownInfoTable in pairs(playerCooldownTable) do
+        --if timeLeft is zero, the spell is ready
+        local timeLeft = cooldownInfoTable[1]
+        --in some cases the spell is on cooldown but there's a charge to use
+        local charges = cooldownInfoTable[2]
+    end
+end
+raidStatusLib.RegisterCallback(MyAddonObject, "CooldownUpdate", "OnReceiveCooldownUpdate")
+
+
+"CooldownListWiped": when the list of cooldowns get a wipe, usually when the player leave the group
+
+function MyAddonObject.OnCooldownListWipe(cooldownTable)
+    print ("is nil:", next(cooldownTable))
+end
+raidStatusLib.RegisterCallback(MyAddonObject, "CooldownListWiped", "OnCooldownListWipe")
+
+
+"GearDurabilityUpdate": when a player in the group revives, the gear durability is sent
+
+function MyAddonObject.OnGearDurabilityUpdate(playerName, durability, gearTable)
+    print(playerName .. " durability is now " .. durability)
+end
+raidStatusLib.RegisterCallback(MyAddonObject, "GearDurabilityUpdate", "OnGearDurabilityUpdate")
+
+
+"GearUpdate": when received an update from a player with all information about the gear
+
+function MyAddonObject.OnGearUpdate(playerName, playerGearInfo, gearTable)
+    local itemLevelNumber = playerGearInfo.ilevel
+    local durabilityNumber = playerGearInfo.durability
+    --hasWeaponEnchant is 1 have enchant or 0 is don't
+    local hasWeaponEnchantNumber = playerGearInfo.weaponEnchant
+    local noEnchantTable = playerGearInfo.noEnchants
+    local noGemsTable = playerGearInfo.noGems
+
+    for index, slotIdWithoutEnchant in ipairs (noEnchantTable) do
+    end
+
+    for index, slotIdWithEmptyGemSocket in ipairs (noGemsTable) do
+    end
+end
+raidStatusLib.RegisterCallback(MyAddonObject, "GearUpdate", "OnGearUpdate")
+
+
+"GearListWiped": when the list of gear get a wipe, usually when the player leave the group
+
+function MyAddonObject.OnGearListWiped(gearTable)
+    print ("is nil:", next(gearTable))
+end
+raidStatusLib.RegisterCallback(MyAddonObject, "GearListWiped", "OnGearListWiped")

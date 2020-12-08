@@ -879,9 +879,7 @@ for specId, cooldownTable in pairs (DF.CooldownsBySpec) do
 		end
 		
 		DF.CooldownToClass [spellId] = DF.SpecIds [spellId]
-
 	end
-	
 end
 
 function DF:FindClassForCooldown (spellId)
@@ -899,6 +897,15 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --consumables
+
+DF.WeaponEnchantIds = {
+	[6188] = true, --shadowcore oil
+	[6190] = true, --embalmer's oil
+	[6201] = true, --weighted
+	[6200] = true, --sharpened
+	[5400] = true, --flametongue
+	[5401] = true, --windfury
+}
 
 DF.FlaskIDs = {
 	--Shadowlands

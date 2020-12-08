@@ -835,6 +835,17 @@ local default_profile = {
 			},
 		},
 
+	--> ocd tracker test
+		ocd_tracker = {
+			enabled = false,
+			cooldowns = {},
+			pos = {},
+			show_conditions = {
+				only_in_group = true,
+				only_inside_instance = true,
+			}
+		},
+
 	--> minimap
 		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1, text_format = 3},
 		data_broker_text = "",
@@ -1102,17 +1113,6 @@ _detalhes.default_profile = default_profile
 local default_player_data = {
 		coach = {
 			enabled = false,
-		},
-
-	--> cd tracker
-		cd_tracker = {
-			pos = {},
-			enabled = false,
-			cds_enabled = {},
-			show_conditions = {
-				only_in_group = true,
-				only_inside_instance = true,
-			}
 		},
 
 	--> force all fonts to have this outline
