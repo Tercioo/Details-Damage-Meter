@@ -1,7 +1,3 @@
---terminei de fazer o onDead e onAlive events
---repair precisa registrar isso e mandar na comm e a comm precisa receber e atualizar na lista
---terminei de fazer o ondeath e oalive; comm nao aceita comm do proprio jogador; tem que ver se o cooldown passa a data certin pro player quando ele casta pq a comm nao vai passar
---terminei de fazer a restruturação da comm dos cooldowns, agora não existe mais o comando _FULL, cooldowns sempre são mandados separadamente
 
 local major = "LibRaidStatus-1.0"
 local CONST_LIB_VERSION = 5
@@ -152,6 +148,9 @@ LIB_RAID_STATUS_CAN_LOAD = false
     function raidStatusLib.UnpackTable(table, index, isPair, valueIsTable, amountOfValues)
         local result = {}
         local reservedIndexes = table[index]
+        if (not reservedIndexes) then
+            return result
+        end
         local indexStart = index+1
         local indexEnd = reservedIndexes+index
 
@@ -1216,12 +1215,20 @@ function raidStatusLib.playerInfoManager.GetPlayerInfo()
     playerInfo[1] = UnitName("player")
 
     --spec
+    local specId = 0
+    local selectedSpecialization = GetSpecialization()
+    if (selectedSpecialization) then
+        specId = GetSpecializationInfo(selectedSpecialization)
+    end
 
     --talents
+    
 
     --renown
 
+
     --conduits
+
 
 end
 
