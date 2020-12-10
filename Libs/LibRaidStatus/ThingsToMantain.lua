@@ -2,7 +2,7 @@
 --data which main need maintenance over time
 
 if (not LIB_RAID_STATUS_CAN_LOAD) then
-	--return
+	return
 end
 
 --which gear slots can be enchanted on the latest retail version of the game
@@ -162,7 +162,6 @@ LIB_RAID_STATUS_COOLDOWNS_BY_SPEC = {
 			[10060] = 1, --Power Infusion
 			[34433] = 1, --Shadowfiend
 			[200174] = 1, --Mindbender
-			[205385] = 1, --Shadow Clash
 			[193223] = 1, --Surrender to Madness
 			[47585] = 2, --Dispersion
 			[15286] = 4, --Vampiric Embrace
