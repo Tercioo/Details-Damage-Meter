@@ -12,7 +12,8 @@ local bar_height = 20
 Details.CooldownTracking = {}
 
 function Details:InitializeCDTrackerWindow()
-    local DetailsCDTrackerWindow = DF:CreateSimplePanel(UIParent, 700, 480, "Details! Online CD Tracker", "DetailsCDTrackerWindow")
+    local DetailsCDTrackerWindow = CreateFrame("frame", "DetailsCDTrackerWindow", UIParent, "BackdropTemplate")
+    DetailsCDTrackerWindow:SetSize(700, 480)
     DetailsCDTrackerWindow.Frame = DetailsCDTrackerWindow
     DetailsCDTrackerWindow.__name = "OCD Tracker"
     DetailsCDTrackerWindow.real_name = "DETAILS_CDTRACKERWINDOW"
@@ -63,21 +64,28 @@ function Details.CooldownTracking.DisableTracker()
 end
 
 function Details.CooldownTracking.CooldownListUpdateFunc()
+    --print("CooldownListUpdate")
     Details.CooldownTracking.RefreshScreenPanel()
 end
 
 function Details.CooldownTracking.CooldownListWipedFunc()
+    --print("CooldownListWiped")
     Details.CooldownTracking.RefreshScreenPanel()
 end
 
 function Details.CooldownTracking.CooldownUpdateFunc()
+    --print("CooldownUpdate")
     Details.CooldownTracking.RefreshScreenPanel()
 end
 
 function Details.CooldownTracking.RefreshScreenPanel()
-    if (not DetailsOnlineCDTrackerScreenPanel) then
+
+    local screenPanel = DetailsOnlineCDTrackerScreenPanel
+
+    if (not screenPanel) then
         --screen panel (goes into the UIParent and show cooldowns there)
-        local screenPanel = CreateFrame("frame", "DetailsOnlineCDTrackerScreenPanel", UIParent, "BackdropTemplate")
+        DetailsOnlineCDTrackerScreenPanel = CreateFrame("frame", "DetailsOnlineCDTrackerScreenPanel", UIParent, "BackdropTemplate")
+        screenPanel = DetailsOnlineCDTrackerScreenPanel
         screenPanel:Hide()
         screenPanel:SetSize(width, height)
         screenPanel:SetPoint("center", 0, 0)
@@ -95,10 +103,9 @@ function Details.CooldownTracking.RefreshScreenPanel()
         screenPanel.bars = {}
     end
 
-    local screenPanel = _G.DetailsOnlineCDTrackerScreenPanel
-
     function screenPanel.HideAllBars()
         for _, bar in ipairs (screenPanel.bars) do
+            bar:ClearAllPoints()
             bar:Hide()
         end
     end
@@ -132,8 +139,6 @@ function Details.CooldownTracking.RefreshScreenPanel()
             for spellId, cooldownInfo in pairs(allPlayerCooldowns) do
                 if (cooldownsEnabled[spellId]) then
                     cooldownsOrganized[classId][#cooldownsOrganized[classId]+1] = {playerName, cooldownInfo[1], cooldownInfo[2], classId, spellId, classEngName}
-                    --local spellName = GetSpellInfo(spellId) --debug
-                    --print("Cooldown Added", playerName, spellName) --debug
                 end
             end
         end
@@ -147,20 +152,14 @@ function Details.CooldownTracking.RefreshScreenPanel()
     screenPanel.HideAllBars()
 
     local cooldownIndex = 1
-    local xAnchor = 1
 
     for classId = 1, 12 do --12 classes
         local t = cooldownsOrganized[classId]
         for i = 1, #t do
             local bar = screenPanel.bars[cooldownIndex]
+
             if (not bar) then
-                if (cooldownIndex % 11 == 0) then
-                    xAnchor = xAnchor + width + 2
-                end
-
                 local newBar = DF:CreateTimeBar(screenPanel, [[Interface\AddOns\Details\images\bar_serenity]], width-2, bar_height-2, 100, nil, "DetailsOCDBar" .. cooldownIndex)
-                newBar:SetPoint("topleft", screenPanel, "topleft", xAnchor, (cooldownIndex-1) * bar_height * -1)
-
                 tinsert(screenPanel.bars, newBar)
                 bar = newBar
             end
@@ -170,12 +169,13 @@ function Details.CooldownTracking.RefreshScreenPanel()
             bar:Show()
 
             local cooldownTable = t[i]
-            local _, _, spellIcon = GetSpellInfo(cooldownTable[5])
-            bar:SetLeftText(cooldownTable[1])
-            bar:SetIcon(spellIcon, .1, .9, .1, .9)
 
             local classColor = C_ClassColor.GetClassColor(cooldownTable[6])
             bar:SetStatusBarColor(classColor.r, classColor.g, classColor.b)
+
+            local _, _, spellIcon = GetSpellInfo(cooldownTable[5])
+            bar:SetIcon(spellIcon, .1, .9, .1, .9)
+            bar:SetLeftText(DF:RemoveRealmName(cooldownTable[1]))
 
             local timeLeft = cooldownTable[2]
             if (timeLeft > 0) then
@@ -189,7 +189,35 @@ function Details.CooldownTracking.RefreshScreenPanel()
     end
 
     cooldownIndex = cooldownIndex - 1
-    screenPanel:SetSize(width + xAnchor, cooldownIndex * (bar_height))
+
+    local xAnchor = 1
+    local defaultY = 0
+    local xPos = 1
+    local yPos = 0
+    local maxHeight = 0
+
+    for barIndex = 1, cooldownIndex do
+        if (barIndex % 11 == 0) then
+            xPos = xPos + width + 2
+            yPos = 0
+        end
+
+        local bar = screenPanel.bars[barIndex]
+        bar:SetPoint("topleft", screenPanel, "topleft", xPos, yPos)
+        yPos = yPos - bar_height
+        if (yPos < maxHeight)  then
+            maxHeight = yPos
+        end
+    end
+
+    maxHeight = abs(maxHeight)
+
+    if (maxHeight == 0) then
+        screenPanel:Hide()
+        return
+    end
+
+    screenPanel:SetSize(width + xAnchor, abs(maxHeight))
     screenPanel:Show()
 end
 

@@ -133,6 +133,7 @@ function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
         self.statusBar.icon:Show()
         self.statusBar.icon:SetPoint("left", self.statusBar, "left", 2, 0)
         self.statusBar.icon:SetSize(self.statusBar:GetHeight()-2, self.statusBar:GetHeight()-2)
+        self.statusBar.leftText:ClearAllPoints()
         self.statusBar.leftText:SetPoint("left", self.statusBar.icon, "right", 2, 0)
         self.statusBar.icon:SetTexture(texture)
         if (L) then
@@ -141,6 +142,7 @@ function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
 
     else
         self.statusBar.icon:Hide()
+        self.statusBar.leftText:ClearAllPoints()
         self.statusBar.leftText:SetPoint("left", self.statusBar, "left", 2, 0)
     end
 end
@@ -310,18 +312,18 @@ function DF:CreateTimeBar(parent, texture, width, height, value, member, name)
         timeBar.statusBar.barTexture:SetTexture(texture or [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
         timeBar.statusBar:SetStatusBarTexture(timeBar.statusBar.barTexture)
 
-        timeBar.statusBar.spark = timeBar.statusBar:CreateTexture(nil, "overlay")
+        timeBar.statusBar.spark = timeBar.statusBar:CreateTexture(nil, "overlay", nil, 7)
         timeBar.statusBar.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
         timeBar.statusBar.spark:SetBlendMode("ADD")
         timeBar.statusBar.spark:Hide()
 
-        timeBar.statusBar.icon = timeBar.statusBar:CreateTexture(nil, "artwork", nil, 7)
+        timeBar.statusBar.icon = timeBar.statusBar:CreateTexture(nil, "overlay", nil, 5)
         timeBar.statusBar.icon:SetPoint("left", timeBar.statusBar, "left", 2, 0)
 
-        timeBar.statusBar.leftText = timeBar.statusBar:CreateFontString(nil, "artwork", "GameFontNormal", 7)
+        timeBar.statusBar.leftText = timeBar.statusBar:CreateFontString("$parentLeftText", "overlay", "GameFontNormal", 4)
         timeBar.statusBar.leftText:SetPoint("left", timeBar.statusBar.icon, "right", 2, 0)
 
-        timeBar.statusBar.rightText = timeBar.statusBar:CreateFontString(nil, "artwork", "GameFontNormal", 7)
+        timeBar.statusBar.rightText = timeBar.statusBar:CreateFontString(nil, "overlay", "GameFontNormal", 4)
         timeBar.statusBar.rightText:SetPoint("right", timeBar.statusBar, "right", -2, 0)
         
 	--> hooks
