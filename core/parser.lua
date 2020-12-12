@@ -1730,11 +1730,6 @@
 			end
 		end
 		
-		--if (not absorb_spell_list [shieldid] and not gotit[shieldid]) then
-		--	local _, class = UnitClass (owner_name)
-			--print ("Shield Not Registered:", shieldid, shieldname, class)
-		--end
-		
 		--> diminuir o escudo nas tabelas de escudos
 		local shields_on_target = escudo [alvo_name]
 		if (shields_on_target) then

@@ -387,7 +387,6 @@ DF.CooldownsBySpec = {
 		--marksmanship
 		[254] = {
 			[193526] = 1, --Trueshot
-			[260402] = 1, --Double tap
 			[186265] = 2, --Aspect of the Turtle
 			[199483] = 2, --Camouflage (talent)
 			[109304] = 2, --Exhilaration
