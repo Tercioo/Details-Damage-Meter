@@ -1,6 +1,6 @@
 
 local major = "LibRaidStatus-1.0"
-local CONST_LIB_VERSION = 5
+local CONST_LIB_VERSION = 7
 LIB_RAID_STATUS_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -28,6 +28,7 @@ LIB_RAID_STATUS_CAN_LOAD = false
     local CONST_COMM_GEARINFO_DURABILITY_PREFIX = "R"
     local CONST_COMM_PLAYER_DEAD_PREFIX = "D"
     local CONST_COMM_PLAYER_ALIVE_PREFIX = "A"
+    local CONST_COMM_PLAYER_INFO_PREFIX = "P"
 
     local CONST_ONE_SECOND = 1.0
     local CONST_TWO_SECONDS = 2.0
@@ -241,6 +242,7 @@ LIB_RAID_STATUS_CAN_LOAD = false
         [CONST_COMM_GEARINFO_DURABILITY_PREFIX] = {}, --an update of the player gear durability
         [CONST_COMM_PLAYER_DEAD_PREFIX] = {}, --player is dead
         [CONST_COMM_PLAYER_ALIVE_PREFIX] = {}, --player is alive
+        [CONST_COMM_PLAYER_INFO_PREFIX] = {}, --info about the player
     }
 
     function raidStatusLib.commHandler.RegisterComm(prefix, func)
@@ -354,6 +356,7 @@ LIB_RAID_STATUS_CAN_LOAD = false
         "GearListWiped",
         "GearUpdate",
         "GearDurabilityUpdate",
+        "PlayerUpdate",
     }
 
     --save build the table to avoid lose registered events on older versions
@@ -567,6 +570,9 @@ LIB_RAID_STATUS_CAN_LOAD = false
 
         --send gear data
         raidStatusLib.gearManager.SendAllGearInfo()
+
+        --send player data
+        raidStatusLib.playerInfoManager.SendAllPlayerInfo()
     end
 
     raidStatusLib.mainControl.onEnterWorld = function()
@@ -1207,28 +1213,183 @@ LIB_RAID_STATUS_CAN_LOAD = false
 --------------------------------------------------------------------------------------------------------------------------------
 --> ~player general info
 
-raidStatusLib.playerInfoManager = {}
+    raidStatusLib.playerInfoManager = {
+        --structure:
+        --[playerName] = {ilevel = 100, durability = 100, weaponEnchant = 0, noGems = {}, noEnchants = {}}
+        playerData = {},
+    }
 
-function raidStatusLib.playerInfoManager.GetPlayerInfo()
+    function raidStatusLib.playerInfoManager.GetPlayerInfo()
+        return raidStatusLib.playerInfoManager.playerData
+    end
+
+    function raidStatusLib.playerInfoManager.GetPlayerInfoTable(playerName, createNew)
+        local playerInfo = raidStatusLib.playerInfoManager.playerData[playerName]
+        if (not playerInfo and createNew) then
+            playerInfo = {
+                specId = 0, 
+                renown = 1, 
+                talents = {}, 
+                conduits = {},
+            }
+            raidStatusLib.playerInfoManager.playerData[playerName] = playerInfo
+        end
+        return playerInfo
+    end
+
+    function raidStatusLib.playerInfoManager.AddPlayerInfo(playerName, specId, renown, talentsTableUnpacked, conduitsTableUnpacked)
+        local playerInfoTable = raidStatusLib.playerInfoManager.GetPlayerInfoTable(playerName, true)
+
+        playerInfoTable.specId = specId
+        playerInfoTable.renown = renown
+        playerInfoTable.talents = talentsTableUnpacked
+        playerInfoTable.conduits = conduitsTableUnpacked
+
+        raidStatusLib.publicCallback.TriggerCallback("PlayerUpdate", playerName, raidStatusLib.playerInfoManager.playerData[playerName], raidStatusLib.playerInfoManager.GetPlayerInfo())
+    end
+
+    --triggered when the lib receives a gear information from another player in the raid
+    --@data: table received from comm
+    --@source: player name
+    function raidStatusLib.playerInfoManager.OnReceivePlayerFullInfo(data, source)
+        --Details:Dump(data)
+        local specId = tonumber(data[1])
+        local renown = tonumber(data[2])
+        local talentsSize = tonumber(data[3])
+        local conduitsTableIndex = tonumber((talentsSize + 1) + 2) + 1 -- +2 = specIndex renowIndex | talentSizeIndex + talentSize | +1
+        local conduitsSize = data[conduitsTableIndex]
+
+        --unpack the enchant data as a ipairs table
+        local talentsTableUnpacked = raidStatusLib.UnpackTable(data, 3, false, false, talentsSize)
+        
+        --unpack the enchant data as a ipairs table
+        local conduitsTableUnpacked = raidStatusLib.UnpackTable(data, conduitsTableIndex, false, false, conduitsSize)
+
+        --add to the list of player information
+        raidStatusLib.playerInfoManager.AddPlayerInfo(source, specId, renown, talentsTableUnpacked, conduitsTableUnpacked)
+    end
+    raidStatusLib.commHandler.RegisterComm(CONST_COMM_PLAYER_INFO_PREFIX, raidStatusLib.playerInfoManager.OnReceivePlayerFullInfo)
+
+
+
+function raidStatusLib.playerInfoManager.SendAllPlayerInfo()
+    local playerInfo = raidStatusLib.playerInfoManager.GetPlayerFullInfo()
+    
+    local dataToSend = CONST_COMM_PLAYER_INFO_PREFIX .. ","
+    dataToSend = dataToSend .. playerInfo[1] .. "," --spec id
+    dataToSend = dataToSend .. playerInfo[2] .. "," --renown
+    dataToSend = dataToSend .. raidStatusLib.PackTable(playerInfo[3]) .. "," --talents
+    dataToSend = dataToSend .. raidStatusLib.PackTable(playerInfo[4]) .. "," --conduits
+
+    --send the data
+    raidStatusLib.commHandler.SendCommData(dataToSend)
+    diagnosticComm("SendGetPlayerInfoFullData| " .. dataToSend) --debug
+end
+
+function raidStatusLib.playerInfoManager.GetPlayerFullInfo()
     local playerInfo = {}
-    --name
-    playerInfo[1] = UnitName("player")
 
     --spec
     local specId = 0
     local selectedSpecialization = GetSpecialization()
     if (selectedSpecialization) then
-        specId = GetSpecializationInfo(selectedSpecialization)
+        specId = GetSpecializationInfo(selectedSpecialization) or 0
     end
 
-    --talents
-    
+    playerInfo[1] = specId
 
     --renown
+    local renown = C_CovenantSanctumUI.GetRenownLevel() or 1
+    playerInfo[2] = renown
 
+    --talents
+    local talents = {0, 0, 0, 0, 0, 0, 0}
+    for talentTier = 1, 7 do
+        for talentColumn = 1, 3 do
+            local talentId, name, texture, selected, available = GetTalentInfo(talentTier, talentColumn, 1, true, "player")
+            if (selected) then
+                talents[talentTier] = talentId
+                break
+            end
+        end
+    end
+
+    playerInfo[3] = talents
 
     --conduits
+    local conduits = {}
+    local soulbindID = C_Soulbinds.GetActiveSoulbindID()
+    if (soulbindID ~= 0) then
+        local soulbindData = C_Soulbinds.GetSoulbindData(soulbindID)
+        if (soulbindData ~= 0) then
+            local tree = soulbindData.tree
+            local nodes = tree.nodes
 
+            table.sort(nodes, function(t1, t2) return t1.row < t2.row end)
+
+            for nodeId, nodeInfo in ipairs(nodes) do
+                --check if the node is a conduit placed by the player
+                
+                if (nodeInfo.state == Enum.SoulbindNodeState.Selected)  then
+                    local conduitId = nodeInfo.conduitID
+                    local conduitRank = nodeInfo.conduitRank
+                    
+                    if (conduitId and conduitRank) then
+                        --have spell id when it's a default conduit from the game
+                        local spellId = nodeInfo.spellID
+                        --have conduit id when is a conduid placed by the player
+                        local conduitId  = nodeInfo.conduitID
+                        
+                        if (spellId == 0) then
+                            --is player conduit
+                            spellId = C_Soulbinds.GetConduitSpellID(nodeInfo.conduitID, nodeInfo.conduitRank)
+                            local conduitItemLevel = C_Soulbinds.GetConduitItemLevel(conduitId,  conduitRank)
+                            conduits[#conduits+1] = spellId
+                            conduits[#conduits+1] = conduitItemLevel
+                        else
+                            --is default conduit
+                            conduits[#conduits+1] = spellId
+                            conduits[#conduits+1] = 0
+                        end
+
+                        --local link = C_Soulbinds.GetConduitHyperlink( conduitId,  conduitRank )
+                        --print(link)
+                    end
+                end        
+            end
+        end
+    end
+
+    playerInfo[4] = conduits
+
+    return playerInfo
+
+    --/run Details:Dump (Enum.SoulbindNodeState)
+    --/run Details:Dump ( nodes )
+    
+    --[=[
+        ["Selectable"] = 2
+        ["Unavailable"] = 0
+        ["Unselected"] = 1
+        ["Selected"] = 3
+    --]=]
+            
+    --[=[
+        [1] = table {
+        ["conduitID"] = 195
+        ["conduitType"] = 1
+        ["state"] = 3
+        ["icon"] = 463891
+        ["parentNodeIDs"] = table {
+            ["1"] = 1316
+        }
+        ["column"] = 0
+        ["ID"] = 1305
+        ["conduitRank"] = 4
+        ["row"] = 1
+        ["spellID"] = 0
+        }
+    --]=]
 
 end
 

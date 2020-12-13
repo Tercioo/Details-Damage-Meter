@@ -128,6 +128,18 @@ local OnMouseUpFunc = function(statusBar, mouseButton)
 end
 
 --timer functions
+function TimeBarMetaFunctions:SetIconSize(width, height)
+    if (width and not height) then
+        self.statusBar.icon:SetWidth(width)
+
+    elseif (not width and height) then
+        self.statusBar.icon:SetHeight(height)
+
+    elseif (width and height) then
+        self.statusBar.icon:SetSize(width, height)
+    end
+end
+
 function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
     if (texture) then
         self.statusBar.icon:Show()
@@ -136,10 +148,10 @@ function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
         self.statusBar.leftText:ClearAllPoints()
         self.statusBar.leftText:SetPoint("left", self.statusBar.icon, "right", 2, 0)
         self.statusBar.icon:SetTexture(texture)
+
         if (L) then
             self.statusBar.icon:SetTexCoord(L, R, T, B)
         end
-
     else
         self.statusBar.icon:Hide()
         self.statusBar.leftText:ClearAllPoints()
@@ -147,11 +159,37 @@ function TimeBarMetaFunctions:SetIcon(texture, L, R, T, B)
     end
 end
 
+function TimeBarMetaFunctions:GetIcon()
+    return self.statusBar.icon
+end
+
+function TimeBarMetaFunctions:SetTexture(texture)
+    self.statusBar.barTexture:SetTexture(texture)
+end
+
 function TimeBarMetaFunctions:SetLeftText(text)
     self.statusBar.leftText:SetText(text)
 end
 function TimeBarMetaFunctions:SetRightText(text)
     self.statusBar.rightText:SetText(text)
+end
+
+function TimeBarMetaFunctions:SetFont(font, size, color, shadow)
+    if (font) then
+        DF:SetFontFace(self.statusBar.leftText, font)
+    end
+
+    if (size) then
+        DF:SetFontSize(self.statusBar.leftText, size)
+    end
+
+    if (color) then
+        DF:SetFontColor(self.statusBar.leftText, color)
+    end
+
+    if (shadow) then
+        DF:SetFontOutline(self.statusBar.leftText, shadow)
+    end
 end
 
 function TimeBarMetaFunctions:SetDirection(direction)
@@ -240,8 +278,14 @@ function TimeBarMetaFunctions:SetTimer(currentTime, startTime, endTime)
     self.statusBar.hasTimer = true
     self.statusBar.direction = self.direction
     self.statusBar.throttle = 0
+    self.statusBar:Show()
 
     self.statusBar:SetScript("OnUpdate", OnUpdateFunc)
+
+    local kill = self:RunHooksForWidget("OnTimerStart", self.statusBar, self)
+    if (kill) then
+        return
+    end
 end
 
 

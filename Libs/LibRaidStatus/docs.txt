@@ -9,7 +9,21 @@ playerGearInfo = {
     .noEnchants = {socketId}
 }
 
+local playerInformation = raidStatusLib.playerInfoManager.GetPlayerInfoTable(playerName)
+playerInformation = {
+    .specId = number
+    .renown = number, 
+    .talents = {talentId}, 
+    .conduits = {spellId},
+}
 
+local playerCooldows = raidStatusLib.cooldownManager.GetPlayerCooldownTable(playerName)
+playerCooldows = {
+    [cooldownSpellId] = {
+        .timeLeft, 
+        .charges
+    }
+}
 
 Callbacks available
 
