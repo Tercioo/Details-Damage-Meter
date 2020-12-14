@@ -153,7 +153,6 @@ LIB_RAID_STATUS_COOLDOWNS_BY_SPEC = {
 			[265202] = 4, --Holy Word: Salvation (talent)
 			[88625] = 5, --Holy Word: Chastise
 			[34861] = 5, --Holy Word: Sanctify
-			[2050] = 5, --Holy Word: Serenity
 			[19236] = 5, --Desperate Prayer
 			[8122] = 5, --Psychic Scream
 		},

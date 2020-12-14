@@ -3009,7 +3009,7 @@ end
 function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
 	
 	if (not forceAlert and _detalhes.streamer_config.no_alerts) then
-		return
+		--return
 	end
 	
 	if (not self.meu_id) then

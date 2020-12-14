@@ -834,7 +834,7 @@ local default_profile = {
 				0, -- [3]
 			},
 		},
-
+		
 	--> ocd tracker test
 		ocd_tracker = {
 			enabled = false,
@@ -843,7 +843,8 @@ local default_profile = {
 			show_conditions = {
 				only_in_group = true,
 				only_inside_instance = true,
-			}
+			},
+			show_options = false,
 		},
 
 	--> minimap
