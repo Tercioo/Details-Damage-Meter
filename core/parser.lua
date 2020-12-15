@@ -263,6 +263,7 @@
 	--> druid kyrian bound damage, heal
 	local SPELLID_KYRIAN_DRUID_DAMAGE = 338411
 	local SPELLID_KYRIAN_DRUID_HEAL = 327149
+	local SPELLID_KYRIAN_DRUID_TANK = 327037
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -901,7 +902,7 @@
 			end
 		end
 		
-		if (is_friendly_fire) then
+		if (is_friendly_fire and spellid ~= SPELLID_KYRIAN_DRUID_TANK) then
 			if (este_jogador.grupo) then --> se tiver ele n�o adiciona o evento l� em cima
 				local t = last_events_cache [alvo_name]
 				
