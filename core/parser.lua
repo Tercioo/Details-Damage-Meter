@@ -260,8 +260,9 @@
 	local SPELLID_PALADIN_LIGHTMARTYR = 196917
 	--> druid kyrian bound spirits
 	local SPELLID_KYRIAN_DRUID = 326434
-	--> druid kyrian bound damage
+	--> druid kyrian bound damage, heal
 	local SPELLID_KYRIAN_DRUID_DAMAGE = 338411
+	local SPELLID_KYRIAN_DRUID_HEAL = 327149
 	
 	--> spells with special treatment
 	local special_damage_spells = {
@@ -1768,6 +1769,13 @@
 		
 		_current_heal_container.need_refresh = true
 	
+		if (spellid == SPELLID_KYRIAN_DRUID_HEAL) then
+			local ownerTable = druid_kyrian_bounds[who_name]
+			if (ownerTable) then
+				who_serial, who_name, who_flags = unpack(ownerTable)
+			end
+		end
+
 	------------------------------------------------------------------------------------------------
 	--> get actors
 
@@ -2053,6 +2061,8 @@ SPELL_AURA_REMOVED,Player-3209-065BAEDE,"Bullcéfalo-Azralon",0x512,0x0,Player-3
 
 SPELL_DAMAGE,Player-3209-065BAEDE,"Bullcéfalo-Azralon",0x512,0x0,Creature-0-4217-2222-22679-166718-000058B14F,"Manifestation of Envy",0x10a48,0x0,338411,"Kindred Empowerment",0x40,Creature-0-4217-2222-22679-166718-000058B14F,0000000000000000,4218,5895,0,0,651,0,0,2289,2289,0,-3290.46,5445.37,1525,4.1809,58,31,30,-1,64,0,0,0,nil,nil,nil
 SPELL_DAMAGE,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Creature-0-4217-2222-22679-166718-000058B14F,"Manifestation of Envy",0x10a48,0x0,338411,"Kindred Empowerment",0x40,Creature-0-4217-2222-22679-166718-000058B14F,0000000000000000,867,5895,0,0,651,0,0,2289,2289,0,-3289.84,5446.94,1525,4.3379,58,89,89,-1,64,0,0,0,nil,nil,nil
+
+SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAEDE,"Bullcéfalo-Azralon",0x10512,0x0,327149,"Kindred Focus",0x40,Player-3209-065BAEDE,0000000000000000,50058,50058,1575,448,1510,8832,1,1000,1000,0,-2640.65,5656.60,1525,3.3950,177,485,485,485,0,nil
 
 12/15 10:04:01.739  SPELL_AURA_REMOVED,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAEDE,"Bullcéfalo-Azralon",0x512,0x0,327139,"Kindred Empowerment",0x40,BUFF
 12/15 10:04:01.739  SPELL_AURA_REMOVED,Player-3209-065BAEDE,"Bullcéfalo-Azralon",0x512,0x0,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,327139,"Kindred Empowerment",0x40,BUFF
@@ -3351,7 +3361,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		--druid kyrian empower bounds (9.0 kyrian covenant - probably remove on 10.0)
-		if (spellid == SPELLID_KYRIAN_DRUID and alvo_name) then
+		if (spellid == SPELLID_KYRIAN_DRUID and alvo_name and who_serial and who_name and who_flags) then
 			druid_kyrian_bounds[alvo_name] = {who_serial, who_name, who_flags}
 		end
 
