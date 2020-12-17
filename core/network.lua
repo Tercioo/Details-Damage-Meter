@@ -446,7 +446,9 @@
 					--update the current combat with new information
 
 					--this is disabled due to lack of testing
-					--Details.packFunctions.DeployPackedCombatData(data)
+					if (_detalhes.debug) then
+						Details.packFunctions.DeployPackedCombatData(data)
+					end
 				end
 			end
 
