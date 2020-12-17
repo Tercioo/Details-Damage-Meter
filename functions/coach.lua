@@ -454,4 +454,3 @@ function Details.Coach.Client.SendMyDeath(_, _, _, _, _, _, playerGUID, _, _, de
         end
     end
 end
-Details:InstallHook("HOOK_DEATH", Details.Coach.Client.SendMyDeath)
