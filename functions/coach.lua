@@ -247,13 +247,30 @@ function Details.Coach.StartUp()
     eventListener:RegisterEvent("ZONE_TYPE_CHANGED", "OnZoneChanged")
 end
 
+C_Timer.After(0.1, function()
+    --Details.debug = true
+end)
+
 --received an answer from server telling if the raidleader has the coach feature enabled
 --the request is made when the player enters a new group or reconnects
 function Details.Coach.Client.CoachIsEnabled_Response(isCoachEnabled, raidLeaderName)
+    if (_detalhes.debug) then
+        Details:Msg("[|cFFAAFFAADetails! Coach|r] Raid Leader sent response about the status of Coach Mode:", isCoachEnabled, raidLeaderName)
+    end
+
     if (isCoachEnabled) then
         --raid leader confirmed the coach feature is enabled and running
         Details.Coach.Client.EnableCoach(raidLeaderName)
+        Details:Msg("[|cFFAAFFAADetails! Coach|r] current coach:", raidLeaderName)
     end
+end
+
+function Details.Coach.Server.CoachIsEnabled_Answer(sourcePlayer)
+    if (not UnitIsGroupLeader("player")) then
+        return
+    end
+    --send the answer
+    Details:SendCommMessage(_G.DETAILS_PREFIX_NETWORK, Details:Serialize(_G.DETAILS_PREFIX_COACH, sourcePlayer, GetRealmName(), Details.realversion, "CIER", Details.Coach.Server.IsEnabled()), "WHISPER", sourcePlayer)
 end
 
 function Details.Coach.Disable()
@@ -345,6 +362,8 @@ function Details.Coach.Client.EnableCoach(raidLeaderName)
     if (_detalhes.debug) then
         Details:Msg("[|cFFAAFFAADetails! Coach|r] there's a new coach: ", raidLeaderName)
     end
+
+    Details:Msg("[|cFFAAFFAADetails! Coach|r] current coach:", raidLeaderName)
 end
 
 --raid leader received a notification that a new combat has started
@@ -443,14 +462,161 @@ Details.Coach.EventFrame:SetScript("OnEvent", function(event, ...)
     end
 end)
 
-function Details.Coach.Client.SendMyDeath(_, _, _, _, _, _, playerGUID, _, _, deathTable)
+function Details.Coach.Client.SendMyDeath(_, _, _, _, _, _, playerGUID, _, playerFlag, deathTable)
     if (Details.Coach.Client.enabled) then
         if (Details.Coach.Client.coachName) then
             if (Details.in_combat) then
                 if (playerGUID == UnitGUID("player")) then
-                    Details.Coach.SendDeathToRL(deathTable)
+                    Details.Coach.SendDeathToRL({deathTable, playerGUID, playerFlag})
                 end
             end
         end
     end
+end
+
+function Details.Coach.Server.AddPlayerDeath(playerName, data)
+    local currentCombat = Details:GetCurrentCombat()
+    local utilityContainer = currentCombat[4]
+
+    local deathLog = data[1]
+    local playerGUID = data[2]
+    local playerFlag = data[3]
+
+    local utilityActorObject = utilityContainer:GetOrCreateActor(playerGUID, playerName, playerFlag, true)
+
+    if (utilityActorObject) then
+        tinsert(currentCombat.last_events_tables, deathLog)
+        --tag the misc container as need refresh
+        currentCombat[DETAILS_ATTRIBUTE_MISC].need_refresh = true
+    end
+end
+
+function Details.Coach.WelcomePanel()
+    local welcomePanel = _G.DETAILSCOACHPANEL
+    if (not welcomePanel) then
+		welcomePanel = DetailsFramework:CreateSimplePanel(UIParent)
+		welcomePanel:SetSize (400, 280)
+		welcomePanel:SetTitle ("Details! Coach")
+		welcomePanel:ClearAllPoints()
+		welcomePanel:SetPoint ("left", UIParent, "left", 10, 0)
+        welcomePanel:Hide()
+        DetailsFramework:ApplyStandardBackdrop(welcomePanel)
+		
+		local LibWindow = _G.LibStub("LibWindow-1.1")
+		welcomePanel:SetScript("OnMouseDown", nil)
+		welcomePanel:SetScript("OnMouseUp", nil)
+		LibWindow.RegisterConfig(welcomePanel, Details.coach.welcome_panel_pos)
+		LibWindow.MakeDraggable(welcomePanel)
+        LibWindow.RestorePosition(welcomePanel)
+        
+        local detailsLogo = DetailsFramework:CreateImage(welcomePanel, [[Interface\AddOns\Details\images\logotipo]])
+        detailsLogo:SetPoint("topleft", welcomePanel, "topleft", 5, -30)
+        detailsLogo:SetSize(200, 50)
+        detailsLogo:SetTexCoord(36/512, 380/512, 128/256, 227/256)
+
+        local isLeaderTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        isLeaderTexture:SetTexCoord(0, 0.5, 0, 0.5)
+        isLeaderTexture:SetPoint("topleft", detailsLogo, "topleft", 0, -60)
+        local isLeaderText = DetailsFramework:CreateLabel(welcomePanel, "In raid and You're the leader of the group.")
+        isLeaderText:SetPoint("left", isLeaderTexture, "right", 10, 0)
+
+        local isOutsideTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        isOutsideTexture:SetTexCoord(0, 0.5, 0, 0.5)
+        isOutsideTexture:SetPoint("topleft", isLeaderTexture, "bottomleft", 0, -5)
+        local isOutsideText = DetailsFramework:CreateLabel(welcomePanel, "You're outside of the instance.")
+        isOutsideText:SetPoint("left", isOutsideTexture, "right", 10, 0)
+
+        local hasAssistantsTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        hasAssistantsTexture:SetTexCoord(0, 0.5, 0, 0.5)
+        hasAssistantsTexture:SetPoint("topleft", isOutsideTexture, "bottomleft", 0, -5)
+        local hasAssistantsText = DetailsFramework:CreateLabel(welcomePanel, "There's an 'raid assistant' inside the raid.")
+        hasAssistantsText:SetPoint("left", hasAssistantsTexture, "right", 10, 0)
+
+        local beInGroupSevenTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        beInGroupSevenTexture:SetTexCoord(0, 0.5, 0, 0.5)
+        beInGroupSevenTexture:SetPoint("topleft", hasAssistantsTexture, "bottomleft", 0, -5)
+        local beInGroupSevenText = DetailsFramework:CreateLabel(welcomePanel, "Stay in group 7 or 8.")
+        beInGroupSevenText:SetPoint("left", beInGroupSevenTexture, "right", 10, 0)
+
+        local startCoachButton = DetailsFramework:CreateButton(welcomePanel, function() 
+            Details.coach.enabled = true
+            Details.Coach.Server.EnableCoach()
+            welcomePanel:Hide()
+            Details:Msg("welcome aboard commander!")
+
+        end, 80, 20, "Start Coaching!")
+        startCoachButton:SetPoint("bottomright", welcomePanel, "bottomright", -10, 10)
+        startCoachButton:SetTemplate(DetailsFramework:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+
+        function welcomePanel.Update()
+            local good = 0
+
+            if (IsInRaid() and UnitIsGroupLeader("player")) then
+                isLeaderTexture:SetTexture([[Interface\COMMON\Indicator-Green]])
+                isLeaderTexture:SetTexCoord(0, 1, 0, 1)
+                good = good + 1
+            else
+                isLeaderTexture:SetTexture([[Interface\GLUES\LOADINGSCREENS\DynamicElements]])
+                isLeaderTexture:SetTexCoord(0, 0.5, 0, 0.5)
+            end
+
+            if (not IsInInstance()) then
+                isOutsideTexture:SetTexture([[Interface\COMMON\Indicator-Green]])
+                isOutsideTexture:SetTexCoord(0, 1, 0, 1)
+                good = good + 1
+            else
+                isOutsideTexture:SetTexture([[Interface\GLUES\LOADINGSCREENS\DynamicElements]])
+                isOutsideTexture:SetTexCoord(0, 0.5, 0, 0.5)
+            end
+
+            local hasAssistant = false
+            for i = 1, GetNumGroupMembers() do
+                if (UnitIsGroupAssistant("raid" .. i) and UnitName("raid" .. i) ~= UnitName("player")) then
+                    hasAssistant = true
+                    break
+                end
+            end
+
+            if (hasAssistant) then
+                hasAssistantsTexture:SetTexture([[Interface\COMMON\Indicator-Green]])
+                hasAssistantsTexture:SetTexCoord(0, 1, 0, 1)
+                good = good + 1
+            else
+                hasAssistantsTexture:SetTexture([[Interface\GLUES\LOADINGSCREENS\DynamicElements]])
+                hasAssistantsTexture:SetTexCoord(0, 0.5, 0, 0.5)
+            end
+
+            local isInCorrectGroup = false
+            for i = 1, GetNumGroupMembers() do
+                local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i)
+                if (rank == 2) then
+                    if (subgroup == 7 or subgroup == 8) then
+                        isInCorrectGroup = true
+                        break
+                    end
+                end
+            end
+
+            if (isInCorrectGroup) then
+                beInGroupSevenTexture:SetTexture([[Interface\COMMON\Indicator-Green]])
+                beInGroupSevenTexture:SetTexCoord(0, 1, 0, 1)
+                good = good + 1
+            else
+                beInGroupSevenTexture:SetTexture([[Interface\GLUES\LOADINGSCREENS\DynamicElements]])
+                beInGroupSevenTexture:SetTexCoord(0, 0.5, 0, 0.5)
+            end
+
+            if (good == 4) then
+                startCoachButton:Enable()
+            else
+                startCoachButton:Disable()
+            end
+        end
+    end
+
+    welcomePanel:SetScript("OnUpdate", function()
+        welcomePanel:Update()
+    end)
+
+    welcomePanel:Show()
 end
