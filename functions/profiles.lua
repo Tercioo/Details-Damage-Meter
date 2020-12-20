@@ -1112,7 +1112,8 @@ _detalhes.default_profile = default_profile
 local default_player_data = {
 		coach = {
 			enabled = false,
-			welcome_panel_pos = {}
+			welcome_panel_pos = {},
+			last_coach_name = false,
 		},
 
 	--> force all fonts to have this outline

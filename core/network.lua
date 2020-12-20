@@ -405,13 +405,6 @@
 			return
 		end
 
-		if (core_version ~= _detalhes.realversion) then
-			if (core_version > _detalhes.realversion) then
-				Details:Msg ("your Details! is out dated and cannot use Coach feature.")
-			end
-			return false
-		end
-
 		if (msgType == "CIEA") then --Is Coach Enabled Ask (regular player asked to raid leader)
 			Details.Coach.Server.CoachIsEnabled_Answer(sourcePlayer)
 
@@ -435,18 +428,14 @@
 			Details.Coach.Client.CoachEnd()
 
 		elseif (msgType == "CDT") then --Coach Data (a player in the raid sent to raid leader combat data)
-			if (UnitIsGroupLeader("player")) then
-				if (Details.Coach.Server.IsEnabled()) then
-					--update the current combat with new information
-					Details.packFunctions.DeployPackedCombatData(data)
-				end
+			if (Details.Coach.Server.IsEnabled()) then
+				--update the current combat with new information
+				Details.packFunctions.DeployPackedCombatData(data)
 			end
 
 		elseif (msgType == "CDD") then --Coach Death (a player in the raid sent to raid leader his death log)
-			if (UnitIsGroupLeader("player")) then
-				if (Details.Coach.Server.IsEnabled()) then
-					Details.Coach.Server.AddPlayerDeath(sourcePlayer, data)
-				end
+			if (Details.Coach.Server.IsEnabled()) then
+				Details.Coach.Server.AddPlayerDeath(sourcePlayer, data)
 			end
 		end
 	end

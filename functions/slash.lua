@@ -1495,10 +1495,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 
 	elseif (msg == "coach") then
-		if (not UnitIsGroupLeader("player")) then
-			Details:Msg("you aren't the raid leader.")
-			return
-		end
+		--if (not UnitIsGroupLeader("player")) then
+		--	Details:Msg("you aren't the raid leader.")
+		--	return
+		--end
 
 		if (not Details.coach.enabled) then
 			Details.Coach.WelcomePanel()

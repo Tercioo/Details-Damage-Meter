@@ -461,7 +461,9 @@ function Details.packFunctions.PackDamage(combatObject)
     local allPlayerNames = {}
     for i = 1, 20 do
         local unitName = UnitName("raid" .. i)
-        if (unitName and not UnitIsGroupLeader("raid" .. i)) then
+        local _, _, subgroup = GetRaidRosterInfo(i)
+
+        if (unitName and subgroup <= 4) then
             allPlayerNames[#allPlayerNames+1] = unitName
         end
     end
