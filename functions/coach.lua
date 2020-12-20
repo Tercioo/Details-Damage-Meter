@@ -501,44 +501,52 @@ function Details.Coach.WelcomePanel()
 		welcomePanel:SetPoint ("left", UIParent, "left", 10, 0)
         welcomePanel:Hide()
         DetailsFramework:ApplyStandardBackdrop(welcomePanel)
-		
+
 		local LibWindow = _G.LibStub("LibWindow-1.1")
 		welcomePanel:SetScript("OnMouseDown", nil)
 		welcomePanel:SetScript("OnMouseUp", nil)
 		LibWindow.RegisterConfig(welcomePanel, Details.coach.welcome_panel_pos)
 		LibWindow.MakeDraggable(welcomePanel)
         LibWindow.RestorePosition(welcomePanel)
-        
+
+        local imageSize = 26
+
         local detailsLogo = DetailsFramework:CreateImage(welcomePanel, [[Interface\AddOns\Details\images\logotipo]])
         detailsLogo:SetPoint("topleft", welcomePanel, "topleft", 5, -30)
         detailsLogo:SetSize(200, 50)
         detailsLogo:SetTexCoord(36/512, 380/512, 128/256, 227/256)
 
-        local isLeaderTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        local isLeaderTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], imageSize, imageSize)
         isLeaderTexture:SetTexCoord(0, 0.5, 0, 0.5)
         isLeaderTexture:SetPoint("topleft", detailsLogo, "topleft", 0, -60)
         local isLeaderText = DetailsFramework:CreateLabel(welcomePanel, "In raid and You're the leader of the group.")
         isLeaderText:SetPoint("left", isLeaderTexture, "right", 10, 0)
 
-        local isOutsideTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        local isOutsideTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], imageSize, imageSize)
         isOutsideTexture:SetTexCoord(0, 0.5, 0, 0.5)
         isOutsideTexture:SetPoint("topleft", isLeaderTexture, "bottomleft", 0, -5)
         local isOutsideText = DetailsFramework:CreateLabel(welcomePanel, "You're outside of the instance.")
         isOutsideText:SetPoint("left", isOutsideTexture, "right", 10, 0)
 
-        local hasAssistantsTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        local hasAssistantsTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], imageSize, imageSize)
         hasAssistantsTexture:SetTexCoord(0, 0.5, 0, 0.5)
         hasAssistantsTexture:SetPoint("topleft", isOutsideTexture, "bottomleft", 0, -5)
         local hasAssistantsText = DetailsFramework:CreateLabel(welcomePanel, "There's an 'raid assistant' inside the raid.")
         hasAssistantsText:SetPoint("left", hasAssistantsTexture, "right", 10, 0)
 
-        local beInGroupSevenTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], 32, 32)
+        local beInGroupSevenTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], imageSize, imageSize)
         beInGroupSevenTexture:SetTexCoord(0, 0.5, 0, 0.5)
         beInGroupSevenTexture:SetPoint("topleft", hasAssistantsTexture, "bottomleft", 0, -5)
         local beInGroupSevenText = DetailsFramework:CreateLabel(welcomePanel, "Stay in group 7 or 8.")
         beInGroupSevenText:SetPoint("left", beInGroupSevenTexture, "right", 10, 0)
 
-        local startCoachButton = DetailsFramework:CreateButton(welcomePanel, function() 
+        local allUpdatedTexture = DetailsFramework:CreateImage(welcomePanel, [[Interface\GLUES\LOADINGSCREENS\DynamicElements]], imageSize, imageSize)
+        allUpdatedTexture:SetTexCoord(0, 0.5, 0, 0.5)
+        allUpdatedTexture:SetPoint("topleft", beInGroupSevenTexture, "bottomleft", 0, -5)
+        local allUpdatedText = DetailsFramework:CreateLabel(welcomePanel, "Users with updated Details!.")
+        allUpdatedText:SetPoint("left", allUpdatedTexture, "right", 10, 0)
+
+        local startCoachButton = DetailsFramework:CreateButton(welcomePanel, function()
             Details.coach.enabled = true
             Details.Coach.Server.EnableCoach()
             welcomePanel:Hide()
@@ -606,7 +614,43 @@ function Details.Coach.WelcomePanel()
                 beInGroupSevenTexture:SetTexCoord(0, 0.5, 0, 0.5)
             end
 
-            if (good == 4) then
+            local allUsersUpdated = false
+
+            local numRaidMembers = GetNumGroupMembers()
+            local updatedUsers = 0
+            local usersChecked = {}
+
+            for i = 1, #Details.users do
+                local thisUser = Details.users[i]
+                local userName = thisUser[1]
+
+                if (not usersChecked[userName]) then
+                    local version = thisUser[3]
+                    local buildCounter = version:match("%w%d%.%d%.%d%.(%d+)")
+                    buildCounter = tonumber(buildCounter)
+
+                    if (buildCounter and buildCounter >= Details.build_counter) then
+                        updatedUsers = updatedUsers + 1
+                    end
+
+                    usersChecked[userName] = true
+                end
+            end
+
+            if (updatedUsers >= numRaidMembers) then
+                allUsersUpdated = true
+            end
+
+            if (allUsersUpdated) then
+                allUpdatedTexture:SetTexture([[Interface\COMMON\Indicator-Green]])
+                allUpdatedTexture:SetTexCoord(0, 1, 0, 1)
+                good = good + 1
+            else
+                allUpdatedTexture:SetTexture([[Interface\GLUES\LOADINGSCREENS\DynamicElements]])
+                allUpdatedTexture:SetTexCoord(0, 0.5, 0, 0.5)
+            end
+
+            if (good == 5) then
                 startCoachButton:Enable()
             else
                 startCoachButton:Disable()
@@ -614,8 +658,24 @@ function Details.Coach.WelcomePanel()
         end
     end
 
-    welcomePanel:SetScript("OnUpdate", function()
-        welcomePanel:Update()
+    Details.SendHighFive()
+
+    local nextHighFive = 10
+    local nextUpdate = 1
+
+    welcomePanel:SetScript("OnUpdate", function(self, deltaTime)
+        nextHighFive = nextHighFive - deltaTime
+        nextUpdate = nextUpdate - deltaTime
+
+        if (nextHighFive < 0) then
+            Details.SendHighFive()
+            nextHighFive = 10
+        end
+
+        if (nextUpdate < 0) then
+            welcomePanel:Update()
+            nextUpdate = 1
+        end
     end)
 
     welcomePanel:Show()

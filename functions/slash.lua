@@ -865,9 +865,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:ApplyProfile (profile, false)
 	
 	elseif (msg == "users" or msg == "version" or msg == "versioncheck") then
-		_detalhes.users = {{UnitName("player"), GetRealmName(), (_detalhes.userversion or "") .. " (" .. _detalhes.APIVersion .. ")"}}
-		_detalhes.sent_highfive = GetTime()
-		_detalhes:SendRaidData (_detalhes.network.ids.HIGHFIVE_REQUEST)
+		Details.SendHighFive()
 
 		print (Loc ["STRING_DETAILS1"] .. "highfive sent, HI!")
 	

@@ -4,8 +4,8 @@
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		
-		_detalhes.build_counter = 8093
-		_detalhes.alpha_build_counter = 8093 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 8096
+		_detalhes.alpha_build_counter = 8096 --if this is higher than the regular counter, use it instead
 		_detalhes.game_version = "v9.0.2"
 		_detalhes.userversion = "v9.0.2." .. _detalhes.build_counter
 		_detalhes.realversion = 144 --core version, this is used to check API version for scripts and plugins (see alias below)
@@ -13,7 +13,7 @@
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 		
 		_detalhes.BFACORE = 131 --core version on BFA launch
-		_detalhes.SHADOWLANDSCORE = 143 --core version on BFA launch
+		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 		
 		Details = _detalhes
 		
@@ -628,6 +628,13 @@ do
 		}
 	
 		_detalhes.missTypes = {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"} --> do not localize-me
+
+
+	function Details.SendHighFive()
+		Details.users = {{UnitName("player"), GetRealmName(), (Details.userversion or "") .. " (" .. Details.APIVersion .. ")"}}
+		Details.sent_highfive = GetTime()
+		Details:SendRaidData (Details.network.ids.HIGHFIVE_REQUEST)
+	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> frames
