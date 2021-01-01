@@ -504,6 +504,7 @@ do
 			[250872] = true, --Coastal Rejuvenation Potion
 			[6262] = true, --Warlock's Healthstone
 			[301308] = true, --Abyssal  Healing Potion
+			[323436] = true --Phial of Serenity from Kyrians
 		}
 		--[[global]] DETAILS_HEALTH_POTION_ID = 250870
 		--[[global]] DETAILS_REJU_POTION_ID = 250872
