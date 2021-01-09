@@ -1156,7 +1156,7 @@ function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags,
 
 	for i = 1, #death_table do
 		local ev = death_table [i]
-		if (ev[1] and type (ev[1]) == "boolean") then
+		if (ev and ev[1] and type (ev[1]) == "boolean") then
 			--> it's a damage
 			local spellid = ev[2]
 			local amount = ev[3]
