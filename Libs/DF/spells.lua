@@ -787,6 +787,14 @@ DF.CrowdControlSpells = {
 	
 	[118905] = "SHAMAN", --Static Charge (Capacitor Totem)
 	[51514] = "SHAMAN", --Hex
+	[210873] = "SHAMAN", --Hex (Compy)
+	[211004] = "SHAMAN", --Hex (Spider)
+	[211010] = "SHAMAN", --Hex (Snake)
+	[211015] = "SHAMAN", --Hex (Cockroach)
+	[269352] = "SHAMAN", --Hex (Skeletal Hatchling)
+	[277778] = "SHAMAN", --Hex (Zandalari Tendonripper)
+	[277784] = "SHAMAN", --Hex (Wicker Mongrel)
+	[309328] = "SHAMAN", --Hex (Living Honey)
 	[64695] = "SHAMAN", --Earthgrab (talent)
 	[197214] = "SHAMAN", --Sundering (talent)
 	
