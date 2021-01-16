@@ -243,6 +243,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 	
 	info:ShowTabs()
 	gump:Fade (info, 0)
+	Details:UpdateBreakdownPlayerList()
 	
 	--check which tab was selected and reopen that tab
 	if (info.selectedTab == "Summary") then

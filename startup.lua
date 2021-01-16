@@ -500,6 +500,8 @@ function Details:StartMeUp() --I'll never stop!
 		Details:Msg("use '/details me' macro to open the player breakdown for you!")
 	end
 
+	Details.cached_specs[UnitGUID("player")] = GetSpecializationInfo(GetSpecialization() or 0)
+
 	function Details:InstallOkey()
 		return true
 	end

@@ -974,8 +974,6 @@ DF.PotionIDs = {
 --	[] = true, --
 
 	[307165] = true, --Spiritual Anti-Venom
-
-
 }
 
 DF.FeastIDs = {
