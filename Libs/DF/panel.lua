@@ -6092,7 +6092,7 @@ function DF:PassLoadFilters (loadTable, encounterID)
 			local specIndex = DetailsFramework.GetSpecialization()
 			if (specIndex) then
 				local specID = DetailsFramework.GetSpecializationInfo (specIndex)
-				if (not loadTable.spec [specID] or loadTable.spec [specID..""]) then
+				if not specID or (not loadTable.spec [specID] and not loadTable.spec [specID..""]) then
 					return false
 				end
 			else
@@ -6114,7 +6114,7 @@ function DF:PassLoadFilters (loadTable, encounterID)
 		local talentsInUse = DF:GetCharacterTalents (false, true)
 		local hasTalent
 		for talentID, _ in pairs (talentsInUse) do
-			if (loadTable.talent [talentID]) then
+			if talentID and (loadTable.talent [talentID] or loadTable.talent [talentID .. ""]) then
 				hasTalent =  true
 				break
 			end
@@ -6129,7 +6129,7 @@ function DF:PassLoadFilters (loadTable, encounterID)
 		local talentsInUse = DF:GetCharacterPvPTalents (false, true)
 		local hasTalent
 		for talentID, _ in pairs (talentsInUse) do
-			if (loadTable.pvptalent [talentID]) then
+			if talentID and (loadTable.pvptalent [talentID] or loadTable.pvptalent [talentID .. ""]) then
 				hasTalent =  true
 				break
 			end
@@ -6171,7 +6171,7 @@ function DF:PassLoadFilters (loadTable, encounterID)
 		local level, affixes, wasEnergized = C_ChallengeMode.GetActiveKeystoneInfo()
 		local hasAffix = false
 		for _, affixID in ipairs (affixes) do
-			if (loadTable.affix [affixID]) then
+			if affixID and (loadTable.affix [affixID] or loadTable.affix [affixID .. ""]) then
 				hasAffix = true
 				break
 			end
@@ -6285,7 +6285,10 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 			f.OnRadioCheckboxClick = function (self, key, value)
 				--hierarchy: DBKey ["class"] key ["HUNTER"] value TRUE
 				local DBKey = self:GetParent().DBKey
-				f.OptionsTable [DBKey] [key] = value and true or nil
+				f.OptionsTable [DBKey] [key and key .. ""] = value and true or nil
+				if not value then -- cleanup "number" type values
+					f.OptionsTable [DBKey] [key] = nil
+				end
 				f.OnRadioStateChanged (self:GetParent(), f.OptionsTable [DBKey])
 				f.RunCallback()
 			end
@@ -6347,7 +6350,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 					name = talentTable.Name, 
 					set = f.OnRadioCheckboxClick,
 					param = talentTable.ID,
-					get = function() return f.OptionsTable.talent [talentTable.ID] end,
+					get = function() return f.OptionsTable.talent [talentTable.ID] or f.OptionsTable.talent [talentTable.ID .. ""] end,
 					texture = talentTable.Texture,
 				})
 			end
@@ -6445,7 +6448,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 					name = talentTable.Name, 
 					set = f.OnRadioCheckboxClick,
 					param = talentTable.ID,
-					get = function() return f.OptionsTable.pvptalent [talentTable.ID] end,
+					get = function() return f.OptionsTable.pvptalent [talentTable.ID] or f.OptionsTable.pvptalent [talentTable.ID .. ""] end,
 					texture = talentTable.Texture,
 				})
 			end
@@ -6543,7 +6546,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 					name = groupTable.Name, 
 					set = f.OnRadioCheckboxClick,
 					param = groupTable.ID,
-					get = function() return f.OptionsTable.group [groupTable.ID] end,
+					get = function() return f.OptionsTable.group [groupTable.ID] or f.OptionsTable.group [groupTable.ID .. ""] end,
 				})
 			end
 			local groupTypesGroup = DF:CreateRadionGroup (f, groupTypes, name, {width = 200, height = 200, title = "Group Types"})
@@ -6558,7 +6561,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 					name = roleTable.Texture .. " " .. roleTable.Name, 
 					set = f.OnRadioCheckboxClick,
 					param = roleTable.ID,
-					get = function() return f.OptionsTable.role [roleTable.ID] end,
+					get = function() return f.OptionsTable.role [roleTable.ID] or f.OptionsTable.role [roleTable.ID .. ""] end,
 				})
 			end
 			local roleTypesGroup = DF:CreateRadionGroup (f, roleTypes, name, {width = 200, height = 200, title = "Role Types"})
@@ -6575,7 +6578,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 						name = affixName, 
 						set = f.OnRadioCheckboxClick,
 						param = i, 
-						get = function() return f.OptionsTable.affix [i] end,
+						get = function() return f.OptionsTable.affix [i] or f.OptionsTable.affix [i .. ""] end,
 						texture = texture,
 					})
 				end
@@ -6643,7 +6646,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 						name = talentTable.Name, 
 						set = DetailsFrameworkLoadConditionsPanel.OnRadioCheckboxClick,
 						param = talentTable.ID,
-						get = function() return DetailsFrameworkLoadConditionsPanel.OptionsTable.talent [talentTable.ID] end,
+						get = function() return DetailsFrameworkLoadConditionsPanel.OptionsTable.talent [talentTable.ID] or DetailsFrameworkLoadConditionsPanel.OptionsTable.talent [talentTable.ID .. ""] end,
 						texture = talentTable.Texture,
 					})
 				end
@@ -6657,7 +6660,7 @@ function DF:OpenLoadConditionsPanel (optionsTable, callback, frameOptions)
 						name = talentTable.Name, 
 						set = DetailsFrameworkLoadConditionsPanel.OnRadioCheckboxClick,
 						param = talentTable.ID,
-						get = function() return DetailsFrameworkLoadConditionsPanel.OptionsTable.pvptalent [talentTable.ID] end,
+						get = function() return DetailsFrameworkLoadConditionsPanel.OptionsTable.pvptalent [talentTable.ID] or DetailsFrameworkLoadConditionsPanel.OptionsTable.pvptalent [talentTable.ID .. ""] end,
 						texture = talentTable.Texture,
 					})
 				end

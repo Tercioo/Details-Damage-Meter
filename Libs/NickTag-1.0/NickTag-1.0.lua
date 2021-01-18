@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 12
+local major, minor = "NickTag-1.0", 13
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -452,8 +452,26 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --> basic functions
 
+	local cyrillic = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЁЂЃЄЅІЇЈЉЊЋЌЎЏҐабвгдежзийклмнопрстуфхцчшщъыьэюяёђѓєѕіїјљњћќўџґАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя"
+	local latin = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	local chinese = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟﾡﾢﾣﾤﾥﾦﾧﾨﾩﾪﾫﾬﾭﾮﾯﾰﾱﾲﾳﾴﾵﾶﾷﾸﾹﾺﾻﾼﾽﾾￂￃￄￅￆￇￊￋￌￍￎￏￒￓￔￕￖￗￚￛￜ"
+
+	local alphabet = {
+		cyrillic,
+		latin,
+		chinese,
+	}
+
+	local allowedLetters = {}
+
+	for _, thisAlphabet in ipairs(alphabet) do
+		for letter in thisAlphabet:gmatch(".") do
+			allowedLetters[letter] = true
+		end
+	end
+
 	--> trim from from http://lua-users.org/wiki/StringTrim
-	function trim (s)
+	local function trim (s)
 		local from = s:match"^%s*()"
 		return from > #s and "" or s:match(".*%S", from)
 	end
@@ -474,11 +492,9 @@ end
 		end
 	end
 
-	
 	--> we need to keep game smooth checking and formating nicknames.
 	--> SetNickname and names comming from other player need to be check.
 	function NickTag:CheckName (name)
-		
 		--> as nicktag only work internally in the guild, we think that is not necessary a work filter to avoid people using bad language.
 		
 		if (type (name) ~= "string") then
@@ -486,19 +502,27 @@ end
 		end
 		
 		name = trim (name)
-		
 		--> limit nickname to 12 characters, same as wow.
+		--cyrillic seems to double the len using 2 bytes
 		local len = string.len (name)
 		if (len > 12) then
 			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_1"] --> error 1 = nickname is too long, max of 12 characters.
 		end
-		
+
 		--> check if contain any non allowed characters, by now only accpet letters, numbers and spaces.
 		--> by default wow do not accetp spaces, but here will allow.
 		--> tested over lua 5.2 and this capture was okey with accents, not sure why inside wow this doesn't work.
-		local notallow = string.find (name, "[^a-zA-Z�������%s]")
-		if (notallow) then
-			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --> error 2 = nickname only support letters, numbers and spaces.
+		
+--		local notallow = string.find (name, "[^a-zA-Z�������%s]")
+--		if (notallow) then
+--			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --> error 2 = nickname only support letters, numbers and spaces.
+--		end
+		
+		for letter in name:gmatch(".") do
+			print(letter, allowedLetters[letter])
+			if (not allowedLetters[letter]) then
+				return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --> error 2 = nickname only support letters, numbers and spaces.
+			end
 		end
 		
 		--> check if there is sequencial repeated characters, like "Jasooon" were repeats 3 times the "o" character.
