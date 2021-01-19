@@ -2,13 +2,15 @@
 
 --> Basic Functions:
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
--- 
+--
 
-local major, minor = "NickTag-1.0", 13
+-- 14: added support for chinese and russian
+
+local major, minor = "NickTag-1.0", 14
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
-if (not NickTag) then 
-	return 
+if (not NickTag) then
+	return
 end
 
 --> fix for old nicktag version
@@ -457,17 +459,19 @@ end
 	local chinese = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟﾡﾢﾣﾤﾥﾦﾧﾨﾩﾪﾫﾬﾭﾮﾯﾰﾱﾲﾳﾴﾵﾶﾷﾸﾹﾺﾻﾼﾽﾾￂￃￄￅￆￇￊￋￌￍￎￏￒￓￔￕￖￗￚￛￜ"
 
 	local alphabet = {
-		cyrillic,
-		latin,
-		chinese,
+		["cyrillic"] = {},
+		["latin"] = {},
+		["chinese"] = {},
 	}
 
-	local allowedLetters = {}
-
-	for _, thisAlphabet in ipairs(alphabet) do
-		for letter in thisAlphabet:gmatch(".") do
-			allowedLetters[letter] = true
-		end
+	for letter in cyrillic:gmatch(".") do
+		alphabet["cyrillic"][letter] = true
+	end
+	for letter in latin:gmatch(".") do
+		alphabet["latin"][letter] = true
+	end
+	for letter in chinese:gmatch(".") do
+		alphabet["chinese"][letter] = true
 	end
 
 	--> trim from from http://lua-users.org/wiki/StringTrim
@@ -482,7 +486,7 @@ end
 	--
 	local have_repeated = false
 	local count_spaces = 0
-	local check_repeated = function (char) 
+	local check_repeated = function (char)
 		if (char == "  ") then
 			have_repeated = true
 		elseif (string.len (char) > 2) then
@@ -496,16 +500,40 @@ end
 	--> SetNickname and names comming from other player need to be check.
 	function NickTag:CheckName (name)
 		--> as nicktag only work internally in the guild, we think that is not necessary a work filter to avoid people using bad language.
-		
+
 		if (type (name) ~= "string") then
 			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_4"] --> error 4 = name isn't a valid string
 		end
-		
+
 		name = trim (name)
+
+		--which alphabet to use
+		local alphabetToUse = "latin"
+		local firstLetter = name:match("^.")
+		local maxLength = 14
+
+		if (alphabet["cyrillic"][firstLetter]) then
+			--reserve cyrillic only to clients running ruRU
+			if (GetLocale() == "ruRU") then
+				alphabetToUse = "cyrillic"
+				maxLength = 28 --cyrillic uses two bytes
+			else
+				alphabetToUse = "latin"
+			end
+
+		elseif (alphabet["chinese"][firstLetter]) then
+			if (GetLocale() == "zhCN" or GetLocale() == "zhTW") then
+				alphabetToUse = "chinese"
+				maxLength = 56 --chinese uses 4 bytes
+			else
+				alphabetToUse = "latin"
+			end
+		end
+
 		--> limit nickname to 12 characters, same as wow.
 		--cyrillic seems to double the len using 2 bytes
 		local len = string.len (name)
-		if (len > 12) then
+		if (len > maxLength) then
 			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_1"] --> error 1 = nickname is too long, max of 12 characters.
 		end
 
@@ -518,19 +546,20 @@ end
 --			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --> error 2 = nickname only support letters, numbers and spaces.
 --		end
 		
+		--[=[
 		for letter in name:gmatch(".") do
-			print(letter, allowedLetters[letter])
 			if (not allowedLetters[letter]) then
 				return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --> error 2 = nickname only support letters, numbers and spaces.
 			end
 		end
+		--]=]
 		
 		--> check if there is sequencial repeated characters, like "Jasooon" were repeats 3 times the "o" character.
 		--> got this from http://stackoverflow.com/questions/15608299/lua-pattern-matching-repeating-character
 		have_repeated = false
 		count_spaces = 0
 		string.gsub (name, '.', '\0%0%0'):gsub ('(.)%z%1','%1'):gsub ('%z.([^%z]+)', check_repeated)
-		if (count_spaces > 2) then
+		if (count_spaces > 3) then
 			have_repeated = true
 		end
 		if (have_repeated) then
