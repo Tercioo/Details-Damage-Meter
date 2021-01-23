@@ -990,7 +990,7 @@ DF.FeastIDs = {
 }
 
 DF.RuneIDs = {
-
+	[347901] = true, --Veiled Augmentation
 }
 
 --	/dump UnitAura ("player", 1)

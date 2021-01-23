@@ -502,6 +502,15 @@ function Details:StartMeUp() --I'll never stop!
 
 	Details.cached_specs[UnitGUID("player")] = GetSpecializationInfo(GetSpecialization() or 0)
 
+	if (not Details.data_wipes_exp["9"]) then
+		wipe(Details.encounter_spell_pool or {})
+		wipe(Details.boss_mods_timers or {})
+		wipe(Details.spell_school_cache or {})
+		wipe(Details.spell_pool or {})
+		wipe(Details.npcid_pool or {})
+		Details.data_wipes_exp["9"] = true
+	end
+
 	function Details:InstallOkey()
 		return true
 	end

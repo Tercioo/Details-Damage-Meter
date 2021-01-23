@@ -28,6 +28,9 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+		--{"v9.0.2.8162.144", "January ??th, 2021"},
+		--"Added covenant into the Raid Check plugin.",
+
 		{"v9.0.2.8156.144", "January 21th, 2021"},
 		"Added more foods into the Ready Check plugin.",
 		"Fixed some issues with the coach fearure.",
