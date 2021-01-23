@@ -1354,6 +1354,9 @@ function raidStatusLib.playerInfoManager.GetPlayerFullInfo()
 
     playerInfo[1] = specId
 
+    --covenant
+    
+
     --renown
     local renown = C_CovenantSanctumUI.GetRenownLevel() or 1
     playerInfo[2] = renown
