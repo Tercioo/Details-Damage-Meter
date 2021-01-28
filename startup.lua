@@ -468,11 +468,6 @@ function Details:StartMeUp() --I'll never stop!
 	--force the group edit be always enabled when Details! starts
 	_detalhes.options_group_edit = true
 
-	--enforce to use the new animation code
-	if (_detalhes.streamer_config) then
-		_detalhes.streamer_config.use_animation_accel = true
-	end
-
 	--shutdown pre-pot announcer
 	Details.announce_prepots.enabled = false
 	--disable the min healing to show
