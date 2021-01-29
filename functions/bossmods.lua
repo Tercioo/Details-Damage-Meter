@@ -40,7 +40,7 @@ function Details:BossModsLink()
     if (_G.DBM) then
         local dbm_callback_phase = function (event, msg, ...)
 
-            print("D!", event, msg, ...)
+            --print("D!", event, msg, ...)
             local mod = Details.encounter_table.DBM_Mod
             
             if (not mod) then
@@ -64,12 +64,12 @@ function Details:BossModsLink()
                     msg = msg:gsub("%a", "")
                     msg = msg:gsub("%s+", "")
                     newPhase = tonumber(msg)
-                    print("New Phase: ", newPhase)
+                    --print("New Phase: ", newPhase)
 
                     local ID, msg2, someId, someNumber, aBool = ...
 
                     if (msg2 == "stagechange") then
-                        print("D! yeash", msg2)
+                        --print("D! yeash", msg2)
                     end
 
                     local phase = newPhase
@@ -105,7 +105,7 @@ function Details:BossModsLink()
     if (BigWigsLoader and not _G.DBM) then
 
         function Details:BigWigs_SetStage (event, module, phase)
-            print(" ===== BigWigs_SetStage ===== ", event, module, phase)
+            --print(" ===== BigWigs_SetStage ===== ", event, module, phase)
             phase = tonumber(phase)
 
             if (phase and type (phase) == "number" and Details.encounter_table.phase ~= phase) then
@@ -129,7 +129,7 @@ function Details:BossModsLink()
             if (key == "stages") then
 
                 local phase = module:GetStage()
-                print("BW new stage:", phase)
+                --print("BW new stage:", phase)
 
                 --local phase = text:gsub (".*%s", "")
                 --phase = tonumber (phase)
