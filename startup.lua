@@ -503,8 +503,12 @@ function Details:StartMeUp() --I'll never stop!
 		wipe(Details.spell_school_cache or {})
 		wipe(Details.spell_pool or {})
 		wipe(Details.npcid_pool or {})
+		wipe(Details.current_exp_raid_encounters or {})
 		Details.data_wipes_exp["9"] = true
 	end
+
+	Details.boss_mods_timers.encounter_timers_dbm = Details.boss_mods_timers.encounter_timers_dbm or {}
+	Details.boss_mods_timers.encounter_timers_bw = Details.boss_mods_timers.encounter_timers_bw or {}
 
 	function Details:InstallOkey()
 		return true
