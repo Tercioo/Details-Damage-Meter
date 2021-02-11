@@ -45,6 +45,7 @@
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
+	local arena_enemies = _detalhes.arena_enemies --details local
 
 	local cc_spell_list = DetailsFramework.CrowdControlSpells
 	
@@ -834,16 +835,19 @@
 			local i = t.n
 			
 			local this_event = t [i]
-			
-			if (not this_event) then
-				return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
-			end
-			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
 			this_event [3] = amount --> amount of damage or healing
 			this_event [4] = time --> parser time
-			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+
+			--> current unit heal
+			if (arena_enemies[alvo_name]) then
+				--this is an arena enemy, get the heal with the unit Id
+				this_event [5] = _UnitHealth(_detalhes.arena_enemies[alvo_name]) 
+			else
+				this_event [5] = _UnitHealth(alvo_name)
+			end
+
 			this_event [6] = who_name --> source name
 			this_event [7] = absorbed
 			this_event [8] = spelltype or school
@@ -3764,7 +3768,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--> build dead
 		--print("dead", alvo_flags, _bit_band (alvo_flags, 0x00000008) ~= 0, _current_encounter_id)
 		
-		if (_in_combat and alvo_flags and _bit_band (alvo_flags, 0x00000008) ~= 0) then -- and _in_combat --byte 1 = 8 (AFFILIATION_OUTSIDER)
+		local damageActor = _current_damage_container:GetActor(alvo_name)
+		--check for outsiders
+		if (_in_combat and alvo_flags and (not damageActor or (_bit_band (alvo_flags, 0x00000008) ~= 0 and not damageActor.grupo))) then
 			--> outsider death while in combat
 			
 				--rules for specific encounters
@@ -3829,7 +3835,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		elseif (not _UnitIsFeignDeath (alvo_name)) then
 			if (
 				--> player in your group
-				_bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 and 
+				(_bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 or (damageActor and damageActor.grupo)) and 
 				--> must be a player
 				_bit_band (alvo_flags, OBJECT_TYPE_PLAYER) ~= 0 and 
 				--> must be in combat
@@ -3841,14 +3847,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					return
 				end
 
-				if (alvo_name == _detalhes.playername) then
-					--print ("DEATH", GetTime())
-					
-					if (_detalhes.LatestCombatDone and _detalhes.LatestCombatDone+0.2 > GetTime()) then
-					--	print ("Eh Maior que 0.2")
-					end
-				end
-				
 				_current_misc_container.need_refresh = true
 				
 				--> combat totals

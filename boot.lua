@@ -208,6 +208,8 @@ do
 			_detalhes.encounter_table = {}
 			_detalhes.encounter_counter = {}
 			_detalhes.encounter_dungeons = {}
+		--> unitId dos inimigos dentro de uma arena
+			_detalhes.arena_enemies = {}
 		--> reliable char data sources
 		--> actors that are using details! and sent character data, we don't need query inspect on these actors
 			_detalhes.trusted_characters = {}
