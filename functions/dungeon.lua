@@ -322,7 +322,7 @@ function mythicDungeonCharts.ShowReadyPanel()
 		local on_switch_enable = function (self, _, value)
 			_detalhes.mythic_plus.show_damage_graphic = not value
 		end
-		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch (f, on_switch_enable, not _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch (f, on_switch_enable, not _detalhes.mythic_plus.show_damage_graphic, nil, nil, nil, nil, nil, nil, nil, nil, nil, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
 		notAgainSwitch:ClearAllPoints()
 		notAgainLabel:SetPoint ("left", notAgainSwitch, "right", 2, 0)
 		notAgainSwitch:SetPoint ("bottomleft", f, "bottomleft", 5, 5)
@@ -526,7 +526,7 @@ function mythicDungeonCharts.ShowChart()
 		local on_switch_enable = function (_, _, state)
 			_detalhes.mythic_plus.show_damage_graphic = state
 		end
-		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch (f, on_switch_enable, _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", Details.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch (f, on_switch_enable, _detalhes.mythic_plus.show_damage_graphic, nil, nil, nil, nil, nil, nil, nil, nil, nil, "Enabled", Details.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
 		enabledSwitch:SetAsCheckBox()
 		enabledSwitch.tooltip = "Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."
 		enabledLabel:SetPoint ("right", minimizeButton, "left", -22, 0)

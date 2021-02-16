@@ -54,7 +54,7 @@ function Details:OpenBrokerTextEditor()
             return AddOptions
         end
         
-        local d = DF:NewDropDown (panel, _, "$parentTextOptionsDropdown", "TextOptionsDropdown", 150, 20, buildAddMenu, 1)
+        local d = DF:NewDropDown (panel, nil, "$parentTextOptionsDropdown", "TextOptionsDropdown", 150, 20, buildAddMenu, 1)
         d:SetPoint ("topright", panel, "topright", -12, -25)
         d:SetTemplate(DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 

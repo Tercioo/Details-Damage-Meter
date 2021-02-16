@@ -267,7 +267,7 @@
 			if (not time or time == 0) then
 				return 0
 			else
-				return ToKFunctions [_detalhes.minimap.text_format] (_, combat.totals_grupo[1] / time)
+				return ToKFunctions [_detalhes.minimap.text_format] (nil, combat.totals_grupo[1] / time)
 			end
 		end,
 		-- raid hps [2]
@@ -277,7 +277,7 @@
 			if (not time or time == 0) then
 				return 0
 			else
-				return ToKFunctions [_detalhes.minimap.text_format] (_, combat.totals_grupo[2] / time)
+				return ToKFunctions [_detalhes.minimap.text_format] (nil, combat.totals_grupo[2] / time)
 			end
 		end
 	}
@@ -353,7 +353,7 @@
 				
 				if (second) then
 					local diff = first.total - second.total
-					return "+" .. ToKFunctions [_detalhes.minimap.text_format] (_, diff)
+					return "+" .. ToKFunctions [_detalhes.minimap.text_format] (nil, diff)
 				else
 					return "0"
 				end
@@ -362,9 +362,9 @@
 				if (player) then
 					player = damage_container._ActorTable [player]
 					local diff = first.total - player.total
-					return "-" .. ToKFunctions [_detalhes.minimap.text_format] (_, diff)
+					return "-" .. ToKFunctions [_detalhes.minimap.text_format] (nil, diff)
 				else
-					return ToKFunctions [_detalhes.minimap.text_format] (_, first.total)
+					return ToKFunctions [_detalhes.minimap.text_format] (nil, first.total)
 				end
 			end
 		else
@@ -399,7 +399,7 @@
 				
 				if (second) then
 					local diff = first.total - second.total
-					return "+" .. ToKFunctions [_detalhes.minimap.text_format] (_, diff)
+					return "+" .. ToKFunctions [_detalhes.minimap.text_format] (nil, diff)
 				else
 					return "0"
 				end
@@ -408,9 +408,9 @@
 				if (player) then
 					player = heal_container._ActorTable [player]
 					local diff = first.total - player.total
-					return "-" .. ToKFunctions [_detalhes.minimap.text_format] (_, diff)
+					return "-" .. ToKFunctions [_detalhes.minimap.text_format] (nil, diff)
 				else
-					return ToKFunctions [_detalhes.minimap.text_format] (_, first.total)
+					return ToKFunctions [_detalhes.minimap.text_format] (nil, first.total)
 				end
 			end
 		else
@@ -424,14 +424,14 @@
 			if (_detalhes.time_type == 1) then --activity time
 				local combat_time = damage_player:Tempo()
 				if (combat_time > 0) then
-					return ToKFunctions [_detalhes.minimap.text_format] (_, damage_player.total / combat_time)
+					return ToKFunctions [_detalhes.minimap.text_format] (nil, damage_player.total / combat_time)
 				else
 					return 0
 				end
 			else --effective time
 				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
 				if (combat_time > 0) then
-					return ToKFunctions [_detalhes.minimap.text_format] (_, damage_player.total / combat_time)
+					return ToKFunctions [_detalhes.minimap.text_format] (nil, damage_player.total / combat_time)
 				else
 					return 0
 				end
@@ -448,14 +448,14 @@
 			if (_detalhes.time_type == 1) then --activity time
 				local combat_time = heal_player:Tempo()
 				if (combat_time > 0) then
-					return ToKFunctions [_detalhes.minimap.text_format] (_, heal_player.total / combat_time)
+					return ToKFunctions [_detalhes.minimap.text_format] (nil, heal_player.total / combat_time)
 				else
 					return 0
 				end
 			else --effective time
 				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
 				if (combat_time > 0) then
-					return ToKFunctions [_detalhes.minimap.text_format] (_, heal_player.total / combat_time)
+					return ToKFunctions [_detalhes.minimap.text_format] (nil, heal_player.total / combat_time)
 				else
 					return 0
 				end
@@ -469,7 +469,7 @@
 	local get_raid_dps = function()
 		local damage_raid = _detalhes.tabela_vigente and _detalhes.tabela_vigente.totals [1]
 		if (damage_raid ) then
-			return ToKFunctions [_detalhes.minimap.text_format] (_, damage_raid / _detalhes.tabela_vigente:GetCombatTime())
+			return ToKFunctions [_detalhes.minimap.text_format] (nil, damage_raid / _detalhes.tabela_vigente:GetCombatTime())
 		else
 			return 0
 		end
@@ -478,7 +478,7 @@
 	local get_raid_hps = function()
 		local healing_raid = _detalhes.tabela_vigente and _detalhes.tabela_vigente.totals [2]
 		if (healing_raid ) then
-			return ToKFunctions [_detalhes.minimap.text_format] (_, healing_raid / _detalhes.tabela_vigente:GetCombatTime())
+			return ToKFunctions [_detalhes.minimap.text_format] (nil, healing_raid / _detalhes.tabela_vigente:GetCombatTime())
 		else
 			return 0
 		end
@@ -487,7 +487,7 @@
 	local get_player_damage = function()
 		local damage_player = _detalhes.tabela_vigente(1, _detalhes.playername)
 		if (damage_player) then
-			return ToKFunctions [_detalhes.minimap.text_format] (_, damage_player.total)
+			return ToKFunctions [_detalhes.minimap.text_format] (nil, damage_player.total)
 		else
 			return 0
 		end
@@ -496,7 +496,7 @@
 	local get_player_heal = function()
 		local heal_player = _detalhes.tabela_vigente (2, _detalhes.playername)
 		if (heal_player) then
-			return ToKFunctions [_detalhes.minimap.text_format] (_, heal_player.total)
+			return ToKFunctions [_detalhes.minimap.text_format] (nil, heal_player.total)
 		else
 			return 0
 		end

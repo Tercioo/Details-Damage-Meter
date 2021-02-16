@@ -1213,7 +1213,7 @@ end
 function DF:NewColorPickButton (parent, name, member, callback, alpha, button_template)
 
 	--button
-	local button = DF:NewButton (parent, _, name, member, color_button_width, color_button_height, pickcolor, alpha, "param2", nil, nil, nil, button_template)
+	local button = DF:NewButton (parent, nil, name, member, color_button_width, color_button_height, pickcolor, alpha, "param2", nil, nil, nil, button_template)
 	button.color_callback = callback
 	button.Cancel = colorpick_cancel
 	button.SetColor = set_colorpick_color

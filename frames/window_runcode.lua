@@ -119,7 +119,7 @@ function Details.OpenRunCodeWindow()
         end
         
         local code_type_label = DF:CreateLabel (f, "Event:", DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
-        local code_type_dropdown = DF:CreateDropDown (f, build_CodeType_dropdown_options, 1, 160, 20, "CodeTypeDropdown", _, DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+        local code_type_dropdown = DF:CreateDropDown (f, build_CodeType_dropdown_options, 1, 160, 20, "CodeTypeDropdown", nil, DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
         code_type_dropdown:SetPoint ("left", code_type_label, "right", 2, 0)
         code_type_dropdown:SetFrameLevel (code_editor:GetFrameLevel() + 10)
         code_type_label:SetPoint ("bottomleft", code_editor, "topleft", 0, 8)

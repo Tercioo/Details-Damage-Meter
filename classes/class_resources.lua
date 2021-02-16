@@ -216,7 +216,7 @@ function atributo_energy:AtualizarResources (whichRowLine, colocacao, instancia)
 	local combat_time = instancia.showing:GetCombatTime()
 	local rps = _math_floor (self.resource / combat_time)
 	
-	local formated_resource = SelectedToKFunction (_, self.resource)
+	local formated_resource = SelectedToKFunction (nil, self.resource)
 	local formated_rps = _cstr ("%.2f", self.resource / combat_time)
 	
 	local porcentagem
@@ -677,7 +677,7 @@ function atributo_energy:RefreshLine (instancia, barras_container, whichRowLine,
 
 	local esta_porcentagem = _math_floor ((esta_e_energy_total/instancia.top) * 100)
 
-	local formated_energy = SelectedToKFunction (_, esta_e_energy_total)
+	local formated_energy = SelectedToKFunction (nil, esta_e_energy_total)
 
 	if (not bars_show_data [1]) then
 		formated_energy = ""
@@ -925,7 +925,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 		end
 	
 		local nome_magia, _, icone_magia = _GetSpellInfo (spell [1])
-		GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_,  spell [2]).." (".._cstr("%.1f", (spell [2]/total_regenerado) * 100).."%)")
+		GameCooltip:AddLine (nome_magia, FormatTooltipNumber (nil,  spell [2]).." (".._cstr("%.1f", (spell [2]/total_regenerado) * 100).."%)")
 		GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipBackgroundStatusbar (false, spell [2] / energy_tooltips_table [1][2] * 100)
 	end
@@ -983,7 +983,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 			break
 		end
 	
-		GameCooltip:AddLine (source [1], FormatTooltipNumber (_,  source [2]).." (".._cstr("%.1f", (source [2] / total_regenerado) * 100).."%)")
+		GameCooltip:AddLine (source [1], FormatTooltipNumber (nil,  source [2]).." (".._cstr("%.1f", (source [2] / total_regenerado) * 100).."%)")
 		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		local classe = source [3]
@@ -1014,7 +1014,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	for i = 1, #allGeneratorSpells do
 		local thisGenerator = allGeneratorSpells [i]
 		local spellName, _, spellIcon = GetSpellInfo (thisGenerator[1].id)
-		GameCooltip:AddLine (spellName, FormatTooltipNumber (_,  thisGenerator[2]) .. " (|cFFFF5555overflow: " .. FormatTooltipNumber (_,  thisGenerator[3]) .. "|r | " .. _cstr ("%.1f", (thisGenerator[2] / allGenerated) * 100).."%)")
+		GameCooltip:AddLine (spellName, FormatTooltipNumber (nil,  thisGenerator[2]) .. " (|cFFFF5555overflow: " .. FormatTooltipNumber (nil,  thisGenerator[3]) .. "|r | " .. _cstr ("%.1f", (thisGenerator[2] / allGenerated) * 100).."%)")
 		GameCooltip:AddIcon (spellIcon, nil, nil, icon_size.W, icon_size.H, .1, .9, .1, .9)
 		_detalhes:AddTooltipBackgroundStatusbar()
 	end
@@ -1023,7 +1023,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	_detalhes:AddTooltipSpellHeaderText (self.nome .. " Auto Regen Overflow", headerColor, 1, [[Interface\CHARACTERFRAME\Disconnect-Icon]], 0.3, 0.7, 0.3, 0.7)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 	
-	GameCooltip:AddLine ("Auto Regen Overflow", FormatTooltipNumber (_,  self.passiveover) .. " ( " .. _cstr ("%.1f",  self.passiveover / (self.passiveover + self.total) * 100)  .. "%)")
+	GameCooltip:AddLine ("Auto Regen Overflow", FormatTooltipNumber (nil,  self.passiveover) .. " ( " .. _cstr ("%.1f",  self.passiveover / (self.passiveover + self.total) * 100)  .. "%)")
 	GameCooltip:AddIcon ([[Interface\COMMON\Indicator-Red]], nil, nil, icon_size.W, icon_size.H)
 	_detalhes:AddTooltipBackgroundStatusbar()
 	
@@ -1125,7 +1125,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 		local spellname, _, spellicon = _GetSpellInfo (tabela [1])
 		local percent = tabela [2] / total_regenerado * 100
 		
-		self:UpdadeInfoBar (barra, index, tabela[1], spellname, tabela[2], _detalhes:comma_value (tabela[2]), max_, percent, spellicon, true)
+		self:UpdadeInfoBar (barra, index, tabela[1], spellname, tabela[2], _detalhes:comma_value (tabela[2]), maxnil, percent, spellicon, true)
 
 		barra.minha_tabela = self
 		barra.show = tabela[1]

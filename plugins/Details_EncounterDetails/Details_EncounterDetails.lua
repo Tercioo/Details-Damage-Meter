@@ -856,7 +856,7 @@ local function EnemySkills (habilidade, barra)
 	for index, tabela in _ipairs (tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		
-		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), ToK (_, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
+		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), ToK (nil, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
 		local r, g, b, a = unpack (_detalhes.tooltip.background)
 		
 		local actorClass = Details:GetClass (tabela[1])
@@ -937,7 +937,7 @@ local function DamageTakenDetails (jogador, barra)
 			teve_melee = true
 		end
 		
-		GameCooltip:AddLine (nome_magia, ToK (_, meus_agressores[i][2]) .. " (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", 1, "white")
+		GameCooltip:AddLine (nome_magia, ToK (nil, meus_agressores[i][2]) .. " (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", 1, "white")
 		GameCooltip:AddStatusBar (meus_agressores[i][2] / topDamage * 100, 1, .55, .55, .55, .834, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		
 		GameCooltip:AddIcon (icone_magia, nil, 1, EncounterDetails.CooltipLineHeight - 0, EncounterDetails.CooltipLineHeight - 0, .1, .9, .1, .9)
@@ -1282,7 +1282,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			combat tables have 4 containers [1] damage [2] heal [3] energy [4] misc each container have 2 tables: ._NameIndexTable and ._ActorTable --]]
 		local DamageContainer = _combat_object [class_type_damage]
 		
-		local damage_taken = _detalhes.atributo_damage:RefreshWindow ({}, _combat_object, _, { key = "damage_taken", modo = _detalhes.modos.group })
+		local damage_taken = _detalhes.atributo_damage:RefreshWindow ({}, _combat_object, nil, { key = "damage_taken", modo = _detalhes.modos.group })
 		
 		local container = frame.overall_damagetaken.gump
 		
@@ -1312,7 +1312,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra.lineText1:SetText (jogador.nome)
 				end
 				
-				barra.lineText4:SetText (ToK (_, jogador.damage_taken))
+				barra.lineText4:SetText (ToK (nil, jogador.damage_taken))
 				
 				_detalhes:name_space (barra)
 				
@@ -1527,7 +1527,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local nome_magia, _, icone_magia = _GetSpellInfo (habilidade[4])
 
 				barra.lineText1:SetText (nome_magia) --  .. " (|cFFa0a0a0" .. habilidade[4] .. "|r)
-				barra.lineText4:SetText (ToK (_, habilidade[1]))
+				barra.lineText4:SetText (ToK (nil, habilidade[1]))
 				
 				_detalhes:name_space (barra)
 				
@@ -1844,7 +1844,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 		local misc = _combat_object [class_type_misc]
 		
-		local total_interrompido = _detalhes.atributo_misc:RefreshWindow ({}, _combat_object, _, { key = "interrupt", modo = _detalhes.modos.group })
+		local total_interrompido = _detalhes.atributo_misc:RefreshWindow ({}, _combat_object, nil, { key = "interrupt", modo = _detalhes.modos.group })
 		
 		local frame_interrupts = EncounterDetailsFrame.overall_interrupt
 		container = frame_interrupts.gump
@@ -1953,7 +1953,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	--> Inicio do Container dos Dispells:
 		
 		--> force refresh window behavior
-		local total_dispelado = _detalhes.atributo_misc:RefreshWindow ({}, _combat_object, _, { key = "dispell", modo = _detalhes.modos.group })
+		local total_dispelado = _detalhes.atributo_misc:RefreshWindow ({}, _combat_object, nil, { key = "dispell", modo = _detalhes.modos.group })
 		
 		local frame_dispell = EncounterDetailsFrame.overall_dispell
 		container = frame_dispell.gump

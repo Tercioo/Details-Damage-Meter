@@ -373,7 +373,7 @@ local function cria_drop_down (este_gump)
 		end
 		este_gump.dropdown_func = build_list
 	
-		local select_output = gump:NewDropDown (este_gump, _, "$parentOutputDropdown", "select", 185, 20, build_list, 1)
+		local select_output = gump:NewDropDown (este_gump, nil, "$parentOutputDropdown", "select", 185, 20, build_list, 1)
 		select_output:SetPoint ("topleft", este_gump, "topleft", 107, -55)
 		este_gump.select = select_output.widget
 		este_gump.dropdown = select_output
@@ -989,7 +989,7 @@ local function cria_drop_down (este_gump)
 			
 			local recently_on_click = function (self)
 				if (self.index) then
-					return _detalhes.ReportFromLatest (_, _, self.index)
+					return _detalhes.ReportFromLatest (nil, nil, self.index)
 				end 
 			end
 			

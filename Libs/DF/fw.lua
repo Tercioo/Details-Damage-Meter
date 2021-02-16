@@ -755,7 +755,7 @@ end
 			end
 		end
 		
-		if (_type (v1) == "string" and _type (v2) == "table") then --> :setpoint ("left", frame, _, _, _)
+		if (_type (v1) == "string" and _type (v2) == "table") then --> :setpoint ("left", frame, nil, nil, _)
 			if (not v3 or _type (v3) == "number") then --> :setpoint ("left", frame, 10, 10)
 				v1, v2, v3, v4, v5 = v1, v2, v1, v3, v4
 			end
@@ -3375,7 +3375,7 @@ function DF:QuickDispatch (func, ...)
 	
 	if (not okay) then
 		--> trigger an error msg
-		dispatch_error (_, errortext)
+		dispatch_error (nil, errortext)
 		return
 	end
 	
@@ -3384,7 +3384,7 @@ end
 
 function DF:Dispatch (func, ...)
 	if (type (func) ~= "function") then
-		return dispatch_error (_, "Dispatch required a function.")
+		return dispatch_error (nil, "Dispatch required a function.")
 	end
 
 	local okay, result1, result2, result3, result4 = xpcall (func, geterrorhandler(), ...)

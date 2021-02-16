@@ -87,7 +87,7 @@ function Details:ScrollDamage()
 						line.Icon:SetTexture(spellIcon)
 						line.Icon:SetTexCoord(.1, .9, .1, .9)
 						
-						line.DamageText.text = isCritical and "|cFFFFFF00" .. ToK (_, amount) or ToK (_, amount)
+						line.DamageText.text = isCritical and "|cFFFFFF00" .. ToK (nil, amount) or ToK (nil, amount)
 						line.TimeText.text = format("%.2f", time - DetailsScrollDamage.Data.Started)
 						--line.TokenText.text = token:gsub ("SPELL_", "")
 						--line.SchoolText.text = _detalhes:GetSpellSchoolFormatedName (school)
@@ -236,7 +236,7 @@ function Details:ScrollDamage()
 		local onToggleAutoOpen = function(_, _, state)
 			Details.damage_scroll_auto_open = state
 		end
-		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, _, _, _, _, "AutoOpenCheckbox", _, _, _, _, _, DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, nil, nil, nil, nil, "AutoOpenCheckbox", nil, nil, nil, nil, nil, DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		autoOpenCheckbox:SetAsCheckBox()
 		autoOpenCheckbox:SetPoint("left", statusBar, "left", 5, 0)
 

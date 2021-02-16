@@ -118,7 +118,7 @@
 							if (spell) then
 								local on_me = spell.targets [targetname]
 								if (on_me) then
-									GameCooltip:AddLine (healer.nome, FormatTooltipNumber (_, on_me))
+									GameCooltip:AddLine (healer.nome, FormatTooltipNumber (nil, on_me))
 								end
 							end
 						end
@@ -147,7 +147,7 @@
 						break
 					end
 					
-					GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
+					GameCooltip:AddLine (t[1], FormatTooltipNumber (nil, t[2]))
 					_detalhes:AddTooltipBackgroundStatusbar()
 					GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], 1, 1, 14, 14)
 				end
@@ -165,14 +165,14 @@
 					end
 					
 					if (roster [t[1]]) then
-						GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
+						GameCooltip:AddLine (t[1], FormatTooltipNumber (nil, t[2]))
 					end
 				end
 				
 			elseif (target == "[player]") then
 				local target_amount = actor.targets [_detalhes.playername]
 				if (target_amount) then
-					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, target_amount))
+					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (nil, target_amount))
 				end
 				
 			else
@@ -187,7 +187,7 @@
 					end
 					
 					local name, _, icon = _GetSpellInfo (t[1])
-					GameCooltip:AddLine (name, FormatTooltipNumber (_, t[2]))
+					GameCooltip:AddLine (name, FormatTooltipNumber (nil, t[2]))
 					GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				end
 			end

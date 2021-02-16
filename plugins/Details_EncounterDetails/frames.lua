@@ -1621,7 +1621,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		end
 		return t
 	end
-	local dropdown = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentEmotesSegmentDropdown", "EmotesSegment", 180, 20, build_emote_segments, 1)
+	local dropdown = DetailsFrameWork:NewDropDown (BossFrame, nil, "$parentEmotesSegmentDropdown", "EmotesSegment", 180, 20, build_emote_segments, 1)
 	dropdown:SetPoint ("topleft", emotes_segment_label, "bottomleft", -1, -2)
 	dropdown:SetTemplate (DetailsFrameWork:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 	
@@ -2332,8 +2332,8 @@ local ScrollRefresh = function (self, data, offset, total_lines)
 			
 			line.icon:SetTexture (texture)
 			line.icon:SetTexCoord (L, R, T, B)
-			line.name:SetText (index .. ". " .. removeRealm (_, player[1]))
-			line.done:SetText (formatToK (_, player[2]) .. " (" .. format ("%.1f", player[2] / topValue * 100) .. "%)")
+			line.name:SetText (index .. ". " .. removeRealm (nil, player[1]))
+			line.done:SetText (formatToK (nil, player[2]) .. " (" .. format ("%.1f", player[2] / topValue * 100) .. "%)")
 			line.statusbar:SetValue (player[2] / topValue * 100)
 			local actorClass = Details:GetClass (player[1])
 			if (actorClass) then
@@ -2623,7 +2623,7 @@ end
 		segmentos_string:SetPoint ("bottomleft", frame, "bottomleft", 20, 16)
 		
 		-- ~dropdown
-		local segmentos = DetailsFrameWork:NewDropDown (frame, _, "$parentSegmentsDropdown", "segmentosDropdown", 160, 20, buildSegmentosMenu, nil)	
+		local segmentos = DetailsFrameWork:NewDropDown (frame, nil, "$parentSegmentsDropdown", "segmentosDropdown", 160, 20, buildSegmentosMenu, nil)	
 		segmentos:SetPoint ("left", segmentos_string, "right", 2, 0)
 		segmentos:SetTemplate (DetailsFrameWork:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 		

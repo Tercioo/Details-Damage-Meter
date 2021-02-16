@@ -585,7 +585,7 @@ do
 	end
 	
 	--> limita��o: n�o tenho como pegar o base frame da inst�ncia por aqui
-	frame.close = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "", {rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}}, "DetailsSwitchPanelClose")
+	frame.close = gump:NewDetailsButton (frame, frame, nil, function() end, nil, nil, 1, 1, "", "", "", "", {rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}}, "DetailsSwitchPanelClose")
 	frame.close:SetPoint ("topleft", frame, "topleft")
 	frame.close:SetPoint ("bottomright", frame, "bottomright")
 	frame.close:SetFrameLevel (9)

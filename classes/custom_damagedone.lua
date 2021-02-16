@@ -124,7 +124,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 						if (spell) then
 							local on_me = spell.targets [targetname]
 							if (on_me) then
-								GameCooltip:AddLine (aggressor.nome, FormatTooltipNumber (_, on_me))
+								GameCooltip:AddLine (aggressor.nome, FormatTooltipNumber (nil, on_me))
 								_detalhes:AddTooltipBackgroundStatusbar()
 							end
 						end
@@ -154,7 +154,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 					break
 				end
 				
-				GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
+				GameCooltip:AddLine (t[1], FormatTooltipNumber (nil, t[2]))
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], 1, 1, 14, 14)
 			end
@@ -172,7 +172,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 				end
 				
 				if (roster [t[1]]) then
-					GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
+					GameCooltip:AddLine (t[1], FormatTooltipNumber (nil, t[2]))
 					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 			end
@@ -180,7 +180,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 		elseif (target == "[player]") then
 			local target_amount = actor.targets [_detalhes.playername]
 			if (target_amount) then
-				GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, target_amount))
+				GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (nil, target_amount))
 				_detalhes:AddTooltipBackgroundStatusbar()
 			end
 		else
@@ -194,7 +194,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 				end
 				
 				local name, _, icon = _GetSpellInfo (t[1])
-				GameCooltip:AddLine (name, FormatTooltipNumber (_, t[2]))
+				GameCooltip:AddLine (name, FormatTooltipNumber (nil, t[2]))
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			end

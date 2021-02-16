@@ -103,7 +103,7 @@ end
 function _detalhes:InstanciaCallFunction (funcao, ...)
 	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
 		if (instancia:IsAtiva()) then --> s� reabre se ela estiver ativa
-			funcao (_, instancia, ...) 
+			funcao (nil, instancia, ...) 
 		end
 	end
 end
@@ -111,7 +111,7 @@ end
 --> chama a fun��o para ser executada em todas as inst�ncias	(internal)
 function _detalhes:InstanciaCallFunctionOffline (funcao, ...)
 	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
-		funcao (_, instancia, ...)
+		funcao (nil, instancia, ...)
 	end
 end
 
@@ -733,7 +733,7 @@ end
 --> cria uma nova inst�ncia e a joga para o container de inst�ncias
 
 	function _detalhes:CreateInstance (id)
-		return _detalhes:CriarInstancia (_, id)
+		return _detalhes:CriarInstancia (nil, id)
 	end
 
 	function _detalhes:CriarInstancia (_, id)
@@ -2851,7 +2851,7 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 	_detalhes.popup:Select (1, checked)
 	
 	if (from_mode_menu) then
-		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao, _, true)
+		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao, nil, true)
 		
 		--> running OnEnter does also trigger an instance enter event, so we need to manually leave the instance:
 		_detalhes.OnLeaveMainWindow (instancia, instancia.baseframe.cabecalho.modo_selecao)

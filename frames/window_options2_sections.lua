@@ -2758,11 +2758,11 @@ do
         do --> micro displays
             
             --statics texts
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplaysAnchor", "MicroDisplaysAnchor", Loc ["STRING_OPTIONS_MICRODISPLAY_ANCHOR"], "GameFontNormal")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayLeftLabel", "MicroDisplayLeftLabel", Loc ["STRING_ANCHOR_LEFT"], "GameFontHighlightLeft")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayCenterLabel", "MicroDisplayCenterLabel", Loc ["STRING_CENTER_UPPER"], "GameFontHighlightLeft")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayRightLabel", "MicroDisplayRightLabel", Loc ["STRING_ANCHOR_RIGHT"], "GameFontHighlightLeft")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayWarningLabel", "MicroDisplayWarningLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_WARNING"], "GameFontHighlightSmall", 10, "orange")
+            DF:NewLabel (sectionFrame, nil, "$parentMicroDisplaysAnchor", "MicroDisplaysAnchor", Loc ["STRING_OPTIONS_MICRODISPLAY_ANCHOR"], "GameFontNormal")
+            DF:NewLabel (sectionFrame, nil, "$parentMicroDisplayLeftLabel", "MicroDisplayLeftLabel", Loc ["STRING_ANCHOR_LEFT"], "GameFontHighlightLeft")
+            DF:NewLabel (sectionFrame, nil, "$parentMicroDisplayCenterLabel", "MicroDisplayCenterLabel", Loc ["STRING_CENTER_UPPER"], "GameFontHighlightLeft")
+            DF:NewLabel (sectionFrame, nil, "$parentMicroDisplayRightLabel", "MicroDisplayRightLabel", Loc ["STRING_ANCHOR_RIGHT"], "GameFontHighlightLeft")
+            DF:NewLabel (sectionFrame, nil, "$parentMicroDisplayWarningLabel", "MicroDisplayWarningLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_WARNING"], "GameFontHighlightSmall", 10, "orange")
 
             --dropdown on select option
             local onMicroDisplaySelect = function (_, _, micro_display)
@@ -2806,9 +2806,9 @@ do
             local dropdown_height = 18
 
             --create dropdowns
-            DF:NewDropDown (sectionFrame, _, "$parentMicroDisplayLeftDropdown", "MicroDisplayLeftDropdown", DROPDOWN_WIDTH, dropdown_height, buildLeftMicroMenu, nil, options_dropdown_template)
-            DF:NewDropDown (sectionFrame, _, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, dropdown_height, buildCenterMicroMenu, nil, options_dropdown_template)
-            DF:NewDropDown (sectionFrame, _, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, dropdown_height, buildRightMicroMenu, nil, options_dropdown_template)
+            DF:NewDropDown (sectionFrame, nil, "$parentMicroDisplayLeftDropdown", "MicroDisplayLeftDropdown", DROPDOWN_WIDTH, dropdown_height, buildLeftMicroMenu, nil, options_dropdown_template)
+            DF:NewDropDown (sectionFrame, nil, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, dropdown_height, buildCenterMicroMenu, nil, options_dropdown_template)
+            DF:NewDropDown (sectionFrame, nil, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, dropdown_height, buildRightMicroMenu, nil, options_dropdown_template)
             
             sectionFrame.MicroDisplayLeftDropdown:SetPoint ("left", sectionFrame.MicroDisplayLeftLabel, "right", 2)
             sectionFrame.MicroDisplayCenterDropdown:SetPoint ("left", sectionFrame.MicroDisplayCenterLabel, "right", 2)
@@ -2819,7 +2819,7 @@ do
             sectionFrame.MicroDisplayRightDropdown.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"]
             
 
-            local hideLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parenthideLeftMicroFrameButton", "hideLeftMicroFrameButton", 22, 22, function (self, button)
+            local hideLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, nil, "$parenthideLeftMicroFrameButton", "hideLeftMicroFrameButton", 22, 22, function (self, button)
                 if (currentInstance.StatusBar ["left"].options.isHidden) then
                     _detalhes.StatusBar:SetPlugin (currentInstance, currentInstance.StatusBar ["left"].real_name, "left")
                 else
@@ -2844,7 +2844,7 @@ do
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
 
-            local HideCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentHideCenterMicroFrameButton", "HideCenterMicroFrameButton", 22, 22, function (self)
+            local HideCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, nil, "$parentHideCenterMicroFrameButton", "HideCenterMicroFrameButton", 22, 22, function (self)
                 if (currentInstance.StatusBar ["center"].options.isHidden) then
                     _detalhes.StatusBar:SetPlugin (currentInstance, currentInstance.StatusBar ["center"].real_name, "center")
                 else
@@ -2869,7 +2869,7 @@ do
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
             
-            local HideRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, _, "$parentHideRightMicroFrameButton", "HideRightMicroFrameButton", 20, 20, function (self)
+            local HideRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, nil, "$parentHideRightMicroFrameButton", "HideRightMicroFrameButton", 20, 20, function (self)
                 if (currentInstance.StatusBar ["right"].options.isHidden) then
                     _detalhes.StatusBar:SetPlugin (currentInstance, currentInstance.StatusBar ["right"].real_name, "right")
                 else
@@ -2893,7 +2893,7 @@ do
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
 
-            local configRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, _, "$parentconfigRightMicroFrameButton", "configRightMicroFrameButton", 18, 18, function (self)
+            local configRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, nil, "$parentconfigRightMicroFrameButton", "configRightMicroFrameButton", 18, 18, function (self)
                 currentInstance.StatusBar ["right"]:Setup()
                 currentInstance.StatusBar ["right"]:Setup()
             end)
@@ -2902,7 +2902,7 @@ do
             configRightMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
             configRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
             
-            local configCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentconfigCenterMicroFrameButton", "configCenterMicroFrameButton", 18, 18, function (self)
+            local configCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, nil, "$parentconfigCenterMicroFrameButton", "configCenterMicroFrameButton", 18, 18, function (self)
                 currentInstance.StatusBar ["center"]:Setup()
                 currentInstance.StatusBar ["center"]:Setup()
             end)
@@ -2911,7 +2911,7 @@ do
             configCenterMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
             configCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
             
-            local configLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parentconfigLeftMicroFrameButton", "configLeftMicroFrameButton", 18, 18, function (self)
+            local configLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, nil, "$parentconfigLeftMicroFrameButton", "configLeftMicroFrameButton", 18, 18, function (self)
                 currentInstance.StatusBar ["left"]:Setup()
                 currentInstance.StatusBar ["left"]:Setup()
             end)
@@ -3004,7 +3004,7 @@ do
         local y = -20
         
         --> toolbar
-        DF:NewLabel (anchorFrame, _, "$parentToolbarPluginsLabel", "toolbarLabel", Loc ["STRING_OPTIONS_PLUGINS_TOOLBAR_ANCHOR"], "GameFontNormal", 16)
+        DF:NewLabel (anchorFrame, nil, "$parentToolbarPluginsLabel", "toolbarLabel", Loc ["STRING_OPTIONS_PLUGINS_TOOLBAR_ANCHOR"], "GameFontNormal", 16)
         anchorFrame.toolbarLabel:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
         
         y = y - 30
@@ -3014,15 +3014,15 @@ do
             descbar:SetTexture (.3, .3, .3, .8)
             descbar:SetPoint ("topleft", anchorFrame, "topleft", 5, y+3)
             descbar:SetSize (650, 20)
-            DF:NewLabel (anchorFrame, _, "$parentDescNameLabel", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescNameLabel", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
             anchorFrame.descNameLabel:SetPoint ("topleft", anchorFrame, "topleft", 15, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescAuthorLabel", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescAuthorLabel", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
             anchorFrame.descAuthorLabel:SetPoint ("topleft", anchorFrame, "topleft", 180, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescVersionLabel", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescVersionLabel", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
             anchorFrame.descVersionLabel:SetPoint ("topleft", anchorFrame, "topleft", 290, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescEnabledLabel", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescEnabledLabel", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
             anchorFrame.descEnabledLabel:SetPoint ("topleft", anchorFrame, "topleft", 400, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescOptionsLabel", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescOptionsLabel", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
             anchorFrame.descOptionsLabel:SetPoint ("topleft", anchorFrame, "topleft", 510, y)
         end
         
@@ -3069,18 +3069,18 @@ do
             DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
             bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
         
-            DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+            DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
             bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
             
-            DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+            DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
             bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
             
-            DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+            DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
             bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
             
             local plugin_stable = _detalhes:GetPluginSavedTable (absName)
             local plugin = _detalhes:GetPlugin (absName)
-            DF:NewSwitch (bframe, _, "$parentToolbarSlider"..i, "toolbarPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
+            DF:NewSwitch (bframe, nil, "$parentToolbarSlider"..i, "toolbarPluginsSlider"..i, 60, 20, nil, nil, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
             bframe ["toolbarPluginsSlider"..i].PluginName = absName
             tinsert (anchorFrame.plugin_widgets, bframe ["toolbarPluginsSlider"..i])
             bframe ["toolbarPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y)
@@ -3139,15 +3139,15 @@ do
                 DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
                 bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
             
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+                DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
                 bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
                 bframe ["toolbarPluginsLabel"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+                DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
                 bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
                 bframe ["toolbarPluginsLabel2"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+                DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
                 bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
                 bframe ["toolbarPluginsLabel3"..i].color = notInstalledColor
     
@@ -3163,7 +3163,7 @@ do
         y = y - 10
         
         --raid
-        DF:NewLabel (anchorFrame, _, "$parentRaidPluginsLabel", "raidLabel", Loc ["STRING_OPTIONS_PLUGINS_RAID_ANCHOR"], "GameFontNormal", 16)
+        DF:NewLabel (anchorFrame, nil, "$parentRaidPluginsLabel", "raidLabel", Loc ["STRING_OPTIONS_PLUGINS_RAID_ANCHOR"], "GameFontNormal", 16)
         anchorFrame.raidLabel:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
         
         y = y - 30
@@ -3173,15 +3173,15 @@ do
             descbar:SetTexture (.3, .3, .3, .8)
             descbar:SetPoint ("topleft", anchorFrame, "topleft", 5, y+3)
             descbar:SetSize (650, 20)
-            DF:NewLabel (anchorFrame, _, "$parentDescNameLabel2", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescNameLabel2", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
             anchorFrame.descNameLabel:SetPoint ("topleft", anchorFrame, "topleft", 15, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescAuthorLabel2", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescAuthorLabel2", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
             anchorFrame.descAuthorLabel:SetPoint ("topleft", anchorFrame, "topleft", 180, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescVersionLabel2", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescVersionLabel2", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
             anchorFrame.descVersionLabel:SetPoint ("topleft", anchorFrame, "topleft", 290, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescEnabledLabel2", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescEnabledLabel2", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
             anchorFrame.descEnabledLabel:SetPoint ("topleft", anchorFrame, "topleft", 400, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescOptionsLabel2", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescOptionsLabel2", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
             anchorFrame.descOptionsLabel:SetPoint ("topleft", anchorFrame, "topleft", 510, y)
         end
         
@@ -3204,18 +3204,18 @@ do
             DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "raidPluginsIcon"..i, "$parentRaidPluginsIcon"..i)
             bframe ["raidPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
         
-            DF:NewLabel (bframe, _, "$parentRaidPluginsLabel"..i, "raidPluginsLabel"..i, pluginObject.__name)
+            DF:NewLabel (bframe, nil, "$parentRaidPluginsLabel"..i, "raidPluginsLabel"..i, pluginObject.__name)
             bframe ["raidPluginsLabel"..i]:SetPoint ("left", bframe ["raidPluginsIcon"..i], "right", 2, 0)
             
-            DF:NewLabel (bframe, _, "$parentRaidPluginsLabel2"..i, "raidPluginsLabel2"..i, pluginObject.__author)
+            DF:NewLabel (bframe, nil, "$parentRaidPluginsLabel2"..i, "raidPluginsLabel2"..i, pluginObject.__author)
             bframe ["raidPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
             
-            DF:NewLabel (bframe, _, "$parentRaidPluginsLabel3"..i, "raidPluginsLabel3"..i, pluginObject.__version)
+            DF:NewLabel (bframe, nil, "$parentRaidPluginsLabel3"..i, "raidPluginsLabel3"..i, pluginObject.__version)
             bframe ["raidPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
             
             local plugin_stable = _detalhes:GetPluginSavedTable (absName)
             local plugin = _detalhes:GetPlugin (absName)
-            DF:NewSwitch (bframe, _, "$parentRaidSlider"..i, "raidPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
+            DF:NewSwitch (bframe, nil, "$parentRaidSlider"..i, "raidPluginsSlider"..i, 60, 20, nil, nil, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
             tinsert (anchorFrame.plugin_widgets, bframe ["raidPluginsSlider"..i])
             bframe ["raidPluginsSlider"..i].PluginName = absName
             bframe ["raidPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y+1)
@@ -3277,15 +3277,15 @@ do
                 DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
                 bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
             
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+                DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
                 bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
                 bframe ["toolbarPluginsLabel"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+                DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
                 bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
                 bframe ["toolbarPluginsLabel2"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+                DF:NewLabel (bframe, nil, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
                 bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
                 bframe ["toolbarPluginsLabel3"..i].color = notInstalledColor
     
@@ -3301,7 +3301,7 @@ do
         y = y - 10
     
         -- solo
-        DF:NewLabel (anchorFrame, _, "$parentSoloPluginsLabel", "soloLabel", Loc ["STRING_OPTIONS_PLUGINS_SOLO_ANCHOR"], "GameFontNormal", 16)
+        DF:NewLabel (anchorFrame, nil, "$parentSoloPluginsLabel", "soloLabel", Loc ["STRING_OPTIONS_PLUGINS_SOLO_ANCHOR"], "GameFontNormal", 16)
         anchorFrame.soloLabel:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
         
         y = y - 30
@@ -3311,15 +3311,15 @@ do
             descbar:SetTexture (.3, .3, .3, .8)
             descbar:SetPoint ("topleft", anchorFrame, "topleft", 5, y+3)
             descbar:SetSize (650, 20)
-            DF:NewLabel (anchorFrame, _, "$parentDescNameLabel3", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescNameLabel3", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
             anchorFrame.descNameLabel:SetPoint ("topleft", anchorFrame, "topleft", 15, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescAuthorLabel3", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescAuthorLabel3", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
             anchorFrame.descAuthorLabel:SetPoint ("topleft", anchorFrame, "topleft", 180, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescVersionLabel3", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescVersionLabel3", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
             anchorFrame.descVersionLabel:SetPoint ("topleft", anchorFrame, "topleft", 290, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescEnabledLabel3", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescEnabledLabel3", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
             anchorFrame.descEnabledLabel:SetPoint ("topleft", anchorFrame, "topleft", 400, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescOptionsLabel3", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+            DF:NewLabel (anchorFrame, nil, "$parentDescOptionsLabel3", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
             anchorFrame.descOptionsLabel:SetPoint ("topleft", anchorFrame, "topleft", 510, y)
         end
         
@@ -3342,18 +3342,18 @@ do
             DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "soloPluginsIcon"..i, "$parentSoloPluginsIcon"..i)
             bframe ["soloPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
         
-            DF:NewLabel (bframe, _, "$parentSoloPluginsLabel"..i, "soloPluginsLabel"..i, pluginObject.__name)
+            DF:NewLabel (bframe, nil, "$parentSoloPluginsLabel"..i, "soloPluginsLabel"..i, pluginObject.__name)
             bframe ["soloPluginsLabel"..i]:SetPoint ("left", bframe ["soloPluginsIcon"..i], "right", 2, 0)
             
-            DF:NewLabel (bframe, _, "$parentSoloPluginsLabel2"..i, "soloPluginsLabel2"..i, pluginObject.__author)
+            DF:NewLabel (bframe, nil, "$parentSoloPluginsLabel2"..i, "soloPluginsLabel2"..i, pluginObject.__author)
             bframe ["soloPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
             
-            DF:NewLabel (bframe, _, "$parentSoloPluginsLabel3"..i, "soloPluginsLabel3"..i, pluginObject.__version)
+            DF:NewLabel (bframe, nil, "$parentSoloPluginsLabel3"..i, "soloPluginsLabel3"..i, pluginObject.__version)
             bframe ["soloPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
             
             local plugin_stable = _detalhes:GetPluginSavedTable (absName)
             local plugin = _detalhes:GetPlugin (absName)
-            DF:NewSwitch (bframe, _, "$parentSoloSlider"..i, "soloPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
+            DF:NewSwitch (bframe, nil, "$parentSoloSlider"..i, "soloPluginsSlider"..i, 60, 20, nil, nil, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
             tinsert (anchorFrame.plugin_widgets, bframe ["soloPluginsSlider"..i])
             bframe ["soloPluginsSlider"..i].PluginName = absName
             bframe ["soloPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y+1)
@@ -4452,7 +4452,7 @@ do
                         _detalhes:OpenOptionsWindow (instance)
                         sectionFrame:UpdateWallpaperInfo()
                     end
-                    local okey = DF:NewButton (f, _, "$parentOkeyButton", nil, 105, 20, okey_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_OKEY"], 1, options_button_template)
+                    local okey = DF:NewButton (f, nil, "$parentOkeyButton", nil, 105, 20, okey_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_OKEY"], 1, options_button_template)
                     okey:SetPoint ("left", editbox.widget, "right", 2, 0)
                     
                     local throubleshoot_func = function() 
@@ -4462,7 +4462,7 @@ do
                             _G.DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
                         end
                     end
-                    local throubleshoot = DF:NewButton (f, _, "$parentThroubleshootButton", nil, 105, 20, throubleshoot_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT"], 1, options_button_template)
+                    local throubleshoot = DF:NewButton (f, nil, "$parentThroubleshootButton", nil, 105, 20, throubleshoot_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT"], 1, options_button_template)
                     throubleshoot:SetPoint ("left", okey, "right", 2, 0)
                     --throubleshoot:InstallCustomTexture()
                 end
@@ -4885,11 +4885,11 @@ do
         local right_start_at = 450
 
 		--anchor
-		DF:NewLabel (sectionFrame, _, "$parentHideInCombatAnchor", "hideInCombatAnchor", Loc ["STRING_OPTIONS_ALPHAMOD_ANCHOR"], "GameFontNormal")
+		DF:NewLabel (sectionFrame, nil, "$parentHideInCombatAnchor", "hideInCombatAnchor", Loc ["STRING_OPTIONS_ALPHAMOD_ANCHOR"], "GameFontNormal")
 		sectionFrame.hideInCombatAnchor:SetPoint("topleft", sectionFrame, "topleft", right_start_at, startY - 20)
 		
 		--> hide in combat
-		DF:NewLabel (sectionFrame, _, "$parentCombatAlphaLabel", "combatAlphaLabel", Loc ["STRING_OPTIONS_COMBAT_ALPHA"], "GameFontHighlightLeft")
+		DF:NewLabel (sectionFrame, nil, "$parentCombatAlphaLabel", "combatAlphaLabel", Loc ["STRING_OPTIONS_COMBAT_ALPHA"], "GameFontHighlightLeft")
 		
 		local texCoords = {.9, 0.1, 0.1, .9}
 		local typeCombatAlpha = {
@@ -5446,10 +5446,10 @@ do
 
         --> streamer plugin - a.k.a. player spell tracker 
 			--> title anchor
-            DF:NewLabel (sectionFrame, _, "$parentStreamerPluginAnchor", "streamerPluginAnchor", "Action Tracker", "GameFontNormal")
+            DF:NewLabel (sectionFrame, nil, "$parentStreamerPluginAnchor", "streamerPluginAnchor", "Action Tracker", "GameFontNormal")
             sectionFrame.streamerPluginAnchor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 20)
 
-			local streamerTitleDesc = DF:NewLabel (sectionFrame, _, "$parentStreamerTitleDescText", "StreamerTitleDescTextLabel", "Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation.", "GameFontNormal", 10, "white")
+			local streamerTitleDesc = DF:NewLabel (sectionFrame, nil, "$parentStreamerTitleDescText", "StreamerTitleDescTextLabel", "Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation.", "GameFontNormal", 10, "white")
 			streamerTitleDesc:SetSize (270, 40)
 			streamerTitleDesc:SetJustifyV ("top")
 			streamerTitleDesc:SetPoint ("topleft", sectionFrame.streamerPluginAnchor, "bottomleft", 0, -4)
@@ -5473,12 +5473,12 @@ do
 								_G.DetailsOptionsWindow:Hide()
 							end)
 						end
-						local configurePluginButton = DF:NewButton (sectionFrame, _, "$parentConfigureStreamerPluginButton", "configureStreamerPlugin", 100, 20, configure_streamer_plugin, nil, nil, nil, "Action Tracker Options", nil, options_button_template)
+						local configurePluginButton = DF:NewButton (sectionFrame, nil, "$parentConfigureStreamerPluginButton", "configureStreamerPlugin", 100, 20, configure_streamer_plugin, nil, nil, nil, "Action Tracker Options", nil, options_button_template)
 						configurePluginButton:SetWidth (button_width)
 						configurePluginButton:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -7)
 						
 						--> text telling how to disable
-						local pluginAlreadyEnabled = DF:NewLabel (sectionFrame, _, "$parentStreamerAlreadyEnabledText", "StreamerAlreadyEnabledTextLabel", "Plugin is enabled. You may disable it on Plugin Management section.", "GameFontNormal", 10, "white")
+						local pluginAlreadyEnabled = DF:NewLabel (sectionFrame, nil, "$parentStreamerAlreadyEnabledText", "StreamerAlreadyEnabledTextLabel", "Plugin is enabled. You may disable it on Plugin Management section.", "GameFontNormal", 10, "white")
 						pluginAlreadyEnabled:SetJustifyV ("top")
 						pluginAlreadyEnabled:SetSize (270, 40)
 						pluginAlreadyEnabled:SetPoint ("topleft", configurePluginButton, "bottomleft", 0, -7)
@@ -5495,35 +5495,35 @@ do
 							local configure_streamer_plugin = function()
 								StreamerPlugin.OpenOptionsPanel()
 							end
-							local configurePluginButton = DF:NewButton (sectionFrame, _, "$parentConfigureStreamerPluginButton", "configureStreamerPlugin", 100, 20, configure_streamer_plugin, nil, nil, nil, "Action Tracker Options", nil, options_button_template)
+							local configurePluginButton = DF:NewButton (sectionFrame, nil, "$parentConfigureStreamerPluginButton", "configureStreamerPlugin", 100, 20, configure_streamer_plugin, nil, nil, nil, "Action Tracker Options", nil, options_button_template)
 							configurePluginButton:SetWidth (button_width)
 							configurePluginButton:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -7)
 							
 							--> text telling how to disable
-							local pluginAlreadyEnabled = DF:NewLabel (sectionFrame, _, "$parentStreamerAlreadyEnabledText", "StreamerAlreadyEnabledTextLabel", "Plugin is enabled. You may disable it on Plugin Management section.", "GameFontNormal", 10, "white")
+							local pluginAlreadyEnabled = DF:NewLabel (sectionFrame, nil, "$parentStreamerAlreadyEnabledText", "StreamerAlreadyEnabledTextLabel", "Plugin is enabled. You may disable it on Plugin Management section.", "GameFontNormal", 10, "white")
 							pluginAlreadyEnabled:SetJustifyV ("top")
 							pluginAlreadyEnabled:SetSize (270, 40)
 							pluginAlreadyEnabled:SetPoint ("topleft", configurePluginButton, "bottomleft", 0, -7)
 						end
 						
-						local enablePluginButton = DF:NewButton (sectionFrame, _, "$parentEnableStreamerPluginButton", "enableStreamerPluginButton", 100, 20, enable_streamer_plugin, nil, nil, nil, "Enable Plugin", nil, options_button_template)
+						local enablePluginButton = DF:NewButton (sectionFrame, nil, "$parentEnableStreamerPluginButton", "enableStreamerPluginButton", 100, 20, enable_streamer_plugin, nil, nil, nil, "Enable Plugin", nil, options_button_template)
 						enablePluginButton:SetWidth (button_width)
 						enablePluginButton:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -5)
 					end
 				end
 			else
 				--> plugin is disabled at the addon control panel
-				local pluginDisabled = DF:NewLabel (sectionFrame, _, "$parentStreamerDisabledText", "StreamerDisabledTextLabel", "Details!: Streamer Plugin is disabled on the AddOns Control Panel.", "GameFontNormal", 10, "red")
+				local pluginDisabled = DF:NewLabel (sectionFrame, nil, "$parentStreamerDisabledText", "StreamerDisabledTextLabel", "Details!: Streamer Plugin is disabled on the AddOns Control Panel.", "GameFontNormal", 10, "red")
 				pluginDisabled:SetSize (270, 40)
 				pluginDisabled:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -2)
 			end
 		
 		
 		--> event tracker
-            DF:NewLabel (sectionFrame, _, "$parentEventTrackerAnchor", "eventTrackerAnchor", "Event Tracker", "GameFontNormal")
+            DF:NewLabel (sectionFrame, nil, "$parentEventTrackerAnchor", "eventTrackerAnchor", "Event Tracker", "GameFontNormal")
             sectionFrame.eventTrackerAnchor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 180)
 
-			local eventTrackerTitleDesc = DF:NewLabel (sectionFrame, _, "$parentEventTrackerTitleDescText", "EventTrackerTitleDescTextLabel", "Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content.", "GameFontNormal", 10, "white")
+			local eventTrackerTitleDesc = DF:NewLabel (sectionFrame, nil, "$parentEventTrackerTitleDescText", "EventTrackerTitleDescTextLabel", "Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content.", "GameFontNormal", 10, "white")
 			eventTrackerTitleDesc:SetJustifyV ("top")
 			eventTrackerTitleDesc:SetSize (270, 40)
 			eventTrackerTitleDesc:SetPoint ("topleft", sectionFrame.eventTrackerAnchor, "bottomleft", 0, -4)
@@ -5532,8 +5532,8 @@ do
 			eventTrackerTitleImage:SetPoint ("topleft", sectionFrame.eventTrackerAnchor, "bottomleft", 0, -40)
 			
 			--> enable feature checkbox
-				DF:NewLabel (sectionFrame, _, "$parentEnableEventTrackerLabel", "EventTrackerLabel", "Enable Event Tracker", "GameFontHighlightLeft")
-				DF:NewSwitch (sectionFrame, _, "$parentEventTrackerSlider", "EventTrackerSlider", 60, 20, _, _, _detalhes.event_tracker.enabled, nil, nil, nil, nil, options_switch_template)
+				DF:NewLabel (sectionFrame, nil, "$parentEnableEventTrackerLabel", "EventTrackerLabel", "Enable Event Tracker", "GameFontHighlightLeft")
+				DF:NewSwitch (sectionFrame, nil, "$parentEventTrackerSlider", "EventTrackerSlider", 60, 20, nil, nil, _detalhes.event_tracker.enabled, nil, nil, nil, nil, options_switch_template)
 
 				sectionFrame.EventTrackerSlider:SetPoint ("left", sectionFrame.EventTrackerLabel, "right", 2)
 				sectionFrame.EventTrackerSlider:SetAsCheckBox()
@@ -5552,16 +5552,16 @@ do
 						_G.DetailsOptionsWindow:Hide()
 					end)
 				end
-				local configureEventTrackerButton = DF:NewButton (sectionFrame, _, "$parentConfigureEventTrackerButton", "configureEventTracker", 100, 20, configure_event_tracker, nil, nil, nil, "Event Tracker Options", nil, options_button_template)
+				local configureEventTrackerButton = DF:NewButton (sectionFrame, nil, "$parentConfigureEventTrackerButton", "configureEventTracker", 100, 20, configure_event_tracker, nil, nil, nil, "Event Tracker Options", nil, options_button_template)
 				configureEventTrackerButton:SetWidth (button_width)
 				configureEventTrackerButton:SetPoint ("topleft", sectionFrame.EventTrackerLabel, "bottomleft", 0, -7)
 
 
 		--> current dps
-            DF:NewLabel (sectionFrame, _, "$parentCurrentDPSAnchor", "currentDPSAnchor", "The Real Current DPS", "GameFontNormal")
+            DF:NewLabel (sectionFrame, nil, "$parentCurrentDPSAnchor", "currentDPSAnchor", "The Real Current DPS", "GameFontNormal")
             sectionFrame.currentDPSAnchor:SetPoint("topleft", sectionFrame, "topleft", startX + 350, startY - 20)
 
-			local currentDPSTitleDesc = DF:NewLabel (sectionFrame, _, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a frame with DPS done only in the last 5 seconds. Useful for arena matches and mythic dungeons.", "GameFontNormal", 10, "white")
+			local currentDPSTitleDesc = DF:NewLabel (sectionFrame, nil, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a frame with DPS done only in the last 5 seconds. Useful for arena matches and mythic dungeons.", "GameFontNormal", 10, "white")
 			currentDPSTitleDesc:SetJustifyV ("top")
 			currentDPSTitleDesc:SetSize (270, 40)
 			currentDPSTitleDesc:SetPoint ("topleft", sectionFrame.currentDPSAnchor, "bottomleft", 0, -4)
@@ -5570,8 +5570,8 @@ do
 			currentDPSTitleImage:SetPoint ("topleft", sectionFrame.currentDPSAnchor, "bottomleft", 0, -40)
 			
 			--> enable feature checkbox
-				DF:NewLabel (sectionFrame, _, "$parentEnableCurrentDPSLabel", "CurrentDPSLabel", "Enable The Real Current Dps", "GameFontHighlightLeft")
-				DF:NewSwitch (sectionFrame, _, "$parentCurrentDPSSlider", "CurrentDPSSlider", 60, 20, _, _, _detalhes.current_dps_meter.enabled, nil, nil, nil, nil, options_switch_template)
+				DF:NewLabel (sectionFrame, nil, "$parentEnableCurrentDPSLabel", "CurrentDPSLabel", "Enable The Real Current Dps", "GameFontHighlightLeft")
+				DF:NewSwitch (sectionFrame, nil, "$parentCurrentDPSSlider", "CurrentDPSSlider", 60, 20, nil, nil, _detalhes.current_dps_meter.enabled, nil, nil, nil, nil, options_switch_template)
 
 				sectionFrame.CurrentDPSSlider:SetPoint ("left", sectionFrame.CurrentDPSLabel, "right", 2)
 				sectionFrame.CurrentDPSSlider:SetAsCheckBox()
@@ -5591,7 +5591,7 @@ do
 						_G.DetailsOptionsWindow:Hide()
 					end)
 				end
-				local configureCurrentDPSButton = DF:NewButton (sectionFrame, _, "$parentConfigureCurrentDPSButton", "configureCurrentDPS", 100, 20, configure_current_dps, nil, nil, nil, "Current Real DPS Options", nil, options_button_template)
+				local configureCurrentDPSButton = DF:NewButton (sectionFrame, nil, "$parentConfigureCurrentDPSButton", "configureCurrentDPS", 100, 20, configure_current_dps, nil, nil, nil, "Current Real DPS Options", nil, options_button_template)
 				configureCurrentDPSButton:SetWidth (button_width)
 				configureCurrentDPSButton:SetPoint ("topleft", sectionFrame.CurrentDPSLabel, "bottomleft", 0, -7)
 
@@ -5813,8 +5813,8 @@ do
 		panel:SetPoint (startX, startY - 40)
 		
 	--> consilidade spells
-		DF:NewLabel (sectionFrame, _, "$parentConsolidadeSpellsLabel", "ConsolidadeSpellsLabel", Loc ["STRING_OPTIONSMENU_SPELLS_CONSOLIDATE"], "GameFontHighlightLeft")
-		DF:NewSwitch (sectionFrame, _, "$parentConsolidadeSpellsSwitch", "ConsolidadeSpellsSwitch", 60, 20, nil, nil, _detalhes.override_spellids, nil, nil, nil, nil, options_switch_template)
+		DF:NewLabel (sectionFrame, nil, "$parentConsolidadeSpellsLabel", "ConsolidadeSpellsLabel", Loc ["STRING_OPTIONSMENU_SPELLS_CONSOLIDATE"], "GameFontHighlightLeft")
+		DF:NewSwitch (sectionFrame, nil, "$parentConsolidadeSpellsSwitch", "ConsolidadeSpellsSwitch", 60, 20, nil, nil, _detalhes.override_spellids, nil, nil, nil, nil, options_switch_template)
 		sectionFrame.ConsolidadeSpellsLabel:SetPoint ("left", sectionFrame.ConsolidadeSpellsSwitch, "right", 3)
 		sectionFrame.ConsolidadeSpellsSwitch:SetAsCheckBox()
 		sectionFrame.ConsolidadeSpellsSwitch.OnSwitch = function (self, instance, value)
@@ -5841,13 +5841,13 @@ do
     local buildSection = function(sectionFrame)
 
 	--> title
-    local titulo_datacharts = DF:NewLabel (sectionFrame, _, "$parentTituloDataChartsText", "DataChartsLabel", Loc ["STRING_OPTIONS_DATACHARTTITLE"], "GameFontNormal", 16)
-    local titulo_datacharts_desc = DF:NewLabel (sectionFrame, _, "$parentDataChartsText2", "DataCharts2Label", Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"], "GameFontNormal", 10, "white")
+    local titulo_datacharts = DF:NewLabel (sectionFrame, nil, "$parentTituloDataChartsText", "DataChartsLabel", Loc ["STRING_OPTIONS_DATACHARTTITLE"], "GameFontNormal", 16)
+    local titulo_datacharts_desc = DF:NewLabel (sectionFrame, nil, "$parentDataChartsText2", "DataCharts2Label", Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"], "GameFontNormal", 10, "white")
     titulo_datacharts_desc.width = 350
 
 --> warning
     if (not _detalhes:GetPlugin ("DETAILS_PLUGIN_CHART_VIEWER")) then
-        local label = DF:NewLabel (sectionFrame, _, "$parentPluginWarningLabel", "PluginWarningLabel", Loc ["STRING_OPTIONS_CHART_PLUGINWARNING"], "GameFontNormal")
+        local label = DF:NewLabel (sectionFrame, nil, "$parentPluginWarningLabel", "PluginWarningLabel", Loc ["STRING_OPTIONS_CHART_PLUGINWARNING"], "GameFontNormal")
         local image = DF:NewImage (sectionFrame, [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
         label:SetPoint ("topright", sectionFrame, "topright", -42, -10)
         label:SetJustifyH ("left")

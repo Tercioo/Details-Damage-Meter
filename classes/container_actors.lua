@@ -529,7 +529,7 @@
 		--> n�o achou, criar
 		elseif (criar) then
 	
-			local novo_objeto = self.funcao_de_criacao (_, serial, nome)
+			local novo_objeto = self.funcao_de_criacao (nil, serial, nome)
 			novo_objeto.nome = nome
 			novo_objeto.flag_original = flag
 			novo_objeto.serial = serial

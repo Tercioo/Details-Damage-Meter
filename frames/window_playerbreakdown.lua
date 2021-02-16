@@ -100,7 +100,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 			_detalhes:FechaJanelaInfo()
 			return
 		end
-		return _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo] (_, jogador, self, ShiftKeyDown, ControlKeyDown)
+		return _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo] (nil, jogador, self, ShiftKeyDown, ControlKeyDown)
 	end
 	
 	if (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
@@ -5639,7 +5639,7 @@ local target_on_enter = function (self)
 						local spellId = target[1]
 						local damageDone = target[2]
 						local spellName, _, spellIcon = _GetSpellInfo(spellId)
-						GameCooltip:AddLine(spellName, SelectedToKFunction (_, damageDone) .. " (" .. floor(damageDone / topDamage * 100) .. "%)")
+						GameCooltip:AddLine(spellName, SelectedToKFunction (nil, damageDone) .. " (" .. floor(damageDone / topDamage * 100) .. "%)")
 						GameCooltip:AddIcon(spellIcon, 1, 1, 16, 16, .1, .9, .1, .9)
 						_detalhes:AddTooltipBackgroundStatusbar (false, damageDone / topDamage * 100)
 					end
@@ -5660,13 +5660,13 @@ local target_on_enter = function (self)
 							if (info.target_persecond) then
 								GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], _detalhes:comma_value ( _math_floor (target [2] / meu_tempo) ), 1, 1, 1, 1, 1, 1)
 							else
-								GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], SelectedToKFunction (_, target [2]), 1, 1, 1, 1, 1, 1)
+								GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], SelectedToKFunction (nil, target [2]), 1, 1, 1, 1, 1, 1)
 							end
 						else
 							if (info.target_persecond) then
 								GameTooltip:AddDoubleLine (index .. ". " .. target [1], _detalhes:comma_value ( _math_floor (target [2] / meu_tempo)), 1, 1, 1, 1, 1, 1)
 							else
-								GameTooltip:AddDoubleLine (index .. ". " .. target [1], SelectedToKFunction (_, target [2]), 1, 1, 1, 1, 1, 1)
+								GameTooltip:AddDoubleLine (index .. ". " .. target [1], SelectedToKFunction (nil, target [2]), 1, 1, 1, 1, 1, 1)
 							end
 						end
 					end

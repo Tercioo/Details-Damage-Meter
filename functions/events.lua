@@ -249,7 +249,7 @@ local common_events = {
 		
 		if (not okay) then
 			--> trigger an error msg
-			dispatch_error (_, errortext)
+			dispatch_error (nil, errortext)
 			
 			return
 		end

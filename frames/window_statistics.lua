@@ -382,7 +382,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             return raid_list
         end
         local raid_dropdown = DF:CreateDropDown (f, build_raid_list, 1, dropdown_size, 20, "select_raid")
-        local raid_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_RAID"] .. ":", _, _, "GameFontNormal", "select_raid_label")
+        local raid_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_RAID"] .. ":", nil, nil, "GameFontNormal", "select_raid_label")
         raid_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
         
         --> select boss:
@@ -393,7 +393,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             return boss_list
         end
         local boss_dropdown = DF:CreateDropDown (f, build_boss_list, 1, dropdown_size, 20, "select_boss")
-        local boss_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_BOSS"] .. ":", _, _, "GameFontNormal", "select_boss_label")
+        local boss_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_BOSS"] .. ":", nil, nil, "GameFontNormal", "select_boss_label")
         boss_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select difficulty:
@@ -406,7 +406,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             return diff_list
         end
         local diff_dropdown = DF:CreateDropDown (f, build_diff_list, 1, dropdown_size, 20, "select_diff")
-        local diff_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_DIFF"] .. ":", _, _, "GameFontNormal", "select_diff_label")
+        local diff_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_DIFF"] .. ":", nil, nil, "GameFontNormal", "select_diff_label")
         diff_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
         
         --> select role:
@@ -420,7 +420,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             }
         end
         local role_dropdown = DF:CreateDropDown (f, build_role_list, 1, dropdown_size, 20, "select_role")
-        local role_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_ROLE"] .. ":", _, _, "GameFontNormal", "select_role_label")
+        local role_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_ROLE"] .. ":", nil, nil, "GameFontNormal", "select_role_label")
         role_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
         
         --> select guild:
@@ -431,7 +431,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             return guild_list
         end
         local guild_dropdown = DF:CreateDropDown (f, build_guild_list, 1, dropdown_size, 20, "select_guild")
-        local guild_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_GUILD"] .. ":", _, _, "GameFontNormal", "select_guild_label")
+        local guild_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_GUILD"] .. ":", nil, nil, "GameFontNormal", "select_guild_label")
         guild_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
         
         --> select playerbase:
@@ -445,7 +445,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             }
         end
         local player_dropdown = DF:CreateDropDown (f, build_player_list, 1, dropdown_size, 20, "select_player")
-        local player_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE"] .. ":", _, _, "GameFontNormal", "select_player_label")
+        local player_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE"] .. ":", nil, nil, "GameFontNormal", "select_player_label")
         player_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select player:
@@ -476,7 +476,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             return t
         end
         local player2_dropdown = DF:CreateDropDown (f, build_player2_list, 1, dropdown_size, 20, "select_player2")
-        local player2_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] .. ":", _, _, "GameFontNormal", "select_player2_label")
+        local player2_string = DF:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] .. ":", nil, nil, "GameFontNormal", "select_player2_label")
         player2_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
         
         function f:UpdateDropdowns (DoNotSelectRaid)
@@ -525,7 +525,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
 
                     for encounterId, encounterTable in pairs (encounterIdTable) do 
                         if (not boss_repeated [encounterId]) then
-                            local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId (_, encounterId)
+                            local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId (nil, encounterId)
                             if (encounter) then
                                 local InstanceID = Details:GetInstanceIdFromEncounterId (encounterId)
                                 if (raidSelected == InstanceID) then
@@ -621,7 +621,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
 
                     for encounterId, encounterTable in pairs (encounterIdTable) do 
                         if (not boss_repeated [encounterId]) then
-                            local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId (_, encounterId)
+                            local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId (nil, encounterId)
                             if (encounter) then
                                 local InstanceID = Details:GetInstanceIdFromEncounterId (encounterId)
                                 if (raidSelected == InstanceID) then

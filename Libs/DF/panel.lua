@@ -394,7 +394,7 @@ DF.LayoutFrame = {
 			end
 		end
 		
-		return DF:NewLabel (self, _, "$parentRightMouseToClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:"..w..":"..h..":0:1:512:512:8:70:328:409|t " .. text)
+		return DF:NewLabel (self, nil, "$parentRightMouseToClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:"..w..":"..h..":0:1:512:512:8:70:328:409|t " .. text)
 	end
 
 --> show & hide
@@ -2504,7 +2504,7 @@ local on_click_feedback = function (self)
 	local feedback_link_textbox = DF.feedback_link_textbox
 	
 	if (not feedback_link_textbox) then
-		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, _, 275, 34)
+		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, nil, 275, 34)
 		editbox:SetAutoFocus (false)
 		editbox:SetHook ("OnEditFocusGained", function() 
 			editbox.text = editbox.link
@@ -2574,7 +2574,7 @@ local on_click_feedback = function (self)
 	local feedback_link_textbox = DF.feedback_link_textbox
 	
 	if (not feedback_link_textbox) then
-		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, _, 275, 34)
+		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, nil, 275, 34)
 		editbox:SetAutoFocus (false)
 		editbox:SetHook ("OnEditFocusGained", function() 
 			editbox.text = editbox.link
@@ -2625,7 +2625,7 @@ local on_click_addon = function (self)
 	local addon_link_textbox = DF.addon_link_textbox
 	
 	if (not addon_link_textbox) then
-		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, _, 128, 64)
+		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, nil, 128, 64)
 		editbox:SetAutoFocus (false)
 		editbox:SetHook ("OnEditFocusGained", function() 
 			editbox.text = editbox.link
@@ -3855,7 +3855,7 @@ DF.TabContainerFunctions.OnMouseDown = function (self, button)
 				end
 			else
 				--goes back to front page
-				DF.TabContainerFunctions.SelectIndex (self, _, 1)
+				DF.TabContainerFunctions.SelectIndex (self, nil, 1)
 			end
 		end
 	end
@@ -4564,10 +4564,10 @@ function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_
 	end
 
 	--choose which spec to use
-	local spec1 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec1 Placeholder Text", 1, _, _, "SpecButton1", _, 0, options_button_template, options_text_template)
-	local spec2 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec2 Placeholder Text", 1, _, _, "SpecButton2", _, 0, options_button_template, options_text_template)
-	local spec3 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec3 Placeholder Text", 1, _, _, "SpecButton3", _, 0, options_button_template, options_text_template)
-	local spec4 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec4 Placeholder Text", 1, _, _, "SpecButton4", _, 0, options_button_template, options_text_template)
+	local spec1 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec1 Placeholder Text", 1, nil, nil, "SpecButton1", nil, 0, options_button_template, options_text_template)
+	local spec2 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec2 Placeholder Text", 1, nil, nil, "SpecButton2", nil, 0, options_button_template, options_text_template)
+	local spec3 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec3 Placeholder Text", 1, nil, nil, "SpecButton3", nil, 0, options_button_template, options_text_template)
+	local spec4 = DF:CreateButton (new_keybind_frame, switch_spec, 160, 20, "Spec4 Placeholder Text", 1, nil, nil, "SpecButton4", nil, 0, options_button_template, options_text_template)
 	
 	--format the button label and icon with the spec information
 	local className, class = UnitClass ("player")
@@ -4741,7 +4741,7 @@ function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_
 	
 	local newTitle = DF:CreateLabel (new_keybind_frame, "Create a new Keybind:", 12, "silver")
 	newTitle:SetPoint ("topleft", new_keybind_frame, "topleft", 200, mainStartY)
-	local createNewKeybind = DF:CreateButton (new_keybind_frame, new_key_bind, 160, 20, "New Key Bind", 1, _, _, "NewKeybindButton", _, 0, options_button_template, options_text_template)
+	local createNewKeybind = DF:CreateButton (new_keybind_frame, new_key_bind, 160, 20, "New Key Bind", 1, nil, nil, "NewKeybindButton", nil, 0, options_button_template, options_text_template)
 	createNewKeybind:SetPoint ("topleft", newTitle, "bottomleft", 0, -10)
 	--createNewKeybind:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]])
 
@@ -4826,11 +4826,11 @@ function DF:CreateKeybindBox (parent, name, data, callback, width, height, line_
 		tinsert (keybindScroll.Frames, f)
 		
 		f.Index = DF:CreateLabel (f, "1")
-		f.KeyBind = DF:CreateButton (f, set_key_bind, 100, 20, "", _, _, _, "SetNewKeybindButton", _, 0, options_button_template, options_text_template)
-		f.ActionDrop = DF:CreateDropDown (f, fill_action_dropdown, 0, 120, 20, "ActionDropdown", _, options_dropdown_template)
+		f.KeyBind = DF:CreateButton (f, set_key_bind, 100, 20, "", nil, nil, nil, "SetNewKeybindButton", nil, 0, options_button_template, options_text_template)
+		f.ActionDrop = DF:CreateDropDown (f, fill_action_dropdown, 0, 120, 20, "ActionDropdown", nil, options_dropdown_template)
 		f.ActionText = DF:CreateTextEntry (f, function()end, 660, 20, "TextBox", _, _, options_dropdown_template)
-		f.Copy = DF:CreateButton (f, copy_keybind, 20, 20, "", _, _, _, "CopyKeybindButton", _, 0, options_button_template, options_text_template)
-		f.Delete = DF:CreateButton (f, delete_keybind, 16, 20, "", _, _, _, "DeleteKeybindButton", _, 2, options_button_template, options_text_template)
+		f.Copy = DF:CreateButton (f, copy_keybind, 20, 20, "", nil, nil, nil, "CopyKeybindButton", nil, 0, options_button_template, options_text_template)
+		f.Delete = DF:CreateButton (f, delete_keybind, 16, 20, "", nil, nil, nil, "DeleteKeybindButton", nil, 2, options_button_template, options_text_template)
 		
 		f.Index:SetPoint ("left", f, "left", 10, 0)
 		f.KeyBind:SetPoint ("left", f, "left", 43, 0)

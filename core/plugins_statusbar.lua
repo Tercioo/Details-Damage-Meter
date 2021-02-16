@@ -1414,7 +1414,7 @@ do
 			local window = _G.DetailsStatusBarOptions2.MyObject
 			
 			--> build all your widgets -----------------------------------------------------------------------------------------------------------------------------
-				_detalhes.gump:NewLabel (window, _, "$parentTimeTypeLabel", "TimeTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
+				_detalhes.gump:NewLabel (window, nil, "$parentTimeTypeLabel", "TimeTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
 				window.TimeTypeLabel:SetPoint (10, -15)
 				
 				local onSelectClockType = function (_, child, thistype)
@@ -1426,7 +1426,7 @@ do
 				{value = 2, label = date ("%H:%M"), onclick = onSelectClockType}
 				}
 				
-				_detalhes.gump:NewDropDown (window, _, "$parentTimeTypeDropdown", "TimeTypeDropdown", 200, 20, function() return clockTypes end, 1) -- func, default
+				_detalhes.gump:NewDropDown (window, nil, "$parentTimeTypeDropdown", "TimeTypeDropdown", 200, 20, function() return clockTypes end, 1) -- func, default
 				window.TimeTypeDropdown:SetPoint ("left", window.TimeTypeLabel, "right", 2)
 			-----------------------------------------------------------------------------------------------------------------------------
 			
@@ -1489,7 +1489,7 @@ extraWindow:SetHook ("OnHide", function()
 end)
 
 --> text style
-	_detalhes.gump:NewLabel (window, _, "$parentTextStyleLabel", "textstyle", Loc ["STRING_PLUGINOPTIONS_TEXTSTYLE"])
+	_detalhes.gump:NewLabel (window, nil, "$parentTextStyleLabel", "textstyle", Loc ["STRING_PLUGINOPTIONS_TEXTSTYLE"])
 	window.textstyle:SetPoint (10, -15)
 	
 	local onSelectTextStyle = function (_, child, style)
@@ -1513,11 +1513,11 @@ end)
 	{value = 2, label = Loc ["STRING_PLUGINOPTIONS_COMMA"] .. " (105.500)", onclick = onSelectTextStyle},
 	{value = 3, label = Loc ["STRING_PLUGINOPTIONS_NOFORMAT"] .. " (105500)", onclick = onSelectTextStyle}}
 	
-	_detalhes.gump:NewDropDown (window, _, "$parentTextStyleDropdown", "textstyleDropdown", 200, 20, function() return textStyle end, 1) -- func, default
+	_detalhes.gump:NewDropDown (window, nil, "$parentTextStyleDropdown", "textstyleDropdown", 200, 20, function() return textStyle end, 1) -- func, default
 	window.textstyleDropdown:SetPoint ("left", window.textstyle, "right", 2)
 
 --> text color
-	_detalhes.gump:NewLabel (window, _, "$parentTextColorLabel", "textcolor", Loc ["STRING_PLUGINOPTIONS_TEXTCOLOR"])
+	_detalhes.gump:NewLabel (window, nil, "$parentTextColorLabel", "textcolor", Loc ["STRING_PLUGINOPTIONS_TEXTCOLOR"])
 	window.textcolor:SetPoint (10, -35)
 	local selectedColor = function()
 		local r, g, b, a = ColorPickerFrame:GetColorRGB()
@@ -1552,15 +1552,15 @@ end)
 	window.textcolortexture:SetPoint ("left", window.textcolor, "right", 2)
 	window.textcolortexture:SetTexture (1, 1, 1)
 	
-	_detalhes.gump:NewButton (window, _, "$parentTextColorButton", "textcolorbutton", 160, 20, colorpick)
+	_detalhes.gump:NewButton (window, nil, "$parentTextColorButton", "textcolorbutton", 160, 20, colorpick)
 	window.textcolorbutton:SetPoint ("left", window.textcolor, "right", 2)
 	--window.textcolorbutton:InstallCustomTexture()
 	
 --> text size
-	_detalhes.gump:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_PLUGINOPTIONS_TEXTSIZE"])
+	_detalhes.gump:NewLabel (window, nil, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_PLUGINOPTIONS_TEXTSIZE"])
 	window.fonsizeLabel:SetPoint (10, -55)
 	--
-	_detalhes.gump:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 170, 20, 7, 20, 1, 1)
+	_detalhes.gump:NewSlider (window, nil, "$parentSliderFontSize", "fonsizeSlider", 170, 20, 7, 20, 1, 1)
 	window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right", 2)
 	window.fonsizeSlider:SetThumbSize (50)
 	--window.fonsizeSlider.useDecimals = true
@@ -1590,19 +1590,19 @@ end)
 		return fontTable
 	end
 	
-	_detalhes.gump:NewLabel (window, _, "$parentFontFaceLabel", "fontfaceLabel", Loc ["STRING_PLUGINOPTIONS_FONTFACE"])
+	_detalhes.gump:NewLabel (window, nil, "$parentFontFaceLabel", "fontfaceLabel", Loc ["STRING_PLUGINOPTIONS_FONTFACE"])
 	window.fontfaceLabel:SetPoint (10, -75)
 	--
-	_detalhes.gump:NewDropDown (window, _, "$parentFontDropdown", "fontDropdown", 170, 20, buildFontMenu, nil)
+	_detalhes.gump:NewDropDown (window, nil, "$parentFontDropdown", "fontDropdown", 170, 20, buildFontMenu, nil)
 	window.fontDropdown:SetPoint ("left", window.fontfaceLabel, "right", 2)
 	
 	window:Hide()
 	
 --> align mod X
-	_detalhes.gump:NewLabel (window, _, "$parentAlignXLabel", "alignXLabel", Loc ["STRING_PLUGINOPTIONS_TEXTALIGN_X"])
+	_detalhes.gump:NewLabel (window, nil, "$parentAlignXLabel", "alignXLabel", Loc ["STRING_PLUGINOPTIONS_TEXTALIGN_X"])
 	window.alignXLabel:SetPoint (10, -115)
 	--
-	_detalhes.gump:NewSlider (window, _, "$parentSliderAlignX", "alignXSlider", 160, 20, -20, 20, 1, 0)
+	_detalhes.gump:NewSlider (window, nil, "$parentSliderAlignX", "alignXSlider", 160, 20, -20, 20, 1, 0)
 	window.alignXSlider:SetPoint ("left", window.alignXLabel, "right", 2)
 	window.alignXSlider:SetThumbSize (40)
 	window.alignXSlider:SetHook ("OnValueChange", function (self, child, amount) 
@@ -1610,10 +1610,10 @@ end)
 	end)
 	
 --> align modY
-	_detalhes.gump:NewLabel (window, _, "$parentAlignYLabel", "alignYLabel", Loc ["STRING_PLUGINOPTIONS_TEXTALIGN_Y"])
+	_detalhes.gump:NewLabel (window, nil, "$parentAlignYLabel", "alignYLabel", Loc ["STRING_PLUGINOPTIONS_TEXTALIGN_Y"])
 	window.alignYLabel:SetPoint (10, -135)
 	--
-	_detalhes.gump:NewSlider (window, _, "$parentSliderAlignY", "alignYSlider", 160, 20, -10, 10, 1, 0)
+	_detalhes.gump:NewSlider (window, nil, "$parentSliderAlignY", "alignYSlider", 160, 20, -10, 10, 1, 0)
 	window.alignYSlider:SetPoint ("left", window.alignYLabel, "right", 2)
 	window.alignYSlider:SetThumbSize (40)
 	window.alignYSlider:SetHook ("OnValueChange", function (self, child, amount) 
