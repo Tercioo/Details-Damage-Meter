@@ -84,6 +84,9 @@
 		local damage_cache_petsOwners = setmetatable ({}, _detalhes.weaktable)
 	--> heaing
 		local healing_cache = setmetatable ({}, _detalhes.weaktable)
+		local banned_healing_spells = {
+			[326514] = true, --remove on 10.0 - Forgeborne Reveries - necrolords ability
+		}
 	--> energy
 		local energy_cache = setmetatable ({}, _detalhes.weaktable)
 	--> misc
@@ -1769,6 +1772,11 @@
 
 		--> no target, just ignore
 		if (not alvo_name) then
+			return
+		end
+
+		--> check for banned spells
+		if (banned_healing_spells[spellid]) then
 			return
 		end
 		
