@@ -5516,6 +5516,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				auto_regen_cache [name] = auto_regen_power_specs [_detalhes.cached_specs [_UnitGUID ("player")]]
 			end
 		end
+
+		local orderNames = {}
+		for playerName in pairs(roster) do
+			orderNames[#orderNames+1] = playerName
+		end
+		table.sort(orderNames, function(name1, name2)
+			return string.len(name1) > string.len(name2)
+		end)
+		_detalhes.tabela_vigente.raid_roster_indexed = orderNames
+
 		
 		if (_detalhes.iam_a_tank) then
 			tanks_members_cache [_UnitGUID ("player")] = true

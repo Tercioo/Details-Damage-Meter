@@ -480,6 +480,7 @@
 			
 			Details.leaving_combat = true
 			Details.last_combat_time = _tempo
+			Details.tabela_vigente.raid_roster_indexed = nil
 			
 			--deprecated (combat are now added immediatelly since there's no script run too long)
 			--if (Details.schedule_remove_overall and not from_encounter_end and not InCombatLockdown()) then
