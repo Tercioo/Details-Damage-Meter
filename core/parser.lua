@@ -274,9 +274,12 @@
 	local SPELLID_KYRIAN_DRUID_HEAL = 327149
 	local SPELLID_KYRIAN_DRUID_TANK = 327037
 
-	local SPELLID_BARGAST_DEBUFF = 334695
+	local SPELLID_BARGAST_DEBUFF = 334695 --REMOVE ON 10.0
 	local bargastBuffs = {}
-	
+
+	local SPELLID_NECROMANCER_CHEAT_DEATH = 327676 --REMOVE ON 10.0
+	local necro_cheat_deaths = {}
+
 	--> spells with special treatment
 	local special_damage_spells = {
 		[SPELLID_SHAMAN_SLT] = true, --> Spirit Link Toten
@@ -834,41 +837,42 @@
 			if (not t) then
 				t = _current_combat:CreateLastEventsTable (alvo_name)
 			end
-			
-			local i = t.n
-			
-			local this_event = t [i]
-			this_event [1] = true --> true if this is a damage || false for healing
-			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
-			this_event [4] = time --> parser time
 
-			--> current unit heal
-			if (arena_enemies[alvo_name]) then
-				--this is an arena enemy, get the heal with the unit Id
-				this_event [5] = _UnitHealth(_detalhes.arena_enemies[alvo_name]) 
-			else
-				this_event [5] = _UnitHealth(alvo_name)
-			end
+			if (not necro_cheat_deaths[alvo_serial]) then --remove on 10.0
+				local i = t.n
+				
+				local this_event = t [i]
+				this_event [1] = true --> true if this is a damage || false for healing
+				this_event [2] = spellid --> spellid || false if this is a battle ress line
+				this_event [3] = amount --> amount of damage or healing
+				this_event [4] = time --> parser time
 
-			this_event [6] = who_name --> source name
-			this_event [7] = absorbed
-			this_event [8] = spelltype or school
-			this_event [9] = false
-			this_event [10] = overkill
-			
-			i = i + 1
-			
-			if (i == _death_event_amt+1) then
-				t.n = 1
-			else
-				t.n = i
+				--> current unit heal
+				if (arena_enemies[alvo_name]) then
+					--this is an arena enemy, get the heal with the unit Id
+					this_event [5] = _UnitHealth(_detalhes.arena_enemies[alvo_name]) 
+				else
+					this_event [5] = _UnitHealth(alvo_name)
+				end
+
+				this_event [6] = who_name --> source name
+				this_event [7] = absorbed
+				this_event [8] = spelltype or school
+				this_event [9] = false
+				this_event [10] = overkill
+				
+				i = i + 1
+				
+				if (i == _death_event_amt+1) then
+					t.n = 1
+				else
+					t.n = i
+				end
 			end
-			
 		end
 		
 	------------------------------------------------------------------------------------------------
-	--> time start 
+	--> time start
 
 		if (not este_jogador.dps_started) then
 		
@@ -2117,7 +2121,9 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 				elseif (spellid == SPELLID_MONK_GUARD) then
 					--> BfA monk talent
 					monk_guard_talent [who_serial] = amount
-					
+				
+				elseif (spellid == SPELLID_NECROMANCER_CHEAT_DEATH) then
+					necro_cheat_deaths[who_serial] = true
 				end
 
 				if (_recording_buffs_and_debuffs) then
@@ -2507,6 +2513,10 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 						local damage_prevented = monk_guard_talent [who_serial] - (amount or 0)
 						parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, damage_prevented, _math_ceil (amount or 0), 0, 0, true)
 					end
+				
+				elseif (spellid == SPELLID_NECROMANCER_CHEAT_DEATH) then --remove on 10.0
+					necro_cheat_deaths[who_serial] = nil
+
 				end
 
 				--druid kyrian empower bounds (9.0 kyrian covenant - probably remove on 10.0)
@@ -4650,6 +4660,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		_table_wipe (_detalhes.encounter_table)
 		_table_wipe (bargastBuffs) --remove on 10.0
+		_table_wipe (necro_cheat_deaths) --remove on 10.0
 		
 		return true
 	end
