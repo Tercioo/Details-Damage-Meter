@@ -1858,32 +1858,33 @@
 		end
 		
 		if (jogador_alvo.grupo) then
-		
-			local t = last_events_cache [alvo_name]
-			
-			if (not t) then
-				t = _current_combat:CreateLastEventsTable (alvo_name)
-			end
-			
-			local i = t.n
-			
-			local this_event = t [i]
-			
-			this_event [1] = false --> true if this is a damage || false for healing
-			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
-			this_event [4] = time --> parser time
-			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
-			this_event [6] = who_name --> source name
-			this_event [7] = is_shield
-			this_event [8] = absorbed
-			
-			i = i + 1
-			
-			if (i == _death_event_amt+1) then
-				t.n = 1
-			else
-				t.n = i
+			if (not necro_cheat_deaths[alvo_serial]) then --remove on 10.0
+				local t = last_events_cache [alvo_name]
+				
+				if (not t) then
+					t = _current_combat:CreateLastEventsTable (alvo_name)
+				end
+				
+				local i = t.n
+				
+				local this_event = t [i]
+				
+				this_event [1] = false --> true if this is a damage || false for healing
+				this_event [2] = spellid --> spellid || false if this is a battle ress line
+				this_event [3] = amount --> amount of damage or healing
+				this_event [4] = time --> parser time
+				this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+				this_event [6] = who_name --> source name
+				this_event [7] = is_shield
+				this_event [8] = absorbed
+				
+				i = i + 1
+				
+				if (i == _death_event_amt+1) then
+					t.n = 1
+				else
+					t.n = i
+				end
 			end
 			
 		end
@@ -2716,40 +2717,42 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 				
 				--death log
 					--> record death log
-					local t = last_events_cache [alvo_name]
-					
-					if (not t) then
-						t = _current_combat:CreateLastEventsTable (alvo_name)
+					if (not necro_cheat_deaths[alvo_serial]) then --remove on 10.0
+						local t = last_events_cache [alvo_name]
+						
+						if (not t) then
+							t = _current_combat:CreateLastEventsTable (alvo_name)
+						end
+						
+						local i = t.n
+						
+						local this_event = t [i]
+						
+						if (not this_event) then
+							return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
+						end
+						
+						--print ("DebuffIN", ">", "Added to the DeathLog")
+						
+						this_event [1] = 4 --> 4 = debuff aplication
+						this_event [2] = spellid --> spellid
+						this_event [3] = 1
+						this_event [4] = time --> parser time
+						this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+						this_event [6] = who_name --> source name
+						this_event [7] = false
+						this_event [8] = false
+						this_event [9] = false
+						this_event [10] = false
+						
+						i = i + 1
+						
+						if (i == _death_event_amt+1) then
+							t.n = 1
+						else
+							t.n = i
+						end				
 					end
-					
-					local i = t.n
-					
-					local this_event = t [i]
-					
-					if (not this_event) then
-						return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
-					end
-					
-					--print ("DebuffIN", ">", "Added to the DeathLog")
-					
-					this_event [1] = 4 --> 4 = debuff aplication
-					this_event [2] = spellid --> spellid
-					this_event [3] = 1
-					this_event [4] = time --> parser time
-					this_event [5] = _UnitHealth (alvo_name) --> current unit heal
-					this_event [6] = who_name --> source name
-					this_event [7] = false
-					this_event [8] = false
-					this_event [9] = false
-					this_event [10] = false
-					
-					i = i + 1
-					
-					if (i == _death_event_amt+1) then
-						t.n = 1
-					else
-						t.n = i
-					end				
 				
 			elseif (in_out == "DEBUFF_UPTIME_REFRESH") then
 				if (este_alvo.actived_at and este_alvo.actived) then
@@ -2763,9 +2766,9 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 					
 					--local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (alvo_name, spellname, nil, "HARMFUL")
 					--UnitAura ("Kastfall", "Gulp Frog Toxin", nil, "HARMFUL")
-					
-					--if (name) then
-						--> record death log
+						
+					--> record death log
+					if (not necro_cheat_deaths[alvo_serial]) then --remove on 10.0
 						local t = last_events_cache [alvo_name]
 						
 						if (not t) then
@@ -2800,7 +2803,7 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 						else
 							t.n = i
 						end
-					--end
+					end
 				
 			elseif (in_out == "DEBUFF_UPTIME_OUT") then
 				if (este_alvo.actived_at and este_alvo.actived) then
