@@ -425,14 +425,12 @@
 		
 		pet_tooltip_frame:SetOwner (WorldFrame, "ANCHOR_NONE")
 		pet_tooltip_frame:SetHyperlink ("unit:" .. serial or "")
+
+		Details.tabela_vigente.raid_roster_indexed = Details.tabela_vigente.raid_roster_indexed or {}
 		
 		local line1 = _G ["DetailsPetOwnerFinderTextLeft2"]
 		local text1 = line1 and line1:GetText()
 		if (text1 and text1 ~= "") then
-			if (not Details.tabela_vigente.raid_roster_indexed) then
-				print("D! error 0x9541 - report on discord")
-				return
-			end
 			for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
 			--for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
 				local pName = playerName
@@ -461,10 +459,6 @@
 		local line2 = _G ["DetailsPetOwnerFinderTextLeft3"]
 		local text2 = line2 and line2:GetText()
 		if (text2 and text2 ~= "") then
-			if (not Details.tabela_vigente.raid_roster_indexed) then
-				print("D! error 0x9542 - report on discord")
-				return
-			end
 			--for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
 			for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
 				local pName = playerName
