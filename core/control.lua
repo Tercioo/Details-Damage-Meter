@@ -948,7 +948,10 @@
 			table.wipe(_detalhes.arena_enemies)
 
 			for i = 1, enemiesAmount do
-				_detalhes.arena_enemies[GetUnitName("arena" .. i, true)] = "arena" .. i
+				local enemyName = _G.GetUnitName("arena" .. i, true)
+				if (enemyName) then
+					_detalhes.arena_enemies[enemyName] = "arena" .. i
+				end
 			end
 		end
 		
