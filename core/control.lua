@@ -939,9 +939,6 @@
 				local name = GetUnitName ("player", true)
 				Details.arena_table [name] = {role = role}
 			end
-			if (Details.debug) then
-				Details:Msg ("(debug) Found", oponentes, "enemies and", aliados, "allies")
-			end
 
 			--enemies
 			local enemiesAmount = GetNumArenaOpponentSpecs()
