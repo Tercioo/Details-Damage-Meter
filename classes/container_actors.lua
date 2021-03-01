@@ -74,6 +74,9 @@
 	local TheNightfallen = GetFactionInfoByID (1859) or "1"
 	local TheWardens = GetFactionInfoByID (1894) or "1"
 
+	local SPELLID_SANGUINE_HEAL = 226510
+	local sanguineActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+
 	local IsFactionNpc = {
 		[KirinTor] = true,
 		[Valarjar] = true,
@@ -700,6 +703,11 @@
 
 			end
 		
+			--sanguine affix
+			if (nome == sanguineActorName) then
+				novo_objeto.grupo = true
+			end
+
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- grava o objeto no mapa do container
 			local size = #self._ActorTable+1

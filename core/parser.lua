@@ -274,6 +274,8 @@
 	local SPELLID_KYRIAN_DRUID_HEAL = 327149
 	local SPELLID_KYRIAN_DRUID_TANK = 327037
 
+	local SPELLID_SANGUINE_HEAL = 226510
+
 	local SPELLID_BARGAST_DEBUFF = 334695 --REMOVE ON 10.0
 	local bargastBuffs = {}
 
@@ -1601,7 +1603,7 @@
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------
-	--> HEALING 	serach key: ~heal											|
+	--> HEALING 	serach key: ~healing											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -1834,10 +1836,16 @@
 		
 		este_jogador.last_event = _tempo
 
+
 	------------------------------------------------------------------------------------------------
 	--> an enemy healing enemy or an player actor healing a enemy
 
-		if (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0 and not _detalhes.is_in_arena and not _detalhes.is_in_battleground) then
+		if (spellid == SPELLID_SANGUINE_HEAL) then --sanguine ichor (heal enemies)
+			who_name = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+			who_flags = 0x518
+			este_jogador.grupo = true
+
+		elseif (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0 and not _detalhes.is_in_arena and not _detalhes.is_in_battleground) then
 			if (not este_jogador.heal_enemy [spellid]) then 
 				este_jogador.heal_enemy [spellid] = cura_efetiva
 			else
@@ -2766,7 +2774,7 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 					
 					--local name, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (alvo_name, spellname, nil, "HARMFUL")
 					--UnitAura ("Kastfall", "Gulp Frog Toxin", nil, "HARMFUL")
-						
+
 					--> record death log
 					if (not necro_cheat_deaths[alvo_serial]) then --remove on 10.0
 						local t = last_events_cache [alvo_name]
@@ -3061,9 +3069,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-
-		--print (who_name, alvo_name, spellid, spellname, spelltype, amount, powertype)
-	
 		if (not who_name) then
 			who_name = "[*] "..spellname
 		elseif (not alvo_name) then
@@ -3282,13 +3287,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		return spell_misc_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, token, "BUFF_OR_DEBUFF", "COOLDOWN")
 	end
-
 	
 	--serach key: ~interrupts
 	function parser:interrupt (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
+
+		--quake affix from mythic+
+		if (spellid == 240448) then
+			return
+		end
 
 		if (not who_name) then
 			who_name = "[*] "..spellname
