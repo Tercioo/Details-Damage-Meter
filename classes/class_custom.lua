@@ -821,7 +821,6 @@
 				actor.nome = spellname
 				actor.name = spellname
 				actor.classe = actor.spellschool
-				actor.class = actor.spellschool
 				class = actor.spellschool
 				
 				local index = self._NameIndexTable [actor.nome]
