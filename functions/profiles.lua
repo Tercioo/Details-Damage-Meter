@@ -1700,6 +1700,21 @@ function Details:ImportProfile (profileString, newProfileName)
 				end
 			end
 		end
+
+		--profile imported, set mythic dungeon to default settings
+		local mythicPlusSettings = Details.mythic_plus
+		mythicPlusSettings.always_in_combat = false
+		mythicPlusSettings.merge_boss_trash = true
+		mythicPlusSettings.delete_trash_after_merge = true
+		mythicPlusSettings.boss_dedicated_segment = true
+		mythicPlusSettings.make_overall_when_done = true
+		mythicPlusSettings.make_overall_boss_only = false
+		mythicPlusSettings.show_damage_graphic = true
+		mythicPlusSettings.delay_to_show_graphic = 5
+		mythicPlusSettings.last_mythicrun_chart = {}
+		mythicPlusSettings.mythicrun_chart_frame = {}
+		mythicPlusSettings.mythicrun_chart_frame_minimized = {}
+		mythicPlusSettings.mythicrun_chart_frame_ready = {}
 		
 		--transfer instance data to the new created profile
 		profileObject.instances = DetailsFramework.table.copy ({}, profileData.instances)

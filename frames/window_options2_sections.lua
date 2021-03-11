@@ -6280,6 +6280,7 @@ do
     tinsert(Details.optionsSection, buildSection)
 end
 
+-- ~18 - mythic dungeon section
 do
     local buildSection = function(sectionFrame)
 
