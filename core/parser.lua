@@ -282,6 +282,8 @@
 	local SPELLID_NECROMANCER_CHEAT_DEATH = 327676 --REMOVE ON 10.0
 	local necro_cheat_deaths = {}
 
+	local SPELLID_VENTYR_TAME_GARGOYLE = 342171 --REMOVE ON 10.0
+
 	--> spells with special treatment
 	local special_damage_spells = {
 		[SPELLID_SHAMAN_SLT] = true, --> Spirit Link Toten
@@ -2175,6 +2177,14 @@ SPELL_HEAL,Player-3209-0A79112C,"Symantec-Azralon",0x511,0x0,Player-3209-065BAED
 			if (spellid == 315161) then
 				local enemyName = GetSpellInfo(315161)
 				who_serial, who_name, who_flags = "", enemyName, 0xa48
+
+			--3/11 14:08:34.105  SPELL_CAST_START,Player-3676-06D63197,"Clutchdaily-Area52",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,342171,"Loyal Stoneborn",0x20
+			--3/11 14:08:35.690  SPELL_CAST_SUCCESS,Player-3676-06D63197,"Clutchdaily-Area52",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,342171,"Loyal Stoneborn",0x20,Player-3676-06D63197,0000000000000000,59976,68222,1882,304,3067,0,1,405,1000,0,-2191.13,5230.31,1663,3.1663,218
+			elseif (spellid == SPELLID_VENTYR_TAME_GARGOYLE) then --ventyr tame gargoyle on halls of atonement
+				--3/11 14:08:35.690  SPELL_AURA_APPLIED,Player-3676-06D63197,"Clutchdaily-Area52",0x512,0x0,Creature-0-4220-2287-20503-174175-0000CA4BDB,"Loyal Stoneborn",0xa48,0x0,342171,"Loyal Stoneborn",0x20,DEBUFF
+				--tag the target of this spell as a pet of caster
+				_detalhes.tabela_pets:Adicionar(alvo_serial, alvo_name, alvo_flags, who_serial, who_name, 0x00000417)
+				print("D! player", who_name, "tamed a gargoyle in HOA.")
 			end
 			
 		------------------------------------------------------------------------------------------------
