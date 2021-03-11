@@ -873,8 +873,8 @@ local default_profile = {
 		},
 		
 	--> segments
-		segments_amount = 18,
-		segments_amount_to_save = 18,
+		segments_amount = 40,
+		segments_amount_to_save = 40,
 		segments_panic_mode = false,
 		segments_auto_erase = 1,
 		
@@ -1715,10 +1715,14 @@ function Details:ImportProfile (profileString, newProfileName)
 		mythicPlusSettings.mythicrun_chart_frame = {}
 		mythicPlusSettings.mythicrun_chart_frame_minimized = {}
 		mythicPlusSettings.mythicrun_chart_frame_ready = {}
-		
+
+		--make the max amount of segments be 30
+		Details.segments_amount = 40
+		Details.segments_amount_to_save = 40
+
 		--transfer instance data to the new created profile
 		profileObject.instances = DetailsFramework.table.copy ({}, profileData.instances)
-		
+
 		Details:ApplyProfile (newProfileName)
 		
 		Details:Msg ("profile successfully imported.")--localize-me
