@@ -1794,6 +1794,13 @@
 		if (is_using_spellId_override) then
 			spellid = override_spellId [spellid] or spellid
 		end
+
+		--sanguine ichor mythic dungeon affix (heal enemies)
+		if (spellid == SPELLID_SANGUINE_HEAL) then 
+			who_name = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+			who_flags = 0x518
+			who_serial = "Creature-0-3134-2289-28065-" .. SPELLID_SANGUINE_HEAL .. "-000164C698"
+		end
 		
 		--[[statistics]]-- _detalhes.statistics.heal_calls = _detalhes.statistics.heal_calls + 1
 		
@@ -1841,8 +1848,6 @@
 	--> an enemy healing enemy or an player actor healing a enemy
 
 		if (spellid == SPELLID_SANGUINE_HEAL) then --sanguine ichor (heal enemies)
-			who_name = GetSpellInfo(SPELLID_SANGUINE_HEAL)
-			who_flags = 0x518
 			este_jogador.grupo = true
 
 		elseif (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0 and not _detalhes.is_in_arena and not _detalhes.is_in_battleground) then
