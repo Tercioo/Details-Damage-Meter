@@ -334,7 +334,7 @@
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
 		
 	--> encoutner rules
-		local ignored_npc_ids = {
+		local ignored_npc_ids = { --deprecated to be removed
 			--amorphous cyst g'huun Uldir - ignore damage done to this npcs
 			["138185"] = true, --boss room mythic
 			["141264"] = true, --trash
