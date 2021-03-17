@@ -518,6 +518,19 @@ function Details:StartMeUp() --I'll never stop!
 		_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 	end
 
+	--wipe overall on torghast - REMOVE ON 10.0
+	local torghastTracker = CreateFrame("frame")
+	torghastTracker:RegisterEvent("JAILERS_TOWER_LEVEL_UPDATE")
+	torghastTracker:SetScript("OnEvent", function(self, event, level, towerType)
+		print(self, event, level, towerType)
+		if (level == 1) then
+			if (Details.overall_clear_newtorghast) then
+				Details.historico:resetar_overall()
+				Details:Msg ("overall data are now reset.") --localize-me
+			end
+		end
+	end)
+
 	function Details:InstallOkey()
 		return true
 	end
