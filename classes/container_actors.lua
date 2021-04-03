@@ -519,7 +519,6 @@
 		
 			--> try to find the owner
 			if (flag and _bit_band (flag, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
-			
 				--[[statistics]]-- _detalhes.statistics.container_unknow_pet = _detalhes.statistics.container_unknow_pet + 1
 				local find_nome, find_owner = find_pet_owner (serial, nome, flag, self)
 				if (find_nome and find_owner) then

@@ -236,7 +236,7 @@ function Details:StartMeUp() --I'll never stop!
 			
 			self.listener:RegisterEvent ("UNIT_FACTION")
 
-			if (not _G.DetailsFramework.IsClassicWow()) then
+			if (not _G.DetailsFramework.IsTimewalkWoW()) then
 				self.listener:RegisterEvent ("PET_BATTLE_OPENING_START")
 				self.listener:RegisterEvent ("PET_BATTLE_CLOSE")
 				self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
@@ -495,7 +495,9 @@ function Details:StartMeUp() --I'll never stop!
 		Details:Msg("use '/details me' macro to open the player breakdown for you!")
 	end
 
-	Details.cached_specs[UnitGUID("player")] = GetSpecializationInfo(GetSpecialization() or 0)
+	if (not DetailsFramework.IsTimewalkWoW()) then
+		Details.cached_specs[UnitGUID("player")] = GetSpecializationInfo(GetSpecialization() or 0)
+	end
 
 	if (not Details.data_wipes_exp["9"]) then
 		wipe(Details.encounter_spell_pool or {})
@@ -515,17 +517,23 @@ function Details:StartMeUp() --I'll never stop!
 		_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 	end
 
-	--wipe overall on torghast - REMOVE ON 10.0
-	local torghastTracker = CreateFrame("frame")
-	torghastTracker:RegisterEvent("JAILERS_TOWER_LEVEL_UPDATE")
-	torghastTracker:SetScript("OnEvent", function(self, event, level, towerType)
-		if (level == 1) then
-			if (Details.overall_clear_newtorghast) then
-				Details.historico:resetar_overall()
-				Details:Msg ("overall data are now reset.") --localize-me
+	if (not DetailsFramework.IsTimewalkWoW()) then
+		--wipe overall on torghast - REMOVE ON 10.0
+		local torghastTracker = CreateFrame("frame")
+		torghastTracker:RegisterEvent("JAILERS_TOWER_LEVEL_UPDATE")
+		torghastTracker:SetScript("OnEvent", function(self, event, level, towerType)
+			if (level == 1) then
+				if (Details.overall_clear_newtorghast) then
+					Details.historico:resetar_overall()
+					Details:Msg ("overall data are now reset.") --localize-me
+				end
 			end
-		end
-	end)
+		end)
+	end
+
+	if (DetailsFramework.IsTimewalkWoW()) then
+		Details:Msg("TBC Beta Version: 0008")
+	end
 
 	function Details:InstallOkey()
 		return true
