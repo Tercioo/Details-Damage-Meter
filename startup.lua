@@ -532,8 +532,66 @@ function Details:StartMeUp() --I'll never stop!
 	end
 
 	if (DetailsFramework.IsTimewalkWoW()) then
-		Details:Msg("TBC Beta Version: 0008")
+		Details:Msg("TBC Beta Version: 0009")
 	end
+
+	if (DetailsFramework.IsTBCWow()) then
+		local originalPosition
+		local isOnOriginalPosition = true
+
+		local taintWarning = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
+		taintWarning:SetSize (500, 35)
+		taintWarning:SetFrameStrata ("low")
+
+		DetailsFramework:ApplyStandardBackdrop(taintWarning)
+	
+		local warningMessage = taintWarning:CreateFontString (nil, "overlay", "GameFontNormal")
+		warningMessage:SetText ("< right click and choose 'Enter Battle' if 'Enter Battle' button does not work")
+	
+		C_Timer.NewTicker(1, function()
+			if (StaticPopup1:IsShown()) then
+				if (StaticPopup1.which == "CONFIRM_BATTLEFIELD_ENTRY") then
+
+					if (StaticPopup2:IsShown()) then
+						if (StaticPopup2.which == "ADDON_ACTION_FORBIDDEN") then
+							StaticPopup_Hide("ADDON_ACTION_FORBIDDEN")
+						end
+					end
+	
+					taintWarning:Show()
+					taintWarning:SetPoint ("topleft", StaticPopup1, "bottomleft", 0, -10)
+					if (MiniMapBattlefieldFrame:IsShown())then
+						if (not originalPosition) then
+							local a = {}
+							for i = 1, MiniMapBattlefieldFrame:GetNumPoints() do
+								a[#a + 1] = {MiniMapBattlefieldFrame:GetPoint(i)}
+							end
+							originalPosition = a
+						end
+	
+						MiniMapBattlefieldFrame:ClearAllPoints()
+						MiniMapBattlefieldFrame:SetPoint("left", taintWarning, "left", 10, -2)
+						warningMessage:SetPoint ("left", MiniMapBattlefieldFrame, "right", 9, 0)
+						MiniMapBattlefieldFrame:SetFrameStrata("HIGH")
+
+						--
+	
+						isOnOriginalPosition = false
+					end
+				end
+			else
+				if (originalPosition and not isOnOriginalPosition) then
+					MiniMapBattlefieldFrame:ClearAllPoints()
+					for i = 1, #originalPosition do
+						MiniMapBattlefieldFrame:SetPoint(unpack (originalPosition[i]))
+					end
+					taintWarning:Hide()
+					isOnOriginalPosition = true
+				end
+			end
+		end)
+	end
+
 
 	function Details:InstallOkey()
 		return true
