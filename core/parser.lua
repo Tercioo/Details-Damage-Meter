@@ -1599,10 +1599,11 @@
 		local npcId = _tonumber(_select (6, _strsplit ("-", alvo_serial)) or 0)
 
 		--rename monk's "Storm, Earth, and Fire" adds
+		--desligado pois poderia estar causando problemas
 		if (npcId == 69792) then 
-			alvo_name = "Earth Spirit"
+			--alvo_name = "Earth Spirit"
 		elseif (npcId == 69791) then
-			alvo_name = "Fire Spirit"
+			--alvo_name = "Fire Spirit"
 		end
 	
 		--> pet summon another pet
