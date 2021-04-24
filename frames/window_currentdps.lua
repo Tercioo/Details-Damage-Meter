@@ -2,7 +2,7 @@
 
 local Details = _G.Details
 local libwindow = LibStub("LibWindow-1.1")
-
+local DF = DetailsFramework
 
 function Details:OpenCurrentRealDPSOptions(from_options_panel)
 
@@ -241,7 +241,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 		end)
 		
 	end
-	
+
 	--> check if the frame was been created
 	if (not DetailsCurrentDpsMeter) then
 		Details:CreateCurrentDpsFrame(UIParent, "DetailsCurrentDpsMeter")
@@ -286,6 +286,24 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		LibWindow.RegisterConfig (f, _detalhes.current_dps_meter.frame)
 		LibWindow.MakeDraggable (f)
 		LibWindow.RestorePosition (f)
+
+	--> arena dps bars
+		--code for the dps bars shown in arenas
+
+		--frame to support the two bars, one for the dps and another for heal
+		--the dps bar is wider and taller, hps is below it and smaller
+		local barFrame = CreateFrame("frame", "DetailsArenaDpsBars", f, "BackdropTemplate")
+		f.dpsBarFrame = barFrame
+		barFrame:SetSize(400, 80)
+		barFrame:SetPoint("center", f, "center")
+
+		barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 50)
+		barFrame.splitBar:SetSize(400, 50)
+		barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
+		barFrame.splitBar.fontsize = 10
+		barFrame.splitBar:SetMinMaxValues(0, 1.0)
+		barFrame.splitBar:SetValue(0.5)
+		barFrame.splitBar:EnableAnimations()
 
 	--> title bar
 		local TitleString = f:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -359,14 +377,6 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		labelGroupDamage_DPS:SetPoint ("center", labelGroupDamage, "center")
 		labelGroupDamage_DPS:SetPoint ("top", labelGroupDamage, "bottom", 0, spacing_vertical)
 		
-		--[=[
-		local labelGroupDamage_DPS_Icon = f:CreateTexture (nil, "overlay")
-		labelGroupDamage_DPS_Icon:SetTexture ([[Interface\LFGFRAME\UI-LFG-ICON-ROLES]])
-		labelGroupDamage_DPS_Icon:SetTexCoord (72/256, 130/256, 69/256, 127/256)
-		labelGroupDamage_DPS_Icon:SetSize (icon_size, icon_size)
-		labelGroupDamage_DPS_Icon:SetPoint ("topleft", labelPlayerTeam, "bottomleft", 0, -4)
-		--]=]
-		
 	--> frame update function
 		
 		--> update
@@ -400,11 +410,13 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			
 			if (not _detalhes.current_dps_meter.enabled) then
 				f:Hide()
+				print("D! debug currentdps.lua > !current_dps_meter.enabled")
 				return
 			end
 			
 			if (not _detalhes.current_dps_meter.arena_enabled and not _detalhes.current_dps_meter.mythic_dungeon_enabled) then
 				f:Hide()
+				print("D! debug currentdps.lua > not _detalhes.current_dps_meter.arena_enabled and not _detalhes.current_dps_meter.mythic_dungeon_enabled")
 				return
 			end
 			
@@ -416,7 +428,8 @@ function Details:CreateCurrentDpsFrame(parent, name)
 				labelYellowTeam:Show()
 				labelPlayerTeam_DPS_Icon:Show()
 				labelYellowTeam_DPS_Icon:Show()
-				
+				f.dpsBarFrame:Show()
+
 				--> update arena labels
 				DF:SetFontColor (labelPlayerTeam_DPS, _detalhes.current_dps_meter.font_color)
 				DF:SetFontFace (labelPlayerTeam_DPS, _detalhes.current_dps_meter.font_face)
@@ -473,6 +486,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			else
 				labelGroupDamage:Hide()
 				labelGroupDamage_DPS:Hide()
+				f.dpsBarFrame:Hide()
 			end
 			
 			--> frame position
@@ -583,6 +597,23 @@ function Details:CreateCurrentDpsFrame(parent, name)
 					end
 					
 					self.NextScreenUpdate = self.NextScreenUpdate - time_fraction
+
+					--> update double bar
+						local teamGreenDps = self.PlayerTeamDamage / self.SampleSize
+						local teamYellowDps = self.YellowDamage / self.SampleSize
+						local totalDamage = teamGreenDps + teamYellowDps
+						local dpsBarFrame = DetailsArenaDpsBars.splitBar
+
+						dpsBarFrame.currentValue = teamGreenDps / totalDamage * 100
+
+						if (f.PlayerTeam == 0) then
+							dpsBarFrame:SetLeftColor(unpack (green_team_color))
+							dpsBarFrame:SetRightColor(unpack (yellow_team_color))
+						else
+							dpsBarFrame:SetLeftColor(unpack (yellow_team_color))
+							dpsBarFrame:SetRightColor(unpack (green_team_color))
+						end
+
 					if (self.NextScreenUpdate <= 0) then
 						if (f.PlayerTeam == 0) then
 							labelPlayerTeam_DPS:SetText (_detalhes:ToK2 (self.PlayerTeamDamage / self.SampleSize))
@@ -650,24 +681,23 @@ function Details:CreateCurrentDpsFrame(parent, name)
 
 		function f:StartForArenaMatch()
 			if (not f.ShowingArena) then
-				_detalhes:UpdateTheRealCurrentDPSFrame ("arena")
 				f.ShowingArena = true
 				f:SetScript ("OnUpdate", on_tick)
 			end
 		end
-		
+
 		function f:StartForMythicDungeon()
 			if (not f.ShowingMythicDungeon) then
-				_detalhes:UpdateTheRealCurrentDPSFrame ("mythicdungeon")
 				f.ShowingMythicDungeon = true
 				f:SetScript ("OnUpdate", on_tick)
 			end
 		end
-		
+
 		local eventListener = _detalhes:CreateEventListener()
-	
+
 		function eventListener:ArenaStarted()
 			if (_detalhes.current_dps_meter.arena_enabled) then
+				--it is working here, f:StartForArenaMatch() is called but the frame is still now shown.
 				f:StartForArenaMatch()
 			end
 		end
@@ -699,14 +729,19 @@ function Details:CreateCurrentDpsFrame(parent, name)
 				f.LastYellowDamage = 0
 			end
 		end
-		
+
 		eventListener:RegisterEvent ("COMBAT_ARENA_START", "ArenaStarted")
 		eventListener:RegisterEvent ("COMBAT_ARENA_END", "ArenaEnded")
 		eventListener:RegisterEvent ("COMBAT_MYTHICDUNGEON_START", "MythicDungeonStarted")
 		eventListener:RegisterEvent ("COMBAT_MYTHICDUNGEON_END", "MythicDungeonEnded")
 		eventListener:RegisterEvent ("COMBAT_PLAYER_ENTER", "ResetBuffer")
-	
+
 	_detalhes.Broadcaster_CurrentDpsLoaded = true
 	_detalhes.Broadcaster_CurrentDpsFrame = f
 	f:Hide()
+end
+
+--initialize frames
+function Details:InitializeCurrentDpsFrames()
+	Details:CreateCurrentDpsFrame(UIParent, "DetailsCurrentDpsMeter")
 end

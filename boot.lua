@@ -732,24 +732,24 @@ do
 		SharedMedia:Register ("sound", "d_jedi1", [[Interface\Addons\Details\sounds\sound_jedi1.ogg]])
 		SharedMedia:Register ("sound", "d_whip1", [[Interface\Addons\Details\sounds\sound_whip1.ogg]])
 	
-	--> global 'vardump' for dump table contents over chat panel
-		function vardump (t)
+	--> dump table contents over chat panel
+		function Details.VarDump(t)
 			if (type (t) ~= "table") then
 				return
 			end
-			for a,b in pairs (t) do 
+			for a,b in pairs (t) do
 				print (a,b)
 			end
 		end
-		
-	--> global 'table_deepcopy' copies a full table	
-		function table_deepcopy (orig)
+
+	--> copies a full table
+		function Details.CopyTable(orig)
 			local orig_type = type(orig)
 			local copy
 			if orig_type == 'table' then
 				copy = {}
 				for orig_key, orig_value in next, orig, nil do
-					copy [table_deepcopy (orig_key)] = table_deepcopy (orig_value)
+					copy [Details.CopyTable (orig_key)] = Details.CopyTable (orig_value)
 				end
 			else
 				copy = orig

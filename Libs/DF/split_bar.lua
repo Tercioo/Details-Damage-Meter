@@ -451,8 +451,97 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 
+-- animation
+
+	local timeDilatation = 2.615321
+
+	--> animation with acceleration ~animation ~healthbaranimation
+	local animateLeftWithAccel = function(self, deltaTime)
+		local distance = (self.AnimationStart - self.AnimationEnd) / self.CurrentMaxValue * 100  --scale 1 - 100
+		local minTravel = min (distance / 10, 3) -- 10 = trigger distance to max speed 3 = speed scale on max travel
+		local maxTravel = max (minTravel, 0.45) -- 0.45 = min scale speed on low travel speed
+		local animationSpeed = (self.CurrentMaxValue * (deltaTime * timeDilatation)) * maxTravel --re-scale back to unit health, scale with delta time and scale with the travel speed
+		
+		self.AnimationStart = self.AnimationStart - (animationSpeed)
+		self:SetValue(self.AnimationStart)
+		self.currentValue = self.AnimationStart
+		
+		if (self.Spark) then
+			self.Spark:SetPoint("center", self, "left", self.AnimationStart / self.CurrentMaxValue * self:GetWidth(), 0)
+			self.Spark:Show()
+		end
+		
+		if (self.AnimationStart - 0.01 <= self.AnimationEnd) then
+			self:SetValue (self.AnimationEnd)
+			self.currentValue = self.AnimationEnd
+			self.IsAnimating = false
+			if (self.Spark) then
+				self.Spark:Hide()
+			end
+		end
+	end
+
+	local animateRightWithAccel = function(self, deltaTime)
+		local distance = (self.AnimationEnd - self.AnimationStart) / self.CurrentMaxValue * 100	--scale 1 - 100 basis
+		local minTravel = math.min (distance / 10, 3) -- 10 = trigger distance to max speed 3 = speed scale on max travel
+		local maxTravel = math.max (minTravel, 0.45) -- 0.45 = min scale speed on low travel speed
+		local animationSpeed = (self.CurrentMaxValue * (deltaTime * timeDilatation)) * maxTravel --re-scale back to unit health, scale with delta time and scale with the travel speed
+		
+		self.AnimationStart = self.AnimationStart + (animationSpeed)
+		self:SetValue(self.AnimationStart)
+		self.currentValue = self.AnimationStart
+		
+		if (self.AnimationStart + 0.01 >= self.AnimationEnd) then
+			self:SetValue (self.AnimationEnd)
+			self.currentValue = self.AnimationEnd
+			self.IsAnimating = false
+			if (self.Spark) then
+				self.Spark:Hide()
+			end
+		end
+	end
+
+	local onUpdate = function(self, deltaTime)
+		return self.MyObject:DoAnimation(deltaTime)
+	end
+
+	function SplitBarMetaFunctions:EnableAnimations()
+		self.widget:SetScript("OnUpdate", onUpdate)
+		self.widget:SetMinMaxValues(0, 1.0)
+		self.widget:SetValue(0, 0.5)
+		self.UsingAnimation = true
+		self.oldValue = self:GetValue()
+		self.currentValue = self:GetValue()
+		self.CurrentMaxValue = 100.0
+	end
+
+	function SplitBarMetaFunctions:DisableAnimations()
+		self.widget:SetScript("OnUpdate", nil)
+		self.UsingAnimation = nil
+		self.oldValue = nil
+		self.currentValue = nil
+	end
+
+	function SplitBarMetaFunctions:DoAnimation(deltaTime)
+		local oldValue = self.oldValue
+
+		self.AnimationStart = oldValue
+		self.AnimationEnd = self.currentValue
+
+		self:SetValue(oldValue)
+
+		self.IsAnimating = true
+
+		if (self.AnimationEnd > self.AnimationStart) then
+			self.AnimateFunc = animateRightWithAccel
+		else
+			self.AnimateFunc = animateLeftWithAccel
+		end
+	end
+
 ------------------------------------------------------------------------------------------------------------
 --> scripts
+
 	local OnEnter = function (frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
@@ -539,8 +628,8 @@ function DetailsFrameworkSplitlBar_OnCreate (self)
 	return true
 end
 
-function DF:CreateSplitBar (parent, parent, w, h, member, name)
-	return DF:NewSplitBar (parent, container, name, member, w, h)
+function DF:CreateSplitBar(parent, width, height, member, name)
+	return DF:NewSplitBar(parent, nil, name, member, width, height)
 end
 
 local build_statusbar = function (self)
