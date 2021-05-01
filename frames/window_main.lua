@@ -6867,7 +6867,7 @@ function _detalhes:ChangeSkin (skin_name)
 			local overwrite_cprops = this_skin.instance_cprops
 			if (overwrite_cprops) then
 				
-				local copy = table_deepcopy (overwrite_cprops)
+				local copy = Details.CopyTable(overwrite_cprops)
 				
 				for cprop, value in _pairs (copy) do
 					if (not _detalhes.instance_skin_ignored_values [cprop]) then
