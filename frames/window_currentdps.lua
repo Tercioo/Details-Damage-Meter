@@ -30,7 +30,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 		--> frame strata options
 			local set_frame_strata = function (_, _, strata)
 				Details.current_dps_meter.frame.strata = strata
-				Details:UpdateTheRealCurrentDPSFrame (testUsing)
+				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
 			local strataTable = {}
 			strataTable [1] = {value = "BACKGROUND", label = "BACKGROUND", onclick = set_frame_strata}
@@ -42,7 +42,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 		--> font options
 			local set_font_shadow= function (_, _, shadow)
 				Details.current_dps_meter.font_shadow = shadow
-				Details:UpdateTheRealCurrentDPSFrame (testUsing)
+				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
 			local fontShadowTable = {}
 			fontShadowTable [1] = {value = "NONE", label = "None", onclick = set_font_shadow}
@@ -51,7 +51,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			
 			local on_select_text_font = function (self, fixed_value, value)
 				Details.current_dps_meter.font_face = value
-				Details:UpdateTheRealCurrentDPSFrame (testUsing)
+				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
 		
 		--> options table
@@ -76,7 +76,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() return Details.current_dps_meter.frame.locked end,
 				set = function (self, fixedparam, value) 
 					Details.current_dps_meter.frame.locked = not Details.current_dps_meter.frame.locked
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				desc = "Locked",
 				name = "Locked",
@@ -88,7 +88,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() return Details.current_dps_meter.frame.show_title end,
 				set = function (self, fixedparam, value) 
 					Details.current_dps_meter.frame.show_title = not Details.current_dps_meter.frame.show_title
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				desc = "Show Title",
 				name = "Show Title",
@@ -103,7 +103,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				set = function (self, r, g, b, a) 
 					local color = Details.current_dps_meter.frame.backdrop_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				desc = "Backdrop Color",
 				name = "Backdrop Color",
@@ -122,7 +122,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() return Details.current_dps_meter.frame.width end,
 				set = function (self, fixedparam, value) 
 					Details.current_dps_meter.frame.width = value
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				min = 1,
 				max = 300,
@@ -136,7 +136,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() return Details.current_dps_meter.frame.height end,
 				set = function (self, fixedparam, value) 
 					Details.current_dps_meter.frame.height = value
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				min = 1,
 				max = 300,
@@ -178,7 +178,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() return Details.current_dps_meter.font_size end,
 				set = function (self, fixedparam, value) 
 					Details.current_dps_meter.font_size = value
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				min = 4,
 				max = 32,
@@ -195,7 +195,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				set = function (self, r, g, b, a) 
 					local color = Details.current_dps_meter.font_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
-					Details:UpdateTheRealCurrentDPSFrame (testUsing)
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
 				desc = "Font Color",
 				name = "Font Color",
@@ -216,8 +216,6 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				name = "Font Face",
 				text_template = options_text_template,
 			},
-			
-			
 		}
 		
 		DF:BuildMenu (f, options, 7, -30, 500, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
@@ -231,7 +229,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 					DetailsCurrentDpsMeter:Hide()
 				end
 			end
-			
+
 			--> reopen the options panel
 			if (f.FromOptionsPanel) then
 				C_Timer.After (0.2, function()
@@ -239,36 +237,34 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				end)
 			end
 		end)
-		
 	end
 
 	--> check if the frame was been created
 	if (not DetailsCurrentDpsMeter) then
 		Details:CreateCurrentDpsFrame(UIParent, "DetailsCurrentDpsMeter")
 	end
-	
+
 	--> show the options
 	DetailsCurrentRealDPSOptions:Show()
 	DetailsCurrentRealDPSOptions:RefreshOptions()
 	DetailsCurrentRealDPSOptions.FromOptionsPanel = from_options_panel
-	
+
 	--> start the frame for viewing while editing the options
 	DetailsCurrentDpsMeter:StartForArenaMatch()
-	
 end
 
 
 function Details:CreateCurrentDpsFrame(parent, name)
 
 	local DF = _detalhes.gump
-	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
-	
+	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+
 	--> some constants
 		local header_size = 12 --title bar size
 		local spacing_vertical = -6 --vertical space between the group anchor and the group dps
 		local green_team_color = {.5, 1, .5, 1}
 		local yellow_team_color = {1, 1, .5, 1}
-	
+
 	--> main farame
 		local f = CreateFrame ("frame", name, parent or UIParent,"BackdropTemplate")
 		f:SetPoint ("center", UIParent, "center")
@@ -279,9 +275,9 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		f:EnableMouse (true)
 		f:SetMovable (true)
 		f:SetClampedToScreen (true)
-		
+
 		f.PlayerTeam = 0
-		
+
 		local LibWindow = LibStub ("LibWindow-1.1")
 		LibWindow.RegisterConfig (f, _detalhes.current_dps_meter.frame)
 		LibWindow.MakeDraggable (f)
@@ -292,18 +288,16 @@ function Details:CreateCurrentDpsFrame(parent, name)
 
 		--frame to support the two bars, one for the dps and another for heal
 		--the dps bar is wider and taller, hps is below it and smaller
-		local barFrame = CreateFrame("frame", "DetailsArenaDpsBars", f, "BackdropTemplate")
-		f.dpsBarFrame = barFrame
-		barFrame:SetSize(400, 80)
-		barFrame:SetPoint("center", f, "center")
-
-		barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 50)
-		barFrame.splitBar:SetSize(400, 50)
-		barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
-		barFrame.splitBar.fontsize = 10
-		barFrame.splitBar:SetMinMaxValues(0, 1.0)
-		barFrame.splitBar:SetValue(0.5)
-		barFrame.splitBar:EnableAnimations()
+			local barFrame = CreateFrame("frame", "DetailsArenaDpsBars", f)
+			f.dpsBarFrame = barFrame
+			barFrame:SetSize(400, 80)
+			barFrame:SetPoint("center", f, "center", 0, 50)
+			
+			barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 20)
+			barFrame.splitBar:SetSize(400, 20)
+			barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
+			barFrame.splitBar.fontsize = 10
+			barFrame.splitBar:SetTexture(SharedMedia:Fetch("statusbar", "Splitbar"))
 
 	--> title bar
 		local TitleString = f:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -318,41 +312,12 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		TitleBackground:SetHeight (header_size)
 		
 	--> labels for arena
-		local labelPlayerTeam = f:CreateFontString (nil, "overlay", "GameFontNormal")
-		local labelYellowTeam = f:CreateFontString (nil, "overlay", "GameFontNormal")
-		labelPlayerTeam:SetText ("Player Team")
-		labelYellowTeam:SetText ("Enemy Team")
-		DF:SetFontSize (labelPlayerTeam, 14)
-		DF:SetFontSize (labelYellowTeam, 14)
-		DF:SetFontOutline (labelPlayerTeam, "NONE")
-		DF:SetFontOutline (labelYellowTeam, "NONE")
-		
-		local labelPlayerTeam_DPS = f:CreateFontString (nil, "overlay", "GameFontNormal")
-		local labelYellowTeam_DPS = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		local labelPlayerTeam_DPS = barFrame.splitBar:CreateFontString(nil, "overlay", "GameFontNormal")
+		local labelYellowTeam_DPS = barFrame.splitBar:CreateFontString(nil, "overlay", "GameFontNormal")
 		labelPlayerTeam_DPS:SetText ("0")
 		labelYellowTeam_DPS:SetText ("0")
-		
-		local labelPlayerTeam_DPS_Icon = f:CreateTexture (nil, "overlay")
-		local labelYellowTeam_DPS_Icon = f:CreateTexture (nil, "overlay")
-		labelPlayerTeam_DPS_Icon:SetTexture ([[Interface\LFGFRAME\UI-LFG-ICON-ROLES]])
-		labelYellowTeam_DPS_Icon:SetTexture ([[Interface\LFGFRAME\UI-LFG-ICON-ROLES]])
-		labelPlayerTeam_DPS_Icon:SetTexCoord (72/256, 130/256, 69/256, 127/256)
-		labelYellowTeam_DPS_Icon:SetTexCoord (72/256, 130/256, 69/256, 127/256)
-		local icon_size = 16
-		labelPlayerTeam_DPS_Icon:SetSize (icon_size, icon_size)
-		labelYellowTeam_DPS_Icon:SetSize (icon_size, icon_size)
-	
-		labelPlayerTeam:SetPoint ("left", f, "left", 5, 10)
-		labelYellowTeam:SetPoint ("right", f, "right", -5, 10)
-		
-		labelPlayerTeam_DPS_Icon:SetPoint ("topleft", labelPlayerTeam, "bottomleft", 0, -4)
-		labelYellowTeam_DPS_Icon:SetPoint ("topleft", labelYellowTeam, "bottomleft", 0, -4)
-		
-		labelPlayerTeam_DPS:SetPoint ("left", labelPlayerTeam_DPS_Icon, "right", 4, 0)
-		labelYellowTeam_DPS:SetPoint ("left", labelYellowTeam_DPS_Icon, "right", 4, 0)
-	
-		labelPlayerTeam:SetTextColor (unpack (green_team_color))
-		labelYellowTeam:SetTextColor (unpack (yellow_team_color))
+		labelPlayerTeam_DPS:SetPoint ("left", barFrame.splitBar.widget, "left", 4, 0)
+		labelYellowTeam_DPS:SetPoint ("right", barFrame.splitBar.widget, "right", 4, 0)
 		
 		function f.SwapArenaTeamColors()
 			if (f.PlayerTeam == 0) then
@@ -391,102 +356,99 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		f.YellowDamage = 0
 		f.LastPlayerTeamDamage = 0
 		f.LastYellowDamage = 0
-		
+
 		--> mythic dungeon / party group
 		f.GroupBuffer = {}
 		f.GroupTotalDamage = 0
 		f.LastTickGroupDamage = 0
-		
+
 		--> general
 		f.SampleSize = _detalhes.current_dps_meter.sample_size
 		f.MaxBufferIndex = 1
 		f.ShowingArena = false
-		
-		function _detalhes:UpdateTheRealCurrentDPSFrame (scenario)
+
+		function _detalhes:UpdateTheRealCurrentDPSFrame(scenario)
 			--> don't run if the featured hasn't loaded
 			if (not f) then
 				return
 			end
-			
+
 			if (not _detalhes.current_dps_meter.enabled) then
 				f:Hide()
 				print("D! debug currentdps.lua > !current_dps_meter.enabled")
 				return
 			end
-			
+
 			if (not _detalhes.current_dps_meter.arena_enabled and not _detalhes.current_dps_meter.mythic_dungeon_enabled) then
 				f:Hide()
 				print("D! debug currentdps.lua > not _detalhes.current_dps_meter.arena_enabled and not _detalhes.current_dps_meter.mythic_dungeon_enabled")
 				return
 			end
-			
+
 			--> where the player are
 			if (scenario == "arena") then
 				labelPlayerTeam_DPS:Show()
 				labelYellowTeam_DPS:Show()
-				labelPlayerTeam:Show()
-				labelYellowTeam:Show()
-				labelPlayerTeam_DPS_Icon:Show()
-				labelYellowTeam_DPS_Icon:Show()
-				f.dpsBarFrame:Show()
 
 				--> update arena labels
 				DF:SetFontColor (labelPlayerTeam_DPS, _detalhes.current_dps_meter.font_color)
 				DF:SetFontFace (labelPlayerTeam_DPS, _detalhes.current_dps_meter.font_face)
 				DF:SetFontSize (labelPlayerTeam_DPS, _detalhes.current_dps_meter.font_size)
 				DF:SetFontOutline (labelPlayerTeam_DPS, _detalhes.current_dps_meter.font_shadow)
-				
+
 				DF:SetFontColor (labelYellowTeam_DPS, _detalhes.current_dps_meter.font_color)
 				DF:SetFontFace (labelYellowTeam_DPS, _detalhes.current_dps_meter.font_face)
 				DF:SetFontSize (labelYellowTeam_DPS, _detalhes.current_dps_meter.font_size)
 				DF:SetFontOutline (labelYellowTeam_DPS, _detalhes.current_dps_meter.font_shadow)
-				
+
 				--> wipe current data for arena
 				wipe (f.PlayerTeamBuffer)
 				wipe (f.YellowTeamBuffer)
-				
+
 				--> reset damage
 				f.PlayerTeamDamage = 0
 				f.YellowDamage = 0
-				
+
 				--> reset last tick damage
 				f.LastPlayerTeamDamage = 0
 				f.LastYellowDamage = 0
-				
+
 				f:Show()
-			else	
-				--> isn't arena, hide arena labels
-				labelPlayerTeam_DPS:Hide()
-				labelYellowTeam_DPS:Hide()
-				labelPlayerTeam:Hide()
-				labelYellowTeam:Hide()
-				labelPlayerTeam_DPS_Icon:Hide()
-				labelYellowTeam_DPS_Icon:Hide()
-			end
-			
-			if (scenario == "mythicdungeon") then
+				DetailsArenaDpsBars:Show()
+				DetailsArenaDpsBars.splitBar:Show()
+				barFrame.splitBar:EnableAnimations()
+
+				--hide group widgets
+				labelGroupDamage:Hide()
+				labelGroupDamage_DPS:Hide()
+				f.dpsBarFrame:Hide()
+
+			elseif (scenario == "mythicdungeon") then
 				labelGroupDamage:Show()
 				labelGroupDamage_DPS:Show()
-				
+
 				DF:SetFontColor (labelGroupDamage_DPS, _detalhes.current_dps_meter.font_color)
 				DF:SetFontFace (labelGroupDamage_DPS, _detalhes.current_dps_meter.font_face)
 				DF:SetFontSize (labelGroupDamage_DPS, _detalhes.current_dps_meter.font_size)
 				DF:SetFontOutline (labelGroupDamage_DPS, _detalhes.current_dps_meter.font_shadow)
-				
+
 				--> wipe current data for mythic dungeon
 				f.GroupBuffer = {}
-				
+
 				--> reset damage
 				f.GroupTotalDamage = 0
-				
+
 				--> reset last tick damage
 				f.LastTickGroupDamage = 0
-				
+
+				--show the frame
 				f:Show()
-			else
-				labelGroupDamage:Hide()
-				labelGroupDamage_DPS:Hide()
-				f.dpsBarFrame:Hide()
+
+				--hide arena widgets
+				DetailsArenaDpsBars:Hide()
+				DetailsArenaDpsBars.splitBar:Hide()
+				labelPlayerTeam_DPS:Hide()
+				labelYellowTeam_DPS:Hide()
 			end
 			
 			--> frame position
@@ -604,7 +566,9 @@ function Details:CreateCurrentDpsFrame(parent, name)
 						local totalDamage = teamGreenDps + teamYellowDps
 						local dpsBarFrame = DetailsArenaDpsBars.splitBar
 
-						dpsBarFrame.currentValue = teamGreenDps / totalDamage * 100
+						--a percenntagem na barra esta sendo setada corretamente, porem a animação não esta funcrtionando ainda
+						DetailsArenaDpsBars.splitBar:SetValueWithAnimation(teamGreenDps / totalDamage)
+						DetailsArenaDpsBars:Show()
 
 						if (f.PlayerTeam == 0) then
 							dpsBarFrame:SetLeftColor(unpack (green_team_color))
@@ -680,7 +644,10 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		end)
 
 		function f:StartForArenaMatch()
+			--seems not to call any show()
 			if (not f.ShowingArena) then
+				Details:UpdateTheRealCurrentDPSFrame("arena")
+				
 				f.ShowingArena = true
 				f:SetScript ("OnUpdate", on_tick)
 			end
@@ -744,4 +711,47 @@ end
 --initialize frames
 function Details:InitializeCurrentDpsFrames()
 	Details:CreateCurrentDpsFrame(UIParent, "DetailsCurrentDpsMeter")
+end
+
+
+
+function DetailsTestSplitBar()
+
+	--> create the frame
+		local f = CreateFrame("frame", "DetailsTestSplitBarFrame", UIParent)
+		f:SetSize(400, 200)
+		f:SetPoint("center")
+		local backgroundTexture = f:CreateTexture(nil, "overlay")
+		backgroundTexture:SetAllPoints()
+		backgroundTexture:SetColorTexture(.1, .1, .1, .7)
+
+		local barFrame = CreateFrame("frame", "DetailsArenaDpsBars", f, "BackdropTemplate")
+		f.dpsBarFrame = barFrame
+		barFrame:SetSize(400, 80)
+		barFrame:SetPoint("center", f, "center", 0, 50)
+		DF:ApplyStandardBackdrop(barFrame)
+
+		barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 50)
+		barFrame.splitBar:SetSize(400, 50)
+		barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
+		barFrame.splitBar.fontsize = 10
+		local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+		barFrame.splitBar:SetTexture(SharedMedia:Fetch("statusbar", "Splitbar"))
+
+		local green_team_color = {.5, 1, .5, 1}
+		local yellow_team_color = {1, 1, .5, 1}
+		barFrame.splitBar:SetLeftColor(unpack (green_team_color))
+		barFrame.splitBar:SetRightColor(unpack (yellow_team_color))
+
+	--> test the splitbar
+		local loopTime = 0.1
+		f:SetScript("OnUpdate", function(self, deltaTime)
+			loopTime = loopTime - deltaTime
+			if (loopTime <= 0) then
+				local value = abs(1.0 * math.sin((math.pi*2) * (GetTime() * 0.1)))
+				local value = math.random()
+				barFrame.splitBar:SetValueWithAnimation(value)
+				loopTime = 0.1
+			end
+		end)
 end

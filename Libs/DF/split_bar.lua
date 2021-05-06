@@ -440,9 +440,6 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	end
 
 -- frame stratas
-	function SplitBarMetaFunctions:SetFrameStrata()
-		return self.statusbar:GetFrameStrata()
-	end
 	function SplitBarMetaFunctions:SetFrameStrata (strata)
 		if (_type (strata) == "table") then
 			self.statusbar:SetFrameStrata (strata:GetFrameStrata())
@@ -452,91 +449,86 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	end
 
 -- animation
-
-	local timeDilatation = 2.615321
-
 	--> animation with acceleration ~animation ~healthbaranimation
 	local animateLeftWithAccel = function(self, deltaTime)
-		local distance = (self.AnimationStart - self.AnimationEnd) / self.CurrentMaxValue * 100  --scale 1 - 100
-		local minTravel = min (distance / 10, 3) -- 10 = trigger distance to max speed 3 = speed scale on max travel
-		local maxTravel = max (minTravel, 0.45) -- 0.45 = min scale speed on low travel speed
-		local animationSpeed = (self.CurrentMaxValue * (deltaTime * timeDilatation)) * maxTravel --re-scale back to unit health, scale with delta time and scale with the travel speed
-		
-		self.AnimationStart = self.AnimationStart - (animationSpeed)
-		self:SetValue(self.AnimationStart)
-		self.currentValue = self.AnimationStart
-		
-		if (self.Spark) then
-			self.Spark:SetPoint("center", self, "left", self.AnimationStart / self.CurrentMaxValue * self:GetWidth(), 0)
-			self.Spark:Show()
+		local currentPercent = DetailsFramework:GetRangePercent(self.targetValue, self.startValue, self.currentValue)
+		currentPercent = abs(currentPercent - 1)
+		currentPercent = min(0.9, currentPercent)
+		currentPercent = max(0.5, currentPercent)
+
+		local animationMultiplier = math.sin(currentPercent * math.pi)
+		local valueChange = self.step * (deltaTime * animationMultiplier)
+		self.currentValue = self.currentValue - valueChange
+
+		self.statusbar:SetValue(self.currentValue)
+
+		if (self.currentValue - 0.001 <= self.targetValue) then
+			self:SetValue(self.targetValue)
+			self.currentValue = self.targetValue
+			self.spark:Hide()
+			self.widget:SetScript("OnUpdate", nil)
+			return
 		end
-		
-		if (self.AnimationStart - 0.01 <= self.AnimationEnd) then
-			self:SetValue (self.AnimationEnd)
-			self.currentValue = self.AnimationEnd
-			self.IsAnimating = false
-			if (self.Spark) then
-				self.Spark:Hide()
-			end
-		end
+
+		self.spark:SetPoint("center", self.widget, "left", self.currentValue * self:GetWidth(), 0)
+		self.spark:Show()
 	end
 
 	local animateRightWithAccel = function(self, deltaTime)
-		local distance = (self.AnimationEnd - self.AnimationStart) / self.CurrentMaxValue * 100	--scale 1 - 100 basis
-		local minTravel = math.min (distance / 10, 3) -- 10 = trigger distance to max speed 3 = speed scale on max travel
-		local maxTravel = math.max (minTravel, 0.45) -- 0.45 = min scale speed on low travel speed
-		local animationSpeed = (self.CurrentMaxValue * (deltaTime * timeDilatation)) * maxTravel --re-scale back to unit health, scale with delta time and scale with the travel speed
-		
-		self.AnimationStart = self.AnimationStart + (animationSpeed)
-		self:SetValue(self.AnimationStart)
-		self.currentValue = self.AnimationStart
-		
-		if (self.AnimationStart + 0.01 >= self.AnimationEnd) then
-			self:SetValue (self.AnimationEnd)
-			self.currentValue = self.AnimationEnd
-			self.IsAnimating = false
-			if (self.Spark) then
-				self.Spark:Hide()
-			end
+		--get the animation elapsed percent
+		local currentPercent = DetailsFramework:GetRangePercent(self.startValue, self.targetValue, self.currentValue)
+		currentPercent = min(0.9, currentPercent) --slow down the animation but avoid very slow
+		currentPercent = max(0.5, currentPercent) --default: 0.1, using 0.5 makes the animation start fast and go slow
+
+		--get the sine value and scale time with it
+		local animationMultiplier = math.sin(currentPercent * math.pi)
+		local valueChange = self.step * (deltaTime * animationMultiplier)
+		self.currentValue = self.currentValue + valueChange
+
+		self.statusbar:SetValue(self.currentValue)
+
+		if (self.currentValue + 0.001 >= self.targetValue) then
+			self:SetValue(self.targetValue)
+			self.currentValue = self.targetValue
+			self.spark:Hide()
+			self.widget:SetScript("OnUpdate", nil)
+			return
 		end
+
+		self.spark:SetPoint("center", self.widget, "left", self.currentValue * self:GetWidth(), 0)
+		self.spark:Show()
 	end
 
 	local onUpdate = function(self, deltaTime)
-		return self.MyObject:DoAnimation(deltaTime)
+		self = self.MyObject
+		--select the animation function
+			--target is always equal to current
+		if (self.targetValue > self.currentValue) then
+			animateRightWithAccel(self, deltaTime)
+		else
+			animateLeftWithAccel(self, deltaTime)
+		end
 	end
 
 	function SplitBarMetaFunctions:EnableAnimations()
-		self.widget:SetScript("OnUpdate", onUpdate)
-		self.widget:SetMinMaxValues(0, 1.0)
-		self.widget:SetValue(0, 0.5)
-		self.UsingAnimation = true
-		self.oldValue = self:GetValue()
-		self.currentValue = self:GetValue()
-		self.CurrentMaxValue = 100.0
+		return
 	end
 
 	function SplitBarMetaFunctions:DisableAnimations()
 		self.widget:SetScript("OnUpdate", nil)
-		self.UsingAnimation = nil
-		self.oldValue = nil
-		self.currentValue = nil
 	end
 
-	function SplitBarMetaFunctions:DoAnimation(deltaTime)
-		local oldValue = self.oldValue
-
-		self.AnimationStart = oldValue
-		self.AnimationEnd = self.currentValue
-
-		self:SetValue(oldValue)
-
-		self.IsAnimating = true
-
-		if (self.AnimationEnd > self.AnimationStart) then
-			self.AnimateFunc = animateRightWithAccel
-		else
-			self.AnimateFunc = animateLeftWithAccel
+	function SplitBarMetaFunctions:SetValueWithAnimation(value)
+		if (self.widget:GetScript("OnUpdate") == nil) then
+			self.widget:SetScript("OnUpdate", onUpdate)
+			self.widget:SetMinMaxValues(0, 1)
+			self.spark:ClearAllPoints()
+			self.spark:SetHeight(self:GetHeight() * 1.7)
+			self.spark:SetAlpha(0.6)
 		end
+		self.startValue = self.currentValue
+		self.step = abs(value - self.currentValue)
+		self.targetValue = value
 	end
 
 ------------------------------------------------------------------------------------------------------------
@@ -633,6 +625,7 @@ function DF:CreateSplitBar(parent, width, height, member, name)
 end
 
 local build_statusbar = function (self)
+
 	self:SetSize (300, 14)
 	
 	self.background = self:CreateTexture ("$parent_StatusBarBackground", "BACKGROUND")
@@ -711,10 +704,12 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		--> misc
 		SplitBarObject.locked = false
 		SplitBarObject.container = container
+		SplitBarObject.currentValue = 0.5
 	
 	--> create widgets
 		SplitBarObject.statusbar = CreateFrame ("statusbar", name, parent)
 		build_statusbar (SplitBarObject.statusbar)
+		SplitBarObject.spark = SplitBarObject.statusbar.spark
 		SplitBarObject.widget = SplitBarObject.statusbar
 		
 		if (not APISplitBarFunctions) then
@@ -730,8 +725,9 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 			end
 		end
 		
-		SplitBarObject.statusbar:SetHeight (h or 200)
-		SplitBarObject.statusbar:SetWidth (w or 14)
+		SplitBarObject.statusbar:SetHeight(h or 200)
+		SplitBarObject.statusbar:SetWidth(w or 14)
+		SplitBarObject.statusbar:SetValue(0.5)
 		
 		SplitBarObject.statusbar.MyObject = SplitBarObject
 		
