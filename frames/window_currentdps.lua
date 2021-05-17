@@ -4,10 +4,16 @@ local Details = _G.Details
 local libwindow = LibStub("LibWindow-1.1")
 local DF = DetailsFramework
 
+local green_team_color
+local yellow_team_color
+
 function Details:OpenCurrentRealDPSOptions(from_options_panel)
 
 	if (not DetailsCurrentRealDPSOptions) then
 	
+		green_team_color = Details.class_colors.ARENA_GREEN --{.5, 1, .5, 1}
+		yellow_team_color = Details.class_colors.ARENA_YELLOW --{1, 1, .5, 1}
+
 		local DF = _detalhes.gump
 	
 		local f = DF:CreateSimplePanel (UIParent, 700, 400, "Details! The Current Real DPS Options", "DetailsCurrentRealDPSOptions")
@@ -54,6 +60,19 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
 		
+		local lockCallback = function()
+			local f = _G.DetailsCurrentDpsMeter
+			if (Details.current_dps_meter.frame.locked) then
+				f.movemeLabel:Hide()
+				f.lockButton:Hide()
+				f:SetBackdropColor(.2, .2, .2, 0)
+			else
+				f.movemeLabel:Show()
+				f.lockButton:Show()
+				f:SetBackdropColor(.2, .2, .2, 0.5)
+			end
+		end
+
 		--> options table
 		local options = {
 		
@@ -77,6 +96,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				set = function (self, fixedparam, value) 
 					Details.current_dps_meter.frame.locked = not Details.current_dps_meter.frame.locked
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
+					lockCallback()
 				end,
 				desc = "Locked",
 				name = "Locked",
@@ -237,6 +257,8 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				end)
 			end
 		end)
+
+		C_Timer.After(1, lockCallback)
 	end
 
 	--> check if the frame was been created
@@ -259,11 +281,12 @@ function Details:CreateCurrentDpsFrame(parent, name)
 	local DF = _detalhes.gump
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
+	green_team_color = Details.class_colors.ARENA_GREEN --{.5, 1, .5, 1}
+	yellow_team_color = Details.class_colors.ARENA_YELLOW --{1, 1, .5, 1}
+
 	--> some constants
 		local header_size = 12 --title bar size
 		local spacing_vertical = -6 --vertical space between the group anchor and the group dps
-		local green_team_color = {.5, 1, .5, 1}
-		local yellow_team_color = {1, 1, .5, 1}
 
 	--> main farame
 		local f = CreateFrame ("frame", name, parent or UIParent,"BackdropTemplate")
@@ -276,12 +299,43 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		f:SetMovable (true)
 		f:SetClampedToScreen (true)
 
+		f.movemeLabel = f:CreateFontString(nil, "overlay", "GameFontNormal")
+		f.movemeLabel:SetPoint("center", f, "center", 0, 20)
+		f.movemeLabel:SetText("Move-Me")
+
+		f.lockButton = DetailsFramework:CreateButton(f, function()
+			Details.current_dps_meter.frame.locked = not Details.current_dps_meter.frame.locked
+			Details:UpdateTheRealCurrentDPSFrame()
+			f.movemeLabel:Hide()
+			f.lockButton:Hide()
+		end, 80, 20)
+		f.lockButton:SetPoint("center", f, "center", 0, -20)
+		f.lockButton.text = "Lock"
+
+		if (Details.current_dps_meter.frame.locked) then
+			f.movemeLabel:Hide()
+			f.lockButton:Hide()
+		end
+
 		f.PlayerTeam = 0
 
 		local LibWindow = LibStub ("LibWindow-1.1")
 		LibWindow.RegisterConfig (f, _detalhes.current_dps_meter.frame)
 		LibWindow.MakeDraggable (f)
 		LibWindow.RestorePosition (f)
+
+		local lockCallback = function()
+			local f = _G.DetailsCurrentDpsMeter
+			if (Details.current_dps_meter.frame.locked) then
+				f.movemeLabel:Hide()
+				f.lockButton:Hide()
+				f:SetBackdropColor(.2, .2, .2, 0)
+			else
+				f.movemeLabel:Show()
+				f.lockButton:Show()
+				f:SetBackdropColor(.2, .2, .2, 0.5)
+			end
+		end
 
 	--> arena dps bars
 		--code for the dps bars shown in arenas
@@ -291,8 +345,8 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			local barFrame = CreateFrame("frame", "DetailsArenaDpsBars", f)
 			f.dpsBarFrame = barFrame
 			barFrame:SetSize(400, 80)
-			barFrame:SetPoint("center", f, "center", 0, 50)
-			
+			barFrame:SetPoint("center", f, "center", 0, 0)
+
 			barFrame.splitBar = DF:CreateSplitBar(barFrame, 400, 20)
 			barFrame.splitBar:SetSize(400, 20)
 			barFrame.splitBar:SetPoint("center", barFrame, "center", 0, 0)
@@ -317,7 +371,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		labelPlayerTeam_DPS:SetText ("0")
 		labelYellowTeam_DPS:SetText ("0")
 		labelPlayerTeam_DPS:SetPoint ("left", barFrame.splitBar.widget, "left", 4, 0)
-		labelYellowTeam_DPS:SetPoint ("right", barFrame.splitBar.widget, "right", 4, 0)
+		labelYellowTeam_DPS:SetPoint ("right", barFrame.splitBar.widget, "right", -4, 0)
 		
 		function f.SwapArenaTeamColors()
 			if (f.PlayerTeam == 0) then
@@ -578,6 +632,12 @@ function Details:CreateCurrentDpsFrame(parent, name)
 							dpsBarFrame:SetRightColor(unpack (green_team_color))
 						end
 
+						if (Details.current_dps_meter.frame.locked) then
+							f.movemeLabel:Hide()
+							f.lockButton:Hide()
+							f:SetBackdropColor(.2, .2, .2, 0)
+						end
+
 					if (self.NextScreenUpdate <= 0) then
 						if (f.PlayerTeam == 0) then
 							labelPlayerTeam_DPS:SetText (_detalhes:ToK2 (self.PlayerTeamDamage / self.SampleSize))
@@ -705,15 +765,9 @@ function Details:CreateCurrentDpsFrame(parent, name)
 
 	_detalhes.Broadcaster_CurrentDpsLoaded = true
 	_detalhes.Broadcaster_CurrentDpsFrame = f
+	C_Timer.After(1, lockCallback)
 	f:Hide()
 end
-
---initialize frames
-function Details:InitializeCurrentDpsFrames()
-	Details:CreateCurrentDpsFrame(UIParent, "DetailsCurrentDpsMeter")
-end
-
-
 
 function DetailsTestSplitBar()
 
@@ -738,8 +792,6 @@ function DetailsTestSplitBar()
 		local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 		barFrame.splitBar:SetTexture(SharedMedia:Fetch("statusbar", "Splitbar"))
 
-		local green_team_color = {.5, 1, .5, 1}
-		local yellow_team_color = {1, 1, .5, 1}
 		barFrame.splitBar:SetLeftColor(unpack (green_team_color))
 		barFrame.splitBar:SetRightColor(unpack (yellow_team_color))
 
