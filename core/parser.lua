@@ -4490,7 +4490,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:LeftArena()
 		end
 		if (_detalhes.is_in_battleground and zoneType ~= "pvp") then
-			_detalhes.pvp_parser_frame:StopBgUpdater()
+			--_detalhes.pvp_parser_frame:StopBgUpdater()
 			_detalhes.is_in_battleground = nil
 			_detalhes.time_type = _detalhes.time_type_original
 		end
@@ -4519,7 +4519,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					_detalhes.time_type_original = 1
 					_detalhes.time_type = 2
 				end
-				_detalhes.pvp_parser_frame:StartBgUpdater()
+				--_detalhes.pvp_parser_frame:StartBgUpdater() --battleground parser has been disbled
 			else
 				if (_detalhes.force_activity_time_pvp) then
 					_detalhes.time_type_original = _detalhes.time_type
