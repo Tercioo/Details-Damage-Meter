@@ -190,7 +190,7 @@
 			if (force) then
 				if (instance:IsGroupMode()) then
 					for i = 1, instance.rows_fit_in_window  do
-						Details.FadeHandler.Fader (instance.barras [i], "in", 0.3)
+						Details.FadeHandler.Fader (instance.barras [i], "in", Details.fade_speed)
 					end
 				end
 			end
@@ -483,7 +483,7 @@
 		if (force) then
 			if (instance:IsGroupMode()) then
 				for i = whichRowLine, instance.rows_fit_in_window  do
-					Details.FadeHandler.Fader (instance.barras [i], "in", 0.3)
+					Details.FadeHandler.Fader (instance.barras [i], "in", Details.fade_speed)
 				end
 			end
 		end

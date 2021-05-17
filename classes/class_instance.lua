@@ -408,11 +408,6 @@ end
 		
 		self:ResetaGump()
 		
-		--Details.FadeHandler.Fader (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.baseframe, _unpack (_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.rowframe, _unpack (_detalhes.windows_fade_in))
-		
 		Details.FadeHandler.Fader (self.baseframe.cabecalho.ball, 1)
 		Details.FadeHandler.Fader (self.baseframe, 1)
 		Details.FadeHandler.Fader (self.rowframe, 1)

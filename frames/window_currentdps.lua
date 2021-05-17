@@ -136,6 +136,21 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				values = function() return strataTable end,
 				name = "Frame Strata"
 			},
+			--speed
+			{
+				type = "range",
+				get = function() return Details.current_dps_meter.sample_size end,
+				set = function (self, fixedparam, value)
+					Details.current_dps_meter.sample_size = value
+					Details:UpdateTheRealCurrentDPSFrame(testUsing)
+				end,
+				min = 1,
+				max = 6,
+				step = 1,
+				name = "Speed",
+				desc = "Low is faster",
+				text_template = options_text_template,
+			},
 			--width
 			{
 				type = "range",
@@ -441,6 +456,9 @@ function Details:CreateCurrentDpsFrame(parent, name)
 
 			--> where the player are
 			if (scenario == "arena") then
+
+				f.SampleSize = _detalhes.current_dps_meter.sample_size
+
 				labelPlayerTeam_DPS:Show()
 				labelYellowTeam_DPS:Show()
 
