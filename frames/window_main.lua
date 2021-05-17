@@ -362,7 +362,7 @@ local function OnEnterMainWindow (instancia, self)
 		
 		--> stretch button
 		if (not _detalhes.disable_stretch_button) then
-			Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0.6)
+			Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0.4)
 		end
 		
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
@@ -381,7 +381,7 @@ local function OnEnterMainWindow (instancia, self)
 		end
 		
 		if (not _detalhes.disable_stretch_button) then
-			Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0.6)
+			Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0.4)
 		end
 	end
 end
@@ -582,9 +582,9 @@ local movement_onupdate = function (self, elapsed)
 		if (tempo_movendo and tempo_movendo < 0) then
 
 			if (precisa_ativar) then --> se a inst�ncia estiver fechada
-				Details.FadeHandler.Fader (instancia_alvo.baseframe, "ALPHA", 0.2)
-				Details.FadeHandler.Fader (instancia_alvo.baseframe.cabecalho.ball, "ALPHA", 0.2)
-				Details.FadeHandler.Fader (instancia_alvo.baseframe.cabecalho.atributo_icon, "ALPHA", 0.2)
+				Details.FadeHandler.Fader (instancia_alvo.baseframe, "ALPHA", 0.15)
+				Details.FadeHandler.Fader (instancia_alvo.baseframe.cabecalho.ball, "ALPHA", 0.15)
+				Details.FadeHandler.Fader (instancia_alvo.baseframe.cabecalho.atributo_icon, "ALPHA", 0.15)
 				instancia_alvo:SaveMainWindowPosition()
 				instancia_alvo:RestoreMainWindowPosition()
 				precisa_ativar = false
@@ -939,9 +939,9 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 				if (not esta_instancia:IsAtiva() and esta_instancia.iniciada) then
 					esta_instancia:ResetaGump()
 					
-					Details.FadeHandler.Fader (esta_instancia.baseframe, "in", 0.2)
-					Details.FadeHandler.Fader (esta_instancia.baseframe.cabecalho.ball, "in", 0.2)
-					Details.FadeHandler.Fader (esta_instancia.baseframe.cabecalho.atributo_icon, "in", 0.2)
+					Details.FadeHandler.Fader (esta_instancia.baseframe, "in", 0.15)
+					Details.FadeHandler.Fader (esta_instancia.baseframe.cabecalho.ball, "in", 0.15)
+					Details.FadeHandler.Fader (esta_instancia.baseframe.cabecalho.atributo_icon, "in", 0.15)
 					
 					if (esta_instancia.modo == modo_raid) then
 						_detalhes.raid = nil

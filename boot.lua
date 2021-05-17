@@ -4,8 +4,8 @@
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		
-		_detalhes.build_counter = 8406
-		_detalhes.alpha_build_counter = 8406 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 8501
+		_detalhes.alpha_build_counter = 8501 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = "v9.0.5"
 		_detalhes.userversion = "v9.0.5." .. _detalhes.build_counter
@@ -29,6 +29,12 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+		{"v9.0.5.8501.144", "May 17th, 2021"},
+		"Complete overhaul and rerritten on Fade In and Out animations, this should fix all bugs related to animations not being consistent.",
+		"Complete overhaul on the broadcaster tool for arenas 'Current DPS'. It shows now a bar indicating the dps of both teams.",
+		"Yellow arena team now has purple color.",
+		"Several updates on the combat log engine and bug fixes.",
+
 		{"v9.0.5.8357.144", "March 15th, 2021"},
 		"Max amount of segments raised to 40, was 30.",
 		"Added a 'Sanguine Heal' actor to show how much the void zone healed enemies, shown on Everything mode.",

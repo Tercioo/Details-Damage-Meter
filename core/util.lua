@@ -6,19 +6,15 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 
-	local _table_insert = table.insert --lua local
 	local upper = string.upper --lua local
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	local _math_floor = math.floor --lua local
 	local _math_max = math.max --lua local
-	local _math_abs = math.abs --lua local
 	local _math_min = math.min --lua local
 	local _math_random = math.random --lua local
 	local type = type --lua local
 	local _string_match = string.match --lua local
-	local _string_byte = string.byte --lua local
-	local _string_len = string.lenv
 	local _string_format = string.format --lua local
 	local loadstring = loadstring --lua local
 	local _select = select
@@ -27,14 +23,10 @@
 	local _pcall = pcall
 	local _GetTime = GetTime
 	
-	local _UnitClass = UnitClass --wow api local
 	local _IsInRaid = IsInRaid --wow api local
 	local _IsInGroup = IsInGroup --wow api local
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
 	local _UnitAffectingCombat = UnitAffectingCombat --wow api local
-	local _GameTooltip = GameTooltip --wow api local
-	--local _UIFrameFadeIn = UIFrameFadeIn --wow api local
-	--local _UIFrameFadeOut = UIFrameFadeOut --wow api local
 	local _InCombatLockdown = InCombatLockdown --wow api local
 
 	local gump = _detalhes.gump --details local
@@ -105,7 +97,7 @@
 		frame.fading_in = true
 
 		Details.FadeHandler.frames[frame] = {
-			totalTime = totalTime or 0.3,
+			totalTime = totalTime or Details.fade_speed,
 			startAlpha = startAlpha or frame:GetAlpha(),
 			endAlpha = endAlpha or 0,
 			finishedCallback = callbackFunc or fadeINFinishedCallback,
@@ -119,7 +111,7 @@
 		frame.fading_out = true
 
 		Details.FadeHandler.frames[frame] = {
-			totalTime = totalTime or 0.3,
+			totalTime = totalTime or Details.fade_speed,
 			startAlpha = startAlpha or frame:GetAlpha() or 0,
 			endAlpha = endAlpha or 1,
 			finishedCallback = callbackFunc or fadeOUTFinishedCallback,
@@ -148,10 +140,10 @@
 						end
 						return
 					else
-						speed = speed or 0.3
+						speed = speed or Details.fade_speed
 						for i = 1, instance.rows_created do
 							local instanceBar = instance.barras[i]
-							Details.FadeHandler.Fader(instanceBar, animationType, 0.3+(i/10))
+							Details.FadeHandler.Fader(instanceBar, animationType, Details.fade_speed+(i/10))
 						end
 						return
 					end
@@ -162,7 +154,6 @@
 						local instanceBar = instance.barras[i]
 						if (instanceBar.fading_in or instanceBar.fading_out) then
 							startFadeINAnimation(instanceBar, 0.01, instanceBar:GetAlpha(), instanceBar:GetAlpha())
---							_UIFrameFadeIn (instanceBar, 0.01, instanceBar:GetAlpha(), instanceBar:GetAlpha())
 						end
 						instanceBar.hidden = true
 						instanceBar.faded = true
@@ -180,7 +171,7 @@
 			end
 		end
 
-		speed = speed or 0.3
+		speed = speed or Details.fade_speed
 		--animationType = upper(animationType)
 
 		--hide all instanceBars on all instances
@@ -209,8 +200,6 @@
 			if (frame.fading_out) then
 				frame.fading_out = false
 			end
-
---			_UIFrameFadeIn (frame, speed, frame:GetAlpha(), 0)
 			startFadeINAnimation(frame, speed, frame:GetAlpha(), 0)
 
 		elseif (upper(animationType) == "OUT") then --show the frame
@@ -226,7 +215,6 @@
 			end
 			
 			frame:Show()
---			_UIFrameFadeOut (frame, speed, frame:GetAlpha(), 1.0)
 			startFadeOUTAnimation(frame, speed, frame:GetAlpha(), 1.0)
 			frame.fading_out = true
 				
@@ -262,7 +250,6 @@
 			end
 
 			startFadeINAnimation(frame, speed, frame:GetAlpha(), 0, just_fade_func)
---			_UIFrameFadeIn (frame, speed, frame:GetAlpha(), 0)
 
 		elseif (upper(animationType) == "ALPHAANIM") then
 
@@ -274,16 +261,12 @@
 				if (frame.fading_in) then
 					frame.fading_in = false
 				end
-				startFadeOUTAnimation(frame, 0.3, currentApha, value, function(frame) frame.fading_out = false end)
---				_UIFrameFadeOut (frame, 0.3, currentApha, value)
-
+				startFadeOUTAnimation(frame, Details.fade_speed, currentApha, value, function(frame) frame.fading_out = false end)
 			else
 				if (frame.fading_out) then
 					frame.fading_out = false
 				end
-
---				_UIFrameFadeIn (frame, 0.3, currentApha, value)
-				startFadeINAnimation(frame, 0.3, currentApha, value, function(frame) frame.fading_in = false end)
+				startFadeINAnimation(frame, Details.fade_speed, currentApha, value, function(frame) frame.fading_in = false end)
 			end
 
 		--set a fixed alpha value
