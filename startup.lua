@@ -465,11 +465,6 @@ function Details:StartMeUp() --I'll never stop!
 	--coach feature startup
 	Details.Coach.StartUp()
 
-	--make the green color in arena be purple
-	Details.class_colors.ARENA_GREEN[1] = 175/255 --r
-	Details.class_colors.ARENA_GREEN[2] = 98/255 --g
-	Details.class_colors.ARENA_GREEN[3] = 255/255 --b
-
 	--force the group edit be always enabled when Details! starts
 	_detalhes.options_group_edit = true
 
