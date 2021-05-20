@@ -4,11 +4,13 @@
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		
+		local version, build, date, tocversion = GetBuildInfo()
+
 		_detalhes.build_counter = 8501
 		_detalhes.alpha_build_counter = 8501 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
-		_detalhes.game_version = "v9.0.5"
-		_detalhes.userversion = "v9.0.5." .. _detalhes.build_counter
+		_detalhes.game_version = version
+		_detalhes.userversion = version .. _detalhes.build_counter
 		_detalhes.realversion = 144 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players

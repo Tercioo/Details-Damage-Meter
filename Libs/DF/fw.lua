@@ -1,6 +1,6 @@
 
 
-local dversion = 244
+local dversion = 247
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -3490,14 +3490,16 @@ function DF:GetClassList()
 	
 	for className, classIndex in pairs (DF.ClassFileNameToIndex) do
 		local classTable = C_CreatureInfo.GetClassInfo (classIndex)
-		local t = {
-			ID = classIndex,
-			Name = classTable.className,
-			Texture = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]],
-			TexCoord = CLASS_ICON_TCOORDS [className],
-			FileString = className,
-		}
-		tinsert (DF.ClassCache, t)
+		if classTable then
+			local t = {
+				ID = classIndex,
+				Name = classTable.className,
+				Texture = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]],
+				TexCoord = CLASS_ICON_TCOORDS [className],
+				FileString = className,
+			}
+			tinsert (DF.ClassCache, t)
+		end
 	end
 	
 	return DF.ClassCache
@@ -3570,9 +3572,11 @@ function DF:GetCharacterRaceList (fullList)
 			tinsert (DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString})
 		end
 		
-		local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID (i)
-		if (alliedRaceInfo and DF.AlliedRaceList [alliedRaceInfo.raceID]) then
-			tinsert (DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString})
+		if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+			local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID (i)
+			if (alliedRaceInfo and DF.AlliedRaceList [alliedRaceInfo.raceID]) then
+				tinsert (DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString})
+			end
 		end
 	end
 	
