@@ -6,8 +6,8 @@
 		
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 8501
-		_detalhes.alpha_build_counter = 8501 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 8513
+		_detalhes.alpha_build_counter = 8513 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter
@@ -31,6 +31,11 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+		{"v9.0.5.8502.144", "May 21th, 2021"},
+		"Added options to change the color of each team during an arena match.",
+		"Fixed One Segment Battleground.",
+		"Fixed an error with Howl of Terror on Demo Warlocks.",
+
 		{"v9.0.5.8501.144", "May 17th, 2021"},
 		"Complete overhaul and rerritten on Fade In and Out animations, this should fix all bugs related to animations not being consistent.",
 		"Complete overhaul on the broadcaster tool for arenas 'Current DPS'. It shows now a bar indicating the dps of both teams.",
