@@ -1629,7 +1629,7 @@ function StreamOverlay:UpdateDpsHpsFrame()
 	local actor = container._ActorTable [container._NameIndexTable [player_name]]
 	
 	if (actor) then
-		screen_frame_text:SetText (format_function (_, actor.total / _detalhes.tabela_vigente:GetCombatTime()))
+		screen_frame_text:SetText (format_function (nil, actor.total / _detalhes.tabela_vigente:GetCombatTime()))
 	else
 		if (StreamOverlay.db.per_second.attribute_type == 1) then
 			screen_frame_text:SetText ("DPS")
@@ -2157,7 +2157,7 @@ function StreamOverlay.OpenOptionsPanel (from_options_panel)
 				dropdown_profile:Select (Details_StreamerDB.characters [pname])
 				
 			end
-			options_frame.NewProfileButton = Details.gump:CreateButton (options_frame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+			options_frame.NewProfileButton = Details.gump:CreateButton (options_frame, add_profile, 60, 18, "New Profiile", nil, nil, nil, nil, nil, nil, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 			options_frame.NewProfileButton:SetPoint ("left", dropdown_profile, "right", 4, 0)
 		end
 		

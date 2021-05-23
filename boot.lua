@@ -802,7 +802,7 @@ do
 			function _detalhes:wipe_combat_after_failed_load()
 				_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (nil, _detalhes.tabela_overall)
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 				_detalhes:UpdateContainerCombatentes()
 				

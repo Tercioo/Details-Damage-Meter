@@ -187,7 +187,7 @@ function _detalhes:LoadCombatTables()
 		if (not _detalhes_database.tabela_historico) then
 			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (nil, _detalhes.tabela_overall)
 			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 			_detalhes:UpdateContainerCombatentes()
 		else
@@ -210,7 +210,7 @@ function _detalhes:LoadCombatTables()
 					--> details was been hard upgraded
 					_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 					_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (nil, _detalhes.tabela_overall)
 					_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 					_detalhes:UpdateContainerCombatentes()
 					
@@ -223,7 +223,7 @@ function _detalhes:LoadCombatTables()
 						if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
 							--> something went wrong in last logon, let's just reset and we are good to go
 							_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-							_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+							_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (nil, _detalhes.tabela_overall)
 							_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 							_detalhes:UpdateContainerCombatentes()
 						end
@@ -248,7 +248,7 @@ function _detalhes:LoadCombatTables()
 				if (historico_UM) then
 					_detalhes.tabela_vigente = historico_UM --> significa que elas eram a mesma tabela, ent�o aqui elas se tornam a mesma tabela
 				else
-					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (nil, _detalhes.tabela_overall)
 				end
 				
 			--> need refresh for all containers

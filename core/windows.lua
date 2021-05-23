@@ -938,15 +938,15 @@
 --> yes no panel
 
 	do
-		_detalhes.yesNo = _detalhes.gump:NewPanel (UIParent, _, "DetailsYesNoWindow", _, 500, 80)
+		_detalhes.yesNo = _detalhes.gump:NewPanel (UIParent, nil, "DetailsYesNoWindow", nil, 500, 80)
 		_detalhes.yesNo:SetPoint ("center", UIParent, "center")
-		_detalhes.gump:NewLabel (_detalhes.yesNo, _, "$parentAsk", "ask", "")
+		_detalhes.gump:NewLabel (_detalhes.yesNo, nil, "$parentAsk", "ask", "")
 		_detalhes.yesNo ["ask"]:SetPoint ("center", _detalhes.yesNo, "center", 0, 25)
 		_detalhes.yesNo ["ask"]:SetWidth (480)
 		_detalhes.yesNo ["ask"]:SetJustifyH ("center")
 		_detalhes.yesNo ["ask"]:SetHeight (22)
-		_detalhes.gump:NewButton (_detalhes.yesNo, _, "$parentNo", "no", 100, 30, function() _detalhes.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
-		_detalhes.gump:NewButton (_detalhes.yesNo, _, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
+		_detalhes.gump:NewButton (_detalhes.yesNo, nil, "$parentNo", "no", 100, 30, function() _detalhes.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
+		_detalhes.gump:NewButton (_detalhes.yesNo, nil, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
 		_detalhes.yesNo ["no"]:SetPoint (10, -45)
 		_detalhes.yesNo ["yes"]:SetPoint (390, -45)
 		_detalhes.yesNo ["no"]:InstallCustomTexture()
@@ -1228,7 +1228,7 @@
 				instance1:Enable()
 				return _detalhes:OpenOptionsWindow (instance1)
 			else
-				instance1 = _detalhes:CriarInstancia (_, true)
+				instance1 = _detalhes:CriarInstancia (nil, true)
 				if (instance1) then
 					return _detalhes:OpenOptionsWindow (instance1)
 				else
@@ -1244,7 +1244,7 @@
 	f.new_window_button:SetPoint ("topleft", f, "topleft", 10, -125)
 	f.new_window_button:SetWidth (170)
 	f.new_window_button:SetScript ("OnClick", function (self)
-		_detalhes:CriarInstancia (_, true)
+		_detalhes:CriarInstancia (nil, true)
 	end)
 
 
@@ -1341,7 +1341,7 @@
 							local lower_instance = _detalhes:GetLowerInstanceNumber()
 							if (not lower_instance) then
 								local instance = _detalhes:GetInstance (1)
-								_detalhes.CriarInstancia (_, _, 1)
+								_detalhes.CriarInstancia (nil,nil, 1)
 								_detalhes:OpenOptionsWindow (instance)
 							else
 								_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
@@ -1464,7 +1464,7 @@
 				local lower_instance = _detalhes:GetLowerInstanceNumber()
 				if (not lower_instance) then
 					local instance = _detalhes:GetInstance (1)
-					_detalhes.CriarInstancia (_, _, 1)
+					_detalhes.CriarInstancia (nil, nil, 1)
 					_detalhes:OpenOptionsWindow (instance)
 				else
 					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
@@ -1483,7 +1483,7 @@
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then
 				local instance = _detalhes:GetInstance (1)
-				_detalhes.CriarInstancia (_, _, 1)
+				_detalhes.CriarInstancia (nil, nil, 1)
 				_detalhes:OpenOptionsWindow (instance)
 			else
 				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))

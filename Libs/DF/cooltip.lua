@@ -883,7 +883,7 @@ function DF:CreateCoolTip()
 				local parameterTable = CoolTip.ParametersTableMain [self.index]
 				local func = CoolTip.FunctionsTableMain [self.index]
 				--> passing nil as the first parameter was a design mistake
-				--CoolTip.FunctionsTableMain [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
+				--CoolTip.FunctionsTableMain [self.index] (nil, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
 				local okay, errortext = pcall (func, CoolTip.Host, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
 				if (not okay) then
 					print ("Cooltip OnClick Error:", errortext)

@@ -41,7 +41,7 @@ function Details:InitializeOptionsWindow(instance)
 end
 
 function Details.options.InitializeOptionsWindow(instance)
-	local DetailsOptionsWindow = DF:NewPanel(UIParent, _, "DetailsOptionsWindow", _, 897, 592)
+	local DetailsOptionsWindow = DF:NewPanel(UIParent, nil, "DetailsOptionsWindow", nil, 897, 592)
     local f = DetailsOptionsWindow.frame
 
 	f.Frame = f
@@ -77,7 +77,7 @@ function Details.options.InitializeOptionsWindow(instance)
         local instance = _detalhes.tabela_instancias[instanceId]
         
         if (not instance:IsEnabled() or not instance:IsStarted()) then
-            _detalhes.CriarInstancia (_, _, instance.meu_id)
+            _detalhes.CriarInstancia (nil, nil, instance.meu_id)
         end
         
         Details.options.SetCurrentInstance(instance)
@@ -135,7 +135,7 @@ function Details.options.InitializeOptionsWindow(instance)
         return instanceList
     end
     
-    local instanceSelection = DF:NewDropDown (f, _, "$parentInstanceSelectDropdown", "instanceDropdown", 200, 18, buildInstanceMenu) --, nil, options_dropdown_template
+    local instanceSelection = DF:NewDropDown (f, nil, "$parentInstanceSelectDropdown", "instanceDropdown", 200, 18, buildInstanceMenu) --, nil, options_dropdown_template
     instanceSelection:SetPoint("bottomright", f, "bottomright", -7, 09)
     instanceSelection:SetHook("OnEnter", function()
         GameCooltip:Reset()
@@ -158,7 +158,7 @@ function Details.options.InitializeOptionsWindow(instance)
     local onToggleEditingGroup = function(self, fixparam, value)
         _detalhes.options_group_edit = value
     end
-    local editingGroupCheckBox = DF:CreateSwitch(f, onToggleEditingGroup, _detalhes.options_group_edit, _, _, _, _, _, "$parentEditGroupCheckbox", _, _, _, _, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+    local editingGroupCheckBox = DF:CreateSwitch(f, onToggleEditingGroup, _detalhes.options_group_edit, nil, nil, nil, nil, nil, "$parentEditGroupCheckbox", nil, nil, nil, nil, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
     editingGroupCheckBox:SetAsCheckBox()
     editingGroupCheckBox.tooltip = Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL2"]
 
@@ -177,13 +177,13 @@ function Details.options.InitializeOptionsWindow(instance)
             _detalhes:StopTestBarUpdate()
         end
     end
-    local fillbars = DF:NewButton (f, _, "$parentCreateExampleBarsButton", nil, 140, 20, create_test_bars_func, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
+    local fillbars = DF:NewButton (f, nil, "$parentCreateExampleBarsButton", nil, 140, 20, create_test_bars_func, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
     fillbars:SetPoint ("bottomleft", f.widget, "bottomleft", 10, 10)
     fillbars:SetTemplate(options_button_template)
     fillbars:SetIcon ("Interface\\AddOns\\Details\\images\\icons", nil, nil, nil, {323/512, 365/512, 42/512, 78/512}, {1, 1, 1, 0.6}, 4, 2)
 
     --change log
-    local changelog = DF:NewButton (f, _, "$parentOpenChangeLogButton", nil, 140, 20, _detalhes.OpenNewsWindow, "change_log", nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
+    local changelog = DF:NewButton (f, nil, "$parentOpenChangeLogButton", nil, 140, 20, _detalhes.OpenNewsWindow, "change_log", nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
     changelog:SetPoint ("left", fillbars, "right", 10, 0)
     changelog:SetTemplate (options_button_template)
     changelog:SetIcon ("Interface\\AddOns\\Details\\images\\icons", nil, nil, nil, {367/512, 399/512, 43/512, 76/512}, {1, 1, 1, 0.8}, 4, 2)
@@ -274,7 +274,7 @@ function Details.options.InitializeOptionsWindow(instance)
 			local lowerInstance = Details:GetLowerInstanceNumber()
 			if (not lowerInstance) then
 				local instance = Details:GetInstance(1)
-				Details.CriarInstancia(_, _, 1)
+				Details.CriarInstancia(nil, nil, 1)
 				Details:OpenOptionsWindow(instance)
 			else
 				Details:OpenOptionsWindow(Details:GetInstance(lowerInstance))

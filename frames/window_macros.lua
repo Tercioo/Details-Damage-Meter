@@ -104,7 +104,7 @@ function Details.OpenMacrosWindow()
             options_dropdown_template.backdropcolor = {.51, .51, .51, .3}
             options_dropdown_template.onenterbordercolor = {.51, .51, .51, .2}
             
-            local textEntry = DF:CreateTextEntry (line, function()end, scrollbox_size[1] - 10, 40, "MacroTextEntry", _, _, options_dropdown_template)
+            local textEntry = DF:CreateTextEntry (line, function()end, scrollbox_size[1] - 10, 40, "MacroTextEntry", nil, nil, options_dropdown_template)
             textEntry:SetHook ("OnEditFocusGained", textEntryOnFocusGained)
             textEntry:SetHook ("OnEditFocusLost", textEntryOnFocusLost)
             textEntry:SetJustifyH ("left")

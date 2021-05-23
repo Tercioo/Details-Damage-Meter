@@ -3387,7 +3387,7 @@ function DF:QuickDispatch (func, ...)
 	
 	if (not okay) then
 		--> trigger an error msg
-		dispatch_error (_, errortext)
+		dispatch_error (nil, errortext)
 		return
 	end
 	
@@ -3396,7 +3396,7 @@ end
 
 function DF:Dispatch (func, ...)
 	if (type (func) ~= "function") then
-		return dispatch_error (_, "Dispatch required a function.")
+		return dispatch_error (nil, "Dispatch required a function.")
 	end
 
 	local okay, result1, result2, result3, result4 = xpcall (func, geterrorhandler(), ...)

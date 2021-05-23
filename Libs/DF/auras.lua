@@ -357,13 +357,13 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		local buff_blacklist_label = self:CreateLabel (background_add_blacklist, texts.MANUAL_ADD_BLACKLIST_BUFF, DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 		local debuff_blacklist_label = self:CreateLabel (background_add_blacklist, texts.MANUAL_ADD_BLACKLIST_DEBUFF, DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 		
-		local buff_name_blacklist_entry = self:CreateTextEntry (background_add_blacklist, function()end, textEntryWidth, 20, "AddBuffBlacklistTextBox", _, _, options_dropdown_template)
+		local buff_name_blacklist_entry = self:CreateTextEntry (background_add_blacklist, function()end, textEntryWidth, 20, "AddBuffBlacklistTextBox", nil, nil, options_dropdown_template)
 		buff_name_blacklist_entry:SetHook ("OnEditFocusGained", load_all_spells)
 		buff_name_blacklist_entry:SetJustifyH ("left")
 		buff_name_blacklist_entry.tooltip = "Enter the buff name using lower case letters."
 		f_auto.AddBuffBlacklistTextBox = buff_name_blacklist_entry
 		
-		local debuff_name_blacklist_entry = self:CreateTextEntry (background_add_blacklist, function()end, textEntryWidth, 20, "AddDebuffBlacklistTextBox", _, _, options_dropdown_template)
+		local debuff_name_blacklist_entry = self:CreateTextEntry (background_add_blacklist, function()end, textEntryWidth, 20, "AddDebuffBlacklistTextBox", nil, nil, options_dropdown_template)
 		debuff_name_blacklist_entry:SetHook ("OnEditFocusGained", load_all_spells)
 		debuff_name_blacklist_entry:SetJustifyH ("left")
 		debuff_name_blacklist_entry.tooltip = "Enter the debuff name using lower case letters."
@@ -530,13 +530,13 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		local buff_tracklist_label = self:CreateLabel (background_add_tracklist, texts.MANUAL_ADD_TRACKLIST_BUFF, DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 		local debuff_tracklist_label = self:CreateLabel (background_add_tracklist, texts.MANUAL_ADD_TRACKLIST_DEBUFF, DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
 		
-		local buff_name_tracklist_entry = self:CreateTextEntry (background_add_tracklist, function()end, textEntryWidth, 20, "AddBuffTracklistTextBox", _, _, options_dropdown_template)
+		local buff_name_tracklist_entry = self:CreateTextEntry (background_add_tracklist, function()end, textEntryWidth, 20, "AddBuffTracklistTextBox", nil, nil, options_dropdown_template)
 		buff_name_tracklist_entry:SetHook ("OnEditFocusGained", load_all_spells)
 		buff_name_tracklist_entry:SetJustifyH ("left")
 		buff_name_tracklist_entry.tooltip = "Enter the buff name using lower case letters."
 		f_auto.AddBuffTracklistTextBox = buff_name_tracklist_entry
 		
-		local debuff_name_tracklist_entry = self:CreateTextEntry (background_add_tracklist, function()end, textEntryWidth, 20, "AddDebuffTracklistTextBox", _, _, options_dropdown_template)
+		local debuff_name_tracklist_entry = self:CreateTextEntry (background_add_tracklist, function()end, textEntryWidth, 20, "AddDebuffTracklistTextBox", nil, nil, options_dropdown_template)
 		debuff_name_tracklist_entry:SetHook ("OnEditFocusGained", load_all_spells)
 		debuff_name_tracklist_entry:SetJustifyH ("left")
 		debuff_name_tracklist_entry.tooltip = "Enter the debuff name using lower case letters."
@@ -1065,8 +1065,8 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	-->  build the text entry to type the spellname
 	local new_buff_string = self:CreateLabel (f_manual, "Add Buff")
 	local new_debuff_string = self:CreateLabel (f_manual, "Add Debuff")
-	local new_buff_entry = self:CreateTextEntry (f_manual, function()end, 200, 20, "NewBuffTextBox", _, _, options_dropdown_template)
-	local new_debuff_entry = self:CreateTextEntry (f_manual, function()end, 200, 20, "NewDebuffTextBox", _, _, options_dropdown_template)
+	local new_buff_entry = self:CreateTextEntry (f_manual, function()end, 200, 20, "NewBuffTextBox", nil, nil, options_dropdown_template)
+	local new_debuff_entry = self:CreateTextEntry (f_manual, function()end, 200, 20, "NewDebuffTextBox", nil, nil, options_dropdown_template)
 	
 	new_buff_entry:SetHook ("OnEditFocusGained", load_all_spells)
 	new_debuff_entry:SetHook ("OnEditFocusGained", load_all_spells)
@@ -1177,7 +1177,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	multiple_spells_label:SetSize (350, 24)
 	multiple_spells_label:SetJustifyV ("top")
 	
-	local export_box = self:CreateTextEntry (f_manual, function()end, 242, 20, "ExportAuraTextBox", _, _, options_dropdown_template)
+	local export_box = self:CreateTextEntry (f_manual, function()end, 242, 20, "ExportAuraTextBox", nil, nil, options_dropdown_template)
 	
 	local export_buff_button = self:CreateButton (f_manual, function()
 		local str = ""
@@ -1280,5 +1280,3 @@ end
 
 
 --handle UNIT_AURA event
-
-

@@ -963,9 +963,9 @@
 		local bars_brackets = instancia:GetBarBracket()
 		--
 		if (instancia.use_multi_fontstrings) then
-			Details:SetTextsOnLine(thisLine, "", (spell_damage and SelectedToKFunction (_, spell_damage) or ""), porcentagem)
+			Details:SetTextsOnLine(thisLine, "", (spell_damage and SelectedToKFunction (nil, spell_damage) or ""), porcentagem)
 		else
-			thisLine.lineText4:SetText ((spell_damage and SelectedToKFunction (_, spell_damage) or "") .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+			thisLine.lineText4:SetText ((spell_damage and SelectedToKFunction (nil, spell_damage) or "") .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 		end
 
 		thisLine.lineText1:SetTextColor(1, 1, 1, 1)
@@ -1064,7 +1064,7 @@
 				for i = 1, math.min (min, #damage_taken_table) do 
 					local t = damage_taken_table [i]
 				
-					GameCooltip:AddLine (Details:GetOnlyName (t[1]), FormatTooltipNumber (_, t[2]) .. " (" .. _cstr ("%.1f", t[2] / total * 100) .. "%)")
+					GameCooltip:AddLine (Details:GetOnlyName (t[1]), FormatTooltipNumber (nil, t[2]) .. " (" .. _cstr ("%.1f", t[2] / total * 100) .. "%)")
 					local classe = t[3]
 					if (not classe) then
 						classe = "UNKNOW"
@@ -1359,9 +1359,9 @@
 				local actor_table = {Details:GetOnlyName (void_table[1])}
 				local m, s = _math_floor (void_table[3].uptime / 60), _math_floor (void_table[3].uptime % 60)
 				if (m > 0) then
-					actor_table [2] = FormatTooltipNumber (_, void_table[3].damage) .. " (" .. m .. "m " .. s .. "s" .. ")"
+					actor_table [2] = FormatTooltipNumber (nil, void_table[3].damage) .. " (" .. m .. "m " .. s .. "s" .. ")"
 				else
-					actor_table [2] = FormatTooltipNumber (_, void_table[3].damage) .. " (" .. s .. "s" .. ")"
+					actor_table [2] = FormatTooltipNumber (nil, void_table[3].damage) .. " (" .. s .. "s" .. ")"
 				end
 				t [#t+1] = actor_table
 			end
@@ -1392,7 +1392,7 @@
 	
 	function Details:ToolTipVoidZones (instancia, actor, barra, keydown)
 		
-		local damage_actor = instancia.showing[1]:PegarCombatente (_, actor.damage_twin)
+		local damage_actor = instancia.showing[1]:PegarCombatente (nil, actor.damage_twin)
 		local habilidade
 		local alvos
 		
@@ -1473,9 +1473,9 @@
 
 			local minutos, segundos = _math_floor (debuff_table.uptime / 60), _math_floor (debuff_table.uptime % 60)
 			if (minutos > 0) then
-				GameCooltip:AddLine (Details:GetOnlyName (t[1]), FormatTooltipNumber (_, debuff_table.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
+				GameCooltip:AddLine (Details:GetOnlyName (t[1]), FormatTooltipNumber (nil, debuff_table.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
 			else
-				GameCooltip:AddLine (Details:GetOnlyName (t[1]), FormatTooltipNumber (_, debuff_table.damage) .. " (" .. segundos .. "s" .. ")")
+				GameCooltip:AddLine (Details:GetOnlyName (t[1]), FormatTooltipNumber (nil, debuff_table.damage) .. " (" .. segundos .. "s" .. ")")
 			end
 			
 			local classe = Details:GetClass (t[1])
@@ -1537,8 +1537,8 @@
 		local combat_time = instancia.showing:GetCombatTime()
 		local dps = _math_floor (self.damage / combat_time)
 		
-		local formated_damage = SelectedToKFunction (_, self.damage)
-		local formated_dps = SelectedToKFunction (_, dps)
+		local formated_damage = SelectedToKFunction (nil, self.damage)
+		local formated_dps = SelectedToKFunction (nil, dps)
 		
 		local porcentagem
 		
@@ -2477,8 +2477,8 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 	--right text
 	if (sub_atributo == 1) then --damage done
 		dps = _math_floor (dps)
-		local formated_damage = SelectedToKFunction (_, damage_total)
-		local formated_dps = SelectedToKFunction (_, dps)
+		local formated_damage = SelectedToKFunction (nil, damage_total)
+		local formated_dps = SelectedToKFunction (nil, dps)
 		thisLine.ps_text = formated_dps
 
 		if (not bars_show_data [1]) then
@@ -2512,8 +2512,8 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 		local raw_dps = dps
 		dps = _math_floor (dps)
 		
-		local formated_damage = SelectedToKFunction (_, damage_total)
-		local formated_dps = SelectedToKFunction (_, dps)
+		local formated_damage = SelectedToKFunction (nil, damage_total)
+		local formated_dps = SelectedToKFunction (nil, dps)
 		thisLine.ps_text = formated_dps
 	
 		local diff_from_topdps
@@ -2542,7 +2542,7 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 			if (not bars_show_data [2]) then
 				color_percent = ""
 			else
-				color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (_, _math_floor (diff_from_topdps)) .. "|r" .. bars_brackets[2]
+				color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (nil, _math_floor (diff_from_topdps)) .. "|r" .. bars_brackets[2]
 			end
 			
 			rightText = formated_dps .. color_percent
@@ -2575,8 +2575,8 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 
 		local dtps = self.damage_taken / combat_time
 	
-		local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
-		local formated_dtps = SelectedToKFunction (_, dtps)
+		local formated_damage_taken = SelectedToKFunction (nil, self.damage_taken)
+		local formated_dtps = SelectedToKFunction (nil, dtps)
 		thisLine.ps_text = formated_dtps
 
 		if (not bars_show_data [1]) then
@@ -2606,7 +2606,7 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 		
 	elseif (sub_atributo == 4) then --friendly fire
 	
-		local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
+		local formated_friendly_fire = SelectedToKFunction (nil, self.friendlyfire_total)
 
 		if (not bars_show_data [1]) then
 			formated_friendly_fire = ""
@@ -2633,8 +2633,8 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 	
 		local dtps = self.damage_taken / combat_time
 	
-		local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
-		local formated_dtps = SelectedToKFunction (_, dtps)
+		local formated_damage_taken = SelectedToKFunction (nil, self.damage_taken)
+		local formated_dtps = SelectedToKFunction (nil, dtps)
 		thisLine.ps_text = formated_dtps
 
 		if (not bars_show_data [1]) then
@@ -3093,9 +3093,9 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					end
 
 					if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
-						GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_, totalDamage) .."   ("..percent.."%)")
+						GameCooltip:AddLine (nome_magia, FormatTooltipNumber (nil, totalDamage) .."   ("..percent.."%)")
 					else
-						GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_, _math_floor (totalDPS)) .."   ("..percent.."%)")
+						GameCooltip:AddLine (nome_magia, FormatTooltipNumber (nil, _math_floor (totalDPS)) .."   ("..percent.."%)")
 					end
 					
 					GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W + 4, icon_size.H + 4, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
@@ -3119,7 +3119,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 						local spellName, _, spellIcon = _GetSpellInfo(spellId)
 
 						if (spellName) then
-							GameCooltip:AddLine (spellName, FormatTooltipNumber (_, damageDone) .. " (" .. _math_floor (damageDone / self.total * 100) .. "%)")
+							GameCooltip:AddLine (spellName, FormatTooltipNumber (nil, damageDone) .. " (" .. _math_floor (damageDone / self.total * 100) .. "%)")
 							Details:AddTooltipBackgroundStatusbar (false, damageDone / self.total * 100)
 							GameCooltip:AddIcon (spellIcon, 1, 1, icon_size.W, icon_size.H, 0.1, 0.9, 0.1, 0.9)
 						end
@@ -3154,7 +3154,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 				for i = 1, _math_min (max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
-					GameCooltip:AddLine (este_inimigo[1], FormatTooltipNumber (_, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
+					GameCooltip:AddLine (este_inimigo[1], FormatTooltipNumber (nil, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
 					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, icon_size.W, icon_size.H, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
 					Details:AddTooltipBackgroundStatusbar (false, este_inimigo[2] / topEnemy * 100)
 				end
@@ -3248,9 +3248,9 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")
 				if (instancia.sub_atributo == 1) then
-					GameCooltip:AddLine (n, FormatTooltipNumber (_, _table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+					GameCooltip:AddLine (n, FormatTooltipNumber (nil, _table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				else
-					GameCooltip:AddLine (n, FormatTooltipNumber (_,  _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+					GameCooltip:AddLine (n, FormatTooltipNumber (nil,  _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				end
 				
 				Details:AddTooltipBackgroundStatusbar (false, _table [2] / topPet * 100)
@@ -3302,7 +3302,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				
 				for i = 1, #playerPhases do
 					--[1] Phase Number [2] Amount Done [3] Rank [4] Percent
-					GameCooltip:AddLine ("|cFFF0F0F0Phase|r " .. playerPhases [i][1], FormatTooltipNumber (_, playerPhases [i][2]) .. " (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. _cstr ("%.1f", playerPhases [i][4]) .. "%)")
+					GameCooltip:AddLine ("|cFFF0F0F0Phase|r " .. playerPhases [i][1], FormatTooltipNumber (nil, playerPhases [i][2]) .. " (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. _cstr ("%.1f", playerPhases [i][4]) .. "%)")
 					GameCooltip:AddIcon ([[Interface\Garrison\orderhall-missions-mechanic9]], 1, 1, 14, 14, 11/64, 53/64, 11/64, 53/64)
 					Details:AddTooltipBackgroundStatusbar()
 				end
@@ -3442,7 +3442,7 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 		local total = tooltip_temp_table [o][2]
 		local player_name = Details:GetOnlyName (player:name())
 	
-		GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
+		GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (nil, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
 		
 		local classe = player:class()
 		if (not classe) then
@@ -3469,14 +3469,14 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 	
 	--> damage done and heal
 	GameCooltip:AddLine (" ")
-	GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES_DONE"], FormatTooltipNumber (_, _math_floor (self.total)))
+	GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES_DONE"], FormatTooltipNumber (nil, _math_floor (self.total)))
 	local half = 0.00048828125
 	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
 	GameCooltip:AddStatusBar (0, 1, r, g, b, 1, false, enemies_background)
 	
 	local heal_actor = instancia.showing (2, self.nome)
 	if (heal_actor) then
-		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"], FormatTooltipNumber (_, _math_floor (heal_actor.heal_enemy_amt)))
+		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"], FormatTooltipNumber (nil, _math_floor (heal_actor.heal_enemy_amt)))
 	else
 		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"], 0)
 	end
@@ -3620,7 +3620,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 			
 			for _, spell in _ipairs (all_spells) do
 				local spellname, _, spellicon = _GetSpellInfo (spell [1])
-				GameCooltip:AddLine (spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (_, spell [2]).." (" .. _cstr ("%.1f", (spell [2] / damage_taken) * 100).."%)")
+				GameCooltip:AddLine (spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (nil, spell [2]).." (" .. _cstr ("%.1f", (spell [2] / damage_taken) * 100).."%)")
 				GameCooltip:AddIcon (spellicon, 1, 1, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 				Details:AddTooltipBackgroundStatusbar()
 			end
@@ -3628,9 +3628,9 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		else
 			local aggressorName = Details:GetOnlyName (meus_agressores[i][1])
 			if (ismaximized and meus_agressores[i][1]:find (Details.playername)) then
-				GameCooltip:AddLine (aggressorName, FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
+				GameCooltip:AddLine (aggressorName, FormatTooltipNumber (nil, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
 			else
-				GameCooltip:AddLine (aggressorName, FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
+				GameCooltip:AddLine (aggressorName, FormatTooltipNumber (nil, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
 			end
 			local classe = meus_agressores[i][3]
 			
@@ -3650,14 +3650,14 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	if (instancia.sub_atributo == 6) then
 	
 		GameCooltip:AddLine (" ")
-		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], FormatTooltipNumber (_, _math_floor (self.total)))
+		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], FormatTooltipNumber (nil, _math_floor (self.total)))
 		local half = 0.00048828125
 		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, icon_size.W, icon_size.H, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
 		Details:AddTooltipBackgroundStatusbar()
 		
 		local heal_actor = instancia.showing (2, self.nome)
 		if (heal_actor) then
-			GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], FormatTooltipNumber (_, _math_floor (heal_actor.heal_enemy_amt)))
+			GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], FormatTooltipNumber (nil, _math_floor (heal_actor.heal_enemy_amt)))
 		else
 			GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], 0)
 		end
@@ -3728,7 +3728,7 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 			classe = "UNKNOW"
 		end
 
-		GameCooltip:AddLine (Details:GetOnlyName (DamagedPlayers[i][1]), FormatTooltipNumber (_, DamagedPlayers[i][2]).." (".._cstr("%.1f", DamagedPlayers[i][2]/FriendlyFireTotal*100).."%)")
+		GameCooltip:AddLine (Details:GetOnlyName (DamagedPlayers[i][1]), FormatTooltipNumber (nil, DamagedPlayers[i][2]).." (".._cstr("%.1f", DamagedPlayers[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, lineHeight, lineHeight)
 		Details:AddTooltipBackgroundStatusbar()
 		
@@ -3772,7 +3772,7 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	
 	for i = 1, _math_min (max_abilities2, #SpellsInOrder) do
 		local nome, _, icone = _GetSpellInfo (SpellsInOrder[i][1])
-		GameCooltip:AddLine (nome, FormatTooltipNumber (_, SpellsInOrder[i][2]).." (".._cstr("%.1f", SpellsInOrder[i][2]/FriendlyFireTotal*100).."%)")
+		GameCooltip:AddLine (nome, FormatTooltipNumber (nil, SpellsInOrder[i][2]).." (".._cstr("%.1f", SpellsInOrder[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon (icone, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		Details:AddTooltipBackgroundStatusbar()
 	end	
@@ -4003,7 +4003,7 @@ function atributo_damage:MontaInfoDamageTaken()
 			texCoords = Details.class_coords ["UNKNOW"]
 		end
 		
-		local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+		local formated_value = SelectedToKFunction (nil, _math_floor (tabela[2]))
 		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
 	end
 	
@@ -4217,10 +4217,10 @@ function atributo_damage:MontaInfoDamageDone()
 		local name = tabela[4]
 		
 		if (info.sub_atributo == 2) then
-			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]/meu_tempo))
+			local formated_value = SelectedToKFunction (nil, _math_floor (tabela[2]/meu_tempo))
 			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
-			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+			local formated_value = SelectedToKFunction (nil, _math_floor (tabela[2]))
 			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		end
 		
@@ -4369,7 +4369,7 @@ function atributo_damage:MontaInfoDamageDone()
 			if (info.sub_atributo == 2) then
 				barra.lineText4:SetText (Details:comma_value ( _math_floor (tabela[2]/meu_tempo)) .. " (" .. _cstr ("%.1f", tabela[3]) .. "%)")
 			else
-				barra.lineText4:SetText (SelectedToKFunction (_, tabela[2]) .." (" .. _cstr ("%.1f", tabela[3]) .. "%)")
+				barra.lineText4:SetText (SelectedToKFunction (nil, tabela[2]) .." (" .. _cstr ("%.1f", tabela[3]) .. "%)")
 			end
 			
 			if (barra.mouse_over) then --> atualizar o tooltip
@@ -4966,7 +4966,7 @@ end
 
 function atributo_damage:MontaTooltipDamageTaken (thisLine, index)
 	
-	local aggressor = info.instancia.showing [1]:PegarCombatente (_, thisLine.nome_inimigo)
+	local aggressor = info.instancia.showing [1]:PegarCombatente (nil, thisLine.nome_inimigo)
 	local container = aggressor.spells._ActorTable
 	local habilidades = {}
 
@@ -5110,8 +5110,8 @@ function atributo_damage:MontaTooltipAlvos (thisLine, index, instancia)
 				--GameCooltip:AddDoubleLine (index..". |T"..tabela[3]..":0|t "..tabela[1], Details:comma_value ( _math_floor (tabela[2] / meu_tempo) ).." (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
 				GameCooltip:AddLine (tabela[1], Details:comma_value ( _math_floor (tabela[2] / meu_tempo) ).." (".._cstr("%.1f", tabela[2]/total*100).."%)")
 			else
-				--GameCooltip:AddDoubleLine (index..". |T"..tabela[3]..":0|t " .. tabela[1], SelectedToKFunction (_, tabela[2]) .. " (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
-				GameCooltip:AddLine (tabela[1], SelectedToKFunction (_, tabela[2]) .. " (".._cstr("%.1f", tabela[2]/total*100).."%)")
+				--GameCooltip:AddDoubleLine (index..". |T"..tabela[3]..":0|t " .. tabela[1], SelectedToKFunction (nil, tabela[2]) .. " (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
+				GameCooltip:AddLine (tabela[1], SelectedToKFunction (nil, tabela[2]) .. " (".._cstr("%.1f", tabela[2]/total*100).."%)")
 			end
 
 			GameCooltip:AddIcon (tabela[3], nil, nil, icon_size.W + 4, icon_size.H + 4, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
@@ -5670,9 +5670,9 @@ end
 			local player_name = player:name()
 		
 			if (player_name:find (Details.playername)) then
-				GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2, "yellow")
+				GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (nil, total) .. " (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2, "yellow")
 			else
-				GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2)
+				GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (nil, total) .." (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2)
 			end
 			
 			local classe = player:class()

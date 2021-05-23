@@ -507,7 +507,7 @@
 			end
 			
 			--> tabela do combate atual
-			local tabela_atual = _detalhes.tabela_vigente or _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+			local tabela_atual = _detalhes.tabela_vigente or _detalhes.combate:NovaTabela (nil, _detalhes.tabela_overall)
 			
 			--> limpa a tabela overall
 			if (_detalhes.overall_clear_logout) then

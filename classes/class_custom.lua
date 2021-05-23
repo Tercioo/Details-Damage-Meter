@@ -238,11 +238,11 @@
 						end
 						
 						if (type (value) == "number") then
-							value = SelectedToKFunction (_, value)
+							value = SelectedToKFunction (nil, value)
 						end
 						ptotal = value
 					else
-						ptotal = SelectedToKFunction (_, _math_floor (actor.value))
+						ptotal = SelectedToKFunction (nil, _math_floor (actor.value))
 					end
 					
 					actor.report_value = ptotal .. " (" .. percent .. "%)"
@@ -293,7 +293,7 @@
 		if (source == "[all]") then
 			
 			for _, actor in _ipairs (combat_container) do 
-				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+				local actortotal = func (nil, actor, source, target, spellid, combat, instance_container)
 				if (actortotal > 0) then
 					total = total + actortotal
 					amount = amount + 1
@@ -322,7 +322,7 @@
 						Details:Msg("error on class_custom 'func' is invalid, backtrace:", debugstack())
 						return
 					end
-					local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+					local actortotal = func (nil, actor, source, target, spellid, combat, instance_container)
 
 					if (actortotal > 0) then
 						total = total + actortotal
@@ -342,7 +342,7 @@
 			local pindex = combat [container_index]._NameIndexTable [_detalhes.playername]
 			if (pindex) then
 				local actor = combat [container_index]._ActorTable [pindex]
-				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+				local actortotal = func (nil, actor, source, target, spellid, combat, instance_container)
 				
 				if (actortotal > 0) then
 					total = total + actortotal
@@ -360,7 +360,7 @@
 			local pindex = combat [container_index]._NameIndexTable [source]
 			if (pindex) then
 				local actor = combat [container_index]._ActorTable [pindex]
-				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+				local actortotal = func (nil, actor, source, target, spellid, combat, instance_container)
 				
 				if (actortotal > 0) then
 					total = total + actortotal
@@ -538,12 +538,12 @@
 					if (type(value) == "string") then
 						Details:SetTextsOnLine(row, "", value, percent) --usando essa linha
 					else
-						Details:SetTextsOnLine(row, "", SelectedToKFunction(_, value), percent)
+						Details:SetTextsOnLine(row, "", SelectedToKFunction( nil, value), percent)
 					end
 
 				else
 					if (type (value) == "number") then
-						row.lineText4:SetText (SelectedToKFunction (_, value) .. bars_brackets[1] .. percent .. bars_brackets[2])
+						row.lineText4:SetText (SelectedToKFunction (nil, value) .. bars_brackets[1] .. percent .. bars_brackets[2])
 					else
 						row.lineText4:SetText (value .. bars_brackets[1] .. percent .. bars_brackets[2])
 					end
@@ -551,7 +551,7 @@
 					row.lineText2:SetText("")
 				end
 			else
-				local formated_value = SelectedToKFunction (_, self.value)
+				local formated_value = SelectedToKFunction (nil, self.value)
 				local rightText = formated_value .. bars_brackets[1] .. percent .. bars_brackets[2]
 
 				if (UsingCustomRightText) then
@@ -992,7 +992,7 @@
 			local func = atributo_custom [attribute .. "Tooltip"]
 			
 			--> build the tooltip
-			func (_, actor, custom_object.target, custom_object.spellid, instance.showing, instance)
+			func (nil, actor, custom_object.target, custom_object.spellid, instance.showing, instance)
 		end
 		
 		return true
@@ -2107,7 +2107,7 @@
 				local DamageOnStar = RaidTargets [128]
 				if (DamageOnStar) then
 				    --RAID_TARGET_8 is the built-in localized word for 'Skull'.
-				    GameCooltip:AddLine (RAID_TARGET_8 .. ":", format_func (_, DamageOnStar))
+				    GameCooltip:AddLine (RAID_TARGET_8 .. ":", format_func (nil, DamageOnStar))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_8", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
@@ -2195,49 +2195,49 @@
 
 				local DamageOnStar = RaidTargets [1]
 				if (DamageOnStar) then
-				    GameCooltip:AddLine (RAID_TARGET_1 .. ":", format_func (_, DamageOnStar))
+				    GameCooltip:AddLine (RAID_TARGET_1 .. ":", format_func (nil, DamageOnStar))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_1", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnCircle = RaidTargets [2]
 				if (DamageOnCircle) then
-				    GameCooltip:AddLine (RAID_TARGET_2 .. ":", format_func (_, DamageOnCircle))
+				    GameCooltip:AddLine (RAID_TARGET_2 .. ":", format_func (nil, DamageOnCircle))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_2", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnDiamond = RaidTargets [4]
 				if (DamageOnDiamond) then
-				    GameCooltip:AddLine (RAID_TARGET_3 .. ":", format_func (_, DamageOnDiamond))
+				    GameCooltip:AddLine (RAID_TARGET_3 .. ":", format_func (nil, DamageOnDiamond))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_3", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnTriangle = RaidTargets [8]
 				if (DamageOnTriangle) then
-				    GameCooltip:AddLine (RAID_TARGET_4 .. ":", format_func (_, DamageOnTriangle))
+				    GameCooltip:AddLine (RAID_TARGET_4 .. ":", format_func (nil, DamageOnTriangle))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_4", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnMoon = RaidTargets [16]
 				if (DamageOnMoon) then
-				    GameCooltip:AddLine (RAID_TARGET_5 .. ":", format_func (_, DamageOnMoon))
+				    GameCooltip:AddLine (RAID_TARGET_5 .. ":", format_func (nil, DamageOnMoon))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_5", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnSquare = RaidTargets [32]
 				if (DamageOnSquare) then
-				    GameCooltip:AddLine (RAID_TARGET_6 .. ":", format_func (_, DamageOnSquare))
+				    GameCooltip:AddLine (RAID_TARGET_6 .. ":", format_func (nil, DamageOnSquare))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_6", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnCross = RaidTargets [64]
 				if (DamageOnCross) then
-				    GameCooltip:AddLine (RAID_TARGET_7 .. ":", format_func (_, DamageOnCross))
+				    GameCooltip:AddLine (RAID_TARGET_7 .. ":", format_func (nil, DamageOnCross))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_7", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
@@ -2386,7 +2386,7 @@
 							formatedSpellPercent = formatedSpellPercent  .. "0"
 						end
 						
-						GameCooltip:AddLine (spellName, format_func (_, total) .. "    " .. formatedSpellPercent  .. "%")
+						GameCooltip:AddLine (spellName, format_func (nil, total) .. "    " .. formatedSpellPercent  .. "%")
 						
 						Details:AddTooltipBackgroundStatusbar(false, total / topSpellTotal * 100)
 						GameCooltip:AddIcon (spellIcon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height, 0.078125, 0.921875, 0.078125, 0.921875)
@@ -2417,7 +2417,7 @@
 				
 				--build the string
 				local ToK = Details:GetCurrentToKFunction()
-				local s = ToK (_, value / OverallCombatTime)
+				local s = ToK (nil, value / OverallCombatTime)
 				
 				return s
 			]],
@@ -2508,7 +2508,7 @@
 				    end
 				end
 
-				GameCooltip:AddLine (actor:Name(), format_func (_, actor.totalabsorbed))
+				GameCooltip:AddLine (actor:Name(), format_func (nil, actor.totalabsorbed))
 				Details:AddTooltipBackgroundStatusbar()
 
 				for petIndex, petName in ipairs (actor.pets) do
@@ -2516,7 +2516,7 @@
 				    if (pet) then
 					totalAbsorb = totalAbsorb + pet.totalabsorbed
 					
-					GameCooltip:AddLine (petName, format_func (_, pet.totalabsorbed))
+					GameCooltip:AddLine (petName, format_func (nil, pet.totalabsorbed))
 					Details:AddTooltipBackgroundStatusbar()        
 					
 				    end

@@ -158,7 +158,7 @@ function Details:CreateOrOpenNewsWindow()
 		local onToggleAutoOpen = function(_, _, state)
 			Details.auto_open_news_window = state
 		end
-		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, _, _, _, _, "AutoOpenCheckbox", _, _, _, _, _, DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+		local autoOpenCheckbox = DetailsFramework:CreateSwitch(statusBar, onToggleAutoOpen, Details.auto_open_news_window, nil, nil, nil, nil, "AutoOpenCheckbox", nil, nil, nil, nil, nil, DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		autoOpenCheckbox:SetAsCheckBox()
 		autoOpenCheckbox:SetPoint("left", statusBar, "left", 2, 0)
 

@@ -147,11 +147,11 @@ local libwindow = LibStub("LibWindow-1.1")
                 end
                 
                 summaryFrame.TimeToTestLabel = DF:CreateLabel (summaryFrame, "Amount of Time", normal_text_template)
-                summaryFrame.TimeToTestDropdown = DF:CreateDropDown (summaryFrame, build_time_list, default, 150, 20, _, _, options_dropdown_template)
+                summaryFrame.TimeToTestDropdown = DF:CreateDropDown (summaryFrame, build_time_list, default, 150, 20, nil, nil, options_dropdown_template)
                 
             --description string and text entry
                 summaryFrame.DescriptionLabel = DF:CreateLabel (summaryFrame, "Description", normal_text_template)
-                summaryFrame.DescriptionEntry = DF:CreateTextEntry (summaryFrame, function()end, 120, 20, nil, _, nil, options_dropdown_template)
+                summaryFrame.DescriptionEntry = DF:CreateTextEntry (summaryFrame, function()end, 120, 20, nil, nil, nil, options_dropdown_template)
                 
             --DPS Amount string
                 summaryFrame.DPSLabel = DF:CreateLabel (summaryFrame, "100K", normal_text_template)
@@ -167,7 +167,7 @@ local libwindow = LibStub("LibWindow-1.1")
                     return t
                 end
                 summaryFrame.BossSimulationLabel = DF:CreateLabel (summaryFrame, "Boss Simulation", normal_text_template)
-                summaryFrame.BossSimulationDropdown = DF:CreateDropDown (summaryFrame, build_bosssimulation_list, default, 150, 20, _, _, options_dropdown_template)
+                summaryFrame.BossSimulationDropdown = DF:CreateDropDown (summaryFrame, build_bosssimulation_list, default, 150, 20, nil, nil, options_dropdown_template)
                 
             --boss records line with a tooltip importing data from the storage
                 summaryFrame.BossRecordsFrame = CreateFrame ("frame", nil, summaryFrame,"BackdropTemplate")

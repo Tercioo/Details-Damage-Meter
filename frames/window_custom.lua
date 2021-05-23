@@ -1139,7 +1139,7 @@
 					adds_boss_image:SetWidth (20)
 					adds_boss_image:SetHeight (16)
 
-					local actorsFrame = gump:NewPanel (custom_window, _, "DetailsCustomActorsFrame2", "actorsFrame", 1, 1)
+					local actorsFrame = gump:NewPanel (custom_window, nil, "DetailsCustomActorsFrame2", "actorsFrame", 1, 1)
 					actorsFrame:SetPoint ("topleft", custom_window, "topright", 5, -60)
 					actorsFrame:Hide()
 					
@@ -1284,7 +1284,7 @@
 						
 							if (_detalhes:InstanceIsRaid (instanceId)) then
 						
-								GameCooltip:AddLine (instanceTable.name, _, 1, "white")
+								GameCooltip:AddLine (instanceTable.name, nil, 1, "white")
 								GameCooltip:AddIcon (instanceTable.icon, 1, 1, 64, 32)
 
 								for index, encounterName in ipairs (instanceTable.boss_names) do 
@@ -1361,7 +1361,7 @@
 					adds_boss_image:SetWidth (20)
 					adds_boss_image:SetHeight (16)
 					
-					local actorsFrame = gump:NewPanel (custom_window, _, "DetailsCustomActorsFrame", "actorsFrame", 1, 1)
+					local actorsFrame = gump:NewPanel (custom_window, nil, "DetailsCustomActorsFrame", "actorsFrame", 1, 1)
 					actorsFrame:SetPoint ("topleft", custom_window, "topright", 5, -60)
 					actorsFrame:Hide()
 					
@@ -1543,7 +1543,7 @@
 					spell_id_boss_image:SetWidth (20)
 					spell_id_boss_image:SetHeight (16)
 					
-					local spellsFrame = gump:NewPanel (custom_window, _, "DetailsCustomSpellsFrame", "spellsFrame", 1, 1)
+					local spellsFrame = gump:NewPanel (custom_window, nil, "DetailsCustomSpellsFrame", "spellsFrame", 1, 1)
 					spellsFrame:SetPoint ("topleft", custom_window, "topright", 5, 0)
 					spellsFrame:Hide()
 					
@@ -1652,7 +1652,7 @@
 						
 							if (_detalhes:InstanceisRaid (instanceId)) then
 						
-								GameCooltip:AddLine (instanceTable.name, _, 1, "white")
+								GameCooltip:AddLine (instanceTable.name, nil, 1, "white")
 								GameCooltip:AddIcon (instanceTable.icon, 1, 1, 64, 32)
 
 								for index, encounterName in ipairs (instanceTable.boss_names) do 

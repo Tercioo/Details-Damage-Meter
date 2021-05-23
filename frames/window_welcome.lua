@@ -273,7 +273,7 @@ local window_openned_at = time()
 		texto555:SetText (Loc ["STRING_WELCOME_45"])
 		texto555:SetTextColor (1, 1, 1, 1)
 		
-		local changemind = g:NewLabel (window, _, "$parentChangeMind55Label", "changemind55Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
+		local changemind = g:NewLabel (window, nil, "$parentChangeMind55Label", "changemind55Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemind55Label:SetPoint ("center", window, "center")
 		window.changemind55Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind55Label.align = "|"
@@ -319,11 +319,11 @@ local window_openned_at = time()
 			end
 			
 			local instance1 = _detalhes:GetInstance (1)
-			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 160, 20, buildSkinMenu, instance1.skin)
+			local skin_dropdown = g:NewDropDown (window, nil, "$parentSkinDropdown", "skinDropdown", 160, 20, buildSkinMenu, instance1.skin)
 			skin_dropdown:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
 			
-			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"] .. ":", "GameFontNormal")
+			local skin_label = g:NewLabel (window, nil, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"] .. ":", "GameFontNormal")
 			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
 			skin_label:SetPoint ("topleft", window, "topleft", 30, -133)
 
@@ -422,8 +422,8 @@ local window_openned_at = time()
 			end
 		
 			--Latin Alphabet
-			g:NewLabel (window, _, "$parentLatinAlphabetLabel", "LatinAlphabetLabel", Loc["STRING_WELCOME_74"], "GameFontHighlightLeft")
-			g:NewSwitch (window, _, "$parentLatinAlphabetCheckBox", "LatinAlphabetCheckBox", 20, 20, _, _, true)
+			g:NewLabel (window, nil, "$parentLatinAlphabetLabel", "LatinAlphabetLabel", Loc["STRING_WELCOME_74"], "GameFontHighlightLeft")
+			g:NewSwitch (window, nil, "$parentLatinAlphabetCheckBox", "LatinAlphabetCheckBox", 20, 20, nil, nil, true)
 			window.LatinAlphabetCheckBox:SetAsCheckBox()
 			window.LatinAlphabetCheckBox:SetFixedParameter (1)
 			window.LatinAlphabetCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -434,8 +434,8 @@ local window_openned_at = time()
 			tinsert (allAlphabetLabels, window.LatinAlphabetLabel)
 			
 			--Russian
-			g:NewLabel (window, _, "$parentCyrillicAlphabetLabel", "CyrillicAlphabetLabel", Loc["STRING_WELCOME_75"], "GameFontHighlightLeft")
-			g:NewSwitch (window, _, "$parentCyrillicAlphabetCheckBox", "CyrillicAlphabetCheckBox", 20, 20, _, _, false)
+			g:NewLabel (window, nil, "$parentCyrillicAlphabetLabel", "CyrillicAlphabetLabel", Loc["STRING_WELCOME_75"], "GameFontHighlightLeft")
+			g:NewSwitch (window, nil, "$parentCyrillicAlphabetCheckBox", "CyrillicAlphabetCheckBox", 20, 20, nil, nil, false)
 			window.CyrillicAlphabetCheckBox:SetAsCheckBox()
 			window.CyrillicAlphabetCheckBox:SetFixedParameter (2)
 			window.CyrillicAlphabetCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -445,8 +445,8 @@ local window_openned_at = time()
 			tinsert (allAlphabetLabels, window.CyrillicAlphabetLabel)
 			
 			--Chinese
-			g:NewLabel (window, _, "$parentChinaAlphabetLabel", "ChinaAlphabetLabel", Loc["STRING_WELCOME_76"], "GameFontHighlightLeft")
-			g:NewSwitch (window, _, "$parentChinaCheckBox", "ChinaCheckBox", 20, 20, _, _, false)
+			g:NewLabel (window, nil, "$parentChinaAlphabetLabel", "ChinaAlphabetLabel", Loc["STRING_WELCOME_76"], "GameFontHighlightLeft")
+			g:NewSwitch (window, nil, "$parentChinaCheckBox", "ChinaCheckBox", 20, 20, nil, nil, false)
 			window.ChinaCheckBox:SetAsCheckBox()
 			window.ChinaCheckBox:SetFixedParameter (3)
 			window.ChinaCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -456,8 +456,8 @@ local window_openned_at = time()
 			tinsert (allAlphabetLabels, window.ChinaAlphabetLabel)
 			
 			--Korea
-			g:NewLabel (window, _, "$parentKoreanAlphabetLabel", "KoreanAlphabetLabel", Loc["STRING_WELCOME_77"], "GameFontHighlightLeft")
-			g:NewSwitch (window, _, "$parentKoreanCheckBox", "KoreanCheckBox", 20, 20, _, _, false)
+			g:NewLabel (window, nil, "$parentKoreanAlphabetLabel", "KoreanAlphabetLabel", Loc["STRING_WELCOME_77"], "GameFontHighlightLeft")
+			g:NewSwitch (window, nil, "$parentKoreanCheckBox", "KoreanCheckBox", 20, 20, nil, nil, false)
 			window.KoreanCheckBox:SetAsCheckBox()
 			window.KoreanCheckBox:SetFixedParameter (4)
 			window.KoreanCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -467,8 +467,8 @@ local window_openned_at = time()
 			tinsert (allAlphabetLabels, window.KoreanAlphabetLabel)
 			
 			--Taiwan
-			g:NewLabel (window, _, "$parentTaiwanAlphabetLabel", "TaiwanAlphabetLabel", Loc["STRING_WELCOME_78"], "GameFontHighlightLeft")
-			g:NewSwitch (window, _, "$parentTaiwanCheckBox", "TaiwanCheckBox", 20, 20, _, _, false)
+			g:NewLabel (window, nil, "$parentTaiwanAlphabetLabel", "TaiwanAlphabetLabel", Loc["STRING_WELCOME_78"], "GameFontHighlightLeft")
+			g:NewSwitch (window, nil, "$parentTaiwanCheckBox", "TaiwanCheckBox", 20, 20, nil, nil, false)
 			window.TaiwanCheckBox:SetAsCheckBox()
 			window.TaiwanCheckBox:SetFixedParameter (5)
 			window.TaiwanCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -555,10 +555,10 @@ local window_openned_at = time()
 			window_color:SetIcon ([[Interface\AddOns\Details\images\icons]], 14, 14, nil, {434/512, 466/512, 277/512, 307/512}, nil, 4, 2)
 
 		--bar height
-			g:NewLabel (window, _, "$parentBarHeightLabel", "BarHeightLabel", Loc ["STRING_OPTIONS_BAR_HEIGHT"] .. ":", "GameFontNormal")
+			g:NewLabel (window, nil, "$parentBarHeightLabel", "BarHeightLabel", Loc ["STRING_OPTIONS_BAR_HEIGHT"] .. ":", "GameFontNormal")
 			window.BarHeightLabel:SetPoint ("topleft", window_color, "bottomleft", 0, -4 + padding)
 			--
-			g:NewSlider (window, _, "$parentBarHeightSpeed", "BarHeightSlider", 160, 20, 8, 24, 1, 14) --parent, container, name, member, w, h, min, max, step, defaultv
+			g:NewSlider (window, nil, "$parentBarHeightSpeed", "BarHeightSlider", 160, 20, 8, 24, 1, 14) --parent, container, name, member, w, h, min, max, step, defaultv
 			window.BarHeightSlider:SetPoint ("left", window.BarHeightLabel, "right", 2, 0)
 			window.BarHeightSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
@@ -575,10 +575,10 @@ local window_openned_at = time()
 			end)
 
 		--text size
-			g:NewLabel (window, _, "$parentTextSizeLabel", "TextSizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"] .. ":", "GameFontNormal")
+			g:NewLabel (window, nil, "$parentTextSizeLabel", "TextSizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"] .. ":", "GameFontNormal")
 			window.TextSizeLabel:SetPoint ("topleft", window.BarHeightLabel, "bottomleft", 0, -4 + padding)
 			--
-			g:NewSlider (window, _, "$parentTextSizeSpeed", "TextSizeSlider", 160, 20, 10, 20, 1, 14) --parent, container, name, member, w, h, min, max, step, defaultv
+			g:NewSlider (window, nil, "$parentTextSizeSpeed", "TextSizeSlider", 160, 20, 10, 20, 1, 14) --parent, container, name, member, w, h, min, max, step, defaultv
 			window.TextSizeSlider:SetPoint ("left", window.TextSizeLabel, "right", 2, 0)
 			window.TextSizeSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
@@ -618,17 +618,17 @@ local window_openned_at = time()
 			end
 			
 			local instance1 = _detalhes:GetInstance (1)
-			local font_dropdown = g:NewDropDown (window, _, "$parentFontDropdown", "FontDropdown", 160, 20, buildFontMenu, instance1.row_info.font_face)
+			local font_dropdown = g:NewDropDown (window, nil, "$parentFontDropdown", "FontDropdown", 160, 20, buildFontMenu, instance1.row_info.font_face)
 			font_dropdown:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			font_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
 			
-			local font_label = g:NewLabel (window, _, "$parentFontLabel", "FontLabel", Loc ["STRING_OPTIONS_TEXT_FONT"], "GameFontNormal")
+			local font_label = g:NewLabel (window, nil, "$parentFontLabel", "FontLabel", Loc ["STRING_OPTIONS_TEXT_FONT"], "GameFontNormal")
 			font_dropdown:SetPoint ("left", font_label, "right", 2)
 			font_label:SetPoint ("topleft", window.TextSizeLabel, "bottomleft", 0, -4 + padding)
 		
 		--show percent
-			g:NewLabel (window, _, "$parentShowPercentLabel", "ShowPercentLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT"], "GameFontNormal")
-			g:NewSwitch (window, _, "$parentShowPercentCheckBox", "ShowPercentCheckBox", 20, 20, _, _, false)
+			g:NewLabel (window, nil, "$parentShowPercentLabel", "ShowPercentLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT"], "GameFontNormal")
+			g:NewSwitch (window, nil, "$parentShowPercentCheckBox", "ShowPercentCheckBox", 20, 20, nil, nil, false)
 			window.ShowPercentCheckBox:SetAsCheckBox()
 			window.ShowPercentCheckBox:SetFixedParameter (1)
 			window.ShowPercentCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -699,7 +699,7 @@ local window_openned_at = time()
 		numeral_image:SetAlpha (.05)
 		numeral_image:SetTexCoord (1, 0, 0, 1)		
 		
-		g:NewLabel (window, _, "$parentChangeMindNumeralLabel", "changemindNumeralLabel", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
+		g:NewLabel (window, nil, "$parentChangeMindNumeralLabel", "changemindNumeralLabel", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemindNumeralLabel:SetPoint ("center", window, "center")
 		window.changemindNumeralLabel:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemindNumeralLabel.align = "|"
@@ -709,8 +709,8 @@ local window_openned_at = time()
 		texto2Numeral:SetText (Loc ["STRING_NUMERALSYSTEM_DESC"] .. ":")
 		
 		--numeral 1 - western
-		g:NewLabel (window, _, "$parentWesternNumbersLabel", "WesternNumbersLabel", Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN_DESC"], "GameFontHighlightLeft")
-		local WesternNumbersCheckbox = g:NewSwitch (window, _, "WesternNumbersCheckbox", "WesternNumbersCheckbox", 20, 20, _, _, true)
+		g:NewLabel (window, nil, "$parentWesternNumbersLabel", "WesternNumbersLabel", Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN_DESC"], "GameFontHighlightLeft")
+		local WesternNumbersCheckbox = g:NewSwitch (window, nil, "WesternNumbersCheckbox", "WesternNumbersCheckbox", 20, 20, nil, nil, true)
 		WesternNumbersCheckbox:SetAsCheckBox()
 		WesternNumbersCheckbox:SetFixedParameter (1)
 		WesternNumbersCheckbox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -718,8 +718,8 @@ local window_openned_at = time()
 		window.WesternNumbersLabel:SetPoint ("left", WesternNumbersCheckbox, "right", 2, 0)
 		
 		--numeral 2 asian
-		g:NewLabel (window, _, "$parentAsianNumbersLabel", "AsianNumbersLabel", Loc ["STRING_NUMERALSYSTEM_MYRIAD_EASTASIA"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_MYRIAD_EASTASIA"], "GameFontHighlightLeft")
-		local AsianNumbersCheckbox = g:NewSwitch (window, _, "AsianNumbersCheckbox", "AsianNumbersCheckbox", 20, 20, _, _, true)
+		g:NewLabel (window, nil, "$parentAsianNumbersLabel", "AsianNumbersLabel", Loc ["STRING_NUMERALSYSTEM_MYRIAD_EASTASIA"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_MYRIAD_EASTASIA"], "GameFontHighlightLeft")
+		local AsianNumbersCheckbox = g:NewSwitch (window, nil, "AsianNumbersCheckbox", "AsianNumbersCheckbox", 20, 20, nil, nil, true)
 		AsianNumbersCheckbox:SetAsCheckBox()
 		AsianNumbersCheckbox:SetFixedParameter (2)
 		AsianNumbersCheckbox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -818,7 +818,7 @@ local window_openned_at = time()
 		ampulheta:SetAlpha (.05)
 		ampulheta:SetTexCoord (1, 0, 0, 1)		
 		
-		g:NewLabel (window, _, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
+		g:NewLabel (window, nil, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemind2Label:SetPoint ("center", window, "center")
 		window.changemind2Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind2Label.align = "|"
@@ -828,16 +828,16 @@ local window_openned_at = time()
 		texto2:SetText (Loc ["STRING_WELCOME_3"])
 		
 		--chronometer checkbox
-		g:NewLabel (window, _, "$parentChronometerLabel", "ChronometerLabel", Loc ["STRING_WELCOME_4"], "GameFontHighlightLeft")
-		local chronometer = g:NewSwitch (window, _, "WelcomeWindowChronometer", "WelcomeWindowChronometer", 20, 20, _, _, true)
+		g:NewLabel (window, nil, "$parentChronometerLabel", "ChronometerLabel", Loc ["STRING_WELCOME_4"], "GameFontHighlightLeft")
+		local chronometer = g:NewSwitch (window, nil, "WelcomeWindowChronometer", "WelcomeWindowChronometer", 20, 20, nil, nil, true)
 		chronometer:SetAsCheckBox()
 		chronometer:SetFixedParameter (1)
 		chronometer:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.ChronometerLabel:SetPoint ("left", chronometer, "right", 2, 0)
 		
 		--continuouses checkbox
-		g:NewLabel (window, _, "$parentContinuousLabel", "ContinuousLabel", Loc ["STRING_WELCOME_5"], "GameFontHighlightLeft")
-		local continuous = g:NewSwitch (window, _, "WelcomeWindowContinuous", "WelcomeWindowContinuous", 20, 20, _, _, true)
+		g:NewLabel (window, nil, "$parentContinuousLabel", "ContinuousLabel", Loc ["STRING_WELCOME_5"], "GameFontHighlightLeft")
+		local continuous = g:NewSwitch (window, nil, "WelcomeWindowContinuous", "WelcomeWindowContinuous", 20, 20, nil, nil, true)
 		continuous:SetAsCheckBox()
 		continuous:SetFixedParameter (1)
 		continuous:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
@@ -958,7 +958,7 @@ local window_openned_at = time()
 		bg:SetAlpha (.05)
 		bg:SetTexCoord (1, 0, 0, 1)
 		
-		g:NewLabel (window, _, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
+		g:NewLabel (window, nil, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
 		window.changemind4Label:SetPoint ("center", window, "center")
 		window.changemind4Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind4Label.align = "|"
@@ -986,7 +986,7 @@ local window_openned_at = time()
 		dance_text:SetPoint ("topleft", window, "topleft", 30, -175)
 		
 	--------------- Update Speed
-		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"] .. ":", "GameFontNormal")
+		g:NewLabel (window, nil, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"] .. ":", "GameFontNormal")
 		window.updatespeedLabel:SetPoint (31, -150)
 		--
 		
@@ -1018,10 +1018,10 @@ local window_openned_at = time()
 		window.updatespeedSlider.tooltip = Loc ["STRING_WELCOME_15"]
 		
 	--------------- Animate Rows
-		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS"] .. ":", "GameFontNormal")
+		g:NewLabel (window, nil, "$parentAnimateLabel", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS"] .. ":", "GameFontNormal")
 		window.animateLabel:SetPoint (31, -170)
 		--
-		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
+		g:NewSwitch (window, nil, "$parentAnimateSlider", "animateSlider", 60, 20, nil, nil, _detalhes.use_row_animations) -- ltext, rtext, defaultv
 		window.animateSlider:SetPoint ("left",window.animateLabel, "right", 2, 0)
 		window.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes:SetUseAnimations (value)
@@ -1033,10 +1033,10 @@ local window_openned_at = time()
 		
 	--------------- Fast Hps/Dps Updates
 	--[
-		g:NewLabel (window, _, "$parentDpsHpsLabel", "DpsHpsLabel", Loc ["STRING_WELCOME_63"] .. ":", "GameFontNormal")
+		g:NewLabel (window, nil, "$parentDpsHpsLabel", "DpsHpsLabel", Loc ["STRING_WELCOME_63"] .. ":", "GameFontNormal")
 		window.DpsHpsLabel:SetPoint (31, -190)
 		--
-		g:NewSwitch (window, _, "$parentDpsHpsSlider", "DpsHpsSlider", 60, 20, _, _, _detalhes:GetInstance(1).row_info.fast_ps_update) -- ltext, rtext, defaultv
+		g:NewSwitch (window, nil, "$parentDpsHpsSlider", "DpsHpsSlider", 60, 20, nil, nil, _detalhes:GetInstance(1).row_info.fast_ps_update) -- ltext, rtext, defaultv
 		window.DpsHpsSlider:SetPoint ("left",window.DpsHpsLabel, "right", 2, 0)
 		window.DpsHpsSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes:GetInstance(1):FastPSUpdate (value)
@@ -1048,10 +1048,10 @@ local window_openned_at = time()
 		--window.DpsHpsSlider.tooltip = Loc ["STRING_WELCOME_64"]
 	--]]
 	--------------- Max Segments
-	--	g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":", "GameFontNormal")
+	--	g:NewLabel (window, nil, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":", "GameFontNormal")
 	--	window.segmentsLabel:SetPoint (31, -210)
 		--
-	--	g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+	--	g:NewSlider (window, nil, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 	--	window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
 	--	window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 	--		_detalhes.segments_amount = math.floor (amount)

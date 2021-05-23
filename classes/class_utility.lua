@@ -1195,7 +1195,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 		GameCooltip:AddLine (alvos_dispelados[i][1], _detalhes:comma_value (alvos_dispelados[i][2]) .." (".._cstr ("%.1f", alvos_dispelados[i][3]).."%)")
 		_detalhes:AddTooltipBackgroundStatusbar()
 		
-		local targetActor = instancia.showing[4]:PegarCombatente (_, alvos_dispelados[i][1])
+		local targetActor = instancia.showing[4]:PegarCombatente (nil, alvos_dispelados[i][1])
 		
 		if (targetActor) then
 			local classe = targetActor.classe
@@ -1780,7 +1780,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 			
 			GameCooltip:AddIcon ("Interface\\Icons\\PALADIN_HOLY", nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			
-			local targetActor = instancia.showing[4]:PegarCombatente (_, alvos[i][1])
+			local targetActor = instancia.showing[4]:PegarCombatente (nil, alvos[i][1])
 			if (targetActor) then
 				local classe = targetActor.classe
 				if (not classe) then
@@ -1860,7 +1860,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 			GameCooltip:AddLine (alvos[i][1], alvos[i][2])
 			_detalhes:AddTooltipBackgroundStatusbar()
 			
-			local targetActor = instancia.showing[4]:PegarCombatente (_, alvos[i][1])
+			local targetActor = instancia.showing[4]:PegarCombatente (nil, alvos[i][1])
 			if (targetActor) then
 				local classe = targetActor.classe
 				if (not classe) then

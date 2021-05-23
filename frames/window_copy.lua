@@ -40,12 +40,12 @@ do
 		panel.TitleText:SetText ("Paste & Copy")
 		panel.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
 		
-		DetailsFrameWork:NewTextEntry (panel, _, "$parentTextEntry", "text", 476, 14)
+		DetailsFrameWork:NewTextEntry (panel, nil, "$parentTextEntry", "text", 476, 14)
 		panel.text:SetPoint (20, -127)
 		panel.text:SetHook ("OnEditFocusLost", function() panel:Hide() end)
 		panel.text:SetHook ("OnChar", function() panel:Hide() end)
 		
-		DetailsFrameWork:NewLabel (panel, _, _, "desc", "paste on your web browser address bar", "OptionsFontHighlightSmall", 12)
+		DetailsFrameWork:NewLabel (panel, nil, nil, "desc", "paste on your web browser address bar", "OptionsFontHighlightSmall", 12)
 		panel.desc:SetPoint (340, -78)
 		panel.desc.width = 150
 		panel.desc.height = 25

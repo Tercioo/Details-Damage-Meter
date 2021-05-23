@@ -702,7 +702,7 @@
 		
 		function f.OpenPlugin (pluginObject)
 			--> just simulate a click on the menu button
-			f.OnMenuClick (_, _, pluginObject.real_name)
+			f.OnMenuClick (nil, nil, pluginObject.real_name)
 		end
 		
 		function f.ClosePlugin()

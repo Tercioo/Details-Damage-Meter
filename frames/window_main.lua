@@ -2001,7 +2001,7 @@ local barra_scripts_onmouseup = function (self, button)
 				end
 				
 				if (_detalhes.row_singleclick_overwrite [self._instance.atributo] and type (_detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
-					return _detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (_, self.minha_tabela, self._instance, is_shift_down, is_control_down)
+					return _detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (nil, self.minha_tabela, self._instance, is_shift_down, is_control_down)
 				end
 				
 				return _detalhes:ReportSingleLine (self._instance, self)
@@ -4432,7 +4432,7 @@ local fast_ps_func = function (self)
 					local dps_text = row.ps_text
 					if (dps_text) then
 						local new_dps = _math_floor (actor.total / combat_time)
-						local formated_dps = tok_functions [ps_type] (_, new_dps)
+						local formated_dps = tok_functions [ps_type] (nil, new_dps)
 
 						--row.lineText4:SetText (row.lineText4:GetText():gsub (dps_text, formated_dps))
 						row.lineText4:SetText (( row.lineText4:GetText() or "" ):gsub (dps_text, formated_dps))
@@ -5742,11 +5742,11 @@ local OnClickNovoMenu = function (_, _, id, instance)
 		is_new = true
 	end
 
-	local ninstance = _detalhes.CriarInstancia (_, _, id)
-	instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao, _, true)
+	local ninstance = _detalhes.CriarInstancia (nil, nil, id)
+	instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao, nil, true)
 	
 	if (ninstance and is_new) then
-		ninstance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(ninstance.baseframe.cabecalho.modo_selecao, _, true)
+		ninstance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(ninstance.baseframe.cabecalho.modo_selecao, nil, true)
 	end
 end
 
@@ -5854,7 +5854,7 @@ local build_mode_list = function (self, elapsed)
 		end
 		
 		if (_detalhes:GetNumInstancesAmount() < _detalhes:GetMaxInstancesAmount()) then
-			CoolTip:AddMenu (2, OnClickNovoMenu, true, instancia, nil, Loc ["STRING_OPTIONS_WC_CREATE"], _, true)
+			CoolTip:AddMenu (2, OnClickNovoMenu, true, instancia, nil, Loc ["STRING_OPTIONS_WC_CREATE"], nil, true)
 			CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 2, 1, 16, 16)
 			if (HaveClosedInstances) then
 				GameCooltip:AddLine ("$div", nil, 2, nil, -5, -11)
@@ -5882,10 +5882,10 @@ local build_mode_list = function (self, elapsed)
 						_this_instance:ResetAttribute()
 						atributo = _this_instance.atributo
 						sub_atributo = _this_instance.sub_atributo
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
+						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], nil, true)
 						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
 					else
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. CustomObject:GetName(), _, true)
+						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. CustomObject:GetName(), nil, true)
 						CoolTip:AddIcon (CustomObject.icon, 2, 1, 16, 16, 0, 1, 0, 1)
 					end
 
@@ -5897,10 +5897,10 @@ local build_mode_list = function (self, elapsed)
 						atributo = _detalhes.SoloTables.Mode or 1
 						local SoloInfo = _detalhes.SoloTables.Menu [atributo]
 						if (SoloInfo) then
-							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. SoloInfo [1], _, true)
+							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. SoloInfo [1], nil, true)
 							CoolTip:AddIcon (SoloInfo [2], 2, 1, 16, 16, 0, 1, 0, 1)
 						else
-							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
+							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", nil, true)
 						end
 						
 					elseif (modo == 4) then --raid
@@ -5909,19 +5909,19 @@ local build_mode_list = function (self, elapsed)
 						if (plugin_name) then
 							local plugin_object = _detalhes:GetPlugin (plugin_name)
 							if (plugin_object) then
-								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. plugin_object.__name, _, true)
+								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. plugin_object.__name, nil, true)
 								CoolTip:AddIcon (plugin_object.__icon, 2, 1, 16, 16, 0, 1, 0, 1)	
 							else
-								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
+								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", nil, true)
 							end
 						else
-							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
+							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", nil, true)
 						end
 						
 					else
 					
-						--CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
+						--CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], nil, true)
+						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], nil, true)
 						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
 						
 					end
@@ -6310,16 +6310,16 @@ local build_segment_list = function (self, elapsed)
 						local combat_time = thisCombat:GetCombatTime()
 					
 						if (thisCombat.instance_type == "party") then
-							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, dungeon_color)
+							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", nil, 1, dungeon_color)
 						elseif (thisCombat.is_boss.killed) then
 							if (try_number) then
 								local m, s = _math_floor (combat_time/60), _math_floor (combat_time%60)
 								if (s < 10) then
 									s = "0" .. s
 								end
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "lime")
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", nil, 1, "lime")
 							else
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", nil, 1, "lime")
 							end
 						else
 							if (try_number) then
@@ -6327,9 +6327,9 @@ local build_segment_list = function (self, elapsed)
 								if (s < 10) then
 									s = "0" .. s
 								end
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "red")
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", nil, 1, "red")
 							else
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", nil, 1, "red")
 							end
 						end
 
@@ -6380,7 +6380,7 @@ local build_segment_list = function (self, elapsed)
 					
 					elseif (thisCombat.is_pvp) then
 						isMythicDungeon = false
-						CoolTip:AddLine (thisCombat.is_pvp.name, _, 1, battleground_color)
+						CoolTip:AddLine (thisCombat.is_pvp.name, nil, 1, battleground_color)
 						enemy = thisCombat.is_pvp.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
@@ -6396,7 +6396,7 @@ local build_segment_list = function (self, elapsed)
 					
 					elseif (thisCombat.is_arena) then
 						isMythicDungeon = false
-						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
+						CoolTip:AddLine (thisCombat.is_arena.name, nil, 1, "yellow")
 						enemy = thisCombat.is_arena.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
@@ -6413,9 +6413,9 @@ local build_segment_list = function (self, elapsed)
 						isMythicDungeon = false
 						enemy = thisCombat.enemy
 						if (enemy) then
-							CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
+							CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", nil, 1, "yellow")
 						else
-							CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
+							CoolTip:AddLine (segmentos.past..i, nil, 1, "silver")
 						end
 						
 						if (thisCombat.is_trash) then
@@ -6447,10 +6447,10 @@ local build_segment_list = function (self, elapsed)
 					
 					fight_amount = fight_amount + 1
 				else
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, nil, 1, "gray")
 					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
 					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], nil, 2)
 					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
 					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
@@ -6477,7 +6477,7 @@ local build_segment_list = function (self, elapsed)
 			local segment_info_added
 			
 			--> add the new line
-			CoolTip:AddLine (segmentos.current_standard, _, 1, "white")
+			CoolTip:AddLine (segmentos.current_standard, nil, 1, "white")
 			CoolTip:AddMenu (1, instancia.TrocaTabela, 0)
 			CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 			--
@@ -6703,8 +6703,8 @@ local build_segment_list = function (self, elapsed)
 			end
 		
 		----------- overall
-		--CoolTip:AddLine (segmentos.overall_standard, _, 1, "white") Loc ["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc ["STRING_REPORT_FIGHTS"]
-		CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], _, 1, "white")
+		--CoolTip:AddLine (segmentos.overall_standard, nil, 1, "white") Loc ["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc ["STRING_REPORT_FIGHTS"]
+		CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], nil, 1, "white")
 		CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
 		CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 			
@@ -9223,7 +9223,7 @@ local function click_to_change_segment (instancia, buttontype)
 		
 		instancia:TrocaTabela (segmento_goal)
 		
-		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, nil, true, true)
 		
 	elseif (buttontype == "RightButton") then
 	
@@ -9239,7 +9239,7 @@ local function click_to_change_segment (instancia, buttontype)
 		GameCooltip:Select (1, select_)
 		
 		instancia:TrocaTabela (segmento_goal)
-		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, nil, true, true)
 	
 	elseif (buttontype == "MiddleButton") then
 		
@@ -9252,7 +9252,7 @@ local function click_to_change_segment (instancia, buttontype)
 		GameCooltip:Select (1, select_)
 		
 		instancia:TrocaTabela (segmento_goal)
-		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, nil, true, true)
 		
 	end
 end
@@ -9420,7 +9420,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
 			else		
-				modo_selecao_on_enter (instancia.baseframe.cabecalho.modo_selecao.widget, _, true, true)
+				modo_selecao_on_enter (instancia.baseframe.cabecalho.modo_selecao.widget, nil, true, true)
 				instancia.LastMenuOpened = "mode"
 			end
 		else
@@ -9452,7 +9452,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
 			else
-				segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+				segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, nil, true, true)
 				instancia.LastMenuOpened = "segments"
 			end
 		else
@@ -9486,7 +9486,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
 			else
-				atributo_on_enter (instancia.baseframe.cabecalho.atributo.widget, _, true, true)
+				atributo_on_enter (instancia.baseframe.cabecalho.atributo.widget, nil, true, true)
 				instancia.LastMenuOpened = "attributes"
 			end
 		end
@@ -9540,7 +9540,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
 			else
-				reset_button_onenter (instancia.baseframe.cabecalho.reset, _, true, true)
+				reset_button_onenter (instancia.baseframe.cabecalho.reset, nil, true, true)
 				instancia.LastMenuOpened = "reset"
 			end
 		else

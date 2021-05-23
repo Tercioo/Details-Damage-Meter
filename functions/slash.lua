@@ -146,7 +146,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then
 				local instance = _detalhes:GetInstance (1)
-				_detalhes.CriarInstancia (_, _, 1)
+				_detalhes.CriarInstancia (nil, nil, 1)
 				_detalhes:OpenOptionsWindow (instance)
 			else
 				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
@@ -199,11 +199,11 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 	elseif (command == "bosstimers" or command == "bosstimer" or command == "timer" or command == "timers") then
 		Details.OpenForge()
-		DetailsForgePanel.SelectModule (_, _, 4)
+		DetailsForgePanel.SelectModule (nil, nil, 4)
 
 	elseif (command == "spells") then
 		Details.OpenForge()
-		DetailsForgePanel.SelectModule (_, _, 1)
+		DetailsForgePanel.SelectModule (nil, nil, 1)
 		
 	elseif (msg == "WA" or msg == "wa" or msg == "Wa" or msg == "wA") then
 		_G.DetailsPluginContainerWindow.OpenPlugin(_G.DetailsAuraPanel)
