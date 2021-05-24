@@ -3,6 +3,7 @@
 local Details = _G.Details
 local DF = _G.DetailsFramework
 
+local _
 
 function Details:ScrollDamage()
 	if (not DetailsScrollDamage) then
