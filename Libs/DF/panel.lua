@@ -7656,8 +7656,8 @@ DF.PowerFrameFunctions = {
 	end,
 	
 	--> when a event different from unit_power_update is triggered, update which type of power the unit should show
-	UpdatePowerInfo = function (self)
-		if (self.Settings.ShowAlternatePower) then
+	UpdatePowerInfo = function (self)		
+		if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and self.Settings.ShowAlternatePower) then -- not available in classic
 			local barID = UnitPowerBarID(self.displayedUnit)
 			local barInfo = GetUnitPowerBarInfoByID(barID)
 			--local name, tooltip, cost = GetUnitPowerBarStringsByID(barID);
