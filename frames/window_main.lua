@@ -4013,7 +4013,12 @@ function gump:CreateNewLine (instancia, index)
 	new_row.border:SetAllPoints (new_row)
 	
 	--border
-	local lineBorder = CreateFrame("frame", nil, new_row, "NamePlateFullBorderTemplate, BackdropTemplate")
+	local lineBorder
+	if (DetailsFramework.IsTBCWow()) then
+		lineBorder = CreateFrame("frame", nil, new_row, "DFNamePlateFullBorderTemplate, BackdropTemplate")
+	else
+		lineBorder = CreateFrame("frame", nil, new_row, "NamePlateFullBorderTemplate, BackdropTemplate")
+	end
 	new_row.lineBorder = lineBorder
 
 	-- search key: ~model
