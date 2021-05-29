@@ -1,6 +1,6 @@
 
 
-local dversion = 250
+local dversion = 256
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -3090,6 +3090,95 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	
 end
 
+--DFNamePlateBorder as copy from "NameplateFullBorderTemplate" -> DF:CreateFullBorder (name, parent)
+local DFNamePlateBorderTemplateMixin = {};
+
+function DFNamePlateBorderTemplateMixin:SetVertexColor(r, g, b, a)
+	for i, texture in ipairs(self.Textures) do
+		texture:SetVertexColor(r, g, b, a);
+	end
+end
+
+function DFNamePlateBorderTemplateMixin:SetBorderSizes(borderSize, borderSizeMinPixels, upwardExtendHeightPixels, upwardExtendHeightMinPixels)
+	self.borderSize = borderSize;
+	self.borderSizeMinPixels = borderSizeMinPixels;
+	self.upwardExtendHeightPixels = upwardExtendHeightPixels;
+	self.upwardExtendHeightMinPixels = upwardExtendHeightMinPixels;
+end
+
+function DFNamePlateBorderTemplateMixin:UpdateSizes()
+	local borderSize = self.borderSize or 1;
+	local minPixels = self.borderSizeMinPixels or 2;
+
+	local upwardExtendHeightPixels = self.upwardExtendHeightPixels or borderSize;
+	local upwardExtendHeightMinPixels = self.upwardExtendHeightMinPixels or minPixels;
+
+	PixelUtil.SetWidth(self.Left, borderSize, minPixels);
+	PixelUtil.SetPoint(self.Left, "TOPRIGHT", self, "TOPLEFT", 0, upwardExtendHeightPixels, 0, upwardExtendHeightMinPixels);
+	PixelUtil.SetPoint(self.Left, "BOTTOMRIGHT", self, "BOTTOMLEFT", 0, -borderSize, 0, minPixels);
+
+	PixelUtil.SetWidth(self.Right, borderSize, minPixels);
+	PixelUtil.SetPoint(self.Right, "TOPLEFT", self, "TOPRIGHT", 0, upwardExtendHeightPixels, 0, upwardExtendHeightMinPixels);
+	PixelUtil.SetPoint(self.Right, "BOTTOMLEFT", self, "BOTTOMRIGHT", 0, -borderSize, 0, minPixels);
+
+	PixelUtil.SetHeight(self.Bottom, borderSize, minPixels);
+	PixelUtil.SetPoint(self.Bottom, "TOPLEFT", self, "BOTTOMLEFT", 0, 0);
+	PixelUtil.SetPoint(self.Bottom, "TOPRIGHT", self, "BOTTOMRIGHT", 0, 0);
+
+	if self.Top then
+		PixelUtil.SetHeight(self.Top, borderSize, minPixels);
+		PixelUtil.SetPoint(self.Top, "BOTTOMLEFT", self, "TOPLEFT", 0, 0);
+		PixelUtil.SetPoint(self.Top, "BOTTOMRIGHT", self, "TOPRIGHT", 0, 0);
+	end
+end
+
+function DF:CreateFullBorder (name, parent)
+	local border = CreateFrame("Frame", name, parent)
+	border:SetAllPoints()
+	border:SetIgnoreParentScale(true)
+	border:SetFrameLevel(border:GetParent():GetFrameLevel())
+	border.Textures = {}
+	Mixin(border, DFNamePlateBorderTemplateMixin)
+	
+	local left = border:CreateTexture("$parentLeft", "BACKGROUND", nil, -8)
+	--left:SetDrawLayer("BACKGROUND", -8)
+	left:SetColorTexture(1, 1, 1, 1)
+	left:SetWidth(1.0)
+	left:SetPoint("TOPRIGHT", border, "TOPLEFT", 0, 1.0)
+	left:SetPoint("BOTTOMRIGHT", border, "BOTTOMLEFT", 0, -1.0)
+	border.Left = left
+	tinsert(border.Textures, left)
+	
+	local right = border:CreateTexture("$parentRight", "BACKGROUND", nil, -8)
+	--right:SetDrawLayer("BACKGROUND", -8)
+	right:SetColorTexture(1, 1, 1, 1)
+	right:SetWidth(1.0)
+	right:SetPoint("TOPLEFT", border, "TOPRIGHT", 0, 1.0)
+	right:SetPoint("BOTTOMLEFT", border, "BOTTOMRIGHT", 0, -1.0)
+	border.Right = right
+	tinsert(border.Textures, right)
+	
+	local bottom = border:CreateTexture("$parentBottom", "BACKGROUND", nil, -8)
+	--bottom:SetDrawLayer("BACKGROUND", -8)
+	bottom:SetColorTexture(1, 1, 1, 1)
+	bottom:SetHeight(1.0)
+	bottom:SetPoint("TOPLEFT", border, "BOTTOMLEFT", 0, 0)
+	bottom:SetPoint("TOPRIGHT", border, "BOTTOMRIGHT", 0, 0)
+	border.Bottom = bottom
+	tinsert(border.Textures, bottom)
+	
+	local top = border:CreateTexture("$parentTop", "BACKGROUND", nil, -8)
+	--top:SetDrawLayer("BACKGROUND", -8)
+	top:SetColorTexture(1, 1, 1, 1)
+	top:SetHeight(1.0)
+	top:SetPoint("BOTTOMLEFT", border, "TOPLEFT", 0, 0)
+	top:SetPoint("BOTTOMRIGHT", border, "TOPRIGHT", 0, 0)
+	border.Top = top
+	tinsert(border.Textures, top)
+	
+	return border
+end
+
 function DF:CreateBorderSolid (parent, size)
 
 end
@@ -3702,7 +3791,7 @@ DF.CLEncounterID = {
 }
 
 function DF:GetPlayerRole()
-	local assignedRole = UnitGroupRolesAssigned ("player")
+	local assignedRole = DF.UnitGroupRolesAssigned ("player")
 	if (assignedRole == "NONE") then
 		local spec = DF.GetSpecialization()
 		return spec and DF.GetSpecializationRole (spec) or "NONE"

@@ -4015,7 +4015,8 @@ function gump:CreateNewLine (instancia, index)
 	--border
 	local lineBorder
 	if (DetailsFramework.IsTBCWow()) then
-		lineBorder = CreateFrame("frame", nil, new_row, "DFNamePlateFullBorderTemplate, BackdropTemplate")
+		lineBorder = DetailsFramework:CreateFullBorder(nil, new_row)
+		--lineBorder = CreateFrame("frame", nil, new_row, "DFNamePlateFullBorderTemplate, BackdropTemplate")
 	else
 		lineBorder = CreateFrame("frame", nil, new_row, "NamePlateFullBorderTemplate, BackdropTemplate")
 	end
