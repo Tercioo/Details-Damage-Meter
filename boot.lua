@@ -8,7 +8,7 @@
 
 		_detalhes.build_counter = 8516
 		_detalhes.alpha_build_counter = 8516 --if this is higher than the regular counter, use it instead
-		_detalhes.bcc_counter = 16
+		_detalhes.bcc_counter = 19
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter
@@ -746,6 +746,14 @@ do
 		SharedMedia:Register ("sound", "d_gun2", [[Interface\Addons\Details\sounds\sound_gun3.ogg]])
 		SharedMedia:Register ("sound", "d_jedi1", [[Interface\Addons\Details\sounds\sound_jedi1.ogg]])
 		SharedMedia:Register ("sound", "d_whip1", [[Interface\Addons\Details\sounds\sound_whip1.ogg]])
+
+		SharedMedia:Register ("sound", "Details Threat Warning Volume 1", [[Interface\Addons\Details\sounds\threat_warning_1.ogg]])
+		SharedMedia:Register ("sound", "Details Threat Warning Volume 2", [[Interface\Addons\Details\sounds\threat_warning_2.ogg]])
+		SharedMedia:Register ("sound", "Details Threat Warning Volume 3", [[Interface\Addons\Details\sounds\threat_warning_3.ogg]])
+		SharedMedia:Register ("sound", "Details Threat Warning Volume 4", [[Interface\Addons\Details\sounds\threat_warning_4.ogg]])
+
+		
+
 	
 	--> dump table contents over chat panel
 		function Details.VarDump(t)

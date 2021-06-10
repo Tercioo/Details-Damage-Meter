@@ -2165,8 +2165,8 @@ local icon_frame_on_enter = function (self)
 			local talent_string = ""
 			if (talents) then
 				for i = 1, #talents do
-					local talentID, name, texture, selected, available = GetTalentInfoByID (talents [i])
-					talent_string = talent_string ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
+					--local talentID, name, texture, selected, available = GetTalentInfoByID (talents [i])
+					--talent_string = talent_string ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
 				end
 			end
 			

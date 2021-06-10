@@ -74,8 +74,22 @@ function DF.UnitGroupRolesAssigned (unitId)
 		return UnitGroupRolesAssigned (unitId)
 	else
 		--attempt to guess the role by the player spec
-		
-		--at the moment just return none
+		local classLoc, className = UnitClass(unitId)
+		if (className == "MAGE" or className == "ROGUE" or className == "HUNTER" or className == "WARLOCK") then
+			return "DAMAGER"
+		end
+
+		if (Details) then
+			--attempt to get the role from Details! Damage Meter
+			local guid = UnitGUID(unitId)
+			if (guid) then
+				local role = Details.cached_roles[guid]
+				if (role) then
+					return role
+				end
+			end
+		end
+
 		return "NONE"
 	end
 end
