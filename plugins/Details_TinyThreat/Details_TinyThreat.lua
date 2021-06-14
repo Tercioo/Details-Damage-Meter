@@ -632,6 +632,19 @@ local build_options_panel = function()
 			desc = "When enabled, threat bars uses the class color of the character.",
 			name = "Use Class Colors"
 		},
+
+		{type = "blank"},
+--[=[
+		{
+			type = "toggle",
+			get = function() return ThreatMeter.saveddata.playSound end,
+			set = function (self, fixedparam, value) ThreatMeter.saveddata.playSound = value end,
+			desc = "Except for tanks",
+			name = "Play Audio On High Threat"
+		},
+--]=]
+
+
 	}
 	
 	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
@@ -703,6 +716,9 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.useplayercolor = ThreatMeter.saveddata.useplayercolor or false
 				ThreatMeter.saveddata.playercolor = ThreatMeter.saveddata.playercolor or {1, 1, 1}
 				ThreatMeter.saveddata.useclasscolors = ThreatMeter.saveddata.useclasscolors or false
+
+				ThreatMeter.saveddata.playSound = ThreatMeter.saveddata.playSound or false
+				ThreatMeter.saveddata.playSoundFile = ThreatMeter.saveddata.playSoundFile or "Details Threat Warning Volume 3"
 
 				ThreatMeter.options = ThreatMeter.saveddata
 				

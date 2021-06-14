@@ -417,7 +417,9 @@
 		--]=]
 
 		_detalhes.cached_talents[guid] = talents
-		_detalhes.cached_specs[guid] = spec
+		if (spec and spec ~= 0)  then
+			_detalhes.cached_specs[guid] = spec
+		end
 		_detalhes.cached_roles[guid] = playerRole
 		_detalhes.item_level_pool[guid] = {
 			name = player,
