@@ -170,6 +170,7 @@ local function CreatePluginFrames (data)
 	Vanguard.TankHashNames = {} --> tanks
 	Vanguard.TankBlocks = {} --> tank frames
 	Vanguard.TankIncDamage = {} --> tank damage taken from last 5 seconds
+	Vanguard.UnitIdCache = {}
 	
 	--> search for tanks in the raid or party group 
 	function Vanguard:IdentifyTanks()
@@ -177,6 +178,7 @@ local function CreatePluginFrames (data)
 		table.wipe (Vanguard.TankList)
 		table.wipe (Vanguard.TankHashNames)
 		table.wipe (Vanguard.TankIncDamage)
+		table.wipe (Vanguard.UnitIdCache)
 
 		for i = 1, CONST_MAX_TANKS do 
 			Vanguard.auraUpdateFrames[i]:UnregisterEvent("UNIT_AURA")
@@ -198,6 +200,7 @@ local function CreatePluginFrames (data)
 						Vanguard.TankHashNames [name] = #Vanguard.TankList
 						Vanguard.TankIncDamage [name] = {}
 						Vanguard.auraUpdateFrames[#Vanguard.TankList]:RegisterUnitEvent("UNIT_AURA", "raid" .. i)
+						Vanguard.UnitIdCache[name] = "raid" .. i
 					end
 				end
 			end
@@ -217,6 +220,7 @@ local function CreatePluginFrames (data)
 						Vanguard.TankHashNames [name] = #Vanguard.TankList
 						Vanguard.TankIncDamage [name] = {}
 						Vanguard.auraUpdateFrames[#Vanguard.TankList]:RegisterUnitEvent("UNIT_AURA", "party" .. i)
+						Vanguard.UnitIdCache[name] = "party" .. i
 					end
 				end
 			end
@@ -233,6 +237,7 @@ local function CreatePluginFrames (data)
 					Vanguard.TankHashNames [name] = #Vanguard.TankList
 					Vanguard.TankIncDamage [name] = {}
 					Vanguard.auraUpdateFrames[#Vanguard.TankList]:RegisterUnitEvent("UNIT_AURA", "player")
+					Vanguard.UnitIdCache[name] = "player"
 				end
 			end
 		
@@ -247,6 +252,7 @@ local function CreatePluginFrames (data)
 				Vanguard.TankHashNames [name] = #Vanguard.TankList
 				Vanguard.TankIncDamage [name] = {}
 				Vanguard.auraUpdateFrames[#Vanguard.TankList]:RegisterUnitEvent("UNIT_AURA", "player")
+				Vanguard.UnitIdCache[name] = "player"
 			end
 		end
 		
@@ -280,7 +286,9 @@ local function CreatePluginFrames (data)
 	
 	function Vanguard:ResetBlocks()
 		for i, tblock in ipairs (Vanguard.TankBlocks) do
-			tblock.statusbar:SetValue (100)
+			local _, maxValue = tblock.unitFrame.healthBar:GetMinMaxValues()
+			tblock.unitFrame.healthBar:SetValue(maxValue)
+
 			tblock.debuffs_using = 0
 			tblock.debuffs_next_index = 1
 			
@@ -316,7 +324,11 @@ local function CreatePluginFrames (data)
 			self.specicon:SetTexCoord (left, right, top, bottom)
 		end
 		
-		self.texture:SetVertexColor (r, g, b)
+		self.unitFrame:SetUnit(Vanguard.UnitIdCache[name])
+		self.unitFrame.healthBar:SetUnit(Vanguard.UnitIdCache[name])
+		self.unitFrame.castBar:SetUnit(Vanguard.UnitIdCache[name])
+		self.unitFrame.powerBar:SetUnit(Vanguard.UnitIdCache[name])
+		self.unitFrame.healthBar:SetColor(r, g, b)
 		
 		bar.lefticon = Vanguard.CurrentInstance.row_info.icon_file
 		bar.iconleft:SetTexCoord (left, right, top, bottom)
@@ -326,7 +338,11 @@ local function CreatePluginFrames (data)
 		local width = Vanguard.db.tank_block_size
 		self:SetWidth (width)
 		self:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
-		self.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
+
+		--texture
+		self.unitFrame.healthBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+		self.unitFrame.powerBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+		self.unitFrame.castBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
 	end
 	
 	local debuff_on_enter = function (self)
@@ -375,29 +391,54 @@ local function CreatePluginFrames (data)
 		f:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
 		f:SetBackdropBorderColor (0, 0, 0, 1)
 		
+		--debuff icons
+		f.debufficons = {}
+
 		--tank health bar
-			f.statusbar = CreateFrame ("statusbar", nil, f, "BackdropTemplate")
-			f.statusbar:SetPoint ("topleft", f, "topleft", 1, -1)
-			f.statusbar:SetPoint ("bottomright", f, "bottomright", -1, 1)
-			--health bar texture
-			f.texture = f.statusbar:CreateTexture (nil, "artwork")
-			f.statusbar:SetStatusBarTexture (f.texture)
-			f.statusbar:SetMinMaxValues (0, 100)
-			f.statusbar:SetValue (100)
-			f.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
+			local unitFrameSettingsOverride = {
+				ShowPowerBar = true,
+				ShowCastBar = true,
+				ShowBorder = false, 
+				CanModifyHealhBarColor = false,
+				ShowTargetOverlay = false,
+				ShowUnitName = false,
+				ClearUnitOnHide = false,
+			}
 			
+			local healthBarSettingsOverride = {
+				ShowHealingPrediction = not DetailsFramework.IsTBCWow(),
+				ShowShields = not DetailsFramework.IsTBCWow(),
+			}
+			
+			local castBarSettingsOverride = {
+				FadeInTime = 0.01,
+				FadeOutTime = 0.40,
+				SparkHeight = 16,
+				LazyUpdateCooldown = 0.1,
+			}
+			
+			local powerBarSettingsOverride = {
+				ShowAlternatePower = false,
+			}
+
+			f.unitFrame = DetailsFramework:CreateUnitFrame(f, "VanguardTankUnitFrame" .. index, unitFrameSettingsOverride, healthBarSettingsOverride, castBarSettingsOverride, powerBarSettingsOverride)
+			f.unitFrame:SetPoint ("topleft", f, "topleft", 1, -1)
+			f.unitFrame:SetPoint ("bottomright", f, "bottomright", -1, 1)
 			--spec icon
-			f.specicon = f.statusbar:CreateTexture (nil, "overlay")
-			f.specicon:SetPoint ("topleft", f, "topleft", 5, -5)
+			f.specicon = f.unitFrame.healthBar:CreateTexture(nil, "overlay")
+			f.specicon:SetPoint ("topleft", f.unitFrame.healthBar, "topleft", 5, -5)
 			f.specicon:SetSize (14, 14)
-			
 			--tank name
-			f.tankname = f.statusbar:CreateFontString (nil, "overlay", "GameFontNormal")
+			f.tankname = f.unitFrame.healthBar:CreateFontString(nil, "overlay", "GameFontNormal")
 			f.tankname:SetPoint ("left", f.specicon, "right", 2, 1)
-		
-			--debuff icons
-			f.debufficons = {}
-		
+
+			f.unitFrame.castBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+			f.unitFrame.healthBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+			f.unitFrame.powerBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+
+			f.unitFrame.powerBar.background:SetColorTexture(0, 0, 0, 1)
+			f.unitFrame.powerBar.background:SetVertexColor(0, 0, 0, 1)
+
 		--inc heals inc damage
 			f.heal_inc = DF:CreateSplitBar(f, 294, Vanguard.db.bar_height)
 			f.heal_inc:SetSize(294, Vanguard.db.bar_height)
@@ -415,8 +456,8 @@ local function CreatePluginFrames (data)
 			f.debuffs_next_index = 1
 		
 			for i = 1, CONST_DEBUFF_AMOUNT do
-				local support_frame = CreateFrame ("frame", nil, f, "BackdropTemplate")
-				support_frame:SetFrameLevel (f:GetFrameLevel()+1)
+				local support_frame = CreateFrame ("frame", nil, f.unitFrame, "BackdropTemplate")
+				support_frame:SetFrameLevel (f.unitFrame:GetFrameLevel()+10)
 				support_frame:SetSize (24, 24)
 				support_frame:SetScript ("OnMouseUp", on_click)
 				
@@ -480,30 +521,78 @@ local function CreatePluginFrames (data)
 
 			block:SetTank(i)
 			block:SetSize(Vanguard.db.tank_block_size, Vanguard.db.tank_block_size_height)
-
-			if (Vanguard.db.show_health_bar) then
-				block.statusbar:Show()
-				block.Center:Show()
-				block:SetBackdropBorderColor (0, 0, 0, 1)
-			else
-				block.statusbar:Hide()
-				block.Center:Hide()
-				block:SetBackdropBorderColor (0, 0, 0, 0)
-			end			
 		end
 		
 		if (Vanguard.Running) then
 			Vanguard:CombatEnd()
 			Vanguard:CombatStart()
 		end
+
+		Vanguard.RefreshWidgets()
 	end
 
 	function Vanguard.RefreshWidgets()
-		for i, tankHealthBar in pairs(Vanguard.TankBlocks) do
+		for i, f in pairs(Vanguard.TankBlocks) do
 			for debuffBlockId = 1, CONST_DEBUFF_AMOUNT do
-				local debuffBlock = tankHealthBar.debuffs_blocks[debuffBlockId]
+				local debuffBlock = f.debuffs_blocks[debuffBlockId]
 				DetailsFramework:SetFontSize(debuffBlock.Timer, Vanguard.db.aura_timer_text_size)
 			end
+
+			--texture
+			f.unitFrame.healthBar:SetTexture(SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+			f.unitFrame.powerBar:SetTexture(SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+			f.unitFrame.castBar:SetTexture(SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
+
+			f.unitFrame.powerBar:ClearAllPoints()
+			f.unitFrame.healthBar:ClearAllPoints()
+			f.unitFrame.castBar:ClearAllPoints()
+
+			if (not Vanguard.db.show_health_bar and not Vanguard.db.show_cast_bar and not Vanguard.db.show_power_bar) then
+				f.unitFrame:Hide()
+				f.Center:Hide()
+				f:SetBackdropBorderColor (0, 0, 0, 0)
+				return
+			end
+
+			f.unitFrame:Show()
+			f.unitFrame.healthBar:Show()
+			f.Center:Show()
+			f:SetBackdropBorderColor (0, 0, 0, 1)
+
+			f.unitFrame.healthBar:SetPoint("topleft", f, "topleft", 0, 0)
+			f.unitFrame.healthBar:SetPoint("topright", f, "topright", 0, 0)
+			f.unitFrame.healthBar:SetPoint("bottomleft", f, "bottomleft", 0, 0)
+			f.unitFrame.healthBar:SetPoint("bottomright", f, "bottomright", 0, 0)
+
+			if (Vanguard.db.show_cast_bar) then
+				f.unitFrame.castBar:Show()
+				f.unitFrame.castBar:SetHeight(Vanguard.db.tank_block_castbar_size_height)
+
+				if (Vanguard.db.show_health_bar) then
+					if (Vanguard.db.show_power_bar) then
+						f.unitFrame.castBar:SetPoint("bottomleft", f, "bottomleft", 0, Vanguard.db.tank_block_powerbar_size_height)
+						f.unitFrame.castBar:SetPoint("bottomright", f, "bottomright", 0, Vanguard.db.tank_block_powerbar_size_height)
+					else
+						f.unitFrame.castBar:SetPoint("bottomleft", f, "bottomleft", 0, 0)
+						f.unitFrame.castBar:SetPoint("bottomright", f, "bottomright", 0, 0)
+					end
+				else
+					f.unitFrame.castBar:SetPoint("topleft", f, "topleft", 0, 0)
+					f.unitFrame.castBar:SetPoint("topright", f, "topright", 0, 0)
+				end
+			else
+				f.unitFrame.castBar:Hide()
+			end
+
+			if (Vanguard.db.show_power_bar) then
+				f.unitFrame.powerBar:Show()
+				f.unitFrame.powerBar:SetHeight(Vanguard.db.tank_block_powerbar_size_height)
+				f.unitFrame.powerBar:SetPoint("bottomleft", f, "bottomleft", 0, 0)
+				f.unitFrame.powerBar:SetPoint("bottomright", f, "bottomright", 0, 0)
+			else
+				f.unitFrame.powerBar:Hide()
+			end
+
 		end
 	end
 
@@ -564,8 +653,8 @@ local function CreatePluginFrames (data)
 		
 		for tank_name, block_index in pairs (Vanguard.TankHashNames) do
 		
-			local shields = UnitGetTotalAbsorbs (tank_name) or 0
-			local heals = UnitGetIncomingHeals (tank_name) or 0
+			local shields = UnitGetTotalAbsorbs and UnitGetTotalAbsorbs(tank_name) or 0
+			local heals = UnitGetIncomingHeals and UnitGetIncomingHeals(tank_name) or 0
 		
 			local events_table = Vanguard.CurrentCombat.player_last_events [tank_name]
 			local taken = 0
@@ -646,7 +735,6 @@ local function CreatePluginFrames (data)
 	
 	function Vanguard:CombatStart()
 		Vanguard.Running = true
-		VanguardFrame:RegisterEvent ("UNIT_HEALTH")
 
 		for i = 1, CONST_MAX_TANKS do
 			Vanguard.auraUpdateFrames[i]:SetScript("OnEvent", Vanguard.AuraUpdate)
@@ -662,7 +750,6 @@ local function CreatePluginFrames (data)
 	
 	function Vanguard:CombatEnd()
 		Vanguard.Running = false
-		VanguardFrame:UnregisterEvent ("UNIT_HEALTH")
 
 		for i = 1, CONST_MAX_TANKS do
 			Vanguard.auraUpdateFrames[i]:SetScript("OnEvent", nil)
@@ -692,6 +779,10 @@ local function CreatePluginFrames (data)
 		if (tank_index) then
 			local tframe = Vanguard.TankBlocks[tank_index]
 			local debuffBlockId = 1
+
+--			print("powerBar shown:", tframe.unitFrame.powerBar:GetPoint(1))
+--			print("castBar shown:", tframe.unitFrame.castBar.unit)
+--			print("healthBar shown:", tframe.unitFrame.healthBar:GetPoint(1))
 
 			for i = 1, 40 do
 				local name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, castByPlayer = _UnitDebuff(who_name, i)
@@ -745,22 +836,6 @@ local function CreatePluginFrames (data)
 			end
 		end
 	end
-
-	function Vanguard:UpdateHealth (blockid)
-		local block = Vanguard.TankBlocks [blockid]
-		block.statusbar:SetValue (UnitHealth (block.tankname_string) / UnitHealthMax (block.tankname_string) * 100)
-	end
-	
-	function Vanguard:HealthChanged (unitId)
-		local name, realm = UnitName (unitId)
-		if (realm) then
-			name = name .. "-" .. realm
-		end
-		local block = Vanguard.TankHashNames [name]
-		if (block) then
-			Vanguard:UpdateHealth (block)
-		end
-	end
 end
 
 
@@ -786,7 +861,6 @@ local build_options_panel = function()
 	table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
 	
 	local tank_texture_menu = texTable
-	
 
 	--templates
 	local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
@@ -836,6 +910,19 @@ local build_options_panel = function()
 			name = "Show Health Bar"
 		},
 		{
+			type = "toggle",
+			get = function() return Vanguard.db.show_cast_bar end,
+			set = function (self, fixedparam, value) Vanguard.db.show_cast_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
+			name = "Show Cast Bar"
+		},
+		{
+			type = "toggle",
+			get = function() return Vanguard.db.show_power_bar end,
+			set = function (self, fixedparam, value) Vanguard.db.show_power_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
+			name = "Show Power Bar"
+		},
+
+		{
 			type = "range",
 			get = function() return Vanguard.db.tank_block_size end,
 			set = function (self, fixedparam, value) Vanguard.db.tank_block_size = value; Vanguard:RefreshTanks() end,
@@ -852,11 +939,26 @@ local build_options_panel = function()
 			min = 10,
 			max = 60,
 			step = 1,
-			--desc = "Set the width of the blocks showing the tanks.",
 			name = "Health Bar Height",
 		},
-		
-
+		{
+			type = "range",
+			get = function() return Vanguard.db.tank_block_castbar_size_height end,
+			set = function (self, fixedparam, value) Vanguard.db.tank_block_castbar_size_height = value; Vanguard:RefreshTanks() end,
+			min = 10,
+			max = 60,
+			step = 1,
+			name = "Cast Bar Height",
+		},		
+		{
+			type = "range",
+			get = function() return Vanguard.db.tank_block_powerbar_size_height end,
+			set = function (self, fixedparam, value) Vanguard.db.tank_block_powerbar_size_height = value; Vanguard:RefreshTanks() end,
+			min = 10,
+			max = 60,
+			step = 1,
+			name = "Power Bar Height",
+		},
 		{
 			type = "color",
 			get = function() return Vanguard.db.tank_block_color end,
@@ -882,8 +984,8 @@ local build_options_panel = function()
 		},
 	}
 
-	options_frame:SetSize(500, 300)
-	Vanguard:GetFramework():BuildMenu (options_frame, menu, 15, -50, 260, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+	options_frame:SetSize(500, 400)
+	Vanguard:GetFramework():BuildMenu (options_frame, menu, 15, -50, 460, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 end
 
 Vanguard.OpenOptionsPanel = function()
@@ -899,11 +1001,7 @@ local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
 function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, who_flags, _, alvo_serial, alvo_name, alvo_flags, _, spellid, spellname, spellschool, tipo)
 
-	if (event == "UNIT_HEALTH") then
-		Vanguard:HealthChanged (arg1)
-		
-	elseif (event == "ADDON_LOADED") then
-	
+	if (event == "ADDON_LOADED") then
 		local AddonName = arg1
 		if (AddonName == "Details_Vanguard") then
 			
@@ -924,13 +1022,17 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 					bar_height = 24,
 					aura_timer_text_size = 14,
 					show_health_bar = true,
+					show_power_bar = false,
+					show_cast_bar = false,
 					tank_block_size_height = 50,
+					tank_block_castbar_size_height = 16,
+					tank_block_powerbar_size_height = 10,
 				}
 				
 				--> Install
 				function Vanguard:OnDetailsEvent() end --> dummy func to stop warnings.
 				
-				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Tercio", "v2.1", default_saved_table)
+				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_04", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Tercio", "v2.1", default_saved_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
