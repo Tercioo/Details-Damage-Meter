@@ -217,6 +217,20 @@ do
 			local sub_attribute = self.sub_attribute
 			local instance = all_switch.instance
 			
+			--check if is a plugin button
+			if (self.isPlugin) then
+				if (_detalhes.RaidTables.NameTable[self.pluginName]) then
+					_detalhes.RaidTables:EnableRaidMode (instance, self.pluginName)
+				elseif (_detalhes.SoloTables.NameTable [self.pluginName]) then
+					_detalhes.SoloTables:EnableSoloMode (instance, self.pluginName)
+				else
+					_detalhes:Msg ("Plugin not found.")
+				end
+
+				all_switch:Hide()
+				return
+			end
+
 			if (instance.modo == _detalhes._detalhes_props["MODO_ALONE"] or instance.modo == _detalhes._detalhes_props["MODO_RAID"]) then
 				instance:AlteraModo (instance, 2)
 			end
@@ -415,10 +429,14 @@ do
 		end
 
 		--> update plugins
-			local script_index = 6
+			local script_index = _detalhes.atributos[0]+2
 			local button_index = 1
 			all_switch.x = all_switch.x + 130
 			all_switch.y = -28
+
+			for _, button in ipairs (all_switch.buttons[script_index]) do
+				button:Hide()
+			end
 
 			--build raid plugins list
 			local raidPlugins = _detalhes.RaidTables:GetAvailablePlugins()
@@ -427,14 +445,16 @@ do
 					--if a plugin has the member 'NoMenu', it won't be shown on menus to select plugins
 					if (ptable[3].__enabled and not ptable[3].NoMenu) then
 						--PluginName, PluginIcon, PluginObject, PluginAbsoluteName
-						--CoolTip:AddMenu (2, _detalhes.RaidTables.EnableRaidMode, instancia, ptable[4], true, ptable[1], ptable[2], true)
-
 						local button = all_switch.buttons [script_index] [button_index]
 						if (not button) then
 							button = create_all_switch_button(script_index, button_index, all_switch.x, all_switch.y)
 							tinsert (all_switch.buttons [script_index], button)
 							all_switch.y = all_switch.y - 17
 						end
+
+						--set the button to select the plugin
+						button.isPlugin = true
+						button.pluginName = ptable[4]
 
 						button.text:SetText(ptable[1])
 						all_switch.check_text_size(button.text)
@@ -1055,9 +1075,27 @@ function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
 	end
 	
 	if (bookmark.atributo == "plugin") then
+
 		--> is a plugin, check if is a raid or solo plugin
 		if (_detalhes.RaidTables.NameTable [bookmark.sub_atributo]) then
-			_detalhes.RaidTables:EnableRaidMode (_detalhes.switch.current_instancia, bookmark.sub_atributo)
+
+			local raidPlugins = _detalhes.RaidTables:GetAvailablePlugins()
+			local isAvailable = false
+			if (#raidPlugins >= 0) then
+				for i, ptable in ipairs (raidPlugins) do
+					--check if the plugin is available
+					if (ptable[4] == bookmark.sub_atributo) then
+						isAvailable = true
+					end
+				end
+			end
+
+			if (isAvailable) then
+				_detalhes.RaidTables:EnableRaidMode (_detalhes.switch.current_instancia, bookmark.sub_atributo)
+			else
+				Details:Msg("plugin already in use in another window. If you are wondering where, check the Orange Gear > Window Control.") --localize-me
+			end
+
 		elseif (_detalhes.SoloTables.NameTable [bookmark.sub_atributo]) then
 			_detalhes.SoloTables:EnableSoloMode (_detalhes.switch.current_instancia, bookmark.sub_atributo)
 		else
@@ -1145,6 +1183,7 @@ function _detalhes.switch:Update()
 		local name
 		local vcolor
 		local add
+		local textColor = "white"
 		
 		if (options and options.sub_atributo) then
 			if (options.atributo == 5) then --> custom
@@ -1163,12 +1202,31 @@ function _detalhes.switch:Update()
 				end
 				
 			elseif (options.atributo == "plugin") then --> plugin
+
 				local plugin = _detalhes:GetPlugin (options.sub_atributo)
 				if (plugin) then
+
+					local raidPlugins = _detalhes.RaidTables:GetAvailablePlugins()
+					local isAvailable = false
+					if (#raidPlugins >= 0) then
+						for i, ptable in ipairs (raidPlugins) do
+							--check if the plugin is available
+							if (ptable[4] == plugin.real_name) then
+								isAvailable = true
+							end
+						end
+					end
+
+					if (isAvailable) then
+						vcolor = vertex_color_default
+					else
+						vcolor = {.35, .35, .35, .35}
+						textColor = "gray"
+					end
 					icone =  plugin.__icon
 					coords = default_coords
 					name = plugin.__name
-					vcolor = vertex_color_default
+
 				else
 					icone = [[Interface\AddOns\Details\images\icons]]
 					coords = add_coords
@@ -1208,6 +1266,7 @@ function _detalhes.switch:Update()
 		end
 		
 		button.button2.texto:SetSize (width, height)
+		DetailsFramework:SetFontColor(button.button2.texto, textColor)
 		
 		button.textureNormal:SetTexture (icone, true)
 		button.textureNormal:SetTexCoord (_unpack (coords))
@@ -1453,7 +1512,7 @@ end
 local left_box_on_click = function (self, button)
 	if (button == "RightButton") then
 		--select another bookmark
-		_detalhes:FastSwitch (self, bookmark, self.bookmark_number, true)
+		_detalhes:FastSwitch (self, nil, self.bookmark_number, true)
 	else
 		--change the display
 		local bookmark = _detalhes.switch.table [self.bookmark_number]
@@ -1490,14 +1549,6 @@ local change_icon = function (self, icon1, icon2, icon3, icon4)
 end
 	
 function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
-
-	local paramTable = {
-			["instancia"] = _detalhes.switch.current_instancia, 
-			["button"] = index, 
-			["atributo"] = nil, 
-			["sub_atributo"] = nil
-		}
-
 	--botao dentro da caixa
 	local button = CreateFrame ("button", "DetailsSwitchPanelButton_1_"..index, frame, "BackdropTemplate") --botao com o icone
 	button:SetSize (15, 24) 
@@ -1577,4 +1628,4 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	
 	return button
 end
---doa
+

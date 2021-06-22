@@ -138,7 +138,7 @@ local function CreatePluginFrames (data)
 			
 			Vanguard:CombatEnd()
 			Vanguard:ResetBars()
-			Vanguard:ResetBlocks()
+			--Vanguard:ResetBlocks()
 			
 		elseif (event == "GROUP_ONLEAVE") then
 		
@@ -157,11 +157,13 @@ local function CreatePluginFrames (data)
 
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
 			--Vanguard:OnResize()
-			
+		
 		elseif (event == "PLUGIN_DISABLED") then
-			
+		
 		elseif (event == "PLUGIN_ENABLED") then
-			
+		
+		elseif (event == "DETAILS_OPTIONS_MODIFIED") then
+			Vanguard.RefreshWidgets()
 		end
 	end
 	
@@ -338,6 +340,8 @@ local function CreatePluginFrames (data)
 		local width = Vanguard.db.tank_block_size
 		self:SetWidth (width)
 		self:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
+		self.unitFrame.healthBar.background:SetColorTexture(unpack (Vanguard.db.tank_block_color))
+		self.unitFrame.healthBar.Settings.BackgroundColor = Vanguard.db.tank_block_color
 
 		--texture
 		self.unitFrame.healthBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
@@ -347,14 +351,14 @@ local function CreatePluginFrames (data)
 	
 	local debuff_on_enter = function (self)
 		if (self.spellid) then
-			self.texture:SetBlendMode ("ADD")
+			--self.texture:SetBlendMode ("ADD")
 			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 			GameTooltip:SetSpellByID (self.spellid)
 			GameTooltip:Show()
 		end
 	end
 	local debuff_on_leave = function (self)
-		self.texture:SetBlendMode ("BLEND")
+		--self.texture:SetBlendMode ("BLEND")
 		if (self.spellid) then
 			GameTooltip:Hide()
 		end
@@ -456,51 +460,57 @@ local function CreatePluginFrames (data)
 			f.debuffs_next_index = 1
 		
 			for i = 1, CONST_DEBUFF_AMOUNT do
-				local support_frame = CreateFrame ("frame", nil, f.unitFrame, "BackdropTemplate")
+				local support_frame = CreateFrame ("frame", "VanguardSupportFrame_"..index.."_"..i, f.unitFrame, "BackdropTemplate")
 				support_frame:SetFrameLevel (f.unitFrame:GetFrameLevel()+10)
 				support_frame:SetSize (24, 24)
 				support_frame:SetScript ("OnMouseUp", on_click)
 				
 				--icon texture
-				local texture = support_frame:CreateTexture (nil, "overlay")
+				local texture = support_frame:CreateTexture (support_frame:GetName() .. "_Texture", "overlay")
 				texture:SetSize (24, 24)
 				texture:SetPoint("center", support_frame, "center", 0, 0)
 				
 				local y = 3				
 				local xOffSet = (i-1) * (texture:GetWidth() + 1)
+				support_frame.offset = xOffSet
 				support_frame:SetPoint ("left", f, "left", 5 + xOffSet, -8)
 				
-				local dblock = CreateFrame ("cooldown", "VanguardTankBlock" .. index.. "Cooldown" .. i, support_frame, "CooldownFrameTemplate, BackdropTemplate")
+				local dblock = CreateFrame ("cooldown", "VanguardTankDebuffCooldown" .. index.. "_" .. i, support_frame, "CooldownFrameTemplate, BackdropTemplate")
 				dblock:SetAlpha (0.7)
 				dblock:SetPoint ("topleft", texture, "topleft")
 				dblock:SetPoint ("bottomright", texture, "bottomright")
-				dblock:SetScript ("OnMouseUp", on_click)
-				dblock.texture = texture
 
-				dblock:SetHideCountdownNumbers(true)
-				
+				--scripts
+				dblock:SetScript ("OnMouseUp", on_click)
 				dblock:SetScript ("OnEnter", debuff_on_enter)
 				dblock:SetScript ("OnLeave", debuff_on_leave)
 
-				local elevateStringsFrame = CreateFrame("frame", nil, support_frame)
+				dblock.texture = texture
+
+				dblock:SetHideCountdownNumbers(true)
+
+				local elevateStringsFrame = CreateFrame("frame", support_frame:GetName() .. "_ElevateFrame", support_frame)
 				elevateStringsFrame:SetAllPoints()
 				elevateStringsFrame:SetFrameLevel(dblock:GetFrameLevel()+10)
+				elevateStringsFrame:EnableMouse(false)
 
-				local stack = elevateStringsFrame:CreateFontString (nil, "overlay", "GameFontNormal")
+				local stack = elevateStringsFrame:CreateFontString (elevateStringsFrame:GetName() .. "_StackText", "overlay", "GameFontNormal")
 				stack:SetPoint ("bottomright", dblock, "bottomright", 0, 0)
 				DetailsFramework:SetFontColor(stack, "yellow")
 
-				local stack_bg = elevateStringsFrame:CreateTexture (nil, "artwork")
+				local stack_bg = elevateStringsFrame:CreateTexture (elevateStringsFrame:GetName() .. "_StackBG", "artwork")
 				stack_bg:SetColorTexture(0, 0, 0, 1)
 				stack_bg:SetPoint ("center", stack, "center", 0, 0)
 				stack_bg:SetSize(10, 10)
+				stack_bg:Hide()
 
-				dblock.Timer = dblock:CreateFontString(nil, "overlay", "NumberFontNormal")
+				dblock.Timer = dblock:CreateFontString(dblock:GetName() .. "_Timer", "overlay", "NumberFontNormal")
 				dblock.Timer:SetPoint("center")
 
 				dblock.stack = stack
 				dblock.stack_bg = stack_bg
 				dblock.support = support_frame
+				dblock.elevate_frame = elevateStringsFrame
 
 				f.debuffs_blocks [i] = dblock
 			end
@@ -532,10 +542,76 @@ local function CreatePluginFrames (data)
 	end
 
 	function Vanguard.RefreshWidgets()
+
+		local hostInstance = Vanguard:GetInstance(Vanguard.instance_id)
+		local isClickThrough = hostInstance.clickthrough_window
+		local isClickThrough_InCombat = hostInstance.clickthrough_incombatonly
+
 		for i, f in pairs(Vanguard.TankBlocks) do
 			for debuffBlockId = 1, CONST_DEBUFF_AMOUNT do
 				local debuffBlock = f.debuffs_blocks[debuffBlockId]
 				DetailsFramework:SetFontSize(debuffBlock.Timer, Vanguard.db.aura_timer_text_size)
+				debuffBlock.support:SetPoint ("left", f, "left", 5 + debuffBlock.support.offset, -8 + Vanguard.db.aura_offset_y)
+			end
+
+			if (isClickThrough) then
+				if (isClickThrough_InCombat) then
+					if (InCombatLockdown()) then
+						f:EnableMouse(false)
+						f.unitFrame:EnableMouse(false)
+						f.unitFrame.healthBar:EnableMouse(false)
+						f.unitFrame.powerBar:EnableMouse(false)
+						f.unitFrame.castBar:EnableMouse(false)
+						for debuffBlockId = 1, CONST_DEBUFF_AMOUNT do
+							local debuffBlock = f.debuffs_blocks[debuffBlockId]
+							debuffBlock:EnableMouse(false)
+							debuffBlock.support:EnableMouse(false)
+							--debuffBlock.elevate_frame:EnableMouse(false)
+						end
+						f.heal_inc:EnableMouse(false)
+					else
+						f:EnableMouse(true)
+						f.unitFrame:EnableMouse(true)
+						f.unitFrame.healthBar:EnableMouse(true)
+						f.unitFrame.powerBar:EnableMouse(true)
+						f.unitFrame.castBar:EnableMouse(true)
+						for debuffBlockId = 1, CONST_DEBUFF_AMOUNT do
+							local debuffBlock = f.debuffs_blocks[debuffBlockId]
+							debuffBlock:EnableMouse(true)
+							debuffBlock.support:EnableMouse(true)
+							--debuffBlock.elevate_frame:EnableMouse(true)
+							debuffBlock:SetScript("OnMouseUp", on_click)
+						end
+						f.heal_inc:EnableMouse(true)
+					end
+				else
+					f:EnableMouse(false)
+					f.unitFrame:EnableMouse(false)
+					f.unitFrame.healthBar:EnableMouse(false)
+					f.unitFrame.powerBar:EnableMouse(false)
+					f.unitFrame.castBar:EnableMouse(false)
+					for debuffBlockId = 1, CONST_DEBUFF_AMOUNT do
+						local debuffBlock = f.debuffs_blocks[debuffBlockId]
+						debuffBlock:EnableMouse(false)
+						debuffBlock.support:EnableMouse(false)
+						--debuffBlock.elevate_frame:EnableMouse(false)
+					end
+					f.heal_inc:EnableMouse(false)
+				end
+			else
+				f:EnableMouse(true)
+				f.unitFrame:EnableMouse(true)
+				f.unitFrame.healthBar:EnableMouse(true)
+				f.unitFrame.powerBar:EnableMouse(true)
+				f.unitFrame.castBar:EnableMouse(true)
+				for debuffBlockId = 1, CONST_DEBUFF_AMOUNT do
+					local debuffBlock = f.debuffs_blocks[debuffBlockId]
+					debuffBlock:EnableMouse(true)
+					debuffBlock.support:EnableMouse(true)
+					--debuffBlock.elevate_frame:EnableMouse(true)
+					debuffBlock:SetScript("OnMouseUp", on_click)
+				end
+				f.heal_inc:EnableMouse(true)
 			end
 
 			--texture
@@ -580,9 +656,9 @@ local function CreatePluginFrames (data)
 					f.unitFrame.castBar:SetPoint("topleft", f, "topleft", 0, 0)
 					f.unitFrame.castBar:SetPoint("topright", f, "topright", 0, 0)
 				end
-			else
-				f.unitFrame.castBar:Hide()
 			end
+
+			f.unitFrame.castBar:Hide()
 
 			if (Vanguard.db.show_power_bar) then
 				f.unitFrame.powerBar:Show()
@@ -746,6 +822,8 @@ local function CreatePluginFrames (data)
 
 		Vanguard.track_incoming = Vanguard:ScheduleRepeatingTimer ("TrackIncoming", 0.1)
 		onUpdateFrame:SetScript("OnUpdate", onUpdateFrame.onUpdate)
+
+		Vanguard.RefreshWidgets()
 	end
 	
 	function Vanguard:CombatEnd()
@@ -760,6 +838,8 @@ local function CreatePluginFrames (data)
 		end
 	
 		onUpdateFrame:SetScript("OnUpdate", nil)
+
+		Vanguard.RefreshWidgets()
 	end
 
 	local formatTime = function(time)
@@ -793,6 +873,7 @@ local function CreatePluginFrames (data)
 					dblock.debuffName = name
 					dblock.texture:SetTexture(icon)
 					dblock.texture:SetTexCoord(.1, .9, .1, .9)
+					dblock.spellid = spellId
 
 					if (count and count > 1) then
 						dblock.stack:SetText(count)
@@ -937,7 +1018,7 @@ local build_options_panel = function()
 			get = function() return Vanguard.db.tank_block_size_height end,
 			set = function (self, fixedparam, value) Vanguard.db.tank_block_size_height = value; Vanguard:RefreshTanks() end,
 			min = 10,
-			max = 60,
+			max = 100,
 			step = 1,
 			name = "Health Bar Height",
 		},
@@ -965,14 +1046,22 @@ local build_options_panel = function()
 			set = function (self, r, g, b, a) 
 				local current = Vanguard.db.tank_block_color;
 				current[1], current[2], current[3], current[4] = r, g, b, a;
-				Vanguard:RefreshTanks();
+				Vanguard:RefreshTanks()
 			end,
 			--desc = "Select the color of the tank block background.",
 			name = "Health Bar Background Color"
 		},
 
 		{type = "blank"},
-
+		{
+			type = "range",
+			get = function() return Vanguard.db.aura_offset_y end,
+			set = function (self, fixedparam, value) Vanguard.db.aura_offset_y = value; Vanguard.RefreshWidgets() end,
+			min = -20,
+			max = 20,
+			step = 1,
+			name = "Debuff Y Offset",
+		},
 		{
 			type = "range",
 			get = function() return Vanguard.db.aura_timer_text_size end,
@@ -1016,11 +1105,12 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 					show_inc_bars = true,
 					tank_block_size = 150,
 					tank_block_height = 40,
-					tank_block_color = {0.24705882, 0.0039215, 0, 0.8},
+					tank_block_color = {0.074509, 0.035294, 0.035294, 0.832845},
 					tank_block_texture = "Details Serenity",
 					first_run = false,
 					bar_height = 24,
 					aura_timer_text_size = 14,
+					aura_offset_y = 0,
 					show_health_bar = true,
 					show_power_bar = false,
 					show_cast_bar = false,
@@ -1032,7 +1122,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 				--> Install
 				function Vanguard:OnDetailsEvent() end --> dummy func to stop warnings.
 				
-				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_04", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Tercio", "v2.1", default_saved_table)
+				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_04", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", "v3.0", default_saved_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
@@ -1048,6 +1138,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 				_G._detalhes:RegisterEvent (Vanguard, "DETAILS_INSTANCE_ENDRESIZE")
 				_G._detalhes:RegisterEvent (Vanguard, "DETAILS_INSTANCE_SIZECHANGED")
 				_G._detalhes:RegisterEvent (Vanguard, "GROUP_ONLEAVE")
+				_G._detalhes:RegisterEvent (Vanguard, "DETAILS_OPTIONS_MODIFIED")
 				
 				VanguardFrame:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
 				VanguardFrame:RegisterEvent ("PLAYER_ENTERING_WORLD")

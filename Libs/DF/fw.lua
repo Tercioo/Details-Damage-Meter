@@ -1,6 +1,6 @@
 
 
-local dversion = 256
+local dversion = 257
 
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
@@ -21,6 +21,9 @@ local string_match = string.match
 local tinsert = _G.tinsert
 local abs = _G.abs
 local tremove = _G.tremove
+
+local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
 local UnitPlayerControlled = UnitPlayerControlled
 local UnitIsTapDenied = UnitIsTapDenied
@@ -3678,7 +3681,7 @@ function DF:GetCharacterRaceList (fullList)
 			tinsert (DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString})
 		end
 		
-		if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		if IS_WOW_PROJECT_MAINLINE then
 			local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID (i)
 			if (alliedRaceInfo and DF.AlliedRaceList [alliedRaceInfo.raceID]) then
 				tinsert (DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString})

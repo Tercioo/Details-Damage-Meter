@@ -2286,7 +2286,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				StreamOverlay.DefaultConfigTable = default_options_table
 				
 				--> Install
-				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Action Tracker", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", StreamOverlay.CurrentVersion, default_options_table)
+				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Action Tracker", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", StreamOverlay.CurrentVersion, default_options_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

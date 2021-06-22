@@ -6,9 +6,9 @@
 		
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 8516
-		_detalhes.alpha_build_counter = 8516 --if this is higher than the regular counter, use it instead
-		_detalhes.bcc_counter = 20
+		_detalhes.build_counter = 8637
+		_detalhes.alpha_build_counter = 8637 --if this is higher than the regular counter, use it instead
+		_detalhes.bcc_counter = 23
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter
@@ -33,6 +33,11 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+		{"v9.0.5.8637.144", "June 22nd, 2021"},
+		"Major update on Vanguard plugin.",
+		"Added utility module to Coach, this module will send interrupt, dispel, cc breaks, cooldown usege and battle resses to the Coach.",
+		"Added plugins into the title bar display menu.",
+
 		{"v9.0.5.8502.144", "May 21th, 2021"},
 		"Added options to change the color of each team during an arena match.",
 		"Fixed One Segment Battleground.",

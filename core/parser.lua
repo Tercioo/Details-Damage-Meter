@@ -3729,6 +3729,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return
 		end
 		
+		--do not register ress if not in combat
+		if (not Details.in_combat) then
+			return
+		end
+
 		_current_misc_container.need_refresh = true
 
 	------------------------------------------------------------------------------------------------
