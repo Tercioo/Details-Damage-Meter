@@ -533,8 +533,7 @@ function Details:StartMeUp() --I'll never stop!
 		end)
 	end
 
-	if (DetailsFramework.IsTBCWow() and not _G.CONFIG_OPTION_DONT_MOVE_BATTLEGROUND_MINIMAP_ICON_ON_ERROR) then
-
+	if (DetailsFramework.IsTBCWow()) then
 		--remover isso em versões mais atualizadas
 		if (_detalhes.bcc_counter == 18 or _detalhes.bcc_counter == 19) then
 			_detalhes.trash_auto_remove = false
