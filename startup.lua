@@ -563,7 +563,7 @@ function Details:StartMeUp() --I'll never stop!
 	
 					taintWarning:Show()
 					taintWarning:SetPoint ("topleft", StaticPopup1, "bottomleft", 0, -10)
-					if (MiniMapBattlefieldFrame:IsShown() and not Details.DontMoveMininapIconOnBattlegroundError)then
+					if (MiniMapBattlefieldFrame:IsShown() and not Details.DontMoveMinimapIconOnBattlegroundError)then
 
 						if (not originalPosition) then
 							local a = {}
