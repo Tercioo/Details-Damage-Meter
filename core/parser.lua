@@ -4851,6 +4851,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		_detalhes.encounter_table.phase = 1
 		
+		--remove on 10.0
+			--if (encounterID == 2430) then --Painsmith Raznal
+				_table_wipe(spikeball_cache) 
+				spikeball_cache.name_cache = {}
+				spikeball_cache.winners_cache = {}
+				spikeball_cache.spike_counter = 0
+				spikeball_cache.winner_spikeball = false
+				spikeball_cache.ignore_spikeballs = false
+			--end
+		--
+
 		--store the encounter time inside the encounter table for the encounter plugin
 		_detalhes.encounter_table.start = GetTime()
 		_detalhes.encounter_table ["end"] = nil
@@ -5039,13 +5050,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		--remove on 10.0 spikeball from painsmith
+		--[=[
 			_table_wipe(spikeball_cache) 
 			spikeball_cache.name_cache = {}
 			spikeball_cache.winners_cache = {}
 			spikeball_cache.spike_counter = 0
 			spikeball_cache.winner_spikeball = false
 			spikeball_cache.ignore_spikeballs = false
-		--
+		--]=]
 	
 		--when the user requested data from the storage but is in combat lockdown
 		if (_detalhes.schedule_storage_load) then
