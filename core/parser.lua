@@ -315,7 +315,8 @@
 	}
 
 	local NPCID_SPIKEDBALL = 176581 --remove on 10.0 --spikeball npcId
-	--local NPCID_SPIKEDBALL = 161881 --remove on 10.0 - debug npc
+	--local NPCID_SPIKEDBALL = 161881 --remove on 10.0 - debug npc (maldraxus)
+	--local NPCID_SPIKEDBALL = 167999 --remove on 10.0 - debug npc (echo of sin sire denatrius)
 	--spikeball cache
 	local spikeball_damage_cache  = {
 		npc_cache = {},
