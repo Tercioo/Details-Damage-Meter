@@ -305,7 +305,7 @@ do
 		button.attribute = attribute
 		button.sub_attribute = sub_attribute
 		button:SetPoint ("topleft", x, y)
-		_detalhes:SetFontSize (button.text, 10)
+		_detalhes:SetFontSize(button.text, _detalhes.all_switch_config.font_size)
 		_detalhes:SetFontColor (button.text, text_color)
 		
 		button:SetScript ("OnClick", on_click_all_switch_button)
@@ -348,7 +348,10 @@ do
 					--> localized sub attribute name
 					local loc_sub_attribute_name = _detalhes.sub_atributos [attribute].lista [i]
 					local button = create_all_switch_button (attribute, i, x, y)
+
 					button.text:SetText (loc_sub_attribute_name)
+					_detalhes:SetFontSize(button.text, _detalhes.all_switch_config.font_size)
+
 					all_switch.check_text_size (button.text)
 					button.texture:SetTexture (_detalhes.sub_atributos [attribute].icones [i] [1])
 					button.texture:SetTexCoord (unpack (_detalhes.sub_atributos [attribute].icones [i] [2]))
@@ -416,6 +419,8 @@ do
 			
 			local custom = _detalhes.custom [i]
 			button.text:SetText (custom.name)
+			_detalhes:SetFontSize(button.text, _detalhes.all_switch_config.font_size)
+
 			all_switch.check_text_size (button.text)
 			button.texture:SetTexture (custom.icon)
 			button.texture:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
@@ -457,6 +462,8 @@ do
 						button.pluginName = ptable[4]
 
 						button.text:SetText(ptable[1])
+						_detalhes:SetFontSize(button.text, _detalhes.all_switch_config.font_size)
+						
 						all_switch.check_text_size(button.text)
 						button.texture:SetTexture (ptable[2])
 						button.texture:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
@@ -485,6 +492,8 @@ do
 		all_switch:SetBackdrop (_detalhes.menu_backdrop_config.menus_backdrop)
 		all_switch:SetBackdropColor (unpack (_detalhes.menu_backdrop_config.menus_backdropcolor))
 		all_switch:SetBackdropBorderColor (unpack (_detalhes.menu_backdrop_config.menus_bordercolor))
+
+		all_switch:SetScale(_detalhes.all_switch_config.scale)
 	end)
 	
 ---------------------------------------------------------------------------------------------------------------------------	
