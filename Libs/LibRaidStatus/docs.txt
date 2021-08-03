@@ -14,6 +14,11 @@ With this object, you can start querying the library for information.
 
 Functions:
 
+local sentRequest = raidStatusLib.RequestAllPlayersInfo()
+Request to all players to send all data infomation: cooldowns, gear and player data.
+Instants after calling this, expect to receive several callbacks.
+
+
 local allPlayersGear = raidStatusLib.gearManager.GetAllPlayersGear()
 allPlayersGear = {
     ["playerName1"] = playerGear,

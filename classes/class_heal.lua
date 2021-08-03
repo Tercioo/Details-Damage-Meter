@@ -28,6 +28,7 @@ local _
 
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
+local Translit = LibStub ("LibTranslit-1.0")
 
 local gump = 			_detalhes.gump
 
