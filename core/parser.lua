@@ -144,6 +144,12 @@
 			--> anywhere from a few hundred thousand damage to over 50 millons
 			--> filtering it the best course of action as nobody should care about this damage
 		}
+
+		--army od the dead cache
+		local dk_pets_cache = {
+			army = {},
+			apoc = {},
+		}
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -629,6 +635,7 @@
 				npcId = _tonumber(_select (6, _strsplit ("-", alvo_serial)) or 0)
 				npcid_cache[alvo_serial] = npcId
 			end
+
 			if (ignored_npcids[npcId]) then
 				return
 			end
@@ -734,8 +741,19 @@
 				who_name = "Tank Add"
 			end
 
+			if (npcId == 24207) then --army of the dead
+				--check if this is a army or apoc pet
+				if (dk_pets_cache.army[who_serial]) then
+					who_name = who_name .. "A"
+				else
+					if (dk_pets_cache.apoc[who_serial]) then
+						who_name = who_name .. "B"
+					end
+				end
+			end
+
 		--> avoid doing spellID checks on each iteration
-		if (special_damage_spells [spellid]) then
+		--if (special_damage_spells [spellid]) then --remove this IF due to have hit 60 local variables
 			--> stagger
 			if (spellid == SPELLID_MONK_STAGGER) then
 				return parser:MonkStagger_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
@@ -748,7 +766,7 @@
 			elseif (spellid == SPELLID_PALADIN_LIGHTMARTYR) then -- or spellid == 183998 < healing part
 				return parser:LOTM_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 			end
-		end
+		--end
 
 	------------------------------------------------------------------------------------------------
 	--> check if need start an combat
@@ -1738,6 +1756,14 @@
 				return
 			end
 		--
+
+		--differenciate army and apoc pets for DK
+		if (spellid == 42651) then --army of the dead
+			dk_pets_cache.army[alvo_serial] = who_name
+
+		elseif (spellid == 42651) then --apoc
+			dk_pets_cache.apoc[alvo_serial] = who_name
+		end
 
 		--rename monk's "Storm, Earth, and Fire" adds
 		--desligado pois poderia estar causando problemas
@@ -4883,6 +4909,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_table_wipe (_detalhes.encounter_table)
 		_table_wipe (bargastBuffs) --remove on 10.0
 		_table_wipe (necro_cheat_deaths) --remove on 10.0
+		_table_wipe (dk_pets_cache.army)
+		_table_wipe (dk_pets_cache.apoc)
 
 		--remove on 10.0 spikeball from painsmith
 			spikeball_damage_cache  = {
@@ -5637,6 +5665,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_table_wipe (reflection_events)
 		_table_wipe (reflection_auras)
 		_table_wipe (reflection_dispels)
+
+		_table_wipe (dk_pets_cache.army)
+		_table_wipe (dk_pets_cache.apoc)
 	
 		damage_cache = setmetatable ({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable ({}, _detalhes.weaktable)

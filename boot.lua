@@ -6,9 +6,9 @@
 		
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 8782
-		_detalhes.alpha_build_counter = 8782 --if this is higher than the regular counter, use it instead
-		_detalhes.bcc_counter = 26
+		_detalhes.build_counter = 8783
+		_detalhes.alpha_build_counter = 8783 --if this is higher than the regular counter, use it instead
+		_detalhes.bcc_counter = 27
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter
@@ -33,7 +33,7 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
-		{"v9.1.0.8782.144", "August 11th, 2021"},
+		{"v9.1.0.8782.145", "August 11th, 2021"},
 		"Clicking on the minimap while the options panel is open will close it.",
 		"Fixed Raid Check plugin position when the window is anchored at the top of the monitor.",
 		"Shadow priest Void Erruption spells got merged into only one.",

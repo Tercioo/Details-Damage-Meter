@@ -1,6 +1,6 @@
 
 
-local dversion = 262
+local dversion = 269
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -431,6 +431,28 @@ function DF.table.dump (t, s, deep)
 	return s
 end
 
+--grab a text and split it into lines adding each line to a indexed table
+function DF:SplitTextInLines(text)
+	local lines = {}
+	local position = 1
+	local startScope, endScope = text:find("\n", position, true)
+
+	while (startScope) do
+		if (startScope ~= 1) then
+			tinsert(lines, text:sub(position, startScope-1))
+		end
+		position = endScope + 1
+		startScope, endScope = text:find("\n", position, true)
+	end
+
+	if (position <= #text) then
+		tinsert(lines, text:sub(position))
+	end
+
+	return lines
+end
+
+
 DF.www_icons = {
 	texture = "feedback_sites",
 	wowi = {0, 0.7890625, 0, 37/128},
@@ -587,6 +609,44 @@ function DF:AddClassColorToText (text, class)
 		return DF:RemoveRealName (text)
 	end
 	
+	return text
+end
+
+function DF:AddClassIconToText(text, playerName, class, useSpec, iconSize)
+	local size = iconSize or 16
+	
+	local iconToUse, spec
+	if (useSpec) then
+		if (Details) then
+			local guid = UnitGUID(playerName)
+			if (guid) then
+				local spec = Details.cached_specs[guid]
+				if (spec) then
+					spec = spec
+				end
+			end
+		end
+	end
+
+	if (spec) then --if spec is valid, the user has Details! installed
+		local specString = ""
+		local L, R, T, B = unpack (Details.class_specs_coords[spec])
+		if (L) then
+			specString = "|TInterface\\AddOns\\Details\\images\\spec_icons_normal:" .. size .. ":" .. size .. ":0:0:512:512:" .. (L * 512) .. ":" .. (R * 512) .. ":" .. (T * 512) .. ":" .. (B * 512) .. "|t"
+			return specString .. " " .. text
+		end
+	end
+
+	if (class) then
+		local classString = ""
+		local L, R, T, B = unpack (Details.class_coords[class])
+		if (L) then
+			local imageSize = 128
+			classString = "|TInterface\\AddOns\\Details\\images\\classes_small:" .. size .. ":" .. size .. ":0:0:" .. imageSize .. ":" .. imageSize .. ":" .. (L * imageSize) .. ":" .. (R * imageSize) .. ":" .. (T * imageSize) .. ":" .. (B * imageSize) .. "|t"
+			return classString .. " " .. text
+		end
+	end
+
 	return text
 end
 
