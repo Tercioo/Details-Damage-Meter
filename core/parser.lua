@@ -744,11 +744,9 @@
 			if (npcId == 24207) then --army of the dead
 				--check if this is a army or apoc pet
 				if (dk_pets_cache.army[who_serial]) then
-					who_name = who_name .. "A"
+					who_name = who_name .. " (army)"
 				else
-					if (dk_pets_cache.apoc[who_serial]) then
-						who_name = who_name .. "B"
-					end
+					who_name = who_name .. " (apoc)"
 				end
 			end
 
@@ -1761,8 +1759,8 @@
 		if (spellid == 42651) then --army of the dead
 			dk_pets_cache.army[alvo_serial] = who_name
 
-		elseif (spellid == 42651) then --apoc
-			dk_pets_cache.apoc[alvo_serial] = who_name
+		--elseif (spellid == 42651) then --apoc
+		--	dk_pets_cache.apoc[alvo_serial] = who_name
 		end
 
 		--rename monk's "Storm, Earth, and Fire" adds
