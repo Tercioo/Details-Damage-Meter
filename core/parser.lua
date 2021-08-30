@@ -744,9 +744,11 @@
 			if (npcId == 24207) then --army of the dead
 				--check if this is a army or apoc pet
 				if (dk_pets_cache.army[who_serial]) then
-					who_name = who_name .. " (army)"
+					--who_name = who_name .. " (army)"
+					who_name = who_name .. "|T237511:0|t"
 				else
-					who_name = who_name .. " (apoc)"
+					--who_name = who_name .. " (apoc)"
+					who_name = who_name .. "|T1392565:0|t"
 				end
 			end
 
