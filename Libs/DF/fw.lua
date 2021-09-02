@@ -1,6 +1,6 @@
 
 
-local dversion = 269
+local dversion = 270
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -610,6 +610,12 @@ function DF:AddClassColorToText (text, class)
 	end
 	
 	return text
+end
+
+function DF:GetClassTCoordsAndTexture(class)
+	local l, r, t, b = unpack(CLASS_ICON_TCOORDS[class])
+	return l, r, t, b, [[Interface\WORLDSTATEFRAME\Icons-Classes]]
+	--return l, r, t, b, "Interface\\TargetingFrame\\UI-Classes-Circles"
 end
 
 function DF:AddClassIconToText(text, playerName, class, useSpec, iconSize)
