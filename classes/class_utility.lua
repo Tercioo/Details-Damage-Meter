@@ -238,6 +238,10 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 					--> damage
 					
 					local overkill = event [10] or 0
+					local critical = event[11] and (" " .. TEXT_MODE_A_STRING_RESULT_CRITICAL) or "" -- (Critical)
+					local crushing = event[12] and (" " .. TEXT_MODE_A_STRING_RESULT_CRUSHING) or "" -- (Crushing)
+					local critOrCrush = critical .. crushing
+
 					if (overkill > 0) then
 						--check the type of overkill that should be shown
 						--if show_totalhitdamage_on_overkill is true it'll show the total damage of the hit
@@ -247,10 +251,10 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 						end
 						
 						overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
-						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s |cFFFFFF00" .. spellname .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s |cFFFFFF00" .. spellname .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. critOrCrush .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 					else
 						overkill = ""
-						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. critOrCrush .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 					end
 					
 					GameCooltip:AddIcon (spellicon)
