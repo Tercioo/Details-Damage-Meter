@@ -1025,6 +1025,8 @@
 				this_event [8] = spelltype or school
 				this_event [9] = false
 				this_event [10] = overkill
+				this_event [11] = critical
+				this_event [12] = crushing
 				
 				i = i + 1
 				
