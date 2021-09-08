@@ -14,6 +14,22 @@ LIB_RAID_STATUS_COVENANT_ICONS = {
 	[[Interface\ICONS\UI_Sigil_Necrolord]], --necrolords
 }
 
+LIB_RAID_STATUS_MELEE_SPECS = {
+	[251] = "DEATHKNIGHT",
+	[252] = "DEATHKNIGHT",
+	[577] = "DEMONHUNTER",
+	[103] = "DRUID",
+	--[255] = "Survival", --not in the list due to the long interrupt time
+	[269] = "MONK",
+	[70] = "PALADIN",
+	[259] = "ROGUE",
+	[260] = "ROGUE",
+	[261] = "ROGUE",
+	[263] = "SHAMAN",
+	[71] = "WARRIOR",
+	[72] = "WARRIOR",
+}
+
 --which gear slots can be enchanted on the latest retail version of the game
 --when the value is a number, the slot only receives enchants for a specific attribute
 LIB_RAID_STATUS_ENCHANT_SLOTS = {
