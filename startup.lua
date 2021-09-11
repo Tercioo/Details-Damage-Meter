@@ -562,10 +562,10 @@ function Details:StartMeUp() --I'll never stop!
 							end
 						end
 		
-						taintWarning:Show()
-						taintWarning:SetPoint ("topleft", StaticPopup1, "bottomleft", 0, -10)
 						
 						if (MiniMapBattlefieldFrame:IsShown())then
+							taintWarning:Show()
+							taintWarning:SetPoint ("topleft", StaticPopup1, "bottomleft", 0, -10)
 							if (not originalPosition) then
 								local a = {}
 								for i = 1, MiniMapBattlefieldFrame:GetNumPoints() do
