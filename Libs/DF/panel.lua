@@ -4332,6 +4332,10 @@ DF.ScrollBoxFunctions.GetFrames = function (self)
 	return self.Frames
 end
 
+DF.ScrollBoxFunctions.GetLines = function (self) --alias of GetFrames
+	return self.Frames
+end
+
 DF.ScrollBoxFunctions.GetNumFramesCreated = function (self)
 	return #self.Frames
 end

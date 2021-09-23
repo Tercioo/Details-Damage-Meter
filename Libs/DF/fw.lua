@@ -1,6 +1,6 @@
 
 
-local dversion = 271
+local dversion = 275
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -3847,6 +3847,26 @@ local roleTexcoord = {
 	TANK = "5:63:69:127",
 	NONE = "139:196:69:127",
 }
+
+local roleTextures = {
+	DAMAGER = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
+	TANK = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
+	HEALER = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
+	NONE = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
+}
+
+local roleTexcoord2 = {
+	DAMAGER = {72/256, 130/256, 69/256, 127/256},
+	HEALER = {72/256, 130/256, 2/256, 60/256},
+	TANK = {5/256, 63/256, 69/256, 127/256},
+	NONE = {139/256, 196/256, 69/256, 127/256},
+}
+
+function DF:GetRoleIconAndCoords(role)
+	local texture = roleTextures[role]
+	local coords = roleTexcoord2[role]
+	return texture, unpack(coords)
+end
 
 function DF:AddRoleIconToText(text, role, size)
 	if (role and type(role) == "string") then

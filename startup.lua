@@ -247,7 +247,6 @@ function Details:StartMeUp() --I'll never stop!
 
 			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 
-
 	--update is in group
 	self.details_users = {}
 	self.in_group = IsInGroup() or IsInRaid()
