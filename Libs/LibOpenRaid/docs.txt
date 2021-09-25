@@ -1,32 +1,32 @@
 
-Raid Status is a library to share the player information while playing in a group or raid.
+Open Raid is a library to share the player information while playing in a group or raid.
 
 Install:
-Place the library at your addon folder/libs/LibRaidStatus/
-Inside LibRaidStatus there's 5 files.
-Add <Include file="Libs\LibRaidStatus\lib.xml"/> to your libs.xml located in the root folder of the addon or 
-<Include file="LibRaidStatus\lib.xml"/> if it is located inside the Libs folder.
+Place the library at your addon folder/libs/LibOpenRaid/
+Inside LibOpenRaid there's 5 files.
+Add <Include file="Libs\LibOpenRaid\lib.xml"/> to your libs.xml located in the root folder of the addon or 
+<Include file="LibOpenRaid\lib.xml"/> if it is located inside the Libs folder.
 Close and open the game client.
 
 Inside your lua file, get the library object, you need to do this in order to grab a reference of the library:
-local raidStatusLib = LibStub:GetLibrary("LibRaidStatus-1.0")
+local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 With this object, you can start querying the library for information.
 
 Functions:
 
-local sentRequest = raidStatusLib.RequestAllPlayersInfo()
+local sentRequest = openRaidLib.RequestAllPlayersInfo()
 Request to all players to send all data infomation: cooldowns, gear and player data.
 Instants after calling this, expect to receive several callbacks.
 
 
-local allPlayersGear = raidStatusLib.gearManager.GetAllPlayersGear()
+local allPlayersGear = openRaidLib.gearManager.GetAllPlayersGear()
 allPlayersGear = {
     ["playerName1"] = playerGear,
     ["playerName2"] = playerGear,
     ["playerName3"] = playerGear,
 }
 
-local playerGear = raidStatusLib.gearManager.GetPlayerGear(playerName)
+local playerGear = openRaidLib.gearManager.GetPlayerGear(playerName)
 playerGear = {
     .durability = number
     .ilevel = number
@@ -36,14 +36,14 @@ playerGear = {
 }
 
 
-local allPlayersCooldowns = raidStatusLib.cooldownManager.GetAllPlayersCooldown()
+local allPlayersCooldowns = openRaidLib.cooldownManager.GetAllPlayersCooldown()
 allPlayersCooldowns = {
     ["playerName1"] = playerCooldows,
     ["playerName2"] = playerCooldows,
     ["playerName3"] = playerCooldows,
 }
 
-local playerCooldows = raidStatusLib.cooldownManager.GetPlayerCooldowns(playerName)
+local playerCooldows = openRaidLib.cooldownManager.GetPlayerCooldowns(playerName)
 playerCooldows = {
     [cooldownSpellId] = {
         [1] = time left (number), 
@@ -54,14 +54,14 @@ playerCooldows = {
 }
 
 
-local allPlayersInfo = raidStatusLib.playerInfoManager.GetAllPlayersInfo()
+local allPlayersInfo = openRaidLib.playerInfoManager.GetAllPlayersInfo()
 allPlayersInfo = {
     ["playerName1"] = playerInfo,
     ["playerName2"] = playerInfo,
     ["playerName3"] = playerInfo,
 }
 
-local playerInfo = raidStatusLib.playerInfoManager.GetPlayerInfo(playerName)
+local playerInfo = openRaidLib.playerInfoManager.GetPlayerInfo(playerName)
 playerInfo = {
     .specId = number
     .renown = number, 
@@ -106,7 +106,7 @@ function MyAddonObject.OnReceiveCooldownListUpdate(unitName, playerCooldows, all
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "CooldownListUpdate", "OnReceiveCooldownListUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "CooldownListUpdate", "OnReceiveCooldownListUpdate")
 
 ===================================================================================================================================
 "CooldownUpdate": triggered when any unit in the group used a cooldown or the timeleft got an update
@@ -129,7 +129,7 @@ function MyAddonObject.OnReceiveCooldownUpdate(unitName, spellId, cooldownTimeLe
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "CooldownUpdate", "OnReceiveCooldownUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "CooldownUpdate", "OnReceiveCooldownUpdate")
 
 ===================================================================================================================================
 "CooldownListWiped": when the list of cooldowns get a wipe, usually when the player leave the group
@@ -140,7 +140,7 @@ function MyAddonObject.OnCooldownListWipe(allPlayersCooldowns)
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "CooldownListWiped", "OnCooldownListWipe")
+openRaidLib.RegisterCallback(MyAddonObject, "CooldownListWiped", "OnCooldownListWipe")
 
 
 ===================================================================================================================================
@@ -163,7 +163,7 @@ function MyAddonObject.OnGearUpdate(playerName, playerGear, allPlayersGear)
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "GearUpdate", "OnGearUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "GearUpdate", "OnGearUpdate")
 
 ===================================================================================================================================
 "GearDurabilityUpdate": when the gear durability of a player in the group changes
@@ -174,7 +174,7 @@ function MyAddonObject.OnGearDurabilityUpdate(playerName, durability, playerGear
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "GearDurabilityUpdate", "OnGearDurabilityUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "GearDurabilityUpdate", "OnGearDurabilityUpdate")
 
 ===================================================================================================================================
 "GearListWiped": when the list of gear get a wipe, usually when the player leave the group
@@ -185,7 +185,7 @@ function MyAddonObject.OnGearListWiped(allPlayersGear)
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "GearListWiped", "OnGearListWiped")
+openRaidLib.RegisterCallback(MyAddonObject, "GearListWiped", "OnGearListWiped")
 
 ===================================================================================================================================
 "PlayerUpdate": received a player information about its spec, talents, etc...
@@ -202,7 +202,7 @@ function MyAddonObject.OnPlayerUpdate(playerName, playerInfo, allPlayersInfo)
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "PlayerUpdate", "OnPlayerUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "PlayerUpdate", "OnPlayerUpdate")
 
 ===================================================================================================================================
 "TalentsUpdate": when a unit changed a talent
@@ -217,7 +217,7 @@ function MyAddonObject.OnTalentUpdate(playerName, talents, playerInfo, allPlayer
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "TalentUpdate", "OnTalentUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "TalentUpdate", "OnTalentUpdate")
 
 
 ===================================================================================================================================
@@ -229,7 +229,7 @@ function MyAddonObject.OnPlayerDeath(playerName)
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "OnPlayerDeath", "OnPlayerDeath")
+openRaidLib.RegisterCallback(MyAddonObject, "OnPlayerDeath", "OnPlayerDeath")
 
 ===================================================================================================================================
 "OnPlayerRess": when a player revives
@@ -240,5 +240,5 @@ function MyAddonObject.OnPlayerRess(playerName)
 end
 
 --registering the callback:
-raidStatusLib.RegisterCallback(MyAddonObject, "OnPlayerRess", "OnPlayerRess")
+openRaidLib.RegisterCallback(MyAddonObject, "OnPlayerRess", "OnPlayerRess")
 
