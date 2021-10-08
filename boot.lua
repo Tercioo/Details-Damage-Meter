@@ -6,8 +6,8 @@
 		
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 8812
-		_detalhes.alpha_build_counter = 8812 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 8888
+		_detalhes.alpha_build_counter = 8888 --if this is higher than the regular counter, use it instead
 		_detalhes.bcc_counter = 28
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
@@ -33,6 +33,15 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+
+		{"v9.1.0.8888.145", "October 7th, 2021"},
+		"Search has been added into the options panel",
+		"Improvements on overkill amount of damage",
+		"Fonts 'Oswald' and 'NuevaStd' enabled again.",
+		"Added critical hits to Death Log (by C. Raethke)",
+		"Added settings to change the color on death log, they are within the class colors panel.",
+		"Don't show TaintWarning frame if MiniMapBattlefieldFrame is hidden (by Flamanis).",
+
 		{"v9.1.0.8812.145", "September 5th, 2021"},
 		"Fonts 'Oswald' and 'NuevaStd' disabled due to some erros on the client side.",
 		"Death Knight adds now include the icon of the spell whose summoned them.",
@@ -755,8 +764,8 @@ do
 		SharedMedia:Register ("border", "Details BarBorder 3", [[Interface\AddOns\Details\images\border_3]])
 		SharedMedia:Register ("border", "1 Pixel", [[Interface\Buttons\WHITE8X8]])
 		--misc fonts
-		--SharedMedia:Register ("font", "Oswald", [[Interface\Addons\Details\fonts\Oswald-Regular.otf]]) --blizz deativated support to .OTF font? (04-Set-2021)
-		--SharedMedia:Register ("font", "Nueva Std Cond", [[Interface\Addons\Details\fonts\NuevaStd-Cond.otf]])
+		SharedMedia:Register ("font", "Oswald", [[Interface\Addons\Details\fonts\Oswald-Regular.ttf]])
+		SharedMedia:Register ("font", "Nueva Std Cond", [[Interface\Addons\Details\fonts\NuevaStd-Cond.ttf]])
 		SharedMedia:Register ("font", "Accidental Presidency", [[Interface\Addons\Details\fonts\Accidental Presidency.ttf]])
 		SharedMedia:Register ("font", "TrashHand", [[Interface\Addons\Details\fonts\TrashHand.TTF]])
 		SharedMedia:Register ("font", "Harry P", [[Interface\Addons\Details\fonts\HARRYP__.TTF]])

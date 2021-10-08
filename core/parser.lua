@@ -153,27 +153,22 @@
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
-
-	local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
-	local duel_candidates = _detalhes.duel_candidates
-	
 	local _token_ids = _detalhes.TokenID
-	
+
 	local OBJECT_TYPE_ENEMY	=	0x00000040
 	local OBJECT_TYPE_PLAYER 	=	0x00000400
 	local OBJECT_TYPE_PETS 	=	0x00003000
 	local AFFILIATION_GROUP 	=	0x00000007
-	local REACTION_FRIENDLY 	=	0x00000010 
-	local REACTION_MINE 		=	0x00000001 
-	
+	local REACTION_FRIENDLY 	=	0x00000010
+
 	local ENVIRONMENTAL_FALLING_NAME	= Loc ["STRING_ENVIRONMENTAL_FALLING"]
 	local ENVIRONMENTAL_DROWNING_NAME	= Loc ["STRING_ENVIRONMENTAL_DROWNING"]
 	local ENVIRONMENTAL_FATIGUE_NAME	= Loc ["STRING_ENVIRONMENTAL_FATIGUE"]
 	local ENVIRONMENTAL_FIRE_NAME		= Loc ["STRING_ENVIRONMENTAL_FIRE"]
 	local ENVIRONMENTAL_LAVA_NAME		= Loc ["STRING_ENVIRONMENTAL_LAVA"]
 	local ENVIRONMENTAL_SLIME_NAME	= Loc ["STRING_ENVIRONMENTAL_SLIME"]
-	
+
 	local RAID_TARGET_FLAGS = {
 		[128] = true, --0x80 skull
 		[64] = true, --0x40 cross
@@ -184,7 +179,7 @@
 		[2] = true, --0x2 circle
 		[1] = true, --0x1 star
 	}
-	
+
 	--> spellIds override
 	local override_spellId
 
@@ -254,12 +249,11 @@
 		end
 	end
 
-	--tbc prayer of mending cache
+	--tbc spell caches
 	local TBC_PrayerOfMendingCache = {}
-	--tbc earth shield cache
 	local TBC_EarthShieldCache = {}
-	--tbc life bloom cache
 	local TBC_LifeBloomLatestHeal
+	local TBC_JudgementOfLightCache  = {}
 
 	--expose the override spells table to external scripts
 	_detalhes.OverridedSpellIds = override_spellId
@@ -668,7 +662,7 @@
 					damageTable = {total = 0, spells = {}}
 					npcDamage[who_serial] = damageTable
 				end
-				
+
 				damageTable.total = damageTable.total + amount
 				damageTable.spells[spellid] = (damageTable.spells[spellid] or 0) + amount
 
@@ -905,9 +899,10 @@
 
 		if (_is_in_instance) then
 			if (overkill and overkill > 0) then
+				overkill = overkill + 1
 				--if enabled it'll cut the amount of overkill from the last hit (which killed the actor)
 				--when disabled it'll show the total damage done for the latest hit
-				--amount = amount - overkill
+				amount = amount - overkill
 			end
 		end
 
@@ -1102,14 +1097,13 @@
 		
 		if (is_friendly_fire and spellid ~= SPELLID_KYRIAN_DRUID_TANK) then --kyrian spell remove on 10.0
 			if (este_jogador.grupo) then --> se tiver ele n�o adiciona o evento l� em cima
-				local t = last_events_cache [alvo_name]
+				local t = last_events_cache[alvo_name]
 				
 				if (not t) then
-					t = _current_combat:CreateLastEventsTable (alvo_name)
+					t = _current_combat:CreateLastEventsTable(alvo_name)
 				end
 				
 				local i = t.n
-
 				local this_event = t [i]
 				
 				this_event [1] = true --> true if this is a damage || false for healing
@@ -1989,8 +1983,6 @@
 		if (is_using_spellId_override) then
 			spellid = override_spellId [spellid] or spellid
 		end
-		
-
 
 		--sanguine ichor mythic dungeon affix (heal enemies)
 		if (spellid == SPELLID_SANGUINE_HEAL) then 
@@ -2031,6 +2023,13 @@
 			elseif (spellid == SPELLID_DRUID_LIFEBLOOM_HEAL) then 
 				TBC_LifeBloomLatestHeal = cura_efetiva
 				return
+
+			elseif (spellid == 27163) then  --Judgement of Light (paladin)
+				local sourceData = TBC_JudgementOfLightCache[who_name]
+				if (sourceData) then
+					who_serial, who_name, who_flags = unpack(sourceData)
+					TBC_JudgementOfLightCache[who_name] = nil
+				end
 			end
 		end
 
@@ -2338,6 +2337,9 @@
 
 					elseif (spellid == SPELLID_PRIEST_POM_BUFF) then
 						TBC_PrayerOfMendingCache [alvo_name] = {who_serial, who_name, who_flags}
+
+					elseif (spellid == 27163) then --Judgement Of Light
+						TBC_JudgementOfLightCache[alvo_name] = {who_serial, who_name, who_flags}
 					end
 				end
 
