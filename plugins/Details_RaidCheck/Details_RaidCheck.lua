@@ -397,7 +397,7 @@ end
 						if (thisPlayerInfo) then
 							local playerCovenantId = thisPlayerInfo.covenantId
 							if (playerCovenantId > 0) then
-								line.CovenantIcon:SetTexture(LIB_RAID_STATUS_COVENANT_ICONS[playerCovenantId])
+								line.CovenantIcon:SetTexture(LIB_OPEN_RAID_COVENANT_ICONS[playerCovenantId])
 								line.CovenantIcon:SetTexCoord(.05, .95, .05, .95)
 							else
 								line.CovenantIcon:SetTexture("")
