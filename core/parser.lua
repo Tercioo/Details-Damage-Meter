@@ -13,7 +13,6 @@
 	local _UnitAffectingCombat = UnitAffectingCombat --wow api local
 	local _UnitHealth = UnitHealth --wow api local
 	local _UnitHealthMax = UnitHealthMax --wow api local
-	local _UnitIsFeignDeath = UnitIsFeignDeath --wow api local
 	local _UnitGUID = UnitGUID --wow api local
 	local _IsInRaid = IsInRaid --wow api local
 	local _IsInGroup = IsInGroup --wow api local
@@ -150,7 +149,7 @@
 			army = {},
 			apoc = {},
 		}
-		
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
@@ -237,11 +236,11 @@
 			[228361] = 228360, --shadow priest void erruption
 		}
 	end
-	
+
 	local bitfield_debuffs_ids = _detalhes.BitfieldSwapDebuffsIDs
 	local bitfield_debuffs = {}
 	for _, spellid in ipairs (bitfield_debuffs_ids) do
-		local spellname = GetSpellInfo (spellid)
+		local spellname = GetSpellInfo(spellid)
 		if (spellname) then
 			bitfield_debuffs [spellname] = true
 		else
@@ -325,8 +324,7 @@
 		ignore_spikeballs = 0,
 	}
 
-	local NPCID_KELTHUZAD_FROSTBOUNDDEVOTED = 176703
-	local NPCID_KELTHUZAD_ADDMIMICPLAYERS = 176605
+		local NPCID_KELTHUZAD_ADDMIMICPLAYERS = 176605
 
 	--> damage spells to ignore
 	local damage_spells_to_ignore = {
@@ -398,6 +396,36 @@
 		}
 		local _auto_regen_thread
 		local AUTO_REGEN_PRECISION = 2
+
+
+	--> store the spells which cannot be added to overall data
+		local no_overall_spells = {
+			[344421] = true,
+			[328351] = true,
+			[328406] = true,
+			[328128] = true,
+			[333641] = true,
+			[333227] = true,
+			[333250] = true,
+			--[] = true,
+		}
+
+		--expose the table for scripts modify it
+		Details.NoOverallSpells = no_overall_spells
+
+		--create a table with spell names which need to be converted into actors
+		local sanguineHealSpellName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+		Details.NoOverallSpellNames = {
+			[sanguineHealSpellName] = true
+		}
+
+		for spellId in pairs(no_overall_spells) do
+			local spellName = GetSpellInfo(spellId)
+			if (spellName) then
+				Details.NoOverallSpellNames[spellName] = spellId
+			end
+		end
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
@@ -549,6 +577,13 @@
 		--	return
 		--end
 
+		--sanguine ichor mythic dungeon affix (heal enemies)
+		if (no_overall_spells[spellid]) then
+			who_name = GetSpellInfo(spellid)
+			who_flags = 0x518
+			who_serial = "Creature-0-3134-2289-28065-" .. spellid .. "-000164C698"
+		end
+
 		------------------------------------------------------------------------------------------------
 		--> spell reflection
 		if (who_serial == alvo_serial and not reflection_ignore[spellid]) then --~reflect
@@ -634,7 +669,7 @@
 				return
 			end
 
-			if (npcId == NPCID_KELTHUZAD_FROSTBOUNDDEVOTED) then --remove on 10.0
+			if (npcId == 176703) then --remove on 10.0 --kelthuzad
 				alvo_flags = 0xa48
 			end
 
@@ -728,7 +763,7 @@
 				return
 			end
 
-			if (npcId == NPCID_KELTHUZAD_FROSTBOUNDDEVOTED) then --remove on 10.0
+			if (npcId == 176703) then --remove on 10.0 --kelthuzad
 				who_flags = 0xa48
 			end
 			if (npcId == NPCID_KELTHUZAD_ADDMIMICPLAYERS) then --remove on 10.0
@@ -853,7 +888,11 @@
 		if (not este_jogador) then
 			return
 		end
-		
+
+		if (no_overall_spells[spellid]) then
+			este_jogador.grupo = true
+		end
+
 		--> his target
 		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial] or damage_cache [alvo_name], damage_cache_petsOwners [alvo_serial]
 		
@@ -1742,7 +1781,7 @@
 		local npcId = _tonumber(_select (6, _strsplit ("-", alvo_serial)) or 0)
 
 		--kel'thuzad encounter --remove on 10.0
-			if (npcId == NPCID_KELTHUZAD_FROSTBOUNDDEVOTED) then 
+			if (npcId == 176703) then --kelthuzad
 				return
 			elseif (spellid == 358108) then --Restore Health
 				return
@@ -4101,7 +4140,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_current_combat.frags_need_refresh = true
 
 		--> player death
-		elseif (not _UnitIsFeignDeath (alvo_name)) then
+		elseif (not UnitIsFeignDeath (alvo_name)) then
 			if (
 				--> player in your group
 				(_bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 or (damageActor and damageActor.grupo)) and 

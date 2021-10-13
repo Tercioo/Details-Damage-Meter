@@ -242,9 +242,16 @@
 						novo_objeto.displayName = nome
 					end
 				end
-				
+
 				if (_detalhes.all_players_are_group or _detalhes.immersion_enabled) then
 					novo_objeto.grupo = true
+				end
+
+				--special spells to add into the group view
+				local spellId = Details.NoOverallSpellNames[novo_objeto.nome]
+				if (spellId) then
+					novo_objeto.grupo = true
+					novo_objeto.spellicon = GetSpellTexture(spellId)
 				end
 
 				if ((_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNKNOW" and novo_objeto.classe ~= "UNGROUPPLAYER") or _detalhes:IsInCache (serial)) then
