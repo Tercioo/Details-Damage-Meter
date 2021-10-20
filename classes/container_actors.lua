@@ -248,10 +248,19 @@
 				end
 
 				--special spells to add into the group view
-				local spellId = Details.NoOverallSpellNames[novo_objeto.nome]
+				local spellId = Details.SpecialSpellActorsName[novo_objeto.nome]
 				if (spellId) then
 					novo_objeto.grupo = true
-					novo_objeto.spellicon = GetSpellTexture(spellId)
+
+					if (Details.KyrianWeaponSpellIds[spellId]) then
+						novo_objeto.spellicon = GetSpellTexture(Details.KyrianWeaponActorSpellId)
+						novo_objeto.nome = Details.KyrianWeaponActorName
+						novo_objeto.displayName = Details.KyrianWeaponActorName
+						novo_objeto.customColor = Details.KyrianWeaponColor
+						nome = Details.KyrianWeaponActorName
+					else
+						novo_objeto.spellicon = GetSpellTexture(spellId)
+					end
 				end
 
 				if ((_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNKNOW" and novo_objeto.classe ~= "UNGROUPPLAYER") or _detalhes:IsInCache (serial)) then

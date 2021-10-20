@@ -219,7 +219,6 @@ do
 			_detalhes.InstancesToStoreData = { --mapId
 				[2296] = true, --castle narnia
 				[2450] = true, --sanctum of domination
-				[2450] = true,
 			}
 
 		--> armazena os escudos - Shields information for absorbs

@@ -326,11 +326,14 @@
 				end
 				return table1 [4] < table2 [4]
 			end
-			
+
 --[[exported]]	function Details:GetBarColor (actor)
 				actor = actor or self
 				if (actor.monster) then
 					return _unpack (Details.class_colors.ENEMY)
+
+				elseif (actor.customColor) then
+					return unpack(actor.customColor)
 
 				elseif (actor.spellicon) then
 					return 0.729, 0.917, 1

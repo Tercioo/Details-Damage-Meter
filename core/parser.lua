@@ -258,7 +258,12 @@
 	_detalhes.OverridedSpellIds = override_spellId
 
 	--> list of ignored npcs by the user
-	local ignored_npcids = {}
+	local ignored_npcids = {
+		--necrotic wake --remove on 10.0
+		[163126] = true, --brittlebone mage
+		[163122] = true, --brittlebone warrior
+		[166079] = true, --brittlebone crossbowman
+	}
 
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
 	local SPELLID_WARLOCK_SOULLINK = 108446
@@ -397,32 +402,33 @@
 		local _auto_regen_thread
 		local AUTO_REGEN_PRECISION = 2
 
-
-	--> store the spells which cannot be added to overall data
-		local no_overall_spells = {
-			[344421] = true,
-			[328351] = true,
-			[328406] = true,
-			[328128] = true,
-			[333641] = true,
-			[333227] = true,
-			[333250] = true,
-			--[] = true,
+		--kyrian weapons on necrotic wake --remove on 10.0
+		--these detect the kyrial weapon actor by the damage spellId
+		Details.KyrianWeaponSpellIds = {
+			[328128] = true, --Forgotten Forgehammer
+			[328351] = true, --Bloody Javelin
+			[328406] = true, --Discharged Anima
+			[344421] = true, --Anima Exhaust (goliaths)
 		}
+		Details.KyrianWeaponActorName = "Kyrian Weapons"
+		Details.KyrianWeaponActorSpellId = 328351 --for the icon
+		Details.KyrianWeaponColor = {0.729, 0.917, 1} --color
 
-		--expose the table for scripts modify it
-		Details.NoOverallSpells = no_overall_spells
+		--sanguine affix for m+
+		Details.SanguineHealActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
-		--create a table with spell names which need to be converted into actors
-		local sanguineHealSpellName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
-		Details.NoOverallSpellNames = {
-			[sanguineHealSpellName] = true
-		}
+		--create a table with spell names pointing to spellIds
+		Details.SpecialSpellActorsName = {}
 
-		for spellId in pairs(no_overall_spells) do
+		--add sanguine affix
+		Details.SpecialSpellActorsName[Details.SanguineHealActorName] = SPELLID_SANGUINE_HEAL
+
+		--add kyrian weapons
+		Details.SpecialSpellActorsName[Details.KyrianWeaponActorName] = Details.KyrianWeaponActorSpellId
+		for spellId in pairs(Details.KyrianWeaponSpellIds) do
 			local spellName = GetSpellInfo(spellId)
 			if (spellName) then
-				Details.NoOverallSpellNames[spellName] = spellId
+				Details.SpecialSpellActorsName[spellName] = spellId
 			end
 		end
 
@@ -577,10 +583,10 @@
 		--	return
 		--end
 
-		--sanguine ichor mythic dungeon affix (heal enemies)
-		if (no_overall_spells[spellid]) then
-			who_name = GetSpellInfo(spellid)
-			who_flags = 0x518
+		--kyrian weapons
+		if (Details.KyrianWeaponSpellIds[spellid]) then
+			who_name = Details.KyrianWeaponActorName
+			who_flags = 0x514
 			who_serial = "Creature-0-3134-2289-28065-" .. spellid .. "-000164C698"
 		end
 
@@ -868,6 +874,7 @@
 				if (who_flags) then --> ter certeza que n�o � um pet
 					if (who_serial ~= "") then
 						damage_cache [who_serial] = este_jogador
+						print("adicionando ao cache:", who_name)
 					else
 						if (who_name:find ("%[")) then
 							damage_cache [who_name] = este_jogador
@@ -889,7 +896,7 @@
 			return
 		end
 
-		if (no_overall_spells[spellid]) then
+		if (Details.KyrianWeaponSpellIds[spellid]) then
 			este_jogador.grupo = true
 		end
 
@@ -2025,7 +2032,7 @@
 
 		--sanguine ichor mythic dungeon affix (heal enemies)
 		if (spellid == SPELLID_SANGUINE_HEAL) then 
-			who_name = GetSpellInfo(SPELLID_SANGUINE_HEAL)
+			who_name = Details.SanguineHealActorName
 			who_flags = 0x518
 			who_serial = "Creature-0-3134-2289-28065-" .. SPELLID_SANGUINE_HEAL .. "-000164C698"
 		end
@@ -5885,8 +5892,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 		_in_combat = _detalhes.in_combat
 
-		--> grab the ignored npcid directly from the user profile
-		ignored_npcids = _detalhes.npcid_ignored
+		--> fill the ignored npcid directly from the user profile
+		--ignored_npcids = _detalhes.npcid_ignored
+		for npcId in pairs(_detalhes.npcid_ignored) do
+			ignored_npcids[npcId] = true
+		end
 
 		if (_in_combat) then
 			if (not _auto_regen_thread or _auto_regen_thread._cancelled) then
