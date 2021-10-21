@@ -263,6 +263,13 @@
 		[163126] = true, --brittlebone mage
 		[163122] = true, --brittlebone warrior
 		[166079] = true, --brittlebone crossbowman
+
+		--the other side
+		[170147] = true, --volatile memory
+		--fantasmas de quando mata mob na wing de zul'gurub
+
+		
+
 	}
 
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
@@ -874,7 +881,6 @@
 				if (who_flags) then --> ter certeza que n�o � um pet
 					if (who_serial ~= "") then
 						damage_cache [who_serial] = este_jogador
-						print("adicionando ao cache:", who_name)
 					else
 						if (who_name:find ("%[")) then
 							damage_cache [who_name] = este_jogador
