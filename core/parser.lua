@@ -266,10 +266,14 @@
 
 		--the other side
 		[170147] = true, --volatile memory
-		--fantasmas de quando mata mob na wing de zul'gurub
+		[170483] = true, --zul'gurub phantoms (they are already immune to damage)
 
-		
-
+		--plaguefall
+		[168365] = true, --fungret shroomtender
+		[168968] = true, --plaguebound fallen (at the start of the dungeon)
+		--[169265] = true, --creepy crawler (summoned by decaying flesh giant)
+		--[168747] = true,  --venomfang (summon)
+		--[168837] = true, --stealthlings (summon)
 	}
 
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
