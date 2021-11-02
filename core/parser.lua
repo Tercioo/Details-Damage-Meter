@@ -271,6 +271,7 @@
 		--plaguefall
 		[168365] = true, --fungret shroomtender
 		[168968] = true, --plaguebound fallen (at the start of the dungeon)
+		[168891] = true, --
 		--[169265] = true, --creepy crawler (summoned by decaying flesh giant)
 		--[168747] = true,  --venomfang (summon)
 		--[168837] = true, --stealthlings (summon)
