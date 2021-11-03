@@ -433,14 +433,18 @@
 		Details.SpecialSpellActorsName = {}
 
 		--add sanguine affix
-		Details.SpecialSpellActorsName[Details.SanguineHealActorName] = SPELLID_SANGUINE_HEAL
+		if (not isTBC) then
+			if (Details.SanguineHealActorName) then
+				Details.SpecialSpellActorsName[Details.SanguineHealActorName] = SPELLID_SANGUINE_HEAL
+			end
 
-		--add kyrian weapons
-		Details.SpecialSpellActorsName[Details.KyrianWeaponActorName] = Details.KyrianWeaponActorSpellId
-		for spellId in pairs(Details.KyrianWeaponSpellIds) do
-			local spellName = GetSpellInfo(spellId)
-			if (spellName) then
-				Details.SpecialSpellActorsName[spellName] = spellId
+			--add kyrian weapons
+			Details.SpecialSpellActorsName[Details.KyrianWeaponActorName] = Details.KyrianWeaponActorSpellId
+			for spellId in pairs(Details.KyrianWeaponSpellIds) do
+				local spellName = GetSpellInfo(spellId)
+				if (spellName) then
+					Details.SpecialSpellActorsName[spellName] = spellId
+				end
 			end
 		end
 
