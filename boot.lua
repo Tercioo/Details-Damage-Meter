@@ -34,6 +34,20 @@ do
 
 	local news = {
 
+		--[=[
+			Added an option to change your own bar color.
+			Bookmark window now uses the same scale than the options panel.
+			Class Color window now uses the same scale than the options panel.
+			Fixed all issues with the options panel scale.
+			Fixed auto hide windows which wasn't saving its group when unhiding (fix by Flamanis).
+			Fixed some XML Headers which was giving errors on loading (fix by github user h0tw1r3).
+			Fixed '/details me' on TBC, which wasn't working correctly (fix by github user Baugstein).
+			Fixed font 'NuevaStd' where something the font didn't work at all.
+			New API: combat:GetPlayerDeaths(deadPlayerName).
+			New API: Details:ShowDeathTooltip(combatObject, deathTable) for Cooltip tooltips.
+
+		]=]
+
 		{"v9.1.5.9213.145", "December 9th, 2021"},
 		"Fixed an issue where after reloading, overall data won't show the players nickname.",
 		"Fixed overkill damage on death log tooltip.",
