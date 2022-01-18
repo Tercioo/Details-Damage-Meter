@@ -38,6 +38,7 @@ do
 			Added an option to change your own bar color.
 			Bookmark window now uses the same scale than the options panel.
 			Class Color window now uses the same scale than the options panel.
+			If not casted on the player itself Power Infusion now shows in the buff list of the target.
 			Fixed all issues with the options panel scale.
 			Fixed auto hide windows which wasn't saving its group when unhiding (fix by Flamanis).
 			Fixed some XML Headers which was giving errors on loading (fix by github user h0tw1r3).
@@ -398,7 +399,8 @@ do
 		--> player detail skin
 			_detalhes.playerdetailwindow_skins = {}
 
-		_detalhes.BitfieldSwapDebuffsIDs = {265646, 272407, 269691, 273401, 269131, 260900, 260926, 284995, 292826, 311367, 310567, 308996, 307832, 327414, 337253}
+		_detalhes.BitfieldSwapDebuffsIDs = {265646, 272407, 269691, 273401, 269131, 260900, 260926, 284995, 292826, 311367, 310567, 308996, 307832, 327414, 337253,
+											36797, 37122}
 		
 		--> auto run code
 		_detalhes.RunCodeTypes = {

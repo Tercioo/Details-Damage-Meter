@@ -9643,6 +9643,8 @@ DF.TimeLineBlockFunctions = {
 		--dataIndex stores which line index from the data this line will use
 		--lineData store members: .text .icon .timeline
 		local lineData = data.lines [self.dataIndex]
+
+		self.spellId = lineData.spellId
 		
 		--if there's an icon, anchor the text at the right side of the icon
 		--this is the title and icon of the title
@@ -9784,6 +9786,14 @@ DF.TimeLineFunctions = {
 			line = CreateFrame ("frame", "$parentLine" .. index, self.body, "BackdropTemplate")
 			DF:Mixin (line, DF.TimeLineBlockFunctions)
 			self.lines [index] = line
+
+			local lineHeader = CreateFrame("frame", nil, line, "BackdropTemplate")
+			lineHeader:SetPoint("topleft", line, "topleft", 0, 0)
+			lineHeader:SetPoint("bottomleft", line, "bottomleft", 0, 0)
+			lineHeader:SetScript("OnEnter", self.options.header_on_enter)
+			lineHeader:SetScript("OnLeave", self.options.header_on_leave)
+
+			line.lineHeader = lineHeader
 			
 			--store the individual textures that shows the timeline information
 			line.blocks = {}
@@ -9884,6 +9894,7 @@ DF.TimeLineFunctions = {
 		for i = 1, #self.data.lines do
 			local line = self:GetLine (i)
 			line.dataIndex = i --this index is used inside the line update function to know which data to get
+			line.lineHeader:SetWidth(self.options.header_width)
 			line:SetBlocksFromData() --the function to update runs within the line object
 		end
 		

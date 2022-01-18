@@ -150,6 +150,10 @@
 			apoc = {},
 		}
 
+		local buffs_to_other_players = {
+			[10060] = true, --power infusion
+		}
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
@@ -2432,6 +2436,9 @@
 					elseif (container_pets [who_serial] and container_pets [who_serial][2] == alvo_serial) then
 						--um pet colocando uma aura do dono
 						parser:add_buff_uptime (token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_IN")
+
+					elseif (buffs_to_other_players[spellid]) then
+						parser:add_buff_uptime(token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_IN")
 					end
 				end
 				
@@ -2677,6 +2684,9 @@
 					elseif (container_pets [who_serial] and container_pets [who_serial][2] == alvo_serial) then
 						--um pet colocando uma aura do dono
 						parser:add_buff_uptime (token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_REFRESH")
+
+					elseif (buffs_to_other_players[spellid]) then
+						parser:add_buff_uptime(token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_REFRESH")
 					end
 				end
 
@@ -2826,6 +2836,9 @@
 					elseif (container_pets [who_serial] and container_pets [who_serial][2] == alvo_serial) then
 						--um pet colocando uma aura do dono
 						parser:add_buff_uptime (token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_OUT")
+
+					elseif (buffs_to_other_players[spellid]) then
+						parser:add_buff_uptime(token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_OUT")
 					end
 				end
 				
