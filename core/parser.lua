@@ -548,7 +548,9 @@
 				end
 			end
 			
-			_detalhes:Msg ("|cFFFFBB00Your Best Score|r:", _detalhes:ToK2 ((value) / combatTime) .. " [|cFFFFFF00Guild Rank: " .. rank .. "|r]") --> localize-me
+			if (value and combatTime and value > 0 and combatTime > 0) then
+				_detalhes:Msg ("|cFFFFBB00Your Best Score|r:", _detalhes:ToK2 ((value) / combatTime) .. " [|cFFFFFF00Guild Rank: " .. rank .. "|r]") --> localize-me
+			end
 			
 			if ((not combatTime or combatTime == 0) and not _detalhes.SyncWarning) then
 				_detalhes:Msg ("|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r") --> localize-me
