@@ -1,6 +1,6 @@
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 20
+local CONST_LIB_VERSION = 21
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub

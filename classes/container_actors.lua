@@ -347,7 +347,9 @@
 				--player custom bar color
 				--at this position in the code, the color will replace colors from arena matches
 				if (Details.use_self_color) then
-					actorObject.customColor = Details.class_colors.SELF
+					if (nome == _detalhes.playername) then
+						actorObject.customColor = Details.class_colors.SELF
+					end
 				end
 			
 			--> � um pet

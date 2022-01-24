@@ -2405,6 +2405,13 @@
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
 				
+				if (LIB_OPEN_RAID_BLOODLUST[spellid]) then
+					if (_detalhes.playername == alvo_name) then
+						_current_combat.bloodlust = _current_combat.bloodlust or {}
+						_current_combat.bloodlust[#_current_combat.bloodlust+1] = _current_combat:GetCombatTime()
+					end
+				end
+
 				if (spellid == 27827) then --> spirit of redemption (holy priest)
 					parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 					ignore_death [who_name] = true
@@ -4884,7 +4891,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA()
 	end
 	
+
+
 	-- ~encounter
+	--ENCOUNTER START
 	function _detalhes.parser_functions:ENCOUNTER_START(...)
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
@@ -4976,6 +4986,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes:SendEvent ("COMBAT_ENCOUNTER_START", nil, ...)
 	end
 	
+
+
+	--ENCOUNRTER_END
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
 	
 		if (_detalhes.debug) then
@@ -5037,7 +5050,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				npc_cache = {},
 				ignore_spikeballs = 0,
 			}
-		--
 
 		return true
 	end

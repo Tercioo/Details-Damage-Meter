@@ -5,6 +5,14 @@ if (not LIB_OPEN_RAID_CAN_LOAD) then
 	return
 end
 
+LIB_OPEN_RAID_BLOODLUST = {
+	[2825] = true, --bloodlust
+	[32182] = true, --heroism
+	[80353] = true, --timewarp
+	[90355] = true, --ancient hysteria
+	[309658] = true, --current exp drums
+}
+
 LIB_OPEN_RAID_AUGMENTATED_RUNE = 347901
 
 LIB_OPEN_RAID_COVENANT_ICONS = {
