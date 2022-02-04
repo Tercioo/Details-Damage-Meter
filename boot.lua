@@ -39,14 +39,17 @@ do
 			Bookmark window now uses the same scale than the options panel.
 			Class Color window now uses the same scale than the options panel.
 			If not casted on the player itself Power Infusion now shows in the buff list of the target.
+			Allowed nicknames on custom displays (by Flamanis).
+			Aligned Text Columns enabled is now default for new installs.
 			Fixed all issues with the options panel scale.
+			Fixed tooltips overlap when the window is positioned at the top of the screen (fix by Flamanis).
 			Fixed auto hide windows which wasn't saving its group when unhiding (fix by Flamanis).
 			Fixed some XML Headers which was giving errors on loading (fix by github user h0tw1r3).
 			Fixed '/details me' on TBC, which wasn't working correctly (fix by github user Baugstein).
+			Fixed a typo on Vanguard plugin (fix by github user cruzerthebruzer).
 			Fixed font 'NuevaStd' where something the font didn't work at all.
 			New API: combat:GetPlayerDeaths(deadPlayerName).
 			New API: Details:ShowDeathTooltip(combatObject, deathTable) for Cooltip tooltips.
-
 		]=]
 
 		{"v9.1.5.9213.145", "December 9th, 2021"},
