@@ -281,6 +281,15 @@
 		--[169265] = true, --creepy crawler (summoned by decaying flesh giant)
 		--[168747] = true,  --venomfang (summon)
 		--[168837] = true, --stealthlings (summon)
+
+		--DH necrolord ability Fodder to the Flame --remove on 10.0
+		[169421] = true,
+		[169425] = true,
+		[168932] = true,
+		[169426] = true,
+		[169429] = true,
+		[169428] = true,
+		[169430] = true,
 	}
 
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
