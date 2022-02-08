@@ -264,7 +264,7 @@
 	_detalhes.OverridedSpellIds = override_spellId
 
 	--> list of ignored npcs by the user
-	local ignored_npcids = {
+	_detalhes.default_ignored_npcs = {
 		--necrotic wake --remove on 10.0
 		[163126] = true, --brittlebone mage
 		[163122] = true, --brittlebone warrior
@@ -291,6 +291,8 @@
 		[169428] = true,
 		[169430] = true,
 	}
+
+	local ignored_npcids = {}
 
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
 	local SPELLID_WARLOCK_SOULLINK = 108446
@@ -5987,8 +5989,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 		_in_combat = _detalhes.in_combat
 
-		--> fill the ignored npcid directly from the user profile
-		--ignored_npcids = _detalhes.npcid_ignored
+		_table_wipe(ignored_npcids)
+		--fill it with the default npcs ignored
+		for npcId in pairs(_detalhes.default_ignored_npcs) do
+			ignored_npcids[npcId] = true
+		end
+		--fill it with the npcs the user ignored
 		for npcId in pairs(_detalhes.npcid_ignored) do
 			ignored_npcids[npcId] = true
 		end
@@ -6031,6 +6037,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		is_using_spellId_override = _detalhes.override_spellids
 		
 		return _detalhes:ClearParserCache()
+	end
+
+	function _detalhes.DumpIgnoredNpcs()
+		return ignored_npcids
 	end
 	
 	

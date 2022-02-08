@@ -1,9 +1,9 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
-		
+
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		
+
 		local version, build, date, tocversion = GetBuildInfo()
 
 		_detalhes.build_counter = 9213
@@ -15,12 +15,12 @@
 		_detalhes.realversion = 145 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
-		
+
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
-		
+
 		Details = _detalhes
-		
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
 local _
@@ -36,12 +36,14 @@ do
 
 		--[=[
 			Added an option to change your own bar color.
+			Added 'Ignore this Npc' into the Npc list under the spell list section.
 			Bookmark window now uses the same scale than the options panel.
 			Class Color window now uses the same scale than the options panel.
 			If not casted on the player itself Power Infusion now shows in the buff list of the target.
 			Allowed nicknames on custom displays (by Flamanis).
 			Aligned Text Columns enabled is now default for new installs.
 			Fodder to the flames DH ability won't count damage done by the player on the add summoned.
+			Fixed the load time for the Npc Ids panel on the spell list section.
 			Fixed all issues with the options panel scale.
 			Fixed tooltips overlap when the window is positioned at the top of the screen (fix by Flamanis).
 			Fixed auto hide windows which wasn't saving its group when unhiding (fix by Flamanis).
@@ -49,6 +51,7 @@ do
 			Fixed '/details me' on TBC, which wasn't working correctly (fix by github user Baugstein).
 			Fixed a typo on Vanguard plugin (fix by github user cruzerthebruzer).
 			Fixed font 'NuevaStd' where something the font didn't work at all.
+			Fixed an issue where for some characters the options panel won't open showing an error in the chat instead.
 			New API: combat:GetPlayerDeaths(deadPlayerName).
 			New API: Details:ShowDeathTooltip(combatObject, deathTable) for Cooltip tooltips.
 		]=]
