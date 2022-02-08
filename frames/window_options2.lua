@@ -179,8 +179,6 @@ function Details.options.InitializeOptionsWindow(instance)
 
     --search field
 	local searchBox = DF:CreateTextEntry(f, function()end, 150, 20, _, _, _, options_dropdown_template)
-	searchBox:SetHook ("OnChar", f.OnSearchBoxTextChanged)
-	searchBox:SetHook ("OnTextChanged", f.OnSearchBoxTextChanged)
 	searchBox:SetPoint ("topright", f, "topright", -5, -30)
 
 	local searchLabel = DF:CreateLabel(f, "Search:", DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
