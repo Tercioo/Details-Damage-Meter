@@ -41,6 +41,7 @@ do
 			If not casted on the player itself Power Infusion now shows in the buff list of the target.
 			Allowed nicknames on custom displays (by Flamanis).
 			Aligned Text Columns enabled is now default for new installs.
+			Fodder to the flames DH ability won't count damage done by the player on the add summoned.
 			Fixed all issues with the options panel scale.
 			Fixed tooltips overlap when the window is positioned at the top of the screen (fix by Flamanis).
 			Fixed auto hide windows which wasn't saving its group when unhiding (fix by Flamanis).
