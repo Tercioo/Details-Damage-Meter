@@ -6,13 +6,13 @@
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 9213
-		_detalhes.alpha_build_counter = 9213 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 9688
+		_detalhes.alpha_build_counter = 9688 --if this is higher than the regular counter, use it instead
 		_detalhes.bcc_counter = 31
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter
-		_detalhes.realversion = 145 --core version, this is used to check API version for scripts and plugins (see alias below)
+		_detalhes.realversion = 146 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 
@@ -55,6 +55,27 @@ do
 			New API: combat:GetPlayerDeaths(deadPlayerName).
 			New API: Details:ShowDeathTooltip(combatObject, deathTable) for Cooltip tooltips.
 		]=]
+
+		{"v9.1.5.9213.146", "February 15th, 2022"},
+		"Added an option to change your own bar color.",
+		"Added 'Ignore this Npc' into the Npc list under the spell list section.",
+		"Bookmark window now uses the same scale than the options panel.",
+		"Class Color window now uses the same scale than the options panel.",
+		"If not casted on the player itself Power Infusion now shows in the buff list of the target.",
+		"Allowed nicknames on custom displays (by Flamanis).",
+		"Aligned Text Columns enabled is now default for new installs.",
+		"Fodder to the flames DH ability won't count damage done by the player on the add summoned.",
+		"Fixed the load time for the Npc Ids panel on the spell list section.",
+		"Fixed all issues with the options panel scale.",
+		"Fixed tooltips overlap when the window is positioned at the top of the screen (fix by Flamanis).",
+		"Fixed auto hide windows which wasn't saving its group when unhiding (fix by Flamanis).",
+		"Fixed some XML Headers which was giving errors on loading (fix by github user h0tw1r3).",
+		"Fixed '/details me' on TBC, which wasn't working correctly (fix by github user Baugstein).",
+		"Fixed a typo on Vanguard plugin (fix by github user cruzerthebruzer).",
+		"Fixed font 'NuevaStd' where something the font didn't work at all.",
+		"Fixed an issue where for some characters the options panel won't open showing an error in the chat instead.",
+		"New API: combat:GetPlayerDeaths(deadPlayerName).",
+		"New API: Details:ShowDeathTooltip(combatObject, deathTable) for Cooltip tooltips.",
 
 		{"v9.1.5.9213.145", "December 9th, 2021"},
 		"Fixed an issue where after reloading, overall data won't show the players nickname.",
