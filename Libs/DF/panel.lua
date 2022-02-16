@@ -1982,7 +1982,7 @@ local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 
 --with_label was making the frame stay in place while its parent moves
 --the slider was anchoring to with_label and here here were anchoring the slider again
-function DF:CreateScaleBar (frame, config)
+function DF:CreateScaleBar(frame, config)
 	local scaleBar, text = DF:CreateSlider (frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"), DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
 	scaleBar.thumb:SetWidth(24)
 	scaleBar:SetValueStep(0.1)
@@ -2009,6 +2009,7 @@ function DF:CreateScaleBar (frame, config)
 				config.scale = newScale
 				scaleBar:SetValue(newScale)
 				frame:SetScale(newScale)
+				editbox.defaultValue = newScale
 			end
 		end)
 		
@@ -2037,6 +2038,7 @@ function DF:CreateScaleBar (frame, config)
 		if (mouseButton == "LeftButton") then
 			scaleBar.mouseDown  = false
 			frame:SetScale(config.scale)
+			editbox.defaultValue = config.scale
 		end
 	end)
 
@@ -2049,6 +2051,7 @@ function DF:CreateScaleBar (frame, config)
 	end
 	
 	scaleBar:SetAlpha(0.70)
+	editbox.defaultValue = config.scale
 	
 	return scaleBar
 end
