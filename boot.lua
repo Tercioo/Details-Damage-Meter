@@ -6,8 +6,8 @@
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 9692
-		_detalhes.alpha_build_counter = 9692 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 9693
+		_detalhes.alpha_build_counter = 9693 --if this is higher than the regular counter, use it instead
 		_detalhes.bcc_counter = 31
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
@@ -43,6 +43,7 @@ do
 			Allowed nicknames on custom displays (by Flamanis).
 			Aligned Text Columns enabled is now default for new installs.
 			Fodder to the flames DH ability won't count damage done by the player on the add summoned.
+			Spell customization now get date from Lib-OpenRaid.
 			Fixed the load time for the Npc Ids panel on the spell list section.
 			Fixed all issues with the options panel scale.
 			Fixed tooltips overlap when the window is positioned at the top of the screen (fix by Flamanis).
@@ -274,11 +275,12 @@ do
 			--	/script Details:OpenPlugin ('Advanced Death Logs'); local a = Details_DeathGraphsModeEnduranceButton and Details_DeathGraphsModeEnduranceButton.MyObject:Click()
 				{Name = "Report What is Shown In the Window", Desc = "Report the current data shown in the window, the number 1 is the window number, replace it to report another window.", MacroText = "/script Details:FastReportWindow(1)"},
 			}
-			
+
 		--> current instances of the exp (need to maintain)
 			_detalhes.InstancesToStoreData = { --mapId
 				[2296] = true, --castle narnia
 				[2450] = true, --sanctum of domination
+				[2481] = true, --sepulcher of the first ones
 			}
 
 		--> armazena os escudos - Shields information for absorbs

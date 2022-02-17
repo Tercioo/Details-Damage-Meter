@@ -1983,50 +1983,52 @@ local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 --with_label was making the frame stay in place while its parent moves
 --the slider was anchoring to with_label and here here were anchoring the slider again
 function DF:CreateScaleBar(frame, config)
-	local scaleBar, text = DF:CreateSlider (frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"), DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
+	local scaleBar, text = DF:CreateSlider(frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"), DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE"))
 	scaleBar.thumb:SetWidth(24)
 	scaleBar:SetValueStep(0.1)
 	scaleBar:SetObeyStepOnDrag(true)
 	scaleBar.mouseDown = false
 	rawset(scaleBar, "lockdown", true)
 
-	--> create a custom editbox to enter the scale from text
-		local editbox = CreateFrame("editbox", nil, scaleBar.widget, "BackdropTemplate")
-		editbox:SetSize(40, 20)
-		editbox:SetJustifyH("center")
-		editbox:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]],
-		edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", --edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-		tile = true, edgeSize = 8, tileSize = 5})
-		editbox:SetFontObject("GameFontHighlightSmall")
+	--create a custom editbox to enter the scale from text
+	local editbox = CreateFrame("editbox", nil, scaleBar.widget, "BackdropTemplate")
+	editbox:SetSize(40, 20)
+	editbox:SetJustifyH("center")
+	editbox:SetBackdrop({bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]],
+	edgeFile = [[Interface\Buttons\WHITE8X8]],
+	tile = true, edgeSize = 1, tileSize = 64})
+	editbox:SetFontObject("GameFontHighlightSmall")
+	editbox:SetBackdropColor(0, 0, 0, 1)
 
-		editbox:SetScript("OnEnterPressed", function()
-			editbox:ClearFocus()
-			editbox:Hide()
-			local text = editbox:GetText()
-			local newScale = DF.TextToFloor(text)
+	editbox:SetScript("OnEditFocusGained", function()
+	end)
 
-			if (newScale) then
-				config.scale = newScale
-				scaleBar:SetValue(newScale)
-				frame:SetScale(newScale)
-				editbox.defaultValue = newScale
-			end
-		end)
-		
-		editbox:SetScript("OnEscapePressed", function()
-			editbox:ClearFocus()
-			editbox:Hide()
-			editbox:SetText(editbox.defaultValue)
-		end)
+	editbox:SetScript("OnEnterPressed", function()
+		editbox:ClearFocus()
+		editbox:Hide()
+		local text = editbox:GetText()
+		local newScale = DF.TextToFloor(text)
 
-		editbox:SetScript("OnTextChanged", function()
-		end)
+		if (newScale) then
+			config.scale = newScale
+			scaleBar:SetValue(newScale)
+			frame:SetScale(newScale)
+			editbox.defaultValue = newScale
+		end
+	end)
+	
+	editbox:SetScript("OnEscapePressed", function()
+		editbox:ClearFocus()
+		editbox:Hide()
+		editbox:SetText(editbox.defaultValue)
+	end)
 
 	scaleBar:SetScript("OnMouseDown", function(_, mouseButton)
 		if (mouseButton == "RightButton") then
 			editbox:Show()
 			editbox:SetAllPoints()
 			editbox:SetText(config.scale)
+			editbox:SetFocus(true)
 			editbox.defaultValue = config.scale
 
 		elseif (mouseButton == "LeftButton") then
@@ -2052,7 +2054,8 @@ function DF:CreateScaleBar(frame, config)
 	
 	scaleBar:SetAlpha(0.70)
 	editbox.defaultValue = config.scale
-	
+	editbox:SetFocus(false)
+	editbox:SetAutoFocus(false)
 	return scaleBar
 end
 
