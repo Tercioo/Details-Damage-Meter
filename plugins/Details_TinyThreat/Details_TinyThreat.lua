@@ -749,6 +749,13 @@ local build_options_panel = function()
 			desc = "If this is disabled, you see weighted threat percentages – aggro switches at 100%.\nIf this is enabled, you see absolute threat percentages – aggro switches at 110% in melee, and 130% at range.",
 			name = "Display absolute threat",
 		},
+        {
+            type = "toggle",
+            get = function() return not ThreatMeter.saveddata.disable_gouge end,
+            set = function(self, fixedparam, value) ThreatMeter.saveddata.disable_gouge = not value end,
+            desc = "If this is enabled, certain bosses will show an additional threat threshold at 90.9% of the off-tank's threat. Any player above this threshold might be targeted after the Main Tank is incapacitated.",
+            name = "Enable Gouge mode",
+        },
 
 
 --[=[
@@ -764,7 +771,8 @@ local build_options_panel = function()
 
 	}
 
-	_detalhes.gump:BuildMenu (options_frame, menu, 15, -35, 360)
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -35, 160)
+    options_frame:SetHeight(160)
 
 end
 
