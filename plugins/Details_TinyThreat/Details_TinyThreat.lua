@@ -259,7 +259,15 @@ local function CreatePluginFrames (data)
 		return newrow
 	end
 	
-	local sort = function (table1, table2)
+	local absoluteSort = function (table1, table2)
+		if (table1[6] > table2[6]) then
+			return true
+		else
+			return false
+		end
+	end
+	
+	local relativeSort = function (table1, table2)
 		if (table1[2] > table2[2]) then
 			return true
 		else
@@ -363,26 +371,41 @@ local function CreatePluginFrames (data)
 					
 				end
 			end
+			
+			local useAbsoluteMode = ThreatMeter.saveddata.absolute_mode
 
 			--> sort
-			_table_sort (ThreatMeter.player_list_indexes, sort)
+			_table_sort (ThreatMeter.player_list_indexes, useAbsoluteMode and absoluteSort or relativeSort)
 			for index, t in _ipairs (ThreatMeter.player_list_indexes) do
 				ThreatMeter.player_list_hash [t[1]] = index
 			end
 
 			--> no threat on this enemy
-			if (ThreatMeter.player_list_indexes [1] [2] < 1) then
+			if (ThreatMeter.player_list_indexes [1][7] < 1) then
 				ThreatMeter:HideBars()
 				return
 			end
-
+			
+			--> find main tank threat, even if they are not in group
+			local mainTankAbsoluteThreat = ThreatMeter.player_list_indexes[1][6]/(ThreatMeter.player_list_indexes[1][7]/100)
+			
 			local lastIndex = 0
 			local shownMe = false
 
 			local me = ThreatMeter.player_list_indexes [ ThreatMeter.player_list_hash [player] ]
 			local hidePullBar = ThreatMeter.saveddata.hide_pull_bar
-			local needRelativePullBar = (not hidePullBar) and me and (me[2] > 0) and (not me[3])
+			local needRangedPullBar = (not hidePullBar) and useAbsoluteMode
+			local needMeleePullBar = (not hidePullBar) and useAbsoluteMode
+			local needRelativePullBar = (not hidePullBar) and (not useAbsoluteMode) and me and (me[2] > 0) and (not me[3])
 			
+			--> find out scaling factor for bars
+			local barValueUnit
+			if useAbsoluteMode then
+				barValueUnit = max(ThreatMeter.player_list_indexes[1][7]/100, needRangedPullBar and 1.3 or needMeleePullBar and 1.1 or 1.0)
+			else
+				barValueUnit = 1.0
+			end
+            
 			local index = 1
 			local lastIndex = #ThreatMeter.ShownRows
 			local dummyBarCount = 0
@@ -398,12 +421,49 @@ local function CreatePluginFrames (data)
 					local r,g = ThreatMeter:percent_color(me[2], true)
 					
 					thisRow:SetLeftText("You pull at")
-					thisRow:SetRightText("+" .. ThreatMeter:ToK2 (myPullThreat - me[6]) .. " ( " .. _cstr ("%.1f", 100-me[2]) .. "%)")
+					thisRow:SetRightText("+" .. ThreatMeter:ToK2 (myPullThreat - me[6]) .. " (" .. _cstr ("%.1f", 100-me[2]) .. "%)")
 					thisRow:SetValue(me[2]/barValueUnit)
 					thisRow:SetColor (r, g, 0, 1)
 					thisRow:Show()
 					
 					needRelativePullBar = false
+					
+					index = index+1
+					dummyBarCount = dummyBarCount+1
+					if index > lastIndex then break end
+					thisRow = ThreatMeter.ShownRows[index]
+				end
+					
+				
+				if needRangedPullBar and ((not threatActor) or (threatActor[7] < 130)) then
+					thisRow._icon:SetTexture ([[Interface\PaperDoll\UI-PaperDoll-Slot-Ranged]])
+					thisRow._icon:SetTexCoord (0, 1, 0, 1)
+					
+					thisRow:SetLeftText ("Ranged pull at")
+					thisRow:SetRightText(ThreatMeter:ToK2 (mainTankAbsoluteThreat*1.3) .. " (130.0%)")
+					thisRow:SetValue(130/barValueUnit)
+					thisRow:SetColor(1, 0, 0, 1)
+					thisRow:Show()
+					
+					needRangedPullBar = false
+					
+					index = index+1
+					dummyBarCount = dummyBarCount+1
+					if index > lastIndex then break end
+					thisRow = ThreatMeter.ShownRows[index]
+				end
+				
+				if needMeleePullBar and ((not threatActor) or (threatActor[7] < 110)) then
+					thisRow._icon:SetTexture ([[Interface\PaperDoll\UI-PaperDoll-Slot-MainHand]])
+					thisRow._icon:SetTexCoord (0, 1, 0, 1)
+					
+					thisRow:SetLeftText ("Melee pull at")
+					thisRow:SetRightText(ThreatMeter:ToK2 (mainTankAbsoluteThreat*1.1) .. " (110.0%)")
+					thisRow:SetValue(110/barValueUnit)
+					thisRow:SetColor(1, 0, 0, 1)
+					thisRow:Show()
+					
+					needMeleePullBar = false
 					
 					index = index+1
 					dummyBarCount = dummyBarCount+1
@@ -418,10 +478,10 @@ local function CreatePluginFrames (data)
 					
 					thisRow:SetLeftText (ThreatMeter:GetOnlyName (threatActor [1]))
 					
-					local pct = threatActor [2]
+					local pct = threatActor [useAbsoluteMode and 7 or 2]
 					
 					thisRow:SetRightText (ThreatMeter:ToK2 (threatActor [6]) .. " (" .. _cstr ("%.1f", pct) .. "%)")
-					thisRow:SetValue (pct)
+					thisRow:SetValue (pct/barValueUnit)
 					
 					if (options.useplayercolor and threatActor [1] == player) then
 						thisRow:SetColor (_unpack (options.playercolor))
@@ -520,7 +580,7 @@ local function CreatePluginFrames (data)
 					local thisplayer_name = GetUnitName ("raid"..i, true)
 					local role = _UnitGroupRolesAssigned (thisplayer_name)
 					local _, class = UnitClass (thisplayer_name)
-					local t = {thisplayer_name, 0, false, role, class, 0}
+					local t = {thisplayer_name, 0, false, role, class, 0, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
@@ -530,14 +590,14 @@ local function CreatePluginFrames (data)
 					local thisplayer_name = GetUnitName ("party"..i, true)
 					local role = _UnitGroupRolesAssigned (thisplayer_name)
 					local _, class = UnitClass (thisplayer_name)
-					local t = {thisplayer_name, 0, false, role, class, 0}
+					local t = {thisplayer_name, 0, false, role, class, 0, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
 				local _, class = UnitClass (thisplayer_name)
-				local t = {thisplayer_name, 0, false, role, class, 0}
+				local t = {thisplayer_name, 0, false, role, class, 0, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				
@@ -545,14 +605,14 @@ local function CreatePluginFrames (data)
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
 				local _, class = UnitClass (thisplayer_name)
-				local t = {thisplayer_name, 0, false, role, class, 0}
+				local t = {thisplayer_name, 0, false, role, class, 0, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				
 				if (UnitExists ("pet")) then
 					local thispet_name = GetUnitName ("pet", true) .. " *PET*"
 					local role = "DAMAGER"
-					local t = {thispet_name, 0, false, role, class, 0}
+					local t = {thispet_name, 0, false, role, class, 0, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
 				end
@@ -638,6 +698,13 @@ local build_options_panel = function()
 			set = function (self, fixedparam, value) ThreatMeter.saveddata.hide_pull_bar = not value end,
 			desc = "Show Pull Aggro Bar",
 			name = "Show Pull Aggro Bar"
+		},
+		{
+			type = "toggle",
+			get = function() return ThreatMeter.saveddata.absolute_mode end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.absolute_mode = value end,
+			desc = "If this is disabled, you see weighted threat percentages – aggro switches at 100%.\nIf this is enabled, you see absolute threat percentages – aggro switches at 110% in melee, and 130% at range.",
+			name = "Display absolute threat",
 		},
 
 
@@ -725,6 +792,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.useclasscolors = ThreatMeter.saveddata.useclasscolors or false
 				ThreatMeter.saveddata.usefocus = ThreatMeter.saveddata.usefocus or false
 				ThreatMeter.saveddata.hide_pull_bar = ThreatMeter.saveddata.hide_pull_bar or false
+				ThreatMeter.saveddata.absolute_mode = ThreatMeter.saveddata.absolute_mode or false
 
 				ThreatMeter.saveddata.playSound = ThreatMeter.saveddata.playSound or false
 				ThreatMeter.saveddata.playSoundFile = ThreatMeter.saveddata.playSoundFile or "Details Threat Warning Volume 3"
