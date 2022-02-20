@@ -303,6 +303,15 @@ local function CreatePluginFrames (data)
 			threat_table [7] = 0
 		end
 	end
+	
+	local gougeSpells = {
+		[15687] = 29425, -- Moroes: Gouge
+		[22948] = 40491, -- Gurtogg Bloodboil: Bewildering Strike
+	}
+	local FindGougeSpellForUnit = function(unitId)
+		local npcId = _detalhes:GetNpcIdFromGuid(UnitGUID(unitId))
+		return gougeSpells[npcId]
+	end
 
 	local Threater = function()
 
@@ -372,7 +381,9 @@ local function CreatePluginFrames (data)
 				end
 			end
 			
-			local useAbsoluteMode = ThreatMeter.saveddata.absolute_mode
+			local disableGougeMode = ThreatMeter.saveddata.disable_gouge
+			local gougeSpellId = (not disableGougeMode) and FindGougeSpellForUnit(unitId)
+			local useAbsoluteMode = gougeSpellId or ThreatMeter.saveddata.absolute_mode
 
 			--> sort
 			_table_sort (ThreatMeter.player_list_indexes, useAbsoluteMode and absoluteSort or relativeSort)
@@ -405,7 +416,18 @@ local function CreatePluginFrames (data)
 			else
 				barValueUnit = 1.0
 			end
-            
+			
+			--> find out gouge threshold (highest offtank threat, divided by 110%; this prevents the offtank from taking the boss back)
+			local gougeThreshold = nil
+			if gougeSpellId then
+				for _, t in _ipairs (ThreatMeter.player_list_indexes) do
+					if not t[3] then
+						gougeThreshold = t[6] / 1.1
+						break
+					end
+				end
+			end
+			
 			local index = 1
 			local lastIndex = #ThreatMeter.ShownRows
 			local dummyBarCount = 0
@@ -464,6 +486,27 @@ local function CreatePluginFrames (data)
 					thisRow:Show()
 					
 					needMeleePullBar = false
+					
+					index = index+1
+					dummyBarCount = dummyBarCount+1
+					if index > lastIndex then break end
+					thisRow = ThreatMeter.ShownRows[index]
+				end
+				
+				if gougeThreshold and ((not threatActor) or (threatActor[6] < gougeThreshold)) then
+					local spellName, _, spellTexture = GetSpellInfo (gougeSpellId)
+					thisRow._icon:SetTexture (spellTexture)
+					thisRow._icon:SetTexCoord (0, 1, 0, 1)
+					
+					local pct = gougeThreshold * 100 / mainTankAbsoluteThreat
+					
+					thisRow:SetLeftText (spellName .. " pull at")
+					thisRow:SetRightText(ThreatMeter:ToK2 (gougeThreshold) .. " (" .. _cstr ("%.1f", pct) .. "%)")
+					thisRow:SetValue(pct/barValueUnit)
+					thisRow:SetColor(1, 0, 0, 1)
+					thisRow:Show()
+					
+					gougeThreshold = false
 					
 					index = index+1
 					dummyBarCount = dummyBarCount+1
@@ -793,6 +836,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.usefocus = ThreatMeter.saveddata.usefocus or false
 				ThreatMeter.saveddata.hide_pull_bar = ThreatMeter.saveddata.hide_pull_bar or false
 				ThreatMeter.saveddata.absolute_mode = ThreatMeter.saveddata.absolute_mode or false
+				ThreatMeter.saveddata.disable_gouge = ThreatMeter.saveddata.disable_gouge or false
 
 				ThreatMeter.saveddata.playSound = ThreatMeter.saveddata.playSound or false
 				ThreatMeter.saveddata.playSoundFile = ThreatMeter.saveddata.playSoundFile or "Details Threat Warning Volume 3"
