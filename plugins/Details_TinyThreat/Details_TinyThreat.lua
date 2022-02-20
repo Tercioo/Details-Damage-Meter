@@ -48,14 +48,14 @@ else
 end
 
 local function CreatePluginFrames (data)
-	
+
 	--> catch Details! main object
 	local _detalhes = _G._detalhes
 	local DetailsFrameWork = _detalhes.gump
 
 	--> data
 	ThreatMeter.data = data or {}
-	
+
 	--> defaults
 	ThreatMeter.RowWidth = 294
 	ThreatMeter.RowHeight = 14
@@ -67,39 +67,39 @@ local function CreatePluginFrames (data)
 	ThreatMeter.ShownRows = {}
 	-->
 	ThreatMeter.Actived = false
-	
+
 	--> localize functions
 	ThreatMeter.percent_color = ThreatMeter.percent_color
-	
+
 	ThreatMeter.GetOnlyName = ThreatMeter.GetOnlyName
-	
+
 	--> window reference
 	local instance
 	local player
-	
+
 	--> OnEvent Table
 	function ThreatMeter:OnDetailsEvent (event, ...)
-	
+
 		if (event == "DETAILS_STARTED") then
 			ThreatMeter:RefreshRows()
-			
+
 		elseif (event == "HIDE") then --> plugin hidded, disabled
 			ThreatMeter.Actived = false
 			ThreatMeter:Cancel()
-		
+
 		elseif (event == "SHOW") then
-		
+
 			instance = ThreatMeter:GetInstance (ThreatMeter.instance_id)
-			
+
 			ThreatMeter.RowWidth = instance.baseframe:GetWidth()-6
-			
+
 			ThreatMeter:UpdateContainers()
 			ThreatMeter:UpdateRows()
-			
+
 			ThreatMeter:SizeChanged()
-			
+
 			player = GetUnitName ("player", true)
-			
+
 			ThreatMeter.Actived = false
 
 			if (ThreatMeter:IsInCombat() or UnitAffectingCombat ("player")) then
@@ -109,82 +109,82 @@ local function CreatePluginFrames (data)
 				ThreatMeter.Actived = true
 				ThreatMeter:Start()
 			end
-		
+
 		elseif (event == "COMBAT_PLAYER_ENTER") then
 			if (not ThreatMeter.Actived) then
 				ThreatMeter.Actived = true
 				ThreatMeter:Start()
 			end
-		
+
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
-		
+
 			local what_window = select (1, ...)
 			if (what_window == instance) then
 				ThreatMeter:SizeChanged()
 				ThreatMeter:RefreshRows()
 			end
-			
+
 		elseif (event == "DETAILS_OPTIONS_MODIFIED") then
 			local what_window = select (1, ...)
 			if (what_window == instance) then
 				ThreatMeter:RefreshRows()
 			end
-		
+
 		elseif (event == "DETAILS_INSTANCE_STARTSTRETCH") then
 			ThreatMeterFrame:SetFrameStrata ("TOOLTIP")
 			ThreatMeterFrame:SetFrameLevel (instance.baseframe:GetFrameLevel()+1)
-		
+
 		elseif (event == "DETAILS_INSTANCE_ENDSTRETCH") then
 			ThreatMeterFrame:SetFrameStrata ("MEDIUM")
-			
+
 		elseif (event == "PLUGIN_DISABLED") then
 			ThreatMeterFrame:UnregisterEvent ("PLAYER_TARGET_CHANGED")
 			ThreatMeterFrame:UnregisterEvent ("PLAYER_REGEN_DISABLED")
 			ThreatMeterFrame:UnregisterEvent ("PLAYER_REGEN_ENABLED")
-				
+
 		elseif (event == "PLUGIN_ENABLED") then
 			ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 			ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
 			ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
 		end
 	end
-	
+
 	ThreatMeterFrame:SetWidth (300)
 	ThreatMeterFrame:SetHeight (100)
-	
+
 	function ThreatMeter:UpdateContainers()
 		for _, row in _ipairs (ThreatMeter.Rows) do 
 			row:SetContainer (instance.baseframe)
 		end
 	end
-	
+
 	function ThreatMeter:UpdateRows()
 		for _, row in _ipairs (ThreatMeter.Rows) do
 			row.width = ThreatMeter.RowWidth
 		end
 	end
-	
+
 	function ThreatMeter:HideBars()
 		for _, row in _ipairs (ThreatMeter.Rows) do 
 			row:Hide()
 		end
 	end
-	
+
 	local target = nil
 	local timer = 0
 	local interval = 1.0
-	
+
 	local RoleIconCoord = {
 		["TANK"] = {0, 0.28125, 0.328125, 0.625},
 		["HEALER"] = {0.3125, 0.59375, 0, 0.296875},
 		["DAMAGER"] = {0.3125, 0.59375, 0.328125, 0.625},
 		["NONE"] = {0.3125, 0.59375, 0.328125, 0.625}
 	}
-	
+
 	function ThreatMeter:SizeChanged()
 
 		local instance = ThreatMeter:GetPluginInstance()
-	
+
 		local w, h = instance:GetSize()
 		ThreatMeterFrame:SetWidth (w)
 		ThreatMeterFrame:SetHeight (h)
@@ -196,7 +196,7 @@ local function CreatePluginFrames (data)
 		end
 
 		ThreatMeter.ShownRows = {}
-		
+
 		for i = 1, ThreatMeter.CanShow do
 			ThreatMeter.ShownRows [i] = ThreatMeter.Rows[i]
 			if (_detalhes.in_combat) then
@@ -204,43 +204,43 @@ local function CreatePluginFrames (data)
 			end
 			ThreatMeter.Rows[i].width = w-5
 		end
-		
+
 		for i = #ThreatMeter.ShownRows+1, #ThreatMeter.Rows do
 			ThreatMeter.Rows [i]:Hide()
 		end
-		
+
 	end
-	
+
 	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 
 	function ThreatMeter:RefreshRow (row)
-	
+
 		local instance = ThreatMeter:GetPluginInstance()
-		
+
 		if (instance) then
 			local font = SharedMedia:Fetch ("font", instance.row_info.font_face, true) or instance.row_info.font_face
-			
+
 			row.textsize = instance.row_info.font_size
 			row.textfont = font
 			row.texture = instance.row_info.texture
 			row.shadow = instance.row_info.textL_outline
-			
+
 			row.width = instance.baseframe:GetWidth()-5
 			row.height = instance.row_info.height
 			local rowHeight = - ( (row.rowId -1) * (instance.row_info.height + 1) )
 			row:ClearAllPoints()
 			row:SetPoint ("topleft", ThreatMeterFrame, "topleft", 1, rowHeight)
 			row:SetPoint ("topright", ThreatMeterFrame, "topright", -1, rowHeight)
-			
+
 		end
 	end
-	
+
 	function ThreatMeter:RefreshRows()
 		for i = 1, #ThreatMeter.Rows do
 			ThreatMeter:RefreshRow (ThreatMeter.Rows [i])
 		end
 	end
-	
+
 	function ThreatMeter:NewRow (i)
 		local newrow = DetailsFrameWork:NewBar (ThreatMeterFrame, nil, "DetailsThreatRow"..i, nil, 300, ThreatMeter.RowHeight)
 		newrow:SetPoint (3, -((i-1)*(ThreatMeter.RowHeight+1)))
@@ -251,14 +251,14 @@ local function CreatePluginFrames (data)
 		newrow:SetIcon ("Interface\\LFGFRAME\\UI-LFG-ICON-PORTRAITROLES", RoleIconCoord ["DAMAGER"])
 		newrow.rowId = i
 		ThreatMeter.Rows [#ThreatMeter.Rows+1] = newrow
-		
+
 		ThreatMeter:RefreshRow (newrow)
-		
+
 		newrow:Hide()
-		
+
 		return newrow
 	end
-	
+
 	local absoluteSort = function (table1, table2)
 		if (table1[6] > table2[6]) then
 			return true
@@ -266,7 +266,7 @@ local function CreatePluginFrames (data)
 			return false
 		end
 	end
-	
+
 	local relativeSort = function (table1, table2)
 		if (table1[2] > table2[2]) then
 			return true
@@ -288,7 +288,7 @@ local function CreatePluginFrames (data)
 
 		return unitId
 	end
-	
+
 	local UpdateTableFromThreatSituation = function(threat_table, threatening, threatened)
 		local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation (threatening, threatened)
 		if (status) then
@@ -303,7 +303,7 @@ local function CreatePluginFrames (data)
 			threat_table [7] = 0
 		end
 	end
-	
+
 	local gougeSpells = {
 		[15687] = 29425, -- Moroes: Gouge
 		[22948] = 40491, -- Gurtogg Bloodboil: Bewildering Strike
@@ -316,7 +316,7 @@ local function CreatePluginFrames (data)
 	local Threater = function()
 
 		local options = ThreatMeter.options
-	
+
 		local unitId = ThreatMeter:GetUnitId()
 
 		if (ThreatMeter.Actived and UnitExists(unitId) and not _UnitIsFriend("player", unitId)) then
@@ -324,11 +324,11 @@ local function CreatePluginFrames (data)
 			--> get the threat of all players
 			if (_IsInRaid()) then
 				for i = 1, _GetNumGroupMembers(), 1 do
-				
+
 					local thisplayer_name = GetUnitName ("raid"..i, true)
 					local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 					local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
-				
+
 					if (not threat_table) then
 						--> some one joined the group while the player are in combat
 						ThreatMeter:Start()
@@ -338,36 +338,36 @@ local function CreatePluginFrames (data)
 					UpdateTableFromThreatSituation(threat_table, "raid"..i, unitId)
 
 				end
-				
+
 			elseif (_IsInGroup()) then
 				for i = 1, _GetNumGroupMembers()-1, 1 do
 					local thisplayer_name = GetUnitName ("party"..i, true)
 					local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 					local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
-				
+
 					if (not threat_table) then
 						--> some one joined the group while the player are in combat
 						ThreatMeter:Start()
 						return
 					end
-					
+
 					UpdateTableFromThreatSituation(threat_table, "party"..i, unitId)
-					
+
 				end
-				
+
 				local thisplayer_name = GetUnitName ("player", true)
 				local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 				local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
-			
+
 				UpdateTableFromThreatSituation(threat_table, "player", unitId)
-				
+
 			else
-			
+
 				--> player
 				local thisplayer_name = GetUnitName ("player", true)
 				local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 				local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
-			
+
 				UpdateTableFromThreatSituation(threat_table, "player"..i, unitId)
 
 				--> pet
@@ -377,10 +377,10 @@ local function CreatePluginFrames (data)
 					local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
 
 					UpdateTableFromThreatSituation(threat_table, "pet", unitId)
-					
+
 				end
 			end
-			
+
 			local disableGougeMode = ThreatMeter.saveddata.disable_gouge
 			local gougeSpellId = (not disableGougeMode) and FindGougeSpellForUnit(unitId)
 			local useAbsoluteMode = gougeSpellId or ThreatMeter.saveddata.absolute_mode
@@ -396,10 +396,10 @@ local function CreatePluginFrames (data)
 				ThreatMeter:HideBars()
 				return
 			end
-			
+
 			--> find main tank threat, even if they are not in group
 			local mainTankAbsoluteThreat = ThreatMeter.player_list_indexes[1][6]/(ThreatMeter.player_list_indexes[1][7]/100)
-			
+
 			local lastIndex = 0
 			local shownMe = false
 
@@ -408,7 +408,7 @@ local function CreatePluginFrames (data)
 			local needRangedPullBar = (not hidePullBar) and useAbsoluteMode
 			local needMeleePullBar = (not hidePullBar) and useAbsoluteMode
 			local needRelativePullBar = (not hidePullBar) and (not useAbsoluteMode) and me and (me[2] > 0) and (not me[3])
-			
+
 			--> find out scaling factor for bars
 			local barValueUnit
 			if useAbsoluteMode then
@@ -416,7 +416,7 @@ local function CreatePluginFrames (data)
 			else
 				barValueUnit = 1.0
 			end
-			
+
 			--> find out gouge threshold (highest offtank threat, divided by 110%; this prevents the offtank from taking the boss back)
 			local gougeThreshold = nil
 			if gougeSpellId then
@@ -427,108 +427,108 @@ local function CreatePluginFrames (data)
 					end
 				end
 			end
-			
+
 			local index = 1
 			local lastIndex = #ThreatMeter.ShownRows
 			local dummyBarCount = 0
 			while index <= lastIndex do
 				local thisRow = ThreatMeter.ShownRows[index]
 				local threatActor = ThreatMeter.player_list_indexes[index-dummyBarCount]
-				
+
 				if needRelativePullBar then
 					thisRow._icon:SetTexture ([[Interface\PVPFrame\Icon-Combat]])
 					thisRow._icon:SetTexCoord (0, 1, 0, 1)
-					
+
 					local myPullThreat = me[6]*(100/me[2])
 					local r,g = ThreatMeter:percent_color(me[2], true)
-					
+
 					thisRow:SetLeftText("You pull at")
 					thisRow:SetRightText("+" .. ThreatMeter:ToK2 (myPullThreat - me[6]) .. " (" .. _cstr ("%.1f", 100-me[2]) .. "%)")
 					thisRow:SetValue(me[2]/barValueUnit)
 					thisRow:SetColor (r, g, 0, 1)
 					thisRow:Show()
-					
+
 					needRelativePullBar = false
-					
+
 					index = index+1
 					dummyBarCount = dummyBarCount+1
 					if index > lastIndex then break end
 					thisRow = ThreatMeter.ShownRows[index]
 				end
-					
-				
+
+
 				if needRangedPullBar and ((not threatActor) or (threatActor[7] < 130)) then
 					thisRow._icon:SetTexture ([[Interface\PaperDoll\UI-PaperDoll-Slot-Ranged]])
 					thisRow._icon:SetTexCoord (0, 1, 0, 1)
-					
+
 					thisRow:SetLeftText ("Ranged pull at")
 					thisRow:SetRightText(ThreatMeter:ToK2 (mainTankAbsoluteThreat*1.3) .. " (130.0%)")
 					thisRow:SetValue(130/barValueUnit)
 					thisRow:SetColor(1, 0, 0, 1)
 					thisRow:Show()
-					
+
 					needRangedPullBar = false
-					
+
 					index = index+1
 					dummyBarCount = dummyBarCount+1
 					if index > lastIndex then break end
 					thisRow = ThreatMeter.ShownRows[index]
 				end
-				
+
 				if needMeleePullBar and ((not threatActor) or (threatActor[7] < 110)) then
 					thisRow._icon:SetTexture ([[Interface\PaperDoll\UI-PaperDoll-Slot-MainHand]])
 					thisRow._icon:SetTexCoord (0, 1, 0, 1)
-					
+
 					thisRow:SetLeftText ("Melee pull at")
 					thisRow:SetRightText(ThreatMeter:ToK2 (mainTankAbsoluteThreat*1.1) .. " (110.0%)")
 					thisRow:SetValue(110/barValueUnit)
 					thisRow:SetColor(1, 0, 0, 1)
 					thisRow:Show()
-					
+
 					needMeleePullBar = false
-					
+
 					index = index+1
 					dummyBarCount = dummyBarCount+1
 					if index > lastIndex then break end
 					thisRow = ThreatMeter.ShownRows[index]
 				end
-				
+
 				if gougeThreshold and ((not threatActor) or (threatActor[6] < gougeThreshold)) then
 					local spellName, _, spellTexture = GetSpellInfo (gougeSpellId)
 					thisRow._icon:SetTexture (spellTexture)
 					thisRow._icon:SetTexCoord (0, 1, 0, 1)
-					
+
 					local pct = gougeThreshold * 100 / mainTankAbsoluteThreat
-					
+
 					thisRow:SetLeftText (spellName .. " pull at")
 					thisRow:SetRightText(ThreatMeter:ToK2 (gougeThreshold) .. " (" .. _cstr ("%.1f", pct) .. "%)")
 					thisRow:SetValue(pct/barValueUnit)
 					thisRow:SetColor(1, 0, 0, 1)
 					thisRow:Show()
-					
+
 					gougeThreshold = false
-					
+
 					index = index+1
 					dummyBarCount = dummyBarCount+1
 					if index > lastIndex then break end
 					thisRow = ThreatMeter.ShownRows[index]
 				end
-				
+
 				if (threatActor) then
 					local role = threatActor[4]
 					thisRow._icon:SetTexture ([[Interface\LFGFrame\UI-LFG-Icon-PortraitRoles]])
 					thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
-					
+
 					thisRow:SetLeftText (ThreatMeter:GetOnlyName (threatActor [1]))
-					
+
 					local pct = threatActor [useAbsoluteMode and 7 or 2]
-					
+
 					thisRow:SetRightText (ThreatMeter:ToK2 (threatActor [6]) .. " (" .. _cstr ("%.1f", pct) .. "%)")
 					thisRow:SetValue (pct/barValueUnit)
-					
+
 					if (options.useplayercolor and threatActor [1] == player) then
 						thisRow:SetColor (_unpack (options.playercolor))
-						
+
 					elseif (options.useclasscolors) then
 						local color = RAID_CLASS_COLORS [threatActor [5]]
 						if (color) then
@@ -544,7 +544,7 @@ local function CreatePluginFrames (data)
 							thisRow:SetColor (r, g, 0, 1)
 						end
 					end
-					
+
 					if (not thisRow.statusbar:IsShown()) then
 						thisRow:Show()
 					end
@@ -554,10 +554,10 @@ local function CreatePluginFrames (data)
 				else
 					thisRow:Hide()
 				end
-				
+
 				index = index+1
 			end
-			
+
 			if (not shownMe) then
 				--> show my self into last bar
 				local threat_actor = ThreatMeter.player_list_indexes [ ThreatMeter.player_list_hash [player] ]
@@ -571,7 +571,7 @@ local function CreatePluginFrames (data)
 						thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
 						thisRow:SetValue (threat_actor [2])
-						
+
 						if (options.useplayercolor) then
 							thisRow:SetColor (_unpack (options.playercolor))
 						else
@@ -585,7 +585,7 @@ local function CreatePluginFrames (data)
 			--print ("nao tem target")
 		end
 	end
-	
+
 	function ThreatMeter:TargetChanged()
 		if (not ThreatMeter.Actived) then
 			return
@@ -601,7 +601,7 @@ local function CreatePluginFrames (data)
 			ThreatMeter:HideBars()
 		end
 	end
-	
+
 	function ThreatMeter:Tick()
 		Threater()
 	end
@@ -613,10 +613,10 @@ local function CreatePluginFrames (data)
 				ThreatMeter:CancelTimer (ThreatMeter.job_thread)
 				ThreatMeter.job_thread = nil
 			end
-			
+
 			ThreatMeter.player_list_indexes = {}
 			ThreatMeter.player_list_hash = {}
-			
+
 			--> pre build player list
 			if (_IsInRaid()) then
 				for i = 1, _GetNumGroupMembers(), 1 do
@@ -627,7 +627,7 @@ local function CreatePluginFrames (data)
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
-				
+
 			elseif (_IsInGroup()) then
 				for i = 1, _GetNumGroupMembers()-1, 1 do
 					local thisplayer_name = GetUnitName ("party"..i, true)
@@ -643,7 +643,7 @@ local function CreatePluginFrames (data)
 				local t = {thisplayer_name, 0, false, role, class, 0, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
-				
+
 			else
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
@@ -651,7 +651,7 @@ local function CreatePluginFrames (data)
 				local t = {thisplayer_name, 0, false, role, class, 0, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
-				
+
 				if (UnitExists ("pet")) then
 					local thispet_name = GetUnitName ("pet", true) .. " *PET*"
 					local role = "DAMAGER"
@@ -660,12 +660,12 @@ local function CreatePluginFrames (data)
 					ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
 				end
 			end
-			
+
 			local job_thread = ThreatMeter:ScheduleRepeatingTimer ("Tick", ThreatMeter.options.updatespeed)
 			ThreatMeter.job_thread = job_thread
 		end
 	end
-	
+
 	function ThreatMeter:End()
 		ThreatMeter:HideBars()
 		if (ThreatMeter.job_thread) then
@@ -673,7 +673,7 @@ local function CreatePluginFrames (data)
 			ThreatMeter.job_thread = nil
 		end
 	end
-	
+
 	function ThreatMeter:Cancel()
 		ThreatMeter:HideBars()
 		if (ThreatMeter.job_thread) then
@@ -682,7 +682,7 @@ local function CreatePluginFrames (data)
 		end
 		ThreatMeter.Actived = false
 	end
-	
+
 end
 
 local build_options_panel = function()
@@ -763,7 +763,7 @@ local build_options_panel = function()
 
 
 	}
-	
+
 	_detalhes.gump:BuildMenu (options_frame, menu, 15, -35, 360)
 
 end
@@ -779,17 +779,17 @@ function ThreatMeter:OnEvent (_, event, ...)
 
 	if (event == "PLAYER_TARGET_CHANGED") then
 		ThreatMeter:TargetChanged()
-	
+
 	elseif (event == "PLAYER_REGEN_DISABLED") then
 		ThreatMeter.Actived = true
 		ThreatMeter:Start()
 		--print ("tiny theat: regen disabled")
-		
+
 	elseif (event == "PLAYER_REGEN_ENABLED") then
 		ThreatMeter:End()
 		ThreatMeter.Actived = false
 		--print ("tiny theat: regen enabled")
-	
+
 	elseif (event == "ADDON_LOADED") then
 		local AddonName = select (1, ...)
 
@@ -804,13 +804,13 @@ function ThreatMeter:OnEvent (_, event, ...)
 				CreatePluginFrames (data)
 
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
-				
+
 				--> Install
 				local install, saveddata = _G._detalhes:InstallPlugin ("RAID", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Druid_Cower", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", "v2.01")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
-				
+
 				--> Register needed events
 				_G._detalhes:RegisterEvent (ThreatMeter, "COMBAT_PLAYER_ENTER")
 				_G._detalhes:RegisterEvent (ThreatMeter, "COMBAT_PLAYER_LEAVE")
@@ -819,14 +819,14 @@ function ThreatMeter:OnEvent (_, event, ...)
 				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_STARTSTRETCH")
 				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_ENDSTRETCH")
 				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_OPTIONS_MODIFIED")
-				
+
 				ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
 				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
 
 				--> Saved data
 				ThreatMeter.saveddata = saveddata or {}
-				
+
 				ThreatMeter.saveddata.updatespeed = ThreatMeter.saveddata.updatespeed or 1
 				ThreatMeter.saveddata.animate = ThreatMeter.saveddata.animate or false
 				ThreatMeter.saveddata.showamount = ThreatMeter.saveddata.showamount or false
@@ -842,18 +842,18 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.playSoundFile = ThreatMeter.saveddata.playSoundFile or "Details Threat Warning Volume 3"
 
 				ThreatMeter.options = ThreatMeter.saveddata
-				
+
 				--> Register slash commands
 				SLASH_DETAILS_TINYTHREAT1, SLASH_DETAILS_TINYTHREAT2 = "/tinythreat", "/tt"
-				
+
 				function SlashCmdList.DETAILS_TINYTHREAT (msg, editbox)
-				
+
 					local command, rest = msg:match("^(%S*)%s*(.-)$")
-					
+
 					if (command == Loc ["STRING_SLASH_ANIMATE"]) then
-					
+
 					elseif (command == Loc ["STRING_SLASH_SPEED"]) then
-					
+
 						if (rest) then
 							local speed = tonumber (rest)
 							if (speed) then
@@ -862,7 +862,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 								elseif (speed < 0.3) then
 									speed = 0.3
 								end
-								
+
 								ThreatMeter.saveddata.updatespeed = speed
 								ThreatMeter:Msg (Loc ["STRING_SLASH_SPEED_CHANGED"] .. speed)
 							else
@@ -871,11 +871,11 @@ function ThreatMeter:OnEvent (_, event, ...)
 						end
 
 					elseif (command == Loc ["STRING_SLASH_AMOUNT"]) then
-					
+
 					else
 						ThreatMeter:Msg (Loc ["STRING_COMMAND_LIST"])
 						print ("|cffffaeae/tinythreat " .. Loc ["STRING_SLASH_SPEED"] .. "|r: " .. Loc ["STRING_SLASH_SPEED_DESC"])
-					
+
 					end
 				end
 				ThreatMeter.initialized = true
