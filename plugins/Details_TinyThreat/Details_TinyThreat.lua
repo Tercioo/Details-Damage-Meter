@@ -229,8 +229,8 @@ local function CreatePluginFrames (data)
 			row.height = instance.row_info.height
 			local rowHeight = - ( (row.rowId -1) * (instance.row_info.height + 1) )
 			row:ClearAllPoints()
-      row:SetPoint ("topleft", ThreatMeterFrame, "topleft", 1, rowHeight)
-      row:SetPoint ("topright", ThreatMeterFrame, "topright", -1, rowHeight)
+			row:SetPoint ("topleft", ThreatMeterFrame, "topleft", 1, rowHeight)
+			row:SetPoint ("topright", ThreatMeterFrame, "topright", -1, rowHeight)
 			
 		end
 	end
@@ -280,6 +280,21 @@ local function CreatePluginFrames (data)
 
 		return unitId
 	end
+	
+	local UpdateTableFromThreatSituation = function(threat_table, threatening, threatened)
+		local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation (threatening, threatened)
+		if (status) then
+			threat_table [2] = threatpct
+			threat_table [3] = isTanking
+			threat_table [6] = threatvalue
+			threat_table [7] = isTanking and 100 or rawthreatpct -- rawthreatpct returns invalid values for the main tank
+		else
+			threat_table [2] = 0
+			threat_table [3] = false
+			threat_table [6] = 0
+			threat_table [7] = 0
+		end
+	end
 
 	local Threater = function()
 
@@ -302,17 +317,8 @@ local function CreatePluginFrames (data)
 						ThreatMeter:Start()
 						return
 					end
-				
-					local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation ("raid"..i, unitId)
-					if (status) then
-						threat_table [2] = threatpct
-						threat_table [3] = isTanking
-						threat_table [6] = threatvalue
-					else
-						threat_table [2] = 0
-						threat_table [3] = false
-						threat_table [6] = 0
-					end
+
+					UpdateTableFromThreatSituation(threat_table, "raid"..i, unitId)
 
 				end
 				
@@ -327,33 +333,16 @@ local function CreatePluginFrames (data)
 						ThreatMeter:Start()
 						return
 					end
-				
-					local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation ("party"..i, unitId)
-					if (status) then
-						threat_table [2] = threatpct
-						threat_table [3] = isTanking
-						threat_table [6] = threatvalue
-					else
-						threat_table [2] = 0
-						threat_table [3] = false
-						threat_table [6] = 0
-					end
+					
+					UpdateTableFromThreatSituation(threat_table, "party"..i, unitId)
+					
 				end
 				
 				local thisplayer_name = GetUnitName ("player", true)
 				local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 				local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
 			
-				local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation ("player", unitId)
-				if (status) then
-					threat_table [2] = threatpct
-					threat_table [3] = isTanking
-					threat_table [6] = threatvalue
-				else
-					threat_table [2] = 0
-					threat_table [3] = false
-					threat_table [6] = 0
-				end
+				UpdateTableFromThreatSituation(threat_table, "player", unitId)
 				
 			else
 			
@@ -362,16 +351,7 @@ local function CreatePluginFrames (data)
 				local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 				local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
 			
-				local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation ("player", unitId)
-				if (status) then
-					threat_table [2] = threatpct
-					threat_table [3] = isTanking
-					threat_table [6] = threatvalue
-				else
-					threat_table [2] = 0
-					threat_table [3] = false
-					threat_table [6] = 0
-				end
+				UpdateTableFromThreatSituation(threat_table, "player"..i, unitId)
 
 				--> pet
 				if (UnitExists ("pet")) then
@@ -379,18 +359,8 @@ local function CreatePluginFrames (data)
 					local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 					local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
 
-					if (threat_table) then
-						local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation ("pet", unitId)
-						if (status) then
-							threat_table [2] = threatpct
-							threat_table [3] = isTanking
-							threat_table [6] = threatvalue
-						else
-							threat_table [2] = 0
-							threat_table [3] = false
-							threat_table [6] = 0
-						end
-					end
+					UpdateTableFromThreatSituation(threat_table, "pet", unitId)
+					
 				end
 			end
 
@@ -409,52 +379,41 @@ local function CreatePluginFrames (data)
 			local lastIndex = 0
 			local shownMe = false
 
-			local firstIndex = 1
-			local pullRow = ThreatMeter.ShownRows[1]
 			local me = ThreatMeter.player_list_indexes [ ThreatMeter.player_list_hash [player] ]
 			local hidePullBar = ThreatMeter.saveddata.hide_pull_bar
-
-			--setup the pull aggro bar
-			if (me and not hidePullBar) then
-				firstIndex = 2
-
-				local myThreat = me[6] or 0
-
-				--get the player with most aggro
-				local topThreat = ThreatMeter.player_list_indexes[1]
-				local aggro = topThreat[6] * (CheckInteractDistance(unitId, 3) and 1.1 or 1.3)
-				aggro = max(aggro, 0.001)
-
-				pullRow:SetLeftText("Pull Aggro At")
-				local realPercent = _math_floor(aggro / max (topThreat [6], 0.01) * 100)
-				pullRow:SetRightText ("+" .. ThreatMeter:ToK2 (aggro - myThreat) .. " (" .. _math_floor (_math_abs ((myThreat / aggro * 100) - realPercent)) .. "%)") --
-				pullRow:SetValue (100)
-
-				local myPercentToAggro = myThreat / aggro * 100
-
-				local r, g = ThreatMeter:percent_color(myPercentToAggro)
-				pullRow:SetColor (r, g, 0)
-				pullRow._icon:SetTexture ([[Interface\PVPFrame\Icon-Combat]])
-				pullRow._icon:SetTexCoord (0, 1, 0, 1)
-				pullRow:Show()
-			else
-				if (pullRow) then
-					pullRow:Hide()
-				end
-			end
-
-			for index = firstIndex, #ThreatMeter.ShownRows do
+			local needRelativePullBar = (not hidePullBar) and me and (me[2] > 0) and (not me[3])
+			
+			local index = 1
+			local lastIndex = #ThreatMeter.ShownRows
+			local dummyBarCount = 0
+			while index <= lastIndex do
 				local thisRow = ThreatMeter.ShownRows[index]
-				local threatActor
-
-				if (hidePullBar) then
-					threatActor = ThreatMeter.player_list_indexes[index]
-				else
-					threatActor = ThreatMeter.player_list_indexes[index-1]
+				local threatActor = ThreatMeter.player_list_indexes[index-dummyBarCount]
+				
+				if needRelativePullBar then
+					thisRow._icon:SetTexture ([[Interface\PVPFrame\Icon-Combat]])
+					thisRow._icon:SetTexCoord (0, 1, 0, 1)
+					
+					local myPullThreat = me[6]*(100/me[2])
+					local r,g = ThreatMeter:percent_color(me[2], true)
+					
+					thisRow:SetLeftText("You pull at")
+					thisRow:SetRightText("+" .. ThreatMeter:ToK2 (myPullThreat - me[6]) .. " ( " .. _cstr ("%.1f", 100-me[2]) .. "%)")
+					thisRow:SetValue(me[2]/barValueUnit)
+					thisRow:SetColor (r, g, 0, 1)
+					thisRow:Show()
+					
+					needRelativePullBar = false
+					
+					index = index+1
+					dummyBarCount = dummyBarCount+1
+					if index > lastIndex then break end
+					thisRow = ThreatMeter.ShownRows[index]
 				end
 				
 				if (threatActor) then
 					local role = threatActor[4]
+					thisRow._icon:SetTexture ([[Interface\LFGFrame\UI-LFG-Icon-PortraitRoles]])
 					thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 					
 					thisRow:SetLeftText (ThreatMeter:GetOnlyName (threatActor [1]))
@@ -492,6 +451,8 @@ local function CreatePluginFrames (data)
 				else
 					thisRow:Hide()
 				end
+				
+				index = index+1
 			end
 			
 			if (not shownMe) then
@@ -503,6 +464,7 @@ local function CreatePluginFrames (data)
 						thisRow:SetLeftText (player)
 						--thisRow.textleft:SetTextColor (unpack (RAID_CLASS_COLORS [threat_actor [5]]))
 						local role = threat_actor [4]
+						thisRow._icon:SetTexture ([[Interface\LFGFrame\UI-LFG-Icon-PortraitRoles]])
 						thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
 						thisRow:SetValue (threat_actor [2])
@@ -672,10 +634,10 @@ local build_options_panel = function()
 		},
 		{
 			type = "toggle",
-			get = function() return ThreatMeter.saveddata.hide_pull_bar end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.hide_pull_bar = value end,
-			desc = "Hide Pull Aggro Bar",
-			name = "Hide Pull Aggro Bar"
+			get = function() return not ThreatMeter.saveddata.hide_pull_bar end,
+			set = function (self, fixedparam, value) ThreatMeter.saveddata.hide_pull_bar = not value end,
+			desc = "Show Pull Aggro Bar",
+			name = "Show Pull Aggro Bar"
 		},
 
 
@@ -692,7 +654,7 @@ local build_options_panel = function()
 
 	}
 	
-	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -35, 360)
 
 end
 
