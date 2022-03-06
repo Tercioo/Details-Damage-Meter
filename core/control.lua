@@ -795,7 +795,74 @@
 								--print ("WIPE", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
 							end
 						end
+				if (cleuID and diff == 15) then -- 15 heroic
+							local raidData = Details.raid_data
+							
+							--get or build mythic raid data table
+							local heroicRaidData = raidData.heroic_raid_data
+							if (not heroicRaidData) then
+								heroicRaidData = {}
+								raidData.heroic_raid_data = heroicRaidData
+							end
+							
+							--get or build a table for this cleuID
+							heroicRaidData [cleuID] = heroicRaidData [cleuID] or {wipes = 0, kills = 0, best_try = 1, longest = 0, try_history = {}}
+							local cleuIDData = heroicRaidData [cleuID]
+							
+							--store encounter data for plugins and weakauras
+							if (Details.tabela_vigente:GetCombatTime() > cleuIDData.longest) then
+								cleuIDData.longest = Details.tabela_vigente:GetCombatTime()
+							end
+							
+							if (Details.tabela_vigente.is_boss.killed) then
+								cleuIDData.kills = cleuIDData.kills + 1
+								cleuIDData.best_try = 0
+								tinsert (cleuIDData.try_history, {0, Details.tabela_vigente:GetCombatTime()})
+								--print ("KILL", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
+							else
+								cleuIDData.wipes = cleuIDData.wipes + 1
+								if (Details.boss1_health_percent and Details.boss1_health_percent < cleuIDData.best_try) then
+									cleuIDData.best_try = Details.boss1_health_percent
+									tinsert (cleuIDData.try_history, {Details.boss1_health_percent, Details.tabela_vigente:GetCombatTime()})
+								end
+								--print ("WIPE", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
+							end
+						end
+						if (cleuID and diff == 14) then -- 14 normal
+							local raidData = Details.raid_data
+							
+							--get or build mythic raid data table
+							local normalRaidData = raidData.normal_raid_data
+							if (not normalRaidData) then
+								normalRaidData = {}
+								raidData.normal_raid_data = heroicRaidData
+							end
+							
+							--get or build a table for this cleuID
+							normalRaidData [cleuID] = normalRaidData [cleuID] or {wipes = 0, kills = 0, best_try = 1, longest = 0, try_history = {}}
+							local cleuIDData = normalRaidData [cleuID]
+							
+							--store encounter data for plugins and weakauras
+							if (Details.tabela_vigente:GetCombatTime() > cleuIDData.longest) then
+								cleuIDData.longest = Details.tabela_vigente:GetCombatTime()
+							end
+							
+							if (Details.tabela_vigente.is_boss.killed) then
+								cleuIDData.kills = cleuIDData.kills + 1
+								cleuIDData.best_try = 0
+								tinsert (cleuIDData.try_history, {0, Details.tabela_vigente:GetCombatTime()})
+								--print ("KILL", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
+							else
+								cleuIDData.wipes = cleuIDData.wipes + 1
+								if (Details.boss1_health_percent and Details.boss1_health_percent < cleuIDData.best_try) then
+									cleuIDData.best_try = Details.boss1_health_percent
+									tinsert (cleuIDData.try_history, {Details.boss1_health_percent, Details.tabela_vigente:GetCombatTime()})
+								end
+								--print ("WIPE", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
+							end
+						end
 					end
+			
 					--
 				end
 				
