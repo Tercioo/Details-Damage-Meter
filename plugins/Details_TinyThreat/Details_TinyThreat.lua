@@ -368,7 +368,7 @@ local function CreatePluginFrames (data)
 				local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 				local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
 
-				UpdateTableFromThreatSituation(threat_table, "player"..i, unitId)
+				UpdateTableFromThreatSituation(threat_table, "player", unitId)
 
 				--> pet
 				if (UnitExists ("pet")) then
