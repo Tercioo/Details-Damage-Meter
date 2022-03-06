@@ -795,7 +795,7 @@
 								--print ("WIPE", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
 							end
 						end
-				if (cleuID and diff == 15) then -- 15 heroic
+						if (cleuID and diff == 15) then -- 15 heroic
 							local raidData = Details.raid_data
 							
 							--get or build mythic raid data table
