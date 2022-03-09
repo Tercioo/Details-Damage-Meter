@@ -10,3 +10,4 @@ embeds.xml
 #@end-no-lib-strip@
 
 Details_Vanguard.lua
+zhCN.lua
