@@ -12,6 +12,7 @@ embeds.xml
 
 enUS.lua
 ptBR.lua
+zhCN.lua
 frames.lua
 
 Details_EncounterDetails.lua
