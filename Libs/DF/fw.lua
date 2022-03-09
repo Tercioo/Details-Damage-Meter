@@ -344,6 +344,11 @@ function DF.table.copy (t1, t2)
 	for key, value in pairs (t2) do 
 		if (key ~= "__index") then
 			if (type (value) == "table") then
+
+				--if (SAVINGDATA) then
+				--	tinsert (_detalhes_global.exit_log, "copy loop key: " .. key)
+				--end
+
 				t1 [key] = t1 [key] or {}
 				DF.table.copy (t1 [key], t2 [key])
 			else

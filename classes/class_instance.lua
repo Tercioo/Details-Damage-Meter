@@ -360,20 +360,20 @@ end
 	function _detalhes:ShutDownAllInstances()
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
 			if (instance:IsEnabled() and instance.baseframe and not instance.ignore_mass_showhide) then
-				instance:ShutDown(true)
+				instance:ShutDown()
 			end
 		end
 	end
 
 	--> alias
-	function _detalhes:HideWindow(all)
-		return self:DesativarInstancia(all)
+	function _detalhes:HideWindow()
+		return self:DesativarInstancia()
 	end
-	function _detalhes:ShutDown(all)
-		return self:DesativarInstancia(all)
+	function _detalhes:ShutDown()
+		return self:DesativarInstancia()
 	end
-	function _detalhes:Shutdown(all)
-		return self:DesativarInstancia(all)
+	function _detalhes:Shutdown()
+		return self:DesativarInstancia()
 	end
 	
 	function _detalhes:GetNumWindows()
@@ -381,7 +381,7 @@ end
 	end
 
 --> desativando a inst�ncia ela fica em stand by e apenas hida a janela ~shutdown ~close ~fechar
-	function _detalhes:DesativarInstancia(all)
+	function _detalhes:DesativarInstancia()
 	
 		self.ativa = false
 		_detalhes.opened_windows = _detalhes.opened_windows-1
@@ -413,9 +413,8 @@ end
 		Details.FadeHandler.Fader (self.rowframe, 1)
 		Details.FadeHandler.Fader (self.windowSwitchButton, 1)
 		
-		if (not all) then
-			self:Desagrupar (-1)
-		end
+		self:Desagrupar (-1)
+
 		if (self.modo == modo_raid) then
 			_detalhes.RaidTables:DisableRaidMode (self)
 			
@@ -535,7 +534,7 @@ end
 		for index = math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1, -1 do 
 			local instancia = _detalhes:GetInstance (index)
 			if (instancia and not instancia.ignore_mass_showhide) then
-				instancia:AtivarInstancia (temp, true)
+				instancia:AtivarInstancia (temp)
 			end
 		end
 	end
@@ -584,14 +583,14 @@ end
 	end
 
 	--> alias
-	function _detalhes:ShowWindow (temp, all)
-		return self:AtivarInstancia (temp, all)
+	function _detalhes:ShowWindow (temp)
+		return self:AtivarInstancia (temp)
 	end
-	function _detalhes:EnableInstance (temp, all)
-		return self:AtivarInstancia (temp, all)
+	function _detalhes:EnableInstance (temp)
+		return self:AtivarInstancia (temp)
 	end
 	
-	function _detalhes:AtivarInstancia (temp, all)
+	function _detalhes:AtivarInstancia (temp)
 		self.ativa = true
 		self.cached_bar_width = self.cached_bar_width or 0
 
@@ -648,10 +647,7 @@ end
 		end
 
 		self:DesaturateMenu()
-		
-	  if (not all) then
-			self:Desagrupar (-1)
-		end
+		self:Desagrupar (-1)
 		
 		self:CheckFor_EnabledTrashSuppression()
 		
@@ -1752,18 +1748,27 @@ function _detalhes:ExportSkin()
 			["right"] = self.StatusBar.right.real_name or "NONE",
 		}
 		exported.StatusBarSaved.options = {
-			[exported.StatusBarSaved.left] = Details.CopyTable (self.StatusBar.left.options),
-			[exported.StatusBarSaved.center] = Details.CopyTable (self.StatusBar.center.options),
-			[exported.StatusBarSaved.right] = Details.CopyTable (self.StatusBar.right.options)
+			[exported.StatusBarSaved.left] = DetailsFramework.table.copy({}, self.StatusBar.left.options), --Details.CopyTable (self.StatusBar.left.options),
+			[exported.StatusBarSaved.center] = DetailsFramework.table.copy({}, self.StatusBar.center.options), --Details.CopyTable (self.StatusBar.center.options),
+			[exported.StatusBarSaved.right] = DetailsFramework.table.copy({}, self.StatusBar.right.options), --Details.CopyTable (self.StatusBar.right.options)
 		}
 
 	elseif (self.StatusBarSaved) then
-		exported.StatusBarSaved = Details.CopyTable (self.StatusBarSaved)
-		
-	end
+		tinsert (_detalhes_global.exit_log, "StatusBarSaved:")
 
+		if (self.StatusBarSaved.optionsableable and type(self.StatusBarSaved.optionsableable) == "table") then
+			for k, v in pairs(self.StatusBarSaved.optionsableable) do
+				local value = v
+				if (type(value) == "table") then
+					value = "table"
+				end
+				tinsert (_detalhes_global.exit_log, k .. "|" .. type(v)  .. "|" .. value)
+			end
+		end
+
+		exported.StatusBarSaved = DetailsFramework.table.copy({}, self.StatusBarSaved)
+	end
 	return exported
-	
 end
 
 function _detalhes:ApplySavedSkin (style)
