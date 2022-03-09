@@ -835,7 +835,7 @@
 							local normalRaidData = raidData.normal_raid_data
 							if (not normalRaidData) then
 								normalRaidData = {}
-								raidData.normal_raid_data = heroicRaidData
+								raidData.normal_raid_data = normalRaidData
 							end
 							
 							--get or build a table for this cleuID
