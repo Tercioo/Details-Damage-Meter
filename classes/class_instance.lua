@@ -1715,6 +1715,22 @@ function _detalhes:CheckSwitchOnCombatStart (check_segment)
 	
 end
 
+local createStatusbarOptions = function(optionsTable)
+	local newTable = {}
+	newTable.textColor = optionsTable.textColor
+	newTable.textSize = optionsTable.textSize
+	newTable.textFace = optionsTable.textFace
+	newTable.textXmod = optionsTable.textXmod
+	newTable.textYmod = optionsTable.textYmod
+	newTable.isHidden = optionsTable.isHidden
+	newTable.segmentType = optionsTable.segmentType
+	newTable.textAlign = optionsTable.textAlign
+	newTable.timeType = optionsTable.timeType
+	newTable.textStyle = optionsTable.textStyle
+
+	return newTable
+end
+
 function _detalhes:ExportSkin()
 
 	--create the table
@@ -1724,7 +1740,7 @@ function _detalhes:ExportSkin()
 
 	--export the keys
 	for key, value in pairs (self) do
-		if (_detalhes.instance_defaults [key] ~= nil) then	
+		if (_detalhes.instance_defaults [key] ~= nil) then
 			if (type (value) == "table") then
 				exported [key] = Details.CopyTable (value)
 			else
@@ -1732,14 +1748,14 @@ function _detalhes:ExportSkin()
 			end
 		end
 	end
-	
+
 	--export size and positioning
 	if (_detalhes.profile_save_pos) then
 		exported.posicao = self.posicao
 	else
 		exported.posicao = nil
 	end
-	
+
 	--export mini displays
 	if (self.StatusBar and self.StatusBar.left) then
 		exported.StatusBarSaved = {
@@ -1747,25 +1763,18 @@ function _detalhes:ExportSkin()
 			["center"] = self.StatusBar.center.real_name or "NONE",
 			["right"] = self.StatusBar.right.real_name or "NONE",
 		}
+
+		local leftOptions = createStatusbarOptions(self.StatusBar.left.options)
+		local centerOptions = createStatusbarOptions(self.StatusBar.center.options)
+		local rightOptions = createStatusbarOptions(self.StatusBar.right.options)
+
 		exported.StatusBarSaved.options = {
-			[exported.StatusBarSaved.left] = DetailsFramework.table.copy({}, self.StatusBar.left.options), --Details.CopyTable (self.StatusBar.left.options),
-			[exported.StatusBarSaved.center] = DetailsFramework.table.copy({}, self.StatusBar.center.options), --Details.CopyTable (self.StatusBar.center.options),
-			[exported.StatusBarSaved.right] = DetailsFramework.table.copy({}, self.StatusBar.right.options), --Details.CopyTable (self.StatusBar.right.options)
+			[exported.StatusBarSaved.left] = leftOptions,
+			[exported.StatusBarSaved.center] = centerOptions,
+			[exported.StatusBarSaved.right] = rightOptions,
 		}
 
 	elseif (self.StatusBarSaved) then
-		tinsert (_detalhes_global.exit_log, "StatusBarSaved:")
-
-		if (self.StatusBarSaved.optionsableable and type(self.StatusBarSaved.optionsableable) == "table") then
-			for k, v in pairs(self.StatusBarSaved.optionsableable) do
-				local value = v
-				if (type(value) == "table") then
-					value = "table"
-				end
-				tinsert (_detalhes_global.exit_log, k .. "|" .. type(v)  .. "|" .. value)
-			end
-		end
-
 		exported.StatusBarSaved = DetailsFramework.table.copy({}, self.StatusBarSaved)
 	end
 	return exported

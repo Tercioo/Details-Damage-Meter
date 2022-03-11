@@ -5677,12 +5677,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes_global.exit_log = {}
 		
 		_detalhes.saver_error_func = saver_error
-		
 		_detalhes.logoff_saving_data = true
 	
 		--> close info window
 			if (_detalhes.FechaJanelaInfo) then
-				tinsert (_detalhes_global.exit_log, "1 - Closing Janela Info.")
+				tinsert (_detalhes_global.exit_log, "1 - Closing Breakdown Window.")
 				currentStep = "Fecha Janela Info"
 				xpcall (_detalhes.FechaJanelaInfo, saver_error)
 			end
