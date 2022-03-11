@@ -1775,6 +1775,20 @@ function _detalhes:ExportSkin()
 		}
 
 	elseif (self.StatusBarSaved) then
+		local leftName = self.StatusBarSaved.left
+		local centerName = self.StatusBarSaved.center
+		local rightName = self.StatusBarSaved.right
+
+		local options = self.StatusBarSaved.options
+
+		local leftOptions = createStatusbarOptions(options[leftName])
+		local centerOptions = createStatusbarOptions(options[centerName])
+		local rightOptions = createStatusbarOptions(options[rightName])
+
+		options[leftName] = leftOptions
+		options[centerName] = centerOptions
+		options[rightName] = rightOptions
+
 		exported.StatusBarSaved = DetailsFramework.table.copy({}, self.StatusBarSaved)
 	end
 	return exported

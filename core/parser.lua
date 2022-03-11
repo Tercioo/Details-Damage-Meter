@@ -5666,22 +5666,22 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--> failed to load the framework.
 			return
 		end
+
+		_detalhes_global.exit_log = {}
+		_detalhes_global.exit_errors = _detalhes_global.exit_errors or {}
 		
 		local saver_error = function (errortext)
 			_detalhes_global = _detalhes_global or {}
-			_detalhes_global.exit_errors = _detalhes_global.exit_errors or {}
 			tinsert (_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
 			tremove (_detalhes_global.exit_errors, 6)
 		end
-		
-		_detalhes_global.exit_log = {}
-		
+
 		_detalhes.saver_error_func = saver_error
 		_detalhes.logoff_saving_data = true
 	
 		--> close info window
 			if (_detalhes.FechaJanelaInfo) then
-				tinsert (_detalhes_global.exit_log, "1 - Closing Breakdown Window.")
+				tinsert (_detalhes_global.exit_log, "1 - Closing Janela Info.")
 				currentStep = "Fecha Janela Info"
 				xpcall (_detalhes.FechaJanelaInfo, saver_error)
 			end
