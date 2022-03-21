@@ -627,7 +627,7 @@ hooksecurefunc (_G, "DeathRecap_LoadUI", function()
                     local casterPrestige = evtData.casterPrestige
                     local spellSchool = evtData.school
 
-                    print("Killed by (Blizzard-Debug): ", spellName, "amount:", amountDamage)
+                    --print("Killed by (Blizzard-Debug): ", spellName, "amount:", amountDamage)
 
                     --recap by Details!
                     local deathEventsDetails = latestDeath[1]
@@ -640,15 +640,15 @@ hooksecurefunc (_G, "DeathRecap_LoadUI", function()
                         if (type(evType) == "boolean" and evType) then
                             local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
                             if (spellName) then
-                                print("Killed by (Details!-Debug): ", spellName, "amount:", amount)
+                                --print("Killed by (Details!-Debug): ", spellName, "amount:", amount)
                             else
-                                print("Killed by (Details!-Debug): spell not found")
+                                --print("Killed by (Details!-Debug): spell not found")
                             end
                             break
                         end
                     end
 
-                    Details:Msg("the message above are debugs of an Alpha version of Details!")
+                    --Details:Msg("the message above are debugs of an Alpha version of Details!")
 
                     local whatKilledThePlayer = 0
                 end
