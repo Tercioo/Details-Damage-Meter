@@ -865,6 +865,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 
 		if (instancia_alvo and not instancia.do_not_snap and not instancia_alvo.do_not_snap) then
 			instancia:AtualizaPontos()
+			instancia_alvo:AtualizaPontos()
 			
 			local esquerda, baixo, direita, cima
 			local meu_id = instancia.meu_id --> id da inst�ncia que esta sendo movida
