@@ -693,7 +693,11 @@
 					end
 				end
 			end
-		--
+
+			--Jailer
+			if (_current_encounter_id == 2537) then
+				
+			end
 
 		--> npcId check for ignored npcs
 			local npcId = npcid_cache[alvo_serial]

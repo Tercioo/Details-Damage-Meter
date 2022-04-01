@@ -48,8 +48,9 @@ playerCooldows = {
     [cooldownSpellId] = {
         [1] = time left (number), 
         [2] = charges (number),
-        [3] = start time (number),
-        [4] = duration (number)
+        [3] = start time offset (number) - time offset from when the cooldown was used,
+        [4] = duration (number),
+        [5] = GetTime() of when the information was received
     }
 }
 
@@ -84,10 +85,12 @@ function MyAddonObject.OnReceiveCooldownListUpdate(unitName, playerCooldows, all
             local timeLeft = cooldownInfoTable[1]
             --in some cases the spell is on cooldown but there's a charge to use
             local charges = cooldownInfoTable[2]
-            --cooldown start time
-            local startTime = cooldownInfoTable[3]
+            --cooldown start time offset (how much time has passed since the cooldown was used)
+            local startTimeOffset = cooldownInfoTable[3]
             --cooldown duration, e.g. 180 for 3 minutes cooldown
             local totalDuration = cooldownInfoTable[4]
+            --time when received this information
+            local timeReceived = cooldownInfoTable[5]
         end
     end
 
