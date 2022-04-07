@@ -35,6 +35,8 @@ do
 	local news = {
 		{"v9.2.0.9715.146", "April 7th, 2022"},
 		"Added M+ Score into the player info tooltip (hover over the spec icon).",
+		"Fixed windows ungrouping after a /reload (fix by Flamanis).",
+		"Opening a tooltip from a bar or a menu in the title bar will close the All Displays Panel (from right clicking the title bar).",
 
 		{"v9.2.0.9715.146", "March 6th, 2022"},
 		"More Tiny Threat fixes and implementations (by Treeston)",

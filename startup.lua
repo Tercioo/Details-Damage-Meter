@@ -606,6 +606,12 @@ function Details:StartMeUp() --I'll never stop!
 		end)
 	end
 
+	hooksecurefunc(GameCooltip, "SetMyPoint", function()
+		if (DetailsAllAttributesFrame) then
+			DetailsAllAttributesFrame:Hide()
+		end
+	end)
+
 
 	function Details:InstallOkey()
 		return true
