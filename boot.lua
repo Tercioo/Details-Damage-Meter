@@ -431,6 +431,9 @@ do
 
 		_detalhes.BitfieldSwapDebuffsIDs = {265646, 272407, 269691, 273401, 269131, 260900, 260926, 284995, 292826, 311367, 310567, 308996, 307832, 327414, 337253,
 											36797, 37122, 362397}
+		_detalhes.BitfieldSwapDebuffsSpellIDs = {
+			[360418] = true
+		}
 
 		--> auto run code
 		_detalhes.RunCodeTypes = {

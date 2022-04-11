@@ -241,9 +241,8 @@
 		}
 	end
 
-	local bitfield_debuffs_ids = _detalhes.BitfieldSwapDebuffsIDs
 	local bitfield_debuffs = {}
-	for _, spellid in ipairs (bitfield_debuffs_ids) do
+	for _, spellid in ipairs (_detalhes.BitfieldSwapDebuffsIDs) do
 		local spellname = GetSpellInfo(spellid)
 		if (spellname) then
 			bitfield_debuffs [spellname] = true
@@ -251,6 +250,12 @@
 			bitfield_debuffs [spellid] = true
 		end
 	end
+
+	for spellId in pairs(_detalhes.BitfieldSwapDebuffsSpellIDs) do
+		bitfield_debuffs [spellId] = true
+	end
+
+	Details.bitfield_debuffs_table = bitfield_debuffs
 
 	--tbc spell caches
 	local TBC_PrayerOfMendingCache = {}
@@ -1182,6 +1187,15 @@
 					if ((jogador_alvo.grupo or alvo_dono and alvo_dono.grupo) and (este_jogador.grupo or meu_dono and meu_dono.grupo)) then
 						is_friendly_fire = true
 					end
+				end
+			end
+
+			if (_current_encounter_id == 2543) then --malganis REMOVE ON 10.0
+				if (bitfield_swap_cache [who_serial] or (meu_dono and bitfield_swap_cache [meu_dono.serial])) then
+					is_friendly_fire = false
+
+				elseif (bitfield_swap_cache [alvo_serial] or (alvo_dono and bitfield_swap_cache [alvo_dono.serial])) then
+					is_friendly_fire = false
 				end
 			end
 		else
@@ -2547,8 +2561,8 @@
 						parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 					end
 					
-					if (bitfield_debuffs [spellname] and raid_members_cache [alvo_serial]) then
-						bitfield_swap_cache [alvo_serial] = true
+					if ((bitfield_debuffs[spellname] or bitfield_debuffs[spellid]) and raid_members_cache[alvo_serial]) then
+						bitfield_swap_cache[alvo_serial] = true
 					end
 				
 					if (raid_members_cache [who_serial]) then
@@ -3021,8 +3035,8 @@
 					end
 				end
 				
-				if (bitfield_debuffs [spellname] and alvo_serial) then
-					bitfield_swap_cache [alvo_serial] = nil
+				if ((bitfield_debuffs[spellname] or bitfield_debuffs[spellid]) and alvo_serial) then
+					bitfield_swap_cache[alvo_serial] = nil
 				end
 				
 				if (_recording_ability_with_buffs) then
