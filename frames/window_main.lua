@@ -2255,8 +2255,8 @@ local icon_frame_on_enter = function (self)
 				if (rioProfile and rioProfile.mythicKeystoneProfile) then
 					rioProfile = rioProfile.mythicKeystoneProfile
 
-					local previousScore = rioProfile.previousScore
-					local currentScore = rioProfile.currentScore
+					local previousScore = rioProfile.previousScore or 0
+					local currentScore = rioProfile.currentScore or 0
 
 					if (previousScore > currentScore) then
 						GameCooltip:AddLine("M+ Score:", previousScore .. " (|cFFFFDD11" .. currentScore .. "|r)", 1, "white")

@@ -15,6 +15,7 @@ to be implemented:
 - make "player" unit information always be available even not in a group
 - soulbind character (covenant choise) - probably not used in 10.0
 - keystone info
+- track interrupts
 --]=]
 
 
