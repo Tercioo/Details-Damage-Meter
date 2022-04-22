@@ -102,6 +102,12 @@ Callbacks:
 ===================================================================================================================================
 
 function MyAddonObject.OnReceiveCooldownListUpdate(unitId, unitCooldows, allUnitsCooldowns)
+    --regular iteration among the group
+    for i = 1, GetNumGroupMembers() do
+        local unitId = "raid"..i
+        local thisUnitCooldowns = openRaidLib.GetUnitCooldowns(unitId, "defensive-raid, defensive-target")
+    end
+
     --using the 'unitCooldows' table passed for the updated unit
     for spellId, cooldownInfo in pairs(unitCooldows) do
         local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
