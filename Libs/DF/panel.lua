@@ -5392,7 +5392,7 @@ DF.IconRowFunctions = {
 			iconFrame.spellName = spellName
 			
 			--add the spell into the cache
-			self.AuraCache [spellId] = true
+			self.AuraCache [spellId or -1] = true
 			self.AuraCache [spellName] = true
 
 			--> show the frame
@@ -5458,6 +5458,32 @@ DF.IconRowFunctions = {
 		else
 			self.NextIcon = countStillShown + 1
 			table.sort (iconPool, function(i1, i2) return i1:IsShown() and not i2:IsShown() end)
+			
+			-- re-anchor not hidden
+			for i = 1, countStillShown do
+				local iconFrame = iconPool[i]
+				local anchor = self.options.anchor
+				local anchorTo = i == 1 and self or self.IconPool [i - 1]
+				local xPadding = i == 1 and self.options.left_padding or self.options.icon_padding or 1
+				local growDirection = self.options.grow_direction
+				
+				iconFrame:ClearAllPoints()
+				if (growDirection == 1) then --grow to right
+					if (i == 1) then
+						PixelUtil.SetPoint (iconFrame, "left", anchorTo, "left", xPadding, 0)
+					else
+						PixelUtil.SetPoint (iconFrame, "left", anchorTo, "right", xPadding, 0)
+					end
+					
+				elseif (growDirection == 2) then --grow to left
+					if (i == 1) then
+						PixelUtil.SetPoint (iconFrame, "right", anchorTo, "right", xPadding, 0)
+					else
+						PixelUtil.SetPoint (iconFrame, "right", anchorTo, "left", xPadding, 0)
+					end
+					
+				end
+			end
 		end
 		
 	end,

@@ -14,19 +14,49 @@ With this object, you can start querying the library for information.
 
 Functions:
 
-local sentRequest = openRaidLib.RequestAllPlayersInfo()
-Request to all players to send all data infomation: cooldowns, gear and player data.
+local sentRequest = openRaidLib.RequestAllData()
+Request to all players in the group to send infomation on: cooldowns, gear and player data.
 Instants after calling this, expect to receive several callbacks.
 
+COOLDOWNS:
+--get all cooldowns from all units
+local allUnitsCooldowns = openRaidLib.GetAllUnitsCooldown()
+allUnitsCooldowns = {
+    ["playerName1"] = {[cooldownSpellId] = cooldownInfo, [cooldownSpellId] = cooldownInfo, ...}
+    ["playerName2"] = {[cooldownSpellId] = cooldownInfo, [cooldownSpellId] = cooldownInfo, ...}
+    ["playerName3"] = {[cooldownSpellId] = cooldownInfo, [cooldownSpellId] = cooldownInfo, ...}
+}
 
-local allPlayersGear = openRaidLib.gearManager.GetAllPlayersGear()
+--get all cooldowns from a single unit
+local unitCooldows = openRaidLib.GetUnitCooldowns(unitId [,filter])
+@unittId: "player", "target", "party2", "raid12", ...
+@filter: "defensive-raid", "defensive-target", "defensive-personal", "ofensive", "utility"
+can pass more than one filter separating by comma, example: "defensive-raid, defensive-target"
+unitCooldows = {
+    [cooldownSpellId] = cooldownInfo,
+    [cooldownSpellId] = cooldownInfo,
+    [cooldownSpellId] = cooldownInfo,
+}
+
+--get a cooldownInfo of a single spell from any unit
+local cooldownInfo = openRaidLib.GetUnitCooldownInfo(unitId, spellId)
+
+--get cooldown timers to use with progress bar or cooldown frames, percent are normalized (0 to 1), timeLeft is seconds, minValue/maxValue/currentValue are in GetTime() time space, amount of charges
+--by using unitID and spellID
+local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromUnitSpellID(unitId, spellId)
+--by using a cooldown info
+local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+
+
+EQUIPMENT:
+local allPlayersGear = openRaidLib.GetAllUnitsGear()
 allPlayersGear = {
     ["playerName1"] = playerGear,
     ["playerName2"] = playerGear,
     ["playerName3"] = playerGear,
 }
 
-local playerGear = openRaidLib.gearManager.GetPlayerGear(playerName)
+local playerGear = openRaidLib.GetUnitGear(unitId)
 playerGear = {
     .durability = number
     .ilevel = number
@@ -36,75 +66,58 @@ playerGear = {
 }
 
 
-local allPlayersCooldowns = openRaidLib.cooldownManager.GetAllPlayersCooldown()
-allPlayersCooldowns = {
-    ["playerName1"] = playerCooldows,
-    ["playerName2"] = playerCooldows,
-    ["playerName3"] = playerCooldows,
+UNIT INFORMATION
+local allUnitsInfo = openRaidLib.GetAllUnitsInfo()
+allUnitsInfo = {
+    ["unitName1"] = unitInfo,
+    ["unitName2"] = unitInfo,
+    ["unitName3"] = unitInfo,
 }
 
-local playerCooldows = openRaidLib.cooldownManager.GetPlayerCooldowns(playerName)
-playerCooldows = {
-    [cooldownSpellId] = {
-        [1] = time left (number), 
-        [2] = charges (number),
-        [3] = start time offset (number) - time offset from when the cooldown was used,
-        [4] = duration (number),
-        [5] = GetTime() of when the information was received
-    }
-}
-
-
-local allPlayersInfo = openRaidLib.playerInfoManager.GetAllPlayersInfo()
-allPlayersInfo = {
-    ["playerName1"] = playerInfo,
-    ["playerName2"] = playerInfo,
-    ["playerName3"] = playerInfo,
-}
-
-local playerInfo = openRaidLib.playerInfoManager.GetPlayerInfo(playerName)
-playerInfo = {
+local unitInfo = openRaidLib.GetUnitInfo(unitId)
+unitInfo = {
     .specId = number
-    .renown = number, 
-    .covenantId = number,
-    .talents = {talentId}, 
-    .conduits = {spellId},
+    .specName = string
+    .role = string
+    .renown = number
+    .covenantId = number
+    .talents = {talentId, talentId, talentId, ...}
+    .pvpTalents = {talentId, talentId, talentId}
+    .conduits = {spellId, conduitLevel, spellId, conduitLevel, spellId, conduitLevel, ...}
+    .class = string class eng name 'ROGUE'
+    .classId = number
+    .className = string class localized name
+    .name = string name without realm
+    .nameFull = string name with realm 'unitName-ServerName'
 }
+
 
 Callbacks:
 
 ===================================================================================================================================
-"CooldownListUpdate": triggers when the lib received a list of cooldowns from another player in the group.
+"CooldownListUpdate": triggers when the lib received a list of cooldowns from another unit in the group.
+@unitId: which unit got updated
+@unitCooldows: list of cooldowns of the unit
+@allUnitsCooldowns: a list of all players with their cooldowns
 ===================================================================================================================================
 
-function MyAddonObject.OnReceiveCooldownListUpdate(unitName, playerCooldows, allPlayersCooldowns)
-    --foreach player in the cooldown table
-    for unitName, playerCooldows in pairs(allPlayersCooldowns) do
-        for spellId, cooldownInfoTable in pairs(playerCooldows) do
-            --time left for the cooldown be ready to use, if time left is zero, the spell is ready
-            local timeLeft = cooldownInfoTable[1]
-            --in some cases the spell is on cooldown but there's a charge to use
-            local charges = cooldownInfoTable[2]
-            --cooldown start time offset (how much time has passed since the cooldown was used)
-            local startTimeOffset = cooldownInfoTable[3]
-            --cooldown duration, e.g. 180 for 3 minutes cooldown
-            local totalDuration = cooldownInfoTable[4]
-            --time when received this information
-            local timeReceived = cooldownInfoTable[5]
-        end
+function MyAddonObject.OnReceiveCooldownListUpdate(unitId, unitCooldows, allUnitsCooldowns)
+    --using the 'unitCooldows' table passed for the updated unit
+    for spellId, cooldownInfo in pairs(unitCooldows) do
+        local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+        local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
+        statusbar:SetMinMaxValues(minValue, maxValue)
+        statusbar:SetValue(currentValue)
     end
 
-    --get the cooldowns for the unit which got the cooldown update
-    local playerCooldows = allPlayersCooldowns[unitName]
-    for spellId, cooldownInfoTable in pairs(playerCooldows) do
-            --time left for the cooldown be ready to use, if time left is zero, the spell is ready
-            local timeLeft = cooldownInfoTable[1]
-            --in some cases the spell is on cooldown but there's a charge to use
-            local charges = cooldownInfoTable[2]
-            --cooldown start time
-            local startTime = cooldownInfoTable[3]
-            --cooldown duration, e.g. 180 for 3 minutes cooldown
-            local totalDuration = cooldownInfoTable[4]
+    --this event also passes a table with all player cooldowns
+    for unitName, unitCooldows in pairs(allUnitsCooldowns) do
+        for spellId, cooldownInfo in pairs(unitCooldows) do
+            local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+            local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
+            statusbar:SetMinMaxValues(0, 1)
+            statusbar:SetValue(normalizedPercent)
+        end
     end
 end
 
@@ -112,51 +125,50 @@ end
 openRaidLib.RegisterCallback(MyAddonObject, "CooldownListUpdate", "OnReceiveCooldownListUpdate")
 
 ===================================================================================================================================
-"CooldownUpdate": triggered when any unit in the group used a cooldown or the timeleft got an update
+"CooldownUpdate": triggered when an unit in the group uses a cooldown or the timeleft of a cooldown of an unit got an update
+@unitId: which unit got updated
+@spellId: id of the cooldown spell
+@cooldownInfo: a table containing information about the cooldown time
+@unitCooldows: list of cooldowns of the unit
+@allUnitsCooldowns: a list of all players and their cooldowns
 ===================================================================================================================================
 
-function MyAddonObject.OnReceiveCooldownUpdate(unitName, spellId, cooldownTimeLeft, charges, startTime, totalDuration, playerCooldows, allPlayersCooldowns)
-    local unitCooldowns = allPlayersCooldowns[unitName] --is the same as using just 'playerCooldows' variable
-
-    --get the cooldowns for the unit which got the cooldown update
-    for spellId, cooldownInfoTable in pairs(playerCooldows) do
-            --time left for the cooldown be ready to use, if time left is zero, the spell is ready
-            local timeLeft = cooldownInfoTable[1]
-            --in some cases the spell is on cooldown but there's a charge to use
-            local charges = cooldownInfoTable[2]
-            --cooldown start time
-            local startTime = cooldownInfoTable[3]
-            --cooldown duration, e.g. 180 for 3 minutes cooldown
-            local totalDuration = cooldownInfoTable[4]
-    end
+function MyAddonObject.OnReceiveCooldownUpdate(unitId, spellId, cooldownInfo, unitCooldows, allUnitsCooldowns)
+    local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+    local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
+    statusbar:SetMinMaxValues(minValue, maxValue)
+    statusbar:SetValue(currentValue)
 end
 
 --registering the callback:
 openRaidLib.RegisterCallback(MyAddonObject, "CooldownUpdate", "OnReceiveCooldownUpdate")
 
 ===================================================================================================================================
-"CooldownListWiped": when the list of cooldowns get a wipe, usually when the player leave the group
+"CooldownListWipe": when the list of cooldowns get a wipe, usually when the player leave the group
 ===================================================================================================================================
 
-function MyAddonObject.OnCooldownListWipe(allPlayersCooldowns)
-    --print ("is nil:", next(allPlayersCooldowns))
+function MyAddonObject.OnCooldownListWipe(allUnitsCooldowns)
+    --print ("is nil:", next(allUnitsCooldowns))
 end
 
 --registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "CooldownListWiped", "OnCooldownListWipe")
+openRaidLib.RegisterCallback(MyAddonObject, "CooldownListWipe", "OnCooldownListWipe")
+
+Note: right after the wipe, player cooldowns get an update, so a callback "CooldownListUpdate" is triggered right after this event (on the same tick).
+
 
 
 ===================================================================================================================================
 "GearUpdate": when received an update from a player with all information about the gear
 ===================================================================================================================================
 
-function MyAddonObject.OnGearUpdate(playerName, playerGear, allPlayersGear)
-    local itemLevelNumber = playerGear.ilevel
-    local durabilityNumber = playerGear.durability
+function MyAddonObject.OnGearUpdate(unitId, unitGear, allUnitsGear)
+    local itemLevelNumber = unitGear.ilevel
+    local durabilityNumber = unitGear.durability
     --hasWeaponEnchant is 1 have enchant or 0 is don't
-    local hasWeaponEnchantNumber = playerGear.weaponEnchant
-    local noEnchantTable = playerGear.noEnchants
-    local noGemsTable = playerGear.noGems
+    local hasWeaponEnchantNumber = unitGear.weaponEnchant
+    local noEnchantTable = unitGear.noEnchants
+    local noGemsTable = unitGear.noGems
 
     for index, slotIdWithoutEnchant in ipairs (noEnchantTable) do
     end
@@ -172,76 +184,116 @@ openRaidLib.RegisterCallback(MyAddonObject, "GearUpdate", "OnGearUpdate")
 "GearDurabilityUpdate": when the gear durability of a player in the group changes
 ===================================================================================================================================
 
-function MyAddonObject.OnGearDurabilityUpdate(playerName, durability, playerGear, allPlayersGear)
-    --print(playerName .. " durability is now " .. durability)
+function MyAddonObject.OnGearDurabilityUpdate(unitId, durability, unitGear, allUnitsGear)
+    --print(UnitName(unitId) .. " durability is now " .. durability)
 end
 
 --registering the callback:
 openRaidLib.RegisterCallback(MyAddonObject, "GearDurabilityUpdate", "OnGearDurabilityUpdate")
 
 ===================================================================================================================================
-"GearListWiped": when the list of gear get a wipe, usually when the player leave the group
+"GearListWipe": when the list of gear get a wipe, usually when the player leave the group
 ===================================================================================================================================
 
-function MyAddonObject.OnGearListWiped(allPlayersGear)
-    --print ("is nil:", next(allPlayersGear))
+function MyAddonObject.OnGearListWiped(allUnitsGear)
+    --print ("is nil:", next(allUnitsGear))
 end
 
 --registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "GearListWiped", "OnGearListWiped")
+openRaidLib.RegisterCallback(MyAddonObject, "GearListWipe", "OnGearListWiped")
+
+Note: right after the wipe, player gear information get an update, so a callback "GearUpdate" is triggered right after this event (on the same tick).
+
+
+
 
 ===================================================================================================================================
-"PlayerUpdate": received a player information about its spec, talents, etc...
+"UnitInfoUpdate": a unit in the group has been updated
 ===================================================================================================================================
 
-function MyAddonObject.OnPlayerUpdate(playerName, playerInfo, allPlayersInfo)
-    for unitName, playerInfo in pairs(allPlayersInfo) do
-        local specId = playerInfo.specId
-        local renown = playerInfo.renown
-        local covenantId = playerInfo.covenantId
-        local talents = playerInfo.talents 
-        local conduits = playerInfo.conduits
+function MyAddonObject.OnUnitUpdate(unitId, unitInfo, allUnitsInfo)
+    for unitName, unitInfo in pairs(allUnitsInfo) do
+        local specId = unitInfo.specId
+        local specName = unitInfo.specName
+        local role = unitInfo.role
+        local renown = unitInfo.renown
+        local covenantId = unitInfo.covenantId
+        local talents = unitInfo.talents
+        local pvpTalents = unitInfo.pvpTalents
+        local conduits = unitInfo.conduits
+        local class = unitInfo.class = string class eng name 'ROGUE'
+        local classId = unitInfo.classId = number
+        local className = unitInfo.className
+        local unitName = unitInfo.name = string name without realm
+        local unitNameFull = unitInfo.nameFull = string name with realm 'unitName-ServerName'
     end
 end
 
 --registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "PlayerUpdate", "OnPlayerUpdate")
+openRaidLib.RegisterCallback(MyAddonObject, "UnitInfoUpdate", "OnUnitUpdate")
 
 ===================================================================================================================================
-"TalentsUpdate": when a unit changed a talent
+"UnitInfoWipe": when the unit info got wipped, usually when the player leave the group
 ===================================================================================================================================
 
-function MyAddonObject.OnTalentUpdate(playerName, talents, playerInfo, allPlayersInfo)
+function MyAddonObject.OnUnitInfoWipe()
+    --all unit info got wiped
+end
+
+--registering the callback:
+openRaidLib.RegisterCallback(MyAddonObject, "UnitInfoWipe", "OnUnitInfoWipe")
+
+Note: a "UnitUpdate" callback is triggered right after this event to notify the player info is updated.
+
+===================================================================================================================================
+"TalentUpdate": when a unit changed a talent
+===================================================================================================================================
+
+function MyAddonObject.OnTalentUpdate(unitId, talents, unitInfo, allUnitsInfo)
     for i = 1, 7 do
         local talentId = talents[i]
-        local talentID, name, texture, selected, available = GetTalentInfoByID(talentId)
-        print(name)
+        local talentID, talentName, texture, selected, available = GetTalentInfoByID(talentId)
+        print(talentName)
     end
 end
 
 --registering the callback:
 openRaidLib.RegisterCallback(MyAddonObject, "TalentUpdate", "OnTalentUpdate")
 
-
 ===================================================================================================================================
-"OnPlayerDeath": when a player dies
+"PvPTalentUpdate": when an unit changed a pvp talent
 ===================================================================================================================================
 
-function MyAddonObject.OnPlayerDeath(playerName)
-    print(playerName .. " died.")
+function MyAddonObject.OnPvPTalentUpdate(unitId, pvpTalents, unitInfo, allUnitsInfo)
+    for i = 1, 3 do
+        local talentId = pvpTalents[i]
+        local talentID, talentName, icon, selected, available, spellID, unlocked, row, column, known, grantedByAura = GetPvpTalentInfoByID(talentId)
+        print(talentName)
+    end
 end
 
 --registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "OnPlayerDeath", "OnPlayerDeath")
+openRaidLib.RegisterCallback(MyAddonObject, "PvPTalentUpdate", "OnPvPTalentUpdate")
 
 ===================================================================================================================================
-"OnPlayerRess": when a player revives
+"UnitDeath": when an unit died
 ===================================================================================================================================
 
-function MyAddonObject.OnPlayerRess(playerName)
-    print(playerName .. " is alive.")
+function MyAddonObject.OnUnitDeath(unitId)
+    print(UnitName(unitId) .. " died.")
 end
 
 --registering the callback:
-openRaidLib.RegisterCallback(MyAddonObject, "OnPlayerRess", "OnPlayerRess")
+openRaidLib.RegisterCallback(MyAddonObject, "UnitDeath", "OnUnitDeath")
+
+===================================================================================================================================
+"UnitAlive": when an unit revives
+===================================================================================================================================
+
+function MyAddonObject.OnUnitRess(unitId)
+    print(UnitName(unitId) .. " is alive.")
+end
+
+--registering the callback:
+openRaidLib.RegisterCallback(MyAddonObject, "UnitAlive", "OnUnitRess")
 

@@ -820,9 +820,9 @@ local default_profile = {
 				0.23, -- [3]
 			},
 			["ARENA_GREEN"] = {
-				0.4, -- [1]
-				1, -- [2]
-				0.4, -- [3]
+				0.686, -- [1]
+				0.372, -- [2]
+				0.905, -- [3]
 			},
 			["ARENA_YELLOW"] = {
 				1, -- [1]
@@ -1131,8 +1131,19 @@ local default_player_data = {
 				only_in_group = true,
 				only_inside_instance = true,
 			},
-			show_options = false,
+			show_options = true,
 			current_cooldowns = {},
+			framme_locked = false,
+			filters = {
+				["defensive-raid"] = false,
+				["defensive-target"] = false,
+				["defensive-personal"] = false,
+				["ofensive"] = true,
+				["utility"] = false,
+			},
+			width = 120,
+			height = 18,
+			lines_per_column = 12,
 		},
 
 	--> force all fonts to have this outline
