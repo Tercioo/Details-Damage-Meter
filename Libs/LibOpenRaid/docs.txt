@@ -30,7 +30,7 @@ allUnitsCooldowns = {
 --get all cooldowns from a single unit
 local unitCooldows = openRaidLib.GetUnitCooldowns(unitId [,filter])
 @unittId: "player", "target", "party2", "raid12", ...
-@filter: "defensive-raid", "defensive-target", "defensive-personal", "ofensive", "utility"
+@filter: "defensive-raid", "defensive-target", "defensive-personal", "ofensive", "utility", "interrupt"
 can pass more than one filter separating by comma, example: "defensive-raid, defensive-target"
 unitCooldows = {
     [cooldownSpellId] = cooldownInfo,

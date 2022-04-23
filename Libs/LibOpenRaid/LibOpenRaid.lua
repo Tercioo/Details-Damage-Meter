@@ -14,6 +14,7 @@ Code Rules:
     - Public callbacks are callbacks registered by an external addon.
 
 Change Log:
+    - added interrupts to cooldown tracker, new filter: "interrupt"
     - after encounter_end cooldowns now check for cooldowns reset.
     - each module now controls what to do with regen_enabled.
     - filter cooldowns done.
@@ -23,16 +24,17 @@ Change Log:
     - player information is always available even when not in a group.
 
 TODO:
-    - keystone info (portion of the logic is implemented, need to share the information)
     - track interrupts (interrupt list is done, need to tracker the use of the spell and share it)
+    - keystone info (portion of the logic is implemented, need to share the information)
     - raid lockouts normal-heroic-mythic
     - soulbind character (covenant choise) - probably not used in 10.0
+    - (bug) after a /reload, it is not starting new tickers for spells under cooldown
 --]=]
 
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 28
+local CONST_LIB_VERSION = 30
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -69,8 +71,8 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local CONST_TWO_SECONDS = 2.0
     local CONST_THREE_SECONDS = 3.0
 
-    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_THREE_SECONDS
-    local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_THREE_SECONDS
+    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_TWO_SECONDS
+    local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_TWO_SECONDS
 
     local CONST_COOLDOWN_INDEX_TIMELEFT = 1
     local CONST_COOLDOWN_INDEX_CHARGES = 2
@@ -377,6 +379,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         ["onPlayerRess"] = {},
         ["raidEncounterEnd"] = {},
         ["mythicDungeonStart"] = {},
+        ["playerPetChange"] = {},
     }
 
     openRaidLib.internalCallback.RegisterCallback = function(event, func)
@@ -438,7 +441,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         ["UNIT_SPELLCAST_SUCCEEDED"] = function(...)
             local unitId, castGUID, spellId = ...
             C_Timer.After(0.1, function()
-                openRaidLib.internalCallback.TriggerEvent("playerCast", spellId)
+                openRaidLib.internalCallback.TriggerEvent("playerCast", spellId, UnitIsUnit(unitId, "pet"))
             end)
         end,
 
@@ -536,15 +539,36 @@ LIB_OPEN_RAID_CAN_LOAD = false
         ["CHALLENGE_MODE_START"] = function()
             openRaidLib.internalCallback.TriggerEvent("mythicDungeonStart")
         end,
+
+        ["UNIT_PET"] = function(unitId)
+            if (UnitIsUnit(unitId, "player")) then
+                openRaidLib.Schedules.NewUniqueTimer(0.5, function() openRaidLib.internalCallback.TriggerEvent("playerPetChange") end, "mainControl", "petStatus_Schedule")
+                --if the pet is alive, register to know when it dies
+                if (UnitExists("pet") and UnitHealth("pet") >= 1) then
+                    eventFrame:RegisterUnitEvent("UNIT_FLAGS", "pet")
+                end
+            end
+        end,
+
+        ["UNIT_FLAGS"] = function(unitId)
+            local petHealth = UnitHealth(unitId)
+            if (petHealth < 1) then
+                eventFrame:UnregisterEvent("UNIT_FLAGS")
+                openRaidLib.eventFunctions["UNIT_PET"]("player")
+            end
+        end
     }
+    openRaidLib.eventFunctions = eventFunctions
 
     eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "pet")
     eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
     eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
     eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+    eventFrame:RegisterEvent("UNIT_PET")
 
     --eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     if (not isTimewalkWoW()) then
@@ -1247,7 +1271,7 @@ local cooldownTimeLeftCheck_Ticker = function(tickerObject)
         tickerObject:Cancel()
         updateLocally = true
     else
-        --check if the time left has changed
+        --check if the time left has changed, this check if the cooldown got its time reduced and if the cooldown time has been slow down by modRate
         if (not openRaidLib.isNearlyEqual(tickerObject.cooldownTimeLeft, timeLeft, CONST_COOLDOWN_TIMELEFT_HAS_CHANGED)) then
             --there's a deviation, send a comm to communicate the change in the time left
             openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, timeLeft, charges, startTimeOffset, duration)
@@ -1458,7 +1482,7 @@ end
     end
 
 --> internals
-    function openRaidLib.CooldownManager.OnPlayerCast(event, spellId)
+    function openRaidLib.CooldownManager.OnPlayerCast(event, spellId, isPlayerPet)
         --player casted a spell, check if the spell is registered as cooldown
         local playerSpec = openRaidLib.GetPlayerSpecId()
         if (playerSpec) then
@@ -1528,6 +1552,10 @@ end
         openRaidLib.Schedules.NewUniqueTimer(0.5, openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
     end
 
+    function openRaidLib.CooldownManager.OnPlayerPetChanged()
+        openRaidLib.Schedules.NewUniqueTimer(0.5, openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
+    end
+
     openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", openRaidLib.CooldownManager.OnPlayerLeaveGroup)
     openRaidLib.internalCallback.RegisterCallback("playerCast", openRaidLib.CooldownManager.OnPlayerCast)
     openRaidLib.internalCallback.RegisterCallback("onPlayerRess", openRaidLib.CooldownManager.OnPlayerRess)
@@ -1535,6 +1563,7 @@ end
     openRaidLib.internalCallback.RegisterCallback("raidEncounterEnd", openRaidLib.CooldownManager.OnEncounterEnd)
     openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.CooldownManager.OnEncounterEnd)
     openRaidLib.internalCallback.RegisterCallback("mythicDungeonStart", openRaidLib.CooldownManager.OnMythicPlusStart)
+    openRaidLib.internalCallback.RegisterCallback("playerPetChange", openRaidLib.CooldownManager.OnPlayerPetChanged)
 
 --update the list of cooldowns of the player it self locally
 --this is called right after changes in the player cooldowns

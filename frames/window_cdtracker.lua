@@ -466,6 +466,17 @@ end
                     desc = "Exanple: druid roar.",
                 },
 
+                {--filter: show interrupt cooldowns
+                    type = "toggle",
+                    get = function() return Details.ocd_tracker.filters["interrupt"] end,
+                    set = function (self, fixedparam, value)
+                        Details.ocd_tracker.filters["interrupt"] = value
+                        Details.CooldownTracking.RefreshCooldownFrames()
+                    end,
+                    name = "Interrupt Cooldowns",
+                    desc = "Exanple: rogue kick.",
+                },                
+
                 {type = "breakline"},
 
                 {--bar width
@@ -512,7 +523,7 @@ end
 
             }
 
-            DF:BuildMenu(f, generalOptions, 5, -35, 150, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+            DF:BuildMenu(f, generalOptions, 5, -30, 150, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
             --cooldown selection
             local cooldownProfile = Details.ocd_tracker.cooldowns

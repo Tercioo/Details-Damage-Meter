@@ -232,6 +232,41 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
     return slotsWithoutGems, slotsWithoutEnchant
 end
 
+local playerHasPetOfNpcId = function(npcId)
+    if (UnitExists("pet") and UnitHealth("pet") >= 1) then
+        local guid = UnitGUID("pet")
+        if (guid) then
+            local split = {strsplit("-", guid)}
+            local playerPetNpcId = tonumber(split[6])
+            if (playerPetNpcId) then
+                if (npcId == playerPetNpcId) then
+                    return true
+                end
+            end
+        end
+    end
+end
+
+local addCooldownToTable = function(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
+    cooldowns[#cooldowns+1] = cooldownSpellId
+    local timeLeft, charges, startTimeOffset, duration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(cooldownSpellId)
+    cooldowns[#cooldowns+1] = timeLeft
+    cooldowns[#cooldowns+1] = charges
+    cooldowns[#cooldowns+1] = startTimeOffset
+    cooldowns[#cooldowns+1] = duration
+    cooldownsHash[cooldownSpellId] = {timeLeft, charges, startTimeOffset, duration, timeNow}
+end
+
+local canAddCooldown = function(cooldownInfo)
+        local needPetNpcId = cooldownInfo.pet
+    if (needPetNpcId) then
+        if (not playerHasPetOfNpcId(needPetNpcId)) then
+            return false
+        end
+    end
+    return true
+end
+
 --build a list with the local player cooldowns
 --called only from SendAllPlayerCooldowns()
 function openRaidLib.CooldownManager.GetPlayerCooldownList()
@@ -259,24 +294,14 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
                 if (talentId) then
                     --check if the player has the talent selected
                     if (talentsHash[talentId]) then
-                        cooldowns[#cooldowns+1] = cooldownSpellId
-                        local timeLeft, charges, startTimeOffset, duration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(cooldownSpellId)
-                        cooldowns[#cooldowns+1] = timeLeft
-                        cooldowns[#cooldowns+1] = charges
-                        cooldowns[#cooldowns+1] = startTimeOffset
-                        cooldowns[#cooldowns+1] = duration
-
-                        cooldownsHash[cooldownSpellId] = {timeLeft, charges, startTimeOffset, duration, timeNow}
+                        if (canAddCooldown(cooldownInfo)) then
+                            addCooldownToTable(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
+                        end
                     end
                 else
-                    cooldowns[#cooldowns+1] = cooldownSpellId
-                    local timeLeft, charges, startTimeOffset, duration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(cooldownSpellId)
-                    cooldowns[#cooldowns+1] = timeLeft
-                    cooldowns[#cooldowns+1] = charges
-                    cooldowns[#cooldowns+1] = startTimeOffset
-                    cooldowns[#cooldowns+1] = duration
-
-                    cooldownsHash[cooldownSpellId] = {timeLeft, charges, startTimeOffset, duration, timeNow}
+                    if (canAddCooldown(cooldownInfo)) then
+                        addCooldownToTable(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
+                    end
                 end
             end
         end

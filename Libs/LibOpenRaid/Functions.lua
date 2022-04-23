@@ -17,6 +17,7 @@ local CONST_COOLDOWN_TYPE_DEFENSIVE_PERSONAL = 2
 local CONST_COOLDOWN_TYPE_DEFENSIVE_TARGET = 3
 local CONST_COOLDOWN_TYPE_DEFENSIVE_RAID = 4
 local CONST_COOLDOWN_TYPE_UTILITY = 5
+local CONST_COOLDOWN_TYPE_INTERRUPT = 6
 
 --simple non recursive table copy
 function openRaidLib.TCopy(tableToReceive, tableToCopy)
@@ -142,7 +143,8 @@ local filterStringToCooldownType = {
     ["defensive-target"] = CONST_COOLDOWN_TYPE_DEFENSIVE_TARGET,
     ["defensive-personal"] = CONST_COOLDOWN_TYPE_DEFENSIVE_PERSONAL,
     ["ofensive"] = CONST_COOLDOWN_TYPE_OFFENSIVE,
-    ["utility"] = CONST_COOLDOWN_TYPE_UTILITY
+    ["utility"] = CONST_COOLDOWN_TYPE_UTILITY,
+    ["interrupt"] = CONST_COOLDOWN_TYPE_INTERRUPT,
 }
 
 function openRaidLib.CooldownManager.DoesSpellPassFilter(spellId, filters)
