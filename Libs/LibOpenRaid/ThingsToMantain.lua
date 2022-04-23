@@ -650,7 +650,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 			[108281] = 4, --Ancestral Guidance (talent)
 			[198103] = 2, --Earth Elemental
 			--[79206] = 5, --Spiritwalkers grace
-			[65992] = 5, --Tremor Totem
+			[8143] = 5, --Tremor Totem
 			[192058] = 5, --Capacitor Totem
 			[192077] = 5, --Wind Rush Totem (talent)
 		},
@@ -660,7 +660,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 			[114051] = 1, --Ascendance (talent)
 			[108271] = 2, --Astral Shift
 			[198103] = 2, --Earth Elemental
-			[65992] = 5, --Tremor Totem
+			[8143] = 5, --Tremor Totem
 			[192058] = 5, --Capacitor Totem
 
 		},
@@ -673,7 +673,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 			[16191] = 4, --Mana Tide Totem
 			[207399] = 4, --Ancestral Protection Totem (talent)
 			[198103] = 2, --Earth Elemental
-			[65992] = 5, --Tremor Totem
+			[8143] = 5, --Tremor Totem
 		},
 }
 
@@ -753,7 +753,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[16191] = {cooldown = 180, duration = 8, talent = false, charges = 1, class = "SHAMAN", type = 4}, --Mana Tide Totem
 	[198103] = {cooldown = 300, duration = 60, talent = false, charges = 1, class = "SHAMAN", type = 2}, --Earth Elemental
 	[192058] = {cooldown = 60, duration = false, talent = false, charges = 1, class = "SHAMAN", type = 5}, --Capacitor Totem
-	[65992] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "SHAMAN", type = 5}, --Tremor Totem
+	[8143] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "SHAMAN", type = 5}, --Tremor Totem
 	[192077] = {cooldown = 120, duration = 15, talent = 21966, charges = 1, class = "SHAMAN", type = 5}, --Wind Rush Totem (talent)
 	
 	--> monk

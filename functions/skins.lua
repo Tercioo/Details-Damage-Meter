@@ -21,6 +21,20 @@ local _
 		skin_table.desc = skin_table.desc or ""
 		
 		_detalhes.skins [skin_name] = skin_table
+
+		--checck instances waiting for a skin
+		local waitingForSkins = Details.waitingForSkins
+		if (waitingForSkins) then
+			for instanceId, skinName in pairs(waitingForSkins) do
+				if (skinName == skin_name) then
+					local instance = Details:GetInstance(instanceId)
+					if (instance) then
+						instance:ChangeSkin(skin_name)
+					end
+				end
+			end
+		end
+
 		return true
 	end
 	

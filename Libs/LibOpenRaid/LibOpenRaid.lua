@@ -818,7 +818,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         openRaidLib.publicCallback.TriggerCallback("UnitInfoUpdate", openRaidLib.GetUnitID(unitName), openRaidLib.UnitInfoManager.UnitData[unitName], openRaidLib.UnitInfoManager.GetAllUnitsInfo())
     end
 
-    --triggered when the lib receives a gear information from another player in the raid
+    --triggered when the lib receives a unit information from another player in the raid
     --@data: table received from comm
     --@unitName: player name
     function openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo(data, unitName)

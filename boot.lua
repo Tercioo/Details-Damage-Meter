@@ -6,8 +6,8 @@
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 9777
-		_detalhes.alpha_build_counter = 9777 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 9778
+		_detalhes.alpha_build_counter = 9778 --if this is higher than the regular counter, use it instead
 		_detalhes.bcc_counter = 32
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
@@ -33,12 +33,13 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
-		{"v9.2.0.9777.146", "April 22th, 2022"},
+		{"v9.2.0.9778.146", "April 23th, 2022"},
 		"A cooldown tracker experiment has been added, its options is visible at the Options Panel.",
 		"When using Details! Death Recap, a message is now printed to chat showing what killed you accordingly to Blizzard Death Recap.",
 		"Fixed some errors while using Mind Control on an arena match.",
 		"Fixed encounter phase detection while using voice packs for boss mods addons.",
 		"Fixed an error after killing a boss encounter on heroic dificulty for the first time.",
+		"Attempt to fix the issue of skins installed after the window has been loaded and the skin was not found at that time.",
 		"API: added 'UNIT_SPEC' and 'UNIT_TALENTS' event to details! event listener.",
 		"API: added Details:GetUnitId(unitName) which return the unitId for a given player name.",
 
