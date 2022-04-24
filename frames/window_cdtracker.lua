@@ -259,8 +259,6 @@ end
 
             --player
             local unitCooldowns = openRaidLib.GetUnitCooldowns("player", filter)
-            local cooldownInfo = unitCooldowns[15286]
-            local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
             Details.CooldownTracking.ProcessUnitCooldowns("player", unitCooldowns, cooldownsOrganized)
 
         else
