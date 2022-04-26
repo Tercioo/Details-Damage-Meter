@@ -2,6 +2,7 @@
 --[=[
 
 Please refer to the docs.txt within this file folder for a guide on how to use this library.
+If you get lost on implementing the lib, be free to contact Tercio on Details! discord: https://discord.gg/AGSzAZX or email to terciob@gmail.com
 
 UnitID:
     UnitID use: "player", "target", "raid18", "party3", etc...
@@ -26,18 +27,21 @@ Change Log:
 TODO:
     - need to finish the CheckForSpellsAdeedOrRemoved(),  need to send the comm, need to create the local callbacks
     - create comm to add or remove a cooldown from an unit
-    - add unit_connected through comm to know if a unit disconnected
+    - add into gear info how many tier set parts the player has
     - keystone info (portion of the logic is implemented, need to share the information)
+    - add unit_connected through comm to know if a unit disconnected, do the lib realy need this? I don't think so
     - raid lockouts normal-heroic-mythic
     - soulbind character (covenant choise) - probably not used in 10.0
-    - add into gear info how many tier set parts the player has
-    - (bug) after a /reload, it is not starting new tickers for spells under cooldown
+    
+BUGS:
+    - after a /reload, it is not starting new tickers for spells under cooldown
+    
 --]=]
 
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 31
+local CONST_LIB_VERSION = 32
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub

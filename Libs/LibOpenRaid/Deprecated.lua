@@ -6,27 +6,55 @@ end
 
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
---> deprecated: 'RequestAllPlayersInfo' has been replaced by 'RequestAllData'
-    function openRaidLib.RequestAllPlayersInfo()
-        openRaidLib.DeprecatedMessage("openRaidLib.RequestAllPlayersInfo() is deprecated, please use openRaidLib.RequestAllData().")
+local spamLimit = {}
+
+    local showDeprecatedMessage = function(deprecatedCall, newCall)
+        local debugTrace = debugstack(3, 1, 1)
+        if (debugTrace:find("AddOns\\WeakAuras")) then
+            local auraName = debugTrace:gsub("%[string \"Error in: ", ""):gsub("':'.*", "")
+            openRaidLib.DeprecatedMessage("|cFFEEEEEE" .. deprecatedCall .. "|r is deprecated|cFFEEEEEE, please use " .. newCall .. "\nFrom a weakaura named: " .. auraName .. "")
+        else
+            debugTrace = debugTrace:gsub("%[.-%]", "")
+            debugTrace = debugTrace:gsub("\n", "")
+            openRaidLib.DeprecatedMessage("|cFFEEEEEE" .. deprecatedCall .. "|r is deprecated|cFFEEEEEE, please use " .. newCall .. "\nFrom line" .. debugTrace .. "")
+        end
     end
 
+--> deprecated: 'RequestAllPlayersInfo' has been replaced by 'RequestAllData'
+    function openRaidLib.RequestAllPlayersInfo()
+        if (not spamLimit["openRaidLib.RequestAllData"]) then
+            spamLimit["openRaidLib.RequestAllData"] = true
+            showDeprecatedMessage("openRaidLib.RequestAllPlayersInfo()", "openRaidLib.RequestAllData()")
+        end
+    end
+    
 --> deprecated: 'playerInfoManager' has been replaced by 'UnitInfoManager'
     openRaidLib.playerInfoManager = {}
     local deprecatedMetatable = {
         __newindex = function()
-            openRaidLib.DeprecatedMessage("openRaidLib.playerInfoManager table is deprecated, please use openRaidLib.UnitInfoManager.")
+            if (not spamLimit["openRaidLib.UnitInfoManager"]) then
+                openRaidLib.DeprecatedMessage("openRaidLib.playerInfoManager table is deprecated, please use openRaidLib.UnitInfoManager.")
+                showDeprecatedMessage("", "")
+                spamLimit["openRaidLib.UnitInfoManager"] = true
+            end
             return
         end,
         __index = function(t, key)
-            return rawget(t, key) or openRaidLib.DeprecatedMessage("openRaidLib.playerInfoManager table is deprecated, please use openRaidLib.UnitInfoManager.")
+            
+            return rawget(t, key) or showDeprecatedMessage("openRaidLib.playerInfoManager", "openRaidLib.UnitInfoManager")
         end,
     }
     function openRaidLib.playerInfoManager.GetPlayerInfo()
-        openRaidLib.DeprecatedMessage("openRaidLib.playerInfoManager.GetPlayerInfo(unitName) is deprecated, please use openRaidLib.GetUnitInfo(unitId).")
+        if (not spamLimit["openRaidLib.playerInfoManager.GetPlayerInfo"]) then
+            showDeprecatedMessage("openRaidLib.playerInfoManager.GetPlayerInfo(unitName)", "openRaidLib.GetUnitInfo(unitId)")
+            spamLimit["openRaidLib.playerInfoManager.GetPlayerInfo"] = true
+        end
     end
     function openRaidLib.playerInfoManager.GetAllPlayersInfo()
-        openRaidLib.DeprecatedMessage("openRaidLib.playerInfoManager.GetAllPlayersInfo() is deprecated, please use openRaidLib.GetAllUnitsInfo().")
+        if (not spamLimit["openRaidLib.playerInfoManager.GetAllPlayersInfo"]) then
+            showDeprecatedMessage("openRaidLib.playerInfoManager.GetAllPlayersInfo()", "openRaidLib.GetAllUnitsInfo()")
+            spamLimit["openRaidLib.playerInfoManager.GetAllPlayersInfo"] = true
+        end
     end
     setmetatable(openRaidLib.playerInfoManager, deprecatedMetatable)
 
@@ -34,18 +62,27 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
     openRaidLib.gearManager = {}
     local deprecatedMetatable = {
         __newindex = function()
-            openRaidLib.DeprecatedMessage("openRaidLib.gearManager table is deprecated, please use openRaidLib.GearManager (the G is in upper case).")
+            if (not spamLimit["openRaidLib.gearManager__newindex"]) then
+                showDeprecatedMessage("openRaidLib.gearManager", "openRaidLib.GearManager")
+                spamLimit["openRaidLib.gearManager__newindex"] = true
+            end
             return
         end,
         __index = function(t, key)
-            return rawget(t, key) or openRaidLib.DeprecatedMessage("openRaidLib.gearManager table is deprecated, please use openRaidLib.GearManager (the G is in upper case).")
+            return rawget(t, key) or showDeprecatedMessage("openRaidLib.gearManager", "openRaidLib.GearManager")
         end,
     }
     function openRaidLib.gearManager.GetAllPlayersGear()
-        openRaidLib.DeprecatedMessage("openRaidLib.gearManager.GetAllPlayersGear() is deprecated, please use openRaidLib.GetAllUnitsGear().")
+        if (not spamLimit["openRaidLib.gearManager.GetAllPlayersGear"]) then
+            showDeprecatedMessage("openRaidLib.gearManager.GetAllPlayersGear()", "openRaidLib.GetAllUnitsGear()")
+            spamLimit["openRaidLib.gearManager.GetAllPlayersGear"] = true
+        end
     end
     function openRaidLib.gearManager.GetPlayerGear()
-        openRaidLib.DeprecatedMessage("openRaidLib.gearManager.GetPlayerGear() is deprecated, please use openRaidLib.GetUnitGear(unitId).")
+        if (not spamLimit["openRaidLib.gearManager.GetPlayerGear"]) then
+            showDeprecatedMessage("openRaidLib.gearManager.GetPlayerGear()", "openRaidLib.GetUnitGear(unitId)")
+            spamLimit["openRaidLib.gearManager.GetPlayerGear"] = true
+        end
     end
     setmetatable(openRaidLib.gearManager, deprecatedMetatable)
 
@@ -53,17 +90,26 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
     openRaidLib.cooldownManager = {}
     local deprecatedMetatable = {
         __newindex = function()
-            openRaidLib.DeprecatedMessage("openRaidLib.cooldownManager table is deprecated, please use openRaidLib.CooldownManager (the C is in upper case).")
+            if (not spamLimit["openRaidLib.cooldownManager__newindex"]) then
+                showDeprecatedMessage("openRaidLib.cooldownManager", "openRaidLib.CooldownManager")
+                spamLimit["openRaidLib.cooldownManager__newindex"] = true
+            end
             return
         end,
         __index = function(t, key)
-            return rawget(t, key) or openRaidLib.DeprecatedMessage("openRaidLib.cooldownManager table is deprecated, please use openRaidLib.CooldownManager (the C is in upper case).")
+            return rawget(t, key) or showDeprecatedMessage("openRaidLib.cooldownManager", "openRaidLib.CooldownManager")
         end,
     }
     function openRaidLib.cooldownManager.GetAllPlayersCooldown()
-        openRaidLib.DeprecatedMessage("openRaidLib.cooldownManager.GetAllPlayersCooldown() is deprecated, please use openRaidLib.GetAllUnitsCooldown().")
+        if (not spamLimit["openRaidLib.cooldownManager.GetAllPlayersCooldown"]) then
+            showDeprecatedMessage("openRaidLib.cooldownManager.GetAllPlayersCooldown()", "openRaidLib.GetAllUnitsCooldown()")
+            spamLimit["openRaidLib.cooldownManager.GetAllPlayersCooldown"] = true
+        end
     end
     function openRaidLib.cooldownManager.GetPlayerCooldowns()
-        openRaidLib.DeprecatedMessage("openRaidLib.cooldownManager.GetPlayerCooldowns() is deprecated, please use openRaidLib.GetUnitCooldowns(unitId).")
+        if (not spamLimit["openRaidLib.cooldownManager.GetPlayerCooldowns"]) then
+            showDeprecatedMessage("openRaidLib.cooldownManager.GetPlayerCooldowns()", "openRaidLib.GetUnitCooldowns(unitId)")
+            spamLimit["openRaidLib.cooldownManager.GetPlayerCooldowns"] = true
+        end
     end
     setmetatable(openRaidLib.cooldownManager, deprecatedMetatable)
