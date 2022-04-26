@@ -5394,6 +5394,8 @@ DF.IconRowFunctions = {
 			--add the spell into the cache
 			self.AuraCache [spellId or -1] = true
 			self.AuraCache [spellName] = true
+			self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or canStealOrPurge
+			self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or debuffType == "" --yes, enrages are empty-string...
 
 			--> show the frame
 			self:Show()
@@ -5448,6 +5450,8 @@ DF.IconRowFunctions = {
 			else
 				self.AuraCache [iconPool[i].spellId] = true
 				self.AuraCache [iconPool[i].spellName] = true
+				self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or iconPool[i].canStealOrPurge
+				self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or iconPool[i].debuffType == "" --yes, enrages are empty-string...
 				countStillShown = countStillShown + 1
 			end
 		end

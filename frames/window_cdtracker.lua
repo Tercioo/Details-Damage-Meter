@@ -46,6 +46,7 @@ end
     --@unitCooldows: a table with [spellId] = cooldownInfo
     --@allUnitsCooldowns: a table containing all units [unitName] = {[spellId] = cooldownInfo}
     function Details.CooldownTracking.OnReceiveUnitFullCooldownList(unitId, unitCooldows, allUnitsCooldowns)
+        --print("|cFFFFFF00received full cooldown list|r from:", unitId)
         Details.CooldownTracking.RefreshCooldownFrames()
     end
 

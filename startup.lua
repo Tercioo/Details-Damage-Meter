@@ -54,9 +54,9 @@ function Details:StartMeUp() --I'll never stop!
 			self:InitializePlaterIntegrationWindow()
 			self:InitializeMacrosWindow()
 
-			--if (self.ocd_tracker.show_options) then
+			if (self.ocd_tracker.show_options) then
 				self:InitializeCDTrackerWindow()
-			--end
+			end
 			
 		--custom window
 			self.custom = self.custom or {}

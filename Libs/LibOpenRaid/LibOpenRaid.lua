@@ -24,10 +24,13 @@ Change Log:
     - player information is always available even when not in a group.
 
 TODO:
-    - track interrupts (interrupt list is done, need to tracker the use of the spell and share it)
+    - need to finish the CheckForSpellsAdeedOrRemoved(),  need to send the comm, need to create the local callbacks
+    - create comm to add or remove a cooldown from an unit
+    - add unit_connected through comm to know if a unit disconnected
     - keystone info (portion of the logic is implemented, need to share the information)
     - raid lockouts normal-heroic-mythic
     - soulbind character (covenant choise) - probably not used in 10.0
+    - add into gear info how many tier set parts the player has
     - (bug) after a /reload, it is not starting new tickers for spells under cooldown
 --]=]
 
@@ -57,10 +60,15 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
     local CONST_COMM_PREFIX = "LRS"
     local CONST_COMM_FULLINFO_PREFIX = "F"
+
     local CONST_COMM_COOLDOWNUPDATE_PREFIX = "U"
     local CONST_COMM_COOLDOWNFULLLIST_PREFIX = "C"
+    local CONST_COMM_COOLDOWNADDSPELL_PREFIX = "S"
+    local CONST_COMM_COOLDOWNREMOVESPELL_PREFIX = "E"
+
     local CONST_COMM_GEARINFO_FULL_PREFIX = "G"
     local CONST_COMM_GEARINFO_DURABILITY_PREFIX = "R"
+
     local CONST_COMM_PLAYER_DEAD_PREFIX = "D"
     local CONST_COMM_PLAYER_ALIVE_PREFIX = "A"
     local CONST_COMM_PLAYERINFO_PREFIX = "P"
@@ -1450,7 +1458,7 @@ end
             currentValue = 1
         end
 
-        return timeLeft <= 2, percent, timeLeft, charges, minValue, maxValue, min(currentValue, maxValue)
+        return timeLeft <= 2, percent, timeLeft, charges, minValue, maxValue, min(currentValue, maxValue), duration
     end
 
     --return the values to be use on a progress bar or cooldown frame
@@ -1481,7 +1489,7 @@ end
     end
 
 --> internals
-    function openRaidLib.CooldownManager.OnPlayerCast(event, spellId, isPlayerPet)
+    function openRaidLib.CooldownManager.OnPlayerCast(event, spellId, isPlayerPet) --~cast
         --player casted a spell, check if the spell is registered as cooldown
         local playerSpec = openRaidLib.GetPlayerSpecId()
         if (playerSpec) then
@@ -1552,7 +1560,15 @@ end
     end
 
     function openRaidLib.CooldownManager.OnPlayerPetChanged()
-        openRaidLib.Schedules.NewUniqueTimer(0.5, openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
+
+        --local spellsAdded, spellsRemoved = openRaidLib.CooldownManager.CheckForSpellsAdeedOrRemoved()
+
+
+            --and send a comm telling this player has a new spell instead of sending all the list of spells
+--            local dataToSend = CONST_COMM_COOLDOWNFULLLIST_PREFIX .. ","
+  --          openRaidLib.commHandler.SendCommData(dataToSend)        
+
+        --openRaidLib.Schedules.NewUniqueTimer(0.5, openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
     end
 
     openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", openRaidLib.CooldownManager.OnPlayerLeaveGroup)

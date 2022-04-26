@@ -1131,7 +1131,7 @@ local default_player_data = {
 				only_in_group = true,
 				only_inside_instance = true,
 			},
-			show_options = true,
+			show_options = false,
 			current_cooldowns = {},
 			framme_locked = false,
 			filters = {

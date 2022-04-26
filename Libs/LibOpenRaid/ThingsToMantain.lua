@@ -456,7 +456,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 	--> DEMON HUNTER
 		--havoc
 		[577] = {
-			[200166] = 1, --Metamorphosis
+			[191427] = 1, --Metamorphosis
 			[198589] = 2, --Blur
 			[196555] = 2, --Netherwalk (talent)
 			[196718] = 4, --Darkness
@@ -595,7 +595,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		},
 		--marksmanship
 		[254] = {
-			[193526] = 1, --Trueshot
+			[288613] = 1, --Trueshot
 			[186265] = 2, --Aspect of the Turtle
 			[199483] = 2, --Camouflage (talent)
 			[109304] = 2, --Exhilaration
@@ -685,7 +685,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		--restoration
 		[264] = {
 			[108271] = 2, --Astral Shift
-			[114052] = 2, --Ascendance (talent)
+			[114052] = 4, --Ascendance (talent)
 			[98008] = 4, --Spirit Link Totem
 			[108280] = 4, --Healing Tide Totem
 			[16191] = 4, --Mana Tide Totem
@@ -780,7 +780,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[51533] = {cooldown = 120, duration = 15, talent = false, charges = 1, class = "SHAMAN", type = 1}, --Feral Spirit
 	[114050] = {cooldown = 180, duration = 15, talent = 21675, charges = 1, class = "SHAMAN", type = 1}, --Ascendance (talent)
 	[114051] = {cooldown = 180, duration = 15, talent = 21972, charges = 1, class = "SHAMAN", type = 1}, --Ascendance (talent)
-	[114052] = {cooldown = 180, duration = 15, talent = 22359, charges = 1, class = "SHAMAN", type = 2}, --Ascendance (talent)
+	[114052] = {cooldown = 180, duration = 15, talent = 22359, charges = 1, class = "SHAMAN", type = 4}, --Ascendance (talent)
 	[98008] = {cooldown = 180, duration = 6, talent = false, charges = 1, class = "SHAMAN", type = 4}, --Spirit Link Totem
 	[108280] = {cooldown = 180, duration = 10, talent = false, charges = 1, class = "SHAMAN", type = 4}, --Healing Tide Totem
 	[207399] = {cooldown = 240, duration = 30, talent = 22323, charges = 1, class = "SHAMAN", type = 4}, --Ancestral Protection Totem (talent)
@@ -814,7 +814,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[193530] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "HUNTER", type = 1}, --Aspect of the Wild
 	[19574] = {cooldown = 90, duration = 12, talent = false, charges = 1, class = "HUNTER", type = 1}, --Bestial Wrath
 	[201430] = {cooldown = 180, duration = 12, talent = 23044, charges = 1, class = "HUNTER", type = 1}, --Stampede (talent)
-	[193526] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "HUNTER", type = 1}, --Trueshot
+	[288613] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "HUNTER", type = 1}, --Trueshot
 	[199483] = {cooldown = 60, duration = 60, talent = 23100, charges = 1, class = "HUNTER", type = 2}, --Camouflage (talent)
 	[281195] = {cooldown = 180, duration = 6,  talent = false, charges = 1, class = "HUNTER", type = 2}, --Survival of the Fittest
 	[266779] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "HUNTER", type = 1}, --Coordinated Assault
@@ -869,7 +869,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[212552]  = {cooldown = 60, duration = 4, talent = 19228, charges = 1, class = "DEATHKNIGHT", type = 5}, --Wraith walk (talent)
 
 	--demon hunter
-	[200166] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
+	[191427] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
 	[198589] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Blur
 	[196555] = {cooldown = 120, duration = 5, talent = 21865, charges = 1, class = "DEMONHUNTER", type = 2}, --Netherwalk (talent)
 	[187827] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Metamorphosis

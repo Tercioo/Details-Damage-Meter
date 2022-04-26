@@ -33,13 +33,14 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
-		{"v9.2.0.9778.146", "April 23th, 2022"},
-		"A cooldown tracker experiment has been added, its options is visible at the Options Panel.",
+		{"v9.2.0.9778.146", "April 26th, 2022"},
+		--"A cooldown tracker experiment has been added, its options is visible at the Options Panel.",
+		"Added a search box in the '/details scroll' feature.",
 		"When using Details! Death Recap, a message is now printed to chat showing what killed you accordingly to Blizzard Death Recap.",
 		"Fixed some errors while using Mind Control on an arena match.",
 		"Fixed encounter phase detection while using voice packs for boss mods addons.",
 		"Fixed an error after killing a boss encounter on heroic dificulty for the first time.",
-		"Attempt to fix the issue of skins installed after the window has been loaded and the skin was not found at that time.",
+		"Fixed the issue of skins installed after the window has been loaded and the skin was not found at that time.",
 		"API: added 'UNIT_SPEC' and 'UNIT_TALENTS' event to details! event listener.",
 		"API: added Details:GetUnitId(unitName) which return the unitId for a given player name.",
 
