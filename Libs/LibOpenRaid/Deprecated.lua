@@ -6,6 +6,11 @@ end
 
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
+--> comm prefix deprecated
+openRaidLib.commPrefixDeprecated = {
+    
+}
+
 local spamLimit = {}
 
     local showDeprecatedMessage = function(deprecatedCall, newCall)

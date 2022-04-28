@@ -42,10 +42,11 @@ unitCooldows = {
 local cooldownInfo = openRaidLib.GetUnitCooldownInfo(unitId, spellId)
 
 --get cooldown timers to use with progress bar or cooldown frames, percent are normalized (0 to 1), timeLeft is seconds, minValue/maxValue/currentValue are in GetTime() time space, amount of charges
+--minValue is the same as startTime, maxValue is the same as expirationTime, currentValue is GetTime()
 --by using unitID and spellID
-local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromUnitSpellID(unitId, spellId)
+local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromUnitSpellID(unitId, spellId)
 --by using a cooldown info
-local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
 
 
 EQUIPMENT:
@@ -110,19 +111,35 @@ function MyAddonObject.OnReceiveCooldownListUpdate(unitId, unitCooldows, allUnit
 
     --using the 'unitCooldows' table passed for the updated unit
     for spellId, cooldownInfo in pairs(unitCooldows) do
-        local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+        --minValue, maxValue, currentValue is the same as startTime, expirationTime, GetTime()
+        local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+        --statusbar frame
         local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
         statusbar:SetMinMaxValues(minValue, maxValue)
         statusbar:SetValue(currentValue)
+        --cooldown frame
+        local cooldownFrame = CreateFrame("cooldown", "MyCooldownFrame", UIParent)
+        local startTime = minValue
+        CooldownFrame_Set(cooldownFrame, startTime, cooldownDuration, timeLeft > 0)
+        --or
+        cooldownFrame:SetCooldown(startTime, cooldownDuration)
     end
 
     --this event also passes a table with all player cooldowns
     for unitName, unitCooldows in pairs(allUnitsCooldowns) do
         for spellId, cooldownInfo in pairs(unitCooldows) do
-            local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+            --minValue, maxValue, currentValue is the same as startTime, expirationTime, GetTime()
+            local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+            --statusbar frame
             local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
             statusbar:SetMinMaxValues(0, 1)
             statusbar:SetValue(normalizedPercent)
+            --cooldown frame
+            local cooldownFrame = CreateFrame("cooldown", "MyCooldownFrame", UIParent)
+            local startTime = minValue
+            CooldownFrame_Set(cooldownFrame, startTime, cooldownDuration, timeLeft > 0)
+            --or
+            cooldownFrame:SetCooldown(startTime, cooldownDuration)            
         end
     end
 end
@@ -132,7 +149,7 @@ openRaidLib.RegisterCallback(MyAddonObject, "CooldownListUpdate", "OnReceiveCool
 
 ===================================================================================================================================
 "CooldownUpdate": triggered when an unit in the group uses a cooldown or the timeleft of a cooldown of an unit got an update
-@unitId: which unit got updated
+@unitId: which unit got the update
 @spellId: id of the cooldown spell
 @cooldownInfo: a table containing information about the cooldown time
 @unitCooldows: list of cooldowns of the unit
@@ -140,14 +157,63 @@ openRaidLib.RegisterCallback(MyAddonObject, "CooldownListUpdate", "OnReceiveCool
 ===================================================================================================================================
 
 function MyAddonObject.OnReceiveCooldownUpdate(unitId, spellId, cooldownInfo, unitCooldows, allUnitsCooldowns)
-    local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+    --minValue, maxValue, currentValue is the same as startTime, expirationTime, GetTime()
+    local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+    --statusbar frame
     local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
     statusbar:SetMinMaxValues(minValue, maxValue)
     statusbar:SetValue(currentValue)
+    --cooldown frame
+    local cooldownFrame = CreateFrame("cooldown", "MyCooldownFrame", UIParent)
+    local startTime = minValue
+    CooldownFrame_Set(cooldownFrame, startTime, cooldownDuration, timeLeft > 0)
+    --or
+    cooldownFrame:SetCooldown(startTime, cooldownDuration)
 end
 
 --registering the callback:
 openRaidLib.RegisterCallback(MyAddonObject, "CooldownUpdate", "OnReceiveCooldownUpdate")
+
+===================================================================================================================================
+"CooldownAdded": triggered when an unit get a new cooldown
+@unitId: which unit got the update
+@spellId: id of the cooldown spell
+@cooldownInfo: a table containing information about the cooldown time
+@unitCooldows: list of cooldowns of the unit
+@allUnitsCooldowns: a list of all players and their cooldowns
+===================================================================================================================================
+
+function MyAddonObject.OnUnitNewCooldown(unitId, spellId, cooldownInfo, unitCooldows, allUnitsCooldowns)
+    --minValue, maxValue, currentValue is the same as startTime, expirationTime, GetTime()
+    local isReady, timeLeft, charges, normalizedPercent, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+    local statusbar = CreateFrame("statusbar", "MyStatusBar", UIParent)
+    statusbar:SetMinMaxValues(minValue, maxValue)
+    statusbar:SetValue(currentValue)
+    --cooldown frame
+    local cooldownFrame = CreateFrame("cooldown", "MyCooldownFrame", UIParent)
+    local startTime = minValue
+    CooldownFrame_Set(cooldownFrame, startTime, cooldownDuration, timeLeft > 0)
+    --or
+    cooldownFrame:SetCooldown(startTime, cooldownDuration)
+end
+
+--registering the callback:
+openRaidLib.RegisterCallback(MyAddonObject, "CooldownAdded", "OnUnitNewCooldown")
+
+===================================================================================================================================
+"CooldownRemoved": triggered when an unit lost a cooldown spell
+@unitId: which unit got the update
+@spellId: id of the cooldown spell
+@unitCooldows: list of cooldowns of the unit
+@allUnitsCooldowns: a list of all players and their cooldowns
+===================================================================================================================================
+
+function MyAddonObject.OnUnitLostCooldown(unitId, spellId, unitCooldows, allUnitsCooldowns)
+    --the unit lost a cooldown
+end
+
+--registering the callback:
+openRaidLib.RegisterCallback(MyAddonObject, "CooldownRemoved", "OnUnitLostCooldown")
 
 ===================================================================================================================================
 "CooldownListWipe": when the list of cooldowns get a wipe, usually when the player leave the group

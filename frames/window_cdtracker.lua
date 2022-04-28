@@ -20,6 +20,8 @@ function Details.CooldownTracking.EnableTracker()
     openRaidLib.RegisterCallback(Details.CooldownTracking, "CooldownListUpdate", "OnReceiveUnitFullCooldownList")
     openRaidLib.RegisterCallback(Details.CooldownTracking, "CooldownUpdate", "OnReceiveSingleCooldownUpdate")
     openRaidLib.RegisterCallback(Details.CooldownTracking, "CooldownListWipe", "OnCooldownListWipe")
+    openRaidLib.RegisterCallback(Details.CooldownTracking, "CooldownAdded", "OnCooldownAdded")
+    openRaidLib.RegisterCallback(Details.CooldownTracking, "CooldownRemoved", "OnCooldownRemoved")
 
     Details.CooldownTracking.RefreshCooldownFrames()
 end
@@ -83,6 +85,17 @@ end
     --when the list of cooldowns got wiped, usually happens when the player left a group
     --@allUnitsCooldowns: a table containing all units [unitName] = {[spellId] = cooldownInfo}
     function Details.CooldownTracking.OnCooldownListWipe(allUnitsCooldowns)
+        Details.CooldownTracking.RefreshCooldownFrames()
+    end
+
+    --when a cooldown has been added to an unit
+    function Details.CooldownTracking.OnCooldownAdded(unitId, spellId, cooldownInfo, unitCooldows, allUnitsCooldowns)
+        --here could update the cooldown of the unit, but I'm too lazy so it update all units
+        Details.CooldownTracking.RefreshCooldownFrames()
+    end
+
+    --when a cooldown has been removed from an unit
+    function Details.CooldownTracking.OnCooldownRemoved(unitId, spellId, unitCooldows, allUnitsCooldowns)
         Details.CooldownTracking.RefreshCooldownFrames()
     end
 

@@ -25,11 +25,11 @@ Change Log:
     - player information is always available even when not in a group.
 
 TODO:
-    - need to finish the CheckForSpellsAdeedOrRemoved(),  need to send the comm, need to create the local callbacks
-    - create comm to add or remove a cooldown from an unit
+    - (finished but not active atm) need to finish the CheckForSpellsAdeedOrRemoved(),  need to send the comm, need to create the local callbacks
+    - (finished but not active atm) create comm to add or remove a cooldown from an unit
+    - make talents changes also send only cooldowns added or changed
     - add into gear info how many tier set parts the player has
     - keystone info (portion of the logic is implemented, need to share the information)
-    - add unit_connected through comm to know if a unit disconnected, do the lib realy need this? I don't think so
     - raid lockouts normal-heroic-mythic
     - soulbind character (covenant choise) - probably not used in 10.0
     
@@ -41,7 +41,7 @@ BUGS:
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 32
+local CONST_LIB_VERSION = 33
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -67,8 +67,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
     local CONST_COMM_COOLDOWNUPDATE_PREFIX = "U"
     local CONST_COMM_COOLDOWNFULLLIST_PREFIX = "C"
-    local CONST_COMM_COOLDOWNADDSPELL_PREFIX = "S"
-    local CONST_COMM_COOLDOWNREMOVESPELL_PREFIX = "E"
+    local CONST_COMM_COOLDOWNCHANGES_PREFIX = "S"
 
     local CONST_COMM_GEARINFO_FULL_PREFIX = "G"
     local CONST_COMM_GEARINFO_DURABILITY_PREFIX = "R"
@@ -125,7 +124,6 @@ LIB_OPEN_RAID_CAN_LOAD = false
     openRaidLib.commHandler = {}
 
     function openRaidLib.commHandler.OnReceiveComm(self, event, prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
-
         --check if the data belong to us
         if (prefix == CONST_COMM_PREFIX) then
             --check if the lib can receive comms
@@ -140,7 +138,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
             if (playerName == sender) then
                 return
             end
-            
+
             local data = text
             local LibDeflate = LibStub:GetLibrary("LibDeflate")
             local dataCompressed = LibDeflate:DecodeForWoWAddonChannel(data)
@@ -148,8 +146,18 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
             --get the first byte of the data, it indicates what type of data was transmited
             local dataTypePrefix = data:match("^.")
+            if (not dataTypePrefix) then
+                return
+            elseif (openRaidLib.commPrefixDeprecated[dataTypePrefix]) then
+                return
+            end
+
             --get the table with functions regitered for this type of data
             local callbackTable = openRaidLib.commHandler.commCallback[dataTypePrefix]
+            if (not callbackTable) then
+                return
+            end
+
             --convert to table
             local dataAsTable = {strsplit(",", data)}
 
@@ -173,6 +181,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         [CONST_COMM_FULLINFO_PREFIX] = {}, --update all
         [CONST_COMM_COOLDOWNFULLLIST_PREFIX] = {}, --all cooldowns of a player
         [CONST_COMM_COOLDOWNUPDATE_PREFIX] = {}, --an update of a single cooldown
+        [CONST_COMM_COOLDOWNCHANGES_PREFIX] = {}, --cooldowns got added or removed
         [CONST_COMM_GEARINFO_FULL_PREFIX] = {}, --an update of gear information
         [CONST_COMM_GEARINFO_DURABILITY_PREFIX] = {}, --an update of the player gear durability
         [CONST_COMM_PLAYER_DEAD_PREFIX] = {}, --player is dead
@@ -287,6 +296,8 @@ LIB_OPEN_RAID_CAN_LOAD = false
         "CooldownListUpdate",
         "CooldownListWipe",
         "CooldownUpdate",
+        "CooldownAdded",
+        "CooldownRemoved",
         "UnitDeath",
         "UnitAlive",
         "GearListWipe",
@@ -453,6 +464,9 @@ LIB_OPEN_RAID_CAN_LOAD = false
         ["UNIT_SPELLCAST_SUCCEEDED"] = function(...)
             local unitId, castGUID, spellId = ...
             C_Timer.After(0.1, function()
+                --some spells has many different spellIds, get the default
+                spellId = LIB_OPEN_RAID_SPELL_DEFAULT_IDS[spellId] or spellId
+                --trigger internal callbacks
                 openRaidLib.internalCallback.TriggerEvent("playerCast", spellId, UnitIsUnit(unitId, "pet"))
             end)
         end,
@@ -1564,15 +1578,8 @@ end
     end
 
     function openRaidLib.CooldownManager.OnPlayerPetChanged()
-
-        --local spellsAdded, spellsRemoved = openRaidLib.CooldownManager.CheckForSpellsAdeedOrRemoved()
-
-
-            --and send a comm telling this player has a new spell instead of sending all the list of spells
---            local dataToSend = CONST_COMM_COOLDOWNFULLLIST_PREFIX .. ","
-  --          openRaidLib.commHandler.SendCommData(dataToSend)        
-
-        --openRaidLib.Schedules.NewUniqueTimer(0.5, openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
+        --disabled atm
+        --openRaidLib.CooldownManager.CheckCooldownChanges()
     end
 
     openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", openRaidLib.CooldownManager.OnPlayerLeaveGroup)
@@ -1583,6 +1590,144 @@ end
     openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.CooldownManager.OnEncounterEnd)
     openRaidLib.internalCallback.RegisterCallback("mythicDungeonStart", openRaidLib.CooldownManager.OnMythicPlusStart)
     openRaidLib.internalCallback.RegisterCallback("playerPetChange", openRaidLib.CooldownManager.OnPlayerPetChanged)
+
+--send a list through comm with cooldowns added or removed
+function openRaidLib.CooldownManager.CheckCooldownChanges()
+    --important: CheckForSpellsAdeedOrRemoved() already change the cooldowns on the player locally
+    local spellsAdded, spellsRemoved = openRaidLib.CooldownManager.CheckForSpellsAdeedOrRemoved()
+
+    --add a prefix to make things easier during unpack
+    if (#spellsAdded > 0) then
+        tinsert(spellsAdded, 1, "A")
+    end
+
+    --insert the spells that has been removed at the end of the spells added table and pack the table
+    if (#spellsRemoved > 0) then
+        spellsAdded[#spellsAdded+1] = "R"
+        for _, spellId in ipairs(spellsRemoved) do
+            spellsAdded[#spellsAdded+1] = spellId
+        end
+    end
+
+    --send a comm if has any changes
+    if (#spellsAdded > 0) then
+        --pack
+        local playerCooldownChangesString = openRaidLib.PackTable(spellsAdded)
+        local dataToSend = CONST_COMM_COOLDOWNCHANGES_PREFIX .. ","
+        dataToSend = dataToSend .. playerCooldownChangesString
+
+        openRaidLib.commHandler.SendCommData(dataToSend)
+        diagnosticComm("CheckCooldownChanges| " .. dataToSend) --debug
+    end
+end
+
+function openRaidLib.CooldownManager.OnReceiveUnitCooldownChanges(data, unitName)
+    local currentCooldowns = openRaidLib.CooldownManager.UnitData[unitName]
+    --if does not have the full list of cooldowns of this unit, ignore cooldown add/remove comms
+    if (not currentCooldowns or not openRaidLib.CooldownManager.HasFullCooldownList[unitName]) then
+        return
+    end
+
+    --create a table to be ready to unpack
+    local addedCooldowns = {}
+    local removedCooldowns = {}
+    local isCooldownAdded = false
+    local isCooldownRemoved = false
+
+    --the letters A and R separate cooldowns added and cooldowns removed
+    for i = 1, #data do
+        local thisData = data[i]
+
+        if (thisData == "A") then
+            isCooldownAdded = true
+        elseif (thisData == "R") then
+            isCooldownAdded = false
+            isCooldownRemoved = true
+        end
+
+        if (isCooldownAdded) then
+            thisData = tonumber(thisData)
+            if (thisData) then
+                addedCooldowns[#addedCooldowns+1] = thisData
+            end
+        elseif(isCooldownRemoved) then
+            local spellId = tonumber(thisData)
+            if (spellId) then
+                removedCooldowns[#removedCooldowns+1] = spellId
+            end
+        end
+    end
+
+    if (#addedCooldowns > 0) then
+        tinsert(addedCooldowns, 1, #addedCooldowns) --amount of indexes for UnpackTable()
+        local cooldownsAddedUnpacked = openRaidLib.UnpackTable(addedCooldowns, 1, true, true, 5)
+        for spellId, cooldownInfo in pairs(cooldownsAddedUnpacked) do
+            --add the spell into the list of cooldowns of this unit
+            local timeLeft, charges, timeOffset, duration = unpack(cooldownInfo)
+            openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, spellId, timeLeft, charges, timeOffset, duration)
+            --mark the filter cache of this unit as dirt
+            openRaidLib.CooldownManager.NeedRebuildFilters[unitName] = true
+            --trigger public callback
+            openRaidLib.publicCallback.TriggerCallback("CooldownAdded", openRaidLib.GetUnitID(unitName), spellId, cooldownInfo, openRaidLib.GetUnitCooldowns(unitName), openRaidLib.CooldownManager.UnitData)
+        end
+    end
+
+    if (#removedCooldowns > 0) then
+        for _, spellId in ipairs(removedCooldowns) do
+            --remove the spell from this unit cooldown list
+            currentCooldowns[spellId] = nil
+            --mark the filter cache of this unit as dirt
+            openRaidLib.CooldownManager.NeedRebuildFilters[unitName] = true
+            --trigger public callback
+            openRaidLib.publicCallback.TriggerCallback("CooldownRemoved", openRaidLib.GetUnitID(unitName), spellId, openRaidLib.GetUnitCooldowns(unitName), openRaidLib.CooldownManager.UnitData)
+        end
+    end
+
+end
+openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNCHANGES_PREFIX, openRaidLib.CooldownManager.OnReceiveUnitCooldownChanges)
+
+--compare the current list of spells of the player with a new spell list generated
+--add or remove spells from the player cooldown list
+--return two tables, the first has added spells and is a index table ready to pack and send to comm
+--the second table is a index table with a list of spells that has been removed, also ready to pack
+function openRaidLib.CooldownManager.CheckForSpellsAdeedOrRemoved()
+    local playerName = UnitName("player")
+    local currentCooldowns = openRaidLib.CooldownManager.UnitData[playerName]
+    local _, newCooldownList = openRaidLib.CooldownManager.GetPlayerCooldownList()
+    local spellsAdded, spellsRemoved = {}, {}
+
+    for spellId, cooldownInfo in pairs(newCooldownList) do
+        if (not currentCooldowns[spellId]) then
+            --a spell has been added
+            local timeLeft, charges, timeOffset, duration = unpack(cooldownInfo)
+            openRaidLib.CooldownManager.CooldownSpellUpdate(playerName, spellId, timeLeft, charges, timeOffset, duration)
+
+            local timeLeft, charges, startTimeOffset, duration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
+            spellsAdded[#spellsAdded+1] = spellId
+            spellsAdded[#spellsAdded+1] = timeLeft
+            spellsAdded[#spellsAdded+1] = charges
+            spellsAdded[#spellsAdded+1] = startTimeOffset
+            spellsAdded[#spellsAdded+1] = duration
+
+            --mark the filter cache of this unit as dirt
+            openRaidLib.CooldownManager.NeedRebuildFilters[playerName] = true
+            openRaidLib.publicCallback.TriggerCallback("CooldownAdded", "player", spellId, cooldownInfo, openRaidLib.GetUnitCooldowns("player"), openRaidLib.CooldownManager.UnitData)
+        end
+    end
+
+    for spellId in pairs(currentCooldowns) do
+        if (not newCooldownList[spellId]) then
+            --a spell has been removed
+            currentCooldowns[spellId] = nil
+            spellsRemoved[#spellsRemoved+1] = spellId
+            --mark the filter cache of this unit as dirt
+            openRaidLib.CooldownManager.NeedRebuildFilters[playerName] = true
+            openRaidLib.publicCallback.TriggerCallback("CooldownRemoved", "player", spellId, openRaidLib.GetUnitCooldowns("player"), openRaidLib.CooldownManager.UnitData)
+        end
+    end
+
+    return spellsAdded, spellsRemoved
+end
 
 --update the list of cooldowns of the player it self locally
 --this is called right after changes in the player cooldowns
