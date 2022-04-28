@@ -1275,6 +1275,7 @@ local default_global_data = {
 			["14"] = false,
 		},
 		current_exp_raid_encounters = {},
+		installed_skins_cache = {},
 
 	--> all switch settings (panel shown when right click the title bar)
 		all_switch_config = {

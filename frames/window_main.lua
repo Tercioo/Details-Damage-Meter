@@ -6870,22 +6870,31 @@ function _detalhes:RefreshMicroDisplays()
 end
 
 function Details:WaitForSkin()
+	local skinName = self.skin
+	local hasSkinInCache = Details.installed_skins_cache[skinName]
+	if (hasSkinInCache) then
+		Details:InstallSkin(skinName, hasSkinInCache)
+		local skin = Details.skins[skinName]
+		if (skin) then
+			return skin
+		end
+	end
+
 	Details.waitingForSkins = Details.waitingForSkins or {}
-	Details.waitingForSkins[self:GetId()] = self.skin
+	Details.waitingForSkins[self:GetId()] = skinName
 
 	local defaultSkin = _detalhes.default_skin_to_use
-	skin = _detalhes.skins[defaultSkin]
+	local skin = _detalhes.skins[defaultSkin]
 	self.skin = defaultSkin
 	return skin
 end
 
 function Details:ChangeSkin(skin_name)
-
 	if (not skin_name) then
 		skin_name = self.skin
 	end
 
-	local this_skin = _detalhes.skins [skin_name]
+	local this_skin = _detalhes.skins[skin_name]
 	if (not this_skin) then
 		local tempSkin = Details:WaitForSkin()
 		this_skin = tempSkin

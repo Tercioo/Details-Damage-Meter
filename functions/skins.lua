@@ -14,6 +14,17 @@ local _
 		if (not skin_table.file) then
 			return false -- no skin file
 		end
+
+		if (not skin_table.no_cache) then
+			--Detatils! can cache the skin installed by other addons or scripts
+			--This way the skin original table is saved within the addon and can work even if the other addon is outdated or disabled
+			if (Details.IsLoaded()) then
+				Details.installed_skins_cache[skin_name] = skin_table
+				print("Skin added to the skin cache", skin_name)
+			else
+				Details:Msg("cannot install a skin without 'skin.no_cache' before 'Details.IsLoaded()' is true.")
+			end
+		end
 		
 		skin_table.author = skin_table.author or ""
 		skin_table.version = skin_table.version or ""
@@ -62,6 +73,7 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "This was the first skin made for Details!, inspired in the standard wow interface", 
+		no_cache = true,
 		
 		can_change_alpha_head = false, 
 		icon_anchor_main = {-1, 1}, 
@@ -296,6 +308,7 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "Simple skin with soft gray color and half transparent frames.", --\n
+		no_cache = true,
 		
 		--micro frames
 		micro_frames = {
@@ -519,7 +532,8 @@ local _
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "Same as the first Minimalistic, but this one is more darker and less transparent.", 
+		desc = "Same as the first Minimalistic, but this one is more darker and less transparent.",
+		no_cache = true,
 		
 		--micro frames
 		micro_frames = {
@@ -740,7 +754,8 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual.", 
-		
+		no_cache = true,
+
 		--micro frames
 		micro_frames = {
 			left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE",
@@ -1054,7 +1069,8 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "Very clean skin without textures and only with a black contour.", 
-		
+		no_cache = true,
+
 		--general
 		can_change_alpha_head = true, 
 
@@ -1314,7 +1330,8 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "This skin is based on ElvUI's addons, relying with black and transparent frames.", 
-		
+		no_cache = true,
+
 		--general
 		can_change_alpha_head = true, 
 
@@ -1563,7 +1580,8 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "based on AddonSkins for ElvUI, this skin has opaque title bar and background.", 
-		
+		no_cache = true,
+
 		--general
 		can_change_alpha_head = true, 
 
@@ -1745,7 +1763,8 @@ local _
 		version = "1.0",
 		site = "unknown",
 		desc = "Regular Details! skin but with a dark theme.",
-		
+		no_cache = true,
+
 		--general
 		can_change_alpha_head = true,
 
@@ -2232,7 +2251,8 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "Simple skin with soft gray color and half transparent frames.", --\n
-		
+		no_cache = true,
+
 		--micro frames
 		micro_frames = {
 			color = {1, 1, 1, 1}, 
@@ -2490,7 +2510,8 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "Simple skin with soft gray color and half transparent frames.", --\n
-		
+		no_cache = true,
+
 		--micro frames
 		micro_frames = {
 			color = {1, 1, 1, 1}, 
