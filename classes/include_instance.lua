@@ -154,7 +154,7 @@ _detalhes.instance_defaults = {
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1}, --mode segment attribute report on top position
 		menu_anchor_down = {5, 1}, --mode segment attribute report on bottom position
-		menu_icons_alpha = 0.5,
+		menu_icons_alpha = 1,
 		--blackwhiite icons
 		desaturated_menu = false, --mode segment attribute report
 		--icons on menu
@@ -242,6 +242,9 @@ _detalhes.instance_defaults = {
 			--bar texture name
 				texture_file = [[Interface\AddOns\Details\images\bar4]],
 				texture_custom_file = "Interface\\",
+			--bar overlay texture file
+				overlay_texture = "Details D'ictum",
+				overlay_color = {.7, .7, .7, 0},
 			--bar texture on mouse over
 				texture_highlight = [[Interface\FriendsFrame\UI-FriendsList-Highlight]],
 			--bar background texture

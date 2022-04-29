@@ -1152,6 +1152,20 @@ do
         afterUpdate()
     end
 
+    local onSelectBarTextureOverlay =  function(_, instance, textureName)
+        editInstanceSetting(currentInstance, "SetBarOverlaySettings", textureName)
+    end
+
+    local buildTextureOverlayMenu = function()
+        local textures2 = SharedMedia:HashTable("statusbar")
+        local texTable2 = {}
+        for name, texturePath in pairs (textures2) do
+            texTable2[#texTable2+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectBarTextureOverlay, icon = texture_icon, texcoord = texture_texcoord}
+        end
+        table.sort(texTable2, function (t1, t2) return t1.label < t2.label end)
+        return texTable2
+    end
+
     local iconsize = {16, 16}
     local icontexture = [[Interface\WorldStateFrame\ICONS-CLASSES]]
     local iconcoords = {0.25, 0.50, 0, 0.25}
@@ -1283,7 +1297,7 @@ do
                     afterUpdate()
                 end,
                 name = Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"],
-                desc = Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE_DESC"],
+                desc = Loc ["STRING_CUSTOM_TEXTURE_GUIDE"]
             },
 
             {--remove custom texture
@@ -1314,7 +1328,7 @@ do
 				desc = Loc ["STRING_OPTIONS_BAR_COLOR_DESC"],
             },
 
-            {--use class colors
+            {--color by player class
                 type = "toggle",
                 get = function() return currentInstance.row_info.texture_class_colors end,
                 set = function (self, fixedparam, value)
@@ -1323,6 +1337,32 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
                 desc = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"],
+            },
+
+            {type = "blank"},
+            {type = "label", get = function() return "Overlay:" end, text_template = subSectionTitleTextTemplate},
+            {--overlay texture
+                type = "select",
+                get = function() return currentInstance.row_info.overlay_texture end,
+                values = function()
+                    return buildTextureOverlayMenu()
+                end,
+                name = Loc ["STRING_TEXTURE"],
+                desc = "Texture which sits above the bar",
+            },
+
+			{--overlay color
+				type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.overlay_color)
+                    return {r, g, b, a}
+				end,
+				set = function (self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarOverlaySettings", nil, {r, g, b, a})
+                    afterUpdate()
+				end,
+				name = Loc ["STRING_COLOR"],
+				desc = Loc ["STRING_COLOR"],
             },
 
             {type = "blank"},
@@ -1364,7 +1404,7 @@ do
                 desc = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"],
             },
 
-            {type = "blank"},
+            {type = "breakline"},
             {type = "label", get = function() return "Arena Team Color" end, text_template = subSectionTitleTextTemplate},
 			{--team 1 color
                 type = "color",
@@ -1397,7 +1437,7 @@ do
                 desc = "Arena team color",
             },
 
-            {type = "breakline"},
+            {type = "blank"},
             {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
 
             {--select icon file
@@ -1442,8 +1482,8 @@ do
                     Details.options.SetCurrentInstanceAndRefresh(currentInstance)
                     afterUpdate()
                 end,
-                name = "Enter the path for a custom icon file",
-                desc = "Enter the path for a custom icon file",
+                name = Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"],
+                desc = Loc ["STRING_CUSTOM_TEXTURE_GUIDE"],
             },
 
             {--bar start at
@@ -4457,6 +4497,7 @@ do
 
             local anchorMenu = {
                 {value = "all", label = "Fill", onclick = onSelectAnchor},
+                {value = "titlebar", label = "Full Body", onclick = onSelectAnchor},
                 {value = "center", label = "Center", onclick = onSelectAnchor},
                 {value = "stretchLR", label = "Stretch Left-Right", onclick = onSelectAnchor},
                 {value = "stretchTB", label = "Stretch Top-Bottom", onclick = onSelectAnchor},
