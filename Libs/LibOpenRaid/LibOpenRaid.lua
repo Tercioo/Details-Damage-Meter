@@ -873,8 +873,18 @@ LIB_OPEN_RAID_CAN_LOAD = false
     function openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo(data, unitName)
         local specId = tonumber(data[1])
         local renown = tonumber(data[2])
+
         local covenantId = tonumber(data[3])
+        if (not covenantId or covenantId > 4) then --cleanup on 10.0
+            --invalid covanentId
+            return
+        end
+
         local talentsSize = tonumber(data[4])
+        if (not talentsSize or talentsSize > 7) then --talents rework on 10.0
+            --invalid talents size
+            return
+        end
 
         local conduitsTableIndex = tonumber((talentsSize + 1) + 3) + 1 -- +3 for spec, renown and covenant data | talentSizeIndex + talentSize | +1 for talents size
         local conduitsSize = data[conduitsTableIndex]
