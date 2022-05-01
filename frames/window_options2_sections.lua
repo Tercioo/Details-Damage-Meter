@@ -1556,6 +1556,19 @@ do
                 desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_DESC"],
             },
 
+            {--inline auto align enabled
+                type = "toggle",
+                get = function() return currentInstance.use_auto_align_multi_fontstrings end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "use_auto_align_multi_fontstrings", value)
+                    editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    _detalhes:RefreshMainWindow(-1, true)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN"],
+                desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN_DESC"],
+            },
+
             {--lineText2 (left, usuali is the 'done' amount)
                 type = "range",
                 get = function() return tonumber (currentInstance.fontstrings_text2_anchor) end,

@@ -4597,6 +4597,14 @@ function _detalhes:FastPSUpdate (enabled)
 end
 
 
+function Details:AdjustInLineTextPadding()
+	for _, row in ipairs(self.barras) do 
+		row.lineText2:SetPoint("right", row.statusbar, "right", -self.fontstrings_text2_anchor, 0)
+		row.lineText3:SetPoint("right", row.statusbar, "right", -self.fontstrings_text3_anchor, 0)
+		row.lineText4:SetPoint("right", row.statusbar, "right", -self.fontstrings_text4_anchor, 0)
+	end
+end
+
 -- search key: ~row ~bar ~updatebar
 function _detalhes:InstanceRefreshRows (instancia)
 	

@@ -187,10 +187,10 @@ _detalhes.instance_defaults = {
 
 		--use one fontstring for each value in the lines, e.g. one fontstring to damage done, another fontstring to dps and another to percent amount
 		use_multi_fontstrings = true,
-		fontstrings_width = 35, --not in use
+		use_auto_align_multi_fontstrings = true,
 		fontstrings_text4_anchor = 0,
-		fontstrings_text3_anchor = 35,
-		fontstrings_text2_anchor = 70,
+		fontstrings_text3_anchor = 38,
+		fontstrings_text2_anchor = 73,
 
 	--row info
 		row_info = {

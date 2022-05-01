@@ -585,8 +585,10 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		end
 	end
 
+	instancia:AutoAlignInLineFontStrings()
+
 	-- showing.need_refresh = false
-	return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
+	return Details:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	
 end
 

@@ -2397,8 +2397,117 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 	Details.LastFullDamageUpdate = Details._tempo
 	
+	instancia:AutoAlignInLineFontStrings()
+
 	return Details:EndRefresh(instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 end
+
+function Details:AutoAlignInLineFontStrings()
+	
+	--if this instance is using in line texts, check the min distance and the length of strings to make them more spread appart
+	if (self.use_multi_fontstrings and self.use_auto_align_multi_fontstrings) then
+		local maxStringLength_StringFour = 0
+		local maxStringLength_StringThree = 0
+		local profileOffsetString3 = self.fontstrings_text3_anchor
+		local profileOffsetString2 = self.fontstrings_text2_anchor
+		local offsetTotal = 0
+
+		Details.CacheInLineMaxDistance = Details.CacheInLineMaxDistance or {}
+		Details.CacheInLineMaxDistance[self:GetId()] = Details.CacheInLineMaxDistance[self:GetId()] or {[2] = profileOffsetString2, [3] = profileOffsetString3}
+
+		--space between string4 and string3 (usually dps is 4 and total value is 3)
+		for lineId = 1, self:GetNumLinesShown() do
+			local thisLine = self:GetLine(lineId)
+
+			--check strings 3 and 4
+			if (thisLine.lineText4:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
+				--the length of the far right string determines the space between it and the next string in the left
+				local stringLength = thisLine.lineText4:GetStringWidth()
+				maxStringLength_StringFour = stringLength > maxStringLength_StringFour and stringLength or maxStringLength_StringFour
+			end
+			
+			--check strings 2 and 3
+			if (thisLine.lineText2:GetText() ~= "" and thisLine.lineText3:GetText() ~= "") then
+				--the length of the middle string determines the space between it and the next string in the left
+				local stringLength = thisLine.lineText3:GetStringWidth()
+				maxStringLength_StringThree = stringLength > maxStringLength_StringThree and stringLength or maxStringLength_StringThree
+			end
+		end
+
+		--if the length bigger than the min distance? calculate for string4 to string3 distance
+		if ((maxStringLength_StringFour > 0) and (maxStringLength_StringFour + 5 > profileOffsetString3)) then
+			local newOffset = maxStringLength_StringFour + 5
+
+			--check if the current needed min distance is bigger than the distance stored in the cache
+			local currentCacheMaxValue = Details.CacheInLineMaxDistance[self:GetId()][3]
+			if (currentCacheMaxValue < newOffset) then
+				currentCacheMaxValue = newOffset
+				Details.CacheInLineMaxDistance[self:GetId()][3] = currentCacheMaxValue
+			else
+				--if not, use the distance value cached to avoid jittering in the string
+				newOffset = currentCacheMaxValue
+			end
+
+			--update the lines
+			for lineId = 1, self:GetNumLinesShown() do
+				local thisLine = self:GetLine(lineId)
+				thisLine.lineText3:SetPoint("right", thisLine.statusbar, "right", -newOffset, 0)
+			end
+		end
+
+		--check if there's length in the third string, also the third string cannot have a length if the second string is empty
+		if (maxStringLength_StringThree > 0) then
+			local newOffset = maxStringLength_StringThree + maxStringLength_StringFour + 14
+			if (newOffset >= profileOffsetString2) then
+				--check if the current needed min distance is bigger than the distance stored in the cache
+				local currentCacheMaxValue = Details.CacheInLineMaxDistance[self:GetId()][2]
+				if (currentCacheMaxValue < newOffset) then
+					currentCacheMaxValue = newOffset
+					Details.CacheInLineMaxDistance[self:GetId()][2] = currentCacheMaxValue
+				else
+					--if not, use the distance value cached to avoid jittering in the string
+					newOffset = currentCacheMaxValue
+				end
+
+				--update the lines
+				for lineId = 1, self:GetNumLinesShown() do
+					local thisLine = self:GetLine(lineId)
+					thisLine.lineText2:SetPoint("right", thisLine.statusbar, "right", -newOffset, 0)
+				end
+			end
+		end
+
+		--reduce the size of the actor name string based on the total size of all strings in the right side
+		for lineId = 1, self:GetNumLinesShown() do
+			local thisLine = self:GetLine(lineId)
+
+			local playerName = thisLine.lineText1
+			local text2 = thisLine.lineText2
+			local text3 = thisLine.lineText3
+			local text4 = thisLine.lineText4
+
+			local totalWidth = text2:GetStringWidth() + text3:GetStringWidth() + text4:GetStringWidth()
+			totalWidth = totalWidth + 50
+
+			DetailsFramework:TruncateText(playerName, self.cached_bar_width - totalWidth)
+			--playerName:SetWidth(self.cached_bar_width - totalWidth)
+		end
+	end
+end
+
+--handle internal details! events
+local eventListener = Details:CreateEventListener()
+eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
+	if (Details.CacheInLineMaxDistance) then
+		wipe(Details.CacheInLineMaxDistance)
+
+		for i = 1, 10 do
+			C_Timer.After(i, function()
+				wipe(Details.CacheInLineMaxDistance)
+			end)
+		end
+	end
+end)
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
