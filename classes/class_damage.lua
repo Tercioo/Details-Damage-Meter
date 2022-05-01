@@ -2410,7 +2410,6 @@ function Details:AutoAlignInLineFontStrings()
 		local maxStringLength_StringThree = 0
 		local profileOffsetString3 = self.fontstrings_text3_anchor
 		local profileOffsetString2 = self.fontstrings_text2_anchor
-		local offsetTotal = 0
 
 		Details.CacheInLineMaxDistance = Details.CacheInLineMaxDistance or {}
 		Details.CacheInLineMaxDistance[self:GetId()] = Details.CacheInLineMaxDistance[self:GetId()] or {[2] = profileOffsetString2, [3] = profileOffsetString3}
@@ -2489,7 +2488,7 @@ function Details:AutoAlignInLineFontStrings()
 			local totalWidth = text2:GetStringWidth() + text3:GetStringWidth() + text4:GetStringWidth()
 			totalWidth = totalWidth + 50
 
-			DetailsFramework:TruncateText(playerName, self.cached_bar_width - totalWidth)
+			DetailsFramework:TruncateText(playerName, self.cached_bar_width - totalWidth) --this avoid truncated strings with ...
 			--playerName:SetWidth(self.cached_bar_width - totalWidth)
 		end
 	end

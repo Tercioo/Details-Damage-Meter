@@ -2596,8 +2596,9 @@ do
 
     local buildSection = function(sectionFrame)
         local sectionOptions = {
+            {type = "label", get = function() return Loc["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
 
-			{--window color
+			{--window color (skin color)
                 type = "color",
                 get = function()
                     local r, g, b = unpack (currentInstance.color)
@@ -2608,37 +2609,8 @@ do
                     editInstanceSetting(currentInstance, "InstanceColor", r, g, b, a, nil, true)
                     afterUpdate()
                 end,
-                name = Loc ["STRING_OPTIONS_INSTANCE_COLOR"],
-                desc = Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"],
-            },
-
-			{--background color
-                type = "color",
-                get = function()
-                    return {currentInstance.bg_r, currentInstance.bg_g, currentInstance.bg_b, currentInstance.bg_alpha}
-                end,
-                set = function (self, r, g, b, a)
-                    editInstanceSetting(currentInstance, "SetBackgroundColor", r, g, b)
-                    editInstanceSetting(currentInstance, "SetBackgroundAlpha", a)
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"],
-                desc = Loc ["STRING_OPTIONS_INSTANCE_ALPHA2_DESC"],
-            },
-
-            {--window scale
-                type = "range",
-                get = function() return tonumber(currentInstance.window_scale) end,
-                set = function (self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetWindowScale", value, true)
-                    afterUpdate()
-                end,
-                min = 0.65,
-                max = 1.5,
-                step = 0.02,
-                usedecimals = true,
-                name = Loc ["STRING_OPTIONS_WINDOW_SCALE"],
-                desc = Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"],
+                name = Loc ["STRING_OPTIONS_WINDOW_SKIN_COLOR"],
+                desc = Loc ["STRING_OPTIONS_WINDOW_SKIN_COLOR_DESC"],
             },
 
             {--show borders
@@ -2655,6 +2627,35 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_SHOW_SIDEBARS"],
                 desc = Loc ["STRING_OPTIONS_SHOW_SIDEBARS_DESC"],
+            },
+
+			{--background color
+                type = "color",
+                get = function()
+                    return {currentInstance.bg_r, currentInstance.bg_g, currentInstance.bg_b, currentInstance.bg_alpha}
+                end,
+                set = function (self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBackgroundColor", r, g, b)
+                    editInstanceSetting(currentInstance, "SetBackgroundAlpha", a)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_WINDOW_ROWAREA_COLOR"],
+                desc = Loc ["STRING_OPTIONS_WINDOW_ROWAREA_COLOR_DESC"],
+            },
+
+            {--window scale
+                type = "range",
+                get = function() return tonumber(currentInstance.window_scale) end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetWindowScale", value, true)
+                    afterUpdate()
+                end,
+                min = 0.65,
+                max = 1.5,
+                step = 0.02,
+                usedecimals = true,
+                name = Loc ["STRING_OPTIONS_WINDOW_SCALE"],
+                desc = Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"],
             },
 
             {--ignore on mass hide
@@ -2784,6 +2785,90 @@ do
                 name = Loc ["STRING_OPTIONS_INSTANCE_DELETE"],
                 --icontexture = [[Interface\Buttons\UI-GuildButton-MOTD-Up]],
                 --icontexcoords = {1, 0, 0, 1},
+            },
+
+            {type = "breakline"},
+            {type = "label", get = function() return "Window Area Border" end, text_template = subSectionTitleTextTemplate},
+
+            {--show full border ~border
+                type = "toggle",
+                get = function() return currentInstance.fullborder_shown end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "UpdateFullBorder", value)
+                    afterUpdate()
+                end,
+                name = "Show Border",
+                desc = "Show Border",
+            },
+
+			{--full border color
+                type = "color",
+                get = function()
+                    return {unpack(currentInstance.fullborder_color)}
+                end,
+                set = function (self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "UpdateFullBorder", nil, {r, g, b, a})
+                    afterUpdate()
+                end,
+                name = "Border Color",
+                desc = "Border Color",
+            },
+
+            {--border size
+                type = "range",
+                get = function() return tonumber(currentInstance.fullborder_size) end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "UpdateFullBorder", nil, nil, value)
+                    afterUpdate()
+                end,
+                min = 0,
+                max = 5,
+                step = 0.5,
+                usedecimals = true,
+                name = "Border Thickness",
+                desc = "Border Thickness",
+            },
+
+            {type = "blank"},
+            {type = "label", get = function() return "Row's Area Border" end, text_template = subSectionTitleTextTemplate},
+
+            {--show full border ~border
+                type = "toggle",
+                get = function() return currentInstance.rowareaborder_shown end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "UpdateRowAreaBorder", value)
+                    afterUpdate()
+                end,
+                name = "Show Border",
+                desc = "Show Border",
+            },
+
+			{--full border color
+                type = "color",
+                get = function()
+                    return {unpack(currentInstance.rowareaborder_color)}
+                end,
+                set = function (self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "UpdateRowAreaBorder", nil, {r, g, b, a})
+                    afterUpdate()
+                end,
+                name = "Border Color",
+                desc = "Border Color",
+            },
+
+            {--border size
+                type = "range",
+                get = function() return tonumber(currentInstance.rowareaborder_size) end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "UpdateRowAreaBorder", nil, nil, value)
+                    afterUpdate()
+                end,
+                min = 0,
+                max = 5,
+                step = 0.5,
+                usedecimals = true,
+                name = "Border Thickness",
+                desc = "Border Thickness",
             },
             
         }

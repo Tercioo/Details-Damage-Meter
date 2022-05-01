@@ -7228,6 +7228,9 @@ function Details:ChangeSkin(skin_name)
 	
 	--> refresh lock buttons
 		self:RefreshLockedState()
+
+	self:UpdateFullBorder()
+	self:UpdateRowAreaBorder()
 	
 	--> clear any control sscript running in this instance
 	self.bgframe:SetScript ("OnUpdate", nil)
@@ -7653,6 +7656,62 @@ function _detalhes:SetFrameStrata (strata)
 	end
 	
 	self:StretchButtonAlwaysOnTop()
+end
+
+--set and refresh the full border
+function Details:UpdateFullBorder(shown, color, size)
+	if (type(shown) == "boolean") then
+		self.fullborder_shown = shown
+	else
+		shown = self.fullborder_shown
+	end
+
+	if (size) then
+		self.fullborder_size = size
+	else
+		size = self.fullborder_size
+	end
+
+	if (color) then
+		self.fullborder_color = color
+	else
+		color = self.fullborder_color
+	end
+
+	self.baseframe.fullWindowFrame.border:SetShown(shown)
+	if (shown) then
+		self.baseframe.fullWindowFrame.border:SetBorderSizes(size, size, size, size)
+		self.baseframe.fullWindowFrame.border:UpdateSizes()
+		self.baseframe.fullWindowFrame.border:SetVertexColor(DetailsFramework:ParseColors(color))
+	end
+end
+
+--set and refresh the border of the row area
+function Details:UpdateRowAreaBorder(shown, color, size)
+	if (type(shown) == "boolean") then
+		self.rowareaborder_shown = shown
+	else
+		shown = self.rowareaborder_shown
+	end
+
+	if (size) then
+		self.rowareaborder_size = size
+	else
+		size = self.rowareaborder_size
+	end
+
+	if (color) then
+		self.rowareaborder_color = color
+	else
+		color = self.rowareaborder_color
+	end
+
+	self.baseframe.border:SetShown(shown)
+	if (shown) then
+		self.baseframe.border:SetBorderSizes(size, size, size, size)
+		self.baseframe.border:UpdateSizes()
+		self.baseframe.border:SetVertexColor(DetailsFramework:ParseColors(color))
+	end
 end
 
 -- ~attributemenu (text with attribute name)

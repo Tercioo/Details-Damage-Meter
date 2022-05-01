@@ -192,6 +192,21 @@ _detalhes.instance_defaults = {
 		fontstrings_text3_anchor = 38,
 		fontstrings_text2_anchor = 73,
 
+	--title bar
+		titlebar_height = 16,
+		titlebar_texture = "",
+		titlebar_color = {0, 0, 0, 0},
+
+	--full border
+		fullborder_shown = false,
+		fullborder_color = {0, 0, 0, 1},
+		fullborder_size = 0.5,
+
+	--row area border
+		rowareaborder_shown = false,
+		rowareaborder_color = {0, 0, 0, 1},
+		rowareaborder_size = 0.5,
+
 	--row info
 		row_info = {
 			--if true the texture of the bars will have the color of his actor class
