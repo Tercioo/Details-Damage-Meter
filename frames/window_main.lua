@@ -1874,11 +1874,13 @@ local barra_scripts_onenter = function (self)
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 
 	if (not _detalhes.instances_disable_bar_highlight) then
+		--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 		if (self._instance.bars_inverted) then
 			self.right_to_left_texture:SetBlendMode ("ADD")
 		else
 			self.textura:SetBlendMode ("ADD")
-		end
+		end]]
+		self.textura:SetBlendMode ("ADD")
 	end
 
 	local lefttext = self.lineText1
@@ -1912,13 +1914,14 @@ local barra_scripts_onleave = function (self)
 	self:SetBackdrop (barra_backdrop_onleave)	
 	self:SetBackdropBorderColor (0, 0, 0, 0)
 	self:SetBackdropColor (0, 0, 0, 0)
-	
+	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 	if (self._instance.bars_inverted) then
 		self.right_to_left_texture:SetBlendMode ("BLEND")
 	else
 		self.textura:SetBlendMode ("BLEND")
-	end
-
+	end]]
+	self.textura:SetBlendMode ("BLEND")
+	
 	self.showing_allspells = false
 	self:SetScript ("OnUpdate", nil)
 	
@@ -2076,6 +2079,7 @@ function _detalhes:HandleTextsOnMouseClick (row, type)
 end
 
 local set_bar_value = function (self, value)
+	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 	if (self._instance.bars_inverted) then
 		self.statusbar:SetValue (0)
 		
@@ -2089,7 +2093,8 @@ local set_bar_value = function (self, value)
 		self.right_to_left_texture:SetTexCoord (coord_inverse, 0, 0, 1)
 	else
 		self.statusbar:SetValue (value)
-	end
+	end]]
+	self.statusbar:SetValue(value)
 	
 	self.statusbar.value = value
 	
@@ -4078,6 +4083,7 @@ function gump:CreateNewLine (instancia, index)
 	--> statusbar
 	newLine.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, newLine)
 	newLine.statusbar.value = 0
+	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 	--> right to left texture
 	newLine.statusbar.right_to_left_texture = newLine.statusbar:CreateTexture (nil, "overlay")
 	newLine.statusbar.right_to_left_texture:SetPoint ("topright", newLine.statusbar, "topright")
@@ -4085,7 +4091,7 @@ function gump:CreateNewLine (instancia, index)
 	newLine.statusbar.right_to_left_texture:SetWidth (0.000000001)
 	newLine.statusbar.right_to_left_texture:Hide()
 	newLine.right_to_left_texture = newLine.statusbar.right_to_left_texture
-	
+	]]
 	--> frame for hold the backdrop border
 	newLine.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, newLine.statusbar,"BackdropTemplate")
 	newLine.border:SetFrameLevel (newLine.statusbar:GetFrameLevel()+2)
@@ -4780,9 +4786,9 @@ function _detalhes:InstanceRefreshRows (instancia)
 				row.statusbar:SetPoint ("bottomright", row, "bottomright")
 				row.lineText1:SetPoint ("right", row.statusbar, "right", -2, 0)
 				row.icone_classe:Hide()
-				
+				--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 				row.right_to_left_texture:SetPoint ("topright", row.statusbar, "topright")
-				row.right_to_left_texture:SetPoint ("bottomright", row.statusbar, "bottomright")
+				row.right_to_left_texture:SetPoint ("bottomright", row.statusbar, "bottomright")]]
 			else
 			
 				row.icone_classe:ClearAllPoints()
@@ -4848,21 +4854,27 @@ function _detalhes:InstanceRefreshRows (instancia)
 		
 		--> texture:
 		row.textura:SetTexture (texture_file)
-		row.right_to_left_texture:SetTexture (texture_file)
+		--Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
+		--row.right_to_left_texture:SetTexture (texture_file)
+		
 		row.background:SetTexture (texture_file2)
 		row.overlayTexture:SetTexture(overlayTexture)
 		row.overlayTexture:SetVertexColor(unpack(overlayColor))
 		
 		if (is_mirror) then
-			row.right_to_left_texture:Show()
+			--Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
+			--row.right_to_left_texture:Show()
+			row.statusbar:SetReverseFill(true)
 			else
-			row.right_to_left_texture:Hide()
+			row.statusbar:SetReverseFill(false)
+			--row.right_to_left_texture:Hide()
 		end
 		
 		--> texture class color: if true color changes on the fly through class refresh
 		if (not texture_class_color) then
 			row.textura:SetVertexColor (texture_r, texture_g, texture_b, alpha)
-			row.right_to_left_texture:SetVertexColor (texture_r, texture_g, texture_b, alpha)
+			--Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
+			--row.right_to_left_texture:SetVertexColor (texture_r, texture_g, texture_b, alpha)
 		else
 			--automatically color the bar by the actor class
 			--forcing alpha 1 instead of use the alpha from the fixed color
