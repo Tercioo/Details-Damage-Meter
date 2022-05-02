@@ -1540,6 +1540,17 @@ do
                 desc = Loc ["STRING_OPTIONS_BAR_BACKDROP_SIZE_DESC"],
             },
 
+            {--border uses class colors
+                type = "toggle",
+                get = function() return currentInstance.row_info.backdrop.use_class_colors end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarBackdropSettings", nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
+                desc = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"],
+            },
+
             {type = "blank"},
             {type = "label", get = function() return Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS"] end, text_template = subSectionTitleTextTemplate},
 

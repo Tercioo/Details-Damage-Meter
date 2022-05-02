@@ -968,7 +968,7 @@
 		local bars_brackets = instance:GetBarBracket()
 		--
 		if (instance.use_multi_fontstrings) then
-			instance:SetTextsOnLine(thisLine, "", (spell_damage and SelectedToKFunction (_, spell_damage) or ""), porcentagem)
+			instance:SetInLineTexts(thisLine, "", (spell_damage and SelectedToKFunction (_, spell_damage) or ""), porcentagem)
 		else
 			thisLine.lineText4:SetText ((spell_damage and SelectedToKFunction (_, spell_damage) or "") .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 		end
@@ -1157,7 +1157,7 @@
 		
 		--
 		if (instancia.use_multi_fontstrings) then
-			instancia:SetTextsOnLine(thisLine, "", total_frags, porcentagem)
+			instancia:SetInLineTexts(thisLine, "", total_frags, porcentagem)
 		else
 			thisLine.lineText4:SetText (total_frags .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 		end
@@ -1576,7 +1576,7 @@
 			thisLine.lineText4:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing, instancia, rightText))
 		else
 			if (instancia.use_multi_fontstrings) then
-				instancia:SetTextsOnLine(thisLine, formated_damage, formated_dps, porcentagem)
+				instancia:SetInLineTexts(thisLine, formated_damage, formated_dps, porcentagem)
 			else
 				thisLine.lineText4:SetText (rightText)
 			end
@@ -2402,7 +2402,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	return Details:EndRefresh(instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 end
 
-function Details:AutoAlignInLineFontStrings()
+--[[exported]] function Details:AutoAlignInLineFontStrings()
 	
 	--if this instance is using in line texts, check the min distance and the length of strings to make them more spread appart
 	if (self.use_multi_fontstrings and self.use_auto_align_multi_fontstrings) then
@@ -2511,7 +2511,7 @@ end)
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 -- ~texts
-function Details:SetTextsOnLine(thisLine, valueText, perSecondText, percentText)
+--[[exported]] function Details:SetInLineTexts(thisLine, valueText, perSecondText, percentText)
 	--set defaults
 	local instance = self
 	valueText = valueText or ""
@@ -2637,7 +2637,7 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 			thisLine.lineText4:SetText(_string_replace (instance.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instance.showing, instance, rightText))
 		else
 			if (instance.use_multi_fontstrings) then
-				instance:SetTextsOnLine(thisLine, formated_damage, formated_dps, porcentagem)
+				instance:SetInLineTexts(thisLine, formated_damage, formated_dps, porcentagem)
 			else
 				thisLine.lineText4:SetText(rightText)
 			end
@@ -2701,8 +2701,8 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 			thisLine.lineText4:SetText (_string_replace (instance.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self, instance.showing, instance, rightText))
 		else
 			if (instance.use_multi_fontstrings) then
-				--instance:SetTextsOnLine(thisLine, formated_damage, formated_dps, porcentagem)
-				instance:SetTextsOnLine(thisLine, rightText)
+				--instance:SetInLineTexts(thisLine, formated_damage, formated_dps, porcentagem)
+				instance:SetInLineTexts(thisLine, rightText)
 			else
 				thisLine.lineText4:SetText(rightText)
 			end
@@ -2735,7 +2735,7 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 			thisLine.lineText4:SetText (_string_replace (instance.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instance.showing, instance, rightText))
 		else
 			if (instance.use_multi_fontstrings) then
-				instance:SetTextsOnLine(thisLine, formated_damage_taken, formated_dtps, porcentagem)
+				instance:SetInLineTexts(thisLine, formated_damage_taken, formated_dtps, porcentagem)
 			else
 				thisLine.lineText4:SetText(rightText)
 			end
@@ -2761,7 +2761,7 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 			thisLine.lineText4:SetText (_string_replace (instance.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self, instance.showing, instance, rightText))
 		else
 			if (instance.use_multi_fontstrings) then
-				instance:SetTextsOnLine(thisLine, "", formated_friendly_fire, porcentagem)
+				instance:SetInLineTexts(thisLine, "", formated_friendly_fire, porcentagem)
 			else
 				thisLine.lineText4:SetText(rightText)
 			end
@@ -2793,7 +2793,7 @@ function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, ran
 			thisLine.lineText4:SetText (_string_replace (instance.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instance.showing, instance, rightText))
 		else
 			if (instance.use_multi_fontstrings) then
-				instance:SetTextsOnLine(thisLine, formated_damage_taken, formated_dtps, porcentagem)
+				instance:SetInLineTexts(thisLine, formated_damage_taken, formated_dtps, porcentagem)
 			else
 				thisLine.lineText4:SetText(rightText)
 			end
@@ -2985,7 +2985,10 @@ end
 		bar.lineText3:SetTextColor(r, g, b, a)
 		bar.lineText4:SetTextColor(r, g, b, a)
 	end
-	
+
+	if (instance.row_info.backdrop.use_class_colors) then
+		bar.lineBorder:SetVertexColor(r, g, b, a)
+	end
 end 
 
 --[[ exported]] function Details:SetClassIcon (texture, instance, classe) --self is the actorObject

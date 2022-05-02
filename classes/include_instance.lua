@@ -282,7 +282,12 @@ _detalhes.instance_defaults = {
 			--percent type
 				percent_type = 1,
 			--backdrop
-				backdrop = {enabled = false, size = 12, color = {1, 1, 1, 1}, texture = "Details BarBorder 2"}, --texture is deprecated
+				backdrop = {
+					enabled = false,
+					size = 12,
+					color = {1, 1, 1, 1},
+					use_class_colors = false,
+				},
 			--model
 				models = {
 					upper_enabled = false,

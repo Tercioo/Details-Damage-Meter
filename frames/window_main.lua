@@ -4041,7 +4041,7 @@ end
 
 _detalhes.barras_criadas = 0
 
---> search key: ~row ~barra
+--> search key: ~row ~barra  ~newbar ~createbar ~createrow
 function gump:CreateNewLine (instancia, index)
 
 	--> instancia = window object, index = row number
@@ -4092,7 +4092,8 @@ function gump:CreateNewLine (instancia, index)
 	newLine.border:SetAllPoints (newLine)
 	
 	--border
-	local lineBorder
+	newLine.lineBorder = DetailsFramework:CreateFullBorder(newLine:GetName() .. "Border", newLine.border)
+	--[=[
 	if (DetailsFramework.IsTBCWow()) then
 		lineBorder = DetailsFramework:CreateFullBorder(nil, newLine)
 		--lineBorder = CreateFrame("frame", nil, newLine, "DFNamePlateFullBorderTemplate, BackdropTemplate")
@@ -4100,7 +4101,7 @@ function gump:CreateNewLine (instancia, index)
 		lineBorder = CreateFrame("frame", nil, newLine, "NamePlateFullBorderTemplate, BackdropTemplate")
 	end
 	newLine.lineBorder = lineBorder
-
+	--]=]
 	-- search key: ~model
 	
 	--low 3d bar
@@ -4277,20 +4278,27 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	self:InstanceRefreshRows()
 end
 
-function _detalhes:SetBarBackdropSettings (enabled, size, color) --argumente texture removed on shadowlands beta
-	if (type (enabled) ~= "boolean") then
+function _detalhes:SetBarBackdropSettings (enabled, size, color, use_class_colors)
+	if (type(enabled) ~= "boolean") then
 		enabled = self.row_info.backdrop.enabled
 	end
+
 	if (not size) then
 		size = self.row_info.backdrop.size
 	end
+
 	if (not color) then
 		color = self.row_info.backdrop.color
+	end
+
+	if (type(use_class_colors) ~= "boolean") then
+		use_class_colors = self.row_info.backdrop.use_class_colors
 	end
 	
 	self.row_info.backdrop.enabled = enabled
 	self.row_info.backdrop.size = size
 	self.row_info.backdrop.color = color
+	self.row_info.backdrop.use_class_colors = use_class_colors
 
 	self:InstanceReset()
 	self:InstanceRefreshRows()
