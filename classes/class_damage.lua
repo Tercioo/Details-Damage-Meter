@@ -2987,7 +2987,9 @@ end
 	end
 
 	if (instance.row_info.backdrop.use_class_colors) then
-		bar.lineBorder:SetVertexColor(r, g, b, a)
+		--get the alpha from the border color
+		local alpha = instance.row_info.backdrop.color[4]
+		bar.lineBorder:SetVertexColor(r, g, b, alpha)
 	end
 end 
 
