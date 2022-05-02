@@ -2094,7 +2094,23 @@ do
             editInstanceSetting(currentInstance, "ChangeSkin")
             afterUpdate()
         end
-        
+
+    --> custom title bar texture
+        local onSelectCustomTitleBarTexture =  function(_, instance, textureName)
+            editInstanceSetting(currentInstance, "SetTitleBarSettings", nil, nil, textureName)
+            editInstanceSetting(currentInstance, "RefreshTitleBar")
+        end
+
+        local buildTextureCustomTitleBar = function()
+            local textures = SharedMedia:HashTable("statusbar")
+            local texTable = {}
+            for name, texturePath in pairs (textures) do
+                texTable[#texTable+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectCustomTitleBarTexture}
+            end
+            table.sort(texTable, function (t1, t2) return t1.label < t2.label end)
+            return texTable
+        end
+
         local buildIconStyleMenu = function()
             local iconMenu = {
                 {value = "Interface\\AddOns\\Details\\images\\toolbar_icons", label = "Set 1", icon = "Interface\\AddOns\\Details\\images\\toolbar_icons", texcoord = {0, 0.125, 0, 1}, onclick = on_select_icon_set},
@@ -2109,7 +2125,80 @@ do
 
     local buildSection = function(sectionFrame)
         local sectionOptions = {
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_ROW_SETTING_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
+
+            {type = "label", get = function() return "Title Bar" end, text_template = subSectionTitleTextTemplate},
+
+            {--use custom titlebar
+                type = "toggle",
+                get = function() return currentInstance.titlebar_shown end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetTitleBarSettings", value)
+                    editInstanceSetting(currentInstance, "RefreshTitleBar")
+                    afterUpdate()
+                end,
+                name = "Enable Custom Title Bar",
+                desc = "Use an alternative title bar instead of the title bar builtin in the Skin file.\n\n|cFFFFFF00Important|r: To disable the title bar from the Skin file, go to 'Window Body' and make the 'skin color' fully transparent.",
+            },
+
+            {--custom title bar height
+                type = "range",
+                get = function() return currentInstance.titlebar_height end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetTitleBarSettings", nil, value)
+                    editInstanceSetting(currentInstance, "RefreshTitleBar")
+                    afterUpdate()
+                end,
+                min = 0,
+                max = 32,
+                step = 1,
+                name = "Height",
+                desc = "Height",
+            },
+
+            {--custom title bar texture
+                type = "select",
+                get = function() return currentInstance.titlebar_texture end,
+                values = function()
+                    return buildTextureCustomTitleBar()
+                end,
+                name = Loc ["STRING_TEXTURE"],
+                desc = Loc ["STRING_TEXTURE"],
+            },
+
+			{--texture color
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.titlebar_texture_color)
+                    return {r, g, b, a}
+                end,
+                set = function (self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetTitleBarSettings", nil, nil, nil, {r, g, b, a})
+                    editInstanceSetting(currentInstance, "RefreshTitleBar")
+                    afterUpdate()
+                end,
+                name = "Color",
+                desc = "Color",
+            },
+
+
+            --SetTitleBarSettings(shown, height, texture, color)
+
+            {--disable all displays
+                type = "toggle",
+                get = function() return currentInstance.disable_alldisplays_window end,
+                set = function (self, fixedparam, value)
+                    _detalhes.disable_alldisplays_window = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"],
+                desc = Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"],
+            },
+
+
+
+            {type = "blank"},
+
+            {type = "label", get = function() return Loc ["STRING_OPTIONS_TITLEBAR_MENUBUTTONS_HEADER"] end, text_template = subSectionTitleTextTemplate},
 
             {type = "label", get = function() return Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS"] end, text_template = options_text_template},
             {--button orange gear
@@ -2314,33 +2403,6 @@ do
                 desc = Loc ["STRING_OPTIONS_PICONS_DIRECTION_DESC"],
             },
 
-            {type = "blank"},
-            {type = "label", get = function() return Loc ["STRING_OPTIONS_LEFT_MENU_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-
-            {--menu text size
-                type = "range",
-                get = function() return Details.font_sizes.menus end,
-                set = function (self, fixedparam, value)
-                    Details.font_sizes.menus = value
-                    afterUpdate()
-                end,
-                min = 5,
-                max = 32,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_TEXT_SIZE"],
-                desc = Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"],
-            },
-
-            {--menu text font
-                type = "select",
-                get = function() return Details.font_faces.menus end,
-                values = function()
-                    return buildFontMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_MENU_FONT_FACE"],
-                desc = Loc ["STRING_OPTIONS_MENU_FONT_FACE_DESC"],
-            },
-
             {--disable reset button
                 type = "toggle",
                 get = function() return _detalhes.disable_reset_button end,
@@ -2372,17 +2434,6 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_MENU_AUTOHIDE_LEFT"],
                 desc = Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"],
-            },
-
-            {--disable all displays
-                type = "toggle",
-                get = function() return currentInstance.disable_alldisplays_window end,
-                set = function (self, fixedparam, value)
-                    _detalhes.disable_alldisplays_window = value
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"],
-                desc = Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"],
             },
 
             {type = "breakline"},
@@ -2496,6 +2547,31 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE"],
                 desc = Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE_DESC"],
+            },
+
+            {type = "blank"},
+            {--menu text font
+                type = "select",
+                get = function() return Details.font_faces.menus end,
+                values = function()
+                    return buildFontMenu()
+                end,
+                name = Loc ["STRING_OPTIONS_MENU_FONT_FACE"],
+                desc = Loc ["STRING_OPTIONS_MENU_FONT_FACE_DESC"],
+            },
+
+            {--menu text size
+                type = "range",
+                get = function() return Details.font_sizes.menus end,
+                set = function (self, fixedparam, value)
+                    Details.font_sizes.menus = value
+                    afterUpdate()
+                end,
+                min = 5,
+                max = 32,
+                step = 1,
+                name = Loc ["STRING_OPTIONS_TEXT_SIZE"],
+                desc = Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"],
             },
 
         }

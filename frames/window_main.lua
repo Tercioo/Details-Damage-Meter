@@ -3493,6 +3493,11 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	titleBar:EnableMouse(false)
 	baseframe.titleBar = titleBar
 
+	titleBar.texture = titleBar:CreateTexture("$parentTexture", "artwork")
+	titleBar.texture:SetAllPoints()
+	titleBar.texture:SetTexture([[Interface\AddOns\Details\images\bar_serenity]])
+	titleBar.texture:SetVertexColor(0, 0, 0, 0)
+
 	--a background frame that anchors in the topleft of the title bar and bottom right of the baseframe
 	--this frame does not attack to statusbar (yet)
 	local fullWindowFrame = CreateFrame("frame", baseframe:GetName() .. "FullWindowFrame", baseframe, "BackdropTemplate")
@@ -4303,6 +4308,43 @@ function _detalhes:SetBarBackdropSettings (enabled, size, color, use_class_color
 	self:InstanceReset()
 	self:InstanceRefreshRows()
 	self:ReajustaGump()
+end
+
+function Details:SetTitleBarSettings(shown, height, texture, color)
+	if (type(shown) ~= "boolean") then
+		shown = self.titlebar_shown
+	end
+
+	if (not height) then
+		height = self.titlebar_height
+	end
+
+	if (not texture) then
+		texture = self.titlebar_texture
+	end
+
+	if (not color) then
+		color = self.titlebar_texture_color
+	end
+
+	self.titlebar_shown = shown
+	self.titlebar_height = height
+	self.titlebar_texture = texture
+	self.titlebar_texture_color = color
+end
+
+function Details:RefreshTitleBar()
+	local shown = self.titlebar_shown
+	local height = self.titlebar_height
+	local texture = self.titlebar_texture
+	local color = self.titlebar_texture_color
+
+	local texturePath = SharedMedia:Fetch("statusbar", texture)
+
+	self.baseframe.titleBar:SetShown(shown)
+	self.baseframe.titleBar:SetHeight(height)
+	self.baseframe.titleBar.texture:SetTexture(texturePath)
+	self.baseframe.titleBar.texture:SetVertexColor(DetailsFramework:ParseColors(color))
 end
 
 function _detalhes:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_enabled, lower_model, lower_alpha)
@@ -7237,8 +7279,12 @@ function Details:ChangeSkin(skin_name)
 	--> refresh lock buttons
 		self:RefreshLockedState()
 
-	self:UpdateFullBorder()
-	self:UpdateRowAreaBorder()
+	--> update borders
+		self:UpdateFullBorder()
+		self:UpdateRowAreaBorder()
+
+	--> update title bar
+		self:RefreshTitleBar()
 	
 	--> clear any control sscript running in this instance
 	self.bgframe:SetScript ("OnUpdate", nil)

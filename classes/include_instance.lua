@@ -193,9 +193,10 @@ _detalhes.instance_defaults = {
 		fontstrings_text2_anchor = 73,
 
 	--title bar
+		titlebar_shown = false,
 		titlebar_height = 16,
-		titlebar_texture = "",
-		titlebar_color = {0, 0, 0, 0},
+		titlebar_texture = "Details Serenity",
+		titlebar_texture_color = {.2, .2, .2, 0.8},
 
 	--full border
 		fullborder_shown = false,
