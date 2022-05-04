@@ -8,7 +8,7 @@
 
 		_detalhes.build_counter = 9780
 		_detalhes.alpha_build_counter = 9780 --if this is higher than the regular counter, use it instead
-		_detalhes.bcc_counter = 33
+		_detalhes.bcc_counter = 37
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter

@@ -2284,16 +2284,18 @@ local icon_frame_on_enter = function (self)
 				end
 
 			else
-				local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
-				if (dungeonPlayerInfo) then
-					local currentScore = dungeonPlayerInfo.currentSeasonScore or 0
-					if (currentScore > 0) then
-						GameCooltip:AddLine("M+ Score:", currentScore, 1, "white")
-						GameCooltip:AddIcon ([[]], 1, 1, 1, 20)
-						_detalhes:AddTooltipBackgroundStatusbar()
-						height = height + 19 --frame height
-					end
-				end				
+				if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and C_PlayerInfo) then --is retail?
+					local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
+					if (dungeonPlayerInfo) then
+						local currentScore = dungeonPlayerInfo.currentSeasonScore or 0
+						if (currentScore > 0) then
+							GameCooltip:AddLine("M+ Score:", currentScore, 1, "white")
+							GameCooltip:AddIcon ([[]], 1, 1, 1, 20)
+							_detalhes:AddTooltipBackgroundStatusbar()
+							height = height + 19 --frame height
+						end
+					end		
+				end		
 			end
 
 			--dps

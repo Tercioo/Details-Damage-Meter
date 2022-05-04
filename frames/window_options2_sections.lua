@@ -1625,10 +1625,10 @@ do
                 desc = Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET_DESC"],
             },
 
-            {type = "blank"},
+            {type = "breakline"},
             {type = "label", get = function() return Loc ["STRING_OPTIONS_TOTALBAR_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
 
-            {--enabled
+            {--total bar enabled
                 type = "toggle",
                 get = function() return currentInstance.total_bar.enabled end,
                 set = function (self, fixedparam, value)

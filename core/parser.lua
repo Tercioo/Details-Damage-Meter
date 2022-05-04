@@ -2457,7 +2457,7 @@
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
 				
-				if (LIB_OPEN_RAID_BLOODLUST[spellid]) then
+				if (LIB_OPEN_RAID_BLOODLUST and LIB_OPEN_RAID_BLOODLUST[spellid]) then
 					if (_detalhes.playername == alvo_name) then
 						_current_combat.bloodlust = _current_combat.bloodlust or {}
 						_current_combat.bloodlust[#_current_combat.bloodlust+1] = _current_combat:GetCombatTime()

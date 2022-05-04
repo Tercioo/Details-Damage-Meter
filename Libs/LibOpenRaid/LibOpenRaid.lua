@@ -39,9 +39,13 @@ BUGS:
 --]=]
 
 
+--don't load if it's not retail, emergencial patch due to classic and bcc stuff not transposed yet
+if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
+    return
+end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 33
+local CONST_LIB_VERSION = 34
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -52,7 +56,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     end
 
     LIB_OPEN_RAID_CAN_LOAD = true
-
+    
 --default values
     openRaidLib.inGroup = false
     openRaidLib.UnitIDCache = {}
@@ -843,6 +847,10 @@ LIB_OPEN_RAID_CAN_LOAD = false
     end
 
     function openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+        if (not GetSpecializationInfoByID) then --tbc hot fix
+            return
+        end
+
         local specId, specName, specDescription, specIcon, role = GetSpecializationInfoByID(specId or 0)
         local className, classString, classId = UnitClass(unitName)
 
