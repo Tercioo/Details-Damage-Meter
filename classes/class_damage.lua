@@ -2965,11 +2965,13 @@ end
 	a = a or 1
 	
 	if (instance.row_info.texture_class_colors) then
+		--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 		if (instance.bars_inverted) then
 			bar.right_to_left_texture:SetVertexColor(r, g, b, a)
 		else
 			bar.textura:SetVertexColor(r, g, b, a)
-		end
+		end]]
+		bar.textura:SetVertexColor(r, g, b, a)
 	end
 	
 	if (instance.row_info.texture_background_class_color) then
