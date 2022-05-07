@@ -7604,6 +7604,29 @@ function _detalhes:AdjustAlphaByContext(interacting)
 		end
 	end
 
+	--in arena
+	if (self.hide_on_context[9].enabled) then
+		local contextId = 9
+		local isInInstance = IsInInstance()
+		if (isInInstance and Details.zone_type == "arena") then
+			--player is within a pvp arena
+			if (not self.hide_on_context[contextId].inverse) then
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, contextId))
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, contextId))
+			else
+				self:SetWindowAlphaForCombat(false, false, getAlphaByContext(self, contextId)) --> deshida a janela
+			end
+			hasRuleEnabled = true
+		else
+			--player is not inside an arena
+			if (self.hide_on_context[contextId].inverse) then
+				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, contextId))
+				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, contextId))
+				hasRuleEnabled = true
+			end
+		end
+	end
+
 	--in battleground
 	if (self.hide_on_context[7].enabled) then
 		local isInInstance = IsInInstance()
