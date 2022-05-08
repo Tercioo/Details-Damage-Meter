@@ -2241,7 +2241,11 @@
 					if (not unitId) then
 						unitId = Details:GuessArenaEnemyUnitId(alvo_name)
 					end
-					this_event [5] = _UnitHealth(unitId)
+					if (unitId) then
+						this_event [5] = _UnitHealth(unitId)
+					else
+						this_event [5] = 0
+					end
 				else
 					this_event [5] = _UnitHealth(alvo_name)
 				end
