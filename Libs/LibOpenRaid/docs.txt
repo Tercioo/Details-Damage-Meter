@@ -93,6 +93,37 @@ unitInfo = {
 }
 
 
+KEYSTONE
+--send and receive mythic+ keystone information and works only in retail
+--the event "KeystoneUpdate" is triggered on receive keystone info from another player
+
+local allKeystoneInfo = openRaidLib.GetAllKeystonesInfo()
+allKeystoneInfo = {
+    ["unitName1"] = keystoneInfo,
+    ["unitName2"] = keystoneInfo,
+    ["unitName3"] = keystoneInfo,
+}
+
+local keystoneInfo = openRaidLib.GetKeystoneInfo(unitId)
+keystoneInfo = {
+    .level = number,
+    .mapID = number,
+    .challengeMapID = number,
+}
+
+--request all online players in the guild to send their keystone information
+--this call fails if the player isn't in a guild
+local requestSent = openRaidLib.RequestKeystoneDataFromGuild()
+
+--request to players in your party to send their keystone information
+--this call fails if the player is in raid
+local requestSent = openRaidLib.RequestKeystoneDataFromParty()
+
+--request to players in your raid to send their keystone information
+--this call fails if not in a raid group
+local requestSent = openRaidLib.RequestKeystoneDataFromRaid()
+
+
 Callbacks:
 
 ===================================================================================================================================
