@@ -104,12 +104,18 @@ allKeystoneInfo = {
     ["unitName3"] = keystoneInfo,
 }
 
+--@mapID and @challengeMapID are the instanceMapID, also obtained with GetInstanceInfo(), can be used to retrive map name with GetRealZoneText(mapID)
+--@mythicPlusMapID is used with C_ChallengeMode.GetMapUIInfo(mythicPlusMapID) to retrive the map name for the dungeon
+--@classID: class id as number (1 to 12)
+--@rating: mythic plus rating on the current season
 local keystoneInfo = openRaidLib.GetKeystoneInfo(unitId)
 keystoneInfo = {
     .level = number,
     .mapID = number,
     .challengeMapID = number,
     .classID = number,
+    .rating = number,
+    .mythicPlusMapID = number,
 }
 
 --request all online players in the guild to send their keystone information
@@ -401,3 +407,14 @@ end
 --registering the callback:
 openRaidLib.RegisterCallback(MyAddonObject, "UnitAlive", "OnUnitRess")
 
+===================================================================================================================================
+"KeystoneUpdate": triggered when the list of keystones got an update
+===================================================================================================================================
+
+function MyAddonObject.OnKeystoneUpdate(unitName, keystoneInfo, allKeystoneInfo)
+    local mapName = C_ChallengeMode.GetMapUIInfo(keystoneInfo.mythicPlusMapID)
+    print(unitName .. " has a " .. keystoneInfo.level .. " keystone for map " .. mapName  .. ".")
+end
+
+--registering the callback:
+openRaidLib.RegisterCallback(MyAddonObject, "KeystoneUpdate", "OnKeystoneUpdate")

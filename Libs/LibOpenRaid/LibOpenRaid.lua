@@ -45,7 +45,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 36
+local CONST_LIB_VERSION = 37
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -2090,7 +2090,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRai
             updateKeystoneInfo(keystoneInfo, level, mapID, challengeMapID, classID, rating, mythicPlusMapID)
 
             --trigger public callback
-            openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", openRaidLib.GetUnitID(unitName), keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
+            openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", unitName, keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
         end
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_KEYSTONE_DATA_PREFIX, openRaidLib.KeystoneInfoManager.OnReceiveKeystoneData)
@@ -2119,8 +2119,9 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRai
         openRaidLib.KeystoneInfoManager.OnReceiveRequestData()
 
         --trigger public callback
-        local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(UnitName("player"), true)
-        openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", "player", keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
+        local unitName = UnitName("player")
+        local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(unitName, true)
+        openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", unitName, keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
     end
 
     function openRaidLib.KeystoneInfoManager.OnMythicDungeonFinished()
@@ -2132,8 +2133,9 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRai
         openRaidLib.KeystoneInfoManager.OnReceiveRequestData()
 
         --trigger public callback
-        local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(UnitName("player"), true)
-        openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", "player", keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
+        local unitName = UnitName("player")
+        local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(unitName, true)
+        openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", unitName, keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)
     end
 
     openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.KeystoneInfoManager.OnPlayerEnterWorld)

@@ -2197,6 +2197,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 			end
 
 			openRaidLib.RequestKeystoneDataFromGuild()
+
+			DetailsKeystoneInfoFrame.RefreshData()
 		end
 	end
 end

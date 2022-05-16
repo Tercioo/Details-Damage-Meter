@@ -38,7 +38,7 @@
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
-	local arena_enemies = _detalhes.arena_enemies --details local
+	--local arena_enemies = _detalhes.arena_enemies --details local (not in use - deprecated)
 
 	local cc_spell_list = DetailsFramework.CrowdControlSpells
 	local container_habilidades = _detalhes.container_habilidades --details local
