@@ -388,8 +388,12 @@ local function CreatePluginFrames (data)
 
 			--> sort
 			_table_sort (ThreatMeter.player_list_indexes, useAbsoluteMode and absoluteSort or relativeSort)
+			local needMainTankDummyBar = true
 			for index, t in _ipairs (ThreatMeter.player_list_indexes) do
 				ThreatMeter.player_list_hash [t[1]] = index
+				if t[3] then
+					needMainTankDummyBar = false
+				end
 			end
 
 			--> no threat on this enemy
@@ -488,6 +492,34 @@ local function CreatePluginFrames (data)
 
 					needMeleePullBar = false
 
+					index = index+1
+					dummyBarCount = dummyBarCount+1
+					if index > lastIndex then break end
+					thisRow = ThreatMeter.ShownRows[index]
+				end
+
+				if needMainTankDummyBar and ((not threatActor) or (not useAbsoluteMode) or (threatActor[6] < mainTankAbsoluteThreat)) then
+					thisRow._icon:SetTexture ([[Interface\LFGFrame\UI-LFG-Icon-PortraitRoles]])
+					thisRow._icon:SetTexCoord (_unpack (RoleIconCoord ["TANK"]))
+					
+					thisRow:SetLeftText ("Current Tank")
+					thisRow:SetRightText(ThreatMeter:ToK2 (mainTankAbsoluteThreat) .. " (100.0%)")
+					thisRow:SetValue(100/barValueUnit)
+					
+					-- color main tank based on highest non-tank threat
+					local r,g = 0,1
+					for _, t in _ipairs (ThreatMeter.player_list_indexes) do
+						if not t[3] then
+							local otherPct = t[useAbsoluteMode and 7 or 2]
+							r,g = (otherPct*0.01), (_math_abs(otherPct-100)*0.01)
+							break
+						end
+					end
+					thisRow:SetColor(r, g, 0, 1)
+					thisRow:Show()
+					
+					needMainTankDummyBar = false
+					
 					index = index+1
 					dummyBarCount = dummyBarCount+1
 					if index > lastIndex then break end
