@@ -45,7 +45,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 35
+local CONST_LIB_VERSION = 36
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -1978,12 +1978,45 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRai
             level = 0,
             mapID = 0,
             challengeMapID = 0,
+            classID = 0,
+            rating = 0,
+            mythicPlusMapID = 0,
         }
 
-    local updateKeystoneInfo = function(keystoneInfo, level, mapID, challengeMapID)
+    --search the player backpack to find a mythic keystone
+    --with the keystone object, it'll attempt to get the mythicPlusMapID to be used with C_ChallengeMode.GetMapUIInfo(mythicPlusMapID)
+    --ATM we are obligated to do this due to C_MythicPlus.GetOwnedKeystoneMapID() return the same mapID for the two Tazavesh dungeons
+    local getMythicPlusMapID = function()
+        for backpackId = 0, 4 do
+            for slotId = 1, GetContainerNumSlots(backpackId) do
+                local itemId = GetContainerItemID(backpackId, slotId)
+                if (itemId == LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID) then
+                    local itemLink = GetContainerItemLink(backpackId, slotId)
+                    local destroyedItemLink = itemLink:gsub("|", "")
+                    local color, itemID, mythicPlusMapID = strsplit(":", destroyedItemLink)
+                    return tonumber(mythicPlusMapID)
+                end
+            end
+        end
+    end
+
+    local updateKeystoneInfo = function(keystoneInfo, level, mapID, challengeMapID, classID, rating, mythicPlusMapID)
         keystoneInfo.level = level or C_MythicPlus.GetOwnedKeystoneLevel() or 0
         keystoneInfo.mapID = mapID or C_MythicPlus.GetOwnedKeystoneMapID() or 0
+        keystoneInfo.mythicPlusMapID = mythicPlusMapID or 0
+
+        if (not mythicPlusMapID and not mapID and keystoneInfo.mapID ~= 0) then
+            keystoneInfo.mythicPlusMapID = getMythicPlusMapID() or 0
+        end
+
         keystoneInfo.challengeMapID = challengeMapID or C_MythicPlus.GetOwnedKeystoneChallengeMapID() or 0
+
+        local _, _, playerClassID = UnitClass("player")
+        keystoneInfo.classID = classID or playerClassID
+
+        local ratingSummary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary("player")
+        local currentRating = ratingSummary and ratingSummary.currentSeasonScore or 0
+        keystoneInfo.rating = rating or currentRating
     end
 
     function openRaidLib.KeystoneInfoManager.GetAllKeystonesInfo()
@@ -2006,7 +2039,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRai
     local getKeystoneInfoToComm = function()
         local playerName = UnitName("player")
         local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(playerName, true)
-        local dataToSend = CONST_COMM_KEYSTONE_DATA_PREFIX .. "," .. keystoneInfo.level .. "," .. keystoneInfo.mapID .. "," .. keystoneInfo.challengeMapID
+        local dataToSend = CONST_COMM_KEYSTONE_DATA_PREFIX .. "," .. keystoneInfo.level .. "," .. keystoneInfo.mapID .. "," .. keystoneInfo.challengeMapID .. "," .. keystoneInfo.classID .. "," .. keystoneInfo.rating .. "," .. keystoneInfo.mythicPlusMapID
         return dataToSend
     end
 
@@ -2048,10 +2081,13 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRai
         local level = tonumber(data[1])
         local mapID = tonumber(data[2])
         local challengeMapID = tonumber(data[3])
+        local classID = tonumber(data[4])
+        local rating = tonumber(data[5])
+        local mythicPlusMapID = tonumber(data[6])
 
-        if (level and mapID and challengeMapID) then
+        if (level and mapID and challengeMapID and classID and rating and mythicPlusMapID) then
             local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(unitName, true)
-            updateKeystoneInfo(keystoneInfo, level, mapID, challengeMapID)
+            updateKeystoneInfo(keystoneInfo, level, mapID, challengeMapID, classID, rating, mythicPlusMapID)
 
             --trigger public callback
             openRaidLib.publicCallback.TriggerCallback("KeystoneUpdate", openRaidLib.GetUnitID(unitName), keystoneInfo, openRaidLib.KeystoneInfoManager.KeystoneData)

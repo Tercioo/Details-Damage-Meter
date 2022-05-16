@@ -109,6 +109,7 @@ keystoneInfo = {
     .level = number,
     .mapID = number,
     .challengeMapID = number,
+    .classID = number,
 }
 
 --request all online players in the guild to send their keystone information

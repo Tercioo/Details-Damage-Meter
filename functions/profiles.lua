@@ -1282,6 +1282,12 @@ local default_global_data = {
 			scale = 1,
 			font_size = 10,
 		},
+
+	--> keystone window
+		keystone_frame = {
+			scale = 1,
+			position = {},
+		},
 		
 	--> profile by spec
 		profile_by_spec = {},
