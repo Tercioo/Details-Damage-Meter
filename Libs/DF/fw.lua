@@ -72,7 +72,7 @@ function DF.IsTBCWow()
 end
 
 function DF.UnitGroupRolesAssigned (unitId)
-	if (UnitGroupRolesAssigned) then
+	if (not DF.IsTimewalkWoW()) then --Was function exist check. TBC has function, returns NONE. -Flamanis 5/16/2022
 		return UnitGroupRolesAssigned (unitId)
 	else
 		--attempt to guess the role by the player spec
