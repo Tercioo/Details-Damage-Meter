@@ -633,12 +633,13 @@ hooksecurefunc (_G, "DeathRecap_LoadUI", function()
 
                     if (Details.death_recap.enabled) then
                         if (Details:GetZoneType() == "party" or Details:GetZoneType() == "raid") then
-                            local msgText = "|TInterface\\FriendsFrame\\PlusManz-BattleNet:14:38:0:0:64:64:7:57:18:46|t|cFFAAAAFFDeath Recap:"
+                            local msgText = "|cFFAAAAFFDeath Recap (Blizzard):"
                             print(msgText, "|T" .. texture .. ":16:16:0:0:64:64:5:59:5:59|t", GetSpellLink(spellId) or spellName, format(_, amountDamage))
                         end
                     end
 
                     --recap by Details!
+                    --[=[
                     local deathEventsDetails = latestDeath[1]
                     for evIndex = #deathEventsDetails, 1, -1 do
                         local ev = deathEventsDetails[evIndex]
@@ -656,10 +657,11 @@ hooksecurefunc (_G, "DeathRecap_LoadUI", function()
                             break
                         end
                     end
+                    --]=]
 
                     --Details:Msg("the message above are debugs of an Alpha version of Details!")
 
-                    local whatKilledThePlayer = 0
+                    --local whatKilledThePlayer = 0
                 end
             end
         end

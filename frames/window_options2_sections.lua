@@ -1580,6 +1580,23 @@ do
                 desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN_DESC"],
             },
 
+
+            {--name size offset
+                type = "range",
+                get = function() return tonumber(currentInstance.fontstrings_text_limit_offset) end,
+                set = function (self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "fontstrings_text_limit_offset", value)
+                    editInstanceSetting(currentInstance, "InstanceRefreshRows")
+                    Details.options.RefreshInstances(currentInstance)
+                    afterUpdate()
+                end,
+                min = -30,
+                max = 30,
+                step = 1,
+                name = "Unit Name Size Offset",
+                desc = "Unit Name Size Offset",
+            },
+
             {--lineText2 (left, usuali is the 'done' amount)
                 type = "range",
                 get = function() return tonumber (currentInstance.fontstrings_text2_anchor) end,

@@ -418,3 +418,14 @@ end
 
 --registering the callback:
 openRaidLib.RegisterCallback(MyAddonObject, "KeystoneUpdate", "OnKeystoneUpdate")
+
+===================================================================================================================================
+"KeystoneWipe": triggered after the call openRaidLib.WipeKeystoneData()
+===================================================================================================================================
+
+function MyAddonObject.OnKeystoneUpdate(allKeystoneInfo)
+    print("no keystone data:", next(allKeystoneInfo) == nil)
+end
+
+--registering the callback:
+openRaidLib.RegisterCallback(MyAddonObject, "KeystoneWipe", "OnKeystoneWipe")

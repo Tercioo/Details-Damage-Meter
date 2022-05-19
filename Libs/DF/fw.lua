@@ -697,6 +697,28 @@ function DF:trim (s)
 	return from > #s and "" or s:match(".*%S", from)
 end
 
+--truncated revoming at a maximum of 10 character from the string
+function DF:TruncateTextSafe(fontString, maxWidth)
+	local text = fontString:GetText()
+	local numIterations = 10
+
+	while (fontString:GetStringWidth() > maxWidth) do
+		text = strsub(text, 1, #text-1)
+		fontString:SetText(text)
+		if (#text <= 1) then
+			break
+		end
+
+		numIterations = numIterations - 1
+		if (numIterations <= 0) then
+			break
+		end
+	end
+
+	text = DF:CleanTruncateUTF8String(text)
+	fontString:SetText(text)
+end
+
 function DF:TruncateText (fontString, maxWidth)
 	local text = fontString:GetText()
 	

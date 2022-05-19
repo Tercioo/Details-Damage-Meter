@@ -1969,6 +1969,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local backdrop_color = {.2, .2, .2, 0.2}
 				local backdrop_color_on_enter = {.8, .8, .8, 0.4}
 
+				local backdrop_color_inparty = {.2, .2, .8, 0.3}
+				local backdrop_color_on_enter_inparty = {.5, .5, 1, 0.4}
+
 				local f = DetailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones", "DetailsKeystoneInfoFrame")
 				f:SetPoint("center", UIParent, "center", 0, 0)
 
@@ -1992,9 +1995,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 				--header
 				local headerTable = {
-					{text = "Class", width = 40, canSort = false, dataType = "string", order = "DESC", offset = 0},
-					{text = "Player Name", width = 100, canSort = true, dataType = "string", order = "DESC", offset = 0},
-					{text = "Keystone Level", width = 100, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
+					{text = "Class", width = 40, canSort = true, dataType = "number", order = "DESC", offset = 0},
+					{text = "Player Name", width = 140, canSort = true, dataType = "string", order = "DESC", offset = 0},
+					{text = "Level", width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
 					{text = "Dungeon", width = 120, canSort = true, dataType = "string", order = "DESC", offset = 0},
 					{text = "Classic Dungeon", width = 120, canSort = true, dataType = "string", order = "DESC", offset = 0},
 					{text = "Mythic+ Rating", width = 100, canSort = true, dataType = "number", order = "DESC", offset = 0},
@@ -2021,6 +2024,29 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 				--scroll
 				local refreshScrollLines = function(self, data, offset, totalLines)
+					local RaiderIO = _G.RaiderIO
+					local faction = UnitFactionGroup("player") --this can get problems with 9.2.5 cross faction raiding
+
+					--put players in the group at the top of the list
+					if (IsInGroup() and not IsInRaid()) then
+						local playersInTheParty = {}
+						for i = #data, 1, -1 do
+							local unitTable = data[i]
+							if (unitTable[11] > 0) then
+								playersInTheParty[#playersInTheParty+1] = unitTable
+								tremove(data, i)
+							end
+						end
+
+						if (#playersInTheParty > 0) then
+							table.sort(playersInTheParty, function(t1, t2) return t1[11] > t2[11] end)
+							for i = 1, #playersInTheParty do
+								local unitTable = playersInTheParty[i]
+								tinsert(data, 1, unitTable)
+							end
+						end
+					end
+
 					for i = 1, totalLines do
 						local index = i + offset
 						local unitTable = data[index]
@@ -2028,7 +2054,23 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						if (unitTable) then
 							local line = self:GetLine(i)
 
-							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, mapNameChallenge = unpack(unitTable)
+							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty = unpack(unitTable)
+
+							local rioProfile
+							if (RaiderIO) then
+								local playerName, playerRealm = unitName:match("(.+)%-(.+)")
+								if (playerName and playerRealm) then
+									rioProfile = RaiderIO.GetProfile(playerName, playerRealm, faction == "Horde" and 2 or 1)
+									if (rioProfile) then
+										rioProfile = rioProfile.mythicKeystoneProfile
+									end
+								else
+									rioProfile = RaiderIO.GetProfile(unitName, GetRealmName(), faction == "Horde" and 2 or 1)
+									if (rioProfile) then
+										rioProfile = rioProfile.mythicKeystoneProfile
+									end
+								end
+							end
 
 							line.icon:SetTexture(classIconTexture)
 							local L, R, T, B = unpack(iconTexCoords)
@@ -2036,8 +2078,29 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							line.playerNameText.text = unitName
 							line.keystoneLevelText.text = level
 							line.dungeonNameText.text = mapName
+							DetailsFramework:TruncateText(line.dungeonNameText, 120)
 							line.classicDungeonNameText.text = mapNameChallenge or ""
-							line.ratingText.text = rating
+							DetailsFramework:TruncateText(line.classicDungeonNameText, 120)
+							line.inMyParty = inMyParty > 0
+
+							if (rioProfile) then
+								local score = rioProfile.currentScore or 0
+								local previousScore = rioProfile.previousScore or 0
+								if (previousScore > score) then
+									score = previousScore
+									line.ratingText.text = rating .. " (" .. score .. ")"
+								else
+									line.ratingText.text = rating
+								end
+							else
+								line.ratingText.text = rating
+							end
+
+							if (line.inMyParty) then
+								line:SetBackdropColor(unpack(backdrop_color_inparty))
+							else
+								line:SetBackdropColor(unpack(backdrop_color))
+							end
 						end
 					end
 				end
@@ -2047,11 +2110,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				scrollFrame:SetPoint("topleft", f.Header, "bottomleft", -1, -1)
 				scrollFrame:SetPoint("topright", f.Header, "bottomright", 0, -1)
 
-				local lineOnEnter = function (self)
-					self:SetBackdropColor(unpack(backdrop_color_on_enter))
+				local lineOnEnter = function(self)
+					if (self.inMyParty) then
+						self:SetBackdropColor(unpack(backdrop_color_on_enter_inparty))
+					else
+						self:SetBackdropColor(unpack(backdrop_color_on_enter))
+					end
 				end
-				local lineOnLeave = function (self)
-					self:SetBackdropColor(unpack(backdrop_color))
+				local lineOnLeave = function(self)
+					if (self.inMyParty) then
+						self:SetBackdropColor(unpack(backdrop_color_inparty))
+					else
+						self:SetBackdropColor(unpack(backdrop_color))
+					end
 				end
 
 				local createLineForScroll = function(self, index)
@@ -2125,6 +2196,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							--local mapInfoChallenge = C_Map.GetMapInfo(keystoneInfo.challengeMapID)
 							--local mapNameChallenge = mapInfoChallenge and mapInfoChallenge.name or ""
 
+							local isInMyParty = UnitInParty(unitName) and (string.byte(unitName, 1) + string.byte(unitName, 2)) or 0
+
 							newData[#newData+1] = {
 								unitName,
 								keystoneInfo.level,
@@ -2136,6 +2209,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 								classIcon,
 								coords[class],
 								mapName,
+								isInMyParty,
 								--mapNameChallenge,
 							}
 						end
@@ -2145,8 +2219,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					local columnIndex, order = f.Header:GetSelectedColumn()
 					local sortByIndex = 2
 
-					--sort by player name
+					--sort by player class
 					if (columnIndex == 1) then
+						sortByIndex = 5
+					--sort by player name
+					elseif (columnIndex == 2) then
 						sortByIndex = 1
 					--sort by keystone level
 					elseif (columnIndex == 3) then
@@ -2163,9 +2240,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					end
 
 					if (order == "DESC") then
-						table.sort(newData, function (t1, t2) return t1[sortByIndex] > t2[sortByIndex] end)
+						table.sort(newData, function(t1, t2) return t1[sortByIndex] > t2[sortByIndex] end)
 					else
-						table.sort(newData, function (t1, t2) return t1[sortByIndex] < t2[sortByIndex] end)
+						table.sort(newData, function(t1, t2) return t1[sortByIndex] < t2[sortByIndex] end)
 					end
 
 					scrollFrame:SetData(newData)
@@ -2189,6 +2266,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 			DetailsKeystoneInfoFrame:Show()
 
 			openRaidLib.RegisterCallback(DetailsKeystoneInfoFrame, "KeystoneUpdate", "OnKeystoneUpdate")
+
+			openRaidLib.WipeKeystoneData()
 
 			if (IsInRaid()) then
 				openRaidLib.RequestKeystoneDataFromRaid()
