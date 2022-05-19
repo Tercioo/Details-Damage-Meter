@@ -230,7 +230,7 @@
 		end
 
 		--remove scapes
-		nickname = nickname:gsub("|","")
+		--nickname = nickname:gsub("|","") --a bug report told about covenant icons plugin being broke, this like is probably the culprit
 		return nickname
 	end
 
