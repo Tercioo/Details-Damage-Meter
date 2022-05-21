@@ -1794,18 +1794,24 @@ function Details:UpdateUserPanel (usersTable)
 		DetailsUserPanel.Header:SetPoint ("topleft", DetailsUserPanel, "topleft", 5, headerY)
 		
 		local scroll_refresh = function (self, data, offset, total_lines)
+
+			--store user names shown
+			local userShown = {}
+			local lineId = 1
 			for i = 1, total_lines do
 				local index = i + offset
 				local userTable = data [index]
 				
 				if (userTable) then
-				
-					local line = self:GetLine (i)
 					local userName, userRealm, userVersion = unpack (userTable)
-
-					line.UserNameText.text = userName
-					line.RealmText.text = userRealm
-					line.VersionText.text = userVersion
+					if (not userShown[userName]) then
+						local line = self:GetLine(lineId)
+						line.UserNameText.text = userName
+						line.RealmText.text = userRealm
+						line.VersionText.text = userVersion
+						userShown[userName] = true
+						lineId = lineId + 1
+					end
 				end
 			end
 		end		
@@ -1964,13 +1970,16 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local CONST_WINDOW_WIDTH = 614
 				local CONST_WINDOW_HEIGHT = 700
 				local CONST_SCROLL_LINE_HEIGHT = 20
-				local CONST_SCROLL_LINE_AMOUNT = 29
+				local CONST_SCROLL_LINE_AMOUNT = 30
 
 				local backdrop_color = {.2, .2, .2, 0.2}
 				local backdrop_color_on_enter = {.8, .8, .8, 0.4}
 
-				local backdrop_color_inparty = {.2, .2, .8, 0.3}
+				local backdrop_color_inparty = {.5, .5, .8, 0.2}
 				local backdrop_color_on_enter_inparty = {.5, .5, 1, 0.4}
+
+				local backdrop_color_inguild = {.5, .8, .5, 0.2}
+				local backdrop_color_on_enter_inguild = {.5, 1, .5, 0.4}
 
 				local f = DetailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones", "DetailsKeystoneInfoFrame")
 				f:SetPoint("center", UIParent, "center", 0, 0)
@@ -2027,26 +2036,6 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					local RaiderIO = _G.RaiderIO
 					local faction = UnitFactionGroup("player") --this can get problems with 9.2.5 cross faction raiding
 
-					--put players in the group at the top of the list
-					if (IsInGroup() and not IsInRaid()) then
-						local playersInTheParty = {}
-						for i = #data, 1, -1 do
-							local unitTable = data[i]
-							if (unitTable[11] > 0) then
-								playersInTheParty[#playersInTheParty+1] = unitTable
-								tremove(data, i)
-							end
-						end
-
-						if (#playersInTheParty > 0) then
-							table.sort(playersInTheParty, function(t1, t2) return t1[11] > t2[11] end)
-							for i = 1, #playersInTheParty do
-								local unitTable = playersInTheParty[i]
-								tinsert(data, 1, unitTable)
-							end
-						end
-					end
-
 					for i = 1, totalLines do
 						local index = i + offset
 						local unitTable = data[index]
@@ -2054,7 +2043,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						if (unitTable) then
 							local line = self:GetLine(i)
 
-							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty = unpack(unitTable)
+							local unitName, level, mapID, challengeMapID, classID, rating, mythicPlusMapID, classIconTexture, iconTexCoords, mapName, inMyParty, isOnline, isGuildMember = unpack(unitTable)
 
 							local rioProfile
 							if (RaiderIO) then
@@ -2075,6 +2064,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							line.icon:SetTexture(classIconTexture)
 							local L, R, T, B = unpack(iconTexCoords)
 							line.icon:SetTexCoord(L+0.02, R-0.02, T+0.02, B-0.02)
+
 							line.playerNameText.text = unitName
 							line.keystoneLevelText.text = level
 							line.dungeonNameText.text = mapName
@@ -2082,6 +2072,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							line.classicDungeonNameText.text = mapNameChallenge or ""
 							DetailsFramework:TruncateText(line.classicDungeonNameText, 120)
 							line.inMyParty = inMyParty > 0
+							line.inMyGuild = isGuildMember
 
 							if (rioProfile) then
 								local score = rioProfile.currentScore or 0
@@ -2098,8 +2089,26 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 							if (line.inMyParty) then
 								line:SetBackdropColor(unpack(backdrop_color_inparty))
+							elseif (isGuildMember) then
+								line:SetBackdropColor(unpack(backdrop_color_inguild))
 							else
 								line:SetBackdropColor(unpack(backdrop_color))
+							end
+
+							if (isOnline) then
+								line.playerNameText.textcolor = "white"
+								line.keystoneLevelText.textcolor = "white"
+								line.dungeonNameText.textcolor = "white"
+								line.classicDungeonNameText.textcolor = "white"
+								line.ratingText.textcolor = "white"
+								line.icon:SetAlpha(1)
+							else
+								line.playerNameText.textcolor = "gray"
+								line.keystoneLevelText.textcolor = "gray"
+								line.dungeonNameText.textcolor = "gray"
+								line.classicDungeonNameText.textcolor = "gray"
+								line.ratingText.textcolor = "gray"
+								line.icon:SetAlpha(.6)
 							end
 						end
 					end
@@ -2113,6 +2122,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local lineOnEnter = function(self)
 					if (self.inMyParty) then
 						self:SetBackdropColor(unpack(backdrop_color_on_enter_inparty))
+					elseif (self.inMyGuild) then
+						self:SetBackdropColor(unpack(backdrop_color_on_enter_inguild))
 					else
 						self:SetBackdropColor(unpack(backdrop_color_on_enter))
 					end
@@ -2120,6 +2131,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local lineOnLeave = function(self)
 					if (self.inMyParty) then
 						self:SetBackdropColor(unpack(backdrop_color_inparty))
+					elseif (self.inMyGuild) then
+						self:SetBackdropColor(unpack(backdrop_color_inguild))
 					else
 						self:SetBackdropColor(unpack(backdrop_color))
 					end
@@ -2182,9 +2195,34 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 				function f.RefreshData()
 					local newData = {}
+					newData.offlineGuildPlayers = {}
 					local keystoneData = openRaidLib.GetAllKeystonesInfo()
 
+					local guildUsers = {}
+					local totalMembers, onlineMembers, onlineAndMobileMembers = GetNumGuildMembers()
+					local realmName = GetRealmName()
+					--create a string to use into the gsub call when removing the realm name from the player name, by default all player names returned from GetGuildRosterInfo() has PlayerName-RealmName format
+					local realmNameGsub = "%-" .. realmName
+					local guildName = GetGuildInfo("player")
+
+					if (guildName) then
+						for i = 1, totalMembers do
+							local fullName, rank, rankIndex, level, class, zone, note, officernote, online, isAway, classFileName, achievementPoints, achievementRank, isMobile, canSoR, repStanding, guid = GetGuildRosterInfo(i)
+							if (fullName) then
+								fullName = fullName:gsub(realmNameGsub, "")
+								if (online) then
+									guildUsers[fullName] = true
+								end
+							else
+								break
+							end
+						end
+					end
+
 					if (keystoneData) then
+						local unitsAdded = {}
+						local isOnline = true
+
 						for unitName, keystoneInfo in pairs(keystoneData) do
 							local classId = keystoneInfo.classID
 							local classIcon = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]]
@@ -2197,8 +2235,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							--local mapNameChallenge = mapInfoChallenge and mapInfoChallenge.name or ""
 
 							local isInMyParty = UnitInParty(unitName) and (string.byte(unitName, 1) + string.byte(unitName, 2)) or 0
+							local isGuildMember = guildName and guildUsers[unitName] and true
 
-							newData[#newData+1] = {
+							local keystoneTable = {
 								unitName,
 								keystoneInfo.level,
 								keystoneInfo.mapID,
@@ -2208,10 +2247,33 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 								keystoneInfo.mythicPlusMapID,
 								classIcon,
 								coords[class],
-								mapName,
+								mapName, --10
 								isInMyParty,
+								isOnline, --is false when the unit is from the cache
+								isGuildMember, --is a guild member
 								--mapNameChallenge,
 							}
+
+							newData[#newData+1] = keystoneTable --this is the table added into the keystone cache
+							unitsAdded[unitName] = true
+
+							--is this unitName listed as a player in the player's guild?
+							if (isGuildMember) then
+								--store the player information into a cache
+								keystoneTable.guild_name = guildName
+								keystoneTable.date = time()
+								Details.keystone_cache[unitName] = keystoneTable
+							end
+						end
+						
+						local cutoffDate = time() - (86400 * 7) --7 days
+						for unitName, keystoneTable in pairs(Details.keystone_cache) do
+							--this unit in the cache isn't shown?
+							if (not unitsAdded[unitName] and keystoneTable.guild_name == guildName and keystoneTable.date > cutoffDate) then
+								keystoneTable[12] = false --isOnline
+								newData[#newData+1] = keystoneTable
+								unitsAdded[unitName] = true
+							end
 						end
 					end
 
@@ -2245,6 +2307,44 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						table.sort(newData, function(t1, t2) return t1[sortByIndex] < t2[sortByIndex] end)
 					end
 
+					--remove offline guild players from the list
+					for i = #newData, 1, -1 do
+						local keystoneTable = newData[i]
+						if (not keystoneTable[12]) then
+							tremove(newData, i)
+							newData.offlineGuildPlayers[#newData.offlineGuildPlayers+1] = keystoneTable
+						end
+					end
+
+					newData.offlineGuildPlayers = DetailsFramework.table.reverse(newData.offlineGuildPlayers)
+
+					--put players in the group at the top of the list
+					if (IsInGroup() and not IsInRaid()) then
+						local playersInTheParty = {}
+						for i = #newData, 1, -1 do
+							local keystoneTable = newData[i]
+							if (keystoneTable[11] > 0) then
+								playersInTheParty[#playersInTheParty+1] = keystoneTable
+								tremove(newData, i)
+							end
+						end
+
+						if (#playersInTheParty > 0) then
+							table.sort(playersInTheParty, function(t1, t2) return t1[11] > t2[11] end)
+							for i = 1, #playersInTheParty do
+								local keystoneTable = playersInTheParty[i]
+								tinsert(newData, 1, keystoneTable)
+							end
+						end
+					end
+
+					--reinsert offline guild players into the data
+					local offlinePlayers = newData.offlineGuildPlayers
+					for i = 1, #offlinePlayers do
+						local keystoneTable = offlinePlayers[i]
+						newData[#newData+1] = keystoneTable
+					end
+
 					scrollFrame:SetData(newData)
 					scrollFrame:Refresh()
 				end
@@ -2260,6 +2360,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				f:SetScript("OnHide", function()
 					openRaidLib.UnregisterCallback(DetailsKeystoneInfoFrame, "KeystoneUpdate", "OnKeystoneUpdate")
 				end)
+			end
+
+			--call an update on the guild roster
+			if (C_GuildInfo and C_GuildInfo.GuildRoster) then
+				C_GuildInfo.GuildRoster()
 			end
 
 			--show the frame
