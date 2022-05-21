@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+      - "!**-alpha**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 200
+
+      - name: Create Retail Package
+        uses: BigWigsMods/packager@master
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create Classic Package
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g classic -m .pkgmeta-classic
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create BCC Package
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g bcc -m .pkgmeta-bcc
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
