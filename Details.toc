@@ -1,6 +1,6 @@
 ## Interface: 90200
-## Interface-Mainline: 90200
-## Interface-BCC: 20502
+## Interface-Classic: 11402
+## Interface-BCC: 20504
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## SavedVariables: _detalhes_global
