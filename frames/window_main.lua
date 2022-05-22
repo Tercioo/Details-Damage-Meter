@@ -1874,13 +1874,11 @@ local barra_scripts_onenter = function (self)
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 
 	if (not _detalhes.instances_disable_bar_highlight) then
-		--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 		if (self._instance.bars_inverted) then
 			self.right_to_left_texture:SetBlendMode ("ADD")
 		else
 			self.textura:SetBlendMode ("ADD")
-		end]]
-		self.textura:SetBlendMode ("ADD")
+		end
 	end
 
 	local lefttext = self.lineText1
@@ -1914,14 +1912,13 @@ local barra_scripts_onleave = function (self)
 	self:SetBackdrop (barra_backdrop_onleave)	
 	self:SetBackdropBorderColor (0, 0, 0, 0)
 	self:SetBackdropColor (0, 0, 0, 0)
-	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
+	
 	if (self._instance.bars_inverted) then
 		self.right_to_left_texture:SetBlendMode ("BLEND")
 	else
 		self.textura:SetBlendMode ("BLEND")
-	end]]
-	self.textura:SetBlendMode ("BLEND")
-	
+	end
+
 	self.showing_allspells = false
 	self:SetScript ("OnUpdate", nil)
 	
@@ -2079,7 +2076,6 @@ function _detalhes:HandleTextsOnMouseClick (row, type)
 end
 
 local set_bar_value = function (self, value)
-	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 	if (self._instance.bars_inverted) then
 		self.statusbar:SetValue (0)
 		
@@ -2093,8 +2089,7 @@ local set_bar_value = function (self, value)
 		self.right_to_left_texture:SetTexCoord (coord_inverse, 0, 0, 1)
 	else
 		self.statusbar:SetValue (value)
-	end]]
-	self.statusbar:SetValue(value)
+	end
 	
 	self.statusbar.value = value
 	
@@ -4090,7 +4085,6 @@ function gump:CreateNewLine (instancia, index)
 	--> statusbar
 	newLine.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, newLine)
 	newLine.statusbar.value = 0
-	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 	--> right to left texture
 	newLine.statusbar.right_to_left_texture = newLine.statusbar:CreateTexture (nil, "overlay")
 	newLine.statusbar.right_to_left_texture:SetPoint ("topright", newLine.statusbar, "topright")
@@ -4098,7 +4092,7 @@ function gump:CreateNewLine (instancia, index)
 	newLine.statusbar.right_to_left_texture:SetWidth (0.000000001)
 	newLine.statusbar.right_to_left_texture:Hide()
 	newLine.right_to_left_texture = newLine.statusbar.right_to_left_texture
-	]]
+	
 	--> frame for hold the backdrop border
 	newLine.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, newLine.statusbar,"BackdropTemplate")
 	newLine.border:SetFrameLevel (newLine.statusbar:GetFrameLevel()+2)
@@ -4830,9 +4824,9 @@ function _detalhes:InstanceRefreshRows (instancia)
 				row.statusbar:SetPoint ("bottomright", row, "bottomright")
 				row.lineText1:SetPoint ("right", row.statusbar, "right", -2, 0)
 				row.icone_classe:Hide()
-				--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
+				
 				row.right_to_left_texture:SetPoint ("topright", row.statusbar, "topright")
-				row.right_to_left_texture:SetPoint ("bottomright", row.statusbar, "bottomright")]]
+				row.right_to_left_texture:SetPoint ("bottomright", row.statusbar, "bottomright")
 			else
 			
 				row.icone_classe:ClearAllPoints()
@@ -4898,27 +4892,21 @@ function _detalhes:InstanceRefreshRows (instancia)
 		
 		--> texture:
 		row.textura:SetTexture (texture_file)
-		--Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
-		--row.right_to_left_texture:SetTexture (texture_file)
-		
+		row.right_to_left_texture:SetTexture (texture_file)
 		row.background:SetTexture (texture_file2)
 		row.overlayTexture:SetTexture(overlayTexture)
 		row.overlayTexture:SetVertexColor(unpack(overlayColor))
 		
 		if (is_mirror) then
-			--Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
-			--row.right_to_left_texture:Show()
-			row.statusbar:SetReverseFill(true)
+			row.right_to_left_texture:Show()
 			else
-			row.statusbar:SetReverseFill(false)
-			--row.right_to_left_texture:Hide()
+			row.right_to_left_texture:Hide()
 		end
 		
 		--> texture class color: if true color changes on the fly through class refresh
 		if (not texture_class_color) then
 			row.textura:SetVertexColor (texture_r, texture_g, texture_b, alpha)
-			--Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
-			--row.right_to_left_texture:SetVertexColor (texture_r, texture_g, texture_b, alpha)
+			row.right_to_left_texture:SetVertexColor (texture_r, texture_g, texture_b, alpha)
 		else
 			--automatically color the bar by the actor class
 			--forcing alpha 1 instead of use the alpha from the fixed color
@@ -7604,29 +7592,6 @@ function _detalhes:AdjustAlphaByContext(interacting)
 		end
 	end
 
-	--in arena
-	if (self.hide_on_context[9].enabled) then
-		local contextId = 9
-		local isInInstance = IsInInstance()
-		if (isInInstance and Details.zone_type == "arena") then
-			--player is within a pvp arena
-			if (not self.hide_on_context[contextId].inverse) then
-				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, contextId))
-				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, contextId))
-			else
-				self:SetWindowAlphaForCombat(false, false, getAlphaByContext(self, contextId)) --> deshida a janela
-			end
-			hasRuleEnabled = true
-		else
-			--player is not inside an arena
-			if (self.hide_on_context[contextId].inverse) then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, contextId))
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, contextId))
-				hasRuleEnabled = true
-			end
-		end
-	end
-
 	--in battleground
 	if (self.hide_on_context[7].enabled) then
 		local isInInstance = IsInInstance()
@@ -7972,8 +7937,7 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	
 	if (not self.menu_attribute_string) then 
 
-		--local label = gump:NewLabel (self.floatingframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
-		local label = gump:NewLabel (self.baseframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
+		local label = gump:NewLabel (self.floatingframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
 		self.menu_attribute_string = label
 		self.menu_attribute_string.text = _detalhes:GetSubAttributeName (self.atributo, self.sub_atributo)
 		self.menu_attribute_string.owner_instance = self

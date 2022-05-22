@@ -2480,24 +2480,16 @@ end
 		for lineId = 1, self:GetNumLinesShown() do
 			local thisLine = self:GetLine(lineId)
 
-			--check if there's something showing in this line
-			if (thisLine.minha_tabela) then
-				local playerNameFontString = thisLine.lineText1
-				local text2 = thisLine.lineText2
-				local text3 = thisLine.lineText3
-				local text4 = thisLine.lineText4
+			local playerName = thisLine.lineText1
+			local text2 = thisLine.lineText2
+			local text3 = thisLine.lineText3
+			local text4 = thisLine.lineText4
 
-				local totalWidth = text2:GetStringWidth() + text3:GetStringWidth() + text4:GetStringWidth()
-				totalWidth = totalWidth + 40 - self.fontstrings_text_limit_offset
+			local totalWidth = text2:GetStringWidth() + text3:GetStringWidth() + text4:GetStringWidth()
+			totalWidth = totalWidth + 50
 
-				DetailsFramework:TruncateTextSafe(playerNameFontString, self.cached_bar_width - totalWidth) --this avoid truncated strings with ...
-
-				--these commented lines are for to create a cache and store the name already truncated there to safe performance
-					--local truncatedName = playerNameFontString:GetText()
-					--local actorObject = thisLine.minha_tabela
-					--actorObject.name_cached = truncatedName
-					--actorObject.name_cached_time = GetTime()
-			end
+			DetailsFramework:TruncateText(playerName, self.cached_bar_width - totalWidth) --this avoid truncated strings with ...
+			--playerName:SetWidth(self.cached_bar_width - totalWidth)
 		end
 	end
 end
@@ -2973,13 +2965,11 @@ end
 	a = a or 1
 	
 	if (instance.row_info.texture_class_colors) then
-		--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 		if (instance.bars_inverted) then
 			bar.right_to_left_texture:SetVertexColor(r, g, b, a)
 		else
 			bar.textura:SetVertexColor(r, g, b, a)
-		end]]
-		bar.textura:SetVertexColor(r, g, b, a)
+		end
 	end
 	
 	if (instance.row_info.texture_background_class_color) then

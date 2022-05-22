@@ -38,7 +38,7 @@
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
-	--local arena_enemies = _detalhes.arena_enemies --details local (not in use - deprecated)
+	local arena_enemies = _detalhes.arena_enemies --details local
 
 	local cc_spell_list = DetailsFramework.CrowdControlSpells
 	local container_habilidades = _detalhes.container_habilidades --details local
@@ -2241,11 +2241,7 @@
 					if (not unitId) then
 						unitId = Details:GuessArenaEnemyUnitId(alvo_name)
 					end
-					if (unitId) then
-						this_event [5] = _UnitHealth(unitId)
-					else
-						this_event [5] = 0
-					end
+					this_event [5] = _UnitHealth(unitId)
 				else
 					this_event [5] = _UnitHealth(alvo_name)
 				end

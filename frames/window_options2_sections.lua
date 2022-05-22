@@ -1580,23 +1580,6 @@ do
                 desc = Loc ["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_AUTOALIGN_DESC"],
             },
 
-
-            {--name size offset
-                type = "range",
-                get = function() return tonumber(currentInstance.fontstrings_text_limit_offset) end,
-                set = function (self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "fontstrings_text_limit_offset", value)
-                    editInstanceSetting(currentInstance, "InstanceRefreshRows")
-                    Details.options.RefreshInstances(currentInstance)
-                    afterUpdate()
-                end,
-                min = -30,
-                max = 30,
-                step = 1,
-                name = "Unit Name Size Offset",
-                desc = "Unit Name Size Offset",
-            },
-
             {--lineText2 (left, usuali is the 'done' amount)
                 type = "range",
                 get = function() return tonumber (currentInstance.fontstrings_text2_anchor) end,
@@ -5247,10 +5230,9 @@ do
 			Loc["STRING_OPTIONS_COMBAT_ALPHA_7"],
 			Loc["STRING_OPTIONS_COMBAT_ALPHA_8"],
 			Loc["STRING_OPTIONS_COMBAT_ALPHA_9"],
-			_G.ARENA or "_G.ARENA",
 		}
 
-		local optionsOrder = {3, 4, 5, 6, 9, 7, 8, 1, 2}
+		local optionsOrder = {3, 4, 5, 6, 7, 8, 1, 2}
 
 		local header1Label = _G.DetailsFramework:CreateLabel(sectionFrame, Loc["STRING_CONTEXT"])
 		local header2Label = _G.DetailsFramework:CreateLabel(sectionFrame, Loc["STRING_ENABLED"])
@@ -5288,28 +5270,27 @@ do
 			local line = _G.CreateFrame("frame", nil, sectionFrame,"BackdropTemplate")
 			line:SetSize(300, 22)
 			line:SetPoint("topleft", sectionFrame, "topleft", right_start_at, yyy + ((id) * -23) + 4)
-			DetailsFramework:ApplyStandardBackdrop(line)
+			_G.DetailsFramework:ApplyStandardBackdrop(line)
 
-			local contextLabel = DetailsFramework:CreateLabel(line, typeCombatAlpha[i])
+			local contextLabel = _G.DetailsFramework:CreateLabel(line, typeCombatAlpha[i])
 			contextLabel:SetPoint("left", line, "left", 2, 0)
 
-			local enabledCheckbox = DetailsFramework:NewSwitch(line, nil, nil, nil, 20, 20, nil, nil, false, nil, nil, nil, nil, options_switch_template)
+			local enabledCheckbox = _G.DetailsFramework:NewSwitch(line, nil, nil, nil, 20, 20, nil, nil, false, nil, nil, nil, nil, options_switch_template)
 			enabledCheckbox:SetPoint("left", line, "left", 118, 0)
 			enabledCheckbox:SetAsCheckBox()
 			enabledCheckbox.OnSwitch = onEnableHideContext
 			enabledCheckbox:SetFixedParameter(i)
 
-			local reverseCheckbox = DetailsFramework:NewSwitch(line, nil, nil, nil, 20, 20, nil, nil, false, nil, nil, nil, nil, options_switch_template)
+			local reverseCheckbox = _G.DetailsFramework:NewSwitch(line, nil, nil, nil, 20, 20, nil, nil, false, nil, nil, nil, nil, options_switch_template)
 			reverseCheckbox:SetPoint("left", line, "left", 140, 0)
 			reverseCheckbox:SetAsCheckBox()
 			reverseCheckbox.OnSwitch = onInverseValue
 			reverseCheckbox:SetFixedParameter(i)
 
-			local alphaSlider = DetailsFramework:CreateSlider(line, 138, 20, 0, 100, 1, 100, false, nil, nil, nil, options_slider_template)
+			local alphaSlider = _G.DetailsFramework:CreateSlider(line, 138, 20, 0, 100, 1, 100, false, nil, nil, nil, options_slider_template)
 			alphaSlider:SetPoint("left", line, "left", 162, 0)
 			alphaSlider:SetHook("OnValueChanged", onAlphaChanged)
 			alphaSlider:SetFixedParameter(i)
-            alphaSlider.thumb:SetWidth(32)
 
 			line.contextLabel = contextLabel
 			line.enabledCheckbox = enabledCheckbox
