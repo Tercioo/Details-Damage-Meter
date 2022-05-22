@@ -16,18 +16,6 @@ jobs:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 200
-
-      - name: Create Retail Package
-        uses: BigWigsMods/packager@master
-        env:
-          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Create Classic Package
-        uses: BigWigsMods/packager@master
-        with:
-          args: -g classic -m .pkgmeta-classic
-        env:
-          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
       - name: Create BCC Package
         uses: BigWigsMods/packager@master
         with:
