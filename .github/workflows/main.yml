@@ -12,16 +12,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
     steps:
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 200
+      - name: Clone project
+        uses: actions/checkout@v1
 
       - name: Create Retail Package
-        uses: BigWigsMods/packager@master
-        env:
-          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
-          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        uses: BigWigsMods/packager@v1
         with:
-          args: -p 61284 -L
+          args: -p 61284 -L -m .pkgmeta
