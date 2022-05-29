@@ -15,6 +15,7 @@ Code Rules:
     - Public callbacks are callbacks registered by an external addon.
 
 Change Log:
+    - if Ace Comm is installed, use it
     - added "KeystoneWipe" callback
     - finished keystone info, see docs
     - added interrupts to cooldown tracker, new filter: "interrupt"
@@ -46,7 +47,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 39
+local CONST_LIB_VERSION = 41
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -233,6 +234,15 @@ LIB_OPEN_RAID_CAN_LOAD = false
     --0x1: to party
     --0x2: to raid
     --0x4: to guild
+    local sendData = function(dataEncoded, channel)
+        local aceComm = LibStub:GetLibrary("AceComm-3.0")
+        if (aceComm) then
+            aceComm:SendCommMessage(CONST_COMM_PREFIX, dataEncoded, channel, nil, "ALERT")
+        else
+            C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, channel)
+        end
+    end
+
     function openRaidLib.commHandler.SendCommData(data, flags)
         local LibDeflate = LibStub:GetLibrary("LibDeflate")
         local dataCompressed = LibDeflate:CompressDeflate(data, {level = 9})
@@ -240,28 +250,28 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
         if (flags) then
             if (bit.band(flags, CONST_COMM_SENDTO_PARTY)) then --send to party
-                if (IsInGroup() and not IsInRaid()) then 
-                    C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
+                if (IsInGroup() and not IsInRaid()) then
+                    sendData(dataEncoded, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
                 end
             end
 
             if (bit.band(flags, CONST_COMM_SENDTO_RAID)) then --send to raid
                 if (IsInRaid()) then
-                    C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID")
+                    sendData(dataEncoded, IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID")
                 end
             end
 
             if (bit.band(flags, CONST_COMM_SENDTO_GUILD)) then --send to guild
                 if (IsInGuild()) then
-                    C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, "GUILD")
+                    sendData(dataEncoded, "GUILD")
                 end
             end
         else
             if (IsInGroup() and not IsInRaid()) then --in party only
-                C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
+                sendData(dataEncoded, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
 
             elseif (IsInRaid()) then
-                C_ChatInfo.SendAddonMessage(CONST_COMM_PREFIX, dataEncoded, IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID")
+                sendData(dataEncoded, IsInRaid(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "RAID")
             end
         end
 	end

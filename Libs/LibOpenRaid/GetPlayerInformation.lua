@@ -291,16 +291,28 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
             if (cooldownInfo) then
                 --does this cooldown is based on a talent?
                 local talentId = cooldownInfo.talent
-                if (talentId) then
-                    --check if the player has the talent selected
-                    if (talentsHash[talentId]) then
+
+                --check if the player has a talent which makes this cooldown unavailable
+                local ignoredByTalentId = cooldownInfo.ignoredIfTalent
+                local isIgnoredByTalentId = false
+                if (ignoredByTalentId) then
+                    if (talentsHash[ignoredByTalentId]) then
+                        isIgnoredByTalentId = true
+                    end
+                end
+
+                if (not isIgnoredByTalentId) then
+                    if (talentId) then
+                        --check if the player has the talent selected
+                        if (talentsHash[talentId]) then
+                            if (canAddCooldown(cooldownInfo)) then
+                                addCooldownToTable(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
+                            end
+                        end
+                    else
                         if (canAddCooldown(cooldownInfo)) then
                             addCooldownToTable(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
                         end
-                    end
-                else
-                    if (canAddCooldown(cooldownInfo)) then
-                        addCooldownToTable(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
                     end
                 end
             end
