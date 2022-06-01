@@ -2188,7 +2188,7 @@ local icon_frame_on_enter = function (self)
 			end
 			
 			if (talent_string ~= "") then
-				GameCooltip:AddLine (TALENTS .. ":", talent_string) --> Loc from GlobalStrings.lua
+				GameCooltip:AddLine (TALENTS .. ":" .. talent_string) --> Loc from GlobalStrings.lua
 				GameCooltip:AddIcon ([[]], 1, 1, 1, 24)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				got_info = true
