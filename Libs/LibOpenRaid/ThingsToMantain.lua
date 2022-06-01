@@ -903,7 +903,8 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 
 	--priest
 	[10060] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "PRIEST", type = 1},  --Power Infusion
-	[34433] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "PRIEST", type = 1},  --Shadowfiend
+	[34433] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "PRIEST", type = 1, ignoredIfTalent = 21719},  --Shadowfiend
+	[200174] = {cooldown = 60, duration = 15, talent = 21719, charges = 1, class = "PRIEST", type = 1},  --Mindbender (talent)
 	[123040] = {cooldown = 60, duration = 12, talent = 22094, charges = 1, class = "PRIEST", type = 1},  --Mindbender (talent)
 	[33206] = {cooldown = 180, duration = 8, talent = false, charges = 1, class = "PRIEST", type = 3},  --Pain Suppression
 	[62618] = {cooldown = 180, duration = 10, talent = false, charges = 1, class = "PRIEST", type = 4},  --Power Word: Barrier
@@ -917,7 +918,6 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[265202] = {cooldown = 720, duration = false, talent = 23145, charges = 1, class = "PRIEST", type = 4},  --Holy Word: Salvation (talent)
 	[109964]  = {cooldown = 60, duration = 12, talent = 21184, charges = 1, class = "PRIEST", type = 4},  --Spirit Shell (talent)
 	[8122] = {cooldown = 60, duration = 8, talent = false, charges = 1, class = "PRIEST", type = 5},  --Psychic Scream
-	[200174] = {cooldown = 60, duration = 15, talent = 21719, charges = 1, class = "PRIEST", type = 1},  --Mindbender (talent)
 	[193223] = {cooldown = 240, duration = 60, talent = 21979, charges = 1, class = "PRIEST", type = 1},  --Surrender to Madness (talent)
 	[47585] = {cooldown = 120, duration = 6, talent = false, charges = 1, class = "PRIEST", type = 2},  --Dispersion
 	[15286] = {cooldown = 120, duration = 15, talent = false, charges = 1, class = "PRIEST", type = 4},  --Vampiric Embrace
