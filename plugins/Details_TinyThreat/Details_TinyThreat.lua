@@ -307,6 +307,7 @@ local function CreatePluginFrames (data)
 	local gougeSpells = {
 		[15687] = 29425, -- Moroes: Gouge
 		[22948] = 40491, -- Gurtogg Bloodboil: Bewildering Strike
+		[25165] = 45256, -- Lady Sacrolash: Confounding Blow
 	}
 	local FindGougeSpellForUnit = function(unitId)
 		local npcId = _detalhes:GetNpcIdFromGuid(UnitGUID(unitId))
