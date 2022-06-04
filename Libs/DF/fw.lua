@@ -154,9 +154,9 @@ function DF.UnitGroupRolesAssigned(unitId)
 		local role = UnitGroupRolesAssigned(unitId)
 
 		if (role == "NONE" and UnitIsUnit(unitId, "player")) then
-			local specializationIndex = GetSpecialization()
+			local specializationIndex = GetSpecialization() or 0
 			local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
-			return role
+			return id and role or "NONE"
 		end
 
 		return role
