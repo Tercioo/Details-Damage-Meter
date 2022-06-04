@@ -1,6 +1,6 @@
 
 
-local dversion = 316
+local dversion = 317
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -76,7 +76,7 @@ local roleBySpecTextureName = {
 	DruidFeralCombat = "DAMAGER",
 	DruidRestoration = "HEALER",
 
-	HunterBeastMaster = "DAMAGER",
+	HunterBeastMastery = "DAMAGER",
 	HunterMarksmanship = "DAMAGER",
 	HunterSurvival = "DAMAGER",
 
@@ -154,9 +154,9 @@ function DF.UnitGroupRolesAssigned(unitId)
 		local role = UnitGroupRolesAssigned(unitId)
 
 		if (role == "NONE" and UnitIsUnit(unitId, "player")) then
-			local specializationIndex = GetSpecialization()
+			local specializationIndex = GetSpecialization() or 0
 			local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
-			return role
+			return id and role or "NONE"
 		end
 
 		return role
