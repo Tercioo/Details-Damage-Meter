@@ -1,6 +1,6 @@
 
 
-local dversion = 316
+local dversion = 317
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -76,7 +76,7 @@ local roleBySpecTextureName = {
 	DruidFeralCombat = "DAMAGER",
 	DruidRestoration = "HEALER",
 
-	HunterBeastMaster = "DAMAGER",
+	HunterBeastMastery = "DAMAGER",
 	HunterMarksmanship = "DAMAGER",
 	HunterSurvival = "DAMAGER",
 
