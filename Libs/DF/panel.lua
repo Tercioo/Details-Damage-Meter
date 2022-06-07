@@ -4016,7 +4016,7 @@ function DF:CreateTabContainer (parent, title, frame_name, frameList, options_ta
 	local mainFrame = CreateFrame ("frame", frame_name, parent.widget or parent, "BackdropTemplate")
 	mainFrame:SetAllPoints()
 	DF:Mixin (mainFrame, DF.TabContainerFunctions)
-	mainFrame.hookList = hookList
+	mainFrame.hookList = hookList or {}
 	
 	local mainTitle = DF:CreateLabel (mainFrame, title, 24, "white")
 	mainTitle:SetPoint ("topleft", mainFrame, "topleft", 10, -30 + y_offset)

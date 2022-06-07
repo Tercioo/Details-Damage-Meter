@@ -1,6 +1,6 @@
 
 
-local dversion = 317
+local dversion = 319
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1491,7 +1491,7 @@ end
 							parent.widgetids [widget_table.id] = switch
 						end
 						
-						local size = switch.hasLabel:GetStringWidth() + 60 + 4
+						local size = switch.hasLabel:GetStringWidth() + 32
 						if (size > max_x) then
 							max_x = size
 						end
@@ -1547,7 +1547,7 @@ end
 							parent.widgetids [widget_table.id] = slider
 						end
 
-						local size = slider.hasLabel:GetStringWidth() + 140 + 6
+						local size = slider.hasLabel:GetStringWidth() + 146
 						if (size > max_x) then
 							max_x = size
 						end
@@ -1593,7 +1593,7 @@ end
 							parent.widgetids [widget_table.id] = colorpick
 						end
 
-						local size = colorpick.hasLabel:GetStringWidth() + 60 + 4
+						local size = colorpick.hasLabel:GetStringWidth() + 32
 						if (size > max_x) then
 							max_x = size
 						end
@@ -1689,7 +1689,7 @@ end
 							parent.widgetids [widget_table.id] = textentry
 						end
 						
-						local size = textentry.hasLabel:GetStringWidth() + 60 + 4
+						local size = textentry.hasLabel:GetStringWidth() + 64
 						if (size > max_x) then
 							max_x = size
 						end
@@ -1710,8 +1710,7 @@ end
 					
 					if (widget_table.type == "breakline" or cur_y < height) then
 						cur_y = y_offset
-						cur_x = cur_x + max_x + 30
-						line_widgets_created = 0
+						cur_x = cur_x + max_x + 20
 						max_x = 0
 					end
 
@@ -1798,7 +1797,7 @@ end
 						parent.widgetids [widget_table.id] = dropdown
 					end
 					
-					local size = label.widget:GetStringWidth() + 140 + 4
+					local size = label.widget:GetStringWidth() + 144
 					if (size > max_x) then
 						max_x = size
 					end
@@ -1853,7 +1852,7 @@ end
 						parent.widgetids [widget_table.id] = switch
 					end
 					
-					local size = label.widget:GetStringWidth() + 60 + 4
+					local size = label.widget:GetStringWidth() + 32
 					if (size > max_x) then
 						max_x = size
 					end
@@ -1899,7 +1898,7 @@ end
 						parent.widgetids [widget_table.id] = slider
 					end
 
-					local size = label.widget:GetStringWidth() + 140 + 6
+					local size = label.widget:GetStringWidth() + 146
 					if (size > max_x) then
 						max_x = size
 					end
@@ -1944,7 +1943,7 @@ end
 						parent.widgetids [widget_table.id] = colorpick
 					end
 
-					local size = label.widget:GetStringWidth() + 60 + 4
+					local size = label.widget:GetStringWidth() + 32
 					if (size > max_x) then
 						max_x = size
 					end
@@ -2042,7 +2041,7 @@ end
 						parent.widgetids [widget_table.id] = textentry
 					end
 					
-					local size = label.widget:GetStringWidth() + 60 + 4
+					local size = label.widget:GetStringWidth() + 64
 					if (size > max_x) then
 						max_x = size
 					end
@@ -2070,7 +2069,7 @@ end
 
 				if (widget_table.type == "breakline" or cur_y < height) then
 					cur_y = y_offset
-					cur_x = cur_x + max_x + 30
+					cur_x = cur_x + max_x + 20
 					line_widgets_created = 0
 					max_x = 0
 				end
