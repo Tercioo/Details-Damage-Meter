@@ -397,38 +397,68 @@ function DropDownMetaFunctions:NoOption (state)
 	end
 end
 
-function DropDownMetaFunctions:Select (optionName, byOptionNumber)
+--if onlyShown is true it'll first create a table with visible options that has .shown and then select in this table the index passed (if byOptionNumber)
+function DropDownMetaFunctions:Select (optionName, byOptionNumber, onlyShown)
 
 	if (type (optionName) == "boolean" and not optionName) then
 		self:NoOptionSelected()
 		return false
 	end
 
-	local menu =  DF:Dispatch (self.func, self)
+	local menu =  DF:Dispatch(self.func, self)
 
 	if (#menu == 0) then
-		self:NoOption (true)
+		self:NoOption(true)
 		return true
 	else
-		self:NoOption (false)
+		self:NoOption(false)
 	end
-	
+
 	if (byOptionNumber and type (optionName) == "number") then
-		if (not menu [optionName]) then --> invalid index
-			self:NoOptionSelected()
-			return false
+		local optionIndex = optionName
+
+		if (onlyShown) then
+			local onlyShownOptions = {}
+
+			for i = 1, #menu do
+				local thisOption = menu[i]
+				if (thisOption.shown) then
+					--only accept a function or a boolean into shown member
+					if (type(thisOption.shown) == "function") then
+						local isOptionShown = DF:Dispatch(thisOption.shown, self)
+						if (isOptionShown) then
+							onlyShownOptions[#onlyShownOptions+1] = thisOption
+						end
+
+					elseif (type(thisOption.shown) == "boolean" and thisOption.shown) then
+						onlyShownOptions[#onlyShownOptions+1] = thisOption
+					end
+				end
+			end
+
+			if (not onlyShownOptions[optionIndex]) then
+				self:NoOptionSelected()
+				return false
+			end
+
+			self:Selected(onlyShownOptions[optionIndex])
+		else
+			if (not menu[optionIndex]) then --> invalid index
+				self:NoOptionSelected()
+				return false
+			end
+			self:Selected(menu[optionIndex])
+			return true
 		end
-		self:Selected (menu [optionName])
-		return true
 	end
-	
+
 	for _, thisMenu in ipairs (menu) do 
 		if ( ( thisMenu.label == optionName or thisMenu.value == optionName ) and isOptionVisible (thisMenu)) then
 			self:Selected (thisMenu)
 			return true
 		end
 	end
-	
+
 	return false
 end
 
