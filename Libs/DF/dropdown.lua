@@ -331,29 +331,55 @@ end
 
 local last_opened = false
 
-local function isOptionVisible (thisOption)
-	if (_type (thisOption.shown) == "boolean" or _type (thisOption.shown) == "function") then
-		if (not thisOption.shown) then
-			return false
-		elseif (not thisOption.shown()) then
-			return false
-		end
+local isOptionVisible = function(self, thisOption)
+	if (type(thisOption.shown) == "boolean") then
+		return thisOption.shown
+
+	elseif (type(thisOption.shown) == "function") then
+		local result = DF:Dispatch(thisOption.shown, self)
+		return result
 	end
+
 	return true
 end
 
-function DropDownMetaFunctions:Refresh()
-	--> do a safe call
-	local menu =  DF:Dispatch (self.func, self)
+--return a table containing all frames of options in the menu
+function DropDownMetaFunctions:GetMenuFrames() --not tested
+	if (self.MyObject) then
+		self = self.MyObject
+	end
+	return self.menus
+end
 
-	if (#menu == 0) then
-		self:NoOption (true)
+function DropDownMetaFunctions:GetFrameForOption(optionsTable, value) --not tested
+	if (self.MyObject) then
+		self = self.MyObject
+	end
+
+	if (type(value) == "string") then
+		for i = 1, #optionsTable do
+			local thisOption = optionsTable[i]
+			if (thisOption.value == value or thisOption.label == value) then
+				return self.menus[i]
+			end
+		end
+
+	elseif (type(value) == "number") then
+		return self.menus[value]
+	end
+end
+
+function DropDownMetaFunctions:Refresh()
+	local optionsTable = DF:Dispatch(self.func, self)
+
+	if (#optionsTable == 0) then
+		self:NoOption(true)
 		self.no_options = true
 		return false
-		
+
 	elseif (self.no_options) then
 		self.no_options = false
-		self:NoOption (false)
+		self:NoOption(false)
 		self:NoOptionSelected()
 		return true
 	end
@@ -365,21 +391,23 @@ function DropDownMetaFunctions:NoOptionSelected()
 	if (self.no_options) then
 		return
 	end
+
 	self.label:SetText (self.empty_text or "no option selected")
 	self.label:SetPoint ("left", self.icon, "right", 2, 0)
 	self.label:SetTextColor (1, 1, 1, 0.4)
+
 	if (self.empty_icon) then
 		self.icon:SetTexture (self.empty_icon)
 	else
 		self.icon:SetTexture ([[Interface\COMMON\UI-ModelControlPanel]])
 		self.icon:SetTexCoord (0.625, 0.78125, 0.328125, 0.390625)
 	end
+
 	self.icon:SetVertexColor (1, 1, 1, 0.4)
-	
 	self.last_select = nil
 end
 
-function DropDownMetaFunctions:NoOption (state)
+function DropDownMetaFunctions:NoOption(state)
 	if (state) then
 		self:Disable()
 		self:SetAlpha (0.5)
@@ -397,31 +425,63 @@ function DropDownMetaFunctions:NoOption (state)
 	end
 end
 
---if onlyShown is true it'll first create a table with visible options that has .shown and then select in this table the index passed (if byOptionNumber)
-function DropDownMetaFunctions:Select (optionName, byOptionNumber, onlyShown)
+--@button: the frame button of the option
+--button.table refers to the optionTable
+local runCallbackFunctionForButton = function(button)
+	--exec function if any
+	if (button.table.onclick) then
+		--need: the the callback func, the object of the dropdown (capsule), the object (capsule) of the button to get FixedValue and the last need the value of the optionTable
+		local success, errorText = pcall(button.table.onclick, button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
+		if (not success) then
+			error ("Details! Framework: dropdown " .. button:GetParent():GetParent():GetParent().MyObject:GetName() ..  " error: " .. errorText)
+		end
+		button:GetParent():GetParent():GetParent().MyObject:RunHooksForWidget ("OnOptionSelected", button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
+	end
+end
 
+--not used atm, problem: need to have the fixedValue which here is gotten by having the frame showing the option, but at :Select() time dropdown.menus{} isn't built yet nor have the button reference.
+--solution: as fixedValue is a parameter of the dropdown it self, 
+local canRunCallbackFunctionForOption = function(canRunCallback, optionTable, dropdownObject)
+	if (canRunCallback) then
+		local fixedValue = rawget(dropdownObject, "FixedValue")
+		if (optionTable.onclick) then
+			local success, errorText = pcall(optionTable.onclick, dropdownObject, fixedValue, optionTable.value)
+			if (not success) then
+				error ("Details! Framework: dropdown " .. dropdownObject:GetName() ..  " error: " .. errorText)
+			end
+			dropdownObject:RunHooksForWidget("OnOptionSelected", dropdownObject, fixedValue, optionTable.value)
+		end
+	end
+end
+
+--if onlyShown is true it'll first create a table with visible options that has .shown and then select in this table the index passed (if byOptionNumber)
+--@optionName: value or string shown in the name of the option
+--@byOptionNumber: the option name is considered a number and selects the index of the menu
+--@onlyShown: the selected option index when selecting by option number must be visible
+--@runCallback: run the callback (onclick) function after selecting the option
+function DropDownMetaFunctions:Select(optionName, byOptionNumber, onlyShown, runCallback)
 	if (type (optionName) == "boolean" and not optionName) then
 		self:NoOptionSelected()
 		return false
 	end
 
-	local menu =  DF:Dispatch(self.func, self)
+	local optionsTable = DF:Dispatch(self.func, self)
 
-	if (#menu == 0) then
+	if (#optionsTable == 0) then
 		self:NoOption(true)
 		return true
 	else
 		self:NoOption(false)
 	end
 
-	if (byOptionNumber and type (optionName) == "number") then
+	if (byOptionNumber and type(optionName) == "number") then
 		local optionIndex = optionName
 
 		if (onlyShown) then
 			local onlyShownOptions = {}
 
-			for i = 1, #menu do
-				local thisOption = menu[i]
+			for i = 1, #optionsTable do
+				local thisOption = optionsTable[i]
 				if (thisOption.shown) then
 					--only accept a function or a boolean into shown member
 					if (type(thisOption.shown) == "function") then
@@ -436,141 +496,137 @@ function DropDownMetaFunctions:Select (optionName, byOptionNumber, onlyShown)
 				end
 			end
 
-			if (not onlyShownOptions[optionIndex]) then
+			local optionTableSelected = onlyShownOptions[optionIndex]
+
+			if (not optionTableSelected) then
 				self:NoOptionSelected()
 				return false
 			end
 
-			self:Selected(onlyShownOptions[optionIndex])
+			self:Selected(optionTableSelected)
+			canRunCallbackFunctionForOption(runCallback, optionTableSelected, self)
+			return true
 		else
-			if (not menu[optionIndex]) then --> invalid index
+			local optionTableSelected = optionsTable[optionIndex]
+
+			--is an invalid index?
+			if (not optionTableSelected) then
 				self:NoOptionSelected()
 				return false
 			end
-			self:Selected(menu[optionIndex])
+
+			self:Selected(optionTableSelected)
+			canRunCallbackFunctionForOption(runCallback, optionTableSelected, self)
 			return true
 		end
-	end
-
-	for _, thisMenu in ipairs (menu) do 
-		if ( ( thisMenu.label == optionName or thisMenu.value == optionName ) and isOptionVisible (thisMenu)) then
-			self:Selected (thisMenu)
-			return true
+	else
+		for i = 1, #optionsTable do
+			local thisOption = optionsTable[i]
+			if ((thisOption.label == optionName or thisOption.value == optionName) and isOptionVisible(self, thisOption)) then
+				self:Selected(thisOption)
+				canRunCallbackFunctionForOption(runCallback, thisOption, self)
+				return true
+			end
 		end
 	end
 
 	return false
 end
 
-function DropDownMetaFunctions:SetEmptyTextAndIcon (text, icon)
+function DropDownMetaFunctions:SetEmptyTextAndIcon(text, icon)
 	if (text) then
 		self.empty_text = text
 	end
+
 	if (icon) then
 		self.empty_icon = icon
 	end
 
-	self:Selected (self.last_select)
+	self:Selected(self.last_select)
 end
 
-function DropDownMetaFunctions:Selected (_table)
-
-	if (not _table) then
-
-		--> there is any options?
+function DropDownMetaFunctions:Selected(thisOption)
+	if (not thisOption) then
+		--does not have any options?
 		if (not self:Refresh()) then
 			self.last_select = nil
 			return
 		end
 
-		--> exists options but none selected
+		--exists options but none selected
 		self:NoOptionSelected()
 		return
 	end
-	
-	self.last_select = _table
-	self:NoOption (false)
-	
-	self.label:SetText (_table.label)
-	self.icon:SetTexture (_table.icon)
-	
-	if (_table.icon) then
-		self.label:SetPoint ("left", self.icon, "right", 2, 0)
-		if (_table.texcoord) then
-			self.icon:SetTexCoord (unpack (_table.texcoord))
+
+	self.last_select = thisOption
+	self:NoOption(false)
+
+	self.label:SetText(thisOption.label)
+	self.icon:SetTexture(thisOption.icon)
+
+	if (thisOption.icon) then
+		self.label:SetPoint("left", self.icon, "right", 2, 0)
+		if (thisOption.texcoord) then
+			self.icon:SetTexCoord(unpack(thisOption.texcoord))
 		else
-			self.icon:SetTexCoord (0, 1, 0, 1)
+			self.icon:SetTexCoord(0, 1, 0, 1)
 		end
-		
-		if (_table.iconcolor) then
-			if (type (_table.iconcolor) == "string") then
-				self.icon:SetVertexColor (DF:ParseColors (_table.iconcolor))
-			else
-				self.icon:SetVertexColor (unpack (_table.iconcolor))
-			end
+
+		if (thisOption.iconcolor) then
+			local r, g, b, a = DF:ParseColors(thisOption.iconcolor)
+			self.icon:SetVertexColor(r, g, b, a)
 		else
-			self.icon:SetVertexColor (1, 1, 1, 1)
+			self.icon:SetVertexColor(1, 1, 1, 1)
 		end
-		
-		self.icon:SetSize (self:GetHeight()-2, self:GetHeight()-2)
+
+		self.icon:SetSize(self:GetHeight()-2, self:GetHeight()-2)
 	else
-		self.label:SetPoint ("left", self.label:GetParent(), "left", 4, 0)
+		self.label:SetPoint("left", self.label:GetParent(), "left", 4, 0)
 	end
 
-	if (_table.statusbar) then
-		self.statusbar:SetTexture (_table.statusbar)
-		if (_table.statusbarcolor) then
-			self.statusbar:SetVertexColor (unpack(_table.statusbarcolor))
+	if (thisOption.statusbar) then
+		self.statusbar:SetTexture(thisOption.statusbar)
+		if (thisOption.statusbarcolor) then
+			self.statusbar:SetVertexColor(unpack(thisOption.statusbarcolor))
 		end
 	else
-		self.statusbar:SetTexture ([[Interface\Tooltips\CHATBUBBLE-BACKGROUND]])
+		self.statusbar:SetTexture([[Interface\Tooltips\CHATBUBBLE-BACKGROUND]])
 	end
-	
-	if (_table.color) then
-		local _value1, _value2, _value3, _value4 = DF:ParseColors (_table.color)
-		self.label:SetTextColor (_value1, _value2, _value3, _value4)
-	else
-		self.label:SetTextColor (1, 1, 1, 1)
-	end
-	
-	if (_table.font) then
-		self.label:SetFont (_table.font, 10)
-	else
-		self.label:SetFont ("GameFontHighlightSmall", 10)
-	end
-	
-	self:SetValue (_table.value)
 
+	if (thisOption.color) then
+		local r, g, b, a = DF:ParseColors(thisOption.color)
+		self.label:SetTextColor(r, g, b, a)
+	else
+		self.label:SetTextColor(1, 1, 1, 1)
+	end
+
+	if (thisOption.font) then
+		self.label:SetFont(thisOption.font, 10)
+	else
+		self.label:SetFont("GameFontHighlightSmall", 10)
+	end
+
+	self:SetValue(thisOption.value)
 end
 
-function DetailsFrameworkDropDownOptionClick (button)
+function DetailsFrameworkDropDownOptionClick(button)
+	--update name and icon on main frame
+	button.object:Selected(button.table)
 
-	--> update name and icon on main frame
-	button.object:Selected (button.table)
-	
-	--> close menu frame
-		button.object:Close()
-		
-	--> exec function if any
-		if (button.table.onclick) then
-		
-			local success, errorText = pcall (button.table.onclick, button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
-			if (not success) then
-				error ("Details! Framework: dropdown " .. button:GetParent():GetParent():GetParent().MyObject:GetName() ..  " error: " .. errorText)
-			end
-			
-			button:GetParent():GetParent():GetParent().MyObject:RunHooksForWidget ("OnOptionSelected", button:GetParent():GetParent():GetParent().MyObject, button.object.FixedValue, button.table.value)
-		end
-		
-	--> set the value of selected option in main object
-		button.object.myvalue = button.table.value
-		button.object.myvaluelabel = button.table.label
+	--close menu frame
+	button.object:Close()
+
+	--run callbacks
+	runCallbackFunctionForButton(button)
+
+	--set the value of selected option in main object
+	button.object.myvalue = button.table.value
+	button.object.myvaluelabel = button.table.label
 end
 
 function DropDownMetaFunctions:Open()
 	self.dropdown.dropdownframe:Show()
 	self.dropdown.dropdownborder:Show()
-	--self.dropdown.arrowTexture:SetTexture ("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Down")
 	self.opened = true
 	if (last_opened) then
 		last_opened:Close()
@@ -579,274 +635,264 @@ function DropDownMetaFunctions:Open()
 end
 
 function DropDownMetaFunctions:Close()
-	--> when menu is being close, just hide the border and the script will call back this again
+	--when menu is being close, just hide the border and the script will call back this again
 	if (self.dropdown.dropdownborder:IsShown()) then
 		self.dropdown.dropdownborder:Hide()
 		return
 	end
 	self.dropdown.dropdownframe:Hide()
-	--self.dropdown.arrowTexture:SetTexture ("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up")
-	
-	local selectedTexture = _G [self:GetName() .. "_ScrollFrame_ScrollChild_SelectedTexture"]
+
+	local selectedTexture = _G[self:GetName() .. "_ScrollFrame_ScrollChild_SelectedTexture"]
 	selectedTexture:Hide()
-	 
+
 	self.opened = false
 	last_opened = false
 end
 
---> close by escape key
-function DetailsFrameworkDropDownOptionsFrameOnHide (frame)
-	frame:GetParent().MyObject:Close()
+--close by escape key
+function DetailsFrameworkDropDownOptionsFrameOnHide(self)
+	self:GetParent().MyObject:Close()
 end
 
-function DetailsFrameworkDropDownOptionOnEnter (frame)
-	if (frame.table.desc) then
-		GameCooltip2:Preset (2)
-		GameCooltip2:AddLine (frame.table.desc)
-		if (frame.table.descfont) then
-			GameCooltip2:SetOption ("TextFont", frame.table.descfont)
+function DetailsFrameworkDropDownOptionOnEnter(self)
+	if (self.table.desc) then
+		GameCooltip2:Preset(2)
+		GameCooltip2:AddLine(self.table.desc)
+		if (self.table.descfont) then
+			GameCooltip2:SetOption("TextFont", self.table.descfont)
 		end
-		
-		if (frame.table.tooltipwidth) then
-			GameCooltip2:SetOption ("FixedWidth", frame.table.tooltipwidth)
+
+		if (self.table.tooltipwidth) then
+			GameCooltip2:SetOption("FixedWidth", self.table.tooltipwidth)
 		end
-		
-		GameCooltip2:SetHost (frame, "topleft", "topright", 10, 0)
-		
-		GameCooltip2:ShowCooltip (nil, "tooltip")
-		frame.tooltip = true
+
+		GameCooltip2:SetHost(self, "topleft", "topright", 10, 0)
+
+		GameCooltip2:ShowCooltip(nil, "tooltip")
+		self.tooltip = true
 	end
-	frame:GetParent().mouseover:SetPoint ("left", frame)
-	frame:GetParent().mouseover:Show()
+
+	self:GetParent().mouseover:SetPoint("left", self)
+	self:GetParent().mouseover:Show()
 end
 
-function DetailsFrameworkDropDownOptionOnLeave (frame)
+function DetailsFrameworkDropDownOptionOnLeave(frame)
 	if (frame.table.desc) then
-		GameCooltip2:ShowMe (false)
+		GameCooltip2:ShowMe(false)
 	end
 	frame:GetParent().mouseover:Hide()
 end
 
-function DetailsFrameworkDropDownOnMouseDown (button)
-	
+--@button is the raw button frame, object is the button capsule
+function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 	local object = button.MyObject
 
-	if (not object.opened and not _rawget (object, "lockdown")) then --> click to open
-		
-		local menu = object:func()
-		object.builtMenu = menu
-		
-		local frame_witdh = object.realsizeW
-		
-		if (menu [1]) then
-			--> build menu
-			
+	--click to open
+	if (not object.opened and not rawget(object, "lockdown")) then
+		local optionsTable = DF:Dispatch(object.func, object)
+		object.builtMenu = optionsTable
+		local frameWitdh = object.realsizeW
+
+		--has at least 1 option?
+		if (optionsTable and optionsTable[1]) then
 			local scrollFrame = _G [button:GetName() .. "_ScrollFrame"]
 			local scrollChild = _G [button:GetName() .. "_ScrollFrame_ScrollChild"]
 			local scrollBorder = _G [button:GetName() .. "_Border"]
 			local selectedTexture = _G [button:GetName() .. "_ScrollFrame_ScrollChild_SelectedTexture"]
 			local mouseOverTexture = _G [button:GetName() .. "_ScrollFrame_ScrollChild_MouseOverTexture"]
-			
+
 			local i = 1
 			local showing = 0
 			local currentText = button.text:GetText() or ""
 			local currentIndex
-			
+
 			if (object.OnMouseDownHook) then
-				local interrupt = object.OnMouseDownHook (button, buttontype, menu, scrollFrame, scrollChild, selectedTexture)
+				local interrupt = object.OnMouseDownHook(button, buttontype, optionsTable, scrollFrame, scrollChild, selectedTexture)
 				if (interrupt) then
 					return
 				end
 			end
-			
-			for tindex, _table in ipairs (menu) do 
-				
-				local show = isOptionVisible (_table)
+
+			for tindex, thisOption in ipairs(optionsTable) do
+				local show = isOptionVisible(button, thisOption)
 
 				if (show) then
-					local _this_row = object.menus [i]
+					local thisOptionFrame = object.menus[i]
 					showing = showing + 1
-					
-					if (not _this_row) then
-					
+
+					if (not thisOptionFrame) then
 						local name = button:GetName() .. "Row" .. i
 						local parent = scrollChild
-						
-						_this_row = DF:CreateDropdownButton (parent, name)
-						local anchor_i = i-1
-						_this_row:SetPoint ("topleft", parent, "topleft", 1, (-anchor_i*20)-0)
-						_this_row:SetPoint ("topright", parent, "topright", 0, (-anchor_i*20)-0)
-						_this_row.object = object
-						object.menus [i] = _this_row
+
+						thisOptionFrame = DF:CreateDropdownButton(parent, name)
+						local optionIndex = i - 1
+						thisOptionFrame:SetPoint("topleft", parent, "topleft", 1, (-optionIndex*20)-0)
+						thisOptionFrame:SetPoint("topright", parent, "topright", 0, (-optionIndex*20)-0)
+						thisOptionFrame.object = object
+						object.menus[i] = thisOptionFrame
 					end
-					
-					_this_row:SetFrameStrata (_this_row:GetParent():GetFrameStrata())
-					_this_row:SetFrameLevel (_this_row:GetParent():GetFrameLevel()+10)
-					
-					_this_row.icon:SetTexture (_table.icon)
-					if (_table.icon) then
-					
-						_this_row.label:SetPoint ("left", _this_row.icon, "right", 5, 0)
-						
-						if (_table.texcoord) then
-							_this_row.icon:SetTexCoord (unpack (_table.texcoord))
+
+					thisOptionFrame:SetFrameStrata(thisOptionFrame:GetParent():GetFrameStrata())
+					thisOptionFrame:SetFrameLevel(thisOptionFrame:GetParent():GetFrameLevel()+10)
+
+					thisOptionFrame.icon:SetTexture(thisOption.icon)
+					if (thisOption.icon) then
+						thisOptionFrame.label:SetPoint("left", thisOptionFrame.icon, "right", 5, 0)
+
+						if (thisOption.texcoord) then
+							thisOptionFrame.icon:SetTexCoord(unpack(thisOption.texcoord))
 						else
-							_this_row.icon:SetTexCoord (0, 1, 0, 1)
+							thisOptionFrame.icon:SetTexCoord(0, 1, 0, 1)
 						end
-						
-						if (_table.iconcolor) then
-							if (type (_table.iconcolor) == "string") then
-								_this_row.icon:SetVertexColor (DF:ParseColors (_table.iconcolor))
-							else
-								_this_row.icon:SetVertexColor (unpack (_table.iconcolor))
-							end
+
+						if (thisOption.iconcolor) then
+							local r, g, b, a = DF:ParseColors(thisOption.iconcolor)
+							thisOptionFrame.icon:SetVertexColor(r, g, b, a)
 						else
-							_this_row.icon:SetVertexColor (1, 1, 1, 1)
+							thisOptionFrame.icon:SetVertexColor(1, 1, 1, 1)
 						end
 					else
-						_this_row.label:SetPoint ("left", _this_row.statusbar, "left", 2, 0)
+						thisOptionFrame.label:SetPoint("left", thisOptionFrame.statusbar, "left", 2, 0)
 					end
-					
-					if (_table.iconsize) then
-						_this_row.icon:SetSize (_table.iconsize[1], _table.iconsize[2])
+
+					if (thisOption.iconsize) then
+						thisOptionFrame.icon:SetSize(thisOption.iconsize[1], thisOption.iconsize[2])
 					else
-						_this_row.icon:SetSize (20, 20)
+						thisOptionFrame.icon:SetSize(20, 20)
 					end
-					
-					if (_table.font) then
-						_this_row.label:SetFont (_table.font, 10.5)
+
+					if (thisOption.font) then
+						thisOptionFrame.label:SetFont(thisOption.font, 10.5)
 					else
-						_this_row.label:SetFont ("GameFontHighlightSmall", 10.5)
+						thisOptionFrame.label:SetFont("GameFontHighlightSmall", 10.5)
 					end
-					
-					if (_table.statusbar) then
-						_this_row.statusbar:SetTexture (_table.statusbar)
-						if (_table.statusbarcolor) then
-							_this_row.statusbar:SetVertexColor (unpack(_table.statusbarcolor))
+
+					if (thisOption.statusbar) then
+						thisOptionFrame.statusbar:SetTexture(thisOption.statusbar)
+						if (thisOption.statusbarcolor) then
+							thisOptionFrame.statusbar:SetVertexColor(unpack(thisOption.statusbarcolor))
 						end
 					else
-						_this_row.statusbar:SetTexture ([[Interface\Tooltips\CHATBUBBLE-BACKGROUND]])
+						thisOptionFrame.statusbar:SetTexture([[Interface\Tooltips\CHATBUBBLE-BACKGROUND]])
 					end
 
 					--an extra button in the right side of the row
-					--run a given function passing the button in the first argument, the row on 2nd and the _table in the 3rd
-					if (_table.rightbutton) then
-						DF:Dispatch (_table.rightbutton, _this_row.rightButton, _this_row, _table)
+					--run a given function passing the button in the first argument, the row on 2nd and the thisOption in the 3rd
+					if (thisOption.rightbutton) then
+						DF:Dispatch(thisOption.rightbutton, thisOptionFrame.rightButton, thisOptionFrame, thisOption)
 					else
-						_this_row.rightButton:Hide()
+						thisOptionFrame.rightButton:Hide()
 					end
-					
-					_this_row.label:SetText (_table.label)
-					
-					if (currentText and currentText == _table.label) then
-						if (_table.icon) then
-							selectedTexture:SetPoint ("left", _this_row.icon, "left", -3, 0)
+
+					thisOptionFrame.label:SetText(thisOption.label)
+
+					if (currentText and currentText == thisOption.label) then
+						if (thisOption.icon) then
+							selectedTexture:SetPoint("left", thisOptionFrame.icon, "left", -3, 0)
 						else
-							selectedTexture:SetPoint ("left", _this_row.statusbar, "left", 0, 0)
+							selectedTexture:SetPoint("left", thisOptionFrame.statusbar, "left", 0, 0)
 						end
-						
+
 						selectedTexture:Show()
-						selectedTexture:SetVertexColor (1, 1, 1, .3)
-						selectedTexture:SetTexCoord (0, 29/32, 5/32, 27/32)
-						
+						selectedTexture:SetVertexColor(1, 1, 1, .3)
+						selectedTexture:SetTexCoord(0, 29/32, 5/32, 27/32)
+
 						currentIndex = tindex
 						currentText = nil
 					end
-					
-					if (_table.color) then
-						local _value1, _value2, _value3, _value4 = DF:ParseColors (_table.color)
-						_this_row.label:SetTextColor (_value1, _value2, _value3, _value4)
+
+					if (thisOption.color) then
+						local r, g, b, a = DF:ParseColors(thisOption.color)
+						thisOptionFrame.label:SetTextColor(r, g, b, a)
 					else
-						_this_row.label:SetTextColor (1, 1, 1, 1)
+						thisOptionFrame.label:SetTextColor(1, 1, 1, 1)
 					end
-					
-					_this_row.table = _table
-					
-					local labelwitdh = _this_row.label:GetStringWidth()
-					if (labelwitdh+40 > frame_witdh) then
-						frame_witdh = labelwitdh+40
+
+					thisOptionFrame.table = thisOption
+
+					local labelwitdh = thisOptionFrame.label:GetStringWidth()
+					if (labelwitdh+40 > frameWitdh) then
+						frameWitdh = labelwitdh+40
 					end
-					_this_row:Show()
-					
+					thisOptionFrame:Show()
+
 					i = i + 1
 				end
-				
 			end
-			
+
 			if (currentText) then
 				selectedTexture:Hide()
 			else
-				selectedTexture:SetWidth (frame_witdh-20)
+				selectedTexture:SetWidth(frameWitdh-20)
 			end
-			
-			for i = showing+1, #object.menus do
-				object.menus [i]:Hide()
+
+			for i = showing + 1, #object.menus do
+				object.menus[i]:Hide()
 			end
-			
+
 			local size = object.realsizeH
-			
+
 			if (showing*20 > size) then
 				--show scrollbar and setup scroll
 				object:ShowScroll()
-				scrollFrame:EnableMouseWheel (true)
-				object.scroll:Altura (size-35)
-				object.scroll:SetMinMaxValues (0, (showing*20) - size + 2)
+				scrollFrame:EnableMouseWheel(true)
+				object.scroll:Altura(size-35) --height
+				object.scroll:SetMinMaxValues(0, (showing*20) - size + 2)
+
 				--width
-				scrollBorder:SetWidth (frame_witdh+20)
-				scrollFrame:SetWidth (frame_witdh+20)
-				scrollChild:SetWidth (frame_witdh+20)
+				scrollBorder:SetWidth(frameWitdh+20)
+				scrollFrame:SetWidth(frameWitdh+20)
+				scrollChild:SetWidth(frameWitdh+20)
+
 				--height
-				scrollBorder:SetHeight (size+2)
-				scrollFrame:SetHeight (size+2)
-				scrollChild:SetHeight ((showing*20)+20)
+				scrollBorder:SetHeight(size+2)
+				scrollFrame:SetHeight(size+2)
+				scrollChild:SetHeight((showing*20)+20)
+
 				--mouse over texture
-				mouseOverTexture:SetWidth (frame_witdh-7)
+				mouseOverTexture:SetWidth(frameWitdh-7)
+
 				--selected
-				selectedTexture:SetWidth (frame_witdh - 9)
-				
-				for index, row in ipairs (object.menus) do
-					row:SetPoint ("topright", scrollChild, "topright", -22, ((-index-1)*20)-5)
+				selectedTexture:SetWidth(frameWitdh - 9)
+
+				for index, row in ipairs(object.menus) do
+					row:SetPoint("topright", scrollChild, "topright", -22, ((-index-1)*20)-5)
 				end
-				
 			else
 				--hide scrollbar and disable wheel
 				object:HideScroll()
-				scrollFrame:EnableMouseWheel (false)
+				scrollFrame:EnableMouseWheel(false)
 				--width
-				scrollBorder:SetWidth (frame_witdh)
-				scrollFrame:SetWidth (frame_witdh)
-				scrollChild:SetWidth (frame_witdh)
+				scrollBorder:SetWidth(frameWitdh)
+				scrollFrame:SetWidth(frameWitdh)
+				scrollChild:SetWidth(frameWitdh)
 				--height
-				scrollBorder:SetHeight ((showing*20) + 1)
-				scrollFrame:SetHeight ((showing*20) + 1)
+				scrollBorder:SetHeight((showing*20) + 1)
+				scrollFrame:SetHeight((showing*20) + 1)
 				--mouse over texture
-				mouseOverTexture:SetWidth (frame_witdh - 1)
+				mouseOverTexture:SetWidth(frameWitdh - 1)
 				--selected
-				selectedTexture:SetWidth (frame_witdh - 1)
-				
-				for index, row in ipairs (object.menus) do
-					row:SetPoint ("topright", scrollChild, "topright", -5, ((-index-1)*20)-5)
+				selectedTexture:SetWidth(frameWitdh - 1)
+
+				for index, row in ipairs(object.menus) do
+					row:SetPoint("topright", scrollChild, "topright", -5, ((-index-1)*20)-5)
 				end
 			end
 
 			if (object.myvaluelabel and currentIndex and scrollFrame.slider:IsShown()) then
-				object.scroll:SetValue (max ((currentIndex*20) - 80, 0))
+				object.scroll:SetValue(max((currentIndex*20) - 80, 0))
 			else
-				object.scroll:SetValue (0)
+				object.scroll:SetValue(0)
 			end
-			
-			object:Open()
-			
-		else
-			--> clear menu
-			
-		end
-	
-	else --> click to close
 
+			object:Open()
+		else
+			--clear menu
+		end
+	else
+		--click to close
 		object:Close()
 	end
-	
 end
 
 function DetailsFrameworkDropDownOnEnter (self)
