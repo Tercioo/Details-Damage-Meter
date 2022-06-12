@@ -1,6 +1,6 @@
 
 
-local dversion = 321
+local dversion = 322
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -147,6 +147,7 @@ function DF:GetRoleByClassicTalentTree()
 		local role = roleBySpecTextureName[specTexture]
 		return role or "NONE"
 	end
+	return "DAMAGER"
 end
 
 function DF.UnitGroupRolesAssigned(unitId)
