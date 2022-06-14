@@ -4053,6 +4053,10 @@ end
 
 _detalhes.barras_criadas = 0
 
+local getActor = function(self)
+	return self.minha_tabela
+end
+
 --> search key: ~row ~barra  ~newbar ~createbar ~createrow
 function gump:CreateNewLine (instancia, index)
 
@@ -4067,6 +4071,8 @@ function gump:CreateNewLine (instancia, index)
 	newLine.instance_id = instancia.meu_id
 	newLine.animacao_fim = 0
 	newLine.animacao_fim2 = 0
+
+	newLine.GetActor = getActor
 	
 	--> set point, almost irrelevant here, it recalc this on SetBarGrowDirection()
 	local y = instancia.row_height * (index-1)

@@ -2691,9 +2691,9 @@ if (DetailsFramework.IsTBCWow()) then
 		ShamanEnhancement = 263,
 		ShamanRestoration = 264,
 
-		WarlockCurses = 265,
-		WarlockDestruction = 266,
-		WarlockSummoning = 267,
+		WarlockCurses = 265, --affliction
+		WarlockSummoning = 266, --demo
+		WarlockDestruction = 267, --destruction
 
 		--WarriorArm = 71,
 		WarriorArms = 71,
