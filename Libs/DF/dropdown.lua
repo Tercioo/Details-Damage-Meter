@@ -439,8 +439,6 @@ local runCallbackFunctionForButton = function(button)
 	end
 end
 
---not used atm, problem: need to have the fixedValue which here is gotten by having the frame showing the option, but at :Select() time dropdown.menus{} isn't built yet nor have the button reference.
---solution: as fixedValue is a parameter of the dropdown it self, 
 local canRunCallbackFunctionForOption = function(canRunCallback, optionTable, dropdownObject)
 	if (canRunCallback) then
 		local fixedValue = rawget(dropdownObject, "FixedValue")
