@@ -1704,7 +1704,13 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WORLDBOSS"] .. "|r: " .. Loc ["STRING_SLASH_WORLDBOSS_DESC"])
 		print (" ")
 
-		if (DetailsFramework.IsTBCWow()) then
+		if (DetailsFramework.IsWotLKWow()) then
+			--wraft of the lich kind classic
+			local v = _detalhes.game_version .. "." .. (_detalhes.wotlk_counter)
+			print (Loc ["STRING_DETAILS1"] .. "|cFFFFFF00DETAILS! VERSION|r: |cFFFFAA00BCC" .. _detalhes.wotlk_counter)
+			print (Loc ["STRING_DETAILS1"] .. "|cFFFFFF00GAME VERSION|r: |cFFFFAA00" .. _detalhes.game_version)
+
+		elseif (DetailsFramework.IsTBCWow()) then
 			--the burning crusade classic
 			local v = _detalhes.game_version .. "." .. (_detalhes.bcc_counter)
 			print (Loc ["STRING_DETAILS1"] .. "|cFFFFFF00DETAILS! VERSION|r: |cFFFFAA00BCC" .. _detalhes.bcc_counter)

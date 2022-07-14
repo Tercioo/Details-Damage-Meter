@@ -1,6 +1,6 @@
 
 
-local dversion = 322
+local dversion = 323
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -52,7 +52,7 @@ if (not PixelUtil) then
 end
 
 function DF.IsTimewalkWoW()
-	return DF.IsClassicWow() or DF.IsTBCWow()
+	return DF.IsClassicWow() or DF.IsTBCWow() or DF.IsWotLKWow()
 end
 
 function DF.IsClassicWow()
@@ -66,6 +66,14 @@ end
 function DF.IsTBCWow()
 	local gameVersion = GetBuildInfo()
 	if (gameVersion:match ("%d") == "2") then
+		return true
+	end
+	return false
+end
+
+function DF.IsWotLKWow()
+	local gameVersion = GetBuildInfo()
+	if (gameVersion:match ("%d") == "3") then
 		return true
 	end
 	return false
