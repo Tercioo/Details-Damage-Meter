@@ -2699,6 +2699,10 @@ if (DetailsFramework.IsTBCWow()) then
 		WarriorArms = 71,
 		WarriorFury = 72,
 		WarriorProtection = 73,
+
+		DeathKnightBlood = 250,
+		DeathKnightFrost = 251,
+		DeathKnightUnholy = 252,
 	}
 
 
@@ -2739,6 +2743,10 @@ if (DetailsFramework.IsTBCWow()) then
 		[71] = "WarriorArms",
 		[72] = "WarriorFury",
 		[73] = "WarriorProtection",
+
+		[250] = "DeathKnightBlood",
+		[251] = "DeathKnightFrost",
+		[252] = "DeathKnightUnholy",
 	}
 
 	function Details.IsValidSpecId (specId)

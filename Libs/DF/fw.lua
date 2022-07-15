@@ -116,6 +116,10 @@ local roleBySpecTextureName = {
 	WarriorArms = "DAMAGER",
 	WarriorFury = "DAMAGER",
 	WarriorProtection = "TANK",
+
+	DeathKnightBlood = "TANK",
+	DeathKnightFrost = "DAMAGER",
+	DeathKnightUnholy = "DAMAGER",
 }
 
 --classic, tbc and wotlk role guesser based on the weights of each talent tree
