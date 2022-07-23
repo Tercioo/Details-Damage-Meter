@@ -39,9 +39,9 @@ DF.AuthorInfo = {
 
 local PixelUtil = PixelUtil or DFPixelUtil
 if (not PixelUtil) then
-	--check if is in classic or TBC wow, if it is, build a replacement for PixelUtil
+	--check if is in classic, TBC, or WotLK wow, if it is, build a replacement for PixelUtil
 	local gameVersion = GetBuildInfo()
-	if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2") then
+	if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2" or gameVersion:match("%d") == "3") then
 		PixelUtil = {
 			SetWidth = function (self, width) self:SetWidth (width) end,
 			SetHeight = function (self, height) self:SetHeight (height) end,

@@ -968,6 +968,9 @@ if (GetBuildInfo():match ("%d") == "1") then
 elseif (GetBuildInfo():match ("%d") == "2") then
 	LIB_OPEN_RAID_SPELL_CUSTOM_NAMES = {}
 
+elseif (GetBuildInfo():match ("%d") == "3") then
+	LIB_OPEN_RAID_SPELL_CUSTOM_NAMES = {}
+
 else
 	LIB_OPEN_RAID_SPELL_CUSTOM_NAMES = {
 		[44461] = {name = GetSpellInfo(44461) .. " (" .. L["STRING_EXPLOSION"] .. ")"}, --Living Bomb (explosion)
