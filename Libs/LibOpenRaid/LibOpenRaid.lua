@@ -131,7 +131,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
     local isTimewalkWoW = function()
         local gameVersion = GetBuildInfo()
-        if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2") then
+        if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2" or gameVersion:match("%d") == "3") then
             return true
         end
     end
