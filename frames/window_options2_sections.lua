@@ -487,6 +487,16 @@ do
             },
             {--erase overall data on logout
                 type = "toggle",
+                get = function() return _detalhes.overall_clear_pvp end,
+                set = function (self, fixedparam, value)
+                    _detalhes:SetOverallResetOptions(nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = "Clear On Start PVP", --localize-me
+                desc = "When enabled, overall data is automatically wiped when a new arena or battleground starts.", --localize-me
+            },
+            {--erase overall data on logout
+                type = "toggle",
                 get = function() return _detalhes.overall_clear_logout end,
                 set = function (self, fixedparam, value)
                     _detalhes:SetOverallResetOptions(nil, nil, value)
