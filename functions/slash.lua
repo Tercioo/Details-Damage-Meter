@@ -1168,8 +1168,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 			["INVTYPE_RANGEDRIGHT"] = true,
 		}
 		
-		local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
-		
 		_detalhes:Msg ("======== Item Level Debug ========")
 		
 		for equip_id = 1, 17 do
@@ -1178,15 +1176,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 				if (item) then
 					local _, _, itemRarity, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
 					if (iLevel) then
-						if (ItemUpgradeInfo) then
-							local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
-							item_level = item_level + (ilvl or iLevel)
-							print (ilvl, item)
-						else
-							item_level = item_level + iLevel
-							print (iLevel, item)
-						end
-						
+						item_level = item_level + iLevel
+						print (iLevel, item)
 						--> 16 = main hand 17 = off hand
 						-->  if using a two-hand, ignore the off hand slot
 						if (equip_id == 16 and two_hand [equipSlot]) then

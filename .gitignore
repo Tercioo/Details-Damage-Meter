@@ -33,3 +33,4 @@ functions/pack2.lua
 *.afphoto
 wowapi.lua
 plugins/Details_TinyThreat/Details_TinyThreat_original.lua
+*.png

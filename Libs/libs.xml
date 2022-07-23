@@ -13,10 +13,7 @@
 	<Script file="LibDBIcon-1.0\LibDBIcon-1.0.lua"/>
 	<Script file="LibGraph-2.0\LibGraph-2.0.lua"/>
 	<Script file="LibWindow-1.1\LibWindow-1.1.lua"/>
-	<Include file="LibCompress\lib.xml"/>
 	<Include file="LibDeflate\lib.xml"/>
-	<Include file="LibItemUpgradeInfo-1.0\LibItemUpgradeInfo-1.0.xml"/>
-	<!-- <Include file="LibGroupInSpecT-1.1\lib.xml"/> temp disabled due to classic-->
 	<Include file="LibOpenRaid\lib.xml"/>
 	<Include file="DF\load.xml"/>
 	<Include file="LibTranslit\LibTranslit-1.0.xml"/>
