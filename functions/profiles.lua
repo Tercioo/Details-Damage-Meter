@@ -987,6 +987,7 @@ local default_profile = {
 		overall_clear_newchallenge = true,
 		overall_clear_newtorghast = true,
 		overall_clear_logout = false,
+		overall_clear_pvp = true,
 		data_cleanup_logout = false,
 		close_shields = false,
 		pvp_as_group = true,
