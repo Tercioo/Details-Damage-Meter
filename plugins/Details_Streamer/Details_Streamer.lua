@@ -1277,7 +1277,7 @@ function listener:RegisterMyEvents()
 	listener:RegisterEvent ("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	listener:RegisterEvent ("UNIT_SPELLCAST_STOP")
 
-	if (not DetailsFramework.IsTBCWow()) then
+	if (not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
 		listener:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTIBLE")
 		listener:RegisterEvent ("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 	end
