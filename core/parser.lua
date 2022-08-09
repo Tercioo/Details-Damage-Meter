@@ -448,6 +448,16 @@
 		Details.KyrianWeaponActorSpellId = 328351 --for the icon
 		Details.KyrianWeaponColor = {0.729, 0.917, 1} --color
 
+		--cannon weapons on grimrail depot --remove on 10.0
+		--these detect the cannon weapon actor by the damage spellId
+		Details.GrimrailDepotCannonWeaponSpellIds = {
+			[160776] = true, --Homing Shell
+			[166545] = true, --Sharpnel Cannon
+		}
+		Details.GrimrailDepotCannonWeaponActorName = "Cannon"
+		Details.GrimrailDepotCannonWeaponActorSpellId = 166545 --for the icon
+		Details.GrimrailDepotCannonWeaponColor = {1, 0.353, 0.082} --color
+
 		--sanguine affix for m+
 		Details.SanguineHealActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
@@ -463,6 +473,15 @@
 			--add kyrian weapons
 			Details.SpecialSpellActorsName[Details.KyrianWeaponActorName] = Details.KyrianWeaponActorSpellId
 			for spellId in pairs(Details.KyrianWeaponSpellIds) do
+				local spellName = GetSpellInfo(spellId)
+				if (spellName) then
+					Details.SpecialSpellActorsName[spellName] = spellId
+				end
+			end
+
+			--add grimrail depot cannon weapons
+			Details.SpecialSpellActorsName[Details.GrimrailDepotCannonWeaponActorName] = Details.GrimrailDepotCannonWeaponActorSpellId
+			for spellId in pairs(Details.GrimrailDepotCannonWeaponSpellIds) do
 				local spellName = GetSpellInfo(spellId)
 				if (spellName) then
 					Details.SpecialSpellActorsName[spellName] = spellId
@@ -621,6 +640,13 @@
 		--kyrian weapons
 		if (Details.KyrianWeaponSpellIds[spellid]) then
 			who_name = Details.KyrianWeaponActorName
+			who_flags = 0x514
+			who_serial = "Creature-0-3134-2289-28065-" .. spellid .. "-000164C698"
+		end
+
+		--grimail depot cannon
+		if (Details.GrimrailDepotCannonWeaponSpellIds[spellid]) then
+			who_name = Details.GrimrailDepotCannonWeaponActorName
 			who_flags = 0x514
 			who_serial = "Creature-0-3134-2289-28065-" .. spellid .. "-000164C698"
 		end
