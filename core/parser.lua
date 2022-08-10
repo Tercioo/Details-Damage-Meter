@@ -453,6 +453,7 @@
 		Details.GrimrailDepotCannonWeaponSpellIds = {
 			[160776] = true, --Homing Shell
 			[166545] = true, --Sharpnel Cannon
+			[161073] = true, --Blackrock Grenade
 		}
 		Details.GrimrailDepotCannonWeaponActorName = "Cannon"
 		Details.GrimrailDepotCannonWeaponActorSpellId = 166545 --for the icon

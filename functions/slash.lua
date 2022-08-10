@@ -1995,7 +1995,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local statusBar = DetailsFramework:CreateStatusBar(f)
 				statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
 				statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
-				statusBar.text:SetText("From Details! Damage Meter | Built with Details! Framework | Data from Open Raid Library")
+				statusBar.text:SetText("By Terciob | From Details! Damage Meter|Built with Details! Framework | Data from Open Raid Library")
 				DetailsFramework:SetFontSize(statusBar.text, 11)
 				DetailsFramework:SetFontColor(statusBar.text, "gray")
 
