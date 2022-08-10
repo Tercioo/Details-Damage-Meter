@@ -4891,6 +4891,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) zone type is now 'pvp'.")
 			end
+			if(not _detalhes.is_in_battleground and _detalhes.overall_clear_pvp) then
+				_detalhes.tabela_historico:resetar_overall()
+			end
 			
 			_detalhes.is_in_battleground = true
 			
@@ -4930,6 +4933,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		
 			if (not _detalhes.is_in_arena) then
+				if (_detalhes.overall_clear_pvp) then
+					_detalhes.tabela_historico:resetar_overall()
+				end
 				--> reset spec cache if broadcaster requested
 				if (_detalhes.streamer_config.reset_spec_cache) then
 					wipe (_detalhes.cached_specs)
