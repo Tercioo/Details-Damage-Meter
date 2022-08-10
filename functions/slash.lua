@@ -2004,8 +2004,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					{text = "Class", width = 40, canSort = true, dataType = "number", order = "DESC", offset = 0},
 					{text = "Player Name", width = 140, canSort = true, dataType = "string", order = "DESC", offset = 0},
 					{text = "Level", width = 60, canSort = true, dataType = "number", order = "DESC", offset = 0, selected = true},
-					{text = "Dungeon", width = 120, canSort = true, dataType = "string", order = "DESC", offset = 0},
-					{text = "Classic Dungeon", width = 120, canSort = true, dataType = "string", order = "DESC", offset = 0},
+					{text = "Dungeon", width = 240, canSort = true, dataType = "string", order = "DESC", offset = 0},
+					--{text = "Classic Dungeon", width = 120, canSort = true, dataType = "string", order = "DESC", offset = 0},
 					{text = "Mythic+ Rating", width = 100, canSort = true, dataType = "number", order = "DESC", offset = 0},
 				}
 
@@ -2065,7 +2065,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							line.playerNameText.text = unitName
 							line.keystoneLevelText.text = level
 							line.dungeonNameText.text = mapName
-							DetailsFramework:TruncateText(line.dungeonNameText, 120)
+							DetailsFramework:TruncateText(line.dungeonNameText, 240)
 							line.classicDungeonNameText.text = mapNameChallenge or ""
 							DetailsFramework:TruncateText(line.classicDungeonNameText, 120)
 							line.inMyParty = inMyParty > 0
@@ -2178,7 +2178,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					line:AddFrameToHeaderAlignment(playerNameText)
 					line:AddFrameToHeaderAlignment(keystoneLevelText)
 					line:AddFrameToHeaderAlignment(dungeonNameText)
-					line:AddFrameToHeaderAlignment(classicDungeonNameText)
+					--line:AddFrameToHeaderAlignment(classicDungeonNameText)
 					line:AddFrameToHeaderAlignment(ratingText)
 					
 					line:AlignWithHeader(f.Header, "left")

@@ -1033,27 +1033,34 @@ local default_profile = {
 			line_texture = "Details Serenity",
 			line_color = {.1, .1, .1, 0.3},
 		},
-		
+
 	--> current damage
-		current_dps_meter = {
-			frame = {
-				locked = false,
-				width = 220,
-				height = 65,
+		realtime_dps_meter = {
+			frame_settings = {
+				locked = true,
+				width = 300,
+				height = 23,
 				backdrop_color = {0, 0, 0, 0.2},
-				show_title = false,
+				show_title = true,
 				strata = "LOW",
+
+				--libwindow
+				point = "TOP",
+				scale = 1,
+				y = -110,
+				x = 0,
 			},
 			options_frame = {},
 			enabled = false,
 			arena_enabled = true,
-			mythic_dungeon_enabled = true,
+			mythic_dungeon_enabled = false,
 			font_size = 18,
 			font_color = {1, 1, 1, 1},
 			font_shadow = "NONE",
 			font_face = "Friz Quadrata TT",
+			text_offset = 2,
 			update_interval = 0.30,
-			sample_size = 5, --in seconds
+			sample_size = 3, --in seconds
 		},
 		
 	--> streamer

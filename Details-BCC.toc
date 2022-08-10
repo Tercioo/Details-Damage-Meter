@@ -41,6 +41,7 @@ functions\savedata.lua
 functions\slash.lua
 functions\playerclass.lua
 functions\timedata.lua
+functions\currentdps.lua
 functions\report.lua
 functions\rowanimation.lua
 functions\raidinfo.lua

@@ -751,7 +751,7 @@ end
 			else
 				DetailsRaidCheck:HideToolbarIcon (DetailsRaidCheck.ToolbarButton)
 				DetailsRaidCheck.on_raid = false
-				if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick._cancelled) then
+				if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick:IsCancelled()) then
 					DetailsRaidCheck.UpdateBuffsTick:Cancel()
 				end
 			end
@@ -844,7 +844,7 @@ end
 				
 				DetailsRaidCheck:BuffTrackTick()
 				
-				if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick._cancelled) then
+				if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick:IsCancelled()) then
 					DetailsRaidCheck.UpdateBuffsTick:Cancel()
 				end
 
@@ -859,7 +859,7 @@ end
 		
 		function DetailsRaidCheck:StopTrackBuffs()
 			DetailsRaidCheck.tracking_buffs = false
-			if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick._cancelled) then
+			if (DetailsRaidCheck.UpdateBuffsTick and not DetailsRaidCheck.UpdateBuffsTick:IsCancelled()) then
 				DetailsRaidCheck.UpdateBuffsTick:Cancel()
 			end
 		end

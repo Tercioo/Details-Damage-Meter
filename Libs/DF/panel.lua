@@ -63,44 +63,6 @@ end
 
 local PanelMetaFunctions = _G[DF.GlobalWidgetControlNames ["panel"]]
 
---> mixin for options functions
-DF.OptionsFunctions = {
-	SetOption = function (self, optionName, optionValue)
-		if (self.options) then
-			self.options [optionName] = optionValue
-		else
-			self.options = {}
-			self.options [optionName] = optionValue
-		end
-		
-		if (self.OnOptionChanged) then
-			DF:Dispatch (self.OnOptionChanged, self, optionName, optionValue)
-		end
-	end,
-	
-	GetOption = function (self, optionName)
-		return self.options and self.options [optionName]
-	end,
-	
-	GetAllOptions = function (self)
-		if (self.options) then
-			local optionsTable = {}
-			for key, _ in pairs (self.options) do
-				optionsTable [#optionsTable + 1] = key
-			end
-			return optionsTable
-		else
-			return {}
-		end
-	end,
-	
-	BuildOptionsTable = function (self, defaultOptions, userOptions)
-		self.options = self.options or {}
-		DF.table.deploy (self.options, userOptions or {})
-		DF.table.deploy (self.options, defaultOptions or {})
-	end
-}
-
 --> default options for the frame layout
 local default_framelayout_options = {
 	amount_per_line = 4,
@@ -2144,6 +2106,10 @@ function DF:CreateSimplePanel (parent, w, h, title, name, panel_options, db)
 	
 	f.Title:SetPoint ("center", title_bar, "center")
 	f.Close:SetPoint ("right", title_bar, "right", -2, 0)
+
+	if (panel_options.NoCloseButton) then
+		f.Close:Hide()
+	end
 	
 	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
 	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
@@ -8349,7 +8315,7 @@ DF.CastFrameFunctions = {
 	end,
 	
 	HasScheduledHide = function (self)
-		return self.scheduledHideTime and not self.scheduledHideTime._cancelled
+		return self.scheduledHideTime and not self.scheduledHideTime:IsCancelled()
 	end,
 	
 	CancelScheduleToHide = function (self)
@@ -8361,7 +8327,7 @@ DF.CastFrameFunctions = {
 	--> after an interrupt, do not immediately hide the cast bar, let it up for short amount of time to give feedback to the player
 	ScheduleToHide = function (self, delay)
 		if (not delay) then
-			if (self.scheduledHideTime and not self.scheduledHideTime._cancelled) then
+			if (self.scheduledHideTime and not self.scheduledHideTime:IsCancelled()) then
 				self.scheduledHideTime:Cancel()
 			end
 			
@@ -8370,7 +8336,7 @@ DF.CastFrameFunctions = {
 		end
 
 		--> already have a scheduled timer?
-		if (self.scheduledHideTime and not self.scheduledHideTime._cancelled) then
+		if (self.scheduledHideTime and not self.scheduledHideTime:IsCancelled()) then
 			self.scheduledHideTime:Cancel()
 		end
 		

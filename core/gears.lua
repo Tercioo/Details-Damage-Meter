@@ -2372,7 +2372,7 @@ if (DetailsFramework.IsTBCWow()) then
 	end)
 
 	talentWatchClassic:SetScript("OnEvent", function(self, event, ...)
-		if (talentWatchClassic.delayedUpdate and not talentWatchClassic.delayedUpdate._cancelled) then
+		if (talentWatchClassic.delayedUpdate and not talentWatchClassic.delayedUpdate:IsCancelled()) then
 			return
 		else
 			talentWatchClassic.delayedUpdate = C_Timer.NewTimer(5, Details.GetOldSchoolTalentInformation)
@@ -2381,7 +2381,7 @@ if (DetailsFramework.IsTBCWow()) then
 
 	function Details.GetOldSchoolTalentInformation()
 		--cancel any schedule
-		if (talentWatchClassic.delayedUpdate and not talentWatchClassic.delayedUpdate._cancelled) then
+		if (talentWatchClassic.delayedUpdate and not talentWatchClassic.delayedUpdate:IsCancelled()) then
 			talentWatchClassic.delayedUpdate:Cancel()
 		end
 		talentWatchClassic.delayedUpdate = nil
