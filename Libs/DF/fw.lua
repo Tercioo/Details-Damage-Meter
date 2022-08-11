@@ -1,6 +1,6 @@
 
 
-local dversion = 326
+local dversion = 327
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -2505,8 +2505,8 @@ end
 
 --DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
 --DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
-DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = DF:GetBestFontForLanguage()}
-DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = DF:GetBestFontForLanguage()}
+DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
+DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 10, font = DF:GetBestFontForLanguage()}
 
 -- dropdowns
 
