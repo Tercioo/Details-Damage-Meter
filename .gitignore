@@ -32,3 +32,5 @@ functions/pack2.lua
 *.json
 *.afphoto
 wowapi.lua
+plugins/Details_TinyThreat/Details_TinyThreat_original.lua
+*.png

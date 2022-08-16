@@ -461,15 +461,22 @@
 		--> menu background
 			local menuBackground = CreateFrame ("frame", "$parentMenuFrame", f,"BackdropTemplate")
 			_detalhes:FormatBackground (menuBackground)
+			local menuBackgroundTexture = menuBackground:CreateTexture("$parentBackgroundTexture", "background", nil, -2)
+			menuBackgroundTexture:SetAllPoints()
+			menuBackgroundTexture:SetColorTexture(0.2, 0.2, 0.2, .5)
 			
 		--> statusbar
 			local statusBar = CreateFrame ("frame", nil, menuBackground,"BackdropTemplate")
 			statusBar:SetPoint ("topleft", menuBackground, "bottomleft", 0, 1)
 			statusBar:SetPoint ("topright", f, "bottomright", 0, 1)
 			statusBar:SetHeight (20)
-			_detalhes.gump:ApplyStandardBackdrop (statusBar)
 			statusBar:SetAlpha (1)
-			_detalhes.gump:BuildStatusbarAuthorInfo (statusBar)
+			DetailsFramework:BuildStatusbarAuthorInfo (statusBar)
+			DetailsFramework:ApplyStandardBackdrop (statusBar)
+			local extraDarkTexture = statusBar:CreateTexture(nil, "background")
+			extraDarkTexture:SetAllPoints()
+			extraDarkTexture:SetColorTexture(.2, .2, .2, .8)
+
 			--
 			local right_click_to_back = _detalhes.gump:CreateLabel (statusBar, "right click to close", 10, "gray")
 			right_click_to_back:SetPoint ("bottomright", statusBar, "bottomright", -1, 5)

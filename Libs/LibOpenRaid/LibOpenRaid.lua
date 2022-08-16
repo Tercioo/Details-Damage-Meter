@@ -47,7 +47,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 41
+local CONST_LIB_VERSION = 43
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -104,6 +104,10 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local CONST_COOLDOWN_INDEX_DURATION = 4
     local CONST_COOLDOWN_INDEX_UPDATETIME = 5
 
+    function openRaidLib.ShowDiagnosticErrors(value)
+        CONST_DIAGNOSTIC_ERRORS = value
+    end
+
     --make the 'pri-nt' word be only used once, this makes easier to find lost debug pri-nts in the code
     local sendChatMessage = function(...)
         print(...)
@@ -127,7 +131,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
     local isTimewalkWoW = function()
         local gameVersion = GetBuildInfo()
-        if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2") then
+        if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2" or gameVersion:match("%d") == "3") then
             return true
         end
     end
@@ -169,17 +173,29 @@ LIB_OPEN_RAID_CAN_LOAD = false
             local dataCompressed = LibDeflate:DecodeForWoWAddonChannel(data)
             data = LibDeflate:DecompressDeflate(dataCompressed)
 
+            --some users are reporting errors where 'data is nil'. Making some sanitization
+            if (not data) then
+                openRaidLib.DiagnosticError("Invalid data from player:", sender, "data:", text)
+                return
+            elseif (type(data) ~= "string") then
+                openRaidLib.DiagnosticError("Invalid data from player:", sender, "data:", text, "data type is:", type(data))
+                return
+            end
+
             --get the first byte of the data, it indicates what type of data was transmited
             local dataTypePrefix = data:match("^.")
             if (not dataTypePrefix) then
+                openRaidLib.DiagnosticError("Invalid dataTypePrefix from player:", sender, "data:", data, "dataTypePrefix:", dataTypePrefix)
                 return
             elseif (openRaidLib.commPrefixDeprecated[dataTypePrefix]) then
+                openRaidLib.DiagnosticError("Invalid dataTypePrefix from player:", sender, "data:", data, "dataTypePrefix:", dataTypePrefix)
                 return
             end
 
             --if this is isn't a keystone data comm, check if the lib can receive comms
             if (dataTypePrefix ~= CONST_COMM_KEYSTONE_DATA_PREFIX and dataTypePrefix ~= CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX) then
                 if (not openRaidLib.IsCommAllowed()) then
+                    openRaidLib.DiagnosticError("comm not allowed.")
                     return
                 end
             end
@@ -187,6 +203,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
             --get the table with functions regitered for this type of data
             local callbackTable = openRaidLib.commHandler.commCallback[dataTypePrefix]
             if (not callbackTable) then
+                openRaidLib.DiagnosticError("Not callbackTable for dataTypePrefix:", dataTypePrefix, "from player:", sender, "data:", data)
                 return
             end
 
@@ -335,7 +352,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         local currentSchedule = registeredUniqueTimers[namespace] and registeredUniqueTimers[namespace][scheduleName]
 
         if (currentSchedule) then
-            if (not currentSchedule._cancelled) then
+            if (not currentSchedule:IsCancelled()) then
                 currentSchedule:Cancel()
             end
             registeredUniqueTimers[namespace][scheduleName] = nil
@@ -347,7 +364,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         local registeredUniqueTimers = openRaidLib.Schedules.registeredUniqueTimers
         for namespace, schedulesTable in pairs(registeredUniqueTimers) do
             for scheduleName, timerObject in pairs (schedulesTable) do
-                if (timerObject and not timerObject._cancelled) then
+                if (timerObject and not timerObject:IsCancelled()) then
                     timerObject:Cancel()
                 end
             end
@@ -1419,7 +1436,7 @@ local cooldownStartTicker = function(spellId, cooldownTimeLeft)
         end
 
         --cancel the existing ticker
-        if (not existingTicker._cancelled) then
+        if (not existingTicker:IsCancelled()) then
             existingTicker:Cancel()
         end
     end
