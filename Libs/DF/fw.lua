@@ -1,6 +1,6 @@
 
 
-local dversion = 328
+local dversion = 329
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -933,11 +933,12 @@ end
 --return a list of spells from the player spellbook
 function DF:GetSpellBookSpells()
     local spellNamesInSpellBook = {}
+	local spellIdsInSpellBook = {}
 
     for i = 1, GetNumSpellTabs() do
         local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(i)
 
-        if (offspecId == 0) then
+        if (offspecId == 0 and tabTexture ~= 136830) then --don't add spells found in the General tab
             offset = offset + 1
             local tabEnd = offset + numSpells
 
@@ -949,6 +950,7 @@ function DF:GetSpellBookSpells()
                         local spellName = GetSpellInfo(spellId)
                         if (spellName) then
                             spellNamesInSpellBook[spellName] = true
+							spellIdsInSpellBook[#spellIdsInSpellBook+1] = spellId
                         end
                     else
                         local _, _, numSlots, isKnown = GetFlyoutInfo(spellId)
@@ -958,6 +960,7 @@ function DF:GetSpellBookSpells()
                                 if (isKnown) then
                                     local spellName = GetSpellInfo(spellID)
                                     spellNamesInSpellBook[spellName] = true
+									spellIdsInSpellBook[#spellIdsInSpellBook+1] = spellID
                                 end
                             end
                         end
@@ -967,7 +970,7 @@ function DF:GetSpellBookSpells()
         end
     end
 
-    return spellNamesInSpellBook
+    return spellNamesInSpellBook, spellIdsInSpellBook
 end
 
 ------------------------------
