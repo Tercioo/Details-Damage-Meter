@@ -1,6 +1,6 @@
 
 
-local dversion = 329
+local dversion = 330
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1671,6 +1671,7 @@ end
 
 						colorpick.color_callback = widget_table.set --callback
 						colorpick:SetTemplate(button_template)
+						colorpick:SetSize(18, 18)
 
 						colorpick.tooltip = widget_table.desc
 						colorpick._get = widget_table.get
@@ -1694,17 +1695,24 @@ end
 							end
 						end
 
-						colorpick.hasLabel.text = widget_table.name .. (use_two_points and ": " or "")
-						colorpick.hasLabel:SetTemplate(widget_table.text_template or text_template)
-						
-						colorpick:SetPoint ("left", colorpick.hasLabel, "right", 2)
-						colorpick.hasLabel:SetPoint (cur_x, cur_y)
-						
+						local label = colorpick.hasLabel
+						label.text = widget_table.name .. (use_two_points and ": " or "")
+						label:SetTemplate(widget_table.text_template or text_template)
+
+						if (widget_table.boxfirst) then
+							label:SetPoint("left", colorpick, "right", 2)
+							colorpick:SetPoint(cur_x, cur_y)
+							extraPaddingY = 1
+						else
+							colorpick:SetPoint("left", label, "right", 2)
+							label:SetPoint(cur_x, cur_y)
+						end
+
 						if (widget_table.id) then
 							parent.widgetids [widget_table.id] = colorpick
 						end
 
-						local size = colorpick.hasLabel:GetStringWidth() + 32
+						local size = label:GetStringWidth() + 32
 						if (size > max_x) then
 							max_x = size
 						end
@@ -1851,6 +1859,21 @@ end
 		height = abs ((height or parent:GetHeight()) - abs (y_offset) + 20)
 		height = height*-1
 
+		--normalize format types
+		for index, widgetTable in ipairs(menu) do
+			if (widgetTable.type == "space") then
+				widgetTable.type = "blank"
+			elseif (widgetTable.type == "dropdown") then
+				widgetTable.type = "select"
+			elseif (widgetTable.type == "switch") then
+				widgetTable.type = "toggle"
+			elseif (widgetTable.type == "slider") then
+				widgetTable.type = "range"
+			elseif (widgetTable.type == "button") then
+				widgetTable.type = "execute"
+			end
+		end
+
 		for index, widget_table in ipairs (menu) do
 			if (not widget_table.hidden) then
 
@@ -1862,7 +1885,9 @@ end
 					end
 				end
 
-				if (widget_table.type == "blank" or widget_table.type == "space") then
+				local extraPaddingY = 0
+
+				if (widget_table.type == "blank") then
 					-- do nothing
 
 				elseif (widget_table.type == "label" or widget_table.type == "text") then
@@ -1881,7 +1906,7 @@ end
 						parent.widgetids [widget_table.id] = label
 					end
 				
-				elseif (widget_table.type == "select" or widget_table.type == "dropdown") then
+				elseif (widget_table.type == "select") then
 					local dropdown = DF:NewDropDown (parent, nil, "$parentWidget" .. index, nil, 140, 18, widget_table.values, widget_table.get(), dropdown_template)
 					dropdown.tooltip = widget_table.desc
 					dropdown._get = widget_table.get
@@ -1920,7 +1945,7 @@ end
 					widget_created = dropdown
 					line_widgets_created = line_widgets_created + 1
 					
-				elseif (widget_table.type == "toggle" or widget_table.type == "switch") then
+				elseif (widget_table.type == "toggle") then
 					local switch = DF:NewSwitch (parent, nil, "$parentWidget" .. index, nil, 60, 20, nil, nil, widget_table.get(), nil, nil, nil, nil, switch_template)
 					switch.tooltip = widget_table.desc
 					switch._get = widget_table.get
@@ -1953,6 +1978,13 @@ end
 					if (widget_table.boxfirst) then
 						switch:SetPoint (cur_x, cur_y)
 						label:SetPoint ("left", switch, "right", 2)
+
+						local nextWidgetTable = menu[index+1]
+						if (nextWidgetTable) then
+							if (nextWidgetTable.type ~= "blank" and nextWidgetTable.type ~= "breakline" and nextWidgetTable.type ~= "toggle" and nextWidgetTable.type ~= "color") then
+								extraPaddingY = 3
+							end
+						end
 					else
 						label:SetPoint (cur_x, cur_y)
 						switch:SetPoint ("left", label, "right", 2)
@@ -1975,7 +2007,7 @@ end
 					widget_created = switch
 					line_widgets_created = line_widgets_created + 1
 					
-				elseif (widget_table.type == "range" or widget_table.type == "slider") then
+				elseif (widget_table.type == "range") then
 					local is_decimanls = widget_table.usedecimals
 					local slider = DF:NewSlider (parent, nil, "$parentWidget" .. index, nil, 140, 20, widget_table.min, widget_table.max, widget_table.step, widget_table.get(),  is_decimanls, nil, nil, slider_template)
 					slider.tooltip = widget_table.desc
@@ -2021,11 +2053,12 @@ end
 					widget_created = slider
 					line_widgets_created = line_widgets_created + 1
 					
-				elseif (widget_table.type == "color" or widget_table.type == "color") then
+				elseif (widget_table.type == "color") then
 					local colorpick = DF:NewColorPickButton (parent, "$parentWidget" .. index, nil, widget_table.set, nil, button_template)
 					colorpick.tooltip = widget_table.desc
 					colorpick._get = widget_table.get
 					colorpick.widget_type = "color"
+					colorpick:SetSize(18, 18)
 
 					local default_value, g, b, a = widget_table.get()
 					if (type (default_value) == "table") then
@@ -2046,8 +2079,15 @@ end
 					end
 					
 					local label = DF:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name .. (use_two_points and ": " or ""), "GameFontNormal", widget_table.text_template or text_template or 12)
-					colorpick:SetPoint ("left", label, "right", 2)
-					label:SetPoint (cur_x, cur_y)
+					if (widget_table.boxfirst) then
+						label:SetPoint("left", colorpick, "right", 2)
+						colorpick:SetPoint(cur_x, cur_y)
+						extraPaddingY = 1
+					else
+						colorpick:SetPoint("left", label, "right", 2)
+						label:SetPoint(cur_x, cur_y)
+					end
+
 					colorpick.hasLabel = label
 					
 					if (widget_table.id) then
@@ -2066,7 +2106,7 @@ end
 					widget_created = colorpick
 					line_widgets_created = line_widgets_created + 1
 					
-				elseif (widget_table.type == "execute" or widget_table.type == "button") then
+				elseif (widget_table.type == "execute") then
 				
 					local button = DF:NewButton (parent, nil, "$parentWidget" .. index, nil, 120, 18, widget_table.func, widget_table.param1, widget_table.param2, nil, widget_table.name, nil, button_template, text_template)
 					if (not button_template) then
@@ -2176,6 +2216,10 @@ end
 					else
 						cur_y = cur_y - 20
 					end
+				end
+
+				if (extraPaddingY > 0) then
+					cur_y = cur_y - extraPaddingY
 				end
 
 				if (widget_table.type == "breakline" or cur_y < height) then

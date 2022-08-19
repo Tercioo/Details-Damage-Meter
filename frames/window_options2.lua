@@ -126,6 +126,7 @@ function Details.options.InitializeOptionsWindow(instance)
     
     local instanceSelection = DF:NewDropDown (f, _, "$parentInstanceSelectDropdown", "instanceDropdown", 200, 18, buildInstanceMenu) --, nil, options_dropdown_template
     instanceSelection:SetPoint("bottomright", f, "bottomright", -7, 09)
+    instanceSelection:SetTemplate(options_dropdown_template)
     instanceSelection:SetHook("OnEnter", function()
         GameCooltip:Reset()
         GameCooltip:Preset (2)
