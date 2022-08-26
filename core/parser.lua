@@ -2798,7 +2798,7 @@
 						escudo [alvo_name][spellid][who_name] = amount
 						
 						if (overheal > 0) then
-							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, nil, true)
 						end
 					end
 				
