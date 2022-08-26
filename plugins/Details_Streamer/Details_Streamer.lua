@@ -1301,7 +1301,7 @@ function listener:UnregisterMyEvents()
 	listener:UnregisterEvent ("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	listener:UnregisterEvent ("UNIT_SPELLCAST_STOP")
 
-	if (not (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow())) then
+	if (not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
 		listener:UnregisterEvent ("UNIT_SPELLCAST_INTERRUPTIBLE")
 		listener:UnregisterEvent ("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 	end

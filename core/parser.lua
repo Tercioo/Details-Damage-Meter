@@ -303,8 +303,6 @@
 
 	--> ignore soul link (damage from the warlock on his pet - current to demonology only)
 	local SPELLID_WARLOCK_SOULLINK = 108446
-	--> when checking if can start a new combat, ignore the damage from warlock's burning rush
-	local SPELLID_WARLOCK_BURNINGRUSH = 111400
 	--> brewmaster monk guard talent
 	local SPELLID_MONK_GUARD = 115295
 	--> brewmaster monk stagger mechanics
@@ -880,7 +878,7 @@
 	------------------------------------------------------------------------------------------------
 	--> check if need start an combat
 	
-		if (not _in_combat) then
+		if (not _in_combat) then --~startcombat ~combatstart
 			if (	token ~= "SPELL_PERIODIC_DAMAGE" and
 				(
 					(who_flags and _bit_band (who_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (who_name) )
@@ -910,7 +908,9 @@
 				--> entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atr�s
 				if (token == "SPELL_PERIODIC_DAMAGE" and who_name == _detalhes.playername) then
 					--> ignora burning rush se o jogador estiver fora de combate
-					if (spellid == SPELLID_WARLOCK_BURNINGRUSH) then
+					--111400 warlock's burning rush
+					--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
+					if (spellid == 111400 or spellid == 368637) then
 						return
 					end
 					--> faz o calculo dos 10 segundos

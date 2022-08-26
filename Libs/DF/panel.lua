@@ -17,7 +17,6 @@ local loadstring = loadstring --> lua local
 local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_CLASSIC_ERA = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local IS_WOW_PROJECT_CLASSIC_TBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 
 local UnitCastingInfo = UnitCastingInfo
 local UnitChannelInfo = UnitChannelInfo
@@ -8679,12 +8678,7 @@ DF.CastFrameFunctions = {
 	end,
 	
 	UpdateChannelInfo = function (self, unit, ...)
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID
-		if not IS_WOW_PROJECT_CLASSIC_TBC then
-			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo (unit)
-		else
-			name, text, texture, startTime, endTime, isTradeSkill, spellID = UnitChannelInfo (unit)
-		end
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo (unit)
 
 		--> is valid?
 		if (not self:IsValid (unit, name, isTradeSkill, true)) then
