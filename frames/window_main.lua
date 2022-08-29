@@ -4143,13 +4143,13 @@ function gump:CreateNewLine (instancia, index)
 	icone_classe:SetTexCoord (.75, 1, .75, 1)
 	newLine.icone_classe = icone_classe
 	
-	local icon_frame = CreateFrame ("frame", "DetailsBarra_IconFrame_" .. instancia.meu_id .. "_" .. index, newLine.statusbar)
-	icon_frame:SetPoint ("topleft", icone_classe, "topleft")
-	icon_frame:SetPoint ("bottomright", icone_classe, "bottomright")
-	icon_frame:SetFrameLevel (newLine.statusbar:GetFrameLevel()+1)
-	icon_frame.instance_id = instancia.meu_id
-	icon_frame.row = newLine
-	newLine.icon_frame = icon_frame
+	local iconFrame = CreateFrame ("frame", "DetailsBarra_IconFrame_" .. instancia.meu_id .. "_" .. index, newLine.statusbar)
+	iconFrame:SetPoint ("topleft", icone_classe, "topleft")
+	iconFrame:SetPoint ("bottomright", icone_classe, "bottomright")
+	iconFrame:SetFrameLevel (newLine.statusbar:GetFrameLevel()+1)
+	iconFrame.instance_id = instancia.meu_id
+	iconFrame.row = newLine
+	newLine.icon_frame = iconFrame
 	
 	icone_classe:SetPoint ("left", newLine, "left")
 	newLine.statusbar:SetPoint ("topleft", icone_classe, "topright")

@@ -5275,7 +5275,7 @@ DF.IconRowFunctions = {
 		end
 	end,
 	
-	SetIcon = function (self, spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff)
+	SetIcon = function (self, spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate)
 	
 		local actualSpellName, _, spellIcon = GetSpellInfo (spellId)
 	
@@ -5284,6 +5284,7 @@ DF.IconRowFunctions = {
 		end
 		
 		spellName = spellName or actualSpellName or "unknown_aura"
+		modRate = modRate or 1
 		
 		if (spellIcon) then
 			local iconFrame = self:GetIcon()
@@ -5297,14 +5298,14 @@ DF.IconRowFunctions = {
 			end	
 			
 			if (startTime) then
-				CooldownFrame_Set (iconFrame.Cooldown, startTime, duration, true, true)
+				CooldownFrame_Set (iconFrame.Cooldown, startTime, duration, true, true, modRate)
 				
 				if (self.options.show_text) then
 					iconFrame.CountdownText:Show()
 					
 					local now = GetTime()
 					
-					iconFrame.timeRemaining = startTime + duration - now
+					iconFrame.timeRemaining = (startTime + duration - now) / modRate
 					iconFrame.expirationTime = startTime + duration
 					
 					local formattedTime = (iconFrame.timeRemaining > 0) and self.options.decimal_timer and iconFrame.parentIconRow.FormatCooldownTimeDecimal(iconFrame.timeRemaining) or iconFrame.parentIconRow.FormatCooldownTime(iconFrame.timeRemaining) or ""
@@ -5328,6 +5329,7 @@ DF.IconRowFunctions = {
 				end
 				
 				iconFrame.Cooldown:SetReverse (self.options.cooldown_reverse)
+				iconFrame.Cooldown:SetDrawSwipe (self.options.cooldown_swipe_enabled)
 				iconFrame.Cooldown:SetHideCountdownNumbers (self.options.surpress_blizzard_cd_timer)
 			else
 				iconFrame.timeRemaining = nil
@@ -5620,6 +5622,7 @@ local default_icon_row_options = {
 	on_tick_cooldown_update = true,
 	decimal_timer = false,
 	cooldown_reverse = false,
+	cooldown_swipe = true,
 }
 
 function DF:CreateIconRow (parent, name, options)
