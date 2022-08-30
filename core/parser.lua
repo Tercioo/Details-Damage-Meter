@@ -297,6 +297,8 @@
 		[169429] = true,
 		[169428] = true,
 		[169430] = true,
+		
+		[189706] = true, --Chaotic Essence from Fated Affix --Remove on 10.0
 	}
 
 	local ignored_npcids = {}
