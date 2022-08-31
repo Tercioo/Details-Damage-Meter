@@ -2166,7 +2166,7 @@ local icon_frame_on_enter = function (self)
 			_detalhes:AddTooltipHeaderStatusbar()
 			
 			local talent_string = ""
-			if (talents and not (DetailsFramework.IsTBCWow() or DetailsFramework.IsWoTLKWow())) then
+			if (talents and not (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow())) then
 				for i = 1, #talents do
 					local talentID, name, texture, selected, available = GetTalentInfoByID(talents [i])
 					if (texture) then
