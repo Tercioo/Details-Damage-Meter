@@ -1698,7 +1698,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		if (DetailsFramework.IsWotLKWow()) then
 			--wraft of the lich kind classic
 			local v = _detalhes.game_version .. "." .. (_detalhes.wotlk_counter)
-			print (Loc ["STRING_DETAILS1"] .. "|cFFFFFF00DETAILS! VERSION|r: |cFFFFAA00BCC" .. _detalhes.wotlk_counter)
+			print (Loc ["STRING_DETAILS1"] .. "|cFFFFFF00DETAILS! VERSION|r: |cFFFFAA00WOTLK" .. _detalhes.wotlk_counter)
 			print (Loc ["STRING_DETAILS1"] .. "|cFFFFFF00GAME VERSION|r: |cFFFFAA00" .. _detalhes.game_version)
 
 		elseif (DetailsFramework.IsTBCWow()) then
