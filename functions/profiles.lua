@@ -1777,7 +1777,13 @@ function Details:ImportProfile (profileString, newProfileName)
 		profileObject.instances = DetailsFramework.table.copy ({}, profileData.instances)
 
 		Details:ApplyProfile (newProfileName)
-		
+
+		--reset automation settings (due to user not knowing why some windows are disappearing)
+		for instanceId, instance in Details:ListInstances() do
+			DetailsFramework.table.copy(instance.hide_on_context, Details.instance_defaults.hide_on_context)
+		end
+
+
 		Details:Msg ("profile successfully imported.")--localize-me
 		return true
 	else
