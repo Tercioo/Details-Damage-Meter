@@ -1221,12 +1221,13 @@
 	f.logo:SetPoint ("top", f, "top", 25, 56)
 	f.logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
 	f.logo:SetSize (256, 128)
-	InterfaceOptions_AddCategory (f)
+	--InterfaceOptions_AddCategory (f)
 	
 	--> open options panel
-	f.options_button = CreateFrame ("button", nil, f, "OptionsButtonTemplate")
+	f.options_button = CreateFrame ("button", nil, f)
 	f.options_button:SetText (Loc ["STRING_INTERFACE_OPENOPTIONS"])
 	f.options_button:SetPoint ("topleft", f, "topleft", 10, -100)
+	f.options_button:SetHeight (170)
 	f.options_button:SetWidth (170)
 	f.options_button:SetScript ("OnClick", function (self)
 		local lower_instance = _detalhes:GetLowerInstanceNumber()

@@ -1,6 +1,6 @@
 
 
-local dversion = 337
+local dversion = 338
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -49,6 +49,10 @@ if (not PixelUtil) then
 			SetPoint = function (self, ...) self:SetPoint (...) end,
 		}
 	end
+end
+
+function DF.IsDragonflight()
+	return select(4, GetBuildInfo()) >= 100000
 end
 
 function DF.IsTimewalkWoW()
@@ -2905,7 +2909,11 @@ function DF:CreateAnimation (animation, type, order, duration, arg1, arg2, arg3,
 		anim:SetToAlpha (arg2)
 	
 	elseif (type == "SCALE") then
-		anim:SetScaleFrom (arg1, arg2)
+		if (DF.IsDragonflight()) then
+			anim:SetScaleFrom (arg1, arg2)
+		else
+			anim:SetFromScale (arg1, arg2)
+		end
 		anim:SetToScale (arg3, arg4)
 		anim:SetOrigin (arg5 or "center", arg6 or 0, arg7 or 0) --point, x, y
 	
