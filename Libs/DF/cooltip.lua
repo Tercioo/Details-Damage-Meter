@@ -939,12 +939,12 @@ function DF:CreateCoolTip()
 				if (r == 0 and g == 0 and b == 0 and a == 0) then
 					if (CoolTip.OptionsTable.TextColor) then
 						r, g, b, a = DF:ParseColors (CoolTip.OptionsTable.TextColor)
-						menuButton.leftText:SetTextColor (r, g, b, a)
+						DF:SetFontColor(menuButton.leftText, r, g, b, a)
 					else
 						menuButton.leftText:SetTextColor (1, 1, 1, 1)
 					end
 				else
-					menuButton.leftText:SetTextColor (r, g, b, a)
+					DF:SetFontColor(menuButton.leftText, r, g, b, a)
 				end
 				
 				if (CoolTip.OptionsTable.TextSize and not leftTextTable [6]) then
