@@ -2911,10 +2911,12 @@ function DF:CreateAnimation (animation, type, order, duration, arg1, arg2, arg3,
 	elseif (type == "SCALE") then
 		if (DF.IsDragonflight()) then
 			anim:SetScaleFrom (arg1, arg2)
+			anim:SetScaleTo (arg3, arg4)
 		else
 			anim:SetFromScale (arg1, arg2)
+			anim:SetToScale (arg3, arg4)
 		end
-		anim:SetToScale (arg3, arg4)
+
 		anim:SetOrigin (arg5 or "center", arg6 or 0, arg7 or 0) --point, x, y
 	
 	elseif (type == "ROTATION") then
