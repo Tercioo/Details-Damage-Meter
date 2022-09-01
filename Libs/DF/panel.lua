@@ -5330,6 +5330,7 @@ DF.IconRowFunctions = {
 				
 				iconFrame.Cooldown:SetReverse (self.options.cooldown_reverse)
 				iconFrame.Cooldown:SetDrawSwipe (self.options.cooldown_swipe_enabled)
+				iconFrame.Cooldown:SetEdgeTexture (self.options.cooldown_edge_texture)
 				iconFrame.Cooldown:SetHideCountdownNumbers (self.options.surpress_blizzard_cd_timer)
 			else
 				iconFrame.timeRemaining = nil
@@ -5622,7 +5623,8 @@ local default_icon_row_options = {
 	on_tick_cooldown_update = true,
 	decimal_timer = false,
 	cooldown_reverse = false,
-	cooldown_swipe = true,
+	cooldown_swipe_enabled = true,
+	cooldown_edge_texture = "Interface\\Cooldown\\edge",
 }
 
 function DF:CreateIconRow (parent, name, options)

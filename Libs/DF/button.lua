@@ -1098,12 +1098,13 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 	ButtonObject.text_overlay = _G [name .. "_Text"]
 	ButtonObject.disabled_overlay = _G [name .. "_TextureDisabled"]
 	
+	texture = texture or ""
 	ButtonObject.button:SetNormalTexture (texture)
 	ButtonObject.button:SetPushedTexture (texture)
 	ButtonObject.button:SetDisabledTexture (texture)
 	ButtonObject.button:SetHighlightTexture (texture, "ADD")
 	
-	ButtonObject.button.text:SetText (text)
+	ButtonObject.button.text:SetText (text or "")
 	ButtonObject.button.text:SetPoint ("center", ButtonObject.button, "center")
 
 	local text_width = ButtonObject.button.text:GetStringWidth()

@@ -11,7 +11,7 @@ Description: Allows for easy creation of graphs
 --Thanks to Nelson Minar for catching several errors where width was being used instead of height (damn copy and paste >_>)
 
 local major = "LibGraph-2.0"
-local minor = 90000 + tonumber(("$Revision: 56 $"):match("(%d+)"))
+local minor = 90000 + tonumber(("$Revision: 57 $"):match("(%d+)"))
 
 
 --Search for just Addon\\ at the front since the interface part often gets trimmed
@@ -23,7 +23,11 @@ do
 	if path then
 		TextureDirectory = "Interface\\AddOns\\"..path
 	else
-		error(major.." cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call")
+		--error(major.." cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call")
+		--beta doing some errors here
+		if (Details) then
+			TextureDirectory = [[Interface\AddOns\Details\Libs\LibGraph-2.0]]
+		end
 	end
 end
 

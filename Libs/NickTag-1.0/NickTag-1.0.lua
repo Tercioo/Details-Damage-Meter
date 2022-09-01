@@ -6,7 +6,7 @@
 
 -- 14: added support for chinese and russian
 
-local major, minor = "NickTag-1.0", 14
+local major, minor = "NickTag-1.0", 15
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then
@@ -880,7 +880,7 @@ do
 		avatar_pick_frame.selected_color[3] = b
 	end
 	
-	local okey = CreateFrame ("button", "AvatarPickFrameAccept", avatar_pick_frame, "OptionsButtonTemplate")
+	local okey = CreateFrame ("button", "AvatarPickFrameAccept", avatar_pick_frame)
 	okey:SetPoint ("bottomright", avatar_pick_frame, "bottomright", -37, 12)
 	okey:SetText ("Accept")
 	okey:SetFrameLevel (avatar_pick_frame:GetFrameLevel()+2)
@@ -890,7 +890,7 @@ do
 			avatar_pick_frame.callback (avatar_pick_frame.selected_avatar, {0, 1, 0, 1}, avatar_pick_frame.selected_background, avatar_pick_frame.selected_texcoord, avatar_pick_frame.selected_color)
 		end
 	end)
-	local change_color = CreateFrame ("button", "AvatarPickFrameColor", avatar_pick_frame, "OptionsButtonTemplate")
+	local change_color = CreateFrame ("button", "AvatarPickFrameColor", avatar_pick_frame)
 	change_color:SetPoint ("bottomright", avatar_pick_frame, "bottomright", -205, 12)
 	change_color:SetText ("Color")
 	change_color:SetFrameLevel (avatar_pick_frame:GetFrameLevel()+2)
