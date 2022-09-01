@@ -3117,7 +3117,7 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAler
 			self.alert.icon:SetTexCoord (0, 1, 0, 1)
 		end
 	else
-		self.alert.icon:SetTexture (nil)
+		self.alert.icon:SetTexture ("")
 	end
 	
 	self.alert.button.func = nil
@@ -4124,7 +4124,7 @@ function gump:CreateNewLine (instancia, index)
 	
 	--> row background texture
 	newLine.background = newLine:CreateTexture (nil, "background")
-	newLine.background:SetTexture()
+	newLine.background:SetTexture("")
 	newLine.background:SetAllPoints (newLine)
 
 	newLine.statusbar:SetStatusBarColor (0, 0, 0, 0)
@@ -5505,7 +5505,7 @@ function _detalhes:StatusBarAlert (text, icon, color, time)
 			statusbar.icon:SetTexCoord (0, 1, 0, 1)
 		end
 	else
-		statusbar.icon:SetTexture (nil)
+		statusbar.icon:SetTexture ("")
 	end
 	
 	if (color) then

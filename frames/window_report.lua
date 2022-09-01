@@ -697,9 +697,9 @@ local function cria_drop_down (este_gump)
 		reverse_checkbox:SetBackdropColor (0, 0, 0, 0.3)
 		reverse_checkbox:SetPoint ("topleft", window.slider, "bottomleft", 0, -8)
 		reverse_checkbox:SetSize (14, 14)
-		reverse_checkbox:SetNormalTexture (nil)
-		reverse_checkbox:SetPushedTexture (nil)
-		reverse_checkbox:SetHighlightTexture (nil)
+		reverse_checkbox:SetNormalTexture ("")
+		reverse_checkbox:SetPushedTexture ("")
+		reverse_checkbox:SetHighlightTexture ("")
 		_G [reverse_checkbox:GetName().."Text"]:ClearAllPoints()
 		_G [reverse_checkbox:GetName().."Text"]:SetPoint ("left", reverse_checkbox, "right", 2, 0)
 		
@@ -958,7 +958,7 @@ local function cria_drop_down (este_gump)
 			function window:RefreshRecentlyReported()
 				for i = 1, window.max_last_buttons do
 					local b = window.recently_report_buttons [i]
-					b.icon:SetTexture (nil)
+					b.icon:SetTexture ("")
 					b:Hide()
 				end
 				

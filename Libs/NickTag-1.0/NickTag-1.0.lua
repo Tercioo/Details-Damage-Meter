@@ -929,6 +929,7 @@ do
 		buttonsbg [#buttonsbg+1] = newbutton
 	end
 	
+	--[=[
 	local avatar_list = CreateFrame ("ScrollFrame", "AvatarPickFrameAvatarScroll", avatar_pick_frame, "ListScrollFrameTemplate")
 	avatar_list:SetPoint ("topleft", avatar_pick_frame, "topleft", 10, -10)
 	local background_list = CreateFrame ("ScrollFrame", "AvatarPickFrameBackgroundScroll", avatar_pick_frame, "ListScrollFrameTemplate")
@@ -1092,6 +1093,7 @@ do
 			
 		end
 	end)
+	--]=]
 	
 	avatar_pick_frame:Hide()
 end

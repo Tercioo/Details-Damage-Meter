@@ -1084,7 +1084,7 @@ function DF:CreateCoolTip()
 				
 				menuButton.leftIcon:SetDesaturated (leftIconTable [9])
 			else
-				menuButton.leftIcon:SetTexture (nil)
+				menuButton.leftIcon:SetTexture ("")
 				menuButton.leftIcon:SetWidth (1)
 				menuButton.leftIcon:SetHeight (1)
 			end
@@ -1107,7 +1107,7 @@ function DF:CreateCoolTip()
 				
 				menuButton.rightIcon:SetDesaturated (rightIconTable [9])
 			else
-				menuButton.rightIcon:SetTexture (nil)
+				menuButton.rightIcon:SetTexture ("")
 				menuButton.rightIcon:SetWidth (1)
 				menuButton.rightIcon:SetHeight (1)
 			end

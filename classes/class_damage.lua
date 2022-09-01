@@ -4072,7 +4072,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 		if (Details.class_coords [classe]) then
 			barra.icone:SetTexCoord (_unpack (Details.class_coords [classe]))
 		else
-			barra.icone:SetTexture (nil)
+			barra.icone:SetTexture ("")
 		end
 
 		local color = Details.class_colors [classe]

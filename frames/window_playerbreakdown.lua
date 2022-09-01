@@ -146,7 +146,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 	
 	if (info.barras2) then
 		for index, barra in ipairs (info.barras2) do 
-			barra.icone:SetTexture (nil)
+			barra.icone:SetTexture ("")
 			barra.icone:SetTexCoord (0, 1, 0, 1)
 		end
 	end
@@ -365,7 +365,7 @@ function gump:TrocaBackgroundInfo()
 	if (info.atributo == 1) then --> DANO
 	
 		if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done / dps
-			info.bg1_sec_texture:SetTexture (nil)
+			info.bg1_sec_texture:SetTexture ("")
 			info.tipo = 1
 			
 			if (info.sub_atributo == 2) then
@@ -428,7 +428,7 @@ function gump:TrocaBackgroundInfo()
 		
 	elseif (info.atributo == 2) then --> HEALING
 		if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then --> damage done / dps
-			info.bg1_sec_texture:SetTexture (nil)
+			info.bg1_sec_texture:SetTexture ("")
 			info.tipo = 1
 			
 			if (info.sub_atributo == 3) then
@@ -462,12 +462,12 @@ function gump:TrocaBackgroundInfo()
 		end
 		
 	elseif (info.atributo == 3) then --> REGEN
-		info.bg1_sec_texture:SetTexture (nil)
+		info.bg1_sec_texture:SetTexture ("")
 		info.tipo = 2
 		info.targets:SetText ("Vindo de:")
 	
 	elseif (info.atributo == 4) then --> MISC
-		info.bg1_sec_texture:SetTexture (nil)
+		info.bg1_sec_texture:SetTexture ("")
 		info.tipo = 2
 
 		info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
@@ -2636,7 +2636,7 @@ function gump:CriaJanelaInfo()
 					framebg:Hide()
 					label1:SetText ("")
 					label2:SetText ("")
-					icon1:SetTexture (nil)
+					icon1:SetTexture ("")
 				end
 				
 			--> habilidade usada para interromper
@@ -2981,7 +2981,7 @@ function gump:CriaJanelaInfo()
 					local bar_2 = frame2.bars [i]
 					local bar_3 = frame3.bars [i]
 					
-					bar [1]:SetTexture (nil)
+					bar [1]:SetTexture ("")
 					bar [2].lefttext:SetText (empty_text)
 					bar [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar [2].righttext:SetText ("")
@@ -2989,7 +2989,7 @@ function gump:CriaJanelaInfo()
 					bar [2]:SetValue (0)
 					bar [2]:SetBackdropColor (1, 1, 1, 0)
 					bar [3][4] = nil
-					bar_2 [1]:SetTexture (nil)
+					bar_2 [1]:SetTexture ("")
 					bar_2 [2].lefttext:SetText (empty_text)
 					bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_2 [2].righttext:SetText ("")
@@ -2997,7 +2997,7 @@ function gump:CriaJanelaInfo()
 					bar_2 [2]:SetValue (0)
 					bar_2 [2]:SetBackdropColor (1, 1, 1, 0)
 					bar_2 [3][4] = nil
-					bar_3 [1]:SetTexture (nil)
+					bar_3 [1]:SetTexture ("")
 					bar_3 [2].lefttext:SetText (empty_text)
 					bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_3 [2].righttext:SetText ("")
@@ -3127,7 +3127,7 @@ function gump:CriaJanelaInfo()
 							bar_2 [3][4] = player_2
 							
 						else
-							bar_2 [1]:SetTexture (nil)
+							bar_2 [1]:SetTexture ("")
 							bar_2 [2].lefttext:SetText (empty_text)
 							bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 							bar_2 [2].righttext:SetText ("")
@@ -3137,7 +3137,7 @@ function gump:CriaJanelaInfo()
 							bar_2 [3][4] = nil
 						end
 					else
-						bar_2 [1]:SetTexture (nil)
+						bar_2 [1]:SetTexture ("")
 						bar_2 [2].lefttext:SetText (empty_text)
 						bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 						bar_2 [2].righttext:SetText ("")
@@ -3198,7 +3198,7 @@ function gump:CriaJanelaInfo()
 							bar_3 [3][4] = player_3
 							
 						else
-							bar_3 [1]:SetTexture (nil)
+							bar_3 [1]:SetTexture ("")
 							bar_3 [2].lefttext:SetText (empty_text)
 							bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 							bar_3 [2].righttext:SetText ("")
@@ -3208,7 +3208,7 @@ function gump:CriaJanelaInfo()
 							bar_3 [3][4] = nil
 						end
 					else
-						bar_3 [1]:SetTexture (nil)
+						bar_3 [1]:SetTexture ("")
 						bar_3 [2].lefttext:SetText (empty_text)
 						bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 						bar_3 [2].righttext:SetText ("")
@@ -3219,7 +3219,7 @@ function gump:CriaJanelaInfo()
 					end
 					
 				else
-					bar [1]:SetTexture (nil)
+					bar [1]:SetTexture ("")
 					bar [2].lefttext:SetText (empty_text)
 					bar [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar [2].righttext:SetText ("")
@@ -3227,7 +3227,7 @@ function gump:CriaJanelaInfo()
 					bar [2]:SetValue (0)
 					bar [2]:SetBackdropColor (1, 1, 1, 0)
 					bar [3][4] = nil
-					bar_2 [1]:SetTexture (nil)
+					bar_2 [1]:SetTexture ("")
 					bar_2 [2].lefttext:SetText (empty_text)
 					bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_2 [2].righttext:SetText ("")
@@ -3235,7 +3235,7 @@ function gump:CriaJanelaInfo()
 					bar_2 [2]:SetValue (0)
 					bar_2 [2]:SetBackdropColor (1, 1, 1, 0)
 					bar_2 [3][4] = nil
-					bar_3 [1]:SetTexture (nil)
+					bar_3 [1]:SetTexture ("")
 					bar_3 [2].lefttext:SetText (empty_text)
 					bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_3 [2].righttext:SetText ("")
@@ -3456,7 +3456,7 @@ function gump:CriaJanelaInfo()
 						bar_2 [3][3] = _math_floor (spell.c_amt / spell.counter * 100) --tooltip critical
 						bar_2 [2]:SetBackdropColor (1, 1, 1, 0)
 					else
-						bar_2 [1]:SetTexture (nil)
+						bar_2 [1]:SetTexture ("")
 						bar_2 [2].lefttext:SetText (empty_text)
 						bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 						bar_2 [2].righttext:SetText ("")
@@ -3531,7 +3531,7 @@ function gump:CriaJanelaInfo()
 							bar_3 [3][2] = spell.total / spell.counter --tooltip average
 							bar_3 [3][3] = _math_floor (spell.c_amt / spell.counter * 100) --tooltip critical
 						else
-							bar_3 [1]:SetTexture (nil)
+							bar_3 [1]:SetTexture ("")
 							bar_3 [2].lefttext:SetText (empty_text)
 							bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 							bar_3 [2].righttext:SetText ("")
@@ -3540,7 +3540,7 @@ function gump:CriaJanelaInfo()
 							bar_3 [2]:SetBackdropColor (1, 1, 1, 0)
 						end
 					else
-						bar_3 [1]:SetTexture (nil)
+						bar_3 [1]:SetTexture ("")
 						bar_3 [2].lefttext:SetText (empty_text)
 						bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 						bar_3 [2].righttext:SetText ("")
@@ -3549,14 +3549,14 @@ function gump:CriaJanelaInfo()
 						bar_3 [2]:SetBackdropColor (1, 1, 1, 0)
 					end
 				else
-					bar [1]:SetTexture (nil)
+					bar [1]:SetTexture ("")
 					bar [2].lefttext:SetText (empty_text)
 					bar [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar [2].righttext:SetText ("")
 					bar [2]:SetValue (0)
 					bar [2]:SetBackdropColor (1, 1, 1, 0)
 					local bar_2 = frame2.bars [i]
-					bar_2 [1]:SetTexture (nil)
+					bar_2 [1]:SetTexture ("")
 					bar_2 [2].lefttext:SetText (empty_text)
 					bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_2 [2].righttext:SetText ("")
@@ -3564,7 +3564,7 @@ function gump:CriaJanelaInfo()
 					bar_2 [2]:SetValue (0)
 					bar_2 [2]:SetBackdropColor (1, 1, 1, 0)
 					local bar_3 = frame3.bars [i]
-					bar_3 [1]:SetTexture (nil)
+					bar_3 [1]:SetTexture ("")
 					bar_3 [2].lefttext:SetText (empty_text)
 					bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_3 [2].righttext:SetText ("")
@@ -3786,7 +3786,7 @@ function gump:CriaJanelaInfo()
 						if (not bar) then
 							bar = frame2.tooltip:CreateBar (index)
 						end
-						bar [1]:SetTexture (nil)
+						bar [1]:SetTexture ("")
 						bar [2].lefttext:SetText ("")
 						bar [2].righttext:SetText ("")
 						bar [2].righttext2:SetText ("")
@@ -3840,7 +3840,7 @@ function gump:CriaJanelaInfo()
 						if (not bar) then
 							bar = frame3.tooltip:CreateBar (index)
 						end
-						bar [1]:SetTexture (nil)
+						bar [1]:SetTexture ("")
 						bar [2].lefttext:SetText ("")
 						bar [2].righttext:SetText ("")
 						bar [2].righttext2:SetText ("")
@@ -4575,7 +4575,7 @@ function gump:CriaJanelaInfo()
 				
 				function tooltip:Reset()
 					for index, bar in _ipairs (tooltip.bars) do 
-						bar [1]:SetTexture (nil)
+						bar [1]:SetTexture ("")
 						bar [2].lefttext:SetText ("")
 						bar [2].righttext:SetText ("")
 						bar [2].righttext2:SetText ("")
