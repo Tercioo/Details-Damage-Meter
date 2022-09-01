@@ -3664,8 +3664,13 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe:SetPoint ("center", _UIParent)
 		baseframe:EnableMouseWheel (false)
 		baseframe:EnableMouse (true)
-		baseframe:SetMinResize (150, 7)
-		baseframe:SetMaxResize (_detalhes.max_window_size.width, _detalhes.max_window_size.height)
+
+		if (not DetailsFramework.IsDragonflight()) then
+			baseframe:SetMinResize (150, 7)
+			baseframe:SetMaxResize (_detalhes.max_window_size.width, _detalhes.max_window_size.height)
+		else
+			--baseframe:SetResizeBounds(150, 7, _detalhes.max_window_size.width, _detalhes.max_window_size.height)
+		end
 
 		baseframe:SetBackdrop (gump_fundo_backdrop)
 		baseframe:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)

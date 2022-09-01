@@ -212,9 +212,14 @@ local function CreatePluginFrames()
 	SOF:SetMovable (true)
 	SOF:SetResizable (true)
 	SOF:SetClampedToScreen (true)
-	SOF:SetMinResize (150, 10)
-	SOF:SetMaxResize (800, 1024)
-	
+
+	if (not DetailsFramework.IsDragonflight()) then
+		SOF:SetMinResize (150, 10)
+		SOF:SetMaxResize (800, 1024)
+	else
+		--SOF:SetResizeBounds(150, 10, 800, 1024)
+	end
+
 	function StreamOverlay:SaveWindowSizeAnLocation()
 		--> save size first
 		StreamOverlay.db.main_frame_size [1] = SOF:GetWidth()
