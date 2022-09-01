@@ -40,14 +40,17 @@ BUGS:
     
 --]=]
 
+local IsDragonflight = function()
+	return select(4, GetBuildInfo()) >= 100000
+end
 
 --don't load if it's not retail, emergencial patch due to classic and bcc stuff not transposed yet
-if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
+if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not IsDragonflight()) then
     return
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 43
+local CONST_LIB_VERSION = 44
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -140,7 +143,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         for i = 1, select("#", ...) do
             local clientVersion = select(i, ...)
 
-            if (clientVersion == "retail" and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then --retail
+            if (clientVersion == "retail" and (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or IsDragonflight())) then --retail
                 return true
 
             elseif (clientVersion == "classic_era" and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) then --classic era (vanila)
