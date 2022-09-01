@@ -502,7 +502,7 @@ do
 		_detalhes:OpenOptionsWindow (_detalhes.switch.current_instancia)
 		_detalhes.switch:CloseMe()
 	end
-	local options_button = gump:CreateButton (frame.topbg_frame, open_options, 14, 14, open_options)
+	local options_button = gump:CreateButton (frame.topbg_frame, open_options, 14, 14, "")
 	options_button:SetPoint ("right", window_color, "left", -2, 0)
 	
 	local options_button_texture = gump:CreateImage (options_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {396/512, 428/512, 277/512, 307/512})
@@ -530,7 +530,7 @@ do
 		_detalhes:OpenForge()
 		_detalhes.switch:CloseMe()
 	end
-	local forge_button = gump:CreateButton (frame.topbg_frame, open_forge, 14, 14, open_forge)
+	local forge_button = gump:CreateButton (frame.topbg_frame, open_forge, 14, 14, "open forge")
 	forge_button:SetPoint ("right", options_button, "left", -2, 0)
 	
 	local forge_button_texture = gump:CreateImage (forge_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {396/512, 428/512, 243/512, 273/512})
@@ -558,7 +558,7 @@ do
 		_detalhes:OpenRaidHistoryWindow()
 		_detalhes.switch:CloseMe()
 	end
-	local history_button = gump:CreateButton (frame.topbg_frame, open_history, 14, 14, open_history)
+	local history_button = gump:CreateButton (frame.topbg_frame, open_history, 14, 14, "open history")
 	history_button:SetPoint ("right", forge_button, "left", -2, 0)
 	
 	local history_button_texture = gump:CreateImage (history_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {434/512, 466/512, 243/512, 273/512})
