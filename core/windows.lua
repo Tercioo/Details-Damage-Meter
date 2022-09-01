@@ -1249,7 +1249,7 @@
 		_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
 	end)
 	--> create new window
-	f.new_window_button = CreateFrame ("button", nil, f, "OptionsButtonTemplate")
+	f.new_window_button = CreateFrame ("button", nil, f)
 	f.new_window_button:SetText (Loc ["STRING_MINIMAPMENU_NEWWINDOW"])
 	f.new_window_button:SetPoint ("topleft", f, "topleft", 10, -125)
 	f.new_window_button:SetWidth (170)
@@ -1300,7 +1300,7 @@
 			end)
 			editbox.text = "http://www.curse.com/addons/wow/details"
 			
-			updatewindow_frame.close = CreateFrame ("Button", "DetailsUpdateDialogCloseButton", updatewindow_frame, "OptionsButtonTemplate")
+			updatewindow_frame.close = CreateFrame ("Button", "DetailsUpdateDialogCloseButton", updatewindow_frame)
 			updatewindow_frame.close:SetPoint ("bottomleft", updatewindow_frame, "bottomleft", 8, 4)
 			updatewindow_frame.close:SetText ("Close")
 			

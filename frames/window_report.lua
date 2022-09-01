@@ -1088,7 +1088,7 @@ local function cria_drop_down (este_gump)
 		cria_wisper_field (window)
 		cria_check_buttons (window)
 
-		window.enviar = _CreateFrame ("Button", nil, window, "OptionsButtonTemplate,BackdropTemplate")
+		window.enviar = _CreateFrame ("Button", nil, window, "BackdropTemplate")
 		window.enviar:SetPoint ("topleft", window.editbox, "topleft", 61, -19)
 		window.enviar:SetWidth (60)
 		window.enviar:SetHeight (15)
