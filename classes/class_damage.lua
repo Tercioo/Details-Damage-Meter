@@ -4194,6 +4194,7 @@ end
 	if (index == 1) then
 		row.textura:SetValue (100)
 	else
+		max = math.max(max, 0.001)
 		row.textura:SetValue (value/max*100)
 	end
 	
