@@ -5594,48 +5594,47 @@ local function SetBarraScripts (esta_barra, instancia, i)
 
 end
 
-local function CriaTexturaBarra (instancia, barra)
+local function CriaTexturaBarra(newLine)
+	newLine.textura = CreateFrame("StatusBar", nil, newLine, "BackdropTemplate")
+	newLine.textura:SetFrameLevel(newLine:GetFrameLevel()-1)
+	newLine.textura:SetAllPoints(newLine)
+	newLine.textura:SetAlpha(0.5)
+	newLine.textura:Show()
+	
+	local textureObject = newLine.textura:CreateTexture(nil, "artwork")
+	local texturePath = SharedMedia:Fetch("statusbar", _detalhes.player_details_window.bar_texture)
+	textureObject:SetTexture(texturePath)
+	newLine.textura:SetStatusBarTexture(textureObject)
+	newLine.textura:SetStatusBarColor(.5, .5, .5, 0)
+	newLine.textura:SetMinMaxValues(0, 100)
 
-	barra.textura = _CreateFrame ("StatusBar", nil, barra, "BackdropTemplate")
+	local backgroundTexture = newLine.textura:CreateTexture(nil, "background")
+	backgroundTexture:SetAllPoints()
+	backgroundTexture:SetColorTexture(.5, .5, .5, 0.18)
+	newLine.textura.bg = backgroundTexture
 	
-	barra.textura:SetFrameLevel (barra:GetFrameLevel()-1)
-	
-	barra.textura:SetAllPoints (barra)
-	barra.textura:SetAlpha (0.5)
-	
-	local texture = SharedMedia:Fetch ("statusbar", _detalhes.player_details_window.bar_texture)
-	barra.textura:SetStatusBarTexture (texture)
-	barra.textura:SetStatusBarTexture (.6, .6, .6, 1)
-	
-	barra.textura:SetStatusBarColor (.5, .5, .5, 0)
-	barra.textura:SetMinMaxValues (0,100)
-	
-	barra.textura.bg = barra.textura:CreateTexture (nil, "background")
-	barra.textura.bg:SetAllPoints()
-	barra.textura.bg:SetColorTexture (1, 1, 1, 0.08)
-	
-	if (barra.targets) then
-		barra.targets:SetParent (barra.textura)
-		barra.targets:SetFrameLevel (barra.textura:GetFrameLevel()+2)
+	if (newLine.targets) then
+		newLine.targets:SetParent(newLine.textura)
+		newLine.targets:SetFrameLevel(newLine.textura:GetFrameLevel()+2)
 	end
 	
-	barra.lineText1 = barra:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	barra.lineText1:SetPoint ("LEFT", barra.icone, "RIGHT", 2, 0)
-	barra.lineText1:SetJustifyH ("LEFT")
-	barra.lineText1:SetTextColor (1,1,1,1)
-	barra.lineText1:SetNonSpaceWrap (true)
-	barra.lineText1:SetWordWrap (false)
-	
-	barra.lineText4 = barra:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	if (barra.targets) then
-		barra.lineText4:SetPoint ("RIGHT", barra.targets, "LEFT", -2, 0)
+	--create the left text
+	newLine.lineText1 = newLine:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	newLine.lineText1:SetPoint("LEFT", newLine.icone, "RIGHT", 2, 0)
+	newLine.lineText1:SetJustifyH("LEFT")
+	newLine.lineText1:SetTextColor(1,1,1,1)
+	newLine.lineText1:SetNonSpaceWrap(true)
+	newLine.lineText1:SetWordWrap(false)
+
+	--create the rigth text
+	newLine.lineText4 = newLine:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	if (newLine.targets) then
+		newLine.lineText4:SetPoint("RIGHT", newLine.targets, "LEFT", -2, 0)
 	else
-		barra.lineText4:SetPoint ("RIGHT", barra, "RIGHT", -2, 0)
+		newLine.lineText4:SetPoint("RIGHT", newLine, "RIGHT", -2, 0)
 	end
-	barra.lineText4:SetJustifyH ("RIGHT")
-	barra.lineText4:SetTextColor (1,1,1,1)
-	
-	barra.textura:Show()
+	newLine.lineText4:SetJustifyH("RIGHT")
+	newLine.lineText4:SetTextColor(1,1,1,1)
 end
 
 local miniframe_func_on_enter = function (self)
@@ -5796,69 +5795,62 @@ end
 
 
 function gump:CriaNovaBarraInfo1 (instancia, index)
-
-	if (_detalhes.playerDetailWindow.barras1 [index]) then
-		print ("erro a barra "..index.." ja existe na janela de detalhes...")
+	if (_detalhes.playerDetailWindow.barras1[index]) then
 		return
 	end
 
-	local janela = info.container_barras.gump
+	local parentFrame = info.container_barras.gump
 
-	local esta_barra = _CreateFrame ("Button", "Details_infobox1_bar_"..index, info.container_barras.gump,"BackdropTemplate")
-	esta_barra:SetHeight (CONST_BAR_HEIGHT)
-	esta_barra.index = index
+	local newLine = CreateFrame("Button", "Details_infobox1_bar_" .. index, parentFrame, "BackdropTemplate")
+	newLine:SetHeight(CONST_BAR_HEIGHT)
+	newLine.index = index
 
 	local y = (index-1) * (CONST_BAR_HEIGHT + 1)
-	y = y*-1 --> baixo
+	y = y * -1
 	
-	esta_barra:SetPoint ("LEFT", janela, "LEFT", CONST_BAR_HEIGHT, 0)
-	esta_barra:SetPoint ("RIGHT", janela, "RIGHT")
-	esta_barra:SetPoint ("TOP", janela, "TOP", 0, y)
-	esta_barra:SetFrameLevel (janela:GetFrameLevel() + 1)
+	newLine:SetPoint("LEFT", parentFrame, "LEFT", CONST_BAR_HEIGHT, 0)
+	newLine:SetPoint("RIGHT", parentFrame, "RIGHT")
+	newLine:SetPoint("TOP", parentFrame, "TOP", 0, y)
+	newLine:SetFrameLevel(parentFrame:GetFrameLevel() + 1)
+	newLine:SetAlpha(1)
+	newLine:EnableMouse(true)
+	newLine:RegisterForClicks("LeftButtonDown","RightButtonUp")	
+	newLine.isMain = true
 
-	esta_barra:EnableMouse (true)
-	esta_barra:RegisterForClicks ("LeftButtonDown","RightButtonUp")	
-	
-	esta_barra.targets = CreateFrame ("frame", "Details_infobox1_bar_"..index.."Targets", esta_barra, "BackdropTemplate")
-	esta_barra.targets:SetPoint ("right", esta_barra, "right")
-	esta_barra.targets:SetSize (CONST_BAR_HEIGHT-1, CONST_BAR_HEIGHT-1)
-	esta_barra.targets.texture = esta_barra.targets:CreateTexture (nil, overlay)
-	esta_barra.targets.texture:SetTexture ([[Interface\MINIMAP\TRACKING\Target]])
-	esta_barra.targets.texture:SetAllPoints()
-	esta_barra.targets.texture:SetDesaturated (true)
-	esta_barra.targets:SetAlpha (.7)
-	esta_barra.targets.texture:SetAlpha (1)
-	esta_barra.targets:SetScript ("OnEnter", target_on_enter)
-	esta_barra.targets:SetScript ("OnLeave", target_on_leave)
-	
-	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
-	esta_barra.icone:SetWidth (CONST_BAR_HEIGHT)
-	esta_barra.icone:SetHeight (CONST_BAR_HEIGHT)
-	esta_barra.icone:SetPoint ("RIGHT", esta_barra, "LEFT", 0, 0)
+	--create a square frame which is placed at the right side of the line to show which targets for damaged by the spell
+	newLine.targets = CreateFrame("frame", "$parentTargets", newLine, "BackdropTemplate")
+	newLine.targets:SetPoint("right", newLine, "right", 0, 0)
+	newLine.targets:SetSize(CONST_BAR_HEIGHT-1, CONST_BAR_HEIGHT-1)
+	newLine.targets:SetAlpha(.7)
+	newLine.targets:SetScript("OnEnter", target_on_enter)
+	newLine.targets:SetScript("OnLeave", target_on_leave)
+	newLine.targets.texture = newLine.targets:CreateTexture(nil, "overlay")
+	newLine.targets.texture:SetTexture([[Interface\MINIMAP\TRACKING\Target]])
+	newLine.targets.texture:SetAllPoints()
+	newLine.targets.texture:SetDesaturated(true)
+	newLine.targets.texture:SetAlpha(1)
 
-	CriaTexturaBarra(instancia, esta_barra)
+	--create the icon to show the spell icon
+	newLine.icone = newLine:CreateTexture(nil, "OVERLAY")
+	newLine.icone:SetWidth(CONST_BAR_HEIGHT-2)
+	newLine.icone:SetHeight(CONST_BAR_HEIGHT-2)
+	newLine.icone:SetPoint("RIGHT", newLine, "LEFT", 0, 0)
+	newLine.icone:SetAlpha(1)
+	--frame which will show the spell tooltip
+	newLine.miniframe = CreateFrame("frame", nil, newLine, "BackdropTemplate")
+	newLine.miniframe:SetSize(CONST_BAR_HEIGHT * 2, CONST_BAR_HEIGHT-2)
+	newLine.miniframe:SetPoint("right", newLine, "left", CONST_BAR_HEIGHT, 0)
+	newLine.miniframe:SetScript("OnEnter", miniframe_func_on_enter)
+	newLine.miniframe:SetScript("OnLeave", miniframe_func_on_leave)
 	
-	--> icone
-	esta_barra.miniframe = CreateFrame ("frame", nil, esta_barra, "BackdropTemplate")
-	esta_barra.miniframe:SetSize (CONST_BAR_HEIGHT-2, CONST_BAR_HEIGHT-2)
-	esta_barra.miniframe:SetPoint ("left", esta_barra, "left", 0, 0)
+	CriaTexturaBarra(newLine)
+	SetBarraScripts (newLine, instancia, index)
 	
-	esta_barra.miniframe:SetScript ("OnEnter", miniframe_func_on_enter)
-	esta_barra.miniframe:SetScript ("OnLeave", miniframe_func_on_leave)
-
-	esta_barra:SetAlpha(1)
-	esta_barra.icone:SetAlpha (1)
+	info.barras1[index] = newLine
+	newLine.textura:SetStatusBarColor(1, 1, 1, 1)
+	newLine.on_focus = false
 	
-	esta_barra.isMain = true
-	
-	SetBarraScripts (esta_barra, instancia, index)
-	
-	info.barras1 [index] = esta_barra --> barra adicionada
-	
-	esta_barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui � a parte da sele��o e descele��o
-	esta_barra.on_focus = false --> isso aqui � a parte da sele��o e descele��o
-	
-	return esta_barra
+	return newLine
 end
 
 function gump:CriaNovaBarraInfo2(instancia, index)
@@ -5890,7 +5882,7 @@ function gump:CriaNovaBarraInfo2(instancia, index)
 	esta_barra.icone:SetHeight(CONST_TARGET_HEIGHT)
 	esta_barra.icone:SetPoint("RIGHT", esta_barra, "LEFT", 0, 0)
 
-	CriaTexturaBarra(instancia, esta_barra)
+	CriaTexturaBarra(esta_barra)
 	
 	esta_barra:SetAlpha(ALPHA_BLEND_AMOUNT)
 	esta_barra.icone:SetAlpha(1)
@@ -5930,7 +5922,7 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	
 	esta_barra:EnableMouse (true)
 	
-	CriaTexturaBarra (instancia, esta_barra)
+	CriaTexturaBarra(esta_barra)
 
 	--> icone
 	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
