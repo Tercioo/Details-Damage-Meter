@@ -146,10 +146,10 @@ function openRaidLib.GearManager.GetPlayerItemLevel()
     if (_G.GetAverageItemLevel) then
         local _, itemLevel = GetAverageItemLevel()
         itemLevel = floor(itemLevel)
+        return itemLevel
     else
         return 0
     end
-    return itemLevel
 end
 
 --return an integer between zero and one hundret indicating the player gear durability
