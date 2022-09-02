@@ -7949,8 +7949,10 @@ function Details:CheckForTextTimeCounter(combatStart) --called from combat start
 			if (Details.instance_title_text_timer[instance:GetId()] and instance.baseframe and instance:IsEnabled() and instance.menu_attribute_string) then --check if the instance is initialized
 				Details.Schedules.Cancel(Details.instance_title_text_timer[instance:GetId()])
 				local currentText = instance:GetTitleBarText()
-				currentText = currentText:gsub("%[.*%] ", "")
-				instance:SetTitleBarText(currentText)
+				if (currentText) then
+					currentText = currentText:gsub("%[.*%] ", "")
+					instance:SetTitleBarText(currentText)
+				end
 			end
 		end
 	end
