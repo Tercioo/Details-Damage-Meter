@@ -5086,7 +5086,8 @@ function DF:ApplyStandardBackdrop (f, darkTheme, alphaScale)
 	alphaScale = alphaScale or 1.0
 
 	if(not f.SetBackdrop)then
-		print(debugstack(1,2,1))
+		--print(debugstack(1,2,1))
+		Mixin(f, BackdropTemplateMixin)
 	end
 
 	if (darkTheme) then

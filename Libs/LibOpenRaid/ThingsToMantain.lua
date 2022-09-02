@@ -699,6 +699,12 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 			[8143] = 5, --Tremor Totem
 			[57994] = 6, --Wind Shear (interrupt)
 		},
+
+	--> EVOKER
+		--Devastation
+		[1467] = {},
+		--Preservation
+		[1468] = {},
 }
 
 --tells the duration, requirements and cooldown
