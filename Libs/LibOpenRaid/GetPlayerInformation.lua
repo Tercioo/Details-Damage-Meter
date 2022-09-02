@@ -12,14 +12,22 @@ end
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 
 local isTimewalkWoW = function()
-    local gameVersion = GetBuildInfo()
-    if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2" or gameVersion:match("%d") == "3") then
+    local _, _, _, buildInfo = GetBuildInfo()
+    if (buildInfo < 40000) then
         return true
     end
 end
 
+local IsDragonflight = function()
+	return select(4, GetBuildInfo()) >= 100000
+end
+
 --creates two tables, one with indexed talents and another with pairs values ([talentId] = true)
 function openRaidLib.UnitInfoManager.GetPlayerTalentsAsPairsTable()
+    if (IsDragonflight()) then
+        return {}
+    end
+
     local talentsPairs = {}
     for i = 1, 7 do
         for o = 1, 3 do
@@ -30,10 +38,15 @@ function openRaidLib.UnitInfoManager.GetPlayerTalentsAsPairsTable()
             end
         end
     end
+
     return talentsPairs
 end
 
 function openRaidLib.UnitInfoManager.GetPlayerTalents()
+    if (IsDragonflight()) then
+        return {}
+    end
+
     local talents = {0, 0, 0, 0, 0, 0, 0}
     for talentTier = 1, 7 do
         for talentColumn = 1, 3 do
@@ -44,10 +57,15 @@ function openRaidLib.UnitInfoManager.GetPlayerTalents()
             end
         end
     end
+
     return talents
 end
 
 function openRaidLib.UnitInfoManager.GetPlayerPvPTalents()
+    if (IsDragonflight()) then
+        return {}
+    end
+
     local talentsPvP = {0, 0, 0}
     local talentList = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
     for talentIndex, talentId in ipairs(talentList) do
@@ -75,6 +93,11 @@ function openRaidLib.GetPlayerSpecId()
 end
 
 function openRaidLib.UnitInfoManager.GetPlayerConduits()
+
+    if (IsDragonflight()) then
+        return {}
+    end
+
     local conduits = {}
     local soulbindID = C_Soulbinds.GetActiveSoulbindID()
 
@@ -121,10 +144,10 @@ end
 
 function openRaidLib.GearManager.GetPlayerItemLevel()
     if (_G.GetAverageItemLevel) then
-        local _, _itemLevel = GetAverageItemLevel()
-        itemLevel = floor(_itemLevel)
+        local _, itemLevel = GetAverageItemLevel()
+        itemLevel = floor(itemLevel)
     else
-        itemLevel = 0
+        return 0
     end
     return itemLevel
 end

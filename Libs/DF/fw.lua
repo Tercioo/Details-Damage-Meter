@@ -1,6 +1,6 @@
 
 
-local dversion = 340
+local dversion = 341
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -56,31 +56,31 @@ function DF.IsDragonflight()
 end
 
 function DF.IsTimewalkWoW()
-	return DF.IsClassicWow() or DF.IsTBCWow() or DF.IsWotLKWow()
+    local _, _, _, buildInfo = GetBuildInfo()
+    if (buildInfo < 40000) then
+        return true
+    end
 end
 
 function DF.IsClassicWow()
-	local gameVersion = GetBuildInfo()
-	if (gameVersion:match ("%d") == "1") then
-		return true
-	end
-	return false
+    local _, _, _, buildInfo = GetBuildInfo()
+    if (buildInfo < 20000) then
+        return true
+    end
 end
 
 function DF.IsTBCWow()
-	local gameVersion = GetBuildInfo()
-	if (gameVersion:match ("%d") == "2") then
-		return true
-	end
-	return false
+    local _, _, _, buildInfo = GetBuildInfo()
+    if (buildInfo < 30000 and buildInfo >= 20000) then
+        return true
+    end
 end
 
 function DF.IsWotLKWow()
-	local gameVersion = GetBuildInfo()
-	if (gameVersion:match ("%d") == "3") then
-		return true
-	end
-	return false
+    local _, _, _, buildInfo = GetBuildInfo()
+    if (buildInfo < 40000 and buildInfo >= 30000) then
+        return true
+    end
 end
 
 local roleBySpecTextureName = {
