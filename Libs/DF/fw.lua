@@ -1,6 +1,6 @@
 
 
-local dversion = 344
+local dversion = 345
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -731,7 +731,7 @@ function DF:SetFontRotation(fontString, degrees)
 		if (not fontString.__rotationAnimation) then
 			fontString.__rotationAnimation = DF:CreateAnimationHub(fontString)
 			fontString.__rotationAnimation.rotator = DF:CreateAnimation(fontString.__rotationAnimation, "rotation", 1, 0, 0)
-			fontString.__rotationAnimation.rotator:SetEndDelay(math.huge)
+			fontString.__rotationAnimation.rotator:SetEndDelay(10^8)
 			fontString.__rotationAnimation.rotator:SetSmoothProgress(1)
 		end
 		fontString.__rotationAnimation.rotator:SetDegrees(degrees)

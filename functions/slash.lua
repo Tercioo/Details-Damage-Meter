@@ -1956,6 +1956,8 @@ end
 
 if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 	SLASH_KEYSTONE1 = "/keystone"
+	SLASH_KEYSTONE2 = "/keys"
+	SLASH_KEYSTONE3 = "/key"
 
 	function SlashCmdList.KEYSTONE(msg, editbox)
 		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")

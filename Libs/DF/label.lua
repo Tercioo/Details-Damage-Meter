@@ -188,7 +188,7 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 			if (not object.__rotationAnimation) then
 				object.__rotationAnimation = DF:CreateAnimationHub(object.label)
 				object.__rotationAnimation.rotator = DF:CreateAnimation(object.__rotationAnimation, "rotation", 1, 0, 0)
-				object.__rotationAnimation.rotator:SetEndDelay(math.huge)
+				object.__rotationAnimation.rotator:SetEndDelay(10^8)
 				object.__rotationAnimation.rotator:SetSmoothProgress(1)
 			end
 			object.__rotationAnimation.rotator:SetDegrees(rotation)
