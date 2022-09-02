@@ -1551,10 +1551,10 @@ local right_box_on_click = function (self, button)
 end
 
 local change_icon = function (self, icon1, icon2, icon3, icon4)
-	self:SetNormalTexture (icon1)
-	self:SetPushedTexture (icon2)
-	self:SetDisabledTexture (icon3)
-	self:SetHighlightTexture (icon4, "ADD")
+	self:SetNormalTexture (icon1 or "")
+	self:SetPushedTexture (icon2 or "")
+	self:SetDisabledTexture (icon3 or "")
+	self:SetHighlightTexture (icon4 or "", "ADD")
 end
 	
 function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)

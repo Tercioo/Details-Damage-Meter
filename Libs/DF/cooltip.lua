@@ -1010,15 +1010,15 @@ function DF:CreateCoolTip()
 					
 					if (CoolTip.OptionsTable.TextColorRight) then
 						r, g, b, a = DF:ParseColors (CoolTip.OptionsTable.TextColorRight)
-						menuButton.rightText:SetTextColor (r, g, b, a)
+						DF:SetFontColor(menuButton.rightText, r, g, b, a)
 					elseif (CoolTip.OptionsTable.TextColor) then
 						r, g, b, a = DF:ParseColors (CoolTip.OptionsTable.TextColor)
-						menuButton.rightText:SetTextColor (r, g, b, a)
+						DF:SetFontColor(menuButton.rightText, r, g, b, a)
 					else
 						menuButton.rightText:SetTextColor (1, 1, 1, 1)
 					end
 				else
-					menuButton.rightText:SetTextColor (r, g, b, a)
+					DF:SetFontColor(menuButton.rightText, r, g, b, a)
 				end
 				
 				if (CoolTip.OptionsTable.TextSize and not rightTextTable [6]) then
