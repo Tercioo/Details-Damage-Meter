@@ -8,7 +8,7 @@ do
 		_detalhes.PotionList [spellID] = true
 	end
 
-	if (DetailsFramework.IsTBCWow()) then
+	if (DetailsFramework.IsWotLKWow()) then
 		_detalhes.SpecSpellList = { --~spec
 
 			-- Balance Druid:
