@@ -2549,6 +2549,12 @@ if (DetailsFramework.IsWotLKWow()) then
 		[71] = "DAMAGER", --ARMS
 		[72] = "DAMAGER", --FURY
 		[73] = "TANK", --PROT
+		
+		--Death Knight
+		[250] = "TANK", --Blood
+		[251] = "DAMAGER", --Frost
+		[252] = "DAMAGER", --Unholy
+		
 	}
 
 	function _detalhes:GetRoleFromSpec (specId, unitGUID)
