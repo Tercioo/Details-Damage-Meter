@@ -108,7 +108,7 @@ _detalhes.instance_defaults = {
 	--> window settings
 		ignore_mass_showhide = false,
 	--skin
-		skin = _detalhes.default_skin_to_use,
+		skin = "no skin",
 		skin_custom = "",
 	--scale
 		window_scale = 1.0,

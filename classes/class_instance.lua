@@ -1456,13 +1456,14 @@ end
 			
 			new_instance.rows_fit_in_window = _math_floor (new_instance.posicao[new_instance.mostrando].h / new_instance.row_height)
 		
+		new_instance.skin = "no skin"
+		new_instance:ChangeSkin (_detalhes.default_skin_to_use)
 		--> all done
 			new_instance:AtivarInstancia()
 			
 		new_instance:ShowSideBars()
 
-		new_instance.skin = "no skin"
-		new_instance:ChangeSkin (_detalhes.default_skin_to_use)
+		
 		
 		--> apply standard skin if have one saved
 		--[[
@@ -1525,14 +1526,13 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 		self.rows_created = 0
 		self.rows_showing = 0
 		self.rows_max = 50
-		self.rows_fit_in_window = nil
 		self.largura_scroll = 26
 		self.bar_mod = 0
 		self.bgdisplay_loc = 0
 		self.last_modo = self.last_modo or modo_grupo
 		self.cached_bar_width = self.cached_bar_width or 0
 		self.row_height = self.row_info.height + self.row_info.space.between
-
+		self.rows_fit_in_window = _math_floor (self.posicao[self.mostrando].h / self.row_height)
 	--> create frames
 		local isLocked = self.isLocked
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
@@ -1553,8 +1553,7 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 			self:InstanceWallpaper (true)
 		end
 
-	--> set the color of this instance window
-		self:InstanceColor (self.color)
+	
 		
 	--> scrollbar
 		self:EsconderScrollBar (true)
@@ -1606,7 +1605,13 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 		else
 			self.mostrando = "normal"
 		end
-
+		if (self.skin == "no skin") then
+			print ("|cFFFF2222Details!: Skin for a window wasn't found! Resetting window skin to default.")
+			self:ChangeSkin(_detalhes.default_skin_to_use)
+		end
+		--> set the color of this instance window
+			self:InstanceColor (self.color)
+			
 	--> internal stuff
 		self.oldwith = self.baseframe:GetWidth()
 
