@@ -8104,7 +8104,6 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		--local label = gump:NewLabel (self.floatingframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
 		local label = gump:NewLabel (self.baseframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
 		self.menu_attribute_string = label
-		self:RefreshTitleBarText()
 		self.menu_attribute_string.owner_instance = self
 		self.menu_attribute_string.Enabled = true
 		self.menu_attribute_string.__enabled = true
@@ -8116,6 +8115,8 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEATTRIBUTE", self.menu_attribute_string.OnEvent)
 		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEMODE", self.menu_attribute_string.OnEvent)
 		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGESEGMENT", self.menu_attribute_string.OnEvent)
+
+		self:RefreshTitleBarText()
 	end
 
 	self.menu_attribute_string:Show()
