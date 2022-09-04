@@ -2358,7 +2358,7 @@ function Details:DecompressData (data, dataType)
 end
 
 --oldschool talent tree
-if (DetailsFramework.IsTBCWow()) then
+if (DetailsFramework.IsWotLKWow()) then
 	local talentWatchClassic = CreateFrame ("frame")
 	talentWatchClassic:RegisterEvent("CHARACTER_POINTS_CHANGED")
 	talentWatchClassic:RegisterEvent("SPELLS_CHANGED")
