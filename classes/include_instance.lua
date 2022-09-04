@@ -110,6 +110,7 @@ _detalhes.instance_defaults = {
 	--skin
 		skin = _detalhes.default_skin_to_use,
 		skin_custom = "",
+		skin_loaded = false,
 	--scale
 		window_scale = 1.0,
 		libwindow = {},

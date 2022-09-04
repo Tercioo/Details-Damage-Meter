@@ -7426,6 +7426,7 @@ function Details:ChangeSkin(skin_name)
 	end
 	
 	self:UpdateClickThrough()
+	self.skin_loaded = true
 end
 
 --update the window click through state
