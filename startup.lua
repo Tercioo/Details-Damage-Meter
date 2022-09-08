@@ -10,6 +10,13 @@ local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 --start funtion
 function Details:StartMeUp() --I'll never stop!
 
+	local IsDragonflight = function()
+		return select(4, GetBuildInfo()) >= 100000
+	end
+	if (IsDragonflight()) then
+		Details:Msg("Details! author 'Terciob' does not have access to Dragonflight Beta, please be gentle while reporting bugs and questioning why some bugs haven't been fixed already, thank you!")
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> row single click, this determines what happen when the user click on a bar
 

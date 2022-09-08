@@ -50,7 +50,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not IsDragonflight()) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 45
+local CONST_LIB_VERSION = 48
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -77,6 +77,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local CONST_COMM_COOLDOWNUPDATE_PREFIX = "U"
     local CONST_COMM_COOLDOWNFULLLIST_PREFIX = "C"
     local CONST_COMM_COOLDOWNCHANGES_PREFIX = "S"
+    local CONST_COMM_COOLDOWNREQUEST_PREFIX = "Z"
 
     local CONST_COMM_GEARINFO_FULL_PREFIX = "G"
     local CONST_COMM_GEARINFO_DURABILITY_PREFIX = "R"
@@ -234,6 +235,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         [CONST_COMM_COOLDOWNFULLLIST_PREFIX] = {}, --all cooldowns of a player
         [CONST_COMM_COOLDOWNUPDATE_PREFIX] = {}, --an update of a single cooldown
         [CONST_COMM_COOLDOWNCHANGES_PREFIX] = {}, --cooldowns got added or removed
+        [CONST_COMM_COOLDOWNREQUEST_PREFIX] = {}, --a unit requested an update on a spell
         [CONST_COMM_GEARINFO_FULL_PREFIX] = {}, --an update of gear information
         [CONST_COMM_GEARINFO_DURABILITY_PREFIX] = {}, --an update of the player gear durability
         [CONST_COMM_PLAYER_DEAD_PREFIX] = {}, --player is dead
@@ -1951,6 +1953,32 @@ function openRaidLib.CooldownManager.OnReceiveUnitCooldowns(data, unitName)
 end
 openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNFULLLIST_PREFIX, openRaidLib.CooldownManager.OnReceiveUnitCooldowns)
 
+--send a comm requesting other units in the raid to send an update on the requested spell
+--any unit in the raid that has this cooldown should send a CONST_COMM_COOLDOWNUPDATE_PREFIX
+--@spellId: spellId to query
+function openRaidLib.CooldownManager.RequestCooldownInfo(spellId)
+    local dataToSend = CONST_COMM_COOLDOWNREQUEST_PREFIX .. "," .. spellId
+    openRaidLib.commHandler.SendCommData(dataToSend)
+    diagnosticComm("RequestCooldownInfo| " .. dataToSend) --debug
+end
+
+function openRaidLib.RequestCooldownInfo(spellId) --api alias
+    return openRaidLib.CooldownManager.RequestCooldownInfo(spellId)
+end
+
+function openRaidLib.CooldownManager.OnReceiveRequestForCooldownInfoUpdate(data, unitName)
+    local spellId = tonumber(data[1])
+
+    --check if this unit has this cooldown in its list of cooldowns
+    if (not cooldownGetSpellInfo(UnitName("player"), spellId)) then
+        return
+    end
+
+    --get the cooldown time for this spell
+    local timeLeft, charges, startTimeOffset, duration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
+    openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, timeLeft, charges, startTimeOffset, duration)
+end
+openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaidLib.CooldownManager.OnReceiveRequestForCooldownInfoUpdate)
 
 --------------------------------------------------------------------------------------------------------------------------------
 --> ~keystones

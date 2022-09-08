@@ -48,6 +48,15 @@ local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, current
 --by using a cooldown info
 local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue, cooldownDuration = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
 
+--add spells to a custom filter
+--to change the spells in the filter just call it again with different spells, spells not included in the new table are removed from the filter
+--to remove the filter, call it with an empty table
+@filterName: any string containing alphanumeric characters
+@spells: a table containing spellIds {spellId, spellId, spellId, ...}
+openRaidLib.AddCooldownFilter(filterName, spells)
+
+--request information about a spell for all units in the raid, units which has this cooldown will report back with a "CooldownUpdate" event
+openRaidLib.RequestCooldownInfo(spellId)
 
 EQUIPMENT:
 local allPlayersGear = openRaidLib.GetAllUnitsGear()
