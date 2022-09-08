@@ -38,7 +38,7 @@ do
 		
 		--> title
 		panel.TitleText:SetText ("Paste & Copy")
-		panel.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
+		--panel.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
 		
 		DetailsFrameWork:NewTextEntry (panel, _, "$parentTextEntry", "text", 476, 14)
 		panel.text:SetPoint (20, -127)
