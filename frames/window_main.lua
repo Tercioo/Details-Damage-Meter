@@ -7284,9 +7284,9 @@ function Details:ChangeSkin(skin_name)
 ----------> lock alpha head	
 	
 	if (not this_skin.can_change_alpha_head) then
-		self.baseframe.cabecalho.ball:SetAlpha (100)
+		self.baseframe.cabecalho.ball:SetAlpha(1)
 	else
-		self.baseframe.cabecalho.ball:SetAlpha (self.color[4])
+		self.baseframe.cabecalho.ball:SetAlpha(self.color[4])
 	end
 	
 ----------> update abbreviation function on the class files
