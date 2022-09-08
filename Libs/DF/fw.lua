@@ -1,6 +1,6 @@
 
 
-local dversion = 347
+local dversion = 348
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -2451,7 +2451,7 @@ end
 			
 			options_frame:SetPoint ("center", UIParent, "center")
 			options_frame.TitleText:SetText (title)
-			options_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
+			--options_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
 			
 			return options_frame
 	

@@ -1267,7 +1267,7 @@
 			tinsert (UISpecialFrames, "DetailsUpdateDialog")
 			updatewindow_frame:SetPoint ("center", UIParent, "center")
 			updatewindow_frame:SetSize (512, 200)
-			updatewindow_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
+			--updatewindow_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
 			
 			updatewindow_frame.TitleText:SetText ("A New Version Is Available!")
 

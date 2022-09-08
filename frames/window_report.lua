@@ -861,8 +861,8 @@ local function cria_drop_down (este_gump)
 			local f = CreateFrame ("frame", window:GetName() .. "F", window, "ButtonFrameTemplate")
 			f:SetAllPoints()
 			
-			f.portrait:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame_icons")
-			f.portrait:SetTexCoord (1/256, 64/256, 1/256, 64/256)
+			--f.portrait:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame_icons")
+			--f.portrait:SetTexCoord (1/256, 64/256, 1/256, 64/256)
 			
 			f.TitleText:SetText (Loc ["STRING_REPORTFRAME_WINDOW_TITLE"])
 			f:SetFrameLevel (window:GetFrameLevel()-1)

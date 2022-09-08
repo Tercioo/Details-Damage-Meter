@@ -3385,8 +3385,8 @@ function gump:CriaJanelaInfo()
 						bar [2]:SetValue (data [2] / top * 100)
 						--bar [2]:SetValue (100)
 						bar [3][1] = data [1].counter --tooltip hits
-						bar [3][2] = data [2] / data [1].counter --tooltip average
-						bar [3][3] = _math_floor (data [1].c_amt / data [1].counter * 100) --tooltip critical
+						bar [3][2] = data [2] / max(data [1].counter, 0.0001) --tooltip average
+						bar [3][3] = _math_floor (data [1].c_amt / max(data [1].counter, 0.0001) * 100) --tooltip critical
 						bar [3][4] = spellid
 
 					--player 2

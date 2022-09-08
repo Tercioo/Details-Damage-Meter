@@ -4975,7 +4975,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		if (normal_hits > 0) then
 			local normal_dmg = esta_magia.n_dmg
 			local media_normal = normal_dmg/normal_hits
-			local T = (meu_tempo*normal_dmg)/esta_magia.total
+			local T = (meu_tempo*normal_dmg)/ max(esta_magia.total, 0.001)
 			local P = media/media_normal*100
 			T = P*T/100
 
@@ -4990,7 +4990,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.n_max)
 			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_normal)
 			t1[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (normal_dmg/T)
-			t1[8] = normal_hits .. " [|cFFC0C0C0" .. _cstr ("%.1f", normal_hits/total_hits*100) .. "%|r]"
+			t1[8] = normal_hits .. " [|cFFC0C0C0" .. _cstr ("%.1f", normal_hits/max(total_hits, 0.0001)*100) .. "%|r]"
 			
 		end
 
@@ -4998,7 +4998,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		if (esta_magia.c_amt > 0) then	
 			local media_critico = esta_magia.c_dmg/esta_magia.c_amt
 			local T = (meu_tempo*esta_magia.c_dmg)/esta_magia.total
-			local P = media/media_critico*100
+			local P = media/max(media_critico, 0.0001)*100
 			T = P*T/100
 			local crit_dps = esta_magia.c_dmg/T
 			if (not crit_dps) then
