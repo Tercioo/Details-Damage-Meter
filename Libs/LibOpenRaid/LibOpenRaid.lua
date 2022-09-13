@@ -15,6 +15,10 @@ Code Rules:
     - Public callbacks are callbacks registered by an external addon.
 
 Change Log:
+    - added dragonflight talents support
+    - ensure to register events after 'PLAYER_ENTERING_WORLD' has triggered
+    - added openRaidLib.RequestCooldownInfo(spellId)
+    - added openRaidLib.AddCooldownFilter(filterName, spells)
     - if Ace Comm is installed, use it
     - added "KeystoneWipe" callback
     - finished keystone info, see docs
@@ -50,7 +54,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not IsDragonflight()) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 48
+local CONST_LIB_VERSION = 50
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -564,8 +568,11 @@ LIB_OPEN_RAID_CAN_LOAD = false
         end,
 
         ["PLAYER_ENTERING_WORLD"] = function(...)
+            --has the selected character just loaded?
             if (not openRaidLib.firstEnteringWorld) then
-                --player logon
+                --register events
+                openRaidLib.OnEnterWorldRegisterEvents()
+
                 if (IsInGroup()) then
                     openRaidLib.RequestAllData()
                 end
@@ -604,7 +611,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
                 openRaidLib.firstEnteringWorld = true
             end
-            
+
             openRaidLib.internalCallback.TriggerEvent("onEnterWorld")
         end,
 
@@ -660,7 +667,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
         ["UNIT_PET"] = function(unitId)
             if (UnitIsUnit(unitId, "player")) then
-                openRaidLib.Schedules.NewUniqueTimer(0.5, function() openRaidLib.internalCallback.TriggerEvent("playerPetChange") end, "mainControl", "petStatus_Schedule")
+                openRaidLib.Schedules.NewUniqueTimer(1.1, function() openRaidLib.internalCallback.TriggerEvent("playerPetChange") end, "mainControl", "petStatus_Schedule")
                 --if the pet is alive, register to know when it dies
                 if (UnitExists("pet") and UnitHealth("pet") >= 1) then
                     eventFrame:RegisterUnitEvent("UNIT_FLAGS", "pet")
@@ -682,32 +689,35 @@ LIB_OPEN_RAID_CAN_LOAD = false
     }
     openRaidLib.eventFunctions = eventFunctions
 
-    eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-    eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", "pet")
     eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-    eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-    eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-    eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
-    eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-    eventFrame:RegisterEvent("UNIT_PET")
-    eventFrame:RegisterEvent("PLAYER_DEAD")
-    eventFrame:RegisterEvent("PLAYER_ALIVE")
-    eventFrame:RegisterEvent("PLAYER_UNGHOST")
-
-    if (checkClientVersion("retail")) then
-        eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
-        eventFrame:RegisterEvent("PLAYER_PVP_TALENT_UPDATE")
-        eventFrame:RegisterEvent("ENCOUNTER_END")
-        eventFrame:RegisterEvent("CHALLENGE_MODE_START")
-        eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-        --eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-    end
-
-
 
     eventFrame:SetScript("OnEvent", function(self, event, ...)
         eventFunctions[event](...)
     end)
+
+    --run when PLAYER_ENTERING_WORLD triggers, this avoid any attempt of getting information without the game has completed the load process
+    function openRaidLib.OnEnterWorldRegisterEvents()
+        eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+        eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", "pet")
+        eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+        eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        eventFrame:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
+        eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+        eventFrame:RegisterEvent("UNIT_PET")
+        eventFrame:RegisterEvent("PLAYER_DEAD")
+        eventFrame:RegisterEvent("PLAYER_ALIVE")
+        eventFrame:RegisterEvent("PLAYER_UNGHOST")
+
+        if (checkClientVersion("retail")) then
+            eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
+            eventFrame:RegisterEvent("PLAYER_PVP_TALENT_UPDATE")
+            eventFrame:RegisterEvent("ENCOUNTER_END")
+            eventFrame:RegisterEvent("CHALLENGE_MODE_START")
+            eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+            --eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+        end
+    end
+
 
 --------------------------------------------------------------------------------------------------------------------------------
 --> ~main ~control
@@ -1048,11 +1058,11 @@ function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
     end
     playerInfo[1] = specId
 
-    --renown
+    --shadowlands-renown
     local renown = C_CovenantSanctumUI.GetRenownLevel() or 1
     playerInfo[2] = renown
 
-    --covenant
+    --shadowlands-covenant
     local covenant = C_Covenants.GetActiveCovenantID()
     playerInfo[3] = covenant
 
@@ -1060,13 +1070,13 @@ function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
     local talents = openRaidLib.UnitInfoManager.GetPlayerTalents()
     playerInfo[4] = talents
 
-    --conduits
+    --shadowlands-conduits
     local conduits = openRaidLib.UnitInfoManager.GetPlayerConduits()
     playerInfo[5] = conduits
 
     --pvp talents
     local pvpTalents = openRaidLib.UnitInfoManager.GetPlayerPvPTalents()
-    playerInfo[6] = pvpTalents    
+    playerInfo[6] = pvpTalents
 
     return playerInfo
 end
@@ -1804,6 +1814,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNCHANGES_PREFIX, openRaid
 function openRaidLib.CooldownManager.CheckForSpellsAdeedOrRemoved()
     local playerName = UnitName("player")
     local currentCooldowns = openRaidLib.CooldownManager.UnitData[playerName]
+
     local _, newCooldownList = openRaidLib.CooldownManager.GetPlayerCooldownList()
     local spellsAdded, spellsRemoved = {}, {}
 

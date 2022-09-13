@@ -7971,34 +7971,64 @@ local formatTime = function (t)
 	return "[" .. m .. ":" .. s .. "]"
 end
 
-function _detalhes:TitleTextTickTimer (instance) --called on each 1 second tick
+local updateTimerInTheTitleBarText = function(instance, timer)
+	local originalText = instance.menu_attribute_string.originalText
+	if (originalText) then
+		local formattedTime = formatTime(timer)
+		instance:SetTitleBarText(formattedTime .. " " .. originalText)
+
+	else
+		local titleBarTitleText = instance:GetTitleBarText()
+		if (not titleBarTitleText:find("%[.*%]")) then
+			instance:SetTitleBarText("[00:01] " .. titleBarTitleText)
+		else
+			local formattedTime = formatTime(timer)
+			titleBarTitleText = titleBarTitleText:gsub("%[.*%]", formattedTime)
+			instance:SetTitleBarText(titleBarTitleText)
+		end
+	end
+end
+
+--self is Details
+--this is a ticker callback, it is called on each 1 second
+function _detalhes:TitleTextTickTimer(instance)
+	--hold the time value to show in the title bar
+	local timer
+
 	if (instance.attribute_text.enabled) then
-		--tick only during encounter
-		if (not Details.titletext_showtimer_always) then
+		local zoneType = Details:GetZoneType()
+
+		if (zoneType == "arena") then
+			if (instance.attribute_text.show_timer_arena) then
+				timer = GetTime() - Details:GetArenaStartTime()
+			end
+
+		elseif (zoneType == "pvp") then
+			if (instance.attribute_text.show_timer_bg) then
+				timer = GetTime() - Details:GetBattlegroundStartTime()
+			end
+
+		elseif (zoneType == "raid" or zoneType == "party") then
+			--always attempt to show the time during a boss encounter
 			if (IsEncounterInProgress) then
-				if (not IsEncounterInProgress()) then
-					return
+				if (IsEncounterInProgress()) then
+					timer = Details:GetCurrentCombat():GetCombatTime()
 				end
 			else
-				if (not Details.tabela_vigente.is_boss) then
-					return
+				if (Details.tabela_vigente.is_boss) then
+					timer = Details:GetCurrentCombat():GetCombatTime()
 				end
 			end
 		end
 
-		local currentText = instance.menu_attribute_string.originalText
-		if (currentText) then
-			local timer = formatTime(_detalhes.tabela_vigente:GetCombatTime())
-			instance:SetTitleBarText(timer .. " " .. currentText)
-		else
-			local current_text = instance:GetTitleBarText()
-			if (not current_text:find("%[.*%]")) then
-				instance:SetTitleBarText("[00:01] " .. current_text)
-			else
-				local timer = formatTime(_detalhes.tabela_vigente:GetCombatTime())
-				current_text = current_text:gsub("%[.*%]", timer)
-				instance:SetTitleBarText(current_text)
+		if (not timer) then
+			if (instance.attribute_text.show_timer_always) then
+				timer = Details:GetCurrentCombat():GetCombatTime()
 			end
+		end
+
+		if (timer) then
+			updateTimerInTheTitleBarText(instance, timer)
 		end
 	end
 end
@@ -8038,8 +8068,9 @@ function Details:GetTitleBarText()
 end
 
 -- ~titletext
+--@timer_bg: battleground elapsed time
+--@timer_arena: arena match elapsed time
 function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow, timer_encounter, timer_bg, timer_arena)
-
 	if (type (enabled) ~= "boolean") then
 		enabled = self.attribute_text.enabled
 	end
@@ -8077,7 +8108,14 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	if (type(timer_encounter) ~= "boolean") then
 		timer_encounter = self.attribute_text.show_timer
 	end
-	
+
+	if (type(timer_bg) ~= "boolean") then
+		timer_bg = self.attribute_text.show_timer_bg
+	end
+	if (type(timer_arena) ~= "boolean") then
+		timer_arena = self.attribute_text.show_timer_arena
+	end
+
 	self.attribute_text.enabled = enabled
 	self.attribute_text.anchor [1] = pos_x
 	self.attribute_text.anchor [2] = pos_y
@@ -8087,6 +8125,8 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	self.attribute_text.side = side
 	self.attribute_text.shadow = shadow
 	self.attribute_text.show_timer = timer_encounter
+	self.attribute_text.show_timer_bg = timer_bg
+	self.attribute_text.show_timer_arena = timer_arena
 	
 	--> enabled
 	if (not enabled and self.menu_attribute_string) then

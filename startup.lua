@@ -17,6 +17,10 @@ function Details:StartMeUp() --I'll never stop!
 		Details:Msg("Details! author 'Terciob' does not have access to Dragonflight Beta, please be gentle while reporting bugs and questioning why some bugs haven't been fixed already, thank you!")
 	end
 
+	--set default time for arena and bg to be the Details! load time in case the client loads mid event
+	Details.lastArenaStartTime = GetTime()
+	Details.lastBattlegroundStartTime = GetTime()
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> row single click, this determines what happen when the user click on a bar
 
