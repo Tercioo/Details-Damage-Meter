@@ -7979,12 +7979,14 @@ local updateTimerInTheTitleBarText = function(instance, timer)
 
 	else
 		local titleBarTitleText = instance:GetTitleBarText()
-		if (not titleBarTitleText:find("%[.*%]")) then
-			instance:SetTitleBarText("[00:01] " .. titleBarTitleText)
-		else
-			local formattedTime = formatTime(timer)
-			titleBarTitleText = titleBarTitleText:gsub("%[.*%]", formattedTime)
-			instance:SetTitleBarText(titleBarTitleText)
+		if (titleBarTitleText) then
+			if (not titleBarTitleText:find("%[.*%]")) then
+				instance:SetTitleBarText("[00:01] " .. titleBarTitleText)
+			else
+				local formattedTime = formatTime(timer)
+				titleBarTitleText = titleBarTitleText:gsub("%[.*%]", formattedTime)
+				instance:SetTitleBarText(titleBarTitleText)
+			end
 		end
 	end
 end
@@ -8028,6 +8030,8 @@ function _detalhes:TitleTextTickTimer(instance)
 		end
 
 		if (timer) then
+			local combatObject = instance:GetShowingCombat()
+			combatObject.hasTimer = timer
 			updateTimerInTheTitleBarText(instance, timer)
 		end
 	end
@@ -8050,8 +8054,21 @@ function Details:RefreshTitleBarText()
 			end
 		end
 
-		titleBarText:SetText(sName)
-		titleBarText.originalText = sName
+		if (not Details.in_combat) then
+			local timer = false --self:GetShowingCombat().hasTimer
+			if (timer) then
+				local timeFormatted = formatTime(timer)
+				titleBarText.originalText = sName
+				sName = timeFormatted .. " " .. sName
+				titleBarText:SetText(sName)
+			else
+				titleBarText:SetText(sName)
+				titleBarText.originalText = sName
+			end
+		else
+			titleBarText:SetText(sName)
+			titleBarText.originalText = sName
+		end
 	end
 end
 
@@ -8152,9 +8169,9 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 			instance:RefreshTitleBarText()
 		end
 		
-		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEATTRIBUTE", self.menu_attribute_string.OnEvent)
-		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEMODE", self.menu_attribute_string.OnEvent)
-		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGESEGMENT", self.menu_attribute_string.OnEvent)
+		Details:RegisterEvent(self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEATTRIBUTE", self.menu_attribute_string.OnEvent)
+		Details:RegisterEvent(self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEMODE", self.menu_attribute_string.OnEvent)
+		Details:RegisterEvent(self.menu_attribute_string, "DETAILS_INSTANCE_CHANGESEGMENT", self.menu_attribute_string.OnEvent)
 
 		self:RefreshTitleBarText()
 	end
