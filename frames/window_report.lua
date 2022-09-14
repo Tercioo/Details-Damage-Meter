@@ -864,7 +864,7 @@ local function cria_drop_down (este_gump)
 			--f.portrait:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame_icons")
 			--f.portrait:SetTexCoord (1/256, 64/256, 1/256, 64/256)
 			
-			f.TitleText:SetText (Loc ["STRING_REPORTFRAME_WINDOW_TITLE"])
+			--f.TitleText:SetText (Loc ["STRING_REPORTFRAME_WINDOW_TITLE"]) --10.0 fuck
 			f:SetFrameLevel (window:GetFrameLevel()-1)
 			
 			_G [window:GetName() .. "FCloseButton"]:SetFrameLevel (window:GetFrameLevel()+1)

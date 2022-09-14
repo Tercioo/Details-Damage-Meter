@@ -1269,7 +1269,7 @@
 			updatewindow_frame:SetSize (512, 200)
 			--updatewindow_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
 			
-			updatewindow_frame.TitleText:SetText ("A New Version Is Available!")
+			--updatewindow_frame.TitleText:SetText ("A New Version Is Available!") --10.0 fuck
 
 			updatewindow_frame.midtext = updatewindow_frame:CreateFontString (nil, "artwork", "GameFontNormal")
 			updatewindow_frame.midtext:SetText ("Good news everyone!\nA new version has been forged and is waiting to be looted.")
