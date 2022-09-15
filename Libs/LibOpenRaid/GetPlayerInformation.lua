@@ -42,9 +42,13 @@ function openRaidLib.GetTalentVersion()
     end
 end
 
-local getDradonflightTalentsAsIndexTable = function()
+local getDragonflightTalentsAsIndexTable = function()
     local allTalents = {}
     local configId = C_ClassTalents.GetActiveConfigID()
+    if (not configId) then
+        return allTalents
+    end
+
     local configInfo = C_Traits.GetConfigInfo(configId)
 
     for treeIndex, treeId in ipairs(configInfo.treeIDs) do
@@ -85,7 +89,7 @@ function openRaidLib.UnitInfoManager.GetPlayerTalentsAsPairsTable()
     local talentVersion = openRaidLib.GetTalentVersion()
 
     if (talentVersion == CONST_TALENT_VERSION_DRAGONFLIGHT) then
-        local allTalents = getDradonflightTalentsAsIndexTable()
+        local allTalents = getDragonflightTalentsAsIndexTable()
         for i = 1, #allTalents do
             local spellId = allTalents[i]
             talentsPairs[spellId] = true
@@ -111,7 +115,7 @@ function openRaidLib.UnitInfoManager.GetPlayerTalents()
     local talentVersion = openRaidLib.GetTalentVersion()
 
     if (talentVersion == CONST_TALENT_VERSION_DRAGONFLIGHT) then
-        talents = getDradonflightTalentsAsIndexTable()
+        talents = getDragonflightTalentsAsIndexTable()
 
     elseif (talentVersion == CONST_TALENT_VERSION_LEGION) then
         talents = {0, 0, 0, 0, 0, 0, 0}
