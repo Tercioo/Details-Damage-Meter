@@ -1682,6 +1682,12 @@ function StreamOverlay.OpenOptionsPanel (from_options_panel)
 		optionsFrame:SetWidth(530)
 		optionsFrame:SetHeight(655)
 
+		if (StreamOverlayWelcomeWindow) then
+			if (StreamOverlayWelcomeWindow:IsShown()) then
+				StreamOverlayWelcomeWindow:Hide()
+			end
+		end
+
 		local statusBar = DetailsFramework:CreateStatusBar(optionsFrame)
 		statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
 		statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
@@ -2393,63 +2399,67 @@ function StreamOverlay:OnEvent (_, event, ...)
 						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
 					end
 				end
-				
-				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
 
+				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
 					local show_frame = function()
-					
+
 						if ((DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) or not StreamOverlay.db.is_first_run) then
 							return
 						end
-						
+
 						StreamOverlay.ShowWelcomeFrame:Cancel()
-						
-						local welcome_window = CreateFrame ("frame", "StreamOverlayWelcomeWindow", UIParent, "BackdropTemplate")
-						welcome_window:SetPoint ("center", UIParent, "center")
-						welcome_window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-						welcome_window:SetBackdropColor (0, 0, 0, 0.5)
-						welcome_window:SetBackdropBorderColor (0, 0, 0, 1)
-						welcome_window:SetSize (740, 270)
-						DetailsFramework:ApplyStandardBackdrop(welcome_window)
-						
-						local icon = welcome_window:CreateTexture (nil, "overlay")
+
+						local welcomeWindow = CreateFrame ("frame", "StreamOverlayWelcomeWindow", UIParent, "BackdropTemplate")
+						welcomeWindow:SetPoint ("center", UIParent, "center")
+						welcomeWindow:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+						welcomeWindow:SetBackdropColor (0, 0, 0, 0.5)
+						welcomeWindow:SetBackdropBorderColor (0, 0, 0, 1)
+						welcomeWindow:SetSize (740, 270)
+						DetailsFramework:ApplyStandardBackdrop(welcomeWindow)
+
+						local icon = welcomeWindow:CreateTexture (nil, "overlay")
 						icon:SetTexture ([[Interface\MINIMAP\MOVIERECORDINGICON]])
-						local title = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
+						local title = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
 						title:SetText ("Details!: Action Tracker (plugin)")
 						StreamOverlay:SetFontSize (title, 20)
-						
-						local text1 = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
-						text1:SetText ("If you are a Streamer or Youtuber, \nthis plugin shows to your audience the spells you're casting,\nhence they can follow your steps and learn together.")
-						local text2 = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
+
+						local youtubeTwitchIcons = welcomeWindow:CreateTexture(nil, "overlay")
+						youtubeTwitchIcons:SetTexture([[Interface\AddOns\Details\images\icons2]])
+						youtubeTwitchIcons:SetTexCoord(0, 109/512, 370/512, 413/512)
+						youtubeTwitchIcons:SetSize(109, 413 - 370)
+						youtubeTwitchIcons:SetPoint("topleft", welcomeWindow, "topleft", 123, -61)
+
+						local text1 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
+						text1:SetText ("SHOW TO YOUR VIEWERS YOUR ROTATION\nThis way they can learn while watching your content")
+						local text2 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
 						text2:SetText ("Use the command:")
-						local text3 = welcome_window:CreateFontString (nil, "overlay", "GameFontNormal")
+						local text3 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
 						text3:SetText ("/streamer")
 						DetailsFramework:SetFontSize(text3, 16)
-						
-						icon:SetPoint ("topleft", welcome_window, "topleft", 10, -20)
+
+						icon:SetPoint ("topleft", welcomeWindow, "topleft", 10, -20)
 						title:SetPoint ("left", icon, "right", 10, 0)
-						
-						text1:SetPoint ("topleft", welcome_window, "topleft", 10, -70)
-						text2:SetPoint ("center", text1, "center", 0, -50)
+
+						text1:SetPoint ("topleft", welcomeWindow, "topleft", 10, -120)
+						text2:SetPoint ("center", text1, "center", 0, -40)
 						text3:SetPoint ("center", text2, "center", 0, -16)
 
-						local image1 = welcome_window:CreateTexture(nil, "overlay")
+						local image1 = welcomeWindow:CreateTexture(nil, "overlay")
 						image1:SetTexture([[Interface\AddOns\Details_Streamer\streamer_plugin_lines]])
-						image1:SetPoint("topleft", welcome_window, "topleft", 410, -6)
+						image1:SetPoint("topleft", welcomeWindow, "topleft", 410, -6)
 						image1:SetSize(512, 256)
 						
 						local close_func = function()
 							StreamOverlay.db.is_first_run = false
 							Details:SetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN", true)
-							welcome_window:Hide()
+							welcomeWindow:Hide()
 						end
 						
-						local close = Details.gump:CreateButton (welcome_window, close_func, 120, 20, "Okay", nil, nil, nil, nil, nil, nil, Details.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+						local close = Details.gump:CreateButton (welcomeWindow, close_func, 120, 20, "Okay", nil, nil, nil, nil, nil, nil, Details.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 						close:SetPoint ("center", text3, "center", 0, -50)
 					end
 					
 					StreamOverlay.ShowWelcomeFrame = C_Timer.NewTicker (5, show_frame)
-				
 				end
 				
 				--wipe (StreamOverlay.db)
