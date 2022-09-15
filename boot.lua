@@ -18,7 +18,7 @@
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 --
-		_detalhes.dragonflight_beta_version = 30
+		_detalhes.dragonflight_beta_version = 31
 
 		Details = _detalhes
 

@@ -1,0 +1,9 @@
+## Interface: 20504
+## Title: Details!: Storage
+## Notes: Stores information for Details! Damage Meter
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: Details
+## SavedVariables: DetailsDataStorage
+
+Details_DataStorage.lua
