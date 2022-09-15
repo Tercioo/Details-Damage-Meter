@@ -18,7 +18,7 @@
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 --
-		_detalhes.dragonflight_beta_version = 29
+		_detalhes.dragonflight_beta_version = 30
 
 		Details = _detalhes
 
@@ -918,6 +918,7 @@ do
 			if orig_type == 'table' then
 				copy = {}
 				for orig_key, orig_value in next, orig, nil do
+					--print(orig_key, orig_value)
 					copy [Details.CopyTable (orig_key)] = Details.CopyTable (orig_value)
 				end
 			else
