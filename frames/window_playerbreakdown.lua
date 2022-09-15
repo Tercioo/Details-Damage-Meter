@@ -2315,7 +2315,7 @@ function gump:CriaJanelaInfo()
 					end
 				else
 					local d = lastvalue - ps
-					d = d / ps * 100
+					d = d / max(ps, 0.001) * 100
 					d = _math_floor (math.abs (d))
 					
 					if (d > 999) then
