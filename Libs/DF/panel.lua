@@ -7288,15 +7288,30 @@ end
 --]=]
 
 DF.StatusBarFunctions = {
-	
-	GetTexture = function (self)
-		return self.barTexture:GetTexture()
-	end,
-	
 	SetTexture = function (self, texture)
 		self.barTexture:SetTexture (texture)
 	end,
-	
+
+	GetTexture = function (self)
+		return self.barTexture:GetTexture()
+	end,
+
+	SetAtlas = function(self, atlasName)
+		self.barTexture:SetAtlas(atlasName)
+	end,
+
+	GetAtlas = function(self)
+		self.barTexture:GetAtlas()
+	end,
+
+	SetTexCoord = function(self, ...)
+		return self.barTexture:SetTexCoord(...)
+	end,
+
+	GetTexCoord = function(self)
+		return self.barTexture:GetTexCoord()
+	end,
+
 	SetColor = function (self, r, g, b, a)
 		r, g, b, a = DF:ParseColors (r, g, b, a)
 		self:SetStatusBarColor (r, g, b, a)
@@ -7305,7 +7320,116 @@ DF.StatusBarFunctions = {
 	GetColor = function (self)
 		return self:GetStatusBarColor()
 	end,
-	
+
+	SetMaskTexture = function(self, ...)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:SetTexture(...)
+	end,
+
+	GetMaskTexture = function(self)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:GetTexture()
+	end,
+
+	--SetMaskTexCoord = function(self, ...) --MaskTexture doesn't not support texcoord
+	--	if (not self:HasTextureMask()) then
+	--		return
+	--	end
+	--	self.barTextureMask:SetTexCoord(...)
+	--end,
+
+	--GetMaskTexCoord = function(self, ...)
+	--	if (not self:HasTextureMask()) then
+	--		return
+	--	end
+	--	self.barTextureMask:GetTexCoord()
+	--end,
+
+	SetMaskAtlas = function(self, atlasName)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:SetAtlas(atlasName)
+	end,
+
+	GetMaskAtlas = function(self)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:GetAtlas()
+	end,
+
+	AddMaskTexture = function(self, object)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		if (object.GetObjectType and object:GetObjectType() == "Texture") then
+			object:AddMaskTexture(self.barTextureMask)
+		else
+			DF:Msg("Invalid 'Texture' to object:AddMaskTexture(Texture)", debugstack())
+		end
+	end,
+
+	CreateTextureMask = function(self)
+		local barTexture = self:GetStatusBarTexture() or self.barTexture
+		if (not barTexture) then
+			DF:Msg("Object doesn't not have a statubar texture, create one and object:SetStatusBarTexture(textureObject)", debugstack())
+			return
+		end
+
+		if (self.barTextureMask) then
+			return self.barTextureMask
+		end
+
+		--statusbar texture mask
+		self.barTextureMask = self:CreateMaskTexture(nil, "artwork")
+		self.barTextureMask:SetAllPoints()
+		self.barTextureMask:SetTexture([[Interface\CHATFRAME\CHATFRAMEBACKGROUND]])
+
+		--border texture
+		self.barBorderTextureForMask = self:CreateTexture(nil, "artwork", nil, 7)
+		self.barBorderTextureForMask:SetAllPoints()
+		self.barBorderTextureForMask:Hide()
+
+		barTexture:AddMaskTexture(self.barTextureMask)
+
+		return self.barTextureMask
+	end,
+
+	SetBorderTexture = function(self, texture)
+		if (not self:HasTextureMask()) then
+			return
+		end
+
+		texture = texture or ""
+
+		self.barBorderTextureForMask:SetTexture(texture)
+
+		if (texture == "") then
+			self.barBorderTextureForMask:Hide()
+		else
+			self.barBorderTextureForMask:Show()
+		end
+	end,
+
+	GetBorderTexture = function(self)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		return self.barBorderTextureForMask:GetTexture()
+	end,
+
+	HasTextureMask = function(self)
+		if (not self.barTextureMask) then
+			DF:Msg("Object doesn't not have a texture mask, create one using object:CreateTextureMask()", debugstack())
+			return false
+		end
+		return true
+	end
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -7716,6 +7840,8 @@ function DF:CreateHealthBar (parent, name, settingsOverride)
 	--> mixins
 	DF:Mixin (healthBar, healthBarMetaFunctions)
 	DF:Mixin (healthBar, DF.StatusBarFunctions)
+
+	healthBar:CreateTextureMask()
 	
 	--> settings and hooks
 	local settings = DF.table.copy ({}, healthBarMetaFunctions.Settings)
@@ -7972,7 +8098,7 @@ function DF:CreatePowerBar (parent, name, settingsOverride)
 			--artwork
 			powerBar.barTexture = powerBar:CreateTexture (nil, "artwork")
 			powerBar:SetStatusBarTexture (powerBar.barTexture)
-			
+
 			--overlay
 			powerBar.percentText = powerBar:CreateFontString (nil, "overlay", "GameFontNormal")
 		end
@@ -7980,6 +8106,8 @@ function DF:CreatePowerBar (parent, name, settingsOverride)
 	--> mixins
 	DF:Mixin (powerBar, DF.PowerFrameFunctions)
 	DF:Mixin (powerBar, DF.StatusBarFunctions)
+
+	powerBar:CreateTextureMask()
 	
 	--> settings and hooks
 	local settings = DF.table.copy ({}, DF.PowerFrameFunctions.Settings)
@@ -8946,27 +9074,21 @@ function DF:CreateCastBar (parent, name, settingsOverride)
 			--this should make Plater core and Plater scripts made by users compatible with the new unit frame made on the framework
 		
 			--background
-			castBar.background = castBar:CreateTexture (nil, "background")
-			castBar.background:SetDrawLayer ("background", -6)
-			
-			castBar.extraBackground = castBar:CreateTexture (nil, "background")
-			castBar.extraBackground:SetDrawLayer ("background", -5)
+			castBar.background = castBar:CreateTexture (nil, "background", nil, -6)
+			castBar.extraBackground = castBar:CreateTexture (nil, "background", nil, -5)
 			
 			--overlay
 			castBar.Text = castBar:CreateFontString (nil, "overlay", "SystemFont_Shadow_Small")
-			castBar.Text:SetPoint ("center", 0, 0)
 			castBar.Text:SetDrawLayer ("overlay", 1)
+			castBar.Text:SetPoint ("center", 0, 0)
 			
-			castBar.BorderShield = castBar:CreateTexture (nil, "overlay")
-			castBar.BorderShield:SetDrawLayer ("overlay", 5)
+			castBar.BorderShield = castBar:CreateTexture (nil, "overlay", nil, 5)
 			castBar.BorderShield:Hide()
 			
-			castBar.Icon = castBar:CreateTexture (nil, "overlay")
-			castBar.Icon:SetDrawLayer ("overlay", 4)
+			castBar.Icon = castBar:CreateTexture (nil, "overlay", nil, 4)
 			castBar.Icon:Hide()
 			
-			castBar.Spark = castBar:CreateTexture (nil, "overlay")
-			castBar.Spark:SetDrawLayer ("overlay", 3)
+			castBar.Spark = castBar:CreateTexture (nil, "overlay", nil, 3)
 			castBar.Spark:SetBlendMode ("ADD")
 			
 			--time left on the cast
@@ -8974,7 +9096,7 @@ function DF:CreateCastBar (parent, name, settingsOverride)
 			castBar.percentText:SetDrawLayer ("overlay", 7)
 			
 			--statusbar texture
-			castBar.barTexture = castBar:CreateTexture (nil, "artwork")
+			castBar.barTexture = castBar:CreateTexture (nil, "artwork", nil, -6)
 			castBar:SetStatusBarTexture (castBar.barTexture)
 			
 			--animations fade in and out
@@ -8987,8 +9109,7 @@ function DF:CreateCastBar (parent, name, settingsOverride)
 			castBar.fadeInAnimation = fadeInAnimationHub
 			
 			--animatios flash
-			local flashTexture = castBar:CreateTexture (nil, "overlay")
-			flashTexture:SetDrawLayer ("overlay", 7)
+			local flashTexture = castBar:CreateTexture (nil, "overlay", nil, 7)
 			flashTexture:SetColorTexture (1, 1, 1, 1)
 			flashTexture:SetAllPoints()
 			flashTexture:SetAlpha (0)
@@ -9005,6 +9126,11 @@ function DF:CreateCastBar (parent, name, settingsOverride)
 	--> mixins
 	DF:Mixin (castBar, DF.CastFrameFunctions)
 	DF:Mixin (castBar, DF.StatusBarFunctions)
+
+	castBar:CreateTextureMask()
+	castBar:AddMaskTexture(castBar.flashTexture)
+	castBar:AddMaskTexture(castBar.background)
+	castBar:AddMaskTexture(castBar.extraBackground)
 	
 	--> settings and hooks
 	local settings = DF.table.copy ({}, DF.CastFrameFunctions.Settings)
