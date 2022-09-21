@@ -4231,196 +4231,28 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~scrollbox
 
-DF.SortFunctions = {}
-
-local SortMember = ""
-local SortByMember = function (t1, t2)
-	return t1[SortMember] > t2[SortMember]
-end
-local SortByMemberReverse = function (t1, t2)
-	return t1[SortMember] < t2[SortMember]
-end
-
-DF.SortFunctions.Sort = function (self, t, by, is_reverse)
-	SortMember = by
-	if (not is_reverse) then
-		table.sort (t, SortByMember)
-	else
-		table.sort (t, SortByMemberReverse)
-	end
-end
-
-
-DF.ScrollBoxFunctions = {}
-
-DF.ScrollBoxFunctions.Refresh = function (self)
-	for _, frame in ipairs (self.Frames) do 
-		frame:Hide()
-		frame._InUse = nil
-	end
+function DF:CreateScrollBox (parent, name, refreshFunc, data, width, height, lineAmount, lineHeight, createLineFunc, autoAmount, noScroll)
+	local scroll = CreateFrame("scrollframe", name, parent, "FauxScrollFrameTemplate, BackdropTemplate")
 	
-	local offset = 0
-	if (self.IsFauxScroll) then
-		FauxScrollFrame_Update (self, #self.data, self.LineAmount, self.LineHeight)
-		offset = FauxScrollFrame_GetOffset (self)
-	end	
-	
-	DF:CoreDispatch ((self:GetName() or "ScrollBox") .. ":Refresh()", self.refresh_func, self, self.data, offset, self.LineAmount)
-
-	for _, frame in ipairs (self.Frames) do 
-		if (not frame._InUse) then
-			frame:Hide()
-		else
-			frame:Show()
-		end
-	end
-	
-	self:Show()
-	
-	if (self.HideScrollBar) then
-		local frameName = self:GetName()
-		if (frameName) then
-			local scrollBar = _G [frameName .. "ScrollBar"]
-			if (scrollBar) then
-				scrollBar:Hide()
-			end
-		else
-		
-		end
-		
-	end
-	
-	return self.Frames
-end
-
-DF.ScrollBoxFunctions.OnVerticalScroll = function (self, offset)
-	FauxScrollFrame_OnVerticalScroll (self, offset, self.LineHeight, self.Refresh)
-	return true
-end
-
-DF.ScrollBoxFunctions.CreateLine = function (self, func)
-	if (not func) then
-		func = self.CreateLineFunc
-	end
-	local okay, newLine = pcall (func, self, #self.Frames+1)
-	if (okay) then
-		tinsert (self.Frames, newLine)
-		newLine.Index = #self.Frames
-		return newLine
-	else
-		error ("Details! FrameWork: CreateLine(): " .. newLine)
-	end
-end
-
-DF.ScrollBoxFunctions.GetLine = function (self, line_index)
-	local line = self.Frames [line_index]
-	if (line) then
-		line._InUse = true
-	end
-	return line
-end
-
-DF.ScrollBoxFunctions.SetData = function (self, data)
-	self.data = data
-end
-DF.ScrollBoxFunctions.GetData = function (self)
-	return self.data
-end
-
-DF.ScrollBoxFunctions.GetFrames = function (self)
-	return self.Frames
-end
-
-DF.ScrollBoxFunctions.GetLines = function (self) --alias of GetFrames
-	return self.Frames
-end
-
-DF.ScrollBoxFunctions.GetNumFramesCreated = function (self)
-	return #self.Frames
-end
-
-DF.ScrollBoxFunctions.GetNumFramesShown = function (self)
-	return self.LineAmount
-end
-
-DF.ScrollBoxFunctions.SetNumFramesShown = function (self, new_amount)
-	--> hide frames which won't be used
-	if (new_amount < #self.Frames) then
-		for i = new_amount+1, #self.Frames do
-			self.Frames [i]:Hide()
-		end
-	end
-	
-	--> set the new amount
-	self.LineAmount = new_amount
-end
-
-DF.ScrollBoxFunctions.SetFramesHeight = function (self, new_height)
-	self.LineHeight = new_height
-	self:OnSizeChanged()
-	self:Refresh()
-end
-
-DF.ScrollBoxFunctions.OnSizeChanged = function (self)
-	if (self.ReajustNumFrames) then
-		--> how many lines the scroll can show
-		local amountOfFramesToShow = floor (self:GetHeight() / self.LineHeight)
-		
-		--> how many lines the scroll already have
-		local totalFramesCreated = self:GetNumFramesCreated()
-		
-		--> how many lines are current shown
-		local totalFramesShown = self:GetNumFramesShown()
-
-		--> the amount of frames increased
-		if (amountOfFramesToShow > totalFramesShown) then
-			for i = totalFramesShown+1, amountOfFramesToShow do
-				--> check if need to create a new line
-				if (i > totalFramesCreated) then
-					self:CreateLine (self.CreateLineFunc)
-				end
-			end
-			
-		--> the amount of frames decreased
-		elseif (amountOfFramesToShow < totalFramesShown) then
-			--> hide all frames above the new amount to show
-			for i = totalFramesCreated, amountOfFramesToShow, -1 do
-				if (self.Frames [i]) then
-					self.Frames [i]:Hide()
-				end
-			end
-		end
-
-		--> set the new amount of frames
-		self:SetNumFramesShown (amountOfFramesToShow)
-		
-		--> refresh lines
-		self:Refresh()
-	end
-end
-
-function DF:CreateScrollBox (parent, name, refresh_func, data, width, height, line_amount, line_height, create_line_func, auto_amount, no_scroll)
-	local scroll = CreateFrame ("scrollframe", name, parent, "FauxScrollFrameTemplate,BackdropTemplate")
-	
-	DF:ApplyStandardBackdrop (scroll)
+	DF:ApplyStandardBackdrop(scroll)
 	
 	scroll:SetSize (width, height)
-	scroll.LineAmount = line_amount
-	scroll.LineHeight = line_height
+	scroll.LineAmount = lineAmount
+	scroll.LineHeight = lineHeight
 	scroll.IsFauxScroll = true
-	scroll.HideScrollBar = no_scroll
+	scroll.HideScrollBar = noScroll
 	scroll.Frames = {}
-	scroll.ReajustNumFrames = auto_amount
-	scroll.CreateLineFunc = create_line_func
+	scroll.ReajustNumFrames = autoAmount
+	scroll.CreateLineFunc = createLineFunc
 	
-	DF:Mixin (scroll, DF.SortFunctions)
-	DF:Mixin (scroll, DF.ScrollBoxFunctions)
+	DF:Mixin(scroll, DF.SortFunctions)
+	DF:Mixin(scroll, DF.ScrollBoxFunctions)
 	
-	scroll.refresh_func = refresh_func
+	scroll.refresh_func = refreshFunc
 	scroll.data = data
 	
-	scroll:SetScript ("OnVerticalScroll", scroll.OnVerticalScroll)
-	scroll:SetScript ("OnSizeChanged", DF.ScrollBoxFunctions.OnSizeChanged)
+	scroll:SetScript("OnVerticalScroll", scroll.OnVerticalScroll)
+	scroll:SetScript("OnSizeChanged", DF.ScrollBoxFunctions.OnSizeChanged)
 	
 	return scroll
 end
