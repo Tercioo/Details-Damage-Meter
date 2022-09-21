@@ -920,10 +920,10 @@ local default_profile = {
 		clear_ungrouped = true,
 		
 	--> if clear graphic data when logout
-		clear_graphic = true, 
+		clear_graphic = true,
 		
 	--> item level tracker
-		track_item_level = true,
+		track_item_level = false,
 	
 	--> text settings
 		font_sizes = {menus = 10},

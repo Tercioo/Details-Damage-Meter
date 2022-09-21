@@ -7400,6 +7400,14 @@ DF.StatusBarFunctions = {
 		return self.barTextureMask
 	end,
 
+	HasTextureMask = function(self)
+		if (not self.barTextureMask) then
+			DF:Msg("Object doesn't not have a texture mask, create one using object:CreateTextureMask()", debugstack())
+			return false
+		end
+		return true
+	end,
+
 	SetBorderTexture = function(self, texture)
 		if (not self:HasTextureMask()) then
 			return
@@ -7423,13 +7431,40 @@ DF.StatusBarFunctions = {
 		return self.barBorderTextureForMask:GetTexture()
 	end,
 
-	HasTextureMask = function(self)
-		if (not self.barTextureMask) then
-			DF:Msg("Object doesn't not have a texture mask, create one using object:CreateTextureMask()", debugstack())
-			return false
+	SetBorderColor = function(self, r, g, b, a)
+		r, g, b, a = DF:ParseColors(r, g, b, a)
+
+		if (self.barBorderTextureForMask and self.barBorderTextureForMask:IsShown()) then
+			self.barBorderTextureForMask:SetVertexColor(r, g, b, a)
+
+			--if there's a square border on the widget, remove its color
+			if (self.border and self.border.UpdateSizes and self.border.SetVertexColor) then
+				self.border:SetVertexColor(0, 0, 0, 0)
+			end
+
+			return
 		end
-		return true
-	end
+
+		if (self.border and self.border.UpdateSizes and self.border.SetVertexColor) then
+			self.border:SetVertexColor(r, g, b, a)
+
+			--adjust the mask border texture ask well in case the user set the mask color texture before setting a texture on it
+			if (self.barBorderTextureForMask) then
+				self.barBorderTextureForMask:SetVertexColor(r, g, b, a)
+			end
+			return
+		end
+	end,
+
+	GetBorderColor = function(self)
+		if (self.barBorderTextureForMask and self.barBorderTextureForMask:IsShown()) then
+			return self.barBorderTextureForMask:GetVertexColor()
+		end
+
+		if (self.border and self.border.UpdateSizes and self.border.GetVertexColor) then
+			return self.border:GetVertexColor()
+		end
+	end,
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

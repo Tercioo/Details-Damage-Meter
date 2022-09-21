@@ -44,7 +44,7 @@ function Details.OpenSpellCategoryScreen()
             {text = "NONE", width = 120},
 			{text = "Offensive CD", width = 120},
 			{text = "Personal Defensive CD", width = 120},
-			{text = "Target Defensive CD", width = 120},
+			{text = "Targeted Defensive CD", width = 120},
 			{text = "Raid Defensive CD", width = 120},
 			{text = "Raid Utility CD", width = 120},
 			{text = "Interrupt", width = 120},

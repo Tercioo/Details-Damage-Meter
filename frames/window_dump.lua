@@ -17,7 +17,7 @@ function Details:DumpInline(t)
 	end
 end
 
-function Details:Dump (t)
+function Details:Dump (...)
 	if (not DetailsDumpFrame) then
 		DetailsDumpFrame = DetailsFramework:CreateSimplePanel (_G.UIParent)
 		DetailsDumpFrame:SetSize (700, 600)
@@ -46,10 +46,23 @@ function Details:Dump (t)
 		text_editor.__background:SetHorizTile (true)
 		text_editor.__background:SetAllPoints()	
 	end
-	
-	t = t or {}
-	local s = Details.table.dump (t)
-	DetailsDumpFrame.Editbox:SetText (s)
+
+	local t = select(1, ...)
+	if (not t) then
+		Details:Msg("nothing to show on Dump.")
+		return
+	else
+		if (type(t) == "table") then
+			local s = Details.table.dump(t)
+			DetailsDumpFrame.Editbox:SetText(s)
+		else
+			t = {...}
+		end
+
+		local s = Details.table.dump(t)
+		DetailsDumpFrame.Editbox:SetText(s)
+	end
+
 	DetailsDumpFrame:Show()
 end
 

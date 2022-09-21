@@ -1,6 +1,6 @@
 
 
-local dversion = 353
+local dversion = 355
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -79,6 +79,13 @@ end
 function DF.IsWotLKWow()
     local _, _, _, buildInfo = GetBuildInfo()
     if (buildInfo < 40000 and buildInfo >= 30000) then
+        return true
+    end
+end
+
+function DF.IsShadowlandsWow()
+    local _, _, _, buildInfo = GetBuildInfo()
+    if (buildInfo < 100000 and buildInfo >= 90000) then
         return true
     end
 end
@@ -279,8 +286,6 @@ DF.FrameWorkVersion = tostring (dversion)
 function DF:PrintVersion()
 	print ("Details! Framework Version:", DF.FrameWorkVersion)
 end
-
-LibStub:GetLibrary("AceTimer-3.0"):Embed (DF)
 
 --> get the working folder
 do
@@ -3531,6 +3536,12 @@ function DFNamePlateBorderTemplateMixin:SetVertexColor(r, g, b, a)
 	end
 end
 
+function DFNamePlateBorderTemplateMixin:GetVertexColor()
+	for i, texture in ipairs(self.Textures) do
+		return texture:GetVertexColor();
+	end
+end
+
 function DFNamePlateBorderTemplateMixin:SetBorderSizes(borderSize, borderSizeMinPixels, upwardExtendHeightPixels, upwardExtendHeightMinPixels)
 	self.borderSize = borderSize;
 	self.borderSizeMinPixels = borderSizeMinPixels;
@@ -4563,9 +4574,9 @@ end
 --DetailsFramework:RegisterScriptComm (ID, function(sourcePlayerName, ...) end)
 --DetailsFramework:SendScriptComm (ID, ...)
 
-	local aceComm = LibStub:GetLibrary ("AceComm-3.0")
-	local LibAceSerializer = LibStub:GetLibrary ("AceSerializer-3.0")
-	local LibDeflate = LibStub:GetLibrary ("LibDeflate")
+	local aceComm = LibStub:GetLibrary ("AceComm-3.0", true)
+	local LibAceSerializer = LibStub:GetLibrary ("AceSerializer-3.0", true)
+	local LibDeflate = LibStub:GetLibrary ("LibDeflate", true)
 	
 	DF.RegisteredScriptsComm = DF.RegisteredScriptsComm or {}
 	

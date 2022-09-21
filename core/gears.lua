@@ -2064,7 +2064,7 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 	inspecting [guid] = {unitid, ilvl_core:ScheduleTimer ("InspectTimeOut", 12, guid)}
 	ilvl_core.amt_inspecting = ilvl_core.amt_inspecting + 1
 
-	NotifyInspect (unitid)
+	--NotifyInspect (unitid)
 end
 
 local NotifyInspectHook = function (unitid)
@@ -2086,7 +2086,7 @@ local NotifyInspectHook = function (unitid)
 		end
 	end
 end
-hooksecurefunc ("NotifyInspect", NotifyInspectHook)
+--hooksecurefunc ("NotifyInspect", NotifyInspectHook)
 
 function ilvl_core:Reset()
 	ilvl_core.raid_id = 1
@@ -2099,6 +2099,11 @@ function ilvl_core:Reset()
 end
 
 function ilvl_core:QueryInspect (unitName, callback, param1)
+	--disable for timewalk wow ~timewalk
+	if (DetailsFramework.IsTimewalkWoW()) then
+		return
+	end
+
 	local unitid
 
 	if (IsInRaid()) then
@@ -2151,6 +2156,11 @@ function ilvl_core:ClearQueryInspectQueue()
 end
 
 function ilvl_core:Loop()
+	--disable for timewalk wow ~timewalk
+	if (DetailsFramework.IsTimewalkWoW()) then
+		return
+	end
+
 	if (ilvl_core.amt_inspecting >= MAX_INSPECT_AMOUNT) then
 		return
 	end
@@ -2198,6 +2208,11 @@ function ilvl_core:EnterCombat()
 end
 
 local can_start_loop = function()
+	--disable for timewalk wow ~timewalk
+	if (DetailsFramework.IsTimewalkWoW()) then
+		return false
+	end
+
 	if ((_detalhes:GetZoneType() ~= "raid" and _detalhes:GetZoneType() ~= "party") or ilvl_core.loop_process or _detalhes.in_combat or not _detalhes.track_item_level) then
 		return false
 	end
@@ -2712,4 +2727,47 @@ if (DetailsFramework.IsWotLKWow()) then
 	function Details.GetClassicSpecByTalentTexture (talentTexture)
 		return Details.textureToSpec [talentTexture] or nil
 	end
+end
+
+
+--dragonflight talents, return {[spellId] = true}
+function Details.GetDragonflightTalentsAsHashTable()
+	local allTalents = {}
+	local configId = C_ClassTalents.GetActiveConfigID()
+	if (not configId) then
+		return allTalents
+	end
+
+	local configInfo = C_Traits.GetConfigInfo(configId)
+
+	for treeIndex, treeId in ipairs(configInfo.treeIDs) do
+		local treeNodes = C_Traits.GetTreeNodes(treeId)
+
+		for nodeIdIndex, treeNodeID in ipairs(treeNodes) do
+			local traitNodeInfo = C_Traits.GetNodeInfo(configId, treeNodeID)
+
+			if (traitNodeInfo) then
+				local activeEntry = traitNodeInfo.activeEntry
+				if (activeEntry) then
+					local entryId = activeEntry.entryID
+					local rank = activeEntry.rank
+					if (rank > 0) then
+						--get the entry info
+						local traitEntryInfo = C_Traits.GetEntryInfo(configId, entryId)
+						local definitionId = traitEntryInfo.definitionID
+
+						--definition info
+						local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+						local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+						local spellName, _, spellTexture = GetSpellInfo(spellId)
+						if (spellName) then
+							allTalents[spellId] = true
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return allTalents
 end

@@ -42,6 +42,7 @@ function DF:CreateCoolTip()
 			version = version
 		}
 		_G.GameCooltip2 = CoolTip
+		_G.GameCooltip = CoolTip --back compatibility
 	
 	--> containers
 		CoolTip.LeftTextTable = {}
