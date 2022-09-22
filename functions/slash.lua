@@ -1566,6 +1566,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		return
 
+	elseif (msg == "generatespelllist") then
+		Details.GenerateSpecSpellList()
+
 	elseif (msg == "share") then
 	
 		local f = {}

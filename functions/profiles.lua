@@ -1300,6 +1300,12 @@ local default_global_data = {
 		current_exp_raid_encounters = {},
 		installed_skins_cache = {},
 
+	--> spell category feedback
+		spell_category_savedtable = {},
+
+	--> class time played
+		class_time_played = {},
+
 	--> keystone cache
 		keystone_cache = {},
 

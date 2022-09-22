@@ -55,6 +55,14 @@ function Details.OpenSpellCategoryScreen()
 			padding = 2,
 		}
 
+        local savedSpellsCategories = Details.spell_category_savedtable
+        local unitClass = select(2, UnitClass("player"))
+        local thisClassSavedTable = savedSpellsCategories[unitClass]
+        if (not thisClassSavedTable) then
+            thisClassSavedTable = {}
+            savedSpellsCategories[unitClass] = thisClassSavedTable
+        end
+
         detailsSpellCategoryFrame.Header = DetailsFramework:CreateHeader(detailsSpellCategoryFrame, headerTable, headerOptions)
         detailsSpellCategoryFrame.Header:SetPoint("topleft", detailsSpellCategoryFrame, "topleft", startX, headerY)
 

@@ -5775,49 +5775,58 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	local saver = CreateFrame ("frame", nil, UIParent)
 	saver:RegisterEvent ("PLAYER_LOGOUT")
 	saver:SetScript ("OnEvent", function (...)
-		
+		--save the time played on this class, run protected
+		pcall(function()
+			local className = select(2, UnitClass("player"))
+			if (className) then
+				Details.class_time_played[className] = (Details.class_time_played[className] or 0) + GetTime() - Details.GetStartupTime()
+			end
+		end)
+
 		local currentStep = 0
 
 		--SAVINGDATA = true
+		_detalhes_global.exit_log = {}
+		_detalhes_global.exit_errors = _detalhes_global.exit_errors or {}
 
+		currentStep = "Checking the framework integrity"
 		if (not _detalhes.gump) then
-			--> failed to load the framework.
+			--failed to load the framework
+			tinsert(_detalhes_global.exit_log, "The framework wasn't in Details member 'gump'.")
+			tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|Framework wasn't loaded|")
 			return
 		end
 
-		_detalhes_global.exit_log = {}
-		_detalhes_global.exit_errors = _detalhes_global.exit_errors or {}
-		
-		local saver_error = function (errortext)
+		local saver_error = function(errortext)
 			_detalhes_global = _detalhes_global or {}
-			tinsert (_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
-			tremove (_detalhes_global.exit_errors, 6)
+			tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
+			tremove(_detalhes_global.exit_errors, 6)
 		end
 
 		_detalhes.saver_error_func = saver_error
 		_detalhes.logoff_saving_data = true
-	
-		--> close info window
-			if (_detalhes.FechaJanelaInfo) then
-				tinsert (_detalhes_global.exit_log, "1 - Closing Janela Info.")
-				currentStep = "Fecha Janela Info"
-				xpcall (_detalhes.FechaJanelaInfo, saver_error)
-			end
-			
-		--> do not save window pos
-			if (_detalhes.tabela_instancias) then
-				currentStep = "Dealing With Instances"
-				tinsert (_detalhes_global.exit_log, "2 - Clearing user place from instances.")
-				for id, instance in _detalhes:ListInstances() do
-					if (id) then
-						tinsert (_detalhes_global.exit_log, "  - " .. id .. " has baseFrame: " .. (instance.baseframe and "yes" or "no") .. ".")
-						if (instance.baseframe) then
-							instance.baseframe:SetUserPlaced (false)
-							instance.baseframe:SetDontSavePosition (true)
-						end
+
+		--close info window
+		if (_detalhes.FechaJanelaInfo) then
+			tinsert(_detalhes_global.exit_log, "1 - Closing Janela Info.")
+			currentStep = "Fecha Janela Info"
+			xpcall(_detalhes.FechaJanelaInfo, saver_error)
+		end
+
+		--do not save window pos
+		if (_detalhes.tabela_instancias) then
+			currentStep = "Dealing With Instances"
+			tinsert (_detalhes_global.exit_log, "2 - Clearing user place from instances.")
+			for id, instance in _detalhes:ListInstances() do
+				if (id) then
+					tinsert (_detalhes_global.exit_log, "  - " .. id .. " has baseFrame: " .. (instance.baseframe and "yes" or "no") .. ".")
+					if (instance.baseframe) then
+						instance.baseframe:SetUserPlaced (false)
+						instance.baseframe:SetDontSavePosition (true)
 					end
 				end
 			end
+		end
 
 		--> leave combat start save tables
 			if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
