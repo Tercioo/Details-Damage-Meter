@@ -649,6 +649,7 @@ do
 			[53385]			=	70, -- Divine Storm
 
 			-- Discipline Priest:
+			[63944]			=	256, -- Renewed Hope
 			[10060]			=	256, -- Power Infusion
 			[33206]			=	256, -- Pain Suppression
 			[47540]			=	256, -- Penance (rank 1)
@@ -807,7 +808,9 @@ do
 			-- Blood Death Knight:
 			[53137]			=	250, -- Abomination's Might (rank 1)
 			[53138]			=	250, -- Abomination's Might (rank 2)
+			[50452]			=	250, -- Bloodworms
 			[49016]			=	250, -- Hysteria
+			[55233]			=	250, -- Vampiric Blood
 			[55050]			=	250, -- Heart Strike (rank 1)
 			[55258]			=	250, -- Heart Strike (rank 2)
 			[55259]			=	250, -- Heart Strike (rank 3)
