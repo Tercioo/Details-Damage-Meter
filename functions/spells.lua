@@ -649,6 +649,7 @@ do
 			[53385]			=	70, -- Divine Storm
 
 			-- Discipline Priest:
+			[63944]			=	256, -- Renewed Hope
 			[10060]			=	256, -- Power Infusion
 			[33206]			=	256, -- Pain Suppression
 			[47540]			=	256, -- Penance (rank 1)
