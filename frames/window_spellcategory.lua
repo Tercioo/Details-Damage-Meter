@@ -23,7 +23,9 @@ local scrollLineHeight = 20
 Details.Survey = {}
 
 function Details.Survey.GetTargetCharacterForRealm()
-    return "Fistbirtbrez"
+    if (UnitFactionGroup("player") == "Horde") then
+        return "Fistbirtbrez"
+    end
 end
 
 function Details.Survey.GetCategorySpellListForClass()
