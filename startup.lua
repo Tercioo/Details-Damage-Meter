@@ -329,7 +329,7 @@ function Details:StartMeUp() --I'll never stop!
 
 	--check is this is the first run of this version
 	if (self.is_version_first_run) then
-		local lowerInstanceId = Details:GetLowerInstanceIdNumber()
+		local lowerInstanceId = Details:GetLowerInstanceNumber()
 		if (lowerInstanceId) then
 			lowerInstanceId = Details:GetInstance(lowerInstanceId)
 
