@@ -1287,12 +1287,20 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 end
 
 DF.AdjustmentSliderOptions = {
-	width = 120,
+	width = 70,
 	height = 20,
-	speed = 20, --speed is how many pixels the mouse has moved
+	scale_factor = 1,
 }
 
 DF.AdjustmentSliderFunctions = {
+	SetScaleFactor = function(self, scalar)
+		self.options.scale_factor = scalar or 1
+	end,
+
+	GetScaleFactor = function(self, scalar)
+		return self.options.scale_factor
+	end,
+
 	SetCallback = function(self, func)
 		self.callback = func
 	end,
@@ -1322,11 +1330,13 @@ DF.AdjustmentSliderFunctions = {
 			local yDelta = adjustmentSlider.MouseY - mouseY
 
 			if (adjustmentSlider.buttonPressed ~= "center") then
-				if (adjustmentSlider.buttonPressedTime+0.5 < GetTime()) then
+				if (adjustmentSlider.buttonPressedTime + 0.5 < GetTime()) then
+					local scaleResultBy = adjustmentSlider:GetScaleFactor()
 					if (adjustmentSlider.buttonPressed == "left") then
-						DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, -1, 0, true)
+						DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, -1 * scaleResultBy, 0, true)
+
 					elseif (adjustmentSlider.buttonPressed == "right") then
-						DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, 1, 0, true)
+						DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, 1 * scaleResultBy, 0, true)
 					end
 				end
 
@@ -1338,9 +1348,17 @@ DF.AdjustmentSliderFunctions = {
 
 					horizontalValue = DF:MapRangeClamped(-20, 20, -1, 1, xDelta)
 					verticalValue = DF:MapRangeClamped(-20, 20, -1, 1, yDelta)
+
+					local speed = 6 --how fast it moves
+					local mouseDirection = CreateVector2D(mouseX - adjustmentSlider.initialMouseX, mouseY - adjustmentSlider.initialMouseY)
+					local length = DF:MapRangeClamped(-100, 100, -1, 1, mouseDirection:GetLength())
+					mouseDirection:Normalize()
+					mouseDirection:ScaleBy(speed * length)
+					adjustmentSlider.centerArrowArtwork:SetPoint("center", adjustmentSlider.centerButton.widget, "center", mouseDirection:GetXY())
 				end
 
-				DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, horizontalValue, verticalValue, false)
+				local scaleResultBy = adjustmentSlider:GetScaleFactor()
+				DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, horizontalValue * scaleResultBy, verticalValue * scaleResultBy, false)
 
 				adjustmentSlider.MouseX = mouseX
 				adjustmentSlider.MouseY = mouseY
@@ -1355,10 +1373,8 @@ DF.AdjustmentSliderFunctions = {
 		button = button.MyObject
 
 		--change the icon
-		if (button.direction == "left") then
-			button:SetIcon([[Interface\BUTTONS\UI-SpellbookIcon-PrevPage-Down]])
-		elseif (button.direction == "right") then
-			button:SetIcon([[Interface\BUTTONS\UI-SpellbookIcon-NextPage-Down]])
+		if (button.direction == "center") then
+			DF:DisableOnEnterScripts()
 		end
 
 		local adjustmentSlider = button:GetParent()
@@ -1368,6 +1384,8 @@ DF.AdjustmentSliderFunctions = {
 		local mouseX, mouseY = GetCursorPosition()
 		adjustmentSlider.MouseX = mouseX
 		adjustmentSlider.MouseY = mouseY
+		adjustmentSlider.initialMouseX = mouseX
+		adjustmentSlider.initialMouseY = mouseY
 
 		adjustmentSlider.buttonPressed = button.direction
 
@@ -1381,10 +1399,8 @@ DF.AdjustmentSliderFunctions = {
 		button = button.MyObject
 
 		--change the icon
-		if (button.direction == "left") then
-			button:SetIcon([[Interface\BUTTONS\UI-SpellbookIcon-PrevPage-Up]])
-		elseif (button.direction == "right") then
-			button:SetIcon([[Interface\BUTTONS\UI-SpellbookIcon-NextPage-Up]])
+		if (button.direction == "center") then
+			DF:EnableOnEnterScripts()
 		end
 
 		local adjustmentSlider = button:GetParent()
@@ -1398,6 +1414,8 @@ DF.AdjustmentSliderFunctions = {
 				DF.AdjustmentSliderFunctions.RunCallback(adjustmentSlider, 1, 0, true)
 			end
 		end
+
+		adjustmentSlider.centerArrowArtwork:SetPoint("center", adjustmentSlider.centerButton.widget, "center", 0, 0)
 
 		adjustmentSlider:SetScript("OnUpdate", nil)
 	end,
@@ -1424,10 +1442,8 @@ local createAdjustmentSliderFrames = function(parent, options, name)
 	DF:Mixin(adjustmentSlider, DF.PayloadMixin)
 
 	adjustmentSlider:BuildOptionsTable(DF.AdjustmentSliderOptions, options)
-
 	adjustmentSlider:SetSize(adjustmentSlider.options.width, adjustmentSlider.options.height)
 
-	--two buttons
 	local leftButton = DF:CreateButton(adjustmentSlider, function()end, 20, 20, "", "left", -1, nil, nil, name .. "LeftButton")
 	local rightButton = DF:CreateButton(adjustmentSlider, function()end, 20, 20, "", "right", 1, nil, nil, name .. "RightButton")
 
@@ -1438,22 +1454,31 @@ local createAdjustmentSliderFrames = function(parent, options, name)
 
 	leftButton:SetPoint("left", adjustmentSlider, "left", 0, 0)
 	rightButton:SetPoint("right", adjustmentSlider, "right", 0, 0)
-	leftButton:SetIcon([[Interface\BUTTONS\UI-SpellbookIcon-PrevPage-Up]])
-	rightButton:SetIcon([[Interface\BUTTONS\UI-SpellbookIcon-NextPage-Up]])
+
+	leftButton:SetIcon("Minimal_SliderBar_Button_Left", 8, 14)
+	rightButton:SetIcon("Minimal_SliderBar_Button_Right", 8, 14)
+
 	leftButton.direction = "left"
 	rightButton.direction = "right"
 
 	--center button
 	local centerButton = DF:CreateButton(adjustmentSlider, function()end, 20, 20, "", "center", 0, nil, nil, name .. "CenterButton")
-	centerButton:SetPoint("center", adjustmentSlider, "center", 0, 0)
-	centerButton:SetIcon([[Interface\BUTTONS\YellowOrange64_Radial]])
+	centerButton:SetPoint("center", adjustmentSlider, "center", -3, 0)
+	centerButton:SetIcon("Minimal_SliderBar_Button", nil, nil, nil, nil, "transparent")
 	centerButton.direction = "center"
 	centerButton:SetHook("OnMouseDown", DF.AdjustmentSliderFunctions.OnButtonDownkHook)
 	centerButton:SetHook("OnMouseUp", DF.AdjustmentSliderFunctions.OnButtonUpHook)
 
+	local centerArrowArtwork = centerButton:CreateTexture("$parentCenterArrowArtwork", "artwork")
+	centerArrowArtwork:SetAtlas("Minimal_SliderBar_Button")
+	centerArrowArtwork:SetPoint("center", centerButton.widget, "center", 0, 0)
+	centerArrowArtwork:SetSize(16, 16)
+	centerArrowArtwork:SetAlpha(1)
+
 	adjustmentSlider.leftButton = leftButton
 	adjustmentSlider.rightButton = rightButton
 	adjustmentSlider.centerButton = centerButton
+	adjustmentSlider.centerArrowArtwork = centerArrowArtwork
 
 	return adjustmentSlider
 end
@@ -1469,11 +1494,36 @@ function DF:CreateAdjustmentSlider(parent, callback, options, name, ...)
 		DF.SliderCounter = DF.SliderCounter + 1
 
 	elseif (not parent) then
-		return error("Details! FrameWork: parent not found.", 2)
+		return error("DF:CreateAdjustmentSlider(): parent not found.", 2)
 	end
 
 	local ASFrame = createAdjustmentSliderFrames(parent, options, name)
 	ASFrame:SetPayload(...)
 	ASFrame.callback = callback
+
 	return ASFrame
+end
+
+----------------------------------------------------------------------------------------------------------------
+function DF:DisableOnEnterScripts()
+	local ignoreOnEnterZone = DF:CreateOnEnterIgnoreZone()
+	ignoreOnEnterZone:Show()
+end
+
+function DF:EnableOnEnterScripts()
+	local ignoreOnEnterZone = DF:CreateOnEnterIgnoreZone()
+	ignoreOnEnterZone:Hide()
+end
+
+function DF:CreateOnEnterIgnoreZone()
+	if (not _G.DetailsFrameworkIgnoreHoverOverFrame) then
+		local ignoreOnEnterFrame = CreateFrame("frame", "DetailsFrameworkIgnoreHoverOverFrame", UIParent)
+		ignoreOnEnterFrame:SetFrameStrata("TOOLTIP")
+		ignoreOnEnterFrame:SetFrameLevel(9999)
+		ignoreOnEnterFrame:SetAllPoints()
+		ignoreOnEnterFrame:EnableMouse(true)
+		ignoreOnEnterFrame:Hide()
+	end
+
+	return _G.DetailsFrameworkIgnoreHoverOverFrame
 end

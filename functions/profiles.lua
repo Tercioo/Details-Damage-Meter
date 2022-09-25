@@ -1302,6 +1302,9 @@ local default_global_data = {
 
 	--> spell category feedback
 		spell_category_savedtable = {},
+		spell_category_latest_query = 0,
+		spell_category_latest_save = 0,
+		spell_category_latest_sent = 0,
 
 	--> class time played
 		class_time_played = {},

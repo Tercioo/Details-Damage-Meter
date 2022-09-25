@@ -182,6 +182,10 @@ function _detalhes:GetWindow (id)
 	return _detalhes.tabela_instancias [id]
 end
 
+function Details:GetNumInstances()
+	return #_detalhes.tabela_instancias
+end
+
 function _detalhes:GetId()
 	return self.meu_id
 end
@@ -2024,43 +2028,45 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------
 
-function _detalhes:PostponeSwitchToCurrent (instance)
+function Details:PostponeSwitchToCurrent(instance)
 	if (
-		not instance.last_interaction or 
+		not instance.last_interaction or
 		(
 			(instance.ativa) and
-			(instance.last_interaction+3 < _detalhes._tempo) and 
-			(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and 
-			(not _detalhes.playerDetailWindow:IsShown())
+			(instance.last_interaction+3 < Details._tempo) and
+			(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and
+			(not Details.playerDetailWindow:IsShown())
 		)
 	) then
 		instance._postponing_switch = nil
 		if (instance.segmento > 0 and instance.auto_current) then
-			instance:TrocaTabela (0) --> muda o segmento pra current
-			instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
+			instance:TrocaTabela(0) --> muda o segmento pra current
+			instance:InstanceAlert(Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
 			return
 		else
 			return
 		end
 	end
-	if (instance.is_interacting and instance.last_interaction < _detalhes._tempo) then
-		instance.last_interaction = _detalhes._tempo
+	if (instance.is_interacting and instance.last_interaction < Details._tempo) then
+		instance.last_interaction = Details._tempo
 	end
-	instance._postponing_switch = _detalhes:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
+	--instance._postponing_switch = Details:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
+	instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, instance)
 end
 
-function _detalhes:CheckSwitchToCurrent()
-	for _, instance in _ipairs (_detalhes.tabela_instancias) do
+function Details:CheckSwitchToCurrent()
+	for _, instance in _ipairs (Details.tabela_instancias) do
 		if (instance.ativa and instance.auto_current and instance.baseframe and instance.segmento > 0) then
-			if (instance.is_interacting and instance.last_interaction < _detalhes._tempo) then
-				instance.last_interaction = _detalhes._tempo
+			if (instance.is_interacting and instance.last_interaction < Details._tempo) then
+				instance.last_interaction = Details._tempo
 			end
-			
-			if ((instance.last_interaction and (instance.last_interaction+3 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (_detalhes.playerDetailWindow:IsShown())) then
+
+			if ((instance.last_interaction and (instance.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.playerDetailWindow:IsShown())) then
 				--> postpone
-				instance._postponing_switch = _detalhes:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
+				--instance._postponing_switch = Details:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
+				instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, instance)
 			else
-				instance:TrocaTabela (0) --> muda o segmento pra current
+				instance:TrocaTabela(0) --> muda o segmento pra current
 				instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
 				instance._postponing_switch = nil
 			end
@@ -2068,7 +2074,7 @@ function _detalhes:CheckSwitchToCurrent()
 	end
 end
 
-function _detalhes:Freeze (instancia)
+function Details:Freeze (instancia)
 
 	if (not instancia) then
 		instancia = self
@@ -2185,11 +2191,11 @@ local function ValidateAttribute (atributo, sub_atributo)
 	return true
 end
 
-function _detalhes:SetDisplay (segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
+function _detalhes:SetDisplay(segment, attribute, subAttribute, isInstanceStarup, instanceMode)
 	if (not self.meu_id) then
 		return
 	end
-	return self:TrocaTabela (segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
+	return self:TrocaTabela(self, segment, attribute, subAttribute, isInstanceStarup, instanceMode)
 end
 
 function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
@@ -2202,11 +2208,11 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		segmento = instancia
 		instancia = self
 	end
-	
+
 	if (iniciando_instancia == "LeftButton") then
 		iniciando_instancia = nil
 	end
-	
+
 	if (_type (instancia) == "number") then
 		sub_atributo = atributo
 		atributo = segmento
@@ -2214,46 +2220,44 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia = self
 	end
 
-	--Details:GetWindow(1):SetDisplay(DETAILS_SEGMENTID_CURRENT, 1, 1, false, DETAILS_MODE_GROUP) InstanceMode is nil on this example
 	if (InstanceMode and InstanceMode ~= instancia:GetMode()) then
-		instancia:AlteraModo (instancia, InstanceMode)
+		instancia:AlteraModo(instancia, InstanceMode)
 	end
-	
+
 	local update_coolTip = false
 	local sub_attribute_click = false
-	
+
 	if (_type (segmento) == "boolean" and segmento) then --> clicou em um sub atributo
 		sub_attribute_click = true
 		segmento = instancia.segmento
-	
+
 	elseif (segmento == -2) then --> clicou para mudar de segmento
 		segmento = instancia.segmento + 1
-		
+
 		if (segmento > _detalhes.segments_amount) then
 			segmento = -1
 		end
 		update_coolTip = true
-		
+
 	elseif (segmento == -3) then --> clicou para mudar de atributo
 		segmento = instancia.segmento
-		
+
 		atributo = instancia.atributo+1
 		if (atributo > atributos[0]) then
 			atributo = 1
 		end
 		update_coolTip = true
-		
+
 	elseif (segmento == -4) then --> clicou para mudar de sub atributo
 		segmento = instancia.segmento
-		
+
 		sub_atributo = instancia.sub_atributo+1
 		if (sub_atributo > atributos[instancia.atributo]) then
 			sub_atributo = 1
 		end
 		update_coolTip = true
-		
-	end	
-	
+	end
+
 	--> pega os atributos desta instancia
 	local current_segmento = instancia.segmento
 	local current_atributo = instancia.atributo
@@ -2456,37 +2460,36 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	end
 
 	if (sub_atributo ~= current_sub_atributo or _detalhes.initializing or iniciando_instancia or atributo_changed) then
-		
 		instancia.sub_atributo = sub_atributo
-		
+
 		if (sub_attribute_click) then
-			instancia.sub_atributo_last [instancia.atributo] = instancia.sub_atributo
+			instancia.sub_atributo_last[instancia.atributo] = instancia.sub_atributo
 		end
-		
+
 		if (instancia.atributo == 5) then --> custom
 			instancia:ChangeIcon()
 		end
-		
-		_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
-		
+
+		Details:InstanceCall(Details.CheckPsUpdate)
+		Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
+
 		instancia:ChangeIcon()
 	end
 
-	if (_detalhes.playerDetailWindow:IsShown() and instancia == _detalhes.playerDetailWindow.instancia) then	
+	if (Details.playerDetailWindow:IsShown() and instancia == Details.playerDetailWindow.instancia) then
 		if (not instancia.showing or instancia.atributo > 4) then
-			_detalhes:FechaJanelaInfo()
+			Details:FechaJanelaInfo()
 		else
-			local actor = instancia.showing (instancia.atributo, _detalhes.playerDetailWindow.jogador.nome)
+			local actor = instancia.showing (instancia.atributo, Details.playerDetailWindow.jogador.nome)
 			if (actor) then
 				instancia:AbreJanelaInfo (actor, true)
 			else
-				_detalhes:FechaJanelaInfo()
+				Details:FechaJanelaInfo()
 			end
 		end
-		--_detalhes:FechaJanelaInfo()
 	end
-	
+
+	--if there's no combat object to show, freeze the window
 	if (not instancia.showing) then
 		if (not iniciando_instancia) then
 			instancia:Freeze()
@@ -2495,16 +2498,14 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	else
 		--> verificar relogio, precisaria dar refresh no plugin clock
 	end
-	
+
 	instancia.v_barras = true
-	
-	instancia.showing [atributo].need_refresh = true
+	instancia.showing[atributo].need_refresh = true
 
-	if (not _detalhes.initializing and not iniciando_instancia) then
+	if (not Details.initializing and not iniciando_instancia) then
 		instancia:ResetaGump()
-		instancia:RefreshMainWindow (true)
+		instancia:RefreshMainWindow(true)
 	end
-
 end
 
 function _detalhes:GetRaidPluginName()

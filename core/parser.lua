@@ -870,9 +870,9 @@
 			end
 		--end
 
-		if (isTBC) then
+		if (isTBC or isWOTLK) then
 			--is the target an enemy with judgement of light?
-			if (TBC_JudgementOfLightCache[alvo_name]) then
+			if (TBC_JudgementOfLightCache[alvo_name] and false) then
 				--store the player name which just landed a damage
 				TBC_JudgementOfLightCache._damageCache[who_name] = {time, alvo_name}
 			end
@@ -2147,7 +2147,7 @@
 			cura_efetiva = cura_efetiva + amount - overhealing
 		end
 
-		if (isTBC) then
+		if (isTBC or isWOTLK) then
 			--earth shield
 			if (spellid == SPELLID_SHAMAN_EARTHSHIELD_HEAL) then
 				--get the information of who placed the buff into this actor
@@ -2169,7 +2169,7 @@
 				TBC_LifeBloomLatestHeal = cura_efetiva
 				return
 
-			elseif (spellid == 27163) then --Judgement of Light (paladin)
+			elseif (spellid == 27163 and false) then --Judgement of Light (paladin) --disabled on 25 September 2022
 				--check if the hit was landed in the same cleu tick
 
 				local hitCache = TBC_JudgementOfLightCache._damageCache[who_name]
@@ -2513,14 +2513,14 @@
 					necro_cheat_deaths[who_serial] = true
 				end
 
-				if (isTBC) then
+				if (isTBC or isWOTLK) then
 					if (SHAMAN_EARTHSHIELD_BUFF[spellid]) then
 						TBC_EarthShieldCache[alvo_name] = {who_serial, who_name, who_flags}
 
 					elseif (spellid == SPELLID_PRIEST_POM_BUFF) then
 						TBC_PrayerOfMendingCache [alvo_name] = {who_serial, who_name, who_flags}
 
-					elseif (spellid == 27163) then --Judgement Of Light
+					elseif (spellid == 27163 and false) then --Judgement Of Light
 						TBC_JudgementOfLightCache[alvo_name] = {who_serial, who_name, who_flags}
 					end
 				end
@@ -2568,8 +2568,8 @@
 				_detalhes.tabela_pets:Adicionar(alvo_serial, alvo_name, alvo_flags, who_serial, who_name, 0x00000417)
 			end
 
-			if (isTBC) then --buff applied
-				if (spellid == 27162) then --Judgement Of Light
+			if (isTBC or isWOTLK) then --buff applied
+				if (spellid == 27162 and false) then --Judgement Of Light
 					--which player applied the judgement of light on this mob
 					TBC_JudgementOfLightCache[alvo_name] = {who_serial, who_name, who_flags}
 				end
@@ -2845,8 +2845,8 @@
 				bargastBuffs[alvo_serial] = (bargastBuffs[alvo_serial] or 0) + 1
 			end
 
-			if (isTBC) then --buff refresh
-				if (spellid == 27162) then --Judgement Of Light
+			if (isTBC or isWOTLK) then --buff refresh
+				if (spellid == 27162 and false) then --Judgement Of Light
 					--which player applied the judgement of light on this mob
 					TBC_JudgementOfLightCache[alvo_name] = {who_serial, who_name, who_flags}
 				end
@@ -3020,8 +3020,8 @@
 				who_serial, who_name, who_flags = "", enemyName, 0xa48
 			end
 
-			if (isTBC) then --buff removed
-				if (spellid == 27162) then --Judgement Of Light
+			if (isTBC or isWOTLK) then --buff removed
+				if (spellid == 27162 and false) then --Judgement Of Light
 					TBC_JudgementOfLightCache[alvo_name] = nil
 				end
 			end

@@ -444,64 +444,73 @@ local ButtonMetaFunctions = _G[DF.GlobalWidgetControlNames ["button"]]
 	function ButtonMetaFunctions:SetBackdropBorderColor(...)
 		return self.button:SetBackdropBorderColor(...)
 	end
-	
-	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding, textheight, short_method)
+
+	function ButtonMetaFunctions:SetIcon(texture, width, height, layout, texcoord, overlay, textDistance, leftPadding, textHeight, shortMethod)
 		if (not self.icon) then
-			self.icon = self:CreateTexture (nil, "artwork")
-			self.icon:SetSize (self.height*0.8, self.height*0.8)
-			self.icon:SetPoint ("left", self.widget, "left", 4 + (leftpadding or 0), 0)
-			self.icon.leftpadding = leftpadding or 0
+			self.icon = self:CreateTexture(nil, "artwork")
+			self.icon:SetSize(self.height * 0.8, self.height * 0.8)
+			self.icon:SetPoint("left", self.widget, "left", 4 + (leftPadding or 0), 0)
+			self.icon.leftPadding = leftPadding or 0
 			self.widget.text:ClearAllPoints()
-			self.widget.text:SetPoint ("left", self.icon, "right", textdistance or 2, 0 + (textheight or 0))
+			self.widget.text:SetPoint ("left", self.icon, "right", textDistance or 2, 0 + (textHeight or 0))
 		end
-		
-		self.icon:SetTexture (texture)
-		self.icon:SetSize (width or self.height*0.8, height or self.height*0.8)
-		self.icon:SetDrawLayer (layout or "artwork")
-		if (texcoord) then
-			self.icon:SetTexCoord (unpack (texcoord))
-		else
-			self.icon:SetTexCoord (0, 1, 0, 1)
-		end
-		if (overlay) then
-			if (type (overlay) == "string") then
-				local r, g, b, a = DF:ParseColors (overlay)
-				self.icon:SetVertexColor (r, g, b, a)
+
+		if (type(texture) == "string") then
+			local isAtlas = C_Texture.GetAtlasInfo(texture)
+			if (isAtlas) then
+				self.icon:SetAtlas(texture)
 			else
-				self.icon:SetVertexColor (unpack (overlay))
+				self.icon:SetTexture(texture)
 			end
 		else
-			self.icon:SetVertexColor (1, 1, 1, 1)
+			self.icon:SetTexture(texture)
 		end
-		
-		local w = self.button:GetWidth()
-		local iconw = self.icon:GetWidth()
-		local text_width = self.button.text:GetStringWidth()
-		if (text_width > w-15-iconw) then
 
-			if (short_method == false) then
-			
-			elseif (not short_method) then
-				local new_width = text_width+15+iconw
-				self.button:SetWidth (new_width)
-				
-			elseif (short_method == 1) then
+		self.icon:SetSize(width or self.height * 0.8, height or self.height * 0.8)
+		self.icon:SetDrawLayer(layout or "artwork")
+
+		if (texcoord) then
+			self.icon:SetTexCoord(unpack(texcoord))
+		else
+			self.icon:SetTexCoord(0, 1, 0, 1)
+		end
+
+		if (overlay) then
+			if (type(overlay) == "string") then
+				local r, g, b, a = DF:ParseColors(overlay)
+				self.icon:SetVertexColor(r, g, b, a)
+			else
+				self.icon:SetVertexColor(unpack(overlay))
+			end
+		else
+			self.icon:SetVertexColor(1, 1, 1, 1)
+		end
+
+		local buttonWidth = self.button:GetWidth()
+		local iconWidth = self.icon:GetWidth()
+		local textWidth = self.button.text:GetStringWidth()
+		if (textWidth > buttonWidth - 15 - iconWidth) then
+			if (shortMethod == false) then
+
+			elseif (not shortMethod) then
+				local new_width = textWidth + 15 + iconWidth
+				self.button:SetWidth(new_width)
+
+			elseif (shortMethod == 1) then
 				local loop = true
-				local textsize = 11
+				local textSize = 11
 				while (loop) do
-					if (text_width+15+iconw < w or textsize < 8) then
+					if (textWidth + 15 + iconWidth < buttonWidth or textSize < 8) then
 						loop = false
 						break
 					else
-						DF:SetFontSize (self.button.text, textsize)
-						text_width = self.button.text:GetStringWidth()
-						textsize = textsize - 1
+						DF:SetFontSize(self.button.text, textSize)
+						textWidth = self.button.text:GetStringWidth()
+						textSize = textSize - 1
 					end
 				end
-				
 			end
 		end
-		
 	end
 	
 -- frame stratas

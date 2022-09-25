@@ -6021,9 +6021,10 @@ function _detalhes:SetTooltipMinWidth()
 end
 
 function _detalhes:FormatCooltipBackdrop()
-	local CoolTip = GameCooltip
-	CoolTip:SetBackdrop (1, menus_backdrop, menus_backdropcolor, menus_bordercolor)
-	CoolTip:SetBackdrop (2, menus_backdrop, menus_backdropcolor_sec, menus_bordercolor)
+	--local CoolTip = GameCooltip
+	--CoolTip:SetBackdrop (1, menus_backdrop, menus_backdropcolor, menus_bordercolor)
+	--CoolTip:SetBackdrop (2, menus_backdrop, menus_backdropcolor_sec, menus_bordercolor)
+	return true
 end
 
 local build_mode_list = function (self, elapsed)
@@ -6042,16 +6043,12 @@ local build_mode_list = function (self, elapsed)
 		
 		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		CoolTip:SetOption ("TextFont", _detalhes.font_faces.menus)		
-		
 		CoolTip:SetOption ("ButtonHeightModSub", -2)
 		CoolTip:SetOption ("ButtonHeightMod", -5)
-		
 		CoolTip:SetOption ("ButtonsYModSub", -3)
 		CoolTip:SetOption ("ButtonsYMod", -6)
-		
 		CoolTip:SetOption ("YSpacingModSub", -3)
 		CoolTip:SetOption ("YSpacingMod", 1)
-		
 		CoolTip:SetOption ("HeighMod", 3)
 		CoolTip:SetOption ("SubFollowButton", true)
 		

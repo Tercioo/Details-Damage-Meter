@@ -18,7 +18,7 @@
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 --
-		_detalhes.dragonflight_beta_version = 32
+		_detalhes.dragonflight_beta_version = 33
 
 		Details = _detalhes
 
@@ -495,7 +495,17 @@ do
 			{Name = "On Spec Change", Desc = "Run code when the player has changed its specialization.", Value = 5, ProfileKey = "on_specchanged"},
 			{Name = "On Enter/Leave Group", Desc = "Run code when the player has entered or left a party or raid group.", Value = 6, ProfileKey = "on_groupchange"},
 		}
-		
+
+		--run a function without stopping the execution in case of an error
+		function Details.SafeRun(func, executionName, ...)
+			local runToCompletion, errorText = pcall(func, ...)
+			if (not runToCompletion) then
+				if (Details.debug) then
+					Details:Msg("Safe run failed:", executionName, errorText)
+				end
+			end
+		end
+
 		--> tooltip
 			_detalhes.tooltip_backdrop = {
 				bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], 
@@ -953,26 +963,26 @@ do
 		
 	--> welcome
 		function _detalhes:WelcomeMsgLogon()
-		
 			_detalhes:Msg ("you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated.")
-			
+
 			function _detalhes:wipe_combat_after_failed_load()
 				_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 				_detalhes:UpdateContainerCombatentes()
-				
+
 				_detalhes_database.tabela_overall = nil
 				_detalhes_database.tabela_historico = nil
-				
+
 				_detalhes:Msg ("seems failed to load, please type /reload to try again.")
 			end
-			_detalhes:ScheduleTimer ("wipe_combat_after_failed_load", 5)
-			
+
+			Details.Schedules.After(5, _detalhes.wipe_combat_after_failed_load)
 		end
-		_detalhes.failed_to_load = _detalhes:ScheduleTimer ("WelcomeMsgLogon", 20)
-	
+
+		Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
+
 	--> key binds
 		--> header
 			_G ["BINDING_HEADER_Details"] = "Details!"

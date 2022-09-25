@@ -115,6 +115,12 @@ do
 	function _detalhes:GetDisplayName (actor)
 		return self.displayName or actor and actor.displayName
 	end
+
+	function Details:SetDisplayName(actor, newDisplayName)
+		local thisActor = self.displayName and self or actor
+		thisActor.displayName = newDisplayName
+	end
+
 	function _detalhes:GetOnlyName (string)
 		if (string) then
 			return string:gsub (("%-.*"), "")

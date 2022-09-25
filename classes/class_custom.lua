@@ -786,24 +786,24 @@
 		return actor_table.value
 	end
 	
-	function atributo_custom:SetValue (actor, actortotal, name_complement)
+	function atributo_custom:SetValue(actor, actortotal, name_complement)
 		local actor_table = self:GetActorTable (actor, name_complement)
 		actor_table.my_actor = actor
 		actor_table.value = actortotal
 	end
 
-	function atributo_custom:UpdateClass (actors)
+	function atributo_custom:UpdateClass(actors)
 		actors.new_actor.classe = actors.actor.classe
 	end
 
-	function atributo_custom:HasActor (actor)
+	function atributo_custom:HasActor(actor)
 		return self._NameIndexTable [actor.nome or actor.name] and true or false
 	end
-	
+
 	function atributo_custom:GetNumActors()
 		return #self._ActorTable
 	end
-	
+
 	function atributo_custom:GetTotalAndHighestValue()
 		local total, top = 0, 0
 		for i, actor in ipairs (self._ActorTable) do
@@ -814,19 +814,19 @@
 		end
 		return total, top
 	end
-	
+
 	local icon_cache = {}
-	
-	function atributo_custom:GetActorTable (actor, name_complement)
-		local index = self._NameIndexTable [actor.nome or actor.name]
-		
+
+	function atributo_custom:GetActorTable(actor, name_complement)
+		local index = self._NameIndexTable[actor.nome or actor.name]
+
 		if (index) then
-			return self._ActorTable [index]
+			return self._ActorTable[index]
 		else
-			--> if is a spell object
+			--if is a spell object
 			local class
 			if (actor.id) then
-				local spellname, _, icon = _GetSpellInfo (actor.id)
+				local spellname, _, icon = _GetSpellInfo(actor.id)
 				if (not icon_cache [spellname] and spellname) then
 					icon_cache [spellname] = icon
 				elseif (not spellname) then
@@ -856,7 +856,7 @@
 				end
 			end
 		
-			local new_actor = _setmetatable ({
+			local newActor = _setmetatable ({
 				nome = actor.nome or actor.name,
 				classe = class,
 				value = _detalhes:GetOrderNumber(),
@@ -864,45 +864,46 @@
 				color = actor.color,
 			}, atributo_custom.mt)
 			
-			new_actor.name_complement = name_complement
-			new_actor.displayName = actor.displayName or (_detalhes:GetOnlyName (new_actor.nome) .. (name_complement or ""))
-			new_actor.spec = actor.spec
+			newActor.name_complement = name_complement
+			newActor.displayName = actor.displayName or (_detalhes:GetOnlyName (newActor.nome) .. (name_complement or ""))
+			newActor.spec = actor.spec
 			
-			new_actor.enemy = actor.enemy
-			new_actor.role = actor.role
-			new_actor.arena_enemy = actor.arena_enemy
-			new_actor.arena_ally = actor.arena_ally
-			new_actor.arena_team = actor.arena_team
+			newActor.enemy = actor.enemy
+			newActor.role = actor.role
+			newActor.arena_enemy = actor.arena_enemy
+			newActor.arena_ally = actor.arena_ally
+			newActor.arena_team = actor.arena_team
 			
 			if (actor.id) then
-				new_actor.id = actor.id
+				newActor.id = actor.id
 				--icon
 				if (icon_cache [actor.nome]) then
-					new_actor.icon = icon_cache [actor.nome]
+					newActor.icon = icon_cache [actor.nome]
 				else
 					local _, _, icon = _GetSpellInfo (actor.id)
 					if (icon) then
 						icon_cache [actor.nome] = icon
-						new_actor.icon =  icon
+						newActor.icon =  icon
 					end
 				end
 			else
-				if (not new_actor.classe) then
-					new_actor.classe = _detalhes:GetClass (actor.nome or actor.name) or "UNKNOW"
+				if (not newActor.classe) then
+					newActor.classe = Details:GetClass(actor.nome or actor.name) or "UNKNOW"
 				end
-				if (new_actor.classe == "UNGROUPPLAYER") then
-					atributo_custom:ScheduleTimer ("UpdateClass", 5, {new_actor = new_actor, actor = actor})
+				if (newActor.classe == "UNGROUPPLAYER") then
+					--atributo_custom:ScheduleTimer ("UpdateClass", 5, {newActor = newActor, actor = actor})
+					Details.Schedules.NewTimer(5, atributo_custom.UpdateClass, {new_actor = newActor, actor = actor})
 				end
 			end
 
 			index = #self._ActorTable+1
-			
-			self._ActorTable [index] = new_actor
-			self._NameIndexTable [actor.nome or actor.name] = index
-			return new_actor
+
+			self._ActorTable[index] = newActor
+			self._NameIndexTable[actor.nome or actor.name] = index
+			return newActor
 		end
 	end
-	
+
 	function atributo_custom:GetInstanceCustomActorContainer (instance)
 		if (not atributo_custom._InstanceActorContainer [instance:GetId()]) then
 			atributo_custom._InstanceActorContainer [instance:GetId()] = self:CreateCustomActorContainer()
