@@ -333,6 +333,13 @@ function Details.options.InitializeOptionsWindow(instance)
             realBackdropAreaFrame:SetPoint("topleft", f, "topleft", 150, -27)
             realBackdropAreaFrame:SetSize(770, 570)
 
+			local leftGradient = DetailsFramework:CreateTexture(sectionFrame, {gradient = "horizontal", fromColor = {0, 0, 0, 0}, toColor = {0, 0, 0, 0.3}}, 10, 1, "artwork", {0, 1, 0, 1}, "leftGradient")
+			leftGradient:SetPoint("right-left", realBackdropAreaFrame, 1)
+
+			local bottomGradient = DetailsFramework:CreateTexture(realBackdropAreaFrame, {gradient = "vertical", fromColor = {0, 0, 0, 1}, toColor = {0, 0, 0, 0}}, 1, 20, "artwork", {0, 1, 0, 1}, "bottomGradient")
+            bottomGradient.sublevel = 7
+			bottomGradient:SetPoint("bottoms")
+
             sectionFrame.name = sectionsName[sectionId]
             --tinsert(f.sectionFramesContainer, sectionFrame)
             f.sectionFramesContainer[sectionId] = sectionFrame

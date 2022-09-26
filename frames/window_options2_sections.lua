@@ -723,6 +723,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+20, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -1077,6 +1078,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -1423,7 +1425,7 @@ do
                 name = Loc ["STRING_COLOR"],
                 desc = Loc ["STRING_OPTIONS_BAR_COLOR_DESC"],
             },
-
+            
             {--background uses class colors
                 type = "toggle",
                 get = function() return currentInstance.row_info.texture_background_class_color end,
@@ -1791,7 +1793,8 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+20, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        sectionOptions.always_boxfirst = true
+        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+40, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
     tinsert(Details.optionsSection, buildSection)
@@ -2151,6 +2154,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
         local separatorOption = sectionFrame.widget_list[23]
@@ -2703,6 +2707,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -3086,6 +3091,7 @@ do
             
         }
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -3200,6 +3206,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
         do --> micro displays
@@ -3833,6 +3840,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -4073,6 +4081,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -4449,6 +4458,7 @@ do
         }
         
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
         refreshToggleAnchor()
     end
@@ -4597,6 +4607,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -5016,6 +5027,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
         sectionFrame:SetScript("OnShow", function()
@@ -5347,6 +5359,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(autoSwitchFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
 
@@ -5929,6 +5942,7 @@ do --raid tools
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -6208,6 +6222,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX + 350, startY - 20, heightSize + 300, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -6369,6 +6384,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -6789,6 +6805,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
@@ -6875,6 +6892,7 @@ do
         }
 
         sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 

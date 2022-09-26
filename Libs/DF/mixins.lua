@@ -25,6 +25,7 @@ local doublePoint = {
 	["bottoms"] = true,
 	["bottom-top"] = true,
 	["top-bottom"] = true,
+	["right-left"] = true,
 }
 
 DF.SetPointMixin = {
@@ -32,7 +33,7 @@ DF.SetPointMixin = {
 		if (doublePoint[anchorName1]) then
 			object:ClearAllPoints()
 			local anchorTo
-			if (anchorObject) then
+			if (anchorObject and type(anchorObject) == "table") then
 				xOffset, yOffset = anchorName2 or 0, xOffset or 0
 				anchorTo = anchorObject.widget or anchorObject
 			else
@@ -64,6 +65,10 @@ DF.SetPointMixin = {
 			elseif (anchorName1 == "top-bottom") then
 				object:SetPoint("topleft", anchorTo, "bottomleft", xOffset, -yOffset)
 				object:SetPoint("topright", anchorTo, "bottomright", -xOffset, -yOffset)
+
+			elseif (anchorName1 == "right-left") then
+				object:SetPoint("topright", anchorTo, "topleft", xOffset, -yOffset)
+				object:SetPoint("bottomright", anchorTo, "bottomright", xOffset, yOffset)
 			end
 
 			return

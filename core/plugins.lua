@@ -491,12 +491,8 @@
 			bigdog:SetPoint ("bottomleft", custom_window, "bottomleft", 0, 1)
 			bigdog:SetAlpha (0.3)
 
-			local dogGradient = menuBackground:CreateTexture(nil, "artwork")
-			dogGradient:SetPoint("bottomleft", menuBackground, "bottomleft", 0, 0)
-			dogGradient:SetPoint("bottomright", menuBackground, "bottomright", 0, 0)
-			dogGradient:SetColorTexture(1, 1, 1, 1)
-			dogGradient:SetGradient("vertical", {["r"] = 0, ["g"] = 0, ["b"] = 0, ["a"] = 1}, {["r"] = 0, ["g"] = 0, ["b"] = 0, ["a"] = 0})
-			dogGradient:SetHeight(95)
+			local gradientBelowTheLine = DetailsFramework:CreateTexture(menuBackground, {gradient = "vertical", fromColor = {0, 0, 0, 0.45}, toColor = "transparent"}, 1, 95, "artwork", {0, 1, 0, 1}, "dogGradient")
+			gradientBelowTheLine:SetPoint("bottoms")
 
 			local bigdogRow = menuBackground:CreateTexture (nil, "artwork")
 			bigdogRow:SetPoint ("bottomleft", menuBackground, "bottomleft", 1, 1)

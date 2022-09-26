@@ -3043,5 +3043,5 @@ end
 local timePlayerFrame = CreateFrame("frame")
 timePlayerFrame:RegisterEvent("TIME_PLAYED_MSG")
 timePlayerFrame:SetScript("OnEvent", function()
-	C_Timer.After(0, function() print(Details.GetPlayTimeOnClassString()) end)
+	--C_Timer.After(0, function() print(Details.GetPlayTimeOnClassString()) end)
 end)
