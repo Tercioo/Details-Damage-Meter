@@ -352,10 +352,17 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 		if (texture) then
 			if (type(texture) == "table") then
 				if (texture.gradient) then
-					ImageObject.image:SetColorTexture(1, 1, 1, 1)
-					local fromColor = DF:FormatColor("tablemembers", texture.fromColor)
-					local toColor = DF:FormatColor("tablemembers", texture.toColor)
-					ImageObject.image:SetGradient(texture.gradient, fromColor, toColor)
+					if (DF.IsDragonflight()) then
+						ImageObject.image:SetColorTexture(1, 1, 1, 1)
+						local fromColor = DF:FormatColor("tablemembers", texture.fromColor)
+						local toColor = DF:FormatColor("tablemembers", texture.toColor)
+						ImageObject.image:SetGradient(texture.gradient, fromColor, toColor)
+					else
+						local fromR, fromG, fromB, fromA = DF:ParseColors(texture.fromColor)
+						local toR, toG, toB, toA = DF:ParseColors(texture.toColor)
+						ImageObject.image:SetColorTexture(1, 1, 1, 1)
+						ImageObject.image:SetGradientAlpha(texture.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
+					end
 				else
 					local r, g, b, a = DF:ParseColors(texture)
 					ImageObject.image:SetColorTexture(r, g, b, a)

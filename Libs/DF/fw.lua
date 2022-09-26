@@ -1,6 +1,6 @@
 
 
-local dversion = 364
+local dversion = 366
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1484,6 +1484,24 @@ end
 		height = abs ((height or parent:GetHeight()) - abs (y_offset) + 20)
 		height = height*-1
 
+		--normalize format types
+		for index, widgetTable in ipairs(menu) do
+			if (widgetTable.type == "space") then
+				widgetTable.type = "blank"
+			elseif (widgetTable.type == "dropdown") then
+				widgetTable.type = "select"
+			elseif (widgetTable.type == "switch") then
+				widgetTable.type = "toggle"
+			elseif (widgetTable.type == "slider") then
+				widgetTable.type = "range"
+			elseif (widgetTable.type == "button") then
+				widgetTable.type = "execute"
+			end
+		end
+
+		--catch some options added in the hash part of the menu table
+		local useBoxFirstOnAllWidgets = menu.always_boxfirst
+
 		for index, widget_table in ipairs(menu) do
 			if (not widget_table.hidden) then
 
@@ -1611,7 +1629,7 @@ end
 						switch:ClearAllPoints()
 						switch.hasLabel:ClearAllPoints()
 
-						if (widget_table.boxfirst) then
+						if (widget_table.boxfirst or useBoxFirstOnAllWidgets) then
 							switch:SetPoint (cur_x, cur_y)
 							switch.hasLabel:SetPoint ("left", switch, "right", 2)
 						else
@@ -1720,7 +1738,7 @@ end
 						label.text = widget_table.name .. (use_two_points and ": " or "")
 						label:SetTemplate(widget_table.text_template or text_template)
 
-						if (widget_table.boxfirst) then
+						if (widget_table.boxfirst or useBoxFirstOnAllWidgets) then
 							label:SetPoint("left", colorpick, "right", 2)
 							colorpick:SetPoint(cur_x, cur_y)
 							extraPaddingY = 1
@@ -1895,6 +1913,9 @@ end
 			end
 		end
 
+		--catch some options added in the hash part of the menu table
+		local useBoxFirstOnAllWidgets = menu.always_boxfirst
+
 		for index, widget_table in ipairs (menu) do
 			if (not widget_table.hidden) then
 
@@ -1996,7 +2017,7 @@ end
 					end
 
 					local label = DF:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name .. (use_two_points and ": " or ""), "GameFontNormal", widget_table.text_template or text_template or 12)
-					if (widget_table.boxfirst) then
+					if (widget_table.boxfirst or useBoxFirstOnAllWidgets) then
 						switch:SetPoint (cur_x, cur_y)
 						label:SetPoint ("left", switch, "right", 2)
 
@@ -2100,7 +2121,7 @@ end
 					end
 					
 					local label = DF:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name .. (use_two_points and ": " or ""), "GameFontNormal", widget_table.text_template or text_template or 12)
-					if (widget_table.boxfirst) then
+					if (widget_table.boxfirst or useBoxFirstOnAllWidgets) then
 						label:SetPoint("left", colorpick, "right", 2)
 						colorpick:SetPoint(cur_x, cur_y)
 						extraPaddingY = 1

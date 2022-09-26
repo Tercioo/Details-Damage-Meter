@@ -3952,6 +3952,7 @@ function DF:CreateTabContainer (parent, title, frame_name, frameList, options_ta
 		
 		local title = DF:CreateLabel (f, frame.title, 16, "silver")
 		title:SetPoint ("topleft", mainTitle, "bottomleft", 0, 0)
+		f.titleText = title
 		
 		local tabButton = DF:CreateButton (mainFrame, DF.TabContainerFunctions.SelectIndex, buttonWidth, buttonHeight, frame.title, i, nil, nil, nil, "$parentTabButton" .. frame.name, false, button_tab_template)
 		PixelUtil.SetSize (tabButton, buttonWidth, buttonHeight)
