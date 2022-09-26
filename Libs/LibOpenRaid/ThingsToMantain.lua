@@ -5,7 +5,7 @@ if (not LIB_OPEN_RAID_CAN_LOAD) then
 	return
 end
 
-local expansionId = GetExpansionLevel()
+local expansionId = GetServerExpansionLevel()
 
 --localization
 local gameLanguage = GetLocale()
