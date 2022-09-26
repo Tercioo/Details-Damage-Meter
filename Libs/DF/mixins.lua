@@ -30,7 +30,7 @@ local doublePoint = {
 DF.SetPointMixin = {
 	SetPoint = function(object, anchorName1, anchorObject, anchorName2, xOffset, yOffset)
 		if (doublePoint[anchorName1]) then
-			object:SetAllPoints()
+			object:ClearAllPoints()
 			local anchorTo
 			if (anchorObject) then
 				xOffset, yOffset = anchorName2 or 0, xOffset or 0
