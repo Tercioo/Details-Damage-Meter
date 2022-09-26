@@ -180,16 +180,6 @@ function DF:CreateCoolTip()
 		self:SetBackdropColor(DF:ParseColors(defaultBackdropColor))
 		self:SetBackdropBorderColor(DF:ParseColors(defaultBackdropBorderColor))
 
-		if (not self.innerBorderTexture) then
-			self.innerBorderTexture = self:CreateTexture(nil, "overlay")
-			self.innerBorderTexture:SetAllPoints()
-			local atlasInfo = C_Texture.GetAtlasInfo("Options_InnerFrame")
-			self.innerBorderTexture:SetTexture(atlasInfo.file)
-			self.innerBorderTexture:SetTexCoord(atlasInfo.leftTexCoord + 0.05, atlasInfo.rightTexCoord - 0.05, atlasInfo.topTexCoord + 0.05, atlasInfo.bottomTexCoord - 0.05)
-			self.innerBorderTexture:Hide()
-			self.innerBorderTexture:SetAlpha(0) --not in use due to a failure in the texture
-		end
-
 		if (not self.frameBackgroundTexture) then
 			self.frameBackgroundTexture = self:CreateTexture("$parent_FrameBackgroundTexture", "BACKGROUND", nil, 2)
 			self.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
@@ -2185,9 +2175,6 @@ function DF:CreateCoolTip()
 		frame1.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
 		frame2.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
 
-		frame1.innerBorderTexture:Hide()
-		frame2.innerBorderTexture:Hide()
-
 		if (not fromPreset) then
 			CoolTip:Preset(3, true)
 		end
@@ -3135,9 +3122,6 @@ function DF:CreateCoolTip()
 			self:SetBackdrop(1, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
 			self:SetBackdrop(2, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
 
-			frame1.innerBorderTexture:Show()
-			frame2.innerBorderTexture:Show()
-
 		elseif (presetId == 3) then --default used when Cooltip:Reset() is called
 			self:SetOption("TextFont", DF:GetBestFontForLanguage())
 			self:SetOption("TextColor", "orange")
@@ -3150,9 +3134,6 @@ function DF:CreateCoolTip()
 
 			self:SetBackdrop(1, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
 			self:SetBackdrop(2, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
-
-			frame1.innerBorderTexture:Show()
-			frame2.innerBorderTexture:Show()
 		end
 	end
 
