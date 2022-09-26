@@ -30,7 +30,7 @@ function DF:CreateCoolTip()
 
 	local defaultBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
 	tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
-	local defaultBackdropColor = {.2, .2, .2, 1}
+	local defaultBackdropColor = {0.1215, 0.1176, 0.1294, 0.8000}
 	local defaultBackdropBorderColor = {0.05, 0.05, 0.05, 1}
 
 	--initialize
@@ -179,6 +179,16 @@ function DF:CreateCoolTip()
 		self:SetBackdrop(defaultBackdrop)
 		self:SetBackdropColor(DF:ParseColors(defaultBackdropColor))
 		self:SetBackdropBorderColor(DF:ParseColors(defaultBackdropBorderColor))
+
+		if (not self.innerBorderTexture) then
+			self.innerBorderTexture = self:CreateTexture(nil, "overlay")
+			self.innerBorderTexture:SetAllPoints()
+			local atlasInfo = C_Texture.GetAtlasInfo("Options_InnerFrame")
+			self.innerBorderTexture:SetTexture(atlasInfo.file)
+			self.innerBorderTexture:SetTexCoord(atlasInfo.leftTexCoord + 0.05, atlasInfo.rightTexCoord - 0.05, atlasInfo.topTexCoord + 0.05, atlasInfo.bottomTexCoord - 0.05)
+			self.innerBorderTexture:Hide()
+			self.innerBorderTexture:SetAlpha(0) --not in use due to a failure in the texture
+		end
 
 		if (not self.frameBackgroundTexture) then
 			self.frameBackgroundTexture = self:CreateTexture("$parent_FrameBackgroundTexture", "BACKGROUND", nil, 2)
@@ -2033,7 +2043,7 @@ function DF:CreateCoolTip()
 	function CoolTip:SetColor(menuType, ...)
 		local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(...)
 		if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
-			frame1.frameBackgroundTexture:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
+			frame1.frameBackgroundTexture:SetColorTexture(colorRed, colorGreen, colorBlue, colorAlpha)
 
 			--hide textures from older versions if exists
 			if (frame1.frameBackgroundLeft) then
@@ -2043,7 +2053,7 @@ function DF:CreateCoolTip()
 			end
 
 		elseif ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU) or (type(menuType) == "number" and menuType == 2)) then
-			frame2.frameBackgroundTexture:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
+			frame2.frameBackgroundTexture:SetColorTexture(colorRed, colorGreen, colorBlue, colorAlpha)
 
 			--hide textures from older versions if exists
 			if (frame2.frameBackgroundLeft) then
@@ -2171,7 +2181,12 @@ function DF:CreateCoolTip()
 			frame1.frameBackgroundRight:Hide()
 			frame1.frameBackgroundCenter:Hide()
 		end
-		frame1.frameBackgroundTexture:SetVertexColor(0, 0, 0, 0)
+
+		frame1.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
+		frame2.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
+
+		frame1.innerBorderTexture:Hide()
+		frame2.innerBorderTexture:Hide()
 
 		if (not fromPreset) then
 			CoolTip:Preset(3, true)
@@ -3106,7 +3121,7 @@ function DF:CreateCoolTip()
 			self:SetOption("IgnoreButtonAutoHeight", true)
 			self:SetColor(1, 0.5, 0.5, 0.5, 0.5)
 
-		elseif (presetId == 2) then
+		elseif (presetId == 2) then --used by most of the widgets
 			self:SetOption("TextFont", DF:GetBestFontForLanguage())
 			self:SetOption("TextColor", "orange")
 			self:SetOption("TextSize", 12)
@@ -3114,22 +3129,30 @@ function DF:CreateCoolTip()
 			self:SetOption("ButtonsYMod", -4)
 			self:SetOption("YSpacingMod", -4)
 			self:SetOption("IgnoreButtonAutoHeight", true)
-			self:SetColor(1, "transparent")
+			self:SetColor(1, defaultBackdropColor)
+			self:SetColor(2, defaultBackdropColor)
 
 			self:SetBackdrop(1, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
 			self:SetBackdrop(2, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
 
-		elseif (presetId == 3) then
+			frame1.innerBorderTexture:Show()
+			frame2.innerBorderTexture:Show()
+
+		elseif (presetId == 3) then --default used when Cooltip:Reset() is called
 			self:SetOption("TextFont", DF:GetBestFontForLanguage())
 			self:SetOption("TextColor", "orange")
 			self:SetOption("TextSize", 12)
 			self:SetOption("ButtonsYMod", -4)
 			self:SetOption("YSpacingMod", -4)
 			self:SetOption("IgnoreButtonAutoHeight", true)
-			self:SetColor(1, "transparent")
+			self:SetColor(1, defaultBackdropColor)
+			self:SetColor(2, defaultBackdropColor)
 
 			self:SetBackdrop(1, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
 			self:SetBackdrop(2, defaultBackdrop, defaultBackdropColor, defaultBackdropBorderColor)
+
+			frame1.innerBorderTexture:Show()
+			frame2.innerBorderTexture:Show()
 		end
 	end
 
