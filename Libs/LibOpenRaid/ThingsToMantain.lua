@@ -1,11 +1,42 @@
 
 --data which main need maintenance over time
 
+--alert the user that something went wrong
+C_Timer.After(10, function()
+	if (not LIB_OPEN_RAID_DATABASE_LOADED) then
+		print("Details! > LibOpenRaid failed to load, check BugSack for errors and report.")
+	end
+end)
+
 if (not LIB_OPEN_RAID_CAN_LOAD) then
 	return
 end
 
-local expansionId = GetServerExpansionLevel()
+local versionString, revision, launchDate, gameVersion = GetBuildInfo()
+
+local isExpansion_Dragonflight = function()
+	if (gameVersion >= 100000) then
+		return true
+	end
+end
+
+local isExpansion_Shadowlands = function()
+    if (gameVersion < 100000 and gameVersion >= 90000) then
+        return true
+    end
+end
+
+local isExpansion_LichKing = function()
+    if (gameVersion < 40000 and gameVersion >= 30000) then
+        return true
+    end
+end
+
+local isExpansion_Vanilla = function()
+    if (gameVersion < 20000) then
+        return true
+    end
+end
 
 --localization
 local gameLanguage = GetLocale()
@@ -80,7 +111,10 @@ elseif (gameLanguage == "zhTW") then
 	L["STRING_CRITICAL_ONLY"]  = "致命"
 end
 
-if (expansionId == LE_EXPANSION_WRATH_OF_THE_LICH_KING) then
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--Wrath of the Lich King
+
+if (isExpansion_LichKing()) then
 	LIB_OPEN_RAID_BLOODLUST = {
 		[2825] = true, --bloodlust
 		[32182] = true, --heroism
@@ -104,7 +138,7 @@ if (expansionId == LE_EXPANSION_WRATH_OF_THE_LICH_KING) then
 		[INVSLOT_HAND] = 3, --strenth only
 	}
 
-	LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 0
+	LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 180653
 	LIB_OPEN_RAID_AUGMENTATED_RUNE = 0
 
 	LIB_OPEN_RAID_COVENANT_ICONS = {}
@@ -115,7 +149,10 @@ if (expansionId == LE_EXPANSION_WRATH_OF_THE_LICH_KING) then
 
 	LIB_OPEN_RAID_WEAPON_ENCHANT_IDS = {}
 
-elseif (expansionId == LE_EXPANSION_SHADOWLANDS) then
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--Shadowlands
+
+elseif (isExpansion_Shadowlands()) then
 	LIB_OPEN_RAID_BLOODLUST = {
 		[2825] = true, --bloodlust
 		[32182] = true, --heroism
@@ -230,7 +267,10 @@ elseif (expansionId == LE_EXPANSION_SHADOWLANDS) then
 		[5401] = true, --windfury
 	}
 
-elseif (expansionId == LE_EXPANSION_LEVEL_CURRENT) then --latest retail version after LE_EXPANSION_SHADOWLANDS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--Dragonflight
+
+elseif (isExpansion_Dragonflight()) then
 	LIB_OPEN_RAID_BLOODLUST = {
 		[2825] = true, --bloodlust
 		[32182] = true, --heroism
@@ -788,3 +828,5 @@ LIB_OPEN_RAID_SPELL_DEFAULT_IDS = {
 	--191427 havoc
 }
 --need to add mass dispell (32375)
+
+LIB_OPEN_RAID_DATABASE_LOADED = true
