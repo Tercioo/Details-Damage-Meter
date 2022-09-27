@@ -6,8 +6,8 @@
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10031
-		_detalhes.alpha_build_counter = 10031 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10032
+		_detalhes.alpha_build_counter = 10032 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. _detalhes.build_counter
@@ -919,6 +919,10 @@ do
 			for a,b in pairs (t) do
 				print (a,b)
 			end
+		end
+
+		function dumpt(value)
+			return Details:Dump(value)
 		end
 
 	--> copies a full table
