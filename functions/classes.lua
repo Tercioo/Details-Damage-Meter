@@ -117,8 +117,12 @@ do
 	end
 
 	function Details:SetDisplayName(actor, newDisplayName)
-		local thisActor = self.displayName and self or actor
-		thisActor.displayName = newDisplayName
+		if (not newDisplayName) then
+			newDisplayName = actor
+			self.displayName = newDisplayName
+		else
+			actor.displayName = newDisplayName
+		end
 	end
 
 	function _detalhes:GetOnlyName (string)
