@@ -1,16 +1,17 @@
 
 --data which main need maintenance over time
 
+
+if (not LIB_OPEN_RAID_CAN_LOAD) then
+	return
+end
+
 --alert the user that something went wrong
 C_Timer.After(10, function()
 	if (not LIB_OPEN_RAID_DATABASE_LOADED) then
 		print("Details! > LibOpenRaid failed to load, check BugSack for errors and report.")
 	end
 end)
-
-if (not LIB_OPEN_RAID_CAN_LOAD) then
-	return
-end
 
 local versionString, revision, launchDate, gameVersion = GetBuildInfo()
 
