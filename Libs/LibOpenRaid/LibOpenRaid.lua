@@ -119,7 +119,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
     local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
     local GetContainerItemLink = GetContainerItemLink or C_Container.GetContainerItemLink
-						
+
     function openRaidLib.ShowDiagnosticErrors(value)
         CONST_DIAGNOSTIC_ERRORS = value
     end

@@ -341,23 +341,25 @@ local _
 		icon_on_top = true,
 		icon_ignore_alpha = true,
 		icon_titletext_position = {3, 3},
-		
 		--overwrites
 		instance_cprops = {
 			menu_icons_alpha = 0.92,
-			["menu_icons_size"] = 0.850000023841858,
+			["menu_icons_size"] = 0.82,
 			["color"] = {
-				0.0705882352941177, -- [1]
-				0.0705882352941177, -- [2]
-				0.0705882352941177, -- [3]
-				0.639196664094925, -- [4]
+				0.086274512112141, -- [1]
+				0.086274512112141, -- [2]
+				0.086274512112141, -- [3]
+				0.84036460518837, -- [4]
 			},
 			["menu_anchor"] = {
-				16, -- [1]
-				0, -- [2]
+				22,
+				0,
 				["side"] = 2,
 			},
-			["bg_r"] = 0.0941176470588235,
+			["bg_r"] = 0.2039215862751,
+			["bg_g"] = 0.19607844948769,
+			["bg_b"] = 0.2039215862751,
+			["bg_alpha"] = 0.49454617500305,
 			["color_buttons"] = {
 				1, -- [1]
 				1, -- [2]
@@ -368,6 +370,9 @@ local _
 				16, -- [1]
 				-3, -- [2]
 			},
+
+			["toolbar_icon_file"] = "Interface\\AddOns\\Details\\images\\toolbar_icons_2_shadow",
+
 			["attribute_text"] = {
 				["enabled"] = true,
 				["shadow"] = false,
@@ -376,8 +381,8 @@ local _
 				["custom_text"] = "{name}",
 				["text_face"] = "Accidental Presidency",
 				["anchor"] = {
-					-18, -- [1]
-					3, -- [2]
+					1.4, -- [1]
+					1, -- [2]
 				},
 				["text_color"] = {
 					1, -- [1]
@@ -386,8 +391,8 @@ local _
 					1, -- [4]
 				},
 				["enable_custom_text"] = false,
+				["show_timer_always"] = true,
 			},
-			["bg_alpha"] = 0.183960914611816,
 			["plugins_grow_direction"] = 1,
 			["menu_icons"] = {
 				true, -- [1]
@@ -407,16 +412,15 @@ local _
 				0.333333333333333, -- [1]
 				0.333333333333333, -- [2]
 				0.333333333333333, -- [3]
-				
 				},
 			},
-			["hide_icon"] = true,
+			["hide_icon"] = false,
 			["instance_button_anchor"] = {
 				-27, -- [1]
 				1, -- [2]
 			},
 			["toolbar_side"] = 1,
-			["bg_g"] = 0.0941176470588235,
+			
 			["backdrop_texture"] = "Details Ground",
 			["show_statusbar"] = false,
 			["show_sidebars"] = false,
@@ -519,7 +523,6 @@ local _
 					["texture"] = "Details BarBorder 2",
 				},
 			},
-			["bg_b"] = 0.0941176470588235,
 		},
 		
 		callback = function (skin, instance, just_updating)

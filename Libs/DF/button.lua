@@ -459,9 +459,16 @@ local ButtonMetaFunctions = _G[DF.GlobalWidgetControlNames ["button"]]
 			local isAtlas = C_Texture.GetAtlasInfo(texture)
 			if (isAtlas) then
 				self.icon:SetAtlas(texture)
+
+			elseif (DF:IsHtmlColor(texture)) then
+				local r, g, b, a = DF:ParseColors(texture)
+				self.icon:SetColorTexture(r, g, b, a)
 			else
 				self.icon:SetTexture(texture)
 			end
+		elseif (type(texture) == "table") then
+			local r, g, b, a = DF:ParseColors(texture)
+			self.icon:SetColorTexture(r, g, b, a)
 		else
 			self.icon:SetTexture(texture)
 		end
@@ -811,7 +818,7 @@ local ButtonMetaFunctions = _G[DF.GlobalWidgetControlNames ["button"]]
 			end
 		else
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 7 + (button.MyObject.icon.leftpadding or 0), -2)
+				button.MyObject.icon:SetPoint ("left", button, "left", 5 + (button.MyObject.icon.leftpadding or 0), -1)
 			else
 				button.text:SetPoint ("center", button,"center", 1, -1)
 			end

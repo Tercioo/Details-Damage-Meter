@@ -1,6 +1,5 @@
 
 local Details = _G._detalhes
-local Details = Details
 local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local segmentos = Details.segmentos
@@ -27,7 +26,7 @@ local modo_raid = Details._detalhes_props["MODO_RAID"]
 local modo_alone = Details._detalhes_props["MODO_ALONE"]
 local IsInInstance = _G.IsInInstance
 
-local tok_functions = Details.ToKFunctions
+local tokFunctions = Details.ToKFunctions
 
 --constants
 local baseframe_strata = "LOW"
@@ -1641,7 +1640,7 @@ local lockFunctionOnEnter = function (self)
 		self.label:SetTextColor (1, 1, 1, .6)
 
 		Details:CooltipPreset (2.1)
-		GameCooltip:SetOption ("FixedWidth", 180)
+		GameCooltip:SetOption("FixedWidth", 180)
 		GameCooltip:AddFromTable (lockButtonTooltip)
 
 		GameCooltip:SetOwner (self)
@@ -1776,7 +1775,7 @@ local unSnapButtonOnEnter = function (self)
 	self.mostrando = true
 	
 	Details:CooltipPreset (2.1)
-	GameCooltip:SetOption ("FixedWidth", 180)
+	GameCooltip:SetOption("FixedWidth", 180)
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
 	
 	GameCooltip:ShowCooltip (self, "tooltip")
@@ -4562,7 +4561,7 @@ local fast_ps_func = function (self)
 	
 	local combatTime = instance.showing:GetCombatTime()
 	local abbreviationType = Details.ps_abbreviation
-	local abbreviationFunc = tok_functions[abbreviationType]
+	local abbreviationFunc = tokFunctions[abbreviationType]
 
 	local isInLineTextEnabled = instance.use_multi_fontstrings
 	local instanceShowDataSettings = instance.row_info.textR_show_data
@@ -5968,7 +5967,7 @@ local OnClickNovoMenu = function (_, _, id, instance)
 end
 
 function Details:SetTooltipMinWidth()
-	GameCooltip:SetOption ("MinWidth", 155)
+	GameCooltip:SetOption("MinWidth", 155)
 end
 
 function Details:FormatCooltipBackdrop()
@@ -6117,8 +6116,8 @@ local build_mode_list = function(self, deltaTime)
 					end
 				end
 
-				gameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
-				gameCooltip:SetOption ("TextFont", Details.font_faces.menus)
+				gameCooltip:SetOption("TextSize", Details.font_sizes.menus)
+				gameCooltip:SetOption("TextFont", Details.font_faces.menus)
 			end
 		end		
 		
@@ -6946,20 +6945,20 @@ local buildSegmentTooltip = function(self, deltaTime)
 		
 		Details:SetMenuOwner (self, instance)
 		
-		gameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
-		gameCooltip:SetOption ("TextFont", Details.font_faces.menus)
+		gameCooltip:SetOption("TextSize", Details.font_sizes.menus)
+		gameCooltip:SetOption("TextFont", Details.font_faces.menus)
 		
-		gameCooltip:SetOption ("SubMenuIsTooltip", true)
+		gameCooltip:SetOption("SubMenuIsTooltip", true)
 		
-		gameCooltip:SetOption ("ButtonHeightMod", -4)
-		gameCooltip:SetOption ("ButtonsYMod", -10)
-		gameCooltip:SetOption ("YSpacingMod", 1)
+		gameCooltip:SetOption("ButtonHeightMod", -4)
+		gameCooltip:SetOption("ButtonsYMod", -10)
+		gameCooltip:SetOption("YSpacingMod", 1)
 		
-		gameCooltip:SetOption ("ButtonHeightModSub", 4)
-		gameCooltip:SetOption ("ButtonsYModSub", 0)
-		gameCooltip:SetOption ("YSpacingModSub", -4)
+		gameCooltip:SetOption("ButtonHeightModSub", 4)
+		gameCooltip:SetOption("ButtonsYModSub", 0)
+		gameCooltip:SetOption("YSpacingModSub", -4)
 		
-		gameCooltip:SetOption ("HeighMod", 12)
+		gameCooltip:SetOption("HeighMod", 12)
 		
 		Details:SetTooltipMinWidth()
 		
@@ -8985,41 +8984,41 @@ end
 		local instancia = self._instance or self.widget._instance
 		local baseframe = instancia.baseframe
 	
-		local GameCooltip = GameCooltip
+		local gameCooltip = GameCooltip
 	
-		OnEnterMainWindow (self.instance, self)
-		GameCooltip.buttonOver = true
+		OnEnterMainWindow(self.instance, self)
+		gameCooltip.buttonOver = true
 		self.instance.baseframe.cabecalho.button_mouse_over = true
 		
 		if (self.instance.desaturated_menu) then
 			self:GetNormalTexture():SetDesaturated (false)
 		end
 		
-		GameCooltip:Reset()
-		GameCooltip:SetType ("menu")
+		gameCooltip:Reset()
+		gameCooltip:SetType ("menu")
 		
-		GameCooltip:SetOption ("ButtonsYMod", -6)
-		GameCooltip:SetOption ("HeighMod", 6)
-		GameCooltip:SetOption ("YSpacingMod", -3)
-		GameCooltip:SetOption ("TextHeightMod", 0)
-		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+		gameCooltip:SetOption("ButtonsYMod", -6)
+		gameCooltip:SetOption("HeighMod", 6)
+		gameCooltip:SetOption("YSpacingMod", -3)
+		gameCooltip:SetOption("TextHeightMod", 0)
+		gameCooltip:SetOption("IgnoreButtonAutoHeight", false)
 		
 		Details:SetTooltipMinWidth()
 		
-		GameCooltip:AddLine(Loc["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
-		GameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
-		GameCooltip:AddMenu(1, Details.tabela_historico.resetar_overall)
+		gameCooltip:AddLine(Loc["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		gameCooltip:AddMenu(1, Details.tabela_historico.resetar_overall)
 		
-		GameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
+		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 		
-		GameCooltip:AddLine(Loc["STRING_ERASE_DATA"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
-		GameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
-		GameCooltip:AddMenu(1, Details.tabela_historico.resetar)
+		gameCooltip:AddLine(Loc["STRING_ERASE_DATA"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
+		gameCooltip:AddMenu(1, Details.tabela_historico.resetar)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
 		Details:SetMenuOwner (self, self.instance)
-		GameCooltip:ShowCooltip()
+		gameCooltip:ShowCooltip()
 	end
 	
 	local reset_button_onleave = function (self)
@@ -9096,19 +9095,19 @@ end
 		
 		GameCooltip:Reset()
 		GameCooltip:SetType ("menu")
-		GameCooltip:SetOption ("ButtonsYMod", -7)
-		GameCooltip:SetOption ("ButtonsYModSub", -2)
-		GameCooltip:SetOption ("YSpacingMod", 0)
-		GameCooltip:SetOption ("YSpacingModSub", -3)
-		GameCooltip:SetOption ("TextHeightMod", 0)
-		GameCooltip:SetOption ("TextHeightModSub", 0)
-		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
-		GameCooltip:SetOption ("IgnoreButtonAutoHeightSub", false)
-		GameCooltip:SetOption ("SubMenuIsTooltip", true)
-		GameCooltip:SetOption ("FixedWidthSub", 180)
-		--GameCooltip:SetOption ("FixedHeight", 30)
+		GameCooltip:SetOption("ButtonsYMod", -7)
+		GameCooltip:SetOption("ButtonsYModSub", -2)
+		GameCooltip:SetOption("YSpacingMod", 0)
+		GameCooltip:SetOption("YSpacingModSub", -3)
+		GameCooltip:SetOption("TextHeightMod", 0)
+		GameCooltip:SetOption("TextHeightModSub", 0)
+		GameCooltip:SetOption("IgnoreButtonAutoHeight", false)
+		GameCooltip:SetOption("IgnoreButtonAutoHeightSub", false)
+		GameCooltip:SetOption("SubMenuIsTooltip", true)
+		GameCooltip:SetOption("FixedWidthSub", 180)
+		--GameCooltip:SetOption("FixedHeight", 30)
 		
-		GameCooltip:SetOption ("HeighMod", 9)
+		GameCooltip:SetOption("HeighMod", 9)
 
 		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
 		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
@@ -9187,11 +9186,11 @@ local report_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:Reset()
 	
 	GameCooltip:SetType ("menu")
-	GameCooltip:SetOption ("ButtonsYMod", -6)
-	GameCooltip:SetOption ("HeighMod", 6)
-	GameCooltip:SetOption ("YSpacingMod", -1)
-	GameCooltip:SetOption ("TextHeightMod", 0)
-	GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+	GameCooltip:SetOption("ButtonsYMod", -6)
+	GameCooltip:SetOption("HeighMod", 6)
+	GameCooltip:SetOption("YSpacingMod", -1)
+	GameCooltip:SetOption("TextHeightMod", 0)
+	GameCooltip:SetOption("IgnoreButtonAutoHeight", false)
 
 	Details:SetTooltipMinWidth()
 	
@@ -9287,10 +9286,10 @@ local atributo_on_enter = function (self, motion, forced, from_click)
 		local have_plugins = Details:MontaRaidOption (instancia)
 		if (not have_plugins) then
 			GameCooltip:SetType ("tooltip")
-			GameCooltip:SetOption ("ButtonsYMod", 0)
+			GameCooltip:SetOption("ButtonsYMod", 0)
 			
-			GameCooltip:SetOption ("TextHeightMod", 0)
-			GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+			GameCooltip:SetOption("TextHeightMod", 0)
+			GameCooltip:SetOption("IgnoreButtonAutoHeight", false)
 			GameCooltip:AddLine("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 			GameCooltip:AddIcon([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
 			GameCooltip:SetWallpaper (1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
@@ -9299,11 +9298,11 @@ local atributo_on_enter = function (self, motion, forced, from_click)
 		
 	else
 		Details:MontaAtributosOption (instancia)
-		GameCooltip:SetOption ("YSpacingMod", -1)
-		GameCooltip:SetOption ("YSpacingModSub", -2)
+		GameCooltip:SetOption("YSpacingMod", -1)
+		GameCooltip:SetOption("YSpacingModSub", -2)
 	end
 	
-	GameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
+	GameCooltip:SetOption("TextSize", Details.font_sizes.menus)
 	
 	Details:SetMenuOwner (self, instancia)
 	

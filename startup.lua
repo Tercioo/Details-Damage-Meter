@@ -553,8 +553,8 @@ function Details:StartMeUp() --I'll never stop!
 		if (Details.Survey.GetTargetCharacterForRealm()) then
 			Details.Survey.InitializeSpellCategoryFeedback()
 			if (not sentMessageOnStartup) then
-				if (math.random(10) == 1) then
-					Details:Msg("use '/details survey' to help on identifying cooldown spells.")
+				if (math.random(5) == 1) then
+					Details:Msg("use '/details survey' to help on identifying cooldown spells (Dragonflight Beta).")
 				end
 			end
 		end

@@ -4870,6 +4870,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.Schedules.After(1, Details.Check_ZONE_CHANGED_NEW_AREA)
 	end
 	
+	--~zone ~area
 	function _detalhes:Check_ZONE_CHANGED_NEW_AREA()
 
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = GetInstanceInfo()
@@ -4886,6 +4887,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		if (zoneType == "party" or zoneType == "raid") then
 			_is_in_instance = true
+
+			if (DetailsFramework.IsDragonflight()) then
+				Details:Msg("friendly reminder to enabled combat logs (/combatlog) if you're recording them (Dragonflight Beta).")
+			end
 		end
 		
 		if (_detalhes.last_zone_type ~= zoneType) then

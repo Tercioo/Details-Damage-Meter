@@ -2499,7 +2499,7 @@ do
                 desc = Loc ["STRING_OPTIONS_DESATURATE_MENU_DESC"],
             },
 
-            {--hide main icon
+            {--hide icon main icon
                 type = "toggle",
                 get = function() return currentInstance.hide_icon end,
                 set = function (self, fixedparam, value)

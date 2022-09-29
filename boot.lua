@@ -6,11 +6,11 @@
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10032
-		_detalhes.alpha_build_counter = 10032 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10033
+		_detalhes.alpha_build_counter = 10033 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
-		_detalhes.userversion = version .. _detalhes.build_counter
+		_detalhes.userversion = version .. " " .. _detalhes.build_counter
 		_detalhes.realversion = 146 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
@@ -18,7 +18,7 @@
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 --
-		_detalhes.dragonflight_beta_version = 35
+		_detalhes.dragonflight_beta_version = 36
 
 		Details = _detalhes
 
@@ -349,6 +349,13 @@ do
 					available = {},
 				},
 			}
+
+		--make a color namespace
+		Details.Colors = {}
+		function Details.Colors.GetMenuTextColor()
+			return "orange"
+		end
+
 		--> armazena as fun��es para inicializa��o dos dados - Metatable functions
 			_detalhes.refresh = {}
 		--> armazena as fun��es para limpar e guardas os dados - Metatable functions
