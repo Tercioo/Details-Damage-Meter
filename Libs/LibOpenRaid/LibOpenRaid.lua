@@ -58,7 +58,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 55
+local CONST_LIB_VERSION = 56
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -116,6 +116,10 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local CONST_COOLDOWN_INDEX_DURATION = 4
     local CONST_COOLDOWN_INDEX_UPDATETIME = 5
 
+    local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
+    local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
+    local GetContainerItemLink = GetContainerItemLink or C_Container.GetContainerItemLink
+						
     function openRaidLib.ShowDiagnosticErrors(value)
         CONST_DIAGNOSTIC_ERRORS = value
     end
