@@ -1,23 +1,20 @@
 
---note: this file need a major clean up especially on function creation.
-
-local _detalhes = 		_G._detalhes
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+local Details = _G._detalhes
+local Details = Details
+local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
+local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+local segmentos = Details.segmentos
+local gump = Details.gump
 local _
-local gump = 			_detalhes.gump
-local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
-
-local segmentos = _detalhes.segmentos
 
 --lua locals
-local _math_ceil = math.ceil
-local _math_floor = math.floor
-local floor = _math_floor
+local ceil = math.ceil
+local floor = math.floor
 local _math_max = math.max
-local _ipairs = ipairs
-local _pairs = pairs
+local ipairs = ipairs
+local pairs = pairs
 local abs = _G.abs
-local _unpack = unpack
+local unpack = unpack
 --api locals
 local CreateFrame = CreateFrame
 local _GetTime = GetTime
@@ -26,11 +23,11 @@ local _UIParent = UIParent
 local _IsAltKeyDown = IsAltKeyDown
 local _IsShiftKeyDown = IsShiftKeyDown
 local _IsControlKeyDown = IsControlKeyDown
-local modo_raid = _detalhes._detalhes_props["MODO_RAID"]
-local modo_alone = _detalhes._detalhes_props["MODO_ALONE"]
+local modo_raid = Details._detalhes_props["MODO_RAID"]
+local modo_alone = Details._detalhes_props["MODO_ALONE"]
 local IsInInstance = _G.IsInInstance
 
-local tok_functions = _detalhes.ToKFunctions
+local tok_functions = Details.ToKFunctions
 
 --constants
 local baseframe_strata = "LOW"
@@ -38,17 +35,15 @@ local gump_fundo_backdrop = {
 	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0}}
 
-function _detalhes:ScheduleUpdate (instancia)
+function Details:ScheduleUpdate(instancia)
 	instancia.barraS = {nil, nil}
 	instancia.update = true
 	if (instancia.showing) then
 		instancia.atributo = instancia.atributo or 1
-		
-		if (not instancia.showing [instancia.atributo]) then --> unknow very rare bug where showing transforms into a clean table
-			instancia.showing = _detalhes.tabela_vigente
+		if (not instancia.showing[instancia.atributo]) then
+			instancia.showing = Details.tabela_vigente
 		end
-		
-		instancia.showing [instancia.atributo].need_refresh = true
+		instancia.showing[instancia.atributo].need_refresh = true
 	end
 end
 
@@ -85,70 +80,68 @@ end
 	local menus_backdropcolor = {.2, .2, .2, 0.85}
 	local menus_backdropcolor_sec = {.2, .2, .2, 0.90}
 	local menus_bordercolor = {0, 0, 0, .25}
-	
+
 	--menus are ignoring the value set on the profile
-	_detalhes.menu_backdrop_config = {
+	Details.menu_backdrop_config = {
 		menus_backdrop = menus_backdrop,
 		menus_backdropcolor = menus_backdropcolor,
 		menus_backdropcolor_sec = menus_backdropcolor_sec,
 		menus_bordercolor = menus_bordercolor,
 	}
-	
-	
-function _detalhes:RefreshScrollBar(x) --> x = quantas barras esta sendo mostrado
 
-	local cabe = self.rows_fit_in_window --> quantas barras cabem na janela
+function Details:RefreshScrollBar(x) --x = amount of bars being refreshed
+	local amountRowsInTheWindow = self.rows_fit_in_window
 
 	if (not self.barraS[1]) then --primeira vez que as barras est�o aparecendo
 		self.barraS[1] = 1 --primeira barra
-		if (cabe < x) then --se a quantidade a ser mostrada for maior que o que pode ser mostrado
-			self.barraS[2] = cabe -- B = o que pode ser mostrado
+		if (amountRowsInTheWindow < x) then --se a quantidade a ser mostrada for maior que o que pode ser mostrado
+			self.barraS[2] = amountRowsInTheWindow -- B = o que pode ser mostrado
 		else
 			self.barraS[2] = x -- contr�rio B = o que esta sendo mostrado
 		end
 	end
-	
+
 	if (not self.rolagem) then
-		if (x > cabe) then --> Ligar a ScrollBar
+		if (x > amountRowsInTheWindow) then --show scroll bar
 			self.rows_showing = x
-			
+
 			if (not self.baseframe.isStretching) then
 				self:MostrarScrollBar()
 			end
 			self.need_rolagem = true
-			
-			self.barraS[2] = cabe --> B � o total que cabe na barra
-		else --> Do contr�rio B � o total de barras
+
+			self.barraS[2] = amountRowsInTheWindow --B � o total que cabe na barra
+		else --Do contr�rio B � o total de barras
 			self.rows_showing = x
 			self.barraS[2] = x
 		end
 	else
-		if (x > self.rows_showing) then --> tem mais barras mostrando agora do que na �ltima atualiza��o
+		if (x > self.rows_showing) then --tem mais barras mostrando agora do que na �ltima atualiza��o
 			self.rows_showing = x
 			local nao_mostradas = self.rows_showing - self.rows_fit_in_window
-			local slider_height = nao_mostradas*self.row_height
+			local slider_height = nao_mostradas * self.row_height
 			self.scroll.scrollMax = slider_height
 			self.scroll:SetMinMaxValues(0, slider_height)
-			
-		else	--> diminuiu a quantidade, acontece depois de uma coleta de lixo
+
+		else	--diminuiu a quantidade, acontece depois de uma coleta de lixo
 			self.rows_showing = x
 			local nao_mostradas = self.rows_showing - self.rows_fit_in_window
-			
-			if (nao_mostradas < 1) then  --> se estiver mostrando menos do que realmente cabe n�o precisa scrollbar
+
+			if (nao_mostradas < 1) then  --se estiver mostrando menos do que realmente cabe n�o precisa scrollbar
 				self:EsconderScrollBar()
 			else
-				--> contr�rio, basta atualizar o tamanho da scroll
-				local slider_height = nao_mostradas*self.row_height
+				--contr�rio, basta atualizar o tamanho da scroll
+				local slider_height = nao_mostradas * self.row_height
 				self.scroll.scrollMax = slider_height
-				self.scroll:SetMinMaxValues (0, slider_height)
+				self.scroll:SetMinMaxValues(0, slider_height)
 			end
 		end
 	end
-	
-	if (self.update) then 
+
+	if (self.update) then
 		self.update = false
 		self.v_barras = true
-		return _detalhes:EsconderBarrasNaoUsadas (self)
+		return Details:EsconderBarrasNaoUsadas(self)
 	end
 end
 
@@ -175,14 +168,14 @@ local function move_barras (self, elapsed)
 			--> verifica o tamanho do text
 			for i  = 1, #self._move_func.instancia.barras do
 				local esta_barra = self._move_func.instancia.barras [i]
-				_detalhes:name_space (esta_barra)
+				Details:name_space (esta_barra)
 			end
 		end
 	end
 end
 
 --> self � a inst�ncia
-function _detalhes:MoveBarrasTo (destino)
+function Details:MoveBarrasTo (destino)
 	local janela = self.baseframe
 
 	janela._move_func = {
@@ -201,13 +194,13 @@ function _detalhes:MoveBarrasTo (destino)
 end
 
 --almost deprecated
-function _detalhes:MostrarScrollBar (sem_animacao)
+function Details:MostrarScrollBar (sem_animacao)
 
 	if (self.rolagem) then
 		return
 	end
 	
-	if (not _detalhes.use_scroll) then
+	if (not Details.use_scroll) then
 		self.baseframe:EnableMouseWheel (true)
 		self.scroll:Enable()
 		self.scroll:SetValue (0)
@@ -218,7 +211,7 @@ function _detalhes:MostrarScrollBar (sem_animacao)
 	local main = self.baseframe
 	local mover_para = self.largura_scroll*-1
 	
-	if (not sem_animacao and _detalhes.animate_scroll) then
+	if (not sem_animacao and Details.animate_scroll) then
 		self:MoveBarrasTo (mover_para)
 	else
 		--> set size of rows
@@ -257,13 +250,13 @@ function _detalhes:MostrarScrollBar (sem_animacao)
 end
 
 --almost deprecated
-function _detalhes:EsconderScrollBar (sem_animacao, force)
+function Details:EsconderScrollBar (sem_animacao, force)
 
 	if (not self.rolagem) then
 		return
 	end
 	
-	if (not _detalhes.use_scroll and not force) then
+	if (not Details.use_scroll and not force) then
 		self.scroll:Disable()
 		self.baseframe:EnableMouseWheel (false)
 		self.rolagem = false
@@ -272,7 +265,7 @@ function _detalhes:EsconderScrollBar (sem_animacao, force)
 	
 	local main = self.baseframe
 
-	if (not sem_animacao and _detalhes.animate_scroll) then
+	if (not sem_animacao and Details.animate_scroll) then
 		self:MoveBarrasTo (self.row_info.space.right + 3) --> 
 	else
 		for index = 1, self.rows_fit_in_window do
@@ -303,10 +296,10 @@ local function OnLeaveMainWindow (instancia, self)
 	instancia:SetAutoHideMenu (nil, nil, true)
 	instancia:RefreshAttributeTextSize()
 	
-	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
+	if (instancia.modo ~= Details._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
 		--> resizes, lock and ungroup buttons
-		if (not _detalhes.disable_lock_ungroup_buttons) then
+		if (not Details.disable_lock_ungroup_buttons) then
 			instancia.baseframe.resize_direita:SetAlpha (0)
 			instancia.baseframe.resize_esquerda:SetAlpha (0)
 			instancia.baseframe.lock_button:SetAlpha (0)
@@ -316,10 +309,10 @@ local function OnLeaveMainWindow (instancia, self)
 		--> stretch button
 		Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0)
 	
-	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
+	elseif (instancia.modo ~= Details._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
 	
 		--> resizes, lock and ungroup buttons
-		if (not _detalhes.disable_lock_ungroup_buttons) then
+		if (not Details.disable_lock_ungroup_buttons) then
 			instancia.baseframe.lock_button:SetAlpha (0)
 			instancia.break_snap_button:SetAlpha (0)
 		end
@@ -328,7 +321,7 @@ local function OnLeaveMainWindow (instancia, self)
 		
 	end
 end
-_detalhes.OnLeaveMainWindow = OnLeaveMainWindow
+Details.OnLeaveMainWindow = OnLeaveMainWindow
 
 local function OnEnterMainWindow (instancia, self)
 	instancia.is_interacting = true
@@ -336,24 +329,24 @@ local function OnEnterMainWindow (instancia, self)
 	instancia:SetAutoHideMenu (nil, nil, true)
 	instancia:RefreshAttributeTextSize()
 	
-	if (not instancia.last_interaction or instancia.last_interaction < _detalhes._tempo) then
-		instancia.last_interaction = _detalhes._tempo or time()
+	if (not instancia.last_interaction or instancia.last_interaction < Details._tempo) then
+		instancia.last_interaction = Details._tempo or time()
 	end
 
 	if (instancia.baseframe:GetFrameLevel() > instancia.rowframe:GetFrameLevel()) then
 		instancia.rowframe:SetFrameLevel (instancia.baseframe:GetFrameLevel())
 	end
 	
-	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
+	if (instancia.modo ~= Details._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
 		--> resize, lock and ungroup buttons
-		if (not _detalhes.disable_lock_ungroup_buttons) then
+		if (not Details.disable_lock_ungroup_buttons) then
 			instancia.baseframe.resize_direita:SetAlpha (1)
 			instancia.baseframe.resize_esquerda:SetAlpha (1)
 			instancia.baseframe.lock_button:SetAlpha (1)
 			
 			--> ungroup
-			for _, instancia_id in _pairs (instancia.snap) do
+			for _, instancia_id in pairs (instancia.snap) do
 				if (instancia_id) then
 					instancia.break_snap_button:SetAlpha (1)
 					break
@@ -362,17 +355,17 @@ local function OnEnterMainWindow (instancia, self)
 		end
 		
 		--> stretch button
-		if (not _detalhes.disable_stretch_button) then
+		if (not Details.disable_stretch_button) then
 			Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0.4)
 		end
 		
-	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
+	elseif (instancia.modo ~= Details._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
 	
-		if (not _detalhes.disable_lock_ungroup_buttons) then
+		if (not Details.disable_lock_ungroup_buttons) then
 			instancia.baseframe.lock_button:SetAlpha (1)
 
 			--> ungroup
-			for _, instancia_id in _pairs (instancia.snap) do
+			for _, instancia_id in pairs (instancia.snap) do
 				if (instancia_id) then
 					instancia.break_snap_button:Show()
 					instancia.break_snap_button:SetAlpha (1)
@@ -381,12 +374,12 @@ local function OnEnterMainWindow (instancia, self)
 			end
 		end
 		
-		if (not _detalhes.disable_stretch_button) then
+		if (not Details.disable_stretch_button) then
 			Details.FadeHandler.Fader (instancia.baseframe.button_stretch, "ALPHA", 0.4)
 		end
 	end
 end
-_detalhes.OnEnterMainWindow = OnEnterMainWindow
+Details.OnEnterMainWindow = OnEnterMainWindow
 
 local function VPL (instancia, esta_instancia)
 	--> conferir esquerda
@@ -436,7 +429,7 @@ local function VPT (instancia, esta_instancia)
 	return nil
 end
 
-_detalhes.VPT, _detalhes.VPR, _detalhes.VPB, _detalhes.VPL = VPT, VPR, VPB, VPL
+Details.VPT, Details.VPR, Details.VPB, Details.VPL = VPT, VPR, VPB, VPL
 
 local color_red = {1, 0.2, 0.2}
 local color_green = {0.2, 1, 0.2}
@@ -444,7 +437,7 @@ local pixels_per_arrow = 50
 
 local show_instance_ids = function()
 
-	for id, instance in _detalhes:ListInstances() do
+	for id, instance in Details:ListInstances() do
 		if (instance:IsEnabled()) then
 			local id_texture1 = instance.baseframe.id_texture1
 			if (not id_texture1) then
@@ -461,20 +454,20 @@ local show_instance_ids = function()
 			
 			local id = instance:GetId()
 			
-			local first, second = _math_floor (id/10), _math_floor (id%10)
+			local first, second = floor(id/10), floor(id%10)
 			
 			if (id >= 10) then
 				instance.baseframe.id_texture1:SetPoint ("center", instance.baseframe, "center", -h/2/2, 0)
 				instance.baseframe.id_texture2:SetPoint ("left", instance.baseframe.id_texture1, "right", -h/2, 0)
 				
 				first = first + 1
-				local line = _math_ceil (first / 4)
+				local line = ceil(first / 4)
 				local x = ( first - ( (line-1) * 4 ) )  / 4
 				local l, r, t, b = x-0.25, x, 0.33 * (line-1), 0.33 * line
 				instance.baseframe.id_texture1:SetTexCoord (l, r, t, b)
 				
 				second = second + 1
-				local line = _math_ceil (second / 4)
+				local line = ceil(second / 4)
 				local x = ( second - ( (line-1) * 4 ) )  / 4
 				local l, r, t, b = x-0.25, x, 0.33 * (line-1), 0.33 * line
 				instance.baseframe.id_texture2:SetTexCoord (l, r, t, b)
@@ -485,7 +478,7 @@ local show_instance_ids = function()
 				instance.baseframe.id_texture1:SetPoint ("center", instance.baseframe, "center")
 				
 				second = second + 1
-				local line = _math_ceil (second / 4)
+				local line = ceil(second / 4)
 				local x = ( second - ( (line-1) * 4 ) )  / 4
 				local l, r, t, b = x-0.25, x, 0.33 * (line-1), 0.33 * line
 				instance.baseframe.id_texture1:SetTexCoord (l, r, t, b)
@@ -511,10 +504,10 @@ local update_line = function (self, target_frame)
 	local distance = (dX^2 + dY^2) ^ 0.5
 	local angle = atan2(dY, dX)
     
-	local guide_balls = _detalhes.guide_balls
+	local guide_balls = Details.guide_balls
 	if (not guide_balls) then
-		_detalhes.guide_balls = {}
-		guide_balls = _detalhes.guide_balls
+		Details.guide_balls = {}
+		guide_balls = Details.guide_balls
 	end
     
 	for index, ball in ipairs (guide_balls) do
@@ -538,7 +531,7 @@ local update_line = function (self, target_frame)
 
 		local ball = guide_balls [i]
 		if (not ball) then
-			ball = _detalhes.overlay_frame:CreateTexture (nil, "Overlay")
+			ball = Details.overlay_frame:CreateTexture (nil, "Overlay")
 			ball:SetTexture ([[Interface\AddOns\Details\images\icons]])
 			ball:SetSize (16, 16)
 			ball:SetAlpha (0.3)
@@ -549,7 +542,7 @@ local update_line = function (self, target_frame)
 		ball:ClearAllPoints()
 		ball:SetPoint("CENTER", self, "CENTER", x, y) --baseframse center
 		ball:Show()
-		ball:SetVertexColor (unpack (color))
+		ball:SetVertexColor (unpack(color))
 	end
 
 end
@@ -569,10 +562,10 @@ local movement_onupdate = function (self, elapsed)
 			instance_ids_shown = nil
 			
 			if (need_show_group_guide and not DetailsFramework.IsTimewalkWoW()) then
-				_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_WINDOW1ATACH_DESC"])
-				_detalhes.MicroButtonAlert:SetPoint ("bottom", need_show_group_guide.baseframe, "top", 0, 30)
-				_detalhes.MicroButtonAlert:SetHeight (320)
-				_detalhes.MicroButtonAlert:Show()
+				Details.MicroButtonAlert.Text:SetText (Loc["STRING_WINDOW1ATACH_DESC"])
+				Details.MicroButtonAlert:SetPoint ("bottom", need_show_group_guide.baseframe, "top", 0, 30)
+				Details.MicroButtonAlert:SetHeight (320)
+				Details.MicroButtonAlert:Show()
 			
 				need_show_group_guide = nil
 			end
@@ -598,7 +591,7 @@ local movement_onupdate = function (self, elapsed)
 
 					local tem_livre = false
 					
-					for lado, livre in _ipairs (nao_anexados) do
+					for lado, livre in ipairs (nao_anexados) do
 						if (livre) then
 							if (lado == 1) then
 							
@@ -700,15 +693,15 @@ local movement_onupdate = function (self, elapsed)
 					end
 					
 					if (tem_livre) then
-						if (not _detalhes.snap_alert.playing) then
+						if (not Details.snap_alert.playing) then
 							instancia_alvo:SnapAlert()
-							_detalhes.snap_alert.playing = true
+							Details.snap_alert.playing = true
 							
 							if (not DetailsFramework.IsTimewalkWoW()) then
-								_detalhes.MicroButtonAlert.Text:SetText (string.format (Loc ["STRING_ATACH_DESC"], self.instance.meu_id, instancia_alvo.meu_id))
-								_detalhes.MicroButtonAlert:SetPoint ("bottom", instancia_alvo.baseframe.cabecalho.modo_selecao.widget, "top", 0, 18)
-								_detalhes.MicroButtonAlert:SetHeight (200)
-								_detalhes.MicroButtonAlert:Show()
+								Details.MicroButtonAlert.Text:SetText (string.format (Loc["STRING_ATACH_DESC"], self.instance.meu_id, instancia_alvo.meu_id))
+								Details.MicroButtonAlert:SetPoint ("bottom", instancia_alvo.baseframe.cabecalho.modo_selecao.widget, "top", 0, 18)
+								Details.MicroButtonAlert:SetHeight (200)
+								Details.MicroButtonAlert:Show()
 							end
 						end
 					end
@@ -727,8 +720,8 @@ local movement_onupdate = function (self, elapsed)
 
 local function move_janela (baseframe, iniciando, instancia, just_updating)
 
-	instancia_alvo = _detalhes.tabela_instancias [instancia.meu_id-1]
-	if (_detalhes.disable_window_groups) then
+	instancia_alvo = Details.tabela_instancias [instancia.meu_id-1]
+	if (Details.disable_window_groups) then
 		instancia_alvo = nil
 	end
 	
@@ -744,7 +737,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 		baseframe:StartMoving()
 		
 		local group = instancia:GetInstanceGroup()
-		for _, this_instance in _ipairs (group) do
+		for _, this_instance in ipairs (group) do
 			this_instance.baseframe:SetClampRectInsets (0, 0, 0, 0)
 			this_instance.isMoving = true
 		end
@@ -764,13 +757,13 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			start_draw_lines = 0
 			need_show_group_guide = nil
 			
-			for lado, snap_to in _pairs (instancia_alvo.snap) do
+			for lado, snap_to in pairs (instancia_alvo.snap) do
 				if (snap_to == instancia.meu_id) then
 					start_draw_lines = false
 				end
 			end
 			
-			for lado, snap_to in _pairs (instancia_alvo.snap) do
+			for lado, snap_to in pairs (instancia_alvo.snap) do
 				if (snap_to) then
 					if (snap_to == instancia.meu_id) then
 						tempo_fades = nil
@@ -799,11 +792,11 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			
 			if (need_start) then --> se a inst�ncia n�o tiver sido aberta ainda
 
-				local lower_instance = _detalhes:GetLowerInstanceNumber()
+				local lower_instance = Details:GetLowerInstanceNumber()
 			
 				instancia_alvo:RestauraJanela (instancia_alvo.meu_id, true)
 				if (instancia_alvo:IsSoloMode()) then
-					_detalhes.SoloTables:switch()
+					Details.SoloTables:switch()
 				end
 				
 				instancia_alvo.ativa = false
@@ -822,7 +815,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 		else
 			--> eh a instancia 1
 			local got_snap
-			for side, instance_id in _pairs (instancia.snap) do
+			for side, instance_id in pairs (instancia.snap) do
 				if (instance_id) then
 					got_snap = true
 				end
@@ -846,13 +839,13 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 		baseframe.isMoving = false
 		baseframe:SetScript ("OnUpdate", nil)
 
-		if (_detalhes.guide_balls) then
-			for index, ball in ipairs (_detalhes.guide_balls) do
+		if (Details.guide_balls) then
+			for index, ball in ipairs (Details.guide_balls) do
 				ball:Hide()
 			end
 		end
 		
-		for _, ins in _detalhes:ListInstances() do
+		for _, ins in Details:ListInstances() do
 			if (ins.baseframe) then
 				ins.baseframe:SetUserPlaced (false)
 				if (ins.baseframe.id_texture1) then
@@ -862,7 +855,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			end
 		end
 
-		--baseframe:SetClampRectInsets (unpack (_detalhes.window_clamp))
+		--baseframe:SetClampRectInsets (unpack(_detalhes.window_clamp))
 
 		if (instancia_alvo and not instancia.do_not_snap and not instancia_alvo.do_not_snap) then
 			instancia:AtualizaPontos()
@@ -923,21 +916,21 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 				instancia:agrupar_janelas ({esquerda, baixo, direita, cima})
 				
 				--> tutorial
-				if (not _detalhes:GetTutorialCVar ("WINDOW_GROUP_MAKING1")) then
-					_detalhes:SetTutorialCVar ("WINDOW_GROUP_MAKING1", true)
+				if (not Details:GetTutorialCVar ("WINDOW_GROUP_MAKING1")) then
+					Details:SetTutorialCVar ("WINDOW_GROUP_MAKING1", true)
 					
 					local group_tutorial = CreateFrame ("frame", "DetailsWindowGroupPopUp1", instancia.baseframe, "DetailsHelpBoxTemplate")
 					group_tutorial.ArrowUP:Show()
 					group_tutorial.ArrowGlowUP:Show()
-					group_tutorial.Text:SetText (Loc ["STRING_MINITUTORIAL_WINDOWS1"])
+					group_tutorial.Text:SetText (Loc["STRING_MINITUTORIAL_WINDOWS1"])
 					group_tutorial:SetPoint ("bottom", instancia_alvo.break_snap_button, "top", 0, 24)
 					group_tutorial:Show()
-					_detalhes.OnEnterMainWindow (instancia_alvo)
+					Details.OnEnterMainWindow (instancia_alvo)
 					
 				end
 			end
 
-			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+			for _, esta_instancia in ipairs (Details.tabela_instancias) do
 				if (not esta_instancia:IsAtiva() and esta_instancia.iniciada) then
 					esta_instancia:ResetaGump()
 					
@@ -946,10 +939,10 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 					Details.FadeHandler.Fader (esta_instancia.baseframe.cabecalho.atributo_icon, "in", 0.15)
 					
 					if (esta_instancia.modo == modo_raid) then
-						_detalhes.raid = nil
+						Details.raid = nil
 					elseif (esta_instancia.modo == modo_alone) then
-						_detalhes.SoloTables:switch()
-						_detalhes.solo = nil
+						Details.SoloTables:switch()
+						Details.solo = nil
 					end
 
 				elseif (esta_instancia:IsAtiva()) then
@@ -961,7 +954,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 		end
 
 		--> salva pos de todas as janelas
-		for _, ins in _ipairs (_detalhes.tabela_instancias) do
+		for _, ins in ipairs (Details.tabela_instancias) do
 			if (ins:IsEnabled()) then
 				ins:SaveMainWindowPosition()
 				ins:RestoreMainWindowPosition()
@@ -969,16 +962,16 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 		end
 		
 		local group = instancia:GetInstanceGroup()
-		for _, this_instance in _ipairs (group) do
+		for _, this_instance in ipairs (group) do
 			this_instance.isMoving = false
 		end
 
-		_detalhes.snap_alert.playing = false
-		_detalhes.snap_alert.animIn:Stop()
-		_detalhes.snap_alert.animOut:Play()
+		Details.snap_alert.playing = false
+		Details.snap_alert.animIn:Stop()
+		Details.snap_alert.animOut:Play()
 		
 		if (not DetailsFramework.IsTimewalkWoW()) then
-			_detalhes.MicroButtonAlert:Hide()
+			Details.MicroButtonAlert:Hide()
 		end
 
 		if (instancia_alvo and instancia_alvo.ativa and instancia_alvo.baseframe) then
@@ -990,7 +983,7 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 		
 	end
 end
-_detalhes.move_janela_func = move_janela
+Details.move_janela_func = move_janela
 
 local BGFrame_scripts_onenter = function (self)
 	OnEnterMainWindow (self._instance, self)
@@ -1003,7 +996,7 @@ end
 local BGFrame_scripts_onmousedown = function (self, button)
 
 	-- /run Details.disable_stretch_from_toolbar = true
-	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton" and not _detalhes.disable_stretch_from_toolbar) then
+	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton" and not Details.disable_stretch_from_toolbar) then
 		return self._instance.baseframe.button_stretch:GetScript ("OnMouseDown") (self._instance.baseframe.button_stretch, "LeftButton")
 	end
 
@@ -1021,13 +1014,13 @@ local BGFrame_scripts_onmousedown = function (self, button)
 			end
 		end
 	elseif (button == "RightButton") then
-		if (self.is_toolbar and not _detalhes.disable_alldisplays_window) then
+		if (self.is_toolbar and not Details.disable_alldisplays_window) then
 			self._instance:ShowAllSwitch()
 		else
-			if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self._instance) then
-				_detalhes.switch:CloseMe()
+			if (Details.switch.current_instancia and Details.switch.current_instancia == self._instance) then
+				Details.switch:CloseMe()
 			else
-				_detalhes.switch:ShowMe (self._instance)
+				Details.switch:ShowMe (self._instance)
 			end
 		end
 	end
@@ -1082,7 +1075,7 @@ local BFrame_scripts_onsizechange = function (self)
 	self._instance:SaveMainWindowSize()
 	self._instance:ReajustaGump()
 	self._instance.oldwith = self:GetWidth()
-	_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, self._instance)
+	Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, self._instance)
 	self._instance:RefreshAttributeTextSize()
 end
 
@@ -1128,29 +1121,29 @@ end
 
 local function instancias_horizontais (instancia, largura, esquerda, direita)
 	if (esquerda) then
-		for lado, esta_instancia in _pairs (instancia.snap) do 
+		for lado, esta_instancia in pairs (instancia.snap) do 
 			if (lado == 1) then --> movendo para esquerda
-				local instancia = _detalhes.tabela_instancias [esta_instancia]
+				local instancia = Details.tabela_instancias [esta_instancia]
 				instancia.baseframe:SetWidth (largura)
 				instancia.auto_resize = true
 				instancia:ReajustaGump()
 				instancia.auto_resize = false
 				instancias_horizontais (instancia, largura, true, false)
-				_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
+				Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
 			end
 		end
 	end
 	
 	if (direita) then
-		for lado, esta_instancia in _pairs (instancia.snap) do 
+		for lado, esta_instancia in pairs (instancia.snap) do 
 			if (lado == 3) then --> movendo para esquerda
-				local instancia = _detalhes.tabela_instancias [esta_instancia]
+				local instancia = Details.tabela_instancias [esta_instancia]
 				instancia.baseframe:SetWidth (largura)
 				instancia.auto_resize = true
 				instancia:ReajustaGump()
 				instancia.auto_resize = false
 				instancias_horizontais (instancia, largura, false, true)
-				_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
+				Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
 			end
 		end
 	end
@@ -1158,32 +1151,32 @@ end
 
 local function instancias_verticais (instancia, altura, esquerda, direita)
 	if (esquerda) then
-		for lado, esta_instancia in _pairs (instancia.snap) do 
+		for lado, esta_instancia in pairs (instancia.snap) do 
 			if (lado == 1) then --> movendo para esquerda
-				local instancia = _detalhes.tabela_instancias [esta_instancia]
+				local instancia = Details.tabela_instancias [esta_instancia]
 				if (instancia:IsEnabled()) then
 					instancia.baseframe:SetHeight (altura)
 					instancia.auto_resize = true
 					instancia:ReajustaGump()
 					instancia.auto_resize = false
 					instancias_verticais (instancia, altura, true, false)
-					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
+					Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
 				end
 			end
 		end
 	end
 	
 	if (direita) then
-		for lado, esta_instancia in _pairs (instancia.snap) do 
+		for lado, esta_instancia in pairs (instancia.snap) do 
 			if (lado == 3) then --> movendo para esquerda
-				local instancia = _detalhes.tabela_instancias [esta_instancia]
+				local instancia = Details.tabela_instancias [esta_instancia]
 				if (instancia:IsEnabled()) then
 					instancia.baseframe:SetHeight (altura)
 					instancia.auto_resize = true
 					instancia:ReajustaGump()
 					instancia.auto_resize = false
 					instancias_verticais (instancia, altura, false, true)
-					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
+					Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
 				end
 			end
 		end
@@ -1191,14 +1184,14 @@ local function instancias_verticais (instancia, altura, esquerda, direita)
 end
 
 local check_snap_side = function (instanceid, snap, id, container)
-	local instance = _detalhes:GetInstance (instanceid)
+	local instance = Details:GetInstance (instanceid)
 	if (instance and instance.snap [snap] and instance.snap [snap] == id) then
 		tinsert (container, instance)
 		return true
 	end
 end
 
-function _detalhes:InstanciasVerticais (instance)
+function Details:InstanciasVerticais (instance)
 
 	instance = self or instance
 	
@@ -1207,7 +1200,7 @@ function _detalhes:InstanciasVerticais (instance)
 	local id = instance:GetId()
 	
 	--lower instances
-	local this_instance = _detalhes:GetInstance (id-1)
+	local this_instance = Details:GetInstance (id-1)
 	if (this_instance) then
 		--> top side
 		if (this_instance.snap [2] and this_instance.snap [2] == id) then
@@ -1235,13 +1228,13 @@ function _detalhes:InstanciasVerticais (instance)
 	end
 
 	--upper instances
-	local this_instance = _detalhes:GetInstance (id+1)
+	local this_instance = Details:GetInstance (id+1)
 	if (this_instance) then
 		--> top side
 		if (this_instance.snap [2] and this_instance.snap [2] == id) then
 			local cid = id
 			local snapid = 2
-			for i = cid+1, _detalhes:GetNumInstancesAmount() do
+			for i = cid+1, Details:GetNumInstancesAmount() do
 				if (check_snap_side (i, 2, cid, on_top)) then
 					cid = cid + 1
 				else
@@ -1252,7 +1245,7 @@ function _detalhes:InstanciasVerticais (instance)
 		elseif (this_instance.snap [4] and this_instance.snap [4] == id) then
 			local cid = id
 			local snapid = 4
-			for i = cid+1, _detalhes:GetNumInstancesAmount() do
+			for i = cid+1, Details:GetNumInstancesAmount() do
 				if (check_snap_side (i, 4, cid, on_bottom)) then
 					cid = cid + 1
 				else
@@ -1275,7 +1268,7 @@ function _detalhes:InstanciasVerticais (instance)
 		bottom_clamp = bottom_clamp + 14
 	end
 	
-	for cid, this_instance in _ipairs (on_top) do
+	for cid, this_instance in ipairs (on_top) do
 		if (this_instance.show_statusbar) then
 			top_clamp = top_clamp + 14
 		end
@@ -1283,7 +1276,7 @@ function _detalhes:InstanciasVerticais (instance)
 		top_clamp = top_clamp + this_instance.baseframe:GetHeight()
 	end
 	
-	for cid, this_instance in _ipairs (on_bottom) do
+	for cid, this_instance in ipairs (on_bottom) do
 		if (this_instance.show_statusbar) then
 			bottom_clamp = bottom_clamp + 14
 		end
@@ -1306,7 +1299,7 @@ lado 1	|					| lado 3
 			lado 2
 --]]
 
-function _detalhes:InstanciasHorizontais (instancia)
+function Details:InstanciasHorizontais (instancia)
 
 	instancia = self or instancia
 
@@ -1316,11 +1309,11 @@ function _detalhes:InstanciasHorizontais (instancia)
 
 	local checking = instancia
 	
-	local check_index_anterior = _detalhes.tabela_instancias [instancia.meu_id-1]
+	local check_index_anterior = Details.tabela_instancias [instancia.meu_id-1]
 	if (check_index_anterior and check_index_anterior:IsEnabled()) then --> possiu uma inst�ncia antes de mim
 		if (check_index_anterior.snap[3] and check_index_anterior.snap[3] == instancia.meu_id) then --> o index negativo vai para a esquerda
 			for i = instancia.meu_id-1, 1, -1 do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
+				local esta_instancia = Details.tabela_instancias [i]
 				if (esta_instancia.snap[3]) then
 					if (esta_instancia.snap[3] == checking.meu_id) then
 						linha_horizontal [#linha_horizontal+1] = esta_instancia
@@ -1333,7 +1326,7 @@ function _detalhes:InstanciasHorizontais (instancia)
 			end
 		elseif (check_index_anterior.snap[1] and check_index_anterior.snap[1] == instancia.meu_id) then --> o index negativo vai para a direita
 			for i = instancia.meu_id-1, 1, -1 do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
+				local esta_instancia = Details.tabela_instancias [i]
 				if (esta_instancia.snap[1]) then
 					if (esta_instancia.snap[1] == checking.meu_id) then
 						linha_horizontal [#linha_horizontal+1] = esta_instancia
@@ -1349,11 +1342,11 @@ function _detalhes:InstanciasHorizontais (instancia)
 	
 	checking = instancia
 	
-	local check_index_posterior = _detalhes.tabela_instancias [instancia.meu_id+1]
+	local check_index_posterior = Details.tabela_instancias [instancia.meu_id+1]
 	if (check_index_posterior and check_index_posterior:IsEnabled()) then
 		if (check_index_posterior.snap[3] and check_index_posterior.snap[3] == instancia.meu_id) then --> o index posterior vai para a esquerda
-			for i = instancia.meu_id+1, #_detalhes.tabela_instancias do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
+			for i = instancia.meu_id+1, #Details.tabela_instancias do 
+				local esta_instancia = Details.tabela_instancias [i]
 				if (esta_instancia.snap[3]) then
 					if (esta_instancia.snap[3] == checking.meu_id) then
 						linha_horizontal [#linha_horizontal+1] = esta_instancia
@@ -1365,8 +1358,8 @@ function _detalhes:InstanciasHorizontais (instancia)
 				end
 			end
 		elseif (check_index_posterior.snap[1] and check_index_posterior.snap[1] == instancia.meu_id) then --> o index posterior vai para a direita
-			for i = instancia.meu_id+1, #_detalhes.tabela_instancias do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
+			for i = instancia.meu_id+1, #Details.tabela_instancias do 
+				local esta_instancia = Details.tabela_instancias [i]
 				if (esta_instancia.snap[1]) then
 					if (esta_instancia.snap[1] == checking.meu_id) then
 						linha_horizontal [#linha_horizontal+1] = esta_instancia
@@ -1385,15 +1378,15 @@ function _detalhes:InstanciasHorizontais (instancia)
 end
 
 local resizeTooltip = {
-	{text = "|cff33CC00Click|cffEEEEEE: ".. Loc ["STRING_RESIZE_COMMON"]},
+	{text = "|cff33CC00Click|cffEEEEEE: ".. Loc["STRING_RESIZE_COMMON"]},
 	
-	{text = "+|cff33CC00 Click|cffEEEEEE: " .. Loc ["STRING_RESIZE_HORIZONTAL"]},
+	{text = "+|cff33CC00 Click|cffEEEEEE: " .. Loc["STRING_RESIZE_HORIZONTAL"]},
 	{icon = [[Interface\AddOns\Details\images\key_shift]], width = 24, height = 14, l = 0, r = 1, t = 0, b =0.640625},
 	
-	{text = "+|cff33CC00 Click|cffEEEEEE: " .. Loc ["STRING_RESIZE_VERTICAL"]},
+	{text = "+|cff33CC00 Click|cffEEEEEE: " .. Loc["STRING_RESIZE_VERTICAL"]},
 	{icon = [[Interface\AddOns\Details\images\key_alt]], width = 24, height = 14, l = 0, r = 1, t = 0, b =0.640625},
 	
-	{text = "+|cff33CC00 Click|cffEEEEEE: " .. Loc ["STRING_RESIZE_ALL"]},
+	{text = "+|cff33CC00 Click|cffEEEEEE: " .. Loc["STRING_RESIZE_ALL"]},
 	{icon = [[Interface\AddOns\Details\images\key_ctrl]], width = 24, height = 14, l = 0, r = 1, t = 0, b =0.640625}
 }
 
@@ -1402,11 +1395,11 @@ local resizeTooltip = {
 local resize_scripts_onmousedown = function (self, button)
 	_G.GameCooltip:ShowMe (false) --> Hide Cooltip
 	
-	if (_detalhes.disable_lock_ungroup_buttons) then
+	if (Details.disable_lock_ungroup_buttons) then
 		return
 	end
 	
-	if (not self:GetParent().isLocked and button == "LeftButton" and self._instance.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then 
+	if (not self:GetParent().isLocked and button == "LeftButton" and self._instance.modo ~= Details._detalhes_props["MODO_ALONE"]) then 
 		self:GetParent().isResizing = true
 		self._instance:BaseFrameSnap()
 
@@ -1461,7 +1454,7 @@ local resize_scripts_onmousedown = function (self, button)
 				self._instance.baseframe:StartSizing ("bottomright")
 			end
 			
-			if (self._instance.rolagem and _detalhes.use_scroll) then
+			if (self._instance.rolagem and Details.use_scroll) then
 				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", (self._instance.largura_scroll*-1) + 1, -1)
 			else
 				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", 1, -1)
@@ -1469,11 +1462,11 @@ local resize_scripts_onmousedown = function (self, button)
 			self.afundado = true
 		end
 		
-		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, self._instance)
+		Details:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, self._instance)
 
-		if (_detalhes.update_speed > 0.3) then
-			_detalhes:SetWindowUpdateSpeed (0.3, true)
-			_detalhes.resize_changed_update_speed = true
+		if (Details.update_speed > 0.3) then
+			Details:SetWindowUpdateSpeed (0.3, true)
+			Details.resize_changed_update_speed = true
 		end
 		
 	end 
@@ -1481,14 +1474,14 @@ end
 
 local resize_scripts_onmouseup = function (self, button)
 
-	if (_detalhes.disable_lock_ungroup_buttons) then
+	if (Details.disable_lock_ungroup_buttons) then
 		return
 	end
 
 	if (self.afundado) then
 		self.afundado = false
 		if (self._myside == ">") then
-			if (self._instance.rolagem and _detalhes.use_scroll) then
+			if (self._instance.rolagem and Details.use_scroll) then
 				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", self._instance.largura_scroll*-1, 0)
 			else
 				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", 0, 0)
@@ -1514,7 +1507,7 @@ local resize_scripts_onmouseup = function (self, button)
 				esta_instancia:RefreshBars()
 				esta_instancia:InstanceReset()
 				esta_instancia:ReajustaGump()
-				_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+				Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
 			end
 			self._instance.stretchToo = nil
 		end	
@@ -1532,19 +1525,19 @@ local resize_scripts_onmouseup = function (self, button)
 			self._instance.eh_vertical = nil
 		--end
 		
-		_detalhes:SendEvent ("DETAILS_INSTANCE_ENDRESIZE", nil, self._instance)
+		Details:SendEvent ("DETAILS_INSTANCE_ENDRESIZE", nil, self._instance)
 		
 		if (self._instance.eh_tudo) then
-			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-				if (esta_instancia:IsAtiva() and esta_instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
+			for _, esta_instancia in ipairs (Details.tabela_instancias) do
+				if (esta_instancia:IsAtiva() and esta_instancia.modo ~= Details._detalhes_props["MODO_ALONE"]) then
 					esta_instancia.baseframe:ClearAllPoints()
 					esta_instancia:SaveMainWindowPosition()
 					esta_instancia:RestoreMainWindowPosition()
 				end
 			end
 			
-			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-				if (esta_instancia:IsAtiva() and esta_instancia ~= self._instance and esta_instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
+			for _, esta_instancia in ipairs (Details.tabela_instancias) do
+				if (esta_instancia:IsAtiva() and esta_instancia ~= self._instance and esta_instancia.modo ~= Details._detalhes_props["MODO_ALONE"]) then
 					esta_instancia.baseframe:SetWidth (largura)
 					esta_instancia.baseframe:SetHeight (altura)
 					esta_instancia.auto_resize = true
@@ -1552,7 +1545,7 @@ local resize_scripts_onmouseup = function (self, button)
 					esta_instancia:InstanceReset()
 					esta_instancia:ReajustaGump()
 					esta_instancia.auto_resize = false
-					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+					Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
 				end
 			end
 
@@ -1561,16 +1554,16 @@ local resize_scripts_onmouseup = function (self, button)
 		
 		self._instance:BaseFrameSnap()
 		
-		for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+		for _, esta_instancia in ipairs (Details.tabela_instancias) do
 			if (esta_instancia:IsAtiva()) then
 				esta_instancia:SaveMainWindowPosition()
 				esta_instancia:RestoreMainWindowPosition()
 			end
 		end
 		
-		if (_detalhes.resize_changed_update_speed) then
-			_detalhes:SetWindowUpdateSpeed (false, true)
-			_detalhes.resize_changed_update_speed = nil
+		if (Details.resize_changed_update_speed) then
+			Details:SetWindowUpdateSpeed (false, true)
+			Details.resize_changed_update_speed = nil
 		end
 		
 	end 
@@ -1585,18 +1578,18 @@ end
 
 local resize_scripts_onenter = function (self)
 
-	if (_detalhes.disable_lock_ungroup_buttons) then
+	if (Details.disable_lock_ungroup_buttons) then
 		return
 	end
 
-	if (self._instance.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not self._instance.baseframe.isLocked and not self.mostrando) then
+	if (self._instance.modo ~= Details._detalhes_props["MODO_ALONE"] and not self._instance.baseframe.isLocked and not self.mostrando) then
 
 		OnEnterMainWindow (self._instance, self)
 	
 		self.texture:SetBlendMode ("ADD")
 		self.mostrando = true
 		
-		_detalhes:CooltipPreset (2.1)
+		Details:CooltipPreset (2.1)
 		GameCooltip:AddFromTable (resizeTooltip)
 
 		GameCooltip:SetOwner (self)
@@ -1630,24 +1623,24 @@ local function resize_scripts (resizer, instancia, scrollbar, side, baseframe)
 end
 
 local lockButtonTooltip = {
-	{text = Loc ["STRING_LOCK_DESC"]},
+	{text = Loc["STRING_LOCK_DESC"]},
 	{icon = [[Interface\PetBattles\PetBattle-LockIcon]], width = 14, height = 14, l = 0.0703125, r = 0.9453125, t = 0.0546875, b = 0.9453125, color = "orange"},
 }
 
 local lockFunctionOnEnter = function (self)
 
-	if (_detalhes.disable_lock_ungroup_buttons) then
+	if (Details.disable_lock_ungroup_buttons) then
 		return
 	end
 
-	if (self.instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not self.mostrando) then
+	if (self.instancia.modo ~= Details._detalhes_props["MODO_ALONE"] and not self.mostrando) then
 		OnEnterMainWindow (self.instancia, self)
 		
 		self.mostrando = true
 		
 		self.label:SetTextColor (1, 1, 1, .6)
 
-		_detalhes:CooltipPreset (2.1)
+		Details:CooltipPreset (2.1)
 		GameCooltip:SetOption ("FixedWidth", 180)
 		GameCooltip:AddFromTable (lockButtonTooltip)
 
@@ -1673,13 +1666,13 @@ local lockFunctionOnHide = function (self)
 	end
 end
 
-function _detalhes:DelayOptionsRefresh (instance, no_reopen)
+function Details:DelayOptionsRefresh (instance, no_reopen)
 	if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
-		_detalhes:ScheduleTimer ("OpenOptionsWindow", 0.1, {instance or _G.DetailsOptionsWindow.instance, no_reopen})
+		Details:ScheduleTimer ("OpenOptionsWindow", 0.1, {instance or _G.DetailsOptionsWindow.instance, no_reopen})
 	end
 end
 
-function _detalhes:RefreshLockedState()
+function Details:RefreshLockedState()
 	if (not self.baseframe and self.meu_id and self:IsEnabled()) then
 		self:ScheduleTimer ("RefreshLockedState", 1)
 		return
@@ -1701,7 +1694,7 @@ end
 local lockFunctionOnClick = function (button, button_type, button2, isFromOptionsButton)
 
 	--isFromOptionsButton is true when the call if from the button in the display section of the options panel
-	if (_detalhes.disable_lock_ungroup_buttons and isFromOptionsButton ~= true) then
+	if (Details.disable_lock_ungroup_buttons and isFromOptionsButton ~= true) then
 		return
 	end
 
@@ -1713,10 +1706,10 @@ local lockFunctionOnClick = function (button, button_type, button2, isFromOption
 	if (baseframe.isLocked) then
 		baseframe.isLocked = false
 		baseframe.instance.isLocked = false
-		button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
+		button.label:SetText (Loc["STRING_LOCK_WINDOW"])
 		button:SetWidth (button.label:GetStringWidth()+2)
 		
-		if (not _detalhes.disable_lock_ungroup_buttons) then
+		if (not Details.disable_lock_ungroup_buttons) then
 			baseframe.resize_direita:SetAlpha (1)
 			baseframe.resize_esquerda:SetAlpha (1)
 		end
@@ -1725,13 +1718,13 @@ local lockFunctionOnClick = function (button, button_type, button2, isFromOption
 		button:SetPoint ("right", baseframe.resize_direita, "left", -1, 1.5)	
 	else
 		--> tutorial
-		if (not _detalhes:GetTutorialCVar ("WINDOW_LOCK_UNLOCK1") and not _detalhes.initializing) then
-			_detalhes:SetTutorialCVar ("WINDOW_LOCK_UNLOCK1", true)
+		if (not Details:GetTutorialCVar ("WINDOW_LOCK_UNLOCK1") and not Details.initializing) then
+			Details:SetTutorialCVar ("WINDOW_LOCK_UNLOCK1", true)
 			
 			local lock_tutorial = CreateFrame ("frame", "DetailsWindowLockPopUp1", baseframe, "DetailsHelpBoxTemplate")
 			lock_tutorial.ArrowUP:Show()
 			lock_tutorial.ArrowGlowUP:Show()
-			lock_tutorial.Text:SetText (Loc ["STRING_MINITUTORIAL_WINDOWS2"])
+			lock_tutorial.Text:SetText (Loc["STRING_MINITUTORIAL_WINDOWS2"])
 			lock_tutorial:SetPoint ("bottom", baseframe.UPFrame, "top", 0, 20)
 			lock_tutorial:Show()
 			
@@ -1739,7 +1732,7 @@ local lockFunctionOnClick = function (button, button_type, button2, isFromOption
 	
 		baseframe.isLocked = true
 		baseframe.instance.isLocked = true
-		button.label:SetText (Loc ["STRING_UNLOCK_WINDOW"])
+		button.label:SetText (Loc["STRING_UNLOCK_WINDOW"])
 		button:SetWidth (button.label:GetStringWidth()+2)
 		button:ClearAllPoints()
 		button:SetPoint ("bottomright", baseframe, "bottomright", -3, 0)
@@ -1749,24 +1742,24 @@ local lockFunctionOnClick = function (button, button_type, button2, isFromOption
 	
 	baseframe.instance:RefreshLockedState()
 	
-	_detalhes:DelayOptionsRefresh()
+	Details:DelayOptionsRefresh()
 end
 
-_detalhes.lock_instance_function = lockFunctionOnClick
+Details.lock_instance_function = lockFunctionOnClick
 
 local unSnapButtonTooltip = {
-	{text = Loc ["STRING_DETACH_DESC"]},
+	{text = Loc["STRING_DETACH_DESC"]},
 	{icon = [[Interface\AddOns\Details\images\icons]], width = 14, height = 14, l = 160/512, r = 179/512, t = 142/512, b = 162/512},
 }
 
 local unSnapButtonOnEnter = function (self)
 
-	if (_detalhes.disable_lock_ungroup_buttons) then
+	if (Details.disable_lock_ungroup_buttons) then
 		return
 	end
 
 	local have_snap = false
-	for _, instancia_id in _pairs (self.instancia.snap) do
+	for _, instancia_id in pairs (self.instancia.snap) do
 		if (instancia_id) then
 			have_snap = true
 			break
@@ -1782,7 +1775,7 @@ local unSnapButtonOnEnter = function (self)
 	OnEnterMainWindow (self.instancia, self)
 	self.mostrando = true
 	
-	_detalhes:CooltipPreset (2.1)
+	Details:CooltipPreset (2.1)
 	GameCooltip:SetOption ("FixedWidth", 180)
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
 	
@@ -1809,39 +1802,39 @@ local shift_monitor = function (self)
 	if (_IsShiftKeyDown()) then
 		if (not self.showing_allspells) then
 			self.showing_allspells = true
-			local instancia = _detalhes:GetInstance (self.instance_id)
+			local instancia = Details:GetInstance (self.instance_id)
 			instancia:MontaTooltip (self, self.row_id, "shift")
 		end
 		
 	elseif (self.showing_allspells) then
 		self.showing_allspells = false
-		local instancia = _detalhes:GetInstance (self.instance_id)
+		local instancia = Details:GetInstance (self.instance_id)
 		instancia:MontaTooltip (self, self.row_id)
 	end
 	
 	if (_IsControlKeyDown()) then
 		if (not self.showing_alltargets) then
 			self.showing_alltargets = true
-			local instancia = _detalhes:GetInstance (self.instance_id)
+			local instancia = Details:GetInstance (self.instance_id)
 			instancia:MontaTooltip (self, self.row_id, "ctrl")
 		end
 		
 	elseif (self.showing_alltargets) then
 		self.showing_alltargets = false
-		local instancia = _detalhes:GetInstance (self.instance_id)
+		local instancia = Details:GetInstance (self.instance_id)
 		instancia:MontaTooltip (self, self.row_id)
 	end
 	
 	if (_IsAltKeyDown()) then
 		if (not self.showing_allpets) then
 			self.showing_allpets = true
-			local instancia = _detalhes:GetInstance (self.instance_id)
+			local instancia = Details:GetInstance (self.instance_id)
 			instancia:MontaTooltip (self, self.row_id, "alt")
 		end
 		
 	elseif (self.showing_allpets) then
 		self.showing_allpets = false
-		local instancia = _detalhes:GetInstance (self.instance_id)
+		local instancia = Details:GetInstance (self.instance_id)
 		instancia:MontaTooltip (self, self.row_id)
 	end
 end
@@ -1858,12 +1851,12 @@ local barra_backdrop_onleave = {
 }
 
 --> pre creating the truncate frame
-	_detalhes.left_anti_truncate = CreateFrame ("frame", "DetailsLeftTextAntiTruncate", UIParent,"BackdropTemplate")
-	_detalhes.left_anti_truncate:SetBackdrop (gump_fundo_backdrop)
-	_detalhes.left_anti_truncate:SetBackdropColor (0, 0, 0, 0.8)
-	_detalhes.left_anti_truncate:SetFrameStrata ("FULLSCREEN")
-	_detalhes.left_anti_truncate.text = _detalhes.left_anti_truncate:CreateFontString (nil, "overlay", "GameFontNormal")
-	_detalhes.left_anti_truncate.text:SetPoint ("left", _detalhes.left_anti_truncate, "left", 3, 0) 
+	Details.left_anti_truncate = CreateFrame ("frame", "DetailsLeftTextAntiTruncate", UIParent,"BackdropTemplate")
+	Details.left_anti_truncate:SetBackdrop (gump_fundo_backdrop)
+	Details.left_anti_truncate:SetBackdropColor (0, 0, 0, 0.8)
+	Details.left_anti_truncate:SetFrameStrata ("FULLSCREEN")
+	Details.left_anti_truncate.text = Details.left_anti_truncate:CreateFontString (nil, "overlay", "GameFontNormal")
+	Details.left_anti_truncate.text:SetPoint ("left", Details.left_anti_truncate, "left", 3, 0) 
 
 local barra_scripts_onenter = function (self)
 	self.mouse_over = true
@@ -1874,7 +1867,7 @@ local barra_scripts_onenter = function (self)
 	self:SetBackdrop (barra_backdrop_onenter)	
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 
-	if (not _detalhes.instances_disable_bar_highlight) then
+	if (not Details.instances_disable_bar_highlight) then
 		--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
 		if (self._instance.bars_inverted) then
 			self.right_to_left_texture:SetBlendMode ("ADD")
@@ -1886,19 +1879,19 @@ local barra_scripts_onenter = function (self)
 
 	local lefttext = self.lineText1
 	if (lefttext:IsTruncated()) then
-		if (not _detalhes.left_anti_truncate) then
+		if (not Details.left_anti_truncate) then
 			
 		end
 		
-		_detalhes:SetFontSize (_detalhes.left_anti_truncate.text, self._instance.row_info.font_size)
-		_detalhes:SetFontFace (_detalhes.left_anti_truncate.text, self._instance.row_info.font_face_file)
-		_detalhes:SetFontColor (_detalhes.left_anti_truncate.text, lefttext:GetTextColor())
+		Details:SetFontSize (Details.left_anti_truncate.text, self._instance.row_info.font_size)
+		Details:SetFontFace (Details.left_anti_truncate.text, self._instance.row_info.font_face_file)
+		Details:SetFontColor (Details.left_anti_truncate.text, lefttext:GetTextColor())
 		
-		_detalhes.left_anti_truncate:SetPoint ("left", lefttext, "left", -3, 0)
-		_detalhes.left_anti_truncate.text:SetText (lefttext:GetText())
+		Details.left_anti_truncate:SetPoint ("left", lefttext, "left", -3, 0)
+		Details.left_anti_truncate.text:SetText (lefttext:GetText())
 		
-		_detalhes.left_anti_truncate:SetSize (_detalhes.left_anti_truncate.text:GetStringWidth() + 3, self._instance.row_info.height)
-		_detalhes.left_anti_truncate:Show()
+		Details.left_anti_truncate:SetSize (Details.left_anti_truncate.text:GetStringWidth() + 3, self._instance.row_info.height)
+		Details.left_anti_truncate:Show()
 		lefttext.untruncated = true
 	end
 	
@@ -1929,7 +1922,7 @@ local barra_scripts_onleave = function (self)
 	local lefttext = self.lineText1
 	if (lefttext.untruncated) then
 		lefttext.untruncated = nil
-		_detalhes.left_anti_truncate:Hide()
+		Details.left_anti_truncate:Hide()
 	end
 end
 
@@ -1941,11 +1934,11 @@ local barra_scripts_onmousedown = function (self, button)
 	local lefttext = self.lineText1
 	if (lefttext.untruncated) then
 		lefttext.untruncated = nil
-		_detalhes.left_anti_truncate:Hide()
+		Details.left_anti_truncate:Hide()
 	end
 	
 	if (button == "RightButton") then
-		return _detalhes.switch:ShowMe (self._instance)
+		return Details.switch:ShowMe (self._instance)
 	
 	--elseif (button == "MiddleButton") then
 
@@ -1958,8 +1951,8 @@ local barra_scripts_onmousedown = function (self, button)
 	self.mouse_down = _GetTime()
 	self.button = button
 	local x, y = _GetCursorPosition()
-	self.x = _math_floor (x)
-	self.y = _math_floor (y)
+	self.x = floor(x)
+	self.y = floor(y)
 
 	if (not self._instance.baseframe.isLocked) then
 		GameCooltip:Hide()
@@ -1984,8 +1977,8 @@ local barra_scripts_onmouseup = function (self, button)
 	self._instance:HandleTextsOnMouseClick (self, "up")
 	
 	local x, y = _GetCursorPosition()
-	x = _math_floor (x)
-	y = _math_floor (y)
+	x = floor(x)
+	y = floor(y)
 
 	if (self.mouse_down and (self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
@@ -1998,22 +1991,22 @@ local barra_scripts_onmouseup = function (self, button)
 						if (func) then
 							local successful, errortext = pcall (func, self, self.minha_tabela, self._instance)
 							if (not successful) then
-								_detalhes:Msg ("error occurred custom script shift+click:", errortext)
+								Details:Msg ("error occurred custom script shift+click:", errortext)
 							end
 							return
 						end
 					end
 				end
 				
-				if (_detalhes.row_singleclick_overwrite [self._instance.atributo] and type (_detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
-					return _detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (_, self.minha_tabela, self._instance, is_shift_down, is_control_down)
+				if (Details.row_singleclick_overwrite [self._instance.atributo] and type (Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
+					return Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (_, self.minha_tabela, self._instance, is_shift_down, is_control_down)
 				end
 				
-				return _detalhes:ReportSingleLine (self._instance, self)
+				return Details:ReportSingleLine (self._instance, self)
 			end
 
 			if (not self.minha_tabela) then
-				return _detalhes:Msg ("this bar is waiting update.")
+				return Details:Msg ("this bar is waiting update.")
 			end
 			
 			self._instance:AbreJanelaInfo (self.minha_tabela, nil, nil, is_shift_down, is_control_down)
@@ -2037,204 +2030,182 @@ local barra_scripts_onshow = function (self)
 	end
 end
 
-function _detalhes:HandleTextsOnMouseClick (row, type)
-
+function Details:HandleTextsOnMouseClick(row, type)
 	if (self.bars_inverted) then
 		if (type == "down") then
-			row.lineText4:SetPoint ("left", row.statusbar, "left", 2, -1)
-			
+			row.lineText4:SetPoint("left", row.statusbar, "left", 2, -1)
+
 			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint ("right", row.statusbar, "right", -1, -1)
+				row.lineText1:SetPoint("right", row.statusbar, "right", -1, -1)
 			else
-				row.lineText1:SetPoint ("right", row.icone_classe, "left", -1, -1)
+				row.lineText1:SetPoint("right", row.icone_classe, "left", -1, -1)
 			end
-			
+
 		elseif (type == "up") then
-			row.lineText4:SetPoint ("left", row.statusbar, "left", 1, 0)
-			
+			row.lineText4:SetPoint("left", row.statusbar, "left", 1, 0)
+
 			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint ("right", row.statusbar, "right", -2, 0)
+				row.lineText1:SetPoint("right", row.statusbar, "right", -2, 0)
 			else
-				row.lineText1:SetPoint ("right", row.icone_classe, "left", -2, 0)
+				row.lineText1:SetPoint("right", row.icone_classe, "left", -2, 0)
 			end
 		end
 
 	else
 		if (type == "down") then
-			row.lineText4:SetPoint ("right", row.statusbar, "right", 1, -1)
+			row.lineText4:SetPoint("right", row.statusbar, "right", 1, -1)
 			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint ("left", row.statusbar, "left", 3, -1)
+				row.lineText1:SetPoint("left", row.statusbar, "left", 3, -1)
 			else
-				row.lineText1:SetPoint ("left", row.icone_classe, "right", 4, -1)
+				row.lineText1:SetPoint("left", row.icone_classe, "right", 4, -1)
 			end
-			
+
 		elseif (type == "up") then
-			row.lineText4:SetPoint ("right", row.statusbar, "right")
+			row.lineText4:SetPoint("right", row.statusbar, "right")
 			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint ("left", row.statusbar, "left", 2, 0)
+				row.lineText1:SetPoint("left", row.statusbar, "left", 2, 0)
 			else
-				row.lineText1:SetPoint ("left", row.icone_classe, "right", 3, 0)
+				row.lineText1:SetPoint("left", row.icone_classe, "right", 3, 0)
 			end
 		end
 	end
 end
 
-local set_bar_value = function (self, value)
-	--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
-	if (self._instance.bars_inverted) then
-		self.statusbar:SetValue (0)
-		
-		local width = self._instance.cached_bar_width
-		local inverse_bar_size = width / 100 * value
-		local coord_inverse = inverse_bar_size / width
-		
-		inverse_bar_size = _math_max (inverse_bar_size, 0.00000001)
-		
-		self.right_to_left_texture:SetWidth (inverse_bar_size)
-		self.right_to_left_texture:SetTexCoord (coord_inverse, 0, 0, 1)
-	else
-		self.statusbar:SetValue (value)
-	end]]
+local setBarValue = function(self, value)
 	self.statusbar:SetValue(value)
-	
 	self.statusbar.value = value
-	
 	if (self.using_upper_3dmodels) then
 		local width = self:GetWidth()
 		local p = (width / 100) * value
-		self.modelbox_high:SetPoint ("bottomright", self, "bottomright", p - width, 0)
+		self.modelbox_high:SetPoint("bottomright", self, "bottomright", p - width, 0)
 	end
 end
 
 -- ~talent ~icon
 --code for when hovering over the class/spec icon in the player bar
-local icon_frame_on_enter = function (self)
+local iconFrame_OnEnter = function(self)
 	local actor = self.row.minha_tabela
-	
 	if (actor) then
 		if (actor.frags) then
-		
-		
+
 		elseif (actor.is_custom or actor.byspell or actor.damage_spellid) then
 			local spellid = actor.damage_spellid or actor.id or actor[1]
 			if (spellid) then
-				GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT", 0, 10)
-				_detalhes:GameTooltipSetSpellByID (spellid)
+				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 10)
+				Details:GameTooltipSetSpellByID (spellid)
 				GameTooltip:Show()
 			end
-		
+
 		elseif (actor.dead_at) then
-		
-		
+
+
 		elseif (actor.nome) then --ensure it's an actor table
-		
+
 			local serial = actor.serial
 			local name = actor:name()
 			local class = actor:class()
-			local spec = _detalhes.cached_specs [serial] or actor.spec
-			local talents = _detalhes.cached_talents [serial]
-			local ilvl = _detalhes.ilevel:GetIlvl (serial)
-			
-			local icon_size = 20
-			
-			local instance = _detalhes:GetInstance (self.row.instance_id)
-			
-			instance:BuildInstanceBarTooltip (self)
-			
-			local class_icon, class_L, class_R, class_T, class_B = _detalhes:GetClassIcon (class)
-			
-			local spec_id, spec_name, spec_description, spec_icon, spec_role, spec_class = DetailsFramework.GetSpecializationInfoByID (spec or 0) --thanks pas06
-			local spec_L, spec_R, spec_T, spec_B 
-			if (spec_id) then
-				if (_detalhes.class_specs_coords [spec_id]) then
-					spec_L, spec_R, spec_T, spec_B  = unpack (_detalhes.class_specs_coords [spec_id])
+			local spec = Details.cached_specs[serial] or actor.spec
+			local talents = Details.cached_talents[serial]
+			local ilvl = Details.ilevel:GetIlvl(serial)
+
+			local iconSize = 20
+			local instance = Details:GetInstance(self.row.instance_id)
+
+			instance:BuildInstanceBarTooltip(self)
+
+			local classIcon, classL, classR, classT, classB = Details:GetClassIcon(class)
+
+			local specId, specName, specDescription, specIcon, specRole, specClass = DetailsFramework.GetSpecializationInfoByID(spec or 0) --thanks pas06
+			local specL, specR, specT, specB
+			if (specId) then
+				if (Details.class_specs_coords[specId]) then
+					specL, specR, specT, specB = unpack(Details.class_specs_coords[specId])
 				end
 			end
-			
-			GameCooltip:AddLine (name, spec_name)
+
+			GameCooltip:AddLine(name, specName)
 			if (class == "UNKNOW" or class == "UNGROUPPLAYER") then
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, icon_size, icon_size, 0, 0.25, 0.75, 1)
+				GameCooltip:AddIcon([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, iconSize, iconSize, 0, 0.25, 0.75, 1)
 			else
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, icon_size, icon_size, class_L, class_R, class_T, class_B)
+				GameCooltip:AddIcon([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, iconSize, iconSize, classL, classR, classT, classB)
 			end
-			
-			if (spec_L) then
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\spec_icons_normal_alpha]], 1, 2, icon_size, icon_size, spec_L, spec_R, spec_T, spec_B)
+
+			if (specL) then
+				GameCooltip:AddIcon([[Interface\AddOns\Details\images\spec_icons_normal_alpha]], 1, 2, iconSize, iconSize, specL, specR, specT, specB)
 			else
-				GameCooltip:AddIcon ([[Interface\GossipFrame\IncompleteQuestIcon]], 1, 2, icon_size, icon_size)
+				GameCooltip:AddIcon([[Interface\GossipFrame\IncompleteQuestIcon]], 1, 2, iconSize, iconSize)
 			end
-			_detalhes:AddTooltipHeaderStatusbar()
-			
-			local talent_string = ""
+			Details:AddTooltipHeaderStatusbar()
+
+			local talentString = ""
 			if (talents and not (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow())) then
 				for i = 1, #talents do
-					local talentID, name, texture, selected, available = GetTalentInfoByID(talents [i])
+					local talentID, talentName, texture, selected, available = GetTalentInfoByID(talents [i])
 					if (texture) then
-						talent_string = talent_string ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
+						talentString = talentString ..  " |T" .. texture .. ":" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t"
 					end
 				end
 			end
-			
-			local got_info
+
+			local gotInfo
+			local localizedItemLevelString = _G.STAT_AVERAGE_ITEM_LEVEL
 			if (ilvl) then
-				GameCooltip:AddLine (STAT_AVERAGE_ITEM_LEVEL .. ":" , ilvl and "|T:" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t" .. floor (ilvl.ilvl) or "|T:" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t ??") --> Loc from GlobalStrings.lua
-				GameCooltip:AddIcon ([[]], 1, 1, 1, 20)
-				_detalhes:AddTooltipBackgroundStatusbar()
-				got_info = true
+				GameCooltip:AddLine(localizedItemLevelString .. ":" , ilvl and "|T:" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t" .. floor(ilvl.ilvl) or "|T:" .. 24 .. ":" .. 24 ..":0:0:64:64:4:60:4:60|t ??") --> Loc from GlobalStrings.lua
+				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+				Details:AddTooltipBackgroundStatusbar()
+				gotInfo = true
 			else
-				GameCooltip:AddLine (STAT_AVERAGE_ITEM_LEVEL .. ":" , 0)
-				GameCooltip:AddIcon ([[]], 1, 1, 1, 20)
-				_detalhes:AddTooltipBackgroundStatusbar()
-				got_info = true
+				GameCooltip:AddLine(localizedItemLevelString .. ":" , 0)
+				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+				Details:AddTooltipBackgroundStatusbar()
+				gotInfo = true
 			end
-			
-			if (talent_string ~= "") then
-				GameCooltip:AddLine (TALENTS .. ":", talent_string) --> Loc from GlobalStrings.lua
-				GameCooltip:AddIcon ([[]], 1, 1, 1, 24)
-				_detalhes:AddTooltipBackgroundStatusbar()
-				got_info = true
-			elseif (got_info) then
-				GameCooltip:AddLine (TALENTS .. ":", Loc ["STRING_QUERY_INSPECT_REFRESH"]) --> Loc from GlobalStrings.lua
-				GameCooltip:AddIcon ([[]], 1, 1, 1, 24)
-				_detalhes:AddTooltipBackgroundStatusbar()
+
+			local localizedTalentsString = _G.TALENTS
+
+			if (talentString ~= "") then
+				GameCooltip:AddLine(localizedTalentsString .. ":", talentString)
+				GameCooltip:AddIcon([[]], 1, 1, 1, 24)
+				Details:AddTooltipBackgroundStatusbar()
+				gotInfo = true
+
+			elseif (gotInfo) then
+				GameCooltip:AddLine(localizedTalentsString .. ":", Loc["STRING_QUERY_INSPECT_REFRESH"])
+				GameCooltip:AddIcon([[]], 1, 1, 1, 24)
+				Details:AddTooltipBackgroundStatusbar()
 			end
-			
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
-			GameCooltip:SetOption ("MinButtonHeight", 15)
-			GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
-			
+
+			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
+			GameCooltip:SetOption("MinButtonHeight", 15)
+			GameCooltip:SetOption("IgnoreButtonAutoHeight", false)
+
 			local height = 66
-			if (not got_info) then
-				GameCooltip:AddLine (Loc ["STRING_QUERY_INSPECT"], nil, 1, "orange")
-				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, icon_size, 8/512, 70/512, 224/512, 306/512)
+			if (not gotInfo) then
+				GameCooltip:AddLine(Loc["STRING_QUERY_INSPECT"], nil, 1, "orange")
+				GameCooltip:AddIcon([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, iconSize, 8/512, 70/512, 224/512, 306/512)
 				height = 54
 			end
 
 			local combat = instance:GetShowingCombat()
 			local diff = combat:GetDifficulty()
 			local attribute, subattribute = instance:GetDisplay()
-			
+
 			--check if is a raid encounter and if is heroic or mythic
 			if (diff and (diff == 15 or diff == 16) and (attribute == 1 or attribute == 2)) then
-				local db = _detalhes.OpenStorage()
+				local db = Details.OpenStorage()
 				if (db) then
-					local bestRank, encounterTable = _detalhes.storage:GetBestFromPlayer (diff, combat:GetBossInfo().id, attribute == 1 and "damage" or "healing", name, true)
+					local bestRank, encounterTable = Details.storage:GetBestFromPlayer(diff, combat:GetBossInfo().id, attribute == 1 and "damage" or "healing", name, true)
 					if (bestRank) then
-						--GameCooltip:AddLine ("")
-						
-						--> discover which are the player position in the guild rank
-						local playerTable, onEncounter, rankPosition = _detalhes.storage:GetPlayerGuildRank (diff, combat:GetBossInfo().id, attribute == 1 and "damage" or "healing", name, true)
-						
-						--" .. floor (bestRank[2] or 0) .. " ilvl" .. " | 
-						GameCooltip:AddLine ("Best Score:", _detalhes:ToK2 ((bestRank[1] or 0) / encounterTable.elapsed) .. " [|cFFFFFF00Rank: " .. (rankPosition or "#") .. "|r]", 1, "white")
-						_detalhes:AddTooltipBackgroundStatusbar()
-						
-						GameCooltip:AddLine ("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank", "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents", 1, "white", "white")
-						_detalhes:AddTooltipBackgroundStatusbar()
-						
-						--GameCooltip:AddLine ("On: " .. (encounterTable.date:gsub (".*%s", "")), , 1, "orange")
-						--_detalhes:AddTooltipHeaderStatusbar()
-						if (not got_info) then
+						--discover which are the player position in the guild rank
+						local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank(diff, combat:GetBossInfo().id, attribute == 1 and "damage" or "healing", name, true)
+
+						GameCooltip:AddLine("Best Score:", Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. " [|cFFFFFF00Rank: " .. (rankPosition or "#") .. "|r]", 1, "white")
+						Details:AddTooltipBackgroundStatusbar()
+
+						GameCooltip:AddLine("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|t Open Rank", "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents", 1, "white", "white")
+						Details:AddTooltipBackgroundStatusbar()
+
+						if (not gotInfo) then
 							height = height + 25
 						else
 							height = height + 31
@@ -2244,7 +2215,6 @@ local icon_frame_on_enter = function (self)
 			end
 
 			local actorName = actor:GetName()
-
 			local RaiderIO = _G.RaiderIO
 
 			if (RaiderIO) then
@@ -2271,7 +2241,6 @@ local icon_frame_on_enter = function (self)
 						GameCooltip:AddLine("M+ Score:", currentScore, 1, "white")
 						addedInfo = true
 					end
-					
 				else
 					local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
 					if (dungeonPlayerInfo) then
@@ -2284,11 +2253,11 @@ local icon_frame_on_enter = function (self)
 				end
 
 				if (addedInfo) then
-					GameCooltip:AddIcon ([[]], 1, 1, 1, 20)
-					_detalhes:AddTooltipBackgroundStatusbar()
-					height = height + 19 --frame height
+					GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+					Details:AddTooltipBackgroundStatusbar()
+					--increase frame height
+					height = height + 19
 				end
-
 			else
 				if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and C_PlayerInfo) then --is retail?
 					local dungeonPlayerInfo = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(actorName)
@@ -2296,35 +2265,18 @@ local icon_frame_on_enter = function (self)
 						local currentScore = dungeonPlayerInfo.currentSeasonScore or 0
 						if (currentScore > 0) then
 							GameCooltip:AddLine("M+ Score:", currentScore, 1, "white")
-							GameCooltip:AddIcon ([[]], 1, 1, 1, 20)
-							_detalhes:AddTooltipBackgroundStatusbar()
-							height = height + 19 --frame height
+							GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+							Details:AddTooltipBackgroundStatusbar()
+							--increase frame height
+							height = height + 19
 						end
-					end		
-				end		
-			end
-
-			--dps
-			--[=[
-			local attribute, subAttribute = instance:GetDisplay()
-			if (attribute == 1) then
-				local realDps = actor.total / instance:GetShowingCombat():GetCombatTime()
-				local dpsValue = _detalhes:comma_value_raw (realDps)
-				if (dpsValue) then
-					local total, decimal = strsplit (".", dpsValue)
-					total = total-- .. "." .. (decimal and decimal:match("^%d"))
-					GameCooltip:AddLine ("Dps:", total)
-					_detalhes:AddTooltipBackgroundStatusbar()
-					GameCooltip:AddIcon ("", 1, 1, 1, 20)
-					height = height + 21
+					end
 				end
 			end
-			--]=]
-		
-			GameCooltip:SetOption ("FixedHeight", height)
-			
+
+			GameCooltip:SetOption("FixedHeight", height)
 			GameCooltip:ShowCooltip()
-			
+
 			self.unitname = name
 			self.showing = "actor"
 		end
@@ -2344,74 +2296,71 @@ local icon_frame_on_leave = function (self)
 	end
 end
 
-local icon_frame_events = _detalhes:CreateEventListener()
+local icon_frame_events = Details:CreateEventListener()
 function icon_frame_events:EnterCombat()
-	for anim, _ in pairs (_detalhes.icon_animations.load.in_use) do
+	for anim, _ in pairs (Details.icon_animations.load.in_use) do
 		anim.anim:Stop()
 		anim:Hide()
-		tinsert (_detalhes.icon_animations.load.available, anim)
+		tinsert (Details.icon_animations.load.available, anim)
 		
 		anim.icon_frame.icon_animation = nil
 		anim.icon_frame = nil
 	end
-	wipe (_detalhes.icon_animations.load.in_use)
+	wipe (Details.icon_animations.load.in_use)
 end
 
-icon_frame_events:RegisterEvent ("COMBAT_PLAYER_ENTER", "EnterCombat")
+icon_frame_events:RegisterEvent("COMBAT_PLAYER_ENTER", "EnterCombat")
 
-function icon_frame_events:CancelAnim (anim)
+function icon_frame_events:CancelAnim(anim)
+	local frame, timeout = unpack(anim)
 
-	local anim, timeout = unpack (anim)
-
-	if (_detalhes.icon_animations.load.in_use [anim]) then
-	
+	if (Details.icon_animations.load.in_use[frame]) then
 		if (timeout) then
-			local f = anim
-			if (not f.question_icon) then
-				f.question_icon = f.parent:GetParent():GetParent().border:CreateTexture (nil, "overlay")
-				f.question_icon:SetTexture ([[Interface\GossipFrame\ActiveLegendaryQuestIcon]])
-				f.question_icon:SetSize (16, 16)
+			if (not frame.question_icon) then
+				frame.question_icon = frame.parent:GetParent():GetParent().border:CreateTexture(nil, "overlay")
+				frame.question_icon:SetTexture([[Interface\GossipFrame\ActiveLegendaryQuestIcon]])
+				frame.question_icon:SetSize(16, 16)
 			end
-			f.question_icon:Show()
-			f.question_icon:SetPoint ("center", f.parent, "center")
-			
-			if (not _detalhes.HideBarQuestionIcon) then
-				function _detalhes:HideBarQuestionIcon (frame)
+			frame.question_icon:Show()
+			frame.question_icon:SetPoint("center", frame.parent, "center")
+
+			if (not Details.HideBarQuestionIcon) then
+				function Details:HideBarQuestionIcon(frame)
 					frame.question_icon:Hide()
 				end
 			end
-			_detalhes:ScheduleTimer ("HideBarQuestionIcon", 2, f)
+			Details:ScheduleTimer("HideBarQuestionIcon", 2, frame)
 		end
-	
-		_detalhes.icon_animations.load.in_use [anim] = nil
-		tinsert (_detalhes.icon_animations.load.available, anim)
-		anim.anim:Stop()
-		anim:Hide()
-		
-		anim.icon_frame.icon_animation = nil
-		anim.icon_frame = nil
+
+		Details.icon_animations.load.in_use[frame] = nil
+		tinsert(Details.icon_animations.load.available, frame)
+		frame.anim:Stop()
+		frame:Hide()
+
+		frame.icon_frame.icon_animation = nil
+		frame.icon_frame = nil
 	end
 end
 
-local icon_frame_inspect_callback = function (guid, unitid, icon_frame)
-	if (icon_frame.icon_animation) then
-		icon_frame.icon_animation.anim:Stop()
-		icon_frame.icon_animation:Hide()
+local icon_frame_inspect_callback = function(guid, unitid, iconFrame)
+	if (iconFrame.icon_animation) then
+		iconFrame.icon_animation.anim:Stop()
+		iconFrame.icon_animation:Hide()
 	end
 
-	local is_in_use = _detalhes.icon_animations.load.in_use [icon_frame.icon_animation]
-	if (is_in_use) then
-		tinsert (_detalhes.icon_animations.load.available, icon_frame.icon_animation)
-		_detalhes.icon_animations.load.in_use [icon_frame.icon_animation] = nil
+	local inUse = Details.icon_animations.load.in_use[iconFrame.icon_animation]
+	if (inUse) then
+		tinsert(Details.icon_animations.load.available, iconFrame.icon_animation)
+		Details.icon_animations.load.in_use[iconFrame.icon_animation] = nil
 	end
-	
-	if (icon_frame:IsMouseOver()) then
-		icon_frame_on_enter (icon_frame)
+
+	if (iconFrame:IsMouseOver()) then
+		iconFrame_OnEnter(iconFrame)
 	end
-	
-	if (icon_frame.icon_animation) then
-		icon_frame.icon_animation.icon_frame = nil
-		icon_frame.icon_animation = nil
+
+	if (iconFrame.icon_animation) then
+		iconFrame.icon_animation.icon_frame = nil
+		iconFrame.icon_animation = nil
 	end
 end
 
@@ -2423,13 +2372,13 @@ local icon_frame_create_animation = function()
 	f.rotate:SetDegrees (360)
 	f.rotate:SetDuration (2)
 	f.anim:SetLooping ("repeat")
-	
+
 	local t = f:CreateTexture (nil, "overlay")
 	t:SetTexture ([[Interface\COMMON\StreamCircle]])
 	t:SetAlpha (0.7)
 	t:SetAllPoints()
-	
-	tinsert (_detalhes.icon_animations.load.available, f)
+
+	tinsert (Details.icon_animations.load.available, f)
 end
 
 local icon_frame_on_click_down = function (self)
@@ -2446,7 +2395,7 @@ local icon_frame_on_click_up = function (self, button)
 
 	if (button == "LeftButton") then
 		--> open the rank panel
-		local instance = _detalhes:GetInstance (self.row.instance_id)
+		local instance = Details:GetInstance (self.row.instance_id)
 		if (instance) then
 			local attribute, subattribute = instance:GetDisplay()
 			local combat = instance:GetShowingCombat()
@@ -2454,11 +2403,11 @@ local icon_frame_on_click_up = function (self, button)
 			local bossInfo = combat:GetBossInfo()
 			
 			if ((attribute == 1 or attribute == 2) and bossInfo) then --if bossInfo is nil, means the combat isn't a boss
-				local db = _detalhes.OpenStorage()
+				local db = Details.OpenStorage()
 				if (db and bossInfo.id) then
-					local haveData = _detalhes.storage:HaveDataForEncounter (diff, bossInfo.id, true) --attempt to index local 'bossInfo' (a nil value)
+					local haveData = Details.storage:HaveDataForEncounter (diff, bossInfo.id, true) --attempt to index local 'bossInfo' (a nil value)
 					if (haveData) then
-						_detalhes:OpenRaidHistoryWindow (bossInfo.zone, bossInfo.id, diff, attribute == 1 and "damage" or "healing", true, 1, false, 2)
+						Details:OpenRaidHistoryWindow (bossInfo.zone, bossInfo.id, diff, attribute == 1 and "damage" or "healing", true, 1, false, 2)
 					end
 				end
 			end
@@ -2466,20 +2415,20 @@ local icon_frame_on_click_up = function (self, button)
 		return
 	end
 	
-	if (_detalhes.in_combat) then
-		_detalhes:Msg (Loc ["STRING_QUERY_INSPECT_FAIL1"])
+	if (Details.in_combat) then
+		Details:Msg (Loc["STRING_QUERY_INSPECT_FAIL1"])
 		return
 	end
 	
 	if (self.showing == "actor") then
 	
-		if (_detalhes.ilevel.core:HasQueuedInspec (self.unitname)) then
+		if (Details.ilevel.core:HasQueuedInspec (self.unitname)) then
 		
 			--> icon animation
-			local anim = tremove (_detalhes.icon_animations.load.available)
+			local anim = tremove (Details.icon_animations.load.available)
 			if (not anim) then
 				icon_frame_create_animation()
-				anim = tremove (_detalhes.icon_animations.load.available)
+				anim = tremove (Details.icon_animations.load.available)
 			end
 		
 			local f = anim
@@ -2493,35 +2442,35 @@ local icon_frame_on_click_up = function (self, button)
 			f.question_icon:SetPoint ("center", self, "center")
 			f.question_icon:Show()
 			
-			if (not _detalhes.HideBarQuestionIcon) then
-				function _detalhes:HideBarQuestionIcon (frame)
+			if (not Details.HideBarQuestionIcon) then
+				function Details:HideBarQuestionIcon (frame)
 					frame.question_icon:Hide()
 				end
 			end
-			_detalhes:ScheduleTimer ("HideBarQuestionIcon", 1, f)
+			Details:ScheduleTimer ("HideBarQuestionIcon", 1, f)
 		
 			self.icon_animation = anim
 			anim.icon_frame = self
 			
 			local pid
 			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 1, {anim})
-			_detalhes.icon_animations.load.in_use [anim] = pid
+			Details.icon_animations.load.in_use [anim] = pid
 			anim.parent = self
 		
 			return
 		end
 
-		local does_query = _detalhes.ilevel.core:QueryInspect (self.unitname, icon_frame_inspect_callback, self)
+		local does_query = Details.ilevel.core:QueryInspect (self.unitname, icon_frame_inspect_callback, self)
 		
 		if (self.icon_animation) then
 			return
 		end
 		
 		--> icon animation
-		local anim = tremove (_detalhes.icon_animations.load.available)
+		local anim = tremove (Details.icon_animations.load.available)
 		if (not anim) then
 			icon_frame_create_animation()
-			anim = tremove (_detalhes.icon_animations.load.available)
+			anim = tremove (Details.icon_animations.load.available)
 		end
 		
 		anim:Show()
@@ -2542,7 +2491,7 @@ local icon_frame_on_click_up = function (self, button)
 		else
 			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 0.2, {anim})
 		end
-		_detalhes.icon_animations.load.in_use [anim] = pid
+		Details.icon_animations.load.in_use [anim] = pid
 		anim.parent = self
 		
 		if (anim.question_icon) then
@@ -2552,7 +2501,7 @@ local icon_frame_on_click_up = function (self, button)
 end
 
 local set_frame_icon_scripts = function (row)
-	row.icon_frame:SetScript ("OnEnter", icon_frame_on_enter)
+	row.icon_frame:SetScript ("OnEnter", iconFrame_OnEnter)
 	row.icon_frame:SetScript ("OnLeave", icon_frame_on_leave)
 	row.icon_frame:SetScript ("OnMouseDown", icon_frame_on_click_down)
 	row.icon_frame:SetScript ("OnMouseUp", icon_frame_on_click_up)
@@ -2571,10 +2520,10 @@ local function barra_scripts (esta_barra, instancia, i)
 	
 	set_frame_icon_scripts (esta_barra)
 	
-	esta_barra.SetValue = set_bar_value
+	esta_barra.SetValue = setBarValue
 end
 
-function _detalhes:ReportSingleLine (instancia, barra)
+function Details:ReportSingleLine (instancia, barra)
 
 	local reportar
 	if (instancia.atributo == 5) then --> custom
@@ -2586,9 +2535,9 @@ function _detalhes:ReportSingleLine (instancia, barra)
 			actor_name = actor_name:gsub ((".*%."), "")
 			
 			if (instancia.segmento == -1) then --overall
-				reportar = {"Details!: "  .. Loc ["STRING_OVERALL"] .. " " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
+				reportar = {"Details!: "  .. Loc["STRING_OVERALL"] .. " " .. instancia.customName .. ": " .. actor_name .. " " .. Loc["STRING_CUSTOM_REPORT"]}
 			else
-				reportar = {"Details!: " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
+				reportar = {"Details!: " .. instancia.customName .. ": " .. actor_name .. " " .. Loc["STRING_CUSTOM_REPORT"]}
 			end
 		
 			local amt = GameCooltip.Indexes
@@ -2597,19 +2546,19 @@ function _detalhes:ReportSingleLine (instancia, barra)
 				reportar [#reportar+1] = (i-1) .. ". " .. left_text .. " ... " .. right_text
 			end
 		else
-			reportar = {"Details!: " .. instancia.customName .. ": " .. Loc ["STRING_CUSTOM_REPORT"]}
+			reportar = {"Details!: " .. instancia.customName .. ": " .. Loc["STRING_CUSTOM_REPORT"]}
 			reportar [#reportar+1] = barra.lineText1:GetText() .. " " .. barra.lineText4:GetText()
 			
 			--reportar [#reportar+1] = (i-1) .. ". " .. left_text .. " ... " .. right_text
 		end
 		
 	else
-		reportar = {"Details!: " .. Loc ["STRING_REPORT"] .. " " .. _detalhes.sub_atributos [instancia.atributo].lista [instancia.sub_atributo]}
+		reportar = {"Details!: " .. Loc["STRING_REPORT"] .. " " .. Details.sub_atributos [instancia.atributo].lista [instancia.sub_atributo]}
 		reportar [#reportar+1] = barra.lineText1:GetText() .. " " .. barra.lineText4:GetText()
 	end
 
 
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+	return Details:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
 -- ~stretch
@@ -2618,7 +2567,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 
 	button:SetScript ("OnEnter", function (self)
 		self.mouse_over = true
-		if (not _detalhes.disable_stretch_button) then
+		if (not Details.disable_stretch_button) then
 			Details.FadeHandler.Fader (self, "ALPHA", 1)
 		end
 	end)
@@ -2665,7 +2614,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 	
 		local checking = instancia
 		for i = instancia.meu_id-1, 1, -1 do 
-			local esta_instancia = _detalhes.tabela_instancias [i]
+			local esta_instancia = Details.tabela_instancias [i]
 			if ((esta_instancia.snap[1] and esta_instancia.snap[1] == checking.meu_id) or (esta_instancia.snap[3] and esta_instancia.snap[3] == checking.meu_id)) then
 				linha_horizontal [#linha_horizontal+1] = esta_instancia
 				checking = esta_instancia
@@ -2675,8 +2624,8 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		end
 		
 		checking = instancia
-		for i = instancia.meu_id+1, #_detalhes.tabela_instancias do 
-			local esta_instancia = _detalhes.tabela_instancias [i]
+		for i = instancia.meu_id+1, #Details.tabela_instancias do 
+			local esta_instancia = Details.tabela_instancias [i]
 			if ((esta_instancia.snap[1] and esta_instancia.snap[1] == checking.meu_id) or (esta_instancia.snap[3] and esta_instancia.snap[3] == checking.meu_id)) then
 				linha_horizontal [#linha_horizontal+1] = esta_instancia
 				checking = esta_instancia
@@ -2697,7 +2646,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 				
 				local _r, _g, _b, _a = esta_instancia.baseframe:GetBackdropColor()
 				gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
-				_detalhes:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, esta_instancia)
+				Details:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, esta_instancia)
 				
 				if (esta_instancia.wallpaper.enabled) then
 					_r, _g, _b = esta_instancia.baseframe.wallpaper:GetVertexColor()
@@ -2708,14 +2657,14 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 			end
 		end
 		
-		_detalhes:SnapTextures (true)
+		Details:SnapTextures (true)
 		
-		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, instancia)
+		Details:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, instancia)
 		
 		--> change the update speed
-		if (_detalhes.update_speed > 0.3) then
-			_detalhes:SetWindowUpdateSpeed (0.3, true)
-			_detalhes.stretch_changed_update_speed = true
+		if (Details.update_speed > 0.3) then
+			Details:SetWindowUpdateSpeed (0.3, true)
+			Details.stretch_changed_update_speed = true
 		end
 		
 	end)
@@ -2739,7 +2688,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 			if (instancia.need_rolagem) then
 				instancia:MostrarScrollBar (true)
 			end
-			_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
+			Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
 			
 			instancia:RefreshBars()
 			instancia:InstanceReset()
@@ -2757,7 +2706,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					if (esta_instancia.need_rolagem) then
 						esta_instancia:MostrarScrollBar (true)
 					end
-					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+					Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
 					
 					local _r, _g, _b, _a = esta_instancia.baseframe:GetBackdropColor()
 					gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
@@ -2772,7 +2721,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					esta_instancia.rowframe:SetFrameStrata (esta_instancia.strata)
 					esta_instancia:StretchButtonAlwaysOnTop()
 					
-					_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
+					Details:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
 					
 					esta_instancia:RefreshBars()
 					esta_instancia:InstanceReset()
@@ -2795,13 +2744,13 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		instancia.rowframe:SetFrameStrata (instancia.strata)
 		instancia:StretchButtonAlwaysOnTop()
 		
-		_detalhes:SnapTextures (false)
+		Details:SnapTextures (false)
 		
-		_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, instancia)
+		Details:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, instancia)
 		
-		if (_detalhes.stretch_changed_update_speed) then
-			_detalhes:SetWindowUpdateSpeed (false, true)
-			_detalhes.stretch_changed_update_speed = nil
+		if (Details.stretch_changed_update_speed) then
+			Details:SetWindowUpdateSpeed (false, true)
+			Details.stretch_changed_update_speed = nil
 		end
 
 	end)	
@@ -2884,16 +2833,16 @@ end
 
 function DetailsKeyBindScrollUp()
 
-	local last_key_pressed = _detalhes.KeyBindScrollUpLastPressed or GetTime()-0.3
+	local last_key_pressed = Details.KeyBindScrollUpLastPressed or GetTime()-0.3
 	
 	local to_top = false
 	if (last_key_pressed+0.2 > GetTime()) then
 		to_top = true
 	end
 	
-	_detalhes.KeyBindScrollUpLastPressed = GetTime()
+	Details.KeyBindScrollUpLastPressed = GetTime()
 	
-	for index, instance in ipairs (_detalhes.tabela_instancias) do
+	for index, instance in ipairs (Details.tabela_instancias) do
 		if (instance:IsEnabled()) then
 			
 			local scrollbar = instance.scroll
@@ -2918,7 +2867,7 @@ function DetailsKeyBindScrollUp()
 end
 
 function DetailsKeyBindScrollDown()
-	for index, instance in ipairs (_detalhes.tabela_instancias) do
+	for index, instance in ipairs (Details.tabela_instancias) do
 		if (instance:IsEnabled()) then
 			
 			local scrollbar = instance.scroll
@@ -2945,7 +2894,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 				local A = instancia.barraS[1]
 				if (A) then
 					if (A > 1) then
-						scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height * _detalhes.scroll_speed)
+						scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height * Details.scroll_speed)
 					else
 						scrollbar:SetValue (0)
 						scrollbar.ultimo = 0
@@ -2956,7 +2905,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 				local B = instancia.barraS[2]
 				if (B) then
 					if (B < (instancia.rows_showing or 0)) then
-						scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * _detalhes.scroll_speed)
+						scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * Details.scroll_speed)
 					else
 						local _, maxValue = scrollbar:GetMinMaxValues()
 						scrollbar:SetValue (maxValue)
@@ -3014,7 +2963,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 				if (true) then --> testing by pass row check
 					local diff = meu_valor - ultimo --> pega a diferen�a de H
 					diff = diff / instancia.row_height --> calcula quantas barras ele pulou
-					diff = _math_ceil (diff) --> arredonda para cima
+					diff = ceil(diff) --> arredonda para cima
 					if (instancia.barraS[2]+diff > (instancia.rows_showing or 0) and ultimo > 0) then
 						instancia.barraS[1] = (instancia.rows_showing or 0) - (instancia.rows_fit_in_window-1)
 						instancia.barraS[2] = (instancia.rows_showing or 0)
@@ -3034,7 +2983,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 					--> calcula quantas barras passou
 					local diff = ultimo - meu_valor
 					diff = diff / instancia.row_height
-					diff = _math_ceil (diff)
+					diff = ceil(diff)
 					if (instancia.barraS[1]-diff < 1) then
 						instancia.barraS[2] = instancia.rows_fit_in_window
 						instancia.barraS[1] = 1
@@ -3051,11 +3000,11 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 	end)		
 end
 
-function _detalhes:HaveInstanceAlert()
+function Details:HaveInstanceAlert()
 	return self.alert:IsShown()
 end
 
-function _detalhes:InstanceAlertTime (instance)
+function Details:InstanceAlertTime (instance)
 	instance.alert:Hide()
 	instance.alert.rotate:Stop()
 	instance.alert_time = nil
@@ -3065,16 +3014,16 @@ local hide_click_func = function()
 	--empty
 end
 
-function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
+function Details:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
 	
-	if (not forceAlert and _detalhes.streamer_config.no_alerts) then
+	if (not forceAlert and Details.streamer_config.no_alerts) then
 		--return
 	end
 	
 	if (not self.meu_id) then
-		local lower = _detalhes:GetLowerInstanceNumber()
+		local lower = Details:GetLowerInstanceNumber()
 		if (lower) then
-			self = _detalhes:GetInstance (lower)
+			self = Details:GetInstance (lower)
 		else
 			return
 		end
@@ -3095,7 +3044,7 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAler
 	
 	if (icon) then
 		if (type (icon) == "table") then
-			local texture, w, h, animate, left, right, top, bottom, r, g, b, a = unpack (icon)
+			local texture, w, h, animate, left, right, top, bottom, r, g, b, a = unpack(icon)
 			
 			self.alert.icon:SetTexture (texture)
 			self.alert.icon:SetWidth (w or 14)
@@ -3125,12 +3074,12 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAler
 	
 	if (clickfunc) then
 		self.alert.button.func = clickfunc[1]
-		self.alert.button.func_param = {unpack (clickfunc, 2)}
+		self.alert.button.func_param = {unpack(clickfunc, 2)}
 	end
 
 	time = time or 15
 	self.alert_time = time
-	_detalhes:ScheduleTimer ("InstanceAlertTime", time, self)
+	Details:ScheduleTimer ("InstanceAlertTime", time, self)
 	
 	self.alert:SetPoint ("bottom", self.baseframe, "bottom", 0, -12)
 	self.alert:SetPoint ("left", self.baseframe, "left", 3, 0)
@@ -3151,9 +3100,9 @@ end
 
 local alert_on_click = function (self, button)
 	if (self.func) then
-		local okey, errortext = pcall (self.func, unpack (self.func_param))
+		local okey, errortext = pcall (self.func, unpack(self.func_param))
 		if (not okey) then
-			_detalhes:Msg ("error on alert function:", errortext)
+			Details:Msg ("error on alert function:", errortext)
 		end
 	end
 	self:GetParent():Hide()
@@ -3197,7 +3146,7 @@ local function CreateAlertFrame (baseframe, instancia)
 	
 	local text = alert_bg:CreateFontString (nil, "overlay", "GameFontNormal")
 	text:SetPoint ("right", alert_bg, "right", -14, 0)
-	_detalhes:SetFontSize (text, 10)
+	Details:SetFontSize (text, 10)
 	text:SetTextColor (1, 1, 1, 0.8)
 	
 	local rotate_frame = CreateFrame ("frame", "DetailsAlertFrameRotate" .. instancia.meu_id, alert_bg)
@@ -3297,7 +3246,7 @@ local function CreateAlertFrame (baseframe, instancia)
 	return alert_bg
 end
 
-function _detalhes:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
+function Details:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
 	if (not text) then
 		self.freeze_icon:Hide()
 		return self.freeze_texto:Hide()
@@ -3317,7 +3266,7 @@ function _detalhes:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
 	end
 	
 	if (iconcoords and type (iconcoords) == "table") then
-		self.freeze_icon:SetTexCoord (_unpack (iconcoords))
+		self.freeze_icon:SetTexCoord (unpack(iconcoords))
 	else
 		self.freeze_icon:SetTexCoord (0, 1, 0, 1)
 	end
@@ -3330,16 +3279,16 @@ function _detalhes:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
 	end
 end
 
-function _detalhes:schedule_hide_anti_overlap (self)
+function Details:schedule_hide_anti_overlap (self)
 	self:Hide()
 	self.schdule = nil
 end
 local function hide_anti_overlap (self)
 	if (self.schdule) then
-		_detalhes:CancelTimer (self.schdule)
+		Details:CancelTimer (self.schdule)
 		self.schdule = nil
 	end
-	local schdule = _detalhes:ScheduleTimer ("schedule_hide_anti_overlap", 0.3, self)
+	local schdule = Details:ScheduleTimer ("schedule_hide_anti_overlap", 0.3, self)
 	self.schdule = schdule
 end
 
@@ -3348,7 +3297,7 @@ local function show_anti_overlap (instance, host, side)
 	local anti_menu_overlap = instance.baseframe.anti_menu_overlap
 
 	if (anti_menu_overlap.schdule) then
-		_detalhes:CancelTimer (anti_menu_overlap.schdule)
+		Details:CancelTimer (anti_menu_overlap.schdule)
 		anti_menu_overlap.schdule = nil
 	end
 
@@ -3361,16 +3310,16 @@ local function show_anti_overlap (instance, host, side)
 	anti_menu_overlap:Show()
 end
 
-_detalhes.snap_alert = CreateFrame ("frame", "DetailsSnapAlertFrame", UIParent, "ActionBarButtonSpellActivationAlert")
-_detalhes.snap_alert:Hide()
-_detalhes.snap_alert:SetFrameStrata ("FULLSCREEN")
+Details.snap_alert = CreateFrame ("frame", "DetailsSnapAlertFrame", UIParent, "ActionBarButtonSpellActivationAlert")
+Details.snap_alert:Hide()
+Details.snap_alert:SetFrameStrata ("FULLSCREEN")
 
-function _detalhes:SnapAlert()
-	_detalhes.snap_alert:ClearAllPoints()
-	_detalhes.snap_alert:SetPoint ("topleft", self.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
-	_detalhes.snap_alert:SetPoint ("bottomright", self.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)
-	_detalhes.snap_alert.animOut:Stop()
-	_detalhes.snap_alert.animIn:Play()
+function Details:SnapAlert()
+	Details.snap_alert:ClearAllPoints()
+	Details.snap_alert:SetPoint ("topleft", self.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
+	Details.snap_alert:SetPoint ("bottomright", self.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)
+	Details.snap_alert.animOut:Stop()
+	Details.snap_alert.animIn:Play()
 end
 
 do
@@ -3390,7 +3339,7 @@ do
 		tooltip_anchor.alert.animOut:Play()
 		GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 		GameTooltip:ClearLines()
-		GameTooltip:AddLine (Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT_DESC"])
+		GameTooltip:AddLine(Loc["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT_DESC"])
 		GameTooltip:Show()
 	end)
 	
@@ -3414,8 +3363,8 @@ do
 			local UIscale = UIParent:GetScale()
 			xofs = xofs * scale - GetScreenWidth() * UIscale / 2
 			yofs = yofs * scale - GetScreenHeight() * UIscale / 2
-			_detalhes.tooltip.anchor_screen_pos[1] = xofs / UIscale
-			_detalhes.tooltip.anchor_screen_pos[2] = yofs / UIscale
+			Details.tooltip.anchor_screen_pos[1] = xofs / UIscale
+			Details.tooltip.anchor_screen_pos[2] = yofs / UIscale
 			
 		elseif (button == "RightButton" and not self.moving) then
 			tooltip_anchor:MoveAnchor()
@@ -3443,7 +3392,7 @@ do
 	end
 	
 	function tooltip_anchor:Restore()
-		local x, y = _detalhes.tooltip.anchor_screen_pos[1], _detalhes.tooltip.anchor_screen_pos[2]
+		local x, y = Details.tooltip.anchor_screen_pos[1], Details.tooltip.anchor_screen_pos[2]
 		local scale = self:GetEffectiveScale() 
 		local UIscale = UIParent:GetScale()
 		x = x * UIscale / scale
@@ -3466,7 +3415,7 @@ do
 	
 	local text = tooltip_anchor:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
 	text:SetPoint ("left", icon, "right", 6, 0)
-	text:SetText (Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT"])
+	text:SetText (Loc["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT"])
 	
 	tooltip_anchor:EnableMouse (false)
 
@@ -3569,7 +3518,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.scroll_up = backgrounddisplay:CreateTexture (nil, "background")
 		baseframe.scroll_up:SetPoint ("topleft", backgrounddisplay, "topright", 0, 0)
 		baseframe.scroll_up:SetTexture (DEFAULT_SKIN)
-		baseframe.scroll_up:SetTexCoord (unpack (COORDS_SLIDER_TOP))
+		baseframe.scroll_up:SetTexCoord (unpack(COORDS_SLIDER_TOP))
 		baseframe.scroll_up:SetWidth (32)
 		baseframe.scroll_up:SetHeight (32)
 	
@@ -3577,7 +3526,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.scroll_down = backgrounddisplay:CreateTexture (nil, "background")
 		baseframe.scroll_down:SetPoint ("bottomleft", backgrounddisplay, "bottomright", 0, 0)
 		baseframe.scroll_down:SetTexture (DEFAULT_SKIN)
-		baseframe.scroll_down:SetTexCoord (unpack (COORDS_SLIDER_DOWN))
+		baseframe.scroll_down:SetTexCoord (unpack(COORDS_SLIDER_DOWN))
 		baseframe.scroll_down:SetWidth (32)
 		baseframe.scroll_down:SetHeight (32)
 	
@@ -3586,7 +3535,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.scroll_middle:SetPoint ("top", baseframe.scroll_up, "bottom", 0, 8)
 		baseframe.scroll_middle:SetPoint ("bottom", baseframe.scroll_down, "top", 0, -11)
 		baseframe.scroll_middle:SetTexture (DEFAULT_SKIN)
-		baseframe.scroll_middle:SetTexCoord (unpack (COORDS_SLIDER_MIDDLE))
+		baseframe.scroll_middle:SetTexCoord (unpack(COORDS_SLIDER_MIDDLE))
 		baseframe.scroll_middle:SetWidth (32)
 		baseframe.scroll_middle:SetHeight (64)
 	
@@ -3642,7 +3591,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		
 		local stretch_texture = baseframe.button_stretch:CreateTexture (nil, "overlay")
 		stretch_texture:SetTexture (DEFAULT_SKIN)
-		stretch_texture:SetTexCoord (unpack (COORDS_STRETCH))
+		stretch_texture:SetTexCoord (unpack(COORDS_STRETCH))
 		stretch_texture:SetWidth (32)
 		stretch_texture:SetHeight (16)
 		stretch_texture:SetAllPoints (baseframe.button_stretch)
@@ -3659,7 +3608,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 -- main window config -------------------------------------------------------------------------------------------------------------------------------------------------
 
 		baseframe:SetClampedToScreen (true)
-		baseframe:SetSize (_detalhes.new_window_size.width, _detalhes.new_window_size.height)
+		baseframe:SetSize (Details.new_window_size.width, Details.new_window_size.height)
 		
 		baseframe:SetPoint ("center", _UIParent)
 		baseframe:EnableMouseWheel (false)
@@ -3667,7 +3616,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 		if (not DetailsFramework.IsDragonflight()) then
 			baseframe:SetMinResize (150, 7)
-			baseframe:SetMaxResize (_detalhes.max_window_size.width, _detalhes.max_window_size.height)
+			baseframe:SetMaxResize (Details.max_window_size.width, Details.max_window_size.height)
 		else
 			--baseframe:SetResizeBounds(150, 7, _detalhes.max_window_size.width, _detalhes.max_window_size.height)
 		end
@@ -3694,7 +3643,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.overall_data_warning:SetPoint ("center", backgrounddisplay, "center")
 		instancia.overall_data_warning:SetTextColor (.8, .8, .8, .5)
 		instancia.overall_data_warning:Hide()
-		instancia.overall_data_warning:SetText (Loc ["STRING_TUTORIAL_OVERALL1"])
+		instancia.overall_data_warning:SetText (Loc["STRING_TUTORIAL_OVERALL1"])
 
 	--> freeze icon
 		instancia.freeze_icon = backgrounddisplay:CreateTexture (nil, "overlay")
@@ -3715,7 +3664,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 			--instancia._version:SetPoint ("left", backgrounddisplay, "left", 20, 0)
 			instancia._version:SetTextColor (1, 1, 1)
 			instancia._version:SetText ("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.")
-			if (not _detalhes.initializing) then
+			if (not Details.initializing) then
 				
 			end
 			instancia._version:Hide()
@@ -3737,7 +3686,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		resize_direita_texture:SetWidth (16)
 		resize_direita_texture:SetHeight (16)
 		resize_direita_texture:SetTexture (DEFAULT_SKIN)
-		resize_direita_texture:SetTexCoord (unpack (COORDS_RESIZE_RIGHT))
+		resize_direita_texture:SetTexCoord (unpack(COORDS_RESIZE_RIGHT))
 		resize_direita_texture:SetAllPoints (baseframe.resize_direita)
 		baseframe.resize_direita.texture = resize_direita_texture
 
@@ -3759,7 +3708,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.lock_button.label:SetPoint ("right", baseframe.lock_button, "right")
 		baseframe.lock_button.label:SetTextColor (.6, .6, .6, .7)
 		baseframe.lock_button.label:SetJustifyH ("right")
-		baseframe.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
+		baseframe.lock_button.label:SetText (Loc["STRING_LOCK_WINDOW"])
 		baseframe.lock_button:SetWidth (baseframe.lock_button.label:GetStringWidth()+2)
 		baseframe.lock_button:SetScript ("OnClick", lockFunctionOnClick)
 		baseframe.lock_button:SetScript ("OnEnter", lockFunctionOnEnter)
@@ -3776,7 +3725,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		resize_esquerda_texture:SetWidth (16)
 		resize_esquerda_texture:SetHeight (16)
 		resize_esquerda_texture:SetTexture (DEFAULT_SKIN)
-		resize_esquerda_texture:SetTexCoord (unpack (COORDS_RESIZE_LEFT))
+		resize_esquerda_texture:SetTexCoord (unpack(COORDS_RESIZE_LEFT))
 		resize_esquerda_texture:SetAllPoints (baseframe.resize_esquerda)
 		baseframe.resize_esquerda.texture = resize_esquerda_texture
 
@@ -3820,7 +3769,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	--> left
 		baseframe.barra_esquerda = floatingframe:CreateTexture (nil, "artwork")
 		baseframe.barra_esquerda:SetTexture (DEFAULT_SKIN)
-		baseframe.barra_esquerda:SetTexCoord (unpack (COORDS_LEFT_SIDE_BAR))
+		baseframe.barra_esquerda:SetTexCoord (unpack(COORDS_LEFT_SIDE_BAR))
 		baseframe.barra_esquerda:SetWidth (64)
 		baseframe.barra_esquerda:SetHeight	(512)
 		baseframe.barra_esquerda:SetPoint ("topleft", baseframe, "topleft", -56, 0)
@@ -3828,7 +3777,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	--> right
 		baseframe.barra_direita = floatingframe:CreateTexture (nil, "artwork")
 		baseframe.barra_direita:SetTexture (DEFAULT_SKIN)
-		baseframe.barra_direita:SetTexCoord (unpack (COORDS_RIGHT_SIDE_BAR))
+		baseframe.barra_direita:SetTexCoord (unpack(COORDS_RIGHT_SIDE_BAR))
 		baseframe.barra_direita:SetWidth (64)
 		baseframe.barra_direita:SetHeight (512)
 		baseframe.barra_direita:SetPoint ("topright", baseframe, "topright", 56, 0)
@@ -3836,7 +3785,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	--> bottom
 		baseframe.barra_fundo = floatingframe:CreateTexture (nil, "artwork")
 		baseframe.barra_fundo:SetTexture (DEFAULT_SKIN)
-		baseframe.barra_fundo:SetTexCoord (unpack (COORDS_BOTTOM_SIDE_BAR))
+		baseframe.barra_fundo:SetTexCoord (unpack(COORDS_BOTTOM_SIDE_BAR))
 		baseframe.barra_fundo:SetWidth (512)
 		baseframe.barra_fundo:SetHeight (64)
 		baseframe.barra_fundo:SetPoint ("bottomleft", baseframe, "bottomleft", 0, -56)
@@ -3853,7 +3802,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.break_snap_button.instancia = instancia
 		
 		instancia.break_snap_button:SetScript ("OnClick", function()
-			if (_detalhes.disable_lock_ungroup_buttons) then
+			if (Details.disable_lock_ungroup_buttons) then
 				return
 			end
 			instancia:Desagrupar (-1)
@@ -3871,10 +3820,10 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.break_snap_button:SetHighlightTexture (DEFAULT_SKIN, "ADD")
 		instancia.break_snap_button:SetPushedTexture (DEFAULT_SKIN)
 		
-		instancia.break_snap_button:GetNormalTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		instancia.break_snap_button:GetDisabledTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		instancia.break_snap_button:GetHighlightTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		instancia.break_snap_button:GetPushedTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetNormalTexture():SetTexCoord (unpack(COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetDisabledTexture():SetTexCoord (unpack(COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetHighlightTexture():SetTexCoord (unpack(COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetPushedTexture():SetTexCoord (unpack(COORDS_UNLOCK_BUTTON))
 	
 -- scripts ------------------------------------------------------------------------------------------------------------------------------------------------------------	
 	
@@ -3959,11 +3908,11 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 end
 
-function _detalhes:IsShowingOverallDataWarning()
+function Details:IsShowingOverallDataWarning()
 	return self.overall_data_warning:IsShown()
 end
 
-function _detalhes:ShowOverallDataWarning (state)
+function Details:ShowOverallDataWarning (state)
 	if (state) then
 		self.overall_data_warning:Show()
 		self.overall_data_warning:SetWidth (self:GetSize() - 20)
@@ -3973,7 +3922,7 @@ function _detalhes:ShowOverallDataWarning (state)
 end
 
 
-function _detalhes:SetBarFollowPlayer (follow)
+function Details:SetBarFollowPlayer (follow)
 	
 	if (follow == nil) then
 		follow = self.following.enabled
@@ -3986,7 +3935,7 @@ function _detalhes:SetBarFollowPlayer (follow)
 	self:ReajustaGump()
 end
 
-function _detalhes:SetBarOrientationDirection (orientation)
+function Details:SetBarOrientationDirection (orientation)
 	if (orientation == nil) then
 		orientation = self.bars_inverted
 	end
@@ -3999,7 +3948,7 @@ function _detalhes:SetBarOrientationDirection (orientation)
 	self:ReajustaGump()
 end
 
-function _detalhes:SetBarGrowDirection (direction)
+function Details:SetBarGrowDirection (direction)
 	if (not direction) then
 		direction = self.bars_grow_direction
 	end
@@ -4012,7 +3961,7 @@ function _detalhes:SetBarGrowDirection (direction)
 	local height = self.row_height
 	
 	if (direction == 1) then --> top to bottom
-		for index, row in _ipairs (bars) do
+		for index, row in ipairs (bars) do
 			local y = height * (index - 1)
 			y = y * -1
 			row:ClearAllPoints()
@@ -4027,7 +3976,7 @@ function _detalhes:SetBarGrowDirection (direction)
 		end
 		
 	elseif (direction == 2) then --> bottom to top
-		for index, row in _ipairs (bars) do
+		for index, row in ipairs (bars) do
 			local y = height * (index - 1)
 			row:ClearAllPoints()
 			if (self.toolbar_side == 1) then 
@@ -4057,7 +4006,7 @@ function gump:NewRow (instancia, index)
 	return gump:CreateNewLine (instancia, index)
 end
 
-_detalhes.barras_criadas = 0
+Details.barras_criadas = 0
 
 local getActor = function(self)
 	return self.minha_tabela
@@ -4181,17 +4130,17 @@ function gump:CreateNewLine (instancia, index)
 	instancia.barras [index] = newLine
 	
 	--> set the left text
-	newLine.lineText1:SetText (Loc ["STRING_NEWROW"])
+	newLine.lineText1:SetText (Loc["STRING_NEWROW"])
 	
 	--> refresh rows
 	instancia:InstanceRefreshRows()
 	
-	_detalhes:SendEvent ("DETAILS_INSTANCE_NEWROW", nil, instancia, newLine)
+	Details:SendEvent ("DETAILS_INSTANCE_NEWROW", nil, instancia, newLine)
 	
 	return newLine
 end
 
-function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right, translittext)
+function Details:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right, translittext)
 	
 	--> size
 	if (size) then
@@ -4285,7 +4234,7 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	self:InstanceRefreshRows()
 end
 
-function _detalhes:SetBarBackdropSettings (enabled, size, color, use_class_colors)
+function Details:SetBarBackdropSettings (enabled, size, color, use_class_colors)
 	if (type(enabled) ~= "boolean") then
 		enabled = self.row_info.backdrop.enabled
 	end
@@ -4362,7 +4311,7 @@ function Details:RefreshTitleBar()
 	end
 end
 
-function _detalhes:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_enabled, lower_model, lower_alpha)
+function Details:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_enabled, lower_model, lower_alpha)
 	
 	--> is enabled
 	if (type (upper_enabled) == "boolean") then
@@ -4391,11 +4340,11 @@ function _detalhes:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_e
 	self:InstanceReset()
 	self:InstanceRefreshRows()
 	self:ReajustaGump()
-	_detalhes:RefreshMainWindow (-1, true)
+	Details:RefreshMainWindow (-1, true)
 end
 
 -- ~spec ~icons
-function _detalhes:SetBarSpecIconSettings (enabled, iconfile, fulltrack)
+function Details:SetBarSpecIconSettings (enabled, iconfile, fulltrack)
 	
 	if (type (enabled) ~= "boolean") then
 		enabled = self.row_info.use_spec_icons
@@ -4408,21 +4357,21 @@ function _detalhes:SetBarSpecIconSettings (enabled, iconfile, fulltrack)
 	self.row_info.spec_file = iconfile
 	
 	if (enabled) then
-		if (not _detalhes.track_specs) then
-			_detalhes.track_specs = true
-			_detalhes:TrackSpecsNow (fulltrack)
+		if (not Details.track_specs) then
+			Details.track_specs = true
+			Details:TrackSpecsNow (fulltrack)
 		end
 	else
 		local have_enabled
-		for _, instance in _ipairs (_detalhes.tabela_instancias) do
+		for _, instance in ipairs (Details.tabela_instancias) do
 			if (instance:IsEnabled() and instance.row_info.use_spec_icons) then
 				have_enabled = true
 				break
 			end
 		end
 		if (not have_enabled) then
-			_detalhes.track_specs = false
-			_detalhes:ResetSpecCache(true) --force
+			Details.track_specs = false
+			Details:ResetSpecCache(true) --force
 		end
 	end
 	
@@ -4465,7 +4414,7 @@ function Details:SetBarFactionIconSettings(show_faction_icon, faction_icon_size_
 	self:ReajustaGump()
 end
 
-function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement, texture_custom, icon_size_offset)
+function Details:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement, texture_custom, icon_size_offset)
 	
 	--> bar start
 	if (type (barstart) == "boolean") then
@@ -4570,15 +4519,15 @@ local separators = {
 	["NONE"] = "",
 }
 
-function _detalhes:GetBarBracket()
+function Details:GetBarBracket()
 	return brackets [self.row_info.textR_bracket]
 end
 
-function _detalhes:GetBarSeparator()
+function Details:GetBarSeparator()
 	return separators [self.row_info.textR_separator]
 end
 
-function _detalhes:SetBarRightTextSettings (total, persecond, percent, bracket, separator)
+function Details:SetBarRightTextSettings (total, persecond, percent, bracket, separator)
 
 	if (type (total) == "boolean") then
 		self.row_info.textR_show_data [1] = total
@@ -4612,7 +4561,7 @@ local fast_ps_func = function (self)
 	end
 	
 	local combatTime = instance.showing:GetCombatTime()
-	local abbreviationType = _detalhes.ps_abbreviation
+	local abbreviationType = Details.ps_abbreviation
 	local abbreviationFunc = tok_functions[abbreviationType]
 
 	local isInLineTextEnabled = instance.use_multi_fontstrings
@@ -4652,7 +4601,7 @@ end
 
 -- ~dps ~hps
 --> check if can start or need to stop
-function _detalhes:CheckPsUpdate()
+function Details:CheckPsUpdate()
 
 	local is_enabled = self.row_info.fast_ps_update
 	
@@ -4664,7 +4613,7 @@ function _detalhes:CheckPsUpdate()
 		end
 		
 		--> if isn't in combat, just stop
-		if (not _detalhes.in_combat) then
+		if (not Details.in_combat) then
 			if (self.ps_update_frame.is_running) then
 				self.ps_update_frame.is_running = nil
 				self.ps_update_frame:Hide()
@@ -4704,7 +4653,7 @@ end
 --	/run _detalhes:GetInstance(1):FastPSUpdate (true)
 --	/dump (_detalhes:GetInstance(1).fast_ps_update)
 
-function _detalhes:FastPSUpdate (enabled)
+function Details:FastPSUpdate (enabled)
 	if (type (enabled) ~= "boolean") then
 		enabled = self.row_info.fast_ps_update
 	end
@@ -4724,7 +4673,7 @@ function Details:AdjustInLineTextPadding()
 end
 
 -- search key: ~row ~bar ~updatebar
-function _detalhes:InstanceRefreshRows (instancia)
+function Details:InstanceRefreshRows (instancia)
 	
 	if (instancia) then
 		self = instancia
@@ -4762,7 +4711,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 		local texture_class_color = self.row_info.texture_class_colors
 		local texture_r, texture_g, texture_b
 		if (not texture_class_color) then
-			texture_r, texture_g, texture_b = _unpack (self.row_info.fixed_texture_color)
+			texture_r, texture_g, texture_b = unpack(self.row_info.fixed_texture_color)
 		end
 	
 	--text color
@@ -4770,7 +4719,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 		local right_text_class_color = self.row_info.textR_class_colors
 		local text_r, text_g, text_b
 		if (not left_text_class_color or not right_text_class_color) then
-			text_r, text_g, text_b = _unpack (self.row_info.fixed_text_color)
+			text_r, text_g, text_b = unpack(self.row_info.fixed_text_color)
 		end
 		
 		local height = self.row_info.height
@@ -4787,7 +4736,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 		--end
 		
 		local icon_force_grayscale = self.row_info.icon_grayscale
-		local icon_offset_x, icon_offset_y = unpack (self.row_info.icon_offset)
+		local icon_offset_x, icon_offset_y = unpack(self.row_info.icon_offset)
 
 	--line border
 		local lineBorderEnabled = self.row_info.backdrop.enabled
@@ -4814,7 +4763,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 	
 	-- do it
 
-	for _, row in _ipairs (self.barras) do 
+	for _, row in ipairs (self.barras) do 
 
 		--> positioning and size
 		row:SetHeight (height)
@@ -4922,9 +4871,9 @@ function _detalhes:InstanceRefreshRows (instancia)
 	
 		--> outline
 		if (left_text_outline) then
-			_detalhes:SetFontOutline(row.lineText1, left_text_outline)
+			Details:SetFontOutline(row.lineText1, left_text_outline)
 		else
-			_detalhes:SetFontOutline(row.lineText1, nil)
+			Details:SetFontOutline(row.lineText1, nil)
 		end
 		
 		if (right_text_outline) then
@@ -4997,16 +4946,16 @@ function _detalhes:InstanceRefreshRows (instancia)
 		end
 		
 		--> text size
-		_detalhes:SetFontSize (row.lineText1, self.row_info.font_size or height * 0.75)
-		_detalhes:SetFontSize (row.lineText2, self.row_info.font_size or height * 0.75)
-		_detalhes:SetFontSize (row.lineText3, self.row_info.font_size or height * 0.75)
-		_detalhes:SetFontSize (row.lineText4, self.row_info.font_size or height * 0.75)
+		Details:SetFontSize (row.lineText1, self.row_info.font_size or height * 0.75)
+		Details:SetFontSize (row.lineText2, self.row_info.font_size or height * 0.75)
+		Details:SetFontSize (row.lineText3, self.row_info.font_size or height * 0.75)
+		Details:SetFontSize (row.lineText4, self.row_info.font_size or height * 0.75)
 		
 		--> text font
-		_detalhes:SetFontFace (row.lineText1, self.row_info.font_face_file or "GameFontHighlight")
-		_detalhes:SetFontFace (row.lineText2, self.row_info.font_face_file or "GameFontHighlight")
-		_detalhes:SetFontFace (row.lineText3, self.row_info.font_face_file or "GameFontHighlight")
-		_detalhes:SetFontFace (row.lineText4, self.row_info.font_face_file or "GameFontHighlight")
+		Details:SetFontFace (row.lineText1, self.row_info.font_face_file or "GameFontHighlight")
+		Details:SetFontFace (row.lineText2, self.row_info.font_face_file or "GameFontHighlight")
+		Details:SetFontFace (row.lineText3, self.row_info.font_face_file or "GameFontHighlight")
+		Details:SetFontFace (row.lineText4, self.row_info.font_face_file or "GameFontHighlight")
 
 		--backdrop
 		if (lineBorderEnabled) then
@@ -5089,7 +5038,7 @@ function Details:SetInstanceWallpaperLevel(wallpaperLevel)
 end
 
 -- search key: ~wallpaper
-function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, height, overlay)
+function Details:InstanceWallpaper (texture, anchor, alpha, texcoord, width, height, overlay)
 
 	local wallpaper = self.wallpaper
 	
@@ -5104,14 +5053,14 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 		anchor = texture.anchor or wallpaper.anchor
 		alpha = texture.alpha or wallpaper.alpha
 		if (texture.texcoord) then
-			texcoord = {unpack (texture.texcoord)}
+			texcoord = {unpack(texture.texcoord)}
 		else
 			texcoord = wallpaper.texcoord
 		end
 		width = texture.width or wallpaper.width
 		height = texture.height or wallpaper.height
 		if (texture.overlay) then
-			overlay = {unpack (texture.overlay)}
+			overlay = {unpack(texture.overlay)}
 		else
 			overlay = wallpaper.overlay
 		end
@@ -5176,10 +5125,10 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 	end
 	
 	t:SetTexture (texture)
-	t:SetTexCoord (unpack (texcoord))
+	t:SetTexCoord (unpack(texcoord))
 	t:SetWidth (width)
 	t:SetHeight (height)
-	t:SetVertexColor (unpack (overlay))
+	t:SetVertexColor (unpack(overlay))
 	
 	wallpaper.enabled = true
 	wallpaper.texture = texture
@@ -5196,7 +5145,7 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 
 end
 
-function _detalhes:GetTextures()
+function Details:GetTextures()
 	local t = {}
 	t [1] = self.baseframe.rodape.esquerdo
 	t [2] = self.baseframe.rodape.direita
@@ -5214,7 +5163,7 @@ function _detalhes:GetTextures()
 	--atributo_icon � uma exce��o
 end
 
-function _detalhes:SetWindowAlphaForInteract (alpha)
+function Details:SetWindowAlphaForInteract (alpha)
 	
 	local ignorebars = self.menu_alpha.ignorebars
 	
@@ -5251,14 +5200,14 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 		end
 	end
 	
-	if (_detalhes.debug) then
-		_detalhes:Msg ("(debug) setting window alpha for SetWindowAlphaForInteract() -> ", alpha)
+	if (Details.debug) then
+		Details:Msg ("(debug) setting window alpha for SetWindowAlphaForInteract() -> ", alpha)
 	end	
 	
 end
 
 -- ~autohide �utohide
-function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alphaAmount)
+function Details:SetWindowAlphaForCombat (entering_in_combat, true_hide, alphaAmount)
 	local amount, rowsamount, menuamount
 
 	--get the values
@@ -5267,7 +5216,7 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 		self.combat_changes_alpha = amount
 		rowsamount = amount
 		menuamount = amount
-		if (_detalhes.pet_battle) then
+		if (Details.pet_battle) then
 			amount = 0
 			rowsamount = 0
 			menuamount = 0
@@ -5304,14 +5253,14 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 		self.baseframe:Hide()
 		self.rowframe:Hide()
 		self.windowSwitchButton:Hide()
-		--Details.FadeHandler.Fader (self.baseframe, _unpack (_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.rowframe, _unpack (_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.windowSwitchButton, _unpack (_detalhes.windows_fade_in))
+		--Details.FadeHandler.Fader (self.baseframe, unpack(_detalhes.windows_fade_in))
+		--Details.FadeHandler.Fader (self.rowframe, unpack(_detalhes.windows_fade_in))
+		--Details.FadeHandler.Fader (self.windowSwitchButton, unpack(_detalhes.windows_fade_in))
 		
 		--self:SetIconAlpha (nil, true)
 		
-		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) hiding window SetWindowAlphaForCombat()", amount, rowsamount, menuamount)
+		if (Details.debug) then
+			Details:Msg ("(debug) hiding window SetWindowAlphaForCombat()", amount, rowsamount, menuamount)
 		end
 		--]]
 	else
@@ -5335,10 +5284,10 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide, alpha
 end
 
 --this function is called only from SetAutoHideMenu()
-function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only_left, only_right)
+function Details:InstanceButtonsColors (red, green, blue, alpha, no_save, only_left, only_right)
 	
 	if (not red) then
-		red, green, blue, alpha = unpack (self.color_buttons)
+		red, green, blue, alpha = unpack(self.color_buttons)
 	end
 	
 	if (type (red) ~= "number") then
@@ -5359,12 +5308,12 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 	
 		local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report, baseToolbar.fechar, baseToolbar.reset, baseToolbar.fechar}
 		
-		for _, button in _ipairs (icons) do 
+		for _, button in ipairs (icons) do 
 			button:SetAlpha (alpha)
 		end
 
 		if (self:IsLowerInstance()) then
-			for _, ThisButton in _ipairs (_detalhes.ToolBar.Shown) do
+			for _, ThisButton in ipairs (Details.ToolBar.Shown) do
 				ThisButton:SetAlpha (alpha)
 			end
 		end
@@ -5373,12 +5322,12 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 		
 		local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report, baseToolbar.fechar, baseToolbar.reset, baseToolbar.fechar}
 		
-		for _, button in _ipairs (icons) do 
+		for _, button in ipairs (icons) do 
 			button:SetAlpha (alpha)
 		end
 
 		if (self:IsLowerInstance()) then
-			for _, ThisButton in _ipairs (_detalhes.ToolBar.Shown) do
+			for _, ThisButton in ipairs (Details.ToolBar.Shown) do
 				ThisButton:SetAlpha (alpha)
 			end
 		end
@@ -5386,11 +5335,11 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 	end
 end
 
-function _detalhes:InstanceAlpha (alpha)
+function Details:InstanceAlpha (alpha)
 	self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
 	self.baseframe.cabecalho.ball:SetAlpha (alpha)
 	
-	local skin = _detalhes.skins [self.skin]
+	local skin = Details.skins [self.skin]
 	if (not skin.icon_ignore_alpha) then
 		self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
 	end	
@@ -5403,10 +5352,10 @@ function _detalhes:InstanceAlpha (alpha)
 	self.baseframe.UPFrame:SetAlpha (alpha)
 end
 
-function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statusbar)
+function Details:InstanceColor (red, green, blue, alpha, no_save, change_statusbar)
 
 	if (not red) then
-		red, green, blue, alpha = unpack (self.color)
+		red, green, blue, alpha = unpack(self.color)
 		no_save = true
 	end
 
@@ -5428,7 +5377,7 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 		self:StatusBarColor (nil, nil, nil, alpha, true)
 	end
 
-	local skin = _detalhes.skins [self.skin]
+	local skin = Details.skins [self.skin]
 	if (not skin) then --the skin isn't available any more
 		--put the skin into wait to install
 		local tempSkin = self:WaitForSkin()
@@ -5462,11 +5411,11 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 	--self.color[1], self.color[2], self.color[3], self.color[4] = red, green, blue, alpha
 end
 
-function _detalhes:StatusBarAlertTime (instance)
+function Details:StatusBarAlertTime (instance)
 	instance.baseframe.statusbar:Hide()
 end
 
-function _detalhes:StatusBarAlert (text, icon, color, time)
+function Details:StatusBarAlert (text, icon, color, time)
 
 	local statusbar = self.baseframe.statusbar
 	
@@ -5481,14 +5430,14 @@ function _detalhes:StatusBarAlert (text, icon, color, time)
 			statusbar.text:SetText (text.text or "")
 			
 			if (text.size) then
-				_detalhes:SetFontSize (statusbar.text, text.size)
+				Details:SetFontSize (statusbar.text, text.size)
 			else
-				_detalhes:SetFontSize (statusbar.text, 9)
+				Details:SetFontSize (statusbar.text, 9)
 			end
 		else
 			statusbar.text:SetText (text)
 			statusbar.text:SetTextColor (1, 1, 1, 1)
-			_detalhes:SetFontSize (statusbar.text, 9)
+			Details:SetFontSize (statusbar.text, 9)
 		end
 	else
 		statusbar.text:SetText ("")
@@ -5496,7 +5445,7 @@ function _detalhes:StatusBarAlert (text, icon, color, time)
 	
 	if (icon) then
 		if (type (icon) == "table") then
-			local texture, w, h, l, r, t, b = unpack (icon)
+			local texture, w, h, l, r, t, b = unpack(icon)
 			statusbar.icon:SetTexture (texture)
 			statusbar.icon:SetWidth (w or 14)
 			statusbar.icon:SetHeight (h or 14)
@@ -5522,7 +5471,7 @@ function _detalhes:StatusBarAlert (text, icon, color, time)
 	if (icon or text) then
 		statusbar:Show()
 		if (time) then
-			_detalhes:ScheduleTimer ("StatusBarAlertTime", time, self)
+			Details:ScheduleTimer ("StatusBarAlertTime", time, self)
 		end
 	else
 		statusbar:Hide()
@@ -5538,7 +5487,7 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.esquerdo = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.esquerdo:SetPoint ("topright", baseframe, "bottomleft", 16, 0)
 	baseframe.rodape.esquerdo:SetTexture (DEFAULT_SKIN)
-	baseframe.rodape.esquerdo:SetTexCoord (unpack (COORDS_PIN_LEFT))
+	baseframe.rodape.esquerdo:SetTexCoord (unpack(COORDS_PIN_LEFT))
 	baseframe.rodape.esquerdo:SetWidth (32)
 	baseframe.rodape.esquerdo:SetHeight (32)
 	
@@ -5546,7 +5495,7 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.esquerdo_nostatusbar = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.esquerdo_nostatusbar:SetPoint ("topright", baseframe, "bottomleft", 16, 14)
 	baseframe.rodape.esquerdo_nostatusbar:SetTexture (DEFAULT_SKIN)
-	baseframe.rodape.esquerdo_nostatusbar:SetTexCoord (unpack (COORDS_PIN_LEFT))
+	baseframe.rodape.esquerdo_nostatusbar:SetTexCoord (unpack(COORDS_PIN_LEFT))
 	baseframe.rodape.esquerdo_nostatusbar:SetWidth (32)
 	baseframe.rodape.esquerdo_nostatusbar:SetHeight (32)
 	
@@ -5554,7 +5503,7 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.direita = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.direita:SetPoint ("topleft", baseframe, "bottomright", -16, 0)
 	baseframe.rodape.direita:SetTexture (DEFAULT_SKIN)
-	baseframe.rodape.direita:SetTexCoord (unpack (COORDS_PIN_RIGHT))
+	baseframe.rodape.direita:SetTexCoord (unpack(COORDS_PIN_RIGHT))
 	baseframe.rodape.direita:SetWidth (32)
 	baseframe.rodape.direita:SetHeight (32)
 	
@@ -5562,14 +5511,14 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.direita_nostatusbar = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.direita_nostatusbar:SetPoint ("topleft", baseframe, "bottomright", -16, 14)
 	baseframe.rodape.direita_nostatusbar:SetTexture (DEFAULT_SKIN)
-	baseframe.rodape.direita_nostatusbar:SetTexCoord (unpack (COORDS_PIN_RIGHT))
+	baseframe.rodape.direita_nostatusbar:SetTexCoord (unpack(COORDS_PIN_RIGHT))
 	baseframe.rodape.direita_nostatusbar:SetWidth (32)
 	baseframe.rodape.direita_nostatusbar:SetHeight (32)
 	
 	--> barra centro
 	baseframe.rodape.top_bg = baseframe:CreateTexture (nil, "background")
 	baseframe.rodape.top_bg:SetTexture (DEFAULT_SKIN)
-	baseframe.rodape.top_bg:SetTexCoord (unpack (COORDS_BOTTOM_BACKGROUND))
+	baseframe.rodape.top_bg:SetTexCoord (unpack(COORDS_BOTTOM_BACKGROUND))
 	baseframe.rodape.top_bg:SetWidth (512)
 	baseframe.rodape.top_bg:SetHeight (128)
 	baseframe.rodape.top_bg:SetPoint ("left", baseframe.rodape.esquerdo, "right", -16, -48)
@@ -5627,7 +5576,7 @@ function gump:CriaRodape (baseframe, instancia)
 	BGFrame_scripts (baseframe.DOWNFrame, baseframe, instancia)
 end
 
-function _detalhes:GetMenuAnchorPoint()
+function Details:GetMenuAnchorPoint()
 	local toolbar_side = self.toolbar_side
 	local menu_side = self.menu_anchor.side
 	
@@ -5647,49 +5596,51 @@ function _detalhes:GetMenuAnchorPoint()
 end
 
 --> search key: ~icon
-function _detalhes:ToolbarMenuButtonsSize (size)
+function Details:ToolbarMenuButtonsSize(size)
 	size = size or self.menu_icons_size
 	self.menu_icons_size = size
 	return self:ToolbarMenuButtons()
 end
 
 local SetIconAlphaCacheButtonsTable = {}
-function _detalhes:SetIconAlpha (alpha, hide, no_animations)
+function Details:SetIconAlpha(alpha, hide, noAnimations)
 
 	if (self.attribute_text.enabled) then
-		if (not self.menu_attribute_string) then --> create on demand
+		if (not self.menu_attribute_string) then
+			--created on demand
 			self:AttributeMenu()
 		end
 		
 		if (hide) then
-			Details.FadeHandler.Fader (self.menu_attribute_string.widget, _unpack (_detalhes.windows_fade_in))
+			Details.FadeHandler.Fader(self.menu_attribute_string.widget, unpack(Details.windows_fade_in))
 		else
-			if (no_animations) then
-				self.menu_attribute_string:SetAlpha (alpha)
+			if (noAnimations) then
+				self.menu_attribute_string:SetAlpha(alpha)
 			else
-				Details.FadeHandler.Fader (self.menu_attribute_string.widget, "ALPHAANIM", alpha)
+				Details.FadeHandler.Fader(self.menu_attribute_string.widget, "ALPHAANIM", alpha)
 			end
 		end
 	end
 	
-	table.wipe (SetIconAlphaCacheButtonsTable)
-	SetIconAlphaCacheButtonsTable [1] = self.baseframe.cabecalho.modo_selecao
-	SetIconAlphaCacheButtonsTable [2] = self.baseframe.cabecalho.segmento
-	SetIconAlphaCacheButtonsTable [3] = self.baseframe.cabecalho.atributo
-	SetIconAlphaCacheButtonsTable [4] = self.baseframe.cabecalho.report
-	SetIconAlphaCacheButtonsTable [5] = self.baseframe.cabecalho.reset
-	SetIconAlphaCacheButtonsTable [6] = self.baseframe.cabecalho.fechar
+	table.wipe(SetIconAlphaCacheButtonsTable)
+	SetIconAlphaCacheButtonsTable[1] = self.baseframe.cabecalho.modo_selecao
+	SetIconAlphaCacheButtonsTable[2] = self.baseframe.cabecalho.segmento
+	SetIconAlphaCacheButtonsTable[3] = self.baseframe.cabecalho.atributo
+	SetIconAlphaCacheButtonsTable[4] = self.baseframe.cabecalho.report
+	SetIconAlphaCacheButtonsTable[5] = self.baseframe.cabecalho.reset
+	SetIconAlphaCacheButtonsTable[6] = self.baseframe.cabecalho.fechar
 
 	if (alpha == 1) then
 		alpha = self.menu_icons_alpha
-		if (DetailsFramework:IsNearlyEqual(self.menu_icons_alpha, 0.5)) then --fix for old instances using 0.5 in the 'menu_icons_alpha'
+		--fix for old instances using 0.5 in the 'menu_icons_alpha'
+		if (DetailsFramework:IsNearlyEqual(self.menu_icons_alpha, 0.5)) then
 			self.menu_icons_alpha = Details.skins[self.skin].instance_cprops.menu_icons_alpha or self.menu_icons_alpha
 			alpha = self.menu_icons_alpha
 		end
 	end
 
-	for index, button in _ipairs (SetIconAlphaCacheButtonsTable) do
-		if (self.menu_icons [index]) then
+	for index, button in ipairs(SetIconAlphaCacheButtonsTable) do
+		if (self.menu_icons[index]) then
 			if (hide) then
 				button:Hide()
 			else
@@ -5700,15 +5651,15 @@ function _detalhes:SetIconAlpha (alpha, hide, no_animations)
 	end
 	
 	if (self:IsLowerInstance()) then
-		if (#_detalhes.ToolBar.Shown > 0) then
-			for index, button in ipairs (_detalhes.ToolBar.Shown) do
+		if (#Details.ToolBar.Shown > 0) then
+			for index, button in ipairs (Details.ToolBar.Shown) do
 				if (hide) then
-					Details.FadeHandler.Fader (button, _unpack (_detalhes.windows_fade_in))		
+					Details.FadeHandler.Fader (button, unpack(Details.windows_fade_in))		
 				else
-					if (no_animations) then
-						button:SetAlpha (alpha)
+					if (noAnimations) then
+						button:SetAlpha(alpha)
 					else
-						Details.FadeHandler.Fader (button, "ALPHAANIM", alpha)
+						Details.FadeHandler.Fader(button, "ALPHAANIM", alpha)
 					end
 				end
 			end
@@ -5716,7 +5667,7 @@ function _detalhes:SetIconAlpha (alpha, hide, no_animations)
 	end
 end
 
-function _detalhes:ToolbarMenuSetButtonsOptions (spacement, shadow)
+function Details:ToolbarMenuSetButtonsOptions (spacement, shadow)
 	if (type (spacement) ~= "number") then
 		spacement = self.menu_icons.space
 	end
@@ -5734,7 +5685,7 @@ end
 -- search key: ~buttons ~icons
 
 local tbuttons = {}
-function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report, _reset, _close)
+function Details:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report, _reset, _close)
 	
 	if (_mode == nil) then
 		_mode = self.menu_icons[1]
@@ -5790,7 +5741,7 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 	
 	--> normal buttons
 	if (self.menu_anchor.side == 1) then
-		for index, button in _ipairs (tbuttons) do
+		for index, button in ipairs (tbuttons) do
 			if (self.menu_icons [index]) then
 				button:ClearAllPoints()
 				if (got_anchor) then
@@ -5866,17 +5817,17 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 	self.baseframe.cabecalho.PluginIconsSeparator:Hide()
 	
 	if (self:IsLowerInstance()) then
-		if (#_detalhes.ToolBar.Shown > 0) then
+		if (#Details.ToolBar.Shown > 0) then
 		
 			local last_plugin_icon
 			
-			if (#_detalhes.ToolBar.Shown > 0) then
+			if (#Details.ToolBar.Shown > 0) then
 				self.baseframe.cabecalho.PluginIconsSeparator:Show()
 				self.baseframe.cabecalho.PluginIconsSeparator:ClearAllPoints()
 				self.baseframe.cabecalho.PluginIconsSeparator.widget = self.baseframe.cabecalho.PluginIconsSeparator
 			end
 			
-			for index, button in ipairs (_detalhes.ToolBar.Shown) do 
+			for index, button in ipairs (Details.ToolBar.Shown) do 
 				button:ClearAllPoints()
 				
 				if (got_anchor) then
@@ -5984,7 +5935,7 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 	
 end
 
-function _detalhes:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
+function Details:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
 	return self:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report)
 end
 
@@ -6003,12 +5954,12 @@ end
 local OnClickNovoMenu = function (_, _, id, instance)
 
 	local is_new
-	if (not _detalhes.tabela_instancias [id]) then
+	if (not Details.tabela_instancias [id]) then
 		--> esta criando uma nova
 		is_new = true
 	end
 
-	local ninstance = _detalhes.CriarInstancia (_, _, id)
+	local ninstance = Details.CriarInstancia (_, _, id)
 	instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao, _, true)
 	
 	if (ninstance and is_new) then
@@ -6016,215 +5967,205 @@ local OnClickNovoMenu = function (_, _, id, instance)
 	end
 end
 
-function _detalhes:SetTooltipMinWidth()
+function Details:SetTooltipMinWidth()
 	GameCooltip:SetOption ("MinWidth", 155)
 end
 
-function _detalhes:FormatCooltipBackdrop()
+function Details:FormatCooltipBackdrop()
 	--local CoolTip = GameCooltip
 	--CoolTip:SetBackdrop (1, menus_backdrop, menus_backdropcolor, menus_bordercolor)
 	--CoolTip:SetBackdrop (2, menus_backdrop, menus_backdropcolor_sec, menus_bordercolor)
 	return true
 end
 
-local build_mode_list = function (self, elapsed)
-
-	local CoolTip = GameCooltip
-	local instancia = parameters_table [1]
-	parameters_table[2] = parameters_table[2] + elapsed
+local build_mode_list = function(self, deltaTime)
+	local gameCooltip = GameCooltip
+	local instance = parameters_table [1]
+	parameters_table[2] = parameters_table[2] + deltaTime
 	
 	if (parameters_table[2] > 0.15) then
-		self:SetScript ("OnUpdate", nil)
+		self:SetScript("OnUpdate", nil)
 		
-		CoolTip:Reset()
-		CoolTip:SetType ("menu")
-		CoolTip:SetLastSelected ("main", parameters_table [3])
-		CoolTip:SetFixedParameter (instancia)
+		gameCooltip:Reset()
+		gameCooltip:SetType("menu")
+		gameCooltip:SetLastSelected("main", parameters_table [3])
+		gameCooltip:SetFixedParameter(instance)
 		
-		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-		CoolTip:SetOption ("TextFont", _detalhes.font_faces.menus)		
-		CoolTip:SetOption ("ButtonHeightModSub", -2)
-		CoolTip:SetOption ("ButtonHeightMod", -5)
-		CoolTip:SetOption ("ButtonsYModSub", -3)
-		CoolTip:SetOption ("ButtonsYMod", -6)
-		CoolTip:SetOption ("YSpacingModSub", -3)
-		CoolTip:SetOption ("YSpacingMod", 1)
-		CoolTip:SetOption ("HeighMod", 3)
-		CoolTip:SetOption ("SubFollowButton", true)
+		gameCooltip:SetOption("TextSize", Details.font_sizes.menus)
+		gameCooltip:SetOption("TextFont", Details.font_faces.menus)		
+		gameCooltip:SetOption("ButtonHeightModSub", -2)
+		gameCooltip:SetOption("ButtonHeightMod", -5)
+		gameCooltip:SetOption("ButtonsYModSub", -3)
+		gameCooltip:SetOption("ButtonsYMod", -6)
+		gameCooltip:SetOption("YSpacingModSub", -3)
+		gameCooltip:SetOption("YSpacingMod", 1)
+		gameCooltip:SetOption("HeighMod", 3)
+		gameCooltip:SetOption("SubFollowButton", true)
 		
-		_detalhes:SetTooltipMinWidth()
+		Details:SetTooltipMinWidth()
 		
-		CoolTip:AddLine (Loc ["STRING_MODE_GROUP"])
-		CoolTip:AddMenu (1, instancia.AlteraModo, 2, true)
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256, 32/256*2, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_MODE_GROUP"])
+		gameCooltip:AddMenu(1, instance.AlteraModo, 2, true)
+		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256, 32/256*2, 0, 1)
 		
-		CoolTip:AddLine (Loc ["STRING_MODE_ALL"])
-		CoolTip:AddMenu (1, instancia.AlteraModo, 3, true)
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_MODE_ALL"])
+		gameCooltip:AddMenu(1, instance.AlteraModo, 3, true)
+		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
 	
-		CoolTip:AddLine (Loc ["STRING_OPTIONS_PLUGINS"])
-		CoolTip:AddMenu (1, instancia.AlteraModo, 4, true)
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_OPTIONS_PLUGINS"])
+		gameCooltip:AddMenu(1, instance.AlteraModo, 4, true)
+		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
 
 		--build raid plugins list
-		local raidPlugins = _detalhes.RaidTables:GetAvailablePlugins()
+		local raidPlugins = Details.RaidTables:GetAvailablePlugins()
 		if (#raidPlugins >= 0) then
-			for index, ptable in _ipairs (raidPlugins) do
+			for index, ptable in ipairs (raidPlugins) do
 				--if a plugin has the member 'NoMenu', it won't be shown on menus to select plugins
 				if (ptable[3].__enabled and not ptable[3].NoMenu) then
 					--PluginName, PluginIcon, PluginObject, PluginAbsoluteName
-					CoolTip:AddMenu (2, _detalhes.RaidTables.EnableRaidMode, instancia, ptable[4], true, ptable[1], ptable[2], true)
+					gameCooltip:AddMenu(2, Details.RaidTables.EnableRaidMode, instance, ptable[4], true, ptable[1], ptable[2], true)
 				end
 			end
 		end
 		--build self plugins list
-		if (#_detalhes.SoloTables.Menu > 0) then
-			for index, ptable in _ipairs (_detalhes.SoloTables.Menu) do
+		if (#Details.SoloTables.Menu > 0) then
+			for index, ptable in ipairs (Details.SoloTables.Menu) do
 				if (ptable[3].__enabled and not ptable[3].NoMenu) then
-					CoolTip:AddMenu (2, _detalhes.SoloTables.EnableSoloMode, instancia, ptable[4], true, ptable[1], ptable[2], true)
+					gameCooltip:AddMenu(2, Details.SoloTables.EnableSoloMode, instance, ptable[4], true, ptable[1], ptable[2], true)
 				end
 			end
 		end
 		
-		--> window control
-		GameCooltip:AddLine ("$div")
-		CoolTip:AddLine (Loc ["STRING_MENU_INSTANCE_CONTROL"])
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.625, 0.75, 0, 1)
+		--window control
+		GameCooltip:AddLine("$div")
+		gameCooltip:AddLine(Loc["STRING_MENU_INSTANCE_CONTROL"])
+		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.625, 0.75, 0, 1)
 		
-		local HaveClosedInstances = false
-		for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
-			local _this_instance = _detalhes.tabela_instancias [index]
-			if (not _this_instance.ativa) then
-				HaveClosedInstances = true
+		local hasClosedInstances = false
+		for index = 1, math.min(#Details.tabela_instancias, Details.instances_amount), 1 do 
+			local thisInstance = Details.tabela_instancias [index]
+			if (not thisInstance.ativa) then
+				hasClosedInstances = true
 				break
 			end
 		end
 		
-		if (_detalhes:GetNumInstancesAmount() < _detalhes:GetMaxInstancesAmount()) then
-			CoolTip:AddMenu (2, OnClickNovoMenu, true, instancia, nil, Loc ["STRING_OPTIONS_WC_CREATE"], _, true)
-			CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 2, 1, 16, 16)
-			if (HaveClosedInstances) then
-				GameCooltip:AddLine ("$div", nil, 2, nil, -5, -11)
+		if (Details:GetNumInstancesAmount() < Details:GetMaxInstancesAmount()) then
+			gameCooltip:AddMenu(2, OnClickNovoMenu, true, instance, nil, Loc["STRING_OPTIONS_WC_CREATE"], _, true)
+			gameCooltip:AddIcon([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 2, 1, 16, 16)
+			if (hasClosedInstances) then
+				GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
 			end
 		end
 		
 		local ClosedInstances = 0
-		
-		for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
-		
-			local _this_instance = _detalhes.tabela_instancias [index]
-			
-			if (not _this_instance.ativa) then --> s� reabre se ela estiver ativa
-			
-				--> pegar o que ela ta mostrando
-				local atributo = _this_instance.atributo
-				local sub_atributo = _this_instance.sub_atributo
+		for index = 1, math.min(#Details.tabela_instancias, Details.instances_amount), 1 do 
+			local thisInstance = Details.tabela_instancias [index]
+			if (not thisInstance.ativa) then
+				local atributo = thisInstance.atributo
+				local sub_atributo = thisInstance.sub_atributo
 				ClosedInstances = ClosedInstances + 1
 				
-				if (atributo == 5) then --> custom
-				
-					local CustomObject = _detalhes.custom [sub_atributo]
+				if (atributo == 5) then
+					local CustomObject = Details.custom[sub_atributo]
 					
 					if (not CustomObject) then
-						_this_instance:ResetAttribute()
-						atributo = _this_instance.atributo
-						sub_atributo = _this_instance.sub_atributo
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
-						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
+						thisInstance:ResetAttribute()
+						atributo = thisInstance.atributo
+						sub_atributo = thisInstance.sub_atributo
+						gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " " .. Details.atributos.lista[atributo] .. " - " .. Details.sub_atributos[atributo].lista[sub_atributo], _, true)
+						gameCooltip:AddIcon(Details.sub_atributos[atributo].icones[sub_atributo][1], 2, 1, 16, 16, unpack(Details.sub_atributos[atributo].icones[sub_atributo][2]))
 					else
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. CustomObject:GetName(), _, true)
-						CoolTip:AddIcon (CustomObject.icon, 2, 1, 16, 16, 0, 1, 0, 1)
+						gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " " .. Details.atributos.lista[atributo] .. " - " .. CustomObject:GetName(), _, true)
+						gameCooltip:AddIcon(CustomObject.icon, 2, 1, 16, 16, 0, 1, 0, 1)
 					end
 
 				else
-					local modo = _this_instance.modo
+					local modo = thisInstance.modo
 					
 					if (modo == 1) then --alone
-					
-						atributo = _detalhes.SoloTables.Mode or 1
-						local SoloInfo = _detalhes.SoloTables.Menu [atributo]
+						atributo = Details.SoloTables.Mode or 1
+						local SoloInfo = Details.SoloTables.Menu [atributo]
 						if (SoloInfo) then
-							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. SoloInfo [1], _, true)
-							CoolTip:AddIcon (SoloInfo [2], 2, 1, 16, 16, 0, 1, 0, 1)
+							gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " " .. SoloInfo [1], _, true)
+							gameCooltip:AddIcon(SoloInfo [2], 2, 1, 16, 16, 0, 1, 0, 1)
 						else
-							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
+							gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " Unknown Plugin", _, true)
 						end
 						
 					elseif (modo == 4) then --raid
 					
-						local plugin_name = _this_instance.current_raid_plugin or _this_instance.last_raid_plugin
+						local plugin_name = thisInstance.current_raid_plugin or thisInstance.last_raid_plugin
 						if (plugin_name) then
-							local plugin_object = _detalhes:GetPlugin (plugin_name)
+							local plugin_object = Details:GetPlugin (plugin_name)
 							if (plugin_object) then
-								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. plugin_object.__name, _, true)
-								CoolTip:AddIcon (plugin_object.__icon, 2, 1, 16, 16, 0, 1, 0, 1)	
+								gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " " .. plugin_object.__name, _, true)
+								gameCooltip:AddIcon(plugin_object.__icon, 2, 1, 16, 16, 0, 1, 0, 1)	
 							else
-								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
+								gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " Unknown Plugin", _, true)
 							end
 						else
-							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
+							gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " Unknown Plugin", _, true)
 						end
 						
 					else
 					
-						--CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
-						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
+						--CoolTip:AddMenu(2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
+						gameCooltip:AddMenu(2, OnClickNovoMenu, index, instance, nil, "#".. index .. " " .. Details.sub_atributos [atributo].lista [sub_atributo], _, true)
+						gameCooltip:AddIcon(Details.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack(Details.sub_atributos [atributo].icones[sub_atributo] [2]))
 						
 					end
 				end
 
-				CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-				CoolTip:SetOption ("TextFont", _detalhes.font_faces.menus)
+				gameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
+				gameCooltip:SetOption ("TextFont", Details.font_faces.menus)
 			end
 		end		
 		
-		if (ClosedInstances > 0 or _detalhes:GetNumInstancesAmount() < _detalhes:GetMaxInstancesAmount()) then
-			GameCooltip:AddLine ("$div", nil, 2, nil, -5, -11)
+		if (ClosedInstances > 0 or Details:GetNumInstancesAmount() < Details:GetMaxInstancesAmount()) then
+			GameCooltip:AddLine("$div", nil, 2, nil, -5, -11)
 		end
 
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 2, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 2, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
-		GameCooltip:AddMenu (2, _detalhes.close_instancia_func, instancia.baseframe.cabecalho.fechar)
+		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE"], nil, 2, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		GameCooltip:AddIcon([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 2, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
+		GameCooltip:AddMenu(2, Details.close_instancia_func, instance.baseframe.cabecalho.fechar)
 		
 		--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		
 		--> space
-		GameCooltip:AddLine ("$div")
+		GameCooltip:AddLine("$div")
 		
 		--> forge and history buttons
-		CoolTip:AddLine (Loc ["STRING_SPELLLIST"])
-		CoolTip:AddMenu (1, _detalhes.OpenForge)
-		CoolTip:AddIcon ([[Interface\MINIMAP\Vehicle-HammerGold-3]], 1, 1, 16, 16, 0, 1, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_SPELLLIST"])
+		gameCooltip:AddMenu(1, Details.OpenForge)
+		gameCooltip:AddIcon([[Interface\MINIMAP\Vehicle-HammerGold-3]], 1, 1, 16, 16, 0, 1, 0, 1)
 		
 		--> statistics
-		CoolTip:AddLine (Loc ["STRING_STATISTICS"])
-		CoolTip:AddMenu (1, _detalhes.OpenRaidHistoryWindow)
-		CoolTip:AddIcon ([[Interface\PvPRankBadges\PvPRank08]], 1, 1, 16, 16, 0, 1, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_STATISTICS"])
+		gameCooltip:AddMenu(1, Details.OpenRaidHistoryWindow)
+		gameCooltip:AddIcon([[Interface\PvPRankBadges\PvPRank08]], 1, 1, 16, 16, 0, 1, 0, 1)
 		
 		--> space
-		GameCooltip:AddLine ("$div")
+		GameCooltip:AddLine("$div")
 		
 		--> options
-		CoolTip:AddLine (Loc ["STRING_OPTIONS_WINDOW"])
-		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.5, 0.625, 0, 1)
+		gameCooltip:AddLine(Loc["STRING_OPTIONS_WINDOW"])
+		gameCooltip:AddMenu(1, Details.OpenOptionsWindow)
+		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.5, 0.625, 0, 1)
 		
 		--> finishes the menu
-		_detalhes:SetMenuOwner (self, instancia)
+		Details:SetMenuOwner (self, instance)
 		
-		--apply the backdrop settings to the menu
-		_detalhes:FormatCooltipBackdrop()
+				
+		show_anti_overlap (instance, self, "top")
 		
-		show_anti_overlap (instancia, self, "top")
-		
-		CoolTip:ShowCooltip()
+		gameCooltip:ShowCooltip()
 	end
 end
 
 
 
-function _detalhes:SetMenuOwner (self, instance)
+function Details:SetMenuOwner (self, instance)
 
 	local _, y = instance.baseframe:GetCenter()
 	local screen_height = GetScreenHeight()
@@ -6266,15 +6207,15 @@ local segments_wallpaper_color = {1, 1, 1, 0.5}
 local segment_color_lime = {0, 1, 0, 1}
 local segment_color_red = {1, 0, 0, 1}
 
-function _detalhes:GetSegmentInfo (index)
+function Details:GetSegmentInfo(index)
 	local combat
 	
 	if (index == -1 or index == "overall") then
-		combat = _detalhes.tabela_overall
+		combat = Details.tabela_overall
 	elseif (index == 0 or index == "current") then	
-		combat = _detalhes.tabela_vigente
+		combat = Details.tabela_vigente
 	else
-		combat = _detalhes.tabela_historico.tabelas [index]
+		combat = Details.tabela_historico.tabelas[index]
 	end
 	
 	if (combat) then
@@ -6309,12 +6250,12 @@ function _detalhes:GetSegmentInfo (index)
 
 			end
 			
-			local p = _detalhes:GetBossPortrait (combat.is_boss.mapid, combat.is_boss.index)
+			local p = Details:GetBossPortrait (combat.is_boss.mapid, combat.is_boss.index)
 			if (p) then
 				portrait = p
 			end
 			
-			local b = _detalhes:GetRaidIcon (combat.is_boss.mapid)
+			local b = Details:GetRaidIcon (combat.is_boss.mapid)
 			if (b) then
 				background = b
 				background_coords = segment_color_lime
@@ -6333,7 +6274,7 @@ function _detalhes:GetSegmentInfo (index)
 		elseif (combat.is_arena) then
 			enemy = combat.is_arena.name
 			
-			local file, coords = _detalhes:GetArenaInfo (combat.is_arena.mapid)
+			local file, coords = Details:GetArenaInfo (combat.is_arena.mapid)
 
 			if (file) then
 				background = "Interface\\Glues\\LOADINGSCREENS\\" .. file
@@ -6353,7 +6294,7 @@ function _detalhes:GetSegmentInfo (index)
 	
 end
 
-function _detalhes:UnpackMythicDungeonInfo (t)
+function Details:UnpackMythicDungeonInfo(t)
 	return t.OverallSegment, t.SegmentID, t.Level, t.EJID, t.MapID, t.ZoneName, t.EncounterID, t.EncounterName, t.StartedAt, t.EndedAt, t.RunID
 end
 
@@ -6361,46 +6302,39 @@ local segments_used = 0
 local segments_filled = 0
 
 -- search key: ~segments
-local build_segment_list = function (self, elapsed)
-
-	local CoolTip = GameCooltip
-	local instancia = parameters_table [1]
-	parameters_table[2] = parameters_table[2] + elapsed
+local buildSegmentTooltip = function(self, deltaTime)
+	local gameCooltip = GameCooltip
+	local instance = parameters_table[1]
+	parameters_table[2] = parameters_table[2] + deltaTime
 	
 	local battleground_color = {1, 0.666, 0, 1}
 	
 	if (parameters_table[2] > 0.15) then
 		self:SetScript ("OnUpdate", nil)
-	
-		--> here we are using normal Add calls
-		CoolTip:Reset()
-		CoolTip:SetType ("menu")
-		CoolTip:SetFixedParameter (instancia)
-		CoolTip:SetColor ("main", "transparent")
 
-		CoolTip:SetOption ("FixedWidthSub", 195)
-		CoolTip:SetOption ("RightTextWidth", 105)
-		CoolTip:SetOption ("RightTextHeight", 12)
-		
-		CoolTip:SetOption ("SubFollowButton", true)
+		gameCooltip:Reset()
+		gameCooltip:SetType("menu")
+		gameCooltip:SetFixedParameter(instance)
+		gameCooltip:SetOption("FixedWidthSub", 195)
+		gameCooltip:SetOption("RightTextWidth", 105)
+		gameCooltip:SetOption("RightTextHeight", 12)
+		gameCooltip:SetOption("SubFollowButton", true)
 	
-		----------- segments
 		local menuIndex = 0
-		_detalhes.segments_amount = math.floor (_detalhes.segments_amount)
-		
-		local fight_amount = 0
-		
-		local filled_segments = 0
-		for i = 1, _detalhes.segments_amount do
-			if (_detalhes.tabela_historico.tabelas [i]) then
-				filled_segments = filled_segments + 1
+		Details.segments_amount = floor(Details.segments_amount)
+		local amountOfSegments = 0
+		local segmentsWithACombat = 0
+
+		for i = 1, Details.segments_amount do
+			if (Details.tabela_historico.tabelas[i]) then
+				segmentsWithACombat = segmentsWithACombat + 1
 			else
 				break
 			end
 		end
 
-		filled_segments = _detalhes.segments_amount - filled_segments - 2
-		local fill = math.abs (filled_segments - _detalhes.segments_amount)
+		segmentsWithACombat = Details.segments_amount - segmentsWithACombat - 2
+		local fill = abs(segmentsWithACombat - Details.segments_amount)
 		segments_used = 0
 		segments_filled = fill
 		
@@ -6408,13 +6342,10 @@ local build_segment_list = function (self, elapsed)
 		local dungeon_color_trash = party_line_color_trash
 		local dungeon_run_id = false
 		
-		--> history table (segments container)
 		local isMythicDungeon = false
-		for i = _detalhes.segments_amount, 1, -1 do
-			
+		for i = Details.segments_amount, 1, -1 do
 			if (i <= fill) then
-
-				local thisCombat = _detalhes.tabela_historico.tabelas [i]
+				local thisCombat = Details.tabela_historico.tabelas[i]
 				if (thisCombat) then
 					local enemy = thisCombat.is_boss and thisCombat.is_boss.name
 					local segment_info_added = false
@@ -6422,13 +6353,10 @@ local build_segment_list = function (self, elapsed)
 					segments_used = segments_used + 1
 
 					if (thisCombat.is_mythic_dungeon_segment) then
-					
 						if (not isMythicDungeon) then
-							--GameCooltip:AddLine ("$div", nil, nil, -5, -13)
 							isMythicDungeon = thisCombat.is_mythic_dungeon_run_id
 						else
 							if (isMythicDungeon ~= thisCombat.is_mythic_dungeon_run_id) then
-							--	GameCooltip:AddLine ("$div", nil, nil, -5, -13)
 								isMythicDungeon = thisCombat.is_mythic_dungeon_run_id
 							end
 						end
@@ -6436,11 +6364,9 @@ local build_segment_list = function (self, elapsed)
 						local mythicDungeonInfo = thisCombat:GetMythicDungeonInfo()
 					
 						if (mythicDungeonInfo) then
-							--> is a boss, trash overall or run overall segment
-						
+							--is a boss, trash overall or run overall segment
 							local bossInfo = thisCombat.is_boss
-							
-							local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = _detalhes:UnpackMythicDungeonInfo (mythicDungeonInfo)
+							local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
 							local combat_time = thisCombat:GetCombatTime()
 							
 							if (not dungeon_run_id) then
@@ -6453,98 +6379,89 @@ local build_segment_list = function (self, elapsed)
 								end
 							end
 
-							--> is mythic overall
+							--is mythic overall
 							if (isMythicOverallSegment) then
 								--mostrar o tempo da dungeon
 								local totalTime = combat_time
-								--CoolTip:AddLine (zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (totalTime), 1, dungeon_color)
-								CoolTip:AddLine (zoneName .. " +" .. mythicLevel .. " (" .. Loc ["STRING_SEGMENTS_LIST_OVERALL"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color)
-								CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
-								CoolTip:AddLine (zoneName .. " +" .. mythicLevel .. " (" .. Loc ["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
-								
+								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", Details.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color)
+								gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
+								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
 							else
 								if (segmentID == "trashoverall") then
 									local trashIcon = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:14:58:98:160|t"
-									CoolTip:AddLine (trashIcon .. "" .. (encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
-									CoolTip:AddLine ((encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
+									gameCooltip:AddLine(trashIcon .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", Details.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
+									gameCooltip:AddLine((encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
 								else
 									local skull = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:496:512:0:16|t"
-									CoolTip:AddLine (skull .. "" .. (encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
-									CoolTip:AddLine ((encounterName or Loc ["STRING_UNKNOW"]) .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
+									gameCooltip:AddLine(skull .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", Details.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
+									gameCooltip:AddLine((encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
 								end
-								CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
+								gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 							end
 							
-							local portrait = (thisCombat.is_boss and thisCombat.is_boss.bossimage) or _detalhes:GetBossPortrait (nil, nil, encounterName, EJID)
+							local portrait = (thisCombat.is_boss and thisCombat.is_boss.bossimage) or Details:GetBossPortrait(nil, nil, encounterName, EJID)
 							if (portrait) then
-								CoolTip:AddIcon (portrait, 2, "top", 128, 64, 0, 1, 0, 0.96)
+								gameCooltip:AddIcon(portrait, 2, "top", 128, 64, 0, 1, 0, 0.96)
 							end
 							
-							local backgroundImage = _detalhes:GetRaidIcon (mapID, EJID, "party")
+							local backgroundImage = Details:GetRaidIcon(mapID, EJID, "party")
 							if (backgroundImage) then
-								CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true) -- party_wallpaper_tex -- {0.09, 0.698125, .17, 0.833984375}
+								gameCooltip:SetWallpaper(2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
 							end
 							
-							--> sub menu
+							--sub menu
 							local decorrido = thisCombat:GetCombatTime()
-							local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-							--CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
+							local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
 							
 							if (segmentID == "trashoverall") then
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 								local totalRealTime = endedAt - startedAt
 								local wasted = totalRealTime - decorrido
 								
 								--wasted time
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
-								
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (endedAt - startedAt), 2, "white", "white")
 								
 							elseif (isMythicOverallSegment) then
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 								local totalRealTime = endedAt - startedAt
 								local wasted = totalRealTime - decorrido
 								
 								--wasted time
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
-								
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
 								
 							else
-								CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 							end
 							
 							if (thisCombat.is_boss) then
-								CoolTip:AddLine ("", "", 2, "white", "white")
+								gameCooltip:AddLine("", "", 2, "white", "white")
 							end
 							
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
-							
-							CoolTip:AddStatusBar (100, 1, .3, .3, .3, 0.2, false, false, "Skyline")
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+							gameCooltip:AddStatusBar (100, 1, .3, .3, .3, 0.2, false, false, "Skyline")
 						else
-							--> the combat has mythic dungeon tag but doesn't have a mythic dungeon table information
-							--> so this is a trash cleanup segment
-							
+							--the combat has mythic dungeon tag but doesn't have a mythic dungeon table information
+							--so this is a trash cleanup segment
 							local trashInfo = thisCombat:GetMythicDungeonTrashInfo()
-							
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TRASH"] .. " (#" .. i .. ")", _detalhes.gump:IntegerToTimer (thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
-							--CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125, "red")
-							CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
-							
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"] .. " (#" .. i .. ")", Details.gump:IntegerToTimer (thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
+							gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
+
 							--submenu
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
-							CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (thisCombat:GetCombatTime()), 2, "white", "white")
-							CoolTip:AddLine ("", "", 2, "white", "white")
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
+							gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (thisCombat:GetCombatTime()), 2, "white", "white")
+							gameCooltip:AddLine("", "", 2, "white", "white")
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
 							
 							if (trashInfo) then
-								local backgroundImage = _detalhes:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
+								local backgroundImage = Details:GetRaidIcon(trashInfo.MapID, trashInfo.EJID, "party")
 								if (backgroundImage) then
-									CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
+									gameCooltip:SetWallpaper(2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
 								end
 							end
 						end
@@ -6557,63 +6474,63 @@ local build_segment_list = function (self, elapsed)
 						local combat_time = thisCombat:GetCombatTime()
 					
 						if (thisCombat.instance_type == "party") then
-							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, dungeon_color)
+							gameCooltip:AddLine(thisCombat.is_boss.name .." (#"..i..")", _, 1, dungeon_color)
 						elseif (thisCombat.is_boss.killed) then
 							if (try_number) then
-								local m, s = _math_floor (combat_time/60), _math_floor (combat_time%60)
+								local m, s = floor(combat_time/60), floor(combat_time%60)
 								if (s < 10) then
 									s = "0" .. s
 								end
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "lime")
+								gameCooltip:AddLine(thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "lime")
 							else
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
+								gameCooltip:AddLine(thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
 							end
 						else
 							if (try_number) then
-								local m, s = _math_floor (combat_time/60), _math_floor (combat_time%60)
+								local m, s = floor(combat_time/60), floor(combat_time%60)
 								if (s < 10) then
 									s = "0" .. s
 								end
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "red")
+								gameCooltip:AddLine(thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "red")
 							else
-								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
+								gameCooltip:AddLine(thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
 							end
 						end
 
-						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
+						local portrait = Details:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
 						if (portrait) then
-							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+							gameCooltip:AddIcon(portrait, 2, "top", 128, 64)
 						else
 							local encounter_name = thisCombat.is_boss.encounter
 							local instanceID = thisCombat.is_boss.ej_instance_id
 							if (encounter_name and instanceID and instanceID ~= 0) then
-								local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
+								local index, name, description, encounterID, rootSectionID, link = Details:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 								if (index and name and encounterID) then
 									--EJ_SelectInstance (instanceID)
 									--creature info pode ser sempre 1, n�o usar o index do boss
 									local id, name, description, displayInfo, iconImage = DetailsFramework.EncounterJournal.EJ_GetCreatureInfo (1, encounterID)
 									if (iconImage) then
-										CoolTip:AddIcon (iconImage, 2, "top", 128, 64)
+										gameCooltip:AddIcon(iconImage, 2, "top", 128, 64)
 									end
 								end
 							end
 						end
 
-						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
+						gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
 						
-						if (_detalhes.tooltip.submenu_wallpaper) then
-							local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
+						if (Details.tooltip.submenu_wallpaper) then
+							local background = Details:GetRaidIcon (thisCombat.is_boss.mapid)
 							if (background) then
-								CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color, true)
+								gameCooltip:SetWallpaper (2, background, nil, segments_wallpaper_color, true)
 							else
 								local ej_id = thisCombat.is_boss.ej_instance_id
 								if (ej_id and ej_id ~= 0) then
 									local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = DetailsFramework.EncounterJournal.EJ_GetInstanceInfo (ej_id)
 									if (name) then
 										if (thisCombat.instance_type == "party") then
-											CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color, true)
+											gameCooltip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color, true)
 										else
-											CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color, true)
+											gameCooltip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color, true)
 										end
 									end
 								else
@@ -6627,14 +6544,14 @@ local build_segment_list = function (self, elapsed)
 					
 					elseif (thisCombat.is_pvp) then
 						isMythicDungeon = false
-						CoolTip:AddLine (thisCombat.is_pvp.name, _, 1, battleground_color)
+						gameCooltip:AddLine(thisCombat.is_pvp.name, _, 1, battleground_color)
 						enemy = thisCombat.is_pvp.name
-						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
+						gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
-						if (_detalhes.tooltip.submenu_wallpaper) then
-							local file, coords = _detalhes:GetBattlegroundInfo (thisCombat.is_pvp.mapid)
+						if (Details.tooltip.submenu_wallpaper) then
+							local file, coords = Details:GetBattlegroundInfo (thisCombat.is_pvp.mapid)
 							if (file) then
-								CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color, true)
+								gameCooltip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color, true)
 							end
 						else
 							--> wallpaper = main window
@@ -6643,14 +6560,14 @@ local build_segment_list = function (self, elapsed)
 					
 					elseif (thisCombat.is_arena) then
 						isMythicDungeon = false
-						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
+						gameCooltip:AddLine(thisCombat.is_arena.name, _, 1, "yellow")
 						enemy = thisCombat.is_arena.name
-						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
+						gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
-						if (_detalhes.tooltip.submenu_wallpaper) then
-							local file, coords = _detalhes:GetArenaInfo (thisCombat.is_arena.mapid)
+						if (Details.tooltip.submenu_wallpaper) then
+							local file, coords = Details:GetArenaInfo (thisCombat.is_arena.mapid)
 							if (file) then
-								CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color, true)
+								gameCooltip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color, true)
 							end
 						else
 							--> wallpaper = main window
@@ -6660,19 +6577,19 @@ local build_segment_list = function (self, elapsed)
 						isMythicDungeon = false
 						enemy = thisCombat.enemy
 						if (enemy) then
-							CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
+							gameCooltip:AddLine(thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
 						else
-							CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
+							gameCooltip:AddLine(segmentos.past..i, _, 1, "silver")
 						end
 						
 						if (thisCombat.is_trash) then
-							CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125)
+							gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125)
 						else
-							CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16)
+							gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16)
 						end
 						
-						if (_detalhes.tooltip.submenu_wallpaper) then
-							CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color, true)
+						if (Details.tooltip.submenu_wallpaper) then
+							gameCooltip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color, true)
 						else
 							--> wallpaper = main window
 							--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
@@ -6680,32 +6597,32 @@ local build_segment_list = function (self, elapsed)
 						
 					end
 					
-					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
+					gameCooltip:AddMenu(1, instance.TrocaTabela, i)
 					
 					if (not segment_info_added) then
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
 						local decorrido = thisCombat:GetCombatTime()
-						local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
+						local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
 						
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
 					end
 					
-					fight_amount = fight_amount + 1
+					amountOfSegments = amountOfSegments + 1
 				else
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
-					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
-					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
-					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
+					gameCooltip:AddMenu(1, instance.TrocaTabela, i)
+					gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_EMPTY"], _, 2)
+					gameCooltip:AddIcon([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
 					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 				
 				if (menuIndex) then
 					menuIndex = menuIndex + 1
-					if (instancia.segmento == i) then
-						CoolTip:SetLastSelected ("main", menuIndex)
+					if (instance.segmento == i) then
+						gameCooltip:SetLastSelected ("main", menuIndex)
 						menuIndex = nil
 					end
 				end
@@ -6714,19 +6631,19 @@ local build_segment_list = function (self, elapsed)
 			
 		end
 		
-		GameCooltip:AddLine ("$div", nil, nil, -5, -13)
+		GameCooltip:AddLine("$div", nil, nil, -5, -13)
 		
 		----------- current
-			local enemy = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name or _detalhes.tabela_vigente.enemy or "--x--x--"
+			local enemy = Details.tabela_vigente.is_boss and Details.tabela_vigente.is_boss.name or Details.tabela_vigente.enemy or "--x--x--"
 			local file, coords
 			
-			local thisCombat = _detalhes.tabela_vigente
+			local thisCombat = Details.tabela_vigente
 			local segment_info_added
 			
 			--> add the new line
-			CoolTip:AddLine (segmentos.current_standard, _, 1, "white")
-			CoolTip:AddMenu (1, instancia.TrocaTabela, 0)
-			CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
+			gameCooltip:AddLine(segmentos.current_standard, _, 1, "white")
+			gameCooltip:AddMenu(1, instance.TrocaTabela, 0)
+			gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 			--
 			
 			--> current segment is a dungeon mythic+?
@@ -6738,7 +6655,7 @@ local build_segment_list = function (self, elapsed)
 				
 					local bossInfo = thisCombat.is_boss
 					
-					local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = _detalhes:UnpackMythicDungeonInfo (mythicDungeonInfo)
+					local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo (mythicDungeonInfo)
 					local combat_time = thisCombat:GetCombatTime()
 					
 					if (not dungeon_run_id) then
@@ -6755,72 +6672,72 @@ local build_segment_list = function (self, elapsed)
 					if (isMythicOverallSegment) then
 						--mostrar o tempo da dungeon
 						local totalTime = combat_time
-						--CoolTip:AddLine (zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (totalTime), 1, dungeon_color)
-						--CoolTip:AddLine (zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color)
-						--CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
-						CoolTip:AddLine (zoneName .. " +" .. mythicLevel .. " (" .. Loc ["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
+						--CoolTip:AddLine(zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (totalTime), 1, dungeon_color)
+						--CoolTip:AddLine(zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color)
+						--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
+						gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
 						
 					else
 						if (segmentID == "trashoverall") then
-							--CoolTip:AddLine (encounterName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
-							--CoolTip:AddLine (encounterName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
-							CoolTip:AddLine (encounterName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
+							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
+							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
+							gameCooltip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
 						else
-							--CoolTip:AddLine (encounterName .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
-							CoolTip:AddLine (encounterName .. " (" .. Loc ["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
+							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
+							gameCooltip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
 						end
-						--CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
+						--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 					end
 					
-					local portrait = (thisCombat.is_boss and thisCombat.is_boss.bossimage) or _detalhes:GetBossPortrait (nil, nil, encounterName, EJID)
+					local portrait = (thisCombat.is_boss and thisCombat.is_boss.bossimage) or Details:GetBossPortrait (nil, nil, encounterName, EJID)
 					if (portrait) then
-						CoolTip:AddIcon (portrait, 2, "top", 128, 64, 0, 1, 0, 0.96)
+						gameCooltip:AddIcon(portrait, 2, "top", 128, 64, 0, 1, 0, 0.96)
 					end
 					
-					local backgroundImage = _detalhes:GetRaidIcon (mapID, EJID, "party")
+					local backgroundImage = Details:GetRaidIcon (mapID, EJID, "party")
 					if (backgroundImage) then
-						CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true) -- party_wallpaper_tex -- {0.09, 0.698125, .17, 0.833984375}
+						gameCooltip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true) -- party_wallpaper_tex -- {0.09, 0.698125, .17, 0.833984375}
 					end
 					
 					--> sub menu
 					local decorrido = thisCombat:GetCombatTime()
-					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-					--CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
+					local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
+					--CoolTip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
 					
 					if (segmentID == "trashoverall") then
 						local totalRealTime = endedAt - startedAt
 						local wasted = totalRealTime - decorrido
 						
-						CoolTip:AddLine (Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 						
 						--wasted time
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						gameCooltip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 						
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. _detalhes.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. Details.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
 						
 					elseif (isMythicOverallSegment) then
-						CoolTip:AddLine (Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 						local totalRealTime = endedAt - startedAt
 						local wasted = totalRealTime - decorrido
 						
 						
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", _detalhes.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
 						
 						--wasted time
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. _detalhes.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-						CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						gameCooltip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 						
 					else
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 					end
 					
 					if (thisCombat.is_boss) then
-						CoolTip:AddLine ("", "", 2, "white", "white")
+						gameCooltip:AddLine("", "", 2, "white", "white")
 					end
 					
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
 					
 				else
 					--> the combat has mythic dungeon tag but doesn't have a mythic dungeon table information
@@ -6828,60 +6745,60 @@ local build_segment_list = function (self, elapsed)
 					
 					local trashInfo = thisCombat:GetMythicDungeonTrashInfo()
 					
-					--CoolTip:AddLine (Loc ["STRING_SEGMENT_TRASH"], _detalhes.gump:IntegerToTimer (thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
-					--CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125, "red")
-					--CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
+					--CoolTip:AddLine(Loc["STRING_SEGMENT_TRASH"], _detalhes.gump:IntegerToTimer (thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
+					--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125, "red")
+					--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
 					
 					--submenu
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
-					CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  _detalhes.gump:IntegerToTimer (thisCombat:GetCombatTime()), 2, "white", "white")
-					CoolTip:AddLine ("", "", 2, "white", "white")
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (thisCombat:GetCombatTime()), 2, "white", "white")
+					gameCooltip:AddLine("", "", 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
 					
 					if (trashInfo) then
-						local backgroundImage = _detalhes:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
+						local backgroundImage = Details:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
 						if (backgroundImage) then
-							CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
+							gameCooltip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
 						end
 					end
 				end
 				
 				segment_info_added = true
 
-			elseif (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name) then
-				local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index) or _detalhes.tabela_vigente.is_boss.bossimage
+			elseif (Details.tabela_vigente.is_boss and Details.tabela_vigente.is_boss.name) then
+				local portrait = Details:GetBossPortrait (Details.tabela_vigente.is_boss.mapid, Details.tabela_vigente.is_boss.index) or Details.tabela_vigente.is_boss.bossimage
 				if (portrait) then
-					CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+					gameCooltip:AddIcon(portrait, 2, "top", 128, 64)
 				else
-					local thisCombat = _detalhes.tabela_vigente
+					local thisCombat = Details.tabela_vigente
 					local encounter_name = thisCombat.is_boss.encounter
 					local instanceID = thisCombat.is_boss.ej_instance_id
 					instanceID = tonumber (instanceID)
 					if (encounter_name and instanceID and instanceID ~= 0) then
-						local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
+						local index, name, description, encounterID, rootSectionID, link = Details:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 						if (index and name and encounterID) then
 							local id, name, description, displayInfo, iconImage = DetailsFramework.EncounterJournal.EJ_GetCreatureInfo (index, encounterID)
 							if (iconImage) then
-								CoolTip:AddIcon (iconImage, 2, "top", 128, 64)
+								gameCooltip:AddIcon(iconImage, 2, "top", 128, 64)
 							end
 						end
 					end
 				end
 				
-				if (_detalhes.tooltip.submenu_wallpaper) then
-					local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
+				if (Details.tooltip.submenu_wallpaper) then
+					local background = Details:GetRaidIcon (Details.tabela_vigente.is_boss.mapid)
 					if (background) then
-						CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color, true)
+						gameCooltip:SetWallpaper (2, background, nil, segments_wallpaper_color, true)
 					else
-						local ej_id = _detalhes.tabela_vigente.is_boss.ej_instance_id
+						local ej_id = Details.tabela_vigente.is_boss.ej_instance_id
 						if (ej_id and ej_id ~= 0) then
 							local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = DetailsFramework.EncounterJournal.EJ_GetInstanceInfo (ej_id)
 							if (name) then
-								if (_detalhes.tabela_vigente.instance_type == "party") then
-									CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color, true)
+								if (Details.tabela_vigente.instance_type == "party") then
+									gameCooltip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color, true)
 								else
-									CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color, true)
+									gameCooltip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color, true)
 								end
 							end
 						end
@@ -6891,24 +6808,24 @@ local build_segment_list = function (self, elapsed)
 					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 				
-			elseif (_detalhes.tabela_vigente.is_pvp) then
-				enemy = _detalhes.tabela_vigente.is_pvp.name
-				file, coords = _detalhes:GetBattlegroundInfo (_detalhes.tabela_vigente.is_pvp.mapid)
-			elseif (_detalhes.tabela_vigente.is_arena) then
-				enemy = _detalhes.tabela_vigente.is_arena.name
-				file, coords = _detalhes:GetArenaInfo (_detalhes.tabela_vigente.is_arena.mapid)
+			elseif (Details.tabela_vigente.is_pvp) then
+				enemy = Details.tabela_vigente.is_pvp.name
+				file, coords = Details:GetBattlegroundInfo (Details.tabela_vigente.is_pvp.mapid)
+			elseif (Details.tabela_vigente.is_arena) then
+				enemy = Details.tabela_vigente.is_arena.name
+				file, coords = Details:GetArenaInfo (Details.tabela_vigente.is_arena.mapid)
 			else
-				if (_detalhes.tooltip.submenu_wallpaper) then
-					CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, {1, 1, 1, 0.5}, true)
+				if (Details.tooltip.submenu_wallpaper) then
+					gameCooltip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, {1, 1, 1, 0.5}, true)
 				else
 					--> wallpaper = main window
 					--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 			end					
 
-			if (_detalhes.tooltip.submenu_wallpaper) then
+			if (Details.tooltip.submenu_wallpaper) then
 				if (file) then
-					CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color, true)
+					gameCooltip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color, true)
 				end
 			else
 				--> wallpaper = main window
@@ -6916,57 +6833,57 @@ local build_segment_list = function (self, elapsed)
 			end
 			
 			if (not segment_info_added) then
-				CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+				gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
 				
-				if (not _detalhes.tabela_vigente:GetEndTime()) then
-					if (_detalhes.in_combat) then
-						local decorrido = _detalhes.tabela_vigente:GetCombatTime()
-						local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+				if (not Details.tabela_vigente:GetEndTime()) then
+					if (Details.in_combat) then
+						local decorrido = Details.tabela_vigente:GetCombatTime()
+						local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 					else
-						CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", "--x--x--", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", "--x--x--", 2, "white", "white")
 					end
 				else
-					local decorrido = _detalhes.tabela_vigente:GetCombatTime()
-					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-					CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+					local decorrido = Details.tabela_vigente:GetCombatTime()
+					local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
+					gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 				end
 
-				CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_vigente.data_inicio, 2, "white", "white")
-				CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
+				gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", Details.tabela_vigente.data_inicio, 2, "white", "white")
+				gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", Details.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
 			end
 			
 			--> fill � a quantidade de menu que esta sendo mostrada
-			if (instancia.segmento == 0) then
+			if (instance.segmento == 0) then
 				if (fill - 2 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill + 0)
+					gameCooltip:SetLastSelected ("main", fill + 0)
 				elseif (fill - 1 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill + 1)
+					gameCooltip:SetLastSelected ("main", fill + 1)
 				else
-					CoolTip:SetLastSelected ("main", fill + 2)
+					gameCooltip:SetLastSelected ("main", fill + 2)
 				end
 
 				menuIndex = nil
 			end
 		
 		----------- overall
-		--CoolTip:AddLine (segmentos.overall_standard, _, 1, "white") Loc ["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc ["STRING_REPORT_FIGHTS"]
-		CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], _, 1, "white")
-		CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
-		CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
+		--CoolTip:AddLine(segmentos.overall_standard, _, 1, "white") Loc["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc["STRING_REPORT_FIGHTS"]
+		gameCooltip:AddLine(Loc["STRING_SEGMENT_OVERALL"], _, 1, "white")
+		gameCooltip:AddMenu(1, instance.TrocaTabela, -1)
+		gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 			
-			local enemy_name = _detalhes.tabela_overall.overall_enemy_name
+			local enemy_name = Details.tabela_overall.overall_enemy_name
 			
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy_name, 2, "white", "white")
+			gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy_name, 2, "white", "white")
 			
-			local combat_time = _detalhes.tabela_overall:GetCombatTime()
-			local minutos, segundos = _math_floor (combat_time / 60), _math_floor (combat_time % 60)
+			local combat_time = Details.tabela_overall:GetCombatTime()
+			local minutos, segundos = floor(combat_time / 60), floor(combat_time % 60)
 			
-			CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+			gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			
 			--CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsComparisonBackground]], {0.085, 166/256, 0, 1}, {.42, .4, .4, 0.9}, true)
 			
-			if (_detalhes.tooltip.submenu_wallpaper) then
+			if (Details.tooltip.submenu_wallpaper) then
 				--CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9}, true)
 				--CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsComparisonBackground]], {166/256, 1, 0, 1}, {1, 1, 1, 0.9}, true)
 			else
@@ -6974,39 +6891,39 @@ local build_segment_list = function (self, elapsed)
 				--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 			end
 			
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_overall.data_inicio, 2, "white", "white")
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_overall.data_fim, 2, "white", "white")
+			gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", Details.tabela_overall.data_inicio, 2, "white", "white")
+			gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", Details.tabela_overall.data_fim, 2, "white", "white")
 			
 			-- combats added
-			local combats_added = _detalhes.tabela_overall.segments_added or _detalhes.empty_table
-			CoolTip:AddLine (Loc ["STRING_SEGMENTS"] .. ":", #combats_added, 2, "white", "white")
+			local combats_added = Details.tabela_overall.segments_added or Details.empty_table
+			gameCooltip:AddLine(Loc["STRING_SEGMENTS"] .. ":", #combats_added, 2, "white", "white")
 			
 			if (#combats_added > 0) then
-				CoolTip:AddLine ("", "", 2, "white", "white")
+				gameCooltip:AddLine("", "", 2, "white", "white")
 			end
 			
-			for i, segment in _ipairs (combats_added) do
-				local minutos, segundos = _math_floor (segment.elapsed/60), _math_floor (segment.elapsed%60)
+			for i, segment in ipairs (combats_added) do
+				local minutos, segundos = floor(segment.elapsed/60), floor(segment.elapsed%60)
 				
 				local name = segment.name
 				if (name:len() > 20) then
 					name = string.sub (name, 1, #name - (#name - 20))
 				end
 				
-				CoolTip:AddLine ("" .. name, minutos.."m "..segundos.."s", 2, "white", "white")
+				gameCooltip:AddLine("" .. name, minutos.."m "..segundos.."s", 2, "white", "white")
 				
 				local segmentType = segment.type
 				if (segmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
-					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 8, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
+					gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 8, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
 					
 				elseif (segmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
-					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 12, 0.96875, 1, 0, 0.03125, party_line_color)
+					gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 12, 0.96875, 1, 0, 0.03125, party_line_color)
 					
 				elseif (segmentType == DETAILS_SEGMENTTYPE_RAID_TRASH or segmentType == DETAILS_SEGMENTTYPE_DUNGEON_TRASH) then
-					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 10, 8, 0.02734375, 0.11328125, 0.19140625, 0.3125)
+					gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], 2, 1, 10, 8, 0.02734375, 0.11328125, 0.19140625, 0.3125)
 					
 				elseif (segmentType == DETAILS_SEGMENTTYPE_RAID_BOSS) then
-					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 12, 0.96875, 1, 0, 0.03125)
+					gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 12, 0.96875, 1, 0, 0.03125)
 					
 				end
 				
@@ -7014,43 +6931,41 @@ local build_segment_list = function (self, elapsed)
 			end
 			
 			--> fill � a quantidade de menu que esta sendo mostrada
-			if (instancia.segmento == -1) then
+			if (instance.segmento == -1) then
 				if (fill - 2 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill + 1)
+					gameCooltip:SetLastSelected ("main", fill + 1)
 				elseif (fill - 1 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill + 2)
+					gameCooltip:SetLastSelected ("main", fill + 2)
 				else
-					CoolTip:SetLastSelected ("main", fill + 3)
+					gameCooltip:SetLastSelected ("main", fill + 3)
 				end
 				menuIndex = nil
 			end
 			
 		---------------------------------------------
 		
-		_detalhes:SetMenuOwner (self, instancia)
+		Details:SetMenuOwner (self, instance)
 		
-		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-		CoolTip:SetOption ("TextFont", _detalhes.font_faces.menus)
+		gameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
+		gameCooltip:SetOption ("TextFont", Details.font_faces.menus)
 		
-		CoolTip:SetOption ("SubMenuIsTooltip", true)
+		gameCooltip:SetOption ("SubMenuIsTooltip", true)
 		
-		CoolTip:SetOption ("ButtonHeightMod", -4)
-		CoolTip:SetOption ("ButtonsYMod", -10)
-		CoolTip:SetOption ("YSpacingMod", 1)
+		gameCooltip:SetOption ("ButtonHeightMod", -4)
+		gameCooltip:SetOption ("ButtonsYMod", -10)
+		gameCooltip:SetOption ("YSpacingMod", 1)
 		
-		CoolTip:SetOption ("ButtonHeightModSub", 4)
-		CoolTip:SetOption ("ButtonsYModSub", 0)
-		CoolTip:SetOption ("YSpacingModSub", -4)
+		gameCooltip:SetOption ("ButtonHeightModSub", 4)
+		gameCooltip:SetOption ("ButtonsYModSub", 0)
+		gameCooltip:SetOption ("YSpacingModSub", -4)
 		
-		CoolTip:SetOption ("HeighMod", 12)
+		gameCooltip:SetOption ("HeighMod", 12)
 		
-		_detalhes:SetTooltipMinWidth()
+		Details:SetTooltipMinWidth()
 		
-		_detalhes:FormatCooltipBackdrop()
+		show_anti_overlap (instance, self, "top")
 		
-		show_anti_overlap (instancia, self, "top")
-		
-		CoolTip:ShowCooltip()
+		gameCooltip:ShowCooltip()
 		
 		self:SetScript ("OnUpdate", nil)
 	end	
@@ -7059,7 +6974,7 @@ end
 
 -- ~skin
 
-function _detalhes:SetUserCustomSkinFile (file)
+function Details:SetUserCustomSkinFile (file)
 	if (type (file) ~= "string") then
 		error ("SetUserCustomSkinFile() file must be a string.")
 	end
@@ -7072,8 +6987,8 @@ function _detalhes:SetUserCustomSkinFile (file)
 	self:ChangeSkin()
 end
 
-function _detalhes:RefreshMicroDisplays()
-	_detalhes.StatusBar:UpdateOptions (self)
+function Details:RefreshMicroDisplays()
+	Details.StatusBar:UpdateOptions (self)
 end
 
 function Details:WaitForSkin()
@@ -7090,8 +7005,8 @@ function Details:WaitForSkin()
 	Details.waitingForSkins = Details.waitingForSkins or {}
 	Details.waitingForSkins[self:GetId()] = skinName
 
-	local defaultSkin = _detalhes.default_skin_to_use
-	local skin = _detalhes.skins[defaultSkin]
+	local defaultSkin = Details.default_skin_to_use
+	local skin = Details.skins[defaultSkin]
 	self.skin = defaultSkin
 	return skin
 end
@@ -7101,7 +7016,7 @@ function Details:ChangeSkin(skin_name)
 		skin_name = self.skin
 	end
 
-	local this_skin = _detalhes.skins[skin_name]
+	local this_skin = Details.skins[skin_name]
 	if (not this_skin) then
 		local tempSkin = Details:WaitForSkin()
 		this_skin = tempSkin
@@ -7129,10 +7044,10 @@ function Details:ChangeSkin(skin_name)
 				
 				local copy = Details.CopyTable(overwrite_cprops)
 				
-				for cprop, value in _pairs (copy) do
-					if (not _detalhes.instance_skin_ignored_values [cprop]) then
+				for cprop, value in pairs (copy) do
+					if (not Details.instance_skin_ignored_values [cprop]) then
 						if (type (value) == "table") then
-							for cprop2, value2 in _pairs (value) do
+							for cprop2, value2 in pairs (value) do
 								if (not self[cprop]) then
 									self[cprop] = {}
 								end
@@ -7146,43 +7061,43 @@ function Details:ChangeSkin(skin_name)
 			end
 			
 		--> reset micro frames
-			_detalhes.StatusBar:Reset (self)
+			Details.StatusBar:Reset (self)
 
 		--> customize micro frames
 			if (this_skin.micro_frames) then
 				if (this_skin.micro_frames.left) then
-					_detalhes.StatusBar:SetPlugin (self, this_skin.micro_frames.left, "left")
+					Details.StatusBar:SetPlugin (self, this_skin.micro_frames.left, "left")
 				end
 				
 				if (this_skin.micro_frames.textxmod) then
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textxmod", this_skin.micro_frames.textxmod)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textxmod", this_skin.micro_frames.textxmod)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textxmod", this_skin.micro_frames.textxmod)
+					Details.StatusBar:ApplyOptions (self.StatusBar.left, "textxmod", this_skin.micro_frames.textxmod)
+					Details.StatusBar:ApplyOptions (self.StatusBar.center, "textxmod", this_skin.micro_frames.textxmod)
+					Details.StatusBar:ApplyOptions (self.StatusBar.right, "textxmod", this_skin.micro_frames.textxmod)
 				end
 				if (this_skin.micro_frames.textymod) then
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textymod", this_skin.micro_frames.textymod)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textymod", this_skin.micro_frames.textymod)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textymod", this_skin.micro_frames.textymod)
+					Details.StatusBar:ApplyOptions (self.StatusBar.left, "textymod", this_skin.micro_frames.textymod)
+					Details.StatusBar:ApplyOptions (self.StatusBar.center, "textymod", this_skin.micro_frames.textymod)
+					Details.StatusBar:ApplyOptions (self.StatusBar.right, "textymod", this_skin.micro_frames.textymod)
 				end
 				if (this_skin.micro_frames.hidden) then
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "hidden", this_skin.micro_frames.hidden)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "hidden", this_skin.micro_frames.hidden)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "hidden", this_skin.micro_frames.hidden)
+					Details.StatusBar:ApplyOptions (self.StatusBar.left, "hidden", this_skin.micro_frames.hidden)
+					Details.StatusBar:ApplyOptions (self.StatusBar.center, "hidden", this_skin.micro_frames.hidden)
+					Details.StatusBar:ApplyOptions (self.StatusBar.right, "hidden", this_skin.micro_frames.hidden)
 				end
 				if (this_skin.micro_frames.color) then
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textcolor", this_skin.micro_frames.color)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textcolor", this_skin.micro_frames.color)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textcolor", this_skin.micro_frames.color)
+					Details.StatusBar:ApplyOptions (self.StatusBar.left, "textcolor", this_skin.micro_frames.color)
+					Details.StatusBar:ApplyOptions (self.StatusBar.center, "textcolor", this_skin.micro_frames.color)
+					Details.StatusBar:ApplyOptions (self.StatusBar.right, "textcolor", this_skin.micro_frames.color)
 				end
 				if (this_skin.micro_frames.font) then
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textface", this_skin.micro_frames.font)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textface", this_skin.micro_frames.font)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textface", this_skin.micro_frames.font)
+					Details.StatusBar:ApplyOptions (self.StatusBar.left, "textface", this_skin.micro_frames.font)
+					Details.StatusBar:ApplyOptions (self.StatusBar.center, "textface", this_skin.micro_frames.font)
+					Details.StatusBar:ApplyOptions (self.StatusBar.right, "textface", this_skin.micro_frames.font)
 				end
 				if (this_skin.micro_frames.size) then
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textsize", this_skin.micro_frames.size)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textsize", this_skin.micro_frames.size)
-					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textsize", this_skin.micro_frames.size)
+					Details.StatusBar:ApplyOptions (self.StatusBar.left, "textsize", this_skin.micro_frames.size)
+					Details.StatusBar:ApplyOptions (self.StatusBar.center, "textsize", this_skin.micro_frames.size)
+					Details.StatusBar:ApplyOptions (self.StatusBar.right, "textsize", this_skin.micro_frames.size)
 				end
 			end
 			
@@ -7257,10 +7172,10 @@ function Details:ChangeSkin(skin_name)
 		local icon_anchor = this_skin.icon_anchor_plugins
 		self.baseframe.cabecalho.atributo_icon:SetPoint ("topright", self.baseframe.cabecalho.ball_point, "topright", icon_anchor[1], icon_anchor[2])
 		if (self.modo == 1) then
-			if (_detalhes.SoloTables.Plugins [1] and _detalhes.SoloTables.Mode) then
-				local plugin_index = _detalhes.SoloTables.Mode
-				if (plugin_index > 0 and _detalhes.SoloTables.Menu [plugin_index]) then
-					self:ChangeIcon (_detalhes.SoloTables.Menu [plugin_index] [2])
+			if (Details.SoloTables.Plugins [1] and Details.SoloTables.Mode) then
+				local plugin_index = Details.SoloTables.Mode
+				if (plugin_index > 0 and Details.SoloTables.Menu [plugin_index]) then
+					self:ChangeIcon (Details.SoloTables.Menu [plugin_index] [2])
 				end
 			end
 
@@ -7288,11 +7203,11 @@ function Details:ChangeSkin(skin_name)
 	
 ----------> update abbreviation function on the class files
 	
-	_detalhes.atributo_damage:UpdateSelectedToKFunction()
-	_detalhes.atributo_heal:UpdateSelectedToKFunction()
-	_detalhes.atributo_energy:UpdateSelectedToKFunction()
-	_detalhes.atributo_misc:UpdateSelectedToKFunction()
-	_detalhes.atributo_custom:UpdateSelectedToKFunction()
+	Details.atributo_damage:UpdateSelectedToKFunction()
+	Details.atributo_heal:UpdateSelectedToKFunction()
+	Details.atributo_energy:UpdateSelectedToKFunction()
+	Details.atributo_misc:UpdateSelectedToKFunction()
+	Details.atributo_custom:UpdateSelectedToKFunction()
 	
 ----------> call widgets handlers	
 		self:SetBarSettings (self.row_info.height)
@@ -7361,11 +7276,11 @@ function Details:ChangeSkin(skin_name)
 		self:AdjustAlphaByContext()
 		
 	--> update icons
-		_detalhes.ToolBar:ReorganizeIcons (true) --call self:SetMenuAlpha()
+		Details.ToolBar:ReorganizeIcons (true) --call self:SetMenuAlpha()
 		
 	--> refresh options panel if opened
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown() and not _G.DetailsOptionsWindow.IsLoading) then
-			_detalhes:OpenOptionsWindow (self)
+			Details:OpenOptionsWindow (self)
 		end
 
 	--> auto interact
@@ -7394,13 +7309,13 @@ function Details:ChangeSkin(skin_name)
 	self.bgframe.skin_script = nil
 	
 	--> check if the skin has control scripts to run
-	if (not just_updating or _detalhes.initializing) then
+	if (not just_updating or Details.initializing) then
 		local callbackFunc = this_skin.callback
 		if (callbackFunc) then
 			DetailsFramework:SetEnvironment(callbackFunc)
 			local okey, result = pcall (callbackFunc, this_skin, self, just_updating)
 			if (not okey) then
-				_detalhes:Msg ("|cFFFF9900error on skin callback function|r:", result)
+				Details:Msg ("|cFFFF9900error on skin callback function|r:", result)
 			end
 		end
 		
@@ -7410,7 +7325,7 @@ function Details:ChangeSkin(skin_name)
 				DetailsFramework:SetEnvironment(onStartScript)
 				local okey, result = pcall (onStartScript, this_skin, self)
 				if (not okey) then
-					_detalhes:Msg ("|cFFFF9900error on skin control on start function|r:", result)
+					Details:Msg ("|cFFFF9900error on skin control on start function|r:", result)
 				end
 			end
 			
@@ -7426,9 +7341,9 @@ function Details:ChangeSkin(skin_name)
 end
 
 --update the window click through state
-local updateClickThroughListener = _detalhes:CreateEventListener()
+local updateClickThroughListener = Details:CreateEventListener()
 function updateClickThroughListener:EnterCombat()
-	_detalhes:InstanceCall (function (instance)
+	Details:InstanceCall (function (instance)
 		C_Timer.After (1.5, function()
 			instance:UpdateClickThrough()
 		end)
@@ -7436,7 +7351,7 @@ function updateClickThroughListener:EnterCombat()
 end
 
 function updateClickThroughListener:LeaveCombat()
-	_detalhes:InstanceCall (function (instance)
+	Details:InstanceCall (function (instance)
 		C_Timer.After (1.5, function()
 			instance:UpdateClickThrough()
 		end)
@@ -7446,7 +7361,7 @@ end
 updateClickThroughListener:RegisterEvent ("COMBAT_PLAYER_ENTER", "EnterCombat")
 updateClickThroughListener:RegisterEvent ("COMBAT_PLAYER_LEAVE", "EnterCombat")
 
-function _detalhes:UpdateClickThroughSettings (inCombat, window, bars, toolbaricons)
+function Details:UpdateClickThroughSettings (inCombat, window, bars, toolbaricons)
 	if (inCombat ~= nil) then
 		self.clickthrough_incombatonly = inCombat
 	end
@@ -7466,7 +7381,7 @@ function _detalhes:UpdateClickThroughSettings (inCombat, window, bars, toolbaric
 	self:UpdateClickThrough()
 end
 
-function _detalhes:UpdateClickThrough()
+function Details:UpdateClickThrough()
 	
 	local barsClickThrough = self.clickthrough_rows
 	local windowClickThrough = self.clickthrough_window
@@ -7478,12 +7393,12 @@ function _detalhes:UpdateClickThrough()
 		if (InCombatLockdown()) then
 			--player bars
 			if (barsClickThrough) then
-				for barIndex, barObject in _ipairs (self.barras) do 
+				for barIndex, barObject in ipairs (self.barras) do 
 					barObject:EnableMouse(false)
 					barObject.icon_frame:EnableMouse(false)
 				end
 			else
-				for barIndex, barObject in _ipairs (self.barras) do 
+				for barIndex, barObject in ipairs (self.barras) do 
 					barObject:EnableMouse(true)
 					barObject.icon_frame:EnableMouse(true)
 				end
@@ -7527,7 +7442,7 @@ function _detalhes:UpdateClickThrough()
 			
 		else
 			--player bars
-			for barIndex, barObject in _ipairs (self.barras) do
+			for barIndex, barObject in ipairs (self.barras) do
 				barObject:EnableMouse (true)
 				barObject.icon_frame:EnableMouse(true)
 			end
@@ -7559,12 +7474,12 @@ function _detalhes:UpdateClickThrough()
 
 		--player bars
 		if (barsClickThrough) then
-			for barIndex, barObject in _ipairs (self.barras) do 
+			for barIndex, barObject in ipairs (self.barras) do 
 				barObject:EnableMouse (false)
 				barObject.icon_frame:EnableMouse(false)
 			end
 		else
-			for barIndex, barObject in _ipairs (self.barras) do 
+			for barIndex, barObject in ipairs (self.barras) do 
 				barObject:EnableMouse (true)
 			end
 		end
@@ -7605,22 +7520,22 @@ function _detalhes:UpdateClickThrough()
 	end
 end
 
-function _detalhes:DelayedCheckCombatAlpha (instance, alpha)
+function Details:DelayedCheckCombatAlpha (instance, alpha)
 	if (UnitAffectingCombat("player") or InCombatLockdown()) then
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 	end
 end
 
-function _detalhes:DelayedCheckOutOfCombatAlpha (instance, alpha)
+function Details:DelayedCheckOutOfCombatAlpha (instance, alpha)
 	if (not UnitAffectingCombat("player") and not InCombatLockdown()) then
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 		instance:SetWindowAlphaForCombat (true, true, alpha) --> hida a janela
 	end
 end
 
-function _detalhes:DelayedCheckOutOfCombatAndGroupAlpha (instance, alpha)
-	if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
+function Details:DelayedCheckOutOfCombatAndGroupAlpha (instance, alpha)
+	if ((Details.zone_type == "raid" or Details.zone_type == "party") and IsInInstance()) then
 		if (UnitAffectingCombat("player") or InCombatLockdown()) then
 			instance:SetWindowAlphaForCombat (false, false, alpha) --> deshida a janela
 		else
@@ -7638,7 +7553,7 @@ local getAlphaByContext = function(instance, contextIndex, invert)
 	return alpha
 end
 
-function _detalhes:AdjustAlphaByContext(interacting)
+function Details:AdjustAlphaByContext(interacting)
 
 	--in combat
 	if (not self.meu_id) then
@@ -7651,14 +7566,14 @@ function _detalhes:AdjustAlphaByContext(interacting)
 	if (self.hide_on_context[3].enabled) then
 		if (self.hide_on_context[3].inverse) then
 			--while in group
-			if (_detalhes.in_group) then
+			if (Details.in_group) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
 				hasRuleEnabled = true
 			end
 		else
 			--while not in group
-			if (not _detalhes.in_group) then
+			if (not Details.in_group) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --> hida a janela
 				hasRuleEnabled = true
@@ -7669,7 +7584,7 @@ function _detalhes:AdjustAlphaByContext(interacting)
 	--while not inside instance
 	if (self.hide_on_context[4].enabled) then
 		local isInInstance = IsInInstance()
-		if (not isInInstance or (not _detalhes.zone_type == "raid" and not _detalhes.zone_type == "party")) then
+		if (not isInInstance or (not Details.zone_type == "raid" and not Details.zone_type == "party")) then
 			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
 			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --> hida a janela
 			hasRuleEnabled = true
@@ -7679,7 +7594,7 @@ function _detalhes:AdjustAlphaByContext(interacting)
 	--while inside instance
 	if (self.hide_on_context[5].enabled) then
 		local isInInstance = IsInInstance()
-		if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
+		if (isInInstance or Details.zone_type == "raid" or Details.zone_type == "party") then
 			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
 			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --> hida a janela
 			hasRuleEnabled = true
@@ -7688,8 +7603,8 @@ function _detalhes:AdjustAlphaByContext(interacting)
 
 	--raid debug (inside instance + out of combat)
 	if (self.hide_on_context[6].enabled) then
-		if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
-			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self, getAlphaByContext(self, 6))
+		if ((Details.zone_type == "raid" or Details.zone_type == "party") and IsInInstance()) then
+			Details:ScheduleTimer ("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self, getAlphaByContext(self, 6))
 		end
 	end
 
@@ -7719,7 +7634,7 @@ function _detalhes:AdjustAlphaByContext(interacting)
 	--in battleground
 	if (self.hide_on_context[7].enabled) then
 		local isInInstance = IsInInstance()
-		if (isInInstance and _detalhes.zone_type == "pvp") then
+		if (isInInstance and Details.zone_type == "pvp") then
 			--player is inside a battleground
 			if (not self.hide_on_context[7].inverse) then
 				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --> hida a janela
@@ -7768,12 +7683,12 @@ function _detalhes:AdjustAlphaByContext(interacting)
 
 	--in combat
 	if (self.hide_on_context[1].enabled) then
-		_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
+		Details:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
 	end
 
 	--out of combat
 	if (self.hide_on_context[2].enabled) then
-		_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
+		Details:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
 	end
 
 	--if no rule is enabled, show the window
@@ -7783,7 +7698,7 @@ function _detalhes:AdjustAlphaByContext(interacting)
 	end
 end
 
-function _detalhes:LeftMenuAnchorSide (side)
+function Details:LeftMenuAnchorSide (side)
 	if (not side) then
 		side = self.menu_anchor.side
 	end
@@ -7792,7 +7707,7 @@ function _detalhes:LeftMenuAnchorSide (side)
 	return self:MenuAnchor()
 end
 
-function _detalhes:SetFrameStrata (strata)
+function Details:SetFrameStrata (strata)
 	
 	if (not strata) then
 		strata = self.strata
@@ -7895,7 +7810,7 @@ function Details:UpdateRowAreaBorder(shown, color, size)
 end
 
 -- ~attributemenu (text with attribute name)
-function _detalhes:RefreshAttributeTextSize()
+function Details:RefreshAttributeTextSize()
 	if (self.attribute_text.enabled and self.total_buttons_shown and self.baseframe and self.menu_attribute_string) then
 	
 		local window_width = self:GetSize()
@@ -7956,7 +7871,7 @@ function Details:CheckForTextTimeCounter(combatStart) --called from combat start
 end
 
 local formatTime = function (t)
-	local m, s = _math_floor (t/60), _math_floor (t%60)
+	local m, s = floor(t/60), floor(t%60)
 	if (m < 1) then
 		m = "00"
 	elseif (m < 10) then
@@ -7990,7 +7905,7 @@ end
 
 --self is Details
 --this is a ticker callback, it is called on each 1 second
-function _detalhes:TitleTextTickTimer(instance)
+function Details:TitleTextTickTimer(instance)
 	--hold the time value to show in the title bar
 	local timer
 
@@ -8044,7 +7959,7 @@ function Details:RefreshTitleBarText()
 		if (instanceMode == DETAILS_MODE_GROUP or instanceMode == DETAILS_MODE_ALL) then
 			local segment = self:GetSegment()
 			if (segment == DETAILS_SEGMENTID_OVERALL) then
-				sName = sName .. " " .. Loc ["STRING_OVERALL"]
+				sName = sName .. " " .. Loc["STRING_OVERALL"]
 
 			elseif (segment >= 2) then
 				sName = sName .. " [" .. segment .. "]"
@@ -8084,7 +7999,7 @@ end
 -- ~titletext
 --@timer_bg: battleground elapsed time
 --@timer_arena: arena match elapsed time
-function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow, timer_encounter, timer_bg, timer_arena)
+function Details:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow, timer_encounter, timer_bg, timer_arena)
 	if (type (enabled) ~= "boolean") then
 		enabled = self.attribute_text.enabled
 	end
@@ -8200,26 +8115,26 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	
 	--font face
 	local fontPath = SharedMedia:Fetch ("font", font)
-	_detalhes:SetFontFace (self.menu_attribute_string, fontPath)
+	Details:SetFontFace (self.menu_attribute_string, fontPath)
 	
 	--font size
-	_detalhes:SetFontSize (self.menu_attribute_string, size)
+	Details:SetFontSize (self.menu_attribute_string, size)
 	
 	--color
-	_detalhes:SetFontColor (self.menu_attribute_string, color)
+	Details:SetFontColor (self.menu_attribute_string, color)
 	C_Timer.After(1, function()
-		_detalhes:SetFontColor (self.menu_attribute_string, color)
+		Details:SetFontColor (self.menu_attribute_string, color)
 	end)
 	
 	--shadow
-	_detalhes:SetFontOutline (self.menu_attribute_string, shadow)
+	Details:SetFontOutline (self.menu_attribute_string, shadow)
 
 	--refresh size
 	self:RefreshAttributeTextSize()
 end
 
 -- ~backdrop
-function _detalhes:SetBackdropTexture (texturename)
+function Details:SetBackdropTexture (texturename)
 	
 	if (not texturename) then
 		texturename = self.backdrop_texture
@@ -8243,7 +8158,7 @@ function _detalhes:SetBackdropTexture (texturename)
 end
 
 -- ~alpha (transparency of buttons on the toolbar) ~autohide �utohide ~menuauto
-function _detalhes:SetAutoHideMenu (left, right, interacting)
+function Details:SetAutoHideMenu (left, right, interacting)
 
 	--30/07/2018: the separation by left and right menu icons doesn't exists for years, but it was still active in the code making
 	--the toolbar icons show on initialization even when the options to auto hide them enabled.
@@ -8252,7 +8167,7 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 	if (interacting) then
 		if (self.is_interacting) then
 			if (self.auto_hide_menu.left) then
-				local r, g, b = unpack (self.color_buttons)
+				local r, g, b = unpack(self.color_buttons)
 				self:InstanceButtonsColors (r, g, b, self.menu_icons_alpha, true, true) --no save, only left
 				
 				if (self.baseframe.cabecalho.PluginIconsSeparator) then
@@ -8261,7 +8176,7 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 			end
 		else
 			if (self.auto_hide_menu.left) then
-				local r, g, b = unpack (self.color_buttons)
+				local r, g, b = unpack(self.color_buttons)
 				self:InstanceButtonsColors (r, g, b, 0, true, true) --no save, only left
 				
 				if (self.baseframe.cabecalho.PluginIconsSeparator) then
@@ -8282,7 +8197,7 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 	self.auto_hide_menu.left = left
 	self.auto_hide_menu.right = right
 	
-	local r, g, b = unpack (self.color_buttons)
+	local r, g, b = unpack(self.color_buttons)
 
 	if (not left) then
 		--auto hide is off
@@ -8311,7 +8226,7 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 end
 
 -- transparency for toolbar, borders and statusbar
-function _detalhes:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interacting)
+function Details:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interacting)
 
 	if (interacting) then --> called from a onenter or onleave script
 		if (self.menu_alpha.enabled) then
@@ -8349,12 +8264,12 @@ function _detalhes:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interact
 		self.rowframe:SetAlpha (1)
 		self:InstanceAlpha (self.color[4])
 		self:SetIconAlpha (1, nil, true)
-		return self:InstanceColor (unpack (self.color))
+		return self:InstanceColor (unpack(self.color))
 		--return self:SetWindowAlphaForInteract (self.color [4])
 	else
-		local r, g, b = unpack (self.color)
+		local r, g, b = unpack(self.color)
 		self:InstanceColor (r, g, b, 1)
-		r, g, b = unpack (self.statusbar_info.overlay)
+		r, g, b = unpack(self.statusbar_info.overlay)
 		self:StatusBarColor (r, g, b, 1)
 	end
 
@@ -8366,7 +8281,7 @@ function _detalhes:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interact
 	
 end
 
-function _detalhes:GetInstanceCurrentAlpha()
+function Details:GetInstanceCurrentAlpha()
 	if (self.menu_alpha.enabled) then
 		if (self:IsInteracting()) then
 			return self.menu_alpha.onenter
@@ -8378,7 +8293,7 @@ function _detalhes:GetInstanceCurrentAlpha()
 	end
 end
 
-function _detalhes:GetInstanceIconsCurrentAlpha()
+function Details:GetInstanceIconsCurrentAlpha()
 	if (self.menu_alpha.enabled and self.menu_alpha.iconstoo) then
 		if (self:IsInteracting()) then
 			return self.menu_alpha.onenter
@@ -8390,44 +8305,44 @@ function _detalhes:GetInstanceIconsCurrentAlpha()
 	end
 end
 
-function _detalhes:MicroDisplaysLock (lockstate)
+function Details:MicroDisplaysLock (lockstate)
 	if (lockstate == nil) then
 		lockstate = self.micro_displays_locked
 	end
 	self.micro_displays_locked = lockstate
 	
 	if (lockstate) then --> is locked
-		_detalhes.StatusBar:LockDisplays (self, true)
+		Details.StatusBar:LockDisplays (self, true)
 	else
-		_detalhes.StatusBar:LockDisplays (self, false)
+		Details.StatusBar:LockDisplays (self, false)
 	end
 end
 
-function _detalhes:MicroDisplaysSide (side, fromuser)
+function Details:MicroDisplaysSide (side, fromuser)
 	if (not side) then
 		side = self.micro_displays_side
 	end
 	
 	self.micro_displays_side = side
 	
-	_detalhes.StatusBar:ReloadAnchors (self)
+	Details.StatusBar:ReloadAnchors (self)
 	
 	if (self.micro_displays_side == 2 and not self.show_statusbar) then --> bottom side
-		_detalhes.StatusBar:Hide (self)
+		Details.StatusBar:Hide (self)
 		if (fromuser) then
-			_detalhes:Msg (Loc ["STRING_OPTIONS_MICRODISPLAYWARNING"])
+			Details:Msg (Loc["STRING_OPTIONS_MICRODISPLAYWARNING"])
 		end
 	elseif (self.micro_displays_side == 2) then
-		_detalhes.StatusBar:Show (self)
+		Details.StatusBar:Show (self)
 	elseif (self.micro_displays_side == 1) then
-		_detalhes.StatusBar:Show (self)
+		Details.StatusBar:Show (self)
 	end
 	
 end
 
-function _detalhes:IsGroupedWith (instance)
+function Details:IsGroupedWith (instance)
 	local id = instance:GetId()
-	for side, instanceId in _pairs (self.snap) do
+	for side, instanceId in pairs (self.snap) do
 		if (instanceId == id) then
 			return true
 		end
@@ -8435,12 +8350,12 @@ function _detalhes:IsGroupedWith (instance)
 	return false
 end
 
-function _detalhes:GetInstanceGroup (instance_id)
+function Details:GetInstanceGroup (instance_id)
 
 	local instance = self
 	
 	if (instance_id) then
-		instance = _detalhes:GetInstance (instance_id)
+		instance = Details:GetInstance (instance_id)
 		if (not instance or not instance:IsEnabled()) then
 			return
 		end
@@ -8448,14 +8363,14 @@ function _detalhes:GetInstanceGroup (instance_id)
 	
 	local current_group = {instance}
 	
-	for side, insId in _pairs (instance.snap) do
+	for side, insId in pairs (instance.snap) do
 		if (insId < instance:GetId()) then
 			local last_id = instance:GetId()
 			for i = insId, 1, -1 do
-				local this_instance = _detalhes:GetInstance (i)
+				local this_instance = Details:GetInstance (i)
 				local got = false
 				if (this_instance and this_instance:IsEnabled()) then
-					for side, id in _pairs (this_instance.snap) do
+					for side, id in pairs (this_instance.snap) do
 						if (id == last_id) then
 							tinsert (current_group, this_instance)
 							got = true
@@ -8469,11 +8384,11 @@ function _detalhes:GetInstanceGroup (instance_id)
 			end
 		else
 			local last_id = instance:GetId()
-			for i = insId, _detalhes.instances_amount do
-				local this_instance = _detalhes:GetInstance (i)
+			for i = insId, Details.instances_amount do
+				local this_instance = Details:GetInstance (i)
 				local got = false
 				if (this_instance and this_instance:IsEnabled()) then
-					for side, id in _pairs (this_instance.snap) do
+					for side, id in pairs (this_instance.snap) do
 						if (id == last_id) then
 							tinsert (current_group, this_instance)
 							got = true
@@ -8491,7 +8406,7 @@ function _detalhes:GetInstanceGroup (instance_id)
 	return current_group
 end
 
-function _detalhes:SetWindowScale (scale, from_options)
+function Details:SetWindowScale (scale, from_options)
 	if (not scale) then
 		scale = self.window_scale
 	end
@@ -8499,7 +8414,7 @@ function _detalhes:SetWindowScale (scale, from_options)
 	if (from_options) then
 		local group = self:GetInstanceGroup()
 		
-		for _, instance in _ipairs (group) do
+		for _, instance in ipairs (group) do
 			instance.baseframe:SetScale(scale)
 			instance.rowframe:SetScale(scale)
 			instance.windowSwitchButton:SetScale(scale)
@@ -8515,7 +8430,7 @@ function _detalhes:SetWindowScale (scale, from_options)
 	end
 end
 
-function _detalhes:ToolbarSide (side, only_update_anchors)
+function Details:ToolbarSide (side, only_update_anchors)
 	
 	if (not side) then
 		side = self.toolbar_side
@@ -8523,7 +8438,7 @@ function _detalhes:ToolbarSide (side, only_update_anchors)
 	
 	self.toolbar_side = side
 	
-	local skin = _detalhes.skins [self.skin]
+	local skin = Details.skins [self.skin]
 	
 	if (side == 1) then --> top
 	
@@ -8532,35 +8447,35 @@ function _detalhes:ToolbarSide (side, only_update_anchors)
 		--> icon (ball) point
 		self.baseframe.cabecalho.ball_point:ClearAllPoints()
 
-		local x, y = unpack (skin.icon_point_anchor)
+		local x, y = unpack(skin.icon_point_anchor)
 		x = x + (anchor_mod)
 		self.baseframe.cabecalho.ball_point:SetPoint ("bottomleft", self.baseframe, "topleft", x, y)
 		
 		--> ball
 		if (self.hide_icon) then
-			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL_NO_ICON))
-			self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR_NO_ICON))
+			self.baseframe.cabecalho.ball:SetTexCoord (unpack(COORDS_LEFT_BALL_NO_ICON))
+			self.baseframe.cabecalho.emenda:SetTexCoord (unpack(COORDS_LEFT_CONNECTOR_NO_ICON))
 		else
-			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
-			self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
+			self.baseframe.cabecalho.ball:SetTexCoord (unpack(COORDS_LEFT_BALL))
+			self.baseframe.cabecalho.emenda:SetTexCoord (unpack(COORDS_LEFT_CONNECTOR))
 		end
 		
 		self.baseframe.cabecalho.ball:ClearAllPoints()
 		
-		local x, y = unpack (skin.left_corner_anchor)
+		local x, y = unpack(skin.left_corner_anchor)
 		x = x + (anchor_mod)
 		self.baseframe.cabecalho.ball:SetPoint ("bottomleft", self.baseframe, "topleft", x, y)
 
 		--> ball r
-		self.baseframe.cabecalho.ball_r:SetTexCoord (unpack (COORDS_RIGHT_BALL))
+		self.baseframe.cabecalho.ball_r:SetTexCoord (unpack(COORDS_RIGHT_BALL))
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
 		
-		local x, y = unpack (skin.right_corner_anchor)
+		local x, y = unpack(skin.right_corner_anchor)
 		x = x + ((anchor_mod) * -1)
 		self.baseframe.cabecalho.ball_r:SetPoint ("bottomright", self.baseframe, "topright", x, y)
 
 		--> tex coords
-		self.baseframe.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
+		self.baseframe.cabecalho.top_bg:SetTexCoord (unpack(COORDS_TOP_BACKGROUND))
 
 		--> up frames
 		self.baseframe.UPFrame:SetPoint ("left", self.baseframe.cabecalho.ball, "right", 0, -53)
@@ -8586,32 +8501,32 @@ function _detalhes:ToolbarSide (side, only_update_anchors)
 		--> ball point
 		self.baseframe.cabecalho.ball_point:ClearAllPoints()
 		
-		local _x, _y = unpack (skin.icon_point_anchor_bottom)
+		local _x, _y = unpack(skin.icon_point_anchor_bottom)
 		_x = _x + (anchor_mod)
 		self.baseframe.cabecalho.ball_point:SetPoint ("topleft", self.baseframe, "bottomleft", _x, _y + y)
 		
 		--> ball
 		self.baseframe.cabecalho.ball:ClearAllPoints()
 		
-		local _x, _y = unpack (skin.left_corner_anchor_bottom)
+		local _x, _y = unpack(skin.left_corner_anchor_bottom)
 		_x = _x + (anchor_mod)
 		self.baseframe.cabecalho.ball:SetPoint ("topleft", self.baseframe, "bottomleft", _x, _y + y)
-		local l, r, t, b = unpack (COORDS_LEFT_BALL)
+		local l, r, t, b = unpack(COORDS_LEFT_BALL)
 		self.baseframe.cabecalho.ball:SetTexCoord (l, r, b, t)
 
 		--> ball r
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
 		
-		local _x, _y = unpack (skin.right_corner_anchor_bottom)
+		local _x, _y = unpack(skin.right_corner_anchor_bottom)
 		_x = _x + ((anchor_mod) * -1)
 		self.baseframe.cabecalho.ball_r:SetPoint ("topright", self.baseframe, "bottomright", _x, _y + y)
-		local l, r, t, b = unpack (COORDS_RIGHT_BALL)
+		local l, r, t, b = unpack(COORDS_RIGHT_BALL)
 		self.baseframe.cabecalho.ball_r:SetTexCoord (l, r, b, t)
 		
 		--> tex coords
-		local l, r, t, b = unpack (COORDS_LEFT_CONNECTOR)
+		local l, r, t, b = unpack(COORDS_LEFT_CONNECTOR)
 		self.baseframe.cabecalho.emenda:SetTexCoord (l, r, b, t)
-		local l, r, t, b = unpack (COORDS_TOP_BACKGROUND)
+		local l, r, t, b = unpack(COORDS_TOP_BACKGROUND)
 		self.baseframe.cabecalho.top_bg:SetTexCoord (l, r, b, t)
 
 		--> up frames
@@ -8649,7 +8564,7 @@ function _detalhes:ToolbarSide (side, only_update_anchors)
 	self:SetBarGrowDirection()
 end
 
-function _detalhes:StretchButtonAlwaysOnTop (on_top)
+function Details:StretchButtonAlwaysOnTop (on_top)
 	
 	if (type (on_top) ~= "boolean") then
 		on_top = self.grab_on_top
@@ -8665,7 +8580,7 @@ function _detalhes:StretchButtonAlwaysOnTop (on_top)
 	
 end
 
-function _detalhes:StretchButtonAnchor (side)
+function Details:StretchButtonAnchor (side)
 	
 	if (not side) then
 		side = self.stretch_button_side
@@ -8682,7 +8597,7 @@ function _detalhes:StretchButtonAnchor (side)
 		
 		self.baseframe.button_stretch:SetPoint ("bottom", self.baseframe, "top", 0, 20 + y)
 		self.baseframe.button_stretch:SetPoint ("right", self.baseframe, "right", -27, 0)
-		self.baseframe.button_stretch.texture:SetTexCoord (unpack (COORDS_STRETCH))
+		self.baseframe.button_stretch.texture:SetTexCoord (unpack(COORDS_STRETCH))
 		self.stretch_button_side = 1
 		
 	elseif (side == 2 or string.lower (side) == "bottom") then
@@ -8700,7 +8615,7 @@ function _detalhes:StretchButtonAnchor (side)
 		self.baseframe.button_stretch:SetPoint ("center", self.baseframe, "center")
 		self.baseframe.button_stretch:SetPoint ("top", self.baseframe, "bottom", 0, y)
 		
-		local l, r, t, b = unpack (COORDS_STRETCH)
+		local l, r, t, b = unpack(COORDS_STRETCH)
 		self.baseframe.button_stretch.texture:SetTexCoord (r, l, b, t)
 		
 		self.stretch_button_side = 2
@@ -8709,7 +8624,7 @@ function _detalhes:StretchButtonAnchor (side)
 	
 end
 
-function _detalhes:MenuAnchor (x, y)
+function Details:MenuAnchor (x, y)
 	if (self.toolbar_side == 1) then --top
 		if (not x) then
 			x = self.menu_anchor [1]
@@ -8761,7 +8676,7 @@ function _detalhes:MenuAnchor (x, y)
 	self:ToolbarMenuButtons()
 end
 
-function _detalhes:HideMainIcon (value)
+function Details:HideMainIcon (value)
 
 	if (type (value) ~= "boolean") then
 		value = self.hide_icon
@@ -8773,17 +8688,17 @@ function _detalhes:HideMainIcon (value)
 		Details.FadeHandler.Fader (self.baseframe.cabecalho.atributo_icon, 1)
 		
 		if (self.toolbar_side == 1) then
-			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL_NO_ICON))
-			self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR_NO_ICON))
+			self.baseframe.cabecalho.ball:SetTexCoord (unpack(COORDS_LEFT_BALL_NO_ICON))
+			self.baseframe.cabecalho.emenda:SetTexCoord (unpack(COORDS_LEFT_CONNECTOR_NO_ICON))
 			
 		elseif (self.toolbar_side == 2) then
-			local l, r, t, b = unpack (COORDS_LEFT_BALL_NO_ICON)
+			local l, r, t, b = unpack(COORDS_LEFT_BALL_NO_ICON)
 			self.baseframe.cabecalho.ball:SetTexCoord (l, r, b, t)
-			local l, r, t, b = unpack (COORDS_LEFT_CONNECTOR_NO_ICON)
+			local l, r, t, b = unpack(COORDS_LEFT_CONNECTOR_NO_ICON)
 			self.baseframe.cabecalho.emenda:SetTexCoord (l, r, b, t)
 		end
 		
-		local skin = _detalhes.skins [self.skin]
+		local skin = Details.skins [self.skin]
 		
 		if (skin.icon_on_top) then
 			self.baseframe.cabecalho.atributo_icon:SetParent (self.floatingframe)
@@ -8797,21 +8712,21 @@ function _detalhes:HideMainIcon (value)
 		
 		if (self.toolbar_side == 1) then
 
-			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
-			self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
+			self.baseframe.cabecalho.ball:SetTexCoord (unpack(COORDS_LEFT_BALL))
+			self.baseframe.cabecalho.emenda:SetTexCoord (unpack(COORDS_LEFT_CONNECTOR))
 			
 		elseif (self.toolbar_side == 2) then
 
-			local l, r, t, b = unpack (COORDS_LEFT_BALL)
+			local l, r, t, b = unpack(COORDS_LEFT_BALL)
 			self.baseframe.cabecalho.ball:SetTexCoord (l, r, b, t)
-			local l, r, t, b = unpack (COORDS_LEFT_CONNECTOR)
+			local l, r, t, b = unpack(COORDS_LEFT_CONNECTOR)
 			self.baseframe.cabecalho.emenda:SetTexCoord (l, r, b, t)
 		end
 	end
 end
 
 --> search key: ~desaturate
-function _detalhes:DesaturateMenu (value)
+function Details:DesaturateMenu (value)
 
 	if (value == nil) then
 		value = self.desaturated_menu
@@ -8827,8 +8742,8 @@ function _detalhes:DesaturateMenu (value)
 		self.baseframe.cabecalho.reset:GetNormalTexture():SetDesaturated (true)
 		self.baseframe.cabecalho.fechar:GetNormalTexture():SetDesaturated (true)
 
-		if (self.meu_id == _detalhes:GetLowerInstanceNumber()) then
-			for _, button in _ipairs (_detalhes.ToolBar.AllButtons) do
+		if (self.meu_id == Details:GetLowerInstanceNumber()) then
+			for _, button in ipairs (Details.ToolBar.AllButtons) do
 				button:GetNormalTexture():SetDesaturated (true)
 			end
 		end
@@ -8843,8 +8758,8 @@ function _detalhes:DesaturateMenu (value)
 		self.baseframe.cabecalho.reset:GetNormalTexture():SetDesaturated (false)
 		self.baseframe.cabecalho.fechar:GetNormalTexture():SetDesaturated (false)
 		
-		if (self.meu_id == _detalhes:GetLowerInstanceNumber()) then
-			for _, button in _ipairs (_detalhes.ToolBar.AllButtons) do
+		if (self.meu_id == Details:GetLowerInstanceNumber()) then
+			for _, button in ipairs (Details.ToolBar.AllButtons) do
 				button:GetNormalTexture():SetDesaturated (false)
 			end
 		end
@@ -8852,7 +8767,7 @@ function _detalhes:DesaturateMenu (value)
 	end
 end
 
-function _detalhes:ShowSideBars (instancia)
+function Details:ShowSideBars (instancia)
 	if (instancia) then
 		self = instancia
 	end
@@ -8863,7 +8778,7 @@ function _detalhes:ShowSideBars (instancia)
 	self.baseframe.barra_direita:Show()
 	
 	--> set default spacings
-	local this_skin = _detalhes.skins [self.skin]
+	local this_skin = Details.skins [self.skin]
 	if (this_skin.instance_cprops and this_skin.instance_cprops.row_info and this_skin.instance_cprops.row_info.space) then
 		self.row_info.space.left = this_skin.instance_cprops.row_info.space.left
 		self.row_info.space.right = this_skin.instance_cprops.row_info.space.right
@@ -8878,7 +8793,7 @@ function _detalhes:ShowSideBars (instancia)
 		
 		if (self.toolbar_side == 2) then
 			self.baseframe.barra_fundo:Show()
-			local l, r, t, b = unpack (COORDS_BOTTOM_SIDE_BAR)
+			local l, r, t, b = unpack(COORDS_BOTTOM_SIDE_BAR)
 			self.baseframe.barra_fundo:SetTexCoord (l, r, b, t)
 			self.baseframe.barra_fundo:ClearAllPoints()
 			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "topleft", 0, -6)
@@ -8893,13 +8808,13 @@ function _detalhes:ShowSideBars (instancia)
 		self.baseframe.barra_fundo:Show()
 		
 		if (self.toolbar_side == 2) then --tooltbar on bottom
-			local l, r, t, b = unpack (COORDS_BOTTOM_SIDE_BAR)
+			local l, r, t, b = unpack(COORDS_BOTTOM_SIDE_BAR)
 			self.baseframe.barra_fundo:SetTexCoord (l, r, b, t)
 			self.baseframe.barra_fundo:ClearAllPoints()
 			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "topleft", 0, -6)
 			self.baseframe.barra_fundo:SetPoint ("bottomright", self.baseframe, "topright", -1, -6)
 		else --tooltbar on top
-			self.baseframe.barra_fundo:SetTexCoord (unpack (COORDS_BOTTOM_SIDE_BAR))
+			self.baseframe.barra_fundo:SetTexCoord (unpack(COORDS_BOTTOM_SIDE_BAR))
 			self.baseframe.barra_fundo:ClearAllPoints()
 			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "bottomleft", 0, -56)
 			self.baseframe.barra_fundo:SetPoint ("bottomright", self.baseframe, "bottomright", -1, -56)
@@ -8912,14 +8827,14 @@ function _detalhes:ShowSideBars (instancia)
 	
 end
 
-function _detalhes:HideSideBars (instancia)
+function Details:HideSideBars (instancia)
 	if (instancia) then
 		self = instancia
 	end
 	
 	self.show_sidebars = false
 	
-	local this_skin = _detalhes.skins [self.skin]
+	local this_skin = Details.skins [self.skin]
 	local space_config = this_skin.instance_cprops and this_skin.instance_cprops.row_info and this_skin.instance_cprops.row_info.space
 	if (space_config) then
 		if (space_config.left_noborder) then
@@ -8947,7 +8862,7 @@ function _detalhes:HideSideBars (instancia)
 	self:ToolbarSide (nil, true)
 end
 
-function _detalhes:HideStatusBar (instancia)
+function Details:HideStatusBar (instancia)
 	if (instancia) then
 		self = instancia
 	end
@@ -8977,14 +8892,14 @@ function _detalhes:HideStatusBar (instancia)
 	self:StretchButtonAnchor()
 	
 	if (self.micro_displays_side == 2) then --> bottom side
-		_detalhes.StatusBar:Hide (self) --> mini displays widgets
+		Details.StatusBar:Hide (self) --> mini displays widgets
 	end
 end
 
-function _detalhes:StatusBarColor (r, g, b, a, no_save)
+function Details:StatusBarColor (r, g, b, a, no_save)
 
 	if (not r) then
-		r, g, b = unpack (self.statusbar_info.overlay)
+		r, g, b = unpack(self.statusbar_info.overlay)
 		a = a or self.statusbar_info.alpha
 	end
 
@@ -9008,7 +8923,7 @@ function _detalhes:StatusBarColor (r, g, b, a, no_save)
 	
 end
 
-function _detalhes:ShowStatusBar(instancia)
+function Details:ShowStatusBar(instancia)
 	if (instancia) then
 		self = instancia
 	end
@@ -9031,39 +8946,39 @@ function _detalhes:ShowStatusBar(instancia)
 	self:StretchButtonAnchor()
 	
 	if (self.micro_displays_side == 2) then --> bottom side
-		_detalhes.StatusBar:Show(self) --> mini displays widgets
+		Details.StatusBar:Show(self) --> mini displays widgets
 	end
 end
 
-function _detalhes:SetTooltipBackdrop (border_texture, border_size, border_color)
+function Details:SetTooltipBackdrop (border_texture, border_size, border_color)
 
 	if (not border_texture) then
-		border_texture = _detalhes.tooltip.border_texture
+		border_texture = Details.tooltip.border_texture
 	end
 	if (not border_size) then
-		border_size = _detalhes.tooltip.border_size
+		border_size = Details.tooltip.border_size
 	end
 	if (not border_color) then
-		border_color = _detalhes.tooltip.border_color
+		border_color = Details.tooltip.border_color
 	end
 
-	_detalhes.tooltip.border_texture = border_texture
-	_detalhes.tooltip.border_size = border_size
+	Details.tooltip.border_texture = border_texture
+	Details.tooltip.border_size = border_size
 
-	local c = _detalhes.tooltip.border_color
-	local cc = _detalhes.tooltip_border_color
+	local c = Details.tooltip.border_color
+	local cc = Details.tooltip_border_color
 	c[1], c[2], c[3], c[4] = border_color[1], border_color[2], border_color[3], border_color[4] or 1
 	cc[1], cc[2], cc[3], cc[4] = border_color[1], border_color[2], border_color[3], border_color[4] or 1
 
-	_detalhes.tooltip_backdrop.edgeFile = SharedMedia:Fetch ("border", border_texture)
-	_detalhes.tooltip_backdrop.edgeSize = border_size
+	Details.tooltip_backdrop.edgeFile = SharedMedia:Fetch ("border", border_texture)
+	Details.tooltip_backdrop.edgeSize = border_size
 
 end
 
 --> reset button functions
 	local reset_button_onenter = function (self, _, forced, from_click)
 	
-		if (_detalhes.instances_menu_click_to_open and not forced) then
+		if (Details.instances_menu_click_to_open and not forced) then
 			return
 		end
 
@@ -9089,23 +9004,21 @@ end
 		GameCooltip:SetOption ("TextHeightMod", 0)
 		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 		
-		_detalhes:SetTooltipMinWidth()
+		Details:SetTooltipMinWidth()
 		
-		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
-		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
+		GameCooltip:AddLine(Loc["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		GameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		GameCooltip:AddMenu(1, Details.tabela_historico.resetar_overall)
 		
-		GameCooltip:AddLine ("$div", nil, 1, nil, -5, -11)
+		GameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 		
-		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
-		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
-		
-		_detalhes:FormatCooltipBackdrop()
+		GameCooltip:AddLine(Loc["STRING_ERASE_DATA"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		GameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
+		GameCooltip:AddMenu(1, Details.tabela_historico.resetar)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
-		_detalhes:SetMenuOwner (self, self.instance)
+		Details:SetMenuOwner (self, self.instance)
 		GameCooltip:ShowCooltip()
 	end
 	
@@ -9144,15 +9057,15 @@ end
 		self.instancia:DesativarInstancia() 
 		
 		--> n�o h� mais inst�ncias abertas, ent�o manda msg alertando
-		if (_detalhes.opened_windows == 0) then
-			_detalhes:Msg (Loc ["STRING_CLOSEALL"])
+		if (Details.opened_windows == 0) then
+			Details:Msg (Loc["STRING_CLOSEALL"])
 		end
 		
 		--> tutorial, how to fully delete a window
 		--_detalhes:SetTutorialCVar ("FULL_DELETE_WINDOW", false)
 		
-		if (not _detalhes:GetTutorialCVar ("FULL_DELETE_WINDOW")) then
-			_detalhes:SetTutorialCVar ("FULL_DELETE_WINDOW", true)
+		if (not Details:GetTutorialCVar ("FULL_DELETE_WINDOW")) then
+			Details:SetTutorialCVar ("FULL_DELETE_WINDOW", true)
 			
 			local panel = gump:Create1PxPanel (UIParent, 600, 100, "|cFFFFFFFFDetails!, the window hit the ground, bang bang...|r", nil, nil, nil, nil)
 			panel:SetBackdropColor (0, 0, 0, 0.9)
@@ -9160,14 +9073,14 @@ end
 			
 			local s = panel:CreateFontString (nil, "overlay", "GameFontNormal")
 			s:SetPoint ("center", panel, "center")
-			s:SetText (Loc ["STRING_TUTORIAL_FULLY_DELETE_WINDOW"])
+			s:SetText (Loc["STRING_TUTORIAL_FULLY_DELETE_WINDOW"])
 			
 			panel:Show()
 		end
 		
 		GameCooltip:Hide()
 	end
-	_detalhes.close_instancia_func = close_button_onclick
+	Details.close_instancia_func = close_button_onclick
 
 	local close_button_onenter = function (self)
 		OnEnterMainWindow (self.instance, self, 3)
@@ -9198,24 +9111,24 @@ end
 		GameCooltip:SetOption ("HeighMod", 9)
 
 		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 1, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
-		GameCooltip:AddMenu (1, close_button_onclick, self)
+		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		GameCooltip:AddIcon([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 1, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
+		GameCooltip:AddMenu(1, close_button_onclick, self)
 		
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC"], nil, 2, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\CHATFRAME\UI-ChatIcon-Minimize-Up]], 2, 1, 18, 18)
+		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE_DESC"], nil, 2, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		GameCooltip:AddIcon([[Interface\CHATFRAME\UI-ChatIcon-Minimize-Up]], 2, 1, 18, 18)
 		
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
+		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		GameCooltip:AddIcon([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
 		
-		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		GameCooltip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		GameCooltip:SetWallpaper (1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
+		GameCooltip:SetWallpaper (2, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
 		GameCooltip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
-		_detalhes:SetMenuOwner (self, self.instance)
+		Details:SetMenuOwner (self, self.instance)
 		GameCooltip:ShowCooltip()
 	end
 	
@@ -9256,7 +9169,7 @@ end
 local report_on_enter = function (self, motion, forced, from_click)
 
 	local is_cooltip_opened = menu_can_open() --  and not is_cooltip_opened
-	if (_detalhes.instances_menu_click_to_open and not forced) then
+	if (Details.instances_menu_click_to_open and not forced) then
 		return
 	end
 
@@ -9280,41 +9193,39 @@ local report_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:SetOption ("TextHeightMod", 0)
 	GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 
-	_detalhes:SetTooltipMinWidth()
+	Details:SetTooltipMinWidth()
 	
-	_detalhes:CheckLastReportsIntegrity()
+	Details:CheckLastReportsIntegrity()
 	
-	local last_reports = _detalhes.latest_report_table
+	local last_reports = Details.latest_report_table
 	if (#last_reports > 0) then
 		local amountReports = #last_reports
 		amountReports = math.min (amountReports, 10)
 	
 		for index = amountReports, 1, -1 do
 			local report = last_reports [index]
-			local instance_number, attribute, subattribute, amt, report_where, custom_name = unpack (report)
+			local instance_number, attribute, subattribute, amt, report_where, custom_name = unpack(report)
 			
-			local name = _detalhes:GetSubAttributeName (attribute, subattribute, custom_name)
+			local name = Details:GetSubAttributeName (attribute, subattribute, custom_name)
 			
-			local artwork =  _detalhes.GetReportIconAndColor (report_where)
+			local artwork =  Details.GetReportIconAndColor (report_where)
 			
-			GameCooltip:AddLine (name .. " (#" .. amt .. ")", nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
+			GameCooltip:AddLine(name .. " (#" .. amt .. ")", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 			if (artwork) then
-				GameCooltip:AddIcon (artwork.icon, 1, 1, 14, 14, artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4], artwork.color, nil, false)
+				GameCooltip:AddIcon(artwork.icon, 1, 1, 14, 14, artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4], artwork.color, nil, false)
 			end
-			GameCooltip:AddMenu (1, _detalhes.ReportFromLatest, index)
+			GameCooltip:AddMenu(1, Details.ReportFromLatest, index)
 		end
 		
-		GameCooltip:AddLine ("$div", nil, nil, -4)
+		GameCooltip:AddLine("$div", nil, nil, -4)
 	end
 	
-	GameCooltip:AddLine (Loc ["STRING_REPORT_TOOLTIP"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-	GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
-	GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
-	
-	_detalhes:FormatCooltipBackdrop()
+	GameCooltip:AddLine(Loc["STRING_REPORT_TOOLTIP"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+	GameCooltip:AddIcon([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
+	GameCooltip:AddMenu(1, Details.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 	
 	show_anti_overlap (instancia, self, "top")
-	_detalhes:SetMenuOwner (self, instancia)
+	Details:SetMenuOwner (self, instancia)
 	
 	GameCooltip:ShowCooltip()
 end
@@ -9346,7 +9257,7 @@ end
 local atributo_on_enter = function (self, motion, forced, from_click)
 
 	local is_cooltip_opened = menu_can_open() --  and not is_cooltip_opened
-	if (_detalhes.instances_menu_click_to_open and not forced) then
+	if (Details.instances_menu_click_to_open and not forced) then
 		return
 	end
 
@@ -9368,35 +9279,33 @@ local atributo_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:SetType (3)
 	GameCooltip:SetFixedParameter (instancia)
 	
-	if (_detalhes.solo and _detalhes.solo == instancia.meu_id) then
-		_detalhes:MontaSoloOption (instancia)
+	if (Details.solo and Details.solo == instancia.meu_id) then
+		Details:MontaSoloOption (instancia)
 		
 	elseif (instancia:IsRaidMode()) then
 	
-		local have_plugins = _detalhes:MontaRaidOption (instancia)
+		local have_plugins = Details:MontaRaidOption (instancia)
 		if (not have_plugins) then
 			GameCooltip:SetType ("tooltip")
 			GameCooltip:SetOption ("ButtonsYMod", 0)
 			
 			GameCooltip:SetOption ("TextHeightMod", 0)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
-			GameCooltip:AddLine ("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
-			GameCooltip:AddIcon ([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
-			GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+			GameCooltip:AddLine("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
+			GameCooltip:AddIcon([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
+			GameCooltip:SetWallpaper (1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
 			
 		end
 		
 	else
-		_detalhes:MontaAtributosOption (instancia)
+		Details:MontaAtributosOption (instancia)
 		GameCooltip:SetOption ("YSpacingMod", -1)
 		GameCooltip:SetOption ("YSpacingModSub", -2)
 	end
 	
-	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+	GameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
 	
-	_detalhes:FormatCooltipBackdrop()
-	
-	_detalhes:SetMenuOwner (self, instancia)
+	Details:SetMenuOwner (self, instancia)
 	
 	
 	GameCooltip:ShowCooltip ()
@@ -9419,68 +9328,65 @@ local atributo_on_leave = function (self, motion, forced, from_click)
 	
 	if (GameCooltip.active) then
 		parameters_table [2] = 0
-		self:SetScript ("OnUpdate", on_leave_menu)
+		self:SetScript("OnUpdate", on_leave_menu)
 	else
-		self:SetScript ("OnUpdate", nil)
+		self:SetScript("OnUpdate", nil)
 	end
 end
 
-local segmento_on_enter = function (self, motion, forced, from_click) 
-
-	local is_cooltip_opened = menu_can_open() --  and not is_cooltip_opened
-	if (_detalhes.instances_menu_click_to_open and not forced) then
+local segmentButton_OnEnter = function(self, motion, forced, fromClick) 
+	if (Details.instances_menu_click_to_open and not forced) then
 		return
 	end
 
-	local instancia = self._instance or self.widget._instance
-	local baseframe = instancia.baseframe
-	
-	OnEnterMainWindow (instancia, self, 3)
-	
-	if (instancia.desaturated_menu) then
-		self:GetNormalTexture():SetDesaturated (false)
+	local instance = self._instance or self.widget._instance
+	local baseframe = instance.baseframe
+
+	OnEnterMainWindow(instance, self)
+
+	if (instance.desaturated_menu) then
+		self:GetNormalTexture():SetDesaturated(false)
 	end
-	
+
 	GameCooltip.buttonOver = true
 	baseframe.cabecalho.button_mouse_over = true
-	
-	local passou = 0
+
+	local timeToOpen = 0
 	if (_G.GameCooltip.active) then
-		passou = 0.15
+		timeToOpen = 0.15
 	end
 
-	parameters_table [1] = instancia
-	parameters_table [2] = from_click and 1 or passou
-	self:SetScript ("OnUpdate", build_segment_list)
+	parameters_table[1] = instance
+	parameters_table[2] = fromClick and 1 or timeToOpen
+	self:SetScript("OnUpdate", buildSegmentTooltip)
 end
 
-local segmento_on_leave = function (self, motion, forced, from_click) 
-	local instancia = self._instance or self.widget._instance
-	local baseframe = instancia.baseframe
-	
-	OnLeaveMainWindow (instancia, self, 3)
+local segmentButton_OnLeave = function(self, motion, forced, fromClick) 
+	local instance = self._instance or self.widget._instance
+	local baseframe = instance.baseframe
 
-	hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
-	
-	if (instancia.desaturated_menu) then
-		self:GetNormalTexture():SetDesaturated (true)
+	OnLeaveMainWindow(instance, self)
+	hide_anti_overlap(instance.baseframe.anti_menu_overlap)
+
+	if (instance.desaturated_menu) then
+		self:GetNormalTexture():SetDesaturated(true)
 	end
-	
+
 	GameCooltip.buttonOver = false
 	baseframe.cabecalho.button_mouse_over = false
-	
+
 	if (GameCooltip.active) then
-		parameters_table [2] = 0
-		self:SetScript ("OnUpdate", on_leave_menu)
+		parameters_table[2] = 0
+		self:SetScript("OnUpdate", on_leave_menu)
 	else
-		self:SetScript ("OnUpdate", nil)
+		self:SetScript("OnUpdate", nil)
 	end
 end
 
 local modo_selecao_on_enter = function (self, motion, forced, from_click)
 
 	local is_cooltip_opened = menu_can_open() --  not is_cooltip_opened
-	if (_detalhes.instances_menu_click_to_open and not forced) then
+	if (Details.instances_menu_click_to_open and not forced) then
 		return
 	end
 
@@ -9553,7 +9459,7 @@ local title_bar_icons = {
 	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {96/256, 128/256, 0, 1}},
 	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {128/256, 160/256, 0, 1}},
 }
-function _detalhes:GetTitleBarIconsTexture (button, instance)
+function Details:GetTitleBarIconsTexture (button, instance)
 	if (instance or self.meu_id) then
 		local textureFile = self.toolbar_icon_file or instance.toolbar_icon_file
 		local t = title_bar_icons [button]
@@ -9565,7 +9471,7 @@ function _detalhes:GetTitleBarIconsTexture (button, instance)
 	return title_bar_icons [button] or title_bar_icons
 end
 
-function _detalhes:CreateFakeWindow()
+function Details:CreateFakeWindow()
 	local t = CreateFrame ("frame")
 	t:SetSize (200, 91)
 	t:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
@@ -9577,9 +9483,9 @@ function _detalhes:CreateFakeWindow()
 	tb:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
 	tb:SetBackdropColor (0.7, 0.7, 0.7, 0.4)
 	local tt = tb:CreateFontString (nil, "overlay", "GameFontNormal")
-	_detalhes:SetFontColor (tt, "white")
-	_detalhes:SetFontSize (tt, 10)
-	_detalhes:SetFontFace (tt, LibStub:GetLibrary("LibSharedMedia-3.0"):Fetch ("font", "Accidental Presidency"))
+	Details:SetFontColor (tt, "white")
+	Details:SetFontSize (tt, 10)
+	Details:SetFontFace (tt, LibStub:GetLibrary("LibSharedMedia-3.0"):Fetch ("font", "Accidental Presidency"))
 	tt:SetPoint ("bottomleft", tb, 3, 4)
 	tt:SetText ("Damage Done")
 	
@@ -9588,9 +9494,9 @@ function _detalhes:CreateFakeWindow()
 		local b = tb:CreateTexture (nil, "overlay")
 		b:SetSize (12, 12)
 		b:SetPoint ("bottomright", tb, "bottomright", -((abs(i-6)-1)*11) - 1, 2)
-		local button_texture_texcoord = _detalhes:GetTitleBarIconsTexture (i)
+		local button_texture_texcoord = Details:GetTitleBarIconsTexture (i)
 		b:SetTexture (button_texture_texcoord.texture)
-		b:SetTexCoord (unpack (button_texture_texcoord.texcoord))
+		b:SetTexCoord (unpack(button_texture_texcoord.texcoord))
 		tinsert (t.TitleIcons, b)
 	end
 	
@@ -9606,7 +9512,7 @@ local function click_to_change_segment (instancia, buttontype)
 		local segmento_goal = instancia.segmento + 1
 		if (segmento_goal > segments_used) then
 			segmento_goal = -1
-		elseif (segmento_goal > _detalhes.segments_amount) then
+		elseif (segmento_goal > Details.segments_amount) then
 			segmento_goal = -1
 		end
 		
@@ -9618,7 +9524,7 @@ local function click_to_change_segment (instancia, buttontype)
 		
 		instancia:TrocaTabela (segmento_goal)
 		
-		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 		
 	elseif (buttontype == "RightButton") then
 	
@@ -9634,7 +9540,7 @@ local function click_to_change_segment (instancia, buttontype)
 		GameCooltip:Select (1, select_)
 		
 		instancia:TrocaTabela (segmento_goal)
-		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 	
 	elseif (buttontype == "MiddleButton") then
 		
@@ -9647,7 +9553,7 @@ local function click_to_change_segment (instancia, buttontype)
 		GameCooltip:Select (1, select_)
 		
 		instancia:TrocaTabela (segmento_goal)
-		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 		
 	end
 end
@@ -9691,7 +9597,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> icone do atributo
 	--baseframe.cabecalho.atributo_icon = _detalhes.listener:CreateTexture (nil, "artwork")
 	baseframe.cabecalho.atributo_icon = baseframe:CreateTexture ("DetailsAttributeIcon" .. instancia.meu_id, "background")
-	local icon_anchor = _detalhes.skins ["WoW Interface"].icon_anchor_main
+	local icon_anchor = Details.skins ["WoW Interface"].icon_anchor_main
 	baseframe.cabecalho.atributo_icon:SetPoint ("topright", baseframe.cabecalho.ball_point, "topright", icon_anchor[1], icon_anchor[2])
 	baseframe.cabecalho.atributo_icon:SetTexture (DEFAULT_SKIN)
 	baseframe.cabecalho.atributo_icon:SetWidth (32)
@@ -9705,7 +9611,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.ball:SetHeight (128)
 	
 	baseframe.cabecalho.ball:SetTexture (DEFAULT_SKIN)
-	baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
+	baseframe.cabecalho.ball:SetTexCoord (unpack(COORDS_LEFT_BALL))
 
 	--> emenda
 	baseframe.cabecalho.emenda = baseframe:CreateTexture (nil, "background")
@@ -9713,7 +9619,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.emenda:SetWidth (8)
 	baseframe.cabecalho.emenda:SetHeight (128)
 	baseframe.cabecalho.emenda:SetTexture (DEFAULT_SKIN)
-	baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
+	baseframe.cabecalho.emenda:SetTexCoord (unpack(COORDS_LEFT_CONNECTOR))
 
 	baseframe.cabecalho.atributo_icon:Hide()
 	baseframe.cabecalho.ball:Hide()
@@ -9724,14 +9630,14 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.ball_r:SetWidth (128)
 	baseframe.cabecalho.ball_r:SetHeight (128)
 	baseframe.cabecalho.ball_r:SetTexture (DEFAULT_SKIN)
-	baseframe.cabecalho.ball_r:SetTexCoord (unpack (COORDS_RIGHT_BALL))
+	baseframe.cabecalho.ball_r:SetTexCoord (unpack(COORDS_RIGHT_BALL))
 
 	--> barra centro
 	baseframe.cabecalho.top_bg = baseframe:CreateTexture (nil, "background")
 	baseframe.cabecalho.top_bg:SetPoint ("left", baseframe.cabecalho.emenda, "right", 0, 0)
 	baseframe.cabecalho.top_bg:SetPoint ("right", baseframe.cabecalho.ball_r, "left")
 	baseframe.cabecalho.top_bg:SetTexture (DEFAULT_SKIN)
-	baseframe.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
+	baseframe.cabecalho.top_bg:SetTexCoord (unpack(COORDS_TOP_BACKGROUND))
 	baseframe.cabecalho.top_bg:SetWidth (512)
 	baseframe.cabecalho.top_bg:SetHeight (128)
 
@@ -9810,7 +9716,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	--> SELE��O DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local modo_selecao_button_click = function()
-		if (_detalhes.instances_menu_click_to_open) then
+		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "mode" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
@@ -9819,7 +9725,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				instancia.LastMenuOpened = "mode"
 			end
 		else
-			_detalhes:OpenOptionsWindow (instancia)
+			Details:OpenOptionsWindow (instancia)
 		end
 	end
 	
@@ -9842,12 +9748,12 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 	--> SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local segmento_button_click = function (self, button, param1)
-		if (_detalhes.instances_menu_click_to_open) then
+		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "segments" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
 			else
-				segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+				segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 				instancia.LastMenuOpened = "segments"
 			end
 		else
@@ -9863,8 +9769,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> ativa bot�o do meio e direito
 	baseframe.cabecalho.segmento:SetClickFunction (segmento_button_click, nil, nil, "rightclick")
 
-	baseframe.cabecalho.segmento:SetScript ("OnEnter", segmento_on_enter)
-	baseframe.cabecalho.segmento:SetScript ("OnLeave", segmento_on_leave)	
+	baseframe.cabecalho.segmento:SetScript ("OnEnter", segmentButton_OnEnter)
+	baseframe.cabecalho.segmento:SetScript ("OnLeave", segmentButton_OnLeave)	
 	
 	local b = baseframe.cabecalho.segmento.widget
 	b:SetNormalTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
@@ -9876,7 +9782,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	--> SELECIONAR O ATRIBUTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
 	local atributo_button_click = function()
-		if (_detalhes.instances_menu_click_to_open) then
+		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "attributes" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
@@ -9930,7 +9836,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 --> reset ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local reset_func = function()
-		if (_detalhes.instances_menu_click_to_open) then
+		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "reset" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe (false)
 				instancia.LastMenuOpened = nil
@@ -9939,10 +9845,10 @@ function gump:CriaCabecalho (baseframe, instancia)
 				instancia.LastMenuOpened = "reset"
 			end
 		else
-			if (not _detalhes.disable_reset_button) then
-				_detalhes.tabela_historico:resetar() 
+			if (not Details.disable_reset_button) then
+				Details.tabela_historico:resetar() 
 			else
-				_detalhes:Msg (Loc ["STRING_OPTIONS_DISABLED_RESET"])
+				Details:Msg (Loc["STRING_OPTIONS_DISABLED_RESET"])
 			end
 		end
 	end
