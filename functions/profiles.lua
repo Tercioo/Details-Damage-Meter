@@ -1319,6 +1319,14 @@ local default_global_data = {
 			scale = 1,
 			position = {},
 		},
+
+	--> aura tracker panel
+		aura_tracker_frame = {
+			position = {}, --for libwindow
+			scaletable = {
+				scale = 1
+			},
+		},
 		
 	--> profile by spec
 		profile_by_spec = {},

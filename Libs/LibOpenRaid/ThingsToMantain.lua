@@ -112,6 +112,10 @@ elseif (gameLanguage == "zhTW") then
 	L["STRING_CRITICAL_ONLY"]  = "致命"
 end
 
+
+LIB_OPEN_RAID_FOOD_BUFF = {} --default
+LIB_OPEN_RAID_FLASK_BUFF = {} --default
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --Wrath of the Lich King
 
@@ -149,6 +153,10 @@ if (isExpansion_LichKing()) then
 	LIB_OPEN_RAID_GEM_IDS = {}
 
 	LIB_OPEN_RAID_WEAPON_ENCHANT_IDS = {}
+
+	LIB_OPEN_RAID_FOOD_BUFF = {}
+
+	LIB_OPEN_RAID_FLASK_BUFF = {}
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --Shadowlands
@@ -268,6 +276,43 @@ elseif (isExpansion_Shadowlands()) then
 		[5401] = true, --windfury
 	}
 
+	--buff spellId, the value of the food is the tier level
+	LIB_OPEN_RAID_FOOD_BUFF = {
+		[259454] = 1, --(agility) Feast of Gluttonous Hedonism
+		[308434] = 1, --(critical) Phantasmal Souffle and Fries
+		[308397] = 1, --(critical +18) Butterscotch Marinated Ribs
+		[308400] = 1, --(critical +30) Spinefin Souffle and Fries
+		[308488] = 1, --(haste) Tenebrous Crown Roast Aspic
+		[308404] = 1, --(haste +18) Cinnamon Bonefish Stew
+		[308405] = 1, --(haste +30) Tenebrous Crown Roast Aspic
+		[308506] = 1, --(mastery) Crawler Ravioli with Apple Sauce
+		[308412] = 1, --(mastery +18) Meaty Apple Dumplings
+		[308413] = 1, --(mastery +30) Iridescent Ravioli with Apple Sauce
+		[308525] = 1, --(stamina) Banana Beef Pudding
+		[308414] = 1, --(stamina +14) Pickled Meat Smoothie
+		[308415] = 1, --(stamina +22) Banana Beef Pudding
+		[308514] = 1, --(versatility) Steak a la Mode
+		[308425] = 1, --(versatility +18) Sweet Silvergill Sausages
+		[308426] = 1, --(versatility +30) Steak a la Mode
+		[308419] = 1, --(periodicaly damage) Smothered Shank
+		[327715] = 1, --(speed) Fried Bonefish
+
+		--feasts
+		[327706] = 2, --strength +20
+		[327707] = 2, --stamina +20
+		[327708] = 2, --intellect +20
+		[327709] = 2, --agility +20
+		[327704] = 2, --intellect +18
+		[327701] = 2, --strength +18
+		[327705] = 2, --agility +18
+	}
+
+	LIB_OPEN_RAID_FLASK_BUFF = {
+		[307185] = true, --Spectral Flask of Power
+		[307187] = true, --Spectral Stamina Flask
+		[307166] = true, --Eternal Flask
+	}
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --Dragonflight
 
@@ -384,6 +429,45 @@ elseif (isExpansion_Dragonflight()) then
 		[6200] = true, --sharpened
 		[5400] = true, --flametongue
 		[5401] = true, --windfury
+	}
+
+	--buff spellId, the value of the food is the tier level
+	--use /details auras
+	LIB_OPEN_RAID_FOOD_BUFF = {
+		[382145] = 1, --Well Fed haste 220
+		[382146] = 1, --Well Fed crit 220
+		[382149] = 1, --Well Fed vers 220
+		[382150] = 1, --Well Fed mastery 220
+		[382152] = 1, --Well Fed haste + crit 130
+		[382153] = 1, --Well Fed haste + vers 130
+		[382154] = 1, --Well Fed haste + mastery 130
+		[382155] = 1, --Well Fed crit + vers 130
+		[382156] = 1, --Well Fed crit + mastery 130
+		[382157] = 1, --Well Fed vers + mastery 130
+	}
+
+	--use /details auras
+	LIB_OPEN_RAID_FLASK_BUFF = {
+		--phials
+		[371354] = {[131] = 1, [151] = 2, [174] = 3}, --Phial of the Eye in the Storm
+		[370652] = {[470] = 1, [541] = 2, [622] = 3}, --Phial of Static Empowerment
+		[371172] = {[236] = 1, [257] = 2, [279] = 3}, --Phial of Tepid Versatility
+		[371204] = {[8125] = 1, [9344] = 2, [10746] = 3}, --Phial of Still Air
+		[371036] = {[-4] = 1, [-5] = 2, [-6] = 3}, --Phial of Icy Preservation
+		[374000] = {[690] = 1, [752] = 2, [814] = 3}, --Iced Phial of Corrupting Rage
+		[371386] = {[432] = 1, [497] = 2, [572] = 3}, --Phial of Charged Isolation
+		[373257] = {[4603] = 2, [3949] = 1, [5365] = 3}, --Phial of Glacial Fury
+		[393700] = {[45] = 3, [38] = 2, [32] = 1}, --Aerated Phial of Deftness
+		[393717] = {[45] = 3, [38] = 2, [32] = 1}, --Steaming Phial of Finesse
+		[371186] = {[558] = 3, [473] = 1, [515] = 2}, --Charged Phial of Alacrity
+		[393714] = {[45] = 3, [38] = 2, [32] = 1}, --Crystalline Phial of Perception
+		[371339] = {[562] = 3, [476] = 1, [519] = 2}, --Phial of Elemental Chaos
+	}
+
+	--spellId of healing from potions
+	LIB_OPEN_RAID_HEALING_POTIONS = {
+		[370511] = 1, --Refreshing Healing Potion
+		
 	}
 end
 

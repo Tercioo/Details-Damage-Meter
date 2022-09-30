@@ -855,30 +855,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes.id_frame.texto:HighlightText()
 		end
 		
-	--> debug
-	
-	elseif (msg == "auras") then
-		if (IsInRaid()) then
-			for raidIndex = 1, GetNumGroupMembers() do 
-				for buffIndex = 1, 41 do
-					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitAura ("raid"..raidIndex, buffIndex, nil, "HELPFUL")
-					print (name, unitCaster, "==", "raid"..raidIndex)
-					if (name and unitCaster == "raid"..raidIndex) then
-						
-						local playerName, realmName = UnitName ("raid"..raidIndex)
-						if (realmName and realmName ~= "") then
-							playerName = playerName .. "-" .. realmName
-						end
-						
-						_detalhes.parser:add_buff_uptime (nil, GetTime(), UnitGUID ("raid"..raidIndex), playerName, 0x00000417, UnitGUID ("raid"..raidIndex), playerName, 0x00000417, spellid, name, in_or_out)
-						
-					else
-						--break
-					end
-				end
-			end
-		end
-		
 	elseif (command == "profile") then
 	
 		local profile = rest:match("^(%S*)%s*(.-)$")
@@ -1557,6 +1533,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 	--elseif (msg == "update") then
 	--	_detalhes:CopyPaste ([[https://www.wowinterface.com/downloads/info23056-DetailsDamageMeter8.07.3.5.html]])
 	
+	elseif (msg == "auras") then
+		Details.AuraTracker.Open()
 	
 	elseif (msg == "ec") then
 		if (rest and tonumber(rest)) then
