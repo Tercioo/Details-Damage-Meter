@@ -892,7 +892,7 @@
 				end
 				if (newActor.classe == "UNGROUPPLAYER") then
 					--atributo_custom:ScheduleTimer ("UpdateClass", 5, {newActor = newActor, actor = actor})
-					Details.Schedules.NewTimer(5, atributo_custom.UpdateClass, {new_actor = newActor, actor = actor})
+					Details.Schedules.NewTimer(5, atributo_custom.UpdateClass, self, {new_actor = newActor, actor = actor})
 				end
 			end
 
