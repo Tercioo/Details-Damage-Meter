@@ -647,26 +647,56 @@ do
 			--> name to plugin object
 				_detalhes.StatusBar.NameTable = {}
 
-	--> constants
-		--[[global]] DETAILS_HEALTH_POTION_ID = 307192 -- spiritual healing potion
-		--[[global]] DETAILS_HEALTH_POTION2_ID = 359867 --cosmic healing potion
-		--[[global]] DETAILS_REJU_POTION_ID = 307194
-		--[[global]] DETAILS_MANA_POTION_ID = 307193
-		--[[global]] DETAILS_FOCUS_POTION_ID = 307161
-		--[[global]] DETAILS_HEALTHSTONE_ID = 6262
+		--> constants
+		if(DetailsFramework.IsWotLKWow()) then
+			--[[global]] DETAILS_HEALTH_POTION_ID = 33447 -- Runic Healing Potion
+			--[[global]] DETAILS_HEALTH_POTION2_ID = 41166 -- Runic Healing Injector
+			--[[global]] DETAILS_REJU_POTION_ID = 40087 -- Powerful Rejuvenation Potion
+			--[[global]] DETAILS_REJU_POTION2_ID = 40077 -- Crazy Alchemist's Potion
+			--[[global]] DETAILS_MANA_POTION_ID = 33448 -- Runic Mana Potion
+			--[[global]] DETAILS_MANA_POTION2_ID = 42545 -- Runic Mana Injector
+			--[[global]] DETAILS_FOCUS_POTION_ID = 307161
+			--[[global]] DETAILS_HEALTHSTONE_ID = 47875 --Warlock's Healthstone
+			--[[global]] DETAILS_HEALTHSTONE2_ID = 47876 --Warlock's Healthstone (1/2 Talent)
+			--[[global]] DETAILS_HEALTHSTONE3_ID = 47877 --Warlock's Healthstone (2/2 Talent)
+			
+			--[[global]] DETAILS_INT_POTION_ID = 40212 --Potion of Wild Magic
+			--[[global]] DETAILS_AGI_POTION_ID = 40211 --Potion of Speed
+			--[[global]] DETAILS_STR_POTION_ID = 307164
+			--[[global]] DETAILS_STAMINA_POTION_ID = 40093 --Indestructible Potion
+			--[[global]] DETAILS_HEALTH_POTION_LIST = {
+					[DETAILS_HEALTH_POTION_ID] = true, -- Runic Healing Potion
+					[DETAILS_HEALTH_POTION2_ID] = true, -- Runic Healing Injector
+					[DETAILS_HEALTHSTONE_ID] = true, --Warlock's Healthstone
+					[DETAILS_HEALTHSTONE2_ID] = true, --Warlock's Healthstone (1/2 Talent)
+					[DETAILS_HEALTHSTONE3_ID] = true, --Warlock's Healthstone (2/2 Talent)
+					[DETAILS_REJU_POTION_ID] = true, -- Powerful Rejuvenation Potion
+					[DETAILS_REJU_POTION2_ID] = true, -- Crazy Alchemist's Potion
+					[DETAILS_MANA_POTION_ID] = true, -- Runic Mana Potion
+					[DETAILS_MANA_POTION2_ID] = true, -- Runic Mana Injector
+				}
+				
+		else
+			--[[global]] DETAILS_HEALTH_POTION_ID = 307192 -- spiritual healing potion
+			--[[global]] DETAILS_HEALTH_POTION2_ID = 359867 --cosmic healing potion
+			--[[global]] DETAILS_REJU_POTION_ID = 307194
+			--[[global]] DETAILS_MANA_POTION_ID = 307193
+			--[[global]] DETAILS_FOCUS_POTION_ID = 307161
+			--[[global]] DETAILS_HEALTHSTONE_ID = 6262
 
-		--[[global]] DETAILS_INT_POTION_ID = 307162
-		--[[global]] DETAILS_AGI_POTION_ID = 307159
-		--[[global]] DETAILS_STR_POTION_ID = 307164
-		--[[global]] DETAILS_STAMINA_POTION_ID = 307163
-		--[[global]] DETAILS_HEALTH_POTION_LIST = {
-			[DETAILS_HEALTH_POTION_ID] = true, --Healing Potion
-			[DETAILS_HEALTHSTONE_ID] = true, --Warlock's Healthstone
-			[DETAILS_REJU_POTION_ID] = true, --Rejuvenation Potion
-			[DETAILS_MANA_POTION_ID] = true, --Mana Potion
-			[323436] = true, --Phial of Serenity (from Kyrians)
-			[DETAILS_HEALTH_POTION2_ID] = true,
-		}
+			--[[global]] DETAILS_INT_POTION_ID = 307162
+			--[[global]] DETAILS_AGI_POTION_ID = 307159
+			--[[global]] DETAILS_STR_POTION_ID = 307164
+			--[[global]] DETAILS_STAMINA_POTION_ID = 307163
+			--[[global]] DETAILS_HEALTH_POTION_LIST = {
+					[DETAILS_HEALTH_POTION_ID] = true, --Healing Potion
+					[DETAILS_HEALTHSTONE_ID] = true, --Warlock's Healthstone
+					[DETAILS_REJU_POTION_ID] = true, --Rejuvenation Potion
+					[DETAILS_MANA_POTION_ID] = true, --Mana Potion
+					[323436] = true, --Phial of Serenity (from Kyrians)
+					[DETAILS_HEALTH_POTION2_ID] = true,
+				}
+		end
 
 		--[[global]] DETAILS_MODE_GROUP = 2
 		--[[global]] DETAILS_MODE_ALL = 3

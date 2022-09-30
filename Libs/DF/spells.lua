@@ -1274,93 +1274,140 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --consumables
+if(DF.IsShadowlandsWow() or DF.IsDragonflight()) then --Temporary IsDragonFlight until I get the items together
+	DF.WeaponEnchantIds = {
+		[6188] = true, --shadowcore oil
+		[6190] = true, --embalmer's oil
+		[6201] = true, --weighted
+		[6200] = true, --sharpened
+		[5400] = true, --flametongue
+		[5401] = true, --windfury
+	}
 
-DF.WeaponEnchantIds = {
-	[6188] = true, --shadowcore oil
-	[6190] = true, --embalmer's oil
-	[6201] = true, --weighted
-	[6200] = true, --sharpened
-	[5400] = true, --flametongue
-	[5401] = true, --windfury
-}
-
-DF.FlaskIDs = {
-	--Shadowlands
-	[307185] = true, --Spectral Flask of Power
-	[307187] = true, --Spectral Stamina Flask
-	[307166] = true, --Eternal Flask
+	DF.FlaskIDs = {
+		--Shadowlands
+		[307185] = true, --Spectral Flask of Power
+		[307187] = true, --Spectral Stamina Flask
+		[307166] = true, --Eternal Flask
 
 
 
-}
+	}
 
-DF.FoodIDs = {
-	--shadowlands tier 1
-	[259454] = 1, -- (agility) Feast of Gluttonous Hedonism
-	[308434] = 1, -- (critical) Phantasmal Souffle and Fries
-	[308397] = 1, --(critical +18) Butterscotch Marinated Ribs
-	[308400] = 1, --(critical +30) Spinefin Souffle and Fries
-	[308488] = 1, -- (haste) Tenebrous Crown Roast Aspic
-	[308404] = 1, -- (haste +18) Cinnamon Bonefish Stew
-	[308405] = 1, -- (haste +30) Tenebrous Crown Roast Aspic
-	[308506] = 1, -- (mastery) Crawler Ravioli with Apple Sauce
-	[308412] = 1, -- (mastery +18) Meaty Apple Dumplings
-	[308413] = 1, -- (mastery +30) Iridescent Ravioli with Apple Sauce
-	[308525] = 1, -- (stamina) Banana Beef Pudding
-	[308414] = 1, -- (stamina +14) Pickled Meat Smoothie
-	[308415] = 1, -- (stamina +22) Banana Beef Pudding
-	[308514] = 1, -- (versatility) Steak a la Mode
-	[308425] = 1, -- (versatility +18) Sweet Silvergill Sausages
-	[308426] = 1, -- (versatility +30) Steak a la Mode
-	[308419] = 1, -- (periodicaly damage) Smothered Shank
-	[327715] = 1, -- (speed) Fried Bonefish
+	DF.FoodIDs = {
+		--shadowlands tier 1
+		[259454] = 1, -- (agility) Feast of Gluttonous Hedonism
+		[308434] = 1, -- (critical) Phantasmal Souffle and Fries
+		[308397] = 1, --(critical +18) Butterscotch Marinated Ribs
+		[308400] = 1, --(critical +30) Spinefin Souffle and Fries
+		[308488] = 1, -- (haste) Tenebrous Crown Roast Aspic
+		[308404] = 1, -- (haste +18) Cinnamon Bonefish Stew
+		[308405] = 1, -- (haste +30) Tenebrous Crown Roast Aspic
+		[308506] = 1, -- (mastery) Crawler Ravioli with Apple Sauce
+		[308412] = 1, -- (mastery +18) Meaty Apple Dumplings
+		[308413] = 1, -- (mastery +30) Iridescent Ravioli with Apple Sauce
+		[308525] = 1, -- (stamina) Banana Beef Pudding
+		[308414] = 1, -- (stamina +14) Pickled Meat Smoothie
+		[308415] = 1, -- (stamina +22) Banana Beef Pudding
+		[308514] = 1, -- (versatility) Steak a la Mode
+		[308425] = 1, -- (versatility +18) Sweet Silvergill Sausages
+		[308426] = 1, -- (versatility +30) Steak a la Mode
+		[308419] = 1, -- (periodicaly damage) Smothered Shank
+		[327715] = 1, -- (speed) Fried Bonefish
 
-	--feasts
-	[327706] = 2, --strength +20
-	[327707] = 2, --stamina +20
-	[327708] = 2, --intellect +20
-	[327709] = 2, --agility +20
+		--feasts
+		[327706] = 2, --strength +20
+		[327707] = 2, --stamina +20
+		[327708] = 2, --intellect +20
+		[327709] = 2, --agility +20
 
-	[327704] = 2, --intellect +18
-	[327701] = 2, --strength +18
-	[327705] = 2, --agility +18
-}
+		[327704] = 2, --intellect +18
+		[327701] = 2, --strength +18
+		[327705] = 2, --agility +18
+	}
 
-DF.PotionIDs = {
-	--Shadowlands
-	[307159] = true, --Potion of Spectral Agility
-	[307163] = true, --Potion of Spectral Stamina
-	[307164] = true, --Potion of Spectral Strength
-	[307160] = true, --Potion of Hardened Shadows
-	[307162] = true, --Potion of Spectral Intellect
-	[307494] = true, --Potion of Empowered Exorcisms
-	[307495] = true, --Potion of Phantom Fire
-	[307161] = true, --Potion of Spiritual Clarity
-	[307496] = true, --Potion of Divine Awakening
-	[307501] = true, --Potion of Specter Swiftness
-	[322302] = true, --Potion of Sacrificial Anima
-	[307497] = true, --Potion of Deathly Fixation
-	[307195] = true, --Potion of the Hidden Spirit
-	[307199] = true, --Potion of Soul Purity
-	[307196] = true, --Potion of Shadow Sight
-	[307192] = true, --Spiritual Healing Potion
-	[307194] = true, --Spiritual Rejuvenation Potion
-	[307193] = true, --Spiritual Mana Potion
-	[323436] = true, --Purify Soul (greek convent)
---	[] = true, --
+	DF.PotionIDs = {
+		--Shadowlands
+		[307159] = true, --Potion of Spectral Agility
+		[307163] = true, --Potion of Spectral Stamina
+		[307164] = true, --Potion of Spectral Strength
+		[307160] = true, --Potion of Hardened Shadows
+		[307162] = true, --Potion of Spectral Intellect
+		[307494] = true, --Potion of Empowered Exorcisms
+		[307495] = true, --Potion of Phantom Fire
+		[307161] = true, --Potion of Spiritual Clarity
+		[307496] = true, --Potion of Divine Awakening
+		[307501] = true, --Potion of Specter Swiftness
+		[322302] = true, --Potion of Sacrificial Anima
+		[307497] = true, --Potion of Deathly Fixation
+		[307195] = true, --Potion of the Hidden Spirit
+		[307199] = true, --Potion of Soul Purity
+		[307196] = true, --Potion of Shadow Sight
+		[307192] = true, --Spiritual Healing Potion
+		[307194] = true, --Spiritual Rejuvenation Potion
+		[307193] = true, --Spiritual Mana Potion
+		[323436] = true, --Purify Soul (greek convent)
+	--	[] = true, --
 
-	[307165] = true, --Spiritual Anti-Venom
-}
+		[307165] = true, --Spiritual Anti-Venom
+	}
 
-DF.FeastIDs = {
-	[308462] = true, --Feast of Gluttonous Hedonism
-	[307153] = true, --Eternal Cauldron
-}
+	DF.FeastIDs = {
+		[308462] = true, --Feast of Gluttonous Hedonism
+		[307153] = true, --Eternal Cauldron
+	}
 
-DF.RuneIDs = {
-	[347901] = true, --Veiled Augmentation
-	[367405] = true, --Eternal Augmentation
-}
+	DF.RuneIDs = {
+		[347901] = true, --Veiled Augmentation
+		[367405] = true, --Eternal Augmentation
+	}
+elseif (DF.IsWotLKWow()) then
+	DF.WeaponEnchantIds = {
+		[5400] = true, --flametongue
+		[5401] = true, --windfury
+	}
+	DF.FlaskIDs = {
+		[46377] = true, -- Flask of Endless Rage
+		[46376] = true, -- Flask of the Frost Wyrm
+		[54213] = true, -- Flask of Pure Mojo
+		[46379] = true, -- Flask of Stoneblood
+		[53899] = true, -- Lesser Flask of Toughness
+	}
+	DF.FoodIDs = {
+		[57367] = true, --(Agi +40, Stam +40) Blackended Dragonfin
+		[57294] = true, --(AP +60, SP +35, Stam +30) Dalaran Clam Chowder / Great Feast
+		[57365] = true, --(Spirit +40, Stam +40) Cuttlesteak
+		[57360] = true, --(Hit+40, Stam +40) Worg Tartare / Snapper Extreme
+		[57358] = true, --(ArmorPen +40, Stam +40) Hearty Rhino
+		[57356] = true, --(Expertise +40, Stam +40) Rhinolicious Wormsteak
+		[57334] = true, --(Mana per 5s +20, Stam +40) Spicy Fried Herring / Mighty Rhino Dogs
+		[57332] = true, --(Haste +40, Stam +40) Imperial Manta Steak / Very Burnt Worg
+		[57329] = true, --(Crit +40, Stam +40) Spicy Blue Nettlefish / Spicy Worm Burger
+		[57327] = true, --(SP +46, Stam +40) Firecracker Salmon / Tender Shoveltusk Steak
+		[57325] = true, --(AP +80, Stam +40) Poached Northern Sculpin / Mega Mammoth Head
+		[57291] = true, --(Mana per 5s +15, Stam +30) Rhino Dogs / Pickled Fangtooth
+		[57288] = true, --(Haste +30, Stam +30) Baked Manta Ray / Roasted Worg
+		[57286] = true, --(Crit +30, Stam +30) Poached Nettlefish / Worm Delight
+		[57139] = true, --(SP +35, Stam +30) Smoked Salmon / Shoveltusk Steak
+		[57111] = true, --(AP +60, Stam +30) Grilled Sculpin / Mammoth Meal
+	}
+	
+	DF.PotionIDs = {
+		[40093] = true, --Indestructable Potion
+		[40211] = true, --Potion of Speed
+		[40212] = true, --Potion of Wild Magic
+		[40081] = true, --Potion of Nightmares
+		[33447] = true, -- Runic Healing Potion
+		[41166] = true, -- Runic Healing Injector
+		[40087] = true, -- Powerful Rejuvenation Potion
+		[40077] = true, -- Crazy Alchemist's Potion
+		[33448] = true, -- Runic Mana Potion
+		[42545] = true, -- Runic Mana Injector
+	}
+	DF.FeastIDs = {}
+	DF.RuneIDs = {}
+
+end
 
 --	/dump UnitAura ("player", 1)
 --	/dump UnitAura ("player", 2)
@@ -1457,12 +1504,3 @@ DF.SpellRangeCheckListBySpec = {
 	[72] = 355, --> warrior fury - Taunt
 	[73] = 355, --> warrior protect - Taunt
 }
-
-
-
-
-
-
-
-
-
