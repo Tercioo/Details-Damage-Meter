@@ -1,6 +1,6 @@
 
 
-local dversion = 368
+local dversion = 369
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -2546,10 +2546,9 @@ end
 --> ~templates
 
 --fonts
-
 DF.font_templates = DF.font_templates or {}
 
---> detect which language is the client and select the font accordingly
+--detect which language is the client and select the font accordingly
 local clientLanguage = GetLocale()
 if (clientLanguage == "enGB") then
 	clientLanguage = "enUS"
@@ -2557,7 +2556,7 @@ end
 
 DF.ClientLanguage = clientLanguage
 
---> returns which region the language the client is running, return "western", "russia" or "asia"
+--returns which region the language the client is running, return "western", "russia" or "asia"
 function DF:GetClientRegion()
 	if (clientLanguage == "zhCN" or clientLanguage == "koKR" or clientLanguage == "zhTW") then
 		return "asia"
@@ -2568,7 +2567,7 @@ function DF:GetClientRegion()
 	end
 end
 
---> return the best font to use for the client language
+--return the best font to use for the client language
 function DF:GetBestFontForLanguage (language, western, cyrillic, china, korean, taiwan)
 	if (not language) then
 		language = DF.ClientLanguage
@@ -2576,31 +2575,29 @@ function DF:GetBestFontForLanguage (language, western, cyrillic, china, korean, 
 
 	if (language == "enUS" or language == "deDE" or language == "esES" or language == "esMX" or language == "frFR" or language == "itIT" or language == "ptBR") then
 		return western or "Friz Quadrata TT"
-		
+
 	elseif (language == "ruRU") then
 		return cyrillic or "Arial Narrow"
-		
+
 	elseif (language == "zhCN") then
 		return china or "AR CrystalzcuheiGBK Demibold"
-	
+
 	elseif (language == "koKR") then
 		return korean or "2002"
-		
+
 	elseif (language == "zhTW") then
 		return taiwan or "AR CrystalzcuheiGBK Demibold"
-	
 	end
 end
 
 --DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
 --DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
-DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
-DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 9.6, font = DF:GetBestFontForLanguage()}
+DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
+DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 9.6, font = DF:GetBestFontForLanguage()}
 
--- dropdowns
-
+--dropdowns
 DF.dropdown_templates = DF.dropdown_templates or {}
-DF.dropdown_templates ["OPTIONS_DROPDOWN_TEMPLATE"] = {
+DF.dropdown_templates["OPTIONS_DROPDOWN_TEMPLATE"] = {
 	backdrop = {
 		edgeFile = [[Interface\Buttons\WHITE8X8]],
 		edgeSize = 1,
@@ -2619,10 +2616,28 @@ DF.dropdown_templates ["OPTIONS_DROPDOWN_TEMPLATE"] = {
 	dropiconpoints = {-2, -3},
 }
 
--- switches
+DF.dropdown_templates["OPTIONS_DROPDOWNDARK_TEMPLATE"] = {
+	backdrop = {
+		edgeFile = [[Interface\Buttons\WHITE8X8]],
+		edgeSize = 1,
+		bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+		tileSize = 64,
+		tile = true
+	},
 
+	backdropcolor = {0.1215, 0.1176, 0.1294, 0.8000},
+	backdropbordercolor = {.2, .2, .2, 1},
+	onentercolor = {.5, .5, .5, .9},
+	onenterbordercolor = {.4, .4, .4, 1},
+
+	dropicon = "Interface\\BUTTONS\\arrow-Down-Down",
+	dropiconsize = {16, 16},
+	dropiconpoints = {-2, -3},
+}
+
+--switches
 DF.switch_templates = DF.switch_templates or {}
-DF.switch_templates ["OPTIONS_CHECKBOX_TEMPLATE"] = {
+DF.switch_templates["OPTIONS_CHECKBOX_TEMPLATE"] = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 	backdropcolor = {1, 1, 1, .5},
 	backdropbordercolor = {0, 0, 0, 1},
@@ -2632,7 +2647,7 @@ DF.switch_templates ["OPTIONS_CHECKBOX_TEMPLATE"] = {
 	disabled_backdropcolor = {1, 1, 1, .2},
 	onenterbordercolor = {1, 1, 1, 1},
 }
-DF.switch_templates ["OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"] = {
+DF.switch_templates["OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"] = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 	backdropcolor = {1, 1, 1, .5},
 	backdropbordercolor = {0, 0, 0, 1},
@@ -2643,19 +2658,17 @@ DF.switch_templates ["OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"] = {
 	onenterbordercolor = {1, 1, 1, 1},
 }
 
--- buttons
-
+--buttons
 DF.button_templates = DF.button_templates or {}
-DF.button_templates ["OPTIONS_BUTTON_TEMPLATE"] = {
+DF.button_templates["OPTIONS_BUTTON_TEMPLATE"] = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 	backdropcolor = {1, 1, 1, .5},
 	backdropbordercolor = {0, 0, 0, 1},
 }
 
--- sliders
-
+--sliders
 DF.slider_templates = DF.slider_templates or {}
-DF.slider_templates ["OPTIONS_SLIDER_TEMPLATE"] = {
+DF.slider_templates["OPTIONS_SLIDER_TEMPLATE"] = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 	backdropcolor = {1, 1, 1, .5},
 	backdropbordercolor = {0, 0, 0, 1},
@@ -2667,46 +2680,47 @@ DF.slider_templates ["OPTIONS_SLIDER_TEMPLATE"] = {
 	thumbcolor = {0, 0, 0, 0.5},
 }
 
-function DF:InstallTemplate (widget_type, template_name, template, parent_name)
-
+function DF:InstallTemplate (widgetType, templateName, template, parentName)
 	local newTemplate = {}
-	
+
 	--if has a parent, just copy the parent to the new template
-	if (parent_name and type (parent_name) == "string") then
-		local parentTemplate = DF:GetTemplate (widget_type, parent_name)
+	if (parentName and type(parentName) == "string") then
+		local parentTemplate = DF:GetTemplate(widgetType, parentName)
 		if (parentTemplate) then
-			DF.table.copy (newTemplate, parentTemplate)
+			DF.table.copy(newTemplate, parentTemplate)
 		end
 	end
-	
-	--copy the template passed into the new template
-	DF.table.copy (newTemplate, template)
 
-	widget_type = string.lower (widget_type)
-	
-	local template_table
-	if (widget_type == "font") then
-		template_table = DF.font_templates
-		
+	--copy the template passed into the new template
+	DF.table.copy(newTemplate, template)
+
+	widgetType = string.lower(widgetType)
+
+	local templateTable
+	if (widgetType == "font") then
+		templateTable = DF.font_templates
+
 		local font = template.font
 		if (font) then
-			--> fonts passed into the template has default to western
-			--> the framework will get the game client language and change the font if needed
-			font = DF:GetBestFontForLanguage (nil, font)
+			--fonts passed into the template has default to western
+			--the framework will get the game client language and change the font if needed
+			font = DF:GetBestFontForLanguage(nil, font)
 		end
-		
-	elseif (widget_type == "dropdown") then
-		template_table = DF.dropdown_templates
-	elseif (widget_type == "button") then
-		template_table = DF.button_templates
-	elseif (widget_type == "switch") then
-		template_table = DF.switch_templates
-	elseif (widget_type == "slider") then
-		template_table = DF.slider_templates
+
+	elseif (widgetType == "dropdown") then
+		templateTable = DF.dropdown_templates
+
+	elseif (widgetType == "button") then
+		templateTable = DF.button_templates
+
+	elseif (widgetType == "switch") then
+		templateTable = DF.switch_templates
+
+	elseif (widgetType == "slider") then
+		templateTable = DF.slider_templates
 	end
 
-	template_table [template_name] = newTemplate
-	
+	templateTable[templateName] = newTemplate
 	return newTemplate
 end
 

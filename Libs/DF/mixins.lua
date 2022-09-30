@@ -211,11 +211,20 @@ DF.ScrollBoxFunctions = {
 		end
 		local okay, newLine = pcall(func, self, #self.Frames+1)
 		if (okay) then
+			if (not newLine) then
+				error("ScrollFrame:CreateLine() function did not returned a line, use: 'return line'")
+			end
 			tinsert(self.Frames, newLine)
 			newLine.Index = #self.Frames
 			return newLine
 		else
-			error("Details! FrameWork: CreateLine(): " .. newLine)
+			error("ScrollFrame:CreateLine() error on creating a line: " .. newLine)
+		end
+	end,
+
+	CreateLines = function(self, callback, lineAmount)
+		for i = 1, lineAmount do
+			self:CreateLine(callback)
 		end
 	end,
 
