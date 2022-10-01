@@ -2929,62 +2929,58 @@ end
 
 -----------------------------
 --safe copy from blizz api
-function DF:Mixin (object, ...)
+function DF:Mixin(object, ...)
 	for i = 1, select("#", ...) do
-		local mixin = select(i, ...);
-		for k, v in pairs(mixin) do
-			object[k] = v;
+		local mixin = select(i, ...)
+		for key, value in pairs(mixin) do
+			object[key] = value
 		end
 	end
-
-	return object;
+	return object
 end
 
 -----------------------------
 --> animations
 
-function DF:CreateAnimationHub (parent, onPlay, onFinished)
+function DF:CreateAnimationHub(parent, onPlay, onFinished)
 	local newAnimation = parent:CreateAnimationGroup()
-	newAnimation:SetScript ("OnPlay", onPlay)
-	newAnimation:SetScript ("OnFinished", onFinished)
-	newAnimation:SetScript ("OnStop", onFinished)
+	newAnimation:SetScript("OnPlay", onPlay)
+	newAnimation:SetScript("OnFinished", onFinished)
+	newAnimation:SetScript("OnStop", onFinished)
 	newAnimation.NextAnimation = 1
 	return newAnimation
 end
 
-function DF:CreateAnimation (animation, type, order, duration, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-	local anim = animation:CreateAnimation (type)
-	
-	anim:SetOrder (order or animation.NextAnimation)
-	anim:SetDuration (duration)
-	
-	type = string.upper (type)
-	
-	if (type == "ALPHA") then
-		anim:SetFromAlpha (arg1)
-		anim:SetToAlpha (arg2)
-	
-	elseif (type == "SCALE") then
-		if (DF.IsDragonflight()) then
-			anim:SetScaleFrom (arg1, arg2)
-			anim:SetScaleTo (arg3, arg4)
-		else
-			anim:SetFromScale (arg1, arg2)
-			anim:SetToScale (arg3, arg4)
-		end
+function DF:CreateAnimation(animation, animationType, order, duration, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	local anim = animation:CreateAnimation(animationType)
+	anim:SetOrder(order or animation.NextAnimation)
+	anim:SetDuration(duration)
 
-		anim:SetOrigin (arg5 or "center", arg6 or 0, arg7 or 0) --point, x, y
-	
-	elseif (type == "ROTATION") then
-		anim:SetDegrees (arg1) --degree
-		anim:SetOrigin (arg2 or "center", arg3 or 0, arg4 or 0) --point, x, y
-		
-	elseif (type == "TRANSLATION") then
-		anim:SetOffset (arg1, arg2)
-		
+	animationType = string.upper(animationType)
+
+	if (animationType == "ALPHA") then
+		anim:SetFromAlpha(arg1)
+		anim:SetToAlpha(arg2)
+
+	elseif (animationType == "SCALE") then
+		if (DF.IsDragonflight()) then
+			anim:SetScaleFrom(arg1, arg2)
+			anim:SetScaleTo(arg3, arg4)
+		else
+			anim:SetFromScale(arg1, arg2)
+			anim:SetToScale(arg3, arg4)
+		end
+		anim:SetOrigin(arg5 or "center", arg6 or 0, arg7 or 0) --point, x, y
+
+	elseif (animationType == "ROTATION") then
+		anim:SetDegrees(arg1) --degree
+		anim:SetOrigin(arg2 or "center", arg3 or 0, arg4 or 0) --point, x, y
+
+	elseif (animationType == "TRANSLATION") then
+		anim:SetOffset(arg1, arg2)
 	end
-	
-	animation.NextAnimation = animation.NextAnimation + 1	
+
+	animation.NextAnimation = animation.NextAnimation + 1
 	return anim
 end
 

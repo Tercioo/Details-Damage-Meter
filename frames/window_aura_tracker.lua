@@ -271,7 +271,7 @@ function Details.AuraTracker.RefreshScroll(self, data, offset, totalLines)
             line.Icon.texture = auraInfo.icon
             line.Name.text = auraInfo.name
             line.SpellId.text = auraInfo.spellId
-            line.LuaTableEntry.text = formatToLuaTable.doFormat2NoIndex(auraInfo)
+            line.LuaTableEntry.text = formatToLuaTable.doFormat5(auraInfo) --doFormat2NoIndex
             line.Points.text = formatToLuaTable.doFormat2NoIndexFromCache(auraInfo)
         end
     end

@@ -467,7 +467,8 @@ elseif (isExpansion_Dragonflight()) then
 	--spellId of healing from potions
 	LIB_OPEN_RAID_HEALING_POTIONS = {
 		[370511] = 1, --Refreshing Healing Potion
-		
+		[371039] = 1, --Potion of Withering Vitality
+		[6262] = 1, --Warlock's Healthstone
 	}
 end
 

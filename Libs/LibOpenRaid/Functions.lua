@@ -256,3 +256,19 @@ function openRaidLib.FilterCooldowns(unitName, allCooldowns, filters)
 
     return resultFilters
 end
+
+function openRaidLib.FlaskGetBySpellId(spellId)
+    return LIB_OPEN_RAID_FLASK_BUFF[spellId]
+end
+
+function openRaidLib.FlaskGetTier(auraInfo)
+    local flaskTable = openRaidLib.FlaskGetBySpellId(auraInfo.spellId)
+    local points = auraInfo.points
+    for i = 1, #points do
+        local flaskTier = flaskTable[points[i]]
+        if (flaskTier) then
+            return flaskTier
+        end
+    end
+    return 1
+end
