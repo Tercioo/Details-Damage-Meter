@@ -34,52 +34,52 @@ function DF:CreateCoolTip()
 	local defaultBackdropBorderColor = {0.05, 0.05, 0.05, 1}
 
 	--initialize
-	local CoolTip = {
+	local gameCooltip = {
 		version = version,
 		debug = false,
 	}
-	_G.GameCooltip2 = CoolTip
-	_G.GameCooltip = CoolTip --back compatibility
+	_G.GameCooltip2 = gameCooltip
+	_G.GameCooltip = gameCooltip --back compatibility
 
-	function CoolTip:PrintDebug(...)
-		if (CoolTip.debug) then
+	function gameCooltip:PrintDebug(...)
+		if (gameCooltip.debug) then
 			print("|cFFFFFF00Cooltip|r:", ...)
 			print(debugstack())
 		end
 	end
 
-	function CoolTip:SetDebug(bDebugState)
-		CoolTip.debug = bDebugState
+	function gameCooltip:SetDebug(bDebugState)
+		gameCooltip.debug = bDebugState
 	end
 
 	--containers
-	CoolTip.LeftTextTable = {}
-	CoolTip.LeftTextTableSub = {}
-	CoolTip.RightTextTable = {}
-	CoolTip.RightTextTableSub = {}
-	CoolTip.LeftIconTable = {}
-	CoolTip.LeftIconTableSub = {}
-	CoolTip.RightIconTable = {}
-	CoolTip.RightIconTableSub = {}
-	CoolTip.Banner = {false, false, false}
-	CoolTip.TopIconTableSub = {}
-	CoolTip.StatusBarTable = {}
-	CoolTip.StatusBarTableSub = {}
-	CoolTip.WallpaperTable = {}
-	CoolTip.WallpaperTableSub = {}
-	CoolTip.PopupFrameTable = {}
+	gameCooltip.LeftTextTable = {}
+	gameCooltip.LeftTextTableSub = {}
+	gameCooltip.RightTextTable = {}
+	gameCooltip.RightTextTableSub = {}
+	gameCooltip.LeftIconTable = {}
+	gameCooltip.LeftIconTableSub = {}
+	gameCooltip.RightIconTable = {}
+	gameCooltip.RightIconTableSub = {}
+	gameCooltip.Banner = {false, false, false}
+	gameCooltip.TopIconTableSub = {}
+	gameCooltip.StatusBarTable = {}
+	gameCooltip.StatusBarTableSub = {}
+	gameCooltip.WallpaperTable = {}
+	gameCooltip.WallpaperTableSub = {}
+	gameCooltip.PopupFrameTable = {}
 
 	--menus
-	CoolTip.FunctionsTableMain = {}
-	CoolTip.FunctionsTableSub = {}
-	CoolTip.ParametersTableMain = {}
-	CoolTip.ParametersTableSub = {}
-	CoolTip.FixedValue = nil
-	CoolTip.SelectedIndexMain = nil
-	CoolTip.SelectedIndexSec = {}
+	gameCooltip.FunctionsTableMain = {}
+	gameCooltip.FunctionsTableSub = {}
+	gameCooltip.ParametersTableMain = {}
+	gameCooltip.ParametersTableSub = {}
+	gameCooltip.FixedValue = nil
+	gameCooltip.SelectedIndexMain = nil
+	gameCooltip.SelectedIndexSec = {}
 
 	--options table
-	CoolTip.OptionsList = {
+	gameCooltip.OptionsList = {
 		["RightTextMargin"] = true,
 		["IconSize"] = true,
 		["HeightAnchorMod"] = true,
@@ -132,45 +132,45 @@ function DF:CreateCoolTip()
 		["SelectedRightAnchorMod"] = true,
 	}
 
-	CoolTip.AliasList = {
+	gameCooltip.AliasList = {
 		["VerticalOffset"] = "ButtonsYMod",
 		["VerticalPadding"] = "YSpacingMod",
 		["LineHeightSizeOffset"] = "ButtonHeightMod",
 		["FrameHeightSizeOffset"] = "HeighMod",
 	}
 
-	CoolTip.OptionsTable = {}
+	gameCooltip.OptionsTable = {}
 
 	--amount of lines current on shown
-	CoolTip.Indexes = 0
+	gameCooltip.Indexes = 0
 	--amount of lines current on shown
-	CoolTip.IndexesSub = {}
+	gameCooltip.IndexesSub = {}
 	--amount of lines current on shown
-	CoolTip.HaveSubMenu = false
+	gameCooltip.HaveSubMenu = false
 	--amount of lines current on shown on sub menu
-	CoolTip.SubIndexes = 0
+	gameCooltip.SubIndexes = 0
 	--1 tooltip 2 tooltip with bars 3 menu 4 menu + submenus
-	CoolTip.Type = 1
+	gameCooltip.Type = 1
 	--frame to anchor
-	CoolTip.Host = nil
+	gameCooltip.Host = nil
 	--last size
-	CoolTip.LastSize = 0
-	CoolTip.LastIndex = 0
-	CoolTip.internalYMod = 0
-	CoolTip.internalYMod = 0
-	CoolTip.overlapChecked = false
+	gameCooltip.LastSize = 0
+	gameCooltip.LastIndex = 0
+	gameCooltip.internalYMod = 0
+	gameCooltip.internalYMod = 0
+	gameCooltip.overlapChecked = false
 
 	--defaults
-	CoolTip.default_height = 20
-	CoolTip.default_text_size = 10.5
-	CoolTip.default_text_font = "GameFontHighlight"
-	CoolTip.selectedAnchor = {}
-	CoolTip.selectedAnchor.left = 2
-	CoolTip.selectedAnchor.right = 0
-	CoolTip.selectedAnchor.top = 0
-	CoolTip.selectedAnchor.bottom = 0
+	gameCooltip.default_height = 20
+	gameCooltip.default_text_size = 10.5
+	gameCooltip.default_text_font = "GameFontHighlight"
+	gameCooltip.selectedAnchor = {}
+	gameCooltip.selectedAnchor.left = 2
+	gameCooltip.selectedAnchor.right = 0
+	gameCooltip.selectedAnchor.top = 0
+	gameCooltip.selectedAnchor.bottom = 0
 
-	CoolTip.defaultFont = DF:GetBestFontForLanguage()
+	gameCooltip.defaultFont = DF:GetBestFontForLanguage()
 
 	--create frames, self is frame1 or frame2
 	local createTooltipFrames = function(self)
@@ -285,8 +285,8 @@ function DF:CreateCoolTip()
 			DF:CreateFlashAnimation(frame2)
 		end
 
-	CoolTip.frame1 = frame1
-	CoolTip.frame2 = frame2
+	gameCooltip.frame1 = frame1
+	gameCooltip.frame2 = frame2
 	DF:FadeFrame(frame1, 0)
 	DF:FadeFrame(frame2, 0)
 	frame1.Lines = {}
@@ -296,14 +296,14 @@ function DF:CreateCoolTip()
 	--Title Function 
 ----------------------------------------------------------------------
 
-	function CoolTip:SetTitle(frameId, text)
+	function gameCooltip:SetTitle(frameId, text)
 		if (frameId == 1) then
-			CoolTip.title1 = true
-			CoolTip.title_text = text
+			gameCooltip.title1 = true
+			gameCooltip.title_text = text
 		end
 	end
 
-	function CoolTip:SetTitleAnchor(frameId, anchorPoint, ...)
+	function gameCooltip:SetTitleAnchor(frameId, anchorPoint, ...)
 		anchorPoint = string.lower(anchorPoint)
 		if (frameId == 1) then
 			self.frame1.titleIcon:ClearAllPoints()
@@ -351,34 +351,34 @@ function DF:CreateCoolTip()
 	--Button Hide and Show Functions
 ----------------------------------------------------------------------
 	local elapsedTime = 0
-	CoolTip.mouseOver = false
-	CoolTip.buttonClicked = false
+	gameCooltip.mouseOver = false
+	gameCooltip.buttonClicked = false
 
 	frame1:SetScript("OnEnter", function(self)
 		--is cooltip a menu?
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
-			CoolTip.active = true
-			CoolTip.mouseOver = true
-			CoolTip.hadInteractions = true
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2) then
+			gameCooltip.active = true
+			gameCooltip.mouseOver = true
+			gameCooltip.hadInteractions = true
 
 			self:SetScript("OnUpdate", nil)
 			DF:FadeFrame(self, 0)
 
-			if (CoolTip.sub_menus) then
+			if (gameCooltip.sub_menus) then
 				DF:FadeFrame(frame2, 0)
 			end
 		end
 	end)
 
 	frame2:SetScript("OnEnter", function(self)
-		if (CoolTip.OptionsTable.SubMenuIsTooltip) then
-			return CoolTip:Close()
+		if (gameCooltip.OptionsTable.SubMenuIsTooltip) then
+			return gameCooltip:Close()
 		end
 
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
-			CoolTip.active = true
-			CoolTip.mouseOver = true
-			CoolTip.hadInteractions = true
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2) then
+			gameCooltip.active = true
+			gameCooltip.mouseOver = true
+			gameCooltip.hadInteractions = true
 
 			self:SetScript("OnUpdate", nil)
 			DF:FadeFrame(self, 0)
@@ -389,11 +389,11 @@ function DF:CreateCoolTip()
 	local OnLeaveUpdateFrame1 = function(self, deltaTime)
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > 0.7) then
-			if (not CoolTip.active and not CoolTip.buttonClicked and self == CoolTip.Host) then
+			if (not gameCooltip.active and not gameCooltip.buttonClicked and self == gameCooltip.Host) then
 				DF:FadeFrame(self, 1)
 				DF:FadeFrame(frame2, 1)
 
-			elseif (not CoolTip.active) then
+			elseif (not gameCooltip.active) then
 				DF:FadeFrame(self, 1)
 				DF:FadeFrame(frame2, 1)
 			end
@@ -404,14 +404,14 @@ function DF:CreateCoolTip()
 	end
 
 	frame1:SetScript("OnLeave", function(self)
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2) then
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			elapsedTime = 0
 			self:SetScript("OnUpdate", OnLeaveUpdateFrame1)
 		else
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			elapsedTime = 0
 			self:SetScript("OnUpdate", OnLeaveUpdateFrame1)
 		end
@@ -420,11 +420,11 @@ function DF:CreateCoolTip()
 	local OnLeaveUpdateFrame2 = function(self, deltaTime)
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > 0.7) then
-			if (not CoolTip.active and not CoolTip.buttonClicked and self == CoolTip.Host) then
+			if (not gameCooltip.active and not gameCooltip.buttonClicked and self == gameCooltip.Host) then
 				DF:FadeFrame(self, 1)
 				DF:FadeFrame(frame2, 1)
 
-			elseif (not CoolTip.active) then
+			elseif (not gameCooltip.active) then
 				DF:FadeFrame(self, 1)
 				DF:FadeFrame(frame2, 1)
 			end
@@ -435,23 +435,23 @@ function DF:CreateCoolTip()
 	end
 
 	frame2:SetScript("OnLeave", function(self)
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2) then
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			elapsedTime = 0
 			self:SetScript("OnUpdate", OnLeaveUpdateFrame2)
 		else
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			elapsedTime = 0
 			self:SetScript("OnUpdate", OnLeaveUpdateFrame2)
 		end
 	end)
 
 	frame1:SetScript("OnHide", function(self)
-		CoolTip.active = false
-		CoolTip.buttonClicked = false
-		CoolTip.mouseOver = false
+		gameCooltip.active = false
+		gameCooltip.buttonClicked = false
+		gameCooltip.mouseOver = false
 		--reset parent and  strata
 		frame1:SetParent(UIParent)
 		frame2:SetParent(UIParent)
@@ -564,18 +564,18 @@ function DF:CreateCoolTip()
 	end
 
 	function GameCooltipButtonMouseDown(button)
-		local heightMod = CoolTip.OptionsTable.TextHeightMod or 0
+		local heightMod = gameCooltip.OptionsTable.TextHeightMod or 0
 		button.leftText:SetPoint("center", button.leftIcon, "center", 0, 0 + heightMod)
 		button.leftText:SetPoint("left", button.leftIcon, "right", 4, -1 + heightMod)
 	end
 
 	function GameCooltipButtonMouseUp(button)
-		local heightMod = CoolTip.OptionsTable.TextHeightMod or 0
+		local heightMod = gameCooltip.OptionsTable.TextHeightMod or 0
 		button.leftText:SetPoint("center", button.leftIcon, "center", 0, 0 + heightMod)
 		button.leftText:SetPoint("left", button.leftIcon, "right", 3, 0 + heightMod)
 	end
 
-	function CoolTip:CreateButton(index, frame, name)
+	function gameCooltip:CreateButton(index, frame, name)
 		local newNutton = CreateFrame("Button", name, frame)
 		createButtonWidgets (newNutton)
 		frame.Lines[index] = newNutton
@@ -586,8 +586,8 @@ function DF:CreateCoolTip()
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > 0.001) then
 			--search key: ~onenterupdatemain
-			CoolTip:ShowSub(self.index)
-			CoolTip.lastButtonInteracted = self.index
+			gameCooltip:ShowSub(self.index)
+			gameCooltip.lastButtonInteracted = self.index
 			self:SetScript("OnUpdate", nil)
 		end
 	end
@@ -595,10 +595,10 @@ function DF:CreateCoolTip()
 	local OnLeaveUpdateButton = function(self, deltaTime)
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > 0.7) then
-			if (not CoolTip.active and not CoolTip.buttonClicked) then
+			if (not gameCooltip.active and not gameCooltip.buttonClicked) then
 				DF:FadeFrame(frame1, 1)
 				DF:FadeFrame(frame2, 1)
-			elseif (not CoolTip.active) then
+			elseif (not gameCooltip.active) then
 				DF:FadeFrame(frame1, 1)
 				DF:FadeFrame(frame2, 1)
 			end
@@ -607,37 +607,37 @@ function DF:CreateCoolTip()
 	end
 
 	local OnEnterMainButton = function(self)
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not self.isDiv) then
-			CoolTip.active = true
-			CoolTip.mouseOver = true
-			CoolTip.hadInteractions = true
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2 and not self.isDiv) then
+			gameCooltip.active = true
+			gameCooltip.mouseOver = true
+			gameCooltip.hadInteractions = true
 
 			frame1:SetScript("OnUpdate", nil)
 			frame2:SetScript("OnUpdate", nil)
 
 			self.background:Show()
 
-			if (CoolTip.OptionsTable.IconBlendModeHover) then
-				self.leftIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendModeHover)
+			if (gameCooltip.OptionsTable.IconBlendModeHover) then
+				self.leftIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendModeHover)
 			else
 				self.leftIcon:SetBlendMode("BLEND")
 			end
 
-			if (CoolTip.PopupFrameTable[self.index]) then
-				local onEnter, onLeave, param1, param2 = unpack(CoolTip.PopupFrameTable[self.index])
+			if (gameCooltip.PopupFrameTable[self.index]) then
+				local onEnter, onLeave, param1, param2 = unpack(gameCooltip.PopupFrameTable[self.index])
 				if (onEnter) then
 					xpcall(onEnter, geterrorhandler(), frame1, param1, param2)
 				end
 
-			elseif (CoolTip.IndexesSub[self.index] and CoolTip.IndexesSub[self.index] > 0) then
-				if (CoolTip.OptionsTable.SubMenuIsTooltip) then
-					CoolTip:ShowSub(self.index)
+			elseif (gameCooltip.IndexesSub[self.index] and gameCooltip.IndexesSub[self.index] > 0) then
+				if (gameCooltip.OptionsTable.SubMenuIsTooltip) then
+					gameCooltip:ShowSub(self.index)
 					self.index = self.ID
 				else
-					if (CoolTip.lastButtonInteracted) then
-						CoolTip:ShowSub(CoolTip.lastButtonInteracted)
+					if (gameCooltip.lastButtonInteracted) then
+						gameCooltip:ShowSub(gameCooltip.lastButtonInteracted)
 					else
-						CoolTip:ShowSub(self.index)
+						gameCooltip:ShowSub(self.index)
 					end
 					elapsedTime = 0
 					self.index = self.ID
@@ -646,32 +646,32 @@ function DF:CreateCoolTip()
 			else
 				--hide second frame
 				DF:FadeFrame(frame2, 1)
-				CoolTip.lastButtonInteracted = nil
+				gameCooltip.lastButtonInteracted = nil
 			end
 		else
-			CoolTip.mouseOver = true
-			CoolTip.hadInteractions = true
+			gameCooltip.mouseOver = true
+			gameCooltip.hadInteractions = true
 		end
 	end
 
 	local OnLeaveMainButton = function(self)
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not self.isDiv) then
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2 and not self.isDiv) then
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			self:SetScript("OnUpdate", nil)
 
 			self.background:Hide()
 
-			if (CoolTip.OptionsTable.IconBlendMode) then
-				self.leftIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendMode)
-				self.rightIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendMode)
+			if (gameCooltip.OptionsTable.IconBlendMode) then
+				self.leftIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendMode)
+				self.rightIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendMode)
 			else
 				self.leftIcon:SetBlendMode("BLEND")
 				self.rightIcon:SetBlendMode("BLEND")
 			end
 
-			if (CoolTip.PopupFrameTable[self.index]) then
-				local onEnter, onLeave, param1, param2 = unpack(CoolTip.PopupFrameTable[self.index])
+			if (gameCooltip.PopupFrameTable[self.index]) then
+				local onEnter, onLeave, param1, param2 = unpack(gameCooltip.PopupFrameTable[self.index])
 				if (onLeave) then
 					xpcall(onLeave, geterrorhandler(), frame1, param1, param2)
 				end
@@ -680,16 +680,16 @@ function DF:CreateCoolTip()
 			elapsedTime = 0
 			frame1:SetScript("OnUpdate", OnLeaveUpdateButton)
 		else
-			CoolTip.active = false
+			gameCooltip.active = false
 			elapsedTime = 0
 			frame1:SetScript("OnUpdate", OnLeaveUpdateButton)
-			CoolTip.mouseOver = false
+			gameCooltip.mouseOver = false
 		end
 	end
 
 	--serach key: ~onenter
-	function CoolTip:CreateMainFrameButton(i)
-		local newButton = CoolTip:CreateButton(i, frame1, "GameCooltipMainButton" .. i)
+	function gameCooltip:CreateMainFrameButton(i)
+		local newButton = gameCooltip:CreateButton(i, frame1, "GameCooltipMainButton" .. i)
 		newButton.ID = i
 		newButton:SetScript("OnEnter", OnEnterMainButton)
 		newButton:SetScript("OnLeave", OnLeaveMainButton)
@@ -700,10 +700,10 @@ function DF:CreateCoolTip()
 	local OnLeaveUpdateButtonSec = function(self, deltaTime)
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > 0.7) then
-			if (not CoolTip.active and not CoolTip.buttonClicked) then
+			if (not gameCooltip.active and not gameCooltip.buttonClicked) then
 				DF:FadeFrame(frame1, 1)
 				DF:FadeFrame(frame2, 1)
-			elseif (not CoolTip.active) then
+			elseif (not gameCooltip.active) then
 				DF:FadeFrame(frame1, 1)
 				DF:FadeFrame(frame2, 1)
 			end
@@ -712,19 +712,19 @@ function DF:CreateCoolTip()
 	end
 
 	local OnEnterSecondaryButton = function(self)
-		if (CoolTip.OptionsTable.SubMenuIsTooltip) then
-			return CoolTip:Close()
+		if (gameCooltip.OptionsTable.SubMenuIsTooltip) then
+			return gameCooltip:Close()
 		end
 
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not self.isDiv) then
-			CoolTip.active = true
-			CoolTip.mouseOver = true
-			CoolTip.hadInteractions = true
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2 and not self.isDiv) then
+			gameCooltip.active = true
+			gameCooltip.mouseOver = true
+			gameCooltip.hadInteractions = true
 
 			self.background:Show()
 
-			if (CoolTip.OptionsTable.IconBlendModeHover) then
-				self.leftIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendModeHover)
+			if (gameCooltip.OptionsTable.IconBlendModeHover) then
+				self.leftIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendModeHover)
 			else
 				self.leftIcon:SetBlendMode("BLEND")
 			end
@@ -735,20 +735,20 @@ function DF:CreateCoolTip()
 			DF:FadeFrame(frame1, 0)
 			DF:FadeFrame(frame2, 0)
 		else
-			CoolTip.mouseOver = true
-			CoolTip.hadInteractions = true
+			gameCooltip.mouseOver = true
+			gameCooltip.hadInteractions = true
 		end
 	end
 
 	local OnLeaveSecondaryButton = function(self)
-		if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+		if (gameCooltip.Type ~= 1 and gameCooltip.Type ~= 2) then
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			self.background:Hide()
 
-			if (CoolTip.OptionsTable.IconBlendMode) then
-				self.leftIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendMode)
-				self.rightIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendMode)
+			if (gameCooltip.OptionsTable.IconBlendMode) then
+				self.leftIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendMode)
+				self.rightIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendMode)
 			else
 				self.leftIcon:SetBlendMode("BLEND")
 				self.rightIcon:SetBlendMode("BLEND")
@@ -757,15 +757,15 @@ function DF:CreateCoolTip()
 			elapsedTime = 0
 			frame2:SetScript("OnUpdate", OnLeaveUpdateButtonSec)
 		else
-			CoolTip.active = false
-			CoolTip.mouseOver = false
+			gameCooltip.active = false
+			gameCooltip.mouseOver = false
 			elapsedTime = 0
 			frame2:SetScript("OnUpdate", OnLeaveUpdateButtonSec)
 		end
 	end
 
-	function CoolTip:CreateButtonOnSecondFrame(i)
-		local newButton = CoolTip:CreateButton(i, frame2, "GameCooltipSecButton" .. i)
+	function gameCooltip:CreateButtonOnSecondFrame(i)
+		local newButton = gameCooltip:CreateButton(i, frame2, "GameCooltipSecButton" .. i)
 		newButton.ID = i
 		newButton:SetScript("OnEnter", OnEnterSecondaryButton)
 		newButton:SetScript("OnLeave", OnLeaveSecondaryButton)
@@ -775,29 +775,29 @@ function DF:CreateCoolTip()
 ----------------------------------------------------------------------
 	--Button Click Functions
 ----------------------------------------------------------------------
-	CoolTip.selectedAnchor.left = 4
-	CoolTip.selectedAnchor.right = -4
-	CoolTip.selectedAnchor.top = 0
-	CoolTip.selectedAnchor.bottom = 0
+	gameCooltip.selectedAnchor.left = 4
+	gameCooltip.selectedAnchor.right = -4
+	gameCooltip.selectedAnchor.top = 0
+	gameCooltip.selectedAnchor.bottom = 0
 
-	function CoolTip:HideSelectedTexture(frame)
+	function gameCooltip:HideSelectedTexture(frame)
 		frame.selectedTop:Hide()
 		frame.selectedBottom:Hide()
 		frame.selectedMiddle:Hide()
 	end
 
-	function CoolTip:ShowSelectedTexture(frame)
+	function gameCooltip:ShowSelectedTexture(frame)
 		frame.selectedTop:Show()
 		frame.selectedBottom:Show()
 		frame.selectedMiddle:Show()
 	end
 
-	function CoolTip:SetSelectedAnchor(frame, button)
-		local left = CoolTip.selectedAnchor.left + (CoolTip.OptionsTable.SelectedLeftAnchorMod or 0)
-		local right = CoolTip.selectedAnchor.right + (CoolTip.OptionsTable.SelectedRightAnchorMod or 0)
+	function gameCooltip:SetSelectedAnchor(frame, button)
+		local left = gameCooltip.selectedAnchor.left + (gameCooltip.OptionsTable.SelectedLeftAnchorMod or 0)
+		local right = gameCooltip.selectedAnchor.right + (gameCooltip.OptionsTable.SelectedRightAnchorMod or 0)
 
-		local top = CoolTip.selectedAnchor.top + (CoolTip.OptionsTable.SelectedTopAnchorMod or 0)
-		local bottom = CoolTip.selectedAnchor.bottom + (CoolTip.OptionsTable.SelectedBottomAnchorMod or 0)
+		local top = gameCooltip.selectedAnchor.top + (gameCooltip.OptionsTable.SelectedTopAnchorMod or 0)
+		local bottom = gameCooltip.selectedAnchor.bottom + (gameCooltip.OptionsTable.SelectedBottomAnchorMod or 0)
 
 		frame.selectedTop:ClearAllPoints()
 		frame.selectedBottom:ClearAllPoints()
@@ -807,27 +807,27 @@ function DF:CreateCoolTip()
 		frame.selectedBottom:SetPoint("bottomleft", button, "bottomleft", left+1, bottom)
 		frame.selectedBottom:SetPoint("bottomright", button, "bottomright", right-1, bottom)
 
-		CoolTip:ShowSelectedTexture(frame)
+		gameCooltip:ShowSelectedTexture(frame)
 	end
 
 	local OnClickFunctionMainButton = function(self, button)
-		if (CoolTip.IndexesSub[self.index] and CoolTip.IndexesSub[self.index] > 0) then
-			CoolTip:ShowSub(self.index)
-			CoolTip.lastButtonInteracted = self.index
+		if (gameCooltip.IndexesSub[self.index] and gameCooltip.IndexesSub[self.index] > 0) then
+			gameCooltip:ShowSub(self.index)
+			gameCooltip.lastButtonInteracted = self.index
 		end
 
-		CoolTip.buttonClicked = true
-		CoolTip:SetSelectedAnchor(frame1, self)
+		gameCooltip.buttonClicked = true
+		gameCooltip:SetSelectedAnchor(frame1, self)
 
-		if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-			CoolTip:ShowSelectedTexture(frame1)
+		if (not gameCooltip.OptionsTable.NoLastSelectedBar) then
+			gameCooltip:ShowSelectedTexture(frame1)
 		end
-		CoolTip.SelectedIndexMain = self.index
+		gameCooltip.SelectedIndexMain = self.index
 
-		if (CoolTip.FunctionsTableMain[self.index]) then
-			local parameterTable = CoolTip.ParametersTableMain[self.index]
-			local func = CoolTip.FunctionsTableMain[self.index]
-			local okay, errortext = pcall(func, CoolTip.Host, CoolTip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
+		if (gameCooltip.FunctionsTableMain[self.index]) then
+			local parameterTable = gameCooltip.ParametersTableMain[self.index]
+			local func = gameCooltip.FunctionsTableMain[self.index]
+			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
 				print ("Cooltip OnClick Error:", errortext)
 			end
@@ -835,35 +835,35 @@ function DF:CreateCoolTip()
 	end
 
 	local OnClickFunctionSecondaryButton = function(self, button)
-		CoolTip.buttonClicked = true
-		CoolTip:SetSelectedAnchor(frame2, self)
+		gameCooltip.buttonClicked = true
+		gameCooltip:SetSelectedAnchor(frame2, self)
 
-		if (CoolTip.FunctionsTableSub[self.mainIndex] and CoolTip.FunctionsTableSub[self.mainIndex][self.index]) then
-			local parameterTable = CoolTip.ParametersTableSub[self.mainIndex][self.index]
-			local func = CoolTip.FunctionsTableSub[self.mainIndex][self.index]
-			local okay, errortext = pcall(func, CoolTip.Host, CoolTip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
+		if (gameCooltip.FunctionsTableSub[self.mainIndex] and gameCooltip.FunctionsTableSub[self.mainIndex][self.index]) then
+			local parameterTable = gameCooltip.ParametersTableSub[self.mainIndex][self.index]
+			local func = gameCooltip.FunctionsTableSub[self.mainIndex][self.index]
+			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
 				print("Cooltip OnClick Error:", errortext)
 			end
 		end
 
-		CoolTip:SetSelectedAnchor(frame1, frame1.Lines[self.mainIndex])
+		gameCooltip:SetSelectedAnchor(frame1, frame1.Lines[self.mainIndex])
 
-		if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-			CoolTip:ShowSelectedTexture(frame1)
+		if (not gameCooltip.OptionsTable.NoLastSelectedBar) then
+			gameCooltip:ShowSelectedTexture(frame1)
 		end
 
-		CoolTip.SelectedIndexMain = self.mainIndex
-		CoolTip.SelectedIndexSec[self.mainIndex] = self.index
+		gameCooltip.SelectedIndexMain = self.mainIndex
+		gameCooltip.SelectedIndexSec[self.mainIndex] = self.index
 	end
 
-	function CoolTip:TextAndIcon(index, frame, menuButton, leftTextSettings, rightTextSettings, leftIconSettings, rightIconSettings, isSecondFrame)
+	function gameCooltip:TextAndIcon(index, frame, menuButton, leftTextSettings, rightTextSettings, leftIconSettings, rightIconSettings, isSecondFrame)
 		--reset width
 		menuButton.leftText:SetWidth(0)
 		menuButton.leftText:SetHeight(0)
 		menuButton.rightText:SetWidth(0)
 		menuButton.rightText:SetHeight(0)
-		menuButton.rightText:SetPoint("right", menuButton.rightIcon, "left", CoolTip.OptionsTable.RightTextMargin or -3, 0)
+		menuButton.rightText:SetPoint("right", menuButton.rightIcon, "left", gameCooltip.OptionsTable.RightTextMargin or -3, 0)
 
 		--set text
 		if (leftTextSettings) then
@@ -871,8 +871,8 @@ function DF:CreateCoolTip()
 			local r, g, b, a = leftTextSettings[2], leftTextSettings[3], leftTextSettings[4], leftTextSettings[5]
 
 			if (r == 0 and g == 0 and b == 0 and a == 0) then
-				if (CoolTip.OptionsTable.TextColor) then
-					r, g, b, a = DF:ParseColors(CoolTip.OptionsTable.TextColor)
+				if (gameCooltip.OptionsTable.TextColor) then
+					r, g, b, a = DF:ParseColors(gameCooltip.OptionsTable.TextColor)
 					DF:SetFontColor(menuButton.leftText, r, g, b, a)
 				else
 					menuButton.leftText:SetTextColor(1, 1, 1, 1)
@@ -881,30 +881,30 @@ function DF:CreateCoolTip()
 				DF:SetFontColor(menuButton.leftText, r, g, b, a)
 			end
 
-			if (CoolTip.OptionsTable.TextSize and not leftTextSettings[6]) then
-				DF:SetFontSize(menuButton.leftText, CoolTip.OptionsTable.TextSize)
+			if (gameCooltip.OptionsTable.TextSize and not leftTextSettings[6]) then
+				DF:SetFontSize(menuButton.leftText, gameCooltip.OptionsTable.TextSize)
 			end
 
-			if (CoolTip.OptionsTable.LeftTextWidth) then
-				menuButton.leftText:SetWidth(CoolTip.OptionsTable.LeftTextWidth)
+			if (gameCooltip.OptionsTable.LeftTextWidth) then
+				menuButton.leftText:SetWidth(gameCooltip.OptionsTable.LeftTextWidth)
 			else
 				menuButton.leftText:SetWidth(0)
 			end
 
-			if (CoolTip.OptionsTable.LeftTextHeight) then
-				menuButton.leftText:SetHeight(CoolTip.OptionsTable.LeftTextHeight)
+			if (gameCooltip.OptionsTable.LeftTextHeight) then
+				menuButton.leftText:SetHeight(gameCooltip.OptionsTable.LeftTextHeight)
 			else
 				menuButton.leftText:SetHeight(0)
 			end
 
-			if (CoolTip.OptionsTable.TextFont and not leftTextSettings[7]) then --font
-				if (_G[CoolTip.OptionsTable.TextFont]) then
-					menuButton.leftText:SetFontObject(_G.GameFontRed or CoolTip.OptionsTable.TextFont)
+			if (gameCooltip.OptionsTable.TextFont and not leftTextSettings[7]) then --font
+				if (_G[gameCooltip.OptionsTable.TextFont]) then
+					menuButton.leftText:SetFontObject(_G.GameFontRed or gameCooltip.OptionsTable.TextFont)
 				else
-					local font = SharedMedia:Fetch("font", CoolTip.OptionsTable.TextFont)
+					local font = SharedMedia:Fetch("font", gameCooltip.OptionsTable.TextFont)
 					local _, size, flags = menuButton.leftText:GetFont()
-					flags = leftTextSettings[8] or CoolTip.OptionsTable.TextShadow or nil
-					size = leftTextSettings[6] or CoolTip.OptionsTable.TextSize or size
+					flags = leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow or nil
+					size = leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or size
 					menuButton.leftText:SetFont(font, size, flags)
 				end
 
@@ -912,22 +912,22 @@ function DF:CreateCoolTip()
 				if (_G[leftTextSettings[7]]) then
 					menuButton.leftText:SetFontObject(leftTextSettings[7])
 					local fontFace, fontSize, fontFlags = menuButton.leftText:GetFont()
-					fontFlags = leftTextSettings[8] or CoolTip.OptionsTable.TextShadow or nil
-					fontSize = leftTextSettings[6] or CoolTip.OptionsTable.TextSize or fontSize
+					fontFlags = leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow or nil
+					fontSize = leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or fontSize
 					menuButton.leftText:SetFont(fontFace, fontSize, fontFlags)
 				else
 					local font = SharedMedia:Fetch("font", leftTextSettings[7])
 					local fontFace, fontSize, fontFlags = menuButton.leftText:GetFont()
 					--fontFace = font or fontFace
-					fontFlags = leftTextSettings[8] or CoolTip.OptionsTable.TextShadow or nil
-					fontSize = leftTextSettings[6] or CoolTip.OptionsTable.TextSize or fontSize
+					fontFlags = leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow or nil
+					fontSize = leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or fontSize
 					menuButton.leftText:SetFont(fontFace, fontSize, fontFlags)
 				end
 			else
-				menuButton.leftText:SetFont(CoolTip.defaultFont, leftTextSettings[6] or CoolTip.OptionsTable.TextSize or 10, leftTextSettings[8] or CoolTip.OptionsTable.TextShadow)
+				menuButton.leftText:SetFont(gameCooltip.defaultFont, leftTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, leftTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
 			end
 
-			local heightMod = CoolTip.OptionsTable.TextHeightMod or 0				
+			local heightMod = gameCooltip.OptionsTable.TextHeightMod or 0				
 			menuButton.leftText:SetPoint("center", menuButton.leftIcon, "center", 0, 0 + heightMod)
 			menuButton.leftText:SetPoint("left", menuButton.leftIcon, "right", 3, 0 + heightMod)
 		else
@@ -939,11 +939,11 @@ function DF:CreateCoolTip()
 			local r, g, b, a = rightTextSettings[2], rightTextSettings[3], rightTextSettings[4], rightTextSettings[5]
 
 			if (r == 0 and g == 0 and b == 0 and a == 0) then
-				if (CoolTip.OptionsTable.TextColorRight) then
-					r, g, b, a = DF:ParseColors(CoolTip.OptionsTable.TextColorRight)
+				if (gameCooltip.OptionsTable.TextColorRight) then
+					r, g, b, a = DF:ParseColors(gameCooltip.OptionsTable.TextColorRight)
 					DF:SetFontColor(menuButton.rightText, r, g, b, a)
-				elseif (CoolTip.OptionsTable.TextColor) then
-					r, g, b, a = DF:ParseColors(CoolTip.OptionsTable.TextColor)
+				elseif (gameCooltip.OptionsTable.TextColor) then
+					r, g, b, a = DF:ParseColors(gameCooltip.OptionsTable.TextColor)
 					DF:SetFontColor(menuButton.rightText, r, g, b, a)
 				else
 					menuButton.rightText:SetTextColor(1, 1, 1, 1)
@@ -952,24 +952,24 @@ function DF:CreateCoolTip()
 				DF:SetFontColor(menuButton.rightText, r, g, b, a)
 			end
 
-			if (CoolTip.OptionsTable.TextSize and not rightTextSettings[6]) then
-				DF:SetFontSize(menuButton.rightText, CoolTip.OptionsTable.TextSize)
+			if (gameCooltip.OptionsTable.TextSize and not rightTextSettings[6]) then
+				DF:SetFontSize(menuButton.rightText, gameCooltip.OptionsTable.TextSize)
 			end
 
-			if (CoolTip.OptionsTable.RightTextWidth) then
-				menuButton.rightText:SetWidth(CoolTip.OptionsTable.RightTextWidth)
+			if (gameCooltip.OptionsTable.RightTextWidth) then
+				menuButton.rightText:SetWidth(gameCooltip.OptionsTable.RightTextWidth)
 			else
 				menuButton.rightText:SetWidth(0)
 			end
 
-			if (CoolTip.OptionsTable.TextFont and not rightTextSettings[7]) then
-				if (_G[CoolTip.OptionsTable.TextFont]) then
-					menuButton.rightText:SetFontObject(CoolTip.OptionsTable.TextFont)
+			if (gameCooltip.OptionsTable.TextFont and not rightTextSettings[7]) then
+				if (_G[gameCooltip.OptionsTable.TextFont]) then
+					menuButton.rightText:SetFontObject(gameCooltip.OptionsTable.TextFont)
 				else
-					local fontFace = SharedMedia:Fetch("font", CoolTip.OptionsTable.TextFont)
+					local fontFace = SharedMedia:Fetch("font", gameCooltip.OptionsTable.TextFont)
 					local _, fontSize, fontFlags = menuButton.rightText:GetFont()
-					fontFlags = rightTextSettings[8] or CoolTip.OptionsTable.TextShadow or nil
-					fontSize = rightTextSettings[6] or CoolTip.OptionsTable.TextSize or fontSize
+					fontFlags = rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow or nil
+					fontSize = rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or fontSize
 					menuButton.rightText:SetFont(fontFace, fontSize, fontFlags)
 				end
 
@@ -977,18 +977,18 @@ function DF:CreateCoolTip()
 				if (_G[rightTextSettings[7]]) then
 					menuButton.rightText:SetFontObject(rightTextSettings[7])
 					local fontFace, fontSize, fontFlags = menuButton.rightText:GetFont()
-					fontFlags = rightTextSettings[8] or CoolTip.OptionsTable.TextShadow or nil
-					fontSize = rightTextSettings[6] or CoolTip.OptionsTable.TextSize or fontSize
+					fontFlags = rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow or nil
+					fontSize = rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or fontSize
 					menuButton.rightText:SetFont(fontFace, fontSize, fontFlags)
 				else
 					local font = SharedMedia:Fetch("font", rightTextSettings[7])
 					local fontFace, fontSize, fontFlags = menuButton.rightText:GetFont()
-					fontFlags = rightTextSettings[8] or CoolTip.OptionsTable.TextShadow or nil
-					fontSize = rightTextSettings[6] or CoolTip.OptionsTable.TextSize or fontSize
+					fontFlags = rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow or nil
+					fontSize = rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or fontSize
 					menuButton.rightText:SetFont(fontFace, fontSize, fontFlags)
 				end
 			else
-				menuButton.rightText:SetFont(CoolTip.defaultFont, rightTextSettings[6] or CoolTip.OptionsTable.TextSize or 10, rightTextSettings[8] or CoolTip.OptionsTable.TextShadow)
+				menuButton.rightText:SetFont(gameCooltip.defaultFont, rightTextSettings[6] or gameCooltip.OptionsTable.TextSize or 10, rightTextSettings[8] or gameCooltip.OptionsTable.TextShadow)
 			end
 		else
 			menuButton.rightText:SetText("")
@@ -1004,8 +1004,8 @@ function DF:CreateCoolTip()
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(leftIconSettings[8])
 			menuButton.leftIcon:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
 
-			if (CoolTip.OptionsTable.IconBlendMode) then
-				menuButton.leftIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendMode)
+			if (gameCooltip.OptionsTable.IconBlendMode) then
+				menuButton.leftIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendMode)
 			else
 				menuButton.leftIcon:SetBlendMode("BLEND")
 			end
@@ -1027,8 +1027,8 @@ function DF:CreateCoolTip()
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(rightIconSettings[8])
 			menuButton.rightIcon:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
 
-			if (CoolTip.OptionsTable.IconBlendMode) then
-				menuButton.rightIcon:SetBlendMode(CoolTip.OptionsTable.IconBlendMode)
+			if (gameCooltip.OptionsTable.IconBlendMode) then
+				menuButton.rightIcon:SetBlendMode(gameCooltip.OptionsTable.IconBlendMode)
 			else
 				menuButton.rightIcon:SetBlendMode("BLEND")
 			end
@@ -1041,48 +1041,48 @@ function DF:CreateCoolTip()
 		end
 
 		--overwrite icon size
-		if (CoolTip.OptionsTable.IconSize) then
-			menuButton.leftIcon:SetWidth(CoolTip.OptionsTable.IconSize)
-			menuButton.leftIcon:SetHeight(CoolTip.OptionsTable.IconSize)
-			menuButton.rightIcon:SetWidth(CoolTip.OptionsTable.IconSize)
-			menuButton.rightIcon:SetHeight(CoolTip.OptionsTable.IconSize)
+		if (gameCooltip.OptionsTable.IconSize) then
+			menuButton.leftIcon:SetWidth(gameCooltip.OptionsTable.IconSize)
+			menuButton.leftIcon:SetHeight(gameCooltip.OptionsTable.IconSize)
+			menuButton.rightIcon:SetWidth(gameCooltip.OptionsTable.IconSize)
+			menuButton.rightIcon:SetHeight(gameCooltip.OptionsTable.IconSize)
 		end
 
 		menuButton.leftText:SetHeight(0)
 		menuButton.rightText:SetHeight(0)
 
-		if (CoolTip.Type == 2) then
-			CoolTip:LeftTextSpace(menuButton)
+		if (gameCooltip.Type == 2) then
+			gameCooltip:LeftTextSpace(menuButton)
 		end
-		if (CoolTip.OptionsTable.LeftTextHeight) then
-			menuButton.leftText:SetHeight(CoolTip.OptionsTable.LeftTextHeight)
+		if (gameCooltip.OptionsTable.LeftTextHeight) then
+			menuButton.leftText:SetHeight(gameCooltip.OptionsTable.LeftTextHeight)
 		end
-		if (CoolTip.OptionsTable.RightTextHeight) then
-			menuButton.rightText:SetHeight(CoolTip.OptionsTable.RightTextHeight)
+		if (gameCooltip.OptionsTable.RightTextHeight) then
+			menuButton.rightText:SetHeight(gameCooltip.OptionsTable.RightTextHeight)
 		end
 
 		--string length
 		if (not isSecondFrame) then --main frame
-			if (not CoolTip.OptionsTable.FixedWidth) then
-				if (CoolTip.Type == 1 or CoolTip.Type == 2) then
+			if (not gameCooltip.OptionsTable.FixedWidth) then
+				if (gameCooltip.Type == 1 or gameCooltip.Type == 2) then
 					local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth() + 10
 					if (stringWidth > frame.w) then
 						frame.w = stringWidth
 					end
 				end
 			else
-				menuButton.leftText:SetWidth(CoolTip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - menuButton.rightText:GetStringWidth() - menuButton.rightIcon:GetWidth() - 22)
+				menuButton.leftText:SetWidth(gameCooltip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - menuButton.rightText:GetStringWidth() - menuButton.rightIcon:GetWidth() - 22)
 			end
 		else
-			if (not CoolTip.OptionsTable.FixedWidthSub) then
-				if (CoolTip.Type == 1 or CoolTip.Type == 2) then
+			if (not gameCooltip.OptionsTable.FixedWidthSub) then
+				if (gameCooltip.Type == 1 or gameCooltip.Type == 2) then
 					local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
 					if (stringWidth > frame.w) then
 						frame.w = stringWidth
 					end
 				end
 			else
-				menuButton.leftText:SetWidth(CoolTip.OptionsTable.FixedWidthSub - menuButton.leftIcon:GetWidth() - 12)
+				menuButton.leftText:SetWidth(gameCooltip.OptionsTable.FixedWidthSub - menuButton.leftIcon:GetWidth() - 12)
 			end
 		end
 
@@ -1092,18 +1092,18 @@ function DF:CreateCoolTip()
 		end
 	end
 
-	function CoolTip:RefreshSpark(menuButton)
+	function gameCooltip:RefreshSpark(menuButton)
 		menuButton.spark:ClearAllPoints()
 		menuButton.spark:SetPoint("LEFT", menuButton.statusbar, "LEFT", (menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth() / 100)) - 5, 0)
 		menuButton.spark2:ClearAllPoints()
 		menuButton.spark2:SetPoint("left", menuButton.statusbar, "left", menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth()/100) - 16, 0)
 	end
 
-	function CoolTip:StatusBar(menuButton, statusBarSettings)
+	function gameCooltip:StatusBar(menuButton, statusBarSettings)
 		if (statusBarSettings) then
 			menuButton.statusbar:SetValue(statusBarSettings[1])
 			menuButton.statusbar:SetStatusBarColor (statusBarSettings[2], statusBarSettings[3], statusBarSettings[4], statusBarSettings[5])
-			menuButton.statusbar:SetHeight(20 + (CoolTip.OptionsTable.StatusBarHeightMod or 0))
+			menuButton.statusbar:SetHeight(20 + (gameCooltip.OptionsTable.StatusBarHeightMod or 0))
 
 			menuButton.spark2:Hide()
 			if (statusBarSettings[6]) then
@@ -1136,12 +1136,12 @@ function DF:CreateCoolTip()
 				else
 					menuButton.statusbar.texture:SetTexture(statusBarSettings[8])
 				end
-			elseif (CoolTip.OptionsTable.StatusBarTexture) then
-				local texture = SharedMedia:Fetch("statusbar", CoolTip.OptionsTable.StatusBarTexture, true)
+			elseif (gameCooltip.OptionsTable.StatusBarTexture) then
+				local texture = SharedMedia:Fetch("statusbar", gameCooltip.OptionsTable.StatusBarTexture, true)
 				if (texture) then
 					menuButton.statusbar.texture:SetTexture(texture)
 				else
-					menuButton.statusbar.texture:SetTexture(CoolTip.OptionsTable.StatusBarTexture)
+					menuButton.statusbar.texture:SetTexture(gameCooltip.OptionsTable.StatusBarTexture)
 				end
 			else
 				menuButton.statusbar.texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
@@ -1153,30 +1153,30 @@ function DF:CreateCoolTip()
 			menuButton.spark2:Hide()
 		end
 
-		if (CoolTip.OptionsTable.LeftBorderSize) then
-			menuButton.statusbar:SetPoint("left", menuButton, "left", 10 + CoolTip.OptionsTable.LeftBorderSize, 0)
+		if (gameCooltip.OptionsTable.LeftBorderSize) then
+			menuButton.statusbar:SetPoint("left", menuButton, "left", 10 + gameCooltip.OptionsTable.LeftBorderSize, 0)
 		else
 			menuButton.statusbar:SetPoint("left", menuButton, "left", 10, 0)
 		end
 
-		if (CoolTip.OptionsTable.RightBorderSize) then
-			menuButton.statusbar:SetPoint("right", menuButton, "right", CoolTip.OptionsTable.RightBorderSize + (- 10), 0)
+		if (gameCooltip.OptionsTable.RightBorderSize) then
+			menuButton.statusbar:SetPoint("right", menuButton, "right", gameCooltip.OptionsTable.RightBorderSize + (- 10), 0)
 		else
 			menuButton.statusbar:SetPoint("right", menuButton, "right", -10, 0)
 		end
 	end
 
-	function CoolTip:SetupMainButton(menuButton, index)
+	function gameCooltip:SetupMainButton(menuButton, index)
 		menuButton.index = index
 		--setup texts and icons
-		CoolTip:TextAndIcon(index, frame1, menuButton, CoolTip.LeftTextTable[index], CoolTip.RightTextTable[index], CoolTip.LeftIconTable[index], CoolTip.RightIconTable[index])
+		gameCooltip:TextAndIcon(index, frame1, menuButton, gameCooltip.LeftTextTable[index], gameCooltip.RightTextTable[index], gameCooltip.LeftIconTable[index], gameCooltip.RightIconTable[index])
 		--setup statusbar
-		CoolTip:StatusBar(menuButton, CoolTip.StatusBarTable[index])
+		gameCooltip:StatusBar(menuButton, gameCooltip.StatusBarTable[index])
 		--click
 		menuButton:RegisterForClicks("LeftButtonDown")
 
 		--string length
-		if (not CoolTip.OptionsTable.FixedWidth) then
+		if (not gameCooltip.OptionsTable.FixedWidth) then
 			local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
 			if (stringWidth > frame1.w) then
 				frame1.w = stringWidth
@@ -1188,18 +1188,18 @@ function DF:CreateCoolTip()
 		menuButton:Show()
 	end
 
-	function CoolTip:SetupButtonOnSecondFrame(menuButton, index, mainMenuIndex)
+	function gameCooltip:SetupButtonOnSecondFrame(menuButton, index, mainMenuIndex)
 		menuButton.index = index
 		menuButton.mainIndex = mainMenuIndex
 
 		--setup texts and icons
-		CoolTip:TextAndIcon(index, frame2, menuButton, CoolTip.LeftTextTableSub[mainMenuIndex] and CoolTip.LeftTextTableSub[mainMenuIndex][index],
-		CoolTip.RightTextTableSub[mainMenuIndex] and CoolTip.RightTextTableSub[mainMenuIndex][index],
-		CoolTip.LeftIconTableSub[mainMenuIndex] and CoolTip.LeftIconTableSub[mainMenuIndex][index],
-		CoolTip.RightIconTableSub[mainMenuIndex] and CoolTip.RightIconTableSub[mainMenuIndex][index], true)
+		gameCooltip:TextAndIcon(index, frame2, menuButton, gameCooltip.LeftTextTableSub[mainMenuIndex] and gameCooltip.LeftTextTableSub[mainMenuIndex][index],
+		gameCooltip.RightTextTableSub[mainMenuIndex] and gameCooltip.RightTextTableSub[mainMenuIndex][index],
+		gameCooltip.LeftIconTableSub[mainMenuIndex] and gameCooltip.LeftIconTableSub[mainMenuIndex][index],
+		gameCooltip.RightIconTableSub[mainMenuIndex] and gameCooltip.RightIconTableSub[mainMenuIndex][index], true)
 
 		--setup statusbar
-		CoolTip:StatusBar(menuButton, CoolTip.StatusBarTableSub[mainMenuIndex] and CoolTip.StatusBarTableSub[mainMenuIndex][index])
+		gameCooltip:StatusBar(menuButton, gameCooltip.StatusBarTableSub[mainMenuIndex] and gameCooltip.StatusBarTableSub[mainMenuIndex][index])
 
 		--click
 		menuButton:RegisterForClicks("LeftButtonDown")
@@ -1225,7 +1225,7 @@ function DF:CreateCoolTip()
 
 	------------------------------------------------------------------------------------------------------------------
 
-	function CoolTip:SetupWallpaper(wallpaperTable, wallpaper)
+	function gameCooltip:SetupWallpaper(wallpaperTable, wallpaper)
 		local texture = wallpaperTable[1]
 		if (DF:IsHtmlColor(texture) or type(texture) == "table") then
 			local color = texture
@@ -1256,40 +1256,40 @@ function DF:CreateCoolTip()
 
 	------------------------------------------------------------------------------------------------------------------
 
-	function CoolTip:ShowSub(index)
-		if (CoolTip.OptionsTable.IgnoreSubMenu) then
+	function gameCooltip:ShowSub(index)
+		if (gameCooltip.OptionsTable.IgnoreSubMenu) then
 			DF:FadeFrame(frame2, 1)
 			return
 		end
 
 		frame2:SetHeight(6)
-		local amountIndexes = CoolTip.IndexesSub[index]
+		local amountIndexes = gameCooltip.IndexesSub[index]
 		if (not amountIndexes) then
 			--sub menu called but sub menu indexes is nil
 			return
 		end
 
-		if (CoolTip.OptionsTable.FixedWidthSub) then
-			frame2:SetWidth(CoolTip.OptionsTable.FixedWidthSub)
+		if (gameCooltip.OptionsTable.FixedWidthSub) then
+			frame2:SetWidth(gameCooltip.OptionsTable.FixedWidthSub)
 		end
 
-		frame2.h = CoolTip.IndexesSub[index] * 20
+		frame2.h = gameCooltip.IndexesSub[index] * 20
 		frame2.hHeight = 0
 		frame2.w = 0
 
-		local isTooltip = CoolTip.OptionsTable.SubMenuIsTooltip
+		local isTooltip = gameCooltip.OptionsTable.SubMenuIsTooltip
 		if (isTooltip) then
 			frame2:EnableMouse(false)
 		else
 			frame2:EnableMouse(true)
 		end
 
-		for i = 1, CoolTip.IndexesSub[index] do
+		for i = 1, gameCooltip.IndexesSub[index] do
 			local button = frame2.Lines[i]
 			if (not button) then
-				button = CoolTip:CreateButtonOnSecondFrame(i)
+				button = gameCooltip:CreateButtonOnSecondFrame(i)
 			end
-			CoolTip:SetupButtonOnSecondFrame(button, i, index)
+			gameCooltip:SetupButtonOnSecondFrame(button, i, index)
 
 			if (isTooltip) then
 				button:EnableMouse(false)
@@ -1298,27 +1298,27 @@ function DF:CreateCoolTip()
 			end
 		end
 
-		local selected = CoolTip.SelectedIndexSec[index]
+		local selected = gameCooltip.SelectedIndexSec[index]
 		if (selected) then
-			CoolTip:SetSelectedAnchor(frame2, frame2.Lines[selected])
-			if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-				CoolTip:ShowSelectedTexture(frame2)
+			gameCooltip:SetSelectedAnchor(frame2, frame2.Lines[selected])
+			if (not gameCooltip.OptionsTable.NoLastSelectedBar) then
+				gameCooltip:ShowSelectedTexture(frame2)
 			end
 		else
-			CoolTip:HideSelectedTexture(frame2)
+			gameCooltip:HideSelectedTexture(frame2)
 		end
 
-		for i = CoolTip.IndexesSub[index] + 1, #frame2.Lines do
+		for i = gameCooltip.IndexesSub[index] + 1, #frame2.Lines do
 			DF:FadeFrame(frame2.Lines[i], 1)
 		end
 
 		local spacing = 0
-		if (CoolTip.OptionsTable.YSpacingModSub) then
-			spacing = CoolTip.OptionsTable.YSpacingModSub
+		if (gameCooltip.OptionsTable.YSpacingModSub) then
+			spacing = gameCooltip.OptionsTable.YSpacingModSub
 		end
 
 		--normalize height of all rows
-		for i = 1, CoolTip.IndexesSub[index] do
+		for i = 1, gameCooltip.IndexesSub[index] do
 			local menuButton = frame2.Lines[i]
 
 			if (menuButton.leftText:GetText() == "$div") then
@@ -1332,19 +1332,19 @@ function DF:CreateCoolTip()
 
 				menuButton.rightText:SetText("")
 
-				local divisorOffsetTop = tonumber(CoolTip.RightTextTableSub[index][i][2])
+				local divisorOffsetTop = tonumber(gameCooltip.RightTextTableSub[index][i][2])
 				if (not divisorOffsetTop) then
 					divisorOffsetTop = 0
 				end
-				local divisorOffsetBottom = tonumber(CoolTip.RightTextTableSub[index][i][3])
+				local divisorOffsetBottom = tonumber(gameCooltip.RightTextTableSub[index][i][3])
 				if (not divisorOffsetBottom) then
 					divisorOffsetBottom = 0
 				end
 
-				menuButton:SetPoint("top", frame2, "top", 0, ( ( (i-1) * frame2.hHeight) * -1) - 4 + (CoolTip.OptionsTable.ButtonsYModSub or 0) + spacing + (2 + (divisorOffsetTop or 0)))
+				menuButton:SetPoint("top", frame2, "top", 0, ( ( (i-1) * frame2.hHeight) * -1) - 4 + (gameCooltip.OptionsTable.ButtonsYModSub or 0) + spacing + (2 + (divisorOffsetTop or 0)))
 
-				if (CoolTip.OptionsTable.YSpacingModSub) then
-					spacing = spacing + CoolTip.OptionsTable.YSpacingModSub
+				if (gameCooltip.OptionsTable.YSpacingModSub) then
+					spacing = spacing + gameCooltip.OptionsTable.YSpacingModSub
 				end
 
 				spacing = spacing + 17 + (divisorOffsetBottom or 0)
@@ -1353,7 +1353,7 @@ function DF:CreateCoolTip()
 				menuButton.isDiv = true
 
 				if (not menuButton.divbar) then
-					CoolTip:CreateDivBar(menuButton)
+					gameCooltip:CreateDivBar(menuButton)
 				else
 					menuButton.divbar:Show()
 				end
@@ -1362,15 +1362,15 @@ function DF:CreateCoolTip()
 				menuButton.divbar:SetPoint("right", menuButton, "right", -frame1:GetWidth() * 0.10, 0)
 
 			else
-				menuButton:SetHeight(frame2.hHeight + (CoolTip.OptionsTable.ButtonHeightModSub or 0))
+				menuButton:SetHeight(frame2.hHeight + (gameCooltip.OptionsTable.ButtonHeightModSub or 0))
 
 				--points
 				menuButton:ClearAllPoints()
 				menuButton:SetPoint("center", frame2, "center")
-				menuButton:SetPoint("top", frame2, "top", 0, ( ( (i-1) * frame2.hHeight) * -1) - 4 + (CoolTip.OptionsTable.ButtonsYModSub or 0) + spacing)
+				menuButton:SetPoint("top", frame2, "top", 0, ( ( (i-1) * frame2.hHeight) * -1) - 4 + (gameCooltip.OptionsTable.ButtonsYModSub or 0) + spacing)
 
-				if (CoolTip.OptionsTable.YSpacingModSub) then
-					spacing = spacing + CoolTip.OptionsTable.YSpacingModSub
+				if (gameCooltip.OptionsTable.YSpacingModSub) then
+					spacing = spacing + gameCooltip.OptionsTable.YSpacingModSub
 				end
 
 				menuButton:SetPoint("left", frame2, "left", -4, 0)
@@ -1383,11 +1383,11 @@ function DF:CreateCoolTip()
 			end
 		end
 
-		local mod = CoolTip.OptionsTable.HeighModSub or 0
-		frame2:SetHeight((frame2.hHeight * CoolTip.IndexesSub[index]) + 12 + (-spacing) + mod)
+		local mod = gameCooltip.OptionsTable.HeighModSub or 0
+		frame2:SetHeight((frame2.hHeight * gameCooltip.IndexesSub[index]) + 12 + (-spacing) + mod)
 
-		if (CoolTip.TopIconTableSub[index]) then
-			local upperImageTable = CoolTip.TopIconTableSub[index]
+		if (gameCooltip.TopIconTableSub[index]) then
+			local upperImageTable = gameCooltip.TopIconTableSub[index]
 			frame2.upperImage:SetTexture(upperImageTable[1])
 			frame2.upperImage:SetWidth(upperImageTable[2])
 			frame2.upperImage:SetHeight(upperImageTable[3])
@@ -1397,30 +1397,30 @@ function DF:CreateCoolTip()
 			frame2.upperImage:Hide()
 		end
 
-		if (CoolTip.WallpaperTableSub[index]) then
-			CoolTip:SetupWallpaper(CoolTip.WallpaperTableSub[index], frame2.frameWallpaper)
+		if (gameCooltip.WallpaperTableSub[index]) then
+			gameCooltip:SetupWallpaper(gameCooltip.WallpaperTableSub[index], frame2.frameWallpaper)
 		else
 			frame2.frameWallpaper:Hide()
 		end
 
-		if (not CoolTip.OptionsTable.FixedWidthSub) then
+		if (not gameCooltip.OptionsTable.FixedWidthSub) then
 			frame2:SetWidth(frame2.w + 44)
 		end
 
 		DF:FadeFrame(frame2, 0)
-		CoolTip:CheckOverlap()
+		gameCooltip:CheckOverlap()
 
-		if (CoolTip.OptionsTable.SubFollowButton and not CoolTip.frame2_IsOnLeftside) then
+		if (gameCooltip.OptionsTable.SubFollowButton and not gameCooltip.frame2_IsOnLeftside) then
 			local button = frame1.Lines[index]
 			frame2:ClearAllPoints()
 			frame2:SetPoint("left", button, "right", 4, 0)
 
-		elseif (CoolTip.OptionsTable.SubFollowButton and CoolTip.frame2_IsOnLeftside) then
+		elseif (gameCooltip.OptionsTable.SubFollowButton and gameCooltip.frame2_IsOnLeftside) then
 			local button = frame1.Lines[index]
 			frame2:ClearAllPoints()
 			frame2:SetPoint("right", button, "left", -4, 0)
 
-		elseif (CoolTip.frame2_IsOnLeftside) then
+		elseif (gameCooltip.frame2_IsOnLeftside) then
 			frame2:ClearAllPoints()
 			frame2:SetPoint("bottomright", frame1, "bottomleft", -4, 0)
 		else
@@ -1429,38 +1429,38 @@ function DF:CreateCoolTip()
 		end
 	end
 
-	function CoolTip:HideSub()
+	function gameCooltip:HideSub()
 		DF:FadeFrame(frame2, 1)
 	end
 
-	function CoolTip:LeftTextSpace(row)
+	function gameCooltip:LeftTextSpace(row)
 		row.leftText:SetWidth(row:GetWidth() - 30 - row.leftIcon:GetWidth() - row.rightIcon:GetWidth() - row.rightText:GetStringWidth())
 		row.leftText:SetHeight(10)
 	end
 
 	--~inicio ~start ~tooltip
-	function CoolTip:BuildTooltip()
+	function gameCooltip:BuildTooltip()
 		--hide sub frame
 		DF:FadeFrame(frame2, 1)
 		--hide select bar
-		CoolTip:HideSelectedTexture(frame1)
+		gameCooltip:HideSelectedTexture(frame1)
 
 		frame1:EnableMouse(false)
 
 		--width
-		if (CoolTip.OptionsTable.FixedWidth) then
-			frame1:SetWidth(CoolTip.OptionsTable.FixedWidth)
+		if (gameCooltip.OptionsTable.FixedWidth) then
+			frame1:SetWidth(gameCooltip.OptionsTable.FixedWidth)
 		end
 
-		frame1.w = CoolTip.OptionsTable.FixedWidth or 0
+		frame1.w = gameCooltip.OptionsTable.FixedWidth or 0
 		frame1.hHeight = 0
 		frame2.hHeight = 0
 
-		CoolTip.active = true
-		for i = 1, CoolTip.Indexes do
+		gameCooltip.active = true
+		for i = 1, gameCooltip.Indexes do
 			local button = frame1.Lines[i]
 			if (not button) then
-				button = CoolTip:CreateMainFrameButton(i)
+				button = gameCooltip:CreateMainFrameButton(i)
 			end
 
 			button.index = i
@@ -1468,29 +1468,29 @@ function DF:CreateCoolTip()
 			--basic stuff
 			button:Show()
 			button.background:Hide()
-			button:SetHeight(CoolTip.OptionsTable.ButtonHeightMod or CoolTip.default_height)
+			button:SetHeight(gameCooltip.OptionsTable.ButtonHeightMod or gameCooltip.default_height)
 			button:RegisterForClicks()
 
 			--setup texts and icons
-			CoolTip:TextAndIcon(i, frame1, button, CoolTip.LeftTextTable[i], CoolTip.RightTextTable[i], CoolTip.LeftIconTable[i], CoolTip.RightIconTable[i])
+			gameCooltip:TextAndIcon(i, frame1, button, gameCooltip.LeftTextTable[i], gameCooltip.RightTextTable[i], gameCooltip.LeftIconTable[i], gameCooltip.RightIconTable[i])
 			--setup statusbar
-			CoolTip:StatusBar(button, CoolTip.StatusBarTable[i])
+			gameCooltip:StatusBar(button, gameCooltip.StatusBarTable[i])
 		end
 
 		--hide unused lines
-		for i = CoolTip.Indexes+1, #frame1.Lines do
+		for i = gameCooltip.Indexes+1, #frame1.Lines do
 			frame1.Lines[i]:Hide()
 		end
-		CoolTip.NumLines = CoolTip.Indexes
+		gameCooltip.NumLines = gameCooltip.Indexes
 
 		local spacing = 0
-		if (CoolTip.OptionsTable.YSpacingMod) then
-			spacing = CoolTip.OptionsTable.YSpacingMod
+		if (gameCooltip.OptionsTable.YSpacingMod) then
+			spacing = gameCooltip.OptionsTable.YSpacingMod
 		end
 
 		--normalize height of all rows
-		local heightValue = -6 + spacing + (CoolTip.OptionsTable.ButtonsYMod or 0)
-		for i = 1, CoolTip.Indexes do 
+		local heightValue = -6 + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
+		for i = 1, gameCooltip.Indexes do 
 			local menuButton = frame1.Lines[i]
 
 			menuButton:ClearAllPoints()
@@ -1504,91 +1504,91 @@ function DF:CreateCoolTip()
 			end
 
 			--height
-			if (CoolTip.OptionsTable.AlignAsBlizzTooltip) then
-				local height = max(2, menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight(), CoolTip.OptionsTable.AlignAsBlizzTooltipForceHeight or 2)
+			if (gameCooltip.OptionsTable.AlignAsBlizzTooltip) then
+				local height = max(2, menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight(), gameCooltip.OptionsTable.AlignAsBlizzTooltipForceHeight or 2)
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame1, "top", 0, heightValue)
 				heightValue = heightValue + ( height * -1)
 
-			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
+			elseif (gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
 
 				local height = max(menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
 				menuButton:SetHeight(height)
 				menuButton:SetPoint("top", frame1, "top", 0, heightValue)
 
-				heightValue = heightValue + ( height * -1) + spacing + (CoolTip.OptionsTable.ButtonsYMod or 0)
+				heightValue = heightValue + ( height * -1) + spacing + (gameCooltip.OptionsTable.ButtonsYMod or 0)
 
 			else
-				menuButton:SetHeight(frame1.hHeight + (CoolTip.OptionsTable.ButtonHeightMod or 0))
-				menuButton:SetPoint("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
+				menuButton:SetHeight(frame1.hHeight + (gameCooltip.OptionsTable.ButtonHeightMod or 0))
+				menuButton:SetPoint("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 6 + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing)
 			end
 
-			if (CoolTip.OptionsTable.YSpacingMod and not CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
-				spacing = spacing + CoolTip.OptionsTable.YSpacingMod
+			if (gameCooltip.OptionsTable.YSpacingMod and not gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
+				spacing = spacing + gameCooltip.OptionsTable.YSpacingMod
 			end
 
 			menuButton:EnableMouse(false)
 		end
 
-		if (not CoolTip.OptionsTable.FixedWidth) then
-			if (CoolTip.Type == 2) then --with bars
-				if (CoolTip.OptionsTable.MinWidth) then
+		if (not gameCooltip.OptionsTable.FixedWidth) then
+			if (gameCooltip.Type == 2) then --with bars
+				if (gameCooltip.OptionsTable.MinWidth) then
 					local w = frame1.w + 34
-					PixelUtil.SetWidth(frame1, math.max(w, CoolTip.OptionsTable.MinWidth))
+					PixelUtil.SetWidth(frame1, math.max(w, gameCooltip.OptionsTable.MinWidth))
 				else
 					PixelUtil.SetWidth(frame1, frame1.w + 34)
 				end
 			else
 				--width stability check
 				local width = frame1.w + 24
-				if (width > CoolTip.LastSize - 5 and width < CoolTip.LastSize + 5) then
-					width = CoolTip.LastSize
+				if (width > gameCooltip.LastSize - 5 and width < gameCooltip.LastSize + 5) then
+					width = gameCooltip.LastSize
 				else
-					CoolTip.LastSize = width
+					gameCooltip.LastSize = width
 				end
 
-				if (CoolTip.OptionsTable.MinWidth) then
-					PixelUtil.SetWidth(frame1, math.max(width, CoolTip.OptionsTable.MinWidth))
+				if (gameCooltip.OptionsTable.MinWidth) then
+					PixelUtil.SetWidth(frame1, math.max(width, gameCooltip.OptionsTable.MinWidth))
 				else
 					PixelUtil.SetWidth(frame1, width)
 				end
 			end
 		end
 
-		if (CoolTip.OptionsTable.FixedHeight) then
-			PixelUtil.SetHeight(frame1, CoolTip.OptionsTable.FixedHeight)
+		if (gameCooltip.OptionsTable.FixedHeight) then
+			PixelUtil.SetHeight(frame1, gameCooltip.OptionsTable.FixedHeight)
 		else
-			if (CoolTip.OptionsTable.AlignAsBlizzTooltip) then
-				PixelUtil.SetHeight(frame1, ((heightValue - 10) * -1) + (CoolTip.OptionsTable.AlignAsBlizzTooltipFrameHeightOffset or 0))
+			if (gameCooltip.OptionsTable.AlignAsBlizzTooltip) then
+				PixelUtil.SetHeight(frame1, ((heightValue - 10) * -1) + (gameCooltip.OptionsTable.AlignAsBlizzTooltipFrameHeightOffset or 0))
 
-			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
+			elseif (gameCooltip.OptionsTable.IgnoreButtonAutoHeight) then
 				PixelUtil.SetHeight(frame1, (heightValue + spacing) * -1)
 
 			else
-				PixelUtil.SetHeight(frame1, max( (frame1.hHeight * CoolTip.Indexes) + 8 + ((CoolTip.OptionsTable.ButtonsYMod or 0)*-1), 22 ))
+				PixelUtil.SetHeight(frame1, max( (frame1.hHeight * gameCooltip.Indexes) + 8 + ((gameCooltip.OptionsTable.ButtonsYMod or 0)*-1), 22 ))
 			end
 		end
 
-		if (CoolTip.WallpaperTable[1]) then
-			CoolTip:SetupWallpaper(CoolTip.WallpaperTable, frame1.frameWallpaper)
+		if (gameCooltip.WallpaperTable[1]) then
+			gameCooltip:SetupWallpaper(gameCooltip.WallpaperTable, frame1.frameWallpaper)
 		else
 			frame1.frameWallpaper:Hide()
 		end
 
 		--unhide frame
 		DF:FadeFrame(frame1, 0)
-		CoolTip:SetMyPoint()
+		gameCooltip:SetMyPoint()
 
 		--fix sparks
-		for i = 1, CoolTip.Indexes do
+		for i = 1, gameCooltip.Indexes do
 			local menuButton = frame1.Lines[i]
 			if (menuButton.spark:IsShown() or menuButton.spark2:IsShown()) then
-				CoolTip:RefreshSpark(menuButton)
+				gameCooltip:RefreshSpark(menuButton)
 			end
 		end
 	end
 
-	function CoolTip:CreateDivBar(button)
+	function gameCooltip:CreateDivBar(button)
 		button.divbar = button:CreateTexture(nil, "overlay")
 		button.divbar:SetTexture([[Interface\QUESTFRAME\AutoQuest-Parts]])
 		button.divbar:SetTexCoord(238/512, 445/512, 0/64, 4/64)
@@ -1598,29 +1598,29 @@ function DF:CreateCoolTip()
 	end
 
 	--~inicio ~start ~menu
-	function CoolTip:BuildCooltip(host)
-		if (CoolTip.Indexes == 0) then
-			CoolTip:Reset()
-			CoolTip:SetType(CONST_COOLTIP_TYPE_TOOLTIP)
-			CoolTip:AddLine("There is no options.")
-			CoolTip:ShowCooltip()
+	function gameCooltip:BuildCooltip(host)
+		if (gameCooltip.Indexes == 0) then
+			gameCooltip:Reset()
+			gameCooltip:SetType(CONST_COOLTIP_TYPE_TOOLTIP)
+			gameCooltip:AddLine("There is no options.")
+			gameCooltip:ShowCooltip()
 			return
 		end
 
-		if (CoolTip.OptionsTable.FixedWidth) then
-			frame1:SetWidth(CoolTip.OptionsTable.FixedWidth)
+		if (gameCooltip.OptionsTable.FixedWidth) then
+			frame1:SetWidth(gameCooltip.OptionsTable.FixedWidth)
 		end
 
-		frame1.w = CoolTip.OptionsTable.FixedWidth or 0
+		frame1.w = gameCooltip.OptionsTable.FixedWidth or 0
 		frame1.hHeight = 0
 		frame2.hHeight = 0
 
 		frame1:EnableMouse(true)
 
-		if (CoolTip.HaveSubMenu) then
+		if (gameCooltip.HaveSubMenu) then
 			frame2.w = 0
 			frame2:SetHeight(6)
-			if (CoolTip.SelectedIndexMain and CoolTip.IndexesSub[CoolTip.SelectedIndexMain] and CoolTip.IndexesSub[CoolTip.SelectedIndexMain] > 0) then
+			if (gameCooltip.SelectedIndexMain and gameCooltip.IndexesSub[gameCooltip.SelectedIndexMain] and gameCooltip.IndexesSub[gameCooltip.SelectedIndexMain] > 0) then
 				DF:FadeFrame(frame2, 0)
 			else
 				DF:FadeFrame(frame2, 1)
@@ -1629,54 +1629,54 @@ function DF:CreateCoolTip()
 			DF:FadeFrame(frame2, 1)
 		end
 
-		CoolTip.active = true
+		gameCooltip.active = true
 
-		for i = 1, CoolTip.Indexes do
+		for i = 1, gameCooltip.Indexes do
 			local menuButton = frame1.Lines[i]
 			if (not menuButton) then
-				menuButton = CoolTip:CreateMainFrameButton(i)
+				menuButton = gameCooltip:CreateMainFrameButton(i)
 			end
-			CoolTip:SetupMainButton(menuButton, i)
+			gameCooltip:SetupMainButton(menuButton, i)
 			menuButton.background:Hide()
 		end
 
 		--selected texture
-		if (CoolTip.SelectedIndexMain) then
-			CoolTip:SetSelectedAnchor(frame1, frame1.Lines[CoolTip.SelectedIndexMain])
+		if (gameCooltip.SelectedIndexMain) then
+			gameCooltip:SetSelectedAnchor(frame1, frame1.Lines[gameCooltip.SelectedIndexMain])
 
-			if (CoolTip.OptionsTable.NoLastSelectedBar) then
-				CoolTip:HideSelectedTexture(frame1)
+			if (gameCooltip.OptionsTable.NoLastSelectedBar) then
+				gameCooltip:HideSelectedTexture(frame1)
 			else
-				CoolTip:ShowSelectedTexture(frame1)
+				gameCooltip:ShowSelectedTexture(frame1)
 			end
 		else
-			CoolTip:HideSelectedTexture(frame1)
+			gameCooltip:HideSelectedTexture(frame1)
 		end
 
-		if (CoolTip.Indexes < #frame1.Lines) then
-			for i = CoolTip.Indexes+1, #frame1.Lines do
+		if (gameCooltip.Indexes < #frame1.Lines) then
+			for i = gameCooltip.Indexes+1, #frame1.Lines do
 				frame1.Lines[i]:Hide()
 			end
 		end
 
-		CoolTip.NumLines = CoolTip.Indexes
+		gameCooltip.NumLines = gameCooltip.Indexes
 
 		local spacing = 0
-		if (CoolTip.OptionsTable.YSpacingMod) then
-			spacing = CoolTip.OptionsTable.YSpacingMod
+		if (gameCooltip.OptionsTable.YSpacingMod) then
+			spacing = gameCooltip.OptionsTable.YSpacingMod
 		end
 
-		if (not CoolTip.OptionsTable.FixedWidth) then
-			if (CoolTip.OptionsTable.MinWidth) then
+		if (not gameCooltip.OptionsTable.FixedWidth) then
+			if (gameCooltip.OptionsTable.MinWidth) then
 				local w = frame1.w + 24
-				frame1:SetWidth(math.max(w, CoolTip.OptionsTable.MinWidth))
+				frame1:SetWidth(math.max(w, gameCooltip.OptionsTable.MinWidth))
 			else
 				frame1:SetWidth(frame1.w + 24)
 			end
 		end
 
 		--normalize height of all rows
-		for i = 1, CoolTip.Indexes do
+		for i = 1, gameCooltip.Indexes do
 			local menuButton = frame1.Lines[i]
 			menuButton:EnableMouse(true)
 
@@ -1689,18 +1689,18 @@ function DF:CreateCoolTip()
 				menuButton:SetPoint("right", frame1, "right", 4, 0)
 				menuButton:SetPoint("center", frame1, "center")
 
-				local divisorOffsetTop = tonumber(CoolTip.LeftTextTable[i][2])
+				local divisorOffsetTop = tonumber(gameCooltip.LeftTextTable[i][2])
 				if (not divisorOffsetTop) then
 					divisorOffsetTop = 0
 				end
-				local divisorOffsetBottom = tonumber(CoolTip.LeftTextTable[i][3])
+				local divisorOffsetBottom = tonumber(gameCooltip.LeftTextTable[i][3])
 				if (not divisorOffsetBottom) then
 					divisorOffsetBottom = 0
 				end
 
-				menuButton:SetPoint("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 4 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing - 4 + divisorOffsetTop)
-				if (CoolTip.OptionsTable.YSpacingMod) then
-					spacing = spacing + CoolTip.OptionsTable.YSpacingMod
+				menuButton:SetPoint("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 4 + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing - 4 + divisorOffsetTop)
+				if (gameCooltip.OptionsTable.YSpacingMod) then
+					spacing = spacing + gameCooltip.OptionsTable.YSpacingMod
 				end
 
 				spacing = spacing + 4 + divisorOffsetBottom
@@ -1709,7 +1709,7 @@ function DF:CreateCoolTip()
 				menuButton.isDiv = true
 
 				if (not menuButton.divbar) then
-					CoolTip:CreateDivBar(menuButton)
+					gameCooltip:CreateDivBar(menuButton)
 				else
 					menuButton.divbar:Show()
 				end
@@ -1718,13 +1718,13 @@ function DF:CreateCoolTip()
 				menuButton.divbar:SetPoint("right", menuButton, "right", -frame1:GetWidth() * 0.10, 0)
 			else
 				--height
-				menuButton:SetHeight(frame1.hHeight + (CoolTip.OptionsTable.ButtonHeightMod or 0))
+				menuButton:SetHeight(frame1.hHeight + (gameCooltip.OptionsTable.ButtonHeightMod or 0))
 				--points
 				menuButton:ClearAllPoints()
 				menuButton:SetPoint("center", frame1, "center")
-				menuButton:SetPoint("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 4 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
-				if (CoolTip.OptionsTable.YSpacingMod) then
-					spacing = spacing + CoolTip.OptionsTable.YSpacingMod
+				menuButton:SetPoint("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 4 + (gameCooltip.OptionsTable.ButtonsYMod or 0) + spacing)
+				if (gameCooltip.OptionsTable.YSpacingMod) then
+					spacing = spacing + gameCooltip.OptionsTable.YSpacingMod
 				end
 				menuButton:SetPoint("left", frame1, "left", -4, 0)
 				menuButton:SetPoint("right", frame1, "right", 4, 0)
@@ -1736,17 +1736,17 @@ function DF:CreateCoolTip()
 			end
 		end
 
-		if (CoolTip.OptionsTable.FixedHeight) then
-			frame1:SetHeight(CoolTip.OptionsTable.FixedHeight)
+		if (gameCooltip.OptionsTable.FixedHeight) then
+			frame1:SetHeight(gameCooltip.OptionsTable.FixedHeight)
 		else
-			local mod = CoolTip.OptionsTable.HeighMod or 0
-			frame1:SetHeight(max((frame1.hHeight * CoolTip.Indexes) + 12 + (-spacing) + mod, 22))
+			local mod = gameCooltip.OptionsTable.HeighMod or 0
+			frame1:SetHeight(max((frame1.hHeight * gameCooltip.Indexes) + 12 + (-spacing) + mod, 22))
 		end
 
 		--sub menu arrows
-		if (CoolTip.HaveSubMenu and not CoolTip.OptionsTable.IgnoreArrows and not CoolTip.OptionsTable.SubMenuIsTooltip) then
-			for i = 1, CoolTip.Indexes do
-				if (CoolTip.IndexesSub[i] and CoolTip.IndexesSub[i] > 0) then
+		if (gameCooltip.HaveSubMenu and not gameCooltip.OptionsTable.IgnoreArrows and not gameCooltip.OptionsTable.SubMenuIsTooltip) then
+			for i = 1, gameCooltip.Indexes do
+				if (gameCooltip.IndexesSub[i] and gameCooltip.IndexesSub[i] > 0) then
 					frame1.Lines[i].statusbar.subMenuArrow:Show()
 				else
 					frame1.Lines[i].statusbar.subMenuArrow:Hide()
@@ -1756,28 +1756,28 @@ function DF:CreateCoolTip()
 		end
 
 		frame1:ClearAllPoints()
-		CoolTip:SetMyPoint(host)
+		gameCooltip:SetMyPoint(host)
 
-		if (CoolTip.title1) then
-			CoolTip.frame1.titleText:Show()
-			CoolTip.frame1.titleIcon:Show()
-			CoolTip.frame1.titleText:SetText(CoolTip.title_text)
-			CoolTip.frame1.titleIcon:SetWidth(frame1:GetWidth())
-			CoolTip.frame1.titleIcon:SetHeight(40)
+		if (gameCooltip.title1) then
+			gameCooltip.frame1.titleText:Show()
+			gameCooltip.frame1.titleIcon:Show()
+			gameCooltip.frame1.titleText:SetText(gameCooltip.title_text)
+			gameCooltip.frame1.titleIcon:SetWidth(frame1:GetWidth())
+			gameCooltip.frame1.titleIcon:SetHeight(40)
 		end
 
-		if (CoolTip.WallpaperTable[1]) then
-			CoolTip:SetupWallpaper(CoolTip.WallpaperTable, frame1.frameWallpaper)
+		if (gameCooltip.WallpaperTable[1]) then
+			gameCooltip:SetupWallpaper(gameCooltip.WallpaperTable, frame1.frameWallpaper)
 		else
 			frame1.frameWallpaper:Hide()
 		end
 
 		DF:FadeFrame(frame1, 0)
 
-		for i = 1, CoolTip.Indexes do
-			if (CoolTip.SelectedIndexMain and CoolTip.SelectedIndexMain == i) then
-				if (CoolTip.HaveSubMenu and CoolTip.IndexesSub[i] and CoolTip.IndexesSub[i] > 0) then
-					CoolTip:ShowSub(i)
+		for i = 1, gameCooltip.Indexes do
+			if (gameCooltip.SelectedIndexMain and gameCooltip.SelectedIndexMain == i) then
+				if (gameCooltip.HaveSubMenu and gameCooltip.IndexesSub[i] and gameCooltip.IndexesSub[i] > 0) then
+					gameCooltip:ShowSub(i)
 				end
 			end
 		end
@@ -1785,86 +1785,82 @@ function DF:CreateCoolTip()
 		return true
 	end
 
-	function CoolTip:SetMyPoint(host, xOffset, yOffset)
-		local thisXOffset = xOffset or 0
-		local thisYOffset = yOffset or 0
+	function gameCooltip:SetMyPoint(host, xOffset, yOffset)
+		local moveX = xOffset or 0
+		local moveY = yOffset or 0
+		local anchor = gameCooltip.OptionsTable.Anchor or gameCooltip.Host
 
-		--clear all points
 		frame1:ClearAllPoints()
-
-		local anchor = CoolTip.OptionsTable.Anchor or CoolTip.Host
-		PixelUtil.SetPoint(frame1, CoolTip.OptionsTable.MyAnchor, anchor, CoolTip.OptionsTable.RelativeAnchor, 0 + thisXOffset + CoolTip.OptionsTable.WidthAnchorMod, 10 + CoolTip.OptionsTable.HeightAnchorMod + thisYOffset)
+		PixelUtil.SetPoint(frame1, gameCooltip.OptionsTable.MyAnchor, anchor, gameCooltip.OptionsTable.RelativeAnchor, 0 + moveX + gameCooltip.OptionsTable.WidthAnchorMod, 10 + gameCooltip.OptionsTable.HeightAnchorMod + moveY)
 
 		if (not xOffset) then
 			--check if cooltip is out of screen bounds
-			local xCenter = frame1:GetCenter()
-			if (xCenter) then
+			local centerX = frame1:GetCenter()
+
+			if (centerX) then
 				local screenWidth = GetScreenWidth()
-				local frame1WidthHalf = frame1:GetWidth() / 2
+				local halfScreenWidth = frame1:GetWidth() / 2
 
-				if (xCenter + frame1WidthHalf > screenWidth) then
+				if (centerX + halfScreenWidth > screenWidth) then
 					--out of right side
-					local newXOffset = (xCenter + frame1WidthHalf) - screenWidth
-					CoolTip.internalYMod = -newXOffset
-					return CoolTip:SetMyPoint(host, -newXOffset, 0)
+					local moveLeftOffset = (centerX + halfScreenWidth) - screenWidth
+					gameCooltip.internal_x_mod = -moveLeftOffset
+					return gameCooltip:SetMyPoint(host, -moveLeftOffset, 0)
 
-				elseif (xCenter - frame1WidthHalf < 0) then
+				elseif (centerX - halfScreenWidth < 0) then
 					--out of left side
-					local newXOffset = xCenter - frame1WidthHalf
-					CoolTip.internalYMod = newXOffset * -1
-					return CoolTip:SetMyPoint(host, newXOffset * -1, 0)
+					local moveRightOffset = centerX - halfScreenWidth
+					gameCooltip.internal_x_mod = moveRightOffset * -1
+					return gameCooltip:SetMyPoint(host, moveRightOffset * -1, 0)
 				end
 			end
 		end
 
 		if (not yOffset) then
 			--check if cooltip is out of screen bounds
-			local _, xCenter = frame1:GetCenter()
+			local _, centerY = frame1:GetCenter()
 			local screenHeight = GetScreenHeight()
-			local frame1HeightHalf = frame1:GetHeight() / 2
+			local helpScreenHeight = frame1:GetHeight() / 2
 
-			if (xCenter) then
-				if (xCenter + frame1HeightHalf > screenHeight) then
-					--out of top side
-					local newYOffset = (xCenter + frame1HeightHalf) - screenHeight
-					CoolTip.internalYMod = -newYOffset
-					return CoolTip:SetMyPoint(host, 0, -newYOffset)
+			if (centerY) then
+				if (centerY + helpScreenHeight > screenHeight) then
+					--> out of top side
+					local moveDownOffset = (centerY + helpScreenHeight) - screenHeight
+					gameCooltip.internal_y_mod = -moveDownOffset
+					return gameCooltip:SetMyPoint(host, 0, -moveDownOffset)
 
-				elseif (xCenter - frame1HeightHalf < 0) then
-					--out of bottom side
-					local newYOffset = xCenter - frame1HeightHalf
-					CoolTip.internalYMod = newYOffset * -1
-					return CoolTip:SetMyPoint(host, 0, newYOffset * -1)
+				elseif (centerY - helpScreenHeight < 0) then
+					--> out of bottom side
+					local moveUpOffset = centerY - helpScreenHeight
+					gameCooltip.internal_y_mod = moveUpOffset * -1
+					return gameCooltip:SetMyPoint(host, 0, moveUpOffset * -1)
 				end
 			end
 		end
 
-		if (frame2:IsShown() and not CoolTip.overlapChecked) then
-			local xCenter = frame2:GetCenter()
-			if (xCenter) then
-				local frame2WidthHalf = frame2:GetWidth() / 2
-				local frame1XCenter = frame1:GetCenter()
-
-				if (frame1XCenter) then
-					local frame1WidthHalf = frame1:GetWidth() / 2
-					local frame1EndPoint = frame1XCenter + frame1WidthHalf - 3
-					local frame2StartPoint = xCenter - frame2WidthHalf
+		if (frame2:IsShown() and not gameCooltip.overlap_checked) then
+			local frame2CenterX = frame2:GetCenter()
+			if (frame2CenterX) then
+				local frame2HalfWidth = frame2:GetWidth() / 2
+				local frame1CenterX = frame1:GetCenter()
+				if (frame1CenterX) then
+					local frame1HalfWidth = frame1:GetWidth() / 2
+					local frame1EndPoint = frame1CenterX + frame1HalfWidth - 3
+					local frame2StartPoint = frame2CenterX - frame2HalfWidth
 
 					if (frame2StartPoint < frame1EndPoint) then
-						local diff = frame2StartPoint - frame1EndPoint --not in use
-						CoolTip.overlapChecked = true
+						gameCooltip.overlap_checked = true
 						frame2:ClearAllPoints()
 						frame2:SetPoint("bottomright", frame1, "bottomleft", 4, 0)
-						CoolTip.frame2_IsOnLeftside = true
-						--diff
-						return CoolTip:SetMyPoint(host, CoolTip.internalYMod , CoolTip.internalYMod)
+						gameCooltip.frame2_leftside = true
+						return gameCooltip:SetMyPoint(host, gameCooltip.internal_x_mod , gameCooltip.internal_y_mod)
 					end
 				end
 			end
 		end
 	end
 
-	function CoolTip:CheckOverlap()
+	function gameCooltip:CheckOverlap()
 		if (frame2:IsShown()) then
 			local xCenter = frame2:GetCenter()
 			if (xCenter) then
@@ -1875,10 +1871,9 @@ function DF:CreateCoolTip()
 					local frame1EndPoint = frame1XCenter + frame1WidthHalf - 3
 					local frame2StartPoint = xCenter - frame2WidthHalf
 					if (frame2StartPoint < frame1EndPoint) then
-						local diff = frame2StartPoint - frame1EndPoint --not in use
 						frame2:ClearAllPoints()
 						frame2:SetPoint("bottomright", frame1, "bottomleft", 4, 0)
-						CoolTip.frame2_IsOnLeftside = true
+						gameCooltip.frame2_IsOnLeftside = true
 					end
 				end
 			end
@@ -1886,7 +1881,7 @@ function DF:CreateCoolTip()
 	end
 
 	--retrive the left and right text shown on a line
-	function CoolTip:GetText(buttonIndex)
+	function gameCooltip:GetText(buttonIndex)
 		local button1 = frame1.Lines[buttonIndex]
 		if (not button1) then
 			return "", ""
@@ -1896,71 +1891,71 @@ function DF:CreateCoolTip()
 	end
 
 	--get the number of lines current shown on cooltip
-	function CoolTip:GetNumLines()
-		return CoolTip.NumLines or 0
+	function gameCooltip:GetNumLines()
+		return gameCooltip.NumLines or 0
 	end
 
 	--remove all options actived, set a option on current cooltip
-	function CoolTip:ClearAllOptions()
-		for option, _ in pairs(CoolTip.OptionsTable) do
-			CoolTip.OptionsTable[option] = nil
+	function gameCooltip:ClearAllOptions()
+		for option in pairs(gameCooltip.OptionsTable) do
+			gameCooltip.OptionsTable[option] = nil
 		end
-		CoolTip:SetOption("MyAnchor", "bottom")
-		CoolTip:SetOption("RelativeAnchor", "top")
-		CoolTip:SetOption("WidthAnchorMod", 0)
-		CoolTip:SetOption("HeightAnchorMod", 0)
+		gameCooltip:SetOption("MyAnchor", "bottom")
+		gameCooltip:SetOption("RelativeAnchor", "top")
+		gameCooltip:SetOption("WidthAnchorMod", 0)
+		gameCooltip:SetOption("HeightAnchorMod", 0)
 	end
 
-	function CoolTip:SetOption(optionName, value)
+	function gameCooltip:SetOption(optionName, value)
 		--check for name alias
-		optionName = CoolTip.AliasList[optionName] or optionName
+		optionName = gameCooltip.AliasList[optionName] or optionName
 		--check if this options exists
-		if (not CoolTip.OptionsList[optionName]) then
-			return CoolTip:PrintDebug("SetOption() option not found:", optionName)
+		if (not gameCooltip.OptionsList[optionName]) then
+			return gameCooltip:PrintDebug("SetOption() option not found:", optionName)
 		end
 		--set options
-		CoolTip.OptionsTable[optionName] = value
+		gameCooltip.OptionsTable[optionName] = value
 	end
 
 	--return the current frame using cooltip
-	function CoolTip:GetOwner()
-		return CoolTip.Host
+	function gameCooltip:GetOwner()
+		return gameCooltip.Host
 	end
 
 	--set the anchor of cooltip, parameters: frame [, cooltip anchor point, frame anchor point[, x mod, y mod]]
-	function CoolTip:SetOwner(frame, myPoint, hisPoint, x, y)
-		return CoolTip:SetHost(frame, myPoint, hisPoint, x, y)
+	function gameCooltip:SetOwner(frame, myPoint, hisPoint, x, y)
+		return gameCooltip:SetHost(frame, myPoint, hisPoint, x, y)
 	end
 
-	function CoolTip:SetHost(frame, myPoint, hisPoint, x, y)
+	function gameCooltip:SetHost(frame, myPoint, hisPoint, x, y)
 		--check data integrity
 		if (type(frame) ~= "table" or not frame.GetObjectType) then
-			return CoolTip:PrintDebug("SetHost() need a WOWObject.")
+			return gameCooltip:PrintDebug("SetHost() need a WOWObject.")
 		end
 
-		CoolTip.Host = frame
-		CoolTip.frame1:SetFrameLevel(frame:GetFrameLevel() + 1)
+		gameCooltip.Host = frame
+		gameCooltip.frame1:SetFrameLevel(frame:GetFrameLevel() + 1)
 
 		--defaults
-		myPoint = myPoint or CoolTip.OptionsTable.MyAnchor or "bottom"
-		hisPoint = hisPoint or CoolTip.OptionsTable.hisPoint or "top"
+		myPoint = myPoint or gameCooltip.OptionsTable.MyAnchor or "bottom"
+		hisPoint = hisPoint or gameCooltip.OptionsTable.hisPoint or "top"
 
-		x = x or CoolTip.OptionsTable.WidthAnchorMod or 0
-		y = y or CoolTip.OptionsTable.HeightAnchorMod or 0
+		x = x or gameCooltip.OptionsTable.WidthAnchorMod or 0
+		y = y or gameCooltip.OptionsTable.HeightAnchorMod or 0
 
 		--set options
 		if (type(myPoint) == "string") then
-			CoolTip:SetOption("MyAnchor", myPoint)
-			CoolTip:SetOption("WidthAnchorMod", x)
+			gameCooltip:SetOption("MyAnchor", myPoint)
+			gameCooltip:SetOption("WidthAnchorMod", x)
 		elseif (type(myPoint) == "number") then
-			CoolTip:SetOption("HeightAnchorMod", myPoint)
+			gameCooltip:SetOption("HeightAnchorMod", myPoint)
 		end
 
 		if (type(hisPoint) == "string") then
-			CoolTip:SetOption("RelativeAnchor", hisPoint)
-			CoolTip:SetOption("HeightAnchorMod", y)
+			gameCooltip:SetOption("RelativeAnchor", hisPoint)
+			gameCooltip:SetOption("HeightAnchorMod", y)
 		elseif (type(hisPoint) == "number") then
-			CoolTip:SetOption("WidthAnchorMod", hisPoint)
+			gameCooltip:SetOption("WidthAnchorMod", hisPoint)
 		end
 	end
 
@@ -1969,54 +1964,54 @@ function DF:CreateCoolTip()
 	--parameters: type(1 = tooltip | 2 = tooltip with bars | 3 = menu)
 
 	--return if the current shown cooltip is a menu
-	function CoolTip:IsMenu()
-		return CoolTip.frame1:IsShown() and CoolTip.Type == 3
+	function gameCooltip:IsMenu()
+		return gameCooltip.frame1:IsShown() and gameCooltip.Type == 3
 	end
 
 	--return if the current shown cooltip is a tooltip
-	function CoolTip:IsTooltip()
-		return CoolTip.frame1:IsShown() and (CoolTip.Type == 1 or CoolTip.Type == 2)
+	function gameCooltip:IsTooltip()
+		return gameCooltip.frame1:IsShown() and (gameCooltip.Type == 1 or gameCooltip.Type == 2)
 	end
 
-	function CoolTip:GetType()
-		if (CoolTip.Type == 1 or CoolTip.Type == 2) then
+	function gameCooltip:GetType()
+		if (gameCooltip.Type == 1 or gameCooltip.Type == 2) then
 			return CONST_COOLTIP_TYPE_TOOLTIP
-		elseif (CoolTip.Type == 3) then
+		elseif (gameCooltip.Type == 3) then
 			return CONST_COOLTIP_TYPE_MENU
 		else
 			return "none"
 		end
 	end
 
-	function CoolTip:SetType(newType)
+	function gameCooltip:SetType(newType)
 		if (type(newType) == "string") then
 			if (newType == CONST_COOLTIP_TYPE_TOOLTIP) then
-				CoolTip.Type = 1
+				gameCooltip.Type = 1
 			elseif (newType == "tooltipbar") then
-				CoolTip.Type = 2
+				gameCooltip.Type = 2
 			elseif (newType == CONST_COOLTIP_TYPE_MENU) then
-				CoolTip.Type = 3
+				gameCooltip.Type = 3
 			else
-				return CoolTip:PrintDebug("SetType() unknown type.", newType)
+				return gameCooltip:PrintDebug("SetType() unknown type.", newType)
 			end
 
 		elseif (type(newType) == "number") then
 			if (newType == 1) then
-				CoolTip.Type = 1
+				gameCooltip.Type = 1
 			elseif (newType == 2) then
-				CoolTip.Type = 2
+				gameCooltip.Type = 2
 			elseif (newType == 3) then
-				CoolTip.Type = 3
+				gameCooltip.Type = 3
 			else
-				return CoolTip:PrintDebug("SetType() unknown type.", newType)
+				return gameCooltip:PrintDebug("SetType() unknown type.", newType)
 			end
 		else
-			return CoolTip:PrintDebug("SetType() unknown type.", newType)
+			return gameCooltip:PrintDebug("SetType() unknown type.", newType)
 		end
 	end
 
 	--set a fixed value for menu, the fixedValue is sent with the menu callback function
-	function CoolTip:SetFixedParameter(value, injected)
+	function gameCooltip:SetFixedParameter(value, injected)
 		if (injected ~= nil) then
 			local frame = value
 			if (frame.dframework) then
@@ -2026,11 +2021,11 @@ function DF:CreateCoolTip()
 				frame.CoolTip.FixedValue = injected
 			end
 		end
-		CoolTip.FixedValue = value
+		gameCooltip.FixedValue = value
 	end
 
 	--set tooltip color
-	function CoolTip:SetColor(menuType, ...)
+	function gameCooltip:SetColor(menuType, ...)
 		local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(...)
 		if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
 			frame1.frameBackgroundTexture:SetColorTexture(colorRed, colorGreen, colorBlue, colorAlpha)
@@ -2052,43 +2047,43 @@ function DF:CreateCoolTip()
 				frame2.frameBackgroundCenter:Hide()
 			end
 		else
-			return CoolTip:PrintDebug("SetColor() unknown menuType.", menuType)
+			return gameCooltip:PrintDebug("SetColor() unknown menuType.", menuType)
 		end
 	end
 
 	--set last selected option
-	function CoolTip:SetLastSelected(menuType, index, index2)
-		if (CoolTip.Type == 3) then
+	function gameCooltip:SetLastSelected(menuType, index, index2)
+		if (gameCooltip.Type == 3) then
 			if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
-				CoolTip.SelectedIndexMain = index
+				gameCooltip.SelectedIndexMain = index
 			elseif ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU) or (type(menuType) == "number" and menuType == 2)) then
-				CoolTip.SelectedIndexSec[index] = index2
+				gameCooltip.SelectedIndexSec[index] = index2
 			else
-				return CoolTip:PrintDebug("SetLastSelected() unknown menuType.", menuType)
+				return gameCooltip:PrintDebug("SetLastSelected() unknown menuType.", menuType)
 			end
 		else
-			return CoolTip:PrintDebug("SetLastSelected() current cooltip isn't a menu.")
+			return gameCooltip:PrintDebug("SetLastSelected() current cooltip isn't a menu.")
 		end
 	end
 
 	--serack key: ~select
-	function CoolTip:Select(menuType, option, mainIndex)
+	function gameCooltip:Select(menuType, option, mainIndex)
 		if (menuType == 1) then --main menu
 			local botao = frame1.Lines[option]
-			CoolTip.buttonClicked = true
-			CoolTip:SetSelectedAnchor(frame1, botao)
+			gameCooltip.buttonClicked = true
+			gameCooltip:SetSelectedAnchor(frame1, botao)
 
 		elseif (menuType == 2) then --sub menu
-			CoolTip:ShowSub(mainIndex)
+			gameCooltip:ShowSub(mainIndex)
 			local botao = frame2.Lines[option]
-			CoolTip.buttonClicked = true
-			CoolTip:SetSelectedAnchor(frame2, botao)
+			gameCooltip.buttonClicked = true
+			gameCooltip:SetSelectedAnchor(frame2, botao)
 		end
 	end
 
 ----------------------------------------------------------------------
 	--wipe all data ~reset
-	function CoolTip:Reset(fromPreset)
+	function gameCooltip:Reset(fromPreset)
 		frame2:ClearAllPoints()
 		frame2:SetPoint("bottomleft", frame1, "bottomright", 4, 0)
 		frame1:SetWidth(170)
@@ -2099,50 +2094,50 @@ function DF:CreateCoolTip()
 		frame1:SetFrameStrata("TOOLTIP")
 		frame2:SetFrameStrata("TOOLTIP")
 
-		CoolTip:HideSelectedTexture(frame1)
-		CoolTip:HideSelectedTexture(frame2)
+		gameCooltip:HideSelectedTexture(frame1)
+		gameCooltip:HideSelectedTexture(frame2)
 
-		CoolTip.FixedValue = nil
-		CoolTip.HaveSubMenu = false
-		CoolTip.SelectedIndexMain = nil
-		CoolTip.Indexes =  0
-		CoolTip.SubIndexes = 0
-		CoolTip.internalYMod = 0
-		CoolTip.internalYMod = 0
-		CoolTip.current_anchor = nil
-		CoolTip.overlapChecked = false
-		CoolTip.frame2_IsOnLeftside = nil
+		gameCooltip.FixedValue = nil
+		gameCooltip.HaveSubMenu = false
+		gameCooltip.SelectedIndexMain = nil
+		gameCooltip.Indexes =  0
+		gameCooltip.SubIndexes = 0
+		gameCooltip.internalYMod = 0
+		gameCooltip.internalYMod = 0
+		gameCooltip.current_anchor = nil
+		gameCooltip.overlapChecked = false
+		gameCooltip.frame2_IsOnLeftside = nil
 
-		wipe(CoolTip.SelectedIndexSec)
-		wipe(CoolTip.IndexesSub)
-		wipe(CoolTip.PopupFrameTable)
+		wipe(gameCooltip.SelectedIndexSec)
+		wipe(gameCooltip.IndexesSub)
+		wipe(gameCooltip.PopupFrameTable)
 
-		wipe(CoolTip.LeftTextTable)
-		wipe(CoolTip.LeftTextTableSub)
-		wipe(CoolTip.RightTextTable)
-		wipe(CoolTip.RightTextTableSub)
+		wipe(gameCooltip.LeftTextTable)
+		wipe(gameCooltip.LeftTextTableSub)
+		wipe(gameCooltip.RightTextTable)
+		wipe(gameCooltip.RightTextTableSub)
 
-		wipe(CoolTip.LeftIconTable)
-		wipe(CoolTip.LeftIconTableSub)
-		wipe(CoolTip.RightIconTable)
-		wipe(CoolTip.RightIconTableSub)
+		wipe(gameCooltip.LeftIconTable)
+		wipe(gameCooltip.LeftIconTableSub)
+		wipe(gameCooltip.RightIconTable)
+		wipe(gameCooltip.RightIconTableSub)
 
-		wipe(CoolTip.StatusBarTable)
-		wipe(CoolTip.StatusBarTableSub)
+		wipe(gameCooltip.StatusBarTable)
+		wipe(gameCooltip.StatusBarTableSub)
 
-		wipe(CoolTip.FunctionsTableMain)
-		wipe(CoolTip.FunctionsTableSub)
+		wipe(gameCooltip.FunctionsTableMain)
+		wipe(gameCooltip.FunctionsTableSub)
 
-		wipe(CoolTip.ParametersTableMain)
-		wipe(CoolTip.ParametersTableSub)
+		wipe(gameCooltip.ParametersTableMain)
+		wipe(gameCooltip.ParametersTableSub)
 
-		wipe(CoolTip.WallpaperTable)
-		wipe(CoolTip.WallpaperTableSub)
+		wipe(gameCooltip.WallpaperTable)
+		wipe(gameCooltip.WallpaperTableSub)
 
-		wipe(CoolTip.TopIconTableSub)
-		CoolTip.Banner[1] = false
-		CoolTip.Banner[2] = false
-		CoolTip.Banner[3] = false
+		wipe(gameCooltip.TopIconTableSub)
+		gameCooltip.Banner[1] = false
+		gameCooltip.Banner[2] = false
+		gameCooltip.Banner[3] = false
 
 		frame1.upperImage:Hide()
 		frame1.upperImage2:Hide()
@@ -2152,14 +2147,14 @@ function DF:CreateCoolTip()
 		frame2.frameWallpaper:Hide()
 		frame2.upperImage:Hide()
 
-		CoolTip.title1 = nil
-		CoolTip.title_text = nil
-		CoolTip.frame1.titleText:Hide()
-		CoolTip.frame1.titleIcon:Hide()
+		gameCooltip.title1 = nil
+		gameCooltip.title_text = nil
+		gameCooltip.frame1.titleText:Hide()
+		gameCooltip.frame1.titleIcon:Hide()
 
-		CoolTip:ClearAllOptions()
-		CoolTip:SetColor(1, "transparent")
-		CoolTip:SetColor(2, "transparent")
+		gameCooltip:ClearAllOptions()
+		gameCooltip:SetColor(1, "transparent")
+		gameCooltip:SetColor(2, "transparent")
 
 		for i = 1, #frame1.Lines do
 			frame1.Lines[i].statusbar.subMenuArrow:Hide()
@@ -2176,44 +2171,44 @@ function DF:CreateCoolTip()
 		frame2.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
 
 		if (not fromPreset) then
-			CoolTip:Preset(3, true)
+			gameCooltip:Preset(3, true)
 		end
 	end
 
 ----------------------------------------------------------------------
 	--menu functions
 	local defaultWhiteColor = {1, 1, 1}
-	function CoolTip:AddMenu(menuType, func, param1, param2, param3, leftText, leftIcon, indexUp)
+	function gameCooltip:AddMenu(menuType, func, param1, param2, param3, leftText, leftIcon, indexUp)
 		if (leftText and indexUp and ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1))) then
-			CoolTip.Indexes = CoolTip.Indexes + 1
-			if (not CoolTip.IndexesSub[CoolTip.Indexes]) then
-				CoolTip.IndexesSub[CoolTip.Indexes] = 0
+			gameCooltip.Indexes = gameCooltip.Indexes + 1
+			if (not gameCooltip.IndexesSub[gameCooltip.Indexes]) then
+				gameCooltip.IndexesSub[gameCooltip.Indexes] = 0
 			end
-			CoolTip.SubIndexes = 0
+			gameCooltip.SubIndexes = 0
 		end
 
 		--need a previous line
-		if (CoolTip.Indexes == 0) then
-			return CoolTip:PrintDebug("AddMenu() requires an already added line (Cooltip:AddLine()).")
+		if (gameCooltip.Indexes == 0) then
+			return gameCooltip:PrintDebug("AddMenu() requires an already added line (Cooltip:AddLine()).")
 		end
 
 		--check data integrity
 		if (type(func) ~= "function") then
-			return CoolTip:PrintDebug("AddMenu() no function passed.")
+			return gameCooltip:PrintDebug("AddMenu() no function passed.")
 		end
 
 		if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
 			local parameterTable
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				parameterTable = {}
-				insert(CoolTip.FunctionsTableMain, CoolTip.Indexes, func)
-				insert(CoolTip.ParametersTableMain, CoolTip.Indexes, parameterTable)
+				insert(gameCooltip.FunctionsTableMain, gameCooltip.Indexes, func)
+				insert(gameCooltip.ParametersTableMain, gameCooltip.Indexes, parameterTable)
 			else
-				CoolTip.FunctionsTableMain[CoolTip.Indexes] = func
-				parameterTable = CoolTip.ParametersTableMain[CoolTip.Indexes]
+				gameCooltip.FunctionsTableMain[gameCooltip.Indexes] = func
+				parameterTable = gameCooltip.ParametersTableMain[gameCooltip.Indexes]
 				if (not parameterTable) then
 					parameterTable = {}
-					CoolTip.ParametersTableMain[CoolTip.Indexes] = parameterTable
+					gameCooltip.ParametersTableMain[gameCooltip.Indexes] = parameterTable
 				end
 			end
 
@@ -2222,10 +2217,10 @@ function DF:CreateCoolTip()
 			parameterTable[3] = param3
 
 			if (leftIcon) then
-				local iconTable = CoolTip.LeftIconTable[CoolTip.Indexes]
-				if (not iconTable or CoolTip.isSpecial) then
+				local iconTable = gameCooltip.LeftIconTable[gameCooltip.Indexes]
+				if (not iconTable or gameCooltip.isSpecial) then
 					iconTable = {}
-					CoolTip.LeftIconTable[CoolTip.Indexes] = iconTable
+					gameCooltip.LeftIconTable[gameCooltip.Indexes] = iconTable
 				end
 				iconTable[1] = leftIcon
 				iconTable[2] = 16 --default 16
@@ -2238,10 +2233,10 @@ function DF:CreateCoolTip()
 			end
 
 			if (leftText) then
-				local lineTable_Left = CoolTip.LeftTextTable[CoolTip.Indexes]
-				if (not lineTable_Left or CoolTip.isSpecial) then
+				local lineTable_Left = gameCooltip.LeftTextTable[gameCooltip.Indexes]
+				if (not lineTable_Left or gameCooltip.isSpecial) then
 					lineTable_Left = {}
-					CoolTip.LeftTextTable[CoolTip.Indexes] = lineTable_Left
+					gameCooltip.LeftTextTable[gameCooltip.Indexes] = lineTable_Left
 				end
 				lineTable_Left[1] = leftText
 				lineTable_Left[2] = 0
@@ -2254,57 +2249,57 @@ function DF:CreateCoolTip()
 			end
 
 		elseif ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU) or (type(menuType) == "number" and menuType == 2)) then
-			if (CoolTip.SubIndexes == 0) then
+			if (gameCooltip.SubIndexes == 0) then
 				if (not indexUp or not leftText) then
-					return CoolTip:PrintDebug("AddMenu() attempt to add a submenu with a parent.") --error[leftText can't be nil if indexUp are true]
+					return gameCooltip:PrintDebug("AddMenu() attempt to add a submenu with a parent.") --error[leftText can't be nil if indexUp are true]
 				end
 			end
 
 			if (indexUp and leftText) then
-				CoolTip.SubIndexes = CoolTip.SubIndexes + 1
-				CoolTip.IndexesSub[CoolTip.Indexes] = CoolTip.IndexesSub[CoolTip.Indexes] + 1
+				gameCooltip.SubIndexes = gameCooltip.SubIndexes + 1
+				gameCooltip.IndexesSub[gameCooltip.Indexes] = gameCooltip.IndexesSub[gameCooltip.Indexes] + 1
 
 			elseif (indexUp and not leftText) then
-				return CoolTip:PrintDebug("AddMenu() attempt to add a submenu with a parent.") --error[leftText can't be nil if indexUp are true]
+				return gameCooltip:PrintDebug("AddMenu() attempt to add a submenu with a parent.") --error[leftText can't be nil if indexUp are true]
 			end
 
 			--menu container
-			local subMenuContainerParameters = CoolTip.ParametersTableSub[CoolTip.Indexes]
+			local subMenuContainerParameters = gameCooltip.ParametersTableSub[gameCooltip.Indexes]
 			if (not subMenuContainerParameters) then
 				subMenuContainerParameters = {}
-				CoolTip.ParametersTableSub[CoolTip.Indexes] = subMenuContainerParameters
+				gameCooltip.ParametersTableSub[gameCooltip.Indexes] = subMenuContainerParameters
 			end
 
-			local subMenuContainerFunctions = CoolTip.FunctionsTableSub[CoolTip.Indexes]
-			if (not subMenuContainerFunctions or CoolTip.isSpecial) then
+			local subMenuContainerFunctions = gameCooltip.FunctionsTableSub[gameCooltip.Indexes]
+			if (not subMenuContainerFunctions or gameCooltip.isSpecial) then
 				subMenuContainerFunctions = {}
-				CoolTip.FunctionsTableSub[CoolTip.Indexes] = subMenuContainerFunctions
+				gameCooltip.FunctionsTableSub[gameCooltip.Indexes] = subMenuContainerFunctions
 			end
 
 			--menu table
-			local subMenuTablesParameters = subMenuContainerParameters[CoolTip.SubIndexes]
-			if (not subMenuTablesParameters or CoolTip.isSpecial) then
+			local subMenuTablesParameters = subMenuContainerParameters[gameCooltip.SubIndexes]
+			if (not subMenuTablesParameters or gameCooltip.isSpecial) then
 				subMenuTablesParameters = {}
-				subMenuContainerParameters[CoolTip.SubIndexes] = subMenuTablesParameters
+				subMenuContainerParameters[gameCooltip.SubIndexes] = subMenuTablesParameters
 			end
 
 			--add
-			subMenuContainerFunctions[CoolTip.SubIndexes] = func
+			subMenuContainerFunctions[gameCooltip.SubIndexes] = func
 			subMenuTablesParameters[1] = param1
 			subMenuTablesParameters[2] = param2
 			subMenuTablesParameters[3] = param3
 
 			--text and icon
 			if (leftIcon) then
-				local subMenuContainerIcons = CoolTip.LeftIconTableSub[CoolTip.Indexes]
+				local subMenuContainerIcons = gameCooltip.LeftIconTableSub[gameCooltip.Indexes]
 				if (not subMenuContainerIcons) then
 					subMenuContainerIcons = {}
-					CoolTip.LeftIconTableSub[CoolTip.Indexes] = subMenuContainerIcons
+					gameCooltip.LeftIconTableSub[gameCooltip.Indexes] = subMenuContainerIcons
 				end
-				local subMenuTablesIcons = subMenuContainerIcons[CoolTip.SubIndexes]
-				if (not subMenuTablesIcons or CoolTip.isSpecial) then
+				local subMenuTablesIcons = subMenuContainerIcons[gameCooltip.SubIndexes]
+				if (not subMenuTablesIcons or gameCooltip.isSpecial) then
 					subMenuTablesIcons = {}
-					subMenuContainerIcons[CoolTip.SubIndexes] = subMenuTablesIcons
+					subMenuContainerIcons[gameCooltip.SubIndexes] = subMenuTablesIcons
 				end
 
 				subMenuTablesIcons[1] = leftIcon
@@ -2318,15 +2313,15 @@ function DF:CreateCoolTip()
 			end
 
 			if (leftText) then
-				local subMenuContainerTexts = CoolTip.LeftTextTableSub[CoolTip.Indexes]
+				local subMenuContainerTexts = gameCooltip.LeftTextTableSub[gameCooltip.Indexes]
 				if (not subMenuContainerTexts) then
 					subMenuContainerTexts = {}
-					CoolTip.LeftTextTableSub[CoolTip.Indexes] = subMenuContainerTexts
+					gameCooltip.LeftTextTableSub[gameCooltip.Indexes] = subMenuContainerTexts
 				end
-				local subMenuTablesTexts = subMenuContainerTexts[CoolTip.SubIndexes]
-				if (not subMenuTablesTexts or CoolTip.isSpecial) then
+				local subMenuTablesTexts = subMenuContainerTexts[gameCooltip.SubIndexes]
+				if (not subMenuTablesTexts or gameCooltip.isSpecial) then
 					subMenuTablesTexts = {}
-					subMenuContainerTexts[CoolTip.SubIndexes] = subMenuTablesTexts
+					subMenuContainerTexts[gameCooltip.SubIndexes] = subMenuTablesTexts
 				end
 
 				subMenuTablesTexts[1] = leftText
@@ -2339,9 +2334,9 @@ function DF:CreateCoolTip()
 				subMenuTablesTexts[8] = false
 			end
 
-			CoolTip.HaveSubMenu = true
+			gameCooltip.HaveSubMenu = true
 		else
-			return CoolTip:PrintDebug("AddMenu() unknown menuType.", menuType)
+			return gameCooltip:PrintDebug("AddMenu() unknown menuType.", menuType)
 		end
 	end
 
@@ -2350,10 +2345,10 @@ function DF:CreateCoolTip()
 	--only works with cooltip type2 (tooltip with bars)
 	--parameters: value [, color red, color green, color blue, color alpha [, glow]]
 	--can also use a table or html color name in color red and send glow in color green
-	function CoolTip:AddStatusBar(statusbarValue, menuType, colorRed, colorGreen, colorBlue, colorAlpha, statusbarGlow, backgroundBar, barTexture)
+	function gameCooltip:AddStatusBar(statusbarValue, menuType, colorRed, colorGreen, colorBlue, colorAlpha, statusbarGlow, backgroundBar, barTexture)
 		--need a previous line
-		if (CoolTip.Indexes == 0) then
-			return CoolTip:PrintDebug("AddStatusBar() requires an already added line (Cooltip:AddLine()).")
+		if (gameCooltip.Indexes == 0) then
+			return gameCooltip:PrintDebug("AddStatusBar() requires an already added line (Cooltip:AddLine()).")
 		end
 
 		--check data integrity
@@ -2373,38 +2368,38 @@ function DF:CreateCoolTip()
 		local frameTable
 		local statusbarTable
 		if (not menuType or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
-			frameTable = CoolTip.StatusBarTable
-			if (CoolTip.isSpecial) then
+			frameTable = gameCooltip.StatusBarTable
+			if (gameCooltip.isSpecial) then
 				statusbarTable = {}
-				insert(frameTable, CoolTip.Indexes, statusbarTable)
+				insert(frameTable, gameCooltip.Indexes, statusbarTable)
 			else
-				statusbarTable = frameTable[CoolTip.Indexes]
+				statusbarTable = frameTable[gameCooltip.Indexes]
 				if (not statusbarTable) then
 					statusbarTable = {}
-					insert(frameTable, CoolTip.Indexes, statusbarTable)
+					insert(frameTable, gameCooltip.Indexes, statusbarTable)
 				end
 			end
 
 		elseif ((type(menuType) == "string" and menuType == "sub") or (type(menuType) == "number" and menuType == 2)) then
-			frameTable = CoolTip.StatusBarTableSub
-			local subMenuContainerStatusBar = frameTable[CoolTip.Indexes]
+			frameTable = gameCooltip.StatusBarTableSub
+			local subMenuContainerStatusBar = frameTable[gameCooltip.Indexes]
 			if (not subMenuContainerStatusBar) then
 				subMenuContainerStatusBar = {}
-				frameTable[CoolTip.Indexes] = subMenuContainerStatusBar
+				frameTable[gameCooltip.Indexes] = subMenuContainerStatusBar
 			end
 
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				statusbarTable = {}
-				insert(subMenuContainerStatusBar, CoolTip.SubIndexes, statusbarTable)
+				insert(subMenuContainerStatusBar, gameCooltip.SubIndexes, statusbarTable)
 			else
-				statusbarTable = subMenuContainerStatusBar[CoolTip.SubIndexes]
+				statusbarTable = subMenuContainerStatusBar[gameCooltip.SubIndexes]
 				if (not statusbarTable) then
 					statusbarTable = {}
-					insert(subMenuContainerStatusBar, CoolTip.SubIndexes, statusbarTable)
+					insert(subMenuContainerStatusBar, gameCooltip.SubIndexes, statusbarTable)
 				end
 			end
 		else
-			return CoolTip:PrintDebug("AddStatusBar() unknown menuType.", menuType)
+			return gameCooltip:PrintDebug("AddStatusBar() unknown menuType.", menuType)
 		end
 
 		statusbarTable[1] = statusbarValue
@@ -2419,22 +2414,22 @@ function DF:CreateCoolTip()
 
 	frame1.frameWallpaper:Hide()
 	frame2.frameWallpaper:Hide()
-	function CoolTip:SetWallpaper(index, texture, texcoord, color, desaturate)
-		if (CoolTip.Indexes == 0) then
-			return CoolTip:PrintDebug("SetWallpaper() requires an already added line (Cooltip:AddLine()).")
+	function gameCooltip:SetWallpaper(index, texture, texcoord, color, desaturate)
+		if (gameCooltip.Indexes == 0) then
+			return gameCooltip:PrintDebug("SetWallpaper() requires an already added line (Cooltip:AddLine()).")
 		end
 
 		local frameTable
 		local wallpaperTable
 		if ((type(index) == "number" and index == 1) or (type(index) == "string" and index == CONST_MENU_TYPE_MAINMENU)) then
-			wallpaperTable = CoolTip.WallpaperTable
+			wallpaperTable = gameCooltip.WallpaperTable
 
 		elseif ((type(index) == "number" and index == 2) or (type(index) == "string" and index == "sub")) then
-			frameTable = CoolTip.WallpaperTableSub
-			local subMenuContainerWallpapers = frameTable[CoolTip.Indexes]
+			frameTable = gameCooltip.WallpaperTableSub
+			local subMenuContainerWallpapers = frameTable[gameCooltip.Indexes]
 			if (not subMenuContainerWallpapers) then
 				subMenuContainerWallpapers = {}
-				frameTable[CoolTip.Indexes] = subMenuContainerWallpapers
+				frameTable[gameCooltip.Indexes] = subMenuContainerWallpapers
 			end
 			wallpaperTable = subMenuContainerWallpapers
 		end
@@ -2455,7 +2450,7 @@ function DF:CreateCoolTip()
 		wallpaperTable[7] = desaturate
 	end
 
-	function CoolTip:SetBannerText(index, text, anchor, color, fontSize, fontFace, fontFlag)
+	function gameCooltip:SetBannerText(index, text, anchor, color, fontSize, fontFace, fontFlag)
 		local fontstring
 		if (index == 1) then
 			fontstring = frame1.upperImageText
@@ -2486,7 +2481,7 @@ function DF:CreateCoolTip()
 		fontstring:Show()
 	end
 
-	function CoolTip:SetBackdrop(index, backdrop, backdropcolor, bordercolor)
+	function gameCooltip:SetBackdrop(index, backdrop, backdropcolor, bordercolor)
 		local frame
 		if (index == 1) then
 			frame = frame1
@@ -2507,7 +2502,7 @@ function DF:CreateCoolTip()
 		end
 	end
 
-	function CoolTip:SetBannerImage(index, texturePath, width, height, anchor, texCoord, overlay)
+	function gameCooltip:SetBannerImage(index, texturePath, width, height, anchor, texCoord, overlay)
 		local texture
 		if (index == 1) then
 			texture = frame1.upperImage
@@ -2528,7 +2523,7 @@ function DF:CreateCoolTip()
 
 		if (anchor) then
 			if (type(anchor[1]) == "table") then
-				for _, anchorPoints in ipairs(anchor) do
+				for anchorIndex, anchorPoints in ipairs(anchor) do
 					local myAnchor, hisAnchor, x, y = unpack(anchorPoints)
 					texture:SetPoint(myAnchor, frame1, hisAnchor or myAnchor, x or 0, y or 0)
 				end
@@ -2539,14 +2534,14 @@ function DF:CreateCoolTip()
 		end
 
 		if (texCoord) then
-			local L, R, T, B = unpack(texCoord)
-			texture:SetTexCoord(L, R, T, B)
+			local leftCoord, rightCoord, topCoord, bottomCoord = unpack(texCoord)
+			texture:SetTexCoord(leftCoord, rightCoord, topCoord, bottomCoord)
 		end
 		if (overlay) then
 			texture:SetVertexColor(unpack(overlay))
 		end
 
-		CoolTip.Banner[index] = true
+		gameCooltip.Banner[index] = true
 		texture:Show()
 	end
 
@@ -2556,18 +2551,18 @@ function DF:CreateCoolTip()
 	--parameters: icon [, width [, height [, TexCoords L R T B ]]]
 	--texture support string path or texture object
 
-	function CoolTip:AddTexture(iconTexture, menuType, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point, desaturated)
-		return CoolTip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point, desaturated)
+	function gameCooltip:AddTexture(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
+		return gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
 	end
 
-	function CoolTip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point, desaturated)
+	function gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
 		--need a previous line
-		if (CoolTip.Indexes == 0) then
-			return CoolTip:PrintDebug("AddIcon() requires an already added line (Cooltip:AddLine()).")
+		if (gameCooltip.Indexes == 0) then
+			return gameCooltip:PrintDebug("AddIcon() requires an already added line (Cooltip:AddLine()).")
 		end
 		--check data integrity
 		if ((type(iconTexture) ~= "string" and type(iconTexture) ~= "number") and (type(iconTexture) ~= "table" or not iconTexture.GetObjectType or iconTexture:GetObjectType() ~= "Texture")) then
-			return CoolTip:PrintDebug("AddIcon() invalid parameters.")
+			return gameCooltip:PrintDebug("AddIcon() invalid parameters.")
 		end
 
 		side = side or 1
@@ -2576,58 +2571,58 @@ function DF:CreateCoolTip()
 
 		if (not menuType or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
 			if (not side or (type(side) == "string" and side == "left") or (type(side) == "number" and side == 1)) then
-				frameTable = CoolTip.LeftIconTable
+				frameTable = gameCooltip.LeftIconTable
 
 			elseif ((type(side) == "string" and side == "right") or (type(side) == "number" and side == 2)) then
-				frameTable = CoolTip.RightIconTable
+				frameTable = gameCooltip.RightIconTable
 			end
 
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				iconTable = {}
-				insert(frameTable, CoolTip.Indexes, iconTable)
+				insert(frameTable, gameCooltip.Indexes, iconTable)
 			else
-				iconTable = frameTable[CoolTip.Indexes]
+				iconTable = frameTable[gameCooltip.Indexes]
 				if (not iconTable) then
 					iconTable = {}
-					insert(frameTable, CoolTip.Indexes, iconTable)
+					insert(frameTable, gameCooltip.Indexes, iconTable)
 				end
 			end
 
 		elseif ((type(menuType) == "string" and menuType == "sub") or (type(menuType) == "number" and menuType == 2)) then
 			if ((type(side) == "string" and side == "left") or (type(side) == "number" and side == 1)) then
-				frameTable = CoolTip.LeftIconTableSub
+				frameTable = gameCooltip.LeftIconTableSub
 
 			elseif ((type(side) == "string" and side == "right") or (type(side) == "number" and side == 2)) then
-				frameTable = CoolTip.RightIconTableSub
+				frameTable = gameCooltip.RightIconTableSub
 
 			elseif ((type(side) == "string" and side == "top") or (type(side) == "number" and side == 3)) then
-				CoolTip.TopIconTableSub[CoolTip.Indexes] = CoolTip.TopIconTableSub[CoolTip.Indexes] or {}
-				CoolTip.TopIconTableSub[CoolTip.Indexes][1] = iconTexture
-				CoolTip.TopIconTableSub[CoolTip.Indexes][2] = iconWidth or 16
-				CoolTip.TopIconTableSub[CoolTip.Indexes][3] = iconHeight or 16
-				CoolTip.TopIconTableSub[CoolTip.Indexes][4] = L or 0
-				CoolTip.TopIconTableSub[CoolTip.Indexes][5] = R or 1
-				CoolTip.TopIconTableSub[CoolTip.Indexes][6] = T or 0
-				CoolTip.TopIconTableSub[CoolTip.Indexes][7] = B or 1
-				CoolTip.TopIconTableSub[CoolTip.Indexes][8] = overlayColor or defaultWhiteColor
-				CoolTip.TopIconTableSub[CoolTip.Indexes][9] = desaturated
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes] = gameCooltip.TopIconTableSub[gameCooltip.Indexes] or {}
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][1] = iconTexture
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][2] = iconWidth or 16
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][3] = iconHeight or 16
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][4] = leftCoord or 0
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][5] = rightCoord or 1
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][6] = topCoord or 0
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][7] = bottomCoord or 1
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][8] = overlayColor or defaultWhiteColor
+				gameCooltip.TopIconTableSub[gameCooltip.Indexes][9] = desaturated
 				return
 			end
 
-			local subMenuContainerIcons = frameTable[CoolTip.Indexes]
+			local subMenuContainerIcons = frameTable[gameCooltip.Indexes]
 			if (not subMenuContainerIcons) then
 				subMenuContainerIcons = {}
-				frameTable[CoolTip.Indexes] = subMenuContainerIcons
+				frameTable[gameCooltip.Indexes] = subMenuContainerIcons
 			end
 
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				iconTable = {}
-				subMenuContainerIcons[CoolTip.SubIndexes] = iconTable
+				subMenuContainerIcons[gameCooltip.SubIndexes] = iconTable
 			else
-				iconTable = subMenuContainerIcons[CoolTip.SubIndexes]
+				iconTable = subMenuContainerIcons[gameCooltip.SubIndexes]
 				if (not iconTable) then
 					iconTable = {}
-					subMenuContainerIcons[CoolTip.SubIndexes] = iconTable
+					subMenuContainerIcons[gameCooltip.SubIndexes] = iconTable
 				end
 			end
 		else
@@ -2637,10 +2632,10 @@ function DF:CreateCoolTip()
 		iconTable[1] = iconTexture
 		iconTable[2] = iconWidth or 16 --default 16
 		iconTable[3] = iconHeight or 16 --default 16
-		iconTable[4] = L or 0 --default 0
-		iconTable[5] = R or 1 --default 1
-		iconTable[6] = T or 0 --default 0
-		iconTable[7] = B or 1 --default 1
+		iconTable[4] = leftCoord or 0 --default 0
+		iconTable[5] = rightCoord or 1 --default 1
+		iconTable[6] = topCoord or 0 --default 0
+		iconTable[7] = bottomCoord or 1 --default 1
 		iconTable[8] = overlayColor or defaultWhiteColor --default 1, 1, 1
 		iconTable[9] = desaturated
 
@@ -2649,10 +2644,10 @@ function DF:CreateCoolTip()
 
 ----------------------------------------------------------------------
 	--popup frame
-	function CoolTip:AddPopUpFrame(onShowFunc, onHideFunc, param1, param2)
+	function gameCooltip:AddPopUpFrame(onShowFunc, onHideFunc, param1, param2)
 		--act like a sub menu
-		if (CoolTip.Indexes > 0) then
-			CoolTip.PopupFrameTable[CoolTip.Indexes] = {onShowFunc or false, onHideFunc or false, param1, param2}
+		if (gameCooltip.Indexes > 0) then
+			gameCooltip.PopupFrameTable[gameCooltip.Indexes] = {onShowFunc or false, onHideFunc or false, param1, param2}
 		end
 	end
 
@@ -2660,12 +2655,12 @@ function DF:CreateCoolTip()
 	--adds a line.
 	--only works with cooltip type1 and 2 (tooltip and tooltip with bars)
 	--parameters: left text, right text[, L color R, L color G, L color B, L color A[, R color R, R color G, R color B, R color A[, wrap]]] 
-	function CoolTip:AddDoubleLine (leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
-		return CoolTip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+	function gameCooltip:AddDoubleLine (leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+		return gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
 	end
 
 	--adds a line for tooltips
-	function CoolTip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+	function gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
 		--check data integrity
 		local leftTextType = type(leftText)
 		if (leftTextType ~= "string") then
@@ -2709,77 +2704,77 @@ function DF:CreateCoolTip()
 		local lineTable_Right
 
 		if (not menuType or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
-			CoolTip.Indexes = CoolTip.Indexes + 1
-			if (not CoolTip.IndexesSub[CoolTip.Indexes]) then
-				CoolTip.IndexesSub[CoolTip.Indexes] = 0
+			gameCooltip.Indexes = gameCooltip.Indexes + 1
+			if (not gameCooltip.IndexesSub[gameCooltip.Indexes]) then
+				gameCooltip.IndexesSub[gameCooltip.Indexes] = 0
 			end
 
-			CoolTip.SubIndexes = 0
+			gameCooltip.SubIndexes = 0
 
-			frameTableLeft = CoolTip.LeftTextTable
-			frameTableRight = CoolTip.RightTextTable
+			frameTableLeft = gameCooltip.LeftTextTable
+			frameTableRight = gameCooltip.RightTextTable
 
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				lineTable_Left = {}
-				insert(frameTableLeft, CoolTip.Indexes, lineTable_Left)
+				insert(frameTableLeft, gameCooltip.Indexes, lineTable_Left)
 				lineTable_Right = {}
-				insert(frameTableRight, CoolTip.Indexes, lineTable_Right)
+				insert(frameTableRight, gameCooltip.Indexes, lineTable_Right)
 			else
-				lineTable_Left = frameTableLeft[CoolTip.Indexes]
-				lineTable_Right = frameTableRight[CoolTip.Indexes]
+				lineTable_Left = frameTableLeft[gameCooltip.Indexes]
+				lineTable_Right = frameTableRight[gameCooltip.Indexes]
 				if (not lineTable_Left) then
 					lineTable_Left = {}
-					insert(frameTableLeft, CoolTip.Indexes, lineTable_Left)
+					insert(frameTableLeft, gameCooltip.Indexes, lineTable_Left)
 				end
 				if (not lineTable_Right) then
 					lineTable_Right = {}
-					insert(frameTableRight, CoolTip.Indexes, lineTable_Right)
+					insert(frameTableRight, gameCooltip.Indexes, lineTable_Right)
 				end
 			end
 
 		elseif ((type(menuType) == "string" and menuType == "sub") or (type(menuType) == "number" and menuType == 2)) then
-			CoolTip.SubIndexes = CoolTip.SubIndexes + 1
-			CoolTip.IndexesSub[CoolTip.Indexes] = CoolTip.IndexesSub[CoolTip.Indexes] + 1
-			CoolTip.HaveSubMenu = true
+			gameCooltip.SubIndexes = gameCooltip.SubIndexes + 1
+			gameCooltip.IndexesSub[gameCooltip.Indexes] = gameCooltip.IndexesSub[gameCooltip.Indexes] + 1
+			gameCooltip.HaveSubMenu = true
 
-			frameTableLeft = CoolTip.LeftTextTableSub
-			frameTableRight = CoolTip.RightTextTableSub
+			frameTableLeft = gameCooltip.LeftTextTableSub
+			frameTableRight = gameCooltip.RightTextTableSub
 
-			local subMenuContainerTexts = frameTableLeft[CoolTip.Indexes]
+			local subMenuContainerTexts = frameTableLeft[gameCooltip.Indexes]
 			if (not subMenuContainerTexts) then
 				subMenuContainerTexts = {}
-				insert(frameTableLeft, CoolTip.Indexes, subMenuContainerTexts)
+				insert(frameTableLeft, gameCooltip.Indexes, subMenuContainerTexts)
 			end
 
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				lineTable_Left = {}
-				insert(subMenuContainerTexts, CoolTip.SubIndexes, lineTable_Left)
+				insert(subMenuContainerTexts, gameCooltip.SubIndexes, lineTable_Left)
 			else
-				lineTable_Left = subMenuContainerTexts[CoolTip.SubIndexes]
+				lineTable_Left = subMenuContainerTexts[gameCooltip.SubIndexes]
 				if (not lineTable_Left) then
 					lineTable_Left = {}
-					insert(subMenuContainerTexts, CoolTip.SubIndexes, lineTable_Left)
+					insert(subMenuContainerTexts, gameCooltip.SubIndexes, lineTable_Left)
 				end
 			end
 
-			local subMenuContainerTexts = frameTableRight[CoolTip.Indexes]
+			local subMenuContainerTexts = frameTableRight[gameCooltip.Indexes]
 			if (not subMenuContainerTexts) then
 				subMenuContainerTexts = {}
-				insert(frameTableRight, CoolTip.Indexes, subMenuContainerTexts)
+				insert(frameTableRight, gameCooltip.Indexes, subMenuContainerTexts)
 			end
 
-			if (CoolTip.isSpecial) then
+			if (gameCooltip.isSpecial) then
 				lineTable_Right = {}
-				insert(subMenuContainerTexts, CoolTip.SubIndexes, lineTable_Right)
+				insert(subMenuContainerTexts, gameCooltip.SubIndexes, lineTable_Right)
 			else
-				lineTable_Right = subMenuContainerTexts[CoolTip.SubIndexes]
+				lineTable_Right = subMenuContainerTexts[gameCooltip.SubIndexes]
 				if (not lineTable_Right) then
 					lineTable_Right = {}
-					insert(subMenuContainerTexts, CoolTip.SubIndexes, lineTable_Right)
+					insert(subMenuContainerTexts, gameCooltip.SubIndexes, lineTable_Right)
 				end
 			end
 		else
-			return CoolTip:PrintDebug("AddLine() unknown menuType.", menuType)
+			return gameCooltip:PrintDebug("AddLine() unknown menuType.", menuType)
 		end
 
 		lineTable_Left[1] = leftText
@@ -2801,154 +2796,154 @@ function DF:CreateCoolTip()
 		lineTable_Right[8] = fontFlag
 	end
 
-	function CoolTip:AddSpecial(widgetType, index, subIndex, ...)
-		local currentIndex = CoolTip.Indexes
-		local currentSubIndex = CoolTip.SubIndexes
-		CoolTip.isSpecial = true
+	function gameCooltip:AddSpecial(widgetType, index, subIndex, ...)
+		local currentIndex = gameCooltip.Indexes
+		local currentSubIndex = gameCooltip.SubIndexes
+		gameCooltip.isSpecial = true
 
 		widgetType = string.lower(widgetType)
 
 		if (widgetType == "line") then
 			if (subIndex) then
-				CoolTip.Indexes = index
-				CoolTip.SubIndexes = subIndex-1
+				gameCooltip.Indexes = index
+				gameCooltip.SubIndexes = subIndex-1
 			else
-				CoolTip.Indexes = index-1
+				gameCooltip.Indexes = index-1
 			end
 
-			CoolTip:AddLine(...)
+			gameCooltip:AddLine(...)
 
 			if (subIndex) then
-				CoolTip.Indexes = currentIndex
-				CoolTip.SubIndexes = currentSubIndex + 1
+				gameCooltip.Indexes = currentIndex
+				gameCooltip.SubIndexes = currentSubIndex + 1
 			else
-				CoolTip.Indexes = currentIndex + 1
+				gameCooltip.Indexes = currentIndex + 1
 			end
 
 		elseif (widgetType == "icon") then
-			CoolTip.Indexes = index
+			gameCooltip.Indexes = index
 			if (subIndex) then
-				CoolTip.SubIndexes = subIndex
+				gameCooltip.SubIndexes = subIndex
 			end
 
-			CoolTip:AddIcon(...)
+			gameCooltip:AddIcon(...)
 
-			CoolTip.Indexes = currentIndex
+			gameCooltip.Indexes = currentIndex
 			if (subIndex) then
-				CoolTip.SubIndexes = currentSubIndex
+				gameCooltip.SubIndexes = currentSubIndex
 			end
 
 		elseif (widgetType == "statusbar") then
-			CoolTip.Indexes = index
+			gameCooltip.Indexes = index
 			if (subIndex) then
-				CoolTip.SubIndexes = subIndex
+				gameCooltip.SubIndexes = subIndex
 			end
 
-			CoolTip:AddStatusBar(...)
-			CoolTip.Indexes = currentIndex
+			gameCooltip:AddStatusBar(...)
+			gameCooltip.Indexes = currentIndex
 			if (subIndex) then
-				CoolTip.SubIndexes = currentSubIndex
+				gameCooltip.SubIndexes = currentSubIndex
 			end
 
 		elseif (widgetType == "menu") then
-			CoolTip.Indexes = index
+			gameCooltip.Indexes = index
 			if (subIndex) then
-				CoolTip.SubIndexes = subIndex
+				gameCooltip.SubIndexes = subIndex
 			end
 
-			CoolTip:AddMenu(...)
+			gameCooltip:AddMenu(...)
 
-			CoolTip.Indexes = currentIndex
+			gameCooltip.Indexes = currentIndex
 			if (subIndex) then
-				CoolTip.SubIndexes = currentSubIndex
+				gameCooltip.SubIndexes = currentSubIndex
 			end
 		end
 
-		CoolTip.isSpecial = false
+		gameCooltip.isSpecial = false
 	end
 
 	--search key: ~fromline
-	function CoolTip:AddFromTable(thisTable)
-		for index, menu in ipairs(thisTable) do
+	function gameCooltip:AddFromTable(thisTable)
+		for tableIndex, menu in ipairs(thisTable) do
 			if (menu.func) then
-				CoolTip:AddMenu(menu.type or 1, menu.func, menu.param1, menu.param2, menu.param3, nil, menu.icon)
+				gameCooltip:AddMenu(menu.type or 1, menu.func, menu.param1, menu.param2, menu.param3, nil, menu.icon)
 
 			elseif (menu.statusbar) then
-				CoolTip:AddStatusBar(menu.value, menu.type or 1, menu.color, true)
+				gameCooltip:AddStatusBar(menu.value, menu.type or 1, menu.color, true)
 
 			elseif (menu.icon) then
-				CoolTip:AddIcon(menu.icon, menu.type or 1, menu.side or 1, menu.width, menu.height, menu.l, menu.r, menu.t, menu.b, menu.color)
+				gameCooltip:AddIcon(menu.icon, menu.type or 1, menu.side or 1, menu.width, menu.height, menu.l, menu.r, menu.t, menu.b, menu.color)
 
 			elseif (menu.textleft or menu.textright or menu.text) then
-				CoolTip:AddLine(menu.text, "", menu.type, menu.color, menu.color)
+				gameCooltip:AddLine(menu.text, "", menu.type, menu.color, menu.color)
 			end
 		end
 	end
 
 ----------------------------------------------------------------------
 	--serach key: ~start
-	function CoolTip:Show(frame, menuType, color)
-		CoolTip.hadInteractions = false
-		return CoolTip:ShowCooltip(frame, menuType, color)
+	function gameCooltip:Show(frame, menuType, color)
+		gameCooltip.hadInteractions = false
+		return gameCooltip:ShowCooltip(frame, menuType, color)
 	end
 
-	function CoolTip:ShowCooltip(frame, menuType, color)
+	function gameCooltip:ShowCooltip(frame, menuType, color)
 		frame1:SetFrameStrata("TOOLTIP")
 		frame2:SetFrameStrata("TOOLTIP")
 		frame1:SetParent(UIParent)
 		frame2:SetParent(UIParent)
 
-		CoolTip.hadInteractions = false
+		gameCooltip.hadInteractions = false
 
 		if (frame) then
 			--check if is a details framework widget
 			if (frame.dframework) then
 				frame = frame.widget
 			end
-			CoolTip:SetHost(frame)
+			gameCooltip:SetHost(frame)
 		end
 
 		if (menuType) then
-			CoolTip:SetType(menuType)
+			gameCooltip:SetType(menuType)
 		end
 
 		if (color) then
-			CoolTip:SetColor(1, color)
-			CoolTip:SetColor(2, color)
+			gameCooltip:SetColor(1, color)
+			gameCooltip:SetColor(2, color)
 		end
 
-		if (CoolTip.Type == 1 or CoolTip.Type == 2) then
-			return CoolTip:BuildTooltip()
+		if (gameCooltip.Type == 1 or gameCooltip.Type == 2) then
+			return gameCooltip:BuildTooltip()
 
-		elseif (CoolTip.Type == 3) then
-			return CoolTip:BuildCooltip()
+		elseif (gameCooltip.Type == 3) then
+			return gameCooltip:BuildCooltip()
 		end
 	end
 
-	function CoolTip:Hide()
-		return CoolTip:Close()
+	function gameCooltip:Hide()
+		return gameCooltip:Close()
 	end
 
-	function CoolTip:Close()
-		CoolTip.active = false
-		CoolTip.Host = nil
+	function gameCooltip:Close()
+		gameCooltip.active = false
+		gameCooltip.Host = nil
 		DF:FadeFrame(frame1, 1)
 		DF:FadeFrame(frame2, 1)
 	end
 
 	--old function call
-	function CoolTip:ShowMe(host, arg2) --drunk code
+	function gameCooltip:ShowMe(host, arg2) --drunk code
 		--ignore if mouse is within the frame region
-		if (CoolTip.mouseOver) then
+		if (gameCooltip.mouseOver) then
 			return
 		end
 		if (not host or not arg2) then --hide the frame
-			CoolTip:Close()
+			gameCooltip:Close()
 		end
 	end
 
 	--search key: ~inject
-	function CoolTip:ExecFunc(host, fromClick)
+	function gameCooltip:ExecFunc(host, fromClick)
 		if (host.dframework) then
 			if (not host.widget.CoolTip) then
 				host.widget.CoolTip = host.CoolTip
@@ -2956,25 +2951,25 @@ function DF:CreateCoolTip()
 			host = host.widget
 		end
 
-		CoolTip:Reset()
-		CoolTip:SetType(host.CoolTip.Type)
-		CoolTip:SetFixedParameter(host.CoolTip.FixedValue)
-		CoolTip:SetColor(CONST_MENU_TYPE_MAINMENU, host.CoolTip.MainColor or "transparent")
-		CoolTip:SetColor(CONST_MENU_TYPE_SUBMENU, host.CoolTip.SubColor or "transparent")
+		gameCooltip:Reset()
+		gameCooltip:SetType(host.CoolTip.Type)
+		gameCooltip:SetFixedParameter(host.CoolTip.FixedValue)
+		gameCooltip:SetColor(CONST_MENU_TYPE_MAINMENU, host.CoolTip.MainColor or "transparent")
+		gameCooltip:SetColor(CONST_MENU_TYPE_SUBMENU, host.CoolTip.SubColor or "transparent")
 
 		local okay, errortext = pcall(host.CoolTip.BuildFunc, host, host.CoolTip and host.CoolTip.FixedValue)
 		if (not okay) then
-			CoolTip:PrintDebug("ExecFunc() injected function error:", errortext)
+			gameCooltip:PrintDebug("ExecFunc() injected function error:", errortext)
 		end
 
-		CoolTip:SetOwner(host, host.CoolTip.MyAnchor, host.CoolTip.HisAnchor, host.CoolTip.X, host.CoolTip.Y)
+		gameCooltip:SetOwner(host, host.CoolTip.MyAnchor, host.CoolTip.HisAnchor, host.CoolTip.X, host.CoolTip.Y)
 
 		local options = host.CoolTip.Options
 		if (type(options) == "function") then
 			local runCompleted, returnedOptions = pcall(options)
 			if (not runCompleted) then
 				errortext = returnedOptions
-				CoolTip:PrintDebug("ExecFunc() options function error:", errortext)
+				gameCooltip:PrintDebug("ExecFunc() options function error:", errortext)
 				options = nil
 			else
 				options = returnedOptions
@@ -2984,21 +2979,21 @@ function DF:CreateCoolTip()
 		if (options) then
 			if (type(options) == "table") then
 				for optionName, optionValue in pairs(options) do
-					CoolTip:SetOption(optionName, optionValue)
+					gameCooltip:SetOption(optionName, optionValue)
 				end
 			else
-				CoolTip:PrintDebug("ExecFunc() options function did not returned a table.")
+				gameCooltip:PrintDebug("ExecFunc() options function did not returned a table.")
 			end
 		end
 
-		if (CoolTip.Indexes == 0) then
+		if (gameCooltip.Indexes == 0) then
 			if (host.CoolTip.Default) then
-				CoolTip:SetType(CONST_COOLTIP_TYPE_TOOLTIP)
-				CoolTip:AddLine(host.CoolTip.Default, nil, 1, "white")
+				gameCooltip:SetType(CONST_COOLTIP_TYPE_TOOLTIP)
+				gameCooltip:AddLine(host.CoolTip.Default, nil, 1, "white")
 			end
 		end
 
-		CoolTip:ShowCooltip()
+		gameCooltip:ShowCooltip()
 
 		if (fromClick) then
 			frame1:Flash (0.05, 0.05, 0.2, true, 0, 0)
@@ -3010,24 +3005,24 @@ function DF:CreateCoolTip()
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > wait) then
 			self:SetScript("OnUpdate", nil)
-			CoolTip:ExecFunc(self)
+			gameCooltip:ExecFunc(self)
 		end
 	end
 
 	local InjectOnUpdateLeave = function(self, deltaTime)
 		elapsedTime = elapsedTime + deltaTime
 		if (elapsedTime > 0.2) then
-			if (not CoolTip.mouseOver and not CoolTip.buttonOver and self == CoolTip.Host) then
-				CoolTip:ShowMe(false)
+			if (not gameCooltip.mouseOver and not gameCooltip.buttonOver and self == gameCooltip.Host) then
+				gameCooltip:ShowMe(false)
 			end
 			self:SetScript("OnUpdate", nil)
 		end
 	end
 
 	local InjectOnLeave = function(self)
-		CoolTip.buttonOver = false
+		gameCooltip.buttonOver = false
 
-		if (CoolTip.active) then
+		if (gameCooltip.active) then
 			elapsedTime = 0
 			self:SetScript("OnUpdate", InjectOnUpdateLeave)
 		else
@@ -3044,9 +3039,9 @@ function DF:CreateCoolTip()
 	end
 
 	local InjectOnEnter = function(self)
-		CoolTip.buttonOver = true
-		if (CoolTip.active) then
-			CoolTip:ExecFunc(self)
+		gameCooltip.buttonOver = true
+		if (gameCooltip.active) then
+			gameCooltip:ExecFunc(self)
 		else
 			elapsedTime = 0
 			wait = self.CoolTip.ShowSpeed or 0.2
@@ -3062,7 +3057,7 @@ function DF:CreateCoolTip()
 		end
 	end
 
-	function CoolTip:CoolTipInject(host, openOnClick)
+	function gameCooltip:CoolTipInject(host, openOnClick)
 		if (host.dframework) then
 			if (not host.widget.CoolTip) then
 				host.widget.CoolTip = host.CoolTip
@@ -3072,7 +3067,7 @@ function DF:CreateCoolTip()
 
 		local coolTable = host.CoolTip
 		if (not coolTable) then
-			CoolTip:PrintDebug("CoolTipInject() host frame does not have a .CoolTip table.")
+			gameCooltip:PrintDebug("CoolTipInject() host frame does not have a .CoolTip table.")
 			return false
 		end
 
@@ -3084,7 +3079,7 @@ function DF:CreateCoolTip()
 
 		if (openOnClick) then
 			if (host:GetObjectType() == "Button") then
-				host:SetScript("OnClick", function() CoolTip:ExecFunc(host, true) end)
+				host:SetScript("OnClick", function() gameCooltip:ExecFunc(host, true) end)
 			end
 		end
 
@@ -3092,9 +3087,9 @@ function DF:CreateCoolTip()
 	end
 
 	--all done
-	CoolTip:ClearAllOptions()
+	gameCooltip:ClearAllOptions()
 
-	function CoolTip:Preset(presetId, fromReset)
+	function gameCooltip:Preset(presetId, fromReset)
 		if (not fromReset) then
 			self:Reset(true)
 		end
@@ -3137,28 +3132,28 @@ function DF:CreateCoolTip()
 		end
 	end
 
-	function CoolTip:QuickTooltip(host, ...)
-		CoolTip:Preset(2)
-		CoolTip:SetHost(host)
+	function gameCooltip:QuickTooltip(host, ...)
+		gameCooltip:Preset(2)
+		gameCooltip:SetHost(host)
 
 		for i = 1, select("#", ...) do
 			local line = select(i, ...)
-			CoolTip:AddLine(line)
+			gameCooltip:AddLine(line)
 		end
 
-		CoolTip:ShowCooltip()
+		gameCooltip:ShowCooltip()
 	end
 
-	function CoolTip:InjectQuickTooltip(host, ...)
+	function gameCooltip:InjectQuickTooltip(host, ...)
 		host.CooltipQuickTooltip = {...}
 		host:HookScript("OnEnter", function()
-			CoolTip:QuickTooltip(host, unpack(host.CooltipQuickTooltip))
+			gameCooltip:QuickTooltip(host, unpack(host.CooltipQuickTooltip))
 		end)
 		host:HookScript("OnLeave", function()
-			CoolTip:Hide()
+			gameCooltip:Hide()
 		end)
 	end
-	return CoolTip
+	return gameCooltip
 end
 
 DF:CreateCoolTip()

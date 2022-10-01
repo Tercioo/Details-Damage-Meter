@@ -434,34 +434,34 @@ elseif (isExpansion_Dragonflight()) then
 	--buff spellId, the value of the food is the tier level
 	--use /details auras
 	LIB_OPEN_RAID_FOOD_BUFF = {
-		[382145] = 1, --Well Fed haste 220
-		[382146] = 1, --Well Fed crit 220
-		[382149] = 1, --Well Fed vers 220
-		[382150] = 1, --Well Fed mastery 220
-		[382152] = 1, --Well Fed haste + crit 130
-		[382153] = 1, --Well Fed haste + vers 130
-		[382154] = 1, --Well Fed haste + mastery 130
-		[382155] = 1, --Well Fed crit + vers 130
-		[382156] = 1, --Well Fed crit + mastery 130
-		[382157] = 1, --Well Fed vers + mastery 130
+		[382145] = {tier = {[220] = 1}, status = {"haste"}, localized = {STAT_HASTE}}, --Well Fed haste 220
+		[382146] = {tier = {[220] = 1}, status = {"critical"}, localized = {STAT_CRITICAL_STRIKE}}, --Well Fed crit 220
+		[382149] = {tier = {[220] = 1}, status = {"versatility"}, localized = {STAT_VERSATILITY}}, --Well Fed vers 220
+		[382150] = {tier = {[220] = 1}, status = {"mastery"}, localized = {STAT_MASTERY}}, --Well Fed mastery 220
+		[382152] = {tier = {[130] = 1}, status = {"haste", "critical"}, localized = {STAT_HASTE, STAT_CRITICAL_STRIKE}}, --Well Fed haste + crit 130
+		[382153] = {tier = {[130] = 1}, status = {"haste", "versatility"}, localized = {STAT_HASTE, STAT_VERSATILITY}}, --Well Fed haste + vers 130
+		[382154] = {tier = {[130] = 1}, status = {"haste", "mastery"}, localized = {STAT_HASTE, STAT_MASTERY}}, --Well Fed haste + mastery 130
+		[382155] = {tier = {[130] = 1}, status = {"critical", "versatility"}, localized = {STAT_CRITICAL_STRIKE, STAT_VERSATILITY}}, --Well Fed crit + vers 130
+		[382156] = {tier = {[130] = 1}, status = {"critical", "mastery"}, localized = {STAT_CRITICAL_STRIKE, STAT_MASTERY}}, --Well Fed crit + mastery 130
+		[382157] = {tier = {[130] = 1}, status = {"mastery", "versatility"}, localized = {STAT_MASTERY, STAT_VERSATILITY}}, --Well Fed vers + mastery 130
 	}
 
 	--use /details auras
 	LIB_OPEN_RAID_FLASK_BUFF = {
 		--phials
-		[371354] = {[131] = 1, [151] = 2, [174] = 3}, --Phial of the Eye in the Storm
-		[370652] = {[470] = 1, [541] = 2, [622] = 3}, --Phial of Static Empowerment
-		[371172] = {[236] = 1, [257] = 2, [279] = 3}, --Phial of Tepid Versatility
-		[371204] = {[8125] = 1, [9344] = 2, [10746] = 3}, --Phial of Still Air
-		[371036] = {[-4] = 1, [-5] = 2, [-6] = 3}, --Phial of Icy Preservation
-		[374000] = {[690] = 1, [752] = 2, [814] = 3}, --Iced Phial of Corrupting Rage
-		[371386] = {[432] = 1, [497] = 2, [572] = 3}, --Phial of Charged Isolation
-		[373257] = {[4603] = 2, [3949] = 1, [5365] = 3}, --Phial of Glacial Fury
-		[393700] = {[45] = 3, [38] = 2, [32] = 1}, --Aerated Phial of Deftness
-		[393717] = {[45] = 3, [38] = 2, [32] = 1}, --Steaming Phial of Finesse
-		[371186] = {[558] = 3, [473] = 1, [515] = 2}, --Charged Phial of Alacrity
-		[393714] = {[45] = 3, [38] = 2, [32] = 1}, --Crystalline Phial of Perception
-		[371339] = {[562] = 3, [476] = 1, [519] = 2}, --Phial of Elemental Chaos
+		[371354] = {tier = {[131] = 1, [151] = 2, [174] = 3}}, --Phial of the Eye in the Storm
+		[370652] = {tier = {[470] = 1, [541] = 2, [622] = 3}}, --Phial of Static Empowerment
+		[371172] = {tier = {[236] = 1, [257] = 2, [279] = 3}}, --Phial of Tepid Versatility
+		[371204] = {tier = {[8125] = 1, [9344] = 2, [10746] = 3}}, --Phial of Still Air
+		[371036] = {tier = {[-4] = 1, [-5] = 2, [-6] = 3}}, --Phial of Icy Preservation
+		[374000] = {tier = {[690] = 1, [752] = 2, [814] = 3}}, --Iced Phial of Corrupting Rage
+		[371386] = {tier = {[432] = 1, [497] = 2, [572] = 3}}, --Phial of Charged Isolation
+		[373257] = {tier = {[4603] = 2, [3949] = 1, [5365] = 3}}, --Phial of Glacial Fury
+		[393700] = {tier = {[45] = 3, [38] = 2, [32] = 1}}, --Aerated Phial of Deftness
+		[393717] = {tier = {[45] = 3, [38] = 2, [32] = 1}}, --Steaming Phial of Finesse
+		[371186] = {tier = {[558] = 3, [473] = 1, [515] = 2}}, --Charged Phial of Alacrity
+		[393714] = {tier = {[45] = 3, [38] = 2, [32] = 1}}, --Crystalline Phial of Perception
+		[371339] = {tier = {[562] = 3, [476] = 1, [519] = 2}}, --Phial of Elemental Chaos
 	}
 
 	--spellId of healing from potions

@@ -1,8 +1,8 @@
 
 
-local dversion = 369
+local dversion = 370
 local major, minor = "DetailsFramework-1.0", dversion
-local DF, oldminor = LibStub:NewLibrary (major, minor)
+local DF, oldminor = LibStub:NewLibrary(major, minor)
 
 if (not DF) then
 	DetailsFrameworkCanLoad = false
@@ -13,8 +13,8 @@ DetailsFrameworkCanLoad = true
 local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 
 local _
-local _type = type
-local _unpack = unpack
+local type = type
+local unpack = unpack
 local upper = string.upper
 local string_match = string.match
 local tinsert = _G.tinsert
@@ -51,8 +51,15 @@ if (not PixelUtil) then
 	end
 end
 
-function DF.IsDragonflight()
+function DF.IsDragonflightAndBeyond()
 	return select(4, GetBuildInfo()) >= 100000
+end
+
+function DF.IsDragonflight()
+	local _, _, _, buildInfo = GetBuildInfo()
+	if (buildInfo < 110000 and buildInfo >= 100000) then
+		return true
+	end
 end
 
 function DF.IsTimewalkWoW()
@@ -212,7 +219,6 @@ function DF.GetSpecialization()
 	if (GetSpecialization) then
 		return GetSpecialization()
 	end
-	
 	return nil
 end
 
@@ -220,7 +226,6 @@ function DF.GetSpecializationInfoByID (...)
 	if (GetSpecializationInfoByID) then
 		return GetSpecializationInfoByID (...)
 	end
-	
 	return nil
 end
 
@@ -228,7 +233,6 @@ function DF.GetSpecializationInfo (...)
 	if (GetSpecializationInfo) then
 		return GetSpecializationInfo (...)
 	end
-	
 	return nil
 end
 
@@ -236,7 +240,6 @@ function DF.GetSpecializationRole (...)
 	if (GetSpecializationRole) then
 		return GetSpecializationRole (...)
 	end
-	
 	return nil
 end
 
@@ -247,11 +250,11 @@ DF.EncounterJournal = {
 	EJ_GetInstanceForMap = EJ_GetInstanceForMap or function() return nil end,
 	EJ_GetInstanceInfo = EJ_GetInstanceInfo or function() return nil end,
 	EJ_SelectInstance = EJ_SelectInstance or function() return nil end,
-	
+
 	EJ_GetEncounterInfoByIndex = EJ_GetEncounterInfoByIndex or function() return nil end,
 	EJ_GetEncounterInfo = EJ_GetEncounterInfo or function() return nil end,
 	EJ_SelectEncounter = EJ_SelectEncounter or function() return nil end,
-	
+
 	EJ_GetSectionInfo = EJ_GetSectionInfo or function() return nil end,
 	EJ_GetCreatureInfo = EJ_GetCreatureInfo or function() return nil end,
 	EJ_SetDifficulty = EJ_SetDifficulty or function() return nil end,
@@ -259,12 +262,8 @@ DF.EncounterJournal = {
 	EJ_GetLootInfoByIndex = EJ_GetLootInfoByIndex or function() return nil end,
 }
 
-if (not EJ_GetCurrentInstance) then
-	
-end
-
---> will always give a very random name for our widgets
-local init_counter = math.random (1, 1000000)
+--will always give a very random name for our widgets
+local init_counter = math.random(1, 1000000)
 
 DF.LabelNameCounter = DF.LabelNameCounter or init_counter
 DF.PictureNameCounter = DF.PictureNameCounter or init_counter
@@ -282,25 +281,25 @@ DF.FRAMELEVEL_BACKGROUND = 150
 
 --/dump DetailsFramework:PrintVersion()
 
-DF.FrameWorkVersion = tostring (dversion)
+DF.FrameWorkVersion = tostring(dversion)
 function DF:PrintVersion()
 	print ("Details! Framework Version:", DF.FrameWorkVersion)
 end
 
---> get the working folder
+--get the working folder
 do
-	local path = string.match (debugstack (1, 1, 0), "AddOns\\(.+)fw.lua")
+	local path = string.match(debugstack(1, 1, 0), "AddOns\\(.+)fw.lua")
 	if (path) then
 		DF.folder = "Interface\\AddOns\\" .. path
 	else
-		--> if not found, try to use the last valid one
+		--if not found, try to use the last valid one
 		DF.folder = DF.folder or ""
 	end
 end
 
 DF.debug = false
 
-_G ["DetailsFramework"] = DF
+_G["DetailsFramework"] = DF
 
 DF.embeds = DF.embeds or {}
 local embed_functions = {
@@ -380,7 +379,7 @@ local embed_functions = {
 }
 
 DF.WidgetFunctions = {
-	GetCapsule = function (self)
+	GetCapsule = function(self)
 		return self.MyObject
 	end,
 }
@@ -391,11 +390,11 @@ function DF:GetFrameworkFolder()
 	return DF.folder
 end
 
-function DF:SetFrameworkDebugState (state)
+function DF:SetFrameworkDebugState(state)
 	DF.debug = state
 end
 
-function DF:FadeFrame (frame, t)
+function DF:FadeFrame(frame, t)
 	if (t == 0) then
 		frame.hidden = false
 		frame.faded = false
@@ -403,7 +402,7 @@ function DF:FadeFrame (frame, t)
 		frame.fading_in = false
 		frame:Show()
 		frame:SetAlpha (1)
-		
+
 	elseif (t == 1) then
 		frame.hidden = true
 		frame.faded = true
@@ -414,7 +413,7 @@ function DF:FadeFrame (frame, t)
 	end
 end
 
-function DF.table.find (t, value)
+function DF.table.find(t, value)
 	for i = 1, #t do
 		if (t[i] == value) then
 			return i
@@ -422,7 +421,7 @@ function DF.table.find (t, value)
 	end
 end
 
-function DF.table.addunique (t, index, value)
+function DF.table.addunique(t, index, value)
 	if (not value) then
 		value = index
 		index = #t + 1
@@ -433,16 +432,16 @@ function DF.table.addunique (t, index, value)
 			return false
 		end
 	end
-	
-	tinsert (t, index, value)
+
+	tinsert(t, index, value)
 	return true
 end
 
-function DF.table.reverse (t)
+function DF.table.reverse(t)
 	local new = {}
 	local index = 1
 	for i = #t, 1, -1 do
-		new [index] = t[i]
+		new[index] = t[i]
 		index = index + 1
 	end
 	return new
@@ -455,7 +454,7 @@ function DF.table.duplicate(t1, t2)
 			if (type(value) == "table" and table.GetObjectType and table:GetObjectType()) then
 				t1[key] = value
 
-			elseif (type (value) == "table") then
+			elseif (type(value) == "table") then
 				t1[key] = t1[key] or {}
 				DF.table.copy(t1[key], t2[key])
 
@@ -472,7 +471,7 @@ end
 function DF.table.copy(t1, t2)
 	for key, value in pairs(t2) do
 		if (key ~= "__index" and key ~= "__newindex") then
-			if (type (value) == "table") then
+			if (type(value) == "table") then
 				t1[key] = t1[key] or {}
 				DF.table.copy(t1[key], t2[key])
 			else
@@ -509,11 +508,11 @@ function DF.table.append(t1, t2)
 end
 
 --> copy values that does exist on table2 but not on table1
-function DF.table.deploy (t1, t2)
-	for key, value in pairs (t2) do 
-		if (type (value) == "table") then
+function DF.table.deploy(t1, t2)
+	for key, value in pairs (t2) do
+		if (type(value) == "table") then
 			t1 [key] = t1 [key] or {}
-			DF.table.deploy (t1 [key], t2 [key])
+			DF.table.deploy(t1 [key], t2 [key])
 		elseif (t1 [key] == nil) then
 			t1 [key] = value
 		end
@@ -521,51 +520,51 @@ function DF.table.deploy (t1, t2)
 	return t1
 end
 
-function DF.table.dump (t, s, deep)
-	s = s or ""
+function DF.table.dump(t, resultString, deep)
+	resultString = resultString or ""
 	deep = deep or 0
 	local space = ""
 	for i = 1, deep do
 		space = space .. "   "
 	end
-	
-	for key, value in pairs (t) do
-		local tpe = _type (value)
-		
-		if (type (key) == "function") then
+
+	for key, value in pairs(t) do
+		local valueType = type(value)
+
+		if (type(key) == "function") then
 			key = "#function#"
-		elseif (type (key) == "table") then
+		elseif (type(key) == "table") then
 			key = "#table#"
-		end	
-		
-		if (type (key) ~= "string" and type (key) ~= "number") then
+		end
+
+		if (type(key) ~= "string" and type(key) ~= "number") then
 			key = "unknown?"
 		end
-		
-		if (tpe == "table") then
-			if (type (key) == "number") then
-				s = s .. space .. "[" .. key .. "] = |cFFa9ffa9 {|r\n"
+
+		if (valueType == "table") then
+			if (type(key) == "number") then
+				resultString = resultString .. space .. "[" .. key .. "] = |cFFa9ffa9 {|r\n"
 			else
-				s = s .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9 {|r\n"
+				resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9 {|r\n"
 			end
-			s = s .. DF.table.dump (value, nil, deep+1)
-			s = s .. space .. "|cFFa9ffa9},|r\n"
-			
-		elseif (tpe == "string") then
-			s = s .. space .. "[\"" .. key .. "\"] = \"|cFFfff1c1" .. value .. "|r\",\n"
-			
-		elseif (tpe == "number") then
-			s = s .. space .. "[\"" .. key .. "\"] = |cFFffc1f4" .. value .. "|r,\n"
-			
-		elseif (tpe == "function") then
-			s = s .. space .. "[\"" .. key .. "\"] = function()end,\n"
-			
-		elseif (tpe == "boolean") then
-			s = s .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
+			resultString = resultString .. DF.table.dump (value, nil, deep+1)
+			resultString = resultString .. space .. "|cFFa9ffa9},|r\n"
+
+		elseif (valueType == "string") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = \"|cFFfff1c1" .. value .. "|r\",\n"
+
+		elseif (valueType == "number") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFffc1f4" .. value .. "|r,\n"
+
+		elseif (valueType == "function") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = function()end,\n"
+
+		elseif (valueType == "boolean") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
 		end
 	end
-	
-	return s
+
+	return resultString
 end
 
 --grab a text and split it into lines adding each line to a indexed table
@@ -600,8 +599,10 @@ DF.www_icons = {
 local symbol_1K, symbol_10K, symbol_1B
 if (GetLocale() == "koKR") then
 	symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
+
 elseif (GetLocale() == "zhCN") then
 	symbol_1K, symbol_10K, symbol_1B = "千", "万", "亿"
+
 elseif (GetLocale() == "zhTW") then
 	symbol_1K, symbol_10K, symbol_1B = "千", "萬", "億"
 end
@@ -609,81 +610,82 @@ end
 function DF:GetAsianNumberSymbols()
 	if (GetLocale() == "koKR") then
 		return "천", "만", "억"
+
 	elseif (GetLocale() == "zhCN") then
 		return "千", "万", "亿"
+
 	elseif (GetLocale() == "zhTW") then
 		return "千", "萬", "億"
 	else
-		--> return korean as default (if the language is western)
+		--return korean as default (if the language is western)
 		return "천", "만", "억"
 	end
 end
 
 if (symbol_1K) then
-	function DF.FormatNumber (numero)
-		if (numero > 99999999) then
-			return format ("%.2f", numero/100000000) .. symbol_1B
-		elseif (numero > 999999) then
-			return format ("%.2f", numero/10000) .. symbol_10K
-		elseif (numero > 99999) then
-			return floor (numero/10000) .. symbol_10K
-		elseif (numero > 9999) then
-			return format ("%.1f", (numero/10000)) .. symbol_10K
-		elseif (numero > 999) then
-			return format ("%.1f", (numero/1000)) .. symbol_1K
+	function DF.FormatNumber(number)
+		if (number > 99999999) then
+			return format("%.2f", number/100000000) .. symbol_1B
+		elseif (number > 999999) then
+			return format("%.2f", number/10000) .. symbol_10K
+		elseif (number > 99999) then
+			return floor (number/10000) .. symbol_10K
+		elseif (number > 9999) then
+			return format("%.1f", (number/10000)) .. symbol_10K
+		elseif (number > 999) then
+			return format("%.1f", (number/1000)) .. symbol_1K
 		end
-		return format ("%.1f", numero)
+		return format("%.1f", number)
 	end
 else
-	function DF.FormatNumber (numero)
-		if (numero > 999999999) then
-			return format ("%.2f", numero/1000000000) .. "B"
-		elseif (numero > 999999) then
-			return format ("%.2f", numero/1000000) .. "M"
-		elseif (numero > 99999) then
-			return floor (numero/1000) .. "K"
-		elseif (numero > 999) then
-			return format ("%.1f", (numero/1000)) .. "K"
+	function DF.FormatNumber (number)
+		if (number > 999999999) then
+			return format("%.2f", number/1000000000) .. "B"
+		elseif (number > 999999) then
+			return format("%.2f", number/1000000) .. "M"
+		elseif (number > 99999) then
+			return floor (number/1000) .. "K"
+		elseif (number > 999) then
+			return format("%.1f", (number/1000)) .. "K"
 		end
-		return floor (numero)
+		return floor(number)
 	end
 end
 
-function DF:CommaValue (value)
-	if (not value) then 
-		return "0" 
+function DF:CommaValue(value)
+	if (not value) then
+		return "0"
 	end
-	
-	value = floor (value)
-	
+
+	value = floor(value)
 	if (value == 0) then
 		return "0"
 	end
-	
+
 	--source http://richard.warburton.it
 	local left, num, right = string_match (value, '^([^%d]*%d)(%d*)(.-)$')
 	return left .. (num:reverse():gsub ('(%d%d%d)','%1,'):reverse()) .. right
 end
 
-function DF:GroupIterator (func, ...)
+function DF:GroupIterator(callback, ...)
 	if (IsInRaid()) then
 		for i = 1, GetNumGroupMembers() do
-			DF:QuickDispatch (func, "raid" .. i, ...)
+			DF:QuickDispatch(callback, "raid" .. i, ...)
 		end
-	
+
 	elseif (IsInGroup()) then
 		for i = 1, GetNumGroupMembers() - 1 do
-			DF:QuickDispatch (func, "party" .. i, ...)
+			DF:QuickDispatch(callback, "party" .. i, ...)
 		end
-		DF:QuickDispatch (func, "player", ...)
-	
+		DF:QuickDispatch(callback, "player", ...)
+
 	else
-		DF:QuickDispatch (func, "player", ...)
+		DF:QuickDispatch(callback, "player", ...)
 	end
 end
 
-function DF:IntegerToTimer (value)
-	return "" .. floor (value/60) .. ":" .. format ("%02.f", value%60)
+function DF:IntegerToTimer(value)
+	return "" .. floor(value/60) .. ":" .. format("%02.f", value%60)
 end
 
 function DF:Embed (target)
@@ -1189,10 +1191,10 @@ end
 --> colors
 
 	function DF:NewColor (_colorname, _colortable, _green, _blue, _alpha)
-		assert (_type (_colorname) == "string", "NewColor: colorname must be a string.")
+		assert (type (_colorname) == "string", "NewColor: colorname must be a string.")
 		assert (not DF.alias_text_colors [_colorname], "NewColor: colorname already exists.")
 
-		if (_type (_colortable) == "table") then
+		if (type (_colortable) == "table") then
 			if (_colortable[1] and _colortable[2] and _colortable[3]) then
 				_colortable[4] = _colortable[4] or 1
 				DF.alias_text_colors [_colorname] = _colortable

@@ -257,18 +257,46 @@ function openRaidLib.FilterCooldowns(unitName, allCooldowns, filters)
     return resultFilters
 end
 
-function openRaidLib.FlaskGetBySpellId(spellId)
+--use to check if a spell is a flask buff, return a table containing .tier{}
+function openRaidLib.GetFlaskInfoBySpellId(spellId)
     return LIB_OPEN_RAID_FLASK_BUFF[spellId]
 end
 
-function openRaidLib.FlaskGetTier(auraInfo)
-    local flaskTable = openRaidLib.FlaskGetBySpellId(auraInfo.spellId)
-    local points = auraInfo.points
-    for i = 1, #points do
-        local flaskTier = flaskTable[points[i]]
-        if (flaskTier) then
-            return flaskTier
+--return a number indicating the flask tier, if the aura isn't a flask return nil
+function openRaidLib.GetFlaskTierFromAura(auraInfo)
+    local flaskTable = openRaidLib.GetFlaskInfoBySpellId(auraInfo.spellId)
+    if (flaskTable) then
+        local points = auraInfo.points
+        if (points) then
+            for i = 1, #points do
+                local flaskTier = flaskTable.tier[points[i]]
+                if (flaskTier) then
+                    return flaskTier
+                end
+            end
         end
     end
-    return 1
+    return nil
+end
+
+--use to check if a spell is a food buff, return a table containing .tier{} .status{} .localized{}
+function openRaidLib.GetFoodInfoBySpellId(spellId)
+    return LIB_OPEN_RAID_FOOD_BUFF[spellId]
+end
+
+--return a number indicating the food tier, if the aura isn't a food return nil
+function openRaidLib.GetFoodTierFromAura(auraInfo)
+    local foodTable = openRaidLib.GetFoodInfoBySpellId(auraInfo.spellId)
+    if (foodTable) then
+        local points = auraInfo.points
+        if (points) then
+            for i = 1, #points do
+                local foodTier = foodTable.tier[points[i]]
+                if (foodTier) then
+                    return foodTier
+                end
+            end
+        end
+    end
+    return nil
 end

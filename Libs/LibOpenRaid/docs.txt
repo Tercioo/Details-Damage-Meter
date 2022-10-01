@@ -140,6 +140,20 @@ local requestSent = openRaidLib.RequestKeystoneDataFromParty()
 local requestSent = openRaidLib.RequestKeystoneDataFromRaid()
 
 
+FLASK and FOOD buffs
+--@spellId: a regular spellId
+local flaskInfo = openRaidLib.GetFlaskInfoBySpellId(spellId)
+
+--@auraInfo: UnitAuraInfo -> https://wowpedia.fandom.com/wiki/Struct_UnitAuraInfo see C_UnitAuras.GetAuraDataBySlot()
+local flaskTier = openRaidLib.GetFlaskTierFromAura(auraInfo)
+
+--@spellId: a regular spellId
+local foodInfo = openRaidLib.GetFoodInfoBySpellId(spellId)
+
+--@auraInfo: UnitAuraInfo -> https://wowpedia.fandom.com/wiki/Struct_UnitAuraInfo see C_UnitAuras.GetAuraDataBySlot()
+local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
+
+
 Callbacks:
 
 ===================================================================================================================================

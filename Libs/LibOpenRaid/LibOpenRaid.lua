@@ -15,6 +15,11 @@ Code Rules:
     - Public callbacks are callbacks registered by an external addon.
 
 Change Log:
+    - added:
+        * openRaidLib.GetFlaskInfoBySpellId(spellId)
+        * openRaidLib.GetFlaskTierFromAura(auraInfo)
+        * openRaidLib.GetFoodInfoBySpellId(spellId)
+        * openRaidLib.GetFoodTierFromAura(auraInfo)
     - added dragonflight talents support
     - ensure to register events after 'PLAYER_ENTERING_WORLD' has triggered
     - added openRaidLib.RequestCooldownInfo(spellId)
