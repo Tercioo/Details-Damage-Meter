@@ -1,6 +1,6 @@
 
 
-local dversion = 370
+local dversion = 371
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -10,7 +10,7 @@ if (not DF) then
 end
 
 DetailsFrameworkCanLoad = true
-local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local _
 local type = type
@@ -43,12 +43,16 @@ if (not PixelUtil) then
 	local gameVersion = GetBuildInfo()
 	if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2" or gameVersion:match("%d") == "3") then
 		PixelUtil = {
-			SetWidth = function (self, width) self:SetWidth (width) end,
-			SetHeight = function (self, height) self:SetHeight (height) end,
-			SetSize = function (self, width, height) self:SetSize (width, height) end,
-			SetPoint = function (self, ...) self:SetPoint (...) end,
+			SetWidth = function(self, width) self:SetWidth(width) end,
+			SetHeight = function(self, height) self:SetHeight(height) end,
+			SetSize = function(self, width, height) self:SetSize(width, height) end,
+			SetPoint = function(self, ...) self:SetPoint(...) end,
 		}
 	end
+end
+
+function DF:GetDefaultBackdropColor()
+	return 0.1215, 0.1176, 0.1294, 0.8
 end
 
 function DF.IsDragonflightAndBeyond()
@@ -157,7 +161,7 @@ function DF:GetRoleByClassicTalentTree()
 			--tab information
 			local name, iconTexture, pointsSpent, fileName = GetTalentTabInfo(i)
 			if (name) then
-				tinsert (pointsPerSpec, {name, pointsSpent, fileName})
+				tinsert(pointsPerSpec, {name, pointsSpent, fileName})
 			end
 		end
 	end

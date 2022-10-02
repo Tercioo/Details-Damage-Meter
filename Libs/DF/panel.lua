@@ -4856,7 +4856,7 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~standard backdrop
 
-function DF:ApplyStandardBackdrop(frame, darkTheme, alphaScale)
+function DF:ApplyStandardBackdrop(frame, solidColor, alphaScale)
 	alphaScale = alphaScale or 1.0
 
 	if (not frame.SetBackdrop)then
@@ -4864,28 +4864,27 @@ function DF:ApplyStandardBackdrop(frame, darkTheme, alphaScale)
 		Mixin(frame, BackdropTemplateMixin)
 	end
 
-	if (darkTheme) then
-		frame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Cooldown\cooldown2]], tileSize = 32, tile = true})
-		frame:SetBackdropBorderColor(0, 0, 0, 1)
-		frame:SetBackdropColor(.54, .54, .54, .54 * alphaScale)
+	local red, green, blue, alpha = DF:GetDefaultBackdropColor()
+
+	if (solidColor) then
+		local colorDeviation = 0.05
+		frame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Buttons\WHITE8X8]], tileSize = 32, tile = true})
+		frame:SetBackdropColor(red, green, blue, 0.872)
+		frame:SetBackdropBorderColor(0, 0, 0, 0.95)
 
 	else
 		frame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-		frame:SetBackdropBorderColor(0, 0, 0, 1)
-		frame:SetBackdropColor(0.1215, 0.1176, 0.1294, 0.2 * alphaScale)
+		frame:SetBackdropColor(red, green, blue, alpha * alphaScale)
+		frame:SetBackdropBorderColor(0, 0, 0, 0.95)		
 	end
 	
 	if (not frame.__background) then
 		frame.__background = frame:CreateTexture(nil, "background")
-		frame.__background:SetColorTexture(0.1215, 0.1176, 0.1294, 0.99)
+		frame.__background:SetColorTexture(red, green, blue)
 		frame.__background:SetAllPoints()
 	end
 
-	--frame.innerBorderTexture = frame:CreateTexture(nil, "overlay")
-	--frame.innerBorderTexture:SetAllPoints()
-	--frame.innerBorderTexture:SetAtlas("Options_InnerFrame")
-
-	frame.__background:SetAlpha(0.8 * alphaScale)
+	frame.__background:SetAlpha(alpha * alphaScale)
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -30,9 +30,14 @@ local tokFunctions = Details.ToKFunctions
 
 --constants
 local baseframe_strata = "LOW"
-local gump_fundo_backdrop = {
+local defaultBackdropSt = {
 	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0}}
+
+local CONST_ROWFRAME_ALPHA = 0.975036
+local parseRowFrameAlpha = function(value)
+	return math.min(value, CONST_ROWFRAME_ALPHA)
+end
 
 function Details:ScheduleUpdate(instancia)
 	instancia.barraS = {nil, nil}
@@ -322,20 +327,20 @@ local function OnLeaveMainWindow (instancia, self)
 end
 Details.OnLeaveMainWindow = OnLeaveMainWindow
 
-local function OnEnterMainWindow (instancia, self)
+local function OnEnterMainWindow(instancia, self)
 	instancia.is_interacting = true
 	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
 	instancia:RefreshAttributeTextSize()
-	
+
 	if (not instancia.last_interaction or instancia.last_interaction < Details._tempo) then
 		instancia.last_interaction = Details._tempo or time()
 	end
 
 	if (instancia.baseframe:GetFrameLevel() > instancia.rowframe:GetFrameLevel()) then
-		instancia.rowframe:SetFrameLevel (instancia.baseframe:GetFrameLevel())
+		instancia.rowframe:SetFrameLevel(instancia.baseframe:GetFrameLevel())
 	end
-	
+
 	if (instancia.modo ~= Details._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
 		--> resize, lock and ungroup buttons
@@ -790,10 +795,9 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			precisa_ativar = not instancia_alvo.ativa
 			
 			if (need_start) then --> se a inst�ncia n�o tiver sido aberta ainda
-
 				local lower_instance = Details:GetLowerInstanceNumber()
 			
-				instancia_alvo:RestauraJanela (instancia_alvo.meu_id, true)
+				instancia_alvo:RestauraJanela(instancia_alvo.meu_id, true)
 				if (instancia_alvo:IsSoloMode()) then
 					Details.SoloTables:switch()
 				end
@@ -803,9 +807,9 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 				instancia_alvo:SaveMainWindowPosition()
 				instancia_alvo:RestoreMainWindowPosition()
 				
-				Details.FadeHandler.Fader (instancia_alvo.baseframe, 1)
-				Details.FadeHandler.Fader (instancia_alvo.rowframe, 1)
-				Details.FadeHandler.Fader (instancia_alvo.baseframe.cabecalho.ball, 1)
+				Details.FadeHandler.Fader(instancia_alvo.baseframe, 1)
+				Details.FadeHandler.Fader(instancia_alvo.rowframe, parseRowFrameAlpha(1))
+				Details.FadeHandler.Fader(instancia_alvo.baseframe.cabecalho.ball, 1)
 				
 				need_start = false
 			end
@@ -1851,7 +1855,7 @@ local barra_backdrop_onleave = {
 
 --> pre creating the truncate frame
 	Details.left_anti_truncate = CreateFrame ("frame", "DetailsLeftTextAntiTruncate", UIParent,"BackdropTemplate")
-	Details.left_anti_truncate:SetBackdrop (gump_fundo_backdrop)
+	Details.left_anti_truncate:SetBackdrop (defaultBackdropSt)
 	Details.left_anti_truncate:SetBackdropColor (0, 0, 0, 0.8)
 	Details.left_anti_truncate:SetFrameStrata ("FULLSCREEN")
 	Details.left_anti_truncate.text = Details.left_anti_truncate:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -2575,8 +2579,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		Details.FadeHandler.Fader (self, "ALPHA", 0)
 	end)	
 
-	button:SetScript ("OnMouseDown", function (self, button)
-
+	button:SetScript ("OnMouseDown", function(self, button)
 		if (button ~= "LeftButton") then
 			return
 		end
@@ -2584,14 +2587,14 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		if (instancia:IsSoloMode()) then
 			return
 		end
-	
-		instancia:EsconderScrollBar (true)
+
+		instancia:EsconderScrollBar(true)
 		baseframe._place = instancia:SaveMainWindowPosition()
 		baseframe.isResizing = true
 		baseframe.isStretching = true
-		baseframe:SetFrameStrata ("TOOLTIP")
-		instancia.rowframe:SetFrameStrata ("TOOLTIP")
-		
+		baseframe:SetFrameStrata("TOOLTIP")
+		instancia.rowframe:SetFrameStrata("TOOLTIP")
+
 		local _r, _g, _b, _a = baseframe:GetBackdropColor()
 
 		gump:GradientEffect ( baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
@@ -2635,24 +2638,23 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		
 		instancia.stretchToo = linha_horizontal
 		if (#instancia.stretchToo > 0) then
-			for _, esta_instancia in ipairs (instancia.stretchToo) do 
-				esta_instancia:EsconderScrollBar (true)
-				esta_instancia.baseframe._place = esta_instancia:SaveMainWindowPosition()
-				esta_instancia.baseframe.isResizing = true
-				esta_instancia.baseframe.isStretching = true
-				esta_instancia.baseframe:SetFrameStrata ("TOOLTIP")
-				esta_instancia.rowframe:SetFrameStrata ("TOOLTIP")
-				
-				local _r, _g, _b, _a = esta_instancia.baseframe:GetBackdropColor()
-				gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
-				Details:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, esta_instancia)
-				
-				if (esta_instancia.wallpaper.enabled) then
-					_r, _g, _b = esta_instancia.baseframe.wallpaper:GetVertexColor()
-					_a = esta_instancia.baseframe.wallpaper:GetAlpha()
-					gump:GradientEffect (esta_instancia.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, 0.05, 0.5)
+			for _, thisInstance in ipairs(instancia.stretchToo) do
+				thisInstance:EsconderScrollBar(true)
+				thisInstance.baseframe._place = thisInstance:SaveMainWindowPosition()
+				thisInstance.baseframe.isResizing = true
+				thisInstance.baseframe.isStretching = true
+				thisInstance.baseframe:SetFrameStrata("TOOLTIP")
+				thisInstance.rowframe:SetFrameStrata("TOOLTIP")
+
+				local _r, _g, _b, _a = thisInstance.baseframe:GetBackdropColor()
+				gump:GradientEffect(thisInstance.baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
+				Details:SendEvent("DETAILS_INSTANCE_STARTSTRETCH", nil, thisInstance)
+
+				if (thisInstance.wallpaper.enabled) then
+					_r, _g, _b = thisInstance.baseframe.wallpaper:GetVertexColor()
+					_a = thisInstance.baseframe.wallpaper:GetAlpha()
+					gump:GradientEffect(thisInstance.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, 0.05, 0.5)
 				end
-				
 			end
 		end
 		
@@ -2696,28 +2698,28 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 			baseframe.stretch_direction = nil
 			
 			if (instancia.stretchToo and #instancia.stretchToo > 0) then
-				for _, esta_instancia in ipairs (instancia.stretchToo) do 
+				for _, esta_instancia in ipairs(instancia.stretchToo) do
 					esta_instancia.baseframe:StopMovingOrSizing()
 					esta_instancia.baseframe.isResizing = false
 					esta_instancia:RestoreMainWindowPosition (esta_instancia.baseframe._place)
 					esta_instancia:ReajustaGump()
 					esta_instancia.baseframe.isStretching = false
 					if (esta_instancia.need_rolagem) then
-						esta_instancia:MostrarScrollBar (true)
+						esta_instancia:MostrarScrollBar(true)
 					end
-					Details:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+					Details:SendEvent("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
 					
 					local _r, _g, _b, _a = esta_instancia.baseframe:GetBackdropColor()
-					gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
+					gump:GradientEffect(esta_instancia.baseframe, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
 					
 					if (esta_instancia.wallpaper.enabled) then
 						_r, _g, _b = esta_instancia.baseframe.wallpaper:GetVertexColor()
 						_a = esta_instancia.baseframe.wallpaper:GetAlpha()
-						gump:GradientEffect (esta_instancia.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, esta_instancia.wallpaper.alpha, 1.0)
+						gump:GradientEffect(esta_instancia.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, esta_instancia.wallpaper.alpha, 1.0)
 					end
 					
-					esta_instancia.baseframe:SetFrameStrata (esta_instancia.strata)
-					esta_instancia.rowframe:SetFrameStrata (esta_instancia.strata)
+					esta_instancia.baseframe:SetFrameStrata(esta_instancia.strata)
+					esta_instancia.rowframe:SetFrameStrata(esta_instancia.strata)
 					esta_instancia:StretchButtonAlwaysOnTop()
 					
 					Details:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
@@ -2732,26 +2734,23 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		end 
 		
 		local _r, _g, _b, _a = baseframe:GetBackdropColor()
-		gump:GradientEffect ( baseframe, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
+		gump:GradientEffect(baseframe, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
 		if (instancia.wallpaper.enabled) then
 			_r, _g, _b = baseframe.wallpaper:GetVertexColor()
 			_a = baseframe.wallpaper:GetAlpha()
-			gump:GradientEffect (baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, instancia.wallpaper.alpha, 1.0)
+			gump:GradientEffect(baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, instancia.wallpaper.alpha, 1.0)
 		end
 		
-		baseframe:SetFrameStrata (instancia.strata)
-		instancia.rowframe:SetFrameStrata (instancia.strata)
+		baseframe:SetFrameStrata(instancia.strata)
+		instancia.rowframe:SetFrameStrata(instancia.strata)
 		instancia:StretchButtonAlwaysOnTop()
-		
 		Details:SnapTextures (false)
-		
 		Details:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, instancia)
-		
+
 		if (Details.stretch_changed_update_speed) then
-			Details:SetWindowUpdateSpeed (false, true)
+			Details:SetWindowUpdateSpeed(false, true)
 			Details.stretch_changed_update_speed = nil
 		end
-
 	end)	
 end
 
@@ -3486,6 +3485,11 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	rowframe:SetFrameLevel (3)
 	rowframe:EnableMouse(false)
 	instancia.rowframe = rowframe
+
+	function rowframe:SetFrameAlpha(value)
+		local value = parseRowFrameAlpha(value)
+		self:SetAlpha(value)
+	end
 	
 	--> right click bookmark
 	local switchbutton = CreateFrame("button", "Details_SwitchButtonFrame" ..  ID, UIParent)
@@ -3620,7 +3624,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 			--baseframe:SetResizeBounds(150, 7, _detalhes.max_window_size.width, _detalhes.max_window_size.height)
 		end
 
-		baseframe:SetBackdrop (gump_fundo_backdrop)
+		baseframe:SetBackdrop (defaultBackdropSt)
 		baseframe:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
 	
 -- background window config -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3631,7 +3635,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		backgrounddisplay:SetResizable (true)
 		backgrounddisplay:SetPoint ("topleft", baseframe, "topleft")
 		backgrounddisplay:SetPoint ("bottomright", baseframe, "bottomright")
-		backgrounddisplay:SetBackdrop (gump_fundo_backdrop)
+		backgrounddisplay:SetBackdrop (defaultBackdropSt)
 		backgrounddisplay:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
 	
 -- instance mini widgets -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -4011,36 +4015,35 @@ local getActor = function(self)
 	return self.minha_tabela
 end
 
---> search key: ~row ~barra  ~newbar ~createbar ~createrow
-function gump:CreateNewLine (instancia, index)
-
-	--> instancia = window object, index = row number
-	local baseframe = instancia.baseframe
-	local rowframe = instancia.rowframe
+--search key: ~row ~barra  ~newbar ~createbar ~createrow
+function gump:CreateNewLine(instance, index)
+	--instance = window object, index = row number
+	local baseframe = instance.baseframe
+	local rowframe = instance.rowframe
 	
-	--> create the bar with rowframe as parent
-	local newLine = CreateFrame ("button", "DetailsBarra_"..instancia.meu_id.."_"..index, rowframe,"BackdropTemplate")
+	--create the bar with rowframe as parent
+	local newLine = CreateFrame("button", "DetailsBarra_"..instance.meu_id.."_"..index, rowframe, "BackdropTemplate")
 	
 	newLine.row_id = index
-	newLine.instance_id = instancia.meu_id
+	newLine.instance_id = instance.meu_id
 	newLine.animacao_fim = 0
 	newLine.animacao_fim2 = 0
 
 	newLine.GetActor = getActor
 	
-	--> set point, almost irrelevant here, it recalc this on SetBarGrowDirection()
-	local y = instancia.row_height * (index-1)
-	if (instancia.bars_grow_direction == 1) then
-		y = y*-1
-		newLine:SetPoint ("topleft", baseframe, "topleft", instancia.row_info.space.left, y)
+	--set point, almost irrelevant here, it recalc this on SetBarGrowDirection()
+	local y = instance.row_height * (index-1)
+	if (instance.bars_grow_direction == 1) then
+		y = y * -1
+		newLine:SetPoint("topleft", baseframe, "topleft", instance.row_info.space.left, y)
 		
-	elseif (instancia.bars_grow_direction == 2) then
-		newLine:SetPoint ("bottomleft", baseframe, "bottomleft", instancia.row_info.space.left, y + 2)
+	elseif (instance.bars_grow_direction == 2) then
+		newLine:SetPoint("bottomleft", baseframe, "bottomleft", instance.row_info.space.left, y + 2)
 	end
 	
-	--> row height
-	newLine:SetHeight (instancia.row_info.height)
-	newLine:SetWidth (baseframe:GetWidth()+instancia.row_info.space.right)
+	--row height
+	newLine:SetHeight (instance.row_info.height)
+	newLine:SetWidth (baseframe:GetWidth()+instance.row_info.space.right)
 	newLine:SetFrameLevel (baseframe:GetFrameLevel() + 4)
 	newLine.last_value = 0
 	newLine.w_mod = 0
@@ -4048,69 +4051,70 @@ function gump:CreateNewLine (instancia, index)
 	newLine:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
 	
 	--statusbar
-	newLine.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, newLine)
+	newLine.statusbar = CreateFrame("StatusBar", "DetailsBarra_Statusbar_"..instance.meu_id.."_"..index, newLine)
 	newLine.statusbar.value = 0
 
 	--frame for hold the backdrop border
-	newLine.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, newLine.statusbar, "BackdropTemplate")
-	newLine.border:SetFrameLevel (newLine.statusbar:GetFrameLevel()+2)
-	newLine.border:SetAllPoints (newLine)
+	newLine.border = CreateFrame("Frame", "DetailsBarra_Border_" .. instance.meu_id .. "_" .. index, newLine.statusbar, "BackdropTemplate")
+	newLine.border:SetFrameLevel(newLine.statusbar:GetFrameLevel()+2)
+	newLine.border:SetAllPoints(newLine)
 
 	--border
 	newLine.lineBorder = DetailsFramework:CreateFullBorder(newLine:GetName() .. "Border", newLine.border)
 
 	--low 3d bar --search key: ~model
-	newLine.modelbox_low = CreateFrame ("playermodel", "DetailsBarra_ModelBarLow_" .. instancia.meu_id .. "_" .. index, newLine) --rowframe
+	newLine.modelbox_low = CreateFrame("playermodel", "DetailsBarra_ModelBarLow_" .. instance.meu_id .. "_" .. index, newLine)
 	newLine.modelbox_low:SetFrameLevel (newLine.statusbar:GetFrameLevel()-1)
-	newLine.modelbox_low:SetPoint ("topleft", newLine, "topleft")
-	newLine.modelbox_low:SetPoint ("bottomright", newLine, "bottomright")
+	newLine.modelbox_low:SetPoint("topleft", newLine, "topleft")
+	newLine.modelbox_low:SetPoint("bottomright", newLine, "bottomright")
+
 	--high 3d bar
-	newLine.modelbox_high = CreateFrame ("playermodel", "DetailsBarra_ModelBarHigh_" .. instancia.meu_id .. "_" .. index, newLine) --rowframe
+	newLine.modelbox_high = CreateFrame("playermodel", "DetailsBarra_ModelBarHigh_" .. instance.meu_id .. "_" .. index, newLine)
 	newLine.modelbox_high:SetFrameLevel (newLine.statusbar:GetFrameLevel()+1)
-	newLine.modelbox_high:SetPoint ("topleft", newLine, "topleft")
-	newLine.modelbox_high:SetPoint ("bottomright", newLine, "bottomright")
-	
-	--> create textures and icons
-	newLine.textura = newLine.statusbar:CreateTexture (nil, "artwork")
-	newLine.textura:SetHorizTile (false)
-	newLine.textura:SetVertTile (false)
-	
-	--> row background texture
-	newLine.background = newLine:CreateTexture (nil, "background")
+	newLine.modelbox_high:SetPoint("topleft", newLine, "topleft")
+	newLine.modelbox_high:SetPoint("bottomright", newLine, "bottomright")
+
+	--create textures and icons
+	newLine.textura = newLine.statusbar:CreateTexture(nil, "artwork")
+	newLine.textura:SetHorizTile(false)
+	newLine.textura:SetVertTile(false)
+
+	--row background texture
+	newLine.background = newLine:CreateTexture(nil, "background")
 	newLine.background:SetTexture("")
 	newLine.background:SetAllPoints (newLine)
 
-	newLine.statusbar:SetStatusBarColor (0, 0, 0, 0)
-	newLine.statusbar:SetStatusBarTexture (newLine.textura)
-	newLine.statusbar:SetMinMaxValues (0, 100)
-	newLine.statusbar:SetValue (0)
+	newLine.statusbar:SetStatusBarColor(0, 0, 0, 0)
+	newLine.statusbar:SetStatusBarTexture(newLine.textura)
+	newLine.statusbar:SetMinMaxValues(0, 100)
+	newLine.statusbar:SetValue(0)
 
-	newLine.overlayTexture = newLine.statusbar:CreateTexture (nil, "overlay")
+	newLine.overlayTexture = newLine.statusbar:CreateTexture(nil, "overlay")
 	newLine.overlayTexture:SetAllPoints()
 
-	--> class icon
-	local icone_classe = newLine.border:CreateTexture (nil, "overlay")
-	icone_classe:SetHeight (instancia.row_info.height)
-	icone_classe:SetWidth (instancia.row_info.height)
-	icone_classe:SetTexture (instancia.row_info.icon_file)
+	--class icon
+	local icone_classe = newLine.border:CreateTexture(nil, "overlay")
+	icone_classe:SetHeight (instance.row_info.height)
+	icone_classe:SetWidth (instance.row_info.height)
+	icone_classe:SetTexture (instance.row_info.icon_file)
 	icone_classe:SetTexCoord (.75, 1, .75, 1)
 	newLine.icone_classe = icone_classe
 	
-	local iconFrame = CreateFrame ("frame", "DetailsBarra_IconFrame_" .. instancia.meu_id .. "_" .. index, newLine.statusbar)
-	iconFrame:SetPoint ("topleft", icone_classe, "topleft")
-	iconFrame:SetPoint ("bottomright", icone_classe, "bottomright")
+	local iconFrame = CreateFrame("frame", "DetailsBarra_IconFrame_" .. instance.meu_id .. "_" .. index, newLine.statusbar)
+	iconFrame:SetPoint("topleft", icone_classe, "topleft")
+	iconFrame:SetPoint("bottomright", icone_classe, "bottomright")
 	iconFrame:SetFrameLevel (newLine.statusbar:GetFrameLevel()+1)
-	iconFrame.instance_id = instancia.meu_id
+	iconFrame.instance_id = instance.meu_id
 	iconFrame.row = newLine
 	newLine.icon_frame = iconFrame
 	
-	icone_classe:SetPoint ("left", newLine, "left")
-	newLine.statusbar:SetPoint ("topleft", icone_classe, "topright")
-	newLine.statusbar:SetPoint ("bottomright", newLine, "bottomright")
+	icone_classe:SetPoint("left", newLine, "left")
+	newLine.statusbar:SetPoint("topleft", icone_classe, "topright")
+	newLine.statusbar:SetPoint("bottomright", newLine, "bottomright")
 	
 	--> left text 1
 	newLine.lineText1 = newLine.border:CreateFontString (nil, "overlay", "GameFontHighlight")
-	newLine.lineText1:SetPoint ("left", newLine.icone_classe, "right", 3, 0)
+	newLine.lineText1:SetPoint("left", newLine.icone_classe, "right", 3, 0)
 	newLine.lineText1:SetJustifyH ("left")
 	newLine.lineText1:SetNonSpaceWrap (true)
 
@@ -4120,21 +4124,21 @@ function gump:CreateNewLine (instancia, index)
 	end
 
 	--> set the onclick, on enter scripts
-	barra_scripts (newLine, instancia, index)
+	barra_scripts (newLine, instance, index)
 
 	--> hide
 	Details.FadeHandler.Fader (newLine, 1) 
 
 	--> adds the window container
-	instancia.barras [index] = newLine
+	instance.barras [index] = newLine
 	
 	--> set the left text
 	newLine.lineText1:SetText (Loc["STRING_NEWROW"])
 	
 	--> refresh rows
-	instancia:InstanceRefreshRows()
+	instance:InstanceRefreshRows()
 	
-	Details:SendEvent ("DETAILS_INSTANCE_NEWROW", nil, instancia, newLine)
+	Details:SendEvent ("DETAILS_INSTANCE_NEWROW", nil, instance, newLine)
 	
 	return newLine
 end
@@ -5162,40 +5166,39 @@ function Details:GetTextures()
 	--atributo_icon � uma exce��o
 end
 
-function Details:SetWindowAlphaForInteract (alpha)
-	
-	local ignorebars = self.menu_alpha.ignorebars
-	
+function Details:SetWindowAlphaForInteract(alpha)
+	local ignoreBars = self.menu_alpha.ignorebars
+
 	if (self.is_interacting) then
-		--> entrou
-		self.baseframe:SetAlpha (alpha)
-		self:InstanceAlpha (alpha)
-		self:SetIconAlpha (alpha, nil, true)
-		
-		if (ignorebars) then
-			self.rowframe:SetAlpha (1)
+		--mouse entered the window
+		self.baseframe:SetAlpha(alpha)
+		self:InstanceAlpha(alpha)
+		self:SetIconAlpha(alpha, nil, true)
+
+		if (ignoreBars) then
+			self.rowframe:SetFrameAlpha(1)
 		else
-			self.rowframe:SetAlpha (alpha)
+			self.rowframe:SetFrameAlpha(alpha)
 		end
 	else
-		--> saiu
+		--mouse left the window
 		if (self.combat_changes_alpha and self.combat_changes_alpha ~= 1) then --> combat alpha
-			self:InstanceAlpha (self.combat_changes_alpha)
-			self:SetIconAlpha (self.combat_changes_alpha, nil, true)
-			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate � absoluta
-			self.baseframe:SetAlpha (self.combat_changes_alpha) --alpha do combate � absoluta
+			self:InstanceAlpha(self.combat_changes_alpha)
+			self:SetIconAlpha(self.combat_changes_alpha, nil, true)
+			self.rowframe:SetFrameAlpha(self.combat_changes_alpha) --alpha do combate � absoluta
+			self.baseframe:SetAlpha(self.combat_changes_alpha) --alpha do combate � absoluta
 
 		else
-			self:InstanceAlpha (alpha)
-			self:SetIconAlpha (alpha, nil, true)
-			
-			if (ignorebars) then
-				self.rowframe:SetAlpha (1)
+			self:InstanceAlpha(alpha)
+			self:SetIconAlpha(alpha, nil, true)
+
+			if (ignoreBars) then
+				self.rowframe:SetFrameAlpha(1)
 			else
-				self.rowframe:SetAlpha (alpha)
+				self.rowframe:SetFrameAlpha(alpha)
 			end
-			
-			self.baseframe:SetAlpha (alpha)
+
+			self.baseframe:SetAlpha(alpha)
 		end
 	end
 	
@@ -5252,23 +5255,15 @@ function Details:SetWindowAlphaForCombat (entering_in_combat, true_hide, alphaAm
 		self.baseframe:Hide()
 		self.rowframe:Hide()
 		self.windowSwitchButton:Hide()
-		--Details.FadeHandler.Fader (self.baseframe, unpack(_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.rowframe, unpack(_detalhes.windows_fade_in))
-		--Details.FadeHandler.Fader (self.windowSwitchButton, unpack(_detalhes.windows_fade_in))
-		
-		--self:SetIconAlpha (nil, true)
-		
 		if (Details.debug) then
 			Details:Msg ("(debug) hiding window SetWindowAlphaForCombat()", amount, rowsamount, menuamount)
 		end
-		--]]
 	else
-	--
 		self.baseframe:Show()
-		self.baseframe:SetAlpha (1)
-		
-		self:InstanceAlpha(min (amount, self.color[4]))
-		Details.FadeHandler.Fader(self.rowframe, "ALPHAANIM", rowsamount)
+		self.baseframe:SetAlpha(1)
+
+		self:InstanceAlpha(min(amount, self.color[4]))
+		Details.FadeHandler.Fader(self.rowframe, "ALPHAANIM", parseRowFrameAlpha(rowsamount))
 		Details.FadeHandler.Fader(self.baseframe, "ALPHAANIM", rowsamount)
 	--]]
 	end
@@ -7405,24 +7400,24 @@ function Details:UpdateClickThrough()
 			
 			--window frames
 			if (windowClickThrough) then
-				self.baseframe:EnableMouse (false)
-				self.bgframe:EnableMouse (false)
-				self.rowframe:EnableMouse (false)
-				self.floatingframe:EnableMouse (false)
-				self.windowSwitchButton:EnableMouse (false)
-				self.windowBackgroundDisplay:EnableMouse (false)
-				self.baseframe.UPFrame:EnableMouse (false)
+				self.baseframe:EnableMouse(false)
+				self.bgframe:EnableMouse(false)
+				self.rowframe:EnableMouse(false)
+				self.floatingframe:EnableMouse(false)
+				self.windowSwitchButton:EnableMouse(false)
+				self.windowBackgroundDisplay:EnableMouse(false)
+				self.baseframe.UPFrame:EnableMouse(false)
 				self.baseframe.DOWNFrame:EnableMouse(false)
 
 				
 			else
-				self.baseframe:EnableMouse (true)
-				self.bgframe:EnableMouse (true)
-				self.rowframe:EnableMouse (true)
-				self.floatingframe:EnableMouse (true)
-				self.windowSwitchButton:EnableMouse (true)
-				self.windowBackgroundDisplay:EnableMouse (true)
-				self.baseframe.UPFrame:EnableMouse (true)
+				self.baseframe:EnableMouse(true)
+				self.bgframe:EnableMouse(true)
+				self.rowframe:EnableMouse(true)
+				self.floatingframe:EnableMouse(true)
+				self.windowSwitchButton:EnableMouse(true)
+				self.windowBackgroundDisplay:EnableMouse(true)
+				self.baseframe.UPFrame:EnableMouse(true)
 				self.baseframe.DOWNFrame:EnableMouse(true)
 			end
 			
@@ -7436,24 +7431,24 @@ function Details:UpdateClickThrough()
 			toolbar_buttons [6] = self.baseframe.cabecalho.fechar
 			
 			for i, button in ipairs (toolbar_buttons) do
-				button:EnableMouse (toolbar_buttons)
+				button:EnableMouse(toolbar_buttons)
 			end
 			
 		else
 			--player bars
 			for barIndex, barObject in ipairs (self.barras) do
-				barObject:EnableMouse (true)
+				barObject:EnableMouse(true)
 				barObject.icon_frame:EnableMouse(true)
 			end
 			
 			--window frames
-			self.baseframe:EnableMouse (true)
-			self.bgframe:EnableMouse (true)
-			self.rowframe:EnableMouse (true)
-			self.floatingframe:EnableMouse (true)
-			self.windowSwitchButton:EnableMouse (true)
-			self.windowBackgroundDisplay:EnableMouse (true)
-			self.baseframe.UPFrame:EnableMouse (true)
+			self.baseframe:EnableMouse(true)
+			self.bgframe:EnableMouse(true)
+			self.rowframe:EnableMouse(true)
+			self.floatingframe:EnableMouse(true)
+			self.windowSwitchButton:EnableMouse(true)
+			self.windowBackgroundDisplay:EnableMouse(true)
+			self.baseframe.UPFrame:EnableMouse(true)
 			self.baseframe.DOWNFrame:EnableMouse(true)
 			
 			--titlebar icons, forcing true because the player isn't in combat and the inCombat setting is enabled
@@ -7466,7 +7461,7 @@ function Details:UpdateClickThrough()
 			toolbar_buttons [6] = self.baseframe.cabecalho.fechar
 			
 			for i, button in ipairs (toolbar_buttons) do
-				button:EnableMouse (true)
+				button:EnableMouse(true)
 			end
 		end
 	else
@@ -7474,33 +7469,33 @@ function Details:UpdateClickThrough()
 		--player bars
 		if (barsClickThrough) then
 			for barIndex, barObject in ipairs (self.barras) do 
-				barObject:EnableMouse (false)
+				barObject:EnableMouse(false)
 				barObject.icon_frame:EnableMouse(false)
 			end
 		else
 			for barIndex, barObject in ipairs (self.barras) do 
-				barObject:EnableMouse (true)
+				barObject:EnableMouse(true)
 			end
 		end
 		
 		--window frame
 		if (windowClickThrough) then
-			self.baseframe:EnableMouse (false)
-			self.bgframe:EnableMouse (false)
-			self.rowframe:EnableMouse (false)
-			self.floatingframe:EnableMouse (false)
-			self.windowSwitchButton:EnableMouse (false)
-			self.windowBackgroundDisplay:EnableMouse (false)
-			self.baseframe.UPFrame:EnableMouse (false)
+			self.baseframe:EnableMouse(false)
+			self.bgframe:EnableMouse(false)
+			self.rowframe:EnableMouse(false)
+			self.floatingframe:EnableMouse(false)
+			self.windowSwitchButton:EnableMouse(false)
+			self.windowBackgroundDisplay:EnableMouse(false)
+			self.baseframe.UPFrame:EnableMouse(false)
 			self.baseframe.DOWNFrame:EnableMouse(false)
 		else
-			self.baseframe:EnableMouse (true)
-			self.bgframe:EnableMouse (true)
-			self.rowframe:EnableMouse (true)
-			self.floatingframe:EnableMouse (true)
-			self.windowSwitchButton:EnableMouse (true)
-			self.windowBackgroundDisplay:EnableMouse (true)
-			self.baseframe.UPFrame:EnableMouse (true)
+			self.baseframe:EnableMouse(true)
+			self.bgframe:EnableMouse(true)
+			self.rowframe:EnableMouse(true)
+			self.floatingframe:EnableMouse(true)
+			self.windowSwitchButton:EnableMouse(true)
+			self.windowBackgroundDisplay:EnableMouse(true)
+			self.baseframe.UPFrame:EnableMouse(true)
 			self.baseframe.DOWNFrame:EnableMouse(true)
 		end
 		
@@ -7514,7 +7509,7 @@ function Details:UpdateClickThrough()
 		toolbar_buttons [6] = self.baseframe.cabecalho.fechar
 		
 		for i, button in ipairs (toolbar_buttons) do
-			button:EnableMouse (toolbarIcons)
+			button:EnableMouse(toolbarIcons)
 		end
 	end
 end
@@ -7706,17 +7701,16 @@ function Details:LeftMenuAnchorSide (side)
 	return self:MenuAnchor()
 end
 
-function Details:SetFrameStrata (strata)
-	
+function Details:SetFrameStrata(strata)
 	if (not strata) then
 		strata = self.strata
 	end
 	
 	self.strata = strata
 	
-	self.rowframe:SetFrameStrata (strata)
-	self.windowSwitchButton:SetFrameStrata (strata)
-	self.baseframe:SetFrameStrata (strata)
+	self.rowframe:SetFrameStrata(strata)
+	self.windowSwitchButton:SetFrameStrata(strata)
+	self.baseframe:SetFrameStrata(strata)
 	
 	if (strata == "BACKGROUND") then
 		self.break_snap_button:SetFrameStrata ("LOW")
@@ -8260,7 +8254,7 @@ function Details:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interactin
 	
 	if (not enabled) then
 		self.baseframe:SetAlpha (1)
-		self.rowframe:SetAlpha (1)
+		self.rowframe:SetFrameAlpha(1)
 		self:InstanceAlpha (self.color[4])
 		self:SetIconAlpha (1, nil, true)
 		return self:InstanceColor (unpack(self.color))
@@ -8405,15 +8399,14 @@ function Details:GetInstanceGroup (instance_id)
 	return current_group
 end
 
-function Details:SetWindowScale (scale, from_options)
+function Details:SetWindowScale(scale, fromOptions)
 	if (not scale) then
 		scale = self.window_scale
 	end
 
-	if (from_options) then
+	if (fromOptions) then
 		local group = self:GetInstanceGroup()
-		
-		for _, instance in ipairs (group) do
+		for _, instance in ipairs(group) do
 			instance.baseframe:SetScale(scale)
 			instance.rowframe:SetScale(scale)
 			instance.windowSwitchButton:SetScale(scale)

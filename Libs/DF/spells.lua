@@ -1274,7 +1274,7 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --consumables
-if(DF.IsShadowlandsWow() or DF.IsDragonflight()) then --Temporary IsDragonFlight until I get the items together
+if (DF.IsShadowlandsWow() or DF.IsDragonflight()) then --Temporary IsDragonFlight until I get the items together
 	DF.WeaponEnchantIds = {
 		[6188] = true, --shadowcore oil
 		[6190] = true, --embalmer's oil
@@ -1407,6 +1407,12 @@ elseif (DF.IsWotLKWow()) then
 	DF.FeastIDs = {}
 	DF.RuneIDs = {}
 
+elseif (DF.IsClassicWow()) then
+	DF.PotionIDs = {}
+	DF.FeastIDs = {}
+	DF.RuneIDs = {}
+	DF.FoodIDs = {}
+	DF.FlaskIDs = {}
 end
 
 --	/dump UnitAura ("player", 1)

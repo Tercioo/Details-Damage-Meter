@@ -18,7 +18,7 @@ local PixelUtil = PixelUtil or DFPixelUtil
 local version = 3
 
 local CONST_MENU_TYPE_MAINMENU = "main"
-local CONST_MENU_TYPE_SUBMENU = "sec"
+local CONST_MENU_TYPE_SUBMENU = "sub"
 local CONST_COOLTIP_TYPE_MENU = "menu"
 local CONST_COOLTIP_TYPE_TOOLTIP = "tooltip"
 
@@ -50,6 +50,18 @@ function DF:CreateCoolTip()
 
 	function gameCooltip:SetDebug(bDebugState)
 		gameCooltip.debug = bDebugState
+	end
+
+	function gameCooltip:ParseMenuType(menuType)
+		if ((type(menuType) == "number" and menuType == 1) or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU)) then
+			return CONST_MENU_TYPE_MAINMENU
+		end
+
+		if ((type(menuType) == "number" and menuType == 2) or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU)) then
+			return CONST_MENU_TYPE_SUBMENU
+		end
+
+		return CONST_MENU_TYPE_MAINMENU
 	end
 
 	--containers
@@ -180,12 +192,14 @@ function DF:CreateCoolTip()
 		self:SetBackdropColor(DF:ParseColors(defaultBackdropColor))
 		self:SetBackdropBorderColor(DF:ParseColors(defaultBackdropBorderColor))
 
+		--this texture get the color from gameCooltip:SetColor()
 		if (not self.frameBackgroundTexture) then
 			self.frameBackgroundTexture = self:CreateTexture("$parent_FrameBackgroundTexture", "BACKGROUND", nil, 2)
 			self.frameBackgroundTexture:SetColorTexture(0, 0, 0, 0)
 			self.frameBackgroundTexture:SetAllPoints()
 		end
 
+		--this get the texture from gameCooltip:SetWallpaper(index, texture, texcoord, color, desaturate)
 		if (not self.frameWallpaper) then
 			self.frameWallpaper = self:CreateTexture("$parent_FrameWallPaper", "BACKGROUND", nil, 4)
 			self.frameWallpaper:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
@@ -196,6 +210,12 @@ function DF:CreateCoolTip()
 			self.selectedTop = self:CreateTexture("$parent_SelectedTop", "ARTWORK")
 			self.selectedTop:SetColorTexture(.5, .5, .5, .75)
 			self.selectedTop:SetHeight(3)
+		end
+
+		if (not self.gradientTexture) then
+			self.gradientTexture = DetailsFramework:CreateTexture(self, {gradient = "vertical", fromColor = {0, 0, 0, .2}, toColor = {0, 0, 0, 0}}, 1, 1, "overlay", {0, 1, 0, 1})
+			self.gradientTexture.sublevel = -7
+			self.gradientTexture:SetAllPoints()
 		end
 
 		if (not self.selectedBottom) then
@@ -211,18 +231,18 @@ function DF:CreateCoolTip()
 			self.selectedMiddle:SetPoint("BOTTOMRIGHT", self.selectedBottom, "TOPRIGHT")
 		end
 
-		if (not self.upperImage2) then
-			self.upperImage2 = self:CreateTexture("$parent_UpperImage2", "ARTWORK")
-			self.upperImage2:SetPoint("CENTER", self, "CENTER", 0, -3)
-			self.upperImage2:SetPoint("BOTTOM", self, "TOP", 0, -3)
-			self.upperImage2:Hide()
-		end
-
 		if (not self.upperImage) then
 			self.upperImage = self:CreateTexture("$parent_UpperImage", "OVERLAY")
 			self.upperImage:SetPoint("CENTER", self, "CENTER", 0, -3)
 			self.upperImage:SetPoint("BOTTOM", self, "TOP", 0, -3)
 			self.upperImage:Hide()
+		end
+
+		if (not self.upperImage2) then
+			self.upperImage2 = self:CreateTexture("$parent_UpperImage2", "ARTWORK")
+			self.upperImage2:SetPoint("CENTER", self, "CENTER", 0, -3)
+			self.upperImage2:SetPoint("BOTTOM", self, "TOP", 0, -3)
+			self.upperImage2:Hide()
 		end
 
 		if (not self.upperImageText) then
@@ -2027,7 +2047,9 @@ function DF:CreateCoolTip()
 	--set tooltip color
 	function gameCooltip:SetColor(menuType, ...)
 		local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(...)
-		if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
+		menuType = gameCooltip:ParseMenuType(menuType)
+
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			frame1.frameBackgroundTexture:SetColorTexture(colorRed, colorGreen, colorBlue, colorAlpha)
 
 			--hide textures from older versions if exists
@@ -2037,7 +2059,7 @@ function DF:CreateCoolTip()
 				frame1.frameBackgroundCenter:Hide()
 			end
 
-		elseif ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU) or (type(menuType) == "number" and menuType == 2)) then
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			frame2.frameBackgroundTexture:SetColorTexture(colorRed, colorGreen, colorBlue, colorAlpha)
 
 			--hide textures from older versions if exists
@@ -2054,10 +2076,14 @@ function DF:CreateCoolTip()
 	--set last selected option
 	function gameCooltip:SetLastSelected(menuType, index, index2)
 		if (gameCooltip.Type == 3) then
-			if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
+			menuType = gameCooltip:ParseMenuType(menuType)
+
+			if (menuType == CONST_MENU_TYPE_MAINMENU) then
 				gameCooltip.SelectedIndexMain = index
-			elseif ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU) or (type(menuType) == "number" and menuType == 2)) then
+
+			elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 				gameCooltip.SelectedIndexSec[index] = index2
+
 			else
 				return gameCooltip:PrintDebug("SetLastSelected() unknown menuType.", menuType)
 			end
@@ -2179,7 +2205,9 @@ function DF:CreateCoolTip()
 	--menu functions
 	local defaultWhiteColor = {1, 1, 1}
 	function gameCooltip:AddMenu(menuType, func, param1, param2, param3, leftText, leftIcon, indexUp)
-		if (leftText and indexUp and ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1))) then
+		menuType = gameCooltip:ParseMenuType(menuType)
+
+		if (leftText and indexUp and (menuType == CONST_MENU_TYPE_MAINMENU)) then
 			gameCooltip.Indexes = gameCooltip.Indexes + 1
 			if (not gameCooltip.IndexesSub[gameCooltip.Indexes]) then
 				gameCooltip.IndexesSub[gameCooltip.Indexes] = 0
@@ -2197,7 +2225,7 @@ function DF:CreateCoolTip()
 			return gameCooltip:PrintDebug("AddMenu() no function passed.")
 		end
 
-		if ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			local parameterTable
 			if (gameCooltip.isSpecial) then
 				parameterTable = {}
@@ -2248,10 +2276,10 @@ function DF:CreateCoolTip()
 				lineTable_Left[8] = false
 			end
 
-		elseif ((type(menuType) == "string" and menuType == CONST_MENU_TYPE_SUBMENU) or (type(menuType) == "number" and menuType == 2)) then
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			if (gameCooltip.SubIndexes == 0) then
 				if (not indexUp or not leftText) then
-					return gameCooltip:PrintDebug("AddMenu() attempt to add a submenu with a parent.") --error[leftText can't be nil if indexUp are true]
+					return gameCooltip:PrintDebug("AddMenu() attempt to add a submenu with a parent.")
 				end
 			end
 
@@ -2260,7 +2288,7 @@ function DF:CreateCoolTip()
 				gameCooltip.IndexesSub[gameCooltip.Indexes] = gameCooltip.IndexesSub[gameCooltip.Indexes] + 1
 
 			elseif (indexUp and not leftText) then
-				return gameCooltip:PrintDebug("AddMenu() attempt to add a submenu with a parent.") --error[leftText can't be nil if indexUp are true]
+				return gameCooltip:PrintDebug("AddMenu() attempt to add a submenu with a parent.")
 			end
 
 			--menu container
@@ -2356,18 +2384,21 @@ function DF:CreateCoolTip()
 			return
 		end
 
+		menuType = gameCooltip:ParseMenuType(menuType)
+
 		if (type(colorRed) == "table" or type(colorRed) == "string") then
 			statusbarGlow, backgroundBar, colorRed, colorGreen, colorBlue, colorAlpha = colorGreen, colorBlue, DF:ParseColors(colorRed)
+
 		elseif (type(colorRed) == "boolean") then
 			backgroundBar = colorGreen
 			statusbarGlow = colorRed
 			colorRed, colorGreen, colorBlue, colorAlpha = 1, 1, 1, 1
 		end
 
-		--add
 		local frameTable
 		local statusbarTable
-		if (not menuType or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
+
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			frameTable = gameCooltip.StatusBarTable
 			if (gameCooltip.isSpecial) then
 				statusbarTable = {}
@@ -2380,7 +2411,7 @@ function DF:CreateCoolTip()
 				end
 			end
 
-		elseif ((type(menuType) == "string" and menuType == "sub") or (type(menuType) == "number" and menuType == 2)) then
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			frameTable = gameCooltip.StatusBarTableSub
 			local subMenuContainerStatusBar = frameTable[gameCooltip.Indexes]
 			if (not subMenuContainerStatusBar) then
@@ -2414,17 +2445,20 @@ function DF:CreateCoolTip()
 
 	frame1.frameWallpaper:Hide()
 	frame2.frameWallpaper:Hide()
-	function gameCooltip:SetWallpaper(index, texture, texcoord, color, desaturate)
+	function gameCooltip:SetWallpaper(menuType, texture, texcoord, color, desaturate)
 		if (gameCooltip.Indexes == 0) then
 			return gameCooltip:PrintDebug("SetWallpaper() requires an already added line (Cooltip:AddLine()).")
 		end
 
+		menuType = gameCooltip:ParseMenuType(menuType)
+
 		local frameTable
 		local wallpaperTable
-		if ((type(index) == "number" and index == 1) or (type(index) == "string" and index == CONST_MENU_TYPE_MAINMENU)) then
+
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			wallpaperTable = gameCooltip.WallpaperTable
 
-		elseif ((type(index) == "number" and index == 2) or (type(index) == "string" and index == "sub")) then
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			frameTable = gameCooltip.WallpaperTableSub
 			local subMenuContainerWallpapers = frameTable[gameCooltip.Indexes]
 			if (not subMenuContainerWallpapers) then
@@ -2463,6 +2497,7 @@ function DF:CreateCoolTip()
 		if (anchor and index == 1) then
 			local myAnchor, hisAnchor, x, y = unpack(anchor)
 			fontstring:SetPoint(myAnchor, frame1.upperImage, hisAnchor or myAnchor, x or 0, y or 0)
+
 		elseif (anchor and index == 2) then
 			local myAnchor, hisAnchor, x, y = unpack(anchor)
 			fontstring:SetPoint(myAnchor, frame1, hisAnchor or myAnchor, x or 0, y or 0)
@@ -2481,11 +2516,15 @@ function DF:CreateCoolTip()
 		fontstring:Show()
 	end
 
-	function gameCooltip:SetBackdrop(index, backdrop, backdropcolor, bordercolor)
+	function gameCooltip:SetBackdrop(menuType, backdrop, backdropcolor, bordercolor)
 		local frame
-		if (index == 1) then
+
+		menuType = gameCooltip:ParseMenuType(menuType)
+
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			frame = frame1
-		elseif (index == 2) then
+
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			frame = frame2
 		end
 
@@ -2568,8 +2607,9 @@ function DF:CreateCoolTip()
 		side = side or 1
 		local frameTable
 		local iconTable
+		menuType = gameCooltip:ParseMenuType(menuType)
 
-		if (not menuType or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			if (not side or (type(side) == "string" and side == "left") or (type(side) == "number" and side == 1)) then
 				frameTable = gameCooltip.LeftIconTable
 
@@ -2588,7 +2628,7 @@ function DF:CreateCoolTip()
 				end
 			end
 
-		elseif ((type(menuType) == "string" and menuType == "sub") or (type(menuType) == "number" and menuType == 2)) then
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			if ((type(side) == "string" and side == "left") or (type(side) == "number" and side == 1)) then
 				frameTable = gameCooltip.LeftIconTableSub
 
@@ -2703,7 +2743,9 @@ function DF:CreateCoolTip()
 		local lineTable_Left
 		local lineTable_Right
 
-		if (not menuType or (type(menuType) == "string" and menuType == CONST_MENU_TYPE_MAINMENU) or (type(menuType) == "number" and menuType == 1)) then
+		menuType = gameCooltip:ParseMenuType(menuType)
+
+		if (menuType == CONST_MENU_TYPE_MAINMENU) then
 			gameCooltip.Indexes = gameCooltip.Indexes + 1
 			if (not gameCooltip.IndexesSub[gameCooltip.Indexes]) then
 				gameCooltip.IndexesSub[gameCooltip.Indexes] = 0
@@ -2732,7 +2774,7 @@ function DF:CreateCoolTip()
 				end
 			end
 
-		elseif ((type(menuType) == "string" and menuType == "sub") or (type(menuType) == "number" and menuType == 2)) then
+		elseif (menuType == CONST_MENU_TYPE_SUBMENU) then
 			gameCooltip.SubIndexes = gameCooltip.SubIndexes + 1
 			gameCooltip.IndexesSub[gameCooltip.Indexes] = gameCooltip.IndexesSub[gameCooltip.Indexes] + 1
 			gameCooltip.HaveSubMenu = true
@@ -2996,7 +3038,7 @@ function DF:CreateCoolTip()
 		gameCooltip:ShowCooltip()
 
 		if (fromClick) then
-			frame1:Flash (0.05, 0.05, 0.2, true, 0, 0)
+			frame1:Flash(0.05, 0.05, 0.2, true, 0, 0)
 		end
 	end
 
