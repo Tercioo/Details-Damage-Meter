@@ -5,11 +5,6 @@
 ## OptionalDeps: Ace3
 ## SavedVariablesPerCharacter: EncounterDetailsDB
 
-
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
-
 enUS.lua
 ptBR.lua
 frames.lua
