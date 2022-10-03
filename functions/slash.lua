@@ -967,6 +967,16 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 
 	--> debug
+	elseif (command == "debugnet") then
+		if (_detalhes.debugnet) then
+			_detalhes.debugnet = false
+			print(Loc["STRING_DETAILS1"] .. "net diagnostic mode has been turned off.")
+			return
+		else
+			_detalhes.debugnet = true
+			print(Loc["STRING_DETAILS1"] .. "net diagnostic mode has been turned on.")
+		end
+
 	elseif (command == "debug") then
 		if (_detalhes.debug) then
 			_detalhes.debug = false

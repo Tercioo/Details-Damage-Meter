@@ -15,6 +15,10 @@
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 
+		function _detalhes:GetCoreVersion()
+			return _detalhes.realversion
+		end
+
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
 --
@@ -510,7 +514,9 @@ do
 				if (Details.debug) then
 					Details:Msg("Safe run failed:", executionName, errorText)
 				end
+				return false
 			end
+			return true
 		end
 
 		--> tooltip
