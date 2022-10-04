@@ -15,16 +15,36 @@
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 
+		_detalhes.acounter = 1 --in case of a second release with the same .build_counter
+		_detalhes.curseforgeVersion = GetAddOnMetadata("Details", "Version")
+
 		function _detalhes:GetCoreVersion()
 			return _detalhes.realversion
 		end
 
 		_detalhes.BFACORE = 131 --core version on BFA launch
 		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
---
-		_detalhes.dragonflight_beta_version = 36
 
 		Details = _detalhes
+
+		local gameVersionPrefix = "Unknown Game Version - You're probably using a Details! not compatible with this version of the Game"
+		--these are the game versions currently compatible with this Details! versions
+		if (DetailsFramework.IsWotLKWow() or DetailsFramework.IsShadowlandsWow() or DetailsFramework.IsDragonflight()) then
+			gameVersionPrefix = "WSD"
+		end
+
+		Details.gameVersionPrefix = gameVersionPrefix
+
+		function Details.GetVersionString()
+			local alphaId = _detalhes.curseforgeVersion:match("%-(%d+)%-")
+			if (not alphaId) then
+				--this is a release version
+				alphaId = "R1"
+			else
+				alphaId = "A" .. alphaId
+			end
+			return Details.gameVersionPrefix .. Details.build_counter .. "." .. Details.acounter .. "." .. alphaId .. "(" .. Details.game_version .. ")"
+		end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff

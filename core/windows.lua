@@ -1649,3 +1649,37 @@ function _detalhes:FormatBackground (f)
 	f.__background:SetHorizTile (true)
 	f.__background:SetAllPoints()
 end
+
+
+function Details.ShowCopyValueFrame(textToShow)
+	if (not DetailsCopyValueFrame) then
+		local frame = CreateFrame("frame", "DetailsCopyValueFrame", UIParent)
+		frame:SetSize(160, 20)
+		frame:SetPoint("center", UIParent, "center", 0, 0)
+		DetailsFramework:ApplyStandardBackdrop(frame)
+		tinsert(UISpecialFrames, "DetailsCopyValueFrame")
+
+		frame.editBox = CreateFrame("editbox", nil, frame)
+		frame.editBox:SetPoint ("topleft", frame, "topleft")
+		frame.editBox:SetAutoFocus(false)
+		frame.editBox:SetFontObject("GameFontHighlightSmall")
+		frame.editBox:SetAllPoints()
+		frame.editBox:SetJustifyH("center")
+		frame.editBox:EnableMouse(true)
+
+		frame.editBox:SetScript("OnEnterPressed", function()
+			frame.editBox:ClearFocus()
+			frame:Hide()
+		end)
+
+		frame.editBox:SetScript("OnEscapePressed", function()
+			frame.editBox:ClearFocus()
+			frame:Hide()
+		end)
+	end
+
+	DetailsCopyValueFrame:Show()
+	DetailsCopyValueFrame.editBox:SetText(textToShow or "")
+	DetailsCopyValueFrame.editBox:SetFocus()
+	DetailsCopyValueFrame.editBox:HighlightText()
+end
