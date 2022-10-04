@@ -1,6 +1,6 @@
 
-local DF = _G ["DetailsFramework"]
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
@@ -10,18 +10,18 @@ local loadedAPILabelFunctions = false
 do
 	local metaPrototype = {
 		WidgetType = "label",
-		SetHook = DF.SetHook,
-		RunHooksForWidget = DF.RunHooksForWidget,
+		SetHook = detailsFramework.SetHook,
+		RunHooksForWidget = detailsFramework.RunHooksForWidget,
 
-		dversion = DF.dversion,
+		dversion = detailsFramework.dversion,
 	}
 
 	--check if there's a metaPrototype already existing
-	if (_G[DF.GlobalWidgetControlNames["label"]]) then
+	if (_G[detailsFramework.GlobalWidgetControlNames["label"]]) then
 		--get the already existing metaPrototype
-		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames ["label"]]
+		local oldMetaPrototype = _G[detailsFramework.GlobalWidgetControlNames ["label"]]
 		--check if is older
-		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < DF.dversion) ) then
+		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < detailsFramework.dversion) ) then
 			--the version is older them the currently loading one
 			--copy the new values into the old metatable
 			for funcName, _ in pairs(metaPrototype) do
@@ -30,11 +30,13 @@ do
 		end
 	else
 		--first time loading the framework
-		_G[DF.GlobalWidgetControlNames ["label"]] = metaPrototype
+		_G[detailsFramework.GlobalWidgetControlNames ["label"]] = metaPrototype
 	end
 end
 
-local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
+local LabelMetaFunctions = _G[detailsFramework.GlobalWidgetControlNames ["label"]]
+
+detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.SetPointMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -46,31 +48,32 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 ------------------------------------------------------------------------------------------------------------
 --> members
 
-	--shown
-	local gmember_shown = function(object)
-		return object:IsShown()
-	end
 	--get text
 	local gmember_text = function(object)
 		return object.label:GetText()
 	end
+
 	--text width
 	local gmember_width = function(object)
 		return object.label:GetStringWidth()
 	end
+
 	--text height
 	local gmember_height = function(object)
 		return object.label:GetStringHeight()
 	end
+
 	--text color
 	local gmember_textcolor = function(object)
 		return object.label:GetTextColor()
 	end
+
 	--text font
 	local gmember_textfont = function(object)
 		local fontface = object.label:GetFont()
 		return fontface
 	end
+
 	--text size
 	local gmember_textsize = function(object)
 		local _, fontsize = object.label:GetFont()
@@ -78,7 +81,9 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 	end
 
 	LabelMetaFunctions.GetMembers = LabelMetaFunctions.GetMembers or {}
-	LabelMetaFunctions.GetMembers["shown"] = gmember_shown
+	detailsFramework:Mixin(LabelMetaFunctions.GetMembers, detailsFramework.LayeredRegionMetaFunctionsGet)
+	detailsFramework:Mixin(LabelMetaFunctions.GetMembers, detailsFramework.DefaultMetaFunctionsGet)
+
 	LabelMetaFunctions.GetMembers["width"] = gmember_width
 	LabelMetaFunctions.GetMembers["height"] = gmember_height
 	LabelMetaFunctions.GetMembers["text"] = gmember_text
@@ -105,39 +110,27 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	--show
-	local smember_show = function(object, value)
-		if (value) then
-			return object:Show()
-		else
-			return object:Hide()
-		end
-	end
-	--hide
-	local smember_hide = function(object, value)
-		if (not value) then
-			return object:Show()
-		else
-			return object:Hide()
-		end
-	end
 	--text
 	local smember_text = function(object, value)
 		return object.label:SetText(value)
 	end
+
 	--text color
 	local smember_textcolor = function(object, value)
-		local value1, value2, value3, value4 = DF:ParseColors(value)
+		local value1, value2, value3, value4 = detailsFramework:ParseColors(value)
 		return object.label:SetTextColor(value1, value2, value3, value4)
 	end
+
 	--text font
 	local smember_textfont = function(object, value)
-		return DF:SetFontFace(object.label, value)
+		return detailsFramework:SetFontFace(object.label, value)
 	end
+
 	--text size
 	local smember_textsize = function(object, value)
-		return DF:SetFontSize(object.label, value)
+		return detailsFramework:SetFontSize(object.label, value)
 	end
+
 	--text align
 	local smember_textalign = function(object, value)
 		if (value == "<") then
@@ -149,6 +142,7 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 		end
 		return object.label:SetJustifyH(value)
 	end
+
 	--text valign
 	local smember_textvalign = function(object, value)
 		if (value == "^") then
@@ -160,24 +154,28 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 		end
 		return object.label:SetJustifyV(value)
 	end
+
 	--field size width
 	local smember_width = function(object, value)
 		return object.label:SetWidth(value)
 	end
+
 	--field size height
 	local smember_height = function(object, value)
 		return object.label:SetHeight(value)
 	end
+
 	--outline (shadow)
 	local smember_outline = function(object, value)
-		DF:SetFontOutline(object.label, value)
+		detailsFramework:SetFontOutline(object.label, value)
 	end
+
 	--text rotation
 	local smember_rotation = function(object, rotation)
 		if (type(rotation) == "number") then
 			if (not object.__rotationAnimation) then
-				object.__rotationAnimation = DF:CreateAnimationHub(object.label)
-				object.__rotationAnimation.rotator = DF:CreateAnimation(object.__rotationAnimation, "rotation", 1, 0, 0)
+				object.__rotationAnimation = detailsFramework:CreateAnimationHub(object.label)
+				object.__rotationAnimation.rotator = detailsFramework:CreateAnimation(object.__rotationAnimation, "rotation", 1, 0, 0)
 				object.__rotationAnimation.rotator:SetEndDelay(10^8)
 				object.__rotationAnimation.rotator:SetSmoothProgress(1)
 			end
@@ -188,8 +186,9 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 	end
 
 	LabelMetaFunctions.SetMembers = LabelMetaFunctions.SetMembers or {}
-	LabelMetaFunctions.SetMembers["show"] = smember_show
-	LabelMetaFunctions.SetMembers["hide"] = smember_hide
+	detailsFramework:Mixin(LabelMetaFunctions.SetMembers, detailsFramework.LayeredRegionMetaFunctionsSet)
+	detailsFramework:Mixin(LabelMetaFunctions.SetMembers, detailsFramework.DefaultMetaFunctionsSet)
+
 	LabelMetaFunctions.SetMembers["align"] = smember_textalign
 	LabelMetaFunctions.SetMembers["valign"] = smember_textvalign
 	LabelMetaFunctions.SetMembers["text"] = smember_text
@@ -218,63 +217,42 @@ local LabelMetaFunctions = _G[DF.GlobalWidgetControlNames ["label"]]
 ------------------------------------------------------------------------------------------------------------
 --> methods
 
---show & hide
-	function LabelMetaFunctions:IsShown()
-		return self.label:IsShown()
-	end
-	function LabelMetaFunctions:Show()
-		return self.label:Show()
-	end
-	function LabelMetaFunctions:Hide()
-		return self.label:Hide()
-	end
-
 --text text
 	function LabelMetaFunctions:SetTextTruncated(text, maxWidth)
 		self.widget:SetText(text)
-		DF:TruncateText(self.widget, maxWidth)
+		detailsFramework:TruncateText(self.widget, maxWidth)
 	end
 
 --textcolor
 	function LabelMetaFunctions:SetTextColor(r, g, b, a)
-		r, g, b, a = DF:ParseColors(r, g, b, a)
+		r, g, b, a = detailsFramework:ParseColors(r, g, b, a)
 		return self.label:SetTextColor(r, g, b, a)
-	end
-
--- setpoint
-	function LabelMetaFunctions:SetPoint(v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = DF:CheckPoints(v1, v2, v3, v4, v5, self)
-		if (not v1) then
-			print("Invalid parameter for SetPoint")
-			return
-		end
-		return self.widget:SetPoint(v1, v2, v3, v4, v5)
 	end
 
 ------------------------------------------------------------------------------------------------------------
 
 	function LabelMetaFunctions:SetTemplate(template)
 		if (template.size) then
-			DF:SetFontSize(self.label, template.size)
+			detailsFramework:SetFontSize(self.label, template.size)
 		end
 		if (template.color) then
-			local r, g, b, a = DF:ParseColors(template.color)
+			local r, g, b, a = detailsFramework:ParseColors(template.color)
 			self:SetTextColor(r, g, b, a)
 		end
 		if (template.font) then
 			local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 			local font = SharedMedia:Fetch("font", template.font)
-			DF:SetFontFace(self.label, font)
+			detailsFramework:SetFontFace(self.label, font)
 		end
 	end
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
-function DF:CreateLabel(parent, text, size, color, font, member, name, layer)
-	return DF:NewLabel(parent, nil, name, member, text, font, size, color, layer)
+function detailsFramework:CreateLabel(parent, text, size, color, font, member, name, layer)
+	return detailsFramework:NewLabel(parent, nil, name, member, text, font, size, color, layer)
 end
 
-function DF:NewLabel(parent, container, name, member, text, font, size, color, layer)
+function detailsFramework:NewLabel(parent, container, name, member, text, font, size, color, layer)
 	if (not parent) then
 		return error("Details! Framework: parent not found.", 2)
 	end
@@ -283,12 +261,12 @@ function DF:NewLabel(parent, container, name, member, text, font, size, color, l
 	end
 
 	if (not name) then
-		name = "DetailsFrameworkLabelNumber" .. DF.LabelNameCounter
-		DF.LabelNameCounter = DF.LabelNameCounter + 1
+		name = "DetailsFrameworkLabelNumber" .. detailsFramework.LabelNameCounter
+		detailsFramework.LabelNameCounter = detailsFramework.LabelNameCounter + 1
 	end
 
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = detailsFramework.GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
@@ -328,12 +306,12 @@ function DF:NewLabel(parent, container, name, member, text, font, size, color, l
 	LabelObject.label:SetText(text)
 
 	if (color) then
-		local r, g, b, a = DF:ParseColors(color)
+		local r, g, b, a = detailsFramework:ParseColors(color)
 		LabelObject.label:SetTextColor(r, g, b, a)
 	end
 
 	if (size and type(size) == "number") then
-		DF:SetFontSize(LabelObject.label, size)
+		detailsFramework:SetFontSize(LabelObject.label, size)
 	end
 
 	LabelObject.HookList = {

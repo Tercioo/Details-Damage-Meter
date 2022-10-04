@@ -1,29 +1,28 @@
 
-local DF = _G ["DetailsFramework"]
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
 local _
 local loadstring = loadstring
-
 local APIImageFunctions = false
 
 do
 	local metaPrototype = {
 		WidgetType = "image",
-		SetHook = DF.SetHook,
-		RunHooksForWidget = DF.RunHooksForWidget,
+		SetHook = detailsFramework.SetHook,
+		RunHooksForWidget = detailsFramework.RunHooksForWidget,
 
-		dversion = DF.dversion,
+		dversion = detailsFramework.dversion,
 	}
 
 	--check if there's a metaPrototype already existing
-	if (_G[DF.GlobalWidgetControlNames["image"]]) then
+	if (_G[detailsFramework.GlobalWidgetControlNames["image"]]) then
 		--get the already existing metaPrototype
-		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames["image"]]
+		local oldMetaPrototype = _G[detailsFramework.GlobalWidgetControlNames["image"]]
 		--check if is older
-		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < DF.dversion) ) then
+		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < detailsFramework.dversion) ) then
 			--the version is older them the currently loading one
 			--copy the new values into the old metatable
 			for funcName, _ in pairs(metaPrototype) do
@@ -32,13 +31,13 @@ do
 		end
 	else
 		--first time loading the framework
-		_G[DF.GlobalWidgetControlNames["image"]] = metaPrototype
+		_G[detailsFramework.GlobalWidgetControlNames["image"]] = metaPrototype
 	end
 end
 
-local ImageMetaFunctions = _G[DF.GlobalWidgetControlNames["image"]]
+local ImageMetaFunctions = _G[detailsFramework.GlobalWidgetControlNames["image"]]
 
-DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
+detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.SetPointMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --metatables
@@ -49,11 +48,6 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --members
-
-	--shown
-	local gmember_shown = function(object)
-		return object:IsShown()
-	end
 
 	--frame width
 	local gmember_width = function(object)
@@ -90,19 +84,10 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 		return object.image:GetTexCoord()
 	end
 
-	local gmember_drawlayer = function(object)
-		return object.image:GetDrawLayer()
-	end
-
-	local gmember_sublevel = function(object)
-		local _, subLevel = object.image:GetDrawLayer()
-		return subLevel
-	end
-
 	ImageMetaFunctions.GetMembers = ImageMetaFunctions.GetMembers or {}
-	DF:Mixin(ImageMetaFunctions.GetMembers, DF.DefaultMetaFunctionsGet)
+	detailsFramework:Mixin(ImageMetaFunctions.GetMembers, detailsFramework.DefaultMetaFunctionsGet)
+	detailsFramework:Mixin(ImageMetaFunctions.GetMembers, detailsFramework.LayeredRegionMetaFunctionsGet)
 
-	ImageMetaFunctions.GetMembers["shown"] = gmember_shown
 	ImageMetaFunctions.GetMembers["alpha"] = gmember_alpha
 	ImageMetaFunctions.GetMembers["width"] = gmember_width
 	ImageMetaFunctions.GetMembers["height"] = gmember_height
@@ -111,8 +96,6 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 	ImageMetaFunctions.GetMembers["desaturated"] = gmember_saturation
 	ImageMetaFunctions.GetMembers["atlas"] = gmember_atlas
 	ImageMetaFunctions.GetMembers["texcoord"] = gmember_texcoord
-	ImageMetaFunctions.GetMembers["drawlayer"] = gmember_drawlayer
-	ImageMetaFunctions.GetMembers["sublevel"] = gmember_sublevel
 
 	ImageMetaFunctions.__index = function(object, key)
 		local func = ImageMetaFunctions.GetMembers[key]
@@ -130,35 +113,17 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	--show
-	local smember_show = function(object, value)
-		if (value) then
-			return object:Show()
-		else
-			return object:Hide()
-		end
-	end
-
-	--hide
-	local smember_hide = function(object, value)
-		if (not value) then
-			return object:Show()
-		else
-			return object:Hide()
-		end
-	end
-
 	--texture
 	local smember_texture = function(object, value)
-		if (type (value) == "table") then
-			local r, g, b, a = DF:ParseColors(value)
-			object.image:SetTexture (r, g, b, a or 1)
+		if (type(value) == "table") then
+			local r, g, b, a = detailsFramework:ParseColors(value)
+			object.image:SetTexture(r, g, b, a or 1)
 		else
-			if (DF:IsHtmlColor (value)) then
-				local r, g, b, a = DF:ParseColors(value)
-				object.image:SetTexture (r, g, b, a or 1)
+			if (detailsFramework:IsHtmlColor(value)) then
+				local r, g, b, a = detailsFramework:ParseColors(value)
+				object.image:SetTexture(r, g, b, a or 1)
 			else
-				object.image:SetTexture (value)
+				object.image:SetTexture(value)
 			end
 		end
 	end
@@ -180,13 +145,13 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 
 	--color
 	local smember_color = function(object, value)
-		local r, g, b, a = DF:ParseColors(value)
+		local r, g, b, a = detailsFramework:ParseColors(value)
 		object.image:SetColorTexture(r, g, b, a or 1)
 	end
 
 	--vertex color
 	local smember_vertexcolor = function(object, value)
-		local r, g, b, a = DF:ParseColors(value)
+		local r, g, b, a = detailsFramework:ParseColors(value)
 		object.image:SetVertexColor(r, g, b, a or 1)
 	end
 
@@ -215,23 +180,12 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 		end
 	end
 
-	--draw layer
-	local smember_drawlayer = function(object, value)
-		object.image:SetDrawLayer(value)
-	end
-
-	--sub level of the draw layer
-	local smember_sublevel = function(object, value)
-		local drawLayer = object:GetDrawLayer()
-		object:SetDrawLayer(drawLayer, value)
-	end
-
 	--gradient
 	local smember_gradient = function(object, value)
 		if (type(value) == "table" and value.gradient and value.fromColor and value.toColor) then
 			object.image:SetColorTexture(1, 1, 1, 1)
-			local fromColor = DF:FormatColor("tablemembers", value.fromColor)
-			local toColor = DF:FormatColor("tablemembers", value.toColor)
+			local fromColor = detailsFramework:FormatColor("tablemembers", value.fromColor)
+			local toColor = detailsFramework:FormatColor("tablemembers", value.toColor)
 			object.image:SetGradient(value.gradient, fromColor, toColor)
 		else
 			error("texture.gradient expect a table{gradient = 'gradient type', fromColor = 'color', toColor = 'color'}")
@@ -239,10 +193,9 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 	end
 
 	ImageMetaFunctions.SetMembers = ImageMetaFunctions.SetMembers or {}
-	DF:Mixin(ImageMetaFunctions.SetMembers, DF.DefaultMetaFunctionsSet)
+	detailsFramework:Mixin(ImageMetaFunctions.SetMembers, detailsFramework.DefaultMetaFunctionsSet)
+	detailsFramework:Mixin(ImageMetaFunctions.SetMembers, detailsFramework.LayeredRegionMetaFunctionsSet)
 
-	ImageMetaFunctions.SetMembers["show"] = smember_show
-	ImageMetaFunctions.SetMembers["hide"] = smember_hide
 	ImageMetaFunctions.SetMembers["alpha"] = smember_alpha
 	ImageMetaFunctions.SetMembers["width"] = smember_width
 	ImageMetaFunctions.SetMembers["height"] = smember_height
@@ -253,8 +206,6 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 	ImageMetaFunctions.SetMembers["blackwhite"] = smember_desaturated
 	ImageMetaFunctions.SetMembers["desaturated"] = smember_desaturated
 	ImageMetaFunctions.SetMembers["atlas"] = smember_atlas
-	ImageMetaFunctions.SetMembers["drawlayer"] = smember_drawlayer
-	ImageMetaFunctions.SetMembers["sublevel"] = smember_sublevel
 	ImageMetaFunctions.SetMembers["gradient"] = smember_gradient
 
 	ImageMetaFunctions.__newindex = function(object, key, value)
@@ -279,34 +230,34 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 	end
 
 	function ImageMetaFunctions:SetGradient(gradientType, fromColor, toColor)
-		fromColor = DF:FormatColor("tablemembers", fromColor)
-		toColor = DF:FormatColor("tablemembers", toColor)
+		fromColor = detailsFramework:FormatColor("tablemembers", fromColor)
+		toColor = detailsFramework:FormatColor("tablemembers", toColor)
 		self.image:SetGradient(gradientType, fromColor, toColor)
 	end
 
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
-	function DF:CreateTexture(parent, texture, width, height, layer, coords, member, name)
-		return DF:NewImage(parent, texture, width, height, layer, coords, member, name)
+	function detailsFramework:CreateTexture(parent, texture, width, height, layer, coords, member, name)
+		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
 
-	function DF:CreateImage(parent, texture, width, height, layer, coords, member, name)
-		return DF:NewImage(parent, texture, width, height, layer, coords, member, name)
+	function detailsFramework:CreateImage(parent, texture, width, height, layer, coords, member, name)
+		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
 
-	function DF:NewImage(parent, texture, width, height, layer, texCoord, member, name)
+	function detailsFramework:NewImage(parent, texture, width, height, layer, texCoord, member, name)
 		if (not parent) then
 			return error("Details! FrameWork: parent not found.", 2)
 		end
 
 		if (not name) then
-			name = "DetailsFrameworkPictureNumber" .. DF.PictureNameCounter
-			DF.PictureNameCounter = DF.PictureNameCounter + 1
+			name = "DetailsFrameworkPictureNumber" .. detailsFramework.PictureNameCounter
+			detailsFramework.PictureNameCounter = detailsFramework.PictureNameCounter + 1
 		end
 
 		if (name:find("$parent")) then
-			local parentName = DF.GetParentName(parent)
+			local parentName = detailsFramework.GetParentName(parent)
 			name = name:gsub("$parent", parentName)
 		end
 
@@ -325,7 +276,7 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 		ImageObject.image = parent:CreateTexture(name, layer or "OVERLAY")
 		ImageObject.widget = ImageObject.image
 
-		DF:Mixin(ImageObject.image, DF.WidgetFunctions)
+		detailsFramework:Mixin(ImageObject.image, detailsFramework.WidgetFunctions)
 
 		if (not APIImageFunctions) then
 			APIImageFunctions = true
@@ -352,19 +303,19 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 		if (texture) then
 			if (type(texture) == "table") then
 				if (texture.gradient) then
-					if (DF.IsDragonflight()) then
+					if (detailsFramework.IsDragonflight()) then
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
-						local fromColor = DF:FormatColor("tablemembers", texture.fromColor)
-						local toColor = DF:FormatColor("tablemembers", texture.toColor)
+						local fromColor = detailsFramework:FormatColor("tablemembers", texture.fromColor)
+						local toColor = detailsFramework:FormatColor("tablemembers", texture.toColor)
 						ImageObject.image:SetGradient(texture.gradient, fromColor, toColor)
 					else
-						local fromR, fromG, fromB, fromA = DF:ParseColors(texture.fromColor)
-						local toR, toG, toB, toA = DF:ParseColors(texture.toColor)
+						local fromR, fromG, fromB, fromA = detailsFramework:ParseColors(texture.fromColor)
+						local toR, toG, toB, toA = detailsFramework:ParseColors(texture.toColor)
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
 						ImageObject.image:SetGradientAlpha(texture.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
 					end
 				else
-					local r, g, b, a = DF:ParseColors(texture)
+					local r, g, b, a = detailsFramework:ParseColors(texture)
 					ImageObject.image:SetColorTexture(r, g, b, a)
 				end
 
@@ -373,8 +324,8 @@ DF:Mixin(ImageMetaFunctions, DF.SetPointMixin)
 				if (isAtlas) then
 					ImageObject.image:SetAtlas(texture)
 				else
-					if (DF:IsHtmlColor(texture)) then
-						local r, g, b = DF:ParseColors(texture)
+					if (detailsFramework:IsHtmlColor(texture)) then
+						local r, g, b = detailsFramework:ParseColors(texture)
 						ImageObject.image:SetColorTexture(r, g, b)
 					else
 						ImageObject.image:SetTexture(texture)

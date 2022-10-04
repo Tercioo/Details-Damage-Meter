@@ -1,6 +1,6 @@
 
 
-local dversion = 372
+local dversion = 373
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -380,12 +380,6 @@ local embed_functions = {
 	"CreateFrameShake",
 	"RegisterScriptComm",
 	"SendScriptComm",
-}
-
-DF.WidgetFunctions = {
-	GetCapsule = function(self)
-		return self.MyObject
-	end,
 }
 
 DF.table = {}
