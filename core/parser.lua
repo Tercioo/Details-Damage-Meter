@@ -420,6 +420,7 @@
 		--the damage that the warlock apply to its pet through soullink is ignored
 		--it is not useful for damage done or friendly fire
 		[SPELLID_WARLOCK_SOULLINK] = true,
+		[371597] = true, --Protoform Barrier gotten from an SPELL_ABSORBED cleu event
 	}
 	
 	--> expose the ignore spells table to external scripts
