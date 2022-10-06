@@ -1,6 +1,6 @@
 
 
-local dversion = 374
+local dversion = 375
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1355,6 +1355,16 @@ end
 		end
 	end
 
+	local formatOptionNameWithColon = function(text, useColon)
+		if (text) then
+			if (useColon) then
+				text = text .. ":"
+			else
+				return text
+			end
+		end
+	end
+
 	local disable_on_combat = {}
 
 	local getMenuWidgetVolative = function(parent, widgetType, indexTable)
@@ -1571,7 +1581,7 @@ end
 						dropdown._get = widgetTable.get
 						dropdown.widget_type = "select"
 
-						dropdown.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.name  .. (useColon and ": " or "")) or (widgetTable.namePhraseId) or ""
+						dropdown.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or ""
 
 						dropdown.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 						dropdown:ClearAllPoints()
@@ -1632,7 +1642,7 @@ end
 							switch:SetHeight(widgetTable.height)
 						end
 
-						switch.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.name  .. (useColon and ": " or "")) or (widgetTable.namePhraseId) or ""
+						switch.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or ""
 						switch.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
 						switch:ClearAllPoints()
@@ -1695,7 +1705,7 @@ end
 							end
 						end
 
-						slider.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.name  .. (useColon and ": " or "")) or (widgetTable.namePhraseId) or ""
+						slider.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or ""
 						slider.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
 						slider:SetPoint("left", slider.hasLabel, "right", 2)
@@ -1742,7 +1752,7 @@ end
 						end
 
 						local label = colorpick.hasLabel
-						label.text = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.name  .. (useColon and ": " or "")) or (widgetTable.namePhraseId) or ""
+						label.text = (languageTable and languageTable[widgetTable.namePhraseId]) or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or ""
 						label:SetTemplate(widgetTable.text_template or textTemplate)
 
 						if (widgetTable.boxfirst or useBoxFirstOnAllWidgets) then
@@ -1832,7 +1842,7 @@ end
 						textentry:SetHook("OnEnterPressed", widgetTable.func or widgetTable.set)
 						textentry:SetHook("OnEditFocusLost", widgetTable.func or widgetTable.set)
 
-						textentry.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.name  .. (useColon and ": " or "")) or (widgetTable.namePhraseId) or ""
+						textentry.hasLabel.text = (languageTable and languageTable[widgetTable.namePhraseId]) or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or ""
 						textentry.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 						textentry:SetPoint("left", textentry.hasLabel, "right", 2)
 						textentry.hasLabel:SetPoint(currentXOffset, currentYOffset)
@@ -1968,7 +1978,9 @@ end
 
 				elseif (widgetTable.type == "select") then
 					local dropdown = DF:NewDropDown(parent, nil, "$parentWidget" .. index, nil, 140, 18, widgetTable.values, widgetTable.get(), dropdownTemplate)
-					dropdown.tooltip = widgetTable.desc
+
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, dropdown, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+
 					dropdown._get = widgetTable.get
 					dropdown.widget_type = "select"
 
@@ -2008,7 +2020,7 @@ end
 				elseif (widgetTable.type == "toggle") then
 					local switch = DF:NewSwitch(parent, nil, "$parentWidget" .. index, nil, 60, 20, nil, nil, widgetTable.get(), nil, nil, nil, nil, switchTemplate)
 
-					DetailsFramework.Language.RegisterTableKeyWithDefaultt(languageAddonId, switch, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, switch, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					switch._get = widgetTable.get
 					switch.widget_type = "toggle"
@@ -2037,6 +2049,8 @@ end
 					end
 
 					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, widgetTable.namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
+
 					if (widgetTable.boxfirst or useBoxFirstOnAllWidgets) then
 						switch:SetPoint(currentXOffset, currentYOffset)
 						label:SetPoint("left", switch, "right", 2)
@@ -2052,14 +2066,6 @@ end
 						switch:SetPoint("left", label, "right", 2)
 					end
 					switch.hasLabel = label
-
-					if (widgetTable.namePhraseId) then
-						--local name = parseWidgetNameAndDesc(languageTable, widgetTable.namePhraseId, widgetTable.descPhraseId, textToSet, "")
-						DetailsFramework.Language.RegisterFontString(languageAddonId, label.widget, widgetTable.namePhraseId)
-					else
-						local textToSet = widgetTable.name .. (useColon and ": " or "")
-						label:SetText(textToSet)
-					end
 
 					if (widgetTable.id) then
 						parent.widgetids[widgetTable.id] = switch
@@ -2080,7 +2086,9 @@ end
 				elseif (widgetTable.type == "range") then
 					local isDecimanls = widgetTable.usedecimals
 					local slider = DF:NewSlider(parent, nil, "$parentWidget" .. index, nil, 140, 20, widgetTable.min, widgetTable.max, widgetTable.step, widgetTable.get(),  isDecimanls, nil, nil, sliderTemplate)
-					slider.tooltip = widgetTable.desc
+
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, slider, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+
 					slider._get = widgetTable.get
 					slider.widget_type = "range"
 					slider:SetHook("OnValueChange", widgetTable.set)
@@ -2102,7 +2110,9 @@ end
 						end
 					end
 
-					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, widgetTable.name .. (useColon and ": " or ""), "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, widgetTable.namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
+
 					slider:SetPoint("left", label, "right", 2)
 					label:SetPoint(currentXOffset, currentYOffset)
 					slider.hasLabel = label
@@ -2125,7 +2135,9 @@ end
 
 				elseif (widgetTable.type == "color") then
 					local colorpick = DF:NewColorPickButton(parent, "$parentWidget" .. index, nil, widgetTable.set, nil, buttonTemplate)
-					colorpick.tooltip = widgetTable.desc
+
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, colorpick, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+
 					colorpick._get = widgetTable.get
 					colorpick.widget_type = "color"
 					colorpick:SetSize(18, 18)
@@ -2144,7 +2156,9 @@ end
 						end
 					end
 
-					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, widgetTable.name .. (useColon and ": " or ""), "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, widgetTable.namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
+
 					if (widgetTable.boxfirst or useBoxFirstOnAllWidgets) then
 						label:SetPoint("left", colorpick, "right", 2)
 						colorpick:SetPoint(currentXOffset, currentYOffset)
@@ -2173,7 +2187,9 @@ end
 					amountLineWidgetCreated = amountLineWidgetCreated + 1
 
 				elseif (widgetTable.type == "execute") then
-					local button = DF:NewButton(parent, nil, "$parentWidget" .. index, nil, 120, 18, widgetTable.func, widgetTable.param1, widgetTable.param2, nil, widgetTable.name, nil, buttonTemplate, textTemplate)
+					local button = DF:NewButton(parent, nil, "$parentWidget" .. index, nil, 120, 18, widgetTable.func, widgetTable.param1, widgetTable.param2, nil, "", nil, buttonTemplate, textTemplate)
+					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, button.widget, widgetTable.namePhraseId, widgetTable.name)
+
 					if (not buttonTemplate) then
 						button:InstallCustomTexture()
 					end
@@ -2190,7 +2206,8 @@ end
 						button:SetPoint(currentXOffset, currentYOffset)
 					end
 
-					button.tooltip = widgetTable.desc
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, button, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+
 					button.widget_type = "execute"
 
 					--button icon
@@ -2230,14 +2247,18 @@ end
 
 				elseif (widgetTable.type == "textentry") then
 					local textentry = DF:CreateTextEntry(parent, widgetTable.func or widgetTable.set, 120, 18, nil, "$parentWidget" .. index, nil, buttonTemplate)
-					textentry.tooltip = widgetTable.desc
+
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, textentry, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+
 					textentry.text = widgetTable.get()
 					textentry._get = widgetTable.get
 					textentry.widget_type = "textentry"
 					textentry:SetHook("OnEnterPressed", widgetTable.func or widgetTable.set)
 					textentry:SetHook("OnEditFocusLost", widgetTable.func or widgetTable.set)
 
-					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, widgetTable.name .. (useColon and ": " or ""), "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, widgetTable.namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
+
 					textentry:SetPoint("left", label, "right", 2)
 					label:SetPoint(currentXOffset, currentYOffset)
 					textentry.hasLabel = label
@@ -2295,15 +2316,17 @@ end
 	end
 
 	local lock_notsafe_widgets = function()
-		for _, widget in ipairs (disable_on_combat) do
+		for _, widget in ipairs(disable_on_combat) do
 			widget:Disable()
 		end
 	end
+
 	local unlock_notsafe_widgets = function()
-		for _, widget in ipairs (disable_on_combat) do
+		for _, widget in ipairs(disable_on_combat) do
 			widget:Enable()
 		end
 	end
+
 	function DF.RefreshUnsafeOptionsWidgets()
 		if (DF.PlayerHasCombatFlag) then
 			lock_notsafe_widgets()
@@ -2311,12 +2334,13 @@ end
 			unlock_notsafe_widgets()
 		end
 	end
+
 	DF.PlayerHasCombatFlag = false
-	local ProtectCombatFrame = CreateFrame ("frame")
-	ProtectCombatFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
-	ProtectCombatFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
-	ProtectCombatFrame:RegisterEvent ("PLAYER_ENTERING_WORLD")
-	ProtectCombatFrame:SetScript ("OnEvent", function (self, event)
+	local ProtectCombatFrame = CreateFrame("frame")
+	ProtectCombatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	ProtectCombatFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	ProtectCombatFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	ProtectCombatFrame:SetScript("OnEvent", function(self, event)
 		if (event == "PLAYER_ENTERING_WORLD") then
 			if (InCombatLockdown()) then
 				DF.PlayerHasCombatFlag = true
@@ -2324,23 +2348,23 @@ end
 				DF.PlayerHasCombatFlag = false
 			end
 			DF.RefreshUnsafeOptionsWidgets()
-			
+
 		elseif (event == "PLAYER_REGEN_ENABLED") then
 			DF.PlayerHasCombatFlag = false
 			DF.RefreshUnsafeOptionsWidgets()
-			
+
 		elseif (event == "PLAYER_REGEN_DISABLED") then
 			DF.PlayerHasCombatFlag = true
 			DF.RefreshUnsafeOptionsWidgets()
-			
+
 		end
 	end)
-	
-	function DF:CreateInCombatTexture (frame)
+
+	function DF:CreateInCombatTexture(frame)
 		if (DF.debug and not frame) then
 			error ("Details! Framework: CreateInCombatTexture invalid frame on parameter 1.")
 		end
-	
+
 		local in_combat_background = DF:CreateImage (frame)
 		in_combat_background:SetColorTexture (.6, 0, 0, .1)
 		in_combat_background:Hide()

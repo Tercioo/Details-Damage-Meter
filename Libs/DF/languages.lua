@@ -46,20 +46,21 @@
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @languageId: game languages: "deDE", "enUS", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ruRU", "zhCN", "zhTW", or any other value if 'gameLanguageOnly' is false (default)
 
-    DetailsFramework.Language.RegisterFontString(addonId, fontString, phraseId[, silent[, ...]])
-        when setting a languageId with DetailsFramework.Language.SetCurrentLanguage(), automatically change the text of all registered FontStrings
+    DetailsFramework.Language.RegisterObject(addonId, object, phraseId[, silent[, ...]])
+        to be registered, the Object need to have a SetText method
+        when setting a languageId with DetailsFramework.Language.SetCurrentLanguage(), automatically change the text of all registered Objects
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
-        @fontString: a UIObject FontString
+        @object: any UIObject or table with SetText method
         @phraseId: any string to identify the a translated text, example: "My Phrase", "STRING_TEXT_LENGTH", text: "This is my phrase"
-        @silent: if true won't error on invalid phrase text and instead use the phraseId as the text, it will still error on invalid addonId and fontString
+        @silent: if true won't error on invalid phrase text and instead use the phraseId as the text, it will still error on invalid addonId and Object
         @vararg: arguments to pass for format(text, ...)
 
-    DetailsFramework.Language.UpdateFontStringArguments(addonId, fontString, ...)
-        update the arguments (...) of a registered FontString, if no argument passed it'll erase the arguments previously set
-        the FontString need to be already registered with DetailsFramework.Language.RegisterFontString()
+    DetailsFramework.Language.UpdateObjectArguments(addonId, object, ...)
+        update the arguments (...) of a registered Object, if no argument passed it'll erase the arguments previously set
+        the Object need to be already registered with DetailsFramework.Language.RegisterObject()
         the font string text will be changed to update the text with the new arguments
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
-        @fontString: a UIObject FontString
+        @object: any UIObject or table with SetText method
         @vararg: arguments to pass for format(text, ...)
 
     DetailsFramework.Language.RegisterTableKey(addonId, table, key, phraseId[, silent[, ...]])
@@ -72,13 +73,18 @@
         @vararg: arguments to pass for format(text, ...)
 
     DetailsFramework.Language.UpdateTableKeyArguments(addonId, table, key, ...)
-        --same as UpdateFontStringArguments() but for table keys
+        same as UpdateObjectArguments() but for table keys
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @table: a lua table
         @key: any value except nil or boolean
         @vararg: arguments to pass for format(text, ...)
-        
     
+    DetailsFramework.Language.RegisterObjectWithDefault(addonId, object, phraseId, defaultText[, ...])
+        (helper function) register an object if a phraseID is valid or object:SetText(defaultText) is called
+
+    DetailsFramework.Language.RegisterTableKeyWithDefault(addonId, table, key, phraseId, defaultText[, ...])
+        (helper function) register a tableKey if a phraseID is valid or table[key] = defaultText
+
 --]=]
 
 local DF = _G["DetailsFramework"]
@@ -102,26 +108,36 @@ local supportedGameLanguages = {
     ["zhTW"] = true,
 }
 
+--functionCallPath
+
 local functionSignature = {
     ["RegisterLanguage"] = "RegisterLanguage(addonID, languageID[, gameLanguageOnly])",
     ["SetCurrentLanguage"] = "SetCurrentLanguage(addonID, languageID)",
     ["GetLanguageTable"] = "GetLanguageTable(addonID[, languageID])",
-    ["RegisterFontString"] = "RegisterFontString(addonID, fontString, phraseID[, silent[, ...]])",
-    ["UpdateFontStringArguments"] = "UpdateFontStringArguments(addonID, fontString, ...)",
-    ["RegisterTableKey"] = "RegisterTableKey(addonId, table, key, phraseId[[, silent[, ...]])",
     ["GetText"] = "GetText(addonID, phraseID[, silent])",
+
+    ["RegisterObject"] = "RegisterObject(addonID, object, phraseID[, silent[, ...]])",
+    ["UpdateObjectArguments"] = "UpdateObjectArguments(addonID, object, ...)",
+    ["RegisterTableKey"] = "RegisterTableKey(addonId, table, key, phraseId[[, silent[, ...]])",
     ["UpdateTableKeyArguments"] = "UpdateTableKeyArguments(addonId, table, key, ...)",
+
+    ["RegisterObjectWithDefault"] = "RegisterObjectWithDefault(addonId, object, phraseId, defaultText[, ...])",
+    ["RegisterTableKeyWithDefault"] = "RegisterTableKeyWithDefault(addonId, table, key, phraseId, defaultText[, ...])",
 }
 
 local functionCallPath = {
     ["RegisterLanguage"] = "DetailsFramework.Language.RegisterLanguage",
     ["SetCurrentLanguage"] = "DetailsFramework.Language.SetCurrentLanguage",
     ["GetLanguageTable"] = "DetailsFramework.Language.GetLanguageTable",
-    ["RegisterFontString"] = "DetailsFramework.Language.RegisterFontString",
-    ["UpdateFontStringArguments"] = "DetailsFramework.Language.UpdateFontStringArguments",
     ["GetText"] = "DetailsFramework.Language.GetText",
+
+    ["RegisterObject"] = "DetailsFramework.Language.RegisterObject",
+    ["UpdateObjectArguments"] = "DetailsFramework.Language.UpdateObjectArguments",
     ["RegisterTableKey"] = "DetailsFramework.Language.RegisterTableKey",
     ["UpdateTableKeyArguments"] = "DetailsFramework.Language.UpdateTableKeyArguments",
+
+    ["RegisterObjectWithDefault"] = "DetailsFramework.Language.RegisterObjectWithDefault",
+    ["RegisterTableKeyWithDefault"] = "DetailsFramework.Language.RegisterTableKeyWithDefault",
 }
 
 local errorText = {
@@ -131,8 +147,8 @@ local errorText = {
     ["NoLanguages"] = "no languages registered for addonId",
     ["LanguageIDNotRegistered"] = "languageID not registered",
     ["PhraseIDNotRegistered"] = "phraseID not registered",
-    ["FontString"] = "require a FontString on #%d argument",
-    ["FontStringNotRegistered"] = "FontString not registered yet",
+    ["InvalidObject"] = "invalid object on #%d argument, object must have SetText method and be an UIObject or table",
+    ["ObjectNotRegistered"] = "Object not registered yet",
     ["TableKeyNotRegistered"] = "table not registered yet",
     ["KeyNotRegistered"] = "key not registered yet",
     ["InvalidTable"] = "require a table on #%d argument",
@@ -162,8 +178,8 @@ local isValid_Text = function(text)
     return type(text) == "string"
 end
 
-local isValid_FontString = function(fontString)
-    if (type(fontString) ~= "table" or not fontString.GetObjectType or fontString:GetObjectType() ~= "FontString") then
+local isValid_Object = function(object)
+    if (type(object) ~= "table" or not object.SetText) then
         return false
     end
     return true
@@ -180,7 +196,7 @@ local getOrCreateAddonNamespace = function(addonId, languageId)
             --by default, the current language is the first registered language
             currentLanguageId = languageId,
             languages = {},
-            fontStrings = {},
+            registeredObjects = {},
             tableKeys = setmetatable({}, {__mode = "k"}),
 
             --set when the first language table is registered
@@ -222,8 +238,8 @@ local getTextFromLangugeTable = function(languageTable, phraseId)
     return languageTable[phraseId]
 end
 
-local getRegisteredFontStrings = function(addonNamespaceTable)
-    return addonNamespaceTable.fontStrings
+local getRegisteredObjects = function(addonNamespaceTable)
+    return addonNamespaceTable.registeredObjects
 end
 
 local getText = function(addonNamespaceTable, phraseId)
@@ -297,7 +313,7 @@ local parseArguments = function(...)
     end
 end
 
---hold information about a localization, used by registered fontStrings and keyTables, has .phraesId, .arguments and .key (on keyTables)
+--hold information about a localization, used by registered objects and keyTables, has .phraesId, .arguments and .key (on keyTables)
 local createPhraseInfoTable = function(phraseId, key, ...)
     return {phraseId = phraseId, key = key, arguments = parseArguments(...)}
 end
@@ -315,61 +331,61 @@ local getFormattedText = function(phraseInfoTable, text)
     end
 end
 
-local updateFontStringTable_PhraseId = function(phraseInfoTable, phraseId)
+local updateObjectTable_PhraseId = function(phraseInfoTable, phraseId)
     phraseInfoTable.phraseId = phraseId
 end
 
-local getFontStringPhraseInfoTable = function(addonNamespaceTable, fontString)
-    return addonNamespaceTable.fontStrings[fontString]
+local getObjectPhraseInfoTable = function(addonNamespaceTable, object)
+    return addonNamespaceTable.registeredObjects[object]
 end
 
-local setFontString_InternalMembers = function(fontString, addonId, phraseId, arguments)
-    fontString.__languageAddonId = addonId or fontString.__languageAddonId
-    fontString.__languagePhraseId = phraseId or fontString.__languagePhraseId
-    fontString.__languageArguments = arguments or fontString.__languageArguments
+local setObject_InternalMembers = function(object, addonId, phraseId, arguments)
+    object.__languageAddonId = addonId or object.__languageAddonId
+    object.__languagePhraseId = phraseId or object.__languagePhraseId
+    object.__languageArguments = arguments or object.__languageArguments
 end
 
-local setFontString_Text = function(fontString, phraseInfoTable, text)
+local setObject_Text = function(object, phraseInfoTable, text)
     local formattedText = getFormattedText(phraseInfoTable, text)
-    fontString:SetText(formattedText)
+    object:SetText(formattedText)
 end
 
---this method only exists on registered FontStrings
-local fontStringMethod_SetTextByPhraseID = function(fontString, phraseId, ...)
-    local addonId = fontString.__languageAddonId
+--this method only exists on registered Objects
+local objectMethod_SetTextByPhraseID = function(object, phraseId, ...)
+    local addonId = object.__languageAddonId
     local addonNamespaceTable = getAddonNamespace(addonId)
 
-    local phraseInfoTable = getFontStringPhraseInfoTable(addonNamespaceTable, fontString)
-    updateFontStringTable_PhraseId(phraseInfoTable, phraseId)
+    local phraseInfoTable = getObjectPhraseInfoTable(addonNamespaceTable, object)
+    updateObjectTable_PhraseId(phraseInfoTable, phraseId)
     updatePhraseInfoArguments(phraseInfoTable, ...)
-    setFontString_InternalMembers(fontString, addonId, phraseId, phraseInfoTable.arguments)
+    setObject_InternalMembers(object, addonId, phraseId, phraseInfoTable.arguments)
 
     local text = getText(addonNamespaceTable, phraseId)
-    setFontString_Text(fontString, phraseInfoTable, text)
+    setObject_Text(object, phraseInfoTable, text)
 
     return true
 end
 
-local registerFontString = function(addonNamespaceTable, fontString, phraseId, ...)
+local registerObject = function(addonNamespaceTable, object, phraseId, ...)
     local phraseInfoTable = createPhraseInfoTable(phraseId, nil, ...)
-    addonNamespaceTable.fontStrings[fontString] = phraseInfoTable
+    addonNamespaceTable.registeredObjects[object] = phraseInfoTable
 
-    --save internal information about the language directly in the FontString
-    setFontString_InternalMembers(fontString, addonNamespaceTable.addonId, phraseId, phraseInfoTable.arguments)
+    --save internal information about the language directly in the object
+    setObject_InternalMembers(object, addonNamespaceTable.addonId, phraseId, phraseInfoTable.arguments)
 
-    fontString.SetTextByPhraseID = fontStringMethod_SetTextByPhraseID
+    object.SetTextByPhraseID = objectMethod_SetTextByPhraseID
 
     return phraseInfoTable
 end
 
---iterate among all registered fontStrings of an addon namespace and set the new text on them
-local updateAllRegisteredFontStringText = function(addonNamespaceTable)
-    local fontStrings = getRegisteredFontStrings(addonNamespaceTable)
-    for fontString, phraseInfoTable in pairs(fontStrings) do
+--iterate among all registered objects of an addon namespace and set the new text on them
+local updateAllRegisteredObjectsText = function(addonNamespaceTable)
+    local objects = getRegisteredObjects(addonNamespaceTable)
+    for object, phraseInfoTable in pairs(objects) do
         local phraseId = phraseInfoTable.phraseId
         --note: text is always valid when the callstack started at from DF.Language.SetCurrentLanguage
         local text = getText(addonNamespaceTable, phraseId)
-        setFontString_Text(fontString, phraseInfoTable, text)
+        setObject_Text(object, phraseInfoTable, text)
     end
 end
 
@@ -520,8 +536,8 @@ function DF.Language.SetCurrentLanguage(addonId, languageId)
 
     setCurrentLanguageId(languageId)
 
-    --go into the registered FontStrings and KeyTables and change their text
-    updateAllRegisteredFontStringText(addonNamespaceTable)
+    --go into the registered objects and KeyTables and change their text
+    updateAllRegisteredObjectsText(addonNamespaceTable)
     updateAllRegisteredTableKeyText(addonNamespaceTable)
     return true
 end
@@ -557,69 +573,69 @@ end
 
 
 --@addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
---@fontString: a UIObject FontString
+--@object: any UIObject or table with SetText method
 --@phraseId: any string to identify the a translated text, example: token: "OPTIONS_FRAME_WIDTH" text: "Adjust the Width of the frame."
---@silent: if true won't error on invalid phrase text and instead use the phraseId as the text, it will still error on invalid addonId and fontString
+--@silent: if true won't error on invalid phrase text and instead use the phraseId as the text, it will still error on invalid addonId and object
 --@vararg: arguments to pass for format(text, ...)
-function DF.Language.RegisterFontString(addonId, fontString, phraseId, silent, ...)
+function DF.Language.RegisterObject(addonId, object, phraseId, silent, ...)
     if (not isValid_AddonID(addonId)) then
-        error(functionCallPath["RegisterFontString"] .. ": " .. format(errorText["AddonID"], 1) .. ", use: " .. functionSignature["RegisterFontString"] .. ".")
+        error(functionCallPath["RegisterObject"] .. ": " .. format(errorText["AddonID"], 1) .. ", use: " .. functionSignature["RegisterObject"] .. ".")
     end
 
     if (not isValid_PhraseID(phraseId)) then
-        error(functionCallPath["RegisterFontString"] .. ": " .. format(errorText["PhraseID"], 3) .. ", use: " .. functionSignature["RegisterFontString"] .. ".")
+        error(functionCallPath["RegisterObject"] .. ": " .. format(errorText["PhraseID"], 3) .. ", use: " .. functionSignature["RegisterObject"] .. ".")
     end
 
     local addonNamespaceTable = getAddonNamespace(addonId)
     if (not addonNamespaceTable) then
-        error(functionCallPath["RegisterFontString"] .. ": " .. errorText["NoLanguages"] .. ", use: " .. functionSignature["RegisterLanguage"] .. ".")
+        error(functionCallPath["RegisterObject"] .. ": " .. errorText["NoLanguages"] .. ", use: " .. functionSignature["RegisterLanguage"] .. ".")
     end
 
-    if (type(fontString) ~= "table" or not fontString.GetObjectType or fontString:GetObjectType() ~= "FontString") then
-        error(functionCallPath["RegisterFontString"] .. ": " .. format(errorText["FontString"], 2) .. ", use: " .. functionSignature["RegisterFontString"] .. ".")
+    if (not isValid_Object(object)) then
+        error(functionCallPath["RegisterObject"] .. ": " .. format(errorText["InvalidObject"], 2) .. ", use: " .. functionSignature["RegisterObject"] .. ".")
     end
 
-    local fontStringTable = registerFontString(addonNamespaceTable, fontString, phraseId, ...)
+    local objectTable = registerObject(addonNamespaceTable, object, phraseId, ...)
 
     local text = getText(addonNamespaceTable, phraseId)
     if (not isValid_Text(text)) then
         if (not silent) then
-            error(functionCallPath["RegisterFontString"] .. ": " .. errorText["PhraseIDNotRegistered"] .. ", use: " .. functionSignature["GetLanguageTable"] .. "['PhraseID'] = 'translated text'.")
+            error(functionCallPath["RegisterObject"] .. ": " .. errorText["PhraseIDNotRegistered"] .. ", use: " .. functionSignature["GetLanguageTable"] .. "['PhraseID'] = 'translated text'.")
         else
             text = phraseId
         end
     end
 
-    setFontString_Text(fontString, fontStringTable, text)
+    setObject_Text(object, objectTable, text)
     return true
 end
 
 
 --@addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
---@fontString: a UIObject FontString
+--@object: any UIObject or table with SetText method
 --@vararg: arguments to pass for format(text, ...)
-function DF.Language.UpdateFontStringArguments(addonId, fontString, ...)
+function DF.Language.UpdateObjectArguments(addonId, object, ...)
     if (not isValid_AddonID(addonId)) then
-        error(functionCallPath["UpdateFontStringArguments"] .. ": " .. format(errorText["AddonID"], 1) .. ", use: " .. functionSignature["UpdateFontStringArguments"] .. ".")
+        error(functionCallPath["UpdateObjectArguments"] .. ": " .. format(errorText["AddonID"], 1) .. ", use: " .. functionSignature["UpdateObjectArguments"] .. ".")
     end
 
     local addonNamespaceTable = getAddonNamespace(addonId)
     if (not addonNamespaceTable) then
-        error(functionCallPath["UpdateFontStringArguments"] .. ": " .. errorText["NoLanguages"] .. ", use: " .. functionSignature["RegisterLanguage"] .. ".")
+        error(functionCallPath["UpdateObjectArguments"] .. ": " .. errorText["NoLanguages"] .. ", use: " .. functionSignature["RegisterLanguage"] .. ".")
     end
 
-    if (not isValid_FontString(fontString)) then
-        error(functionCallPath["UpdateFontStringArguments"] .. ": " .. format(errorText["FontString"], 2) .. ", use: " .. functionSignature["UpdateFontStringArguments"] .. ".")
+    if (not isValid_Object(object)) then
+        error(functionCallPath["UpdateObjectArguments"] .. ": " .. format(errorText["InvalidObject"], 2) .. ", use: " .. functionSignature["UpdateObjectArguments"] .. ".")
     end
 
-    local phraseInfoTable = getFontStringPhraseInfoTable(addonNamespaceTable, fontString)
+    local phraseInfoTable = getObjectPhraseInfoTable(addonNamespaceTable, object)
     if (not phraseInfoTable) then
-        error(functionCallPath["UpdateFontStringArguments"] .. ": " .. errorText["FontStringNotRegistered"] .. ", use: " .. functionSignature["RegisterFontString"] .. ".")
+        error(functionCallPath["UpdateObjectArguments"] .. ": " .. errorText["ObjectNotRegistered"] .. ", use: " .. functionSignature["RegisterObject"] .. ".")
     end
     updatePhraseInfoArguments(phraseInfoTable, ...)
 
     local text = getText(addonNamespaceTable, phraseInfoTable.phraseId)
-    setFontString_Text(fontString, phraseInfoTable, text)
+    setObject_Text(object, phraseInfoTable, text)
     return true
 end
 
@@ -708,12 +724,23 @@ function DF.Language.UpdateTableKeyArguments(addonId, table, key, ...)
 end
 
 
-function DF.Language.RegisterTableKeyWithDefaultt(addonId, table, key, phraseId, defaultText)
+function DF.Language.RegisterTableKeyWithDefault(addonId, table, key, phraseId, defaultText, ...)
     if (addonId and phraseId) then
-        print("registered...")
-        DetailsFramework.Language.RegisterTableKey(addonId, table, key, phraseId)
+        DetailsFramework.Language.RegisterTableKey(addonId, table, key, phraseId, ...)
     else
-        print("used default")
         table[key] = defaultText
+    end
+end
+
+
+function DF.Language.RegisterObjectWithDefault(addonId, object, phraseId, defaultText, ...)
+    if (not isValid_Object(object)) then
+        error(functionCallPath["RegisterObjectWithDefault"] .. ": " .. format(errorText["InvalidObject"], 2) .. ", use: " .. functionSignature["RegisterObjectWithDefault"] .. ".")
+    end
+
+    if (phraseId) then
+        DetailsFramework.Language.RegisterObject(addonId, object, phraseId, ...)
+    else
+        object:SetText(defaultText)
     end
 end
