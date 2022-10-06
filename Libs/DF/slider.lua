@@ -1,21 +1,10 @@
 
-local DF = _G ["DetailsFramework"]
+local DF = _G["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
-	return 
+	return
 end
 
 local _
-local _rawset = rawset --> lua local
-local _rawget = rawget --> lua local
-local _setmetatable = setmetatable --> lua local
-local _unpack = unpack --> lua local
-local _type = type --> lua local
-local _math_floor = math.floor --> lua local
-local loadstring = loadstring --> lua local
-
-local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
-
-local cleanfunction = function() end
 local APISliderFunctions = false
 
 do
@@ -25,14 +14,13 @@ do
 		HasHook = DF.HasHook,
 		ClearHooks = DF.ClearHooks,
 		RunHooksForWidget = DF.RunHooksForWidget,
-		
 		dversion = DF.dversion
 	}
 
 	--check if there's a metaPrototype already existing
 	if (_G[DF.GlobalWidgetControlNames["slider"]]) then
 		--get the already existing metaPrototype
-		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames ["slider"]]
+		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames["slider"]]
 		--check if is older
 		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < DF.dversion) ) then
 			--the version is older them the currently loading one
@@ -43,281 +31,229 @@ do
 		end
 	else
 		--first time loading the framework
-		_G[DF.GlobalWidgetControlNames ["slider"]] = metaPrototype
+		_G[DF.GlobalWidgetControlNames["slider"]] = metaPrototype
 	end
 end
 
-local DFSliderMetaFunctions = _G[DF.GlobalWidgetControlNames ["slider"]]
+local DFSliderMetaFunctions = _G[DF.GlobalWidgetControlNames["slider"]]
+
+DF:Mixin(DFSliderMetaFunctions, DF.SetPointMixin)
+DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 
 ------------------------------------------------------------------------------------------------------------
---> metatables
+--metatables
 
-	DFSliderMetaFunctions.__call = function (_table, value)
+	DFSliderMetaFunctions.__call = function(object, value)
 		if (not value) then
-			if (_table.isSwitch) then
-			
-				if (type (value) == "boolean") then --> false
-					return _table.slider:SetValue (1)
+			if (object.isSwitch) then
+				if (type(value) == "boolean") then
+					object.slider:SetValue(1)
+					return
 				end
-			
-				if (_table.slider:GetValue() == 1) then
+
+				if (object.slider:GetValue() == 1) then
 					return false
 				else
 					return true
 				end
 			end
-			return _table.slider:GetValue()
+
+			return object.slider:GetValue()
 		else
-			if (_table.isSwitch) then
-				if (type (value) == "boolean") then
+			if (object.isSwitch) then
+				if (type(value) == "boolean") then
 					if (value) then
-						_table.slider:SetValue (2)
+						object.slider:SetValue(2)
 					else
-						_table.slider:SetValue (1)
+						object.slider:SetValue(1)
 					end
 				else
-					_table.slider:SetValue (value)
+					object.slider:SetValue(value)
 				end
 				return
 			end
-			
-			return _table.slider:SetValue (value)
+
+			return object.slider:SetValue(value)
 		end
 	end
 
 ------------------------------------------------------------------------------------------------------------
---> members
+--members
 
-	--> tooltip
-	local gmember_tooltip = function (_object)
-		return _object:GetTooltip()
+	--tooltip
+	local gmember_tooltip = function(object)
+		return object:GetTooltip()
 	end
-	--> shown
-	local gmember_shown = function (_object)
-		return _object:IsShown()
+
+	--shown
+	local gmember_shown = function(object)
+		return object:IsShown()
 	end
-	--> frame width
-	local gmember_width = function (_object)
-		return _object.slider:GetWidth()
+
+	--frame width
+	local gmember_width = function(object)
+		return object.slider:GetWidth()
 	end
-	--> frame height
-	local gmember_height = function (_object)
-		return _object.slider:GetHeight()
+
+	--frame height
+	local gmember_height = function(object)
+		return object.slider:GetHeight()
 	end
-	--> locked
-	local gmember_locked = function (_object)
-		return _rawget (_object, "lockdown")
+
+	--locked
+	local gmember_locked = function(object)
+		return rawget(object, "lockdown")
 	end
-	--> fractional
-	local gmember_fractional = function (_object)
-		return _rawget (_object, "useDecimals")
-	end	
-	--> value
-	local gmember_value = function (_object)
-		return _object()
-	end	
+
+	--fractional
+	local gmember_fractional = function(object)
+		return rawget(object, "useDecimals")
+	end
+
+	--value
+	local gmember_value = function(object)
+		return object()
+	end
 
 	DFSliderMetaFunctions.GetMembers = DFSliderMetaFunctions.GetMembers or {}
-	DFSliderMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
-	DFSliderMetaFunctions.GetMembers ["shown"] = gmember_shown
-	DFSliderMetaFunctions.GetMembers ["width"] = gmember_width
-	DFSliderMetaFunctions.GetMembers ["height"] = gmember_height
-	DFSliderMetaFunctions.GetMembers ["locked"] = gmember_locked
-	DFSliderMetaFunctions.GetMembers ["fractional"] = gmember_fractional
-	DFSliderMetaFunctions.GetMembers ["value"] = gmember_value
+	DFSliderMetaFunctions.GetMembers["tooltip"] = gmember_tooltip
+	DFSliderMetaFunctions.GetMembers["shown"] = gmember_shown
+	DFSliderMetaFunctions.GetMembers["width"] = gmember_width
+	DFSliderMetaFunctions.GetMembers["height"] = gmember_height
+	DFSliderMetaFunctions.GetMembers["locked"] = gmember_locked
+	DFSliderMetaFunctions.GetMembers["fractional"] = gmember_fractional
+	DFSliderMetaFunctions.GetMembers["value"] = gmember_value
 
-	DFSliderMetaFunctions.__index = function (_table, _member_requested)
-
-		local func = DFSliderMetaFunctions.GetMembers [_member_requested]
+	DFSliderMetaFunctions.__index = function(object, key)
+		local func = DFSliderMetaFunctions.GetMembers[key]
 		if (func) then
-			return func (_table, _member_requested)
+			return func(object, key)
 		end
-		
-		local fromMe = _rawget (_table, _member_requested)
+
+		local fromMe = rawget(object, key)
 		if (fromMe) then
 			return fromMe
 		end
-		
-		return DFSliderMetaFunctions [_member_requested]
+
+		return DFSliderMetaFunctions[key]
 	end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
-	--> tooltip
-	local smember_tooltip = function (_object, _value)
-		return _object:SetTooltip (_value)
+
+	--tooltip
+	local smember_tooltip = function(object, value)
+		return object:SetTooltip(value)
 	end
-	--> show
-	local smember_show = function (_object, _value)
-		if (_value) then
-			return _object:Show()
+
+	--show
+	local smember_show = function(object, value)
+		if (value) then
+			return object:Show()
 		else
-			return _object:Hide()
+			return object:Hide()
 		end
 	end
-	--> hide
-	local smember_hide = function (_object, _value)
-		if (not _value) then
-			return _object:Show()
+
+	--hide
+	local smember_hide = function(object, value)
+		if (not value) then
+			return object:Show()
 		else
-			return _object:Hide()
+			return object:Hide()
 		end
 	end
-	--> frame width
-	local smember_width = function (_object, _value)
-		return _object.slider:SetWidth (_value)
+
+	--frame width
+	local smember_width = function(object, value)
+		return object.slider:SetWidth(value)
 	end
-	--> frame height
-	local smember_height = function (_object, _value)
-		return _object.slider:SetHeight (_value)
+
+	--frame height
+	local smember_height = function(object, value)
+		return object.slider:SetHeight(value)
 	end
-	--> locked
-	local smember_locked = function (_object, _value)
-		if (_value) then
-			return self:Disable()
+
+	--locked
+	local smember_locked = function(object, value)
+		if (value) then
+			return object:Disable()
 		else
-			return self:Enable()
+			return object:Enable()
 		end
-	end	
-	--> backdrop
-	local smember_backdrop = function (_object, _value)
-		return _object.slider:SetBackdrop (_value)
 	end
-	--> fractional
-	local smember_fractional = function (_object, _value)
-		return _rawset (_object, "useDecimals", _value)
+
+	--backdrop
+	local smember_backdrop = function(object, value)
+		return object.slider:SetBackdrop(value)
 	end
-	--> value
-	local smember_value = function (_object, _value)
-		_object (_value)
+
+	--fractional
+	local smember_fractional = function(object, value)
+		return rawset(object, "useDecimals", value)
 	end
-	
+
+	--value
+	local smember_value = function(object, value)
+		object(value)
+	end
+
 	DFSliderMetaFunctions.SetMembers = DFSliderMetaFunctions.SetMembers or {}
-	DFSliderMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
-	DFSliderMetaFunctions.SetMembers ["show"] = smember_show
-	DFSliderMetaFunctions.SetMembers ["hide"] = smember_hide
-	DFSliderMetaFunctions.SetMembers ["backdrop"] = smember_backdrop
-	DFSliderMetaFunctions.SetMembers ["width"] = smember_width
-	DFSliderMetaFunctions.SetMembers ["height"] = smember_height
-	DFSliderMetaFunctions.SetMembers ["locked"] = smember_locked
-	DFSliderMetaFunctions.SetMembers ["fractional"] = smember_fractional
-	DFSliderMetaFunctions.SetMembers ["value"] = smember_value
-	
-	DFSliderMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = DFSliderMetaFunctions.SetMembers [_key]
+	DFSliderMetaFunctions.SetMembers["tooltip"] = smember_tooltip
+	DFSliderMetaFunctions.SetMembers["show"] = smember_show
+	DFSliderMetaFunctions.SetMembers["hide"] = smember_hide
+	DFSliderMetaFunctions.SetMembers["backdrop"] = smember_backdrop
+	DFSliderMetaFunctions.SetMembers["width"] = smember_width
+	DFSliderMetaFunctions.SetMembers["height"] = smember_height
+	DFSliderMetaFunctions.SetMembers["locked"] = smember_locked
+	DFSliderMetaFunctions.SetMembers["fractional"] = smember_fractional
+	DFSliderMetaFunctions.SetMembers["value"] = smember_value
+
+	DFSliderMetaFunctions.__newindex = function (object, key, value)
+		local func = DFSliderMetaFunctions.SetMembers[key]
 		if (func) then
-			return func (_table, _value)
+			return func(object, value)
 		else
-			return _rawset (_table, _key, _value)
+			return rawset(object, key, value)
 		end
-	end	
-	
+	end
+
 ------------------------------------------------------------------------------------------------------------
---> methods
+--methods
 
---> show & hide
-	function DFSliderMetaFunctions:IsShown()
-		return self.slider:IsShown()
-	end
-	function DFSliderMetaFunctions:Show()
-		return self.slider:Show()
-	end
-	function DFSliderMetaFunctions:Hide()
-		return self.slider:Hide()
-	end
-	
---> fixed value
-	function DFSliderMetaFunctions:SetFixedParameter (value)
-		_rawset (self, "FixedValue", value)
-	end
-	
---> set value
-	function DFSliderMetaFunctions:SetValue (value)
-		return self (value)
-	end
-	
--- thumb size
-	function DFSliderMetaFunctions:SetThumbSize (w, h)
-		if (not w) then
-			w = self.thumb:GetWidth()
-		end
-		if (not h) then
-			h = self.thumb:GetHeight()
-		end
-		return self.thumb:SetSize (w, h)
-	end	
-	
-	function DFSliderMetaFunctions:SetBackdrop(...)
-			return self.slider:SetBackdrop(...)
+	--fixed value
+	function DFSliderMetaFunctions:SetFixedParameter(value)
+		rawset(self, "FixedValue", value)
 	end
 
-	function DFSliderMetaFunctions:SetBackdropColor(...)
-		return self.slider:SetBackdropColor(...)
+	--set value
+	function DFSliderMetaFunctions:SetValue(value)
+		return self(value)
 	end
 
-	function DFSliderMetaFunctions:SetBackdropBorderColor(...)
-		return self.slider:SetBackdropBorderColor(...)
+	-- thumb size
+	function DFSliderMetaFunctions:SetThumbSize(width, height)
+		if (not width) then
+			width = self.thumb:GetWidth()
+		end
+		if (not height) then
+			height = self.thumb:GetHeight()
+		end
+		return self.thumb:SetSize(width, height)
 	end
 
-	
--- setpoint
-	function DFSliderMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
-		if (not v1) then
-			print ("Invalid parameter for SetPoint")
-			return
-		end
-		return self.widget:SetPoint (v1, v2, v3, v4, v5)
-	end
-
--- sizes
-	function DFSliderMetaFunctions:SetSize (w, h)
-		if (w) then
-			self.slider:SetWidth (w)
-		end
-		if (h) then
-			return self.slider:SetHeight (h)
-		end
-	end
-	
--- tooltip
-	function DFSliderMetaFunctions:SetTooltip (tooltip)
+	--tooltip
+	function DFSliderMetaFunctions:SetTooltip(tooltip)
 		if (tooltip) then
-			return _rawset (self, "have_tooltip", tooltip)
+			return rawset(self, "have_tooltip", tooltip)
 		else
-			return _rawset (self, "have_tooltip", nil)
+			return rawset(self, "have_tooltip", nil)
 		end
 	end
 	function DFSliderMetaFunctions:GetTooltip()
-		return _rawget (self, "have_tooltip")
-	end
-	
--- frame levels
-	function DFSliderMetaFunctions:GetFrameLevel()
-		return self.slider:GetFrameLevel()
-	end
-	function DFSliderMetaFunctions:SetFrameLevel (level, frame)
-		if (not frame) then
-			return self.slider:SetFrameLevel (level)
-		else
-			local framelevel = frame:GetFrameLevel (frame) + level
-			return self.slider:SetFrameLevel (framelevel)
-		end
+		return rawget(self, "have_tooltip")
 	end
 
--- frame stratas
-	function DFSliderMetaFunctions:SetFrameStrata()
-		return self.slider:GetFrameStrata()
-	end
-	function DFSliderMetaFunctions:SetFrameStrata (strata)
-		if (_type (strata) == "table") then
-			self.slider:SetFrameStrata (strata:GetFrameStrata())
-		else
-			self.slider:SetFrameStrata (strata)
-		end
-	end
-	
--- clear focus
+	--clear focus
 	function DFSliderMetaFunctions:ClearFocus()
 		local editbox = DFSliderMetaFunctions.editbox_typevalue
 		if editbox and self.typing_value then
@@ -327,33 +263,32 @@ local DFSliderMetaFunctions = _G[DF.GlobalWidgetControlNames ["slider"]]
 			editbox:GetParent().MyObject.value = self.typing_value_started
 		end
 	end
-	
--- enabled
+
+	--enabled
 	function DFSliderMetaFunctions:IsEnabled()
-		return not _rawget (self, "lockdown")
+		return not rawget(self, "lockdown")
 	end
-		
+
 	function DFSliderMetaFunctions:Enable()
 		self.slider:Enable()
 		if (not self.is_checkbox) then
 			if (not self.lock_texture) then
-				DF:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
-				self.lock_texture:SetDesaturated (true)
-				self.lock_texture:SetPoint ("center", self.amt, "center")
+				DF:NewImage(self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+				self.lock_texture:SetDesaturated(true)
+				self.lock_texture:SetPoint("center", self.amt, "center")
 			end
 			self.lock_texture:Hide()
 		end
 		self.slider.amt:Show()
-		self:SetAlpha (1)
-		
+		self:SetAlpha(1)
+
 		if (self.is_checkbox) then
 			self.checked_texture:Show()
 		end
-		return _rawset (self, "lockdown", false)
+		return rawset(self, "lockdown", false)
 	end
-	
+
 	function DFSliderMetaFunctions:Disable()
-	
 		self:ClearFocus()
 		self.slider:Disable()
 		self.slider.amt:Hide()
@@ -362,26 +297,24 @@ local DFSliderMetaFunctions = _G[DF.GlobalWidgetControlNames ["slider"]]
 		if (not self.is_checkbox) then
 			if (not self.lock_texture) then
 				DF:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
-				self.lock_texture:SetDesaturated (true)
-				self.lock_texture:SetPoint ("center", self.amt, "center")
+				self.lock_texture:SetDesaturated(true)
+				self.lock_texture:SetPoint("center", self.amt, "center")
 			end
 			self.lock_texture:Show()
 		end
-		
+
 		if (self.is_checkbox) then
 			self.checked_texture:Show()
 		end
-		
-		--print ("result 2:", self.checked_texture:IsShown(), self.checked_texture:GetAlpha(), self.checked_texture:GetSize())
-		
-		return _rawset (self, "lockdown", true)
+
+		return rawset(self, "lockdown", true)
 	end
 
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 
 	local OnEnter = function (slider)
-		if (_rawget (slider.MyObject, "lockdown")) then
+		if (rawget (slider.MyObject, "lockdown")) then
 			return
 		end
 	
@@ -413,7 +346,7 @@ local DFSliderMetaFunctions = _G[DF.GlobalWidgetControlNames ["slider"]]
 	
 	local OnLeave = function (slider)
 	
-		if (_rawget (slider.MyObject, "lockdown")) then
+		if (rawget (slider.MyObject, "lockdown")) then
 			return
 		end
 	
@@ -814,16 +747,16 @@ local SwitchOnClick = function (self, button, forced_value, value)
 
 	local slider = self.MyObject
 	
-	if (_rawget (slider, "lockdown")) then
+	if (rawget (slider, "lockdown")) then
 		return
 	end
 	
 	if (forced_value) then
-		_rawset (slider, "value", not value)
+		rawset (slider, "value", not value)
 	end
 
-	if (_rawget (slider, "value")) then --actived
-		_rawset (slider, "value", false)
+	if (rawget (slider, "value")) then --actived
+		rawset (slider, "value", false)
 		
 		if (slider.backdrop_disabledcolor) then
 			slider:SetBackdropColor (unpack (slider.backdrop_disabledcolor))
@@ -839,7 +772,7 @@ local SwitchOnClick = function (self, button, forced_value, value)
 			slider._thumb:SetPoint ("left", slider.widget, "left")
 		end
 	else
-		_rawset (slider, "value", true)
+		rawset (slider, "value", true)
 		if (slider.backdrop_enabledcolor) then
 			slider:SetBackdropColor (unpack (slider.backdrop_enabledcolor))
 		else
@@ -855,7 +788,7 @@ local SwitchOnClick = function (self, button, forced_value, value)
 	end
 
 	if (slider.OnSwitch and not forced_value) then
-		local value = _rawget (slider, "value")
+		local value = rawget (slider, "value")
 		if (slider.return_func) then
 			value = slider:return_func (value)
 		end
@@ -892,7 +825,7 @@ local switch_set_value = function (self, value)
 end
 
 local switch_set_fixparameter = function (self, value)
-	_rawset (self, "FixedValue", value)
+	rawset (self, "FixedValue", value)
 end
 
 local switch_disable = function (self)	
@@ -910,11 +843,11 @@ local switch_disable = function (self)
 	end
 	
 	self:SetAlpha (.4)
-	_rawset (self, "lockdown", true)
+	rawset (self, "lockdown", true)
 end
 local switch_enable = function (self)
 	if (self.is_checkbox) then
-		if (_rawget (self, "value")) then
+		if (rawget (self, "value")) then
 			self.checked_texture:Show()
 		else
 			self.checked_texture:Hide()
@@ -930,7 +863,7 @@ local switch_enable = function (self)
 	end
 	
 	self:SetAlpha (1)
-	return _rawset (self, "lockdown", false)
+	return rawset (self, "lockdown", false)
 end
 
 local set_switch_func = function (self, newFunction)
@@ -951,7 +884,7 @@ local set_as_checkbok = function (self)
 	
 	self.is_checkbox = true
 	
-	if (_rawget (self, "value")) then
+	if (rawget (self, "value")) then
 		self.checked_texture:Show()
 		if (self.backdrop_enabledcolor) then
 			self:SetBackdropColor (unpack (self.backdrop_enabledcolor))
@@ -1265,7 +1198,7 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	SliderObject.slider:SetScript ("OnMouseDown", OnMouseDown)
 	SliderObject.slider:SetScript ("OnMouseUp", OnMouseUp)
 
-	_setmetatable (SliderObject, DFSliderMetaFunctions)
+	setmetatable (SliderObject, DFSliderMetaFunctions)
 	
 	if (with_label) then
 		local label = DF:CreateLabel (SliderObject.slider, with_label, nil, nil, nil, "label", nil, "overlay")
@@ -1440,6 +1373,8 @@ local createAdjustmentSliderFrames = function(parent, options, name)
 	DF:Mixin(adjustmentSlider, DF.OptionsFunctions)
 	DF:Mixin(adjustmentSlider, DF.AdjustmentSliderFunctions)
 	DF:Mixin(adjustmentSlider, DF.PayloadMixin)
+	DF:Mixin(adjustmentSlider, DF.SetPointMixin)
+	DF:Mixin(adjustmentSlider, DF.FrameMixin)
 
 	adjustmentSlider:BuildOptionsTable(DF.AdjustmentSliderOptions, options)
 	adjustmentSlider:SetSize(adjustmentSlider.options.width, adjustmentSlider.options.height)

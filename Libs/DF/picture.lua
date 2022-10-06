@@ -5,7 +5,6 @@ if (not detailsFramework or not DetailsFrameworkCanLoad) then
 end
 
 local _
-local loadstring = loadstring
 local APIImageFunctions = false
 
 do
@@ -13,7 +12,6 @@ do
 		WidgetType = "image",
 		SetHook = detailsFramework.SetHook,
 		RunHooksForWidget = detailsFramework.RunHooksForWidget,
-
 		dversion = detailsFramework.dversion,
 	}
 
@@ -116,12 +114,12 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.SetPointMixin)
 	--texture
 	local smember_texture = function(object, value)
 		if (type(value) == "table") then
-			local r, g, b, a = detailsFramework:ParseColors(value)
-			object.image:SetTexture(r, g, b, a or 1)
+			local red, green, blue, alpha = detailsFramework:ParseColors(value)
+			object.image:SetTexture(red, green, blue, alpha)
 		else
 			if (detailsFramework:IsHtmlColor(value)) then
-				local r, g, b, a = detailsFramework:ParseColors(value)
-				object.image:SetTexture(r, g, b, a or 1)
+				local red, green, blue, alpha = detailsFramework:ParseColors(value)
+				object.image:SetTexture(red, green, blue, alpha)
 			else
 				object.image:SetTexture(value)
 			end
@@ -145,14 +143,14 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.SetPointMixin)
 
 	--color
 	local smember_color = function(object, value)
-		local r, g, b, a = detailsFramework:ParseColors(value)
-		object.image:SetColorTexture(r, g, b, a or 1)
+		local red, green, blue, alpha = detailsFramework:ParseColors(value)
+		object.image:SetColorTexture(red, green, blue, alpha)
 	end
 
 	--vertex color
 	local smember_vertexcolor = function(object, value)
-		local r, g, b, a = detailsFramework:ParseColors(value)
-		object.image:SetVertexColor(r, g, b, a or 1)
+		local red, green, blue, alpha = detailsFramework:ParseColors(value)
+		object.image:SetVertexColor(red, green, blue, alpha)
 	end
 
 	--desaturated
@@ -248,7 +246,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.SetPointMixin)
 
 	function detailsFramework:NewImage(parent, texture, width, height, layer, texCoord, member, name)
 		if (not parent) then
-			return error("Details! FrameWork: parent not found.", 2)
+			return error("DetailsFrameWork: NewImage() parent not found.", 2)
 		end
 
 		if (not name) then
@@ -273,7 +271,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.SetPointMixin)
 
 		texture = texture or ""
 
-		ImageObject.image = parent:CreateTexture(name, layer or "OVERLAY")
+		ImageObject.image = parent:CreateTexture(name, layer or "overlay")
 		ImageObject.widget = ImageObject.image
 
 		detailsFramework:Mixin(ImageObject.image, detailsFramework.WidgetFunctions)

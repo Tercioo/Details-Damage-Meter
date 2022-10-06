@@ -37,6 +37,9 @@ end
 
 local DropDownMetaFunctions = _G[DF.GlobalWidgetControlNames["dropdown"]]
 
+DF:Mixin(DropDownMetaFunctions, DF.SetPointMixin)
+DF:Mixin(DropDownMetaFunctions, DF.FrameMixin)
+
 ------------------------------------------------------------------------------------------------------------
 --metatables
 
@@ -173,30 +176,7 @@ local DropDownMetaFunctions = _G[DF.GlobalWidgetControlNames["dropdown"]]
 
 ------------------------------------------------------------------------------------------------------------
 
-function DropDownMetaFunctions:SetBackdrop(...)
-	return self.dropdown:SetBackdrop(...)
-end
-
-function DropDownMetaFunctions:SetBackdropColor(...)
-	return self.dropdown:SetBackdropColor(...)
-end
-
-function DropDownMetaFunctions:SetBackdropBorderColor(...)
-	return self.dropdown:SetBackdropBorderColor(...)
-end
-
---> methods
-	function DropDownMetaFunctions:IsShown()
-		return self.dropdown:IsShown()
-	end
-	function DropDownMetaFunctions:Show()
-		return self.dropdown:Show()
-	end
-	function DropDownMetaFunctions:Hide()
-		return self.dropdown:Hide()
-	end
-
---> menu width and height
+--menu width and height
 	function DropDownMetaFunctions:SetMenuSize(width, height)
 		if (width) then
 			return rawset(self, "realsizeW", width)
@@ -209,7 +189,7 @@ end
 		return rawget(self, "realsizeW"), rawget(self, "realsizeH")
 	end
 
---> function
+--function
 	function DropDownMetaFunctions:SetFunction(func)
 		return rawset(self, "func", func)
 	end
@@ -217,7 +197,7 @@ end
 		return rawget(self, "func")
 	end
 
---> value
+--value
 	function DropDownMetaFunctions:GetValue()
 		return rawget(self, "myvalue")
 	end
@@ -225,27 +205,7 @@ end
 		return rawset(self, "myvalue", value)
 	end
 
---> setpoint
-	function DropDownMetaFunctions:SetPoint(v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = DF:CheckPoints(v1, v2, v3, v4, v5, self)
-		if (not v1) then
-			print("Invalid parameter for SetPoint")
-			return
-		end
-		return self.widget:SetPoint(v1, v2, v3, v4, v5)
-	end
-
---> sizes
-	function DropDownMetaFunctions:SetSize(width, height)
-		if (width) then
-			self.dropdown:SetWidth(width)
-		end
-		if (height) then
-			return self.dropdown:SetHeight(height)
-		end
-	end
-
---> tooltip
+--tooltip
 	function DropDownMetaFunctions:SetTooltip(tooltip)
 		if (tooltip) then
 			return rawset(self, "have_tooltip", tooltip)
@@ -257,10 +217,7 @@ end
 		return rawget(self, "have_tooltip")
 	end
 
---> frame levels
-	function DropDownMetaFunctions:GetFrameLevel()
-		return self.dropdown:GetFrameLevel()
-	end
+--frame levels
 	function DropDownMetaFunctions:SetFrameLevel(level, frame)
 		if (not frame) then
 			return self.dropdown:SetFrameLevel(level)
@@ -270,25 +227,12 @@ end
 		end
 	end
 
---> frame stratas
-	function DropDownMetaFunctions:GetFrameStrata()
-		return self.dropdown:GetFrameStrata()
-	end
-	function DropDownMetaFunctions:SetFrameStrata(strata)
-		if (type(strata) == "table") then
-			self.dropdown:SetFrameStrata(strata:GetFrameStrata())
-		else
-			self.dropdown:SetFrameStrata(strata)
-		end
-	end
-
---> enabled
+--enabled
 	function DropDownMetaFunctions:IsEnabled()
 		return self.dropdown:IsEnabled()
 	end
 
 	function DropDownMetaFunctions:Enable()
-
 		self:SetAlpha(1)
 		rawset(self, "lockdown", false)
 
@@ -306,13 +250,13 @@ end
 		end
 	end
 
---> fixed value
+--fixed value
 	function DropDownMetaFunctions:SetFixedParameter(value)
 		rawset(self, "FixedValue", value)
 	end
 
 ------------------------------------------------------------------------------------------------------------
---> scripts
+--scripts
 
 local lastOpened = false
 

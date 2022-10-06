@@ -1,6 +1,6 @@
 
 
-local dversion = 375
+local dversion = 376
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -8,6 +8,8 @@ if (not DF) then
 	DetailsFrameworkCanLoad = false
 	return
 end
+
+_G["DetailsFramework"] = DF
 
 DetailsFrameworkCanLoad = true
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -36,6 +38,10 @@ DF.AuthorInfo = {
 	Name = "Terciob",
 	Discord = "https://discord.gg/AGSzAZX",
 }
+
+function DF:Msg(msg, ...)
+	print("|cFFFFFFAA" .. (self.__name or "FW Msg:") .. "|r ", msg, ...)
+end
 
 local PixelUtil = PixelUtil or DFPixelUtil
 if (not PixelUtil) then
@@ -226,23 +232,23 @@ function DF.GetSpecialization()
 	return nil
 end
 
-function DF.GetSpecializationInfoByID (...)
+function DF.GetSpecializationInfoByID(...)
 	if (GetSpecializationInfoByID) then
-		return GetSpecializationInfoByID (...)
+		return GetSpecializationInfoByID(...)
 	end
 	return nil
 end
 
-function DF.GetSpecializationInfo (...)
+function DF.GetSpecializationInfo(...)
 	if (GetSpecializationInfo) then
-		return GetSpecializationInfo (...)
+		return GetSpecializationInfo(...)
 	end
 	return nil
 end
 
-function DF.GetSpecializationRole (...)
+function DF.GetSpecializationRole(...)
 	if (GetSpecializationRole) then
-		return GetSpecializationRole (...)
+		return GetSpecializationRole(...)
 	end
 	return nil
 end
@@ -283,11 +289,9 @@ DF.SplitBarCounter = DF.SplitBarCounter or init_counter
 DF.FRAMELEVEL_OVERLAY = 750
 DF.FRAMELEVEL_BACKGROUND = 150
 
---/dump DetailsFramework:PrintVersion()
-
 DF.FrameWorkVersion = tostring(dversion)
 function DF:PrintVersion()
-	print ("Details! Framework Version:", DF.FrameWorkVersion)
+	print("Details! Framework Version:", DF.FrameWorkVersion)
 end
 
 --get the working folder
@@ -303,10 +307,17 @@ end
 
 DF.debug = false
 
-_G["DetailsFramework"] = DF
+function DF:GetFrameworkFolder()
+	return DF.folder
+end
+
+function DF:SetFrameworkDebugState(state)
+	DF.debug = state
+end
+
 
 DF.embeds = DF.embeds or {}
-local embed_functions = {
+local embedFunctions = {
 	"RemoveRealName",
 	"table",
 	"BuildDropDownFontList",
@@ -331,7 +342,7 @@ local embed_functions = {
 	"GetPlayerRole",
 	"GetCharacterTalents",
 	"GetCharacterPvPTalents",
-	
+
 	"CreateDropDown",
 	"CreateButton",
 	"CreateColorPickButton",
@@ -382,14 +393,12 @@ local embed_functions = {
 	"SendScriptComm",
 }
 
-DF.table = {}
-
-function DF:GetFrameworkFolder()
-	return DF.folder
-end
-
-function DF:SetFrameworkDebugState(state)
-	DF.debug = state
+function DF:Embed(target)
+	for k, v in pairs(embedFunctions) do
+		target[v] = self[v]
+	end
+	self.embeds[target] = true
+	return target
 end
 
 function DF:FadeFrame(frame, t)
@@ -410,6 +419,11 @@ function DF:FadeFrame(frame, t)
 		frame:Hide()
 	end
 end
+
+------------------------------------------------------------------------------------------------------------
+--table
+
+DF.table = {}
 
 function DF.table.find(t, value)
 	for i = 1, #t do
@@ -686,34 +700,27 @@ function DF:IntegerToTimer(value)
 	return "" .. floor(value/60) .. ":" .. format("%02.f", value%60)
 end
 
-function DF:Embed (target)
-	for k, v in pairs (embed_functions) do
-		target[v] = self[v]
-	end
-	self.embeds [target] = true
-	return target
+function DF:RemoveRealmName(name)
+	return name:gsub(("%-.*"), "")
 end
 
-function DF:RemoveRealmName (name)
-	return name:gsub (("%-.*"), "")
+function DF:RemoveRealName(name)
+	return name:gsub(("%-.*"), "")
 end
 
-function DF:RemoveRealName (name)
-	return name:gsub (("%-.*"), "")
+function DF:SetFontSize(fontString, ...)
+	local font, _, flags = fontString:GetFont()
+	fontString:SetFont(font, max(...), flags)
 end
 
-function DF:SetFontSize (fontString, ...)
-	local fonte, _, flags = fontString:GetFont()
-	fontString:SetFont (fonte, max (...), flags)
-end
-function DF:SetFontFace (fontString, fontface)
-	local font = SharedMedia:Fetch ("font", fontface, true)
+function DF:SetFontFace(fontString, fontface)
+	local font = SharedMedia:Fetch("font", fontface, true)
 	if (font) then
 		fontface = font
 	end
 
 	local _, size, flags = fontString:GetFont()
-	fontString:SetFont (fontface, size, flags)
+	fontString:SetFont(fontface, size, flags)
 end
 function DF:SetFontColor (fontString, r, g, b, a)
 	r, g, b, a = DF:ParseColors (r, g, b, a)
@@ -745,39 +752,38 @@ function DF:SetFontRotation(fontString, degrees)
 	end
 end
 
-function DF:AddClassColorToText (text, class)
-	if (type (class) ~= "string") then
-		return DF:RemoveRealName (text)
-		
-	elseif (class == "UNKNOW" or class == "PET") then
-		return DF:RemoveRealName (text)
+function DF:AddClassColorToText(text, className)
+	if (type(className) ~= "string") then
+		return DF:RemoveRealName(text)
+
+	elseif (className == "UNKNOW" or className == "PET") then
+		return DF:RemoveRealName(text)
 	end
-	
-	local color = RAID_CLASS_COLORS [class]
+
+	local color = RAID_CLASS_COLORS[className]
 	if (color) then
-		text = "|c" .. color.colorStr .. DF:RemoveRealName (text) .. "|r"
+		text = "|c" .. color.colorStr .. DF:RemoveRealName(text) .. "|r"
 	else
-		return DF:RemoveRealName (text)
+		return DF:RemoveRealName(text)
 	end
-	
+
 	return text
 end
 
 function DF:GetClassTCoordsAndTexture(class)
 	local l, r, t, b = unpack(CLASS_ICON_TCOORDS[class])
 	return l, r, t, b, [[Interface\WORLDSTATEFRAME\Icons-Classes]]
-	--return l, r, t, b, "Interface\\TargetingFrame\\UI-Classes-Circles"
 end
 
 function DF:AddClassIconToText(text, playerName, class, useSpec, iconSize)
 	local size = iconSize or 16
-	
-	local iconToUse, spec
+
+	local spec
 	if (useSpec) then
 		if (Details) then
-			local guid = UnitGUID(playerName)
-			if (guid) then
-				local spec = Details.cached_specs[guid]
+			local GUID = UnitGUID(playerName)
+			if (GUID) then
+				spec = Details.cached_specs[GUID]
 				if (spec) then
 					spec = spec
 				end
@@ -787,7 +793,7 @@ function DF:AddClassIconToText(text, playerName, class, useSpec, iconSize)
 
 	if (spec) then --if spec is valid, the user has Details! installed
 		local specString = ""
-		local L, R, T, B = unpack (Details.class_specs_coords[spec])
+		local L, R, T, B = unpack(Details.class_specs_coords[spec])
 		if (L) then
 			specString = "|TInterface\\AddOns\\Details\\images\\spec_icons_normal:" .. size .. ":" .. size .. ":0:0:512:512:" .. (L * 512) .. ":" .. (R * 512) .. ":" .. (T * 512) .. ":" .. (B * 512) .. "|t"
 			return specString .. " " .. text
@@ -796,7 +802,7 @@ function DF:AddClassIconToText(text, playerName, class, useSpec, iconSize)
 
 	if (class) then
 		local classString = ""
-		local L, R, T, B = unpack (Details.class_coords[class])
+		local L, R, T, B = unpack(Details.class_coords[class])
 		if (L) then
 			local imageSize = 128
 			classString = "|TInterface\\AddOns\\Details\\images\\classes_small:" .. size .. ":" .. size .. ":0:0:" .. imageSize .. ":" .. imageSize .. ":" .. (L * imageSize) .. ":" .. (R * imageSize) .. ":" .. (T * imageSize) .. ":" .. (B * imageSize) .. "|t"
@@ -807,11 +813,11 @@ function DF:AddClassIconToText(text, playerName, class, useSpec, iconSize)
 	return text
 end
 
-function DF:GetFontSize (fontString)
+function DF:GetFontSize(fontString)
 	local _, size = fontString:GetFont()
 	return size
 end
-function DF:GetFontFace (fontString)
+function DF:GetFontFace(fontString)
 	local fontface = fontString:GetFont()
 	return fontface
 end
@@ -822,8 +828,9 @@ local ValidOutlines = {
 	["OUTLINE"] = true,
 	["THICKOUTLINE"] = true,
 }
-function DF:SetFontOutline (fontString, outline)
-	local fonte, size = fontString:GetFont()
+
+function DF:SetFontOutline(fontString, outline)
+	local font, fontSize = fontString:GetFont()
 	if (outline) then
 		if (type(outline) == "string") then
 			outline = outline:upper()
@@ -831,27 +838,30 @@ function DF:SetFontOutline (fontString, outline)
 
 		if (ValidOutlines[outline]) then
 			outline = outline
+
 		elseif (type(outline) == "boolean" and outline) then
 			outline = "OUTLINE"
+
 		elseif (type(outline) == "boolean" and not outline) then
 			outline = "NONE"
+
 		elseif (outline == 1) then
 			outline = "OUTLINE"
+
 		elseif (outline == 2) then
 			outline = "THICKOUTLINE"
 		end
 	end
 
-	fontString:SetFont (fonte, size, outline)
+	fontString:SetFont(font, fontSize, outline)
 end
 
-function DF:Trim (s) --hello name conventions!
-	return DF:trim (s)
+function DF:Trim(string)
+	return DF:trim(string)
 end
-
-function DF:trim (s)
-	local from = s:match"^%s*()"
-	return from > #s and "" or s:match(".*%S", from)
+function DF:trim(string)
+	local from = string:match"^%s*()"
+	return from > #string and "" or string:match(".*%S", from)
 end
 
 --truncated revoming at a maximum of 10 character from the string
@@ -876,17 +886,17 @@ function DF:TruncateTextSafe(fontString, maxWidth)
 	fontString:SetText(text)
 end
 
-function DF:TruncateText (fontString, maxWidth)
+function DF:TruncateText(fontString, maxWidth)
 	local text = fontString:GetText()
-	
+
 	while (fontString:GetStringWidth() > maxWidth) do
-		text = strsub (text, 1, #text - 1)
-		fontString:SetText (text)
-		if (string.len (text) <= 1) then
+		text = strsub(text, 1, #text - 1)
+		fontString:SetText(text)
+		if (string.len(text) <= 1) then
 			break
 		end
 	end
-	
+
 	text = DF:CleanTruncateUTF8String(text)
 	fontString:SetText (text)
 end
@@ -896,20 +906,26 @@ function DF:CleanTruncateUTF8String(text)
 		local b1 = (#text > 0) and strbyte(strsub(text, #text, #text)) or nil
 		local b2 = (#text > 1) and strbyte(strsub(text, #text-1, #text)) or nil
 		local b3 = (#text > 2) and strbyte(strsub(text, #text-2, #text)) or nil
+
 		if b1 and b1 >= 194 and b1 <= 244 then
 			text = strsub (text, 1, #text - 1)
+
 		elseif b2 and b2 >= 224 and b2 <= 244 then
 			text = strsub (text, 1, #text - 2)
+
 		elseif b3 and b3 >= 240 and b3 <= 244 then
 			text = strsub (text, 1, #text - 3)
 		end
 	end
+
 	return text
 end
 
 --DF:TruncateNumber(number, fractionDigits): truncate the amount of numbers used to show fraction.
 function DF:TruncateNumber(number, fractionDigits)
 	fractionDigits = fractionDigits or 2
+	local truncatedNumber = number
+
 	--local truncatedNumber = format("%." .. fractionDigits .. "f", number) --4x slower than:
 	--http://lua-users.org/wiki/SimpleRound
 	local mult = 10 ^ fractionDigits
@@ -922,34 +938,30 @@ function DF:TruncateNumber(number, fractionDigits)
 	return truncatedNumber
 end
 
-function DF:Msg (msg, ...)
-	print ("|cFFFFFFAA" .. (self.__name or "FW Msg:") .. "|r ", msg, ...)
-end
-
-function DF:GetNpcIdFromGuid (guid)
-	local NpcId = select ( 6, strsplit ( "-", guid ) )
-	if (NpcId) then
-		return tonumber ( NpcId )
+function DF:GetNpcIdFromGuid(GUID)
+	local npcId = select(6, strsplit("-", GUID ))
+	if (npcId) then
+		return tonumber(npcId)
 	end
 	return 0
 end
 
-function DF.SortOrder1 (t1, t2)
+function DF.SortOrder1(t1, t2)
 	return t1[1] > t2[1]
 end
-function DF.SortOrder2 (t1, t2)
+function DF.SortOrder2(t1, t2)
 	return t1[2] > t2[2]
 end
-function DF.SortOrder3 (t1, t2)
+function DF.SortOrder3(t1, t2)
 	return t1[3] > t2[3]
 end
-function DF.SortOrder1R (t1, t2)
+function DF.SortOrder1R(t1, t2)
 	return t1[1] < t2[1]
 end
-function DF.SortOrder2R (t1, t2)
+function DF.SortOrder2R(t1, t2)
 	return t1[2] < t2[2]
 end
-function DF.SortOrder3R (t1, t2)
+function DF.SortOrder3R(t1, t2)
 	return t1[3] < t2[3]
 end
 
@@ -996,232 +1008,226 @@ function DF:GetSpellBookSpells()
     return spellNamesInSpellBook, spellIdsInSpellBook
 end
 
-------------------------------
+
+------------------------------------------------------------------------------------------------------------------------
 --flash animation
-local onFinish = function (self)
+local onFinishFlashAnimation = function(self)
 	if (self.showWhenDone) then
-		self.frame:SetAlpha (1)
+		self.frame:SetAlpha(1)
 	else
-		self.frame:SetAlpha (0)
+		self.frame:SetAlpha(0)
 		self.frame:Hide()
 	end
-	
+
 	if (self.onFinishFunc) then
-		self:onFinishFunc (self.frame)
+		self:onFinishFunc(self.frame)
 	end
 end
 
-local stop = function (self)
+local stopAnimation_Method = function(self)
 	local FlashAnimation = self.FlashAnimation
 	FlashAnimation:Stop()
 end
 
-local flash = function (self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime, loopType)
-	
-	local FlashAnimation = self.FlashAnimation
-	
-	local fadeIn = FlashAnimation.fadeIn
-	local fadeOut = FlashAnimation.fadeOut
-	
+local startFlash_Method = function(self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime, loopType)
+	local flashAnimation = self.FlashAnimation
+
+	local fadeIn = flashAnimation.fadeIn
+	local fadeOut = flashAnimation.fadeOut
+
 	fadeIn:Stop()
 	fadeOut:Stop()
 
-	fadeIn:SetDuration (fadeInTime or 1)
-	fadeIn:SetEndDelay (flashInHoldTime or 0)
-	
-	fadeOut:SetDuration (fadeOutTime or 1)
-	fadeOut:SetEndDelay (flashOutHoldTime or 0)
+	fadeIn:SetDuration(fadeInTime or 1)
+	fadeIn:SetEndDelay(flashInHoldTime or 0)
 
-	FlashAnimation.duration = flashDuration
-	FlashAnimation.loopTime = FlashAnimation:GetDuration()
-	FlashAnimation.finishAt = GetTime() + flashDuration
-	FlashAnimation.showWhenDone = showWhenDone
-	
-	FlashAnimation:SetLooping (loopType or "REPEAT")
-	
+	fadeOut:SetDuration(fadeOutTime or 1)
+	fadeOut:SetEndDelay(flashOutHoldTime or 0)
+
+	flashAnimation.duration = flashDuration
+	flashAnimation.loopTime = flashAnimation:GetDuration()
+	flashAnimation.finishAt = GetTime() + flashDuration
+	flashAnimation.showWhenDone = showWhenDone
+
+	flashAnimation:SetLooping(loopType or "REPEAT")
+
 	self:Show()
-	self:SetAlpha (0)
-	FlashAnimation:Play()
+	self:SetAlpha(0)
+	flashAnimation:Play()
 end
 
-function DF:CreateFlashAnimation (frame, onFinishFunc, onLoopFunc)
-	local FlashAnimation = frame:CreateAnimationGroup() 
-	
-	FlashAnimation.fadeOut = FlashAnimation:CreateAnimation ("Alpha") --> fade out anime
-	FlashAnimation.fadeOut:SetOrder (1)
-	FlashAnimation.fadeOut:SetFromAlpha (0)
-	FlashAnimation.fadeOut:SetToAlpha (1)
-	
-	FlashAnimation.fadeIn = FlashAnimation:CreateAnimation ("Alpha") --> fade in anime
-	FlashAnimation.fadeIn:SetOrder (2)
-	FlashAnimation.fadeIn:SetFromAlpha (1)
-	FlashAnimation.fadeIn:SetToAlpha (0)
-	
-	frame.FlashAnimation = FlashAnimation
-	FlashAnimation.frame = frame
-	FlashAnimation.onFinishFunc = onFinishFunc
-	
-	FlashAnimation:SetScript ("OnLoop", onLoopFunc)
-	FlashAnimation:SetScript ("OnFinished", onFinish)
-	
-	frame.Flash = flash
-	frame.Stop = stop
+function DF:CreateFlashAnimation(frame, onFinishFunc, onLoopFunc)
+	local flashAnimation = frame:CreateAnimationGroup()
+
+	flashAnimation.fadeOut = flashAnimation:CreateAnimation("Alpha")
+	flashAnimation.fadeOut:SetOrder(1)
+	flashAnimation.fadeOut:SetFromAlpha(0)
+	flashAnimation.fadeOut:SetToAlpha(1)
+
+	flashAnimation.fadeIn = flashAnimation:CreateAnimation("Alpha")
+	flashAnimation.fadeIn:SetOrder(2)
+	flashAnimation.fadeIn:SetFromAlpha(1)
+	flashAnimation.fadeIn:SetToAlpha(0)
+
+	frame.FlashAnimation = flashAnimation
+	flashAnimation.frame = frame
+	flashAnimation.onFinishFunc = onFinishFunc
+
+	flashAnimation:SetScript("OnLoop", onLoopFunc)
+	flashAnimation:SetScript("OnFinished", onFinishFlashAnimation)
+
+	frame.Flash = startFlash_Method
+	frame.Stop = stopAnimation_Method
+
+	return flashAnimation
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> points
+--anchoring
 
-	function DF:CheckPoints(v1, v2, v3, v4, v5, object)
-		if (not v1 and not v2) then
+	function DF:CheckPoints(point1, point2, point3, point4, point5, object)
+		if (not point1 and not point2) then
 			return "topleft", object.widget:GetParent(), "topleft", 0, 0
 		end
 
-		if (type(v1) == "string") then
-			local frameGlobal = _G[v1]
+		if (type(point1) == "string") then
+			local frameGlobal = _G[point1]
 			if (frameGlobal and type(frameGlobal) == "table" and frameGlobal.GetObjectType) then
-				return DF:CheckPoints(frameGlobal, v2, v3, v4, v5, object)
+				return DF:CheckPoints(frameGlobal, point2, point3, point4, point5, object)
 			end
 
-		elseif (type(v2) == "string") then
-			local frameGlobal = _G[v2]
+		elseif (type(point2) == "string") then
+			local frameGlobal = _G[point2]
 			if (frameGlobal and type(frameGlobal) == "table" and frameGlobal.GetObjectType) then
-				return DF:CheckPoints(v1, frameGlobal, v3, v4, v5, object)
+				return DF:CheckPoints(point1, frameGlobal, point3, point4, point5, object)
 			end
 		end
 
-		if (type(v1) == "string" and type(v2) == "table") then --setpoint("left", frame, _, _, _)
-			if (not v3 or type(v3) == "number") then --setpoint("left", frame, 10, 10)
-				v1, v2, v3, v4, v5 = v1, v2, v1, v3, v4
+		if (type(point1) == "string" and type(point2) == "table") then --setpoint("left", frame, _, _, _)
+			if (not point3 or type(point3) == "number") then --setpoint("left", frame, 10, 10)
+				point1, point2, point3, point4, point5 = point1, point2, point1, point3, point4
 			end
 
-		elseif (type(v1) == "string" and type(v2) == "number") then --setpoint("topleft", x, y)
-			v1, v2, v3, v4, v5 = v1, object.widget:GetParent(), v1, v2, v3
+		elseif (type(point1) == "string" and type(point2) == "number") then --setpoint("topleft", x, y)
+			point1, point2, point3, point4, point5 = point1, object.widget:GetParent(), point1, point2, point3
 
-		elseif (type(v1) == "number") then --setpoint(x, y) 
-			v1, v2, v3, v4, v5 = "topleft", object.widget:GetParent(), "topleft", v1, v2
+		elseif (type(point1) == "number") then --setpoint(x, y) 
+			point1, point2, point3, point4, point5 = "topleft", object.widget:GetParent(), "topleft", point1, point2
 
-		elseif (type(v1) == "table") then --setpoint(frame, x, y)
-			v1, v2, v3, v4, v5 = "topleft", v1, "topleft", v2, v3
+		elseif (type(point1) == "table") then --setpoint(frame, x, y)
+			point1, point2, point3, point4, point5 = "topleft", point1, "topleft", point2, point3
 		end
 
-		if (not v2) then
-			v2 = object.widget:GetParent()
-		elseif (v2.dframework) then
-			v2 = v2.widget
+		if (not point2) then
+			point2 = object.widget:GetParent()
+		elseif (point2.dframework) then
+			point2 = point2.widget
 		end
 
-		return v1 or "topleft", v2, v3 or "topleft", v4 or 0, v5 or 0
+		return point1 or "topleft", point2, point3 or "topleft", point4 or 0, point5 or 0
 	end
-	
-	local anchoring_functions = {
-		function (frame, anchorTo, offSetX, offSetY) --> 1 TOP LEFT
+
+	local anchoringFunctions = {
+		function(frame, anchorTo, offSetX, offSetY) --1 TOP LEFT
 			frame:ClearAllPoints()
-			frame:SetPoint ("bottomleft", anchorTo, "topleft", offSetX, offSetY)
+			frame:SetPoint("bottomleft", anchorTo, "topleft", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 2 LEFT
+
+		function(frame, anchorTo, offSetX, offSetY) --2 LEFT
 			frame:ClearAllPoints()
-			frame:SetPoint ("right", anchorTo, "left", offSetX, offSetY)
+			frame:SetPoint("right", anchorTo, "left", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 3 BOTTOM LEFT
+
+		function(frame, anchorTo, offSetX, offSetY) --3 BOTTOM LEFT
 			frame:ClearAllPoints()
-			frame:SetPoint ("topleft", anchorTo, "bottomleft", offSetX, offSetY)
+			frame:SetPoint("topleft", anchorTo, "bottomleft", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 4 BOTTOM
+
+		function(frame, anchorTo, offSetX, offSetY) --4 BOTTOM
 			frame:ClearAllPoints()
-			frame:SetPoint ("top", anchorTo, "bottom", offSetX, offSetY)
+			frame:SetPoint("top", anchorTo, "bottom", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 5 BOTTOM RIGHT
+
+		function(frame, anchorTo, offSetX, offSetY) --5 BOTTOM RIGHT
 			frame:ClearAllPoints()
-			frame:SetPoint ("topright", anchorTo, "bottomright", offSetX, offSetY)
+			frame:SetPoint("topright", anchorTo, "bottomright", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 6 RIGHT
+
+		function(frame, anchorTo, offSetX, offSetY) --6 RIGHT
 			frame:ClearAllPoints()
-			frame:SetPoint ("left", anchorTo, "right", offSetX, offSetY)
+			frame:SetPoint("left", anchorTo, "right", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 7 TOP RIGHT
+
+		function(frame, anchorTo, offSetX, offSetY) --7 TOP RIGHT
 			frame:ClearAllPoints()
-			frame:SetPoint ("bottomright", anchorTo, "topright", offSetX, offSetY)
+			frame:SetPoint("bottomright", anchorTo, "topright", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 8 TOP
+
+		function(frame, anchorTo, offSetX, offSetY) --8 TOP
 			frame:ClearAllPoints()
-			frame:SetPoint ("bottom", anchorTo, "top", offSetX, offSetY)
+			frame:SetPoint("bottom", anchorTo, "top", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 9 CENTER
+
+		function(frame, anchorTo, offSetX, offSetY) --9 CENTER
 			frame:ClearAllPoints()
-			frame:SetPoint ("center", anchorTo, "center", offSetX, offSetY)
+			frame:SetPoint("center", anchorTo, "center", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 10
+
+		function(frame, anchorTo, offSetX, offSetY) --10
 			frame:ClearAllPoints()
-			frame:SetPoint ("left", anchorTo, "left", offSetX, offSetY)
+			frame:SetPoint("left", anchorTo, "left", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 11
+
+		function(frame, anchorTo, offSetX, offSetY) --11
 			frame:ClearAllPoints()
-			frame:SetPoint ("right", anchorTo, "right", offSetX, offSetY)
+			frame:SetPoint("right", anchorTo, "right", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 12
+
+		function(frame, anchorTo, offSetX, offSetY) --12
 			frame:ClearAllPoints()
-			frame:SetPoint ("top", anchorTo, "top", offSetX, offSetY)
+			frame:SetPoint("top", anchorTo, "top", offSetX, offSetY)
 		end,
-		
-		function (frame, anchorTo, offSetX, offSetY) --> 13
+
+		function(frame, anchorTo, offSetX, offSetY) --13
 			frame:ClearAllPoints()
-			frame:SetPoint ("bottom", anchorTo, "bottom", offSetX, offSetY)
+			frame:SetPoint("bottom", anchorTo, "bottom", offSetX, offSetY)
 		end
 	}
 
-	function DF:SetAnchor (widget, config, anchorTo)
+	function DF:SetAnchor(widget, config, anchorTo)
 		anchorTo = anchorTo or widget:GetParent()
-		anchoring_functions [config.side] (widget, anchorTo, config.x, config.y)
-	end	
+		anchoringFunctions[config.side](widget, anchorTo, config.x, config.y)
+	end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> colors
+--colors
 
-	function DF:NewColor (_colorname, _colortable, _green, _blue, _alpha)
-		assert (type (_colorname) == "string", "NewColor: colorname must be a string.")
-		assert (not DF.alias_text_colors [_colorname], "NewColor: colorname already exists.")
+	--add a new color name, the color can be query using DetailsFramework:ParseColors(colorName)
+	function DF:NewColor(colorName, red, green, blue, alpha)
+		assert(type(colorName) == "string", "DetailsFramework:NewColor(): colorName must be a string.")
+		assert(not DF.alias_text_colors[colorName], "DetailsFramework:NewColor(): colorName already exists.")
 
-		if (type (_colortable) == "table") then
-			if (_colortable[1] and _colortable[2] and _colortable[3]) then
-				_colortable[4] = _colortable[4] or 1
-				DF.alias_text_colors [_colorname] = _colortable
-			else
-				error ("invalid color table.")
-			end
-		elseif (_colortable and _green and _blue) then
-			_alpha = _alpha or 1
-			DF.alias_text_colors [_colorname] = {_colortable, _green, _blue, _alpha}
-		else
-			error ("invalid parameter.")
-		end
-		
-		return true
+		red, green, blue, alpha = DetailsFramework:ParseColors(red, green, blue, alpha)
+		local colorTable = DetailsFramework:FormatColor("table", red, green, blue, alpha)
+
+		DF.alias_text_colors[colorName] = colorTable
+
+		return colorTable
 	end
-	
+
 	local colorTableMixin = {
-		GetColor = function (self)
+		GetColor = function(self)
 			return self.r, self.g, self.b, self.a
 		end,
-		
-		SetColor = function (self, r, g, b, a)
-			r, g, b, a = DF:ParseColors (r, g, b, a)
+
+		SetColor = function(self, r, g, b, a)
+			r, g, b, a = DF:ParseColors(r, g, b, a)
 			self.r = r or self.r
 			self.g = g or self.g
 			self.b = b or self.b
 			self.a = a or self.a
 		end,
-		
+
 		IsColorTable = true,
 	}
 
@@ -1255,22 +1261,22 @@ end
 		end
 	end
 
-	function DF:CreateColorTable (r, g, b, a)
+	function DF:CreateColorTable(r, g, b, a)
 		local t  = {
-			r = r or 1, 
-			g = g or 1, 
-			b = b or 1, 
+			r = r or 1,
+			g = g or 1,
+			b = b or 1,
 			a = a or 1,
 		}
-		DF:Mixin (t, colorTableMixin)
+		DF:Mixin(t, colorTableMixin)
 		return t
 	end
 
-	function DF:IsHtmlColor (color)
-		return DF.alias_text_colors [color]
+	function DF:IsHtmlColor(color)
+		return DF.alias_text_colors[color]
 	end
 
-	function DF:ParseColors (red, green, blue, alpha)
+	function DF:ParseColors(red, green, blue, alpha)
 		local firstParameter = red
 
 		--the first value passed is a table?
@@ -1569,6 +1575,7 @@ end
 
 					--dropdowns
 					elseif (widgetTable.type == "select" or widgetTable.type == "dropdown") then
+						assert(widgetTable.get, "DetailsFramework:BuildMenu(): .get not found in the widget table for 'select'")
 						local dropdown = getMenuWidgetVolative(parent, "dropdown", widgetIndexes)
 						widgetCreated = dropdown
 
@@ -1577,7 +1584,7 @@ end
 						dropdown:Select(widgetTable.get())
 						dropdown:SetTemplate(dropdownTemplate)
 
-						dropdown.tooltip = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId)
+						dropdown:SetTooltip((languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId))
 						dropdown._get = widgetTable.get
 						dropdown.widget_type = "select"
 
@@ -1619,7 +1626,7 @@ end
 						switch:SetTemplate(switchTemplate)
 						switch:SetAsCheckBox() --it's always a checkbox on volatile menu
 
-						switch.tooltip = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId)
+						switch:SetTooltip((languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId))
 						switch._get = widgetTable.get
 						switch.widget_type = "toggle"
 						switch.OnSwitch = widgetTable.set
@@ -1683,7 +1690,7 @@ end
 
 						slider:SetTemplate(sliderTemplate)
 
-						slider.tooltip = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId)
+						slider:SetTooltip((languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId))
 						slider._get = widgetTable.get
 						slider.widget_type = "range"
 						slider:SetHook("OnValueChange", widgetTable.set)
@@ -1729,7 +1736,7 @@ end
 						colorpick:SetTemplate(buttonTemplate)
 						colorpick:SetSize(18, 18)
 
-						colorpick.tooltip = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId)
+						colorpick:SetTooltip((languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId))
 						colorpick._get = widgetTable.get
 						colorpick.widget_type = "color"
 
@@ -1800,7 +1807,7 @@ end
 							button:SetPoint(currentXOffset, currentYOffset)
 						end
 
-						button.tooltip = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId)
+						button:SetTooltip((languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId))
 						button.widget_type = "execute"
 
 						--hook list
@@ -1835,7 +1842,7 @@ end
 						textentry:SetTemplate(widgetTable.template or widgetTable.button_template or buttonTemplate)
 						textentry:SetSize(widgetTable.width or 120, widgetTable.height or 18)
 
-						textentry.tooltip = (languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId)
+						textentry:SetTooltip((languageTable and languageTable[widgetTable.namePhraseId]) or (widgetTable.desc) or (widgetTable.namePhraseId))
 						textentry.text = widgetTable.get()
 						textentry._get = widgetTable.get
 						textentry.widget_type = "textentry"
@@ -1962,7 +1969,7 @@ end
 					if (widgetTable.namePhraseId) then
 						DetailsFramework.Language.RegisterFontString(languageAddonId, label.widget, widgetTable.namePhraseId)
 					else
-						local textToSet = widgetTable.get() or widgetTable.text or ""
+						local textToSet = (widgetTable.get and widgetTable.get()) or widgetTable.text or ""
 						label:SetText(textToSet)
 					end
 
@@ -1977,14 +1984,17 @@ end
 					end
 
 				elseif (widgetTable.type == "select") then
+					assert(widgetTable.get, "DetailsFramework:BuildMenu(): .get not found in the widget table for 'select'")
 					local dropdown = DF:NewDropDown(parent, nil, "$parentWidget" .. index, nil, 140, 18, widgetTable.values, widgetTable.get(), dropdownTemplate)
 
-					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, dropdown, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, dropdown, "have_tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					dropdown._get = widgetTable.get
 					dropdown.widget_type = "select"
 
-					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, widgetTable.name .. (useColon and ": " or ""), "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
+					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, widgetTable.namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
+
 					dropdown:SetPoint("left", label, "right", 2)
 					label:SetPoint(currentXOffset, currentYOffset)
 					dropdown.hasLabel = label
@@ -2020,7 +2030,7 @@ end
 				elseif (widgetTable.type == "toggle") then
 					local switch = DF:NewSwitch(parent, nil, "$parentWidget" .. index, nil, 60, 20, nil, nil, widgetTable.get(), nil, nil, nil, nil, switchTemplate)
 
-					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, switch, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, switch, "have_tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					switch._get = widgetTable.get
 					switch.widget_type = "toggle"
@@ -2084,10 +2094,11 @@ end
 					amountLineWidgetCreated = amountLineWidgetCreated + 1
 
 				elseif (widgetTable.type == "range") then
+					assert(widgetTable.get, "DetailsFramework:BuildMenu(): .get not found in the widget table for 'range'")
 					local isDecimanls = widgetTable.usedecimals
 					local slider = DF:NewSlider(parent, nil, "$parentWidget" .. index, nil, 140, 20, widgetTable.min, widgetTable.max, widgetTable.step, widgetTable.get(),  isDecimanls, nil, nil, sliderTemplate)
 
-					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, slider, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, slider, "have_tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					slider._get = widgetTable.get
 					slider.widget_type = "range"
@@ -2134,9 +2145,10 @@ end
 					amountLineWidgetCreated = amountLineWidgetCreated + 1
 
 				elseif (widgetTable.type == "color") then
+					assert(widgetTable.get, "DetailsFramework:BuildMenu(): .get not found in the widget table for 'color'")
 					local colorpick = DF:NewColorPickButton(parent, "$parentWidget" .. index, nil, widgetTable.set, nil, buttonTemplate)
 
-					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, colorpick, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, colorpick, "have_tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					colorpick._get = widgetTable.get
 					colorpick.widget_type = "color"
@@ -2206,7 +2218,7 @@ end
 						button:SetPoint(currentXOffset, currentYOffset)
 					end
 
-					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, button, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, button, "have_tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					button.widget_type = "execute"
 
@@ -2248,7 +2260,7 @@ end
 				elseif (widgetTable.type == "textentry") then
 					local textentry = DF:CreateTextEntry(parent, widgetTable.func or widgetTable.set, 120, 18, nil, "$parentWidget" .. index, nil, buttonTemplate)
 
-					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, textentry, "tooltip", widgetTable.descPhraseId, widgetTable.desc)
+					DetailsFramework.Language.RegisterTableKeyWithDefault(languageAddonId, textentry, "have_tooltip", widgetTable.descPhraseId, widgetTable.desc)
 
 					textentry.text = widgetTable.get()
 					textentry._get = widgetTable.get

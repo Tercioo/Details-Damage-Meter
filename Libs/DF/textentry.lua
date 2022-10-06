@@ -37,12 +37,17 @@ do
 end
 
 local TextEntryMetaFunctions = _G[DF.GlobalWidgetControlNames["textentry"]]
+
+DF:Mixin(TextEntryMetaFunctions, DF.SetPointMixin)
+DF:Mixin(TextEntryMetaFunctions, DF.FrameMixin)
+
+
 DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 ------------------------------------------------------------------------------------------------------------
 --metatables
-	TextEntryMetaFunctions.__call = function(object, value)
 
+	TextEntryMetaFunctions.__call = function(object, value)
 	end
 
 ------------------------------------------------------------------------------------------------------------
@@ -173,94 +178,32 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 ------------------------------------------------------------------------------------------------------------
 --methods
+
 	local cleanfunction = function()end
 	function TextEntryMetaFunctions:SetEnterFunction(func, param1, param2)
 		if (func) then
-			rawset (self, "func", func)
+			rawset(self, "func", func)
 		else
-			rawset (self, "func", cleanfunction)
+			rawset(self, "func", cleanfunction)
 		end
 
 		if (param1 ~= nil) then
-			rawset (self, "param1", param1)
+			rawset(self, "param1", param1)
 		end
 		if (param2 ~= nil) then
-			rawset (self, "param2", param2)
+			rawset(self, "param2", param2)
 		end
 	end
 
---set point
-	function TextEntryMetaFunctions:SetPoint (MyAnchor, SnapTo, HisAnchor, x, y, Width)
-	
-		if (type (MyAnchor) == "boolean" and MyAnchor and self.space) then
-			local textWidth = self.label:GetStringWidth()+2
-			self.editbox:SetWidth (self.space - textWidth - 15)
-			return
-			
-		elseif (type (MyAnchor) == "boolean" and MyAnchor and not self.space) then
-			self.space = self.label:GetStringWidth()+2 + self.editbox:GetWidth()
-		end
-		
-		if (Width) then
-			self.space = Width
-		end
-		
-		MyAnchor, SnapTo, HisAnchor, x, y = DF:CheckPoints (MyAnchor, SnapTo, HisAnchor, x, y, self)
-		if (not MyAnchor) then
-			print ("Invalid parameter for SetPoint")
-			return
-		end
-	
-		if (self.space) then
-			self.label:ClearAllPoints()
-			self.editbox:ClearAllPoints()
-			
-			self.label:SetPoint (MyAnchor, SnapTo, HisAnchor, x, y)
-			self.editbox:SetPoint ("left", self.label, "right", 2, 0)
-			
-			local textWidth = self.label:GetStringWidth()+2
-			self.editbox:SetWidth (self.space - textWidth - 15)
-		else
-			self.label:ClearAllPoints()
-			self.editbox:ClearAllPoints()
-			self.editbox:SetPoint (MyAnchor, SnapTo, HisAnchor, x, y)
-		end
-
+	function TextEntryMetaFunctions:SetText(text)
+		self.editbox:SetText(text)
 	end
-	
-	function TextEntryMetaFunctions:SetText (text)
-		self.editbox:SetText (text)
-	end	
+
 	function TextEntryMetaFunctions:GetText()
 		return self.editbox:GetText()
 	end
-	
---frame levels
-	function TextEntryMetaFunctions:GetFrameLevel()
-		return self.editbox:GetFrameLevel()
-	end
-	function TextEntryMetaFunctions:SetFrameLevel (level, frame)
-		if (not frame) then
-			return self.editbox:SetFrameLevel (level)
-		else
-			local framelevel = frame:GetFrameLevel (frame) + level
-			return self.editbox:SetFrameLevel (framelevel)
-		end
-	end
 
-	function TextEntryMetaFunctions:SetBackdrop(...)
-		return self.editbox:SetBackdrop(...)
-	end
-
-	function TextEntryMetaFunctions:SetBackdropColor(...)
-		return self.editbox:SetBackdropColor(...)
-	end
-
-	function TextEntryMetaFunctions:SetBackdropBorderColor(...)
-		return self.editbox:SetBackdropBorderColor(...)
-	end
-
---select all text
+	--select all text
 	function TextEntryMetaFunctions:SelectAll()
 		self.editbox:HighlightText()
 	end
@@ -268,51 +211,36 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 	function TextEntryMetaFunctions:SetAutoSelectTextOnFocus(value)
 		self.autoSelectAllText = value
 	end
-	
---set labal description
-	function TextEntryMetaFunctions:SetLabelText (text)
-		if (text) then
-			self.label:SetText (text)
-		else
-			self.label:SetText ("")
-		end
-		self:SetPoint (true) --> refresh
+
+	--set label description
+	function TextEntryMetaFunctions:SetLabelText(text)
+		self.label:SetText(text)
 	end
 
---> set tab order
-	function TextEntryMetaFunctions:SetNext (nextbox)
+	--set tab order
+	function TextEntryMetaFunctions:SetNext(nextbox)
 		self.next = nextbox
 	end
-	
---> blink
+
+	--blink
 	function TextEntryMetaFunctions:Blink()
-		self.label:SetTextColor (1, .2, .2, 1)
-	end	
-	
---> show & hide
-	function TextEntryMetaFunctions:IsShown()
-		return self.editbox:IsShown()
+		self.label:SetTextColor(1, .2, .2, 1)
 	end
-	function TextEntryMetaFunctions:Show()
-		return self.editbox:Show()
-	end
-	function TextEntryMetaFunctions:Hide()
-		return self.editbox:Hide()
-	end
-	
--- tooltip
-	function TextEntryMetaFunctions:SetTooltip (tooltip)
+
+	--tooltip
+	function TextEntryMetaFunctions:SetTooltip(tooltip)
 		if (tooltip) then
-			return rawset (self, "have_tooltip", tooltip)
+			return rawset(self, "have_tooltip", tooltip)
 		else
-			return rawset (self, "have_tooltip", nil)
+			return rawset(self, "have_tooltip", nil)
 		end
 	end
+
 	function TextEntryMetaFunctions:GetTooltip()
-		return rawget (self, "have_tooltip")
+		return rawget(self, "have_tooltip")
 	end
-	
---> hooks
+
+	--hooks
 	function TextEntryMetaFunctions:Enable()
 		if (not self.editbox:IsEnabled()) then
 			self.editbox:Enable()
@@ -325,7 +253,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 			end
 		end
 	end
-	
+
 	function TextEntryMetaFunctions:Disable()
 		if (self.editbox:IsEnabled()) then
 			self.enabled_border_color = {self.editbox:GetBackdropBorderColor()}
@@ -334,12 +262,12 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 			self.editbox:Disable()
 
-			self.editbox:SetBackdropBorderColor (.5, .5, .5, .5)
-			self.editbox:SetBackdropColor (.5, .5, .5, .5)
-			self.editbox:SetTextColor (.5, .5, .5, .5)
-			
+			self.editbox:SetBackdropBorderColor(.5, .5, .5, .5)
+			self.editbox:SetBackdropColor(.5, .5, .5, .5)
+			self.editbox:SetTextColor(.5, .5, .5, .5)
+
 			if (self.editbox.borderframe) then
-				self.editbox.borderframe:SetBackdropColor (.5, .5, .5, .5)
+				self.editbox.borderframe:SetBackdropColor(.5, .5, .5, .5)
 			end
 		end
 	end

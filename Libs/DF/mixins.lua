@@ -89,6 +89,47 @@ local doublePoint = {
 	["left-right"] = true,
 }
 
+detailsFramework.FrameMixin = {
+	SetFrameStrata = function(self, strata)
+		if (type(strata) == "table" and strata.GetObjectType) then
+			local UIObject = strata
+			self.widget:SetFrameStrata(UIObject:GetFrameStrata())
+		else
+			self.widget:SetFrameStrata(strata)
+		end
+	end,
+
+	SetFrameLevel = function(self, level, UIObject)
+		if (not UIObject) then
+			return self.widget:SetFrameLevel(level)
+		else
+			local framelevel = UIObject:GetFrameLevel(UIObject) + level
+			return self.widget:SetFrameLevel(framelevel)
+		end
+	end,
+
+	SetBackdrop = function(self, ...)
+		return self.widget:SetBackdrop(...)
+	end,
+
+	SetBackdropColor = function(self, ...)
+		return self.widget:SetBackdropColor(...)
+	end,
+
+	SetBackdropBorderColor = function(self, ...)
+		return self.widget:SetBackdropBorderColor(...)
+	end,
+
+	SetSize = function(self, width, height)
+		if (width) then
+			self.widget:SetWidth(width)
+		end
+		if (height) then
+			return self.widget:SetHeight(height)
+		end
+	end
+}
+
 detailsFramework.SetPointMixin = {
 	SetPoint = function(object, anchorName1, anchorObject, anchorName2, xOffset, yOffset)
 		if (doublePoint[anchorName1]) then
