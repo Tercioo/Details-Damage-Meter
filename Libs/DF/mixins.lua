@@ -72,6 +72,57 @@ detailsFramework.LayeredRegionMetaFunctionsGet = {
 	end,
 }
 
+local getFrame = function(frame)
+	return rawget(frame, "widget") or frame
+end
+
+detailsFramework.FrameMixin = {
+	SetFrameStrata = function(self, strata)
+		self = getFrame(self)
+		if (type(strata) == "table" and strata.GetObjectType) then
+			local UIObject = strata
+			self:SetFrameStrata(UIObject:GetFrameStrata())
+		else
+			self:SetFrameStrata(strata)
+		end
+	end,
+
+	SetFrameLevel = function(self, level, UIObject)
+		self = getFrame(self)
+		if (not UIObject) then
+			self:SetFrameLevel(level)
+		else
+			local framelevel = UIObject:GetFrameLevel(UIObject) + level
+			self:SetFrameLevel(framelevel)
+		end
+	end,
+
+	SetSize = function(self, width, height)
+		self = getFrame(self)
+		if (width) then
+			self:SetWidth(width)
+		end
+		if (height) then
+			self:SetHeight(height)
+		end
+	end,
+
+	SetBackdrop = function(self, ...)
+		self = getFrame(self)
+		self:SetBackdrop(...)
+	end,
+
+	SetBackdropColor = function(self, ...)
+		self = getFrame(self)
+		self:SetBackdropColor(...)
+	end,
+
+	SetBackdropBorderColor = function(self, ...)
+		self = getFrame(self)
+		getFrame(self):SetBackdropBorderColor(...)
+	end,
+}
+
 local doublePoint = {
 	["lefts"] = true,
 	["rights"] = true,
@@ -89,47 +140,6 @@ local doublePoint = {
 	["left-right"] = true,
 }
 
-detailsFramework.FrameMixin = {
-	SetFrameStrata = function(self, strata)
-		if (type(strata) == "table" and strata.GetObjectType) then
-			local UIObject = strata
-			self.widget:SetFrameStrata(UIObject:GetFrameStrata())
-		else
-			self.widget:SetFrameStrata(strata)
-		end
-	end,
-
-	SetFrameLevel = function(self, level, UIObject)
-		if (not UIObject) then
-			return self.widget:SetFrameLevel(level)
-		else
-			local framelevel = UIObject:GetFrameLevel(UIObject) + level
-			return self.widget:SetFrameLevel(framelevel)
-		end
-	end,
-
-	SetBackdrop = function(self, ...)
-		return self.widget:SetBackdrop(...)
-	end,
-
-	SetBackdropColor = function(self, ...)
-		return self.widget:SetBackdropColor(...)
-	end,
-
-	SetBackdropBorderColor = function(self, ...)
-		return self.widget:SetBackdropBorderColor(...)
-	end,
-
-	SetSize = function(self, width, height)
-		if (width) then
-			self.widget:SetWidth(width)
-		end
-		if (height) then
-			return self.widget:SetHeight(height)
-		end
-	end
-}
-
 detailsFramework.SetPointMixin = {
 	SetPoint = function(object, anchorName1, anchorObject, anchorName2, xOffset, yOffset)
 		if (doublePoint[anchorName1]) then
@@ -137,7 +147,7 @@ detailsFramework.SetPointMixin = {
 			local anchorTo
 			if (anchorObject and type(anchorObject) == "table") then
 				xOffset, yOffset = anchorName2 or 0, xOffset or 0
-				anchorTo = anchorObject.widget or anchorObject
+				anchorTo = getFrame(anchorObject)
 			else
 				xOffset, yOffset = anchorObject or 0, anchorName2 or 0
 				anchorTo = object:GetParent()
@@ -200,7 +210,13 @@ detailsFramework.SetPointMixin = {
 			error("SetPoint: Invalid parameter.")
 			return
 		end
-		return object.widget:SetPoint(anchorName1, anchorObject, anchorName2, xOffset, yOffset)
+
+		if (not object.widget) then
+			local SetPoint = getmetatable(object).__index.SetPoint
+			return SetPoint(object, anchorName1, anchorObject, anchorName2, xOffset, yOffset)
+		else
+			return object.widget:SetPoint(anchorName1, anchorObject, anchorName2, xOffset, yOffset)
+		end
 	end,
 }
 

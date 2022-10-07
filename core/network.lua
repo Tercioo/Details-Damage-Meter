@@ -71,7 +71,6 @@
 	}
 
 	local registredPlugins = {}
-	local temp = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> comm functions
@@ -444,11 +443,12 @@
 			return
 		end
 
-		local prefix, player, realm, coreVersion, arg6, arg7, arg8, arg9 = select(2, deserializedTable)
+		tremove(deserializedTable, 1)
+		local prefix, player, realm, coreVersion, arg6, arg7, arg8, arg9 = unpack(deserializedTable)
 		player = source
 
 		if (Details.debugnet) then
-			Details:Msg("(debug) network received:", prefix, "length:", string.len(data))
+			Details:Msg("(debug) network received prefix:", prefix, "length:", string.len(data))
 		end
 
 		if (type(prefix) ~= "string") then

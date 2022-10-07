@@ -107,6 +107,15 @@ function DF.IsShadowlandsWow()
     end
 end
 
+function DF.GetContainerItemInfo(containerIndex, slotIndex)
+	if (DF.IsDragonflightAndBeyond()) then
+		local itemInfo = C_Container.GetContainerItemInfo(containerIndex, slotIndex)
+		return itemInfo.iconFileID, itemInfo.stackCount, itemInfo.isLocked, itemInfo.quality, itemInfo.isReadable, itemInfo.hasLoot, itemInfo.hyperlink, itemInfo.isFiltered, itemInfo.hasNoValue, itemInfo.itemID, itemInfo.isBound
+	else
+		return GetContainerItemInfo(containerIndex, slotIndex)
+	end
+end
+
 local roleBySpecTextureName = {
 	DruidBalance = "DAMAGER",
 	DruidFeralCombat = "DAMAGER",

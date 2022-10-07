@@ -1374,7 +1374,7 @@ local createAdjustmentSliderFrames = function(parent, options, name)
 	DF:Mixin(adjustmentSlider, DF.AdjustmentSliderFunctions)
 	DF:Mixin(adjustmentSlider, DF.PayloadMixin)
 	DF:Mixin(adjustmentSlider, DF.SetPointMixin)
-	DF:Mixin(adjustmentSlider, DF.FrameMixin)
+	--DF:Mixin(adjustmentSlider, DF.FrameMixin)
 
 	adjustmentSlider:BuildOptionsTable(DF.AdjustmentSliderOptions, options)
 	adjustmentSlider:SetSize(adjustmentSlider.options.width, adjustmentSlider.options.height)

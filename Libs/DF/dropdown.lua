@@ -750,7 +750,7 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 			if (currentText) then
 				selectedTexture:Hide()
 			else
-				selectedTexture:SetWidth(frameWitdh-20)
+				selectedTexture:SetWidth(frameWitdh - 20)
 			end
 
 			for o = showing + 1, #object.menus do
@@ -764,7 +764,7 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 				object:ShowScroll()
 				scrollFrame:EnableMouseWheel(true)
 				object.scroll:Altura(size-35) --height
-				object.scroll:SetMinMaxValues(0, (showing*20) - size + 2)
+				object.scroll:SetMinMaxValues(0, (showing * 20) - size + 2)
 
 				--width
 				scrollBorder:SetWidth(frameWitdh+20)
@@ -774,16 +774,16 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 				--height
 				scrollBorder:SetHeight(size+2)
 				scrollFrame:SetHeight(size+2)
-				scrollChild:SetHeight((showing*20)+20)
+				scrollChild:SetHeight((showing * 20) + 20)
 
 				--mouse over texture
-				mouseOverTexture:SetWidth(frameWitdh-7)
+				mouseOverTexture:SetWidth(frameWitdh - 7)
 
 				--selected
 				selectedTexture:SetWidth(frameWitdh - 9)
 
 				for index, row in ipairs(object.menus) do
-					row:SetPoint("topright", scrollChild, "topright", -22, ((-index-1)*20)-5)
+					row:SetPoint("topright", scrollChild, "topright", -22, ((-index-1) * 20) - 5)
 				end
 			else
 				--hide scrollbar and disable wheel
@@ -794,20 +794,20 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 				scrollFrame:SetWidth(frameWitdh)
 				scrollChild:SetWidth(frameWitdh)
 				--height
-				scrollBorder:SetHeight((showing*20) + 1)
-				scrollFrame:SetHeight((showing*20) + 1)
+				scrollBorder:SetHeight((showing * 20) + 1)
+				scrollFrame:SetHeight((showing * 20) + 1)
 				--mouse over texture
 				mouseOverTexture:SetWidth(frameWitdh - 1)
 				--selected
 				selectedTexture:SetWidth(frameWitdh - 1)
 
 				for index, row in ipairs(object.menus) do
-					row:SetPoint("topright", scrollChild, "topright", -5, ((-index-1)*20)-5)
+					row:SetPoint("topright", scrollChild, "topright", -5, ((-index-1) * 20) -5)
 				end
 			end
 
 			if (object.myvaluelabel and currentIndex and scrollFrame.slider:IsShown()) then
-				object.scroll:SetValue(max((currentIndex*20) - 80, 0))
+				object.scroll:SetValue(max((currentIndex * 20) - 80, 0))
 			else
 				object.scroll:SetValue(0)
 			end
@@ -1123,68 +1123,68 @@ local borderBackdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
 local childBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 256, insets = {left = 0, right = 0, top = 0, bottom = 0}}
 
 function DF:CreateNewDropdownFrame(parent, name)
-	local f = CreateFrame("button", name, parent, "BackdropTemplate")
-	f:SetBackdrop(defaultBackdrop)
-	f:SetBackdropColor(1, 1, 1, .5)
-	f:SetSize(150, 20)
+	local newDropdownFrame = CreateFrame("button", name, parent, "BackdropTemplate")
+	newDropdownFrame:SetBackdrop(defaultBackdrop)
+	newDropdownFrame:SetBackdropColor(1, 1, 1, .5)
+	newDropdownFrame:SetSize(150, 20)
 
-	local statusbar = f:CreateTexture("$parent_StatusBarTexture", "BACKGROUND")
-	statusbar:SetPoint("topleft", f, "topleft", 0, 0)
-	statusbar:SetPoint("bottomright", f, "bottomright", 0, 0)
-	f.statusbar = statusbar
+	local statusbar = newDropdownFrame:CreateTexture("$parent_StatusBarTexture", "BACKGROUND")
+	statusbar:SetPoint("topleft", newDropdownFrame, "topleft", 0, 0)
+	statusbar:SetPoint("bottomright", newDropdownFrame, "bottomright", 0, 0)
+	newDropdownFrame.statusbar = statusbar
 
-	local icon = f:CreateTexture("$parent_IconTexture", "ARTWORK")
-	icon:SetPoint("left", f, "left", 2, 0)
+	local icon = newDropdownFrame:CreateTexture("$parent_IconTexture", "ARTWORK")
+	icon:SetPoint("left", newDropdownFrame, "left", 2, 0)
 	icon:SetSize(20, 20)
 	icon:SetTexture([[Interface\COMMON\UI-ModelControlPanel]])
 	icon:SetTexCoord(0.625, 0.78125, 0.328125, 0.390625)
 	icon:SetVertexColor(1, 1, 1, 0.4)
-	f.icon = icon
+	newDropdownFrame.icon = icon
 
-	local text = f:CreateFontString("$parent_Text", "ARTWORK", "GameFontHighlightSmall")
+	local text = newDropdownFrame:CreateFontString("$parent_Text", "ARTWORK", "GameFontHighlightSmall")
 	text:SetPoint("left", icon, "right", 5, 0)
 	text:SetJustifyH("left")
 	text:SetText("no option selected")
 	text:SetTextColor(1, 1, 1, 0.4)
 	DF:SetFontSize(text, 10)
-	f.text = text
+	newDropdownFrame.text = text
 
-	local arrowHightlight = f:CreateTexture ("$parent_ArrowTexture2", "OVERLAY", nil, 2)
-	arrowHightlight:SetPoint ("right", f, "right", 5, -1)
+	local arrowHightlight = newDropdownFrame:CreateTexture("$parent_ArrowTexture2", "OVERLAY", nil, 2)
+	arrowHightlight:SetPoint ("right", newDropdownFrame, "right", 5, -1)
 	arrowHightlight:SetBlendMode ("ADD")
 	arrowHightlight:SetTexture ([[Interface\Buttons\UI-ScrollBar-ScrollDownButton-Highlight]])
 	arrowHightlight:Hide()
 	arrowHightlight:SetSize (32, 28)
-	f.arrowTexture2 = arrowHightlight
+	newDropdownFrame.arrowTexture2 = arrowHightlight
 
-	local arrowTexture = f:CreateTexture("$parent_ArrowTexture", "OVERLAY", nil, 1)
-	arrowTexture:SetPoint("right", f, "right", 5, -1)
+	local arrowTexture = newDropdownFrame:CreateTexture("$parent_ArrowTexture", "OVERLAY", nil, 1)
+	arrowTexture:SetPoint("right", newDropdownFrame, "right", 5, -1)
 	arrowTexture:SetTexture([[Interface\Buttons\UI-ScrollBar-ScrollDownButton-Up]])
 	arrowTexture:SetSize(32, 28)
-	f.arrowTexture = arrowTexture
+	newDropdownFrame.arrowTexture = arrowTexture
 
 	--scripts
-	f:SetScript ("OnSizeChanged", DetailsFrameworkDropDownOnSizeChanged)
-	f:SetScript ("OnMouseDown", DetailsFrameworkDropDownOnMouseDown)
+	newDropdownFrame:SetScript("OnSizeChanged", DetailsFrameworkDropDownOnSizeChanged)
+	newDropdownFrame:SetScript("OnMouseDown", DetailsFrameworkDropDownOnMouseDown)
 
 	--dropdown
-	local border = CreateFrame("frame", "$Parent_Border", f, "BackdropTemplate")
+	local border = CreateFrame("frame", "$Parent_Border", newDropdownFrame, "BackdropTemplate")
 	border:Hide()
 	border:SetFrameStrata("FULLSCREEN")
 	border:SetSize(150, 150)
-	border:SetPoint("topleft", f, "bottomleft", 0, 0)
+	border:SetPoint("topleft", newDropdownFrame, "bottomleft", 0, 0)
 	border:SetBackdrop(borderBackdrop)
 	border:SetScript("OnHide", DetailsFrameworkDropDownOptionsFrameOnHide)
 	border:SetBackdropColor(0, 0, 0, 0.92)
 	border:SetBackdropBorderColor(0, 0, 0, 1)
-	f.dropdownborder = border
+	newDropdownFrame.dropdownborder = border
 
-	local scroll = CreateFrame("ScrollFrame", "$Parent_ScrollFrame", f, "BackdropTemplate")
+	local scroll = CreateFrame("ScrollFrame", "$Parent_ScrollFrame", newDropdownFrame, "BackdropTemplate")
 	scroll:SetFrameStrata("FULLSCREEN")
 	scroll:SetSize(150, 150)
-	scroll:SetPoint("topleft", f, "bottomleft", 0, 0)
+	scroll:SetPoint("topleft", newDropdownFrame, "bottomleft", 0, 0)
 	scroll:Hide()
-	f.dropdownframe = scroll
+	newDropdownFrame.dropdownframe = scroll
 
 	local child = CreateFrame("frame", "$Parent_ScrollChild", scroll, "BackdropTemplate")
 	child:SetSize(150, 150)
@@ -1214,41 +1214,41 @@ function DF:CreateNewDropdownFrame(parent, name)
 	child.mouseover = mouseover
 
 	scroll:SetScrollChild(child)
-	tinsert(UISpecialFrames, f.dropdownborder:GetName())
+	tinsert(UISpecialFrames, newDropdownFrame.dropdownborder:GetName())
 	--tinsert(UISpecialFrames, f.dropdownframe:GetName()) --not adding this solves an issue with ConsolePort addon and stackoverflows on Hide...
 
-	return f
+	return newDropdownFrame
 end
 
 function DF:CreateDropdownButton(parent, name)
-	local f = CreateFrame("button", name, parent, "BackdropTemplate")
-	f:SetSize(150, 20)
+	local newButton = CreateFrame("button", name, parent, "BackdropTemplate")
+	newButton:SetSize(150, 20)
 
-	local statusbar = f:CreateTexture("$parent_StatusBarTexture", "ARTWORK")
-	statusbar:SetPoint("topleft", f, "topleft", 0, 0)
-	statusbar:SetPoint("bottomright", f, "bottomright", 0, 0)
+	local statusbar = newButton:CreateTexture("$parent_StatusBarTexture", "ARTWORK")
+	statusbar:SetPoint("topleft", newButton, "topleft", 0, 0)
+	statusbar:SetPoint("bottomright", newButton, "bottomright", 0, 0)
 	statusbar:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
-	f.statusbar = statusbar
+	newButton.statusbar = statusbar
 
-	local icon = f:CreateTexture("$parent_IconTexture", "OVERLAY")
-	icon:SetPoint("left", f, "left", 2, 0)
+	local icon = newButton:CreateTexture("$parent_IconTexture", "OVERLAY")
+	icon:SetPoint("left", newButton, "left", 2, 0)
 	icon:SetSize(20, 20)
 	icon:SetTexture([[Interface\ICONS\Spell_ChargePositive]])
-	f.icon = icon
+	newButton.icon = icon
 
-	local text = f:CreateFontString("$parent_Text", "OVERLAY", "GameFontHighlightSmall")
+	local text = newButton:CreateFontString("$parent_Text", "OVERLAY", "GameFontHighlightSmall")
 	text:SetPoint("left", icon, "right", 5, 0)
 	text:SetJustifyH("left")
 	DF:SetFontSize(text, 10)
-	f.label = text
+	newButton.label = text
 
-	local rightButton = DF:CreateButton(f, function()end, 16, 16, "", 0, 0, "", "rightButton", "$parentRightButton", nil, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-	rightButton:SetPoint("right", f, "right", -2, 0)
+	local rightButton = DF:CreateButton(newButton, function()end, 16, 16, "", 0, 0, "", "rightButton", "$parentRightButton", nil, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+	rightButton:SetPoint("right", newButton, "right", -2, 0)
 	rightButton:Hide()
 
-	f:SetScript("OnMouseDown", DetailsFrameworkDropDownOptionClick)
-	f:SetScript("OnEnter", DetailsFrameworkDropDownOptionOnEnter)
-	f:SetScript("OnLeave", DetailsFrameworkDropDownOptionOnLeave)
+	newButton:SetScript("OnMouseDown", DetailsFrameworkDropDownOptionClick)
+	newButton:SetScript("OnEnter", DetailsFrameworkDropDownOptionOnEnter)
+	newButton:SetScript("OnLeave", DetailsFrameworkDropDownOptionOnLeave)
 
-	return f
+	return newButton
 end
