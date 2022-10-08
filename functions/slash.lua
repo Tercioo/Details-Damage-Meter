@@ -63,7 +63,36 @@ function SlashCmdList.DETAILS (msg, editbox)
 		else
 			_detalhes:ShutDownAllInstances()
 		end
-	
+
+	elseif (command == "perf") then
+		local performanceData = Details.performanceData
+		local framesLost = ceil(performanceData.deltaTime / 60)
+		local callStack = performanceData.callStack
+
+		local returnTable = {}
+
+		returnTable[#returnTable+1] = "Stuttering Information:"
+		returnTable[#returnTable+1] = "An addon feature, script is using: " .. performanceData.culpritFunc .. ""
+
+		returnTable[#returnTable+1] = ""
+
+		returnTable[#returnTable+1] = "Description: " .. performanceData.culpritDesc
+
+		returnTable[#returnTable+1] = ""
+
+		returnTable[#returnTable+1] = "You may first: disable the addon feature that uses the functionality."
+		returnTable[#returnTable+1] = "Second: disable a script which are using the function call: " .. performanceData.culpritFunc .. "."
+
+		returnTable[#returnTable+1] = ""
+
+		returnTable[#returnTable+1] = "Callstack for Debug:"
+		local callStackTable = DetailsFramework:SplitTextInLines(callStack)
+		for i = 1, #callStackTable do
+			returnTable[#returnTable+1] = callStackTable[i]
+		end
+
+		dumpt(returnTable)
+
 	elseif (command == "softhide") then
 		for instanceID, instance in _detalhes:ListInstances() do
 			if (instance:IsEnabled()) then
@@ -1687,6 +1716,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("|cffffaeae/details|r |cffffff33" .. "spells" .. "|r: list of spells already saw.") --localize-me
 
 		print("|cFFFFFF00DETAILS! VERSION|r:|cFFFFAA00" .. " " .. Details.GetVersionString())
+		print ("|cffffaeae/details|r |cffffff33" .. "version" .. "|r: copy version.")
+		
 	end
 end
 

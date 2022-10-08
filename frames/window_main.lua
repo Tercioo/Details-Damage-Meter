@@ -5346,63 +5346,60 @@ function Details:InstanceAlpha (alpha)
 	self.baseframe.UPFrame:SetAlpha (alpha)
 end
 
-function Details:InstanceColor (red, green, blue, alpha, no_save, change_statusbar)
-
+function Details:InstanceColor(red, green, blue, alpha, noSave, changeStatusbar)
 	if (not red) then
 		red, green, blue, alpha = unpack(self.color)
-		no_save = true
+		noSave = true
 	end
 
-	if (type (red) ~= "number") then
-		red, green, blue, alpha = gump:ParseColors (red)
+	if (type(red) ~= "number") then
+		red, green, blue, alpha = gump:ParseColors(red)
 	end
 
-	if (not no_save) then
-		--> saving
-		self.color [1] = red
-		self.color [2] = green
-		self.color [3] = blue
-		self.color [4] = alpha
-		if (change_statusbar) then
-			self:StatusBarColor (red, green, blue, alpha)
+	if (not noSave) then
+		--saving
+		self.color[1] = red
+		self.color[2] = green
+		self.color[3] = blue
+		self.color[4] = alpha
+		if (changeStatusbar) then
+			self:StatusBarColor(red, green, blue, alpha)
 		end
 	else
-		--> not saving
-		self:StatusBarColor (nil, nil, nil, alpha, true)
+		--not saving
+		self:StatusBarColor(nil, nil, nil, alpha, true)
 	end
 
-	local skin = Details.skins [self.skin]
+	local skin = Details.skins[self.skin]
 	if (not skin) then --the skin isn't available any more
 		--put the skin into wait to install
 		local tempSkin = self:WaitForSkin()
 		skin = tempSkin
 	end
 	
-	self.baseframe.cabecalho.ball_r:SetVertexColor (red, green, blue)
-		self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
+	self.baseframe.cabecalho.ball_r:SetVertexColor(red, green, blue)
+		self.baseframe.cabecalho.ball_r:SetAlpha(alpha)
 		
-	self.baseframe.cabecalho.ball:SetVertexColor (red, green, blue)
-	self.baseframe.cabecalho.ball:SetAlpha (alpha)
+	self.baseframe.cabecalho.ball:SetVertexColor(red, green, blue)
+		self.baseframe.cabecalho.ball:SetAlpha(alpha)
 	
 	if (not skin.icon_ignore_alpha) then
-		self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
+		self.baseframe.cabecalho.atributo_icon:SetAlpha(alpha)
 	end
 
-	self.baseframe.cabecalho.emenda:SetVertexColor (red, green, blue)
-		self.baseframe.cabecalho.emenda:SetAlpha (alpha)
-	self.baseframe.cabecalho.top_bg:SetVertexColor (red, green, blue)
-		self.baseframe.cabecalho.top_bg:SetAlpha (alpha)
+	self.baseframe.cabecalho.emenda:SetVertexColor(red, green, blue)
+		self.baseframe.cabecalho.emenda:SetAlpha(alpha)
+	self.baseframe.cabecalho.top_bg:SetVertexColor(red, green, blue)
+		self.baseframe.cabecalho.top_bg:SetAlpha(alpha)
 
-	self.baseframe.barra_esquerda:SetVertexColor (red, green, blue)
-		self.baseframe.barra_esquerda:SetAlpha (alpha)
-	self.baseframe.barra_direita:SetVertexColor (red, green, blue)
-		self.baseframe.barra_direita:SetAlpha (alpha)
-	self.baseframe.barra_fundo:SetVertexColor (red, green, blue)
-		self.baseframe.barra_fundo:SetAlpha (alpha)
+	self.baseframe.barra_esquerda:SetVertexColor(red, green, blue)
+		self.baseframe.barra_esquerda:SetAlpha(alpha)
+	self.baseframe.barra_direita:SetVertexColor(red, green, blue)
+		self.baseframe.barra_direita:SetAlpha(alpha)
+	self.baseframe.barra_fundo:SetVertexColor(red, green, blue)
+		self.baseframe.barra_fundo:SetAlpha(alpha)
 		
-	self.baseframe.UPFrame:SetAlpha (alpha)
-
-	--self.color[1], self.color[2], self.color[3], self.color[4] = red, green, blue, alpha
+	self.baseframe.UPFrame:SetAlpha(alpha)
 end
 
 function Details:StatusBarAlertTime (instance)

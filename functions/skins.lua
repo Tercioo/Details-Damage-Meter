@@ -337,7 +337,7 @@ local _
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
 		right_corner_anchor_bottom = {96, 0},
-		
+
 		icon_on_top = true,
 		icon_ignore_alpha = true,
 		icon_titletext_position = {3, 3},
@@ -346,20 +346,20 @@ local _
 			menu_icons_alpha = 0.92,
 			["menu_icons_size"] = 0.82,
 			["color"] = {
-				0.086274512112141, -- [1]
-				0.086274512112141, -- [2]
-				0.086274512112141, -- [3]
-				0.84036460518837, -- [4]
+				0.1215,
+				0.1176,
+				0.1294,
+				0.91,
 			},
 			["menu_anchor"] = {
 				20,
 				0,
 				["side"] = 2,
 			},
-			["bg_r"] = 0.2039215862751,
-			["bg_g"] = 0.19607844948769,
-			["bg_b"] = 0.2039215862751,
-			["bg_alpha"] = 0.49454617500305,
+			["bg_r"] = 0.243,
+			["bg_g"] = 0.2352,
+			["bg_b"] = 0.2588,
+			["bg_alpha"] = 0.6,
 			["color_buttons"] = {
 				1, -- [1]
 				1, -- [2]

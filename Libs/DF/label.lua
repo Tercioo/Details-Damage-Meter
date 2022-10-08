@@ -304,7 +304,18 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.SetPointMixin)
 			end
 		end
 
-		labelObject.label:SetText(text)
+		--if the text is a table, it means a language table has been passed
+		if (type(text) == "table") then
+			local locTable = text
+			if (detailsFramework.Language.IsLocTable(locTable)) then
+				detailsFramework.Language.SetTextWithLocTable(labelObject.widget, locTable)
+			else
+				labelObject.label:SetText(text)
+			end
+		else
+			labelObject.label:SetText(text)
+		end
+
 		labelObject.label:SetJustifyH("left")
 
 		if (color) then

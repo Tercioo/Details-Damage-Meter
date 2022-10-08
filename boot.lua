@@ -2,12 +2,12 @@
 --> global name declaration
 
 		_ = nil
-		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
+		_G._detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10033
-		_detalhes.alpha_build_counter = 10033 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10129
+		_detalhes.alpha_build_counter = 10129 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -845,7 +845,11 @@ do
 	function Details.SendHighFive()
 		Details.users = {{UnitName("player"), GetRealmName(), (Details.userversion or "") .. " (" .. Details.APIVersion .. ")"}}
 		Details.sent_highfive = GetTime()
-		Details:SendRaidData (Details.network.ids.HIGHFIVE_REQUEST)
+		if (IsInRaid()) then
+			Details:SendRaidData(Details.network.ids.HIGHFIVE_REQUEST)
+		else
+			Details:SendPartyData(Details.network.ids.HIGHFIVE_REQUEST)
+		end
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

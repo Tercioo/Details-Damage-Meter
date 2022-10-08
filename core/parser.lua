@@ -413,7 +413,7 @@
 		ignore_spikeballs = 0,
 	}
 
-		local NPCID_KELTHUZAD_ADDMIMICPLAYERS = 176605
+	local NPCID_KELTHUZAD_ADDMIMICPLAYERS = 176605
 
 	--> damage spells to ignore
 	local damage_spells_to_ignore = {
@@ -421,8 +421,9 @@
 		--it is not useful for damage done or friendly fire
 		[SPELLID_WARLOCK_SOULLINK] = true,
 		[371597] = true, --Protoform Barrier gotten from an SPELL_ABSORBED cleu event
+		[371701] = true, --Protoform Barrier
 	}
-	
+
 	--> expose the ignore spells table to external scripts
 	_detalhes.SpellsToIgnore = damage_spells_to_ignore
 	

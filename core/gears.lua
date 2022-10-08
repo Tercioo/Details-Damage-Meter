@@ -3045,3 +3045,52 @@ timePlayerFrame:RegisterEvent("TIME_PLAYED_MSG")
 timePlayerFrame:SetScript("OnEvent", function()
 	--C_Timer.After(0, function() print(Details.GetPlayTimeOnClassString()) end)
 end)
+
+local stutterCounter = 0
+local UpdateAddOnMemoryUsage_Original = _G.UpdateAddOnMemoryUsage
+_G["UpdateAddOnMemoryUsage"] = function()
+	local currentTime = debugprofilestop()
+	UpdateAddOnMemoryUsage_Original()
+	local deltaTime = debugprofilestop() - currentTime
+
+	if (deltaTime > 16) then
+		local callStack = debugstack(2, 0, 4)
+		--ignore if is coming from the micro menu tooltip
+		if (callStack:find("MainMenuBarPerformanceBarFrame_OnEnter")) then
+			return
+		end
+
+		stutterCounter = stutterCounter + 1
+		local stutterDegree = 0
+		if (stutterCounter > 60) then
+			if (deltaTime < 48) then
+				Details:Msg("some addon may be causing small framerate stuttering, use '/details perf' to know more.")
+				stutterDegree = 1
+
+			elseif (deltaTime <= 100) then
+				Details:Msg("some addon may be causing framerate drops, use '/details perf' to know more.")
+				stutterDegree = 2
+
+			else
+				Details:Msg("some addon might be causing performance issues, use '/details perf' to know more.")
+				stutterDegree = 3
+			end
+
+			stutterCounter = 0
+		end
+
+		Details.performanceData = {
+			deltaTime = deltaTime,
+			callStack = callStack,
+			culpritFunc = "_G.UpdateAddOnMemoryUsage()",
+			culpritDesc = "Calculates memory usage of addons",
+		}
+	end
+end
+
+Details.performanceData = {
+	deltaTime = 0,
+	callStack = "",
+	culpritFunc = "",
+	culpritDesc = "",
+}

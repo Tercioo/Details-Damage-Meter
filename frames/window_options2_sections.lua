@@ -2847,7 +2847,7 @@ do
                 desc = Loc ["STRING_OPTIONS_SHOW_SIDEBARS_DESC"],
             },
 
-			{--background color
+			{--row's area color
                 type = "color",
                 get = function()
                     return {currentInstance.bg_r, currentInstance.bg_g, currentInstance.bg_b, currentInstance.bg_alpha}

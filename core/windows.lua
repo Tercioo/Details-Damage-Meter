@@ -1676,6 +1676,11 @@ function Details.ShowCopyValueFrame(textToShow)
 			frame.editBox:ClearFocus()
 			frame:Hide()
 		end)
+
+		frame.editBox:SetScript("OnChar", function()
+			frame.editBox:ClearFocus()
+			frame:Hide()
+		end)
 	end
 
 	DetailsCopyValueFrame:Show()

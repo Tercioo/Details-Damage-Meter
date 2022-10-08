@@ -1,7 +1,9 @@
 --todo: need to send a callback when setting a new language, this will be used by the volatile menu to refresh the menu
 
 --[=[
-    DetailsFramework.Language.Register(addonId, languageId[, gameLanguageOnly])
+    namespace = DetailsFramework.Language = DetailsFramework.Language.Register()
+
+    Register(addonId, languageId[, gameLanguageOnly])
         create a language table within an addon namespace
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @languageId: game languages: "deDE", "enUS", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ruRU", "zhCN", "zhTW", or any other value if 'gameLanguageOnly' is false (default)
@@ -17,7 +19,7 @@
         local newLanguageTable = DetailsFramework.Language.Register(_G.Details, "valyrianValyria", false)
         newLanguageTable["STRING_MY_PHRASE"] = "ñuha udrir"
 
-    DetailsFramework.Language.GetLanguageTable(addonId[, languageId])
+    GetLanguageTable(addonId[, languageId])
         get the languageTable for the requested languageId within the addon namespace
         if languageId is not passed, uses the current language set for the addonId
         the default languageId for the addon is the first language registered with DetailsFramework.Language.Register()
@@ -34,19 +36,19 @@
         local languageTable = DetailsFramework.Language.GetLanguageTable("Details", "valyrianValyria")
         fontString:SetText(languageTable["STRING_MY_PHRASE"])
 
-    DetailsFramework.Language.GetText(addonId, phraseId[, silent])
+    GetText(addonId, phraseId[, silent])
         get a text from a registered addonId and phraseId
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @phraseId: any string to identify the a translated text, example: phraseId: "OPTIONS_FRAME_WIDTH" text: "Adjust the Width of the frame."
         @silent: if true won't error on invalid phrase text and instead use the phraseId as the text, it will still error on invalid addonId
     
-    DetailsFramework.Language.SetCurrentLanguage(addonId, languageId)
+    SetCurrentLanguage(addonId, languageId)
         set the language used by default when retriving a languageTable with DF.Language.GetLanguageTable() and not passing the second argument (languageId) within the call
         use this in combination with a savedVariable to use a language of the user choice
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @languageId: game languages: "deDE", "enUS", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ruRU", "zhCN", "zhTW", or any other value if 'gameLanguageOnly' is false (default)
 
-    DetailsFramework.Language.RegisterObject(addonId, object, phraseId[, silent[, ...]])
+    RegisterObject(addonId, object, phraseId[, silent[, ...]])
         to be registered, the Object need to have a SetText method
         when setting a languageId with DetailsFramework.Language.SetCurrentLanguage(), automatically change the text of all registered Objects
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
@@ -55,7 +57,7 @@
         @silent: if true won't error on invalid phrase text and instead use the phraseId as the text, it will still error on invalid addonId and Object
         @vararg: arguments to pass for format(text, ...)
 
-    DetailsFramework.Language.UpdateObjectArguments(addonId, object, ...)
+    UpdateObjectArguments(addonId, object, ...)
         update the arguments (...) of a registered Object, if no argument passed it'll erase the arguments previously set
         the Object need to be already registered with DetailsFramework.Language.RegisterObject()
         the font string text will be changed to update the text with the new arguments
@@ -63,7 +65,7 @@
         @object: any UIObject or table with SetText method
         @vararg: arguments to pass for format(text, ...)
 
-    DetailsFramework.Language.RegisterTableKey(addonId, table, key, phraseId[, silent[, ...]])
+    RegisterTableKey(addonId, table, key, phraseId[, silent[, ...]])
         when setting a languageId with DetailsFramework.Language.SetCurrentLanguage(), automatically change the text of all registered tables, table[key] = 'new translated text'
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @table: a lua table
@@ -72,18 +74,26 @@
         @silent: if true won't error on invalid phrase text or table already registered, it will still error on invalid addonId, table, key and phraseId
         @vararg: arguments to pass for format(text, ...)
 
-    DetailsFramework.Language.UpdateTableKeyArguments(addonId, table, key, ...)
+    UpdateTableKeyArguments(addonId, table, key, ...)
         same as UpdateObjectArguments() but for table keys
         @addonId: an identifier, can be any table or string, will be used when getting the table with phrase translations, example: "DetailsLocalization", "Details", "PlaterLoc", _G.Plater
         @table: a lua table
         @key: any value except nil or boolean
         @vararg: arguments to pass for format(text, ...)
     
-    DetailsFramework.Language.RegisterObjectWithDefault(addonId, object, phraseId, defaultText[, ...])
+    RegisterObjectWithDefault(addonId, object, phraseId, defaultText[, ...])
         (helper function) register an object if a phraseID is valid or object:SetText(defaultText) is called
 
-    DetailsFramework.Language.RegisterTableKeyWithDefault(addonId, table, key, phraseId, defaultText[, ...])
+    RegisterTableKeyWithDefault(addonId, table, key, phraseId, defaultText[, ...])
         (helper function) register a tableKey if a phraseID is valid or table[key] = defaultText
+
+    CreateLocTable(addonId, phraseId, shouldRegister[, ...])
+        make a table to pass instead of the text while using DetailsFramework widgets
+        this avoid to call the register object function right after creating the widget
+        also make easy to register the same phraseID in many different widgets
+
+    SetTextWithLocTable(object, locTable)
+        set the text of an object using a locTable, the object need the method SetText
 
 --]=]
 
@@ -91,6 +101,10 @@ local DF = _G["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
 	return
 end
+
+local format = string.format
+local unpack = table.unpack or unpack
+local GetLocale = _G.GetLocale
 
 local CONST_LANGAGEID_ENUS = "enUS"
 
@@ -123,6 +137,13 @@ local functionSignature = {
 
     ["RegisterObjectWithDefault"] = "RegisterObjectWithDefault(addonId, object, phraseId, defaultText[, ...])",
     ["RegisterTableKeyWithDefault"] = "RegisterTableKeyWithDefault(addonId, table, key, phraseId, defaultText[, ...])",
+
+    ["CreateLocTable"] = "CreateLocTable(addonId, phraseId, shouldRegister[, ...])",
+    ["UnpackLocTable"] = "UnpackLocTable(locTable)",
+    ["CanRegisterLocTable"] = "CanRegisterLocTable(locTable)",
+    ["RegisterObjectWithLocTable"] = "RegisterObjectWithLocTable(object, locTable)",
+    ["SetTextWithLocTable"] = "SetTextWithLocTable(object, locTable)",
+    ["IsLocTable"] = "IsLocTable(locTable)",
 }
 
 local functionCallPath = {
@@ -138,10 +159,18 @@ local functionCallPath = {
 
     ["RegisterObjectWithDefault"] = "DetailsFramework.Language.RegisterObjectWithDefault",
     ["RegisterTableKeyWithDefault"] = "DetailsFramework.Language.RegisterTableKeyWithDefault",
+
+    ["CreateLocTable"] = "DetailsFramework.Language.CreateLocTable",
+    ["UnpackLocTable"] = "DetailsFramework.Language.UnpackLocTable",
+    ["CanRegisterLocTable"] = "DetailsFramework.Language.CanRegisterLocTable",
+    ["RegisterObjectWithLocTable"] = "DetailsFramework.Language.RegisterObjectWithLocTable",
+    ["SetTextWithLocTable"] = "DetailsFramework.Language.SetTextWithLocTable",
+    ["IsLocTable"] = "DetailsFramework.Language.IsLocTable",
 }
 
 local errorText = {
     ["AddonID"] = "require a valid addonID (table or string) on #%d argument",
+    ["AddonIDInvalidOrNotRegistered"] = "invalid addonID or no languages registered",
     ["LanguageID"] = "require a languageID supported by the game on #%d argument",
     ["PhraseID"] = "require a string on #%d argument",
     ["NoLanguages"] = "no languages registered for addonId",
@@ -154,6 +183,8 @@ local errorText = {
     ["InvalidTable"] = "require a table on #%d argument",
     ["InvalidTableKey"] = "require a table key on #%d argument",
     ["TableKeyAlreadyRegistered"] = "table already registered", --not in use
+    ["InvalidLocTable"] = "invalid locTable on #%d argument",
+    ["LocTableCantRegister"] = "cannot register object, locTable.register == false",
 }
 
 
@@ -743,4 +774,107 @@ function DF.Language.RegisterObjectWithDefault(addonId, object, phraseId, defaul
     else
         object:SetText(defaultText)
     end
+end
+
+
+function DF.Language.CreateLocTable(addonId, phraseId, shouldRegister, ...)
+    if (not isValid_AddonID(addonId)) then
+        error(functionCallPath["CreateLocTable"] .. ": " .. format(errorText["AddonID"], 1) .. ", use: " .. functionSignature["CreateLocTable"] .. ".")
+    end
+
+    if (not isValid_PhraseID(phraseId)) then
+        error(functionCallPath["CreateLocTable"] .. ": " .. format(errorText["PhraseID"], 2) .. ", use: " .. functionSignature["CreateLocTable"] .. ".")
+    end
+
+    local newLocTable = {
+        addonId = addonId,
+        phraseId = phraseId,
+        shouldRegister = shouldRegister,
+        arguments = parseArguments(...),
+    }
+
+    return newLocTable
+end
+
+function DF.Language.IsLocTable(locTable)
+    if (type(locTable) ~= "table") then
+        return false
+
+    elseif (locTable.addonId and locTable.phraseId) then
+        return true
+    end
+
+    return false
+end
+
+
+function DF.Language.CanRegisterLocTable(locTable)
+    if (not DF.Language.IsLocTable(locTable)) then
+        error(functionCallPath["CanRegisterLocTable"] .. ": " .. format(errorText["InvalidLocTable"], 1) .. ", use: " .. functionSignature["CanRegisterLocTable"] .. ".")
+    end
+    return locTable.shouldRegister
+end
+
+
+function DF.Language.UnpackLocTable(locTable)
+    if (type(locTable) ~= "table") then
+        error(functionCallPath["UnpackLocTable"] .. ": " .. format(errorText["InvalidLocTable"], 1) .. ", use: " .. functionSignature["UnpackLocTable"] .. ".")
+    end
+    return locTable.addonId, locTable.phraseId, locTable.shouldRegister or false, locTable.arguments
+end
+
+
+function DF.Language.RegisterObjectWithLocTable(object, locTable)
+    if (not isValid_Object(object)) then
+        error(functionCallPath["RegisterObjectWithLocTable"] .. ": " .. format(errorText["InvalidObject"], 1) .. ", use: " .. functionSignature["RegisterObjectWithLocTable"] .. ".")
+    end
+
+    if (not DF.Language.IsLocTable(locTable)) then
+        error(functionCallPath["RegisterObjectWithLocTable"] .. ": " .. format(errorText["InvalidLocTable"], 2) .. ", use: " .. functionSignature["RegisterObjectWithLocTable"] .. ".")
+    end
+
+    local addonId, phraseId, shouldRegister, arguments = DF.Language.UnpackLocTable(locTable)
+
+    if (not isValid_AddonID(addonId)) then
+        error(functionCallPath["RegisterObjectWithLocTable"] .. ": " .. format(errorText["AddonID"], 1) .. ", use: " .. functionSignature["RegisterObjectWithLocTable"] .. ".")
+    end
+
+    if (not isValid_PhraseID(phraseId)) then
+        error(functionCallPath["RegisterObjectWithLocTable"] .. ": " .. format(errorText["PhraseID"], 2) .. ", use: " .. functionSignature["RegisterObjectWithLocTable"] .. ".")
+    end
+
+    if (not shouldRegister) then
+        error(functionCallPath["RegisterObjectWithLocTable"] .. ": " .. errorText["LocTableCantRegister"] .. ", use: " .. functionSignature["RegisterObjectWithLocTable"] .. ".")
+    end
+
+    DF.Language.RegisterObject(addonId, object, phraseId, true, arguments and unpack(arguments))
+end
+
+
+function DF.Language.SetTextWithLocTable(object, locTable)
+    if (not isValid_Object(object)) then
+        error(functionCallPath["SetTextWithLocTable"] .. ": " .. format(errorText["InvalidObject"], 1) .. ", use: " .. functionSignature["SetTextWithLocTable"] .. ".")
+    end
+
+    if (not DF.Language.IsLocTable(locTable)) then
+        error(functionCallPath["SetTextWithLocTable"] .. ": " .. format(errorText["InvalidLocTable"], 2) .. ", use: " .. functionSignature["SetTextWithLocTable"] .. ".")
+    end
+
+    local addonId, phraseId, shouldRegister, arguments = DF.Language.UnpackLocTable(locTable)
+
+    local addonNamespaceTable = getAddonNamespace(addonId)
+    if (not addonNamespaceTable) then
+        error(functionCallPath["SetTextWithLocTable"] .. ": " .. errorText["AddonIDInvalidOrNotRegistered"] .. ", use: " .. functionSignature["RegisterLanguage"] .. ".")
+    end
+
+    if (DF.Language.CanRegisterLocTable(locTable)) then
+        DF.Language.RegisterObjectWithLocTable(object, locTable)
+        return true
+    end
+
+    local text = getText(addonNamespaceTable, phraseId)
+
+    --can use the locTable instead of the phraseInfoTable because both has the .arguments member
+    setObject_Text(object, locTable, text)
+    return true
 end

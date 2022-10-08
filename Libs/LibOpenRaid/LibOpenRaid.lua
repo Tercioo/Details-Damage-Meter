@@ -63,7 +63,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 58
+local CONST_LIB_VERSION = 59
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub

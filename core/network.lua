@@ -435,6 +435,9 @@
 --> register comm
 
 	function Details:CommReceived(commPrefix, data, channel, source)
+
+		--print("comm", source, data)
+
 		local deserializedTable = {Details:Deserialize(data)}
 		if (not deserializedTable[1]) then
 			if (Details.debugnet) then
@@ -448,7 +451,7 @@
 		player = source
 
 		if (Details.debugnet) then
-			Details:Msg("(debug) network received prefix:", prefix, "length:", string.len(data))
+			Details:Msg("(debug) network received prefix:", prefix, "length:", string.len(data), source)
 		end
 
 		if (type(prefix) ~= "string") then

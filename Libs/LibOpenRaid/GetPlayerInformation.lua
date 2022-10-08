@@ -28,16 +28,16 @@ end
 
 function openRaidLib.GetTalentVersion()
     local _, _, _, buildInfo = GetBuildInfo()
-    local gamePatch = buildInfo / 10000
-    if (gamePatch >= 1 and gamePatch <= 4) then --vanilla tbc wotlk cataclysm
+
+    if (buildInfo >= 1 and buildInfo <= 40000) then --vanilla tbc wotlk cataclysm
         return CONST_TALENT_VERSION_CLASSIC
     end
 
-    if (gamePatch >= 7 and gamePatch <= 9) then --legion bfa shadowlands
+    if (buildInfo >= 70000 and buildInfo <= 100000) then --legion bfa shadowlands
         return CONST_TALENT_VERSION_LEGION
     end
 
-    if (gamePatch >= 10 and gamePatch <= 20) then --dragonflight
+    if (buildInfo >= 100000 and buildInfo <= 200000) then --dragonflight
         return CONST_TALENT_VERSION_DRAGONFLIGHT
     end
 end

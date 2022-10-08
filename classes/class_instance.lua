@@ -1924,29 +1924,29 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------
 
-function _detalhes:InstanceReset (instance)
+function _detalhes:InstanceReset(instance)
 	if (instance) then
 		self = instance
 	end
-	Details.FadeHandler.Fader (self, "in", nil, "barras")
-	self:AtualizaSegmentos (self)
+
+	Details.FadeHandler.Fader(self, "in", nil, "barras")
+	self:AtualizaSegmentos(self)
 	self:AtualizaSoloMode_AfertReset()
 	self:ResetaGump()
-	
+
 	if (not _detalhes.initializing) then
-		_detalhes:RefreshMainWindow (self, true) --atualiza todas as instancias
+		_detalhes:RefreshMainWindow(self, true) --atualiza todas as instancias
 	end
 end
 
-function _detalhes:RefreshBars (instance)
+function _detalhes:RefreshBars(instance)
 	if (instance) then
 		self = instance
 	end
-	self:InstanceRefreshRows (instancia)
+	self:InstanceRefreshRows(instance)
 end
 
-function _detalhes:SetBackgroundColor (...)
-
+function _detalhes:SetBackgroundColor(...)
 	local red = select (1, ...)
 	if (not red) then
 		self.bgdisplay:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
