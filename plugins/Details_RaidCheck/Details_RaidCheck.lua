@@ -331,7 +331,7 @@ local CreatePluginFrames = function()
 
 	--refresh scroll
 	local has_food_icon = {texture = [[Interface\Scenarios\ScenarioIcon-Check]], coords = {0, 1, 0, 1}}
-	local eating_food_icon = {texture = [[Interface\AddOns\Details\images\icons]], coords = {225/512, 249/512, 35/512, 63/512}}
+	local eatingFoodIcon = {texture = [[Interface\AddOns\Details\images\icons]], coords = {225/512, 249/512, 35/512, 63/512}}
 
 	local scrollRefreshLines = function(self, data, offset, totalLines)
 		local dataInOrder = {}
@@ -348,13 +348,24 @@ local CreatePluginFrames = function()
 		local playersInfoData = openRaidLib.GetAllUnitsInfo()
 		local playersGearData = openRaidLib.GetAllUnitsGear()
 
+		local printAmount = false
+
+		if (printAmount) then
+			print("#data", #data, "total lines:", totalLines)
+		end
+
+		local addedPlayersAmount = 0
+		local addedLinesAmount = 0
+
 		for i = 1, totalLines do
 			local index = i + offset
 			local playerTable = data[index]
 
 			if (playerTable) then
+				addedPlayersAmount = addedPlayersAmount + 1
 				local line = self:GetLine(i)
 				if (line) then
+					addedLinesAmount = addedLinesAmount + 1
 					local thisPlayerInfo = playersInfoData[playerTable.UnitNameRealm]
 					if (thisPlayerInfo) then
 						if (DF.IsShadowlandsWow()) then
@@ -396,9 +407,11 @@ local CreatePluginFrames = function()
 
 					line.TalentsRow:ClearIcons()
 
+					--print("dssd", playerTable.Talents)
+
 					if (playerTable.Talents) then
 						for i = 1, #playerTable.Talents do
-							local talent = playerTable.Talents [i]
+							local talent = playerTable.Talents[i]
 							local talentID, name, texture, selected, available = GetTalentInfoByID(talent)
 							line.TalentsRow:SetIcon(false, false, false, false, texture)
 						end
@@ -422,8 +435,8 @@ local CreatePluginFrames = function()
 						line.FoodIndicator.texcoord = {0, 1, 0, 1}
 
 					elseif (playerTable.Eating) then
-						line.FoodIndicator.texture = eating_food_icon.texture
-						line.FoodIndicator.texcoord = eating_food_icon.coords
+						line.FoodIndicator.texture = eatingFoodIcon.texture
+						line.FoodIndicator.texcoord = eatingFoodIcon.coords
 
 					else
 						line.FoodIndicator.texture = ""
@@ -443,6 +456,11 @@ local CreatePluginFrames = function()
 					--line.DetailsIndicator.texture = playerTable.UseDetails and [[Interface\Scenarios\ScenarioIcon-Check]] or ""
 				end
 			end
+		end
+
+		if (printAmount) then
+			print("addedPlayersAmount", addedPlayersAmount)
+			print("addedLinesAmount", addedLinesAmount)
 		end
 	end
 
@@ -602,15 +620,23 @@ local CreatePluginFrames = function()
 
 		for i = 1, iterateAmount do
 			local unitID = groupTypeId .. i
-			local unitName = UnitName (unitID)
+			local unitName = UnitName(unitID)
 			local unitNameWithRealm = GetUnitName(unitID, true)
-			local cleuName = Details:GetCLName (unitID)
-			local unitSerial = UnitGUID (unitID)
-			local _, unitClass, unitClassID = UnitClass (unitID)
-			local unitRole = UnitGroupRolesAssigned (unitID)
-			local unitSpec = Details:GetSpecFromSerial (unitSerial) or Details:GetSpec (cleuName)
-			local itemLevelTable = Details.ilevel:GetIlvl (unitSerial)
-			local talentsTable = Details:GetTalents (unitSerial)
+			local cleuName = Details:GetCLName(unitID)
+			local unitSerial = UnitGUID(unitID)
+			local _, unitClass, unitClassID = UnitClass(unitID)
+			local unitRole = UnitGroupRolesAssigned(unitID)
+			local unitSpec = Details:GetSpecFromSerial(unitSerial) or Details:GetSpec(cleuName)
+			local itemLevelTable = Details.ilevel:GetIlvl(unitSerial)
+
+			local talentsTable = Details:GetTalents(unitSerial)
+			if (not talentsTable) then
+				local playersInfoData = openRaidLib.GetAllUnitsInfo()
+				local playerTalentsInfo = playersInfoData[GetUnitName(unitID, true)]
+				if (playerTalentsInfo) then
+					talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
+				end
+			end
 
 			--order by class > alphabetically by the unit name
 			unitClassID = (((unitClassID or 0) + 128) ^ 4) + tonumber(string.byte (unitName, 1) .. "" .. string.byte(unitName, 2))
@@ -647,6 +673,15 @@ local CreatePluginFrames = function()
 
 			unitClassID = ((unitClassID + 128) ^ 4) + tonumber(string.byte(unitName, 1) .. "" .. string.byte(unitName, 2))
 			local unitNameWithRealm = GetUnitName(unitId, true)
+
+			local talentsTable = Details:GetTalents(unitSerial)
+			if (not talentsTable) then
+				local playersInfoData = openRaidLib.GetAllUnitsInfo()
+				local playerTalentsInfo = playersInfoData[GetUnitName(unitId, true)]
+				if (playerTalentsInfo) then
+					talentsTable = DF.table.copy({}, playerTalentsInfo.talents)
+				end
+			end
 
 			tinsert (PlayerData, {unitName, unitClassID,
 				Name = unitName,
