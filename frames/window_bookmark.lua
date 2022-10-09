@@ -14,7 +14,7 @@ function Details:OpenBookmarkConfig()
         panel:SetBackdropColor(.1, .1, .1, .9)
         panel.blocks = {}
         
-        local clear_func = function (self, button, id)
+        local clear_func = function(self, button, id)
             if (Details.switch.table [id]) then
                 Details.switch.table [id].atributo = nil
                 Details.switch.table [id].sub_atributo = nil
@@ -23,7 +23,7 @@ function Details:OpenBookmarkConfig()
             end
         end
         
-        local select_attribute = function (_, _, _, attribute, sub_atribute)
+        local select_attribute = function(_, _, _, attribute, sub_atribute)
             if (not sub_atribute) then
                 return
             end
@@ -34,7 +34,7 @@ function Details:OpenBookmarkConfig()
         end
         
         local cooltip_color = {.1, .1, .1, .3}
-        local set_att = function (self, button, id)
+        local set_att = function(self, button, id)
             panel.selecting_slot = id
             GameCooltip:Reset()
             GameCooltip:SetType (3)
@@ -52,11 +52,11 @@ function Details:OpenBookmarkConfig()
         
         local button_backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, insets = {left=0, right=0, top=0, bottom=0}}
         
-        local set_onenter = function (self, capsule)
+        local set_onenter = function(self, capsule)
             self:SetBackdropColor (1, 1, 1, 0.9)
             capsule.icon:SetBlendMode ("ADD")
         end
-        local set_onleave = function (self, capsule)
+        local set_onleave = function(self, capsule)
             self:SetBackdropColor (0, 0, 0, 0.5)
             capsule.icon:SetBlendMode ("BLEND")
         end

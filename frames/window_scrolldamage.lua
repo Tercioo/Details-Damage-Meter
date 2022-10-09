@@ -103,7 +103,7 @@ function Details:ScrollDamage()
 			end
 		end
 
-		local lineOnEnter = function (self)
+		local lineOnEnter = function(self)
 			if (self.IsCritical) then
 				self:SetBackdropColor(unpack(backdrop_color_is_critical_on_enter))
 			else
@@ -119,7 +119,7 @@ function Details:ScrollDamage()
 			end
 		end
 
-		local lineOnLeave = function (self)
+		local lineOnLeave = function(self)
 			if (self.IsCritical) then
 				self:SetBackdropColor(unpack(backdrop_color_is_critical))
 			else
@@ -207,7 +207,7 @@ function Details:ScrollDamage()
 		local combatLogReader = CreateFrame("frame")
 		local playerSerial = UnitGUID("player")
 
-		combatLogReader:SetScript("OnEvent", function (self)
+		combatLogReader:SetScript("OnEvent", function(self)
 			local timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical = CombatLogGetCurrentEventInfo()
 			if (sourceSerial == playerSerial) then
 				if (token == "SPELL_DAMAGE" or token == "SPELL_PERIODIC_DAMAGE" or token == "RANGE_DAMAGE" or token == "DAMAGE_SHIELD") then

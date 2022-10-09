@@ -674,7 +674,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			
 			if (playerActor and playerActor.buff_uptime_spells and playerActor.buff_uptime_spells._ActorTable) then
 				for spellid, spellTable in pairs (playerActor.buff_uptime_spells._ActorTable) do 
-					local spellname = GetSpellInfo (spellid)
+					local spellname = GetSpellInfo(spellid)
 					if (spellname) then
 						print (spellid, spellname, spellTable.uptime)
 					end
@@ -692,7 +692,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (msg == "imageedit") then
 		
-		local callback = function (width, height, overlayColor, alpha, texCoords)
+		local callback = function(width, height, overlayColor, alpha, texCoords)
 			print (width, height, alpha)
 			print ("overlay: ", unpack (overlayColor))
 			print ("crop: ", unpack (texCoords))
@@ -798,7 +798,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 						Details.id_frame.texto:SetText ("")
 						Details.id_frame.texto.perdeu_foco = nil
 						
-						Details.id_frame.texto:SetScript ("OnEnterPressed", function ()
+						Details.id_frame.texto:SetScript ("OnEnterPressed", function()
 							Details.id_frame.texto:ClearFocus()
 							Details.id_frame:Hide()
 						end)
@@ -855,7 +855,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes.id_frame.texto:SetText ("") --localize-me
 			_detalhes.id_frame.texto.perdeu_foco = nil
 			
-			_detalhes.id_frame.texto:SetScript ("OnEnterPressed", function () 
+			_detalhes.id_frame.texto:SetScript ("OnEnterPressed", function() 
 				_detalhes.id_frame.texto:ClearFocus()
 				_detalhes.id_frame:Hide() 
 			end)
@@ -1300,7 +1300,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 --	https://www.dropbox.com/s/ulyeqa2z0ummlu7/1024.tga?dl=0
 
 			local time = 0
-			a:SetScript ("OnUpdate", function (self, deltaTime)
+			a:SetScript ("OnUpdate", function(self, deltaTime)
 				time = time + deltaTime
 				
 				--texture:SetSize (math.random (50, 300), math.random (50, 300))
@@ -1318,7 +1318,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (msg == "alert") then
 		--local instancia = _detalhes.tabela_instancias [1]
-		local f = function (a, b, c, d, e, f, g) print (a, b, c, d, e, f, g) end
+		local f = function(a, b, c, d, e, f, g) print (a, b, c, d, e, f, g) end
 		--instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {f, 1, 2, 3, 4, 5})
 	
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
@@ -1796,7 +1796,7 @@ function Details:UpdateUserPanel (usersTable)
 		DetailsUserPanel.Header = DetailsFramework:CreateHeader (DetailsUserPanel, headerTable, headerOptions)
 		DetailsUserPanel.Header:SetPoint ("topleft", DetailsUserPanel, "topleft", 5, headerY)
 		
-		local scroll_refresh = function (self, data, offset, total_lines)
+		local scroll_refresh = function(self, data, offset, total_lines)
 
 			--store user names shown
 			local userShown = {}
@@ -1819,7 +1819,7 @@ function Details:UpdateUserPanel (usersTable)
 			end
 		end		
 		
-		local lineOnEnter = function (self)
+		local lineOnEnter = function(self)
 			if (self.IsCritical) then
 				self:SetBackdropColor (unpack (backdrop_color_is_critical_on_enter))
 			else
@@ -1827,7 +1827,7 @@ function Details:UpdateUserPanel (usersTable)
 			end
 		end
 		
-		local lineOnLeave = function (self)
+		local lineOnLeave = function(self)
 			if (self.IsCritical) then
 				self:SetBackdropColor (unpack (backdrop_color_is_critical))
 			else
@@ -1837,7 +1837,7 @@ function Details:UpdateUserPanel (usersTable)
 			GameTooltip:Hide()
 		end
 		
-		local scroll_createline = function (self, index)
+		local scroll_createline = function(self, index)
 			local line = CreateFrame ("button", "$parentLine" .. index, self, "BackdropTemplate")
 			line:SetPoint ("topleft", self, "topleft", 3, -((index-1)*(scroll_line_height+1)) - 1)
 			line:SetSize (scroll_width - 2, scroll_line_height)
@@ -1873,7 +1873,7 @@ function Details:UpdateUserPanel (usersTable)
 		end
 		
 		local usersScroll = DetailsFramework:CreateScrollBox (DetailsUserPanel, "$parentUsersScroll", scroll_refresh, DetailsUserPanel.Data, scroll_width, scroll_height, scroll_lines, scroll_line_height)
-		DetailsFramework:ReskinSlider (usersScroll)
+		DetailsFramework:ReskinSlider(usersScroll)
 		usersScroll:SetPoint ("topleft", DetailsUserPanel, "topleft", 5, scrollY)
 		Details.UserPanel.ScrollBox = usersScroll
 		

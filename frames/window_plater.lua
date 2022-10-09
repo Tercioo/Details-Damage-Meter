@@ -42,13 +42,13 @@ function Details.OpenPlaterIntegrationWindow()
 
         --> anchor text function
         local anchor_names = {"Top Left", "Left", "Bottom Left", "Bottom", "Bottom Right", "Right", "Top Right", "Top", "Center", "Inner Left", "Inner Right", "Inner Top", "Inner Bottom"}
-        local build_anchor_side_table = function (member)
+        local build_anchor_side_table = function(member)
             local t = {}
             for i = 1, 13 do
                 tinsert (t, {
                     label = anchor_names[i],
                     value = i,
-                    onclick = function (_, _, value)
+                    onclick = function(_, _, value)
                         Details.plater [member].side = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -67,7 +67,7 @@ function Details.OpenPlaterIntegrationWindow()
             {
                 type = "toggle",
                 get = function() return Details.plater.realtime_dps_enabled end,
-                set = function (self, fixedparam, value) 
+                set = function(self, fixedparam, value) 
                     Details.plater.realtime_dps_enabled = value
                     
                     Details:RefreshPlaterIntegration()
@@ -87,7 +87,7 @@ function Details.OpenPlaterIntegrationWindow()
                 {
                     type = "range",
                     get = function() return Details.plater.realtime_dps_size end,
-                    set = function (self, fixedparam, value) 
+                    set = function(self, fixedparam, value) 
                         Details.plater.realtime_dps_size = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -106,7 +106,7 @@ function Details.OpenPlaterIntegrationWindow()
                         local color = Details.plater.realtime_dps_color
                         return {color [1], color [2], color [3], color [4]}
                     end,
-                    set = function (self, r, g, b, a) 
+                    set = function(self, r, g, b, a) 
                         local color = Details.plater.realtime_dps_color
                         color[1], color[2], color[3], color[4] = r, g, b, a
                         if (Plater) then
@@ -121,7 +121,7 @@ function Details.OpenPlaterIntegrationWindow()
                 {
                     type = "toggle",
                     get = function() return Details.plater.realtime_dps_shadow end,
-                    set = function (self, fixedparam, value) 
+                    set = function(self, fixedparam, value) 
                         Details.plater.realtime_dps_shadow = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -143,7 +143,7 @@ function Details.OpenPlaterIntegrationWindow()
                     {
                         type = "range",
                         get = function() return Details.plater.realtime_dps_anchor.x end,
-                        set = function (self, fixedparam, value) 
+                        set = function(self, fixedparam, value) 
                             Details.plater.realtime_dps_anchor.x = value
                             if (Plater) then
                                 Plater.UpdateAllPlates()
@@ -159,7 +159,7 @@ function Details.OpenPlaterIntegrationWindow()
                     {
                         type = "range",
                         get = function() return Details.plater.realtime_dps_anchor.y end,
-                        set = function (self, fixedparam, value) 
+                        set = function(self, fixedparam, value) 
                             Details.plater.realtime_dps_anchor.y = value
                             if (Plater) then
                                 Plater.UpdateAllPlates()
@@ -179,7 +179,7 @@ function Details.OpenPlaterIntegrationWindow()
             {
                 type = "toggle",
                 get = function() return Details.plater.realtime_dps_player_enabled end,
-                set = function (self, fixedparam, value) 
+                set = function(self, fixedparam, value) 
                     Details.plater.realtime_dps_player_enabled = value
                     
                     Details:RefreshPlaterIntegration()
@@ -199,7 +199,7 @@ function Details.OpenPlaterIntegrationWindow()
                 {
                     type = "range",
                     get = function() return Details.plater.realtime_dps_player_size end,
-                    set = function (self, fixedparam, value) 
+                    set = function(self, fixedparam, value) 
                         Details.plater.realtime_dps_player_size = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -218,7 +218,7 @@ function Details.OpenPlaterIntegrationWindow()
                         local color = Details.plater.realtime_dps_player_color
                         return {color [1], color [2], color [3], color [4]}
                     end,
-                    set = function (self, r, g, b, a) 
+                    set = function(self, r, g, b, a) 
                         local color = Details.plater.realtime_dps_player_color
                         color[1], color[2], color[3], color[4] = r, g, b, a
                         if (Plater) then
@@ -233,7 +233,7 @@ function Details.OpenPlaterIntegrationWindow()
                 {
                     type = "toggle",
                     get = function() return Details.plater.realtime_dps_player_shadow end,
-                    set = function (self, fixedparam, value) 
+                    set = function(self, fixedparam, value) 
                         Details.plater.realtime_dps_player_shadow = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -255,7 +255,7 @@ function Details.OpenPlaterIntegrationWindow()
                     {
                         type = "range",
                         get = function() return Details.plater.realtime_dps_player_anchor.x end,
-                        set = function (self, fixedparam, value) 
+                        set = function(self, fixedparam, value) 
                             Details.plater.realtime_dps_player_anchor.x = value
                             if (Plater) then
                                 Plater.UpdateAllPlates()
@@ -271,7 +271,7 @@ function Details.OpenPlaterIntegrationWindow()
                     {
                         type = "range",
                         get = function() return Details.plater.realtime_dps_player_anchor.y end,
-                        set = function (self, fixedparam, value) 
+                        set = function(self, fixedparam, value) 
                             Details.plater.realtime_dps_player_anchor.y = value
                             if (Plater) then
                                 Plater.UpdateAllPlates()
@@ -291,7 +291,7 @@ function Details.OpenPlaterIntegrationWindow()
             {
                 type = "toggle",
                 get = function() return Details.plater.damage_taken_enabled end,
-                set = function (self, fixedparam, value) 
+                set = function(self, fixedparam, value) 
                     Details.plater.damage_taken_enabled = value
                     
                     Details:RefreshPlaterIntegration()
@@ -311,7 +311,7 @@ function Details.OpenPlaterIntegrationWindow()
                 {
                     type = "range",
                     get = function() return Details.plater.damage_taken_size end,
-                    set = function (self, fixedparam, value) 
+                    set = function(self, fixedparam, value) 
                         Details.plater.damage_taken_size = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -330,7 +330,7 @@ function Details.OpenPlaterIntegrationWindow()
                         local color = Details.plater.damage_taken_color
                         return {color [1], color [2], color [3], color [4]}
                     end,
-                    set = function (self, r, g, b, a) 
+                    set = function(self, r, g, b, a) 
                         local color = Details.plater.damage_taken_color
                         color[1], color[2], color[3], color[4] = r, g, b, a
                         if (Plater) then
@@ -345,7 +345,7 @@ function Details.OpenPlaterIntegrationWindow()
                 {
                     type = "toggle",
                     get = function() return Details.plater.damage_taken_shadow end,
-                    set = function (self, fixedparam, value) 
+                    set = function(self, fixedparam, value) 
                         Details.plater.damage_taken_shadow = value
                         if (Plater) then
                             Plater.UpdateAllPlates()
@@ -367,7 +367,7 @@ function Details.OpenPlaterIntegrationWindow()
                     {
                         type = "range",
                         get = function() return Details.plater.damage_taken_anchor.x end,
-                        set = function (self, fixedparam, value) 
+                        set = function(self, fixedparam, value) 
                             Details.plater.damage_taken_anchor.x = value
                             if (Plater) then
                                 Plater.UpdateAllPlates()
@@ -383,7 +383,7 @@ function Details.OpenPlaterIntegrationWindow()
                     {
                         type = "range",
                         get = function() return Details.plater.damage_taken_anchor.y end,
-                        set = function (self, fixedparam, value) 
+                        set = function(self, fixedparam, value) 
                             Details.plater.damage_taken_anchor.y = value
                             if (Plater) then
                                 Plater.UpdateAllPlates()

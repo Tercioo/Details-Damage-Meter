@@ -237,7 +237,7 @@
 		["STATUSBAR"] = 0
 	}	
 		
-	local OnEnableFunction = function (self)
+	local OnEnableFunction = function(self)
 		self.__parent.Enabled = true
 		--self = frame __parent = plugin object
 		local instance = _detalhes:GetInstance (self.__parent.instance_id)
@@ -247,14 +247,14 @@
 		_detalhes:SendEvent ("SHOW", self.__parent)
 	end
 
-	local OnDisableFunction = function (self)
+	local OnDisableFunction = function(self)
 		_detalhes:SendEvent ("HIDE", self.__parent)
 		if (bit.band (self.__parent.__options, DETAILSPLUGIN_ALWAYSENABLED) == 0) then
 			self.__parent.Enabled = false
 		end
 	end
 
-	local BuildDefaultStatusBarMembers = function (self)
+	local BuildDefaultStatusBarMembers = function(self)
 		self.childs = {}
 		self.__index = self
 		function self:Setup()
@@ -272,10 +272,10 @@
 		print ("Thank You Sir!===================")
 	end
 
-	local register_event_func = function (self, event)
+	local register_event_func = function(self, event)
 		self.Frame:RegisterEvent (event)
 	end
-	local unregister_event_func = function (self, event)
+	local unregister_event_func = function(self, event)
 		self.Frame:UnregisterEvent (event)
 	end
 	
@@ -544,7 +544,7 @@
 				
 			end)
 			
-			f:SetScript ("OnMouseDown", function (self, button)
+			f:SetScript ("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
 					f.ClosePlugin()
 				end
@@ -588,7 +588,7 @@
 
 			--> re set the point of the frame within the main plugin window
 			f.RefreshFrame (pluginObject.__var_Frame)
-			C_Timer.After (0.016, function ()
+			C_Timer.After (0.016, function()
 				f.RefreshFrame (pluginObject.__var_Frame)
 			end)
 
@@ -637,7 +637,7 @@
 			return newButton
 		end
 
-		local on_hide = function (self)
+		local on_hide = function(self)
 			DetailsPluginContainerWindow.ClosePlugin()
 		end
 		

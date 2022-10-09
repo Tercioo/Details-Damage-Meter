@@ -567,7 +567,7 @@
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(6, ...);if (a=="<chr name>")then print (...) end end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
-	local who_aggro = function (self)
+	local who_aggro = function(self)
 		if ((_detalhes.LastPullMsg or 0) + 30 > time()) then
 			_detalhes.WhoAggroTimer = nil
 			return
@@ -594,7 +594,7 @@
 	
 	local lastRecordFound = {id = 0, diff = 0, combatTime = 0}
 	
-	_detalhes.PrintEncounterRecord = function (self)
+	_detalhes.PrintEncounterRecord = function(self)
 		--> this block won't execute if the storage isn't loaded
 		--> self is a timer reference from C_Timer
 		
@@ -1005,7 +1005,7 @@
 					else
 						if (who_name:find ("%[")) then
 							damage_cache [who_name] = este_jogador
-							local _, _, icon = _GetSpellInfo (spellid or 1)
+							local _, _, icon = _GetSpellInfo(spellid or 1)
 							este_jogador.spellicon = icon
 						else
 							--_detalhes:Msg ("Unknown actor with unknown serial ", spellname, who_name)
@@ -1434,7 +1434,7 @@
 						else
 							if (who_name:find ("%[")) then
 								damage_cache [who_name] = este_jogador
-								local _, _, icon = _GetSpellInfo (spellid or 1)
+								local _, _, icon = _GetSpellInfo(spellid or 1)
 								este_jogador.spellicon = icon
 							end
 						end
@@ -1639,7 +1639,7 @@
 					else
 						if (who_name:find ("%[")) then
 							damage_cache [who_name] = este_jogador
-							local _, _, icon = _GetSpellInfo (spellid or 1)
+							local _, _, icon = _GetSpellInfo(spellid or 1)
 							este_jogador.spellicon = icon
 						else
 							--_detalhes:Msg ("Unknown actor with unknown serial ", spellname, who_name)
@@ -3501,7 +3501,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--AlternatePowerEnableFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
 	AlternatePowerEnableFrame.IsRunning = false
 	
-	AlternatePowerEnableFrame:SetScript ("OnEvent", function (self, event)
+	AlternatePowerEnableFrame:SetScript ("OnEvent", function(self, event)
 		if (event == "UNIT_POWER_BAR_SHOW") then
 			AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER_UPDATE") -->  8.0
 			AlternatePowerEnableFrame.IsRunning = true
@@ -3511,7 +3511,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end)
 
-	AlternatePowerMonitorFrame:SetScript ("OnEvent", function (self, event, unitID, powerType)
+	AlternatePowerMonitorFrame:SetScript ("OnEvent", function(self, event, unitID, powerType)
 		if (powerType == "ALTERNATE") then
 			local actorName = _detalhes:GetCLName (unitID)
 			if (actorName) then
@@ -3706,7 +3706,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
 		if (not este_jogador.cooldowns_defensive) then
-			este_jogador.cooldowns_defensive = _detalhes:GetOrderNumber (who_name)
+			este_jogador.cooldowns_defensive = _detalhes:GetOrderNumber(who_name)
 			este_jogador.cooldowns_defensive_targets = {}
 			este_jogador.cooldowns_defensive_spells = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades
 		end
@@ -3825,7 +3825,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--> build containers on the fly
 		
 		if (not este_jogador.interrupt) then
-			este_jogador.interrupt = _detalhes:GetOrderNumber (who_name)
+			este_jogador.interrupt = _detalhes:GetOrderNumber(who_name)
 			este_jogador.interrupt_targets = {}
 			este_jogador.interrupt_spells = container_habilidades:NovoContainer (container_misc)
 			este_jogador.interrompeu_oque = {}
@@ -3864,7 +3864,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (meu_dono) then
 			
 			if (not meu_dono.interrupt) then
-				meu_dono.interrupt = _detalhes:GetOrderNumber (who_name)
+				meu_dono.interrupt = _detalhes:GetOrderNumber(who_name)
 				meu_dono.interrupt_targets = {}
 				meu_dono.interrupt_spells = container_habilidades:NovoContainer (container_misc)
 				meu_dono.interrompeu_oque = {}
@@ -4033,7 +4033,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (not este_jogador.dispell) then
 			--> constr�i aqui a tabela dele
-			este_jogador.dispell = _detalhes:GetOrderNumber (who_name)
+			este_jogador.dispell = _detalhes:GetOrderNumber(who_name)
 			este_jogador.dispell_targets = {}
 			este_jogador.dispell_spells = container_habilidades:NovoContainer (container_misc)
 			este_jogador.dispell_oque = {}
@@ -4089,7 +4089,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--> verifica se tem dono e adiciona o interrupt para o dono
 		if (meu_dono) then
 			if (not meu_dono.dispell) then
-				meu_dono.dispell = _detalhes:GetOrderNumber (who_name)
+				meu_dono.dispell = _detalhes:GetOrderNumber(who_name)
 				meu_dono.dispell_targets = {}
 				meu_dono.dispell_spells = container_habilidades:NovoContainer (container_misc)
 				meu_dono.dispell_oque = {}
@@ -4140,7 +4140,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--> build containers on the fly
 
 		if (not este_jogador.ress) then
-			este_jogador.ress = _detalhes:GetOrderNumber (who_name)
+			este_jogador.ress = _detalhes:GetOrderNumber(who_name)
 			este_jogador.ress_targets = {}
 			este_jogador.ress_spells = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 		end
@@ -4255,7 +4255,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		if (not este_jogador.cc_break) then
 			--> constr�i aqui a tabela dele
-			este_jogador.cc_break = _detalhes:GetOrderNumber (who_name)
+			este_jogador.cc_break = _detalhes:GetOrderNumber(who_name)
 			este_jogador.cc_break_targets = {}
 			este_jogador.cc_break_spells = container_habilidades:NovoContainer (container_misc)
 			este_jogador.cc_break_oque = {}
@@ -5831,7 +5831,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 	local saver = CreateFrame ("frame", nil, UIParent)
 	saver:RegisterEvent ("PLAYER_LOGOUT")
-	saver:SetScript ("OnEvent", function (...)
+	saver:SetScript ("OnEvent", function(...)
 		--save the time played on this class, run protected
 		pcall(function()
 			local className = select(2, UnitClass("player"))
@@ -6348,7 +6348,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> battleground parser
 
-	_detalhes.pvp_parser_frame:SetScript ("OnEvent", function (self, event)
+	_detalhes.pvp_parser_frame:SetScript ("OnEvent", function(self, event)
 		self:ReadPvPData()
 	end)
 	

@@ -66,7 +66,7 @@ function atributo_energy:NovaTabela (serial, nome, link)
 
 	--> constructor
 	
-	local alphabetical = _detalhes:GetOrderNumber (nome)
+	local alphabetical = _detalhes:GetOrderNumber(nome)
 	
 	local _new_energyActor = {
 	
@@ -137,7 +137,7 @@ end
 local power_table = {0, 1, 3, 6}
 local power_type
 
-local sort_energy = function (t1, t2)
+local sort_energy = function(t1, t2)
 	if (t1.powertype == power_type and t2.powertype == power_type) then
 		return t1.received > t2.received
 	elseif (t1.powertype == power_type) then
@@ -149,11 +149,11 @@ local sort_energy = function (t1, t2)
 	end
 end
 
-local sort_energyalternate = function (t1, t2)
+local sort_energyalternate = function(t1, t2)
 	return t1.alternatepower > t2.alternatepower
 end
 
-local sort_energy_group = function (t1, t2)
+local sort_energy_group = function(t1, t2)
 	if (t1.grupo and t2.grupo) then
 		if (t1.powertype == power_type and t2.powertype == power_type) then
 			return t1.received > t2.received
@@ -175,7 +175,7 @@ local sort_energy_group = function (t1, t2)
 	end
 end
 
-local sort_alternateenergy_group = function (t1, t2)
+local sort_alternateenergy_group = function(t1, t2)
 	if (t1.grupo and t2.grupo) then
 		return t1.alternatepower > t2.alternatepower
 	else
@@ -924,7 +924,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 			break
 		end
 	
-		local nome_magia, _, icone_magia = _GetSpellInfo (spell [1])
+		local nome_magia, _, icone_magia = _GetSpellInfo(spell [1])
 		GameCooltip:AddLine (nome_magia, FormatTooltipNumber (_,  spell [2]).." (".._cstr("%.1f", (spell [2]/total_regenerado) * 100).."%)")
 		GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipBackgroundStatusbar (false, spell [2] / energy_tooltips_table [1][2] * 100)
@@ -1013,7 +1013,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	
 	for i = 1, #allGeneratorSpells do
 		local thisGenerator = allGeneratorSpells [i]
-		local spellName, _, spellIcon = GetSpellInfo (thisGenerator[1].id)
+		local spellName, _, spellIcon = GetSpellInfo(thisGenerator[1].id)
 		GameCooltip:AddLine (spellName, FormatTooltipNumber (_,  thisGenerator[2]) .. " (|cFFFF5555overflow: " .. FormatTooltipNumber (_,  thisGenerator[3]) .. "|r | " .. _cstr ("%.1f", (thisGenerator[2] / allGenerated) * 100).."%)")
 		GameCooltip:AddIcon (spellIcon, nil, nil, icon_size.W, icon_size.H, .1, .9, .1, .9)
 		_detalhes:AddTooltipBackgroundStatusbar()
@@ -1122,7 +1122,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 
 		self:FocusLock (barra, tabela[1])
 		
-		local spellname, _, spellicon = _GetSpellInfo (tabela [1])
+		local spellname, _, spellicon = _GetSpellInfo(tabela [1])
 		local percent = tabela [2] / total_regenerado * 100
 		
 		self:UpdadeInfoBar (barra, index, tabela[1], spellname, tabela[2], _detalhes:comma_value (tabela[2]), max_, percent, spellicon, true)
@@ -1343,7 +1343,7 @@ function atributo_energy:MontaTooltipAlvos (esta_barra, index)
 				break
 			end
 			
-			local spellname, _, spellicon = _GetSpellInfo (spell [1])
+			local spellname, _, spellicon = _GetSpellInfo(spell [1])
 			GameTooltip:AddDoubleLine(spellname .. ": ", _detalhes:comma_value (spell [2]) .. " (" .. _cstr ("%.1f", (spell [2] / total_regenerado) * 100).."%)", 1, 1, 1, 1, 1, 1)
 			GameTooltip:AddTexture(spellicon)
 		end
@@ -1542,7 +1542,7 @@ function _detalhes.clear:c_atributo_energy (este_jogador)
 	_detalhes.clear:c_container_habilidades (este_jogador.spells)
 end
 
-atributo_energy.__add = function (tabela1, tabela2)
+atributo_energy.__add = function(tabela1, tabela2)
 
 	if (not tabela1.powertype) then
 		tabela1.powertype = tabela2.powertype
@@ -1580,7 +1580,7 @@ atributo_energy.__add = function (tabela1, tabela2)
 	return tabela1
 end
 
-atributo_energy.__sub = function (tabela1, tabela2)
+atributo_energy.__sub = function(tabela1, tabela2)
 
 	if (not tabela1.powertype) then
 		tabela1.powertype = tabela2.powertype

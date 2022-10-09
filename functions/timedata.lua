@@ -214,7 +214,7 @@
 		return data_captured
 	end
 	
-	local exec_user_func = function (func, attributes, data, this_second)
+	local exec_user_func = function(func, attributes, data, this_second)
 		
 		local okey, result = _pcall (func, attributes)
 		if (not okey) then

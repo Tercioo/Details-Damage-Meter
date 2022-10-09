@@ -169,7 +169,7 @@
 			--> get the attribute
 			local attribute = custom_object:GetAttribute() --"damagedone"
 
-			--> get the custom function (actor, source, target, spellid)
+			--> get the custom function(actor, source, target, spellid)
 			local func = atributo_custom [attribute]
 			
 			--> get the combat container
@@ -249,9 +249,9 @@
 					
 					if (actor.id) then
 						if (actor.id == 1) then
-							actor.report_name = GetSpellLink (6603)
+							actor.report_name = GetSpellLink(6603)
 						elseif (actor.id > 10) then
-							actor.report_name = GetSpellLink (actor.id)
+							actor.report_name = GetSpellLink(actor.id)
 						else
 							actor.report_name = actor.nome
 						end
@@ -755,7 +755,7 @@
 	function atributo_custom:ResetCustomActorContainer()
 		for _, actor in _ipairs (self._ActorTable) do
 			actor.value = actor.value - _math_floor (actor.value)
-			--actor.value = _detalhes:GetOrderNumber (actor.nome)
+			--actor.value = _detalhes:GetOrderNumber(actor.nome)
 		end
 	end
 	
@@ -880,7 +880,7 @@
 				if (icon_cache [actor.nome]) then
 					newActor.icon = icon_cache [actor.nome]
 				else
-					local _, _, icon = _GetSpellInfo (actor.id)
+					local _, _, icon = _GetSpellInfo(actor.id)
 					if (icon) then
 						icon_cache [actor.nome] = icon
 						newActor.icon =  icon
@@ -924,7 +924,7 @@
 		}, {__index = atributo_custom})
 	end
 
-	local custom_sort = function (t1, t2)
+	local custom_sort = function(t1, t2)
 		return t1.value > t2.value
 	end
 	function atributo_custom:Sort (container)
@@ -964,7 +964,7 @@
 		end
 		
 		if (actor.id) then
-			_detalhes:AddTooltipSpellHeaderText (select (1, _GetSpellInfo (actor.id)), "yellow", 1, select (3, _GetSpellInfo (actor.id)), 0.90625, 0.109375, 0.15625, 0.875)
+			_detalhes:AddTooltipSpellHeaderText (select (1, _GetSpellInfo(actor.id)), "yellow", 1, select (3, _GetSpellInfo(actor.id)), 0.90625, 0.109375, 0.15625, 0.875)
 		else
 			_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, custom_object:GetIcon(), 0.90625, 0.109375, 0.15625, 0.875)
 		end
@@ -1272,7 +1272,7 @@
 			if (debuff_uptime_container) then
 				local focus_potion = debuff_uptime_container [DETAILS_FOCUS_POTION_ID]
 				if (focus_potion) then
-				local name, _, icon = GetSpellInfo (DETAILS_FOCUS_POTION_ID)
+				local name, _, icon = GetSpellInfo(DETAILS_FOCUS_POTION_ID)
 				GameCooltip:AddLine (name, 1) --> can use only 1 focus potion (can't be pre-potion)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
@@ -1286,7 +1286,7 @@
 					local potionUsed = buff_uptime_container [spellId]
 			
 					if (potionUsed) then
-						local name, _, icon = GetSpellInfo (spellId)
+						local name, _, icon = GetSpellInfo(spellId)
 						GameCooltip:AddLine (name, potionUsed.activedamt)
 						_detalhes:AddTooltipBackgroundStatusbar()
 						GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
@@ -1367,28 +1367,28 @@
 				local hs = actor:GetSpell (6262)
 				if (hs) then
 					GameCooltip:AddLine (select (1, GetSpellInfo(6262)),  _detalhes:ToK(hs.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo (6262)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddIcon (select (3, GetSpellInfo(6262)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
 				local pot = actor:GetSpell (DETAILS_HEALTH_POTION_ID)
 				if (pot) then
 					GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_HEALTH_POTION_ID)),  _detalhes:ToK(pot.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_HEALTH_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddIcon (select (3, GetSpellInfo(DETAILS_HEALTH_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
 				local pot = actor:GetSpell (DETAILS_HEALTH_POTION2_ID)
 				if (pot) then
 					GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_HEALTH_POTION2_ID)),  _detalhes:ToK(pot.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_HEALTH_POTION2_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddIcon (select (3, GetSpellInfo(DETAILS_HEALTH_POTION2_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
 				local pot = actor:GetSpell (DETAILS_REJU_POTION_ID)
 				if (pot) then
 					GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_REJU_POTION_ID)),  _detalhes:ToK(pot.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_REJU_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddIcon (select (3, GetSpellInfo(DETAILS_REJU_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
@@ -1591,7 +1591,7 @@
 				table.sort (spells, _detalhes.Sort2)
 
 				for index, spell in ipairs (spells) do
-				    local name, _, icon = GetSpellInfo (spell [1])
+				    local name, _, icon = GetSpellInfo(spell [1])
 				    GameCooltip:AddLine (name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
@@ -1733,7 +1733,7 @@
 				table.sort (spells, _detalhes.Sort2)
 
 				for index, spell in ipairs (spells) do
-				    local name, _, icon = GetSpellInfo (spell [1])
+				    local name, _, icon = GetSpellInfo(spell [1])
 				    GameCooltip:AddLine (name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)    
@@ -1894,9 +1894,9 @@
 				local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spell.id]
 				
 				if (not spell_cast and misc_actor.spell_cast) then
-				    local spellname = GetSpellInfo (spell.id)
+				    local spellname = GetSpellInfo(spell.id)
 				    for casted_spellid, amount in pairs (misc_actor.spell_cast) do
-					local casted_spellname = GetSpellInfo (casted_spellid)
+					local casted_spellname = GetSpellInfo(casted_spellid)
 					if (casted_spellname == spellname) then
 					    spell_cast = amount .. " (|cFFFFFF00?|r)"
 					end
@@ -2388,7 +2388,7 @@
 				for i, t in ipairs (sortedList) do
 					local spellID, total = unpack (t)
 					if (total > 1) then
-						local spellName, _, spellIcon = Details.GetSpellInfo (spellID)
+						local spellName, _, spellIcon = Details.GetSpellInfo(spellID)
 						
 						local spellPercent = total / playerTotal * 100
 						local formatedSpellPercent = format("%.1f", spellPercent)

@@ -238,7 +238,7 @@ local common_events = {
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 	
-	local dispatch_error = function (name, errortext)
+	local dispatch_error = function(name, errortext)
 		_detalhes:Msg ((name or "<no context>"), " |cFFFF9900error|r: ", errortext)
 	end
 	
@@ -323,7 +323,7 @@ local common_events = {
 						end
 					end
 					
-				--if no function (only registred the event) sent the event to OnDetailsEvent
+				--if no function(only registred the event) sent the event to OnDetailsEvent
 				else 
 					if (PluginObject.Enabled and PluginObject.__enabled) then
 						_detalhes:QuickDispatchEventWithContext (PluginObject, PluginObject.OnDetailsEvent, event, ...)

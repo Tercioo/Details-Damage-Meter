@@ -662,7 +662,7 @@ there is two ways for do this:
 		end
 	end
 
-	table.sort (actorsAmount, function (a,b) return a.total > b.total end)
+	table.sort (actorsAmount, function(a,b) return a.total > b.total end)
 
 2 - replacing the member "custom" on the actor:
 

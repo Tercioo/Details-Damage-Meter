@@ -49,29 +49,29 @@ function Details.OpenMacrosWindow()
         
         local macrosAvailable = Details.MacroList
     
-        local OnEnterMacroButton = function (self)
+        local OnEnterMacroButton = function(self)
             self:SetBackdropColor (unpack (scrollbox_line_backdrop_color_onenter))
         end
         
-        local onLeaveMacroButton = function (self)
+        local onLeaveMacroButton = function(self)
             self:SetBackdropColor (unpack (scrollbox_line_backdrop_color))
         end
         
-        local updateMacroLine = function (self, index, title, desc, macroText)
+        local updateMacroLine = function(self, index, title, desc, macroText)
             self.Title:SetText (title)
             self.Desc:SetText (desc)
             self.MacroTextEntry:SetText (macroText)
         end
         
-        local textEntryOnFocusGained = function (self)
+        local textEntryOnFocusGained = function(self)
             self:HighlightText()
         end
         
-        local textEntryOnFocusLost = function (self)
+        local textEntryOnFocusLost = function(self)
             self:HighlightText (0, 0)
         end
 
-        local refreshMacroScrollbox = function (self, data, offset, totalLines)
+        local refreshMacroScrollbox = function(self, data, offset, totalLines)
             for i = 1, totalLines do
                 local index = i + offset
                 local macro = macrosAvailable [index]
@@ -82,7 +82,7 @@ function Details.OpenMacrosWindow()
             end
         end
         
-        local macroListCreateLine = function (self, index)
+        local macroListCreateLine = function(self, index)
             --create a new line
             local line = CreateFrame ("button", "$parentLine" .. index, self,"BackdropTemplate")
             
@@ -132,7 +132,7 @@ function Details.OpenMacrosWindow()
         macroScrollbox:SetBackdropColor (0, 0, 0, 0)
         macroScrollbox:SetBackdropBorderColor (0, 0, 0, 1)
         f.MacroScrollbox = macroScrollbox
-        DF:ReskinSlider (macroScrollbox)
+        DF:ReskinSlider(macroScrollbox)
         
         macroScrollbox.__background:Hide()
         

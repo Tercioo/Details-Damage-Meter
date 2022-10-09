@@ -47,7 +47,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 ------------------------------------------------------------------------------------------------------------
 --> metatables
 
-	SplitBarMetaFunctions.__call = function (_table, value)
+	SplitBarMetaFunctions.__call = function(_table, value)
 		if (not value) then
 			return _table.statusbar:GetValue()
 		else
@@ -56,7 +56,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 
-	SplitBarMetaFunctions.__add = function (v1, v2) 
+	SplitBarMetaFunctions.__add = function(v1, v2) 
 		if (_type (v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v + v2
@@ -70,7 +70,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 
-	SplitBarMetaFunctions.__sub = function (v1, v2) 
+	SplitBarMetaFunctions.__sub = function(v1, v2) 
 		if (_type (v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v - v2
@@ -92,61 +92,61 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		return _object:GetTooltip()
 	end
 	--> shown
-	local gmember_shown = function (_object)
+	local gmember_shown = function(_object)
 		return _object.statusbar:IsShown()
 	end
 	--> frame width
-	local gmember_width = function (_object)
+	local gmember_width = function(_object)
 		return _object.statusbar:GetWidth()
 	end
 	--> frame height
-	local gmember_height = function (_object)
+	local gmember_height = function(_object)
 		return _object.statusbar:GetHeight()
 	end
 	--> value
-	local gmember_value = function (_object)
+	local gmember_value = function(_object)
 		return _object.statusbar:GetValue()
 	end
 	--> right text
-	local gmember_rtext = function (_object)
+	local gmember_rtext = function(_object)
 		return _object.textright:GetText()
 	end
 	--> left text
-	local gmember_ltext = function (_object)
+	local gmember_ltext = function(_object)
 		return _object.textleft:GetText()
 	end
 	--> right color
-	local gmember_rcolor = function (_object)
+	local gmember_rcolor = function(_object)
 		return _object.rightTexture.original_colors
 	end
 	--> left color
-	local gmember_lcolor = function (_object)
+	local gmember_lcolor = function(_object)
 		return _object.texture.original_colors
 	end
 	--> right icon
-	local gmember_ricon = function (_object)
+	local gmember_ricon = function(_object)
 		return _object.iconright:GetTexture()
 	end
 	--> left icon
-	local gmember_licon = function (_object)
+	local gmember_licon = function(_object)
 		return _object.iconleft:GetTexture()
 	end
 	--> texture
-	local gmember_texture = function (_object)
+	local gmember_texture = function(_object)
 		return _object.texture:GetTexture()
 	end	
 	--> font size
-	local gmember_textsize = function (_object)
+	local gmember_textsize = function(_object)
 		local _, fontsize = _object.textleft:GetFont()
 		return fontsize
 	end
 	--> font face
-	local gmember_textfont = function (_object)
+	local gmember_textfont = function(_object)
 		local fontface = _object.textleft:GetFont()
 		return fontface
 	end
 	--> font color
-	local gmember_textcolor = function (_object)
+	local gmember_textcolor = function(_object)
 		return _object.textleft:GetTextColor()
 	end
 	
@@ -170,7 +170,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	SplitBarMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
 	SplitBarMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
 	
-	SplitBarMetaFunctions.__index = function (_table, _member_requested)
+	SplitBarMetaFunctions.__index = function(_table, _member_requested)
 
 		local func = SplitBarMetaFunctions.GetMembers [_member_requested]
 		if (func) then
@@ -188,11 +188,11 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> tooltip
-	local smember_tooltip = function (_object, _value)
+	local smember_tooltip = function(_object, _value)
 		return _object:SetTooltip (_value)
 	end
 	--> show
-	local smember_shown = function (_object, _value)
+	local smember_shown = function(_object, _value)
 		if (_value) then
 			return _object:Show()
 		else
@@ -200,7 +200,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	--> hide
-	local smember_hide = function (_object, _value)
+	local smember_hide = function(_object, _value)
 		if (_value) then
 			return _object:Hide()
 		else
@@ -208,34 +208,34 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	--> width
-	local smember_width = function (_object, _value)
+	local smember_width = function(_object, _value)
 		return _object.statusbar:SetWidth (_value)
 	end
 	--> height
-	local smember_height = function (_object, _value)
+	local smember_height = function(_object, _value)
 		return _object.statusbar:SetHeight (_value)
 	end
 	--> statusbar value
-	local smember_value = function (_object, _value)
+	local smember_value = function(_object, _value)
 		_object.statusbar:SetValue (_value)
 		return _object.spark:SetPoint ("left", _object.statusbar, "left", _value * (_object.statusbar:GetWidth()/100) - 18, 0)
 	end
 	--> right text
-	local smember_rtext = function (_object, _value)
+	local smember_rtext = function(_object, _value)
 		return _object.textright:SetText (_value)
 	end
 	--> left text
-	local smember_ltext = function (_object, _value)
+	local smember_ltext = function(_object, _value)
 		return _object.textleft:SetText (_value)
 	end
 	--> right color
-	local smember_rcolor = function (_object, _value)
+	local smember_rcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		_object.rightTexture.original_colors = {_value1, _value2, _value3, _value4}
 		return _object.rightTexture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> left color
-	local smember_lcolor = function (_object, _value)
+	local smember_lcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
@@ -243,7 +243,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		return _object.texture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> right icon
-	local smember_ricon = function (_object, _value)
+	local smember_ricon = function(_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
 			_object.iconright:SetTexture (_value1)
@@ -256,7 +256,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		return
 	end
 	--> left icon
-	local smember_licon = function (_object, _value)
+	local smember_licon = function(_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
 			_object.iconleft:SetTexture (_value1)
@@ -269,7 +269,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		return
 	end
 	--> texture
-	local smember_texture = function (_object, _value)
+	local smember_texture = function(_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
 			_object.texture:SetTexture (_value1)
@@ -285,17 +285,17 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		return
 	end
 	--> font face
-	local smember_textfont = function (_object, _value)
+	local smember_textfont = function(_object, _value)
 		DF:SetFontFace (_object.textleft, _value)
 		return DF:SetFontFace (_object.textright, _value)
 	end
 	--> font size
-	local smember_textsize = function (_object, _value)
+	local smember_textsize = function(_object, _value)
 		DF:SetFontSize (_object.textleft, _value)
 		return DF:SetFontSize (_object.textright, _value)
 	end
 	--> font color
-	local smember_textcolor = function (_object, _value)
+	local smember_textcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		_object.textleft:SetTextColor (_value1, _value2, _value3, _value4)
 		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
@@ -321,7 +321,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	SplitBarMetaFunctions.SetMembers ["textfont"] = smember_textfont --alias
 	SplitBarMetaFunctions.SetMembers ["textcolor"] = smember_textcolor --alias
 	
-	SplitBarMetaFunctions.__newindex = function (_table, _key, _value)
+	SplitBarMetaFunctions.__newindex = function(_table, _key, _value)
 		local func = SplitBarMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
@@ -562,7 +562,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 
-	local OnEnter = function (frame)
+	local OnEnter = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
 		if (kill) then
@@ -576,7 +576,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	
-	local OnLeave = function (frame)
+	local OnLeave = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnLeave", frame, capsule)
 		if (kill) then
@@ -588,7 +588,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	
-	local OnHide = function (frame)
+	local OnHide = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnHide", frame, capsule)
 		if (kill) then
@@ -596,7 +596,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	
-	local OnShow = function (frame)
+	local OnShow = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnShow", frame, capsule)
 		if (kill) then
@@ -604,7 +604,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	
-	local OnMouseDown = function (frame, button)
+	local OnMouseDown = function(frame, button)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnMouseDown", frame, button, capsule)
 		if (kill) then
@@ -619,7 +619,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	
-	local OnMouseUp = function (frame, button)
+	local OnMouseUp = function(frame, button)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnMouseUp", frame, button, capsule)
 		if (kill) then
@@ -632,7 +632,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 	end
 	
-	local OnSizeChanged = function (statusbar)
+	local OnSizeChanged = function(statusbar)
 		statusbar.MyObject.spark:SetPoint ("left", statusbar, "left", statusbar:GetValue() * (statusbar:GetWidth()/100) - 18, 0)
 		statusbar.MyObject.rightTexture:SetWidth(statusbar:GetWidth() - statusbar.MyObject.texture:GetWidth())
 	end
@@ -651,7 +651,7 @@ function DF:CreateSplitBar(parent, width, height, member, name)
 	return DF:NewSplitBar(parent, nil, name, member, width, height)
 end
 
-local build_statusbar = function (self)
+local build_statusbar = function(self)
 
 	self:SetSize (300, 14)
 	
@@ -757,7 +757,7 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 			local idx = getmetatable (SplitBarObject.statusbar).__index
 			for funcName, funcAddress in pairs (idx) do 
 				if (not SplitBarMetaFunctions [funcName]) then
-					SplitBarMetaFunctions [funcName] = function (object, ...)
+					SplitBarMetaFunctions [funcName] = function(object, ...)
 						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")
 						return x (...)
 					end

@@ -204,7 +204,7 @@
 
 	
 	--> select a new plugin in for an instance anchor
-	local ChoosePlugin = function (_, _, index, current_child, anchor)
+	local ChoosePlugin = function(_, _, index, current_child, anchor)
 	
 		GameCooltip:Close()
 		
@@ -294,7 +294,7 @@
 			
 	local on_enter_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16}
 	
-	local OnEnter = function (frame)
+	local OnEnter = function(frame)
 		
 		--|TTexturePath:							size X: size Y: point offset Y X : texture size : coordx1 L : coordx2 R : coordy1 T : coordy2 B |t 
 		-- left click: 0.0019531:0.1484375:0.4257813:0.6210938 right click: 0.0019531:0.1484375:0.6269531:0.8222656
@@ -322,7 +322,7 @@
 	end
 
 	--> on leave
-	local OnLeave = function (frame)
+	local OnLeave = function(frame)
 	
 		frame:SetBackdrop (nil)
 	
@@ -333,7 +333,7 @@
 		return true
 	end
 
-	local OnMouseUp = function (frame, mouse)
+	local OnMouseUp = function(frame, mouse)
 
 		if (mouse == "LeftButton") then
 			if (not frame.child.Setup) then
@@ -814,7 +814,7 @@ do
 				_detalhes.gump:NewLabel (window, nil, "$parentSegmentOptionLabel", "segmentOptionLabel", Loc ["STRING_PLUGIN_SEGMENTTYPE"])
 				window.segmentOptionLabel:SetPoint (10, -15)
 				
-				local onSelectSegmentType = function (_, child, thistype)
+				local onSelectSegmentType = function(_, child, thistype)
 					child.options.segmentType = thistype
 					PSegment:Change()
 				end
@@ -1003,7 +1003,7 @@ do
 				_detalhes.gump:NewLabel (window, nil, "$parentClockTypeLabel", "ClockTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
 				window.ClockTypeLabel:SetPoint (10, -15)
 				
-				local onSelectClockType = function (_, child, thistype)
+				local onSelectClockType = function(_, child, thistype)
 					child.options.timeType = thistype
 					_detalhes:ClockPluginTick()
 				end
@@ -1358,7 +1358,7 @@ do
 			
 			myframe.widget:RegisterEvent ("PLAYER_MONEY")
 			myframe.widget:RegisterEvent ("PLAYER_ENTERING_WORLD")
-			myframe.widget:SetScript ("OnEvent", function (event)
+			myframe.widget:SetScript ("OnEvent", function(event)
 				if (event == "PLAYER_ENTERING_WORLD") then
 					return PGold:ScheduleTimer ("GoldPluginTick", 10)
 				end
@@ -1417,7 +1417,7 @@ do
 				_detalhes.gump:NewLabel (window, _, "$parentTimeTypeLabel", "TimeTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
 				window.TimeTypeLabel:SetPoint (10, -15)
 				
-				local onSelectClockType = function (_, child, thistype)
+				local onSelectClockType = function(_, child, thistype)
 					child.options.timeType = thistype
 					child:UpdateClock()
 				end
@@ -1492,7 +1492,7 @@ end)
 	_detalhes.gump:NewLabel (window, _, "$parentTextStyleLabel", "textstyle", Loc ["STRING_PLUGINOPTIONS_TEXTSTYLE"])
 	window.textstyle:SetPoint (10, -15)
 	
-	local onSelectTextStyle = function (_, child, style)
+	local onSelectTextStyle = function(_, child, style)
 	
 		window.instance.StatusBar.left.options.textStyle = style
 		window.instance.StatusBar.center.options.textStyle = style
@@ -1564,7 +1564,7 @@ end)
 	window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right", 2)
 	window.fonsizeSlider:SetThumbSize (50)
 	--window.fonsizeSlider.useDecimals = true
-	window.fonsizeSlider:SetHook ("OnValueChange", function (self, child, amount) 
+	window.fonsizeSlider:SetHook ("OnValueChange", function(self, child, amount) 
 		--_detalhes.StatusBar:ApplyOptions (child, "textsize", amount)
 		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textsize", amount)
 		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textsize", amount)
@@ -1572,7 +1572,7 @@ end)
 	end)
 	
 --> text font
-	local onSelectFont = function (_, child, fontName)
+	local onSelectFont = function(_, child, fontName)
 		--_detalhes.StatusBar:ApplyOptions (child, "textface", fontName)
 		
 		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textface", fontName)
@@ -1605,7 +1605,7 @@ end)
 	_detalhes.gump:NewSlider (window, _, "$parentSliderAlignX", "alignXSlider", 160, 20, -20, 20, 1, 0)
 	window.alignXSlider:SetPoint ("left", window.alignXLabel, "right", 2)
 	window.alignXSlider:SetThumbSize (40)
-	window.alignXSlider:SetHook ("OnValueChange", function (self, child, amount) 
+	window.alignXSlider:SetHook ("OnValueChange", function(self, child, amount) 
 		_detalhes.StatusBar:ApplyOptions (child, "textxmod", amount)
 	end)
 	
@@ -1616,7 +1616,7 @@ end)
 	_detalhes.gump:NewSlider (window, _, "$parentSliderAlignY", "alignYSlider", 160, 20, -10, 10, 1, 0)
 	window.alignYSlider:SetPoint ("left", window.alignYLabel, "right", 2)
 	window.alignYSlider:SetThumbSize (40)
-	window.alignYSlider:SetHook ("OnValueChange", function (self, child, amount) 
+	window.alignYSlider:SetHook ("OnValueChange", function(self, child, amount) 
 		_detalhes.StatusBar:ApplyOptions (child, "textymod", amount)
 	end)
 	

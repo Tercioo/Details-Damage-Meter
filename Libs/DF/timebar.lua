@@ -52,7 +52,7 @@ local TimeBarMetaFunctions = _G[DF.GlobalWidgetControlNames["timebar"]]
 TimeBarMetaFunctions.SetMembers = TimeBarMetaFunctions.SetMembers or {}
 TimeBarMetaFunctions.GetMembers = TimeBarMetaFunctions.GetMembers or {}
 
-TimeBarMetaFunctions.__index = function (table, key)
+TimeBarMetaFunctions.__index = function(table, key)
     local func = TimeBarMetaFunctions.GetMembers[key]
     if (func) then
         return func(table, key)

@@ -171,7 +171,7 @@ end
 				local next_check = 0.8
 				
 				--check if the mouse is still interacting with the menu or with the button
-				button:SetScript ("OnUpdate", function (self, elapsed)
+				button:SetScript ("OnUpdate", function(self, elapsed)
 					next_check = next_check - elapsed
 					
 					if (next_check < 0) then

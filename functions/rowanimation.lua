@@ -56,7 +56,7 @@
 --> install default animations
 	
 	do
-		local fade_func = function (row, state) 
+		local fade_func = function(row, state) 
 			if (state) then
 				Details.FadeHandler.Fader (row, "out")
 			else

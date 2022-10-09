@@ -436,7 +436,7 @@
 	local pet_text_object = _G ["DetailsPetOwnerFinderTextLeft2"] --not in use
 	local follower_text_object = _G ["DetailsPetOwnerFinderTextLeft3"] --not in use
 
-	local find_pet_found_owner = function (ownerName, serial, nome, flag, self)
+	local find_pet_found_owner = function(ownerName, serial, nome, flag, self)
 		local ownerGuid = _UnitGUID (ownerName)
 		if (ownerGuid) then
 			_detalhes.tabela_pets:Adicionar (serial, nome, flag, ownerGuid, ownerName, 0x00000417)
@@ -453,7 +453,7 @@
 	end
 	
 	--> check pet owner name with correct declension for ruRU locale (from user 'denis-kam' on github)
-	local find_name_declension = function (petTooltip, playerName)
+	local find_name_declension = function(petTooltip, playerName)
 		--> 2 - male, 3 - female
 		for gender = 3, 2, -1 do
 			for declensionSet = 1, GetNumDeclensionSets(playerName, gender) do
@@ -469,7 +469,7 @@
 		return false
 	end
 
-	local find_pet_owner = function (serial, nome, flag, self)
+	local find_pet_owner = function(serial, nome, flag, self)
 		if (not _detalhes.tabela_vigente) then
 			return
 		end
@@ -851,7 +851,7 @@
 	end
 
 	local bykey
-	local sort = function (t1, t2)
+	local sort = function(t1, t2)
 		return (t1 [bykey] or 0) > (t2 [bykey] or 0)
 	end
 	

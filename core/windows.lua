@@ -153,7 +153,7 @@
 	end
 	
 	--> simple left and right animations by delta time
-	local animation_left_simple = function (self, deltaTime)
+	local animation_left_simple = function(self, deltaTime)
 		self.inicio = self.inicio - (animation_speed * deltaTime)
 		self:SetValue (self.inicio)
 		if (self.inicio-1 <= self.fim) then
@@ -162,7 +162,7 @@
 		end
 	end
 	
-	local animation_right_simple = function (self, deltaTime)
+	local animation_right_simple = function(self, deltaTime)
 		self.inicio = self.inicio + (animation_speed * deltaTime)
 		self:SetValue (self.inicio)
 		if (self.inicio+0.1 >= self.fim) then
@@ -172,7 +172,7 @@
 	end
 	
 	--> animation with acceleration
-	local animation_left_with_accel = function (self, deltaTime)
+	local animation_left_with_accel = function(self, deltaTime)
 		local distance = self.inicio - self.fim
 		
 		-- DefaultSpeed * max of ( min of (Distance / TriggerSpeed , MaxSpeed) , LowSpeed )
@@ -186,7 +186,7 @@
 		end
 	end
 	
-	local animation_right_with_accel = function (self, deltaTime)
+	local animation_right_with_accel = function(self, deltaTime)
 		local distance = self.fim - self.inicio
 		local calcAnimationSpeed = animation_speed * _math_max (_math_min (distance/animation_speed_hightravel_trigger, animation_speed_hightravel_maxspeed), animation_speed_lowtravel_minspeed)
 		
@@ -1165,14 +1165,14 @@
 			mmoc_title:SetPoint ("topleft", mmoc, "topright", 5, 0)
 			mmoc_desc:SetPoint ("topleft", mmoc_title, "bottomleft", 0, -1)
 			
-			local on_enter = function (self, capsule)
+			local on_enter = function(self, capsule)
 				capsule.image:SetDesaturated (false)
 			end
-			local on_leave = function (self, capsule)
+			local on_leave = function(self, capsule)
 				capsule.image:SetDesaturated (true)
 			end
 			
-			local on_click = function (_, _, website)
+			local on_click = function(_, _, website)
 				if (website == 1) then
 					_detalhes:CopyPaste ([[http://www.wowinterface.com/downloads/addcomment.php?action=addcomment&fileid=23056]])
 					
@@ -1229,7 +1229,7 @@
 	f.options_button:SetPoint ("topleft", f, "topleft", 10, -100)
 	f.options_button:SetHeight (170)
 	f.options_button:SetWidth (170)
-	f.options_button:SetScript ("OnClick", function (self)
+	f.options_button:SetScript ("OnClick", function(self)
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (not lower_instance) then
 			--> no window opened?
@@ -1253,7 +1253,7 @@
 	f.new_window_button:SetText (Loc ["STRING_MINIMAPMENU_NEWWINDOW"])
 	f.new_window_button:SetPoint ("topleft", f, "topleft", 10, -125)
 	f.new_window_button:SetWidth (170)
-	f.new_window_button:SetScript ("OnClick", function (self)
+	f.new_window_button:SetScript ("OnClick", function(self)
 		_detalhes:CriarInstancia (_, true)
 	end)
 
@@ -1304,7 +1304,7 @@
 			updatewindow_frame.close:SetPoint ("bottomleft", updatewindow_frame, "bottomleft", 8, 4)
 			updatewindow_frame.close:SetText ("Close")
 			
-			updatewindow_frame.close:SetScript ("OnClick", function (self)
+			updatewindow_frame.close:SetScript ("OnClick", function(self)
 				DetailsUpdateDialog:Hide()
 				editbox:ClearFocus()
 			end)
@@ -1339,7 +1339,7 @@
 				
 				HotCornerIgnore = true,
 				
-				OnClick = function (self, button)
+				OnClick = function(self, button)
 				
 					if (button == "LeftButton") then
 						if (IsControlKeyDown()) then
@@ -1452,7 +1452,7 @@
 
 					end
 				end,
-				OnTooltipShow = function (tooltip)
+				OnTooltipShow = function(tooltip)
 					tooltip:AddLine ("Details!", 1, 1, 1)
 					if (_detalhes.minimap.onclick_what_todo == 1) then
 						tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP1"])
@@ -1477,7 +1477,7 @@
 	
 	function _detalhes:DoRegisterHotCorner()
 		--register lib-hotcorners
-		local on_click_on_hotcorner_button = function (frame, button) 
+		local on_click_on_hotcorner_button = function(frame, button) 
 			if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
 				local lower_instance = _detalhes:GetLowerInstanceNumber()
 				if (not lower_instance) then
@@ -1493,11 +1493,11 @@
 			end
 		end
 
-		local quickclick_func1 = function (frame, button) 
+		local quickclick_func1 = function(frame, button) 
 			_detalhes.tabela_historico:resetar()
 		end
 		
-		local quickclick_func2 = function (frame, button) 
+		local quickclick_func2 = function(frame, button) 
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then
 				local instance = _detalhes:GetInstance (1)

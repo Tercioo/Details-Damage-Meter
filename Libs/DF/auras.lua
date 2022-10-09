@@ -73,7 +73,7 @@ function DF:LoadAllSpells (hashMap, indexTable, allSpellsSameName)
 	C_Timer.After (0, function()
 		if (hashMap and not indexTable) then
 			for i = 1, CONST_MAX_SPELLS do
-				local spellName = GetSpellInfo (i)
+				local spellName = GetSpellInfo(i)
 				if (spellName) then
 					hashMap [lower (spellName)] = i
 				end
@@ -81,7 +81,7 @@ function DF:LoadAllSpells (hashMap, indexTable, allSpellsSameName)
 		
 		elseif (not hashMap and indexTable) then
 			for i = 1, CONST_MAX_SPELLS do
-				local spellName = GetSpellInfo (i)
+				local spellName = GetSpellInfo(i)
 				if (spellName) then
 					indexTable [#indexTable+1] = lower (spellName)
 				end
@@ -91,7 +91,7 @@ function DF:LoadAllSpells (hashMap, indexTable, allSpellsSameName)
 			--DF_CALC_PERFORMANCE()
 			if (allSpellsSameName) then
 				for i = 1, CONST_MAX_SPELLS do
-					local spellName = GetSpellInfo (i)
+					local spellName = GetSpellInfo(i)
 					if (spellName) then
 						spellName = lower (spellName)
 						indexTable [#indexTable + 1] = spellName
@@ -108,7 +108,7 @@ function DF:LoadAllSpells (hashMap, indexTable, allSpellsSameName)
 				end
 			else
 				for i = 1, CONST_MAX_SPELLS do
-					local spellName = GetSpellInfo (i)
+					local spellName = GetSpellInfo(i)
 					if (spellName) then
 						spellName = lower (spellName)
 						indexTable [#indexTable + 1] = spellName
@@ -155,7 +155,7 @@ end
 local AuraTrackerMetaFunctions = _G[DF.GlobalWidgetControlNames["aura_tracker"]]
 
 --create panels
-local on_profile_changed = function (self, newdb)
+local on_profile_changed = function(self, newdb)
 
 	self.db = newdb
 
@@ -232,7 +232,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	
 	-------------
 	
-	local on_switch_tracking_method = function (self)
+	local on_switch_tracking_method = function(self)
 		local method = self.Method
 	
 		f.db.aura_tracker.track_method = method
@@ -304,7 +304,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	--store a table with spell name as key and in the value an index table with spell IDs
 	local AllSpellsSameName = {}
 	
-	local load_all_spells = function (self, capsule)
+	local load_all_spells = function(self, capsule)
 		if (not next (AllSpellsMap)) then
 			DF:LoadAllSpells (AllSpellsMap, AllSpellNames, AllSpellsSameName)
 			
@@ -369,8 +369,8 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		debuff_name_blacklist_entry.tooltip = "Enter the debuff name using lower case letters."
 		f_auto.AddDebuffBlacklistTextBox = debuff_name_blacklist_entry
 		
-		local same_name_spells_add = function (spellID, t)
-			local spellName = GetSpellInfo (spellID)
+		local same_name_spells_add = function(spellID, t)
+			local spellName = GetSpellInfo(spellID)
 			if (spellName) then
 				if (not next (AllSpellsMap)) then
 					load_all_spells()
@@ -389,11 +389,11 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		end
 		DF.AddSpellWithSameName = same_name_spells_add
 		
-		local get_spellID_from_string = function (text)
+		local get_spellID_from_string = function(text)
 			--check if the user entered a spell ID
 			local isSpellID = tonumber (text)
 			if (isSpellID and isSpellID > 1 and isSpellID < 10000000) then
-				local isValidSpellID = GetSpellInfo (isSpellID)
+				local isValidSpellID = GetSpellInfo(isSpellID)
 				if (isValidSpellID) then
 					return isSpellID
 				else
@@ -691,7 +691,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	--options passed to the create aura panel
 	local width, height, row_height = options.width, options.height, options.row_height
 
-	local autoTrackList_LineOnEnter = function (self, capsule, value) 
+	local autoTrackList_LineOnEnter = function(self, capsule, value) 
 	
 		local flag = self.Flag
 		value = value or self.SpellID
@@ -701,7 +701,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			GameCooltip2:SetOwner (self, "left", "right", 2, 0)
 			GameCooltip2:SetOption ("TextSize", 10)
 			
-			local spellName, _, spellIcon = GetSpellInfo (value)
+			local spellName, _, spellIcon = GetSpellInfo(value)
 			if (spellName) then
 				GameCooltip2:AddLine (spellName .. " (" .. value .. ")")
 				GameCooltip2:AddIcon (spellIcon, 1, 1, 14, 14, .1, .9, .1, .9)
@@ -709,7 +709,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			GameCooltip2:Show()
 		else
 			
-			local spellName = GetSpellInfo (value)
+			local spellName = GetSpellInfo(value)
 			if (spellName) then			
 
 				local spellsWithSameName = db.aura_cache_by_name [lower (spellName)]
@@ -724,7 +724,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 					GameCooltip2:SetOption ("TextSize", 10)
 					
 					for i, spellID in ipairs (spellsWithSameName) do
-						local spellName, _, spellIcon = GetSpellInfo (spellID)
+						local spellName, _, spellIcon = GetSpellInfo(spellID)
 						if (spellName) then
 							GameCooltip2:AddLine (spellName .. " (" .. spellID .. ")")
 							GameCooltip2:AddIcon (spellIcon, 1, 1, 14, 14, .1, .9, .1, .9)
@@ -749,9 +749,9 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	local backdropColor = {.8, .8, .8, 0.2}
 	local backdropColor_OnEnter = {.8, .8, .8, 0.4}
 	
-	local createAuraScrollBox = function (parent, name, member, title, db, removeFunc)
+	local createAuraScrollBox = function(parent, name, member, title, db, removeFunc)
 		
-		local updateFunc = function (self, data, offset, totalLines)
+		local updateFunc = function(self, data, offset, totalLines)
 			for i = 1, totalLines do
 				local index = i + offset
 				local auraTable = data [index]
@@ -776,21 +776,21 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			end
 		end
 		
-		local lineOnEnter = function (self)
+		local lineOnEnter = function(self)
 			self:SetBackdropColor (unpack (backdropColor_OnEnter))
 
 			--GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
-			--GameTooltip:SetSpellByID (self.SpellID)
+			--GameTooltip:SetSpellByID(self.SpellID)
 			--GameTooltip:AddLine (" ")
 			--GameTooltip:Show()
 		end
 		
-		local lineOnLeave = function (self)
+		local lineOnLeave = function(self)
 			self:SetBackdropColor (unpack (backdropColor))
 			--GameTooltip:Hide()
 		end
 		
-		local onRemoveClick = function (self)
+		local onRemoveClick = function(self)
 			local spellID = self:GetParent().SpellID
 			db [spellID] = nil
 			db ["".. (spellID or "")] = nil -- cleanup...
@@ -800,7 +800,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			end
 		end
 		
-		local createLineFunc = function (self, index)
+		local createLineFunc = function(self, index)
 			local line = CreateFrame ("button", "$parentLine" .. index, self, "BackdropTemplate")
 			line:SetPoint ("topleft", self, "topleft", 1, - ((index - 1) * (lineHeight + 1)) - 1)
 			line:SetSize (scrollWidth - 2, lineHeight)
@@ -835,7 +835,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		end
 
 		local scroll = DF:CreateScrollBox (parent, name, updateFunc, db, scrollWidth, scrollHeight, lineAmount, lineHeight)
-		DF:ReskinSlider (scroll)
+		DF:ReskinSlider(scroll)
 		parent [member] = scroll
 		scroll.OriginalData = db
 		
@@ -843,7 +843,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			local t = {}
 			local added = {}
 			for spellID, flag in pairs (scroll.OriginalData) do
-				local spellName, _, spellIcon = GetSpellInfo (spellID)
+				local spellName, _, spellIcon = GetSpellInfo(spellID)
 				if (spellName and not added[tonumber(spellID) or 0]) then
 					local lowerSpellName = spellName:lower()
 					tinsert (t, {spellID, spellName, spellIcon, lowerSpellName, flag})
@@ -851,7 +851,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				end
 			end
 			
-			table.sort (t, function (t1, t2) return t1[4] < t2[4] end)
+			table.sort (t, function(t1, t2) return t1[4] < t2[4] end)
 			
 			self:SetData (t)
 			self:Refresh()
@@ -952,23 +952,23 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	local backdrop_color = {.8, .8, .8, 0.2}
 	local backdrop_color_on_enter = {.8, .8, .8, 0.4}
 	
-	local line_onenter = function (self)
+	local line_onenter = function(self)
 		self:SetBackdropColor (unpack (backdrop_color_on_enter))
-		local spellid = select (7, GetSpellInfo (self.value))
+		local spellid = select (7, GetSpellInfo(self.value))
 		if (spellid) then
 			GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
-			GameTooltip:SetSpellByID (spellid)
+			GameTooltip:SetSpellByID(spellid)
 			GameTooltip:AddLine (" ")
 			GameTooltip:Show()
 		end
 	end
 	
-	local line_onleave = function (self)
+	local line_onleave = function(self)
 		self:SetBackdropColor (unpack (backdrop_color))
 		GameTooltip:Hide()
 	end
 	
-	local onclick_remove_button = function (self)
+	local onclick_remove_button = function(self)
 		local spell = self:GetParent().value
 		local data = self:GetParent():GetParent():GetData()
 		
@@ -982,7 +982,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		self:GetParent():GetParent():Refresh()
 	end
 	
-	local scroll_createline = function (self, index)
+	local scroll_createline = function(self, index)
 		local line = CreateFrame ("button", "$parentLine" .. index, self, "BackdropTemplate")
 		line:SetPoint ("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)) - 1)
 		line:SetSize (scroll_width - 2, scroll_line_height)
@@ -1013,13 +1013,13 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		return line
 	end
 
-	local scroll_refresh = function (self, data, offset, total_lines)
+	local scroll_refresh = function(self, data, offset, total_lines)
 		for i = 1, total_lines do
 			local index = i + offset
 			local aura = data [index]
 			if (aura) then
 				local line = self:GetLine (i)
-				local name, _, icon = GetSpellInfo (aura)
+				local name, _, icon = GetSpellInfo(aura)
 				line.value = aura
 				if (name) then
 					line.name:SetText (name)
@@ -1035,7 +1035,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	
 	local buffs_added = self:CreateScrollBox (f_manual, "$parentBuffsAdded", scroll_refresh, f.db.aura_tracker.buff, scroll_width, scroll_height, scroll_lines, scroll_line_height)
 	buffs_added:SetPoint ("topleft", f_manual, "topleft", 0, y)
-	DF:ReskinSlider (buffs_added)
+	DF:ReskinSlider(buffs_added)
 	
 	for i = 1, scroll_lines do 
 		buffs_added:CreateLine (scroll_createline)
@@ -1043,7 +1043,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	
 	local debuffs_added = self:CreateScrollBox (f_manual, "$parentDebuffsAdded", scroll_refresh, f.db.aura_tracker.debuff, scroll_width, scroll_height, scroll_lines, scroll_line_height)
 	debuffs_added:SetPoint ("topleft", f_manual, "topleft", width+30, y)
-	DF:ReskinSlider (debuffs_added)
+	DF:ReskinSlider(debuffs_added)
 	
 	for i = 1, scroll_lines do 
 		debuffs_added:CreateLine (scroll_createline)
@@ -1182,7 +1182,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	local export_buff_button = self:CreateButton (f_manual, function()
 		local str = ""
 		for _, spellId in ipairs (f.db.aura_tracker.buff) do
-			local spellName = GetSpellInfo (spellId)
+			local spellName = GetSpellInfo(spellId)
 			if (spellName) then
 				str = str .. spellName .. "; "
 			end
@@ -1196,7 +1196,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	local export_debuff_button = self:CreateButton (f_manual, function()
 		local str = ""
 		for _, spellId in ipairs (f.db.aura_tracker.debuff) do
-			local spellName = GetSpellInfo (spellId)
+			local spellName = GetSpellInfo(spellId)
 			if (spellName) then
 				str = str .. spellName .. "; "
 			end
@@ -1246,7 +1246,7 @@ function DF:GetAllPlayerSpells (include_lower_case)
 		local index = offset + i
 		local spellType, spellId = GetSpellBookItemInfo (index, "player")
 		if (spellType == "SPELL") then
-			local spellName = GetSpellInfo (spellId)
+			local spellName = GetSpellInfo(spellId)
 			tinsert (playerSpells, spellName)
 			if (include_lower_case) then
 				tinsert (playerSpells, lower (spellName))

@@ -14,7 +14,7 @@ local HelpMetaFunctions = {}
 
 	local get_members_function_index = {}
 
-	HelpMetaFunctions.__index = function (_table, _member_requested)
+	HelpMetaFunctions.__index = function(_table, _member_requested)
 
 		local func = get_members_function_index [_member_requested]
 		if (func) then
@@ -31,7 +31,7 @@ local HelpMetaFunctions = {}
 	
 	local set_members_function_index = {}
 	
-	HelpMetaFunctions.__newindex = function (_table, _key, _value)
+	HelpMetaFunctions.__newindex = function(_table, _key, _value)
 		local func = set_members_function_index [_key]
 		if (func) then
 			return func (_table, _value)
@@ -83,7 +83,7 @@ function DF:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, nam
 		local idx = getmetatable (helpButton).__index
 		for funcName, funcAddress in pairs (idx) do 
 			if (not HelpMetaFunctions [funcName]) then
-				HelpMetaFunctions [funcName] = function (object, ...)
+				HelpMetaFunctions [funcName] = function(object, ...)
 					local x = loadstring ( "return _G."..object.button:GetName()..":"..funcName.."(...)")
 					return x (...)
 				end

@@ -5,7 +5,7 @@ local textAlpha = 0.9
 local AceLocale = LibStub ("AceLocale-3.0")
 local L = AceLocale:GetLocale ( "Details" )
 
-local on_deathrecap_line_enter = function (self)
+local on_deathrecap_line_enter = function(self)
 	if (self.spellid) then
 		GameTooltip:SetOwner (self, "ANCHOR_RIGHT")
 		Details:GameTooltipSetSpellByID (self.spellid)
@@ -19,7 +19,7 @@ local on_deathrecap_line_enter = function (self)
 	end
 end
 
-local on_deathrecap_line_leave = function (self)
+local on_deathrecap_line_leave = function(self)
 	GameTooltip:Hide()
 	self:SetBackdropColor (.3, .3, .3, 0)
 	self.backgroundTextureOverlay:Hide()
@@ -29,7 +29,7 @@ local on_deathrecap_line_leave = function (self)
 	self.lifePercent:SetAlpha (textAlpha)
 end
 
-local create_deathrecap_line = function (parent, n)
+local create_deathrecap_line = function(parent, n)
 	local line = CreateFrame ("frame", "DetailsDeathRecapLine" .. n, parent, "BackdropTemplate")
 	line:SetPoint ("topleft", parent, "topleft", 10, (-24 * n) - 17)
 	line:SetPoint ("topright", parent, "topright", -10, (-24 * n) - 17)
@@ -155,7 +155,7 @@ local create_deathrecap_line = function (parent, n)
 	return line
 end
 
-local OpenDetailsDeathRecapAtSegment = function (segment)
+local OpenDetailsDeathRecapAtSegment = function(segment)
 	Details.OpenDetailsDeathRecap (segment, RecapID)
 end
 
@@ -393,7 +393,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
         for i = #events, 1, -1 do
             tinsert (BiggestDamageHits, events [i])
         end
-        table.sort (BiggestDamageHits, function (t1, t2) 
+        table.sort (BiggestDamageHits, function(t1, t2) 
             return t1[3] > t2[3]
         end)
         for i = #BiggestDamageHits, 1, -1 do
@@ -460,7 +460,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             end
         end	
 
-        table.sort (BiggestDamageHits, function (t1, t2) 
+        table.sort (BiggestDamageHits, function(t1, t2) 
             return t1[4] > t2[4]
         end)
 
@@ -475,7 +475,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             
             local evType = event [1]
             local hp = min (floor (event [5] / maxHP * 100), 100)
-            local spellName, _, spellIcon = Details.GetSpellInfo (event [2])
+            local spellName, _, spellIcon = Details.GetSpellInfo(event [2])
             local amount = event [3]
             local eventTime = event [4]
             local source = event [6]

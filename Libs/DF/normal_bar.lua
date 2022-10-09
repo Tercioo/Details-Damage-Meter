@@ -49,7 +49,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 ------------------------------------------------------------------------------------------------------------
 --> metatables
 
-	BarMetaFunctions.__call = function (_table, value)
+	BarMetaFunctions.__call = function(_table, value)
 		if (not value) then
 			return _table.statusbar:GetValue()
 		else
@@ -57,7 +57,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 
-	BarMetaFunctions.__add = function (v1, v2) 
+	BarMetaFunctions.__add = function(v1, v2) 
 		if (_type (v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v + v2
@@ -69,7 +69,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 
-	BarMetaFunctions.__sub = function (v1, v2) 
+	BarMetaFunctions.__sub = function(v1, v2) 
 		if (_type (v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v - v2
@@ -89,58 +89,58 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		return _object:GetTooltip()
 	end
 	--> shown
-	local gmember_shown = function (_object)
+	local gmember_shown = function(_object)
 		return _object.statusbar:IsShown()
 	end
 	--> frame width
-	local gmember_width = function (_object)
+	local gmember_width = function(_object)
 		return _object.statusbar:GetWidth()
 	end
 	--> frame height
-	local gmember_height = function (_object)
+	local gmember_height = function(_object)
 		return _object.statusbar:GetHeight()
 	end
 	--> value
-	local gmember_value = function (_object)
+	local gmember_value = function(_object)
 		return _object.statusbar:GetValue()
 	end
 	--> right text
-	local gmember_rtext = function (_object)
+	local gmember_rtext = function(_object)
 		return _object.textright:GetText()
 	end
 	--> left text
-	local gmember_ltext = function (_object)
+	local gmember_ltext = function(_object)
 		return _object.textleft:GetText()
 	end
 	--> left color
-	local gmember_color = function (_object)
+	local gmember_color = function(_object)
 		local r, g, b, a = _object._texture:GetVertexColor()
 		return r, g, b, a
 	end
 	--> icon
-	local gmember_icon = function (_object)
+	local gmember_icon = function(_object)
 		return _object._icon:GetTexture()
 	end
 	--> texture
-	local gmember_texture = function (_object)
+	local gmember_texture = function(_object)
 		return _object._texture:GetTexture()
 	end	
 	--> font size
-	local gmember_textsize = function (_object)
+	local gmember_textsize = function(_object)
 		local _, fontsize = _object.textleft:GetFont()
 		return fontsize
 	end
 	--> font face
-	local gmember_textfont = function (_object)
+	local gmember_textfont = function(_object)
 		local fontface = _object.textleft:GetFont()
 		return fontface
 	end
 	--> font color
-	local gmember_textcolor = function (_object)
+	local gmember_textcolor = function(_object)
 		return _object.textleft:GetTextColor()
 	end
 	--> alpha 
-	local gmember_alpha= function (_object)
+	local gmember_alpha= function(_object)
 		return _object:GetAlpha()
 	end
 
@@ -163,7 +163,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 	BarMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
 	BarMetaFunctions.GetMembers ["alpha"] = gmember_alpha
 	
-	BarMetaFunctions.__index = function (_table, _member_requested)
+	BarMetaFunctions.__index = function(_table, _member_requested)
 
 		local func = BarMetaFunctions.GetMembers [_member_requested]
 		if (func) then
@@ -183,11 +183,11 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 
 
 	--> tooltip
-	local smember_tooltip = function (_object, _value)
+	local smember_tooltip = function(_object, _value)
 		return _object:SetTooltip (_value)
 	end
 	--> show
-	local smember_shown = function (_object, _value)
+	local smember_shown = function(_object, _value)
 		if (_value) then
 			return _object:Show()
 		else
@@ -195,7 +195,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 	--> hide
-	local smember_hide = function (_object, _value)
+	local smember_hide = function(_object, _value)
 		if (_value) then
 			return _object:Hide()
 		else
@@ -203,28 +203,28 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 	--> width
-	local smember_width = function (_object, _value)
+	local smember_width = function(_object, _value)
 		return _object.statusbar:SetWidth (_value)
 	end
 	--> height
-	local smember_height = function (_object, _value)
+	local smember_height = function(_object, _value)
 		return _object.statusbar:SetHeight (_value)
 	end
 	--> statusbar value
-	local smember_value = function (_object, _value)
+	local smember_value = function(_object, _value)
 		_object.statusbar:SetValue (_value)
 		return _object.div:SetPoint ("left", _object.statusbar, "left", _value * (_object.statusbar:GetWidth()/100) - 16, 0)
 	end
 	--> right text
-	local smember_rtext = function (_object, _value)
+	local smember_rtext = function(_object, _value)
 		return _object.textright:SetText (_value)
 	end
 	--> left text
-	local smember_ltext = function (_object, _value)
+	local smember_ltext = function(_object, _value)
 		return _object.textleft:SetText (_value)
 	end
 	--> color
-	local smember_color = function (_object, _value)
+	local smember_color = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
@@ -236,12 +236,12 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		return _object._texture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> background color
-	local smember_backgroundcolor = function (_object, _value)
+	local smember_backgroundcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		return _object.background:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> icon
-	local smember_icon = function (_object, _value)
+	local smember_icon = function(_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
 			_object._icon:SetTexture (_value1)
@@ -254,7 +254,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		return
 	end
 	--> texture
-	local smember_texture = function (_object, _value)
+	local smember_texture = function(_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
 			_object._texture:SetTexture (_value1)
@@ -284,7 +284,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		return
 	end
 	--> background texture
-	local smember_backgroundtexture = function (_object, _value)
+	local smember_backgroundtexture = function(_object, _value)
 		if (_value:find ("\\")) then
 			_object.background:SetTexture (_value)
 		else
@@ -298,28 +298,28 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		return
 	end
 	--> font face
-	local smember_textfont = function (_object, _value)
+	local smember_textfont = function(_object, _value)
 		DF:SetFontFace (_object.textleft, _value)
 		return DF:SetFontFace (_object.textright, _value)
 	end
 	--> font size
-	local smember_textsize = function (_object, _value)
+	local smember_textsize = function(_object, _value)
 		DF:SetFontSize (_object.textleft, _value)
 		return DF:SetFontSize (_object.textright, _value)
 	end
 	--> font color
-	local smember_textcolor = function (_object, _value)
+	local smember_textcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		_object.textleft:SetTextColor (_value1, _value2, _value3, _value4)
 		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
 	end
 	--> outline (shadow)
-	local smember_outline = function (_object, _value)
+	local smember_outline = function(_object, _value)
 		DF:SetFontOutline (_object.textleft, _value)
 		return DF:SetFontOutline (_object.textright, _value)
 	end
 	--> alpha 
-	local smember_alpha= function (_object, _value)
+	local smember_alpha= function(_object, _value)
 		return _object:SetAlpha (_value)
 	end
 	
@@ -346,7 +346,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 	BarMetaFunctions.SetMembers["outline"] = smember_outline --alias
 	BarMetaFunctions.SetMembers["alpha"] = smember_alpha
 	
-	BarMetaFunctions.__newindex = function (_table, _key, _value)
+	BarMetaFunctions.__newindex = function(_table, _key, _value)
 	
 		local func = BarMetaFunctions.SetMembers [_key]
 		if (func) then
@@ -488,7 +488,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 
-	local OnEnter = function (frame)
+	local OnEnter = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
 		if (kill) then
@@ -505,7 +505,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 
 	end
 	
-	local OnLeave = function (frame)
+	local OnLeave = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnLeave", frame, capsule)
 		if (kill) then
@@ -519,7 +519,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 	
-	local OnHide = function (frame)
+	local OnHide = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnHide", frame, capsule)
 		if (kill) then
@@ -527,7 +527,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 	
-	local OnShow = function (frame)
+	local OnShow = function(frame)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnShow", frame, capsule)
 		if (kill) then
@@ -535,7 +535,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 
-	local OnMouseDown = function (frame, button)
+	local OnMouseDown = function(frame, button)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnMouseDown", frame, button, capsule)
 		if (kill) then
@@ -550,7 +550,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 
-	local OnMouseUp = function (frame, button)
+	local OnMouseUp = function(frame, button)
 		local capsule = frame.MyObject
 		local kill = capsule:RunHooksForWidget ("OnMouseUp", frame, button, capsule)
 		if (kill) then
@@ -602,7 +602,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		end
 	end
 
-	local OnUpdate = function (self, elapsed)
+	local OnUpdate = function(self, elapsed)
 		--> percent of elapsed
 		local pct = abs (self.end_timer - GetTime() - self.tempo) / self.tempo
 
@@ -691,7 +691,7 @@ function DetailsFrameworkNormalBar_OnCreate (self)
 	return true
 end
 
-local build_statusbar = function (self)
+local build_statusbar = function(self)
 
 	self:SetSize (300, 14)
 	
@@ -808,7 +808,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 			local idx = getmetatable (BarObject.statusbar).__index
 			for funcName, funcAddress in pairs (idx) do 
 				if (not BarMetaFunctions [funcName]) then
-					BarMetaFunctions [funcName] = function (object, ...)
+					BarMetaFunctions [funcName] = function(object, ...)
 						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")
 						return x (...)
 					end

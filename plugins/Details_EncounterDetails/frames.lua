@@ -36,7 +36,7 @@ do
 		backdropbordercolor = {.9, .7, 0, 1},
 	}	
 	
-	local set_backdrop = function (frame)
+	local set_backdrop = function(frame)
 		frame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tileSize = 64, tile = true})
 		frame:SetBackdropColor (0, 0, 0, .2)
 		frame:SetBackdropBorderColor (0, 0, 0, 1)
@@ -46,14 +46,14 @@ do
 	local BGColorDefault_Hover = {0.5, 0.5, 0.5, 0.7}
 	local BackdropDefault = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}
 	
-_detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
+_detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 	
 	--> options panel
 	
-	EncounterDetails.SetBarBackdrop_OnEnter = function (self)
+	EncounterDetails.SetBarBackdrop_OnEnter = function(self)
 		self:SetBackdropColor (unpack (BGColorDefault_Hover))
 	end
-	EncounterDetails.SetBarBackdrop_OnLeave = function (self)
+	EncounterDetails.SetBarBackdrop_OnLeave = function(self)
 		self:SetBackdropColor (unpack (BGColorDefault))
 	end
 	
@@ -84,7 +84,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		-- 4 = always show
 		-- 5 = automatic show when have at least 1 encounter with boss
 		
-		local set = function (_, _, value) 
+		local set = function(_, _, value) 
 			EncounterDetails.db.show_icon = value 
 			if (value == 1) then
 				if (EncounterDetails:GetZoneType() == "raid") then
@@ -131,14 +131,14 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			{
 				type = "toggle",
 				get = function() return EncounterDetails.db.hide_on_combat end,
-				set = function (self, fixedparam, value) EncounterDetails.db.hide_on_combat = value end,
+				set = function(self, fixedparam, value) EncounterDetails.db.hide_on_combat = value end,
 				desc = "Encounter Breakdown window automatically close when you enter in combat.",
 				name = "Hide on Combat"
 			},
 			{
 				type = "range",
 				get = function() return EncounterDetails.db.max_emote_segments end,
-				set = function (self, fixedparam, value) EncounterDetails.db.max_emote_segments = value end,
+				set = function(self, fixedparam, value) EncounterDetails.db.max_emote_segments = value end,
 				min = 1,
 				max = 10,
 				step = 1,
@@ -149,7 +149,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			{
 				type = "range",
 				get = function() return EncounterDetails.db.window_scale end,
-				set = function (self, fixedparam, value) EncounterDetails.db.window_scale = value; EncounterDetails:RefreshScale() end,
+				set = function(self, fixedparam, value) EncounterDetails.db.window_scale = value; EncounterDetails:RefreshScale() end,
 				min = 0.65,
 				max = 1.50,
 				step = 0.1,
@@ -499,7 +499,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 					vRowFrame:SetHeight (43)
 					vRowFrame:SetFrameLevel (g:GetFrameLevel()+2)
 					
-					vRowFrame:SetScript ("OnEnter", function (frame) 
+					vRowFrame:SetScript ("OnEnter", function(frame) 
 						
 						if (vRowFrame.dead[1] and vRowFrame.dead[1][3] and vRowFrame.dead[1][3][2]) then
 						
@@ -519,7 +519,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 							for i = #death[1], 1, -1 do
 								local this_hit = death[1][i]
 								if (type (this_hit[1]) == "boolean" and this_hit[1]) then
-									local spellname, _, spellicon = _GetSpellInfo (this_hit[2])
+									local spellname, _, spellicon = _GetSpellInfo(this_hit[2])
 									local t = death [2] - this_hit [4]
 									GameCooltip:AddLine ("-" .. _cstr ("%.1f", t) .. " " .. spellname .. " (" .. this_hit[6] .. ")", EncounterDetails:comma_value (this_hit [3]))
 									GameCooltip:AddIcon (spellicon, 1, 1, 12, 12, 0.1, 0.9, 0.1, 0.9)
@@ -538,7 +538,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 						end
 					end)
 					
-					vRowFrame:SetScript ("OnLeave", function (frame) 
+					vRowFrame:SetScript ("OnLeave", function(frame) 
 						_detalhes.popup:ShowMe (false)
 					end)
 
@@ -701,7 +701,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 				t:Hide()
 				tinsert (spark_container, t)
 			end
-			local get_spark = function (index)
+			local get_spark = function(index)
 				local spark = spark_container [index]
 				if (not spark) then
 					create_spark()
@@ -716,7 +716,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 				end
 			end
 		
-			local phase_on_enter = function (self)
+			local phase_on_enter = function(self)
 
 				local spark1 = get_spark (1)
 				local spark2 = get_spark (2)
@@ -830,7 +830,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 				end
 				
 			end
-			local phase_on_leave = function (self)
+			local phase_on_leave = function(self)
 				table.wipe (self.damage_actors)
 				table.wipe (self.heal_actors)
 				
@@ -843,11 +843,11 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 				phase_panel:Hide()
 			end
 			
-			local phase_on_click = function (self, button)
+			local phase_on_click = function(self, button)
 				if (button == "LeftButton") then
 				
 					local result = {}
-					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+					local reportFunc = function(IsCurrent, IsReverse, AmtLines)
 						AmtLines = AmtLines + 1
 						if (#result > AmtLines) then
 							for i = #result, AmtLines+1, -1 do
@@ -867,7 +867,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 				elseif (button == "RightButton") then
 					
 					local result = {}
-					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+					local reportFunc = function(IsCurrent, IsReverse, AmtLines)
 						AmtLines = AmtLines + 1
 						if (#result > AmtLines) then
 							for i = #result, AmtLines+1, -1 do
@@ -1103,7 +1103,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	----
 	
 	BossFrame:SetScript ("OnMouseDown", 
-					function (self, botao)
+					function(self, botao)
 						if (botao == "LeftButton") then
 							self:StartMoving()
 							self.isMoving = true
@@ -1113,7 +1113,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 					end)
 					
 	BossFrame:SetScript ("OnMouseUp", 
-					function (self)
+					function(self)
 						if (self.isMoving) then
 							self:StopMovingOrSizing()
 							self.isMoving = false
@@ -1204,7 +1204,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		BossFrame.buttonSwitchBossEmotes:SetTemplate (DetailsFrameWork:GetTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 	end
 
-	BossFrame.switch = function (to, _, to2)
+	BossFrame.switch = function(to, _, to2)
 		if (type (to) == "string") then
 			to = to
 		elseif (type (to2) == "string") then
@@ -1433,7 +1433,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	
 	local CONST_EMOTES_MAX_LINES = 32
 	
-	local refresh_emotes = function (self)
+	local refresh_emotes = function(self)
 		--update emote scroll
 		
 		local offset = FauxScrollFrame_GetOffset (self)
@@ -1512,17 +1512,17 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	tinsert (BossFrame.EmoteWidgets, bar_div_emotes)
 	
 	scrollframe = CreateFrame ("ScrollFrame", "EncounterDetails_EmoteScroll", BossFrame, "FauxScrollFrameTemplate, BackdropTemplate")
-	scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_emotes) end)
+	scrollframe:SetScript ("OnVerticalScroll", function(self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_emotes) end)
 	scrollframe:SetPoint ("topleft", BossFrame, "topleft", 249, -75)
 	scrollframe:SetPoint ("bottomright", BossFrame, "bottomright", -33, 42)
 	scrollframe.Update = refresh_emotes
 	scrollframe:Hide()
-	_detalhes.gump:ReskinSlider (scrollframe, 3)
+	_detalhes.gump:ReskinSlider(scrollframe, 3)
 	
 	--
 	tinsert (BossFrame.EmoteWidgets, scrollframe)
 
-	local row_on_enter = function (self)
+	local row_on_enter = function(self)
 		self:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
 		self:SetBackdropColor (1, 1, 1, .6)
 		if (self.righttext:IsTruncated()) then
@@ -1532,13 +1532,13 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			GameCooltip:Show()
 		end
 	end
-	local row_on_leave = function (self)
+	local row_on_leave = function(self)
 		self:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
 		self:SetBackdropColor (1, 1, 1, .3)
 		GameCooltip:Hide()
 	end
 	
-	local row_on_mouse_up = function (self)
+	local row_on_mouse_up = function(self)
 		--report
 		local text = self.righttext:GetText()
 		local time = self.lefttext:GetText()
@@ -1552,7 +1552,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 			-- replace links
 			for _, spellid in text:gmatch ("(|Hspell:)(.-)(|h)") do
 				local spell = tonumber (spellid)
-				local link = GetSpellLink (spell)
+				local link = GetSpellLink(spell)
 				text = text:gsub ("(|Hspell).*(|h)", link)
 			end
 			-- remove unit links
@@ -1605,7 +1605,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	local emotes_segment_label = DetailsFrameWork:CreateLabel (BossFrame, "Segment:", 11, nil, "GameFontHighlightSmall")
 	emotes_segment_label:SetPoint ("topleft", BossFrame, "topleft", 10, -85)
 	
-	local on_emote_Segment_select = function (_, _, segment)
+	local on_emote_Segment_select = function(_, _, segment)
 		FauxScrollFrame_SetOffset (scrollframe, 0)
 		emote_segment = segment
 		scrollframe:Update()
@@ -1679,7 +1679,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	
 	-- report button
 	local report_emote_button = DetailsFrameWork:NewButton (BossFrame, nil, "$parentReportEmoteButton", "ReportEmoteButton", 180, 20, function()
-		local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+		local reportFunc = function(IsCurrent, IsReverse, AmtLines)
 			local segment = EncounterDetails.charsaved.emotes and EncounterDetails.charsaved.emotes [emote_segment]
 
 			if (segment) then
@@ -1702,7 +1702,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 						-- replace links
 						for _, spellid in text:gmatch ("(|Hspell:)(.-)(|h)") do
 							local spell = tonumber (spellid)
-							local link = GetSpellLink (spell)
+							local link = GetSpellLink(spell)
 							text = text:gsub ("(|Hspell).*(|h)", link)
 						end
 						-- remove unit links
@@ -1761,15 +1761,15 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	local spell_blocks = {}
 	local bossmods_blocks = {}
 	
-	local on_focus_gain = function (self)
+	local on_focus_gain = function(self)
 		self:HighlightText()
 	end
 	
-	local on_focus_lost = function (self)
+	local on_focus_lost = function(self)
 		self:HighlightText (0, 0)
 	end
 	
-	local on_enter_spell = function (self)
+	local on_enter_spell = function(self)
 		if (self.MyObject._spellid) then
 			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 
@@ -1790,17 +1790,17 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		end
 	end
 	
-	local on_leave_spell = function (self, capsule)
+	local on_leave_spell = function(self, capsule)
 		GameTooltip:Hide()
 		self:SetBackdropColor (.3, .3, .3, .5)
 	end
 	
-	local create_aura_func = function (self, button, spellid, encounter_id)
+	local create_aura_func = function(self, button, spellid, encounter_id)
 		local name, _, icon = EncounterDetails.getspellinfo (spellid)
 		EncounterDetails:OpenAuraPanel (spellid, name, self and self.MyObject._icon.texture, encounter_id)
 	end
 	
-	local info_onenter = function (self)
+	local info_onenter = function(self)
 		local spellid = self._spellid
 		
 		local info = EncounterDetails.EnemySpellPool [spellid]
@@ -1823,7 +1823,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 
 		self:SetBackdropColor (1, 1, 1, .5)
 	end
-	local info_onleave = function (self)
+	local info_onleave = function(self)
 		GameCooltip:Hide()
 		self:SetBackdropColor (.3, .3, .3, .5)
 	end
@@ -2055,7 +2055,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 		end
 	end
 
-	local refresh_spellauras = function (self)
+	local refresh_spellauras = function(self)
 		
 		local pool = EncounterDetails_SpellAurasScroll.spell_pool
 		local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
@@ -2098,7 +2098,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 	end
 	
 	local spell_scrollframe = CreateFrame ("ScrollFrame", "EncounterDetails_SpellAurasScroll", BossFrame, "FauxScrollFrameTemplate, BackdropTemplate")
-	spell_scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_spellauras) end)
+	spell_scrollframe:SetScript ("OnVerticalScroll", function(self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_spellauras) end)
 	spell_scrollframe:SetPoint ("topleft", BossFrame, "topleft", 200, -75)
 	spell_scrollframe:SetPoint ("bottomright", BossFrame, "bottomright", -33, 42)
 	spell_scrollframe.Update = refresh_spellauras
@@ -2111,7 +2111,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 
 
 	local bossmods_scrollframe = CreateFrame ("ScrollFrame", "EncounterDetails_BossModsScroll", BossFrame, "FauxScrollFrameTemplate, BackdropTemplate")
-	bossmods_scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll(self, offset, 14, refresh_bossmods_timers) end)
+	bossmods_scrollframe:SetScript ("OnVerticalScroll", function(self, offset) FauxScrollFrame_OnVerticalScroll(self, offset, 14, refresh_bossmods_timers) end)
 	bossmods_scrollframe:SetPoint ("topleft", BossFrame, "topleft", 10, -75)
 	bossmods_scrollframe:SetPoint ("bottomleft", BossFrame, "bottomleft", 250, 42)
 	bossmods_scrollframe.Update = refresh_bossmods_timers
@@ -2141,7 +2141,7 @@ _detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
 							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = C_EncounterJournal.GetSectionInfo (abs (int_spell))
 							tinsert (t, {label = title, value = {timer_table [2], title, timer_table [5] or abilityIcon, timer_table.id}, icon = timer_table [5] or abilityIcon, onclick = on_select_bw_bar})
 						else
-							local spellname, _, spellicon = _GetSpellInfo (int_spell)
+							local spellname, _, spellicon = _GetSpellInfo(int_spell)
 							tinsert (t, {label = spellname, value = {timer_table [2], spellname, timer_table [5] or spellicon, timer_table.id}, icon = timer_table [5] or spellicon, onclick = on_select_bw_bar})
 						end
 						
@@ -2193,7 +2193,7 @@ function PhaseFrame:ClearAll()
 	PhaseFrame:ClearPhaseBars()
 end
 
-local selectSegment = function (_, _, phaseSelected)
+local selectSegment = function(_, _, phaseSelected)
 	PhaseFrame ["OnSelectPhase"] (phaseSelected)
 end
 
@@ -2263,9 +2263,9 @@ local DamageLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Damage Done")
 local HealLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Healing Done")
 local PhaseTimersLabel = _detalhes.gump:CreateLabel (PhaseFrame, "Time Spent on Each Phase")
 
-local report_damage = function (IsCurrent, IsReverse, AmtLines)
+local report_damage = function(IsCurrent, IsReverse, AmtLines)
 	local result = {}
-	local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+	local reportFunc = function(IsCurrent, IsReverse, AmtLines)
 		AmtLines = AmtLines + 1
 		if (#result > AmtLines) then
 			for i = #result, AmtLines+1, -1 do
@@ -2290,7 +2290,7 @@ Report_DamageButton.textsize = 9
 
 local report_healing = function()
 	local result = {}
-	local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+	local reportFunc = function(IsCurrent, IsReverse, AmtLines)
 		AmtLines = AmtLines + 1
 		if (#result > AmtLines) then
 			for i = #result, AmtLines+1, -1 do
@@ -2325,7 +2325,7 @@ for i = 1, 10 do
 	tinsert (PhaseFrame.PhaseButtons, button)
 end
 
-local ScrollRefresh = function (self, data, offset, total_lines)
+local ScrollRefresh = function(self, data, offset, total_lines)
 	local formatToK = Details:GetCurrentToKFunction()
 	local removeRealm = _detalhes.GetOnlyName
 	
@@ -2353,15 +2353,15 @@ local ScrollRefresh = function (self, data, offset, total_lines)
 	end
 end
 
-local line_onenter = function (self)
+local line_onenter = function(self)
 	self:SetBackdropColor (unpack (BGColorDefault_Hover))
 end
 
-local line_onleave = function (self)
+local line_onleave = function(self)
 	self:SetBackdropColor (unpack (BGColorDefault))
 end
 
-local ScrollCreateLine = function (self, index)
+local ScrollCreateLine = function(self, index)
 	local line = CreateFrame ("button", "$parentLine" .. index, self,"BackdropTemplate")
 	line:SetPoint ("topleft", self, "topleft", 0, -((index-1)*(ScrollLineHeight+1)))
 	line:SetSize (ScrollWidth, ScrollLineHeight)
@@ -2406,8 +2406,8 @@ local Heal_Scroll = _detalhes.gump:CreateScrollBox (PhaseFrame, "$parentHealScro
 Damage_Scroll:SetPoint ("topleft", DamageLabel.widget, "bottomleft", 0, -4)
 Heal_Scroll:SetPoint ("topleft", HealLabel.widget, "bottomleft", 0, -4)
 
-_detalhes.gump:ReskinSlider (Damage_Scroll, 4)
-_detalhes.gump:ReskinSlider (Heal_Scroll, 4)
+_detalhes.gump:ReskinSlider(Damage_Scroll, 4)
+_detalhes.gump:ReskinSlider(Heal_Scroll, 4)
 
 for i = 1, ScrollLineAmount do 
 	Damage_Scroll:CreateLine (ScrollCreateLine)
@@ -2429,15 +2429,15 @@ Heal_Scroll:SetBackdropColor (0, 0, 0, .4)
 PhaseFrame.PhasesBars = {}
 PhaseFrame.PhasesSegmentCompare = {}
 
-local PhaseBarOnEnter = function (self)
+local PhaseBarOnEnter = function(self)
 	PhaseFrame:UpdateSegmentCompareBars (self.phase)
 	self:SetBackdropColor (unpack (BGColorDefault_Hover))
 end
-local PhaseBarOnLeave = function (self)
+local PhaseBarOnLeave = function(self)
 	PhaseFrame:ClearSegmentCompareBars()
 	self:SetBackdropColor (unpack (BGColorDefault))
 end
-local PhaseBarOnClick = function (self)
+local PhaseBarOnClick = function(self)
 	--report
 end
 
@@ -2532,7 +2532,7 @@ function PhaseFrame:GetPhaseTimers (segment, ordered)
 		for phase, _ in pairs (t) do
 			tinsert (order, phase)
 		end
-		table.sort (order, function (a, b) return a < b end)
+		table.sort (order, function(a, b) return a < b end)
 		return order, t
 	end
 	
@@ -2613,7 +2613,7 @@ end
 	
 	--> Selecionar o segmento
 	
-		local buildSegmentosMenu = function (self)
+		local buildSegmentosMenu = function(self)
 			local historico = _detalhes.tabela_historico.tabelas
 			local return_table = {}
 			
@@ -2715,7 +2715,7 @@ end
 		container_damagetaken_window.slider:cimaPoint (0, 1)
 		container_damagetaken_window.slider:baixoPoint (0, -1)
 		container_damagetaken_frame.slider = container_damagetaken_window.slider
-		_detalhes.gump:ReskinSlider (container_damagetaken_window)
+		_detalhes.gump:ReskinSlider(container_damagetaken_window)
 		
 		container_damagetaken_window.gump = container_damagetaken_frame
 		container_damagetaken_frame.window = container_damagetaken_window
@@ -2768,7 +2768,7 @@ end
 		container_habilidades_window.slider:cimaPoint (0, 1)
 		container_habilidades_window.slider:baixoPoint (0, -1)
 		container_habilidades_frame.slider = container_habilidades_window.slider
-		_detalhes.gump:ReskinSlider (container_habilidades_window)
+		_detalhes.gump:ReskinSlider(container_habilidades_window)
 		
 		container_habilidades_window.gump = container_habilidades_frame
 		container_habilidades_frame.window = container_habilidades_window
@@ -2814,7 +2814,7 @@ end
 		container_adds_window.slider:cimaPoint (0, 1)
 		container_adds_window.slider:baixoPoint (0, -1)
 		container_adds_frame.slider = container_adds_window.slider
-		_detalhes.gump:ReskinSlider (container_adds_window)
+		_detalhes.gump:ReskinSlider(container_adds_window)
 		
 		container_adds_window.gump = container_adds_frame
 		container_adds_frame.window = container_adds_window
@@ -2859,7 +2859,7 @@ end
 		container_interrupt_window.slider:cimaPoint (0, 1)
 		container_interrupt_window.slider:baixoPoint (0, -1)
 		container_interrupt_frame.slider = container_interrupt_window.slider
-		_detalhes.gump:ReskinSlider (container_interrupt_window)
+		_detalhes.gump:ReskinSlider(container_interrupt_window)
 		
 		
 		container_interrupt_window.gump = container_interrupt_frame
@@ -2905,7 +2905,7 @@ end
 		container_dispell_window.slider:cimaPoint (0, 1)
 		container_dispell_window.slider:baixoPoint (0, -1)
 		container_dispell_frame.slider = container_dispell_window.slider
-		_detalhes.gump:ReskinSlider (container_dispell_window)
+		_detalhes.gump:ReskinSlider(container_dispell_window)
 
 		container_dispell_window.gump = container_dispell_frame
 		container_dispell_frame.window = container_dispell_window
@@ -2955,7 +2955,7 @@ end
 		container_dead_window.slider:cimaPoint (0, 1)
 		container_dead_window.slider:baixoPoint (0, -1)
 		container_dead_frame.slider = container_dead_window.slider
-		_detalhes.gump:ReskinSlider (container_dead_window)
+		_detalhes.gump:ReskinSlider(container_dead_window)
 		
 		container_dead_window.gump = container_dead_frame
 		container_dead_frame.window = container_dead_window
@@ -2983,7 +2983,7 @@ end
 		["CHAT_MSG_MONSTER_YELL"] = 7,
 	}
 	
-	emote_frame:SetScript ("OnEvent", function (...)
+	emote_frame:SetScript ("OnEvent", function(...)
 	
 		if (not EncounterDetails.current_whisper_table) then
 			return

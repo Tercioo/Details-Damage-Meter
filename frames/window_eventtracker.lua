@@ -26,7 +26,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 		local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
 		
 		--> frame strata options
-			local set_frame_strata = function (_, _, strata)
+			local set_frame_strata = function(_, _, strata)
 				Details.event_tracker.frame.strata = strata
 				Details:UpdateEventTrackerFrame()
 			end
@@ -38,7 +38,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			strataTable [5] = {value = "DIALOG", label = "DIALOG", onclick = set_frame_strata}
 		
 		--> font options
-			local set_font_shadow= function (_, _, shadow)
+			local set_font_shadow= function(_, _, shadow)
 				Details.event_tracker.font_shadow = shadow
 				Details:UpdateEventTrackerFrame()
 			end
@@ -47,13 +47,13 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			fontShadowTable [2] = {value = "OUTLINE", label = "Outline", onclick = set_font_shadow}
 			fontShadowTable [3] = {value = "THICKOUTLINE", label = "Thick Outline", onclick = set_font_shadow}
 			
-			local on_select_text_font = function (self, fixed_value, value)
+			local on_select_text_font = function(self, fixed_value, value)
 				Details.event_tracker.font_face = value
 				Details:UpdateEventTrackerFrame()
 			end
 		
 		--> texture options
-			local set_bar_texture = function (_, _, value) 
+			local set_bar_texture = function(_, _, value) 
 				Details.event_tracker.line_texture = value
 				Details:UpdateEventTrackerFrame()
 			end
@@ -64,7 +64,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			for name, texturePath in pairs (textures) do 
 				texTable [#texTable + 1] = {value = name, label = name, statusbar = texturePath, onclick = set_bar_texture}
 			end
-			table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+			table.sort (texTable, function(t1, t2) return t1.label < t2.label end)
 		
 		--> options table
 		local options = {
@@ -74,7 +74,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.event_tracker.enabled end,
-				set = function (self, fixedparam, value)
+				set = function(self, fixedparam, value)
 					Details.event_tracker.enabled = not Details.event_tracker.enabled
 					Details:LoadFramesForBroadcastTools()
 				end,
@@ -86,7 +86,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.event_tracker.frame.locked end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.event_tracker.frame.locked = not Details.event_tracker.frame.locked
 					Details:UpdateEventTrackerFrame()
 				end,
@@ -98,7 +98,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.event_tracker.frame.show_title end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.event_tracker.frame.show_title = not Details.event_tracker.frame.show_title
 					Details:UpdateEventTrackerFrame()
 				end,
@@ -112,7 +112,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 				get = function() 
 					return {Details.event_tracker.frame.backdrop_color[1], Details.event_tracker.frame.backdrop_color[2], Details.event_tracker.frame.backdrop_color[3], Details.event_tracker.frame.backdrop_color[4]} 
 				end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local color = Details.event_tracker.frame.backdrop_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
 					Details:UpdateEventTrackerFrame()
@@ -134,7 +134,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			{
 				type = "range",
 				get = function() return Details.event_tracker.line_height end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.event_tracker.line_height = value
 					Details:UpdateEventTrackerFrame()
 				end,
@@ -157,7 +157,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 				get = function() 
 					return {Details.event_tracker.line_color[1], Details.event_tracker.line_color[2], Details.event_tracker.line_color[3], Details.event_tracker.line_color[4]} 
 				end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local color = Details.event_tracker.line_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
 					Details:UpdateEventTrackerFrame()
@@ -170,7 +170,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			{
 				type = "range",
 				get = function() return Details.event_tracker.font_size end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.event_tracker.font_size = value
 					Details:UpdateEventTrackerFrame()
 				end,
@@ -186,7 +186,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 				get = function() 
 					return {Details.event_tracker.font_color[1], Details.event_tracker.font_color[2], Details.event_tracker.font_color[3], Details.event_tracker.font_color[4]} 
 				end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local color = Details.event_tracker.font_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
 					Details:UpdateEventTrackerFrame()
@@ -264,13 +264,13 @@ function Details:CreateEventTrackerFrame(parent, name)
 	
 		local left_resize, right_resize = DF:CreateResizeGrips (f)
 		
-		left_resize:SetScript ("OnMouseDown", function (self)
+		left_resize:SetScript ("OnMouseDown", function(self)
 			if (not f.resizing and not _detalhes.event_tracker.frame.locked) then
 				f.resizing = true
 				f:StartSizing ("bottomleft")
 			end
 		end)
-		left_resize:SetScript ("OnMouseUp", function (self)
+		left_resize:SetScript ("OnMouseUp", function(self)
 			if (f.resizing) then
 				f.resizing = false
 				f:StopMovingOrSizing()
@@ -278,13 +278,13 @@ function Details:CreateEventTrackerFrame(parent, name)
 				_detalhes.event_tracker.frame.height = f:GetHeight()
 			end
 		end)
-		right_resize:SetScript ("OnMouseDown", function (self)
+		right_resize:SetScript ("OnMouseDown", function(self)
 			if (not f.resizing and not _detalhes.event_tracker.frame.locked) then
 				f.resizing = true
 				f:StartSizing ("bottomright")
 			end
 		end)
-		right_resize:SetScript ("OnMouseUp", function (self) 
+		right_resize:SetScript ("OnMouseUp", function(self) 
 			if (f.resizing) then
 				f.resizing = false
 				f:StopMovingOrSizing()
@@ -293,7 +293,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			end
 		end)
 		
-		f:SetScript ("OnSizeChanged", function (self)
+		f:SetScript ("OnSizeChanged", function(self)
 			
 		end)
 	
@@ -306,7 +306,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		local header_size = 20
 		
 		--> on tick script
-		local lineOnTick = function (self, deltaTime)
+		local lineOnTick = function(self, deltaTime)
 			--> when this event occured on combat log
 			local gameTime = self.GameTime
 			
@@ -331,7 +331,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		end
 		
 		--> create a line on the scroll frame
-		local scroll_createline = function (self, index)
+		local scroll_createline = function(self, index)
 		
 			local line = CreateFrame ("frame", "$parentLine" .. index, self,"BackdropTemplate")
 			line:EnableMouse (false)
@@ -412,7 +412,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		local ABILITYTABLE_ISENEMY = 9
 		local ABILITYTABLE_TARGETSERIAL = 10
 		
-		local get_spec_or_class = function (serial, name)
+		local get_spec_or_class = function(serial, name)
 			local class
 			local spec = _detalhes.cached_specs [serial]
 			if (not spec) then
@@ -430,7 +430,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			return spec, class
 		end
 		
-		local get_player_icon = function (spec, class)
+		local get_player_icon = function(spec, class)
 			if (spec) then
 				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack (_detalhes.class_specs_coords [spec])
 			elseif (class) then
@@ -440,7 +440,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			end
 		end
 		
-		local add_role_and_class_color = function (player_name, player_serial)
+		local add_role_and_class_color = function(player_name, player_serial)
 		
 			--> get the actor object
 			local actor = _detalhes.tabela_vigente[1]:GetActor (player_name)
@@ -492,7 +492,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			return availableSpace
 		end
 		
-		local shrink_string = function (fontstring, size)
+		local shrink_string = function(fontstring, size)
 			local text = fontstring:GetText()
 			local loops = 20
 			while (fontstring:GetStringWidth() > size and loops > 0) do
@@ -505,7 +505,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		end
 		
 		--refresh the scroll frame
-		local scroll_refresh = function (self, data, offset, total_lines)
+		local scroll_refresh = function(self, data, offset, total_lines)
 		
 			local textSize = get_text_size()
 		
@@ -529,7 +529,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 					end
 					
 					if (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_COOLDOWN) then
-						local spellName, _, spellIcon = GetSpellInfo (ability [ABILITYTABLE_SPELLID])
+						local spellName, _, spellIcon = GetSpellInfo(ability [ABILITYTABLE_SPELLID])
 						line.RightIcon:SetTexture (spellIcon)
 						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
 						
@@ -545,7 +545,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 						line.ActionIcon:SetTexCoord (0, 0.125, 0, 1)
 						
 					elseif (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_OFFENSIVE) then
-						local spellName, _, spellIcon = GetSpellInfo (ability [ABILITYTABLE_SPELLID])
+						local spellName, _, spellIcon = GetSpellInfo(ability [ABILITYTABLE_SPELLID])
 						line.RightIcon:SetTexture (spellIcon)
 						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
 						line.RightText:SetText (spellName)
@@ -554,7 +554,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 						line.ActionIcon:SetTexCoord (0.127, 0.25, 0, 1)
 
 					elseif (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_INTERRUPT) then
-						local spellNameInterrupted, _, spellIconInterrupted = GetSpellInfo (ability [ABILITYTABLE_EXTRASPELLID])
+						local spellNameInterrupted, _, spellIconInterrupted = GetSpellInfo(ability [ABILITYTABLE_EXTRASPELLID])
 						line.RightIcon:SetTexture (spellIconInterrupted)
 						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
 						line.RightText:SetText (spellNameInterrupted)
@@ -563,7 +563,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 						line.ActionIcon:SetTexCoord (0.251, 0.375, 0, 1)
 						
 					elseif (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_CROWDCONTROL) then
-						local spellName, _, spellIcon = GetSpellInfo (ability [ABILITYTABLE_SPELLID])
+						local spellName, _, spellIcon = GetSpellInfo(ability [ABILITYTABLE_SPELLID])
 						line.RightIcon:SetTexture (spellIcon)
 						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
 
@@ -612,7 +612,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		scrollframe:SetPoint ("bottomright", f, "bottomright", 0, 0)
 		
 		--> update line - used by 'UpdateWorldTrackerLines' function
-		local update_line = function (line)
+		local update_line = function(line)
 			
 			--> get the line index
 			local index = line.Index
@@ -730,20 +730,20 @@ function Details:CreateEventTrackerFrame(parent, name)
 		local OBJECT_TYPE_ENEMY = 0x00000040
 		
 		--> combat parser
-		local is_player = function (flag)
+		local is_player = function(flag)
 			if (not flag) then
 				return false
 			end
 			return bit.band (flag, OBJECT_TYPE_PLAYER) ~= 0
 		end
-		local is_enemy = function (flag)
+		local is_enemy = function(flag)
 			if (not flag) then
 				return false
 			end
 			return bit.band (flag, OBJECT_TYPE_ENEMY) ~= 0
 		end
 		
-		combatLog:SetScript ("OnEvent", function (self, event)
+		combatLog:SetScript ("OnEvent", function(self, event)
 			
 			local time, token, hidding, caster_serial, caster_name, caster_flags, caster_flags2, target_serial, target_name, target_flags, target_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool = CombatLogGetCurrentEventInfo()
 			local added = false

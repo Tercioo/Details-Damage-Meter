@@ -140,7 +140,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 		end
 	end)
 
-	new_button:SetScript ("OnMouseUp", function (self, button)
+	new_button:SetScript ("OnMouseUp", function(self, button)
 		if (not self:IsEnabled()) then
 			return
 		end
@@ -324,7 +324,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 		end
 	end
 
-	local EnterPress = function (byScript) 
+	local EnterPress = function(byScript) 
 	
 		if (editbox.EnterHook) then 
 			editbox.EnterHook()
@@ -444,13 +444,13 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 		end
 	end)
 	
-	editbox:SetScript ("OnChar", function (self, text) 
+	editbox:SetScript ("OnChar", function(self, text) 
 		if (editbox.InputHook) then 
 			editbox:InputHook (text)
 		end
 	end)
 	
-	editbox:SetScript ("OnTextChanged", function (self, userChanged)
+	editbox:SetScript ("OnTextChanged", function(self, userChanged)
 		if (editbox.TextChangeedHook and userChanged) then 
 			editbox:TextChangeedHook (userChanged)
 		end
@@ -463,13 +463,13 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 		end
 	end)
 	
-	editbox.SetNext = function (_, NextBox)
+	editbox.SetNext = function(_, NextBox)
 		if (NextBox) then
 			editbox.next = NextBox
 		end
 	end
 	
-	editbox.SetLabel = function (_, Label)
+	editbox.SetLabel = function(_, Label)
 		if (Label) then
 			editbox.label = Label
 			editbox.label:SetTextColor (.8, .8, .8, 1)
@@ -608,14 +608,14 @@ function gump:NewScrollBar2 (master, slave, x, y)
 		self:SetScript ("OnUpdate", nil)
 	end)
 	--> isso aqui pra quando o slider ativar, o scroll fica na  posi��o zero
-	botao_cima:SetScript ("OnEnable", function (self)
+	botao_cima:SetScript ("OnEnable", function(self)
 		local current = slider_gump:GetValue()
 		if (current == 0) then
 			botao_cima:Disable()
 		end
 	end)
 
-	slider_gump:SetScript ("OnValueChanged", function (self)
+	slider_gump:SetScript ("OnValueChanged", function(self)
 		local current = self:GetValue()
 		master:SetVerticalScroll (current)
 		
@@ -635,22 +635,22 @@ function gump:NewScrollBar2 (master, slave, x, y)
 
 	end)
 
-	slider_gump:SetScript ("OnShow", function (self)
+	slider_gump:SetScript ("OnShow", function(self)
 		botao_cima:Show()
 		botao_baixo:Show()
 	end)
 	
-	slider_gump:SetScript ("OnDisable", function (self)
+	slider_gump:SetScript ("OnDisable", function(self)
 		botao_cima:Disable()
 		botao_baixo:Disable()
 	end)
 	
-	slider_gump:SetScript ("OnEnable", function (self)
+	slider_gump:SetScript ("OnEnable", function(self)
 		botao_cima:Enable()
 		botao_baixo:Enable()
 	end)
 	
-	master:SetScript ("OnMouseWheel", function (self, delta)
+	master:SetScript ("OnMouseWheel", function(self, delta)
 		if (not slider_gump:IsEnabled()) then
 			return
 		end

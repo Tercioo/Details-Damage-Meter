@@ -336,7 +336,7 @@
 	end
 
 	--> get the fractional number representing the alphabetical letter
-	function _detalhes:GetOrderNumber (who_name)
+	function _detalhes:GetOrderNumber(who_name)
 		--local name = upper (who_name .. "zz")
 		--local byte1 = _math_abs (_string_byte (name, 2)-91)/1000000
 		--return byte1 + _math_abs (_string_byte (name, 1)-91)/10000
@@ -727,10 +727,10 @@
 	local arguments_cache = {}
 	local parameters_cache = {}
 	
-	local replace_arg = function (i)
+	local replace_arg = function(i)
 		return arguments_cache [tonumber(i)]
 	end
-	local run_function = function (str)
+	local run_function = function(str)
 		--> cache functions
 		local func, errortext = function_cache [str]
 		if (not func) then
@@ -1330,7 +1330,7 @@ end
 	end
 	
 	--> work around to solve the UI Frame Flashes
-	local onFinish = function (self)
+	local onFinish = function(self)
 		if (self.showWhenDone) then
 			self.frame:SetAlpha (1)
 		else
@@ -1343,12 +1343,12 @@ end
 		end
 	end
 	
-	local stop = function (self)
+	local stop = function(self)
 		local FlashAnimation = self.FlashAnimation
 		FlashAnimation:Stop()
 	end
 
-	local flash = function (self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime, loopType)
+	local flash = function(self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime, loopType)
 		
 		local FlashAnimation = self.FlashAnimation
 		
@@ -1407,7 +1407,7 @@ end
 	
 
 	
-	local fade_OUT_finished_func = function (frame)
+	local fade_OUT_finished_func = function(frame)
 		if (frame:IsShown() and frame.fading_out) then
 			frame.hidden = false
 			frame.faded = false
@@ -1417,17 +1417,17 @@ end
 		end
 	end
 	
-	local just_fade_func = function (frame)
+	local just_fade_func = function(frame)
 		frame.hidden = false
 		frame.faded = true
 		frame.fading_in = false
 	end
 	
-	local anim_OUT_alpha_func = function (frame)
+	local anim_OUT_alpha_func = function(frame)
 		frame.fading_out = false
 	end
 
-	local anim_IN_alpha_func = function (frame)
+	local anim_IN_alpha_func = function(frame)
 		frame.fading_in = false
 	end
 

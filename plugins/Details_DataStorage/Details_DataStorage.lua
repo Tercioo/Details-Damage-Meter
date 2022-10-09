@@ -17,7 +17,7 @@ local f = CreateFrame ("frame", nil, UIParent)
 f:Hide()
 f:RegisterEvent ("ADDON_LOADED")
 
-f:SetScript ("OnEvent", function (self, event, addonName)
+f:SetScript ("OnEvent", function(self, event, addonName)
 
 	if (addonName == "Details_DataStorage") then
 	

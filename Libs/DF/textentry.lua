@@ -285,7 +285,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 ------------------------------------------------------------------------------------------------------------
 --> scripts and hooks
 
-	local OnEnter = function (textentry)
+	local OnEnter = function(textentry)
 		local capsule = textentry.MyObject
 		
 		local kill = capsule:RunHooksForWidget ("OnEnter", textentry, capsule)
@@ -307,7 +307,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 	end
 	
-	local OnLeave = function (textentry)
+	local OnLeave = function(textentry)
 		local capsule = textentry.MyObject
 	
 		local kill = capsule:RunHooksForWidget ("OnLeave", textentry, capsule)
@@ -326,7 +326,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 	end
 	
-	local OnHide = function (textentry)
+	local OnHide = function(textentry)
 		local capsule = textentry.MyObject
 		
 		local kill = capsule:RunHooksForWidget ("OnHide", textentry, capsule)
@@ -335,7 +335,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 	end
 	
-	local OnShow = function (textentry)
+	local OnShow = function(textentry)
 		local capsule = textentry.MyObject
 		
 		local kill = capsule:RunHooksForWidget ("OnShow", textentry, capsule)
@@ -377,7 +377,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 	end
 	
-	local OnEscapePressed = function (textentry)
+	local OnEscapePressed = function(textentry)
 		local capsule = textentry.MyObject
 	
 		local kill = capsule:RunHooksForWidget ("OnEscapePressed", textentry, capsule, capsule.text)
@@ -451,7 +451,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 	end
 	
-	local OnTextChanged = function (textentry, byUser) 
+	local OnTextChanged = function(textentry, byUser) 
 		local capsule = textentry.MyObject
 		
 		local kill = capsule:RunHooksForWidget ("OnTextChanged", textentry, byUser, capsule)
@@ -460,7 +460,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 	end
 	
-	local OnTabPressed = function (textentry) 
+	local OnTabPressed = function(textentry) 
 	
 		local capsule = textentry.MyObject
 	
@@ -582,7 +582,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 		local idx = getmetatable (TextEntryObject.editbox).__index
 		for funcName, funcAddress in pairs (idx) do 
 			if (not TextEntryMetaFunctions [funcName]) then
-				TextEntryMetaFunctions [funcName] = function (object, ...)
+				TextEntryMetaFunctions [funcName] = function(object, ...)
 					local x = loadstring ( "return _G['"..object.editbox:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
@@ -688,16 +688,16 @@ function DF:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
 	return editbox	
 end
 
-local function_gettext = function (self)
+local function_gettext = function(self)
 	return self.editbox:GetText()
 end
-local function_settext = function (self, text)
+local function_settext = function(self, text)
 	return self.editbox:SetText (text)
 end
-local function_clearfocus = function (self)
+local function_clearfocus = function(self)
 	return self.editbox:ClearFocus()
 end
-local function_setfocus = function (self)
+local function_setfocus = function(self)
 	return self.editbox:SetFocus (true)
 end
 
@@ -812,7 +812,7 @@ local function ColorSelection ( self, ColorCode )
 end
 -- end of the block ---------------------
 
-local get_last_word = function (self)
+local get_last_word = function(self)
 	self.lastword = ""
 	local cursor_pos = self.editbox:GetCursorPosition()
 	local text = self.editbox:GetText()
@@ -828,7 +828,7 @@ local get_last_word = function (self)
 end
 
 --On Text Changed
-local AutoComplete_OnTextChanged = function (editboxWidget, byUser, capsule)
+local AutoComplete_OnTextChanged = function(editboxWidget, byUser, capsule)
 	capsule = capsule or editboxWidget.MyObject or editboxWidget
 	
 	local chars_now = editboxWidget:GetText():len()
@@ -848,7 +848,7 @@ local AutoComplete_OnTextChanged = function (editboxWidget, byUser, capsule)
 	capsule.characters_count = chars_now
 end
 
-local AutoComplete_OnSpacePressed = function (editboxWidget, capsule)
+local AutoComplete_OnSpacePressed = function(editboxWidget, capsule)
 	capsule = capsule or editboxWidget.MyObject or editboxWidget
 
 --	if (not gotMatch) then
@@ -856,11 +856,11 @@ local AutoComplete_OnSpacePressed = function (editboxWidget, capsule)
 --	end
 end
 
-local AutoComplete_OnEscapePressed = function (editboxWidget)
+local AutoComplete_OnEscapePressed = function(editboxWidget)
 	editboxWidget.end_selection = nil
 end
 
-local AutoComplete_OnEnterPressed = function (editboxWidget)
+local AutoComplete_OnEnterPressed = function(editboxWidget)
 
 	local capsule = editboxWidget.MyObject or editboxWidget
 	if (editboxWidget.end_selection) then
@@ -886,7 +886,7 @@ local AutoComplete_OnEnterPressed = function (editboxWidget)
 
 end
 
-local AutoComplete_OnEditFocusGained = function (editboxWidget)
+local AutoComplete_OnEditFocusGained = function(editboxWidget)
 	local capsule = editboxWidget.MyObject or editboxWidget
 	capsule:GetLastWord()
 	--print ("last word:", editboxWidget.lastword)
@@ -895,7 +895,7 @@ local AutoComplete_OnEditFocusGained = function (editboxWidget)
 	capsule.characters_count = editboxWidget:GetText():len()	
 end
 
-local OptimizeAutoCompleteTable = function (self, wordList)
+local OptimizeAutoCompleteTable = function(self, wordList)
 	local optimizedTable = {}
 	
 	local lower = string.lower
@@ -926,7 +926,7 @@ local OptimizeAutoCompleteTable = function (self, wordList)
 	wordList.Optimized = optimizedTable
 end
 
-local AutoComplete_OnChar = function (editboxWidget, char, capsule)
+local AutoComplete_OnChar = function(editboxWidget, char, capsule)
 	if (char == "") then
 		return
 	end
@@ -1110,7 +1110,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 		scrollframe:SetPoint ("bottomright", borderframe, "bottomright", -10, 10)
 
 		--when the lua code field scrolls, make the lua field scroll too
-		scrollframe:SetScript ("OnVerticalScroll", function (self, offset)
+		scrollframe:SetScript ("OnVerticalScroll", function(self, offset)
 			scrollframeNumberLines:SetVerticalScroll(scrollframe:GetVerticalScroll())
 			scrollframeNumberLines.ScrollBar:Hide()
 		end)
@@ -1122,7 +1122,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 		scrollframeNumberLines.editbox:SetJustifyH ("left")
 		scrollframeNumberLines.editbox:SetJustifyV ("top")
 
-		scrollframeNumberLines:SetScript ("OnSizeChanged", function (self)
+		scrollframeNumberLines:SetScript ("OnSizeChanged", function(self)
 			scrollframeNumberLines.editbox:SetSize (self:GetSize())
 			scrollframeNumberLines.ScrollBar:Hide()
 		end)
@@ -1149,7 +1149,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 
 	borderframe.SetAsAutoComplete = TextEntryMetaFunctions.SetAsAutoComplete
 	
-	scrollframe:SetScript ("OnSizeChanged", function (self)
+	scrollframe:SetScript ("OnSizeChanged", function(self)
 		scrollframe.editbox:SetSize (self:GetSize())
 	end)
 	

@@ -171,7 +171,7 @@
 			custom_window:SetSize (850, 500)
 			custom_window:EnableMouse (true)
 			custom_window:SetMovable (true)
-			custom_window:SetScript ("OnMouseDown", function (self, button)
+			custom_window:SetScript ("OnMouseDown", function(self, button)
 				if (button == "LeftButton") then
 					if (not self.moving) then
 						self.moving = true
@@ -183,7 +183,7 @@
 					end
 				end
 			end)
-			custom_window:SetScript ("OnMouseUp", function (self)
+			custom_window:SetScript ("OnMouseUp", function(self)
 				if (self.moving) then
 					self.moving = false
 					self:StopMovingOrSizing()
@@ -742,10 +742,10 @@
 			local menu_up_frame = _CreateFrame ("frame", nil, custom_window)
 			menu_up_frame:SetFrameLevel (custom_window:GetFrameLevel()+2)
 			
-			local onenter = function (self)
+			local onenter = function(self)
 				--self.icontexture:SetVertexColor (1, 1, 1, 1)
 			end
-			local onleave = function (self)
+			local onleave = function(self)
 				--self.icontexture:SetVertexColor (.9, .9, .9, 1)
 			end
 			
@@ -768,7 +768,7 @@
 				custom_window.menu [index] = {circle = circle, icon = texture, button = button}
 			end
 			
-			local build_menu = function (self, button, func, param2)
+			local build_menu = function(self, button, func, param2)
 				GameCooltip:Reset()
 				
 				for index, custom_object in _ipairs (_detalhes.custom) do
@@ -792,21 +792,21 @@
 			end
 			
 			--> edit button
-			local start_edit = function (_, _, custom_object, index)
+			local start_edit = function(_, _, custom_object, index)
 				GameCooltip:Hide()
 				DetailsCustomPanel:StartEdit (custom_object)
 			end
 			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EDIT"], "Interface\\ICONS\\INV_Inscription_RunescrollOfFortitude_Red", build_menu, start_edit, nil, nil, "Edit", {0.07, 0.93, 0.07, 0.93})
 			
 			--> remove button
-			local remove_display = function (_, _, custom_object, index)
+			local remove_display = function(_, _, custom_object, index)
 				GameCooltip:Hide()
 				DetailsCustomPanel:RemoveDisplay (custom_object, index)
 			end
 			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_REMOVE"], "Interface\\ICONS\\Spell_BrokenHeart", build_menu, remove_display, nil, nil, "Remove", {1, 0, 0, 1})
 			
 			--> export button
-			local export_display = function (_, _, custom_object, index)
+			local export_display = function(_, _, custom_object, index)
 				GameCooltip:Hide()
 
 				local export_object = {}
@@ -863,7 +863,7 @@
 			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EXPORT"], "Interface\\ICONS\\INV_Misc_Gift_01", build_menu, export_display, nil, nil, "Export", {0.00, 0.9, 0.07, 0.93}) --> localize
 
 			--> import buttonRaceChange
-			local import_display = function (_, _, custom_object, index)
+			local import_display = function(_, _, custom_object, index)
 				GameCooltip:Hide()
 				
 				if (not custom_window.ImportBox) then
@@ -951,11 +951,11 @@
 			attribute_box:SetSize (180, 260)
 			attribute_box:Hide()
 			
-			local button_onenter = function (self)
+			local button_onenter = function(self)
 				self:SetBackdropColor (.3, .3, .3, .3)
 				self.icon:SetBlendMode ("ADD")
 			end
-			local button_onleave = function (self)
+			local button_onleave = function(self)
 				self:SetBackdropColor (0, 0, 0, .2)
 				self.icon:SetBlendMode ("BLEND")
 			end
@@ -1064,7 +1064,7 @@
 				local icon_label = gump:NewLabel (box0, box0, "$parenIconLabel", "icon", Loc ["STRING_CUSTOM_ICON"], "GameFontHighlightLeft") --> localize-me
 				icon_label:SetPoint ("topleft", desc_label, "bottomleft", 0, -12)
 				
-				local pickicon_callback = function (texture)
+				local pickicon_callback = function(texture)
 					box0.icontexture:SetTexture (texture)
 					
 				end
@@ -1166,7 +1166,7 @@
 					modelFrameBackground:Hide()
 					modelFrameBackgroundIcon:Hide()
 					
-					local selectedEncounterActor = function (actorName, model)
+					local selectedEncounterActor = function(actorName, model)
 						source_field:SetText (actorName)
 						source_dropdown:Select (4, true)
 						box1.sourceentry:Enable()
@@ -1176,7 +1176,7 @@
 					
 					local actorsFrameButtons = {}
 
-					local buttonMouseOver = function (button)
+					local buttonMouseOver = function(button)
 						button.MyObject.image:SetBlendMode ("ADD")
 						button.MyObject.line:SetBlendMode ("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
@@ -1192,7 +1192,7 @@
 						
 						modelFrame:SetDisplayInfo (button.MyObject.model)
 					end
-					local buttonMouseOut = function (button)
+					local buttonMouseOut = function(button)
 						button.MyObject.image:SetBlendMode ("BLEND")
 						button.MyObject.line:SetBlendMode ("BLEND")
 						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
@@ -1200,7 +1200,7 @@
 						modelFrame:Hide()
 					end
 					
-					local EncounterSelect = function (_, _, instanceId, bossIndex, ej_id)
+					local EncounterSelect = function(_, _, instanceId, bossIndex, ej_id)
 						
 						DetailsCustomSpellsFrame:Hide()
 						DetailsCustomActorsFrame:Hide()
@@ -1374,7 +1374,7 @@
 					local modelFrameTexture = modelFrame:CreateTexture (nil, "background")
 					modelFrameTexture:SetAllPoints()
 					
-					local selectedEncounterActor = function (actorName)
+					local selectedEncounterActor = function(actorName)
 						target_field:SetText (actorName)
 						target_dropdown:Select (4, true)
 						box1.targetentry:Enable()
@@ -1384,7 +1384,7 @@
 					
 					local actorsFrameButtons = {}
 
-					local buttonMouseOver = function (button)
+					local buttonMouseOver = function(button)
 						button.MyObject.image:SetBlendMode ("ADD")
 						button.MyObject.line:SetBlendMode ("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
@@ -1400,7 +1400,7 @@
 						
 						modelFrame:SetDisplayInfo (button.MyObject.model)
 					end
-					local buttonMouseOut = function (button)
+					local buttonMouseOut = function(button)
 						button.MyObject.image:SetBlendMode ("BLEND")
 						button.MyObject.line:SetBlendMode ("BLEND")
 						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
@@ -1409,7 +1409,7 @@
 						modelFrame:Hide()
 					end
 					
-					local EncounterSelect = function (_, _, instanceId, bossIndex, ej_id)
+					local EncounterSelect = function(_, _, instanceId, bossIndex, ej_id)
 						
 						DetailsCustomSpellsFrame:Hide()
 						DetailsCustomActorsFrame:Show()
@@ -1549,8 +1549,8 @@
 					spellsFrame:SetPoint ("topleft", custom_window, "topright", 5, 0)
 					spellsFrame:Hide()
 					
-					local selectedEncounterSpell = function (spellId)
-						local _, _, icon = _GetSpellInfo (spellId)
+					local selectedEncounterSpell = function(spellId)
+						local _, _, icon = _GetSpellInfo(spellId)
 						spellid_entry:SetText (spellId)
 						box0.icontexture:SetTexture (icon)
 						spellsFrame:Hide()
@@ -1559,7 +1559,7 @@
 					
 					local spellsFrameButtons = {}
 
-					local buttonMouseOver = function (button)
+					local buttonMouseOver = function(button)
 						button.MyObject.image:SetBlendMode ("ADD")
 						button.MyObject.line:SetBlendMode ("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
@@ -1568,14 +1568,14 @@
 						_detalhes:GameTooltipSetSpellByID (button.MyObject.spellid)
 						GameTooltip:Show()
 					end
-					local buttonMouseOut = function (button)
+					local buttonMouseOut = function(button)
 						button.MyObject.image:SetBlendMode ("BLEND")
 						button.MyObject.line:SetBlendMode ("BLEND")
 						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
 						GameTooltip:Hide()
 					end
 					
-					local EncounterSelect = function (_, _, instanceId, bossIndex)
+					local EncounterSelect = function(_, _, instanceId, bossIndex)
 						
 						DetailsCustomSpellsFrame:Show()
 						DetailsCustomActorsFrame:Hide()
@@ -1626,7 +1626,7 @@
 								x = x + 100
 							end
 							
-							local nome_magia, _, icone_magia = _GetSpellInfo (spell)
+							local nome_magia, _, icone_magia = _GetSpellInfo(spell)
 							thisButton.image:SetTexture (icone_magia)
 							thisButton.label:SetText (nome_magia)
 							thisButton:SetClickFunction (selectedEncounterSpell, spell)
@@ -1774,7 +1774,7 @@
 					end
 				end
 				
-				local font_change = function (_, _, increase)
+				local font_change = function(_, _, increase)
 					if (increase) then
 						local file, size, flags = code_editor.editbox:GetFont()
 						code_editor.font_size = code_editor.font_size + 1

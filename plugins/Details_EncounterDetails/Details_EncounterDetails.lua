@@ -52,7 +52,7 @@ local class_type_misc = _detalhes.atributos.misc --> misc
 --> main combat object
 local _combat_object
 
-local sort_by_name = function (t1, t2) return t1.nome < t2.nome end
+local sort_by_name = function(t1, t2) return t1.nome < t2.nome end
 
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
@@ -132,7 +132,7 @@ local function CreatePluginFrames (data)
 				EncounterDetails:WasEncounter()
 			end
 			
-			local damage_done_func = function (support_table, time_table, tick_second)
+			local damage_done_func = function(support_table, time_table, tick_second)
 				local current_total_damage = _detalhes.tabela_vigente.totals_grupo[1]
 				local current_damage = current_total_damage - support_table.last_damage
 				time_table [tick_second] = current_damage
@@ -273,7 +273,7 @@ local function CreatePluginFrames (data)
 		local current_table_bigwigs = {}
 	
 		local event_frame = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
-		event_frame:SetScript ("OnEvent", function (self, event, ...)
+		event_frame:SetScript ("OnEvent", function(self, event, ...)
 			if (event == "ENCOUNTER_START") then
 				local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
 				current_encounter = encounterID
@@ -316,7 +316,7 @@ local function CreatePluginFrames (data)
 		
 		--EncounterDetails.DBM_timers
 		if (_G.DBM) then
-			local dbm_timer_callback = function (bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
+			local dbm_timer_callback = function(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
 				--print (bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
 				local spell = tostring (spellId)
 				if (spell and not current_table_dbm [spell]) then
@@ -591,7 +591,7 @@ local function CreatePluginFrames (data)
 	
 end
 
-local sort_damage_from = function (a, b) 
+local sort_damage_from = function(a, b) 
 	if (a[3] ~= "PET" and b[3] ~= "PET") then 
 		return a[2] > b[2] 
 	elseif (a[3] == "PET" and b[3] ~= "PET") then
@@ -638,7 +638,7 @@ end
 			end
 			
 			local evtype = event [1]
-			local spellname, _, spellicon = _GetSpellInfo (event [2])
+			local spellname, _, spellicon = _GetSpellInfo(event [2])
 			local amount = event [3]
 			local time = event [4]
 			local source = event [6]
@@ -714,7 +714,7 @@ end
 		GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 		
 		if (battleress) then
-			local nome_magia, _, icone_magia = _GetSpellInfo (battleress [2])
+			local nome_magia, _, icone_magia = _GetSpellInfo(battleress [2])
 			GameCooltip:AddLine ("+" .. _cstr ("%.1f", battleress[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. battleress[6] .. ")", "", 1, "white")
 			GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
 			GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
@@ -722,7 +722,7 @@ end
 		
 		if (lastcooldown) then
 			if (lastcooldown[3] == 1) then 
-				local nome_magia, _, icone_magia = _GetSpellInfo (lastcooldown [2])
+				local nome_magia, _, icone_magia = _GetSpellInfo(lastcooldown [2])
 				GameCooltip:AddLine (_cstr ("%.1f", lastcooldown[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
 				GameCooltip:AddIcon (icone_magia)
 			else
@@ -776,10 +776,10 @@ local function DispellInfo (dispell, barra)
 		end
 	end
 	
-	local spellname = GetSpellInfo (barra.spellid)
+	local spellname = GetSpellInfo(barra.spellid)
 	if (spellname) then
 		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
-		GameTooltip:SetSpellByID (barra.spellid)
+		GameTooltip:SetSpellByID(barra.spellid)
 		GameTooltip:SetPoint ("topright", GameCooltipFrame1, "topleft", -2, 0)
 		GameTooltip:Show()
 	end
@@ -798,7 +798,7 @@ local function KickBy (magia, barra)
 	
 	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
-	local spellName, _, spellIcon = GetSpellInfo (barra.lineText1:GetText())
+	local spellName, _, spellIcon = GetSpellInfo(barra.lineText1:GetText())
 	GameCooltip:AddLine (barra.lineText1:GetText())
 	if (spellIcon) then
 		GameCooltip:AddIcon (spellIcon, nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, 5/64, 59/64, 5/64, 59/64)
@@ -819,10 +819,10 @@ local function KickBy (magia, barra)
 		GameCooltip:AddStatusBar (100, 1, .3, .3, .3, .3, false, false, false)
 	end
 	
-	local spellname = GetSpellInfo (barra.spellid)
+	local spellname = GetSpellInfo(barra.spellid)
 	if (spellname) then
 		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
-		GameTooltip:SetSpellByID (barra.spellid)
+		GameTooltip:SetSpellByID(barra.spellid)
 		GameTooltip:SetPoint ("topright", GameCooltipFrame1, "topleft", -2, 0)
 		GameTooltip:Show()
 	end
@@ -878,10 +878,10 @@ local function EnemySkills (habilidade, barra)
 		end
 	end
 	
-	local spellname = GetSpellInfo (barra.spellid)
+	local spellname = GetSpellInfo(barra.spellid)
 	if (spellname) then
 		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
-		GameTooltip:SetSpellByID (barra.spellid)
+		GameTooltip:SetSpellByID(barra.spellid)
 		GameTooltip:SetPoint ("right", barra, "left", -2, 0)
 		GameTooltip:Show()
 	end
@@ -930,7 +930,7 @@ local function DamageTakenDetails (jogador, barra)
 	local topDamage = meus_agressores[1] and meus_agressores[1][2]
 	
 	for i = 1, max do
-		local nome_magia, _, icone_magia = _GetSpellInfo (meus_agressores[i][1])
+		local nome_magia, _, icone_magia = _GetSpellInfo(meus_agressores[i][1])
 		
 		if (meus_agressores[i][1] == 1) then 
 			nome_magia = "*"..meus_agressores[i][3]
@@ -1016,7 +1016,7 @@ local backdrop_bar_onleave = {bgFile = [[Interface\AddOns\Details\images\backgro
 
 function EncounterDetails:SetRowScripts (barra, index, container)
 
-	barra:SetScript ("OnMouseDown", function (self)
+	barra:SetScript ("OnMouseDown", function(self)
 		if (self.fading_in) then
 			return
 		end
@@ -1031,7 +1031,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 		
 	end)
 	
-	barra:SetScript ("OnMouseUp", function (self)
+	barra:SetScript ("OnMouseUp", function(self)
 
 		if (self.fading_in) then
 			return
@@ -1053,7 +1053,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 	end)
 	
 	barra:SetScript ("OnEnter", --> MOUSE OVER
-		function (self) 
+		function(self) 
 			--> aqui 1
 			if (container.fading_in or container.faded) then
 				return
@@ -1096,7 +1096,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 		end)
 	
 	barra:SetScript ("OnLeave", --> MOUSE OUT
-		function (self) 
+		function(self) 
 		
 			self:SetScript ("OnUpdate", nil)
 		
@@ -1525,7 +1525,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra.t:SetVertexColor (1, .8, .8, .8)
 				end
 				
-				local nome_magia, _, icone_magia = _GetSpellInfo (habilidade[4])
+				local nome_magia, _, icone_magia = _GetSpellInfo(habilidade[4])
 
 				barra.lineText1:SetText (nome_magia) --  .. " (|cFFa0a0a0" .. habilidade[4] .. "|r)
 				barra.lineText4:SetText (ToK (_, habilidade[1]))
@@ -1905,7 +1905,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			local spellid = tabela [3]
 			
-			local nome_magia, _, icone_magia = _GetSpellInfo (tabela [3])
+			local nome_magia, _, icone_magia = _GetSpellInfo(tabela [3])
 			local successful = 0
 			--> pegar quantas vezes a magia passou com sucesso.
 			for _, enemy_actor in _ipairs (DamageContainer._ActorTable) do
@@ -2017,7 +2017,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra:SetWidth (160)
 			end
 			
-			local nome_magia, _, icone_magia = _GetSpellInfo (tabela [3])
+			local nome_magia, _, icone_magia = _GetSpellInfo(tabela [3])
 			
 			barra.lineText1:SetText (nome_magia)
 			barra.lineText4:SetText (tabela [2])
@@ -2129,7 +2129,7 @@ local events_to_track = {
 }
 
 local enemy_spell_pool
-local CLEvents = function (self, event)
+local CLEvents = function(self, event)
 
 	local time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, school, aura_type = CombatLogGetCurrentEventInfo()
 

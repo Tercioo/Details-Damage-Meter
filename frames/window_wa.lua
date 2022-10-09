@@ -68,7 +68,7 @@ local text_dispell_prototype = {
         ["events"] = "COMBAT_LOG_EVENT_UNFILTERED, ENCOUNTER_START",
         ["use_spellName"] = false,
         ["use_spellId"] = false,
-        ["custom"] = "function (event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    if (event == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if ((token == \"SPELL_DISPEL\" or token == \"SPELL_STOLEN\") and extraSpellID == 159947) then\n            aura_env.dispelled = aura_env.dispelled + 1\n            aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1\n            \n            aura_env.text = aura_env.text .. \"|cffd2e8ff\" .. who_name ..  \" (\" .. aura_env.dispels_by [who_name] .. \") \".. \"|r\\n\"\n            \n            if (select (2, aura_env.text:gsub (\"\\n\", \"\")) == 9) then\n                aura_env.text = aura_env.text:gsub (\".-\\n\", \"\", 1)\n            end\n            return true\n        end        \n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.dispelled = 0\n        wipe (aura_env.dispels_by)\n        return true        \n    end\nend",
+        ["custom"] = "function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    if (event == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if ((token == \"SPELL_DISPEL\" or token == \"SPELL_STOLEN\") and extraSpellID == 159947) then\n            aura_env.dispelled = aura_env.dispelled + 1\n            aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1\n            \n            aura_env.text = aura_env.text .. \"|cffd2e8ff\" .. who_name ..  \" (\" .. aura_env.dispels_by [who_name] .. \") \".. \"|r\\n\"\n            \n            if (select (2, aura_env.text:gsub (\"\\n\", \"\")) == 9) then\n                aura_env.text = aura_env.text:gsub (\".-\\n\", \"\", 1)\n            end\n            return true\n        end        \n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.dispelled = 0\n        wipe (aura_env.dispels_by)\n        return true        \n    end\nend",
         ["spellIds"] = {
         },
         ["use_message"] = true,
@@ -176,7 +176,7 @@ local text_interrupt_prototype = {
         },
         ["use_spellName"] = false,
         ["use_spellId"] = false,
-        ["custom"] = "function (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    \n    if (evento == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if (token == \"SPELL_CAST_SUCCESS\" and spellid == 165416) then\n            aura_env.success = aura_env.success + 1\n            aura_env.text = aura_env.text .. \"SUCCESS! (\" .. aura_env.success .. \")\\n\"\n            \n            return true\n            \n        elseif (token == \"SPELL_INTERRUPT\" and extraSpellID == 165416) then\n            aura_env.interrupted = aura_env.interrupted + 1\n            aura_env.text = aura_env.text .. who_name ..  \" (\" .. aura_env.interrupted .. \") \".. \"\\n\"\n            return true\n        end\n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.interrupted = 0\n        return true        \n    end\n    \nend\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        ["custom"] = "function(evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    \n    if (evento == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if (token == \"SPELL_CAST_SUCCESS\" and spellid == 165416) then\n            aura_env.success = aura_env.success + 1\n            aura_env.text = aura_env.text .. \"SUCCESS! (\" .. aura_env.success .. \")\\n\"\n            \n            return true\n            \n        elseif (token == \"SPELL_INTERRUPT\" and extraSpellID == 165416) then\n            aura_env.interrupted = aura_env.interrupted + 1\n            aura_env.text = aura_env.text .. who_name ..  \" (\" .. aura_env.interrupted .. \") \".. \"\\n\"\n            return true\n        end\n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.interrupted = 0\n        return true        \n    end\n    \nend\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
         ["events"] = "COMBAT_LOG_EVENT_UNFILTERED, ENCOUNTER_START",
         ["use_message"] = true,
         ["unevent"] = "timed",
@@ -1457,7 +1457,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         new_aura = _detalhes.table.copy ({}, text_interrupt_prototype)
         
         new_aura.trigger.custom = [[
-            function (event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+            function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
                 if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
                     if (token == "SPELL_CAST_SUCCESS" and spellid == @spellid) then
                         aura_env.success = aura_env.success + 1
@@ -1502,7 +1502,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         new_aura = _detalhes.table.copy ({}, text_dispell_prototype)
         
         new_aura.trigger.custom = [[
-            function (event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+            function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
                 if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
                     if ((token == "SPELL_DISPEL" or token == "SPELL_STOLEN") and extraSpellID == @spellid) then
                         aura_env.dispelled = aura_env.dispelled + 1
@@ -1958,7 +1958,7 @@ local empty_other_values = {}
 function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, triggertype, auratype, other_values)
     
     if (not spellname) then
-        spellname = select (1, GetSpellInfo (spellid))
+        spellname = select (1, GetSpellInfo(spellid))
     end
 
     wipe (empty_other_values)
@@ -2008,7 +2008,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         LibWindow.MakeDraggable (f)
         LibWindow.SavePosition (f)
         
-        f:SetScript ("OnMouseDown", function (self, button)
+        f:SetScript ("OnMouseDown", function(self, button)
             if (button == "RightButton") then
                 f:Hide()
             end
@@ -2059,7 +2059,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         f.name = name_textentry
         
         --aura type
-        local on_select_aura_type = function (_, _, aura_type)
+        local on_select_aura_type = function(_, _, aura_type)
             if (f.UpdateLabels) then
                 f:UpdateLabels()
             end
@@ -2090,7 +2090,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local AuraTypeBorderColor = {.3, .3, .3, 0.5}
         local AuraTypeBorderSelectedColor = {1, 1, 1, 0.4}
         
-        local OnSelectAuraType = function (self, fixedParam, auraType, noUpdate)
+        local OnSelectAuraType = function(self, fixedParam, auraType, noUpdate)
         
             if (type (auraType) == "number") then
                 if (auraType == 1) then
@@ -2156,7 +2156,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         
         --trigger list
         --target
-        local on_select_aura_trigger = function (_, _, aura_trigger)
+        local on_select_aura_trigger = function(_, _, aura_trigger)
             if (f.UpdateLabels) then
                 f:UpdateLabels()
             end
@@ -2204,7 +2204,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             {name = "Spell Dispell", value = 42},
         }
         
-        local SetTriggerState = function (triggerID)
+        local SetTriggerState = function(triggerID)
             for i = 1, #triggerList do
                 triggerList[i].checkBox:SetValue (false)
                 if (triggerList[i].value == triggerID) then
@@ -2216,7 +2216,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         f.SetTriggerState = SetTriggerState
         f.TriggerList = triggerList
         
-        local OnChangeTriggerState = function (self, triggerID, state)
+        local OnChangeTriggerState = function(self, triggerID, state)
             SetTriggerState (triggerID)
             aura_on:SetValue (triggerID)
             
@@ -2276,7 +2276,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
 
         --aura icon
         local icon_label = fw:CreateLabel (f, "Icon: ", nil, nil, "GameFontNormal")
-        local icon_button_func = function (texture)
+        local icon_button_func = function(texture)
             f.IconButton.icon.texture = texture
         end
         local icon_pick_button = fw:NewButton (f, nil, "$parentIconButton", "IconButton", 20, 20, function() fw:IconPick (icon_button_func, true) end)
@@ -2305,7 +2305,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         stack_slider.tooltip = "Minimum amount of stacks to trigger the aura."
         
         --sound effect
-        local play_sound = function (self, fixedParam, file)
+        local play_sound = function(self, fixedParam, file)
             if (type (file) == "table") then
                 PlaySoundFile (file.sound_path, "Master")
             else
@@ -2313,10 +2313,10 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             end
         end
         
-        local sort = function (t1, t2)
+        local sort = function(t1, t2)
             return t1.name < t2.name
         end
-        local titlecase = function (first, rest)
+        local titlecase = function(first, rest)
             return first:upper()..rest:lower()
         end
         local iconsize = {14, 14}
@@ -2473,7 +2473,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local folder_texcoord = {435/512, 469/512, 189/512, 241/512}
         local folder_iconsize = {14, 14}
 
-        local sort_func = function (t1, t2) return t1.label < t2.label end
+        local sort_func = function(t1, t2) return t1.label < t2.label end
         
         local weakauras_folder_options = function()
             local t = {}

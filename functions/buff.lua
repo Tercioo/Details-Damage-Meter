@@ -48,7 +48,7 @@
 	--> register a new buff name
 	function _detalhes.Buffs:NewBuff (BuffName, BuffId)
 		if (not BuffName) then
-			BuffName = GetSpellInfo (BuffId)
+			BuffName = GetSpellInfo(BuffId)
 		end
 		if (_detalhes.Buffs.BuffsTable [BuffName]) then
 			return false

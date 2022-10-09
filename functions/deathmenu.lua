@@ -23,7 +23,7 @@ detailsOnDeathMenu.warningLabel.textcolor = "red"
 detailsOnDeathMenu.warningLabel:SetPoint ("bottomleft", detailsOnDeathMenu, "bottomleft", 5, 2)
 detailsOnDeathMenu.warningLabel:Hide()
 
-detailsOnDeathMenu:SetScript ("OnEvent", function (self, event, ...)
+detailsOnDeathMenu:SetScript ("OnEvent", function(self, event, ...)
 	if (event == "ENCOUNTER_END") then
 		C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
 	end
@@ -130,10 +130,10 @@ detailsOnDeathMenu.breakdownButton.CoolTip = {
 		end
 		
 	end, --> called when user mouse over the frame
-	OnEnterFunc = function (self) 
+	OnEnterFunc = function(self) 
 		detailsOnDeathMenu.button_mouse_over = true
 	end,
-	OnLeaveFunc = function (self) 
+	OnLeaveFunc = function(self) 
 		detailsOnDeathMenu.button_mouse_over = false
 	end,
 	FixedValue = "none",
@@ -171,10 +171,10 @@ detailsOnDeathMenu.enduranceButton.CoolTip = {
 		end
 
 	end, --> called when user mouse over the frame
-	OnEnterFunc = function (self) 
+	OnEnterFunc = function(self) 
 		detailsOnDeathMenu.button_mouse_over = true
 	end,
-	OnLeaveFunc = function (self) 
+	OnLeaveFunc = function(self) 
 		detailsOnDeathMenu.button_mouse_over = false
 	end,
 	FixedValue = "none",
@@ -203,10 +203,10 @@ detailsOnDeathMenu.spellsButton.CoolTip = {
 		GameCooltip2:AddLine ("Open your player Details! breakdown.")
 		
 	end, --> called when user mouse over the frame
-	OnEnterFunc = function (self) 
+	OnEnterFunc = function(self) 
 		detailsOnDeathMenu.button_mouse_over = true
 	end,
-	OnLeaveFunc = function (self) 
+	OnLeaveFunc = function(self) 
 		detailsOnDeathMenu.button_mouse_over = false
 	end,
 	FixedValue = "none",
@@ -289,7 +289,7 @@ function detailsOnDeathMenu.ShowPanel()
 	end
 end
 
-hooksecurefunc ("StaticPopup_Show", function (which, text_arg1, text_arg2, data, insertedFrame)
+hooksecurefunc ("StaticPopup_Show", function(which, text_arg1, text_arg2, data, insertedFrame)
 	if (which == "DEATH") then
 		if (detailsOnDeathMenu.Debug) then
 			C_Timer.After (0.5, detailsOnDeathMenu.ShowPanel)
@@ -297,7 +297,7 @@ hooksecurefunc ("StaticPopup_Show", function (which, text_arg1, text_arg2, data,
 	end
 end)
 
-hooksecurefunc ("StaticPopup_Hide", function (which, data)
+hooksecurefunc ("StaticPopup_Hide", function(which, data)
 	if (which == "DEATH") then
 		detailsOnDeathMenu:Hide()
 	end

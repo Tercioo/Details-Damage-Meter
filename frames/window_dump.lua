@@ -30,7 +30,7 @@ function Details:Dump (...)
 		text_editor.editbox:SetBackdrop (nil)
 		text_editor:SetBackdrop (nil)
 		
-		DetailsFramework:ReskinSlider (text_editor.scroll)
+		DetailsFramework:ReskinSlider(text_editor.scroll)
 		
 		if (not text_editor.__background) then
 			text_editor.__background = text_editor:CreateTexture (nil, "background")
@@ -95,7 +95,7 @@ function _detalhes:ShowImportWindow (defaultText, confirmFunc, titleText)
 		importTextEditor.editbox:SetBackdrop (nil)
 		importTextEditor:SetBackdrop (nil)
 		
-		DetailsFramework:ReskinSlider (importTextEditor.scroll)
+		DetailsFramework:ReskinSlider(importTextEditor.scroll)
 		
 		if (not importTextEditor.__background) then
 			importTextEditor.__background = importTextEditor:CreateTexture (nil, "background")

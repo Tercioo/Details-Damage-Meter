@@ -40,7 +40,7 @@ function Details:CreateAPI2Frame()
         local api = Details.API_Description.namespaces[1].api
         
         --on select api on the menu
-        local onSelectAPI = function (self)
+        local onSelectAPI = function(self)
             local apiName = apiFunctionNames [self.index]
             if (not apiName) then
                 Details:Msg ("API name not found:", apiName)
@@ -124,7 +124,7 @@ function Details:CreateAPI2Frame()
         end
         
         --menu scroll
-        local apiMenuScrollRefresh = function (self, data, offset, total_lines)
+        local apiMenuScrollRefresh = function(self, data, offset, total_lines)
             for i = 1, total_lines do
                 local index = i + offset
                 local apiName = data [index]
@@ -147,11 +147,11 @@ function Details:CreateAPI2Frame()
         end
         
         local api2ScrollMenu = DetailsFramework:CreateScrollBox (Api2Frame, "$parentApi2MenuScroll", apiMenuScrollRefresh, apiFunctionNames, scrollWidth, scrollHeight, lineAmount, lineHeight)
-        DetailsFramework:ReskinSlider (api2ScrollMenu)
+        DetailsFramework:ReskinSlider(api2ScrollMenu)
         api2ScrollMenu:SetPoint ("topleft", Api2Frame, "topleft", 10, yStart)
         Api2Frame.scrollMenu = api2ScrollMenu
         
-        local lineOnEnter = function (self)
+        local lineOnEnter = function(self)
             self:SetBackdropColor (unpack (backdropColorOnEnter))
             
             local apiName = apiFunctionNames [self.index]
@@ -171,7 +171,7 @@ function Details:CreateAPI2Frame()
             GameCooltip2:ShowCooltip()
         end
         
-        local lineOnLeave = function (self)
+        local lineOnLeave = function(self)
             if (currentSelected == self.index) then
                 self:SetBackdropColor (unpack (backdropColorSelected))
             else
@@ -183,7 +183,7 @@ function Details:CreateAPI2Frame()
         
         --create lines
         for i = 1, lineAmount do 
-            api2ScrollMenu:CreateLine (function (self, index)
+            api2ScrollMenu:CreateLine (function(self, index)
                 local line = CreateFrame ("button", "$parentLine" .. index, self, "BackdropTemplate")
                 line:SetPoint ("topleft", self, "topleft", 1, -((index-1)*(lineHeight+1)) - 1)
                 line:SetSize (scrollWidth - 2, lineHeight)
@@ -245,7 +245,7 @@ function Details:CreateAPI2Frame()
             parametersHeader.required:SetPoint ("left", parametersHeader, "left", space2, 0)
             parametersHeader.default:SetPoint ("left", parametersHeader, "left", space3, 0)
             
-            local parameterOnEnter = function (self) 
+            local parameterOnEnter = function(self) 
                 GameCooltip2:Preset(2)
                 GameCooltip2:SetOwner (self)
                 
@@ -259,7 +259,7 @@ function Details:CreateAPI2Frame()
                 
                 self:SetBackdropColor (unpack (backdropColorOnEnter))
             end
-            local parameterOnLeave = function (self) 
+            local parameterOnLeave = function(self) 
                 GameCooltip2:Hide()
                 self:SetBackdropColor (unpack (backdropColor))
             end
@@ -307,10 +307,10 @@ function Details:CreateAPI2Frame()
             returnHeader.name:SetPoint ("left", returnHeader, "left", 2, 0)
             returnHeader.typeData:SetPoint ("left", returnHeader, "left", space1, 0)
 
-            local returnOnEnter = function (self) 
+            local returnOnEnter = function(self) 
                 self:SetBackdropColor (unpack (backdropColorOnEnter))
             end
-            local returnOnLeave = function (self) 
+            local returnOnLeave = function(self) 
                 self:SetBackdropColor (unpack (backdropColor))
             end
             

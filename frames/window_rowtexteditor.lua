@@ -37,7 +37,7 @@ local textentry = DF:NewSpecialLuaEditorEntry (panel, scrollWidth, 555, "editbox
 textentry:SetPoint ("topleft", panel, "topleft", 10, y)
 DF:ApplyStandardBackdrop (textentry)
 DF:SetFontSize (textentry.editbox, 14)
-DF:ReskinSlider (textentry.scroll)
+DF:ReskinSlider(textentry.scroll)
 
 local arg1_button = DF:NewButton (panel, nil, "$parentButton1", nil, 80, 20, function() textentry.editbox:Insert ("{data1}") end, nil, nil, nil, string.format (Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "1"), 1)
 local arg2_button = DF:NewButton (panel, nil, "$parentButton2", nil, 80, 20, function() textentry.editbox:Insert ("{data2}") end, nil, nil, nil, string.format (Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "2"), 1)
@@ -157,7 +157,7 @@ local function ColorSelection ( self, ColorCode )
     self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
 end
 
-local color_func = function (_, r, g, b, a)
+local color_func = function(_, r, g, b, a)
     local hex = Details:hex (a*255)..Details:hex (r*255)..Details:hex (g*255)..Details:hex (b*255)
     ColorSelection ( textentry.editbox, "|c" .. hex)
 end

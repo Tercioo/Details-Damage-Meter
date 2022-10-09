@@ -52,7 +52,7 @@
 
 	function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spellName)
 
-		--print (self.id, GetSpellInfo (self.id))
+		--print (self.id, GetSpellInfo(self.id))
 	
 		if (spellID == "BUFF_OR_DEBUFF") then
 			

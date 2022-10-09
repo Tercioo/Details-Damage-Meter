@@ -263,7 +263,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         --> report results
             function f.BuildReport()
                 if (f.LatestResourceTable) then
-                    local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+                    local reportFunc = function(IsCurrent, IsReverse, AmtLines)
                         local bossName = f.select_boss.label:GetText()
                         local bossDiff = f.select_diff.label:GetText()
                         local guildName = f.select_guild.label:GetText()
@@ -363,7 +363,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         end
 
         --> select raid:
-            local onRaidSelect = function (_, _, raid)
+            local onRaidSelect = function(_, _, raid)
                 Details.rank_window.last_raid = raid
                 f:UpdateDropdowns (true)
                 on_select()
@@ -376,7 +376,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             raid_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select boss:
-            local on_boss_select = function (_, _, boss)
+            local on_boss_select = function(_, _, boss)
                 on_select()
             end
             local build_boss_list = function()
@@ -387,7 +387,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             boss_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select difficulty:
-            local on_diff_select = function (_, _, diff)
+            local on_diff_select = function(_, _, diff)
                 Details.rank_window.last_difficulty = diff
                 on_select()
             end
@@ -400,7 +400,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             diff_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select role:
-            local on_role_select = function (_, _, role)
+            local on_role_select = function(_, _, role)
                 on_select()
             end
             local build_role_list = function()
@@ -414,7 +414,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             role_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select guild:
-            local on_guild_select = function (_, _, guild)
+            local on_guild_select = function(_, _, guild)
                 on_select()
             end
             local build_guild_list = function()
@@ -425,7 +425,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             guild_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select playerbase:
-            local on_player_select = function (_, _, player)
+            local on_player_select = function(_, _, player)
                 on_select()
             end
             local build_player_list = function()
@@ -439,7 +439,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             player_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --> select player:
-            local onPlayer2Select = function (_, _, player)
+            local onPlayer2Select = function(_, _, player)
                 f.latest_player_selected = player
                 f:BuildPlayerTable (player)
             end
@@ -551,7 +551,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end
             end
             
-            table.sort (bossList, function (t1, t2) return t1.label < t2.label end)
+            table.sort (bossList, function(t1, t2) return t1.label < t2.label end)
             
             
             diff_dropdown:Refresh()
@@ -632,7 +632,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end
             end
             
-            table.sort (bossList, function (t1, t2) return t1.label < t2.label end)
+            table.sort (bossList, function(t1, t2) return t1.label < t2.label end)
             boss_dropdown:Refresh()
         end
         
@@ -690,7 +690,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 --> update graphic
                 if (not f.gframe) then
                     
-                    local onenter = function (self)
+                    local onenter = function(self)
                         GameCooltip:Reset()
                         GameCooltip:SetType ("tooltip")
                         GameCooltip:Preset (2)
@@ -703,7 +703,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         GameCooltip:SetOwner (self.ball.tooltip_anchor)
                         GameCooltip:Show()
                     end
-                    local onleave = function (self)
+                    local onleave = function(self)
                         GameCooltip:Hide()
                     end
                     f.gframe = DF:CreateGFrame (f, 650, 400, 35, onenter, onleave, "gframe", "$parentGF")
@@ -795,7 +795,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 t [1] = i .. ". " .. t [1]
             end
             
-            fillpanel:SetFillFunction (function (index) return sortTable [index] end)
+            fillpanel:SetFillFunction (function(index) return sortTable [index] end)
             fillpanel:SetTotalFunction (function() return #sortTable end)
             fillpanel:UpdateRows (header)
             fillpanel:Refresh()
@@ -870,7 +870,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end
             end
             
-            fillpanel:SetFillFunction (function (index) return players [index] end)
+            fillpanel:SetFillFunction (function(index) return players [index] end)
             fillpanel:SetTotalFunction (function() return #players end)
             
             fillpanel:UpdateRows (header)

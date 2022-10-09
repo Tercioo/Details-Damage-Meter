@@ -50,7 +50,7 @@
 
 	local temp_table = {}
 	
-	local target_func = function (main_table)
+	local target_func = function(main_table)
 		local i = 1
 		for name, amount in _pairs (main_table) do
 			local t = temp_table [i]
@@ -66,7 +66,7 @@
 		end
 	end
 	
-	local spells_used_func = function (main_table, target)
+	local spells_used_func = function(main_table, target)
 		local i = 1
 		for spellid, spell_table in _pairs (main_table) do
 			local target_amount = spell_table.targets [target]
@@ -127,7 +127,7 @@
 				
 				return
 			else
-				local name, _, icon = _GetSpellInfo (spellid)
+				local name, _, icon = _GetSpellInfo(spellid)
 				GameCooltip:AddLine (name)
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				
@@ -186,7 +186,7 @@
 						break
 					end
 					
-					local name, _, icon = _GetSpellInfo (t[1])
+					local name, _, icon = _GetSpellInfo(t[1])
 					GameCooltip:AddLine (name, FormatTooltipNumber (_, t[2]))
 					GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				end

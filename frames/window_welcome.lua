@@ -141,7 +141,7 @@ function _detalhes:OpenWelcomeWindow()
 		local f = CreateFrame ("frame")
 		local got = false
 		
-		f:SetScript ("OnUpdate", function (self, elapsed)
+		f:SetScript ("OnUpdate", function(self, elapsed)
 			if (not got and not InCombatLockdown()) then
 				local r = math.random
 				for i = 1, 2500000 do 
@@ -295,7 +295,7 @@ local window_openned_at = time()
 		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
 
 		--skin
-			local onSelectSkin = function (_, _, skin_name)
+			local onSelectSkin = function(_, _, skin_name)
 				local instance1 = _detalhes:GetInstance (1)
 				if (instance1 and instance1:IsEnabled()) then
 					instance1:ChangeSkin (skin_name)
@@ -340,7 +340,7 @@ local window_openned_at = time()
 			local allAlphabetCheckBoxes = {}
 			local allAlphabetLabels = {}
 		
-			local onSelectAlphabet = function (self, fixedParameter, value)
+			local onSelectAlphabet = function(self, fixedParameter, value)
 			
 				if (not value) then
 					self:SetValue (true)
@@ -488,7 +488,7 @@ local window_openned_at = time()
 		local buttonWidth = 160
 			
 		-- create second window button
-			local new_window = function (self)
+			local new_window = function(self)
 				if (#_detalhes.tabela_instancias == 1) then
 					local newwindow = _detalhes:CreateInstance (true)
 					newwindow.baseframe:SetPoint ("topleft", _detalhes.tabela_instancias[1].baseframe, "topright", 50, 0)
@@ -510,7 +510,7 @@ local window_openned_at = time()
 		
 		-- window color
 			window.editing_window = nil
-			local windowcolor_callback = function (button, r, g, b, a)
+			local windowcolor_callback = function(button, r, g, b, a)
 				local instance = window.editing_window
 			
 				if (instance.menu_alpha.enabled and a ~= instance.color[4]) then
@@ -562,7 +562,7 @@ local window_openned_at = time()
 			window.BarHeightSlider:SetPoint ("left", window.BarHeightLabel, "right", 2, 0)
 			window.BarHeightSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
-			window.BarHeightSlider:SetHook ("OnValueChange", function (self, _, amount) 
+			window.BarHeightSlider:SetHook ("OnValueChange", function(self, _, amount) 
 				local instance1 = Details:GetInstance (1)
 				local instance2 = Details:GetInstance (2)
 				
@@ -582,7 +582,7 @@ local window_openned_at = time()
 			window.TextSizeSlider:SetPoint ("left", window.TextSizeLabel, "right", 2, 0)
 			window.TextSizeSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
-			window.TextSizeSlider:SetHook ("OnValueChange", function (self, _, amount) 
+			window.TextSizeSlider:SetHook ("OnValueChange", function(self, _, amount) 
 				local instance1 = Details:GetInstance (1)
 				local instance2 = Details:GetInstance (2)
 				
@@ -595,7 +595,7 @@ local window_openned_at = time()
 			end)
 
 		--font
-			local onSelectFont = function (_, instance, fontName)
+			local onSelectFont = function(_, instance, fontName)
 				local instance1 = Details:GetInstance (1)
 				local instance2 = Details:GetInstance (2)
 				
@@ -613,7 +613,7 @@ local window_openned_at = time()
 				for name, fontPath in pairs (fontObjects) do 
 					fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
 				end
-				table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
+				table.sort (fontTable, function(t1, t2) return t1.label < t2.label end)
 				return fontTable 
 			end
 			
@@ -633,7 +633,7 @@ local window_openned_at = time()
 			window.ShowPercentCheckBox:SetFixedParameter (1)
 			window.ShowPercentCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			
-			window.ShowPercentCheckBox.OnSwitch = function (self, fixedParameter, value)
+			window.ShowPercentCheckBox.OnSwitch = function(self, fixedParameter, value)
 				local instance1 = Details:GetInstance (1)
 				local instance2 = Details:GetInstance (2)
 				
@@ -995,7 +995,7 @@ local window_openned_at = time()
 		window.updatespeedSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 		window.updatespeedSlider:SetThumbSize (50)
 		window.updatespeedSlider.useDecimals = true
-		local updateColor = function (slider, value)
+		local updateColor = function(slider, value)
 			if (value < 1) then
 				slider.amt:SetTextColor (1, value, 0)
 			elseif (value > 1) then
@@ -1005,7 +1005,7 @@ local window_openned_at = time()
 			end
 		end
 
-		window.updatespeedSlider:SetHook("OnValueChange", function (self, _, amount)
+		window.updatespeedSlider:SetHook("OnValueChange", function(self, _, amount)
 			Details:SetWindowUpdateSpeed(amount)
 			updateColor(self, amount)
 		end)
@@ -1023,7 +1023,7 @@ local window_openned_at = time()
 		--
 		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
 		window.animateSlider:SetPoint ("left",window.animateLabel, "right", 2, 0)
-		window.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
+		window.animateSlider.OnSwitch = function(self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes:SetUseAnimations (value)
 		end	
 		
@@ -1038,7 +1038,7 @@ local window_openned_at = time()
 		--
 		g:NewSwitch (window, _, "$parentDpsHpsSlider", "DpsHpsSlider", 60, 20, _, _, _detalhes:GetInstance(1).row_info.fast_ps_update) -- ltext, rtext, defaultv
 		window.DpsHpsSlider:SetPoint ("left",window.DpsHpsLabel, "right", 2, 0)
-		window.DpsHpsSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
+		window.DpsHpsSlider.OnSwitch = function(self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes:GetInstance(1):FastPSUpdate (value)
 		end
 		
@@ -1053,7 +1053,7 @@ local window_openned_at = time()
 		--
 	--	g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 	--	window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
-	--	window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+	--	window.segmentsSlider:SetHook ("OnValueChange", function(self, _, amount) --> slider, fixedValue, sliderValue
 	--		_detalhes.segments_amount = math.floor (amount)
 	--	end)
 	--	window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
@@ -1283,7 +1283,7 @@ local window_openned_at = time()
 		bg_string:SetPoint ("right", bookmark_frame, "right", 0, 0)
 		bg_string:SetPoint ("center", bmf_string, "center", 0, 0)
 		
-		bookmark_frame:SetScript ("OnMouseDown", function (self, button)
+		bookmark_frame:SetScript ("OnMouseDown", function(self, button)
 			if (button == "RightButton") then
 				_detalhes.switch:ShowMe (instance1)
 				self:Hide()
@@ -1375,7 +1375,7 @@ local window_openned_at = time()
 		micro_image1:SetTexCoord (326/512, 1, 85/512, 185/512)
 		
 		local tooltip_frame = CreateFrame ("frame", nil, window)
-		tooltip_frame:SetScript ("OnShow", function (self)
+		tooltip_frame:SetScript ("OnShow", function(self)
 		
 			_detalhes.tabela_historico:resetar()
 			created_test_bars = 0

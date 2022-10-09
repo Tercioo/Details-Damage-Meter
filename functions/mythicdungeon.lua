@@ -814,7 +814,7 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent (contextObject, eve
     end
 end
 
-DetailsMythicPlusFrame:SetScript ("OnEvent", function (_, event, ...)
+DetailsMythicPlusFrame:SetScript ("OnEvent", function(_, event, ...)
 
     if (event == "START_TIMER") then
         DetailsMythicPlusFrame.LastTimer = GetTime()

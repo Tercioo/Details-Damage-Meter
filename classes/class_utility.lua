@@ -159,9 +159,9 @@ end
 		
 		--try to find a spell with the same name and get the amount of casts of that spell object
 		if (not spell_cast and misc_actor.spell_cast) then
-			local spellname = GetSpellInfo (spellId)
+			local spellname = GetSpellInfo(spellId)
 			for casted_spellid, amount in pairs (misc_actor.spell_cast) do
-				local casted_spellname = GetSpellInfo (casted_spellid)
+				local casted_spellname = GetSpellInfo(casted_spellid)
 				if (casted_spellname == spellname) then
 					return amount, true
 				end
@@ -379,7 +379,7 @@ end
 --[1] true damage/ false heal [2] spellid [3] amount [4] time [5] current health [6] source
 
 local report_table = {}
-local ReportSingleDeathFunc = function (IsCurrent, IsReverse, AmtLines)
+local ReportSingleDeathFunc = function(IsCurrent, IsReverse, AmtLines)
 
 	AmtLines = AmtLines + 1
 
@@ -426,13 +426,13 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 		if (evento [1] and type (evento [1]) == "boolean") then --> damage
 			if (evento [3]) then
 				local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
-				local spellname, _, spellicon = _GetSpellInfo (evento [2])
+				local spellname, _, spellicon = _GetSpellInfo(evento [2])
 				local spelllink
 				
 				if (evento [2] == 1) then
-					spelllink = GetSpellLink (6603)
+					spelllink = GetSpellLink(6603)
 				elseif (evento [2] > 10) then
-					spelllink = GetSpellLink (evento [2])
+					spelllink = GetSpellLink(evento [2])
 				else
 					spelllink = spellname
 				end
@@ -453,9 +453,9 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 			
 			if (amount > _detalhes.deathlog_healingdone_min) then
 				local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
-				local spelllink = GetSpellLink (evento [2])
+				local spelllink = GetSpellLink(evento [2])
 				local source = _detalhes:GetOnlyName (evento [6])
-				local spellname, _, spellicon = _GetSpellInfo (evento [2])
+				local spellname, _, spellicon = _GetSpellInfo(evento [2])
 				
 				local hp = _math_floor (evento [5] / max_health * 100)
 				if (hp > 100) then 
@@ -472,9 +472,9 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 		elseif (type (evento [1]) == "number" and evento [1] == 4) then --> debuff
 			
 			local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
-			local spelllink = GetSpellLink (evento [2])
+			local spelllink = GetSpellLink(evento [2])
 			local source = _detalhes:GetOnlyName (evento [6])
-			local spellname, _, spellicon = _GetSpellInfo (evento [2])
+			local spellname, _, spellicon = _GetSpellInfo(evento [2])
 			local stacks = evento [3]
 			local hp = _math_floor (evento [5] / max_health * 100)
 			if (hp > 100) then 
@@ -509,7 +509,7 @@ function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 
 	for i, spell in ipairs (cooldowns_used) do
 		
-		local spelllink = GetSpellLink (spell [1])
+		local spelllink = GetSpellLink(spell [1])
 		reportar [#reportar+1] = spelllink .. ": " .. spell [2]
 		
 		for target_name, amount in pairs (spell[3].targets) do
@@ -523,18 +523,18 @@ function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-local buff_format_name = function (spellid)
+local buff_format_name = function(spellid)
 	if (_type (spellid) == "string") then
 		return spellid
 	end
-	return _detalhes:GetSpellLink (spellid)
+	return _detalhes:GetSpellLink(spellid)
 end
-local buff_format_amount = function (t)
+local buff_format_amount = function(t)
 	local total, percent = unpack (t)
 	local m, s = _math_floor (total / 60), _math_floor (total % 60)
 	return _cstr ("%.1f", percent) .. "% (" .. m .. "m " .. s .. "s)"
 end
-local sort_buff_report = function (t1, t2)
+local sort_buff_report = function(t1, t2)
 	return t1[2][1] > t2[2][1]
 end
 
@@ -1096,7 +1096,7 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 	for _spellid, _tabela in pairs (habilidades) do
 		
 		--> quantidade
-		local nome_magia, _, icone_magia = _GetSpellInfo (_spellid)
+		local nome_magia, _, icone_magia = _GetSpellInfo(_spellid)
 		GameCooltip:AddLine (nome_magia, _tabela.cc_break .. " (" .. _cstr ("%.1f", _tabela.cc_break / meu_total * 100) .. "%)")
 		GameCooltip:AddIcon (icone_magia, nil, nil, lineHeight, lineHeight, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
@@ -1104,7 +1104,7 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 		--> o que quebrou
 		local quebrou_oque = _tabela.cc_break_oque
 		for spellid_quebrada, amt_quebrada in pairs (_tabela.cc_break_oque) do 
-			local nome_magia, _, icone_magia = _GetSpellInfo (spellid_quebrada)
+			local nome_magia, _, icone_magia = _GetSpellInfo(spellid_quebrada)
 			GameCooltip:AddLine (nome_magia, amt_quebrada .. "  ")
 			GameCooltip:AddIcon ([[Interface\Buttons\UI-GroupLoot-Pass-Down]], nil, 1, 14, 14)
 			GameCooltip:AddIcon (icone_magia, nil, 2, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
@@ -1163,7 +1163,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	if (#meus_dispells > 0) then
 		for i = 1, min (25, #meus_dispells) do
 			local esta_habilidade = meus_dispells[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia, esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
@@ -1185,7 +1185,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	if (#buffs_dispelados > 0) then
 		for i = 1, min (25, #buffs_dispelados) do
 			local esta_habilidade = buffs_dispelados[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia, esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
@@ -1482,7 +1482,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			local string_output = "pre-potion: " --> localize-me
 
 			for playername, potspellid in pairs (pot_usage) do
-				local name, _, icon = _GetSpellInfo (potspellid)
+				local name, _, icon = _GetSpellInfo(potspellid)
 				local _, class = UnitClass (playername)
 				local class_color = ""
 				if (class and RAID_CLASS_COLORS [class]) then
@@ -1554,7 +1554,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			local string_output = "pre-potion: "
 			
 			for playername, potspellid in pairs (pot_usage) do
-				local name, _, icon = _GetSpellInfo (potspellid)
+				local name, _, icon = _GetSpellInfo(potspellid)
 				local _, class = UnitClass (playername)
 				local class_color = ""
 				if (class and RAID_CLASS_COLORS [class]) then
@@ -1595,7 +1595,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		if (in_or_out == "BUFF_UPTIME_IN") then
 			local string_output = "pre-potion: "
 			for playername, potspellid in pairs (pot_usage) do
-				local name, _, icon = _GetSpellInfo (potspellid)
+				local name, _, icon = _GetSpellInfo(potspellid)
 				local _, class = UnitClass (playername)
 				local class_color = ""
 				if (class and RAID_CLASS_COLORS [class]) then
@@ -1614,7 +1614,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 	end
 end
 
-local Sort2Reverse = function (a, b)
+local Sort2Reverse = function(a, b)
 	return a[2] < b[2]
 end
 
@@ -1651,7 +1651,7 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 			local esta_habilidade = debuffs_usados[i]
 			
 			if (esta_habilidade[2] > 0) then
-				local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+				local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 				
 				local minutos, segundos = _math_floor (esta_habilidade[2]/60), _math_floor (esta_habilidade[2]%60)
 				if (esta_habilidade[2] >= _combat_time) then
@@ -1762,7 +1762,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	if (#cooldowns_usados > 0) then
 		for i = 1, min (25, #cooldowns_usados) do
 			local esta_habilidade = cooldowns_usados[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia, esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
@@ -1844,7 +1844,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	if (#meus_ress > 0) then
 		for i = 1, min (3, #meus_ress) do
 			local esta_habilidade = meus_ress[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia, esta_habilidade[2] .. " (" .. _cstr ("%.1f", floor (esta_habilidade[2]) / floor (meu_total) * 100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, lineHeight, lineHeight, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
@@ -1926,7 +1926,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	if (#meus_interrupts > 0) then
 		for i = 1, min (25, #meus_interrupts) do
 			local esta_habilidade = meus_interrupts[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia, esta_habilidade[2].." (".._cstr("%.1f", floor (esta_habilidade[2])/floor (meu_total)*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
@@ -1949,7 +1949,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	if (#habilidades_interrompidas > 0) then
 		for i = 1, min (25, #habilidades_interrompidas) do
 			local esta_habilidade = habilidades_interrompidas[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia, esta_habilidade[2].." (".._cstr("%.1f", floor (esta_habilidade[2])/floor (meu_total)*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
@@ -2047,7 +2047,7 @@ function atributo_misc:MontaInfoInterrupt()
 
 	--player
 	for _spellid, _tabela in pairs (minha_tabela) do --> da foreach em cada spellid do container
-		local nome, _, icone = _GetSpellInfo (_spellid)
+		local nome, _, icone = _GetSpellInfo(_spellid)
 		_table_insert (meus_interrupts, {_spellid, _tabela.counter, _tabela.counter/meu_total*100, nome, icone})
 	end
 	--pet
@@ -2058,7 +2058,7 @@ function atributo_misc:MontaInfoInterrupt()
 		if (PetActor and PetActor.interrupt and PetActor.interrupt > 0) then 
 			local PetSkillsContainer = PetActor.interrupt_spells._ActorTable
 			for _spellid, _skill in pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
-				local nome, _, icone = _GetSpellInfo (_spellid)
+				local nome, _, icone = _GetSpellInfo(_spellid)
 				_table_insert (meus_interrupts, {_spellid, _skill.counter, _skill.counter/meu_total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
 			end
 		end
@@ -2190,7 +2190,7 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 	end
 	
 	--> icone direito superior
-	local nome, _, icone = _GetSpellInfo (spellid)
+	local nome, _, icone = _GetSpellInfo(spellid)
 	local infospell = {nome, nil, icone}
 
 	_detalhes.playerDetailWindow.spell_icone:SetTexture (infospell[3])
@@ -2227,7 +2227,7 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
 		end
 		
-		local nome, _, icone = _GetSpellInfo (tabela[1])
+		local nome, _, icone = _GetSpellInfo(tabela[1])
 
 		barra.lineText1:SetText (index..instancia.divisores.colocacao..nome) --seta o texto da esqueda
 		barra.lineText4:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[2]/total*100) .."%".. instancia.divisores.fecha) --seta o texto da direita
@@ -2274,7 +2274,7 @@ function atributo_misc:MontaTooltipAlvos (esta_barra, index)
 	GameTooltip:AddLine (" ")
 	
 	for index, tabela in ipairs (habilidades) do
-		local nome, rank, icone = _GetSpellInfo (tabela[1])
+		local nome, rank, icone = _GetSpellInfo(tabela[1])
 		if (index < 8) then
 			GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, tabela[2].." (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
 		else
@@ -2327,12 +2327,12 @@ end
 			end
 		end
 
-local refresh_alvos = function (container1, container2)
+local refresh_alvos = function(container1, container2)
 	for target_name, amount in pairs (container2) do
 		container1 [target_name] = container1 [target_name] or 0
 	end
 end
-local refresh_habilidades = function (container1, container2)
+local refresh_habilidades = function(container1, container2)
 	for spellid, habilidade in pairs (container2._ActorTable) do 
 		local habilidade_shadow = container1:PegaHabilidade (spellid, true, nil, true)
 		refresh_alvos (habilidade_shadow.targets , habilidade.targets)
@@ -2443,7 +2443,7 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 
 end
 
-local somar_keys = function (habilidade, habilidade_tabela1)
+local somar_keys = function(habilidade, habilidade_tabela1)
 	for key, value in pairs (habilidade) do 
 		if (_type (value) == "number") then
 			if (key ~= "id" and key ~= "spellschool") then
@@ -2452,12 +2452,12 @@ local somar_keys = function (habilidade, habilidade_tabela1)
 		end
 	end
 end
-local somar_alvos = function (container1, container2)
+local somar_alvos = function(container1, container2)
 	for target_name, amount in pairs (container2) do
 		container1 [target_name] = (container1 [target_name] or 0) + amount
 	end
 end
-local somar_habilidades = function (container1, container2)
+local somar_habilidades = function(container1, container2)
 	for spellid, habilidade in pairs (container2._ActorTable) do
 		local habilidade_tabela1 = container1:PegaHabilidade (spellid, true, nil, false)
 		somar_alvos (habilidade_tabela1.targets, habilidade.targets)
@@ -2526,7 +2526,7 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 	
 	if (actor.cooldowns_defensive) then
 		if (not shadow.cooldowns_defensive_targets) then
-			shadow.cooldowns_defensive =  _detalhes:GetOrderNumber (actor.nome)
+			shadow.cooldowns_defensive =  _detalhes:GetOrderNumber(actor.nome)
 			shadow.cooldowns_defensive_targets = {}
 			shadow.cooldowns_defensive_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
@@ -2854,7 +2854,7 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 	
 end
 
-atributo_misc.__add = function (tabela1, tabela2)
+atributo_misc.__add = function(tabela1, tabela2)
 
 	if (tabela2.spell_cast) then
 		for spellid, amount in pairs (tabela2.spell_cast) do
@@ -3110,7 +3110,7 @@ atributo_misc.__add = function (tabela1, tabela2)
 	return tabela1
 end
 
-local subtrair_keys = function (habilidade, habilidade_tabela1)
+local subtrair_keys = function(habilidade, habilidade_tabela1)
 	for key, value in pairs (habilidade) do 
 		if (_type (value) == "number") then
 			if (key ~= "id" and key ~= "spellschool") then
@@ -3120,7 +3120,7 @@ local subtrair_keys = function (habilidade, habilidade_tabela1)
 	end
 end
 
-atributo_misc.__sub = function (tabela1, tabela2)
+atributo_misc.__sub = function(tabela1, tabela2)
 
 	if (tabela2.spell_cast) then
 		for spellid, amount in pairs (tabela2.spell_cast) do

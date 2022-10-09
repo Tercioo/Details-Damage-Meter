@@ -70,7 +70,7 @@ local keyName
 
 function atributo_heal:NovaTabela (serial, nome, link)
 
-	local alphabetical = _detalhes:GetOrderNumber (nome)
+	local alphabetical = _detalhes:GetOrderNumber(nome)
 
 	--> constructor
 	local _new_healActor = {
@@ -978,7 +978,7 @@ function _detalhes:CloseShields (combat)
 		
 			for spellid, owner_table in _pairs (spellid_table) do
 		
-				local spellname = GetSpellInfo (spellid)
+				local spellname = GetSpellInfo(spellid)
 				for owner, amount in _pairs (owner_table) do
 				
 					if (amount > 0) then
@@ -1095,7 +1095,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 				break
 			end
 
-			local spellName, _, spellIcon = _GetSpellInfo (spellObject.id)
+			local spellName, _, spellIcon = _GetSpellInfo(spellObject.id)
 			
 			GameCooltip:AddLine (spellName .. ": ", FormatTooltipNumber (_, spellTotal) .. " (" .. _cstr ("%.1f", spellTotal / totalDenied) .."%)")
 
@@ -1175,7 +1175,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 				break
 			end
 
-			local spellName, _, spellIcon = _GetSpellInfo (spellID)
+			local spellName, _, spellIcon = _GetSpellInfo(spellID)
 			
 			GameCooltip:AddLine (spellName .. ": ", FormatTooltipNumber (_, spellTotal) .. " (" .. _cstr ("%.1f", spellTotal / totalDenied) .."%)")
 
@@ -1261,7 +1261,7 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	end
 
-	_table_sort (meus_curadores, function (a, b) return a[2] > b[2] end)
+	_table_sort (meus_curadores, function(a, b) return a[2] > b[2] end)
 	local max = #meus_curadores
 	if (max > 9) then
 		max = 9
@@ -1339,7 +1339,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	--add actor spells
 	for _spellid, _skill in _pairs (ActorSkillsContainer) do 
-		local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
+		local SkillName, _, SkillIcon = _GetSpellInfo(_spellid)
 		if (_skill [skill_key] > 0 or _skill.anti_heal) then
 			_table_insert (ActorHealingTable, {
 				_spellid, 
@@ -1360,7 +1360,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		if (petActor) then
 			for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
 				if (_skill [skill_key] > 0) then
-					local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
+					local SkillName, _, SkillIcon = _GetSpellInfo(_spellid)
 					local petName = petName:gsub ((" <.*"), "")
 					ActorHealingTable [#ActorHealingTable+1] = {
 						_spellid, 
@@ -1739,7 +1739,7 @@ function atributo_heal:MontaInfoOverHealing()
 	local barras = info.barras1
 
 	for spellid, tabela in _pairs (tabela) do
-		local nome, _, icone = _GetSpellInfo (spellid)
+		local nome, _, icone = _GetSpellInfo(spellid)
 		_table_insert (minhas_curas, {spellid, tabela.overheal, tabela.overheal/total*100, nome, icone})
 	end
 	
@@ -1751,7 +1751,7 @@ function atributo_heal:MontaInfoOverHealing()
 		if (PetActor) then 
 			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
-				local nome, _, icone = _GetSpellInfo (_spellid)
+				local nome, _, icone = _GetSpellInfo(_spellid)
 				_table_insert (minhas_curas, {_spellid, _skill.overheal, _skill.overheal/total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
 			end
 		end
@@ -1888,7 +1888,7 @@ function atributo_heal:MontaInfoHealingDone()
 	end
 	
 	for spellid, tabela in _pairs (tabela) do
-		local nome, rank, icone = _GetSpellInfo (spellid)
+		local nome, rank, icone = _GetSpellInfo(spellid)
 		_table_insert (minhas_curas, {
 			spellid, 
 			tabela.total, 
@@ -1911,7 +1911,7 @@ function atributo_heal:MontaInfoHealingDone()
 		if (PetActor) then 
 			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
-				local nome, _, icone = _GetSpellInfo (_spellid)
+				local nome, _, icone = _GetSpellInfo(_spellid)
 				_table_insert (minhas_curas, {
 					_spellid, 
 					_skill.total, 
@@ -2049,7 +2049,7 @@ function atributo_heal:MontaTooltipAlvos (thisLine, index, instancia)
 	for spellid, tabela in _pairs (container) do
 		for target_name, amount in _pairs (tabela ["targets" .. targets_key]) do
 			if (target_name == inimigo) then
-				local nome, _, icone = _GetSpellInfo (spellid)
+				local nome, _, icone = _GetSpellInfo(spellid)
 				habilidades [#habilidades+1] = {nome, amount, icone}
 			end
 		end
@@ -2065,7 +2065,7 @@ function atributo_heal:MontaTooltipAlvos (thisLine, index, instancia)
 
 				for target_name, amount in _pairs (_skill ["targets" .. targets_key]) do
 					if (target_name == inimigo) then
-						local nome, _, icone = _GetSpellInfo (_spellid)
+						local nome, _, icone = _GetSpellInfo(_spellid)
 						habilidades [#habilidades+1] = {nome, amount, icone}
 					end
 				end
@@ -2161,7 +2161,7 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 
 	for spellid, tabela in _pairs (conteudo) do --> da foreach em cada spellid do container
 		if (tabela.targets [actor]) then
-			local spell_nome, _, icone = _GetSpellInfo (spellid)
+			local spell_nome, _, icone = _GetSpellInfo(spellid)
 			_table_insert (minhas_magias, {spellid, tabela.targets [actor], tabela.targets [actor] / total*100, spell_nome, icone})
 		end
 	end
@@ -2221,7 +2221,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 	end
 	
 	--> icone direito superior
-	local _, _, icone = _GetSpellInfo (spellid)
+	local _, _, icone = _GetSpellInfo(spellid)
 	info.spell_icone:SetTexture (icone)
 
 	local total = self.total
@@ -2278,9 +2278,9 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellid]
 			
 			if (not spell_cast and misc_actor.spell_cast) then
-				local spellname = GetSpellInfo (spellid)
+				local spellname = GetSpellInfo(spellid)
 				for casted_spellid, amount in _pairs (misc_actor.spell_cast) do
-					local casted_spellname = GetSpellInfo (casted_spellid)
+					local casted_spellname = GetSpellInfo(casted_spellid)
 					if (casted_spellname == spellname) then
 						spell_cast = amount .. " (|cFFFFFF00?|r)"
 					end
@@ -2702,7 +2702,7 @@ function atributo_heal:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
 end
 
-atributo_heal.__add = function (tabela1, tabela2)
+atributo_heal.__add = function(tabela1, tabela2)
 
 	--> tempo decorrido
 		local tempo = (tabela2.end_time or time()) - tabela2.start_time
@@ -2805,7 +2805,7 @@ atributo_heal.__add = function (tabela1, tabela2)
 	return tabela1
 end
 
-atributo_heal.__sub = function (tabela1, tabela2)
+atributo_heal.__sub = function(tabela1, tabela2)
 
 	--> tempo decorrido
 		local tempo = (tabela2.end_time or time()) - tabela2.start_time

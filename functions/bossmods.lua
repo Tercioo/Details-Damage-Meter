@@ -105,7 +105,7 @@ function Details:CreateCallbackListeners()
     local current_table_bigwigs = {}
 
     local event_frame = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
-    event_frame:SetScript ("OnEvent", function (self, event, ...)
+    event_frame:SetScript ("OnEvent", function(self, event, ...)
         if (event == "ENCOUNTER_START") then
             local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
             current_encounter = encounterID
@@ -142,7 +142,7 @@ function Details:CreateCallbackListeners()
     event_frame:RegisterEvent ("PLAYER_REGEN_ENABLED")
 
     if (_G.DBM) then
-        local dbm_timer_callback = function (bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
+        local dbm_timer_callback = function(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
             local spell = tostring (spellId)
             if (spell and not current_table_dbm [spell]) then
                 current_table_dbm [spell] = {spell, id, msg, timer, icon, bartype, spellId, colorId, modid}

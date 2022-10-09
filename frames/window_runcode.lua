@@ -42,7 +42,7 @@ function Details.OpenRunCodeWindow()
             code_editor.editbox:SetBackdrop (nil)
             code_editor:SetBackdrop (nil)
             
-            DF:ReskinSlider (code_editor.scroll)
+            DF:ReskinSlider(code_editor.scroll)
             
             if (not code_editor.__background) then
                 code_editor.__background = code_editor:CreateTexture (nil, "background")
@@ -74,7 +74,7 @@ function Details.OpenRunCodeWindow()
             errortext_label:SetPoint ("left", errortext_frame, "left", 3, 0)
             code_editor.NextCodeCheck = 0.33
             
-            code_editor:HookScript ("OnUpdate", function (self, deltaTime)
+            code_editor:HookScript ("OnUpdate", function(self, deltaTime)
                 code_editor.NextCodeCheck = code_editor.NextCodeCheck - deltaTime
 
                 if (code_editor.NextCodeCheck < 0) then
@@ -97,7 +97,7 @@ function Details.OpenRunCodeWindow()
             end)
             
         --> script selector
-        local on_select_CodeType_option = function (self, fixedParameter, value)
+        local on_select_CodeType_option = function(self, fixedParameter, value)
             --> set the current editing code type
             f.EditingCode = Details.RunCodeTypes [value].Value
             f.EditingCodeKey = Details.RunCodeTypes [value].ProfileKey

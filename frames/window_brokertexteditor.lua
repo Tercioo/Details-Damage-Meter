@@ -34,7 +34,7 @@ function Details:OpenBrokerTextEditor()
         end)
         
         local option_selected = 1
-        local onclick= function (_, _, value)
+        local onclick= function(_, _, value)
             option_selected = value
         end
         local AddOptions = {
@@ -172,7 +172,7 @@ function Details:OpenBrokerTextEditor()
             self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
         end
         
-        local color_func = function (_, r, g, b, a)
+        local color_func = function(_, r, g, b, a)
             local hex = Details:hex (a*255)..Details:hex (r*255)..Details:hex (g*255)..Details:hex (b*255)
             ColorSelection ( textentry.editbox, "|c" .. hex)
         end

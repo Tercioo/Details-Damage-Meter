@@ -300,9 +300,9 @@
 			
 			local spellname
 			if (spellid > 10) then
-				spellname = GetSpellLink (extraSpellID)
+				spellname = GetSpellLink(extraSpellID)
 			else
-				spellname = _GetSpellInfo (extraSpellID)
+				spellname = _GetSpellInfo(extraSpellID)
 			end
 
 			if (channel == "RAID") then
@@ -342,9 +342,9 @@
 			
 			local spellname
 			if (spellid > 10) then
-				spellname = GetSpellLink (extraSpellID)
+				spellname = GetSpellLink(extraSpellID)
 			else
-				spellname = _GetSpellInfo (extraSpellID)
+				spellname = _GetSpellInfo(extraSpellID)
 			end
 
 			if (custom ~= "") then
@@ -416,9 +416,9 @@
 
 			local spellname
 			if (spellid > 10) then
-				spellname = GetSpellLink (spellid)
+				spellname = GetSpellLink(spellid)
 			else
-				spellname = _GetSpellInfo (spellid)
+				spellname = _GetSpellInfo(spellid)
 			end
 
 			local custom = _detalhes.announce_cooldowns.custom
@@ -478,9 +478,9 @@
 			
 			local spellname
 			if (spellid > 10) then
-				spellname = GetSpellLink (spellid)
+				spellname = GetSpellLink(spellid)
 			else
-				spellname = _GetSpellInfo (spellid)
+				spellname = _GetSpellInfo(spellid)
 			end
 			
 			if (second < 10) then
@@ -578,9 +578,9 @@
 					if (type (this_death[1]) == "boolean" and this_death[1] and this_death[4]+5 > time) then
 						local spelllink
 						if (this_death [2] > 10) then
-							spelllink = GetSpellLink (this_death [2])
+							spelllink = GetSpellLink(this_death [2])
 						else
-							spelllink = "[" .. _GetSpellInfo (this_death [2]) .. "]"
+							spelllink = "[" .. _GetSpellInfo(this_death [2]) .. "]"
 						end
 						spells = spelllink .. ": " .. _detalhes:ToK2 (_math_floor (this_death [3])) .. " " .. spells
 						last = o-1

@@ -525,7 +525,7 @@ local _
 			},
 		},
 		
-		callback = function (skin, instance, just_updating)
+		callback = function(skin, instance, just_updating)
 			--none
 		end,
 		
@@ -748,7 +748,7 @@ local _
 			["bg_b"] = 0.0941,
 		},
 		
-		callback = function (skin, instance, just_updating)
+		callback = function(skin, instance, just_updating)
 			--none
 		end,
 		
@@ -1110,7 +1110,7 @@ local _
 		right_corner_anchor_bottom = {96, 0},
 
 		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
-		callback = function (self, instance) end,
+		callback = function(self, instance) end,
 		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
 		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
 		control_script_on_start = nil,
@@ -1372,7 +1372,7 @@ local _
 		right_corner_anchor_bottom = {96, 0},
 
 		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
-		callback = function (self, instance) end,
+		callback = function(self, instance) end,
 		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
 		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
 		control_script_on_start = nil,
@@ -1623,7 +1623,7 @@ local _
 		right_corner_anchor_bottom = {96, 0},
 
 		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
-		callback = function (self, instance) end,
+		callback = function(self, instance) end,
 		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
 		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
 		control_script_on_start = nil,
@@ -1811,7 +1811,7 @@ local _
 		right_corner_anchor_bottom = {95, 0},
 
 		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
-		callback = function (self, instance) end,
+		callback = function(self, instance) end,
 		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
 		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
 		control_script_on_start = nil,
@@ -2509,7 +2509,7 @@ local _
 			["bars_inverted"] = false,
 		},
 		
-		callback = function (skin, instance, just_updating)
+		callback = function(skin, instance, just_updating)
 			--none
 		end,
 		
@@ -2793,7 +2793,7 @@ local _
 			["bars_sort_direction"] = 1,
 		},
 		
-		callback = function (skin, instance, just_updating)
+		callback = function(skin, instance, just_updating)
 			--none
 		end,
 		

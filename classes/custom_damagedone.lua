@@ -57,7 +57,7 @@ end
 
 local temp_table = {}
 
-local target_func = function (main_table)
+local target_func = function(main_table)
 	local i = 1
 	for name, amount in _pairs (main_table) do
 		local t = temp_table [i]
@@ -73,7 +73,7 @@ local target_func = function (main_table)
 	end
 end
 
-local spells_used_func = function (main_table, target)
+local spells_used_func = function(main_table, target)
 	local i = 1
 	for spellid, spell_table in _pairs (main_table) do
 		local target_amount = spell_table.targets [target]
@@ -134,7 +134,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 			
 			return
 		else
-			local name, _, icon = _GetSpellInfo (spellid)
+			local name, _, icon = _GetSpellInfo(spellid)
 			GameCooltip:AddLine (name)
 			GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			
@@ -193,7 +193,7 @@ function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, inst
 					break
 				end
 				
-				local name, _, icon = _GetSpellInfo (t[1])
+				local name, _, icon = _GetSpellInfo(t[1])
 				GameCooltip:AddLine (name, FormatTooltipNumber (_, t[2]))
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)

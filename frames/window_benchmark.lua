@@ -96,7 +96,7 @@ local libwindow = LibStub("LibWindow-1.1")
             f:RegisterEvent ("PLAYER_REGEN_DISABLED")
             f:RegisterEvent ("PLAYER_REGEN_ENABLED")
             
-            f:SetScript ("OnEvent", function (self, event, ...)
+            f:SetScript ("OnEvent", function(self, event, ...)
                 if (event == "PLAYER_REGEN_DISABLED") then
                     f.StartNewBenchmark()
                     

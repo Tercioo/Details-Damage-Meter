@@ -208,7 +208,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 	DFSliderMetaFunctions.SetMembers["fractional"] = smember_fractional
 	DFSliderMetaFunctions.SetMembers["value"] = smember_value
 
-	DFSliderMetaFunctions.__newindex = function (object, key, value)
+	DFSliderMetaFunctions.__newindex = function(object, key, value)
 		local func = DFSliderMetaFunctions.SetMembers[key]
 		if (func) then
 			return func(object, value)
@@ -313,7 +313,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 
-	local OnEnter = function (slider)
+	local OnEnter = function(slider)
 		if (rawget (slider.MyObject, "lockdown")) then
 			return
 		end
@@ -344,7 +344,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 	end
 	
-	local OnLeave = function (slider)
+	local OnLeave = function(slider)
 	
 		if (rawget (slider.MyObject, "lockdown")) then
 			return
@@ -412,23 +412,23 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 	buttonPlus:SetFrameStrata (f:GetFrameStrata())
 	buttonMinor:SetFrameStrata (f:GetFrameStrata())
 	
-	buttonPlus:SetScript ("OnEnter", function (self)
+	buttonPlus:SetScript ("OnEnter", function(self)
 		if (f.isGoingToHide) then
 			f:SetScript ("OnUpdate", nil)
 			f.isGoingToHide = false
 		end
 	end)
-	buttonMinor:SetScript ("OnEnter", function (self)
+	buttonMinor:SetScript ("OnEnter", function(self)
 		if (f.isGoingToHide) then
 			f:SetScript ("OnUpdate", nil)
 			f.isGoingToHide = false
 		end
 	end)
 	
-	buttonPlus:SetScript ("OnLeave", function (self)
+	buttonPlus:SetScript ("OnLeave", function(self)
 		f:PrepareToHide()
 	end)
-	buttonMinor:SetScript ("OnLeave", function (self)
+	buttonMinor:SetScript ("OnLeave", function(self)
 		f:PrepareToHide()
 	end)
 	
@@ -488,7 +488,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 
 	end
 	
-	buttonPlus:SetScript ("OnMouseUp", function (self)
+	buttonPlus:SetScript ("OnMouseUp", function(self)
 		if (not buttonPlus.got_click) then
 			plus_button_script()
 		end
@@ -496,7 +496,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		self:SetScript ("OnUpdate", nil)
 	end)
 	
-	local on_update = function (self, elapsed)
+	local on_update = function(self, elapsed)
 		timer = timer + elapsed
 		if (timer > 0.4) then
 			change_timer = change_timer + elapsed
@@ -507,7 +507,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 			end
 		end
 	end
-	buttonPlus:SetScript ("OnMouseDown", function (self)
+	buttonPlus:SetScript ("OnMouseDown", function(self)
 		timer = 0
 		change_timer = 0
 		self:SetScript ("OnUpdate", on_update)
@@ -539,7 +539,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 	end
 	
-	buttonMinor:SetScript ("OnMouseUp", function (self)
+	buttonMinor:SetScript ("OnMouseUp", function(self)
 		if (not buttonMinor.got_click) then
 			minor_button_script()
 		end
@@ -547,7 +547,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		self:SetScript ("OnUpdate", nil)
 	end)
 	
-	local on_update = function (self, elapsed)
+	local on_update = function(self, elapsed)
 		timer = timer + elapsed
 		if (timer > 0.4) then
 			change_timer = change_timer + elapsed
@@ -558,13 +558,13 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 			end
 		end
 	end
-	buttonMinor:SetScript ("OnMouseDown", function (self)
+	buttonMinor:SetScript ("OnMouseDown", function(self)
 		timer = 0
 		change_timer = 0
 		self:SetScript ("OnUpdate", on_update)
 	end)
 	
-	local do_precision = function (text)
+	local do_precision = function(text)
 		if (type (text) == "string" and text:find ("%.")) then
 			local left, right = strsplit (".", text)
 			left = tonumber (left)
@@ -645,7 +645,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 	end
 	
-	local OnMouseDown = function (slider, button)
+	local OnMouseDown = function(slider, button)
 		slider.MyObject.IsValueChanging = true
 		
 		local capsule = slider.MyObject
@@ -659,7 +659,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 	end
 	
-	local OnMouseUp = function (slider, button)
+	local OnMouseUp = function(slider, button)
 		slider.MyObject.IsValueChanging = nil
 		
 		local capsule = slider.MyObject
@@ -669,7 +669,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 	end
 	
-	local OnHide = function (slider)
+	local OnHide = function(slider)
 		local capsule = slider.MyObject
 		local kill = capsule:RunHooksForWidget ("OnHide", slider, capsule)
 		if (kill) then
@@ -683,7 +683,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 	end
 	
-	local OnShow = function (slider)
+	local OnShow = function(slider)
 		local capsule = slider.MyObject
 		local kill = capsule:RunHooksForWidget ("OnShow", slider, capsule)
 		if (kill) then
@@ -694,7 +694,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 	local table_insert = table.insert
 	local table_remove = table.remove
 	
-	local OnValueChanged = function (slider)
+	local OnValueChanged = function(slider)
 	
 		local amt
 		if (slider.MyObject.useDecimals) then
@@ -743,7 +743,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-local SwitchOnClick = function (self, button, forced_value, value)
+local SwitchOnClick = function(self, button, forced_value, value)
 
 	local slider = self.MyObject
 	
@@ -804,7 +804,7 @@ local SwitchOnClick = function (self, button, forced_value, value)
 
 end
 
-local default_switch_func = function (self, passed_value)
+local default_switch_func = function(self, passed_value)
 	if (self.value) then
 		return false
 	else
@@ -812,11 +812,11 @@ local default_switch_func = function (self, passed_value)
 	end
 end
 
-local switch_get_value = function (self)
+local switch_get_value = function(self)
 	return self.value
 end
 
-local switch_set_value = function (self, value)
+local switch_set_value = function(self, value)
 	if (self.switch_func) then
 		value = self:switch_func (value)
 	end
@@ -824,11 +824,11 @@ local switch_set_value = function (self, value)
 	SwitchOnClick (self.widget, nil, true, value)
 end
 
-local switch_set_fixparameter = function (self, value)
+local switch_set_fixparameter = function(self, value)
 	rawset (self, "FixedValue", value)
 end
 
-local switch_disable = function (self)	
+local switch_disable = function(self)	
 	
 	if (self.is_checkbox) then
 		self.checked_texture:Hide()
@@ -845,7 +845,7 @@ local switch_disable = function (self)
 	self:SetAlpha (.4)
 	rawset (self, "lockdown", true)
 end
-local switch_enable = function (self)
+local switch_enable = function(self)
 	if (self.is_checkbox) then
 		if (rawget (self, "value")) then
 			self.checked_texture:Show()
@@ -866,11 +866,11 @@ local switch_enable = function (self)
 	return rawset (self, "lockdown", false)
 end
 
-local set_switch_func = function (self, newFunction)
+local set_switch_func = function(self, newFunction)
 	self.OnSwitch = newFunction
 end
 
-local set_as_checkbok = function (self)
+local set_as_checkbok = function(self)
 	if self.is_checkbox and self.checked_texture then return end
 	local checked = self:CreateTexture (self:GetName() .. "CheckTexture", "overlay")
 	checked:SetTexture ([[Interface\Buttons\UI-CheckBox-Check]])
@@ -1126,7 +1126,7 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 		local idx = getmetatable (SliderObject.slider).__index
 		for funcName, funcAddress in pairs (idx) do 
 			if (not DFSliderMetaFunctions [funcName]) then
-				DFSliderMetaFunctions [funcName] = function (object, ...)
+				DFSliderMetaFunctions [funcName] = function(object, ...)
 					local x = loadstring ( "return _G['"..object.slider:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end

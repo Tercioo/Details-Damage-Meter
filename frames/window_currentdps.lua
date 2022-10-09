@@ -52,7 +52,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 		local testUsing = "arena" --mythicdungeon
 		
 		--> frame strata options
-			local set_frame_strata = function (_, _, strata)
+			local set_frame_strata = function(_, _, strata)
 				Details.realtime_dps_meter.frame_settings.strata = strata
 				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
@@ -64,7 +64,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			strataTable [5] = {value = "DIALOG", label = "DIALOG", onclick = set_frame_strata}
 			
 		--> font options
-			local set_font_shadow= function (_, _, shadow)
+			local set_font_shadow= function(_, _, shadow)
 				Details.realtime_dps_meter.font_shadow = shadow
 				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
@@ -73,7 +73,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			fontShadowTable [2] = {value = "OUTLINE", label = "Outline", onclick = set_font_shadow}
 			fontShadowTable [3] = {value = "THICKOUTLINE", label = "Thick Outline", onclick = set_font_shadow}
 			
-			local on_select_text_font = function (self, fixed_value, value)
+			local on_select_text_font = function(self, fixed_value, value)
 				Details.realtime_dps_meter.font_face = value
 				Details:UpdateTheRealCurrentDPSFrame(testUsing)
 			end
@@ -99,7 +99,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.realtime_dps_meter.enabled end,
-				set = function (self, fixedparam, value)
+				set = function(self, fixedparam, value)
 					Details.realtime_dps_meter.enabled = not Details.realtime_dps_meter.enabled
 					Details:LoadFramesForBroadcastTools()
 				end,
@@ -111,7 +111,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.realtime_dps_meter.frame_settings.locked end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.realtime_dps_meter.frame_settings.locked = not Details.realtime_dps_meter.frame_settings.locked
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 					lockCallback()
@@ -124,7 +124,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.realtime_dps_meter.frame_settings.show_title end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.realtime_dps_meter.frame_settings.show_title = not Details.realtime_dps_meter.frame_settings.show_title
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
@@ -138,7 +138,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() 
 					return {Details.realtime_dps_meter.frame_settings.backdrop_color[1], Details.realtime_dps_meter.frame_settings.backdrop_color[2], Details.realtime_dps_meter.frame_settings.backdrop_color[3], Details.realtime_dps_meter.frame_settings.backdrop_color[4]} 
 				end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local color = Details.realtime_dps_meter.frame_settings.backdrop_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
@@ -158,7 +158,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "range",
 				get = function() return Details.realtime_dps_meter.sample_size end,
-				set = function (self, fixedparam, value)
+				set = function(self, fixedparam, value)
 					Details.realtime_dps_meter.sample_size = value
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
@@ -173,7 +173,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "range",
 				get = function() return Details.realtime_dps_meter.frame_settings.width end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.realtime_dps_meter.frame_settings.width = value
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
@@ -187,7 +187,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "range",
 				get = function() return Details.realtime_dps_meter.frame_settings.height end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.realtime_dps_meter.frame_settings.height = value
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
@@ -205,7 +205,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.realtime_dps_meter.arena_enabled end,
-				set = function (self, fixedparam, value)
+				set = function(self, fixedparam, value)
 					Details.realtime_dps_meter.arena_enabled = not Details.realtime_dps_meter.arena_enabled
 					Details:LoadFramesForBroadcastTools()
 				end,
@@ -216,7 +216,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "toggle",
 				get = function() return Details.realtime_dps_meter.mythic_dungeon_enabled end,
-				set = function (self, fixedparam, value)
+				set = function(self, fixedparam, value)
 					Details.realtime_dps_meter.mythic_dungeon_enabled = not Details.realtime_dps_meter.mythic_dungeon_enabled
 					Details:LoadFramesForBroadcastTools()
 				end,
@@ -231,7 +231,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "range",
 				get = function() return Details.realtime_dps_meter.font_size end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					Details.realtime_dps_meter.font_size = value
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
@@ -247,7 +247,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 				get = function() 
 					return {Details.realtime_dps_meter.font_color[1], Details.realtime_dps_meter.font_color[2], Details.realtime_dps_meter.font_color[3], Details.realtime_dps_meter.font_color[4]} 
 				end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local color = Details.realtime_dps_meter.font_color
 					color[1], color[2], color[3], color[4] = r, g, b, a
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
@@ -275,7 +275,7 @@ function Details:OpenCurrentRealDPSOptions(from_options_panel)
 			{
 				type = "range",
 				get = function() return _detalhes.realtime_dps_meter.text_offset end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					_detalhes.realtime_dps_meter.text_offset = value
 					Details:UpdateTheRealCurrentDPSFrame(testUsing)
 				end,
@@ -673,7 +673,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 	
 		_detalhes:UpdateTheRealCurrentDPSFrame()
 		
-		local on_tick = function (self, deltaTime)
+		local on_tick = function(self, deltaTime)
 			self.NextUpdate = self.NextUpdate - deltaTime
 			
 			if (self.NextUpdate <= 0) then

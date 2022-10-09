@@ -148,7 +148,7 @@ local function CreatePluginFrames()
 	titlebar.text = titlebar:CreateFontString (nil, "overlay", "GameFontNormal")
 	titlebar.text:SetPoint ("center", titlebar, "center")
 	titlebar.text:SetText ("Details! Streamer: Action Tracker")
-	titlebar:SetScript ("OnEnter", function (self) 
+	titlebar:SetScript ("OnEnter", function(self) 
 		GameTooltip:SetOwner (self)
 		GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 		GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Right Click|r: Lock the Frame\n|cFFFF7700Slash Command|r: /streamer")
@@ -158,14 +158,14 @@ local function CreatePluginFrames()
 		GameTooltip:Hide()
 	end)
 	
-	SOF:SetScript ("OnMouseDown", function (self)
+	SOF:SetScript ("OnMouseDown", function(self)
 
 	end)
-	SOF:SetScript ("OnMouseUp", function (self)
+	SOF:SetScript ("OnMouseUp", function(self)
 
 	end)	
 	
-	titlebar:SetScript ("OnMouseDown", function (self, button) 
+	titlebar:SetScript ("OnMouseDown", function(self, button) 
 		if (not SOF.moving and not StreamOverlay.db.main_frame_locked) then
 			SOF:StartMoving()
 			SOF.moving = true
@@ -173,7 +173,7 @@ local function CreatePluginFrames()
 		end
 	end)
 	
-	titlebar:SetScript ("OnMouseUp", function (self, button) 
+	titlebar:SetScript ("OnMouseUp", function(self, button) 
 	
 		if (SOF.movingAt) then
 			if (SOF.moving) then
@@ -262,13 +262,13 @@ local function CreatePluginFrames()
 	left_resize:GetHighlightTexture():SetTexCoord (1, 0, 0, 1)
 	left_resize:GetPushedTexture():SetTexCoord (1, 0, 0, 1)
 	
-	left_resize:SetScript ("OnMouseDown", function (self)
+	left_resize:SetScript ("OnMouseDown", function(self)
 		if (not SOF.resizing and not StreamOverlay.db.main_frame_locked) then
 			SOF.resizing = true
 			SOF:StartSizing ("bottomleft")
 		end
 	end)
-	left_resize:SetScript ("OnMouseUp", function (self)
+	left_resize:SetScript ("OnMouseUp", function(self)
 		if (SOF.resizing) then
 			SOF.resizing = false
 			SOF:StopMovingOrSizing()
@@ -277,13 +277,13 @@ local function CreatePluginFrames()
 			StreamOverlay:SaveWindowSizeAnLocation()
 		end
 	end)
-	right_resize:SetScript ("OnMouseDown", function (self)
+	right_resize:SetScript ("OnMouseDown", function(self)
 		if (not SOF.resizing and not StreamOverlay.db.main_frame_locked) then
 			SOF.resizing = true
 			SOF:StartSizing ("bottomright")
 		end
 	end)
-	right_resize:SetScript ("OnMouseUp", function (self) 
+	right_resize:SetScript ("OnMouseUp", function(self) 
 		if (SOF.resizing) then
 			SOF.resizing = false
 			SOF:StopMovingOrSizing()
@@ -293,17 +293,17 @@ local function CreatePluginFrames()
 		end
 	end)
 	
-	SOF:SetScript ("OnSizeChanged", function (self)
+	SOF:SetScript ("OnSizeChanged", function(self)
 		StreamOverlay:Refresh()
 	end)
 	
-	SOF:SetScript ("OnMouseDown", function (self)
+	SOF:SetScript ("OnMouseDown", function(self)
 		if (not SOF.moving and not StreamOverlay.db.main_frame_locked) then
 			SOF:StartMoving()
 			SOF.moving = true
 		end
 	end)
-	SOF:SetScript ("OnMouseUp", function (self)
+	SOF:SetScript ("OnMouseUp", function(self)
 		if (SOF.moving) then
 			SOF.moving = false
 			SOF:StopMovingOrSizing()
@@ -315,7 +315,7 @@ local function CreatePluginFrames()
 	
 	--> scroll frame
 	local autoscroll = CreateFrame ("scrollframe", "Details_StreamOverlayScrollFrame", SOF, "FauxScrollFrameTemplate, BackdropTemplate")
-	autoscroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, StreamOverlay.UpdateLines) end)
+	autoscroll:SetScript ("OnVerticalScroll", function(self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, StreamOverlay.UpdateLines) end)
 	
 	--> looks like this isn't working
 	function StreamOverlay:ClearAll()
@@ -960,11 +960,11 @@ local DefaultCoords = {0, 1, 0, 1}
 local DefaultColor = {r=1, g=1, b=1}
 local PetCoords = {0.25, 0.49609375, 0.75, 1}
 
-local parse_target_name = function (target)
+local parse_target_name = function(target)
 	return StreamOverlay:GetOnlyName (target)
 end
 
-local parse_target_icon = function (targetObject, target)
+local parse_target_icon = function(targetObject, target)
 	local icon2, icon2coords, pclass
 	if (targetObject) then
 		local role = targetObject.role
@@ -1022,7 +1022,7 @@ local parse_target_icon = function (targetObject, target)
 	return icon2, icon2coords, pclass
 end
 
-local parse_target_color = function (class)
+local parse_target_color = function(class)
 	local color2 = RAID_CLASS_COLORS [class]
 	return color2
 end
@@ -1040,7 +1040,7 @@ function StreamOverlay:CastStart (castGUID)
 	end
 
 	local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
-	local spellname, _, spellicon = GetSpellInfo (spellid)
+	local spellname, _, spellicon = GetSpellInfo(spellid)
 
 	local targetObject = Details:GetActor ("current", 1, target) or Details:GetActor ("current", 2, target)
 	local icon2, icon2coords, class = parse_target_icon (targetObject, target)
@@ -1078,7 +1078,7 @@ function StreamOverlay:CastFinished (castid)
 		--just casted a instant spell
 		
 		local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
-		local spellname, _, spellicon = GetSpellInfo (spellid)
+		local spellname, _, spellicon = GetSpellInfo(spellid)
 		
 		local targetObject = Details:GetActor ("current", 1, target) or Details:GetActor ("current", 2, target)
 		
@@ -1346,7 +1346,7 @@ APM_FRAME:SetScript ("OnEvent", function()
 	ACTIONS = ACTIONS + 1
 end)
 
-eventFrame:SetScript ("OnEvent", function (self, event, ...)
+eventFrame:SetScript ("OnEvent", function(self, event, ...)
 	if (event ~= "UNIT_SPELLCAST_SENT" and event ~= "UNIT_SPELLCAST_SUCCEEDED" and ACTIONS_EVENT_TIME [event] ~= GetTime()) then
 		ACTIONS = ACTIONS + 1
 		ACTIONS_EVENT_TIME [event] = GetTime()
@@ -1355,7 +1355,7 @@ eventFrame:SetScript ("OnEvent", function (self, event, ...)
 	if (event == "UNIT_SPELLCAST_SENT") then
 		local unitID, target, castGUID, spellID = ...
 		--local unitID, spell, rank, target, id = ...
-		local spell = GetSpellInfo (spellID)
+		local spell = GetSpellInfo(spellID)
 		
 		if (unitID == "player") then
 			CastsTable [castGUID] = {Target = target or "", Id = castGUID, CastStart = GetTime()}
@@ -1447,7 +1447,7 @@ eventFrame:SetScript ("OnEvent", function (self, event, ...)
 	elseif (event == "UNIT_SPELLCAST_SUCCEEDED") then
 		--local unitID, spell, rank, id, spellID = ...
 		local unitID, castGUID, spellID = ...
-		local spell = GetSpellInfo (spellID)
+		local spell = GetSpellInfo(spellID)
 		
 		if (unitID == "player" and CastsTable[castGUID] and not channelspells [spell]) then
 			if (CastsTable[castGUID].HasCastTime and not CastsTable[castGUID].IsChanneled) then
@@ -1466,7 +1466,7 @@ eventFrame:SetScript ("OnEvent", function (self, event, ...)
 	
 end)
 
-local format_time = function (v) return "-" .. format ("%.2f", v) end
+local format_time = function(v) return "-" .. format ("%.2f", v) end
 
 --when the player die, show the events before the death
 function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, death_table, last_cooldown, death_at_combattime, max_health)
@@ -1576,14 +1576,14 @@ screen_frame:SetBackdropColor (.1, .1, .1, .9)
 screen_frame:SetMovable (true)
 screen_frame:Hide()
 screen_frame:SetPoint ("center", UIParent, "center")
-screen_frame:SetScript ("OnMouseDown", function (self)
+screen_frame:SetScript ("OnMouseDown", function(self)
 	if (not screen_frame.moving and not StreamOverlay.db.main_frame_locked) then
 		screen_frame:StartMoving()
 		screen_frame.moving = true
 		screen_frame.movingAt = GetTime()
 	end
 end)
-screen_frame:SetScript ("OnMouseUp", function (self)
+screen_frame:SetScript ("OnMouseUp", function(self)
 	if (screen_frame.movingAt) then
 		if (screen_frame.moving) then
 			screen_frame.moving = false
@@ -1599,7 +1599,7 @@ screen_frame:SetScript ("OnMouseUp", function (self)
 		StreamOverlay.OpenOptionsPanel()
 	end
 end)
-screen_frame:SetScript ("OnEnter", function (self) 
+screen_frame:SetScript ("OnEnter", function(self) 
 	GameTooltip:SetOwner (self)
 	GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 	GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer")
@@ -1790,7 +1790,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 		for name, fontPath in pairs(fontObjects) do
 			fontTable[#fontTable+1] = {value = name, label = name, onclick = setFontFace, font = fontPath, descfont = name}
 		end
-		table.sort(fontTable, function (t1, t2) return t1.label < t2.label end)
+		table.sort(fontTable, function(t1, t2) return t1.label < t2.label end)
 
 		-- select arrow
 		local arrows = {
@@ -1831,7 +1831,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 
 		--
 
-		local setWindowStrataCallback = function (_, _, strata)
+		local setWindowStrataCallback = function(_, _, strata)
 			StreamOverlay.db.main_frame_strata = strata
 			SOF:SetFrameStrata(strata)
 			StreamerOverlayDpsHpsFrame:SetFrameStrata(strata)
@@ -1868,7 +1868,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				desc = "Can't move or interact within the frame when it's locked.",
 				order = 1,
 				get = function() return StreamOverlay.db.main_frame_locked end,
-				set = function (self, fixedParam, val) 
+				set = function(self, fixedParam, val) 
 					StreamOverlay:SetLocked (not StreamOverlay.db.main_frame_locked)
 				end,
 			},
@@ -1879,7 +1879,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				desc = "Show/Hide minimap icon.",
 				order = 1,
 				get = function() return not StreamOverlay.db.minimap.hide end,
-				set = function (self, fixedParam, val) 
+				set = function(self, fixedParam, val) 
 					StreamOverlay.db.minimap.hide = not StreamOverlay.db.minimap.hide
 					if (LDBIcon) then
 						LDBIcon:Refresh ("DetailsStreamer", StreamOverlay.db.minimap)
@@ -1890,7 +1890,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "color",
 				get = function() return StreamOverlay.db.main_frame_color end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					StreamOverlay:SetBackgroundColor (r, g, b, a)
 				end,
 				desc = "Color used on the background.",
@@ -1900,7 +1900,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.scale or 1 end,
-				set = function (self, fixedparam, value) StreamOverlay.db.scale = value; StreamOverlay.Frame:SetScale(value) end,
+				set = function(self, fixedparam, value) StreamOverlay.db.scale = value; StreamOverlay.Frame:SetScale(value) end,
 				min = 0.6,
 				max = 2,
 				step = 0.1,
@@ -1914,7 +1914,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.row_height end,
-				set = function (self, fixedparam, value) StreamOverlay.db.row_height = value; StreamOverlay:RefreshAllBattleLineStyle() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.row_height = value; StreamOverlay:RefreshAllBattleLineStyle() end,
 				min = 10,
 				max = 30,
 				step = 1,
@@ -1925,7 +1925,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.row_spacement end,
-				set = function (self, fixedparam, value) StreamOverlay.db.row_spacement = value; StreamOverlay:RefreshAllBattleLineStyle() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.row_spacement = value; StreamOverlay:RefreshAllBattleLineStyle() end,
 				min = 8,
 				max = 31,
 				step = 1,
@@ -1944,7 +1944,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "color",
 				get = function() return StreamOverlay.db.row_color end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local c = StreamOverlay.db.row_color
 					c[1], c[2], c[3], c[4] = r, g, b, a
 					StreamOverlay:RefreshAllBattleLineStyle()
@@ -1958,7 +1958,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.font_size end,
-				set = function (self, fixedparam, value) StreamOverlay.db.font_size = value; StreamOverlay:RefreshAllBattleLineStyle() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.font_size = value; StreamOverlay:RefreshAllBattleLineStyle() end,
 				min = 8,
 				max = 32,
 				step = 1,
@@ -1977,7 +1977,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "color",
 				get = function() return StreamOverlay.db.font_color end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local c = StreamOverlay.db.font_color
 					c[1], c[2], c[3], c[4] = r, g, b, a
 					StreamOverlay:RefreshAllBattleLineStyle()
@@ -1994,7 +1994,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				desc = "Show in the screen your current Dps or Hps.",
 				order = 1,
 				get = function() return StreamOverlay.db.per_second.enabled end,
-				set = function (self, fixedParam, val) 
+				set = function(self, fixedParam, val) 
 					StreamOverlay.db.per_second.enabled = not StreamOverlay.db.per_second.enabled
 					-- update hps dps frame
 					StreamOverlay:UpdateDpsHpsFrameConfig()
@@ -2012,7 +2012,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.per_second.size end,
-				set = function (self, fixedparam, value) StreamOverlay.db.per_second.size = value; 
+				set = function(self, fixedparam, value) StreamOverlay.db.per_second.size = value; 
 					-- update hps dps frame
 					StreamOverlay:UpdateDpsHpsFrameConfig()
 				end,
@@ -2026,7 +2026,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.per_second.scale end,
-				set = function (self, fixedparam, value) StreamOverlay.db.per_second.scale = value; 
+				set = function(self, fixedparam, value) StreamOverlay.db.per_second.scale = value; 
 					-- update hps dps frame
 					StreamOverlay:UpdateDpsHpsFrameConfig()
 				end,
@@ -2041,7 +2041,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.per_second.update_speed end,
-				set = function (self, fixedparam, value) StreamOverlay.db.per_second.update_speed = value; 
+				set = function(self, fixedparam, value) StreamOverlay.db.per_second.update_speed = value; 
 					-- update hps dps frame
 					StreamOverlay:UpdateDpsHpsFrameConfig()
 				end,
@@ -2059,7 +2059,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				desc = "Enable text shadow.",
 				order = 1,
 				get = function() return StreamOverlay.db.per_second.font_shadow end,
-				set = function (self, fixedParam, val) 
+				set = function(self, fixedParam, val) 
 					StreamOverlay.db.per_second.font_shadow = not StreamOverlay.db.per_second.font_shadow
 					-- update hps dps frame
 					StreamOverlay:UpdateDpsHpsFrameConfig()
@@ -2071,7 +2071,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.square_amount end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					StreamOverlay.db.square_amount = value
 					StreamOverlay:Refresh()
 				end,
@@ -2084,7 +2084,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.square_size end,
-				set = function (self, fixedparam, value) 
+				set = function(self, fixedparam, value) 
 					StreamOverlay.db.square_size = value
 					StreamOverlay:RefreshAllBoxesStyle()
 				end,
@@ -2115,7 +2115,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.arrow_size end,
-				set = function (self, fixedparam, value) StreamOverlay.db.arrow_size = value; StreamOverlay:RefreshAllBattleLineStyle() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.arrow_size = value; StreamOverlay:RefreshAllBattleLineStyle() end,
 				min = 6,
 				max = 32,
 				step = 1,
@@ -2126,7 +2126,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "color",
 				get = function() return StreamOverlay.db.arrow_color end,
-				set = function (self, r, g, b, a) 
+				set = function(self, r, g, b, a) 
 					local c = StreamOverlay.db.arrow_color
 					c[1], c[2], c[3], c[4] = r, g, b, a
 					StreamOverlay:RefreshAllBattleLineStyle()
@@ -2138,7 +2138,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.arrow_anchor_x end,
-				set = function (self, fixedparam, value) StreamOverlay.db.arrow_anchor_x = value; StreamOverlay:RefreshAllBattleLineStyle() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.arrow_anchor_x = value; StreamOverlay:RefreshAllBattleLineStyle() end,
 				min = -16,
 				max = 16,
 				step = 1,
@@ -2149,7 +2149,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.arrow_anchor_y end,
-				set = function (self, fixedparam, value) StreamOverlay.db.arrow_anchor_y = value; StreamOverlay:RefreshAllBattleLineStyle() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.arrow_anchor_y = value; StreamOverlay:RefreshAllBattleLineStyle() end,
 				min = -16,
 				max = 16,
 				step = 1,
@@ -2162,7 +2162,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.main_frame_size[1] end,
-				set = function (self, fixedparam, value) StreamOverlay.db.main_frame_size[1] = value; StreamOverlay:RestoreWindowSizeAndLocation() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.main_frame_size[1] = value; StreamOverlay:RestoreWindowSizeAndLocation() end,
 				min = 150,
 				max = 800,
 				step = 1,
@@ -2173,7 +2173,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			{
 				type = "range",
 				get = function() return StreamOverlay.db.main_frame_size[2] end,
-				set = function (self, fixedparam, value) StreamOverlay.db.main_frame_size[2] = value; StreamOverlay:RestoreWindowSizeAndLocation() end,
+				set = function(self, fixedparam, value) StreamOverlay.db.main_frame_size[2] = value; StreamOverlay:RestoreWindowSizeAndLocation() end,
 				min = 40,
 				max = 1024,
 				step = 1,
@@ -2196,7 +2196,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				desc = "Show or hide the spark at bars",
 				order = 1,
 				get = function() return StreamOverlay.db.use_spark end,
-				set = function (self, fixedParam, val) 
+				set = function(self, fixedParam, val) 
 					StreamOverlay.db.use_spark = not StreamOverlay.db.use_spark
 					
 					
@@ -2543,7 +2543,7 @@ function StreamOverlay:CreateMinimapIcon()
 			type = "data source",
 			icon = [[Interface\MINIMAP\MOVIERECORDINGICON]],
 			
-			OnClick = function (self, button)
+			OnClick = function(self, button)
 				if (button == "LeftButton") then
 					StreamOverlay.OpenOptionsPanel()
 				elseif (button == "RightButton") then
@@ -2554,7 +2554,7 @@ function StreamOverlay:CreateMinimapIcon()
 				end
 			end,
 			
-			OnTooltipShow = function (tooltip)
+			OnTooltipShow = function(tooltip)
 				tooltip:AddLine ("Details!: Action Tracker", 1, 1, 1)
 				tooltip:AddLine ("|cFFFF7700Left Click|r: open options.")
 				tooltip:AddLine ("|cFFFF7700Right Click|r: hide this icon.")

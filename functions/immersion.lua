@@ -40,7 +40,7 @@ function immersionFrame.CheckIfCanEnableImmersion()
 end
 
 --check events
-immersionFrame:SetScript("OnEvent", function (_, event, ...)
+immersionFrame:SetScript("OnEvent", function(_, event, ...)
     if (event == "ZONE_CHANGED_NEW_AREA") then
         C_Timer.After(3, immersionFrame.CheckIfCanEnableImmersion)
     end

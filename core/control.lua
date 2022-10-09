@@ -94,7 +94,7 @@
 	
 	-- try get the current encounter name during the encounter
 	
-		local boss_found_not_registered = function (t, ZoneName, ZoneMapID, DifficultyID)
+		local boss_found_not_registered = function(t, ZoneName, ZoneMapID, DifficultyID)
 			
 			local boss_table = {
 				index = 0,
@@ -112,7 +112,7 @@
 			Details.tabela_vigente.is_boss = boss_table
 		end
 	
-		local boss_found = function (index, name, zone, mapid, diff, encounterid)
+		local boss_found = function(index, name, zone, mapid, diff, encounterid)
 		
 			local mapID = C_Map.GetBestMapForUnit ("player")
 			local ejid
@@ -1408,7 +1408,7 @@
 			end
 		end
 		
-		local fight_component = function (energy_container, misc_container, name)
+		local fight_component = function(energy_container, misc_container, name)
 			local on_energy = energy_container._ActorTable [energy_container._NameIndexTable [name]]
 			if (on_energy) then
 				on_energy.fight_component = true
@@ -1876,7 +1876,7 @@
 
 			DetailsFramework:ApplyStandardBackdrop(panel)
 
-			panel:SetScript("OnMouseDown", function (self, button)
+			panel:SetScript("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
 					panel:Hide()
 				end

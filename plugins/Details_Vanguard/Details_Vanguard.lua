@@ -311,7 +311,7 @@ local function CreatePluginFrames (data)
 		end
 	end
 	
-	local SetTank = function (self, index)
+	local SetTank = function(self, index)
 		local name = Vanguard.TankList [index]
 		self.tankname:SetText (Vanguard:GetOnlyName (name))
 		self.tankname_string = name
@@ -354,22 +354,22 @@ local function CreatePluginFrames (data)
 		self.unitFrame.castBar:SetTexture (SharedMedia:Fetch("statusbar", Vanguard.db.tank_block_texture))
 	end
 	
-	local debuff_on_enter = function (self)
+	local debuff_on_enter = function(self)
 		if (self.spellid) then
 			--self.texture:SetBlendMode ("ADD")
 			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
-			GameTooltip:SetSpellByID (self.spellid)
+			GameTooltip:SetSpellByID(self.spellid)
 			GameTooltip:Show()
 		end
 	end
-	local debuff_on_leave = function (self)
+	local debuff_on_leave = function(self)
 		--self.texture:SetBlendMode ("BLEND")
 		if (self.spellid) then
 			GameTooltip:Hide()
 		end
 	end
 
-	local on_click = function (self, button)
+	local on_click = function(self, button)
 		if (button == "LeftButton") then
 			Vanguard.OpenOptionsPanel()
 			
@@ -928,7 +928,7 @@ end
 local build_options_panel = function()
 	local options_frame = Vanguard:CreatePluginOptionsFrame ("VanguardOptionsWindow", "Vanguard Options", 1)
 	
-	local tank_texture_set = function (_, _, value) 
+	local tank_texture_set = function(_, _, value) 
 		Vanguard.db.tank_block_texture = value;
 		Vanguard:ResetBars()
 		Vanguard:RefreshTanks()
@@ -944,7 +944,7 @@ local build_options_panel = function()
 	for name, texturePath in pairs (textures) do 
 		texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath, onclick = tank_texture_set, icon = texture_icon, texcoord = texture_texcoord}
 	end
-	table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+	table.sort (texTable, function(t1, t2) return t1.label < t2.label end)
 	
 	local tank_texture_menu = texTable
 
@@ -969,14 +969,14 @@ local build_options_panel = function()
 		{
 			type = "toggle",
 			get = function() return Vanguard.db.show_inc_bars end,
-			set = function (self, fixedparam, value) Vanguard.db.show_inc_bars = value; Vanguard:ResetBars() end,
+			set = function(self, fixedparam, value) Vanguard.db.show_inc_bars = value; Vanguard:ResetBars() end,
 			--desc = "Shows the incoming heal vs incoming damage.",
 			name = "Show Incoming Damage"
 		},
 		{
 			type = "range",
 			get = function() return Vanguard.db.bar_height end,
-			set = function (self, fixedparam, value)
+			set = function(self, fixedparam, value)
 				Vanguard.db.bar_height = value
 				Vanguard:ResetBars()
 				Vanguard:RefreshTanks()
@@ -992,26 +992,26 @@ local build_options_panel = function()
 		{
 			type = "toggle",
 			get = function() return Vanguard.db.show_health_bar end,
-			set = function (self, fixedparam, value) Vanguard.db.show_health_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
+			set = function(self, fixedparam, value) Vanguard.db.show_health_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
 			name = "Show Health Bar"
 		},
 		{
 			type = "toggle",
 			get = function() return Vanguard.db.show_cast_bar end,
-			set = function (self, fixedparam, value) Vanguard.db.show_cast_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
+			set = function(self, fixedparam, value) Vanguard.db.show_cast_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
 			name = "Show Cast Bar"
 		},
 		{
 			type = "toggle",
 			get = function() return Vanguard.db.show_power_bar end,
-			set = function (self, fixedparam, value) Vanguard.db.show_power_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
+			set = function(self, fixedparam, value) Vanguard.db.show_power_bar = value; Vanguard:RefreshTanks(); Vanguard:ResetBars() end,
 			name = "Show Power Bar"
 		},
 
 		{
 			type = "range",
 			get = function() return Vanguard.db.tank_block_size end,
-			set = function (self, fixedparam, value) Vanguard.db.tank_block_size = value; Vanguard:RefreshTanks() end,
+			set = function(self, fixedparam, value) Vanguard.db.tank_block_size = value; Vanguard:RefreshTanks() end,
 			min = 70,
 			max = 250,
 			step = 1,
@@ -1021,7 +1021,7 @@ local build_options_panel = function()
 		{
 			type = "range",
 			get = function() return Vanguard.db.tank_block_size_height end,
-			set = function (self, fixedparam, value) Vanguard.db.tank_block_size_height = value; Vanguard:RefreshTanks() end,
+			set = function(self, fixedparam, value) Vanguard.db.tank_block_size_height = value; Vanguard:RefreshTanks() end,
 			min = 10,
 			max = 100,
 			step = 1,
@@ -1030,7 +1030,7 @@ local build_options_panel = function()
 		{
 			type = "range",
 			get = function() return Vanguard.db.tank_block_castbar_size_height end,
-			set = function (self, fixedparam, value) Vanguard.db.tank_block_castbar_size_height = value; Vanguard:RefreshTanks() end,
+			set = function(self, fixedparam, value) Vanguard.db.tank_block_castbar_size_height = value; Vanguard:RefreshTanks() end,
 			min = 10,
 			max = 60,
 			step = 1,
@@ -1039,7 +1039,7 @@ local build_options_panel = function()
 		{
 			type = "range",
 			get = function() return Vanguard.db.tank_block_powerbar_size_height end,
-			set = function (self, fixedparam, value) Vanguard.db.tank_block_powerbar_size_height = value; Vanguard:RefreshTanks() end,
+			set = function(self, fixedparam, value) Vanguard.db.tank_block_powerbar_size_height = value; Vanguard:RefreshTanks() end,
 			min = 10,
 			max = 60,
 			step = 1,
@@ -1048,7 +1048,7 @@ local build_options_panel = function()
 		{
 			type = "color",
 			get = function() return Vanguard.db.tank_block_color end,
-			set = function (self, r, g, b, a) 
+			set = function(self, r, g, b, a) 
 				local current = Vanguard.db.tank_block_color;
 				current[1], current[2], current[3], current[4] = r, g, b, a;
 				Vanguard:RefreshTanks()
@@ -1061,7 +1061,7 @@ local build_options_panel = function()
 		{
 			type = "range",
 			get = function() return Vanguard.db.aura_offset_y end,
-			set = function (self, fixedparam, value) Vanguard.db.aura_offset_y = value; Vanguard.RefreshWidgets() end,
+			set = function(self, fixedparam, value) Vanguard.db.aura_offset_y = value; Vanguard.RefreshWidgets() end,
 			min = -20,
 			max = 20,
 			step = 1,
@@ -1070,7 +1070,7 @@ local build_options_panel = function()
 		{
 			type = "range",
 			get = function() return Vanguard.db.aura_timer_text_size end,
-			set = function (self, fixedparam, value) Vanguard.db.aura_timer_text_size = value; Vanguard.RefreshWidgets() end,
+			set = function(self, fixedparam, value) Vanguard.db.aura_timer_text_size = value; Vanguard.RefreshWidgets() end,
 			min = 6,
 			max = 24,
 			step = 1,

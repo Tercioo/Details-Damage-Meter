@@ -480,13 +480,13 @@ end
 		return from > #s and "" or s:match(".*%S", from)
 	end
 	--
-	local titlecase = function (first, rest)
+	local titlecase = function(first, rest)
 		return first:upper()..rest:lower()
 	end
 	--
 	local have_repeated = false
 	local count_spaces = 0
-	local check_repeated = function (char)
+	local check_repeated = function(char)
 		if (char == "  ") then
 			have_repeated = true
 		elseif (string.len (char) > 2) then
@@ -858,7 +858,7 @@ do
 		name:SetText (UnitName ("player"))
 	---
 
-	local OnClickFunction = function (button) 
+	local OnClickFunction = function(button) 
 		if (button.isAvatar) then
 			local avatar = NickTag.avatar_pool [button.IconID]
 			_G.AvatarPickFrameAvatarPreview:SetTexture ( avatar [1] )
@@ -884,7 +884,7 @@ do
 	okey:SetPoint ("bottomright", avatar_pick_frame, "bottomright", -37, 12)
 	okey:SetText ("Accept")
 	okey:SetFrameLevel (avatar_pick_frame:GetFrameLevel()+2)
-	okey:SetScript ("OnClick", function (self) 
+	okey:SetScript ("OnClick", function(self) 
 		avatar_pick_frame:Hide()
 		if (avatar_pick_frame.callback) then
 			avatar_pick_frame.callback (avatar_pick_frame.selected_avatar, {0, 1, 0, 1}, avatar_pick_frame.selected_background, avatar_pick_frame.selected_texcoord, avatar_pick_frame.selected_color)
@@ -895,7 +895,7 @@ do
 	change_color:SetText ("Color")
 	change_color:SetFrameLevel (avatar_pick_frame:GetFrameLevel()+2)
 	
-	change_color:SetScript ("OnClick", function (self) 
+	change_color:SetScript ("OnClick", function(self) 
 		ColorPickerFrame.func = selectedColor
 		ColorPickerFrame.hasOpacity = false
 		ColorPickerFrame:SetParent (avatar_pick_frame)
@@ -940,7 +940,7 @@ do
 	background_list:SetWidth (275)
 	background_list:SetHeight (140)
 
-	local avatar_scroll_update = function (self)
+	local avatar_scroll_update = function(self)
 		local numMacroIcons = #NickTag.avatar_pool
 		local macroPopupIcon, macroPopupButton, index, texture
 		local macroPopupOffset = FauxScrollFrame_GetOffset (avatar_list)
@@ -964,7 +964,7 @@ do
 		end
 		FauxScrollFrame_Update (avatar_list, numMacroIcons , 3, 64)
 	end
-	local background_scroll_update = function (self)
+	local background_scroll_update = function(self)
 		local numMacroIcons = #NickTag.background_pool
 		local macroPopupIcon, macroPopupButton, index, texture
 		local macroPopupOffset = FauxScrollFrame_GetOffset (background_list)
@@ -989,10 +989,10 @@ do
 		FauxScrollFrame_Update (background_list, numMacroIcons , 3, 40)
 	end
 	
-	avatar_list:SetScript ("OnVerticalScroll", function (self, offset) 
+	avatar_list:SetScript ("OnVerticalScroll", function(self, offset) 
 		FauxScrollFrame_OnVerticalScroll (avatar_list, offset, 64, avatar_scroll_update) 
 	end)
-	background_list:SetScript ("OnVerticalScroll", function (self, offset) 
+	background_list:SetScript ("OnVerticalScroll", function(self, offset) 
 		FauxScrollFrame_OnVerticalScroll (background_list, offset, 40, background_scroll_update) 
 	end)
 	

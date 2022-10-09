@@ -151,7 +151,7 @@ do
             local iconcolor = {1, 1, 1, .5}
             local iconsize = {14, 14}
 
-            local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
+            local onSelectTimeAbbreviation = function(_, _, abbreviationtype)
                 _detalhes.ps_abbreviation = abbreviationtype
                 _detalhes:UpdateToKFunctions()
                 afterUpdate()
@@ -172,7 +172,7 @@ do
             end
 
         --> number system
-            local onSelectNumeralSystem = function (_, _, systemNumber)
+            local onSelectNumeralSystem = function(_, _, systemNumber)
                 _detalhes:SelectNumericalSystem(systemNumber)
             end
 
@@ -195,7 +195,7 @@ do
             end
 
         --> time measure type
-            local onSelectTimeType = function (_, _, timetype)
+            local onSelectTimeType = function(_, _, timetype)
                 _detalhes.time_type = timetype
                 _detalhes.time_type_original = timetype
                 _detalhes:RefreshMainWindow(-1, true)
@@ -211,7 +211,7 @@ do
             end
 
         --> auto erase | erase data
-            local onSelectEraseData = function (_, _, eraseType)
+            local onSelectEraseData = function(_, _, eraseType)
                 _detalhes.segments_auto_erase = eraseType
                 afterUpdate()
             end
@@ -243,7 +243,7 @@ do
             {--segments locked
                 type = "toggle",
                 get = function() return Details.instances_segments_locked end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.instances_segments_locked = value
                 end,
                 name = Loc ["STRING_OPTIONS_LOCKSEGMENTS"],
@@ -253,7 +253,7 @@ do
             {--animate bars
                 type = "toggle",
                 get = function() return _detalhes.use_row_animations end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetUseAnimations(value)
                     afterUpdate()
                 end,
@@ -264,7 +264,7 @@ do
             {--scroll speed
                 type = "range",
                 get = function() return _detalhes.scroll_speed end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.scroll_speed = value
                 end,
                 min = 1,
@@ -276,7 +276,7 @@ do
             {--instances amount
                 type = "range",
                 get = function() return _detalhes.instances_amount end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.instances_amount = value
                 end,
                 min = 1,
@@ -306,7 +306,7 @@ do
             {--update speed
                 type = "range",
                 get = function() return _detalhes.update_speed end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetWindowUpdateSpeed(value)
                     afterUpdate()
                 end,
@@ -342,7 +342,7 @@ do
             {--auto erase trash segments
                 type = "toggle",
                 get = function() return _detalhes.trash_auto_remove end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.trash_auto_remove = value
                     afterUpdate()
                 end,
@@ -353,7 +353,7 @@ do
             {--auto erase world segments
                 type = "toggle",
                 get = function() return _detalhes.world_combat_is_trash end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.world_combat_is_trash = value
                     afterUpdate()
                 end,
@@ -364,7 +364,7 @@ do
             {--erase chart data
                 type = "toggle",
                 get = function() return _detalhes.clear_graphic end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.clear_graphic = value
                     afterUpdate()
                 end,
@@ -376,7 +376,7 @@ do
             {--battleground remote parser
                 type = "toggle",
                 get = function() return _detalhes.use_battleground_server_parser end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.use_battleground_server_parser = value
                  end,
                 name = Loc ["STRING_OPTIONS_BG_UNIQUE_SEGMENT"],
@@ -386,7 +386,7 @@ do
             {--battleground show enemies
                 type = "toggle",
                 get = function() return _detalhes.pvp_as_group end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.pvp_as_group = value
                  end,
                 name = Loc ["STRING_OPTIONS_BG_ALL_ALLY"],
@@ -397,7 +397,7 @@ do
             {--max segments
                 type = "range",
                 get = function() return _detalhes.segments_amount end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.segments_amount = value
                     afterUpdate()
                 end,
@@ -411,7 +411,7 @@ do
             {--max segments saved
                 type = "range",
                 get = function() return _detalhes.segments_amount_to_save end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.segments_amount_to_save = value
                     afterUpdate()
                 end,
@@ -427,7 +427,7 @@ do
             {--pvp frags
                 type = "toggle",
                 get = function() return _detalhes.only_pvp_frags end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.only_pvp_frags = value
                     afterUpdate()
                 end,
@@ -439,7 +439,7 @@ do
             {--damage taken everything
                 type = "toggle",
                 get = function() return _detalhes.damage_taken_everything end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.damage_taken_everything = value
                     afterUpdate()
                 end,
@@ -460,7 +460,7 @@ do
             {--death log min healing
                 type = "range",
                 get = function() return _detalhes.deathlog_healingdone_min end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.deathlog_healingdone_min = value
                     afterUpdate()
                 end,
@@ -477,7 +477,7 @@ do
             {--erase overall data on new boss
                 type = "toggle",
                 get = function() return _detalhes.overall_clear_newboss end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetOverallResetOptions(value)
                     afterUpdate()
                 end,
@@ -488,7 +488,7 @@ do
             {--erase overall data on mythic plus
                 type = "toggle",
                 get = function() return _detalhes.overall_clear_newchallenge end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetOverallResetOptions(nil, value)
                     afterUpdate()
                 end,
@@ -499,7 +499,7 @@ do
             {--erase overall data on logout
                 type = "toggle",
                 get = function() return _detalhes.overall_clear_pvp end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetOverallResetOptions(nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -510,7 +510,7 @@ do
             {--erase overall data on logout
                 type = "toggle",
                 get = function() return _detalhes.overall_clear_logout end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetOverallResetOptions(nil, nil, value)
                     afterUpdate()
                 end,
@@ -589,7 +589,7 @@ do
             {--click through
                 type = "toggle",
                 get = function() return currentInstance.clickthrough_window end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details:InstanceGroupCall(currentInstance, "UpdateClickThroughSettings", nil, value, value, value)
                     afterUpdate()
                 end,
@@ -600,7 +600,7 @@ do
             {--click only in combat
                 type = "toggle",
                 get = function() return currentInstance.clickthrough_incombatonly end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details:InstanceGroupCall(currentInstance, "UpdateClickThroughSettings", value)
                     afterUpdate()
                 end,
@@ -615,7 +615,7 @@ do
             {--show pets when solo
                 type = "toggle",
                 get = function() return Details.immersion_pets_on_solo_play end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.immersion_pets_on_solo_play = value
                     afterUpdate()
                 end,
@@ -627,7 +627,7 @@ do
             {--always show players even on stardard mode
                 type = "toggle",
                 get = function() return _detalhes.all_players_are_group end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.all_players_are_group = value
                     afterUpdate()
                 end,
@@ -667,7 +667,7 @@ do
             {--ignore nicknames
                 type = "toggle",
                 get = function() return _detalhes.ignore_nicktag end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.ignore_nicktag = value
                     afterUpdate()
                 end,
@@ -679,7 +679,7 @@ do
             {--remove realm name
                 type = "toggle",
                 get = function() return _detalhes.remove_realm_from_name end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.remove_realm_from_name = value
                     afterUpdate()
                 end,
@@ -694,7 +694,7 @@ do
             {--player bar color toggle
                 type = "toggle",
                 get = function() return Details.use_self_color end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.use_self_color = value
                     afterUpdate()
                 end,
@@ -709,7 +709,7 @@ do
                     local r, g, b = unpack(Details.class_colors.SELF)
                     return {r, g, b, 1}
 				end,
-				set = function (self, r, g, b, a)
+				set = function(self, r, g, b, a)
                     Details.class_colors.SELF[1] = r
                     Details.class_colors.SELF[2] = g
                     Details.class_colors.SELF[3] = b
@@ -743,7 +743,7 @@ do
             end
 
         --> skin selection
-            local onSelectSkin = function (_, _, skinName)
+            local onSelectSkin = function(_, _, skinName)
                 if (isGroupEditing()) then
                     Details:InstanceGroupCall(currentInstance, "OptionPanelOnChangeSkin", skinName)
                 else
@@ -826,7 +826,7 @@ do
         --> import skin string
             local importSaved = function()
                 --when clicking in the okay button in the import window, it send the text in the first argument
-                _detalhes:ShowImportWindow("", function (skinString)
+                _detalhes:ShowImportWindow("", function(skinString)
                     if (type (skinString) ~= "string" or string.len(skinString) < 2) then
                         return
                     end
@@ -1011,7 +1011,7 @@ do
             {--chat tab embed enabled
                 type = "toggle",
                 get = function() return _detalhes.chat_tab_embed.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.chat_embed:SetTabSettings(nil, value)
                     Details.options.SetCurrentInstanceAndRefresh(currentInstance)
                     afterUpdate()
@@ -1033,7 +1033,7 @@ do
             {--single window
                 type = "toggle",
                 get = function() return _detalhes.chat_tab_embed.single_window end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.chat_embed:SetTabSettings (nil, nil, value)
                     Details.options.SetCurrentInstanceAndRefresh(currentInstance)
                     afterUpdate()
@@ -1045,7 +1045,7 @@ do
             {--chat tab width offset
                 type = "range",
                 get = function() return tonumber (_detalhes.chat_tab_embed.x_offset) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.chat_tab_embed.x_offset = value
                     if (_detalhes.chat_embed.enabled) then
                         _detalhes.chat_embed:DoEmbed()
@@ -1062,7 +1062,7 @@ do
             {--chat tab height offset
                 type = "range",
                 get = function() return tonumber (_detalhes.chat_tab_embed.y_offset) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.chat_tab_embed.y_offset = value
                     if (_detalhes.chat_embed.enabled) then
                         _detalhes.chat_embed:DoEmbed()
@@ -1089,7 +1089,7 @@ end
 do
 
     --bar grow direction
-    local set_bar_grow_direction = function (_, instance, value)
+    local set_bar_grow_direction = function(_, instance, value)
         editInstanceSetting(currentInstance, "SetBarGrowDirection", value)
         afterUpdate()
     end
@@ -1106,7 +1106,7 @@ do
     end
 
     --bar orientation
-    local set_bar_orientation = function (_, instance, value)
+    local set_bar_orientation = function(_, instance, value)
         editInstanceSetting(currentInstance, "SetBarOrientationDirection", value)
         afterUpdate()
     end
@@ -1140,7 +1140,7 @@ do
     local texture_icon_size = {14, 14}
     local texture_texcoord = {469/512, 505/512, 249/512, 284/512}
 
-    local onSelectTexture = function (_, instance, textureName)
+    local onSelectTexture = function(_, instance, textureName)
         editInstanceSetting(currentInstance, "SetBarSettings", nil, textureName)
         afterUpdate()
     end
@@ -1151,12 +1151,12 @@ do
         for name, texturePath in pairs (textures) do 
             texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectTexture, icon = texture_icon, texcoord = texture_texcoord}
         end
-        table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+        table.sort (texTable, function(t1, t2) return t1.label < t2.label end)
         return texTable
     end
 
     --select background texture
-    local onSelectTextureBackground = function (_, instance, textureName)
+    local onSelectTextureBackground = function(_, instance, textureName)
         editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, textureName)
         afterUpdate()
     end
@@ -1167,17 +1167,17 @@ do
         for name, texturePath in pairs (textures2) do
             texTable2[#texTable2+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectTextureBackground, icon = texture_icon, texcoord = texture_texcoord}
         end
-        table.sort (texTable2, function (t1, t2) return t1.label < t2.label end)
+        table.sort (texTable2, function(t1, t2) return t1.label < t2.label end)
         return texTable2
     end
 
     --select icon file from dropdown
-    local OnSelectIconFileSpec = function (_, _, iconpath)
+    local OnSelectIconFileSpec = function(_, _, iconpath)
         editInstanceSetting(currentInstance, "SetBarSpecIconSettings", true, iconpath, true)
         afterUpdate()
     end
 
-    local OnSelectIconFile = function (_, _, iconpath)
+    local OnSelectIconFile = function(_, _, iconpath)
         editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
         if (currentInstance.row_info.use_spec_icons) then
             editInstanceSetting(currentInstance, "SetBarSpecIconSettings", false)
@@ -1195,7 +1195,7 @@ do
         for name, texturePath in pairs (textures2) do
             texTable2[#texTable2+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectBarTextureOverlay, icon = texture_icon, texcoord = texture_texcoord}
         end
-        table.sort(texTable2, function (t1, t2) return t1.label < t2.label end)
+        table.sort(texTable2, function(t1, t2) return t1.label < t2.label end)
         return texTable2
     end
 
@@ -1221,7 +1221,7 @@ do
             {--line height
                 type = "range",
                 get = function() return tonumber (currentInstance.row_info.height) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", value)
                     afterUpdate()
                 end,
@@ -1235,7 +1235,7 @@ do
             {--padding
                 type = "range",
                 get = function() return tonumber (currentInstance.row_info.space.between) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1249,7 +1249,7 @@ do
             {--disable highlight
                 type = "toggle",
                 get = function() return _detalhes.instances_disable_bar_highlight end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.instances_disable_bar_highlight = value
                     afterUpdate()
                 end,
@@ -1260,7 +1260,7 @@ do
             {--fast dps updates
                 type = "toggle",
                 get = function() return currentInstance.row_info.fast_ps_update end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "row_info", "fast_ps_update", value)
                     afterUpdate()
                 end,
@@ -1271,7 +1271,7 @@ do
             {--always show me
                 type = "toggle",
                 get = function() return currentInstance.following.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "following", "enabled", value)
                     afterUpdate()
                 end,
@@ -1352,7 +1352,7 @@ do
                     local alpha = currentInstance.row_info.alpha
                     return {r, g, b, a}
 				end,
-				set = function (self, r, g, b, a)
+				set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, {r, g, b})
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, a)
                     afterUpdate()
@@ -1364,7 +1364,7 @@ do
             {--color by player class
                 type = "toggle",
                 get = function() return currentInstance.row_info.texture_class_colors end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, value)
                     afterUpdate()
                 end,
@@ -1390,7 +1390,7 @@ do
                     local r, g, b, a = unpack(currentInstance.row_info.overlay_color)
                     return {r, g, b, a}
 				end,
-				set = function (self, r, g, b, a)
+				set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarOverlaySettings", nil, {r, g, b, a})
                     afterUpdate()
 				end,
@@ -1418,7 +1418,7 @@ do
                     local alpha = currentInstance.row_info.alpha
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -1429,7 +1429,7 @@ do
             {--background uses class colors
                 type = "toggle",
                 get = function() return currentInstance.row_info.texture_background_class_color end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1489,7 +1489,7 @@ do
             {--bar start after icon
                 type = "toggle",
                 get = function() return currentInstance.row_info.start_after_icon end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1500,7 +1500,7 @@ do
             {--icon size offset
                 type = "range",
                 get = function() return tonumber (currentInstance.row_info.icon_size_offset) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1518,7 +1518,7 @@ do
             {--show faction icon
                 type = "toggle",
                 get = function() return currentInstance.row_info.show_faction_icon end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarFactionIconSettings", value)
                     afterUpdate()
                 end,
@@ -1529,7 +1529,7 @@ do
             {--faction icon size offset
                 type = "range",
                 get = function() return tonumber (currentInstance.row_info.faction_icon_size_offset) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarFactionIconSettings", nil, value)
                     afterUpdate()
                 end,
@@ -1547,7 +1547,7 @@ do
             {--show role icon
                 type = "toggle",
                 get = function() return currentInstance.row_info.show_arena_role_icon end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarArenaRoleIconSettings", value)
                     afterUpdate()
                 end,
@@ -1558,7 +1558,7 @@ do
             {--role icon size offset
                 type = "range",
                 get = function() return tonumber (currentInstance.row_info.arena_role_icon_size_offset) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarArenaRoleIconSettings", nil, value)
                     afterUpdate()
                 end,
@@ -1579,7 +1579,7 @@ do
             {--inline text enabled
                 type = "toggle",
                 get = function() return currentInstance.use_multi_fontstrings end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "use_multi_fontstrings", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     _detalhes:RefreshMainWindow(-1, true)
@@ -1592,7 +1592,7 @@ do
             {--inline auto align enabled
                 type = "toggle",
                 get = function() return currentInstance.use_auto_align_multi_fontstrings end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "use_auto_align_multi_fontstrings", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     _detalhes:RefreshMainWindow(-1, true)
@@ -1606,7 +1606,7 @@ do
             {--name size offset
                 type = "range",
                 get = function() return tonumber(currentInstance.fontstrings_text_limit_offset) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text_limit_offset", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     Details.options.RefreshInstances(currentInstance)
@@ -1622,7 +1622,7 @@ do
             {--lineText2 (left, usuali is the 'done' amount)
                 type = "range",
                 get = function() return tonumber (currentInstance.fontstrings_text2_anchor) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text2_anchor", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     afterUpdate()
@@ -1637,7 +1637,7 @@ do
             {--lineText3 (in the middle)
                 type = "range",
                 get = function() return tonumber (currentInstance.fontstrings_text3_anchor) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text3_anchor", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     afterUpdate()
@@ -1652,7 +1652,7 @@ do
             {--lineText4 (closest to the right)
                 type = "range",
                 get = function() return tonumber (currentInstance.fontstrings_text4_anchor) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text4_anchor", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     afterUpdate()
@@ -1671,7 +1671,7 @@ do
             {--total bar enabled
                 type = "toggle",
                 get = function() return currentInstance.total_bar.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "total_bar", "enabled", value)
                     afterUpdate()
                     Details.options.RefreshInstances(currentInstance)
@@ -1682,7 +1682,7 @@ do
             {--only in group
                 type = "toggle",
                 get = function() return currentInstance.total_bar.only_in_group end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "total_bar", "only_in_group", value)
                     afterUpdate()
                 end,
@@ -1695,7 +1695,7 @@ do
                     local r, g, b = unpack(currentInstance.total_bar.color)
                     return {r, g, b, 1}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "total_bar", "color", {r, g, b, 1})
                     afterUpdate()
                 end,
@@ -1711,7 +1711,7 @@ do
                     local r, g, b = unpack(Details.class_colors.ARENA_GREEN)
                     return {r, g, b, 1}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     Details.class_colors.ARENA_GREEN[1] = r
                     Details.class_colors.ARENA_GREEN[2] = g
                     Details.class_colors.ARENA_GREEN[3] = b
@@ -1726,7 +1726,7 @@ do
                     local r, g, b = unpack(Details.class_colors.ARENA_YELLOW)
                     return {r, g, b, 1}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     Details.class_colors.ARENA_YELLOW[1] = r
                     Details.class_colors.ARENA_YELLOW[2] = g
                     Details.class_colors.ARENA_YELLOW[3] = b
@@ -1742,7 +1742,7 @@ do
             {--border enabled
                 type = "toggle",
                 get = function() return currentInstance.row_info.backdrop.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarBackdropSettings", value)
                     afterUpdate()
                 end,
@@ -1756,7 +1756,7 @@ do
                     local r, g, b, a = unpack(currentInstance.row_info.backdrop.color)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarBackdropSettings", nil, nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -1767,7 +1767,7 @@ do
             {--border size
                 type = "range",
                 get = function() return tonumber (currentInstance.row_info.backdrop.size) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarBackdropSettings", nil, value)
                     afterUpdate()
                 end,
@@ -1783,7 +1783,7 @@ do
             {--border uses class colors
                 type = "toggle",
                 get = function() return currentInstance.row_info.backdrop.use_class_colors end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarBackdropSettings", nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1804,7 +1804,7 @@ end
 do
 
     --> text font selection
-        local onSelectFont = function (_, instance, fontName)
+        local onSelectFont = function(_, instance, fontName)
             editInstanceSetting(currentInstance, "SetBarTextSettings", nil, fontName)
             afterUpdate()
         end
@@ -1815,12 +1815,12 @@ do
             for name, fontPath in pairs (fontObjects) do 
                 fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
             end
-            table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
+            table.sort (fontTable, function(t1, t2) return t1.label < t2.label end)
             return fontTable
         end
 
 	--> percent type
-        local onSelectPercent = function (_, instance, percentType)
+        local onSelectPercent = function(_, instance, percentType)
             editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, percentType)
             afterUpdate()
         end
@@ -1834,7 +1834,7 @@ do
         end
 
     --> brackets
-        local onSelectBracket = function (_, instance, value)
+        local onSelectBracket = function(_, instance, value)
             editInstanceSetting(currentInstance, "SetBarRightTextSettings", nil, nil, nil, value)
             afterUpdate()
 		end
@@ -1851,7 +1851,7 @@ do
         end
     
     --> separators
-        local onSelectSeparator = function (_, instance, value)
+        local onSelectSeparator = function(_, instance, value)
             editInstanceSetting(currentInstance, "SetBarRightTextSettings", nil, nil, nil, nil, value)
             afterUpdate()
 		end
@@ -1882,7 +1882,7 @@ do
                     local r, g, b = unpack(currentInstance.row_info.fixed_text_color)
                     return {r, g, b, 1}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, {r, g, b, 1})
                     afterUpdate()
                 end,
@@ -1892,7 +1892,7 @@ do
             {--text size 2 
                 type = "range",
                 get = function() return currentInstance.row_info.font_size end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", value)
                     afterUpdate()
                 end,
@@ -1929,7 +1929,7 @@ do
             {--use class colors 7
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_class_colors end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1939,7 +1939,7 @@ do
             {--outline 8
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_outline end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1949,7 +1949,7 @@ do
             {--outline small 9
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_outline_small end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1962,7 +1962,7 @@ do
                     local r, g, b = unpack(currentInstance.row_info.textL_outline_small_color)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -1972,7 +1972,7 @@ do
             {--position number 11
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_show_number end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1982,7 +1982,7 @@ do
             {--translit text 12
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_translit_text end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -1995,7 +1995,7 @@ do
             {--custom left text 14
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_enable_custom_text end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2026,7 +2026,7 @@ do
             {--use class colors 18
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_class_colors end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2036,7 +2036,7 @@ do
             {--outline 19
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_outline end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2046,7 +2046,7 @@ do
             {--outline small 20
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_outline_small end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2059,7 +2059,7 @@ do
                     local r, g, b = unpack(currentInstance.row_info.textR_outline_small_color)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -2072,7 +2072,7 @@ do
             {--show total --23
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_show_data[1] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarRightTextSettings", value)
                     afterUpdate()
                 end,
@@ -2082,7 +2082,7 @@ do
             {--show per second 24
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_show_data[2] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarRightTextSettings", nil, value)
                     afterUpdate()
                 end,
@@ -2092,7 +2092,7 @@ do
             {--show percent 25
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_show_data[3] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarRightTextSettings", nil, nil, value)
                     afterUpdate()
                 end,
@@ -2128,7 +2128,7 @@ do
             {--custom right text 31
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_enable_custom_text end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2182,14 +2182,14 @@ end
 -- ~05 - title bar
 do
 
-    local func = function (menu_button)
+    local func = function(menu_button)
         editInstanceSetting(currentInstance, "menu_icons", menu_button, not currentInstance.menu_icons[menu_button])
         editInstanceSetting(currentInstance, "ToolbarMenuSetButtons")
         afterUpdate()
     end
 
     --> menu text face
-        local onSelectFont = function (_, _, fontName)
+        local onSelectFont = function(_, _, fontName)
             _detalhes.font_faces.menus = fontName
         end
         
@@ -2199,12 +2199,12 @@ do
             for name, fontPath in pairs (fontObjects) do 
                 fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
             end
-            table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
+            table.sort (fontTable, function(t1, t2) return t1.label < t2.label end)
             return fontTable
         end
 
     --> attribute text font
-        local on_select_attribute_font = function (self, instance, fontName)
+        local on_select_attribute_font = function(self, instance, fontName)
             editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, fontName)
             afterUpdate()
         end
@@ -2214,7 +2214,7 @@ do
             for name, fontPath in pairs (SharedMedia:HashTable ("font")) do 
                 fonts [#fonts+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = on_select_attribute_font, font = fontPath, descfont = name, desc = "Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."}
             end
-            table.sort (fonts, function (t1, t2) return t1.label < t2.label end)
+            table.sort (fonts, function(t1, t2) return t1.label < t2.label end)
             return fonts
         end
 
@@ -2237,7 +2237,7 @@ do
             for name, texturePath in pairs (textures) do
                 texTable[#texTable+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectCustomTitleBarTexture}
             end
-            table.sort(texTable, function (t1, t2) return t1.label < t2.label end)
+            table.sort(texTable, function(t1, t2) return t1.label < t2.label end)
             return texTable
         end
 
@@ -2261,7 +2261,7 @@ do
             {--use custom titlebar
                 type = "toggle",
                 get = function() return currentInstance.titlebar_shown end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetTitleBarSettings", value)
                     editInstanceSetting(currentInstance, "RefreshTitleBar")
                     afterUpdate()
@@ -2273,7 +2273,7 @@ do
             {--custom title bar height
                 type = "range",
                 get = function() return currentInstance.titlebar_height end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetTitleBarSettings", nil, value)
                     editInstanceSetting(currentInstance, "RefreshTitleBar")
                     afterUpdate()
@@ -2301,7 +2301,7 @@ do
                     local r, g, b, a = unpack(currentInstance.titlebar_texture_color)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetTitleBarSettings", nil, nil, nil, {r, g, b, a})
                     editInstanceSetting(currentInstance, "RefreshTitleBar")
                     afterUpdate()
@@ -2316,7 +2316,7 @@ do
             {--disable all displays
                 type = "toggle",
                 get = function() return currentInstance.disable_alldisplays_window end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.disable_alldisplays_window = value
                     afterUpdate()
                 end,
@@ -2434,7 +2434,7 @@ do
             {--title bar icons size
                 type = "range",
                 get = function() return currentInstance.menu_icons_size end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "ToolbarMenuButtonsSize", value)
                     afterUpdate()
                 end,
@@ -2449,7 +2449,7 @@ do
             {--title bar icons spacing
                 type = "range",
                 get = function() return currentInstance.menu_icons.space end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "ToolbarMenuSetButtonsOptions", value)
                     afterUpdate()
                 end,
@@ -2463,7 +2463,7 @@ do
             {--title bar icons position X
                 type = "range",
                 get = function() return currentInstance.menu_anchor[1] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "MenuAnchor", value)
                     afterUpdate()
                 end,
@@ -2477,7 +2477,7 @@ do
             {--title bar icons position Y
                 type = "range",
                 get = function() return currentInstance.menu_anchor[2] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "MenuAnchor", nil, value)
                     afterUpdate()
                 end,
@@ -2491,7 +2491,7 @@ do
             {--icons desaturated
                 type = "toggle",
                 get = function() return currentInstance.desaturated_menu end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "DesaturateMenu", value)
                     afterUpdate()
                 end,
@@ -2502,7 +2502,7 @@ do
             {--hide icon main icon
                 type = "toggle",
                 get = function() return currentInstance.hide_icon end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "HideMainIcon", value)
                     afterUpdate()
                 end,
@@ -2513,7 +2513,7 @@ do
             {--button attach to right
                 type = "toggle",
                 get = function() return currentInstance.menu_anchor.side == 2 and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "LeftMenuAnchorSide", value and 2 or 1)
                     afterUpdate()
                 end,
@@ -2524,7 +2524,7 @@ do
             {--plugins button attach to right
                 type = "toggle",
                 get = function() return currentInstance.plugins_grow_direction == 2 and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "plugins_grow_direction", value and 2 or 1)
                     editInstanceSetting(currentInstance, "ToolbarMenuSetButtons")
                     afterUpdate()
@@ -2536,7 +2536,7 @@ do
             {--disable reset button
                 type = "toggle",
                 get = function() return _detalhes.disable_reset_button end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.disable_reset_button = value
                     afterUpdate()
                 end,
@@ -2547,7 +2547,7 @@ do
             {--click to open menus
                 type = "toggle",
                 get = function() return _detalhes.instances_menu_click_to_open end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.instances_menu_click_to_open = value
                     afterUpdate()
                 end,
@@ -2558,7 +2558,7 @@ do
             {--auto hide buttons
                 type = "toggle",
                 get = function() return currentInstance.auto_hide_menu.left end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetAutoHideMenu", value)
                     afterUpdate()
                 end,
@@ -2572,7 +2572,7 @@ do
             {--enable text
                 type = "toggle",
                 get = function() return currentInstance.attribute_text.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", value)
                     afterUpdate()
                 end,
@@ -2583,7 +2583,7 @@ do
             {--encounter time
                 type = "toggle",
                 get = function() return currentInstance.attribute_text.show_timer and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2594,7 +2594,7 @@ do
             {--text size
                 type = "range",
                 get = function() return tonumber(currentInstance.attribute_text.text_size) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2621,7 +2621,7 @@ do
                     local r, g, b = unpack (currentInstance.attribute_text.text_color)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, nil, nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -2632,7 +2632,7 @@ do
             {--text shadow
                 type = "toggle",
                 get = function() return currentInstance.attribute_text.shadow end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -2643,7 +2643,7 @@ do
             {--text X
                 type = "range",
                 get = function() return tonumber(currentInstance.attribute_text.anchor[1]) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, value)
                     afterUpdate()
                 end,
@@ -2657,7 +2657,7 @@ do
             {--text Y
                 type = "range",
                 get = function() return tonumber(currentInstance.attribute_text.anchor[2]) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, value)
                     afterUpdate()
                 end,
@@ -2671,7 +2671,7 @@ do
             {--anchor to top
                 type = "toggle",
                 get = function() return currentInstance.attribute_text.side == 1 and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, nil, nil, nil, value and 1 or 2)
                     afterUpdate()
                 end,
@@ -2693,7 +2693,7 @@ do
             {--menu text size
                 type = "range",
                 get = function() return Details.font_sizes.menus end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.font_sizes.menus = value
                     afterUpdate()
                 end,
@@ -2726,7 +2726,7 @@ do
             ["DIALOG"] = "Dialog"
         }
 
-        local onStrataSelect = function (_, instance, strataName)
+        local onStrataSelect = function(_, instance, strataName)
             editInstanceSetting(currentInstance, "SetFrameStrata", strataName)
             afterUpdate()
         end
@@ -2741,7 +2741,7 @@ do
         local buildStrataMenu = function() return strataTable end
 
     --> backdrop texture
-        local onBackdropSelect = function (_, instance, backdropName)
+        local onBackdropSelect = function(_, instance, backdropName)
             editInstanceSetting(currentInstance, "SetBackdropTexture", backdropName)
             afterUpdate()
         end
@@ -2823,7 +2823,7 @@ do
                     return {r, g, b, 1}
                 end,
 
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "InstanceColor", r, g, b, a, nil, true)
                     afterUpdate()
                 end,
@@ -2834,7 +2834,7 @@ do
             {--show borders
                 type = "toggle",
                 get = function() return currentInstance.show_sidebars end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     if (value) then
                         editInstanceSetting(currentInstance, "ShowSideBars")
                     else
@@ -2852,7 +2852,7 @@ do
                 get = function()
                     return {currentInstance.bg_r, currentInstance.bg_g, currentInstance.bg_b, currentInstance.bg_alpha}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBackgroundColor", r, g, b)
                     editInstanceSetting(currentInstance, "SetBackgroundAlpha", a)
                     afterUpdate()
@@ -2864,7 +2864,7 @@ do
             {--window scale
                 type = "range",
                 get = function() return tonumber(currentInstance.window_scale) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetWindowScale", value, true)
                     afterUpdate()
                 end,
@@ -2879,7 +2879,7 @@ do
             {--ignore on mass hide
                 type = "toggle",
                 get = function() return currentInstance.ignore_mass_showhide end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "ignore_mass_showhide", value)
                     afterUpdate()
                 end,
@@ -2912,7 +2912,7 @@ do
             {--disable grouping
                 type = "toggle",
                 get = function() return _detalhes.disable_window_groups end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.disable_window_groups = value
                     afterUpdate()
                 end,
@@ -2923,7 +2923,7 @@ do
             {--disable resize buttons
                 type = "toggle",
                 get = function() return _detalhes.disable_lock_ungroup_buttons end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.disable_lock_ungroup_buttons = value
                     afterUpdate()
                 end,
@@ -2934,7 +2934,7 @@ do
             {--disable stretch button
                 type = "toggle",
                 get = function() return _detalhes.disable_stretch_button end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.disable_stretch_button = value
                     afterUpdate()
                 end,
@@ -2947,7 +2947,7 @@ do
             {--title bar on top side
                 type = "toggle",
                 get = function() return currentInstance.toolbar_side == 1 and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "ToolbarSide", value and 1 or 2)
                     afterUpdate()
                 end,
@@ -2958,7 +2958,7 @@ do
             {--stretch button always on top
                 type = "toggle",
                 get = function() return currentInstance.grab_on_top end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "grab_on_top", value)
                     afterUpdate()
                 end,
@@ -2969,7 +2969,7 @@ do
             {--stretch button on top side
                 type = "toggle",
                 get = function() return currentInstance.stretch_button_side == 1 and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "StretchButtonAnchor", value and 1 or 2)
                     afterUpdate()
                 end,
@@ -3011,7 +3011,7 @@ do
             {--show full border ~border
                 type = "toggle",
                 get = function() return currentInstance.fullborder_shown end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "UpdateFullBorder", value)
                     afterUpdate()
                 end,
@@ -3024,7 +3024,7 @@ do
                 get = function()
                     return {unpack(currentInstance.fullborder_color)}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "UpdateFullBorder", nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -3035,7 +3035,7 @@ do
             {--border size
                 type = "range",
                 get = function() return tonumber(currentInstance.fullborder_size) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "UpdateFullBorder", nil, nil, value)
                     afterUpdate()
                 end,
@@ -3053,7 +3053,7 @@ do
             {--show full border ~border
                 type = "toggle",
                 get = function() return currentInstance.rowareaborder_shown end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "UpdateRowAreaBorder", value)
                     afterUpdate()
                 end,
@@ -3066,7 +3066,7 @@ do
                 get = function()
                     return {unpack(currentInstance.rowareaborder_color)}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "UpdateRowAreaBorder", nil, {r, g, b, a})
                     afterUpdate()
                 end,
@@ -3077,7 +3077,7 @@ do
             {--border size
                 type = "range",
                 get = function() return tonumber(currentInstance.rowareaborder_size) end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "UpdateRowAreaBorder", nil, nil, value)
                     afterUpdate()
                 end,
@@ -3151,7 +3151,7 @@ do
             {--show statusbar
                 type = "toggle",
                 get = function() return currentInstance.show_statusbar end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     if (value) then
                         editInstanceSetting(currentInstance, "ShowStatusBar")
                     else
@@ -3173,7 +3173,7 @@ do
                     local alpha = currentInstance.statusbar_info.alpha
                     return {r, g, b, alpha}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "StatusBarColor", r, g, b, a)
                     afterUpdate()
                 end,
@@ -3184,7 +3184,7 @@ do
             {--lock micro displays
                 type = "toggle",
                 get = function() return currentInstance.micro_displays_locked end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "MicroDisplaysLock", value)
                     afterUpdate()
                 end,
@@ -3195,7 +3195,7 @@ do
             {--anchor on top side
                 type = "toggle",
                 get = function() return currentInstance.micro_displays_side == 1 and true or false end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "MicroDisplaysSide", value and 1 or 2, true)
                     afterUpdate()
                 end,
@@ -3219,7 +3219,7 @@ do
             DF:NewLabel (sectionFrame, _, "$parentMicroDisplayWarningLabel", "MicroDisplayWarningLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_WARNING"], "GameFontHighlightSmall", 10, "orange")
 
             --dropdown on select option
-            local onMicroDisplaySelect = function (_, _, micro_display)
+            local onMicroDisplaySelect = function(_, _, micro_display)
                 local anchor, index = unpack (micro_display)
 
                 if (index == -1) then
@@ -3273,7 +3273,7 @@ do
             sectionFrame.MicroDisplayRightDropdown.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"]
             
 
-            local hideLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parenthideLeftMicroFrameButton", "hideLeftMicroFrameButton", 22, 22, function (self, button)
+            local hideLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parenthideLeftMicroFrameButton", "hideLeftMicroFrameButton", 22, 22, function(self, button)
                 if (currentInstance.StatusBar ["left"].options.isHidden) then
                     _detalhes.StatusBar:SetPlugin (currentInstance, currentInstance.StatusBar ["left"].real_name, "left")
                 else
@@ -3291,14 +3291,14 @@ do
             hideLeftMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             hideLeftMicroFrameButton:GetNormalTexture():SetDesaturated (true)
             hideLeftMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
-            hideLeftMicroFrameButton:SetHook ("OnEnter", function (self, capsule)
+            hideLeftMicroFrameButton:SetHook ("OnEnter", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("ADD")
             end)
-            hideLeftMicroFrameButton:SetHook ("OnLeave", function (self, capsule)
+            hideLeftMicroFrameButton:SetHook ("OnLeave", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
 
-            local HideCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentHideCenterMicroFrameButton", "HideCenterMicroFrameButton", 22, 22, function (self)
+            local HideCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentHideCenterMicroFrameButton", "HideCenterMicroFrameButton", 22, 22, function(self)
                 if (currentInstance.StatusBar ["center"].options.isHidden) then
                     _detalhes.StatusBar:SetPlugin (currentInstance, currentInstance.StatusBar ["center"].real_name, "center")
                 else
@@ -3316,14 +3316,14 @@ do
             HideCenterMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             HideCenterMicroFrameButton:GetNormalTexture():SetDesaturated (true)
             HideCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
-            HideCenterMicroFrameButton:SetHook ("OnEnter", function (self, capsule)
+            HideCenterMicroFrameButton:SetHook ("OnEnter", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("ADD")
             end)
-            HideCenterMicroFrameButton:SetHook ("OnLeave", function (self, capsule)
+            HideCenterMicroFrameButton:SetHook ("OnLeave", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
             
-            local HideRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, _, "$parentHideRightMicroFrameButton", "HideRightMicroFrameButton", 20, 20, function (self)
+            local HideRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, _, "$parentHideRightMicroFrameButton", "HideRightMicroFrameButton", 20, 20, function(self)
                 if (currentInstance.StatusBar ["right"].options.isHidden) then
                     _detalhes.StatusBar:SetPlugin (currentInstance, currentInstance.StatusBar ["right"].real_name, "right")
                 else
@@ -3340,14 +3340,14 @@ do
             HideRightMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             HideRightMicroFrameButton:GetNormalTexture():SetDesaturated (true)
             HideRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
-            HideRightMicroFrameButton:SetHook ("OnEnter", function (self, capsule)
+            HideRightMicroFrameButton:SetHook ("OnEnter", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("ADD")
             end)
-            HideRightMicroFrameButton:SetHook ("OnLeave", function (self, capsule)
+            HideRightMicroFrameButton:SetHook ("OnLeave", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
 
-            local configRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, _, "$parentconfigRightMicroFrameButton", "configRightMicroFrameButton", 18, 18, function (self)
+            local configRightMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayRightDropdown, _, "$parentconfigRightMicroFrameButton", "configRightMicroFrameButton", 18, 18, function(self)
                 currentInstance.StatusBar ["right"]:Setup()
                 currentInstance.StatusBar ["right"]:Setup()
             end)
@@ -3356,7 +3356,7 @@ do
             configRightMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
             configRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
             
-            local configCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentconfigCenterMicroFrameButton", "configCenterMicroFrameButton", 18, 18, function (self)
+            local configCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentconfigCenterMicroFrameButton", "configCenterMicroFrameButton", 18, 18, function(self)
                 currentInstance.StatusBar ["center"]:Setup()
                 currentInstance.StatusBar ["center"]:Setup()
             end)
@@ -3365,7 +3365,7 @@ do
             configCenterMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
             configCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
             
-            local configLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parentconfigLeftMicroFrameButton", "configLeftMicroFrameButton", 18, 18, function (self)
+            local configLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parentconfigLeftMicroFrameButton", "configLeftMicroFrameButton", 18, 18, function(self)
                 currentInstance.StatusBar ["left"]:Setup()
                 currentInstance.StatusBar ["left"]:Setup()
             end)
@@ -3409,7 +3409,7 @@ do
         anchorFrame.plugin_widgets = {}
         anchorFrame:SetSize(1, 1)
         
-        local on_enter = function (self)
+        local on_enter = function(self)
         
             self:SetBackdropColor (.5, .5, .5, .8)
             
@@ -3441,7 +3441,7 @@ do
             end
         end
         
-        local on_leave = function (self)
+        local on_leave = function(self)
             self:SetBackdropColor (.3, .3, .3, .3)
             
             if (self ["toolbarPluginsIcon" .. self.id]) then
@@ -3539,7 +3539,7 @@ do
             tinsert (anchorFrame.plugin_widgets, bframe ["toolbarPluginsSlider"..i])
             bframe ["toolbarPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y)
             bframe ["toolbarPluginsSlider"..i]:SetAsCheckBox()
-            bframe ["toolbarPluginsSlider"..i].OnSwitch = function (self, _, value)
+            bframe ["toolbarPluginsSlider"..i].OnSwitch = function(self, _, value)
                 plugin_stable.enabled = value
                 plugin.__enabled = value
                 if (value) then
@@ -3674,7 +3674,7 @@ do
             bframe ["raidPluginsSlider"..i].PluginName = absName
             bframe ["raidPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y+1)
             bframe ["raidPluginsSlider"..i]:SetAsCheckBox()
-            bframe ["raidPluginsSlider"..i].OnSwitch = function (self, _, value)
+            bframe ["raidPluginsSlider"..i].OnSwitch = function(self, _, value)
                 plugin_stable.enabled = value
                 plugin.__enabled = value
                 if (not value) then
@@ -3812,7 +3812,7 @@ do
             bframe ["soloPluginsSlider"..i].PluginName = absName
             bframe ["soloPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y+1)
             bframe ["soloPluginsSlider"..i]:SetAsCheckBox()
-            bframe ["soloPluginsSlider"..i].OnSwitch = function (self, _, value)
+            bframe ["soloPluginsSlider"..i].OnSwitch = function(self, _, value)
                 plugin_stable.enabled = value
                 plugin.__enabled = value
                 if (not value) then
@@ -3854,7 +3854,7 @@ do
     local buildSection = function(sectionFrame)
 
         --build profile menu for "always use this profile" feature
-		local profile_selected_alwaysuse = function (_, instance, profile_name)
+		local profile_selected_alwaysuse = function(_, instance, profile_name)
 			_detalhes.always_use_profile_name = profile_name
 			local unitname = UnitName ("player")
 			_detalhes.always_use_profile_exception [unitname] = nil
@@ -3872,7 +3872,7 @@ do
 			return menu
 		end
 
-        local selectProfile = function (_, _, profileName)
+        local selectProfile = function(_, _, profileName)
             _detalhes:ApplyProfile(profileName)
             _detalhes:Msg (Loc ["STRING_OPTIONS_PROFILE_LOADED"], profileName)
             --Details.options.SetCurrentInstanceAndRefresh(currentInstance)
@@ -3915,7 +3915,7 @@ do
             {--save size and positioning
                 type = "toggle",
                 get = function() return _detalhes.profile_save_pos end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.profile_save_pos = value
                     _detalhes:SetProfileCProp (nil, "profile_save_pos", value)
                     afterUpdate()
@@ -4016,13 +4016,13 @@ do
             {--import profile
                 type = "execute",
                 func = function(self)
-                    _detalhes:ShowImportWindow("", function (profileString)
+                    _detalhes:ShowImportWindow("", function(profileString)
                         if (type (profileString) ~= "string" or string.len (profileString) < 2) then
                             return
                         end
                         
                         --prompt text panel returns what the user inserted in the text field in the first argument
-                        DF:ShowTextPromptPanel(Loc["STRING_OPTIONS_IMPORT_PROFILE_NAME"] .. ":", function (newProfileName)
+                        DF:ShowTextPromptPanel(Loc["STRING_OPTIONS_IMPORT_PROFILE_NAME"] .. ":", function(newProfileName)
                             Details:ImportProfile (profileString, newProfileName)
                         end)
                     end, Loc["STRING_OPTIONS_IMPORT_PROFILE_PASTE"])
@@ -4037,7 +4037,7 @@ do
             {--use on all characters
                 type = "toggle",
                 get = function() return _detalhes.always_use_profile end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.always_use_profile = value
                     
                     if (value) then
@@ -4104,7 +4104,7 @@ do
         end
 
 		--text face
-            local on_select_tooltip_font = function (self, _, fontName)
+            local on_select_tooltip_font = function(self, _, fontName)
                 _detalhes.tooltip.fontface = fontName
                 _detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
             end
@@ -4115,7 +4115,7 @@ do
                 
                     fonts [#fonts+1] = {value = name, icon = font_select_icon, texcoord = font_select_texcoord, label = name, onclick = on_select_tooltip_font, font = fontPath, descfont = name, desc = "Our thoughts strayed constantly\nAnd without boundary\nThe ringing of the division bell had began."}
                 end
-                table.sort (fonts, function (t1, t2) return t1.label < t2.label end)
+                table.sort (fonts, function(t1, t2) return t1.label < t2.label end)
                 return fonts
             end
         
@@ -4124,7 +4124,7 @@ do
             local iconcolor = {1, 1, 1, .5}
             local iconsize = {14, 14}
         
-            local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
+            local onSelectTimeAbbreviation = function(_, _, abbreviationtype)
                 _detalhes.tooltip.abbreviation = abbreviationtype
                 
                 _detalhes.atributo_damage:UpdateSelectedToKFunction()
@@ -4151,7 +4151,7 @@ do
             end
 
         --maximize method
-            local onSelectMaximize = function (_, _, maximizeType)
+            local onSelectMaximize = function(_, _, maximizeType)
                 _detalhes.tooltip.maximize_method = maximizeType
                 _detalhes.atributo_damage:UpdateSelectedToKFunction()
                 _detalhes.atributo_heal:UpdateSelectedToKFunction()
@@ -4178,7 +4178,7 @@ do
             end
 
         --tooltip side
-            local onSelectAnchorPoint = function (_, _, selected_anchor)
+            local onSelectAnchorPoint = function(_, _, selected_anchor)
                 _detalhes.tooltip.anchor_point = selected_anchor
                 afterUpdate()
             end
@@ -4199,7 +4199,7 @@ do
             end
 
         --tooltip relative side
-			local onSelectAnchorRelative = function (_, _, selected_anchor)
+			local onSelectAnchorRelative = function(_, _, selected_anchor)
 				_detalhes.tooltip.anchor_relative = selected_anchor
                 afterUpdate()
 			end
@@ -4220,7 +4220,7 @@ do
 			end            
 
         --anchor
-            local onSelectAnchor = function (_, _, selected_anchor)
+            local onSelectAnchor = function(_, _, selected_anchor)
                 _detalhes.tooltip.anchored_to = selected_anchor
                 refreshToggleAnchor()
                 afterUpdate()
@@ -4240,7 +4240,7 @@ do
             {--text shadow
                 type = "toggle",
                 get = function() return _detalhes.tooltip.fontshadow end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.tooltip.fontshadow = value
                     afterUpdate()
                 end,
@@ -4256,7 +4256,7 @@ do
                     local r, g, b, a = unpack(_detalhes.tooltip.fontcolor)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     local color = _detalhes.tooltip.fontcolor
                     color[1] = r
                     color[2] = g
@@ -4274,7 +4274,7 @@ do
                     local r, g, b, a = unpack(_detalhes.tooltip.fontcolor_right)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     local color = _detalhes.tooltip.fontcolor_right
                     color[1] = r
                     color[2] = g
@@ -4292,7 +4292,7 @@ do
                     local r, g, b, a = unpack(_detalhes.tooltip.header_text_color)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     local color = _detalhes.tooltip.header_text_color
                     color[1] = r
                     color[2] = g
@@ -4307,7 +4307,7 @@ do
             {--text size
                 type = "range",
                 get = function() return _detalhes.tooltip.fontsize end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.tooltip.fontsize = value
                     afterUpdate()
                 end,
@@ -4337,7 +4337,7 @@ do
                     local r, g, b, a = unpack(_detalhes.tooltip.background)
                     return {r, g, b, a}
                 end,
-                set = function (self, r, g, b, a)
+                set = function(self, r, g, b, a)
                     local color = _detalhes.tooltip.background
                     color[1] = r
                     color[2] = g
@@ -4352,7 +4352,7 @@ do
             {--show amount
                 type = "toggle",
                 get = function() return _detalhes.tooltip.show_amount end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.tooltip.show_amount = value
                     afterUpdate()
                 end,
@@ -4429,7 +4429,7 @@ do
             {--anchor offset x
                 type = "range",
                 get = function() return _detalhes.tooltip.anchor_offset[1] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.tooltip.anchor_offset[1] = value
                     afterUpdate()
                 end,
@@ -4443,7 +4443,7 @@ do
             {--anchor offset y
                 type = "range",
                 get = function() return _detalhes.tooltip.anchor_offset[2] end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.tooltip.anchor_offset[2] = value
                     afterUpdate()
                 end,
@@ -4471,7 +4471,7 @@ end
 do
     local buildSection = function(sectionFrame)
 
-        local onSelectMinimapAction = function (_, _, option)
+        local onSelectMinimapAction = function(_, _, option)
             _detalhes.minimap.onclick_what_todo = option
             afterUpdate()
         end
@@ -4484,7 +4484,7 @@ do
             return menu
         end
 
-		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
+		local onSelectTimeAbbreviation = function(_, _, abbreviationtype)
 			_detalhes.tooltip.abbreviation = abbreviationtype
 			_detalhes:BrokerTick()
 			afterUpdate()
@@ -4513,7 +4513,7 @@ do
             {--minimap icon enabled
                 type = "toggle",
                 get = function() return not _detalhes.minimap.hide end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.minimap.hide = not value
 
                     local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
@@ -4583,7 +4583,7 @@ do
             {--item level tracker enabled
                 type = "toggle",
                 get = function() return _detalhes.ilevel:IsTrackerEnabled() end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.ilevel:TrackItemLevel(value)
                     afterUpdate()
                 end,
@@ -4597,7 +4597,7 @@ do
             {--enabled heal spell links
                 type = "toggle",
                 get = function() return _detalhes.report_heal_links end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.report_heal_links = value
                     afterUpdate()
                 end,
@@ -4620,14 +4620,14 @@ do
     local buildSection = function(sectionFrame)
 
 		--> callback from the image editor
-			local callmeback = function (width, height, overlayColor, alpha, texCoords)
+			local callmeback = function(width, height, overlayColor, alpha, texCoords)
                 editInstanceSetting(currentInstance, "InstanceWallpaper", nil, nil, alpha, texCoords, width, height, overlayColor)
 				sectionFrame:UpdateWallpaperInfo()
 				afterUpdate()
 			end
  
         --> select wallpaper
-            local onSelectSecTexture = function (self, instance, texturePath)
+            local onSelectSecTexture = function(self, instance, texturePath)
                     
                 local textureOptions = sectionFrame.wallpaperOptions
                 local selectedTextureOption = texturePath
@@ -4811,7 +4811,7 @@ do
         end
         
         --> wallpaper alignment
-            local onSelectAnchor = function (_, instance, anchor)
+            local onSelectAnchor = function(_, instance, anchor)
                 editInstanceSetting(currentInstance, "InstanceWallpaper", nil, anchor)
                 afterUpdate()
                 sectionFrame:UpdateWallpaperInfo()
@@ -4941,7 +4941,7 @@ do
             {--enable wallpaper
                 type = "toggle",
                 get = function() return currentInstance.wallpaper.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
 
                     currentInstance.wallpaper.enabled = value
 
@@ -4988,7 +4988,7 @@ do
             {--wallpaper level
                 type = "range",
                 get = function() return currentInstance.wallpaper.level end, --default 2
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetInstanceWallpaperLevel", value)
                     afterUpdate()
                 end,
@@ -5079,7 +5079,7 @@ do
         autoSwitchFrame:SetPoint("topleft", 0, 0)
 
         --damager not in combat
-        local onSelectAutoSwitchDamagerNoCombat = function (_, _, switchTo)
+        local onSelectAutoSwitchDamagerNoCombat = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_damager = false
                 afterUpdate()
@@ -5091,7 +5091,7 @@ do
         end
 
         --damager in combat
-        local onSelectAutoSwitchDamagerInCombat = function (_, _, switchTo)
+        local onSelectAutoSwitchDamagerInCombat = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_damager_in_combat = false
                 afterUpdate()
@@ -5103,7 +5103,7 @@ do
         end
 
         --healer not in combat
-        local onSelectAutoSwitchHealerNoCombat = function (_, _, switchTo)
+        local onSelectAutoSwitchHealerNoCombat = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_healer = false
                 afterUpdate()
@@ -5115,7 +5115,7 @@ do
         end
 
         --healer in combat
-        local onSelectAutoSwitchHealerInCombat = function (_, _, switchTo)
+        local onSelectAutoSwitchHealerInCombat = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_healer_in_combat = false
                 afterUpdate()
@@ -5127,7 +5127,7 @@ do
         end
 
         --tank not in combat
-        local onSelectAutoSwitchTankNoCombat = function (_, _, switchTo)
+        local onSelectAutoSwitchTankNoCombat = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_tank = false
                 afterUpdate()
@@ -5139,7 +5139,7 @@ do
         end
 
         --tank in combat
-        local onSelectAutoSwitchTankInCombat = function (_, _, switchTo)
+        local onSelectAutoSwitchTankInCombat = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_tank_in_combat = false
                 afterUpdate()
@@ -5151,7 +5151,7 @@ do
         end
 
         --after wipe
-        local onSelectAutoSwitchAfterWipe = function (_, _, switchTo)
+        local onSelectAutoSwitchAfterWipe = function(_, _, switchTo)
             if (switchTo == 0) then
                 currentInstance.switch_all_roles_after_wipe = false
                 afterUpdate()
@@ -5279,7 +5279,7 @@ do
             {--auto current segment
                 type = "toggle",
                 get = function() return currentInstance.auto_current end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     currentInstance.auto_current = value
                     afterUpdate()
                 end,
@@ -5290,7 +5290,7 @@ do
             {--trash suppression
                 type = "range",
                 get = function() return _detalhes.instances_suppress_trash end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes:SetTrashSuppression(value)
                     afterUpdate()
                 end,
@@ -5307,7 +5307,7 @@ do
             {--enabled
                 type = "toggle",
                 get = function() return currentInstance.menu_alpha.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetMenuAlpha", value)
                     afterUpdate()
                 end,
@@ -5318,7 +5318,7 @@ do
             {--ignore bars
                 type = "toggle",
                 get = function() return currentInstance.menu_alpha.ignorebars end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetMenuAlpha", nil, nil, nil, value)
                     afterUpdate()
                 end,
@@ -5329,7 +5329,7 @@ do
             {--on hover over alpha
                 type = "range",
                 get = function() return currentInstance.menu_alpha.onenter end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetMenuAlpha", nil, value)
                     afterUpdate()
                 end,
@@ -5344,7 +5344,7 @@ do
             {--no interaction
                 type = "range",
                 get = function() return currentInstance.menu_alpha.onleave end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetMenuAlpha", nil, nil, value)
                     afterUpdate()
                 end,
@@ -5498,7 +5498,7 @@ do --raid tools
     local buildSection = function(sectionFrame)
 
         --on select channel for interrip announcer
-		local on_select_channel = function (self, _, channel)
+		local on_select_channel = function(self, _, channel)
             _detalhes.announce_interrupts.channel = channel
             C_Timer.After(0, function()
                 if (channel == "WHISPER") then
@@ -5521,7 +5521,7 @@ do --raid tools
         end
         
 		--on select channel for cooldown announcer
-		local on_select_channel = function (self, _, channel)
+		local on_select_channel = function(self, _, channel)
 			_detalhes.announce_cooldowns.channel = channel
 			afterUpdate()
 		end
@@ -5538,7 +5538,7 @@ do --raid tools
         end
 
         --on select channel for report deaths
-		local on_select_channel = function (self, _, channel)
+		local on_select_channel = function(self, _, channel)
 			_detalhes.announce_deaths.where = channel
 			afterUpdate()
 		end
@@ -5569,7 +5569,7 @@ do --raid tools
                 f:SetFrameStrata ("FULLSCREEN")
 				f:EnableMouse()
 				f:SetMovable (true)
-				f:SetScript ("OnMouseDown", function (self, button)
+				f:SetScript ("OnMouseDown", function(self, button)
 					if (button == "RightButton") then
 						if (f.IsMoving) then
 							f.IsMoving = false
@@ -5583,7 +5583,7 @@ do --raid tools
 					f:StartMoving()
                 end)
                 
-				f:SetScript ("OnMouseUp", function (self, button)
+				f:SetScript ("OnMouseUp", function(self, button)
 					if (f.IsMoving) then
 						f.IsMoving = false
 						f:StopMovingOrSizing()
@@ -5591,7 +5591,7 @@ do --raid tools
                 end)
 
 				f.labels = {}
-                local on_switch_func = function (self, spellid, value)
+                local on_switch_func = function(self, spellid, value)
                     if (spellid) then
                         if (not value) then
                             _detalhes.announce_cooldowns.ignored_cooldowns [spellid] = nil
@@ -5601,7 +5601,7 @@ do --raid tools
                     end
 				end
 				
-				f:SetScript ("OnHide", function (self)
+				f:SetScript ("OnHide", function(self)
 					self:Clear()
 				end)
 				
@@ -5638,7 +5638,7 @@ do --raid tools
 					local _GetSpellInfo = _detalhes.getspellinfo --details api
 					
 					for index, spellid in ipairs (_detalhes:GetCooldownList()) do
-						local name, _, icon = _GetSpellInfo (spellid)
+						local name, _, icon = _GetSpellInfo(spellid)
 						if (name) then
 							local label = f.labels [index] or f:CreateLabel()
 							label.icon.texture = icon
@@ -5664,7 +5664,7 @@ do --raid tools
             {--auto current segment
                 type = "toggle",
                 get = function() return Details.announce_interrupts.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     if (value) then
                         _detalhes:EnableInterruptAnnouncer()
                     else
@@ -5749,7 +5749,7 @@ do --raid tools
             {--enable cooldown announcer
                 type = "toggle",
                 get = function() return _detalhes.announce_cooldowns.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     if (value) then
                         _detalhes:EnableCooldownAnnouncer()
                     else
@@ -5815,7 +5815,7 @@ do --raid tools
             {--enable death announcer
                 type = "toggle",
                 get = function() return _detalhes.announce_deaths.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     if (value) then
                         _detalhes:EnableDeathAnnouncer()
                     else
@@ -5830,7 +5830,7 @@ do --raid tools
             {--max hits to show
                 type = "range",
                 get = function() return _detalhes.announce_deaths.last_hits end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.announce_deaths.last_hits = value
                     afterUpdate()
                 end,
@@ -5844,7 +5844,7 @@ do --raid tools
             {--max hits to show
                 type = "range",
                 get = function() return _detalhes.announce_deaths.only_first end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.announce_deaths.only_first = value
                     afterUpdate()
                 end,
@@ -5871,7 +5871,7 @@ do --raid tools
             {--enable death recap
                 type = "toggle",
                 get = function() return _detalhes.death_recap.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.death_recap.enabled = value
                     afterUpdate()
                 end,
@@ -5882,7 +5882,7 @@ do --raid tools
             {--relevance time
                 type = "range",
                 get = function() return _detalhes.death_recap.relevance_time end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.death_recap.relevance_time = value
                     afterUpdate()
                 end,
@@ -5896,7 +5896,7 @@ do --raid tools
             {--show life percent
                 type = "toggle",
                 get = function() return _detalhes.death_recap.show_life_percent end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.death_recap.show_life_percent = value
                     afterUpdate()
                 end,
@@ -5907,7 +5907,7 @@ do --raid tools
             {--show segment list
                 type = "toggle",
                 get = function() return _detalhes.death_recap.show_segments end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.death_recap.show_segments = value
                     afterUpdate()
                 end,
@@ -5921,7 +5921,7 @@ do --raid tools
             {--show first hit
                 type = "toggle",
                 get = function() return _detalhes.announce_firsthit.enabled end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.announce_firsthit.enabled = value
                     afterUpdate()
                 end,
@@ -5932,7 +5932,7 @@ do --raid tools
             {--show death menu
                 type = "toggle",
                 get = function() return _detalhes.on_death_menu end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.on_death_menu = value
                     afterUpdate()
                 end,
@@ -6155,7 +6155,7 @@ do
             {--no window alerts
                 type = "toggle",
                 get = function() return _detalhes.streamer_config.no_alerts end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.streamer_config.no_alerts = value
                     afterUpdate()
                 end,
@@ -6166,7 +6166,7 @@ do
             {--60hz updates
                 type = "toggle",
                 get = function() return _detalhes.streamer_config.faster_updates end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.streamer_config.faster_updates = value
                     _detalhes:RefreshUpdater()
                     afterUpdate()
@@ -6178,7 +6178,7 @@ do
             {--quick player info
                 type = "toggle",
                 get = function() return _detalhes.streamer_config.quick_detection end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.streamer_config.quick_detection = value
                     afterUpdate()
                 end,
@@ -6189,7 +6189,7 @@ do
             {--disable M+ shenanigans
                 type = "toggle",
                 get = function() return _detalhes.streamer_config.disable_mythic_dungeon end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.streamer_config.disable_mythic_dungeon = value
                     afterUpdate()
                 end,
@@ -6200,7 +6200,7 @@ do
             {--disable M+ charts
                 type = "toggle",
                 get = function() return _detalhes.mythic_plus.show_damage_graphic end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.mythic_plus.show_damage_graphic = value
                     afterUpdate()
                 end,
@@ -6211,7 +6211,7 @@ do
             {--clear cache regurlary
                 type = "toggle",
                 get = function() return _detalhes.mythic_plus.show_damage_graphic end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     _detalhes.mythic_plus.show_damage_graphic = value
                     afterUpdate()
                 end,
@@ -6234,16 +6234,16 @@ end
 do
     local buildSection = function(sectionFrame)
 
-		local name_entry_func = function (index, text)
+		local name_entry_func = function(index, text)
 			_detalhes:UserCustomSpellUpdate (index, text) 
 		end
-		local icon_func = function (index, icon)
+		local icon_func = function(index, icon)
 			_detalhes:UserCustomSpellUpdate (index, nil, icon)
 		end
-		local remove_func = function (index)
+		local remove_func = function(index)
 			_detalhes:UserCustomSpellRemove (index)
 		end
-		local reset_func = function (index)
+		local reset_func = function(index)
 			_detalhes:UserCustomSpellReset (index)
 		end
 	
@@ -6260,7 +6260,7 @@ do
 		local total_lines = function()
 			return #_detalhes.savedCustomSpells
 		end
-		local fill_row = function (index)
+		local fill_row = function(index)
 			local data = _detalhes.savedCustomSpells [index]
 			if (data) then
 				return {index, data [2], data [3], data [1], ""}
@@ -6288,8 +6288,8 @@ do
 			local spellname_entry = DF:NewTextEntry (addframe, nil, "$parentSpellnameEntry", "spellnameEntry", 160, 20, spellname_entry_func, nil, nil, nil, nil, options_dropdown_template)
 			spellname_entry:SetPoint ("left", spellname, "right", 2, 0)
 
-			local spellid_entry_func = function (arg1, arg2, spellid) 
-				local spellname, _, icon = GetSpellInfo (spellid)
+			local spellid_entry_func = function(arg1, arg2, spellid) 
+				local spellname, _, icon = GetSpellInfo(spellid)
 				if (spellname) then
 					spellname_entry:SetText (spellname) 
 					addframe.spellIconButton.icon.texture = icon
@@ -6301,7 +6301,7 @@ do
 			spellid_entry:SetTemplate (options_dropdown_template)
 			spellid_entry:SetPoint ("left", spellid, "right", 2, 0)
 			
-			local icon_button_func = function (texture)
+			local icon_button_func = function(texture)
 				addframe.spellIconButton.icon.texture = texture
 			end
 			local icon_button = DF:NewButton (addframe, nil, "$parentSpellIconButton", "spellIconButton", 20, 20, function() DF:IconPick (icon_button_func, true) end)
@@ -6371,7 +6371,7 @@ do
 		DF:NewSwitch (sectionFrame, _, "$parentConsolidadeSpellsSwitch", "ConsolidadeSpellsSwitch", 60, 20, nil, nil, _detalhes.override_spellids, nil, nil, nil, nil, options_switch_template)
 		sectionFrame.ConsolidadeSpellsLabel:SetPoint ("left", sectionFrame.ConsolidadeSpellsSwitch, "right", 3)
 		sectionFrame.ConsolidadeSpellsSwitch:SetAsCheckBox()
-		sectionFrame.ConsolidadeSpellsSwitch.OnSwitch = function (self, instance, value)
+		sectionFrame.ConsolidadeSpellsSwitch.OnSwitch = function(self, instance, value)
 			_detalhes.override_spellids = value
 			_detalhes:UpdateParserGears()
 		end
@@ -6413,7 +6413,7 @@ do
     end
 
 --> panel
-    local edit_name = function (index, name)
+    local edit_name = function(index, name)
         _detalhes:TimeDataUpdate (index, name)
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
@@ -6422,7 +6422,7 @@ do
     big_code_editor:SetPoint ("topleft", sectionFrame, "topleft", startX, startY - 70)
     big_code_editor:SetFrameLevel (sectionFrame:GetFrameLevel()+6)
     big_code_editor:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
-    DF:ReskinSlider (big_code_editor.scroll)
+    DF:ReskinSlider(big_code_editor.scroll)
     big_code_editor:SetBackdropColor (0.5, 0.5, 0.5, 0.95)
     big_code_editor:SetBackdropBorderColor (0, 0, 0, 1)
     big_code_editor:Hide()
@@ -6451,7 +6451,7 @@ do
     cancel_changes:SetTemplate(options_button_template)
     cancel_changes:SetText(Loc ["STRING_OPTIONS_CHART_CANCEL"])
 
-    local edit_code = function (index)
+    local edit_code = function(index)
         local data = _detalhes.savedTimeCaptures [index]
         if (data) then
             local func = data [2]
@@ -6475,15 +6475,15 @@ do
         end
     end
     
-    local edit_icon = function (index, icon)
+    local edit_icon = function(index, icon)
         _detalhes:TimeDataUpdate (index, nil, nil, nil, nil, nil, icon)
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
-    local edit_author = function (index, author)
+    local edit_author = function(index, author)
         _detalhes:TimeDataUpdate (index, nil, nil, nil, author)
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
-    local edit_version = function (index, version)
+    local edit_version = function(index, version)
         _detalhes:TimeDataUpdate (index, nil, nil, nil, nil, version)
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
@@ -6492,7 +6492,7 @@ do
     big_code_editor2:SetPoint ("topleft", sectionFrame, "topleft", 7, -70)
     big_code_editor2:SetFrameLevel (sectionFrame:GetFrameLevel()+6)
     big_code_editor2:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
-    DF:ReskinSlider (big_code_editor2.scroll)
+    DF:ReskinSlider(big_code_editor2.scroll)
     big_code_editor2:SetBackdropColor (0.5, 0.5, 0.5, 0.95)
     big_code_editor2:SetBackdropBorderColor (0, 0, 0, 1)
     big_code_editor2:Hide()
@@ -6508,7 +6508,7 @@ do
     close_export:SetText (Loc ["STRING_OPTIONS_CHART_CLOSE"])
     close_export:SetTemplate (options_button_template)
     
-    local export_function = function (index)
+    local export_function = function(index)
         local data = _detalhes.savedTimeCaptures [index]
         if (data) then
             local encoded = Details:CompressData (data, "print")
@@ -6524,12 +6524,12 @@ do
         end
     end
     
-    local remove_capture = function (index)
+    local remove_capture = function(index)
         _detalhes:TimeDataUnregister (index)
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
     
-    local edit_enabled = function (index, enabled, a, b)
+    local edit_enabled = function(index, enabled, a, b)
         if (enabled) then
             _detalhes:TimeDataUpdate (index, nil, nil, nil, nil, nil, nil, false)
         else
@@ -6553,7 +6553,7 @@ do
     local total_lines = function()
         return #_detalhes.savedTimeCaptures
     end
-    local fill_row = function (index)
+    local fill_row = function(index)
         local data = _detalhes.savedTimeCaptures [index]
         if (data) then
         
@@ -6612,11 +6612,11 @@ do
             capture_func_entry:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
             capture_func_entry:SetBackdropBorderColor (0, 0, 0, 1)
             capture_func_entry:SetBackdropColor (0, 0, 0, .5)
-            DF:ReskinSlider (capture_func_entry.scroll)
+            DF:ReskinSlider(capture_func_entry.scroll)
             
         --> icon
             local capture_icon = DF:NewLabel (addframe, nil, "$parentIconLabel", "iconLabel", Loc ["STRING_OPTIONS_CHART_ADDICON"])
-            local icon_button_func = function (texture)
+            local icon_button_func = function(texture)
                 addframe.iconButton.iconTexture = texture
                 addframe.iconButton:SetIcon(texture)
             end
@@ -6821,7 +6821,7 @@ do
             {--always in combat
                 type = "toggle",
                 get = function() return Details.mythic_plus.always_in_combat end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.always_in_combat = value
                 end,
                 name = "Always in Combat",
@@ -6831,7 +6831,7 @@ do
             {--dedicated segment for bosses
                 type = "toggle",
                 get = function() return Details.mythic_plus.boss_dedicated_segment end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.boss_dedicated_segment = value
                 end,
                 name = "Boss Dedicated Segment",
@@ -6841,7 +6841,7 @@ do
             {--make overall when done
                 type = "toggle",
                 get = function() return Details.mythic_plus.make_overall_when_done end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.make_overall_when_done = value
                 end,
                 name = "Make Overall Segment",
@@ -6851,7 +6851,7 @@ do
             {--overall only with bosses
                 type = "toggle",
                 get = function() return Details.mythic_plus.make_overall_boss_only end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.make_overall_boss_only = value
                 end,
                 name = "Overall Segment Boss Only",
@@ -6861,7 +6861,7 @@ do
             {--merge trash
                 type = "toggle",
                 get = function() return Details.mythic_plus.merge_boss_trash end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.merge_boss_trash = value
                 end,
                 name = "Merge Trash",
@@ -6871,7 +6871,7 @@ do
             {--delete merged trash
                 type = "toggle",
                 get = function() return Details.mythic_plus.delete_trash_after_merge end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.delete_trash_after_merge = value
                 end,
                 name = "Delete Merged Trash Segments",
@@ -6881,7 +6881,7 @@ do
             {--show chart popup
                 type = "toggle",
                 get = function() return Details.mythic_plus.show_damage_graphic end,
-                set = function (self, fixedparam, value)
+                set = function(self, fixedparam, value)
                     Details.mythic_plus.show_damage_graphic = value
                 end,
                 name = "Show Damage Charts",

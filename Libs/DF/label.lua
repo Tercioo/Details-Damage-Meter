@@ -202,7 +202,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.SetPointMixin)
 	LabelMetaFunctions.SetMembers["textsize"] = smember_textsize--alias
 	LabelMetaFunctions.SetMembers["shadow"] = smember_outline
 	LabelMetaFunctions.SetMembers["outline"] = smember_outline--alias
-	LabelMetaFunctions.SetMembers["rotation"] = smember_rotation--alias
+	LabelMetaFunctions.SetMembers["rotation"] = smember_rotation
 
 	LabelMetaFunctions.__newindex = function(object, key, value)
 		local func = LabelMetaFunctions.SetMembers[key]
@@ -296,7 +296,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.SetPointMixin)
 			local idx = getmetatable(labelObject.label).__index
 			for funcName, funcAddress in pairs(idx) do
 				if (not LabelMetaFunctions[funcName]) then
-					LabelMetaFunctions[funcName] = function (object, ...)
+					LabelMetaFunctions[funcName] = function(object, ...)
 						local x = loadstring( "return _G['"..object.label:GetName().."']:"..funcName.."(...)")
 						return x(...)
 					end

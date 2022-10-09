@@ -222,7 +222,7 @@ detailsFramework.SetPointMixin = {
 
 --mixin for options functions
 detailsFramework.OptionsFunctions = {
-	SetOption = function (self, optionName, optionValue)
+	SetOption = function(self, optionName, optionValue)
 		if (self.options) then
 			self.options [optionName] = optionValue
 		else
@@ -235,11 +235,11 @@ detailsFramework.OptionsFunctions = {
 		end
 	end,
 
-	GetOption = function (self, optionName)
+	GetOption = function(self, optionName)
 		return self.options and self.options [optionName]
 	end,
 
-	GetAllOptions = function (self)
+	GetAllOptions = function(self)
 		if (self.options) then
 			local optionsTable = {}
 			for key, _ in pairs (self.options) do
@@ -251,7 +251,7 @@ detailsFramework.OptionsFunctions = {
 		end
 	end,
 
-	BuildOptionsTable = function (self, defaultOptions, userOptions)
+	BuildOptionsTable = function(self, defaultOptions, userOptions)
 		self.options = self.options or {}
 		detailsFramework.table.deploy (self.options, userOptions or {})
 		detailsFramework.table.deploy (self.options, defaultOptions or {})
@@ -299,6 +299,7 @@ detailsFramework.PayloadMixin = {
 detailsFramework.ScrollBoxFunctions = {
 	Refresh = function(self)
 		--hide all frames and tag as not in use
+		self._LinesInUse = 0
 		for index, frame in ipairs(self.Frames) do
 			frame:Hide()
 			frame._InUse = nil
@@ -322,13 +323,25 @@ detailsFramework.ScrollBoxFunctions = {
 
 		self:Show()
 
-		if (self.HideScrollBar) then
-			local frameName = self:GetName()
-			if (frameName) then
+		local frameName = self:GetName()
+		if (frameName) then
+			if (self.HideScrollBar) then
 				local scrollBar = _G[frameName .. "ScrollBar"]
 				if (scrollBar) then
 					scrollBar:Hide()
 				end
+			else
+				--[=[ --maybe in the future I visit this again
+				local scrollBar = _G[frameName .. "ScrollBar"]
+				local height = self:GetHeight()
+				local totalLinesRequired = #self.data
+				local linesShown = self._LinesInUse
+
+				local percent = linesShown / totalLinesRequired
+				local thumbHeight = height * percent
+				scrollBar.ThumbTexture:SetSize(12, thumbHeight)
+				print("thumbHeight:", thumbHeight)
+				--]=]
 			end
 		end
 		return self.Frames
@@ -367,6 +380,8 @@ detailsFramework.ScrollBoxFunctions = {
 		if (line) then
 			line._InUse = true
 		end
+
+		self._LinesInUse = self._LinesInUse + 1
 		return line
 	end,
 
@@ -538,10 +553,10 @@ detailsFramework.ScrollBoxFunctions = {
 }
 
 local SortMember = ""
-local SortByMember = function (t1, t2)
+local SortByMember = function(t1, t2)
 	return t1[SortMember] > t2[SortMember]
 end
-local SortByMemberReverse = function (t1, t2)
+local SortByMemberReverse = function(t1, t2)
 	return t1[SortMember] < t2[SortMember]
 end
 

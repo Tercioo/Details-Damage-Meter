@@ -19,7 +19,7 @@ function Details:OpenClassColorsConfig()
 
         local y = -50
 
-        local callback = function (button, r, g, b, a, self)
+        local callback = function(button, r, g, b, a, self)
             self.MyObject.my_texture:SetVertexColor (r, g, b)
             Details.class_colors [self.MyObject.my_class][1] = r
             Details.class_colors [self.MyObject.my_class][2] = g
@@ -27,13 +27,13 @@ function Details:OpenClassColorsConfig()
             Details:RefreshMainWindow (-1, true)
         end
 
-        local set_color = function (self, button, class, index)
+        local set_color = function(self, button, class, index)
             local current_class_color = Details.class_colors [class]
             local r, g, b = unpack (current_class_color)
             DF:ColorPick (self, r, g, b, 1, callback)
         end
 
-        local reset_color = function (self, button, class, index)
+        local reset_color = function(self, button, class, index)
             local color_table = RAID_CLASS_COLORS [class]
             local r, g, b = color_table.r, color_table.g, color_table.b
             self.MyObject.my_texture:SetVertexColor (r, g, b)
@@ -43,12 +43,12 @@ function Details:OpenClassColorsConfig()
             Details:RefreshMainWindow (-1, true)
         end
 
-        local on_enter = function (self, capsule)
+        local on_enter = function(self, capsule)
             --Details:CooltipPreset (1)
             --GameCooltip:AddLine ("right click to reset")
             --GameCooltip:Show (self)
         end
-        local on_leave = function (self, capsule)
+        local on_leave = function(self, capsule)
             --GameCooltip:Hide()
         end
 

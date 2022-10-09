@@ -32,7 +32,7 @@ end
 	_detalhes.chat_embed = _detalhes:CreateEventListener()
 	_detalhes.chat_embed.startup = true
 	
-	_detalhes.chat_embed.hook_settabname = function (frame, name, doNotSave)
+	_detalhes.chat_embed.hook_settabname = function(frame, name, doNotSave)
 		if (not doNotSave) then
 			if (_detalhes.chat_tab_embed.enabled and _detalhes.chat_tab_embed.tab_name ~= "") then
 				if (_detalhes.chat_tab_embed_onframe == frame) then
@@ -42,7 +42,7 @@ end
 			end
 		end
 	end
-	_detalhes.chat_embed.hook_closetab = function (frame, fallback)
+	_detalhes.chat_embed.hook_closetab = function(frame, fallback)
 		if (_detalhes.chat_tab_embed.enabled and _detalhes.chat_tab_embed.tab_name ~= "") then
 			if (_detalhes.chat_tab_embed_onframe == frame) then
 				_detalhes.chat_tab_embed.enabled = false
@@ -967,7 +967,7 @@ function _detalhes.storage:DBGuildSync()
 end
 
 local OnlyFromCurrentRaidTier = true
-local encounter_is_current_tier = function (encounterID)
+local encounter_is_current_tier = function(encounterID)
 	if (OnlyFromCurrentRaidTier) then
 		local mapID = _detalhes:GetInstanceIdFromEncounterId (encounterID)
 		if (mapID) then
@@ -982,7 +982,7 @@ local encounter_is_current_tier = function (encounterID)
 	return true
 end
 
-local have_encounter = function (db, ID)
+local have_encounter = function(db, ID)
 	local minTime = ID - 120
 	local maxTime = ID + 120
 	
@@ -1006,7 +1006,7 @@ local have_encounter = function (db, ID)
 	return false
 end
 
-local have_recent_requested_encounter = function (ID)
+local have_recent_requested_encounter = function(ID)
 	local minTime = ID - 120
 	local maxTime = ID + 120
 	
@@ -1992,7 +1992,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 end
 _detalhes.ilevel.CalcItemLevel = ilvl_core.CalcItemLevel
 
-inspect_frame:SetScript ("OnEvent", function (self, event, ...)
+inspect_frame:SetScript ("OnEvent", function(self, event, ...)
 	local guid = select (1, ...)
 	
 	if (inspecting [guid]) then
@@ -2068,7 +2068,7 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 	--NotifyInspect (unitid)
 end
 
-local NotifyInspectHook = function (unitid)
+local NotifyInspectHook = function(unitid)
 	local unit = unitid:gsub ("%d+", "")
 	
 	if ((IsInRaid() or IsInGroup()) and (_detalhes:GetZoneType() == "raid" or _detalhes:GetZoneType() == "party")) then
@@ -2441,7 +2441,7 @@ if (DetailsFramework.IsWotLKWow()) then
 		local MIN_SPECS = 4
 
 		--put the spec with more talent point to the top
-		table.sort (pointsPerSpec, function (t1, t2) return t1[2] > t2[2] end)
+		table.sort (pointsPerSpec, function(t1, t2) return t1[2] > t2[2] end)
 
 		--get the spec with more points spent
 		local spec = pointsPerSpec[1]

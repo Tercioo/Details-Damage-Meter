@@ -18,7 +18,7 @@ PLATER_DPS_SAMPLE_SIZE = CONST_BUFFER_SIZE * CONST_REALTIME_UPDATE_TIME
 plater_integration_frame.OnTickFrame = CreateFrame ("frame", "DetailsPlaterFrameOnTicker", UIParent, "BackdropTemplate")
 
 --> on tick function
-plater_integration_frame.OnTickFrameFunc = function (self, deltaTime)
+plater_integration_frame.OnTickFrameFunc = function(self, deltaTime)
 	if (self.NextUpdate < 0) then
 		for targetGUID, damageTable in pairs (plater_integration_frame.DamageTaken) do
 		
@@ -96,7 +96,7 @@ function plater_integration_frame.AddDamageToGUID (sourceGUID, targetGUID, time,
 	end
 end
 
-plater_integration_frame:SetScript ("OnEvent", function (self)
+plater_integration_frame:SetScript ("OnEvent", function(self)
 	local time, token, hidding, sourceGUID, sourceName, sourceFlag, sourceFlag2, targetGUID, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill, school, resisted, blocked, absorbed, isCritical = CombatLogGetCurrentEventInfo()
 	
 	--> tamage taken by the GUID unit

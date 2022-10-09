@@ -48,7 +48,7 @@ function Details:OpenProfiler()
     --> get the new profile name
     local current_profile = Details:GetCurrentProfileName()
     
-    local on_select_profile = function (_, _, profilename)
+    local on_select_profile = function(_, _, profilename)
         if (profilename ~= Details:GetCurrentProfileName()) then
             Details:ApplyProfile (profilename)
             if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then

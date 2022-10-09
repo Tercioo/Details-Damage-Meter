@@ -26,7 +26,7 @@
 
 	timeMachine.ligada = false
 
-	local calc_for_pvp = function (self)
+	local calc_for_pvp = function(self)
 		for tipo, tabela in _pairs (self.tabelas) do
 			for nome, jogador in _ipairs (tabela) do
 				if (jogador) then
@@ -45,7 +45,7 @@
 		end
 	end
 	
-	local calc_for_pve = function (self)
+	local calc_for_pve = function(self)
 		for tipo, tabela in _pairs (self.tabelas) do
 			for nome, jogador in _ipairs (tabela) do
 				if (jogador) then

@@ -200,8 +200,8 @@ function Details:OpenForge()
                 {name = L["STRING_FORGE_HEADER_FLAG"], width = 100, type = "entry", func = no_func},
             },
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                     return {
@@ -283,8 +283,8 @@ function Details:OpenForge()
                 {name = L["STRING_FORGE_HEADER_FLAG"], width = 100, type = "entry", func = no_func},
             },
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                     return {
@@ -351,8 +351,8 @@ function Details:OpenForge()
                 {name = L["STRING_FORGE_HEADER_FLAG"], width = 100, type = "entry", func = no_func},
             },
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                     return {
@@ -382,21 +382,21 @@ function Details:OpenForge()
             end
         end
 
-        local spell_open_aura_creator = function (row)
+        local spell_open_aura_creator = function(row)
             local data = all_modules [1].data [row]
             local spellid = data[1]
-            local spellname, _, spellicon = GetSpellInfo (spellid)
+            local spellname, _, spellicon = GetSpellInfo(spellid)
             Details:OpenAuraPanel (spellid, spellname, spellicon, data[3])
         end
         
-        local spell_encounter_open_aura_creator = function (row)
+        local spell_encounter_open_aura_creator = function(row)
             local data = all_modules [2].data [row]
             local spellID = data[1]
             local encounterID  = data [2]
             local enemyName = data [3]
             local encounterName = data [4]
             
-            local spellname, _, spellicon = GetSpellInfo (spellID)
+            local spellname, _, spellicon = GetSpellInfo(spellID)
             
             Details:OpenAuraPanel (spellID, spellname, spellicon, encounterID)
         end
@@ -464,7 +464,7 @@ function Details:OpenForge()
                         
                         if (can_add	) then
                             if (filter_name ~= "") then
-                                local spellName = GetSpellInfo (spellID)
+                                local spellName = GetSpellInfo(spellID)
                                 if (spellName) then
                                     spellName = lower (spellName)
                                     if (not spellName:find (lower_FilterSpellName)) then
@@ -497,8 +497,8 @@ function Details:OpenForge()
                 ----{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 86, type = "button", func = spell_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
             },
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                     local events = ""
@@ -509,7 +509,7 @@ function Details:OpenForge()
                         end
                         events = events:sub (1, #events - 3)
                     end
-                    local spellName, _, spellIcon = GetSpellInfo (data[1])
+                    local spellName, _, spellIcon = GetSpellInfo(data[1])
                     local classColor = RAID_CLASS_COLORS [data[2]] and RAID_CLASS_COLORS [data[2]].colorStr or "FFFFFFFF"
                     return {
                         index,
@@ -599,7 +599,7 @@ function Details:OpenForge()
                         
                         if (can_add	) then
                             if (filter_name ~= "") then
-                                local spellName = GetSpellInfo (spellID)
+                                local spellName = GetSpellInfo(spellID)
                                 if (spellName) then
                                     spellName = lower (spellName)
                                     if (not spellName:find (lower_FilterSpellName)) then
@@ -643,8 +643,8 @@ function Details:OpenForge()
             },
             
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                 
@@ -745,8 +745,8 @@ function Details:OpenForge()
             },
 
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self)
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self)
                 local data = self.module.data[index]
                 if (data) then
                     local npcId = data[1]
@@ -768,12 +768,12 @@ function Details:OpenForge()
 
         -----------------------------------------------
         
-        local dbm_open_aura_creator = function (row)
+        local dbm_open_aura_creator = function(row)
             local data = all_modules [4].data [row]
             
             local spellname, spellicon, _
             if (type (data [7]) == "number") then
-                spellname, _, spellicon = GetSpellInfo (data [7])
+                spellname, _, spellicon = GetSpellInfo(data [7])
             else
                 if (data [7]) then
                     local spellid = data[7]:gsub ("ej", "")
@@ -862,8 +862,8 @@ function Details:OpenForge()
             },
             
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                     local encounter_id = data.id
@@ -874,7 +874,7 @@ function Details:OpenForge()
                     local spellName, _, spellIcon
                     if (abilityID) then
                         if (abilityID > 0) then
-                            spellName, _, spellIcon = GetSpellInfo (abilityID)
+                            spellName, _, spellIcon = GetSpellInfo(abilityID)
                         end
                     end
                     
@@ -897,7 +897,7 @@ function Details:OpenForge()
         
         -----------------------------------------------
         
-        local bw_open_aura_creator = function (row)
+        local bw_open_aura_creator = function(row)
         
             local data = all_modules [5].data [row]
             
@@ -909,7 +909,7 @@ function Details:OpenForge()
                     local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = DetailsFramework.EncounterJournal.EJ_GetSectionInfo (abs (spellid))
                     spellname, spellicon = title, abilityIcon
                 else
-                    spellname, _, spellicon = GetSpellInfo (spellid)
+                    spellname, _, spellicon = GetSpellInfo(spellid)
                 end
                 Details:OpenAuraPanel (data [2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = data [2], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
                 
@@ -993,8 +993,8 @@ function Details:OpenForge()
                 --{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 120, type = "button", func = bw_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
             },
             fill_panel = false,
-            fill_gettotal = function (self) return #self.module.data end,
-            fill_fillrows = function (index, self) 
+            fill_gettotal = function(self) return #self.module.data end,
+            fill_fillrows = function(index, self) 
                 local data = self.module.data [index]
                 if (data) then
                     local encounter_id = data.id
@@ -1005,7 +1005,7 @@ function Details:OpenForge()
                     local spellName, _, spellIcon
                     if (abilityID) then
                         if (abilityID > 0) then
-                            spellName, _, spellIcon = GetSpellInfo (abilityID)
+                            spellName, _, spellIcon = GetSpellInfo(abilityID)
                         end
                     end
 
@@ -1029,7 +1029,7 @@ function Details:OpenForge()
         
 
 
-        local select_module = function (a, b, module_number)
+        local select_module = function(a, b, module_number)
         
             if (current_module ~= module_number) then
                 local module = all_modules [current_module]

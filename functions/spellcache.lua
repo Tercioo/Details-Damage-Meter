@@ -49,7 +49,7 @@ do
 			spellIcon = [[Interface\ICONS\INV_Weapon_Bow_07]]
 
 		else
-			spellName, _, spellIcon = GetSpellInfo (spell)
+			spellName, _, spellIcon = GetSpellInfo(spell)
 		end
 		
 		if (not spellName) then
@@ -62,7 +62,7 @@ do
 	--> reset spell cache
 	function _detalhes:ClearSpellCache()
 		_detalhes.spellcache = _setmetatable ({}, 
-				{__index = function (tabela, valor) 
+				{__index = function(tabela, valor) 
 					local esta_magia = _rawget (tabela, valor)
 					if (esta_magia) then
 						return esta_magia
@@ -74,7 +74,7 @@ do
 						if (is_classic_exp) then
 							cache = {GetSpellInfoClassic(valor)}
 						else
-							cache = {_GetSpellInfo (valor)}
+							cache = {_GetSpellInfo(valor)}
 						end
 						tabela [valor] = cache
 						return cache
@@ -90,7 +90,7 @@ do
 		
 		--> built-in overwrites
 		for spellId, spellTable in pairs (_detalhes.SpellOverwrite) do
-			local name, _, icon = _GetSpellInfo (spellId)
+			local name, _, icon = _GetSpellInfo(spellId)
 			_rawset (_detalhes.spellcache, spellId, {spellTable.name or name, 1, spellTable.icon or icon})
 		end
 		
@@ -101,7 +101,7 @@ do
 		end
 	end
 	
-	local lightOfTheMartyr_Name, _, lightOfTheMartyr_Icon = _GetSpellInfo (196917)
+	local lightOfTheMartyr_Name, _, lightOfTheMartyr_Icon = _GetSpellInfo(196917)
 	lightOfTheMartyr_Name = lightOfTheMartyr_Name or "Deprecated Spell - Light of the Martyr"
 	lightOfTheMartyr_Icon = lightOfTheMartyr_Icon or ""
 
@@ -154,30 +154,30 @@ do
 			[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
 			[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
 			[98021] = {name = Loc ["STRING_SPIRIT_LINK_TOTEM"]},
-			[108271] = {name = GetSpellInfo (108271), icon = "Interface\\Addons\\Details\\images\\icon_astral_shift"},
+			[108271] = {name = GetSpellInfo(108271), icon = "Interface\\Addons\\Details\\images\\icon_astral_shift"},
 			[196917] = {name = lightOfTheMartyr_Name .. " (" .. Loc ["STRING_DAMAGE"] .. ")", icon = lightOfTheMartyr_Icon},
 
 			--> bfa trinkets (deprecated)
-			[278155] = {name = GetSpellInfo (278155) .. " (Trinket)"}, --[Twitching Tentacle of Xalzaix]
-			[279664] = {name = GetSpellInfo (279664) .. " (Trinket)"}, --[Vanquished Tendril of G'huun]
-			[278227] = {name = GetSpellInfo (278227) .. " (Trinket)"}, --[T'zane's Barkspines]
-			[278383] = {name = GetSpellInfo (278383) .. " (Trinket)"}, --[Azurethos' Singed Plumage]
-			[278862] = {name = GetSpellInfo (278862) .. " (Trinket)"}, --[Drust-Runed Icicle]
-			[278359] = {name = GetSpellInfo (278359) .. " (Trinket)"}, --[Doom's Hatred]
-			[278812] = {name = GetSpellInfo (278812) .. " (Trinket)"}, --[Lion's Grace]
-			[270827] = {name = GetSpellInfo (270827) .. " (Trinket)"}, --[Vessel of Skittering Shadows]
-			[271071] = {name = GetSpellInfo (271071) .. " (Trinket)"}, --[Conch of Dark Whispers]
-			[270925] = {name = GetSpellInfo (270925) .. " (Trinket)"}, --[Hadal's Nautilus]
-			[271115] = {name = GetSpellInfo (271115) .. " (Trinket)"}, --[Ignition Mage's Fuse]
-			[271462] = {name = GetSpellInfo (271462) .. " (Trinket)"}, --[Rotcrusted Voodoo Doll]
-			[271465] = {name = GetSpellInfo (271465) .. " (Trinket)"}, --[Rotcrusted Voodoo Doll]
-			[268998] = {name = GetSpellInfo (268998) .. " (Trinket)"}, --[Balefire Branch]
-			[271671] = {name = GetSpellInfo (271671) .. " (Trinket)"}, --[Lady Waycrest's Music Box]
-			[277179] = {name = GetSpellInfo (277179) .. " (Trinket)"}, --[Dread Gladiator's Medallion]
-			[277187] = {name = GetSpellInfo (277187) .. " (Trinket)"}, --[Dread Gladiator's Emblem]
-			[277181] = {name = GetSpellInfo (277181) .. " (Trinket)"}, --[Dread Gladiator's Insignia]
-			[277185] = {name = GetSpellInfo (277185) .. " (Trinket)"}, --[Dread Gladiator's Badge]
-			[278057] = {name = GetSpellInfo (278057) .. " (Trinket)"}, --[Vigilant's Bloodshaper]
+			[278155] = {name = GetSpellInfo(278155) .. " (Trinket)"}, --[Twitching Tentacle of Xalzaix]
+			[279664] = {name = GetSpellInfo(279664) .. " (Trinket)"}, --[Vanquished Tendril of G'huun]
+			[278227] = {name = GetSpellInfo(278227) .. " (Trinket)"}, --[T'zane's Barkspines]
+			[278383] = {name = GetSpellInfo(278383) .. " (Trinket)"}, --[Azurethos' Singed Plumage]
+			[278862] = {name = GetSpellInfo(278862) .. " (Trinket)"}, --[Drust-Runed Icicle]
+			[278359] = {name = GetSpellInfo(278359) .. " (Trinket)"}, --[Doom's Hatred]
+			[278812] = {name = GetSpellInfo(278812) .. " (Trinket)"}, --[Lion's Grace]
+			[270827] = {name = GetSpellInfo(270827) .. " (Trinket)"}, --[Vessel of Skittering Shadows]
+			[271071] = {name = GetSpellInfo(271071) .. " (Trinket)"}, --[Conch of Dark Whispers]
+			[270925] = {name = GetSpellInfo(270925) .. " (Trinket)"}, --[Hadal's Nautilus]
+			[271115] = {name = GetSpellInfo(271115) .. " (Trinket)"}, --[Ignition Mage's Fuse]
+			[271462] = {name = GetSpellInfo(271462) .. " (Trinket)"}, --[Rotcrusted Voodoo Doll]
+			[271465] = {name = GetSpellInfo(271465) .. " (Trinket)"}, --[Rotcrusted Voodoo Doll]
+			[268998] = {name = GetSpellInfo(268998) .. " (Trinket)"}, --[Balefire Branch]
+			[271671] = {name = GetSpellInfo(271671) .. " (Trinket)"}, --[Lady Waycrest's Music Box]
+			[277179] = {name = GetSpellInfo(277179) .. " (Trinket)"}, --[Dread Gladiator's Medallion]
+			[277187] = {name = GetSpellInfo(277187) .. " (Trinket)"}, --[Dread Gladiator's Emblem]
+			[277181] = {name = GetSpellInfo(277181) .. " (Trinket)"}, --[Dread Gladiator's Insignia]
+			[277185] = {name = GetSpellInfo(277185) .. " (Trinket)"}, --[Dread Gladiator's Badge]
+			[278057] = {name = GetSpellInfo(278057) .. " (Trinket)"}, --[Vigilant's Bloodshaper]
 		}
 	end
 
@@ -204,7 +204,7 @@ do
 		local t = _detalhes.savedCustomSpells[index]
 		if (t) then
 			local spellid = t [1]
-			local name, _, icon = _GetSpellInfo (spellid)
+			local name, _, icon = _GetSpellInfo(spellid)
 			
 			if (defaultSpellCustomization [spellid]) then
 				name = defaultSpellCustomization [spellid].name
@@ -236,7 +236,7 @@ do
 			end
 		
 			if (not already_have) then
-				local name, _, icon = GetSpellInfo (spellid)
+				local name, _, icon = GetSpellInfo(spellid)
 				_detalhes:UserCustomSpellAdd (spellid, t.name or name or "Unknown", t.icon or icon or [[Interface\InventoryItems\WoWUnknownItem01]])	
 			end
 			
@@ -246,7 +246,7 @@ do
 			local spelltable = _detalhes.savedCustomSpells [i]
 			local spellid = spelltable [1]
 			if (spellid > 10) then
-				local exists = _GetSpellInfo (spellid)
+				local exists = _GetSpellInfo(spellid)
 				if (not exists) then
 					tremove (_detalhes.savedCustomSpells, i)
 				end
@@ -274,7 +274,7 @@ do
 		local t = _detalhes.savedCustomSpells [index]
 		if (t) then
 			local spellid = t [1]
-			local name, _, icon = _GetSpellInfo (spellid)
+			local name, _, icon = _GetSpellInfo(spellid)
 			if (name) then
 				_rawset (_detalhes.spellcache, spellid, {name, 1, icon})
 			end
@@ -286,12 +286,12 @@ do
 	
 	--> overwrite for API GetSpellInfo function
 	
-	_detalhes.getspellinfo = function (spellid) return _unpack (_detalhes.spellcache[spellid]) end
+	_detalhes.getspellinfo = function(spellid) return _unpack (_detalhes.spellcache[spellid]) end
 	_detalhes.GetSpellInfo = _detalhes.getspellinfo
 
 	--> overwrite SpellInfo if the spell is a DoT, so Details.GetSpellInfo will return the name modified
 	function _detalhes:SpellIsDot (spellid)
-		local spellName, rank, spellIcon = _GetSpellInfo (spellid)
+		local spellName, rank, spellIcon = _GetSpellInfo(spellid)
 		
 		if (spellName) then
 			_rawset (_detalhes.spellcache, spellid, {spellName .. Loc ["STRING_DOT"], rank, spellIcon})

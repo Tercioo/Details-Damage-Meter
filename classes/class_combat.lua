@@ -40,7 +40,7 @@
 --> api functions
 
 	--combat (container type, actor name)
-	_detalhes.call_combate = function (self, class_type, name)
+	_detalhes.call_combate = function(self, class_type, name)
 		local container = self[class_type]
 		local index_mapa = container._NameIndexTable [name]
 		local actor = container._ActorTable [index_mapa]
@@ -664,7 +664,7 @@
 		tabela_combate.shadow = nil
 	end
 
-	combate.__sub = function (combate1, combate2)
+	combate.__sub = function(combate1, combate2)
 
 		if (combate1 ~= _detalhes.tabela_overall) then
 			return
@@ -739,7 +739,7 @@
 		
 	end
 
-	combate.__add = function (combate1, combate2)
+	combate.__add = function(combate1, combate2)
 
 		local all_containers = {combate2 [class_type_dano]._ActorTable, combate2 [class_type_cura]._ActorTable, combate2 [class_type_e_energy]._ActorTable, combate2 [class_type_misc]._ActorTable}
 		local custom_combat

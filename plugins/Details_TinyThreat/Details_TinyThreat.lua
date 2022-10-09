@@ -259,7 +259,7 @@ local function CreatePluginFrames (data)
 		return newrow
 	end
 
-	local absoluteSort = function (table1, table2)
+	local absoluteSort = function(table1, table2)
 		if (table1[6] > table2[6]) then
 			return true
 		else
@@ -267,7 +267,7 @@ local function CreatePluginFrames (data)
 		end
 	end
 
-	local relativeSort = function (table1, table2)
+	local relativeSort = function(table1, table2)
 		if (table1[2] > table2[2]) then
 			return true
 		else
@@ -528,7 +528,7 @@ local function CreatePluginFrames (data)
 				end
 
 				if gougeThreshold and ((not threatActor) or (threatActor[6] < gougeThreshold)) then
-					local spellName, _, spellTexture = GetSpellInfo (gougeSpellId)
+					local spellName, _, spellTexture = GetSpellInfo(gougeSpellId)
 					thisRow._icon:SetTexture (spellTexture)
 					thisRow._icon:SetTexCoord (0, 1, 0, 1)
 
@@ -736,7 +736,7 @@ local build_options_panel = function()
 		{
 			type = "range",
 			get = function() return ThreatMeter.saveddata.updatespeed end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.updatespeed = value end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.updatespeed = value end,
 			min = 0.2,
 			max = 3,
 			step = 0.2,
@@ -747,14 +747,14 @@ local build_options_panel = function()
 		{
 			type = "toggle",
 			get = function() return ThreatMeter.saveddata.useplayercolor end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.useplayercolor = value end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.useplayercolor = value end,
 			desc = "When enabled, your bar get the following color.",
 			name = "Player Color Enabled"
 		},
 		{
 			type = "color",
 			get = function() return ThreatMeter.saveddata.playercolor end,
-			set = function (self, r, g, b, a) 
+			set = function(self, r, g, b, a) 
 				local current = ThreatMeter.saveddata.playercolor
 				current[1], current[2], current[3], current[4] = r, g, b, a
 			end,
@@ -764,7 +764,7 @@ local build_options_panel = function()
 		{
 			type = "toggle",
 			get = function() return ThreatMeter.saveddata.useclasscolors end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.useclasscolors = value end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.useclasscolors = value end,
 			desc = "When enabled, threat bars uses the class color of the character.",
 			name = "Use Class Colors"
 		},
@@ -774,14 +774,14 @@ local build_options_panel = function()
 		{
 			type = "toggle",
 			get = function() return ThreatMeter.saveddata.usefocus end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.usefocus = value end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.usefocus = value end,
 			desc = "Show threat for the focus target if there's one.",
 			name = "Track Focus Target (if any)"
 		},
 		{
 			type = "toggle",
 			get = function() return not ThreatMeter.saveddata.hide_pull_bar end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.hide_pull_bar = not value end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.hide_pull_bar = not value end,
 			desc = "Show Pull Aggro Bar",
 			name = "Show Pull Aggro Bar"
 		},
@@ -805,7 +805,7 @@ local build_options_panel = function()
 		{
 			type = "toggle",
 			get = function() return ThreatMeter.saveddata.playSound end,
-			set = function (self, fixedparam, value) ThreatMeter.saveddata.playSound = value end,
+			set = function(self, fixedparam, value) ThreatMeter.saveddata.playSound = value end,
 			desc = "Except for tanks",
 			name = "Play Audio On High Threat"
 		},

@@ -28,7 +28,7 @@ function mythicDungeonCharts:Debug (...)
 	end
 end
 
-local addPlayerDamage = function (unitName, unitRealm)
+local addPlayerDamage = function(unitName, unitRealm)
 	
 	--get the combatlog name
 	local CLName
@@ -134,7 +134,7 @@ local addPlayerDamage = function (unitName, unitRealm)
 	end
 end
 
-local tickerCallback = function (tickerObject)
+local tickerCallback = function(tickerObject)
 	
 	--check if is inside the dungeon
 	local inInstance = IsInInstance();
@@ -319,7 +319,7 @@ function mythicDungeonCharts.ShowReadyPanel()
 		f.DiscartButton:SetPoint ("right", f.ShowButton, "left", -5, 0)
 		
 		--disable feature check box (dont show this again)
-		local on_switch_enable = function (self, _, value)
+		local on_switch_enable = function(self, _, value)
 			_detalhes.mythic_plus.show_damage_graphic = not value
 		end
 		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch (f, on_switch_enable, not _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
@@ -502,7 +502,7 @@ function mythicDungeonCharts.ShowChart()
 		end)
 		
 		--> replace the default click function
-		local minimize_func = function (self)
+		local minimize_func = function(self)
 			if (f.IsMinimized) then
 				f.IsMinimized = false
 				fMinimized:Hide()
@@ -523,7 +523,7 @@ function mythicDungeonCharts.ShowChart()
 		
 		--enabled box
 		-- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
-		local on_switch_enable = function (_, _, state)
+		local on_switch_enable = function(_, _, state)
 			_detalhes.mythic_plus.show_damage_graphic = state
 		end
 		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch (f, on_switch_enable, _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", Details.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
@@ -698,14 +698,14 @@ function mythicDungeonCharts.ShowChart()
 end
 
 local showID = 0
-local HideTooltip = function (ticker)
+local HideTooltip = function(ticker)
 	if (showID == ticker.ShowID) then
 		GameCooltip2:Hide()
 		mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPin:Hide()
 		mythicDungeonCharts.Frame.BossWidgetsFrame.GraphPinGlow:Hide()
 	end
 end
-local PixelFrameOnEnter = function (self)
+local PixelFrameOnEnter = function(self)
 	local playerName = self.PlayerName
 	--get the percent from the pixel height relative to the chart window
 	local dps = self.Height / mythicDungeonCharts.Frame.ChartFrame:GetHeight()
@@ -731,7 +731,7 @@ local PixelFrameOnEnter = function (self)
 	GameCooltip2:Show()
 	showID = showID + 1
 end
-local PixelFrameOnLeave = function (self)
+local PixelFrameOnLeave = function(self)
 	local timer = C_Timer.NewTimer (1, HideTooltip)
 	timer.ShowID = showID
 end

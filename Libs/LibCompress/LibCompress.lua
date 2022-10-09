@@ -509,7 +509,7 @@ end
 -- lookuptable (cached between calls)
 local lshiftMask = {}
 setmetatable(lshiftMask, {
-	__index = function (t, k)
+	__index = function(t, k)
 		local v = bit_lshift(1, k)
 		rawset(t, k, v)
 		return v
@@ -519,7 +519,7 @@ setmetatable(lshiftMask, {
 -- lookuptable (cached between calls)
 local lshiftMinusOneMask = {}
 setmetatable(lshiftMinusOneMask, {
-	__index = function (t, k)
+	__index = function(t, k)
 		local v = bit_lshift(1, k) -  1
 		rawset(t, k, v)
 		return v
@@ -644,7 +644,7 @@ function LibCompress:DecompressHuffman(compressed)
 	local bitfield_len = 0
 	local map = {} -- only table not reused in Huffman decode.
 	setmetatable(map, {
-		__index = function (t, k)
+		__index = function(t, k)
 			local v = {}
 			rawset(t, k, v)
 			return v
@@ -696,7 +696,7 @@ function LibCompress:DecompressHuffman(compressed)
 	-- But do return an empty table to prevent runtime errors. (instead of returning nil)
 	local mt = {}
 	setmetatable(map, {
-		__index = function (t, k)
+		__index = function(t, k)
 			return mt
 		end
 	})

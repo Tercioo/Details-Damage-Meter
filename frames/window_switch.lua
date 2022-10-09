@@ -98,7 +98,7 @@ do
 		end
 	end
 
-	local on_click_all_switch_button = function (self, button)
+	local on_click_all_switch_button = function(self, button)
 		if (button == "LeftButton") then
 			local attribute = self.attribute
 			local subAttribute = self.sub_attribute
@@ -175,7 +175,7 @@ do
 		end
 	end
 	
-	local create_all_switch_button = function (attribute, sub_attribute, x, y)
+	local create_all_switch_button = function(attribute, sub_attribute, x, y)
 		local button = CreateFrame ("button", "DetailsAllAttributesFrame" .. attribute .. sub_attribute, allDisplaysFrame)
 		button:SetSize (130, 16)
 		button.texture = button:CreateTexture (nil, "overlay")
@@ -488,7 +488,7 @@ function Details.switch:ShowMe(instancia)
 
 	elseif (IsShiftKeyDown()) then
 		if (not Details.switch.segments_blocks) then
-			local segment_switch = function (self, button, segment)
+			local segment_switch = function(self, button, segment)
 				if (button == "LeftButton") then
 					Details.switch.current_instancia:TrocaTabela (segment)
 					Details.switch.CloseMe()
@@ -497,26 +497,26 @@ function Details.switch:ShowMe(instancia)
 				end
 			end
 			
-			local hide_label = function (self)
+			local hide_label = function(self)
 				self.texture:Hide()
 				self.button:Hide()
 				self.background:Hide()
 				self:Hide()
 			end
 			
-			local show_label = function (self)
+			local show_label = function(self)
 				self.texture:Show()
 				self.button:Show()
 				self.background:Show()
 				self:Show()
 			end
 			
-			local on_enter = function (self)
+			local on_enter = function(self)
 				--self.MyObject.this_background:SetBlendMode ("ADD")
 				--self.MyObject.boss_texture:SetBlendMode ("ADD")
 			end
 			
-			local on_leave = function (self)
+			local on_leave = function(self)
 				self.MyObject.this_background:SetBlendMode ("BLEND")
 				self.MyObject.boss_texture:SetBlendMode ("BLEND")
 			end
@@ -1078,7 +1078,7 @@ end
 
 local scroll = CreateFrame ("scrollframe", "DetailsSwitchPanelScroll", DetailsSwitchPanel, "FauxScrollFrameTemplate")
 scroll:SetAllPoints()
-scroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, Details.switch.Update) end) --altura
+scroll:SetScript ("OnVerticalScroll", function(self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, Details.switch.Update) end) --altura
 scroll.ScrollBar:Hide()
 scroll.ScrollBar.ScrollUpButton:Hide()
 scroll.ScrollBar.ScrollDownButton:Hide()
