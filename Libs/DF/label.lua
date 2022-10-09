@@ -38,14 +38,14 @@ local LabelMetaFunctions = _G[detailsFramework.GlobalWidgetControlNames ["label"
 detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.SetPointMixin)
 
 ------------------------------------------------------------------------------------------------------------
---> metatables
+--metatables
 
 	LabelMetaFunctions.__call = function(object, value)
 		return object.label:SetText(value)
 	end
 
 ------------------------------------------------------------------------------------------------------------
---> members
+--members
 
 	--get text
 	local gmember_text = function(object)

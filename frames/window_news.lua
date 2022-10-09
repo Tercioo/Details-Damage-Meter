@@ -35,7 +35,7 @@ function Details:OpenNewsWindow(textToShow, dumpValues, keeptext)
 			newsFrame:Text((DetailsNewsWindowText:GetText() or "") .. "\n\n" .. returnString)
 		else
 			if (dumpValues) then
-				newsFrame.DumpTableFrame:SetText (returnString)
+				newsFrame.DumpTableFrame:SetText(returnString)
 			else
 				newsFrame:Text (returnString)
 			end
@@ -94,30 +94,30 @@ function Details:CreateOrOpenNewsWindow()
 		local frameUpper = CreateFrame("scrollframe", nil, frame, "BackdropTemplate")
 		local frameLower = CreateFrame("frame", "DetailsNewsWindowLower", frameUpper, "BackdropTemplate")
 
-		frameLower:SetSize (450, 2000)
-		frameUpper:SetPoint ("topleft", frame, "topleft", 10, -30)
+		frameLower:SetSize(450, 2000)
+		frameUpper:SetPoint("topleft", frame, "topleft", 10, -30)
 		frameUpper:SetWidth(445)
 		frameUpper:SetHeight(500)
 		frameUpper:SetBackdrop({
 				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
 				tile = true, tileSize = 16,
 				insets = {left = 1, right = 1, top = 0, bottom = 1},})
-		frameUpper:SetBackdropColor (.1, .1, .1, .3)
+		frameUpper:SetBackdropColor(.1, .1, .1, .3)
 		frameUpper:SetScrollChild (frameLower)
 		
-		local slider = CreateFrame ("slider", "DetailsNewsWindowSlider", frame, "BackdropTemplate")
-		slider.bg = slider:CreateTexture (nil, "background")
-		slider.bg:SetAllPoints (true)
-		slider.bg:SetTexture (0, 0, 0, 0.5)
+		local slider = CreateFrame("slider", "DetailsNewsWindowSlider", frame, "BackdropTemplate")
+		slider.bg = slider:CreateTexture(nil, "background")
+		slider.bg:SetAllPoints(true)
+		slider.bg:SetTexture(0, 0, 0, 0.5)
 		
-		slider.thumb = slider:CreateTexture (nil, "OVERLAY")
-		slider.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
-		slider.thumb:SetSize (25, 25)
+		slider.thumb = slider:CreateTexture(nil, "OVERLAY")
+		slider.thumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
+		slider.thumb:SetSize(25, 25)
 		
 		slider:SetThumbTexture (slider.thumb)
 		slider:SetOrientation ("vertical");
-		slider:SetSize (16, 499)
-		slider:SetPoint ("topleft", frameUpper, "topright")
+		slider:SetSize(16, 499)
+		slider:SetPoint("topleft", frameUpper, "topright")
 		slider:SetMinMaxValues (0, 2000)
 		slider:SetValue(0)
 		slider:SetScript("OnValueChanged", function(self)
@@ -130,15 +130,15 @@ function Details:CreateOrOpenNewsWindow()
 		      if (IsShiftKeyDown() and (delta > 0)) then
 				slider:SetValue(0)
 		      elseif (IsShiftKeyDown() and (delta < 0)) then
-				slider:SetValue (2000)
+				slider:SetValue(2000)
 		      elseif ((delta < 0) and (current < 2000)) then
-				slider:SetValue (current + 20)
+				slider:SetValue(current + 20)
 		      elseif ((delta > 0) and (current > 1)) then
-				slider:SetValue (current - 20)
+				slider:SetValue(current - 20)
 		      end
 		end)
 
-		--> text box
+		--text box
 		local texto = frameLower:CreateFontString("DetailsNewsWindowText", "overlay", "GameFontNormal")
 		texto:SetPoint("topleft", frameLower, "topleft")
 		texto:SetJustifyH("left")
@@ -165,7 +165,7 @@ function Details:CreateOrOpenNewsWindow()
 		DetailsFramework:ApplyStandardBackdrop(statusBar)
 		statusBar:SetAlpha (0.8)
 		DetailsFramework:BuildStatusbarAuthorInfo(statusBar, "", "")
-		statusBar.authorName:SetPoint ("left", statusBar, "left", 207, 0)
+		statusBar.authorName:SetPoint("left", statusBar, "left", 207, 0)
 
 
 		function frame:Title (title)
@@ -173,7 +173,7 @@ function Details:CreateOrOpenNewsWindow()
 		end
 
 		function frame:Text (text)
-			texto:SetText (text or "")
+			texto:SetText(text or "")
 		end
 
 		frame:Hide()

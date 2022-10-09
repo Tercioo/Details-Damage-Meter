@@ -3,7 +3,7 @@
 do 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> On The Fly SpellCache
+--On The Fly SpellCache
 
 	local _detalhes = 	_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
@@ -14,12 +14,12 @@ do
 	local _GetSpellInfo =	GetSpellInfo
 	local _unpack	=	unpack
 
-	--> is this a timewalking exp?
+	--is this a timewalking exp?
 	local is_classic_exp = DetailsFramework.IsClassicWow()
 
-	--> default container
+	--default container
 	_detalhes.spellcache =	{}
-	local unknowSpell = {Loc ["STRING_UNKNOWSPELL"], _, "Interface\\Icons\\Ability_Druid_Eclipse"} --> localize-me
+	local unknowSpell = {Loc ["STRING_UNKNOWSPELL"], _, "Interface\\Icons\\Ability_Druid_Eclipse"} --localize-me
 	
 	local AllSpellNames
 	if (is_classic_exp) then
@@ -59,7 +59,7 @@ do
 		return spellName, _, AllSpellNames [spell] or spellIcon
 	end
 
-	--> reset spell cache
+	--reset spell cache
 	function _detalhes:ClearSpellCache()
 		_detalhes.spellcache = _setmetatable ({}, 
 				{__index = function(tabela, valor) 
@@ -68,8 +68,8 @@ do
 						return esta_magia
 					end
 
-					--> should save only icon and name, other values are not used
-					if (valor) then --> check if spell is valid before
+					--should save only icon and name, other values are not used
+					if (valor) then --check if spell is valid before
 						local cache
 						if (is_classic_exp) then
 							cache = {GetSpellInfoClassic(valor)}
@@ -84,19 +84,19 @@ do
 					
 				end})
 
-		--> default overwrites
+		--default overwrites
 		--_rawset (_detalhes.spellcache, 1, {Loc ["STRING_MELEE"], 1, "Interface\\AddOns\\Details\\images\\melee.tga"})
 		--_rawset (_detalhes.spellcache, 2, {Loc ["STRING_AUTOSHOT"], 1, "Interface\\AddOns\\Details\\images\\autoshot.tga"})
 		
-		--> built-in overwrites
+		--built-in overwrites
 		for spellId, spellTable in pairs (_detalhes.SpellOverwrite) do
 			local name, _, icon = _GetSpellInfo(spellId)
 			_rawset (_detalhes.spellcache, spellId, {spellTable.name or name, 1, spellTable.icon or icon})
 		end
 		
-		--> user overwrites
+		--user overwrites
 		-- [1] spellid [2] spellname [3] spellicon
-		for index, spellTable in ipairs (_detalhes.savedCustomSpells) do
+		for index, spellTable in ipairs(_detalhes.savedCustomSpells) do
 			_rawset (_detalhes.spellcache, spellTable [1], {spellTable [2], 1, spellTable [3]})
 		end
 	end
@@ -157,7 +157,7 @@ do
 			[108271] = {name = GetSpellInfo(108271), icon = "Interface\\Addons\\Details\\images\\icon_astral_shift"},
 			[196917] = {name = lightOfTheMartyr_Name .. " (" .. Loc ["STRING_DAMAGE"] .. ")", icon = lightOfTheMartyr_Icon},
 
-			--> bfa trinkets (deprecated)
+			--bfa trinkets (deprecated)
 			[278155] = {name = GetSpellInfo(278155) .. " (Trinket)"}, --[Twitching Tentacle of Xalzaix]
 			[279664] = {name = GetSpellInfo(279664) .. " (Trinket)"}, --[Vanquished Tendril of G'huun]
 			[278227] = {name = GetSpellInfo(278227) .. " (Trinket)"}, --[T'zane's Barkspines]
@@ -229,7 +229,7 @@ do
 		for spellid, t in pairs (defaultSpellCustomization) do 
 		
 			local already_have
-			for index, spelltable in ipairs (_detalhes.savedCustomSpells) do 
+			for index, spelltable in ipairs(_detalhes.savedCustomSpells) do 
 				if (spelltable [1] == spellid) then
 					already_have = spelltable
 				end
@@ -256,7 +256,7 @@ do
 	
 	function _detalhes:UserCustomSpellAdd (spellid, name, icon)
 		local is_overwrite = false
-		for index, t in ipairs (_detalhes.savedCustomSpells) do 
+		for index, t in ipairs(_detalhes.savedCustomSpells) do 
 			if (t [1] == spellid) then
 				t[2] = name
 				t[3] = icon
@@ -284,12 +284,12 @@ do
 		return false
 	end
 	
-	--> overwrite for API GetSpellInfo function
+	--overwrite for API GetSpellInfo function
 	
 	_detalhes.getspellinfo = function(spellid) return _unpack (_detalhes.spellcache[spellid]) end
 	_detalhes.GetSpellInfo = _detalhes.getspellinfo
 
-	--> overwrite SpellInfo if the spell is a DoT, so Details.GetSpellInfo will return the name modified
+	--overwrite SpellInfo if the spell is a DoT, so Details.GetSpellInfo will return the name modified
 	function _detalhes:SpellIsDot (spellid)
 		local spellName, rank, spellIcon = _GetSpellInfo(spellid)
 		
@@ -301,7 +301,7 @@ do
 	end
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> Cache All Spells
+--Cache All Spells
 
 	function _detalhes:BuildSpellListSlow()
 
@@ -314,13 +314,13 @@ do
 		local max = 160000
 		
 		if (not load_frame) then
-			load_frame = CreateFrame ("frame", "DetailsLoadSpellCache", UIParent)
+			load_frame = CreateFrame("frame", "DetailsLoadSpellCache", UIParent)
 			load_frame:SetFrameStrata ("DIALOG")
 			
 			local progress_label = load_frame:CreateFontString ("DetailsLoadSpellCacheProgress", "overlay", "GameFontHighlightSmall")
-			progress_label:SetText ("Loading Spells: 0%")
+			progress_label:SetText("Loading Spells: 0%")
 			function _detalhes:BuildSpellListSlowTick()
-				progress_label:SetText ("Loading Spells: " .. load_frame:GetProgress() .. "%")
+				progress_label:SetText("Loading Spells: " .. load_frame:GetProgress() .. "%")
 			end
 			load_frame.tick = _detalhes:ScheduleRepeatingTimer ("BuildSpellListSlowTick", 1)
 			
@@ -338,11 +338,11 @@ do
 		
 		_detalhes.spellcachefull = SpellCache
 
-		load_frame:SetScript ("OnUpdate", function()
+		load_frame:SetScript("OnUpdate", function()
 			for spellid = step, step+500 do
 				local name, _, icon = blizzGetSpellInfo (spellid)
 				if (name) then
-					local LetterIndex = _string_lower (_string_sub (name, 1, 1)) --> get the first letter
+					local LetterIndex = _string_lower (_string_sub (name, 1, 1)) --get the first letter
 					local CachedIndex = SpellCache [LetterIndex]
 					if (CachedIndex) then
 						CachedIndex [spellid] = {name, icon}
@@ -358,7 +358,7 @@ do
 				_G.DetailsLoadSpellCache.inprogress = false
 				_detalhes:CancelTimer (_G.DetailsLoadSpellCache.tick)
 				DetailsLoadSpellCacheProgress:Hide()
-				load_frame:SetScript ("OnUpdate", nil)
+				load_frame:SetScript("OnUpdate", nil)
 			end
 			
 		end)

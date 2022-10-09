@@ -18,18 +18,18 @@ function Details:OpenBrokerTextEditor()
         local titleBar = DF:CreateTitleBar (panel, "Broker Text Editor")
     
         local textentry = DF:NewSpecialLuaEditorEntry (panel, 650, 270, "editbox", "$parentEntry", true)
-        textentry:SetPoint ("topleft", panel, "topleft", 2, -25)
+        textentry:SetPoint("topleft", panel, "topleft", 2, -25)
 
         DF:ApplyStandardBackdrop(textentry)
         DF:ReskinSlider(textentry.scroll)
         
-        textentry.editbox:SetScript ("OnTextChanged", function()
+        textentry.editbox:SetScript("OnTextChanged", function()
             local text = panel.editbox:GetText()
             Details.data_broker_text = text
             Details:BrokerTick()
             if (_G.DetailsOptionsWindow)  then
                 local dataBrokerString = _G["DetailsOptionsWindowTab" .. tabIndex].widget_list_by_type.textentry[1]
-                dataBrokerString:SetText (Details.data_broker_text)
+                dataBrokerString:SetText(Details.data_broker_text)
             end
         end)
         
@@ -55,7 +55,7 @@ function Details:OpenBrokerTextEditor()
         end
         
         local d = DF:NewDropDown (panel, _, "$parentTextOptionsDropdown", "TextOptionsDropdown", 150, 20, buildAddMenu, 1)
-        d:SetPoint ("topright", panel, "topright", -12, -25)
+        d:SetPoint("topright", panel, "topright", -12, -25)
         d:SetTemplate(DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         local optiontable = {"{dmg}", "{dps}", "{dpos}", "{ddiff}", "{heal}", "{hps}", "{hpos}", "{hdiff}", "{time}"}
@@ -64,7 +64,7 @@ function Details:OpenBrokerTextEditor()
             textentry.editbox:Insert (optiontable [option_selected])
         end,
         nil, nil, nil, "<-")
-        add_button:SetPoint ("right", d, "left", -2, 0)
+        add_button:SetPoint("right", d, "left", -2, 0)
         add_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
         
         
@@ -178,8 +178,8 @@ function Details:OpenBrokerTextEditor()
         end
         
         local color_button = DF:NewColorPickButton (panel, "$parentButton5", nil, color_func)
-        color_button:SetSize (80, 20)
-        color_button:SetPoint ("topright", panel, "topright", -12, -102)
+        color_button:SetSize(80, 20)
+        color_button:SetPoint("topright", panel, "topright", -12, -102)
         color_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"]
         color_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
     
@@ -188,7 +188,7 @@ function Details:OpenBrokerTextEditor()
             Details.data_broker_text = text
             if (_G.DetailsOptionsWindow)  then
                 local dataBrokerString = _G["DetailsOptionsWindowTab" .. tabIndex].widget_list_by_type.textentry[1]
-                dataBrokerString:SetText (Details.data_broker_text)
+                dataBrokerString:SetText(Details.data_broker_text)
             end
             Details:BrokerTick()
             panel:Hide()
@@ -196,17 +196,17 @@ function Details:OpenBrokerTextEditor()
         
         local ok_button = DF:NewButton (panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_DONE"], 1)
         ok_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_DONE_TOOLTIP"]
-        ok_button:SetPoint ("topright", panel, "topright", -12, -174)
+        ok_button:SetPoint("topright", panel, "topright", -12, -174)
         ok_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 
-        local reset_button = DF:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText ("") end, nil, nil, nil, "Reset", 1)
+        local reset_button = DF:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText("") end, nil, nil, nil, "Reset", 1)
         reset_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_RESET_TOOLTIP"]
-        reset_button:SetPoint ("topright", panel, "topright", -100, -152)
+        reset_button:SetPoint("topright", panel, "topright", -100, -152)
         reset_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 
-        local cancel_button = DF:NewButton (panel, nil, "$parentDefaultCancel", nil, 80, 20, function() textentry.editbox:SetText (panel.default_text); done(); end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL"], 1)
+        local cancel_button = DF:NewButton (panel, nil, "$parentDefaultCancel", nil, 80, 20, function() textentry.editbox:SetText(panel.default_text); done(); end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL"], 1)
         cancel_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL_TOOLTIP"]
-        cancel_button:SetPoint ("topright", panel, "topright", -100, -174)
+        cancel_button:SetPoint("topright", panel, "topright", -100, -174)
         cancel_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
     
     end
@@ -215,7 +215,7 @@ function Details:OpenBrokerTextEditor()
     
     local text = Details.data_broker_text:gsub ("||", "|")
     panel.default_text = text
-    panel.editbox:SetText (text)
+    panel.editbox:SetText(text)
     
     panel:Show()
 end

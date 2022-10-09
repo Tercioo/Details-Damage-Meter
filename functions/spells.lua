@@ -3902,7 +3902,7 @@ do
 
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	_detalhes.SpellOverwrite = {
-		--[124464] = {name = GetSpellInfo(124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
+		--[124464] = {name = GetSpellInfo(124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --shadow word: pain mastery proc (priest)
 	}
 
 	_detalhes.spells_school = {
@@ -3960,7 +3960,7 @@ end
 
 
 --save spells of a segment
-local SplitLoadFrame = CreateFrame ("frame")
+local SplitLoadFrame = CreateFrame("frame")
 local MiscContainerNames = {
     "dispell_spells",
     "cooldowns_defensive_spells",
@@ -3977,9 +3977,9 @@ local SplitLoadFunc = function(self, deltaTime)
 
     if (not container) then
         if (Details.debug) then
-            Details:Msg ("(debug) finished index spells.")
+            Details:Msg("(debug) finished index spells.")
         end
-        SplitLoadFrame:SetScript ("OnUpdate", nil)
+        SplitLoadFrame:SetScript("OnUpdate", nil)
         return
     end
     
@@ -3997,9 +3997,9 @@ local SplitLoadFunc = function(self, deltaTime)
         
         --finished all the 4 container? kill the process
         if (SplitLoadFrame.NextActorContainer == 5) then
-            SplitLoadFrame:SetScript ("OnUpdate", nil)
+            SplitLoadFrame:SetScript("OnUpdate", nil)
             if (Details.debug) then
-                Details:Msg ("(debug) finished index spells.")
+                Details:Msg("(debug) finished index spells.")
             end
             return
         end
@@ -4040,7 +4040,7 @@ local SplitLoadFunc = function(self, deltaTime)
             
             --if is a misc container
             elseif (SplitLoadFrame.NextActorContainer == 4) then
-                for _, containerName in ipairs (MiscContainerNames) do 
+                for _, containerName in ipairs(MiscContainerNames) do 
                     --check if the actor have this container
                     if (actorToIndex [containerName]) then
                         local spellList = actorToIndex [containerName]._ActorTable
@@ -4086,9 +4086,9 @@ end
 
 function Details.StoreSpells()
     if (Details.debug) then
-        Details:Msg ("(debug) started to index spells.")
+        Details:Msg("(debug) started to index spells.")
     end
-    SplitLoadFrame:SetScript ("OnUpdate", SplitLoadFunc)
+    SplitLoadFrame:SetScript("OnUpdate", SplitLoadFunc)
     SplitLoadFrame.NextActorContainer = 1
     SplitLoadFrame.NextActorIndex = 1
 end

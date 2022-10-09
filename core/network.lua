@@ -7,14 +7,14 @@
 	Details.network = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> local pointers
+--local pointers
 
 	local UnitName = UnitName
 	local GetRealmName = GetRealmName
 	local select = select
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> constants
+--constants
 
 	_G.DETAILS_PREFIX_NETWORK = "DTLS"
 
@@ -73,10 +73,10 @@
 	local registredPlugins = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> comm functions
+--comm functions
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> item level
+--item level
 	function Details:SendCharacterData()
 		--only send if in group
 		if (not IsInGroup() and not IsInRaid()) then
@@ -162,7 +162,7 @@
 
 	function Details.network.Update_VersionReceived(player, realm, coreVersion, buildNumber)
 		if (Details.debugnet) then
-			Details:Msg ("(debug) received version alert ", buildNumber)
+			Details:Msg("(debug) received version alert ", buildNumber)
 		end
 
 		if (Details.streamer_config.no_alerts) then
@@ -432,7 +432,7 @@
 	}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> register comm
+--register comm
 
 	function Details:CommReceived(commPrefix, data, channel, source)
 
@@ -518,7 +518,7 @@
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> send functions
+--send functions
 
 	function Details:GetChannelId(channel)
 		--deprecated
@@ -587,12 +587,12 @@
 	end
 
 	function Details:SendGuildData(type, ...)
-		if not IsInGuild() then return end --> fix from Tim@WoWInterface
+		if not IsInGuild() then return end --fix from Tim@WoWInterface
 		Details:SendCommMessage(DETAILS_PREFIX_NETWORK, Details:Serialize(type, UnitName("player"), GetRealmName(), Details.realversion, ...), "GUILD")
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> cloud
+--cloud
 
 	function Details:SendCloudRequest()
 		--deprecated
@@ -607,7 +607,7 @@
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> update
+--update
 
 	function Details:CheckVersion(sendToGuild)
 		if (IsInRaid()) then

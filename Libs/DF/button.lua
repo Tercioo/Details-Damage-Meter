@@ -167,17 +167,17 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 
 	--frame width
 	local smember_width = function(_object, _value)
-		return _object.button:SetWidth (_value)
+		return _object.button:SetWidth(_value)
 	end
 
 	--frame height
 	local smember_height = function(_object, _value)
-		return _object.button:SetHeight (_value)
+		return _object.button:SetHeight(_value)
 	end
 
 	--text
 	local smember_text = function(_object, _value)
-		return _object.button.text:SetText (_value)
+		return _object.button.text:SetText(_value)
 	end
 
 	--function
@@ -197,7 +197,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 
 	--text color
 	local smember_textcolor = function(_object, _value)
-		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
 		return _object.button.text:SetTextColor (_value1, _value2, _value3, _value4)	
 	end
 
@@ -213,24 +213,24 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 
 	--texture
 	local smember_texture = function(_object, _value)
-		if (type (_value) == "table") then
+		if (type(_value) == "table") then
 			local _value1, _value2, _value3, _value4 = unpack (_value)
 			if (_value1) then
-				_object.button:SetNormalTexture (_value1)
+				_object.button:SetNormalTexture(_value1)
 			end
 			if (_value2) then
-				_object.button:SetHighlightTexture (_value2, "ADD")
+				_object.button:SetHighlightTexture(_value2, "ADD")
 			end
 			if (_value3) then
-				_object.button:SetPushedTexture (_value3)
+				_object.button:SetPushedTexture(_value3)
 			end
 			if (_value4) then
 				_object.button:SetDisabledTexture (_value4)
 			end
 		else
-			_object.button:SetNormalTexture (_value)
-			_object.button:SetHighlightTexture (_value, "ADD")
-			_object.button:SetPushedTexture (_value)
+			_object.button:SetNormalTexture(_value)
+			_object.button:SetHighlightTexture(_value, "ADD")
+			_object.button:SetPushedTexture(_value)
 			_object.button:SetDisabledTexture (_value)
 		end
 		return
@@ -251,13 +251,13 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	--text align
 	local smember_textalign = function(_object, _value)
 		if (_value == "left" or _value == "<") then
-			_object.button.text:SetPoint ("left", _object.button, "left", 2, 0)
+			_object.button.text:SetPoint("left", _object.button, "left", 2, 0)
 			_object.capsule_textalign = "left"
 		elseif (_value == "center" or _value == "|") then
-			_object.button.text:SetPoint ("center", _object.button, "center", 0, 0)
+			_object.button.text:SetPoint("center", _object.button, "center", 0, 0)
 			_object.capsule_textalign = "center"
 		elseif (_value == "right" or _value == ">") then
-			_object.button.text:SetPoint ("right", _object.button, "right", -2, 0)
+			_object.button.text:SetPoint("right", _object.button, "right", -2, 0)
 			_object.capsule_textalign = "right"
 		end
 	end
@@ -407,7 +407,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			self.icon:SetPoint("left", self.widget, "left", 4 + (leftPadding or 0), 0)
 			self.icon.leftPadding = leftPadding or 0
 			self.widget.text:ClearAllPoints()
-			self.widget.text:SetPoint ("left", self.icon, "right", textDistance or 2, 0 + (textHeight or 0))
+			self.widget.text:SetPoint("left", self.icon, "right", textDistance or 2, 0 + (textHeight or 0))
 		end
 
 		if (type(texture) == "string") then
@@ -919,9 +919,9 @@ end
 
 		local textWidth = buttonObject.button.text:GetStringWidth()
 		if (textWidth > width - 15 and buttonObject.button.text:GetText() ~= "") then
-			if (shortMethod == false) then --> if is false, do not use auto resize
+			if (shortMethod == false) then --if is false, do not use auto resize
 				--do nothing
-			elseif (not shortMethod) then --> if the value is omitted, use the default resize
+			elseif (not shortMethod) then --if the value is omitted, use the default resize
 				local new_width = textWidth + 15
 				buttonObject.button:SetWidth(new_width)
 

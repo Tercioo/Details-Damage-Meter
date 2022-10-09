@@ -170,7 +170,7 @@ do
 		return self.pets
 	end
 	
-	--> inherits to all actors without placing it on _detalhes namespace.
+	--inherits to all actors without placing it on _detalhes namespace.
 	_detalhes.container_combatentes.guid = _detalhes.GetGUID
 	_detalhes.container_combatentes.name = _detalhes.GetName
 	_detalhes.container_combatentes.class = _detalhes.GetActorClass

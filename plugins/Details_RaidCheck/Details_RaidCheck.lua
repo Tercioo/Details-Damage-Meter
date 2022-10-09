@@ -1003,7 +1003,7 @@ function DetailsRaidCheck:OnEvent(_, event, ...)
 				C_Timer.After(1, function()
 					--install
 					local install, savedData, isEnabled = _G.Details:InstallPlugin("TOOLBAR", Loc["STRING_RAIDCHECK_PLUGIN_NAME"], [[Interface\Buttons\UI-CheckBox-Check]], DetailsRaidCheck, "DETAILS_PLUGIN_RAIDCHECK", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", version, defaultSettings)
-					if (type (install) == "table" and install.error) then
+					if (type(install) == "table" and install.error) then
 						return print(install.error)
 					end
 

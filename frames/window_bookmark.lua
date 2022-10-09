@@ -4,7 +4,7 @@ local Details = _G.Details
 local DF = _G.DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
---> config bookmarks
+--config bookmarks
 function Details:OpenBookmarkConfig()
 
     if (not _G.DetailsBookmarkManager) then
@@ -42,10 +42,10 @@ function Details:OpenBookmarkConfig()
             Details:MontaAtributosOption (Details:GetInstance(1), select_attribute)
             GameCooltip:SetColor (1, cooltip_color)
             GameCooltip:SetColor (2, cooltip_color)
-            GameCooltip:SetOption ("HeightAnchorMod", -7)
-            GameCooltip:SetOption ("TextSize", Details.font_sizes.menus)
-            GameCooltip:SetBackdrop (1, Details.tooltip_backdrop, nil, Details.tooltip_border_color)
-            GameCooltip:SetBackdrop (2, Details.tooltip_backdrop, nil, Details.tooltip_border_color)
+            GameCooltip:SetOption("HeightAnchorMod", -7)
+            GameCooltip:SetOption("TextSize", Details.font_sizes.menus)
+            GameCooltip:SetBackdrop(1, Details.tooltip_backdrop, nil, Details.tooltip_border_color)
+            GameCooltip:SetBackdrop(2, Details.tooltip_backdrop, nil, Details.tooltip_border_color)
             
             GameCooltip:ShowCooltip()
         end
@@ -53,32 +53,32 @@ function Details:OpenBookmarkConfig()
         local button_backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, insets = {left=0, right=0, top=0, bottom=0}}
         
         local set_onenter = function(self, capsule)
-            self:SetBackdropColor (1, 1, 1, 0.9)
-            capsule.icon:SetBlendMode ("ADD")
+            self:SetBackdropColor(1, 1, 1, 0.9)
+            capsule.icon:SetBlendMode("ADD")
         end
         local set_onleave = function(self, capsule)
-            self:SetBackdropColor (0, 0, 0, 0.5)
-            capsule.icon:SetBlendMode ("BLEND")
+            self:SetBackdropColor(0, 0, 0, 0.5)
+            capsule.icon:SetBlendMode("BLEND")
         end
         
         for i = 1, 40 do
             local clear = DF:CreateButton (panel, clear_func, 16, 16, nil, i, nil, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]])
             if (i%2 ~= 0) then
                 --impar
-                clear:SetPoint (15, (( i*10 ) * -1) - 35) --left
+                clear:SetPoint(15, (( i*10 ) * -1) - 35) --left
             else
                 --par
                 local o = i-1
-                clear:SetPoint (250, (( o*10 ) * -1) - 35) --right
+                clear:SetPoint(250, (( o*10 ) * -1) - 35) --right
             end
         
             local set = DF:CreateButton (panel, set_att, 16, 16, nil, i)
-            set:SetPoint ("left", clear, "right")
-            set:SetPoint ("right", clear, "right", 180, 0)
-            set:SetBackdrop (button_backdrop)
-            set:SetBackdropColor (0, 0, 0, 0.5)
-            set:SetHook ("OnEnter", set_onenter)
-            set:SetHook ("OnLeave", set_onleave)
+            set:SetPoint("left", clear, "right")
+            set:SetPoint("right", clear, "right", 180, 0)
+            set:SetBackdrop(button_backdrop)
+            set:SetBackdropColor(0, 0, 0, 0.5)
+            set:SetHook("OnEnter", set_onenter)
+            set:SetHook("OnLeave", set_onleave)
         
             --set:InstallCustomTexture (nil, nil, nil, nil, true)
             set:SetTemplate (DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -88,10 +88,10 @@ function Details:OpenBookmarkConfig()
             set.bg = bg_texture
         
             local icon = DF:CreateImage (set, nil, 16, 16, nil, nil, "icon")
-            icon:SetPoint ("left", clear, "right", 4, 0)
+            icon:SetPoint("left", clear, "right", 4, 0)
             
-            local label = DF:CreateLabel (set, "")
-            label:SetPoint ("left", icon, "right", 2, 0)
+            local label = DF:CreateLabel(set, "")
+            label:SetPoint("left", icon, "right", 2, 0)
 
             tinsert (panel.blocks, {icon = icon, label = label, bg = set.bg, button = set})
         end
@@ -106,9 +106,9 @@ function Details:OpenBookmarkConfig()
                 local bookmark = bookmarks [i]
                 local this_block = panel.blocks [i]
                 if (bookmark and bookmark.atributo and bookmark.sub_atributo) then
-                    if (bookmark.atributo == 5) then --> custom
+                    if (bookmark.atributo == 5) then --custom
                         local CustomObject = Details.custom [bookmark.sub_atributo]
-                        if (not CustomObject) then --> ele j� foi deletado
+                        if (not CustomObject) then --ele j� foi deletado
                             this_block.label.text = "-- x -- x --"
                             this_block.icon.texture = "Interface\\ICONS\\Ability_DualWield"
                             this_block.icon.texcoord = normal_coords

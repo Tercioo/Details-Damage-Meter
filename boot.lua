@@ -1,13 +1,13 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> global name declaration
+--global name declaration
 
 		_ = nil
 		_G._detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10129
-		_detalhes.alpha_build_counter = 10129 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10135
+		_detalhes.alpha_build_counter = 10135 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -50,7 +50,7 @@
 		Details.PlayerBreakdown = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> initialization stuff
+--initialization stuff
 local _
 
 do
@@ -321,7 +321,7 @@ do
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails!:|r "
 
-	--> startup
+	--startup
 		_detalhes.max_windowline_columns = 11
 		_detalhes.initializing = true
 		_detalhes.enabled = true
@@ -335,12 +335,12 @@ do
 		--store functions to create options frame
 		Details.optionsSection = {}
 		
-	--> containers
-		--> armazenas as fun��es do parser - All parse functions 
+	--containers
+		--armazenas as fun��es do parser - All parse functions 
 			_detalhes.parser = {}
 			_detalhes.parser_functions = {}
-			_detalhes.parser_frame = CreateFrame ("Frame")
-			_detalhes.pvp_parser_frame = CreateFrame ("Frame")
+			_detalhes.parser_frame = CreateFrame("Frame")
+			_detalhes.pvp_parser_frame = CreateFrame("Frame")
 			_detalhes.parser_frame:Hide()
 			
 			_detalhes.MacroList = {
@@ -354,22 +354,22 @@ do
 				{Name = "Report What is Shown In the Window", Desc = "Report the current data shown in the window, the number 1 is the window number, replace it to report another window.", MacroText = "/script Details:FastReportWindow(1)"},
 			}
 
-		--> current instances of the exp (need to maintain)
+		--current instances of the exp (need to maintain)
 			_detalhes.InstancesToStoreData = { --mapId
 				[2296] = true, --castle narnia
 				[2450] = true, --sanctum of domination
 				[2481] = true, --sepulcher of the first ones
 			}
 
-		--> armazena os escudos - Shields information for absorbs
+		--armazena os escudos - Shields information for absorbs
 			_detalhes.escudos = {}
-		--> armazena as fun��es dos frames - Frames functions
+		--armazena as fun��es dos frames - Frames functions
 			_detalhes.gump = _G ["DetailsFramework"]
 			function _detalhes:GetFramework()
 				return self.gump
 			end
 			GameCooltip = GameCooltip2
-		--> anima��es dos icones
+		--anima��es dos icones
 			_detalhes.icon_animations = {
 				load = {
 					in_use = {},
@@ -383,58 +383,58 @@ do
 			return "orange"
 		end
 
-		--> armazena as fun��es para inicializa��o dos dados - Metatable functions
+		--armazena as fun��es para inicializa��o dos dados - Metatable functions
 			_detalhes.refresh = {}
-		--> armazena as fun��es para limpar e guardas os dados - Metatable functions
+		--armazena as fun��es para limpar e guardas os dados - Metatable functions
 			_detalhes.clear = {}
-		--> armazena a config do painel de fast switch
+		--armazena a config do painel de fast switch
 			_detalhes.switch = {}
-		--> armazena os estilos salvos
+		--armazena os estilos salvos
 			_detalhes.savedStyles = {}
-		--> armazena quais atributos possue janela de atributos - contain attributes and sub attributos wich have a detailed window (left click on a row)
+		--armazena quais atributos possue janela de atributos - contain attributes and sub attributos wich have a detailed window (left click on a row)
 			_detalhes.row_singleclick_overwrite = {} 
-		--> report
+		--report
 			_detalhes.ReportOptions = {}
-		--> armazena os buffs registrados - store buffs ids and functions
-			_detalhes.Buffs = {} --> initialize buff table
-		-->  cache de grupo
+		--armazena os buffs registrados - store buffs ids and functions
+			_detalhes.Buffs = {} --initialize buff table
+		-- cache de grupo
 			_detalhes.cache_damage_group = {}
 			_detalhes.cache_healing_group = {}
 			_detalhes.cache_npc_ids = {}
-		--> cache de specs
+		--cache de specs
 			_detalhes.cached_specs = {}
 			_detalhes.cached_talents = {}
-		--> ignored pets
+		--ignored pets
 			_detalhes.pets_ignored = {}
 			_detalhes.pets_no_owner = {}
 			_detalhes.pets_players = {}
-		--> dual candidates
+		--dual candidates
 			_detalhes.duel_candidates = {}
-		--> armazena as skins dispon�veis para as janelas
+		--armazena as skins dispon�veis para as janelas
 			_detalhes.skins = {}
-		--> armazena os hooks das fun��es do parser
+		--armazena os hooks das fun��es do parser
 			_detalhes.hooks = {}
-		--> informa��es sobre a luta do boss atual
+		--informa��es sobre a luta do boss atual
 			_detalhes.encounter_end_table = {}
 			_detalhes.encounter_table = {}
 			_detalhes.encounter_counter = {}
 			_detalhes.encounter_dungeons = {}
-		--> unitId dos inimigos dentro de uma arena
+		--unitId dos inimigos dentro de uma arena
 			_detalhes.arena_enemies = {}
-		--> reliable char data sources
-		--> actors that are using details! and sent character data, we don't need query inspect on these actors
+		--reliable char data sources
+		--actors that are using details! and sent character data, we don't need query inspect on these actors
 			_detalhes.trusted_characters = {}
-		--> informa��es sobre a arena atual
+		--informa��es sobre a arena atual
 			_detalhes.arena_table = {}
 			_detalhes.arena_info = {
-				--> need to get the new mapID for 8.0.1
+				--need to get the new mapID for 8.0.1
 				[562] = {file = "LoadScreenBladesEdgeArena", coords = {0, 1, 0.29296875, 0.9375}}, -- Circle of Blood Arena
 				[617] = {file = "LoadScreenDalaranSewersArena", coords = {0, 1, 0.29296875, 0.857421875}}, --Dalaran Arena
 				[559] = {file = "LoadScreenNagrandArenaBattlegrounds", coords = {0, 1, 0.341796875, 1}}, --Ring of Trials
 				[980] = {file = "LoadScreenTolvirArena", coords = {0, 1, 0.29296875, 0.857421875}}, --Tol'Viron Arena
 				[572] = {file = "LoadScreenRuinsofLordaeronBattlegrounds", coords = {0, 1, 0.341796875, 1}}, --Ruins of Lordaeron
 				[1134] = {file = "LoadingScreen_Shadowpan_bg", coords = {0, 1, 0.29296875, 0.857421875}}, -- Tiger's Peak
-				--> legion, thanks @pas06 on curse forge for the mapIds
+				--legion, thanks @pas06 on curse forge for the mapIds
 				[1552] = {file = "LoadingScreen_ArenaValSharah_wide", coords = {0, 1, 0.29296875, 0.857421875}}, -- Ashmane's Fall
 				[1504] = {file = "LoadingScreen_BlackrookHoldArena_wide", coords = {0, 1, 0.29296875, 0.857421875}}, --Black Rook Hold 
 				
@@ -448,7 +448,7 @@ do
 				end
 			end
 			_detalhes.battleground_info = {
-				--> need to get the nwee mapID for 8.0.1
+				--need to get the nwee mapID for 8.0.1
 				[489] = {file = "LoadScreenWarsongGulch", coords = {0, 1, 121/512, 484/512}}, --warsong gulch
 				[727] = {file = "LoadScreenSilvershardMines", coords = {0, 1, 251/1024, 840/1024}}, --silvershard mines
 				[529] = {file = "LoadscreenArathiBasin", coords = {0, 1, 126/512, 430/512}}, --arathi basin
@@ -469,7 +469,7 @@ do
 				end
 			end
 			
-		--> tokenid
+		--tokenid
 			_detalhes.TokenID = {
 				["SPELL_PERIODIC_DAMAGE"] = 1,
 				["SPELL_EXTRA_ATTACKS"] = 2,
@@ -507,11 +507,11 @@ do
 				["UNIT_DESTROYED"] = 34,
 			}
 			
-		--> armazena instancias inativas
+		--armazena instancias inativas
 			_detalhes.unused_instances = {}
 			_detalhes.default_skin_to_use = "Minimalistic"
 			_detalhes.instance_title_text_timer = {}
-		--> player detail skin
+		--player detail skin
 			_detalhes.playerdetailwindow_skins = {}
 
 		_detalhes.BitfieldSwapDebuffsIDs = {265646, 272407, 269691, 273401, 269131, 260900, 260926, 284995, 292826, 311367, 310567, 308996, 307832, 327414, 337253,
@@ -520,7 +520,7 @@ do
 			[360418] = true
 		}
 
-		--> auto run code
+		--auto run code
 		_detalhes.RunCodeTypes = {
 			{Name = "On Initialization", Desc = "Run code when Details! initialize or when a profile is changed.", Value = 1, ProfileKey = "on_init"},
 			{Name = "On Zone Changed", Desc = "Run code when the zone where the player is in has changed (e.g. entered in a raid).", Value = 2, ProfileKey = "on_zonechanged"},
@@ -542,7 +542,7 @@ do
 			return true
 		end
 
-		--> tooltip
+		--tooltip
 			_detalhes.tooltip_backdrop = {
 				bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], 
 				edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
@@ -555,21 +555,21 @@ do
 			_detalhes.tooltip_spell_icon = {file = [[Interface\CHARACTERFRAME\UI-StateIcon]], coords = {36/64, 58/64, 7/64, 26/64}}
 			_detalhes.tooltip_target_icon = {file = [[Interface\Addons\Details\images\icons]], coords = {0, 0.03125, 0.126953125, 0.15625}}
 
-		--> icons
+		--icons
 			_detalhes.attribute_icons = [[Interface\AddOns\Details\images\atributos_icones]]
 			function _detalhes:GetAttributeIcon (attribute)
 				return _detalhes.attribute_icons, 0.125 * (attribute - 1), 0.125 * attribute, 0, 1
 			end
 			
-		--> colors
+		--colors
 			_detalhes.default_backdropcolor = {.094117, .094117, .094117, .8}
 			_detalhes.default_backdropbordercolor = {0, 0, 0, 1}
 			
-	--> Plugins
+	--Plugins
 	
-		--> plugin templates
+		--plugin templates
 		
-		_detalhes.gump:NewColor ("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
+		_detalhes.gump:NewColor("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
 		
 		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE", 
 			{
@@ -631,52 +631,52 @@ do
 		_detalhes.PluginsGlobalNames = {}
 		_detalhes.PluginsLocalizedNames = {}
 		
-		--> raid -------------------------------------------------------------------
-			--> general function for raid mode plugins
+		--raid -------------------------------------------------------------------
+			--general function for raid mode plugins
 				_detalhes.RaidTables = {} 
-			--> menu for raid modes
+			--menu for raid modes
 				_detalhes.RaidTables.Menu = {} 
-			--> plugin objects for raid mode
+			--plugin objects for raid mode
 				_detalhes.RaidTables.Plugins = {} 
-			--> name to plugin object
+			--name to plugin object
 				_detalhes.RaidTables.NameTable = {} 
-			--> using by
+			--using by
 				_detalhes.RaidTables.InstancesInUse = {} 
 				_detalhes.RaidTables.PluginsInUse = {} 
 
-		--> solo -------------------------------------------------------------------
-			--> general functions for solo mode plugins
+		--solo -------------------------------------------------------------------
+			--general functions for solo mode plugins
 				_detalhes.SoloTables = {} 
-			--> maintain plugin menu
+			--maintain plugin menu
 				_detalhes.SoloTables.Menu = {} 
-			--> plugins objects for solo mode
+			--plugins objects for solo mode
 				_detalhes.SoloTables.Plugins = {} 
-			--> name to plugin object
+			--name to plugin object
 				_detalhes.SoloTables.NameTable = {} 
 		
-		--> toolbar -------------------------------------------------------------------
-			--> plugins container
+		--toolbar -------------------------------------------------------------------
+			--plugins container
 				_detalhes.ToolBar = {}
-			--> current showing icons
+			--current showing icons
 				_detalhes.ToolBar.Shown = {}
 				_detalhes.ToolBar.AllButtons = {}
-			--> plugin objects
+			--plugin objects
 				_detalhes.ToolBar.Plugins = {}
-			--> name to plugin object
+			--name to plugin object
 				_detalhes.ToolBar.NameTable = {}
 				_detalhes.ToolBar.Menu = {}
 
-		--> statusbar -------------------------------------------------------------------
-			--> plugins container
+		--statusbar -------------------------------------------------------------------
+			--plugins container
 				_detalhes.StatusBar = {}
-			--> maintain plugin menu
+			--maintain plugin menu
 				_detalhes.StatusBar.Menu = {}
-			--> plugins object
+			--plugins object
 				_detalhes.StatusBar.Plugins = {}
-			--> name to plugin object
+			--name to plugin object
 				_detalhes.StatusBar.NameTable = {}
 
-		--> constants
+		--constants
 		if(DetailsFramework.IsWotLKWow()) then
 			--[[global]] DETAILS_HEALTH_POTION_ID = 33447 -- Runic Healing Potion
 			--[[global]] DETAILS_HEALTH_POTION2_ID = 41166 -- Runic Healing Injector
@@ -731,25 +731,25 @@ do
 		--[[global]] DETAILS_MODE_ALL = 3
 
 		_detalhes._detalhes_props = {
-			DATA_TYPE_START = 1,	--> Something on start
-			DATA_TYPE_END = 2,	--> Something on end
+			DATA_TYPE_START = 1,	--Something on start
+			DATA_TYPE_END = 2,	--Something on end
 
-			MODO_ALONE = 1,	--> Solo
-			MODO_GROUP = 2,	--> Group
-			MODO_ALL = 3,		--> Everything
-			MODO_RAID = 4,	--> Raid
+			MODO_ALONE = 1,	--Solo
+			MODO_GROUP = 2,	--Group
+			MODO_ALL = 3,		--Everything
+			MODO_RAID = 4,	--Raid
 		}
 		_detalhes.modos = {
-			alone = 1, --> Solo
-			group = 2,	--> Group
-			all = 3,	--> Everything
-			raid = 4	--> Raid
+			alone = 1, --Solo
+			group = 2,	--Group
+			all = 3,	--Everything
+			raid = 4	--Raid
 		}
 
 		_detalhes.divisores = {
-			abre = "(",	--> open
-			fecha = ")",	--> close
-			colocacao = ". " --> dot
+			abre = "(",	--open
+			fecha = ")",	--close
+			colocacao = ". " --dot
 		}
 		
 		_detalhes.role_texcoord = {
@@ -833,7 +833,7 @@ do
 		--[[global]] DETAILS_MODE_ALL = 3
 		
 		_detalhes.icones = {
-			--> report window
+			--report window
 			report = {
 					up = "Interface\\FriendsFrame\\UI-Toast-FriendOnlineIcon",
 					down = "Interface\\ItemAnimations\\MINIMAP\\TRACKING\\Profession",
@@ -842,7 +842,7 @@ do
 				}
 		}
 	
-		_detalhes.missTypes = {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"} --> do not localize-me
+		_detalhes.missTypes = {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"} --do not localize-me
 
 
 	function Details.SendHighFive()
@@ -856,16 +856,16 @@ do
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> frames
+--frames
 	
 	local _CreateFrame = CreateFrame --api locals
 	local _UIParent = UIParent --api locals
 	
-	--> Info Window
+	--Info Window
 		_detalhes.playerDetailWindow = _CreateFrame ("Frame", "DetailsPlayerDetailsWindow", _UIParent, "BackdropTemplate")
 		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
 		
-	--> Event Frame
+	--Event Frame
 		_detalhes.listener = _CreateFrame ("Frame", nil, _UIParent)
 		_detalhes.listener:RegisterEvent ("ADDON_LOADED")
 		_detalhes.listener:SetFrameStrata ("LOW")
@@ -875,13 +875,13 @@ do
 		_detalhes.overlay_frame = _CreateFrame ("Frame", nil, _UIParent)
 		_detalhes.overlay_frame:SetFrameStrata ("TOOLTIP")
 	
-	--> Pet Owner Finder
+	--Pet Owner Finder
 		_CreateFrame ("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
 		
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> plugin defaults
-	--> backdrop
+--plugin defaults
+	--backdrop
 	_detalhes.PluginDefaults = {}
 	
 	_detalhes.PluginDefaults.Backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
@@ -896,19 +896,19 @@ do
 
 
 ------------------------------------------------------------------------------------------
--->  welcome panel
+-- welcome panel
 	function _detalhes:CreateWelcomePanel (name, parent, width, height, make_movable)
-		local f = CreateFrame ("frame", name, parent or UIParent, "BackdropTemplate")
+		local f = CreateFrame("frame", name, parent or UIParent, "BackdropTemplate")
 		
-		--f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3}, edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
-		f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=0, right=0, top=0, bottom=0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-		f:SetBackdropColor (1, 1, 1, 0.75)
-		f:SetBackdropBorderColor (0, 0, 0, 1)
+		--f:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3}, edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
+		f:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=0, right=0, top=0, bottom=0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+		f:SetBackdropColor(1, 1, 1, 0.75)
+		f:SetBackdropBorderColor(0, 0, 0, 1)
 
 		f:SetSize(width or 1, height or 1)
 		
 		if (make_movable) then
-			f:SetScript ("OnMouseDown", function(self, button)
+			f:SetScript("OnMouseDown", function(self, button)
 				if (self.isMoving) then
 					return
 				end
@@ -919,7 +919,7 @@ do
 					self.isMoving = true
 				end
 			end)
-			f:SetScript ("OnMouseUp", function(self, button) 
+			f:SetScript("OnMouseUp", function(self, button) 
 				if (self.isMoving and button == "LeftButton") then
 					self:StopMovingOrSizing()
 					self.isMoving = nil
@@ -933,12 +933,12 @@ do
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> functions
+--functions
 	
 	_detalhes.empty_function = function() end
 	_detalhes.empty_table = {}
 	
-	--> register textures and fonts for shared media
+	--register textures and fonts for shared media
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		--default bars
 		SharedMedia:Register("statusbar", "Details D'ictum", [[Interface\AddOns\Details\images\bar4]])
@@ -984,9 +984,9 @@ do
 		
 
 	
-	--> dump table contents over chat panel
+	--dump table contents over chat panel
 		function Details.VarDump(t)
-			if (type (t) ~= "table") then
+			if (type(t) ~= "table") then
 				return
 			end
 			for a,b in pairs (t) do
@@ -998,7 +998,7 @@ do
 			return Details:Dump(value)
 		end
 
-	--> copies a full table
+	--copies a full table
 		function Details.CopyTable(orig)
 			local orig_type = type(orig)
 			local copy
@@ -1014,31 +1014,31 @@ do
 			return copy
 		end
 	
-	--> delay messages
+	--delay messages
 		function _detalhes:DelayMsg (msg)
 			_detalhes.delaymsgs = _detalhes.delaymsgs or {}
 			_detalhes.delaymsgs [#_detalhes.delaymsgs+1] = msg
 		end
 		function _detalhes:ShowDelayMsg()
 			if (_detalhes.delaymsgs and #_detalhes.delaymsgs > 0) then
-				for _, msg in ipairs (_detalhes.delaymsgs) do 
+				for _, msg in ipairs(_detalhes.delaymsgs) do 
 					print (msg)
 				end
 			end
 			_detalhes.delaymsgs = {}
 		end
 	
-	--> print messages
+	--print messages
 		function _detalhes:Msg (_string, arg1, arg2, arg3, arg4)
 			if (self.__name) then
-				--> yes, we have a name!
+				--yes, we have a name!
 				print ("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			else
 				print (Loc ["STRING_DETAILS1"] .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			end
 		end
 		
-	--> welcome
+	--welcome
 		function _detalhes:WelcomeMsgLogon()
 			_detalhes:Msg ("you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated.")
 
@@ -1060,8 +1060,8 @@ do
 
 		Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
 
-	--> key binds
-		--> header
+	--key binds
+		--header
 			_G ["BINDING_HEADER_Details"] = "Details!"
 			_G ["BINDING_HEADER_DETAILS_KEYBIND_SEGMENTCONTROL"] = Loc ["STRING_KEYBIND_SEGMENTCONTROL"]
 			_G ["BINDING_HEADER_DETAILS_KEYBIND_SCROLLING"] = Loc ["STRING_KEYBIND_SCROLLING"]
@@ -1069,7 +1069,7 @@ do
 			_G ["BINDING_HEADER_DETAILS_KEYBIND_BOOKMARK"] = Loc ["STRING_KEYBIND_BOOKMARK"]
 			_G ["BINDING_HEADER_DETAILS_KEYBIND_REPORT"] = Loc ["STRING_KEYBIND_WINDOW_REPORT_HEADER"]
 
-		--> keys
+		--keys
 		
 			_G ["BINDING_NAME_DETAILS_TOGGLE_ALL"] = Loc ["STRING_KEYBIND_TOGGLE_WINDOWS"]
 			

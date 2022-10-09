@@ -303,10 +303,10 @@ function MyAddonObject.OnGearUpdate(unitId, unitGear, allUnitsGear)
     local noEnchantTable = unitGear.noEnchants
     local noGemsTable = unitGear.noGems
 
-    for index, slotIdWithoutEnchant in ipairs (noEnchantTable) do
+    for index, slotIdWithoutEnchant in ipairs(noEnchantTable) do
     end
 
-    for index, slotIdWithEmptyGemSocket in ipairs (noGemsTable) do
+    for index, slotIdWithEmptyGemSocket in ipairs(noGemsTable) do
     end
 end
 

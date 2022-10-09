@@ -13,9 +13,9 @@ function Details:StartMeUp() --I'll never stop!
 	Details.lastBattlegroundStartTime = GetTime()
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> row single click, this determines what happen when the user click on a bar
+--row single click, this determines what happen when the user click on a bar
 
-	--> single click row function replace
+	--single click row function replace
 		--damage, dps, damage taken, friendly fire
 			self.row_singleclick_overwrite[1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine, self.atributo_damage.ReportEnemyDamageTaken, self.atributo_damage.ReportSingleVoidZoneLine, self.atributo_damage.ReportSingleDTBSLine}
 		--healing, hps, overheal, healing taken
@@ -37,7 +37,7 @@ function Details:StartMeUp() --I'll never stop!
 		self.click_to_report_color = {1, 0.8, 0, 1}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> initialize
+--initialize
 	C_Timer.After(2, function()
 		--test libOpenRaid deprecated code
 		--[=[
@@ -106,7 +106,7 @@ function Details:StartMeUp() --I'll never stop!
 	self.atributo_misc:UpdateSelectedToKFunction()
 	self.atributo_custom:UpdateSelectedToKFunction()
 
-	--> start instances updater
+	--start instances updater
 		self:CheckSwitchOnLogon()
 
 		function Details:ScheduledWindowUpdate(forced)
@@ -225,11 +225,11 @@ function Details:StartMeUp() --I'll never stop!
 	--player role
 	self.last_assigned_role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player")
 
-	--> start parser
-		--> load parser capture options
+	--start parser
+		--load parser capture options
 			self:CaptureRefresh()
 
-		--> register parser events
+		--register parser events
 			self.listener:RegisterEvent("PLAYER_REGEN_DISABLED")
 			self.listener:RegisterEvent("PLAYER_REGEN_ENABLED")
 			self.listener:RegisterEvent("UNIT_PET")
@@ -534,7 +534,7 @@ function Details:StartMeUp() --I'll never stop!
 			if (level == 1) then
 				if (Details.overall_clear_newtorghast) then
 					Details.historico:resetar_overall()
-					Details:Msg ("overall data are now reset.") --localize-me
+					Details:Msg("overall data are now reset.") --localize-me
 				end
 			end
 		end)

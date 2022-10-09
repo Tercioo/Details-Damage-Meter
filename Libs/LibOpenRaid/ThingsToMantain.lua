@@ -3,6 +3,11 @@
 
 
 if (not LIB_OPEN_RAID_CAN_LOAD) then
+	if (not LIB_OPEN_RAID_COOLDOWNS_INFO) then
+		--the lib isn't loading in WotLK, some addons break due to this table not being initialized
+		LIB_OPEN_RAID_COOLDOWNS_INFO = {}
+		LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {}
+	end
 	return
 end
 
@@ -472,6 +477,11 @@ elseif (isExpansion_Dragonflight()) then
 	}
 end
 
+
+--end of per expansion content
+--------------------------------------------------------------------------------------------
+
+
 LIB_OPEN_RAID_MELEE_SPECS = {
 	[251] = "DEATHKNIGHT",
 	[252] = "DEATHKNIGHT",
@@ -493,6 +503,7 @@ LIB_OPEN_RAID_MELEE_SPECS = {
 --if talent is required, use the command:
 --/dump GetTalentInfo (talentTier, talentColumn, 1)
 --example: to get the second talent of the last talent line, use: /dump GetTalentInfo (7, 2, 1)
+
 LIB_OPEN_RAID_COOLDOWNS_INFO = {
 
 	-- Filter Types:

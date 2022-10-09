@@ -318,7 +318,7 @@ function Details:CreateTestBars (alphabet, isArena)
     current_combat.totals [1] = total_damage
     current_combat.totals [2] = total_heal
     
-    for _, instance in ipairs (Details.tabela_instancias) do 
+    for _, instance in ipairs(Details.tabela_instancias) do 
         if (instance:IsEnabled()) then
             instance:InstanceReset()
         end

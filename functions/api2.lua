@@ -89,7 +89,7 @@ Details.API_Description = {
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> ~segments
+--~segments
 
 --[=[
 	Details.SegmentInfo (segment)
@@ -211,7 +211,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 
 function Details.SegmentDamagingUnits (includePlayerUnits, includeEnemyUnits, includeFriendlyPetUnits, segment)
 	segment = segment or 0
-	if (type (includePlayerUnits) ~= "boolean") then
+	if (type(includePlayerUnits) ~= "boolean") then
 		includePlayerUnits = true
 	end
 	
@@ -290,7 +290,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 
 function Details.SegmentHealingUnits (includePlayerUnits, includeEnemyUnits, includeFriendlyPetUnits, segment)
 	segment = segment or 0
-	if (type (includePlayerUnits) ~= "boolean") then
+	if (type(includePlayerUnits) ~= "boolean") then
 		includePlayerUnits = true
 	end
 	
@@ -434,7 +434,7 @@ function Details.SegmentPhases (segment)
 	
 	local phaseData = combatObject.PhaseData
 	
-	for phaseChangeId, phaseTable in ipairs (phaseData) do
+	for phaseChangeId, phaseTable in ipairs(phaseData) do
 		local phaseNumber = phaseTable [1]
 		DetailsFramework.table.addunique (phases, phaseNumber)
 	end
@@ -443,7 +443,7 @@ function Details.SegmentPhases (segment)
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> unit ~information
+--unit ~information
 --[=[
 	Details.UnitInfo (unitId, segment)
 --=]=]
@@ -607,7 +607,7 @@ function Details.UnitTexture (unitId, segment)
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> ~damage
+--~damage
 
 --[=[
 	Details.UnitDamage (unitId, segment)
@@ -827,7 +827,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 })
 
 function Details.UnitDamageBySpell (unitId, spellId, isLiteral, segment)
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	segment = segment or 0
@@ -897,7 +897,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 })
 
 function Details.UnitDamageSpellInfo (unitId, spellId, isLiteral, segment)
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	segment = segment or 0
@@ -1021,7 +1021,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 })
 
 function Details.UnitDamageSpellOnUnit (unitId, spellId, targetUnitId, isLiteral, segment)
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	segment = segment or 0
@@ -1188,7 +1188,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 
 function Details.UnitDamageTakenFromSpell (unitId, spellId, isLiteral, segment)
 	segment = segment or 0
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	
@@ -1389,7 +1389,7 @@ end
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> ~healing
+--~healing
 
 
 --[=[
@@ -1556,7 +1556,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 })
 
 function Details.UnitHealingBySpell (unitId, spellId, isLiteral, segment)
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	segment = segment or 0
@@ -1628,7 +1628,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 })
 
 function Details.UnitHealingSpellInfo (unitId, spellId, isLiteral, segment)
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	segment = segment or 0
@@ -1753,7 +1753,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 })
 
 function Details.UnitHealingSpellOnUnit (unitId, spellId, targetUnitId, isLiteral, segment)
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	segment = segment or 0
@@ -1927,7 +1927,7 @@ tinsert (Details.API_Description.namespaces[1].api, {
 
 function Details.UnitHealingTakenFromSpell (unitId, spellId, isLiteral, segment)
 	segment = segment or 0
-	if (type (isLiteral) ~= "boolean") then
+	if (type(isLiteral) ~= "boolean") then
 		isLiteral = true
 	end
 	

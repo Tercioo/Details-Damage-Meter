@@ -2,23 +2,23 @@ local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
-local _type= type  --> lua local
-local _ipairs = ipairs --> lua local
-local _pairs = pairs --> lua local
-local _math_floor = math.floor --> lua local
-local _math_abs = math.abs --> lua local
-local _table_remove = table.remove --> lua local
-local _getmetatable = getmetatable --> lua local
-local _setmetatable = setmetatable --> lua local
-local _string_len = string.len --> lua local
-local _unpack = unpack --> lua local
-local _cstr = string.format --> lua local
-local _SendChatMessage = SendChatMessage --> wow api locals
-local _GetChannelName = GetChannelName --> wow api locals
-local _UnitExists = UnitExists --> wow api locals
-local _UnitName = UnitName --> wow api locals
-local _UnitIsPlayer = UnitIsPlayer --> wow api locals
-local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --> wow api locals
+local _type= type  --lua local
+local _ipairs = ipairs --lua local
+local _pairs = pairs --lua local
+local _math_floor = math.floor --lua local
+local _math_abs = math.abs --lua local
+local _table_remove = table.remove --lua local
+local _getmetatable = getmetatable --lua local
+local _setmetatable = setmetatable --lua local
+local _string_len = string.len --lua local
+local _unpack = unpack --lua local
+local _cstr = string.format --lua local
+local _SendChatMessage = SendChatMessage --wow api locals
+local _GetChannelName = GetChannelName --wow api locals
+local _UnitExists = UnitExists --wow api locals
+local _UnitName = UnitName --wow api locals
+local _UnitIsPlayer = UnitIsPlayer --wow api locals
+local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --wow api locals
 
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
@@ -36,7 +36,7 @@ local atributos = _detalhes.atributos
 local sub_atributos = _detalhes.sub_atributos
 local segmentos = _detalhes.segmentos
 
---> STARTUP reativa as instancias e regenera as tabelas das mesmas
+--STARTUP reativa as instancias e regenera as tabelas das mesmas
 	function _detalhes:RestartInstances()
 		return _detalhes:ReativarInstancias()
 	end
@@ -45,7 +45,7 @@ local segmentos = _detalhes.segmentos
 
 		_detalhes.opened_windows = 0
 
-		--> set metatables
+		--set metatables
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (not _getmetatable (instancia)) then
@@ -53,7 +53,7 @@ local segmentos = _detalhes.segmentos
 			end
 		end
 
-		--> create frames
+		--create frames
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (instancia:IsEnabled()) then
@@ -64,7 +64,7 @@ local segmentos = _detalhes.segmentos
 			end
 		end
 
-		--> load
+		--load
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (instancia:IsEnabled()) then
@@ -74,12 +74,12 @@ local segmentos = _detalhes.segmentos
 			end
 		end
 
-		--> send open event
+		--send open event
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (instancia:IsEnabled()) then
 				if (not _detalhes.initializing) then
-					_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
+					_detalhes:SendEvent("DETAILS_INSTANCE_OPEN", nil, instancia)
 				end
 			end
 		end
@@ -87,48 +87,48 @@ local segmentos = _detalhes.segmentos
 
 ------------------------------------------------------------------------------------------------------------------------
 
---> API: call a function to all enabled instances
+--API: call a function to all enabled instances
 function _detalhes:InstanceCall (funcao, ...)
-	if (type (funcao) == "string") then
+	if (type(funcao) == "string") then
 		funcao = _detalhes [funcao]
 	end
-	for index, instance in _ipairs (_detalhes.tabela_instancias) do
-		if (instance:IsAtiva()) then --> only enabled
+	for index, instance in _ipairs(_detalhes.tabela_instancias) do
+		if (instance:IsAtiva()) then --only enabled
 			funcao (instance, ...)
 		end
 	end
 end
 
---> chama a fun��o para ser executada em todas as inst�ncias	(internal)
+--chama a fun��o para ser executada em todas as inst�ncias	(internal)
 function _detalhes:InstanciaCallFunction (funcao, ...)
-	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
-		if (instancia:IsAtiva()) then --> s� reabre se ela estiver ativa
+	for index, instancia in _ipairs(_detalhes.tabela_instancias) do
+		if (instancia:IsAtiva()) then --s� reabre se ela estiver ativa
 			funcao (_, instancia, ...)
 		end
 	end
 end
 
---> chama a fun��o para ser executada em todas as inst�ncias	(internal)
+--chama a fun��o para ser executada em todas as inst�ncias	(internal)
 function _detalhes:InstanciaCallFunctionOffline (funcao, ...)
-	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
+	for index, instancia in _ipairs(_detalhes.tabela_instancias) do
 		funcao (_, instancia, ...)
 	end
 end
 
 function Details:InstanceGroupCall(instance, funcName, ...)
-	for _, thisInstance in ipairs (instance:GetInstanceGroup()) do
+	for _, thisInstance in ipairs(instance:GetInstanceGroup()) do
 		thisInstance[funcName](thisInstance, ...)
 	end
 end
 
 function Details:InstanceGroupEditSetting(instance, keyName, value)
-	for _, thisInstance in ipairs (instance:GetInstanceGroup()) do
+	for _, thisInstance in ipairs(instance:GetInstanceGroup()) do
 		thisInstance[keyName] = value
 	end
 end
 
 function Details:InstanceGroupEditSettingOnTable(instance, table1Key, table2Key, table3Key, value)
-	for _, thisInstance in ipairs (instance:GetInstanceGroup()) do
+	for _, thisInstance in ipairs(instance:GetInstanceGroup()) do
 		if (value == nil) then
 			local value1 = table3Key
 			local table1 = thisInstance[table1Key]
@@ -142,7 +142,7 @@ end
 
 function _detalhes:GetLowerInstanceNumber()
 	local lower = 999
-	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
+	for index, instancia in _ipairs(_detalhes.tabela_instancias) do
 		if (instancia.ativa and instancia.baseframe) then
 			if (instancia.meu_id < lower) then
 				lower = instancia.meu_id
@@ -177,7 +177,7 @@ end
 function _detalhes:GetInstance (id)
 	return _detalhes.tabela_instancias [id]
 end
---> user friendly alias
+--user friendly alias
 function _detalhes:GetWindow (id)
 	return _detalhes.tabela_instancias [id]
 end
@@ -237,7 +237,7 @@ end
 
 function _detalhes:GetCustomObject (object_name)
 	if (object_name) then
-		for _, object in ipairs (_detalhes.custom) do
+		for _, object in ipairs(_detalhes.custom) do
 			if (object.name == object_name) then
 				return object
 			end
@@ -257,7 +257,7 @@ function _detalhes:ResetAttribute()
 end
 
 function _detalhes:ListInstances()
-	return _ipairs (_detalhes.tabela_instancias)
+	return _ipairs(_detalhes.tabela_instancias)
 end
 
 function _detalhes:GetPosition()
@@ -273,7 +273,7 @@ function _detalhes:GetMaxInstancesAmount()
 end
 
 function _detalhes:SetMaxInstancesAmount (amount)
-	if (_type (amount) == "number") then
+	if (_type(amount) == "number") then
 		_detalhes.instances_amount = amount
 	end
 end
@@ -362,12 +362,12 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------
 
---> retorna se a inst�ncia esta ou n�o ativa
+--retorna se a inst�ncia esta ou n�o ativa
 function _detalhes:IsAtiva()
 	return self.ativa
 end
 
---> english alias
+--english alias
 function _detalhes:IsShown()
 	return self.ativa
 end
@@ -389,13 +389,13 @@ end
 				self.posicao = Details.CopyTable (config.pos)
 			end
 
-			if (_type (config.attribute) ~= "number") then
+			if (_type(config.attribute) ~= "number") then
 				config.attribute = 1
 			end
-			if (_type (config.sub_attribute) ~= "number") then
+			if (_type(config.sub_attribute) ~= "number") then
 				config.sub_attribute = 1
 			end
-			if (_type (config.segment) ~= "number") then
+			if (_type(config.segment) ~= "number") then
 				config.segment = 1
 			end
 
@@ -414,14 +414,14 @@ end
 	end
 
 	function _detalhes:ShutDownAllInstances()
-		for index, instance in _ipairs (_detalhes.tabela_instancias) do
+		for index, instance in _ipairs(_detalhes.tabela_instancias) do
 			if (instance:IsEnabled() and instance.baseframe and not instance.ignore_mass_showhide) then
 				instance:ShutDown(true)
 			end
 		end
 	end
 
-	--> alias
+	--alias
 	function _detalhes:HideWindow(all)
 		return self:DesativarInstancia(all)
 	end
@@ -436,14 +436,14 @@ end
 
 	end
 
---> desativando a inst�ncia ela fica em stand by e apenas hida a janela ~shutdown ~close ~fechar
+--desativando a inst�ncia ela fica em stand by e apenas hida a janela ~shutdown ~close ~fechar
 	function _detalhes:DesativarInstancia(all)
 
 		self.ativa = false
 		_detalhes.opened_windows = _detalhes.opened_windows-1
 
 		if (not self.baseframe) then
-			--> windown isn't initialized yet
+			--windown isn't initialized yet
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) called HideWindow() but the window isn't initialized yet.")
 			end
@@ -454,7 +454,7 @@ end
 		_detalhes:GetLowerInstanceNumber()
 
 		if (lower == self.meu_id) then
-			--> os icones dos plugins estao hostiados nessa instancia.
+			--os icones dos plugins estao hostiados nessa instancia.
 			_detalhes.ToolBar:ReorganizeIcons (true) --n�o precisa recarregar toda a skin
 		end
 
@@ -464,10 +464,10 @@ end
 
 		self:ResetaGump()
 
-		Details.FadeHandler.Fader (self.baseframe.cabecalho.ball, 1)
-		Details.FadeHandler.Fader (self.baseframe, 1)
-		Details.FadeHandler.Fader (self.rowframe, 1)
-		Details.FadeHandler.Fader (self.windowSwitchButton, 1)
+		Details.FadeHandler.Fader(self.baseframe.cabecalho.ball, 1)
+		Details.FadeHandler.Fader(self.baseframe, 1)
+		Details.FadeHandler.Fader(self.rowframe, 1)
+		Details.FadeHandler.Fader(self.windowSwitchButton, 1)
 
 		if (not all) then
 			self:Desagrupar (-1)
@@ -483,7 +483,7 @@ end
 		end
 
 		if (not _detalhes.initializing) then
-			_detalhes:SendEvent ("DETAILS_INSTANCE_CLOSE", nil, self)
+			_detalhes:SendEvent("DETAILS_INSTANCE_CLOSE", nil, self)
 		end
 
 	end
@@ -493,10 +493,10 @@ end
 		local _fadeType, _fadeSpeed = _unpack (_detalhes.row_fade_in)
 		if (segmento) then
 			if (instancia.segmento == segmento) then
-				return Details.FadeHandler.Fader (instancia, _fadeType, _fadeSpeed, "barras")
+				return Details.FadeHandler.Fader(instancia, _fadeType, _fadeSpeed, "barras")
 			end
 		else
-			return Details.FadeHandler.Fader (instancia, _fadeType, _fadeSpeed, "barras")
+			return Details.FadeHandler.Fader(instancia, _fadeType, _fadeSpeed, "barras")
 		end
 	end
 
@@ -599,7 +599,7 @@ end
 
 	function _detalhes:LockInstance (flag)
 
-		if (type (flag) == "boolean") then
+		if (type(flag) == "boolean") then
 			self.isLocked = not flag
 		end
 
@@ -607,21 +607,21 @@ end
 			self.isLocked = false
 			if (self.baseframe) then
 				self.baseframe.isLocked = false
-				self.baseframe.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
-				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
+				self.baseframe.lock_button.label:SetText(Loc ["STRING_LOCK_WINDOW"])
+				self.baseframe.lock_button:SetWidth(self.baseframe.lock_button.label:GetStringWidth()+2)
 				self.baseframe.resize_direita:SetAlpha (0)
 				self.baseframe.resize_esquerda:SetAlpha (0)
 				self.baseframe.lock_button:ClearAllPoints()
-				self.baseframe.lock_button:SetPoint ("right", self.baseframe.resize_direita, "left", -1, 1.5)
+				self.baseframe.lock_button:SetPoint("right", self.baseframe.resize_direita, "left", -1, 1.5)
 			end
 		else
 			self.isLocked = true
 			if (self.baseframe) then
 				self.baseframe.isLocked = true
-				self.baseframe.lock_button.label:SetText (Loc ["STRING_UNLOCK_WINDOW"])
-				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
+				self.baseframe.lock_button.label:SetText(Loc ["STRING_UNLOCK_WINDOW"])
+				self.baseframe.lock_button:SetWidth(self.baseframe.lock_button.label:GetStringWidth()+2)
 				self.baseframe.lock_button:ClearAllPoints()
-				self.baseframe.lock_button:SetPoint ("bottomright", self.baseframe, "bottomright", -3, 0)
+				self.baseframe.lock_button:SetPoint("bottomright", self.baseframe, "bottomright", -3, 0)
 				self.baseframe.resize_direita:SetAlpha (0)
 				self.baseframe.resize_esquerda:SetAlpha (0)
 			end
@@ -629,18 +629,18 @@ end
 	end
 
 	function _detalhes:TravasInstancias()
-		for index, instancia in ipairs (_detalhes.tabela_instancias) do
+		for index, instancia in ipairs(_detalhes.tabela_instancias) do
 			instancia:LockInstance (true)
 		end
 	end
 
 	function _detalhes:DestravarInstancias()
-		for index, instancia in ipairs (_detalhes.tabela_instancias) do
+		for index, instancia in ipairs(_detalhes.tabela_instancias) do
 			instancia:LockInstance (false)
 		end
 	end
 
-	--> alias
+	--alias
 	function _detalhes:ShowWindow (temp, all)
 		return self:AtivarInstancia (temp, all)
 	end
@@ -657,8 +657,8 @@ end
 		local lower = _detalhes:GetLowerInstanceNumber()
 
 		if (lower == self.meu_id) then
-			--> os icones dos plugins precisam ser hostiados nessa instancia.
-			_detalhes.ToolBar:ReorganizeIcons (true) --> n�o precisa recarregar toda a skin
+			--os icones dos plugins precisam ser hostiados nessa instancia.
+			_detalhes.ToolBar:ReorganizeIcons (true) --n�o precisa recarregar toda a skin
 		end
 
 		if (not self.iniciada) then
@@ -673,15 +673,15 @@ end
 		_detalhes:TrocaTabela (self, nil, nil, nil, true)
 
 		if (self.hide_icon) then
-			Details.FadeHandler.Fader (self.baseframe.cabecalho.atributo_icon, 1)
+			Details.FadeHandler.Fader(self.baseframe.cabecalho.atributo_icon, 1)
 		else
-			Details.FadeHandler.Fader (self.baseframe.cabecalho.atributo_icon, 0)
+			Details.FadeHandler.Fader(self.baseframe.cabecalho.atributo_icon, 0)
 		end
 
-		Details.FadeHandler.Fader (self.baseframe.cabecalho.ball, 0)
-		Details.FadeHandler.Fader (self.baseframe, 0)
-		Details.FadeHandler.Fader (self.rowframe, 0)
-		Details.FadeHandler.Fader (self.windowSwitchButton, 0)
+		Details.FadeHandler.Fader(self.baseframe.cabecalho.ball, 0)
+		Details.FadeHandler.Fader(self.baseframe, 0)
+		Details.FadeHandler.Fader(self.rowframe, 0)
+		Details.FadeHandler.Fader(self.windowSwitchButton, 0)
 
 		self:SetMenuAlpha()
 		self.baseframe.cabecalho.fechar:Enable()
@@ -713,7 +713,7 @@ end
 		self:CheckFor_EnabledTrashSuppression()
 
 		if (not temp and not _detalhes.initializing) then
-			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, self)
+			_detalhes:SendEvent("DETAILS_INSTANCE_OPEN", nil, self)
 		end
 
 		if (self.modo == modo_raid) then
@@ -726,13 +726,13 @@ end
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
---> apaga de vez um inst�ncia
+--apaga de vez um inst�ncia
 	function _detalhes:ApagarInstancia (ID)
 		return _table_remove (_detalhes.tabela_instancias, ID)
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
---> retorna quantas inst�ncia h� no momento
+--retorna quantas inst�ncia h� no momento
 	function _detalhes:GetNumInstancesAmount()
 		return #_detalhes.tabela_instancias
 	end
@@ -749,7 +749,7 @@ end
 			return false
 		end
 
-		--> break snaps of previous and next window
+		--break snaps of previous and next window
 		local left_instance = _detalhes:GetInstance (id-1)
 		if (left_instance) then
 			for snap_side, instance_id in _pairs (left_instance.snap) do
@@ -767,7 +767,7 @@ end
 			end
 		end
 
-		--> re align snaps for higher instances
+		--re align snaps for higher instances
 		for i = id+1, #_detalhes.tabela_instancias do
 			local this_instance = _detalhes:GetInstance (i)
 			--fix the snaps
@@ -787,7 +787,7 @@ end
 
 
 ------------------------------------------------------------------------------------------------------------------------
---> cria uma nova inst�ncia e a joga para o container de inst�ncias
+--cria uma nova inst�ncia e a joga para o container de inst�ncias
 
 	function _detalhes:CreateInstance (id)
 		return _detalhes:CriarInstancia (_, id)
@@ -795,7 +795,7 @@ end
 
 	function _detalhes:CriarInstancia (_, id)
 
-		if (id and _type (id) == "boolean") then
+		if (id and _type(id) == "boolean") then
 
 			if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
 				_detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
@@ -816,7 +816,7 @@ end
 
 			if (_detalhes.standard_skin) then
 				for key, value in pairs (_detalhes.standard_skin) do
-					if (type (value) == "table") then
+					if (type(value) == "table") then
 						new_instance [key] = Details.CopyTable (value)
 					else
 						new_instance [key] = value
@@ -825,7 +825,7 @@ end
 				new_instance:ChangeSkin()
 
 			else
-				--> se n�o tiver um padr�o, criar de outra inst�ncia j� aberta.
+				--se n�o tiver um padr�o, criar de outra inst�ncia j� aberta.
 				local copy_from
 				for i = 1, next_id-1 do
 					local opened_instance = _detalhes:GetInstance (i)
@@ -838,7 +838,7 @@ end
 				if (copy_from) then
 					for key, value in pairs (copy_from) do
 						if (_detalhes.instance_defaults [key] ~= nil) then
-							if (type (value) == "table") then
+							if (type(value) == "table") then
 								new_instance [key] = Details.CopyTable (value)
 							else
 								new_instance [key] = value
@@ -860,8 +860,8 @@ end
 			end
 		end
 
-		--> antes de criar uma nova, ver se n�o h� alguma para reativar
-		for index, instancia in _ipairs (_detalhes.tabela_instancias) do
+		--antes de criar uma nova, ver se n�o h� alguma para reativar
+		for index, instancia in _ipairs(_detalhes.tabela_instancias) do
 			if (not instancia:IsAtiva()) then
 				instancia:AtivarInstancia()
 				return instancia
@@ -872,7 +872,7 @@ end
 			return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
 		end
 
-		--> verifica se n�o tem uma janela na pool de janelas fechadas
+		--verifica se n�o tem uma janela na pool de janelas fechadas
 		local next_id = #_detalhes.tabela_instancias+1
 
 		if (_detalhes.unused_instances [next_id]) then
@@ -886,11 +886,11 @@ end
 			return new_instance
 		end
 
-		--> cria uma nova janela
+		--cria uma nova janela
 		local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
 
 		if (not _detalhes.initializing) then
-			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, new_instance)
+			_detalhes:SendEvent("DETAILS_INSTANCE_OPEN", nil, new_instance)
 		end
 
 		_detalhes:GetLowerInstanceNumber()
@@ -899,12 +899,12 @@ end
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
---> self � a inst�ncia que esta sendo movida.. instancia � a que esta parada
-function _detalhes:EstaAgrupada (esta_instancia, lado) --> lado //// 1 = encostou na esquerda // 2 = escostou emaixo // 3 = encostou na direita // 4 = encostou em cima
-	--local meu_snap = self.snap --> pegou a tabela com {side, side, side, side}
+--self � a inst�ncia que esta sendo movida.. instancia � a que esta parada
+function _detalhes:EstaAgrupada (esta_instancia, lado) --lado //// 1 = encostou na esquerda // 2 = escostou emaixo // 3 = encostou na direita // 4 = encostou em cima
+	--local meu_snap = self.snap --pegou a tabela com {side, side, side, side}
 
 	if (esta_instancia.snap [lado]) then
-		return true --> ha possui uma janela grudapa neste lado
+		return true --ha possui uma janela grudapa neste lado
 	elseif (lado == 1) then
 		if (self.snap [3]) then
 			return true
@@ -923,21 +923,21 @@ function _detalhes:EstaAgrupada (esta_instancia, lado) --> lado //// 1 = encosto
 		end
 	end
 
-	return false --> do contr�rio retorna false
+	return false --do contr�rio retorna false
 end
 
 function _detalhes:BaseFrameSnap()
 
 	local group = self:GetInstanceGroup()
 
-	for meu_id, instancia in _ipairs (group) do
+	for meu_id, instancia in _ipairs(group) do
 		if (instancia:IsAtiva()) then
 			instancia.baseframe:ClearAllPoints()
 		end
 	end
 
 	local scale = self.window_scale
-	for _, instance in _ipairs (group) do
+	for _, instance in _ipairs(group) do
 		instance:SetWindowScale (scale)
 	end
 
@@ -947,25 +947,25 @@ function _detalhes:BaseFrameSnap()
 
 		if (instancia_alvo) then
 			if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-				if (lado == 1) then --> a esquerda
-					instancia_alvo.baseframe:SetPoint ("TOPRIGHT", my_baseframe, "TOPLEFT")
+				if (lado == 1) then --a esquerda
+					instancia_alvo.baseframe:SetPoint("TOPRIGHT", my_baseframe, "TOPLEFT")
 
-				elseif (lado == 2) then --> em baixo
+				elseif (lado == 2) then --em baixo
 					local statusbar_y_mod = 0
 					if (not self.show_statusbar) then
 						statusbar_y_mod = 14
 					end
-					instancia_alvo.baseframe:SetPoint ("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+					instancia_alvo.baseframe:SetPoint("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
-				elseif (lado == 3) then --> a direita
-					instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT")
+				elseif (lado == 3) then --a direita
+					instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT")
 
-				elseif (lado == 4) then --> em cima
+				elseif (lado == 4) then --em cima
 					local statusbar_y_mod = 0
 					if (not instancia_alvo.show_statusbar) then
 						statusbar_y_mod = -14
 					end
-					instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+					instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
 
 				end
 			end
@@ -973,17 +973,17 @@ function _detalhes:BaseFrameSnap()
 	end
 
 	--[
-	--> aqui precisa de um efeito reverso
-	local reverso = self.meu_id - 2 --> se existir
-	if (reverso > 0) then --> se tiver uma inst�ncia l� tr�s
-		--> aqui faz o efeito reverso:
+	--aqui precisa de um efeito reverso
+	local reverso = self.meu_id - 2 --se existir
+	if (reverso > 0) then --se tiver uma inst�ncia l� tr�s
+		--aqui faz o efeito reverso:
 		local inicio_retro = self.meu_id - 1
 		for meu_id = inicio_retro, 1, -1 do
 			local instancia = _detalhes.tabela_instancias [meu_id]
 			for lado, snap_to in _pairs (instancia.snap) do
-				if (snap_to < instancia.meu_id and snap_to ~= self.meu_id) then --> se o lado que esta grudado for menor que o meu id... EX instnacia #2 grudada na #1
+				if (snap_to < instancia.meu_id and snap_to ~= self.meu_id) then --se o lado que esta grudado for menor que o meu id... EX instnacia #2 grudada na #1
 
-					--> ent�o tenho que pegar a inst�ncia do snap
+					--ent�o tenho que pegar a inst�ncia do snap
 
 					local instancia_alvo = _detalhes.tabela_instancias [snap_to]
 					local lado_reverso
@@ -997,32 +997,32 @@ function _detalhes:BaseFrameSnap()
 						lado_reverso = 2
 					end
 
-					--> fazer os setpoints
+					--fazer os setpoints
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
 
-						if (lado_reverso == 1) then --> a esquerda
-							instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT")
+						if (lado_reverso == 1) then --a esquerda
+							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT")
 
-						elseif (lado_reverso == 2) then --> em baixo
+						elseif (lado_reverso == 2) then --em baixo
 
 							local statusbar_y_mod = 0
 							if (not instancia_alvo.show_statusbar) then
 								statusbar_y_mod = -14
 							end
 
-							instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
+							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
 
-						elseif (lado_reverso == 3) then --> a direita
-							instancia_alvo.baseframe:SetPoint ("TOPRIGHT", instancia.baseframe, "TOPLEFT")
+						elseif (lado_reverso == 3) then --a direita
+							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT")
 
-						elseif (lado_reverso == 4) then --> em cima
+						elseif (lado_reverso == 4) then --em cima
 
 							local statusbar_y_mod = 0
 							if (not instancia.show_statusbar) then
 								statusbar_y_mod = 14
 							end
 
-							instancia_alvo.baseframe:SetPoint ("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+							instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
 						end
 					end
@@ -1032,34 +1032,34 @@ function _detalhes:BaseFrameSnap()
 	end
 	--]]
 
-	for meu_id, instancia in _ipairs (_detalhes.tabela_instancias) do
+	for meu_id, instancia in _ipairs(_detalhes.tabela_instancias) do
 		if (meu_id > self.meu_id) then
 			for lado, snap_to in _pairs (instancia.snap) do
 				if (snap_to > instancia.meu_id and snap_to ~= self.meu_id) then
 					local instancia_alvo = _detalhes.tabela_instancias [snap_to]
 
 					if (instancia_alvo.ativa and instancia_alvo.baseframe) then
-						if (lado == 1) then --> a esquerda
-							instancia_alvo.baseframe:SetPoint ("TOPRIGHT", instancia.baseframe, "TOPLEFT")
+						if (lado == 1) then --a esquerda
+							instancia_alvo.baseframe:SetPoint("TOPRIGHT", instancia.baseframe, "TOPLEFT")
 
-						elseif (lado == 2) then --> em baixo
+						elseif (lado == 2) then --em baixo
 							local statusbar_y_mod = 0
 							if (not instancia.show_statusbar) then
 								statusbar_y_mod = 14
 							end
-							instancia_alvo.baseframe:SetPoint ("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+							instancia_alvo.baseframe:SetPoint("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
 
-						elseif (lado == 3) then --> a direita
-							instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT")
+						elseif (lado == 3) then --a direita
+							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT")
 
-						elseif (lado == 4) then --> em cima
+						elseif (lado == 4) then --em cima
 
 							local statusbar_y_mod = 0
 							if (not instancia_alvo.show_statusbar) then
 								statusbar_y_mod = -14
 							end
 
-							instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+							instancia_alvo.baseframe:SetPoint("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
 
 						end
 					end
@@ -1080,68 +1080,68 @@ function _detalhes:agrupar_janelas (lados)
 
 			instancia:SetWindowScale (esta_instancia.window_scale)
 
-			if (lado == 3) then --> direita
-				--> mover frame
-				instancia.baseframe:SetPoint ("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT")
-				instancia.baseframe:SetPoint ("RIGHT", esta_instancia.baseframe, "LEFT")
-				instancia.baseframe:SetPoint ("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT")
+			if (lado == 3) then --direita
+				--mover frame
+				instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "TOPLEFT")
+				instancia.baseframe:SetPoint("RIGHT", esta_instancia.baseframe, "LEFT")
+				instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "BOTTOMLEFT")
 
 				local _, height = esta_instancia:GetSize()
-				instancia:SetSize (nil, height)
+				instancia:SetSize(nil, height)
 
-				--> salva o snap
+				--salva o snap
 				self.snap [3] = esta_instancia.meu_id
 				esta_instancia.snap [1] = self.meu_id
 
-			elseif (lado == 4) then --> cima
-				--> mover frame
+			elseif (lado == 4) then --cima
+				--mover frame
 
 				local statusbar_y_mod = 0
 				if (not esta_instancia.show_statusbar) then
 					statusbar_y_mod = 14
 				end
 
-				instancia.baseframe:SetPoint ("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint ("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint ("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34 + statusbar_y_mod)
 
 				local _, height = esta_instancia:GetSize()
-				instancia:SetSize (nil, height)
+				instancia:SetSize(nil, height)
 
-				--> salva o snap
+				--salva o snap
 				self.snap [4] = esta_instancia.meu_id
 				esta_instancia.snap [2] = self.meu_id
 
-			elseif (lado == 1) then --> esquerda
-				--> mover frame
+			elseif (lado == 1) then --esquerda
+				--mover frame
 
-				instancia.baseframe:SetPoint ("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT")
-				instancia.baseframe:SetPoint ("LEFT", esta_instancia.baseframe, "RIGHT")
-				instancia.baseframe:SetPoint ("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT")
+				instancia.baseframe:SetPoint("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT")
+				instancia.baseframe:SetPoint("LEFT", esta_instancia.baseframe, "RIGHT")
+				instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT")
 
 				local _, height = esta_instancia:GetSize()
-				instancia:SetSize (nil, height)
+				instancia:SetSize(nil, height)
 
-				--> salva o snap
+				--salva o snap
 				self.snap [1] = esta_instancia.meu_id
 				esta_instancia.snap [3] = self.meu_id
 
-			elseif (lado == 2) then --> baixo
-				--> mover frame
+			elseif (lado == 2) then --baixo
+				--mover frame
 
 				local statusbar_y_mod = 0
 				if (not instancia.show_statusbar) then
 					statusbar_y_mod = -14
 				end
 
-				instancia.baseframe:SetPoint ("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint ("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34 + statusbar_y_mod)
-				instancia.baseframe:SetPoint ("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34 + statusbar_y_mod)
 
 				local _, height = esta_instancia:GetSize()
-				instancia:SetSize (nil, height)
+				instancia:SetSize(nil, height)
 
-				--> salva o snap
+				--salva o snap
 				self.snap [2] = esta_instancia.meu_id
 				esta_instancia.snap [4] = self.meu_id
 
@@ -1185,12 +1185,12 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 		lado = lado2
 	end
 
-	if (self.meu_id and not lado2) then --> significa que self � uma instancia
+	if (self.meu_id and not lado2) then --significa que self � uma instancia
 		lado = instancia
 		instancia = self
 	end
 
-	if (_type (instancia) == "number") then --> significa que passou o n�mero da inst�ncia
+	if (_type(instancia) == "number") then --significa que passou o n�mero da inst�ncia
 		instancia =  _detalhes.tabela_instancias [instancia]
 	end
 
@@ -1200,10 +1200,10 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 		return
 	end
 
-	if (lado < 0) then --> clicou no bot�o para desagrupar tudo
+	if (lado < 0) then --clicou no bot�o para desagrupar tudo
 		local ID = instancia.meu_id
 
-		for id, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+		for id, esta_instancia in _ipairs(_detalhes.tabela_instancias) do
 			for index, iid in _pairs (esta_instancia.snap) do -- index = 1 left , 3 right, 2 bottom, 4 top
 				if (iid and (iid == ID or id == ID)) then -- iid = instancia.meu_id
 
@@ -1222,9 +1222,9 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 					end
 
 					if (index == 2) then  -- index � o codigo do snap
-						--esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 58)
-						--esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 58)
-						--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
+						--esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 58)
+						--esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 58)
+						--esta_instancia.baseframe.rodape.esquerdo:SetTexture("Interface\\AddOns\\Details\\images\\bar_down_left")
 						--esta_instancia.baseframe.rodape.esquerdo.have_snap = nil
 					end
 
@@ -1272,45 +1272,45 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 end
 
 function _detalhes:SnapTextures (remove)
-	for id, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+	for id, esta_instancia in _ipairs(_detalhes.tabela_instancias) do
 		if (esta_instancia:IsAtiva()) then
 			if (esta_instancia.baseframe.rodape.esquerdo.have_snap) then
 				if (remove) then
-					--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
+					--esta_instancia.baseframe.rodape.esquerdo:SetTexture("Interface\\AddOns\\Details\\images\\bar_down_left")
 				else
-					--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
+					--esta_instancia.baseframe.rodape.esquerdo:SetTexture("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
 				end
 			end
 		end
 	end
 end
 
---> cria uma janela para uma nova inst�ncia
-	--> search key: ~new ~nova
+--cria uma janela para uma nova inst�ncia
+	--search key: ~new ~nova
 	function _detalhes:CreateDisabledInstance (ID, skin_table)
 
-	--> first check if we can recycle a old instance
+	--first check if we can recycle a old instance
 		if (_detalhes.unused_instances [ID]) then
 			local new_instance = _detalhes.unused_instances [ID]
 			_detalhes.tabela_instancias [ID] = new_instance
 			_detalhes.unused_instances [ID] = nil
-			--> replace the values on recycled instance
+			--replace the values on recycled instance
 				new_instance:ResetInstanceConfig()
 
-			--> copy values from a previous skin saved
+			--copy values from a previous skin saved
 				if (skin_table) then
-					--> copy from skin_table to new_instance
+					--copy from skin_table to new_instance
 					_detalhes.table.copy (new_instance, skin_table)
 				end
 
 			return new_instance
 		end
 
-	--> must create a new one
+	--must create a new one
 		local new_instance = {
-			--> instance id
+			--instance id
 				meu_id = ID,
-			--> internal stuff
+			--internal stuff
 				barras = {}, --container que ir� armazenar todas as barras
 				barraS = {nil, nil}, --de x at� x s�o as barras que est�o sendo mostradas na tela
 				rolagem = false, --barra de rolagem n�o esta sendo mostrada
@@ -1318,34 +1318,34 @@ end
 				bar_mod = 0,
 				bgdisplay_loc = 0,
 
-			--> displaying row info
+			--displaying row info
 				rows_created = 0,
 				rows_showing = 0,
 				rows_max = 50,
 
-			--> saved pos for normal mode and lone wolf mode
+			--saved pos for normal mode and lone wolf mode
 				posicao = {
 					["normal"] = {x = 1, y = 2, w = 300, h = 200},
 					["solo"] = {x = 1, y = 2, w = 300, h = 200}
 				},
 
-			--> save information about window snaps
+			--save information about window snaps
 				snap = {},
 
-			--> current state starts as normal
+			--current state starts as normal
 				mostrando = "normal",
-			--> menu consolidated
+			--menu consolidated
 				consolidate = false, --deprecated
 				icons = {true, true, true, true},
 
-			--> status bar stuff
+			--status bar stuff
 				StatusBar = {options = {}},
 
-			--> more stuff
-				atributo = 1, --> dano
-				sub_atributo = 1, --> damage done
+			--more stuff
+				atributo = 1, --dano
+				sub_atributo = 1, --damage done
 				sub_atributo_last = {1, 1, 1, 1, 1},
-				segmento = 0, --> combate atual
+				segmento = 0, --combate atual
 				modo = modo_grupo,
 				last_modo = modo_grupo,
 				LastModo = modo_grupo,
@@ -1354,19 +1354,19 @@ end
 		_setmetatable (new_instance, _detalhes)
 		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
 
-		--> fill the empty instance with default values
+		--fill the empty instance with default values
 			new_instance:ResetInstanceConfig()
 
-		--> copy values from a previous skin saved
+		--copy values from a previous skin saved
 			if (skin_table) then
-				--> copy from skin_table to new_instance
+				--copy from skin_table to new_instance
 				_detalhes.table.copy (new_instance, skin_table)
 			end
 
-		--> setup default wallpaper
+		--setup default wallpaper
 			new_instance.wallpaper.texture = "Interface\\AddOns\\Details\\images\\background"
 
-		--> finish
+		--finish
 			return new_instance
 	end
 
@@ -1376,15 +1376,15 @@ end
 		_setmetatable (new_instance, _detalhes)
 		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
 
-		--> instance number
+		--instance number
 			new_instance.meu_id = ID
 
-		--> setup all config
+		--setup all config
 			new_instance:ResetInstanceConfig()
-			--> setup default wallpaper
+			--setup default wallpaper
 			new_instance.wallpaper.texture = "Interface\\AddOns\\Details\\images\\background"
 
-		--> internal stuff
+		--internal stuff
 			new_instance.barras = {} --container que ir� armazenar todas as barras
 			new_instance.barraS = {nil, nil} --de x at� x s�o as barras que est�o sendo mostradas na tela
 			new_instance.rolagem = false --barra de rolagem n�o esta sendo mostrada
@@ -1393,27 +1393,27 @@ end
 			new_instance.bgdisplay_loc = 0
 			new_instance.cached_bar_width = 0
 
-		--> displaying row info
+		--displaying row info
 			new_instance.rows_created = 0
 			new_instance.rows_showing = 0
 			new_instance.rows_max = 50
 			new_instance.rows_fit_in_window = nil
 
-		--> saved pos for normal mode and lone wolf mode
+		--saved pos for normal mode and lone wolf mode
 			new_instance.posicao = {
 				["normal"] = {x = 1, y = 2, w = 300, h = 200},
 				["solo"] = {x = 1, y = 2, w = 300, h = 200}
 			}
-		--> save information about window snaps
+		--save information about window snaps
 			new_instance.snap = {}
 
-		--> current state starts as normal
+		--current state starts as normal
 			new_instance.mostrando = "normal"
-		--> menu consolidated
+		--menu consolidated
 			new_instance.consolidate = false
 			new_instance.icons = {true, true, true, true}
 
-		--> create window frames
+		--create window frames
 
 			local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (ID, new_instance, true)
 			new_instance.baseframe = _baseframe
@@ -1421,7 +1421,7 @@ end
 			new_instance.bgdisplay = _bgframe_display
 			new_instance.scroll = _scrollframe
 
-		--> status bar stuff
+		--status bar stuff
 			new_instance.StatusBar = {}
 			new_instance.StatusBar.left = nil
 			new_instance.StatusBar.center = nil
@@ -1437,20 +1437,20 @@ end
 			local dps = _detalhes.StatusBar:CreateStatusBarChildForInstance (new_instance, "DETAILS_STATUSBAR_PLUGIN_PDPS")
 			_detalhes.StatusBar:SetRightPlugin (new_instance, dps)
 
-		--> internal stuff
+		--internal stuff
 			new_instance.alturaAntiga = _baseframe:GetHeight()
-			new_instance.atributo = 1 --> dano
-			new_instance.sub_atributo = 1 --> damage done
+			new_instance.atributo = 1 --dano
+			new_instance.sub_atributo = 1 --damage done
 			new_instance.sub_atributo_last = {1, 1, 1, 1, 1}
-			new_instance.segmento = -1 --> combate atual
+			new_instance.segmento = -1 --combate atual
 			new_instance.modo = modo_grupo
 			new_instance.last_modo = modo_grupo
 			new_instance.LastModo = modo_grupo
 
-		--> change the attribute
+		--change the attribute
 			_detalhes:TrocaTabela (new_instance, 0, 1, 1)
 
-		--> internal stuff
+		--internal stuff
 			new_instance.row_height = new_instance.row_info.height + new_instance.row_info.space.between
 
 			new_instance.oldwith = new_instance.baseframe:GetWidth()
@@ -1458,9 +1458,9 @@ end
 			new_instance:SaveMainWindowPosition()
 			new_instance:ReajustaGump()
 
-			new_instance.rows_fit_in_window = _math_floor (new_instance.posicao[new_instance.mostrando].h / new_instance.row_height)
+			new_instance.rows_fit_in_window = _math_floor(new_instance.posicao[new_instance.mostrando].h / new_instance.row_height)
 
-		--> all done
+		--all done
 			new_instance:AtivarInstancia()
 
 		new_instance:ShowSideBars()
@@ -1468,7 +1468,7 @@ end
 		new_instance.skin = "no skin"
 		new_instance:ChangeSkin (_detalhes.default_skin_to_use)
 
-		--> apply standard skin if have one saved
+		--apply standard skin if have one saved
 		--[[
 			if (_detalhes.standard_skin) then
 
@@ -1479,10 +1479,10 @@ end
 				instance.skin = ""
 				instance:ChangeSkin (skin)
 
-				--> overwrite all instance parameters with saved ones
+				--overwrite all instance parameters with saved ones
 				for key, value in pairs (style) do
 					if (key ~= "skin") then
-						if (type (value) == "table") then
+						if (type(value) == "table") then
 							instance [key] = Details.CopyTable (value)
 						else
 							instance [key] = value
@@ -1493,7 +1493,7 @@ end
 			end
 		--]]
 
-		--> apply all changed attributes
+		--apply all changed attributes
 		--new_instance:ChangeSkin()
 
 		return new_instance
@@ -1507,8 +1507,8 @@ end
 
 
 
---> ao reiniciar o addon esta fun��o � rodada para recriar a janela da inst�ncia
---> search key: ~restaura ~inicio ~start
+--ao reiniciar o addon esta fun��o � rodada para recriar a janela da inst�ncia
+--search key: ~restaura ~inicio ~start
 
 function Details:RestoreWindow(index, temp, loadOnly)
 	self:RestauraJanela (index, temp, loadOnly)
@@ -1516,10 +1516,10 @@ end
 
 function _detalhes:RestauraJanela(index, temp, load_only)
 
-	--> load
+	--load
 		self:LoadInstanceConfig()
 
-	--> reset internal stuff
+	--reset internal stuff
 		self.sub_atributo_last = self.sub_atributo_last or {1, 1, 1, 1, 1}
 		self.rolagem = false
 		self.need_rolagem = false
@@ -1537,9 +1537,9 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 		self.last_modo = self.last_modo or modo_grupo
 		self.cached_bar_width = self.cached_bar_width or 0
 		self.row_height = self.row_info.height + self.row_info.space.between
-		self.rows_fit_in_window = _math_floor (self.posicao[self.mostrando].h / self.row_height)
+		self.rows_fit_in_window = _math_floor(self.posicao[self.mostrando].h / self.row_height)
 
-	--> create frames
+	--create frames
 		local isLocked = self.isLocked
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
 		self.baseframe = _baseframe
@@ -1551,24 +1551,24 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 
 		--self.isLocked = isLocked --window isn't locked when just created it
 
-	--> change the attribute
-		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --> passando true no 5� valor para a fun��o ignorar a checagem de valores iguais
+	--change the attribute
+		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --passando true no 5� valor para a fun��o ignorar a checagem de valores iguais
 
-	--> set wallpaper
+	--set wallpaper
 		if (self.wallpaper.enabled) then
 			self:InstanceWallpaper (true)
 		end
 
-	--> set the color of this instance window
+	--set the color of this instance window
 		self:InstanceColor (self.color)
 
-	--> scrollbar
+	--scrollbar
 		self:EsconderScrollBar (true)
 
-	--> check snaps
+	--check snaps
 		self.snap = self.snap or {}
 
-	--> status bar stuff
+	--status bar stuff
 		self.StatusBar = {}
 		self.StatusBar.left = nil
 		self.StatusBar.center = nil
@@ -1597,10 +1597,10 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 		_detalhes.StatusBar:SetRightPlugin (self, durability, true)
 
 
-	--> load mode
+	--load mode
 
 		if (self.modo == modo_alone) then
-			if (_detalhes.solo and _detalhes.solo ~= self.meu_id) then --> prote��o para ter apenas uma inst�ncia com a janela SOLO
+			if (_detalhes.solo and _detalhes.solo ~= self.meu_id) then --prote��o para ter apenas uma inst�ncia com a janela SOLO
 				self.modo = modo_grupo
 				self.mostrando = "normal"
 			else
@@ -1624,7 +1624,7 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 			end
 		end
 
-	--> internal stuff
+	--internal stuff
 		self.oldwith = self.baseframe:GetWidth()
 
 		self:RestoreMainWindowPosition()
@@ -1637,7 +1637,7 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 			self:ChangeSkin()
 		end
 
-	--> all done
+	--all done
 	return
 end
 
@@ -1672,7 +1672,7 @@ function _detalhes:SwitchTo (switch_table, nosave)
 		local plugin_global_name, can_switch = switch_table[2], true
 
 		--plugin global name
-		for _, instance in ipairs (_detalhes.tabela_instancias) do
+		for _, instance in ipairs(_detalhes.tabela_instancias) do
 			if (instance ~= self and instance:IsEnabled() and instance.baseframe and instance.modo == modo_raid) then
 				if (instance.current_raid_plugin == plugin_global_name) then
 					can_switch = false
@@ -1743,7 +1743,7 @@ function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 end
 
 function _detalhes:CheckSwitchOnLogon (warning)
-	for index, instancia in ipairs (_detalhes.tabela_instancias) do
+	for index, instancia in ipairs(_detalhes.tabela_instancias) do
 		if (instancia.ativa) then
 			instancia:CheckSwitchOnCombatEnd (true, warning)
 		end
@@ -1815,7 +1815,7 @@ function _detalhes:ExportSkin()
 	--export the keys
 	for key, value in pairs (self) do
 		if (_detalhes.instance_defaults [key] ~= nil) then
-			if (type (value) == "table") then
+			if (type(value) == "table") then
 				exported [key] = Details.CopyTable (value)
 			else
 				exported [key] = value
@@ -1874,15 +1874,15 @@ function _detalhes:ApplySavedSkin (style)
 		return _detalhes:Msg (Loc ["STRING_OPTIONS_PRESETTOOLD"])
 	end
 
-	--> set skin preset
+	--set skin preset
 	local skin = style.skin
 	self.skin = ""
 	self:ChangeSkin (skin)
 
-	--> overwrite all instance parameters with saved ones
+	--overwrite all instance parameters with saved ones
 	for key, value in pairs (style) do
 		if (key ~= "skin") then
-			if (type (value) == "table") then
+			if (type(value) == "table") then
 				self [key] = Details.CopyTable (value)
 			else
 				self [key] = value
@@ -1890,12 +1890,12 @@ function _detalhes:ApplySavedSkin (style)
 		end
 	end
 
-	--> check for new keys inside tables
+	--check for new keys inside tables
 	for key, value in pairs (_detalhes.instance_defaults) do
-		if (type (value) == "table") then
+		if (type(value) == "table") then
 			for key2, value2 in pairs (value) do
 				if (self [key] [key2] == nil) then
-					if (type (value2) == "table") then
+					if (type(value2) == "table") then
 						self [key] [key2] = Details.CopyTable (_detalhes.instance_defaults [key] [key2])
 					else
 						self [key] [key2] = value2
@@ -1909,7 +1909,7 @@ function _detalhes:ApplySavedSkin (style)
 	self.StatusBar.options = self.StatusBarSaved.options
 	_detalhes.StatusBar:UpdateChilds (self)
 
-	--> apply all changed attributes
+	--apply all changed attributes
 	self:ChangeSkin()
 
 	--export size and positioning
@@ -1949,14 +1949,14 @@ end
 function _detalhes:SetBackgroundColor(...)
 	local red = select (1, ...)
 	if (not red) then
-		self.bgdisplay:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
-		self.baseframe:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
+		self.bgdisplay:SetBackdropColor(self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
+		self.baseframe:SetBackdropColor(self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
 		return
 	end
 
-	local r, g, b = gump:ParseColors (...)
-	self.bgdisplay:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
-	self.baseframe:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
+	local r, g, b = gump:ParseColors(...)
+	self.bgdisplay:SetBackdropColor(r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
+	self.baseframe:SetBackdropColor(r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
 	self.bg_r = r
 	self.bg_g = g
 	self.bg_b = b
@@ -1967,8 +1967,8 @@ function _detalhes:SetBackgroundAlpha (alpha)
 		alpha = self.bg_alpha
 	end
 
-	self.bgdisplay:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, alpha)
-	self.baseframe:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, alpha)
+	self.bgdisplay:SetBackdropColor(self.bg_r, self.bg_g, self.bg_b, alpha)
+	self.baseframe:SetBackdropColor(self.bg_r, self.bg_g, self.bg_b, alpha)
 	self.bg_alpha = alpha
 end
 
@@ -1993,18 +1993,18 @@ function _detalhes:GetPositionOnScreen()
 	return xOfs/_UIscale, yOfs/_UIscale
 end
 
---> alias
-function _detalhes:SetSize (w, h)
+--alias
+function _detalhes:SetSize(w, h)
 	return self:Resize (w, h)
 end
 
 function _detalhes:Resize (w, h)
 	if (w) then
-		self.baseframe:SetWidth (w)
+		self.baseframe:SetWidth(w)
 	end
 
 	if (h) then
-		self.baseframe:SetHeight (h)
+		self.baseframe:SetHeight(h)
 	end
 
 	self:SaveMainWindowPosition()
@@ -2016,12 +2016,12 @@ end
 function _detalhes:ToggleMaxSize()
 	if (self.is_in_max_size) then
 		self.is_in_max_size = false
-		self:SetSize (self.original_width, self.original_height)
+		self:SetSize(self.original_width, self.original_height)
 	else
 		local original_width, original_height = self:GetSize()
 		self.original_width, self.original_height = original_width, original_height
 		self.is_in_max_size = true
-		self:SetSize (original_width, 450)
+		self:SetSize(original_width, 450)
 
 	end
 end
@@ -2040,7 +2040,7 @@ function Details:PostponeSwitchToCurrent(instance)
 	) then
 		instance._postponing_switch = nil
 		if (instance.segmento > 0 and instance.auto_current) then
-			instance:TrocaTabela(0) --> muda o segmento pra current
+			instance:TrocaTabela(0) --muda o segmento pra current
 			instance:InstanceAlert(Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
 			return
 		else
@@ -2055,18 +2055,18 @@ function Details:PostponeSwitchToCurrent(instance)
 end
 
 function Details:CheckSwitchToCurrent()
-	for _, instance in _ipairs (Details.tabela_instancias) do
+	for _, instance in _ipairs(Details.tabela_instancias) do
 		if (instance.ativa and instance.auto_current and instance.baseframe and instance.segmento > 0) then
 			if (instance.is_interacting and instance.last_interaction < Details._tempo) then
 				instance.last_interaction = Details._tempo
 			end
 
 			if ((instance.last_interaction and (instance.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.playerDetailWindow:IsShown())) then
-				--> postpone
+				--postpone
 				--instance._postponing_switch = Details:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
 				instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, instance)
 			else
-				instance:TrocaTabela(0) --> muda o segmento pra current
+				instance:TrocaTabela(0) --muda o segmento pra current
 				instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
 				instance._postponing_switch = nil
 			end
@@ -2082,7 +2082,7 @@ function Details:Freeze (instancia)
 
 	if (not _detalhes.initializing) then
 		instancia:ResetaGump()
-		Details.FadeHandler.Fader (instancia, "in", nil, "barras")
+		Details.FadeHandler.Fader(instancia, "in", nil, "barras")
 	end
 
 	instancia:InstanceMsg (Loc ["STRING_FREEZE"], [[Interface\CHARACTERFRAME\Disconnect-Icon]], "silver")
@@ -2091,7 +2091,7 @@ function Details:Freeze (instancia)
 	--instancia.freeze_texto:Show()
 
 	local width = instancia:GetSize()
-	instancia.freeze_texto:SetWidth (width-64)
+	instancia.freeze_texto:SetWidth(width-64)
 
 	instancia.freezed = true
 end
@@ -2117,15 +2117,15 @@ end
 function _detalhes:AtualizaSegmentos (instancia)
 	if (instancia.iniciada) then
 		if (instancia.segmento == -1) then
-			--instancia.baseframe.rodape.segmento:SetText (segmentos.overall) --> localiza-me
+			--instancia.baseframe.rodape.segmento:SetText(segmentos.overall) --localiza-me
 			instancia.showing = _detalhes.tabela_overall
 		elseif (instancia.segmento == 0) then
-			--instancia.baseframe.rodape.segmento:SetText (segmentos.current) --> localiza-me
+			--instancia.baseframe.rodape.segmento:SetText(segmentos.current) --localiza-me
 			instancia.showing = _detalhes.tabela_vigente
 			--print ("==> Changing the Segment now! - classe_instancia.lua 1922")
 		else
 			instancia.showing = _detalhes.tabela_historico.tabelas [instancia.segmento]
-			--instancia.baseframe.rodape.segmento:SetText (segmentos.past..instancia.segmento) --> localiza-me
+			--instancia.baseframe.rodape.segmento:SetText(segmentos.past..instancia.segmento) --localiza-me
 		end
 	end
 end
@@ -2133,32 +2133,32 @@ end
 function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 
 	if (instancia.freezed) then
-		return --> se esta congelada n�o tem o que fazer
+		return --se esta congelada n�o tem o que fazer
 	end
 
 	local segmento = instancia.segmento
 
 	local _fadeType, _fadeSpeed = _unpack (_detalhes.row_fade_in)
 
-	if (segmento == _detalhes.segments_amount) then --> significa que o index [5] passou a ser [6] com a entrada da nova tabela
-		instancia.showing = historico.tabelas [_detalhes.segments_amount] --> ent�o ele volta a pegar o index [5] que antes era o index [4]
+	if (segmento == _detalhes.segments_amount) then --significa que o index [5] passou a ser [6] com a entrada da nova tabela
+		instancia.showing = historico.tabelas [_detalhes.segments_amount] --ent�o ele volta a pegar o index [5] que antes era o index [4]
 		--print ("==> Changing the Segment now! - classe_instancia.lua 1942")
-		Details.FadeHandler.Fader (instancia, _fadeType, _fadeSpeed, "barras")
+		Details.FadeHandler.Fader(instancia, _fadeType, _fadeSpeed, "barras")
 		instancia.showing[instancia.atributo].need_refresh = true
 		instancia.v_barras = true
 		instancia:ResetaGump()
-		instancia:RefreshMainWindow (true)
+		instancia:RefreshMainWindow(true)
 		_detalhes:AtualizarJanela (instancia)
 
 	elseif (segmento < _detalhes.segments_amount and segmento > 0) then
 		instancia.showing = historico.tabelas [segmento]
 		--print ("==> Changing the Segment now! - classe_instancia.lua 1952")
 
-		Details.FadeHandler.Fader (instancia, _fadeType, _fadeSpeed, "barras") --"in", nil
+		Details.FadeHandler.Fader(instancia, _fadeType, _fadeSpeed, "barras") --"in", nil
 		instancia.showing[instancia.atributo].need_refresh = true
 		instancia.v_barras = true
 		instancia:ResetaGump()
-		instancia:RefreshMainWindow (true)
+		instancia:RefreshMainWindow(true)
 		_detalhes:AtualizarJanela (instancia)
 	end
 
@@ -2200,7 +2200,7 @@ end
 
 function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
 
-	if (self and self.meu_id and not instancia) then --> self � uma inst�ncia
+	if (self and self.meu_id and not instancia) then --self � uma inst�ncia
 		InstanceMode = iniciando_instancia
 		iniciando_instancia = sub_atributo
 		sub_atributo = atributo
@@ -2213,7 +2213,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		iniciando_instancia = nil
 	end
 
-	if (_type (instancia) == "number") then
+	if (_type(instancia) == "number") then
 		sub_atributo = atributo
 		atributo = segmento
 		segmento = instancia
@@ -2227,11 +2227,11 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	local update_coolTip = false
 	local sub_attribute_click = false
 
-	if (_type (segmento) == "boolean" and segmento) then --> clicou em um sub atributo
+	if (_type(segmento) == "boolean" and segmento) then --clicou em um sub atributo
 		sub_attribute_click = true
 		segmento = instancia.segmento
 
-	elseif (segmento == -2) then --> clicou para mudar de segmento
+	elseif (segmento == -2) then --clicou para mudar de segmento
 		segmento = instancia.segmento + 1
 
 		if (segmento > _detalhes.segments_amount) then
@@ -2239,7 +2239,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 		update_coolTip = true
 
-	elseif (segmento == -3) then --> clicou para mudar de atributo
+	elseif (segmento == -3) then --clicou para mudar de atributo
 		segmento = instancia.segmento
 
 		atributo = instancia.atributo+1
@@ -2248,7 +2248,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 		update_coolTip = true
 
-	elseif (segmento == -4) then --> clicou para mudar de sub atributo
+	elseif (segmento == -4) then --clicou para mudar de sub atributo
 		segmento = instancia.segmento
 
 		sub_atributo = instancia.sub_atributo+1
@@ -2258,24 +2258,24 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		update_coolTip = true
 	end
 
-	--> pega os atributos desta instancia
+	--pega os atributos desta instancia
 	local current_segmento = instancia.segmento
 	local current_atributo = instancia.atributo
 	local current_sub_atributo = instancia.sub_atributo
 
 	local atributo_changed = false
 
-	--> verifica se os valores passados s�o v�lidos
+	--verifica se os valores passados s�o v�lidos
 
 	if (not segmento) then
 		segmento = instancia.segmento
-	elseif (_type (segmento) ~= "number") then
+	elseif (_type(segmento) ~= "number") then
 		segmento = instancia.segmento
 	end
 
 	if (not atributo) then
 		atributo  = instancia.atributo
-	elseif (_type (atributo) ~= "number") then
+	elseif (_type(atributo) ~= "number") then
 		atributo = instancia.atributo
 	end
 
@@ -2285,11 +2285,11 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		else
 			sub_atributo  = instancia.sub_atributo_last [atributo]
 		end
-	elseif (_type (sub_atributo) ~= "number") then
+	elseif (_type(sub_atributo) ~= "number") then
 		sub_atributo = instancia.sub_atributo
 	end
 
-	--> j� esta mostrando isso que esta pedindo
+	--j� esta mostrando isso que esta pedindo
 	if (not iniciando_instancia and segmento == current_segmento and atributo == current_atributo and sub_atributo == current_sub_atributo and not _detalhes.initializing) then
 		return
 	end
@@ -2300,10 +2300,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		_detalhes:Msg ("invalid attribute, switching to damage done.")
 	end
 
-	--> Muda o segmento caso necess�rio
+	--Muda o segmento caso necess�rio
 	if (segmento ~= current_segmento or _detalhes.initializing or iniciando_instancia) then
 
-		--> na troca de segmento, conferir se a instancia esta frozen
+		--na troca de segmento, conferir se a instancia esta frozen
 		if (instancia.freezed) then
 			if (not iniciando_instancia) then
 				instancia:UnFreeze()
@@ -2314,12 +2314,12 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 		instancia.segmento = segmento
 
-		if (segmento == -1) then --> overall
+		if (segmento == -1) then --overall
 			instancia.showing = _detalhes.tabela_overall
-		elseif (segmento == 0) then --> combate atual
+		elseif (segmento == 0) then --combate atual
 			instancia.showing = _detalhes.tabela_vigente
 			--print ("==> Changing the Segment now! - classe_instancia.lua 2115")
-		else --> alguma tabela do hist�rico
+		else --alguma tabela do hist�rico
 			instancia.showing = _detalhes.tabela_historico.tabelas [segmento]
 		end
 
@@ -2331,14 +2331,14 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			--print ("DEBUG: contra", instancia.showing.contra)
 		end
 
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGESEGMENT", nil, instancia, segmento)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instancia, segmento)
 
 		if (_detalhes.instances_segments_locked and not iniciando_instancia) then
-			for _, instance in ipairs (_detalhes.tabela_instancias) do
+			for _, instance in ipairs(_detalhes.tabela_instancias) do
 				if (instance.meu_id ~= instancia.meu_id and instance.ativa and not instance._postponing_switch and not instance._postponing_current) then
 					if (instance:GetSegment() >= 0 and instancia:GetSegment() ~= -1) then
 						if (instance.modo == 2 or instance.modo == 3) then
-							--> na troca de segmento, conferir se a instancia esta frozen
+							--na troca de segmento, conferir se a instancia esta frozen
 							if (instance.freezed) then
 								if (not iniciando_instancia) then
 									instance:UnFreeze()
@@ -2349,11 +2349,11 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 							instance.segmento = segmento
 
-							if (segmento == -1) then --> overall
+							if (segmento == -1) then --overall
 								instance.showing = _detalhes.tabela_overall
-							elseif (segmento == 0) then --> combate atual
+							elseif (segmento == 0) then --combate atual
 								instance.showing = _detalhes.tabela_vigente; --print ("==> Changing the Segment now! - classe_instancia.lua 2148")
-							else --> alguma tabela do hist�rico
+							else --alguma tabela do hist�rico
 								instance.showing = _detalhes.tabela_historico.tabelas [segmento]
 							end
 
@@ -2369,10 +2369,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 							if (not _detalhes.initializing and not iniciando_instancia) then
 								instance:ResetaGump()
-								instance:RefreshMainWindow (true)
+								instance:RefreshMainWindow(true)
 							end
 
-							_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmento)
+							_detalhes:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmento)
 						end
 					end
 				end
@@ -2381,7 +2381,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 	end
 
-	--> Muda o atributo caso  necess�rio
+	--Muda o atributo caso  necess�rio
 	if (atributo == 5) then
 		if (#_detalhes.custom < 1) then
 			atributo = 1
@@ -2401,7 +2401,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			end
 			return _detalhes.SoloTables.switch (nil, nil, -1)
 
-		elseif ( (instancia.modo == modo_raid) and not (_detalhes.initializing or iniciando_instancia) ) then --> raid
+		elseif ( (instancia.modo == modo_raid) and not (_detalhes.initializing or iniciando_instancia) ) then --raid
 			return --nao faz nada quando clicar no bot�o
 		end
 
@@ -2409,7 +2409,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia.atributo = atributo
 		instancia.sub_atributo = instancia.sub_atributo_last [atributo]
 
-		--> troca icone
+		--troca icone
 		instancia:ChangeIcon()
 
 		if (update_coolTip) then
@@ -2455,7 +2455,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 
 		_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
 
 	end
 
@@ -2466,7 +2466,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			instancia.sub_atributo_last[instancia.atributo] = instancia.sub_atributo
 		end
 
-		if (instancia.atributo == 5) then --> custom
+		if (instancia.atributo == 5) then --custom
 			instancia:ChangeIcon()
 		end
 
@@ -2496,7 +2496,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 		return
 	else
-		--> verificar relogio, precisaria dar refresh no plugin clock
+		--verificar relogio, precisaria dar refresh no plugin clock
 	end
 
 	instancia.v_barras = true
@@ -2554,7 +2554,7 @@ function _detalhes:MontaRaidOption (instancia)
 	end
 
 	local amount = 0
-	for index, ptable in _ipairs (available_plugins) do
+	for index, ptable in _ipairs(available_plugins) do
 		if (ptable [3].__enabled) then
 			GameCooltip:AddMenu (1, _detalhes.RaidTables.switch, ptable [4], instancia, nil, ptable [1], ptable [2], true) --PluginName, PluginIcon, PluginObject, PluginAbsoluteName
 			amount = amount + 1
@@ -2565,14 +2565,14 @@ function _detalhes:MontaRaidOption (instancia)
 		return false
 	end
 
-	GameCooltip:SetOption ("NoLastSelectedBar", true)
+	GameCooltip:SetOption("NoLastSelectedBar", true)
 
 	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 	return true
 end
 
 function _detalhes:MontaSoloOption (instancia)
-	for index, ptable in _ipairs (_detalhes.SoloTables.Menu) do
+	for index, ptable in _ipairs(_detalhes.SoloTables.Menu) do
 		if (ptable [3].__enabled) then
 			GameCooltip:AddMenu (1, _detalhes.SoloTables.switch, index, nil, nil, ptable [1], ptable [2], true)
 		end
@@ -2602,12 +2602,12 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	func = func or instancia.TrocaTabela
 
 	local checked1 = instancia.atributo
-	local atributo_ativo = instancia.atributo --> pega o numero
+	local atributo_ativo = instancia.atributo --pega o numero
 
 	local options
-	if (atributo_ativo == 5) then --> custom
+	if (atributo_ativo == 5) then --custom
 		options = {Loc ["STRING_CUSTOM_NEW"]}
-		for index, custom in _ipairs (_detalhes.custom) do
+		for index, custom in _ipairs(_detalhes.custom) do
 			options [#options+1] = custom.name
 		end
 	else
@@ -2615,10 +2615,10 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	end
 
 	local CoolTip = _G.GameCooltip
-	local p = 0.125 --> 32/256
+	local p = 0.125 --32/256
 
 	local gindex = 1
-	for i = 1, atributos[0] do --> [0] armazena quantos atributos existem
+	for i = 1, atributos[0] do --[0] armazena quantos atributos existem
 
 		CoolTip:AddMenu (1, func, nil, i, nil, atributos.lista[i], nil, true)
 		CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(i-1), p*(i), 0, 1)
@@ -2634,7 +2634,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 				CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockCurses-TopLeft]], {.2, 1, 0, 1}, wallpaper_bg_color)
 			end
 		else
-			--> wallpaper = main window
+			--wallpaper = main window
 			--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		end
 
@@ -2660,7 +2660,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		CoolTip:SetLastSelected (2, i, instancia.sub_atributo_last [i])
 	end
 
-	--> custom
+	--custom
 
 	--GameCooltip:AddLine ("$div")
 	CoolTip:AddLine ("$div", nil, 1, -3, 1)
@@ -2673,7 +2673,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 
 	CoolTip:AddLine ("$div", nil, 2, nil, -8, -13)
 
-	for index, custom in _ipairs (_detalhes.custom) do
+	for index, custom in _ipairs(_detalhes.custom) do
 		if (custom.temp) then
 			CoolTip:AddLine (custom.name .. Loc ["STRING_CUSTOM_TEMPORARILY"], nil, 2)
 		else
@@ -2684,7 +2684,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		CoolTip:AddIcon (custom.icon, 2, 1, 20, 20)
 	end
 
-	--> set the wallpaper on custom
+	--set the wallpaper on custom
 	if (_detalhes.tooltip.submenu_wallpaper) then
 		CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], menu_wallpaper_custom_color, wallpaper_bg_color)
 	else
@@ -2701,17 +2701,17 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		end
 	end
 
-	CoolTip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_vidro]])
-	CoolTip:SetOption ("ButtonsYMod", -7)
-	CoolTip:SetOption ("HeighMod", 7)
+	CoolTip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_vidro]])
+	CoolTip:SetOption("ButtonsYMod", -7)
+	CoolTip:SetOption("HeighMod", 7)
 
-	CoolTip:SetOption ("ButtonsYModSub", -7)
-	CoolTip:SetOption ("HeighModSub", 7)
+	CoolTip:SetOption("ButtonsYModSub", -7)
+	CoolTip:SetOption("HeighModSub", 7)
 
-	CoolTip:SetOption ("SelectedTopAnchorMod", -2)
-	CoolTip:SetOption ("SelectedBottomAnchorMod", 2)
+	CoolTip:SetOption("SelectedTopAnchorMod", -2)
+	CoolTip:SetOption("SelectedBottomAnchorMod", 2)
 
-	CoolTip:SetOption ("TextFont",  _detalhes.font_faces.menus)
+	CoolTip:SetOption("TextFont",  _detalhes.font_faces.menus)
 
 	_detalhes:SetTooltipMinWidth()
 
@@ -2746,48 +2746,48 @@ function _detalhes:ChangeIcon(icon)
 
 	if (not self.hide_icon) then
 		if (skin.icon_on_top) then
-			self.baseframe.cabecalho.atributo_icon:SetParent (self.floatingframe)
+			self.baseframe.cabecalho.atributo_icon:SetParent(self.floatingframe)
 		else
-			self.baseframe.cabecalho.atributo_icon:SetParent (self.baseframe)
+			self.baseframe.cabecalho.atributo_icon:SetParent(self.baseframe)
 		end
 	end
 
 	if (icon) then
-		--> plugin chamou uma troca de icone
-		self.baseframe.cabecalho.atributo_icon:SetTexture (icon)
+		--plugin chamou uma troca de icone
+		self.baseframe.cabecalho.atributo_icon:SetTexture(icon)
 		self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
 
 		local icon_size = skin.icon_plugins_size
-		self.baseframe.cabecalho.atributo_icon:SetWidth (icon_size[1])
-		self.baseframe.cabecalho.atributo_icon:SetHeight (icon_size[2])
+		self.baseframe.cabecalho.atributo_icon:SetWidth(icon_size[1])
+		self.baseframe.cabecalho.atributo_icon:SetHeight(icon_size[2])
 		local icon_anchor = skin.icon_anchor_plugins
 
 		self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
-		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+		self.baseframe.cabecalho.atributo_icon:SetPoint("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
 
-	elseif (self.modo == modo_alone) then --> solo
+	elseif (self.modo == modo_alone) then --solo
 		--icon is set by the plugin
 
-	elseif (self.modo == modo_grupo or self.modo == modo_all) then --> grupo
+	elseif (self.modo == modo_grupo or self.modo == modo_all) then --grupo
 
 		if (self.atributo == 5) then
-			--> custom
+			--custom
 			if (_detalhes.custom [self.sub_atributo]) then
 				local icon = _detalhes.custom [self.sub_atributo].icon
-				self.baseframe.cabecalho.atributo_icon:SetTexture (icon)
+				self.baseframe.cabecalho.atributo_icon:SetTexture(icon)
 				self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
 
 				local icon_size = skin.icon_plugins_size
-				self.baseframe.cabecalho.atributo_icon:SetWidth (icon_size[1])
-				self.baseframe.cabecalho.atributo_icon:SetHeight (icon_size[2])
+				self.baseframe.cabecalho.atributo_icon:SetWidth(icon_size[1])
+				self.baseframe.cabecalho.atributo_icon:SetHeight(icon_size[2])
 				local icon_anchor = skin.icon_anchor_plugins
 
 				self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
-				self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+				self.baseframe.cabecalho.atributo_icon:SetPoint("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
 			end
 		else
 			--set the attribute icon
-			self.baseframe.cabecalho.atributo_icon:SetTexture (menu_icones [self.atributo])
+			self.baseframe.cabecalho.atributo_icon:SetTexture(menu_icones [self.atributo])
 
 			if (self.icon_desaturated) then
 				self.baseframe.cabecalho.atributo_icon:SetDesaturated(true)
@@ -2795,28 +2795,28 @@ function _detalhes:ChangeIcon(icon)
 				self.baseframe.cabecalho.atributo_icon:SetDesaturated(false)
 			end
 
-			local p = 0.125 --> 32/256
+			local p = 0.125 --32/256
 			self.baseframe.cabecalho.atributo_icon:SetTexCoord (p * (self.sub_atributo-1), p * (self.sub_atributo), 0, 1)
-			self.baseframe.cabecalho.atributo_icon:SetSize (16, 16)
+			self.baseframe.cabecalho.atributo_icon:SetSize(16, 16)
 
 			self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
 			if (self.menu_attribute_string) then
 				local yOffset = getFineTunedIconCoords(self.atributo, self.sub_atributo)
-				self.baseframe.cabecalho.atributo_icon:SetPoint ("right", self.menu_attribute_string.widget, "left", -4, 1 + yOffset)
+				self.baseframe.cabecalho.atributo_icon:SetPoint("right", self.menu_attribute_string.widget, "left", -4, 1 + yOffset)
 			end
 
 			if (skin.attribute_icon_anchor) then
 				self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
-				self.baseframe.cabecalho.atributo_icon:SetPoint ("topleft", self.baseframe.cabecalho.ball_point, "topleft", skin.attribute_icon_anchor[1], skin.attribute_icon_anchor[2])
+				self.baseframe.cabecalho.atributo_icon:SetPoint("topleft", self.baseframe.cabecalho.ball_point, "topleft", skin.attribute_icon_anchor[1], skin.attribute_icon_anchor[2])
 			end
 
 			if (skin.attribute_icon_size) then
-				self.baseframe.cabecalho.atributo_icon:SetSize (unpack (skin.attribute_icon_size))
+				self.baseframe.cabecalho.atributo_icon:SetSize(unpack (skin.attribute_icon_size))
 			end
 
 
 		end
-	elseif (self.modo == modo_raid) then --> raid
+	elseif (self.modo == modo_raid) then --raid
 		--icon is set by the plugin
 	end
 end
@@ -2827,7 +2827,7 @@ end
 
 function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 
-	if (_type (instancia) == "number") then
+	if (_type(instancia) == "number") then
 		qual = instancia
 		instancia = self
 	end
@@ -2868,14 +2868,14 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 			_detalhes.RaidTables:DisableRaidMode (instancia)
 		end
 
-		--> verifica se ja tem alguma instancia desativada em solo e remove o solo dela
+		--verifica se ja tem alguma instancia desativada em solo e remove o solo dela
 		_detalhes:InstanciaCallFunctionOffline (_detalhes.InstanciaCheckForDisabledSolo)
 
 		instancia.modo = modo_alone
 		instancia:ChangeIcon()
 
 		instancia:SoloMode (true)
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_alone)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_alone)
 
 	elseif (qual == modo_raid) then
 
@@ -2892,7 +2892,7 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 
 		_detalhes.RaidTables:EnableRaidMode (instancia)
 
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_raid)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_raid)
 
 	elseif (qual == modo_grupo) then
 
@@ -2906,15 +2906,15 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 		end
 
 		_detalhes:ResetaGump (instancia)
-		--Details.FadeHandler.Fader (instancia, 1, nil, "barras")
+		--Details.FadeHandler.Fader(instancia, 1, nil, "barras")
 
 		instancia.modo = modo_grupo
 		instancia:ChangeIcon()
 
-		instancia:RefreshMainWindow (true)
+		instancia:RefreshMainWindow(true)
 		instancia.last_modo = modo_grupo
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_grupo)
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_grupo)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
 
 	elseif (qual == modo_all) then
 
@@ -2931,10 +2931,10 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 		instancia.modo = modo_all
 		instancia:ChangeIcon()
 
-		instancia:RefreshMainWindow (true)
+		instancia:RefreshMainWindow(true)
 		instancia.last_modo = modo_all
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_all)
-		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_all)
+		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
 	end
 
 	local checked
@@ -2953,8 +2953,8 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 	if (from_mode_menu) then
 		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao, _, true)
 
-		--> running OnEnter does also trigger an instance enter event, so we need to manually leave the instance:
-		_detalhes.OnLeaveMainWindow (instancia, instancia.baseframe.cabecalho.modo_selecao)
+		--running OnEnter does also trigger an instance enter event, so we need to manually leave the instance:
+		_detalhes.OnLeaveMainWindow(instancia, instancia.baseframe.cabecalho.modo_selecao)
 
 		if (instancia.desaturated_menu) then
 			instancia.baseframe.cabecalho.modo_selecao:GetNormalTexture():SetDesaturated (true)
@@ -2985,7 +2985,7 @@ local function GetDpsHps (_thisActor, key)
 				_thisActor [keyname] = dps --salva o dps dele
 				return dps
 			else
-				if (_thisActor [keyname] == 0) then --> n�o calculou o dps dele ainda mas entrou em standby
+				if (_thisActor [keyname] == 0) then --n�o calculou o dps dele ainda mas entrou em standby
 					local dps = _thisActor.total/_thisActor:Tempo()
 					_thisActor [keyname] = dps
 					return dps
@@ -3022,12 +3022,12 @@ function _detalhes:FormatReportLines (report_table, data, f1, f2, f3)
 	end
 	local fonte, _, flags = _detalhes.fontstring_len:GetFont()
 	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
-	_detalhes.fontstring_len:SetText ("DEFAULT NAME")
+	_detalhes.fontstring_len:SetText("DEFAULT NAME")
 	local biggest_len = _detalhes.fontstring_len:GetStringWidth()
 
-	for index, t in ipairs (data) do
+	for index, t in ipairs(data) do
 		local v1 = f1 (t[1])
-		_detalhes.fontstring_len:SetText (v1)
+		_detalhes.fontstring_len:SetText(v1)
 		local len = _detalhes.fontstring_len:GetStringWidth()
 		if (len > biggest_len) then
 			biggest_len = len
@@ -3038,16 +3038,16 @@ function _detalhes:FormatReportLines (report_table, data, f1, f2, f3)
 		biggest_len = 130
 	end
 
-	for index, t in ipairs (data) do
+	for index, t in ipairs(data) do
 		local v1, v2 = f1 (t[1]), f2 (t[2])
 		if (v1 and v2 and type (v1) == "string" and type (v2) == "string") then
 			v1 = v1 .. " "
-			_detalhes.fontstring_len:SetText (v1)
+			_detalhes.fontstring_len:SetText(v1)
 			local len = _detalhes.fontstring_len:GetStringWidth()
 
 			while (len < biggest_len) do
 				v1 = v1 .. "."
-				_detalhes.fontstring_len:SetText (v1)
+				_detalhes.fontstring_len:SetText(v1)
 				len = _detalhes.fontstring_len:GetStringWidth()
 			end
 
@@ -3073,11 +3073,11 @@ local report_amount_function = function(t)
 	if (not is_string) then
 		if (dps) then
 			if (_detalhes.report_schema == 1) then
-				return _detalhes:ToKReport (_math_floor (amount)) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. percent .. "%)"
+				return _detalhes:ToKReport (_math_floor(amount)) .. " (" .. _detalhes:ToKMin (_math_floor(dps)) .. ", " .. percent .. "%)"
 			elseif (_detalhes.report_schema == 2) then
-				return percent .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKReport ( _math_floor (amount)) .. ")"
+				return percent .. "% (" .. _detalhes:ToKMin (_math_floor(dps)) .. ", " .. _detalhes:ToKReport ( _math_floor(amount)) .. ")"
 			elseif (_detalhes.report_schema == 3) then
-				return percent .. "% (" .. _detalhes:ToKReport ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
+				return percent .. "% (" .. _detalhes:ToKReport ( _math_floor(amount) ) .. ", " .. _detalhes:ToKMin (_math_floor(dps)) .. ")"
 			end
 		else
 			if (_detalhes.report_schema == 1) then
@@ -3095,11 +3095,11 @@ local report_build_line = function(i, v1, v2)
 	return v1 .. " " .. v2
 end
 
---> Reportar o que esta na janela da inst�ncia
+--Reportar o que esta na janela da inst�ncia
 function _detalhes:monta_relatorio (este_relatorio, custom)
 
 	if (custom) then
-		--> shrink
+		--shrink
 		local report_lines = {}
 		for i = 1, _detalhes.report_lines+1, 1 do  --#este_relatorio -- o +1 � pq ele conta o cabe�alho como uma linha
 			report_lines [#report_lines+1] = este_relatorio[i]
@@ -3112,7 +3112,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 	local report_lines = {}
 
-	if (self.atributo == 5) then --> custom
+	if (self.atributo == 5) then --custom
 		if (self.segmento == -1) then --overall
 			report_lines [#report_lines+1] = "Details!: " .. Loc ["STRING_OVERALL"] .. " " .. self.customName .. " " .. Loc ["STRING_CUSTOM_REPORT"]
 		else
@@ -3129,7 +3129,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 	if (self.meu_id and self.atributo and self.sub_atributo and _detalhes.report_where ~= "WHISPER" and _detalhes.report_where ~= "WHISPER2") then
 		local already_exists
-		for index, reported in ipairs (_detalhes.latest_report_table) do
+		for index, reported in ipairs(_detalhes.latest_report_table) do
 			if (reported [1] == self.meu_id and reported [2] == self.atributo and reported [3] == self.sub_atributo and reported [5] == _detalhes.report_where) then
 				already_exists = index
 				break
@@ -3166,27 +3166,27 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		local atributo = self.atributo
 		local container = self.showing [atributo]._ActorTable
 
-		if (atributo == 1) then --> damage
-			if (self.sub_atributo == 5) then --> frags
+		if (atributo == 1) then --damage
+			if (self.sub_atributo == 5) then --frags
 				local frags = self.showing.frags
 				local reportarFrags = {}
 				for name, amount in pairs (frags) do
-					--> string para imprimir direto sem calculos
+					--string para imprimir direto sem calculos
 					reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name}
 				end
 				container = reportarFrags
 				container_amount = #reportarFrags
 				keyName = "frag"
 
-			elseif (self.sub_atributo == 7) then --> auras e voidzones
+			elseif (self.sub_atributo == 7) then --auras e voidzones
 
 				total, keyName, first, container_amount, container, name_member = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 
-			elseif (self.sub_atributo == 8) then --> damage taken by spell
+			elseif (self.sub_atributo == 8) then --damage taken by spell
 
 				total, keyName, first, container_amount, container = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 
-				for _, t in ipairs (container) do
+				for _, t in ipairs(container) do
 					t.nome = _detalhes:GetSpellLink(t.spellid)
 				end
 
@@ -3198,20 +3198,20 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 				end
 			end
-		elseif (atributo == 2) then --> heal
+		elseif (atributo == 2) then --heal
 			total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
 
 			if (self.sub_atributo == 1) then
 				keyNameSec = "hps"
 			end
-		elseif (atributo == 3) then --> energy
+		elseif (atributo == 3) then --energy
 			total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
-		elseif (atributo == 4) then --> misc
-			if (self.sub_atributo == 5) then --> mortes
+		elseif (atributo == 4) then --misc
+			if (self.sub_atributo == 5) then --mortes
 
 				local mortes = self.showing.last_events_tables
 				local reportarMortes = {}
-				for index, morte in ipairs (mortes) do
+				for index, morte in ipairs(mortes) do
 					reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
 				end
 				container = reportarMortes
@@ -3220,7 +3220,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			else
 				total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
 			end
-		elseif (atributo == 5) then --> custom
+		elseif (atributo == 5) then --custom
 
 			if (_detalhes.custom [self.sub_atributo]) then
 				total, container, first, container_amount, nm = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
@@ -3246,8 +3246,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 				-- get the total
 				local amount, is_string
-				if (type (actor [keyName]) == "number") then
-					amount = _math_floor (actor [keyName])
+				if (type(actor [keyName]) == "number") then
+					amount = _math_floor(actor [keyName])
 				else
 					amount = actor [keyName]
 					is_string = true
@@ -3505,17 +3505,17 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 
 	local editbox = _detalhes.janela_report.editbox
-	if (editbox.focus) then --> n�o precionou enter antes de clicar no okey
+	if (editbox.focus) then --n�o precionou enter antes de clicar no okey
 		local texto = _detalhes:trim (editbox:GetText())
 		if (_string_len (texto) > 0) then
 			_detalhes.report_to_who = texto
 			editbox:AddHistoryLine (texto)
-			editbox:SetText (texto)
+			editbox:SetText(texto)
 		else
 			_detalhes.report_to_who = ""
-			editbox:SetText ("")
+			editbox:SetText("")
 		end
-		editbox.perdeu_foco = true --> isso aqui pra quando estiver editando e clicar em outra caixa
+		editbox.perdeu_foco = true --isso aqui pra quando estiver editando e clicar em outra caixa
 		editbox:ClearFocus()
 	end
 
@@ -3572,7 +3572,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 		return
 
-	elseif (to_who == "WHISPER") then --> whisper
+	elseif (to_who == "WHISPER") then --whisper
 
 		local alvo = _detalhes.report_to_who
 
@@ -3590,7 +3590,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 		end
 		return
 
-	elseif (to_who == "WHISPER2") then --> whisper target
+	elseif (to_who == "WHISPER2") then --whisper target
 		to_who = "WHISPER"
 
 		local alvo

@@ -48,7 +48,7 @@ DF:Mixin(DropDownMetaFunctions, DF.FrameMixin)
 	end
 
 ------------------------------------------------------------------------------------------------------------
---> members
+--members
 
 	--selected value
 	local gmember_value = function(object)
@@ -910,7 +910,7 @@ function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize)
 end
 
 ------------------------------------------------------------------------------------------------------------
---> template
+--template
 
 function DropDownMetaFunctions:SetTemplate(template)
 	self.template = template
@@ -991,7 +991,7 @@ function DropDownMetaFunctions:RefreshDropIcon()
 end
 
 ------------------------------------------------------------------------------------------------------------
---> object constructor
+--object constructor
 
 function DF:CreateDropDown(parent, func, default, width, height, member, name, template)
 	return DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
@@ -1150,11 +1150,11 @@ function DF:CreateNewDropdownFrame(parent, name)
 	newDropdownFrame.text = text
 
 	local arrowHightlight = newDropdownFrame:CreateTexture("$parent_ArrowTexture2", "OVERLAY", nil, 2)
-	arrowHightlight:SetPoint ("right", newDropdownFrame, "right", 5, -1)
-	arrowHightlight:SetBlendMode ("ADD")
-	arrowHightlight:SetTexture ([[Interface\Buttons\UI-ScrollBar-ScrollDownButton-Highlight]])
+	arrowHightlight:SetPoint("right", newDropdownFrame, "right", 5, -1)
+	arrowHightlight:SetBlendMode("ADD")
+	arrowHightlight:SetTexture([[Interface\Buttons\UI-ScrollBar-ScrollDownButton-Highlight]])
 	arrowHightlight:Hide()
-	arrowHightlight:SetSize (32, 28)
+	arrowHightlight:SetSize(32, 28)
 	newDropdownFrame.arrowTexture2 = arrowHightlight
 
 	local arrowTexture = newDropdownFrame:CreateTexture("$parent_ArrowTexture", "OVERLAY", nil, 1)
@@ -1190,7 +1190,7 @@ function DF:CreateNewDropdownFrame(parent, name)
 	child:SetSize(150, 150)
 	child:SetPoint("topleft", scroll, "topleft", 0, 0)
 	child:SetBackdrop(childBackdrop)
-	child:SetBackdropColor (0, 0, 0, 1)
+	child:SetBackdropColor(0, 0, 0, 1)
 
 	local backgroundTexture = child:CreateTexture(nil, "background")
 	backgroundTexture:SetAllPoints()

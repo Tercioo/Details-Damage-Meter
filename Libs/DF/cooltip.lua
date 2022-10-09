@@ -296,7 +296,7 @@ function DF:CreateCoolTip()
 		end
 	end
 
-	--> main frame
+	--main frame
 		local frame1 = GameCooltipFrame1
 		if (not GameCooltipFrame1) then
 			frame1 = CreateFrame("Frame", "GameCooltipFrame1", UIParent, "BackdropTemplate")
@@ -310,7 +310,7 @@ function DF:CreateCoolTip()
 
 		createTooltipFrames(frame1)
 
-	--> secondary frame
+	--secondary frame
 		local frame2 = GameCooltipFrame2
 		if (not GameCooltipFrame2) then
 			frame2 = CreateFrame("Frame", "GameCooltipFrame2", UIParent, "BackdropTemplate")
@@ -1863,13 +1863,13 @@ function DF:CreateCoolTip()
 
 			if (centerY) then
 				if (centerY + helpScreenHeight > screenHeight) then
-					--> out of top side
+					--out of top side
 					local moveDownOffset = (centerY + helpScreenHeight) - screenHeight
 					gameCooltip.internal_y_mod = -moveDownOffset
 					return gameCooltip:SetMyPoint(host, 0, -moveDownOffset)
 
 				elseif (centerY - helpScreenHeight < 0) then
-					--> out of bottom side
+					--out of bottom side
 					local moveUpOffset = centerY - helpScreenHeight
 					gameCooltip.internal_y_mod = moveUpOffset * -1
 					return gameCooltip:SetMyPoint(host, 0, moveUpOffset * -1)

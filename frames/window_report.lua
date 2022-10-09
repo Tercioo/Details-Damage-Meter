@@ -5,7 +5,7 @@ local Details = _G._detalhes
 local gump = Details.gump
 local _
 
---> details API functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--details API functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	function Details:FastReportWindow(window)
 		if (not DetailsReportWindow) then
@@ -154,7 +154,7 @@ local _
 		Details.copypasteframe.EditBox:SetFocus(true)
 	end
 
---> internal details report functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--internal details report functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	function Details:Reportar(param2, options, arg3, id)
 		GameCooltip2:Hide()
 
@@ -305,10 +305,10 @@ local createDropdown = function(thisFrame)
 			end
 		end
 
-		local channels = {GetChannelList()} --> coloca o resultado em uma tabela .. {id1, canal1, id2, canal2}
+		local channels = {GetChannelList()} --coloca o resultado em uma tabela .. {id1, canal1, id2, canal2}
 		--09/august/2018: GetChannelList passed to return 3 values for each channel instead of 2
 
-		for i = 1, #channels, 3 do --> total de canais
+		for i = 1, #channels, 3 do --total de canais
 			reportChannelsTable[#reportChannelsTable + 1] = {iconsize = iconsize, value = "CHANNEL|" .. channels[i+1], label = channels[i] .. ". " .. channels[i+1], onclick = onClick, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], texcoord = {0.3046875, 0.4453125, 0.109375, 0.390625}, iconcolor = {149/255, 112/255, 112/255}}
 		end
 
@@ -484,7 +484,7 @@ local createDropdown = function(thisFrame)
 				editbox:SetText("")
 			end
 
-			editbox.perdeu_foco = true --> isso aqui pra quando estiver editando e clicar em outra caixa
+			editbox.perdeu_foco = true --isso aqui pra quando estiver editando e clicar em outra caixa
 			editbox:ClearFocus()
 		end)
 
@@ -608,7 +608,7 @@ local createDropdown = function(thisFrame)
 		window.dropdown:SetPoint("topleft", window, "topleft", anchorX, -30)
 		window.dropdown:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-		window.dropdown:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.dropdown:SetBackdropBorderColor(0, 0, 0, 0.5)
 		window.dropdown:SetBackdropColor(0, 0, 0, 0.1)
 
 		window.wisp_who:ClearAllPoints()
@@ -619,7 +619,7 @@ local createDropdown = function(thisFrame)
 		window.editbox:SetHeight(20)
 		window.editbox:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-		window.editbox:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.editbox:SetBackdropBorderColor(0, 0, 0, 0.5)
 		window.editbox:SetBackdropColor(0, 0, 0, 0.3)
 
 		window.linhas_amt:ClearAllPoints()
@@ -629,7 +629,7 @@ local createDropdown = function(thisFrame)
 		window.slider:SetPoint("topleft", window.linhas_amt, "bottomleft", 0, -3)
 		window.slider:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-		window.slider:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.slider:SetBackdropBorderColor(0, 0, 0, 0.5)
 		window.slider:SetBackdropColor(0, 0, 0, 0.3)
 
 		window.slider.thumb:SetTexture([[Interface\AddOns\Details\images\icons2]])
@@ -643,7 +643,7 @@ local createDropdown = function(thisFrame)
 		reverse_checkbox:ClearAllPoints()
 		reverse_checkbox:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-		reverse_checkbox:SetBackdropBorderColor (0, 0, 0, 0.5)
+		reverse_checkbox:SetBackdropBorderColor(0, 0, 0, 0.5)
 		reverse_checkbox:SetBackdropColor(0, 0, 0, 0.3)
 		reverse_checkbox:SetPoint("topleft", window.slider, "bottomleft", 0, -8)
 		reverse_checkbox:SetSize(14, 14)
@@ -665,7 +665,7 @@ local createDropdown = function(thisFrame)
 		window:SetHeight(195)
 		window:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
 		window:SetBackdropColor(1, 1, 1, 1)
-		window:SetBackdropBorderColor (0, 0, 0, 1)
+		window:SetBackdropBorderColor(0, 0, 0, 1)
 
 		if (not window.widgets) then
 			window.widgets = {}
@@ -676,7 +676,7 @@ local createDropdown = function(thisFrame)
 			titlebar:SetHeight(20)
 			titlebar:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 			titlebar:SetBackdropColor(.5, .5, .5, 1)
-			titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+			titlebar:SetBackdropBorderColor(0, 0, 0, 1)
 
 			local bg1 = window:CreateTexture(nil, "background")
 			bg1:SetTexture([[Interface\AddOns\Details\images\background]], true)
@@ -895,7 +895,7 @@ local createDropdown = function(thisFrame)
 		--close button
 		window.fechar = CreateFrame("Button", nil, window, "UIPanelCloseButton")
 		window.fechar:SetScript("OnClick", function()
-			Details.FadeHandler.Fader (window, 1)
+			Details.FadeHandler.Fader(window, 1)
 			Details.janela_report.ativa = false
 		end)
 

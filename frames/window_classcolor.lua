@@ -4,7 +4,7 @@ local Details = _G.Details
 local DF = _G.DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
---> config class colors
+--config class colors
 function Details:OpenClassColorsConfig()
     if (not _G.DetailsClassColorManager) then
         DF:CreateSimplePanel (UIParent, 300, 425, Loc ["STRING_OPTIONS_CLASSCOLOR_MODIFY"], "DetailsClassColorManager")
@@ -13,8 +13,8 @@ function Details:OpenClassColorsConfig()
         DF:ApplyStandardBackdrop(panel)
         panel:SetBackdropColor(.1, .1, .1, .9)
 
-        local upper_panel = CreateFrame ("frame", nil, panel,"BackdropTemplate")
-        upper_panel:SetAllPoints (panel)
+        local upper_panel = CreateFrame("frame", nil, panel,"BackdropTemplate")
+        upper_panel:SetAllPoints(panel)
         upper_panel:SetFrameLevel (panel:GetFrameLevel()+3)
 
         local y = -50
@@ -24,7 +24,7 @@ function Details:OpenClassColorsConfig()
             Details.class_colors [self.MyObject.my_class][1] = r
             Details.class_colors [self.MyObject.my_class][2] = g
             Details.class_colors [self.MyObject.my_class][3] = b
-            Details:RefreshMainWindow (-1, true)
+            Details:RefreshMainWindow(-1, true)
         end
 
         local set_color = function(self, button, class, index)
@@ -40,7 +40,7 @@ function Details:OpenClassColorsConfig()
             Details.class_colors [self.MyObject.my_class][1] = r
             Details.class_colors [self.MyObject.my_class][2] = g
             Details.class_colors [self.MyObject.my_class][3] = b
-            Details:RefreshMainWindow (-1, true)
+            Details:RefreshMainWindow(-1, true)
         end
 
         local on_enter = function(self, capsule)
@@ -86,8 +86,8 @@ function Details:OpenClassColorsConfig()
             button.my_icon = icon
             button.my_texture = backgroundTexture
             button.my_class = className
-            button:SetHook ("OnEnter", on_enter)
-            button:SetHook ("OnLeave", on_leave)
+            button:SetHook("OnEnter", on_enter)
+            button:SetHook("OnLeave", on_leave)
             button:SetClickFunction (reset_color, nil, nil, "RightClick")
             panel.buttons [className] = button
         end

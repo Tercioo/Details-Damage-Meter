@@ -42,7 +42,7 @@ function Details.CooldownTracking.DisableTracker()
 end
 
 
---> Library Open Raid Callbacks
+--Library Open Raid Callbacks
     --callback on the event 'CooldownListUpdate', this is triggered when a player in the group sent the list of cooldowns
     --@unitId: which unit got updated
     --@unitCooldows: a table with [spellId] = cooldownInfo
@@ -100,10 +100,10 @@ end
     end
 
 
---> Frames
+--Frames
     --hide all bars created
     function Details.CooldownTracking.HideAllBars()
-        for _, bar in ipairs (DetailsOnlineCDTrackerScreenPanel.bars) do
+        for _, bar in ipairs(DetailsOnlineCDTrackerScreenPanel.bars) do
             bar:ClearAllPoints()
             bar:Hide()
 
@@ -210,7 +210,7 @@ end
         end
     end
 
---> update cooldown frames based on the amount of players in the group or raid
+--update cooldown frames based on the amount of players in the group or raid
     function Details.CooldownTracking.RefreshCooldownFrames()
         local screenPanel = DetailsOnlineCDTrackerScreenPanel
 
@@ -333,7 +333,7 @@ end
     end
 
 
---> Options panel
+--Options panel
 
     --initialize the cooldown options window and embed it to Details! options panel
     function Details:InitializeCDTrackerWindow()

@@ -1292,14 +1292,14 @@ function GraphFunctions:SetYLabels(Left, Right)
 end
 
 function GraphFunctions:SetLineTexture(texture)
-	if (type (texture) ~= "string") then
+	if (type(texture) ~= "string") then
 		return assert (false, "Parameter 1 for SetLineTexture must be a string")
 	end
 
-	--> full path
+	--full path
 	if (texture:find ("\\") or texture:find ("//")) then 
 		self.CustomLine = texture
-	--> using an image inside lib-graph folder
+	--using an image inside lib-graph folder
 	else 
 		self.CustomLine = TextureDirectory..texture
 	end
@@ -1308,7 +1308,7 @@ end
 function GraphFunctions:SetBorderSize(border, size)
 	border = string.lower (border)
 	
-	if (type (size) ~= "number") then
+	if (type(size) ~= "number") then
 		return assert (false, "Parameter 2 for SetBorderSize must be a number")
 	end
 	
@@ -1711,7 +1711,7 @@ function GraphFunctions:RefreshLineGraph()
 
 		if not self.LockOnXMin then
 			if (self.CustomLeftBorder) then
-				self.XMin = MinX + self.CustomLeftBorder --> custom size of left border
+				self.XMin = MinX + self.CustomLeftBorder --custom size of left border
 			else
 				self.XMin = MinX - XBorder
 			end
@@ -1719,7 +1719,7 @@ function GraphFunctions:RefreshLineGraph()
 		
 		if not self.LockOnXMax then
 			if (self.CustomRightBorder) then
-				self.XMax = MaxX + self.CustomRightBorder --> custom size of right border
+				self.XMax = MaxX + self.CustomRightBorder --custom size of right border
 			else
 				self.XMax = MaxX + XBorder
 			end
@@ -1727,7 +1727,7 @@ function GraphFunctions:RefreshLineGraph()
 		
 		if not self.LockOnYMin then
 			if (self.CustomBottomBorder) then
-				self.YMin = MinY + self.CustomBottomBorder --> custom size of bottom border
+				self.YMin = MinY + self.CustomBottomBorder --custom size of bottom border
 			else
 				self.YMin = MinY - YBorder
 			end
@@ -1735,7 +1735,7 @@ function GraphFunctions:RefreshLineGraph()
 		
 		if not self.LockOnYMax then
 			if (self.CustomTopBorder) then
-				self.YMax = MaxY + self.CustomTopBorder --> custom size of top border
+				self.YMax = MaxY + self.CustomTopBorder --custom size of top border
 			else
 				self.YMax = MaxY + YBorder
 			end
@@ -1905,11 +1905,11 @@ function lib:DrawLine(C, sx, sy, ex, ey, w, color, layer, linetexture)
 
 	local T = tremove(C.GraphLib_Lines) or C:CreateTexture(nil, "ARTWORK")
 	
-	if linetexture then --> this data series texture
+	if linetexture then --this data series texture
 		T:SetTexture(linetexture)
-	elseif C.CustomLine then --> overall chart texture
+	elseif C.CustomLine then --overall chart texture
 		T:SetTexture(C.CustomLine)
-	else --> no texture assigned, use default
+	else --no texture assigned, use default
 		T:SetTexture(TextureDirectory.."line")
 	end
 	

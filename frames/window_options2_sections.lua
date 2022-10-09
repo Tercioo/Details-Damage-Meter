@@ -146,7 +146,7 @@ end
 do
     local buildSection = function(sectionFrame)
 
-        --> abbreviation options
+        --abbreviation options
             local icon = [[Interface\COMMON\mini-hourglass]]
             local iconcolor = {1, 1, 1, .5}
             local iconsize = {14, 14}
@@ -171,7 +171,7 @@ do
                 return abbreviationOptions
             end
 
-        --> number system
+        --number system
             local onSelectNumeralSystem = function(_, _, systemNumber)
                 _detalhes:SelectNumericalSystem(systemNumber)
             end
@@ -194,7 +194,7 @@ do
                 return numeralSystems
             end
 
-        --> time measure type
+        --time measure type
             local onSelectTimeType = function(_, _, timetype)
                 _detalhes.time_type = timetype
                 _detalhes.time_type_original = timetype
@@ -210,7 +210,7 @@ do
                 return timetypeOptions
             end
 
-        --> auto erase | erase data
+        --auto erase | erase data
             local onSelectEraseData = function(_, _, eraseType)
                 _detalhes.segments_auto_erase = eraseType
                 afterUpdate()
@@ -225,7 +225,7 @@ do
                 return eraseDataOptions
             end
 
-        --> deathlog limit
+        --deathlog limit
             local onSelectDeathLogLimit = function(_, _, limitAmount)
                 _detalhes:SetDeathLogLimit(limitAmount)
             end
@@ -742,7 +742,7 @@ do
                 end
             end
 
-        --> skin selection
+        --skin selection
             local onSelectSkin = function(_, _, skinName)
                 if (isGroupEditing()) then
                     Details:InstanceGroupCall(currentInstance, "OptionPanelOnChangeSkin", skinName)
@@ -762,7 +762,7 @@ do
                 return skinOptions
             end
 
-        --> save skin
+        --save skin
             local saveAsSkin = function(skinName, dontSave)
                 local fileName = skinName or ""
 
@@ -777,7 +777,7 @@ do
                 
                 for key, value in pairs (currentInstance) do
                     if (_detalhes.instance_defaults[key] ~= nil) then
-                        if (type (value) == "table") then
+                        if (type(value) == "table") then
                             savedObject[key] = Details.CopyTable(value)
                         else
                             savedObject[key] = value
@@ -792,7 +792,7 @@ do
                 return savedObject
             end
 
-        --> load skin
+        --load skin
 		local loadSkin = function(instance, skinObject)
             function Details:LoadSkinFromOptionsPanel(skinObject)
                 --set skin preset
@@ -804,7 +804,7 @@ do
                 --overwrite all instance parameters with saved ones
                 for key, value in pairs (skinObject) do
                     if (key ~= "skin" and not _detalhes.instance_skin_ignored_values[key]) then
-                        if (type (value) == "table") then
+                        if (type(value) == "table") then
                             instance[key] = Details.CopyTable (value)
                         else
                             instance[key] = value
@@ -823,11 +823,11 @@ do
             end
         end
 
-        --> import skin string
+        --import skin string
             local importSaved = function()
                 --when clicking in the okay button in the import window, it send the text in the first argument
                 _detalhes:ShowImportWindow("", function(skinString)
-                    if (type (skinString) ~= "string" or string.len(skinString) < 2) then
+                    if (type(skinString) ~= "string" or string.len(skinString) < 2) then
                         return
                     end
 
@@ -841,7 +841,7 @@ do
                         Details.options.SetCurrentInstanceAndRefresh(currentInstance)
                         afterUpdate()
                     else
-                        Details:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
+                        Details:Msg(Loc ["STRING_CUSTOM_IMPORT_ERROR"])
                     end
                 
                 end, "Details! Import Skin (paste string)") --localize-me
@@ -936,7 +936,7 @@ do
                 end,
                 values = function()
                     local loadtable = {}
-                    for index, _table in ipairs (_detalhes.savedStyles) do
+                    for index, _table in ipairs(_detalhes.savedStyles) do
                         tinsert (loadtable, {value = index, label = _table.name, onclick = function() loadSkin(currentInstance, _table) end,
                         icon = "Interface\\GossipFrame\\TabardGossipIcon", iconcolor = {.7, .7, .5, 1}})
                     end
@@ -953,7 +953,7 @@ do
                 end,
                 values = function()
                     local loadtable = {}
-                    for index, _table in ipairs (_detalhes.savedStyles) do
+                    for index, _table in ipairs(_detalhes.savedStyles) do
                         tinsert (loadtable, {value = index, label = _table.name, onclick = function(_, _, index)
                             table.remove (_detalhes.savedStyles, index)
                             Details.options.SetCurrentInstanceAndRefresh(currentInstance)
@@ -975,13 +975,13 @@ do
                 end,
                 values = function()
                     local loadtable = {}
-                    for index, _table in ipairs (_detalhes.savedStyles) do
+                    for index, _table in ipairs(_detalhes.savedStyles) do
                         tinsert (loadtable, {value = index, label = _table.name, onclick = function(_, _, index)
                             local compressedData = Details:CompressData(_detalhes.savedStyles[index], "print")
                             if (compressedData) then
                                 _detalhes:ShowImportWindow(compressedData, nil, "Details! Export Skin")
                             else
-                                Details:Msg ("failed to export skin.") --localize-me
+                                Details:Msg("failed to export skin.") --localize-me
                             end
                             Details.options.SetCurrentInstanceAndRefresh(currentInstance)
                             afterUpdate()
@@ -1803,7 +1803,7 @@ end
 -- ~04 bars texts
 do
 
-    --> text font selection
+    --text font selection
         local onSelectFont = function(_, instance, fontName)
             editInstanceSetting(currentInstance, "SetBarTextSettings", nil, fontName)
             afterUpdate()
@@ -1819,7 +1819,7 @@ do
             return fontTable
         end
 
-	--> percent type
+	--percent type
         local onSelectPercent = function(_, instance, percentType)
             editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, percentType)
             afterUpdate()
@@ -1833,7 +1833,7 @@ do
             return percentTable
         end
 
-    --> brackets
+    --brackets
         local onSelectBracket = function(_, instance, value)
             editInstanceSetting(currentInstance, "SetBarRightTextSettings", nil, nil, nil, value)
             afterUpdate()
@@ -1850,7 +1850,7 @@ do
 			return BracketTable
         end
     
-    --> separators
+    --separators
         local onSelectSeparator = function(_, instance, value)
             editInstanceSetting(currentInstance, "SetBarRightTextSettings", nil, nil, nil, nil, value)
             afterUpdate()
@@ -2188,7 +2188,7 @@ do
         afterUpdate()
     end
 
-    --> menu text face
+    --menu text face
         local onSelectFont = function(_, _, fontName)
             _detalhes.font_faces.menus = fontName
         end
@@ -2203,7 +2203,7 @@ do
             return fontTable
         end
 
-    --> attribute text font
+    --attribute text font
         local on_select_attribute_font = function(self, instance, fontName)
             editInstanceSetting(currentInstance, "AttributeMenu", nil, nil, nil, fontName)
             afterUpdate()
@@ -2218,14 +2218,14 @@ do
             return fonts
         end
 
-    --> icon set menu
+    --icon set menu
         local on_select_icon_set = function(self, instance, texturePath)
             editInstanceSetting(currentInstance, "toolbar_icon_file", texturePath)
             editInstanceSetting(currentInstance, "ChangeSkin")
             afterUpdate()
         end
 
-    --> custom title bar texture
+    --custom title bar texture
         local onSelectCustomTitleBarTexture =  function(_, instance, textureName)
             editInstanceSetting(currentInstance, "SetTitleBarSettings", nil, nil, textureName)
             editInstanceSetting(currentInstance, "RefreshTitleBar")
@@ -2717,7 +2717,7 @@ end
 -- ~06 - body setings
 do
 
-    --> frame strata options
+    --frame strata options
         local strata = {
             ["BACKGROUND"] = "Background",
             ["LOW"] = "Low",
@@ -2740,7 +2740,7 @@ do
         }
         local buildStrataMenu = function() return strataTable end
 
-    --> backdrop texture
+    --backdrop texture
         local onBackdropSelect = function(_, instance, backdropName)
             editInstanceSetting(currentInstance, "SetBackdropTexture", backdropName)
             afterUpdate()
@@ -2757,7 +2757,7 @@ do
             return backdropTable
         end
 
-    --> instance selector selection
+    --instance selector selection
         local onSelectInstance = function() end
 
         local buildInstanceMenu = function()
@@ -3103,7 +3103,7 @@ end
 do
     local buildSection = function(sectionFrame)
 
-    --> update micro displays
+    --update micro displays
         local updateMicroFrames = function()
             local instance = currentInstance
         
@@ -3209,14 +3209,14 @@ do
         sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
-        do --> micro displays
+        do --micro displays
             
             --statics texts
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplaysAnchor", "MicroDisplaysAnchor", Loc ["STRING_OPTIONS_MICRODISPLAY_ANCHOR"], "GameFontNormal")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayLeftLabel", "MicroDisplayLeftLabel", Loc ["STRING_ANCHOR_LEFT"], "GameFontHighlightLeft")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayCenterLabel", "MicroDisplayCenterLabel", Loc ["STRING_CENTER_UPPER"], "GameFontHighlightLeft")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayRightLabel", "MicroDisplayRightLabel", Loc ["STRING_ANCHOR_RIGHT"], "GameFontHighlightLeft")
-            DF:NewLabel (sectionFrame, _, "$parentMicroDisplayWarningLabel", "MicroDisplayWarningLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_WARNING"], "GameFontHighlightSmall", 10, "orange")
+            DF:NewLabel(sectionFrame, _, "$parentMicroDisplaysAnchor", "MicroDisplaysAnchor", Loc ["STRING_OPTIONS_MICRODISPLAY_ANCHOR"], "GameFontNormal")
+            DF:NewLabel(sectionFrame, _, "$parentMicroDisplayLeftLabel", "MicroDisplayLeftLabel", Loc ["STRING_ANCHOR_LEFT"], "GameFontHighlightLeft")
+            DF:NewLabel(sectionFrame, _, "$parentMicroDisplayCenterLabel", "MicroDisplayCenterLabel", Loc ["STRING_CENTER_UPPER"], "GameFontHighlightLeft")
+            DF:NewLabel(sectionFrame, _, "$parentMicroDisplayRightLabel", "MicroDisplayRightLabel", Loc ["STRING_ANCHOR_RIGHT"], "GameFontHighlightLeft")
+            DF:NewLabel(sectionFrame, _, "$parentMicroDisplayWarningLabel", "MicroDisplayWarningLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_WARNING"], "GameFontHighlightSmall", 10, "orange")
 
             --dropdown on select option
             local onMicroDisplaySelect = function(_, _, micro_display)
@@ -3236,21 +3236,21 @@ do
             --dropdown options
             local buildLeftMicroMenu = function()
                 local options = {}
-                for index, _name_and_icon in ipairs (_detalhes.StatusBar.Menu) do 
+                for index, _name_and_icon in ipairs(_detalhes.StatusBar.Menu) do 
                     options [#options+1] = {value = {"left", index}, label = _name_and_icon [1], onclick = onMicroDisplaySelect, icon = _name_and_icon [2]}
                 end
                 return options
             end
             local buildCenterMicroMenu = function()
                 local options = {}
-                for index, _name_and_icon in ipairs (_detalhes.StatusBar.Menu) do 
+                for index, _name_and_icon in ipairs(_detalhes.StatusBar.Menu) do 
                     options [#options+1] = {value = {"center", index}, label = _name_and_icon [1], onclick = onMicroDisplaySelect, icon = _name_and_icon [2]}
                 end
                 return options
             end
             local buildRightMicroMenu = function()
                 local options = {}
-                for index, _name_and_icon in ipairs (_detalhes.StatusBar.Menu) do 
+                for index, _name_and_icon in ipairs(_detalhes.StatusBar.Menu) do 
                     options [#options+1] = {value = {"right", index}, label = _name_and_icon [1], onclick = onMicroDisplaySelect, icon = _name_and_icon [2]}
                 end
                 return options
@@ -3264,9 +3264,9 @@ do
             DF:NewDropDown (sectionFrame, _, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, dropdown_height, buildCenterMicroMenu, nil, options_dropdown_template)
             DF:NewDropDown (sectionFrame, _, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, dropdown_height, buildRightMicroMenu, nil, options_dropdown_template)
             
-            sectionFrame.MicroDisplayLeftDropdown:SetPoint ("left", sectionFrame.MicroDisplayLeftLabel, "right", 2)
-            sectionFrame.MicroDisplayCenterDropdown:SetPoint ("left", sectionFrame.MicroDisplayCenterLabel, "right", 2)
-            sectionFrame.MicroDisplayRightDropdown:SetPoint ("left", sectionFrame.MicroDisplayRightLabel, "right", 2)
+            sectionFrame.MicroDisplayLeftDropdown:SetPoint("left", sectionFrame.MicroDisplayLeftLabel, "right", 2)
+            sectionFrame.MicroDisplayCenterDropdown:SetPoint("left", sectionFrame.MicroDisplayCenterLabel, "right", 2)
+            sectionFrame.MicroDisplayRightDropdown:SetPoint("left", sectionFrame.MicroDisplayRightLabel, "right", 2)
             
             sectionFrame.MicroDisplayLeftDropdown.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"]
             sectionFrame.MicroDisplayCenterDropdown.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"]
@@ -3286,15 +3286,15 @@ do
                 end
             end)
 
-            hideLeftMicroFrameButton:SetPoint ("left", sectionFrame.MicroDisplayLeftDropdown, "right", 2, 0)
-            hideLeftMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
-            hideLeftMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+            hideLeftMicroFrameButton:SetPoint("left", sectionFrame.MicroDisplayLeftDropdown, "right", 2, 0)
+            hideLeftMicroFrameButton:SetNormalTexture([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+            hideLeftMicroFrameButton:SetPushedTexture([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             hideLeftMicroFrameButton:GetNormalTexture():SetDesaturated (true)
             hideLeftMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
-            hideLeftMicroFrameButton:SetHook ("OnEnter", function(self, capsule)
+            hideLeftMicroFrameButton:SetHook("OnEnter", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("ADD")
             end)
-            hideLeftMicroFrameButton:SetHook ("OnLeave", function(self, capsule)
+            hideLeftMicroFrameButton:SetHook("OnLeave", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
 
@@ -3311,15 +3311,15 @@ do
                     self:GetNormalTexture():SetDesaturated (true)
                 end
             end)
-            HideCenterMicroFrameButton:SetPoint ("left", sectionFrame.MicroDisplayCenterDropdown, "right", 2, 0)
-            HideCenterMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
-            HideCenterMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+            HideCenterMicroFrameButton:SetPoint("left", sectionFrame.MicroDisplayCenterDropdown, "right", 2, 0)
+            HideCenterMicroFrameButton:SetNormalTexture([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+            HideCenterMicroFrameButton:SetPushedTexture([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             HideCenterMicroFrameButton:GetNormalTexture():SetDesaturated (true)
             HideCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
-            HideCenterMicroFrameButton:SetHook ("OnEnter", function(self, capsule)
+            HideCenterMicroFrameButton:SetHook("OnEnter", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("ADD")
             end)
-            HideCenterMicroFrameButton:SetHook ("OnLeave", function(self, capsule)
+            HideCenterMicroFrameButton:SetHook("OnLeave", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
             
@@ -3335,15 +3335,15 @@ do
                     self:GetNormalTexture():SetDesaturated (true)
                 end
             end)
-            HideRightMicroFrameButton:SetPoint ("left", sectionFrame.MicroDisplayRightDropdown, "right", 2, 0)
-            HideRightMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
-            HideRightMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+            HideRightMicroFrameButton:SetPoint("left", sectionFrame.MicroDisplayRightDropdown, "right", 2, 0)
+            HideRightMicroFrameButton:SetNormalTexture([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+            HideRightMicroFrameButton:SetPushedTexture([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
             HideRightMicroFrameButton:GetNormalTexture():SetDesaturated (true)
             HideRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
-            HideRightMicroFrameButton:SetHook ("OnEnter", function(self, capsule)
+            HideRightMicroFrameButton:SetHook("OnEnter", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("ADD")
             end)
-            HideRightMicroFrameButton:SetHook ("OnLeave", function(self, capsule)
+            HideRightMicroFrameButton:SetHook("OnLeave", function(self, capsule)
                 self:GetNormalTexture():SetBlendMode("BLEND")
             end)
 
@@ -3351,27 +3351,27 @@ do
                 currentInstance.StatusBar ["right"]:Setup()
                 currentInstance.StatusBar ["right"]:Setup()
             end)
-            configRightMicroFrameButton:SetPoint ("left", HideRightMicroFrameButton, "right", 1, -1)
-            configRightMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
-            configRightMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+            configRightMicroFrameButton:SetPoint("left", HideRightMicroFrameButton, "right", 1, -1)
+            configRightMicroFrameButton:SetNormalTexture([[Interface\Buttons\UI-OptionsButton]])
+            configRightMicroFrameButton:SetHighlightTexture([[Interface\Buttons\UI-OptionsButton]])
             configRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
             
             local configCenterMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayCenterDropdown, _, "$parentconfigCenterMicroFrameButton", "configCenterMicroFrameButton", 18, 18, function(self)
                 currentInstance.StatusBar ["center"]:Setup()
                 currentInstance.StatusBar ["center"]:Setup()
             end)
-            configCenterMicroFrameButton:SetPoint ("left", HideCenterMicroFrameButton, "right", 1, -1)
-            configCenterMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
-            configCenterMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+            configCenterMicroFrameButton:SetPoint("left", HideCenterMicroFrameButton, "right", 1, -1)
+            configCenterMicroFrameButton:SetNormalTexture([[Interface\Buttons\UI-OptionsButton]])
+            configCenterMicroFrameButton:SetHighlightTexture([[Interface\Buttons\UI-OptionsButton]])
             configCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
             
             local configLeftMicroFrameButton = DF:NewButton (sectionFrame.MicroDisplayLeftDropdown, _, "$parentconfigLeftMicroFrameButton", "configLeftMicroFrameButton", 18, 18, function(self)
                 currentInstance.StatusBar ["left"]:Setup()
                 currentInstance.StatusBar ["left"]:Setup()
             end)
-            configLeftMicroFrameButton:SetPoint ("left", hideLeftMicroFrameButton, "right", 1, -1)
-            configLeftMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
-            configLeftMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+            configLeftMicroFrameButton:SetPoint("left", hideLeftMicroFrameButton, "right", 1, -1)
+            configLeftMicroFrameButton:SetNormalTexture([[Interface\Buttons\UI-OptionsButton]])
+            configLeftMicroFrameButton:SetHighlightTexture([[Interface\Buttons\UI-OptionsButton]])
             configLeftMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
 
             local x = startX
@@ -3411,14 +3411,14 @@ do
         
         local on_enter = function(self)
         
-            self:SetBackdropColor (.5, .5, .5, .8)
+            self:SetBackdropColor(.5, .5, .5, .8)
             
             if (self ["toolbarPluginsIcon" .. self.id]) then
-                self ["toolbarPluginsIcon" .. self.id]:SetBlendMode ("ADD")
+                self ["toolbarPluginsIcon" .. self.id]:SetBlendMode("ADD")
             elseif (self ["raidPluginsIcon" .. self.id]) then
-                self ["raidPluginsIcon" .. self.id]:SetBlendMode ("ADD")
+                self ["raidPluginsIcon" .. self.id]:SetBlendMode("ADD")
             elseif (self ["soloPluginsIcon" .. self.id]) then
-                self ["soloPluginsIcon" .. self.id]:SetBlendMode ("ADD")
+                self ["soloPluginsIcon" .. self.id]:SetBlendMode("ADD")
             end
     
             if (self.plugin) then
@@ -3442,14 +3442,14 @@ do
         end
         
         local on_leave = function(self)
-            self:SetBackdropColor (.3, .3, .3, .3)
+            self:SetBackdropColor(.3, .3, .3, .3)
             
             if (self ["toolbarPluginsIcon" .. self.id]) then
-                self ["toolbarPluginsIcon" .. self.id]:SetBlendMode ("BLEND")
+                self ["toolbarPluginsIcon" .. self.id]:SetBlendMode("BLEND")
             elseif (self ["raidPluginsIcon" .. self.id]) then
-                self ["raidPluginsIcon" .. self.id]:SetBlendMode ("BLEND")
+                self ["raidPluginsIcon" .. self.id]:SetBlendMode("BLEND")
             elseif (self ["soloPluginsIcon" .. self.id]) then
-                self ["soloPluginsIcon" .. self.id]:SetBlendMode ("BLEND")
+                self ["soloPluginsIcon" .. self.id]:SetBlendMode("BLEND")
             end
     
             GameCooltip:Hide()
@@ -3457,32 +3457,32 @@ do
         
         local y = -20
         
-        --> toolbar
-        DF:NewLabel (anchorFrame, _, "$parentToolbarPluginsLabel", "toolbarLabel", Loc ["STRING_OPTIONS_PLUGINS_TOOLBAR_ANCHOR"], "GameFontNormal", 16)
-        anchorFrame.toolbarLabel:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+        --toolbar
+        DF:NewLabel(anchorFrame, _, "$parentToolbarPluginsLabel", "toolbarLabel", Loc ["STRING_OPTIONS_PLUGINS_TOOLBAR_ANCHOR"], "GameFontNormal", 16)
+        anchorFrame.toolbarLabel:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
         y = y - 30
         
         do
-            local descbar = anchorFrame:CreateTexture (nil, "artwork")
-            descbar:SetTexture (.3, .3, .3, .8)
-            descbar:SetPoint ("topleft", anchorFrame, "topleft", 5, y+3)
-            descbar:SetSize (650, 20)
-            DF:NewLabel (anchorFrame, _, "$parentDescNameLabel", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
-            anchorFrame.descNameLabel:SetPoint ("topleft", anchorFrame, "topleft", 15, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescAuthorLabel", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
-            anchorFrame.descAuthorLabel:SetPoint ("topleft", anchorFrame, "topleft", 180, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescVersionLabel", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
-            anchorFrame.descVersionLabel:SetPoint ("topleft", anchorFrame, "topleft", 290, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescEnabledLabel", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
-            anchorFrame.descEnabledLabel:SetPoint ("topleft", anchorFrame, "topleft", 400, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescOptionsLabel", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
-            anchorFrame.descOptionsLabel:SetPoint ("topleft", anchorFrame, "topleft", 510, y)
+            local descbar = anchorFrame:CreateTexture(nil, "artwork")
+            descbar:SetTexture(.3, .3, .3, .8)
+            descbar:SetPoint("topleft", anchorFrame, "topleft", 5, y+3)
+            descbar:SetSize(650, 20)
+            DF:NewLabel(anchorFrame, _, "$parentDescNameLabel", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
+            anchorFrame.descNameLabel:SetPoint("topleft", anchorFrame, "topleft", 15, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescAuthorLabel", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
+            anchorFrame.descAuthorLabel:SetPoint("topleft", anchorFrame, "topleft", 180, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescVersionLabel", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
+            anchorFrame.descVersionLabel:SetPoint("topleft", anchorFrame, "topleft", 290, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescEnabledLabel", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
+            anchorFrame.descEnabledLabel:SetPoint("topleft", anchorFrame, "topleft", 400, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescOptionsLabel", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+            anchorFrame.descOptionsLabel:SetPoint("topleft", anchorFrame, "topleft", 510, y)
         end
         
         y = y - 30
         
-        --> toolbar plugins loop
+        --toolbar plugins loop
         local i = 1
         local allplugins_toolbar = _detalhes.ToolBar.NameTable --where is store all plugins for the title bar
     
@@ -3511,47 +3511,47 @@ do
         for absName, pluginObject in pairs (allplugins_toolbar) do
         
             local bframe = CreateFrame("frame", "OptionsPluginToolbarBG", anchorFrame, "BackdropTemplate")
-            bframe:SetSize (640, 20)
-            bframe:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
-            bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
-            bframe:SetBackdropColor (.3, .3, .3, .3)
-            bframe:SetScript ("OnEnter", on_enter)
-            bframe:SetScript ("OnLeave", on_leave)
+            bframe:SetSize(640, 20)
+            bframe:SetPoint("topleft", anchorFrame, "topleft", 10, y)
+            bframe:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+            bframe:SetBackdropColor(.3, .3, .3, .3)
+            bframe:SetScript("OnEnter", on_enter)
+            bframe:SetScript("OnLeave", on_leave)
             bframe.plugin = pluginObject
             bframe.id = i
             
             DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
-            bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+            bframe ["toolbarPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
-            DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
-            bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
+            DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+            bframe ["toolbarPluginsLabel"..i]:SetPoint("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
             
-            DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
-            bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
+            DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+            bframe ["toolbarPluginsLabel2"..i]:SetPoint("topleft", anchorFrame, "topleft", 180, y-4)
             
-            DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
-            bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
+            DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+            bframe ["toolbarPluginsLabel3"..i]:SetPoint("topleft", anchorFrame, "topleft", 290, y-4)
             
             local plugin_stable = _detalhes:GetPluginSavedTable (absName)
             local plugin = _detalhes:GetPlugin (absName)
             DF:NewSwitch (bframe, _, "$parentToolbarSlider"..i, "toolbarPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
             bframe ["toolbarPluginsSlider"..i].PluginName = absName
             tinsert (anchorFrame.plugin_widgets, bframe ["toolbarPluginsSlider"..i])
-            bframe ["toolbarPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y)
+            bframe ["toolbarPluginsSlider"..i]:SetPoint("topleft", anchorFrame, "topleft", 415, y)
             bframe ["toolbarPluginsSlider"..i]:SetAsCheckBox()
             bframe ["toolbarPluginsSlider"..i].OnSwitch = function(self, _, value)
                 plugin_stable.enabled = value
                 plugin.__enabled = value
                 if (value) then
-                    _detalhes:SendEvent ("PLUGIN_ENABLED", plugin)
+                    _detalhes:SendEvent("PLUGIN_ENABLED", plugin)
                 else
-                    _detalhes:SendEvent ("PLUGIN_DISABLED", plugin)
+                    _detalhes:SendEvent("PLUGIN_DISABLED", plugin)
                 end
             end
             
             if (pluginObject.OpenOptionsPanel) then
                 DF:NewButton (bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 120, 20, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
-                bframe ["OptionsButton"..i]:SetPoint ("topleft", anchorFrame, "topleft", 510, y-0)
+                bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
                 bframe ["OptionsButton"..i]:SetTextColor (button_color_rgb)
                 bframe ["OptionsButton"..i]:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
             end
@@ -3579,35 +3579,35 @@ do
                     OpenOptionsPanel = false,
                 }
     
-                local bframe = CreateFrame ("frame", "OptionsPluginToolbarBG", anchorFrame,"BackdropTemplate")
-                bframe:SetSize (640, 20)
-                bframe:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
-                bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
-                bframe:SetBackdropColor (.3, .3, .3, .3)
-                bframe:SetScript ("OnEnter", on_enter)
-                bframe:SetScript ("OnLeave", on_leave)
+                local bframe = CreateFrame("frame", "OptionsPluginToolbarBG", anchorFrame,"BackdropTemplate")
+                bframe:SetSize(640, 20)
+                bframe:SetPoint("topleft", anchorFrame, "topleft", 10, y)
+                bframe:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+                bframe:SetBackdropColor(.3, .3, .3, .3)
+                bframe:SetScript("OnEnter", on_enter)
+                bframe:SetScript("OnLeave", on_leave)
 
                 bframe.id = i
                 bframe.hasDesc = allExistentToolbarPlugins [o] [4]
                 
                 DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
-                bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+                bframe ["toolbarPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
             
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
-                bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
+                DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+                bframe ["toolbarPluginsLabel"..i]:SetPoint("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
                 bframe ["toolbarPluginsLabel"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
-                bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
+                DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+                bframe ["toolbarPluginsLabel2"..i]:SetPoint("topleft", anchorFrame, "topleft", 180, y-4)
                 bframe ["toolbarPluginsLabel2"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
-                bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
+                DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+                bframe ["toolbarPluginsLabel3"..i]:SetPoint("topleft", anchorFrame, "topleft", 290, y-4)
                 bframe ["toolbarPluginsLabel3"..i].color = notInstalledColor
     
                 local installButton = DF:CreateButton (bframe, function() Details:CopyPaste (allExistentToolbarPlugins [o] [5]) end, 120, 20, "Install")
                 installButton:SetTemplate (options_button_template)
-                installButton:SetPoint ("topleft", anchorFrame, "topleft", 510, y-0)
+                installButton:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
                 
                 i = i + 1
                 y = y - 20
@@ -3617,26 +3617,26 @@ do
         y = y - 10
         
         --raid
-        DF:NewLabel (anchorFrame, _, "$parentRaidPluginsLabel", "raidLabel", Loc ["STRING_OPTIONS_PLUGINS_RAID_ANCHOR"], "GameFontNormal", 16)
-        anchorFrame.raidLabel:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+        DF:NewLabel(anchorFrame, _, "$parentRaidPluginsLabel", "raidLabel", Loc ["STRING_OPTIONS_PLUGINS_RAID_ANCHOR"], "GameFontNormal", 16)
+        anchorFrame.raidLabel:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
         y = y - 30
         
         do
-            local descbar = anchorFrame:CreateTexture (nil, "artwork")
-            descbar:SetTexture (.3, .3, .3, .8)
-            descbar:SetPoint ("topleft", anchorFrame, "topleft", 5, y+3)
-            descbar:SetSize (650, 20)
-            DF:NewLabel (anchorFrame, _, "$parentDescNameLabel2", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
-            anchorFrame.descNameLabel:SetPoint ("topleft", anchorFrame, "topleft", 15, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescAuthorLabel2", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
-            anchorFrame.descAuthorLabel:SetPoint ("topleft", anchorFrame, "topleft", 180, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescVersionLabel2", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
-            anchorFrame.descVersionLabel:SetPoint ("topleft", anchorFrame, "topleft", 290, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescEnabledLabel2", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
-            anchorFrame.descEnabledLabel:SetPoint ("topleft", anchorFrame, "topleft", 400, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescOptionsLabel2", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
-            anchorFrame.descOptionsLabel:SetPoint ("topleft", anchorFrame, "topleft", 510, y)
+            local descbar = anchorFrame:CreateTexture(nil, "artwork")
+            descbar:SetTexture(.3, .3, .3, .8)
+            descbar:SetPoint("topleft", anchorFrame, "topleft", 5, y+3)
+            descbar:SetSize(650, 20)
+            DF:NewLabel(anchorFrame, _, "$parentDescNameLabel2", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
+            anchorFrame.descNameLabel:SetPoint("topleft", anchorFrame, "topleft", 15, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescAuthorLabel2", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
+            anchorFrame.descAuthorLabel:SetPoint("topleft", anchorFrame, "topleft", 180, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescVersionLabel2", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
+            anchorFrame.descVersionLabel:SetPoint("topleft", anchorFrame, "topleft", 290, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescEnabledLabel2", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
+            anchorFrame.descEnabledLabel:SetPoint("topleft", anchorFrame, "topleft", 400, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescOptionsLabel2", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+            anchorFrame.descOptionsLabel:SetPoint("topleft", anchorFrame, "topleft", 510, y)
         end
         
         y = y - 30
@@ -3645,40 +3645,40 @@ do
         local allplugins_raid = _detalhes.RaidTables.NameTable
         for absName, pluginObject in pairs (allplugins_raid) do 
     
-            local bframe = CreateFrame ("frame", "OptionsPluginRaidBG", anchorFrame, "BackdropTemplate")
-            bframe:SetSize (640, 20)
-            bframe:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
-            bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
-            bframe:SetBackdropColor (.3, .3, .3, .3)
-            bframe:SetScript ("OnEnter", on_enter)
-            bframe:SetScript ("OnLeave", on_leave)
+            local bframe = CreateFrame("frame", "OptionsPluginRaidBG", anchorFrame, "BackdropTemplate")
+            bframe:SetSize(640, 20)
+            bframe:SetPoint("topleft", anchorFrame, "topleft", 10, y)
+            bframe:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+            bframe:SetBackdropColor(.3, .3, .3, .3)
+            bframe:SetScript("OnEnter", on_enter)
+            bframe:SetScript("OnLeave", on_leave)
             bframe.plugin = pluginObject
             bframe.id = i
             
             DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "raidPluginsIcon"..i, "$parentRaidPluginsIcon"..i)
-            bframe ["raidPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+            bframe ["raidPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
-            DF:NewLabel (bframe, _, "$parentRaidPluginsLabel"..i, "raidPluginsLabel"..i, pluginObject.__name)
-            bframe ["raidPluginsLabel"..i]:SetPoint ("left", bframe ["raidPluginsIcon"..i], "right", 2, 0)
+            DF:NewLabel(bframe, _, "$parentRaidPluginsLabel"..i, "raidPluginsLabel"..i, pluginObject.__name)
+            bframe ["raidPluginsLabel"..i]:SetPoint("left", bframe ["raidPluginsIcon"..i], "right", 2, 0)
             
-            DF:NewLabel (bframe, _, "$parentRaidPluginsLabel2"..i, "raidPluginsLabel2"..i, pluginObject.__author)
-            bframe ["raidPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
+            DF:NewLabel(bframe, _, "$parentRaidPluginsLabel2"..i, "raidPluginsLabel2"..i, pluginObject.__author)
+            bframe ["raidPluginsLabel2"..i]:SetPoint("topleft", anchorFrame, "topleft", 180, y-4)
             
-            DF:NewLabel (bframe, _, "$parentRaidPluginsLabel3"..i, "raidPluginsLabel3"..i, pluginObject.__version)
-            bframe ["raidPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
+            DF:NewLabel(bframe, _, "$parentRaidPluginsLabel3"..i, "raidPluginsLabel3"..i, pluginObject.__version)
+            bframe ["raidPluginsLabel3"..i]:SetPoint("topleft", anchorFrame, "topleft", 290, y-4)
             
             local plugin_stable = _detalhes:GetPluginSavedTable (absName)
             local plugin = _detalhes:GetPlugin (absName)
             DF:NewSwitch (bframe, _, "$parentRaidSlider"..i, "raidPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
             tinsert (anchorFrame.plugin_widgets, bframe ["raidPluginsSlider"..i])
             bframe ["raidPluginsSlider"..i].PluginName = absName
-            bframe ["raidPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y+1)
+            bframe ["raidPluginsSlider"..i]:SetPoint("topleft", anchorFrame, "topleft", 415, y+1)
             bframe ["raidPluginsSlider"..i]:SetAsCheckBox()
             bframe ["raidPluginsSlider"..i].OnSwitch = function(self, _, value)
                 plugin_stable.enabled = value
                 plugin.__enabled = value
                 if (not value) then
-                    for index, instancia in ipairs (_detalhes.tabela_instancias) do
+                    for index, instancia in ipairs(_detalhes.tabela_instancias) do
                         if (instancia.modo == 4) then -- 4 = raid
                             if (instancia:IsEnabled()) then
                                 _detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
@@ -3692,7 +3692,7 @@ do
             
             if (pluginObject.OpenOptionsPanel) then
                 DF:NewButton (bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 18, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
-                bframe ["OptionsButton"..i]:SetPoint ("topleft", anchorFrame, "topleft", 510, y-0)
+                bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
                 bframe ["OptionsButton"..i]:SetTextColor (button_color_rgb)
                 bframe ["OptionsButton"..i]:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
             end
@@ -3717,35 +3717,35 @@ do
                     OpenOptionsPanel = false,
                 }
     
-                local bframe = CreateFrame ("frame", "OptionsPluginToolbarBG", anchorFrame,"BackdropTemplate")
-                bframe:SetSize (640, 20)
-                bframe:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
-                bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
-                bframe:SetBackdropColor (.3, .3, .3, .3)
-                bframe:SetScript ("OnEnter", on_enter)
-                bframe:SetScript ("OnLeave", on_leave)
+                local bframe = CreateFrame("frame", "OptionsPluginToolbarBG", anchorFrame,"BackdropTemplate")
+                bframe:SetSize(640, 20)
+                bframe:SetPoint("topleft", anchorFrame, "topleft", 10, y)
+                bframe:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+                bframe:SetBackdropColor(.3, .3, .3, .3)
+                bframe:SetScript("OnEnter", on_enter)
+                bframe:SetScript("OnLeave", on_leave)
 
                 bframe.id = i
                 bframe.hasDesc = allExistentRaidPlugins [o] [4]
                 
                 DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
-                bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+                bframe ["toolbarPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
             
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
-                bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
+                DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+                bframe ["toolbarPluginsLabel"..i]:SetPoint("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
                 bframe ["toolbarPluginsLabel"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
-                bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
+                DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+                bframe ["toolbarPluginsLabel2"..i]:SetPoint("topleft", anchorFrame, "topleft", 180, y-4)
                 bframe ["toolbarPluginsLabel2"..i].color = notInstalledColor
                 
-                DF:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
-                bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
+                DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+                bframe ["toolbarPluginsLabel3"..i]:SetPoint("topleft", anchorFrame, "topleft", 290, y-4)
                 bframe ["toolbarPluginsLabel3"..i].color = notInstalledColor
     
                 local installButton = DF:CreateButton (bframe, function() Details:CopyPaste (allExistentRaidPlugins [o] [5]) end, 120, 20, "Install")
                 installButton:SetTemplate (options_button_template)
-                installButton:SetPoint ("topleft", anchorFrame, "topleft", 510, y-0)
+                installButton:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
                 
                 i = i + 1
                 y = y - 20
@@ -3755,26 +3755,26 @@ do
         y = y - 10
     
         -- solo
-        DF:NewLabel (anchorFrame, _, "$parentSoloPluginsLabel", "soloLabel", Loc ["STRING_OPTIONS_PLUGINS_SOLO_ANCHOR"], "GameFontNormal", 16)
-        anchorFrame.soloLabel:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+        DF:NewLabel(anchorFrame, _, "$parentSoloPluginsLabel", "soloLabel", Loc ["STRING_OPTIONS_PLUGINS_SOLO_ANCHOR"], "GameFontNormal", 16)
+        anchorFrame.soloLabel:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
         y = y - 30
         
         do
-            local descbar = anchorFrame:CreateTexture (nil, "artwork")
-            descbar:SetTexture (.3, .3, .3, .8)
-            descbar:SetPoint ("topleft", anchorFrame, "topleft", 5, y+3)
-            descbar:SetSize (650, 20)
-            DF:NewLabel (anchorFrame, _, "$parentDescNameLabel3", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
-            anchorFrame.descNameLabel:SetPoint ("topleft", anchorFrame, "topleft", 15, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescAuthorLabel3", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
-            anchorFrame.descAuthorLabel:SetPoint ("topleft", anchorFrame, "topleft", 180, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescVersionLabel3", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
-            anchorFrame.descVersionLabel:SetPoint ("topleft", anchorFrame, "topleft", 290, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescEnabledLabel3", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
-            anchorFrame.descEnabledLabel:SetPoint ("topleft", anchorFrame, "topleft", 400, y)
-            DF:NewLabel (anchorFrame, _, "$parentDescOptionsLabel3", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
-            anchorFrame.descOptionsLabel:SetPoint ("topleft", anchorFrame, "topleft", 510, y)
+            local descbar = anchorFrame:CreateTexture(nil, "artwork")
+            descbar:SetTexture(.3, .3, .3, .8)
+            descbar:SetPoint("topleft", anchorFrame, "topleft", 5, y+3)
+            descbar:SetSize(650, 20)
+            DF:NewLabel(anchorFrame, _, "$parentDescNameLabel3", "descNameLabel", Loc ["STRING_OPTIONS_PLUGINS_NAME"], "GameFontNormal", 12)
+            anchorFrame.descNameLabel:SetPoint("topleft", anchorFrame, "topleft", 15, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescAuthorLabel3", "descAuthorLabel", Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"], "GameFontNormal", 12)
+            anchorFrame.descAuthorLabel:SetPoint("topleft", anchorFrame, "topleft", 180, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescVersionLabel3", "descVersionLabel", Loc ["STRING_OPTIONS_PLUGINS_VERSION"], "GameFontNormal", 12)
+            anchorFrame.descVersionLabel:SetPoint("topleft", anchorFrame, "topleft", 290, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescEnabledLabel3", "descEnabledLabel", Loc ["STRING_ENABLED"], "GameFontNormal", 12)
+            anchorFrame.descEnabledLabel:SetPoint("topleft", anchorFrame, "topleft", 400, y)
+            DF:NewLabel(anchorFrame, _, "$parentDescOptionsLabel3", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+            anchorFrame.descOptionsLabel:SetPoint("topleft", anchorFrame, "topleft", 510, y)
         end
         
         y = y - 30
@@ -3783,40 +3783,40 @@ do
         local allplugins_solo = _detalhes.SoloTables.NameTable
         for absName, pluginObject in pairs (allplugins_solo) do 
         
-            local bframe = CreateFrame ("frame", "OptionsPluginSoloBG", anchorFrame,"BackdropTemplate")
-            bframe:SetSize (640, 20)
-            bframe:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
-            bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
-            bframe:SetBackdropColor (.3, .3, .3, .3)
-            bframe:SetScript ("OnEnter", on_enter)
-            bframe:SetScript ("OnLeave", on_leave)
+            local bframe = CreateFrame("frame", "OptionsPluginSoloBG", anchorFrame,"BackdropTemplate")
+            bframe:SetSize(640, 20)
+            bframe:SetPoint("topleft", anchorFrame, "topleft", 10, y)
+            bframe:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+            bframe:SetBackdropColor(.3, .3, .3, .3)
+            bframe:SetScript("OnEnter", on_enter)
+            bframe:SetScript("OnLeave", on_leave)
             bframe.plugin = pluginObject
             bframe.id = i
             
             DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "soloPluginsIcon"..i, "$parentSoloPluginsIcon"..i)
-            bframe ["soloPluginsIcon"..i]:SetPoint ("topleft", anchorFrame, "topleft", 10, y)
+            bframe ["soloPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
-            DF:NewLabel (bframe, _, "$parentSoloPluginsLabel"..i, "soloPluginsLabel"..i, pluginObject.__name)
-            bframe ["soloPluginsLabel"..i]:SetPoint ("left", bframe ["soloPluginsIcon"..i], "right", 2, 0)
+            DF:NewLabel(bframe, _, "$parentSoloPluginsLabel"..i, "soloPluginsLabel"..i, pluginObject.__name)
+            bframe ["soloPluginsLabel"..i]:SetPoint("left", bframe ["soloPluginsIcon"..i], "right", 2, 0)
             
-            DF:NewLabel (bframe, _, "$parentSoloPluginsLabel2"..i, "soloPluginsLabel2"..i, pluginObject.__author)
-            bframe ["soloPluginsLabel2"..i]:SetPoint ("topleft", anchorFrame, "topleft", 180, y-4)
+            DF:NewLabel(bframe, _, "$parentSoloPluginsLabel2"..i, "soloPluginsLabel2"..i, pluginObject.__author)
+            bframe ["soloPluginsLabel2"..i]:SetPoint("topleft", anchorFrame, "topleft", 180, y-4)
             
-            DF:NewLabel (bframe, _, "$parentSoloPluginsLabel3"..i, "soloPluginsLabel3"..i, pluginObject.__version)
-            bframe ["soloPluginsLabel3"..i]:SetPoint ("topleft", anchorFrame, "topleft", 290, y-4)
+            DF:NewLabel(bframe, _, "$parentSoloPluginsLabel3"..i, "soloPluginsLabel3"..i, pluginObject.__version)
+            bframe ["soloPluginsLabel3"..i]:SetPoint("topleft", anchorFrame, "topleft", 290, y-4)
             
             local plugin_stable = _detalhes:GetPluginSavedTable (absName)
             local plugin = _detalhes:GetPlugin (absName)
             DF:NewSwitch (bframe, _, "$parentSoloSlider"..i, "soloPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled, nil, nil, nil, nil, options_switch_template)
             tinsert (anchorFrame.plugin_widgets, bframe ["soloPluginsSlider"..i])
             bframe ["soloPluginsSlider"..i].PluginName = absName
-            bframe ["soloPluginsSlider"..i]:SetPoint ("topleft", anchorFrame, "topleft", 415, y+1)
+            bframe ["soloPluginsSlider"..i]:SetPoint("topleft", anchorFrame, "topleft", 415, y+1)
             bframe ["soloPluginsSlider"..i]:SetAsCheckBox()
             bframe ["soloPluginsSlider"..i].OnSwitch = function(self, _, value)
                 plugin_stable.enabled = value
                 plugin.__enabled = value
                 if (not value) then
-                    for index, instancia in ipairs (_detalhes.tabela_instancias) do
+                    for index, instancia in ipairs(_detalhes.tabela_instancias) do
                         if (instancia.modo == 1 and instancia.baseframe) then -- 1 = solo
                             _detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
                         end
@@ -3826,7 +3826,7 @@ do
             
             if (pluginObject.OpenOptionsPanel) then
                 DF:NewButton (bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 18, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
-                bframe ["OptionsButton"..i]:SetPoint ("topleft", anchorFrame, "topleft", 510, y-0)
+                bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
                 bframe ["OptionsButton"..i]:SetTextColor (button_color_rgb)
                 bframe ["OptionsButton"..i]:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
             end
@@ -3866,7 +3866,7 @@ do
 		end
 		local buildProfileMenuForAlwaysUse = function()
 			local menu = {}
-			for index, profile_name in ipairs (_detalhes:GetProfileList()) do 
+			for index, profile_name in ipairs(_detalhes:GetProfileList()) do 
 				menu [#menu+1] = {value = profile_name, label = profile_name, onclick = profile_selected_alwaysuse, icon = "Interface\\MINIMAP\\Vehicle-HammerGold-3"}
 			end
 			return menu
@@ -3883,7 +3883,7 @@ do
         
 		local buildProfileMenu = function(func)
 			local menu = {}
-			for index, profileName in ipairs (_detalhes:GetProfileList()) do
+			for index, profileName in ipairs(_detalhes:GetProfileList()) do
 				menu [#menu+1] = {value = profileName, label = profileName, onclick = selectProfile, icon = "Interface\\MINIMAP\\Vehicle-HammerGold-3"}
 			end
 			return menu
@@ -3891,7 +3891,7 @@ do
         
 		local buildProfileMenuToDelete = function()
 			local menu = {}
-            for index, profileName in ipairs (_detalhes:GetProfileList()) do
+            for index, profileName in ipairs(_detalhes:GetProfileList()) do
                 if (profileName ~= _detalhes:GetCurrentProfileName()) then
                     menu [#menu+1] = {value = profileName, label = profileName, onclick = function()end, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], color = {1, 1, 1}, iconcolor = {1, .9, .9, 0.8}}
                 end
@@ -3944,7 +3944,7 @@ do
                         return _detalhes:Msg (Loc ["STRING_OPTIONS_PROFILE_FIELDEMPTY"])
                     end
                     
-                    profileNameString:SetText ("")
+                    profileNameString:SetText("")
                     profileNameString:ClearFocus()
 
                     local new_profile = _detalhes:CreateProfile(profileName)
@@ -4017,7 +4017,7 @@ do
                 type = "execute",
                 func = function(self)
                     _detalhes:ShowImportWindow("", function(profileString)
-                        if (type (profileString) ~= "string" or string.len (profileString) < 2) then
+                        if (type(profileString) ~= "string" or string.len (profileString) < 2) then
                             return
                         end
                         
@@ -4619,14 +4619,14 @@ end
 do
     local buildSection = function(sectionFrame)
 
-		--> callback from the image editor
+		--callback from the image editor
 			local callmeback = function(width, height, overlayColor, alpha, texCoords)
                 editInstanceSetting(currentInstance, "InstanceWallpaper", nil, nil, alpha, texCoords, width, height, overlayColor)
 				sectionFrame:UpdateWallpaperInfo()
 				afterUpdate()
 			end
  
-        --> select wallpaper
+        --select wallpaper
             local onSelectSecTexture = function(self, instance, texturePath)
                     
                 local textureOptions = sectionFrame.wallpaperOptions
@@ -4723,40 +4723,40 @@ do
         --create preview
             local previewX, previewY = 460, -60
 
-            local preview = sectionFrame:CreateTexture (nil, "overlay")
+            local preview = sectionFrame:CreateTexture(nil, "overlay")
             preview:SetDrawLayer ("artwork", 3)
-            preview:SetSize (256, 128)
-            preview:SetPoint ("topleft", sectionFrame, "topleft", previewX, previewY)
+            preview:SetSize(256, 128)
+            preview:SetPoint("topleft", sectionFrame, "topleft", previewX, previewY)
             
             --background white
             local whiteBackground = sectionFrame:CreateTexture(nil, "overlay")
             whiteBackground:SetDrawLayer("background")
-            whiteBackground:SetSize (255, 128)
-            whiteBackground:SetPoint ("topleft", sectionFrame, "topleft", previewX, previewY)
+            whiteBackground:SetSize(255, 128)
+            whiteBackground:SetPoint("topleft", sectionFrame, "topleft", previewX, previewY)
             whiteBackground:SetColorTexture(1, 1, 1, 1)
 
             --background grid
             local icon1 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon1")
-            icon1:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
-            icon1:SetPoint ("topleft", sectionFrame, "topleft", previewX, previewY)
+            icon1:SetTexture("Interface\\AddOns\\Details\\images\\icons")
+            icon1:SetPoint("topleft", sectionFrame, "topleft", previewX, previewY)
             icon1:SetDrawLayer ("artwork", 1)
             icon1:SetTexCoord (0.337890625, 0.5859375, 0.59375, 0.716796875-0.0009765625) --173 304 300 367
             
             local icon2 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon2")
-            icon2:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
-            icon2:SetPoint ("left", icon1.widget, "right", -1, 0)
+            icon2:SetTexture("Interface\\AddOns\\Details\\images\\icons")
+            icon2:SetPoint("left", icon1.widget, "right", -1, 0)
             icon2:SetDrawLayer ("artwork", 1)
             icon2:SetTexCoord (0.337890625, 0.5859375, 0.59375, 0.716796875-0.0009765625) --173 304 300 367
             
             local icon3 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon3")
-            icon3:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
-            icon3:SetPoint ("top", icon1.widget, "bottom")
+            icon3:SetTexture("Interface\\AddOns\\Details\\images\\icons")
+            icon3:SetPoint("top", icon1.widget, "bottom")
             icon3:SetDrawLayer ("artwork", 1)
             icon3:SetTexCoord (0.337890625, 0.5859375, 0.59375+0.0009765625, 0.716796875) --173 304 300 367
             
             local icon4 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon4")
-            icon4:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
-            icon4:SetPoint ("left", icon3.widget, "right", -1, 0)
+            icon4:SetTexture("Interface\\AddOns\\Details\\images\\icons")
+            icon4:SetPoint("left", icon3.widget, "right", -1, 0)
             icon4:SetDrawLayer ("artwork", 1)
             icon4:SetTexCoord (0.337890625, 0.5859375, 0.59375+0.0009765625, 0.716796875) --173 304 300 367
             
@@ -4768,35 +4768,35 @@ do
             --corners
             local w, h = 20, 20
             
-            local L1 = sectionFrame:CreateTexture (nil, "overlay")
-            L1:SetPoint ("topleft", preview, "topleft")
-            L1:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
+            local L1 = sectionFrame:CreateTexture(nil, "overlay")
+            L1:SetPoint("topleft", preview, "topleft")
+            L1:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             L1:SetTexCoord (0.13671875+0.0009765625, 0.234375, 0.29296875, 0.1953125+0.0009765625)
-            L1:SetSize (w, h)
+            L1:SetSize(w, h)
             L1:SetDrawLayer ("overlay", 2)
             L1:SetVertexColor (1, 1, 1, .8)
             
-            local L2 = sectionFrame:CreateTexture (nil, "overlay")
-            L2:SetPoint ("bottomleft", preview, "bottomleft")
-            L2:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
+            local L2 = sectionFrame:CreateTexture(nil, "overlay")
+            L2:SetPoint("bottomleft", preview, "bottomleft")
+            L2:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             L2:SetTexCoord (0.13671875+0.0009765625, 0.234375, 0.1953125+0.0009765625, 0.29296875)
-            L2:SetSize (w, h)
+            L2:SetSize(w, h)
             L2:SetDrawLayer ("overlay", 2)
             L2:SetVertexColor (1, 1, 1, .8)
             
-            local L3 = sectionFrame:CreateTexture (nil, "overlay")
-            L3:SetPoint ("bottomright", preview, "bottomright", 0, 0)
-            L3:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
+            local L3 = sectionFrame:CreateTexture(nil, "overlay")
+            L3:SetPoint("bottomright", preview, "bottomright", 0, 0)
+            L3:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             L3:SetTexCoord (0.234375, 0.13671875-0.0009765625, 0.1953125+0.0009765625, 0.29296875)
-            L3:SetSize (w, h)
+            L3:SetSize(w, h)
             L3:SetDrawLayer ("overlay", 5)
             L3:SetVertexColor (1, 1, 1, .8)
             
-            local L4 = sectionFrame:CreateTexture (nil, "overlay")
-            L4:SetPoint ("topright", preview, "topright", 0, 0)
-            L4:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
+            local L4 = sectionFrame:CreateTexture(nil, "overlay")
+            L4:SetPoint("topright", preview, "topright", 0, 0)
+            L4:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             L4:SetTexCoord (0.234375, 0.13671875-0.0009765625, 0.29296875, 0.1953125+0.0009765625)
-            L4:SetSize (w, h)
+            L4:SetSize(w, h)
             L4:SetDrawLayer ("overlay", 5)
             L4:SetVertexColor (1, 1, 1, .8)
 
@@ -4804,13 +4804,13 @@ do
 		function sectionFrame:UpdateWallpaperInfo()
             local wallpaper = currentInstance.wallpaper
             
-			preview:SetTexture (wallpaper.texture)
+			preview:SetTexture(wallpaper.texture)
 			preview:SetTexCoord (unpack (wallpaper.texcoord))
 			preview:SetVertexColor (unpack (wallpaper.overlay))
 			preview:SetAlpha (wallpaper.alpha)
         end
         
-        --> wallpaper alignment
+        --wallpaper alignment
             local onSelectAnchor = function(_, instance, anchor)
                 editInstanceSetting(currentInstance, "InstanceWallpaper", nil, anchor)
                 afterUpdate()
@@ -4832,7 +4832,7 @@ do
                 return anchorMenu
             end
 
-        --> open image editor
+        --open image editor
             local startImageEdit = function()
                 if (not currentInstance.wallpaper.texture) then
                     Details:Msg("no texture to edit.")
@@ -4856,17 +4856,17 @@ do
                 end
             end
 
-        --> open image to use as wallpaper
+        --open image to use as wallpaper
             local loadImage = function()
                 if (not DetailsLoadWallpaperImage) then
                     
-                    local f = CreateFrame ("frame", "DetailsLoadWallpaperImage", UIParent, "BackdropTemplate")
-                    f:SetPoint ("center", UIParent, "center")
+                    local f = CreateFrame("frame", "DetailsLoadWallpaperImage", UIParent, "BackdropTemplate")
+                    f:SetPoint("center", UIParent, "center")
                     f:SetFrameStrata ("FULLSCREEN")
-                    f:SetSize (550, 170)
+                    f:SetSize(550, 170)
                     f:EnableMouse (true)
                     f:SetMovable (true)
-                    f:SetScript ("OnMouseDown", function(self, button)
+                    f:SetScript("OnMouseDown", function(self, button)
                         if (self.isMoving) then
                             return
                         end
@@ -4877,7 +4877,7 @@ do
                             self.isMoving = true
                         end
                     end)
-                    f:SetScript ("OnMouseUp", function(self, button) 
+                    f:SetScript("OnMouseUp", function(self, button) 
                         if (self.isMoving and button == "LeftButton") then
                             self:StopMovingOrSizing()
                             self.isMoving = nil
@@ -4890,17 +4890,17 @@ do
                     tinsert (_G.UISpecialFrames, "DetailsLoadWallpaperImage")
                     
                     local t = f:CreateFontString (nil, "overlay", "GameFontNormal")
-                    t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
-                    t:SetPoint ("topleft", f, "topleft", 15, -25)
-                    t:SetJustifyH ("left")
+                    t:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
+                    t:SetPoint("topleft", f, "topleft", 15, -25)
+                    t:SetJustifyH("left")
                     f.t = t
                     
                     local filename = f:CreateFontString (nil, "overlay", "GameFontHighlightLeft")
-                    filename:SetPoint ("topleft", f, "topleft", 15, -128)
-                    filename:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_FILENAME"])
+                    filename:SetPoint("topleft", f, "topleft", 15, -128)
+                    filename:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_FILENAME"])
                     
                     local editbox = DF:NewTextEntry (f, nil, "$parentFileName", "FileName", 160, 20, function() end, nil, nil, nil, nil, options_dropdown_template)
-                    editbox:SetPoint ("left", filename, "right", 2, 0)
+                    editbox:SetPoint("left", filename, "right", 2, 0)
                     editbox.tooltip = Loc ["STRING_OPTIONS_WALLPAPER_LOAD_FILENAME_DESC"]
                     
                     local okey_func = function() 
@@ -4917,21 +4917,21 @@ do
                         sectionFrame:UpdateWallpaperInfo()
                     end
                     local okey = DF:NewButton (f, _, "$parentOkeyButton", nil, 105, 20, okey_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_OKEY"], 1, options_button_template)
-                    okey:SetPoint ("left", editbox.widget, "right", 2, 0)
+                    okey:SetPoint("left", editbox.widget, "right", 2, 0)
                     
                     local throubleshoot_func = function() 
                         if (t:GetText() == Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"]) then
-                            t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT_TEXT"])
+                            t:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT_TEXT"])
                         else
-                            _G.DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
+                            _G.DetailsLoadWallpaperImage.t:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
                         end
                     end
                     local throubleshoot = DF:NewButton (f, _, "$parentThroubleshootButton", nil, 105, 20, throubleshoot_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT"], 1, options_button_template)
-                    throubleshoot:SetPoint ("left", okey, "right", 2, 0)
+                    throubleshoot:SetPoint("left", okey, "right", 2, 0)
                     --throubleshoot:InstallCustomTexture()
                 end
                 
-                _G.DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
+                _G.DetailsLoadWallpaperImage.t:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
                 _G.DetailsLoadWallpaperImage:Show()
             end
 
@@ -5043,7 +5043,7 @@ end
 do
     local buildSection = function(sectionFrame)
 
-    --> auto switch options
+    --auto switch options
         local Current_Switch_Func = function()end
 
         local buildSwitchMenu = function()
@@ -5055,9 +5055,9 @@ do
             local attributes = _detalhes.sub_atributos
             local i = 1
             
-            for atributo, sub_atributo in ipairs (attributes) do
+            for atributo, sub_atributo in ipairs(attributes) do
                 local icones = sub_atributo.icones
-                for index, att_name in ipairs (sub_atributo.lista) do
+                for index, att_name in ipairs(sub_atributo.lista) do
                     local texture, texcoord = unpack (icones [index])
                     tinsert (t, {value = i, label = att_name, onclick = Current_Switch_Func, icon = texture, texcoord = texcoord})
                     sectionFrame.lastSwitchList [i] = {atributo, index, i}
@@ -5065,7 +5065,7 @@ do
                 end
             end
             
-            for index, ptable in ipairs (_detalhes.RaidTables.Menu) do
+            for index, ptable in ipairs(_detalhes.RaidTables.Menu) do
                 tinsert (t, {value = i, label = ptable [1], onclick = Current_Switch_Func, icon = ptable [2]})
                 sectionFrame.lastSwitchList [i] = {"raid", ptable [4], i}
                 i = i + 1
@@ -5363,15 +5363,15 @@ do
         DF:BuildMenu(autoSwitchFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
 
-	--> combat alpha modifier
+	--combat alpha modifier
         local right_start_at = 450
 
 		--anchor
-		DF:NewLabel (sectionFrame, _, "$parentHideInCombatAnchor", "hideInCombatAnchor", Loc ["STRING_OPTIONS_ALPHAMOD_ANCHOR"], "GameFontNormal")
+		DF:NewLabel(sectionFrame, _, "$parentHideInCombatAnchor", "hideInCombatAnchor", Loc ["STRING_OPTIONS_ALPHAMOD_ANCHOR"], "GameFontNormal")
 		sectionFrame.hideInCombatAnchor:SetPoint("topleft", sectionFrame, "topleft", right_start_at, startY - 20)
 		
-		--> hide in combat
-		DF:NewLabel (sectionFrame, _, "$parentCombatAlphaLabel", "combatAlphaLabel", Loc ["STRING_OPTIONS_COMBAT_ALPHA"], "GameFontHighlightLeft")
+		--hide in combat
+		DF:NewLabel(sectionFrame, _, "$parentCombatAlphaLabel", "combatAlphaLabel", Loc ["STRING_OPTIONS_COMBAT_ALPHA"], "GameFontHighlightLeft")
 		
 		local texCoords = {.9, 0.1, 0.1, .9}
 		local typeCombatAlpha = {
@@ -5462,7 +5462,7 @@ do
 
         Details.options.UpdateAutoHideSettings(currentInstance)
 
-        --> profile by spec
+        --profile by spec
         
         --[=[]]
         local spec1Table = {}
@@ -5560,8 +5560,8 @@ do --raid tools
 			if (not DetailsAnnounceSelectCooldownIgnored) then
 				DetailsAnnounceSelectCooldownIgnored = CreateFrame("frame", "DetailsAnnounceSelectCooldownIgnored", UIParent, "BackdropTemplate")
 				local f = DetailsAnnounceSelectCooldownIgnored
-				f:SetSize (400, 500)
-				f:SetPoint ("center", UIParent, "center", 0, 0)
+				f:SetSize(400, 500)
+				f:SetPoint("center", UIParent, "center", 0, 0)
 
                 DF:ApplyStandardBackdrop(f)
                 DF:CreateTitleBar(f, Loc ["STRING_OPTIONS_RT_IGNORE_TITLE"])
@@ -5569,7 +5569,7 @@ do --raid tools
                 f:SetFrameStrata ("FULLSCREEN")
 				f:EnableMouse()
 				f:SetMovable (true)
-				f:SetScript ("OnMouseDown", function(self, button)
+				f:SetScript("OnMouseDown", function(self, button)
 					if (button == "RightButton") then
 						if (f.IsMoving) then
 							f.IsMoving = false
@@ -5583,7 +5583,7 @@ do --raid tools
 					f:StartMoving()
                 end)
                 
-				f:SetScript ("OnMouseUp", function(self, button)
+				f:SetScript("OnMouseUp", function(self, button)
 					if (f.IsMoving) then
 						f.IsMoving = false
 						f:StopMovingOrSizing()
@@ -5601,12 +5601,12 @@ do --raid tools
                     end
 				end
 				
-				f:SetScript ("OnHide", function(self)
+				f:SetScript("OnHide", function(self)
 					self:Clear()
 				end)
 				
 				function f:Clear()
-					for _, label in ipairs (self.labels) do
+					for _, label in ipairs(self.labels) do
 						label.icon:Hide()
 						label.text:Hide()
 						label.switch:Hide()
@@ -5616,14 +5616,14 @@ do --raid tools
 				function f:CreateLabel()
 					local L = {
 						icon = DF:CreateImage (f, nil, 16, 16, "overlay", {0.1, 0.9, 0.1, 0.9}),
-						text = DF:CreateLabel (f, "", 10, "white", "GameFontHighlightSmall"),
+						text = DF:CreateLabel(f, "", 10, "white", "GameFontHighlightSmall"),
                     }
 
                     L.switch = DF:CreateSwitch (f, on_switch_func, false)
 
-                    L.switch:SetPoint ("topleft", f, "topleft", 10, ((#f.labels*20)*-1)-55)
-					L.icon:SetPoint ("left", L.switch, "right", 2, 0)
-					L.text:SetPoint ("left", L.icon, "right", 2, 0)
+                    L.switch:SetPoint("topleft", f, "topleft", 10, ((#f.labels*20)*-1)-55)
+					L.icon:SetPoint("left", L.switch, "right", 2, 0)
+					L.text:SetPoint("left", L.icon, "right", 2, 0)
                     
                     L.switch:SetAsCheckBox()
                     L.switch:SetTemplate(options_switch_template)
@@ -5637,7 +5637,7 @@ do --raid tools
 				function f:Open()
 					local _GetSpellInfo = _detalhes.getspellinfo --details api
 					
-					for index, spellid in ipairs (_detalhes:GetCooldownList()) do
+					for index, spellid in ipairs(_detalhes:GetCooldownList()) do
 						local name, _, icon = _GetSpellInfo(spellid)
 						if (name) then
 							local label = f.labels [index] or f:CreateLabel()
@@ -5956,20 +5956,20 @@ do
 
         local button_width = 160
 
-        --> streamer plugin - a.k.a. Action Tracker
-			--> title anchor
-            DF:NewLabel (sectionFrame, _, "$parentStreamerPluginAnchor", "streamerPluginAnchor", "Action Tracker", "GameFontNormal")
+        --streamer plugin - a.k.a. Action Tracker
+			--title anchor
+            DF:NewLabel(sectionFrame, _, "$parentStreamerPluginAnchor", "streamerPluginAnchor", "Action Tracker", "GameFontNormal")
             sectionFrame.streamerPluginAnchor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 20)
 
-			local streamerTitleDesc = DF:NewLabel (sectionFrame, _, "$parentStreamerTitleDescText", "StreamerTitleDescTextLabel", "Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation.", "GameFontNormal", 10, "white")
-			streamerTitleDesc:SetSize (270, 40)
+			local streamerTitleDesc = DF:NewLabel(sectionFrame, _, "$parentStreamerTitleDescText", "StreamerTitleDescTextLabel", "Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation.", "GameFontNormal", 10, "white")
+			streamerTitleDesc:SetSize(270, 40)
 			streamerTitleDesc:SetJustifyV ("top")
-			streamerTitleDesc:SetPoint ("topleft", sectionFrame.streamerPluginAnchor, "bottomleft", 0, -4)
+			streamerTitleDesc:SetPoint("topleft", sectionFrame.streamerPluginAnchor, "bottomleft", 0, -4)
 
 			local streamerTitleImage = DF:CreateImage (sectionFrame, [[Interface\AddOns\Details\images\icons2.blp]], 268*0.75, 59*0.75, "overlay", {0, 268/512, 454/512, 1})
-			streamerTitleImage:SetPoint ("topleft", sectionFrame.streamerPluginAnchor, "bottomleft", 0, -40)
+			streamerTitleImage:SetPoint("topleft", sectionFrame.streamerPluginAnchor, "bottomleft", 0, -40)
 
-			--> get the plugin object
+			--get the plugin object
 			local StreamerPlugin = Details:GetPlugin("DETAILS_PLUGIN_STREAM_OVERLAY")
 			if (StreamerPlugin) then
 				--get the plugin settings table
@@ -6047,17 +6047,17 @@ do
             end)
 
 		
-		--> event tracker
-            DF:NewLabel (sectionFrame, _, "$parentEventTrackerAnchor", "eventTrackerAnchor", "Event Tracker", "GameFontNormal")
+		--event tracker
+            DF:NewLabel(sectionFrame, _, "$parentEventTrackerAnchor", "eventTrackerAnchor", "Event Tracker", "GameFontNormal")
             sectionFrame.eventTrackerAnchor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 180)
 
-			local eventTrackerTitleDesc = DF:NewLabel (sectionFrame, _, "$parentEventTrackerTitleDescText", "EventTrackerTitleDescTextLabel", "Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content.", "GameFontNormal", 10, "white")
+			local eventTrackerTitleDesc = DF:NewLabel(sectionFrame, _, "$parentEventTrackerTitleDescText", "EventTrackerTitleDescTextLabel", "Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content.", "GameFontNormal", 10, "white")
 			eventTrackerTitleDesc:SetJustifyV ("top")
-			eventTrackerTitleDesc:SetSize (270, 40)
-			eventTrackerTitleDesc:SetPoint ("topleft", sectionFrame.eventTrackerAnchor, "bottomleft", 0, -4)
+			eventTrackerTitleDesc:SetSize(270, 40)
+			eventTrackerTitleDesc:SetPoint("topleft", sectionFrame.eventTrackerAnchor, "bottomleft", 0, -4)
 			
 			local eventTrackerTitleImage = DF:CreateImage (sectionFrame, [[Interface\AddOns\Details\images\icons2]], 256, 50, "overlay", {0.5, 1, 134/512, 184/512})
-			eventTrackerTitleImage:SetPoint ("topleft", sectionFrame.eventTrackerAnchor, "bottomleft", 0, -40)
+			eventTrackerTitleImage:SetPoint("topleft", sectionFrame.eventTrackerAnchor, "bottomleft", 0, -40)
 			
             local enableEventTracker = function()
                 Details.event_tracker.enabled = not Details.event_tracker.enabled
@@ -6089,17 +6089,17 @@ do
             sectionFrame.actionTrackerOptionsButtton = actionTrackerOptionsButtton
 
 
-		--> arena kamehameha bar
-            DF:NewLabel (sectionFrame, _, "$parentCurrentDPSAnchor", "currentDPSAnchor", "Arena DPS Bar", "GameFontNormal")
+		--arena kamehameha bar
+            DF:NewLabel(sectionFrame, _, "$parentCurrentDPSAnchor", "currentDPSAnchor", "Arena DPS Bar", "GameFontNormal")
             sectionFrame.currentDPSAnchor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 340)
 
-			local currentDPSTitleDesc = DF:NewLabel (sectionFrame, _, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a bar which grows to the side of the team doing most damage in the last 5 seconds.", "GameFontNormal", 10, "white")
+			local currentDPSTitleDesc = DF:NewLabel(sectionFrame, _, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a bar which grows to the side of the team doing most damage in the last 5 seconds.", "GameFontNormal", 10, "white")
 			currentDPSTitleDesc:SetJustifyV ("top")
-			currentDPSTitleDesc:SetSize (270, 40)
-			currentDPSTitleDesc:SetPoint ("topleft", sectionFrame.currentDPSAnchor, "bottomleft", 0, -4)
+			currentDPSTitleDesc:SetSize(270, 40)
+			currentDPSTitleDesc:SetPoint("topleft", sectionFrame.currentDPSAnchor, "bottomleft", 0, -4)
 			
 			local currentDPSTitleImage = DF:CreateImage (sectionFrame, [[Interface\AddOns\Details\images\icons2]], 256, 32, "overlay", {0/512, 256/512, 421/512, 453/512})
-			currentDPSTitleImage:SetPoint ("topleft", sectionFrame.currentDPSAnchor, "bottomleft", 0, -40)
+			currentDPSTitleImage:SetPoint("topleft", sectionFrame.currentDPSAnchor, "bottomleft", 0, -40)
 			
             local enableArenaDPS = function()
                 Details.realtime_dps_meter.enabled = not Details.realtime_dps_meter.enabled
@@ -6247,7 +6247,7 @@ do
 			_detalhes:UserCustomSpellReset (index)
 		end
 	
-	--> custom spells panel
+	--custom spells panel
 		local header = {
 			{name = Loc ["STRING_OPTIONS_SPELL_INDEX"], width = 55, type = "text"}, 
 			{name = Loc ["STRING_OPTIONS_SPELL_NAME"], width = 310, type = "entry", func = name_entry_func}, 
@@ -6272,26 +6272,26 @@ do
 		local panel = DF:NewFillPanel (sectionFrame, header, "$parentCustomSpellsFillPanel", "customSpellsFillPanel", 640, 462, total_lines, fill_row, false)
 		panel:Refresh()
 	
-	--> add
-		--> add panel
+	--add
+		--add panel
 			local addframe = DF:NewPanel (sectionFrame, nil, "$parentCustomSpellsAddPanel", "customSpellsAddPanel", 644, 462)
-			addframe:SetPoint (startX, startY - 40)
+			addframe:SetPoint(startX, startY - 40)
 			addframe:SetFrameLevel (7)
 			DF:ApplyStandardBackdrop(addframe)
 			addframe:Hide()			
 
-			local spellid = DF:NewLabel (addframe, nil, "$parentSpellidLabel", "spellidLabel", Loc ["STRING_OPTIONS_SPELL_ADDSPELLID"])
-			local spellname = DF:NewLabel (addframe, nil, "$parentSpellnameLabel", "spellnameLabel", Loc ["STRING_OPTIONS_SPELL_ADDNAME"])
-			local spellicon = DF:NewLabel (addframe, nil, "$parentSpelliconLabel", "spelliconLabel", Loc ["STRING_OPTIONS_SPELL_ADDICON"])
+			local spellid = DF:NewLabel(addframe, nil, "$parentSpellidLabel", "spellidLabel", Loc ["STRING_OPTIONS_SPELL_ADDSPELLID"])
+			local spellname = DF:NewLabel(addframe, nil, "$parentSpellnameLabel", "spellnameLabel", Loc ["STRING_OPTIONS_SPELL_ADDNAME"])
+			local spellicon = DF:NewLabel(addframe, nil, "$parentSpelliconLabel", "spelliconLabel", Loc ["STRING_OPTIONS_SPELL_ADDICON"])
 		
 			local spellname_entry_func = function() end
 			local spellname_entry = DF:NewTextEntry (addframe, nil, "$parentSpellnameEntry", "spellnameEntry", 160, 20, spellname_entry_func, nil, nil, nil, nil, options_dropdown_template)
-			spellname_entry:SetPoint ("left", spellname, "right", 2, 0)
+			spellname_entry:SetPoint("left", spellname, "right", 2, 0)
 
 			local spellid_entry_func = function(arg1, arg2, spellid) 
 				local spellname, _, icon = GetSpellInfo(spellid)
 				if (spellname) then
-					spellname_entry:SetText (spellname) 
+					spellname_entry:SetText(spellname) 
 					addframe.spellIconButton.icon.texture = icon
 				else
 					_detalhes:Msg (Loc ["STRING_OPTIONS_SPELL_NOTFOUND"])
@@ -6299,21 +6299,21 @@ do
 			end
 			local spellid_entry = DF:NewSpellEntry (addframe, spellid_entry_func, 160, 20, nil, nil, "spellidEntry", "$parentSpellidEntry")
 			spellid_entry:SetTemplate (options_dropdown_template)
-			spellid_entry:SetPoint ("left", spellid, "right", 2, 0)
+			spellid_entry:SetPoint("left", spellid, "right", 2, 0)
 			
 			local icon_button_func = function(texture)
 				addframe.spellIconButton.icon.texture = texture
 			end
 			local icon_button = DF:NewButton (addframe, nil, "$parentSpellIconButton", "spellIconButton", 20, 20, function() DF:IconPick (icon_button_func, true) end)
 			local icon_button_icon = DF:NewImage (icon_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentSpellIcon")
-			icon_button_icon:SetPoint (0, 0)
+			icon_button_icon:SetPoint(0, 0)
 			icon_button:InstallCustomTexture()
-			icon_button:SetPoint ("left", spellicon, "right", 2, 0)
+			icon_button:SetPoint("left", spellicon, "right", 2, 0)
 			
-		--> close button
+		--close button
 			local closebutton = DF:NewButton (addframe, nil, "$parentAddCloseButton", "addClosebutton", 120, 20, function() addframe:Hide() end, nil, nil, nil, Loc ["STRING_OPTIONS_SPELL_CLOSE"], nil, options_button_template)
 			
-		--> confirm add spell
+		--confirm add spell
 			local addspell = function()
 				local id = spellid_entry.text
 				if (id == "") then
@@ -6349,34 +6349,34 @@ do
 			addspellbutton:SetIcon ([[Interface\Buttons\UI-CheckBox-Check]], 18, 18, nil, nil, nil, 4)
 			closebutton:SetIcon ([[Interface\PetBattles\DeadPetIcon]], 14, 14, nil, nil, nil, 4)
 			
-			addspellbutton:SetPoint ("bottomright", addframe, "bottomright", -5, 5)
-			closebutton:SetPoint ("right", addspellbutton, "left", -4, 0)
+			addspellbutton:SetPoint("bottomright", addframe, "bottomright", -5, 5)
+			closebutton:SetPoint("right", addspellbutton, "left", -4, 0)
 
-			spellid:SetPoint (50, -10)
-			spellname:SetPoint (50, -35)
-			spellicon:SetPoint (50, -60)
+			spellid:SetPoint(50, -10)
+			spellname:SetPoint(50, -35)
+			spellicon:SetPoint(50, -60)
 		
-		--> open add panel button
+		--open add panel button
 			local add = function() 
 				addframe:Show()
 			end
 			local addbutton = DF:NewButton (sectionFrame, nil, "$parentAddButton", "addbutton", 120, 20, add, nil, nil, nil, Loc ["STRING_OPTIONS_SPELL_ADDSPELL"], nil, options_button_template)
-			addbutton:SetPoint ("bottomright", panel, "topright", -00, 1)
+			addbutton:SetPoint("bottomright", panel, "topright", -00, 1)
 			addbutton:SetIcon ([[Interface\PaperDollInfoFrame\Character-Plus]], 12, 12, nil, nil, nil, 4)
 
-		panel:SetPoint (startX, startY - 40)
+		panel:SetPoint(startX, startY - 40)
 		
-	--> consilidade spells
-		DF:NewLabel (sectionFrame, _, "$parentConsolidadeSpellsLabel", "ConsolidadeSpellsLabel", Loc ["STRING_OPTIONSMENU_SPELLS_CONSOLIDATE"], "GameFontHighlightLeft")
+	--consilidade spells
+		DF:NewLabel(sectionFrame, _, "$parentConsolidadeSpellsLabel", "ConsolidadeSpellsLabel", Loc ["STRING_OPTIONSMENU_SPELLS_CONSOLIDATE"], "GameFontHighlightLeft")
 		DF:NewSwitch (sectionFrame, _, "$parentConsolidadeSpellsSwitch", "ConsolidadeSpellsSwitch", 60, 20, nil, nil, _detalhes.override_spellids, nil, nil, nil, nil, options_switch_template)
-		sectionFrame.ConsolidadeSpellsLabel:SetPoint ("left", sectionFrame.ConsolidadeSpellsSwitch, "right", 3)
+		sectionFrame.ConsolidadeSpellsLabel:SetPoint("left", sectionFrame.ConsolidadeSpellsSwitch, "right", 3)
 		sectionFrame.ConsolidadeSpellsSwitch:SetAsCheckBox()
 		sectionFrame.ConsolidadeSpellsSwitch.OnSwitch = function(self, instance, value)
 			_detalhes.override_spellids = value
 			_detalhes:UpdateParserGears()
 		end
 
-		sectionFrame.ConsolidadeSpellsSwitch:SetPoint (startX, startY - 20)
+		sectionFrame.ConsolidadeSpellsSwitch:SetPoint(startX, startY - 20)
         _detalhes:SetFontSize (sectionFrame.ConsolidadeSpellsLabel, 12)
         
         local sectionOptions = {
@@ -6396,35 +6396,35 @@ end
 do
     local buildSection = function(sectionFrame)
 
-	--> title
-    local titulo_datacharts = DF:NewLabel (sectionFrame, _, "$parentTituloDataChartsText", "DataChartsLabel", Loc ["STRING_OPTIONS_DATACHARTTITLE"], "GameFontNormal", 16)
-    local titulo_datacharts_desc = DF:NewLabel (sectionFrame, _, "$parentDataChartsText2", "DataCharts2Label", Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"], "GameFontNormal", 10, "white")
+	--title
+    local titulo_datacharts = DF:NewLabel(sectionFrame, _, "$parentTituloDataChartsText", "DataChartsLabel", Loc ["STRING_OPTIONS_DATACHARTTITLE"], "GameFontNormal", 16)
+    local titulo_datacharts_desc = DF:NewLabel(sectionFrame, _, "$parentDataChartsText2", "DataCharts2Label", Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"], "GameFontNormal", 10, "white")
     titulo_datacharts_desc.width = 350
 
---> warning
+--warning
     if (not _detalhes:GetPlugin ("DETAILS_PLUGIN_CHART_VIEWER")) then
-        local label = DF:NewLabel (sectionFrame, _, "$parentPluginWarningLabel", "PluginWarningLabel", Loc ["STRING_OPTIONS_CHART_PLUGINWARNING"], "GameFontNormal")
+        local label = DF:NewLabel(sectionFrame, _, "$parentPluginWarningLabel", "PluginWarningLabel", Loc ["STRING_OPTIONS_CHART_PLUGINWARNING"], "GameFontNormal")
         local image = DF:NewImage (sectionFrame, [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
-        label:SetPoint ("topright", sectionFrame, "topright", -42, -10)
-        label:SetJustifyH ("left")
-        label:SetWidth (160)
-        image:SetPoint ("right", label, "left", -7, 0)	
-        image:SetSize (32, 32)
+        label:SetPoint("topright", sectionFrame, "topright", -42, -10)
+        label:SetJustifyH("left")
+        label:SetWidth(160)
+        image:SetPoint("right", label, "left", -7, 0)	
+        image:SetSize(32, 32)
     end
 
---> panel
+--panel
     local edit_name = function(index, name)
         _detalhes:TimeDataUpdate (index, name)
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
     
     local big_code_editor = DF:NewSpecialLuaEditorEntry (sectionFrame, 683, 422, "bigCodeEditor", "$parentBigCodeEditor")
-    big_code_editor:SetPoint ("topleft", sectionFrame, "topleft", startX, startY - 70)
+    big_code_editor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 70)
     big_code_editor:SetFrameLevel (sectionFrame:GetFrameLevel()+6)
-    big_code_editor:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
+    big_code_editor:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
     DF:ReskinSlider(big_code_editor.scroll)
-    big_code_editor:SetBackdropColor (0.5, 0.5, 0.5, 0.95)
-    big_code_editor:SetBackdropBorderColor (0, 0, 0, 1)
+    big_code_editor:SetBackdropColor(0.5, 0.5, 0.5, 0.95)
+    big_code_editor:SetBackdropBorderColor(0, 0, 0, 1)
     big_code_editor:Hide()
     
     local accept = function()
@@ -6440,13 +6440,13 @@ do
     end
 
     local accept_changes = DF:NewButton (big_code_editor, nil, "$parentAccept", "acceptButton", 120, 20, accept, nil, nil)
-    accept_changes:SetPoint (0, 20)
+    accept_changes:SetPoint(0, 20)
     accept_changes:SetIcon([[Interface\Buttons\UI-CheckBox-Check]])
     accept_changes:SetTemplate(options_button_template)
     accept_changes:SetText(Loc ["STRING_OPTIONS_CHART_SAVE"])
     
     local cancel_changes = DF:NewButton (big_code_editor, nil, "$parentCancel", "CancelButton", 120, 20, cancel, nil, nil)
-    cancel_changes:SetPoint ("left", accept_changes, "right", 2, 0)
+    cancel_changes:SetPoint("left", accept_changes, "right", 2, 0)
     cancel_changes:SetIcon([[Interface\PetBattles\DeadPetIcon]])
     cancel_changes:SetTemplate(options_button_template)
     cancel_changes:SetText(Loc ["STRING_OPTIONS_CHART_CANCEL"])
@@ -6456,11 +6456,11 @@ do
         if (data) then
             local func = data [2]
             
-            if (type (func) == "function") then
+            if (type(func) == "function") then
                 return _detalhes:Msg (Loc ["STRING_OPTIONS_CHART_CODELOADED"])
             end
             
-            big_code_editor:SetText (func)
+            big_code_editor:SetText(func)
             big_code_editor.original_code = func
             big_code_editor.index = index
             big_code_editor.is_export = nil
@@ -6489,12 +6489,12 @@ do
     end
     
     local big_code_editor2 = DF:NewSpecialLuaEditorEntry (sectionFrame, 643, 402, "exportEditor", "$parentExportEditor", true)
-    big_code_editor2:SetPoint ("topleft", sectionFrame, "topleft", 7, -70)
+    big_code_editor2:SetPoint("topleft", sectionFrame, "topleft", 7, -70)
     big_code_editor2:SetFrameLevel (sectionFrame:GetFrameLevel()+6)
-    big_code_editor2:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
+    big_code_editor2:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
     DF:ReskinSlider(big_code_editor2.scroll)
-    big_code_editor2:SetBackdropColor (0.5, 0.5, 0.5, 0.95)
-    big_code_editor2:SetBackdropBorderColor (0, 0, 0, 1)
+    big_code_editor2:SetBackdropColor(0.5, 0.5, 0.5, 0.95)
+    big_code_editor2:SetBackdropBorderColor(0, 0, 0, 1)
     big_code_editor2:Hide()
     
     local close_export_box = function()
@@ -6503,9 +6503,9 @@ do
     end
     
     local close_export = DF:NewButton (big_code_editor2, nil, "$parentClose", "closeButton", 120, 20, close_export_box)
-    close_export:SetPoint (10, 18)
+    close_export:SetPoint(10, 18)
     close_export:SetIcon ([[Interface\Buttons\UI-CheckBox-Check]])
-    close_export:SetText (Loc ["STRING_OPTIONS_CHART_CLOSE"])
+    close_export:SetText(Loc ["STRING_OPTIONS_CHART_CLOSE"])
     close_export:SetTemplate (options_button_template)
     
     local export_function = function(index)
@@ -6513,13 +6513,13 @@ do
         if (data) then
             local encoded = Details:CompressData (data, "print")
             if (encoded) then
-                big_code_editor2:SetText (encoded)
+                big_code_editor2:SetText(encoded)
                 
                 big_code_editor2:Show()
                 big_code_editor2.editbox:HighlightText()
                 big_code_editor2.editbox:SetFocus (true)
             else
-                Details:Msg ("error exporting the time capture.") --localize-me
+                Details:Msg("error exporting the time capture.") --localize-me
             end
         end
     end
@@ -6580,7 +6580,7 @@ do
     --DetailsOptionsWindowtab17UserTimeCapturesFillPanel
     local panel = DF:NewFillPanel (sectionFrame, header, "$parentUserTimeCapturesFillPanel", "userTimeCaptureFillPanel", 640, 382, total_lines, fill_row, false)
 
-    panel:SetHook ("OnMouseDown", function()
+    panel:SetHook("OnMouseDown", function()
         if (DetailsIconPickFrame and DetailsIconPickFrame:IsShown()) then
             DetailsIconPickFrame:Hide()
         end
@@ -6588,34 +6588,34 @@ do
     
     panel:Refresh()
     
-    --> add panel
+    --add panel
         local addframe = DF:NewPanel (sectionFrame, nil, "$parentUserTimeCapturesAddPanel", "userTimeCaptureAddPanel", 683, 422)
-        addframe:SetPoint ("topleft", sectionFrame, "topleft", startX, startY - 70)
+        addframe:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 70)
         addframe:SetFrameLevel (7)
         addframe:Hide()
 
-        addframe:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
-        addframe:SetBackdropColor (0.5, 0.5, 0.5, 0.95)
-        addframe:SetBackdropBorderColor (0, 0, 0, 1)
+        addframe:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
+        addframe:SetBackdropColor(0.5, 0.5, 0.5, 0.95)
+        addframe:SetBackdropBorderColor(0, 0, 0, 1)
 
-        --> name
-            local capture_name = DF:NewLabel (addframe, nil, "$parentNameLabel", "nameLabel", Loc ["STRING_OPTIONS_CHART_ADDNAME"])
+        --name
+            local capture_name = DF:NewLabel(addframe, nil, "$parentNameLabel", "nameLabel", Loc ["STRING_OPTIONS_CHART_ADDNAME"])
             local capture_name_entry = DF:NewTextEntry (addframe, nil, "$parentNameEntry", "nameEntry", 160, 20, function() end, nil, nil, nil, nil, options_dropdown_template)
             capture_name_entry:SetMaxLetters (16)
-            capture_name_entry:SetPoint ("left", capture_name, "right", 2, 0)
+            capture_name_entry:SetPoint("left", capture_name, "right", 2, 0)
         
-        --> function
-            local capture_func = DF:NewLabel (addframe, nil, "$parentFunctionLabel", "functionLabel", Loc ["STRING_OPTIONS_CHART_ADDCODE"])
+        --function
+            local capture_func = DF:NewLabel(addframe, nil, "$parentFunctionLabel", "functionLabel", Loc ["STRING_OPTIONS_CHART_ADDCODE"])
             local capture_func_entry = DF:NewSpecialLuaEditorEntry (addframe.widget, 300, 200, "funcEntry", "$parentFuncEntry")
-            capture_func_entry:SetPoint ("topleft", capture_func.widget, "topright", 2, 0)
-            capture_func_entry:SetSize (500, 220)
-            capture_func_entry:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-            capture_func_entry:SetBackdropBorderColor (0, 0, 0, 1)
-            capture_func_entry:SetBackdropColor (0, 0, 0, .5)
+            capture_func_entry:SetPoint("topleft", capture_func.widget, "topright", 2, 0)
+            capture_func_entry:SetSize(500, 220)
+            capture_func_entry:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+            capture_func_entry:SetBackdropBorderColor(0, 0, 0, 1)
+            capture_func_entry:SetBackdropColor(0, 0, 0, .5)
             DF:ReskinSlider(capture_func_entry.scroll)
             
-        --> icon
-            local capture_icon = DF:NewLabel (addframe, nil, "$parentIconLabel", "iconLabel", Loc ["STRING_OPTIONS_CHART_ADDICON"])
+        --icon
+            local capture_icon = DF:NewLabel(addframe, nil, "$parentIconLabel", "iconLabel", Loc ["STRING_OPTIONS_CHART_ADDICON"])
             local icon_button_func = function(texture)
                 addframe.iconButton.iconTexture = texture
                 addframe.iconButton:SetIcon(texture)
@@ -6623,19 +6623,19 @@ do
             local capture_icon_button = DF:NewButton (addframe, nil, "$parentIconButton", "iconButton", 20, 20, function() DF:IconPick (icon_button_func, true) end, nil, nil, nil, nil, nil, options_button_template)
             capture_icon_button:SetIcon([[Interface\ICONS\TEMP]])
             capture_icon_button:SetTemplate(options_button_template)
-            capture_icon_button:SetPoint ("left", capture_icon, "right", 2, 0)
+            capture_icon_button:SetPoint("left", capture_icon, "right", 2, 0)
         
-        --> author
-            local capture_author = DF:NewLabel (addframe, nil, "$parentAuthorLabel", "authorLabel", Loc ["STRING_OPTIONS_CHART_ADDAUTHOR"])
+        --author
+            local capture_author = DF:NewLabel(addframe, nil, "$parentAuthorLabel", "authorLabel", Loc ["STRING_OPTIONS_CHART_ADDAUTHOR"])
             local capture_author_entry = DF:NewTextEntry (addframe, nil, "$parentAuthorEntry", "authorEntry", 160, 20, function() end, nil, nil, nil, nil, options_dropdown_template)
-            capture_author_entry:SetPoint ("left", capture_author, "right", 2, 0)
+            capture_author_entry:SetPoint("left", capture_author, "right", 2, 0)
             
-        --> version
-            local capture_version = DF:NewLabel (addframe, nil, "$parentVersionLabel", "versionLabel", Loc ["STRING_OPTIONS_CHART_ADDVERSION"])
+        --version
+            local capture_version = DF:NewLabel(addframe, nil, "$parentVersionLabel", "versionLabel", Loc ["STRING_OPTIONS_CHART_ADDVERSION"])
             local capture_version_entry = DF:NewTextEntry (addframe, nil, "$parentVersionEntry", "versionEntry", 160, 20, function() end, nil, nil, nil, nil, options_dropdown_template)
-            capture_version_entry:SetPoint ("left", capture_version, "right", 2, 0)
+            capture_version_entry:SetPoint("left", capture_version, "right", 2, 0)
     
-    --> open add panel button
+    --open add panel button
         local add = function() 
             addframe:Show()
             sectionFrame.importEditor:ClearFocus()
@@ -6650,20 +6650,20 @@ do
         end
         
         local addbutton = DF:NewButton (sectionFrame, nil, "$parentAddButton", "addbutton", 120, 20, add, nil, nil, nil, Loc ["STRING_OPTIONS_CHART_ADD"], nil, options_button_template)
-        addbutton:SetPoint ("bottomright", panel, "topright", -30, 0)
+        addbutton:SetPoint("bottomright", panel, "topright", -30, 0)
         addbutton:SetIcon ([[Interface\PaperDollInfoFrame\Character-Plus]], 12, 12, nil, nil, nil, 4)
         
-    --> open import panel button
+    --open import panel button
     
         local importframe = DF:NewSpecialLuaEditorEntry (sectionFrame, 683, 422, "importEditor", "$parentImportEditor", true)
         local font, size, flag = importframe.editbox:GetFont()
         importframe.editbox:SetFont (font, 9, flag)
-        importframe:SetPoint ("topleft", sectionFrame, "topleft", startX, startY - 70)
+        importframe:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 70)
         importframe:SetFrameLevel (sectionFrame:GetFrameLevel()+6)
-        importframe:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
+        importframe:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
         DF:ReskinSlider(importframe.scroll)
-        importframe:SetBackdropColor (0.5, 0.5, 0.5, 0.95)
-        importframe:SetBackdropBorderColor (0, 0, 0, 1)
+        importframe:SetBackdropColor(0.5, 0.5, 0.5, 0.95)
+        importframe:SetBackdropBorderColor(0, 0, 0, 1)
         importframe:Hide()
         
         local doimport = function()
@@ -6675,10 +6675,10 @@ do
             if (dataTable) then
                 local unserialize = dataTable
                 
-                if (type (unserialize) == "table") then
+                if (type(unserialize) == "table") then
                     if (unserialize[1] and unserialize[2] and unserialize[3] and unserialize[4] and unserialize[5]) then
                         local register = _detalhes:TimeDataRegister (unpack (unserialize))
-                        if (type (register) == "string") then
+                        if (type(register) == "string") then
                             _detalhes:Msg (register)
                         end
                     else
@@ -6698,8 +6698,8 @@ do
 
         local accept_import = DF:NewButton (importframe, nil, "$parentAccept", "acceptButton", 120, 20, doimport)
         accept_import:SetIcon ([[Interface\Buttons\UI-CheckBox-Check]])
-        accept_import:SetPoint (10, 18)
-        accept_import:SetText (Loc ["STRING_OPTIONS_CHART_IMPORT"])
+        accept_import:SetPoint(10, 18)
+        accept_import:SetText(Loc ["STRING_OPTIONS_CHART_IMPORT"])
         accept_import:SetTemplate (options_button_template)
         
         local cancelimport = function()
@@ -6709,13 +6709,13 @@ do
         
         local cancel_changes = DF:NewButton (importframe, nil, "$parentCancel", "CancelButton", 120, 20, cancelimport)
         cancel_changes:SetIcon ([[Interface\PetBattles\DeadPetIcon]])
-        cancel_changes:SetText (Loc ["STRING_OPTIONS_CHART_CANCEL"])
-        cancel_changes:SetPoint (132, 18)
+        cancel_changes:SetText(Loc ["STRING_OPTIONS_CHART_CANCEL"])
+        cancel_changes:SetPoint(132, 18)
         cancel_changes:SetTemplate (options_button_template)
     
         local import = function() 
             importframe:Show()
-            importframe:SetText ("")
+            importframe:SetText("")
             importframe:SetFocus (true)
             addframe:Hide()
             big_code_editor:ClearFocus()
@@ -6728,14 +6728,14 @@ do
         end
         
         local importbutton = DF:NewButton (sectionFrame, nil, "$parentImportButton", "importbutton", 120, 20, import, nil, nil, nil, Loc ["STRING_OPTIONS_CHART_IMPORT"], nil, options_button_template)
-        importbutton:SetPoint ("right", addbutton, "left", -4, 0)
+        importbutton:SetPoint("right", addbutton, "left", -4, 0)
         importbutton:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]], 14, 14, nil, nil, nil, 4)
 
-    --> close button
+    --close button
         local closebutton = DF:NewButton (addframe, nil, "$parentAddCloseButton", "addClosebutton", 120, 20, function() addframe:Hide() end, nil, nil, nil, Loc ["STRING_OPTIONS_CHART_CLOSE"], nil, options_button_template)
         --closebutton:InstallCustomTexture()
         
-    --> confirm add capture
+    --confirm add capture
         local addcapture = function()
             local name = capture_name_entry.text
             if (name == "") then
@@ -6766,7 +6766,7 @@ do
             capture_name_entry.text = ""
             capture_author_entry.text = ""
             capture_version_entry.text = ""
-            capture_func_entry:SetText ("")
+            capture_func_entry:SetText("")
             addframe.iconButton:SetTexture([[Interface\ICONS\TEMP]])
             
             if (DetailsIconPickFrame and DetailsIconPickFrame:IsShown()) then
@@ -6778,13 +6778,13 @@ do
         
         local addcapturebutton = DF:NewButton (addframe, nil, "$parentAddCaptureButton", "addCapturebutton", 120, 21, addcapture, nil, nil, nil, Loc ["STRING_OPTIONS_CHART_ADD2"], nil, options_button_template)
 
-    --> anchors
+    --anchors
         local start = 25
-        capture_name:SetPoint (start, startY)
-        capture_icon:SetPoint (start, -55)
-        capture_author:SetPoint (start, -80)
-        capture_version:SetPoint (start, -105)
-        capture_func:SetPoint (start, -130)
+        capture_name:SetPoint(start, startY)
+        capture_icon:SetPoint(start, -55)
+        capture_author:SetPoint(start, -80)
+        capture_version:SetPoint(start, -105)
+        capture_func:SetPoint(start, -130)
         
         addcapturebutton:SetIcon ([[Interface\Buttons\UI-CheckBox-Check]], 18, 18, nil, nil, nil, 4)
         closebutton:SetIcon ([[Interface\PetBattles\DeadPetIcon]], 14, 14, nil, nil, nil, 4)
@@ -6792,13 +6792,13 @@ do
         addcapturebutton:SetTemplate (options_button_template)
         closebutton:SetTemplate (options_button_template)
         
-        addcapturebutton:SetPoint ("bottomright", addframe, "bottomright", -5, 5)
-        closebutton:SetPoint ("right", addcapturebutton, "left", -4, 0)			
+        addcapturebutton:SetPoint("bottomright", addframe, "bottomright", -5, 5)
+        closebutton:SetPoint("right", addcapturebutton, "left", -4, 0)			
 
---> anchors
-        titulo_datacharts:SetPoint (startX, startY)
-        titulo_datacharts_desc:SetPoint (startX, startY - 20)
-        panel:SetPoint (startX, startY - 70)
+--anchors
+        titulo_datacharts:SetPoint(startX, startY)
+        titulo_datacharts_desc:SetPoint(startX, startY - 20)
+        panel:SetPoint(startX, startY - 70)
 
         local sectionOptions = {
 

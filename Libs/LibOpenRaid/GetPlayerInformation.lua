@@ -268,7 +268,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
             local _, itemId, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
             local gemsIds = {gemId1, gemId2, gemId3, gemId4}
 
-            --> enchant
+            --enchant
                 --check if the slot can receive enchat and if the equipment has an enchant
                 local enchantAttribute = LIB_OPEN_RAID_ENCHANT_SLOTS[equipmentSlotId]
                 if (enchantAttribute) then --this slot can receive an enchat
@@ -276,7 +276,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
                     --check if this slot is relevant for the class, some slots can have enchants only for Agility which won't matter for Priests as an example
                     --if the value is an integer it points to an attribute (int, dex, str), otherwise it's true (boolean)
                     local slotIsRelevant = true
-                    if (type (enchantAttribute) == "number") then
+                    if (type(enchantAttribute) == "number") then
                         if (specMainAttribute ~= enchantAttribute) then
                             slotIsRelevant = false
                         end
@@ -302,7 +302,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
                     end
                 end
 
-            --> gems
+            --gems
                 local itemStatsTable = {}
                 --fill the table above with information about the item
                 GetItemStats(itemLink, itemStatsTable)

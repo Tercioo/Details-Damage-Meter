@@ -688,9 +688,9 @@ if (IS_WOW_PROJECT_NOT_MAINLINE) then
 	
 end
 
--->  tells the duration, requirements and cooldown of a cooldown
+-- tells the duration, requirements and cooldown of a cooldown
 DF.CooldownsInfo = {
-	--> paladin
+	--paladin
 	[31884] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "PALADIN", type = 1}, --Avenging Wrath
 	[216331] = {cooldown = 120, duration = 20, talent = 22190, charges = 1, class = "PALADIN", type = 1}, --Avenging Crusader (talent)
 	[498] = {cooldown = 60, duration = 8, talent = false, charges = 1, class = "PALADIN", type = 2}, --Divine Protection
@@ -712,7 +712,7 @@ DF.CooldownsInfo = {
 	[205191] = {cooldown = 60, duration = 10, talent = 22183, charges = 1, class = "PALADIN", type = 2}, --Eye for an Eye (talent)
 	[184662] = {cooldown = 120, duration = 15, talent = false, charges = 1, class = "PALADIN", type = 2}, --Shield of Vengeance
 	
-	--> warrior
+	--warrior
 	[107574] = {cooldown = 90, duration = 20, talent = 22397, charges = 1, class = "WARRIOR", type = 1}, --Avatar
 	[227847] = {cooldown = 90, duration = 5, talent = false, charges = 1, class = "WARRIOR", type = 1}, --Bladestorm
 	[152277] = {cooldown = 60, duration = 6, talent = 21667, charges = 1, class = "WARRIOR", type = 1}, --Ravager (talent)
@@ -728,7 +728,7 @@ DF.CooldownsInfo = {
 	[5246]  = {cooldown = 90, duration = 8, talent = false, charges = 1, class = "WARRIOR", type = 5}, --Intimidating Shout
 
 	
-	--> warlock
+	--warlock
 	[205180] = {cooldown = 180, duration = 20, talent = false, charges = 1, class = "WARLOCK", type = 1}, --Summon Darkglare
 	[342601] = {cooldown = 3600, duration = false, talent = false, charges = 1, class = "WARLOCK", type = 1}, --Ritual of Doom
 	[113860] = {cooldown = 120, duration = 20, talent = 19293, charges = 1, class = "WARLOCK", type = 1}, --Dark Soul: Misery (talent)
@@ -744,7 +744,7 @@ DF.CooldownsInfo = {
 	[333889] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "WARLOCK", type = 5}, --Fel Domination
 	[5484] = {cooldown = 40, duration = 20, talent = true, charges = 1, class = "WARLOCK", type = 5}, --Howl of Terror (talent)
 	
-	--> shaman
+	--shaman
 	[198067] = {cooldown = 150, duration = 30, talent = false, charges = 1, class = "SHAMAN", type = 1}, --Fire Elemental
 	[192249] = {cooldown = 150, duration = 30, talent = 19272, charges = 1, class = "SHAMAN", type = 1}, --Storm Elemental (talent)
 	[108271] = {cooldown = 90, duration = 8, talent = false, charges = 1, class = "SHAMAN", type = 2}, --Astral Shift
@@ -762,7 +762,7 @@ DF.CooldownsInfo = {
 	[65992] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "SHAMAN", type = 5}, --Tremor Totem
 	[192077] = {cooldown = 120, duration = 15, talent = 21966, charges = 1, class = "SHAMAN", type = 5}, --Wind Rush Totem (talent)
 	
-	--> monk
+	--monk
 	[132578] = {cooldown = 180, duration = 25, talent = false, charges = 1, class = "MONK", type = 1}, --Invoke Niuzao, the Black Ox
 	[115080] = {cooldown = 180, duration = false, talent = false, charges = 1, class = "MONK", type = 1}, --Touch of Death
 	[115203] = {cooldown = 420, duration = 15, talent = false, charges = 1, class = "MONK", type = 2}, --Fortifying Brew
@@ -783,7 +783,7 @@ DF.CooldownsInfo = {
 	[116844] = {cooldown = 45, duration = 5, talent = 19995, charges = 1, class = "MONK", type = 5}, --Ring of peace (talent)
 	[119381] = {cooldown = 50, duration = 3, talent = false, charges = 1, class = "MONK", type = 5}, --Leg Sweep
 	
-	--> hunter
+	--hunter
 	[193530] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "HUNTER", type = 1}, --Aspect of the Wild
 	[19574] = {cooldown = 90, duration = 12, talent = false, charges = 1, class = "HUNTER", type = 1}, --Bestial Wrath
 	[201430] = {cooldown = 180, duration = 12, talent = 23044, charges = 1, class = "HUNTER", type = 1}, --Stampede (talent)
@@ -799,7 +799,7 @@ DF.CooldownsInfo = {
 	[187650] = {cooldown = 25, duration = 60, talent = false, charges = 1, class = "HUNTER", type = 5}, --Freezing Trap
 	[186289] = {cooldown = 72, duration = 15, talent = false, charges = 1, class = "HUNTER", type = 5}, --Aspect of the eagle
 
-	--> druid
+	--druid
 	[194223] = {cooldown = 180, duration = 20, talent = false, charges = 1, class = "DRUID", type = 1}, --Celestial Alignment
 	[102560] = {cooldown = 180, duration = 30, talent = 21702, charges = 1, class = "DRUID", type = 1}, --Incarnation: Chosen of Elune (talent)
 	[22812] = {cooldown = 60, duration = 12, talent = false, charges = 1, class = "DRUID", type = 2}, --Barkskin
@@ -819,7 +819,7 @@ DF.CooldownsInfo = {
 	[132469] = {cooldown = 30, duration = false, talent = false, charges = 1, class = "DRUID", type = 5}, --Typhoon
 	[319454] = {cooldown = 300, duration = 45, talent = 18577, charges = 1, class = "DRUID", type = 5}, --Heart of the Wild (talent)
 
-	--> death knight
+	--death knight
 	[275699] = {cooldown = 90, duration = 15, talent = false, charges = 1, class = "DEATHKNIGHT", type = 1}, --Apocalypse
 	[42650] = {cooldown = 480, duration = 30, talent = false, charges = 1, class = "DEATHKNIGHT", type = 1}, --Army of the Dead
 	[49206] = {cooldown = 180, duration = 30, talent = 22110, charges = 1, class = "DEATHKNIGHT", type = 1}, --Summon Gargoyle (talent)
@@ -839,7 +839,7 @@ DF.CooldownsInfo = {
 	[108194] = {cooldown = 45, duration = 4, talent = 22520, charges = 1, class = "DEATHKNIGHT", type = 5}, --Asphyxiate (talent)
 	[221562]  = {cooldown = 45, duration = 5, talent = false, charges = 1, class = "DEATHKNIGHT", type = 5}, --Asphyxiate
 	
-	--> demon hunter
+	--demon hunter
 
 	[200166] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
 	[198589] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Blur
@@ -858,7 +858,7 @@ DF.CooldownsInfo = {
 	[202137] = {cooldown = 60, duration = 8, talent = false, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Silence
 	[202138] = {cooldown = 90, duration = 6, talent = 22511, charges = 1, class = "DEMONHUNTER", type = 5}, --Sigil of Chains (talent)
 	
-	--> mage
+	--mage
 	[12042] = {cooldown = 90, duration = 10, talent = false, charges = 1, class = "MAGE", type = 1},  --Arcane Power
 	[12051] = {cooldown = 90, duration = 6, talent = false, charges = 1, class = "MAGE", type = 1},  --Evocation
 	[110960] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "MAGE", type = 2},  --Greater Invisibility
@@ -874,7 +874,7 @@ DF.CooldownsInfo = {
 	[235219] = {cooldown = 300, duration = false, talent = false, charges = 1, class = "MAGE", type = 5},  --Cold Snap
 	[113724] = {cooldown = 45, duration = 10, talent = 22471, charges = 1, class = "MAGE", type = 5},  --Ring of Frost (talent)
 
-	--> priest
+	--priest
 	[10060] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "PRIEST", type = 1},  --Power Infusion
 	[34433] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "PRIEST", type = 1},  --Shadowfiend
 	[123040] = {cooldown = 60, duration = 12, talent = 22094, charges = 1, class = "PRIEST", type = 1},  --Mindbender (talent)
@@ -895,7 +895,7 @@ DF.CooldownsInfo = {
 	[47585] = {cooldown = 120, duration = 6, talent = false, charges = 1, class = "PRIEST", type = 2},  --Dispersion
 	[15286] = {cooldown = 120, duration = 15, talent = false, charges = 1, class = "PRIEST", type = 4},  --Vampiric Embrace
 
-	--> rogue
+	--rogue
 	[79140] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "ROGUE", type = 1},  --Vendetta
 	[1856] = {cooldown = 120, duration = 3, talent = false, charges = 1, class = "ROGUE", type = 2},  --Vanish
 	[5277] = {cooldown = 120, duration = 10, talent = false, charges = 1, class = "ROGUE", type = 2},  --Evasion
@@ -1435,7 +1435,7 @@ function DF:GetSpellsForEncounterFromJournal (instanceEJID, encounterEJID)
 	local nextID = {sectionInfo.siblingSectionID}
 	
 	while (nextID [1]) do
-		--> get the deepest section in the hierarchy
+		--get the deepest section in the hierarchy
 		local ID = tremove (nextID)
 		local sectionInfo = C_EncounterJournal.GetSectionInfo (ID)
 		
@@ -1462,51 +1462,51 @@ end
 --default spells to use in the range check
 DF.SpellRangeCheckListBySpec = {
 	-- 185245 spellID for Torment, it is always failing to check range with IsSpellInRange()
-	[577] = 278326, --> havoc demon hunter - Consume Magic
-	[581] = 278326, --> vengeance demon hunter - Consume Magic
+	[577] = 278326, --havoc demon hunter - Consume Magic
+	[581] = 278326, --vengeance demon hunter - Consume Magic
 
-	[250] = 56222, --> blood dk - dark command
-	[251] = 56222, --> frost dk - dark command
-	[252] = 56222, --> unholy dk - dark command
+	[250] = 56222, --blood dk - dark command
+	[251] = 56222, --frost dk - dark command
+	[252] = 56222, --unholy dk - dark command
 	
-	[102] = 8921, -->  druid balance - Moonfire (45 yards)
-	[103] = 8921, -->  druid feral - Moonfire (40 yards)
-	[104] = 6795, -->  druid guardian - Growl
-	[105] = 8921, -->  druid resto - Moonfire (40 yards)
+	[102] = 8921, -- druid balance - Moonfire (45 yards)
+	[103] = 8921, -- druid feral - Moonfire (40 yards)
+	[104] = 6795, -- druid guardian - Growl
+	[105] = 8921, -- druid resto - Moonfire (40 yards)
 
-	[253] = 193455, -->  hunter bm - Cobra Shot
-	[254] = 19434, --> hunter marks - Aimed Shot
-	[255] = 271788, --> hunter survivor - Serpent Sting
+	[253] = 193455, -- hunter bm - Cobra Shot
+	[254] = 19434, --hunter marks - Aimed Shot
+	[255] = 271788, --hunter survivor - Serpent Sting
 	
-	[62] = 227170, --> mage arcane - arcane blast
-	[63] = 133, --> mage fire - fireball
-	[64] = 228597, --> mage frost - frostbolt
+	[62] = 227170, --mage arcane - arcane blast
+	[63] = 133, --mage fire - fireball
+	[64] = 228597, --mage frost - frostbolt
 	
-	[268] = 115546 , --> monk bm - Provoke
-	[269] = 117952, --> monk ww - Crackling Jade Lightning (40 yards)
-	[270] = 117952, --> monk mw - Crackling Jade Lightning (40 yards)
+	[268] = 115546 , --monk bm - Provoke
+	[269] = 117952, --monk ww - Crackling Jade Lightning (40 yards)
+	[270] = 117952, --monk mw - Crackling Jade Lightning (40 yards)
 	
-	[65] = 20473, --> paladin holy - Holy Shock (40 yards)
-	[66] = 62124, --> paladin protect - Hand of Reckoning
-	[70] = 62124, --> paladin ret - Hand of Reckoning
+	[65] = 20473, --paladin holy - Holy Shock (40 yards)
+	[66] = 62124, --paladin protect - Hand of Reckoning
+	[70] = 62124, --paladin ret - Hand of Reckoning
 	
-	[256] = 585, --> priest disc - Smite
-	[257] = 585, --> priest holy - Smite
-	[258] = 8092, --> priest shadow - Mind Blast
+	[256] = 585, --priest disc - Smite
+	[257] = 585, --priest holy - Smite
+	[258] = 8092, --priest shadow - Mind Blast
 	
-	[259] = 185565, --> rogue assassination - Poisoned Knife (30 yards)
-	[260] = 185763, --> rogue outlaw - Pistol Shot (20 yards)
-	[261] = 114014, --> rogue sub - Shuriken Toss (30 yards)
+	[259] = 185565, --rogue assassination - Poisoned Knife (30 yards)
+	[260] = 185763, --rogue outlaw - Pistol Shot (20 yards)
+	[261] = 114014, --rogue sub - Shuriken Toss (30 yards)
 
-	[262] = 188196, --> shaman elemental - Lightning Bolt
-	[263] = 187837, --> shaman enhancement - Lightning Bolt (instance cast)
-	[264] = 403, --> shaman resto - Lightning Bolt
+	[262] = 188196, --shaman elemental - Lightning Bolt
+	[263] = 187837, --shaman enhancement - Lightning Bolt (instance cast)
+	[264] = 403, --shaman resto - Lightning Bolt
 
-	[265] = 686, --> warlock aff - Shadow Bolt
-	[266] = 686, --> warlock demo - Shadow Bolt
-	[267] = 116858, --> warlock destro - Chaos Bolt
+	[265] = 686, --warlock aff - Shadow Bolt
+	[266] = 686, --warlock demo - Shadow Bolt
+	[267] = 116858, --warlock destro - Chaos Bolt
 	
-	[71] = 355, --> warrior arms - Taunt
-	[72] = 355, --> warrior fury - Taunt
-	[73] = 355, --> warrior protect - Taunt
+	[71] = 355, --warrior arms - Taunt
+	[72] = 355, --warrior fury - Taunt
+	[73] = 355, --warrior protect - Taunt
 }

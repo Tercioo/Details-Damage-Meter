@@ -6,8 +6,8 @@ if (not DF or not DetailsFrameworkCanLoad) then
 end
 
 local _
-local _rawset = rawset --> lua local
-local _rawget = rawget --> lua local
+local _rawset = rawset --lua local
+local _rawget = rawget --lua local
 
 local APIHelpFunctions = false
 local HelpMetaFunctions = {}
@@ -49,13 +49,13 @@ function HelpMetaFunctions:AddHelp (width, height, x, y, buttonX, buttonY, text,
 	}
 end
 
-function HelpMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
+function HelpMetaFunctions:SetPoint(v1, v2, v3, v4, v5)
 	v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 	if (not v1) then
 		print ("Invalid parameter for SetPoint")
 		return
 	end
-	return self.widget:SetPoint (v1, v2, v3, v4, v5)
+	return self.widget:SetPoint(v1, v2, v3, v4, v5)
 end
 
 function HelpMetaFunctions:ShowHelp()
@@ -75,7 +75,7 @@ function DF:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, nam
 		parent = parent.widget
 	end	
 	
-	local helpButton = CreateFrame ("button", name or "DetailsFrameworkHelpButton"..nameCounter, parent, "MainHelpPlateButton")
+	local helpButton = CreateFrame("button", name or "DetailsFrameworkHelpButton"..nameCounter, parent, "MainHelpPlateButton")
 	nameCounter = nameCounter + 1
 	
 	if (not APIHelpFunctions) then
@@ -92,13 +92,13 @@ function DF:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, nam
 	end	
 	
 	if (buttonWidth and buttonHeight) then
-		helpButton:SetWidth (buttonWidth)
-		helpButton:SetHeight (buttonHeight)
-		helpButton.I:SetWidth (buttonWidth*0.8)
-		helpButton.I:SetHeight (buttonHeight*0.8)
-		helpButton.Ring:SetWidth (buttonWidth)
-		helpButton.Ring:SetHeight (buttonHeight)
-		helpButton.Ring:SetPoint ("center", buttonWidth*.2, -buttonWidth*.2)
+		helpButton:SetWidth(buttonWidth)
+		helpButton:SetHeight(buttonHeight)
+		helpButton.I:SetWidth(buttonWidth*0.8)
+		helpButton.I:SetHeight(buttonHeight*0.8)
+		helpButton.Ring:SetWidth(buttonWidth)
+		helpButton.Ring:SetHeight(buttonHeight)
+		helpButton.Ring:SetPoint("center", buttonWidth*.2, -buttonWidth*.2)
 	end
 	
 	help.helpTable = {
@@ -112,7 +112,7 @@ function DF:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, nam
 	help.I = helpButton.I
 	help.Ring = helpButton.Ring
 	
-	helpButton:SetScript ("OnClick", function() 
+	helpButton:SetScript("OnClick", function() 
 		help:ShowHelp()
 	end)
 

@@ -2,7 +2,7 @@
 local Details = _G.Details
 
 
---> get the total of damage and healing of a phase of an encounter
+--get the total of damage and healing of a phase of an encounter
 function Details:OnCombatPhaseChanged()
 
     local current_combat = Details:GetCurrentCombat()
@@ -23,13 +23,13 @@ function Details:OnCombatPhaseChanged()
         current_combat.PhaseData.heal [current_phase] = phase_healing_container
     end
     
-    for index, damage_actor in ipairs (Details.cache_damage_group) do
+    for index, damage_actor in ipairs(Details.cache_damage_group) do
         local phase_damage = damage_actor.total - (phase_damage_section [damage_actor.nome] or 0)
         phase_damage_section [damage_actor.nome] = damage_actor.total
         phase_damage_container [damage_actor.nome] = (phase_damage_container [damage_actor.nome] or 0) + phase_damage
     end
     
-    for index, healing_actor in ipairs (Details.cache_healing_group) do
+    for index, healing_actor in ipairs(Details.cache_healing_group) do
         local phase_heal = healing_actor.total - (phase_healing_section [healing_actor.nome] or 0)
         phase_healing_section [healing_actor.nome] = healing_actor.total
         phase_healing_container [healing_actor.nome] = (phase_healing_container [healing_actor.nome] or 0) + phase_heal
@@ -82,8 +82,8 @@ function Details:BossModsLink()
                     tinsert (cur_combat.PhaseData, {phase, time})
                 end
                 
-                Details:SendEvent ("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
-                --Details:Msg ("Current phase is now:", phase)
+                Details:SendEvent("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
+                --Details:Msg("Current phase is now:", phase)
             end
         end
 
@@ -104,8 +104,8 @@ function Details:CreateCallbackListeners()
     local current_table_dbm = {}
     local current_table_bigwigs = {}
 
-    local event_frame = CreateFrame ("frame", nil, UIParent, "BackdropTemplate")
-    event_frame:SetScript ("OnEvent", function(self, event, ...)
+    local event_frame = CreateFrame("frame", nil, UIParent, "BackdropTemplate")
+    event_frame:SetScript("OnEvent", function(self, event, ...)
         if (event == "ENCOUNTER_START") then
             local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
             current_encounter = encounterID
@@ -158,7 +158,7 @@ function Details:CreateCallbackListeners()
             function Details:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
                 spellid = tostring (spellid)
                 if (not current_table_bigwigs [spellid]) then
-                    current_table_bigwigs [spellid] = {(type (module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
+                    current_table_bigwigs [spellid] = {(type(module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
                 end
             end
             if (BigWigsLoader.RegisterMessage) then
