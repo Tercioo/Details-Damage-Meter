@@ -135,7 +135,7 @@ function Details.OpenRunCodeWindow()
                 Details:Msg("Code saved!")
                 code_editor:ClearFocus()
             else
-                errortext_frame:Flash (0.2, 0.2, 0.4, true, nil, nil, "NONE")
+                errortext_frame:Flash(0.2, 0.2, 0.4, true, nil, nil, "NONE")
                 Details:Msg("Can't save the code: it has errors.")
             end
         end
@@ -167,7 +167,7 @@ function Details.OpenRunCodeWindow()
                 DF:SetEnvironment(func)
                 DF:QuickDispatch (func)
             else
-                errortext_frame:Flash (0.2, 0.2, 0.4, true, nil, nil, "NONE")
+                errortext_frame:Flash(0.2, 0.2, 0.4, true, nil, nil, "NONE")
             end
         end
         
@@ -178,7 +178,7 @@ function Details.OpenRunCodeWindow()
     end
     
     DetailsPluginContainerWindow.OpenPlugin (DetailsRunCodePanel)
-    DetailsRunCodePanel.CodeTypeDropdown:Select (1, true)
+    DetailsRunCodePanel.CodeTypeDropdown:Select(1, true)
     
     --show the initialization code when showing up this window
     DetailsRunCodePanel.EditingCode = Details.RunCodeTypes [1].Value

@@ -296,7 +296,7 @@ do
 		if (_detalhes.tabela_vigente) then
 			local misc_actor = _detalhes.tabela_vigente (4, Actor.nome)
 			if (misc_actor and misc_actor.spell_cast) then
-				for spellid, _ in pairs (misc_actor.spell_cast) do
+				for spellid, _ in pairs(misc_actor.spell_cast) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
@@ -427,7 +427,7 @@ do
 			local misc_actor = _detalhes.tabela_vigente (4, Actor.nome)
 			
 			if (misc_actor and misc_actor.spell_cast) then
-				for spellid, _ in pairs (misc_actor.spell_cast) do
+				for spellid, _ in pairs(misc_actor.spell_cast) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec

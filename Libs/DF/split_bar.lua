@@ -458,11 +458,11 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	end
 
 -- frame stratas
-	function SplitBarMetaFunctions:SetFrameStrata (strata)
+	function SplitBarMetaFunctions:SetFrameStrata(strata)
 		if (_type(strata) == "table") then
-			self.statusbar:SetFrameStrata (strata:GetFrameStrata())
+			self.statusbar:SetFrameStrata(strata:GetFrameStrata())
 		else
-			self.statusbar:SetFrameStrata (strata)
+			self.statusbar:SetFrameStrata(strata)
 		end
 	end
 
@@ -572,7 +572,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		if (frame.MyObject.have_tooltip) then
 			GameCooltip2:Reset()
 			GameCooltip2:AddLine (frame.MyObject.have_tooltip)
-			GameCooltip2:ShowCooltip (frame, "tooltip")
+			GameCooltip2:ShowCooltip(frame, "tooltip")
 		end
 	end
 	
@@ -584,7 +584,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		end
 
 		if (frame.MyObject.have_tooltip) then 
-			DF.popup:ShowMe (false)
+			DF.popup:ShowMe(false)
 		end
 	end
 	
@@ -755,7 +755,7 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		if (not APISplitBarFunctions) then
 			APISplitBarFunctions = true
 			local idx = getmetatable (SplitBarObject.statusbar).__index
-			for funcName, funcAddress in pairs (idx) do 
+			for funcName, funcAddress in pairs(idx) do 
 				if (not SplitBarMetaFunctions [funcName]) then
 					SplitBarMetaFunctions [funcName] = function(object, ...)
 						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")

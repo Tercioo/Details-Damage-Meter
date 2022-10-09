@@ -81,7 +81,7 @@ end
 function _detalhes:ShowImportWindow (defaultText, confirmFunc, titleText)
 	if (not _G.DetailsExportWindow) then
 		local importWindow = DetailsFramework:CreateSimplePanel (_G.UIParent, 800, 610, "Details! Dump String", "DetailsExportWindow")
-		importWindow:SetFrameStrata ("FULLSCREEN")
+		importWindow:SetFrameStrata("FULLSCREEN")
 		importWindow:SetPoint("center")
 		DetailsFramework:ApplyStandardBackdrop (importWindow, false, 1.2)
 	

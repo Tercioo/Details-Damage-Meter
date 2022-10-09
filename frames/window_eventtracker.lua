@@ -61,7 +61,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 			local SharedMedia = _G.LibStub:GetLibrary ("LibSharedMedia-3.0")
 			local textures = SharedMedia:HashTable ("statusbar")
 			local texTable = {}
-			for name, texturePath in pairs (textures) do 
+			for name, texturePath in pairs(textures) do 
 				texTable [#texTable + 1] = {value = name, label = name, statusbar = texturePath, onclick = set_bar_texture}
 			end
 			table.sort (texTable, function(t1, t2) return t1.label < t2.label end)
@@ -267,7 +267,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		left_resize:SetScript("OnMouseDown", function(self)
 			if (not f.resizing and not _detalhes.event_tracker.frame.locked) then
 				f.resizing = true
-				f:StartSizing ("bottomleft")
+				f:StartSizing("bottomleft")
 			end
 		end)
 		left_resize:SetScript("OnMouseUp", function(self)
@@ -281,7 +281,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		right_resize:SetScript("OnMouseDown", function(self)
 			if (not f.resizing and not _detalhes.event_tracker.frame.locked) then
 				f.resizing = true
-				f:StartSizing ("bottomright")
+				f:StartSizing("bottomright")
 			end
 		end)
 		right_resize:SetScript("OnMouseUp", function(self) 
@@ -705,7 +705,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			f:SetBackdropColor(unpack (_detalhes.event_tracker.frame.backdrop_color))
 			scrollframe.__background:SetVertexColor (unpack (_detalhes.event_tracker.frame.backdrop_color))
 			
-			f:SetFrameStrata (_detalhes.event_tracker.frame.strata)
+			f:SetFrameStrata(_detalhes.event_tracker.frame.strata)
 			
 			_detalhes:UpdateWorldTrackerLines()
 			scrollframe:Refresh()
@@ -750,25 +750,25 @@ function Details:CreateEventTrackerFrame(parent, name)
 			
 			--defensive cooldown
 			if (token == "SPELL_CAST_SUCCESS" and (cooldownListFromFramework [spellid]) and is_player (caster_flags)) then 
-				tinsert (CurrentShowing, 1, {SPELLTYPE_COOLDOWN, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+				tinsert(CurrentShowing, 1, {SPELLTYPE_COOLDOWN, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 				
 			--offensive cooldown
 			elseif (token == "SPELL_CAST_SUCCESS" and (attackCooldownsFromFramework [spellid]) and is_player (caster_flags)) then 
-				tinsert (CurrentShowing, 1, {SPELLTYPE_OFFENSIVE, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+				tinsert(CurrentShowing, 1, {SPELLTYPE_OFFENSIVE, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 			
 			--crowd control
 			elseif (token == "SPELL_AURA_APPLIED" and (crowdControlFromFramework [spellid])) then
 				--check if isnt a pet
 				if (target_flags and is_player (target_flags)) then
-					tinsert (CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+					tinsert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 					added = true
 				end
 			
 			--spell interrupt
 			elseif (token == "SPELL_INTERRUPT") then
-				tinsert (CurrentShowing, 1, {SPELLTYPE_INTERRUPT, spellid, caster_name, target_name, time, extraSpellID, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+				tinsert(CurrentShowing, 1, {SPELLTYPE_INTERRUPT, spellid, caster_name, target_name, time, extraSpellID, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 
 			end

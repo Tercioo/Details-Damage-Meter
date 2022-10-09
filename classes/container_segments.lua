@@ -93,7 +93,7 @@ function historico:adicionar_overall (tabela)
 	local combatTime = tabela:GetCombatTime()
 	local combatType = tabela:GetCombatType()
 	
-	tinsert (_detalhes.tabela_overall.segments_added, 1, {name = combatName, elapsed = combatTime, clock = this_clock, type = combatType})
+	tinsert(_detalhes.tabela_overall.segments_added, 1, {name = combatName, elapsed = combatTime, clock = this_clock, type = combatType})
 
 	if (#_detalhes.tabela_overall.segments_added > 40) then
 		tremove (_detalhes.tabela_overall.segments_added, 41)
@@ -142,7 +142,7 @@ function _detalhes:ScheduleAddCombatToOverall (combat) --deprecated (15/03/2019)
 	local canAdd = _detalhes:CanAddCombatToOverall (combat)
 	if (canAdd) then
 		_detalhes.schedule_add_to_overall = _detalhes.schedule_add_to_overall or {}
-		tinsert (_detalhes.schedule_add_to_overall, combat)
+		tinsert(_detalhes.schedule_add_to_overall, combat)
 	end
 end
 

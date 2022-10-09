@@ -10,7 +10,7 @@ local _
 --create the plugin object
 -- "Details_StreamOverlay" is the old name
 local StreamOverlay = _detalhes:NewPluginObject("Details_Streamer", DETAILSPLUGIN_ALWAYSENABLED)
---tinsert (UISpecialFrames, "Details_StreamOverlays")
+--tinsert(UISpecialFrames, "Details_StreamOverlays")
 --main frame (shortcut)
 local SOF = StreamOverlay.Frame
 
@@ -149,8 +149,8 @@ local function CreatePluginFrames()
 	titlebar.text:SetPoint("center", titlebar, "center")
 	titlebar.text:SetText("Details! Streamer: Action Tracker")
 	titlebar:SetScript("OnEnter", function(self) 
-		GameTooltip:SetOwner (self)
-		GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+		GameTooltip:SetOwner(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Right Click|r: Lock the Frame\n|cFFFF7700Slash Command|r: /streamer")
 		GameTooltip:Show()
 	end)
@@ -241,8 +241,8 @@ local function CreatePluginFrames()
 		LibWindow.RestorePosition (StreamerOverlayDpsHpsFrame)
 		LibWindow.SavePosition (StreamerOverlayDpsHpsFrame)
 		--set the frame strata
-		SOF:SetFrameStrata (StreamOverlay.db.main_frame_strata)
-		StreamerOverlayDpsHpsFrame:SetFrameStrata (StreamOverlay.db.main_frame_strata)
+		SOF:SetFrameStrata(StreamOverlay.db.main_frame_strata)
+		StreamerOverlayDpsHpsFrame:SetFrameStrata(StreamOverlay.db.main_frame_strata)
 	end
 	
 	--two resizers
@@ -265,7 +265,7 @@ local function CreatePluginFrames()
 	left_resize:SetScript("OnMouseDown", function(self)
 		if (not SOF.resizing and not StreamOverlay.db.main_frame_locked) then
 			SOF.resizing = true
-			SOF:StartSizing ("bottomleft")
+			SOF:StartSizing("bottomleft")
 		end
 	end)
 	left_resize:SetScript("OnMouseUp", function(self)
@@ -280,7 +280,7 @@ local function CreatePluginFrames()
 	right_resize:SetScript("OnMouseDown", function(self)
 		if (not SOF.resizing and not StreamOverlay.db.main_frame_locked) then
 			SOF.resizing = true
-			SOF:StartSizing ("bottomright")
+			SOF:StartSizing("bottomright")
 		end
 	end)
 	right_resize:SetScript("OnMouseUp", function(self) 
@@ -1600,8 +1600,8 @@ screen_frame:SetScript("OnMouseUp", function(self)
 	end
 end)
 screen_frame:SetScript("OnEnter", function(self) 
-	GameTooltip:SetOwner (self)
-	GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+	GameTooltip:SetOwner(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 	GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer")
 	GameTooltip:Show()
 end)
@@ -2245,7 +2245,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 		
 		local select_profile_fill = function()
 			local t = {}
-			for profileName, _ in pairs (Details_StreamerDB.profiles) do
+			for profileName, _ in pairs(Details_StreamerDB.profiles) do
 				t [#t+1] = {value = profileName, label = profileName, onclick = selectProfile}
 			end
 			return t
@@ -2257,7 +2257,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 		label_profile:SetPoint("topleft", optionsFrame, "topleft", 15, -65)
 		
 		local pname = UnitName ("player") .. " - " .. GetRealmName()
-		dropdown_profile:Select (Details_StreamerDB.characters [pname])
+		dropdown_profile:Select(Details_StreamerDB.characters [pname])
 		
 		--new profile button
 		if (not Details_StreamerDB.profiles [pname]) then
@@ -2279,7 +2279,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				
 				--update the options panel
 				optionsFrame:RefreshOptions()
-				dropdown_profile:Select (Details_StreamerDB.characters [pname])
+				dropdown_profile:Select(Details_StreamerDB.characters [pname])
 				
 			end
 			optionsFrame.NewProfileButton = Details.gump:CreateButton (optionsFrame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
@@ -2429,7 +2429,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				StreamOverlay:SetPluginDescription ("Show in real time the spells you are casting.\n\nThe viewer can now follow what you are doing, what spells you are casting, learn your rotation.\n\nAlso tells who is the target and its class/spec on raiding or role if you are in arena.\n\nWhen you die, the panel is filled with your death log.")
 				
 				if (StreamOverlay.db.is_first_run) then --problem with setting the plugin as disabled
-					if (Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
+					if (Details:GetTutorialCVar("STREAMER_PLUGIN_FIRSTRUN")) then
 						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
 						StreamOverlay.db.is_first_run = false
 					else
@@ -2437,7 +2437,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 					end
 				end
 
-				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
+				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar("STREAMER_PLUGIN_FIRSTRUN")) then
 					local show_frame = function()
 
 						if ((DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) or not StreamOverlay.db.is_first_run) then

@@ -60,7 +60,7 @@ function Details:OpenBrokerTextEditor()
 
         local optiontable = {"{dmg}", "{dps}", "{dpos}", "{ddiff}", "{heal}", "{hps}", "{hpos}", "{hdiff}", "{time}"}
     
-        local add_button = DF:NewButton (panel, nil, "$parentAddButton", nil, 20, 20, function() 
+        local add_button = DF:NewButton(panel, nil, "$parentAddButton", nil, 20, 20, function() 
             textentry.editbox:Insert (optiontable [option_selected])
         end,
         nil, nil, nil, "<-")
@@ -194,17 +194,17 @@ function Details:OpenBrokerTextEditor()
             panel:Hide()
         end
         
-        local ok_button = DF:NewButton (panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_DONE"], 1)
+        local ok_button = DF:NewButton(panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_DONE"], 1)
         ok_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_DONE_TOOLTIP"]
         ok_button:SetPoint("topright", panel, "topright", -12, -174)
         ok_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 
-        local reset_button = DF:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText("") end, nil, nil, nil, "Reset", 1)
+        local reset_button = DF:NewButton(panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText("") end, nil, nil, nil, "Reset", 1)
         reset_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_RESET_TOOLTIP"]
         reset_button:SetPoint("topright", panel, "topright", -100, -152)
         reset_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 
-        local cancel_button = DF:NewButton (panel, nil, "$parentDefaultCancel", nil, 80, 20, function() textentry.editbox:SetText(panel.default_text); done(); end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL"], 1)
+        local cancel_button = DF:NewButton(panel, nil, "$parentDefaultCancel", nil, 80, 20, function() textentry.editbox:SetText(panel.default_text); done(); end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL"], 1)
         cancel_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL_TOOLTIP"]
         cancel_button:SetPoint("topright", panel, "topright", -100, -174)
         cancel_button:SetTemplate(DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))

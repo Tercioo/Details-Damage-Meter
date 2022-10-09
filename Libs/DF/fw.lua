@@ -530,7 +530,7 @@ end
 
 --copy values that does exist on table2 but not on table1
 function DF.table.deploy(t1, t2)
-	for key, value in pairs (t2) do
+	for key, value in pairs(t2) do
 		if (type(value) == "table") then
 			t1 [key] = t1 [key] or {}
 			DF.table.deploy(t1 [key], t2 [key])
@@ -2435,7 +2435,7 @@ end
 			TutorialAlertFrame = CreateFrame("frame", "DetailsFrameworkAlertFrame", UIParent, "MicroButtonAlertTemplate")
 			TutorialAlertFrame.isFirst = true
 			TutorialAlertFrame:SetPoint("left", UIParent, "left", -20, 100)
-			TutorialAlertFrame:SetFrameStrata ("TOOLTIP")
+			TutorialAlertFrame:SetFrameStrata("TOOLTIP")
 			TutorialAlertFrame:Hide()
 			
 			TutorialAlertFrame:SetScript("OnMouseUp", function(self) 
@@ -2464,7 +2464,7 @@ end
 						widget:SetText(widget._get())
 					end
 				elseif (widget.widget_type == "select") then
-					widget:Select (widget._get())
+					widget:Select(widget._get())
 				elseif (widget.widget_type == "toggle" or widget.widget_type == "range") then
 					widget:SetValue(widget._get())
 				elseif (widget.widget_type == "textentry") then
@@ -2518,7 +2518,7 @@ end
 	
 		if (template == 2) then
 			local options_frame = CreateFrame("frame", name, UIParent, "ButtonFrameTemplate")
-			tinsert (UISpecialFrames, name)
+			tinsert(UISpecialFrames, name)
 			options_frame:SetSize(500, 200)
 			options_frame.RefreshOptions = refresh_options
 			options_frame.widget_list = {}
@@ -2544,7 +2544,7 @@ end
 			
 			options_frame:SetMovable (true)
 			options_frame:EnableMouse (true)
-			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetFrameStrata("DIALOG")
 			options_frame:SetToplevel (true)
 			
 			options_frame:Hide()
@@ -2558,7 +2558,7 @@ end
 		elseif (template == 1) then
 		
 			local options_frame = CreateFrame("frame", name, UIParent)
-			tinsert (UISpecialFrames, name)
+			tinsert(UISpecialFrames, name)
 			options_frame:SetSize(500, 200)
 			options_frame.RefreshOptions = refresh_options
 			options_frame.widget_list = {}
@@ -2584,7 +2584,7 @@ end
 			
 			options_frame:SetMovable (true)
 			options_frame:EnableMouse (true)
-			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetFrameStrata("DIALOG")
 			options_frame:SetToplevel (true)
 			
 			options_frame:Hide()
@@ -2859,7 +2859,7 @@ function DF:SetHook(hookType, func)
 				end
 			end
 			if (not isRemoval) then
-				tinsert (self.HookList [hookType], func)
+				tinsert(self.HookList [hookType], func)
 			end
 		else
 			if (DF.debug) then
@@ -3275,7 +3275,7 @@ local frameshake_play = function(parent, shakeObject, scaleDirection, scaleAmpli
 		--update the amount of shake running on this frame
 		parent.__frameshakes.enabled = parent.__frameshakes.enabled + 1
 		
-		if (not parent:GetScript ("OnUpdate")) then
+		if (not parent:GetScript("OnUpdate")) then
 			parent:SetScript("OnUpdate", function()end)
 		end
 	end
@@ -3353,7 +3353,7 @@ function DF:CreateFrameShake (parent, duration, amplitude, frequency, absoluteSi
 		FrameshakeUpdateFrame.RegisterFrame (parent)
 	end
 
-	tinsert (parent.__frameshakes, frameShake)
+	tinsert(parent.__frameshakes, frameShake)
 	
 	return frameShake
 end
@@ -3575,9 +3575,9 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	PixelUtil.SetPoint (border3, "bottomleft", parent, "bottomleft", -3, -3)
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)
 	
 	local border1 = parent:CreateTexture(nil, "background")
 	PixelUtil.SetPoint (border1, "topleft", parent, "topleft", 0, 1)
@@ -3592,9 +3592,9 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	PixelUtil.SetPoint (border3, "topright", parent, "topright", 3, 3)
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)	
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)	
 	
 	local border1 = parent:CreateTexture(nil, "background")
 	PixelUtil.SetPoint (border1, "topright", parent, "topright", 1, 0)
@@ -3609,9 +3609,9 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	PixelUtil.SetPoint (border3, "bottomright", parent, "bottomright", 3, -3)
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)	
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)	
 	
 	local border1 = parent:CreateTexture(nil, "background")
 	PixelUtil.SetPoint (border1, "bottomleft", parent, "bottomleft", 0, -1)
@@ -3626,9 +3626,9 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	PixelUtil.SetPoint (border3, "bottomright", parent, "bottomright", 2, -3)
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)
 	
 end
 
@@ -3769,9 +3769,9 @@ function DF:CreateBorderWithSpread (parent, alpha1, alpha2, alpha3, size, spread
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetWidth (border3, size, minPixels)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)
 	
 	--top
 	local border1 = parent:CreateTexture(nil, "background")
@@ -3792,9 +3792,9 @@ function DF:CreateBorderWithSpread (parent, alpha1, alpha2, alpha3, size, spread
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetHeight (border3, size, minPixels)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)	
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)	
 	
 	--right
 	local border1 = parent:CreateTexture(nil, "background")
@@ -3815,9 +3815,9 @@ function DF:CreateBorderWithSpread (parent, alpha1, alpha2, alpha3, size, spread
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetWidth (border3, size, minPixels)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)	
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)	
 	
 	local border1 = parent:CreateTexture(nil, "background")
 	PixelUtil.SetPoint (border1, "bottomleft", parent, "bottomleft", 0 + spread, -1 + spread)
@@ -3837,9 +3837,9 @@ function DF:CreateBorderWithSpread (parent, alpha1, alpha2, alpha3, size, spread
 	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	PixelUtil.SetHeight (border3, size, minPixels)
 	
-	tinsert (parent.Borders.Layer1, border1)
-	tinsert (parent.Borders.Layer2, border2)
-	tinsert (parent.Borders.Layer3, border3)
+	tinsert(parent.Borders.Layer1, border1)
+	tinsert(parent.Borders.Layer2, border2)
+	tinsert(parent.Borders.Layer3, border3)
 	
 end
 
@@ -4100,7 +4100,7 @@ function DF:GetClassList()
 		return DF.ClassCache
 	end
 	
-	for className, classIndex in pairs (DF.ClassFileNameToIndex) do
+	for className, classIndex in pairs(DF.ClassFileNameToIndex) do
 		local classTable = C_CreatureInfo.GetClassInfo (classIndex)
 		if classTable then
 			local t = {
@@ -4110,7 +4110,7 @@ function DF:GetClassList()
 				TexCoord = CLASS_ICON_TCOORDS [className],
 				FileString = className,
 			}
-			tinsert (DF.ClassCache, t)
+			tinsert(DF.ClassCache, t)
 		end
 	end
 	
@@ -4181,13 +4181,13 @@ function DF:GetCharacterRaceList()
 	for i = 1, 100 do
 		local raceInfo = C_CreatureInfo.GetRaceInfo (i)
 		if (raceInfo and DF.RaceList [raceInfo.raceID]) then
-			tinsert (DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString, ID = raceInfo.raceID})
+			tinsert(DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString, ID = raceInfo.raceID})
 		end
 		
 		if IS_WOW_PROJECT_MAINLINE then
 			local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID (i)
 			if (alliedRaceInfo and DF.AlliedRaceList [alliedRaceInfo.raceID]) then
-				tinsert (DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString, ID = alliedRaceInfo.raceID})
+				tinsert(DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString, ID = alliedRaceInfo.raceID})
 			end
 		end
 	end
@@ -4211,11 +4211,11 @@ function DF:GetCharacterTalents (onlySelected, onlySelectedHash)
 				end
 			elseif (onlySelected) then
 				if (selected) then
-					tinsert (talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
+					tinsert(talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
 					break
 				end
 			else
-				tinsert (talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
+				tinsert(talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
 			end
 		end
 	end
@@ -4232,7 +4232,7 @@ function DF:GetCharacterPvPTalents (onlySelected, onlySelectedHash)
 			if (onlySelectedHash) then
 				talentList [talentID] = true
 			else
-				tinsert (talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = true})
+				tinsert(talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = true})
 			end
 		end
 		return talentList
@@ -4246,7 +4246,7 @@ function DF:GetCharacterPvPTalents (onlySelected, onlySelectedHash)
 				for _, talentID in ipairs(slotInfo.availableTalentIDs) do
 					if (not alreadyAdded [talentID]) then
 						local _, talentName, texture, selected = GetPvpTalentInfoByID (talentID)
-						tinsert (talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = selected})
+						tinsert(talentList, {Name = talentName, ID = talentID, Texture = texture, IsSelected = selected})
 						alreadyAdded [talentID] = true
 					end
 				end

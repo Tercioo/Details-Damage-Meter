@@ -296,7 +296,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		if (capsule.have_tooltip) then 
 			GameCooltip2:Preset (2)
 			GameCooltip2:AddLine (capsule.have_tooltip)
-			GameCooltip2:ShowCooltip (textentry, "tooltip")
+			GameCooltip2:ShowCooltip(textentry, "tooltip")
 		end
 		
 		textentry.mouse_over = true 
@@ -316,7 +316,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 
 		if (textentry.MyObject.have_tooltip) then 
-			GameCooltip2:ShowMe (false)
+			GameCooltip2:ShowMe(false)
 		end
 		
 		textentry.mouse_over = false 
@@ -580,7 +580,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 	if (not APITextEntryFunctions) then
 		APITextEntryFunctions = true
 		local idx = getmetatable (TextEntryObject.editbox).__index
-		for funcName, funcAddress in pairs (idx) do 
+		for funcName, funcAddress in pairs(idx) do 
 			if (not TextEntryMetaFunctions [funcName]) then
 				TextEntryMetaFunctions [funcName] = function(object, ...)
 					local x = loadstring ( "return _G['"..object.editbox:GetName().."']:"..funcName.."(...)")
@@ -1099,7 +1099,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 		scrollframeNumberLines.editbox:SetPoint("bottomright", borderframe, "bottomright", -30, 10)
 
 		scrollframeNumberLines:SetScrollChild (scrollframeNumberLines.editbox)
-		scrollframeNumberLines:EnableMouseWheel (false)
+		scrollframeNumberLines:EnableMouseWheel(false)
 
 		for i = 1, 1000 do
 			scrollframeNumberLines.editbox:Insert (i .. "\n")

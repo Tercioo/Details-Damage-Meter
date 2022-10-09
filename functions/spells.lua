@@ -4,7 +4,7 @@ do
 	
 	--import potion list from the framework
 	_detalhes.PotionList = {}
-	for spellID, _ in pairs (DetailsFramework.PotionIDs) do
+	for spellID, _ in pairs(DetailsFramework.PotionIDs) do
 		_detalhes.PotionList [spellID] = true
 	end
 
@@ -3021,7 +3021,7 @@ do
 
 	local getCooldownsForClass = function(class)
 		local result = {}
-		for spellId, spellInfo in pairs (_G.DetailsFramework.CooldownsInfo) do
+		for spellId, spellInfo in pairs(_G.DetailsFramework.CooldownsInfo) do
 			if (class == spellInfo.class) then
 				result[#result+1] = spellId
 			end
@@ -4026,7 +4026,7 @@ local SplitLoadFunc = function(self, deltaTime)
                     local SpellPool = Details.spell_pool
                     local EncounterSpellPool = Details.encounter_spell_pool
                     
-                    for spellID, _ in pairs (spellList) do
+                    for spellID, _ in pairs(spellList) do
                         if (not SpellPool [spellID]) then
                             SpellPool [spellID] = source
                         end
@@ -4049,7 +4049,7 @@ local SplitLoadFunc = function(self, deltaTime)
                             local SpellPool = Details.spell_pool
                             local EncounterSpellPool = Details.encounter_spell_pool
                             
-                            for spellID, _ in pairs (spellList) do
+                            for spellID, _ in pairs(spellList) do
                                 if (not SpellPool [spellID]) then
                                     SpellPool [spellID] = source
                                 end
@@ -4068,7 +4068,7 @@ local SplitLoadFunc = function(self, deltaTime)
                     local SpellPool = Details.spell_pool
                     local EncounterSpellPool = Details.encounter_spell_pool
                     
-                    for spellID, _ in pairs (actorToIndex.spell_cast) do
+                    for spellID, _ in pairs(actorToIndex.spell_cast) do
                         if (not SpellPool [spellID]) then
                             SpellPool [spellID] = source
                         end

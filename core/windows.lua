@@ -879,7 +879,7 @@
 	_detalhes.cooltip_preset2_backdrop = preset2_backdrop
 
 	--"Details BarBorder 3"
-	function _detalhes:CooltipPreset (preset)
+	function _detalhes:CooltipPreset(preset)
 		local GameCooltip = GameCooltip
 
 		GameCooltip:Reset()
@@ -945,8 +945,8 @@
 		_detalhes.yesNo ["ask"]:SetWidth(480)
 		_detalhes.yesNo ["ask"]:SetJustifyH("center")
 		_detalhes.yesNo ["ask"]:SetHeight(22)
-		_detalhes.gump:NewButton (_detalhes.yesNo, _, "$parentNo", "no", 100, 30, function() _detalhes.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
-		_detalhes.gump:NewButton (_detalhes.yesNo, _, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
+		_detalhes.gump:NewButton(_detalhes.yesNo, _, "$parentNo", "no", 100, 30, function() _detalhes.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
+		_detalhes.gump:NewButton(_detalhes.yesNo, _, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
 		_detalhes.yesNo ["no"]:SetPoint(10, -45)
 		_detalhes.yesNo ["yes"]:SetPoint(390, -45)
 		_detalhes.yesNo ["no"]:InstallCustomTexture()
@@ -955,7 +955,7 @@
 		function _detalhes:Ask (msg, func, ...)
 			_detalhes.yesNo ["ask"].text = msg
 			local p1, p2 = ...
-			_detalhes.yesNo ["yes"]:SetClickFunction (func, p1, p2)
+			_detalhes.yesNo ["yes"]:SetClickFunction(func, p1, p2)
 			_detalhes.yesNo:Show()
 		end
 		_detalhes.yesNo:Hide()
@@ -1246,7 +1246,7 @@
 				end
 			end
 		end
-		_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+		_detalhes:OpenOptionsWindow (_detalhes:GetInstance(lower_instance))
 	end)
 	--create new window
 	f.new_window_button = CreateFrame("button", nil, f)
@@ -1263,8 +1263,8 @@
 
 		if (not _G.DetailsUpdateDialog) then
 			local updatewindow_frame = CreateFrame("frame", "DetailsUpdateDialog", UIParent, "ButtonFrameTemplate")
-			updatewindow_frame:SetFrameStrata ("LOW")
-			tinsert (UISpecialFrames, "DetailsUpdateDialog")
+			updatewindow_frame:SetFrameStrata("LOW")
+			tinsert(UISpecialFrames, "DetailsUpdateDialog")
 			updatewindow_frame:SetPoint("center", UIParent, "center")
 			updatewindow_frame:SetSize(512, 200)
 			--updatewindow_frame.portrait:SetTexture([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
@@ -1358,11 +1358,11 @@
 
 							local lower_instance = _detalhes:GetLowerInstanceNumber()
 							if (not lower_instance) then
-								local instance = _detalhes:GetInstance (1)
+								local instance = _detalhes:GetInstance(1)
 								_detalhes.CriarInstancia (_, _, 1)
 								_detalhes:OpenOptionsWindow (instance)
 							else
-								_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+								_detalhes:OpenOptionsWindow (_detalhes:GetInstance(lower_instance))
 							end
 
 						--2 = reset data
@@ -1446,7 +1446,7 @@
 						GameCooltip:SetBackdrop(1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 						GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
 
-						GameCooltip:SetOwner (self, "topright", "bottomleft")
+						GameCooltip:SetOwner(self, "topright", "bottomleft")
 						GameCooltip:ShowCooltip()
 
 
@@ -1481,11 +1481,11 @@
 			if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
 				local lower_instance = _detalhes:GetLowerInstanceNumber()
 				if (not lower_instance) then
-					local instance = _detalhes:GetInstance (1)
+					local instance = _detalhes:GetInstance(1)
 					_detalhes.CriarInstancia (_, _, 1)
 					_detalhes:OpenOptionsWindow (instance)
 				else
-					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+					_detalhes:OpenOptionsWindow (_detalhes:GetInstance(lower_instance))
 				end
 
 			elseif (_detalhes.hotcorner_topleft.onclick_what_todo == 2) then
@@ -1500,11 +1500,11 @@
 		local quickclick_func2 = function(frame, button)
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then
-				local instance = _detalhes:GetInstance (1)
+				local instance = _detalhes:GetInstance(1)
 				_detalhes.CriarInstancia (_, _, 1)
 				_detalhes:OpenOptionsWindow (instance)
 			else
-				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance(lower_instance))
 			end
 		end
 

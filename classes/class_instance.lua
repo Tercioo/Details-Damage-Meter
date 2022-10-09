@@ -174,7 +174,7 @@ function _detalhes:GetMode()
 	return self.modo
 end
 
-function _detalhes:GetInstance (id)
+function _detalhes:GetInstance(id)
 	return _detalhes.tabela_instancias [id]
 end
 --user friendly alias
@@ -249,7 +249,7 @@ end
 
 function _detalhes:ResetAttribute()
 	if (self.iniciada) then
-		self:TrocaTabela (nil, 1, 1, true)
+		self:TrocaTabela(nil, 1, 1, true)
 	else
 		self.atributo = 1
 		self.sub_atributo = 1
@@ -501,7 +501,7 @@ end
 	end
 
 	function _detalhes:ToggleWindow (index)
-		local window = _detalhes:GetInstance (index)
+		local window = _detalhes:GetInstance(index)
 
 		if (window and _getmetatable (window)) then
 			if (window:IsEnabled()) then
@@ -526,8 +526,8 @@ end
 	end
 
 	function _detalhes:CheckCoupleWindows (instance1, instance2)
-		instance1 = instance1 or _detalhes:GetInstance (1)
-		instance2 = instance2 or _detalhes:GetInstance (2)
+		instance1 = instance1 or _detalhes:GetInstance(1)
+		instance2 = instance2 or _detalhes:GetInstance(2)
 
 		if (instance1 and instance2 and not instance1.ignore_mass_showhide and not instance1.ignore_mass_showhide) then
 
@@ -560,7 +560,7 @@ end
 		local instance
 
 		for i = 1, #_detalhes.tabela_instancias do
-			local this_instance = _detalhes:GetInstance (i)
+			local this_instance = _detalhes:GetInstance(i)
 			if (this_instance and not this_instance.ignore_mass_showhide) then
 				instance = this_instance
 				break
@@ -590,7 +590,7 @@ end
 	-- reabre todas as instancias
 	function _detalhes:ReabrirTodasInstancias (temp)
 		for index = math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1, -1 do
-			local instancia = _detalhes:GetInstance (index)
+			local instancia = _detalhes:GetInstance(index)
 			if (instancia and not instancia.ignore_mass_showhide) then
 				instancia:AtivarInstancia (temp, true)
 			end
@@ -670,7 +670,7 @@ end
 		end
 
 		self:ChangeSkin() --carrega a skin aqui que era antes feito dentro do restaura janela
-		_detalhes:TrocaTabela (self, nil, nil, nil, true)
+		_detalhes:TrocaTabela(self, nil, nil, nil, true)
 
 		if (self.hide_icon) then
 			Details.FadeHandler.Fader(self.baseframe.cabecalho.atributo_icon, 1)
@@ -743,14 +743,14 @@ end
 
 	function _detalhes:DeleteInstance (id)
 
-		local instance = _detalhes:GetInstance (id)
+		local instance = _detalhes:GetInstance(id)
 
 		if (not instance) then
 			return false
 		end
 
 		--break snaps of previous and next window
-		local left_instance = _detalhes:GetInstance (id-1)
+		local left_instance = _detalhes:GetInstance(id-1)
 		if (left_instance) then
 			for snap_side, instance_id in _pairs (left_instance.snap) do
 				if (instance_id == id) then --snap na proxima instancia
@@ -758,7 +758,7 @@ end
 				end
 			end
 		end
-		local right_instance = _detalhes:GetInstance (id+1)
+		local right_instance = _detalhes:GetInstance(id+1)
 		if (right_instance) then
 			for snap_side, instance_id in _pairs (right_instance.snap) do
 				if (instance_id == id) then --snap na proxima instancia
@@ -769,7 +769,7 @@ end
 
 		--re align snaps for higher instances
 		for i = id+1, #_detalhes.tabela_instancias do
-			local this_instance = _detalhes:GetInstance (i)
+			local this_instance = _detalhes:GetInstance(i)
 			--fix the snaps
 			for snap_side, instance_id in _pairs (this_instance.snap) do
 				if (instance_id == i+1) then --snap na proxima instancia
@@ -815,7 +815,7 @@ end
 			local new_instance = _detalhes:NovaInstancia (next_id)
 
 			if (_detalhes.standard_skin) then
-				for key, value in pairs (_detalhes.standard_skin) do
+				for key, value in pairs(_detalhes.standard_skin) do
 					if (type(value) == "table") then
 						new_instance [key] = Details.CopyTable (value)
 					else
@@ -828,7 +828,7 @@ end
 				--se n�o tiver um padr�o, criar de outra inst�ncia j� aberta.
 				local copy_from
 				for i = 1, next_id-1 do
-					local opened_instance = _detalhes:GetInstance (i)
+					local opened_instance = _detalhes:GetInstance(i)
 					if (opened_instance and opened_instance:IsEnabled() and opened_instance.baseframe) then
 						copy_from = opened_instance
 						break
@@ -836,7 +836,7 @@ end
 				end
 
 				if (copy_from) then
-					for key, value in pairs (copy_from) do
+					for key, value in pairs(copy_from) do
 						if (_detalhes.instance_defaults [key] ~= nil) then
 							if (type(value) == "table") then
 								new_instance [key] = Details.CopyTable (value)
@@ -900,7 +900,7 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 --self � a inst�ncia que esta sendo movida.. instancia � a que esta parada
-function _detalhes:EstaAgrupada (esta_instancia, lado) --lado //// 1 = encostou na esquerda // 2 = escostou emaixo // 3 = encostou na direita // 4 = encostou em cima
+function _detalhes:EstaAgrupada(esta_instancia, lado) --lado //// 1 = encostou na esquerda // 2 = escostou emaixo // 3 = encostou na direita // 4 = encostou em cima
 	--local meu_snap = self.snap --pegou a tabela com {side, side, side, side}
 
 	if (esta_instancia.snap [lado]) then
@@ -1069,7 +1069,7 @@ function _detalhes:BaseFrameSnap()
 	end
 end
 
-function _detalhes:agrupar_janelas (lados)
+function _detalhes:agrupar_janelas(lados)
 
 	local instancia = self
 
@@ -1162,7 +1162,7 @@ function _detalhes:agrupar_janelas (lados)
 
 		_detalhes.temp_table1.IconSize = 32
 		_detalhes.temp_table1.TextHeightMod = -6
-		_detalhes.popup:ShowMe (instancia.break_snap_button, "tooltip", "Interface\\Buttons\\LockButton-Unlocked-Up", Loc ["STRING_UNLOCK"], 150, _detalhes.temp_table1)
+		_detalhes.popup:ShowMe(instancia.break_snap_button, "tooltip", "Interface\\Buttons\\LockButton-Unlocked-Up", Loc ["STRING_UNLOCK"], 150, _detalhes.temp_table1)
 
 		--UIFrameFlash (instancia.break_snap_button, .5, .5, 5, false, 0, 0)
 		_detalhes.tutorial.unlock_button = _detalhes.tutorial.unlock_button + 1
@@ -1448,7 +1448,7 @@ end
 			new_instance.LastModo = modo_grupo
 
 		--change the attribute
-			_detalhes:TrocaTabela (new_instance, 0, 1, 1)
+			_detalhes:TrocaTabela(new_instance, 0, 1, 1)
 
 		--internal stuff
 			new_instance.row_height = new_instance.row_info.height + new_instance.row_info.space.between
@@ -1480,7 +1480,7 @@ end
 				instance:ChangeSkin (skin)
 
 				--overwrite all instance parameters with saved ones
-				for key, value in pairs (style) do
+				for key, value in pairs(style) do
 					if (key ~= "skin") then
 						if (type(value) == "table") then
 							instance [key] = Details.CopyTable (value)
@@ -1546,13 +1546,13 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 		self.bgframe = _bgframe
 		self.bgdisplay = _bgframe_display
 		self.scroll = _scrollframe
-		_baseframe:EnableMouseWheel (false)
+		_baseframe:EnableMouseWheel(false)
 		self.alturaAntiga = _baseframe:GetHeight()
 
 		--self.isLocked = isLocked --window isn't locked when just created it
 
 	--change the attribute
-		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --passando true no 5� valor para a fun��o ignorar a checagem de valores iguais
+		_detalhes:TrocaTabela(self, self.segmento, self.atributo, self.sub_atributo, true) --passando true no 5� valor para a fun��o ignorar a checagem de valores iguais
 
 	--set wallpaper
 		if (self.wallpaper.enabled) then
@@ -1656,7 +1656,7 @@ function _detalhes:SwitchBack()
 			_detalhes.SoloTables:switch (nil, prev_switch [6])
 
 		else
-			_detalhes:TrocaTabela (self, prev_switch [4], prev_switch [2], prev_switch [3])
+			_detalhes:TrocaTabela(self, prev_switch [4], prev_switch [2], prev_switch [3])
 		end
 
 		self.auto_switch_to_old = nil
@@ -1692,7 +1692,7 @@ function _detalhes:SwitchTo (switch_table, nosave)
 		if (self.modo ~= _detalhes._detalhes_props["MODO_GROUP"]) then
 			_detalhes:AlteraModo (self, _detalhes._detalhes_props["MODO_GROUP"])
 		end
-		_detalhes:TrocaTabela (self, nil, switch_table [1], switch_table [2])
+		_detalhes:TrocaTabela(self, nil, switch_table [1], switch_table [2])
 	end
 end
 
@@ -1729,7 +1729,7 @@ function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 		local current_attribute, current_sub_atribute = self:GetDisplay()
 		if (current_attribute ~= old_attribute or current_sub_atribute ~= old_sub_atribute) then
 			local attribute_name = self:GetInstanceAttributeText()
-			self:InstanceAlert (string.format (Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
+			self:InstanceAlert (string.format(Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
 		end
 	end
 
@@ -1783,7 +1783,7 @@ function _detalhes:CheckSwitchOnCombatStart (check_segment)
 
 	if (check_segment and got_switch) then
 		if (self:GetSegment() ~= 0) then
-			self:TrocaTabela (0)
+			self:TrocaTabela(0)
 		end
 	end
 
@@ -1813,7 +1813,7 @@ function _detalhes:ExportSkin()
 	}
 
 	--export the keys
-	for key, value in pairs (self) do
+	for key, value in pairs(self) do
 		if (_detalhes.instance_defaults [key] ~= nil) then
 			if (type(value) == "table") then
 				exported [key] = Details.CopyTable (value)
@@ -1880,7 +1880,7 @@ function _detalhes:ApplySavedSkin (style)
 	self:ChangeSkin (skin)
 
 	--overwrite all instance parameters with saved ones
-	for key, value in pairs (style) do
+	for key, value in pairs(style) do
 		if (key ~= "skin") then
 			if (type(value) == "table") then
 				self [key] = Details.CopyTable (value)
@@ -1891,9 +1891,9 @@ function _detalhes:ApplySavedSkin (style)
 	end
 
 	--check for new keys inside tables
-	for key, value in pairs (_detalhes.instance_defaults) do
+	for key, value in pairs(_detalhes.instance_defaults) do
 		if (type(value) == "table") then
-			for key2, value2 in pairs (value) do
+			for key2, value2 in pairs(value) do
 				if (self [key] [key2] == nil) then
 					if (type(value2) == "table") then
 						self [key] [key2] = Details.CopyTable (_detalhes.instance_defaults [key] [key2])
@@ -2198,7 +2198,7 @@ function _detalhes:SetDisplay(segment, attribute, subAttribute, isInstanceStarup
 	return self:TrocaTabela(self, segment, attribute, subAttribute, isInstanceStarup, instanceMode)
 end
 
-function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
+function _detalhes:TrocaTabela(instancia, segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
 
 	if (self and self.meu_id and not instancia) then --self � uma inst�ncia
 		InstanceMode = iniciando_instancia
@@ -2324,7 +2324,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 
 		if (update_coolTip) then
-			_detalhes.popup:Select (1, segmento+2)
+			_detalhes.popup:Select(1, segmento+2)
 		end
 
 		if (instancia.showing and instancia.showing.contra) then
@@ -2393,10 +2393,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 		if (instancia.modo == modo_alone and not (_detalhes.initializing or iniciando_instancia)) then
 			if (_detalhes.SoloTables.Mode == #_detalhes.SoloTables.Plugins) then
-				_detalhes.popup:Select (1, 1)
+				_detalhes.popup:Select(1, 1)
 			else
 				if (_detalhes.PluginCount.SOLO > 0) then
-					_detalhes.popup:Select (1, _detalhes.SoloTables.Mode+1)
+					_detalhes.popup:Select(1, _detalhes.SoloTables.Mode+1)
 				end
 			end
 			return _detalhes.SoloTables.switch (nil, nil, -1)
@@ -2413,8 +2413,8 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia:ChangeIcon()
 
 		if (update_coolTip) then
-			_detalhes.popup:Select (1, atributo)
-			_detalhes.popup:Select (2, instancia.sub_atributo, atributo)
+			_detalhes.popup:Select(1, atributo)
+			_detalhes.popup:Select(2, instancia.sub_atributo, atributo)
 		end
 
 		if (_detalhes.cloud_process) then
@@ -2948,10 +2948,10 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 		checked = 3
 	end
 
-	_detalhes.popup:Select (1, checked)
+	_detalhes.popup:Select(1, checked)
 
 	if (from_mode_menu) then
-		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao, _, true)
+		instancia.baseframe.cabecalho.modo_selecao:GetScript("OnEnter")(instancia.baseframe.cabecalho.modo_selecao, _, true)
 
 		--running OnEnter does also trigger an instance enter event, so we need to manually leave the instance:
 		_detalhes.OnLeaveMainWindow(instancia, instancia.baseframe.cabecalho.modo_selecao)
@@ -3140,13 +3140,13 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			--push it to  front
 			local t = tremove (_detalhes.latest_report_table, already_exists)
 			t [4] = amt
-			tinsert (_detalhes.latest_report_table, 1, t)
+			tinsert(_detalhes.latest_report_table, 1, t)
 		else
 			if (self.atributo == 5) then
 				local custom_name = self:GetCustomObject():GetName()
-				tinsert (_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where, custom_name})
+				tinsert(_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where, custom_name})
 			else
-				tinsert (_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
+				tinsert(_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
 			end
 		end
 
@@ -3170,7 +3170,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			if (self.sub_atributo == 5) then --frags
 				local frags = self.showing.frags
 				local reportarFrags = {}
-				for name, amount in pairs (frags) do
+				for name, amount in pairs(frags) do
 					--string para imprimir direto sem calculos
 					reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name}
 				end
@@ -3284,7 +3284,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		if (is_reverse) then
 			local t = {}
 			for i = #raw_data_to_report, 1, -1 do
-				tinsert (t, raw_data_to_report [i])
+				tinsert(t, raw_data_to_report [i])
 				if (#t >= amt) then
 					break
 				end

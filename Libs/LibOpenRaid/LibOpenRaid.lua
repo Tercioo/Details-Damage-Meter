@@ -385,7 +385,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     function openRaidLib.Schedules.CancelAllUniqueTimers()
         local registeredUniqueTimers = openRaidLib.Schedules.registeredUniqueTimers
         for namespace, schedulesTable in pairs(registeredUniqueTimers) do
-            for scheduleName, timerObject in pairs (schedulesTable) do
+            for scheduleName, timerObject in pairs(schedulesTable) do
                 if (timerObject and not timerObject:IsCancelled()) then
                     timerObject:Cancel()
                 end

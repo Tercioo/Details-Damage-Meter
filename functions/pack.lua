@@ -649,7 +649,7 @@ function Details.packFunctions.UnPackDamage(currentCombat, combatData, tablePosi
                 spellObject.counter = spellHits
                 spellObject.targets = targetTable
 
-                for targetName, amount in pairs (spellObject.targets) do
+                for targetName, amount in pairs(spellObject.targets) do
                     newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                 end
 
@@ -897,7 +897,7 @@ function Details.packFunctions.UnPackHeal(currentCombat, combatData, tablePositi
                 spellObject.counter = spellHits
                 spellObject.targets = targetTable
 
-                for targetName, amount in pairs (spellObject.targets) do
+                for targetName, amount in pairs(spellObject.targets) do
                     newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                 end
 
@@ -1436,7 +1436,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         spellObject.counter = spellTotal
                         spellObject.targets = targetTable
 
-                        for targetName, amount in pairs (spellObject.targets) do
+                        for targetName, amount in pairs(spellObject.targets) do
                             newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                             newTotal = newTotal + amount
                         end
@@ -1482,7 +1482,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         spellObject.counter = spellTotal
                         spellObject.targets = targetTable
 
-                        for targetName, amount in pairs (spellObject.targets) do
+                        for targetName, amount in pairs(spellObject.targets) do
                             newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                             newTotal = newTotal + amount
                         end
@@ -1493,7 +1493,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         local interruptWhatTable = Details.packFunctions.UnpackTable(combatData, spellIndex, true) --table[index] is nil
                         spellObject.interrompeu_oque = interruptWhatTable
 
-                        for targetName, amount in pairs (spellObject.targets) do
+                        for targetName, amount in pairs(spellObject.targets) do
                             newTargetWhatTable[targetName] = (newTargetWhatTable[targetName] or 0) + amount
                         end
 
@@ -1539,7 +1539,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         spellObject.cc_break = spellTotal
                         spellObject.targets = targetTable
 
-                        for targetName, amount in pairs (spellObject.targets) do
+                        for targetName, amount in pairs(spellObject.targets) do
                             newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                             newTotal = newTotal + amount
                         end
@@ -1551,7 +1551,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         local ccBrokeWhatTable = Details.packFunctions.UnpackTable(combatData, spellIndex, true)
                         spellObject.cc_break_oque = ccBrokeWhatTable
 
-                        for targetName, amount in pairs (spellObject.cc_break_oque) do
+                        for targetName, amount in pairs(spellObject.cc_break_oque) do
                             newTargetWhatTable[targetName] = (newTargetWhatTable[targetName] or 0) + amount
                         end
 
@@ -1596,7 +1596,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         spellObject.dispell = spellTotal
                         spellObject.targets = targetTable
 
-                        for targetName, amount in pairs (spellObject.targets) do
+                        for targetName, amount in pairs(spellObject.targets) do
                             newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                             newTotal = newTotal + amount
                         end
@@ -1607,7 +1607,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         local dispelWhatTable = Details.packFunctions.UnpackTable(combatData, spellIndex, true)
                         spellObject.dispell_oque = dispelWhatTable
 
-                        for spellId, amount in pairs (spellObject.dispell_oque) do
+                        for spellId, amount in pairs(spellObject.dispell_oque) do
                             newTargetWhatTable[spellId] = (newTargetWhatTable[spellId] or 0) + amount
                         end
 
@@ -1654,7 +1654,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
                         spellObject.ress = spellTotal
                         spellObject.targets = targetTable
 
-                        for targetName, amount in pairs (spellObject.targets) do
+                        for targetName, amount in pairs(spellObject.targets) do
                             newTargetsTable[targetName] = (newTargetsTable[targetName] or 0) + amount
                             newTotal = newTotal + amount
                         end
@@ -1805,7 +1805,7 @@ function Details.packFunctions.DeployPackedCombatData(packedCombatData)
 
         for i = 1, #allActors do
             local actor = allActors[i]
-            for targetName, amount in pairs (actor.targets) do
+            for targetName, amount in pairs(actor.targets) do
                 local actorIndex = damageContainer._NameIndexTable[targetName]
                 if (actorIndex) then
                     local targetActor = allActors[actorIndex]
@@ -1831,7 +1831,7 @@ function Details.packFunctions.DeployPackedCombatData(packedCombatData)
 
         for i = 1, #allActors do
             local actor = allActors[i]
-            for targetName, amount in pairs (actor.targets) do
+            for targetName, amount in pairs(actor.targets) do
                 local actorIndex = healingContainer._NameIndexTable[targetName]
                 if (actorIndex) then
                     local targetActor = allActors[actorIndex]

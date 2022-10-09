@@ -714,7 +714,7 @@
 			end
 			
 		--frags
-			for fragName, fragAmount in pairs (combate2.frags) do 
+			for fragName, fragAmount in pairs(combate2.frags) do 
 				if (fragAmount) then
 					if (combate1.frags [fragName]) then
 						combate1.frags [fragName] = combate1.frags [fragName] - fragAmount
@@ -727,7 +727,7 @@
 		
 		--alternate power
 			local overallPowerTable = combate1.alternate_power
-			for actorName, powerTable in pairs (combate2.alternate_power) do 
+			for actorName, powerTable in pairs(combate2.alternate_power) do 
 				local power = overallPowerTable [actorName]
 				if (power) then
 					power.total = power.total - powerTable.total
@@ -769,7 +769,7 @@
 		
 		--alternate power
 			local overallPowerTable = combate1.alternate_power
-			for actorName, powerTable in pairs (combate2.alternate_power) do 
+			for actorName, powerTable in pairs(combate2.alternate_power) do 
 				local power = overallPowerTable [actorName]
 				if (not power) then
 					power = combate1:CreateAlternatePowerTable (actorName)

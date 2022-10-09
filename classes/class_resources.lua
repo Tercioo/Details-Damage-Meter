@@ -542,15 +542,15 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], iter_last-1, 1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 				
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 				whichRowLine = whichRowLine+1
 			else
 				for i = instancia.barraS[1], iter_last, 1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 			end
@@ -558,15 +558,15 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 				
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 				whichRowLine = whichRowLine+1
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 			end
@@ -602,29 +602,29 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			Details.FadeHandler.Fader(row1, "out")
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 				whichRowLine = whichRowLine+1
 				for i = iter_last-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 			else
 				for i = iter_last, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 			end
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 				whichRowLine = whichRowLine+1
 				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 			else
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
-					conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
+					conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) --inst�ncia, index, total, valor da 1� barra
 					whichRowLine = whichRowLine+1
 				end
 			end
@@ -648,7 +648,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 end
 
-function atributo_energy:RefreshLine (instancia, barras_container, whichRowLine, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+function atributo_energy:RefreshLine(instancia, barras_container, whichRowLine, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 
 	local esta_barra = instancia.barras[whichRowLine] --pega a refer�ncia da barra na janela
 	
@@ -1002,7 +1002,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	local allGeneratorSpells = {}
 	local allGenerated = 0
 	for spellid, spellObject in _pairs (self.spells._ActorTable) do
-		tinsert (allGeneratorSpells, {spellObject, spellObject.total, spellObject.totalover})
+		tinsert(allGeneratorSpells, {spellObject, spellObject.total, spellObject.totalover})
 		allGenerated = allGenerated + spellObject.total
 	end
 
@@ -1193,7 +1193,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 		if (barra.mouse_over) then --atualizar o tooltip
 			if (barra.isAlvo) then
 				GameTooltip:Hide() 
-				GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
+				GameTooltip:SetOwner(barra, "ANCHOR_TOPRIGHT")
 				if (not barra.minha_tabela:MontaTooltipAlvos (barra, index)) then
 					return
 				end

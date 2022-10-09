@@ -106,7 +106,7 @@ local _
 		end
 
 		if (Details.janela_report.ativa) then
-			Details.janela_report:Flash (0.2, 0.2, 0.4, true, 0, 0, "NONE")
+			Details.janela_report:Flash(0.2, 0.2, 0.4, true, 0, 0, "NONE")
 		end
 
 		Details.janela_report.ativa = true
@@ -206,7 +206,7 @@ local _
 		end
 
 		if (Details.janela_report.ativa) then 
-			Details.janela_report:Flash (0.2, 0.2, 0.4, true, 0, 0, "NONE")
+			Details.janela_report:Flash(0.2, 0.2, 0.4, true, 0, 0, "NONE")
 		end
 
 		Details.janela_report.ativa = true

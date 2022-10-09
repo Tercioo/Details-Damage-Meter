@@ -62,7 +62,7 @@ function _detalhes:ApplyBasicKeys()
 		}
 		
 	--load default profile keys
-		for key, value in pairs (_detalhes.default_profile) do 
+		for key, value in pairs(_detalhes.default_profile) do 
 			if (type(value) == "table") then
 				local ctable = Details.CopyTable (value)
 				self [key] = ctable
@@ -90,7 +90,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 		end
 
 		--load saved values
-		for key, value in pairs (_detalhes.default_player_data) do
+		for key, value in pairs(_detalhes.default_player_data) do
 		
 			--check if key exists, e.g. a new key was added
 			if (_detalhes_database [key] == nil) then
@@ -104,7 +104,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 				if (type(_detalhes.default_player_data [key]) == "string") then
 					print("|cFFFFAA00Details!|r error 0x8538, report on discord", key, _detalhes_database [key], _detalhes.default_player_data [key])
 				end
-				for key2, value2 in pairs (_detalhes.default_player_data [key]) do
+				for key2, value2 in pairs(_detalhes.default_player_data [key]) do
 					if (_detalhes_database [key] [key2] == nil) then
 						if (type(value2) == "table") then
 							_detalhes_database [key] [key2] = Details.CopyTable (_detalhes.default_player_data [key] [key2])
@@ -129,7 +129,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 			_detalhes_global = Details.CopyTable (_detalhes.default_global_data)
 		end
 		
-		for key, value in pairs (_detalhes.default_global_data) do 
+		for key, value in pairs(_detalhes.default_global_data) do 
 		
 			--check if key exists
 			if (_detalhes_global [key] == nil) then
@@ -152,7 +152,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 				end
 
 				if (type(_detalhes_global [key]) == "table") then
-					for key2, value2 in pairs (_detalhes.default_global_data [key]) do
+					for key2, value2 in pairs(_detalhes.default_global_data [key]) do
 						if (_detalhes_global [key] [key2] == nil) then
 							if (type(value2) == "table") then
 								_detalhes_global [key] [key2] = Details.CopyTable (_detalhes.default_global_data [key] [key2])
@@ -321,7 +321,7 @@ function _detalhes:LoadConfig()
 			
 		--initialize parser
 			_detalhes.capture_current = {}
-			for captureType, captureValue in pairs (_detalhes.capture_real) do 
+			for captureType, captureValue in pairs(_detalhes.capture_real) do 
 				_detalhes.capture_current [captureType] = captureValue
 			end
 			
@@ -388,7 +388,7 @@ function _detalhes:LoadConfig()
 						saved_skin.__snapH = instance.horizontalSnap
 						saved_skin.__snapV = instance.verticalSnap
 
-						for key, value in pairs (instance) do
+						for key, value in pairs(instance) do
 							if (_detalhes.instance_defaults [key] ~= nil) then
 								if (type(value) == "table") then
 									saved_skin [key] = Details.CopyTable (value)

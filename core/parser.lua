@@ -4604,7 +4604,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (time) then
 				local schedule_id = math.random (1, 10000000)
 				local new_schedule = _detalhes:ScheduleTimer ("CaptureTimeout", time, {capture_type, schedule_id})
-				tinsert (_detalhes.capture_schedules, {new_schedule, schedule_id})
+				tinsert(_detalhes.capture_schedules, {new_schedule, schedule_id})
 			end
 		end
 		
@@ -4838,7 +4838,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	}
 	
 	function parser:RefreshFunctions()
-		for CLUE_ID, token in pairs (all_parser_tokens) do
+		for CLUE_ID, token in pairs(all_parser_tokens) do
 			if (token_list [CLUE_ID]) then --not disabled
 				token_list [CLUE_ID] = parser [token]
 			end
@@ -4887,7 +4887,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (lower_instance) then
-				lower_instance = _detalhes:GetInstance (lower_instance)
+				lower_instance = _detalhes:GetInstance(lower_instance)
 				lower_instance:InstanceAlert (Loc ["STRING_WIPE_ALERT"], {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
 			end
 		else
@@ -5873,10 +5873,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--do not save window pos
 		if (_detalhes.tabela_instancias) then
 			currentStep = "Dealing With Instances"
-			tinsert (_detalhes_global.exit_log, "2 - Clearing user place from instances.")
+			tinsert(_detalhes_global.exit_log, "2 - Clearing user place from instances.")
 			for id, instance in _detalhes:ListInstances() do
 				if (id) then
-					tinsert (_detalhes_global.exit_log, "  - " .. id .. " has baseFrame: " .. (instance.baseframe and "yes" or "no") .. ".")
+					tinsert(_detalhes_global.exit_log, "  - " .. id .. " has baseFrame: " .. (instance.baseframe and "yes" or "no") .. ".")
 					if (instance.baseframe) then
 						instance.baseframe:SetUserPlaced (false)
 						instance.baseframe:SetDontSavePosition (true)
@@ -5887,36 +5887,36 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		--leave combat start save tables
 			if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
-				tinsert (_detalhes_global.exit_log, "3 - Leaving current combat.")
+				tinsert(_detalhes_global.exit_log, "3 - Leaving current combat.")
 				currentStep = "Leaving Current Combat"
 				xpcall (_detalhes.SairDoCombate, saver_error)
 				_detalhes.can_panic_mode = true
 			end
 			
 			if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and _detalhes.tabela_instancias and getmetatable (_detalhes.tabela_instancias[1])) then
-				tinsert (_detalhes_global.exit_log, "4 - Reversing switches.")
+				tinsert(_detalhes_global.exit_log, "4 - Reversing switches.")
 				currentStep = "Check Switch on Logon"
 				xpcall (_detalhes.CheckSwitchOnLogon, saver_error)
 			end
 			
 			if (_detalhes.wipe_full_config) then
-				tinsert (_detalhes_global.exit_log, "5 - Is a full config wipe.")
+				tinsert(_detalhes_global.exit_log, "5 - Is a full config wipe.")
 				_detalhes_global = nil
 				_detalhes_database = nil
 				return
 			end
 		
 		--save the config
-			tinsert (_detalhes_global.exit_log, "6 - Saving Config.")
+			tinsert(_detalhes_global.exit_log, "6 - Saving Config.")
 			currentStep = "Saving Config"
 			xpcall (_detalhes.SaveConfig, saver_error)
 
-			tinsert (_detalhes_global.exit_log, "7 - Saving Profiles.")
+			tinsert(_detalhes_global.exit_log, "7 - Saving Profiles.")
 			currentStep = "Saving Profile"
 			xpcall (_detalhes.SaveProfile, saver_error)
 
 		--save the nicktag cache
-			tinsert (_detalhes_global.exit_log, "8 - Saving nicktag cache.")
+			tinsert(_detalhes_global.exit_log, "8 - Saving nicktag cache.")
 
 			local saveNicktabCache = function()
 				_detalhes_database.nick_tag_cache = Details.CopyTable(_detalhes_database.nick_tag_cache)
@@ -5951,37 +5951,37 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function _detalhes:PrintParserCacheIndexes()
 	
 		local amount = 0
-		for n, nn in pairs (damage_cache) do 
+		for n, nn in pairs(damage_cache) do 
 			amount = amount + 1
 		end
 		print ("parser damage_cache", amount)
 		
 		amount = 0
-		for n, nn in pairs (damage_cache_pets) do 
+		for n, nn in pairs(damage_cache_pets) do 
 			amount = amount + 1
 		end
 		print ("parser damage_cache_pets", amount)
 		
 		amount = 0
-		for n, nn in pairs (damage_cache_petsOwners) do 
+		for n, nn in pairs(damage_cache_petsOwners) do 
 			amount = amount + 1
 		end
 		print ("parser damage_cache_petsOwners", amount)
 		
 		amount = 0
-		for n, nn in pairs (healing_cache) do 
+		for n, nn in pairs(healing_cache) do 
 			amount = amount + 1
 		end
 		print ("parser healing_cache", amount)
 		
 		amount = 0
-		for n, nn in pairs (energy_cache) do 
+		for n, nn in pairs(energy_cache) do 
 			amount = amount + 1
 		end
 		print ("parser energy_cache", amount)
 
 		amount = 0
-		for n, nn in pairs (misc_cache) do 
+		for n, nn in pairs(misc_cache) do 
 			amount = amount + 1
 		end
 		print ("parser misc_cache", amount)

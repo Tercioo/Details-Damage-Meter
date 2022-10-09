@@ -242,7 +242,7 @@ detailsFramework.OptionsFunctions = {
 	GetAllOptions = function(self)
 		if (self.options) then
 			local optionsTable = {}
-			for key, _ in pairs (self.options) do
+			for key, _ in pairs(self.options) do
 				optionsTable [#optionsTable + 1] = key
 			end
 			return optionsTable

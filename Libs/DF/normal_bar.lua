@@ -472,11 +472,11 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 	function BarMetaFunctions:SetFrameStrata()
 		return self.statusbar:GetFrameStrata()
 	end
-	function BarMetaFunctions:SetFrameStrata (strata)
+	function BarMetaFunctions:SetFrameStrata(strata)
 		if (_type(strata) == "table") then
-			self.statusbar:SetFrameStrata (strata:GetFrameStrata())
+			self.statusbar:SetFrameStrata(strata:GetFrameStrata())
 		else
-			self.statusbar:SetFrameStrata (strata)
+			self.statusbar:SetFrameStrata(strata)
 		end
 	end
 	
@@ -500,7 +500,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		if (frame.MyObject.have_tooltip) then 
 			GameCooltip2:Reset()
 			GameCooltip2:AddLine (frame.MyObject.have_tooltip)
-			GameCooltip2:ShowCooltip (frame, "tooltip")
+			GameCooltip2:ShowCooltip(frame, "tooltip")
 		end
 
 	end
@@ -515,7 +515,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 		frame.MyObject.background:Hide()
 		
 		if (frame.MyObject.have_tooltip) then 
-			GameCooltip2:ShowMe (false)
+			GameCooltip2:ShowMe(false)
 		end
 	end
 	
@@ -588,7 +588,7 @@ local BarMetaFunctions = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
 			DF:CancelTimer (self.TimerScheduled)
 			self.TimerScheduled = nil
 		else
-			if (self.statusbar:GetScript ("OnUpdate")) then
+			if (self.statusbar:GetScript("OnUpdate")) then
 				self.statusbar:SetScript("OnUpdate", nil)
 			end
 		end
@@ -806,7 +806,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		if (not APIBarFunctions) then
 			APIBarFunctions = true
 			local idx = getmetatable (BarObject.statusbar).__index
-			for funcName, funcAddress in pairs (idx) do 
+			for funcName, funcAddress in pairs(idx) do 
 				if (not BarMetaFunctions [funcName]) then
 					BarMetaFunctions [funcName] = function(object, ...)
 						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")

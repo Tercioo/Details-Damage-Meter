@@ -37,7 +37,7 @@ local CONST_FONT_SIZE = 10
 
 --Create the plugin Object
 local EncounterDetails = _detalhes:NewPluginObject ("Details_EncounterDetails", DETAILSPLUGIN_ALWAYSENABLED)
-tinsert (UISpecialFrames, "Details_EncounterDetails")
+tinsert(UISpecialFrames, "Details_EncounterDetails")
 --Main Frame
 local EncounterDetailsFrame = EncounterDetails.Frame
 EncounterDetailsFrame.DefaultBarHeight = 20
@@ -196,7 +196,7 @@ local function CreatePluginFrames (data)
 			local whisper_table = EncounterDetails.current_whisper_table
 			if (whisper_table and _combat_object.is_boss and _combat_object.is_boss.name) then
 				whisper_table.boss = _combat_object.is_boss.name
-				tinsert (EncounterDetails.boss_emotes_table, 1, whisper_table)
+				tinsert(EncounterDetails.boss_emotes_table, 1, whisper_table)
 				
 				if (#EncounterDetails.boss_emotes_table > EncounterDetails.db.max_emote_segments) then
 					table.remove (EncounterDetails.boss_emotes_table, EncounterDetails.db.max_emote_segments+1)
@@ -283,7 +283,7 @@ local function CreatePluginFrames (data)
 				
 					if (_G.DBM) then
 						local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
-						for spell, timer_table in pairs (current_table_dbm) do
+						for spell, timer_table in pairs(current_table_dbm) do
 							if (not db.encounter_timers_dbm [timer_table[1]]) then
 								timer_table.id = current_encounter
 								db.encounter_timers_dbm [timer_table[1]] = timer_table
@@ -292,7 +292,7 @@ local function CreatePluginFrames (data)
 					end
 					if (BigWigs) then
 						local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
-						for timer_id, timer_table in pairs (current_table_bigwigs) do
+						for timer_id, timer_table in pairs(current_table_bigwigs) do
 							if (not db.encounter_timers_bw [timer_id]) then
 								timer_table.id = current_encounter
 								db.encounter_timers_bw [timer_id] = timer_table
@@ -415,7 +415,7 @@ local function CreatePluginFrames (data)
 		EncounterDetails:ShowToolbarIcon (EncounterDetails.ToolbarButton, "star")
 
 		--EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1", false) --debug
-		if (not EncounterDetails:GetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1")) then
+		if (not EncounterDetails:GetTutorialCVar("ENCOUNTER_DETAILS_BALLON_TUTORIAL1")) then
 			--print ("nao viu o tutorial ainda")
 			C_Timer.After (2, EncounterDetails.ShowIconBallonTutorial)
 		end
@@ -468,7 +468,7 @@ local function CreatePluginFrames (data)
 		end
 		
 		--select latest emote segment
-		Details_EncounterDetailsEmotesSegmentDropdown.MyObject:Select (1)
+		Details_EncounterDetailsEmotesSegmentDropdown.MyObject:Select(1)
 		Details_EncounterDetailsEmotesSegmentDropdown.MyObject:Refresh()
 		FauxScrollFrame_SetOffset (EncounterDetails_EmoteScroll, 0)
 		EncounterDetails:SetEmoteSegment (1)
@@ -476,7 +476,7 @@ local function CreatePluginFrames (data)
 		
 		if (EncounterDetailsFrame.ShowType ~= "emotes") then
 			--hide emote frames
-			for _, widget in pairs (EncounterDetails.Frame.EmoteWidgets) do
+			for _, widget in pairs(EncounterDetails.Frame.EmoteWidgets) do
 				widget:Hide()
 			end
 		end
@@ -569,7 +569,7 @@ local function CreatePluginFrames (data)
 		
 		--apply the backdrop settings to the menu
 		Details:FormatCooltipBackdrop()
-		CoolTip:SetOwner (ENCOUNTERDETAILS_BUTTON, "bottom", "top", 0, 0)
+		CoolTip:SetOwner(ENCOUNTERDETAILS_BUTTON, "bottom", "top", 0, 0)
 		CoolTip:ShowCooltip()
 		
 	end
@@ -621,7 +621,7 @@ end
 		
 		GameCooltip:Reset()
 		GameCooltip:SetType ("tooltipbar")
-		GameCooltip:SetOwner (row)
+		GameCooltip:SetOwner(row)
 		
 		GameCooltip:AddLine ("Click to Report", nil, 1, "orange")
 		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
@@ -741,7 +741,7 @@ end
 		GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_serenity]])
 		GameCooltip:SetBackdrop(1, _detalhes.cooltip_preset2_backdrop, bgColor, borderColor)
 		
-		GameCooltip:SetOwner (row, "bottomright", "bottomleft", -2, -50)
+		GameCooltip:SetOwner(row, "bottomright", "bottomleft", -2, -50)
 		row.OverlayTexture:Show()
 		GameCooltip:ShowCooltip()
 	end
@@ -778,7 +778,7 @@ local function DispellInfo (dispell, barra)
 	
 	local spellname = GetSpellInfo(barra.spellid)
 	if (spellname) then
-		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
+		GameTooltip:SetOwner(GameCooltipFrame1, "ANCHOR_NONE")
 		GameTooltip:SetSpellByID(barra.spellid)
 		GameTooltip:SetPoint("topright", GameCooltipFrame1, "topleft", -2, 0)
 		GameTooltip:Show()
@@ -821,7 +821,7 @@ local function KickBy (magia, barra)
 	
 	local spellname = GetSpellInfo(barra.spellid)
 	if (spellname) then
-		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
+		GameTooltip:SetOwner(GameCooltipFrame1, "ANCHOR_NONE")
 		GameTooltip:SetSpellByID(barra.spellid)
 		GameTooltip:SetPoint("topright", GameCooltipFrame1, "topleft", -2, 0)
 		GameTooltip:Show()
@@ -880,13 +880,13 @@ local function EnemySkills (habilidade, barra)
 	
 	local spellname = GetSpellInfo(barra.spellid)
 	if (spellname) then
-		GameTooltip:SetOwner (GameCooltipFrame1, "ANCHOR_NONE")
+		GameTooltip:SetOwner(GameCooltipFrame1, "ANCHOR_NONE")
 		GameTooltip:SetSpellByID(barra.spellid)
 		GameTooltip:SetPoint("right", barra, "left", -2, 0)
 		GameTooltip:Show()
 	end
 	
-	GameCooltip:SetOwner (barra, "left", "right", 2, 0)
+	GameCooltip:SetOwner(barra, "left", "right", 2, 0)
 end
 
 --custom tooltip for damage taken details ---------------------------------------------------------------------------------------------------------
@@ -947,7 +947,7 @@ local function DamageTakenDetails (jogador, barra)
 		GameTooltip:AddLine ("* "..Loc ["STRING_MELEE_DAMAGE"], 0, 1, 0)
 	end
 	
-	GameCooltip:SetOwner (barra, "left", "right", 2, 0)
+	GameCooltip:SetOwner(barra, "left", "right", 2, 0)
 end
 
 --custom tooltip clicks on any bar ---------------------------------------------------------------------------------------------------------
@@ -1064,9 +1064,9 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			self:SetAlpha (1)
 			EncounterDetails.SetBarBackdrop_OnEnter (self)
 			
-			--GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+			--GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 			GameCooltip:Preset (2)
-			GameCooltip:SetOwner (self)
+			GameCooltip:SetOwner(self)
 			EncounterDetails:FormatCooltipSettings()
 			
 			if (not self.TTT) then --tool tip type
@@ -1151,7 +1151,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				
 				DebugMessage ("segment found: ", index, combate:GetCombatName(), combate.is_trash)
 				--the first segment found here will be the first segment the dropdown found, so it can use the index 1 of the dropdown list
-				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (1, true)
+				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select(1, true)
 				
 				foundABoss = index
 				break
@@ -1196,7 +1196,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				_combat_object = combat
 				
 				--the first segment found here will be the first segment the dropdown found, so it can use the index 1 of the dropdown list
-				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (1, true)
+				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select(1, true)
 				
 				DebugMessage ("found another segment during another loop", index, combat:GetCombatName(), combat.is_trash)
 				foundSegment = true
@@ -1492,7 +1492,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				
 				local tt = tabela_em_ordem [index] [2] -- tabela com [PlayerName] = {amount, class}
 				
-				for playerName, t in pairs (tabela [2]) do
+				for playerName, t in pairs(tabela [2]) do
 					local amount, class = unpack (t)
 					if (tt [playerName]) then
 						tt [playerName][1] = tt [playerName][1] + amount
@@ -1636,7 +1636,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					_table_sort (tabela.damage_from, sort_damage_from)
 
 					tabela [1] = tabela.damage_from_total
-					tinsert (adds, tabela)
+					tinsert(adds, tabela)
 				end
 			end
 			
@@ -1652,7 +1652,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local dano_em = tabela.dano_em
 			
 			GameCooltip:Preset (2)
-			GameCooltip:SetOwner (self)
+			GameCooltip:SetOwner(self)
 			
 			EncounterDetails:FormatCooltipSettings()
 			
@@ -1685,7 +1685,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			self.textura:SetBlendMode("ADD")
 			self.textura:SetSize(18, 18)
 			self.ArrowOnEnter = true
-			GameCooltip:SetOwner (self, "right", "left", -10, 0)
+			GameCooltip:SetOwner(self, "right", "left", -10, 0)
 			
 			GameCooltip:AddLine (" ")
 			GameCooltip:AddLine ("CLICK to Report")
@@ -1699,7 +1699,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local damage_from = tabela.damage_from
 			
 			GameCooltip:Preset (2)
-			GameCooltip:SetOwner (self)
+			GameCooltip:SetOwner(self)
 			
 			EncounterDetails:FormatCooltipSettings()
 			
@@ -1743,7 +1743,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			GameCooltip:AddLine (" ")
 			GameCooltip:AddLine ("CLICK to Report")
 			
-			GameCooltip:SetOwner (self, "left", "right", -60, 0)
+			GameCooltip:SetOwner(self, "left", "right", -60, 0)
 			GameCooltip:Show()
 		end
 		

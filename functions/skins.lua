@@ -59,15 +59,15 @@ local _
 	end
 	
 	local reset_tooltip = function()
-		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {1, 1, 1, 1})
+		_detalhes:SetTooltipBackdrop("Blizzard Tooltip", 16, {1, 1, 1, 1})
 		_detalhes:DelayOptionsRefresh()
 	end
 	local set_tooltip_elvui1 = function()
-		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {0, 0, 0, 1})
+		_detalhes:SetTooltipBackdrop("Blizzard Tooltip", 16, {0, 0, 0, 1})
 		_detalhes:DelayOptionsRefresh()
 	end
 	local set_tooltip_elvui2 = function()
-		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {1, 1, 1, 0})
+		_detalhes:SetTooltipBackdrop("Blizzard Tooltip", 16, {1, 1, 1, 0})
 		_detalhes:DelayOptionsRefresh()
 	end
 	

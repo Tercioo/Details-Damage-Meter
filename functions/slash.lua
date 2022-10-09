@@ -53,7 +53,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local instance = rest:match ("^(%S*)%s*(.-)$")
 		instance = tonumber (instance)
 		if (instance) then
-			local this_instance = _detalhes:GetInstance (instance)
+			local this_instance = _detalhes:GetInstance(instance)
 			if (not this_instance) then
 				return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
 			end
@@ -132,7 +132,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local instance = rest:match ("^(%S*)%s*(.-)$")
 		instance = tonumber (instance)
 		if (instance) then
-			local this_instance = _detalhes:GetInstance (instance)
+			local this_instance = _detalhes:GetInstance(instance)
 			if (not this_instance) then
 				return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
 			end
@@ -176,17 +176,17 @@ function SlashCmdList.DETAILS (msg, editbox)
 		if (rest and tonumber (rest)) then
 			local instanceN = tonumber (rest)
 			if (instanceN > 0 and instanceN <= #_detalhes.tabela_instancias) then
-				local instance = _detalhes:GetInstance (instanceN)
+				local instance = _detalhes:GetInstance(instanceN)
 				_detalhes:OpenOptionsWindow (instance)
 			end
 		else
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then
-				local instance = _detalhes:GetInstance (1)
+				local instance = _detalhes:GetInstance(1)
 				_detalhes.CriarInstancia (_, _, 1)
 				_detalhes:OpenOptionsWindow (instance)
 			else
-				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance(lower_instance))
 			end
 			
 		end
@@ -194,7 +194,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"] or command == "worldboss") then
 		
 		local questIds = {{"Tarlna the Ageless", 81535}, {"Drov the Ruiner ", 87437}, {"Rukhmar", 87493}}
-		for _, _table in pairs (questIds) do 
+		for _, _table in pairs(questIds) do 
 			print (format ("%s: \124cff%s\124r", _table [1], IsQuestFlaggedCompleted (_table [2]) and "ff0000"..Loc ["STRING_KILLED"] or "00ff00"..Loc ["STRING_ALIVE"]))
 		end
 		
@@ -447,7 +447,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local f = _detalhes:CreateListPanel()
 		
 		local i = 1
-		for k, v in pairs (_detalhes.tabela_pets.pets) do
+		for k, v in pairs(_detalhes.tabela_pets.pets) do
 			if (v[6] == "Guardian of Ancient Kings") then
 				_detalhes.ListPanel:add ( k.. ": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3] .. " | " .. v[6], i)
 				i = i + 1
@@ -460,7 +460,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		_detalhes.tabela_vigente.saved_pets = {}
 		
-		for k, v in pairs (_detalhes.tabela_pets.pets) do
+		for k, v in pairs(_detalhes.tabela_pets.pets) do
 			_detalhes.tabela_vigente.saved_pets [k] = {v[1], v[2], v[3]}
 		end
 		
@@ -554,10 +554,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:PrintParserCacheIndexes()
 	
 	elseif (msg == "captures") then
-		for k, v in pairs (_detalhes.capture_real) do 
+		for k, v in pairs(_detalhes.capture_real) do 
 			print ("real -",k,":",v)
 		end
-		for k, v in pairs (_detalhes.capture_current) do 
+		for k, v in pairs(_detalhes.capture_current) do 
 			print ("current -",k,":",v)
 		end
 	
@@ -569,7 +569,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		f:SetHeight(150)
 		f:SetBackdrop({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		f:SetBackdropColor(0, 0, 0, 1)
-		f:EnableMouseWheel (true)
+		f:EnableMouseWheel(true)
 		
 		local rows = {}
 		for i = 1, 7 do 
@@ -621,7 +621,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		if (not _G.DetailsScanTooltip) then
 			local scanTool = CreateFrame("GameTooltip", "DetailsScanTooltip", nil, "GameTooltipTemplate")
-			scanTool:SetOwner (WorldFrame, "ANCHOR_NONE")
+			scanTool:SetOwner(WorldFrame, "ANCHOR_NONE")
 		end
 		
 		function getPetOwner (petName)
@@ -673,7 +673,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 			
 			if (playerActor and playerActor.buff_uptime_spells and playerActor.buff_uptime_spells._ActorTable) then
-				for spellid, spellTable in pairs (playerActor.buff_uptime_spells._ActorTable) do 
+				for spellid, spellTable in pairs(playerActor.buff_uptime_spells._ActorTable) do 
 					local spellname = GetSpellInfo(spellid)
 					if (spellname) then
 						print (spellid, spellname, spellTable.uptime)
@@ -839,7 +839,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes.id_frame:SetPoint("center", UIParent, "center")
 			_detalhes.id_frame:SetBackdrop(backdrop)
 			
-			tinsert (UISpecialFrames, "DetailsID")
+			tinsert(UISpecialFrames, "DetailsID")
 			
 			_detalhes.id_frame.texto = CreateFrame("editbox", nil, _detalhes.id_frame)
 			_detalhes.id_frame.texto:SetPoint("topleft", _detalhes.id_frame, "topleft")
@@ -944,7 +944,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local container = _detalhes.tabela_vigente [t]._NameIndexTable
 		
 		local i = 0
-		for name, _ in pairs (container) do 
+		for name, _ in pairs(container) do 
 			i = i + 1
 			f:add (name, i)
 		end
@@ -1172,7 +1172,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 				for o = 1, DetailsFramework.EncounterJournal.EJ_GetNumLoot() do
 					local name, icon, slot, armorType, itemID, link, encounterID = DetailsFramework.EncounterJournal.EJ_GetLootInfoByIndex (o)
 					r[slot] = r[slot] or {}
-					tinsert (r[slot], {itemID, encounterID})
+					tinsert(r[slot], {itemID, encounterID})
 					total = total + 1
 				end
 			end
@@ -1277,8 +1277,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local y = -50
 		local allspecs = {}
 		
-		for a, b in pairs (_detalhes.class_specs_coords) do
-			tinsert (allspecs, a)
+		for a, b in pairs(_detalhes.class_specs_coords) do
+			tinsert(allspecs, a)
 		end
 		
 		for i = 1, 10 do
@@ -1323,7 +1323,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (lower_instance) then
-			local instance = _detalhes:GetInstance (lower_instance)
+			local instance = _detalhes:GetInstance(lower_instance)
 			if (instance) then
 				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, "Hellfire Citadel", 1800, 15, "DAMAGER", "Rock Lobster", 2, "Keyspell"}
 				instance:InstanceAlert ("Boss Defeated, Open History! ", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 40, func, true)
@@ -1342,7 +1342,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
 		
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
-		local instance = _detalhes:GetInstance (lower_instance)
+		local instance = _detalhes:GetInstance(lower_instance)
 		
 		instance:InstanceAlert ("Boss Defeated! Show Ranking", icon, 10, func, true)
 	
@@ -1378,7 +1378,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			for o = 1, 3 do
 				local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1)
 				if (selected) then
-					tinsert (talents, talentID)
+					tinsert(talents, talentID)
 					break
 				end
 			end
@@ -1493,18 +1493,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local sectionInfo = C_EncounterJournal.GetSectionInfo (ID)
 			
 			if (sectionInfo) then
-				tinsert (result, sectionInfo)
+				tinsert(result, sectionInfo)
 				
 				if (sectionInfo.spellID and type (sectionInfo.spellID) == "number" and sectionInfo.spellID ~= 0) then
-					tinsert (spellIDs, sectionInfo.spellID)
+					tinsert(spellIDs, sectionInfo.spellID)
 				end
 				
 				local nextChild, nextSibling = sectionInfo.firstChildSectionID, sectionInfo.siblingSectionID
 				if (nextSibling) then
-					tinsert (nextID, nextSibling)
+					tinsert(nextID, nextSibling)
 				end
 				if (nextChild) then
-					tinsert (nextID, nextChild)
+					tinsert(nextID, nextChild)
 				end
 			else
 				break
@@ -1518,7 +1518,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local instance1 = Details:GetInstance(1)
 		if (instance1) then
 			local exportedValues = {}
-			for key, _ in pairs (skin) do
+			for key, _ in pairs(skin) do
 				local value = instance1[key]
 				if (value) then
 					exportedValues[key] = value
@@ -1616,7 +1616,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			if (t1.Timer) then
 				t1, t2 = t1.t1, t1.t2
 			end
-			for key, value in pairs (t2) do 
+			for key, value in pairs(t2) do 
 				if (not ignoredKeys [key] and type (value) ~= "function") then
 					if (key == "targets") then
 						t1 [key] = {}
@@ -1747,7 +1747,7 @@ function Details.RefreshUserList (ignoreIfHidden)
 			end
 
 			if (not foundPlayer) then
-				tinsert (newList, {playerName, "--", "--"})
+				tinsert(newList, {playerName, "--", "--"})
 			end
 		end
 	end
@@ -1899,7 +1899,7 @@ function _detalhes:CreateListPanel()
 	_detalhes.ListPanel:SetPoint("center", UIParent, "center", 300, 0)
 	_detalhes.ListPanel.barras = {}
 	
-	tinsert (UISpecialFrames, "DetailsActorsFrame")
+	tinsert(UISpecialFrames, "DetailsActorsFrame")
 	_detalhes.ListPanel.close_with_right = true
 
 	local container_barras_window = CreateFrame("ScrollFrame", "Details_ActorsBarrasScroll", _detalhes.ListPanel.widget) 

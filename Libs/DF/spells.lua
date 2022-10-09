@@ -1231,9 +1231,9 @@ DF.CooldownsRaid = {}
 
 DF.CooldownsAllDeffensive = {}
 
-for specId, cooldownTable in pairs (DF.CooldownsBySpec) do
+for specId, cooldownTable in pairs(DF.CooldownsBySpec) do
 	
-	for spellId, cooldownType in pairs (cooldownTable) do
+	for spellId, cooldownType in pairs(cooldownTable) do
 		
 		if (cooldownType == 1) then
 			DF.CooldownsAttack [spellId] = true
@@ -1260,7 +1260,7 @@ for specId, cooldownTable in pairs (DF.CooldownsBySpec) do
 end
 
 function DF:FindClassForCooldown (spellId)
-	for specId, cooldownTable in pairs (DF.CooldownsBySpec) do
+	for specId, cooldownTable in pairs(DF.CooldownsBySpec) do
 		local hasCooldown = cooldownTable [spellId]
 		if (hasCooldown) then
 			return DF.SpecIds [specId]
@@ -1441,15 +1441,15 @@ function DF:GetSpellsForEncounterFromJournal (instanceEJID, encounterEJID)
 		
 		if (sectionInfo) then
 			if (sectionInfo.spellID and type (sectionInfo.spellID) == "number" and sectionInfo.spellID ~= 0) then
-				tinsert (spellIDs, sectionInfo.spellID)
+				tinsert(spellIDs, sectionInfo.spellID)
 			end
 			
 			local nextChild, nextSibling = sectionInfo.firstChildSectionID, sectionInfo.siblingSectionID
 			if (nextSibling) then
-				tinsert (nextID, nextSibling)
+				tinsert(nextID, nextSibling)
 			end
 			if (nextChild) then
-				tinsert (nextID, nextChild)
+				tinsert(nextID, nextChild)
 			end
 		else
 			break

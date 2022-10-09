@@ -84,7 +84,7 @@ end
 		if (is_enabled) then
 			--was disabled, so we need to save the current window positions.
 			if (not current_enabled_state) then
-				local window1 = _detalhes:GetInstance (1)
+				local window1 = _detalhes:GetInstance(1)
 				if (window1) then
 					window1:SaveMainWindowPosition()
 					if (window1.libwindow) then
@@ -92,7 +92,7 @@ end
 						_detalhes.chat_tab_embed.w1_pos = pos
 					end
 				end
-				local window2 = _detalhes:GetInstance (2)
+				local window2 = _detalhes:GetInstance(2)
 				if (window2) then
 					window2:SaveMainWindowPosition()
 					if (window2.libwindow) then
@@ -150,7 +150,7 @@ end
 			end
 			
 			if (ChatFrame) then
-				for index, t in pairs (ChatFrame.messageTypeList) do
+				for index, t in pairs(ChatFrame.messageTypeList) do
 					ChatFrame_RemoveMessageGroup (ChatFrame, t)
 					ChatFrame.messageTypeList [index] = nil
 				end
@@ -159,7 +159,7 @@ end
 			
 				if (_detalhes.chat_tab_embed.single_window) then
 					--only one window
-					local window1 = _detalhes:GetInstance (1)
+					local window1 = _detalhes:GetInstance(1)
 					
 					window1:UngroupInstance()
 					window1.baseframe:ClearAllPoints()
@@ -183,7 +183,7 @@ end
 					window1:LockInstance (true)
 					window1:SaveMainWindowPosition()
 					
-					local window2 = _detalhes:GetInstance (2)
+					local window2 = _detalhes:GetInstance(2)
 					if (window2 and window2.baseframe) then
 						if (window2.baseframe:GetParent() == ChatFrame) then
 							--need to detach
@@ -193,8 +193,8 @@ end
 
 				else
 					--window #1 and #2
-					local window1 = _detalhes:GetInstance (1)
-					local window2 = _detalhes:GetInstance (2)
+					local window1 = _detalhes:GetInstance(1)
+					local window2 = _detalhes:GetInstance(2)
 					if (not window2) then
 						window2 = _detalhes:CriarInstancia()
 					end
@@ -249,8 +249,8 @@ end
 	
 	function _detalhes.chat_embed:ReleaseEmbed (second_window)
 		--release
-		local window1 = _detalhes:GetInstance (1)
-		local window2 = _detalhes:GetInstance (2)
+		local window1 = _detalhes:GetInstance(1)
+		local window2 = _detalhes:GetInstance(2)
 		
 		if (second_window) then
 			window2.baseframe:ClearAllPoints()
@@ -336,7 +336,7 @@ function _detalhes:SetDeathLogLimit (limit)
 		local combat = _detalhes.tabela_vigente
 
 		local wipe = table.wipe
-		for player_name, event_table in pairs (combat.player_last_events) do
+		for player_name, event_table in pairs(combat.player_last_events) do
 			if (limit > #event_table) then
 				for i = #event_table + 1, limit do
 					event_table [i] = {}
@@ -362,7 +362,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 	if (not track_everything) then
 		for _, actor in _detalhes.tabela_vigente[1]:ListActors() do
 			if (actor:IsPlayer()) then
-				for spellid, spell in pairs (actor:GetSpellList()) do
+				for spellid, spell in pairs(actor:GetSpellList()) do
 					if (spelllist [spell.id]) then
 						actor.spec = spelllist [spell.id]
 						_detalhes.cached_specs [actor.serial] = actor.spec
@@ -374,7 +374,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 
 		for _, actor in _detalhes.tabela_vigente[2]:ListActors() do
 			if (actor:IsPlayer()) then
-				for spellid, spell in pairs (actor:GetSpellList()) do
+				for spellid, spell in pairs(actor:GetSpellList()) do
 					if (spelllist [spell.id]) then
 						actor.spec = spelllist [spell.id]
 						_detalhes.cached_specs [actor.serial] = actor.spec
@@ -386,15 +386,15 @@ function _detalhes:TrackSpecsNow (track_everything)
 	else
 		local combatlist = {}
 		for _, combat in ipairs(_detalhes.tabela_historico.tabelas) do
-			tinsert (combatlist, combat)
+			tinsert(combatlist, combat)
 		end
-		tinsert (combatlist, _detalhes.tabela_vigente)
-		tinsert (combatlist, _detalhes.tabela_overall)
+		tinsert(combatlist, _detalhes.tabela_vigente)
+		tinsert(combatlist, _detalhes.tabela_overall)
 		
 		for _, combat in ipairs(combatlist) do
 			for _, actor in combat[1]:ListActors() do
 				if (actor:IsPlayer()) then
-					for spellid, spell in pairs (actor:GetSpellList()) do
+					for spellid, spell in pairs(actor:GetSpellList()) do
 						if (spelllist [spell.id]) then
 							actor.spec = spelllist [spell.id]
 							_detalhes.cached_specs [actor.serial] = actor.spec
@@ -406,7 +406,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 
 			for _, actor in combat[2]:ListActors() do
 				if (actor:IsPlayer()) then
-					for spellid, spell in pairs (actor:GetSpellList()) do
+					for spellid, spell in pairs(actor:GetSpellList()) do
 						if (spelllist [spell.id]) then
 							actor.spec = spelllist [spell.id]
 							_detalhes.cached_specs [actor.serial] = actor.spec
@@ -672,7 +672,7 @@ function _detalhes:DoBackgroundTasks()
 	
 	local t = time()
 	
-	for taskName, taskTable in pairs (background_tasks) do 
+	for taskName, taskTable in pairs(background_tasks) do 
 		if (t > taskTable.nextexec) then
 			if (type(taskTable.func) == "string") then
 				taskTable.object [taskTable.func] (taskTable.object, unpack (taskTable.args, 1, taskTable.args_amt))
@@ -790,7 +790,7 @@ function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role, dps, guil
 				if (encounter.guild == guild_name) then
 					local players = encounter [role]
 					if (players) then
-						for playername, t in pairs (players) do
+						for playername, t in pairs(players) do
 							if (dps) then
 								if (t[1]/encounter.elapsed > bestdps) then
 									bestdps = t[1]/encounter.elapsed
@@ -855,7 +855,7 @@ function _detalhes.storage:GetPlayerGuildRank (diff, encounter_id, role, playern
 			for index, encounter in ipairs(encounters) do
 				if (encounter.guild == guild_name) then
 					local roleTable = encounter [role]
-					for playerName, playerTable in pairs (roleTable) do
+					for playerName, playerTable in pairs(roleTable) do
 					
 						if (not playerScore [playerName]) then
 							playerScore [playerName] = {0, 0, {}}
@@ -888,9 +888,9 @@ function _detalhes.storage:GetPlayerGuildRank (diff, encounter_id, role, playern
 			end
 			
 			local t = {}
-			for playerName, playerTable in pairs (playerScore) do
+			for playerName, playerTable in pairs(playerScore) do
 				playerTable [5]  = playerName
-				tinsert (t, playerTable)
+				tinsert(t, playerTable)
 			end
 			
 			table.sort (t, dps and _detalhes.Sort2 or _detalhes.Sort1)
@@ -986,9 +986,9 @@ local have_encounter = function(db, ID)
 	local minTime = ID - 120
 	local maxTime = ID + 120
 	
-	for diff, diffTable in pairs (db or {}) do
+	for diff, diffTable in pairs(db or {}) do
 		if (type(diffTable) == "table") then
-			for encounterID, encounterTable in pairs (diffTable) do
+			for encounterID, encounterTable in pairs(diffTable) do
 				for index, encounter in ipairs(encounterTable) do
 					--check if the encounter fits in the timespam window
 					if (encounter.time >= minTime and encounter.time <= maxTime) then
@@ -1010,7 +1010,7 @@ local have_recent_requested_encounter = function(ID)
 	local minTime = ID - 120
 	local maxTime = ID + 120
 	
-	for requestedID, _ in pairs (_detalhes.RecentRequestedIDs) do
+	for requestedID, _ in pairs(_detalhes.RecentRequestedIDs) do
 		if (requestedID >= minTime and requestedID <= maxTime) then
 			return true
 		end
@@ -1029,14 +1029,14 @@ function _detalhes.storage:GetIDsToGuildSync()
 	local myGuildName = GetGuildInfo("player")
 
 	--build the encounter ID list
-	for diff, diffTable in pairs (db or {}) do
+	for diff, diffTable in pairs(db or {}) do
 		if (type(diffTable) == "table") then
-			for encounterID, encounterTable in pairs (diffTable) do
+			for encounterID, encounterTable in pairs(diffTable) do
 				if (encounter_is_current_tier (encounterID)) then
 					for index, encounter in ipairs(encounterTable) do
 						if (encounter.servertime) then
 							if (myGuildName == encounter.guild) then
-								tinsert (IDs, encounter.servertime)
+								tinsert(IDs, encounter.servertime)
 							end
 						end
 					end
@@ -1078,7 +1078,7 @@ function _detalhes.storage:CheckMissingIDsToGuildSync (IDsList)
 	for index, ID in ipairs(IDsList) do
 		if (not have_encounter (db, ID)) then
 			if (not have_recent_requested_encounter (ID)) then
-				tinsert (RequestIDs, ID)
+				tinsert(RequestIDs, ID)
 				_detalhes.RecentRequestedIDs [ID] = true
 			end
 		end
@@ -1108,7 +1108,7 @@ function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 	
 	local EncounterList = {}
 	local CurrentTable = {}
-	tinsert (EncounterList, CurrentTable)
+	tinsert(EncounterList, CurrentTable)
 	
 	local AmtToSend = 0
 	local MaxAmount = 0
@@ -1119,9 +1119,9 @@ function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 	
 	for index, ID in ipairs(IDsList) do
 		
-		for diff, diffTable in pairs (db or {}) do
+		for diff, diffTable in pairs(db or {}) do
 			if (type(diffTable) == "table") then
-				for encounterID, encounterTable in pairs (diffTable) do
+				for encounterID, encounterTable in pairs(diffTable) do
 					for index, encounter in ipairs(encounterTable) do
 					
 						if (ID == encounter.time or ID == encounter.servertime) then --the time here is always exactly
@@ -1129,14 +1129,14 @@ function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 							CurrentTable [diff] = CurrentTable [diff] or {}
 							CurrentTable [diff] [encounterID] = CurrentTable [diff] [encounterID] or {}
 							
-							tinsert (CurrentTable [diff] [encounterID], encounter)
+							tinsert(CurrentTable [diff] [encounterID], encounter)
 							
 							AmtToSend = AmtToSend + 1
 							MaxAmount = MaxAmount + 1
 							
 							if (MaxAmount == 3) then
 								CurrentTable = {}
-								tinsert (EncounterList, CurrentTable)
+								tinsert(EncounterList, CurrentTable)
 								MaxAmount = 0
 							end
 						end
@@ -1166,9 +1166,9 @@ function _detalhes.storage:AddGuildSyncData (data, source)
 	local AddedAmount = 0
 	_detalhes.LastGuildSyncReceived = GetTime()
 	
-	for diff, diffTable in pairs (data) do
+	for diff, diffTable in pairs(data) do
 		if (type(diff) == "number" and type (diffTable) == "table") then
-			for encounterID, encounterTable in pairs (diffTable) do
+			for encounterID, encounterTable in pairs(diffTable) do
 				if (type(encounterID) == "number" and type (encounterTable) == "table") then
 					for index, encounter in ipairs(encounterTable) do
 						--validate the encounter
@@ -1180,7 +1180,7 @@ function _detalhes.storage:AddGuildSyncData (data, source)
 									db [diff] = db [diff] or {}
 									db [diff] [encounterID] = db [diff] [encounterID] or {}
 									
-									tinsert (db [diff] [encounterID], encounter)
+									tinsert(db [diff] [encounterID], encounter)
 									
 									if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
 										_G.DetailsRaidHistoryWindow:Refresh()
@@ -1226,8 +1226,8 @@ function _detalhes.storage:ListDiffs()
 	end
 	
 	local t = {}
-	for diff, _ in pairs (db) do
-		tinsert (t, diff)
+	for diff, _ in pairs(db) do
+		tinsert(t, diff)
 	end
 	return t
 end
@@ -1243,14 +1243,14 @@ function _detalhes.storage:ListEncounters (diff)
 	if (diff) then
 		local table = db [diff]
 		if (table) then
-			for encounter_id, _ in pairs (table) do
-				tinsert (t, {diff, encounter_id})
+			for encounter_id, _ in pairs(table) do
+				tinsert(t, {diff, encounter_id})
 			end
 		end
 	else
-		for diff, table in pairs (db) do
-			for encounter_id, _ in pairs (table) do
-				tinsert (t, {diff, encounter_id})
+		for diff, table in pairs(db) do
+			for encounter_id, _ in pairs(table) do
+				tinsert(t, {diff, encounter_id})
 			end
 		end
 	end
@@ -1270,7 +1270,7 @@ function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
 
 	
 	if (not diff) then
-		for diff, table in pairs (db) do
+		for diff, table in pairs(db) do
 			if (encounter_id) then
 				local encounters = table [encounter_id]
 				if (encounters) then
@@ -1278,17 +1278,17 @@ function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
 						local encounter = encounters [i]
 						local player = encounter.healing [playername] or encounter.damage [playername]
 						if (player) then
-							tinsert (t, player)
+							tinsert(t, player)
 						end
 					end
 				end
 			else
-				for encounter_id, encounters in pairs (table) do
+				for encounter_id, encounters in pairs(table) do
 					for i = 1, #encounters do
 						local encounter = encounters [i]
 						local player = encounter.healing [playername] or encounter.damage [playername]
 						if (player) then
-							tinsert (t, player)
+							tinsert(t, player)
 						end
 					end
 				end
@@ -1304,17 +1304,17 @@ function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
 						local encounter = encounters [i]
 						local player = encounter.healing [playername] or encounter.damage [playername]
 						if (player) then
-							tinsert (t, player)
+							tinsert(t, player)
 						end
 					end
 				end
 			else
-				for encounter_id, encounters in pairs (table) do
+				for encounter_id, encounters in pairs(table) do
 					for i = 1, #encounters do
 						local encounter = encounters [i]
 						local player = encounter.healing [playername] or encounter.damage [playername]
 						if (player) then
-							tinsert (t, player)
+							tinsert(t, player)
 						end
 					end
 				end
@@ -1350,10 +1350,10 @@ function _detalhes.storage:GetEncounterData (diff, encounter_id, guild)
 		
 		if (guild) then
 			if (encounter.guild == guild) then
-				tinsert (t, encounter)
+				tinsert(t, encounter)
 			end
 		else
-			tinsert (t, encounter)
+			tinsert(t, encounter)
 		end
 	end
 	
@@ -1748,7 +1748,7 @@ function Details.Database.StoreEncounter(combat)
 		end
 		
 		--add the encounter data
-		tinsert (encounter_database, this_combat_data)
+		tinsert(encounter_database, this_combat_data)
 		if (_detalhes.debug) then
 			print ("|cFFFFFF00Details! Storage|r: combat data added to encounter database.")
 		end
@@ -1780,7 +1780,7 @@ function Details.Database.StoreEncounter(combat)
 		
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (lower_instance) then
-			local instance = _detalhes:GetInstance (lower_instance)
+			local instance = _detalhes:GetInstance(lower_instance)
 			if (instance) then
 				local my_role = UnitGroupRolesAssigned ("player")
 				if (my_role == "TANK") then
@@ -1962,7 +1962,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 					--need to review this in classic
 					local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1, true, unitid)
 					if (selected) then
-						tinsert (talents, talentID)
+						tinsert(talents, talentID)
 						break
 					end
 				end
@@ -2093,7 +2093,7 @@ function ilvl_core:Reset()
 	ilvl_core.raid_id = 1
 	ilvl_core.amt_inspecting = 0
 	
-	for guid, t in pairs (inspecting) do
+	for guid, t in pairs(inspecting) do
 		ilvl_core:CancelTimer (t[2])
 		inspecting [guid] = nil
 	end
@@ -2418,7 +2418,7 @@ if (DetailsFramework.IsWotLKWow()) then
 				--tab information
 				local name, iconTexture, pointsSpent, fileName = GetTalentTabInfo (i)
 				if (name) then
-					tinsert (pointsPerSpec, {name, pointsSpent, fileName})
+					tinsert(pointsPerSpec, {name, pointsSpent, fileName})
 				end
 
 				--talents information
@@ -2431,7 +2431,7 @@ if (DetailsFramework.IsWotLKWow()) then
 						if (name and rank and type (rank) == "number") then
 							--send the specID instead of the specName
 							local specID = Details.textureToSpec [fileName]
-							tinsert (talentsSelected, {iconTexture, rank, tier, column, i, specID, maxRank})
+							tinsert(talentsSelected, {iconTexture, rank, tier, column, i, specID, maxRank})
 						end
 					end
 				end

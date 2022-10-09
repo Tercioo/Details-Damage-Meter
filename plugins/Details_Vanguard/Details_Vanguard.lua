@@ -93,7 +93,7 @@ local function CreatePluginFrames (data)
 				Vanguard.db.first_run = true
 				
 				local welcome = CreateFrame("frame", nil, UIParent, "BackdropTemplate")
-				welcome:SetFrameStrata ("TOOLTIP")
+				welcome:SetFrameStrata("TOOLTIP")
 				welcome:SetPoint("center", UIParent, "center")
 				welcome:SetSize(400, 200)
 				DF:ApplyStandardBackdrop(welcome)
@@ -109,7 +109,7 @@ local function CreatePluginFrames (data)
 				
 			end
 		
-			Vanguard.CurrentInstance = Vanguard:GetInstance (Vanguard.instance_id)
+			Vanguard.CurrentInstance = Vanguard:GetInstance(Vanguard.instance_id)
 			
 			VanguardFrame:RegisterEvent ("ROLE_CHANGED_INFORM")
 			VanguardFrame:RegisterEvent ("GROUP_ROSTER_UPDATE")
@@ -120,7 +120,7 @@ local function CreatePluginFrames (data)
 			Vanguard:IdentifyTanks()
 			Vanguard.CurrentCombat = _detalhes:GetCombat ("current")
 
-			VanguardFrame:SetFrameStrata (Vanguard.CurrentInstance.baseframe:GetFrameStrata())
+			VanguardFrame:SetFrameStrata(Vanguard.CurrentInstance.baseframe:GetFrameStrata())
 			VanguardFrame:SetFrameLevel (Vanguard.CurrentInstance.baseframe:GetFrameLevel()+5)
 			
 			if (Vanguard:IsInCombat()) then
@@ -132,7 +132,7 @@ local function CreatePluginFrames (data)
 
 		elseif (event == "COMBAT_PLAYER_ENTER") then --a new combat has been started
 		
-			Vanguard.CurrentInstance = Vanguard:GetInstance (Vanguard.instance_id)
+			Vanguard.CurrentInstance = Vanguard:GetInstance(Vanguard.instance_id)
 			Vanguard.CurrentCombat = select (1, ...)
 			Vanguard.Running = true
 			
@@ -158,7 +158,7 @@ local function CreatePluginFrames (data)
 			
 		elseif (event == "DETAILS_STARTED") then
 
-			Vanguard.CurrentInstance = Vanguard:GetInstance (Vanguard.instance_id)
+			Vanguard.CurrentInstance = Vanguard:GetInstance(Vanguard.instance_id)
 			Vanguard.CurrentCombat = Vanguard:GetCurrentCombat()
 
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
@@ -357,7 +357,7 @@ local function CreatePluginFrames (data)
 	local debuff_on_enter = function(self)
 		if (self.spellid) then
 			--self.texture:SetBlendMode("ADD")
-			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 			GameTooltip:SetSpellByID(self.spellid)
 			GameTooltip:Show()
 		end
@@ -376,7 +376,7 @@ local function CreatePluginFrames (data)
 		elseif (button == "RightButton") then
 			local instance = Vanguard:GetPluginInstance()
 			if (instance) then
-				_detalhes.switch:ShowMe (instance)
+				_detalhes.switch:ShowMe(instance)
 			end
 		end
 	end
@@ -721,7 +721,7 @@ local function CreatePluginFrames (data)
 
 	onUpdateFrame.onUpdate = function(self, deltaTime)
 		--do healthbar animation ~animation ~healthbar
-		for tank_name, block_index in pairs (Vanguard.TankHashNames) do
+		for tank_name, block_index in pairs(Vanguard.TankHashNames) do
 			local tframe = Vanguard.TankBlocks [block_index]
 			local bar = tframe.heal_inc
 			if (bar.IsAnimating) then
@@ -732,7 +732,7 @@ local function CreatePluginFrames (data)
 
 	function Vanguard:TrackIncoming()
 		
-		for tank_name, block_index in pairs (Vanguard.TankHashNames) do
+		for tank_name, block_index in pairs(Vanguard.TankHashNames) do
 		
 			local shields = UnitGetTotalAbsorbs and UnitGetTotalAbsorbs(tank_name) or 0
 			local heals = UnitGetIncomingHeals and UnitGetIncomingHeals(tank_name) or 0
@@ -941,7 +941,7 @@ local build_options_panel = function()
 	
 	local textures = SharedMedia:HashTable ("statusbar")
 	local texTable = {}
-	for name, texturePath in pairs (textures) do 
+	for name, texturePath in pairs(textures) do 
 		texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath, onclick = tank_texture_set, icon = texture_icon, texcoord = texture_texcoord}
 	end
 	table.sort (texTable, function(t1, t2) return t1.label < t2.label end)

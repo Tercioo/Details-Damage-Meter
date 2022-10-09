@@ -318,7 +318,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 			return
 		end
 	
-		DetailsFrameworkSliderButtons1:ShowMe (slider)
+		DetailsFrameworkSliderButtons1:ShowMe(slider)
 	
 		local capsule = slider.MyObject
 		local kill = capsule:RunHooksForWidget ("OnEnter", slider, capsule)
@@ -335,12 +335,12 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		if (slider.MyObject.have_tooltip and slider.MyObject.have_tooltip ~= "Right Click to Type the Value") then
 			GameCooltip2:Preset (2)
 			GameCooltip2:AddLine (slider.MyObject.have_tooltip)
-			GameCooltip2:ShowCooltip (slider, "tooltip")
+			GameCooltip2:ShowCooltip(slider, "tooltip")
 		else
 			GameCooltip2:Preset (2)
 			GameCooltip2:AddLine ("Right Click to Type the Value", "", 1, "", "", 10)
 			GameCooltip2:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
-			GameCooltip2:ShowCooltip (slider, "tooltip")
+			GameCooltip2:ShowCooltip(slider, "tooltip")
 		end
 	end
 	
@@ -364,7 +364,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 			slider:SetBackdropBorderColor(unpack (slider.MyObject.onleave_backdrop_border_color))
 		end
 	
-		GameCooltip2:ShowMe (false)
+		GameCooltip2:ShowMe(false)
 
 	end
 	
@@ -390,7 +390,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		f:SetPoint("bottomleft", host, "topleft", -5, -5)
 		f:SetPoint("bottomright", host, "topright", 5, -5)
 
-		f:SetFrameStrata ("FULLSCREEN")
+		f:SetFrameStrata("FULLSCREEN")
 		f:SetFrameLevel (host:GetFrameLevel() + 1000)
 		f:Show()
 		if (f.isGoingToHide) then
@@ -409,8 +409,8 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 	
 	local buttonPlus = CreateFrame("button", "DetailsFrameworkSliderButtonsPlusButton", f, "BackdropTemplate")
 	local buttonMinor = CreateFrame("button", "DetailsFrameworkSliderButtonsMinorButton", f, "BackdropTemplate")
-	buttonPlus:SetFrameStrata (f:GetFrameStrata())
-	buttonMinor:SetFrameStrata (f:GetFrameStrata())
+	buttonPlus:SetFrameStrata(f:GetFrameStrata())
+	buttonMinor:SetFrameStrata(f:GetFrameStrata())
 	
 	buttonPlus:SetScript("OnEnter", function(self)
 		if (f.isGoingToHide) then
@@ -470,13 +470,13 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		if (f.host.fine_tuning) then
 			f.host:SetValue(current + f.host.fine_tuning)
 			if (editbox and DFSliderMetaFunctions.editbox_typevalue:IsShown()) then
-				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (string.format ("%.2f", current + f.host.fine_tuning)))
+				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (string.format("%.2f", current + f.host.fine_tuning)))
 			end
 		else
 			if (f.host.useDecimals) then
 				f.host:SetValue(current + 0.1)
 				if (editbox and DFSliderMetaFunctions.editbox_typevalue:IsShown()) then
-					DFSliderMetaFunctions.editbox_typevalue:SetText(string.format ("%.2f", current + 0.1))
+					DFSliderMetaFunctions.editbox_typevalue:SetText(string.format("%.2f", current + 0.1))
 				end
 			else
 				f.host:SetValue(current + 1)
@@ -522,13 +522,13 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		if (f.host.fine_tuning) then
 			f.host:SetValue(current - f.host.fine_tuning)
 			if (editbox and DFSliderMetaFunctions.editbox_typevalue:IsShown()) then
-				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (string.format ("%.2f", current - f.host.fine_tuning)))
+				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (string.format("%.2f", current - f.host.fine_tuning)))
 			end
 		else
 			if (f.host.useDecimals) then
 				f.host:SetValue(current - 0.1)
 				if (editbox and DFSliderMetaFunctions.editbox_typevalue:IsShown()) then
-					DFSliderMetaFunctions.editbox_typevalue:SetText(string.format ("%.2f", current - 0.1))
+					DFSliderMetaFunctions.editbox_typevalue:SetText(string.format("%.2f", current - 0.1))
 				end
 			else
 				f.host:SetValue(current - 1)
@@ -634,7 +634,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 			DFSliderMetaFunctions.editbox_typevalue:SetFrameLevel (self.widget:GetFrameLevel()+1)
 			
 			if (self.useDecimals) then
-				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (string.format ("%.1f", self.value)))
+				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (string.format("%.1f", self.value)))
 			else
 				DFSliderMetaFunctions.editbox_typevalue:SetText(tostring (math.floor (self.value)))
 			end
@@ -732,7 +732,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 		end
 		
 		if (slider.MyObject.useDecimals) then
-			slider.amt:SetText(string.format ("%.2f", amt))
+			slider.amt:SetText(string.format("%.2f", amt))
 		else
 			slider.amt:SetText(math.floor (amt))
 		end
@@ -931,7 +931,7 @@ function DF:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defa
 	w = w or 60
 	h = h or 20
 	
-	local slider = DF:NewButton (parent, container, name, member, w, h)
+	local slider = DF:NewButton(parent, container, name, member, w, h)
 	slider.HookList.OnSwitch = {}
 	
 	slider.switch_func = switch_func
@@ -1124,7 +1124,7 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	if (not APISliderFunctions) then
 		APISliderFunctions = true
 		local idx = getmetatable (SliderObject.slider).__index
-		for funcName, funcAddress in pairs (idx) do 
+		for funcName, funcAddress in pairs(idx) do 
 			if (not DFSliderMetaFunctions [funcName]) then
 				DFSliderMetaFunctions [funcName] = function(object, ...)
 					local x = loadstring ( "return _G['"..object.slider:GetName().."']:"..funcName.."(...)")
@@ -1166,7 +1166,7 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	end
 	
 	if (SliderObject.useDecimals) then
-		SliderObject.amt:SetText(string.format ("%.2f", amt))
+		SliderObject.amt:SetText(string.format("%.2f", amt))
 	else
 		SliderObject.amt:SetText(math.floor (amt))
 	end

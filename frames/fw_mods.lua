@@ -190,7 +190,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 			GameCooltip:SetType ("tooltip")
 			GameCooltip:SetColor ("main", "transparent")
 			GameCooltip:AddLine (new_button.tooltip)
-			GameCooltip:SetOwner (new_button)
+			GameCooltip:SetOwner(new_button)
 			GameCooltip:ShowCooltip()
 		end
 		
@@ -208,7 +208,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 		new_button.enter = false
 	
 		if (new_button.tooltip) then 
-			_detalhes.popup:ShowMe (false)
+			_detalhes.popup:ShowMe(false)
 		end
 		
 		if (new_button.texture) then
@@ -375,7 +375,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 			GameCooltip:SetType ("tooltip")
 			GameCooltip:SetColor ("main", "transparent")
 			GameCooltip:AddLine (editbox.tooltip)
-			GameCooltip:SetOwner (editbox)
+			GameCooltip:SetOwner(editbox)
 			GameCooltip:ShowCooltip()
 		end
 		
@@ -398,7 +398,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 		
 		if (editbox.tooltip) then 
 			if (not editbox.HaveMenu) then
-				_detalhes.popup:ShowMe (false)
+				_detalhes.popup:ShowMe(false)
 			end
 		end
 		
@@ -684,7 +684,7 @@ function gump:NewScrollBar2 (master, slave, x, y)
 			slider_gump:Disable()
 			slider_gump:SetValue(0)
 			slider_gump.ativo = false
-			master:EnableMouseWheel (false)
+			master:EnableMouseWheel(false)
 			return
 		end
 	
@@ -694,13 +694,13 @@ function gump:NewScrollBar2 (master, slave, x, y)
 			if (not slider_gump.ativo) then
 				slider_gump:Enable()
 				slider_gump.ativo = true
-				master:EnableMouseWheel (true)
+				master:EnableMouseWheel(true)
 			end
 		else
 			slider_gump:Disable()
 			slider_gump:SetValue(0)
 			slider_gump.ativo = false
-			master:EnableMouseWheel (false)
+			master:EnableMouseWheel(false)
 		end
 	end
 	

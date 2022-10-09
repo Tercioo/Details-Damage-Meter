@@ -685,7 +685,7 @@ end
 		Details:AddTooltipReportLineText()
 
 		GameCooltip:SetOption("YSpacingMod", 0)
-		GameCooltip:SetOwner (thisLine)
+		GameCooltip:SetOwner(thisLine)
 		GameCooltip:Show()
 
 	end
@@ -695,7 +695,7 @@ end
 	end
 
 	local on_switch_DTBS_show = function(instance)
-		instance:TrocaTabela (instance, true, 1, 8)
+		instance:TrocaTabela(instance, true, 1, 8)
 		return true
 	end
 
@@ -882,7 +882,7 @@ end
 				if (not CustomObject.OnSwitchShow) then
 					CustomObject.OnSwitchShow = on_switch_DTBS_show
 				end
-				return instance:TrocaTabela (instance.segmento, 5, index)
+				return instance:TrocaTabela(instance.segmento, 5, index)
 			end
 		end
 
@@ -906,11 +906,11 @@ end
 		new_code = new_code:gsub ("@SPELLID@", spell [1])
 		new_custom_object.script = new_code
 
-		tinsert (Details.custom, new_custom_object)
+		tinsert(Details.custom, new_custom_object)
 		setmetatable (new_custom_object, Details.atributo_custom)
 		new_custom_object.__index = Details.atributo_custom
 
-		return instance:TrocaTabela (instance.segmento, 5, #Details.custom)
+		return instance:TrocaTabela(instance.segmento, 5, #Details.custom)
 	end
 
 	local DTBS_format_name = function(player_name) return Details:GetOnlyName (player_name) end
@@ -1210,7 +1210,7 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --void zones
 	local on_switch_AVZ_show = function(instance)
-		instance:TrocaTabela (instance, true, 1, 7)
+		instance:TrocaTabela(instance, true, 1, 7)
 		return true
 	end
 
@@ -1260,7 +1260,7 @@ end
 			local t = tooltip_void_zone_temp [i]
 			if (not t) then
 				t = {}
-				tinsert (tooltip_void_zone_temp, t)
+				tinsert(tooltip_void_zone_temp, t)
 			end
 
 			local target_actor = combat (1, target_name) or combat (2, target_name) or combat (4, target_name)
@@ -1319,7 +1319,7 @@ end
 				if (not CustomObject.OnSwitchShow) then
 					CustomObject.OnSwitchShow = on_switch_AVZ_show
 				end
-				return instance:TrocaTabela (instance.segmento, 5, index)
+				return instance:TrocaTabela(instance.segmento, 5, index)
 			end
 		end
 
@@ -1348,11 +1348,11 @@ end
 		new_total_code = new_total_code:gsub ("@SPELLID@", spellid)
 		new_custom_object.total_script = new_total_code
 
-		tinsert (Details.custom, new_custom_object)
+		tinsert(Details.custom, new_custom_object)
 		setmetatable (new_custom_object, Details.atributo_custom)
 		new_custom_object.__index = Details.atributo_custom
 
-		return instance:TrocaTabela (instance.segmento, 5, #Details.custom)
+		return instance:TrocaTabela(instance.segmento, 5, #Details.custom)
 	end
 
 	function atributo_damage:ReportSingleVoidZoneLine (actor, instance, ShiftKeyDown, ControlKeyDown)
@@ -1448,7 +1448,7 @@ end
 			local t = tooltip_void_zone_temp [i]
 			if (not t) then
 				t = {}
-				tinsert (tooltip_void_zone_temp, t)
+				tinsert(tooltip_void_zone_temp, t)
 			end
 
 			t[1] = target_name
@@ -2279,16 +2279,16 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], iterLast-1, 1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
-				actorTableContent[myPos]:RefreshLine (instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+				actorTableContent[myPos]:RefreshLine(instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 				whichRowLine = whichRowLine+1
 			else
 				for i = instancia.barraS[1], iterLast, 1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -2298,18 +2298,18 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 
-				actorTableContent[myPos]:RefreshLine (instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+				actorTableContent[myPos]:RefreshLine(instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 				whichRowLine = whichRowLine+1
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do
 					if (actorTableContent[i]) then
 
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -2349,29 +2349,29 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 			totalBarIsShown = true
 
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				actorTableContent[myPos]:RefreshLine (instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+				actorTableContent[myPos]:RefreshLine(instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 				whichRowLine = whichRowLine+1
 				for i = iter_last-1, instancia.barraS[1], -1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			else
 				for i = iter_last, instancia.barraS[1], -1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
 			end
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				actorTableContent[myPos]:RefreshLine (instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+				actorTableContent[myPos]:RefreshLine(instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 				whichRowLine = whichRowLine+1
 				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -2379,7 +2379,7 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 				-- /run print (Details:GetInstance(1).barraS[2]) -- vai do 5 ao 1 -- qual barra come�a no 1 -- i = 5 at� 1 -- player 5 atualiza na barra 1 / player 1 atualiza na barra 5
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do
 					if (actorTableContent[i]) then
-						actorTableContent[i]:RefreshLine (instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
+						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -2578,7 +2578,7 @@ local actor_class_color_r, actor_class_color_g, actor_class_color_b
 end
 
 -- ~atualizar ~barra ~update
-function atributo_damage:RefreshLine (instance, lineContainer, whichRowLine, rank, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+function atributo_damage:RefreshLine(instance, lineContainer, whichRowLine, rank, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 	local thisLine = lineContainer[whichRowLine]
 
 	if (not thisLine) then
@@ -3454,7 +3454,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 					local allPlayers = {} --all players for this phase
 					for playerName, amount in pairs(playersTable) do
-						tinsert (allPlayers, {playerName, amount})
+						tinsert(allPlayers, {playerName, amount})
 						totalDamage = totalDamage + amount
 					end
 					table.sort (allPlayers, function(a, b) return a[2] > b[2] end)
@@ -3467,7 +3467,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 						end
 					end
 
-					tinsert (playerPhases, {phase, playersTable [self.nome] or 0, myRank, (playersTable [self.nome] or 0) / totalDamage * 100})
+					tinsert(playerPhases, {phase, playersTable [self.nome] or 0, myRank, (playersTable [self.nome] or 0) / totalDamage * 100})
 				end
 
 				table.sort (playerPhases, function(a, b) return a[1] < b[1] end)
@@ -3486,12 +3486,12 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 end
 
 local on_switch_show_enemies = function(instance)
-	instance:TrocaTabela (instance, true, 1, 6)
+	instance:TrocaTabela(instance, true, 1, 6)
 	return true
 end
 
 local on_switch_show_frags = function(instance)
-	instance:TrocaTabela (instance, true, 1, 5)
+	instance:TrocaTabela(instance, true, 1, 5)
 	return true
 end
 
@@ -3510,7 +3510,7 @@ function atributo_damage:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, 
 				if (not CustomObject.OnSwitchShow) then
 					CustomObject.OnSwitchShow = fromFrags and on_switch_show_frags or on_switch_show_enemies
 				end
-				return instance:TrocaTabela (instance.segmento, 5, index)
+				return instance:TrocaTabela(instance.segmento, 5, index)
 			end
 		end
 
@@ -3529,11 +3529,11 @@ function atributo_damage:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, 
 			OnSwitchShow = fromFrags and on_switch_show_frags or on_switch_show_enemies,
 		}
 
-		tinsert (Details.custom, new_custom_object)
+		tinsert(Details.custom, new_custom_object)
 		setmetatable (new_custom_object, Details.atributo_custom)
 		new_custom_object.__index = Details.atributo_custom
 
-		return instance:TrocaTabela (instance.segmento, 5, #Details.custom)
+		return instance:TrocaTabela(instance.segmento, 5, #Details.custom)
 	end
 
 	local report_table = {"Details!: " .. actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"]}
@@ -3778,7 +3778,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 			for spellid, spell in _pairs(aggressor.spells._ActorTable) do
 				local on_target = spell.targets [self.nome]
 				if (on_target) then
-					tinsert (all_spells, {spellid, on_target, aggressor.nome})
+					tinsert(all_spells, {spellid, on_target, aggressor.nome})
 				end
 			end
 
@@ -3786,7 +3786,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 			local friendlyFire = aggressor.friendlyfire [self.nome]
 			if (friendlyFire) then
 				for spellid, amount in _pairs(friendlyFire.spells) do
-					tinsert (all_spells, {spellid, amount, aggressor.nome})
+					tinsert(all_spells, {spellid, amount, aggressor.nome})
 				end
 			end
 
@@ -4472,7 +4472,7 @@ function atributo_damage:MontaInfoDamageDone()
 			if (barra.mouse_over) then --atualizar o tooltip
 				if (barra.isAlvo) then
 					GameTooltip:Hide()
-					GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
+					GameTooltip:SetOwner(barra, "ANCHOR_TOPRIGHT")
 					if (not barra.minha_tabela:MontaTooltipDamageTaken (barra, index)) then
 						return
 					end
@@ -4548,7 +4548,7 @@ function atributo_damage:MontaInfoDamageDone()
 			if (barra.mouse_over) then --atualizar o tooltip
 				if (barra.isAlvo) then
 					--GameTooltip:Hide()
-					--GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
+					--GameTooltip:SetOwner(barra, "ANCHOR_TOPRIGHT")
 					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index, instancia)) then
 						return
 					end
@@ -4646,10 +4646,10 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 	end
 
 	if (barra.lineText1:IsTruncated()) then
-		Details:CooltipPreset (2)
+		Details:CooltipPreset(2)
 		GameCooltip:SetOption("FixedWidth", nil)
 		GameCooltip:AddLine (barra.lineText1.text)
-		GameCooltip:SetOwner (barra, "bottomleft", "topleft", 5, -10)
+		GameCooltip:SetOwner(barra, "bottomleft", "topleft", 5, -10)
 		GameCooltip:ShowCooltip()
 	end
 
@@ -5066,7 +5066,7 @@ function Details:BuildPlayerDetailsSpellChart()
 		for i = 1, 200 do
 			local texture = playerDetailSmallChart:CreateTexture(nil, "artwork")
 			texture:SetColorTexture (1, 1, 1, 1)
-			tinsert (playerDetailSmallChart.Lines, texture)
+			tinsert(playerDetailSmallChart.Lines, texture)
 		end
 
 		--Details.playerDetailWindow.grupos_detalhes [index]

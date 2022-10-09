@@ -6,8 +6,8 @@
 
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10135
-		_detalhes.alpha_build_counter = 10135 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10136
+		_detalhes.alpha_build_counter = 10136 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -868,12 +868,12 @@ do
 	--Event Frame
 		_detalhes.listener = _CreateFrame ("Frame", nil, _UIParent)
 		_detalhes.listener:RegisterEvent ("ADDON_LOADED")
-		_detalhes.listener:SetFrameStrata ("LOW")
+		_detalhes.listener:SetFrameStrata("LOW")
 		_detalhes.listener:SetFrameLevel (9)
 		_detalhes.listener.FrameTime = 0
 	
 		_detalhes.overlay_frame = _CreateFrame ("Frame", nil, _UIParent)
-		_detalhes.overlay_frame:SetFrameStrata ("TOOLTIP")
+		_detalhes.overlay_frame:SetFrameStrata("TOOLTIP")
 	
 	--Pet Owner Finder
 		_CreateFrame ("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
@@ -989,7 +989,7 @@ do
 			if (type(t) ~= "table") then
 				return
 			end
-			for a,b in pairs (t) do
+			for a,b in pairs(t) do
 				print (a,b)
 			end
 		end

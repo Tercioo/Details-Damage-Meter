@@ -124,7 +124,7 @@
 		version = version or "v1.0"
 		icon = icon or [[Interface\InventoryItems\WoWUnknownItem01]]
 		
-		tinsert (_detalhes.savedTimeCaptures, {name, func, matrix, author, version, icon, is_enabled, do_not_save = no_save})
+		tinsert(_detalhes.savedTimeCaptures, {name, func, matrix, author, version, icon, is_enabled, do_not_save = no_save})
 		
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
 			DetailsOptionsWindowTab17UserTimeCapturesFillPanel.MyObject:Refresh()
@@ -160,7 +160,7 @@
 		local new_table = {}
 		for index, t in ipairs(_detalhes.savedTimeCaptures) do
 			if (not t.do_not_save) then
-				tinsert (new_table, t)
+				tinsert(new_table, t)
 			end
 		end
 		_detalhes.savedTimeCaptures = new_table
@@ -192,7 +192,7 @@
 					local func, errortext = loadstring (t [INDEX_FUNCTION])
 					if (func) then
 						DetailsFramework:SetEnvironment(func)
-						tinsert (exec, { func = func, data = data, attributes = Details.CopyTable (t [INDEX_MATRIX]), is_user = true })
+						tinsert(exec, { func = func, data = data, attributes = Details.CopyTable (t [INDEX_MATRIX]), is_user = true })
 					else
 						_detalhes:Msg ("|cFFFF9900error compiling script for time data (charts)|r: ", errortext)
 					end
@@ -200,7 +200,7 @@
 					--plugin
 					local func = t [INDEX_FUNCTION]
 					DetailsFramework:SetEnvironment(func)
-					tinsert (exec, { func = func, data = data, attributes = Details.CopyTable (t [INDEX_MATRIX]) })
+					tinsert(exec, { func = func, data = data, attributes = Details.CopyTable (t [INDEX_MATRIX]) })
 				end
 			
 			end

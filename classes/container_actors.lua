@@ -474,7 +474,7 @@
 			return
 		end
 		
-		pet_tooltip_frame:SetOwner (WorldFrame, "ANCHOR_NONE")
+		pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
 		pet_tooltip_frame:SetHyperlink ("unit:" .. serial or "")
 
 		Details.tabela_vigente.raid_roster_indexed = Details.tabela_vigente.raid_roster_indexed or {}

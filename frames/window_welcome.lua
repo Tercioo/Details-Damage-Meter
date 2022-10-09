@@ -199,7 +199,7 @@ function _detalhes:OpenWelcomeWindow()
 
 		--save standard
 		local savedObject = {}
-		for key, value in pairs (instance) do
+		for key, value in pairs(instance) do
 			if (_detalhes.instance_defaults [key] ~= nil) then	
 				if (type(value) == "table") then
 					savedObject [key] = Details.CopyTable (value)
@@ -211,7 +211,7 @@ function _detalhes:OpenWelcomeWindow()
 		_detalhes.standard_skin = savedObject
 		
 		_detalhes:ApplyPDWSkin ("ElvUI")
-		--_detalhes:SetTooltipBackdrop ("Details BarBorder 3", 14, {0, 0, 0, 1})
+		--_detalhes:SetTooltipBackdrop("Details BarBorder 3", 14, {0, 0, 0, 1})
 	end
 	--]=]
 	
@@ -225,7 +225,7 @@ function _detalhes:OpenWelcomeWindow()
 		_detalhes.stopwelcomealert = nil
 	end
 	frame_alert.alert = CreateFrame("frame", "DetailsWelcomeWindowAlert", UIParent, "ActionBarButtonSpellActivationAlert")
-	frame_alert.alert:SetFrameStrata ("FULLSCREEN")
+	frame_alert.alert:SetFrameStrata("FULLSCREEN")
 	frame_alert.alert:Hide()	
 	
 local window_openned_at = time()
@@ -296,15 +296,15 @@ local window_openned_at = time()
 
 		--skin
 			local onSelectSkin = function(_, _, skin_name)
-				local instance1 = _detalhes:GetInstance (1)
+				local instance1 = _detalhes:GetInstance(1)
 				if (instance1 and instance1:IsEnabled()) then
 					instance1:ChangeSkin (skin_name)
-					window.FontDropdown:Select (instance1.row_info.font_face)
+					window.FontDropdown:Select(instance1.row_info.font_face)
 					window.BarHeightSlider:SetValue(instance1.row_info.height)
 					window.TextSizeSlider:SetValue(instance1.row_info.font_size)
 					window.ShowPercentCheckBox:SetValue(instance1.row_info.textR_show_data [3])
 				end
-				local instance2 = _detalhes:GetInstance (2)
+				local instance2 = _detalhes:GetInstance(2)
 				if (instance2 and instance2:IsEnabled()) then
 					instance2:ChangeSkin (skin_name)
 				end
@@ -312,13 +312,13 @@ local window_openned_at = time()
 
 			local buildSkinMenu = function()
 				local skinOptions = {}
-				for skin_name, skin_table in pairs (_detalhes.skins) do
+				for skin_name, skin_table in pairs(_detalhes.skins) do
 					skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = skin_table.desc}
 				end
 				return skinOptions
 			end
 			
-			local instance1 = _detalhes:GetInstance (1)
+			local instance1 = _detalhes:GetInstance(1)
 			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 160, 20, buildSkinMenu, instance1.skin)
 			skin_dropdown:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
@@ -353,8 +353,8 @@ local window_openned_at = time()
 					end
 				end
 				
-				local instance1 = Details:GetInstance (1)
-				local instance2 = Details:GetInstance (2)
+				local instance1 = Details:GetInstance(1)
+				local instance2 = Details:GetInstance(2)
 				
 				_detalhes.tabela_historico:resetar()
 
@@ -366,7 +366,7 @@ local window_openned_at = time()
 						instance2:SetBarTextSettings (nil, "Accidental Presidency")
 					end
 					
-					window.FontDropdown:Select ("Accidental Presidency")
+					window.FontDropdown:Select("Accidental Presidency")
 					
 					_detalhes:CreateTestBars ("en")
 					
@@ -378,7 +378,7 @@ local window_openned_at = time()
 						instance2:SetBarTextSettings (nil, "Arial Narrow")
 					end
 					
-					window.FontDropdown:Select ("Arial Narrow")
+					window.FontDropdown:Select("Arial Narrow")
 					
 					_detalhes:CreateTestBars ("ru")
 					
@@ -390,7 +390,7 @@ local window_openned_at = time()
 						instance2:SetBarTextSettings (nil, "AR CrystalzcuheiGBK Demibold")
 					end
 					
-					window.FontDropdown:Select ("AR CrystalzcuheiGBK Demibold")
+					window.FontDropdown:Select("AR CrystalzcuheiGBK Demibold")
 					
 					_detalhes:CreateTestBars ("cn")
 					
@@ -402,7 +402,7 @@ local window_openned_at = time()
 						instance2:SetBarTextSettings (nil, "2002")
 					end
 					
-					window.FontDropdown:Select ("2002")
+					window.FontDropdown:Select("2002")
 					
 					_detalhes:CreateTestBars ("ko")
 					
@@ -414,7 +414,7 @@ local window_openned_at = time()
 						instance2:SetBarTextSettings (nil, "AR CrystalzcuheiGBK Demibold")
 					end
 					
-					window.FontDropdown:Select ("AR CrystalzcuheiGBK Demibold")
+					window.FontDropdown:Select("AR CrystalzcuheiGBK Demibold")
 					
 					_detalhes:CreateTestBars ("tw")
 				end
@@ -425,57 +425,57 @@ local window_openned_at = time()
 			g:NewLabel(window, _, "$parentLatinAlphabetLabel", "LatinAlphabetLabel", Loc["STRING_WELCOME_74"], "GameFontHighlightLeft")
 			g:NewSwitch (window, _, "$parentLatinAlphabetCheckBox", "LatinAlphabetCheckBox", 20, 20, _, _, true)
 			window.LatinAlphabetCheckBox:SetAsCheckBox()
-			window.LatinAlphabetCheckBox:SetFixedParameter (1)
+			window.LatinAlphabetCheckBox:SetFixedParameter(1)
 			window.LatinAlphabetCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.LatinAlphabetCheckBox.OnSwitch = onSelectAlphabet
 			window.LatinAlphabetLabel:SetPoint("left", window.LatinAlphabetCheckBox, "right", 2, 0)
 			
-			tinsert (allAlphabetCheckBoxes, window.LatinAlphabetCheckBox)
-			tinsert (allAlphabetLabels, window.LatinAlphabetLabel)
+			tinsert(allAlphabetCheckBoxes, window.LatinAlphabetCheckBox)
+			tinsert(allAlphabetLabels, window.LatinAlphabetLabel)
 			
 			--Russian
 			g:NewLabel(window, _, "$parentCyrillicAlphabetLabel", "CyrillicAlphabetLabel", Loc["STRING_WELCOME_75"], "GameFontHighlightLeft")
 			g:NewSwitch (window, _, "$parentCyrillicAlphabetCheckBox", "CyrillicAlphabetCheckBox", 20, 20, _, _, false)
 			window.CyrillicAlphabetCheckBox:SetAsCheckBox()
-			window.CyrillicAlphabetCheckBox:SetFixedParameter (2)
+			window.CyrillicAlphabetCheckBox:SetFixedParameter(2)
 			window.CyrillicAlphabetCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.CyrillicAlphabetCheckBox.OnSwitch = onSelectAlphabet
 			window.CyrillicAlphabetLabel:SetPoint("left", window.CyrillicAlphabetCheckBox, "right", 2, 0)
-			tinsert (allAlphabetCheckBoxes, window.CyrillicAlphabetCheckBox)
-			tinsert (allAlphabetLabels, window.CyrillicAlphabetLabel)
+			tinsert(allAlphabetCheckBoxes, window.CyrillicAlphabetCheckBox)
+			tinsert(allAlphabetLabels, window.CyrillicAlphabetLabel)
 			
 			--Chinese
 			g:NewLabel(window, _, "$parentChinaAlphabetLabel", "ChinaAlphabetLabel", Loc["STRING_WELCOME_76"], "GameFontHighlightLeft")
 			g:NewSwitch (window, _, "$parentChinaCheckBox", "ChinaCheckBox", 20, 20, _, _, false)
 			window.ChinaCheckBox:SetAsCheckBox()
-			window.ChinaCheckBox:SetFixedParameter (3)
+			window.ChinaCheckBox:SetFixedParameter(3)
 			window.ChinaCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.ChinaCheckBox.OnSwitch = onSelectAlphabet
 			window.ChinaAlphabetLabel:SetPoint("left", window.ChinaCheckBox, "right", 2, 0)
-			tinsert (allAlphabetCheckBoxes, window.ChinaCheckBox)
-			tinsert (allAlphabetLabels, window.ChinaAlphabetLabel)
+			tinsert(allAlphabetCheckBoxes, window.ChinaCheckBox)
+			tinsert(allAlphabetLabels, window.ChinaAlphabetLabel)
 			
 			--Korea
 			g:NewLabel(window, _, "$parentKoreanAlphabetLabel", "KoreanAlphabetLabel", Loc["STRING_WELCOME_77"], "GameFontHighlightLeft")
 			g:NewSwitch (window, _, "$parentKoreanCheckBox", "KoreanCheckBox", 20, 20, _, _, false)
 			window.KoreanCheckBox:SetAsCheckBox()
-			window.KoreanCheckBox:SetFixedParameter (4)
+			window.KoreanCheckBox:SetFixedParameter(4)
 			window.KoreanCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.KoreanCheckBox.OnSwitch = onSelectAlphabet
 			window.KoreanAlphabetLabel:SetPoint("left", window.KoreanCheckBox, "right", 2, 0)
-			tinsert (allAlphabetCheckBoxes, window.KoreanCheckBox)
-			tinsert (allAlphabetLabels, window.KoreanAlphabetLabel)
+			tinsert(allAlphabetCheckBoxes, window.KoreanCheckBox)
+			tinsert(allAlphabetLabels, window.KoreanAlphabetLabel)
 			
 			--Taiwan
 			g:NewLabel(window, _, "$parentTaiwanAlphabetLabel", "TaiwanAlphabetLabel", Loc["STRING_WELCOME_78"], "GameFontHighlightLeft")
 			g:NewSwitch (window, _, "$parentTaiwanCheckBox", "TaiwanCheckBox", 20, 20, _, _, false)
 			window.TaiwanCheckBox:SetAsCheckBox()
-			window.TaiwanCheckBox:SetFixedParameter (5)
+			window.TaiwanCheckBox:SetFixedParameter(5)
 			window.TaiwanCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.TaiwanCheckBox.OnSwitch = onSelectAlphabet
 			window.TaiwanAlphabetLabel:SetPoint("left", window.TaiwanCheckBox, "right", 2, 0)
-			tinsert (allAlphabetCheckBoxes, window.TaiwanCheckBox)
-			tinsert (allAlphabetLabels, window.TaiwanAlphabetLabel)
+			tinsert(allAlphabetCheckBoxes, window.TaiwanCheckBox)
+			tinsert(allAlphabetLabels, window.TaiwanAlphabetLabel)
 		
 			window.LatinAlphabetCheckBox:SetPoint("topleft", texto_alphabet, "bottomleft", 0, -10)
 			window.CyrillicAlphabetCheckBox:SetPoint("topleft", window.LatinAlphabetCheckBox, "bottomleft", 0, -2)
@@ -537,14 +537,14 @@ local window_openned_at = time()
 					end
 				end
 				
-				local instance2 = _detalhes:GetInstance (2)
+				local instance2 = _detalhes:GetInstance(2)
 				if (instance2 and instance2:IsEnabled()) then
 					instance2:InstanceColor (r, g, b, a, nil, true)
 				end
 			end
 			
 			local change_color = function()
-				window.editing_window = _detalhes:GetInstance (1)
+				window.editing_window = _detalhes:GetInstance(1)
 				local r, g, b, a = unpack (window.editing_window.color)
 				_detalhes.gump:ColorPick (window, r, g, b, a, windowcolor_callback)
 			end
@@ -563,8 +563,8 @@ local window_openned_at = time()
 			window.BarHeightSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
 			window.BarHeightSlider:SetHook("OnValueChange", function(self, _, amount) 
-				local instance1 = Details:GetInstance (1)
-				local instance2 = Details:GetInstance (2)
+				local instance1 = Details:GetInstance(1)
+				local instance2 = Details:GetInstance(2)
 				
 				if (instance1 and instance1:IsEnabled()) then
 					instance1:SetBarSettings (amount)
@@ -583,8 +583,8 @@ local window_openned_at = time()
 			window.TextSizeSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
 			window.TextSizeSlider:SetHook("OnValueChange", function(self, _, amount) 
-				local instance1 = Details:GetInstance (1)
-				local instance2 = Details:GetInstance (2)
+				local instance1 = Details:GetInstance(1)
+				local instance2 = Details:GetInstance(2)
 				
 				if (instance1 and instance1:IsEnabled()) then
 					instance1:SetBarTextSettings (amount)
@@ -596,8 +596,8 @@ local window_openned_at = time()
 
 		--font
 			local onSelectFont = function(_, instance, fontName)
-				local instance1 = Details:GetInstance (1)
-				local instance2 = Details:GetInstance (2)
+				local instance1 = Details:GetInstance(1)
+				local instance2 = Details:GetInstance(2)
 				
 				if (instance1 and instance1:IsEnabled()) then
 					instance1:SetBarTextSettings (nil, fontName)
@@ -610,14 +610,14 @@ local window_openned_at = time()
 			local buildFontMenu = function()
 				local fontObjects = SharedMedia:HashTable ("font")
 				local fontTable = {}
-				for name, fontPath in pairs (fontObjects) do 
+				for name, fontPath in pairs(fontObjects) do 
 					fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
 				end
 				table.sort (fontTable, function(t1, t2) return t1.label < t2.label end)
 				return fontTable 
 			end
 			
-			local instance1 = _detalhes:GetInstance (1)
+			local instance1 = _detalhes:GetInstance(1)
 			local font_dropdown = g:NewDropDown (window, _, "$parentFontDropdown", "FontDropdown", 160, 20, buildFontMenu, instance1.row_info.font_face)
 			font_dropdown:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			font_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
@@ -630,12 +630,12 @@ local window_openned_at = time()
 			g:NewLabel(window, _, "$parentShowPercentLabel", "ShowPercentLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT"], "GameFontNormal")
 			g:NewSwitch (window, _, "$parentShowPercentCheckBox", "ShowPercentCheckBox", 20, 20, _, _, false)
 			window.ShowPercentCheckBox:SetAsCheckBox()
-			window.ShowPercentCheckBox:SetFixedParameter (1)
+			window.ShowPercentCheckBox:SetFixedParameter(1)
 			window.ShowPercentCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			
 			window.ShowPercentCheckBox.OnSwitch = function(self, fixedParameter, value)
-				local instance1 = Details:GetInstance (1)
-				local instance2 = Details:GetInstance (2)
+				local instance1 = Details:GetInstance(1)
+				local instance2 = Details:GetInstance(2)
 				
 				if (instance1 and instance1:IsEnabled()) then
 					instance1:SetBarRightTextSettings (nil, nil, value)
@@ -677,10 +677,10 @@ local window_openned_at = time()
 
 		pages [#pages+1] = {skins_frame_alert, bg55, texto55, texto_alphabet, texto555, skins_image, changemind, texto_appearance, font_label, font_dropdown, skin_dropdown, skin_label, create_window_button, window_color, window.BarHeightLabel, window.BarHeightSlider, window.TextSizeLabel, window.TextSizeSlider, window.ShowPercentLabel, window.ShowPercentCheckBox}
 		for i, widget in ipairs(allAlphabetCheckBoxes) do
-			tinsert (pages [#pages], widget)
+			tinsert(pages [#pages], widget)
 		end
 		for i, widget in ipairs(allAlphabetLabels) do
-			tinsert (pages [#pages], widget)
+			tinsert(pages [#pages], widget)
 		end
 		
 		for _, widget in ipairs(pages[#pages]) do 
@@ -712,7 +712,7 @@ local window_openned_at = time()
 		g:NewLabel(window, _, "$parentWesternNumbersLabel", "WesternNumbersLabel", Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN_DESC"], "GameFontHighlightLeft")
 		local WesternNumbersCheckbox = g:NewSwitch (window, _, "WesternNumbersCheckbox", "WesternNumbersCheckbox", 20, 20, _, _, true)
 		WesternNumbersCheckbox:SetAsCheckBox()
-		WesternNumbersCheckbox:SetFixedParameter (1)
+		WesternNumbersCheckbox:SetFixedParameter(1)
 		WesternNumbersCheckbox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		WesternNumbersCheckbox:SetPoint("topleft", window, "topleft", 40, -130)
 		window.WesternNumbersLabel:SetPoint("left", WesternNumbersCheckbox, "right", 2, 0)
@@ -721,7 +721,7 @@ local window_openned_at = time()
 		g:NewLabel(window, _, "$parentAsianNumbersLabel", "AsianNumbersLabel", Loc ["STRING_NUMERALSYSTEM_MYRIAD_EASTASIA"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_MYRIAD_EASTASIA"], "GameFontHighlightLeft")
 		local AsianNumbersCheckbox = g:NewSwitch (window, _, "AsianNumbersCheckbox", "AsianNumbersCheckbox", 20, 20, _, _, true)
 		AsianNumbersCheckbox:SetAsCheckBox()
-		AsianNumbersCheckbox:SetFixedParameter (2)
+		AsianNumbersCheckbox:SetFixedParameter(2)
 		AsianNumbersCheckbox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		AsianNumbersCheckbox:SetPoint("topleft", window, "topleft", 40, -200)
 		window.AsianNumbersLabel:SetPoint("left", AsianNumbersCheckbox, "right", 2, 0)
@@ -831,7 +831,7 @@ local window_openned_at = time()
 		g:NewLabel(window, _, "$parentChronometerLabel", "ChronometerLabel", Loc ["STRING_WELCOME_4"], "GameFontHighlightLeft")
 		local chronometer = g:NewSwitch (window, _, "WelcomeWindowChronometer", "WelcomeWindowChronometer", 20, 20, _, _, true)
 		chronometer:SetAsCheckBox()
-		chronometer:SetFixedParameter (1)
+		chronometer:SetFixedParameter(1)
 		chronometer:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.ChronometerLabel:SetPoint("left", chronometer, "right", 2, 0)
 		
@@ -839,7 +839,7 @@ local window_openned_at = time()
 		g:NewLabel(window, _, "$parentContinuousLabel", "ContinuousLabel", Loc ["STRING_WELCOME_5"], "GameFontHighlightLeft")
 		local continuous = g:NewSwitch (window, _, "WelcomeWindowContinuous", "WelcomeWindowContinuous", 20, 20, _, _, true)
 		continuous:SetAsCheckBox()
-		continuous:SetFixedParameter (1)
+		continuous:SetFixedParameter(1)
 		continuous:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.ContinuousLabel:SetPoint("left", continuous, "right", 2, 0)
 		
@@ -1092,7 +1092,7 @@ local window_openned_at = time()
 				created_test_bars = created_test_bars + 1
 			end
 			
-			local instance = _detalhes:GetInstance (1)
+			local instance = _detalhes:GetInstance(1)
 			instance:SetMode (3)
 		end)
 		
@@ -1150,7 +1150,7 @@ local window_openned_at = time()
 			_detalhes:StopPlayStretchAlert()
 		end)
 		stretch_frame_alert:SetScript("OnShow", function()
-			local instance = _detalhes:GetInstance (1)
+			local instance = _detalhes:GetInstance(1)
 			_detalhes.OnEnterMainWindow(instance)
 			instance.baseframe.button_stretch:SetAlpha (1)
 			frame_alert.alert:SetPoint("topleft", instance.baseframe.button_stretch, "topleft", -20, 6)
@@ -1208,7 +1208,7 @@ local window_openned_at = time()
 			_detalhes:StopPlayStretchAlert()
 		end)
 		instance_frame_alert:SetScript("OnShow", function()
-			local instance = _detalhes:GetInstance (1)
+			local instance = _detalhes:GetInstance(1)
 
 			frame_alert.alert:SetPoint("topleft", instance.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
 			frame_alert.alert:SetPoint("bottomright", instance.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)
@@ -1260,7 +1260,7 @@ local window_openned_at = time()
 		shortcut_image2:SetTexCoord (2/512, 167/512, 306/512, 425/512)
 
 		
-		local instance1 = _detalhes:GetInstance (1)
+		local instance1 = _detalhes:GetInstance(1)
 		
 		local bookmark_frame = CreateFrame("frame", "WelcomeBookmarkFrame", window,"BackdropTemplate")
 		bookmark_frame:SetPoint("topleft", instance1.baseframe, "topleft")
@@ -1285,7 +1285,7 @@ local window_openned_at = time()
 		
 		bookmark_frame:SetScript("OnMouseDown", function(self, button)
 			if (button == "RightButton") then
-				_detalhes.switch:ShowMe (instance1)
+				_detalhes.switch:ShowMe(instance1)
 				self:Hide()
 			end
 		end)

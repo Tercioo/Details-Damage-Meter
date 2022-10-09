@@ -56,7 +56,7 @@ local _
 	end
 	
 	function container_habilidades:ListActors()
-		return pairs (self._ActorTable)
+		return pairs(self._ActorTable)
 	end
 
 	function container_habilidades:GetOrCreateSpell(id, shouldCreate, token)

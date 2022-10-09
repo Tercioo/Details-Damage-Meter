@@ -154,12 +154,12 @@ function Details.InstallRaidInfo()
 		for i = 1, #PORTRAIT_LIST do
 			local bossName = DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, INSTANCE_EJID)
 			if (bossName) then
-				tinsert (BOSSNAMES, bossName)
+				tinsert(BOSSNAMES, bossName)
 				local encounterTable = {
 					boss = bossName,
 					portrait = PORTRAIT_LIST [i],
 				}
-				tinsert (ENCOUNTERS, encounterTable)
+				tinsert(ENCOUNTERS, encounterTable)
 			else
 				break
 			end

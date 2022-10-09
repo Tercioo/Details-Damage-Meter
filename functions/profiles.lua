@@ -56,7 +56,7 @@ function _detalhes:GetProfileList()
 	
 	--build the table
 		local t = {}
-		for name, profile in pairs (_detalhes_global.__profiles) do 
+		for name, profile in pairs(_detalhes_global.__profiles) do 
 			t [#t + 1] = name
 		end
 	
@@ -156,7 +156,7 @@ function _detalhes:ResetProfile (profile_name)
 			instance:ChangeSkin (_detalhes.default_skin_to_use)
 		end
 		
-		for index, instance in pairs (_detalhes.unused_instances) do
+		for index, instance in pairs(_detalhes.unused_instances) do
 			if (not instance.baseframe) then
 				instance:AtivarInstancia()
 			end
@@ -168,7 +168,7 @@ function _detalhes:ResetProfile (profile_name)
 		table.wipe (profile.instances)
 
 		--export first instance
-		local instance = _detalhes:GetInstance (1)
+		local instance = _detalhes:GetInstance(1)
 		local exported = instance:ExportSkin()
 		exported.__was_opened = instance:IsEnabled()
 		exported.__pos = Details.CopyTable (instance:GetPosition())
@@ -193,7 +193,7 @@ end
 function _detalhes:CreatePanicWarning()
 	_detalhes.instance_load_failed = CreateFrame("frame", "DetailsPanicWarningFrame", UIParent,"BackdropTemplate")
 	_detalhes.instance_load_failed:SetHeight(80)
-	--tinsert (UISpecialFrames, "DetailsPanicWarningFrame")
+	--tinsert(UISpecialFrames, "DetailsPanicWarningFrame")
 	_detalhes.instance_load_failed.text = _detalhes.instance_load_failed:CreateFontString (nil, "overlay", "GameFontNormal")
 	_detalhes.instance_load_failed.text:SetPoint("center", _detalhes.instance_load_failed, "center")
 	_detalhes.instance_load_failed.text:SetTextColor (1, 0.6, 0)
@@ -235,7 +235,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		end
 
 	--update profile keys before go
-		for key, value in pairs (_detalhes.default_profile) do 
+		for key, value in pairs(_detalhes.default_profile) do 
 			--the entire key doesn't exist
 			if (profile [key] == nil) then
 				if (type(value) == "table") then
@@ -252,7 +252,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		end
 		
 	--apply the profile values
-		for key, _ in pairs (_detalhes.default_profile) do 
+		for key, _ in pairs(_detalhes.default_profile) do 
 			local value = profile [key]
 
 			if (type(value) == "table") then
@@ -296,7 +296,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 		--check if there is a skin saved or this is a empty profile
 		if (#saved_skins == 0) then
-			local instance1 = _detalhes:GetInstance (1)
+			local instance1 = _detalhes:GetInstance(1)
 			if (not instance1) then
 				instance1 = _detalhes:CreateInstance (1)
 			end
@@ -332,14 +332,14 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				end
 
 				--get the instance
-				local instance = _detalhes:GetInstance (index)
+				local instance = _detalhes:GetInstance(index)
 				if (not instance) then
 					--create a instance without creating its frames (not initializing)
 					instance = _detalhes:CreateDisabledInstance (index, skin)
 				end
 				
 				--copy skin
-				for key, value in pairs (skin) do
+				for key, value in pairs(skin) do
 					if (type(value) == "table") then
 						instance [key] = Details.CopyTable (value)
 					else
@@ -405,7 +405,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 					instance:LockInstance (instance.isLocked)
 					
-					--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "libwindow X (427): " .. (instance.libwindow.x or 0))
+					--tinsert(_detalhes.resize_debug, #_detalhes.resize_debug+1, "libwindow X (427): " .. (instance.libwindow.x or 0))
 					instance:RestoreMainWindowPosition()
 					instance:ReajustaGump()
 					--instance:SaveMainWindowPosition()
@@ -428,11 +428,11 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			
 			--check all snaps for invalid entries
 			for i = 1, instances_loaded do
-				local instance = _detalhes:GetInstance (i)
-				local previous_instance_id = _detalhes:GetInstance (i-1) and _detalhes:GetInstance (i-1):GetId() or 0
-				local next_instance_id = _detalhes:GetInstance (i+1) and _detalhes:GetInstance (i+1):GetId() or 0
+				local instance = _detalhes:GetInstance(i)
+				local previous_instance_id = _detalhes:GetInstance(i-1) and _detalhes:GetInstance(i-1):GetId() or 0
+				local next_instance_id = _detalhes:GetInstance(i+1) and _detalhes:GetInstance(i+1):GetId() or 0
 				
-				for snap_side, instance_id in pairs (instance.snap) do
+				for snap_side, instance_id in pairs(instance.snap) do
 					if (instance_id < 1) then --invalid instance
 						instance.snap [snap_side] = nil
 					elseif (instance_id ~= previous_instance_id and instance_id ~= next_instance_id) then --no match
@@ -452,7 +452,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			else
 				--is in startup
 				for _, instance in _detalhes:ListInstances() do
-					for side, id in pairs (instance.snap) do
+					for side, id in pairs(instance.snap) do
 						local window = _detalhes.tabela_instancias [id]
 						if (not window.ativa) then
 							instance.snap [side] = nil
@@ -464,7 +464,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						end
 					end
 					if (not instance:IsEnabled()) then
-						for side, id in pairs (instance.snap) do
+						for side, id in pairs(instance.snap) do
 							instance.snap [side] = nil
 						end
 						instance.horizontalSnap = false
@@ -528,7 +528,7 @@ function _detalhes:SaveProfile (saveas)
 		local profile = _detalhes:GetProfile (profile_name, true)
 
 	--save default keys
-		for key, _ in pairs (_detalhes.default_profile) do 
+		for key, _ in pairs(_detalhes.default_profile) do 
 		
 			local current_value = _detalhes [key]
 
@@ -1470,7 +1470,7 @@ local default_global_data = {
 
 _detalhes.default_global_data = default_global_data
 
-function _detalhes:GetTutorialCVar (key, default)
+function _detalhes:GetTutorialCVar(key, default)
 	--is disabling all popups from the streamer options
 	if (_detalhes.streamer_config.no_alerts) then
 		return true
@@ -1494,7 +1494,7 @@ function _detalhes:SaveProfileSpecial()
 		local profile = _detalhes:GetProfile (profile_name, true)
 
 	--save default keys
-		for key, _ in pairs (_detalhes.default_profile) do 
+		for key, _ in pairs(_detalhes.default_profile) do 
 
 			local current_value = _detalhes_database [key] or _detalhes_global [key] or _detalhes.default_player_data [key] or _detalhes.default_global_data [key]
 
@@ -1680,7 +1680,7 @@ function Details:ExportCurrentProfile()
 	local globaData = {}
 	
 	--fill player and global data tables
-	for key, _ in pairs (defaultPlayerData) do
+	for key, _ in pairs(defaultPlayerData) do
 		if (not exportProfileBlacklist[key]) then
 			if (type(Details[key]) == "table") then
 				playerData [key] = DetailsFramework.table.copy ({}, Details[key])
@@ -1689,7 +1689,7 @@ function Details:ExportCurrentProfile()
 			end
 		end
 	end
-	for key, _ in pairs (defaultGlobalData) do
+	for key, _ in pairs(defaultGlobalData) do
 		if (not exportProfileBlacklist[key]) then
 			if (type(Details[key]) == "table") then
 				globaData [key] = DetailsFramework.table.copy ({}, Details[key])
@@ -1747,7 +1747,7 @@ function Details:ImportProfile (profileString, newProfileName)
 		local defaultProfileData = Details.default_profile
 		
 		--transfer player and global data tables from the profile to details object
-		for key, _ in pairs (defaultPlayerData) do
+		for key, _ in pairs(defaultPlayerData) do
 			local importedValue = playerData[key]
 			if (importedValue ~= nil) then
 				if (type(importedValue) == "table") then
@@ -1758,7 +1758,7 @@ function Details:ImportProfile (profileString, newProfileName)
 			end
 		end
 		
-		for key, _ in pairs (defaultGlobalData) do
+		for key, _ in pairs(defaultGlobalData) do
 			local importedValue = globalData[key]
 			if (importedValue ~= nil) then
 				if (type(importedValue) == "table") then
@@ -1770,7 +1770,7 @@ function Details:ImportProfile (profileString, newProfileName)
 		end
 		
 		--transfer data from the imported profile to the new profile object
-		for key, _ in pairs (defaultProfileData) do
+		for key, _ in pairs(defaultProfileData) do
 			local importedValue = profileData[key]
 			if (importedValue ~= nil) then
 				if (type(importedValue) == "table") then

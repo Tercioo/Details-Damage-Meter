@@ -1015,7 +1015,7 @@ function _detalhes:ApplyPDWSkin (skin_name)
 --hide extra frames
 	local window = DetailsPlayerDetailsWindow
 	if (window.extra_frames) then
-		for framename, frame in pairs (window.extra_frames) do
+		for framename, frame in pairs(window.extra_frames) do
 			frame:Hide()
 		end
 	end
@@ -1610,13 +1610,13 @@ function gump:CriaJanelaInfo()
 	local este_gump = info
 	este_gump.Loaded = true
 
-	este_gump:SetFrameStrata ("HIGH")
+	este_gump:SetFrameStrata("HIGH")
 	este_gump:SetToplevel (true)
 
 	este_gump.extra_frames = {}
 
 	--fehcar com o esc
-	tinsert (UISpecialFrames, este_gump:GetName())
+	tinsert(UISpecialFrames, este_gump:GetName())
 
 	--propriedades da janela
 	este_gump:SetPoint("CENTER", UIParent)
@@ -1631,7 +1631,7 @@ function gump:CriaJanelaInfo()
 	este_gump.SummaryWindowWidgets = CreateFrame("frame", "DetailsPlayerDetailsWindowSummaryWidgets", este_gump, "BackdropTemplate")
 	local SWW = este_gump.SummaryWindowWidgets
 	SWW:SetAllPoints()
-	tinsert (SummaryWidgets, SWW)
+	tinsert(SummaryWidgets, SWW)
 
 	local scaleBar = Details.gump:CreateScaleBar (este_gump, Details.player_details_window)
 	este_gump:SetScale(Details.player_details_window.scale)
@@ -2250,7 +2250,7 @@ function gump:CriaJanelaInfo()
 				if (self.spellid) then
 					--self:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 512, edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 8})
 					self:SetBackdropColor(.5, .5, .5, .5)
-					GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+					GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 					_detalhes:GameTooltipSetSpellByID (self.spellid)
 					GameTooltip:Show()
 				end
@@ -2389,7 +2389,7 @@ function gump:CriaJanelaInfo()
 					last_total_dodge = last_actor.avoidance.overall.DODGE / last_combat:GetCombatTime()
 				end
 				local ps, diff = getpercent (totaldodge, last_total_dodge, elapsed_time, true)
-				tab.dodgepersecond:SetText( string.format ("%.2f", ps) .. " (" .. diff .. ")")
+				tab.dodgepersecond:SetText( string.format("%.2f", ps) .. " (" .. diff .. ")")
 
 			--parry
 				local totalparry = playerdamage.avoidance.overall.PARRY
@@ -2400,7 +2400,7 @@ function gump:CriaJanelaInfo()
 					last_total_parry = last_actor.avoidance.overall.PARRY / last_combat:GetCombatTime()
 				end
 				local ps, diff = getpercent (totalparry, last_total_parry, elapsed_time, true)
-				tab.parrypersecond:SetText(string.format ("%.2f", ps) .. " (" .. diff .. ")")
+				tab.parrypersecond:SetText(string.format("%.2f", ps) .. " (" .. diff .. ")")
 
 			--block
 				local totalblock = playerdamage.avoidance.overall.BLOCKED_HITS
@@ -2411,7 +2411,7 @@ function gump:CriaJanelaInfo()
 					last_total_block = last_actor.avoidance.overall.BLOCKED_HITS / last_combat:GetCombatTime()
 				end
 				local ps, diff = getpercent (totalblock, last_total_block, elapsed_time, true)
-				tab.blockpersecond:SetText(string.format ("%.2f", ps) .. " (" .. diff .. ")")
+				tab.blockpersecond:SetText(string.format("%.2f", ps) .. " (" .. diff .. ")")
 
 				tab.blockeddamage_amt:SetText(_detalhes:ToK2 (playerdamage.avoidance.overall.BLOCKED_AMT))
 
@@ -2480,7 +2480,7 @@ function gump:CriaJanelaInfo()
 					local heal_from = actor_heal.healing_from
 					local myReceivedHeal = {}
 
-					for actorName, _ in pairs (heal_from) do
+					for actorName, _ in pairs(heal_from) do
 						local thisActor = combat (2, actorName)
 						local targets = thisActor.targets --targets is a container with target classes
 						local amount = targets [player.nome] or 0
@@ -2548,7 +2548,7 @@ function gump:CriaJanelaInfo()
 
 						local cooldowns_usados = {}
 
-						for _spellid, _tabela in pairs (minha_tabela) do
+						for _spellid, _tabela in pairs(minha_tabela) do
 							cooldowns_usados [#cooldowns_usados+1] = {_spellid, _tabela.counter}
 						end
 
@@ -2587,7 +2587,7 @@ function gump:CriaJanelaInfo()
 				local cooldownInfo = DetailsFramework.CooldownsInfo
 
 				--see cooldowns that other players used in this actor
-				for playerName, _ in pairs (combat.raid_roster) do
+				for playerName, _ in pairs(combat.raid_roster) do
 					if (playerName ~= player.nome) then
 						local miscPlayer = combat (4, playerName)
 						if (miscPlayer) then
@@ -2596,7 +2596,7 @@ function gump:CriaJanelaInfo()
 								for spellID, spellTable in cooldowns:ListActors() do
 									local targets = spellTable.targets
 									if (targets) then
-										for targetName, amountCasted in pairs (targets) do
+										for targetName, amountCasted in pairs(targets) do
 											if (targetName == player.nome) then
 												local spellName, _, spellIcon = _GetSpellInfo(spellID)
 												local label1, label2, icon1, framebg = unpack (tab ["spell" .. index_used])
@@ -2701,7 +2701,7 @@ function gump:CriaJanelaInfo()
 		}
 
 		local line_onenter = function(self)
-			GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 			_detalhes:GameTooltipSetSpellByID (self.spellID)
 			GameTooltip:Show()
 			self:SetBackdropColor(1, 1, 1, .2)
@@ -2799,7 +2799,7 @@ function gump:CriaJanelaInfo()
 					line.Refresh:SetText(aura [5])
 
 					--if (haveWA) then
-					--	line.WaButton:SetClickFunction (wa_button, aura.spellID, line.AuraType)
+					--	line.WaButton:SetClickFunction(wa_button, aura.spellID, line.AuraType)
 					--else
 					--	line.WaButton:Disable()
 					--end
@@ -2820,7 +2820,7 @@ function gump:CriaJanelaInfo()
 			f:SetSize(40, 20)
 			f:SetPoint("center", anchorWidget, "center")
 			f:SetScript("OnEnter", function()
-				GameTooltip:SetOwner (f, "ANCHOR_TOPRIGHT")
+				GameTooltip:SetOwner(f, "ANCHOR_TOPRIGHT")
 				GameTooltip:AddLine (desc)
 				GameTooltip:Show()
 			end)
@@ -2897,9 +2897,9 @@ function gump:CriaJanelaInfo()
 		do --buffs
 			local newAuraTable = {}
 			if (miscActor and miscActor.buff_uptime_spells) then
-				for spellID, spellObject in pairs (miscActor.buff_uptime_spells._ActorTable) do
+				for spellID, spellObject in pairs(miscActor.buff_uptime_spells._ActorTable) do
 					local spellName, _, spellIcon = GetSpellInfo(spellID)
-					tinsert (newAuraTable, {spellIcon, spellName, spellObject.uptime, spellObject.appliedamt, spellObject.refreshamt, spellObject.uptime/combatTime*100, spellID = spellID})
+					tinsert(newAuraTable, {spellIcon, spellName, spellObject.uptime, spellObject.appliedamt, spellObject.refreshamt, spellObject.uptime/combatTime*100, spellID = spellID})
 				end
 			end
 			table.sort (newAuraTable, _detalhes.Sort3)
@@ -2910,9 +2910,9 @@ function gump:CriaJanelaInfo()
 		do --debuffs
 			local newAuraTable = {}
 			if (miscActor and miscActor.debuff_uptime_spells) then
-				for spellID, spellObject in pairs (miscActor.debuff_uptime_spells._ActorTable) do
+				for spellID, spellObject in pairs(miscActor.debuff_uptime_spells._ActorTable) do
 					local spellName, _, spellIcon = GetSpellInfo(spellID)
-					tinsert (newAuraTable, {spellIcon, spellName, spellObject.uptime, spellObject.appliedamt, spellObject.refreshamt, spellObject.uptime/combatTime*100, spellID = spellID})
+					tinsert(newAuraTable, {spellIcon, spellName, spellObject.uptime, spellObject.appliedamt, spellObject.refreshamt, spellObject.uptime/combatTime*100, spellID = spellID})
 				end
 			end
 			table.sort (newAuraTable, _detalhes.Sort3)
@@ -4455,7 +4455,7 @@ function gump:CriaJanelaInfo()
 				bar.righttext2:SetJustifyH("right")
 				bar.righttext2:SetTextColor (1, 1, 1, 1)
 
-				tinsert (parent.bars, {spellicon, bar, {0, 0, 0}})
+				tinsert(parent.bars, {spellicon, bar, {0, 0, 0}})
 			end
 
 			local create_tooltip = function(name)
@@ -4467,7 +4467,7 @@ function gump:CriaJanelaInfo()
 				tooltip:SetBackdropColor(0, 0, 0, 1)
 				tooltip:SetBackdropBorderColor(0, 0, 0, 1)
 				tooltip:SetSize(275, 77)
-				tooltip:SetFrameStrata ("tooltip")
+				tooltip:SetFrameStrata("tooltip")
 
 				local y = -3
 				local x_start = 2
@@ -4569,7 +4569,7 @@ function gump:CriaJanelaInfo()
 				tooltip:SetBackdropColor(0, 0, 0, 1)
 				tooltip:SetBackdropBorderColor(0, 0, 0, 1)
 				tooltip:SetSize(175, 67)
-				tooltip:SetFrameStrata ("tooltip")
+				tooltip:SetFrameStrata("tooltip")
 				tooltip.bars = {}
 
 				_detalhes.gump:CreateBorder (tooltip)
@@ -4661,7 +4661,7 @@ function gump:CriaJanelaInfo()
 					bar.bg = bg_line1
 
 					local object = {spellicon, bar}
-					tinsert (tooltip.bars, object)
+					tinsert(tooltip.bars, object)
 					return object
 				end
 
@@ -4903,14 +4903,14 @@ function gump:CriaJanelaInfo()
 						local match_percentage = same_spells / max (my_spells_total, 0.000001) * 100
 
 						if (match_percentage > 30) then
-							tinsert (tabOBject.players, actor)
+							tinsert(tabOBject.players, actor)
 						end
 					end
 				end
 
 				if (#tabOBject.players > 0) then
 					--tutorial flash
-					local blink = _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL2") or 0
+					local blink = _detalhes:GetTutorialCVar("DETAILS_INFO_TUTORIAL2") or 0
 					if (type(blink) == "number" and blink < 10) then
 
 						if (not tabOBject.FlashAnimation) then
@@ -4966,7 +4966,7 @@ function gump:CriaJanelaInfo()
 					--test if can show the tutorial for the comparison tab
 					if (tab.tabname == "Compare") then
 						--_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", false)
-						if (not _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL1")) then
+						if (not _detalhes:GetTutorialCVar("DETAILS_INFO_TUTORIAL1")) then
 							_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", true)
 
 							local alert = CreateFrame("frame", "DetailsInfoPopUp1", info, "DetailsHelpBoxTemplate")
@@ -5050,7 +5050,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 		newTabButton:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
 	end
 	newTabButton:SetText(localized_name)
-	newTabButton:SetFrameStrata ("HIGH")
+	newTabButton:SetFrameStrata("HIGH")
 	newTabButton:SetFrameLevel (info:GetFrameLevel()+1)
 	newTabButton:Hide()
 
@@ -5063,7 +5063,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 
 	newTabButton.frame = CreateFrame("frame", "DetailsPDWTabFrame" .. tabname, UIParent,"BackdropTemplate")
 	newTabButton.frame:SetParent(info)
-	newTabButton.frame:SetFrameStrata ("HIGH")
+	newTabButton.frame:SetFrameStrata("HIGH")
 	newTabButton.frame:SetFrameLevel (info:GetFrameLevel()+5)
 	newTabButton.frame:EnableMouse (true)
 
@@ -5401,7 +5401,7 @@ local row_on_enter = function(self)
 
 	self.mouse_over = true
 
-	for index, block in pairs (_detalhes.playerDetailWindow.grupos_detalhes) do
+	for index, block in pairs(_detalhes.playerDetailWindow.grupos_detalhes) do
 		detalhe_infobg_onleave (block.bg)
 	end
 
@@ -5416,7 +5416,7 @@ local row_on_enter = function(self)
 
 	if (self.isAlvo) then --monta o tooltip do alvo
 		--talvez devesse escurecer a janela no fundo... pois o tooltip � transparente e pode confundir
-		GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 
 		if (self.spellid == "enemies") then --damage taken enemies
 			if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, self._index, info.instancia)) then  -- > poderia ser aprimerado para uma tailcall
@@ -5435,14 +5435,14 @@ local row_on_enter = function(self)
 
 		if (IsShiftKeyDown()) then
 			if (type(self.show) == "number") then
-				GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+				GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 				GameTooltip:AddLine (Loc ["ABILITY_ID"] .. ": " .. self.show)
 				GameTooltip:Show()
 			end
 		end
 
 		if (self.show == 98021) then
-			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 			GameTooltip:AddLine (Loc ["STRING_SPIRIT_LINK_TOTEM_DESC"])
 			GameTooltip:Show()
 		end
@@ -5644,7 +5644,7 @@ local miniframe_func_on_enter = function(self)
 	if (barra.show and type (barra.show) == "number") then
 		local spellname = _GetSpellInfo(barra.show)
 		if (spellname) then
-			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 			_detalhes:GameTooltipSetSpellByID (barra.show)
 			GameTooltip:Show()
 		end
@@ -5697,7 +5697,7 @@ local target_on_enter = function(self)
 
 			local spellname = _GetSpellInfo(barra.show)
 
-			GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 			GameTooltip:AddLine (barra.index .. ". " .. spellname)
 			GameTooltip:AddLine (info.target_text)
 			GameTooltip:AddLine (" ")
@@ -5765,7 +5765,7 @@ local target_on_enter = function(self)
 
 			GameTooltip:Show()
 		else
-			GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 			GameTooltip:AddLine (barra.index .. ". " .. barra.show)
 			GameTooltip:AddLine (info.target_text)
 			GameTooltip:AddLine (Loc ["STRING_NO_TARGET"], 1, 1, 1)
@@ -5773,7 +5773,7 @@ local target_on_enter = function(self)
 			GameTooltip:Show()
 		end
 	else
-		GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
 		GameTooltip:AddLine (barra.index .. ". " .. barra.show)
 		GameTooltip:AddLine (info.target_text)
 		GameTooltip:AddLine (Loc ["STRING_NO_TARGET"], 1, 1, 1)

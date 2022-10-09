@@ -111,7 +111,7 @@
 			
 			if (from_mode_menu) then
 				--refresh
-				instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao, _, true)
+				instance.baseframe.cabecalho.modo_selecao:GetScript("OnEnter")(instance.baseframe.cabecalho.modo_selecao, _, true)
 			end
 		else
 			if (not instance.wait_for_plugin) then
@@ -126,7 +126,7 @@
 		local available = {}
 		for index, plugin in ipairs(self.Menu) do
 			if (not self.PluginsInUse [ plugin [4] ] and plugin [3].__enabled) then -- 3 = plugin object 4 = absolute name
-				tinsert (available, plugin)
+				tinsert(available, plugin)
 			end
 		end
 		return available

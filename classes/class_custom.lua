@@ -1234,7 +1234,7 @@
 						--get the spell buff uptime container
 						local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 						if (buff_uptime_container) then
-							for spellId, _ in pairs (DetailsFramework.PotionIDs) do
+							for spellId, _ in pairs(DetailsFramework.PotionIDs) do
 								local potionUsed = buff_uptime_container [spellId]
 				
 								if (potionUsed) then
@@ -1282,7 +1282,7 @@
 			--get the misc actor container
 			local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 			if (buff_uptime_container) then
-				for spellId, _ in pairs (DetailsFramework.PotionIDs) do
+				for spellId, _ in pairs(DetailsFramework.PotionIDs) do
 					local potionUsed = buff_uptime_container [spellId]
 			
 					if (potionUsed) then
@@ -1337,7 +1337,7 @@
 			for index, character in ipairs(AllHealCharacters) do
 				local AllSpells = character:GetSpellList()
 				local found = false
-				for spellid, spell in pairs (AllSpells) do
+				for spellid, spell in pairs(AllSpells) do
 					if (DETAILS_HEALTH_POTION_LIST [spellid]) then
 						instance_container:AddValue (character, spell.total)
 						total = total + spell.total
@@ -1436,7 +1436,7 @@
 			]],
 			percent_script = [[
 				local value, top, total, combat, instance = ...
-				return string.format ("%.1f", value/top*100)
+				return string.format("%.1f", value/top*100)
 			]],
 			script = [[
 				--init:
@@ -1500,7 +1500,7 @@
 			]],
 			percent_script = [[
 				local value, top, total, combat, instance = ...
-				return string.format ("%.1f", value/top*100)
+				return string.format("%.1f", value/top*100)
 			]],
 			script = [[
 				--init:
@@ -1584,8 +1584,8 @@
 			tooltip = [[
 				local actor, combat, instance = ...
 				local spells = {}
-				for spellid, spell in pairs (actor.cc_done_spells._ActorTable) do
-				    tinsert (spells, {spellid, spell.counter})
+				for spellid, spell in pairs(actor.cc_done_spells._ActorTable) do
+				    tinsert(spells, {spellid, spell.counter})
 				end
 
 				table.sort (spells, _detalhes.Sort2)
@@ -1598,8 +1598,8 @@
 				end
 
 				local targets = {}
-				for playername, amount in pairs (actor.cc_done_targets) do
-				    tinsert (targets, {playername, amount})
+				for playername, amount in pairs(actor.cc_done_targets) do
+				    tinsert(targets, {playername, amount})
 				end
 
 				table.sort (targets, _detalhes.Sort2)
@@ -1644,7 +1644,7 @@
 			for i, custom in ipairs(self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_CC_DONE"]) then
 					table.remove (self.custom, i)
-					tinsert (self.custom, i, CC_Done)
+					tinsert(self.custom, i, CC_Done)
 					have = true
 				end
 			end
@@ -1676,7 +1676,7 @@
 				for index, character in ipairs(misc_actors) do
 				    if (character.cc_done and character:IsPlayer()) then
 					
-					for player_name, amount in pairs (character.cc_done_targets) do
+					for player_name, amount in pairs(character.cc_done_targets) do
 					    local target = combat (1, player_name) or combat (2, player_name)
 					    if (target and target:IsPlayer()) then
 						instance_container:AddValue (target, amount)
@@ -1706,9 +1706,9 @@
 				    if (character.cc_done and character:IsPlayer()) then
 					local on_actor = character.cc_done_targets [name]
 					if (on_actor) then
-					    tinsert (from, {character:name(), on_actor})
+					    tinsert(from, {character:name(), on_actor})
 					    
-					    for spellid, spell in pairs (character.cc_done_spells._ActorTable) do
+					    for spellid, spell in pairs(character.cc_done_spells._ActorTable) do
 						
 						local spell_on_actor = spell.targets [name]
 						if (spell_on_actor) then
@@ -1720,7 +1720,7 @@
 							end
 						    end
 						    if (not has_spell) then
-							tinsert (spells, {spellid, spell_on_actor}) 
+							tinsert(spells, {spellid, spell_on_actor}) 
 						    end
 						end
 						
@@ -1778,7 +1778,7 @@
 			for i, custom in ipairs(self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_CC_RECEIVED"]) then
 					table.remove (self.custom, i)
-					tinsert (self.custom, i, CC_Received)
+					tinsert(self.custom, i, CC_Received)
 					have = true
 				end
 			end
@@ -1827,7 +1827,7 @@
 
 				if (player) then
 					local spells = player:GetSpellList()
-					for spellid, spell in pairs (spells) do
+					for spellid, spell in pairs(spells) do
 						instance_container:AddValue (spell, spell.total)
 						total = total + spell.total
 						if (top < spell.total) then
@@ -1839,7 +1839,7 @@
 					for _, PetName in ipairs(player.pets) do
 						local pet = combat (pet_attribute, PetName)
 						if (pet) then
-							for spellid, spell in pairs (pet:GetSpellList()) do
+							for spellid, spell in pairs(pet:GetSpellList()) do
 								instance_container:AddValue (spell, spell.total, nil, " (" .. PetName:gsub ((" <.*"), "") .. ")")
 								total = total + spell.total
 								if (top < spell.total) then
@@ -1895,7 +1895,7 @@
 				
 				if (not spell_cast and misc_actor.spell_cast) then
 				    local spellname = GetSpellInfo(spell.id)
-				    for casted_spellid, amount in pairs (misc_actor.spell_cast) do
+				    for casted_spellid, amount in pairs(misc_actor.spell_cast) do
 					local casted_spellname = GetSpellInfo(casted_spellid)
 					if (casted_spellname == spellname) then
 					    spell_cast = amount .. " (|cFFFFFF00?|r)"
@@ -2027,7 +2027,7 @@
 			percent_script = [[
 				local value, top, total, combat, instance = ...
 				local dps = _detalhes:ToK (floor (value) / combat:GetCombatTime())
-				local percent = string.format ("%.1f", value/total*100)
+				local percent = string.format("%.1f", value/total*100)
 				return dps .. ", " .. percent
 			]],
 		}
@@ -2046,7 +2046,7 @@
 			for i, custom in ipairs(self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_MYSPELLS"]) then
 					table.remove (self.custom, i)
-					tinsert (self.custom, i, MySpells)
+					tinsert(self.custom, i, MySpells)
 					have = true
 				end
 			end
@@ -2138,7 +2138,7 @@
 			for i, custom in ipairs(self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSKULL"]) then
 					table.remove (self.custom, i)
-					tinsert (self.custom, i, DamageOnSkullTarget)
+					tinsert(self.custom, i, DamageOnSkullTarget)
 					have = true
 				end
 			end
@@ -2268,7 +2268,7 @@
 			for i, custom in ipairs(self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET"]) then
 					table.remove (self.custom, i)
-					tinsert (self.custom, i, DamageOnAnyTarget)
+					tinsert(self.custom, i, DamageOnAnyTarget)
 					have = true
 				end
 			end
@@ -2357,7 +2357,7 @@
 				if (player) then
 					playerTotal = playerTotal + player.total
 					local playerSpells = player:GetSpellList()
-					for spellID, spellTable in pairs (playerSpells) do
+					for spellID, spellTable in pairs(playerSpells) do
 						AllSpells [spellID] = spellTable.total
 					end
 				end
@@ -2367,15 +2367,15 @@
 					if (player) then
 						playerTotal = playerTotal + player.total
 						local playerSpells = player:GetSpellList()
-						for spellID, spellTable in pairs (playerSpells) do
+						for spellID, spellTable in pairs(playerSpells) do
 							AllSpells [spellID] = (AllSpells [spellID] or 0) + (spellTable.total or 0)
 						end
 					end
 				end
 
 				local sortedList = {}
-				for spellID, total in pairs (AllSpells) do
-					tinsert (sortedList, {spellID, total})
+				for spellID, total in pairs(AllSpells) do
+					tinsert(sortedList, {spellID, total})
 				end
 				table.sort (sortedList, Details.Sort2)
 

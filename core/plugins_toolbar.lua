@@ -71,7 +71,7 @@
 			return
 		end
 		
-		local instance = _detalhes:GetInstance (lower_instance)
+		local instance = _detalhes:GetInstance(lower_instance)
 		
 		if (#_detalhes.ToolBar.Shown > 0) then
 			--already shown
@@ -133,7 +133,7 @@
 --internal functions
 do
 	local PluginDescPanel = CreateFrame("frame", "DetailsPluginDescPanel", UIParent)
-	PluginDescPanel:SetFrameStrata ("tooltip")
+	PluginDescPanel:SetFrameStrata("tooltip")
 	PluginDescPanel:Hide()
 	PluginDescPanel:SetWidth(205)
 	PluginDescPanel.BackdropTable = {}
@@ -161,7 +161,7 @@ end
 	
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (lower_instance) then
-			_detalhes.OnEnterMainWindow(_detalhes:GetInstance (lower_instance), button, 3)
+			_detalhes.OnEnterMainWindow(_detalhes:GetInstance(lower_instance), button, 3)
 		end
 	
 		if (button.tooltip) then
@@ -229,7 +229,7 @@ end
 	
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (lower_instance) then
-			_detalhes.OnLeaveMainWindow(_detalhes:GetInstance (lower_instance), button, 3)
+			_detalhes.OnLeaveMainWindow(_detalhes:GetInstance(lower_instance), button, 3)
 		end
 	
 		if (button.tooltip) then
@@ -260,10 +260,10 @@ end
 			return
 		end
 
-		local instance = _detalhes:GetInstance (lower_instance)
+		local instance = _detalhes:GetInstance(lower_instance)
 
 		if (not just_refresh) then
-			for _, instancia in pairs (_detalhes.tabela_instancias) do 
+			for _, instancia in pairs(_detalhes.tabela_instancias) do 
 				if (instancia.baseframe and instancia:IsAtiva()) then
 					instancia:ReajustaGump()
 				end
@@ -272,7 +272,7 @@ end
 			instance:ChangeSkin()
 		else
 			instance:ToolbarMenuButtons()
-			instance:SetAutoHideMenu (nil, nil, true)
+			instance:SetAutoHideMenu(nil, nil, true)
 		end
 		
 		return true

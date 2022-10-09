@@ -69,7 +69,7 @@ end
 		"ResetPlayerPersona"
 	}
 	function NickTag:Embed (target)
-		for k, v in pairs (embed_functions) do
+		for k, v in pairs(embed_functions) do
 			target[v] = self[v]
 		end
 		self.embeds [target] = true
@@ -391,7 +391,7 @@ end
 		if (playerName) then
 			local player = NickTag:GetNicknameTable (playerName)
 			if (player and pool.last_version == minor) then
-				for thisPlayerName, _ in pairs (pool) do
+				for thisPlayerName, _ in pairs(pool) do
 					if (thisPlayerName ~= playerName) then
 						pool [thisPlayerName] = nil
 					end
@@ -418,7 +418,7 @@ end
 			siblingsPools [#siblingsPools + 1] = _table
 
 			--copy all players into the sibling table
-			for key, value in pairs (pool) do
+			for key, value in pairs(pool) do
 				_table [key] = value
 			end
 
@@ -445,7 +445,7 @@ end
 	function NickTag:SyncSiblings()
 		--copy all data into siblings table
 		for _, syblingTable in ipairs(siblingsPools) do
-			for key, value in pairs (pool) do
+			for key, value in pairs(pool) do
 				syblingTable [key] = value
 			end
 		end
@@ -829,7 +829,7 @@ end
 	--choose avatar window
 do
 	local avatar_pick_frame = CreateFrame("frame", "AvatarPickFrame", UIParent,"BackdropTemplate")
-	avatar_pick_frame:SetFrameStrata ("DIALOG")
+	avatar_pick_frame:SetFrameStrata("DIALOG")
 	avatar_pick_frame:SetBackdrop({bgFile = [[Interface\FrameGeneral\UI-Background-Marble]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], tile = true, tileSize = 256, edgeSize = 32,	insets = {left = 11, right = 12, top = 12, bottom = 11}})
 	avatar_pick_frame:SetBackdropColor(.3, .3, .3, .9)
 	avatar_pick_frame:SetWidth(460)

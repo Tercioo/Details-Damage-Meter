@@ -7,7 +7,7 @@ local L = AceLocale:GetLocale ( "Details" )
 
 local on_deathrecap_line_enter = function(self)
 	if (self.spellid) then
-		GameTooltip:SetOwner (self, "ANCHOR_RIGHT")
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		Details:GameTooltipSetSpellByID (self.spellid)
 		self:SetBackdropColor(.3, .3, .3, .2)
 		GameTooltip:Show()
@@ -200,7 +200,7 @@ function Details.BuildDeathTableFromRecap (recapID)
 			not spellId and {spellId, spellName, texture},
 		}
 		
-		tinsert (ArtificialDeathLog[1], ev)
+		tinsert(ArtificialDeathLog[1], ev)
 		ArtificialDeathLog.n = ArtificialDeathLog.n + 1
 	end
 	
@@ -283,7 +283,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             segmentButton:SetScript("OnClick", function()
                 OpenDetailsDeathRecapAtSegment (i)
             end)
-            tinsert (Details.DeathRecap.Segments, i, segmentButton)
+            tinsert(Details.DeathRecap.Segments, i, segmentButton)
         end
     end
 
@@ -323,7 +323,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
         for i, button in ipairs(Details.DeathRecap.Segments) do
             if (Details.tabela_historico.tabelas [i]) then
                 button:Show()
-                tinsert (buttonsInUse, button)
+                tinsert(buttonsInUse, button)
                 Details.gump:SetFontColor(button.text, "silver")
                 last_index = i
             else
@@ -333,7 +333,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
         
         local buttonsInUse2 = {}
         for i = #buttonsInUse, 1, -1 do
-            tinsert (buttonsInUse2, buttonsInUse[i])
+            tinsert(buttonsInUse2, buttonsInUse[i])
         end
         for i = 1, #buttonsInUse2 do
             local button = buttonsInUse2 [i]
@@ -391,7 +391,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
         
         local BiggestDamageHits = {}
         for i = #events, 1, -1 do
-            tinsert (BiggestDamageHits, events [i])
+            tinsert(BiggestDamageHits, events [i])
         end
         table.sort (BiggestDamageHits, function(t1, t2) 
             return t1[3] > t2[3]
@@ -421,7 +421,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                 end
             end
             if (not haveHitKill) then
-                tinsert (BiggestDamageHits, 1, hitKill)
+                tinsert(BiggestDamageHits, 1, hitKill)
             end
         end
 
@@ -439,7 +439,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                         end
                     end
                     if (not alreadyHave) then
-                        tinsert (BiggestDamageHits, event)
+                        tinsert(BiggestDamageHits, event)
                         if (#BiggestDamageHits == 10) then
                             break
                         end
@@ -541,7 +541,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                             else
                                 source = "Gravity"
                             end
-                            --/run for a,b in pairs (_G) do if (type(b)=="string" and b:find ("Falling")) then print (a,b) end end
+                            --/run for a,b in pairs(_G) do if (type(b)=="string" and b:find ("Falling")) then print (a,b) end end
                         end
                     end
                     

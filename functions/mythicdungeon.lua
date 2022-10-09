@@ -141,7 +141,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
     
     local lower_instance = Details:GetLowerInstanceNumber()
     if (lower_instance) then
-        local instance = Details:GetInstance (lower_instance)
+        local instance = Details:GetInstance(lower_instance)
         if (instance) then
             local func = {function() end}
             instance:InstanceAlert ("Showing Mythic+ Run Segment", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 6, func, true)
@@ -417,7 +417,7 @@ function DetailsMythicPlusFrame.BossDefeated (this_is_end_end, encounterID, enco
                     local mythicDungeonInfo = pastCombat:GetMythicDungeonInfo() -- .is_mythic_dungeon only boss, trash overall and run overall have it
                     if (not mythicDungeonInfo or not mythicDungeonInfo.TrashOverallSegment) then
                         --trash segment found, schedule to merge
-                        tinsert (segmentsToMerge, pastCombat)
+                        tinsert(segmentsToMerge, pastCombat)
                     end
                 end
             end
@@ -527,7 +527,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished (fromZoneLeft)
                             end
                             
                             --merge this segment
-                            tinsert (segmentsToMerge, pastCombat)
+                            tinsert(segmentsToMerge, pastCombat)
                             
                             if (DetailsMythicPlusFrame.DevelopmentDebug) then
                                 print ("MythicDungeonFinished() > found after last boss combat")
@@ -777,7 +777,7 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent (contextObject, eve
     
         local lower_instance = _detalhes:GetLowerInstanceNumber()
         if (lower_instance) then
-            lower_instance = _detalhes:GetInstance (lower_instance)
+            lower_instance = _detalhes:GetInstance(lower_instance)
             if (lower_instance) then
                 C_Timer.After (3, function()
                     if (lower_instance:IsEnabled()) then

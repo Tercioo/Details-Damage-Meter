@@ -1,5 +1,5 @@
 
-local instance = Details:GetInstance (number)
+local instance = Details:GetInstance(number)
 returns the window object.
 
 =============================================================
@@ -32,7 +32,7 @@ side = number, 1 = top side of the window, 2 = bottom.
 instance:MicroDisplaysLock (is_locked)
 is_locked = boolean, true is the micro displays are locked and cannot interact with the mouse.
 
-instance:SetAutoHideMenu (enabled)
+instance:SetAutoHideMenu(enabled)
 enabled = boolean, if true, the buttons on window's title bar auto hide when the player isn't interacting with the window.
 
 instance:SetBackdropTexture (texturename)
@@ -51,7 +51,7 @@ shadow = boolean, draw the outline shadow to the text.
 instance:LeftMenuAnchorSide (side)
 side = number, 1 = left, 2 = right, set the anchor point for buttons on window's title bar.
 
-instance:SetFrameStrata (strata)
+instance:SetFrameStrata(strata)
 strata = string, "BACKGROUND", "LOW", "MEDIUM", "HIGH" or "DIALOG".
 
 instance:ChangeSkin (skin_name)
@@ -146,7 +146,7 @@ direction = 1 top to bottom / 2 bottom to top
 instance:HideStatusBar() // instance:ShowStatusBar()
 Show or hide the statusbar for the window.
 
-instance:StatusBarColor (r, g, b, a, no_save)
+instance:StatusBarColor(r, g, b, a, no_save)
 r, g, b, a = number, color to set,
 no_save = boolean, if true, the values isn't set on the instance config table.
 
@@ -180,7 +180,7 @@ clickfunc = table {function, param1, param2, "left" or "right" button}
 
 --------------------
 
-Details:SetTooltipBackdrop (border_texture, border_size, border_color)
+Details:SetTooltipBackdrop(border_texture, border_size, border_color)
 border_texture = string, border name for SharedMedia.
 border_size = number, border size.
 border_color = table {r, g, b, a}
@@ -204,7 +204,7 @@ returns a table with instances objects of all instances inside the group.
 
 --------------------
 
-Details:SetWindowUpdateSpeed (interval, nosave)
+Details:SetWindowUpdateSpeed(interval, nosave)
 set the update speed of all windows, if nosave is true, it won't save this change (apply only).
 
 Details:SetUseAnimations (enabled, nosave)
@@ -231,7 +231,7 @@ Open Forge Window.
 Details:OpenRaidHistoryWindow()
 Open Raid History Window.
 
-Details.switch:ShowMe (instance object)
+Details.switch:ShowMe(instance object)
 Open the bookmark panel on the top of the desired window.
 
 Details.switch:CloseMe()

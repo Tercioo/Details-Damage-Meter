@@ -17,7 +17,7 @@ function Details:OpenProfiler()
     else
         --check is this is the first run of the addon (after being installed)
         local amount = 0
-        for name, profile in pairs (_detalhes_global.__profiles) do
+        for name, profile in pairs(_detalhes_global.__profiles) do
             amount = amount + 1
         end
         if (amount == 1) then
@@ -80,7 +80,7 @@ function Details:OpenProfiler()
         end
         f:Hide()
     end
-    local confirm = Details.gump:NewButton (f, f, "DetailsProfilerProfileConfirmButton", "button", 150, 20, confirm_func, nil, nil, nil, "Okey!")
+    local confirm = Details.gump:NewButton(f, f, "DetailsProfilerProfileConfirmButton", "button", 150, 20, confirm_func, nil, nil, nil, "Okey!")
     confirm:SetPoint(50, -250)
     confirm:InstallCustomTexture()
 end

@@ -193,7 +193,7 @@
 				GameCooltip:Hide()
 			end)
 			
-			tinsert (UISpecialFrames, "DetailsCustomPanel")
+			tinsert(UISpecialFrames, "DetailsCustomPanel")
 
 			
 			--menu title bar
@@ -285,7 +285,7 @@
 			
 			DetailsCustomPanel.code4_default = [[
 							local value, top, total, combat, instance = ...
-							return string.format ("%.1f", value/total*100)
+							return string.format("%.1f", value/total*100)
 						]]
 			DetailsCustomPanel.code4 = DetailsCustomPanel.code4_default
 			
@@ -303,10 +303,10 @@
 				self.author_field:SetText(UnitName ("player") .. "-" .. GetRealmName())
 				self.author_field:Enable()
 				
-				self.source_dropdown:Select (1, true)
+				self.source_dropdown:Select(1, true)
 				self.source_field:SetText("")
 				
-				self.target_dropdown:Select (1, true)
+				self.target_dropdown:Select(1, true)
 				self.target_field:SetText("")
 				
 				self.spellid_entry:SetText("")
@@ -377,19 +377,19 @@
 				
 					local source = custom_object:GetSource()
 					if (source == "[all]") then
-						self.source_dropdown:Select (1, true)
+						self.source_dropdown:Select(1, true)
 						self.source_field:SetText("")
 						self.source_field:Disable()
 					elseif (source == "[raid]") then
-						self.source_dropdown:Select (2, true)
+						self.source_dropdown:Select(2, true)
 						self.source_field:SetText("")
 						self.source_field:Disable()
 					elseif (source == "[player]") then
-						self.source_dropdown:Select (3, true)
+						self.source_dropdown:Select(3, true)
 						self.source_field:SetText("")
 						self.source_field:Disable()
 					else
-						self.source_dropdown:Select (4, true)
+						self.source_dropdown:Select(4, true)
 						self.source_field:SetText(source)
 						self.source_field:Enable()
 					end
@@ -397,23 +397,23 @@
 					local target = custom_object:GetTarget()
 					
 					if (not target) then
-						self.target_dropdown:Select (5, true)
+						self.target_dropdown:Select(5, true)
 						self.target_field:SetText("")
 						self.target_field:Disable()
 					elseif (target == "[all]") then
-						self.target_dropdown:Select (1, true)
+						self.target_dropdown:Select(1, true)
 						self.target_field:SetText("")
 						self.target_field:Disable()
 					elseif (target == "[raid]") then
-						self.target_dropdown:Select (2, true)
+						self.target_dropdown:Select(2, true)
 						self.target_field:SetText("")
 						self.target_field:Disable()
 					elseif (target == "[player]") then
-						self.target_dropdown:Select (3, true)
+						self.target_dropdown:Select(3, true)
 						self.target_field:SetText("")
 						self.target_field:Disable()
 					else
-						self.target_dropdown:Select (4, true)
+						self.target_dropdown:Select(4, true)
 						self.target_field:SetText(target)
 						self.target_field:Enable()
 					end
@@ -486,7 +486,7 @@
 						end
 						
 						if (DetailsCustomPanel.IsImporting) then
-							tinsert (_detalhes.custom, object)
+							tinsert(_detalhes.custom, object)
 						end
 						
 						DetailsCustomPanel.IsEditing = false
@@ -507,7 +507,7 @@
 							["tooltip"] = false,
 						}
 
-						tinsert (_detalhes.custom, new_custom_object)
+						tinsert(_detalhes.custom, new_custom_object)
 						_setmetatable (new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
 						_detalhes:Msg (Loc ["STRING_CUSTOM_CREATED"])
@@ -554,7 +554,7 @@
 						end
 						
 						if (DetailsCustomPanel.IsImporting) then
-							tinsert (_detalhes.custom, object)
+							tinsert(_detalhes.custom, object)
 						end
 						
 						DetailsCustomPanel.IsEditing = false
@@ -590,7 +590,7 @@
 							new_custom_object.percent_script = false
 						end
 						
-						tinsert (_detalhes.custom, new_custom_object)
+						tinsert(_detalhes.custom, new_custom_object)
 						_setmetatable (new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
 						_detalhes:Msg (Loc ["STRING_CUSTOM_CREATED"])
@@ -752,7 +752,7 @@
 			function custom_window:CreateMenuButton (label, icon, clickfunc, param1, param2, tooltip, name, coords)
 				local index = #custom_window.menu+1
 
-				local button = gump:NewButton (self, nil, "$parent" .. name, nil, CONST_MENU_WIDTH, CONST_MENU_HEIGHT, clickfunc, param1, param2, nil, label)
+				local button = gump:NewButton(self, nil, "$parent" .. name, nil, CONST_MENU_WIDTH, CONST_MENU_HEIGHT, clickfunc, param1, param2, nil, label)
 				button:SetPoint("topleft", self, "topleft", CONST_MENU_X_POSITION, CONST_MENU_Y_POSITION + ((index-1)*-23))
 				
 				--button:SetTemplate (CONST_BUTTON_TEMPLATE)
@@ -811,7 +811,7 @@
 
 				local export_object = {}
 				
-				for key, value in pairs (custom_object) do
+				for key, value in pairs(custom_object) do
 					if (object_keys [key]) then
 						if (type(value) == "table") then
 							export_object [key] = Details.CopyTable (value)
@@ -906,7 +906,7 @@
 						custom_window.ImportConfirm:Hide()
 					end
 					
-					local okey_button = gump:NewButton (custom_window, nil, "$parentImportConfirm", "ImportConfirm", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, import, nil, nil, nil, Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
+					local okey_button = gump:NewButton(custom_window, nil, "$parentImportConfirm", "ImportConfirm", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, import, nil, nil, nil, Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
 					okey_button:SetTemplate (CONST_BUTTON_TEMPLATE)
 					okey_button:SetPoint("left", editbox, "right", 2, 0)
 				end
@@ -1072,20 +1072,20 @@
 					gump:IconPick (pickicon_callback, true)
 				end
 				local icon_image = gump:NewImage (box0, [[Interface\ICONS\TEMP]], 20, 20, nil, nil, "icontexture", "$parentIconTexture")
-				local icon_button = gump:NewButton (box0, nil, "$parentIconButton", "IconButton", 20, 20, pickicon)
+				local icon_button = gump:NewButton(box0, nil, "$parentIconButton", "IconButton", 20, 20, pickicon)
 				icon_button:InstallCustomTexture()
 				icon_button:SetPoint("left", icon_label, "left", 64, 0)
 				icon_image:SetPoint("left", icon_label, "left", 64, 0)
 				custom_window.icon_image = icon_image
 
 			--cancel
-				local cancel_button = gump:NewButton (box0, nil, "$parentCancelButton", "cancelbutton", 130, 20, DetailsCustomPanel.CancelFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CANCEL"])
+				local cancel_button = gump:NewButton(box0, nil, "$parentCancelButton", "cancelbutton", 130, 20, DetailsCustomPanel.CancelFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CANCEL"])
 				--cancel_button:SetPoint("bottomleft", attribute_box, "bottomleft", 2, 0)
 				cancel_button:SetPoint("topleft", icon_label, "bottomleft", 0, -10)
 				cancel_button:SetTemplate (CONST_REGULAR_BUTTON_TEMPLATE)
 				
 			--accept
-				local accept_button = gump:NewButton (box0, nil, "$parentAcceptButton", "acceptbutton", 130, 20, DetailsCustomPanel.AcceptFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CREATE"])
+				local accept_button = gump:NewButton(box0, nil, "$parentAcceptButton", "acceptbutton", 130, 20, DetailsCustomPanel.AcceptFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CREATE"])
 				accept_button:SetPoint("left", cancel_button, "right", 2, 0)
 				accept_button:SetTemplate (CONST_REGULAR_BUTTON_TEMPLATE)
 				
@@ -1168,7 +1168,7 @@
 					
 					local selectedEncounterActor = function(actorName, model)
 						source_field:SetText(actorName)
-						source_dropdown:Select (4, true)
+						source_dropdown:Select(4, true)
 						box1.sourceentry:Enable()
 						actorsFrame:Hide()
 						GameCooltip:Hide()
@@ -1180,7 +1180,7 @@
 						button.MyObject.image:SetBlendMode("ADD")
 						button.MyObject.line:SetBlendMode("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
-						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
+						GameTooltip:SetOwner(button, "ANCHOR_TOPLEFT")
 						GameTooltip:AddLine (button.MyObject.actor)
 						GameTooltip:Show()
 						
@@ -1216,12 +1216,12 @@
 							local y = 10
 							local i = 1
 							
-							for actor, actorTable in pairs (actors) do 
+							for actor, actorTable in pairs(actors) do 
 							
 								local thisButton = actorsFrameButtons [i]
 								
 								if (not thisButton) then
-									thisButton = gump:NewButton (actorsFrame.frame, actorsFrame.frame, "DetailsCustomActorsFrame2Button"..i, "button"..i, 130, 20, selectedEncounterSpell)
+									thisButton = gump:NewButton(actorsFrame.frame, actorsFrame.frame, "DetailsCustomActorsFrame2Button"..i, "button"..i, 130, 20, selectedEncounterSpell)
 									thisButton:SetPoint("topleft", "DetailsCustomActorsFrame2", "topleft", x, -y)
 									thisButton:SetHook("OnEnter", buttonMouseOver)
 									thisButton:SetHook("OnLeave", buttonMouseOut)
@@ -1258,7 +1258,7 @@
 								end
 								
 								thisButton.label:SetText(actor)
-								thisButton:SetClickFunction (selectedEncounterActor, actor, actorTable.model)
+								thisButton:SetClickFunction(selectedEncounterActor, actor, actorTable.model)
 								thisButton.actor = actor
 								thisButton.ej_id = ej_id
 								thisButton.model = actorTable.model
@@ -1280,9 +1280,9 @@
 					
 						GameCooltip:Reset()
 						GameCooltip:SetType ("menu")
-						GameCooltip:SetOwner (adds_boss)
+						GameCooltip:SetOwner(adds_boss)
 
-						for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
+						for instanceId, instanceTable in pairs(_detalhes.EncounterInformation) do 
 						
 							if (_detalhes:InstanceIsRaid (instanceId)) then
 						
@@ -1376,7 +1376,7 @@
 					
 					local selectedEncounterActor = function(actorName)
 						target_field:SetText(actorName)
-						target_dropdown:Select (4, true)
+						target_dropdown:Select(4, true)
 						box1.targetentry:Enable()
 						actorsFrame:Hide()
 						GameCooltip:Hide()
@@ -1388,7 +1388,7 @@
 						button.MyObject.image:SetBlendMode("ADD")
 						button.MyObject.line:SetBlendMode("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
-						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
+						GameTooltip:SetOwner(button, "ANCHOR_TOPLEFT")
 						GameTooltip:AddLine (button.MyObject.actor)
 						GameTooltip:Show()
 						
@@ -1424,12 +1424,12 @@
 							local y = 10
 							local i = 1
 							
-							for actor, actorTable in pairs (actors) do 
+							for actor, actorTable in pairs(actors) do 
 							
 								local thisButton = actorsFrameButtons [i]
 								
 								if (not thisButton) then
-									thisButton = gump:NewButton (actorsFrame.frame, actorsFrame.frame, "DetailsCustomActorsFrameButton"..i, "button"..i, 130, 20, selectedEncounterSpell)
+									thisButton = gump:NewButton(actorsFrame.frame, actorsFrame.frame, "DetailsCustomActorsFrameButton"..i, "button"..i, 130, 20, selectedEncounterSpell)
 									thisButton:SetPoint("topleft", "DetailsCustomActorsFrame", "topleft", x, -y)
 									thisButton:SetHook("OnEnter", buttonMouseOver)
 									thisButton:SetHook("OnLeave", buttonMouseOut)
@@ -1466,7 +1466,7 @@
 								end
 								
 								thisButton.label:SetText(actor)
-								thisButton:SetClickFunction (selectedEncounterActor, actor)
+								thisButton:SetClickFunction(selectedEncounterActor, actor)
 								thisButton.actor = actor
 								thisButton.ej_id = ej_id
 								thisButton.model = actorTable.model
@@ -1488,9 +1488,9 @@
 					
 						GameCooltip:Reset()
 						GameCooltip:SetType ("menu")
-						GameCooltip:SetOwner (adds_boss)
+						GameCooltip:SetOwner(adds_boss)
 						
-						for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
+						for instanceId, instanceTable in pairs(_detalhes.EncounterInformation) do 
 						
 							if (_detalhes:InstanceIsRaid (instanceId)) then
 						
@@ -1564,7 +1564,7 @@
 						button.MyObject.line:SetBlendMode("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
 
-						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
+						GameTooltip:SetOwner(button, "ANCHOR_TOPLEFT")
 						_detalhes:GameTooltipSetSpellByID (button.MyObject.spellid)
 						GameTooltip:Show()
 					end
@@ -1589,12 +1589,12 @@
 						local y = 10
 						local i = 1
 						
-						for spell, _ in pairs (spells) do 
+						for spell, _ in pairs(spells) do 
 						
 							local thisButton = spellsFrameButtons [i]
 							
 							if (not thisButton) then
-								thisButton = gump:NewButton (spellsFrame.frame, spellsFrame.frame, "DetailsCustomSpellsFrameButton"..i, "button"..i, 80, 20, selectedEncounterSpell)
+								thisButton = gump:NewButton(spellsFrame.frame, spellsFrame.frame, "DetailsCustomSpellsFrameButton"..i, "button"..i, 80, 20, selectedEncounterSpell)
 								thisButton:SetPoint("topleft", "DetailsCustomSpellsFrame", "topleft", x, -y)
 								thisButton:SetHook("OnEnter", buttonMouseOver)
 								thisButton:SetHook("OnLeave", buttonMouseOut)
@@ -1629,7 +1629,7 @@
 							local nome_magia, _, icone_magia = _GetSpellInfo(spell)
 							thisButton.image:SetTexture(icone_magia)
 							thisButton.label:SetText(nome_magia)
-							thisButton:SetClickFunction (selectedEncounterSpell, spell)
+							thisButton:SetClickFunction(selectedEncounterSpell, spell)
 							thisButton.spellid = spell
 							thisButton:Show()
 							i = i + 1
@@ -1648,9 +1648,9 @@
 					
 						GameCooltip:Reset()
 						GameCooltip:SetType ("menu")
-						GameCooltip:SetOwner (spell_id_boss)
+						GameCooltip:SetOwner(spell_id_boss)
 						
-						for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
+						for instanceId, instanceTable in pairs(_detalhes.EncounterInformation) do 
 						
 							if (_detalhes:InstanceisRaid (instanceId)) then
 						
@@ -1699,25 +1699,25 @@
 				box2:SetFrameLevel (box0:GetFrameLevel()+1)
 			
 				--edit main code
-				local maincode_button = gump:NewButton (box2, nil, "$parentMainCodeButton", "maiccodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 1, nil, nil, Loc ["STRING_CUSTOM_EDIT_SEARCH_CODE"])
+				local maincode_button = gump:NewButton(box2, nil, "$parentMainCodeButton", "maiccodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 1, nil, nil, Loc ["STRING_CUSTOM_EDIT_SEARCH_CODE"])
 				maincode_button:SetPoint("topleft", custom_window, "topleft", CONST_EDITBUTTONS_X_POSITION, CONST_MENU_Y_POSITION)
 				maincode_button.tooltip = Loc ["STRING_CUSTOM_EDITCODE_DESC"]
 				maincode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				--edit tooltip code
-				local tooltipcode_button = gump:NewButton (box2, nil, "$parentTooltipCodeButton", "tooltipcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 2, nil, nil, Loc ["STRING_CUSTOM_EDIT_TOOLTIP_CODE"])
+				local tooltipcode_button = gump:NewButton(box2, nil, "$parentTooltipCodeButton", "tooltipcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 2, nil, nil, Loc ["STRING_CUSTOM_EDIT_TOOLTIP_CODE"])
 				tooltipcode_button:SetPoint("topleft", maincode_button, "bottomleft", 0, -8)
 				tooltipcode_button.tooltip = Loc ["STRING_CUSTOM_EDITTOOLTIP_DESC"]
 				tooltipcode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				--edit total code
-				local totalcode_button = gump:NewButton (box2, nil, "$parentTotalCodeButton", "totalcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 3, nil, nil, "Edit Total Code")
+				local totalcode_button = gump:NewButton(box2, nil, "$parentTotalCodeButton", "totalcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 3, nil, nil, "Edit Total Code")
 				totalcode_button:SetPoint("topleft", tooltipcode_button, "bottomleft", 0, -8)
 				totalcode_button.tooltip = "This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."
 				totalcode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
 				
 				--edit percent code
-				local percentcode_button = gump:NewButton (box2, nil, "$parentPercentCodeButton", "percentcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 4, nil, nil, "Edit Percent Code")
+				local percentcode_button = gump:NewButton(box2, nil, "$parentPercentCodeButton", "percentcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 4, nil, nil, "Edit Percent Code")
 				percentcode_button:SetPoint("topleft", totalcode_button, "bottomleft", 0, -8)
 				percentcode_button.tooltip = "Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."
 				percentcode_button:SetTemplate (CONST_CODETEXTENTRY_OPENCODEBUTTONS_TEMPLATE)
@@ -1746,7 +1746,7 @@
 				end)
 				
 				--create a background area where the code editor is
-				local codeEditorBackground = gump:NewButton (custom_window, nil, nil, nil, 1, 1, function()end)
+				local codeEditorBackground = gump:NewButton(custom_window, nil, nil, nil, 1, 1, function()end)
 				codeEditorBackground:SetAllPoints(code_editor)
 				codeEditorBackground:SetTemplate (CONST_CODETEXTENTRY_TEMPLATE)
 				
@@ -1832,23 +1832,23 @@
 				local supportFrame = CreateFrame("frame", "$parentSupportFrame", custom_window)
 				supportFrame:SetFrameLevel (500)
 				
-				local expand = gump:NewButton (supportFrame, nil, "$parentExpand", "expandbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, expand_func, 4, nil, nil, "Expand")
+				local expand = gump:NewButton(supportFrame, nil, "$parentExpand", "expandbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, expand_func, 4, nil, nil, "Expand")
 				expand:SetPoint("bottomleft", code_editor, "topleft", 0, 1)
 				expand:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
 				
-				local font_size1 = gump:NewButton (supportFrame, nil, "$parentFont1", "font1button", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, font_change, nil, nil, nil, "Aa")
+				local font_size1 = gump:NewButton(supportFrame, nil, "$parentFont1", "font1button", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, font_change, nil, nil, nil, "Aa")
 				font_size1:SetPoint("left", expand, "right", 2, 0)
 				font_size1:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
 				
-				local font_size2 = gump:NewButton (supportFrame, nil, "$parentFont2", "font2button", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, font_change, true, nil, nil, "aA")
+				local font_size2 = gump:NewButton(supportFrame, nil, "$parentFont2", "font2button", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, font_change, true, nil, nil, "aA")
 				font_size2:SetPoint("left", font_size1, "right", 2, 0)
 				font_size2:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
 				
-				local apply1 = gump:NewButton (supportFrame, nil, "$parentApply", "applybutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, apply_code, nil, nil, nil, "Apply")
+				local apply1 = gump:NewButton(supportFrame, nil, "$parentApply", "applybutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, apply_code, nil, nil, nil, "Apply")
 				apply1:SetPoint("left", font_size2, "right", 2, 0)
 				apply1:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
 				
-				local open_API = gump:NewButton (supportFrame, nil, "$parentOpenAPI", "openAPIbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, function()end, nil, nil, nil, "API") --_detalhes.OpenAPI - opening the api was cancelling the editing process
+				local open_API = gump:NewButton(supportFrame, nil, "$parentOpenAPI", "openAPIbutton", CONST_EDITBOX_BUTTON_WIDTH, CONST_EDITBOX_BUTTON_HEIGHT, function()end, nil, nil, nil, "API") --_detalhes.OpenAPI - opening the api was cancelling the editing process
 				open_API:SetPoint("left", apply1, "right", 2, 0)
 				open_API:SetTemplate (CONST_CODETEXTENTRYBUTTON_TEMPLATE)
 				

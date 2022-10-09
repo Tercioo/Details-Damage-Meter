@@ -1779,7 +1779,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         else
             new_aura.trigger.spellId = tostring (spellid)
             new_aura.trigger.name = spellname
-            tinsert (new_aura.trigger.spellIds, spellid)
+            tinsert(new_aura.trigger.spellIds, spellid)
         end
         
         --if is a regular aura without using spells ids
@@ -1902,7 +1902,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             end
         end
         
-        tinsert (WeakAurasSaved.displays [group].controlledChildren, new_aura.id)
+        tinsert(WeakAurasSaved.displays [group].controlledChildren, new_aura.id)
     else
         new_aura.parent = nil
     end
@@ -1983,7 +1983,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local f = DetailsAuraPanel or CreateFrame("frame", "DetailsAuraPanel", UIParent,"BackdropTemplate")
         f:SetSize(800, 600)
         f:SetPoint("center", UIParent, "center", 0, 150)
-        f:SetFrameStrata ("DIALOG")
+        f:SetFrameStrata("DIALOG")
         f:EnableMouse (true)
         f:SetMovable (true)
         f:SetToplevel (true)
@@ -2229,7 +2229,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             local checkBox = fw:CreateSwitch (f, OnChangeTriggerState, i == 1)
             checkBox:SetTemplate (fw:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
             checkBox:SetAsCheckBox()
-            checkBox:SetFixedParameter (triggerList [i].value)
+            checkBox:SetFixedParameter(triggerList [i].value)
             
             checkBox:SetSize(20, 20)
             checkBox:SetPoint("topleft", aura_on_label, "bottomleft", 0, 12 + (-i*20))
@@ -2279,7 +2279,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local icon_button_func = function(texture)
             f.IconButton.icon.texture = texture
         end
-        local icon_pick_button = fw:NewButton (f, nil, "$parentIconButton", "IconButton", 20, 20, function() fw:IconPick (icon_button_func, true) end)
+        local icon_pick_button = fw:NewButton(f, nil, "$parentIconButton", "IconButton", 20, 20, function() fw:IconPick (icon_button_func, true) end)
         local icon_button_icon = fw:NewImage (icon_pick_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
         icon_pick_button:InstallCustomTexture()
         
@@ -2358,7 +2358,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             local sounds = {}
             local already_added = {}
             
-            for name, soundFile in pairs (game_sounds) do
+            for name, soundFile in pairs(game_sounds) do
                 name = name:gsub ("(%a)([%w_']*)", titlecase)
                 if (not already_added [name]) then
                     sounds [#sounds+1] = {name = name, file = soundFile, gamesound = true}
@@ -2366,7 +2366,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
                 end
             end
             
-            for name, soundFile in pairs (LibStub:GetLibrary("LibSharedMedia-3.0"):HashTable ("sound")) do
+            for name, soundFile in pairs(LibStub:GetLibrary("LibSharedMedia-3.0"):HashTable ("sound")) do
                 name = name:gsub ("(%a)([%w_']*)", titlecase)
                 if (not already_added [name]) then
                     sounds [#sounds+1] = {name = name, file = soundFile}
@@ -2375,7 +2375,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             end
             
             if (WeakAuras and WeakAuras.sound_types) then
-                for soundFile, name in pairs (WeakAuras.sound_types) do
+                for soundFile, name in pairs(WeakAuras.sound_types) do
                     name = name:gsub ("(%a)([%w_']*)", titlecase)
                     if (not already_added [name]) then
                         sounds [#sounds+1] = {name = name, file = soundFile}
@@ -2387,11 +2387,11 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             
             for _, sound in ipairs(sounds) do
                 if (sound.name:find ("D_")) then --details sound
-                    tinsert (t, {color = "orange", label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
+                    tinsert(t, {color = "orange", label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 elseif (sound.gamesound) then --game sound
-                    tinsert (t, {color = "yellow", label = sound.name, value = {sound_path = sound.file}, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
+                    tinsert(t, {color = "yellow", label = sound.name, value = {sound_path = sound.file}, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 else
-                    tinsert (t, {label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
+                    tinsert(t, {label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 end
             end
             return t
@@ -2458,7 +2458,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local addon_options = function()
             local t = {}
             if (WeakAuras) then
-                tinsert (t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]]})
+                tinsert(t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]]})
             end
             return t
         end
@@ -2478,14 +2478,14 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local weakauras_folder_options = function()
             local t = {}
             if (WeakAuras and WeakAurasSaved) then
-                for display_name, aura_table in pairs (WeakAurasSaved.displays) do
+                for display_name, aura_table in pairs(WeakAurasSaved.displays) do
                     if (aura_table.regionType == "dynamicgroup" or aura_table.regionType == "group") then
-                        tinsert (t, {label = display_name, value = display_name, icon = folder_icon, texcoord = folder_texcoord, iconsize = folder_iconsize})
+                        tinsert(t, {label = display_name, value = display_name, icon = folder_icon, texcoord = folder_texcoord, iconsize = folder_iconsize})
                     end
                 end
             end
             table.sort (t, sort_func)
-            tinsert (t, 1, {label = "No Group", value = false, icon = folder_icon, texcoord = folder_texcoord, iconcolor = {0.8, 0.2, 0.2}, iconsize = folder_iconsize})
+            tinsert(t, 1, {label = "No Group", value = false, icon = folder_icon, texcoord = folder_texcoord, iconcolor = {0.8, 0.2, 0.2}, iconsize = folder_iconsize})
             return t
         end
         
@@ -2533,7 +2533,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             
             --select the new group in the dropdown
             weakauras_folder:Refresh()
-            weakauras_folder:Select (groupName)
+            weakauras_folder:Select(groupName)
         end			
         
         local weakauras_newgroup_label = fw:CreateLabel(f, "New WeakAuras Group: ", nil, nil, "GameFontNormal")
@@ -2696,7 +2696,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
                 f.StackSlider:Disable()
                 f.SpellName:Disable()
                 f.UseSpellId:Disable()
-                DetailsAuraPanel.AuraTypeDropdown:Select (2, true)
+                DetailsAuraPanel.AuraTypeDropdown:Select(2, true)
                 DetailsAuraPanel.OnSelectAuraType (nil, nil, 2, true)
                 f.IsCooldown:Disable()
                 
@@ -2731,15 +2731,15 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
     
     DetailsAuraPanel.WeakaurasFolderDropdown:Refresh()
     if (encounterid) then
-        DetailsAuraPanel.WeakaurasFolderDropdown:Select ("Details! Aura Group")
+        DetailsAuraPanel.WeakaurasFolderDropdown:Select("Details! Aura Group")
         DetailsAuraPanel.IconSizeSlider:SetValue(128)
     else
-        DetailsAuraPanel.WeakaurasFolderDropdown:Select (1, true)
+        DetailsAuraPanel.WeakaurasFolderDropdown:Select(1, true)
         DetailsAuraPanel.IconSizeSlider:SetValue(64)
     end
     
     if (DetailsAuraPanel.other_values.dbm_timer_id or DetailsAuraPanel.other_values.bw_timer_id) then
-        DetailsAuraPanel.WeakaurasFolderDropdown:Select ("Details! Boss Mods Group")
+        DetailsAuraPanel.WeakaurasFolderDropdown:Select("Details! Boss Mods Group")
     end
     
     if (DetailsAuraPanel.other_values.text_size) then
@@ -2758,23 +2758,23 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
     DetailsAuraPanel.UseGlow:SetValue(false)
     
     DetailsAuraPanel.StackSlider:SetValue(0)
-    DetailsAuraPanel.SoundEffectDropdown:Select (1, true)
+    DetailsAuraPanel.SoundEffectDropdown:Select(1, true)
     DetailsAuraPanel.AuraText:SetText(DetailsAuraPanel.other_values.text or "")
     DetailsAuraPanel.SaySomething:SetText("")
     
     if (triggertype and type (triggertype) == "number") then
-        DetailsAuraPanel.AuraOnDropdown:Select (triggertype, true)
+        DetailsAuraPanel.AuraOnDropdown:Select(triggertype, true)
         DetailsAuraPanel.SetTriggerState (DetailsAuraPanel.TriggerList [triggertype].value) --passed by index not by the trigger ID
     else
-        DetailsAuraPanel.AuraOnDropdown:Select (1, true)
+        DetailsAuraPanel.AuraOnDropdown:Select(1, true)
         DetailsAuraPanel.SetTriggerState (1)
     end
     
     if (auratype and type (auratype) == "number") then
-        DetailsAuraPanel.AuraTypeDropdown:Select (auratype, true)
+        DetailsAuraPanel.AuraTypeDropdown:Select(auratype, true)
         DetailsAuraPanel.OnSelectAuraType (nil, nil, auratype)
     else
-        DetailsAuraPanel.AuraTypeDropdown:Select (1, true)
+        DetailsAuraPanel.AuraTypeDropdown:Select(1, true)
         DetailsAuraPanel.OnSelectAuraType (nil, nil, "icon")
     end
     

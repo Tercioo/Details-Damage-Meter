@@ -6,7 +6,7 @@ function _detalhes:WipeConfig()
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	
 	local b = CreateFrame("button", "DetailsResetConfigButton", UIParent)
-	tinsert (UISpecialFrames, "DetailsResetConfigButton")
+	tinsert(UISpecialFrames, "DetailsResetConfigButton")
 	
 	DetailsFramework:ApplyStandardBackdrop(b)
 
@@ -100,14 +100,14 @@ function _detalhes:SaveConfig()
 		_detalhes.last_day = date ("%d")
 	
 	--salva o container do personagem
-		for key, value in pairs (_detalhes.default_player_data) do
+		for key, value in pairs(_detalhes.default_player_data) do
 			if (not is_exception [key]) then
 				_detalhes_database [key] = _detalhes [key]
 			end
 		end
 	
 	--salva o container das globais
-		for key, value in pairs (_detalhes.default_global_data) do
+		for key, value in pairs(_detalhes.default_global_data) do
 			if (key ~= "__profiles") then
 				_detalhes_global [key] = _detalhes [key]
 			end

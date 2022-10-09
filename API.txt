@@ -658,7 +658,7 @@ there is two ways for do this:
 	for i, actor in damageContainer:ListActors() do
 		local amount = actor.targets [targetName]
 		if (amount and amount >= 1) then
-			tinsert (actorsAmount, {name = actor:name(), total = amount})
+			tinsert(actorsAmount, {name = actor:name(), total = amount})
 		end
 	end
 
@@ -705,7 +705,7 @@ end
 local source = damageContainer:GetActor (sourceNpc)
 local felfireVolleySpell = source:GetSpell (targetSpell)
 if (felfireVolleySpell) then
-	for playerName, amount in pairs (felfireVolleySpell.targets) do
+	for playerName, amount in pairs(felfireVolleySpell.targets) do
 		--players who took damage from this ability
 		--now this result may be placed on a external table or .custom may also be used
 		local targetActor = damageContainer:GetActor (playerName)
@@ -755,7 +755,7 @@ Details.cache_npc_ids [90409] = npcName --for details!
 		for i, actor in damageContainer:ListActors() do
 			actor.custom = 0
 		end
-		for playerName, _ in pairs (actor.damage_from) do
+		for playerName, _ in pairs(actor.damage_from) do
 			local player = damageContainer:GetActor (playerName)
 			if (player:IsPlayer()) then --we only want players. pets always has their damage merged on its owner damage.
 				player.custom = actor.targets [npcName]

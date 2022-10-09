@@ -89,7 +89,7 @@ local function CreatePluginFrames (data)
 
 		elseif (event == "SHOW") then
 
-			instance = ThreatMeter:GetInstance (ThreatMeter.instance_id)
+			instance = ThreatMeter:GetInstance(ThreatMeter.instance_id)
 
 			ThreatMeter.RowWidth = instance.baseframe:GetWidth()-6
 
@@ -131,11 +131,11 @@ local function CreatePluginFrames (data)
 			end
 
 		elseif (event == "DETAILS_INSTANCE_STARTSTRETCH") then
-			ThreatMeterFrame:SetFrameStrata ("TOOLTIP")
+			ThreatMeterFrame:SetFrameStrata("TOOLTIP")
 			ThreatMeterFrame:SetFrameLevel (instance.baseframe:GetFrameLevel()+1)
 
 		elseif (event == "DETAILS_INSTANCE_ENDSTRETCH") then
-			ThreatMeterFrame:SetFrameStrata ("MEDIUM")
+			ThreatMeterFrame:SetFrameStrata("MEDIUM")
 
 		elseif (event == "PLUGIN_DISABLED") then
 			ThreatMeterFrame:UnregisterEvent ("PLAYER_TARGET_CHANGED")

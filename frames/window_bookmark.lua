@@ -38,7 +38,7 @@ function Details:OpenBookmarkConfig()
             panel.selecting_slot = id
             GameCooltip:Reset()
             GameCooltip:SetType (3)
-            GameCooltip:SetOwner (self)
+            GameCooltip:SetOwner(self)
             Details:MontaAtributosOption (Details:GetInstance(1), select_attribute)
             GameCooltip:SetColor (1, cooltip_color)
             GameCooltip:SetColor (2, cooltip_color)
@@ -93,7 +93,7 @@ function Details:OpenBookmarkConfig()
             local label = DF:CreateLabel(set, "")
             label:SetPoint("left", icon, "right", 2, 0)
 
-            tinsert (panel.blocks, {icon = icon, label = label, bg = set.bg, button = set})
+            tinsert(panel.blocks, {icon = icon, label = label, bg = set.bg, button = set})
         end
         
         local normal_coords = {0, 1, 0, 1}

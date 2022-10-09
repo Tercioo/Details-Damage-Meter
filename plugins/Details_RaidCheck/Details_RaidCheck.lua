@@ -683,7 +683,7 @@ local CreatePluginFrames = function()
 				end
 			end
 
-			tinsert (PlayerData, {unitName, unitClassID,
+			tinsert(PlayerData, {unitName, unitClassID,
 				Name = unitName,
 				UnitNameRealm = unitNameWithRealm,
 				Class = unitClass,

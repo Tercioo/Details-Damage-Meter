@@ -52,7 +52,7 @@
 		
 		local id = plugin.instance_id
 		if (id) then
-			return _detalhes:GetInstance (id)
+			return _detalhes:GetInstance(id)
 		end
 	end
 	
@@ -91,7 +91,7 @@
 	end
 	
 	function _detalhes:CheckDefaultTable (current, default)
-		for key, value in pairs (default) do 
+		for key, value in pairs(default) do 
 			if (type(value) == "table") then
 				if (type(current [key]) ~= "table") then
 					current [key] = Details.CopyTable (value)
@@ -240,7 +240,7 @@
 	local OnEnableFunction = function(self)
 		self.__parent.Enabled = true
 		--self = frame __parent = plugin object
-		local instance = _detalhes:GetInstance (self.__parent.instance_id)
+		local instance = _detalhes:GetInstance(self.__parent.instance_id)
 		if (instance) then
 			self:SetParent(instance.baseframe)
 		end
@@ -299,7 +299,7 @@
 			end
 		end)
 		
-		Frame:SetFrameStrata ("HIGH")
+		Frame:SetFrameStrata("HIGH")
 		Frame:SetFrameLevel (6)
 
 		Frame:Hide()
@@ -335,7 +335,7 @@
 	
 		if (template == 2) then
 			local options_frame = CreateFrame("frame", name, UIParent, "ButtonFrameTemplate,BackdropTemplate")
-			tinsert (UISpecialFrames, name)
+			tinsert(UISpecialFrames, name)
 			options_frame:SetSize(500, 200)
 			
 			options_frame:SetScript("OnMouseDown", function(self, button)
@@ -359,7 +359,7 @@
 			
 			options_frame:SetMovable (true)
 			options_frame:EnableMouse (true)
-			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetFrameStrata("DIALOG")
 			options_frame:SetToplevel (true)
 			
 			options_frame:Hide()
@@ -373,7 +373,7 @@
 		elseif (template == 1) then
 		
 			local options_frame = CreateFrame("frame", name, UIParent,"BackdropTemplate")
-			tinsert (UISpecialFrames, name)
+			tinsert(UISpecialFrames, name)
 			options_frame:SetSize(500, 200)
 
 			options_frame:SetScript("OnMouseDown", function(self, button)
@@ -397,7 +397,7 @@
 			
 			options_frame:SetMovable (true)
 			options_frame:EnableMouse (true)
-			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetFrameStrata("DIALOG")
 			options_frame:SetToplevel (true)
 			
 			options_frame:Hide()
@@ -632,7 +632,7 @@
 			newButton:SetIcon (pluginObject.__icon, nil, nil, nil, pluginObject.__iconcoords, pluginObject.__iconcolor, 4)
 			
 			--add it to menu table
-			tinsert (f.MenuButtons, newButton)
+			tinsert(f.MenuButtons, newButton)
 			
 			return newButton
 		end

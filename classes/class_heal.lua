@@ -455,18 +455,18 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], iter_last-1, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
 				
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				whichRowLine = whichRowLine+1
 			else
 			
 				for i = instancia.barraS[1], iter_last, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -476,17 +476,17 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
 				
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				whichRowLine = whichRowLine+1
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -523,36 +523,36 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			Details.FadeHandler.Fader(row1, "out")
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				whichRowLine = whichRowLine+1
 				for i = iter_last-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
 			else
 				for i = iter_last, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
 			end
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				conteudo[myPos]:RefreshLine (instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				whichRowLine = whichRowLine+1
 				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
 			else
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
-						conteudo[i]:RefreshLine (instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						whichRowLine = whichRowLine+1
 					end
 				end
@@ -594,7 +594,7 @@ end
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
---function atributo_heal:RefreshLine (instancia, whichRowLine, lugar, total, sub_atributo, forcar)
+--function atributo_heal:RefreshLine(instancia, whichRowLine, lugar, total, sub_atributo, forcar)
 function atributo_heal:RefreshLine(instancia, barras_container, whichRowLine, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 
 	local thisLine = instancia.barras[whichRowLine] --pega a refer�ncia da barra na janela
@@ -1049,7 +1049,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 	for spellID, spell in _pairs (self.spells._ActorTable) do 
 		if (spell.totaldenied > 0 and spell.heal_denied) then
 			--my spells which denied heal
-			tinsert (spellList, {spell, spell.totaldenied}) 
+			tinsert(spellList, {spell, spell.totaldenied}) 
 			
 			--players affected
 			for playerName, amount in _pairs (spell.targets) do
@@ -1108,7 +1108,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 	--Target Players
 		local playerSorted = {}
 		for playerName, amount in _pairs (targetList) do
-			tinsert (playerSorted, {playerName, amount})
+			tinsert(playerSorted, {playerName, amount})
 		end
 		table.sort (playerSorted, _detalhes.Sort2)
 		_detalhes:AddTooltipSpellHeaderText ("Targets", headerColor, #playerSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
@@ -1154,7 +1154,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 	-- Spells Affected
 		local spellsSorted = {}
 		for spellID, amount in _pairs (spellsDenied) do
-			tinsert (spellsSorted, {spellID, amount})
+			tinsert(spellsSorted, {spellID, amount})
 		end
 		table.sort (spellsSorted, _detalhes.Sort2)
 		_detalhes:AddTooltipSpellHeaderText ("Spells Affected", headerColor, #spellsSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
@@ -1191,7 +1191,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 	
 		local healersSorted = {}
 		for healerName, amount in _pairs (healersDenied) do
-			tinsert (healersSorted, {healerName, amount})
+			tinsert(healersSorted, {healerName, amount})
 		end
 		table.sort (healersSorted, _detalhes.Sort2)
 			
@@ -1624,11 +1624,11 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 					local playerPhases = {}
 					local totalDamage = 0
 					
-					for phase, playersTable in pairs (phasesInfo.heal) do --each phase
+					for phase, playersTable in pairs(phasesInfo.heal) do --each phase
 					
 						local allPlayers = {} --all players for this phase
-						for playerName, amount in pairs (playersTable) do
-							tinsert (allPlayers, {playerName, amount})
+						for playerName, amount in pairs(playersTable) do
+							tinsert(allPlayers, {playerName, amount})
 							totalDamage = totalDamage + amount
 						end
 						table.sort (allPlayers, function(a, b) return a[2] > b[2] end)
@@ -1641,7 +1641,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 							end
 						end
 						
-						tinsert (playerPhases, {phase, playersTable [self.nome] or 0, myRank, (playersTable [self.nome] or 0) / totalDamage * 100})
+						tinsert(playerPhases, {phase, playersTable [self.nome] or 0, myRank, (playersTable [self.nome] or 0) / totalDamage * 100})
 					end
 					
 					table.sort (playerPhases, function(a, b) return a[1] < b[1] end)

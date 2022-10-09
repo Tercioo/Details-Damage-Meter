@@ -46,14 +46,14 @@ function Details:OpenForge()
         --main frame
         local f = DetailsForgePanel or Details.gump:CreateSimplePanel (UIParent, 960, 600, "Details! " .. L["STRING_SPELLLIST"], "DetailsForgePanel")
         f:SetPoint("center", UIParent, "center")
-        f:SetFrameStrata ("HIGH")
+        f:SetFrameStrata("HIGH")
         f:SetToplevel (true)
         f:SetMovable (true)
         f.Title:SetTextColor (1, .8, .2)
         
         local have_plugins_enabled
         
-        for id, instanceTable in pairs (Details.EncounterInformation) do
+        for id, instanceTable in pairs(Details.EncounterInformation) do
             if (Details.InstancesToStoreData [id]) then
                 have_plugins_enabled = true
                 break
@@ -70,10 +70,10 @@ function Details:OpenForge()
             nopluginLabel:SetText(L["STRING_FORGE_ENABLEPLUGINS"])
         end
         
-        if (not Details:GetTutorialCVar ("FORGE_TUTORIAL") and false) then
+        if (not Details:GetTutorialCVar("FORGE_TUTORIAL") and false) then
             local tutorialFrame = CreateFrame("frame", "$parentTutorialFrame", f,"BackdropTemplate")
             tutorialFrame:SetPoint("center", f, "center")
-            tutorialFrame:SetFrameStrata ("DIALOG")
+            tutorialFrame:SetFrameStrata("DIALOG")
             tutorialFrame:SetSize(400, 300)
             tutorialFrame:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
             insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize=1})
@@ -151,7 +151,7 @@ function Details:OpenForge()
         
         function f:InstallModule (module)
             if (module and type (module) == "table") then
-                tinsert (all_modules, module)
+                tinsert(all_modules, module)
             end
         end
         
@@ -439,7 +439,7 @@ function Details:OpenForge()
                 wipe (spell_already_added)
                 
                 local SpellPoll = Details.spell_pool
-                for spellID, className in pairs (SpellPoll) do
+                for spellID, className in pairs(SpellPoll) do
                     
                     if (type(spellID) == "number" and spellID > 12) then
 
@@ -477,7 +477,7 @@ function Details:OpenForge()
                         end
                         
                         if (can_add) then
-                            tinsert (t, {spellID, Details.classid_to_classstring [className] or className})
+                            tinsert(t, {spellID, Details.classid_to_classstring [className] or className})
                         end
                         
                     end
@@ -488,7 +488,7 @@ function Details:OpenForge()
             header = {
                 {name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
                 {name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
-                {name = L["STRING_FORGE_HEADER_NAME"], width = 150, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
+                {name = L["STRING_FORGE_HEADER_NAME"], width = 150, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner(self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
                 {name = L["STRING_FORGE_HEADER_SPELLID"], width = 60, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_SCHOOL"], width = 60, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_CASTER"], width = 100, type = "entry", func = no_func},
@@ -503,7 +503,7 @@ function Details:OpenForge()
                 if (data) then
                     local events = ""
                     if (EncounterSpellEvents and EncounterSpellEvents [data[1]]) then
-                        for token, _ in pairs (EncounterSpellEvents [data[1]].token) do
+                        for token, _ in pairs(EncounterSpellEvents [data[1]].token) do
                             token = token:gsub ("SPELL_", "")
                             events = events .. token .. ",  "
                         end
@@ -582,7 +582,7 @@ function Details:OpenForge()
                 wipe (spell_already_added)
                 
                 local SpellPoll = Details.encounter_spell_pool
-                for spellID, spellTable in pairs (SpellPoll) do
+                for spellID, spellTable in pairs(SpellPoll) do
                     if (spellID > 12) then
 
                         local encounterID = spellTable [1]
@@ -622,7 +622,7 @@ function Details:OpenForge()
                         end
                         
                         if (can_add) then
-                            tinsert (t, {spellID, encounterID, enemyName, bossDetails and bossDetails.boss or "--x--x--"})
+                            tinsert(t, {spellID, encounterID, enemyName, bossDetails and bossDetails.boss or "--x--x--"})
                         end
                     end
                 end
@@ -633,7 +633,7 @@ function Details:OpenForge()
             header = {
                 {name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
                 {name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
-                {name = L["STRING_FORGE_HEADER_NAME"], width = 151, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
+                {name = L["STRING_FORGE_HEADER_NAME"], width = 151, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner(self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
                 {name = L["STRING_FORGE_HEADER_SPELLID"], width = 55, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_SCHOOL"], width = 60, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_CASTER"], width = 80, type = "entry", func = no_func},
@@ -650,7 +650,7 @@ function Details:OpenForge()
                 
                     local events = ""
                     if (EncounterSpellEvents and EncounterSpellEvents [data[1]]) then
-                        for token, _ in pairs (EncounterSpellEvents [data[1]].token) do
+                        for token, _ in pairs(EncounterSpellEvents [data[1]].token) do
                             token = token:gsub ("SPELL_", "")
                             events = events .. token .. ",  "
                         end
@@ -825,7 +825,7 @@ function Details:OpenForge()
                 
                 local source = Details.boss_mods_timers.encounter_timers_dbm or {}
                 
-                for key, timer in pairs (source) do
+                for key, timer in pairs(source) do
                     local can_add = true
                     if (lower_FilterBarName ~= "") then
                         if (not lower (timer [3]):find (lower_FilterBarName)) then
@@ -852,7 +852,7 @@ function Details:OpenForge()
             header = {
                 {name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
                 {name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
-                {name = L["STRING_FORGE_HEADER_BARTEXT"], width = 150, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
+                {name = L["STRING_FORGE_HEADER_BARTEXT"], width = 150, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner(self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
                 {name = L["STRING_FORGE_HEADER_ID"], width = 130, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_SPELLID"], width = 50, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_TIMER"], width = 40, type = "entry", func = no_func},
@@ -958,7 +958,7 @@ function Details:OpenForge()
                 
                 
                 local source = Details.boss_mods_timers.encounter_timers_bw or {}
-                for key, timer in pairs (source) do
+                for key, timer in pairs(source) do
                     local can_add = true
                     if (lower_FilterBarName ~= "") then
                         if (not lower (timer [3]):find (lower_FilterBarName)) then
@@ -985,7 +985,7 @@ function Details:OpenForge()
             header = {
                 {name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
                 {name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
-                {name = L["STRING_FORGE_HEADER_BARTEXT"], width = 200, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
+                {name = L["STRING_FORGE_HEADER_BARTEXT"], width = 200, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner(self.widget, "ANCHOR_TOPLEFT"); Details:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
                 {name = L["STRING_FORGE_HEADER_SPELLID"], width = 50, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_TIMER"], width = 40, type = "entry", func = no_func},
                 {name = L["STRING_FORGE_HEADER_ENCOUNTERID"], width = 80, type = "entry", func = no_func},
@@ -1127,7 +1127,7 @@ function Details:OpenForge()
             end
 
             lastButton = b
-            tinsert (buttons, b)
+            tinsert(buttons, b)
         end
 
         select_module (nil, nil, 1)

@@ -44,7 +44,7 @@ function Details:OpenClassColorsConfig()
         end
 
         local on_enter = function(self, capsule)
-            --Details:CooltipPreset (1)
+            --Details:CooltipPreset(1)
             --GameCooltip:AddLine ("right click to reset")
             --GameCooltip:Show (self)
         end
@@ -88,7 +88,7 @@ function Details:OpenClassColorsConfig()
             button.my_class = className
             button:SetHook("OnEnter", on_enter)
             button:SetHook("OnLeave", on_leave)
-            button:SetClickFunction (reset_color, nil, nil, "RightClick")
+            button:SetClickFunction(reset_color, nil, nil, "RightClick")
             panel.buttons [className] = button
         end
 
@@ -130,7 +130,7 @@ function Details:OpenClassColorsConfig()
                 local colortable = colorTable[1]
                 local colorname = colorTable[2]
                 local value = colorname .. "@" .. barType
-                tinsert (result, {label = colorname, value = value, color = colortable, onclick = colorSelected})
+                tinsert(result, {label = colorname, value = value, color = colortable, onclick = colorSelected})
             end
 
             return result
@@ -197,7 +197,7 @@ function Details:OpenClassColorsConfig()
         deathLogColorsLabel:SetPoint("topleft", panel, "topleft", 5, -265)
     end
 
-    for class, button in pairs (_G.DetailsClassColorManager.buttons) do
+    for class, button in pairs(_G.DetailsClassColorManager.buttons) do
         button.my_texture:SetVertexColor (unpack (Details.class_colors [class]))
     end
 

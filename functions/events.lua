@@ -140,9 +140,9 @@ local common_events = {
 		if (common_events [event]) then
 			if (not AlreadyRegistred (_detalhes.RegistredEvents [event], object)) then
 				if (func) then
-					tinsert (_detalhes.RegistredEvents [event], {object, func, __eventtable = true})
+					tinsert(_detalhes.RegistredEvents [event], {object, func, __eventtable = true})
 				else
-					tinsert (_detalhes.RegistredEvents [event], object)
+					tinsert(_detalhes.RegistredEvents [event], object)
 				end
 				return true
 			else
@@ -152,9 +152,9 @@ local common_events = {
 			if (event == "BUFF_UPDATE") then
 				if (not AlreadyRegistred (_detalhes.RegistredEvents ["BUFF_UPDATE"], object)) then
 					if (func) then
-						tinsert (_detalhes.RegistredEvents ["BUFF_UPDATE"], {object, func, __eventtable = true})
+						tinsert(_detalhes.RegistredEvents ["BUFF_UPDATE"], {object, func, __eventtable = true})
 					else
-						tinsert (_detalhes.RegistredEvents ["BUFF_UPDATE"], object)
+						tinsert(_detalhes.RegistredEvents ["BUFF_UPDATE"], object)
 					end
 					_detalhes.Buffs:CatchBuffs()
 					_detalhes.RecordPlayerSelfBuffs = true
@@ -167,9 +167,9 @@ local common_events = {
 			elseif (event == "BUFF_UPDATE_DEBUFFPOWER") then
 				if (not AlreadyRegistred (_detalhes.RegistredEvents ["BUFF_UPDATE_DEBUFFPOWER"], object)) then
 					if (func) then
-						tinsert (_detalhes.RegistredEvents ["BUFF_UPDATE_DEBUFFPOWER"], {object, func, __eventtable = true})
+						tinsert(_detalhes.RegistredEvents ["BUFF_UPDATE_DEBUFFPOWER"], {object, func, __eventtable = true})
 					else
-						tinsert (_detalhes.RegistredEvents ["BUFF_UPDATE_DEBUFFPOWER"], object)
+						tinsert(_detalhes.RegistredEvents ["BUFF_UPDATE_DEBUFFPOWER"], object)
 					end
 					_detalhes.RecordPlayerAbilityWithBuffs = true
 					_detalhes:UpdateDamageAbilityGears()

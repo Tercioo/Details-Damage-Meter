@@ -9,8 +9,8 @@ do
 	
 		local panel = CreateFrame("frame", "DetailsCopy", UIParent, "ButtonFrameTemplate")
 		panel:SetSize(512, 148)
-		tinsert (UISpecialFrames, "DetailsCopy")
-		panel:SetFrameStrata ("TOOLTIP")
+		tinsert(UISpecialFrames, "DetailsCopy")
+		panel:SetFrameStrata("TOOLTIP")
 		panel:SetPoint("center", UIParent, "center")
 		panel.locked = false
 		panel:SetToplevel (true)

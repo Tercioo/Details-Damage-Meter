@@ -107,7 +107,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 					local eDps = damageDone / currentCombat:GetCombatTime()
 					
 					--add the damage to the chart table
-					tinsert (playerData.ChartData, eDps)
+					tinsert(playerData.ChartData, eDps)
 					--mythicDungeonCharts:Debug ("Added dps for " , CLName, ":", eDps)
 					
 					if (eDps > playerData.ChartData.max_value) then
@@ -119,7 +119,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 					playerData.LastDamage = damageDone				
 					
 					--add the damage to the chart table
-					tinsert (playerData.ChartData, damageDiff)
+					tinsert(playerData.ChartData, damageDiff)
 					--mythicDungeonCharts:Debug ("Added damage for " , CLName, ":", damageDiff)
 					
 					if (damageDiff > playerData.ChartData.max_value) then
@@ -128,7 +128,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 				end
 			else
 				--player still didn't made anything on this combat, so just add zero
-				tinsert (playerData.ChartData, 0)
+				tinsert(playerData.ChartData, 0)
 			end
 		end
 	end
@@ -172,7 +172,7 @@ function mythicDungeonCharts:OnBossDefeated()
 		if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running and bossInfo) then
 
 			local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
-			tinsert (mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
+			tinsert(mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
 			mythicDungeonCharts:Debug ("Boss defeated, time saved", currentCombat:GetCombatTime())
 		else
 			if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.EndTime ~= -1) then
@@ -182,7 +182,7 @@ function mythicDungeonCharts:OnBossDefeated()
 				
 					if (bossInfo) then
 						local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
-						tinsert (mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
+						tinsert(mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
 						mythicDungeonCharts:Debug ("Boss defeated, time saved, but used time aproximation:", mythicDungeonCharts.ChartTable.EndTime + 2, now, currentCombat:GetCombatTime())
 					end
 				end
@@ -290,7 +290,7 @@ function mythicDungeonCharts.ShowReadyPanel()
 		
 		f:SetSize(255, 80)
 		f:SetPoint("center", UIParent, "center", 300, 0)
-		f:SetFrameStrata ("LOW")
+		f:SetFrameStrata("LOW")
 		f:EnableMouse (true)
 		f:SetMovable (true)
 		f:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -341,7 +341,7 @@ function mythicDungeonCharts.ShowChart()
 		
 		f:SetSize(1200, 620)
 		f:SetPoint("center", UIParent, "center", 0, 0)
-		f:SetFrameStrata ("LOW")
+		f:SetFrameStrata("LOW")
 		f:EnableMouse (true)
 		f:SetMovable (true)
 		f:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -354,7 +354,7 @@ function mythicDungeonCharts.ShowChart()
 		
 		fMinimized:SetSize(160, 24)
 		fMinimized:SetPoint("center", UIParent, "center", 0, 0)
-		fMinimized:SetFrameStrata ("LOW")
+		fMinimized:SetFrameStrata("LOW")
 		fMinimized:EnableMouse (true)
 		fMinimized:SetMovable (true)
 		fMinimized:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -397,7 +397,7 @@ function mythicDungeonCharts.ShowChart()
 		_detalhes:FormatBackground (f)
 		_detalhes:FormatBackground (fMinimized)
 		
-		tinsert (UISpecialFrames, "DetailsMythicDungeonChartFrame")
+		tinsert(UISpecialFrames, "DetailsMythicDungeonChartFrame")
 		
 		--register to libwindow
 		local LibWindow = LibStub ("LibWindow-1.1")
@@ -631,7 +631,7 @@ function mythicDungeonCharts.ShowChart()
 	
 	mythicDungeonCharts.PlayerGraphIndex = {}
 
-	for playerName, playerTable in pairs (charts) do
+	for playerName, playerTable in pairs(charts) do
 		
 		local chartData = playerTable.ChartData
 		local lineName = playerTable.Name
@@ -666,7 +666,7 @@ function mythicDungeonCharts.ShowChart()
 		chartData.max_value = maxValue
 		
 		mythicDungeonCharts.Frame.ChartFrame:AddLine (chartData, lineColor, lineName, combatTime, texture, "SMA")
-		tinsert (mythicDungeonCharts.PlayerGraphIndex, playerName)
+		tinsert(mythicDungeonCharts.PlayerGraphIndex, playerName)
 	end
 	
 	mythicDungeonCharts.Frame.ChartFrame:RefreshBossTimeline (mythicDungeonCharts.ChartTable.BossDefeated, mythicDungeonCharts.ChartTable.ElapsedTime)
@@ -676,8 +676,8 @@ function mythicDungeonCharts.ShowChart()
 	for i, bossTable in ipairs(mythicDungeonCharts.ChartTable.BossDefeated) do
 		local combatTime = bossTable [3] or math.random (10, 30)
 
-		tinsert (bossTimeTable, bossTable[1])
-		tinsert (bossTimeTable, bossTable[1] - combatTime)
+		tinsert(bossTimeTable, bossTable[1])
+		tinsert(bossTimeTable, bossTable[1] - combatTime)
 	end
 	
 	mythicDungeonCharts.Frame.ChartFrame:AddOverlay (bossTimeTable, {1, 1, 1, 0.05}, "Show Boss", "")
@@ -727,7 +727,7 @@ local PixelFrameOnEnter = function(self)
 	
 	GameCooltip2:AddLine (Details:GetCurrentToKFunction()(nil, floor (dps)))
 	
-	GameCooltip2:SetOwner (self)
+	GameCooltip2:SetOwner(self)
 	GameCooltip2:Show()
 	showID = showID + 1
 end
@@ -843,7 +843,7 @@ function mythicDungeonCharts:CustomDrawLine (C, sx, sy, ex, ey, w, color, layer,
 		pixelFrame:SetPoint("BOTTOMLEFT", C, relPoint, cx - Bwid, cy - Bhgt)
 		pixelFrame:SetPoint("TOPRIGHT", C, relPoint, cx + Bwid, cy + Bhgt)
 		
-		tinsert (mythicDungeonCharts.Frame.ChartFrame.FrameInUse, pixelFrame)
+		tinsert(mythicDungeonCharts.Frame.ChartFrame.FrameInUse, pixelFrame)
 		pixelFrame.PlayerName = playerName
 		pixelFrame.Height = ey
 		

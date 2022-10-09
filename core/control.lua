@@ -65,7 +65,7 @@
 			for _, actor in ipairs(Details.tabela_vigente[class_type_dano]._ActorTable) do 
 			
 				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and _bit_band (actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
-					for name, _ in pairs (actor.targets) do
+					for name, _ in pairs(actor.targets) do
 						if (name == Details.playername) then
 							return actor.nome
 						else
@@ -82,7 +82,7 @@
 			for _, actor in ipairs(Details.tabela_vigente[class_type_dano]._ActorTable) do 
 			
 				if (actor.grupo and not actor.owner) then
-					for target_name, _ in pairs (actor.targets) do 
+					for target_name, _ in pairs(actor.targets) do 
 						return target_name
 					end
 				end
@@ -438,7 +438,7 @@
 		function Details:DelayedSyncAlert()
 			local lower_instance = Details:GetLowerInstanceNumber()
 			if (lower_instance) then
-				lower_instance = Details:GetInstance (lower_instance)
+				lower_instance = Details:GetInstance(lower_instance)
 				if (lower_instance) then
 					if (not lower_instance:HaveInstanceAlert()) then
 						lower_instance:InstanceAlert (Loc ["STRING_EQUILIZING"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {function() end})
@@ -472,7 +472,7 @@
 			Details.last_closed_combat = Details.tabela_vigente
 			
 			--if (Details.statistics) then
-			--	for k, v in pairs (Details.statistics) do
+			--	for k, v in pairs(Details.statistics) do
 			--		print (k, v)
 			--	end
 			--end
@@ -784,13 +784,13 @@
 							if (Details.tabela_vigente.is_boss.killed) then
 								cleuIDData.kills = cleuIDData.kills + 1
 								cleuIDData.best_try = 0
-								tinsert (cleuIDData.try_history, {0, Details.tabela_vigente:GetCombatTime()})
+								tinsert(cleuIDData.try_history, {0, Details.tabela_vigente:GetCombatTime()})
 								--print ("KILL", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
 							else
 								cleuIDData.wipes = cleuIDData.wipes + 1
 								if (Details.boss1_health_percent and Details.boss1_health_percent < cleuIDData.best_try) then
 									cleuIDData.best_try = Details.boss1_health_percent
-									tinsert (cleuIDData.try_history, {Details.boss1_health_percent, Details.tabela_vigente:GetCombatTime()})
+									tinsert(cleuIDData.try_history, {Details.boss1_health_percent, Details.tabela_vigente:GetCombatTime()})
 								end
 								--print ("WIPE", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
 							end
@@ -811,11 +811,11 @@
 				invalid_combat = Details.tabela_vigente
 				
 				--tutorial about the combat time < then 'minimum_combat_time'
-				local hasSeenTutorial = Details:GetTutorialCVar ("MIN_COMBAT_TIME")
+				local hasSeenTutorial = Details:GetTutorialCVar("MIN_COMBAT_TIME")
 				if (not hasSeenTutorial) then
 					local lower_instance = Details:GetLowerInstanceNumber()
 					if (lower_instance) then
-						lower_instance = Details:GetInstance (lower_instance)
+						lower_instance = Details:GetInstance(lower_instance)
 						if (lower_instance) then
 							lower_instance:InstanceAlert ("combat ignored: less than 5 seconds.", {[[Interface\BUTTONS\UI-GROUPLOOT-PASS-DOWN]], 18, 18, false, 0, 1, 0, 1}, 20, {function() Details:Msg("combat ignored: elapsed time less than 5 seconds."); Details:Msg("add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time.") end})
 							Details:SetTutorialCVar ("MIN_COMBAT_TIME", true)
@@ -1108,7 +1108,7 @@
 			end
 
 			if (playerSpecID and playerClass) then
-				for spellID, t in pairs (validSpells) do
+				for spellID, t in pairs(validSpells) do
 					if (playerClass == t.class and playerSpecID == t.spec) then
 						Details:SendMissData (spellID, t.container, Details.network.ids [t.commID])
 					end
@@ -1438,7 +1438,7 @@
 					
 					if (actor.grupo) then
 						if (class_type == 1 or class_type == 2) then
-							for target_name, amount in pairs (actor.targets) do 
+							for target_name, amount in pairs(actor.targets) do 
 								local target_object = container._ActorTable [container._NameIndexTable [target_name]]
 								if (target_object) then
 									target_object.fight_component = true
@@ -1446,7 +1446,7 @@
 								end
 							end
 							if (class_type == 1) then
-								for damager_actor, _ in pairs (actor.damage_from) do 
+								for damager_actor, _ in pairs(actor.damage_from) do 
 									local target_object = container._ActorTable [container._NameIndexTable [damager_actor]]
 									if (target_object) then
 										target_object.fight_component = true
@@ -1454,7 +1454,7 @@
 									end
 								end
 							elseif (class_type == 2) then
-								for healer_actor, _ in pairs (actor.healing_from) do 
+								for healer_actor, _ in pairs(actor.healing_from) do 
 									local target_object = container._ActorTable [container._NameIndexTable [healer_actor]]
 									if (target_object) then
 										target_object.fight_component = true
@@ -1472,11 +1472,11 @@
 		function Details:AtualizarJanela (instancia, _segmento)
 			if (_segmento) then --apenas atualizar janelas que estejam mostrando o segmento solicitado
 				if (_segmento == instancia.segmento) then
-					instancia:TrocaTabela (instancia, instancia.segmento, instancia.atributo, instancia.sub_atributo, true)
+					instancia:TrocaTabela(instancia, instancia.segmento, instancia.atributo, instancia.sub_atributo, true)
 				end
 			else
 				if (instancia.modo == modo_GROUP or instancia.modo == modo_ALL) then
-					instancia:TrocaTabela (instancia, instancia.segmento, instancia.atributo, instancia.sub_atributo, true)
+					instancia:TrocaTabela(instancia, instancia.segmento, instancia.atributo, instancia.sub_atributo, true)
 				end
 			end
 		end
@@ -1748,7 +1748,7 @@
 					
 					if (instancia.rows_showing == 0 and instancia:GetSegment() == -1) then -- -1 overall data
 						if (not instancia:IsShowingOverallDataWarning()) then
-							local tutorial = Details:GetTutorialCVar ("OVERALLDATA_WARNING1") or 0
+							local tutorial = Details:GetTutorialCVar("OVERALLDATA_WARNING1") or 0
 							if ((type(tutorial) == "number") and (tutorial < 60)) then
 								Details:SetTutorialCVar ("OVERALLDATA_WARNING1", tutorial + 1)
 								instancia:ShowOverallDataWarning (true)

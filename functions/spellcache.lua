@@ -89,7 +89,7 @@ do
 		--_rawset (_detalhes.spellcache, 2, {Loc ["STRING_AUTOSHOT"], 1, "Interface\\AddOns\\Details\\images\\autoshot.tga"})
 		
 		--built-in overwrites
-		for spellId, spellTable in pairs (_detalhes.SpellOverwrite) do
+		for spellId, spellTable in pairs(_detalhes.SpellOverwrite) do
 			local name, _, icon = _GetSpellInfo(spellId)
 			_rawset (_detalhes.spellcache, spellId, {spellTable.name or name, 1, spellTable.icon or icon})
 		end
@@ -226,7 +226,7 @@ do
 	end
 	
 	function _detalhes:FillUserCustomSpells()
-		for spellid, t in pairs (defaultSpellCustomization) do 
+		for spellid, t in pairs(defaultSpellCustomization) do 
 		
 			local already_have
 			for index, spelltable in ipairs(_detalhes.savedCustomSpells) do 
@@ -265,7 +265,7 @@ do
 			end
 		end
 		if (not is_overwrite) then
-			tinsert (_detalhes.savedCustomSpells, {spellid, name, icon})
+			tinsert(_detalhes.savedCustomSpells, {spellid, name, icon})
 		end
 		return _rawset (_detalhes.spellcache, spellid, {name, 1, icon})
 	end
@@ -315,7 +315,7 @@ do
 		
 		if (not load_frame) then
 			load_frame = CreateFrame("frame", "DetailsLoadSpellCache", UIParent)
-			load_frame:SetFrameStrata ("DIALOG")
+			load_frame:SetFrameStrata("DIALOG")
 			
 			local progress_label = load_frame:CreateFontString ("DetailsLoadSpellCacheProgress", "overlay", "GameFontHighlightSmall")
 			progress_label:SetText("Loading Spells: 0%")

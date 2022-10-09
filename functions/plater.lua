@@ -20,7 +20,7 @@ plater_integration_frame.OnTickFrame = CreateFrame("frame", "DetailsPlaterFrameO
 --on tick function
 plater_integration_frame.OnTickFrameFunc = function(self, deltaTime)
 	if (self.NextUpdate < 0) then
-		for targetGUID, damageTable in pairs (plater_integration_frame.DamageTaken) do
+		for targetGUID, damageTable in pairs(plater_integration_frame.DamageTaken) do
 		
 			--total damage
 			local totalDamage = damageTable.TotalDamageTaken
@@ -39,8 +39,8 @@ plater_integration_frame.OnTickFrameFunc = function(self, deltaTime)
 			damageTable.CurrentDamageFromPlayer = damageTable.CurrentDamageFromPlayer + damageOnThisUpdateFromPlayer
 			
 			--add to the buffer the damage added
-			tinsert (damageTable.RealTimeBuffer, 1, damageOnThisUpdate)
-			tinsert (damageTable.RealTimeBufferFromPlayer, 1, damageOnThisUpdateFromPlayer)
+			tinsert(damageTable.RealTimeBuffer, 1, damageOnThisUpdate)
+			tinsert(damageTable.RealTimeBufferFromPlayer, 1, damageOnThisUpdateFromPlayer)
 			
 			--remove the damage from the buffer
 			local damageRemoved = tremove (damageTable.RealTimeBuffer, CONST_BUFFER_SIZE + 1)
@@ -134,7 +134,7 @@ function Details:RefreshPlaterIntegration()
 		--cleanup the old tables
 		plater_integration_frame.CleanUpTimer = C_Timer.NewTicker (10, function()
 			local now = time()
-			for GUID, damageTable in pairs (plater_integration_frame.DamageTaken) do
+			for GUID, damageTable in pairs(plater_integration_frame.DamageTaken) do
 				if (damageTable.LastEvent + 9.9 < now) then
 					plater_integration_frame.DamageTaken [GUID] = nil
 				end

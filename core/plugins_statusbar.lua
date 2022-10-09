@@ -307,7 +307,7 @@
 		frame:SetBackdropColor(0.7, 0.7, 0.7, 0.6)
 
 		GameCooltip:Reset()
-		GameCooltip:AddFromTable (onEnterCooltipTexts)
+		GameCooltip:AddFromTable(onEnterCooltipTexts)
 		GameCooltip:SetOption("TextSize", 9)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		
@@ -316,7 +316,7 @@
 		GameCooltip:SetOption("YSpacingMod", -4)
 		GameCooltip:SetOption("FixedHeight", 46)
 		
-		GameCooltip:ShowCooltip (frame, "tooltip")
+		GameCooltip:ShowCooltip(frame, "tooltip")
 
 		return true
 	end
@@ -368,7 +368,7 @@
 			
 			GameCooltip:SetOption("HeightAnchorMod", -12)
 			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-			GameCooltip:ShowCooltip (frame, "menu")
+			GameCooltip:ShowCooltip(frame, "menu")
 		end
 		return true
 	end
@@ -840,8 +840,8 @@ do
 		--ExtraOptionsOnOpen is called when options are opened and plugin have custom options
 		--here we setup options widgets for get the values of clicked child and also for tell options window what child we are configuring
 		function PSegment:ExtraOptionsOnOpen (child)
-			_G.DetailsStatusBarOptions2SegmentTypeDropdown.MyObject:SetFixedParameter (child)
-			_G.DetailsStatusBarOptions2SegmentTypeDropdown.MyObject:Select (child.options.segmentType, true)
+			_G.DetailsStatusBarOptions2SegmentTypeDropdown.MyObject:SetFixedParameter(child)
+			_G.DetailsStatusBarOptions2SegmentTypeDropdown.MyObject:Select(child.options.segmentType, true)
 		end
 		
 		--Create Plugin Frames (must have)
@@ -1027,8 +1027,8 @@ do
 		--ExtraOptionsOnOpen is called when options are opened and plugin have custom options
 		--here we setup options widgets for get the values of clicked child and also for tell options window what child we are configuring
 		function Clock:ExtraOptionsOnOpen (child)
-			_G.DetailsStatusBarOptions2ClockTypeDropdown.MyObject:SetFixedParameter (child)
-			_G.DetailsStatusBarOptions2ClockTypeDropdown.MyObject:Select (child.options.timeType, true)
+			_G.DetailsStatusBarOptions2ClockTypeDropdown.MyObject:SetFixedParameter(child)
+			_G.DetailsStatusBarOptions2ClockTypeDropdown.MyObject:Select(child.options.timeType, true)
 		end
 		
 		--Create Plugin Frames
@@ -1441,8 +1441,8 @@ do
 		--ExtraOptionsOnOpen is called when options are opened and plugin have custom options
 		--here we setup options widgets for get the values of clicked child and also for tell options window what child we are configuring
 		function PTime:ExtraOptionsOnOpen (child)
-			_G.DetailsStatusBarOptions2TimeTypeDropdown.MyObject:SetFixedParameter (child)
-			_G.DetailsStatusBarOptions2TimeTypeDropdown.MyObject:Select (child.options.timeType, true)
+			_G.DetailsStatusBarOptions2TimeTypeDropdown.MyObject:SetFixedParameter(child)
+			_G.DetailsStatusBarOptions2TimeTypeDropdown.MyObject:Select(child.options.timeType, true)
 		end
 		
 		--Create Plugin Frames (must have)
@@ -1465,13 +1465,13 @@ end
 ---------default options panel ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local window = _detalhes.gump:NewPanel (UIParent, nil, "DetailsStatusBarOptions", nil, 300, 180)
-tinsert (UISpecialFrames, "DetailsStatusBarOptions")
+tinsert(UISpecialFrames, "DetailsStatusBarOptions")
 window:SetPoint("center", UIParent, "center")
 window.locked = false
 window.close_with_right = true
 window.child = nil
 window.instance = nil
-window:SetFrameStrata ("FULLSCREEN")
+window:SetFrameStrata("FULLSCREEN")
 DetailsFramework:ApplyStandardBackdrop(window)
 
 --window:SetBackdrop({bgFile =  [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize=12})
@@ -1552,7 +1552,7 @@ end)
 	window.textcolortexture:SetPoint("left", window.textcolor, "right", 2)
 	window.textcolortexture:SetTexture(1, 1, 1)
 	
-	_detalhes.gump:NewButton (window, _, "$parentTextColorButton", "textcolorbutton", 160, 20, colorpick)
+	_detalhes.gump:NewButton(window, _, "$parentTextColorButton", "textcolorbutton", 160, 20, colorpick)
 	window.textcolorbutton:SetPoint("left", window.textcolor, "right", 2)
 	--window.textcolorbutton:InstallCustomTexture()
 	
@@ -1584,7 +1584,7 @@ end)
 	local buildFontMenu = function() 
 		local fontObjects = SharedMedia:HashTable ("font")
 		local fontTable = {}
-		for name, fontPath in pairs (fontObjects) do 
+		for name, fontPath in pairs(fontObjects) do 
 			fontTable[#fontTable+1] = {value = name, label = name, onclick = onSelectFont, font = fontPath}
 		end
 		return fontTable
@@ -1630,20 +1630,20 @@ end)
 		window.child = child
 		window.instance = child.instance
 		
-		_G.DetailsStatusBarOptionsTextStyleDropdown.MyObject:Select (child.options.textStyle, true)
+		_G.DetailsStatusBarOptionsTextStyleDropdown.MyObject:Select(child.options.textStyle, true)
 		
 		_G.DetailsStatusBarOptionsTextColorTexture:SetColorTexture (child.options.textColor[1], child.options.textColor[2], child.options.textColor[3], child.options.textColor[4])
 
-		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetFixedParameter (child)
+		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetFixedParameter(child)
 		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetValue(child.options.textSize)
 
-		_G.DetailsStatusBarOptionsFontDropdown.MyObject:SetFixedParameter (child)
-		_G.DetailsStatusBarOptionsFontDropdown.MyObject:Select (child.options.textFace)
+		_G.DetailsStatusBarOptionsFontDropdown.MyObject:SetFixedParameter(child)
+		_G.DetailsStatusBarOptionsFontDropdown.MyObject:Select(child.options.textFace)
 		
-		_G.DetailsStatusBarOptionsSliderAlignX.MyObject:SetFixedParameter (child)
+		_G.DetailsStatusBarOptionsSliderAlignX.MyObject:SetFixedParameter(child)
 		_G.DetailsStatusBarOptionsSliderAlignX.MyObject:SetValue(child.options.textXMod)
 		
-		_G.DetailsStatusBarOptionsSliderAlignY.MyObject:SetFixedParameter (child)
+		_G.DetailsStatusBarOptionsSliderAlignY.MyObject:SetFixedParameter(child)
 		_G.DetailsStatusBarOptionsSliderAlignY.MyObject:SetValue(child.options.textYMod)
 		
 		_G.DetailsStatusBarOptions:Show()
@@ -1656,7 +1656,7 @@ end)
 			
 			extraWindow:HideWidgets()
 			
-			for _, widget in pairs (child.ExtraOptions) do
+			for _, widget in pairs(child.ExtraOptions) do
 				widget:Show()
 			end
 			

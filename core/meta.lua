@@ -181,7 +181,7 @@
 							
 							combate_overall.segments_added =combate_overall.segments_added or {}
 							local date_start, date_end = combate:GetDate()
-							tinsert (combate_overall.segments_added, {name = combate:GetCombatName (true), elapsed = combate:GetCombatTime(), clock = date_start})
+							tinsert(combate_overall.segments_added, {name = combate:GetCombatName (true), elapsed = combate:GetCombatTime(), clock = date_start})
 							
 						end
 					
@@ -385,7 +385,7 @@
 		local combats = _detalhes.tabela_historico.tabelas or {}
 		local overall_added
 		if (not _detalhes.overall_clear_logout) then
-			tinsert (combats, _detalhes.tabela_overall)
+			tinsert(combats, _detalhes.tabela_overall)
 			overall_added = true
 		end
 		
@@ -406,7 +406,7 @@
 		local combats = _detalhes.tabela_historico.tabelas or {}
 		local overall_added
 		if (not _detalhes.overall_clear_logout) then
-			tinsert (combats, _detalhes.tabela_overall)
+			tinsert(combats, _detalhes.tabela_overall)
 			overall_added = true
 		end
 		
@@ -440,7 +440,7 @@
 		local combats = _detalhes.tabela_historico.tabelas or {}
 		local overall_added
 		if (not _detalhes.overall_clear_logout) then
-			tinsert (combats, _detalhes.tabela_overall)
+			tinsert(combats, _detalhes.tabela_overall)
 			overall_added = true
 		end
 		
@@ -460,7 +460,7 @@
 		local combats = _detalhes.tabela_historico.tabelas or {}
 		local overall_added
 		if (not _detalhes.overall_clear_logout) then
-			tinsert (combats, _detalhes.tabela_overall)
+			tinsert(combats, _detalhes.tabela_overall)
 			overall_added = true
 		end
 		

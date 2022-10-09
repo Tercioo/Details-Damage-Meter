@@ -276,7 +276,7 @@ function detailsOnDeathMenu.ShowPanel()
 	
 	detailsOnDeathMenu:SetHeight(30)
 	
-	if (not Details:GetTutorialCVar ("DISABLE_ONDEATH_PANEL")) then
+	if (not Details:GetTutorialCVar("DISABLE_ONDEATH_PANEL")) then
 		detailsOnDeathMenu.disableLabel:Show()
 		detailsOnDeathMenu.disableLabel:SetPoint("bottomleft", detailsOnDeathMenu, "bottomleft", 5, 1)
 		detailsOnDeathMenu.disableLabel.color = "gray"

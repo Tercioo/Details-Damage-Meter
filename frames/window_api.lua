@@ -27,7 +27,7 @@ function Details:CreateAPI2Frame()
         --local Api2Frame = DetailsFramework:CreateSimplePanel (UIParent, panelWidth, panelHeight, "Details! API 2.0", "DetailsAPI2Frame")
         local Api2Frame = _G.DetailsAPI2Frame 
         
-        Api2Frame:SetFrameStrata ("FULLSCREEN")
+        Api2Frame:SetFrameStrata("FULLSCREEN")
         Api2Frame:SetPoint("center")
         DetailsFramework:ApplyStandardBackdrop (Api2Frame, false, 1.2)
         
@@ -143,7 +143,7 @@ function Details:CreateAPI2Frame()
         end
         
         for apiIndex, apiDesc in ipairs(api) do
-            tinsert (apiFunctionNames, apiDesc.name)
+            tinsert(apiFunctionNames, apiDesc.name)
         end
         
         local api2ScrollMenu = DetailsFramework:CreateScrollBox (Api2Frame, "$parentApi2MenuScroll", apiMenuScrollRefresh, apiFunctionNames, scrollWidth, scrollHeight, lineAmount, lineHeight)
@@ -166,7 +166,7 @@ function Details:CreateAPI2Frame()
             end
             
             GameCooltip2:Preset(2)
-            GameCooltip2:SetOwner (self, "left", "right", 2, 0)
+            GameCooltip2:SetOwner(self, "left", "right", 2, 0)
             GameCooltip2:AddLine (apiInfo.desc)
             GameCooltip2:ShowCooltip()
         end
@@ -247,7 +247,7 @@ function Details:CreateAPI2Frame()
             
             local parameterOnEnter = function(self) 
                 GameCooltip2:Preset(2)
-                GameCooltip2:SetOwner (self)
+                GameCooltip2:SetOwner(self)
                 
                 --fill the box in the right with information about the API
                 local apiInfo = api [currentSelected]
@@ -286,7 +286,7 @@ function Details:CreateAPI2Frame()
                 f.required:SetPoint("left", f, "left", space2, 0)
                 f.default:SetPoint("left", f, "left", space3, 0)
                 
-                tinsert (parametersLines, f)
+                tinsert(parametersLines, f)
             end
         
         --return value box
@@ -339,7 +339,7 @@ function Details:CreateAPI2Frame()
                 
                 f.desc:SetPoint("topleft", f.name, "bottomleft", 0, -5)
                 
-                tinsert (returnLines, f)
+                tinsert(returnLines, f)
             end
 
         function Api2Frame.Refresh()

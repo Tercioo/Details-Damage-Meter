@@ -524,14 +524,14 @@
 		
 		wipe (_detalhes.ToKFunctions)
 		
-		tinsert (_detalhes.ToKFunctions, _detalhes.NoToK)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK2)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK0)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToKMin)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK2Min)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK0Min)
-		tinsert (_detalhes.ToKFunctions, _detalhes.comma_value)
+		tinsert(_detalhes.ToKFunctions, _detalhes.NoToK)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK2)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK0)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToKMin)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK2Min)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK0Min)
+		tinsert(_detalhes.ToKFunctions, _detalhes.comma_value)
 		
 	end	
 	
@@ -657,14 +657,14 @@
 		
 		wipe (_detalhes.ToKFunctions)
 		
-		tinsert (_detalhes.ToKFunctions, _detalhes.NoToK)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK2)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK0)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToKMin)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK2Min)
-		tinsert (_detalhes.ToKFunctions, _detalhes.ToK0Min)
-		tinsert (_detalhes.ToKFunctions, _detalhes.comma_value)
+		tinsert(_detalhes.ToKFunctions, _detalhes.NoToK)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK2)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK0)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToKMin)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK2Min)
+		tinsert(_detalhes.ToKFunctions, _detalhes.ToK0Min)
+		tinsert(_detalhes.ToKFunctions, _detalhes.comma_value)
 		
 		--
 	end
@@ -809,7 +809,7 @@
 	--yah, i know
 	
 	function _detalhes.table.copy (t1, t2)
-		for key, value in pairs (t2) do 
+		for key, value in pairs(t2) do 
 			if (type(value) == "table") then
 				t1 [key] = Details.CopyTable (value)
 			else
@@ -820,7 +820,7 @@
 	end
 	
 	function _detalhes.table.deploy (t1, t2)
-		for key, value in pairs (t2) do 
+		for key, value in pairs(t2) do 
 			if (type(value) == "table") then
 				t1 [key] = t1 [key] or {}
 				_detalhes.table.deploy (t1 [key], t2 [key])
@@ -831,7 +831,7 @@
 	end
 	
 	function _detalhes.table.overwrite (t1, t2)
-		for key, value in pairs (t2) do 
+		for key, value in pairs(t2) do 
 			if (type(value) == "table") then
 				t1 [key] = t1 [key] or {}
 				_detalhes.table.overwrite (t1 [key], t2 [key])
@@ -854,7 +854,7 @@
 			space = space .. "   "
 		end
 		
-		for key, value in pairs (t) do
+		for key, value in pairs(t) do
 			
 			local tpe = type (value)
 			
@@ -1323,7 +1323,7 @@ end
 		Object.HaveGradientEffect = true
 		GradientFrameControl.HaveGradientEffect = true
 		
-		if (not GradientFrameControl:GetScript ("OnUpdate")) then
+		if (not GradientFrameControl:GetScript("OnUpdate")) then
 			GradientFrameControl:SetScript("OnUpdate", frame_task)
 		end
 

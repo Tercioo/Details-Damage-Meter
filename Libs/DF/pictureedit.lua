@@ -13,7 +13,7 @@ local CreateImageEditorFrame = function()
 	editorWindow:SetResizable(true)
 	editorWindow:SetMovable (true)
 	editorWindow:SetClampedToScreen (true)
-	tinsert (UISpecialFrames, "DetailsFrameworkImageEdit")
+	tinsert(UISpecialFrames, "DetailsFrameworkImageEdit")
 	editorWindow:SetFrameStrata("TOOLTIP")
 
 	if (not DetailsFramework.IsDragonflight()) then
@@ -196,7 +196,7 @@ local CreateImageEditorFrame = function()
 	buttonsBackground:SetPoint("topright", background_frame, "topright", -8, -10)
 	buttonsBackground:Hide()
 	--buttonsBackground:SetMovable (true)
-	tinsert (UISpecialFrames, "DetailsFrameworkImageEditButtonsBg")
+	tinsert(UISpecialFrames, "DetailsFrameworkImageEditButtonsBg")
 	buttonsBackground:SetFrameStrata("TOOLTIP")
 	
 		local alphaFrameShown = false
@@ -367,7 +367,7 @@ local CreateImageEditorFrame = function()
 		resizer:SetFrameLevel (editorWindow.widget:GetFrameLevel() + 2)
 		
 		resizer:SetScript("OnMouseDown", function(self, button) 
-			editorWindow.widget:StartSizing ("BOTTOMRIGHT")
+			editorWindow.widget:StartSizing("BOTTOMRIGHT")
 		end)
 		
 		resizer:SetScript("OnMouseUp", function(self, button) 

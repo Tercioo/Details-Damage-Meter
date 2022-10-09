@@ -20,7 +20,7 @@ do
 
 	--return the full table with all data for the instance
 	function _detalhes:GetRaidInfoFromEncounterID (encounterID, encounterEJID)
-		for id, raidTable in pairs (_detalhes.EncounterInformation) do
+		for id, raidTable in pairs(_detalhes.EncounterInformation) do
 			if (encounterID) then
 				local ids = raidTable.encounter_ids2 --combatlog
 				if (ids) then
@@ -46,7 +46,7 @@ do
 	end
 	
 	function _detalhes:GetInstanceIdFromEncounterId (encounterid)
-		for id, instanceTable in pairs (_detalhes.EncounterInformation) do
+		for id, instanceTable in pairs(_detalhes.EncounterInformation) do
 			--combatlog encounter id
 			local ids = instanceTable.encounter_ids2
 			if (ids) then
@@ -68,7 +68,7 @@ do
 	function _detalhes:GetBossEncounterDetailsFromEncounterId (mapid, encounterid)
 		if (not mapid) then
 			local bossIndex, instance
-			for id, instanceTable in pairs (_detalhes.EncounterInformation) do
+			for id, instanceTable in pairs(_detalhes.EncounterInformation) do
 				local ids = instanceTable.encounter_ids2
 				if (ids) then
 					bossIndex = ids [encounterid]

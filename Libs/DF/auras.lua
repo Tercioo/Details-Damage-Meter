@@ -53,7 +53,7 @@ function DF:LoadAllSpells (hashMap, indexTable, allSpellsSameName)
 		DF.LoadingAuraAlertFrame = CreateFrame("frame", "DetailsFrameworkLoadingAurasAlert", UIParent, "BackdropTemplate")
 		DF.LoadingAuraAlertFrame:SetSize(340, 75)
 		DF.LoadingAuraAlertFrame:SetPoint("center")
-		DF.LoadingAuraAlertFrame:SetFrameStrata ("TOOLTIP")
+		DF.LoadingAuraAlertFrame:SetFrameStrata("TOOLTIP")
 		DF:ApplyStandardBackdrop (DF.LoadingAuraAlertFrame)
 		DF.LoadingAuraAlertFrame:SetBackdropBorderColor(1, 0.8, 0.1)
 		
@@ -698,7 +698,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		
 		if not flag then
 			GameCooltip2:Preset (2)
-			GameCooltip2:SetOwner (self, "left", "right", 2, 0)
+			GameCooltip2:SetOwner(self, "left", "right", 2, 0)
 			GameCooltip2:SetOption("TextSize", 10)
 			
 			local spellName, _, spellIcon = GetSpellInfo(value)
@@ -720,7 +720,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				
 				if (spellsWithSameName) then
 					GameCooltip2:Preset (2)
-					GameCooltip2:SetOwner (self, "left", "right", 2, 0)
+					GameCooltip2:SetOwner(self, "left", "right", 2, 0)
 					GameCooltip2:SetOption("TextSize", 10)
 					
 					for i, spellID in ipairs(spellsWithSameName) do
@@ -779,7 +779,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		local lineOnEnter = function(self)
 			self:SetBackdropColor(unpack (backdropColor_OnEnter))
 
-			--GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
+			--GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
 			--GameTooltip:SetSpellByID(self.SpellID)
 			--GameTooltip:AddLine (" ")
 			--GameTooltip:Show()
@@ -842,11 +842,11 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		function scroll:DoRefresh()
 			local t = {}
 			local added = {}
-			for spellID, flag in pairs (scroll.OriginalData) do
+			for spellID, flag in pairs(scroll.OriginalData) do
 				local spellName, _, spellIcon = GetSpellInfo(spellID)
 				if (spellName and not added[tonumber(spellID) or 0]) then
 					local lowerSpellName = spellName:lower()
-					tinsert (t, {spellID, spellName, spellIcon, lowerSpellName, flag})
+					tinsert(t, {spellID, spellName, spellIcon, lowerSpellName, flag})
 					added[tonumber(spellID) or 0] = true
 				end
 			end
@@ -956,7 +956,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		self:SetBackdropColor(unpack (backdrop_color_on_enter))
 		local spellid = select (7, GetSpellInfo(self.value))
 		if (spellid) then
-			GameTooltip:SetOwner (self, "ANCHOR_CURSOR")
+			GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
 			GameTooltip:SetSpellByID(spellid)
 			GameTooltip:AddLine (" ")
 			GameTooltip:Show()
@@ -1090,12 +1090,12 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 					local spellID = get_spellID_from_string (spellName)
 
 					if (spellID) then
-						tinsert (f.db.aura_tracker.buff, spellID)
+						tinsert(f.db.aura_tracker.buff, spellID)
 						--[[
 						if not tonumber(spellName) then
-							tinsert (f.db.aura_tracker.buff, spellName)
+							tinsert(f.db.aura_tracker.buff, spellName)
 						else
-							tinsert (f.db.aura_tracker.buff, spellID)
+							tinsert(f.db.aura_tracker.buff, spellID)
 						end
 						]]--
 					else
@@ -1110,12 +1110,12 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 					return
 				end
 			
-				tinsert (f.db.aura_tracker.buff, spellID)
+				tinsert(f.db.aura_tracker.buff, spellID)
 				--[[
 				if not tonumber(text) then
-					tinsert (f.db.aura_tracker.buff, text)
+					tinsert(f.db.aura_tracker.buff, text)
 				else
-					tinsert (f.db.aura_tracker.buff, spellID)
+					tinsert(f.db.aura_tracker.buff, spellID)
 				end
 				]]--
 			end
@@ -1137,12 +1137,12 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 					local spellID = get_spellID_from_string (spellName)
 					
 					if (spellID) then
-						tinsert (f.db.aura_tracker.debuff, spellID)
+						tinsert(f.db.aura_tracker.debuff, spellID)
 						--[[
 						if not tonumber(spellName) then
-							tinsert (f.db.aura_tracker.debuff, spellName)
+							tinsert(f.db.aura_tracker.debuff, spellName)
 						else
-							tinsert (f.db.aura_tracker.debuff, spellID)
+							tinsert(f.db.aura_tracker.debuff, spellID)
 						end
 						]]--
 					else
@@ -1157,14 +1157,14 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 					return
 				end
 			
-				tinsert (f.db.aura_tracker.debuff, spellID)
+				tinsert(f.db.aura_tracker.debuff, spellID)
 				--[[
 				if not tonumber(text) then
 					print(text)
-					tinsert (f.db.aura_tracker.debuff, text)
+					tinsert(f.db.aura_tracker.debuff, text)
 				else
 					print(spellID)
-					tinsert (f.db.aura_tracker.debuff, spellID)
+					tinsert(f.db.aura_tracker.debuff, spellID)
 				end
 				]]--
 			end
@@ -1247,9 +1247,9 @@ function DF:GetAllPlayerSpells (include_lower_case)
 		local spellType, spellId = GetSpellBookItemInfo (index, "player")
 		if (spellType == "SPELL") then
 			local spellName = GetSpellInfo(spellId)
-			tinsert (playerSpells, spellName)
+			tinsert(playerSpells, spellName)
 			if (include_lower_case) then
-				tinsert (playerSpells, lower (spellName))
+				tinsert(playerSpells, lower (spellName))
 			end
 		end
 	end

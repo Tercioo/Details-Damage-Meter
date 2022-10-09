@@ -124,7 +124,7 @@ function Details:CreateOrOpenNewsWindow()
 		      frameUpper:SetVerticalScroll (self:GetValue())
 		end)
 
-		frameUpper:EnableMouseWheel (true)
+		frameUpper:EnableMouseWheel(true)
 		frameUpper:SetScript("OnMouseWheel", function(self, delta)
 		      local current = slider:GetValue()
 		      if (IsShiftKeyDown() and (delta > 0)) then

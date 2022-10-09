@@ -243,7 +243,7 @@ do
 					allDisplaysFrame.check_text_size (button.text)
 					button.texture:SetTexture(Details.sub_atributos [attribute].icones [i] [1])
 					button.texture:SetTexCoord (unpack (Details.sub_atributos [attribute].icones [i] [2]))
-					tinsert (allDisplaysFrame.buttons [attribute], button)
+					tinsert(allDisplaysFrame.buttons [attribute], button)
 					y = y - 17
 				end
 				
@@ -301,7 +301,7 @@ do
 			local button = allDisplaysFrame.buttons [custom_index] [button_index]
 			if (not button) then
 				button = create_all_switch_button (custom_index, i, allDisplaysFrame.x, allDisplaysFrame.y)
-				tinsert (allDisplaysFrame.buttons [custom_index], button)
+				tinsert(allDisplaysFrame.buttons [custom_index], button)
 				allDisplaysFrame.y = allDisplaysFrame.y - 17
 			end
 			
@@ -341,7 +341,7 @@ do
 						local button = allDisplaysFrame.buttons [script_index] [button_index]
 						if (not button) then
 							button = create_all_switch_button(script_index, button_index, allDisplaysFrame.x, allDisplaysFrame.y)
-							tinsert (allDisplaysFrame.buttons [script_index], button)
+							tinsert(allDisplaysFrame.buttons [script_index], button)
 							allDisplaysFrame.y = allDisplaysFrame.y - 17
 						end
 
@@ -490,7 +490,7 @@ function Details.switch:ShowMe(instancia)
 		if (not Details.switch.segments_blocks) then
 			local segment_switch = function(self, button, segment)
 				if (button == "LeftButton") then
-					Details.switch.current_instancia:TrocaTabela (segment)
+					Details.switch.current_instancia:TrocaTabela(segment)
 					Details.switch.CloseMe()
 				elseif (button == "RightButton") then
 					Details.switch.CloseMe()
@@ -535,7 +535,7 @@ function Details.switch:ShowMe(instancia)
 				local button = gump:CreateButton (Details.switch.frame, segment_switch, 100, 20, "", index)
 				button:SetPoint("topleft", s, "topleft", -17, 0)
 				button:SetPoint("bottomright", s, "bottomright", 0, 0)
-				button:SetClickFunction (segment_switch, nil, nil, "right")
+				button:SetClickFunction(segment_switch, nil, nil, "right")
 
 				local boss_texture = gump:CreateImage (button, nil, 16, 16)
 				boss_texture:SetPoint("right", s, "left", -2, 0)
@@ -560,7 +560,7 @@ function Details.switch:ShowMe(instancia)
 				s.HideMe = hide_label
 				s.ShowMe = show_label
 				
-				tinsert (Details.switch.segments_blocks, s)
+				tinsert(Details.switch.segments_blocks, s)
 				return s
 			end
 			
@@ -886,7 +886,7 @@ end
 
 function Details.switch:InitSwitch()
 	local instancia = Details.tabela_instancias[1]
-	Details.switch:ShowMe (instancia)
+	Details.switch:ShowMe(instancia)
 	Details.switch:CloseMe()
 end
 
