@@ -242,7 +242,7 @@ do
 
 					allDisplaysFrame.check_text_size (button.text)
 					button.texture:SetTexture(Details.sub_atributos [attribute].icones [i] [1])
-					button.texture:SetTexCoord (unpack (Details.sub_atributos [attribute].icones [i] [2]))
+					button.texture:SetTexCoord (unpack(Details.sub_atributos [attribute].icones [i] [2]))
 					tinsert(allDisplaysFrame.buttons [attribute], button)
 					y = y - 17
 				end
@@ -532,12 +532,12 @@ function Details.switch:ShowMe(instancia)
 					index = index - 1
 				end
 				
-				local button = gump:CreateButton (Details.switch.frame, segment_switch, 100, 20, "", index)
+				local button = gump:CreateButton(Details.switch.frame, segment_switch, 100, 20, "", index)
 				button:SetPoint("topleft", s, "topleft", -17, 0)
 				button:SetPoint("bottomright", s, "bottomright", 0, 0)
 				button:SetClickFunction(segment_switch, nil, nil, "right")
 
-				local boss_texture = gump:CreateImage (button, nil, 16, 16)
+				local boss_texture = gump:CreateImage(button, nil, 16, 16)
 				boss_texture:SetPoint("right", s, "left", -2, 0)
 
 				local background = button:CreateTexture(nil, "background")
@@ -586,8 +586,8 @@ function Details.switch:ShowMe(instancia)
 				
 				local window_width, window_height = Details.switch.current_instancia:GetSize()
 				
-				local horizontal_amt = floor (math.max (window_width / 100, 2))
-				local vertical_amt = floor ((window_height - y) / 20)
+				local horizontal_amt = floor(math.max(window_width / 100, 2))
+				local vertical_amt = floor((window_height - y) / 20)
 				local size = window_width / horizontal_amt
 				
 				local frame = Details.switch.frame
@@ -694,7 +694,7 @@ function Details.switch:ShowMe(instancia)
 	Details.switch.frame:SetPoint("bottomright", instancia.baseframe, "bottomright", 0, 1)
 
 	local altura = instancia.baseframe:GetHeight()
-	local mostrar_quantas = floor (altura / Details.switch.button_height) * 2
+	local mostrar_quantas = floor(altura / Details.switch.button_height) * 2
 	
 	local precisa_mostrar = 0
 	for i = 1, #Details.switch.table do
@@ -932,7 +932,7 @@ function Details.switch:Update()
 		local button = Details.switch.buttons [i]
 		if (not button) then
 			button = Details.switch:NewSwitchButton (Details.switch.frame, i, x, y, jump)
-			button:SetFrameLevel (Details.switch.frame:GetFrameLevel()+2)
+			button:SetFrameLevel(Details.switch.frame:GetFrameLevel()+2)
 			Details.switch.showing = Details.switch.showing + 1
 		end
 

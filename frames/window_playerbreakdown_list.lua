@@ -153,7 +153,7 @@
 			line:SetScript("OnClick", lineOnClick)
 
 			line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-			line:SetBackdropColor(unpack (scrollbox_line_backdrop_color))
+			line:SetBackdropColor(unpack(scrollbox_line_backdrop_color))
 			line:SetBackdropBorderColor(0, 0, 0, 1)
 
 			local specIcon = line:CreateTexture("$parentSpecIcon", "artwork")

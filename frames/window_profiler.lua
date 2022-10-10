@@ -1,6 +1,6 @@
 
 local Details = _G.Details
-local L = _G.LibStub ("AceLocale-3.0"):GetLocale( "Details" )
+local L = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 function Details:OpenProfiler()
 

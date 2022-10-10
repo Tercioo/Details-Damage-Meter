@@ -3900,7 +3900,7 @@ do
 	}
 	
 
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	_detalhes.SpellOverwrite = {
 		--[124464] = {name = GetSpellInfo(124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --shadow word: pain mastery proc (priest)
 	}
@@ -3950,10 +3950,10 @@ do
 	end
 	local default_school_color = {145/255, 180/255, 228/255}
 	function _detalhes:GetSpellSchoolColor (school)
-		return unpack (_detalhes.spells_school [school] and _detalhes.spells_school [school].decimals or default_school_color)
+		return unpack(_detalhes.spells_school [school] and _detalhes.spells_school [school].decimals or default_school_color)
 	end
 	function _detalhes:GetCooldownList (class)
-		class = class or select (2, UnitClass ("player"))
+		class = class or select(2, UnitClass ("player"))
 		return _detalhes.DefensiveCooldownSpells [class]
 	end
 end

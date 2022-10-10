@@ -18,7 +18,7 @@ local unpack = unpack
 local CreateFrame = CreateFrame
 local _GetTime = GetTime
 local _GetCursorPosition = GetCursorPosition
-local _UIParent = UIParent
+local UIParent = UIParent
 local _IsAltKeyDown = IsAltKeyDown
 local _IsShiftKeyDown = IsShiftKeyDown
 local _IsControlKeyDown = IsControlKeyDown
@@ -237,7 +237,7 @@ function Details:MostrarScrollBar(sem_animacao)
 	local nao_mostradas = self.rows_showing - self.rows_fit_in_window
 	local slider_height = nao_mostradas*self.row_height
 	self.scroll.scrollMax = slider_height
-	self.scroll:SetMinMaxValues (0, slider_height)
+	self.scroll:SetMinMaxValues(0, slider_height)
 
 	self.rolagem = true
 	self.scroll:Enable()
@@ -1658,13 +1658,13 @@ end
 
 function Details:DelayOptionsRefresh(instance, noReopen)
 	if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
-		Details:ScheduleTimer ("OpenOptionsWindow", 0.1, {instance or _G.DetailsOptionsWindow.instance, noReopen})
+		Details:ScheduleTimer("OpenOptionsWindow", 0.1, {instance or _G.DetailsOptionsWindow.instance, noReopen})
 	end
 end
 
 function Details:RefreshLockedState()
 	if (not self.baseframe and self.meu_id and self:IsEnabled()) then
-		self:ScheduleTimer ("RefreshLockedState", 1)
+		self:ScheduleTimer("RefreshLockedState", 1)
 		return
 	elseif (not self.baseframe) then
 		return
@@ -1982,7 +1982,7 @@ local lineScript_Onmouseup = function(self, button)
 					end
 				end
 
-				if (Details.row_singleclick_overwrite [self._instance.atributo] and type (Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
+				if (Details.row_singleclick_overwrite [self._instance.atributo] and type(Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
 					return Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (_, self.minha_tabela, self._instance, is_shift_down, is_control_down)
 				end
 
@@ -2413,10 +2413,10 @@ local icon_frame_on_click_up = function(self, button)
 		if (Details.ilevel.core:HasQueuedInspec (self.unitname)) then
 
 			--icon animation
-			local anim = tremove (Details.icon_animations.load.available)
+			local anim = tremove(Details.icon_animations.load.available)
 			if (not anim) then
 				icon_frame_create_animation()
-				anim = tremove (Details.icon_animations.load.available)
+				anim = tremove(Details.icon_animations.load.available)
 			end
 
 			local f = anim
@@ -2435,13 +2435,13 @@ local icon_frame_on_click_up = function(self, button)
 					frame.question_icon:Hide()
 				end
 			end
-			Details:ScheduleTimer ("HideBarQuestionIcon", 1, f)
+			Details:ScheduleTimer("HideBarQuestionIcon", 1, f)
 
 			self.icon_animation = anim
 			anim.icon_frame = self
 
 			local pid
-			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 1, {anim})
+			pid = icon_frame_events:ScheduleTimer("CancelAnim", 1, {anim})
 			Details.icon_animations.load.in_use [anim] = pid
 			anim.parent = self
 
@@ -2455,10 +2455,10 @@ local icon_frame_on_click_up = function(self, button)
 		end
 
 		--icon animation
-		local anim = tremove (Details.icon_animations.load.available)
+		local anim = tremove(Details.icon_animations.load.available)
 		if (not anim) then
 			icon_frame_create_animation()
-			anim = tremove (Details.icon_animations.load.available)
+			anim = tremove(Details.icon_animations.load.available)
 		end
 
 		anim:Show()
@@ -2475,9 +2475,9 @@ local icon_frame_on_click_up = function(self, button)
 
 		local pid
 		if (does_query) then
-			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 4, {anim, true})
+			pid = icon_frame_events:ScheduleTimer("CancelAnim", 4, {anim, true})
 		else
-			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 0.2, {anim})
+			pid = icon_frame_events:ScheduleTimer("CancelAnim", 0.2, {anim})
 		end
 		Details.icon_animations.load.in_use [anim] = pid
 		anim.parent = self
@@ -2996,7 +2996,7 @@ local hide_click_func = function()
 	--empty
 end
 
-function Details:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
+function Details:InstanceAlert (msg, icon, timeInSeconds, clickfunc, doflash, forceAlert)
 
 	if (not forceAlert and Details.streamer_config.no_alerts) then
 		--return
@@ -3059,9 +3059,9 @@ function Details:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
 		self.alert.button.func_param = {unpack(clickfunc, 2)}
 	end
 
-	time = time or 15
-	self.alert_time = time
-	Details:ScheduleTimer ("InstanceAlertTime", time, self)
+	timeInSeconds = timeInSeconds or 15
+	self.alert_time = timeInSeconds
+	Details:ScheduleTimer("InstanceAlertTime", timeInSeconds, self)
 
 	self.alert:SetPoint("bottom", self.baseframe, "bottom", 0, -12)
 	self.alert:SetPoint("left", self.baseframe, "left", 3, 0)
@@ -3077,7 +3077,6 @@ function Details:InstanceAlert (msg, icon, time, clickfunc, doflash, forceAlert)
 	end
 
 	self.alert:Play()
-
 end
 
 local alert_on_click = function(self, button)
@@ -3090,8 +3089,7 @@ local alert_on_click = function(self, button)
 	self:GetParent():Hide()
 end
 
-local function CreateAlertFrame (baseframe, instancia)
-
+local function CreateAlertFrame(baseframe, instancia)
 	local frame_upper = CreateFrame("scrollframe", "DetailsAlertFrameScroll" .. instancia.meu_id, baseframe)
 	frame_upper:SetPoint("bottom", baseframe, "bottom")
 	frame_upper:SetPoint("left", baseframe, "left", 3, 0)
@@ -3215,7 +3213,7 @@ local function CreateAlertFrame (baseframe, instancia)
 	end
 
 	function alert_bg:DoFlash()
-		C_Timer.After (0.23, do_flash)
+		C_Timer.After(0.23, do_flash)
 	end
 
 	alert_bg.text = text
@@ -3247,7 +3245,7 @@ function Details:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
 		self.freeze_texto:SetTextColor(1, 1, 1, 1)
 	end
 
-	if (iconcoords and type (iconcoords) == "table") then
+	if (iconcoords and type(iconcoords) == "table") then
 		self.freeze_icon:SetTexCoord(unpack(iconcoords))
 	else
 		self.freeze_icon:SetTexCoord(0, 1, 0, 1)
@@ -3267,10 +3265,10 @@ function Details:schedule_hide_anti_overlap (self)
 end
 local function hide_anti_overlap (self)
 	if (self.schdule) then
-		Details:CancelTimer (self.schdule)
+		Details:CancelTimer(self.schdule)
 		self.schdule = nil
 	end
-	local schdule = Details:ScheduleTimer ("schedule_hide_anti_overlap", 0.3, self)
+	local schdule = Details:ScheduleTimer("schedule_hide_anti_overlap", 0.3, self)
 	self.schdule = schdule
 end
 
@@ -3279,7 +3277,7 @@ local function show_anti_overlap (instance, host, side)
 	local anti_menu_overlap = instance.baseframe.anti_menu_overlap
 
 	if (anti_menu_overlap.schdule) then
-		Details:CancelTimer (anti_menu_overlap.schdule)
+		Details:CancelTimer(anti_menu_overlap.schdule)
 		anti_menu_overlap.schdule = nil
 	end
 
@@ -3310,7 +3308,7 @@ do
 	local tooltip_anchor = CreateFrame("frame", "DetailsTooltipAnchor", UIParent,"BackdropTemplate")
 	tooltip_anchor:SetSize(140, 20)
 	tooltip_anchor:SetAlpha(0)
-	tooltip_anchor:SetMovable (false)
+	tooltip_anchor:SetMovable(false)
 	tooltip_anchor:SetClampedToScreen (true)
 	tooltip_anchor.locked = true
 	tooltip_anchor:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 2, bottom = 1}})
@@ -3357,7 +3355,7 @@ do
 		if (self.locked) then
 			self:SetAlpha(1)
 			self:EnableMouse(true)
-			self:SetMovable (true)
+			self:SetMovable(true)
 			self:SetFrameStrata("FULLSCREEN")
 			self.locked = false
 			tooltip_anchor.alert.animOut:Stop()
@@ -3366,7 +3364,7 @@ do
 			self:SetAlpha(0)
 			self:EnableMouse(false)
 			self:SetFrameStrata("MEDIUM")
-			self:SetMovable (false)
+			self:SetMovable(false)
 			self.locked = true
 			tooltip_anchor.alert.animIn:Stop()
 			tooltip_anchor.alert.animOut:Play()
@@ -3409,7 +3407,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
 
 	--baseframe is the lowest frame in the window architecture
-	local baseframe = CreateFrame("scrollframe", "DetailsBaseFrame" .. ID, _UIParent, "BackdropTemplate")
+	local baseframe = CreateFrame("scrollframe", "DetailsBaseFrame" .. ID, UIParent, "BackdropTemplate")
 	baseframe:SetMovable(true)
 	baseframe:SetResizable(true)
 	baseframe:SetUserPlaced(false)
@@ -3463,7 +3461,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	instancia.windowBackgroundDisplay = backgrounddisplay
 
 	--row frame is the parent of rows, it have setallpoints on baseframe
-	local rowframe = CreateFrame("frame", "DetailsRowFrame"..ID, _UIParent) --row frame
+	local rowframe = CreateFrame("frame", "DetailsRowFrame"..ID, UIParent) --row frame
 	rowframe:SetAllPoints(baseframe)
 	rowframe:SetFrameStrata(baseframe_strata)
 	rowframe:SetFrameLevel(3)
@@ -3555,7 +3553,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		--config set
 		scrollbar:SetOrientation ("VERTICAL")
 		scrollbar.scrollMax = 0
-		scrollbar:SetMinMaxValues (0, 0)
+		scrollbar:SetMinMaxValues(0, 0)
 		scrollbar:SetValue(0)
 		scrollbar.ultimo = 0
 
@@ -3597,7 +3595,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe:SetClampedToScreen (true)
 		baseframe:SetSize(Details.new_window_size.width, Details.new_window_size.height)
 
-		baseframe:SetPoint("center", _UIParent)
+		baseframe:SetPoint("center", UIParent)
 		baseframe:EnableMouseWheel(false)
 		baseframe:EnableMouse(true)
 
@@ -5444,7 +5442,7 @@ function Details:StatusBarAlert(text, icon, color, time)
 	if (icon or text) then
 		statusbar:Show()
 		if (time) then
-			Details:ScheduleTimer ("StatusBarAlertTime", time, self)
+			Details:ScheduleTimer("StatusBarAlertTime", time, self)
 		end
 	else
 		statusbar:Hide()
@@ -5541,7 +5539,7 @@ function gump:CriaRodape(baseframe, instancia)
 
 	baseframe.DOWNFrame:Show()
 	baseframe.DOWNFrame:EnableMouse(true)
-	baseframe.DOWNFrame:SetMovable (true)
+	baseframe.DOWNFrame:SetMovable(true)
 	baseframe.DOWNFrame:SetResizable(true)
 
 	BGFrame_scripts(baseframe.DOWNFrame, baseframe, instancia)
@@ -6157,7 +6155,7 @@ function Details:SetMenuOwner (self, instance)
 
 		local instance_height = instance.baseframe:GetHeight()
 
-		if (y + math.max (instance_height, 250) > screen_height) then
+		if (y + math.max(instance_height, 250) > screen_height) then
 			GameCooltip:SetOwner(self, "top", "bottom", 0, -10)
 		else
 			GameCooltip:SetOwner(self, "bottom", "top", 0, 0)
@@ -6395,7 +6393,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 								local wasted = totalRealTime - decorrido
 
 								--wasted time
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (endedAt - startedAt), 2, "white", "white")
 
@@ -6405,7 +6403,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 								local wasted = totalRealTime - decorrido
 
 								--wasted time
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
 
@@ -6687,7 +6685,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
 
 						--wasted time
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 						gameCooltip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 
 						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. Details.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
@@ -6701,7 +6699,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
 
 						--wasted time
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor (wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 						gameCooltip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 
 					else
@@ -7319,16 +7317,16 @@ end
 --update the window click through state
 local updateClickThroughListener = Details:CreateEventListener()
 function updateClickThroughListener:EnterCombat()
-	Details:InstanceCall (function(instance)
-		C_Timer.After (1.5, function()
+	Details:InstanceCall(function(instance)
+		C_Timer.After(1.5, function()
 			instance:UpdateClickThrough()
 		end)
 	end)
 end
 
 function updateClickThroughListener:LeaveCombat()
-	Details:InstanceCall (function(instance)
-		C_Timer.After (1.5, function()
+	Details:InstanceCall(function(instance)
+		C_Timer.After(1.5, function()
 			instance:UpdateClickThrough()
 		end)
 	end)
@@ -7498,25 +7496,25 @@ end
 
 function Details:DelayedCheckCombatAlpha (instance, alpha)
 	if (UnitAffectingCombat("player") or InCombatLockdown()) then
-		instance:SetWindowAlphaForCombat (true, true, alpha) --hida a janela
-		instance:SetWindowAlphaForCombat (true, true, alpha) --hida a janela
+		instance:SetWindowAlphaForCombat(true, true, alpha) --hida a janela
+		instance:SetWindowAlphaForCombat(true, true, alpha) --hida a janela
 	end
 end
 
 function Details:DelayedCheckOutOfCombatAlpha (instance, alpha)
 	if (not UnitAffectingCombat("player") and not InCombatLockdown()) then
-		instance:SetWindowAlphaForCombat (true, true, alpha) --hida a janela
-		instance:SetWindowAlphaForCombat (true, true, alpha) --hida a janela
+		instance:SetWindowAlphaForCombat(true, true, alpha) --hida a janela
+		instance:SetWindowAlphaForCombat(true, true, alpha) --hida a janela
 	end
 end
 
 function Details:DelayedCheckOutOfCombatAndGroupAlpha (instance, alpha)
 	if ((Details.zone_type == "raid" or Details.zone_type == "party") and IsInInstance()) then
 		if (UnitAffectingCombat("player") or InCombatLockdown()) then
-			instance:SetWindowAlphaForCombat (false, false, alpha) --deshida a janela
+			instance:SetWindowAlphaForCombat(false, false, alpha) --deshida a janela
 		else
-			instance:SetWindowAlphaForCombat (true, true, alpha) --hida a janela
-			instance:SetWindowAlphaForCombat (true, true, alpha) --hida a janela
+			instance:SetWindowAlphaForCombat(true, true, alpha) --hida a janela
+			instance:SetWindowAlphaForCombat(true, true, alpha) --hida a janela
 		end
 	end
 end
@@ -7543,15 +7541,15 @@ function Details:AdjustAlphaByContext(interacting)
 		if (self.hide_on_context[3].inverse) then
 			--while in group
 			if (Details.in_group) then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 3)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 3)) --hida a janela
 				hasRuleEnabled = true
 			end
 		else
 			--while not in group
 			if (not Details.in_group) then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 3)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 3)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 3)) --hida a janela
 				hasRuleEnabled = true
 			end
 		end
@@ -7561,8 +7559,8 @@ function Details:AdjustAlphaByContext(interacting)
 	if (self.hide_on_context[4].enabled) then
 		local isInInstance = IsInInstance()
 		if (not isInInstance or (not Details.zone_type == "raid" and not Details.zone_type == "party")) then
-			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --hida a janela
-			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 4)) --hida a janela
+			self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 4)) --hida a janela
+			self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 4)) --hida a janela
 			hasRuleEnabled = true
 		end
 	end
@@ -7571,8 +7569,8 @@ function Details:AdjustAlphaByContext(interacting)
 	if (self.hide_on_context[5].enabled) then
 		local isInInstance = IsInInstance()
 		if (isInInstance or Details.zone_type == "raid" or Details.zone_type == "party") then
-			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --hida a janela
-			self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 5)) --hida a janela
+			self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 5)) --hida a janela
+			self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 5)) --hida a janela
 			hasRuleEnabled = true
 		end
 	end
@@ -7580,7 +7578,7 @@ function Details:AdjustAlphaByContext(interacting)
 	--raid debug (inside instance + out of combat)
 	if (self.hide_on_context[6].enabled) then
 		if ((Details.zone_type == "raid" or Details.zone_type == "party") and IsInInstance()) then
-			Details:ScheduleTimer ("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self, getAlphaByContext(self, 6))
+			Details:ScheduleTimer("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self, getAlphaByContext(self, 6))
 		end
 	end
 
@@ -7600,8 +7598,8 @@ function Details:AdjustAlphaByContext(interacting)
 		else
 			--player is not inside an arena
 			if (self.hide_on_context[contextId].inverse) then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, contextId))
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, contextId))
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, contextId))
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, contextId))
 				hasRuleEnabled = true
 			end
 		end
@@ -7613,10 +7611,10 @@ function Details:AdjustAlphaByContext(interacting)
 		if (isInInstance and Details.zone_type == "pvp") then
 			--player is inside a battleground
 			if (not self.hide_on_context[7].inverse) then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 7)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 7)) --hida a janela
 			else
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 7)) --deshida a janela
+				self:SetWindowAlphaForCombat(false, false, getAlphaByContext(self, 7)) --deshida a janela
 			end
 			hasRuleEnabled = true
 
@@ -7624,10 +7622,10 @@ function Details:AdjustAlphaByContext(interacting)
 			--player is not inside a battleground
 			if (not self.hide_on_context[7].inverse) then
 				--there's no inverse rule: do nothing
-				--self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 7)) --deshida a janela
+				--self:SetWindowAlphaForCombat(false, false, getAlphaByContext(self, 7)) --deshida a janela
 			else
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 7)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 7)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 7)) --hida a janela
 				hasRuleEnabled = true
 			end
 		end
@@ -7638,20 +7636,20 @@ function Details:AdjustAlphaByContext(interacting)
 		if (_G.DetailsMythicPlusFrame and _G.DetailsMythicPlusFrame.IsDoingMythicDungeon) then
 			--player is inside a dungeon mythic+
 			if (not self.hide_on_context[8].inverse) then
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 8)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 8)) --hida a janela
 			else
-				self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 8)) --deshida a janela
+				self:SetWindowAlphaForCombat(false, false, getAlphaByContext(self, 8)) --deshida a janela
 			end
 			hasRuleEnabled = true
 
 		else
 			if (not self.hide_on_context[8].inverse) then
 				--there's no inverse rule: do nothing
-				--self:SetWindowAlphaForCombat (false, false, getAlphaByContext(self, 8)) --deshida a janela
+				--self:SetWindowAlphaForCombat(false, false, getAlphaByContext(self, 8)) --deshida a janela
 			else
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --hida a janela
-				self:SetWindowAlphaForCombat (true, true, getAlphaByContext(self, 8)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 8)) --hida a janela
+				self:SetWindowAlphaForCombat(true, true, getAlphaByContext(self, 8)) --hida a janela
 				hasRuleEnabled = true
 			end
 		end
@@ -7659,12 +7657,12 @@ function Details:AdjustAlphaByContext(interacting)
 
 	--in combat
 	if (self.hide_on_context[1].enabled) then
-		Details:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
+		Details:ScheduleTimer("DelayedCheckCombatAlpha", 0.3, self, getAlphaByContext(self, 1))
 	end
 
 	--out of combat
 	if (self.hide_on_context[2].enabled) then
-		Details:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
+		Details:ScheduleTimer("DelayedCheckOutOfCombatAlpha", 0.3, self, getAlphaByContext(self, 2))
 	end
 
 	--if no rule is enabled, show the window
@@ -9456,7 +9454,7 @@ local function click_to_change_segment (instancia, buttontype)
 		local total_shown = segments_filled+2
 		local goal = segmento_goal+1
 
-		local select_ = math.abs (goal - total_shown)
+		local select_ = math.abs(goal - total_shown)
 		GameCooltip:Select(1, select_)
 
 		instancia:TrocaTabela(segmento_goal)
@@ -9473,7 +9471,7 @@ local function click_to_change_segment (instancia, buttontype)
 		local total_shown = segments_filled+2
 		local goal = segmento_goal+1
 
-		local select_ = math.abs (goal - total_shown)
+		local select_ = math.abs(goal - total_shown)
 		GameCooltip:Select(1, select_)
 
 		instancia:TrocaTabela(segmento_goal)
@@ -9486,7 +9484,7 @@ local function click_to_change_segment (instancia, buttontype)
 		local total_shown = segments_filled+2
 		local goal = segmento_goal+1
 
-		local select_ = math.abs (goal - total_shown)
+		local select_ = math.abs(goal - total_shown)
 		GameCooltip:Select(1, select_)
 
 		instancia:TrocaTabela(segmento_goal)
@@ -9587,7 +9585,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	baseframe.UPFrame:Show()
 	baseframe.UPFrame:EnableMouse(true)
-	baseframe.UPFrame:SetMovable (true)
+	baseframe.UPFrame:SetMovable(true)
 	baseframe.UPFrame:SetResizable(true)
 
 	BGFrame_scripts(baseframe.UPFrame, baseframe, instancia)
@@ -9598,7 +9596,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrameConnect:SetPoint("bottomright", baseframe, "topright", 0, -1)
 	baseframe.UPFrameConnect:SetHeight(2)
 	baseframe.UPFrameConnect:EnableMouse(true)
-	baseframe.UPFrameConnect:SetMovable (true)
+	baseframe.UPFrameConnect:SetMovable(true)
 	baseframe.UPFrameConnect:SetResizable(true)
 	baseframe.UPFrameConnect.is_toolbar = true
 
@@ -9608,7 +9606,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrameLeftPart:SetPoint("bottomleft", baseframe, "topleft", 0, 0)
 	baseframe.UPFrameLeftPart:SetSize(22, 20)
 	baseframe.UPFrameLeftPart:EnableMouse(true)
-	baseframe.UPFrameLeftPart:SetMovable (true)
+	baseframe.UPFrameLeftPart:SetMovable(true)
 	baseframe.UPFrameLeftPart:SetResizable(true)
 	baseframe.UPFrameLeftPart.is_toolbar = true
 

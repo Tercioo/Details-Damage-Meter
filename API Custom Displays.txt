@@ -130,7 +130,7 @@ Total Code and Percent Code:
 *Total - the total made by all actors.
 
 local value, top, total, combat, instance = ...
-local result = floor (value)
+local result = floor(value)
 return total
 
 

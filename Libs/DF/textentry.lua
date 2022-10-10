@@ -244,9 +244,9 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 	function TextEntryMetaFunctions:Enable()
 		if (not self.editbox:IsEnabled()) then
 			self.editbox:Enable()
-			self.editbox:SetBackdropBorderColor(unpack (self.enabled_border_color))
-			self.editbox:SetBackdropColor(unpack (self.enabled_backdrop_color))
-			self.editbox:SetTextColor (unpack (self.enabled_text_color))
+			self.editbox:SetBackdropBorderColor(unpack(self.enabled_border_color))
+			self.editbox:SetBackdropColor(unpack(self.enabled_backdrop_color))
+			self.editbox:SetTextColor (unpack(self.enabled_text_color))
 			if (self.editbox.borderframe) then
 				local r, g, b, a = DF:ParseColors(unpack(self.editbox.borderframe.onleave_backdrop))
 				self.editbox.borderframe:SetBackdropColor(r, g, b, a)
@@ -294,8 +294,8 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		end
 
 		if (capsule.have_tooltip) then 
-			GameCooltip2:Preset (2)
-			GameCooltip2:AddLine (capsule.have_tooltip)
+			GameCooltip2:Preset(2)
+			GameCooltip2:AddLine(capsule.have_tooltip)
 			GameCooltip2:ShowCooltip(textentry, "tooltip")
 		end
 		
@@ -322,7 +322,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		textentry.mouse_over = false 
 		
 		if (textentry:IsEnabled()) then 
-			textentry:SetBackdropBorderColor(unpack (textentry.current_bordercolor))
+			textentry:SetBackdropBorderColor(unpack(textentry.current_bordercolor))
 		end
 	end
 	
@@ -481,7 +481,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 	
 ------------------------------------------------------------------------------------------------------------
 
-function TextEntryMetaFunctions:SetTemplate (template)
+function TextEntryMetaFunctions:SetTemplate(template)
 	if (template.width) then
 		self.editbox:SetWidth(template.width)
 	end
@@ -512,10 +512,10 @@ end
 --object constructor
 
 function DF:CreateTextEntry (parent, func, w, h, member, name, with_label, entry_template, label_template)
-	return DF:NewTextEntry (parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
+	return DF:NewTextEntry(parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
 end
 
-function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, param2, space, with_label, entry_template, label_template)
+function DF:NewTextEntry(parent, container, name, member, w, h, func, param1, param2, space, with_label, entry_template, label_template)
 	
 	if (not name) then
 		name = "DetailsFrameworkTextEntryNumber" .. DF.TextEntryCounter
@@ -596,7 +596,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 		w = space
 	elseif (w and space) then
 		if (DF.debug) then
-			--print ("warning: you are using width and space, try use only space for better results.")
+			--print("warning: you are using width and space, try use only space for better results.")
 		end
 	end
 	
@@ -604,7 +604,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 	TextEntryObject.editbox:SetHeight(h)
 
 	TextEntryObject.editbox:SetJustifyH("center")
-	TextEntryObject.editbox:EnableMouse (true)
+	TextEntryObject.editbox:EnableMouse(true)
 	TextEntryObject.editbox:SetText("")
 
 	TextEntryObject.editbox:SetAutoFocus (false)
@@ -659,20 +659,20 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 		TextEntryObject.editbox:SetScript("OnTextChanged", OnTextChanged)
 		TextEntryObject.editbox:SetScript("OnTabPressed", OnTabPressed)
 		
-	setmetatable (TextEntryObject, TextEntryMetaFunctions)
+	setmetatable(TextEntryObject, TextEntryMetaFunctions)
 	
 	if (with_label) then
 		local label = DF:CreateLabel(TextEntryObject.editbox, with_label, nil, nil, nil, "label", nil, "overlay")
 		label.text = with_label
 		TextEntryObject.editbox:SetPoint("left", label.widget, "right", 2, 0)
 		if (label_template) then
-			label:SetTemplate (label_template)
+			label:SetTemplate(label_template)
 		end
 		with_label = label
 	end
 	
 	if (entry_template) then
-		TextEntryObject:SetTemplate (entry_template)
+		TextEntryObject:SetTemplate(entry_template)
 	end	
 	
 	return TextEntryObject, with_label
@@ -680,7 +680,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 end
 
 function DF:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
-	local editbox = DF:NewTextEntry (parent, parent, name, member, w, h, func, param1, param2)
+	local editbox = DF:NewTextEntry(parent, parent, name, member, w, h, func, param1, param2)
 	
 --	editbox:SetHook("OnEditFocusGained", SpellEntryOnEditFocusGained)
 --	editbox:SetHook("OnTextChanged", SpellEntryOnTextChanged)
@@ -820,7 +820,7 @@ local get_last_word = function(self)
 		local character = text:sub (i, i)
 		if (character:match ("%a")) then
 			self.lastword = character .. self.lastword
-			--print (self.lastword)
+			--print(self.lastword)
 		else
 			break
 		end
@@ -889,7 +889,7 @@ end
 local AutoComplete_OnEditFocusGained = function(editboxWidget)
 	local capsule = editboxWidget.MyObject or editboxWidget
 	capsule:GetLastWord()
-	--print ("last word:", editboxWidget.lastword)
+	--print("last word:", editboxWidget.lastword)
 	editboxWidget.end_selection = nil
 	editboxWidget.focusGained = true
 	capsule.characters_count = editboxWidget:GetText():len()	

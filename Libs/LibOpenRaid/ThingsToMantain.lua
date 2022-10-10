@@ -202,7 +202,7 @@ elseif (isExpansion_Shadowlands()) then
 
 	-- how to get the enchantId:
 	-- local itemLink = GetInventoryItemLink("player", slotId)
-	-- local enchandId = select (3, strsplit(":", itemLink))
+	-- local enchandId = select(3, strsplit(":", itemLink))
 	-- print("enchantId:", enchandId)
 	LIB_OPEN_RAID_ENCHANT_IDS = {
     --FEET
@@ -257,7 +257,7 @@ elseif (isExpansion_Shadowlands()) then
 
 	-- how to get the gemId:
 	-- local itemLink = GetInventoryItemLink("player", slotId)
-	-- local gemId = select (4, strsplit(":", itemLink))
+	-- local gemId = select(4, strsplit(":", itemLink))
 	-- print("gemId:", gemId)
 	LIB_OPEN_RAID_GEM_IDS = {
 		[173126] = true, --Straddling Jewel Doublet (green, +12 speed)
@@ -357,7 +357,7 @@ elseif (isExpansion_Dragonflight()) then
 
 	-- how to get the enchantId:
 	-- local itemLink = GetInventoryItemLink("player", slotId)
-	-- local enchandId = select (3, strsplit(":", itemLink))
+	-- local enchandId = select(3, strsplit(":", itemLink))
 	-- print("enchantId:", enchandId)
 	LIB_OPEN_RAID_ENCHANT_IDS = {
 		--FEET
@@ -412,7 +412,7 @@ elseif (isExpansion_Dragonflight()) then
 
 	-- how to get the gemId:
 	-- local itemLink = GetInventoryItemLink("player", slotId)
-	-- local gemId = select (4, strsplit(":", itemLink))
+	-- local gemId = select(4, strsplit(":", itemLink))
 	-- print("gemId:", gemId)
 	LIB_OPEN_RAID_GEM_IDS = {
 		[173126] = true, --Straddling Jewel Doublet (green, +12 speed)

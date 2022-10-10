@@ -14,7 +14,7 @@ local _GetNumGroupMembers = _G.GetNumGroupMembers
 local _setmetatable = setmetatable
 local _bit_band = bit.band --lua local
 local _pairs = pairs
-local _ipairs = ipairs
+local ipairs = ipairs
 local _table_wipe = table.wipe
 
 --details locals
@@ -22,7 +22,7 @@ local is_ignored = _detalhes.pets_ignored
 
 function container_pets:NovoContainer()
 	local esta_tabela = {}
-	_setmetatable (esta_tabela, _detalhes.container_pets)
+	_setmetatable(esta_tabela, _detalhes.container_pets)
 	esta_tabela.pets = {} --armazena a pool -> uma dictionary com o [serial do pet] -> nome do dono
 	esta_tabela._ActorTable = {} --armazena os 15 ultimos pets do jogador -> [jogador nome] -> {nil, nil, nil, ...}
 	return esta_tabela
@@ -61,8 +61,8 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	
 	if (_IsInRaid()) then
 		for i = 1, _GetNumGroupMembers() do 
-			if (pet_serial == _UnitGUID ("raidpet"..i)) then
-				dono_serial = _UnitGUID ("raid"..i)
+			if (pet_serial == _UnitGUID("raidpet"..i)) then
+				dono_serial = _UnitGUID("raid"..i)
 				dono_flags = 0x00000417 --emulate sourceflag flag
 				
 				local nome, realm = _UnitName ("raid"..i)
@@ -75,8 +75,8 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		
 	elseif (_IsInGroup()) then
 		for i = 1, _GetNumGroupMembers()-1 do 
-			if (pet_serial == _UnitGUID ("partypet"..i)) then
-				dono_serial = _UnitGUID ("party"..i)
+			if (pet_serial == _UnitGUID("partypet"..i)) then
+				dono_serial = _UnitGUID("party"..i)
 				dono_flags = 0x00000417 --emulate sourceflag flag
 				
 				local nome, realm = _UnitName ("party"..i)
@@ -90,9 +90,9 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	end
 	
 	if (not dono_nome) then
-		if (pet_serial == _UnitGUID ("pet")) then
+		if (pet_serial == _UnitGUID("pet")) then
 			dono_nome = _GetUnitName ("player")
-			dono_serial = _UnitGUID ("player")
+			dono_serial = _UnitGUID("player")
 			if (_IsInGroup() or _IsInRaid()) then
 				dono_flags = 0x00000417 --emulate sourceflag flag
 			else
@@ -114,7 +114,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --� um pet
 			if (not _detalhes.pets_no_owner [pet_serial] and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
 				_detalhes.pets_no_owner [pet_serial] = {pet_nome, pet_flags}
-				_detalhes:Msg ("couldn't find the owner of the pet:", pet_nome)
+				_detalhes:Msg("couldn't find the owner of the pet:", pet_nome)
 			end
 		else
 			is_ignored [pet_serial] = true
@@ -126,7 +126,7 @@ end
 function container_pets:Unpet (...)
 	local unitid = ...
 
-	local owner_serial = _UnitGUID (unitid)
+	local owner_serial = _UnitGUID(unitid)
 	
 	if (owner_serial) then
 		--tira o pet existente da tabela de pets e do cache do core
@@ -137,7 +137,7 @@ function container_pets:Unpet (...)
 			_detalhes.pets_players [owner_serial] = nil
 		end
 		--verifica se h� um pet novo deste jogador
-		local pet_serial = _UnitGUID (unitid .. "pet")
+		local pet_serial = _UnitGUID(unitid .. "pet")
 		if (pet_serial) then
 			if (not _detalhes.tabela_pets.pets [pet_serial]) then
 				local nome, realm = _UnitName (unitid)
@@ -159,14 +159,14 @@ end
 function container_pets:BuscarPets()
 	if (_IsInRaid()) then
 		for i = 1, _GetNumGroupMembers(), 1 do 
-			local pet_serial = _UnitGUID ("raidpet"..i)
+			local pet_serial = _UnitGUID("raidpet"..i)
 			if (pet_serial) then
 				if (not _detalhes.tabela_pets.pets [pet_serial]) then
 					local nome, realm = _UnitName ("raid"..i)
 					if (realm and realm ~= "") then
 						nome = nome.."-"..realm
 					end
-					local owner_serial = _UnitGUID ("raid"..i)
+					local owner_serial = _UnitGUID("raid"..i)
 					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, owner_serial, nome, 0x514)
 					_detalhes.parser:RevomeActorFromCache (pet_serial)
 					container_pets:PlayerPet (owner_serial, pet_serial)
@@ -176,7 +176,7 @@ function container_pets:BuscarPets()
 		
 	elseif (_IsInGroup()) then
 		for i = 1, _GetNumGroupMembers()-1, 1 do 
-			local pet_serial = _UnitGUID ("partypet"..i)
+			local pet_serial = _UnitGUID("partypet"..i)
 			if (pet_serial) then
 				if (not _detalhes.tabela_pets.pets [pet_serial]) then
 					local nome, realm = _UnitName ("party"..i)
@@ -184,24 +184,24 @@ function container_pets:BuscarPets()
 					if (realm and realm ~= "") then
 						nome = nome.."-"..realm
 					end
-					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID ("party"..i), nome, 0x514) 
+					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID("party"..i), nome, 0x514) 
 
 				end
 			end
 		end
 		
-		local pet_serial = _UnitGUID ("pet")
+		local pet_serial = _UnitGUID("pet")
 		if (pet_serial) then
 			if (not _detalhes.tabela_pets.pets [pet_serial]) then
-				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("pet"), 0x1114, _UnitGUID ("player"), _detalhes.playername, 0x514)
+				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("pet"), 0x1114, _UnitGUID("player"), _detalhes.playername, 0x514)
 			end
 		end
 		
 	else
-		local pet_serial = _UnitGUID ("pet")
+		local pet_serial = _UnitGUID("pet")
 		if (pet_serial) then
 			if (not _detalhes.tabela_pets.pets [pet_serial]) then
-				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("pet"), 0x1114, _UnitGUID ("player"), _detalhes.playername, 0x514)
+				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("pet"), 0x1114, _UnitGUID("player"), _detalhes.playername, 0x514)
 			end
 		end
 	end
@@ -223,14 +223,14 @@ function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial,
 end
 
 function _detalhes:WipePets()
-	return _table_wipe (_detalhes.tabela_pets.pets)
+	return _table_wipe(_detalhes.tabela_pets.pets)
 end
 
 function _detalhes:LimparPets()
 	--erase old pet table by creating a new one
 	local newPetTable = {}
 	--minimum of 90 minutes to clean a pet from the pet table data
-	for PetSerial, PetTable in _pairs (_detalhes.tabela_pets.pets) do 
+	for PetSerial, PetTable in _pairs(_detalhes.tabela_pets.pets) do 
 		if ( (PetTable[4] + 5400 > _detalhes._tempo + 1) or (PetTable[5] and PetTable[4] + 43200 > _detalhes._tempo) ) then
 			newPetTable [PetSerial] = PetTable
 		end
@@ -245,17 +245,17 @@ function _detalhes:UpdatePets()
 	have_schedule = false
 	return container_pets:BuscarPets()
 end
-function _detalhes:SchedulePetUpdate (seconds)
+function _detalhes:SchedulePetUpdate(seconds)
 	if (have_schedule) then
 		return
 	end
 	have_schedule = true
 
-	--_detalhes:ScheduleTimer ("UpdatePets", seconds or 5)
+	--_detalhes:ScheduleTimer("UpdatePets", seconds or 5)
 	Details.Schedules.NewTimer(seconds or 5, Details.UpdatePets, Details)
 end
 
 function _detalhes.refresh:r_container_pets (container)
-	_setmetatable (container, container_pets)
+	_setmetatable(container, container_pets)
 end
 

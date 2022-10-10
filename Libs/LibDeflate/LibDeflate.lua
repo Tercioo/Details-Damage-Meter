@@ -2617,7 +2617,7 @@ local function Inflate(state)
 		elseif block_type == 2 then
 			status = DecompressDynamicBlock(state)
 		else
-			return nil, -1 -- invalid block type (type == 3)
+			return nil, -1 -- invalid block type(type == 3)
 		end
 		if status ~= 0 then
 			return nil, status

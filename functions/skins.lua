@@ -1,6 +1,6 @@
 
 local _detalhes = _G._detalhes
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local _
 
 	--install skin function:
@@ -1004,7 +1004,7 @@ local _
 	local align_right_chat = function()
 	
 		if (not RightChatPanel or not RightChatPanel:IsShown()) then
-			_detalhes:Msg ("Right Chat Panel isn't shown.")
+			_detalhes:Msg("Right Chat Panel isn't shown.")
 			return
 		end
 		
@@ -1068,10 +1068,10 @@ local _
 		instance1:SaveMainWindowPosition()
 		instance2:SaveMainWindowPosition()
 
-		_detalhes.move_janela_func (instance1.baseframe, true, instance1)
-		_detalhes.move_janela_func (instance1.baseframe, false, instance1)
-		_detalhes.move_janela_func (instance2.baseframe, true, instance2)
-		_detalhes.move_janela_func (instance2.baseframe, false, instance2)
+		_detalhes.move_janela_func(instance1.baseframe, true, instance1)
+		_detalhes.move_janela_func(instance1.baseframe, false, instance1)
+		_detalhes.move_janela_func(instance2.baseframe, true, instance2)
+		_detalhes.move_janela_func(instance2.baseframe, false, instance2)
 		
 	end
 	

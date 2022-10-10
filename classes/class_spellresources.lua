@@ -7,7 +7,7 @@
 --local pointers
 
 	local _setmetatable = setmetatable --lua local
-	local _ipairs = ipairs --lua local
+	local ipairs = ipairs --lua local
 	local _UnitAura = UnitAura --api local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

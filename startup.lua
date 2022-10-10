@@ -398,7 +398,7 @@ function Details:StartMeUp() --I'll never stop!
 
 	function Details:OpenOptionsWindowAtStart()
 		--Details:OpenOptionsWindow (Details.tabela_instancias[1])
-		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
+		--print(_G ["DetailsClearSegmentsButton1"]:GetSize())
 		--Details:OpenCustomDisplayWindow()
 		--Details:OpenWelcomeWindow()
 	end
@@ -492,7 +492,7 @@ function Details:StartMeUp() --I'll never stop!
 	if (not DetailsFramework.IsClassicWow()) then
 		--i'm not in classc wow
 	else
-		print ("|CFFFFFF00[Details!]: you're using Details! for RETAIL on Classic WOW, please get the classic version (Details! Damage Meter Classic WoW), if you need help see our Discord (/details discord).")
+		print("|CFFFFFF00[Details!]: you're using Details! for RETAIL on Classic WOW, please get the classic version (Details! Damage Meter Classic WoW), if you need help see our Discord (/details discord).")
 	end
 
 	Details:InstallHook("HOOK_DEATH", Details.Coach.Client.SendMyDeath)

@@ -9,7 +9,7 @@ local _rawset = rawset --lua local
 local _rawget = rawget --lua local
 local _setmetatable = setmetatable --lua local
 local _unpack = unpack --lua local
-local _type = type --lua local
+local type = type --lua local
 local _math_floor = math.floor --lua local
 
 local cleanfunction = function() end
@@ -57,7 +57,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	end
 
 	SplitBarMetaFunctions.__add = function(v1, v2) 
-		if (_type(v1) == "table") then
+		if (type(v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v + v2
 			v1.spark:SetPoint("left", v1.statusbar, "left", value * (v1.statusbar:GetWidth()/100) - 18, 0)
@@ -71,7 +71,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	end
 
 	SplitBarMetaFunctions.__sub = function(v1, v2) 
-		if (_type(v1) == "table") then
+		if (type(v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v - v2
 			v1.spark:SetPoint("left", v1.statusbar, "left", value * (v1.statusbar:GetWidth()/100) - 18, 0)
@@ -232,7 +232,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	local smember_rcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
 		_object.rightTexture.original_colors = {_value1, _value2, _value3, _value4}
-		return _object.rightTexture:SetVertexColor (_value1, _value2, _value3, _value4)
+		return _object.rightTexture:SetVertexColor(_value1, _value2, _value3, _value4)
 	end
 	--left color
 	local smember_lcolor = function(_object, _value)
@@ -240,15 +240,15 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
 		_object.texture.original_colors = {_value1, _value2, _value3, _value4}
-		return _object.texture:SetVertexColor (_value1, _value2, _value3, _value4)
+		return _object.texture:SetVertexColor(_value1, _value2, _value3, _value4)
 	end
 	--right icon
 	local smember_ricon = function(_object, _value)
 		if (type(_value) == "table") then
-			local _value1, _value2 = _unpack (_value)
+			local _value1, _value2 = _unpack(_value)
 			_object.iconright:SetTexture(_value1)
 			if (_value2) then
-				_object.iconright:SetTexCoord (_unpack (_value2))
+				_object.iconright:SetTexCoord (_unpack(_value2))
 			end
 		else
 			_object.iconright:SetTexture(_value)
@@ -258,10 +258,10 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	--left icon
 	local smember_licon = function(_object, _value)
 		if (type(_value) == "table") then
-			local _value1, _value2 = _unpack (_value)
+			local _value1, _value2 = _unpack(_value)
 			_object.iconleft:SetTexture(_value1)
 			if (_value2) then
-				_object.iconleft:SetTexCoord (_unpack (_value2))
+				_object.iconleft:SetTexCoord (_unpack(_value2))
 			end
 		else
 			_object.iconleft:SetTexture(_value)
@@ -271,12 +271,12 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	--texture
 	local smember_texture = function(_object, _value)
 		if (type(_value) == "table") then
-			local _value1, _value2 = _unpack (_value)
+			local _value1, _value2 = _unpack(_value)
 			_object.texture:SetTexture(_value1)
 			_object.rightTexture:SetTexture(_value1)
 			if (_value2) then
-				_object.texture:SetTexCoord (_unpack (_value2))
-				_object.rightTexture:SetTexCoord (_unpack (_value2))
+				_object.texture:SetTexCoord (_unpack(_value2))
+				_object.rightTexture:SetTexCoord (_unpack(_value2))
 			end
 		else
 			_object.texture:SetTexture(_value)
@@ -356,7 +356,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	function SplitBarMetaFunctions:SetPoint(v1, v2, v3, v4, v5)
 		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
-			print ("Invalid parameter for SetPoint")
+			print("Invalid parameter for SetPoint")
 			return
 		end
 		return self.widget:SetPoint(v1, v2, v3, v4, v5)
@@ -393,18 +393,18 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 -- colors
 	function SplitBarMetaFunctions:SetLeftColor (r, g, b, a)
 		r, g, b, a = DF:ParseColors(r, g, b, a)
-		self.texture:SetVertexColor (r, g, b, a)
+		self.texture:SetVertexColor(r, g, b, a)
 		self.texture.original_colors = {r, g, b, a}
 	end
 	function SplitBarMetaFunctions:SetRightColor (r, g, b, a)
 		r, g, b, a = DF:ParseColors(r, g, b, a)
-		self.rightTexture:SetVertexColor (r, g, b, a)
+		self.rightTexture:SetVertexColor(r, g, b, a)
 		self.rightTexture.original_colors = {r, g, b, a}
 	end
 
 	function SplitBarMetaFunctions:SetBackgroundColor (r, g, b, a)
 		r, g, b, a = DF:ParseColors(r, g, b, a)
-		self.background:SetVertexColor (r, g, b, a)
+		self.background:SetVertexColor(r, g, b, a)
 		self.background.original_colors = {r, g, b, a}
 	end
 
@@ -420,14 +420,14 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	function SplitBarMetaFunctions:SetLeftIcon (texture, ...)
 		self.iconleft:SetTexture(texture)
 		if (...) then
-			local L, R, U, D = unpack (...)
+			local L, R, U, D = unpack(...)
 			self.iconleft:SetTexCoord (L, R, U, D)
 		end
 	end
 	function SplitBarMetaFunctions:SetRightIcon (texture, ...)
 		self.iconright:SetTexture(texture)
 		if (...) then
-			local L, R, U, D = unpack (...)
+			local L, R, U, D = unpack(...)
 			self.iconright:SetTexCoord (L, R, U, D)
 		end
 	end
@@ -448,18 +448,18 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	function SplitBarMetaFunctions:GetFrameLevel()
 		return self.statusbar:GetFrameLevel()
 	end
-	function SplitBarMetaFunctions:SetFrameLevel (level, frame)
+	function SplitBarMetaFunctions:SetFrameLevel(level, frame)
 		if (not frame) then
-			return self.statusbar:SetFrameLevel (level)
+			return self.statusbar:SetFrameLevel(level)
 		else
 			local framelevel = frame:GetFrameLevel (frame) + level
-			return self.statusbar:SetFrameLevel (framelevel)
+			return self.statusbar:SetFrameLevel(framelevel)
 		end
 	end
 
 -- frame stratas
 	function SplitBarMetaFunctions:SetFrameStrata(strata)
-		if (_type(strata) == "table") then
+		if (type(strata) == "table") then
 			self.statusbar:SetFrameStrata(strata:GetFrameStrata())
 		else
 			self.statusbar:SetFrameStrata(strata)
@@ -571,7 +571,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		
 		if (frame.MyObject.have_tooltip) then
 			GameCooltip2:Reset()
-			GameCooltip2:AddLine (frame.MyObject.have_tooltip)
+			GameCooltip2:AddLine(frame.MyObject.have_tooltip)
 			GameCooltip2:ShowCooltip(frame, "tooltip")
 		end
 	end
@@ -661,7 +661,7 @@ local build_statusbar = function(self)
 	self.background:SetPoint("topleft", self, "topleft")
 	self.background:SetPoint("bottomleft", self, "bottomleft")
 	self.background:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
-	self.background:SetVertexColor (.3, .3, .3, 1)
+	self.background:SetVertexColor(.3, .3, .3, 1)
 	
 	--this is the left texture and it grows to the right, it is embed within the bar by SetStatusBarTexture
 	self.texture = self:CreateTexture("$parent_StatusBarTexture", "ARTWORK", nil, 1)
@@ -703,7 +703,7 @@ local build_statusbar = function(self)
 	self.righttext:SetPoint("RIGHT", self.righticon, "LEFT", -3, 0)
 
 	self:SetStatusBarTexture (self.texture)
-	self:SetMinMaxValues (1, 100)
+	self:SetMinMaxValues(1, 100)
 	self:SetValue(50)
 	DetailsFrameworkSplitlBar_OnCreate (self)
 end
@@ -800,7 +800,7 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 	SplitBarObject.statusbar:SetScript("OnMouseUp", OnMouseUp)
 	SplitBarObject.statusbar:SetScript("OnSizeChanged", OnSizeChanged)
 		
-	_setmetatable (SplitBarObject, SplitBarMetaFunctions)
+	_setmetatable(SplitBarObject, SplitBarMetaFunctions)
 	
 	return SplitBarObject
 end

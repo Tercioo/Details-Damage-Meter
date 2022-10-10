@@ -503,7 +503,7 @@ function Details.Coach.WelcomePanel()
 
         end, 80, 20, "Start Coaching!")
         startCoachButton:SetPoint("bottomright", welcomePanel, "bottomright", -10, 10)
-        startCoachButton:SetTemplate(DetailsFramework:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+        startCoachButton:SetTemplate(DetailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 
         function welcomePanel.Update()
             local good = 0

@@ -38,7 +38,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         f:SetFrameStrata("HIGH")
         f:SetToplevel (true)
         
-        f:SetMovable (true)
+        f:SetMovable(true)
         f:SetWidth(850)
         f:SetHeight(500)
         tinsert(UISpecialFrames, "DetailsRaidHistoryWindow")
@@ -67,10 +67,10 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
 
         f.bg1 = f:CreateTexture(nil, "background")
         f.bg1:SetTexture([[Interface\AddOns\Details\images\background]], true)
-        f.bg1:SetAlpha (0.7)
-        f.bg1:SetVertexColor (0.27, 0.27, 0.27)
-        f.bg1:SetVertTile (true)
-        f.bg1:SetHorizTile (true)
+        f.bg1:SetAlpha(0.7)
+        f.bg1:SetVertexColor(0.27, 0.27, 0.27)
+        f.bg1:SetVertTile(true)
+        f.bg1:SetHorizTile(true)
         f.bg1:SetSize(790, 454)
         f.bg1:SetAllPoints()
         
@@ -96,28 +96,28 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             tutorialFrame.Desc.width = 370
             tutorialFrame.Desc:SetPoint("topleft", tutorialFrame, "topleft", 10, -45)
             
-            local closeButton = DF:CreateButton (tutorialFrame, function() Details:SetTutorialCVar ("HISTORYPANEL_TUTORIAL", true); tutorialFrame:Hide() end, 80, 20, Loc ["STRING_OPTIONS_CHART_CLOSE"])
+            local closeButton = DF:CreateButton(tutorialFrame, function() Details:SetTutorialCVar ("HISTORYPANEL_TUTORIAL", true); tutorialFrame:Hide() end, 80, 20, Loc ["STRING_OPTIONS_CHART_CLOSE"])
             closeButton:SetPoint("bottom", tutorialFrame, "bottom", 0, 10)
-            closeButton:SetTemplate (DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+            closeButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
         end
         
         --background
             local background = f:CreateTexture("$parentBackgroundImage", "border")
-            background:SetAlpha (0.3)
+            background:SetAlpha(0.3)
             background:SetPoint("topleft", f, "topleft", 6, -65)
             background:SetPoint("bottomright", f, "bottomright", -10, 28)
 
         --separate menu and main list
             local div = f:CreateTexture(nil, "artwork")
             div:SetTexture([[Interface\ACHIEVEMENTFRAME\UI-Achievement-MetalBorder-Left]])
-            div:SetAlpha (0.1)
+            div:SetAlpha(0.1)
             div:SetPoint("topleft", f, "topleft", 180, -64)
             div:SetHeight(574)
 
         --select history or guild rank
-        local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
-        local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
-        local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+        local options_switch_template = DF:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+        local options_text_template = DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+        local options_button_template = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
         local selectKillTimeline = function()
             f.GuildRankCheckBox:SetValue(false)
@@ -139,7 +139,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         end
 
         --kill timeline
-        local HistoryCheckBox, HistoryLabel = DF:CreateSwitch (f, selectKillTimeline, false, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
+        local HistoryCheckBox, HistoryLabel = DF:CreateSwitch(f, selectKillTimeline, false, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
         HistoryLabel:ClearAllPoints()
         HistoryCheckBox:ClearAllPoints()
         HistoryCheckBox:SetPoint("topleft", f, "topleft", 100, -34)
@@ -147,7 +147,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         HistoryCheckBox:SetAsCheckBox()
 
         --guildrank
-        local GuildRankCheckBox, GuildRankLabel = DF:CreateSwitch (f, selectGuildRank, true, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
+        local GuildRankCheckBox, GuildRankLabel = DF:CreateSwitch(f, selectGuildRank, true, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
         GuildRankLabel:ClearAllPoints()
         GuildRankCheckBox:ClearAllPoints()
         GuildRankCheckBox:SetPoint("topleft", f, "topleft", 240, -34)
@@ -201,7 +201,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 f.WorkingFrame:Show()
                 f.WorkingAnimation:Play()
 
-                C_Timer.NewTicker (10, function(self)
+                C_Timer.NewTicker(10, function(self)
                     if (not Details.LastGuildSyncReceived) then
                         f.GuildSyncButton:Enable()
                         f.EndAnimationHub:Play()
@@ -214,7 +214,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end)
             end
 
-            local GuildSyncButton = DF:CreateButton (f, doGuildSync, 130, 20, Loc ["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"], nil, nil, nil, "GuildSyncButton", nil, nil, options_button_template, options_text_template)
+            local GuildSyncButton = DF:CreateButton(f, doGuildSync, 130, 20, Loc ["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"], nil, nil, nil, "GuildSyncButton", nil, nil, options_button_template, options_text_template)
             GuildSyncButton:SetPoint("topright", f, "topright", -20, -34)
             GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 
@@ -290,7 +290,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end
             end
 
-            local ReportButton = DF:CreateButton (f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub (":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
+            local ReportButton = DF:CreateButton(f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub (":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
             ReportButton:SetPoint("right", GuildSyncButton, "left", -2, 0)
             ReportButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)			
 
@@ -299,7 +299,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             local instanceId = Details:GetInstanceIdFromEncounterId (encounterId)
             if (instanceId) then
                 local file, L, R, T, B = Details:GetRaidBackground (instanceId)
-                --print ("file:", file)
+                --print("file:", file)
                 --can't get the image, looks to be restricted
                 --[[
                 if (file) then
@@ -373,7 +373,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local raid_dropdown = DF:CreateDropDown (f, buildRaidList, 1, dropdownWidth, 20, "select_raid")
             local raid_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_RAID"] .. ":", _, _, "GameFontNormal", "select_raid_label")
-            raid_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            raid_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --select boss:
             local on_boss_select = function(_, _, boss)
@@ -384,7 +384,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local boss_dropdown = DF:CreateDropDown (f, build_boss_list, 1, dropdownWidth, 20, "select_boss")
             local boss_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_BOSS"] .. ":", _, _, "GameFontNormal", "select_boss_label")
-            boss_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            boss_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --select difficulty:
             local on_diff_select = function(_, _, diff)
@@ -397,7 +397,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local diff_dropdown = DF:CreateDropDown (f, build_diff_list, 1, dropdownWidth, 20, "select_diff")
             local diff_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_DIFF"] .. ":", _, _, "GameFontNormal", "select_diff_label")
-            diff_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            diff_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --select role:
             local on_role_select = function(_, _, role)
@@ -411,7 +411,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local role_dropdown = DF:CreateDropDown (f, build_role_list, 1, dropdownWidth, 20, "select_role")
             local role_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_ROLE"] .. ":", _, _, "GameFontNormal", "select_role_label")
-            role_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            role_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --select guild:
             local on_guild_select = function(_, _, guild)
@@ -422,7 +422,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local guild_dropdown = DF:CreateDropDown (f, build_guild_list, 1, dropdownWidth, 20, "select_guild")
             local guild_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_GUILD"] .. ":", _, _, "GameFontNormal", "select_guild_label")
-            guild_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            guild_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --select playerbase:
             local on_player_select = function(_, _, player)
@@ -436,7 +436,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local player_dropdown = DF:CreateDropDown (f, build_player_list, 1, dropdownWidth, 20, "select_player")
             local player_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE"] .. ":", _, _, "GameFontNormal", "select_player_label")
-            player_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            player_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         --select player:
             local onPlayer2Select = function(_, _, player)
@@ -444,7 +444,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 f:BuildPlayerTable (player)
             end
             local build_player2_list = function()
-                local encounterTable, guild, role = unpack (f.build_player2_data or {})
+                local encounterTable, guild, role = unpack(f.build_player2_data or {})
                 local t = {}
                 local alreadyListed = {}
                 if (encounterTable) then
@@ -466,7 +466,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             end
             local player2_dropdown = DF:CreateDropDown (f, build_player2_list, 1, dropdownWidth, 20, "select_player2")
             local player2_string = DF:CreateLabel(f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] .. ":", _, _, "GameFontNormal", "select_player2_label")
-            player2_dropdown:SetTemplate (DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            player2_dropdown:SetTemplate(DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
         function f:UpdateDropdowns(DoNotSelectRaid)
 
@@ -494,7 +494,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     if (difficulty == 14) then
                         --don't show normal encounters
                         --tinsert(difficultyList, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
-                        --print ("has normal encounter")
+                        --print("has normal encounter")
 
                     elseif (difficulty == 15) then
                         local alreadyHave = false
@@ -581,7 +581,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 if (type(difficulty) == "number") then
                     if (difficulty == 14) then
                         --tinsert(difficultyList, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
-                        --print ("has normal encounter")
+                        --print("has normal encounter")
                     elseif (difficulty == 15) then
                         local alreadyHave = false
                         for i, t in ipairs(difficultyList) do
@@ -664,10 +664,10 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         
         function f:BuildPlayerTable (playerName)
             
-            local encounterTable, guild, role = unpack (f.build_player2_data or {})
+            local encounterTable, guild, role = unpack(f.build_player2_data or {})
             local data = {}
             
-            if (type(playerName) == "string" and string.len (playerName) > 1) then
+            if (type(playerName) == "string" and string.len(playerName) > 1) then
                 for encounterIndex, encounter in ipairs(encounterTable) do
                     
                     if (encounter.guild == guild) then
@@ -693,12 +693,12 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     local onenter = function(self)
                         GameCooltip:Reset()
                         GameCooltip:SetType ("tooltip")
-                        GameCooltip:Preset (2)
+                        GameCooltip:Preset(2)
 
-                        GameCooltip:AddLine ("Total Done:", Details:ToK2 (self.data.value), 1, "white")
-                        GameCooltip:AddLine ("Dps:", Details:ToK2 (self.data.value / self.data.elapsed), 1, "white")
-                        GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]), 1, "white")
-                        GameCooltip:AddLine ("Date:", self.data.fulldate:gsub (".*%s", ""), 1, "white")
+                        GameCooltip:AddLine("Total Done:", Details:ToK2 (self.data.value), 1, "white")
+                        GameCooltip:AddLine("Dps:", Details:ToK2 (self.data.value / self.data.elapsed), 1, "white")
+                        GameCooltip:AddLine("Item Level:", floor(self.data.data [2]), 1, "white")
+                        GameCooltip:AddLine("Date:", self.data.fulldate:gsub (".*%s", ""), 1, "white")
 
                         GameCooltip:SetOwner(self.ball.tooltip_anchor)
                         GameCooltip:Show()
@@ -768,19 +768,19 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             
             local sortTable = {}
             for playerName, t in pairs(playerScore) do
-                local className = select (2, GetClassInfo (t.class or 0))
+                local className = select(2, GetClassInfo (t.class or 0))
                 local classColor = "FFFFFFFF"
                 if (className) then
                     classColor = RAID_CLASS_COLORS [className] and RAID_CLASS_COLORS [className].colorStr
                 end
             
-                local playerNameFormated = Details:GetOnlyName (playerName)
+                local playerNameFormated = Details:GetOnlyName(playerName)
                 tinsert(sortTable, {
                     "|c" .. classColor .. playerNameFormated .. "|r",
                     Details:comma_value (t.ps),
                     Details:ToK2 (t.total),
                     DF:IntegerToTimer (t.length),
-                    floor (t.ilvl),
+                    floor(t.ilvl),
                     t.date,
                     t.total,
                     t.ps,
@@ -841,7 +841,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                             tinsert(players, player)
                             players_index [playerName] = #players
                             
-                            --print ("not index", playerName, amt_encounters, date, 2, amt_encounters-1)
+                            --print("not index", playerName, amt_encounters, date, 2, amt_encounters-1)
                         else
                             player = players [index]
                             for i = #player+1, amt_encounters-1 do
@@ -862,9 +862,9 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     tinsert(playerTable, "")
                 end
 
-                local className = select (2, GetClassInfo (player_class [playerTable [1]] or 0))
+                local className = select(2, GetClassInfo (player_class [playerTable [1]] or 0))
                 if (className) then
-                    local playerNameFormated = Details:GetOnlyName (playerTable[1])
+                    local playerNameFormated = Details:GetOnlyName(playerTable[1])
                     local classColor = RAID_CLASS_COLORS [className] and RAID_CLASS_COLORS [className].colorStr
                     playerTable [1] = "|c" .. classColor .. playerNameFormated .. "|r"
                 end

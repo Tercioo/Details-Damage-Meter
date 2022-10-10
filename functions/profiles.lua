@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = 		_G._detalhes
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local _
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ end
 
 function _detalhes:CreateProfile (name)
 
-	if (not name or type (name) ~= "string" or name == "") then
+	if (not name or type(name) ~= "string" or name == "") then
 		return false
 	end
 
@@ -37,7 +37,7 @@ function _detalhes:CreateProfile (name)
 		end
 		
 	--copy the default table
-		local new_profile = Details.CopyTable (_detalhes.default_profile)
+		local new_profile = Details.CopyTable(_detalhes.default_profile)
 		new_profile.instances = {}
 	
 	--add to global container
@@ -126,7 +126,7 @@ function _detalhes:SetProfileCProp (name, cprop, value)
 	
 	if (profile) then
 		if (type(value) == "table") then
-			rawset (profile, cprop, Details.CopyTable (value))
+			rawset (profile, cprop, Details.CopyTable(value))
 		else
 			rawset (profile, cprop, value)
 		end
@@ -171,7 +171,7 @@ function _detalhes:ResetProfile (profile_name)
 		local instance = _detalhes:GetInstance(1)
 		local exported = instance:ExportSkin()
 		exported.__was_opened = instance:IsEnabled()
-		exported.__pos = Details.CopyTable (instance:GetPosition())
+		exported.__pos = Details.CopyTable(instance:GetPosition())
 		exported.__locked = instance.isLocked
 		exported.__snap = {}
 		exported.__snapH = false
@@ -222,7 +222,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 	--if the profile doesn't exist, just quit
 		if (not profile) then
-			_detalhes:Msg ("Profile Not Found.")
+			_detalhes:Msg("Profile Not Found.")
 			return false
 		end
 
@@ -239,7 +239,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			--the entire key doesn't exist
 			if (profile [key] == nil) then
 				if (type(value) == "table") then
-					profile [key] = Details.CopyTable (_detalhes.default_profile [key])
+					profile [key] = Details.CopyTable(_detalhes.default_profile [key])
 				else
 					profile [key] = value
 				end
@@ -257,10 +257,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 			if (type(value) == "table") then
 				if (key == "class_specs_coords") then
-					value = Details.CopyTable (_detalhes.default_profile.class_specs_coords)
+					value = Details.CopyTable(_detalhes.default_profile.class_specs_coords)
 				end
 			
-				local ctable = Details.CopyTable (value)
+				local ctable = Details.CopyTable(value)
 				_detalhes [key] = ctable
 			else
 				_detalhes [key] = value
@@ -285,7 +285,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		for index, instance in _detalhes:ListInstances() do
 			if (not getmetatable (instance)) then
 				instance.iniciada = false
-				setmetatable (instance, _detalhes)
+				setmetatable(instance, _detalhes)
 			end
 			if (instance:IsStarted()) then
 				if (instance:IsEnabled()) then
@@ -341,7 +341,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				--copy skin
 				for key, value in pairs(skin) do
 					if (type(value) == "table") then
-						instance [key] = Details.CopyTable (value)
+						instance [key] = Details.CopyTable(value)
 					else
 						instance [key] = value
 					end
@@ -372,21 +372,21 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				instance:LoadLocalInstanceConfig()
 				--check window positioning
 				if (_detalhes.profile_save_pos) then
-					--print ("is profile save pos", skin.__pos.normal.x, skin.__pos.normal.y)
+					--print("is profile save pos", skin.__pos.normal.x, skin.__pos.normal.y)
 					if (skin.__pos) then
-						instance.posicao = Details.CopyTable (skin.__pos)
+						instance.posicao = Details.CopyTable(skin.__pos)
 					else
 						if (not instance.posicao) then
-							print ("|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors.")
+							print("|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors.")
 							instance.posicao = {normal = {x = 1, y = 1, w = 300, h = 200}, solo = {}}
 						elseif (not instance.posicao.normal) then
-							print ("|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors.")
+							print("|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors.")
 							instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
 						end
 					end
 
 					instance.isLocked = skin.__locked
-					instance.snap = Details.CopyTable (skin.__snap) or {}
+					instance.snap = Details.CopyTable(skin.__snap) or {}
 					instance.horizontalSnap = skin.__snapH
 					instance.verticalSnap = skin.__snapV
 				else
@@ -445,8 +445,8 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			if (not _detalhes.initializing) then
 				for _, instance in _detalhes:ListInstances() do
 					if (instance:IsEnabled()) then
-						_detalhes.move_janela_func (instance.baseframe, true, instance)
-						_detalhes.move_janela_func (instance.baseframe, false, instance)
+						_detalhes.move_janela_func(instance.baseframe, true, instance)
+						_detalhes.move_janela_func(instance.baseframe, false, instance)
 					end
 				end
 			else
@@ -533,7 +533,7 @@ function _detalhes:SaveProfile (saveas)
 			local current_value = _detalhes [key]
 
 			if (type(current_value) == "table") then
-				local ctable = Details.CopyTable (current_value)
+				local ctable = Details.CopyTable(current_value)
 				profile [key] = ctable
 			else
 				profile [key] = current_value
@@ -1499,7 +1499,7 @@ function _detalhes:SaveProfileSpecial()
 			local current_value = _detalhes_database [key] or _detalhes_global [key] or _detalhes.default_player_data [key] or _detalhes.default_global_data [key]
 
 			if (type(current_value) == "table") then
-				local ctable = Details.CopyTable (current_value)
+				local ctable = Details.CopyTable(current_value)
 				profile [key] = ctable
 			else
 				profile [key] = current_value
@@ -1594,7 +1594,7 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 
 				print("D! (debug) mythic dungeon state restored.")
 				
-				C_Timer.After (2, function()
+				C_Timer.After(2, function()
 					_detalhes:SendEvent("COMBAT_MYTHICDUNGEON_START")
 				end)
 				return
@@ -1712,7 +1712,7 @@ end
 
 function Details:ImportProfile (profileString, newProfileName)
 
-	if (not newProfileName or type (newProfileName) ~= "string" or string.len (newProfileName) < 2) then
+	if (not newProfileName or type(newProfileName) ~= "string" or string.len(newProfileName) < 2) then
 		Details:Msg("invalid profile name or profile name is too short.") --localize-me
 		return
 	end

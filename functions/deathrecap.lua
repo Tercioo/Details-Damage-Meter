@@ -2,7 +2,7 @@
 
 local Details = _G.Details
 local textAlpha = 0.9
-local AceLocale = LibStub ("AceLocale-3.0")
+local AceLocale = LibStub("AceLocale-3.0")
 local L = AceLocale:GetLocale ( "Details" )
 
 local on_deathrecap_line_enter = function(self)
@@ -12,10 +12,10 @@ local on_deathrecap_line_enter = function(self)
 		self:SetBackdropColor(.3, .3, .3, .2)
 		GameTooltip:Show()
 		self.backgroundTextureOverlay:Show()
-		self.timeAt:SetAlpha (1)
-		self.sourceName:SetAlpha (1)
-		self.amount:SetAlpha (1)
-		self.lifePercent:SetAlpha (1)
+		self.timeAt:SetAlpha(1)
+		self.sourceName:SetAlpha(1)
+		self.amount:SetAlpha(1)
+		self.lifePercent:SetAlpha(1)
 	end
 end
 
@@ -23,10 +23,10 @@ local on_deathrecap_line_leave = function(self)
 	GameTooltip:Hide()
 	self:SetBackdropColor(.3, .3, .3, 0)
 	self.backgroundTextureOverlay:Hide()
-	self.timeAt:SetAlpha (textAlpha)
-	self.sourceName:SetAlpha (textAlpha)
-	self.amount:SetAlpha (textAlpha)
-	self.lifePercent:SetAlpha (textAlpha)
+	self.timeAt:SetAlpha(textAlpha)
+	self.sourceName:SetAlpha(textAlpha)
+	self.amount:SetAlpha(textAlpha)
+	self.lifePercent:SetAlpha(textAlpha)
 end
 
 local create_deathrecap_line = function(parent, n)
@@ -79,10 +79,10 @@ local create_deathrecap_line = function(parent, n)
 	Details.gump:SetFontSize (sourceName, 10)
 
 	--text alpha
-	timeAt:SetAlpha (textAlpha)
-	sourceName:SetAlpha (textAlpha)
-	amount:SetAlpha (textAlpha)
-	lifePercent:SetAlpha (textAlpha)
+	timeAt:SetAlpha(textAlpha)
+	sourceName:SetAlpha(textAlpha)
+	amount:SetAlpha(textAlpha)
+	lifePercent:SetAlpha(textAlpha)
 	
 	--text setup
 	amount:SetWidth(85)
@@ -97,13 +97,13 @@ local create_deathrecap_line = function(parent, n)
 
 	backgroundTexture:SetTexture([[Interface\AddOns\Details\images\deathrecap_background]])
 	backgroundTexture:SetTexCoord (0, 1, 0, 1)
-	backgroundTexture:SetVertexColor (.1, .1, .1, .3)
+	backgroundTexture:SetVertexColor(.1, .1, .1, .3)
 	
 	--top border
 	local TopFader = line:CreateTexture(nil, "border")
 	TopFader:SetTexture([[Interface\AddOns\Details\images\deathrecap_background_top]])
 	TopFader:SetTexCoord (0, 1, 0, 1)
-	TopFader:SetVertexColor (.1, .1, .1, .3)
+	TopFader:SetVertexColor(.1, .1, .1, .3)
 	TopFader:SetPoint("bottomleft", backgroundTexture, "topleft", 0, -0)
 	TopFader:SetPoint("bottomright", backgroundTexture, "topright", 0, -0)
 	TopFader:SetHeight(32)
@@ -115,24 +115,24 @@ local create_deathrecap_line = function(parent, n)
 		local backgroundTexture2 = line:CreateTexture(nil, "border")
 		backgroundTexture2:SetTexture([[Interface\AddOns\Details\images\deathrecap_background_bottom]])
 		backgroundTexture2:SetTexCoord (0, 1, 0, 1)
-		backgroundTexture2:SetVertexColor (.1, .1, .1, .3)	
+		backgroundTexture2:SetVertexColor(.1, .1, .1, .3)	
 		backgroundTexture2:SetPoint("topleft", backgroundTexture, "bottomleft", 0, 0)
 		backgroundTexture2:SetPoint("topright", backgroundTexture, "bottomright", 0, 0)
 		backgroundTexture2:SetHeight(32)
 
 		Details.gump:SetFontSize (amount, 14)
 		Details.gump:SetFontSize (lifePercent, 14)
-		backgroundTexture:SetVertexColor (.2, .1, .1, .3)
+		backgroundTexture:SetVertexColor(.2, .1, .1, .3)
 	end
 	
 	backgroundTexture:SetPoint("topleft", 0, 1)
 	backgroundTexture:SetPoint("bottomright", 0, -1)
-	backgroundTexture:SetDesaturated (true)
+	backgroundTexture:SetDesaturated(true)
 	backgroundTextureOverlay:SetTexture([[Interface\AdventureMap\AdventureMap]])
 	backgroundTextureOverlay:SetTexCoord (460/1024, 659/1024, 330/1024, 350/1024)
 	backgroundTextureOverlay:SetAllPoints()
-	backgroundTextureOverlay:SetDesaturated (true)
-	backgroundTextureOverlay:SetAlpha (0.5)
+	backgroundTextureOverlay:SetDesaturated(true)
+	backgroundTextureOverlay:SetAlpha(0.5)
 	backgroundTextureOverlay:Hide()
 	
 	line.timeAt = timeAt
@@ -173,7 +173,7 @@ function Details.BuildDeathTableFromRecap (recapID)
 		{}, --deathlog events
 		(events [1] and events [1].timestamp) or (DeathRecapFrame and DeathRecapFrame.DeathTimeStamp) or 0, --time of death
 		UnitName ("player"),
-		select (2, UnitClass ("player")),
+		select(2, UnitClass ("player")),
 		UnitHealthMax ("player"),
 		"0m 0s", --formated fight time
 		["dead"] = true,
@@ -272,7 +272,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             local segmentButton = CreateFrame("button", "DetailsDeathRecapSegmentButton" .. i, Details.DeathRecap, "BackdropTemplate")
             
             segmentButton:SetSize(16, 20)
-            segmentButton:SetPoint("topright", DeathRecapFrame, "topright", (-abs (i-6) * 22) - 10, -5)
+            segmentButton:SetPoint("topright", DeathRecapFrame, "topright", (-abs(i-6) * 22) - 10, -5)
             
             local text = segmentButton:CreateFontString (nil, "overlay", "GameFontNormal")
             segmentButton.text = text
@@ -398,7 +398,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
         end)
         for i = #BiggestDamageHits, 1, -1 do
             if (BiggestDamageHits [i][4] + relevanceTime < timeOfDeath) then
-                tremove (BiggestDamageHits, i)
+                tremove(BiggestDamageHits, i)
             end
         end
         
@@ -449,7 +449,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
         else
             --cut table to show only 10 events
             while (#BiggestDamageHits > 10) do 
-                tremove (BiggestDamageHits, 11)
+                tremove(BiggestDamageHits, 11)
             end
         end
 
@@ -474,7 +474,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             local event = events [i]
             
             local evType = event [1]
-            local hp = min (floor (event [5] / maxHP * 100), 100)
+            local hp = min (floor(event [5] / maxHP * 100), 100)
             local spellName, _, spellIcon = Details.GetSpellInfo(event [2])
             local amount = event [3]
             local eventTime = event [4]
@@ -500,7 +500,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                     if (not sourceClass) then
                         local combat = Details:GetCurrentCombat()
                         if (combat) then
-                            local sourceActor = combat:GetActor (1, source)
+                            local sourceActor = combat:GetActor(1, source)
                             if (sourceActor) then
                                 sourceClass = sourceActor.classe
                             end
@@ -510,7 +510,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                     if (not sourceSpec) then
                         local combat = Details:GetCurrentCombat()
                         if (combat) then
-                            local sourceActor = combat:GetActor (1, source)
+                            local sourceActor = combat:GetActor(1, source)
                             if (sourceActor) then
                                 sourceSpec = sourceActor.spec
                             end
@@ -518,7 +518,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                     end
                     
                     --remove real name or owner name
-                    source = Details:GetOnlyName (source)
+                    source = Details:GetOnlyName(source)
                     --remove owner name
                     source = source:gsub ((" <.*"), "")
                     
@@ -541,7 +541,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                             else
                                 source = "Gravity"
                             end
-                            --/run for a,b in pairs(_G) do if (type(b)=="string" and b:find ("Falling")) then print (a,b) end end
+                            --/run for a,b in pairs(_G) do if (type(b)=="string" and b:find ("Falling")) then print(a,b) end end
                         end
                     end
                     
@@ -556,8 +556,8 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                         --line.amount:SetText("-" .. Details:ToK (amount))
                         line.amount:SetText("-" .. Details:comma_value(floor(amount)))
                     else
-                        --line.amount:SetText("-" .. floor (amount))
-                        line.amount:SetText("-" .. floor (amount))
+                        --line.amount:SetText("-" .. floor(amount))
+                        line.amount:SetText("-" .. floor(amount))
                     end
                     
                     line.lifePercent:SetText(hp .. "%")

@@ -3,7 +3,7 @@ local Details = _G.Details
 
 
 function Details:TestBarsUpdate()
-    local current_combat = Details:GetCombat ("current")
+    local current_combat = Details:GetCombat("current")
     for index, actor in current_combat[1]:ListActors() do
         actor.total = actor.total + (actor.total / 100 * math.random (1, 10))
         actor.total = actor.total - (actor.total / 100 * math.random (1, 10))
@@ -18,20 +18,20 @@ end
 
 function Details:StartTestBarUpdate()
     if (Details.test_bar_update) then
-        Details:CancelTimer (Details.test_bar_update)
+        Details:CancelTimer(Details.test_bar_update)
     end
     Details.test_bar_update = Details:ScheduleRepeatingTimer ("TestBarsUpdate", 0.1)
 end
 function Details:StopTestBarUpdate()
     if (Details.test_bar_update) then
-        Details:CancelTimer (Details.test_bar_update)
+        Details:CancelTimer(Details.test_bar_update)
     end
     Details.test_bar_update = nil
 end
 
 function Details:CreateTestBars (alphabet, isArena)
-    local current_combat = Details:GetCombat ("current")
-    local pclass = select (2, UnitClass ("player"))
+    local current_combat = Details:GetCombat("current")
+    local pclass = select(2, UnitClass ("player"))
 
     local actors_name = {
             {"Spiro", "EVOKER", 1467},

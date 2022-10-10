@@ -6,7 +6,7 @@ do
 --On The Fly SpellCache
 
 	local _detalhes = 	_G._detalhes
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local _
 	local _rawget	=	rawget
 	local _rawset	=	rawset
@@ -61,7 +61,7 @@ do
 
 	--reset spell cache
 	function _detalhes:ClearSpellCache()
-		_detalhes.spellcache = _setmetatable ({}, 
+		_detalhes.spellcache = _setmetatable({}, 
 				{__index = function(tabela, valor) 
 					local esta_magia = _rawget (tabela, valor)
 					if (esta_magia) then
@@ -248,7 +248,7 @@ do
 			if (spellid > 10) then
 				local exists = _GetSpellInfo(spellid)
 				if (not exists) then
-					tremove (_detalhes.savedCustomSpells, i)
+					tremove(_detalhes.savedCustomSpells, i)
 				end
 			end
 		end
@@ -278,7 +278,7 @@ do
 			if (name) then
 				_rawset (_detalhes.spellcache, spellid, {name, 1, icon})
 			end
-			return tremove (_detalhes.savedCustomSpells, index)
+			return tremove(_detalhes.savedCustomSpells, index)
 		end
 		
 		return false
@@ -286,7 +286,7 @@ do
 	
 	--overwrite for API GetSpellInfo function
 	
-	_detalhes.getspellinfo = function(spellid) return _unpack (_detalhes.spellcache[spellid]) end
+	_detalhes.getspellinfo = function(spellid) return _unpack(_detalhes.spellcache[spellid]) end
 	_detalhes.GetSpellInfo = _detalhes.getspellinfo
 
 	--overwrite SpellInfo if the spell is a DoT, so Details.GetSpellInfo will return the name modified
@@ -325,7 +325,7 @@ do
 			load_frame.tick = _detalhes:ScheduleRepeatingTimer ("BuildSpellListSlowTick", 1)
 			
 			function load_frame:GetProgress()
-				return math.floor (step / max * 100)
+				return math.floor(step / max * 100)
 			end
 		end
 		
@@ -356,7 +356,7 @@ do
 				step = max
 				_G.DetailsLoadSpellCache.completed = true
 				_G.DetailsLoadSpellCache.inprogress = false
-				_detalhes:CancelTimer (_G.DetailsLoadSpellCache.tick)
+				_detalhes:CancelTimer(_G.DetailsLoadSpellCache.tick)
 				DetailsLoadSpellCacheProgress:Hide()
 				load_frame:SetScript("OnUpdate", nil)
 			end

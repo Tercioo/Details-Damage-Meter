@@ -273,7 +273,7 @@ local unpackActorFlag = function(flag)
 end
 
 local isActorInGroup = function(class, flag)
-    if (bit.band (flag, IS_GROUP_OBJECT) ~= 0 and class ~= "UNKNOW" and class ~= "UNGROUPPLAYER" and class ~= "PET") then
+    if (bit.band(flag, IS_GROUP_OBJECT) ~= 0 and class ~= "UNKNOW" and class ~= "UNGROUPPLAYER" and class ~= "PET") then
         return true
     end
     return false

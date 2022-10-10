@@ -15,14 +15,14 @@
 	local _table_insert = table.insert --lua local
 	local _table_size = table.getn --lua local
 	local _setmetatable = setmetatable --lua local
-	local _ipairs = ipairs --lua local
+	local ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	local _rawget= rawget --lua local
 	local _math_min = math.min --lua local
 	local _math_max = math.max --lua local
 	local _bit_band = bit.band --lua local
 	local _unpack = unpack --lua local
-	local _type = type --lua local
+	local type = type --lua local
 	local _pcall = pcall -- lua local
 
 	local _GetSpellInfo = _detalhes.getspellinfo -- api local
@@ -34,7 +34,7 @@
 	local _GetUnitName = GetUnitName -- api local
 
 	local _string_replace = _detalhes.string.replace --details api
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
@@ -116,7 +116,7 @@
 					DetailsFramework:SetEnvironment(func)
 					_detalhes.custom_function_cache [instance.customName] = func
 				else
-					_detalhes:Msg ("|cFFFF9900error compiling code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+					_detalhes:Msg("|cFFFF9900error compiling code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
 				end
 
 				if (custom_object.tooltip) then
@@ -125,7 +125,7 @@
 						DetailsFramework:SetEnvironment(tooltip_script)
 						_detalhes.custom_function_cache [instance.customName .. "Tooltip"] = tooltip_script
 					else
-						_detalhes:Msg ("|cFFFF9900error compiling tooltip code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+						_detalhes:Msg("|cFFFF9900error compiling tooltip code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
 					end
 				end
 				
@@ -135,7 +135,7 @@
 						DetailsFramework:SetEnvironment(total_script)
 						_detalhes.custom_function_cache [instance.customName .. "Total"] = total_script
 					else
-						_detalhes:Msg ("|cFFFF9900error compiling total code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+						_detalhes:Msg("|cFFFF9900error compiling total code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
 					end
 				end
 				
@@ -145,19 +145,19 @@
 						DetailsFramework:SetEnvironment(percent_script)
 						_detalhes.custom_function_cache [instance.customName .. "Percent"] = percent_script
 					else
-						_detalhes:Msg ("|cFFFF9900error compiling percent code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
+						_detalhes:Msg("|cFFFF9900error compiling percent code for custom display " .. (instance.customName or "") ..  " |r:", errortext)
 					end
 				end
 			end
 			
 			if (not func) then
-				_detalhes:Msg (Loc ["STRING_CUSTOM_FUNC_INVALID"], func)
+				_detalhes:Msg(Loc ["STRING_CUSTOM_FUNC_INVALID"], func)
 				_detalhes:EndRefresh (instance, 0, combat, combat [1])
 			end
 			
 			local okey, _total, _top, _amount = _pcall (func, combat, instance_container, instance)
 			if (not okey) then
-				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", _total)
+				_detalhes:Msg("|cFFFF9900error on custom display function|r:", _total)
 				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 			end
 			
@@ -216,14 +216,14 @@
 				local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
 				local okey
 				
-				for index, actor in _ipairs(instance_container._ActorTable) do
+				for index, actor in ipairs(instance_container._ActorTable) do
 				
 					local percent, ptotal
 					
 					if (percent_script) then
 						okey, percent = _pcall (percent_script, _math_floor(actor.value), top, total, combat, instance, actor)
 						if (not okey) then
-							_detalhes:Msg ("|cFFFF9900percent script error|r:", percent)
+							_detalhes:Msg("|cFFFF9900percent script error|r:", percent)
 							return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 						end
 					else
@@ -233,7 +233,7 @@
 					if (total_script) then
 						local okey, value = _pcall (total_script, _math_floor(actor.value), top, total, combat, instance, actor)
 						if (not okey) then
-							_detalhes:Msg ("|cFFFF9900total script error|r:", value)
+							_detalhes:Msg("|cFFFF9900total script error|r:", value)
 							return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 						end
 						
@@ -292,7 +292,7 @@
 		
 		if (source == "[all]") then
 			
-			for _, actor in _ipairs(combat_container) do 
+			for _, actor in ipairs(combat_container) do 
 				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
 				if (actortotal > 0) then
 					total = total + actortotal
@@ -316,7 +316,7 @@
 				end
 			end
 
-			for _, actor in _ipairs(combat_container) do
+			for _, actor in ipairs(combat_container) do
 				if (actor.grupo) then
 					if (not func) then
 						Details:Msg("error on class_custom 'func' is invalid, backtrace:", debugstack())
@@ -422,8 +422,8 @@
 				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 				
 				row1:SetValue(100)
-				local r, g, b = unpack (instance.total_bar.color)
-				row1.textura:SetVertexColor (r, g, b)
+				local r, g, b = unpack(instance.total_bar.color)
+				row1.textura:SetVertexColor(r, g, b)
 				
 				row1.icone_classe:SetTexture(instance.total_bar.icon)
 				row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -458,8 +458,8 @@
 				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 				
 				row1:SetValue(100)
-				local r, g, b = unpack (instance.total_bar.color)
-				row1.textura:SetVertexColor (r, g, b)
+				local r, g, b = unpack(instance.total_bar.color)
+				row1.textura:SetVertexColor(r, g, b)
 				
 				row1.icone_classe:SetTexture(instance.total_bar.icon)
 				row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -511,7 +511,7 @@
 				--local value, top, total, combat, instance = ...
 				okey, percent = _pcall (percent_script, self.value, top, total, combat, instance, self)
 				if (not okey) then
-					_detalhes:Msg ("|cFFFF9900error on custom display function|r:", percent)
+					_detalhes:Msg("|cFFFF9900error on custom display function|r:", percent)
 					return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 				end
 			else
@@ -530,7 +530,7 @@
 			if (total_script) then
 				local okey, value = _pcall (total_script, self.value, top, total, combat, instance, self)
 				if (not okey) then
-					_detalhes:Msg ("|cFFFF9900error on custom display function|r:", value)
+					_detalhes:Msg("|cFFFF9900error on custom display function|r:", value)
 					return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 				end
 
@@ -578,10 +578,10 @@
 				if (not school_color) then
 					school_color = _detalhes.school_colors ["unknown"]
 				end
-				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (school_color)
+				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack(school_color)
 			else
 				local color = _detalhes.school_colors ["unknown"]
-				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (color)
+				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack(color)
 			end
 		else
 			actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
@@ -614,10 +614,10 @@
 				Details.FadeHandler.Fader(esta_barra, "out")
 				
 				if (instancia.row_info.texture_class_colors) then
-					esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+					esta_barra.textura:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 				end
 				if (instancia.row_info.texture_background_class_color) then
-					esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+					esta_barra.background:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 				end
 				
 				return self:RefreshBarra (esta_barra, instancia)
@@ -674,10 +674,10 @@
 					if (not school_color) then
 						school_color = _detalhes.school_colors ["unknown"]
 					end
-					actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (school_color)
+					actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack(school_color)
 				else
 					local color = _detalhes.school_colors ["unknown"]
-					actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (color)
+					actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack(color)
 				end
 			else
 				actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
@@ -690,7 +690,7 @@
 		if (self.classe == "UNKNOW") then
 			esta_barra.icone_classe:SetTexture("Interface\\LFGFRAME\\LFGROLE_BW")
 			esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+			esta_barra.icone_classe:SetVertexColor(1, 1, 1)
 
 		elseif (self.classe == "UNGROUPPLAYER") then
 			if (self.enemy) then
@@ -710,12 +710,12 @@
 					esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
 				end
 			end
-			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+			esta_barra.icone_classe:SetVertexColor(1, 1, 1)
 		
 		elseif (self.classe == "PET") then
 			esta_barra.icone_classe:SetTexture(instancia.row_info.icon_file)
 			esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
-			esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+			esta_barra.icone_classe:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 		else
 			if (self.id) then
@@ -725,17 +725,17 @@
 				if (instancia.row_info.use_spec_icons) then
 					if ((self.spec and self.spec ~= 0) or (self.my_actor.spec and self.my_actor.spec ~= 0)) then
 						esta_barra.icone_classe:SetTexture(instancia.row_info.spec_file)
-						esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec or self.my_actor.spec]))
+						esta_barra.icone_classe:SetTexCoord (_unpack(_detalhes.class_specs_coords [self.spec or self.my_actor.spec]))
 					else
 						esta_barra.icone_classe:SetTexture([[Interface\AddOns\Details\images\classes_small]])
-						esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
+						esta_barra.icone_classe:SetTexCoord (_unpack(CLASS_ICON_TCOORDS [self.classe]))
 					end
 				else
 					esta_barra.icone_classe:SetTexture(instancia.row_info.icon_file)
-					esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
+					esta_barra.icone_classe:SetTexCoord (_unpack(CLASS_ICON_TCOORDS [self.classe]))
 				end
 			end
-			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+			esta_barra.icone_classe:SetVertexColor(1, 1, 1)
 		end
 
 		--left text
@@ -746,14 +746,14 @@
 	end	
 
 	function atributo_custom:CreateCustomActorContainer()
-		return _setmetatable ({
+		return _setmetatable({
 			_NameIndexTable = {},
 			_ActorTable = {}
 		}, {__index = atributo_custom})
 	end
 	
 	function atributo_custom:ResetCustomActorContainer()
-		for _, actor in _ipairs(self._ActorTable) do
+		for _, actor in ipairs(self._ActorTable) do
 			actor.value = actor.value - _math_floor(actor.value)
 			--actor.value = _detalhes:GetOrderNumber(actor.nome)
 		end
@@ -856,7 +856,7 @@
 				end
 			end
 		
-			local newActor = _setmetatable ({
+			local newActor = _setmetatable({
 				nome = actor.nome or actor.name,
 				classe = class,
 				value = _detalhes:GetOrderNumber(),
@@ -865,7 +865,7 @@
 			}, atributo_custom.mt)
 			
 			newActor.name_complement = name_complement
-			newActor.displayName = actor.displayName or (_detalhes:GetOnlyName (newActor.nome) .. (name_complement or ""))
+			newActor.displayName = actor.displayName or (_detalhes:GetOnlyName(newActor.nome) .. (name_complement or ""))
 			newActor.spec = actor.spec
 			
 			newActor.enemy = actor.enemy
@@ -891,7 +891,7 @@
 					newActor.classe = Details:GetClass(actor.nome or actor.name) or "UNKNOW"
 				end
 				if (newActor.classe == "UNGROUPPLAYER") then
-					--atributo_custom:ScheduleTimer ("UpdateClass", 5, {newActor = newActor, actor = actor})
+					--atributo_custom:ScheduleTimer("UpdateClass", 5, {newActor = newActor, actor = actor})
 					Details.Schedules.NewTimer(5, atributo_custom.UpdateClass, self, {new_actor = newActor, actor = actor})
 				end
 			end
@@ -912,7 +912,7 @@
 	end
 
 	function atributo_custom:CreateCustomDisplayObject()
-		return _setmetatable ({
+		return _setmetatable({
 			name = "new custom",
 			icon = [[Interface\ICONS\TEMP]],
 			author = "unknown",
@@ -958,13 +958,13 @@
 			if (not school_color) then
 				school_color = _detalhes.school_colors ["unknown"]
 			end
-			r, g, b = _unpack (school_color)
+			r, g, b = _unpack(school_color)
 		else
 			r, g, b = actor:GetClassColor()
 		end
 		
 		if (actor.id) then
-			_detalhes:AddTooltipSpellHeaderText (select (1, _GetSpellInfo(actor.id)), "yellow", 1, select (3, _GetSpellInfo(actor.id)), 0.90625, 0.109375, 0.15625, 0.875)
+			_detalhes:AddTooltipSpellHeaderText (select(1, _GetSpellInfo(actor.id)), "yellow", 1, select(3, _GetSpellInfo(actor.id)), 0.90625, 0.109375, 0.15625, 0.875)
 		else
 			_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, custom_object:GetIcon(), 0.90625, 0.109375, 0.15625, 0.875)
 		end
@@ -980,7 +980,7 @@
 				end
 				local okey, errortext = _pcall (func, actor, instance.showing, instance, keydown)
 				if (not okey) then
-					_detalhes:Msg ("|cFFFF9900error on custom display tooltip function|r:", errortext)
+					_detalhes:Msg("|cFFFF9900error on custom display tooltip function|r:", errortext)
 					return false
 				end
 			end
@@ -1084,7 +1084,7 @@
 	
 		table.remove (_detalhes.custom, index)
 		
-		for _, instance in _ipairs(_detalhes.tabela_instancias) do 
+		for _, instance in ipairs(_detalhes.tabela_instancias) do 
 			if (instance.atributo == 5 and instance.sub_atributo == index) then 
 				instance:ResetAttribute()
 			elseif (instance.atributo == 5 and instance.sub_atributo > index) then
@@ -1121,7 +1121,7 @@
 					--check if there is a instance showing this custom
 					local showing = false
 					
-					for index, instance in _ipairs(_detalhes.tabela_instancias) do
+					for index, instance in ipairs(_detalhes.tabela_instancias) do
 						if (instance.atributo == 5 and instance.sub_atributo == i) then 
 							showing = true
 						end
@@ -1135,14 +1135,14 @@
 		end
 	
 		--restore metatable and indexes
-		for index, custom_object in _ipairs(_detalhes.custom) do
-			_setmetatable (custom_object, atributo_custom)
+		for index, custom_object in ipairs(_detalhes.custom) do
+			_setmetatable(custom_object, atributo_custom)
 			custom_object.__index = atributo_custom
 		end
 	end
 
 	function _detalhes.clear:c_atributo_custom()
-		for _, custom_object in _ipairs(_detalhes.custom) do
+		for _, custom_object in ipairs(_detalhes.custom) do
 			custom_object.__index = nil
 		end
 	end
@@ -1180,7 +1180,7 @@
 					break
 				end
 			end
-			setmetatable (object, _detalhes.atributo_custom)
+			setmetatable(object, _detalhes.atributo_custom)
 			object.__index = _detalhes.atributo_custom
 			_detalhes.custom [#_detalhes.custom+1] = object
 		end
@@ -1273,7 +1273,7 @@
 				local focus_potion = debuff_uptime_container [DETAILS_FOCUS_POTION_ID]
 				if (focus_potion) then
 				local name, _, icon = GetSpellInfo(DETAILS_FOCUS_POTION_ID)
-				GameCooltip:AddLine (name, 1) --can use only 1 focus potion (can't be pre-potion)
+				GameCooltip:AddLine(name, 1) --can use only 1 focus potion (can't be pre-potion)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				end
@@ -1287,7 +1287,7 @@
 			
 					if (potionUsed) then
 						local name, _, icon = GetSpellInfo(spellId)
-						GameCooltip:AddLine (name, potionUsed.activedamt)
+						GameCooltip:AddLine(name, potionUsed.activedamt)
 						_detalhes:AddTooltipBackgroundStatusbar()
 						GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					end
@@ -1309,7 +1309,7 @@
 					table.remove (self.custom, i)
 				end
 			end
-			setmetatable (PotionUsed, _detalhes.atributo_custom)
+			setmetatable(PotionUsed, _detalhes.atributo_custom)
 			PotionUsed.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = PotionUsed
 		end
@@ -1366,29 +1366,29 @@
 				
 				local hs = actor:GetSpell (6262)
 				if (hs) then
-					GameCooltip:AddLine (select (1, GetSpellInfo(6262)),  _detalhes:ToK(hs.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo(6262)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddLine(select(1, GetSpellInfo(6262)),  _detalhes:ToK(hs.total))
+					GameCooltip:AddIcon (select(3, GetSpellInfo(6262)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
 				local pot = actor:GetSpell (DETAILS_HEALTH_POTION_ID)
 				if (pot) then
-					GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_HEALTH_POTION_ID)),  _detalhes:ToK(pot.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo(DETAILS_HEALTH_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddLine(select(1, GetSpellInfo(DETAILS_HEALTH_POTION_ID)),  _detalhes:ToK(pot.total))
+					GameCooltip:AddIcon (select(3, GetSpellInfo(DETAILS_HEALTH_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
 				local pot = actor:GetSpell (DETAILS_HEALTH_POTION2_ID)
 				if (pot) then
-					GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_HEALTH_POTION2_ID)),  _detalhes:ToK(pot.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo(DETAILS_HEALTH_POTION2_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddLine(select(1, GetSpellInfo(DETAILS_HEALTH_POTION2_ID)),  _detalhes:ToK(pot.total))
+					GameCooltip:AddIcon (select(3, GetSpellInfo(DETAILS_HEALTH_POTION2_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
 				local pot = actor:GetSpell (DETAILS_REJU_POTION_ID)
 				if (pot) then
-					GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_REJU_POTION_ID)),  _detalhes:ToK(pot.total))
-					GameCooltip:AddIcon (select (3, GetSpellInfo(DETAILS_REJU_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
+					GameCooltip:AddLine(select(1, GetSpellInfo(DETAILS_REJU_POTION_ID)),  _detalhes:ToK(pot.total))
+					GameCooltip:AddIcon (select(3, GetSpellInfo(DETAILS_REJU_POTION_ID)), 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 					GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 				end
 				
@@ -1412,7 +1412,7 @@
 					table.remove (self.custom, i)
 				end
 			end
-			setmetatable (Healthstone, _detalhes.atributo_custom)
+			setmetatable(Healthstone, _detalhes.atributo_custom)
 			Healthstone.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = Healthstone
 		end
@@ -1431,7 +1431,7 @@
 			script_version = 3,
 			total_script = [[
 				local value, top, total, combat, instance = ...
-				local minutos, segundos = math.floor (value/60), math.floor (value%60)
+				local minutos, segundos = math.floor(value/60), math.floor(value%60)
 				return minutos .. "m " .. segundos .. "s"
 			]],
 			percent_script = [[
@@ -1478,7 +1478,7 @@
 					table.remove (self.custom, i)
 				end
 			end
-			setmetatable (DamageActivityTime, _detalhes.atributo_custom)
+			setmetatable(DamageActivityTime, _detalhes.atributo_custom)
 			DamageActivityTime.__index = _detalhes.atributo_custom		
 			self.custom [#self.custom+1] = DamageActivityTime
 		end
@@ -1495,7 +1495,7 @@
 			script_version = 2,
 			total_script = [[
 				local value, top, total, combat, instance = ...
-				local minutos, segundos = math.floor (value/60), math.floor (value%60)
+				local minutos, segundos = math.floor(value/60), math.floor(value%60)
 				return minutos .. "m " .. segundos .. "s"
 			]],
 			percent_script = [[
@@ -1542,7 +1542,7 @@
 					table.remove (self.custom, i)
 				end
 			end
-			setmetatable (HealActivityTime, _detalhes.atributo_custom)
+			setmetatable(HealActivityTime, _detalhes.atributo_custom)
 			HealActivityTime.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = HealActivityTime
 		end
@@ -1569,7 +1569,7 @@
 
 				for index, character in ipairs(misc_actors) do
 					if (character.cc_done and character:IsPlayer()) then
-						local cc_done = floor (character.cc_done)
+						local cc_done = floor(character.cc_done)
 						instance_container:AddValue (character, cc_done)
 						total = total + cc_done
 						if (cc_done > top) then
@@ -1592,7 +1592,7 @@
 
 				for index, spell in ipairs(spells) do
 				    local name, _, icon = GetSpellInfo(spell [1])
-				    GameCooltip:AddLine (name, spell [2])
+				    GameCooltip:AddLine(name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				end
@@ -1609,7 +1609,7 @@
 				_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.6)
 
 				for index, target in ipairs(targets) do
-				    GameCooltip:AddLine (target[1], target [2])
+				    GameCooltip:AddLine(target[1], target [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    
 				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (target [1])
@@ -1624,7 +1624,7 @@
 			]],
 			total_script = [[
 				local value, top, total, combat, instance = ...
-				return floor (value)
+				return floor(value)
 			]],
 		}
 		
@@ -1638,7 +1638,7 @@
 			end
 		end
 		if (not have) then
-			setmetatable (CC_Done, _detalhes.atributo_custom)
+			setmetatable(CC_Done, _detalhes.atributo_custom)
 			CC_Done.__index = _detalhes.atributo_custom
 			
 			for i, custom in ipairs(self.custom) do
@@ -1734,7 +1734,7 @@
 
 				for index, spell in ipairs(spells) do
 				    local name, _, icon = GetSpellInfo(spell [1])
-				    GameCooltip:AddLine (name, spell [2])
+				    GameCooltip:AddLine(name, spell [2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    GameCooltip:AddIcon (icon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)    
 				end
@@ -1743,7 +1743,7 @@
 				_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.6)
 
 				for index, t in ipairs(from) do
-				    GameCooltip:AddLine (t[1], t[2])
+				    GameCooltip:AddLine(t[1], t[2])
 				    _detalhes:AddTooltipBackgroundStatusbar()
 				    
 				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (t [1])
@@ -1758,7 +1758,7 @@
 			]],
 			total_script = [[
 				local value, top, total, combat, instance = ...
-				return floor (value)
+				return floor(value)
 			]],
 		}
 		
@@ -1772,7 +1772,7 @@
 			end
 		end
 		if (not have) then
-			setmetatable (CC_Received, _detalhes.atributo_custom)
+			setmetatable(CC_Received, _detalhes.atributo_custom)
 			CC_Received.__index = _detalhes.atributo_custom
 			
 			for i, custom in ipairs(self.custom) do
@@ -1808,7 +1808,7 @@
 				local player
 				local pet_attribute
 				
-				local role = DetailsFramework.UnitGroupRolesAssigned ("player")
+				local role = DetailsFramework.UnitGroupRolesAssigned("player")
 				local spec = DetailsFramework.GetSpecialization()
 				role = spec and DetailsFramework.GetSpecializationRole (spec) or role
 
@@ -1868,7 +1868,7 @@
 			local GC = GameCooltip
 			GC:SetOption("YSpacingMod", 0)
 
-			local role = DetailsFramework.UnitGroupRolesAssigned ("player")
+			local role = DetailsFramework.UnitGroupRolesAssigned("player")
 
 			if (spell.n_dmg) then
 			    
@@ -1888,7 +1888,7 @@
 			    if (misc_actor) then
 				local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [spell.id] and misc_actor.debuff_uptime_spells._ActorTable [spell.id].uptime
 				if (debuff_uptime) then
-				    debuff_uptime_total = floor (debuff_uptime / instance.showing:GetCombatTime() * 100)
+				    debuff_uptime_total = floor(debuff_uptime / instance.showing:GetCombatTime() * 100)
 				end
 				
 				local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spell.id]
@@ -1909,30 +1909,30 @@
 			    end
 			    
 			    --Cooltip code
-			    GC:AddLine ("Casts:", cast_string or "?")
+			    GC:AddLine("Casts:", cast_string or "?")
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    if (debuff_uptime_total ~= "") then
-				GC:AddLine ("Uptime:", (debuff_uptime_total or "?") .. "%")
+				GC:AddLine("Uptime:", (debuff_uptime_total or "?") .. "%")
 				GC:AddStatusBar (100, 1, R, G, B, A)
 			    end
 			    
-			    GC:AddLine ("Hits:", spell.counter)
+			    GC:AddLine("Hits:", spell.counter)
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    local average = spell.total / total_hits
-			    GC:AddLine ("Average:", _detalhes:ToK (average))
+			    GC:AddLine("Average:", _detalhes:ToK (average))
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    GC:AddLine ("E-Dps:", _detalhes:ToK (spell.total / combat_time))
+			    GC:AddLine("E-Dps:", _detalhes:ToK (spell.total / combat_time))
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    GC:AddLine ("School:", schooltext)
+			    GC:AddLine("School:", schooltext)
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    --GC:AddLine (" ")
+			    --GC:AddLine(" ")
 			    
-			    GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
+			    GC:AddLine("Normal Hits: ", spell.n_amt .. " (" ..floor( spell.n_amt/total_hits*100) .. "%)")
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    local n_average = spell.n_dmg / spell.n_amt
@@ -1940,12 +1940,12 @@
 			    local P = average/n_average*100
 			    T = P*T/100
 			    
-			    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_dmg / T ))
+			    GC:AddLine("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_dmg / T ))
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    --GC:AddLine (" ")
+			    --GC:AddLine(" ")
 			    
-			    GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
+			    GC:AddLine("Critical Hits: ", spell.c_amt .. " (" ..floor( spell.c_amt/total_hits*100) .. "%)")
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    if (spell.c_amt > 0) then
@@ -1955,9 +1955,9 @@
 				T = P*T/100
 				local crit_dps = spell.c_dmg / T
 				
-				GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
+				GC:AddLine("Average / E-Dps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
 			    else
-				GC:AddLine ("Average / E-Dps: ",  "0 / 0")    
+				GC:AddLine("Average / E-Dps: ",  "0 / 0")    
 			    end
 			    
 			    GC:AddStatusBar (100, 1, R, G, B, A)
@@ -1977,22 +1977,22 @@
 			    local combat_time = instance.showing:GetCombatTime()
 			    
 			    --Cooltip code
-			    GC:AddLine ("Hits:", spell.counter)
+			    GC:AddLine("Hits:", spell.counter)
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    local average = spell.total / total_hits
-			    GC:AddLine ("Average:", _detalhes:ToK (average))
+			    GC:AddLine("Average:", _detalhes:ToK (average))
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    GC:AddLine ("E-Hps:", _detalhes:ToK (spell.total / combat_time))
+			    GC:AddLine("E-Hps:", _detalhes:ToK (spell.total / combat_time))
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    GC:AddLine ("School:", schooltext)
+			    GC:AddLine("School:", schooltext)
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    --GC:AddLine (" ")
+			    --GC:AddLine(" ")
 			    
-			    GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
+			    GC:AddLine("Normal Hits: ", spell.n_amt .. " (" ..floor( spell.n_amt/total_hits*100) .. "%)")
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    local n_average = spell.n_curado / spell.n_amt
@@ -2000,12 +2000,12 @@
 			    local P = average/n_average*100
 			    T = P*T/100
 			    
-			    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_curado / T ))
+			    GC:AddLine("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_curado / T ))
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
-			    --GC:AddLine (" ")
+			    --GC:AddLine(" ")
 			    
-			    GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
+			    GC:AddLine("Critical Hits: ", spell.c_amt .. " (" ..floor( spell.c_amt/total_hits*100) .. "%)")
 			    GC:AddStatusBar (100, 1, R, G, B, A)
 			    
 			    if (spell.c_amt > 0) then
@@ -2015,9 +2015,9 @@
 				T = P*T/100
 				local crit_dps = spell.c_curado / T
 				
-				GC:AddLine ("Average / E-Hps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
+				GC:AddLine("Average / E-Hps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
 			    else
-				GC:AddLine ("Average / E-Hps: ",  "0 / 0")    
+				GC:AddLine("Average / E-Hps: ",  "0 / 0")    
 			    end
 			    
 			    GC:AddStatusBar (100, 1, R, G, B, A)
@@ -2026,7 +2026,7 @@
 			
 			percent_script = [[
 				local value, top, total, combat, instance = ...
-				local dps = _detalhes:ToK (floor (value) / combat:GetCombatTime())
+				local dps = _detalhes:ToK (floor(value) / combat:GetCombatTime())
 				local percent = string.format("%.1f", value/total*100)
 				return dps .. ", " .. percent
 			]],
@@ -2040,7 +2040,7 @@
 			end
 		end
 		if (not have) then
-			setmetatable (MySpells, _detalhes.atributo_custom)
+			setmetatable(MySpells, _detalhes.atributo_custom)
 			MySpells.__index = _detalhes.atributo_custom
 			
 			for i, custom in ipairs(self.custom) do
@@ -2115,7 +2115,7 @@
 				local DamageOnStar = RaidTargets [128]
 				if (DamageOnStar) then
 				    --RAID_TARGET_8 is the built-in localized word for 'Skull'.
-				    GameCooltip:AddLine (RAID_TARGET_8 .. ":", format_func (_, DamageOnStar))
+				    GameCooltip:AddLine(RAID_TARGET_8 .. ":", format_func (_, DamageOnStar))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_8", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
@@ -2132,7 +2132,7 @@
 			end
 		end
 		if (not have) then
-			setmetatable (DamageOnSkullTarget, _detalhes.atributo_custom)
+			setmetatable(DamageOnSkullTarget, _detalhes.atributo_custom)
 			DamageOnSkullTarget.__index = _detalhes.atributo_custom
 			
 			for i, custom in ipairs(self.custom) do
@@ -2203,49 +2203,49 @@
 
 				local DamageOnStar = RaidTargets [1]
 				if (DamageOnStar) then
-				    GameCooltip:AddLine (RAID_TARGET_1 .. ":", format_func (_, DamageOnStar))
+				    GameCooltip:AddLine(RAID_TARGET_1 .. ":", format_func (_, DamageOnStar))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_1", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnCircle = RaidTargets [2]
 				if (DamageOnCircle) then
-				    GameCooltip:AddLine (RAID_TARGET_2 .. ":", format_func (_, DamageOnCircle))
+				    GameCooltip:AddLine(RAID_TARGET_2 .. ":", format_func (_, DamageOnCircle))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_2", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnDiamond = RaidTargets [4]
 				if (DamageOnDiamond) then
-				    GameCooltip:AddLine (RAID_TARGET_3 .. ":", format_func (_, DamageOnDiamond))
+				    GameCooltip:AddLine(RAID_TARGET_3 .. ":", format_func (_, DamageOnDiamond))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_3", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnTriangle = RaidTargets [8]
 				if (DamageOnTriangle) then
-				    GameCooltip:AddLine (RAID_TARGET_4 .. ":", format_func (_, DamageOnTriangle))
+				    GameCooltip:AddLine(RAID_TARGET_4 .. ":", format_func (_, DamageOnTriangle))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_4", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnMoon = RaidTargets [16]
 				if (DamageOnMoon) then
-				    GameCooltip:AddLine (RAID_TARGET_5 .. ":", format_func (_, DamageOnMoon))
+				    GameCooltip:AddLine(RAID_TARGET_5 .. ":", format_func (_, DamageOnMoon))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_5", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnSquare = RaidTargets [32]
 				if (DamageOnSquare) then
-				    GameCooltip:AddLine (RAID_TARGET_6 .. ":", format_func (_, DamageOnSquare))
+				    GameCooltip:AddLine(RAID_TARGET_6 .. ":", format_func (_, DamageOnSquare))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_6", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
 
 				local DamageOnCross = RaidTargets [64]
 				if (DamageOnCross) then
-				    GameCooltip:AddLine (RAID_TARGET_7 .. ":", format_func (_, DamageOnCross))
+				    GameCooltip:AddLine(RAID_TARGET_7 .. ":", format_func (_, DamageOnCross))
 				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_7", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
 				    Details:AddTooltipBackgroundStatusbar()
 				end
@@ -2262,7 +2262,7 @@
 			end
 		end
 		if (not have) then
-			setmetatable (DamageOnAnyTarget, _detalhes.atributo_custom)
+			setmetatable(DamageOnAnyTarget, _detalhes.atributo_custom)
 			DamageOnAnyTarget.__index = _detalhes.atributo_custom
 			
 			for i, custom in ipairs(self.custom) do
@@ -2298,9 +2298,9 @@
 				local total, top, amount = 0, 0, 0
 				
 				--get the overall combat
-				local OverallCombat = Details:GetCombat (-1)
+				local OverallCombat = Details:GetCombat(-1)
 				--get the current combat
-				local CurrentCombat = Details:GetCombat (0)
+				local CurrentCombat = Details:GetCombat(0)
 				
 				if (not OverallCombat.GetActorList or not CurrentCombat.GetActorList) then
 					return 0, 0, 0
@@ -2344,16 +2344,16 @@
 
 				--Cooltip code
 				--get the overall combat
-				local OverallCombat = Details:GetCombat (-1)
+				local OverallCombat = Details:GetCombat(-1)
 				--get the current combat
-				local CurrentCombat = Details:GetCombat (0)
+				local CurrentCombat = Details:GetCombat(0)
 
 				local AllSpells = {}
 
 				local playerTotal = 0
 
 				--overall
-				local player = OverallCombat [1]:GetActor (actor.nome)
+				local player = OverallCombat [1]:GetActor(actor.nome)
 				if (player) then
 					playerTotal = playerTotal + player.total
 					local playerSpells = player:GetSpellList()
@@ -2363,7 +2363,7 @@
 				end
 				--current
 				if (Details.in_combat) then
-					local player = CurrentCombat [1]:GetActor (actor.nome)
+					local player = CurrentCombat [1]:GetActor(actor.nome)
 					if (player) then
 						playerTotal = playerTotal + player.total
 						local playerSpells = player:GetSpellList()
@@ -2386,7 +2386,7 @@
 				local topSpellTotal = sortedList and sortedList[1] and sortedList[1][2] or 0
 
 				for i, t in ipairs(sortedList) do
-					local spellID, total = unpack (t)
+					local spellID, total = unpack(t)
 					if (total > 1) then
 						local spellName, _, spellIcon = Details.GetSpellInfo(spellID)
 						
@@ -2397,7 +2397,7 @@
 							formatedSpellPercent = formatedSpellPercent  .. "0"
 						end
 						
-						GameCooltip:AddLine (spellName, format_func (_, total) .. "    " .. formatedSpellPercent  .. "%")
+						GameCooltip:AddLine(spellName, format_func (_, total) .. "    " .. formatedSpellPercent  .. "%")
 						
 						Details:AddTooltipBackgroundStatusbar(false, total / topSpellTotal * 100)
 						GameCooltip:AddIcon (spellIcon, 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height, 0.078125, 0.921875, 0.078125, 0.921875)
@@ -2415,11 +2415,11 @@
 				local value, top, total, combat, instance = ...
 
 				--get the time of overall combat
-				local OverallCombatTime = Details:GetCombat (-1):GetCombatTime()
+				local OverallCombatTime = Details:GetCombat(-1):GetCombatTime()
 				
 				--get the time of current combat if the player is in combat
 				if (Details.in_combat) then
-					local CurrentCombatTime = Details:GetCombat (0):GetCombatTime()
+					local CurrentCombatTime = Details:GetCombat(0):GetCombatTime()
 					OverallCombatTime = OverallCombatTime + CurrentCombatTime
 				end
 				
@@ -2447,7 +2447,7 @@
 					table.remove (self.custom, i)
 				end
 			end
-			setmetatable (DynamicOverallDamage, _detalhes.atributo_custom)
+			setmetatable(DynamicOverallDamage, _detalhes.atributo_custom)
 			DynamicOverallDamage.__index = _detalhes.atributo_custom		
 			self.custom [#self.custom+1] = DynamicOverallDamage
 		end
@@ -2479,7 +2479,7 @@
 					
 					--get the damage absorbed by all the actor pets
 					for petIndex, petName in ipairs(actor.pets) do
-					    local pet = Combat :GetActor (1, petName)
+					    local pet = Combat :GetActor(1, petName)
 					    if (pet) then
 						totalAbsorb = totalAbsorb + pet.totalabsorbed
 					    end
@@ -2513,21 +2513,21 @@
 
 				--get the damage absorbed by all the actor pets
 				for petIndex, petName in ipairs(actor.pets) do
-				    local pet = Combat :GetActor (1, petName)
+				    local pet = Combat :GetActor(1, petName)
 				    if (pet) then
 					totalAbsorb = totalAbsorb + pet.totalabsorbed
 				    end
 				end
 
-				GameCooltip:AddLine (actor:Name(), format_func (_, actor.totalabsorbed))
+				GameCooltip:AddLine(actor:Name(), format_func (_, actor.totalabsorbed))
 				Details:AddTooltipBackgroundStatusbar()
 
 				for petIndex, petName in ipairs(actor.pets) do
-				    local pet = Combat :GetActor (1, petName)
+				    local pet = Combat :GetActor(1, petName)
 				    if (pet) then
 					totalAbsorb = totalAbsorb + pet.totalabsorbed
 					
-					GameCooltip:AddLine (petName, format_func (_, pet.totalabsorbed))
+					GameCooltip:AddLine(petName, format_func (_, pet.totalabsorbed))
 					Details:AddTooltipBackgroundStatusbar()        
 					
 				    end
@@ -2548,7 +2548,7 @@
 					table.remove (self.custom, i)
 				end
 			end
-			setmetatable (DamageOnShields, _detalhes.atributo_custom)
+			setmetatable(DamageOnShields, _detalhes.atributo_custom)
 			DamageOnShields.__index = _detalhes.atributo_custom		
 			self.custom [#self.custom+1] = DamageOnShields
 		end		

@@ -1,5 +1,5 @@
 local _detalhes = 		_G._detalhes
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local g =	_detalhes.gump
@@ -24,7 +24,7 @@ function _detalhes:OpenWelcomeWindow()
 		window:SetBackdropColor(0, 0, 0, 0.75)
 		window:SetWidth(612)
 		window:SetHeight(315)
-		window:SetMovable (true)
+		window:SetMovable(true)
 		window:SetScript("OnMouseDown", function() window:StartMoving() end)
 		window:SetScript("OnMouseUp", function() window:StopMovingOrSizing() end)
 		window:SetScript("OnHide", function()
@@ -44,7 +44,7 @@ function _detalhes:OpenWelcomeWindow()
 		rodape_bg:SetPoint("bottomright", window, "bottomright", -11, 12)
 		rodape_bg:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
 		rodape_bg:SetHeight(25)
-		rodape_bg:SetVertexColor (0, 0, 0, 1)
+		rodape_bg:SetVertexColor(0, 0, 0, 1)
 		
 		local logotipo = window:CreateTexture(nil, "overlay")
 		logotipo:SetPoint("topleft", window, "topleft", 16, -20)
@@ -57,12 +57,12 @@ function _detalhes:OpenWelcomeWindow()
 		cancel:SetWidth(22)
 		cancel:SetHeight(22)
 		cancel:SetPoint("bottomleft", window, "bottomleft", 12, 14)
-		cancel:SetFrameLevel (window:GetFrameLevel()+1)
+		cancel:SetFrameLevel(window:GetFrameLevel()+1)
 		cancel:SetPushedTexture([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
 		cancel:SetHighlightTexture([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		cancel:SetNormalTexture([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		cancel:SetScript("OnClick", function() window:Hide() end)
-		cancel:GetNormalTexture():SetDesaturated (true)
+		cancel:GetNormalTexture():SetDesaturated(true)
 		cancel:Disable()
 		
 		local cancelText = cancel:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -74,7 +74,7 @@ function _detalhes:OpenWelcomeWindow()
 		forward:SetWidth(26)
 		forward:SetHeight(26)
 		forward:SetPoint("bottomright", window, "bottomright", -14, 13)
-		forward:SetFrameLevel (window:GetFrameLevel()+1)
+		forward:SetFrameLevel(window:GetFrameLevel()+1)
 		forward:SetPushedTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Down]])
 		forward:SetHighlightTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]])
 		forward:SetNormalTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]])
@@ -133,7 +133,7 @@ function _detalhes:OpenWelcomeWindow()
 			instance.baseframe:SetPoint("left", DetailsWelcomeWindow, "right", 10, 0)
 			DetailsWelcomeWindow.SetLocTimer = nil
 		end
-		DetailsWelcomeWindow.SetLocTimer = _detalhes:ScheduleTimer ("WelcomeSetLoc", 12)
+		DetailsWelcomeWindow.SetLocTimer = _detalhes:ScheduleTimer("WelcomeSetLoc", 12)
 
 --/script local f=CreateFrame("frame");local g=false;f:SetScript("OnUpdate",function(s,e)if not g then local r=math.random for i=1,2500000 do local a=r(1,1000000);a=a+1 end g=true else print(string.format("cpu: %.3f",e));f:SetScript("OnUpdate",nil)end end)
 	
@@ -151,7 +151,7 @@ function _detalhes:OpenWelcomeWindow()
 				got = true
 				
 			elseif (not InCombatLockdown()) then
-				--print ("process time:", elapsed)
+				--print("process time:", elapsed)
 				
 				if (elapsed < 0.295) then
 					_detalhes.use_row_animations = true
@@ -183,7 +183,7 @@ function _detalhes:OpenWelcomeWindow()
 	end
 	
 	--deprecated
-	--_detalhes:ScheduleTimer ("CalcCpuPower", 10)
+	--_detalhes:ScheduleTimer("CalcCpuPower", 10)
 
 	--detect ElvUI
 	--[=[ --deprecated
@@ -202,7 +202,7 @@ function _detalhes:OpenWelcomeWindow()
 		for key, value in pairs(instance) do
 			if (_detalhes.instance_defaults [key] ~= nil) then	
 				if (type(value) == "table") then
-					savedObject [key] = Details.CopyTable (value)
+					savedObject [key] = Details.CopyTable(value)
 				else
 					savedObject [key] = value
 				end
@@ -241,7 +241,7 @@ local window_openned_at = time()
 		angel:SetTexCoord (0.162109375, 0.591796875, 0, 1)
 		angel:SetWidth(442)
 		angel:SetHeight(256)
-		angel:SetAlpha (.2)
+		angel:SetAlpha(.2)
 		
 		local texto1 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto1:SetPoint("topleft", window, "topleft", 13, -220)
@@ -262,7 +262,7 @@ local window_openned_at = time()
 		bg55:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg55:SetHeight(125*3)
 		bg55:SetWidth(89*3)
-		bg55:SetAlpha (.05)
+		bg55:SetAlpha(.05)
 		bg55:SetTexCoord (1, 0, 0, 1)
 
 		local texto55 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -320,7 +320,7 @@ local window_openned_at = time()
 			
 			local instance1 = _detalhes:GetInstance(1)
 			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 160, 20, buildSkinMenu, instance1.skin)
-			skin_dropdown:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			skin_dropdown:SetTemplate(g:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
 			
 			local skin_label = g:NewLabel(window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"] .. ":", "GameFontNormal")
@@ -426,7 +426,7 @@ local window_openned_at = time()
 			g:NewSwitch (window, _, "$parentLatinAlphabetCheckBox", "LatinAlphabetCheckBox", 20, 20, _, _, true)
 			window.LatinAlphabetCheckBox:SetAsCheckBox()
 			window.LatinAlphabetCheckBox:SetFixedParameter(1)
-			window.LatinAlphabetCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+			window.LatinAlphabetCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.LatinAlphabetCheckBox.OnSwitch = onSelectAlphabet
 			window.LatinAlphabetLabel:SetPoint("left", window.LatinAlphabetCheckBox, "right", 2, 0)
 			
@@ -438,7 +438,7 @@ local window_openned_at = time()
 			g:NewSwitch (window, _, "$parentCyrillicAlphabetCheckBox", "CyrillicAlphabetCheckBox", 20, 20, _, _, false)
 			window.CyrillicAlphabetCheckBox:SetAsCheckBox()
 			window.CyrillicAlphabetCheckBox:SetFixedParameter(2)
-			window.CyrillicAlphabetCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+			window.CyrillicAlphabetCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.CyrillicAlphabetCheckBox.OnSwitch = onSelectAlphabet
 			window.CyrillicAlphabetLabel:SetPoint("left", window.CyrillicAlphabetCheckBox, "right", 2, 0)
 			tinsert(allAlphabetCheckBoxes, window.CyrillicAlphabetCheckBox)
@@ -449,7 +449,7 @@ local window_openned_at = time()
 			g:NewSwitch (window, _, "$parentChinaCheckBox", "ChinaCheckBox", 20, 20, _, _, false)
 			window.ChinaCheckBox:SetAsCheckBox()
 			window.ChinaCheckBox:SetFixedParameter(3)
-			window.ChinaCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+			window.ChinaCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.ChinaCheckBox.OnSwitch = onSelectAlphabet
 			window.ChinaAlphabetLabel:SetPoint("left", window.ChinaCheckBox, "right", 2, 0)
 			tinsert(allAlphabetCheckBoxes, window.ChinaCheckBox)
@@ -460,7 +460,7 @@ local window_openned_at = time()
 			g:NewSwitch (window, _, "$parentKoreanCheckBox", "KoreanCheckBox", 20, 20, _, _, false)
 			window.KoreanCheckBox:SetAsCheckBox()
 			window.KoreanCheckBox:SetFixedParameter(4)
-			window.KoreanCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+			window.KoreanCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.KoreanCheckBox.OnSwitch = onSelectAlphabet
 			window.KoreanAlphabetLabel:SetPoint("left", window.KoreanCheckBox, "right", 2, 0)
 			tinsert(allAlphabetCheckBoxes, window.KoreanCheckBox)
@@ -471,7 +471,7 @@ local window_openned_at = time()
 			g:NewSwitch (window, _, "$parentTaiwanCheckBox", "TaiwanCheckBox", 20, 20, _, _, false)
 			window.TaiwanCheckBox:SetAsCheckBox()
 			window.TaiwanCheckBox:SetFixedParameter(5)
-			window.TaiwanCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+			window.TaiwanCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.TaiwanCheckBox.OnSwitch = onSelectAlphabet
 			window.TaiwanAlphabetLabel:SetPoint("left", window.TaiwanCheckBox, "right", 2, 0)
 			tinsert(allAlphabetCheckBoxes, window.TaiwanCheckBox)
@@ -499,8 +499,8 @@ local window_openned_at = time()
 				self.MyObject:Disable()
 			end
 			
-			local create_window_button = g:CreateButton (window, new_window, buttonWidth, 20, Loc["STRING_WELCOME_79"])
-			create_window_button:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			local create_window_button = g:CreateButton(window, new_window, buttonWidth, 20, Loc["STRING_WELCOME_79"])
+			create_window_button:SetTemplate(g:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			create_window_button:SetIcon ([[Interface\FriendsFrame\UI-FriendsList-Large-Up]], nil, nil, nil, {5/32, 26/32, 6/32, 26/32}, nil, 4, 2)
 			create_window_button:SetPoint("topright", window, "topright", -100, -137)
 		
@@ -514,7 +514,7 @@ local window_openned_at = time()
 				local instance = window.editing_window
 			
 				if (instance.menu_alpha.enabled and a ~= instance.color[4]) then
-					_detalhes:Msg (Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"])
+					_detalhes:Msg(Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"])
 					instance:InstanceColor (r, g, b, instance.menu_alpha.onleave, nil, true)
 					
 					if (_detalhes.options_group_edit) then
@@ -545,12 +545,12 @@ local window_openned_at = time()
 			
 			local change_color = function()
 				window.editing_window = _detalhes:GetInstance(1)
-				local r, g, b, a = unpack (window.editing_window.color)
+				local r, g, b, a = unpack(window.editing_window.color)
 				_detalhes.gump:ColorPick (window, r, g, b, a, windowcolor_callback)
 			end
 			
-			local window_color = g:CreateButton (window, change_color, buttonWidth, 20, Loc ["STRING_OPTIONS_CHANGECOLOR"])
-			window_color:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			local window_color = g:CreateButton(window, change_color, buttonWidth, 20, Loc ["STRING_OPTIONS_CHANGECOLOR"])
+			window_color:SetTemplate(g:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			window_color:SetPoint("topleft", create_window_button, "bottomleft", 0, padding)
 			window_color:SetIcon ([[Interface\AddOns\Details\images\icons]], 14, 14, nil, {434/512, 466/512, 277/512, 307/512}, nil, 4, 2)
 
@@ -560,7 +560,7 @@ local window_openned_at = time()
 			--
 			g:NewSlider (window, _, "$parentBarHeightSpeed", "BarHeightSlider", 160, 20, 8, 24, 1, 14) --parent, container, name, member, w, h, min, max, step, defaultv
 			window.BarHeightSlider:SetPoint("left", window.BarHeightLabel, "right", 2, 0)
-			window.BarHeightSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
+			window.BarHeightSlider:SetTemplate(g:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
 			window.BarHeightSlider:SetHook("OnValueChange", function(self, _, amount) 
 				local instance1 = Details:GetInstance(1)
@@ -580,7 +580,7 @@ local window_openned_at = time()
 			--
 			g:NewSlider (window, _, "$parentTextSizeSpeed", "TextSizeSlider", 160, 20, 10, 20, 1, 14) --parent, container, name, member, w, h, min, max, step, defaultv
 			window.TextSizeSlider:SetPoint("left", window.TextSizeLabel, "right", 2, 0)
-			window.TextSizeSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
+			window.TextSizeSlider:SetTemplate(g:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"))
 			
 			window.TextSizeSlider:SetHook("OnValueChange", function(self, _, amount) 
 				local instance1 = Details:GetInstance(1)
@@ -619,7 +619,7 @@ local window_openned_at = time()
 			
 			local instance1 = _detalhes:GetInstance(1)
 			local font_dropdown = g:NewDropDown (window, _, "$parentFontDropdown", "FontDropdown", 160, 20, buildFontMenu, instance1.row_info.font_face)
-			font_dropdown:SetTemplate (g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			font_dropdown:SetTemplate(g:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 			font_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
 			
 			local font_label = g:NewLabel(window, _, "$parentFontLabel", "FontLabel", Loc ["STRING_OPTIONS_TEXT_FONT"], "GameFontNormal")
@@ -631,7 +631,7 @@ local window_openned_at = time()
 			g:NewSwitch (window, _, "$parentShowPercentCheckBox", "ShowPercentCheckBox", 20, 20, _, _, false)
 			window.ShowPercentCheckBox:SetAsCheckBox()
 			window.ShowPercentCheckBox:SetFixedParameter(1)
-			window.ShowPercentCheckBox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+			window.ShowPercentCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			
 			window.ShowPercentCheckBox.OnSwitch = function(self, fixedParameter, value)
 				local instance1 = Details:GetInstance(1)
@@ -669,7 +669,7 @@ local window_openned_at = time()
 			end
 			
 			if (DetailsWelcomeWindow.SetLocTimer) then
-				_detalhes:CancelTimer (DetailsWelcomeWindow.SetLocTimer)
+				_detalhes:CancelTimer(DetailsWelcomeWindow.SetLocTimer)
 				DetailsWelcomeWindow.SetLocTimer = nil
 				_detalhes:WelcomeSetLoc()
 			end
@@ -696,7 +696,7 @@ local window_openned_at = time()
 		numeral_image:SetPoint("bottomright", window, "bottomright", -10, 10)
 		numeral_image:SetHeight(125*3)--125
 		numeral_image:SetWidth(89*3)--82
-		numeral_image:SetAlpha (.05)
+		numeral_image:SetAlpha(.05)
 		numeral_image:SetTexCoord (1, 0, 0, 1)		
 		
 		g:NewLabel(window, _, "$parentChangeMindNumeralLabel", "changemindNumeralLabel", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
@@ -713,7 +713,7 @@ local window_openned_at = time()
 		local WesternNumbersCheckbox = g:NewSwitch (window, _, "WesternNumbersCheckbox", "WesternNumbersCheckbox", 20, 20, _, _, true)
 		WesternNumbersCheckbox:SetAsCheckBox()
 		WesternNumbersCheckbox:SetFixedParameter(1)
-		WesternNumbersCheckbox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+		WesternNumbersCheckbox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		WesternNumbersCheckbox:SetPoint("topleft", window, "topleft", 40, -130)
 		window.WesternNumbersLabel:SetPoint("left", WesternNumbersCheckbox, "right", 2, 0)
 		
@@ -722,7 +722,7 @@ local window_openned_at = time()
 		local AsianNumbersCheckbox = g:NewSwitch (window, _, "AsianNumbersCheckbox", "AsianNumbersCheckbox", 20, 20, _, _, true)
 		AsianNumbersCheckbox:SetAsCheckBox()
 		AsianNumbersCheckbox:SetFixedParameter(2)
-		AsianNumbersCheckbox:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+		AsianNumbersCheckbox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		AsianNumbersCheckbox:SetPoint("topleft", window, "topleft", 40, -200)
 		window.AsianNumbersLabel:SetPoint("left", AsianNumbersCheckbox, "right", 2, 0)
 		
@@ -815,7 +815,7 @@ local window_openned_at = time()
 		ampulheta:SetPoint("bottomright", window, "bottomright", -10, 10)
 		ampulheta:SetHeight(125*3)--125
 		ampulheta:SetWidth(89*3)--82
-		ampulheta:SetAlpha (.05)
+		ampulheta:SetAlpha(.05)
 		ampulheta:SetTexCoord (1, 0, 0, 1)		
 		
 		g:NewLabel(window, _, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
@@ -832,7 +832,7 @@ local window_openned_at = time()
 		local chronometer = g:NewSwitch (window, _, "WelcomeWindowChronometer", "WelcomeWindowChronometer", 20, 20, _, _, true)
 		chronometer:SetAsCheckBox()
 		chronometer:SetFixedParameter(1)
-		chronometer:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+		chronometer:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.ChronometerLabel:SetPoint("left", chronometer, "right", 2, 0)
 		
 		--continuouses checkbox
@@ -840,7 +840,7 @@ local window_openned_at = time()
 		local continuous = g:NewSwitch (window, _, "WelcomeWindowContinuous", "WelcomeWindowContinuous", 20, 20, _, _, true)
 		continuous:SetAsCheckBox()
 		continuous:SetFixedParameter(1)
-		continuous:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+		continuous:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.ContinuousLabel:SetPoint("left", continuous, "right", 2, 0)
 		
 		--on clkich chronomoeter checkbox
@@ -915,7 +915,7 @@ local window_openned_at = time()
 				pleasewait:Hide()
 				pleasewait:SetText("")
 				forward:Enable()
-				_detalhes:CancelTimer (window.free_frame3_schedule)
+				_detalhes:CancelTimer(window.free_frame3_schedule)
 				window.free_frame3_schedule = nil
 			end
 		end
@@ -923,7 +923,7 @@ local window_openned_at = time()
 			if (window_openned_at-10 > time()) then
 				forward:Disable()
 				if (window.free_frame3_schedule) then
-					_detalhes:CancelTimer (window.free_frame3_schedule)
+					_detalhes:CancelTimer(window.free_frame3_schedule)
 					window.free_frame3_schedule = nil
 				end
 				window.free_frame3_schedule = _detalhes:ScheduleRepeatingTimer ("FreeTutorialFrame3", 1)
@@ -931,7 +931,7 @@ local window_openned_at = time()
 		end)
 		free_frame3:SetScript("OnHide", function()
 			if (window.free_frame3_schedule) then
-				_detalhes:CancelTimer (window.free_frame3_schedule)
+				_detalhes:CancelTimer(window.free_frame3_schedule)
 				window.free_frame3_schedule = nil
 				pleasewait:SetText("")
 				pleasewait:Hide()
@@ -955,7 +955,7 @@ local window_openned_at = time()
 		bg:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg:SetHeight(125*3)--125
 		bg:SetWidth(89*3)--82
-		bg:SetAlpha (.05)
+		bg:SetAlpha(.05)
 		bg:SetTexCoord (1, 0, 0, 1)
 		
 		g:NewLabel(window, _, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
@@ -992,7 +992,7 @@ local window_openned_at = time()
 		
 		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.050, 3, 0.050, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.updatespeedSlider:SetPoint("left", window.updatespeedLabel, "right", 2, 0)
-		window.updatespeedSlider:SetTemplate (g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"))
+		window.updatespeedSlider:SetTemplate(g:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"))
 		window.updatespeedSlider:SetThumbSize (50)
 		window.updatespeedSlider.useDecimals = true
 		local updateColor = function(slider, value)
@@ -1027,7 +1027,7 @@ local window_openned_at = time()
 			_detalhes:SetUseAnimations (value)
 		end	
 		
-		window.animateSlider:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+		window.animateSlider:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.animateSlider:SetAsCheckBox()
 		--window.animateSlider.tooltip = Loc ["STRING_WELCOME_17"] --removed
 		
@@ -1042,7 +1042,7 @@ local window_openned_at = time()
 			_detalhes:GetInstance(1):FastPSUpdate (value)
 		end
 		
-		window.DpsHpsSlider:SetTemplate (g:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
+		window.DpsHpsSlider:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 		window.DpsHpsSlider:SetAsCheckBox()
 		
 		--window.DpsHpsSlider.tooltip = Loc ["STRING_WELCOME_64"]
@@ -1054,7 +1054,7 @@ local window_openned_at = time()
 	--	g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 	--	window.segmentsSlider:SetPoint("left", window.segmentsLabel, "right", 2, 0)
 	--	window.segmentsSlider:SetHook("OnValueChange", function(self, _, amount) --slider, fixedValue, sliderValue
-	--		_detalhes.segments_amount = math.floor (amount)
+	--		_detalhes.segments_amount = math.floor(amount)
 	--	end)
 	--	window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
 	
@@ -1064,14 +1064,14 @@ local window_openned_at = time()
 		mech_icon:SetPoint("topright", window, "topright", -15, -15)
 		mech_icon:SetWidth(128*0.9)
 		mech_icon:SetHeight(128*0.9)
-		mech_icon:SetAlpha (0.8)
+		mech_icon:SetAlpha(0.8)
 		
 		local mech_icon2 = window:CreateTexture(nil, "overlay")
 		mech_icon2:SetTexture([[Interface\Vehicles\UI-Vehicles-Trim-Alliance]])
 		mech_icon2:SetPoint("topright", window, "topright", -10, -151)
 		mech_icon2:SetWidth(128*1.0)
 		mech_icon2:SetHeight(128*0.6)
-		mech_icon2:SetAlpha (0.6)
+		mech_icon2:SetAlpha(0.6)
 		mech_icon2:SetTexCoord (0, 1, 40/128, 1)
 		mech_icon2:SetDrawLayer ("overlay", 2)
 
@@ -1122,7 +1122,7 @@ local window_openned_at = time()
 		bg6:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg6:SetHeight(125*3)--125
 		bg6:SetWidth(89*3)--82
-		bg6:SetAlpha (.1)
+		bg6:SetAlpha(.1)
 		bg6:SetTexCoord (1, 0, 0, 1)
 
 		local texto5 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1152,16 +1152,16 @@ local window_openned_at = time()
 		stretch_frame_alert:SetScript("OnShow", function()
 			local instance = _detalhes:GetInstance(1)
 			_detalhes.OnEnterMainWindow(instance)
-			instance.baseframe.button_stretch:SetAlpha (1)
+			instance.baseframe.button_stretch:SetAlpha(1)
 			frame_alert.alert:SetPoint("topleft", instance.baseframe.button_stretch, "topleft", -20, 6)
 			frame_alert.alert:SetPoint("bottomright", instance.baseframe.button_stretch, "bottomright", 20, -14)
 			
 			frame_alert.alert.animOut:Stop()
 			frame_alert.alert.animIn:Play()
 			if (_detalhes.stopwelcomealert) then
-				_detalhes:CancelTimer (_detalhes.stopwelcomealert)
+				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
-			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 30)
+			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer("StopPlayStretchAlert", 30)
 		end)
 
 		
@@ -1180,7 +1180,7 @@ local window_openned_at = time()
 		bg6:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg6:SetHeight(125*3)--125
 		bg6:SetWidth(89*3)--82
-		bg6:SetAlpha (.1)
+		bg6:SetAlpha(.1)
 		bg6:SetTexCoord (1, 0, 0, 1)
 
 		local texto6 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1216,9 +1216,9 @@ local window_openned_at = time()
 			frame_alert.alert.animOut:Stop()
 			frame_alert.alert.animIn:Play()
 			if (_detalhes.stopwelcomealert) then
-				_detalhes:CancelTimer (_detalhes.stopwelcomealert)
+				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
-			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 30)
+			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer("StopPlayStretchAlert", 30)
 		end)
 		
 		pages [#pages+1] = {bg6, texto6, instance_button_image, texto_instance_button, instance_frame_alert}
@@ -1236,7 +1236,7 @@ local window_openned_at = time()
 		bg7:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg7:SetHeight(125*3)--125
 		bg7:SetWidth(89*3)--82
-		bg7:SetAlpha (.1)
+		bg7:SetAlpha(.1)
 		bg7:SetTexCoord (1, 0, 0, 1)
 
 		local texto7 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1305,7 +1305,7 @@ local window_openned_at = time()
 		bg77:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg77:SetHeight(125*3)--125
 		bg77:SetWidth(89*3)--82
-		bg77:SetAlpha (.1)
+		bg77:SetAlpha(.1)
 		bg77:SetTexCoord (1, 0, 0, 1)
 
 		local texto77 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1351,7 +1351,7 @@ local window_openned_at = time()
 		bg88:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg88:SetHeight(125*3)--125
 		bg88:SetWidth(89*3)--82
-		bg88:SetAlpha (.1)
+		bg88:SetAlpha(.1)
 		bg88:SetTexCoord (1, 0, 0, 1)
 
 		local texto88 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1380,7 +1380,7 @@ local window_openned_at = time()
 			_detalhes.tabela_historico:resetar()
 			created_test_bars = 0
 			
-			local current_combat = _detalhes:GetCombat ("current")
+			local current_combat = _detalhes:GetCombat("current")
 			local actors_classes = CLASS_SORT_ORDER
 			local total_damage = 0
 			local total_heal = 0
@@ -1450,9 +1450,9 @@ local window_openned_at = time()
 			frame_alert.alert.animOut:Stop()
 			frame_alert.alert.animIn:Play()
 			if (_detalhes.stopwelcomealert) then
-				_detalhes:CancelTimer (_detalhes.stopwelcomealert)
+				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
-			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 2)
+			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer("StopPlayStretchAlert", 2)
 			
 		end)
 		
@@ -1474,7 +1474,7 @@ local window_openned_at = time()
 		bg11:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg11:SetHeight(125*3)--125
 		bg11:SetWidth(89*3)--82
-		bg11:SetAlpha (.1)
+		bg11:SetAlpha(.1)
 		bg11:SetTexCoord (1, 0, 0, 1)
 
 		local texto11 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1513,7 +1513,7 @@ local window_openned_at = time()
 		bg8:SetPoint("bottomright", window, "bottomright", -10, 10)
 		bg8:SetHeight(125*3)--125
 		bg8:SetWidth(89*3)--82
-		bg8:SetAlpha (.1)
+		bg8:SetAlpha(.1)
 		bg8:SetTexCoord (1, 0, 0, 1)
 
 		local texto8 = window:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -1535,7 +1535,7 @@ local window_openned_at = time()
 		final_frame:Hide()
 		final_frame:SetScript("OnShow", function()
 			cancel:Enable()
-			cancel:GetNormalTexture():SetDesaturated (false)
+			cancel:GetNormalTexture():SetDesaturated(false)
 		end)
 		
 		pages [#pages+1] = {bg8, texto8, texto, final_frame}

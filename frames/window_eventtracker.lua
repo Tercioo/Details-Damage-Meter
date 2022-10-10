@@ -10,20 +10,20 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 	
 		local DF = _detalhes.gump
 	
-		local f = DF:CreateSimplePanel (_G.UIParent, 700, 400, "Details! Event Tracker Options", "DetailsEventTrackerOptions")
+		local f = DF:CreateSimplePanel(_G.UIParent, 700, 400, "Details! Event Tracker Options", "DetailsEventTrackerOptions")
 		f:SetPoint("center", _G.UIParent, "center")
 		f:SetScript("OnMouseDown", nil)
 		f:SetScript("OnMouseUp", nil)
 		local LibWindow = _G.LibStub("LibWindow-1.1")
-		LibWindow.RegisterConfig (f, _detalhes.event_tracker.options_frame)
-		LibWindow.MakeDraggable (f)
-		LibWindow.RestorePosition (f)
+		LibWindow.RegisterConfig(f, _detalhes.event_tracker.options_frame)
+		LibWindow.MakeDraggable(f)
+		LibWindow.RestorePosition(f)
 		
-		local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
-		local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
-		local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
-		local options_slider_template = DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
-		local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+		local options_text_template = DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+		local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		local options_switch_template = DF:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+		local options_slider_template = DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
+		local options_button_template = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 		
 		--frame strata options
 			local set_frame_strata = function(_, _, strata)
@@ -69,7 +69,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 		--options table
 		local options = {
 		
-			{type = "label", get = function() return "Frame Settings:" end, text_template = DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE")},
+			{type = "label", get = function() return "Frame Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
 			--enabled
 			{
 				type = "toggle",
@@ -129,7 +129,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 				name = "Frame Strata"
 			},
 			{type = "breakline"},
-			{type = "label", get = function() return "Line Settings:" end, text_template = DF:GetTemplate ("font", "ORANGE_FONT_TEMPLATE")},
+			{type = "label", get = function() return "Line Settings:" end, text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")},
 			--line height
 			{
 				type = "range",
@@ -217,7 +217,7 @@ function Details:OpenEventTrackerOptions (from_options_panel)
 		f:SetScript("OnHide", function()
 			--reopen the options panel
 			if (f.FromOptionsPanel) then
-				C_Timer.After (0.2, function()
+				C_Timer.After(0.2, function()
 					Details:OpenOptionsWindow(Details:GetInstance(1))
 				end)
 			end
@@ -249,16 +249,16 @@ function Details:CreateEventTrackerFrame(parent, name)
 		f:SetSize(_detalhes.event_tracker.frame.width, _detalhes.event_tracker.frame.height)
 
 		f:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-		f:SetBackdropColor(unpack (_detalhes.event_tracker.frame.backdrop_color))
-		f:EnableMouse (true)
-		f:SetMovable (true)
+		f:SetBackdropColor(unpack(_detalhes.event_tracker.frame.backdrop_color))
+		f:EnableMouse(true)
+		f:SetMovable(true)
 		f:SetResizable(true)
 		f:SetClampedToScreen (true)
 		
-		local LibWindow = LibStub ("LibWindow-1.1")
-		LibWindow.RegisterConfig (f, _detalhes.event_tracker.frame)
-		LibWindow.MakeDraggable (f)
-		LibWindow.RestorePosition (f)
+		local LibWindow = LibStub("LibWindow-1.1")
+		LibWindow.RegisterConfig(f, _detalhes.event_tracker.frame)
+		LibWindow.MakeDraggable(f)
+		LibWindow.RestorePosition(f)
 	
 	--two resizers
 	
@@ -334,7 +334,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		local scroll_createline = function(self, index)
 		
 			local line = CreateFrame("frame", "$parentLine" .. index, self,"BackdropTemplate")
-			line:EnableMouse (false)
+			line:EnableMouse(false)
 			line.Index = index --hack to not trigger error on UpdateWorldTrackerLines since Index is set after this function is ran
 			
 			--set its backdrop
@@ -346,7 +346,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			statusbar:SetAllPoints()
 			local statusbartexture = statusbar:CreateTexture(nil, "border")
 			statusbar:SetStatusBarTexture (statusbartexture)
-			statusbar:SetMinMaxValues (0, 1)
+			statusbar:SetMinMaxValues(0, 1)
 			statusbar:SetValue(0)
 			
 			local statusbarspark = statusbar:CreateTexture(nil, "artwork")
@@ -432,9 +432,9 @@ function Details:CreateEventTrackerFrame(parent, name)
 		
 		local get_player_icon = function(spec, class)
 			if (spec) then
-				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack (_detalhes.class_specs_coords [spec])
+				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack(_detalhes.class_specs_coords [spec])
 			elseif (class) then
-				return [[Interface\AddOns\Details\images\classes_small]], unpack (_detalhes.class_coords [class])
+				return [[Interface\AddOns\Details\images\classes_small]], unpack(_detalhes.class_coords [class])
 			else
 				return [[Interface\AddOns\Details\images\classes_plus]], 0.50390625, 0.62890625, 0, 0.125
 			end
@@ -443,11 +443,11 @@ function Details:CreateEventTrackerFrame(parent, name)
 		local add_role_and_class_color = function(player_name, player_serial)
 		
 			--get the actor object
-			local actor = _detalhes.tabela_vigente[1]:GetActor (player_name)
+			local actor = _detalhes.tabela_vigente[1]:GetActor(player_name)
 			
 			if (actor) then
 				--remove realm name
-				player_name = _detalhes:GetOnlyName (player_name)
+				player_name = _detalhes:GetOnlyName(player_name)
 			
 				local class, spec, role = actor.classe, actor.spec, actor.role
 				if (not class) then
@@ -468,7 +468,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			
 			else
 				local spec, class = get_spec_or_class (player_serial, player_name)
-				player_name = _detalhes:GetOnlyName (player_name)
+				player_name = _detalhes:GetOnlyName(player_name)
 				
 				if (class) then
 					--add the class color
@@ -520,7 +520,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 					local texture, L, R, T, B = get_player_icon (spec, class)
 					line.LeftIcon:SetTexture(texture)
 					line.LeftIcon:SetTexCoord (L, R, T, B)
-					line.LeftText:SetText(_detalhes:GetOnlyName (ability [ABILITYTABLE_CASTERNAME]))
+					line.LeftText:SetText(_detalhes:GetOnlyName(ability [ABILITYTABLE_CASTERNAME]))
 					
 					if (ability [ABILITYTABLE_ISENEMY]) then
 						line:SetBackdropColor(1, .3, .3, 0.5)
@@ -596,7 +596,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		TitleString:SetText("Details!: Event Tracker")
 		local TitleBackground = f:CreateTexture(nil, "artwork")
 		TitleBackground:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
-		TitleBackground:SetVertexColor (.1, .1, .1, .9)
+		TitleBackground:SetVertexColor(.1, .1, .1, .9)
 		TitleBackground:SetPoint("topleft", f, "topleft")
 		TitleBackground:SetPoint("topright", f, "topright")
 		TitleBackground:SetHeight(header_size)
@@ -639,13 +639,13 @@ function Details:CreateEventTrackerFrame(parent, name)
 			--set texture
 			local texture = SharedMedia:Fetch ("statusbar", _detalhes.event_tracker.line_texture)
 			line.StatusbarTexture:SetTexture(texture)
-			line.StatusbarTexture:SetVertexColor (unpack (_detalhes.event_tracker.line_color))
+			line.StatusbarTexture:SetVertexColor(unpack(_detalhes.event_tracker.line_color))
 			
 			--set icon size
 			line.LeftIcon:SetSize(_detalhes.event_tracker.line_height, _detalhes.event_tracker.line_height)
 			line.RightIcon:SetSize(_detalhes.event_tracker.line_height, _detalhes.event_tracker.line_height)
 			line.ActionIcon:SetSize(_detalhes.event_tracker.line_height-4, _detalhes.event_tracker.line_height-4)
-			line.ActionIcon:SetAlpha (0.65)
+			line.ActionIcon:SetAlpha(0.65)
 		end
 		
 		-- /run _detalhes.event_tracker.font_shadow = 24
@@ -676,16 +676,16 @@ function Details:CreateEventTrackerFrame(parent, name)
 			end
 			
 			f:SetSize(_detalhes.event_tracker.frame.width, _detalhes.event_tracker.frame.height)
-			LibWindow.RegisterConfig (f, _detalhes.event_tracker.frame)
-			LibWindow.RestorePosition (f)
+			LibWindow.RegisterConfig(f, _detalhes.event_tracker.frame)
+			LibWindow.RestorePosition(f)
 			scrollframe:OnSizeChanged()
 			
 			if (_detalhes.event_tracker.frame.locked) then
-				f:EnableMouse (false)
+				f:EnableMouse(false)
 				left_resize:Hide()
 				right_resize:Hide()
 			else
-				f:EnableMouse (true)
+				f:EnableMouse(true)
 				left_resize:Show()
 				right_resize:Show()
 			end
@@ -702,8 +702,8 @@ function Details:CreateEventTrackerFrame(parent, name)
 				scrollframe:SetPoint("topright", f, "topright", 0, 0)
 			end
 			
-			f:SetBackdropColor(unpack (_detalhes.event_tracker.frame.backdrop_color))
-			scrollframe.__background:SetVertexColor (unpack (_detalhes.event_tracker.frame.backdrop_color))
+			f:SetBackdropColor(unpack(_detalhes.event_tracker.frame.backdrop_color))
+			scrollframe.__background:SetVertexColor(unpack(_detalhes.event_tracker.frame.backdrop_color))
 			
 			f:SetFrameStrata(_detalhes.event_tracker.frame.strata)
 			
@@ -734,13 +734,13 @@ function Details:CreateEventTrackerFrame(parent, name)
 			if (not flag) then
 				return false
 			end
-			return bit.band (flag, OBJECT_TYPE_PLAYER) ~= 0
+			return bit.band(flag, OBJECT_TYPE_PLAYER) ~= 0
 		end
 		local is_enemy = function(flag)
 			if (not flag) then
 				return false
 			end
-			return bit.band (flag, OBJECT_TYPE_ENEMY) ~= 0
+			return bit.band(flag, OBJECT_TYPE_ENEMY) ~= 0
 		end
 		
 		combatLog:SetScript("OnEvent", function(self, event)
@@ -778,7 +778,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 				local amountToShow = #CurrentShowing
 				
 				if (amountToShow > amountOfLines) then
-					tremove (CurrentShowing, amountToShow)
+					tremove(CurrentShowing, amountToShow)
 				end
 				scrollframe:Refresh()
 			end

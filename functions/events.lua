@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = _G._detalhes
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local _
 	
 	--Event types:
@@ -189,9 +189,9 @@ local common_events = {
 	
 		if (not _detalhes.RegistredEvents [event]) then
 			if (object.Msg) then
-				object:Msg ("(debug) unknown event", event)
+				object:Msg("(debug) unknown event", event)
 			else
-				_detalhes:Msg ("(debug) unknown event", event)
+				_detalhes:Msg("(debug) unknown event", event)
 			end
 			return
 		end
@@ -239,7 +239,7 @@ local common_events = {
 --internal functions
 	
 	local dispatch_error = function(name, errortext)
-		_detalhes:Msg ((name or "<no context>"), " |cFFFF9900error|r: ", errortext)
+		_detalhes:Msg((name or "<no context>"), " |cFFFF9900error|r: ", errortext)
 	end
 	
 	--safe call an external func with payload and without telling who is calling
@@ -374,21 +374,21 @@ local common_events = {
 			_detalhes:SendEvent("DETAILS_OPTIONS_MODIFIED", nil, instance)
 			_detalhes.last_options_modified = GetTime()
 			if (_detalhes.last_options_modified_schedule) then
-				_detalhes:CancelTimer (_detalhes.last_options_modified_schedule)
+				_detalhes:CancelTimer(_detalhes.last_options_modified_schedule)
 				_detalhes.last_options_modified_schedule = nil
 			end
 		else
 			if (_detalhes.last_options_modified_schedule) then
-				_detalhes:CancelTimer (_detalhes.last_options_modified_schedule)
+				_detalhes:CancelTimer(_detalhes.last_options_modified_schedule)
 			end
-			_detalhes.last_options_modified_schedule = _detalhes:ScheduleTimer ("SendOptionsModifiedEvent", 0.31, instance)
+			_detalhes.last_options_modified_schedule = _detalhes:ScheduleTimer("SendOptionsModifiedEvent", 0.31, instance)
 		end
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --listeners
 
-	local listener_meta = setmetatable ({}, _detalhes)
+	local listener_meta = setmetatable({}, _detalhes)
 	listener_meta.__index = listener_meta
 	
 	function listener_meta:RegisterEvent (event, func)
@@ -400,6 +400,6 @@ local common_events = {
 	
 	function _detalhes:CreateEventListener()
 		local new = {Enabled = true, __enabled = true}
-		setmetatable (new, listener_meta)
+		setmetatable(new, listener_meta)
 		return new
 	end

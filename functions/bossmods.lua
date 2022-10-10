@@ -47,9 +47,9 @@ function Details:BossModsLink()
                 Details:OnCombatPhaseChanged()
                 encounterTable.phase = phase
                 local currentCombat = Details:GetCurrentCombat()
-                local time = currentCombat:GetCombatTime()
-                if (time > 5) then
-                    tinsert(currentCombat.PhaseData, {phase, time})
+                local combatTime = currentCombat:GetCombatTime()
+                if (combatTime > 5) then
+                    tinsert(currentCombat.PhaseData, {phase, combatTime})
                 end
                 Details:SendEvent("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
             end
@@ -71,15 +71,15 @@ function Details:BossModsLink()
         function Details:BigWigs_SetStage (event, module, phase)
             phase = tonumber(phase)
 
-            if (phase and type (phase) == "number" and Details.encounter_table.phase ~= phase) then
+            if (phase and type(phase) == "number" and Details.encounter_table.phase ~= phase) then
                 Details:OnCombatPhaseChanged()
                 
                 Details.encounter_table.phase = phase
                 
-                local cur_combat = Details:GetCurrentCombat()
-                local time = cur_combat:GetCombatTime()
-                if (time > 5) then
-                    tinsert(cur_combat.PhaseData, {phase, time})
+                local currentCombat = Details:GetCurrentCombat()
+                local combatTime = currentCombat:GetCombatTime()
+                if (combatTime > 5) then
+                    tinsert(currentCombat.PhaseData, {phase, combatTime})
                 end
                 
                 Details:SendEvent("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
@@ -107,7 +107,7 @@ function Details:CreateCallbackListeners()
     local event_frame = CreateFrame("frame", nil, UIParent, "BackdropTemplate")
     event_frame:SetScript("OnEvent", function(self, event, ...)
         if (event == "ENCOUNTER_START") then
-            local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
+            local encounterID, encounterName, difficultyID, raidSize = select(1, ...)
             current_encounter = encounterID
             
         elseif (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED") then

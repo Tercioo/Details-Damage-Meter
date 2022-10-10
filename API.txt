@@ -106,7 +106,7 @@ Getting a Combat Object:
 combat = Details:GetCurrentCombat()
 returns the current combat object.
 
-combat = Details:GetCombat (combat)
+combat = Details:GetCombat(combat)
 returns the requested combat object.
 if 'combat' is omitted, returns the current combat.
 combat can be a number: -1 for overall, 0 for current and > 0 for past segments (1, 2, 3, ...).
@@ -124,7 +124,7 @@ reset only the overall segment
 
 Getting an Actor:
 =======================================
-local actor = Details:GetActor (combat = "current", attribute = DETAILS_ATTRIBUTE_DAMAGE, actorname = Details.playername)
+local actor = Details:GetActor(combat = "current", attribute = DETAILS_ATTRIBUTE_DAMAGE, actorname = Details.playername)
 returns the actor for the requested combat, attribute and actor name.
 if some parameter are omitted, it uses the default value which are current combat, damage container and the name of the player character.
 
@@ -135,13 +135,13 @@ Combat Object:
 A Combat object is a table with 4 numerical indexes holding: damage, healing, energy and misc containers.
 function for combat objects:
 
-actor = combat:GetActor ( attribute, character_name ) or actor = combat ( attribute, character_name )
+actor = combat:GetActor( attribute, character_name ) or actor = combat ( attribute, character_name )
 returns an actor object
 
 characterList = combat:GetActorList ( attribute )
 returns a numeric table with all actors of the specific attribute, contains players, npcs, pets, etc.
 
-combatName = combat:GetCombatName ( try_to_find )
+combatName = combat:GetCombatName( try_to_find )
 returns the segment name, e.g. "Trainning Dummy", if try_to_find is true, it searches the combat for a enemy name.
 
 bossInfo = combat:GetBossInfo()
@@ -235,7 +235,7 @@ returns if Details! is in combat or not.
 Details:IsInEncounter()
 returns if Details! is in a raid encounter combat.
 
-damage, healing, energy, misc = Details:GetAllActors (combat, actorname)
+damage, healing, energy, misc = Details:GetAllActors(combat, actorname)
 returns all the four actor objects for the requested combat and actor.
 combat must be a combat object.
 
@@ -258,7 +258,7 @@ returns a iterated table of actors inside the container.
 Usage: 'for index, actor in container:ListActors() do'
 Note: if the container is a spell container, returns pairs() instead: 'for spellid, spelltable in container:ListActors() do'
 
-actor = container:GetActor (character_name)
+actor = container:GetActor(character_name)
 returns the actor, for spell container use the spellid instead.
 
 container:GetSpell (spellid)
@@ -610,11 +610,11 @@ Examples:
 1) Get the player damage, heal, dps and hps:
 
 local combat = Details:GetCurrentCombat()
-local damageActor = combat:GetActor (DETAILS_ATTRIBUTE_DAMAGE, UnitName ("player"))
-local healingActor = combat:GetActor (DETAILS_ATTRIBUTE_HEAL, UnitName ("player"))
+local damageActor = combat:GetActor(DETAILS_ATTRIBUTE_DAMAGE, UnitName ("player"))
+local healingActor = combat:GetActor(DETAILS_ATTRIBUTE_HEAL, UnitName ("player"))
 or
-local damageActor = Details:GetActor ("current", DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
-local healingActor = Details:GetActor ("current", DETAILS_ATTRIBUTE_HEAL, Details.playername)
+local damageActor = Details:GetActor("current", DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
+local healingActor = Details:GetActor("current", DETAILS_ATTRIBUTE_HEAL, Details.playername)
 
 local totalDamage, totalHeal = damageActor.total, healingActor.total
 
@@ -702,13 +702,13 @@ for i, actor in damageContainer:ListActors() do
 	actor.custom = 0
 end
 
-local source = damageContainer:GetActor (sourceNpc)
+local source = damageContainer:GetActor(sourceNpc)
 local felfireVolleySpell = source:GetSpell (targetSpell)
 if (felfireVolleySpell) then
 	for playerName, amount in pairs(felfireVolleySpell.targets) do
 		--players who took damage from this ability
 		--now this result may be placed on a external table or .custom may also be used
-		local targetActor = damageContainer:GetActor (playerName)
+		local targetActor = damageContainer:GetActor(playerName)
 		targetActor.custom = amount
 	end
 end
@@ -749,14 +749,14 @@ Details.cache_npc_ids [90409] = npcName --for details!
 
 2 - get the npc actor and its damage_from table.
 
-	local actor = damageContainer:GetActor (npcName)
+	local actor = damageContainer:GetActor(npcName)
 	if (actor) then
 		--reset the custom member on all actors:
 		for i, actor in damageContainer:ListActors() do
 			actor.custom = 0
 		end
 		for playerName, _ in pairs(actor.damage_from) do
-			local player = damageContainer:GetActor (playerName)
+			local player = damageContainer:GetActor(playerName)
 			if (player:IsPlayer()) then --we only want players. pets always has their damage merged on its owner damage.
 				player.custom = actor.targets [npcName]
 			end

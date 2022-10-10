@@ -214,7 +214,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	--texture
 	local smember_texture = function(_object, _value)
 		if (type(_value) == "table") then
-			local _value1, _value2, _value3, _value4 = unpack (_value)
+			local _value1, _value2, _value3, _value4 = unpack(_value)
 			if (_value1) then
 				_object.button:SetNormalTexture(_value1)
 			end
@@ -239,10 +239,10 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	--locked
 	local smember_locked = function(_object, _value)
 		if (_value) then
-			_object.button:SetMovable (false)
+			_object.button:SetMovable(false)
 			return rawset(_object, "is_locked", true)
 		else
-			_object.button:SetMovable (true)
+			_object.button:SetMovable(true)
 			rawset(_object, "is_locked", false)
 			return
 		end
@@ -1010,7 +1010,7 @@ end
 
 	local setColorPickColor = function(button, ...)
 		local red, green, blue, alpha = DF:ParseColors(...)
-		button.color_texture:SetVertexColor (red, green, blue, alpha)
+		button.color_texture:SetVertexColor(red, green, blue, alpha)
 	end
 
 	local colorpickCancel = function(self)

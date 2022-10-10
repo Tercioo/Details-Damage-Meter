@@ -520,7 +520,7 @@ function DF:CreateCoolTip()
 		statusbar.texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
 		statusbar.texture:SetSize(300, 14)
 		statusbar:SetStatusBarTexture (statusbar.texture)
-		statusbar:SetMinMaxValues (0, 100)
+		statusbar:SetMinMaxValues(0, 100)
 
 		statusbar.spark = statusbar:CreateTexture("$parent_Spark", "BACKGROUND")
 		statusbar.spark:Hide()
@@ -583,7 +583,7 @@ function DF:CreateCoolTip()
 		statusbar2.texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
 		statusbar2.texture:SetSize(300, 14)
 		statusbar2:SetStatusBarTexture (statusbar2.texture)
-		statusbar2:SetMinMaxValues (0, 100)
+		statusbar2:SetMinMaxValues(0, 100)
 
 		--on load
 		self:RegisterForClicks("LeftButtonDown")
@@ -869,7 +869,7 @@ function DF:CreateCoolTip()
 			local func = gameCooltip.FunctionsTableMain[self.index]
 			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
-				print ("Cooltip OnClick Error:", errortext)
+				print("Cooltip OnClick Error:", errortext)
 			end
 		end
 	end

@@ -1,4 +1,4 @@
-local AceLocale = LibStub ("AceLocale-3.0")
+local AceLocale = LibStub("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ("Details_EncounterDetails")
 local Graphics = LibStub:GetLibrary("LibGraph-2.0")
 local _ 
@@ -6,7 +6,7 @@ local _
 local isDebug = false
 local function DebugMessage (...)
 	if (isDebug) then
-		print ("|cFFFFFF00EBreakDown|r:", ...)
+		print("|cFFFFFF00EBreakDown|r:", ...)
 	end
 end
 
@@ -26,7 +26,7 @@ local GameCooltip = GameCooltip2
 
 local _math_floor = math.floor --lua library local
 local _cstr = string.format --lua library local
-local _ipairs = ipairs --lua library local
+local ipairs = ipairs --lua library local
 local _pairs = pairs --lua library local
 local _table_sort = table.sort --lua library local
 local _table_insert = table.insert --lua library local
@@ -148,7 +148,7 @@ local function CreatePluginFrames (data)
 				-- this script takes the current combat and request the total of damage done by the group.
 			
 				-- first lets take the current combat and name it "current_combat".
-				local current_combat = _detalhes:GetCombat ("current") --getting the current combat
+				local current_combat = _detalhes:GetCombat("current") --getting the current combat
 				
 				-- now lets ask the combat for the total damage done by the raide group.
 				local total_damage = current_combat:GetTotal ( DETAILS_ATTRIBUTE_DAMAGE, nil, DETAILS_TOTALS_ONLYGROUP )
@@ -183,7 +183,7 @@ local function CreatePluginFrames (data)
 		
 		elseif (event == "COMBAT_PLAYER_LEAVE") then
 			--combat leave and enter always send current combat table
-			_combat_object = select (1, ...)
+			_combat_object = select(1, ...)
 			--check if was a boss fight
 			EncounterDetails:WasEncounter()
 			if (EncounterDetails.combat_boss_found) then
@@ -241,7 +241,7 @@ local function CreatePluginFrames (data)
 			
 		elseif (event == "ZONE_TYPE_CHANGED") then
 			if (EncounterDetails.db.show_icon == 1) then
-				if (select (1, ...) == "raid") then
+				if (select(1, ...) == "raid") then
 					EncounterDetails:ShowIcon()
 				else
 					EncounterDetails:HideIcon()
@@ -275,7 +275,7 @@ local function CreatePluginFrames (data)
 		local event_frame = CreateFrame("frame", nil, UIParent, "BackdropTemplate")
 		event_frame:SetScript("OnEvent", function(self, event, ...)
 			if (event == "ENCOUNTER_START") then
-				local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
+				local encounterID, encounterName, difficultyID, raidSize = select(1, ...)
 				current_encounter = encounterID
 				
 			elseif (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED") then
@@ -317,7 +317,7 @@ local function CreatePluginFrames (data)
 		--EncounterDetails.DBM_timers
 		if (_G.DBM) then
 			local dbm_timer_callback = function(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
-				--print (bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
+				--print(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
 				local spell = tostring (spellId)
 				if (spell and not current_table_dbm [spell]) then
 					current_table_dbm [spell] = {spell, id, msg, timer, icon, bartype, spellId, colorId, modid}
@@ -328,7 +328,7 @@ local function CreatePluginFrames (data)
 		function EncounterDetails:RegisterBigWigsCallBack()
 			if (BigWigsLoader) then
 				function EncounterDetails:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
-					--print (event, module, spellid, bar_text, time, icon, ...)
+					--print(event, module, spellid, bar_text, time, icon, ...)
 					spellid = tostring (spellid)
 					if (not current_table_bigwigs [spellid]) then
 						current_table_bigwigs [spellid] = {(type(module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
@@ -339,7 +339,7 @@ local function CreatePluginFrames (data)
 				end
 			end
 		end
-		EncounterDetails:ScheduleTimer ("RegisterBigWigsCallBack", 5)
+		EncounterDetails:ScheduleTimer("RegisterBigWigsCallBack", 5)
 	
 --BigWigs_StartBar BigWigs_Bosses_Brackenspore mind_fungus Mind Fungus 51 Interface\Icons\inv_mushroom_10 true
 --bigwigs startbar mind_fungus	
@@ -378,26 +378,26 @@ local function CreatePluginFrames (data)
 	
 	function EncounterDetails:ShowIconBallonTutorial()
 		if (InCombatLockdown()) then
-			C_Timer.After (5, function()
-				--print ("in combat")
+			C_Timer.After(5, function()
+				--print("in combat")
 				re_ShowIconBallonTutorial()
 			end)
 			return
 		end
 	
 		local hook_AlertButtonCloseButton = function()
-			--print ("done tutorial")
+			--print("done tutorial")
 			EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1", true)
 		end
 		
 		if (EncounterDetailsTutorialAlertButton1 or not EncounterDetails.ToolbarButton or not EncounterDetails.ToolbarButton:IsShown()) then
-			--print (EncounterDetailsTutorialAlertButton1, not EncounterDetails.ToolbarButton, not EncounterDetails.ToolbarButton:IsShown())
+			--print(EncounterDetailsTutorialAlertButton1, not EncounterDetails.ToolbarButton, not EncounterDetails.ToolbarButton:IsShown())
 			return
 		end
 		
 		--[=[
 		local alert = CreateFrame("frame", "EncounterDetailsTutorialAlertButton1", EncounterDetails.ToolbarButton, "MicroButtonAlertTemplate")
-		alert:SetFrameLevel (302)
+		alert:SetFrameLevel(302)
 		alert.label = "Click here (on the skull icon) to bring the Encounter Breakdown panel"
 		alert.Text:SetSpacing (4)
 		alert:SetClampedToScreen (true)
@@ -406,7 +406,7 @@ local function CreatePluginFrames (data)
 		alert.CloseButton:HookScript ("OnClick", hook_AlertButtonCloseButton)
 		alert:Show()
 		--]=]
-		--print ("showing ballon")
+		--print("showing ballon")
 	end
 	
 	function EncounterDetails:ShowIcon()
@@ -416,8 +416,8 @@ local function CreatePluginFrames (data)
 
 		--EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1", false) --debug
 		if (not EncounterDetails:GetTutorialCVar("ENCOUNTER_DETAILS_BALLON_TUTORIAL1")) then
-			--print ("nao viu o tutorial ainda")
-			C_Timer.After (2, EncounterDetails.ShowIconBallonTutorial)
+			--print("nao viu o tutorial ainda")
+			C_Timer.After(2, EncounterDetails.ShowIconBallonTutorial)
 		end
 		
 	end
@@ -440,7 +440,7 @@ local function CreatePluginFrames (data)
 	end
 	
 	EncounterDetailsFrame:HookScript ("OnShow", function()
-		C_Timer.After (0.1, function()
+		C_Timer.After(0.1, function()
 			if (not EncounterDetails.LastOpenedTime or EncounterDetails.LastOpenedTime + 2 < GetTime()) then
 				if (_detalhes.AddOnStartTime and _detalhes.AddOnStartTime + 30 < GetTime()) then
 					EncounterDetails:OpenAndRefresh()
@@ -481,7 +481,7 @@ local function CreatePluginFrames (data)
 			end
 		end
 
-		C_Timer.After (3, function() EncounterDetails:ShowTutorial() end)
+		C_Timer.After(3, function() EncounterDetails:ShowTutorial() end)
 
 		DetailsPluginContainerWindow.OpenPlugin (EncounterDetails)
 		
@@ -520,31 +520,31 @@ local function CreatePluginFrames (data)
 		
 		--build the header
 		
---		CoolTip:AddLine (Loc ["STRING_PLUGIN_NAME"])
+--		CoolTip:AddLine(Loc ["STRING_PLUGIN_NAME"])
 --		CoolTip:AddIcon (ENCOUNTERDETAILS_BUTTON.__icon, 1, 1, 20, 20)
 --		CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "main")
 		
---		GameCooltip:AddLine ("$div")
+--		GameCooltip:AddLine("$div")
 		
 		--build the menu options
 			
 			--summary
-			CoolTip:AddLine ("Encounter Summary")
+			CoolTip:AddLine("Encounter Summary")
 			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "main")
 			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 0, 0.1015625, 0, 0.505625)
 		
 			--chart
-			CoolTip:AddLine ("Damage Graphic")
+			CoolTip:AddLine("Damage Graphic")
 			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "graph")
 			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 0.1271875, 0.21875, 0, 0.505625)
 			
 			--emotes
-			CoolTip:AddLine ("Boss Emotes")
+			CoolTip:AddLine("Boss Emotes")
 			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "emotes")
 			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 91/256, 116/256, 0, 0.505625)
 			
 			--weakauras
-			CoolTip:AddLine ("Create Encounter Weakauras")
+			CoolTip:AddLine("Create Encounter Weakauras")
 			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "spellsauras")
 			
 			if (_G.WeakAuras) then
@@ -554,7 +554,7 @@ local function CreatePluginFrames (data)
 			end
 
 			--phases
-			CoolTip:AddLine ("Damage by Boss Phase")
+			CoolTip:AddLine("Damage by Boss Phase")
 			CoolTip:AddMenu (1, EncounterDetails.Frame.switch, "phases")
 			CoolTip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 20, 22, 151/256, 176/256, 0, 0.505625)
 			
@@ -586,7 +586,7 @@ local function CreatePluginFrames (data)
 	_detalhes.EncounterDetailsTempWindow = nil
 	
 	--~remover ~autoabrir �brir ~abrir ~auto
-	--C_Timer.After (.5, EncounterDetails.OpenWindow)
+	--C_Timer.After(.5, EncounterDetails.OpenWindow)
 	
 	
 end
@@ -623,14 +623,14 @@ end
 		GameCooltip:SetType ("tooltipbar")
 		GameCooltip:SetOwner(row)
 		
-		GameCooltip:AddLine ("Click to Report", nil, 1, "orange")
+		GameCooltip:AddLine("Click to Report", nil, 1, "orange")
 		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
 		GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, .5}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		
 		local statusBarBackground = {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]}
 		
 		--death parser
-		for index, event in _ipairs(eventos) do 
+		for index, event in ipairs(eventos) do 
 		
 			local hp = _math_floor(event[5]/hp_max*100)
 			if (hp > 100) then 
@@ -640,7 +640,7 @@ end
 			local evtype = event [1]
 			local spellname, _, spellicon = _GetSpellInfo(event [2])
 			local amount = event [3]
-			local time = event [4]
+			local timeInSeconds = event [4]
 			local source = event [6]
 
 			if (type(evtype) == "boolean") then
@@ -660,7 +660,7 @@ end
 						source = source:gsub ("%[%*%] ", "")
 					end
 					
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon, 1, 1, 16, 16, .1, .9, .1, .9)
 					
 					if (event [9]) then
@@ -675,7 +675,7 @@ end
 					local class = Details:GetClass (source)
 					local spec = Details:GetSpec (source)
 
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. Details:GetOnlyName (Details:AddClassOrSpecIcon (source, class, spec, 16, true)) .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s " .. spellname .. " (" .. Details:GetOnlyName(Details:AddClassOrSpecIcon (source, class, spec, 16, true)) .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon, 1, 1, 16, 16, .1, .9, .1, .9)
 					GameCooltip:AddStatusBar (hp, 1, "green", true, statusBarBackground)
 				end
@@ -683,7 +683,7 @@ end
 			elseif (type(evtype) == "number") then
 				if (evtype == 1) then
 					--cooldown
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "cooldown (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "cooldown (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon, 1, 1, 16, 16, .1, .9, .1, .9)
 					GameCooltip:AddStatusBar (100, 1, "yellow", true, statusBarBackground)
 					
@@ -701,7 +701,7 @@ end
 						source = source:gsub ("%[%*%] ", "")
 					end
 					
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s [x" .. amount .. "] " .. spellname .. " (" .. source .. ")", "debuff (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s [x" .. amount .. "] " .. spellname .. " (" .. source .. ")", "debuff (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon, 1, 1, 16, 16, .1, .9, .1, .9)
 					GameCooltip:AddStatusBar (100, 1, "purple", true, statusBarBackground)
 					
@@ -709,13 +709,13 @@ end
 			end
 		end
 
-		GameCooltip:AddLine (deathTable [6] .. " " .. "died" , "-- -- -- ", 1, "white")
+		GameCooltip:AddLine(deathTable [6] .. " " .. "died" , "-- -- -- ", 1, "white")
 		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\small_icons", 1, 1, iconSize, iconSize, .75, 1, 0, 1)
 		GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 		
 		if (battleress) then
 			local nome_magia, _, icone_magia = _GetSpellInfo(battleress [2])
-			GameCooltip:AddLine ("+" .. _cstr ("%.1f", battleress[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. battleress[6] .. ")", "", 1, "white")
+			GameCooltip:AddLine("+" .. _cstr ("%.1f", battleress[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. battleress[6] .. ")", "", 1, "white")
 			GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
 			GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 		end
@@ -723,10 +723,10 @@ end
 		if (lastcooldown) then
 			if (lastcooldown[3] == 1) then 
 				local nome_magia, _, icone_magia = _GetSpellInfo(lastcooldown [2])
-				GameCooltip:AddLine (_cstr ("%.1f", lastcooldown[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
+				GameCooltip:AddLine(_cstr ("%.1f", lastcooldown[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
 				GameCooltip:AddIcon (icone_magia)
 			else
-				GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
+				GameCooltip:AddLine(Loc ["STRING_NOLAST_COOLDOWN"])
 				GameCooltip:AddIcon ([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]], 1, 1, 18, 18)
 			end
 			GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
@@ -752,19 +752,19 @@ local function DispellInfo (dispell, barra)
 	local jogadores = dispell [1] --[nome od jogador] = total
 	local tabela_jogadores = {}
 	
-	for nome, tabela in _pairs (jogadores) do --tabela = [1] total tomado [2] classe
+	for nome, tabela in _pairs(jogadores) do --tabela = [1] total tomado [2] classe
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela [1], tabela [2]}
 	end
 	
 	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
-	for index, tabela in _ipairs(tabela_jogadores) do
+	for index, tabela in ipairs(tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		if (not coords) then
-			GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), tabela[2], 1, "white", "orange")
+			GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), tabela[2], 1, "white", "orange")
 			GameCooltip:AddIcon ("Interface\\GossipFrame\\DailyActiveQuestIcon")
 		else
-			GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), tabela[2], 1, "white", "orange")
+			GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), tabela[2], 1, "white", "orange")
 			
 			local specID = Details:GetSpec (tabela[1])
 			if (specID) then
@@ -792,21 +792,21 @@ local function KickBy (magia, barra)
 	local jogadores = magia [1] --[nome od jogador] = total
 	local tabela_jogadores = {}
 	
-	for nome, tabela in _pairs (jogadores) do --tabela = [1] total tomado [2] classe
+	for nome, tabela in _pairs(jogadores) do --tabela = [1] total tomado [2] classe
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela [1], tabela [2]}
 	end
 	
 	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
 	local spellName, _, spellIcon = GetSpellInfo(barra.lineText1:GetText())
-	GameCooltip:AddLine (barra.lineText1:GetText())
+	GameCooltip:AddLine(barra.lineText1:GetText())
 	if (spellIcon) then
 		GameCooltip:AddIcon (spellIcon, nil, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, 5/64, 59/64, 5/64, 59/64)
 	end
 	
-	for index, tabela in _ipairs(tabela_jogadores) do
+	for index, tabela in ipairs(tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
-		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), tabela[2], 1, "white")
+		GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), tabela[2], 1, "white")
 		
 		local specID = Details:GetSpec (tabela[1])
 		if (specID) then
@@ -840,24 +840,24 @@ local function EnemySkills (habilidade, barra)
 	local tabela_jogadores = {}
 	local total = 0
 	
-	for nome, tabela in _pairs (jogadores) do --tabela = [1] total tomado [2] classe
+	for nome, tabela in _pairs(jogadores) do --tabela = [1] total tomado [2] classe
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela[1], tabela[2]}
 		total = total + tabela[1]
 	end
 	
 	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
-	GameCooltip:AddLine (barra.lineText1:GetText() .. " Damage Done")
+	GameCooltip:AddLine(barra.lineText1:GetText() .. " Damage Done")
 	
 	local ToK = _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
 	
 	local topValue = tabela_jogadores [1] and tabela_jogadores [1][2]
 
-	for index, tabela in _ipairs(tabela_jogadores) do
+	for index, tabela in ipairs(tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		
-		GameCooltip:AddLine (EncounterDetails:GetOnlyName (tabela[1]), ToK (_, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
-		local r, g, b, a = unpack (_detalhes.tooltip.background)
+		GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), ToK (_, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
+		local r, g, b, a = unpack(_detalhes.tooltip.background)
 		
 		local actorClass = Details:GetClass (tabela[1])
 		if (actorClass) then
@@ -900,13 +900,13 @@ local function DamageTakenDetails (jogador, barra)
 	
 	local meus_agressores = {}
 	
-	for nome, _ in _pairs (agressores) do --agressores seria a lista de nomes
+	for nome, _ in _pairs(agressores) do --agressores seria a lista de nomes
 		local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
 		if (este_agressor) then --checagem por causa do total e do garbage collector que n�o limpa os nomes que deram dano
 			local habilidades = este_agressor.spells._ActorTable
-			for id, habilidade in _pairs (habilidades) do 
+			for id, habilidade in _pairs(habilidades) do 
 				local alvos = habilidade.targets
-				for target_name, amount in _pairs (alvos) do 
+				for target_name, amount in _pairs(alvos) do 
 					if (target_name == jogador.nome) then
 						meus_agressores [#meus_agressores+1] = {id, amount, este_agressor.nome}
 					end
@@ -917,7 +917,7 @@ local function DamageTakenDetails (jogador, barra)
 
 	_table_sort (meus_agressores, _detalhes.Sort2)
 	
-	GameCooltip:AddLine (barra.lineText1:GetText() .. " Damage Taken")
+	GameCooltip:AddLine(barra.lineText1:GetText() .. " Damage Taken")
 
 	local max = #meus_agressores
 	if (max > 20) then
@@ -937,14 +937,14 @@ local function DamageTakenDetails (jogador, barra)
 			teve_melee = true
 		end
 		
-		GameCooltip:AddLine (nome_magia, ToK (_, meus_agressores[i][2]) .. " (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", 1, "white")
+		GameCooltip:AddLine(nome_magia, ToK (_, meus_agressores[i][2]) .. " (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", 1, "white")
 		GameCooltip:AddStatusBar (meus_agressores[i][2] / topDamage * 100, 1, .55, .55, .55, .834, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		
 		GameCooltip:AddIcon (icone_magia, nil, 1, EncounterDetails.CooltipLineHeight - 0, EncounterDetails.CooltipLineHeight - 0, .1, .9, .1, .9)
 	end
 	
 	if (teve_melee) then
-		GameTooltip:AddLine ("* "..Loc ["STRING_MELEE_DAMAGE"], 0, 1, 0)
+		GameTooltip:AddLine("* "..Loc ["STRING_MELEE_DAMAGE"], 0, 1, 0)
 	end
 	
 	GameCooltip:SetOwner(barra, "left", "right", 2, 0)
@@ -1061,11 +1061,11 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 		
 			self.mouse_over = true
 			self:SetHeight(EncounterDetails.Frame.DefaultBarHeight + 1)
-			self:SetAlpha (1)
+			self:SetAlpha(1)
 			EncounterDetails.SetBarBackdrop_OnEnter (self)
 			
 			--GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-			GameCooltip:Preset (2)
+			GameCooltip:Preset(2)
 			GameCooltip:SetOwner(self)
 			EncounterDetails:FormatCooltipSettings()
 			
@@ -1105,7 +1105,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			end
 			
 			self:SetHeight(EncounterDetails.Frame.DefaultBarHeight)
-			self:SetAlpha (0.9)
+			self:SetAlpha(0.9)
 
 			EncounterDetails.SetBarBackdrop_OnLeave (self)
 			
@@ -1133,7 +1133,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	EncounterDetailsFrame.ShowType = EncounterDetails.db.last_section_selected
 
 	if (segment) then
-		_combat_object = EncounterDetails:GetCombat (segment)
+		_combat_object = EncounterDetails:GetCombat(segment)
 		EncounterDetails._segment = segment
 		
 		DebugMessage ("there's a segment to use:", segment, _combat_object, _combat_object and _combat_object.is_boss)
@@ -1164,7 +1164,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	end
 	
 	if (not _combat_object) then
-		--EncounterDetails:Msg ("no combat found.")
+		--EncounterDetails:Msg("no combat found.")
 		DebugMessage ("_combat_object is nil, EXIT")
 		return
 	end
@@ -1190,7 +1190,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		DebugMessage ("_combat_object is not a boss, trying another loop in the segments")
 		
 		local foundSegment
-		for index, combat in _ipairs(EncounterDetails:GetCombatSegments()) do 
+		for index, combat in ipairs(EncounterDetails:GetCombatSegments()) do 
 			
 			if (combat.is_boss and EncounterDetails:GetBossDetails (combat.is_boss.mapid, combat.is_boss.index)) then
 				_combat_object = combat
@@ -1289,7 +1289,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local quantidade = 0
 		local dano_do_primeiro = 0
 		
-		for index, jogador in _ipairs(DamageContainer._ActorTable) do
+		for index, jogador in ipairs(DamageContainer._ActorTable) do
 			--ta em ordem de quem tomou mais dano.
 			
 			if (not jogador.grupo) then --s� aparecer nego da raid
@@ -1318,7 +1318,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				
 				barra.jogador = jogador
 				
-				barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [jogador.classe]))
+				barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
 				
 				if (index == 1)  then
 					barra.textura:SetValue(100)
@@ -1335,7 +1335,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				else
 					barra.icone:SetTexture("Interface\\AddOns\\Details\\images\\classes_small")
 					if (EncounterDetails.class_coords [jogador.classe]) then
-						barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
+						barra.icone:SetTexCoord (_unpack(EncounterDetails.class_coords [jogador.classe]))
 					end
 				end
 
@@ -1363,7 +1363,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		--pega as magias cont�nuas presentes em todas as fases
 		--deprecated
 		if (boss_info and boss_info.continuo) then
-			for index, spellid in _ipairs(boss_info.continuo) do 
+			for index, spellid in ipairs(boss_info.continuo) do 
 				habilidades_poll [spellid] = true
 			end
 		end
@@ -1371,9 +1371,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		--pega as habilidades que pertence especificamente a cada fase
 		--deprecated
 		if (boss_info and boss_info.phases) then
-			for fase_id, fase in _ipairs(boss_info.phases) do 
+			for fase_id, fase in ipairs(boss_info.phases) do 
 				if (fase.spells) then
-					for index, spellid in _ipairs(fase.spells) do 
+					for index, spellid in ipairs(fase.spells) do 
 						habilidades_poll [spellid] = true
 					end
 				end
@@ -1382,12 +1382,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		local habilidades_usadas = {}
 		local have_pool = false
-		for spellid, _ in _pairs (habilidades_poll) do 
+		for spellid, _ in _pairs(habilidades_poll) do 
 			have_pool = true
 			break
 		end
 		
-		for index, jogador in _ipairs(DamageContainer._ActorTable) do
+		for index, jogador in ipairs(DamageContainer._ActorTable) do
 		
 			--get all spells from neutral and hostile npcs
 			if (	
@@ -1399,7 +1399,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 				local habilidades = jogador.spells._ActorTable
 				
-				for id, habilidade in _pairs (habilidades) do
+				for id, habilidade in _pairs(habilidades) do
 					--if (habilidades_poll [id]) then
 						--esse jogador usou uma habilidade do boss
 						local esta_habilidade = habilidades_usadas [id] --tabela n�o numerica, pq diferentes monstros podem castar a mesma magia
@@ -1420,7 +1420,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						
 						--pega os alvos e adiciona ao [2]
 						local alvos = habilidade.targets
-						for target_name, amount in _pairs (alvos) do 
+						for target_name, amount in _pairs(alvos) do 
 						
 							--ele tem o nome do jogador, vamos ver se este alvo � realmente um jogador verificando na tabela do combate
 							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
@@ -1438,7 +1438,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				--check if the spell id is in the spell poll.
 				local habilidades = jogador.spells._ActorTable
 				
-				for id, habilidade in _pairs (habilidades) do
+				for id, habilidade in _pairs(habilidades) do
 					if (habilidades_poll [id]) then
 						--esse jogador usou uma habilidade do boss
 						local esta_habilidade = habilidades_usadas [id] --tabela n�o numerica, pq diferentes monstros podem castar a mesma magia
@@ -1459,7 +1459,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						
 						--pega os alvos e adiciona ao [2]
 						local alvos = habilidade.targets
-						for target_name, amount in _pairs (alvos) do 
+						for target_name, amount in _pairs(alvos) do 
 						
 							--ele tem o nome do jogador, vamos ver se este alvo � realmente um jogador verificando na tabela do combate
 							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
@@ -1479,7 +1479,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local tabela_em_ordem = {}
 		local jaFoi = {}
 		
-		for id, tabela in _pairs (habilidades_usadas) do 
+		for id, tabela in _pairs(habilidades_usadas) do 
 			local spellname = Details.GetSpellInfo(tabela [4])
 			
 			if (not jaFoi [spellname]) then
@@ -1493,7 +1493,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local tt = tabela_em_ordem [index] [2] -- tabela com [PlayerName] = {amount, class}
 				
 				for playerName, t in pairs(tabela [2]) do
-					local amount, class = unpack (t)
+					local amount, class = unpack(t)
 					if (tt [playerName]) then
 						tt [playerName][1] = tt [playerName][1] + amount
 					else
@@ -1510,7 +1510,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		dano_do_primeiro = 0
 		
 		--mostra o resultado nas barras
-		for index, habilidade in _ipairs(tabela_em_ordem) do
+		for index, habilidade in ipairs(tabela_em_ordem) do
 			--ta em ordem das habilidades que deram mais dano
 			
 			if (habilidade[1] > 0) then
@@ -1522,7 +1522,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! " .. Loc ["STRING_ABILITY_DAMAGE"]
 					_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
 					_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
-					barra.t:SetVertexColor (1, .8, .8, .8)
+					barra.t:SetVertexColor(1, .8, .8, .8)
 				end
 				
 				local nome_magia, _, icone_magia = _GetSpellInfo(habilidade[4])
@@ -1537,7 +1537,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local spellSchool = _detalhes.spell_school_cache [nome_magia] or 1
 				local r, g, b = _detalhes:GetSpellSchoolColor (spellSchool)
 				
-				barra.t:SetVertexColor (r, g, b)
+				barra.t:SetVertexColor(r, g, b)
 
 				if (index == 1)  then
 					barra.textura:SetValue(100)
@@ -1573,9 +1573,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		--pega as habilidades que pertence especificamente a cada fase
 		
 		if (boss_info and boss_info.phases) then
-			for fase_id, fase in _ipairs(boss_info.phases) do 
+			for fase_id, fase in ipairs(boss_info.phases) do 
 				if (fase.adds) then
-					for index, addId in _ipairs(fase.adds) do 
+					for index, addId in ipairs(fase.adds) do 
 						adds_pool [addId] = true
 					end
 				end
@@ -1588,12 +1588,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		local adds = {}
 		
-		for index, jogador in _ipairs(DamageContainer._ActorTable) do
+		for index, jogador in ipairs(DamageContainer._ActorTable) do
 		
 			--s� estou interessado nos adds, conferir pelo nome
 			if (adds_pool [_detalhes:GetNpcIdFromGuid (jogador.serial)] or (
 				jogador.flag_original and
-				bit.band (jogador.flag_original, 0x00000060) ~= 0 and
+				bit.band(jogador.flag_original, 0x00000060) ~= 0 and
 				(not jogador.owner or (_bit_band (jogador.owner.flag_original, 0x00000060) ~= 0 and not jogador.owner.grupo and _bit_band (jogador.owner.flag_original, 0x00000400) == 0)) and --isn't a pet or the owner isn't a player
 				not jogador.grupo and
 				_bit_band (jogador.flag_original, 0x00000400) == 0
@@ -1608,7 +1608,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					tabela.total = jogador.total
 					
 					--em quem ele deu dano
-					for target_name, amount in _pairs (jogador.targets) do
+					for target_name, amount in _pairs(jogador.targets) do
 						local este_jogador = _combat_object (1, target_name)
 						if (este_jogador) then
 							if (este_jogador.classe ~= "PET" and este_jogador.classe ~= "UNGROUPPLAYER" and este_jogador.classe ~= "UNKNOW") then
@@ -1620,11 +1620,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					_table_sort (tabela.dano_em, _detalhes.Sort2)
 					
 					--quem deu dano nele
-					for agressor, _ in _pairs (jogador.damage_from) do 
+					for agressor, _ in _pairs(jogador.damage_from) do 
 						--local este_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [agressor]]
 						local este_jogador = _combat_object (1, agressor)
 						if (este_jogador and este_jogador:IsPlayer()) then 
-							for target_name, amount in _pairs (este_jogador.targets) do
+							for target_name, amount in _pairs(este_jogador.targets) do
 								if (target_name == nome) then 
 									tabela.damage_from [#tabela.damage_from+1] = {agressor, amount, este_jogador.classe}
 									tabela.damage_from_total = tabela.damage_from_total + amount
@@ -1651,19 +1651,19 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local tabela = barra.jogador
 			local dano_em = tabela.dano_em
 			
-			GameCooltip:Preset (2)
+			GameCooltip:Preset(2)
 			GameCooltip:SetOwner(self)
 			
 			EncounterDetails:FormatCooltipSettings()
 			
-			GameCooltip:AddLine (barra.lineText1:GetText().." ".. "Damage Done")
+			GameCooltip:AddLine(barra.lineText1:GetText().." ".. "Damage Done")
 			
 			local topDamage = dano_em[1] and dano_em[1][2]
 			
 			local dano_em_total = tabela.dano_em_total
-			for _, esta_tabela in _pairs (dano_em) do 
+			for _, esta_tabela in _pairs(dano_em) do 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
-				GameCooltip:AddLine (EncounterDetails:GetOnlyName (esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
+				GameCooltip:AddLine(EncounterDetails:GetOnlyName(esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
 				
 				local specID = Details:GetSpec (esta_tabela[1])
 				if (specID) then
@@ -1687,8 +1687,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			self.ArrowOnEnter = true
 			GameCooltip:SetOwner(self, "right", "left", -10, 0)
 			
-			GameCooltip:AddLine (" ")
-			GameCooltip:AddLine ("CLICK to Report")
+			GameCooltip:AddLine(" ")
+			GameCooltip:AddLine("CLICK to Report")
 			GameCooltip:Show()
 		end
 
@@ -1698,21 +1698,21 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local tabela = barra.jogador
 			local damage_from = tabela.damage_from
 			
-			GameCooltip:Preset (2)
+			GameCooltip:Preset(2)
 			GameCooltip:SetOwner(self)
 			
 			EncounterDetails:FormatCooltipSettings()
 			
-			GameCooltip:AddLine (barra.lineText1:GetText().." "..Loc ["STRING_DAMAGE_TAKEN"])
+			GameCooltip:AddLine(barra.lineText1:GetText().." "..Loc ["STRING_DAMAGE_TAKEN"])
 			
 			local damage_from_total = tabela.damage_from_total
 			local topDamage = damage_from[1] and damage_from[1][2]
 
-			for _, esta_tabela in _pairs (damage_from) do 
+			for _, esta_tabela in _pairs(damage_from) do 
 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				if (coords) then
-					GameCooltip:AddLine (EncounterDetails:GetOnlyName (esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, "white", "orange", nil, nil, "MONOCHRONE")
+					GameCooltip:AddLine(EncounterDetails:GetOnlyName(esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, "white", "orange", nil, nil, "MONOCHRONE")
 					
 					local specID = Details:GetSpec (esta_tabela[1])
 					if (specID) then
@@ -1730,18 +1730,18 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 					end
 				else
-					GameCooltip:AddLine (esta_tabela[1], _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)")
+					GameCooltip:AddLine(esta_tabela[1], _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)")
 					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 				end
 			end
 			
 			self.mouse_over = true
 			self:SetHeight(EncounterDetails.Frame.DefaultBarHeight + 1)
-			self:SetAlpha (1)
+			self:SetAlpha(1)
 			EncounterDetails.SetBarBackdrop_OnEnter (self)
 			
-			GameCooltip:AddLine (" ")
-			GameCooltip:AddLine ("CLICK to Report")
+			GameCooltip:AddLine(" ")
+			GameCooltip:AddLine("CLICK to Report")
 			
 			GameCooltip:SetOwner(self, "left", "right", -60, 0)
 			GameCooltip:Show()
@@ -1754,7 +1754,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				self.textura:SetBlendMode("BLEND")
 				self.textura:SetSize(16, 16)
 			else
-				self:SetAlpha (0.9)
+				self:SetAlpha(0.9)
 				self:SetHeight(EncounterDetails.Frame.DefaultBarHeight)
 				EncounterDetails.SetBarBackdrop_OnLeave (self)
 			end
@@ -1769,7 +1769,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		--table.sort (adds, sort_by_name)
 		table.sort (adds, _detalhes.Sort1)
 		
-		for index, esta_tabela in _ipairs(adds) do 
+		for index, esta_tabela in ipairs(adds) do 
 		
 			local addName = esta_tabela.nome
 			local barra = container.barras [index]
@@ -1789,7 +1789,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				add_damage_done.barra = barra
 				add_damage_done:SetWidth(EncounterDetails.CooltipLineHeight)
 				add_damage_done:SetHeight(EncounterDetails.CooltipLineHeight)
-				add_damage_done:EnableMouse (true)
+				add_damage_done:EnableMouse(true)
 				add_damage_done:SetResizable(false)
 				add_damage_done:SetPoint("left", barra, "left", 0, 0)
 				
@@ -1822,7 +1822,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			barra.jogador = esta_tabela --barra.jogador agora tem a tabela com --[1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 			
-			--barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [jogador.classe]))
+			--barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
 			barra.textura:SetStatusBarColor (1, 1, 1, 1) --a cor pode ser a spell school da magia
 			barra.textura:SetValue(100)
 			
@@ -1855,7 +1855,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		local habilidades_interrompidas = {}
 		
-		for index, jogador in _ipairs(misc._ActorTable) do
+		for index, jogador in ipairs(misc._ActorTable) do
 			if (not jogador.grupo) then --s� aparecer nego da raid
 				break
 			end
@@ -1866,7 +1866,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					local oque_interrompi = jogador.interrompeu_oque
 					--vai ter [spellid] = quantidade
 					
-					for spellid, amt in _pairs (oque_interrompi) do 
+					for spellid, amt in _pairs(oque_interrompi) do 
 						if (not habilidades_interrompidas [spellid]) then --se a spell n�o tiver na pool, cria a tabela dela
 							habilidades_interrompidas [spellid] = {{}, 0, spellid} --tabela com quem interrompeu e o total de vezes que a habilidade foi interrompida
 						end
@@ -1884,14 +1884,14 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		--por em ordem
 		tabela_em_ordem = {}
-		for spellid, tabela in _pairs (habilidades_interrompidas) do 
+		for spellid, tabela in _pairs(habilidades_interrompidas) do 
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
 		_table_sort (tabela_em_ordem, _detalhes.Sort2)
 
 		index = 1
 		
-		for _, tabela in _ipairs(tabela_em_ordem) do
+		for _, tabela in ipairs(tabela_em_ordem) do
 		
 			local barra = container.barras [index]
 			if (not barra) then
@@ -1908,7 +1908,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local nome_magia, _, icone_magia = _GetSpellInfo(tabela [3])
 			local successful = 0
 			--pegar quantas vezes a magia passou com sucesso.
-			for _, enemy_actor in _ipairs(DamageContainer._ActorTable) do
+			for _, enemy_actor in ipairs(DamageContainer._ActorTable) do
 				if (enemy_actor.spells._ActorTable [spellid]) then
 					local spell = enemy_actor.spells._ActorTable [spellid]
 					successful = spell.successful_casted
@@ -1923,7 +1923,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			barra.jogador = tabela
 			
-			--barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [jogador.classe]))
+			--barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
 			
 			if (index == 1)  then
 				barra.textura:SetValue(100)
@@ -1964,7 +1964,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		local habilidades_dispeladas = {}
 		
-		for index, jogador in _ipairs(misc._ActorTable) do
+		for index, jogador in ipairs(misc._ActorTable) do
 			if (not jogador.grupo) then --s� aparecer nego da raid
 				break
 			end
@@ -1976,17 +1976,17 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					local oque_dispelei = jogador.dispell_oque
 					--vai ter [spellid] = quantidade
 					
-					--print ("dispell: " .. jogador.classe .. " nome: " .. jogador.nome)
+					--print("dispell: " .. jogador.classe .. " nome: " .. jogador.nome)
 					
-					for spellid, amt in _pairs (oque_dispelei) do 
+					for spellid, amt in _pairs(oque_dispelei) do 
 						if (not habilidades_dispeladas [spellid]) then --se a spell n�o tiver na pool, cria a tabela dela
 							habilidades_dispeladas [spellid] = {{}, 0, spellid} --tabela com quem dispolou e o total de vezes que a habilidade foi dispelada
 						end
 						
 						if (not habilidades_dispeladas [spellid] [1] [jogador.nome]) then --se o jogador n�o tiver na pool dessa habilidade interrompida, cria um indice pra ele.
 							habilidades_dispeladas [spellid] [1] [jogador.nome] = {0, jogador.classe}
-							--print (jogador.nome)
-							--print (jogador.classe)
+							--print(jogador.nome)
+							--print(jogador.classe)
 						end
 						
 						habilidades_dispeladas [spellid] [2] = habilidades_dispeladas [spellid] [2] + amt
@@ -1998,14 +1998,14 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		--por em ordem
 		tabela_em_ordem = {}
-		for spellid, tabela in _pairs (habilidades_dispeladas) do 
+		for spellid, tabela in _pairs(habilidades_dispeladas) do 
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
 		_table_sort (tabela_em_ordem, _detalhes.Sort2)
 
 		index = 1
 		
-		for _, tabela in _ipairs(tabela_em_ordem) do
+		for _, tabela in ipairs(tabela_em_ordem) do
 		
 			local barra = container.barras [index]
 			if (not barra) then
@@ -2026,7 +2026,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			barra.jogador = tabela
 			
-			--barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [jogador.classe]))
+			--barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
 			
 			if (index == 1)  then
 				barra.textura:SetValue(100)
@@ -2065,7 +2065,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local mortes = _combat_object.last_events_tables
 		local habilidades_info = boss_info and boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --ent�o esse erro � das habilidades que n�o tao
 	
-		for index, tabela in _ipairs(mortes) do
+		for index, tabela in ipairs(mortes) do
 			--{esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
 			local barra = container.barras [index]
 			if (not barra) then
@@ -2079,7 +2079,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local overlayTexture = barra:CreateTexture(nil, "overlay")
 				overlayTexture:SetAllPoints()
 				overlayTexture:SetColorTexture (1, 1, 1)
-				overlayTexture:SetAlpha (1)
+				overlayTexture:SetAlpha(1)
 				overlayTexture:Hide()
 				barra.OverlayTexture = overlayTexture
 			end
@@ -2097,11 +2097,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			barra.jogador = tabela
 			barra.extra = habilidades_info
 			
-			barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [tabela [4]]))
+			barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [tabela [4]]))
 			barra.textura:SetValue(100)
 			
 			barra.icone:SetTexture("Interface\\AddOns\\Details\\images\\classes_small")
-			barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [tabela [4]]))
+			barra.icone:SetTexCoord (_unpack(EncounterDetails.class_coords [tabela [4]]))
 			
 			barra:Show()
 			

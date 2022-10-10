@@ -417,14 +417,14 @@ function DF:FadeFrame(frame, t)
 		frame.fading_out = false
 		frame.fading_in = false
 		frame:Show()
-		frame:SetAlpha (1)
+		frame:SetAlpha(1)
 
 	elseif (t == 1) then
 		frame.hidden = true
 		frame.faded = true
 		frame.fading_out = false
 		frame.fading_in = false
-		frame:SetAlpha (0)
+		frame:SetAlpha(0)
 		frame:Hide()
 	end
 end
@@ -650,7 +650,7 @@ if (symbol_1K) then
 		elseif (number > 999999) then
 			return format("%.2f", number/10000) .. symbol_10K
 		elseif (number > 99999) then
-			return floor (number/10000) .. symbol_10K
+			return floor(number/10000) .. symbol_10K
 		elseif (number > 9999) then
 			return format("%.1f", (number/10000)) .. symbol_10K
 		elseif (number > 999) then
@@ -665,7 +665,7 @@ else
 		elseif (number > 999999) then
 			return format("%.2f", number/1000000) .. "M"
 		elseif (number > 99999) then
-			return floor (number/1000) .. "K"
+			return floor(number/1000) .. "K"
 		elseif (number > 999) then
 			return format("%.1f", (number/1000)) .. "K"
 		end
@@ -2400,7 +2400,7 @@ end
 			error ("Details! Framework: CreateInCombatTexture invalid frame on parameter 1.")
 		end
 
-		local in_combat_background = DF:CreateImage (frame)
+		local in_combat_background = DF:CreateImage(frame)
 		in_combat_background:SetColorTexture (.6, 0, 0, .1)
 		in_combat_background:Hide()
 
@@ -2439,7 +2439,7 @@ end
 			TutorialAlertFrame:Hide()
 			
 			TutorialAlertFrame:SetScript("OnMouseUp", function(self) 
-				if (self.clickfunc and type (self.clickfunc) == "function") then
+				if (self.clickfunc and type(self.clickfunc) == "function") then
 					self.clickfunc()
 				end
 				self:Hide()
@@ -2448,7 +2448,7 @@ end
 		end
 		
 		--
-		TutorialAlertFrame.label = type (maintext) == "string" and maintext or type (desctext) == "string" and desctext or ""
+		TutorialAlertFrame.label = type(maintext) == "string" and maintext or type(desctext) == "string" and desctext or ""
 		MicroButtonAlert_SetText (TutorialAlertFrame, alert.label)
 		--
 		
@@ -2472,7 +2472,7 @@ end
 				elseif (widget.widget_type == "color") then
 					local default_value, g, b, a = widget._get()
 					if (type(default_value) == "table") then
-						widget:SetColor (unpack (default_value))
+						widget:SetColor (unpack(default_value))
 					else
 						widget:SetColor (default_value, g, b, a)
 					end
@@ -2542,8 +2542,8 @@ end
 				end
 			end)
 			
-			options_frame:SetMovable (true)
-			options_frame:EnableMouse (true)
+			options_frame:SetMovable(true)
+			options_frame:EnableMouse(true)
 			options_frame:SetFrameStrata("DIALOG")
 			options_frame:SetToplevel (true)
 			
@@ -2582,8 +2582,8 @@ end
 				end
 			end)
 			
-			options_frame:SetMovable (true)
-			options_frame:EnableMouse (true)
+			options_frame:SetMovable(true)
+			options_frame:EnableMouse(true)
 			options_frame:SetFrameStrata("DIALOG")
 			options_frame:SetToplevel (true)
 			
@@ -2599,7 +2599,7 @@ end
 			local texturetitle = options_frame:CreateTexture(nil, "artwork")
 			texturetitle:SetTexture([[Interface\CURSOR\Interact]])
 			texturetitle:SetTexCoord (0, 1, 0, 1)
-			texturetitle:SetVertexColor (1, 1, 1, 1)
+			texturetitle:SetVertexColor(1, 1, 1, 1)
 			texturetitle:SetPoint("topleft", options_frame, "topleft", 2, -3)
 			texturetitle:SetWidth(36)
 			texturetitle:SetHeight(36)
@@ -2612,7 +2612,7 @@ end
 			c:SetWidth(32)
 			c:SetHeight(32)
 			c:SetPoint("TOPRIGHT",  options_frame, "TOPRIGHT", -3, -3)
-			c:SetFrameLevel (options_frame:GetFrameLevel()+1)
+			c:SetFrameLevel(options_frame:GetFrameLevel()+1)
 			
 			return options_frame
 		end
@@ -2800,7 +2800,7 @@ function DF:InstallTemplate (widgetType, templateName, template, parentName)
 	return newTemplate
 end
 
-function DF:GetTemplate (widget_type, template_name)
+function DF:GetTemplate(widget_type, template_name)
 	widget_type = string.lower (widget_type)
 
 	local template_table
@@ -2833,7 +2833,7 @@ function DF:RunHooksForWidget (event, ...)
 	local hooks = self.HookList [event]
 	
 	if (not hooks) then
-		print (self.widget:GetName(), "no hooks for", event)
+		print(self.widget:GetName(), "no hooks for", event)
 		return
 	end
 	
@@ -2853,7 +2853,7 @@ function DF:SetHook(hookType, func)
 			local isRemoval = false
 			for i = #self.HookList [hookType], 1, -1 do
 				if (self.HookList [hookType] [i] == func) then
-					tremove (self.HookList [hookType], i)
+					tremove(self.HookList [hookType], i)
 					isRemoval = true
 					break
 				end
@@ -2863,7 +2863,7 @@ function DF:SetHook(hookType, func)
 			end
 		else
 			if (DF.debug) then
-				print (debugstack())
+				print(debugstack())
 				error ("Details! Framework: invalid function for widget " .. self.WidgetType .. ".")
 			end
 		end
@@ -2893,7 +2893,7 @@ function DF:ClearHooks()
 end
 
 function DF:Error (errortext)
-	print ("|cFFFF2222Details! Framework Error|r:", errortext, self.GetName and self:GetName(), self.WidgetType, debugstack (2, 3, 0))
+	print("|cFFFF2222Details! Framework Error|r:", errortext, self.GetName and self:GetName(), self.WidgetType, debugstack (2, 3, 0))
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2997,7 +2997,7 @@ function DF:OpenInterfaceProfile()
 				end
 			end
 		else
-			self:Msg ("Couldn't not find the profile panel.")
+			self:Msg("Couldn't not find the profile panel.")
 			break
 		end
 	end
@@ -3109,21 +3109,21 @@ local frameshake_shake_finished = function(parent, shakeObject)
 			
 			--automatic anchoring and reanching needs to the reviwed in the future
 			if (#anchor == 1) then
-				local anchorTo = unpack (anchor)
+				local anchorTo = unpack(anchor)
 				parent:ClearAllPoints()
 				parent:SetPoint(anchorTo)
 				
 			elseif (#anchor == 2) then
-				local anchorTo, point1 = unpack (anchor)
+				local anchorTo, point1 = unpack(anchor)
 				parent:ClearAllPoints()
 				parent:SetPoint(anchorTo, point1)
 				
 			elseif (#anchor == 3) then
-				local anchorTo, point1, point2 = unpack (anchor)
+				local anchorTo, point1, point2 = unpack(anchor)
 				parent:SetPoint(anchorTo, point1, point2)
 				
 			elseif (#anchor == 5) then
-				local anchorName1, anchorTo, anchorName2, point1, point2 = unpack (anchor)
+				local anchorName1, anchorTo, anchorName2, point1, point2 = unpack(anchor)
 				parent:SetPoint(anchorName1, anchorTo, anchorName2, point1, point2)
 			end
 		end
@@ -3137,7 +3137,7 @@ frameshake_do_update = function(parent, shakeObject, deltaTime)
 	deltaTime = deltaTime or 0
 	
 	--update time left
-	shakeObject.TimeLeft = max (shakeObject.TimeLeft - deltaTime, 0)
+	shakeObject.TimeLeft = max(shakeObject.TimeLeft - deltaTime, 0)
 
 	if (shakeObject.TimeLeft > 0) then
 		--update fade in and out
@@ -3172,13 +3172,13 @@ frameshake_do_update = function(parent, shakeObject, deltaTime)
 			local newX, newY
 			if (shakeObject.AbsoluteSineX) then
 				--absoluting only the sine wave, passing a negative scale will reverse the absolute direction
-				newX = shakeObject.Amplitude * abs (math.sin (shakeObject.XSineOffset)) * scaleShake * shakeObject.ScaleX
+				newX = shakeObject.Amplitude * abs(math.sin (shakeObject.XSineOffset)) * scaleShake * shakeObject.ScaleX
 			else
 				newX = shakeObject.Amplitude * math.sin (shakeObject.XSineOffset) * scaleShake * shakeObject.ScaleX
 			end
 			
 			if (shakeObject.AbsoluteSineY) then
-				newY = shakeObject.Amplitude * abs (math.sin (shakeObject.YSineOffset)) * scaleShake * shakeObject.ScaleY
+				newY = shakeObject.Amplitude * abs(math.sin (shakeObject.YSineOffset)) * scaleShake * shakeObject.ScaleY
 			else
 				newY = shakeObject.Amplitude * math.sin (shakeObject.YSineOffset) * scaleShake * shakeObject.ScaleY
 			end
@@ -3188,13 +3188,13 @@ frameshake_do_update = function(parent, shakeObject, deltaTime)
 				local anchor = shakeObject.Anchors [i]
 				
 				if (#anchor == 1 or #anchor == 3) then
-					local anchorTo, point1, point2 = unpack (anchor)
+					local anchorTo, point1, point2 = unpack(anchor)
 					point1 = point1 or 0
 					point2 = point2 or 0
 					parent:SetPoint(anchorTo, point1 + newX, point2 + newY)
 					
 				elseif (#anchor == 5) then
-					local anchorName1, anchorTo, anchorName2, point1, point2 = unpack (anchor)
+					local anchorName1, anchorTo, anchorName2, point1, point2 = unpack(anchor)
 					--parent:ClearAllPoints()
 					
 					parent:SetPoint(anchorName1, anchorTo, anchorName2, point1 + newX, point2 + newY)
@@ -3390,7 +3390,7 @@ end
 local glow_overlay_setcolor = function(self, antsColor, glowColor)
 	if (antsColor) then
 		local r, g, b, a = DF:ParseColors(antsColor)
-		self.ants:SetVertexColor (r, g, b, a)
+		self.ants:SetVertexColor(r, g, b, a)
 		self.AntsColor.r = r
 		self.AntsColor.g = g
 		self.AntsColor.b = b
@@ -3399,7 +3399,7 @@ local glow_overlay_setcolor = function(self, antsColor, glowColor)
 	
 	if (glowColor) then
 		local r, g, b, a = DF:ParseColors(glowColor)
-		self.outerGlow:SetVertexColor (r, g, b, a)
+		self.outerGlow:SetVertexColor(r, g, b, a)
 		self.GlowColor.r = r
 		self.GlowColor.g = g
 		self.GlowColor.b = b
@@ -3438,11 +3438,11 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 	parent.overlay:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", frameWidth * 0.32, -frameHeight * 0.36)
 	
 	local r, g, b, a = DF:ParseColors(antsColor or defaultColor)
-	glowFrame.ants:SetVertexColor (r, g, b, a)
+	glowFrame.ants:SetVertexColor(r, g, b, a)
 	glowFrame.AntsColor = {r, g, b, a}
 	
 	local r, g, b, a = DF:ParseColors(glowColor or defaultColor)
-	glowFrame.outerGlow:SetVertexColor (r, g, b, a)
+	glowFrame.outerGlow:SetVertexColor(r, g, b, a)
 	glowFrame.GlowColor = {r, g, b, a}
 	
 	glowFrame.outerGlow:SetScale(1.2)
@@ -3478,7 +3478,7 @@ function DF:CreateAnts (parent, antTable, leftOffset, rightOffset, topOffset, bo
 	t:SetAllPoints()
 	t:SetTexture(antTable.Texture)
 	t:SetBlendMode(antTable.BlendMode or "ADD")
-	t:SetVertexColor (DF:ParseColors(antTable.Color or "white"))
+	t:SetVertexColor(DF:ParseColors(antTable.Color or "white"))
 	f.Texture = t
 	
 	f.AntTable = antTable
@@ -3509,13 +3509,13 @@ local SetBorderAlpha = function(self, alpha1, alpha2, alpha3)
 	self.Borders.Alpha3 = alpha3 or self.Borders.Alpha3
 	
 	for _, texture in ipairs(self.Borders.Layer1) do
-		texture:SetAlpha (self.Borders.Alpha1)
+		texture:SetAlpha(self.Borders.Alpha1)
 	end
 	for _, texture in ipairs(self.Borders.Layer2) do
-		texture:SetAlpha (self.Borders.Alpha2)
+		texture:SetAlpha(self.Borders.Alpha2)
 	end
 	for _, texture in ipairs(self.Borders.Layer3) do
-		texture:SetAlpha (self.Borders.Alpha3)
+		texture:SetAlpha(self.Borders.Alpha3)
 	end
 end
 
@@ -3981,7 +3981,7 @@ function DF:GetClassSpecIDs (class)
 end
 
 local dispatch_error = function(context, errortext)
-	DF:Msg ( (context or "<no context>") .. " |cFFFF9900error|r: " .. (errortext or "<no error given>"))
+	DF:Msg( (context or "<no context>") .. " |cFFFF9900error|r: " .. (errortext or "<no error given>"))
 end
 
 --safe call an external func with payload and without telling who is calling
@@ -4045,7 +4045,7 @@ function DF:CoreDispatch (context, func, ...)
 end
 
 
---/run local a, b =32,3; local f=function(c,d) return c+d, 2, 3;end; print (xpcall(f,geterrorhandler(),a,b))
+--/run local a, b =32,3; local f=function(c,d) return c+d, 2, 3;end; print(xpcall(f,geterrorhandler(),a,b))
 function DF_CALC_PERFORMANCE()
 	local F = CreateFrame("frame")
 	local T = GetTime()
@@ -4055,7 +4055,7 @@ function DF_CALC_PERFORMANCE()
 			J = true
 			return 
 		end
-		print ("Elapsed Time:", deltaTime)
+		print("Elapsed Time:", deltaTime)
 		F:SetScript("OnUpdate", nil)
 	end)
 end
@@ -4339,7 +4339,7 @@ DF.CLEncounterID = {
 }
 
 function DF:GetPlayerRole()
-	local assignedRole = DF.UnitGroupRolesAssigned ("player")
+	local assignedRole = DF.UnitGroupRolesAssigned("player")
 	if (assignedRole == "NONE") then
 		local spec = DF.GetSpecialization()
 		return spec and DF.GetSpecializationRole (spec) or "NONE"
@@ -4663,7 +4663,7 @@ end
 							local func = DF.RegisteredScriptsComm [ID]
 							if (func) then
 								DF:MakeFunctionSecure(func)
-								DF:Dispatch (func, commSource, select (5, unpack (data))) --this use xpcall
+								DF:Dispatch (func, commSource, select(5, unpack(data))) --this use xpcall
 							end
 						end
 					end
@@ -4685,7 +4685,7 @@ end
 	function DF:SendScriptComm (ID, ...)
 		if (DF.RegisteredScriptsComm [ID]) then
 			local sourceName = UnitName ("player") .. "-" .. GetRealmName()
-			local data = LibAceSerializer:Serialize (ID, UnitGUID ("player"), sourceName, ...)
+			local data = LibAceSerializer:Serialize (ID, UnitGUID("player"), sourceName, ...)
 			data = LibDeflate:CompressDeflate (data, {level = 9})
 			data = LibDeflate:EncodeForWoWAddonChannel (data)
 			aceComm:SendCommMessage ("_GSC", data, "PARTY")
@@ -4704,7 +4704,7 @@ DF.DebugMixin = {
 	debug = true,
 
 	CheckPoint = function(self, checkPointName, ...)
-		print (self:GetName(), checkPointName, ...)
+		print(self:GetName(), checkPointName, ...)
 	end,
 	
 	CheckVisibilityState = function(self, widget)
@@ -4712,12 +4712,12 @@ DF.DebugMixin = {
 		self = widget or self
 		
 		local width, height = self:GetSize()
-		width = floor (width)
-		height = floor (height)
+		width = floor(width)
+		height = floor(height)
 		
 		local numPoints = self:GetNumPoints()
 		
-		print ("shown:", self:IsShown(), "visible:", self:IsVisible(), "alpha:", self:GetAlpha(), "size:", width, height, "points:", numPoints)
+		print("shown:", self:IsShown(), "visible:", self:IsVisible(), "alpha:", self:GetAlpha(), "size:", width, height, "points:", numPoints)
 	end,
 	
 	CheckStack = function(self)

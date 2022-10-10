@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = _G._detalhes
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	local _
 	
@@ -90,7 +90,7 @@
 		
 		if (instance.auto_hide_menu.left and not instance.is_interacting) then
 			instance:ToolbarMenuButtons()
-			Button:SetAlpha (0)
+			Button:SetAlpha(0)
 			return
 		end
 
@@ -203,9 +203,9 @@ end
 			_detalhes:SetFontFace (f.desc, _detalhes.font_faces.menus)
 			
 			--f.background:SetTexture(_detalhes.tooltip.menus_bg_texture)
-			f.background:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
-			f.background:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
-			--f.background:SetDesaturated (true)
+			f.background:SetTexCoord (unpack(_detalhes.tooltip.menus_bg_coords))
+			f.background:SetVertexColor(unpack(_detalhes.tooltip.menus_bg_color))
+			--f.background:SetDesaturated(true)
 			
 			f.BackdropTable.bgFile = _detalhes.tooltip_backdrop.bgFile
 			f.BackdropTable.edgeFile = [[Interface\Buttons\WHITE8X8]] --_detalhes.tooltip_backdrop.edgeFile

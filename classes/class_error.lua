@@ -14,13 +14,13 @@ do
 		return _error.errortext
 	end
 	_error.__call = function(_this)
-		print (_this.errortext)
+		print(_this.errortext)
 	end
 	
 	function _detalhes:NewError (_msg)
 		local this_error = {}
 		this_error.errortext = _msg
-		setmetatable (this_error, _error)
+		setmetatable(this_error, _error)
 		return this_error
 	end
 

@@ -1,8 +1,8 @@
 
 local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
-local LDB = LibStub ("LibDataBroker-1.1", true)
-local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
-local LibWindow = LibStub ("LibWindow-1.1")
+local LDB = LibStub("LibDataBroker-1.1", true)
+local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
+local LibWindow = LibStub("LibWindow-1.1")
 local _
 
 ---need cleanup Loc ["STRING_MEMORY_ALERT_BUTTON"],
@@ -151,7 +151,7 @@ local function CreatePluginFrames()
 	titlebar:SetScript("OnEnter", function(self) 
 		GameTooltip:SetOwner(self)
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-		GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Right Click|r: Lock the Frame\n|cFFFF7700Slash Command|r: /streamer")
+		GameTooltip:AddLine("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Right Click|r: Lock the Frame\n|cFFFF7700Slash Command|r: /streamer")
 		GameTooltip:Show()
 	end)
 	titlebar:SetScript("OnLeave", function() 
@@ -204,8 +204,8 @@ local function CreatePluginFrames()
 	SOF:SetPoint("center", UIParent, "center")
 	SOF:SetSize(300, 500)
 	SOF:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-	SOF:EnableMouse (true)
-	SOF:SetMovable (true)
+	SOF:EnableMouse(true)
+	SOF:SetMovable(true)
 	SOF:SetResizable(true)
 	SOF:SetClampedToScreen (true)
 
@@ -223,23 +223,23 @@ local function CreatePluginFrames()
 		StreamOverlay.db.main_frame_size [1] = SOF:GetWidth()
 		StreamOverlay.db.main_frame_size [2] = SOF:GetHeight()
 		--save main frame position
-		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
-		LibWindow.SavePosition (SOF)
+		LibWindow.RegisterConfig(SOF, StreamOverlay.db)
+		LibWindow.SavePosition(SOF)
 		--save the dps frame position
-		LibWindow.RegisterConfig (StreamerOverlayDpsHpsFrame, StreamOverlay.db.per_second)
-		LibWindow.SavePosition (StreamerOverlayDpsHpsFrame)
+		LibWindow.RegisterConfig(StreamerOverlayDpsHpsFrame, StreamOverlay.db.per_second)
+		LibWindow.SavePosition(StreamerOverlayDpsHpsFrame)
 	end
 	function StreamOverlay:RestoreWindowSizeAndLocation()
 		--restore the size first
-		SOF:SetSize(unpack (StreamOverlay.db.main_frame_size))
+		SOF:SetSize(unpack(StreamOverlay.db.main_frame_size))
 		--set the main window location
-		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
-		LibWindow.RestorePosition (SOF)
-		LibWindow.SavePosition (SOF)
+		LibWindow.RegisterConfig(SOF, StreamOverlay.db)
+		LibWindow.RestorePosition(SOF)
+		LibWindow.SavePosition(SOF)
 		--set the dps frame location
-		LibWindow.RegisterConfig (StreamerOverlayDpsHpsFrame, StreamOverlay.db.per_second)
-		LibWindow.RestorePosition (StreamerOverlayDpsHpsFrame)
-		LibWindow.SavePosition (StreamerOverlayDpsHpsFrame)
+		LibWindow.RegisterConfig(StreamerOverlayDpsHpsFrame, StreamOverlay.db.per_second)
+		LibWindow.RestorePosition(StreamerOverlayDpsHpsFrame)
+		LibWindow.SavePosition(StreamerOverlayDpsHpsFrame)
 		--set the frame strata
 		SOF:SetFrameStrata(StreamOverlay.db.main_frame_strata)
 		StreamerOverlayDpsHpsFrame:SetFrameStrata(StreamOverlay.db.main_frame_strata)
@@ -506,7 +506,7 @@ local function CreatePluginFrames()
 				end
 
 				line.icon2:SetTexture(data [4])
-				line.icon2:SetTexCoord (unpack (data [5]))
+				line.icon2:SetTexCoord (unpack(data [5]))
 				if (data [4] == defaultAttackIcon) then
 					line.icon2:SetSize(iconSize*0.8, iconSize*0.8)
 					line.icon2:SetPoint("left", line, "center", 8, 0)
@@ -518,10 +518,10 @@ local function CreatePluginFrames()
 				end
 				
 				--background
-				line:SetBackdropColor(unpack (data [8]))
+				line:SetBackdropColor(unpack(data [8]))
 				
 				if (data [9]) then
-					line:SetBackdropBorderColor(unpack (data [9]))
+					line:SetBackdropBorderColor(unpack(data [9]))
 				else
 					line:SetBackdropBorderColor(0, 0, 0, 0)
 				end
@@ -586,7 +586,7 @@ local function CreatePluginFrames()
 		statusbar_texture:SetTexture(1, 1, 1, 0.15)
 		statusbar:SetStatusBarColor (0, 0, 0, 0)
 		statusbar:SetStatusBarTexture (statusbar_texture)
-		statusbar:SetMinMaxValues (0, 100)
+		statusbar:SetMinMaxValues(0, 100)
 		statusbar:SetValue(0)
 		local statusbar_spark = statusbar:CreateTexture(nil, "artwork")
 		statusbar_spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
@@ -730,7 +730,7 @@ local function CreatePluginFrames()
 			local line_in_use = line.in_use or 1
 			local content_in_use = StreamOverlay.battle_content [i] and StreamOverlay.battle_content [i].CastStart or 1
 
-			if (max (line_in_use, content_in_use) + 60 < now) then
+			if (max(line_in_use, content_in_use) + 60 < now) then
 				fader (nil, line, "in")
 			else
 				fader (nil, line, "out")
@@ -743,7 +743,7 @@ local function CreatePluginFrames()
 					local line_in_use = line.in_use or 1
 					local content_in_use = StreamOverlay.battle_content [i] and StreamOverlay.battle_content [i].CastStart or 1
 
-					if (max (line_in_use, content_in_use) + 60 < now) then
+					if (max(line_in_use, content_in_use) + 60 < now) then
 						fader (nil, StreamOverlay.battle_lines [i], "in")
 					else
 						fader (nil, StreamOverlay.battle_lines [i], "out")
@@ -757,7 +757,7 @@ local function CreatePluginFrames()
 					local line_in_use = line.in_use or 1
 					local content_in_use = StreamOverlay.battle_content[i] and StreamOverlay.battle_content[i].CastStart or 1
 
-					if (max (line_in_use, content_in_use) + 60 < now) then
+					if (max(line_in_use, content_in_use) + 60 < now) then
 						fader (nil, StreamOverlay.squares[i], "in")
 					else
 						fader (nil, StreamOverlay.squares[i], "out")
@@ -961,7 +961,7 @@ local DefaultColor = {r=1, g=1, b=1}
 local PetCoords = {0.25, 0.49609375, 0.75, 1}
 
 local parse_target_name = function(target)
-	return StreamOverlay:GetOnlyName (target)
+	return StreamOverlay:GetOnlyName(target)
 end
 
 local parse_target_icon = function(targetObject, target)
@@ -1042,7 +1042,7 @@ function StreamOverlay:CastStart (castGUID)
 	local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
 	local spellname, _, spellicon = GetSpellInfo(spellid)
 
-	local targetObject = Details:GetActor ("current", 1, target) or Details:GetActor ("current", 2, target)
+	local targetObject = Details:GetActor("current", 1, target) or Details:GetActor("current", 2, target)
 	local icon2, icon2coords, class = parse_target_icon (targetObject, target)
 	
 	local color2
@@ -1080,7 +1080,7 @@ function StreamOverlay:CastFinished (castid)
 		local icon, backgroundcolor, bordercolor = StreamOverlay:GetSpellInformation (spellid)
 		local spellname, _, spellicon = GetSpellInfo(spellid)
 		
-		local targetObject = Details:GetActor ("current", 1, target) or Details:GetActor ("current", 2, target)
+		local targetObject = Details:GetActor("current", 1, target) or Details:GetActor("current", 2, target)
 		
 		local icon2, icon2coords, class = parse_target_icon (targetObject, target)
 		
@@ -1123,7 +1123,7 @@ eventFrame.track_spell_cast = function()
 					elseif (castinfo.Interrupted) then
 						--has been interrupted
 						castinfo.Done = true
-						line.spark:SetVertexColor (1, 0.7, 0)
+						line.spark:SetVertexColor(1, 0.7, 0)
 						
 					elseif (castinfo.IsChanneled) then
 						--casting a channeled spell
@@ -1136,7 +1136,7 @@ eventFrame.track_spell_cast = function()
 							local diff = endTime - startTime
 							local current = GetTime() - startTime
 							local percent = current / diff * 100
-							percent = math.abs (percent - 100)
+							percent = math.abs(percent - 100)
 							castinfo.Percent = percent
 							line.statusbar:SetValue(percent)
 							if (StreamOverlay.db.use_spark) then
@@ -1197,7 +1197,7 @@ eventFrame.track_spell_cast = function()
 							line.spark:Hide()
 						end
 						
-						line.spark:SetVertexColor (1, 1, 1, 1)
+						line.spark:SetVertexColor(1, 1, 1, 1)
 						line.spark:SetPoint("left", line.statusbar, "left", (line.statusbar:GetWidth() / 100 * percent) - 6, 0)
 					end
 				end
@@ -1241,7 +1241,7 @@ eventFrame.track_spell_cast = function()
 							local diff = endTime - startTime
 							local current = GetTime() - startTime
 							local percent = current / diff * 100
-							percent = math.abs (percent - 100)
+							percent = math.abs(percent - 100)
 							castinfo.Percent = percent
 							StreamOverlay:UpdateCooldownFrame(line, true, startTime, endTime, castinfo)
 						end
@@ -1335,7 +1335,7 @@ local lastChannelSpell = ""
 local APM = 0
 local ACTIONS = 0
 local ACTIONS_EVENT_TIME = {}
-local AMP_Tick = C_Timer.NewTicker (1, function()
+local AMP_Tick = C_Timer.NewTicker(1, function()
 	APM = ACTIONS * 60
 	ACTIONS = 0
 end)
@@ -1471,7 +1471,7 @@ local format_time = function(v) return "-" .. format ("%.2f", v) end
 --when the player die, show the events before the death
 function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, death_table, last_cooldown, death_at_combattime, max_health)
 
-	if (alvo_serial ~= UnitGUID ("player")) then
+	if (alvo_serial ~= UnitGUID("player")) then
 		return
 	end
 
@@ -1479,7 +1479,7 @@ function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags,
 
 	for i = 1, #death_table do
 		local ev = death_table [i]
-		if (ev and type (ev) == "table" and ev[1] and type (ev[1]) == "boolean") then
+		if (ev and type(ev) == "table" and ev[1] and type(ev[1]) == "boolean") then
 			--it's a damage
 			local spellid = ev[2]
 			local amount = ev[3]
@@ -1489,7 +1489,7 @@ function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags,
 			local absorbed = ev[7]
 			
 			--get the actor from details
-			local sourceObject = Details:GetActor ("current", 1, source)
+			local sourceObject = Details:GetActor("current", 1, source)
 			local classIcon, l, r, t, b
 			if (sourceObject) then
 				classIcon, l, r, t, b = StreamOverlay:GetClassIcon (sourceObject.classe)
@@ -1499,7 +1499,7 @@ function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags,
 			
 			--spellname
 			local spellname, _, spellicon = StreamOverlay.getspellinfo (spellid)
-			source = StreamOverlay:GetOnlyName (source)
+			source = StreamOverlay:GetOnlyName(source)
 			
 			local CastInfoIndex = i * -1
 			
@@ -1553,14 +1553,14 @@ function StreamOverlay:SetLocked (state)
 		DetailsStreamerTitlebar:Hide()
 		DetailsStreamerLeftResizer:Hide()
 		DetailsStreamerRightResizer:Hide()
-		SOF:EnableMouse (false)
+		SOF:EnableMouse(false)
 	else
 		--not locked
 		StreamOverlay.db.main_frame_locked = false
 		DetailsStreamerTitlebar:Show()
 		DetailsStreamerLeftResizer:Show()
 		DetailsStreamerRightResizer:Show()
-		SOF:EnableMouse (true)
+		SOF:EnableMouse(true)
 	end
 	
 	StreamOverlay:UpdateDpsHpsFrameConfig()
@@ -1573,7 +1573,7 @@ local screen_frame = CreateFrame("frame", "StreamerOverlayDpsHpsFrame", UIParent
 screen_frame:SetSize(70, 20)
 screen_frame:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 screen_frame:SetBackdropColor(.1, .1, .1, .9)
-screen_frame:SetMovable (true)
+screen_frame:SetMovable(true)
 screen_frame:Hide()
 screen_frame:SetPoint("center", UIParent, "center")
 screen_frame:SetScript("OnMouseDown", function(self)
@@ -1602,7 +1602,7 @@ end)
 screen_frame:SetScript("OnEnter", function(self) 
 	GameTooltip:SetOwner(self)
 	GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-	GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer")
+	GameTooltip:AddLine("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer")
 	GameTooltip:Show()
 end)
 screen_frame:SetScript("OnLeave", function() 
@@ -1639,11 +1639,11 @@ function StreamOverlay:UpdateDpsHpsFrameConfig (PluginDisabled)
 	
 	if (StreamOverlay.db.main_frame_locked) then
 		screen_frame:SetBackdrop(nil)
-		screen_frame:EnableMouse (false)
+		screen_frame:EnableMouse(false)
 	else
 		screen_frame:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		screen_frame:SetBackdropColor(.1, .1, .1, .9)
-		screen_frame:EnableMouse (true)
+		screen_frame:EnableMouse(true)
 	end
 	
 	if (db.enabled) then
@@ -1652,7 +1652,7 @@ function StreamOverlay:UpdateDpsHpsFrameConfig (PluginDisabled)
 			StreamOverlay.DpsHpsTick:Cancel()
 			StreamOverlay.DpsHpsTick = nil
 		end
-		StreamOverlay.DpsHpsTick = C_Timer.NewTicker (db.update_speed, StreamOverlay.UpdateDpsHpsFrame)
+		StreamOverlay.DpsHpsTick = C_Timer.NewTicker(db.update_speed, StreamOverlay.UpdateDpsHpsFrame)
 	else
 		screen_frame:Hide()
 		if (StreamOverlay.DpsHpsTick) then
@@ -1690,11 +1690,11 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 	if (not StreamOverlayOptionsPanel) then
 		local detailsFramework = Details:GetFramework()
 
-		local options_text_template = detailsFramework:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
-		local options_dropdown_template = detailsFramework:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
-		local options_switch_template = detailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
-		local options_slider_template = detailsFramework:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
-		local options_button_template = detailsFramework:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+		local options_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+		local options_dropdown_template = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		local options_switch_template = detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+		local options_slider_template = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
+		local options_button_template = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
 		local optionsFrame = StreamOverlay:CreatePluginOptionsFrame("StreamOverlayOptionsPanel", "Details! Streamer: Action Tracker", 1)
 		optionsFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -2229,7 +2229,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			
 			--set locked and the backdrop color
 			StreamOverlay:SetLocked (StreamOverlay.db.main_frame_locked)
-			StreamOverlay:SetBackgroundColor (unpack (StreamOverlay.db.main_frame_color))
+			StreamOverlay:SetBackgroundColor (unpack(StreamOverlay.db.main_frame_color))
 			
 			--update the minimap icon
 			if (LDBIcon) then
@@ -2251,8 +2251,8 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			return t
 		end
 		
-		local label_profile = Details.gump:CreateLabel(optionsFrame, "Profile" .. ": ", Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
-		local dropdown_profile = Details.gump:CreateDropDown (optionsFrame, select_profile_fill, nil, 160, 20, "dropdown_profile", nil, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+		local label_profile = Details.gump:CreateLabel(optionsFrame, "Profile" .. ": ", Details.gump:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
+		local dropdown_profile = Details.gump:CreateDropDown (optionsFrame, select_profile_fill, nil, 160, 20, "dropdown_profile", nil, Details.gump:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 		dropdown_profile:SetPoint("left", label_profile, "right", 2, 0)
 		label_profile:SetPoint("topleft", optionsFrame, "topleft", 15, -65)
 		
@@ -2282,7 +2282,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				dropdown_profile:Select(Details_StreamerDB.characters [pname])
 				
 			end
-			optionsFrame.NewProfileButton = Details.gump:CreateButton (optionsFrame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+			optionsFrame.NewProfileButton = Details.gump:CreateButton(optionsFrame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
 			optionsFrame.NewProfileButton:SetPoint("left", dropdown_profile, "right", 4, 0)
 		end
 		
@@ -2317,7 +2317,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 		optionsFrame:SetScript("OnHide", function()
 			if (StreamOverlay.FromOptionsPanel) then
 				--reopen the options panel
-				C_Timer.After (0.2, function()
+				C_Timer.After(0.2, function()
 					Details:OpenOptionsWindow(Details:GetInstance(1))
 				end)
 			end
@@ -2344,7 +2344,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 	StreamOverlay.FromOptionsPanel = fromOptionsPanel
 	if (fromOptionsPanel) then
 		if (DetailsOptionsWindow) then
-			C_Timer.After (0.2, function()
+			C_Timer.After(0.2, function()
 				DetailsOptionsWindow:Hide()
 			end)
 		end
@@ -2356,7 +2356,7 @@ end
 function StreamOverlay:OnEvent (_, event, ...)
 
 	if (event == "ADDON_LOADED") then
-		local AddonName = select (1, ...)
+		local AddonName = select(1, ...)
 		if (AddonName == "Details_Streamer") then
 			
 			playerName = UnitName ("player")
@@ -2419,7 +2419,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				--Install
 				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Action Tracker", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", StreamOverlay.CurrentVersion, default_options_table)
 				if (type(install) == "table" and install.error) then
-					print (install.error)
+					print(install.error)
 				end
 				
 				Details_StreamerDB = Details_StreamerDB or {characters = {}, profiles = {}}
@@ -2492,11 +2492,11 @@ function StreamOverlay:OnEvent (_, event, ...)
 							welcomeWindow:Hide()
 						end
 						
-						local close = Details.gump:CreateButton (welcomeWindow, close_func, 120, 20, "Okay", nil, nil, nil, nil, nil, nil, Details.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+						local close = Details.gump:CreateButton(welcomeWindow, close_func, 120, 20, "Okay", nil, nil, nil, nil, nil, nil, Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 						close:SetPoint("center", text3, "center", 0, -50)
 					end
 					
-					StreamOverlay.ShowWelcomeFrame = C_Timer.NewTicker (5, show_frame)
+					StreamOverlay.ShowWelcomeFrame = C_Timer.NewTicker(5, show_frame)
 				end
 				
 				--wipe (StreamOverlay.db)
@@ -2535,8 +2535,8 @@ function StreamOverlay:CreateMinimapIcon()
 
 	StreamOverlay.minimap_icon_created = true
 
-	local LDB = LibStub ("LibDataBroker-1.1", true)
-	local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
+	local LDB = LibStub("LibDataBroker-1.1", true)
+	local LDBIcon = LDB and LibStub("LibDBIcon-1.0", true)
 
 	if LDB then
 		local minimapIcon = LDB:NewDataObject ("DetailsStreamer", {
@@ -2555,9 +2555,9 @@ function StreamOverlay:CreateMinimapIcon()
 			end,
 			
 			OnTooltipShow = function(tooltip)
-				tooltip:AddLine ("Details!: Action Tracker", 1, 1, 1)
-				tooltip:AddLine ("|cFFFF7700Left Click|r: open options.")
-				tooltip:AddLine ("|cFFFF7700Right Click|r: hide this icon.")
+				tooltip:AddLine("Details!: Action Tracker", 1, 1, 1)
+				tooltip:AddLine("|cFFFF7700Left Click|r: open options.")
+				tooltip:AddLine("|cFFFF7700Right Click|r: hide this icon.")
 			end,
 		})
 		
@@ -2597,7 +2597,7 @@ local harmful_spells = StreamOverlay.HarmfulSpells
 local helpful_spells = StreamOverlay.HelpfulSpells
 
 if (not harmful_spells [spellid] and not helpful_spells [spellid]) then
-	if (bit.band (who_flags, 0x00000400) ~= 0 and who_name) then
+	if (bit.band(who_flags, 0x00000400) ~= 0 and who_name) then
 		local text = editbox:GetText()
 		if (not list:find (spellid) and not text:find (spellid)) then
 		

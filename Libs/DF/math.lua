@@ -39,7 +39,7 @@ function DF:FindLookAtRotation (x1, y1, x2, y2)
 end
 
 --find the value scale between two given values. e.g: value of 500 in a range 0-100 result in 10 in a scale for 0-10
-function DF:MapRangeClamped (inputX, inputY, outputX, outputY, value)
+function DF:MapRangeClamped(inputX, inputY, outputX, outputY, value)
 	return DF:GetRangeValue (outputX, outputY, Clamp (DF:GetRangePercent (inputX, inputY, value), 0, 1))
 end
 
@@ -93,13 +93,13 @@ end
 --check if a number is near another number by a tolerance
 function DF:IsNearlyEqual (value1, value2, tolerance)
 	tolerance = tolerance or SMALL_FLOAT
-	return abs (value1 - value2) <= tolerance
+	return abs(value1 - value2) <= tolerance
 end
 
 --check if a number is near zero
 function DF:IsNearlyZero (value, tolerance)
 	tolerance = tolerance or SMALL_FLOAT
-	return abs (value) <= tolerance
+	return abs(value) <= tolerance
 end
 
 --check if a number is within a two other numbers, if isInclusive is true, it'll  include the max value

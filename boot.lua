@@ -809,7 +809,7 @@ do
 			[12] = "DEMONHUNTER",
 		}
 		
-		local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details")
+		local Loc = LibStub("AceLocale-3.0"):GetLocale ("Details")
 		
 		_detalhes.segmentos = {
 			label = Loc ["STRING_SEGMENT"]..": ", 
@@ -859,20 +859,20 @@ do
 --frames
 	
 	local _CreateFrame = CreateFrame --api locals
-	local _UIParent = UIParent --api locals
+	local UIParent = UIParent --api locals
 	
 	--Info Window
-		_detalhes.playerDetailWindow = _CreateFrame ("Frame", "DetailsPlayerDetailsWindow", _UIParent, "BackdropTemplate")
+		_detalhes.playerDetailWindow = _CreateFrame ("Frame", "DetailsPlayerDetailsWindow", UIParent, "BackdropTemplate")
 		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
 		
 	--Event Frame
-		_detalhes.listener = _CreateFrame ("Frame", nil, _UIParent)
+		_detalhes.listener = _CreateFrame ("Frame", nil, UIParent)
 		_detalhes.listener:RegisterEvent ("ADDON_LOADED")
 		_detalhes.listener:SetFrameStrata("LOW")
-		_detalhes.listener:SetFrameLevel (9)
+		_detalhes.listener:SetFrameLevel(9)
 		_detalhes.listener.FrameTime = 0
 	
-		_detalhes.overlay_frame = _CreateFrame ("Frame", nil, _UIParent)
+		_detalhes.overlay_frame = _CreateFrame ("Frame", nil, UIParent)
 		_detalhes.overlay_frame:SetFrameStrata("TOOLTIP")
 	
 	--Pet Owner Finder
@@ -926,7 +926,7 @@ do
 				end
 			end)
 			f:SetToplevel (true)
-			f:SetMovable (true)
+			f:SetMovable(true)
 		end
 		
 		return f
@@ -990,7 +990,7 @@ do
 				return
 			end
 			for a,b in pairs(t) do
-				print (a,b)
+				print(a,b)
 			end
 		end
 
@@ -1006,7 +1006,7 @@ do
 				copy = {}
 				for orig_key, orig_value in next, orig, nil do
 					--print(orig_key, orig_value)
-					copy [Details.CopyTable (orig_key)] = Details.CopyTable (orig_value)
+					copy [Details.CopyTable(orig_key)] = Details.CopyTable(orig_value)
 				end
 			else
 				copy = orig
@@ -1022,25 +1022,25 @@ do
 		function _detalhes:ShowDelayMsg()
 			if (_detalhes.delaymsgs and #_detalhes.delaymsgs > 0) then
 				for _, msg in ipairs(_detalhes.delaymsgs) do 
-					print (msg)
+					print(msg)
 				end
 			end
 			_detalhes.delaymsgs = {}
 		end
 	
 	--print messages
-		function _detalhes:Msg (_string, arg1, arg2, arg3, arg4)
+		function _detalhes:Msg(_string, arg1, arg2, arg3, arg4)
 			if (self.__name) then
 				--yes, we have a name!
-				print ("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+				print("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			else
-				print (Loc ["STRING_DETAILS1"] .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+				print(Loc ["STRING_DETAILS1"] .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			end
 		end
 		
 	--welcome
 		function _detalhes:WelcomeMsgLogon()
-			_detalhes:Msg ("you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated.")
+			_detalhes:Msg("you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated.")
 
 			function _detalhes:wipe_combat_after_failed_load()
 				_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
@@ -1052,7 +1052,7 @@ do
 				_detalhes_database.tabela_overall = nil
 				_detalhes_database.tabela_historico = nil
 
-				_detalhes:Msg ("seems failed to load, please type /reload to try again.")
+				_detalhes:Msg("seems failed to load, please type /reload to try again.")
 			end
 
 			Details.Schedules.After(5, _detalhes.wipe_combat_after_failed_load)

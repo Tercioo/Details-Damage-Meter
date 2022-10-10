@@ -281,7 +281,7 @@ openRaidLib.RegisterCallback(MyAddonObject, "CooldownRemoved", "OnUnitLostCooldo
 ===================================================================================================================================
 
 function MyAddonObject.OnCooldownListWipe(allUnitsCooldowns)
-    --print ("is nil:", next(allUnitsCooldowns))
+    --print("is nil:", next(allUnitsCooldowns))
 end
 
 --registering the callback:
@@ -329,7 +329,7 @@ openRaidLib.RegisterCallback(MyAddonObject, "GearDurabilityUpdate", "OnGearDurab
 ===================================================================================================================================
 
 function MyAddonObject.OnGearListWiped(allUnitsGear)
-    --print ("is nil:", next(allUnitsGear))
+    --print("is nil:", next(allUnitsGear))
 end
 
 --registering the callback:

@@ -19,7 +19,7 @@
 	local _getmetatable = getmetatable --lua local
 	local _bit_band = bit.band --lua local
 	local _table_sort = table.sort --lua local
-	local _ipairs = ipairs --lua local
+	local ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	
 	local AddUnique = DetailsFramework.table.addunique --framework
@@ -90,7 +90,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --api functions
 
-	function container_combatentes:GetActor (actorName)
+	function container_combatentes:GetActor(actorName)
 		local index = self._NameIndexTable [actorName]
 		if (index) then
 			return self._ActorTable [index]
@@ -99,7 +99,7 @@
 	
 	function container_combatentes:GetSpellSource (spellid)
 		local t = self._ActorTable
-		--print ("getting the source", spellid, #t)
+		--print("getting the source", spellid, #t)
 		for i = 1, #t do
 			if (t[i].spells._ActorTable [spellid]) then
 				return t[i].nome
@@ -120,7 +120,7 @@
 	function container_combatentes:GetTotal (key)
 		local total = 0
 		key = key or "total"
-		for _, actor in _ipairs(self._ActorTable) do
+		for _, actor in ipairs(self._ActorTable) do
 			total = total + (actor [key] or 0)
 		end
 		
@@ -131,7 +131,7 @@
 		local total = 0
 		key = key or "total"
 		local roster = combat.raid_roster
-		for _, actor in _ipairs(self._ActorTable) do
+		for _, actor in ipairs(self._ActorTable) do
 			if (roster [actor.nome]) then
 				total = total + (actor [key] or 0)
 			end
@@ -141,7 +141,7 @@
 	end
 
 	function container_combatentes:ListActors()
-		return _ipairs(self._ActorTable)
+		return ipairs(self._ActorTable)
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@
 			_NameIndexTable = {}
 		}
 		
-		_setmetatable (_newContainer, container_combatentes)
+		_setmetatable(_newContainer, container_combatentes)
 
 		return _newContainer
 	end
@@ -180,7 +180,7 @@
 					_detalhes:ScheduleTimer("ReGuessSpec", 6, {novo_objeto})
 				end
 				_detalhes:ScheduleTimer("ReGuessSpec", 15, {novo_objeto})
-				--print (nome, "spec em cache:", have_cached)
+				--print(nome, "spec em cache:", have_cached)
 			else
 				if (_detalhes.streamer_config.quick_detection) then
 					--shoot detection early if in quick detection
@@ -283,10 +283,10 @@
 					end
 				end
 
-				if ((_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and actorObject.classe ~= "UNKNOW" and actorObject.classe ~= "UNGROUPPLAYER") or _detalhes:IsInCache (serial)) then
+				if ((_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and actorObject.classe ~= "UNKNOW" and actorObject.classe ~= "UNGROUPPLAYER") or _detalhes:IsInCache(serial)) then
 					actorObject.grupo = true
 
-					if (_detalhes:IsATank (serial)) then
+					if (_detalhes:IsATank(serial)) then
 						actorObject.isTank = true
 					end
 				else
@@ -336,7 +336,7 @@
 						local oponentes = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
 						local found = false
 						for i = 1, oponentes do
-							local name = GetUnitName ("arena" .. i, true)
+							local name = GetUnitName("arena" .. i, true)
 							if (name == nome) then
 								local spec = GetArenaOpponentSpec and GetArenaOpponentSpec (i)
 								if (spec) then
@@ -350,14 +350,14 @@
 							end
 						end
 						
-						local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned (nome)
+						local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(nome)
 						if (role and role ~= "NONE") then
 							actorObject.role = role
 							found = true
 						end
 						
 						if (not found and nome == _detalhes.playername) then
-							local role = UnitGroupRolesAssigned ("player")
+							local role = UnitGroupRolesAssigned("player")
 							if (role and role ~= "NONE") then
 								actorObject.role = role
 							end
@@ -398,7 +398,7 @@
 				
 				--[=[
 				--Chromie - From 'The Deaths of Chromie'
-				if (serial and type (serial) == "string") then
+				if (serial and type(serial) == "string") then
 					if (serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-122663%-%w+$")) then
 						actorObject.grupo = true
 					end
@@ -417,9 +417,9 @@
 						actorObject.monster = true
 					end
 					
-					if (serial and type (serial) == "string") then
+					if (serial and type(serial) == "string") then
 						local npcID = _detalhes:GetNpcIdFromGuid (serial)
-						if (npcID and not _detalhes.npcid_pool [npcID] and type (npcID) == "number") then
+						if (npcID and not _detalhes.npcid_pool [npcID] and type(npcID) == "number") then
 							_detalhes.npcid_pool [npcID] = nome
 						end
 					end
@@ -437,7 +437,7 @@
 	local follower_text_object = _G ["DetailsPetOwnerFinderTextLeft3"] --not in use
 
 	local find_pet_found_owner = function(ownerName, serial, nome, flag, self)
-		local ownerGuid = _UnitGUID (ownerName)
+		local ownerGuid = _UnitGUID(ownerName)
 		if (ownerGuid) then
 			_detalhes.tabela_pets:Adicionar (serial, nome, flag, ownerGuid, ownerName, 0x00000417)
 			local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
@@ -483,7 +483,7 @@
 		local text1 = line1 and line1:GetText()
 		if (text1 and text1 ~= "") then
 			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
-			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
+			for playerName, _ in _pairs(_detalhes.tabela_vigente.raid_roster) do
 				local pName = playerName
 				playerName = playerName:gsub ("%-.*", "") --remove realm name
 
@@ -510,7 +510,7 @@
 		local line2 = _G ["DetailsPetOwnerFinderTextLeft3"]
 		local text2 = line2 and line2:GetText()
 		if (text2 and text2 ~= "") then
-			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
+			for playerName, _ in _pairs(_detalhes.tabela_vigente.raid_roster) do
 			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
 				local pName = playerName
 				playerName = playerName:gsub ("%-.*", "") --remove realm name
@@ -542,10 +542,10 @@
 
 		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
 	
-		--if (flag and nome:find ("Kastfall") and bit.band (flag, 0x2000) ~= 0) then
-			--print ("PET:", nome, _detalhes.tabela_pets.pets [serial], container_pets [serial])
+		--if (flag and nome:find ("Kastfall") and bit.band(flag, 0x2000) ~= 0) then
+			--print("PET:", nome, _detalhes.tabela_pets.pets [serial], container_pets [serial])
 		--else
-			--print (nome, flag)
+			--print(nome, flag)
 		--end
 	
 		--verifica se � um pet, se for confere se tem o nome do dono, se n�o tiver, precisa por
@@ -648,7 +648,7 @@
 					
 					--try to guess his class
 					if (self.shadow) then --n�o executar 2x
-						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
+						_detalhes:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
 					end
 					
 				elseif (shouldScanOnce) then
@@ -677,12 +677,12 @@
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
 					if (_bit_band (flag, REACTION_HOSTILE ) ~= 0) then --is hostile
-						novo_objeto.enemy = true --print (nome.." EH UM INIMIGO -> " .. engRace)
+						novo_objeto.enemy = true --print(nome.." EH UM INIMIGO -> " .. engRace)
 					end
 					
 					--try to guess his class
 					if (self.shadow) then --n�o executar 2x
-						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
+						_detalhes:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
 				
@@ -703,7 +703,7 @@
 					
 					--try to guess his class
 					if (self.shadow) then --n�o executar 2x
-						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
+						_detalhes:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
 				
@@ -723,7 +723,7 @@
 					
 					--try to guess his class
 					if (self.shadow) then --n�o executar 2x
-						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
+						_detalhes:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
 			
@@ -769,7 +769,7 @@
 			if (_detalhes.debug) then	
 				if (_detalhes.debug_chr and nome:find (_detalhes.debug_chr) and self.tipo == 1) then
 					local logLine = ""
-					local when = "[" .. date ("%H:%M:%S") .. format (".%4f", GetTime()-floor (GetTime())) .. "]"
+					local when = "[" .. date ("%H:%M:%S") .. format (".%4f", GetTime()-floor(GetTime())) .. "]"
 					local log = "actor created - class: " .. (novo_objeto.classe or "noclass")
 					local from = debugstack (2, 1, 0)
 					logLine = logLine .. when .. " " .. log .. " " .. from .. "\n"
@@ -845,7 +845,7 @@
 
 	--chama a fun��o para ser executada em todos os atores
 	function container_combatentes:ActorCallFunction (funcao, ...)
-		for index, actor in _ipairs(self._ActorTable) do
+		for index, actor in ipairs(self._ActorTable) do
 			funcao (nil, actor, ...)
 		end
 	end
@@ -876,7 +876,7 @@
 
 	function _detalhes.refresh:r_container_combatentes (container, shadow)
 		--reconstr�i meta e indexes
-			_setmetatable (container, _detalhes.container_combatentes)
+			_setmetatable(container, _detalhes.container_combatentes)
 			container.__index = _detalhes.container_combatentes
 			container.funcao_de_criacao = container_combatentes:FuncaoDeCriacao (container.tipo)
 

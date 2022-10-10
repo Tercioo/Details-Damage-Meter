@@ -1,7 +1,7 @@
 --errors ~pet
 
 local _detalhes = 		_G._detalhes
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local gump = 			_detalhes.gump
@@ -9,9 +9,9 @@ local _
 --lua locals
 --local _string_len = string.len
 local _math_floor = math.floor
-local _ipairs = ipairs
+local ipairs = ipairs
 local _pairs = pairs
-local _type = type
+local type = type
 --api locals
 local _CreateFrame = CreateFrame
 local _GetTime = GetTime
@@ -117,7 +117,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 		_detalhes:FechaJanelaInfo()
 		return
 
-	elseif (_type(_detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo]) == "function") then
+	elseif (type(_detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo]) == "function") then
 		if (from_att_change) then
 			_detalhes:FechaJanelaInfo()
 			return
@@ -196,10 +196,10 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 		info.avatar:SetTexture(avatar [2])
 		info.avatar_bg:SetTexture(avatar [4])
 		if (avatar [5]) then
-			info.avatar_bg:SetTexCoord (unpack (avatar [5]))
+			info.avatar_bg:SetTexCoord (unpack(avatar [5]))
 		end
 		if (avatar [6]) then
-			info.avatar_bg:SetVertexColor (unpack (avatar [6]))
+			info.avatar_bg:SetVertexColor(unpack(avatar [6]))
 		end
 
 		info.avatar_nick:SetText(avatar [1] or nome)
@@ -208,7 +208,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 		info.avatar_attribute:SetPoint("CENTER", info.avatar_nick, "CENTER", 0, 14)
 		info.avatar:Show()
 		info.avatar_bg:Show()
-		info.avatar_bg:SetAlpha (.65)
+		info.avatar_bg:SetAlpha(.65)
 		info.avatar_nick:Show()
 		info.avatar_attribute:Show()
 		info.nome:Hide()
@@ -527,7 +527,7 @@ function gump:HidaAllDetalheInfo()
 	for i = 1, spellInfoSettings.amount do
 		gump:HidaDetalheInfo (i)
 	end
-	for _, barra in _ipairs(info.barras3) do
+	for _, barra in ipairs(info.barras3) do
 		barra:Hide()
 	end
 	_detalhes.playerDetailWindow.spell_icone:SetTexture("")
@@ -615,7 +615,7 @@ function gump:CriaDetalheInfo (index)
 	info.bg = _CreateFrame ("StatusBar", "DetailsPlayerDetailsWindow_DetalheInfoBG" .. index, _detalhes.playerDetailWindow.container_detalhes, "BackdropTemplate")
 	info.bg:SetStatusBarTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2")
 	info.bg:SetStatusBarColor (1, 1, 1, .84)
-	info.bg:SetMinMaxValues (0, 100)
+	info.bg:SetMinMaxValues(0, 100)
 	info.bg:SetValue(100)
 	info.bg:SetSize(320, 47)
 
@@ -659,7 +659,7 @@ function info:SetDetailInfoConfigs (texture, color, x, y)
 
 		if (color) then
 			local texture = info.grupos_detalhes [i].bg:GetStatusBarTexture()
-			texture:SetVertexColor (unpack (color))
+			texture:SetVertexColor(unpack(color))
 		end
 
 		if (x or y) then
@@ -733,7 +733,7 @@ function gump:SetaDetalheInfoAltura (index, xmod, ymod)
 	info.bg_end:SetPoint("LEFT", info.bg, "LEFT", info.bg:GetValue()*2.19, 0)
 	info.bg_end:SetHeight(background:GetHeight()+2)
 	info.bg_end:SetWidth(6)
-	info.bg_end:SetAlpha (.75)
+	info.bg_end:SetAlpha(.75)
 
 	info.bg.overlay:SetWidth(background:GetWidth() + 24)
 	info.bg.overlay:SetHeight(background:GetHeight() + 16)
@@ -747,7 +747,7 @@ function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6
 	local info = _detalhes.playerDetailWindow.grupos_detalhes [index]
 
 	if (p) then
-		if (_type(p) == "table") then
+		if (type(p) == "table") then
 			info.bg:SetValue(p.p)
 			info.bg:SetStatusBarColor (p.c[1], p.c[2], p.c[3], p.c[4] or 1)
 		else
@@ -854,8 +854,8 @@ local function cria_container_barras (este_gump, SWW)
 	container_barras:SetAllPoints(container_barras_window)
 	container_barras:SetWidth(300)
 	container_barras:SetHeight(150)
-	container_barras:EnableMouse (true)
-	container_barras:SetMovable (true)
+	container_barras:EnableMouse(true)
+	container_barras:SetMovable(true)
 
 	container_barras_window:SetWidth(300)
 	container_barras_window:SetHeight(145)
@@ -922,9 +922,9 @@ local function cria_container_detalhes (este_gump, SWW)
 	container_detalhes:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT", -74, -76)
 	container_detalhes:SetWidth(220)
 	container_detalhes:SetHeight(270)
-	container_detalhes:EnableMouse (true)
+	container_detalhes:EnableMouse(true)
 	container_detalhes:SetResizable(false)
-	container_detalhes:SetMovable (true)
+	container_detalhes:SetMovable(true)
 
 	este_gump.container_detalhes = container_detalhes
 end
@@ -937,8 +937,8 @@ local function cria_container_alvos (este_gump, SWW)
 	container_alvos:SetAllPoints(container_alvos_window)
 	container_alvos:SetWidth(300)
 	container_alvos:SetHeight(100)
-	container_alvos:EnableMouse (true)
-	container_alvos:SetMovable (true)
+	container_alvos:EnableMouse(true)
+	container_alvos:SetMovable(true)
 
 	container_alvos_window:SetWidth(300)
 	container_alvos_window:SetHeight(100)
@@ -975,7 +975,7 @@ local default_icon_change = function(jogador, classe)
 	else
 		if (jogador.enemy) then
 			if (_detalhes.class_coords [_detalhes.faction_against]) then
-				info.classe_icone:SetTexCoord (_unpack (_detalhes.class_coords [_detalhes.faction_against]))
+				info.classe_icone:SetTexCoord (_unpack(_detalhes.class_coords [_detalhes.faction_against]))
 				if (_detalhes.faction_against == "Horde") then
 					info.nome:SetTextColor (1, 91/255, 91/255, 1)
 				else
@@ -1033,14 +1033,14 @@ function _detalhes:ApplyPDWSkin (skin_name)
 	if (skin) then
 		local successful, errortext = pcall (skin.func)
 		if (not successful) then
-			_detalhes:Msg ("error occurred on skin call():", errortext)
+			_detalhes:Msg("error occurred on skin call():", errortext)
 			local former_skin = _detalhes.playerdetailwindow_skins [_detalhes.player_details_window.skin]
 			pcall (former_skin.func)
 		else
 			_detalhes.player_details_window.skin = skin_name
 		end
 	else
-		_detalhes:Msg ("skin not found.")
+		_detalhes:Msg("skin not found.")
 	end
 
 	if (info and info:IsShown() and info.jogador and info.jogador.classe) then
@@ -1077,8 +1077,8 @@ local default_skin = function()
 	local window = DetailsPlayerDetailsWindow
 	window.bg1:SetTexture([[Interface\AddOns\Details\images\info_window_background]])
 	window.bg1:SetSize(1024, 512)
-	window.bg1:SetAlpha (1)
-	window.bg1:SetVertexColor (1, 1, 1)
+	window.bg1:SetAlpha(1)
+	window.bg1:SetVertexColor(1, 1, 1)
 	window:SetBackdrop(nil)
 	window:SetBackdropColor(1, 1, 1, 1)
 	window:SetBackdropBorderColor(1, 1, 1, 1)
@@ -1089,15 +1089,15 @@ local default_skin = function()
 	window.leftbars1_backgound:SetPoint("bottomright", window.container_barras, "bottomright", 3, -3)
 	window.leftbars2_backgound:SetPoint("topleft", window.container_alvos, "topleft", -3, 23)
 	window.leftbars2_backgound:SetPoint("bottomright", window.container_alvos, "bottomright", 3, 0)
-	window.leftbars1_backgound:SetAlpha (1)
-	window.leftbars2_backgound:SetAlpha (1)
-	window.right_background1:SetAlpha (1)
-	window.right_background2:SetAlpha (1)
-	window.right_background3:SetAlpha (1)
-	window.right_background4:SetAlpha (1)
-	window.right_background5:SetAlpha (1)
+	window.leftbars1_backgound:SetAlpha(1)
+	window.leftbars2_backgound:SetAlpha(1)
+	window.right_background1:SetAlpha(1)
+	window.right_background2:SetAlpha(1)
+	window.right_background3:SetAlpha(1)
+	window.right_background4:SetAlpha(1)
+	window.right_background5:SetAlpha(1)
 
-	window.close_button:GetNormalTexture():SetDesaturated (false)
+	window.close_button:GetNormalTexture():SetDesaturated(false)
 
 	window.title_string:ClearAllPoints()
 	window.title_string:SetPoint("center", window, "center")
@@ -1110,7 +1110,7 @@ local default_skin = function()
 	window.classe_icone:SetWidth(64)
 	window.classe_icone:SetHeight(64)
 	window.classe_icone:SetDrawLayer ("BACKGROUND", 1)
-	window.classe_icone:SetAlpha (1)
+	window.classe_icone:SetAlpha(1)
 
 	window.close_button:SetWidth(32)
 	window.close_button:SetHeight(32)
@@ -1146,14 +1146,14 @@ local default_skin = function()
 	--no targets texture
 	window.no_targets:SetPoint("BOTTOMLEFT", window, "BOTTOMLEFT", 20, 6)
 	window.no_targets:SetSize(301, 100)
-	window.no_targets:SetAlpha (1)
+	window.no_targets:SetAlpha(1)
 
 	--right panel textures
 	window.bg2_sec_texture:SetPoint("topleft", window.bg1_sec_texture, "topleft", 8, 0)
 	window.bg2_sec_texture:SetPoint("bottomright", window.bg1_sec_texture, "bottomright", -30, 0)
 	window.bg2_sec_texture:SetTexture([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
-	window.bg2_sec_texture:SetDesaturated (true)
-	window.bg2_sec_texture:SetAlpha (0.3)
+	window.bg2_sec_texture:SetDesaturated(true)
+	window.bg2_sec_texture:SetAlpha(0.3)
 
 	window.bg3_sec_texture:SetPoint("topleft", window.bg2_sec_texture, "topleft", 0, 0)
 	window.bg3_sec_texture:SetPoint("bottomright", window.bg2_sec_texture, "bottomright", 0, 0)
@@ -1232,7 +1232,7 @@ local default_skin = function()
 	window.container_barras.slider.thumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 	window.container_barras.slider.thumb:SetTexCoord (0, 1, 0, 1)
 	window.container_barras.slider.thumb:SetSize(29, 30)
-	window.container_barras.slider.thumb:SetVertexColor (1, 1, 1, 1)
+	window.container_barras.slider.thumb:SetVertexColor(1, 1, 1, 1)
 
 	--
 	window.container_alvos.cima:SetNormalTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
@@ -1268,7 +1268,7 @@ local default_skin = function()
 	window.container_alvos.slider.thumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 	window.container_alvos.slider.thumb:SetTexCoord (0, 1, 0, 1)
 	window.container_alvos.slider.thumb:SetSize(29, 30)
-	window.container_alvos.slider.thumb:SetVertexColor (1, 1, 1, 1)
+	window.container_alvos.slider.thumb:SetVertexColor(1, 1, 1, 1)
 
 end
 _detalhes:InstallPDWSkin ("WoWClassic", {func = default_skin, author = "Details! Team", version = "v1.0", desc = "Default skin."})
@@ -1276,10 +1276,10 @@ _detalhes:InstallPDWSkin ("WoWClassic", {func = default_skin, author = "Details!
 local elvui_skin = function()
 	local window = DetailsPlayerDetailsWindow
 	window.bg1:SetTexture([[Interface\AddOns\Details\images\background]], true)
-	window.bg1:SetAlpha (0.7)
-	window.bg1:SetVertexColor (0.27, 0.27, 0.27)
-	window.bg1:SetVertTile (true)
-	window.bg1:SetHorizTile (true)
+	window.bg1:SetAlpha(0.7)
+	window.bg1:SetVertexColor(0.27, 0.27, 0.27)
+	window.bg1:SetVertTile(true)
+	window.bg1:SetHorizTile(true)
 	window.bg1:SetSize(PLAYER_DETAILS_WINDOW_WIDTH, PLAYER_DETAILS_WINDOW_HEIGHT)
 
 	window:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
@@ -1294,16 +1294,16 @@ local elvui_skin = function()
 	window.leftbars2_backgound:SetPoint("topleft", window.container_alvos, "topleft", -2, 23)
 	window.leftbars2_backgound:SetPoint("bottomright", window.container_alvos, "bottomright", 4, 0)
 
-	window.leftbars1_backgound:SetAlpha (bgs_alpha)
-	window.leftbars2_backgound:SetAlpha (bgs_alpha)
+	window.leftbars1_backgound:SetAlpha(bgs_alpha)
+	window.leftbars2_backgound:SetAlpha(bgs_alpha)
 
-	window.right_background1:SetAlpha (bgs_alpha)
-	window.right_background2:SetAlpha (bgs_alpha)
-	window.right_background3:SetAlpha (bgs_alpha)
-	window.right_background4:SetAlpha (bgs_alpha)
-	window.right_background5:SetAlpha (bgs_alpha)
+	window.right_background1:SetAlpha(bgs_alpha)
+	window.right_background2:SetAlpha(bgs_alpha)
+	window.right_background3:SetAlpha(bgs_alpha)
+	window.right_background4:SetAlpha(bgs_alpha)
+	window.right_background5:SetAlpha(bgs_alpha)
 
-	window.close_button:GetNormalTexture():SetDesaturated (true)
+	window.close_button:GetNormalTexture():SetDesaturated(true)
 
 	local titlebar = window.extra_frames ["ElvUITitleBar"]
 	if (not titlebar) then
@@ -1318,13 +1318,13 @@ local elvui_skin = function()
 
 		local name_bg_texture = window:CreateTexture(nil, "background")
 		name_bg_texture:SetTexture([[Interface\PetBattles\_PetBattleHorizTile]], true)
-		name_bg_texture:SetHorizTile (true)
+		name_bg_texture:SetHorizTile(true)
 		name_bg_texture:SetTexCoord (0, 1, 126/256, 19/256)
 		name_bg_texture:SetPoint("topleft", window, "topleft", 2, -22)
 		--name_bg_texture:SetPoint("topright", window, "topright", -2, -22)
 		name_bg_texture:SetPoint("bottomright", window, "bottomright")
 		name_bg_texture:SetHeight(54)
-		name_bg_texture:SetVertexColor (0, 0, 0, 0.2)
+		name_bg_texture:SetVertexColor(0, 0, 0, 0.2)
 		window.extra_frames ["ElvUINameTexture"] = name_bg_texture
 	else
 		titlebar:Show()
@@ -1342,7 +1342,7 @@ local elvui_skin = function()
 	window.classe_icone:SetPoint("TOPLEFT", window, "TOPLEFT", 2, -25)
 	window.classe_icone:SetWidth(49)
 	window.classe_icone:SetHeight(49)
-	window.classe_icone:SetAlpha (1)
+	window.classe_icone:SetAlpha(1)
 
 	window.close_button:SetWidth(20)
 	window.close_button:SetHeight(20)
@@ -1354,11 +1354,11 @@ local elvui_skin = function()
 	window.avatar:SetParent(titlebar)
 
 	--bar container
-	window.container_barras:SetPoint(unpack (containerSettings.spells.point))
+	window.container_barras:SetPoint(unpack(containerSettings.spells.point))
 	window.container_barras:SetSize(containerSettings.spells.width, containerSettings.spells.height)
 
 	--target container
-	window.container_alvos:SetPoint(unpack (containerSettings.targets.point))
+	window.container_alvos:SetPoint(unpack(containerSettings.targets.point))
 	window.container_alvos:SetSize(containerSettings.targets.width, containerSettings.targets.height)
 
 	--texts
@@ -1375,14 +1375,14 @@ local elvui_skin = function()
 	--no targets texture
 	window.no_targets:SetPoint("BOTTOMLEFT", window, "BOTTOMLEFT", 3, 6)
 	window.no_targets:SetSize(418, 150)
-	window.no_targets:SetAlpha (0.4)
+	window.no_targets:SetAlpha(0.4)
 
 	--right panel textures
 	window.bg2_sec_texture:SetPoint("topleft", window.bg1_sec_texture, "topleft", 7, 0)
 	window.bg2_sec_texture:SetPoint("bottomright", window.bg1_sec_texture, "bottomright", -30, 0)
 	window.bg2_sec_texture:SetTexture([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
-	window.bg2_sec_texture:SetDesaturated (true)
-	window.bg2_sec_texture:SetAlpha (0)
+	window.bg2_sec_texture:SetDesaturated(true)
+	window.bg2_sec_texture:SetAlpha(0)
 
 	window.bg3_sec_texture:SetPoint("topleft", window.bg2_sec_texture, "topleft", 0, 0)
 	window.bg3_sec_texture:SetPoint("bottomright", window.bg2_sec_texture, "bottomright", 0, 0)
@@ -1453,7 +1453,7 @@ local elvui_skin = function()
 		disabledTexture:SetPoint("topleft", window.container_barras.cima, "topleft", 1, 0)
 		disabledTexture:SetPoint("bottomright", window.container_barras.cima, "bottomright", 1, 0)
 
-		disabledTexture:SetAlpha (0.5)
+		disabledTexture:SetAlpha(0.5)
 
 		window.container_barras.cima:SetSize(16, 16)
 		window.container_barras.cima:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
@@ -1481,7 +1481,7 @@ local elvui_skin = function()
 		disabledTexture:SetPoint("topleft", window.container_barras.baixo, "topleft", 1, -4)
 		disabledTexture:SetPoint("bottomright", window.container_barras.baixo, "bottomright", 1, -4)
 
-		disabledTexture:SetAlpha (0.5)
+		disabledTexture:SetAlpha(0.5)
 
 		window.container_barras.baixo:SetSize(16, 16)
 		window.container_barras.baixo:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
@@ -1500,7 +1500,7 @@ local elvui_skin = function()
 	window.container_barras.slider.thumb:SetTexture([[Interface\AddOns\Details\images\icons2]])
 	window.container_barras.slider.thumb:SetTexCoord (482/512, 492/512, 104/512, 120/512)
 	window.container_barras.slider.thumb:SetSize(12, 12)
-	window.container_barras.slider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
+	window.container_barras.slider.thumb:SetVertexColor(0.6, 0.6, 0.6, 0.95)
 
 	--
 
@@ -1525,7 +1525,7 @@ local elvui_skin = function()
 		disabledTexture:SetPoint("topleft", f.cima, "topleft", 1, 0)
 		disabledTexture:SetPoint("bottomright", f.cima, "bottomright", 1, 0)
 
-		disabledTexture:SetAlpha (0.5)
+		disabledTexture:SetAlpha(0.5)
 
 		f.cima:SetSize(16, 16)
 		f.cima:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
@@ -1555,7 +1555,7 @@ local elvui_skin = function()
 		disabledTexture:SetPoint("topleft", f.baixo, "topleft", 1, -4)
 		disabledTexture:SetPoint("bottomright", f.baixo, "bottomright", 1, -4)
 
-		disabledTexture:SetAlpha (0.5)
+		disabledTexture:SetAlpha(0.5)
 
 		f.baixo:SetSize(16, 16)
 		f.baixo:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
@@ -1574,7 +1574,7 @@ local elvui_skin = function()
 	window.container_alvos.slider.thumb:SetTexture([[Interface\AddOns\Details\images\icons2]])
 	window.container_alvos.slider.thumb:SetTexCoord (482/512, 492/512, 104/512, 120/512)
 	window.container_alvos.slider.thumb:SetSize(12, 12)
-	window.container_alvos.slider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
+	window.container_alvos.slider.thumb:SetVertexColor(0.6, 0.6, 0.6, 0.95)
 
 	--class icon
 	window.SetClassIcon = function(player, class)
@@ -1584,13 +1584,13 @@ local elvui_skin = function()
 
 		elseif (player.spec) then
 			window.classe_icone:SetTexture([[Interface\AddOns\Details\images\spec_icons_normal_alpha]])
-			window.classe_icone:SetTexCoord (_unpack (_detalhes.class_specs_coords [player.spec]))
-			--esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+			window.classe_icone:SetTexCoord (_unpack(_detalhes.class_specs_coords [player.spec]))
+			--esta_barra.icone_classe:SetVertexColor(1, 1, 1)
 		else
 			local coords = CLASS_ICON_TCOORDS [class]
 			if (coords) then
 				info.classe_icone:SetTexture([[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-CLASSES]])
-				local l, r, t, b = unpack (coords)
+				local l, r, t, b = unpack(coords)
 				info.classe_icone:SetTexCoord (l+0.01953125, r-0.01953125, t+0.01953125, b-0.01953125)
 			else
 
@@ -1624,9 +1624,9 @@ function gump:CriaJanelaInfo()
 	este_gump:SetWidth(PLAYER_DETAILS_WINDOW_WIDTH)
 	este_gump:SetHeight(PLAYER_DETAILS_WINDOW_HEIGHT)
 
-	este_gump:EnableMouse (true)
+	este_gump:EnableMouse(true)
 	este_gump:SetResizable(false)
-	este_gump:SetMovable (true)
+	este_gump:SetMovable(true)
 
 	este_gump.SummaryWindowWidgets = CreateFrame("frame", "DetailsPlayerDetailsWindowSummaryWidgets", este_gump, "BackdropTemplate")
 	local SWW = este_gump.SummaryWindowWidgets
@@ -1667,7 +1667,7 @@ function gump:CriaJanelaInfo()
 	este_gump.close_button:SetHeight(32)
 	este_gump.close_button:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT", 5, -8)
 	este_gump.close_button:SetText("X")
-	este_gump.close_button:SetFrameLevel (este_gump:GetFrameLevel()+5)
+	este_gump.close_button:SetFrameLevel(este_gump:GetFrameLevel()+5)
 
 
 	--�cone da magia selecionada para mais detalhes
@@ -1687,10 +1687,10 @@ function gump:CriaJanelaInfo()
 		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
 		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
 	end
-	este_gump.options_button = gump:CreateButton (este_gump, open_options, 16, 16, nil, nil, nil, [[Interface\Buttons\UI-OptionsButton]])
+	este_gump.options_button = gump:CreateButton(este_gump, open_options, 16, 16, nil, nil, nil, [[Interface\Buttons\UI-OptionsButton]])
 	este_gump.options_button:SetPoint("topright", este_gump, "topright", -26, -16)
-	este_gump.options_button:SetAlpha (0.5)
-	este_gump.options_button.button:GetNormalTexture():SetDesaturated (true)
+	este_gump.options_button:SetAlpha(0.5)
+	este_gump.options_button.button:GetNormalTexture():SetDesaturated(true)
 	este_gump.options_button.tooltip = "Select Skin"
 
 	--desativando o bot�o de config
@@ -1750,7 +1750,7 @@ function gump:CriaJanelaInfo()
 			este_gump.topright_text2:SetText("")
 		end
 
-		if (size and type (size) == "number") then
+		if (size and type(size) == "number") then
 			_detalhes.gump:SetFontSize (este_gump.topright_text1, size)
 			_detalhes.gump:SetFontSize (este_gump.topright_text2, size)
 		end
@@ -1774,10 +1774,10 @@ function gump:CriaJanelaInfo()
 
 		for i = 1, spellInfoSettings.amount do
 			local right_background1 = CreateFrame("frame", "DetailsPlayerDetailsWindow_right_background" .. i, SWW, "BackdropTemplate")
-			right_background1:EnableMouse (false)
+			right_background1:EnableMouse(false)
 			right_background1:SetPoint("topleft", este_gump, "topleft", right_background_X, right_background_Y [i])
 			right_background1:SetSize(220, 43)
-			Details.gump:ApplyStandardBackdrop (right_background1)
+			Details.gump:ApplyStandardBackdrop(right_background1)
 			este_gump ["right_background" .. i] = right_background1
 		end
 
@@ -1793,8 +1793,8 @@ function gump:CriaJanelaInfo()
 		este_gump.bg2_sec_texture:SetPoint("topleft", este_gump.bg1_sec_texture, "topleft", 8, 0)
 		este_gump.bg2_sec_texture:SetPoint("bottomright", este_gump.bg1_sec_texture, "bottomright", -30, 0)
 		este_gump.bg2_sec_texture:SetTexture([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
-		este_gump.bg2_sec_texture:SetDesaturated (true)
-		este_gump.bg2_sec_texture:SetAlpha (0.3)
+		este_gump.bg2_sec_texture:SetDesaturated(true)
+		este_gump.bg2_sec_texture:SetAlpha(0.3)
 		este_gump.bg2_sec_texture:Hide()
 
 		este_gump.bg3_sec_texture = SWW:CreateTexture("DetailsPlayerDetailsWindow_BG3_SEC_Texture", "BORDER")
@@ -1809,8 +1809,8 @@ function gump:CriaJanelaInfo()
 		este_gump.no_targets:SetSize(301, 100)
 		este_gump.no_targets:SetTexture([[Interface\QUESTFRAME\UI-QUESTLOG-EMPTY-TOPLEFT]])
 		este_gump.no_targets:SetTexCoord (0.015625, 1, 0.01171875, 0.390625)
-		este_gump.no_targets:SetDesaturated (true)
-		este_gump.no_targets:SetAlpha (.7)
+		este_gump.no_targets:SetDesaturated(true)
+		este_gump.no_targets:SetAlpha(.7)
 		este_gump.no_targets.text = SWW:CreateFontString (nil, "overlay", "GameFontNormal")
 		este_gump.no_targets.text:SetPoint("center", este_gump.no_targets, "center")
 		este_gump.no_targets.text:SetText(Loc ["STRING_NO_TARGET_BOX"])
@@ -1832,23 +1832,23 @@ function gump:CriaJanelaInfo()
 --	local leftbars1_backgound = SWW:CreateTexture(nil, "background")
 --	leftbars1_backgound:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 --	leftbars1_backgound:SetSize(303, 149)
---	leftbars1_backgound:SetAlpha (alpha_bgs)
+--	leftbars1_backgound:SetAlpha(alpha_bgs)
 --	este_gump.leftbars1_backgound = leftbars1_backgound
 
 	local leftbars1_backgound = CreateFrame("frame", "DetailsPlayerDetailsWindow_Left_SpellsBackground", SWW, "BackdropTemplate")
-	leftbars1_backgound:EnableMouse (false)
+	leftbars1_backgound:EnableMouse(false)
 	leftbars1_backgound:SetSize(303, 149)
-	leftbars1_backgound:SetAlpha (alpha_bgs)
-	leftbars1_backgound:SetFrameLevel (SWW:GetFrameLevel())
-	Details.gump:ApplyStandardBackdrop (leftbars1_backgound)
+	leftbars1_backgound:SetAlpha(alpha_bgs)
+	leftbars1_backgound:SetFrameLevel(SWW:GetFrameLevel())
+	Details.gump:ApplyStandardBackdrop(leftbars1_backgound)
 	este_gump.leftbars1_backgound = leftbars1_backgound
 
 	local leftbars2_backgound = CreateFrame("frame", "DetailsPlayerDetailsWindow_Left_TargetBackground", SWW, "BackdropTemplate")
-	leftbars2_backgound:EnableMouse (false)
+	leftbars2_backgound:EnableMouse(false)
 	leftbars2_backgound:SetSize(303, 122)
-	leftbars2_backgound:SetAlpha (alpha_bgs)
-	leftbars2_backgound:SetFrameLevel (SWW:GetFrameLevel())
-	Details.gump:ApplyStandardBackdrop (leftbars2_backgound)
+	leftbars2_backgound:SetAlpha(alpha_bgs)
+	leftbars2_backgound:SetFrameLevel(SWW:GetFrameLevel())
+	Details.gump:ApplyStandardBackdrop(leftbars2_backgound)
 	este_gump.leftbars2_backgound = leftbars2_backgound
 
 	leftbars1_backgound:SetPoint("topleft", este_gump.container_barras, "topleft", -3, 3)
@@ -1878,14 +1878,14 @@ function gump:CriaJanelaInfo()
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
 	--este_gump.report_esquerda:SetPoint("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  281, 3)
 	este_gump.report_esquerda:SetPoint("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  33, 3)
-	este_gump.report_esquerda:SetFrameLevel (este_gump:GetFrameLevel()+2)
+	este_gump.report_esquerda:SetFrameLevel(este_gump:GetFrameLevel()+2)
 	este_gump.topleft_report = este_gump.report_esquerda
 
 	--bot�o de reportar da caixa dos alvos
 	este_gump.report_alvos = gump:NewDetailsButton (SWW, este_gump, nil, _detalhes.Reportar, este_gump, 3, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
 	este_gump.report_alvos:SetPoint("BOTTOMRIGHT", este_gump.container_alvos, "TOPRIGHT",  -2, -1)
-	este_gump.report_alvos:SetFrameLevel (3) --solved inactive problem
+	este_gump.report_alvos:SetFrameLevel(3) --solved inactive problem
 
 	--bot�o de reportar da caixa da direita, onde est�o os 5 quadrados
 	este_gump.report_direita = gump:NewDetailsButton (SWW, este_gump, nil, _detalhes.Reportar, este_gump, 2, 16, 16,
@@ -1898,8 +1898,8 @@ function gump:CriaJanelaInfo()
 	statusBar:SetPoint("bottomleft", este_gump, "bottomleft")
 	statusBar:SetPoint("bottomright", este_gump, "bottomright")
 	statusBar:SetHeight(PLAYER_DETAILS_STATUSBAR_HEIGHT)
-	DetailsFramework:ApplyStandardBackdrop (statusBar)
-	statusBar:SetAlpha (PLAYER_DETAILS_STATUSBAR_ALPHA)
+	DetailsFramework:ApplyStandardBackdrop(statusBar)
+	statusBar:SetAlpha(PLAYER_DETAILS_STATUSBAR_ALPHA)
 
 	statusBar.Text = DetailsFramework:CreateLabel(statusBar)
 	statusBar.Text:SetPoint("left", 2, 0)
@@ -1946,7 +1946,7 @@ function gump:CriaJanelaInfo()
 			end,
 			nil, --[4] fill function
 			function() --[5] onclick
-				for _, tab in _ipairs(Details:GetBreakdownTabsInUse()) do
+				for _, tab in ipairs(Details:GetBreakdownTabsInUse()) do
 					tab.frame:Hide()
 				end
 			end,
@@ -1967,7 +1967,7 @@ function gump:CriaJanelaInfo()
 		--SUMMARY
 
 			local summaryBox = CreateFrame("frame", nil, frame, "BackdropTemplate")
-			_detalhes.gump:ApplyStandardBackdrop (summaryBox)
+			_detalhes.gump:ApplyStandardBackdrop(summaryBox)
 			summaryBox:SetPoint("topleft", frame, "topleft", 10, -15)
 			summaryBox:SetSize(200, 160)
 
@@ -2034,7 +2034,7 @@ function gump:CriaJanelaInfo()
 			y = -5
 
 			local meleeBox = CreateFrame("frame", nil, frame, "BackdropTemplate")
-			_detalhes.gump:ApplyStandardBackdrop (meleeBox)
+			_detalhes.gump:ApplyStandardBackdrop(meleeBox)
 			meleeBox:SetPoint("topleft", summaryBox, "bottomleft", 0, -5)
 			meleeBox:SetSize(200, 160)
 
@@ -2125,7 +2125,7 @@ function gump:CriaJanelaInfo()
 			y = -5
 
 			local absorbsBox = CreateFrame("frame", nil, frame, "BackdropTemplate")
-			_detalhes.gump:ApplyStandardBackdrop (absorbsBox)
+			_detalhes.gump:ApplyStandardBackdrop(absorbsBox)
 			absorbsBox:SetPoint("topleft", summaryBox, "topright", 10, 0)
 			absorbsBox:SetSize(200, 160)
 
@@ -2186,7 +2186,7 @@ function gump:CriaJanelaInfo()
 			y = -5
 
 			local healingBox = CreateFrame("frame", nil, frame,"BackdropTemplate")
-			_detalhes.gump:ApplyStandardBackdrop (healingBox)
+			_detalhes.gump:ApplyStandardBackdrop(healingBox)
 			healingBox:SetPoint("topleft", absorbsBox, "bottomleft", 0, -5)
 			healingBox:SetSize(200, 160)
 
@@ -2238,7 +2238,7 @@ function gump:CriaJanelaInfo()
 			y = -5
 
 			local spellsBox = CreateFrame("frame", nil, frame,"BackdropTemplate")
-			_detalhes.gump:ApplyStandardBackdrop (spellsBox)
+			_detalhes.gump:ApplyStandardBackdrop(spellsBox)
 			spellsBox:SetPoint("topleft", absorbsBox, "topright", 10, 0)
 			spellsBox:SetSize(346, 160 * 2 + 5)
 
@@ -2303,7 +2303,7 @@ function gump:CriaJanelaInfo()
 				if (ps >= lastvalue) then
 					local d = ps - lastvalue
 					d = d / lastvalue * 100
-					d = _math_floor(math.abs (d))
+					d = _math_floor(math.abs(d))
 
 					if (d > 999) then
 						d = "> 999"
@@ -2317,7 +2317,7 @@ function gump:CriaJanelaInfo()
 				else
 					local d = lastvalue - ps
 					d = d / max(ps, 0.001) * 100
-					d = _math_floor(math.abs (d))
+					d = _math_floor(math.abs(d))
 
 					if (d > 999) then
 						d = "> 999"
@@ -2490,11 +2490,11 @@ function gump:CriaJanelaInfo()
 					table.sort (myReceivedHeal, _detalhes.Sort2) --Sort2 sort by second index
 
 					for i = 1, 5 do
-						local label1, label2 = unpack (tab ["healer" .. i])
+						local label1, label2 = unpack(tab ["healer" .. i])
 						if (myReceivedHeal [i]) then
 							local name = myReceivedHeal [i][1]
 
-							name = _detalhes:GetOnlyName (name)
+							name = _detalhes:GetOnlyName(name)
 							--name = _detalhes:RemoveOwnerName (name)
 
 							label1:SetText(name .. ":")
@@ -2560,14 +2560,14 @@ function gump:CriaJanelaInfo()
 								local esta_habilidade = cooldowns_usados[i]
 								local nome_magia, _, icone_magia = _GetSpellInfo(esta_habilidade[1])
 
-								local label1, label2, icon1, framebg = unpack (tab ["spell" .. index_used])
+								local label1, label2, icon1, framebg = unpack(tab ["spell" .. index_used])
 								framebg.spellid = esta_habilidade[1]
 								framebg:Show()
 
 								--attempt to get the buff update
 								local spellInfo = buffUpdateSpells:GetSpell (framebg.spellid)
 								if (spellInfo) then
-									label2:SetText(esta_habilidade[2] .. " (" .. floor (spellInfo.uptime / encounter_time * 100) .. "% uptime)")
+									label2:SetText(esta_habilidade[2] .. " (" .. floor(spellInfo.uptime / encounter_time * 100) .. "% uptime)")
 								else
 									label2:SetText(esta_habilidade[2])
 								end
@@ -2599,7 +2599,7 @@ function gump:CriaJanelaInfo()
 										for targetName, amountCasted in pairs(targets) do
 											if (targetName == player.nome) then
 												local spellName, _, spellIcon = _GetSpellInfo(spellID)
-												local label1, label2, icon1, framebg = unpack (tab ["spell" .. index_used])
+												local label1, label2, icon1, framebg = unpack(tab ["spell" .. index_used])
 												framebg.spellid = spellID
 												framebg:Show()
 
@@ -2608,7 +2608,7 @@ function gump:CriaJanelaInfo()
 												local cooldownDuration = info and info.duration or 0
 
 												if (cooldownDuration > 0) then
-													label2:SetText(amountCasted .. " (" .. "|cFFFFFF00" .. miscPlayer.nome .. "|r " .. floor (cooldownDuration / encounter_time * 100) .. "% uptime)")
+													label2:SetText(amountCasted .. " (" .. "|cFFFFFF00" .. miscPlayer.nome .. "|r " .. floor(cooldownDuration / encounter_time * 100) .. "% uptime)")
 												else
 													label2:SetText(amountCasted)
 												end
@@ -2631,7 +2631,7 @@ function gump:CriaJanelaInfo()
 
 
 				for i = index_used, 40 do
-					local label1, label2, icon1, framebg = unpack (tab ["spell" .. i])
+					local label1, label2, icon1, framebg = unpack(tab ["spell" .. i])
 
 					framebg.spellid = nil
 					framebg:Hide()
@@ -2709,7 +2709,7 @@ function gump:CriaJanelaInfo()
 
 		local line_onleave = function(self)
 			GameTooltip:Hide()
-			self:SetBackdropColor(unpack (self.BackgroundColor))
+			self:SetBackdropColor(unpack(self.BackgroundColor))
 		end
 
 		local line_onclick = function(self)
@@ -2743,7 +2743,7 @@ function gump:CriaJanelaInfo()
 			local apply = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
 			local refresh = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
 
-			--local waButton = DF:CreateButton (line, wa_button, 18, 18)
+			--local waButton = DF:CreateButton(line, wa_button, 18, 18)
 			--waButton:SetIcon ([[Interface\AddOns\WeakAuras\Media\Textures\icon]])
 
 			DF:SetFontSize (name, text_size)
@@ -2794,7 +2794,7 @@ function gump:CriaJanelaInfo()
 					line.Icon:SetTexCoord (.1, .9, .1, .9)
 
 					line.Name:SetText(aura [2])
-					line.Uptime:SetText(DF:IntegerToTimer (aura [3]) .. " (|cFFBBAAAA" .. floor (aura [6]) .. "%|r)")
+					line.Uptime:SetText(DF:IntegerToTimer (aura [3]) .. " (|cFFBBAAAA" .. floor(aura [6]) .. "%|r)")
 					line.Apply:SetText(aura [4])
 					line.Refresh:SetText(aura [5])
 
@@ -2805,10 +2805,10 @@ function gump:CriaJanelaInfo()
 					--end
 
 					if (i%2 == 0) then
-						line:SetBackdropColor(unpack (line_bg_color [1]))
+						line:SetBackdropColor(unpack(line_bg_color [1]))
 						line.BackgroundColor = line_bg_color [1]
 					else
-						line:SetBackdropColor(unpack (line_bg_color [2]))
+						line:SetBackdropColor(unpack(line_bg_color [2]))
 						line.BackgroundColor = line_bg_color [2]
 					end
 				end
@@ -2821,7 +2821,7 @@ function gump:CriaJanelaInfo()
 			f:SetPoint("center", anchorWidget, "center")
 			f:SetScript("OnEnter", function()
 				GameTooltip:SetOwner(f, "ANCHOR_TOPRIGHT")
-				GameTooltip:AddLine (desc)
+				GameTooltip:AddLine(desc)
 				GameTooltip:Show()
 			end)
 			f:SetScript("OnLeave", function()
@@ -2891,7 +2891,7 @@ function gump:CriaJanelaInfo()
 	end
 
 	local auras_tab_fill = function(tab, player, combat)
-		local miscActor = combat:GetActor (4, player:name())
+		local miscActor = combat:GetActor(4, player:name())
 		local combatTime = combat:GetCombatTime()
 
 		do --buffs
@@ -3020,7 +3020,7 @@ function gump:CriaJanelaInfo()
 			if (player_2) then
 				local player_2_target = player_2.targets
 				player_2_target_pool = {}
-				for target_name, amount in _pairs (player_2_target) do
+				for target_name, amount in _pairs(player_2_target) do
 					player_2_target_pool [#player_2_target_pool+1] = {target_name, amount}
 				end
 				table.sort (player_2_target_pool, _detalhes.Sort2)
@@ -3039,7 +3039,7 @@ function gump:CriaJanelaInfo()
 			if (player_3) then
 				local player_3_target = player_3.targets
 				player_3_target_pool = {}
-				for target_name, amount in _pairs (player_3_target) do
+				for target_name, amount in _pairs(player_3_target) do
 					player_3_target_pool [#player_3_target_pool+1] = {target_name, amount}
 				end
 				table.sort (player_3_target_pool, _detalhes.Sort2)
@@ -3063,8 +3063,8 @@ function gump:CriaJanelaInfo()
 					local target_name = data [1]
 
 					bar [1]:SetTexture(target_texture)
-					bar [1]:SetDesaturated (true)
-					bar [1]:SetAlpha (.7)
+					bar [1]:SetDesaturated(true)
+					bar [1]:SetAlpha(.7)
 
 					bar [2].lefttext:SetText(index .. ". " .. target_name)
 					bar [2].lefttext:SetTextColor (1, 1, 1, 1)
@@ -3082,7 +3082,7 @@ function gump:CriaJanelaInfo()
 						local player_2_target_total
 						local player_2_target_index
 
-						for index, t in _ipairs(player_2_target_pool) do
+						for index, t in ipairs(player_2_target_pool) do
 							if (t[1] == target_name) then
 								player_2_target_total = t[2]
 								player_2_target_index = index
@@ -3092,8 +3092,8 @@ function gump:CriaJanelaInfo()
 
 						if (player_2_target_total) then
 							bar_2 [1]:SetTexture(target_texture)
-							bar_2 [1]:SetDesaturated (true)
-							bar_2 [1]:SetAlpha (.7)
+							bar_2 [1]:SetDesaturated(true)
+							bar_2 [1]:SetAlpha(.7)
 
 							bar_2 [2].lefttext:SetText(player_2_target_index .. ". " .. target_name)
 							bar_2 [2].lefttext:SetTextColor (1, 1, 1, 1)
@@ -3154,7 +3154,7 @@ function gump:CriaJanelaInfo()
 						local player_3_target_total
 						local player_3_target_index
 
-						for index, t in _ipairs(player_3_target_pool) do
+						for index, t in ipairs(player_3_target_pool) do
 							if (t[1] == target_name) then
 								player_3_target_total = t[2]
 								player_3_target_index = index
@@ -3164,8 +3164,8 @@ function gump:CriaJanelaInfo()
 
 						if (player_3_target_total) then
 							bar_3 [1]:SetTexture(target_texture)
-							bar_3 [1]:SetDesaturated (true)
-							bar_3 [1]:SetAlpha (.7)
+							bar_3 [1]:SetDesaturated(true)
+							bar_3 [1]:SetAlpha(.7)
 
 							bar_3 [2].lefttext:SetText(player_3_target_index .. ". " .. target_name)
 							bar_3 [2].lefttext:SetTextColor (1, 1, 1, 1)
@@ -3253,15 +3253,15 @@ function gump:CriaJanelaInfo()
 
 			--main player skills
 			local spells_sorted = {}
-			for spellid, spelltable in _pairs (player.spells._ActorTable) do
+			for spellid, spelltable in _pairs(player.spells._ActorTable) do
 				spells_sorted [#spells_sorted+1] = {spelltable, spelltable.total}
 			end
 
 			--main player pets
-			for petIndex, petName in _ipairs(player:Pets()) do
+			for petIndex, petName in ipairs(player:Pets()) do
 				local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
 				if (petActor) then
-					for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+					for _spellid, _skill in _pairs(petActor:GetActorSpells()) do
 						spells_sorted [#spells_sorted+1] = {_skill, _skill.total, petName}
 					end
 				end
@@ -3289,14 +3289,14 @@ function gump:CriaJanelaInfo()
 				player_2_spells_sorted = {}
 
 				--player 2 spells
-				for spellid, spelltable in _pairs (other_players [1].spells._ActorTable) do
+				for spellid, spelltable in _pairs(other_players [1].spells._ActorTable) do
 					player_2_spells_sorted [#player_2_spells_sorted+1] = {spelltable, spelltable.total}
 				end
 				--player 2 pets
-				for petIndex, petName in _ipairs(other_players [1]:Pets()) do
+				for petIndex, petName in ipairs(other_players [1]:Pets()) do
 					local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
 					if (petActor) then
-						for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+						for _spellid, _skill in _pairs(petActor:GetActorSpells()) do
 							player_2_spells_sorted [#player_2_spells_sorted+1] = {_skill, _skill.total, petName}
 						end
 					end
@@ -3307,7 +3307,7 @@ function gump:CriaJanelaInfo()
 				--se n�o existir uma magia no jogador e o jogador tiver um pet, ele n�o vai encontrar um valor em [1] e dar
 				-- ~pet
 				player_2_spell_info = {}
-				for index, spelltable in _ipairs(player_2_spells_sorted) do
+				for index, spelltable in ipairs(player_2_spells_sorted) do
 					player_2_spell_info [spelltable[1].id] = index
 				end
 
@@ -3331,14 +3331,14 @@ function gump:CriaJanelaInfo()
 
 				if (other_players [2]) then
 					--player 3 spells
-					for spellid, spelltable in _pairs (other_players [2].spells._ActorTable) do
+					for spellid, spelltable in _pairs(other_players [2].spells._ActorTable) do
 						player_3_spells_sorted [#player_3_spells_sorted+1] = {spelltable, spelltable.total}
 					end
 					--player 3 pets
-					for petIndex, petName in _ipairs(other_players [2]:Pets()) do
+					for petIndex, petName in ipairs(other_players [2]:Pets()) do
 						local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
 						if (petActor) then
-							for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+							for _spellid, _skill in _pairs(petActor:GetActorSpells()) do
 								player_3_spells_sorted [#player_3_spells_sorted+1] = {_skill, _skill.total, petName}
 							end
 						end
@@ -3346,7 +3346,7 @@ function gump:CriaJanelaInfo()
 
 					table.sort (player_3_spells_sorted, _detalhes.Sort2)
 					player_3_top = player_3_spells_sorted [1] [2]
-					for index, spelltable in _ipairs(player_3_spells_sorted) do
+					for index, spelltable in ipairs(player_3_spells_sorted) do
 						player_3_spell_info [spelltable[1].id] = index
 					end
 				end
@@ -3372,7 +3372,7 @@ function gump:CriaJanelaInfo()
 
 						local petName = data [3]
 						bar [1]:SetTexture(icon) --bar[1] = spellicon bar[2] = statusbar
-						bar [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+						bar [1]:SetTexCoord (unpack(IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
 
 						bar [2]:SetBackdropColor(1, 1, 1, 0.1)
 
@@ -3395,7 +3395,7 @@ function gump:CriaJanelaInfo()
 					local spell = player_2 and player_2.spells._ActorTable [spellid]
 
 					if (not spell and petName and player_2) then
-						for _petIndex, _petName in _ipairs(player_2:Pets()) do
+						for _petIndex, _petName in ipairs(player_2:Pets()) do
 							if (_petName:gsub (" <.*", "") == petName:gsub (" <.*", "")) then
 								local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
 								spell = petActor and petActor.spells._ActorTable [spellid]
@@ -3409,10 +3409,10 @@ function gump:CriaJanelaInfo()
 					-- ~compare
 					if (spell) then
 						bar_2 [1]:SetTexture(icon)
-						bar_2 [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+						bar_2 [1]:SetTexCoord (unpack(IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
 						bar_2 [2].lefttext:SetText(player_2_spell_info [spellid] .. ". " .. name)
 						bar_2 [2].lefttext:SetTextColor (1, 1, 1, 1)
-						bar_2 [2]:SetStatusBarColor (unpack (bar_color))
+						bar_2 [2]:SetStatusBarColor (unpack(bar_color))
 						bar_2 [2]:SetBackdropColor(1, 1, 1, 0.1)
 
 						if (spell.total == 0 and data [2] == 0) then
@@ -3474,7 +3474,7 @@ function gump:CriaJanelaInfo()
 						local spell = player_3 and player_3.spells._ActorTable [spellid]
 
 						if (not spell and petName and player_3) then
-							for _petIndex, _petName in _ipairs(player_3:Pets()) do
+							for _petIndex, _petName in ipairs(player_3:Pets()) do
 								if (_petName:gsub (" <.*", "") == petName:gsub (" <.*", "")) then
 									local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
 									spell = petActor and petActor.spells._ActorTable [spellid]
@@ -3486,10 +3486,10 @@ function gump:CriaJanelaInfo()
 
 						if (spell) then
 							bar_3 [1]:SetTexture(icon)
-							bar_3 [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+							bar_3 [1]:SetTexCoord (unpack(IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
 							bar_3 [2].lefttext:SetText(player_3_spell_info [spellid] .. ". " .. name)
 							bar_3 [2].lefttext:SetTextColor (1, 1, 1, 1)
-							bar_3 [2]:SetStatusBarColor (unpack (bar_color))
+							bar_3 [2]:SetStatusBarColor (unpack(bar_color))
 							bar_3 [2]:SetBackdropColor(1, 1, 1, 0.1)
 
 							if (spell.total == 0 and data [2] == 0) then
@@ -3576,7 +3576,7 @@ function gump:CriaJanelaInfo()
 
 			end
 
-			for index, spelltable in _ipairs(spells_sorted) do
+			for index, spelltable in ipairs(spells_sorted) do
 
 			end
 
@@ -3594,7 +3594,7 @@ function gump:CriaJanelaInfo()
 			--player 1 targets
 			local my_targets = self.tab.player.targets
 			local target_pool = {}
-			for target_name, amount in _pairs (my_targets) do
+			for target_name, amount in _pairs(my_targets) do
 				target_pool [#target_pool+1] = {target_name, amount}
 			end
 			table.sort (target_pool, _detalhes.Sort2)
@@ -3608,7 +3608,7 @@ function gump:CriaJanelaInfo()
 		local compare_fill = function(tab, player, combat)
 			local players_to_compare = tab.players
 
-			local defaultPlayerName = _detalhes:GetOnlyName (player:Name())
+			local defaultPlayerName = _detalhes:GetOnlyName(player:Name())
 			DetailsPlayerComparisonBox1.name_label:SetText(defaultPlayerName)
 
 			local label2 = _G ["DetailsPlayerComparisonBox2"].name_label
@@ -3618,7 +3618,7 @@ function gump:CriaJanelaInfo()
 			local label3_percent = _G ["DetailsPlayerComparisonBox3"].name_label_percent
 
 			if (players_to_compare [1]) then
-				local playerName = _detalhes:GetOnlyName (players_to_compare [1]:Name())
+				local playerName = _detalhes:GetOnlyName(players_to_compare [1]:Name())
 				label2:SetText(playerName)
 				label2_percent:SetText(defaultPlayerName .. " %")
 			else
@@ -3626,7 +3626,7 @@ function gump:CriaJanelaInfo()
 				label2_percent:SetText("")
 			end
 			if (players_to_compare [2]) then
-				local playerName = _detalhes:GetOnlyName (players_to_compare [2]:Name())
+				local playerName = _detalhes:GetOnlyName(players_to_compare [2]:Name())
 				label3:SetText(playerName)
 				label3_percent:SetText(defaultPlayerName .. " %")
 			else
@@ -3668,8 +3668,8 @@ function gump:CriaJanelaInfo()
 
 			-- player 1
 			local player_1_skills = {}
-			for spellid, spell in _pairs (player_1.spells._ActorTable) do
-				for name, amount in _pairs (spell.targets) do
+			for spellid, spell in _pairs(player_1.spells._ActorTable) do
+				for name, amount in _pairs(spell.targets) do
 					if (name == target_name) then
 						player_1_skills [#player_1_skills+1] = {spellid, amount}
 					end
@@ -3684,8 +3684,8 @@ function gump:CriaJanelaInfo()
 			local player_2_skills = {}
 			local player_2_top
 			if (player_2) then
-				for spellid, spell in _pairs (player_2.spells._ActorTable) do
-					for name, amount in _pairs (spell.targets) do
+				for spellid, spell in _pairs(player_2.spells._ActorTable) do
+					for name, amount in _pairs(spell.targets) do
 						if (name == target_name) then
 							player_2_skills [#player_2_skills+1] = {spellid, amount}
 						end
@@ -3693,15 +3693,15 @@ function gump:CriaJanelaInfo()
 				end
 				table.sort (player_2_skills, _detalhes.Sort2)
 				player_2_top = player_2_skills [1] and player_2_skills [1][2] or 0
-				bar2 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
+				bar2 [2]:SetStatusBarColor (unpack(bar_color_on_enter))
 			end
 
 			-- player 3
 			local player_3_skills = {}
 			local player_3_top
 			if (player_3) then
-				for spellid, spell in _pairs (player_3.spells._ActorTable) do
-					for name, amount in _pairs (spell.targets) do
+				for spellid, spell in _pairs(player_3.spells._ActorTable) do
+					for name, amount in _pairs(spell.targets) do
 						if (name == target_name) then
 							player_3_skills [#player_3_skills+1] = {spellid, amount}
 						end
@@ -3709,7 +3709,7 @@ function gump:CriaJanelaInfo()
 				end
 				table.sort (player_3_skills, _detalhes.Sort2)
 				player_3_top = player_3_skills [1] and player_3_skills [1][2] or 0
-				bar3 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
+				bar3 [2]:SetStatusBarColor (unpack(bar_color_on_enter))
 			end
 
 			-- build tooltip
@@ -3724,7 +3724,7 @@ function gump:CriaJanelaInfo()
 			local frame2_gotresults = false
 			local frame3_gotresults = false
 
-			for index, spell in _ipairs(player_1_skills) do
+			for index, spell in ipairs(player_1_skills) do
 				local bar = frame1.tooltip.bars [index]
 				if (not bar) then
 					bar = frame1.tooltip:CreateBar()
@@ -3732,7 +3732,7 @@ function gump:CriaJanelaInfo()
 
 				local name, _, icon = _GetSpellInfo(spell[1])
 				bar [1]:SetTexture(icon)
-				bar [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+				bar [1]:SetTexCoord (unpack(IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
 				bar [2].lefttext:SetText(index .. ". " .. name)
 				bar [2].righttext:SetText(_detalhes:ToK2Min (spell [2]))
 				bar [2]:SetValue(spell [2]/player_1_top*100)
@@ -3743,7 +3743,7 @@ function gump:CriaJanelaInfo()
 
 					local player_2_skill
 					local found_skill = false
-					for this_index, this_spell in _ipairs(player_2_skills) do
+					for this_index, this_spell in ipairs(player_2_skills) do
 						if (spell [1] == this_spell[1]) then
 							local bar = frame2.tooltip.bars [index]
 							if (not bar) then
@@ -3751,7 +3751,7 @@ function gump:CriaJanelaInfo()
 							end
 
 							bar [1]:SetTexture(icon)
-							bar [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+							bar [1]:SetTexCoord (unpack(IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
 							bar [2].lefttext:SetText(this_index .. ". " .. name)
 							bar [2].bg:Show()
 
@@ -3798,7 +3798,7 @@ function gump:CriaJanelaInfo()
 				if (player_3) then
 					local player_3_skill
 					local found_skill = false
-					for this_index, this_spell in _ipairs(player_3_skills) do
+					for this_index, this_spell in ipairs(player_3_skills) do
 						if (spell [1] == this_spell[1]) then
 							local bar = frame3.tooltip.bars [index]
 							if (not bar) then
@@ -3806,7 +3806,7 @@ function gump:CriaJanelaInfo()
 							end
 
 							bar [1]:SetTexture(icon)
-							bar [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+							bar [1]:SetTexCoord (unpack(IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
 							bar [2].lefttext:SetText(this_index .. ". " .. name)
 							bar [2].bg:Show()
 
@@ -3875,9 +3875,9 @@ function gump:CriaJanelaInfo()
 
 			bar1[2]:SetStatusBarColor (.5, .5, .5, 1)
 			bar1[2].icon:SetTexCoord (0, 1, 0, 1)
-			bar2[2]:SetStatusBarColor (unpack (bar_color))
+			bar2[2]:SetStatusBarColor (unpack(bar_color))
 			bar2[2].icon:SetTexCoord (0, 1, 0, 1)
-			bar3[2]:SetStatusBarColor (unpack (bar_color))
+			bar3[2]:SetStatusBarColor (unpack(bar_color))
 			bar3[2].icon:SetTexCoord (0, 1, 0, 1)
 
 			frame1.tooltip:Hide()
@@ -3969,7 +3969,7 @@ function gump:CriaJanelaInfo()
 					else
 						local spellname = GetSpellInfo(spellid)
 						local extra_search_found
-						for casted_spellid, amount in _pairs (player1_misc.spell_cast or {}) do
+						for casted_spellid, amount in _pairs(player1_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo(casted_spellid)
 							if (casted_spellname == spellname) then
 								frame1.tooltip.casts_label3:SetText(amount)
@@ -4008,7 +4008,7 @@ function gump:CriaJanelaInfo()
 
 			if (bar2[2].righttext:GetText()) then
 
-				bar2 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
+				bar2 [2]:SetStatusBarColor (unpack(bar_color_on_enter))
 				bar2[2].icon:SetTexCoord (.1, .9, .1, .9)
 
 				-- hits
@@ -4056,7 +4056,7 @@ function gump:CriaJanelaInfo()
 				--criticals
 				if (critical > bar2[3][3]) then
 					--[[
-					local percent = abs ((bar2[3][3] / critical * 100) -100)
+					local percent = abs((bar2[3][3] / critical * 100) -100)
 					percent = _math_floor(percent)
 					if (percent > 999) then
 						up = "" .. 999
@@ -4074,10 +4074,10 @@ function gump:CriaJanelaInfo()
 					frame2.tooltip.crit_label2:SetText(" |c" .. minor .. diff .. "%|r")
 				else
 					local diff = bar2[3][3] - critical
-					local down = diff / math.max (critical, 0.1) * 100
+					local down = diff / math.max(critical, 0.1) * 100
 					--bar2[3][3] = 62 critical = 53 diff = 9
-					--print (diff, bar2[3][3], critical)
-					--print (math.max (critical * 100, 0.1))
+					--print(diff, bar2[3][3], critical)
+					--print(math.max(critical * 100, 0.1))
 
 					down = _math_floor(down)
 					if (down > 999) then
@@ -4133,7 +4133,7 @@ function gump:CriaJanelaInfo()
 					local amt_casts = player2_misc.spell_cast and player2_misc.spell_cast [spellid]
 					if (not amt_casts) then
 						local spellname = GetSpellInfo(spellid)
-						for casted_spellid, amount in _pairs (player2_misc.spell_cast or {}) do
+						for casted_spellid, amount in _pairs(player2_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo(casted_spellid)
 							if (casted_spellname == spellname) then
 								amt_casts = amount
@@ -4188,7 +4188,7 @@ function gump:CriaJanelaInfo()
 			---------------------------------------------------
 
 			if (bar3[2].righttext:GetText()) then
-				bar3 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
+				bar3 [2]:SetStatusBarColor (unpack(bar_color_on_enter))
 				bar3[2].icon:SetTexCoord (.1, .9, .1, .9)
 
 				--hits
@@ -4236,7 +4236,7 @@ function gump:CriaJanelaInfo()
 				--critical
 				if (critical > bar3[3][3]) then
 					--[[
-					local percent = abs ((bar3[3][3] / critical * 100) -100)
+					local percent = abs((bar3[3][3] / critical * 100) -100)
 					--local diff = critical - bar3[3][3]
 					--local up = diff / bar3[3][3] * 100
 					percent = _math_floor(percent)
@@ -4256,7 +4256,7 @@ function gump:CriaJanelaInfo()
 					frame3.tooltip.crit_label2:SetText(" |c" .. minor .. diff .. "%|r")
 				else
 					local diff = bar3[3][3] - critical
-					local down = diff / math.max (critical, 0.1) * 100
+					local down = diff / math.max(critical, 0.1) * 100
 					down = _math_floor(down)
 					if (down > 999) then
 						down = "" .. 999
@@ -4310,7 +4310,7 @@ function gump:CriaJanelaInfo()
 					local amt_casts = player3_misc.spell_cast and player3_misc.spell_cast [spellid]
 					if (not amt_casts) then
 						local spellname = GetSpellInfo(spellid)
-						for casted_spellid, amount in _pairs (player3_misc.spell_cast or {}) do
+						for casted_spellid, amount in _pairs(player3_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo(casted_spellid)
 							if (casted_spellname == spellname) then
 								amt_casts = amount
@@ -4374,9 +4374,9 @@ function gump:CriaJanelaInfo()
 
 			bar1[2]:SetStatusBarColor (.5, .5, .5, 1)
 			bar1[2].icon:SetTexCoord (0, 1, 0, 1)
-			bar2[2]:SetStatusBarColor (unpack (bar_color))
+			bar2[2]:SetStatusBarColor (unpack(bar_color))
 			bar2[2].icon:SetTexCoord (0, 1, 0, 1)
-			bar3[2]:SetStatusBarColor (unpack (bar_color))
+			bar3[2]:SetStatusBarColor (unpack(bar_color))
 			bar3[2].icon:SetTexCoord (0, 1, 0, 1)
 
 			frame1.tooltip:Hide()
@@ -4400,12 +4400,12 @@ function gump:CriaJanelaInfo()
 				bar:SetPoint("topright", parent, "topright", -4, y)
 				bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
 				bar:SetStatusBarColor (.5, .5, .5, 1)
-				bar:SetAlpha (ALPHA_BLEND_AMOUNT)
+				bar:SetAlpha(ALPHA_BLEND_AMOUNT)
 
 				bar:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 				bar:SetBackdropColor(1, 1, 1, 0.1)
 
-				bar:SetMinMaxValues (0, 100)
+				bar:SetMinMaxValues(0, 100)
 				bar:SetValue(100)
 				bar:SetHeight(14)
 				bar.icon = spellicon
@@ -4475,7 +4475,7 @@ function gump:CriaJanelaInfo()
 				local background = tooltip:CreateTexture(nil, "border")
 				background:SetTexture([[Interface\SPELLBOOK\Spellbook-Page-1]])
 				background:SetTexCoord (.6, 0.1, 0, 0.64453125)
-				background:SetVertexColor (0, 0, 0, 0.2)
+				background:SetVertexColor(0, 0, 0, 0.2)
 				background:SetPoint("topleft", tooltip, "topleft", 0, 0)
 				background:SetPoint("bottomright", tooltip, "bottomright", 0, 0)
 
@@ -4556,8 +4556,8 @@ function gump:CriaJanelaInfo()
 					bg_line1:SetPoint("topleft", tooltip, "topleft", 0, -2 + (((i-1) * 12) * -1) + (y * (i-1)) + 2)
 					bg_line1:SetPoint("topright", tooltip, "topright", -0, -2 + (((i-1) * 12) * -1)  + (y * (i-1)) + 2)
 					bg_line1:SetHeight(bg_height + 4)
-					bg_line1:SetAlpha (bg_alpha)
-					bg_line1:SetVertexColor (unpack (colors[i]))
+					bg_line1:SetAlpha(bg_alpha)
+					bg_line1:SetVertexColor(unpack(colors[i]))
 				end
 
 				return tooltip
@@ -4575,7 +4575,7 @@ function gump:CriaJanelaInfo()
 				_detalhes.gump:CreateBorder (tooltip)
 
 				function tooltip:Reset()
-					for index, bar in _ipairs(tooltip.bars) do
+					for index, bar in ipairs(tooltip.bars) do
 						bar [1]:SetTexture("")
 						bar [2].lefttext:SetText("")
 						bar [2].righttext:SetText("")
@@ -4611,8 +4611,8 @@ function gump:CriaJanelaInfo()
 					bar:SetPoint("topleft", spellicon, "topright", 0, 0)
 					bar:SetPoint("topright", parent, "topright", -1, y)
 					bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
-					bar:SetStatusBarColor (unpack (bar_color))
-					bar:SetMinMaxValues (0, 100)
+					bar:SetStatusBarColor (unpack(bar_color))
+					bar:SetMinMaxValues(0, 100)
 					bar:SetValue(0)
 					bar:SetHeight(14)
 					bar.icon = spellicon
@@ -4652,11 +4652,11 @@ function gump:CriaJanelaInfo()
 					local bg_line1 = bar:CreateTexture(nil, "artwork")
 					bg_line1:SetTexture([[Interface\AddOns\Details\images\bar_background]])
 					bg_line1:SetAllPoints()
-					bg_line1:SetAlpha (0.7)
+					bg_line1:SetAlpha(0.7)
 					if (index % 2 == 0) then
-						bg_line1:SetVertexColor (_unpack (bars_colors [2]))
+						bg_line1:SetVertexColor(_unpack(bars_colors [2]))
 					else
-						bg_line1:SetVertexColor (_unpack (bars_colors [2]))
+						bg_line1:SetVertexColor(_unpack(bars_colors [2]))
 					end
 					bar.bg = bg_line1
 
@@ -4668,7 +4668,7 @@ function gump:CriaJanelaInfo()
 				local background = tooltip:CreateTexture(nil, "artwork")
 				background:SetTexture([[Interface\SPELLBOOK\Spellbook-Page-1]])
 				background:SetTexCoord (.6, 0.1, 0, 0.64453125)
-				background:SetVertexColor (0, 0, 0, 0.6)
+				background:SetVertexColor(0, 0, 0, 0.6)
 				background:SetPoint("topleft", tooltip, "topleft", 2, -4)
 				background:SetPoint("bottomright", tooltip, "bottomright", -4, 2)
 
@@ -4682,11 +4682,11 @@ function gump:CriaJanelaInfo()
 			_detalhes.gump:ReskinSlider(frame1)
 
 			frame1:SetBackdrop(frame_backdrop)
-			frame1:SetBackdropColor(unpack (frame_backdrop_color))
-			frame1:SetBackdropBorderColor(unpack (frame_backdrop_border_color))
+			frame1:SetBackdropColor(unpack(frame_backdrop_color))
+			frame1:SetBackdropBorderColor(unpack(frame_backdrop_border_color))
 
 			--override backdrop settings and use the framework defaults
-			Details.gump:ApplyStandardBackdrop (frame1)
+			Details.gump:ApplyStandardBackdrop(frame1)
 
 			frame1.bars = {}
 			frame1.tab = tab
@@ -4711,15 +4711,15 @@ function gump:CriaJanelaInfo()
 			_detalhes.gump:ReskinSlider(target1)
 
 			target1:SetBackdrop(frame_backdrop)
-			target1:SetBackdropColor(unpack (frame_backdrop_color))
-			target1:SetBackdropBorderColor(unpack (frame_backdrop_border_color))
+			target1:SetBackdropColor(unpack(frame_backdrop_color))
+			target1:SetBackdropBorderColor(unpack(frame_backdrop_border_color))
 			target1.bars = {}
 			target1.tab = tab
 			target1.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget1Tooltip")
 			target1.tooltip:SetWidth(spell_compare_frame_width[1])
 
 			--override backdrop settings and use the framework defaults
-			Details.gump:ApplyStandardBackdrop (target1)
+			Details.gump:ApplyStandardBackdrop(target1)
 
 			--criar as barras do target1
 			for i = 1, targetBars do
@@ -4735,11 +4735,11 @@ function gump:CriaJanelaInfo()
 			frame2:SetSize(spell_compare_frame_width[2], spell_compare_frame_height)
 
 			frame2:SetBackdrop(frame_backdrop)
-			frame2:SetBackdropColor(unpack (frame_backdrop_color))
-			frame2:SetBackdropBorderColor(unpack (frame_backdrop_border_color))
+			frame2:SetBackdropColor(unpack(frame_backdrop_color))
+			frame2:SetBackdropBorderColor(unpack(frame_backdrop_border_color))
 
 			--override backdrop settings and use the framework defaults
-			Details.gump:ApplyStandardBackdrop (frame2)
+			Details.gump:ApplyStandardBackdrop(frame2)
 
 			frame2.bars = {}
 			frame2.tooltip = create_tooltip ("DetailsPlayerComparisonBox2Tooltip")
@@ -4778,14 +4778,14 @@ function gump:CriaJanelaInfo()
 			target2:SetSize(spell_compare_frame_width[2], target_compare_frame_height)
 			target2:SetPoint("topleft", frame2, "bottomleft", 0, -10)
 			target2:SetBackdrop(frame_backdrop)
-			target2:SetBackdropColor(unpack (frame_backdrop_color))
-			target2:SetBackdropBorderColor(unpack (frame_backdrop_border_color))
+			target2:SetBackdropColor(unpack(frame_backdrop_color))
+			target2:SetBackdropBorderColor(unpack(frame_backdrop_border_color))
 			target2.bars = {}
 			target2.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget2Tooltip")
 			target2.tooltip:SetWidth(spell_compare_frame_width[2])
 
 			--override backdrop settings and use the framework defaults
-			Details.gump:ApplyStandardBackdrop (target2)
+			Details.gump:ApplyStandardBackdrop(target2)
 
 			--criar as barras do target2
 			for i = 1, targetBars do
@@ -4797,11 +4797,11 @@ function gump:CriaJanelaInfo()
 			frame3:SetPoint("topleft", frame2, "topright", 5, 0)
 			frame3:SetSize(spell_compare_frame_width[3], spell_compare_frame_height)
 			frame3:SetBackdrop(frame_backdrop)
-			frame3:SetBackdropColor(unpack (frame_backdrop_color))
-			frame3:SetBackdropBorderColor(unpack (frame_backdrop_border_color))
+			frame3:SetBackdropColor(unpack(frame_backdrop_color))
+			frame3:SetBackdropBorderColor(unpack(frame_backdrop_border_color))
 
 			--override backdrop settings and use the framework defaults
-			Details.gump:ApplyStandardBackdrop (frame3)
+			Details.gump:ApplyStandardBackdrop(frame3)
 
 			frame3.bars = {}
 			frame3.tooltip = create_tooltip ("DetailsPlayerComparisonBox3Tooltip")
@@ -4839,14 +4839,14 @@ function gump:CriaJanelaInfo()
 			target3:SetSize(spell_compare_frame_width[3], target_compare_frame_height)
 			target3:SetPoint("topleft", frame3, "bottomleft", 0, -10)
 			target3:SetBackdrop(frame_backdrop)
-			target3:SetBackdropColor(unpack (frame_backdrop_color))
-			target3:SetBackdropBorderColor(unpack (frame_backdrop_border_color))
+			target3:SetBackdropColor(unpack(frame_backdrop_color))
+			target3:SetBackdropBorderColor(unpack(frame_backdrop_border_color))
 			target3.bars = {}
 			target3.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget3Tooltip")
 			target3.tooltip:SetWidth(spell_compare_frame_width[3])
 
 			--override backdrop settings and use the framework defaults
-			Details.gump:ApplyStandardBackdrop (target3)
+			Details.gump:ApplyStandardBackdrop(target3)
 
 			--criar as barras do target1
 			for i = 1, targetBars do
@@ -4877,7 +4877,7 @@ function gump:CriaJanelaInfo()
 				local my_spells = {}
 				local my_spells_total = 0
 				--build my spell list
-				for spellid, _ in _pairs (playerObject.spells._ActorTable) do
+				for spellid, _ in _pairs(playerObject.spells._ActorTable) do
 					my_spells [spellid] = true
 					my_spells_total = my_spells_total + 1
 				end
@@ -4890,17 +4890,17 @@ function gump:CriaJanelaInfo()
 					return false
 				end
 
-				for index, actor in _ipairs(info.instancia.showing [info.atributo]._ActorTable) do
+				for index, actor in ipairs(info.instancia.showing [info.atributo]._ActorTable) do
 					if (actor.classe == class and actor ~= playerObject) then
 
 						local same_spells = 0
-						for spellid, _ in _pairs (actor.spells._ActorTable) do
+						for spellid, _ in _pairs(actor.spells._ActorTable) do
 							if (my_spells [spellid]) then
 								same_spells = same_spells + 1
 							end
 						end
 
-						local match_percentage = same_spells / max (my_spells_total, 0.000001) * 100
+						local match_percentage = same_spells / max(my_spells_total, 0.000001) * 100
 
 						if (match_percentage > 30) then
 							tinsert(tabOBject.players, actor)
@@ -4984,12 +4984,12 @@ function gump:CriaJanelaInfo()
 					tab:ClearAllPoints()
 
 					--get the button width
-					local buttonTemplate = gump:GetTemplate ("button", "DETAILS_TAB_BUTTON_TEMPLATE")
+					local buttonTemplate = gump:GetTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE")
 					local buttonWidth = buttonTemplate.width + 1
 
 					--pixelutil might not be compatible with classic wow
 					if (PixelUtil) then
-						PixelUtil.SetSize (tab, buttonTemplate.width, buttonTemplate.height)
+						PixelUtil.SetSize(tab, buttonTemplate.width, buttonTemplate.height)
 						if (tabsShown >= breakLine) then --next row of icons
 							PixelUtil.SetPoint (tab, "bottomright", info, "topright",  -514 + (buttonWidth * (secondRowIndex)), -50)
 							secondRowIndex = secondRowIndex + 1
@@ -5006,7 +5006,7 @@ function gump:CriaJanelaInfo()
 						end
 					end
 
-					tab:SetAlpha (0.8)
+					tab:SetAlpha(0.8)
 				else
 					tab.frame:Hide()
 					tab:Hide()
@@ -5023,7 +5023,7 @@ function gump:CriaJanelaInfo()
 
 		este_gump:SetScript("OnHide", function(self)
 			_detalhes:FechaJanelaInfo()
-			for _, tab in _ipairs(_detalhes.player_details_tabs) do
+			for _, tab in ipairs(_detalhes.player_details_tabs) do
 				tab:Hide()
 				tab.frame:Hide()
 			end
@@ -5044,14 +5044,14 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 	end
 
 	--create a button for the tab
-	local newTabButton = gump:CreateButton (info, onclick, 20, 20, nil, nil, nil, nil, nil, "DetailsPlayerBreakdownWindowTab" .. tabname)
-	newTabButton:SetTemplate ("DETAILS_TAB_BUTTON_TEMPLATE")
+	local newTabButton = gump:CreateButton(info, onclick, 20, 20, nil, nil, nil, nil, nil, "DetailsPlayerBreakdownWindowTab" .. tabname)
+	newTabButton:SetTemplate("DETAILS_TAB_BUTTON_TEMPLATE")
 	if (tabname == "Summary") then
-		newTabButton:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
+		newTabButton:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
 	end
 	newTabButton:SetText(localized_name)
 	newTabButton:SetFrameStrata("HIGH")
-	newTabButton:SetFrameLevel (info:GetFrameLevel()+1)
+	newTabButton:SetFrameLevel(info:GetFrameLevel()+1)
 	newTabButton:Hide()
 
 	newTabButton.condition = condition
@@ -5064,8 +5064,8 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 	newTabButton.frame = CreateFrame("frame", "DetailsPDWTabFrame" .. tabname, UIParent,"BackdropTemplate")
 	newTabButton.frame:SetParent(info)
 	newTabButton.frame:SetFrameStrata("HIGH")
-	newTabButton.frame:SetFrameLevel (info:GetFrameLevel()+5)
-	newTabButton.frame:EnableMouse (true)
+	newTabButton.frame:SetFrameLevel(info:GetFrameLevel()+5)
+	newTabButton.frame:EnableMouse(true)
 
 	if (iconSettings) then
 		local texture = iconSettings.texture
@@ -5077,7 +5077,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 
 		newTabButton:SetIcon (texture, width, height, "overlay", coords, overlay, textdistance, leftpadding, textheight, short_method)
 		if (iconSettings.desaturated) then
-			newTabButton.icon:SetDesaturated (true)
+			newTabButton.icon:SetDesaturated(true)
 		end
 	end
 
@@ -5121,12 +5121,12 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 		newTabButton.OnShowFunc = function(self)
 			self = self.MyObject or self
 
-			for _, tab in _ipairs(Details:GetBreakdownTabsInUse()) do
+			for _, tab in ipairs(Details:GetBreakdownTabsInUse()) do
 				tab.frame:Hide()
-				tab:SetTemplate ("DETAILS_TAB_BUTTON_TEMPLATE")
+				tab:SetTemplate("DETAILS_TAB_BUTTON_TEMPLATE")
 			end
 
-			self:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
+			self:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
 			self.frame:Show()
 			info.selectedTab = self.tabname
 		end
@@ -5137,19 +5137,19 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 		newTabButton.OnShowFunc = function(self)
 			self = self.MyObject or self
 
-			for _, tab in _ipairs(Details:GetBreakdownTabsInUse()) do
+			for _, tab in ipairs(Details:GetBreakdownTabsInUse()) do
 				tab.frame:Hide()
-				tab:SetTemplate ("DETAILS_TAB_BUTTON_TEMPLATE")
+				tab:SetTemplate("DETAILS_TAB_BUTTON_TEMPLATE")
 			end
 
-			self:SetTemplate ("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
+			self:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
 
 			info.selectedTab = self.tabname
 
 			--run onclick func
 			local result, errorText = pcall (self.onclick)
 			if (not result) then
-				print (errorText)
+				print(errorText)
 			end
 		end
 
@@ -5183,7 +5183,7 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 	local amt = _detalhes.report_lines
 
 	if (not player) then
-		_detalhes:Msg ("Player not found.")
+		_detalhes:Msg("Player not found.")
 		return
 	end
 
@@ -5204,7 +5204,7 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 
 		end
 
-		for index, barra in _ipairs(info.barras1) do
+		for index, barra in ipairs(info.barras1) do
 			if (barra:IsShown()) then
 				local spellid = barra.show
 				if (atributo == 1 and sub_atributo == 4) then --friendly fire
@@ -5228,13 +5228,13 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 	elseif (botao == 3) then --bot�o dos alvos
 
 		if (atributo == 1 and sub_atributo == 3) then
-			print (Loc ["STRING_ACTORFRAME_NOTHING"])
+			print(Loc ["STRING_ACTORFRAME_NOTHING"])
 			return
 		end
 
 		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTARGETS"] .. " " .. _detalhes.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome}
 
-		for index, barra in _ipairs(info.barras2) do
+		for index, barra in ipairs(info.barras2) do
 			if (barra:IsShown()) then
 				report_lines [#report_lines+1] = barra.lineText1:GetText().." -> ".. barra.lineText4:GetText()
 			end
@@ -5249,7 +5249,7 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 		     --dano                       --damage done                 --dps                                 --heal
 		if ((atributo == 1 and (sub_atributo == 1 or sub_atributo == 2)) or (atributo == 2)) then
 			if (not player.detalhes) then
-				print (Loc ["STRING_ACTORFRAME_NOTHING"])
+				print(Loc ["STRING_ACTORFRAME_NOTHING"])
 				return
 			end
 			local nome = _GetSpellInfo(player.detalhes)
@@ -5307,7 +5307,7 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 		elseif ( (atributo == 1 and sub_atributo == 3) or atributo == 3) then
 			if (player.detalhes) then
 				report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.detalhes.. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. player.nome}
-				for index, barra in _ipairs(info.barras3) do
+				for index, barra in ipairs(info.barras3) do
 					if (barra:IsShown()) then
 						report_lines [#report_lines+1] = barra.lineText1:GetText().." ....... ".. barra.lineText4:GetText()
 					end
@@ -5325,7 +5325,7 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 		botao =  botao - 10
 
 		local nome
-		if (_type(spellid) == "string") then
+		if (type(spellid) == "string") then
 			--is a pet
 		else
 			nome = _GetSpellInfo(player.detalhes)
@@ -5436,14 +5436,14 @@ local row_on_enter = function(self)
 		if (IsShiftKeyDown()) then
 			if (type(self.show) == "number") then
 				GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-				GameTooltip:AddLine (Loc ["ABILITY_ID"] .. ": " .. self.show)
+				GameTooltip:AddLine(Loc ["ABILITY_ID"] .. ": " .. self.show)
 				GameTooltip:Show()
 			end
 		end
 
 		if (self.show == 98021) then
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-			GameTooltip:AddLine (Loc ["STRING_SPIRIT_LINK_TOTEM_DESC"])
+			GameTooltip:AddLine(Loc ["STRING_SPIRIT_LINK_TOTEM_DESC"])
 			GameTooltip:Show()
 		end
 
@@ -5451,7 +5451,7 @@ local row_on_enter = function(self)
 		self.icone:SetWidth(CONST_BAR_HEIGHT + 2)
 		self.icone:SetHeight(CONST_BAR_HEIGHT + 2)
 		--poe a alfa do icone em 1.0
-		self.icone:SetAlpha (1)
+		self.icone:SetAlpha(1)
 
 		--mostrar temporariamente o conteudo da barra nas caixas de detalhes
 		if (not info.mostrando) then --n�o esta mostrando nada na direita
@@ -5491,7 +5491,7 @@ local row_on_leave = function(self)
 		self.icone:SetWidth(CONST_BAR_HEIGHT)
 		self.icone:SetHeight(CONST_BAR_HEIGHT)
 		--volta com a alfa antiga da barra
-		self.icone:SetAlpha (1)
+		self.icone:SetAlpha(1)
 
 		--remover o conte�do que estava sendo mostrado na direita
 		if (info.mostrando_mouse_over) then
@@ -5558,7 +5558,7 @@ local row_on_mouseup = function(self, button)
 
 				--clicou em outra barra
 				else --clicou em outra barra e trocou o foco
-					barra_antiga:SetAlpha (.9) --volta a alfa antiga
+					barra_antiga:SetAlpha(.9) --volta a alfa antiga
 
 					info.mostrando = self
 					info.showing = i
@@ -5566,7 +5566,7 @@ local row_on_mouseup = function(self, button)
 					info.jogador.detalhes = self.show
 					info.jogador:MontaDetalhes (self.show, self)
 
-					self:SetAlpha (1)
+					self:SetAlpha(1)
 					self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
 					self.on_focus = true
 					return
@@ -5575,7 +5575,7 @@ local row_on_mouseup = function(self, button)
 
 			--nao tinha barras pressionadas
 			info.mostrando_mouse_over = false
-			self:SetAlpha (1)
+			self:SetAlpha(1)
 			self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
 			self.on_focus = true
 		end
@@ -5641,7 +5641,7 @@ end
 
 local miniframe_func_on_enter = function(self)
 	local barra = self:GetParent()
-	if (barra.show and type (barra.show) == "number") then
+	if (barra.show and type(barra.show) == "number") then
 		local spellname = _GetSpellInfo(barra.show)
 		if (spellname) then
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
@@ -5661,7 +5661,7 @@ local target_on_enter = function(self)
 
 	local barra = self:GetParent():GetParent()
 
-	if (barra.show and type (barra.show) == "number") then
+	if (barra.show and type(barra.show) == "number") then
 		local actor = barra.other_actor or info.jogador
 		local spell = actor.spells and actor.spells:PegaHabilidade (barra.show)
 		if (spell) then
@@ -5688,8 +5688,8 @@ local target_on_enter = function(self)
 			end
 
 			--add and sort
-			for target_name, amount in _pairs (ActorTargetsContainer) do
-				--print (target_name, amount)
+			for target_name, amount in _pairs(ActorTargetsContainer) do
+				--print(target_name, amount)
 				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {target_name, amount or 0}
 				total = total + (amount or 0)
 			end
@@ -5698,9 +5698,9 @@ local target_on_enter = function(self)
 			local spellname = _GetSpellInfo(barra.show)
 
 			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-			GameTooltip:AddLine (barra.index .. ". " .. spellname)
-			GameTooltip:AddLine (info.target_text)
-			GameTooltip:AddLine (" ")
+			GameTooltip:AddLine(barra.index .. ". " .. spellname)
+			GameTooltip:AddLine(info.target_text)
+			GameTooltip:AddLine(" ")
 
 			--get time type
 			local meu_tempo
@@ -5737,8 +5737,8 @@ local target_on_enter = function(self)
 
 				GameCooltip:Show()
 
-				self.texture:SetAlpha (1)
-				self:SetAlpha (1)
+				self.texture:SetAlpha(1)
+				self:SetAlpha(1)
 				barra:GetScript("OnEnter")(barra)
 				return
 			else
@@ -5766,23 +5766,23 @@ local target_on_enter = function(self)
 			GameTooltip:Show()
 		else
 			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-			GameTooltip:AddLine (barra.index .. ". " .. barra.show)
-			GameTooltip:AddLine (info.target_text)
-			GameTooltip:AddLine (Loc ["STRING_NO_TARGET"], 1, 1, 1)
-			GameTooltip:AddLine (Loc ["STRING_MORE_INFO"], 1, 1, 1)
+			GameTooltip:AddLine(barra.index .. ". " .. barra.show)
+			GameTooltip:AddLine(info.target_text)
+			GameTooltip:AddLine(Loc ["STRING_NO_TARGET"], 1, 1, 1)
+			GameTooltip:AddLine(Loc ["STRING_MORE_INFO"], 1, 1, 1)
 			GameTooltip:Show()
 		end
 	else
 		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-		GameTooltip:AddLine (barra.index .. ". " .. barra.show)
-		GameTooltip:AddLine (info.target_text)
-		GameTooltip:AddLine (Loc ["STRING_NO_TARGET"], 1, 1, 1)
-		GameTooltip:AddLine (Loc ["STRING_MORE_INFO"], 1, 1, 1)
+		GameTooltip:AddLine(barra.index .. ". " .. barra.show)
+		GameTooltip:AddLine(info.target_text)
+		GameTooltip:AddLine(Loc ["STRING_NO_TARGET"], 1, 1, 1)
+		GameTooltip:AddLine(Loc ["STRING_MORE_INFO"], 1, 1, 1)
 		GameTooltip:Show()
 	end
 
-	self.texture:SetAlpha (1)
-	self:SetAlpha (1)
+	self.texture:SetAlpha(1)
+	self:SetAlpha(1)
 	barra:GetScript("OnEnter")(barra)
 end
 
@@ -5790,8 +5790,8 @@ local target_on_leave = function(self)
 	GameTooltip:Hide()
 	GameCooltip:Hide()
 	self:GetParent():GetParent():GetScript("OnLeave")(self:GetParent():GetParent())
-	self.texture:SetAlpha (.7)
-	self:SetAlpha (.7)
+	self.texture:SetAlpha(.7)
+	self:SetAlpha(.7)
 end
 
 
@@ -5858,7 +5858,7 @@ end
 function gump:CriaNovaBarraInfo2(instancia, index)
 
 	if (_detalhes.playerDetailWindow.barras2 [index]) then
-		print ("erro a barra "..index.." ja existe na janela de detalhes...")
+		print("erro a barra "..index.." ja existe na janela de detalhes...")
 		return
 	end
 
@@ -5873,9 +5873,9 @@ function gump:CriaNovaBarraInfo2(instancia, index)
 	esta_barra:SetPoint("LEFT", janela, "LEFT", CONST_TARGET_HEIGHT, 0)
 	esta_barra:SetPoint("RIGHT", janela, "RIGHT", 0, 0)
 	esta_barra:SetPoint("TOP", janela, "TOP", 0, y)
-	esta_barra:SetFrameLevel (janela:GetFrameLevel() + 1)
+	esta_barra:SetFrameLevel(janela:GetFrameLevel() + 1)
 
-	esta_barra:EnableMouse (true)
+	esta_barra:EnableMouse(true)
 	esta_barra:RegisterForClicks ("LeftButtonDown","RightButtonUp")
 
 	--icone
@@ -5904,7 +5904,7 @@ local y_start = -10
 function gump:CriaNovaBarraInfo3 (instancia, index)
 
 	if (_detalhes.playerDetailWindow.barras3 [index]) then
-		print ("erro a barra "..index.." ja existe na janela de detalhes...")
+		print("erro a barra "..index.." ja existe na janela de detalhes...")
 		return
 	end
 
@@ -5922,7 +5922,7 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 
 	container3_bars_pointFunc (esta_barra, index)
 
-	esta_barra:EnableMouse (true)
+	esta_barra:EnableMouse(true)
 
 	CriaTexturaBarra(esta_barra)
 
@@ -5932,8 +5932,8 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	esta_barra.icone:SetHeight(14)
 	esta_barra.icone:SetPoint("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 
-	esta_barra:SetAlpha (0.9)
-	esta_barra.icone:SetAlpha (1)
+	esta_barra:SetAlpha(0.9)
+	esta_barra.icone:SetAlpha(1)
 
 	esta_barra.isDetalhe = true
 
