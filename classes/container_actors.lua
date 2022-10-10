@@ -12,7 +12,7 @@
 
 	local _UnitClass = UnitClass --api local
 	local _IsInInstance = IsInInstance --api local
-	local _UnitGUID = UnitGUID --api local
+	local UnitGUID = UnitGUID --api local
 	local strsplit = strsplit --api local
 	
 	local _setmetatable = setmetatable --lua local
@@ -20,7 +20,7 @@
 	local _bit_band = bit.band --lua local
 	local _table_sort = table.sort --lua local
 	local ipairs = ipairs --lua local
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	
 	local AddUnique = DetailsFramework.table.addunique --framework
 	local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --framework
@@ -437,7 +437,7 @@
 	local follower_text_object = _G ["DetailsPetOwnerFinderTextLeft3"] --not in use
 
 	local find_pet_found_owner = function(ownerName, serial, nome, flag, self)
-		local ownerGuid = _UnitGUID(ownerName)
+		local ownerGuid = UnitGUID(ownerName)
 		if (ownerGuid) then
 			_detalhes.tabela_pets:Adicionar (serial, nome, flag, ownerGuid, ownerName, 0x00000417)
 			local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
@@ -483,7 +483,7 @@
 		local text1 = line1 and line1:GetText()
 		if (text1 and text1 ~= "") then
 			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
-			for playerName, _ in _pairs(_detalhes.tabela_vigente.raid_roster) do
+			for playerName, _ in pairs(_detalhes.tabela_vigente.raid_roster) do
 				local pName = playerName
 				playerName = playerName:gsub ("%-.*", "") --remove realm name
 
@@ -510,7 +510,7 @@
 		local line2 = _G ["DetailsPetOwnerFinderTextLeft3"]
 		local text2 = line2 and line2:GetText()
 		if (text2 and text2 ~= "") then
-			for playerName, _ in _pairs(_detalhes.tabela_vigente.raid_roster) do
+			for playerName, _ in pairs(_detalhes.tabela_vigente.raid_roster) do
 			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
 				local pName = playerName
 				playerName = playerName:gsub ("%-.*", "") --remove realm name

@@ -143,7 +143,7 @@ do
 	background:SetPoint("bottomright", 0, 0)
 	PluginDescPanel.background = background
 	
-	local icon, title, desc = PluginDescPanel:CreateTexture(nil, "overlay"), PluginDescPanel:CreateFontString (nil, "overlay", "GameFontNormal"), PluginDescPanel:CreateFontString (nil, "overlay", "GameFontNormal")
+	local icon, title, desc = PluginDescPanel:CreateTexture(nil, "overlay"), PluginDescPanel:CreateFontString(nil, "overlay", "GameFontNormal"), PluginDescPanel:CreateFontString(nil, "overlay", "GameFontNormal")
 	icon:SetPoint("topleft", 10, -10)
 	icon:SetSize(16, 16)
 	title:SetPoint("left", icon, "right", 2, 0)

@@ -194,7 +194,7 @@ function _detalhes:CreatePanicWarning()
 	_detalhes.instance_load_failed = CreateFrame("frame", "DetailsPanicWarningFrame", UIParent,"BackdropTemplate")
 	_detalhes.instance_load_failed:SetHeight(80)
 	--tinsert(UISpecialFrames, "DetailsPanicWarningFrame")
-	_detalhes.instance_load_failed.text = _detalhes.instance_load_failed:CreateFontString (nil, "overlay", "GameFontNormal")
+	_detalhes.instance_load_failed.text = _detalhes.instance_load_failed:CreateFontString(nil, "overlay", "GameFontNormal")
 	_detalhes.instance_load_failed.text:SetPoint("center", _detalhes.instance_load_failed, "center")
 	_detalhes.instance_load_failed.text:SetTextColor (1, 0.6, 0)
 	_detalhes.instance_load_failed:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -247,7 +247,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			--the key exist and is a table, check for missing values on sub tables
 			elseif (type(value) == "table") then
 				--deploy only copy non existing data
-				_detalhes.table.deploy (profile [key], value)
+				_detalhes.table.deploy(profile [key], value)
 			end
 		end
 		
@@ -740,7 +740,7 @@ local default_profile = {
 			0.125, -- [4]
 		},
 	},
-
+	
 	class_colors = {
 		["DEMONHUNTER"] = {
 			0.64,
@@ -846,9 +846,12 @@ local default_profile = {
 		},
 
 		["EVOKER"] = {
-			0.31764705882353, -- [1]
-			0.24313725490196, -- [2]
-			0.91372549019608, -- [3]
+			--0.31764705882353, -- [1]
+			--0.24313725490196, -- [2]
+			--0.91372549019608, -- [3]
+			0.2000,
+			0.4980,
+			0.5764,
 		},
 	},
 

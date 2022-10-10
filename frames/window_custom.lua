@@ -16,16 +16,16 @@
 	local _math_ceil = math.ceil --lua local
 	local _math_floor = math.floor --lua local
 	local ipairs = ipairs --lua local
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	local _string_lower = string.lower --lua local
 	local _table_sort = table.sort --lua local
-	local _table_insert = table.insert --lua local
+	local tinsert = table.insert --lua local
 	local _unpack = unpack --lua local
 	local _setmetatable = setmetatable --lua local
 
 	local _GetSpellInfo = _detalhes.getspellinfo --api local
 	local _CreateFrame = CreateFrame --api local
-	local _GetTime = GetTime --api local
+	local GetTime = GetTime --api local
 	local _GetCursorPosition = GetCursorPosition --api local
 	local _GameTooltip = GameTooltip --api local
 	local UIParent = UIParent --api local
@@ -1014,7 +1014,7 @@
 					button.icon:SetTexture([[Interface\AddOns\Details\images\custom_icones]])
 					button.icon:SetTexCoord (p*(i-1), p*(i), 0, 1)
 					
-					button.text = button:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+					button.text = button:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 					button.text:SetPoint("left", button.icon, "right", 4, 0)
 					button.text:SetText(attributes [i] and attributes [i].label or "")
 					button.text:SetTextColor (.9, .9, .9, 1)
@@ -1733,7 +1733,7 @@
 					local script = code_editor:GetText()
 					local func, errortext = loadstring (script)
 					if (not func) then
-						local firstLine = strsplit ("\n", script, 2)
+						local firstLine = strsplit("\n", script, 2)
 						errortext = errortext:gsub (firstLine, "")
 						errortext = errortext:gsub ("%[string \"", "")
 						errortext = errortext:gsub ("...\"]:", "")

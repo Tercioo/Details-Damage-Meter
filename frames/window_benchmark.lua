@@ -56,7 +56,7 @@ local libwindow = LibStub("LibWindow-1.1")
             f.Close:SetScript("OnClick", function() f:Hide() end)
             
             --title
-            f.Title = f.TitleBar:CreateFontString ("$parentTitle", "overlay", "GameFontNormal")
+            f.Title = f.TitleBar:CreateFontString("$parentTitle", "overlay", "GameFontNormal")
             f.Title:SetPoint("center", f.TitleBar, "center")
             f.Title:SetTextColor (.8, .8, .8, 1)
             f.Title:SetText("Details! Benchmark")

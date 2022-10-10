@@ -38,16 +38,16 @@ local create_deathrecap_line = function(parent, n)
 	
 	line:SetSize(300, 21)
 
-	local timeAt = line:CreateFontString (nil, "overlay", "GameFontNormal")
+	local timeAt = line:CreateFontString(nil, "overlay", "GameFontNormal")
 	local backgroundTexture = line:CreateTexture(nil, "border")
 	local backgroundTextureOverlay = line:CreateTexture(nil, "artwork")
 	local spellIcon = line:CreateTexture(nil, "overlay")
 	local spellIconBorder = line:CreateTexture(nil, "overlay")
 	spellIcon:SetDrawLayer ("overlay", 1)
 	spellIconBorder:SetDrawLayer ("overlay", 2)
-	local sourceName = line:CreateFontString (nil, "overlay", "GameFontNormal")
-	local amount = line:CreateFontString (nil, "overlay", "GameFontNormal")
-	local lifePercent = line:CreateFontString (nil, "overlay", "GameFontNormal")
+	local sourceName = line:CreateFontString(nil, "overlay", "GameFontNormal")
+	local amount = line:CreateFontString(nil, "overlay", "GameFontNormal")
+	local lifePercent = line:CreateFontString(nil, "overlay", "GameFontNormal")
 	local lifeStatusBar = line:CreateTexture(nil, "border", nil, -3)
 	
 	--grave icon
@@ -274,7 +274,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             segmentButton:SetSize(16, 20)
             segmentButton:SetPoint("topright", DeathRecapFrame, "topright", (-abs(i-6) * 22) - 10, -5)
             
-            local text = segmentButton:CreateFontString (nil, "overlay", "GameFontNormal")
+            local text = segmentButton:CreateFontString(nil, "overlay", "GameFontNormal")
             segmentButton.text = text
             text:SetText("#" .. i)
             text:SetPoint("center")

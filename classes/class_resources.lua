@@ -3,10 +3,10 @@
 local _cstr = string.format
 local _math_floor = math.floor
 local _table_sort = table.sort
-local _table_insert = table.insert
+local tinsert = table.insert
 local _setmetatable = setmetatable
 local ipairs = ipairs
-local _pairs = pairs
+local pairs = pairs
 local _rawget= rawget
 local _math_min = math.min
 local _math_max = math.max
@@ -16,8 +16,8 @@ local type = type
 --api locals
 local _GetSpellInfo = _detalhes.getspellinfo
 local GameTooltip = GameTooltip
-local _IsInRaid = IsInRaid
-local _IsInGroup = IsInGroup
+local IsInRaid = IsInRaid
+local IsInGroup = IsInGroup
 
 local _string_replace = _detalhes.string.replace --details api
 
@@ -507,7 +507,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	if (instancia.total_bar.enabled) then
 		use_total_bar = true
 		
-		if (instancia.total_bar.only_in_group and (not _IsInGroup() and not _IsInRaid())) then
+		if (instancia.total_bar.only_in_group and (not IsInGroup() and not IsInRaid())) then
 			use_total_bar = false
 		end
 	end
@@ -839,7 +839,7 @@ local reset_tooltips_table = function()
 		t[1], t[2], t[3] = "", 0, ""
 	end
 	
-	for k, v in _pairs(energy_tooltips_hash) do
+	for k, v in pairs(energy_tooltips_hash) do
 		energy_tooltips_hash [k] = nil
 	end
 end
@@ -867,7 +867,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	for index, actor in ipairs(container._ActorTable) do
 		if (actor.powertype == powertype) then
 		
-			for spellid, spell in _pairs(actor.spells._ActorTable) do
+			for spellid, spell in pairs(actor.spells._ActorTable) do
 				local on_self = spell.targets [name]
 				if (on_self) then
 					local already_tracked = energy_tooltips_hash [spellid]
@@ -1001,7 +1001,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	--player generators
 	local allGeneratorSpells = {}
 	local allGenerated = 0
-	for spellid, spellObject in _pairs(self.spells._ActorTable) do
+	for spellid, spellObject in pairs(self.spells._ActorTable) do
 		tinsert(allGeneratorSpells, {spellObject, spellObject.total, spellObject.totalover})
 		allGenerated = allGenerated + spellObject.total
 	end
@@ -1069,7 +1069,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 	for index, actor in ipairs(container._ActorTable) do
 		if (actor.powertype == powertype) then
 
-			for spellid, spell in _pairs(actor.spells._ActorTable) do
+			for spellid, spell in pairs(actor.spells._ActorTable) do
 				local on_self = spell.targets [my_name]
 
 				if (on_self) then
@@ -1320,7 +1320,7 @@ function atributo_energy:MontaTooltipAlvos (esta_barra, index)
 		--spells:
 		local i = 1
 		
-		for spellid, spell in _pairs(actor.spells._ActorTable) do
+		for spellid, spell in pairs(actor.spells._ActorTable) do
 			local on_self = spell.targets [my_name]
 			if (on_self) then
 				local t = energy_tooltips_table [i]
@@ -1423,15 +1423,15 @@ end
 				end
 			
 			--targets
-				for target_name, amount in _pairs(actor.targets) do 
+				for target_name, amount in pairs(actor.targets) do 
 					shadow.targets [target_name] = 0
 				end
 			
 			--spells
-				for spellid, habilidade in _pairs(actor.spells._ActorTable) do 
+				for spellid, habilidade in pairs(actor.spells._ActorTable) do 
 					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, "SPELL_ENERGY", false)
 					--spell targets
-					for target_name, amount in _pairs(habilidade.targets) do 
+					for target_name, amount in pairs(habilidade.targets) do 
 						habilidade_shadow.targets [target_name] = 0
 					end
 				end
@@ -1496,12 +1496,12 @@ end
 				end
 
 			--targets
-				for target_name, amount in _pairs(actor.targets) do 
+				for target_name, amount in pairs(actor.targets) do 
 					shadow.targets [target_name] = (shadow.targets [target_name] or 0) + amount
 				end
 			
 			--spells
-				for spellid, habilidade in _pairs(actor.spells._ActorTable) do 
+				for spellid, habilidade in pairs(actor.spells._ActorTable) do 
 
 					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, "SPELL_ENERGY", false)
 					
@@ -1509,7 +1509,7 @@ end
 					habilidade_shadow.counter = habilidade_shadow.counter + habilidade.counter
 					
 					--spell targets
-					for target_name, amount in _pairs(habilidade.targets) do 
+					for target_name, amount in pairs(habilidade.targets) do 
 						habilidade_shadow.targets [target_name] = (habilidade_shadow.targets [target_name] or 0) + amount
 					end
 
@@ -1558,12 +1558,12 @@ atributo_energy.__add = function(tabela1, tabela2)
 		tabela1.alternatepower = tabela1.alternatepower + tabela2.alternatepower
 	
 	--targets
-		for target_name, amount in _pairs(tabela2.targets) do 
+		for target_name, amount in pairs(tabela2.targets) do 
 			tabela1.targets [target_name] = (tabela1.targets [target_name] or 0) + amount
 		end
 	
 	--spells
-		for spellid, habilidade in _pairs(tabela2.spells._ActorTable) do 
+		for spellid, habilidade in pairs(tabela2.spells._ActorTable) do 
 
 			local habilidade_tabela1 = tabela1.spells:PegaHabilidade (spellid, true, "SPELL_ENERGY", false)
 			
@@ -1571,7 +1571,7 @@ atributo_energy.__add = function(tabela1, tabela2)
 			habilidade_tabela1.counter = habilidade_tabela1.counter + habilidade.counter
 			
 			--spell targets
-			for target_name, amount in _pairs(habilidade.targets) do 
+			for target_name, amount in pairs(habilidade.targets) do 
 				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
 			end
 
@@ -1596,14 +1596,14 @@ atributo_energy.__sub = function(tabela1, tabela2)
 		tabela1.alternatepower = tabela1.alternatepower - tabela2.alternatepower
 	
 	--targets
-		for target_name, amount in _pairs(tabela2.targets) do 
+		for target_name, amount in pairs(tabela2.targets) do 
 			if (tabela1.targets [target_name]) then
 				tabela1.targets [target_name] = tabela1.targets [target_name] - amount
 			end
 		end
 	
 	--spells
-		for spellid, habilidade in _pairs(tabela2.spells._ActorTable) do 
+		for spellid, habilidade in pairs(tabela2.spells._ActorTable) do 
 
 			local habilidade_tabela1 = tabela1.spells:PegaHabilidade (spellid, true, "SPELL_ENERGY", false)
 			
@@ -1611,7 +1611,7 @@ atributo_energy.__sub = function(tabela1, tabela2)
 			habilidade_tabela1.counter = habilidade_tabela1.counter - habilidade.counter
 			
 			--spell targets
-			for target_name, amount in _pairs(habilidade.targets) do 
+			for target_name, amount in pairs(habilidade.targets) do 
 				if (habilidade_tabela1.targets [target_name]) then
 					habilidade_tabela1.targets [target_name] = habilidade_tabela1.targets [target_name] - amount
 				end

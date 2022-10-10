@@ -10,11 +10,11 @@ local _
 --local _string_len = string.len
 local _math_floor = math.floor
 local ipairs = ipairs
-local _pairs = pairs
+local pairs = pairs
 local type = type
 --api locals
 local _CreateFrame = CreateFrame
-local _GetTime = GetTime
+local GetTime = GetTime
 local _GetSpellInfo = _detalhes.getspellinfo
 local _GetCursorPosition = GetCursorPosition
 local _unpack = unpack
@@ -619,12 +619,12 @@ function gump:CriaDetalheInfo (index)
 	info.bg:SetValue(100)
 	info.bg:SetSize(320, 47)
 
-	info.nome = info.bg:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-	info.nome2 = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano_porcento = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano_media = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano_dps = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+	info.nome = info.bg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	info.nome2 = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	info.dano = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	info.dano_porcento = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	info.dano_media = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	info.dano_dps = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
 	info.bg.overlay = info.bg:CreateTexture("DetailsPlayerDetailsWindow_DetalheInfoBG_Overlay" .. index, "ARTWORK")
 	info.bg.overlay:SetTexture("Interface\\AddOns\\Details\\images\\overlay_detalhes")
@@ -815,19 +815,19 @@ end
 --cria os textos em geral da janela info
 ------------------------------------------------------------------------------------------------------------------------------
 local function cria_textos (este_gump, SWW)
-	este_gump.nome = este_gump:CreateFontString (nil, "OVERLAY", "QuestFont_Large")
+	este_gump.nome = este_gump:CreateFontString(nil, "OVERLAY", "QuestFont_Large")
 	este_gump.nome:SetPoint("TOPLEFT", este_gump, "TOPLEFT", 105, -54)
 
-	este_gump.atributo_nome = este_gump:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+	este_gump.atributo_nome = este_gump:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
-	este_gump.targets = SWW:CreateFontString (nil, "OVERLAY", "QuestFont_Large")
+	este_gump.targets = SWW:CreateFontString(nil, "OVERLAY", "QuestFont_Large")
 	este_gump.targets:SetPoint("TOPLEFT", este_gump, "TOPLEFT", 24, -273)
 	este_gump.targets:SetText(Loc ["STRING_TARGETS"] .. ":")
 
 	este_gump.avatar = este_gump:CreateTexture(nil, "overlay")
 	este_gump.avatar_bg = este_gump:CreateTexture(nil, "overlay")
-	este_gump.avatar_attribute = este_gump:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	este_gump.avatar_nick = este_gump:CreateFontString (nil, "overlay", "QuestFont_Large")
+	este_gump.avatar_attribute = este_gump:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+	este_gump.avatar_nick = este_gump:CreateFontString(nil, "overlay", "QuestFont_Large")
 	este_gump.avatar:SetDrawLayer ("overlay", 3)
 	este_gump.avatar_bg:SetDrawLayer ("overlay", 2)
 	este_gump.avatar_nick:SetDrawLayer ("overlay", 4)
@@ -1728,12 +1728,12 @@ function gump:CriaJanelaInfo()
 	este_gump.apoio_icone_direito:SetHeight(13)
 
 
-	este_gump.topright_text1 = este_gump:CreateFontString (nil, "overlay", "GameFontNormal")
+	este_gump.topright_text1 = este_gump:CreateFontString(nil, "overlay", "GameFontNormal")
 	este_gump.topright_text1:SetPoint("bottomright", este_gump, "topright",  -18 - (94 * (1-1)), -36)
 	este_gump.topright_text1:SetJustifyH("right")
 	_detalhes.gump:SetFontSize (este_gump.topright_text1, 10)
 
-	este_gump.topright_text2 = este_gump:CreateFontString (nil, "overlay", "GameFontNormal")
+	este_gump.topright_text2 = este_gump:CreateFontString(nil, "overlay", "GameFontNormal")
 	este_gump.topright_text2:SetPoint("bottomright", este_gump, "topright",  -18 - (94 * (1-1)), -48)
 	este_gump.topright_text2:SetJustifyH("right")
 	_detalhes.gump:SetFontSize (este_gump.topright_text2, 10)
@@ -1811,7 +1811,7 @@ function gump:CriaJanelaInfo()
 		este_gump.no_targets:SetTexCoord (0.015625, 1, 0.01171875, 0.390625)
 		este_gump.no_targets:SetDesaturated(true)
 		este_gump.no_targets:SetAlpha(.7)
-		este_gump.no_targets.text = SWW:CreateFontString (nil, "overlay", "GameFontNormal")
+		este_gump.no_targets.text = SWW:CreateFontString(nil, "overlay", "GameFontNormal")
 		este_gump.no_targets.text:SetPoint("center", este_gump.no_targets, "center")
 		este_gump.no_targets.text:SetText(Loc ["STRING_NO_TARGET_BOX"])
 		este_gump.no_targets.text:SetTextColor (1, 1, 1, .4)
@@ -1959,7 +1959,7 @@ function gump:CriaJanelaInfo()
 		local avoidance_create = function(tab, frame)
 
 		--Percent Desc
-			local percent_desc = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			local percent_desc = frame:CreateFontString(nil, "artwork", "GameFontNormal")
 			percent_desc:SetText("Percent values are comparisons with the previous try.")
 			percent_desc:SetPoint("bottomleft", frame, "bottomleft", 13, 13 + PLAYER_DETAILS_STATUSBAR_HEIGHT)
 			percent_desc:SetTextColor (.5, .5, .5, 1)
@@ -1974,19 +1974,19 @@ function gump:CriaJanelaInfo()
 			local y = -5
 			local padding = 16
 
-			local summary_text = summaryBox:CreateFontString (nil, "artwork", "GameFontNormal")
+			local summary_text = summaryBox:CreateFontString(nil, "artwork", "GameFontNormal")
 			summary_text:SetText("Summary")
 			summary_text :SetPoint("topleft", summaryBox, "topleft", 5, y)
 
 			y = y - padding
 
 			--total damage received
-			local damagereceived = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local damagereceived = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			damagereceived:SetPoint("topleft", summaryBox, "topleft", 15, y)
 			damagereceived:SetText("Total Damage Taken:") --localize-me
 			damagereceived:SetTextColor (.8, .8, .8, 1)
 
-			local damagereceived_amt = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local damagereceived_amt = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			damagereceived_amt:SetPoint("left", damagereceived,  "right", 2, 0)
 			damagereceived_amt:SetText("0")
 			tab.damagereceived = damagereceived_amt
@@ -1994,11 +1994,11 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--per second
-			local damagepersecond = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local damagepersecond = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			damagepersecond:SetPoint("topleft", summaryBox, "topleft", 20, y)
 			damagepersecond:SetText("Per Second:") --localize-me
 
-			local damagepersecond_amt = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local damagepersecond_amt = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			damagepersecond_amt:SetPoint("left", damagepersecond,  "right", 2, 0)
 			damagepersecond_amt:SetText("0")
 			tab.damagepersecond = damagepersecond_amt
@@ -2006,12 +2006,12 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--total absorbs
-			local absorbstotal = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local absorbstotal = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			absorbstotal:SetPoint("topleft", summaryBox, "topleft", 15, y)
 			absorbstotal:SetText("Total Absorbs:") --localize-me
 			absorbstotal:SetTextColor (.8, .8, .8, 1)
 
-			local absorbstotal_amt = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local absorbstotal_amt = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			absorbstotal_amt:SetPoint("left", absorbstotal,  "right", 2, 0)
 			absorbstotal_amt:SetText("0")
 			tab.absorbstotal = absorbstotal_amt
@@ -2019,11 +2019,11 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--per second
-			local absorbstotalpersecond = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local absorbstotalpersecond = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			absorbstotalpersecond:SetPoint("topleft", summaryBox, "topleft", 20, y)
 			absorbstotalpersecond:SetText("Per Second:") --localize-me
 
-			local absorbstotalpersecond_amt = summaryBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local absorbstotalpersecond_amt = summaryBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			absorbstotalpersecond_amt:SetPoint("left", absorbstotalpersecond,  "right", 2, 0)
 			absorbstotalpersecond_amt:SetText("0")
 			tab.absorbstotalpersecond = absorbstotalpersecond_amt
@@ -2038,29 +2038,29 @@ function gump:CriaJanelaInfo()
 			meleeBox:SetPoint("topleft", summaryBox, "bottomleft", 0, -5)
 			meleeBox:SetSize(200, 160)
 
-			local melee_text = meleeBox:CreateFontString (nil, "artwork", "GameFontNormal")
+			local melee_text = meleeBox:CreateFontString(nil, "artwork", "GameFontNormal")
 			melee_text:SetText("Melee")
 			melee_text :SetPoint("topleft", meleeBox, "topleft", 5, y)
 
 			y = y - padding
 
 			--dodge
-			local dodge = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local dodge = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			dodge:SetPoint("topleft", meleeBox, "topleft", 15, y)
 			dodge:SetText("Dodge:") --localize-me
 			dodge:SetTextColor (.8, .8, .8, 1)
-			local dodge_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local dodge_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			dodge_amt:SetPoint("left", dodge,  "right", 2, 0)
 			dodge_amt:SetText("0")
 			tab.dodge = dodge_amt
 
 			y = y - padding
 
-			local dodgepersecond = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local dodgepersecond = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			dodgepersecond:SetPoint("topleft", meleeBox, "topleft", 20, y)
 			dodgepersecond:SetText("Per Second:") --localize-me
 
-			local dodgepersecond_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local dodgepersecond_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			dodgepersecond_amt:SetPoint("left", dodgepersecond,  "right", 2, 0)
 			dodgepersecond_amt:SetText("0")
 			tab.dodgepersecond = dodgepersecond_amt
@@ -2068,21 +2068,21 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			-- parry
-			local parry = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local parry = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			parry:SetPoint("topleft", meleeBox, "topleft", 15, y)
 			parry:SetText("Parry:") --localize-me
 			parry:SetTextColor (.8, .8, .8, 1)
-			local parry_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local parry_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			parry_amt:SetPoint("left", parry,  "right", 2, 0)
 			parry_amt:SetText("0")
 			tab.parry = parry_amt
 
 			y = y - padding
 
-			local parrypersecond = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local parrypersecond = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			parrypersecond:SetPoint("topleft", meleeBox, "topleft", 20, y)
 			parrypersecond:SetText("Per Second:") --localize-me
-			local parrypersecond_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local parrypersecond_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			parrypersecond_amt:SetPoint("left", parrypersecond,  "right", 2, 0)
 			parrypersecond_amt:SetText("0")
 			tab.parrypersecond = parrypersecond_amt
@@ -2090,31 +2090,31 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			-- block
-			local block = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local block = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			block:SetPoint("topleft", meleeBox, "topleft", 15, y)
 			block:SetText("Block:") --localize-me
 			block:SetTextColor (.8, .8, .8, 1)
-			local block_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local block_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			block_amt:SetPoint("left", block,  "right", 2, 0)
 			block_amt:SetText("0")
 			tab.block = block_amt
 
 			y = y - padding
 
-			local blockpersecond = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local blockpersecond = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			blockpersecond:SetPoint("topleft", meleeBox, "topleft", 20, y)
 			blockpersecond:SetText("Per Second:") --localize-me
-			local blockpersecond_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local blockpersecond_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			blockpersecond_amt:SetPoint("left", blockpersecond,  "right", 2, 0)
 			blockpersecond_amt:SetText("0")
 			tab.blockpersecond = blockpersecond_amt
 
 			y = y - padding
 
-			local blockeddamage = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local blockeddamage = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			blockeddamage:SetPoint("topleft", meleeBox, "topleft", 20, y)
 			blockeddamage:SetText("Damage Blocked:") --localize-me
-			local blockeddamage_amt = meleeBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local blockeddamage_amt = meleeBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			blockeddamage_amt:SetPoint("left", blockeddamage,  "right", 2, 0)
 			blockeddamage_amt:SetText("0")
 			tab.blockeddamage_amt = blockeddamage_amt
@@ -2129,18 +2129,18 @@ function gump:CriaJanelaInfo()
 			absorbsBox:SetPoint("topleft", summaryBox, "topright", 10, 0)
 			absorbsBox:SetSize(200, 160)
 
-			local absorb_text = absorbsBox:CreateFontString (nil, "artwork", "GameFontNormal")
+			local absorb_text = absorbsBox:CreateFontString(nil, "artwork", "GameFontNormal")
 			absorb_text:SetText("Absorb")
 			absorb_text :SetPoint("topleft", absorbsBox, "topleft", 5, y)
 
 			y = y - padding
 
 			--full absorbs
-			local fullsbsorbed = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local fullsbsorbed = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			fullsbsorbed:SetPoint("topleft", absorbsBox, "topleft", 20, y)
 			fullsbsorbed:SetText("Full Absorbs:") --localize-me
 			fullsbsorbed:SetTextColor (.8, .8, .8, 1)
-			local fullsbsorbed_amt = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local fullsbsorbed_amt = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			fullsbsorbed_amt:SetPoint("left", fullsbsorbed,  "right", 2, 0)
 			fullsbsorbed_amt:SetText("0")
 			tab.fullsbsorbed = fullsbsorbed_amt
@@ -2148,11 +2148,11 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--partially absorbs
-			local partiallyabsorbed = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local partiallyabsorbed = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			partiallyabsorbed:SetPoint("topleft", absorbsBox, "topleft", 20, y)
 			partiallyabsorbed:SetText("Partially Absorbed:") --localize-me
 			partiallyabsorbed:SetTextColor (.8, .8, .8, 1)
-			local partiallyabsorbed_amt = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local partiallyabsorbed_amt = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			partiallyabsorbed_amt:SetPoint("left", partiallyabsorbed,  "right", 2, 0)
 			partiallyabsorbed_amt:SetText("0")
 			tab.partiallyabsorbed = partiallyabsorbed_amt
@@ -2160,10 +2160,10 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--partially absorbs per second
-			local partiallyabsorbedpersecond = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local partiallyabsorbedpersecond = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			partiallyabsorbedpersecond:SetPoint("topleft", absorbsBox, "topleft", 25, y)
 			partiallyabsorbedpersecond:SetText("Average:") --localize-me
-			local partiallyabsorbedpersecond_amt = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local partiallyabsorbedpersecond_amt = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			partiallyabsorbedpersecond_amt:SetPoint("left", partiallyabsorbedpersecond,  "right", 2, 0)
 			partiallyabsorbedpersecond_amt:SetText("0")
 			tab.partiallyabsorbedpersecond = partiallyabsorbedpersecond_amt
@@ -2171,11 +2171,11 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--no absorbs
-			local noabsorbs = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local noabsorbs = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			noabsorbs:SetPoint("topleft", absorbsBox, "topleft", 20, y)
 			noabsorbs:SetText("No Absorption:") --localize-me
 			noabsorbs:SetTextColor (.8, .8, .8, 1)
-			local noabsorbs_amt = absorbsBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local noabsorbs_amt = absorbsBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			noabsorbs_amt:SetPoint("left", noabsorbs,  "right", 2, 0)
 			noabsorbs_amt:SetText("0")
 			tab.noabsorbs = noabsorbs_amt
@@ -2190,18 +2190,18 @@ function gump:CriaJanelaInfo()
 			healingBox:SetPoint("topleft", absorbsBox, "bottomleft", 0, -5)
 			healingBox:SetSize(200, 160)
 
-			local healing_text = healingBox:CreateFontString (nil, "artwork", "GameFontNormal")
+			local healing_text = healingBox:CreateFontString(nil, "artwork", "GameFontNormal")
 			healing_text:SetText("Healing")
 			healing_text :SetPoint("topleft", healingBox, "topleft", 5, y)
 
 			y = y - padding
 
 			--self healing
-			local selfhealing = healingBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local selfhealing = healingBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			selfhealing:SetPoint("topleft", healingBox, "topleft", 20, y)
 			selfhealing:SetText("Self Healing:") --localize-me
 			selfhealing:SetTextColor (.8, .8, .8, 1)
-			local selfhealing_amt = healingBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local selfhealing_amt = healingBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			selfhealing_amt:SetPoint("left", selfhealing,  "right", 2, 0)
 			selfhealing_amt:SetText("0")
 			tab.selfhealing = selfhealing_amt
@@ -2209,10 +2209,10 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			--self healing per second
-			local selfhealingpersecond = healingBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local selfhealingpersecond = healingBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			selfhealingpersecond:SetPoint("topleft", healingBox, "topleft", 25, y)
 			selfhealingpersecond:SetText("Per Second:") --localize-me
-			local selfhealingpersecond_amt = healingBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			local selfhealingpersecond_amt = healingBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 			selfhealingpersecond_amt:SetPoint("left", selfhealingpersecond,  "right", 2, 0)
 			selfhealingpersecond_amt:SetText("0")
 			tab.selfhealingpersecond = selfhealingpersecond_amt
@@ -2220,11 +2220,11 @@ function gump:CriaJanelaInfo()
 			y = y - padding
 
 			for i = 1, 5 do
-				local healer = healingBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				local healer = healingBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 				healer:SetPoint("topleft", healingBox, "topleft", 20, y + ((i-1)*15)*-1)
 				healer:SetText("healer name:") --localize-me
 				healer:SetTextColor (.8, .8, .8, 1)
-				local healer_amt = healingBox:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				local healer_amt = healingBox:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 				healer_amt:SetPoint("left", healer,  "right", 2, 0)
 				healer_amt:SetText("0")
 				tab ["healer" .. i] = {healer, healer_amt}
@@ -2242,7 +2242,7 @@ function gump:CriaJanelaInfo()
 			spellsBox:SetPoint("topleft", absorbsBox, "topright", 10, 0)
 			spellsBox:SetSize(346, 160 * 2 + 5)
 
-			local spells_text = spellsBox:CreateFontString (nil, "artwork", "GameFontNormal")
+			local spells_text = spellsBox:CreateFontString(nil, "artwork", "GameFontNormal")
 			spells_text:SetText("Spells")
 			spells_text :SetPoint("topleft", spellsBox, "topleft", 5, y)
 
@@ -2279,12 +2279,12 @@ function gump:CriaJanelaInfo()
 				icon:SetSize(14, 14)
 				icon:SetPoint("left", frame_tooltip, "left")
 
-				local spell = frame_tooltip:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				local spell = frame_tooltip:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 				spell:SetPoint("left", icon, "right", 2, 0)
 				spell:SetText("spell name:") --localize-me
 				spell:SetTextColor (.8, .8, .8, 1)
 
-				local spell_amt = frame_tooltip:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				local spell_amt = frame_tooltip:CreateFontString(nil, "artwork", "GameFontHighlightSmall")
 				spell_amt:SetPoint("left", spell,  "right", 2, 0)
 				spell_amt:SetText("0")
 
@@ -2738,10 +2738,10 @@ function gump:CriaJanelaInfo()
 
 			local icon = line:CreateTexture("$parentIcon", "overlay")
 			icon:SetSize(scroll_line_height -2 , scroll_line_height - 2)
-			local name = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
-			local uptime = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
-			local apply = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
-			local refresh = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
+			local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+			local uptime = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+			local apply = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+			local refresh = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
 
 			--local waButton = DF:CreateButton(line, wa_button, 18, 18)
 			--waButton:SetIcon ([[Interface\AddOns\WeakAuras\Media\Textures\icon]])
@@ -3020,7 +3020,7 @@ function gump:CriaJanelaInfo()
 			if (player_2) then
 				local player_2_target = player_2.targets
 				player_2_target_pool = {}
-				for target_name, amount in _pairs(player_2_target) do
+				for target_name, amount in pairs(player_2_target) do
 					player_2_target_pool [#player_2_target_pool+1] = {target_name, amount}
 				end
 				table.sort (player_2_target_pool, _detalhes.Sort2)
@@ -3039,7 +3039,7 @@ function gump:CriaJanelaInfo()
 			if (player_3) then
 				local player_3_target = player_3.targets
 				player_3_target_pool = {}
-				for target_name, amount in _pairs(player_3_target) do
+				for target_name, amount in pairs(player_3_target) do
 					player_3_target_pool [#player_3_target_pool+1] = {target_name, amount}
 				end
 				table.sort (player_3_target_pool, _detalhes.Sort2)
@@ -3253,7 +3253,7 @@ function gump:CriaJanelaInfo()
 
 			--main player skills
 			local spells_sorted = {}
-			for spellid, spelltable in _pairs(player.spells._ActorTable) do
+			for spellid, spelltable in pairs(player.spells._ActorTable) do
 				spells_sorted [#spells_sorted+1] = {spelltable, spelltable.total}
 			end
 
@@ -3261,7 +3261,7 @@ function gump:CriaJanelaInfo()
 			for petIndex, petName in ipairs(player:Pets()) do
 				local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
 				if (petActor) then
-					for _spellid, _skill in _pairs(petActor:GetActorSpells()) do
+					for _spellid, _skill in pairs(petActor:GetActorSpells()) do
 						spells_sorted [#spells_sorted+1] = {_skill, _skill.total, petName}
 					end
 				end
@@ -3289,14 +3289,14 @@ function gump:CriaJanelaInfo()
 				player_2_spells_sorted = {}
 
 				--player 2 spells
-				for spellid, spelltable in _pairs(other_players [1].spells._ActorTable) do
+				for spellid, spelltable in pairs(other_players [1].spells._ActorTable) do
 					player_2_spells_sorted [#player_2_spells_sorted+1] = {spelltable, spelltable.total}
 				end
 				--player 2 pets
 				for petIndex, petName in ipairs(other_players [1]:Pets()) do
 					local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
 					if (petActor) then
-						for _spellid, _skill in _pairs(petActor:GetActorSpells()) do
+						for _spellid, _skill in pairs(petActor:GetActorSpells()) do
 							player_2_spells_sorted [#player_2_spells_sorted+1] = {_skill, _skill.total, petName}
 						end
 					end
@@ -3331,14 +3331,14 @@ function gump:CriaJanelaInfo()
 
 				if (other_players [2]) then
 					--player 3 spells
-					for spellid, spelltable in _pairs(other_players [2].spells._ActorTable) do
+					for spellid, spelltable in pairs(other_players [2].spells._ActorTable) do
 						player_3_spells_sorted [#player_3_spells_sorted+1] = {spelltable, spelltable.total}
 					end
 					--player 3 pets
 					for petIndex, petName in ipairs(other_players [2]:Pets()) do
 						local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
 						if (petActor) then
-							for _spellid, _skill in _pairs(petActor:GetActorSpells()) do
+							for _spellid, _skill in pairs(petActor:GetActorSpells()) do
 								player_3_spells_sorted [#player_3_spells_sorted+1] = {_skill, _skill.total, petName}
 							end
 						end
@@ -3594,7 +3594,7 @@ function gump:CriaJanelaInfo()
 			--player 1 targets
 			local my_targets = self.tab.player.targets
 			local target_pool = {}
-			for target_name, amount in _pairs(my_targets) do
+			for target_name, amount in pairs(my_targets) do
 				target_pool [#target_pool+1] = {target_name, amount}
 			end
 			table.sort (target_pool, _detalhes.Sort2)
@@ -3668,8 +3668,8 @@ function gump:CriaJanelaInfo()
 
 			-- player 1
 			local player_1_skills = {}
-			for spellid, spell in _pairs(player_1.spells._ActorTable) do
-				for name, amount in _pairs(spell.targets) do
+			for spellid, spell in pairs(player_1.spells._ActorTable) do
+				for name, amount in pairs(spell.targets) do
 					if (name == target_name) then
 						player_1_skills [#player_1_skills+1] = {spellid, amount}
 					end
@@ -3684,8 +3684,8 @@ function gump:CriaJanelaInfo()
 			local player_2_skills = {}
 			local player_2_top
 			if (player_2) then
-				for spellid, spell in _pairs(player_2.spells._ActorTable) do
-					for name, amount in _pairs(spell.targets) do
+				for spellid, spell in pairs(player_2.spells._ActorTable) do
+					for name, amount in pairs(spell.targets) do
 						if (name == target_name) then
 							player_2_skills [#player_2_skills+1] = {spellid, amount}
 						end
@@ -3700,8 +3700,8 @@ function gump:CriaJanelaInfo()
 			local player_3_skills = {}
 			local player_3_top
 			if (player_3) then
-				for spellid, spell in _pairs(player_3.spells._ActorTable) do
-					for name, amount in _pairs(spell.targets) do
+				for spellid, spell in pairs(player_3.spells._ActorTable) do
+					for name, amount in pairs(spell.targets) do
 						if (name == target_name) then
 							player_3_skills [#player_3_skills+1] = {spellid, amount}
 						end
@@ -3969,7 +3969,7 @@ function gump:CriaJanelaInfo()
 					else
 						local spellname = GetSpellInfo(spellid)
 						local extra_search_found
-						for casted_spellid, amount in _pairs(player1_misc.spell_cast or {}) do
+						for casted_spellid, amount in pairs(player1_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo(casted_spellid)
 							if (casted_spellname == spellname) then
 								frame1.tooltip.casts_label3:SetText(amount)
@@ -4133,7 +4133,7 @@ function gump:CriaJanelaInfo()
 					local amt_casts = player2_misc.spell_cast and player2_misc.spell_cast [spellid]
 					if (not amt_casts) then
 						local spellname = GetSpellInfo(spellid)
-						for casted_spellid, amount in _pairs(player2_misc.spell_cast or {}) do
+						for casted_spellid, amount in pairs(player2_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo(casted_spellid)
 							if (casted_spellname == spellname) then
 								amt_casts = amount
@@ -4310,7 +4310,7 @@ function gump:CriaJanelaInfo()
 					local amt_casts = player3_misc.spell_cast and player3_misc.spell_cast [spellid]
 					if (not amt_casts) then
 						local spellname = GetSpellInfo(spellid)
-						for casted_spellid, amount in _pairs(player3_misc.spell_cast or {}) do
+						for casted_spellid, amount in pairs(player3_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo(casted_spellid)
 							if (casted_spellname == spellname) then
 								amt_casts = amount
@@ -4418,7 +4418,7 @@ function gump:CriaJanelaInfo()
 					bar:SetScript("OnLeave", on_leave)
 				end
 
-				bar.lefttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+				bar.lefttext = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
 				local _, size, flags = bar.lefttext:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
@@ -4435,7 +4435,7 @@ function gump:CriaJanelaInfo()
 					bar.lefttext:SetWidth(110)
 				end
 
-				bar.righttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+				bar.righttext = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
 				local _, size, flags = bar.righttext:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
@@ -4445,7 +4445,7 @@ function gump:CriaJanelaInfo()
 				bar.righttext:SetJustifyH("right")
 				bar.righttext:SetTextColor (1, 1, 1, 1)
 
-				bar.righttext2 = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+				bar.righttext2 = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
 				local _, size, flags = bar.righttext2:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
@@ -4479,67 +4479,67 @@ function gump:CriaJanelaInfo()
 				background:SetPoint("topleft", tooltip, "topleft", 0, 0)
 				background:SetPoint("bottomright", tooltip, "bottomright", 0, 0)
 
-				tooltip.casts_label = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.casts_label = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.casts_label:SetPoint("topleft", tooltip, "topleft", x_start, -2 + (y*0))
 				tooltip.casts_label:SetText("Total Casts:")
 				tooltip.casts_label:SetJustifyH("left")
-				tooltip.casts_label2 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.casts_label2 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.casts_label2:SetPoint("topright", tooltip, "topright", -x_start, -2 + (y*0))
 				tooltip.casts_label2:SetText("0")
 				tooltip.casts_label2:SetJustifyH("right")
-				tooltip.casts_label3 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.casts_label3 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.casts_label3:SetPoint("topright", tooltip, "topright", -x_start - 46, -2 + (y*0))
 				tooltip.casts_label3:SetText("0")
 				tooltip.casts_label3:SetJustifyH("right")
 
-				tooltip.hits_label = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.hits_label = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.hits_label:SetPoint("topleft", tooltip, "topleft", x_start, -14 + (y*1))
 				tooltip.hits_label:SetText("Total Hits:")
 				tooltip.hits_label:SetJustifyH("left")
-				tooltip.hits_label2 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.hits_label2 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.hits_label2:SetPoint("topright", tooltip, "topright", -x_start, -14 + (y*1))
 				tooltip.hits_label2:SetText("0")
 				tooltip.hits_label2:SetJustifyH("right")
-				tooltip.hits_label3 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.hits_label3 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.hits_label3:SetPoint("topright", tooltip, "topright", -x_start - 46, -14 + (y*1))
 				tooltip.hits_label3:SetText("0")
 				tooltip.hits_label3:SetJustifyH("right")
 
-				tooltip.average_label = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.average_label = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.average_label:SetPoint("topleft", tooltip, "topleft", x_start, -26 + (y*2))
 				tooltip.average_label:SetText("Average:")
 				tooltip.average_label:SetJustifyH("left")
-				tooltip.average_label2 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.average_label2 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.average_label2:SetPoint("topright", tooltip, "topright", -x_start, -26 + (y*2))
 				tooltip.average_label2:SetText("0")
 				tooltip.average_label2:SetJustifyH("right")
-				tooltip.average_label3 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.average_label3 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.average_label3:SetPoint("topright", tooltip, "topright", -x_start - 46, -26 + (y*2))
 				tooltip.average_label3:SetText("0")
 				tooltip.average_label3:SetJustifyH("right")
 
-				tooltip.crit_label = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.crit_label = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.crit_label:SetPoint("topleft", tooltip, "topleft", x_start, -38 + (y*3))
 				tooltip.crit_label:SetText("Critical:")
 				tooltip.crit_label:SetJustifyH("left")
-				tooltip.crit_label2 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.crit_label2 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.crit_label2:SetPoint("topright", tooltip, "topright", -x_start, -38 + (y*3))
 				tooltip.crit_label2:SetText("0")
 				tooltip.crit_label2:SetJustifyH("right")
-				tooltip.crit_label3 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.crit_label3 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.crit_label3:SetPoint("topright", tooltip, "topright", -x_start - 46, -38 + (y*3))
 				tooltip.crit_label3:SetText("0")
 				tooltip.crit_label3:SetJustifyH("right")
 
-				tooltip.uptime_label = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.uptime_label = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.uptime_label:SetPoint("topleft", tooltip, "topleft", x_start, -50 + (y*4))
 				tooltip.uptime_label:SetText("Uptime:")
 				tooltip.uptime_label:SetJustifyH("left")
-				tooltip.uptime_label2 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.uptime_label2 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.uptime_label2:SetPoint("topright", tooltip, "topright", -x_start, -50 + (y*4))
 				tooltip.uptime_label2:SetText("0")
 				tooltip.uptime_label2:SetJustifyH("right")
-				tooltip.uptime_label3 = tooltip:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tooltip.uptime_label3 = tooltip:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 				tooltip.uptime_label3:SetPoint("topright", tooltip, "topright", -x_start - 46, -50 + (y*4))
 				tooltip.uptime_label3:SetText("0")
 				tooltip.uptime_label3:SetJustifyH("right")
@@ -4617,7 +4617,7 @@ function gump:CriaJanelaInfo()
 					bar:SetHeight(14)
 					bar.icon = spellicon
 
-					bar.lefttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+					bar.lefttext = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 					local _, size, flags = bar.lefttext:GetFont()
 					local font = SharedMedia:Fetch ("font", "Arial Narrow")
 					bar.lefttext:SetFont (font, 11)
@@ -4633,7 +4633,7 @@ function gump:CriaJanelaInfo()
 						bar.lefttext:SetWidth(80)
 					end
 
-					bar.righttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+					bar.righttext = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 					local _, size, flags = bar.righttext:GetFont()
 					local font = SharedMedia:Fetch ("font", "Arial Narrow")
 					bar.righttext:SetFont (font, 11)
@@ -4641,7 +4641,7 @@ function gump:CriaJanelaInfo()
 					bar.righttext:SetJustifyH("right")
 					bar.righttext:SetTextColor (1, 1, 1, 1)
 
-					bar.righttext2 = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+					bar.righttext2 = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 					local _, size, flags = bar.righttext2:GetFont()
 					local font = SharedMedia:Fetch ("font", "Arial Narrow")
 					bar.righttext2:SetFont (font, 11)
@@ -4693,7 +4693,7 @@ function gump:CriaJanelaInfo()
 			frame1.tooltip = create_tooltip ("DetailsPlayerComparisonBox1Tooltip")
 			frame1.tooltip:SetWidth(spell_compare_frame_width[1])
 
-			local playername1 = frame1:CreateFontString (nil, "overlay", "GameFontNormal")
+			local playername1 = frame1:CreateFontString(nil, "overlay", "GameFontNormal")
 			playername1:SetPoint("bottomleft", frame1, "topleft", 2, 0)
 			playername1:SetText("Player 1")
 			frame1.name_label = playername1
@@ -4745,17 +4745,17 @@ function gump:CriaJanelaInfo()
 			frame2.tooltip = create_tooltip ("DetailsPlayerComparisonBox2Tooltip")
 			frame2.tooltip:SetWidth(spell_compare_frame_width[2])
 
-			local playername2 = frame2:CreateFontString (nil, "overlay", "GameFontNormal")
+			local playername2 = frame2:CreateFontString(nil, "overlay", "GameFontNormal")
 			playername2:SetPoint("bottomleft", frame2, "topleft", 2, 0)
 			playername2:SetText("Player 2")
 			frame2.name_label = playername2
 
-			local playername2_percent = frame2:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			local playername2_percent = frame2:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			playername2_percent:SetPoint("bottomright", frame2, "topright", -2, 0)
 			playername2_percent:SetText("Player 1 %")
 			playername2_percent:SetTextColor (.6, .6, .6)
 
-			local noPLayersToShow = frame2:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			local noPLayersToShow = frame2:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			noPLayersToShow:SetPoint("center")
 			noPLayersToShow:SetText("There's no more players to compare (with the same class/spec)")
 			noPLayersToShow:SetSize(spell_compare_frame_width[2] - 10, spell_compare_frame_height)
@@ -4807,19 +4807,19 @@ function gump:CriaJanelaInfo()
 			frame3.tooltip = create_tooltip ("DetailsPlayerComparisonBox3Tooltip")
 			frame3.tooltip:SetWidth(spell_compare_frame_width[3])
 
-			local playername3 = frame3:CreateFontString (nil, "overlay", "GameFontNormal")
+			local playername3 = frame3:CreateFontString(nil, "overlay", "GameFontNormal")
 			playername3:SetPoint("bottomleft", frame3, "topleft", 2, 0)
 			playername3:SetText("Player 3")
 			frame3.name_label = playername3
 
-			local playername3_percent = frame3:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			local playername3_percent = frame3:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			playername3_percent:SetPoint("bottomright", frame3, "topright", -2, 0)
 			playername3_percent:SetText("Player 1 %")
 			playername3_percent:SetTextColor (.6, .6, .6)
 			frame3.name_label_percent = playername3_percent
 
 
-			local noPLayersToShow = frame3:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			local noPLayersToShow = frame3:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			noPLayersToShow:SetPoint("center")
 			noPLayersToShow:SetText("There's no more players to compare (with the same class/spec)")
 			noPLayersToShow:SetSize(spell_compare_frame_width[2] - 10, spell_compare_frame_height)
@@ -4877,7 +4877,7 @@ function gump:CriaJanelaInfo()
 				local my_spells = {}
 				local my_spells_total = 0
 				--build my spell list
-				for spellid, _ in _pairs(playerObject.spells._ActorTable) do
+				for spellid, _ in pairs(playerObject.spells._ActorTable) do
 					my_spells [spellid] = true
 					my_spells_total = my_spells_total + 1
 				end
@@ -4894,7 +4894,7 @@ function gump:CriaJanelaInfo()
 					if (actor.classe == class and actor ~= playerObject) then
 
 						local same_spells = 0
-						for spellid, _ in _pairs(actor.spells._ActorTable) do
+						for spellid, _ in pairs(actor.spells._ActorTable) do
 							if (my_spells [spellid]) then
 								same_spells = same_spells + 1
 							end
@@ -5513,7 +5513,7 @@ local row_on_mousedown = function(self, button)
 		return
 	end
 
-	self.mouse_down = _GetTime()
+	self.mouse_down = GetTime()
 	local x, y = _GetCursorPosition()
 	self.x = _math_floor(x)
 	self.y = _math_floor(y)
@@ -5540,7 +5540,7 @@ local row_on_mouseup = function(self, button)
 	local x, y = _GetCursorPosition()
 	x = _math_floor(x)
 	y = _math_floor(y)
-	if ((self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
+	if ((self.mouse_down+0.4 > GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		--setar os textos
 
 		if (self.isMain) then --se n�o for uma barra de alvo
@@ -5688,7 +5688,7 @@ local target_on_enter = function(self)
 			end
 
 			--add and sort
-			for target_name, amount in _pairs(ActorTargetsContainer) do
+			for target_name, amount in pairs(ActorTargetsContainer) do
 				--print(target_name, amount)
 				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {target_name, amount or 0}
 				total = total + (amount or 0)

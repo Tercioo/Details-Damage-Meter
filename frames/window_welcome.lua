@@ -65,7 +65,7 @@ function _detalhes:OpenWelcomeWindow()
 		cancel:GetNormalTexture():SetDesaturated(true)
 		cancel:Disable()
 		
-		local cancelText = cancel:CreateFontString (nil, "overlay", "GameFontNormal")
+		local cancelText = cancel:CreateFontString(nil, "overlay", "GameFontNormal")
 		cancelText:SetTextColor (1, 1, 1)
 		cancelText:SetPoint("left", cancel, "right", 2, 0)
 		cancelText:SetText(Loc ["STRING_WELCOME_69"])
@@ -243,7 +243,7 @@ local window_openned_at = time()
 		angel:SetHeight(256)
 		angel:SetAlpha(.2)
 		
-		local texto1 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto1 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto1:SetPoint("topleft", window, "topleft", 13, -220)
 		texto1:SetText(Loc ["STRING_WELCOME_1"])
 		texto1:SetJustifyH("left")
@@ -265,11 +265,11 @@ local window_openned_at = time()
 		bg55:SetAlpha(.05)
 		bg55:SetTexCoord (1, 0, 0, 1)
 
-		local texto55 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto55 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto55:SetPoint("topleft", window, "topleft", 20, -80)
 		texto55:SetText(Loc ["STRING_WELCOME_42"])
 
-		local texto555 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto555 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto555:SetText(Loc ["STRING_WELCOME_45"])
 		texto555:SetTextColor (1, 1, 1, 1)
 		
@@ -278,7 +278,7 @@ local window_openned_at = time()
 		window.changemind55Label:SetPoint("bottom", window, "bottom", 0, 19)
 		window.changemind55Label.align = "|"
 		
-		local texto_appearance = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_appearance = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_appearance:SetPoint("topleft", window, "topleft", 30, -110)
 		texto_appearance:SetText(Loc ["STRING_WELCOME_43"])
 		texto_appearance:SetWidth(460)
@@ -329,7 +329,7 @@ local window_openned_at = time()
 
 		--alphabet selection
 		
-			local texto_alphabet = window:CreateFontString (nil, "overlay", "GameFontNormal")
+			local texto_alphabet = window:CreateFontString(nil, "overlay", "GameFontNormal")
 			texto_alphabet:SetPoint("topleft", window, "topleft", 30, -110)
 			texto_alphabet:SetText(Loc ["STRING_WELCOME_73"]) --"Select the Alphabet or Region:"
 			texto_alphabet:SetJustifyH("left")
@@ -704,7 +704,7 @@ local window_openned_at = time()
 		window.changemindNumeralLabel:SetPoint("bottom", window, "bottom", 0, 19)
 		window.changemindNumeralLabel.align = "|"
 
-		local texto2Numeral = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto2Numeral = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto2Numeral:SetPoint("topleft", window, "topleft", 20, -80)
 		texto2Numeral:SetText(Loc ["STRING_NUMERALSYSTEM_DESC"] .. ":")
 		
@@ -757,7 +757,7 @@ local window_openned_at = time()
 		thedude2:SetTexCoord (0, 1, 0, 1)
 		thedude2:SetDrawLayer ("overlay", 3)
 		
-		local NumeralType1_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local NumeralType1_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		NumeralType1_text:SetText("1K = 1.000 |cFFFFCC00| |r10K = 10.000 |cFFFFCC00| |r100K = 100.000 |cFFFFCC00| |r1M = 1.000.000")
 		NumeralType1_text:SetWidth(500)
 		NumeralType1_text:SetHeight(40)
@@ -766,7 +766,7 @@ local window_openned_at = time()
 		NumeralType1_text:SetTextColor (.8, .8, .8, 1)
 		NumeralType1_text:SetPoint("topleft", window, "topleft", 40, -150)
 		
-		local NumeralType2_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local NumeralType2_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		
 		
 		local asian1K, asian10K, asian1B = _detalhes.gump:GetAsianNumberSymbols()
@@ -823,7 +823,7 @@ local window_openned_at = time()
 		window.changemind2Label:SetPoint("bottom", window, "bottom", 0, 19)
 		window.changemind2Label.align = "|"
 
-		local texto2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto2 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto2:SetPoint("topleft", window, "topleft", 20, -80)
 		texto2:SetText(Loc ["STRING_WELCOME_3"])
 		
@@ -876,7 +876,7 @@ local window_openned_at = time()
 		thedude:SetTexCoord (0, 1, 0, 1)
 		thedude:SetDrawLayer ("overlay", 3)
 		
-		local chronometer_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local chronometer_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		chronometer_text:SetText(Loc ["STRING_WELCOME_6"])
 		chronometer_text:SetWidth(360)
 		chronometer_text:SetHeight(40)
@@ -885,7 +885,7 @@ local window_openned_at = time()
 		chronometer_text:SetTextColor (.8, .8, .8, 1)
 		chronometer_text:SetPoint("topleft", window.ChronometerLabel.widget, "topright", 20, 0)
 		
-		local continuous_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local continuous_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		continuous_text:SetText(Loc ["STRING_WELCOME_7"])
 		continuous_text:SetWidth(340)
 		continuous_text:SetHeight(40)
@@ -902,7 +902,7 @@ local window_openned_at = time()
 			continuous:SetValue(true)
 		end
 
-		local pleasewait = window:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		local pleasewait = window:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 		pleasewait:SetPoint("bottomright", forward, "topright")
 		
 		local free_frame3 = CreateFrame("frame", nil, window)
@@ -963,11 +963,11 @@ local window_openned_at = time()
 		window.changemind4Label:SetPoint("bottom", window, "bottom", 0, 19)
 		window.changemind4Label.align = "|"
 
-		local texto4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto4 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto4:SetPoint("topleft", window, "topleft", 20, -80)
 		texto4:SetText(Loc ["STRING_WELCOME_41"])
 		
-		local interval_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local interval_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		interval_text:SetText(Loc ["STRING_WELCOME_12"])
 		interval_text:SetWidth(460)
 		interval_text:SetHeight(40)
@@ -976,7 +976,7 @@ local window_openned_at = time()
 		interval_text:SetTextColor (1, 1, 1, .9)
 		interval_text:SetPoint("topleft", window, "topleft", 30, -110)
 		
-		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local dance_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		dance_text:SetText("") --loc removed
 		dance_text:SetWidth(460)
 		dance_text:SetHeight(40)
@@ -1125,11 +1125,11 @@ local window_openned_at = time()
 		bg6:SetAlpha(.1)
 		bg6:SetTexCoord (1, 0, 0, 1)
 
-		local texto5 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto5 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto5:SetPoint("topleft", window, "topleft", 20, -80)
 		texto5:SetText(Loc ["STRING_WELCOME_26"])
 		
-		local texto_stretch = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_stretch = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_stretch:SetPoint("topleft", window, "topleft", 181, -105)
 		texto_stretch:SetText(Loc ["STRING_WELCOME_27"])
 		texto_stretch:SetWidth(310)
@@ -1183,11 +1183,11 @@ local window_openned_at = time()
 		bg6:SetAlpha(.1)
 		bg6:SetTexCoord (1, 0, 0, 1)
 
-		local texto6 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto6 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto6:SetPoint("topleft", window, "topleft", 20, -80)
 		texto6:SetText(Loc ["STRING_WELCOME_28"])
 		
-		local texto_instance_button = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_instance_button = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_instance_button:SetPoint("topleft", window, "topleft", 25, -105)
 		texto_instance_button:SetText(Loc ["STRING_WELCOME_29"])
 		texto_instance_button:SetWidth(270)
@@ -1239,11 +1239,11 @@ local window_openned_at = time()
 		bg7:SetAlpha(.1)
 		bg7:SetTexCoord (1, 0, 0, 1)
 
-		local texto7 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto7 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto7:SetPoint("topleft", window, "topleft", 20, -80)
 		texto7:SetText(Loc ["STRING_WELCOME_30"])
 		
-		local texto_shortcut = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_shortcut = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_shortcut:SetPoint("topleft", window, "topleft", 25, -105)
 		texto_shortcut:SetText(Loc ["STRING_WELCOME_31"])
 		texto_shortcut:SetWidth(290)
@@ -1274,7 +1274,7 @@ local window_openned_at = time()
 		local desc_anchor_bottomleft = _detalhes.gump:NewImage (bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.2724609375, 0.19921875, 0.783203125, 0.6796875}, "descAnchorTopLeftImage", "$parentDescAnchorTopLeftImage") --204 696 279 802
 		desc_anchor_bottomleft:SetPoint("bottomright", bookmark_frame, "bottomright", 5, -5)
 		
-		local bmf_string = bookmark_frame:CreateFontString ("overlay", nil, "GameFontNormal")
+		local bmf_string = bookmark_frame:CreateFontString("overlay", nil, "GameFontNormal")
 		bmf_string:SetPoint("center", bookmark_frame, "center")
 		bmf_string:SetText(Loc ["STRING_WELCOME_65"])
 		
@@ -1308,11 +1308,11 @@ local window_openned_at = time()
 		bg77:SetAlpha(.1)
 		bg77:SetTexCoord (1, 0, 0, 1)
 
-		local texto77 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto77 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto77:SetPoint("topleft", window, "topleft", 20, -80)
 		texto77:SetText(Loc ["STRING_WELCOME_32"])
 		
-		local texto_snap = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_snap = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_snap:SetPoint("topleft", window, "topleft", 25, -101)
 		texto_snap:SetText(Loc ["STRING_WELCOME_66"])
 		texto_snap:SetWidth(160)
@@ -1354,11 +1354,11 @@ local window_openned_at = time()
 		bg88:SetAlpha(.1)
 		bg88:SetTexCoord (1, 0, 0, 1)
 
-		local texto88 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto88 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto88:SetPoint("topleft", window, "topleft", 20, -80)
 		texto88:SetText(Loc ["STRING_WELCOME_34"])
 
-		local texto_micro_display = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_micro_display = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_micro_display:SetPoint("topleft", window, "topleft", 25, -101)
 		texto_micro_display:SetText(Loc ["STRING_WELCOME_67"])
 		texto_micro_display:SetWidth(300)
@@ -1477,11 +1477,11 @@ local window_openned_at = time()
 		bg11:SetAlpha(.1)
 		bg11:SetTexCoord (1, 0, 0, 1)
 
-		local texto11 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto11 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto11:SetPoint("topleft", window, "topleft", 20, -80)
 		texto11:SetText(Loc ["STRING_WELCOME_36"])
 
-		local texto_plugins = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto_plugins = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto_plugins:SetPoint("topleft", window, "topleft", 25, -101)
 		texto_plugins:SetText(Loc ["STRING_WELCOME_68"])
 		texto_plugins:SetWidth(220)
@@ -1516,11 +1516,11 @@ local window_openned_at = time()
 		bg8:SetAlpha(.1)
 		bg8:SetTexCoord (1, 0, 0, 1)
 
-		local texto8 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto8 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto8:SetPoint("topleft", window, "topleft", 20, -80)
 		texto8:SetText(Loc ["STRING_WELCOME_38"])
 		
-		local texto = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		local texto = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto:SetPoint("topleft", window, "topleft", 25, -110)
 		texto:SetText(Loc ["STRING_WELCOME_39"])
 		texto:SetWidth(410)

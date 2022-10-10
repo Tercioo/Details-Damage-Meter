@@ -1377,7 +1377,7 @@ local create_storage_tables = function()
 end
 
 function _detalhes.ScheduleLoadStorage()
-	if (InCombatLockdown() or UnitAffectingCombat ("player")) then
+	if (InCombatLockdown() or UnitAffectingCombat("player")) then
 		if (_detalhes.debug) then
 			print("|cFFFFFF00Details! storage scheduled to load (player in combat).")
 		end
@@ -1421,7 +1421,7 @@ function _detalhes.OpenStorage()
 	--check if the storage is already loaded
 	if (not IsAddOnLoaded ("Details_DataStorage")) then
 		--can't open it during combat
-		if (InCombatLockdown() or UnitAffectingCombat ("player")) then
+		if (InCombatLockdown() or UnitAffectingCombat("player")) then
 			if (_detalhes.debug) then
 				print("|cFFFFFF00Details! Storage|r: can't load storage due to combat.")
 			end
@@ -2045,7 +2045,7 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 	end
 
 	--ddouble check
-	if (not is_forced and (UnitAffectingCombat ("player") or InCombatLockdown())) then
+	if (not is_forced and (UnitAffectingCombat("player") or InCombatLockdown())) then
 		return
 	end
 

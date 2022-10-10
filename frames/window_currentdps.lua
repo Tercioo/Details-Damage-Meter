@@ -464,7 +464,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			rightOrnamentTexture:SetAlpha(0.6)
 
 	--title bar
-		local TitleString = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		local TitleString = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		TitleString:SetPoint("top", f, "top", 0, -5)
 		TitleString:SetText("Details! Arena Real Time DPS Tracker")
 		DF:SetFontSize (TitleString, 9)
@@ -498,12 +498,12 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		end
 
 	--labels for mythic dungeon / group party
-		local labelGroupDamage = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		local labelGroupDamage = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		labelGroupDamage:SetText("Real Time Group DPS")
 		DF:SetFontSize (labelGroupDamage, 14)
 		DF:SetFontOutline (labelGroupDamage, "NONE")
 		
-		local labelGroupDamage_DPS = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		local labelGroupDamage_DPS = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		labelGroupDamage_DPS:SetText("0")
 		
 		labelGroupDamage:SetPoint("center", f, "center", 0, 10)

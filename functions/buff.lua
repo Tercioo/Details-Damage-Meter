@@ -20,7 +20,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	local ipairs = ipairs --lua local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -29,14 +29,14 @@
 	--return if the buff is already registred or not
 	function _detalhes.Buffs:IsRegistred (buff)
 		if (type(buff) == "number") then
-			for _, buffObject in _pairs(_detalhes.Buffs.BuffsTable) do 
+			for _, buffObject in pairs(_detalhes.Buffs.BuffsTable) do 
 				if (buffObject.id == buff) then
 					return true
 				end
 			end
 			return false
 		elseif (type(buff) == "string") then
-			for name, _ in _pairs(_detalhes.Buffs.BuffsTable) do 
+			for name, _ in pairs(_detalhes.Buffs.BuffsTable) do 
 				if (name == buff) then
 					return true
 				end
@@ -70,7 +70,7 @@
 	--return a list of registred buffs
 	function _detalhes.Buffs:GetBuffList()
 		local list = {}
-		for name, _ in _pairs(_detalhes.Buffs.BuffsTable) do 
+		for name, _ in pairs(_detalhes.Buffs.BuffsTable) do 
 			list [#list+1] = name
 		end
 		return list
@@ -79,7 +79,7 @@
 	--return a list of registred buffs ids
 	function _detalhes.Buffs:GetBuffListIds()
 		local list = {}
-		for name, buffObject in _pairs(_detalhes.Buffs.BuffsTable) do 
+		for name, buffObject in pairs(_detalhes.Buffs.BuffsTable) do 
 			list [#list+1] = buffObject.id
 		end
 		return list
@@ -153,7 +153,7 @@
 			_detalhes.Buffs:BuildTables()
 		end
 		
-		for _, BuffTable in _pairs(_detalhes.Buffs.BuffsTable) do 
+		for _, BuffTable in pairs(_detalhes.Buffs.BuffsTable) do 
 			if (BuffTable.active) then
 				BuffTable.start = _detalhes._tempo
 				BuffTable.castedAmt = 1
@@ -180,7 +180,7 @@
 				end
 				
 				--[[
-				for index, BuffName in _pairs(_detalhes.SoloTables.BuffsTableNameCache) do
+				for index, BuffName in pairs(_detalhes.SoloTables.BuffsTableNameCache) do
 					if (BuffName == name) then
 						local BuffObject = _detalhes.SoloTables.SoloBuffUptime [name]
 						if (not BuffObject) then

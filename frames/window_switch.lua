@@ -188,7 +188,7 @@ do
 		texture_highlight_frame.texture = button.texture
 		texture_highlight_frame.MainFrame = button
 		
-		button.text = button:CreateFontString (nil, "overlay", "GameFontNormal")
+		button.text = button:CreateFontString(nil, "overlay", "GameFontNormal")
 		button.text:SetPoint("left", button.texture, "right", 2, 0)
 		button.attribute = attribute
 		button.sub_attribute = sub_attribute
@@ -225,7 +225,7 @@ do
 				title_icon:SetTexture(texture)
 				title_icon:SetTexCoord (l, r, t, b)
 				title_icon:SetSize(18, 18)
-				local title_str = allDisplaysFrame:CreateFontString (nil, "overlay", "GameFontNormal")
+				local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 				title_str:SetPoint("left", title_icon, "right", 2, 0)
 				title_str:SetText(loc_attribute_name)
 				
@@ -266,7 +266,7 @@ do
 			title_icon:SetTexCoord(412/512, 441/512, 43/512, 79/512)
 			title_icon:SetVertexColor(.7, .6, .5, 1)
 			title_icon:SetSize(16, 16)
-			local title_str = allDisplaysFrame:CreateFontString (nil, "overlay", "GameFontNormal")
+			local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 			title_str:SetPoint("left", title_icon, "right", 2, 0)
 			title_str:SetText("Scripts")
 			

@@ -189,7 +189,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     local rotation = DF:CreateAnimation(animationHub, "ROTATION", 1, 3, -360)
                     rotation:SetTarget (f.SyncTextureCircle)
 
-                    f.SyncText = workingFrame:CreateFontString (nil, "border", "GameFontNormal")
+                    f.SyncText = workingFrame:CreateFontString(nil, "border", "GameFontNormal")
                     f.SyncText:SetPoint("right", f.SyncTextureBackground, "left", 0, 0)
                     f.SyncText:SetText("working")
 

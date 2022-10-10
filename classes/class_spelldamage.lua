@@ -6,7 +6,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 	local ipairs = ipairs--lua local
-	local _pairs =  pairs--lua local
+	local pairs =  pairs--lua local
 	local _UnitAura = UnitAura--api local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@
 					
 				else
 
-					for BuffName, _ in _pairs(_detalhes.Buffs.BuffsTable) do
+					for BuffName, _ in pairs(_detalhes.Buffs.BuffsTable) do
 						local name = _UnitAura ("player", BuffName)
 						if (name ~= nil) then
 							local buff_info = SpellBuffDetails [name] or {["counter"] = 0, ["total"] = 0, ["critico"] = 0, ["critico_dano"] = 0}

@@ -6,13 +6,13 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 	local _
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	local ipairs = ipairs --lua local
 	local _rawget = rawget --lua local
 	local _setmetatable = setmetatable --lua local
 	local _table_remove = table.remove --lua local
 	local _bit_band = bit.band --lua local
-	local _table_wipe = table.wipe --lua local
+	local wipe = table.wipe --lua local
 	local _time = time --lua local
 	
 	local _InCombatLockdown = InCombatLockdown --wow api local
@@ -743,7 +743,7 @@
 
 	--desativado 7.2.5 veio com algum bug e a checagem de memoria esta sendo feita durante o combate
 	function _detalhes:CheckMemoryAfterCombat()
-		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat("player")) then
 			_detalhes.next_memory_check = time()+_detalhes.intervalo_memoria
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")
@@ -754,7 +754,7 @@
 	end
 	
 	function _detalhes:CheckMemoryPeriodically()
-		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat and not UnitAffectingCombat ("player")) then
+		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat and not UnitAffectingCombat("player")) then
 			_detalhes.next_memory_check = time() + _detalhes.intervalo_memoria - 3
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")
@@ -841,7 +841,7 @@
 		_detalhes:ResetSpecCache()
 		
 		--wipa container de escudos
-		_table_wipe(_detalhes.escudos)
+		wipe(_detalhes.escudos)
 
 		_detalhes.ultima_coleta = _detalhes._tempo
 

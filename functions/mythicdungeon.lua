@@ -434,7 +434,7 @@ function DetailsMythicPlusFrame.BossDefeated (this_is_end_end, encounterID, enco
         DetailsMythicPlusFrame.TrashMergeScheduled = segmentsToMerge
 
         --there's no more script run too long
-        --if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+        --if (not InCombatLockdown() and not UnitAffectingCombat("player")) then
             if (DetailsMythicPlusFrame.DevelopmentDebug) then
                 print("Details!", "BossDefeated() > not in combat, merging trash now")
             end
@@ -560,7 +560,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished (fromZoneLeft)
                 DetailsMythicPlusFrame.TrashMergeScheduled2_OverallCombat = latestTrashOverall
 
                 --there's no more script ran too long
-                --if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+                --if (not InCombatLockdown() and not UnitAffectingCombat("player")) then
                     if (DetailsMythicPlusFrame.DevelopmentDebug) then
                         print("Details!", "MythicDungeonFinished() > not in combat, merging last pack of trash now")
                     end
@@ -577,7 +577,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished (fromZoneLeft)
 
         --merge segments
         if (_detalhes.mythic_plus.make_overall_when_done and not Details.MythicPlus.IsRestoredState and not fromZoneLeft) then
-            --if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+            --if (not InCombatLockdown() and not UnitAffectingCombat("player")) then
                 if (DetailsMythicPlusFrame.DevelopmentDebug) then
                     print("Details!", "MythicDungeonFinished() > not in combat, creating overall segment now")
                 end

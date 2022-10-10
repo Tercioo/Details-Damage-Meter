@@ -7,7 +7,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 
-	local _pairs = pairs --lua locals
+	local pairs = pairs --lua locals
 	local _math_floor = math.floor --lua locals
 
 	local _UnitAura = UnitAura
@@ -276,7 +276,7 @@
 			return
 		end
 		
-		for SpellId, DebuffTable in _pairs(SoloDebuffUptime) do
+		for SpellId, DebuffTable in pairs(SoloDebuffUptime) do
 			if (DebuffTable.start) then
 				DebuffTable.duration = DebuffTable.duration + (_detalhes._tempo - DebuffTable.start) --time do parser ser� igual ao time()?
 				DebuffTable.start = nil
@@ -290,7 +290,7 @@
 		--reset bufftables
 		_detalhes.SoloTables.SoloBuffUptime = _detalhes.SoloTables.SoloBuffUptime or {}
 		
-		for spellname, BuffTable in _pairs(_detalhes.SoloTables.SoloBuffUptime) do
+		for spellname, BuffTable in pairs(_detalhes.SoloTables.SoloBuffUptime) do
 			--local BuffEntryTable = _detalhes.SoloTables.BuffTextEntry [BuffTable.tableIndex]
 			
 			if (BuffTable.Active) then
@@ -314,7 +314,7 @@
 		for buffIndex = 1, 41 do
 			local name = _UnitAura ("player", buffIndex)
 			if (name) then
-				for index, BuffName in _pairs(_detalhes.SoloTables.BuffsTableNameCache) do
+				for index, BuffName in pairs(_detalhes.SoloTables.BuffsTableNameCache) do
 					if (BuffName == name) then
 						local BuffObject = _detalhes.SoloTables.SoloBuffUptime [name]
 						if (not BuffObject) then

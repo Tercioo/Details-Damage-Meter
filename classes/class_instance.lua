@@ -4,7 +4,7 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local type= type  --lua local
 local ipairs = ipairs --lua local
-local _pairs = pairs --lua local
+local pairs = pairs --lua local
 local _math_floor = math.floor --lua local
 local abs = math.abs --lua local
 local _table_remove = table.remove --lua local
@@ -755,7 +755,7 @@ end
 		--break snaps of previous and next window
 		local left_instance = _detalhes:GetInstance(id-1)
 		if (left_instance) then
-			for snap_side, instance_id in _pairs(left_instance.snap) do
+			for snap_side, instance_id in pairs(left_instance.snap) do
 				if (instance_id == id) then --snap na proxima instancia
 					left_instance.snap [snap_side] = nil
 				end
@@ -763,7 +763,7 @@ end
 		end
 		local right_instance = _detalhes:GetInstance(id+1)
 		if (right_instance) then
-			for snap_side, instance_id in _pairs(right_instance.snap) do
+			for snap_side, instance_id in pairs(right_instance.snap) do
 				if (instance_id == id) then --snap na proxima instancia
 					right_instance.snap [snap_side] = nil
 				end
@@ -774,7 +774,7 @@ end
 		for i = id+1, #_detalhes.tabela_instancias do
 			local this_instance = _detalhes:GetInstance(i)
 			--fix the snaps
-			for snap_side, instance_id in _pairs(this_instance.snap) do
+			for snap_side, instance_id in pairs(this_instance.snap) do
 				if (instance_id == i+1) then --snap na proxima instancia
 					this_instance.snap [snap_side] = i
 				elseif (instance_id == i-1 and i-2 > 0) then --snap na instancia anterior
@@ -944,7 +944,7 @@ function _detalhes:BaseFrameSnap()
 	end
 
 	local my_baseframe = self.baseframe
-	for lado, snap_to in _pairs(self.snap) do
+	for lado, snap_to in pairs(self.snap) do
 		local instancia_alvo = _detalhes.tabela_instancias [snap_to]
 
 		if (instancia_alvo) then
@@ -982,7 +982,7 @@ function _detalhes:BaseFrameSnap()
 		local inicio_retro = self.meu_id - 1
 		for meu_id = inicio_retro, 1, -1 do
 			local instancia = _detalhes.tabela_instancias [meu_id]
-			for lado, snap_to in _pairs(instancia.snap) do
+			for lado, snap_to in pairs(instancia.snap) do
 				if (snap_to < instancia.meu_id and snap_to ~= self.meu_id) then --se o lado que esta grudado for menor que o meu id... EX instnacia #2 grudada na #1
 
 					--ent�o tenho que pegar a inst�ncia do snap
@@ -1036,7 +1036,7 @@ function _detalhes:BaseFrameSnap()
 
 	for meu_id, instancia in ipairs(_detalhes.tabela_instancias) do
 		if (meu_id > self.meu_id) then
-			for lado, snap_to in _pairs(instancia.snap) do
+			for lado, snap_to in pairs(instancia.snap) do
 				if (snap_to > instancia.meu_id and snap_to ~= self.meu_id) then
 					local instancia_alvo = _detalhes.tabela_instancias [snap_to]
 
@@ -1075,7 +1075,7 @@ function _detalhes:agrupar_janelas(lados)
 
 	local instancia = self
 
-	for lado, esta_instancia in _pairs(lados) do
+	for lado, esta_instancia in pairs(lados) do
 		if (esta_instancia) then
 			instancia.baseframe:ClearAllPoints()
 			esta_instancia = _detalhes.tabela_instancias [esta_instancia]
@@ -1206,7 +1206,7 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 		local ID = instancia.meu_id
 
 		for id, esta_instancia in ipairs(_detalhes.tabela_instancias) do
-			for index, iid in _pairs(esta_instancia.snap) do -- index = 1 left , 3 right, 2 bottom, 4 top
+			for index, iid in pairs(esta_instancia.snap) do -- index = 1 left , 3 right, 2 bottom, 4 top
 				if (iid and (iid == ID or id == ID)) then -- iid = instancia.meu_id
 
 					esta_instancia.snap [index] = nil
@@ -3005,7 +3005,7 @@ function _detalhes:FormatReportLines (report_table, data, f1, f2, f3)
 	f3 = f3 or default_format_value3
 
 	if (not _detalhes.fontstring_len) then
-		_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
+		_detalhes.fontstring_len = _detalhes.listener:CreateFontString(nil, "background", "GameFontNormal")
 	end
 	local _, fontSize = FCF_GetChatWindowInfo (1)
 	if (fontSize < 1) then

@@ -853,7 +853,7 @@ do
 		background_texture:SetTexture(NickTag.background_pool[1][1])
 		background_texture:SetTexCoord (unpack(NickTag.background_pool[1][3]))
 		--
-		local name = avatar_pick_frame:CreateFontString ("AvatarPickFrameName", "overlay", "GameFontHighlightHuge")
+		local name = avatar_pick_frame:CreateFontString("AvatarPickFrameName", "overlay", "GameFontHighlightHuge")
 		name:SetPoint("left", avatar_texture, "right", -11, -17)
 		name:SetText(UnitName ("player"))
 	---

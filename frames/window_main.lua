@@ -16,7 +16,7 @@ local abs = _G.abs
 local unpack = unpack
 --api locals
 local CreateFrame = CreateFrame
-local _GetTime = GetTime
+local GetTime = GetTime
 local _GetCursorPosition = GetCursorPosition
 local UIParent = UIParent
 local _IsAltKeyDown = IsAltKeyDown
@@ -1933,7 +1933,7 @@ local lineScript_Onmousedown = function(self, button)
 
 	self._instance:HandleTextsOnMouseClick (self, "down")
 
-	self.mouse_down = _GetTime()
+	self.mouse_down = GetTime()
 	self.button = button
 	local x, y = _GetCursorPosition()
 	self.x = floor(x)
@@ -1964,7 +1964,7 @@ local lineScript_Onmouseup = function(self, button)
 	x = floor(x)
 	y = floor(y)
 
-	if (self.mouse_down and (self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
+	if (self.mouse_down and (self.mouse_down+0.4 > GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
 			if (self._instance.atributo == 5 or is_shift_down) then
 				--report

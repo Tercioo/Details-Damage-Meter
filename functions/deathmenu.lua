@@ -238,7 +238,7 @@ function detailsOnDeathMenu.CanShowPanel()
 			if (isInInstance) then
 				--check if all players in the raid are out of combat
 				for i = 1, GetNumGroupMembers() do
-					if (UnitAffectingCombat ("raid" .. i)) then
+					if (UnitAffectingCombat("raid" .. i)) then
 						C_Timer.After(0.5, detailsOnDeathMenu.ShowPanel)
 						return false
 					end

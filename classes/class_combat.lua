@@ -8,7 +8,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 	local ipairs = ipairs -- lua local
-	local _pairs = pairs -- lua local
+	local pairs = pairs -- lua local
 	local _bit_band = bit.band -- lua local
 	local _date = date -- lua local
 	local tremove = table.remove -- lua local

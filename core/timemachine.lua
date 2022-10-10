@@ -7,13 +7,13 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
 
-	local _table_insert = table.insert --lua local
+	local tinsert = table.insert --lua local
 	local ipairs = ipairs --lua local
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	local _math_floor = math.floor --lua local
 	local _time = time --lua local
 	
-	local _GetTime = GetTime --api local
+	local GetTime = GetTime --api local
 	
 	local timeMachine = _detalhes.timeMachine --details local
 
@@ -27,7 +27,7 @@
 	timeMachine.ligada = false
 
 	local calc_for_pvp = function(self)
-		for tipo, tabela in _pairs(self.tabelas) do
+		for tipo, tabela in pairs(self.tabelas) do
 			for nome, jogador in ipairs(tabela) do
 				if (jogador) then
 					if (jogador.last_event+3 > _tempo) then --okey o jogador esta dando dps
@@ -46,7 +46,7 @@
 	end
 	
 	local calc_for_pve = function(self)
-		for tipo, tabela in _pairs(self.tabelas) do
+		for tipo, tabela in pairs(self.tabelas) do
 			for nome, jogador in ipairs(tabela) do
 				if (jogador) then
 					if (jogador.last_event+10 > _tempo) then --okey o jogador esta dando dps
@@ -125,7 +125,7 @@
 		end
 
 		local esta_tabela = timeMachine.tabelas [self.tipo]
-		_table_insert (esta_tabela, self)
+		tinsert (esta_tabela, self)
 		self.timeMachine = #esta_tabela
 	end 
 

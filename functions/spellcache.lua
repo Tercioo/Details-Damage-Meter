@@ -317,7 +317,7 @@ do
 			load_frame = CreateFrame("frame", "DetailsLoadSpellCache", UIParent)
 			load_frame:SetFrameStrata("DIALOG")
 			
-			local progress_label = load_frame:CreateFontString ("DetailsLoadSpellCacheProgress", "overlay", "GameFontHighlightSmall")
+			local progress_label = load_frame:CreateFontString("DetailsLoadSpellCacheProgress", "overlay", "GameFontHighlightSmall")
 			progress_label:SetText("Loading Spells: 0%")
 			function _detalhes:BuildSpellListSlowTick()
 				progress_label:SetText("Loading Spells: " .. load_frame:GetProgress() .. "%")

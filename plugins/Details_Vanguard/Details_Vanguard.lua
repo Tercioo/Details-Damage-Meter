@@ -15,14 +15,14 @@ local DF = _G.DetailsFramework
 --ignorar bloodlust, shield d priest
 --reler os tanks ao sair de um grupo
 
-local _GetTime = GetTime --wow api local
+local GetTime = GetTime --wow api local
 local _UFC = UnitAffectingCombat --wow api local
-local _IsInRaid = IsInRaid --wow api local
-local _IsInGroup = IsInGroup --wow api local
+local IsInRaid = IsInRaid --wow api local
+local IsInGroup = IsInGroup --wow api local
 local _UnitName = UnitName --wow api local
 local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
-local _UnitHealth = UnitHealth --wow api local
-local _UnitHealthMax = UnitHealthMax --wow api local
+local UnitHealth = UnitHealth --wow api local
+local UnitHealthMax = UnitHealthMax --wow api local
 local _UnitIsPlayer = UnitIsPlayer --wow api local
 local _UnitClass = UnitClass --wow api local
 local _UnitDebuff = UnitDebuff --wow api local
@@ -36,10 +36,10 @@ local CONST_DEBUFF_AMOUNT = 5
 local CONST_MAX_TANKS = 2
 
 local _cstr = string.format --lua library local
-local _table_insert = table.insert --lua library local
+local tinsert = table.insert --lua library local
 local _table_remove = table.remove --lua library local
 local ipairs = ipairs --lua library local
-local _pairs = pairs --lua library local
+local pairs = pairs --lua library local
 local _math_floor = math.floor --lua library local
 local abs = math.abs --lua library local
 local _math_min = math.min --lua library local
@@ -499,7 +499,7 @@ local function CreatePluginFrames (data)
 				elevateStringsFrame:SetFrameLevel(dblock:GetFrameLevel()+10)
 				elevateStringsFrame:EnableMouse(false)
 
-				local stack = elevateStringsFrame:CreateFontString (elevateStringsFrame:GetName() .. "_StackText", "overlay", "GameFontNormal")
+				local stack = elevateStringsFrame:CreateFontString(elevateStringsFrame:GetName() .. "_StackText", "overlay", "GameFontNormal")
 				stack:SetPoint("bottomright", dblock, "bottomright", 0, 0)
 				DetailsFramework:SetFontColor(stack, "yellow")
 

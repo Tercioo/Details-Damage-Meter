@@ -566,7 +566,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.FrameMixin)
 	
 	local do_precision = function(text)
 		if (type(text) == "string" and text:find ("%.")) then
-			local left, right = strsplit (".", text)
+			local left, right = strsplit(".", text)
 			left = tonumber (left)
 			right = tonumber (right)
 			
@@ -958,7 +958,7 @@ function DF:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defa
 	thumb:SetAlpha(0.7)
 	thumb:SetPoint("left", slider.widget, "left")
 	
-	local text = slider:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	local text = slider:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 	text:SetTextColor (.8, .8, .8, 1)
 	text:SetPoint("center", thumb, "center")
 	
@@ -1158,7 +1158,7 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 		SliderObject.have_tooltip = "Right Click to Type the Value"
 	end
 	
-	SliderObject.amt = SliderObject.slider:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	SliderObject.amt = SliderObject.slider:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 	
 	local amt = defaultv
 	if (amt < 10 and amt >= 1) then

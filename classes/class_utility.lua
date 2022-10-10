@@ -1,7 +1,7 @@
 --lua locals
 local _cstr = string.format
 local _math_floor = math.floor
-local _table_insert = table.insert
+local tinsert = table.insert
 local _table_size = table.getn
 local ipairs = ipairs
 local pairs = pairs
@@ -15,12 +15,12 @@ local type = type
 --api locals
 local _GetSpellInfo = _detalhes.getspellinfo
 local GameTooltip = GameTooltip
-local _IsInRaid = IsInRaid
-local _IsInGroup = IsInGroup
-local _GetNumGroupMembers = GetNumGroupMembers
+local IsInRaid = IsInRaid
+local IsInGroup = IsInGroup
+local GetNumGroupMembers = GetNumGroupMembers
 local _GetNumSubgroupMembers = GetNumSubgroupMembers
 local _UnitAura = UnitAura
-local _UnitGUID = UnitGUID
+local UnitGUID = UnitGUID
 local _UnitName = UnitName
 local format = _G.format
 
@@ -406,7 +406,7 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 	
 	do
 		if (not _detalhes.fontstring_len) then
-			_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
+			_detalhes.fontstring_len = _detalhes.listener:CreateFontString(nil, "background", "GameFontNormal")
 		end
 		local _, fontSize = FCF_GetChatWindowInfo (1)
 		if (fontSize < 1) then
@@ -1328,14 +1328,14 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 
 	local cacheGetTime = GetTime()
 	
-	if (_IsInRaid()) then
+	if (IsInRaid()) then
 	
 		local checked = {}
 		
-		for raidIndex = 1, _GetNumGroupMembers() do
+		for raidIndex = 1, GetNumGroupMembers() do
 		
 			local target = "raid"..raidIndex.."target"
-			local his_target = _UnitGUID(target)
+			local his_target = UnitGUID(target)
 			
 			if (his_target and not checked [his_target]) then
 				local rect = UnitReaction (target, "player")
@@ -1346,7 +1346,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 					for debuffIndex = 1, 41 do
 						local name, _, _, _, _, _, _, unitCaster, _, _, spellid = UnitDebuff (target, debuffIndex)
 						if (name and unitCaster) then
-							local playerGUID = _UnitGUID(unitCaster)
+							local playerGUID = UnitGUID(unitCaster)
 							if (playerGUID) then
 
 								local playerName, realmName = _UnitName (unitCaster)
@@ -1362,12 +1362,12 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 			end
 		end
 		
-	elseif (_IsInGroup()) then
+	elseif (IsInGroup()) then
 		
 		local checked = {}
 		
-		for raidIndex = 1, _GetNumGroupMembers()-1 do
-			local his_target = _UnitGUID("party"..raidIndex.."target")
+		for raidIndex = 1, GetNumGroupMembers()-1 do
+			local his_target = UnitGUID("party"..raidIndex.."target")
 			local rect = UnitReaction ("party"..raidIndex.."target", "player")
 			if (his_target and not checked [his_target] and rect and rect <= 4) then
 				
@@ -1377,7 +1377,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("party"..raidIndex.."target", debuffIndex)
 					if (name and unitCaster) then
 						local playerName, realmName = _UnitName (unitCaster)
-						local playerGUID = _UnitGUID(unitCaster)
+						local playerGUID = UnitGUID(unitCaster)
 						if (playerGUID) then
 							if (realmName and realmName ~= "") then
 								playerName = playerName .. "-" .. realmName
@@ -1390,14 +1390,14 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 			end
 		end
 		
-		local his_target = _UnitGUID("playertarget")
+		local his_target = UnitGUID("playertarget")
 		local rect = UnitReaction ("playertarget", "player")
 		if (his_target and not checked [his_target] and rect and rect <= 4) then
 			for debuffIndex = 1, 40 do
 				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
 				if (name and unitCaster) then
 					local playerName, realmName = _UnitName (unitCaster)
-					local playerGUID = _UnitGUID(unitCaster)
+					local playerGUID = UnitGUID(unitCaster)
 					if (playerGUID) then
 						if (realmName and realmName ~= "") then
 							playerName = playerName .. "-" .. realmName
@@ -1409,7 +1409,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 		end
 		
 	else
-		local his_target = _UnitGUID("playertarget")
+		local his_target = UnitGUID("playertarget")
 		if (his_target) then
 			local reaction = UnitReaction ("playertarget", "player")
 			if (reaction and reaction <= 4) then
@@ -1417,7 +1417,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
 					if (name and unitCaster) then
 						local playerName, realmName = _UnitName (unitCaster)
-						local playerGUID = _UnitGUID(unitCaster)
+						local playerGUID = UnitGUID(unitCaster)
 						if (playerGUID) then
 							if (realmName and realmName ~= "") then
 								playerName = playerName .. "-" .. realmName
@@ -1441,7 +1441,7 @@ local runes_id = {
 --called from control on leave / enter combat
 function _detalhes:CatchRaidBuffUptime (in_or_out)
 
-	if (_IsInRaid()) then
+	if (IsInRaid()) then
 	
 		local pot_usage = {}
 		local focus_augmentation = {}
@@ -1449,9 +1449,9 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		--raid groups
 		local cacheGetTime = GetTime()
 		
-		for raidIndex = 1, _GetNumGroupMembers() do
+		for raidIndex = 1, GetNumGroupMembers() do
 			local RaidIndex = "raid" .. raidIndex
-			local playerGUID = _UnitGUID(RaidIndex)
+			local playerGUID = UnitGUID(RaidIndex)
 
 			if (playerGUID) then
 			
@@ -1496,19 +1496,19 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			_detalhes:SendEvent("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
 		end
 		
-	elseif (_IsInGroup()) then
+	elseif (IsInGroup()) then
 	
 		local pot_usage = {}
 		local focus_augmentation = {}
 		
 		--party members
-		for groupIndex = 1, _GetNumGroupMembers() - 1 do
+		for groupIndex = 1, GetNumGroupMembers() - 1 do
 			for buffIndex = 1, 41 do
 				local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..groupIndex, buffIndex, nil, "HELPFUL")
 				if (name and unitCaster and UnitExists (unitCaster) and UnitExists ("party" .. groupIndex) and UnitIsUnit (unitCaster, "party" .. groupIndex)) then
 				
 					local playerName, realmName = _UnitName ("party"..groupIndex)
-					local playerGUID = _UnitGUID("party"..groupIndex)
+					local playerGUID = UnitGUID("party"..groupIndex)
 					
 					if (playerGUID) then
 						if (realmName and realmName ~= "") then
@@ -1535,7 +1535,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
 			if (name and unitCaster and UnitExists (unitCaster) and UnitIsUnit (unitCaster, "player")) then
 				local playerName = _UnitName ("player")
-				local playerGUID = _UnitGUID("player")
+				local playerGUID = UnitGUID("player")
 				if (playerGUID) then
 					if (in_or_out == "BUFF_UPTIME_IN") then
 						if (_detalhes.PotionList [spellid]) then
@@ -1576,7 +1576,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
 			if (name and unitCaster and UnitExists (unitCaster) and UnitIsUnit (unitCaster, "player")) then
 				local playerName = _UnitName ("player")
-				local playerGUID = _UnitGUID("player")
+				local playerGUID = UnitGUID("player")
 				
 				if (playerGUID) then
 					if (in_or_out == "BUFF_UPTIME_IN") then
@@ -2048,7 +2048,7 @@ function atributo_misc:MontaInfoInterrupt()
 	--player
 	for _spellid, _tabela in pairs(minha_tabela) do --da foreach em cada spellid do container
 		local nome, _, icone = _GetSpellInfo(_spellid)
-		_table_insert (meus_interrupts, {_spellid, _tabela.counter, _tabela.counter/meu_total*100, nome, icone})
+		tinsert (meus_interrupts, {_spellid, _tabela.counter, _tabela.counter/meu_total*100, nome, icone})
 	end
 	--pet
 	local ActorPets = self.pets
@@ -2059,7 +2059,7 @@ function atributo_misc:MontaInfoInterrupt()
 			local PetSkillsContainer = PetActor.interrupt_spells._ActorTable
 			for _spellid, _skill in pairs(PetSkillsContainer) do --da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo(_spellid)
-				_table_insert (meus_interrupts, {_spellid, _skill.counter, _skill.counter/meu_total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+				tinsert (meus_interrupts, {_spellid, _skill.counter, _skill.counter/meu_total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
 			end
 		end
 	end

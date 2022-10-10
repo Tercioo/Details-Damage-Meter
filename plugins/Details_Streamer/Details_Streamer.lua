@@ -145,7 +145,7 @@ local function CreatePluginFrames()
 	titlebar:SetPoint("bottomright", SOF, "topright")
 	titlebar:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 	titlebar:SetBackdropColor(.1, .1, .1, .9)
-	titlebar.text = titlebar:CreateFontString (nil, "overlay", "GameFontNormal")
+	titlebar.text = titlebar:CreateFontString(nil, "overlay", "GameFontNormal")
 	titlebar.text:SetPoint("center", titlebar, "center")
 	titlebar.text:SetText("Details! Streamer: Action Tracker")
 	titlebar:SetScript("OnEnter", function(self) 
@@ -609,8 +609,8 @@ local function CreatePluginFrames()
 		
 		local arrow = statusbar:CreateTexture(nil, "overlay")
 		
-		local text1 = statusbar:CreateFontString (nil, "overlay", "GameFontNormal")
-		local text2 = statusbar:CreateFontString (nil, "overlay", "GameFontNormal")
+		local text1 = statusbar:CreateFontString(nil, "overlay", "GameFontNormal")
+		local text2 = statusbar:CreateFontString(nil, "overlay", "GameFontNormal")
 		
 		icon1:SetPoint("left", f, "left", 2, 0) --player spell icon
 		text1:SetPoint("left", icon1, "right", 2, 0) --player spell name
@@ -1610,7 +1610,7 @@ screen_frame:SetScript("OnLeave", function()
 end)
 	
 	
-local screen_frame_text = screen_frame:CreateFontString ("StreamerOverlayDpsHpsFrameText", "overlay", "GameFontNormal")
+local screen_frame_text = screen_frame:CreateFontString("StreamerOverlayDpsHpsFrameText", "overlay", "GameFontNormal")
 screen_frame_text:SetPoint("center", screen_frame, "center")
 screen_frame.text = screen_frame_text
 
@@ -2219,7 +2219,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			--get the selected profile and overwrite the settings
 			local ptable = Details_StreamerDB.profiles [profileName]
 			
-			_detalhes.table.deploy (ptable, StreamOverlay.DefaultConfigTable) --update with any new config from the default table
+			_detalhes.table.deploy(ptable, StreamOverlay.DefaultConfigTable) --update with any new config from the default table
 			_detalhes.table.overwrite (StreamOverlay.db, ptable) --overwrite the local settings with the profile settings
 			
 			Details_StreamerDB.characters [pname] = profileName
@@ -2269,7 +2269,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				--load dbtable
 				Details_StreamerDB.profiles [pname] = {}
 				_detalhes.table.overwrite (Details_StreamerDB.profiles [pname], StreamOverlay.db)
-				_detalhes.table.deploy (Details_StreamerDB.profiles [pname], StreamOverlay.DefaultConfigTable) --update with any new config from the default table
+				_detalhes.table.deploy(Details_StreamerDB.profiles [pname], StreamOverlay.DefaultConfigTable) --update with any new config from the default table
 				--StreamOverlay.db = Details_StreamerDB.profiles [pname] --no can't change the local database table
 				
 				optionsFrame.NewProfileButton:Hide()
@@ -2456,7 +2456,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 
 						local icon = welcomeWindow:CreateTexture(nil, "overlay")
 						icon:SetTexture([[Interface\MINIMAP\MOVIERECORDINGICON]])
-						local title = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
+						local title = welcomeWindow:CreateFontString(nil, "overlay", "GameFontNormal")
 						title:SetText("Details!: Action Tracker (plugin)")
 						StreamOverlay:SetFontSize (title, 20)
 
@@ -2466,11 +2466,11 @@ function StreamOverlay:OnEvent (_, event, ...)
 						youtubeTwitchIcons:SetSize(109, 413 - 370)
 						youtubeTwitchIcons:SetPoint("topleft", welcomeWindow, "topleft", 123, -61)
 
-						local text1 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
+						local text1 = welcomeWindow:CreateFontString(nil, "overlay", "GameFontNormal")
 						text1:SetText("SHOW TO YOUR VIEWERS YOUR ROTATION\nThis way they can learn while watching your content")
-						local text2 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
+						local text2 = welcomeWindow:CreateFontString(nil, "overlay", "GameFontNormal")
 						text2:SetText("Use the command:")
-						local text3 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
+						local text3 = welcomeWindow:CreateFontString(nil, "overlay", "GameFontNormal")
 						text3:SetText("/streamer")
 						DetailsFramework:SetFontSize(text3, 16)
 
@@ -2513,7 +2513,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				--load dbtable
 				local ptable = Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] or {} --already existen config set or empty table
 				_detalhes.table.overwrite (StreamOverlay.db, ptable) --profile overwrite the local settings
-				_detalhes.table.deploy (ptable, StreamOverlay.db) --local settings deploy stuff which non exist on profile
+				_detalhes.table.deploy(ptable, StreamOverlay.db) --local settings deploy stuff which non exist on profile
 				
 				Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] = ptable
 			end

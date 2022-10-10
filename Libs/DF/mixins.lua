@@ -253,8 +253,8 @@ detailsFramework.OptionsFunctions = {
 
 	BuildOptionsTable = function(self, defaultOptions, userOptions)
 		self.options = self.options or {}
-		detailsFramework.table.deploy (self.options, userOptions or {})
-		detailsFramework.table.deploy (self.options, defaultOptions or {})
+		detailsFramework.table.deploy(self.options, userOptions or {})
+		detailsFramework.table.deploy(self.options, defaultOptions or {})
 	end
 }
 

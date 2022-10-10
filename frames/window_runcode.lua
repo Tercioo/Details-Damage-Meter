@@ -81,7 +81,7 @@ function Details.OpenRunCodeWindow()
                     local script = code_editor:GetText()
                     local func, errortext = loadstring (script, "Q")
                     if (not func) then
-                        local firstLine = strsplit ("\n", script, 2)
+                        local firstLine = strsplit("\n", script, 2)
                         errortext = errortext:gsub (firstLine, "")
                         errortext = errortext:gsub ("%[string \"", "")
                         errortext = errortext:gsub ("...\"]:", "")

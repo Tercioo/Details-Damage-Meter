@@ -578,7 +578,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			row:SetWidth(200)
 			row:SetHeight(20)
 			row:SetBackdrop({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-			local t = row:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			local t = row:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			t:SetPoint("left", row, "left")
 			row.text = t
 			rows [#rows+1] = row
@@ -1944,7 +1944,7 @@ function _detalhes:CreateListPanel()
 	function _detalhes.ListPanel:add (text, index, filter)
 		local row = _detalhes.ListPanel.barras [index]
 		if (not row) then
-			row = {text = _detalhes.ListPanel.container:CreateFontString (nil, "overlay", "GameFontNormal")}
+			row = {text = _detalhes.ListPanel.container:CreateFontString(nil, "overlay", "GameFontNormal")}
 			_detalhes.ListPanel.barras [index] = row
 			row.text:SetPoint("topleft", _detalhes.ListPanel.container, "topleft", 0, -index * 15)
 		end

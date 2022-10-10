@@ -4889,13 +4889,13 @@ do
                     
                     tinsert(_G.UISpecialFrames, "DetailsLoadWallpaperImage")
                     
-                    local t = f:CreateFontString (nil, "overlay", "GameFontNormal")
+                    local t = f:CreateFontString(nil, "overlay", "GameFontNormal")
                     t:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
                     t:SetPoint("topleft", f, "topleft", 15, -25)
                     t:SetJustifyH("left")
                     f.t = t
                     
-                    local filename = f:CreateFontString (nil, "overlay", "GameFontHighlightLeft")
+                    local filename = f:CreateFontString(nil, "overlay", "GameFontHighlightLeft")
                     filename:SetPoint("topleft", f, "topleft", 15, -128)
                     filename:SetText(Loc ["STRING_OPTIONS_WALLPAPER_LOAD_FILENAME"])
                     

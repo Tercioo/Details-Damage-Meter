@@ -4,10 +4,10 @@ do
 
 	local _detalhes	= 	_G._detalhes
 	local _
-	local _pairs = pairs
+	local pairs = pairs
 	local ipairs = ipairs
 	local _UnitClass = UnitClass
-	local _select = select
+	local select = select
 	local _unpack = unpack
 
 	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
@@ -172,7 +172,7 @@ do
 		end
 		
 		if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-			for spellid, _ in _pairs(Actor.spells._ActorTable) do 
+			for spellid, _ in pairs(Actor.spells._ActorTable) do 
 				local class = _detalhes.ClassSpellList [spellid]
 				if (class) then
 					Actor.classe = class
@@ -322,7 +322,7 @@ do
 			end
 		else
 			if (Actor.spells) then
-				for spellid, _ in _pairs(Actor.spells._ActorTable) do 
+				for spellid, _ in pairs(Actor.spells._ActorTable) do 
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						if (spec ~= Actor.spec) then
@@ -356,7 +356,7 @@ do
 						local misc_actor = container_misc._ActorTable [index]
 						local buffs = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable
 						if (buffs) then
-							for spellid, spell in _pairs(buffs) do
+							for spellid, spell in pairs(buffs) do
 								local spec = SpecSpellList [spellid]
 								if (spec) then
 									if (spec ~= Actor.spec) then
@@ -453,7 +453,7 @@ do
 				end
 			else
 				if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-					for spellid, _ in _pairs(Actor.spells._ActorTable) do 
+					for spellid, _ in pairs(Actor.spells._ActorTable) do 
 						local spec = SpecSpellList [spellid]
 						if (spec) then
 							_detalhes.cached_specs [Actor.serial] = spec
@@ -481,7 +481,7 @@ do
 		else
 			
 			if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-				for spellid, _ in _pairs(Actor.spells._ActorTable) do 
+				for spellid, _ in pairs(Actor.spells._ActorTable) do 
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
@@ -514,7 +514,7 @@ do
 				local misc_actor = container_misc._ActorTable [index]
 				local buffs = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable
 				if (buffs) then
-					for spellid, spell in _pairs(buffs) do
+					for spellid, spell in pairs(buffs) do
 						local spec = SpecSpellList [spellid]
 						if (spec) then
 						

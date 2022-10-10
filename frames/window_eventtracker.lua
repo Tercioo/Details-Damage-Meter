@@ -362,11 +362,11 @@ function Details:CreateEventTrackerFrame(parent, name)
 			local righticon = statusbar:CreateTexture("$parentRightIcon", "overlay")
 			righticon:SetPoint("right", line, "right", 0, 0)
 			
-			local lefttext = statusbar:CreateFontString ("$parentLeftText", "overlay", "GameFontNormal")
+			local lefttext = statusbar:CreateFontString("$parentLeftText", "overlay", "GameFontNormal")
 			DF:SetFontSize (lefttext, 9)
 			lefttext:SetPoint("left", lefticon, "right", 2, 0)
 			
-			local righttext = statusbar:CreateFontString ("$parentRightText", "overlay", "GameFontNormal")
+			local righttext = statusbar:CreateFontString("$parentRightText", "overlay", "GameFontNormal")
 			DF:SetFontSize (righttext, 9)
 			righttext:SetPoint("right", righticon, "left", -2, 0)
 			
@@ -591,7 +591,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		end
 		
 		--title text
-		local TitleString = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		local TitleString = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		TitleString:SetPoint("top", f, "top", 0, -3)
 		TitleString:SetText("Details!: Event Tracker")
 		local TitleBackground = f:CreateTexture(nil, "artwork")

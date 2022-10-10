@@ -571,6 +571,13 @@ function Details:StartMeUp() --I'll never stop!
 	--shutdown the old OnDeathMenu
 	--cleanup: this line can be removed after the first month of dragonflight
 	Details.on_death_menu = false
+
+	--reset to default the evoker color
+	local defaultEvokerColor = _detalhes.default_profile.class_colors.EVOKER
+	local currentEvokerColorTable = _detalhes.class_colors.EVOKER
+	currentEvokerColorTable[1] = defaultEvokerColor[1]
+	currentEvokerColorTable[2] = defaultEvokerColor[2]
+	currentEvokerColorTable[3] = defaultEvokerColor[3]
 end
 
 Details.AddOnLoadFilesTime = _G.GetTime()

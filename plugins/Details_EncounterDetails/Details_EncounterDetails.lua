@@ -11,14 +11,14 @@ local function DebugMessage (...)
 end
 
 --Needed locals
-local _GetTime = GetTime --wow api local
+local GetTime = GetTime --wow api local
 local _UFC = UnitAffectingCombat --wow api local
-local _IsInRaid = IsInRaid --wow api local
-local _IsInGroup = IsInGroup --wow api local
+local IsInRaid = IsInRaid --wow api local
+local IsInGroup = IsInGroup --wow api local
 local _UnitAura = UnitAura --wow api local
 local _GetSpellInfo = _detalhes.getspellinfo --wow api local
 local _CreateFrame = CreateFrame --wow api local
-local _GetTime = GetTime --wow api local
+local GetTime = GetTime --wow api local
 local _GetCursorPosition = GetCursorPosition --wow api local
 local _GameTooltip = GameTooltip --wow api local
 
@@ -27,9 +27,9 @@ local GameCooltip = GameCooltip2
 local _math_floor = math.floor --lua library local
 local _cstr = string.format --lua library local
 local ipairs = ipairs --lua library local
-local _pairs = pairs --lua library local
+local pairs = pairs --lua library local
 local _table_sort = table.sort --lua library local
-local _table_insert = table.insert --lua library local
+local tinsert = table.insert --lua library local
 local _unpack = unpack --lua library local
 local _bit_band = bit.band
 
@@ -752,7 +752,7 @@ local function DispellInfo (dispell, barra)
 	local jogadores = dispell [1] --[nome od jogador] = total
 	local tabela_jogadores = {}
 	
-	for nome, tabela in _pairs(jogadores) do --tabela = [1] total tomado [2] classe
+	for nome, tabela in pairs(jogadores) do --tabela = [1] total tomado [2] classe
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela [1], tabela [2]}
 	end
 	
@@ -792,7 +792,7 @@ local function KickBy (magia, barra)
 	local jogadores = magia [1] --[nome od jogador] = total
 	local tabela_jogadores = {}
 	
-	for nome, tabela in _pairs(jogadores) do --tabela = [1] total tomado [2] classe
+	for nome, tabela in pairs(jogadores) do --tabela = [1] total tomado [2] classe
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela [1], tabela [2]}
 	end
 	
@@ -840,7 +840,7 @@ local function EnemySkills (habilidade, barra)
 	local tabela_jogadores = {}
 	local total = 0
 	
-	for nome, tabela in _pairs(jogadores) do --tabela = [1] total tomado [2] classe
+	for nome, tabela in pairs(jogadores) do --tabela = [1] total tomado [2] classe
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela[1], tabela[2]}
 		total = total + tabela[1]
 	end
@@ -900,13 +900,13 @@ local function DamageTakenDetails (jogador, barra)
 	
 	local meus_agressores = {}
 	
-	for nome, _ in _pairs(agressores) do --agressores seria a lista de nomes
+	for nome, _ in pairs(agressores) do --agressores seria a lista de nomes
 		local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
 		if (este_agressor) then --checagem por causa do total e do garbage collector que n�o limpa os nomes que deram dano
 			local habilidades = este_agressor.spells._ActorTable
-			for id, habilidade in _pairs(habilidades) do 
+			for id, habilidade in pairs(habilidades) do 
 				local alvos = habilidade.targets
-				for target_name, amount in _pairs(alvos) do 
+				for target_name, amount in pairs(alvos) do 
 					if (target_name == jogador.nome) then
 						meus_agressores [#meus_agressores+1] = {id, amount, este_agressor.nome}
 					end
@@ -1021,7 +1021,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			return
 		end
 	
-		self.mouse_down = _GetTime()
+		self.mouse_down = GetTime()
 		local x, y = _GetCursorPosition()
 		self.x = _math_floor(x)
 		self.y = _math_floor(y)
@@ -1047,7 +1047,7 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 		x = _math_floor(x)
 		y = _math_floor(y)
 		
-		if ((self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
+		if ((self.mouse_down+0.4 > GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 			_detalhes:BossInfoRowClick (self)
 		end
 	end)
@@ -1382,7 +1382,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		local habilidades_usadas = {}
 		local have_pool = false
-		for spellid, _ in _pairs(habilidades_poll) do 
+		for spellid, _ in pairs(habilidades_poll) do 
 			have_pool = true
 			break
 		end
@@ -1399,7 +1399,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 				local habilidades = jogador.spells._ActorTable
 				
-				for id, habilidade in _pairs(habilidades) do
+				for id, habilidade in pairs(habilidades) do
 					--if (habilidades_poll [id]) then
 						--esse jogador usou uma habilidade do boss
 						local esta_habilidade = habilidades_usadas [id] --tabela n�o numerica, pq diferentes monstros podem castar a mesma magia
@@ -1420,7 +1420,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						
 						--pega os alvos e adiciona ao [2]
 						local alvos = habilidade.targets
-						for target_name, amount in _pairs(alvos) do 
+						for target_name, amount in pairs(alvos) do 
 						
 							--ele tem o nome do jogador, vamos ver se este alvo � realmente um jogador verificando na tabela do combate
 							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
@@ -1438,7 +1438,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				--check if the spell id is in the spell poll.
 				local habilidades = jogador.spells._ActorTable
 				
-				for id, habilidade in _pairs(habilidades) do
+				for id, habilidade in pairs(habilidades) do
 					if (habilidades_poll [id]) then
 						--esse jogador usou uma habilidade do boss
 						local esta_habilidade = habilidades_usadas [id] --tabela n�o numerica, pq diferentes monstros podem castar a mesma magia
@@ -1459,7 +1459,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						
 						--pega os alvos e adiciona ao [2]
 						local alvos = habilidade.targets
-						for target_name, amount in _pairs(alvos) do 
+						for target_name, amount in pairs(alvos) do 
 						
 							--ele tem o nome do jogador, vamos ver se este alvo � realmente um jogador verificando na tabela do combate
 							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
@@ -1479,7 +1479,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local tabela_em_ordem = {}
 		local jaFoi = {}
 		
-		for id, tabela in _pairs(habilidades_usadas) do 
+		for id, tabela in pairs(habilidades_usadas) do 
 			local spellname = Details.GetSpellInfo(tabela [4])
 			
 			if (not jaFoi [spellname]) then
@@ -1608,7 +1608,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					tabela.total = jogador.total
 					
 					--em quem ele deu dano
-					for target_name, amount in _pairs(jogador.targets) do
+					for target_name, amount in pairs(jogador.targets) do
 						local este_jogador = _combat_object (1, target_name)
 						if (este_jogador) then
 							if (este_jogador.classe ~= "PET" and este_jogador.classe ~= "UNGROUPPLAYER" and este_jogador.classe ~= "UNKNOW") then
@@ -1620,11 +1620,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					_table_sort (tabela.dano_em, _detalhes.Sort2)
 					
 					--quem deu dano nele
-					for agressor, _ in _pairs(jogador.damage_from) do 
+					for agressor, _ in pairs(jogador.damage_from) do 
 						--local este_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [agressor]]
 						local este_jogador = _combat_object (1, agressor)
 						if (este_jogador and este_jogador:IsPlayer()) then 
-							for target_name, amount in _pairs(este_jogador.targets) do
+							for target_name, amount in pairs(este_jogador.targets) do
 								if (target_name == nome) then 
 									tabela.damage_from [#tabela.damage_from+1] = {agressor, amount, este_jogador.classe}
 									tabela.damage_from_total = tabela.damage_from_total + amount
@@ -1661,7 +1661,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local topDamage = dano_em[1] and dano_em[1][2]
 			
 			local dano_em_total = tabela.dano_em_total
-			for _, esta_tabela in _pairs(dano_em) do 
+			for _, esta_tabela in pairs(dano_em) do 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				GameCooltip:AddLine(EncounterDetails:GetOnlyName(esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
 				
@@ -1708,7 +1708,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local damage_from_total = tabela.damage_from_total
 			local topDamage = damage_from[1] and damage_from[1][2]
 
-			for _, esta_tabela in _pairs(damage_from) do 
+			for _, esta_tabela in pairs(damage_from) do 
 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				if (coords) then
@@ -1866,7 +1866,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					local oque_interrompi = jogador.interrompeu_oque
 					--vai ter [spellid] = quantidade
 					
-					for spellid, amt in _pairs(oque_interrompi) do 
+					for spellid, amt in pairs(oque_interrompi) do 
 						if (not habilidades_interrompidas [spellid]) then --se a spell n�o tiver na pool, cria a tabela dela
 							habilidades_interrompidas [spellid] = {{}, 0, spellid} --tabela com quem interrompeu e o total de vezes que a habilidade foi interrompida
 						end
@@ -1884,7 +1884,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		--por em ordem
 		tabela_em_ordem = {}
-		for spellid, tabela in _pairs(habilidades_interrompidas) do 
+		for spellid, tabela in pairs(habilidades_interrompidas) do 
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
 		_table_sort (tabela_em_ordem, _detalhes.Sort2)
@@ -1978,7 +1978,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					
 					--print("dispell: " .. jogador.classe .. " nome: " .. jogador.nome)
 					
-					for spellid, amt in _pairs(oque_dispelei) do 
+					for spellid, amt in pairs(oque_dispelei) do 
 						if (not habilidades_dispeladas [spellid]) then --se a spell n�o tiver na pool, cria a tabela dela
 							habilidades_dispeladas [spellid] = {{}, 0, spellid} --tabela com quem dispolou e o total de vezes que a habilidade foi dispelada
 						end
@@ -1998,7 +1998,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		--por em ordem
 		tabela_em_ordem = {}
-		for spellid, tabela in _pairs(habilidades_dispeladas) do 
+		for spellid, tabela in pairs(habilidades_dispeladas) do 
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
 		_table_sort (tabela_em_ordem, _detalhes.Sort2)
@@ -2066,7 +2066,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local habilidades_info = boss_info and boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --ent�o esse erro � das habilidades que n�o tao
 	
 		for index, tabela in ipairs(mortes) do
-			--{esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
+			--{esta_morte, time, este_jogador.nome, este_jogador.classe, UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
 			local barra = container.barras [index]
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 0, 1)

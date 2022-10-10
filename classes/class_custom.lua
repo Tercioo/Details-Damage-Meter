@@ -12,11 +12,11 @@
 	local _cstr = string.format --lua local
 	local _math_floor = math.floor --lua local
 	local _table_sort = table.sort --lua local
-	local _table_insert = table.insert --lua local
+	local tinsert = table.insert --lua local
 	local _table_size = table.getn --lua local
 	local _setmetatable = setmetatable --lua local
 	local ipairs = ipairs --lua local
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	local _rawget= rawget --lua local
 	local _math_min = math.min --lua local
 	local _math_max = math.max --lua local
@@ -26,9 +26,9 @@
 	local _pcall = pcall -- lua local
 
 	local _GetSpellInfo = _detalhes.getspellinfo -- api local
-	local _IsInRaid = IsInRaid -- api local
-	local _IsInGroup = IsInGroup -- api local
-	local _GetNumGroupMembers = GetNumGroupMembers -- api local
+	local IsInRaid = IsInRaid -- api local
+	local IsInGroup = IsInGroup -- api local
+	local GetNumGroupMembers = GetNumGroupMembers -- api local
 	local _GetNumPartyMembers = GetNumPartyMembers or GetNumSubgroupMembers -- api local
 	local _GetNumRaidMembers = GetNumRaidMembers or GetNumGroupMembers -- api local
 	local _GetUnitName = GetUnitName -- api local
@@ -394,7 +394,7 @@
 		local use_total_bar = false
 		if (instance.total_bar.enabled) then
 			use_total_bar = true
-			if (instance.total_bar.only_in_group and (not _IsInGroup() and not _IsInRaid())) then
+			if (instance.total_bar.only_in_group and (not IsInGroup() and not IsInRaid())) then
 				use_total_bar = false
 			end
 		end

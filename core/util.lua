@@ -9,7 +9,7 @@
 
 	local upper = string.upper --lua local
 	local ipairs = ipairs --lua local
-	local _pairs = pairs --lua local
+	local pairs = pairs --lua local
 	local _math_floor = math.floor --lua local
 	local _math_max = math.max --lua local
 	local _math_min = math.min --lua local
@@ -18,16 +18,16 @@
 	local _string_match = string.match --lua local
 	local _string_format = string.format --lua local
 	local loadstring = loadstring --lua local
-	local _select = select
-	local _tonumber = tonumber
-	local _strsplit = strsplit
+	local select = select
+	local tonumber = tonumber
+	local strsplit = strsplit
 	local _pcall = pcall
-	local _GetTime = GetTime
+	local GetTime = GetTime
 
-	local _IsInRaid = IsInRaid --wow api local
-	local _IsInGroup = IsInGroup --wow api local
-	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
-	local _UnitAffectingCombat = UnitAffectingCombat --wow api local
+	local IsInRaid = IsInRaid --wow api local
+	local IsInGroup = IsInGroup --wow api local
+	local GetNumGroupMembers = GetNumGroupMembers --wow api local
+	local UnitAffectingCombat = UnitAffectingCombat --wow api local
 	local _InCombatLockdown = InCombatLockdown --wow api local
 
 	local gump = _detalhes.gump --details local
@@ -291,9 +291,9 @@
 
 	--get the npc id from guid
 	function _detalhes:GetNpcIdFromGuid (guid)
-		local NpcId = _select( 6, _strsplit ( "-", guid ) )
+		local NpcId = select( 6, strsplit( "-", guid ) )
 		if (NpcId) then
-			return _tonumber ( NpcId )
+			return tonumber ( NpcId )
 		end
 		return 0
 	end
@@ -349,7 +349,7 @@
 	--set all table keys to lower
 	local temptable = {}
 	function _detalhes:LowerizeKeys (_table)
-		for key, value in _pairs(_table) do
+		for key, value in pairs(_table) do
 			temptable [string.lower (key)] = value
 		end
 		temptable, _table = table.wipe (_table), temptable
@@ -767,7 +767,7 @@
 	--remove a index from a hash table
 	function _detalhes:tableRemove (tabela, indexName)
 		local newtable = {}
-		for hash, value in _pairs(tabela) do
+		for hash, value in pairs(tabela) do
 			if (hash ~= indexName) then
 				newtable [hash] = value
 			end
@@ -820,11 +820,11 @@
 		return t1
 	end
 
-	function _detalhes.table.deploy (t1, t2)
+	function _detalhes.table.deploy(t1, t2)
 		for key, value in pairs(t2) do
 			if (type(value) == "table") then
 				t1 [key] = t1 [key] or {}
-				_detalhes.table.deploy (t1 [key], t2 [key])
+				_detalhes.table.deploy(t1 [key], t2 [key])
 			elseif (t1 [key] == nil) then
 				t1 [key] = value
 			end
@@ -1120,19 +1120,19 @@ end
 			return true
 
 		--is in combat
-			elseif (_UnitAffectingCombat("player")) then
+			elseif (UnitAffectingCombat("player")) then
 				return true
 
-			elseif (_IsInRaid()) then
-				for i = 1, _GetNumGroupMembers(), 1 do
-					if (_UnitAffectingCombat ("raid"..i)) then
+			elseif (IsInRaid()) then
+				for i = 1, GetNumGroupMembers(), 1 do
+					if (UnitAffectingCombat("raid"..i)) then
 						return true
 					end
 				end
 
-			elseif (_IsInGroup()) then
-				for i = 1, _GetNumGroupMembers()-1, 1 do
-					if (_UnitAffectingCombat ("party"..i)) then
+			elseif (IsInGroup()) then
+				for i = 1, GetNumGroupMembers()-1, 1 do
+					if (UnitAffectingCombat("party"..i)) then
 						return true
 					end
 				end
@@ -1154,15 +1154,15 @@ end
 	end
 
 	function _detalhes:FindGUIDFromName (name)
-		if (_IsInRaid()) then
-			for i = 1, _GetNumGroupMembers(), 1 do
+		if (IsInRaid()) then
+			for i = 1, GetNumGroupMembers(), 1 do
 				local this_name, _ = UnitName ("raid"..i)
 				if (this_name == name) then
 					return UnitGUID("raid"..i)
 				end
 			end
-		elseif (_IsInGroup()) then
-			for i = 1, _GetNumGroupMembers()-1, 1 do
+		elseif (IsInGroup()) then
+			for i = 1, GetNumGroupMembers()-1, 1 do
 				local this_name, _ = UnitName ("party"..i)
 				if (this_name == name) then
 					return UnitGUID("party"..i)
@@ -1197,7 +1197,7 @@ end
 
 				if (not ThisGradient.done) then
 
-					local percent = _math_min((_GetTime() - ThisGradient.TimeStart) / ThisGradient.Duration * 100, 100)
+					local percent = _math_min((GetTime() - ThisGradient.TimeStart) / ThisGradient.Duration * 100, 100)
 					local red_now = ThisGradient.StartRed + (percent  * ThisGradient.OnePercentRed)
 					local green_now = ThisGradient.StartGreen + (percent * ThisGradient.OnePercentGreen)
 					local blue_now = ThisGradient.StartBlue + (percent  * ThisGradient.OnePercentBlue)

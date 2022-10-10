@@ -59,7 +59,7 @@
 
 			for _, actor in ipairs(Details.tabela_vigente[class_type_dano]._ActorTable) do
 
-				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and bitBand (actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
+				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and bitBand(actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
 					for name, _ in pairs(actor.targets) do
 						if (name == Details.playername) then
 							return actor.nome
@@ -161,7 +161,7 @@
 				--catch boss function if any
 				local bossFunction, bossFunctionType = Details:GetBossFunction (ZoneMapID, BossIndex)
 				if (bossFunction) then
-					if (bitBand (bossFunctionType, 0x1) ~= 0) then --realtime
+					if (bitBand(bossFunctionType, 0x1) ~= 0) then --realtime
 						Details.bossFunction = bossFunction
 						Details.tabela_vigente.bossFunction = Details:ScheduleTimer("bossFunction", 1)
 					end
@@ -629,7 +629,7 @@
 			else
 
 				--this segment is a boss fight
-				if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+				if (not InCombatLockdown() and not UnitAffectingCombat("player")) then
 
 				else
 					--Details.schedule_flag_boss_components = true
@@ -644,7 +644,7 @@
 					Details.tabela_vigente.is_boss.killed = true
 
 					--add to storage
-					if (not InCombatLockdown() and not UnitAffectingCombat ("player") and not Details.logoff_saving_data) then
+					if (not InCombatLockdown() and not UnitAffectingCombat("player") and not Details.logoff_saving_data) then
 						local successful, errortext = pcall (Details.Database.StoreEncounter)
 						if (not successful) then
 							Details:Msg("error occurred on Details.Database.StoreEncounter():", errortext)
@@ -660,7 +660,7 @@
 					Details:SendEvent("COMBAT_BOSS_WIPE", nil, Details.tabela_vigente)
 
 					--add to storage
-					if (not InCombatLockdown() and not UnitAffectingCombat ("player") and not Details.logoff_saving_data) then
+					if (not InCombatLockdown() and not UnitAffectingCombat("player") and not Details.logoff_saving_data) then
 						local successful, errortext = pcall (Details.Database.StoreWipe)
 						if (not successful) then
 							Details:Msg("error occurred on Details.Database.StoreWipe():", errortext)
@@ -702,7 +702,7 @@
 					--encounter boss function
 					local bossFunction, bossFunctionType = Details:GetBossFunction (Details.tabela_vigente.is_boss.mapid or 0, Details.tabela_vigente.is_boss.index or 0)
 					if (bossFunction) then
-						if (bitBand (bossFunctionType, 0x2) ~= 0) then --end of combat
+						if (bitBand(bossFunctionType, 0x2) ~= 0) then --end of combat
 							if (not Details.logoff_saving_data) then
 								local successful, errortext = pcall (bossFunction, Details.tabela_vigente)
 								if (not successful) then

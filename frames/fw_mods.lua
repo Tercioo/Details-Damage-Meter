@@ -7,7 +7,7 @@ local CreateFrame = CreateFrame
 local GetTime = GetTime
 local GetCursorPosition = GetCursorPosition
 local GameTooltip = GameTooltip
-local _select = select
+local select = select
 
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
@@ -17,7 +17,7 @@ function gump:NewLabel2 (parent, container, member, text, font, size, color)
 
 	font = font or "GameFontHighlightSmall"
 
-	local newFontString = parent:CreateFontString (nil, "OVERLAY", font)
+	local newFontString = parent:CreateFontString(nil, "OVERLAY", font)
 	if (member) then
 		container [member] = newFontString
 	end
@@ -71,7 +71,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 	new_button:SetDisabledTexture (pic_disabled)
 	new_button:SetHighlightTexture(pic_highlight, "ADD")
 
-	local new_text = new_button:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+	local new_text = new_button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	new_text:SetPoint("center", new_button, "center")
 	new_button.text = new_text
 	

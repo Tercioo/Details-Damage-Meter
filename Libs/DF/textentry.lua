@@ -569,7 +569,7 @@ function DF:NewTextEntry(parent, container, name, member, w, h, func, param1, pa
 	TextEntryObject.editbox:SetSize(232, 20)
 	TextEntryObject.editbox:SetBackdrop({bgFile = [["Interface\DialogFrame\UI-DialogBox-Background"]], tileSize = 64, tile = true, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 0}})
 	
-	TextEntryObject.editbox.label = TextEntryObject.editbox:CreateFontString ("$parent_Desc", "OVERLAY", "GameFontHighlightSmall")
+	TextEntryObject.editbox.label = TextEntryObject.editbox:CreateFontString("$parent_Desc", "OVERLAY", "GameFontHighlightSmall")
 	TextEntryObject.editbox.label:SetJustifyH("left")
 	TextEntryObject.editbox.label:SetPoint("RIGHT", TextEntryObject.editbox, "LEFT", -2, 0)
 	

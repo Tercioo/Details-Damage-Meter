@@ -2,11 +2,11 @@ local AceLocale = LibStub("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ("Details_Threat")
 
 local _GetNumSubgroupMembers = GetNumSubgroupMembers --wow api
-local _GetNumGroupMembers = GetNumGroupMembers --wow api
+local GetNumGroupMembers = GetNumGroupMembers --wow api
 local _UnitIsFriend = UnitIsFriend --wow api
 local _UnitName = UnitName --wow api
-local _IsInRaid = IsInRaid --wow api
-local _IsInGroup = IsInGroup --wow api
+local IsInRaid = IsInRaid --wow api
+local IsInGroup = IsInGroup --wow api
 local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --wow api
 local GetUnitName = GetUnitName
 
@@ -102,7 +102,7 @@ local function CreatePluginFrames (data)
 
 			ThreatMeter.Actived = false
 
-			if (ThreatMeter:IsInCombat() or UnitAffectingCombat ("player")) then
+			if (ThreatMeter:IsInCombat() or UnitAffectingCombat("player")) then
 				if (not ThreatMeter.initialized) then
 					return
 				end
@@ -323,8 +323,8 @@ local function CreatePluginFrames (data)
 		if (ThreatMeter.Actived and UnitExists(unitId) and not _UnitIsFriend("player", unitId)) then
 
 			--get the threat of all players
-			if (_IsInRaid()) then
-				for i = 1, _GetNumGroupMembers(), 1 do
+			if (IsInRaid()) then
+				for i = 1, GetNumGroupMembers(), 1 do
 
 					local thisplayer_name = GetUnitName("raid"..i, true)
 					local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
@@ -340,8 +340,8 @@ local function CreatePluginFrames (data)
 
 				end
 
-			elseif (_IsInGroup()) then
-				for i = 1, _GetNumGroupMembers()-1, 1 do
+			elseif (IsInGroup()) then
+				for i = 1, GetNumGroupMembers()-1, 1 do
 					local thisplayer_name = GetUnitName("party"..i, true)
 					local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 					local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
@@ -661,8 +661,8 @@ local function CreatePluginFrames (data)
 			ThreatMeter.player_list_hash = {}
 
 			--pre build player list
-			if (_IsInRaid()) then
-				for i = 1, _GetNumGroupMembers(), 1 do
+			if (IsInRaid()) then
+				for i = 1, GetNumGroupMembers(), 1 do
 					local thisplayer_name = GetUnitName("raid"..i, true)
 					local role = _UnitGroupRolesAssigned(thisplayer_name)
 					local _, class = UnitClass (thisplayer_name)
@@ -671,8 +671,8 @@ local function CreatePluginFrames (data)
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
 
-			elseif (_IsInGroup()) then
-				for i = 1, _GetNumGroupMembers()-1, 1 do
+			elseif (IsInGroup()) then
+				for i = 1, GetNumGroupMembers()-1, 1 do
 					local thisplayer_name = GetUnitName("party"..i, true)
 					local role = _UnitGroupRolesAssigned(thisplayer_name)
 					local _, class = UnitClass (thisplayer_name)

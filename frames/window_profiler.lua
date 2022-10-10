@@ -34,11 +34,11 @@ function Details:OpenProfiler()
     logo:SetPoint("center", f, "center", 0, 0)
     logo:SetPoint("top", f, "top", 20, 20)
     
-    local string_profiler = f:CreateFontString (nil, "artwork", "GameFontNormal")
+    local string_profiler = f:CreateFontString(nil, "artwork", "GameFontNormal")
     string_profiler:SetPoint("top", logo, "bottom", -20, 10)
     string_profiler:SetText("Profiler!")
     
-    local string_profiler = f:CreateFontString (nil, "artwork", "GameFontNormal")
+    local string_profiler = f:CreateFontString(nil, "artwork", "GameFontNormal")
     string_profiler:SetPoint("topleft", f, "topleft", 10, -130)
     string_profiler:SetText(L["STRING_OPTIONS_PROFILE_SELECTEXISTING"])
     string_profiler:SetWidth(230)

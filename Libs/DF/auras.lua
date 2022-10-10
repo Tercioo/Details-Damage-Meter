@@ -215,7 +215,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	f.OnProfileChanged = on_profile_changed
 	f.LocTexts = texts
 	options = options or {}
-	self.table.deploy (options, aura_panel_defaultoptions)
+	self.table.deploy(options, aura_panel_defaultoptions)
 	
 	local f_auto = CreateFrame("frame", "$parent_Automatic", f, "BackdropTemplate")
 	local f_manual = CreateFrame("frame", "$parent_Manual", f, "BackdropTemplate")
@@ -228,7 +228,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	
 	--check if the texts table is valid and also deploy default values into the table in case some value is nil
 	texts = (type(texts == "table") and texts) or default_text_for_aura_frame
-	DF.table.deploy (texts, default_text_for_aura_frame)
+	DF.table.deploy(texts, default_text_for_aura_frame)
 	
 	-------------
 	
@@ -815,7 +815,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			local icon = line:CreateTexture("$parentIcon", "overlay")
 			icon:SetSize(lineHeight - 2, lineHeight - 2)
 			
-			local name = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
+			local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
 			DF:SetFontSize (name, 10)
 
 			local remove_button = CreateFrame("button", "$parentRemoveButton", line, "UIPanelCloseButton")
@@ -995,7 +995,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		local icon = line:CreateTexture("$parentIcon", "overlay")
 		icon:SetSize(scroll_line_height - 2, scroll_line_height - 2)
 		
-		local name = line:CreateFontString ("$parentName", "overlay", "GameFontNormal")
+		local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
 
 		local remove_button = CreateFrame("button", "$parentRemoveButton", line, "UIPanelCloseButton")
 		remove_button:SetSize(16, 16)
@@ -1085,7 +1085,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		if (text ~= "") then
 			--check for more than one spellname
 			if (text:find (";")) then
-				for _, spellName in ipairs({strsplit (";", text)}) do
+				for _, spellName in ipairs({strsplit(";", text)}) do
 					spellName = self:trim (spellName)
 					local spellID = get_spellID_from_string (spellName)
 
@@ -1132,7 +1132,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 		if (text ~= "") then
 			--check for more than one spellname
 			if (text:find (";")) then
-				for _, spellName in ipairs({strsplit (";", text)}) do
+				for _, spellName in ipairs({strsplit(";", text)}) do
 					spellName = self:trim (spellName)
 					local spellID = get_spellID_from_string (spellName)
 					

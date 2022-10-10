@@ -2039,7 +2039,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         f.Close:SetScript("OnClick", function() f:Hide() end)
         
         --title
-        f.Title = f.TitleBar:CreateFontString ("$parentTitle", "overlay", "GameFontNormal")
+        f.Title = f.TitleBar:CreateFontString("$parentTitle", "overlay", "GameFontNormal")
         f.Title:SetPoint("center", f.TitleBar, "center")
         f.Title:SetText("Details! Create Aura")
 
