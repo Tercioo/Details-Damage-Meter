@@ -416,7 +416,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			local class
 			local spec = _detalhes.cached_specs [serial]
 			if (not spec) then
-				local _, engClass = UnitClass (name)
+				local _, engClass = UnitClass(name)
 				if (engClass) then
 					class = engClass
 				else
@@ -519,7 +519,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 					local spec, class = get_spec_or_class (ability [ABILITYTABLE_CASTERSERIAL], ability [ABILITYTABLE_CASTERNAME])
 					local texture, L, R, T, B = get_player_icon (spec, class)
 					line.LeftIcon:SetTexture(texture)
-					line.LeftIcon:SetTexCoord (L, R, T, B)
+					line.LeftIcon:SetTexCoord(L, R, T, B)
 					line.LeftText:SetText(_detalhes:GetOnlyName(ability [ABILITYTABLE_CASTERNAME]))
 					
 					if (ability [ABILITYTABLE_ISENEMY]) then
@@ -531,7 +531,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 					if (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_COOLDOWN) then
 						local spellName, _, spellIcon = GetSpellInfo(ability [ABILITYTABLE_SPELLID])
 						line.RightIcon:SetTexture(spellIcon)
-						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
+						line.RightIcon:SetTexCoord(.06, .94, .06, .94)
 						
 						local targetName = ability [ABILITYTABLE_TARGETNAME]
 						if (targetName) then
@@ -542,30 +542,30 @@ function Details:CreateEventTrackerFrame(parent, name)
 						line.RightText:SetText(targetName or spellName)
 						
 						line.ActionIcon:SetTexture([[Interface\AddOns\Details\images\event_tracker_icons]])
-						line.ActionIcon:SetTexCoord (0, 0.125, 0, 1)
+						line.ActionIcon:SetTexCoord(0, 0.125, 0, 1)
 						
 					elseif (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_OFFENSIVE) then
 						local spellName, _, spellIcon = GetSpellInfo(ability [ABILITYTABLE_SPELLID])
 						line.RightIcon:SetTexture(spellIcon)
-						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
+						line.RightIcon:SetTexCoord(.06, .94, .06, .94)
 						line.RightText:SetText(spellName)
 						
 						line.ActionIcon:SetTexture([[Interface\AddOns\Details\images\event_tracker_icons]])
-						line.ActionIcon:SetTexCoord (0.127, 0.25, 0, 1)
+						line.ActionIcon:SetTexCoord(0.127, 0.25, 0, 1)
 
 					elseif (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_INTERRUPT) then
 						local spellNameInterrupted, _, spellIconInterrupted = GetSpellInfo(ability [ABILITYTABLE_EXTRASPELLID])
 						line.RightIcon:SetTexture(spellIconInterrupted)
-						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
+						line.RightIcon:SetTexCoord(.06, .94, .06, .94)
 						line.RightText:SetText(spellNameInterrupted)
 						
 						line.ActionIcon:SetTexture([[Interface\AddOns\Details\images\event_tracker_icons]])
-						line.ActionIcon:SetTexCoord (0.251, 0.375, 0, 1)
+						line.ActionIcon:SetTexCoord(0.251, 0.375, 0, 1)
 						
 					elseif (ability [ABILITYTABLE_SPELLTYPE] == SPELLTYPE_CROWDCONTROL) then
 						local spellName, _, spellIcon = GetSpellInfo(ability [ABILITYTABLE_SPELLID])
 						line.RightIcon:SetTexture(spellIcon)
-						line.RightIcon:SetTexCoord (.06, .94, .06, .94)
+						line.RightIcon:SetTexCoord(.06, .94, .06, .94)
 
 						local targetName = ability [ABILITYTABLE_TARGETNAME]
 						if (targetName) then
@@ -576,7 +576,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 						line.RightText:SetText(targetName or "unknown target")
 						
 						line.ActionIcon:SetTexture([[Interface\AddOns\Details\images\event_tracker_icons]])
-						line.ActionIcon:SetTexCoord (0.376, 0.5, 0, 1)
+						line.ActionIcon:SetTexCoord(0.376, 0.5, 0, 1)
 
 					end
 					

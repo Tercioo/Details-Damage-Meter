@@ -49,7 +49,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 		playerData = {
 			Name = unitName,
 			ChartData = {max_value = 0},
-			Class = select(2, UnitClass (CLName)),
+			Class = select(2, UnitClass(CLName)),
 
 			--spec zero for now, need to retrive later during combat
 			Spec = 0,
@@ -167,7 +167,7 @@ function mythicDungeonCharts:OnBossDefeated()
 	if (mythicLevel and mythicLevel > 0) then
 		if (mythicDungeonCharts.ChartTable and mythicDungeonCharts.ChartTable.Running and bossInfo) then
 
-			local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
+			local copiedBossInfo = Details:GetFramework().table.copy({}, bossInfo)
 			tinsert(mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
 			mythicDungeonCharts:Debug("Boss defeated, time saved", currentCombat:GetCombatTime())
 		else
@@ -177,7 +177,7 @@ function mythicDungeonCharts:OnBossDefeated()
 				if (mythicDungeonCharts.ChartTable.EndTime + 2 >= now) then
 
 					if (bossInfo) then
-						local copiedBossInfo = Details:GetFramework().table.copy ({}, bossInfo)
+						local copiedBossInfo = Details:GetFramework().table.copy({}, bossInfo)
 						tinsert(mythicDungeonCharts.ChartTable.BossDefeated, {time() - mythicDungeonCharts.ChartTable.StartTime, copiedBossInfo, currentCombat:GetCombatTime()})
 						mythicDungeonCharts:Debug("Boss defeated, time saved, but used time aproximation:", mythicDungeonCharts.ChartTable.EndTime + 2, now, currentCombat:GetCombatTime())
 					end
@@ -421,12 +421,12 @@ function mythicDungeonCharts.ShowChart()
 
 		dungeonChartFrame.BossWidgetsFrame.GraphPin = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
 		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexture([[Interface\BUTTONS\UI-RadioButton]])
-		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexCoord (17/64, 32/64, 0, 1)
+		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetTexCoord(17/64, 32/64, 0, 1)
 		dungeonChartFrame.BossWidgetsFrame.GraphPin:SetSize(16, 16)
 
 		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "artwork")
 		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexture([[Interface\Calendar\EventNotificationGlow]])
-		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexCoord (0, 1, 0, 1)
+		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetTexCoord(0, 1, 0, 1)
 		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetSize(14, 14)
 		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetBlendMode("ADD")
 		dungeonChartFrame.BossWidgetsFrame.GraphPinGlow:SetPoint("center", dungeonChartFrame.BossWidgetsFrame.GraphPin, "center", 0, 0)
@@ -519,12 +519,12 @@ function mythicDungeonCharts.ShowChart()
 
 		local leftDivisorLine = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
 		leftDivisorLine:SetSize(2, dungeonChartFrame.ChartFrame.Graphic:GetHeight())
-		leftDivisorLine:SetColorTexture (1, 1, 1, 1)
+		leftDivisorLine:SetColorTexture(1, 1, 1, 1)
 		leftDivisorLine:SetPoint("bottomleft", dungeonChartFrame.ChartFrame.Graphic.TextFrame, "bottomleft", -2, 0)
 
 		local bottomDivisorLine = dungeonChartFrame.BossWidgetsFrame:CreateTexture(nil, "overlay")
 		bottomDivisorLine:SetSize(dungeonChartFrame.ChartFrame.Graphic:GetWidth(), 2)
-		bottomDivisorLine:SetColorTexture (1, 1, 1, 1)
+		bottomDivisorLine:SetColorTexture(1, 1, 1, 1)
 		bottomDivisorLine:SetPoint("bottomleft", dungeonChartFrame.ChartFrame.Graphic.TextFrame, "bottomleft", 0, 0)
 
 		dungeonChartFrame.ChartFrame.Graphic:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -547,7 +547,7 @@ function mythicDungeonCharts.ShowChart()
 					newBossWidget.AvatarTexture = bossAvatar
 
 					local verticalLine = Details:GetFramework():CreateImage(newBossWidget, "", 1, dungeonChartFrame.ChartFrame.Graphic:GetHeight(), "overlay")
-					verticalLine:SetColorTexture (1, 1, 1, 0.3)
+					verticalLine:SetColorTexture(1, 1, 1, 0.3)
 					verticalLine:SetPoint("bottomleft", newBossWidget, "bottomright", 0, 0)
 
 					local timeText = Details:GetFramework():CreateLabel(newBossWidget)
@@ -555,7 +555,7 @@ function mythicDungeonCharts.ShowChart()
 					newBossWidget.TimeText = timeText
 
 					local timeBackground = Details:GetFramework():CreateImage(newBossWidget, "", 30, 12, "artwork")
-					timeBackground:SetColorTexture (0, 0, 0, 0.5)
+					timeBackground:SetColorTexture(0, 0, 0, 0.5)
 					timeBackground:SetPoint("topleft", timeText, "topleft", -2, 2)
 					timeBackground:SetPoint("bottomright", timeText, "bottomright", 2, 0)
 
@@ -589,7 +589,7 @@ function mythicDungeonCharts.ShowChart()
 			if (Details.mythic_plus.last_mythicrun_chart) then
 				--load the last mythic dungeon run chart
 				local t = {}
-				Details:GetFramework().table.copy (t, Details.mythic_plus.last_mythicrun_chart)
+				Details:GetFramework().table.copy(t, Details.mythic_plus.last_mythicrun_chart)
 				mythicDungeonCharts.ChartTable = t
 				mythicDungeonCharts:Debug("no valid data, saved data loaded")
 

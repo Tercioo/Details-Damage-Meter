@@ -49,7 +49,7 @@ function _detalhes:OpenWelcomeWindow()
 		local logotipo = window:CreateTexture(nil, "overlay")
 		logotipo:SetPoint("topleft", window, "topleft", 16, -20)
 		logotipo:SetTexture([[Interface\Addons\Details\images\logotipo]])
-		logotipo:SetTexCoord (0.07421875, 0.73828125, 0.51953125, 0.890625)
+		logotipo:SetTexCoord(0.07421875, 0.73828125, 0.51953125, 0.890625)
 		logotipo:SetWidth(186)
 		logotipo:SetHeight(50)
 		
@@ -66,7 +66,7 @@ function _detalhes:OpenWelcomeWindow()
 		cancel:Disable()
 		
 		local cancelText = cancel:CreateFontString(nil, "overlay", "GameFontNormal")
-		cancelText:SetTextColor (1, 1, 1)
+		cancelText:SetTextColor(1, 1, 1)
 		cancelText:SetPoint("left", cancel, "right", 2, 0)
 		cancelText:SetText(Loc ["STRING_WELCOME_69"])
 		
@@ -238,7 +238,7 @@ local window_openned_at = time()
 		local angel = window:CreateTexture(nil, "border")
 		angel:SetPoint("bottomright", window, "bottomright")
 		angel:SetTexture([[Interface\TUTORIALFRAME\UI-TUTORIALFRAME-SPIRITREZ]])
-		angel:SetTexCoord (0.162109375, 0.591796875, 0, 1)
+		angel:SetTexCoord(0.162109375, 0.591796875, 0, 1)
 		angel:SetWidth(442)
 		angel:SetHeight(256)
 		angel:SetAlpha(.2)
@@ -263,7 +263,7 @@ local window_openned_at = time()
 		bg55:SetHeight(125*3)
 		bg55:SetWidth(89*3)
 		bg55:SetAlpha(.05)
-		bg55:SetTexCoord (1, 0, 0, 1)
+		bg55:SetTexCoord(1, 0, 0, 1)
 
 		local texto55 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto55:SetPoint("topleft", window, "topleft", 20, -80)
@@ -271,7 +271,7 @@ local window_openned_at = time()
 
 		local texto555 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto555:SetText(Loc ["STRING_WELCOME_45"])
-		texto555:SetTextColor (1, 1, 1, 1)
+		texto555:SetTextColor(1, 1, 1, 1)
 		
 		local changemind = g:NewLabel(window, _, "$parentChangeMind55Label", "changemind55Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemind55Label:SetPoint("center", window, "center")
@@ -285,14 +285,14 @@ local window_openned_at = time()
 		texto_appearance:SetHeight(100)
 		texto_appearance:SetJustifyH("left")
 		texto_appearance:SetJustifyV ("top")
-		texto_appearance:SetTextColor (1, 1, 1, 1)
+		texto_appearance:SetTextColor(1, 1, 1, 1)
 		
 		local skins_image = window:CreateTexture(nil, "overlay")
 		skins_image:SetTexture([[Interface\Addons\Details\images\icons2]])
 		skins_image:SetPoint("topright", window, "topright", -50, -24)
 		skins_image:SetWidth(214*0.7)
 		skins_image:SetHeight(133*0.7)
-		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
+		skins_image:SetTexCoord(0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
 
 		--skin
 			local onSelectSkin = function(_, _, skin_name)
@@ -334,7 +334,7 @@ local window_openned_at = time()
 			texto_alphabet:SetText(Loc ["STRING_WELCOME_73"]) --"Select the Alphabet or Region:"
 			texto_alphabet:SetJustifyH("left")
 			texto_alphabet:SetJustifyV ("top")
-			texto_alphabet:SetTextColor (1, 1, 1)
+			texto_alphabet:SetTextColor(1, 1, 1)
 			texto_alphabet:SetPoint("topleft", skin_label.widget, "bottomleft", 0, -20)
 		
 			local allAlphabetCheckBoxes = {}
@@ -697,7 +697,7 @@ local window_openned_at = time()
 		numeral_image:SetHeight(125*3)--125
 		numeral_image:SetWidth(89*3)--82
 		numeral_image:SetAlpha(.05)
-		numeral_image:SetTexCoord (1, 0, 0, 1)		
+		numeral_image:SetTexCoord(1, 0, 0, 1)		
 		
 		g:NewLabel(window, _, "$parentChangeMindNumeralLabel", "changemindNumeralLabel", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemindNumeralLabel:SetPoint("center", window, "center")
@@ -746,16 +746,16 @@ local window_openned_at = time()
 		sword_icon2:SetTexture([[Interface\Addons\Details\images\icons2]])
 		sword_icon2:SetPoint("topright", window, "topright", -30, -10)
 		sword_icon2:SetSize(128*1.4, 64*1.4)
-		sword_icon2:SetTexCoord (330/512, 509/512, 437/512, 509/512)
-		sword_icon2:SetDrawLayer ("overlay", 2)
+		sword_icon2:SetTexCoord(330/512, 509/512, 437/512, 509/512)
+		sword_icon2:SetDrawLayer("overlay", 2)
 		
 		local thedude2 = window:CreateTexture(nil, "overlay")
 		--thedude2:SetTexture([[Interface\TUTORIALFRAME\UI-TutorialFrame-TheDude]])
 		thedude2:SetPoint("bottomright", sword_icon, "bottomleft", 70, 19)
 		thedude2:SetWidth(128*1.0)
 		thedude2:SetHeight(128*1.0)
-		thedude2:SetTexCoord (0, 1, 0, 1)
-		thedude2:SetDrawLayer ("overlay", 3)
+		thedude2:SetTexCoord(0, 1, 0, 1)
+		thedude2:SetDrawLayer("overlay", 3)
 		
 		local NumeralType1_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		NumeralType1_text:SetText("1K = 1.000 |cFFFFCC00| |r10K = 10.000 |cFFFFCC00| |r100K = 100.000 |cFFFFCC00| |r1M = 1.000.000")
@@ -763,7 +763,7 @@ local window_openned_at = time()
 		NumeralType1_text:SetHeight(40)
 		NumeralType1_text:SetJustifyH("left")
 		NumeralType1_text:SetJustifyV ("top")
-		NumeralType1_text:SetTextColor (.8, .8, .8, 1)
+		NumeralType1_text:SetTextColor(.8, .8, .8, 1)
 		NumeralType1_text:SetPoint("topleft", window, "topleft", 40, -150)
 		
 		local NumeralType2_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -775,7 +775,7 @@ local window_openned_at = time()
 		--if region is western it'll be using Korean symbols, set a font on the dropdown so it won't show ?????
 		local clientRegion = _detalhes.gump:GetClientRegion()
 		if (clientRegion == "western" or clientRegion == "russia") then
-			_detalhes.gump:SetFontFace (NumeralType2_text, _detalhes.gump:GetBestFontForLanguage ("koKR"))
+			_detalhes.gump:SetFontFace (NumeralType2_text, _detalhes.gump:GetBestFontForLanguage("koKR"))
 			
 		else
 			_detalhes.gump:SetFontFace (NumeralType2_text, _detalhes.gump:GetBestFontForLanguage())
@@ -788,7 +788,7 @@ local window_openned_at = time()
 		NumeralType2_text:SetHeight(80)
 		NumeralType2_text:SetJustifyH("left")
 		NumeralType2_text:SetJustifyV ("top")
-		NumeralType2_text:SetTextColor (.8, .8, .8, 1)
+		NumeralType2_text:SetTextColor(.8, .8, .8, 1)
 		NumeralType2_text:SetPoint("topleft", window, "topleft", 40, -220)
 		
 		if (_detalhes.numerical_system == 1) then --west
@@ -816,7 +816,7 @@ local window_openned_at = time()
 		ampulheta:SetHeight(125*3)--125
 		ampulheta:SetWidth(89*3)--82
 		ampulheta:SetAlpha(.05)
-		ampulheta:SetTexCoord (1, 0, 0, 1)		
+		ampulheta:SetTexCoord(1, 0, 0, 1)		
 		
 		g:NewLabel(window, _, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemind2Label:SetPoint("center", window, "center")
@@ -865,16 +865,16 @@ local window_openned_at = time()
 		sword_icon:SetPoint("topright", window, "topright", -15, -30)
 		sword_icon:SetWidth(64*1.4)
 		sword_icon:SetHeight(64*1.4)
-		sword_icon:SetTexCoord (1, 0, 0, 1)
-		sword_icon:SetDrawLayer ("overlay", 2)
+		sword_icon:SetTexCoord(1, 0, 0, 1)
+		sword_icon:SetDrawLayer("overlay", 2)
 		
 		local thedude = window:CreateTexture(nil, "overlay")
 		thedude:SetTexture([[Interface\TUTORIALFRAME\UI-TutorialFrame-TheDude]])
 		thedude:SetPoint("bottomright", sword_icon, "bottomleft", 70, 19)
 		thedude:SetWidth(128*1.0)
 		thedude:SetHeight(128*1.0)
-		thedude:SetTexCoord (0, 1, 0, 1)
-		thedude:SetDrawLayer ("overlay", 3)
+		thedude:SetTexCoord(0, 1, 0, 1)
+		thedude:SetDrawLayer("overlay", 3)
 		
 		local chronometer_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		chronometer_text:SetText(Loc ["STRING_WELCOME_6"])
@@ -882,7 +882,7 @@ local window_openned_at = time()
 		chronometer_text:SetHeight(40)
 		chronometer_text:SetJustifyH("left")
 		chronometer_text:SetJustifyV ("top")
-		chronometer_text:SetTextColor (.8, .8, .8, 1)
+		chronometer_text:SetTextColor(.8, .8, .8, 1)
 		chronometer_text:SetPoint("topleft", window.ChronometerLabel.widget, "topright", 20, 0)
 		
 		local continuous_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -891,7 +891,7 @@ local window_openned_at = time()
 		continuous_text:SetHeight(40)
 		continuous_text:SetJustifyH("left")
 		continuous_text:SetJustifyV ("top")
-		continuous_text:SetTextColor (.8, .8, .8, 1)
+		continuous_text:SetTextColor(.8, .8, .8, 1)
 		continuous_text:SetPoint("topleft", window.ContinuousLabel.widget, "topright", 20, 0)
 
 		if (_detalhes.time_type == 1) then --chronometer
@@ -956,7 +956,7 @@ local window_openned_at = time()
 		bg:SetHeight(125*3)--125
 		bg:SetWidth(89*3)--82
 		bg:SetAlpha(.05)
-		bg:SetTexCoord (1, 0, 0, 1)
+		bg:SetTexCoord(1, 0, 0, 1)
 		
 		g:NewLabel(window, _, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
 		window.changemind4Label:SetPoint("center", window, "center")
@@ -973,7 +973,7 @@ local window_openned_at = time()
 		interval_text:SetHeight(40)
 		interval_text:SetJustifyH("left")
 		interval_text:SetJustifyV ("top")
-		interval_text:SetTextColor (1, 1, 1, .9)
+		interval_text:SetTextColor(1, 1, 1, .9)
 		interval_text:SetPoint("topleft", window, "topleft", 30, -110)
 		
 		local dance_text = window:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -982,7 +982,7 @@ local window_openned_at = time()
 		dance_text:SetHeight(40)
 		dance_text:SetJustifyH("left")
 		dance_text:SetJustifyV ("top")
-		dance_text:SetTextColor (1, 1, 1, 1)
+		dance_text:SetTextColor(1, 1, 1, 1)
 		dance_text:SetPoint("topleft", window, "topleft", 30, -175)
 		
 	--------------- Update Speed
@@ -997,11 +997,11 @@ local window_openned_at = time()
 		window.updatespeedSlider.useDecimals = true
 		local updateColor = function(slider, value)
 			if (value < 1) then
-				slider.amt:SetTextColor (1, value, 0)
+				slider.amt:SetTextColor(1, value, 0)
 			elseif (value > 1) then
-				slider.amt:SetTextColor (-(value-3), 1, 0)
+				slider.amt:SetTextColor(-(value-3), 1, 0)
 			else
-				slider.amt:SetTextColor (1, 1, 0)
+				slider.amt:SetTextColor(1, 1, 0)
 			end
 		end
 
@@ -1072,8 +1072,8 @@ local window_openned_at = time()
 		mech_icon2:SetWidth(128*1.0)
 		mech_icon2:SetHeight(128*0.6)
 		mech_icon2:SetAlpha(0.6)
-		mech_icon2:SetTexCoord (0, 1, 40/128, 1)
-		mech_icon2:SetDrawLayer ("overlay", 2)
+		mech_icon2:SetTexCoord(0, 1, 40/128, 1)
+		mech_icon2:SetDrawLayer("overlay", 2)
 
 		local update_frame_alert = CreateFrame("frame", nil, window)
 		update_frame_alert:SetScript("OnShow", function()
@@ -1123,7 +1123,7 @@ local window_openned_at = time()
 		bg6:SetHeight(125*3)--125
 		bg6:SetWidth(89*3)--82
 		bg6:SetAlpha(.1)
-		bg6:SetTexCoord (1, 0, 0, 1)
+		bg6:SetTexCoord(1, 0, 0, 1)
 
 		local texto5 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto5:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1136,14 +1136,14 @@ local window_openned_at = time()
 		texto_stretch:SetHeight(100)
 		texto_stretch:SetJustifyH("left")
 		texto_stretch:SetJustifyV ("top")
-		texto_stretch:SetTextColor (1, 1, 1, 1)
+		texto_stretch:SetTextColor(1, 1, 1, 1)
 		
 		local stretch_image = window:CreateTexture(nil, "overlay")
 		stretch_image:SetTexture([[Interface\Addons\Details\images\icons]])
 		stretch_image:SetPoint("right", texto_stretch, "left", -12, 0)
 		stretch_image:SetWidth(144)
 		stretch_image:SetHeight(61)
-		stretch_image:SetTexCoord (0.716796875, 1, 0.876953125, 1)
+		stretch_image:SetTexCoord(0.716796875, 1, 0.876953125, 1)
 		
 		local stretch_frame_alert = CreateFrame("frame", nil, window)
 		stretch_frame_alert:SetScript("OnHide", function()
@@ -1181,7 +1181,7 @@ local window_openned_at = time()
 		bg6:SetHeight(125*3)--125
 		bg6:SetWidth(89*3)--82
 		bg6:SetAlpha(.1)
-		bg6:SetTexCoord (1, 0, 0, 1)
+		bg6:SetTexCoord(1, 0, 0, 1)
 
 		local texto6 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto6:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1194,14 +1194,14 @@ local window_openned_at = time()
 		texto_instance_button:SetHeight(100)
 		texto_instance_button:SetJustifyH("left")
 		texto_instance_button:SetJustifyV ("top")
-		texto_instance_button:SetTextColor (1, 1, 1, 1)
+		texto_instance_button:SetTextColor(1, 1, 1, 1)
 		
 		local instance_button_image = window:CreateTexture(nil, "overlay")
 		instance_button_image:SetTexture([[Interface\Addons\Details\images\icons]])
 		instance_button_image:SetPoint("topright", window, "topright", -16, -70)
 		instance_button_image:SetWidth(198)
 		instance_button_image:SetHeight(141)
-		instance_button_image:SetTexCoord (0.328125, 0.71484375, 0.724609375, 1)
+		instance_button_image:SetTexCoord(0.328125, 0.71484375, 0.724609375, 1)
 		
 		local instance_frame_alert = CreateFrame("frame", nil, window)
 		instance_frame_alert:SetScript("OnHide", function()
@@ -1237,7 +1237,7 @@ local window_openned_at = time()
 		bg7:SetHeight(125*3)--125
 		bg7:SetWidth(89*3)--82
 		bg7:SetAlpha(.1)
-		bg7:SetTexCoord (1, 0, 0, 1)
+		bg7:SetTexCoord(1, 0, 0, 1)
 
 		local texto7 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto7:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1250,14 +1250,14 @@ local window_openned_at = time()
 		texto_shortcut:SetHeight(160)
 		texto_shortcut:SetJustifyH("left")
 		texto_shortcut:SetJustifyV ("top")
-		texto_shortcut:SetTextColor (1, 1, 1, 1)
+		texto_shortcut:SetTextColor(1, 1, 1, 1)
 		
 		local shortcut_image2 = window:CreateTexture(nil, "overlay")
 		shortcut_image2:SetTexture([[Interface\Addons\Details\images\icons]])
 		shortcut_image2:SetPoint("topright", window, "topright", -22, -87)
 		shortcut_image2:SetWidth(165)
 		shortcut_image2:SetHeight(119)
-		shortcut_image2:SetTexCoord (2/512, 167/512, 306/512, 425/512)
+		shortcut_image2:SetTexCoord(2/512, 167/512, 306/512, 425/512)
 
 		
 		local instance1 = _detalhes:GetInstance(1)
@@ -1268,17 +1268,17 @@ local window_openned_at = time()
 		bookmark_frame:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64})
 		bookmark_frame:SetBackdropColor(0, 0, 0, 0.8)
 
-		local desc_anchor_topleft = _detalhes.gump:NewImage (bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.19921875, 0.2724609375, 0.6796875, 0.783203125}, "descAnchorBottomLeftImage", "$parentDescAnchorBottomLeftImage") --204 696 279 802
+		local desc_anchor_topleft = _detalhes.gump:NewImage(bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.19921875, 0.2724609375, 0.6796875, 0.783203125}, "descAnchorBottomLeftImage", "$parentDescAnchorBottomLeftImage") --204 696 279 802
 		desc_anchor_topleft:SetPoint("topleft", bookmark_frame, "topleft", -5, 5)
 		
-		local desc_anchor_bottomleft = _detalhes.gump:NewImage (bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.2724609375, 0.19921875, 0.783203125, 0.6796875}, "descAnchorTopLeftImage", "$parentDescAnchorTopLeftImage") --204 696 279 802
+		local desc_anchor_bottomleft = _detalhes.gump:NewImage(bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.2724609375, 0.19921875, 0.783203125, 0.6796875}, "descAnchorTopLeftImage", "$parentDescAnchorTopLeftImage") --204 696 279 802
 		desc_anchor_bottomleft:SetPoint("bottomright", bookmark_frame, "bottomright", 5, -5)
 		
 		local bmf_string = bookmark_frame:CreateFontString("overlay", nil, "GameFontNormal")
 		bmf_string:SetPoint("center", bookmark_frame, "center")
 		bmf_string:SetText(Loc ["STRING_WELCOME_65"])
 		
-		local bg_string = _detalhes.gump:NewImage (bookmark_frame, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-RecentHeader]], 256, 32, "border", {0, 1, 0, 23/32})
+		local bg_string = _detalhes.gump:NewImage(bookmark_frame, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-RecentHeader]], 256, 32, "border", {0, 1, 0, 23/32})
 		bg_string:SetPoint("left", bookmark_frame, "left", 0, 0)
 		bg_string:SetPoint("right", bookmark_frame, "right", 0, 0)
 		bg_string:SetPoint("center", bmf_string, "center", 0, 0)
@@ -1306,7 +1306,7 @@ local window_openned_at = time()
 		bg77:SetHeight(125*3)--125
 		bg77:SetWidth(89*3)--82
 		bg77:SetAlpha(.1)
-		bg77:SetTexCoord (1, 0, 0, 1)
+		bg77:SetTexCoord(1, 0, 0, 1)
 
 		local texto77 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto77:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1319,7 +1319,7 @@ local window_openned_at = time()
 		texto_snap:SetHeight(110)
 		texto_snap:SetJustifyH("left")
 		texto_snap:SetJustifyV ("top")
-		texto_snap:SetTextColor (1, 1, 1, 1)
+		texto_snap:SetTextColor(1, 1, 1, 1)
 		local fonte, _, flags = texto_snap:GetFont()
 		texto_snap:SetFont (fonte, 11, flags)
 		
@@ -1328,7 +1328,7 @@ local window_openned_at = time()
 		snap_image1:SetPoint("topright", window, "topright", -12, -95)
 		snap_image1:SetWidth(310)
 		snap_image1:SetHeight(102) 
-		snap_image1:SetTexCoord (0, 0.60546875, 191/512, 293/512)
+		snap_image1:SetTexCoord(0, 0.60546875, 191/512, 293/512)
 
 		local group_frame_alert = CreateFrame("frame", nil, window)
 		group_frame_alert:SetScript("OnShow", function()
@@ -1352,7 +1352,7 @@ local window_openned_at = time()
 		bg88:SetHeight(125*3)--125
 		bg88:SetWidth(89*3)--82
 		bg88:SetAlpha(.1)
-		bg88:SetTexCoord (1, 0, 0, 1)
+		bg88:SetTexCoord(1, 0, 0, 1)
 
 		local texto88 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto88:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1365,14 +1365,14 @@ local window_openned_at = time()
 		texto_micro_display:SetHeight(110)
 		texto_micro_display:SetJustifyH("left")
 		texto_micro_display:SetJustifyV ("top")
-		texto_micro_display:SetTextColor (1, 1, 1, 1)
+		texto_micro_display:SetTextColor(1, 1, 1, 1)
 		
 		local micro_image1 = window:CreateTexture(nil, "overlay")
 		micro_image1:SetTexture([[Interface\Addons\Details\images\icons]])
 		micro_image1:SetPoint("topright", window, "topright", -15, -70)
 		micro_image1:SetWidth(186)
 		micro_image1:SetHeight(100)
-		micro_image1:SetTexCoord (326/512, 1, 85/512, 185/512)
+		micro_image1:SetTexCoord(326/512, 1, 85/512, 185/512)
 		
 		local tooltip_frame = CreateFrame("frame", nil, window)
 		tooltip_frame:SetScript("OnShow", function(self)
@@ -1475,7 +1475,7 @@ local window_openned_at = time()
 		bg11:SetHeight(125*3)--125
 		bg11:SetWidth(89*3)--82
 		bg11:SetAlpha(.1)
-		bg11:SetTexCoord (1, 0, 0, 1)
+		bg11:SetTexCoord(1, 0, 0, 1)
 
 		local texto11 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto11:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1488,7 +1488,7 @@ local window_openned_at = time()
 		texto_plugins:SetHeight(110)
 		texto_plugins:SetJustifyH("left")
 		texto_plugins:SetJustifyV ("top")
-		texto_plugins:SetTextColor (1, 1, 1, 1)
+		texto_plugins:SetTextColor(1, 1, 1, 1)
 		--local fonte, _, flags = texto_plugins:GetFont()
 		--texto_plugins:SetFont (fonte, 11, flags)
 		
@@ -1497,7 +1497,7 @@ local window_openned_at = time()
 		plugins_image1:SetPoint("topright", window, "topright", -12, -90)
 		plugins_image1:SetWidth(281)
 		plugins_image1:SetHeight(81)
-		plugins_image1:SetTexCoord (216/512, 497/512, 6/512, 95/512)
+		plugins_image1:SetTexCoord(216/512, 497/512, 6/512, 95/512)
 		
 		pages [#pages+1] = {bg11, texto11, plugins_image1, texto_plugins}
 		
@@ -1514,7 +1514,7 @@ local window_openned_at = time()
 		bg8:SetHeight(125*3)--125
 		bg8:SetWidth(89*3)--82
 		bg8:SetAlpha(.1)
-		bg8:SetTexCoord (1, 0, 0, 1)
+		bg8:SetTexCoord(1, 0, 0, 1)
 
 		local texto8 = window:CreateFontString(nil, "overlay", "GameFontNormal")
 		texto8:SetPoint("topleft", window, "topleft", 20, -80)
@@ -1527,7 +1527,7 @@ local window_openned_at = time()
 		texto:SetHeight(90)
 		texto:SetJustifyH("left")
 		texto:SetJustifyV ("top")
-		texto:SetTextColor (1, 1, 1, 1)
+		texto:SetTextColor(1, 1, 1, 1)
 		
 		local final_frame = CreateFrame("frame", nil, window)
 		final_frame:SetSize(1, 1)

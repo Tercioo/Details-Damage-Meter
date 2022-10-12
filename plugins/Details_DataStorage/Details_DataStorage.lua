@@ -26,7 +26,7 @@ f:SetScript("OnEvent", function(self, event, addonName)
 		if (DetailsDataStorage.VERSION < DETAILS_STORAGE_VERSION) then
 			--do revisions
 			if (DetailsDataStorage.VERSION < 5) then
-				table.wipe (DetailsDataStorage)
+				table.wipe(DetailsDataStorage)
 				DetailsDataStorage = _detalhes:CreateStorageDB()
 			end
 		end

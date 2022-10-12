@@ -519,7 +519,7 @@ function segmentClass:resetar()
 		local cleargarbage = function()
 			collectgarbage()
 		end
-		local successful, errortext = pcall (cleargarbage)
+		local successful, errortext = pcall(cleargarbage)
 		if (not successful) then
 			Details:Msg("couldn't call collectgarbage()")
 		end

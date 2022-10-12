@@ -685,7 +685,7 @@ function GraphFunctions:AddDataSeries(points, color, n2, linetexture)
 	end
 
 	if linetexture then
-		if not linetexture:find ("\\") and not linetexture:find ("//") then 
+		if not linetexture:find("\\") and not linetexture:find("//") then 
 			linetexture = TextureDirectory..linetexture
 		end
 	end
@@ -1293,11 +1293,11 @@ end
 
 function GraphFunctions:SetLineTexture(texture)
 	if (type(texture) ~= "string") then
-		return assert (false, "Parameter 1 for SetLineTexture must be a string")
+		return assert(false, "Parameter 1 for SetLineTexture must be a string")
 	end
 
 	--full path
-	if (texture:find ("\\") or texture:find ("//")) then 
+	if (texture:find("\\") or texture:find("//")) then 
 		self.CustomLine = texture
 	--using an image inside lib-graph folder
 	else 
@@ -1306,10 +1306,10 @@ function GraphFunctions:SetLineTexture(texture)
 end
 
 function GraphFunctions:SetBorderSize(border, size)
-	border = string.lower (border)
+	border = string.lower(border)
 	
 	if (type(size) ~= "number") then
-		return assert (false, "Parameter 2 for SetBorderSize must be a number")
+		return assert(false, "Parameter 2 for SetBorderSize must be a number")
 	end
 	
 	if (border == "left") then
@@ -1326,7 +1326,7 @@ function GraphFunctions:SetBorderSize(border, size)
 		return true
 	end
 	
-	return assert (false, "Usage: GraphObject:SetBorderSize (LEFT RIGHT TOP BOTTOM, SIZE)")
+	return assert(false, "Usage: GraphObject:SetBorderSize (LEFT RIGHT TOP BOTTOM, SIZE)")
 end
 
 function GraphFunctions:CreateGridlines()

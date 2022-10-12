@@ -74,11 +74,11 @@
 	end
 
 	function combate:InstanceType()
-		return rawget (self, "instance_type")
+		return rawget(self, "instance_type")
 	end
 
 	function combate:IsTrash()
-		return rawget (self, "is_trash")
+		return rawget(self, "is_trash")
 	end
 
 	function combate:GetDifficulty()
@@ -161,7 +161,7 @@
 		elseif (self.is_mythic_dungeon_trash) then
 			return self.is_mythic_dungeon_trash.ZoneName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")"
 
-		elseif (rawget (self, "is_trash")) then
+		elseif (rawget(self, "is_trash")) then
 			return Loc ["STRING_SEGMENT_TRASH"]
 
 		else

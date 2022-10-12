@@ -213,7 +213,7 @@ function Details:OpenBrokerTextEditor()
     
     local panel = DetailsWindowOptionsBrokerTextEditor
     
-    local text = Details.data_broker_text:gsub ("||", "|")
+    local text = Details.data_broker_text:gsub("||", "|")
     panel.default_text = text
     panel.editbox:SetText(text)
     

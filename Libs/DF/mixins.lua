@@ -6,6 +6,10 @@ end
 
 local _
 
+local getFrame = function(frame)
+	return rawget(frame, "widget") or frame
+end
+
 detailsFramework.WidgetFunctions = {
 	GetCapsule = function(self)
 		return self.MyObject
@@ -23,6 +27,53 @@ detailsFramework.DefaultMetaFunctionsGet = {
 
 	shown = function(object)
 		return object:IsShown()
+	end,
+}
+
+detailsFramework.TooltipHandlerMixin = {
+	SetTooltip = function(self, tooltip)
+		if (tooltip) then
+			if (detailsFramework.Language.IsLocTable(tooltip)) then
+				--register the locTable as a tableKey
+				local locTable = tooltip
+				detailsFramework.Language.RegisterTableKeyWithLocTable(self, "have_tooltip", locTable)
+			else
+				self.have_tooltip = tooltip
+			end
+		else
+			self.have_tooltip = nil
+		end
+	end,
+
+	GetTooltip = function(self)
+		return self.have_tooltip
+	end,
+
+	ShowTooltip = function(self)
+		local tooltipText = self:GetTooltip()
+
+		if (type(tooltipText) == "function") then
+			local tooltipFunction = tooltipText
+			local gotTooltip, tooltipString = pcall(tooltipFunction)
+			if (gotTooltip) then
+				tooltipText = tooltipString
+			end
+		end
+
+		if (tooltipText) then
+			GameCooltip:Preset(2)
+			GameCooltip:AddLine(tooltipText)
+			GameCooltip:ShowCooltip(getFrame(self), "tooltip")
+		end
+	end,
+
+	HideTooltip = function(self)
+		local tooltipText = self:GetTooltip()
+		if (tooltipText) then
+			if (GameCooltip:IsOwner(getFrame(self))) then
+				GameCooltip:Hide()
+			end
+		end
 	end,
 }
 
@@ -71,10 +122,6 @@ detailsFramework.LayeredRegionMetaFunctionsGet = {
 		return subLevel
 	end,
 }
-
-local getFrame = function(frame)
-	return rawget(frame, "widget") or frame
-end
 
 detailsFramework.FrameMixin = {
 	SetFrameStrata = function(self, strata)
@@ -293,6 +340,73 @@ detailsFramework.PayloadMixin = {
 	DuplicatePayload = function(self)
 		local duplicatedPayload = detailsFramework.table.duplicate({}, self.payload)
 		return duplicatedPayload
+	end,
+}
+
+detailsFramework.ScriptHookMixin = {
+	RunHooksForWidget = function(self, event, ...)
+		local hooks = self.HookList[event]
+
+		if (not hooks) then
+			print(self.widget:GetName(), "no hooks for", event)
+			return
+		end
+
+		for i, func in ipairs(hooks) do
+			local success, canInterrupt = pcall(func, ...)
+			if (not success) then
+				error("Details! Framework: " .. event .. " hook for " .. self:GetName() .. ": " .. canInterrupt)
+
+			elseif (canInterrupt) then
+				return true
+			end
+		end
+	end,
+
+	SetHook = function(self, hookType, func)
+		if (self.HookList[hookType]) then
+			if (type(func) == "function") then
+				local isRemoval = false
+				for i = #self.HookList[hookType], 1, -1 do
+					if (self.HookList[hookType][i] == func) then
+						tremove(self.HookList[hookType], i)
+						isRemoval = true
+						break
+					end
+				end
+
+				if (not isRemoval) then
+					tinsert(self.HookList[hookType], func)
+				end
+			else
+				if (detailsFramework.debug) then
+					print(debugstack())
+					error("Details! Framework: invalid function for widget " .. self.WidgetType .. ".")
+				end
+			end
+		else
+			if (detailsFramework.debug) then
+				error("Details! Framework: unknown hook type for widget " .. self.WidgetType .. ": '" .. hookType .. "'.")
+			end
+		end
+	end,
+
+	HasHook = function(self, hookType, func)
+		if (self.HookList[hookType]) then
+			if (type(func) == "function") then
+				for i = #self.HookList[hookType], 1, -1 do
+					if (self.HookList[hookType][i] == func) then
+						return true
+					end
+				end
+			end
+		end
+	end,
+
+	ClearHooks = function(self)
+		for hookType, hookTable in pairs(self.HookList) do
+			table.wipe(hookTable)
+		end
 	end,
 }
 

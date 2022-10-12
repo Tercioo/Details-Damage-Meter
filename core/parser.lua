@@ -241,7 +241,7 @@
 			[66992] = 49921, --offhand
 
 			--Seal of Command
-			[20424] = 69403,
+			[20424] = 69403, --53739 and 53733
 		}
 
 	else --retail
@@ -577,7 +577,7 @@
 		local targetLine = ""
 
 		for i = 1, 5 do
-			local boss = UnitExists ("boss" .. i)
+			local boss = UnitExists("boss" .. i)
 			if (boss) then
 				local target = UnitName ("boss" .. i .. "target")
 				if (target and type(target) == "string") then
@@ -1002,7 +1002,7 @@
 					if (who_serial ~= "") then
 						damage_cache [who_serial] = este_jogador
 					else
-						if (who_name:find ("%[")) then
+						if (who_name:find("%[")) then
 							damage_cache [who_name] = este_jogador
 							local _, _, icon = _GetSpellInfo(spellid or 1)
 							este_jogador.spellicon = icon
@@ -1284,7 +1284,7 @@
 		else
 			if (
 				(bitBand(alvo_flags, REACTION_FRIENDLY) ~= 0 and bitBand(who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
-				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
+				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find("Player") and who_serial:find("Player")) --amrl
 			) then
 				is_friendly_fire = true
 			end
@@ -1431,7 +1431,7 @@
 						if (who_serial ~= "") then
 							damage_cache [who_serial] = este_jogador
 						else
-							if (who_name:find ("%[")) then
+							if (who_name:find("%[")) then
 								damage_cache [who_name] = este_jogador
 								local _, _, icon = _GetSpellInfo(spellid or 1)
 								este_jogador.spellicon = icon
@@ -1636,7 +1636,7 @@
 					if (who_serial ~= "") then
 						damage_cache [who_serial] = este_jogador
 					else
-						if (who_name:find ("%[")) then
+						if (who_name:find("%[")) then
 							damage_cache [who_name] = este_jogador
 							local _, _, icon = _GetSpellInfo(spellid or 1)
 							este_jogador.spellicon = icon
@@ -4175,7 +4175,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					end
 
 					if (not jaTem) then
-						tinsert (_current_combat.last_events_tables [i] [1], 1, {
+						tinsert(_current_combat.last_events_tables [i] [1], 1, {
 							2,
 							spellid,
 							1,
@@ -4412,18 +4412,18 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				if (last_index < _death_event_amt+1 and not t[last_index][4]) then
 					for i = 1, last_index-1 do
 						if (t[i][4] and t[i][4]+_death_event_amt > time) then
-							tinsert (esta_morte, t[i])
+							tinsert(esta_morte, t[i])
 						end
 					end
 				else
 					for i = last_index, _death_event_amt do --next index to 16
 						if (t[i][4] and t[i][4]+_death_event_amt > time) then
-							tinsert (esta_morte, t[i])
+							tinsert(esta_morte, t[i])
 						end
 					end
 					for i = 1, last_index-1 do --1 to latest index
 						if (t[i][4] and t[i][4]+_death_event_amt > time) then
-							tinsert (esta_morte, t[i])
+							tinsert(esta_morte, t[i])
 						end
 					end
 				end
@@ -4470,7 +4470,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 
 				local t = {esta_morte, time, thisPlayer.nome, thisPlayer.classe, maxHealth, minutos.."m "..segundos.."s",  ["dead"] = true, ["last_cooldown"] = thisPlayer.last_cooldown, ["dead_at"] = decorrido}
-				tinsert (_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
+				tinsert(_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
 
 				if (_hook_deaths) then
 					--send event to registred functions
@@ -4583,7 +4583,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	function _detalhes:CaptureGet (capture_type)
+	function _detalhes:CaptureGet(capture_type)
 		return _detalhes.capture_real [capture_type]
 	end
 
@@ -4634,7 +4634,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	function _detalhes:CaptureDisable (capture_type)
 
-		capture_type = string.lower (capture_type)
+		capture_type = string.lower(capture_type)
 
 		if (capture_type == "damage") then
 			token_list ["SPELL_PERIODIC_DAMAGE"] = nil
@@ -4701,7 +4701,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	function _detalhes:CaptureEnable (capture_type)
 
-		capture_type = string.lower (capture_type)
+		capture_type = string.lower(capture_type)
 		--retail
 		if (capture_type == "damage") then
 			token_list ["SPELL_PERIODIC_DAMAGE"] = parser.spell_dmg
@@ -5235,7 +5235,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:EntrarEmCombate()
 		end
 
-		if (not _detalhes:CaptureGet ("damage")) then
+		if (not _detalhes:CaptureGet("damage")) then
 			_detalhes:EntrarEmCombate()
 		end
 
@@ -5316,7 +5316,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--store a boss encounter when out of combat since it might need to load the storage
 		if (_detalhes.schedule_store_boss_encounter) then
 			if (not _detalhes.logoff_saving_data) then
-				local successful, errortext = pcall (Details.Database.StoreEncounter)
+				local successful, errortext = pcall(Details.Database.StoreEncounter)
 				if (not successful) then
 					_detalhes:Msg("error occurred on Details.Database.StoreEncounter():", errortext)
 				end
@@ -5326,7 +5326,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (Details.schedule_store_boss_encounter_wipe) then
 			if (not _detalhes.logoff_saving_data) then
-				local successful, errortext = pcall (Details.Database.StoreWipe)
+				local successful, errortext = pcall(Details.Database.StoreWipe)
 				if (not successful) then
 					_detalhes:Msg("error occurred on Details.Database.StoreWipe():", errortext)
 				end
@@ -5523,7 +5523,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		local specIndex = DetailsFramework.GetSpecialization()
 		if (specIndex) then
-			local specID = DetailsFramework.GetSpecializationInfo (specIndex)
+			local specID = DetailsFramework.GetSpecializationInfo(specIndex)
 			if (specID and specID ~= 0) then
 				local guid = UnitGUID("player")
 				if (guid) then
@@ -5555,7 +5555,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (_detalhes.zone_type == "none" and unit) then
 			local serial = UnitGUID(unit)
 			--the serial is valid and isn't THE player and the serial is from a player?
-			if (serial and serial ~= UnitGUID("player") and serial:find ("Player")) then
+			if (serial and serial ~= UnitGUID("player") and serial:find("Player")) then
 				_detalhes.duel_candidates[serial] = GetTime()
 
 				local playerName = _detalhes:GetCLName(unit)
@@ -5885,7 +5885,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.can_panic_mode = true
 		end
 
-		if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and _detalhes.tabela_instancias and getmetatable (_detalhes.tabela_instancias[1])) then
+		if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and _detalhes.tabela_instancias and getmetatable(_detalhes.tabela_instancias[1])) then
 			tinsert(_detalhes_global.exit_log, "4 - Reversing switches.")
 			currentStep = "Check Switch on Logon"
 			xpcall (_detalhes.CheckSwitchOnLogon, saver_error)

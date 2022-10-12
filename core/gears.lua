@@ -222,7 +222,7 @@ end
 					local statusbar_enabled1 = window1.show_statusbar
 					local statusbar_enabled2 = window2.show_statusbar
 
-					table.wipe (window1.snap); table.wipe (window2.snap)
+					table.wipe(window1.snap); table.wipe(window2.snap)
 					window1.snap [3] = 2; window2.snap [1] = 1;
 					window1.horizontalSnap = true; window2.horizontalSnap = true
 					
@@ -425,12 +425,12 @@ function _detalhes:ResetSpecCache (forced)
 	local isininstance = IsInInstance()
 	
 	if (forced or (not isininstance and not _detalhes.in_group)) then
-		table.wipe (_detalhes.cached_specs)
+		table.wipe(_detalhes.cached_specs)
 		
 		if (_detalhes.track_specs) then
 			local my_spec = DetailsFramework.GetSpecialization()
 			if (type(my_spec) == "number") then
-				local spec_number = DetailsFramework.GetSpecializationInfo (my_spec)
+				local spec_number = DetailsFramework.GetSpecializationInfo(my_spec)
 				if (type(spec_number) == "number") then
 					local pguid = UnitGUID(_detalhes.playername)
 					if (pguid) then
@@ -441,7 +441,7 @@ function _detalhes:ResetSpecCache (forced)
 		end
 	
 	elseif (_detalhes.in_group and not isininstance) then
-		table.wipe (_detalhes.cached_specs)
+		table.wipe(_detalhes.cached_specs)
 		
 		if (_detalhes.track_specs) then
 			if (IsInRaid()) then
@@ -635,12 +635,12 @@ local task_timers = {
 
 function _detalhes:RegisterBackgroundTask (name, func, priority, ...)
 
-	assert (type(self) == "table", "RegisterBackgroundTask 'self' must be a table.")
-	assert (type(name) == "string", "RegisterBackgroundTask param #1 must be a string.")
+	assert(type(self) == "table", "RegisterBackgroundTask 'self' must be a table.")
+	assert(type(name) == "string", "RegisterBackgroundTask param #1 must be a string.")
 	if (type(func) == "string") then
-		assert (type(self [func]) == "function", "RegisterBackgroundTask param #2 function not found on main object.")
+		assert(type(self [func]) == "function", "RegisterBackgroundTask param #2 function not found on main object.")
 	else
-		assert (type(func) == "function", "RegisterBackgroundTask param #2 expect a function or function name.")
+		assert(type(func) == "function", "RegisterBackgroundTask param #2 expect a function or function name.")
 	end
 	
 	priority = priority or "LOW"
@@ -775,7 +775,7 @@ function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role, dps, guil
 	if (not role) then
 		role = "damage"
 	end
-	role = string.lower (role)
+	role = string.lower(role)
 	if (role == "damager") then
 		role = "damage"
 	elseif (role == "healer") then
@@ -839,7 +839,7 @@ function _detalhes.storage:GetPlayerGuildRank (diff, encounter_id, role, playern
 	if (not role) then
 		role = "damage"
 	end
-	role = string.lower (role)
+	role = string.lower(role)
 	if (role == "damager") then
 		role = "damage"
 	elseif (role == "healer") then
@@ -920,7 +920,7 @@ function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playerna
 	if (not role) then
 		role = "damage"
 	end
-	role = string.lower (role)
+	role = string.lower(role)
 	if (role == "damager") then
 		role = "damage"
 	elseif (role == "healer") then
@@ -1266,7 +1266,7 @@ function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
 	end
 	
 	local t = {}
-	assert (type(playername) == "string", "PlayerName must be a string.")
+	assert(type(playername) == "string", "PlayerName must be a string.")
 
 	
 	if (not diff) then
@@ -1334,8 +1334,8 @@ function _detalhes.storage:GetEncounterData (diff, encounter_id, guild)
 
 	local data = db [diff]
 	
-	assert (data, "Difficulty not found. Use: 14, 15 or 16.")
-	assert (type(encounter_id) == "number", "EncounterId must be a number.")
+	assert(data, "Difficulty not found. Use: 14, 15 or 16.")
+	assert(type(encounter_id) == "number", "EncounterId must be a number.")
 	
 	data = data [encounter_id]
 	
@@ -1723,7 +1723,7 @@ function Details.Database.StoreEncounter(combat)
 						player_name = player_name .. "-" .. player_realm
 					end
 					
-					local _, _, class = UnitClass (player_name)
+					local _, _, class = UnitClass(player_name)
 					
 					local damage_actor = damage_container_pool [damage_container_hash [player_name]]
 					if (damage_actor) then
@@ -1736,7 +1736,7 @@ function Details.Database.StoreEncounter(combat)
 						player_name = player_name .. "-" .. player_realm
 					end
 					
-					local _, _, class = UnitClass (player_name)
+					local _, _, class = UnitClass(player_name)
 					
 					local heal_actor = healing_container_pool [healing_container_hash [player_name]]
 					if (heal_actor) then
@@ -1769,11 +1769,11 @@ function Details.Database.StoreEncounter(combat)
 			
 			if (myBestDps > d_one) then
 				if (not _detalhes.deny_score_messages) then
-					print(Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:ToK2 (d_one), _detalhes:ToK2 (myBestDps), onencounter.date, mybest[2]))
+					print(Loc ["STRING_DETAILS1"] .. format(Loc ["STRING_SCORE_NOTBEST"], _detalhes:ToK2 (d_one), _detalhes:ToK2 (myBestDps), onencounter.date, mybest[2]))
 				end
 			else
 				if (not _detalhes.deny_score_messages) then
-					print(Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:ToK2 (d_one)))
+					print(Loc ["STRING_DETAILS1"] .. format(Loc ["STRING_SCORE_BEST"], _detalhes:ToK2 (d_one)))
 				end
 			end
 		end
@@ -1978,7 +1978,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 
 		if (ilvl_core.forced_inspects [guid]) then
 			if (type(ilvl_core.forced_inspects [guid].callback) == "function") then
-				local okey, errortext = pcall (ilvl_core.forced_inspects[guid].callback, guid, unitid, ilvl_core.forced_inspects[guid].param1, ilvl_core.forced_inspects[guid].param2)
+				local okey, errortext = pcall(ilvl_core.forced_inspects[guid].callback, guid, unitid, ilvl_core.forced_inspects[guid].param1, ilvl_core.forced_inspects[guid].param2)
 				if (not okey) then
 					_detalhes:Msg("Error on QueryInspect callback: " .. errortext)
 				end
@@ -2069,7 +2069,7 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 end
 
 local NotifyInspectHook = function(unitid)
-	local unit = unitid:gsub ("%d+", "")
+	local unit = unitid:gsub("%d+", "")
 	
 	if ((IsInRaid() or IsInGroup()) and (_detalhes:GetZoneType() == "raid" or _detalhes:GetZoneType() == "party")) then
 		local guid = UnitGUID(unitid)

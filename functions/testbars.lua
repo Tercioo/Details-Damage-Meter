@@ -31,7 +31,7 @@ end
 
 function Details:CreateTestBars (alphabet, isArena)
     local current_combat = Details:GetCombat("current")
-    local pclass = select(2, UnitClass ("player"))
+    local pclass = select(2, UnitClass("player"))
 
     local actors_name = {
             {"Spiro", "EVOKER", 1467},

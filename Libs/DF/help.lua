@@ -80,7 +80,7 @@ function DF:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, nam
 	
 	if (not APIHelpFunctions) then
 		APIHelpFunctions = true
-		local idx = getmetatable (helpButton).__index
+		local idx = getmetatable(helpButton).__index
 		for funcName, funcAddress in pairs(idx) do 
 			if (not HelpMetaFunctions [funcName]) then
 				HelpMetaFunctions [funcName] = function(object, ...)

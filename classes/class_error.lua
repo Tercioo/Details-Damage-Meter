@@ -7,7 +7,7 @@ do
 	}
 	_error.__index = _error
 	_error.__newindex = function()
-		assert (false, "Attempt to modify an read-only object.\nUse object() or object.errortext\n"..debugstack (2, 1 , 0))
+		assert(false, "Attempt to modify an read-only object.\nUse object() or object.errortext\n"..debugstack (2, 1 , 0))
 		return
 	end
 	_error.__tostring = function()

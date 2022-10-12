@@ -591,12 +591,12 @@ function atributo_misc:DeadAtualizarBarra (morte, whichRowLine, colocacao, insta
 	morte.minha_barra = whichRowLine
 	esta_barra.colocacao = colocacao
 	
-	if (not getmetatable (morte)) then 
+	if (not getmetatable(morte)) then 
 		setmetatable(morte, {__call = RefreshBarraMorte}) 
 		morte._custom = true
 	end
 	
-	esta_barra.lineText1:SetText(colocacao .. ". " .. morte [3]:gsub (("%-.*"), ""))
+	esta_barra.lineText1:SetText(colocacao .. ". " .. morte [3]:gsub(("%-.*"), ""))
 	esta_barra.lineText2:SetText("")
 	esta_barra.lineText3:SetText("")
 	esta_barra.lineText4:SetText(morte [6])
@@ -608,18 +608,18 @@ function atributo_misc:DeadAtualizarBarra (morte, whichRowLine, colocacao, insta
 	
 	--seta a cor da barra e a cor do texto caso eles esteja mostrando com a cor da classe
 	local r, g, b, a = unpack(_detalhes.class_colors [morte[4]])
-	_detalhes:SetBarColors (esta_barra, instancia, r, g, b, a)
+	_detalhes:SetBarColors(esta_barra, instancia, r, g, b, a)
 	
 	if (instancia.row_info.use_spec_icons) then
 		local nome = morte[3]
 		local spec = instancia.showing (1, nome) and instancia.showing (1, nome).spec or (instancia.showing (2, nome) and instancia.showing (2, nome).spec)
 		if (spec and spec ~= 0) then
 			esta_barra.icone_classe:SetTexture(instancia.row_info.spec_file)
-			esta_barra.icone_classe:SetTexCoord (unpack(_detalhes.class_specs_coords[spec]))
+			esta_barra.icone_classe:SetTexCoord(unpack(_detalhes.class_specs_coords[spec]))
 		else
 			if (CLASS_ICON_TCOORDS [morte[4]]) then
 				esta_barra.icone_classe:SetTexture(instancia.row_info.icon_file)
-				esta_barra.icone_classe:SetTexCoord (unpack(CLASS_ICON_TCOORDS [morte[4]]))
+				esta_barra.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
 			else
 				local texture, l, r, t, b = Details:GetUnknownClassIcon()
 				esta_barra.icone_classe:SetTexture(texture)
@@ -629,7 +629,7 @@ function atributo_misc:DeadAtualizarBarra (morte, whichRowLine, colocacao, insta
 	else
 		if (CLASS_ICON_TCOORDS [morte[4]]) then
 			esta_barra.icone_classe:SetTexture(instancia.row_info.icon_file)
-			esta_barra.icone_classe:SetTexCoord (unpack(CLASS_ICON_TCOORDS [morte[4]]))
+			esta_barra.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
 		else
 			local texture, l, r, t, b = Details:GetUnknownClassIcon()
 			esta_barra.icone_classe:SetTexture(texture)
@@ -957,7 +957,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				Details.FadeHandler.Fader(esta_barra, "out")
 			end
 			
-			return self:RefreshBarra (esta_barra, instancia)
+			return self:RefreshBarra(esta_barra, instancia)
 		else
 			return
 		end
@@ -981,7 +981,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				esta_barra.background:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
 			
-			return self:RefreshBarra (esta_barra, instancia)
+			return self:RefreshBarra(esta_barra, instancia)
 			
 		else
 			--agora esta comparando se a tabela da barra � diferente da tabela na atualiza��o anterior
@@ -996,7 +996,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 			
 				esta_barra.last_value = esta_porcentagem --reseta o ultimo valor da barra
 				
-				return self:RefreshBarra (esta_barra, instancia)
+				return self:RefreshBarra(esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --continua mostrando a mesma tabela ent�o compara a porcentagem
 				--apenas atualizar
@@ -1007,7 +1007,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				end
 				esta_barra.last_value = esta_porcentagem
 				
-				return self:RefreshBarra (esta_barra, instancia)
+				return self:RefreshBarra(esta_barra, instancia)
 			end
 		end
 
@@ -1015,7 +1015,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 	
 end
 
-function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
+function atributo_misc:RefreshBarra(esta_barra, instancia, from_resize)
 	local class, enemy, arena_enemy, arena_ally = self.classe, self.enemy, self.arena_enemy, self.arena_ally
 	
 	if (from_resize) then
@@ -1025,7 +1025,7 @@ function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
 	--icon
 	self:SetClassIcon (esta_barra.icone_classe, instancia, class)
 	--texture color
-	self:SetBarColors (esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	self:SetBarColors(esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--left text
 	self:SetBarLeftText (esta_barra, instancia, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
 
@@ -1115,7 +1115,7 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 		for target_name, amount in pairs(_tabela.targets) do
 			GameCooltip:AddLine(target_name .. ": ", amount .. "  ")
 			
-			local classe = _detalhes:GetClass (target_name)
+			local classe = _detalhes:GetClass(target_name)
 			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\espadas]], nil, 1, lineHeight, lineHeight)
 			if (classe) then	
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, 2, lineHeight, lineHeight, unpack(_detalhes.class_coords [classe]))
@@ -1269,7 +1269,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 					_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				end
 			
-				local n = _table [1]:gsub (("%s%<.*"), "")
+				local n = _table [1]:gsub(("%s%<.*"), "")
 				GameCooltip:AddLine(n, _table [2] .. " (" .. _math_floor(_table [2]/self.dispell*100) .. "%)")
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
@@ -1462,7 +1462,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			
 				for buffIndex = 1, 41 do
 					local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (RaidIndex, buffIndex, nil, "HELPFUL")
-					if (name and unitCaster and UnitExists (unitCaster) and UnitExists (RaidIndex) and UnitIsUnit (unitCaster, RaidIndex)) then
+					if (name and unitCaster and UnitExists(unitCaster) and UnitExists(RaidIndex) and UnitIsUnit(unitCaster, RaidIndex)) then
 						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellid, name, in_or_out)
 
 						if (in_or_out == "BUFF_UPTIME_IN") then
@@ -1483,7 +1483,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 
 			for playername, potspellid in pairs(pot_usage) do
 				local name, _, icon = _GetSpellInfo(potspellid)
-				local _, class = UnitClass (playername)
+				local _, class = UnitClass(playername)
 				local class_color = ""
 				if (class and RAID_CLASS_COLORS [class]) then
 					class_color = RAID_CLASS_COLORS [class].colorStr
@@ -1505,7 +1505,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		for groupIndex = 1, GetNumGroupMembers() - 1 do
 			for buffIndex = 1, 41 do
 				local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..groupIndex, buffIndex, nil, "HELPFUL")
-				if (name and unitCaster and UnitExists (unitCaster) and UnitExists ("party" .. groupIndex) and UnitIsUnit (unitCaster, "party" .. groupIndex)) then
+				if (name and unitCaster and UnitExists(unitCaster) and UnitExists("party" .. groupIndex) and UnitIsUnit(unitCaster, "party" .. groupIndex)) then
 				
 					local playerName, realmName = _UnitName ("party"..groupIndex)
 					local playerGUID = UnitGUID("party"..groupIndex)
@@ -1533,7 +1533,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		--player it self
 		for buffIndex = 1, 41 do
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
-			if (name and unitCaster and UnitExists (unitCaster) and UnitIsUnit (unitCaster, "player")) then
+			if (name and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
 				local playerName = _UnitName ("player")
 				local playerGUID = UnitGUID("player")
 				if (playerGUID) then
@@ -1555,7 +1555,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			
 			for playername, potspellid in pairs(pot_usage) do
 				local name, _, icon = _GetSpellInfo(potspellid)
-				local _, class = UnitClass (playername)
+				local _, class = UnitClass(playername)
 				local class_color = ""
 				if (class and RAID_CLASS_COLORS [class]) then
 					class_color = RAID_CLASS_COLORS [class].colorStr
@@ -1574,7 +1574,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		
 		for buffIndex = 1, 41 do
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
-			if (name and unitCaster and UnitExists (unitCaster) and UnitIsUnit (unitCaster, "player")) then
+			if (name and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
 				local playerName = _UnitName ("player")
 				local playerGUID = UnitGUID("player")
 				
@@ -1596,7 +1596,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			local string_output = "pre-potion: "
 			for playername, potspellid in pairs(pot_usage) do
 				local name, _, icon = _GetSpellInfo(potspellid)
-				local _, class = UnitClass (playername)
+				local _, class = UnitClass(playername)
 				local class_color = ""
 				if (class and RAID_CLASS_COLORS [class]) then
 					class_color = RAID_CLASS_COLORS [class].colorStr
@@ -1999,7 +1999,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 					_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				end
 			
-				local n = _table [1]:gsub (("%s%<.*"), "")
+				local n = _table [1]:gsub(("%s%<.*"), "")
 				GameCooltip:AddLine(n, _table [2] .. " (" .. _math_floor(_table [2]/self.interrupt*100) .. "%)")
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
@@ -2048,7 +2048,7 @@ function atributo_misc:MontaInfoInterrupt()
 	--player
 	for _spellid, _tabela in pairs(minha_tabela) do --da foreach em cada spellid do container
 		local nome, _, icone = _GetSpellInfo(_spellid)
-		tinsert (meus_interrupts, {_spellid, _tabela.counter, _tabela.counter/meu_total*100, nome, icone})
+		tinsert(meus_interrupts, {_spellid, _tabela.counter, _tabela.counter/meu_total*100, nome, icone})
 	end
 	--pet
 	local ActorPets = self.pets
@@ -2059,7 +2059,7 @@ function atributo_misc:MontaInfoInterrupt()
 			local PetSkillsContainer = PetActor.interrupt_spells._ActorTable
 			for _spellid, _skill in pairs(PetSkillsContainer) do --da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo(_spellid)
-				tinsert (meus_interrupts, {_spellid, _skill.counter, _skill.counter/meu_total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+				tinsert(meus_interrupts, {_spellid, _skill.counter, _skill.counter/meu_total*100, nome .. " (|c" .. class_color .. PetName:gsub((" <.*"), "") .. "|r)", icone, PetActor})
 			end
 		end
 	end
@@ -2079,7 +2079,7 @@ function atributo_misc:MontaInfoInterrupt()
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
 			
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 			barra.on_focus = false --isso aqui � a parte da sele��o e descele��o
 		end
 
@@ -2088,7 +2088,7 @@ function atributo_misc:MontaInfoInterrupt()
 		if (not info.mostrando_mouse_over) then
 			if (tabela[1] == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
 				if (not barra.on_focus) then --se a barra n�o tiver no foco
-					barra.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
+					barra.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
 					barra.on_focus = true
 					if (not info.mostrando) then
 						info.mostrando = barra
@@ -2096,7 +2096,7 @@ function atributo_misc:MontaInfoInterrupt()
 				end
 			else
 				if (barra.on_focus) then
-					barra.textura:SetStatusBarColor (1, 1, 1, 1) --volta a cor antiga
+					barra.textura:SetStatusBarColor(1, 1, 1, 1) --volta a cor antiga
 					barra:SetAlpha(.9) --volta a alfa antiga
 					barra.on_focus = false
 				end
@@ -2145,7 +2145,7 @@ function atributo_misc:MontaInfoInterrupt()
 		
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo2 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 		end
 		
 		if (index == 1) then
@@ -2218,7 +2218,7 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 		end
 		
 		if (index == 1) then

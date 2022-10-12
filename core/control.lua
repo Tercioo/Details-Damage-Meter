@@ -59,7 +59,7 @@
 
 			for _, actor in ipairs(Details.tabela_vigente[class_type_dano]._ActorTable) do
 
-				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and bitBand(actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
+				if (not actor.grupo and not actor.owner and not actor.nome:find("[*]") and bitBand(actor.flag_original, 0x00000060) ~= 0) then --0x20+0x40 neutral + enemy reaction
 					for name, _ in pairs(actor.targets) do
 						if (name == Details.playername) then
 							return actor.nome
@@ -218,7 +218,7 @@
 			end
 
 			for index = 1, 5, 1 do
-				if (UnitExists ("boss"..index)) then
+				if (UnitExists("boss"..index)) then
 					local guid = UnitGUID("boss"..index)
 					if (guid) then
 						local serial = Details:GetNpcIdFromGuid (guid)
@@ -645,7 +645,7 @@
 
 					--add to storage
 					if (not InCombatLockdown() and not UnitAffectingCombat("player") and not Details.logoff_saving_data) then
-						local successful, errortext = pcall (Details.Database.StoreEncounter)
+						local successful, errortext = pcall(Details.Database.StoreEncounter)
 						if (not successful) then
 							Details:Msg("error occurred on Details.Database.StoreEncounter():", errortext)
 						end
@@ -661,7 +661,7 @@
 
 					--add to storage
 					if (not InCombatLockdown() and not UnitAffectingCombat("player") and not Details.logoff_saving_data) then
-						local successful, errortext = pcall (Details.Database.StoreWipe)
+						local successful, errortext = pcall(Details.Database.StoreWipe)
 						if (not successful) then
 							Details:Msg("error occurred on Details.Database.StoreWipe():", errortext)
 						end
@@ -704,7 +704,7 @@
 					if (bossFunction) then
 						if (bitBand(bossFunctionType, 0x2) ~= 0) then --end of combat
 							if (not Details.logoff_saving_data) then
-								local successful, errortext = pcall (bossFunction, Details.tabela_vigente)
+								local successful, errortext = pcall(bossFunction, Details.tabela_vigente)
 								if (not successful) then
 									Details:Msg("error occurred on Encounter Boss Function:", errortext)
 								end
@@ -1095,11 +1095,11 @@
 			if (not IsInRaid() and not IsInGroup()) then
 				return
 			end
-			local _, playerClass = UnitClass ("player")
+			local _, playerClass = UnitClass("player")
 			local specIndex = DetailsFramework.GetSpecialization()
 			local playerSpecID
 			if (specIndex) then
-				playerSpecID = DetailsFramework.GetSpecializationInfo (specIndex)
+				playerSpecID = DetailsFramework.GetSpecializationInfo(specIndex)
 			end
 
 			if (playerSpecID and playerClass) then
@@ -1527,7 +1527,7 @@
 		end
 
 		function Details:SetTrashSuppression (n)
-			assert (type(n) == "number", "SetTrashSuppression expects a number on index 1.")
+			assert(type(n) == "number", "SetTrashSuppression expects a number on index 1.")
 			if (n < 0) then
 				n = 0
 			end
@@ -1703,7 +1703,7 @@
 							GameCooltip:SetBannerText (1, (not Details.ignore_nicktag and avatar [1]) or objeto.nome, textPoint, avatarTextColor, 14, SharedMedia:Fetch ("font", Details.tooltip.fontface)) --text [1] nickname
 						end
 					else
-						--if (Details.remove_realm_from_name and objeto.displayName:find ("%*")) then
+						--if (Details.remove_realm_from_name and objeto.displayName:find("%*")) then
 						--	GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\background]], 20, 30, avatarPoint, avatarTexCoord, {0, 0, 0, 0}) --overlay [2] avatar path
 						--	GameCooltip:SetBannerImage (2, [[Interface\PetBattles\Weather-BurntEarth]], 160, 30, {{"bottomleft", "topleft", 0, -5}, {"bottomright", "topright", 0, -5}}, {0.12, 0.88, 1, 0}, {0, 0, 0, 0.1}) --overlay [2] avatar path {0, 0, 0, 0}
 						--	GameCooltip:SetBannerText (1, objeto.nome, {"left", "left", 11, -8}, {1, 1, 1, 0.7}, 10, SharedMedia:Fetch ("font", Details.tooltip.fontface)) --text [1] nickname

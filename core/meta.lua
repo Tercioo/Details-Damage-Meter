@@ -77,9 +77,9 @@
 					local nome = esta_classe.nome
 
 					if (is_in_instance and _detalhes.remove_realm_from_name) then
-						esta_classe.displayName = nome:gsub (("%-.*"), "")
+						esta_classe.displayName = nome:gsub(("%-.*"), "")
 					elseif (_detalhes.remove_realm_from_name) then
-						esta_classe.displayName = nome:gsub (("%-.*"), "") --"%*"
+						esta_classe.displayName = nome:gsub(("%-.*"), "") --"%*"
 					else
 						esta_classe.displayName = nome
 					end
@@ -205,9 +205,9 @@
 								local nome = esta_classe.nome
 
 								if (is_in_instance and _detalhes.remove_realm_from_name) then
-									esta_classe.displayName = nome:gsub (("%-.*"), "")
+									esta_classe.displayName = nome:gsub(("%-.*"), "")
 								elseif (_detalhes.remove_realm_from_name) then
-									esta_classe.displayName = nome:gsub (("%-.*"), "") --%*
+									esta_classe.displayName = nome:gsub(("%-.*"), "") --%*
 								else
 									esta_classe.displayName = nome
 								end

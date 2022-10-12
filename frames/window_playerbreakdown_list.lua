@@ -257,7 +257,7 @@
 					if (playerObject:IsPlayer()) then
 						local unitClassID = classIds [playerObject:Class()] or 13
 						local unitName = playerObject:Name()
-						local playerPosition = (((unitClassID or 0) + 128) ^ 4) + tonumber (string.byte(unitName, 1) .. "" .. string.byte(unitName, 2))
+						local playerPosition = (((unitClassID or 0) + 128) ^ 4) + tonumber(string.byte(unitName, 1) .. "" .. string.byte(unitName, 2))
 						tinsert(playerTable, {playerObject, playerPosition, playerObject.total})
 					end
 				end

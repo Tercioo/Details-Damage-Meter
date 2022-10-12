@@ -107,113 +107,114 @@ function Details:StartMeUp() --I'll never stop!
 	self.atributo_custom:UpdateSelectedToKFunction()
 
 	--start instances updater
-		self:CheckSwitchOnLogon()
+	self:CheckSwitchOnLogon()
 
-		function Details:ScheduledWindowUpdate(forced)
-			if (not forced and Details.in_combat) then
-				return
-			end
+	function Details:ScheduledWindowUpdate(forced)
+		if (not forced and Details.in_combat) then
+			return
+		end
+		Details.scheduled_window_update = nil
+		Details:RefreshMainWindow(-1, true)
+	end
+	
+	function Details:ScheduleWindowUpdate(time, forced)
+		if (Details.scheduled_window_update) then
+			Details.Schedules.Cancel(Details.scheduled_window_update)
 			Details.scheduled_window_update = nil
-			Details:RefreshMainWindow(-1, true)
 		end
-		function Details:ScheduleWindowUpdate(time, forced)
-			if (Details.scheduled_window_update) then
-				Details.Schedules.Cancel(Details.scheduled_window_update)
-				Details.scheduled_window_update = nil
+		Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details, forced)
+	end
+
+	self:RefreshMainWindow(-1, true)
+	Details:RefreshUpdater()
+
+	for id = 1, Details:GetNumInstances() do
+		local instance = Details:GetInstance(id)
+		if (instance:IsEnabled()) then
+			Details.Schedules.NewTimer(1, Details.RefreshBars, Details, instance)
+			Details.Schedules.NewTimer(1, Details.InstanceReset, Details, instance)
+			Details.Schedules.NewTimer(1, Details.InstanceRefreshRows, Details, instance)
+		end
+	end
+
+	function self:RefreshAfterStartup()
+		--repair nicknames as nicknames aren't saved within the actor when leaving the game
+		if (not Details.ignore_nicktag) then
+			local currentCombat = Details:GetCurrentCombat()
+			local containerDamage = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+			for _, actorObject in containerDamage:ListActors() do
+				--get the actor nickname
+				local nickname = Details:GetNickname(actorObject:Name(), false, true)
+				if (nickname and type(nickname) == "string" and nickname:len() >= 2) then
+					actorObject:SetDisplayName(nickname)
+				end
 			end
-			Details.scheduled_window_update = Details.Schedules.NewTimer(time or 1, Details.ScheduledWindowUpdate, Details, forced)
 		end
 
-		self:RefreshMainWindow(-1, true)
-		Details:RefreshUpdater()
+		local refreshAllInstances = -1
+		local forceRefresh = true
+		self:RefreshMainWindow(refreshAllInstances, forceRefresh)
+		local lowerInstance = Details:GetLowerInstanceNumber()
 
 		for id = 1, Details:GetNumInstances() do
 			local instance = Details:GetInstance(id)
 			if (instance:IsEnabled()) then
-				Details.Schedules.NewTimer(1, Details.RefreshBars, Details, instance)
-				Details.Schedules.NewTimer(1, Details.InstanceReset, Details, instance)
-				Details.Schedules.NewTimer(1, Details.InstanceRefreshRows, Details, instance)
+				--refresh wallpaper
+				if (instance.wallpaper.enabled) then
+					instance:InstanceWallpaper(true)
+				else
+					instance:InstanceWallpaper(false)
+				end
+
+				--refresh desaturated icons if is lower instance because plugins shall have installed their icons at this point
+				if (id == lowerInstance) then
+					instance:DesaturateMenu()
+					instance:SetAutoHideMenu(nil, nil, true)
+				end
 			end
 		end
 
-		function self:RefreshAfterStartup()
-			--repair nicknames as nicknames aren't saved within the actor when leaving the game
-			if (not Details.ignore_nicktag) then
-				local currentCombat = Details:GetCurrentCombat()
-				local containerDamage = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
-				for _, actorObject in containerDamage:ListActors() do
-					--get the actor nickname
-					local nickname = Details:GetNickname(actorObject:Name(), false, true)
-					if (nickname and type(nickname) == "string" and nickname:len() >= 2) then
-						actorObject:SetDisplayName(nickname)
-					end
+		--refresh lower instance plugin icons and skin
+		Details.ToolBar:ReorganizeIcons()
+
+		--refresh skin for other windows
+		if (lowerInstance) then
+			for id = lowerInstance+1, Details:GetNumInstances() do
+				local instance = Details:GetInstance(id)
+				if (instance and instance.baseframe and instance.ativa) then
+					instance:ChangeSkin()
 				end
 			end
+		end
 
-			local refreshAllInstances = -1
-			local forceRefresh = true
-			self:RefreshMainWindow(refreshAllInstances, forceRefresh)
-			local lowerInstance = Details:GetLowerInstanceNumber()
+		self.RefreshAfterStartup = nil
 
-			for id = 1, Details:GetNumInstances() do
-				local instance = Details:GetInstance(id)
-				if (instance:IsEnabled()) then
-					--refresh wallpaper
-					if (instance.wallpaper.enabled) then
-						instance:InstanceWallpaper(true)
-					else
+		function Details:CheckWallpaperAfterStartup()
+			if (not Details.profile_loaded) then
+				Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
+			end
+
+			for id = 1, self.instances_amount do
+				local instance = self:GetInstance(id)
+				if (instance and instance:IsEnabled()) then
+					if (not instance.wallpaper.enabled) then
 						instance:InstanceWallpaper(false)
 					end
 
-					--refresh desaturated icons if is lower instance because plugins shall have installed their icons at this point
-					if (id == lowerInstance) then
-						instance:DesaturateMenu()
-						instance:SetAutoHideMenu(nil, nil, true)
-					end
+					instance.do_not_snap = true
+					self.move_janela_func(instance.baseframe, true, instance, true)
+					self.move_janela_func(instance.baseframe, false, instance, true)
+					instance.do_not_snap = false
 				end
 			end
 
-			--refresh lower instance plugin icons and skin
-			Details.ToolBar:ReorganizeIcons()
-
-			--refresh skin for other windows
-			if (lowerInstance) then
-				for id = lowerInstance+1, Details:GetNumInstances() do
-					local instance = Details:GetInstance(id)
-					if (instance and instance.baseframe and instance.ativa) then
-						instance:ChangeSkin()
-					end
-				end
-			end
-
-			self.RefreshAfterStartup = nil
-
-			function Details:CheckWallpaperAfterStartup()
-				if (not Details.profile_loaded) then
-					Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
-				end
-
-				for id = 1, self.instances_amount do
-					local instance = self:GetInstance(id)
-					if (instance and instance:IsEnabled()) then
-						if (not instance.wallpaper.enabled) then
-							instance:InstanceWallpaper(false)
-						end
-
-						instance.do_not_snap = true
-						self.move_janela_func(instance.baseframe, true, instance, true)
-						self.move_janela_func(instance.baseframe, false, instance, true)
-						instance.do_not_snap = false
-					end
-				end
-
-				self.CheckWallpaperAfterStartup = nil
-				Details.profile_loaded = nil
-			end
-			Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
+			self.CheckWallpaperAfterStartup = nil
+			Details.profile_loaded = nil
 		end
+		Details.Schedules.NewTimer(5, Details.CheckWallpaperAfterStartup, Details)
+	end
 
-		Details.Schedules.NewTimer(5, Details.RefreshAfterStartup, Details)
+	Details.Schedules.NewTimer(5, Details.RefreshAfterStartup, Details)
 
 	--start garbage collector
 	self.ultima_coleta = 0
@@ -225,42 +226,41 @@ function Details:StartMeUp() --I'll never stop!
 	--player role
 	self.last_assigned_role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player")
 
-	--start parser
-		--load parser capture options
-			self:CaptureRefresh()
+	--load parser capture options
+		self:CaptureRefresh()
 
-		--register parser events
-			self.listener:RegisterEvent("PLAYER_REGEN_DISABLED")
-			self.listener:RegisterEvent("PLAYER_REGEN_ENABLED")
-			self.listener:RegisterEvent("UNIT_PET")
+	--register parser events
+		self.listener:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self.listener:RegisterEvent("PLAYER_REGEN_ENABLED")
+		self.listener:RegisterEvent("UNIT_PET")
 
-			self.listener:RegisterEvent("GROUP_ROSTER_UPDATE")
-			self.listener:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
+		self.listener:RegisterEvent("GROUP_ROSTER_UPDATE")
+		self.listener:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 
-			self.listener:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-			self.listener:RegisterEvent("PLAYER_ENTERING_WORLD")
+		self.listener:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		self.listener:RegisterEvent("PLAYER_ENTERING_WORLD")
 
-			self.listener:RegisterEvent("ENCOUNTER_START")
-			self.listener:RegisterEvent("ENCOUNTER_END")
+		self.listener:RegisterEvent("ENCOUNTER_START")
+		self.listener:RegisterEvent("ENCOUNTER_END")
 
-			self.listener:RegisterEvent("START_TIMER")
-			self.listener:RegisterEvent("UNIT_NAME_UPDATE")
+		self.listener:RegisterEvent("START_TIMER")
+		self.listener:RegisterEvent("UNIT_NAME_UPDATE")
 
-			self.listener:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-			self.listener:RegisterEvent("ROLE_CHANGED_INFORM")
+		self.listener:RegisterEvent("PLAYER_ROLES_ASSIGNED")
+		self.listener:RegisterEvent("ROLE_CHANGED_INFORM")
 
-			self.listener:RegisterEvent("UNIT_FACTION")
+		self.listener:RegisterEvent("UNIT_FACTION")
 
-			if (not DetailsFramework.IsTimewalkWoW()) then
-				self.listener:RegisterEvent("PET_BATTLE_OPENING_START")
-				self.listener:RegisterEvent("PET_BATTLE_CLOSE")
-				self.listener:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-				self.listener:RegisterEvent("PLAYER_TALENT_UPDATE")
-				self.listener:RegisterEvent("CHALLENGE_MODE_START")
-				self.listener:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-			end
+		if (not DetailsFramework.IsTimewalkWoW()) then
+			self.listener:RegisterEvent("PET_BATTLE_OPENING_START")
+			self.listener:RegisterEvent("PET_BATTLE_CLOSE")
+			self.listener:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+			self.listener:RegisterEvent("PLAYER_TALENT_UPDATE")
+			self.listener:RegisterEvent("CHALLENGE_MODE_START")
+			self.listener:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+		end
 
-			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 
 	--update is in group
 	self.details_users = {}
@@ -402,6 +402,7 @@ function Details:StartMeUp() --I'll never stop!
 		--Details:OpenCustomDisplayWindow()
 		--Details:OpenWelcomeWindow()
 	end
+	
 	Details.Schedules.NewTimer(2, Details.OpenOptionsWindowAtStart, Details)
 	--Details:OpenCustomDisplayWindow()
 

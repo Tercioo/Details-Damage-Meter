@@ -76,9 +76,9 @@ end
 		return target
 	end
 	
-	function NickTag:Msg(...)
+	function NickTag:Msg (...)
 		if (NickTag.debug) then
-			print("|cFFFFFF00NickTag:|r", ...)
+			print ("|cFFFFFF00NickTag:|r", ...)
 		end
 	end
 	
@@ -219,15 +219,15 @@ end
 			return
 		end
 	
-		local type, serial, arg3, name, realm, version =  select(2, NickTag:Deserialize (data))
+		local _type, serial, arg3, name, realm, version =  select (2, NickTag:Deserialize (data))
 
 		--0x1: received a full persona
-		if (type == CONST_COMM_FULLPERSONA) then
+		if (_type == CONST_COMM_FULLPERSONA) then
 			local receivedPersona = arg3
 			version = name
 			
-			if (not receivedPersona or type(receivedPersona) ~= "table") then
-				NickTag:Msg("FULLPERSONA received but it's invalid ", source)
+			if (not receivedPersona or type (receivedPersona) ~= "table") then
+				NickTag:Msg ("FULLPERSONA received but it's invalid ", source)
 				return
 			end
 			
@@ -245,14 +245,14 @@ end
 				if (allowNickName) then
 					storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
 				else
-					storedPersona [CONST_INDEX_NICKNAME] = LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]
+					storedPersona [CONST_INDEX_NICKNAME] = LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]
 				end
 				
 				storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
 				
 				--update the rest
 				--avatar path
-				storedPersona [CONST_INDEX_AVATAR_PATH] = type(receivedPersona [CONST_INDEX_AVATAR_PATH]) == "string" and receivedPersona [CONST_INDEX_AVATAR_PATH] or ""
+				storedPersona [CONST_INDEX_AVATAR_PATH] = type (receivedPersona [CONST_INDEX_AVATAR_PATH]) == "string" and receivedPersona [CONST_INDEX_AVATAR_PATH] or ""
 				
 				--avatar texcoord
 				if (type(receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "boolean") then
@@ -260,10 +260,10 @@ end
 					
 				elseif (type(receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]) == "table") then
 					storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = storedPersona [CONST_INDEX_AVATAR_TEXCOORD] or {}
-					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] = type(receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] or 0
-					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] = type(receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] or 1
-					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] = type(receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] or 0
-					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] = type(receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] or 1
+					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][1] or 0
+					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][2] or 1
+					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][3] or 0
+					storedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_AVATAR_TEXCOORD][4] or 1
 				else
 					storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = {0, 1, 0, 1}
 				end
@@ -274,29 +274,29 @@ end
 					
 				elseif (type(receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD]) == "table") then
 					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] or {}
-					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] = type(receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] or 0
-					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] = type(receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] or 1
-					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] = type(receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] or 0
-					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] = type(receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] or 1
+					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][1] or 0
+					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][2] or 1
+					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][3] or 0
+					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] = type (receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_TEXCOORD][4] or 1
 				else
 					storedPersona [CONST_INDEX_BACKGROUND_TEXCOORD] = {0, 1, 0, 1}
 				end						
 				
 				--background path
-				storedPersona [CONST_INDEX_BACKGROUND_PATH] = type(receivedPersona [CONST_INDEX_BACKGROUND_PATH]) == "string" and receivedPersona [CONST_INDEX_BACKGROUND_PATH] or ""
+				storedPersona [CONST_INDEX_BACKGROUND_PATH] = type (receivedPersona [CONST_INDEX_BACKGROUND_PATH]) == "string" and receivedPersona [CONST_INDEX_BACKGROUND_PATH] or ""
 				
 				--background color
 				if (type(receivedPersona [CONST_INDEX_BACKGROUND_COLOR]) == "table") then
 					storedPersona [CONST_INDEX_BACKGROUND_COLOR] = storedPersona [CONST_INDEX_BACKGROUND_COLOR] or {}
-					storedPersona [CONST_INDEX_BACKGROUND_COLOR][1] = type(receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1] or 1
-					storedPersona [CONST_INDEX_BACKGROUND_COLOR][2] = type(receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2] or 1
-					storedPersona [CONST_INDEX_BACKGROUND_COLOR][3] = type(receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3] or 1
+					storedPersona [CONST_INDEX_BACKGROUND_COLOR][1] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][1] or 1
+					storedPersona [CONST_INDEX_BACKGROUND_COLOR][2] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][2] or 1
+					storedPersona [CONST_INDEX_BACKGROUND_COLOR][3] = type (receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3]) == "number" and receivedPersona [CONST_INDEX_BACKGROUND_COLOR][3] or 1
 				else
 					storedPersona [CONST_INDEX_BACKGROUND_COLOR] = {1, 1, 1}
 				end
 				
 				NickTag:SyncSiblings()
-				NickTag:Msg("FULLPERSONA received and updated for character: ", source, "new nickname: ", receivedPersona [CONST_INDEX_NICKNAME])
+				NickTag:Msg ("FULLPERSONA received and updated for character: ", source, "new nickname: ", receivedPersona [CONST_INDEX_NICKNAME])
 			end
 
 		end
@@ -312,7 +312,7 @@ end
 	function NickTag.OnEvent (self, event, ...)
 		if (NickTag.EventFrame.InfoSendCooldown > time()) then
 			if (not NickTag.EventFrame.ScheduledSend or NickTag.EventFrame.ScheduledSend._cancelled) then
-				NickTag.EventFrame.ScheduledSend = C_Timer.NewTimer(30, NickTag.SendPersona)
+				NickTag.EventFrame.ScheduledSend = C_Timer.NewTimer (30, NickTag.SendPersona)
 			end
 		else
 			NickTag:SendPersona()
@@ -334,7 +334,7 @@ end
 		if (not nickTable) then
 			return
 		end
-		NickTag:Msg("SendPersona() -> broadcast")
+		NickTag:Msg ("SendPersona() -> broadcast")
 		
 		if (NickTag.EventFrame.ScheduledSend and not NickTag.EventFrame.ScheduledSend._cancelled) then
 			NickTag.EventFrame.ScheduledSend:Cancel()
@@ -346,7 +346,7 @@ end
 		NickTag.send_scheduled = false
 		
 		--auto change nickname if we have an invalid nickname
-		if (NickTag:GetNickname (UnitName ("player")) == LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]) then
+		if (NickTag:GetNickname (UnitName ("player")) == LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]) then
 			nickTable [CONST_INDEX_NICKNAME] = UnitName ("player")
 		end
 
@@ -378,7 +378,7 @@ end
 				playerPersona [CONST_INDEX_BACKGROUND_COLOR] = false
 				playerPersona [CONST_INDEX_REVISION] = playerPersona [CONST_INDEX_REVISION] + 1
 				
-				C_Timer.After(1, NickTag.SendPersona)
+				C_Timer.After (1, NickTag.SendPersona)
 			end
 		end
 	end
@@ -405,7 +405,7 @@ end
 			pool.last_version = minor
 		else
 			--sometimes player guid isn't available right after logon, so, just schedule until it become available.
-			NickTag:ScheduleTimer("ResetCache", 0.3)
+			NickTag:ScheduleTimer ("ResetCache", 0.3)
 		end
 	end
 	
@@ -489,7 +489,7 @@ end
 	local check_repeated = function(char)
 		if (char == "  ") then
 			have_repeated = true
-		elseif (string.len(char) > 2) then
+		elseif (string.len (char) > 2) then
 			have_repeated = true
 		elseif (char == " ") then
 			count_spaces = count_spaces + 1
@@ -502,7 +502,7 @@ end
 		--as nicktag only work internally in the guild, we think that is not necessary a work filter to avoid people using bad language.
 
 		if (type(name) ~= "string") then
-			return false, LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_4"] --error 4 = name isn't a valid string
+			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_4"] --error 4 = name isn't a valid string
 		end
 
 		name = trim (name)
@@ -532,9 +532,9 @@ end
 
 		--limit nickname to 12 characters, same as wow.
 		--cyrillic seems to double the len using 2 bytes
-		local len = string.len(name)
+		local len = string.len (name)
 		if (len > maxLength) then
-			return false, LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_1"] --error 1 = nickname is too long, max of 12 characters.
+			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_1"] --error 1 = nickname is too long, max of 12 characters.
 		end
 
 		--check if contain any non allowed characters, by now only accpet letters, numbers and spaces.
@@ -543,13 +543,13 @@ end
 		
 --		local notallow = string.find (name, "[^a-zA-Z�������%s]")
 --		if (notallow) then
---			return false, LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --error 2 = nickname only support letters, numbers and spaces.
+--			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --error 2 = nickname only support letters, numbers and spaces.
 --		end
 		
 		--[=[
 		for letter in name:gmatch(".") do
 			if (not allowedLetters[letter]) then
-				return false, LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --error 2 = nickname only support letters, numbers and spaces.
+				return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_2"] --error 2 = nickname only support letters, numbers and spaces.
 			end
 		end
 		--]=]
@@ -563,7 +563,7 @@ end
 			have_repeated = true
 		end
 		if (have_repeated) then
-			return false, LibStub("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_3"] --error 3 = cant use the same letter three times consecutively, 2 spaces consecutively or 3 or more spaces.
+			return false, LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_ERROR_3"] --error 3 = cant use the same letter three times consecutively, 2 spaces consecutively or 3 or more spaces.
 		end
 		
 		return true
@@ -578,7 +578,7 @@ end
 		--check if the nickname is okey to allowed to use.
 		local okey, errortype = NickTag:CheckName (name)
 		if (not okey) then
-			NickTag:Msg("SetNickname() invalid name ", name)
+			NickTag:Msg ("SetNickname() invalid name ", name)
 			return false, errortype
 		end
 		
@@ -607,11 +607,11 @@ end
 			--this is a kind of protection for scripts which call SetNickname, SetColor and SetAvatar one after other, so scheduling here avoid three revisions upgrades and 3 broadcasts to the guild.			
 			if (not NickTag.send_scheduled) then
 				NickTag.send_scheduled = true
-				NickTag:ScheduleTimer("SendPersona", 1)
+				NickTag:ScheduleTimer ("SendPersona", 1)
 			end
 			
 		else
-			NickTag:Msg("SetNickname() name is the same on the pool ", name, nickTable [CONST_INDEX_NICKNAME])
+			NickTag:Msg ("SetNickname() name is the same on the pool ", name, nickTable [CONST_INDEX_NICKNAME])
 		end
 		
 		return true
@@ -622,7 +622,7 @@ end
 		if (l == nil) then
 			l, r, t, b = 0, 1, 0, 1
 		elseif (type(l) == "table") then
-			l, r, t, b = unpack(l)
+			l, r, t, b = unpack (l)
 		end
 		
 		--check data before
@@ -655,7 +655,7 @@ end
 			
 			if (not NickTag.send_scheduled) then
 				NickTag.send_scheduled = true
-				NickTag:ScheduleTimer("SendPersona", 1)
+				NickTag:ScheduleTimer ("SendPersona", 1)
 			end
 		end
 
@@ -713,7 +713,7 @@ end
 			
 			if (not NickTag.send_scheduled) then
 				NickTag.send_scheduled = true
-				NickTag:ScheduleTimer("SendPersona", 1)
+				NickTag:ScheduleTimer ("SendPersona", 1)
 			end
 		end
 		
@@ -766,7 +766,7 @@ end
 		if (not silent) then
 			assert (type(playerName) == "string", "NickTag 'GetNicknameTable' expects a string on #1 argument.")
 		else
-			if (not playerName or type(playerName) ~= "string") then
+			if (not playerName or type (playerName) ~= "string") then
 				return
 			end
 		end
@@ -851,9 +851,9 @@ do
 		background_texture:SetWidth(290)
 		background_texture:SetHeight(75)
 		background_texture:SetTexture(NickTag.background_pool[1][1])
-		background_texture:SetTexCoord (unpack(NickTag.background_pool[1][3]))
+		background_texture:SetTexCoord (unpack (NickTag.background_pool[1][3]))
 		--
-		local name = avatar_pick_frame:CreateFontString("AvatarPickFrameName", "overlay", "GameFontHighlightHuge")
+		local name = avatar_pick_frame:CreateFontString ("AvatarPickFrameName", "overlay", "GameFontHighlightHuge")
 		name:SetPoint("left", avatar_texture, "right", -11, -17)
 		name:SetText(UnitName ("player"))
 	---
@@ -866,7 +866,7 @@ do
 		elseif (button.isBackground) then
 			local background = NickTag.background_pool [button.IconID]
 			_G.AvatarPickFrameBackgroundPreview:SetTexture( background [1] )
-			_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack(background [3]))
+			_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack (background [3]))
 			avatar_pick_frame.selected_background = background [1]
 			avatar_pick_frame.selected_texcoord = background [3]
 		end
@@ -874,7 +874,7 @@ do
 	
 	local selectedColor = function()
 		local r, g, b = ColorPickerFrame:GetColorRGB()
-		background_texture:SetVertexColor(r, g, b)
+		background_texture:SetVertexColor (r, g, b)
 		avatar_pick_frame.selected_color[1] = r
 		avatar_pick_frame.selected_color[2] = g
 		avatar_pick_frame.selected_color[3] = b
@@ -883,7 +883,7 @@ do
 	local okey = CreateFrame("button", "AvatarPickFrameAccept", avatar_pick_frame)
 	okey:SetPoint("bottomright", avatar_pick_frame, "bottomright", -37, 12)
 	okey:SetText("Accept")
-	okey:SetFrameLevel(avatar_pick_frame:GetFrameLevel()+2)
+	okey:SetFrameLevel (avatar_pick_frame:GetFrameLevel()+2)
 	okey:SetScript("OnClick", function(self) 
 		avatar_pick_frame:Hide()
 		if (avatar_pick_frame.callback) then
@@ -893,7 +893,7 @@ do
 	local change_color = CreateFrame("button", "AvatarPickFrameColor", avatar_pick_frame)
 	change_color:SetPoint("bottomright", avatar_pick_frame, "bottomright", -205, 12)
 	change_color:SetText("Color")
-	change_color:SetFrameLevel(avatar_pick_frame:GetFrameLevel()+2)
+	change_color:SetFrameLevel (avatar_pick_frame:GetFrameLevel()+2)
 	
 	change_color:SetScript("OnClick", function(self) 
 		ColorPickerFrame.func = selectedColor
@@ -1019,8 +1019,8 @@ do
 		end
 		local background = NickTag.background_pool [n]
 		_G.AvatarPickFrameBackgroundPreview:SetTexture( background [1] )
-		_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack(background [3]))
-		_G.AvatarPickFrameBackgroundPreview:SetVertexColor(unpack(avatar_pick_frame.selected_color))
+		_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack (background [3]))
+		_G.AvatarPickFrameBackgroundPreview:SetVertexColor (unpack (avatar_pick_frame.selected_color))
 		avatar_pick_frame.selected_background = background [1]
 	end
 	function avatar_pick_frame:SetColor (r, g, b)
@@ -1033,7 +1033,7 @@ do
 		if (type(b) ~= "number" or b > 1) then
 			b = 1
 		end
-		_G.AvatarPickFrameBackgroundPreview:SetVertexColor(r, g, b)
+		_G.AvatarPickFrameBackgroundPreview:SetVertexColor (r, g, b)
 		avatar_pick_frame.selected_color[1] = r
 		avatar_pick_frame.selected_color[2] = g
 		avatar_pick_frame.selected_color[3] = b
@@ -1048,7 +1048,7 @@ do
 	
 	avatar_pick_frame:SetScript("OnShow", function()
 		--get player avatar
-		local avatar = NickTag:GetNicknameTable (UnitGUID("player"))
+		local avatar = NickTag:GetNicknameTable (UnitGUID ("player"))
 		if (avatar) then
 			_G.AvatarPickFrameName:SetText( avatar [1] or UnitName ("player"))
 			
@@ -1061,7 +1061,7 @@ do
 			avatar_pick_frame.selected_background = avatar [CONST_INDEX_BACKGROUND_PATH] or [[Interface\PetBattles\Weather-ArcaneStorm]]
 			
 			if (avatar [CONST_INDEX_BACKGROUND_TEXCOORD]) then
-				_G.AvatarPickFrameBackgroundPreview:SetTexCoord ( unpack(avatar [CONST_INDEX_BACKGROUND_TEXCOORD]) )
+				_G.AvatarPickFrameBackgroundPreview:SetTexCoord ( unpack (avatar [CONST_INDEX_BACKGROUND_TEXCOORD]) )
 				avatar_pick_frame.selected_texcoord = avatar [CONST_INDEX_BACKGROUND_TEXCOORD]
 			else
 				_G.AvatarPickFrameBackgroundPreview:SetTexCoord ( 0.129609375, 1, 1, 0 )
@@ -1069,10 +1069,10 @@ do
 			end
 			
 			if (avatar [CONST_INDEX_BACKGROUND_COLOR]) then
-				_G.AvatarPickFrameBackgroundPreview:SetVertexColor( unpack(avatar [CONST_INDEX_BACKGROUND_COLOR]) )
+				_G.AvatarPickFrameBackgroundPreview:SetVertexColor ( unpack (avatar [CONST_INDEX_BACKGROUND_COLOR]) )
 				avatar_pick_frame.selected_color = avatar [CONST_INDEX_BACKGROUND_COLOR]
 			else
-				_G.AvatarPickFrameBackgroundPreview:SetVertexColor( 1, 1, 1 )
+				_G.AvatarPickFrameBackgroundPreview:SetVertexColor ( 1, 1, 1 )
 				avatar_pick_frame.selected_color = {1, 1, 1}
 			end
 		else
@@ -1085,9 +1085,9 @@ do
 			if (background) then
 				_G.AvatarPickFrameBackgroundPreview:SetTexture( background [1] )
 				avatar_pick_frame.selected_background = background [1]
-				_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack(background [3]))
+				_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack (background [3]))
 				avatar_pick_frame.selected_texcoord = background [3]
-				_G.AvatarPickFrameBackgroundPreview:SetVertexColor(unpack(avatar_pick_frame.selected_color))
+				_G.AvatarPickFrameBackgroundPreview:SetVertexColor (unpack (avatar_pick_frame.selected_color))
 				avatar_pick_frame.selected_color = avatar_pick_frame.selected_color
 			end
 			

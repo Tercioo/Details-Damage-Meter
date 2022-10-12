@@ -67,13 +67,13 @@ function Details:CreateAPI2Frame()
                     parameters = parameters .. parameterInfo.name .. ", "
                 end
             end
-            parameters = parameters:gsub (", $", "")
+            parameters = parameters:gsub(", $", "")
             
             local returnValues = "local "
             for returnIndex, returnInfo in ipairs(apiInfo.returnValues) do
                 returnValues = returnValues .. returnInfo.name .. ", "
             end
-            returnValues = returnValues:gsub (", $", "")
+            returnValues = returnValues:gsub(", $", "")
             returnValues = returnValues .. " = "
             
             if (parameters ~= "") then
@@ -82,7 +82,7 @@ function Details:CreateAPI2Frame()
                 Api2Frame.ApiCopy.text = returnValues .. "Details." .. apiName .. "()"
             end
             
-            Api2Frame.ApiCopy:SetFocus (true)
+            Api2Frame.ApiCopy:SetFocus(true)
             Api2Frame.ApiCopy:HighlightText()
             
             --parameters
@@ -219,7 +219,7 @@ function Details:CreateAPI2Frame()
             --api func to copy
             local apiCopyString = DetailsFramework:CreateLabel(Api2Frame, "Copy String", 12, "orange")
             apiCopyString:SetPoint("topleft", Api2Frame.ApiFunctionDesc, "bottomleft", 0, -20)
-            Api2Frame.ApiCopy = DetailsFramework:CreateTextEntry (Api2Frame, function() end, infoWidth, 20)
+            Api2Frame.ApiCopy = DetailsFramework:CreateTextEntry(Api2Frame, function() end, infoWidth, 20)
             Api2Frame.ApiCopy:SetPoint("topleft", apiCopyString, "bottomleft", 0, -2)
             Api2Frame.ApiCopy:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX"))
             

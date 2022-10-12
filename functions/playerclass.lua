@@ -19,7 +19,7 @@ do
 	end
 	
 	function _detalhes:GetIconTexture (iconType, withAlpha)
-		iconType = string.lower (iconType)
+		iconType = string.lower(iconType)
 		
 		if (iconType == "spec") then
 			if (withAlpha) then
@@ -38,7 +38,7 @@ do
 	end
 	
 	-- try get the class from actor name
-	function _detalhes:GetClass (name)
+	function _detalhes:GetClass(name)
 		local _, class = _UnitClass (name)
 		
 		if (not class) then
@@ -204,7 +204,7 @@ do
 			return
 		end
 		
-		local class = _detalhes:GetClass (Actor.nome)
+		local class = _detalhes:GetClass(Actor.nome)
 		if (class and class ~= "UNKNOW") then
 			Actor.classe = class
 			Actor.need_refresh = true

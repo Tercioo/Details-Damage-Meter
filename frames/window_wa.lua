@@ -68,7 +68,7 @@ local text_dispell_prototype = {
         ["events"] = "COMBAT_LOG_EVENT_UNFILTERED, ENCOUNTER_START",
         ["use_spellName"] = false,
         ["use_spellId"] = false,
-        ["custom"] = "function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    if (event == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if ((token == \"SPELL_DISPEL\" or token == \"SPELL_STOLEN\") and extraSpellID == 159947) then\n            aura_env.dispelled = aura_env.dispelled + 1\n            aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1\n            \n            aura_env.text = aura_env.text .. \"|cffd2e8ff\" .. who_name ..  \" (\" .. aura_env.dispels_by [who_name] .. \") \".. \"|r\\n\"\n            \n            if (select(2, aura_env.text:gsub (\"\\n\", \"\")) == 9) then\n                aura_env.text = aura_env.text:gsub (\".-\\n\", \"\", 1)\n            end\n            return true\n        end        \n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.dispelled = 0\n        wipe (aura_env.dispels_by)\n        return true        \n    end\nend",
+        ["custom"] = "function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    if (event == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if ((token == \"SPELL_DISPEL\" or token == \"SPELL_STOLEN\") and extraSpellID == 159947) then\n            aura_env.dispelled = aura_env.dispelled + 1\n            aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1\n            \n            aura_env.text = aura_env.text .. \"|cffd2e8ff\" .. who_name ..  \" (\" .. aura_env.dispels_by [who_name] .. \") \".. \"|r\\n\"\n            \n            if (select(2, aura_env.text:gsub(\"\\n\", \"\")) == 9) then\n                aura_env.text = aura_env.text:gsub(\".-\\n\", \"\", 1)\n            end\n            return true\n        end        \n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.dispelled = 0\n        wipe (aura_env.dispels_by)\n        return true        \n    end\nend",
         ["spellIds"] = {
         },
         ["use_message"] = true,
@@ -827,7 +827,7 @@ local text_dbm_timerbar_prototype = {
     ["fontSize"] = 60,
     ["color"] = {0.8, 1, 0.8, 1},
     ["displayText"] = "%c\n",
-    ["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n==>     \" .. format (\"%.1f\", at - GetTime()) .. \"     <==\"\n    else\n        return \"\"\n    end    \n    \nend\n",
+    ["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n==>     \" .. format(\"%.1f\", at - GetTime()) .. \"     <==\"\n    else\n        return \"\"\n    end    \n    \nend\n",
     ["yOffset"] = 157.554321289063,
     ["anchorPoint"] = "CENTER",
     ["customTextUpdate"] = "update",
@@ -1429,12 +1429,12 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
     --check if there is a group for our auras
 --[=[
     if (not WeakAurasSaved.displays ["Details! Aura Group"]) then
-        local group = _detalhes.table.copy ({}, group_prototype)
+        local group = _detalhes.table.copy({}, group_prototype)
         WeakAuras.Add (group)
     end
     
     if (not WeakAurasSaved.displays ["Details! Boss Mods Group"]) then
-        local group = _detalhes.table.copy ({}, group_prototype_boss_mods)
+        local group = _detalhes.table.copy({}, group_prototype_boss_mods)
         WeakAuras.Add (group)
     end
 --]=]
@@ -1454,7 +1454,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         icon_glow = nil
         group = nil
         
-        new_aura = _detalhes.table.copy ({}, text_interrupt_prototype)
+        new_aura = _detalhes.table.copy({}, text_interrupt_prototype)
         
         new_aura.trigger.custom = [[
             function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
@@ -1466,8 +1466,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                         aura_env.interrupted = aura_env.interrupted + 1
                         aura_env.text = aura_env.text .. "|cffc5ffc5" .. who_name ..  " (" .. aura_env.interrupted .. ") ".. "|r\n"
                     end
-                    if (select(2, aura_env.text:gsub ("\n", "")) == 9) then
-                        aura_env.text = aura_env.text:gsub (".-\n", "", 1)
+                    if (select(2, aura_env.text:gsub("\n", "")) == 9) then
+                        aura_env.text = aura_env.text:gsub(".-\n", "", 1)
                     end
                     return true
                 else
@@ -1479,8 +1479,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             end
         ]]
         
-        new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spellid", spellid)
-        new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spell_casted", icon_text)
+        new_aura.trigger.custom = new_aura.trigger.custom:gsub("@spellid", spellid)
+        new_aura.trigger.custom = new_aura.trigger.custom:gsub("@spell_casted", icon_text)
         
         --size
         new_aura.fontSize = min (icon_size, 24)
@@ -1499,7 +1499,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         icon_glow = nil
         group = nil
         
-        new_aura = _detalhes.table.copy ({}, text_dispell_prototype)
+        new_aura = _detalhes.table.copy({}, text_dispell_prototype)
         
         new_aura.trigger.custom = [[
             function(event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
@@ -1509,8 +1509,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                         aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1
                         aura_env.text = aura_env.text .. "|cffd2e8ff" .. who_name ..  " (" .. aura_env.dispels_by [who_name] .. ") ".. "|r\n"
 
-                        if (select(2, aura_env.text:gsub ("\n", "")) == 11) then
-                            aura_env.text = aura_env.text:gsub (".-\n", "", 2)
+                        if (select(2, aura_env.text:gsub("\n", "")) == 11) then
+                            aura_env.text = aura_env.text:gsub(".-\n", "", 2)
                             aura_env.text = "@title\n" .. aura_env.text
                         end
                         return true
@@ -1525,8 +1525,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             end
         ]]
         
-        new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spellid", spellid)
-        new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@title", icon_text)
+        new_aura.trigger.custom = new_aura.trigger.custom:gsub("@spellid", spellid)
+        new_aura.trigger.custom = new_aura.trigger.custom:gsub("@title", icon_text)
 
         --size
         new_aura.fontSize = min (icon_size, 24)
@@ -1542,18 +1542,18 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
     
         --create the default aura table
         if (aura_type == "icon") then
-            new_aura = _detalhes.table.copy ({}, icon_dbm_timerbar_prototype)
+            new_aura = _detalhes.table.copy({}, icon_dbm_timerbar_prototype)
         elseif (aura_type == "aurabar") then
-            new_aura = _detalhes.table.copy ({}, bar_dbm_timerbar_prototype)
+            new_aura = _detalhes.table.copy({}, bar_dbm_timerbar_prototype)
         elseif (aura_type == "text") then
-            new_aura = _detalhes.table.copy ({}, text_dbm_timerbar_prototype)
+            new_aura = _detalhes.table.copy({}, text_dbm_timerbar_prototype)
         end
 
         --text and icon
         if (aura_type == "aurabar") then
-            icon_text = icon_text:gsub ("= ", "")
-            icon_text = icon_text:gsub (" =", "")
-            icon_text = icon_text:gsub ("=", "")
+            icon_text = icon_text:gsub("= ", "")
+            icon_text = icon_text:gsub(" =", "")
+            icon_text = icon_text:gsub("=", "")
             new_aura.displayTextLeft = icon_text
             new_aura.displayIcon = icon_texture
         elseif (aura_type == "icon") then
@@ -1579,25 +1579,25 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 aura_env.remaining_trigger = @countdown
             ]]
 
-            init_start = init_start:gsub ("@text", icon_text)
-            init_start = init_start:gsub ("@countdown", floor(stacksize))
-            new_aura.trigger.remaining = tostring (floor(stacksize))
+            init_start = init_start:gsub("@text", icon_text)
+            init_start = init_start:gsub("@countdown", floor(stacksize))
+            new_aura.trigger.remaining = tostring(floor(stacksize))
             new_aura.actions.init.custom = init_start
 
             if (other_values.dbm_timer_id) then
                 new_aura.trigger.event = "DBM Timer"
-                local timerId = tostring (other_values.dbm_timer_id)
+                local timerId = tostring(other_values.dbm_timer_id)
                 
-                --print("timerId:", other_values.dbm_timer_id, type(other_values.dbm_timer_id), timerId:find ("%s"))
+                --print("timerId:", other_values.dbm_timer_id, type(other_values.dbm_timer_id), timerId:find("%s"))
                 --other_values.spellid
                 
-                --if (timerId:find ("%s")) then
+                --if (timerId:find("%s")) then
                     --spellid timers
                     new_aura.trigger.id = ""
                     new_aura.trigger.use_id = false
                     new_aura.trigger.spellId_operator = "=="
                     new_aura.trigger.use_spellId = true
-                    new_aura.trigger.spellId = tostring (other_values.spellid)
+                    new_aura.trigger.spellId = tostring(other_values.spellid)
                 --else
                     --ej timers
                 --	new_aura.trigger.id = timerId
@@ -1607,7 +1607,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 new_aura.trigger.use_id = false
                 new_aura.trigger.spellId_operator = "=="
                 new_aura.trigger.use_spellId = true
-                new_aura.trigger.spellId = tostring (other_values.bw_timer_id)
+                new_aura.trigger.spellId = tostring(other_values.bw_timer_id)
                 new_aura.trigger.event = "BigWigs Timer"
             end
             
@@ -1617,17 +1617,17 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             local init_start = [[
                 aura_env.reimaningTime = @countdown
             ]]
-            init_start = init_start:gsub ("@countdown", floor(stacksize))
-            trigger.remaining = tostring (floor(stacksize))
+            init_start = init_start:gsub("@countdown", floor(stacksize))
+            trigger.remaining = tostring(floor(stacksize))
             new_aura.actions.init.custom = init_start
             
             if (other_values.dbm_timer_id) then
                 trigger.event = "DBM Timer"
-                trigger.spellId = tostring (other_values.spellid)
+                trigger.spellId = tostring(other_values.spellid)
                 
             elseif (other_values.bw_timer_id) then
                 trigger.event = "BigWigs Timer"
-                trigger.spellId = tostring (other_values.bw_timer_id)
+                trigger.spellId = tostring(other_values.bw_timer_id)
                 trigger.spellId_operator = "=="
             end
         end
@@ -1635,18 +1635,18 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
     else
     
         if (aura_type == "icon") then
-            new_aura = _detalhes.table.copy ({}, icon_prototype)
+            new_aura = _detalhes.table.copy({}, icon_prototype)
         elseif (aura_type == "aurabar") then
-            new_aura = _detalhes.table.copy ({}, aurabar_prototype)
+            new_aura = _detalhes.table.copy({}, aurabar_prototype)
         elseif (aura_type == "text") then
-            new_aura = _detalhes.table.copy ({}, text_prototype)
+            new_aura = _detalhes.table.copy({}, text_prototype)
             new_aura.displayText = spellname
         end
     
         if (target) then
             if (target == 1) then --Debuff on Player
-                local add = _detalhes.table.copy ({}, debuff_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, debuff_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellIds[1] = "" --spellid
                 add.trigger.names  = nil --spellname
                 add.trigger.auranames = {tostring(spellid)}
@@ -1663,8 +1663,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
                 
             elseif (target == 2) then --Debuff on Target
-                local add = _detalhes.table.copy ({}, debuff_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, debuff_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellIds[1] = "" --spellid
                 add.trigger.names = nil --spellname
                 add.trigger.auranames = {tostring(spellid)}
@@ -1683,8 +1683,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
 
             elseif (target == 3) then --Debuff on Focus
-                local add = _detalhes.table.copy ({}, debuff_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, debuff_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellIds[1] = "" --spellid
                 add.trigger.names = nil --spellname
                 add.trigger.auranames = {tostring(spellid)}
@@ -1700,7 +1700,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
                 
             elseif (target == 11) then --Buff on Player
-                local add = _detalhes.table.copy ({}, buff_prototype)
+                local add = _detalhes.table.copy({}, buff_prototype)
                 add.trigger.names = nil --spellname
                 add.trigger.unit = "player"
                 add.trigger.useName = true
@@ -1714,8 +1714,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
                 
             elseif (target == 12) then --Buff on Target
-                local add = _detalhes.table.copy ({}, buff_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, buff_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellIds[1] = "" --spellid
                 add.trigger.names = nil --spellname
                 add.trigger.unit = "target"
@@ -1729,8 +1729,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
                 
             elseif (target == 13) then --Buff on Focus
-                local add = _detalhes.table.copy ({}, buff_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, buff_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellIds[1] = "" --spellid
                 add.trigger.names = nil --spellname
                 add.trigger.auranames = {tostring(spellid)}
@@ -1746,8 +1746,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
                 
             elseif (target == 21) then --Spell Cast Started
-                local add = _detalhes.table.copy ({}, cast_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, cast_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellName = spellname
                 add.trigger.subeventSuffix = "_CAST_START"
                 add.trigger.duration = stacksize
@@ -1758,8 +1758,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
                 _detalhes.table.overwrite (new_aura, add)
                 
             elseif (target == 22) then --Spell Cast Successful
-                local add = _detalhes.table.copy ({}, cast_prototype)
-                add.trigger.spellId = tostring (spellid)
+                local add = _detalhes.table.copy({}, cast_prototype)
+                add.trigger.spellId = tostring(spellid)
                 add.trigger.spellName = spellname
                 if (not use_spellid) then
                     add.trigger.use_spellName = true
@@ -1777,7 +1777,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             end
 
         else
-            new_aura.trigger.spellId = tostring (spellid)
+            new_aura.trigger.spellId = tostring(spellid)
             new_aura.trigger.name = spellname
             tinsert(new_aura.trigger.spellIds, spellid)
         end
@@ -1796,8 +1796,8 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         --check stack size
         if (stacksize and stacksize >= 1) then
             stacksize = floor(stacksize)
-            local add = _detalhes.table.copy ({}, stack_prototype)
-            add.trigger.count = tostring (stacksize)
+            local add = _detalhes.table.copy({}, stack_prototype)
+            add.trigger.count = tostring(stacksize)
             _detalhes.table.overwrite (new_aura, add)
         end
         
@@ -1806,7 +1806,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             if (aura_type == "text") then
                 new_aura.displayText = icon_text
             else
-                local add = _detalhes.table.copy ({}, widget_text_prototype)
+                local add = _detalhes.table.copy({}, widget_text_prototype)
                 add.displayStacks = icon_text
                 _detalhes.table.overwrite (new_aura, add)
             end
@@ -1831,25 +1831,25 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
     if (encounter_id) then
         new_aura.load = new_aura.load or {}
         new_aura.load.use_encounterid = true
-        new_aura.load.encounterid = tostring (encounter_id)
+        new_aura.load.encounterid = tostring(encounter_id)
     end
 
     --using sound
     if (sound and type(sound) == "table") then
-        local add = _detalhes.table.copy ({}, sound_prototype_custom)
+        local add = _detalhes.table.copy({}, sound_prototype_custom)
         add.actions.start.sound_path = sound.sound_path
         add.actions.start.sound_channel = sound.sound_channel or "Master"
         _detalhes.table.overwrite (new_aura, add)
         
-    elseif (sound and sound ~= "" and not sound:find ("Quiet.ogg")) then
-        local add = _detalhes.table.copy ({}, sound_prototype)
+    elseif (sound and sound ~= "" and not sound:find("Quiet.ogg")) then
+        local add = _detalhes.table.copy({}, sound_prototype)
         add.actions.start.sound = sound
         _detalhes.table.overwrite (new_aura, add)
     end
     
     --chat message
     if (chat and chat ~= "") then
-        local add = _detalhes.table.copy ({}, chat_prototype)
+        local add = _detalhes.table.copy({}, chat_prototype)
         add.actions.start.message = chat
         _detalhes.table.overwrite (new_aura, add)
     end
@@ -1866,7 +1866,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
     
     --check is is using glow effect
     if (icon_glow) then
-        local add = _detalhes.table.copy ({}, glow_prototype)
+        local add = _detalhes.table.copy({}, glow_prototype)
         add.actions.start.glow_frame = "WeakAuras:" .. new_aura.id
         _detalhes.table.overwrite (new_aura, add)
     end
@@ -1971,11 +1971,11 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         --check if there is a group for our auras
         if (WeakAuras and WeakAurasSaved) then
             if (not WeakAurasSaved.displays ["Details! Aura Group"]) then
-                local group = _detalhes.table.copy ({}, group_prototype)
+                local group = _detalhes.table.copy({}, group_prototype)
                 WeakAuras.Add (group)
             end
             if (not WeakAurasSaved.displays ["Details! Boss Mods Group"]) then
-                local group = _detalhes.table.copy ({}, group_prototype_boss_mods)
+                local group = _detalhes.table.copy({}, group_prototype_boss_mods)
                 WeakAuras.Add (group)
             end
         end
@@ -2053,7 +2053,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         
         --aura name
         local name_label = fw:CreateLabel(f, "Aura Name: ", nil, nil, "GameFontNormal")
-        local name_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraName", "$parentAuraName")
+        local name_textentry = fw:CreateTextEntry(f, _detalhes.empty_function, 150, 20, "AuraName", "$parentAuraName")
         name_textentry:SetTemplate(slider_template)
         name_textentry:SetPoint("left", name_label, "right", 2, 0)
         f.name = name_textentry
@@ -2129,7 +2129,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         f.OnSelectAuraType = OnSelectAuraType
         
         local AuraTypeBackground = f:CreateTexture(nil, "border")
-        AuraTypeBackground:SetColorTexture (.4, .4, .4, .1)
+        AuraTypeBackground:SetColorTexture(.4, .4, .4, .1)
         AuraTypeBackground:SetHeight(64)
         AuraTypeBackground:SetPoint("topleft", f, "topleft", 10, -79)
         AuraTypeBackground:SetPoint("topright", f, "topright", -10, -79)
@@ -2244,7 +2244,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         
         --spellname
         local spellname_label = fw:CreateLabel(f, "Spell Name: ", nil, nil, "GameFontNormal")
-        local spellname_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SpellName", "$parentSpellName")
+        local spellname_textentry = fw:CreateTextEntry(f, _detalhes.empty_function, 150, 20, "SpellName", "$parentSpellName")
         spellname_textentry:SetTemplate(slider_template)
         spellname_textentry:SetPoint("left", spellname_label, "right", 2, 0)
         f.spellname = spellname_textentry
@@ -2252,7 +2252,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         
         --spellid
         local auraid_label = fw:CreateLabel(f, "Spell Id: ", nil, nil, "GameFontNormal")
-        local auraid_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraSpellId", "$parentAuraSpellId")
+        local auraid_textentry = fw:CreateTextEntry(f, _detalhes.empty_function, 150, 20, "AuraSpellId", "$parentAuraSpellId")
         auraid_textentry:SetTemplate(slider_template)
         auraid_textentry:Disable()
         auraid_textentry:SetPoint("left", auraid_label, "right", 2, 0)
@@ -2280,7 +2280,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             f.IconButton.icon.texture = texture
         end
         local icon_pick_button = fw:NewButton(f, nil, "$parentIconButton", "IconButton", 20, 20, function() fw:IconPick (icon_button_func, true) end)
-        local icon_button_icon = fw:NewImage (icon_pick_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
+        local icon_button_icon = fw:NewImage(icon_pick_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
         icon_pick_button:InstallCustomTexture()
         
         icon_pick_button:SetPoint("left", icon_label, "right", 2, 0)
@@ -2359,7 +2359,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             local already_added = {}
             
             for name, soundFile in pairs(game_sounds) do
-                name = name:gsub ("(%a)([%w_']*)", titlecase)
+                name = name:gsub("(%a)([%w_']*)", titlecase)
                 if (not already_added [name]) then
                     sounds [#sounds+1] = {name = name, file = soundFile, gamesound = true}
                     already_added [name] = true
@@ -2367,7 +2367,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             end
             
             for name, soundFile in pairs(LibStub:GetLibrary("LibSharedMedia-3.0"):HashTable ("sound")) do
-                name = name:gsub ("(%a)([%w_']*)", titlecase)
+                name = name:gsub("(%a)([%w_']*)", titlecase)
                 if (not already_added [name]) then
                     sounds [#sounds+1] = {name = name, file = soundFile}
                     already_added [name] = true
@@ -2376,7 +2376,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             
             if (WeakAuras and WeakAuras.sound_types) then
                 for soundFile, name in pairs(WeakAuras.sound_types) do
-                    name = name:gsub ("(%a)([%w_']*)", titlecase)
+                    name = name:gsub("(%a)([%w_']*)", titlecase)
                     if (not already_added [name]) then
                         sounds [#sounds+1] = {name = name, file = soundFile}
                     end
@@ -2386,7 +2386,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             table.sort (sounds, sort)
             
             for _, sound in ipairs(sounds) do
-                if (sound.name:find ("D_")) then --details sound
+                if (sound.name:find("D_")) then --details sound
                     tinsert(t, {color = "orange", label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 elseif (sound.gamesound) then --game sound
                     tinsert(t, {color = "yellow", label = sound.name, value = {sound_path = sound.file}, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
@@ -2404,14 +2404,14 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         
         --say something
         local say_something_label = fw:CreateLabel(f, "/Say on Trigger: ", nil, nil, "GameFontNormal")
-        local say_something = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SaySomething", "$parentSaySomething")
+        local say_something = fw:CreateTextEntry(f, _detalhes.empty_function, 150, 20, "SaySomething", "$parentSaySomething")
         say_something:SetTemplate(slider_template)
         say_something:SetPoint("left", say_something_label, "right", 2, 0)
         say_something.tooltip = "Your character /say this phrase when the aura triggers."
         
         --aura text
         local aura_text_label = fw:CreateLabel(f, "Aura Text: ", nil, nil, "GameFontNormal")
-        local aura_text = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraText", "$parentAuraText")
+        local aura_text = fw:CreateTextEntry(f, _detalhes.empty_function, 150, 20, "AuraText", "$parentAuraText")
         aura_text:SetTemplate(slider_template)
         aura_text:SetPoint("left", aura_text_label, "right", 2, 0)
         aura_text.tooltip = "Text shown at aura's icon right side."
@@ -2442,7 +2442,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
 
         --encounter id
         local encounterid_label = fw:CreateLabel(f, "Encounter ID: ", nil, nil, "GameFontNormal")
-        local encounterid = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "EncounterIdText", "$parentEncounterIdText")
+        local encounterid = fw:CreateTextEntry(f, _detalhes.empty_function, 150, 20, "EncounterIdText", "$parentEncounterIdText")
         encounterid:SetTemplate(slider_template)
         encounterid:SetPoint("left", encounterid_label, "right", 2, 0)
         encounterid.tooltip = "Only load this aura for this raid encounter."
@@ -2517,7 +2517,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             end
             
             --make a copy of the prototype
-            local newGroup = _detalhes.table.copy ({}, group_prototype)
+            local newGroup = _detalhes.table.copy({}, group_prototype)
             
             --set group settings
             newGroup.id = groupName
@@ -2537,7 +2537,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         end			
         
         local weakauras_newgroup_label = fw:CreateLabel(f, "New WeakAuras Group: ", nil, nil, "GameFontNormal")
-        local weakauras_newgroup_textentry = fw:CreateTextEntry (f, create_wa_group, 150, 20, "NewWeakaurasGroupTextEntry", "$parentNewWeakaurasGroup")
+        local weakauras_newgroup_textentry = fw:CreateTextEntry(f, create_wa_group, 150, 20, "NewWeakaurasGroupTextEntry", "$parentNewWeakaurasGroup")
         weakauras_newgroup_textentry:SetTemplate(slider_template)
         weakauras_newgroup_textentry:SetPoint("left", weakauras_newgroup_label, "right", 2, 0)
         f.weakauras_newgroup = weakauras_newgroup_textentry
@@ -2710,7 +2710,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
                     f.AuraText:SetText("=Not Interrupted!=")
                     aura_text_label.text = "Not Interrupted: "
                 elseif (trigger == 42) then
-                    f.AuraText:SetText(DetailsAuraPanel.name.text:gsub ("%(d!%)", "") .. "Dispells")
+                    f.AuraText:SetText(DetailsAuraPanel.name.text:gsub("%(d!%)", "") .. "Dispells")
                     aura_text_label.text = "Title Text: "
                 end
             end
@@ -2750,7 +2750,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
     
     DetailsAuraPanel.name.text = spellname .. " (d!)"
     DetailsAuraPanel.spellname.text = spellname
-    DetailsAuraPanel.AuraSpellId.text = tostring (spellid)
+    DetailsAuraPanel.AuraSpellId.text = tostring(spellid)
     DetailsAuraPanel.icon.texture = spellicon
     
     DetailsAuraPanel.UseGlow.glow_test.animIn:Stop()

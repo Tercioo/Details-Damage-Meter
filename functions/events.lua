@@ -250,7 +250,7 @@ local common_events = {
 			return
 		end
 		
-		local okay, errortext = pcall (func, event, ...)
+		local okay, errortext = pcall(func, event, ...)
 		
 		if (not okay) then
 			--trigger an error msg
@@ -272,7 +272,7 @@ local common_events = {
 			return
 		end
 		
-		local okay, errortext = pcall (func, context, event, ...)
+		local okay, errortext = pcall(func, context, event, ...)
 		
 		if (not okay) then
 			--attempt to get the context name

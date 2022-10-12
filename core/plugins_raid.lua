@@ -323,9 +323,9 @@
 			end
 			
 			if (custom ~= "") then
-				custom = custom:gsub ("{spell}", spellname)
-				custom = custom:gsub ("{target}", alvo_name or "")
-				custom = custom:gsub ("{next}", next)
+				custom = custom:gsub("{spell}", spellname)
+				custom = custom:gsub("{target}", alvo_name or "")
+				custom = custom:gsub("{next}", next)
 				_detalhes:SendMsgToChannel (custom, channel, _detalhes.announce_interrupts.whisper)
 			else
 				local msg = _cstr (Loc ["STRING_OPTIONS_RT_INTERRUPT"], spellname)
@@ -348,9 +348,9 @@
 			end
 
 			if (custom ~= "") then
-				custom = custom:gsub ("{spell}", spellname)
-				custom = custom:gsub ("{next}", who_name)
-				custom = custom:gsub ("{target}", alvo_name or "")
+				custom = custom:gsub("{spell}", spellname)
+				custom = custom:gsub("{next}", who_name)
+				custom = custom:gsub("{target}", alvo_name or "")
 				_detalhes:SendMsgToChannel (custom, "PRINT")
 			else
 				local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
@@ -424,8 +424,8 @@
 			local custom = _detalhes.announce_cooldowns.custom
 			
 			if (custom ~= "") then
-				custom = custom:gsub ("{spell}", spellname)
-				custom = custom:gsub ("{target}", alvo_name or "")
+				custom = custom:gsub("{spell}", spellname)
+				custom = custom:gsub("{target}", alvo_name or "")
 				_detalhes:SendMsgToChannel (custom, channel, _detalhes.announce_interrupts.whisper)
 			else
 				local msg

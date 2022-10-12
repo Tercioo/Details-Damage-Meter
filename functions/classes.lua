@@ -127,16 +127,16 @@ do
 
 	function _detalhes:GetOnlyName(string)
 		if (string) then
-			return string:gsub (("%-.*"), "")
+			return string:gsub(("%-.*"), "")
 		end
-		return self.nome:gsub (("%-.*"), "")
+		return self.nome:gsub(("%-.*"), "")
 	end
 	
 	function _detalhes:RemoveOwnerName (string)
 		if (string) then
-			return string:gsub ((" <.*"), "")
+			return string:gsub((" <.*"), "")
 		end
-		return self.nome:gsub ((" <.*"), "")
+		return self.nome:gsub((" <.*"), "")
 	end
 	
 	function _detalhes:GetCLName(id)

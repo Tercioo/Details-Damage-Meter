@@ -99,8 +99,8 @@
 	end
 
 	function timeMachine:Reiniciar()
-		table.wipe (self.tabelas[1])
-		table.wipe (self.tabelas[2])
+		table.wipe(self.tabelas[1])
+		table.wipe(self.tabelas[2])
 		self.tabelas = {{}, {}} --1 dano 2 cura
 	end
 
@@ -125,7 +125,7 @@
 		end
 
 		local esta_tabela = timeMachine.tabelas [self.tipo]
-		tinsert (esta_tabela, self)
+		tinsert(esta_tabela, self)
 		self.timeMachine = #esta_tabela
 	end 
 

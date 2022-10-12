@@ -1055,7 +1055,7 @@ local _
 			
 		end
 
-		table.wipe (instance1.snap); table.wipe (instance2.snap)
+		table.wipe(instance1.snap); table.wipe(instance2.snap)
 		instance1.snap [3] = 2; instance2.snap [1] = 1;
 		instance1.horizontalSnap = true; instance2.horizontalSnap = true
 		

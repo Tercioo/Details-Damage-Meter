@@ -265,7 +265,7 @@ function atributo_energy:AtualizarResources (whichRowLine, colocacao, instancia)
 	
 	--texture color
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
-	self:SetBarColors (esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	self:SetBarColors(esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--icon
 	self:SetClassIcon (esta_barra.icone_classe, instancia, self.classe)
 
@@ -536,7 +536,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.textura:SetVertexColor(r, g, b)
 			
 			row1.icone_classe:SetTexture(instancia.total_bar.icon)
-			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
+			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 			
 			Details.FadeHandler.Fader(row1, "out")
 			
@@ -597,7 +597,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.textura:SetVertexColor(r, g, b)
 			
 			row1.icone_classe:SetTexture(instancia.total_bar.icon)
-			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
+			row1.icone_classe:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375)
 			
 			Details.FadeHandler.Fader(row1, "out")
 			
@@ -719,7 +719,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				Details.FadeHandler.Fader(esta_barra, "out")
 			end
 			
-			return self:RefreshBarra (esta_barra, instancia)
+			return self:RefreshBarra(esta_barra, instancia)
 		else
 			return
 		end
@@ -743,7 +743,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				esta_barra.background:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
 			
-			return self:RefreshBarra (esta_barra, instancia)
+			return self:RefreshBarra(esta_barra, instancia)
 			
 		else
 			--agora esta comparando se a tabela da barra � diferente da tabela na atualiza��o anterior
@@ -758,7 +758,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 			
 				esta_barra.last_value = esta_porcentagem --reseta o ultimo valor da barra
 				
-				return self:RefreshBarra (esta_barra, instancia)
+				return self:RefreshBarra(esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --continua mostrando a mesma tabela ent�o compara a porcentagem
 				--apenas atualizar
@@ -769,7 +769,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				end
 				esta_barra.last_value = esta_porcentagem
 				
-				return self:RefreshBarra (esta_barra, instancia)
+				return self:RefreshBarra(esta_barra, instancia)
 			end
 		end
 
@@ -777,7 +777,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 	
 end
 
-function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
+function atributo_energy:RefreshBarra(esta_barra, instancia, from_resize)
 	
 	local class, enemy, arena_enemy, arena_ally = self.classe, self.enemy, self.arena_enemy, self.arena_ally
 	
@@ -788,7 +788,7 @@ function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
 	--icon
 	self:SetClassIcon (esta_barra.icone_classe, instancia, class)
 	--texture color
-	self:SetBarColors (esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	self:SetBarColors(esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--left text
 	self:SetBarLeftText (esta_barra, instancia, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
 	
@@ -1116,16 +1116,16 @@ function atributo_energy:MontaInfoRegenRecebido()
 
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 			barra.on_focus = false
 		end
 
-		self:FocusLock (barra, tabela[1])
+		self:FocusLock(barra, tabela[1])
 		
 		local spellname, _, spellicon = _GetSpellInfo(tabela [1])
 		local percent = tabela [2] / total_regenerado * 100
 		
-		self:UpdadeInfoBar (barra, index, tabela[1], spellname, tabela[2], _detalhes:comma_value (tabela[2]), max_, percent, spellicon, true)
+		self:UpdadeInfoBar(barra, index, tabela[1], spellname, tabela[2], _detalhes:comma_value (tabela[2]), max_, percent, spellicon, true)
 
 		barra.minha_tabela = self
 		barra.show = tabela[1]
@@ -1178,7 +1178,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 		
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo2 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 		end
 		
 		if (index == 1) then
@@ -1274,7 +1274,7 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 		end
 		
 		if (index == 1) then
@@ -1286,10 +1286,10 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 		barra.lineText1:SetText(index .. "." .. tabela [1])
 		barra.lineText4:SetText(_detalhes:comma_value (tabela[2]) .." (" .. _cstr("%.1f", tabela[2] / total_regenerado * 100) .."%)")
 		
-		barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [tabela[3]]))
+		barra.textura:SetStatusBarColor(_unpack(_detalhes.class_colors [tabela[3]]))
 		barra.icone:SetTexture("Interface\\AddOns\\Details\\images\\classes_small")
 		
-		barra.icone:SetTexCoord (_unpack(_detalhes.class_coords [tabela[3]]))
+		barra.icone:SetTexCoord(_unpack(_detalhes.class_coords [tabela[3]]))
 
 		barra:Show() --mostra a barra
 		

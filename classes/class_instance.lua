@@ -1302,7 +1302,7 @@ end
 			--copy values from a previous skin saved
 				if (skin_table) then
 					--copy from skin_table to new_instance
-					_detalhes.table.copy (new_instance, skin_table)
+					_detalhes.table.copy(new_instance, skin_table)
 				end
 
 			return new_instance
@@ -1362,7 +1362,7 @@ end
 		--copy values from a previous skin saved
 			if (skin_table) then
 				--copy from skin_table to new_instance
-				_detalhes.table.copy (new_instance, skin_table)
+				_detalhes.table.copy(new_instance, skin_table)
 			end
 
 		--setup default wallpaper
@@ -2427,19 +2427,19 @@ function _detalhes:TrocaTabela(instancia, segmento, atributo, sub_atributo, inic
 			local atributo = instancia.atributo
 			local time_left = (_detalhes.last_data_requested+7) - _detalhes._tempo
 
-			if (atributo == 1 and _detalhes.in_combat and not _detalhes:CaptureGet ("damage") and _detalhes.host_by) then
+			if (atributo == 1 and _detalhes.in_combat and not _detalhes:CaptureGet("damage") and _detalhes.host_by) then
 				if (_detalhes.debug) then
 					_detalhes:Msg("(debug) instancia need damage cloud.")
 				end
-			elseif (atributo == 2 and _detalhes.in_combat and (not _detalhes:CaptureGet ("heal") or _detalhes:CaptureGet ("aura")) and _detalhes.host_by) then
+			elseif (atributo == 2 and _detalhes.in_combat and (not _detalhes:CaptureGet("heal") or _detalhes:CaptureGet("aura")) and _detalhes.host_by) then
 				if (_detalhes.debug) then
 					_detalhes:Msg("(debug) instancia need heal cloud.")
 				end
-			elseif (atributo == 3 and _detalhes.in_combat and not _detalhes:CaptureGet ("energy") and _detalhes.host_by) then
+			elseif (atributo == 3 and _detalhes.in_combat and not _detalhes:CaptureGet("energy") and _detalhes.host_by) then
 				if (_detalhes.debug) then
 					_detalhes:Msg("(debug) instancia need energy cloud.")
 				end
-			elseif (atributo == 4 and _detalhes.in_combat and not _detalhes:CaptureGet ("miscdata") and _detalhes.host_by) then
+			elseif (atributo == 4 and _detalhes.in_combat and not _detalhes:CaptureGet("miscdata") and _detalhes.host_by) then
 				if (_detalhes.debug) then
 					_detalhes:Msg("(debug) instancia need misc cloud.")
 				end
@@ -2750,7 +2750,7 @@ function _detalhes:ChangeIcon(icon)
 	if (icon) then
 		--plugin chamou uma troca de icone
 		self.baseframe.cabecalho.atributo_icon:SetTexture(icon)
-		self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
+		self.baseframe.cabecalho.atributo_icon:SetTexCoord(5/64, 60/64, 3/64, 62/64)
 
 		local icon_size = skin.icon_plugins_size
 		self.baseframe.cabecalho.atributo_icon:SetWidth(icon_size[1])
@@ -2770,7 +2770,7 @@ function _detalhes:ChangeIcon(icon)
 			if (_detalhes.custom [self.sub_atributo]) then
 				local icon = _detalhes.custom [self.sub_atributo].icon
 				self.baseframe.cabecalho.atributo_icon:SetTexture(icon)
-				self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
+				self.baseframe.cabecalho.atributo_icon:SetTexCoord(5/64, 60/64, 3/64, 62/64)
 
 				local icon_size = skin.icon_plugins_size
 				self.baseframe.cabecalho.atributo_icon:SetWidth(icon_size[1])
@@ -2791,7 +2791,7 @@ function _detalhes:ChangeIcon(icon)
 			end
 
 			local p = 0.125 --32/256
-			self.baseframe.cabecalho.atributo_icon:SetTexCoord (p * (self.sub_atributo-1), p * (self.sub_atributo), 0, 1)
+			self.baseframe.cabecalho.atributo_icon:SetTexCoord(p * (self.sub_atributo-1), p * (self.sub_atributo), 0, 1)
 			self.baseframe.cabecalho.atributo_icon:SetSize(16, 16)
 
 			self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
@@ -2967,7 +2967,7 @@ local function GetDpsHps (_thisActor, key)
 	if (_thisActor [keyname]) then
 		return _thisActor [keyname]
 	else
-		if ((_detalhes.time_type == 2 and _thisActor.grupo) or not _detalhes:CaptureGet ("damage")) then
+		if ((_detalhes.time_type == 2 and _thisActor.grupo) or not _detalhes:CaptureGet("damage")) then
 			local dps = _thisActor.total / _thisActor:GetCombatTime()
 			_thisActor [keyname] = dps
 			return dps
@@ -3051,8 +3051,8 @@ end
 local report_name_function = function(name)
 	local name, index = unpack(name)
 
-	if (_detalhes.remove_realm_from_name and name:find ("-")) then
-		return index .. ". " .. name:gsub (("%-.*"), "")
+	if (_detalhes.remove_realm_from_name and name:find("-")) then
+		return index .. ". " .. name:gsub(("%-.*"), "")
 	else
 		return index .. ". " .. name
 	end
@@ -3161,7 +3161,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				local reportarFrags = {}
 				for name, amount in pairs(frags) do
 					--string para imprimir direto sem calculos
-					reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name}
+					reportarFrags [#reportarFrags+1] = {frag = tostring(amount), nome = name}
 				end
 				container = reportarFrags
 				container_amount = #reportarFrags
@@ -3204,7 +3204,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				local mortes = self.showing.last_events_tables
 				local reportarMortes = {}
 				for index, morte in ipairs(mortes) do
-					reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
+					reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub(("%-.*"), "")}
 				end
 				container = reportarMortes
 				container_amount = #reportarMortes
@@ -3515,8 +3515,8 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 	local to_who = _detalhes.report_where
 
-	local channel = to_who:find ("CHANNEL")
-	local is_btag = to_who:find ("REALID")
+	local channel = to_who:find("CHANNEL")
+	local is_btag = to_who:find("REALID")
 
 	local send_report_channel = function(timerObject)
 		_SendChatMessage (timerObject.Arg1, timerObject.Arg2, timerObject.Arg3, timerObject.Arg4)
@@ -3530,7 +3530,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 	if (channel) then
 
-		channel = to_who:gsub ((".*|"), "")
+		channel = to_who:gsub((".*|"), "")
 
 		for i = 1, #linhas do
 			if (channel == "Trade") then
@@ -3548,7 +3548,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 		return
 
 	elseif (is_btag) then
-		local bnetAccountID = to_who:gsub ((".*|"), "")
+		local bnetAccountID = to_who:gsub((".*|"), "")
 		bnetAccountID = tonumber(bnetAccountID)
 
 		for i = 1, #linhas do

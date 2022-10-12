@@ -28,7 +28,7 @@ function gump:NewLabel2 (parent, container, member, text, font, size, color)
 	end
 	
 	if (color) then
-		newFontString:SetTextColor (unpack(color))
+		newFontString:SetTextColor(unpack(color))
 	end
 	
 	newFontString:SetJustifyH("LEFT")
@@ -124,7 +124,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 		end
 		
 		if (new_button.texture) then
-			new_button.texture:SetTexCoord (0, 1, 0.5, 0.74609375)
+			new_button.texture:SetTexCoord(0, 1, 0.5, 0.74609375)
 		end
 		
 		if (options.OnGrab and options.OnGrab == "PassClick") then
@@ -157,9 +157,9 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 		
 		if (new_button.texture) then
 			if (new_button.enter) then 
-				new_button.texture:SetTexCoord (0, 1, 0.25, 0.49609375)
+				new_button.texture:SetTexCoord(0, 1, 0.25, 0.49609375)
 			else
-				new_button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+				new_button.texture:SetTexCoord(0, 1, 0, 0.24609375)
 			end
 		end
 		
@@ -195,7 +195,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 		end
 		
 		if (new_button.texture) then
-			new_button.texture:SetTexCoord (0, 1, 0.25+(0.0078125/2), 0.5+(0.0078125/2))
+			new_button.texture:SetTexCoord(0, 1, 0.25+(0.0078125/2), 0.5+(0.0078125/2))
 		end
 		
 		if (new_button.MouseOnEnterHook) then 
@@ -212,7 +212,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 		end
 		
 		if (new_button.texture) then
-			new_button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+			new_button.texture:SetTexCoord(0, 1, 0, 0.24609375)
 		end
 		
 		if (new_button.MouseOnLeaveHook) then 
@@ -242,7 +242,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 			new_button.texture:SetPoint("bottomright", new_button, "bottomright", rect.x2, rect.y2)
 		end
 		
-		new_button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+		new_button.texture:SetTexCoord(0, 1, 0, 0.24609375)
 		new_button.texture:SetTexture(texture)
 	end
 	
@@ -264,8 +264,8 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 	container [member] = editbox
 	options = options or {}
 	
-	editbox:SetAutoFocus (false)
-	editbox:SetFontObject (GameFontHighlightSmall)
+	editbox:SetAutoFocus(false)
+	editbox:SetFontObject(GameFontHighlightSmall)
 	
 	editbox:SetWidth(w)
 	editbox:SetHeight(h)
@@ -286,7 +286,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 	
 	gump:NewLabel(editbox, editbox, nil, "label", "", "GameFontHighlightSmall")
 	editbox ["label"]: SetPoint ("right", editbox, "left", -2, 0)
-	editbox.label:SetTextColor (.8, .8, .8, 1)
+	editbox.label:SetTextColor(.8, .8, .8, 1)
 	
 	function editbox:SetPointAndSpace (MyAnchor, SnapTo, HisAnchor, x, y, Width)
 	
@@ -348,7 +348,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 		end
 	end
 	
-	function editbox:PressEnter (byScript)
+	function editbox:PressEnter(byScript)
 		EnterPress (byScript)
 	end
 	
@@ -410,7 +410,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 
 	editbox:SetScript("OnEditFocusGained", function()
 		if (editbox.label) then
-			editbox.label:SetTextColor (1, 1, 1, 1)
+			editbox.label:SetTextColor(1, 1, 1, 1)
 		end
 		if (editbox.OnFocusGainedHook) then
 			editbox.OnFocusGainedHook()
@@ -435,7 +435,7 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 			end
 			
 			if (editbox.label) then
-				editbox.label:SetTextColor (.8, .8, .8, 1)
+				editbox.label:SetTextColor(.8, .8, .8, 1)
 			end
 			
 			if (editbox.OnFocusLostHook) then
@@ -472,12 +472,12 @@ function gump:NewTextBox (parent, container, member, func, param1, param2, w, h,
 	editbox.SetLabel = function(_, Label)
 		if (Label) then
 			editbox.label = Label
-			editbox.label:SetTextColor (.8, .8, .8, 1)
+			editbox.label:SetTextColor(.8, .8, .8, 1)
 		end
 	end
 	
 	function editbox:Blink()
-		editbox.label:SetTextColor (1, .2, .2, 1)
+		editbox.label:SetTextColor(1, .2, .2, 1)
 	end
 	
 	if (options.Label) then

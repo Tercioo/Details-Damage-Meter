@@ -755,7 +755,7 @@ do
             local buildSkinMenu = function()
                 local skinOptions = {}
                 for skin_name, skin_table in pairs(_detalhes.skins) do
-                    local file = skin_table.file:gsub ([[Interface\AddOns\Details\images\skins\]], "")
+                    local file = skin_table.file:gsub([[Interface\AddOns\Details\images\skins\]], "")
                     local desc = "Author: |cFFFFFFFF" .. skin_table.author .. "|r\nVersion: |cFFFFFFFF" .. skin_table.version .. "|r\nSite: |cFFFFFFFF" .. skin_table.site .. "|r\n\nDesc: |cFFFFFFFF" .. skin_table.desc .. "|r\n\nFile: |cFFFFFFFF" .. file .. ".tga|r"
                     skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = desc}
                 end
@@ -1044,7 +1044,7 @@ do
 
             {--chat tab width offset
                 type = "range",
-                get = function() return tonumber (_detalhes.chat_tab_embed.x_offset) end,
+                get = function() return tonumber(_detalhes.chat_tab_embed.x_offset) end,
                 set = function(self, fixedparam, value)
                     _detalhes.chat_tab_embed.x_offset = value
                     if (_detalhes.chat_embed.enabled) then
@@ -1061,7 +1061,7 @@ do
 
             {--chat tab height offset
                 type = "range",
-                get = function() return tonumber (_detalhes.chat_tab_embed.y_offset) end,
+                get = function() return tonumber(_detalhes.chat_tab_embed.y_offset) end,
                 set = function(self, fixedparam, value)
                     _detalhes.chat_tab_embed.y_offset = value
                     if (_detalhes.chat_embed.enabled) then
@@ -1220,7 +1220,7 @@ do
         local sectionOptions = {
             {--line height
                 type = "range",
-                get = function() return tonumber (currentInstance.row_info.height) end,
+                get = function() return tonumber(currentInstance.row_info.height) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", value)
                     afterUpdate()
@@ -1234,7 +1234,7 @@ do
 
             {--padding
                 type = "range",
-                get = function() return tonumber (currentInstance.row_info.space.between) end,
+                get = function() return tonumber(currentInstance.row_info.space.between) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
@@ -1470,7 +1470,7 @@ do
                     return default
                 end,
                 func = function(self, _, text)
-                    if (text:find ("spec_")) then
+                    if (text:find("spec_")) then
                         editInstanceSetting(currentInstance, "SetBarSpecIconSettings", true, text, true)
                     else
                         if (currentInstance.row_info.use_spec_icons) then
@@ -1499,7 +1499,7 @@ do
 
             {--icon size offset
                 type = "range",
-                get = function() return tonumber (currentInstance.row_info.icon_size_offset) end,
+                get = function() return tonumber(currentInstance.row_info.icon_size_offset) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
                     afterUpdate()
@@ -1528,7 +1528,7 @@ do
 
             {--faction icon size offset
                 type = "range",
-                get = function() return tonumber (currentInstance.row_info.faction_icon_size_offset) end,
+                get = function() return tonumber(currentInstance.row_info.faction_icon_size_offset) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarFactionIconSettings", nil, value)
                     afterUpdate()
@@ -1557,7 +1557,7 @@ do
 
             {--role icon size offset
                 type = "range",
-                get = function() return tonumber (currentInstance.row_info.arena_role_icon_size_offset) end,
+                get = function() return tonumber(currentInstance.row_info.arena_role_icon_size_offset) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarArenaRoleIconSettings", nil, value)
                     afterUpdate()
@@ -1621,7 +1621,7 @@ do
 
             {--lineText2 (left, usuali is the 'done' amount)
                 type = "range",
-                get = function() return tonumber (currentInstance.fontstrings_text2_anchor) end,
+                get = function() return tonumber(currentInstance.fontstrings_text2_anchor) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text2_anchor", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
@@ -1636,7 +1636,7 @@ do
 
             {--lineText3 (in the middle)
                 type = "range",
-                get = function() return tonumber (currentInstance.fontstrings_text3_anchor) end,
+                get = function() return tonumber(currentInstance.fontstrings_text3_anchor) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text3_anchor", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
@@ -1651,7 +1651,7 @@ do
 
             {--lineText4 (closest to the right)
                 type = "range",
-                get = function() return tonumber (currentInstance.fontstrings_text4_anchor) end,
+                get = function() return tonumber(currentInstance.fontstrings_text4_anchor) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "fontstrings_text4_anchor", value)
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
@@ -1766,7 +1766,7 @@ do
 
             {--border size
                 type = "range",
-                get = function() return tonumber (currentInstance.row_info.backdrop.size) end,
+                get = function() return tonumber(currentInstance.row_info.backdrop.size) end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarBackdropSettings", nil, value)
                     afterUpdate()
@@ -3520,7 +3520,7 @@ do
             bframe.plugin = pluginObject
             bframe.id = i
             
-            DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
+            DF:NewImage(bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
             bframe ["toolbarPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
             DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
@@ -3552,7 +3552,7 @@ do
             if (pluginObject.OpenOptionsPanel) then
                 DF:NewButton(bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 120, 20, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
                 bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
-                bframe ["OptionsButton"..i]:SetTextColor (button_color_rgb)
+                bframe ["OptionsButton"..i]:SetTextColor(button_color_rgb)
                 bframe ["OptionsButton"..i]:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
             end
             
@@ -3590,7 +3590,7 @@ do
                 bframe.id = i
                 bframe.hasDesc = allExistentToolbarPlugins [o] [4]
                 
-                DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
+                DF:NewImage(bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
                 bframe ["toolbarPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
             
                 DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
@@ -3655,7 +3655,7 @@ do
             bframe.plugin = pluginObject
             bframe.id = i
             
-            DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "raidPluginsIcon"..i, "$parentRaidPluginsIcon"..i)
+            DF:NewImage(bframe, pluginObject.__icon, 18, 18, nil, nil, "raidPluginsIcon"..i, "$parentRaidPluginsIcon"..i)
             bframe ["raidPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
             DF:NewLabel(bframe, _, "$parentRaidPluginsLabel"..i, "raidPluginsLabel"..i, pluginObject.__name)
@@ -3693,7 +3693,7 @@ do
             if (pluginObject.OpenOptionsPanel) then
                 DF:NewButton(bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 18, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
                 bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
-                bframe ["OptionsButton"..i]:SetTextColor (button_color_rgb)
+                bframe ["OptionsButton"..i]:SetTextColor(button_color_rgb)
                 bframe ["OptionsButton"..i]:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
             end
     
@@ -3728,7 +3728,7 @@ do
                 bframe.id = i
                 bframe.hasDesc = allExistentRaidPlugins [o] [4]
                 
-                DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
+                DF:NewImage(bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
                 bframe ["toolbarPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
             
                 DF:NewLabel(bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
@@ -3793,7 +3793,7 @@ do
             bframe.plugin = pluginObject
             bframe.id = i
             
-            DF:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "soloPluginsIcon"..i, "$parentSoloPluginsIcon"..i)
+            DF:NewImage(bframe, pluginObject.__icon, 18, 18, nil, nil, "soloPluginsIcon"..i, "$parentSoloPluginsIcon"..i)
             bframe ["soloPluginsIcon"..i]:SetPoint("topleft", anchorFrame, "topleft", 10, y)
         
             DF:NewLabel(bframe, _, "$parentSoloPluginsLabel"..i, "soloPluginsLabel"..i, pluginObject.__name)
@@ -3827,7 +3827,7 @@ do
             if (pluginObject.OpenOptionsPanel) then
                 DF:NewButton(bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 18, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], nil, options_button_template)
                 bframe ["OptionsButton"..i]:SetPoint("topleft", anchorFrame, "topleft", 510, y-0)
-                bframe ["OptionsButton"..i]:SetTextColor (button_color_rgb)
+                bframe ["OptionsButton"..i]:SetTextColor(button_color_rgb)
                 bframe ["OptionsButton"..i]:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
             end
             
@@ -4632,7 +4632,7 @@ do
                 local textureOptions = sectionFrame.wallpaperOptions
                 local selectedTextureOption = texturePath
                 
-                if (texturePath:find ("TALENTFRAME")) then
+                if (texturePath:find("TALENTFRAME")) then
                     editInstanceSetting(currentInstance, "InstanceWallpaper", texturePath, nil, nil, {0, 1, 0, 0.703125}, nil, nil, {1, 1, 1, 1})
                     afterUpdate()
                     
@@ -4724,7 +4724,7 @@ do
             local previewX, previewY = 460, -60
 
             local preview = sectionFrame:CreateTexture(nil, "overlay")
-            preview:SetDrawLayer ("artwork", 3)
+            preview:SetDrawLayer("artwork", 3)
             preview:SetSize(256, 128)
             preview:SetPoint("topleft", sectionFrame, "topleft", previewX, previewY)
             
@@ -4736,29 +4736,29 @@ do
             whiteBackground:SetColorTexture(1, 1, 1, 1)
 
             --background grid
-            local icon1 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon1")
+            local icon1 = DF:NewImage(sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon1")
             icon1:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             icon1:SetPoint("topleft", sectionFrame, "topleft", previewX, previewY)
-            icon1:SetDrawLayer ("artwork", 1)
-            icon1:SetTexCoord (0.337890625, 0.5859375, 0.59375, 0.716796875-0.0009765625) --173 304 300 367
+            icon1:SetDrawLayer("artwork", 1)
+            icon1:SetTexCoord(0.337890625, 0.5859375, 0.59375, 0.716796875-0.0009765625) --173 304 300 367
             
-            local icon2 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon2")
+            local icon2 = DF:NewImage(sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon2")
             icon2:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             icon2:SetPoint("left", icon1.widget, "right", -1, 0)
-            icon2:SetDrawLayer ("artwork", 1)
-            icon2:SetTexCoord (0.337890625, 0.5859375, 0.59375, 0.716796875-0.0009765625) --173 304 300 367
+            icon2:SetDrawLayer("artwork", 1)
+            icon2:SetTexCoord(0.337890625, 0.5859375, 0.59375, 0.716796875-0.0009765625) --173 304 300 367
             
-            local icon3 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon3")
+            local icon3 = DF:NewImage(sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon3")
             icon3:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             icon3:SetPoint("top", icon1.widget, "bottom")
-            icon3:SetDrawLayer ("artwork", 1)
-            icon3:SetTexCoord (0.337890625, 0.5859375, 0.59375+0.0009765625, 0.716796875) --173 304 300 367
+            icon3:SetDrawLayer("artwork", 1)
+            icon3:SetTexCoord(0.337890625, 0.5859375, 0.59375+0.0009765625, 0.716796875) --173 304 300 367
             
-            local icon4 = DF:NewImage (sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon4")
+            local icon4 = DF:NewImage(sectionFrame, nil, 128, 64, "artwork", nil, nil, "$parentIcon4")
             icon4:SetTexture("Interface\\AddOns\\Details\\images\\icons")
             icon4:SetPoint("left", icon3.widget, "right", -1, 0)
-            icon4:SetDrawLayer ("artwork", 1)
-            icon4:SetTexCoord (0.337890625, 0.5859375, 0.59375+0.0009765625, 0.716796875) --173 304 300 367
+            icon4:SetDrawLayer("artwork", 1)
+            icon4:SetTexCoord(0.337890625, 0.5859375, 0.59375+0.0009765625, 0.716796875) --173 304 300 367
             
             icon1:SetVertexColor(.15, .15, .15, 1)
             icon2:SetVertexColor(.15, .15, .15, 1)
@@ -4771,33 +4771,33 @@ do
             local L1 = sectionFrame:CreateTexture(nil, "overlay")
             L1:SetPoint("topleft", preview, "topleft")
             L1:SetTexture("Interface\\AddOns\\Details\\images\\icons")
-            L1:SetTexCoord (0.13671875+0.0009765625, 0.234375, 0.29296875, 0.1953125+0.0009765625)
+            L1:SetTexCoord(0.13671875+0.0009765625, 0.234375, 0.29296875, 0.1953125+0.0009765625)
             L1:SetSize(w, h)
-            L1:SetDrawLayer ("overlay", 2)
+            L1:SetDrawLayer("overlay", 2)
             L1:SetVertexColor(1, 1, 1, .8)
             
             local L2 = sectionFrame:CreateTexture(nil, "overlay")
             L2:SetPoint("bottomleft", preview, "bottomleft")
             L2:SetTexture("Interface\\AddOns\\Details\\images\\icons")
-            L2:SetTexCoord (0.13671875+0.0009765625, 0.234375, 0.1953125+0.0009765625, 0.29296875)
+            L2:SetTexCoord(0.13671875+0.0009765625, 0.234375, 0.1953125+0.0009765625, 0.29296875)
             L2:SetSize(w, h)
-            L2:SetDrawLayer ("overlay", 2)
+            L2:SetDrawLayer("overlay", 2)
             L2:SetVertexColor(1, 1, 1, .8)
             
             local L3 = sectionFrame:CreateTexture(nil, "overlay")
             L3:SetPoint("bottomright", preview, "bottomright", 0, 0)
             L3:SetTexture("Interface\\AddOns\\Details\\images\\icons")
-            L3:SetTexCoord (0.234375, 0.13671875-0.0009765625, 0.1953125+0.0009765625, 0.29296875)
+            L3:SetTexCoord(0.234375, 0.13671875-0.0009765625, 0.1953125+0.0009765625, 0.29296875)
             L3:SetSize(w, h)
-            L3:SetDrawLayer ("overlay", 5)
+            L3:SetDrawLayer("overlay", 5)
             L3:SetVertexColor(1, 1, 1, .8)
             
             local L4 = sectionFrame:CreateTexture(nil, "overlay")
             L4:SetPoint("topright", preview, "topright", 0, 0)
             L4:SetTexture("Interface\\AddOns\\Details\\images\\icons")
-            L4:SetTexCoord (0.234375, 0.13671875-0.0009765625, 0.29296875, 0.1953125+0.0009765625)
+            L4:SetTexCoord(0.234375, 0.13671875-0.0009765625, 0.29296875, 0.1953125+0.0009765625)
             L4:SetSize(w, h)
-            L4:SetDrawLayer ("overlay", 5)
+            L4:SetDrawLayer("overlay", 5)
             L4:SetVertexColor(1, 1, 1, .8)
 
         --update preview
@@ -4805,7 +4805,7 @@ do
             local wallpaper = currentInstance.wallpaper
             
 			preview:SetTexture(wallpaper.texture)
-			preview:SetTexCoord (unpack(wallpaper.texcoord))
+			preview:SetTexCoord(unpack(wallpaper.texcoord))
 			preview:SetVertexColor(unpack(wallpaper.overlay))
 			preview:SetAlpha(wallpaper.alpha)
         end
@@ -4841,7 +4841,7 @@ do
 
                 local wallpaper = currentInstance.wallpaper
 
-                if (wallpaper.texture:find ("TALENTFRAME")) then
+                if (wallpaper.texture:find("TALENTFRAME")) then
                     if (wallpaper.anchor == "all") then
                         DF:ImageEditor (callmeback, wallpaper.texture, wallpaper.texcoord, wallpaper.overlay, currentInstance.baseframe.wallpaper:GetWidth(), currentInstance.baseframe.wallpaper:GetHeight(), nil, wallpaper.alpha, true)
                     else
@@ -6305,7 +6305,7 @@ do
 				addframe.spellIconButton.icon.texture = texture
 			end
 			local icon_button = DF:NewButton(addframe, nil, "$parentSpellIconButton", "spellIconButton", 20, 20, function() DF:IconPick (icon_button_func, true) end)
-			local icon_button_icon = DF:NewImage (icon_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentSpellIcon")
+			local icon_button_icon = DF:NewImage(icon_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentSpellIcon")
 			icon_button_icon:SetPoint(0, 0)
 			icon_button:InstallCustomTexture()
 			icon_button:SetPoint("left", spellicon, "right", 2, 0)
@@ -6325,7 +6325,7 @@ do
 				end
 				local icon = addframe.spellIconButton.icon.texture
 				
-				id = tonumber (id)
+				id = tonumber(id)
 				if (not id) then
 					return _detalhes:Msg(Loc ["STRING_OPTIONS_SPELL_IDERROR"])
 				end
@@ -6404,7 +6404,7 @@ do
 --warning
     if (not _detalhes:GetPlugin ("DETAILS_PLUGIN_CHART_VIEWER")) then
         local label = DF:NewLabel(sectionFrame, _, "$parentPluginWarningLabel", "PluginWarningLabel", Loc ["STRING_OPTIONS_CHART_PLUGINWARNING"], "GameFontNormal")
-        local image = DF:NewImage (sectionFrame, [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+        local image = DF:NewImage(sectionFrame, [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
         label:SetPoint("topright", sectionFrame, "topright", -42, -10)
         label:SetJustifyH("left")
         label:SetWidth(160)
@@ -6517,7 +6517,7 @@ do
                 
                 big_code_editor2:Show()
                 big_code_editor2.editbox:HighlightText()
-                big_code_editor2.editbox:SetFocus (true)
+                big_code_editor2.editbox:SetFocus(true)
             else
                 Details:Msg("error exporting the time capture.") --localize-me
             end
@@ -6716,7 +6716,7 @@ do
         local import = function() 
             importframe:Show()
             importframe:SetText("")
-            importframe:SetFocus (true)
+            importframe:SetFocus(true)
             addframe:Hide()
             big_code_editor:ClearFocus()
             big_code_editor:Hide()

@@ -293,7 +293,7 @@
 	function _detalhes:GetNpcIdFromGuid (guid)
 		local NpcId = select( 6, strsplit( "-", guid ) )
 		if (NpcId) then
-			return tonumber ( NpcId )
+			return tonumber( NpcId )
 		end
 		return 0
 	end
@@ -344,15 +344,15 @@
 		return _math_random (1000, 9000) / 1000000
 	end
 
-	--/script print(tonumber (4/1000000)) - 4e-006
+	--/script print(tonumber(4/1000000)) - 4e-006
 	--0.000004
 	--set all table keys to lower
 	local temptable = {}
 	function _detalhes:LowerizeKeys (_table)
 		for key, value in pairs(_table) do
-			temptable [string.lower (key)] = value
+			temptable [string.lower(key)] = value
 		end
-		temptable, _table = table.wipe (_table), temptable
+		temptable, _table = table.wipe(_table), temptable
 		return _table
 	end
 
@@ -381,7 +381,7 @@
 
 		--do the override
 		if (_detalhes.numerical_system_symbols ~= "auto") then
-			local locale = string.lower (_detalhes.numerical_system_symbols)
+			local locale = string.lower(_detalhes.numerical_system_symbols)
 
 			if (locale == "kr") then
 				symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
@@ -540,7 +540,7 @@
 		--short numbers
 		function _detalhes:ToK (numero)
 			if (numero > 999999999) then
-				return format ("%.2f", numero/1000000000) .. "B"
+				return format("%.2f", numero/1000000000) .. "B"
 			elseif (numero > 1000000) then
 				return _string_format ("%.2f", numero/1000000) .. "M"
 			elseif (numero > 999) then
@@ -552,7 +552,7 @@
 
 		function _detalhes:ToK2 (numero)
 			if (numero > 999999999) then
-				return format ("%.2f", numero/1000000000) .. "B"
+				return format("%.2f", numero/1000000000) .. "B"
 			elseif (numero > 999999) then
 				return _string_format ("%.2f", numero/1000000) .. "M"
 			elseif (numero > 99999) then
@@ -567,7 +567,7 @@
 		--short numbers no numbers after comma
 		function _detalhes:ToK0 (numero)
 			if (numero > 999999999) then
-				return format ("%.2f", numero/1000000000) .. "B"
+				return format("%.2f", numero/1000000000) .. "B"
 			elseif (numero > 1000000) then
 				return _string_format ("%.0f", numero/1000000) .. "M"
 			elseif (numero > 1000) then
@@ -761,7 +761,7 @@
 		parameters_cache [3] = v6
 		parameters_cache [4] = v7
 
-		return (str:gsub ("{data(%d+)}", replace_arg):gsub ("{func(.-)}", run_function))
+		return (str:gsub("{data(%d+)}", replace_arg):gsub("{func(.-)}", run_function))
 	end
 
 	--remove a index from a hash table
@@ -809,7 +809,7 @@
 	end
 	--yah, i know
 
-	function _detalhes.table.copy (t1, t2)
+	function _detalhes.table.copy(t1, t2)
 		for key, value in pairs(t2) do
 			if (type(value) == "table") then
 				t1 [key] = Details.CopyTable(value)
@@ -1020,7 +1020,7 @@ end
 	--font color
 	function _detalhes:SetFontColor(fontString, r, g, b, a)
 		r, g, b, a = gump:ParseColors(r, g, b, a)
-		fontString:SetTextColor (r, g, b, a)
+		fontString:SetTextColor(r, g, b, a)
 	end
 
 	--font size
@@ -1085,7 +1085,7 @@ end
 --internal functions
 
 	function _detalhes:HealthTick()
-		if (UnitExists ("boss1") and IsInRaid() and IsInInstance()) then
+		if (UnitExists("boss1") and IsInRaid() and IsInInstance()) then
 			local health = (UnitHealth ("boss1") or 0) / (UnitHealthMax ("boss1") or 0)
 			if (_detalhes.boss1_health_percent) then
 				if (_detalhes.boss1_health_percent < health) then
@@ -1304,7 +1304,7 @@ end
 
 		GradientFrameControl.gradientes [#GradientFrameControl.gradientes+1] = {
 			Object = Object,
-			ObjectType = string.lower (ObjectType),
+			ObjectType = string.lower(ObjectType),
 			Func = EndFunction,
 			FuncParam = FuncParam,
 			TimeStart = GetTime(),

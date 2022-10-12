@@ -186,18 +186,18 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 
 		row.t = t
 		row.textura:SetStatusBarTexture (t)
-		row.textura:SetStatusBarColor (.5, .5, .5, 0)
+		row.textura:SetStatusBarColor(.5, .5, .5, 0)
 		row.textura:SetMinMaxValues(0,100)
 		
 		row.lineText1 = row.textura:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		row.lineText1:SetPoint("LEFT", row.textura, "LEFT", 22, -1)
 		row.lineText1:SetJustifyH("LEFT")
-		row.lineText1:SetTextColor (1,1,1,1)
+		row.lineText1:SetTextColor(1,1,1,1)
 
 		row.lineText4 = row.textura:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		row.lineText4:SetPoint("RIGHT", row.textura, "RIGHT", -2, 0)
 		row.lineText4:SetJustifyH("RIGHT")
-		row.lineText4:SetTextColor (1,1,1,1)
+		row.lineText4:SetTextColor(1,1,1,1)
 		
 		row.textura:Show()
 	end
@@ -507,7 +507,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 							
 							--time of death and player name
 							GameCooltip:AddLine(vRowFrame.dead[6].." "..vRowFrame.dead[3])
-							local class, l, r, t, b = _detalhes:GetClass (vRowFrame.dead[3])
+							local class, l, r, t, b = _detalhes:GetClass(vRowFrame.dead[3])
 							if (class) then
 								GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 12, 12, l, r, t, b)
 							end
@@ -552,7 +552,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 
 					vRowFrame.icon = vRowFrame:CreateTexture(nil, "overlay")
 					vRowFrame.icon:SetTexture("Interface\\WorldStateFrame\\SkullBones")
-					vRowFrame.icon:SetTexCoord (0.046875, 0.453125, 0.046875, 0.46875)
+					vRowFrame.icon:SetTexCoord(0.046875, 0.453125, 0.046875, 0.46875)
 					vRowFrame.icon:SetWidth(16)
 					vRowFrame.icon:SetHeight(16)
 					vRowFrame.icon:SetPoint("center", "DetailsEncountersVerticalLine"..i, "center")
@@ -762,7 +762,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 						dlabel.lefttext.text = EncounterDetails:GetOnlyName(player [1])
 						dlabel.righttext.text = _detalhes:ToK (_math_floor(player [2]))
 						
-						local class = EncounterDetails:GetClass (player [1])
+						local class = EncounterDetails:GetClass(player [1])
 						local spec = EncounterDetails:GetSpec (player [1])
 						
 						if (spec) then
@@ -775,7 +775,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 							
 						else
 							dlabel.icon.texture = [[Interface\LFGFRAME\LFGROLE_BW]]
-							dlabel.icon:SetTexCoord (.25, .5, 0, 1)
+							dlabel.icon:SetTexCoord(.25, .5, 0, 1)
 						end
 						
 						dlabel.lefttext:Show()
@@ -799,13 +799,13 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 						hlabel.lefttext.text = EncounterDetails:GetOnlyName(player [1])
 						hlabel.righttext.text = _detalhes:ToK (_math_floor(player [2]))
 						
-						local classe = _detalhes:GetClass (player [1])
+						local classe = _detalhes:GetClass(player [1])
 						if (classe) then	
 							hlabel.icon:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]])
-							hlabel.icon:SetTexCoord (unpack(_detalhes.class_coords [classe]))
+							hlabel.icon:SetTexCoord(unpack(_detalhes.class_coords [classe]))
 						else
 							hlabel.icon:SetTexture([[Interface\LFGFRAME\LFGROLE_BW]])
-							hlabel.icon:SetTexCoord (.25, .5, 0, 1)
+							hlabel.icon:SetTexCoord(.25, .5, 0, 1)
 						end
 						
 						hlabel.lefttext:Show()
@@ -831,8 +831,8 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 				
 			end
 			local phase_on_leave = function(self)
-				table.wipe (self.damage_actors)
-				table.wipe (self.heal_actors)
+				table.wipe(self.damage_actors)
+				table.wipe(self.heal_actors)
 				
 				for _, f in ipairs(g.PhaseTextures) do
 					f.texture:SetBlendMode("BLEND")
@@ -896,7 +896,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 					
 					local t = f:CreateTexture(nil, "artwork")
 					t:SetAllPoints()
-					t:SetColorTexture (1, 1, 1, phase_alpha)
+					t:SetColorTexture(1, 1, 1, phase_alpha)
 					t.original_color = {1, 1, 1}
 					f.texture = t
 
@@ -970,7 +970,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 			--create lines for damage and time
 			for i = 1, 8, 1 do
 				local line = g:CreateTexture(nil, "overlay")
-				line:SetColorTexture (unpack(CONST_DAMAGE_LINES_COLOR))
+				line:SetColorTexture(unpack(CONST_DAMAGE_LINES_COLOR))
 				line:SetWidth(CONST_CHART_WIDTH)
 				line:SetHeight(1)
 				
@@ -993,7 +993,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 				texture:SetWidth(9)
 				texture:SetHeight(9)
 				texture:SetPoint("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", (i*65) + 499, -81)
-				texture:SetColorTexture (unpack(grafico_cores[i]))
+				texture:SetColorTexture(unpack(grafico_cores[i]))
 				local text = g:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 				text:SetPoint("LEFT", texture, "right", 2, 0)
 				text:SetJustifyH("LEFT")
@@ -1011,7 +1011,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 			v:SetHeight(CONST_CHART_HEIGHT + 1)
 			v:SetPoint("top", g, "top", 0, 1)
 			v:SetPoint("left", g, "left", CONST_CHART_DAMAGELINE_X_POSITION + 30, 0) --leave 30 pixels for the damage text
-			v:SetColorTexture (1, 1, 1, 1)
+			v:SetColorTexture(1, 1, 1, 1)
 			
 			--horizontal line at the bottom side
 			local h = g:CreateTexture(nil, "overlay")
@@ -1019,7 +1019,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 			h:SetHeight(1)
 			h:SetPoint("top", g, "top", 0, -CONST_CHART_HEIGHT + CONST_PHASE_BAR_HEIGHT*2)
 			h:SetPoint("left", g, "left")
-			h:SetColorTexture (1, 1, 1, 1)
+			h:SetColorTexture(1, 1, 1, 1)
 	end
 	
 	-- ~start ~main ~frame ~baseframe ~bossframe
@@ -1063,7 +1063,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 		local name_bg_texture = BossFrame:CreateTexture(nil, "background")
 		name_bg_texture:SetTexture([[Interface\PetBattles\_PetBattleHorizTile]], true)
 		name_bg_texture:SetHorizTile(true)
-		name_bg_texture:SetTexCoord (0, 1, 126/256, 19/256)
+		name_bg_texture:SetTexCoord(0, 1, 126/256, 19/256)
 		name_bg_texture:SetPoint("topleft", BossFrame, "topleft", 2, -22)
 		name_bg_texture:SetPoint("bottomright", BossFrame, "bottomright")
 		name_bg_texture:SetHeight(54)
@@ -1126,7 +1126,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 		BossFrame.raidbackground = BossFrame:CreateTexture(nil, "BORDER")
 		BossFrame.raidbackground:SetPoint("TOPLEFT", BossFrame, "TOPLEFT", 0, -74)
 		BossFrame.raidbackground:SetPoint("bottomright", BossFrame, "bottomright", 0, 0)
-		BossFrame.raidbackground:SetDrawLayer ("BORDER", 2)
+		BossFrame.raidbackground:SetDrawLayer("BORDER", 2)
 		BossFrame.raidbackground:SetAlpha(0.1)
 	
 	--bot�o fechar
@@ -1445,7 +1445,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 			local i = 0
 			local lower = string.lower
 			for index, data in ipairs(emote_pool) do
-				if (lower (data [2]):find (lower(searching))) then
+				if (lower (data [2]):find(lower(searching))) then
 					i = i + 1
 					emote_search_table [i] = data
 				end
@@ -1485,9 +1485,9 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 					local color_string = EncounterDetails.BossWhispColors [data [4]]
 					local color_table = ChatTypeInfo [color_string]	
 					
-					bar.righttext:SetTextColor (color_table.r, color_table.g, color_table.b)
+					bar.righttext:SetTextColor(color_table.r, color_table.g, color_table.b)
 					bar.icon:SetTexture([[Interface\CHARACTERFRAME\UI-StateIcon]])
-					bar.icon:SetTexCoord (0, 0.5, 0.5, 1)
+					bar.icon:SetTexCoord(0, 0.5, 0.5, 1)
 					bar.icon:SetBlendMode("ADD")
 				else
 					bar:Hide()
@@ -1545,20 +1545,20 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 		
 		local reportFunc = function()
 			-- remove textures
-			text = text:gsub ("(|T).*(|t)", "")
+			text = text:gsub("(|T).*(|t)", "")
 			-- remove colors
-			text = text:gsub ("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
-			text = text:gsub ("|r", "")
+			text = text:gsub("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
+			text = text:gsub("|r", "")
 			-- replace links
 			for _, spellid in text:gmatch ("(|Hspell:)(.-)(|h)") do
-				local spell = tonumber (spellid)
+				local spell = tonumber(spellid)
 				local link = GetSpellLink(spell)
-				text = text:gsub ("(|Hspell).*(|h)", link)
+				text = text:gsub("(|Hspell).*(|h)", link)
 			end
 			-- remove unit links
-			text = text:gsub ("(|Hunit).-(|h)", "")
+			text = text:gsub("(|Hunit).-(|h)", "")
 			-- remove the left space
-			text = text:gsub ("^%s$", "")
+			text = text:gsub("^%s$", "")
 
 			EncounterDetails:SendReportLines ({"Details! Encounter Emote at " .. timeString, "\"" .. text .. "\""})
 		end
@@ -1695,20 +1695,20 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 						--"|Hunit:77182:Oregorger|hOregorger prepares to cast |cFFFF0000|Hspell:156879|h[Blackrock Barrage]|h|r."
 						
 						-- remove textures
-						text = text:gsub ("(|T).*(|t)", "")
+						text = text:gsub("(|T).*(|t)", "")
 						-- remove colors
-						text = text:gsub ("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
-						text = text:gsub ("|r", "")
+						text = text:gsub("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
+						text = text:gsub("|r", "")
 						-- replace links
 						for _, spellid in text:gmatch ("(|Hspell:)(.-)(|h)") do
-							local spell = tonumber (spellid)
+							local spell = tonumber(spellid)
 							local link = GetSpellLink(spell)
-							text = text:gsub ("(|Hspell).*(|h)", link)
+							text = text:gsub("(|Hspell).*(|h)", link)
 						end
 						-- remove unit links
-						text = text:gsub ("(|Hunit).-(|h)", "")
+						text = text:gsub("(|Hunit).-(|h)", "")
 						-- remove the left space
-						text = text:gsub ("^%s$", "")
+						text = text:gsub("^%s$", "")
 
 						tinsert(EncounterDetails.report_lines, timeString .. " " .. text)
 						added = added + 1
@@ -1842,10 +1842,10 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 	for i = 1, CONST_MAX_AURA_LINES do
 		local anchor_frame = CreateFrame("frame", "BossFrameBossModsAnchor" .. i, BossFrame, "BackdropTemplate")
 
-		local spellicon = DetailsFrameWork:NewImage (anchor_frame, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
+		local spellicon = DetailsFrameWork:NewImage(anchor_frame, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
 
 		--timerId
-		local spellid = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 80, 20, nil, "$parentSpellId")
+		local spellid = DetailsFrameWork:CreateTextEntry(anchor_frame, EncounterDetails.empty_function, 80, 20, nil, "$parentSpellId")
 		spellid:SetTemplate(AurasButtonTemplate)
 		spellid:SetHook("OnEditFocusGained", on_focus_gain)
 		spellid:SetHook("OnEditFocusLost", on_focus_lost)
@@ -1853,7 +1853,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 		spellid:SetHook("OnLeave", on_leave_spell)
 
 		--ability name
-		local spellname = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 180, 20, nil, "$parentSpellName")
+		local spellname = DetailsFrameWork:CreateTextEntry(anchor_frame, EncounterDetails.empty_function, 180, 20, nil, "$parentSpellName")
 		spellname:SetTemplate(AurasButtonTemplate)
 		spellname:SetHook("OnEditFocusGained", on_focus_gain)
 		spellname:SetHook("OnEditFocusLost", on_focus_lost)
@@ -1887,16 +1887,16 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 	for i = 1, CONST_MAX_AURA_LINES do
 		local anchor_frame = CreateFrame("frame", "BossFrameSpellAnchor" .. i, BossFrame, "BackdropTemplate")
 
-		local spellicon = DetailsFrameWork:NewImage (anchor_frame, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
+		local spellicon = DetailsFrameWork:NewImage(anchor_frame, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
 		
-		local spellid = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 80, 20)
+		local spellid = DetailsFrameWork:CreateTextEntry(anchor_frame, EncounterDetails.empty_function, 80, 20)
 		spellid:SetTemplate(AurasButtonTemplate)
 		spellid:SetHook("OnEditFocusGained", on_focus_gain)
 		spellid:SetHook("OnEditFocusLost", on_focus_lost)
 		spellid:SetHook("OnEnter", on_enter_spell)
 		spellid:SetHook("OnLeave", on_leave_spell)
 		
-		local spellname = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 160, 20)
+		local spellname = DetailsFrameWork:CreateTextEntry(anchor_frame, EncounterDetails.empty_function, 160, 20)
 		spellname:SetTemplate(AurasButtonTemplate)
 		spellname:SetHook("OnEditFocusGained", on_focus_gain)
 		spellname:SetHook("OnEditFocusLost", on_focus_lost)
@@ -2133,9 +2133,9 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 				if (timer_table.id == encounter_id) then
 					local spell = timer_id
 					if (spell and not already_added [spell]) then	
-						local int_spell = tonumber (spell)
+						local int_spell = tonumber(spell)
 						if (not int_spell) then
-							local spellname = timer_table [2]:gsub (" %(.%)", "")
+							local spellname = timer_table [2]:gsub(" %(.%)", "")
 							tinsert(t, {label = spellname, value = {timer_table [2], spellname, timer_table [5], timer_table.id}, icon = timer_table [5], onclick = on_select_bw_bar})
 						elseif (int_spell < 0) then
 							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = C_EncounterJournal.GetSectionInfo (abs(int_spell))
@@ -2182,8 +2182,8 @@ function PhaseFrame:ClearAll()
 	end
 	
 	--update damage and healing scrolls
-	table.wipe (PhaseFrame.DamageTable)
-	table.wipe (PhaseFrame.HealingTable)
+	table.wipe(PhaseFrame.DamageTable)
+	table.wipe(PhaseFrame.HealingTable)
 	
 	--refresh the scroll
 	PhaseFrame.Damage_Scroll:Refresh()
@@ -2239,13 +2239,13 @@ function PhaseFrame.OnSelectPhase (phaseSelected)
 	end
 	
 	--update damage and healing scrolls
-	table.wipe (PhaseFrame.DamageTable)
+	table.wipe(PhaseFrame.DamageTable)
 	for charName, amount in pairs(phaseData.damage [phaseSelected]) do
 		tinsert(PhaseFrame.DamageTable, {charName, amount})
 	end
 	table.sort (PhaseFrame.DamageTable, function(a, b) return a[2] > b[2] end)
 	
-	table.wipe (PhaseFrame.HealingTable)
+	table.wipe(PhaseFrame.HealingTable)
 	for charName, amount in pairs(phaseData.heal [phaseSelected]) do
 		tinsert(PhaseFrame.HealingTable, {charName, amount})
 	end
@@ -2339,11 +2339,11 @@ local ScrollRefresh = function(self, data, offset, total_lines)
 			local texture, L, R, T, B = _detalhes:GetPlayerIcon (player[1], PhaseFrame.CurrentSegment)
 			
 			line.icon:SetTexture(texture)
-			line.icon:SetTexCoord (L, R, T, B)
+			line.icon:SetTexCoord(L, R, T, B)
 			line.name:SetText(index .. ". " .. removeRealm (_, player[1]))
-			line.done:SetText(formatToK (_, player[2]) .. " (" .. format ("%.1f", player[2] / topValue * 100) .. "%)")
+			line.done:SetText(formatToK (_, player[2]) .. " (" .. format("%.1f", player[2] / topValue * 100) .. "%)")
 			line.statusbar:SetValue(player[2] / topValue * 100)
-			local actorClass = Details:GetClass (player[1])
+			local actorClass = Details:GetClass(player[1])
 			if (actorClass) then
 				line.statusbar:SetColor (actorClass)
 			else
@@ -2642,7 +2642,7 @@ end
 		options:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
 		
 	--macro box
-		BossFrame.MacroEditBox = DetailsFrameWork:CreateTextEntry (frame, function()end, 300, 20)
+		BossFrame.MacroEditBox = DetailsFrameWork:CreateTextEntry(frame, function()end, 300, 20)
 		BossFrame.MacroEditBox:SetPoint("left", options, "right", 10, 0)
 		BossFrame.MacroEditBox:SetAlpha(0.5)
 		BossFrame.MacroEditBox:SetText("/run Details:OpenPlugin ('Encounter Breakdown')")
@@ -2655,7 +2655,7 @@ end
 		
 		BossFrame.MacroEditBox.BackgroundLabel = DetailsFrameWork:CreateLabel(BossFrame.MacroEditBox, "macro")
 		BossFrame.MacroEditBox.BackgroundLabel:SetPoint("left", BossFrame.MacroEditBox, "left", 6, 0)
-		BossFrame.MacroEditBox.BackgroundLabel:SetTextColor (.3, .3, .3, .98)
+		BossFrame.MacroEditBox.BackgroundLabel:SetTextColor(.3, .3, .3, .98)
 	
 	--Caixa do Dano total tomado pela Raid
 	

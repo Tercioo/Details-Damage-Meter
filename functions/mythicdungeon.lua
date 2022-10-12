@@ -603,7 +603,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished (fromZoneLeft)
 
         --store data
         --[=[
-        local expansion = tostring (select(4, GetBuildInfo())):match ("%d%d")
+        local expansion = tostring(select(4, GetBuildInfo())):match ("%d%d")
         if (expansion and type(expansion) == "string" and string.len(expansion) == 2) then
             local expansionDungeonData = _detalhes.dungeon_data [expansion]
             if (not expansionDungeonData) then

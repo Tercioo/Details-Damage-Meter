@@ -203,7 +203,7 @@ end
 			_detalhes:SetFontFace (f.desc, _detalhes.font_faces.menus)
 			
 			--f.background:SetTexture(_detalhes.tooltip.menus_bg_texture)
-			f.background:SetTexCoord (unpack(_detalhes.tooltip.menus_bg_coords))
+			f.background:SetTexCoord(unpack(_detalhes.tooltip.menus_bg_coords))
 			f.background:SetVertexColor(unpack(_detalhes.tooltip.menus_bg_color))
 			--f.background:SetDesaturated(true)
 			

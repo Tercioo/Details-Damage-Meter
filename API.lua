@@ -782,13 +782,13 @@ for i = 1, #Details.APIText do
 	local text = Details.APIText [i]
 	
 	--add the color to the text
-	text = text:gsub ([[@TITLE]], "|c" .. titleColor)
-	text = text:gsub ([[@CODE]], "|c" .. codeColor)
-	text = text:gsub ([[@DESC]], "|c" .. descColor)
-	text = text:gsub ([[@COMMENT]], "|c" .. luacomentColor)
+	text = text:gsub([[@TITLE]], "|c" .. titleColor)
+	text = text:gsub([[@CODE]], "|c" .. codeColor)
+	text = text:gsub([[@DESC]], "|c" .. descColor)
+	text = text:gsub([[@COMMENT]], "|c" .. luacomentColor)
 	
 	--add the end color
-	text = text:gsub ([[@]], "|r")
+	text = text:gsub([[@]], "|r")
 	
 	Details.APIText [i] = text
 end

@@ -230,7 +230,7 @@ do
 		"Arena enemy deaths now are shown in the Deaths display.",
 		"Guild statistics data has been wiped, this system had a major improvement overall.",
 		"Fixed 'Clear Overall Data' on Logout which wasn't clearing.",
-		
+
 		{"v9.0.2.8192.144", "January 27th, 2021"},
 		"If you get issues with nicknames, disable any weakaura which modifies this feature.",
 		"Advanced Death Logs plugin got some fixes and should work properly.",
@@ -243,7 +243,7 @@ do
 		"Fixed 'Always Show player' on ascending sort direction.",
 		"Added more foods into the Ready Check plugin.",
 		"Fixed some issues with the coach fearure.",
-		
+
 		{"v9.0.2.8154.144", "January 14th, 2021"},
 		"Added total damage bars into the player list in the Breakdown window.",
 		"Added 'Square' or 'Roll' mode to Details! Streamer plugin, to change the statusbar mode to Squares, visit the options panel for the plugin.",
@@ -303,7 +303,7 @@ do
 		"Added a new plugin: 'Cast Timeline' available at the Player Breakdown Window.",
 		"Added macro '/Details me' to open your Breakdown Window.",
 	}
-	
+
 	local newsString = "|cFFF1F1F1"
 
 	for i = 1, #news do
@@ -334,15 +334,15 @@ do
 
 		--store functions to create options frame
 		Details.optionsSection = {}
-		
+
 	--containers
-		--armazenas as fun��es do parser - All parse functions 
+		--armazenas as fun��es do parser - All parse functions
 			_detalhes.parser = {}
 			_detalhes.parser_functions = {}
 			_detalhes.parser_frame = CreateFrame("Frame")
 			_detalhes.pvp_parser_frame = CreateFrame("Frame")
 			_detalhes.parser_frame:Hide()
-			
+
 			_detalhes.MacroList = {
 				{Name = "Click on Your Own Bar", Desc = "To open the player details window on your character, like if you click on your bar in the damage window. The number '1' is the window number where it'll click.", MacroText = "/script Details:OpenPlayerDetails(1)"},
 				{Name = "Open Encounter Breakdown", Desc = "Open the encounter breakdown plugin. Details! Encounter Breakdown (plugin) must be enabled.", MacroText = "/script Details:OpenPlugin ('Encounter Breakdown')"},
@@ -392,7 +392,7 @@ do
 		--armazena os estilos salvos
 			_detalhes.savedStyles = {}
 		--armazena quais atributos possue janela de atributos - contain attributes and sub attributos wich have a detailed window (left click on a row)
-			_detalhes.row_singleclick_overwrite = {} 
+			_detalhes.row_singleclick_overwrite = {}
 		--report
 			_detalhes.ReportOptions = {}
 		--armazena os buffs registrados - store buffs ids and functions
@@ -436,9 +436,9 @@ do
 				[1134] = {file = "LoadingScreen_Shadowpan_bg", coords = {0, 1, 0.29296875, 0.857421875}}, -- Tiger's Peak
 				--legion, thanks @pas06 on curse forge for the mapIds
 				[1552] = {file = "LoadingScreen_ArenaValSharah_wide", coords = {0, 1, 0.29296875, 0.857421875}}, -- Ashmane's Fall
-				[1504] = {file = "LoadingScreen_BlackrookHoldArena_wide", coords = {0, 1, 0.29296875, 0.857421875}}, --Black Rook Hold 
-				
-				--"LoadScreenOrgrimmarArena", --Ring of Valor 
+				[1504] = {file = "LoadingScreen_BlackrookHoldArena_wide", coords = {0, 1, 0.29296875, 0.857421875}}, --Black Rook Hold
+
+				--"LoadScreenOrgrimmarArena", --Ring of Valor
 			}
 
 			function _detalhes:GetArenaInfo (mapid)
@@ -462,13 +462,13 @@ do
 				[628] = {file = "LOADSCREENISLEOFCONQUEST", coords = {0, 1, 297/1024, 878/1024}}, --isle of conquest
 				--[] = {file = "", coords = {0, 1, 0, 0}}, --
 			}
-			function _detalhes:GetBattlegroundInfo (mapid)
-				local t = _detalhes.battleground_info [mapid]
-				if (t) then
-					return t.file, t.coords
+			function _detalhes:GetBattlegroundInfo(mapid)
+				local battlegroundInfo = _detalhes.battleground_info[mapid]
+				if (battlegroundInfo) then
+					return battlegroundInfo.file, battlegroundInfo.coords
 				end
 			end
-			
+
 		--tokenid
 			_detalhes.TokenID = {
 				["SPELL_PERIODIC_DAMAGE"] = 1,
@@ -506,7 +506,7 @@ do
 				["UNIT_DIED"] = 33,
 				["UNIT_DESTROYED"] = 34,
 			}
-			
+
 		--armazena instancias inativas
 			_detalhes.unused_instances = {}
 			_detalhes.default_skin_to_use = "Minimalistic"
@@ -544,11 +544,11 @@ do
 
 		--tooltip
 			_detalhes.tooltip_backdrop = {
-				bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], 
-				edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
+				bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]],
+				edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 				tile = true,
-				edgeSize = 16, 
-				tileSize = 16, 
+				edgeSize = 16,
+				tileSize = 16,
 				insets = {left = 3, right = 3, top = 4, bottom = 4}
 			}
 			_detalhes.tooltip_border_color = {1, 1, 1, 1}
@@ -560,18 +560,18 @@ do
 			function _detalhes:GetAttributeIcon (attribute)
 				return _detalhes.attribute_icons, 0.125 * (attribute - 1), 0.125 * attribute, 0, 1
 			end
-			
+
 		--colors
 			_detalhes.default_backdropcolor = {.094117, .094117, .094117, .8}
 			_detalhes.default_backdropbordercolor = {0, 0, 0, 1}
-			
+
 	--Plugins
-	
+
 		--plugin templates
-		
+
 		_detalhes.gump:NewColor("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
-		
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE", 
+
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {0, 0, 0, .5},
@@ -579,7 +579,7 @@ do
 				onentercolor = {0.3, 0.3, 0.3, .5},
 			}
 		)
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE", 
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {0, 0, 0, .5},
@@ -587,8 +587,8 @@ do
 				onentercolor = {0.3, 0.3, 0.3, .5},
 			}
 		)
-		
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE", 
+
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {1, 1, 1, .5},
@@ -600,7 +600,7 @@ do
 				height = 20,
 			}
 		)
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE", 
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {1, 1, 1, .5},
@@ -612,48 +612,48 @@ do
 				height = 20,
 			}
 		)
-		
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_TAB_BUTTON_TEMPLATE", 
+
+		_detalhes.gump:InstallTemplate ("button", "DETAILS_TAB_BUTTON_TEMPLATE",
 			{
 				width = 100,
 				height = 20,
 			},
 			"DETAILS_PLUGIN_BUTTON_TEMPLATE"
 		)
-		_detalhes.gump:InstallTemplate ("button","DETAILS_TAB_BUTTONSELECTED_TEMPLATE", 
+		_detalhes.gump:InstallTemplate ("button","DETAILS_TAB_BUTTONSELECTED_TEMPLATE",
 			{
 				width = 100,
 				height = 20,
 			},
 			"DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE"
 		)
-	
+
 		_detalhes.PluginsGlobalNames = {}
 		_detalhes.PluginsLocalizedNames = {}
-		
+
 		--raid -------------------------------------------------------------------
 			--general function for raid mode plugins
-				_detalhes.RaidTables = {} 
+				_detalhes.RaidTables = {}
 			--menu for raid modes
-				_detalhes.RaidTables.Menu = {} 
+				_detalhes.RaidTables.Menu = {}
 			--plugin objects for raid mode
-				_detalhes.RaidTables.Plugins = {} 
+				_detalhes.RaidTables.Plugins = {}
 			--name to plugin object
-				_detalhes.RaidTables.NameTable = {} 
+				_detalhes.RaidTables.NameTable = {}
 			--using by
-				_detalhes.RaidTables.InstancesInUse = {} 
-				_detalhes.RaidTables.PluginsInUse = {} 
+				_detalhes.RaidTables.InstancesInUse = {}
+				_detalhes.RaidTables.PluginsInUse = {}
 
 		--solo -------------------------------------------------------------------
 			--general functions for solo mode plugins
-				_detalhes.SoloTables = {} 
+				_detalhes.SoloTables = {}
 			--maintain plugin menu
-				_detalhes.SoloTables.Menu = {} 
+				_detalhes.SoloTables.Menu = {}
 			--plugins objects for solo mode
-				_detalhes.SoloTables.Plugins = {} 
+				_detalhes.SoloTables.Plugins = {}
 			--name to plugin object
-				_detalhes.SoloTables.NameTable = {} 
-		
+				_detalhes.SoloTables.NameTable = {}
+
 		--toolbar -------------------------------------------------------------------
 			--plugins container
 				_detalhes.ToolBar = {}
@@ -688,7 +688,7 @@ do
 			--[[global]] DETAILS_HEALTHSTONE_ID = 47875 --Warlock's Healthstone
 			--[[global]] DETAILS_HEALTHSTONE2_ID = 47876 --Warlock's Healthstone (1/2 Talent)
 			--[[global]] DETAILS_HEALTHSTONE3_ID = 47877 --Warlock's Healthstone (2/2 Talent)
-			
+
 			--[[global]] DETAILS_INT_POTION_ID = 40212 --Potion of Wild Magic
 			--[[global]] DETAILS_AGI_POTION_ID = 40211 --Potion of Speed
 			--[[global]] DETAILS_STR_POTION_ID = 307164
@@ -704,7 +704,7 @@ do
 					[DETAILS_MANA_POTION_ID] = true, -- Runic Mana Potion
 					[DETAILS_MANA_POTION2_ID] = true, -- Runic Mana Injector
 				}
-				
+
 		else
 			--[[global]] DETAILS_HEALTH_POTION_ID = 307192 -- spiritual healing potion
 			--[[global]] DETAILS_HEALTH_POTION2_ID = 359867 --cosmic healing potion
@@ -751,21 +751,21 @@ do
 			fecha = ")",	--close
 			colocacao = ". " --dot
 		}
-		
+
 		_detalhes.role_texcoord = {
 			DAMAGER = "72:130:69:127",
 			HEALER = "72:130:2:60",
 			TANK = "5:63:69:127",
 			NONE = "139:196:69:127",
 		}
-		
+
 		_detalhes.role_texcoord_normalized = {
 			DAMAGER = {72/256, 130/256, 69/256, 127/256},
 			HEALER = {72/256, 130/256, 2/256, 60/256},
 			TANK = {5/256, 63/256, 69/256, 127/256},
 			NONE = {139/256, 196/256, 69/256, 127/256},
 		}
-		
+
 		_detalhes.player_class = {
 			["HUNTER"] = true,
 			["WARRIOR"] = true,
@@ -808,30 +808,30 @@ do
 			[11] = "DRUID",
 			[12] = "DEMONHUNTER",
 		}
-		
+
 		local Loc = LibStub("AceLocale-3.0"):GetLocale ("Details")
-		
+
 		_detalhes.segmentos = {
-			label = Loc ["STRING_SEGMENT"]..": ", 
-			overall = Loc ["STRING_TOTAL"], 
+			label = Loc ["STRING_SEGMENT"]..": ",
+			overall = Loc ["STRING_TOTAL"],
 			overall_standard = Loc ["STRING_OVERALL"],
-			current = Loc ["STRING_CURRENT"], 
+			current = Loc ["STRING_CURRENT"],
 			current_standard = Loc ["STRING_CURRENTFIGHT"],
-			past = Loc ["STRING_FIGHTNUMBER"] 
+			past = Loc ["STRING_FIGHTNUMBER"]
 		}
-		
+
 		_detalhes._detalhes_props["modo_nome"] = {
-				[_detalhes._detalhes_props["MODO_ALONE"]] = Loc ["STRING_MODE_SELF"], 
-				[_detalhes._detalhes_props["MODO_GROUP"]] = Loc ["STRING_MODE_GROUP"], 
+				[_detalhes._detalhes_props["MODO_ALONE"]] = Loc ["STRING_MODE_SELF"],
+				[_detalhes._detalhes_props["MODO_GROUP"]] = Loc ["STRING_MODE_GROUP"],
 				[_detalhes._detalhes_props["MODO_ALL"]] = Loc ["STRING_MODE_ALL"],
 				[_detalhes._detalhes_props["MODO_RAID"]] = Loc ["STRING_MODE_RAID"]
 		}
-		
+
 		--[[global]] DETAILS_MODE_SOLO = 1
 		--[[global]] DETAILS_MODE_RAID = 4
 		--[[global]] DETAILS_MODE_GROUP = 2
 		--[[global]] DETAILS_MODE_ALL = 3
-		
+
 		_detalhes.icones = {
 			--report window
 			report = {
@@ -841,7 +841,7 @@ do
 					highlight = nil
 				}
 		}
-	
+
 		_detalhes.missTypes = {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"} --do not localize-me
 
 
@@ -857,39 +857,39 @@ do
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --frames
-	
+
 	local _CreateFrame = CreateFrame --api locals
 	local UIParent = UIParent --api locals
-	
+
 	--Info Window
 		_detalhes.playerDetailWindow = _CreateFrame ("Frame", "DetailsPlayerDetailsWindow", UIParent, "BackdropTemplate")
 		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
-		
+
 	--Event Frame
 		_detalhes.listener = _CreateFrame ("Frame", nil, UIParent)
 		_detalhes.listener:RegisterEvent ("ADDON_LOADED")
 		_detalhes.listener:SetFrameStrata("LOW")
 		_detalhes.listener:SetFrameLevel(9)
 		_detalhes.listener.FrameTime = 0
-	
+
 		_detalhes.overlay_frame = _CreateFrame ("Frame", nil, UIParent)
 		_detalhes.overlay_frame:SetFrameStrata("TOOLTIP")
-	
+
 	--Pet Owner Finder
 		_CreateFrame ("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
-		
-		
+
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --plugin defaults
 	--backdrop
 	_detalhes.PluginDefaults = {}
-	
+
 	_detalhes.PluginDefaults.Backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 	edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
 	insets = {left = 1, right = 1, top = 1, bottom = 1}}
 	_detalhes.PluginDefaults.BackdropColor = {0, 0, 0, .6}
 	_detalhes.PluginDefaults.BackdropBorderColor = {0, 0, 0, 1}
-	
+
 	function _detalhes.GetPluginDefaultBackdrop()
 		return _detalhes.PluginDefaults.Backdrop, _detalhes.PluginDefaults.BackdropColor, _detalhes.PluginDefaults.BackdropBorderColor
 	end
@@ -899,14 +899,14 @@ do
 -- welcome panel
 	function _detalhes:CreateWelcomePanel (name, parent, width, height, make_movable)
 		local f = CreateFrame("frame", name, parent or UIParent, "BackdropTemplate")
-		
+
 		--f:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3}, edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
 		f:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=0, right=0, top=0, bottom=0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
 		f:SetBackdropColor(1, 1, 1, 0.75)
 		f:SetBackdropBorderColor(0, 0, 0, 1)
 
 		f:SetSize(width or 1, height or 1)
-		
+
 		if (make_movable) then
 			f:SetScript("OnMouseDown", function(self, button)
 				if (self.isMoving) then
@@ -915,11 +915,11 @@ do
 				if (button == "RightButton") then
 					self:Hide()
 				else
-					self:StartMoving() 
+					self:StartMoving()
 					self.isMoving = true
 				end
 			end)
-			f:SetScript("OnMouseUp", function(self, button) 
+			f:SetScript("OnMouseUp", function(self, button)
 				if (self.isMoving and button == "LeftButton") then
 					self:StopMovingOrSizing()
 					self.isMoving = nil
@@ -928,16 +928,16 @@ do
 			f:SetToplevel (true)
 			f:SetMovable(true)
 		end
-		
+
 		return f
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --functions
-	
+
 	_detalhes.empty_function = function() end
 	_detalhes.empty_table = {}
-	
+
 	--register textures and fonts for shared media
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		--default bars
@@ -981,9 +981,9 @@ do
 		SharedMedia:Register("sound", "Details Threat Warning Volume 3", [[Interface\Addons\Details\sounds\threat_warning_3.ogg]])
 		SharedMedia:Register("sound", "Details Threat Warning Volume 4", [[Interface\Addons\Details\sounds\threat_warning_4.ogg]])
 
-		
 
-	
+
+
 	--dump table contents over chat panel
 		function Details.VarDump(t)
 			if (type(t) ~= "table") then
@@ -1013,7 +1013,7 @@ do
 			end
 			return copy
 		end
-	
+
 	--delay messages
 		function _detalhes:DelayMsg (msg)
 			_detalhes.delaymsgs = _detalhes.delaymsgs or {}
@@ -1021,13 +1021,13 @@ do
 		end
 		function _detalhes:ShowDelayMsg()
 			if (_detalhes.delaymsgs and #_detalhes.delaymsgs > 0) then
-				for _, msg in ipairs(_detalhes.delaymsgs) do 
+				for _, msg in ipairs(_detalhes.delaymsgs) do
 					print(msg)
 				end
 			end
 			_detalhes.delaymsgs = {}
 		end
-	
+
 	--print messages
 		function _detalhes:Msg(_string, arg1, arg2, arg3, arg4)
 			if (self.__name) then
@@ -1037,7 +1037,7 @@ do
 				print(Loc ["STRING_DETAILS1"] .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			end
 		end
-		
+
 	--welcome
 		function _detalhes:WelcomeMsgLogon()
 			_detalhes:Msg("you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated.")
@@ -1070,33 +1070,33 @@ do
 			_G ["BINDING_HEADER_DETAILS_KEYBIND_REPORT"] = Loc ["STRING_KEYBIND_WINDOW_REPORT_HEADER"]
 
 		--keys
-		
+
 			_G ["BINDING_NAME_DETAILS_TOGGLE_ALL"] = Loc ["STRING_KEYBIND_TOGGLE_WINDOWS"]
-			
+
 			_G ["BINDING_NAME_DETAILS_RESET_SEGMENTS"] = Loc ["STRING_KEYBIND_RESET_SEGMENTS"]
 			_G ["BINDING_NAME_DETAILS_SCROLL_UP"] = Loc ["STRING_KEYBIND_SCROLL_UP"]
 			_G ["BINDING_NAME_DETAILS_SCROLL_DOWN"] = Loc ["STRING_KEYBIND_SCROLL_DOWN"]
-	
-			_G ["BINDING_NAME_DETAILS_REPORT_WINDOW1"] = format (Loc ["STRING_KEYBIND_WINDOW_REPORT"], 1)
-			_G ["BINDING_NAME_DETAILS_REPORT_WINDOW2"] = format (Loc ["STRING_KEYBIND_WINDOW_REPORT"], 2)
-	
-			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW1"] = format (Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 1)
-			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW2"] = format (Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 2)
-			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW3"] = format (Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 3)
-			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW4"] = format (Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 4)
-			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW5"] = format (Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 5)
-			
-			_G ["BINDING_NAME_DETAILS_BOOKMARK1"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 1)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK2"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 2)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK3"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 3)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK4"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 4)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK5"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 5)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK6"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 6)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK7"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 7)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK8"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 8)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK9"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 9)
-			_G ["BINDING_NAME_DETAILS_BOOKMARK10"] = format (Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 10)
-			
+
+			_G ["BINDING_NAME_DETAILS_REPORT_WINDOW1"] = format(Loc ["STRING_KEYBIND_WINDOW_REPORT"], 1)
+			_G ["BINDING_NAME_DETAILS_REPORT_WINDOW2"] = format(Loc ["STRING_KEYBIND_WINDOW_REPORT"], 2)
+
+			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW1"] = format(Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 1)
+			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW2"] = format(Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 2)
+			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW3"] = format(Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 3)
+			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW4"] = format(Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 4)
+			_G ["BINDING_NAME_DETAILS_TOOGGLE_WINDOW5"] = format(Loc ["STRING_KEYBIND_TOGGLE_WINDOW"], 5)
+
+			_G ["BINDING_NAME_DETAILS_BOOKMARK1"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 1)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK2"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 2)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK3"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 3)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK4"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 4)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK5"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 5)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK6"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 6)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK7"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 7)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK8"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 8)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK9"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 9)
+			_G ["BINDING_NAME_DETAILS_BOOKMARK10"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 10)
+
 end
 
 if (select(4, GetBuildInfo()) >= 100000) then

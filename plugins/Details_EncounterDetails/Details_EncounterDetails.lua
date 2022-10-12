@@ -227,7 +227,7 @@ local function CreatePluginFrames (data)
 			end
 			
 			--wipe emotes
-			table.wipe (EncounterDetails.boss_emotes_table)
+			table.wipe(EncounterDetails.boss_emotes_table)
 	
 		elseif (event == "GROUP_ONENTER") then
 			if (EncounterDetails.db.show_icon == 2) then
@@ -318,7 +318,7 @@ local function CreatePluginFrames (data)
 		if (_G.DBM) then
 			local dbm_timer_callback = function(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
 				--print(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
-				local spell = tostring (spellId)
+				local spell = tostring(spellId)
 				if (spell and not current_table_dbm [spell]) then
 					current_table_dbm [spell] = {spell, id, msg, timer, icon, bartype, spellId, colorId, modid}
 				end
@@ -329,7 +329,7 @@ local function CreatePluginFrames (data)
 			if (BigWigsLoader) then
 				function EncounterDetails:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
 					--print(event, module, spellid, bar_text, time, icon, ...)
-					spellid = tostring (spellid)
+					spellid = tostring(spellid)
 					if (not current_table_bigwigs [spellid]) then
 						current_table_bigwigs [spellid] = {(type(module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
 					end
@@ -656,8 +656,8 @@ end
 						overkill = ""
 					end
 					
-					if (source:find ("%[")) then
-						source = source:gsub ("%[%*%] ", "")
+					if (source:find("%[")) then
+						source = source:gsub("%[%*%] ", "")
 					end
 					
 					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
@@ -672,7 +672,7 @@ end
 					end
 				else
 					--heal
-					local class = Details:GetClass (source)
+					local class = Details:GetClass(source)
 					local spec = Details:GetSpec (source)
 
 					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s " .. spellname .. " (" .. Details:GetOnlyName(Details:AddClassOrSpecIcon (source, class, spec, 16, true)) .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
@@ -697,8 +697,8 @@ end
 					
 				elseif (evtype == 4) then
 					--debuff
-					if (source:find ("%[")) then
-						source = source:gsub ("%[%*%] ", "")
+					if (source:find("%[")) then
+						source = source:gsub("%[%*%] ", "")
 					end
 					
 					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s [x" .. amount .. "] " .. spellname .. " (" .. source .. ")", "debuff (" .. hp .. "%)", 1, "white", "white")
@@ -856,10 +856,10 @@ local function EnemySkills (habilidade, barra)
 	for index, tabela in ipairs(tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		
-		GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), ToK (_, tabela[2]) .. " (" .. format ("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
+		GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), ToK (_, tabela[2]) .. " (" .. format("%.1f", tabela[2] / total * 100) .. "%)", 1, "white")
 		local r, g, b, a = unpack(_detalhes.tooltip.background)
 		
-		local actorClass = Details:GetClass (tabela[1])
+		local actorClass = Details:GetClass(tabela[1])
 		if (actorClass) then
 			local r, g, b = Details:GetClassColor (actorClass)
 			GameCooltip:AddStatusBar (tabela[2] / topValue * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
@@ -979,7 +979,7 @@ function _detalhes:BossInfoRowClick (barra, param1)
 			local texto_left, texto_right = GameCooltip:GetText (i)
 
 			if (texto_left and texto_right) then 
-				texto_left = texto_left:gsub (("|T(.*)|t "), "")
+				texto_left = texto_left:gsub(("|T(.*)|t "), "")
 				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
 			end
 		end
@@ -999,7 +999,7 @@ function _detalhes:BossInfoRowClick (barra, param1)
 			texto_right = texto_right:GetText()
 			
 			if (texto_left and texto_right) then 
-				texto_left = texto_left:gsub (("|T(.*)|t "), "")
+				texto_left = texto_left:gsub(("|T(.*)|t "), "")
 				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
 			end
 		end		
@@ -1254,20 +1254,20 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	if (L) then
 		EncounterDetailsFrame.boss_icone:SetTexture(Texture)
-		EncounterDetailsFrame.boss_icone:SetTexCoord (L, R, T, B)
+		EncounterDetailsFrame.boss_icone:SetTexCoord(L, R, T, B)
 	else
 		EncounterDetailsFrame.boss_icone:SetTexture([[Interface\CHARACTERFRAME\TempPortrait]])
-		EncounterDetailsFrame.boss_icone:SetTexCoord (0, 1, 0, 1)
+		EncounterDetailsFrame.boss_icone:SetTexCoord(0, 1, 0, 1)
 	end
 	
 	--[=[
 	local file, L, R, T, B = EncounterDetails:GetRaidBackground (_combat_object.is_boss.mapid)
 	if (file) then
 		EncounterDetailsFrame.raidbackground:SetTexture(file)
-		EncounterDetailsFrame.raidbackground:SetTexCoord (L, R, T, B)
+		EncounterDetailsFrame.raidbackground:SetTexCoord(L, R, T, B)
 	else
 		EncounterDetailsFrame.raidbackground:SetTexture([[Interface\Glues\LOADINGSCREENS\LoadScreenDungeon]])
-		EncounterDetailsFrame.raidbackground:SetTexCoord (0, 1, 120/512, 408/512)
+		EncounterDetailsFrame.raidbackground:SetTexCoord(0, 1, 120/512, 408/512)
 	end
 	--]=]
 	
@@ -1306,8 +1306,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! "..Loc ["STRING_DAMAGE_TAKEN_REPORT"] 
 				end
 
-				if (jogador.nome:find ("-")) then
-					barra.lineText1:SetText(jogador.nome:gsub (("-.*"), ""))
+				if (jogador.nome:find("-")) then
+					barra.lineText1:SetText(jogador.nome:gsub(("-.*"), ""))
 				else
 					barra.lineText1:SetText(jogador.nome)
 				end
@@ -1318,7 +1318,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				
 				barra.jogador = jogador
 				
-				barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
+				barra.textura:SetStatusBarColor(_unpack(_detalhes.class_colors [jogador.classe]))
 				
 				if (index == 1)  then
 					barra.textura:SetValue(100)
@@ -1331,11 +1331,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 					barra.icone:SetTexture(texture)
-					barra.icone:SetTexCoord (l, r, t, b)
+					barra.icone:SetTexCoord(l, r, t, b)
 				else
 					barra.icone:SetTexture("Interface\\AddOns\\Details\\images\\classes_small")
 					if (EncounterDetails.class_coords [jogador.classe]) then
-						barra.icone:SetTexCoord (_unpack(EncounterDetails.class_coords [jogador.classe]))
+						barra.icone:SetTexCoord(_unpack(EncounterDetails.class_coords [jogador.classe]))
 					end
 				end
 
@@ -1535,7 +1535,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra.jogador = habilidade --barra.jogador agora tem a tabela com --[1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 				
 				local spellSchool = _detalhes.spell_school_cache [nome_magia] or 1
-				local r, g, b = _detalhes:GetSpellSchoolColor (spellSchool)
+				local r, g, b = _detalhes:GetSpellSchoolColor(spellSchool)
 				
 				barra.t:SetVertexColor(r, g, b)
 
@@ -1547,7 +1547,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				end
 				
 				barra.icone:SetTexture(icone_magia)
-				barra.icone:SetTexCoord (.1, .9, .1, .9)
+				barra.icone:SetTexCoord(.1, .9, .1, .9)
 				
 				barra:Show()
 				quantidade = quantidade + 1
@@ -1601,7 +1601,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 				local nome = jogador.nome
 				
-				if (not nome:find ("%*")) then
+				if (not nome:find("%*")) then
 					local tabela = {nome = nome, total = 0, dano_em = {}, dano_em_total = 0, damage_from = {}, damage_from_total = 0}
 				
 					--total de dano que ele causou
@@ -1673,7 +1673,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
 				end
 				
-				local actorClass = Details:GetClass (esta_tabela[1])
+				local actorClass = Details:GetClass(esta_tabela[1])
 				if (actorClass) then
 					local r, g, b = Details:GetClassColor (actorClass)
 					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
@@ -1722,7 +1722,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
 					end
 					
-					local actorClass = Details:GetClass (esta_tabela[1])
+					local actorClass = Details:GetClass(esta_tabela[1])
 					if (actorClass) then
 						local r, g, b = Details:GetClassColor (actorClass)
 						GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
@@ -1822,8 +1822,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			barra.jogador = esta_tabela --barra.jogador agora tem a tabela com --[1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 			
-			--barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --a cor pode ser a spell school da magia
+			--barra.textura:SetStatusBarColor(_unpack(_detalhes.class_colors [jogador.classe]))
+			barra.textura:SetStatusBarColor(1, 1, 1, 1) --a cor pode ser a spell school da magia
 			barra.textura:SetValue(100)
 			
 			barra:Show()
@@ -1923,7 +1923,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			barra.jogador = tabela
 			
-			--barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
+			--barra.textura:SetStatusBarColor(_unpack(_detalhes.class_colors [jogador.classe]))
 			
 			if (index == 1)  then
 				barra.textura:SetValue(100)
@@ -1933,7 +1933,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 			
 			barra.icone:SetTexture(icone_magia)
-			barra.icone:SetTexCoord (.1, .9, .1, .9)
+			barra.icone:SetTexCoord(.1, .9, .1, .9)
 			
 			barra:Show()
 			
@@ -2026,7 +2026,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			barra.jogador = tabela
 			
-			--barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [jogador.classe]))
+			--barra.textura:SetStatusBarColor(_unpack(_detalhes.class_colors [jogador.classe]))
 			
 			if (index == 1)  then
 				barra.textura:SetValue(100)
@@ -2036,7 +2036,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 			
 			barra.icone:SetTexture(icone_magia)
-			barra.icone:SetTexCoord (.1, .9, .1, .9)
+			barra.icone:SetTexCoord(.1, .9, .1, .9)
 			
 			barra:Show()
 			
@@ -2078,14 +2078,14 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				
 				local overlayTexture = barra:CreateTexture(nil, "overlay")
 				overlayTexture:SetAllPoints()
-				overlayTexture:SetColorTexture (1, 1, 1)
+				overlayTexture:SetColorTexture(1, 1, 1)
 				overlayTexture:SetAlpha(1)
 				overlayTexture:Hide()
 				barra.OverlayTexture = overlayTexture
 			end
 
-			if (tabela [3]:find ("-")) then
-				barra.lineText1:SetText(index..". "..tabela [3]:gsub (("-.*"), ""))
+			if (tabela [3]:find("-")) then
+				barra.lineText1:SetText(index..". "..tabela [3]:gsub(("-.*"), ""))
 			else
 				barra.lineText1:SetText(index..". "..tabela [3])
 			end
@@ -2097,11 +2097,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			barra.jogador = tabela
 			barra.extra = habilidades_info
 			
-			barra.textura:SetStatusBarColor (_unpack(_detalhes.class_colors [tabela [4]]))
+			barra.textura:SetStatusBarColor(_unpack(_detalhes.class_colors [tabela [4]]))
 			barra.textura:SetValue(100)
 			
 			barra.icone:SetTexture("Interface\\AddOns\\Details\\images\\classes_small")
-			barra.icone:SetTexCoord (_unpack(EncounterDetails.class_coords [tabela [4]]))
+			barra.icone:SetTexCoord(_unpack(EncounterDetails.class_coords [tabela [4]]))
 			
 			barra:Show()
 			

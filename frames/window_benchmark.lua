@@ -49,16 +49,16 @@ local libwindow = LibStub("LibWindow-1.1")
             f.Close:SetNormalTexture(_detalhes.gump.folder .. "icons")
             f.Close:SetHighlightTexture(_detalhes.gump.folder .. "icons")
             f.Close:SetPushedTexture(_detalhes.gump.folder .. "icons")
-            f.Close:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
-            f.Close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
-            f.Close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+            f.Close:GetNormalTexture():SetTexCoord(0, 16/128, 0, 1)
+            f.Close:GetHighlightTexture():SetTexCoord(0, 16/128, 0, 1)
+            f.Close:GetPushedTexture():SetTexCoord(0, 16/128, 0, 1)
             f.Close:SetAlpha(0.7)
             f.Close:SetScript("OnClick", function() f:Hide() end)
             
             --title
             f.Title = f.TitleBar:CreateFontString("$parentTitle", "overlay", "GameFontNormal")
             f.Title:SetPoint("center", f.TitleBar, "center")
-            f.Title:SetTextColor (.8, .8, .8, 1)
+            f.Title:SetTextColor(.8, .8, .8, 1)
             f.Title:SetText("Details! Benchmark")
             
             DF:InstallTemplate ("font", "DETAILS_BENCHMARK_NORMAL", {color = "white", size = 10, font = "Friz Quadrata TT"})
@@ -151,7 +151,7 @@ local libwindow = LibStub("LibWindow-1.1")
                 
             --description string and text entry
                 summaryFrame.DescriptionLabel = DF:CreateLabel(summaryFrame, "Description", normal_text_template)
-                summaryFrame.DescriptionEntry = DF:CreateTextEntry (summaryFrame, function()end, 120, 20, nil, _, nil, options_dropdown_template)
+                summaryFrame.DescriptionEntry = DF:CreateTextEntry(summaryFrame, function()end, 120, 20, nil, _, nil, options_dropdown_template)
                 
             --DPS Amount string
                 summaryFrame.DPSLabel = DF:CreateLabel(summaryFrame, "100K", normal_text_template)

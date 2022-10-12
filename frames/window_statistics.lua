@@ -239,7 +239,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         f.DownloadedSize = f.DownloadedSize + length
                         local downloadSpeed = f.DownloadedSize / (time() - f.SyncStartTime)
 
-                        f.SyncText:SetText("working [downloading " .. f.DownloadedAmount .. "/" .. f.RequestedAmount .. ", " .. format ("%.2f", downloadSpeed/1024) .. "Kbps]")
+                        f.SyncText:SetText("working [downloading " .. f.DownloadedAmount .. "/" .. f.RequestedAmount .. ", " .. format("%.2f", downloadSpeed/1024) .. "Kbps]")
                     end
                 end
             end
@@ -273,9 +273,9 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         for i = 1, AmtLines do
                             if (f.LatestResourceTable[i]) then
                                 local playerName = f.LatestResourceTable[i][1]
-                                playerName = playerName:gsub ("%|c%x%x%x%x%x%x%x%x", "")
-                                playerName = playerName:gsub ("%|r", "")
-                                playerName = playerName:gsub (".*%s", "")
+                                playerName = playerName:gsub("%|c%x%x%x%x%x%x%x%x", "")
+                                playerName = playerName:gsub("%|r", "")
+                                playerName = playerName:gsub(".*%s", "")
                                 tinsert(result, {playerName, f.LatestResourceTable[i][2]})
                             else
                                 break
@@ -290,7 +290,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end
             end
 
-            local ReportButton = DF:CreateButton(f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub (":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
+            local ReportButton = DF:CreateButton(f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub(":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
             ReportButton:SetPoint("right", GuildSyncButton, "left", -2, 0)
             ReportButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)			
 
@@ -674,7 +674,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         local roleTable = encounter [role]
                         
                         local date = encounter.date
-                        date = date:gsub (".*%s", "")
+                        date = date:gsub(".*%s", "")
                         date = date:sub (1, -4)
 
                         local player = roleTable [playerName]
@@ -698,7 +698,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         GameCooltip:AddLine("Total Done:", Details:ToK2 (self.data.value), 1, "white")
                         GameCooltip:AddLine("Dps:", Details:ToK2 (self.data.value / self.data.elapsed), 1, "white")
                         GameCooltip:AddLine("Item Level:", floor(self.data.data [2]), 1, "white")
-                        GameCooltip:AddLine("Date:", self.data.fulldate:gsub (".*%s", ""), 1, "white")
+                        GameCooltip:AddLine("Date:", self.data.fulldate:gsub(".*%s", ""), 1, "white")
 
                         GameCooltip:SetOwner(self.ball.tooltip_anchor)
                         GameCooltip:Show()
@@ -734,7 +734,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     local roleTable = encounter [role]
                     
                     local date = encounter.date
-                    date = date:gsub (".*%s", "")
+                    date = date:gsub(".*%s", "")
                     date = date:sub (1, -4)
                     
                     for playerName, playerTable in pairs(roleTable) do
@@ -821,7 +821,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     local roleTable = encounter [role]
                     
                     local date = encounter.date
-                    date = date:gsub (".*%s", "")
+                    date = date:gsub(".*%s", "")
                     date = date:sub (1, -4)
                     amt_encounters = amt_encounters + 1
                     

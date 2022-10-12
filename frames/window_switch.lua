@@ -223,7 +223,7 @@ do
 				title_icon:SetPoint("topleft", x, y)
 				local texture, l, r, t, b = Details:GetAttributeIcon (attribute)
 				title_icon:SetTexture(texture)
-				title_icon:SetTexCoord (l, r, t, b)
+				title_icon:SetTexCoord(l, r, t, b)
 				title_icon:SetSize(18, 18)
 				local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 				title_str:SetPoint("left", title_icon, "right", 2, 0)
@@ -242,7 +242,7 @@ do
 
 					allDisplaysFrame.check_text_size (button.text)
 					button.texture:SetTexture(Details.sub_atributos [attribute].icones [i] [1])
-					button.texture:SetTexCoord (unpack(Details.sub_atributos [attribute].icones [i] [2]))
+					button.texture:SetTexCoord(unpack(Details.sub_atributos [attribute].icones [i] [2]))
 					tinsert(allDisplaysFrame.buttons [attribute], button)
 					y = y - 17
 				end
@@ -280,7 +280,7 @@ do
 				allDisplaysFrame.buttons[6] = {}
 				local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
 				title_icon:SetTexture([[Interface\AddOns\Details\images\modo_icones]])
-				title_icon:SetTexCoord (32/256*3, 32/256*4, 0, 1)
+				title_icon:SetTexCoord(32/256*3, 32/256*4, 0, 1)
 				title_icon:SetSize(16, 16)
 
 				local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -311,7 +311,7 @@ do
 
 			allDisplaysFrame.check_text_size (button.text)
 			button.texture:SetTexture(custom.icon)
-			button.texture:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
+			button.texture:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
 			button:Show()
 			
 			button_index = button_index + 1
@@ -354,7 +354,7 @@ do
 						
 						allDisplaysFrame.check_text_size(button.text)
 						button.texture:SetTexture(ptable[2])
-						button.texture:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
+						button.texture:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
 						button:Show()
 						
 						button_index = button_index + 1
@@ -542,7 +542,7 @@ function Details.switch:ShowMe(instancia)
 
 				local background = button:CreateTexture(nil, "background")
 				background:SetTexture("Interface\\SPELLBOOK\\Spellbook-Parts")
-				background:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
+				background:SetTexCoord(0.31250000, 0.96484375, 0.37109375, 0.52343750)
 				background:SetWidth(85)
 				background:SetPoint("topleft", s.widget, "topleft", -16, 3)
 				background:SetPoint("bottomright", s.widget, "bottomright", -3, -5)
@@ -623,12 +623,12 @@ function Details.switch:ShowMe(instancia)
 			local block1 = Details.switch:GetSegmentBlock (1)
 			block1:SetText(Loc["STRING_CURRENTFIGHT"])
 			block1.texture:SetTexture([[Interface\Scenarios\ScenariosParts]])
-			block1.texture:SetTexCoord (55/512, 81/512, 368/512, 401/512)
+			block1.texture:SetTexCoord(55/512, 81/512, 368/512, 401/512)
 			
 			local block2 = Details.switch:GetSegmentBlock (2)
 			block2:SetText(Loc["STRING_SEGMENT_OVERALL"])
 			block2.texture:SetTexture([[Interface\Scenarios\ScenariosParts]])
-			block2.texture:SetTexCoord (55/512, 81/512, 368/512, 401/512)
+			block2.texture:SetTexCoord(55/512, 81/512, 368/512, 401/512)
 		end
 		
 		Details.switch:ClearSegmentBlocks()
@@ -648,7 +648,7 @@ function Details.switch:ShowMe(instancia)
 				local L, R, T, B, Texture = Details:GetBossIcon (combat.is_boss.mapid, combat.is_boss.index)
 				if (L) then
 					block.texture:SetTexture(Texture)
-					block.texture:SetTexCoord (L, R, T, B)
+					block.texture:SetTexCoord(L, R, T, B)
 				else
 					block.texture:SetTexture([[Interface\Scenarios\ScenarioIcon-Boss]])
 				end

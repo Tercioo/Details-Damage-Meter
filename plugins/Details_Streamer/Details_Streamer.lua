@@ -258,9 +258,9 @@ local function CreatePluginFrames()
 	left_resize:SetNormalTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]])
 	left_resize:SetHighlightTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]])
 	left_resize:SetPushedTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]])
-	left_resize:GetNormalTexture():SetTexCoord (1, 0, 0, 1)
-	left_resize:GetHighlightTexture():SetTexCoord (1, 0, 0, 1)
-	left_resize:GetPushedTexture():SetTexCoord (1, 0, 0, 1)
+	left_resize:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
+	left_resize:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
+	left_resize:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
 	
 	left_resize:SetScript("OnMouseDown", function(self)
 		if (not SOF.resizing and not StreamOverlay.db.main_frame_locked) then
@@ -470,7 +470,7 @@ local function CreatePluginFrames()
 			
 				--left
 				line.icon1:SetTexture(data [1])
-				line.icon1:SetTexCoord (5/64, 59/64, 5/64, 59/64)
+				line.icon1:SetTexCoord(5/64, 59/64, 5/64, 59/64)
 				
 				local text = data [2]
 				line.text1:SetText(text)
@@ -500,13 +500,13 @@ local function CreatePluginFrames()
 				end
 				
 				if (data[7]) then
-					line.text2:SetTextColor (data[7].r, data[7].g, data[7].b)
+					line.text2:SetTextColor(data[7].r, data[7].g, data[7].b)
 				else
-					line.text2:SetTextColor (1, 1, 1)
+					line.text2:SetTextColor(1, 1, 1)
 				end
 
 				line.icon2:SetTexture(data [4])
-				line.icon2:SetTexCoord (unpack(data [5]))
+				line.icon2:SetTexCoord(unpack(data [5]))
 				if (data [4] == defaultAttackIcon) then
 					line.icon2:SetSize(iconSize*0.8, iconSize*0.8)
 					line.icon2:SetPoint("left", line, "center", 8, 0)
@@ -584,7 +584,7 @@ local function CreatePluginFrames()
 		local statusbar = CreateFrame("StatusBar", "StreamOverlayBar" .. index .. "StatusBar", f, "BackdropTemplate")
 		local statusbar_texture = statusbar:CreateTexture(nil, "border")
 		statusbar_texture:SetTexture(1, 1, 1, 0.15)
-		statusbar:SetStatusBarColor (0, 0, 0, 0)
+		statusbar:SetStatusBarColor(0, 0, 0, 0)
 		statusbar:SetStatusBarTexture (statusbar_texture)
 		statusbar:SetMinMaxValues(0, 100)
 		statusbar:SetValue(0)
@@ -992,7 +992,7 @@ local parse_target_icon = function(targetObject, target)
 					end
 				end
 			else
-				local _, class = UnitClass (targetObject.nome)
+				local _, class = UnitClass(targetObject.nome)
 				if (class) then
 					icon2 = [[Interface\AddOns\Details\images\classes_small_alpha]]
 					icon2coords = Details.class_coords [class]
@@ -1003,7 +1003,7 @@ local parse_target_icon = function(targetObject, target)
 			end
 		end
 	else
-		local _, class = UnitClass (target)
+		local _, class = UnitClass(target)
 		if (class) then
 			icon2 = [[Interface\AddOns\Details\images\classes_small_alpha]]
 			icon2coords = Details.class_coords [class]
@@ -1466,7 +1466,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 	
 end)
 
-local format_time = function(v) return "-" .. format ("%.2f", v) end
+local format_time = function(v) return "-" .. format("%.2f", v) end
 
 --when the player die, show the events before the death
 function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, death_table, last_cooldown, death_at_combattime, max_health)
@@ -1826,7 +1826,7 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 
 		local arrowIconTable = {}
 		for _, arrow in ipairs(arrows) do
-			arrowIconTable[#arrowIconTable+1] = {value = arrow, label = arrow:gsub ("Interface(.*)\\", ""), onclick = setArrowTextureCallback, icon = arrow}
+			arrowIconTable[#arrowIconTable+1] = {value = arrow, label = arrow:gsub("Interface(.*)\\", ""), onclick = setArrowTextureCallback, icon = arrow}
 		end
 
 		--
@@ -2581,10 +2581,10 @@ editbox:SetSize(300, 700)
 editbox:SetPoint("topleft", UIParent, "topleft")
 editbox:SetBackdrop({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 editbox:SetBackdropColor(0, 0, 0, .2)
-editbox:SetAutoFocus (false)
+editbox:SetAutoFocus(false)
 editbox:ClearFocus()
 editbox:SetMultiLine (true)
-editbox:SetFontObject (GameFontHighlightSmall)
+editbox:SetFontObject(GameFontHighlightSmall)
 editbox:SetJustifyH("CENTER")
 editbox:EnableMouse(true)
 editbox:SetText("")
@@ -2599,9 +2599,9 @@ local helpful_spells = StreamOverlay.HelpfulSpells
 if (not harmful_spells [spellid] and not helpful_spells [spellid]) then
 	if (bit.band(who_flags, 0x00000400) ~= 0 and who_name) then
 		local text = editbox:GetText()
-		if (not list:find (spellid) and not text:find (spellid)) then
+		if (not list:find(spellid) and not text:find(spellid)) then
 		
-			local class = _detalhes:GetClass (who_name) or "unknow"
+			local class = _detalhes:GetClass(who_name) or "unknow"
 		
 			if (class ~= "unknow") then
 				text = text .. "\n"..spellid .. " " .. spellname .. " " .. class

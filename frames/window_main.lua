@@ -1973,7 +1973,7 @@ local lineScript_Onmouseup = function(self, button)
 					if (custom and custom.on_shift_click) then
 						local func = loadstring (custom.on_shift_click)
 						if (func) then
-							local successful, errortext = pcall (func, self, self.minha_tabela, self._instance)
+							local successful, errortext = pcall(func, self, self.minha_tabela, self._instance)
 							if (not successful) then
 								Details:Msg("error occurred custom script shift+click:", errortext)
 							end
@@ -2519,7 +2519,7 @@ function Details:ReportSingleLine (instancia, barra)
 		local GameCooltip = GameCooltip
 		if (GameCooltipFrame1:IsShown()) then
 			local actor_name = barra.lineText1:GetText() or ""
-			actor_name = actor_name:gsub ((".*%."), "")
+			actor_name = actor_name:gsub((".*%."), "")
 
 			if (instancia.segmento == -1) then --overall
 				reportar = {"Details!: "  .. Loc["STRING_OVERALL"] .. " " .. instancia.customName .. ": " .. actor_name .. " " .. Loc["STRING_CUSTOM_REPORT"]}
@@ -3081,7 +3081,7 @@ end
 
 local alert_on_click = function(self, button)
 	if (self.func) then
-		local okey, errortext = pcall (self.func, unpack(self.func_param))
+		local okey, errortext = pcall(self.func, unpack(self.func_param))
 		if (not okey) then
 			Details:Msg("error on alert function:", errortext)
 		end
@@ -5687,7 +5687,7 @@ function Details:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report, _r
 	self.menu_icons[5] = _reset
 	self.menu_icons[6] = _close
 
-	table.wipe (tbuttons)
+	table.wipe(tbuttons)
 
 	tbuttons[1] = self.baseframe.cabecalho.modo_selecao
 	tbuttons[2] = self.baseframe.cabecalho.segmento
@@ -6748,7 +6748,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 					local thisCombat = Details.tabela_vigente
 					local encounter_name = thisCombat.is_boss.encounter
 					local instanceID = thisCombat.is_boss.ej_instance_id
-					instanceID = tonumber (instanceID)
+					instanceID = tonumber(instanceID)
 					if (encounter_name and instanceID and instanceID ~= 0) then
 						local index, name, description, encounterID, rootSectionID, link = Details:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 						if (index and name and encounterID) then
@@ -6950,11 +6950,11 @@ end
 
 function Details:SetUserCustomSkinFile (file)
 	if (type(file) ~= "string") then
-		error ("SetUserCustomSkinFile() file must be a string.")
+		error("SetUserCustomSkinFile() file must be a string.")
 	end
 
-	if (file:find ("\\") or file:find ("/")) then
-		error ("SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes.")
+	if (file:find("\\") or file:find("/")) then
+		error("SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes.")
 	end
 
 	self.skin_custom = file
@@ -7287,7 +7287,7 @@ function Details:ChangeSkin(skin_name)
 		local callbackFunc = this_skin.callback
 		if (callbackFunc) then
 			DetailsFramework:SetEnvironment(callbackFunc)
-			local okey, result = pcall (callbackFunc, this_skin, self, just_updating)
+			local okey, result = pcall(callbackFunc, this_skin, self, just_updating)
 			if (not okey) then
 				Details:Msg("|cFFFF9900error on skin callback function|r:", result)
 			end
@@ -7297,7 +7297,7 @@ function Details:ChangeSkin(skin_name)
 			local onStartScript = this_skin.control_script_on_start
 			if (onStartScript) then
 				DetailsFramework:SetEnvironment(onStartScript)
-				local okey, result = pcall (onStartScript, this_skin, self)
+				local okey, result = pcall(onStartScript, this_skin, self)
 				if (not okey) then
 					Details:Msg("|cFFFF9900error on skin control on start function|r:", result)
 				end
@@ -8038,7 +8038,7 @@ function Details:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, 
 	end
 
 	--protection against failed clean up framework table
-	if (self.menu_attribute_string and not getmetatable (self.menu_attribute_string)) then
+	if (self.menu_attribute_string and not getmetatable(self.menu_attribute_string)) then
 		self.menu_attribute_string = nil
 	end
 
@@ -8549,7 +8549,7 @@ function Details:StretchButtonAnchor (side)
 		side = self.stretch_button_side
 	end
 
-	if (side == 1 or string.lower (side) == "top") then
+	if (side == 1 or string.lower(side) == "top") then
 		self.baseframe.button_stretch:ClearAllPoints()
 
 		local y = 0
@@ -8562,7 +8562,7 @@ function Details:StretchButtonAnchor (side)
 		self.baseframe.button_stretch.texture:SetTexCoord(unpack(COORDS_STRETCH))
 		self.stretch_button_side = 1
 
-	elseif (side == 2 or string.lower (side) == "bottom") then
+	elseif (side == 2 or string.lower(side) == "bottom") then
 		self.baseframe.button_stretch:ClearAllPoints()
 
 		local y = 0

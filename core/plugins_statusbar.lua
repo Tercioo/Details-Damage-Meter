@@ -276,12 +276,12 @@
 
 	function _detalhes.StatusBar:SetPlugin (instance, absolute_name, anchor)
 		if (absolute_name == -1) then --none
-			anchor = string.lower (anchor)
+			anchor = string.lower(anchor)
 			ChoosePlugin (nil, nil, -1, instance.StatusBar [anchor], anchor)
 		else
 			local index = _detalhes.StatusBar:GetIndexFromAbsoluteName (absolute_name)
 			if (index and anchor) then
-				anchor = string.lower (anchor)
+				anchor = string.lower(anchor)
 				ChoosePlugin (nil, nil, index, instance.StatusBar [anchor], anchor)
 			end
 		end
@@ -530,7 +530,7 @@
 
 	function _detalhes.StatusBar:ApplyOptions (child, option, value)
 
-		option = string.lower (option)
+		option = string.lower(option)
 		
 		if (option == "textxmod") then
 		
@@ -558,7 +558,7 @@
 		
 			child.options.textColor = value
 			local r, g, b, a = _detalhes.gump:ParseColors(child.options.textColor)
-			child.text:SetTextColor (r, g, b, a)
+			child.text:SetTextColor(r, g, b, a)
 			
 		elseif (option == "textsize") then
 		
@@ -1115,17 +1115,17 @@ do
 						if (threatpct) then
 							child.text:SetText(_math_floor(threatpct).."%")
 							if (Threat.isTank) then
-								child.text:SetTextColor (abs(threatpct-100)*0.01, threatpct*0.01, 0, 1)
+								child.text:SetTextColor(abs(threatpct-100)*0.01, threatpct*0.01, 0, 1)
 							else
-								child.text:SetTextColor (threatpct*0.01, abs(threatpct-100)*0.01, 0, 1)
+								child.text:SetTextColor(threatpct*0.01, abs(threatpct-100)*0.01, 0, 1)
 							end
 						else
 							child.text:SetText("0%")
-							child.text:SetTextColor (1, 1, 1, 1)
+							child.text:SetTextColor(1, 1, 1, 1)
 						end
 					else
 						child.text:SetText("0%")
-						child.text:SetTextColor (1, 1, 1, 1)
+						child.text:SetTextColor(1, 1, 1, 1)
 					end
 				end
 			end
@@ -1298,7 +1298,7 @@ do
 			texture:SetPoint("right", myframe.text.widget, "left", -2, -1)
 			texture:SetWidth(10)
 			texture:SetHeight(10)
-			texture:SetTexCoord (0.216796875, 0.26171875, 0.0078125, 0.052734375)
+			texture:SetTexCoord(0.216796875, 0.26171875, 0.0078125, 0.052734375)
 			myframe.texture = texture
 			
 			myframe.widget:SetScript("OnEvent", function()
@@ -1548,7 +1548,7 @@ end)
 		ColorPickerFrame:Show()
 	end
 
-	_detalhes.gump:NewImage (window, nil, 160, 16, nil, nil, "textcolortexture", "$parentTextColorTexture")
+	_detalhes.gump:NewImage(window, nil, 160, 16, nil, nil, "textcolortexture", "$parentTextColorTexture")
 	window.textcolortexture:SetPoint("left", window.textcolor, "right", 2)
 	window.textcolortexture:SetTexture(1, 1, 1)
 	
@@ -1632,7 +1632,7 @@ end)
 		
 		_G.DetailsStatusBarOptionsTextStyleDropdown.MyObject:Select(child.options.textStyle, true)
 		
-		_G.DetailsStatusBarOptionsTextColorTexture:SetColorTexture (child.options.textColor[1], child.options.textColor[2], child.options.textColor[3], child.options.textColor[4])
+		_G.DetailsStatusBarOptionsTextColorTexture:SetColorTexture(child.options.textColor[1], child.options.textColor[2], child.options.textColor[3], child.options.textColor[4])
 
 		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetFixedParameter(child)
 		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetValue(child.options.textSize)

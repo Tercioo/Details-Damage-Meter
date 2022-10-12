@@ -33,7 +33,7 @@ do
 			end
 		end)
 		
-		DetailsFrameWork:NewImage (panel, "Interface\\AddOns\\Details\\images\\copy", 512, 128, "overlay", nil, "background", "$parentBackGround")
+		DetailsFrameWork:NewImage(panel, "Interface\\AddOns\\Details\\images\\copy", 512, 128, "overlay", nil, "background", "$parentBackGround")
 		panel.background:SetPoint(0, -25)
 		
 		--title

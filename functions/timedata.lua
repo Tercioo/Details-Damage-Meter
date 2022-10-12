@@ -502,17 +502,17 @@
 			return
 		end
 		
-		text = text:gsub ("{dmg}", get_player_damage)
-		text = text:gsub ("{rdps}", get_raid_dps)
-		text = text:gsub ("{rhps}", get_raid_hps)
-		text = text:gsub ("{dps}", get_player_dps)
-		text = text:gsub ("{heal}", get_player_heal)
-		text = text:gsub ("{hps}", get_player_hps)
-		text = text:gsub ("{time}", get_combat_time)
-		text = text:gsub ("{dpos}", get_damage_position)
-		text = text:gsub ("{hpos}", get_heal_position)
-		text = text:gsub ("{ddiff}", get_damage_diff)
-		text = text:gsub ("{hdiff}", get_heal_diff)
+		text = text:gsub("{dmg}", get_player_damage)
+		text = text:gsub("{rdps}", get_raid_dps)
+		text = text:gsub("{rhps}", get_raid_hps)
+		text = text:gsub("{dps}", get_player_dps)
+		text = text:gsub("{heal}", get_player_heal)
+		text = text:gsub("{hps}", get_player_hps)
+		text = text:gsub("{time}", get_combat_time)
+		text = text:gsub("{dpos}", get_damage_position)
+		text = text:gsub("{hpos}", get_heal_position)
+		text = text:gsub("{ddiff}", get_damage_diff)
+		text = text:gsub("{hdiff}", get_heal_diff)
 
 		return text
 	end

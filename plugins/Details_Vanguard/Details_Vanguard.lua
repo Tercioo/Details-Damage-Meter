@@ -183,10 +183,10 @@ local function CreatePluginFrames (data)
 	--search for tanks in the raid or party group 
 	function Vanguard:IdentifyTanks()
 	
-		table.wipe (Vanguard.TankList)
-		table.wipe (Vanguard.TankHashNames)
-		table.wipe (Vanguard.TankIncDamage)
-		table.wipe (Vanguard.UnitIdCache)
+		table.wipe(Vanguard.TankList)
+		table.wipe(Vanguard.TankHashNames)
+		table.wipe(Vanguard.TankIncDamage)
+		table.wipe(Vanguard.UnitIdCache)
 
 		for i = 1, CONST_MAX_TANKS do 
 			Vanguard.auraUpdateFrames[i]:UnregisterEvent("UNIT_AURA")
@@ -319,16 +319,16 @@ local function CreatePluginFrames (data)
 		local bar = self.heal_inc
 		bar.tankname = name
 		
-		local class, left, right, top, bottom, r, g, b = Vanguard:GetClass (name)
+		local class, left, right, top, bottom, r, g, b = Vanguard:GetClass(name)
 		
 		local spec = Vanguard:GetSpec (name)
 		
 		if (spec) then
 			self.specicon:SetTexture(Vanguard.CurrentInstance.row_info.spec_file)
-			self.specicon:SetTexCoord (_unpack(Vanguard.class_specs_coords [spec]))
+			self.specicon:SetTexCoord(_unpack(Vanguard.class_specs_coords [spec]))
 		else
 			self.specicon:SetTexture(Vanguard.CurrentInstance.row_info.icon_file)
-			self.specicon:SetTexCoord (left, right, top, bottom)
+			self.specicon:SetTexCoord(left, right, top, bottom)
 		end
 		
 		self.unitFrame:SetUnit(Vanguard.UnitIdCache[name])
@@ -338,7 +338,7 @@ local function CreatePluginFrames (data)
 		self.unitFrame.healthBar:SetColor(r, g, b)
 		
 		bar.lefticon = Vanguard.CurrentInstance.row_info.icon_file
-		bar.iconleft:SetTexCoord (left, right, top, bottom)
+		bar.iconleft:SetTexCoord(left, right, top, bottom)
 		bar:SetLeftText (Vanguard:GetOnlyName(name))
 		bar:SetLeftText (name)
 		

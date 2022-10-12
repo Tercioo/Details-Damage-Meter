@@ -218,7 +218,7 @@ do
 			if (not name) then
 				return
 			end
-			if (name == encountername or name:find (encountername)) then
+			if (name == encountername or name:find(encountername)) then
 				return i, DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, EJID)
 			end
 		end

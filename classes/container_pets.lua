@@ -45,7 +45,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		--in merging operations, make sure to not add the owner name a second time in the name
 	
 		--check if the pet name already has the owner name in, if not, add it
-		if (not pet_nome:find ("<")) then
+		if (not pet_nome:find("<")) then
 			--get the owner name
 			local ownerName = busca[1]
 			--add the owner name to the pet name
@@ -104,7 +104,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	if (dono_nome) then
 		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true, pet_nome, pet_serial} --adicionada a flag emulada
 		
-		if (not pet_nome:find ("<")) then
+		if (not pet_nome:find("<")) then
 			pet_nome = pet_nome .. " <".. dono_nome ..">"
 		end
 		
@@ -209,7 +209,7 @@ end
 
 function container_pets:Remover (pet_serial)
 	if (_detalhes.tabela_pets.pets [pet_serial]) then
-		table.wipe (_detalhes.tabela_pets.pets [pet_serial])
+		table.wipe(_detalhes.tabela_pets.pets [pet_serial])
 	end
 	_detalhes.tabela_pets.pets [pet_serial] = nil
 end

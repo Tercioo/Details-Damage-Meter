@@ -29,7 +29,7 @@
 		local instance = self:GetPluginInstance()
 		if (instance) then
 			self.row_info = self.row_info or {}
-			_detalhes.table.copy (self.row_info, instance.row_info)
+			_detalhes.table.copy(self.row_info, instance.row_info)
 			self.bars_grow_direction = instance.bars_grow_direction
 			self.row_height = instance.row_height
 			self:SetBarGrowDirection()
@@ -412,7 +412,7 @@
 			Details.gump:ApplyStandardBackdrop(options_frame)
 			Details.gump:CreateTitleBar (options_frame, title)
 
-			local bigdog = _detalhes.gump:NewImage (options_frame, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 110, 120, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+			local bigdog = _detalhes.gump:NewImage(options_frame, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 110, 120, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 			bigdog:SetPoint("bottomright", options_frame, "bottomright", -3, 0)
 			bigdog:SetAlpha(.25)
 			
@@ -486,7 +486,7 @@
 			menuBackground:SetPoint("bottomright", f, "bottomleft", -2, 0)
 			menuBackground:SetWidth(f.MenuButtonWidth + 6)
 			
-			local bigdog = _detalhes.gump:NewImage (menuBackground, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+			local bigdog = _detalhes.gump:NewImage(menuBackground, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 			bigdog:SetPoint("bottomleft", custom_window, "bottomleft", 0, 1)
 			bigdog:SetAlpha(0.3)
 
@@ -497,22 +497,22 @@
 			bigdogRow:SetPoint("bottomleft", menuBackground, "bottomleft", 1, 1)
 			bigdogRow:SetPoint("bottomright", menuBackground, "bottomright", -1, 1)
 			bigdogRow:SetHeight(20)
-			bigdogRow:SetColorTexture (.5, .5, .5, .1)
+			bigdogRow:SetColorTexture(.5, .5, .5, .1)
 			bigdogRow:Hide()
 
 			--
 		--plugins menu title bar
 			local titlebar_plugins = CreateFrame("frame", nil, menuBackground,"BackdropTemplate")
-			PixelUtil.SetPoint (titlebar_plugins, "topleft", menuBackground, "topleft", 2, -3)
-			PixelUtil.SetPoint (titlebar_plugins, "topright", menuBackground, "topright", -2, -3)
+			PixelUtil.SetPoint(titlebar_plugins, "topleft", menuBackground, "topleft", 2, -3)
+			PixelUtil.SetPoint(titlebar_plugins, "topright", menuBackground, "topright", -2, -3)
 			titlebar_plugins:SetHeight(f.TitleHeight)
 			titlebar_plugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 			titlebar_plugins:SetBackdropColor(.5, .5, .5, 1)
 			titlebar_plugins:SetBackdropBorderColor(0, 0, 0, 1)
 			--title
 			local titleLabel = _detalhes.gump:NewLabel(titlebar_plugins, titlebar_plugins, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-			PixelUtil.SetPoint (titleLabel, "center", titlebar_plugins , "center", 0, 0)
-			PixelUtil.SetPoint (titleLabel, "top", titlebar_plugins , "top", 0, -5)
+			PixelUtil.SetPoint(titleLabel, "center", titlebar_plugins , "center", 0, 0)
+			PixelUtil.SetPoint(titleLabel, "top", titlebar_plugins , "top", 0, -5)
 			
 		--plugins menu title bar
 			local titlebar_tools = CreateFrame("frame", nil, menuBackground,"BackdropTemplate")
@@ -522,8 +522,8 @@
 			titlebar_tools:SetBackdropBorderColor(0, 0, 0, 1)
 			--title
 			local titleLabel = _detalhes.gump:NewLabel(titlebar_tools, titlebar_tools, nil, "titulo", "Tools", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-			PixelUtil.SetPoint (titleLabel, "center", titlebar_tools , "center", 0, 0)
-			PixelUtil.SetPoint (titleLabel, "top", titlebar_tools , "top", 0, -5)
+			PixelUtil.SetPoint(titleLabel, "center", titlebar_tools , "center", 0, 0)
+			PixelUtil.SetPoint(titleLabel, "top", titlebar_tools , "top", 0, -5)
 		
 		--scripts
 			f:SetScript("OnShow", function()
@@ -648,7 +648,7 @@
 			--frame:SetScript("OnHide", on_hide)
 			frame:HookScript ("OnHide", on_hide)
 			frame:ClearAllPoints()
-			PixelUtil.SetPoint (frame, "topleft", f, "topleft", 0, 0)
+			PixelUtil.SetPoint(frame, "topleft", f, "topleft", 0, 0)
 			frame:Show()
 		end
 
@@ -695,13 +695,13 @@
 					if (not addingTools) then
 						--add the header
 						addingTools = true
-						PixelUtil.SetPoint (titlebar_tools, "topleft", menuBackground, "topleft", 2, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index - 20)
-						PixelUtil.SetPoint (titlebar_tools, "topright", menuBackground, "topright", -2, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index - 20)
+						PixelUtil.SetPoint(titlebar_tools, "topleft", menuBackground, "topleft", 2, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index - 20)
+						PixelUtil.SetPoint(titlebar_tools, "topright", menuBackground, "topright", -2, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index - 20)
 					end
 
-					PixelUtil.SetPoint (button, "top", menuBackground, "top", 0, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index - 40)
+					PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index - 40)
 				else
-					PixelUtil.SetPoint (button, "top", menuBackground, "top", 0, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index)
+					PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, f.MenuY + ( (index-1) * -f.MenuButtonHeight ) - index)
 				end
 			end
 
@@ -750,13 +750,13 @@
 				end
 				
 				--check if passed a plugin name, remove spaces and make it lower case
-				wildcard = string.lower (wildcard)
-				wildcard = wildcard:gsub ("%s", "")
+				wildcard = string.lower(wildcard)
+				wildcard = wildcard:gsub("%s", "")
 				
 				for index, pluginInfoTable in ipairs(_detalhes.ToolBar.Menu) do
 					local pluginName = pluginInfoTable [1]
-					pluginName = string.lower (pluginName)
-					pluginName = pluginName:gsub ("%s", "")
+					pluginName = string.lower(pluginName)
+					pluginName = pluginName:gsub("%s", "")
 					
 					if (pluginName ==  wildcard) then
 						local pluginObject = pluginInfoTable [3]

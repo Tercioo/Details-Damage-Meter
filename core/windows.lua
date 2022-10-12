@@ -834,7 +834,7 @@
 					elseif (tabela._refresh_window) then
 						tabela:_refresh_window (esta_barra, self)
 					else
-						tabela:RefreshBarra (esta_barra, self, true)
+						tabela:RefreshBarra(esta_barra, self, true)
 					end
 				end
 
@@ -1112,9 +1112,9 @@
 			local label = gump:CreateLabel(panel, Loc ["STRING_FEEDBACK_PREFERED_SITE"])
 			label:SetPoint("topleft", panel, "topleft", 15, -60)
 
-			local wowi = gump:NewImage (panel, [[Interface\AddOns\Details\images\icons2]], 101, 34, "artwork", {0/512, 101/512, 163/512, 200/512})
-			local curse = gump:NewImage (panel, [[Interface\AddOns\Details\images\icons2]], 101, 34, "artwork", {0/512, 101/512, 201/512, 242/512})
-			local mmoc = gump:NewImage (panel, [[Interface\AddOns\Details\images\icons2]], 101, 34, "artwork", {0/512, 101/512, 243/512, 285/512})
+			local wowi = gump:NewImage(panel, [[Interface\AddOns\Details\images\icons2]], 101, 34, "artwork", {0/512, 101/512, 163/512, 200/512})
+			local curse = gump:NewImage(panel, [[Interface\AddOns\Details\images\icons2]], 101, 34, "artwork", {0/512, 101/512, 201/512, 242/512})
+			local mmoc = gump:NewImage(panel, [[Interface\AddOns\Details\images\icons2]], 101, 34, "artwork", {0/512, 101/512, 243/512, 285/512})
 			wowi:SetDesaturated(true)
 			curse:SetDesaturated(true)
 			mmoc:SetDesaturated(true)
@@ -1259,11 +1259,11 @@
 			updatewindow_frame.gnoma:SetPoint("topright", updatewindow_frame, "topright", -3, -59)
 			updatewindow_frame.gnoma:SetTexture("Interface\\AddOns\\Details\\images\\icons2")
 			updatewindow_frame.gnoma:SetSize(105*1.05, 107*1.05)
-			updatewindow_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
+			updatewindow_frame.gnoma:SetTexCoord(0.2021484375, 0, 0.7919921875, 1)
 
 			local editbox = Details.gump:NewTextEntry(updatewindow_frame, nil, "$parentTextEntry", "text", 387, 14)
 			editbox:SetPoint(20, -136)
-			editbox:SetAutoFocus (false)
+			editbox:SetAutoFocus(false)
 			editbox:SetHook("OnEditFocusGained", function()
 				editbox.text = "http://www.curse.com/addons/wow/details"
 				editbox:HighlightText()

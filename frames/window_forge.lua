@@ -49,7 +49,7 @@ function Details:OpenForge()
         f:SetFrameStrata("HIGH")
         f:SetToplevel (true)
         f:SetMovable(true)
-        f.Title:SetTextColor (1, .8, .2)
+        f.Title:SetTextColor(1, .8, .2)
         
         local have_plugins_enabled
         
@@ -88,7 +88,7 @@ function Details:OpenForge()
             tutorialFrame.Desc:SetPoint("topleft", tutorialFrame, "topleft", 10, -45)
             tutorialFrame.Example:SetPoint("topleft", tutorialFrame, "topleft", 10, -110)
             
-            local editBox = Details.gump:CreateTextEntry (tutorialFrame, function()end, 375, 20, nil, nil, nil, entry_template, label_template)
+            local editBox = Details.gump:CreateTextEntry(tutorialFrame, function()end, 375, 20, nil, nil, nil, entry_template, label_template)
             editBox:SetPoint("topleft", tutorialFrame.Example, "bottomleft", 0, -10) 
             editBox:SetText([[https://www.youtube.com/watch?v=om0k1Yj2pEw]])
             editBox:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -167,7 +167,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_PLAYERNAME"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllPlayersNameFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeAllPlayersNameFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -182,7 +182,7 @@ function Details:OpenForge()
                         if (filter ~= "") then
                             filter = lower (filter)
                             local actor_name = lower (actor:name())
-                            if (actor_name:find (filter)) then
+                            if (actor_name:find(filter)) then
                                 t [#t+1] = actor
                             end
                         else
@@ -231,7 +231,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_PETNAME"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllPetsNameFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeAllPetsNameFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -239,7 +239,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_OWNERNAME"] .. ": ")
                     label:SetPoint("left", entry.widget, "right", 20, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllPetsOwnerFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeAllPetsOwnerFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -256,14 +256,14 @@ function Details:OpenForge()
                         if (filter_petname ~= "") then
                             filter_petname = lower (filter_petname)
                             local actor_name = lower (actor:name())
-                            if (not actor_name:find (filter_petname)) then
+                            if (not actor_name:find(filter_petname)) then
                                 can_add = false
                             end
                         end
                         if (filter_ownername ~= "") then
                             filter_ownername = lower (filter_ownername)
                             local actor_name = lower (actor.ownerName)
-                            if (not actor_name:find (filter_ownername)) then
+                            if (not actor_name:find(filter_ownername)) then
                                 can_add = false
                             end
                         end
@@ -289,7 +289,7 @@ function Details:OpenForge()
                 if (data) then
                     return {
                         index,
-                        data:name():gsub ("(<).*(>)", "") or "",
+                        data:name():gsub("(<).*(>)", "") or "",
                         data.ownerName or "",
                         Details:GetNpcIdFromGuid (data.serial),
                         data.serial or "",
@@ -318,7 +318,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_ENEMYNAME"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllEnemiesNameFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeAllEnemiesNameFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -333,7 +333,7 @@ function Details:OpenForge()
                         if (filter ~= "") then
                             filter = lower (filter)
                             local actor_name = lower (actor:name())
-                            if (actor_name:find (filter)) then
+                            if (actor_name:find(filter)) then
                                 t [#t+1] = actor
                             end
                         else
@@ -415,7 +415,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_SPELLNAME"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllSpellsNameFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeAllSpellsNameFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -423,7 +423,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_CASTERNAME"] .. ": ")
                     label:SetPoint("left", entry.widget, "right", 20, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllSpellsCasterFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeAllSpellsCasterFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -455,7 +455,7 @@ function Details:OpenForge()
                                 className = lower (className)
                             end
                             
-                            if (not className:find (lower_FilterCaster)) then
+                            if (not className:find(lower_FilterCaster)) then
                                 can_add = false
                             else
                                 className = classNameOriginal
@@ -467,7 +467,7 @@ function Details:OpenForge()
                                 local spellName = GetSpellInfo(spellID)
                                 if (spellName) then
                                     spellName = lower (spellName)
-                                    if (not spellName:find (lower_FilterSpellName)) then
+                                    if (not spellName:find(lower_FilterSpellName)) then
                                         can_add = false
                                     end
                                 else
@@ -504,7 +504,7 @@ function Details:OpenForge()
                     local events = ""
                     if (EncounterSpellEvents and EncounterSpellEvents [data[1]]) then
                         for token, _ in pairs(EncounterSpellEvents [data[1]].token) do
-                            token = token:gsub ("SPELL_", "")
+                            token = token:gsub("SPELL_", "")
                             events = events .. token .. ",  "
                         end
                         events = events:sub (1, #events - 3)
@@ -545,7 +545,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_SPELLNAME"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeEncounterSpellsNameFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeEncounterSpellsNameFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -553,7 +553,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_CASTERNAME"] .. ": ")
                     label:SetPoint("left", entry.widget, "right", 20, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeEncounterSpellsCasterFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeEncounterSpellsCasterFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -561,7 +561,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_ENCOUNTERNAME"] .. ": ")
                     label:SetPoint("left", entry.widget, "right", 20, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeEncounterSpellsEncounterFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeEncounterSpellsEncounterFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -592,7 +592,7 @@ function Details:OpenForge()
                         local can_add = true
                         
                         if (lower_FilterCaster ~= "") then
-                            if (not lower (enemyName):find (lower_FilterCaster)) then
+                            if (not lower (enemyName):find(lower_FilterCaster)) then
                                 can_add = false
                             end
                         end
@@ -602,7 +602,7 @@ function Details:OpenForge()
                                 local spellName = GetSpellInfo(spellID)
                                 if (spellName) then
                                     spellName = lower (spellName)
-                                    if (not spellName:find (lower_FilterSpellName)) then
+                                    if (not spellName:find(lower_FilterSpellName)) then
                                         can_add = false
                                     end
                                 else
@@ -615,7 +615,7 @@ function Details:OpenForge()
                             local encounterName = bossDetails.boss
                             if (filter_encounter ~= "" and encounterName and encounterName ~= "") then
                                 encounterName = lower (encounterName)
-                                if (not encounterName:find (lower_FilterEncounterName)) then
+                                if (not encounterName:find(lower_FilterEncounterName)) then
                                     can_add = false
                                 end
                             end
@@ -651,7 +651,7 @@ function Details:OpenForge()
                     local events = ""
                     if (EncounterSpellEvents and EncounterSpellEvents [data[1]]) then
                         for token, _ in pairs(EncounterSpellEvents [data[1]].token) do
-                            token = token:gsub ("SPELL_", "")
+                            token = token:gsub("SPELL_", "")
                             events = events .. token .. ",  "
                         end
                         events = events:sub (1, #events - 3)
@@ -776,8 +776,8 @@ function Details:OpenForge()
                 spellname, _, spellicon = GetSpellInfo(data [7])
             else
                 if (data [7]) then
-                    local spellid = data[7]:gsub ("ej", "")
-                    spellid = tonumber (spellid)
+                    local spellid = data[7]:gsub("ej", "")
+                    spellid = tonumber(spellid)
                     local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = DetailsFramework.EncounterJournal.EJ_GetSectionInfo (spellid)
                     spellname, spellicon = title, abilityIcon
                 else
@@ -800,7 +800,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_BARTEXT"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeDBMBarsTextFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeDBMBarsTextFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -808,7 +808,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_ENCOUNTERNAME"] .. ": ")
                     label:SetPoint("left", entry.widget, "right", 20, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeDBMBarsEncounterFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeDBMBarsEncounterFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -828,7 +828,7 @@ function Details:OpenForge()
                 for key, timer in pairs(source) do
                     local can_add = true
                     if (lower_FilterBarName ~= "") then
-                        if (not lower (timer [3]):find (lower_FilterBarName)) then
+                        if (not lower (timer [3]):find(lower_FilterBarName)) then
                             can_add = false
                         end
                     end
@@ -837,7 +837,7 @@ function Details:OpenForge()
                         local encounterName = bossDetails and bossDetails.boss
                         if (encounterName and encounterName ~= "") then
                             encounterName = lower (encounterName)
-                            if (not encounterName:find (lower_FilterEncounterName)) then
+                            if (not encounterName:find(lower_FilterEncounterName)) then
                                 can_add = false
                             end
                         end
@@ -870,7 +870,7 @@ function Details:OpenForge()
                     local bossDetails, bossIndex = Details:GetBossEncounterDetailsFromEncounterId (nil, data.id)
                     local bossName = bossDetails and bossDetails.boss or "--x--x--"
 
-                    local abilityID = tonumber (data [7])
+                    local abilityID = tonumber(data [7])
                     local spellName, _, spellIcon
                     if (abilityID) then
                         if (abilityID > 0) then
@@ -885,7 +885,7 @@ function Details:OpenForge()
                         data[2] or "",
                         data[7] or "",
                         data[4] or "0",
-                        tostring (encounter_id) or "0",
+                        tostring(encounter_id) or "0",
                         bossName,
                     }
                 else
@@ -902,7 +902,7 @@ function Details:OpenForge()
             local data = all_modules [5].data [row]
             
             local spellname, spellicon, _
-            local spellid = tonumber (data [2])
+            local spellid = tonumber(data [2])
             
             if (type(spellid) == "number") then
                 if (spellid < 0) then
@@ -931,7 +931,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_BARTEXT"] .. ": ")
                     label:SetPoint("left", w, "left", 5, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeBigWigsBarsTextFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeBigWigsBarsTextFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -939,7 +939,7 @@ function Details:OpenForge()
                     local label = w:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
                     label:SetText(L["STRING_FORGE_FILTER_ENCOUNTERNAME"] .. ": ")
                     label:SetPoint("left", entry.widget, "right", 20, 0)
-                    local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeBWBarsEncounterFilter")
+                    local entry = fw:CreateTextEntry(w, nil, 120, 20, "entry", "DetailsForgeBWBarsEncounterFilter")
                     entry:SetHook("OnTextChanged", function() f:refresh() end)
                     entry:SetPoint("left", label, "right", 2, 0)
                     entry:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -961,7 +961,7 @@ function Details:OpenForge()
                 for key, timer in pairs(source) do
                     local can_add = true
                     if (lower_FilterBarName ~= "") then
-                        if (not lower (timer [3]):find (lower_FilterBarName)) then
+                        if (not lower (timer [3]):find(lower_FilterBarName)) then
                             can_add = false
                         end
                     end
@@ -970,7 +970,7 @@ function Details:OpenForge()
                         local encounterName = bossDetails and bossDetails.boss
                         if (encounterName and encounterName ~= "") then
                             encounterName = lower (encounterName)
-                            if (not encounterName:find (lower_FilterEncounterName)) then
+                            if (not encounterName:find(lower_FilterEncounterName)) then
                                 can_add = false
                             end
                         end
@@ -1001,7 +1001,7 @@ function Details:OpenForge()
                     local bossDetails, bossIndex = Details:GetBossEncounterDetailsFromEncounterId (nil, data.id)
                     local bossName = bossDetails and bossDetails.boss or "--x--x--"
                     
-                    local abilityID = tonumber (data[2])
+                    local abilityID = tonumber(data[2])
                     local spellName, _, spellIcon
                     if (abilityID) then
                         if (abilityID > 0) then
@@ -1015,7 +1015,7 @@ function Details:OpenForge()
                         {text = data[3] or "", id = abilityID and abilityID > 0 and abilityID or 0},
                         data[2] or "",
                         data[4] or "",
-                        tostring (encounter_id) or "0",
+                        tostring(encounter_id) or "0",
                         bossName
                     }
                 else
@@ -1058,7 +1058,7 @@ function Details:OpenForge()
                     
                     local background = fillpanel:CreateTexture(nil, "background")
                     background:SetAllPoints()
-                    background:SetColorTexture (0, 0, 0, 0.2)
+                    background:SetColorTexture(0, 0, 0, 0.2)
                     
                     module.fill_panel = fillpanel
                 end

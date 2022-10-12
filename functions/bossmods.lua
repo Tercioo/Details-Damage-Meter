@@ -143,7 +143,7 @@ function Details:CreateCallbackListeners()
 
     if (_G.DBM) then
         local dbm_timer_callback = function(bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
-            local spell = tostring (spellId)
+            local spell = tostring(spellId)
             if (spell and not current_table_dbm [spell]) then
                 current_table_dbm [spell] = {spell, id, msg, timer, icon, bartype, spellId, colorId, modid}
             end
@@ -156,7 +156,7 @@ function Details:CreateCallbackListeners()
     function Details:RegisterBigWigsCallBack()
         if (BigWigsLoader) then
             function Details:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
-                spellid = tostring (spellid)
+                spellid = tostring(spellid)
                 if (not current_table_bigwigs [spellid]) then
                     current_table_bigwigs [spellid] = {(type(module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
                 end

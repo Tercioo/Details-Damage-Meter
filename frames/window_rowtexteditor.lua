@@ -22,7 +22,7 @@ function panel:Open (text, callback, host, default)
         panel:SetPoint("center", host, "center")
     end
     
-    text = text:gsub ("||", "|")
+    text = text:gsub("||", "|")
     panel.default_text = text
     panel.editbox:SetText(text)
     panel.callback = callback

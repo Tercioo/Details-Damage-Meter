@@ -1,5 +1,5 @@
 
-local DF = _G ["DetailsFramework"]
+local DF = _G["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
 	return
 end
@@ -11,10 +11,6 @@ local APITextEntryFunctions = false
 do
 	local metaPrototype = {
 		WidgetType = "textentry",
-		SetHook = DF.SetHook,
-		HasHook = DF.HasHook,
-		ClearHooks = DF.ClearHooks,
-		RunHooksForWidget = DF.RunHooksForWidget,
 		dversion = DF.dversion,
 	}
 
@@ -40,7 +36,8 @@ local TextEntryMetaFunctions = _G[DF.GlobalWidgetControlNames["textentry"]]
 
 DF:Mixin(TextEntryMetaFunctions, DF.SetPointMixin)
 DF:Mixin(TextEntryMetaFunctions, DF.FrameMixin)
-
+DF:Mixin(TextEntryMetaFunctions, DF.TooltipHandlerMixin)
+DF:Mixin(TextEntryMetaFunctions, DF.ScriptHookMixin)
 
 DF.TextEntryCounter = DF.TextEntryCounter or 1
 
@@ -227,26 +224,13 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		self.label:SetTextColor(1, .2, .2, 1)
 	end
 
-	--tooltip
-	function TextEntryMetaFunctions:SetTooltip(tooltip)
-		if (tooltip) then
-			return rawset(self, "have_tooltip", tooltip)
-		else
-			return rawset(self, "have_tooltip", nil)
-		end
-	end
-
-	function TextEntryMetaFunctions:GetTooltip()
-		return rawget(self, "have_tooltip")
-	end
-
 	--hooks
 	function TextEntryMetaFunctions:Enable()
 		if (not self.editbox:IsEnabled()) then
 			self.editbox:Enable()
 			self.editbox:SetBackdropBorderColor(unpack(self.enabled_border_color))
 			self.editbox:SetBackdropColor(unpack(self.enabled_backdrop_color))
-			self.editbox:SetTextColor (unpack(self.enabled_text_color))
+			self.editbox:SetTextColor(unpack(self.enabled_text_color))
 			if (self.editbox.borderframe) then
 				local r, g, b, a = DF:ParseColors(unpack(self.editbox.borderframe.onleave_backdrop))
 				self.editbox.borderframe:SetBackdropColor(r, g, b, a)
@@ -286,59 +270,49 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 --scripts and hooks
 
 	local OnEnter = function(textentry)
-		local capsule = textentry.MyObject
-		
-		local kill = capsule:RunHooksForWidget ("OnEnter", textentry, capsule)
+		local object = textentry.MyObject
+		local kill = object:RunHooksForWidget("OnEnter", textentry, object)
 		if (kill) then
 			return
 		end
 
-		if (capsule.have_tooltip) then 
-			GameCooltip2:Preset(2)
-			GameCooltip2:AddLine(capsule.have_tooltip)
-			GameCooltip2:ShowCooltip(textentry, "tooltip")
-		end
-		
-		textentry.mouse_over = true 
+		object:ShowTooltip()
 
-		if (textentry:IsEnabled()) then 
+		textentry.mouse_over = true
+
+		if (textentry:IsEnabled()) then
 			textentry.current_bordercolor = textentry.current_bordercolor or {textentry:GetBackdropBorderColor()}
 			textentry:SetBackdropBorderColor(1, 1, 1, 1)
 		end
 	end
-	
+
 	local OnLeave = function(textentry)
-		local capsule = textentry.MyObject
-	
-		local kill = capsule:RunHooksForWidget ("OnLeave", textentry, capsule)
+		local object = textentry.MyObject
+		local kill = object:RunHooksForWidget("OnLeave", textentry, object)
 		if (kill) then
 			return
 		end
 
-		if (textentry.MyObject.have_tooltip) then 
-			GameCooltip2:ShowMe(false)
-		end
-		
-		textentry.mouse_over = false 
-		
-		if (textentry:IsEnabled()) then 
+		object:HideTooltip()
+
+		textentry.mouse_over = false
+
+		if (textentry:IsEnabled()) then
 			textentry:SetBackdropBorderColor(unpack(textentry.current_bordercolor))
 		end
 	end
-	
+
 	local OnHide = function(textentry)
-		local capsule = textentry.MyObject
-		
-		local kill = capsule:RunHooksForWidget ("OnHide", textentry, capsule)
+		local object = textentry.MyObject
+		local kill = object:RunHooksForWidget("OnHide", textentry, object)
 		if (kill) then
 			return
 		end
 	end
-	
+
 	local OnShow = function(textentry)
-		local capsule = textentry.MyObject
-		
-		local kill = capsule:RunHooksForWidget ("OnShow", textentry, capsule)
+		local object = textentry.MyObject
+		local kill = object:RunHooksForWidget("OnShow", textentry, object)
 		if (kill) then
 			return
 		end
@@ -346,7 +320,6 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 	local OnEnterPressed = function(textentry, byScript)
 		local object = textentry.MyObject
-
 		if (object.ignoreNextCallback) then
 			DF.Schedules.RunNextTick(function() object.ignoreNextCallback = nil end)
 			return
@@ -361,6 +334,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		if (string.len(text) > 0) then
 			textentry.text = text
 			if (textentry.MyObject.func) then
+				--need to have a dispatch here
 				textentry.MyObject.func(textentry.MyObject.param1, textentry.MyObject.param2, text, textentry, byScript or textentry)
 			end
 		else
@@ -376,22 +350,21 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 			end
 		end
 	end
-	
+
 	local OnEscapePressed = function(textentry)
-		local capsule = textentry.MyObject
-	
-		local kill = capsule:RunHooksForWidget ("OnEscapePressed", textentry, capsule, capsule.text)
+		local object = textentry.MyObject
+		local kill = object:RunHooksForWidget("OnEscapePressed", textentry, object, object.text)
 		if (kill) then
 			return
-		end	
+		end
 
 		textentry.focuslost = true
-		textentry:ClearFocus() 
+		textentry:ClearFocus()
 	end
 
 	local OnSpacePressed = function(textEntry)
 		local object = textEntry.MyObject
-		local kill = object:RunHooksForWidget ("OnSpacePressed", textEntry, object)
+		local kill = object:RunHooksForWidget("OnSpacePressed", textEntry, object)
 		if (kill) then
 			return
 		end
@@ -399,7 +372,6 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 	local OnEditFocusLost = function(textEntry)
 		local object = textEntry.MyObject
-
 		if (object.ignoreNextCallback) then
 			DF.Schedules.RunNextTick(function() object.ignoreNextCallback = nil end)
 			return
@@ -426,13 +398,13 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 				textEntry.focuslost = false
 			end
 
-			textEntry.MyObject.label:SetTextColor (.8, .8, .8, 1)
+			textEntry.MyObject.label:SetTextColor(.8, .8, .8, 1)
 		end
 	end
 
 	local OnEditFocusGained = function(textentry)
 		local object = textentry.MyObject
-		local kill = object:RunHooksForWidget ("OnEditFocusGained", textentry, object)
+		local kill = object:RunHooksForWidget("OnEditFocusGained", textentry, object)
 		if (kill) then
 			return
 		end
@@ -445,40 +417,37 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 	local OnChar = function(textentry, char)
 		local object = textentry.MyObject
-		local kill = object:RunHooksForWidget ("OnChar", textentry, char, object)
+		local kill = object:RunHooksForWidget("OnChar", textentry, char, object)
 		if (kill) then
 			return
 		end
 	end
-	
-	local OnTextChanged = function(textentry, byUser) 
+
+	local OnTextChanged = function(textentry, byUser)
 		local capsule = textentry.MyObject
-		
-		local kill = capsule:RunHooksForWidget ("OnTextChanged", textentry, byUser, capsule)
+		local kill = capsule:RunHooksForWidget("OnTextChanged", textentry, byUser, capsule)
 		if (kill) then
 			return
 		end
 	end
-	
-	local OnTabPressed = function(textentry) 
-	
+
+	local OnTabPressed = function(textentry)
 		local capsule = textentry.MyObject
-	
-		local kill = capsule:RunHooksForWidget ("OnTabPressed", textentry, byUser, capsule)
+		local kill = capsule:RunHooksForWidget("OnTabPressed", textentry, byUser, capsule)
 		if (kill) then
 			return
 		end
-		
-		if (textentry.MyObject.next) then 
-			OnEnterPressed (textentry, false)
+
+		if (textentry.MyObject.next) then
+			OnEnterPressed(textentry, false)
 			textentry.MyObject.next:SetFocus()
 		end
 	end
-	
-	function TextEntryMetaFunctions:PressEnter (byScript)
-		OnEnterPressed (self.editbox, byScript)
+
+	function TextEntryMetaFunctions:PressEnter(byScript)
+		OnEnterPressed(self.editbox, byScript)
 	end
-	
+
 ------------------------------------------------------------------------------------------------------------
 
 function TextEntryMetaFunctions:SetTemplate(template)
@@ -488,7 +457,7 @@ function TextEntryMetaFunctions:SetTemplate(template)
 	if (template.height) then
 		self.editbox:SetHeight(template.height)
 	end
-	
+
 	if (template.backdrop) then
 		self.editbox:SetBackdrop(template.backdrop)
 	end
@@ -511,198 +480,170 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
-function DF:CreateTextEntry (parent, func, w, h, member, name, with_label, entry_template, label_template)
+function DF:CreateTextEntry(parent, func, w, h, member, name, with_label, entry_template, label_template)
 	return DF:NewTextEntry(parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
 end
 
-function DF:NewTextEntry(parent, container, name, member, w, h, func, param1, param2, space, with_label, entry_template, label_template)
-	
+function DF:NewTextEntry(parent, container, name, member, width, height, func, param1, param2, space, withLabel, entryTemplate, labelTemplate)
 	if (not name) then
 		name = "DetailsFrameworkTextEntryNumber" .. DF.TextEntryCounter
 		DF.TextEntryCounter = DF.TextEntryCounter + 1
-		
+
 	elseif (not parent) then
-		return error ("Details! FrameWork: parent not found.", 2)
+		return error("Details! FrameWork: parent not found.", 2)
 	end
-	
+
 	if (not container) then
 		container = parent
 	end
-	
-	if (name:find ("$parent")) then
-		local parentName = DF.GetParentName (parent)
-		name = name:gsub ("$parent", parentName)
+
+	if (name:find("$parent")) then
+		local parentName = DF.GetParentName(parent)
+		name = name:gsub("$parent", parentName)
 	end
-	
-	local TextEntryObject = {type = "textentry", dframework = true}
-	
+
+	local newTextEntryObject = {type = "textentry", dframework = true}
+
 	if (member) then
-		parent [member] = TextEntryObject
+		parent[member] = newTextEntryObject
 	end
 
 	if (parent.dframework) then
 		parent = parent.widget
 	end
+
 	if (container.dframework) then
 		container = container.widget
 	end
-	
-	--default members:
-		--hooks
-		TextEntryObject.OnEnterHook = nil
-		TextEntryObject.OnLeaveHook = nil
-		TextEntryObject.OnHideHook = nil
-		TextEntryObject.OnShowHook = nil
-		TextEntryObject.OnEnterPressedHook = nil
-		TextEntryObject.OnEscapePressedHook = nil
-		TextEntryObject.OnEditFocusGainedHook = nil
-		TextEntryObject.OnEditFocusLostHook = nil
-		TextEntryObject.OnCharHook = nil
-		TextEntryObject.OnTextChangedHook = nil
-		TextEntryObject.OnTabPressedHook = nil
 
-		--misc
-		TextEntryObject.container = container
-		TextEntryObject.have_tooltip = nil
+	--misc
+	newTextEntryObject.container = container
 
-	TextEntryObject.editbox = CreateFrame("EditBox", name, parent,"BackdropTemplate")
-	TextEntryObject.editbox:SetSize(232, 20)
-	TextEntryObject.editbox:SetBackdrop({bgFile = [["Interface\DialogFrame\UI-DialogBox-Background"]], tileSize = 64, tile = true, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 0}})
-	
-	TextEntryObject.editbox.label = TextEntryObject.editbox:CreateFontString("$parent_Desc", "OVERLAY", "GameFontHighlightSmall")
-	TextEntryObject.editbox.label:SetJustifyH("left")
-	TextEntryObject.editbox.label:SetPoint("RIGHT", TextEntryObject.editbox, "LEFT", -2, 0)
-	
-	TextEntryObject.widget = TextEntryObject.editbox
-	
-	TextEntryObject.editbox:SetTextInsets (3, 0, 0, -3)
+	if (not width and space) then
+		width = space
+	end
+
+	--editbox
+	newTextEntryObject.editbox = CreateFrame("EditBox", name, parent,"BackdropTemplate")
+	newTextEntryObject.editbox:SetSize(232, 20)
+	newTextEntryObject.editbox:SetBackdrop({bgFile = [["Interface\DialogFrame\UI-DialogBox-Background"]], tileSize = 64, tile = true, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 0}})
+	newTextEntryObject.editbox:SetTextInsets(3, 0, 0, -3)
+	newTextEntryObject.editbox:SetWidth(width)
+	newTextEntryObject.editbox:SetHeight(height)
+	newTextEntryObject.editbox:SetJustifyH("center")
+	newTextEntryObject.editbox:EnableMouse(true)
+	newTextEntryObject.editbox:SetText("")
+	newTextEntryObject.editbox:SetAutoFocus(false)
+	newTextEntryObject.editbox:SetFontObject("GameFontHighlightSmall")
+
+	--editbox label
+	newTextEntryObject.editbox.label = newTextEntryObject.editbox:CreateFontString("$parent_Desc", "OVERLAY", "GameFontHighlightSmall")
+	newTextEntryObject.editbox.label:SetJustifyH("left")
+	newTextEntryObject.editbox.label:SetPoint("RIGHT", newTextEntryObject.editbox, "LEFT", -2, 0)
+
+	newTextEntryObject.label = newTextEntryObject.editbox.label
+	newTextEntryObject.widget = newTextEntryObject.editbox
+	newTextEntryObject.editbox.MyObject = newTextEntryObject
 
 	if (not APITextEntryFunctions) then
 		APITextEntryFunctions = true
-		local idx = getmetatable (TextEntryObject.editbox).__index
-		for funcName, funcAddress in pairs(idx) do 
-			if (not TextEntryMetaFunctions [funcName]) then
-				TextEntryMetaFunctions [funcName] = function(object, ...)
-					local x = loadstring ( "return _G['"..object.editbox:GetName().."']:"..funcName.."(...)")
-					return x (...)
+		local idx = getmetatable(newTextEntryObject.editbox).__index
+		for funcName, funcAddress in pairs(idx) do
+			if (not TextEntryMetaFunctions[funcName]) then
+				TextEntryMetaFunctions[funcName] = function(object, ...)
+					local x = loadstring( "return _G['"..object.editbox:GetName().."']:"..funcName.."(...)")
+					return x(...)
 				end
 			end
 		end
 	end
-	
-	TextEntryObject.editbox.MyObject = TextEntryObject
-	
-	if (not w and space) then
-		w = space
-	elseif (w and space) then
-		if (DF.debug) then
-			--print("warning: you are using width and space, try use only space for better results.")
-		end
-	end
-	
-	TextEntryObject.editbox:SetWidth(w)
-	TextEntryObject.editbox:SetHeight(h)
 
-	TextEntryObject.editbox:SetJustifyH("center")
-	TextEntryObject.editbox:EnableMouse(true)
-	TextEntryObject.editbox:SetText("")
+	newTextEntryObject.editbox.current_bordercolor = {1, 1, 1, 0.7}
+	newTextEntryObject.enabled_border_color = {newTextEntryObject.editbox:GetBackdropBorderColor()}
+	newTextEntryObject.enabled_backdrop_color = {newTextEntryObject.editbox:GetBackdropColor()}
+	newTextEntryObject.enabled_text_color = {newTextEntryObject.editbox:GetTextColor()}
+	newTextEntryObject.onleave_backdrop = {newTextEntryObject.editbox:GetBackdropColor()}
+	newTextEntryObject.onleave_backdrop_border_color = {newTextEntryObject.editbox:GetBackdropBorderColor()}
 
-	TextEntryObject.editbox:SetAutoFocus (false)
-	TextEntryObject.editbox:SetFontObject ("GameFontHighlightSmall")
+	newTextEntryObject.func = func
+	newTextEntryObject.param1 = param1
+	newTextEntryObject.param2 = param2
+	newTextEntryObject.next = nil
+	newTextEntryObject.space = space
+	newTextEntryObject.tab_on_enter = false
 
-	TextEntryObject.editbox.current_bordercolor = {1, 1, 1, 0.7}
-	TextEntryObject.editbox:SetBackdropBorderColor(1, 1, 1, 0.7)
-	TextEntryObject.enabled_border_color = {TextEntryObject.editbox:GetBackdropBorderColor()}
-	TextEntryObject.enabled_backdrop_color = {TextEntryObject.editbox:GetBackdropColor()}
-	TextEntryObject.enabled_text_color = {TextEntryObject.editbox:GetTextColor()}
-	TextEntryObject.onleave_backdrop = {TextEntryObject.editbox:GetBackdropColor()}
-	TextEntryObject.onleave_backdrop_border_color = {TextEntryObject.editbox:GetBackdropBorderColor()}
-
-	TextEntryObject.func = func
-	TextEntryObject.param1 = param1
-	TextEntryObject.param2 = param2
-	TextEntryObject.next = nil
-	TextEntryObject.space = space
-	TextEntryObject.tab_on_enter = false
-
-	TextEntryObject.label = _G [name .. "_Desc"]
-	TextEntryObject.editbox:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, insets = {left = 1, right = 1, top = 1, bottom = 1}})
-	TextEntryObject.editbox:SetBackdropColor(.2, .2, .2, 1)
+	newTextEntryObject.editbox:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, insets = {left = 1, right = 1, top = 1, bottom = 1}})
+	newTextEntryObject.editbox:SetBackdropColor(.2, .2, .2, 1)
+	newTextEntryObject.editbox:SetBackdropBorderColor(1, 1, 1, 0.7)
 
 	--hooks
-		TextEntryObject.HookList = {
-			OnEnter = {},
-			OnLeave = {},
-			OnHide = {},
-			OnShow = {},
-			OnEnterPressed = {},
-			OnEscapePressed = {},
-			OnSpacePressed = {},
-			OnEditFocusLost = {},
-			OnEditFocusGained = {},
-			OnChar = {},
-			OnTextChanged = {},
-			OnTabPressed = {},
-		}
-		
-		TextEntryObject.editbox:SetScript("OnEnter", OnEnter)
-		TextEntryObject.editbox:SetScript("OnLeave", OnLeave)
-		TextEntryObject.editbox:SetScript("OnHide", OnHide)
-		TextEntryObject.editbox:SetScript("OnShow", OnShow)
-		
-		TextEntryObject.editbox:SetScript("OnEnterPressed", OnEnterPressed)
-		TextEntryObject.editbox:SetScript("OnEscapePressed", OnEscapePressed)
-		TextEntryObject.editbox:SetScript("OnSpacePressed", OnSpacePressed)
-		TextEntryObject.editbox:SetScript("OnEditFocusLost", OnEditFocusLost)
-		TextEntryObject.editbox:SetScript("OnEditFocusGained", OnEditFocusGained)
-		TextEntryObject.editbox:SetScript("OnChar", OnChar)
-		TextEntryObject.editbox:SetScript("OnTextChanged", OnTextChanged)
-		TextEntryObject.editbox:SetScript("OnTabPressed", OnTabPressed)
-		
-	setmetatable(TextEntryObject, TextEntryMetaFunctions)
-	
-	if (with_label) then
-		local label = DF:CreateLabel(TextEntryObject.editbox, with_label, nil, nil, nil, "label", nil, "overlay")
-		label.text = with_label
-		TextEntryObject.editbox:SetPoint("left", label.widget, "right", 2, 0)
-		if (label_template) then
-			label:SetTemplate(label_template)
+	newTextEntryObject.HookList = {
+		OnEnter = {},
+		OnLeave = {},
+		OnHide = {},
+		OnShow = {},
+		OnEnterPressed = {},
+		OnEscapePressed = {},
+		OnSpacePressed = {},
+		OnEditFocusLost = {},
+		OnEditFocusGained = {},
+		OnChar = {},
+		OnTextChanged = {},
+		OnTabPressed = {},
+	}
+
+	newTextEntryObject.editbox:SetScript("OnEnter", OnEnter)
+	newTextEntryObject.editbox:SetScript("OnLeave", OnLeave)
+	newTextEntryObject.editbox:SetScript("OnHide", OnHide)
+	newTextEntryObject.editbox:SetScript("OnShow", OnShow)
+	newTextEntryObject.editbox:SetScript("OnEnterPressed", OnEnterPressed)
+	newTextEntryObject.editbox:SetScript("OnEscapePressed", OnEscapePressed)
+	newTextEntryObject.editbox:SetScript("OnSpacePressed", OnSpacePressed)
+	newTextEntryObject.editbox:SetScript("OnEditFocusLost", OnEditFocusLost)
+	newTextEntryObject.editbox:SetScript("OnEditFocusGained", OnEditFocusGained)
+	newTextEntryObject.editbox:SetScript("OnChar", OnChar)
+	newTextEntryObject.editbox:SetScript("OnTextChanged", OnTextChanged)
+	newTextEntryObject.editbox:SetScript("OnTabPressed", OnTabPressed)
+
+	setmetatable(newTextEntryObject, TextEntryMetaFunctions)
+
+	if (withLabel) then
+		local label = DF:CreateLabel(newTextEntryObject.editbox, withLabel, nil, nil, nil, "label", nil, "overlay")
+		label.text = withLabel
+		newTextEntryObject.editbox:SetPoint("left", label.widget, "right", 2, 0)
+		if (labelTemplate) then
+			label:SetTemplate(labelTemplate)
 		end
-		with_label = label
+		withLabel = label
 	end
-	
-	if (entry_template) then
-		TextEntryObject:SetTemplate(entry_template)
-	end	
-	
-	return TextEntryObject, with_label
-	
+
+	if (entryTemplate) then
+		newTextEntryObject:SetTemplate(entryTemplate)
+	end
+
+	return newTextEntryObject, withLabel
 end
 
-function DF:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
+function DF:NewSpellEntry(parent, func, w, h, param1, param2, member, name)
 	local editbox = DF:NewTextEntry(parent, parent, name, member, w, h, func, param1, param2)
-	
---	editbox:SetHook("OnEditFocusGained", SpellEntryOnEditFocusGained)
---	editbox:SetHook("OnTextChanged", SpellEntryOnTextChanged)
-	
-	return editbox	
+	return editbox
 end
 
 local function_gettext = function(self)
 	return self.editbox:GetText()
 end
+
 local function_settext = function(self, text)
 	return self.editbox:SetText(text)
 end
+
 local function_clearfocus = function(self)
 	return self.editbox:ClearFocus()
 end
+
 local function_setfocus = function(self)
-	return self.editbox:SetFocus (true)
+	return self.editbox:SetFocus(true)
 end
-
-
-
 
 ------------------------------------------------------------------------------------
 --auto complete
@@ -805,7 +746,7 @@ local function ColorSelection ( self, ColorCode )
 	if ( CursorReplacement >= #Replacement ) then -- Cursor beyond end of color
 		Cursor = Cursor + #COLOR_END;
 	end
-	
+
 	self:SetCursorPosition( Cursor );
 	-- Highlight selection and wrapper
 	self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
@@ -830,7 +771,7 @@ end
 --On Text Changed
 local AutoComplete_OnTextChanged = function(editboxWidget, byUser, capsule)
 	capsule = capsule or editboxWidget.MyObject or editboxWidget
-	
+
 	local chars_now = editboxWidget:GetText():len()
 	if (not editboxWidget.ignore_textchange) then
 		--backspace
@@ -892,37 +833,37 @@ local AutoComplete_OnEditFocusGained = function(editboxWidget)
 	--print("last word:", editboxWidget.lastword)
 	editboxWidget.end_selection = nil
 	editboxWidget.focusGained = true
-	capsule.characters_count = editboxWidget:GetText():len()	
+	capsule.characters_count = editboxWidget:GetText():len()
 end
 
 local OptimizeAutoCompleteTable = function(self, wordList)
 	local optimizedTable = {}
-	
+
 	local lower = string.lower
 	local sub = string.sub
 	local len = string.len
-	
+
 	local subTables = 0
-	
+
 	for i = 1, #wordList do
 		local thisWord = wordList [i]
 		if (len (thisWord) > 0) then
 			thisWord = lower (thisWord)
-		
+
 			local firstCharacter = sub (thisWord, 1, 1)
-			
+
 			local charTable = optimizedTable [firstCharacter]
 			if (not charTable) then
 				charTable = {}
 				optimizedTable [firstCharacter] = charTable
-				
+
 				subTables = subTables + 1
 			end
-			
+
 			charTable [#charTable+1] = thisWord
 		end
 	end
-	
+
 	wordList.Optimized = optimizedTable
 end
 
@@ -930,14 +871,14 @@ local AutoComplete_OnChar = function(editboxWidget, char, capsule)
 	if (char == "") then
 		return
 	end
-	
+
 	capsule = capsule or editboxWidget.MyObject or editboxWidget
  	editboxWidget.end_selection = nil
-	
+
 	if (editboxWidget.ignore_input) then
 		return
 	end
-	
+
 	--reseta a palavra se acabou de ganhar focus e apertou espa�o
 	if (editboxWidget.focusGained and char == " ") then
 		capsule.lastword = ""
@@ -945,37 +886,37 @@ local AutoComplete_OnChar = function(editboxWidget, char, capsule)
 	else
 		editboxWidget.focusGained = nil
 	end
-	
+
 	if (char:match ("%a") or (char == " " and capsule.lastword ~= "")) then
 		capsule.lastword = capsule.lastword .. char
 	else
 		capsule.lastword = ""
 	end
-	
+
 	editboxWidget.ignore_input = true
-	
+
 	if (capsule.lastword:len() >= 2) then
-	
+
 		local wordList = capsule [capsule.poolName]
 		if (not wordList) then
-			error ("Details! Framework: TextEntry has AutoComplete but no word list table.")
+			error("Details! Framework: TextEntry has AutoComplete but no word list table.")
 			return
 		end
-		
+
 		if (capsule.ShouldOptimizeAutoComplete) then
 			if (not wordList.Optimized) then
 				OptimizeAutoCompleteTable (capsule, wordList)
 			end
-			
-			local firstCharacter = string.lower (string.sub (capsule.lastword, 1, 1))
+
+			local firstCharacter = string.lower(string.sub (capsule.lastword, 1, 1))
 			wordList = wordList.Optimized [firstCharacter]
-			
+
 			if (wordList) then
 				for i = 1, #wordList do
 					local thisWord = wordList [i]
-					if (thisWord and (thisWord:find ("^" .. capsule.lastword) or thisWord:lower():find ("^" .. capsule.lastword))) then
-						local rest = thisWord:gsub (capsule.lastword, "")
-						rest = rest:lower():gsub (capsule.lastword, "")
+					if (thisWord and (thisWord:find("^" .. capsule.lastword) or thisWord:lower():find("^" .. capsule.lastword))) then
+						local rest = thisWord:gsub(capsule.lastword, "")
+						rest = rest:lower():gsub(capsule.lastword, "")
 						local cursor_pos = editboxWidget:GetCursorPosition()
 						editboxWidget:Insert (rest)
 						editboxWidget:HighlightText (cursor_pos, cursor_pos + rest:len())
@@ -986,16 +927,16 @@ local AutoComplete_OnChar = function(editboxWidget, char, capsule)
 					end
 				end
 			end
-			
+
 			editboxWidget.ignore_input = false
 			return
 		end
-	
+
 		for i = 1, #wordList do
 			local thisWord = wordList [i]
-			if (thisWord and (thisWord:find ("^" .. capsule.lastword) or thisWord:lower():find ("^" .. capsule.lastword))) then
-				local rest = thisWord:gsub (capsule.lastword, "")
-				rest = rest:lower():gsub (capsule.lastword, "")
+			if (thisWord and (thisWord:find("^" .. capsule.lastword) or thisWord:lower():find("^" .. capsule.lastword))) then
+				local rest = thisWord:gsub(capsule.lastword, "")
+				rest = rest:lower():gsub(capsule.lastword, "")
 				local cursor_pos = editboxWidget:GetCursorPosition()
 				editboxWidget:Insert (rest)
 				editboxWidget:HighlightText (cursor_pos, cursor_pos + rest:len())
@@ -1006,28 +947,28 @@ local AutoComplete_OnChar = function(editboxWidget, char, capsule)
 			end
 		end
 	end
-	
+
 	editboxWidget.ignore_input = false
 end
 
 function TextEntryMetaFunctions:SetAsAutoComplete (poolName, poolTable, shouldOptimize)
-	
+
 	if (not self.SetHook) then
 		--self is borderframe
 		self = self.editbox
 		self.editbox = self --compatible with fw functions
-		
+
 		self.lastword = ""
 		self.characters_count = 0
 		self.poolName = poolName
 		self.GetLastWord = get_last_word --editbox:GetLastWord()
 		self.NoClearFocusOnEnterPressed = true --avoid auto clear focus
 		self.ShouldOptimizeAutoComplete = shouldOptimize
-		
+
 		if (poolTable) then
 			self [poolName] = poolTable
 		end
-		
+
 		self:HookScript ("OnEditFocusGained", AutoComplete_OnEditFocusGained)
 		self:HookScript ("OnEnterPressed", AutoComplete_OnEnterPressed)
 		self:HookScript ("OnEscapePressed", AutoComplete_OnEscapePressed)
@@ -1042,7 +983,7 @@ function TextEntryMetaFunctions:SetAsAutoComplete (poolName, poolTable, shouldOp
 		self.GetLastWord = get_last_word --editbox:GetLastWord()
 		self.NoClearFocusOnEnterPressed = true --avoid auto clear focus
 		self.ShouldOptimizeAutoComplete = shouldOptimize
-		
+
 		self:SetHook("OnEditFocusGained", AutoComplete_OnEditFocusGained)
 		self:SetHook("OnEnterPressed", AutoComplete_OnEnterPressed)
 		self.editbox:HookScript ("OnEscapePressed", AutoComplete_OnEscapePressed)
@@ -1062,36 +1003,36 @@ end
 
 function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, showLineNumbers)
 
-	if (name:find ("$parent")) then
-		local parentName = DF.GetParentName (parent)
-		name = name:gsub ("$parent", parentName)
+	if (name:find("$parent")) then
+		local parentName = DF.GetParentName(parent)
+		name = name:gsub("$parent", parentName)
 	end
-	
+
 	local borderframe = CreateFrame("Frame", name, parent,"BackdropTemplate")
 	borderframe:SetSize(w, h)
-	
+
 	if (member) then
 		parent [member] = borderframe
 	end
-	
+
 	local scrollframe = CreateFrame("ScrollFrame", name, borderframe, "UIPanelScrollFrameTemplate, BackdropTemplate")
 	local scrollframeNumberLines = CreateFrame("ScrollFrame", name .. "NumberLines", borderframe, "UIPanelScrollFrameTemplate, BackdropTemplate")
 
 	scrollframe.editbox = CreateFrame("editbox", "$parentEditBox", scrollframe,"BackdropTemplate")
 	scrollframe.editbox:SetMultiLine (true)
-	scrollframe.editbox:SetAutoFocus (false)
+	scrollframe.editbox:SetAutoFocus(false)
 	scrollframe.editbox:SetScript("OnCursorChanged", _G.ScrollingEdit_OnCursorChanged)
 	scrollframe.editbox:SetScript("OnEscapePressed", _G.EditBox_ClearFocus)
-	scrollframe.editbox:SetFontObject ("GameFontHighlightSmall")
+	scrollframe.editbox:SetFontObject("GameFontHighlightSmall")
 	scrollframe:SetScrollChild (scrollframe.editbox)
 
 	--line number
 	if (showLineNumbers) then
 		scrollframeNumberLines.editbox = CreateFrame("editbox", "$parentLineNumbers", scrollframeNumberLines, "BackdropTemplate")
 		scrollframeNumberLines.editbox:SetMultiLine (true)
-		scrollframeNumberLines.editbox:SetAutoFocus (false)
+		scrollframeNumberLines.editbox:SetAutoFocus(false)
 		scrollframeNumberLines.editbox:SetEnabled (false)
-		scrollframeNumberLines.editbox:SetFontObject ("GameFontHighlightSmall")
+		scrollframeNumberLines.editbox:SetFontObject("GameFontHighlightSmall")
 		scrollframeNumberLines.editbox:SetJustifyH("left")
 		scrollframeNumberLines.editbox:SetJustifyV ("top")
 		scrollframeNumberLines.editbox:SetTextColor(.3, .3, .3, .5)
@@ -1148,49 +1089,49 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 	end
 
 	borderframe.SetAsAutoComplete = TextEntryMetaFunctions.SetAsAutoComplete
-	
+
 	scrollframe:SetScript("OnSizeChanged", function(self)
 		scrollframe.editbox:SetSize(self:GetSize())
 	end)
-	
+
 	scrollframe.editbox:SetJustifyH("left")
 	scrollframe.editbox:SetJustifyV ("top")
 	scrollframe.editbox:SetMaxBytes (1024000)
 	scrollframe.editbox:SetMaxLetters (128000)
-	
+
 	borderframe.GetText = function_gettext
 	borderframe.SetText = function_settext
 	borderframe.ClearFocus = function_clearfocus
 	borderframe.SetFocus = function_setfocus
 	borderframe.SetTextSize = set_speciallua_editor_font_size
-	
+
 	borderframe.Enable = TextEntryMetaFunctions.Enable
 	borderframe.Disable = TextEntryMetaFunctions.Disable
-	
+
 	borderframe.SetTemplate = TextEntryMetaFunctions.SetTemplate
-	
+
 	if (not nointent) then
 		IndentationLib.enable (scrollframe.editbox, nil, 4)
 	end
 
-	borderframe:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
+	borderframe:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 		tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
-	
+
 	scrollframe.editbox.current_bordercolor = {1, 1, 1, 0.7}
 	borderframe:SetBackdropBorderColor(1, 1, 1, 0.7)
 	borderframe:SetBackdropColor(0.090195, 0.090195, 0.188234, 1)
-	
+
 	borderframe.enabled_border_color = {borderframe:GetBackdropBorderColor()}
 	borderframe.enabled_backdrop_color = {borderframe:GetBackdropColor()}
 	borderframe.enabled_text_color = {scrollframe.editbox:GetTextColor()}
 
 	borderframe.onleave_backdrop = {scrollframe.editbox:GetBackdropColor()}
 	borderframe.onleave_backdrop_border_color = {scrollframe.editbox:GetBackdropBorderColor()}
-	
+
 	borderframe.scroll = scrollframe
 	borderframe.editbox = scrollframe.editbox
 	borderframe.editbox.borderframe = borderframe
-	
+
 	return borderframe
 end
 

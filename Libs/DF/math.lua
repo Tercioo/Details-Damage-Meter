@@ -14,7 +14,7 @@ SMALL_FLOAT = 0.000001
 
 --find distance between two players
 function DF:GetDistance_Unit (unit1, unit2)
-	if (UnitExists (unit1) and UnitExists (unit2)) then
+	if (UnitExists(unit1) and UnitExists(unit2)) then
 		local u1X, u1Y = UnitPosition (unit1)
 		local u2X, u2Y = UnitPosition (unit2)
 		

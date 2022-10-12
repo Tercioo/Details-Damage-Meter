@@ -454,7 +454,7 @@ end
 
 		local total = 0
 
-		if (Details.time_type == 2 or not Details:CaptureGet ("damage")) then
+		if (Details.time_type == 2 or not Details:CaptureGet("damage")) then
 			for _, actor in ipairs(container) do
 				if (actor.grupo) then
 					actor.last_dps = actor.total / combat_time
@@ -661,8 +661,8 @@ end
 		local lineHeight = Details.tooltip.line_height
 
 		for index, t in ipairs(Targets) do
-			GameCooltip:AddLine(Details:GetOnlyName(t[1]), Details:ToK(t[2]) .. " (" .. format ("%.1f", t[2]/total*100) .. "%)")
-			local class, _, _, _, _, r, g, b = Details:GetClass (t[1])
+			GameCooltip:AddLine(Details:GetOnlyName(t[1]), Details:ToK(t[2]) .. " (" .. format("%.1f", t[2]/total*100) .. "%)")
+			local class, _, _, _, _, r, g, b = Details:GetClass(t[1])
 
 			GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.8, false,  byspell_tooltip_background)
 
@@ -903,7 +903,7 @@ end
 		}
 
 		local new_code = DTBS_search_code
-		new_code = new_code:gsub ("@SPELLID@", spell [1])
+		new_code = new_code:gsub("@SPELLID@", spell [1])
 		new_custom_object.script = new_code
 
 		tinsert(Details.custom, new_custom_object)
@@ -914,7 +914,7 @@ end
 	end
 
 	local DTBS_format_name = function(player_name) return Details:GetOnlyName(player_name) end
-	local DTBS_format_amount = function(amount) return Details:ToK(amount) .. " (" .. format ("%.1f", amount / bs_tooltip_table.damage_total * 100) .. "%)" end
+	local DTBS_format_amount = function(amount) return Details:ToK(amount) .. " (" .. format("%.1f", amount / bs_tooltip_table.damage_total * 100) .. "%)" end
 
 	function atributo_damage:ReportSingleDTBSLine (spell, instance, ShiftKeyDown, ControlKeyDown)
 		if (ControlKeyDown) then
@@ -927,12 +927,12 @@ end
 		local spelllink = Details:GetSpellLink(spell [1])
 		local report_table = {"Details!: " .. Loc ["STRING_CUSTOM_DTBS"] .. " " .. spelllink}
 
-		Details:FormatReportLines (report_table, bs_tooltip_table, DTBS_format_name, DTBS_format_amount)
+		Details:FormatReportLines(report_table, bs_tooltip_table, DTBS_format_name, DTBS_format_amount)
 
-		return Details:Reportar (report_table, {_no_current = true, _no_inverse = true, _custom = true})
+		return Details:Reportar(report_table, {_no_current = true, _no_inverse = true, _custom = true})
 	end
 
-	function atributo_damage:AtualizarBySpell (tabela, whichRowLine, colocacao, instance)
+	function atributo_damage:AtualizarBySpell(tabela, whichRowLine, colocacao, instance)
 		tabela ["byspell"] = true --marca que esta tabela � uma tabela de frags, usado no controla na hora de montar o tooltip
 		local thisLine = instance.barras [whichRowLine] --pega a refer�ncia da barra na janela
 
@@ -943,9 +943,9 @@ end
 
 		thisLine.minha_tabela = tabela
 
-		local spellname, _, spellicon = _GetSpellInfo(tabela [1])
+		local spellName, _, spellIcon = _GetSpellInfo(tabela[1])
 
-		tabela.nome = spellname --evita dar erro ao redimencionar a janela
+		tabela.nome = spellName --evita dar erro ao redimencionar a janela
 		tabela.minha_barra = whichRowLine
 		thisLine.colocacao = colocacao
 
@@ -958,27 +958,29 @@ end
 		local porcentagem
 
 		if (instance.row_info.percent_type == 1) then
-			porcentagem = format ("%.1f", tabela [2] / total * 100)
+			porcentagem = format("%.1f", tabela [2] / total * 100)
+
 		elseif (instance.row_info.percent_type == 2) then
-			porcentagem = format ("%.1f", tabela [2] / instance.top * 100)
+			porcentagem = format("%.1f", tabela [2] / instance.top * 100)
 		end
 
-		thisLine.lineText1:SetText(colocacao .. ". " .. spellname)
+		thisLine.lineText1:SetText(colocacao .. ". " .. spellName)
 
 		local bars_show_data = instance.row_info.textR_show_data
 
-		local spell_damage = tabela [2] -- spell_damage passar por uma ToK function, precisa ser number
+		local spell_damage = tabela[2] -- spell_damage passar por uma ToK function, precisa ser number
 		if (not bars_show_data [1]) then
-			spell_damage = tabela [2] --damage taken by spell n�o tem PS, ent�o � obrigado a passar o dano total
+			spell_damage = tabela[2] --damage taken by spell n�o tem PS, ent�o � obrigado a passar o dano total
 		end
-		if (not bars_show_data [3]) then
+
+		if (not bars_show_data[3]) then
 			porcentagem = ""
 		else
 			porcentagem = porcentagem .. "%"
 		end
 
 		local bars_brackets = instance:GetBarBracket()
-		--
+
 		if (instance.use_multi_fontstrings) then
 			instance:SetInLineTexts(thisLine, "", (spell_damage and SelectedToKFunction(_, spell_damage) or ""), porcentagem)
 		else
@@ -995,7 +997,7 @@ end
 		if (colocacao == 1) then
 			thisLine:SetValue(100)
 		else
-			thisLine:SetValue(tabela [2] / instance.top * 100)
+			thisLine:SetValue(tabela[2] / instance.top * 100)
 		end
 
 		if (thisLine.hidden or thisLine.fading_in or thisLine.faded) then
@@ -1004,15 +1006,15 @@ end
 
 		if (instance.row_info.texture_class_colors) then
 			if (tabela [3] > 1) then
-				local r, g, b = Details:GetSpellSchoolColor (tabela [3])
+				local r, g, b = Details:GetSpellSchoolColor(tabela[3])
 				thisLine.textura:SetVertexColor(r, g, b)
 			else
-				local r, g, b = Details:GetSpellSchoolColor (0)
+				local r, g, b = Details:GetSpellSchoolColor(0)
 				thisLine.textura:SetVertexColor(r, g, b)
 			end
 		end
 
-		thisLine.icone_classe:SetTexture(spellicon)
+		thisLine.icone_classe:SetTexture(spellIcon)
 		thisLine.icone_classe:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
 		thisLine.icone_classe:SetVertexColor(1, 1, 1)
 	end
@@ -1081,7 +1083,7 @@ end
 				for i = 1, math.min (min, #damage_taken_table) do
 					local t = damage_taken_table [i]
 
-					GameCooltip:AddLine(Details:GetOnlyName(t[1]), FormatTooltipNumber (_, t[2]) .. " (" .. format ("%.1f", t[2] / total * 100) .. "%)")
+					GameCooltip:AddLine(Details:GetOnlyName(t[1]), FormatTooltipNumber (_, t[2]) .. " (" .. format("%.1f", t[2] / total * 100) .. "%)")
 					local classe = t[3]
 					if (not classe) then
 						classe = "UNKNOW"
@@ -1100,7 +1102,7 @@ end
 						end
 					end
 
-					local _, _, _, _, _, r, g, b = Details:GetClass (t[1])
+					local _, _, _, _, _, r, g, b = Details:GetClass(t[1])
 					GameCooltip:AddStatusBar (t[2] / top * 100, 1, r, g, b, 1, false, enemies_background)
 				end
 			else
@@ -1147,9 +1149,9 @@ end
 		local porcentagem
 
 		if (instancia.row_info.percent_type == 1) then
-			porcentagem = format ("%.1f", tabela [2] / total * 100)
+			porcentagem = format("%.1f", tabela [2] / total * 100)
 		elseif (instancia.row_info.percent_type == 2) then
-			porcentagem = format ("%.1f", tabela [2] / instancia.top * 100)
+			porcentagem = format("%.1f", tabela [2] / instancia.top * 100)
 		end
 
 		thisLine.lineText1:SetText(colocacao .. ". " .. tabela [1])
@@ -1189,7 +1191,7 @@ end
 			Details.FadeHandler.Fader(thisLine, "out")
 		end
 
-		Details:SetBarColors (thisLine, instancia, unpack(Details.class_colors [tabela [3]]))
+		Details:SetBarColors(thisLine, instancia, unpack(Details.class_colors [tabela [3]]))
 
 		if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
 			thisLine.icone_classe:SetTexture([[Interface\AddOns\Details\images\classes_plus]])
@@ -1278,7 +1280,7 @@ end
 		for index, t in ipairs(tooltip_void_zone_temp) do
 			instance_container:AddValue (t[4], t[2])
 
-			local custom_actor = instance_container:GetActorTable (t[4])
+			local custom_actor = instance_container:GetActorTable(t[4])
 			custom_actor.uptime = t[3].uptime
 
 			total = total + t[2]
@@ -1340,12 +1342,12 @@ end
 		}
 
 		local new_code = AVZ_search_code
-		new_code = new_code:gsub ("@ACTORNAME@", actor.nome)
+		new_code = new_code:gsub("@ACTORNAME@", actor.nome)
 		new_custom_object.script = new_code
 
 		local new_total_code = AVZ_total_code
-		new_total_code = new_total_code:gsub ("@ACTORNAME@", actor.nome)
-		new_total_code = new_total_code:gsub ("@SPELLID@", spellid)
+		new_total_code = new_total_code:gsub("@ACTORNAME@", actor.nome)
+		new_total_code = new_total_code:gsub("@SPELLID@", spellid)
 		new_custom_object.total_script = new_total_code
 
 		tinsert(Details.custom, new_custom_object)
@@ -1495,7 +1497,7 @@ end
 				GameCooltip:AddLine(Details:GetOnlyName(t[1]), FormatTooltipNumber (_, debuff_table.damage) .. " (" .. segundos .. "s" .. ")")
 			end
 
-			local classe = Details:GetClass (t[1])
+			local classe = Details:GetClass(t[1])
 			if (classe) then
 				local specID = Details:GetSpec (t[1])
 				if (specID) then
@@ -1508,7 +1510,7 @@ end
 				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
 			end
 
-			local _, _, _, _, _, r, g, b = Details:GetClass (t[1])
+			local _, _, _, _, _, r, g, b = Details:GetClass(t[1])
 			if (first == 0) then
 				first = 0.0000000001
 			end
@@ -1531,9 +1533,8 @@ end
 	end
 
 	function atributo_misc:AtualizarVoidZone (whichRowLine, colocacao, instancia)
-
 		--pega a refer�ncia da barra na janela
-		local thisLine = instancia.barras [whichRowLine]
+		local thisLine = instancia.barras[whichRowLine]
 
 		if (not thisLine) then
 			print("DEBUG: problema com <instancia.thisLine> "..whichRowLine.." "..rank)
@@ -1561,10 +1562,11 @@ end
 
 		if (instancia.row_info.percent_type == 1) then
 			total = max(total, 0.0001)
-			porcentagem = format ("%.1f", self.damage / total * 100)
+			porcentagem = format("%.1f", self.damage / total * 100)
+
 		elseif (instancia.row_info.percent_type == 2) then
 			local top = max(instancia.top, 0.0001)
-			porcentagem = format ("%.1f", self.damage / top * 100)
+			porcentagem = format("%.1f", self.damage / top * 100)
 		end
 
 		local bars_show_data = instancia.row_info.textR_show_data
@@ -1574,9 +1576,11 @@ end
 		if (not bars_show_data [1]) then
 			formated_damage = ""
 		end
+
 		if (not bars_show_data [2]) then
 			formated_dps = ""
 		end
+
 		if (not bars_show_data [3]) then
 			porcentagem = ""
 		else
@@ -1612,7 +1616,7 @@ end
 			school_color = Details.school_colors ["unknown"]
 		end
 
-		Details:SetBarColors (thisLine, instancia, unpack(school_color))
+		Details:SetBarColors(thisLine, instancia, unpack(school_color))
 
 		thisLine.icone_classe:SetTexture(icon)
 		thisLine.icone_classe:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
@@ -1621,7 +1625,6 @@ end
 		if (thisLine.mouse_over and not instancia.baseframe.isMoving) then
 			--need call a refresh function
 		end
-
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1850,7 +1853,7 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 										this_spell [2] = this_spell [2] + on_player
 										total = total + on_player
 									else
-										error ("error - no spell id for DTBS " .. spellid)
+										error("error - no spell id for DTBS " .. spellid)
 									end
 								end
 							end
@@ -1885,7 +1888,7 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 											this_spell [2] = this_spell [2] + on_player
 											total = total + on_player
 										else
-											error ("error - no spell id for DTBS friendly fire " .. spellid)
+											error("error - no spell id for DTBS friendly fire " .. spellid)
 										end
 									end
 								end
@@ -1986,7 +1989,7 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 						local found = false
 						for spellid, spelltable in pairs(twin_damage_actor.spells._ActorTable) do
 							local name = _GetSpellInfo(spellid)
-							if (actor.damage_twin:find (name)) then
+							if (actor.damage_twin:find(name)) then
 								actor.damage = spelltable.total
 								voidzone_damage_total = voidzone_damage_total + spelltable.total
 								actor.damage_spellid = spellid
@@ -2317,9 +2320,7 @@ function atributo_damage:RefreshWindow (instancia, combatObject, forcar, exporta
 		end
 
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
-
 		if (useTotalBar and instancia.barraS[1] == 1) then
-
 			whichRowLine = 2
 			local iter_last = instancia.barraS[2]
 			if (iter_last == instancia.rows_fit_in_window) then
@@ -2600,19 +2601,19 @@ function atributo_damage:RefreshLine(instance, lineContainer, whichRowLine, rank
 
 	--calc the percent amount base on the percent type
 	if (percentage_type == 1) then
-		percentString = format ("%.1f", self [keyName] / total * 100)
+		percentString = format("%.1f", self[keyName] / total * 100)
 
 	elseif (percentage_type == 2) then
-		percentString = format ("%.1f", self [keyName] / instance.top * 100)
+		percentString = format("%.1f", self[keyName] / instance.top * 100)
 	end
 
 	--calculate the actor dps
-	if ((Details.time_type == 2 and self.grupo) or not Details:CaptureGet ("damage") or instance.segmento == -1) then
+	if ((Details.time_type == 2 and self.grupo) or not Details:CaptureGet("damage") or instance.segmento == -1) then
 		if (instance.segmento == -1 and combat_time == 0) then
-			local p = Details.tabela_vigente (1, self.nome)
-			if (p) then
-				local t = p:Tempo()
-				dps = damageTotal / t
+			local actor = Details.tabela_vigente(1, self.nome)
+			if (actor) then
+				local combatTime = actor:Tempo()
+				dps = damageTotal / combatTime
 				self.last_dps = dps
 			else
 				dps = damageTotal / combat_time
@@ -2646,9 +2647,11 @@ function atributo_damage:RefreshLine(instance, lineContainer, whichRowLine, rank
 		if (not bars_show_data [1]) then
 			formated_damage = ""
 		end
+
 		if (not bars_show_data [2]) then
 			formated_dps = ""
 		end
+
 		if (not bars_show_data [3]) then
 			percentString = ""
 		else
@@ -3198,7 +3201,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				local petActor = instancia.showing[class_type]:PegarCombatente (nil, petName)
 				if (petActor) then
 					for _spellid, _skill in pairs(petActor:GetActorSpells()) do
-						ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo, petName:gsub ((" <.*"), "")}
+						ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo, petName:gsub((" <.*"), "")}
 					end
 				end
 			end
@@ -3366,7 +3369,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 					for spellid, tabela in pairs(tabela) do
 						local nome, rank, icone = _GetSpellInfo(spellid)
-						tinsert (meus_danos, {spellid, tabela.total, tabela.total/meu_total*100, {nome, rank, icone}})
+						tinsert(meus_danos, {spellid, tabela.total, tabela.total/meu_total*100, {nome, rank, icone}})
 					end
 					_table_sort(meus_danos, Details.Sort2)
 					danos [nome] = meus_danos
@@ -3374,7 +3377,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					local meus_inimigos = {}
 					tabela = my_self.targets
 					for target_name, amount in pairs(tabela) do
-						tinsert (meus_inimigos, {target_name, amount, amount/meu_total*100})
+						tinsert(meus_inimigos, {target_name, amount, amount/meu_total*100})
 					end
 					_table_sort(meus_inimigos,Details.Sort2)
 					alvos [nome] = meus_inimigos
@@ -3418,7 +3421,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 				end
 
-				local n = _table [1]:gsub (("%s%<.*"), "")
+				local n = _table [1]:gsub(("%s%<.*"), "")
 				if (instancia.sub_atributo == 1) then
 					GameCooltip:AddLine(n, FormatTooltipNumber (_, _table [2]) .. " (" .. _math_floor(_table [2]/self.total*100) .. "%)")
 				else
@@ -3474,7 +3477,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 				for i = 1, #playerPhases do
 					--[1] Phase Number [2] Amount Done [3] Rank [4] Percent
-					GameCooltip:AddLine("|cFFF0F0F0Phase|r " .. playerPhases [i][1], FormatTooltipNumber (_, playerPhases [i][2]) .. " (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. format ("%.1f", playerPhases [i][4]) .. "%)")
+					GameCooltip:AddLine("|cFFF0F0F0Phase|r " .. playerPhases [i][1], FormatTooltipNumber (_, playerPhases [i][2]) .. " (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. format("%.1f", playerPhases [i][4]) .. "%)")
 					GameCooltip:AddIcon ([[Interface\Garrison\orderhall-missions-mechanic9]], 1, 1, 14, 14, 11/64, 53/64, 11/64, 53/64)
 					Details:AddTooltipBackgroundStatusbar()
 				end
@@ -3496,7 +3499,7 @@ local on_switch_show_frags = function(instance)
 end
 
 local ENEMIES_format_name = function(player) if (player == 0) then return false end return Details:GetOnlyName(player.nome) end
-local ENEMIES_format_amount = function(amount) if (amount <= 0) then return false end return Details:ToK(amount) .. " (" .. format ("%.1f", amount / tooltip_temp_table.damage_total * 100) .. "%)" end
+local ENEMIES_format_amount = function(amount) if (amount <= 0) then return false end return Details:ToK(amount) .. " (" .. format("%.1f", amount / tooltip_temp_table.damage_total * 100) .. "%)" end
 
 function atributo_damage:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, ControlKeyDown, fromFrags)
 	if (ShiftKeyDown) then
@@ -3544,7 +3547,7 @@ function atributo_damage:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, 
 end
 
 local FRAGS_format_name = function(player_name) return Details:GetOnlyName(player_name) end
-local FRAGS_format_amount = function(amount) return Details:ToK(amount) .. " (" .. format ("%.1f", amount / frags_tooltip_table.damage_total * 100) .. "%)" end
+local FRAGS_format_amount = function(amount) return Details:ToK(amount) .. " (" .. format("%.1f", amount / frags_tooltip_table.damage_total * 100) .. "%)" end
 
 function atributo_damage:ReportSingleFragsLine (frag, instance, ShiftKeyDown, ControlKeyDown)
 
@@ -3614,7 +3617,7 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 		local total = tooltip_temp_table [o][2]
 		local player_name = Details:GetOnlyName(player:name())
 
-		GameCooltip:AddLine(player_name .. " ", FormatTooltipNumber (_, total) .." (" .. format ("%.1f", (total / damage_taken) * 100) .. "%)")
+		GameCooltip:AddLine(player_name .. " ", FormatTooltipNumber (_, total) .." (" .. format("%.1f", (total / damage_taken) * 100) .. "%)")
 
 		local classe = player:class()
 		if (not classe) then
@@ -3792,14 +3795,14 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 
 			for _, spell in ipairs(all_spells) do
 				local spellname, _, spellicon = _GetSpellInfo(spell [1])
-				GameCooltip:AddLine(spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (_, spell [2]).." (" .. format ("%.1f", (spell [2] / damage_taken) * 100).."%)")
+				GameCooltip:AddLine(spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (_, spell [2]).." (" .. format("%.1f", (spell [2] / damage_taken) * 100).."%)")
 				GameCooltip:AddIcon (spellicon, 1, 1, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 				Details:AddTooltipBackgroundStatusbar()
 			end
 
 		else
 			local aggressorName = Details:GetOnlyName(meus_agressores[i][1])
-			if (ismaximized and meus_agressores[i][1]:find (Details.playername)) then
+			if (ismaximized and meus_agressores[i][1]:find(Details.playername)) then
 				GameCooltip:AddLine(aggressorName, FormatTooltipNumber (_, meus_agressores[i][2]).." ("..format("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
 			else
 				GameCooltip:AddLine(aggressorName, FormatTooltipNumber (_, meus_agressores[i][2]).." ("..format("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
@@ -3971,16 +3974,18 @@ end
 function atributo_damage:MontaDetalhes (spellid, barra, instancia)
 	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
 		return self:MontaDetalhesDamageDone (spellid, barra, instancia)
+
 	elseif (info.sub_atributo == 3) then
 		return self:MontaDetalhesDamageTaken (spellid, barra, instancia)
+
 	elseif (info.sub_atributo == 4) then
 		return self:MontaDetalhesFriendlyFire (spellid, barra, instancia)
+
 	elseif (info.sub_atributo == 6) then
 		if (bitBand(self.flag_original, 0x00000400) ~= 0) then --� um jogador
 			return self:MontaDetalhesDamageDone (spellid, barra, instancia)
 		end
 		return self:MontaDetalhesEnemy (spellid, barra, instancia)
-		--return self:MontaDetalhesDamageDone (spellid, barra)
 	end
 end
 
@@ -4003,7 +4008,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 
 		local actor = combat (1, target_name)
 		if (actor) then
-			tinsert (DamagedPlayers, {target_name, ff_table.total, ff_table.total / FriendlyFireTotal * 100, actor.classe})
+			tinsert(DamagedPlayers, {target_name, ff_table.total, ff_table.total / FriendlyFireTotal * 100, actor.classe})
 
 			for spellid, amount in pairs(ff_table.spells) do
 				Skills [spellid] = (Skills [spellid] or 0) + amount
@@ -4023,14 +4028,14 @@ function atributo_damage:MontaInfoFriendlyFire()
 
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 			barra.on_focus = false
 		end
 
 		if (not info.mostrando_mouse_over) then
 			if (tabela[1] == self.detalhes) then --tabela [1] = NOME = NOME que esta na caixa da direita
 				if (not barra.on_focus) then --se a barra n�o tiver no foco
-					barra.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
+					barra.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
 					barra.on_focus = true
 					if (not info.mostrando) then
 						info.mostrando = barra
@@ -4038,7 +4043,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 				end
 			else
 				if (barra.on_focus) then
-					barra.textura:SetStatusBarColor (1, 1, 1, 1) --volta a cor antiga
+					barra.textura:SetStatusBarColor(1, 1, 1, 1) --volta a cor antiga
 					barra:SetAlpha(.9) --volta a alfa antiga
 					barra.on_focus = false
 				end
@@ -4052,7 +4057,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 		end
 
 		barra.lineText1:SetText(index .. instancia.divisores.colocacao .. Details:GetOnlyName(tabela[1])) --seta o texto da esqueda
-		barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format ("%.1f", tabela[3]) .."%)") --seta o texto da direita
+		barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format("%.1f", tabela[3]) .."%)") --seta o texto da direita
 
 		local classe = tabela[4]
 		if (not classe) then
@@ -4069,9 +4074,9 @@ function atributo_damage:MontaInfoFriendlyFire()
 
 		local color = Details.class_colors [classe]
 		if (color) then
-			barra.textura:SetStatusBarColor (unpack(color))
+			barra.textura:SetStatusBarColor(unpack(color))
 		else
-			barra.textura:SetStatusBarColor (1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1)
 		end
 
 		barra.minha_tabela = self
@@ -4105,7 +4110,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo2 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 		end
 
 		if (index == 1) then
@@ -4168,7 +4173,7 @@ function atributo_damage:MontaInfoDamageTaken()
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
 		end
 
-		self:FocusLock (barra, tabela[1])
+		self:FocusLock(barra, tabela[1])
 
 		local texCoords = Details.class_coords [tabela[4]]
 		if (not texCoords) then
@@ -4176,23 +4181,22 @@ function atributo_damage:MontaInfoDamageTaken()
 		end
 
 		local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]))
-		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
+		self:UpdadeInfoBar(barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
 	end
 
 end
 
---[[exported]] function Details:UpdadeInfoBar (row, index, spellid, name, value, value_formated, max, percent, icon, detalhes, texCoords, spellschool, class)
-	--seta o tamanho da barra
+--[[exported]] function Details:UpdadeInfoBar(row, index, spellId, name, value, formattedValue, max, percent, icon, detalhes, texCoords, spellSchool, class)
 	if (index == 1) then
 		row.textura:SetValue(100)
 	else
 		max = math.max(max, 0.001)
-		row.textura:SetValue(value/max*100)
+		row.textura:SetValue(value / max * 100)
 	end
 
 	if (type(index) == "number") then
 		if (debugmode) then
-			row.lineText1:SetText(index .. ". " .. name .. " (" .. spellid .. ")")
+			row.lineText1:SetText(index .. ". " .. name .. " (" .. spellId .. ")")
 		else
 			row.lineText1:SetText(index .. ". " .. name)
 		end
@@ -4202,13 +4206,12 @@ end
 
 	row.lineText1.text = row.lineText1:GetText()
 
-	if (value_formated) then
-		row.lineText4:SetText(value_formated .. " (" .. format ("%.1f", percent) .."%)")
+	if (formattedValue) then
+		row.lineText4:SetText(formattedValue .. " (" .. format("%.1f", percent) .."%)")
 	end
 
 	row.lineText1:SetSize(row:GetWidth() - row.lineText4:GetStringWidth() - 40, 15)
 
-	--seta o icone
 	if (icon) then
 		row.icone:SetTexture(icon)
 		if (icon == "Interface\\AddOns\\Details\\images\\classes_small") then
@@ -4230,48 +4233,48 @@ end
 	if (texCoords) then
 		row.icone:SetTexCoord(unpack(texCoords))
 	else
-		local icon_border = Details.tooltip.icon_border_texcoord
-		row.icone:SetTexCoord(icon_border.L, icon_border.R, icon_border.T, icon_border.B)
+		local iconBorder = Details.tooltip.icon_border_texcoord
+		row.icone:SetTexCoord(iconBorder.L, iconBorder.R, iconBorder.T, iconBorder.B)
 	end
 
 	row.minha_tabela = self
-	row.show = spellid
-	row:Show() --mostra a barra
+	row.show = spellId
+	row:Show()
 
-	if (spellschool) then
-		local t = Details.spells_school [spellschool]
-		if (t and t.decimals) then
-			row.textura:SetStatusBarColor (t.decimals[1], t.decimals[2], t.decimals[3])
+	if (spellSchool) then
+		local schoolColor = Details.spells_school[spellSchool]
+		if (schoolColor and schoolColor.decimals) then
+			row.textura:SetStatusBarColor(schoolColor.decimals[1], schoolColor.decimals[2], schoolColor.decimals[3])
 		else
-			row.textura:SetStatusBarColor (1, 1, 1)
+			row.textura:SetStatusBarColor(1, 1, 1)
 		end
 
 	elseif (class) then
-		local color = Details.class_colors [class]
+		local color = Details.class_colors[class]
 		if (color) then
-			row.textura:SetStatusBarColor (unpack(color))
+			row.textura:SetStatusBarColor(unpack(color))
 		else
-			row.textura:SetStatusBarColor (1, 1, 1)
+			row.textura:SetStatusBarColor(1, 1, 1)
 		end
 	else
-		if (spellid == 98021) then --spirit linkl
-			row.textura:SetStatusBarColor (1, 0.4, 0.4)
+		if (spellId == 98021) then --spirit linkl
+			row.textura:SetStatusBarColor(1, 0.4, 0.4)
 		else
-			row.textura:SetStatusBarColor (1, 1, 1)
+			row.textura:SetStatusBarColor(1, 1, 1)
 		end
 	end
 
-	if (detalhes and self.detalhes and self.detalhes == spellid and info.showing == index) then
-		--self:MontaDetalhes (spellid, row) --poderia deixar isso pro final e montar uma tail call??
-		self:MontaDetalhes (row.show, row, info.instancia) --poderia deixar isso pro final e montar uma tail call??
+	if (detalhes and self.detalhes and self.detalhes == spellId and info.showing == index) then
+		self:MontaDetalhes(row.show, row, info.instancia)
 	end
 end
 
---[[exported]] function Details:FocusLock (row, spellid)
+--lock into a line after clicking on it
+--[[exported]] function Details:FocusLock(row, spellId)
 	if (not info.mostrando_mouse_over) then
-		if (spellid == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
+		if (spellId == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
 			if (not row.on_focus) then --se a barra n�o tiver no foco
-				row.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
+				row.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
 				row.on_focus = true
 				if (not info.mostrando) then
 					info.mostrando = row
@@ -4279,7 +4282,7 @@ end
 			end
 		else
 			if (row.on_focus) then
-				row.textura:SetStatusBarColor (1, 1, 1, 1) --volta a cor antiga
+				row.textura:SetStatusBarColor(1, 1, 1, 1) --volta a cor antiga
 				row:SetAlpha(.9) --volta a alfa antiga
 				row.on_focus = false
 			end
@@ -4289,34 +4292,34 @@ end
 
 ------ Damage Done & Dps
 function atributo_damage:MontaInfoDamageDone()
+	local allLines = info.barras1
+	local instance = info.instancia
+	local totalDamageWithoutPet = self.total_without_pet --total de dano aplicado por este jogador
 
-	local barras = info.barras1
-	local instancia = info.instancia
-	local total = self.total_without_pet --total de dano aplicado por este jogador
-
-	local ActorTotalDamage = self.total
-	local ActorSkillsSortTable = {}
-	local ActorSkillsContainer = self.spells._ActorTable
+	local actorTotalDamage = self.total
+	local actorSkillsSortTable = {}
+	local actorSkillsContainer = self.spells._ActorTable
 
 	--get time type
-	local meu_tempo
+	local actorCombatTime
 	if (Details.time_type == 1 or not self.grupo) then
-		meu_tempo = self:Tempo()
+		actorCombatTime = self:Tempo()
+
 	elseif (Details.time_type == 2) then
-		meu_tempo = info.instancia.showing:GetCombatTime()
+		actorCombatTime = info.instancia.showing:GetCombatTime()
 	end
 
-	for _spellid, _skill in pairs(ActorSkillsContainer) do --da foreach em cada spellid do container
-		local nome, _, icone = _GetSpellInfo(_spellid)
+	for spellId, spellTable in pairs(actorSkillsContainer) do --da foreach em cada spellid do container
+		local nome, _, icone = _GetSpellInfo(spellId)
 		if (nome) then
-			tinsert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome, icone, nil, _skill.spellschool})
+			tinsert(actorSkillsSortTable, {spellId, spellTable.total, spellTable.total/actorTotalDamage*100, nome, icone, nil, spellTable.spellschool})
 		end
 	end
 
 	--damage rank
-	local combat = instancia:GetShowingCombat()
+	local combat = instance:GetShowingCombat()
 	local diff = combat:GetDifficulty()
-	local attribute, subattribute = instancia:GetDisplay()
+	local attribute, subAttribute = instance:GetDisplay()
 
 	--check if is a raid encounter and if is heroic or mythic
 	if (diff and (diff == 15 or diff == 16)) then
@@ -4326,7 +4329,7 @@ function atributo_damage:MontaInfoDamageDone()
 			if (bestRank) then
 				--discover which are the player position in the guild rank
 				local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combat:GetBossInfo().id, "damage", self.nome, true)
-				local text1 = self.nome .. " Guild Rank on " .. (combat:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub (".*%s", "") .. ")"
+				local text1 = self.nome .. " Guild Rank on " .. (combat:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
 				info:SetStatusbarText (text1, 10, "gray")
 			else
 				info:SetStatusbarText()
@@ -4344,45 +4347,45 @@ function atributo_damage:MontaInfoDamageDone()
 	local class_color = "FFCCBBBB"
 	--local class_color = "FFDDDD44"
 	for _, PetName in ipairs(ActorPets) do
-		local PetActor = instancia.showing (class_type, PetName)
+		local PetActor = instance.showing (class_type, PetName)
 		if (PetActor) then
 			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in pairs(PetSkillsContainer) do --da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo(_spellid)
-				--tinsert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
+				--tinsert(ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
 				if (nome) then
-					tinsert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor, _skill.spellschool})
+					tinsert(actorSkillsSortTable, {_spellid, _skill.total, _skill.total/actorTotalDamage*100, nome .. " (|c" .. class_color .. PetName:gsub((" <.*"), "") .. "|r)", icone, PetActor, _skill.spellschool})
 				end
 			end
 		end
 	end
 
-	_table_sort(ActorSkillsSortTable, Details.Sort2)
+	_table_sort(actorSkillsSortTable, Details.Sort2)
 
-	gump:JI_AtualizaContainerBarras (#ActorSkillsSortTable + 1)
+	gump:JI_AtualizaContainerBarras (#actorSkillsSortTable + 1)
 
-	local max_ = ActorSkillsSortTable[1] and ActorSkillsSortTable[1][2] or 0 --dano que a primeiro magia vez
+	local max_ = actorSkillsSortTable[1] and actorSkillsSortTable[1][2] or 0 --dano que a primeiro magia vez
 
 	local barra
 
 	--aura bar
 	if (false) then --disabled for now
-		barra = barras [1]
+		barra = allLines [1]
 		if (not barra) then
-			barra = gump:CriaNovaBarraInfo1 (instancia, 1)
+			barra = gump:CriaNovaBarraInfo1 (instance, 1)
 		end
-		self:UpdadeInfoBar (barra, "", -51, "Auras", max_, false, max_, 100, [[Interface\BUTTONS\UI-GroupLoot-DE-Up]], true, nil, nil)
-		barra.textura:SetStatusBarColor (Details.gump:ParseColors("purple"))
+		self:UpdadeInfoBar(barra, "", -51, "Auras", max_, false, max_, 100, [[Interface\BUTTONS\UI-GroupLoot-DE-Up]], true, nil, nil)
+		barra.textura:SetStatusBarColor(Details.gump:ParseColors("purple"))
 	end
 
 	--spell bars
-	for index, tabela in ipairs(ActorSkillsSortTable) do
+	for index, tabela in ipairs(actorSkillsSortTable) do
 
 		--index = index + 1 --with the aura bar
 		index = index
-		barra = barras [index]
+		barra = allLines [index]
 		if (not barra) then
-			barra = gump:CriaNovaBarraInfo1 (instancia, index)
+			barra = gump:CriaNovaBarraInfo1 (instance, index)
 		end
 
 		barra.other_actor = tabela [6]
@@ -4390,22 +4393,22 @@ function atributo_damage:MontaInfoDamageDone()
 		local name = tabela[4]
 
 		if (info.sub_atributo == 2) then
-			local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]/meu_tempo))
-			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
+			local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]/actorCombatTime))
+			self:UpdadeInfoBar(barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
 			local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]))
-			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
+			self:UpdadeInfoBar(barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		end
 
-		self:FocusLock (barra, tabela[1])
+		self:FocusLock(barra, tabela[1])
 	end
 
 	--TOP INIMIGOS
-	if (instancia.sub_atributo == 6) then
+	if (instance.sub_atributo == 6) then
 
 		local damage_taken = self.damage_taken
 		local agressores = self.damage_from
-		local tabela_do_combate = instancia.showing
+		local tabela_do_combate = instance.showing
 		local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
 		local barras = info.barras2
 		local meus_agressores = {}
@@ -4439,8 +4442,8 @@ function atributo_damage:MontaInfoDamageDone()
 			barra = barras [index]
 
 			if (not barra) then --se a barra n�o existir, criar ela ent�o
-				barra = gump:CriaNovaBarraInfo2 (instancia, index)
-				barra.textura:SetStatusBarColor (1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+				barra = gump:CriaNovaBarraInfo2 (instance, index)
+				barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 			end
 
 			if (index == 1) then
@@ -4450,7 +4453,7 @@ function atributo_damage:MontaInfoDamageDone()
 			end
 
 			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(tabela[1])) --seta o texto da esqueda
-			barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format ("%.1f", tabela[3]) .. "%)") --seta o texto da direita
+			barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format("%.1f", tabela[3]) .. "%)") --seta o texto da direita
 
 			barra.icone:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
 
@@ -4462,9 +4465,9 @@ function atributo_damage:MontaInfoDamageDone()
 
 			local color = Details.class_colors [tabela[4]]
 			if (color) then
-				barra.textura:SetStatusBarColor (unpack(color))
+				barra.textura:SetStatusBarColor(unpack(color))
 			else
-				barra.textura:SetStatusBarColor (1, 1, 1)
+				barra.textura:SetStatusBarColor(1, 1, 1)
 			end
 
 			Details:name_space_info (barra)
@@ -4494,7 +4497,7 @@ function atributo_damage:MontaInfoDamageDone()
 		--my target container
 		conteudo = self.targets
 		for target_name, amount in pairs(conteudo) do
-			tinsert (meus_inimigos, {target_name, amount, amount/total*100})
+			tinsert(meus_inimigos, {target_name, amount, amount/totalDamageWithoutPet*100})
 		end
 
 		--sort
@@ -4515,8 +4518,8 @@ function atributo_damage:MontaInfoDamageDone()
 			barra = info.barras2 [index]
 
 			if (not barra) then
-				barra = gump:CriaNovaBarraInfo2 (instancia, index)
-				barra.textura:SetStatusBarColor (1, 1, 1, 1)
+				barra = gump:CriaNovaBarraInfo2 (instance, index)
+				barra.textura:SetStatusBarColor(1, 1, 1, 1)
 			end
 
 			if (index == 1) then
@@ -4525,31 +4528,31 @@ function atributo_damage:MontaInfoDamageDone()
 				barra.textura:SetValue(tabela[2]/max_inimigos*100)
 			end
 
-			local target_actor = instancia.showing (1, tabela[1])
+			local target_actor = instance.showing (1, tabela[1])
 			if (target_actor) then
-				target_actor:SetClassIcon(barra.icone, instancia, target_actor.classe)
+				target_actor:SetClassIcon(barra.icone, instance, target_actor.classe)
 			else
 				barra.icone:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
 				local texCoords = Details.class_coords ["ENEMY"]
 				barra.icone:SetTexCoord(unpack(texCoords))
 			end
 
-			barra.textura:SetStatusBarColor (1, 0.8, 0.8)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 0.8, 0.8)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 
 			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(tabela[1]))
 
 			if (info.sub_atributo == 2) then
-				barra.lineText4:SetText(Details:comma_value ( _math_floor(tabela[2]/meu_tempo)) .. " (" .. format ("%.1f", tabela[3]) .. "%)")
+				barra.lineText4:SetText(Details:comma_value ( _math_floor(tabela[2]/actorCombatTime)) .. " (" .. format("%.1f", tabela[3]) .. "%)")
 			else
-				barra.lineText4:SetText(SelectedToKFunction(_, tabela[2]) .." (" .. format ("%.1f", tabela[3]) .. "%)")
+				barra.lineText4:SetText(SelectedToKFunction(_, tabela[2]) .." (" .. format("%.1f", tabela[3]) .. "%)")
 			end
 
 			if (barra.mouse_over) then --atualizar o tooltip
 				if (barra.isAlvo) then
 					--GameTooltip:Hide()
 					--GameTooltip:SetOwner(barra, "ANCHOR_TOPRIGHT")
-					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index, instancia)) then
+					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index, instance)) then
 						return
 					end
 					--GameTooltip:Show()
@@ -4592,7 +4595,7 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 
 	for spellid, amount in pairs(ff_table.spells) do --da foreach em cada spellid do container
 		local nome, _, icone = _GetSpellInfo(spellid)
-		tinsert (minhas_magias, {spellid, amount, amount / total * 100, nome, icone})
+		tinsert(minhas_magias, {spellid, amount, amount / total * 100, nome, icone})
 	end
 
 	_table_sort(minhas_magias, Details.Sort2)
@@ -4605,7 +4608,7 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 		end
 
 		if (index == 1) then
@@ -4615,7 +4618,7 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 		end
 
 		barra.lineText1:SetText(index..instancia.divisores.colocacao..tabela[4]) --seta o texto da esqueda
-		barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " " .. instancia.divisores.abre .. format ("%.1f", tabela[3]) .. "%" .. instancia.divisores.fecha) --seta o texto da direita
+		barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " " .. instancia.divisores.abre .. format("%.1f", tabela[3]) .. "%" .. instancia.divisores.fecha) --seta o texto da direita
 
 		barra.icone:SetTexture(tabela[5])
 		barra.icone:SetTexCoord(0, 1, 0, 1)
@@ -4680,7 +4683,7 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 		end
 
 		if (index == 1) then
@@ -4705,9 +4708,9 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 
 		local color = Details.class_colors [tabela[3]]
 		if (color) then
-			barra.textura:SetStatusBarColor (unpack(color))
+			barra.textura:SetStatusBarColor(unpack(color))
 		else
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 		end
 
 		barra.icone:SetTexture("Interface\\AddOns\\Details\\images\\classes_small_alpha")
@@ -4753,7 +4756,7 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 		local este_alvo = tabela.targets [actor]
 		if (este_alvo) then --esta magia deu dano no actor
 			local spell_nome, rank, icone = _GetSpellInfo(spellid)
-			tinsert (minhas_magias, {spellid, este_alvo, este_alvo/total*100, spell_nome, icone})
+			tinsert(minhas_magias, {spellid, este_alvo, este_alvo/total*100, spell_nome, icone})
 		end
 	end
 
@@ -4770,7 +4773,7 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 		end
 
 		if (index == 1) then
@@ -4893,11 +4896,11 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	local index = 1
 	local data = data_table
 
-	table.wipe (t1)
-	table.wipe (t2)
-	table.wipe (t3)
-	table.wipe (t4)
-	table.wipe (data)
+	table.wipe(t1)
+	table.wipe(t2)
+	table.wipe(t3)
+	table.wipe(t4)
+	table.wipe(data)
 
 	--GERAL
 		local media = 0
@@ -4982,7 +4985,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.n_max)
 			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_normal)
 			t1[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (normal_dmg/T)
-			t1[8] = normal_hits .. " [|cFFC0C0C0" .. format ("%.1f", normal_hits/max(total_hits, 0.0001)*100) .. "%|r]"
+			t1[8] = normal_hits .. " [|cFFC0C0C0" .. format("%.1f", normal_hits/max(total_hits, 0.0001)*100) .. "%|r]"
 
 		end
 
@@ -5008,7 +5011,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.c_max)
 			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_critico)
 			t2[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (crit_dps)
-			t2[8] = esta_magia.c_amt .. " [|cFFC0C0C0" .. format ("%.1f", esta_magia.c_amt/total_hits*100) .. "%|r]"
+			t2[8] = esta_magia.c_amt .. " [|cFFC0C0C0" .. format("%.1f", esta_magia.c_amt/total_hits*100) .. "%|r]"
 
 		end
 
@@ -5032,7 +5035,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t3[5] = Loc ["STRING_PARRY"] .. ": " .. parry
 			t3[6] = Loc ["STRING_DODGE"] .. ": " .. dodge
 			t3[7] = Loc ["STRING_BLOCKED"] .. ": " .. _math_floor(esta_magia.b_amt/esta_magia.counter*100)
-			t3[8] = (outros_desvios+erros) .. " / " .. format ("%.1f", porcentagem_defesas) .. "%"
+			t3[8] = (outros_desvios+erros) .. " / " .. format("%.1f", porcentagem_defesas) .. "%"
 
 		end
 
@@ -5065,7 +5068,7 @@ function Details:BuildPlayerDetailsSpellChart()
 
 		for i = 1, 200 do
 			local texture = playerDetailSmallChart:CreateTexture(nil, "artwork")
-			texture:SetColorTexture (1, 1, 1, 1)
+			texture:SetColorTexture(1, 1, 1, 1)
 			tinsert(playerDetailSmallChart.Lines, texture)
 		end
 
@@ -5238,7 +5241,7 @@ function atributo_damage:MontaTooltipAlvos (thisLine, index, instancia)
 						end
 
 						local nome, _, icone = _GetSpellInfo(_spellid)
-						t[1], t[2], t[3] = nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", amount, icone
+						t[1], t[2], t[3] = nome .. " (" .. PetName:gsub((" <.*"), "") .. ")", amount, icone
 
 						i = i + 1
 					end
@@ -5932,7 +5935,7 @@ end
 			local total = tooltip_temp_table [o][2]
 			local player_name = player:name()
 
-			if (player_name:find (Details.playername)) then
+			if (player_name:find(Details.playername)) then
 				GameCooltip:AddLine(player_name .. ": ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2, "yellow")
 			else
 				GameCooltip:AddLine(player_name .. ": ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2)

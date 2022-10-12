@@ -6,16 +6,12 @@ if (not DF or not DetailsFrameworkCanLoad) then
 end
 
 local _
-local cleanfunction = function() end
+local emptyFunction = function() end
 local APIButtonFunctions = false
 
 do
 	local metaPrototype = {
 		WidgetType = "button",
-		SetHook = DF.SetHook,
-		HasHook = DF.HasHook,
-		ClearHooks = DF.ClearHooks,
-		RunHooksForWidget = DF.RunHooksForWidget,
 		dversion = DF.dversion
 	}
 
@@ -41,6 +37,8 @@ local ButtonMetaFunctions = _G[DF.GlobalWidgetControlNames["button"]]
 
 DF:Mixin(ButtonMetaFunctions, DF.SetPointMixin)
 DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
+DF:Mixin(ButtonMetaFunctions, DF.TooltipHandlerMixin)
+DF:Mixin(ButtonMetaFunctions, DF.ScriptHookMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --metatables
@@ -123,7 +121,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	ButtonMetaFunctions.GetMembers["fontsize"] = gmember_textsize
 	ButtonMetaFunctions.GetMembers["textcolor"] = gmember_textcolor --alias
 	ButtonMetaFunctions.GetMembers["textfont"] = gmember_textfont --alias
-	ButtonMetaFunctions.GetMembers["textsize"] = gmember_textsize --alias	
+	ButtonMetaFunctions.GetMembers["textsize"] = gmember_textsize --alias
 
 	ButtonMetaFunctions.__index = function(_table, _member_requested)
 
@@ -131,15 +129,15 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 		if (func) then
 			return func (_table, _member_requested)
 		end
-		
-		local fromMe = rawget (_table, _member_requested)
+
+		local fromMe = rawget(_table, _member_requested)
 		if (fromMe) then
 			return fromMe
 		end
-		
+
 		return ButtonMetaFunctions [_member_requested]
 	end
-	
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--tooltip
@@ -198,7 +196,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	--text color
 	local smember_textcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
-		return _object.button.text:SetTextColor (_value1, _value2, _value3, _value4)	
+		return _object.button.text:SetTextColor(_value1, _value2, _value3, _value4)
 	end
 
 	--text font
@@ -261,7 +259,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			_object.capsule_textalign = "right"
 		end
 	end
-	
+
 	ButtonMetaFunctions.SetMembers = ButtonMetaFunctions.SetMembers or {}
 	ButtonMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
 	ButtonMetaFunctions.SetMembers ["show"] = smember_show
@@ -281,7 +279,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	ButtonMetaFunctions.SetMembers ["texture"] = smember_texture
 	ButtonMetaFunctions.SetMembers ["locked"] = smember_locked
 	ButtonMetaFunctions.SetMembers ["textalign"] = smember_textalign
-	
+
 	ButtonMetaFunctions.__newindex = function(_table, _key, _value)
 		local func = ButtonMetaFunctions.SetMembers [_key]
 		if (func) then
@@ -294,26 +292,13 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 ------------------------------------------------------------------------------------------------------------
 --methods
 
---tooltip
-	function ButtonMetaFunctions:SetTooltip(tooltip)
-		if (tooltip) then
-			return rawset(self, "have_tooltip", tooltip)
-		else
-			return rawset(self, "have_tooltip", nil)
-		end
-	end
-
-	function ButtonMetaFunctions:GetTooltip()
-		return rawget(self, "have_tooltip")
-	end
-
 --functions
 	function ButtonMetaFunctions:SetClickFunction(func, param1, param2, clickType)
 		if (not clickType or string.find(string.lower(clickType), "left")) then
 			if (func) then
 				rawset(self, "func", func)
 			else
-				rawset(self, "func", cleanfunction)
+				rawset(self, "func", emptyFunction)
 			end
 
 			if (param1 ~= nil) then
@@ -323,11 +308,11 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 				rawset(self, "param2", param2)
 			end
 
-		elseif (clickType or string.find (string.lower (clickType), "right")) then
+		elseif (clickType or string.find(string.lower(clickType), "right")) then
 			if (func) then
 				rawset(self, "funcright", func)
 			else
-				rawset(self, "funcright", cleanfunction)
+				rawset(self, "funcright", emptyFunction)
 			end
 		end
 	end
@@ -521,7 +506,7 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			return
 		end
 
-		button.MyObject.is_mouse_over = true
+		object.is_mouse_over = true
 
 		if (button.texture) then
 			if (button.texture.coords) then
@@ -531,23 +516,15 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			end
 		end
 
-		if (button.MyObject.onenter_backdrop_border_color) then
-			button:SetBackdropBorderColor(unpack(button.MyObject.onenter_backdrop_border_color))
+		if (object.onenter_backdrop_border_color) then
+			button:SetBackdropBorderColor(unpack(object.onenter_backdrop_border_color))
 		end
 
-		if (button.MyObject.onenter_backdrop) then
-			button:SetBackdropColor(unpack(button.MyObject.onenter_backdrop))
+		if (object.onenter_backdrop) then
+			button:SetBackdropColor(unpack(object.onenter_backdrop))
 		end
 
-		if (button.MyObject.have_tooltip) then
-			GameCooltip2:Preset(2)
-			if (type(button.MyObject.have_tooltip) == "function") then
-				GameCooltip2:AddLine(button.MyObject.have_tooltip() or "")
-			else
-				GameCooltip2:AddLine(button.MyObject.have_tooltip)
-			end
-			GameCooltip2:ShowCooltip(button, "tooltip")
-		end
+		object:ShowTooltip()
 	end
 
 	local OnLeave = function(button)
@@ -558,9 +535,9 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			return
 		end
 
-		button.MyObject.is_mouse_over = false
+		object.is_mouse_over = false
 
-		if (button.texture and not button.MyObject.is_mouse_down) then
+		if (button.texture and not object.is_mouse_down) then
 			if (button.texture.coords) then
 				button.texture:SetTexCoord(unpack(button.texture.coords.Normal))
 			else
@@ -568,19 +545,15 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			end
 		end
 
-		if (button.MyObject.onleave_backdrop_border_color) then
-			button:SetBackdropBorderColor(unpack(button.MyObject.onleave_backdrop_border_color))
+		if (object.onleave_backdrop_border_color) then
+			button:SetBackdropBorderColor(unpack(object.onleave_backdrop_border_color))
 		end
 
-		if (button.MyObject.onleave_backdrop) then
-			button:SetBackdropColor(unpack(button.MyObject.onleave_backdrop))
+		if (object.onleave_backdrop) then
+			button:SetBackdropColor(unpack(object.onleave_backdrop))
 		end
 
-		if (button.MyObject.have_tooltip) then
-			if (GameCooltip2:GetText(1) == button.MyObject.have_tooltip or type(button.MyObject.have_tooltip) == "function") then
-				GameCooltip2:Hide()
-			end
-		end
+		object:HideTooltip()
 	end
 
 	local OnHide = function(button)
@@ -600,18 +573,18 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 	end
 
 	local OnMouseDown = function(button, buttontype)
-		local object = button.MyObject
-
 		if (not button:IsEnabled()) then
 			return
 		end
+
+		local object = button.MyObject
 
 		local kill = object:RunHooksForWidget("OnMouseDown", button, object)
 		if (kill) then
 			return
 		end
 
-		button.MyObject.is_mouse_down = true
+		object.is_mouse_down = true
 
 		if (button.texture) then
 			if (button.texture.coords) then
@@ -621,22 +594,22 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			end
 		end
 
-		if (button.MyObject.capsule_textalign) then
-			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint("left", button, "left", 5 + (button.MyObject.icon.leftpadding or 0), -1)
+		if (object.capsule_textalign) then
+			if (object.icon) then
+				object.icon:SetPoint("left", button, "left", 5 + (object.icon.leftpadding or 0), -1)
 
-			elseif (button.MyObject.capsule_textalign == "left") then
+			elseif (object.capsule_textalign == "left") then
 				button.text:SetPoint("left", button, "left", 3, -1)
 
-			elseif (button.MyObject.capsule_textalign == "center") then
+			elseif (object.capsule_textalign == "center") then
 				button.text:SetPoint("center", button, "center", 1, -1)
 
-			elseif (button.MyObject.capsule_textalign == "right") then
+			elseif (object.capsule_textalign == "right") then
 				button.text:SetPoint("right", button, "right", -1, -1)
 			end
 		else
-			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint("left", button, "left", 5 + (button.MyObject.icon.leftpadding or 0), -1)
+			if (object.icon) then
+				object.icon:SetPoint("left", button, "left", 5 + (object.icon.leftpadding or 0), -1)
 			else
 				button.text:SetPoint("center", button,"center", 1, -1)
 			end
@@ -647,19 +620,19 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 		button.x = floor(x)
 		button.y = floor(y)
 
-		if (not button.MyObject.container.isLocked and button.MyObject.container:IsMovable()) then
+		if (not object.container.isLocked and object.container:IsMovable()) then
 			if (not button.isLocked and button:IsMovable()) then
-				button.MyObject.container.isMoving = true
-				button.MyObject.container:StartMoving()
+				object.container.isMoving = true
+				object.container:StartMoving()
 			end
 		end
 
-		if (button.MyObject.options.OnGrab) then
-			if (type(button.MyObject.options.OnGrab) == "string" and button.MyObject.options.OnGrab == "PassClick") then
+		if (object.options.OnGrab) then
+			if (type(object.options.OnGrab) == "string" and object.options.OnGrab == "PassClick") then
 				if (buttontype == "LeftButton") then
-					DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseDown()", button.MyObject.func, button, buttontype, button.MyObject.param1, button.MyObject.param2)
+					DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseDown()", object.func, button, buttontype, object.param1, object.param2)
 				else
-					DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseDown()", button.MyObject.funcright, button, buttontype, button.MyObject.param1, button.MyObject.param2)
+					DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseDown()", object.funcright, button, buttontype, object.param1, object.param2)
 				end
 			end
 		end
@@ -671,22 +644,23 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 		end
 
 		local object = button.MyObject
+
 		local kill = object:RunHooksForWidget("OnMouseUp", button, object)
 		if (kill) then
 			return
 		end
 
-		button.MyObject.is_mouse_down = false
+		object.is_mouse_down = false
 
 		if (button.texture) then
 			if (button.texture.coords) then
-				if (button.MyObject.is_mouse_over) then
+				if (object.is_mouse_over) then
 					button.texture:SetTexCoord(unpack(button.texture.coords.Highlight))
 				else
 					button.texture:SetTexCoord(unpack(coords.Normal))
 				end
 			else
-				if (button.MyObject.is_mouse_over) then
+				if (object.is_mouse_over) then
 					button.texture:SetTexCoord(0, 1, 0.24609375, 0.49609375)
 				else
 					button.texture:SetTexCoord(0, 1, 0, 0.24609375)
@@ -694,30 +668,30 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 			end
 		end
 
-		if (button.MyObject.capsule_textalign) then
-			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint("left", button, "left", 4 + (button.MyObject.icon.leftpadding or 0), 0)
+		if (object.capsule_textalign) then
+			if (object.icon) then
+				object.icon:SetPoint("left", button, "left", 4 + (object.icon.leftpadding or 0), 0)
 
-			elseif (button.MyObject.capsule_textalign == "left") then
+			elseif (object.capsule_textalign == "left") then
 				button.text:SetPoint("left", button, "left", 2, 0)
 
-			elseif (button.MyObject.capsule_textalign == "center") then
+			elseif (object.capsule_textalign == "center") then
 				button.text:SetPoint("center", button, "center", 0, 0)
 
-			elseif (button.MyObject.capsule_textalign == "right") then
+			elseif (object.capsule_textalign == "right") then
 				button.text:SetPoint("right", button, "right", -2, 0)
 			end
 		else
-			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint("left", button, "left", 4 + (button.MyObject.icon.leftpadding or 0), 0)
+			if (object.icon) then
+				object.icon:SetPoint("left", button, "left", 4 + (object.icon.leftpadding or 0), 0)
 			else
 				button.text:SetPoint("center", button,"center", 0, 0)
 			end
 		end
 
-		if (button.MyObject.container.isMoving) then
-			button.MyObject.container:StopMovingOrSizing()
-			button.MyObject.container.isMoving = false
+		if (object.container.isMoving) then
+			object.container:StopMovingOrSizing()
+			object.container.isMoving = false
 		end
 
 		local x, y = GetCursorPosition()
@@ -728,9 +702,9 @@ DF:Mixin(ButtonMetaFunctions, DF.FrameMixin)
 
 		if ((x == button.x and y == button.y) or (button.mouse_down + 0.5 > GetTime() and button:IsMouseOver())) then
 			if (buttonType == "LeftButton") then
-				DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseUp()", button.MyObject.func, button, buttonType, button.MyObject.param1, button.MyObject.param2)
+				DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseUp()", object.func, button, buttonType, object.param1, object.param2)
 			else
-				DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseUp()", button.MyObject.funcright, button, buttonType, button.MyObject.param1, button.MyObject.param2)
+				DF:CoreDispatch((button:GetName() or "Button") .. ":OnMouseUp()", object.funcright, button, buttonType, object.param1, object.param2)
 			end
 		end
 	end
@@ -792,8 +766,8 @@ function ButtonMetaFunctions:SetTemplate(template)
 	end
 
 	if (template.icon) then
-		local i = template.icon
-		self:SetIcon(i.texture, i.width, i.height, i.layout, i.texcoord, i.color, i.textdistance, i.leftpadding)
+		local iconInfo = template.icon
+		self:SetIcon(iconInfo.texture, iconInfo.width, iconInfo.height, iconInfo.layout, iconInfo.texcoord, iconInfo.color, iconInfo.textdistance, iconInfo.leftpadding)
 	end
 
 	if (template.textsize) then
@@ -815,7 +789,6 @@ end
 
 ------------------------------------------------------------------------------------------------------------
 --object constructor
-
 	local onDisableFunc = function(self)
 		self.texture_disabled:Show()
 		self.texture_disabled:SetVertexColor(0, 0, 0)
@@ -830,10 +803,10 @@ end
 		self:SetSize(100, 20)
 
 		self.text = self:CreateFontString("$parent_Text", "ARTWORK", "GameFontNormal")
-		self:SetFontString(self.text)
 		self.text:SetJustifyH("CENTER")
-		DF:SetFontSize(self.text, 10)
 		self.text:SetPoint("CENTER", self, "CENTER", 0, 0)
+		self:SetFontString(self.text)
+		DF:SetFontSize(self.text, 10)
 
 		self.texture_disabled = self:CreateTexture("$parent_TextureDisabled", "OVERLAY")
 		self.texture_disabled:SetAllPoints()
@@ -883,10 +856,9 @@ end
 		DF:Mixin(buttonObject.button, DF.WidgetFunctions)
 
 		createButtonWidgets(buttonObject.button)
-
+		buttonObject.button:SetSize(width or 100, height or 20)
 		buttonObject.widget = buttonObject.button
-		buttonObject.button:SetBackdropColor(0, 0, 0, 0.4)
-		buttonObject.button:SetBackdropBorderColor(1, 1, 1, 1)
+		buttonObject.button.MyObject = buttonObject
 
 		if (not APIButtonFunctions) then
 			APIButtonFunctions = true
@@ -901,10 +873,6 @@ end
 			end
 		end
 
-		buttonObject.button:SetWidth(width or 100)
-		buttonObject.button:SetHeight(height or 20)
-		buttonObject.button.MyObject = buttonObject
-
 		buttonObject.text_overlay = _G[name .. "_Text"]
 		buttonObject.disabled_overlay = _G[name .. "_TextureDisabled"]
 
@@ -914,7 +882,9 @@ end
 		buttonObject.button:SetDisabledTexture(texture)
 		buttonObject.button:SetHighlightTexture(texture, "ADD")
 
-		buttonObject.button.text:SetText(text or "")
+		local locTable = text
+		DF.Language.SetTextWithLocTableWithDefault(buttonObject.button.text, locTable, text)
+
 		buttonObject.button.text:SetPoint("center", buttonObject.button, "center")
 
 		local textWidth = buttonObject.button.text:GetStringWidth()
@@ -943,8 +913,8 @@ end
 			end
 		end
 
-		buttonObject.func = func or cleanfunction
-		buttonObject.funcright = cleanfunction
+		buttonObject.func = func or emptyFunction
+		buttonObject.funcright = emptyFunction
 		buttonObject.param1 = param1
 		buttonObject.param2 = param2
 		buttonObject.short_method = shortMethod
@@ -953,10 +923,12 @@ end
 			if (textTemplate.size) then
 				DF:SetFontSize(buttonObject.button.text, textTemplate.size)
 			end
+
 			if (textTemplate.color) then
 				local r, g, b, a = DF:ParseColors(textTemplate.color)
 				buttonObject.button.text:SetTextColor(r, g, b, a)
 			end
+
 			if (textTemplate.font) then
 				local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 				local font = SharedMedia:Fetch("font", textTemplate.font)
@@ -1027,31 +999,32 @@ end
 
 	function DF:NewColorPickButton(parent, name, member, callback, alpha, buttonTemplate)
 		--button
-		local button = DF:NewButton(parent, _, name, member, 16, 16, pickcolor, alpha, "param2", nil, nil, nil, buttonTemplate)
-		button.color_callback = callback
-		button.Cancel = colorpickCancel
-		button.SetColor = setColorPickColor
-		button.GetColor = getColorPickColor
+		local colorPickButton = DF:NewButton(parent, _, name, member, 16, 16, pickcolor, alpha, "param2", nil, nil, nil, buttonTemplate)
+		colorPickButton.color_callback = callback
+		colorPickButton.Cancel = colorpickCancel
+		colorPickButton.SetColor = setColorPickColor
+		colorPickButton.GetColor = getColorPickColor
 
-		button.HookList.OnColorChanged = {}
+		colorPickButton.HookList.OnColorChanged = {}
 
 		if (not buttonTemplate) then
-			button:InstallCustomTexture()
+			colorPickButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 		end
 
-		local background = button:CreateTexture(nil, "background", nil, 2)
-		background:SetPoint("topleft", button.widget, "topleft", 0, 0)
-		background:SetPoint("bottomright", button.widget, "bottomright", 0, 0)
+		--background showing a grid to indicate the transparency
+		local background = colorPickButton:CreateTexture(nil, "background", nil, 2)
+		background:SetPoint("topleft", colorPickButton.widget, "topleft", 0, 0)
+		background:SetPoint("bottomright", colorPickButton.widget, "bottomright", 0, 0)
 		background:SetTexture([[Interface\ITEMSOCKETINGFRAME\UI-EMPTYSOCKET]])
 		background:SetTexCoord(3/16, 13/16, 3/16, 13/16)
 		background:SetAlpha(0.3)
 
-		--color texture
-		local img = DF:NewImage(button, nil, 16, 16, nil, nil, "color_texture", "$parentTex")
-		img:SetColorTexture(1, 1, 1)
-		img:SetPoint("topleft", button.widget, "topleft", 0, 0)
-		img:SetPoint("bottomright", button.widget, "bottomright", 0, 0)
-		img:SetDrawLayer("background", 3)
+		--texture which shows the texture color
+		local colorTexture = DF:NewImage(colorPickButton, nil, 16, 16, nil, nil, "color_texture", "$parentTex")
+		colorTexture:SetColorTexture(1, 1, 1)
+		colorTexture:SetPoint("topleft", colorPickButton.widget, "topleft", 0, 0)
+		colorTexture:SetPoint("bottomright", colorPickButton.widget, "bottomright", 0, 0)
+		colorTexture:SetDrawLayer("background", 3)
 
-		return button
+		return colorPickButton
 	end

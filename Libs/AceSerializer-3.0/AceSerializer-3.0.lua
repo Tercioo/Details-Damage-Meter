@@ -219,12 +219,12 @@ local function DeserializeValue(iter,single,ctl,data)
 			if ctl=="^t" then break end	-- ignore ^t's data
 			k = DeserializeValue(iter,true,ctl,data)
 			if k==nil then
-				error("Invalid AceSerializer table format (no table end marker)")
+				error("Invalid AceSerializer table format(no table end marker)")
 			end
 			ctl,data = iter()
 			v = DeserializeValue(iter,true,ctl,data)
 			if v==nil then
-				error("Invalid AceSerializer table format (no table end marker)")
+				error("Invalid AceSerializer table format(no table end marker)")
 			end
 			res[k]=v
 		end

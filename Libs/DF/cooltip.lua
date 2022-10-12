@@ -15,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 4
+local version = 5
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -1142,7 +1142,7 @@ function DF:CreateCoolTip()
 	function gameCooltip:StatusBar(menuButton, statusBarSettings)
 		if (statusBarSettings) then
 			menuButton.statusbar:SetValue(statusBarSettings[1])
-			menuButton.statusbar:SetStatusBarColor (statusBarSettings[2], statusBarSettings[3], statusBarSettings[4], statusBarSettings[5])
+			menuButton.statusbar:SetStatusBarColor(statusBarSettings[2], statusBarSettings[3], statusBarSettings[4], statusBarSettings[5])
 			menuButton.statusbar:SetHeight(20 + (gameCooltip.OptionsTable.StatusBarHeightMod or 0))
 
 			menuButton.spark2:Hide()
@@ -1160,9 +1160,9 @@ function DF:CreateCoolTip()
 				end
 				if (statusBarSettings[7].color) then
 					local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(statusBarSettings[7].color)
-					menuButton.statusbar2:SetStatusBarColor (colorRed, colorGreen, colorBlue, colorAlpha)
+					menuButton.statusbar2:SetStatusBarColor(colorRed, colorGreen, colorBlue, colorAlpha)
 				else
-					menuButton.statusbar2:SetStatusBarColor (1, 1, 1, 1)
+					menuButton.statusbar2:SetStatusBarColor(1, 1, 1, 1)
 				end
 			else
 				menuButton.statusbar2:SetValue(0)
@@ -1959,6 +1959,11 @@ function DF:CreateCoolTip()
 	--return the current frame using cooltip
 	function gameCooltip:GetOwner()
 		return gameCooltip.Host
+	end
+
+	function gameCooltip:IsOwner(frame)
+		local currentOwner = gameCooltip:GetOwner()
+		return currentOwner == frame
 	end
 
 	--set the anchor of cooltip, parameters: frame [, cooltip anchor point, frame anchor point[, x mod, y mod]]

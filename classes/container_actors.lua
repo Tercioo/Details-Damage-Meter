@@ -382,7 +382,7 @@
 				actorObject.ownerName = dono_do_pet.nome
 				
 				if (_IsInInstance() and _detalhes.remove_realm_from_name) then
-					actorObject.displayName = nome:gsub (("%-.*"), ">")
+					actorObject.displayName = nome:gsub(("%-.*"), ">")
 				else
 					actorObject.displayName = nome
 				end
@@ -485,7 +485,7 @@
 			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
 			for playerName, _ in pairs(_detalhes.tabela_vigente.raid_roster) do
 				local pName = playerName
-				playerName = playerName:gsub ("%-.*", "") --remove realm name
+				playerName = playerName:gsub("%-.*", "") --remove realm name
 
 				--if the user client is in russian language
 				--make an attempt to remove declensions from the character's name
@@ -495,12 +495,12 @@
 						return find_pet_found_owner (pName, serial, nome, flag, self)
 					else
 						--print("not found declension (1):", pName, nome)
-						if (text1:find (playerName)) then
+						if (text1:find(playerName)) then
 							return find_pet_found_owner (pName, serial, nome, flag, self)
 						end
 					end
 				else
-					if (text1:find (playerName)) then
+					if (text1:find(playerName)) then
 						return find_pet_found_owner (pName, serial, nome, flag, self)
 					end
 				end
@@ -513,19 +513,19 @@
 			for playerName, _ in pairs(_detalhes.tabela_vigente.raid_roster) do
 			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
 				local pName = playerName
-				playerName = playerName:gsub ("%-.*", "") --remove realm name
+				playerName = playerName:gsub("%-.*", "") --remove realm name
 
 				if (CONST_CLIENT_LANGUAGE == "ruRU") then
 					if (find_name_declension (text2, playerName)) then
 						return find_pet_found_owner (pName, serial, nome, flag, self)
 					else
 						--print("not found declension (2):", pName, nome)
-						if (text2:find (playerName)) then
+						if (text2:find(playerName)) then
 							return find_pet_found_owner (pName, serial, nome, flag, self)
 						end
 					end
 				else
-					if (text2:find (playerName)) then
+					if (text2:find(playerName)) then
 						return find_pet_found_owner (pName, serial, nome, flag, self)
 					end
 				end
@@ -542,7 +542,7 @@
 
 		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
 	
-		--if (flag and nome:find ("Kastfall") and bit.band(flag, 0x2000) ~= 0) then
+		--if (flag and nome:find("Kastfall") and bit.band(flag, 0x2000) ~= 0) then
 			--print("PET:", nome, _detalhes.tabela_pets.pets [serial], container_pets [serial])
 		--else
 			--print(nome, flag)
@@ -767,9 +767,9 @@
 			end
 			
 			if (_detalhes.debug) then	
-				if (_detalhes.debug_chr and nome:find (_detalhes.debug_chr) and self.tipo == 1) then
+				if (_detalhes.debug_chr and nome:find(_detalhes.debug_chr) and self.tipo == 1) then
 					local logLine = ""
-					local when = "[" .. date ("%H:%M:%S") .. format (".%4f", GetTime()-floor(GetTime())) .. "]"
+					local when = "[" .. date ("%H:%M:%S") .. format(".%4f", GetTime()-floor(GetTime())) .. "]"
 					local log = "actor created - class: " .. (novo_objeto.classe or "noclass")
 					local from = debugstack (2, 1, 0)
 					logLine = logLine .. when .. " " .. log .. " " .. from .. "\n"
@@ -809,7 +809,7 @@
 		_detalhes:UpdatePetsOnParser()
 	end
 	function _detalhes:ClearCCPetsBlackList()
-		table.wipe (pet_blacklist)
+		table.wipe(pet_blacklist)
 	end
 
 	function container_combatentes:FuncaoDeCriacao (tipo)
@@ -856,7 +856,7 @@
 	end
 	
 	function container_combatentes:SortByKey (key)
-		assert (type(key) == "string", "Container:SortByKey() expects a keyname on parameter 1.")
+		assert(type(key) == "string", "Container:SortByKey() expects a keyname on parameter 1.")
 		bykey = key
 		_table_sort (self._ActorTable, sort)
 		self:remapear()

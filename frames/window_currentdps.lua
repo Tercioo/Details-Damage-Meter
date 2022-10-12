@@ -489,11 +489,11 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			yellow_team_color = Details.class_colors.ARENA_YELLOW
 
 			if (f.PlayerTeam == 0) then
-				labelPlayerTeam:SetTextColor (unpack(yellow_team_color))
-				labelYellowTeam:SetTextColor (unpack(green_team_color))
+				labelPlayerTeam:SetTextColor(unpack(yellow_team_color))
+				labelYellowTeam:SetTextColor(unpack(green_team_color))
 			else
-				labelPlayerTeam:SetTextColor (unpack(green_team_color))
-				labelYellowTeam:SetTextColor (unpack(yellow_team_color))
+				labelPlayerTeam:SetTextColor(unpack(green_team_color))
+				labelYellowTeam:SetTextColor(unpack(yellow_team_color))
 			end
 		end
 

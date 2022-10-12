@@ -43,8 +43,8 @@ local create_deathrecap_line = function(parent, n)
 	local backgroundTextureOverlay = line:CreateTexture(nil, "artwork")
 	local spellIcon = line:CreateTexture(nil, "overlay")
 	local spellIconBorder = line:CreateTexture(nil, "overlay")
-	spellIcon:SetDrawLayer ("overlay", 1)
-	spellIconBorder:SetDrawLayer ("overlay", 2)
+	spellIcon:SetDrawLayer("overlay", 1)
+	spellIconBorder:SetDrawLayer("overlay", 2)
 	local sourceName = line:CreateFontString(nil, "overlay", "GameFontNormal")
 	local amount = line:CreateFontString(nil, "overlay", "GameFontNormal")
 	local lifePercent = line:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -53,14 +53,14 @@ local create_deathrecap_line = function(parent, n)
 	--grave icon
 	local graveIcon = line:CreateTexture(nil, "overlay")
 	graveIcon:SetTexture([[Interface\MINIMAP\POIIcons]])
-	graveIcon:SetTexCoord (146/256, 160/256, 0/512, 18/512)
+	graveIcon:SetTexCoord(146/256, 160/256, 0/512, 18/512)
 	graveIcon:SetPoint("left", line, "left", 11, 0)
 	graveIcon:SetSize(14, 18)
 	
 	--spell icon
 	spellIcon:SetSize(19, 19)
 	spellIconBorder:SetTexture([[Interface\ENCOUNTERJOURNAL\LootTab]])
-	spellIconBorder:SetTexCoord (6/256, 38/256, 49/128, 81/128)
+	spellIconBorder:SetTexCoord(6/256, 38/256, 49/128, 81/128)
 	spellIconBorder:SetSize(20, 20)
 	spellIconBorder:SetPoint("topleft", spellIcon, "topleft", 0, 0)
 
@@ -96,13 +96,13 @@ local create_deathrecap_line = function(parent, n)
 	lifeStatusBar:SetColorTexture(0.5, 0.5, 0.5, 0.4)
 
 	backgroundTexture:SetTexture([[Interface\AddOns\Details\images\deathrecap_background]])
-	backgroundTexture:SetTexCoord (0, 1, 0, 1)
+	backgroundTexture:SetTexCoord(0, 1, 0, 1)
 	backgroundTexture:SetVertexColor(.1, .1, .1, .3)
 	
 	--top border
 	local TopFader = line:CreateTexture(nil, "border")
 	TopFader:SetTexture([[Interface\AddOns\Details\images\deathrecap_background_top]])
-	TopFader:SetTexCoord (0, 1, 0, 1)
+	TopFader:SetTexCoord(0, 1, 0, 1)
 	TopFader:SetVertexColor(.1, .1, .1, .3)
 	TopFader:SetPoint("bottomleft", backgroundTexture, "topleft", 0, -0)
 	TopFader:SetPoint("bottomright", backgroundTexture, "topright", 0, -0)
@@ -114,7 +114,7 @@ local create_deathrecap_line = function(parent, n)
 		--bottom fader
 		local backgroundTexture2 = line:CreateTexture(nil, "border")
 		backgroundTexture2:SetTexture([[Interface\AddOns\Details\images\deathrecap_background_bottom]])
-		backgroundTexture2:SetTexCoord (0, 1, 0, 1)
+		backgroundTexture2:SetTexCoord(0, 1, 0, 1)
 		backgroundTexture2:SetVertexColor(.1, .1, .1, .3)	
 		backgroundTexture2:SetPoint("topleft", backgroundTexture, "bottomleft", 0, 0)
 		backgroundTexture2:SetPoint("topright", backgroundTexture, "bottomright", 0, 0)
@@ -129,7 +129,7 @@ local create_deathrecap_line = function(parent, n)
 	backgroundTexture:SetPoint("bottomright", 0, -1)
 	backgroundTexture:SetDesaturated(true)
 	backgroundTextureOverlay:SetTexture([[Interface\AdventureMap\AdventureMap]])
-	backgroundTextureOverlay:SetTexCoord (460/1024, 659/1024, 330/1024, 350/1024)
+	backgroundTextureOverlay:SetTexCoord(460/1024, 659/1024, 330/1024, 350/1024)
 	backgroundTextureOverlay:SetAllPoints()
 	backgroundTextureOverlay:SetDesaturated(true)
 	backgroundTextureOverlay:SetAlpha(0.5)
@@ -173,7 +173,7 @@ function Details.BuildDeathTableFromRecap (recapID)
 		{}, --deathlog events
 		(events [1] and events [1].timestamp) or (DeathRecapFrame and DeathRecapFrame.DeathTimeStamp) or 0, --time of death
 		UnitName ("player"),
-		select(2, UnitClass ("player")),
+		select(2, UnitClass("player")),
 		UnitHealthMax ("player"),
 		"0m 0s", --formated fight time
 		["dead"] = true,
@@ -215,10 +215,10 @@ function Details.GetDeathRecapFromChat()
 		for i = numLines, 1, -1 do
 			local text = chat1:GetMessageInfo (i)
 			if (text) then
-				if (text:find ("Hdeath:%d")) then
+				if (text:find("Hdeath:%d")) then
 					local recapID = text:match ("|Hdeath:(%d+)|h")
 					if (recapID) then
-						recapIDFromChat = tonumber (recapID)
+						recapIDFromChat = tonumber(recapID)
 					end
 					break
 				end
@@ -487,14 +487,14 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                 
                 local line = Details.DeathRecap.Lines [lineIndex]
                 if (line) then
-                    line.timeAt:SetText(format ("%.1f", eventTime - timeOfDeath) .. "s")
+                    line.timeAt:SetText(format("%.1f", eventTime - timeOfDeath) .. "s")
                     line.spellIcon:SetTexture(spellIcon or customSpellInfo and customSpellInfo [3] or "")
                     line.TopFader:Hide()
-                    --line.spellIcon:SetTexCoord (.1, .9, .1, .9)
+                    --line.spellIcon:SetTexCoord(.1, .9, .1, .9)
                     --line.sourceName:SetText("|cFFC6B0D9" .. source .. "|r")
                     
                     --parse source and cut the length of the string after setting the spellname and source
-                    local sourceClass = Details:GetClass (source)
+                    local sourceClass = Details:GetClass(source)
                     local sourceSpec = Details:GetSpec (source)
                     
                     if (not sourceClass) then
@@ -520,7 +520,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                     --remove real name or owner name
                     source = Details:GetOnlyName(source)
                     --remove owner name
-                    source = source:gsub ((" <.*"), "")
+                    source = source:gsub((" <.*"), "")
                     
                     --if a player?
                     if (Details.player_class [sourceClass]) then
@@ -534,19 +534,19 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                     --remove the dot signal from the spell name
                     if (not spellName) then
                         spellName = customSpellInfo and customSpellInfo [2] or "*?*"
-                        if (spellName:find (STRING_ENVIRONMENTAL_DAMAGE_FALLING)) then
+                        if (spellName:find(STRING_ENVIRONMENTAL_DAMAGE_FALLING)) then
                             if (UnitName ("player") == "Elphaba") then
                                 spellName = "Gravity Won!, Elphaba..."
                                 source = ""
                             else
                                 source = "Gravity"
                             end
-                            --/run for a,b in pairs(_G) do if (type(b)=="string" and b:find ("Falling")) then print(a,b) end end
+                            --/run for a,b in pairs(_G) do if (type(b)=="string" and b:find("Falling")) then print(a,b) end end
                         end
                     end
                     
-                    spellName = spellName:gsub (L["STRING_DOT"], "")
-                    spellName = spellName:gsub ("[*] ", "")
+                    spellName = spellName:gsub(L["STRING_DOT"], "")
+                    spellName = spellName:gsub("[*] ", "")
                     source = source or ""
                     
                     line.sourceName:SetText(spellName .. " (" .. "|cFFC6B0D9" .. source .. "|r" .. ")")

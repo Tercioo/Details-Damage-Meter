@@ -475,7 +475,7 @@
 						object.attribute = DetailsCustomPanel.current_attribute
 						object.source = source
 						object.target = target
-						object.spellid = tonumber (spellid)
+						object.spellid = tonumber(spellid)
 						object.script = false
 						object.tooltip = false
 
@@ -502,7 +502,7 @@
 							["attribute"] = DetailsCustomPanel.current_attribute,
 							["source"] = source,
 							["target"] = target,
-							["spellid"] = tonumber (spellid),
+							["spellid"] = tonumber(spellid),
 							["script"] = false,
 							["tooltip"] = false,
 						}
@@ -826,7 +826,7 @@
 				if (not custom_window.ExportBox) then
 					local editbox = _detalhes.gump:NewTextEntry(custom_window, nil, "$parentExportBox", "ExportBox", CONST_EDITBOX_WIDTH, 20)
 					editbox:SetPoint("bottomleft", custom_window, "bottomleft", 10, 6)
-					editbox:SetAutoFocus (false)
+					editbox:SetAutoFocus(false)
 					editbox:SetTemplate(CONST_TEXTENTRY_TEMPLATE)
 					editbox:SetHook("OnEditFocusLost", function() 
 						editbox:Hide()
@@ -836,7 +836,7 @@
 					end)
 					
 					local flashTexture = editbox:CreateTexture(nil, "overlay")
-					flashTexture:SetColorTexture (1, 1, 1)
+					flashTexture:SetColorTexture(1, 1, 1)
 					flashTexture:SetAllPoints()
 					flashTexture:SetAlpha(0)
 					
@@ -873,7 +873,7 @@
 					
 					local editbox = _detalhes.gump:NewTextEntry(custom_window, nil, "$parentImportBox", "ImportBox", CONST_EDITBOX_WIDTH - export_string.width - CONST_EDITBOX_BUTTON_WIDTH - 4, 20)
 					editbox:SetPoint("left", export_string, "right", 2, 0)
-					editbox:SetAutoFocus (false)
+					editbox:SetAutoFocus(false)
 					editbox:SetTemplate(CONST_TEXTENTRY_TEMPLATE)
 					
 					local import = function()
@@ -964,21 +964,21 @@
 			selected_left:SetTexture([[Interface\Store\Store-Main]])
 			selected_left:SetSize(50, 20)
 			selected_left:SetVertexColor(1, .8, 0, 1)
-			selected_left:SetTexCoord (960/1024, 1020/1024, 68/1024, 101/1024)
+			selected_left:SetTexCoord(960/1024, 1020/1024, 68/1024, 101/1024)
 			custom_window.selected_left = selected_left
 			
 			local selected_right = attribute_box:CreateTexture(nil, "overlay")
 			selected_right:SetTexture([[Interface\Store\Store-Main]])
 			selected_right:SetSize(31, 20)
 			selected_right:SetVertexColor(1, .8, 0, 1)
-			selected_right:SetTexCoord (270/1024, 311/1024, 873/1024, 906/1024)
+			selected_right:SetTexCoord(270/1024, 311/1024, 873/1024, 906/1024)
 			custom_window.selected_right = selected_right
 			
 			local selected_center = attribute_box:CreateTexture(nil, "overlay")
 			selected_center:SetTexture([[Interface\Store\Store-Main]])
 			selected_center:SetSize(49, 20)
 			selected_center:SetVertexColor(1, .8, 0, 1)
-			selected_center:SetTexCoord (956/1024, 1004/1024, 164/1024, 197/1024)
+			selected_center:SetTexCoord(956/1024, 1004/1024, 164/1024, 197/1024)
 			
 			selected_center:SetPoint("left", selected_left, "right")
 			selected_center:SetPoint("right", selected_right, "left")
@@ -1012,12 +1012,12 @@
 					button.icon:SetPoint("left", button, "left", 6, 0)
 					button.icon:SetSize(22, 22)
 					button.icon:SetTexture([[Interface\AddOns\Details\images\custom_icones]])
-					button.icon:SetTexCoord (p*(i-1), p*(i), 0, 1)
+					button.icon:SetTexCoord(p*(i-1), p*(i), 0, 1)
 					
 					button.text = button:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 					button.text:SetPoint("left", button.icon, "right", 4, 0)
 					button.text:SetText(attributes [i] and attributes [i].label or "")
-					button.text:SetTextColor (.9, .9, .9, 1)
+					button.text:SetTextColor(.9, .9, .9, 1)
 				
 				end
 			end
@@ -1071,7 +1071,7 @@
 				local pickicon = function()
 					gump:IconPick (pickicon_callback, true)
 				end
-				local icon_image = gump:NewImage (box0, [[Interface\ICONS\TEMP]], 20, 20, nil, nil, "icontexture", "$parentIconTexture")
+				local icon_image = gump:NewImage(box0, [[Interface\ICONS\TEMP]], 20, 20, nil, nil, "icontexture", "$parentIconTexture")
 				local icon_button = gump:NewButton(box0, nil, "$parentIconButton", "IconButton", 20, 20, pickicon)
 				icon_button:InstallCustomTexture()
 				icon_button:SetPoint("left", icon_label, "left", 64, 0)
@@ -1108,7 +1108,7 @@
 					end
 					local enable_source_field = function()
 						box1.sourceentry:Enable()
-						box1.sourceentry:SetFocus (true)
+						box1.sourceentry:SetFocus(true)
 					end
 					
 					local source_icon = [[Interface\COMMON\Indicator-Yellow]]
@@ -1137,7 +1137,7 @@
 					local adds_boss_image = adds_boss:CreateTexture(nil, "overlay")
 					adds_boss_image:SetPoint("center", adds_boss)
 					adds_boss_image:SetTexture("Interface\\Buttons\\UI-MicroButton-Raid-Up")
-					adds_boss_image:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
+					adds_boss_image:SetTexCoord(0.046875, 0.90625, 0.40625, 0.953125)
 					adds_boss_image:SetWidth(20)
 					adds_boss_image:SetHeight(16)
 
@@ -1179,7 +1179,7 @@
 					local buttonMouseOver = function(button)
 						button.MyObject.image:SetBlendMode("ADD")
 						button.MyObject.line:SetBlendMode("ADD")
-						button.MyObject.label:SetTextColor (1, 1, 1, 1)
+						button.MyObject.label:SetTextColor(1, 1, 1, 1)
 						GameTooltip:SetOwner(button, "ANCHOR_TOPLEFT")
 						GameTooltip:AddLine(button.MyObject.actor)
 						GameTooltip:Show()
@@ -1187,7 +1187,7 @@
 						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = DetailsFramework.EncounterJournal.EJ_GetInstanceInfo (button.MyObject.ej_id)
 						
 						modelFrameTexture:SetTexture(bgImage)
-						modelFrameTexture:SetTexCoord (3/512, 370/512, 5/512, 429/512)
+						modelFrameTexture:SetTexCoord(3/512, 370/512, 5/512, 429/512)
 						modelFrame:Show()
 						
 						modelFrame:SetDisplayInfo (button.MyObject.model)
@@ -1195,7 +1195,7 @@
 					local buttonMouseOut = function(button)
 						button.MyObject.image:SetBlendMode("BLEND")
 						button.MyObject.line:SetBlendMode("BLEND")
-						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
+						button.MyObject.label:SetTextColor(.8, .8, .8, .8)
 						GameTooltip:Hide()
 						modelFrame:Hide()
 					end
@@ -1226,7 +1226,7 @@
 									thisButton:SetHook("OnEnter", buttonMouseOver)
 									thisButton:SetHook("OnLeave", buttonMouseOut)
 									
-									local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomActors2EncounterImageButton"..i)
+									local t = gump:NewImage(thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomActors2EncounterImageButton"..i)
 									t:SetPoint("left", thisButton)
 									t:SetTexture([[Interface\MINIMAP\TRACKING\Target]])
 									t:SetDesaturated(true)
@@ -1238,14 +1238,14 @@
 									text:SetWidth(123)
 									text:SetHeight(10)
 									
-									local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomActors2EncounterBorderButton"..i)
-									border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
-									border:SetDrawLayer ("background")
+									local border = gump:NewImage(thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomActors2EncounterBorderButton"..i)
+									border:SetTexCoord(0.00390625, 0.27734375, 0.44140625,0.69531250)
+									border:SetDrawLayer("background")
 									border:SetPoint("topleft", thisButton.button, "topleft", -9, 9)
 									
-									local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 134, 25, nil, nil, "line", "DetailsCustomActors2EncounterLineButton"..i)
-									line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
-									line:SetDrawLayer ("background")
+									local line = gump:NewImage(thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 134, 25, nil, nil, "line", "DetailsCustomActors2EncounterLineButton"..i)
+									line:SetTexCoord(0.31250000, 0.96484375, 0.37109375, 0.52343750)
+									line:SetDrawLayer("background")
 									line:SetPoint("left", thisButton.button, "right", -110, -3)
 									
 									table.insert (actorsFrameButtons, #actorsFrameButtons+1, thisButton)
@@ -1328,7 +1328,7 @@
 					end
 					local enable_target_field = function()
 						box1.targetentry:Enable()
-						box1.targetentry:SetFocus (true)
+						box1.targetentry:SetFocus(true)
 					end
 					
 					local target_icon = [[Interface\COMMON\Indicator-Yellow]]
@@ -1359,7 +1359,7 @@
 					local adds_boss_image = adds_boss:CreateTexture(nil, "overlay")
 					adds_boss_image:SetPoint("center", adds_boss)
 					adds_boss_image:SetTexture("Interface\\Buttons\\UI-MicroButton-Raid-Up")
-					adds_boss_image:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
+					adds_boss_image:SetTexCoord(0.046875, 0.90625, 0.40625, 0.953125)
 					adds_boss_image:SetWidth(20)
 					adds_boss_image:SetHeight(16)
 					
@@ -1387,7 +1387,7 @@
 					local buttonMouseOver = function(button)
 						button.MyObject.image:SetBlendMode("ADD")
 						button.MyObject.line:SetBlendMode("ADD")
-						button.MyObject.label:SetTextColor (1, 1, 1, 1)
+						button.MyObject.label:SetTextColor(1, 1, 1, 1)
 						GameTooltip:SetOwner(button, "ANCHOR_TOPLEFT")
 						GameTooltip:AddLine(button.MyObject.actor)
 						GameTooltip:Show()
@@ -1395,7 +1395,7 @@
 						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = DetailsFramework.EncounterJournal.EJ_GetInstanceInfo (button.MyObject.ej_id)
 						
 						modelFrameTexture:SetTexture(bgImage)
-						modelFrameTexture:SetTexCoord (3/512, 370/512, 5/512, 429/512)
+						modelFrameTexture:SetTexCoord(3/512, 370/512, 5/512, 429/512)
 						modelFrame:Show()
 						
 						modelFrame:SetDisplayInfo (button.MyObject.model)
@@ -1403,7 +1403,7 @@
 					local buttonMouseOut = function(button)
 						button.MyObject.image:SetBlendMode("BLEND")
 						button.MyObject.line:SetBlendMode("BLEND")
-						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
+						button.MyObject.label:SetTextColor(.8, .8, .8, .8)
 						GameTooltip:Hide()
 						
 						modelFrame:Hide()
@@ -1434,7 +1434,7 @@
 									thisButton:SetHook("OnEnter", buttonMouseOver)
 									thisButton:SetHook("OnLeave", buttonMouseOut)
 									
-									local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomActorsEncounterImageButton"..i)
+									local t = gump:NewImage(thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomActorsEncounterImageButton"..i)
 									t:SetPoint("left", thisButton)
 									t:SetTexture([[Interface\MINIMAP\TRACKING\Target]])
 									t:SetDesaturated(true)
@@ -1446,14 +1446,14 @@
 									text:SetWidth(123)
 									text:SetHeight(10)
 									
-									local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomActorsEncounterBorderButton"..i)
-									border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
-									border:SetDrawLayer ("background")
+									local border = gump:NewImage(thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomActorsEncounterBorderButton"..i)
+									border:SetTexCoord(0.00390625, 0.27734375, 0.44140625,0.69531250)
+									border:SetDrawLayer("background")
 									border:SetPoint("topleft", thisButton.button, "topleft", -9, 9)
 									
-									local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomActorsEncounterLineButton"..i)
-									line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
-									line:SetDrawLayer ("background")
+									local line = gump:NewImage(thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomActorsEncounterLineButton"..i)
+									line:SetTexCoord(0.31250000, 0.96484375, 0.37109375, 0.52343750)
+									line:SetDrawLayer("background")
 									line:SetPoint("left", thisButton.button, "right", -110, -3)
 									
 									table.insert (actorsFrameButtons, #actorsFrameButtons+1, thisButton)
@@ -1541,7 +1541,7 @@
 					local spell_id_boss_image = spell_id_boss:CreateTexture(nil, "overlay")
 					spell_id_boss_image:SetPoint("center", spell_id_boss)
 					spell_id_boss_image:SetTexture("Interface\\Buttons\\UI-MicroButton-Raid-Up")
-					spell_id_boss_image:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
+					spell_id_boss_image:SetTexCoord(0.046875, 0.90625, 0.40625, 0.953125)
 					spell_id_boss_image:SetWidth(20)
 					spell_id_boss_image:SetHeight(16)
 					
@@ -1562,7 +1562,7 @@
 					local buttonMouseOver = function(button)
 						button.MyObject.image:SetBlendMode("ADD")
 						button.MyObject.line:SetBlendMode("ADD")
-						button.MyObject.label:SetTextColor (1, 1, 1, 1)
+						button.MyObject.label:SetTextColor(1, 1, 1, 1)
 
 						GameTooltip:SetOwner(button, "ANCHOR_TOPLEFT")
 						_detalhes:GameTooltipSetSpellByID (button.MyObject.spellid)
@@ -1571,7 +1571,7 @@
 					local buttonMouseOut = function(button)
 						button.MyObject.image:SetBlendMode("BLEND")
 						button.MyObject.line:SetBlendMode("BLEND")
-						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
+						button.MyObject.label:SetTextColor(.8, .8, .8, .8)
 						GameTooltip:Hide()
 					end
 					
@@ -1599,7 +1599,7 @@
 								thisButton:SetHook("OnEnter", buttonMouseOver)
 								thisButton:SetHook("OnLeave", buttonMouseOut)
 								
-								local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomEncounterImageButton"..i)
+								local t = gump:NewImage(thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomEncounterImageButton"..i)
 								t:SetPoint("left", thisButton)
 								
 								local text = gump:NewLabel(thisButton, nil, "DetailsCustomSpellsFrameButton"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
@@ -1607,14 +1607,14 @@
 								text:SetWidth(73)
 								text:SetHeight(10)
 								
-								local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomEncounterBorderButton"..i)
-								border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
-								border:SetDrawLayer ("background")
+								local border = gump:NewImage(thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomEncounterBorderButton"..i)
+								border:SetTexCoord(0.00390625, 0.27734375, 0.44140625,0.69531250)
+								border:SetDrawLayer("background")
 								border:SetPoint("topleft", thisButton.button, "topleft", -9, 9)
 								
-								local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomEncounterLineButton"..i)
-								line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
-								line:SetDrawLayer ("background")
+								local line = gump:NewImage(thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomEncounterLineButton"..i)
+								line:SetTexCoord(0.31250000, 0.96484375, 0.37109375, 0.52343750)
+								line:SetDrawLayer("background")
 								line:SetPoint("left", thisButton.button, "right", -60, -3)
 								
 								table.insert (spellsFrameButtons, #spellsFrameButtons+1, thisButton)
@@ -1734,9 +1734,9 @@
 					local func, errortext = loadstring (script)
 					if (not func) then
 						local firstLine = strsplit("\n", script, 2)
-						errortext = errortext:gsub (firstLine, "")
-						errortext = errortext:gsub ("%[string \"", "")
-						errortext = errortext:gsub ("...\"]:", "")
+						errortext = errortext:gsub(firstLine, "")
+						errortext = errortext:gsub("%[string \"", "")
+						errortext = errortext:gsub("...\"]:", "")
 						errortext = "Line " .. errortext
 						DetailsCustomPanel.ErrorString.text = errortext
 					else

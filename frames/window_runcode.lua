@@ -51,7 +51,7 @@ function Details.OpenRunCodeWindow()
             code_editor:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
             code_editor:SetBackdropBorderColor(0, 0, 0, 1)
             
-            code_editor.__background:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
+            code_editor.__background:SetColorTexture(0.2317647, 0.2317647, 0.2317647)
             code_editor.__background:SetVertexColor(0.27, 0.27, 0.27)
             code_editor.__background:SetAlpha(0.8)
             code_editor.__background:SetVertTile(true)
@@ -82,10 +82,10 @@ function Details.OpenRunCodeWindow()
                     local func, errortext = loadstring (script, "Q")
                     if (not func) then
                         local firstLine = strsplit("\n", script, 2)
-                        errortext = errortext:gsub (firstLine, "")
-                        errortext = errortext:gsub ("%[string \"", "")
-                        errortext = errortext:gsub ("...\"]:", "")
-                        errortext = errortext:gsub ("Q\"]:", "")
+                        errortext = errortext:gsub(firstLine, "")
+                        errortext = errortext:gsub("%[string \"", "")
+                        errortext = errortext:gsub("...\"]:", "")
+                        errortext = errortext:gsub("Q\"]:", "")
                         errortext = "Line " .. errortext
                         errortext_label.text = errortext
                     else

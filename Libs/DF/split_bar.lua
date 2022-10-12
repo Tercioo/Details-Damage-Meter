@@ -18,16 +18,13 @@ local APISplitBarFunctions
 do
 	local metaPrototype = {
 		WidgetType = "split_bar",
-		SetHook = DF.SetHook,
-		RunHooksForWidget = DF.RunHooksForWidget,
-
 		dversion = DF.dversion,
 	}
 
 	--check if there's a metaPrototype already existing
 	if (_G[DF.GlobalWidgetControlNames["split_bar"]]) then
 		--get the already existing metaPrototype
-		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames ["split_bar"]]
+		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames["split_bar"]]
 		--check if is older
 		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < DF.dversion) ) then
 			--the version is older them the currently loading one
@@ -38,11 +35,12 @@ do
 		end
 	else
 		--first time loading the framework
-		_G[DF.GlobalWidgetControlNames ["split_bar"]] = metaPrototype
+		_G[DF.GlobalWidgetControlNames["split_bar"]] = metaPrototype
 	end
 end
 
-local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
+local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames["split_bar"]]
+DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --metatables
@@ -238,7 +236,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	local smember_lcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
 		
-		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
+		_object.statusbar:SetStatusBarColor(_value1, _value2, _value3, _value4)
 		_object.texture.original_colors = {_value1, _value2, _value3, _value4}
 		return _object.texture:SetVertexColor(_value1, _value2, _value3, _value4)
 	end
@@ -248,7 +246,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 			local _value1, _value2 = _unpack(_value)
 			_object.iconright:SetTexture(_value1)
 			if (_value2) then
-				_object.iconright:SetTexCoord (_unpack(_value2))
+				_object.iconright:SetTexCoord(_unpack(_value2))
 			end
 		else
 			_object.iconright:SetTexture(_value)
@@ -261,7 +259,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 			local _value1, _value2 = _unpack(_value)
 			_object.iconleft:SetTexture(_value1)
 			if (_value2) then
-				_object.iconleft:SetTexCoord (_unpack(_value2))
+				_object.iconleft:SetTexCoord(_unpack(_value2))
 			end
 		else
 			_object.iconleft:SetTexture(_value)
@@ -275,8 +273,8 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 			_object.texture:SetTexture(_value1)
 			_object.rightTexture:SetTexture(_value1)
 			if (_value2) then
-				_object.texture:SetTexCoord (_unpack(_value2))
-				_object.rightTexture:SetTexCoord (_unpack(_value2))
+				_object.texture:SetTexCoord(_unpack(_value2))
+				_object.rightTexture:SetTexCoord(_unpack(_value2))
 			end
 		else
 			_object.texture:SetTexture(_value)
@@ -297,8 +295,8 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	--font color
 	local smember_textcolor = function(_object, _value)
 		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
-		_object.textleft:SetTextColor (_value1, _value2, _value3, _value4)
-		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
+		_object.textleft:SetTextColor(_value1, _value2, _value3, _value4)
+		return _object.textright:SetTextColor(_value1, _value2, _value3, _value4)
 	end
 
 	SplitBarMetaFunctions.SetMembers = SplitBarMetaFunctions.SetMembers or {}
@@ -421,14 +419,14 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 		self.iconleft:SetTexture(texture)
 		if (...) then
 			local L, R, U, D = unpack(...)
-			self.iconleft:SetTexCoord (L, R, U, D)
+			self.iconleft:SetTexCoord(L, R, U, D)
 		end
 	end
 	function SplitBarMetaFunctions:SetRightIcon (texture, ...)
 		self.iconright:SetTexture(texture)
 		if (...) then
 			local L, R, U, D = unpack(...)
-			self.iconright:SetTexCoord (L, R, U, D)
+			self.iconright:SetTexCoord(L, R, U, D)
 		end
 	end
 
@@ -564,7 +562,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 
 	local OnEnter = function(frame)
 		local capsule = frame.MyObject
-		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
+		local kill = capsule:RunHooksForWidget("OnEnter", frame, capsule)
 		if (kill) then
 			return
 		end
@@ -578,7 +576,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	
 	local OnLeave = function(frame)
 		local capsule = frame.MyObject
-		local kill = capsule:RunHooksForWidget ("OnLeave", frame, capsule)
+		local kill = capsule:RunHooksForWidget("OnLeave", frame, capsule)
 		if (kill) then
 			return
 		end
@@ -590,7 +588,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	
 	local OnHide = function(frame)
 		local capsule = frame.MyObject
-		local kill = capsule:RunHooksForWidget ("OnHide", frame, capsule)
+		local kill = capsule:RunHooksForWidget("OnHide", frame, capsule)
 		if (kill) then
 			return
 		end
@@ -598,7 +596,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	
 	local OnShow = function(frame)
 		local capsule = frame.MyObject
-		local kill = capsule:RunHooksForWidget ("OnShow", frame, capsule)
+		local kill = capsule:RunHooksForWidget("OnShow", frame, capsule)
 		if (kill) then
 			return
 		end
@@ -606,7 +604,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	
 	local OnMouseDown = function(frame, button)
 		local capsule = frame.MyObject
-		local kill = capsule:RunHooksForWidget ("OnMouseDown", frame, button, capsule)
+		local kill = capsule:RunHooksForWidget("OnMouseDown", frame, button, capsule)
 		if (kill) then
 			return
 		end
@@ -621,7 +619,7 @@ local SplitBarMetaFunctions = _G[DF.GlobalWidgetControlNames ["split_bar"]]
 	
 	local OnMouseUp = function(frame, button)
 		local capsule = frame.MyObject
-		local kill = capsule:RunHooksForWidget ("OnMouseUp", frame, button, capsule)
+		local kill = capsule:RunHooksForWidget("OnMouseUp", frame, button, capsule)
 		if (kill) then
 			return
 		end
@@ -716,15 +714,15 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		DF.SplitBarCounter = DF.SplitBarCounter + 1
 	end
 	if (not parent) then
-		return error ("Details! FrameWork: parent not found.", 2)
+		return error("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent
 	end
 	
-	if (name:find ("$parent")) then
-		local parentName = DF.GetParentName (parent)
-		name = name:gsub ("$parent", parentName)
+	if (name:find("$parent")) then
+		local parentName = DF.GetParentName(parent)
+		name = name:gsub("$parent", parentName)
 	end
 	
 	local SplitBarObject = {type = "barsplit", dframework = true}
@@ -754,7 +752,7 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		
 		if (not APISplitBarFunctions) then
 			APISplitBarFunctions = true
-			local idx = getmetatable (SplitBarObject.statusbar).__index
+			local idx = getmetatable(SplitBarObject.statusbar).__index
 			for funcName, funcAddress in pairs(idx) do 
 				if (not SplitBarMetaFunctions [funcName]) then
 					SplitBarMetaFunctions [funcName] = function(object, ...)

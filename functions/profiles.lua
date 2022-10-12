@@ -165,7 +165,7 @@ function _detalhes:ResetProfile (profile_name)
 		end
 	
 	--reset the profile
-		table.wipe (profile.instances)
+		table.wipe(profile.instances)
 
 		--export first instance
 		local instance = _detalhes:GetInstance(1)
@@ -196,7 +196,7 @@ function _detalhes:CreatePanicWarning()
 	--tinsert(UISpecialFrames, "DetailsPanicWarningFrame")
 	_detalhes.instance_load_failed.text = _detalhes.instance_load_failed:CreateFontString(nil, "overlay", "GameFontNormal")
 	_detalhes.instance_load_failed.text:SetPoint("center", _detalhes.instance_load_failed, "center")
-	_detalhes.instance_load_failed.text:SetTextColor (1, 0.6, 0)
+	_detalhes.instance_load_failed.text:SetTextColor(1, 0.6, 0)
 	_detalhes.instance_load_failed:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 	_detalhes.instance_load_failed:SetBackdropColor(1, 0, 0, 0.2)
 	_detalhes.instance_load_failed:SetPoint("topleft", UIParent, "topleft", 0, -250)
@@ -204,7 +204,7 @@ function _detalhes:CreatePanicWarning()
 end
 
 local safe_load = function(func, param1, ...)
-	local okey, errortext = pcall (func, param1, ...)
+	local okey, errortext = pcall(func, param1, ...)
 	if (not okey) then
 		if (not _detalhes.instance_load_failed) then
 			_detalhes:CreatePanicWarning()
@@ -283,7 +283,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		
 		--then close all opened instances
 		for index, instance in _detalhes:ListInstances() do
-			if (not getmetatable (instance)) then
+			if (not getmetatable(instance)) then
 				instance.iniciada = false
 				setmetatable(instance, _detalhes)
 			end
@@ -1511,7 +1511,7 @@ function _detalhes:SaveProfileSpecial()
 		end
 
 	--save skins
-		table.wipe (profile.instances)
+		table.wipe(profile.instances)
 
 		if (_detalhes.tabela_instancias) then
 			for index, instance in ipairs(_detalhes.tabela_instancias) do
@@ -1686,7 +1686,7 @@ function Details:ExportCurrentProfile()
 	for key, _ in pairs(defaultPlayerData) do
 		if (not exportProfileBlacklist[key]) then
 			if (type(Details[key]) == "table") then
-				playerData [key] = DetailsFramework.table.copy ({}, Details[key])
+				playerData [key] = DetailsFramework.table.copy({}, Details[key])
 			else
 				playerData [key] = Details[key]
 			end
@@ -1695,7 +1695,7 @@ function Details:ExportCurrentProfile()
 	for key, _ in pairs(defaultGlobalData) do
 		if (not exportProfileBlacklist[key]) then
 			if (type(Details[key]) == "table") then
-				globaData [key] = DetailsFramework.table.copy ({}, Details[key])
+				globaData [key] = DetailsFramework.table.copy({}, Details[key])
 			else
 				globaData [key] = Details[key]
 			end
@@ -1754,7 +1754,7 @@ function Details:ImportProfile (profileString, newProfileName)
 			local importedValue = playerData[key]
 			if (importedValue ~= nil) then
 				if (type(importedValue) == "table") then
-					Details [key] = DetailsFramework.table.copy ({}, importedValue)
+					Details [key] = DetailsFramework.table.copy({}, importedValue)
 				else
 					Details [key] = importedValue
 				end
@@ -1765,7 +1765,7 @@ function Details:ImportProfile (profileString, newProfileName)
 			local importedValue = globalData[key]
 			if (importedValue ~= nil) then
 				if (type(importedValue) == "table") then
-					Details [key] = DetailsFramework.table.copy ({}, importedValue)
+					Details [key] = DetailsFramework.table.copy({}, importedValue)
 				else
 					Details [key] = importedValue
 				end
@@ -1777,7 +1777,7 @@ function Details:ImportProfile (profileString, newProfileName)
 			local importedValue = profileData[key]
 			if (importedValue ~= nil) then
 				if (type(importedValue) == "table") then
-					profileObject [key] = DetailsFramework.table.copy ({}, importedValue)
+					profileObject [key] = DetailsFramework.table.copy({}, importedValue)
 				else
 					profileObject [key] = importedValue
 				end
@@ -1804,7 +1804,7 @@ function Details:ImportProfile (profileString, newProfileName)
 		Details.segments_amount_to_save = 40
 
 		--transfer instance data to the new created profile
-		profileObject.instances = DetailsFramework.table.copy ({}, profileData.instances)
+		profileObject.instances = DetailsFramework.table.copy({}, profileData.instances)
 
 		Details:ApplyProfile (newProfileName)
 

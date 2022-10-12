@@ -401,11 +401,11 @@ function Details.packFunctions.RetriveActorInformation(combatData, index)
     local serialNumber = combatData[index + 2]
     serialNumber = unpackActorSerial(serialNumber)
 
-    --class [4]
+    --class[4]
     local class = combatData[index + 3]
     class = unpackActorClass(class)
 
-    --spec [5]
+    --spec[5]
     local spec = tonumber(combatData[index + 4])
 
     --return the values

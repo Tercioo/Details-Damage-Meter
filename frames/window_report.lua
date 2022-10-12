@@ -766,12 +766,12 @@ local createDropdown = function(thisFrame)
 		window.recently_report_buttons = {}
 
 		local historyBlockBackground = window:CreateTexture(nil, "background")
-		historyBlockBackground:SetColorTexture (0, 0, 0, .3)
+		historyBlockBackground:SetColorTexture(0, 0, 0, .3)
 		historyBlockBackground:SetSize(160, 158)
 		historyBlockBackground:SetPoint("topleft", window, "topleft", 3, -25)
 
 		local separator = window:CreateTexture(nil, "border")
-		separator:SetColorTexture (0, 0, 0, .6)
+		separator:SetColorTexture(0, 0, 0, .6)
 		separator:SetSize(2, 158)
 		separator:SetPoint("topleft", historyBlockBackground, "topright", 0, 0)
 
