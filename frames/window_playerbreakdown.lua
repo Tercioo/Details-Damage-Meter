@@ -13,7 +13,7 @@ local ipairs = ipairs
 local pairs = pairs
 local type = type
 --api locals
-local _CreateFrame = CreateFrame
+local CreateFrame = CreateFrame
 local GetTime = GetTime
 local _GetSpellInfo = _detalhes.getspellinfo
 local _GetCursorPosition = GetCursorPosition
@@ -609,104 +609,101 @@ local detalhes_inforeport_onleave = function(self)
 	Details.FadeHandler.Fader(self, "IN")
 end
 
-function gump:CriaDetalheInfo (index)
-	local info = {}
+function gump:CriaDetalheInfo(index)
+	local spellInfoBlock = {}
 
-	info.bg = _CreateFrame ("StatusBar", "DetailsPlayerDetailsWindow_DetalheInfoBG" .. index, _detalhes.playerDetailWindow.container_detalhes, "BackdropTemplate")
-	info.bg:SetStatusBarTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2")
-	info.bg:SetStatusBarColor(1, 1, 1, .84)
-	info.bg:SetMinMaxValues(0, 100)
-	info.bg:SetValue(100)
-	info.bg:SetSize(320, 47)
+	spellInfoBlock.bg = CreateFrame("StatusBar", "DetailsPlayerDetailsWindow_DetalheInfoBG" .. index, _detalhes.playerDetailWindow.container_detalhes, "BackdropTemplate")
+	spellInfoBlock.bg:SetStatusBarTexture("Interface\\AddOns\\Details\\images\\bar_detalhes2")
+	spellInfoBlock.bg:SetStatusBarColor(1, 1, 1, .84)
+	spellInfoBlock.bg:SetMinMaxValues(0, 100)
+	spellInfoBlock.bg:SetValue(100)
+	spellInfoBlock.bg:SetSize(320, 47)
 
-	info.nome = info.bg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	info.nome2 = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano_porcento = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano_media = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	info.dano_dps = info.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.nome = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	spellInfoBlock.nome2 = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.dano = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.dano_porcento = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.dano_media = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.dano_dps = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
-	info.bg.overlay = info.bg:CreateTexture("DetailsPlayerDetailsWindow_DetalheInfoBG_Overlay" .. index, "ARTWORK")
-	info.bg.overlay:SetTexture("Interface\\AddOns\\Details\\images\\overlay_detalhes")
-	info.bg.overlay:SetWidth(341)
-	info.bg.overlay:SetHeight(61)
-	info.bg.overlay:SetPoint("TOPLEFT", info.bg, "TOPLEFT", -7, 6)
-	Details.FadeHandler.Fader(info.bg.overlay, 1)
+	spellInfoBlock.middleStringUp = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.middleStringDown = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
-	info.bg.reportar = gump:NewDetailsButton (info.bg, nil, nil, _detalhes.Reportar, _detalhes.playerDetailWindow, 10+index, 16, 16,
+	spellInfoBlock.bg.overlay = spellInfoBlock.bg:CreateTexture("DetailsPlayerDetailsWindow_DetalheInfoBG_Overlay" .. index, "ARTWORK")
+	spellInfoBlock.bg.overlay:SetTexture("Interface\\AddOns\\Details\\images\\overlay_detalhes")
+	spellInfoBlock.bg.overlay:SetWidth(341)
+	spellInfoBlock.bg.overlay:SetHeight(61)
+	spellInfoBlock.bg.overlay:SetPoint("TOPLEFT", spellInfoBlock.bg, "TOPLEFT", -7, 6)
+	Details.FadeHandler.Fader(spellInfoBlock.bg.overlay, 1)
+
+	spellInfoBlock.bg.reportar = gump:NewDetailsButton (spellInfoBlock.bg, nil, nil, _detalhes.Reportar, _detalhes.playerDetailWindow, 10+index, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport1")
-	info.bg.reportar:SetPoint("BOTTOMLEFT", info.bg.overlay, "BOTTOMRIGHT",  -33, 10)
-	Details.FadeHandler.Fader(info.bg.reportar, 1)
+	spellInfoBlock.bg.reportar:SetPoint("BOTTOMLEFT", spellInfoBlock.bg.overlay, "BOTTOMRIGHT",  -33, 10)
+	Details.FadeHandler.Fader(spellInfoBlock.bg.reportar, 1)
 
-	info.bg:SetScript("OnEnter", detalhe_infobg_onenter)
-	info.bg:SetScript("OnLeave", detalhe_infobg_onleave)
+	spellInfoBlock.bg:SetScript("OnEnter", detalhe_infobg_onenter)
+	spellInfoBlock.bg:SetScript("OnLeave", detalhe_infobg_onleave)
 
-	info.bg.reportar:SetScript("OnEnter", detalhes_inforeport_onenter)
-	info.bg.reportar:SetScript("OnLeave", detalhes_inforeport_onleave)
+	spellInfoBlock.bg.reportar:SetScript("OnEnter", detalhes_inforeport_onenter)
+	spellInfoBlock.bg.reportar:SetScript("OnLeave", detalhes_inforeport_onleave)
 
-	info.bg_end = info.bg:CreateTexture("DetailsPlayerDetailsWindow_DetalheInfoBG_bg_end" .. index, "BACKGROUND")
-	info.bg_end:SetHeight(47)
-	info.bg_end:SetTexture("Interface\\AddOns\\Details\\images\\bar_detalhes2_end")
+	spellInfoBlock.bg_end = spellInfoBlock.bg:CreateTexture("DetailsPlayerDetailsWindow_DetalheInfoBG_bg_end" .. index, "BACKGROUND")
+	spellInfoBlock.bg_end:SetHeight(47)
+	spellInfoBlock.bg_end:SetTexture("Interface\\AddOns\\Details\\images\\bar_detalhes2_end")
 
-	_detalhes.playerDetailWindow.grupos_detalhes [index] = info
+	_detalhes.playerDetailWindow.grupos_detalhes[index] = spellInfoBlock
 end
 
-function info:SetDetailInfoConfigs (texture, color, x, y)
+function info:SetDetailInfoConfigs(texture, color, x, y)
 	for i = 1, spellInfoSettings.amount do
 		if (texture) then
-			info.grupos_detalhes [i].bg:SetStatusBarTexture (texture)
+			info.grupos_detalhes[i].bg:SetStatusBarTexture(texture)
 		end
 
 		if (color) then
-			local texture = info.grupos_detalhes [i].bg:GetStatusBarTexture()
+			local texture = info.grupos_detalhes[i].bg:GetStatusBarTexture()
 			texture:SetVertexColor(unpack(color))
 		end
 
 		if (x or y) then
-			gump:SetaDetalheInfoAltura (i, x, y)
+			gump:SetaDetalheInfoAltura(i, x, y)
 		end
 	end
 end
 
 --determina qual a pocis�o que a barra de detalhes vai ocupar
 ------------------------------------------------------------------------------------------------------------------------------
-function gump:SetaDetalheInfoAltura (index, xmod, ymod)
-	local info = _detalhes.playerDetailWindow.grupos_detalhes [index]
-	local janela =  _detalhes.playerDetailWindow.container_detalhes
-
-	local altura = {-10, -63, -118, -173, -228, -279}
-
-	local x1 = 64 + (xmod or 0)
-	local x2 = 00 + (ymod or 0)
-
-	altura = altura [index]
+function gump:SetaDetalheInfoAltura(index, xmod, ymod)
+	local spellInfoBlock = _detalhes.playerDetailWindow.grupos_detalhes[index]
+	--local janela =  _detalhes.playerDetailWindow.container_detalhes
+	--local altura = {-10, -63, -118, -173, -228, -279}
+	--altura = altura[index]
 
 	local background
-
-	local y = -74 - ((index-1) * 79.5)
+	local yOffset = -74 - ((index-1) * 79.5)
 
 	if (index == 1) then
-		_detalhes.playerDetailWindow.right_background1:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), y)
+		_detalhes.playerDetailWindow.right_background1:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), yOffset)
 		background = _detalhes.playerDetailWindow.right_background1
 
 	elseif (index == 2) then
-		_detalhes.playerDetailWindow.right_background2:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), y)
+		_detalhes.playerDetailWindow.right_background2:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), yOffset)
 		background = _detalhes.playerDetailWindow.right_background2
 
 	elseif (index == 3) then
-		_detalhes.playerDetailWindow.right_background3:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), y)
+		_detalhes.playerDetailWindow.right_background3:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), yOffset)
 		background = _detalhes.playerDetailWindow.right_background3
 
 	elseif (index == 4) then
-		_detalhes.playerDetailWindow.right_background4:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), y)
+		_detalhes.playerDetailWindow.right_background4:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), yOffset)
 		background = _detalhes.playerDetailWindow.right_background4
 
 	elseif (index == 5) then
-		_detalhes.playerDetailWindow.right_background5:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), y)
+		_detalhes.playerDetailWindow.right_background5:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), yOffset)
 		background = _detalhes.playerDetailWindow.right_background5
 
 	elseif (index == 6) then
-		_detalhes.playerDetailWindow.right_background6:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), y)
+		_detalhes.playerDetailWindow.right_background6:SetPoint("topleft", _detalhes.playerDetailWindow, "topleft", 357 + (xmod or 0), yOffset)
 		background = _detalhes.playerDetailWindow.right_background6
 
 	end
@@ -714,91 +711,111 @@ function gump:SetaDetalheInfoAltura (index, xmod, ymod)
 	background:SetHeight(75)
 
 	--3 textos da esquerda e direita
-	local y = -3
-	local x = 3
+	local yOffset = -3
+	local xOffset = 3
 	local right = -1
 
-	info.nome:SetPoint("TOPLEFT", background, "TOPLEFT", x, y + (-2))
-	info.dano:SetPoint("TOPLEFT", background, "TOPLEFT", x, y + (-24))
-	info.dano_media:SetPoint("TOPLEFT", background, "TOPLEFT", x, y + (-44))
+	spellInfoBlock.nome:SetPoint("TOPLEFT", background, "TOPLEFT", xOffset, yOffset + (-2))
+	spellInfoBlock.dano:SetPoint("TOPLEFT", background, "TOPLEFT", xOffset, yOffset + (-24))
+	spellInfoBlock.dano_media:SetPoint("TOPLEFT", background, "TOPLEFT", xOffset, yOffset + (-44))
 
-	info.nome2:SetPoint("TOPRIGHT", background, "TOPRIGHT", -x + right,  y + (-2))
-	info.dano_porcento:SetPoint("TOPRIGHT", background, "TOPRIGHT", -x + right, y + (-24))
-	info.dano_dps:SetPoint("TOPRIGHT", background, "TOPRIGHT", -x + right, y + (-44))
+	spellInfoBlock.nome2:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right,  yOffset + (-2))
+	spellInfoBlock.dano_porcento:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right, yOffset + (-24))
+	spellInfoBlock.dano_dps:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right, yOffset + (-44))
 
-	info.bg:SetPoint("TOPLEFT", background, "TOPLEFT", 1, -1)
-	info.bg:SetHeight(background:GetHeight() - 2)
-	info.bg:SetWidth(background:GetWidth())
+	spellInfoBlock.middleStringUp:SetPoint("center", background, "center", 0, 0)
+	spellInfoBlock.middleStringUp:SetPoint("top", background, "top", 0, -2)
 
-	info.bg_end:SetPoint("LEFT", info.bg, "LEFT", info.bg:GetValue()*2.19, 0)
-	info.bg_end:SetHeight(background:GetHeight()+2)
-	info.bg_end:SetWidth(6)
-	info.bg_end:SetAlpha(.75)
+	spellInfoBlock.middleStringDown:SetPoint("center", background, "center", 0, 0)
+	spellInfoBlock.middleStringDown:SetPoint("bottom", background, "bottom", 0, 2)
 
-	info.bg.overlay:SetWidth(background:GetWidth() + 24)
-	info.bg.overlay:SetHeight(background:GetHeight() + 16)
+	spellInfoBlock.bg:SetPoint("TOPLEFT", background, "TOPLEFT", 1, -1)
+	spellInfoBlock.bg:SetHeight(background:GetHeight() - 2)
+	spellInfoBlock.bg:SetWidth(background:GetWidth())
 
-	info.bg:Hide()
+	spellInfoBlock.bg_end:SetPoint("LEFT", spellInfoBlock.bg, "LEFT", spellInfoBlock.bg:GetValue()*2.19, 0)
+	spellInfoBlock.bg_end:SetHeight(background:GetHeight()+2)
+	spellInfoBlock.bg_end:SetWidth(6)
+	spellInfoBlock.bg_end:SetAlpha(.75)
+
+	spellInfoBlock.bg.overlay:SetWidth(background:GetWidth() + 24)
+	spellInfoBlock.bg.overlay:SetHeight(background:GetHeight() + 16)
+
+	spellInfoBlock.bg:Hide()
 end
 
 --seta o conte�do da barra de detalhes
 ------------------------------------------------------------------------------------------------------------------------------
-function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6)
-	local info = _detalhes.playerDetailWindow.grupos_detalhes [index]
+function gump:SetaDetalheInfoTexto(index, data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+	local spellInfoBlock = _detalhes.playerDetailWindow.grupos_detalhes[index]
 
-	if (p) then
-		if (type(p) == "table") then
-			info.bg:SetValue(p.p)
-			info.bg:SetStatusBarColor(p.c[1], p.c[2], p.c[3], p.c[4] or 1)
+	if (data) then
+		if (type(data) == "table") then
+			spellInfoBlock.bg:SetValue(data.p)
+			spellInfoBlock.bg:SetStatusBarColor(data.c[1], data.c[2], data.c[3], data.c[4] or 1)
 		else
-			info.bg:SetValue(p)
-			info.bg:SetStatusBarColor(1, 1, 1, .5)
+			local percentAmount = data
+			spellInfoBlock.bg:SetValue(percentAmount)
+			spellInfoBlock.bg:SetStatusBarColor(1, 1, 1, .5)
 		end
 
-		info.bg_end:Show()
-		info.bg_end:SetPoint("LEFT", info.bg, "LEFT", (info.bg:GetValue() * (info.bg:GetWidth( ) / 100)) - 3, 0) -- 2.19
-		info.bg:Show()
+		spellInfoBlock.bg_end:Show()
+		spellInfoBlock.bg_end:SetPoint("LEFT", spellInfoBlock.bg, "LEFT", (spellInfoBlock.bg:GetValue() * (spellInfoBlock.bg:GetWidth( ) / 100)) - 3, 0) -- 2.19
+		spellInfoBlock.bg:Show()
 	end
 
-	if (info.IsPet) then
-		info.bg.PetIcon:Hide()
-		info.bg.PetText:Hide()
-		info.bg.PetDps:Hide()
-		Details.FadeHandler.Fader(info.bg.overlay, "IN")
-		info.IsPet = false
+	if (spellInfoBlock.IsPet) then
+		spellInfoBlock.bg.PetIcon:Hide()
+		spellInfoBlock.bg.PetText:Hide()
+		spellInfoBlock.bg.PetDps:Hide()
+		Details.FadeHandler.Fader(spellInfoBlock.bg.overlay, "IN")
+		spellInfoBlock.IsPet = false
 	end
 
 	if (arg1) then
-		info.nome:SetText(arg1)
+		spellInfoBlock.nome:SetText(arg1)
 	end
 
 	if (arg2) then
-		info.dano:SetText(arg2)
+		spellInfoBlock.dano:SetText(arg2)
 	end
 
 	if (arg3) then
-		info.dano_porcento:SetText(arg3)
+		spellInfoBlock.dano_porcento:SetText(arg3)
 	end
 
 	if (arg4) then
-		info.dano_media:SetText(arg4)
+		spellInfoBlock.dano_media:SetText(arg4)
 	end
 
 	if (arg5) then
-		info.dano_dps:SetText(arg5)
+		spellInfoBlock.dano_dps:SetText(arg5)
 	end
 
 	if (arg6) then
-		info.nome2:SetText(arg6)
+		spellInfoBlock.nome2:SetText(arg6)
 	end
 
-	info.nome:Show()
-	info.dano:Show()
-	info.dano_porcento:Show()
-	info.dano_media:Show()
-	info.dano_dps:Show()
-	info.nome2:Show()
+	if (arg7) then
+		spellInfoBlock.middleStringUp:SetText(arg7)
+	else
+		spellInfoBlock.middleStringUp:SetText("")
+	end
 
+	if (arg8) then
+		spellInfoBlock.middleStringDown:SetText(arg8)
+	else
+		spellInfoBlock.middleStringDown:SetText("")
+	end
+
+	spellInfoBlock.nome:Show()
+	spellInfoBlock.dano:Show()
+	spellInfoBlock.dano_porcento:Show()
+	spellInfoBlock.dano_media:Show()
+	spellInfoBlock.dano_dps:Show()
+	spellInfoBlock.nome2:Show()
+	spellInfoBlock.middleStringUp:Show()
+	spellInfoBlock.middleStringDown:Show()
 end
 
 --cria as 5 caixas de detalhes infos que ser�o usados
@@ -807,7 +824,7 @@ local function cria_barras_detalhes()
 	_detalhes.playerDetailWindow.grupos_detalhes = {}
 	for i = 1, spellInfoSettings.amount do
 		gump:CriaDetalheInfo (i)
-		gump:SetaDetalheInfoAltura (i)
+		gump:SetaDetalheInfoAltura(i)
 	end
 end
 
@@ -841,15 +858,14 @@ local function cria_textos (este_gump, SWW)
 	este_gump.avatar:Hide()
 	este_gump.avatar_bg:Hide()
 	este_gump.avatar_nick:Hide()
-
 end
 
 
 --esquerdo superior
 local function cria_container_barras (este_gump, SWW)
 
-	local container_barras_window = _CreateFrame ("ScrollFrame", "Details_Info_ContainerBarrasScroll", SWW, "BackdropTemplate")
-	local container_barras = _CreateFrame ("Frame", "Details_Info_ContainerBarras", container_barras_window, "BackdropTemplate")
+	local container_barras_window = CreateFrame("ScrollFrame", "Details_Info_ContainerBarrasScroll", SWW, "BackdropTemplate")
+	local container_barras = CreateFrame("Frame", "Details_Info_ContainerBarras", container_barras_window, "BackdropTemplate")
 
 	container_barras:SetAllPoints(container_barras_window)
 	container_barras:SetWidth(300)
@@ -917,7 +933,7 @@ end
 
 --container direita
 local function cria_container_detalhes (este_gump, SWW)
-	local container_detalhes = _CreateFrame ("Frame", "Details_Info_ContainerDetalhes", SWW, "BackdropTemplate")
+	local container_detalhes = CreateFrame("Frame", "Details_Info_ContainerDetalhes", SWW, "BackdropTemplate")
 
 	container_detalhes:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT", -74, -76)
 	container_detalhes:SetWidth(220)
@@ -931,8 +947,8 @@ end
 
 --esquerdo inferior
 local function cria_container_alvos (este_gump, SWW)
-	local container_alvos_window = _CreateFrame ("ScrollFrame", "Details_Info_ContainerAlvosScroll", SWW, "BackdropTemplate")
-	local container_alvos = _CreateFrame ("Frame", "Details_Info_ContainerAlvos", container_alvos_window, "BackdropTemplate")
+	local container_alvos_window = CreateFrame("ScrollFrame", "Details_Info_ContainerAlvosScroll", SWW, "BackdropTemplate")
+	local container_alvos = CreateFrame("Frame", "Details_Info_ContainerAlvos", container_alvos_window, "BackdropTemplate")
 
 	container_alvos:SetAllPoints(container_alvos_window)
 	container_alvos:SetWidth(300)
@@ -1062,13 +1078,13 @@ function _detalhes:SetPDWBarConfig (texture)
 		local texture = SharedMedia:Fetch ("statusbar", texture)
 
 		for _, bar in ipairs(window.barras1) do
-			bar.textura:SetStatusBarTexture (texture)
+			bar.textura:SetStatusBarTexture(texture)
 		end
 		for _, bar in ipairs(window.barras2) do
-			bar.textura:SetStatusBarTexture (texture)
+			bar.textura:SetStatusBarTexture(texture)
 		end
 		for _, bar in ipairs(window.barras3) do
-			bar.textura:SetStatusBarTexture (texture)
+			bar.textura:SetStatusBarTexture(texture)
 		end
 	end
 end
@@ -1172,7 +1188,7 @@ local default_skin = function()
 	end
 
 	--info container
-	info:SetDetailInfoConfigs ("Interface\\AddOns\\Details\\images\\bar_detalhes2", {1, 1, 1, 0.5}, 0, 0)
+	info:SetDetailInfoConfigs("Interface\\AddOns\\Details\\images\\bar_detalhes2", {1, 1, 1, 0.5}, 0, 0)
 
 	window.bg1_sec_texture:SetPoint("topleft", window.bg1, "topleft", 348, -86)
 	window.bg1_sec_texture:SetHeight(262)
@@ -1402,7 +1418,7 @@ local elvui_skin = function()
 	end
 
 	--seta configs dos 5 blocos da direita
-	info:SetDetailInfoConfigs ("Interface\\AddOns\\Details\\images\\bar_serenity", {1, 1, 1, 0.35}, -6 + 100, 0)
+	info:SetDetailInfoConfigs("Interface\\AddOns\\Details\\images\\bar_serenity", {1, 1, 1, 0.35}, -6 + 100, 0)
 
 	window.bg1_sec_texture:SetPoint("topleft", window.bg1, "topleft", 446, -86)
 	window.bg1_sec_texture:SetWidth(337)
@@ -1662,7 +1678,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg1:SetDrawLayer("BORDER", 1)
 
 	--bot�o de fechar
-	este_gump.close_button = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
+	este_gump.close_button = CreateFrame("Button", nil, este_gump, "UIPanelCloseButton")
 	este_gump.close_button:SetWidth(32)
 	este_gump.close_button:SetHeight(32)
 	este_gump.close_button:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT", 5, -8)
@@ -4398,7 +4414,7 @@ function gump:CriaJanelaInfo()
 				bar.index = index
 				bar:SetPoint("topleft", spellicon, "topright", 0, 0)
 				bar:SetPoint("topright", parent, "topright", -4, y)
-				bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
+				bar:SetStatusBarTexture([[Interface\AddOns\Details\images\bar_serenity]])
 				bar:SetStatusBarColor(.5, .5, .5, 1)
 				bar:SetAlpha(ALPHA_BLEND_AMOUNT)
 
@@ -4610,7 +4626,7 @@ function gump:CriaJanelaInfo()
 					bar.index = index
 					bar:SetPoint("topleft", spellicon, "topright", 0, 0)
 					bar:SetPoint("topright", parent, "topright", -1, y)
-					bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
+					bar:SetStatusBarTexture([[Interface\AddOns\Details\images\bar_serenity]])
 					bar:SetStatusBarColor(unpack(bar_color))
 					bar:SetMinMaxValues(0, 100)
 					bar:SetValue(0)
@@ -5864,7 +5880,7 @@ function gump:CriaNovaBarraInfo2(instancia, index)
 
 	local janela = info.container_alvos.gump
 
-	local esta_barra = _CreateFrame ("Button", "Details_infobox2_bar_"..index, info.container_alvos.gump, "BackdropTemplate")
+	local esta_barra = CreateFrame("Button", "Details_infobox2_bar_"..index, info.container_alvos.gump, "BackdropTemplate")
 	esta_barra:SetHeight(CONST_TARGET_HEIGHT)
 
 	local y = (index-1) * (CONST_TARGET_HEIGHT + 1)

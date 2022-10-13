@@ -17,7 +17,7 @@ local IsInRaid = IsInRaid --wow api local
 local IsInGroup = IsInGroup --wow api local
 local _UnitAura = UnitAura --wow api local
 local _GetSpellInfo = _detalhes.getspellinfo --wow api local
-local _CreateFrame = CreateFrame --wow api local
+local CreateFrame = CreateFrame --wow api local
 local GetTime = GetTime --wow api local
 local _GetCursorPosition = GetCursorPosition --wow api local
 local _GameTooltip = GameTooltip --wow api local
@@ -1783,7 +1783,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra:SetScript("OnLeave", _OnHide)
 				barra:HookScript ("OnMouseDown", EncounterDetails.BossInfoRowClick)
 				
-				local add_damage_done = _CreateFrame ("Button", nil, barra, "BackdropTemplate")
+				local add_damage_done = CreateFrame("Button", nil, barra, "BackdropTemplate")
 				barra.report_text = "Details! Tamage Taken of "
 				add_damage_done.report_text = "Details! Damage Done of "
 				add_damage_done.barra = barra
@@ -1807,7 +1807,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				add_damage_done:SetScript("OnClick", EncounterDetails.BossInfoRowClick)
 				
 				barra.lineText1:SetPoint("left", add_damage_done, "right", 2, 0)
-				barra.textura:SetStatusBarTexture (nil)
+				barra.textura:SetStatusBarTexture(nil)
 				
 				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
 				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)

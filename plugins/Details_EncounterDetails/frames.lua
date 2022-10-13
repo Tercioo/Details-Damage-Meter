@@ -185,7 +185,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 		t:SetTexture(EncounterDetails.Frame.DefaultBarTexture)
 
 		row.t = t
-		row.textura:SetStatusBarTexture (t)
+		row.textura:SetStatusBarTexture(t)
 		row.textura:SetStatusBarColor(.5, .5, .5, 0)
 		row.textura:SetMinMaxValues(0,100)
 		

@@ -858,25 +858,25 @@ do
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --frames
 
-	local _CreateFrame = CreateFrame --api locals
+	local CreateFrame = CreateFrame --api locals
 	local UIParent = UIParent --api locals
 
 	--Info Window
-		_detalhes.playerDetailWindow = _CreateFrame ("Frame", "DetailsPlayerDetailsWindow", UIParent, "BackdropTemplate")
+		_detalhes.playerDetailWindow = CreateFrame("Frame", "DetailsPlayerDetailsWindow", UIParent, "BackdropTemplate")
 		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
 
 	--Event Frame
-		_detalhes.listener = _CreateFrame ("Frame", nil, UIParent)
+		_detalhes.listener = CreateFrame("Frame", nil, UIParent)
 		_detalhes.listener:RegisterEvent ("ADDON_LOADED")
 		_detalhes.listener:SetFrameStrata("LOW")
 		_detalhes.listener:SetFrameLevel(9)
 		_detalhes.listener.FrameTime = 0
 
-		_detalhes.overlay_frame = _CreateFrame ("Frame", nil, UIParent)
+		_detalhes.overlay_frame = CreateFrame("Frame", nil, UIParent)
 		_detalhes.overlay_frame:SetFrameStrata("TOOLTIP")
 
 	--Pet Owner Finder
-		_CreateFrame ("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
+		CreateFrame("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

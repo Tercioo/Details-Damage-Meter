@@ -2291,7 +2291,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			cast_string = cast_string .. spell_cast
 		end		
 		
-		gump:SetaDetalheInfoTexto ( index, 100,
+		gump:SetaDetalheInfoTexto( index, 100,
 			--Loc ["STRING_GERAL"], 
 			cast_string, 
 			heal_string .. ": " .. _detalhes:ToK (esta_magia.total), 
@@ -2414,7 +2414,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 		if (not tabela) then
 			gump:HidaDetalheInfo (index+1)
 		else
-			gump:SetaDetalheInfoTexto (index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8])
+			gump:SetaDetalheInfoTexto(index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8])
 		end
 	end
 

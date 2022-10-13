@@ -1752,6 +1752,9 @@
 	-- ~miss
 	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, amountMissed, arg1, arg2, arg3)
 
+
+		--print(spellid, spellname, missType, amountMissed) --MISS
+
 	------------------------------------------------------------------------------------------------
 	--early checks and fixes
 

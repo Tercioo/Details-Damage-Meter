@@ -4840,7 +4840,7 @@ local MontaDetalhesBuffProcs = function(actor, row, instance)
 						local spellApplies = spellObject.appliedamt
 						local spellRefreshes = spellObject.refreshamt
 
-						gump:SetaDetalheInfoTexto (i, 100, FormatSpellString ("" .. spellID .. " " .. spellName), "Activations: " .. spellApplies, " ", "Refreshes: " .. spellRefreshes, " ", "Uptime: " .. spellUptime .. "s")
+						gump:SetaDetalheInfoTexto(i, 100, FormatSpellString ("" .. spellID .. " " .. spellName), "Activations: " .. spellApplies, " ", "Refreshes: " .. spellRefreshes, " ", "Uptime: " .. spellUptime .. "s")
 						added = added + 1
 					end
 				end
@@ -4861,17 +4861,16 @@ end
 
 
 
-function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
-
+function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 	local esta_magia
-	if (barra.other_actor) then
-		esta_magia = barra.other_actor.spells._ActorTable [spellid]
+	if (spellLine.other_actor) then
+		esta_magia = spellLine.other_actor.spells._ActorTable [spellId]
 	else
-		esta_magia = self.spells._ActorTable [spellid]
+		esta_magia = self.spells._ActorTable [spellId]
 	end
 
-	if (spellid == -51) then
-		return MontaDetalhesBuffProcs (self, barra, instancia)
+	if (spellId == -51) then
+		return MontaDetalhesBuffProcs(self, spellLine, instance)
 	end
 
 	if (not esta_magia) then
@@ -4879,7 +4878,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	end
 
 	--icone direito superior
-	local _, _, icone = _GetSpellInfo(spellid)
+	local _, _, icone = _GetSpellInfo(spellId)
 
 	Details.playerDetailWindow.spell_icone:SetTexture(icone)
 
@@ -4888,6 +4887,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	local meu_tempo
 	if (Details.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
+
 	elseif (Details.time_type == 2) then
 		meu_tempo = info.instancia.showing:GetCombatTime()
 	end
@@ -4940,10 +4940,10 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(debuff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
 
-			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellid]
+			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellId]
 
 			if (not spell_cast and misc_actor.spell_cast) then
-				local spellname = GetSpellInfo(spellid)
+				local spellname = GetSpellInfo(spellId)
 				for casted_spellid, amount in pairs(misc_actor.spell_cast) do
 					local casted_spellname = GetSpellInfo(casted_spellid)
 					if (casted_spellname == spellname) then
@@ -4957,13 +4957,14 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			cast_string = cast_string .. spell_cast
 		end
 
-		gump:SetaDetalheInfoTexto ( index, 100,
+		gump:SetaDetalheInfoTexto( index, 100,
 			cast_string,
 			Loc ["STRING_DAMAGE"]..": "..Details:ToK(esta_magia.total),
 			schooltext, --offhand,
 			Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media),
 			this_dps,
-			Loc ["STRING_HITS"]..": " .. hits_string)
+			Loc ["STRING_HITS"]..": " .. hits_string
+		)
 
 	--NORMAL
 		local normal_hits = esta_magia.n_amt
@@ -4986,7 +4987,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_normal)
 			t1[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (normal_dmg/T)
 			t1[8] = normal_hits .. " [|cFFC0C0C0" .. format("%.1f", normal_hits/max(total_hits, 0.0001)*100) .. "%|r]"
-
+			t1[9] = ""
 		end
 
 	--CRITICO
@@ -5012,18 +5013,19 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_critico)
 			t2[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (crit_dps)
 			t2[8] = esta_magia.c_amt .. " [|cFFC0C0C0" .. format("%.1f", esta_magia.c_amt/total_hits*100) .. "%|r]"
-
+			t2[9] = ""
 		end
 
 	--Outros erros: GLACING, resisted, blocked, absorbed
 		local outros_desvios = esta_magia.g_amt + esta_magia.b_amt
 		local parry = esta_magia ["PARRY"] or 0
 		local dodge = esta_magia ["DODGE"] or 0
-		local erros = parry + dodge
+		local misses = esta_magia ["MISS"] or 0
+
+		local erros = parry + dodge + misses
 
 		if (outros_desvios > 0 or erros > 0) then
-
-			local porcentagem_defesas = (outros_desvios+erros) / total_hits * 100
+			local porcentagem_defesas = (outros_desvios + erros) / total_hits * 100
 
 			data[#data+1] = t3
 			defenses_table.p = porcentagem_defesas
@@ -5036,7 +5038,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t3[6] = Loc ["STRING_DODGE"] .. ": " .. dodge
 			t3[7] = Loc ["STRING_BLOCKED"] .. ": " .. _math_floor(esta_magia.b_amt/esta_magia.counter*100)
 			t3[8] = (outros_desvios+erros) .. " / " .. format("%.1f", porcentagem_defesas) .. "%"
-
+			t3[9] = "MISS" .. ": " .. misses
 		end
 
 	--Details:BuildPlayerDetailsSpellChart()
@@ -5048,7 +5050,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	_table_sort(data, Details.Sort1)
 
 	for index, tabela in ipairs(data) do
-		gump:SetaDetalheInfoTexto (index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8])
+		gump:SetaDetalheInfoTexto(index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8], tabela[9])
 	end
 
 	for i = #data+2, 5 do

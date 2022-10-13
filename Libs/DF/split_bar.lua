@@ -700,7 +700,7 @@ local build_statusbar = function(self)
 	self.righttext:SetJustifyH("right")
 	self.righttext:SetPoint("RIGHT", self.righticon, "LEFT", -3, 0)
 
-	self:SetStatusBarTexture (self.texture)
+	self:SetStatusBarTexture(self.texture)
 	self:SetMinMaxValues(1, 100)
 	self:SetValue(50)
 	DetailsFrameworkSplitlBar_OnCreate (self)

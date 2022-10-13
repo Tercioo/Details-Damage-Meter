@@ -7290,7 +7290,7 @@ function detailsFramework:CreateHealthBar (parent, name, settingsOverride)
 			healthBar.shieldAbsorbGlow:SetDrawLayer("artwork", 7)
 			--statusbar texture
 			healthBar.barTexture = healthBar:CreateTexture(nil, "artwork")
-			healthBar:SetStatusBarTexture (healthBar.barTexture)
+			healthBar:SetStatusBarTexture(healthBar.barTexture)
 		end
 
 	--mixins
@@ -7551,7 +7551,7 @@ function detailsFramework:CreatePowerBar(parent, name, settingsOverride)
 
 			--artwork
 			powerBar.barTexture = powerBar:CreateTexture(nil, "artwork")
-			powerBar:SetStatusBarTexture (powerBar.barTexture)
+			powerBar:SetStatusBarTexture(powerBar.barTexture)
 
 			--overlay
 			powerBar.percentText = powerBar:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -8549,7 +8549,7 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 
 			--statusbar texture
 			castBar.barTexture = castBar:CreateTexture(nil, "artwork", nil, -6)
-			castBar:SetStatusBarTexture (castBar.barTexture)
+			castBar:SetStatusBarTexture(castBar.barTexture)
 
 			--animations fade in and out
 			local fadeOutAnimationHub = detailsFramework:CreateAnimationHub (castBar, detailsFramework.CastFrameFunctions.Animation_FadeOutStarted, detailsFramework.CastFrameFunctions.Animation_FadeOutFinished)

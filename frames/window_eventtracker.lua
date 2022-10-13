@@ -345,7 +345,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 			local statusbar = CreateFrame("statusbar", "$parentStatusBar", line,"BackdropTemplate")
 			statusbar:SetAllPoints()
 			local statusbartexture = statusbar:CreateTexture(nil, "border")
-			statusbar:SetStatusBarTexture (statusbartexture)
+			statusbar:SetStatusBarTexture(statusbartexture)
 			statusbar:SetMinMaxValues(0, 1)
 			statusbar:SetValue(0)
 			

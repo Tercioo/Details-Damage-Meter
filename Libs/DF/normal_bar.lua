@@ -716,7 +716,7 @@ local build_statusbar = function(self)
 	self.texture:SetSize(300, 14)
 	self.texture:SetTexture([[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
 	
-	self:SetStatusBarTexture (self.texture)
+	self:SetStatusBarTexture(self.texture)
 	
 	self.icontexture = self:CreateTexture("$parent_icon", "OVERLAY")
 	self.icontexture:SetSize(14, 14)

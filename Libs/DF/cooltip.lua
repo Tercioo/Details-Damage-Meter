@@ -519,7 +519,7 @@ function DF:CreateCoolTip()
 		statusbar.texture = statusbar:CreateTexture("$parent_Texture", "BACKGROUND")
 		statusbar.texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
 		statusbar.texture:SetSize(300, 14)
-		statusbar:SetStatusBarTexture (statusbar.texture)
+		statusbar:SetStatusBarTexture(statusbar.texture)
 		statusbar:SetMinMaxValues(0, 100)
 
 		statusbar.spark = statusbar:CreateTexture("$parent_Spark", "BACKGROUND")
@@ -582,7 +582,7 @@ function DF:CreateCoolTip()
 		statusbar2.texture = statusbar2:CreateTexture("$parent_Texture", "BACKGROUND")
 		statusbar2.texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
 		statusbar2.texture:SetSize(300, 14)
-		statusbar2:SetStatusBarTexture (statusbar2.texture)
+		statusbar2:SetStatusBarTexture(statusbar2.texture)
 		statusbar2:SetMinMaxValues(0, 100)
 
 		--on load

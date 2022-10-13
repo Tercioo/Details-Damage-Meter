@@ -24,7 +24,7 @@
 	local _setmetatable = setmetatable --lua local
 
 	local _GetSpellInfo = _detalhes.getspellinfo --api local
-	local _CreateFrame = CreateFrame --api local
+	local CreateFrame = CreateFrame --api local
 	local GetTime = GetTime --api local
 	local _GetCursorPosition = GetCursorPosition --api local
 	local _GameTooltip = GameTooltip --api local
@@ -164,7 +164,7 @@
 			DetailsCustomPanel.Initialized = true
 	
 			--main frame
-			local custom_window = DetailsCustomPanel or _CreateFrame ("frame", "DetailsCustomPanel", UIParent,"BackdropTemplate")
+			local custom_window = DetailsCustomPanel or CreateFrame("frame", "DetailsCustomPanel", UIParent,"BackdropTemplate")
 			local f = custom_window
 			
 			custom_window:SetPoint("center", UIParent, "center")
@@ -739,7 +739,7 @@
 			--left menu
 			custom_window.menu = {}
 			local menu_start = -50
-			local menu_up_frame = _CreateFrame ("frame", nil, custom_window)
+			local menu_up_frame = CreateFrame("frame", nil, custom_window)
 			menu_up_frame:SetFrameLevel(custom_window:GetFrameLevel()+2)
 			
 			local onenter = function(self)
@@ -946,7 +946,7 @@
 			}
 			
 			--create box
-			local attribute_box = _CreateFrame ("frame", nil, custom_window)
+			local attribute_box = CreateFrame("frame", nil, custom_window)
 			attribute_box:SetPoint("topleft", custom_window, "topleft", 200, -60)
 			attribute_box:SetSize(180, 260)
 			attribute_box:Hide()
@@ -989,7 +989,7 @@
 			
 				if (attributes [i]) then
 			
-					local button = _CreateFrame ("button", "DetailsCustomPanelAttributeMenu" .. i, attribute_box, "BackdropTemplate")
+					local button = CreateFrame("button", "DetailsCustomPanelAttributeMenu" .. i, attribute_box, "BackdropTemplate")
 					button:SetPoint("topleft", attribute_box, "topleft", 2, ((i-1)*23*-1) + (-26))
 					button:SetPoint("topright", attribute_box, "topright", 2, ((i-1)*23*-1) + (-26))
 					button:SetHeight(20)
@@ -1023,7 +1023,7 @@
 			end
 			
 			--create box 0, holds the name, author, desc and icon
-			local box0 = _CreateFrame ("frame", "DetailsCustomPanelBox0", custom_window)
+			local box0 = CreateFrame("frame", "DetailsCustomPanelBox0", custom_window)
 			custom_window.box0 = box0
 			box0:SetSize(450, 360)
 
@@ -1093,7 +1093,7 @@
 				accept_button:SetFrameLevel(500)
 			
 			--create box type 1
-				local box1 = _CreateFrame ("frame", "DetailsCustomPanelBox1", custom_window)
+				local box1 = CreateFrame("frame", "DetailsCustomPanelBox1", custom_window)
 				custom_window.box1 = box1
 				box1:SetSize(450, 180)
 				box1:SetPoint("topleft", icon_label.widget, "bottomleft", -10, -20)
@@ -1145,7 +1145,7 @@
 					actorsFrame:SetPoint("topleft", custom_window, "topright", 5, -60)
 					actorsFrame:Hide()
 					
-					local modelFrame = _CreateFrame ("playermodel", "DetailsCustomActorsFrame2Model", custom_window)
+					local modelFrame = CreateFrame("playermodel", "DetailsCustomActorsFrame2Model", custom_window)
 					modelFrame:SetSize(138, 261)
 					modelFrame:SetPoint("topright", actorsFrame.widget, "topleft", -15, -8)
 					modelFrame:Hide()
@@ -1367,7 +1367,7 @@
 					actorsFrame:SetPoint("topleft", custom_window, "topright", 5, -60)
 					actorsFrame:Hide()
 					
-					local modelFrame = _CreateFrame ("playermodel", "DetailsCustomActorsFrameModel", custom_window)
+					local modelFrame = CreateFrame("playermodel", "DetailsCustomActorsFrameModel", custom_window)
 					modelFrame:SetSize(138, 261)
 					modelFrame:SetPoint("topright", actorsFrame.widget, "topleft", -15, -8)
 					modelFrame:Hide()
@@ -1691,7 +1691,7 @@
 			--select spell
 			
 			--create box type 2
-				local box2 = _CreateFrame ("frame", "DetailsCustomPanelBox2", custom_window)
+				local box2 = CreateFrame("frame", "DetailsCustomPanelBox2", custom_window)
 				custom_window.box2 = box2
 				box2:SetSize(450, 180)
 				box2:SetPoint("topleft", icon_label.widget, "bottomleft", -10, -20)
