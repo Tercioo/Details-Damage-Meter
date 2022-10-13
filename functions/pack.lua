@@ -612,7 +612,7 @@ function Details.packFunctions.UnPackDamage(currentCombat, combatData, tablePosi
 
         --set the actor class, spec and group
         actorObject.classe = class
-        actorObject.spec = spec
+        actorObject:SetSpecId(spec)
         actorObject.grupo = isActorInGroup(class, actorFlag)
         actorObject.flag_original = actorFlag
 
@@ -860,7 +860,7 @@ function Details.packFunctions.UnPackHeal(currentCombat, combatData, tablePositi
 
         --set the actor class, spec and group
         actorObject.classe = class
-        actorObject.spec = spec
+        actorObject:SetSpecId(spec)
         actorObject.grupo = isActorInGroup(class, actorFlag)
         actorObject.flag_original = actorFlag
 
@@ -1392,7 +1392,7 @@ function Details.packFunctions.UnPackUtility(currentCombat, combatData, tablePos
 
             --set the actor class, spec and group
             actorObject.classe = class
-            actorObject.spec = spec
+            actorObject:SetSpecId(spec)
             actorObject.grupo = isActorInGroup(class, actorFlag)
             actorObject.flag_original = actorFlag
             --finished utility actor setup

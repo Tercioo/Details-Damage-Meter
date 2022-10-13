@@ -171,7 +171,7 @@
 		if (_detalhes.track_specs) then
 			local have_cached = _detalhes.cached_specs [serial]
 			if (have_cached) then
-				novo_objeto.spec = have_cached
+				novo_objeto:SetSpecId(have_cached)
 				--check is didn't changed the spec:
 				if (_detalhes.streamer_config.quick_detection) then
 					--validate the spec more times if on quick detection

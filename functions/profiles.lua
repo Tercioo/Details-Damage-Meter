@@ -502,6 +502,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		--refresh broadcaster tools
 		_detalhes:LoadFramesForBroadcastTools()
 
+		--change the rogue spec combat icon to outlaw depending on the game version
+		Details:HandleRogueCombatSpecIconByGameVersion()
+
 	if (_detalhes.initializing) then
 		_detalhes.profile_loaded = true
 	end

@@ -840,7 +840,8 @@
 
 			newActor.name_complement = name_complement
 			newActor.displayName = actor.displayName or (_detalhes:GetOnlyName(newActor.nome) .. (name_complement or ""))
-			newActor.spec = actor.spec
+
+			newActor:SetSpecId(actor.spec)
 
 			newActor.enemy = actor.enemy
 			newActor.role = actor.role

@@ -364,7 +364,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 			if (actor:IsPlayer()) then
 				for spellid, spell in pairs(actor:GetSpellList()) do
 					if (spelllist [spell.id]) then
-						actor.spec = spelllist [spell.id]
+						actor:SetSpecId(spelllist[spell.id])
 						_detalhes.cached_specs [actor.serial] = actor.spec
 						break
 					end
@@ -376,7 +376,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 			if (actor:IsPlayer()) then
 				for spellid, spell in pairs(actor:GetSpellList()) do
 					if (spelllist [spell.id]) then
-						actor.spec = spelllist [spell.id]
+						actor:SetSpecId(spelllist[spell.id])
 						_detalhes.cached_specs [actor.serial] = actor.spec
 						break
 					end
@@ -396,7 +396,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 				if (actor:IsPlayer()) then
 					for spellid, spell in pairs(actor:GetSpellList()) do
 						if (spelllist [spell.id]) then
-							actor.spec = spelllist [spell.id]
+							actor:SetSpecId(spelllist[spell.id])
 							_detalhes.cached_specs [actor.serial] = actor.spec
 							break
 						end
@@ -408,7 +408,7 @@ function _detalhes:TrackSpecsNow (track_everything)
 				if (actor:IsPlayer()) then
 					for spellid, spell in pairs(actor:GetSpellList()) do
 						if (spelllist [spell.id]) then
-							actor.spec = spelllist [spell.id]
+							actor:SetSpecId(spelllist[spell.id])
 							_detalhes.cached_specs [actor.serial] = actor.spec
 							break
 						end
@@ -3094,3 +3094,15 @@ Details.performanceData = {
 	culpritFunc = "",
 	culpritDesc = "",
 }
+
+function Details:HandleRogueCombatSpecIconByGameVersion()
+	local _, _, _, patchVersion = GetBuildInfo()
+	if (patchVersion >= 70000) then --Legion
+		--rogue combat is a rogue outlaw
+		local rogueCombatCoords = Details.class_specs_coords[260]
+		rogueCombatCoords[1] = 0
+		rogueCombatCoords[2] = 64 / 512
+		rogueCombatCoords[3] = 384 / 512
+		rogueCombatCoords[4] = 448 / 512
+	end
+end

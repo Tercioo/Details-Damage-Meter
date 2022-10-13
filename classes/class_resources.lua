@@ -1403,7 +1403,7 @@ end
 					shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 					
 					shadow.classe = actor.classe
-					shadow.spec = actor.spec
+					shadow:SetSpecId(actor.spec)
 					shadow.grupo = actor.grupo
 					shadow.pvp = actor.pvp
 					shadow.isTank = actor.isTank
@@ -1451,7 +1451,7 @@ end
 					shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 					
 					shadow.classe = actor.classe
-					shadow.spec = actor.spec
+					shadow:SetSpecId(actor.spec)
 					shadow.grupo = actor.grupo
 					shadow.pvp = actor.pvp
 					shadow.isTank = actor.isTank

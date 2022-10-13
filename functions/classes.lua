@@ -100,6 +100,26 @@ do
 		CONTAINER_ENEMYDEBUFFTARGET_CLASS = 11
 	}
 
+	local initialSpecListOverride = {
+		[1455] = 251, --dk
+		[1456] = 577, --demon hunter
+		[1447] = 102, --druid
+		[1465] = 1467, --evoker
+		[1448] = 253, --hunter
+		[1449] = 63, --mage
+		[1450] = 269, --monk
+		[1451] = 70, --paladin
+		[1452] = 258, --priest
+		[1453] = 260, --rogue
+		[1444] = 262, --shaman
+		[1454] = 266, --warlock
+		[1446] = 71, --warrior
+	}
+
+	function Details:SetSpecId(specId)
+		self.spec = initialSpecListOverride[specId] or specId
+	end
+
 	function _detalhes:Name (actor)
 		return self.nome or actor and actor.nome
 	end

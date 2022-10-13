@@ -301,7 +301,7 @@ do
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
 					
-						Actor.spec = spec
+						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 						Actor.guessing_spec = nil
 
@@ -328,7 +328,7 @@ do
 						if (spec ~= Actor.spec) then
 							_detalhes.cached_specs [Actor.serial] = spec
 						
-							Actor.spec = spec
+							Actor:SetSpecId(spec)
 							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 
 							Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
@@ -362,7 +362,7 @@ do
 									if (spec ~= Actor.spec) then
 										_detalhes.cached_specs [Actor.serial] = spec
 									
-										Actor.spec = spec
+										Actor:SetSpecId(spec)
 										Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 
 										Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
@@ -405,7 +405,7 @@ do
 		--get from the spec cache
 		local spec = _detalhes.cached_specs [Actor.serial]
 		if (spec) then
-			Actor.spec = spec
+			Actor:SetSpecId(spec)
 			Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 			
 			Actor.guessing_spec = nil
@@ -432,7 +432,7 @@ do
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
 					
-						Actor.spec = spec
+						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 
 						Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
@@ -458,7 +458,7 @@ do
 						if (spec) then
 							_detalhes.cached_specs [Actor.serial] = spec
 						
-							Actor.spec = spec
+							Actor:SetSpecId(spec)
 							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 							Actor.guessing_spec = nil
 
@@ -486,7 +486,7 @@ do
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
 					
-						Actor.spec = spec
+						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 						Actor.guessing_spec = nil
 
@@ -520,7 +520,7 @@ do
 						
 							_detalhes.cached_specs [Actor.serial] = spec
 						
-							Actor.spec = spec
+							Actor:SetSpecId(spec)
 							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 							Actor.guessing_spec = nil
 
@@ -547,7 +547,7 @@ do
 		
 			_detalhes.cached_specs [Actor.serial] = spec
 		
-			Actor.spec = spec
+			Actor:SetSpecId(spec)
 			Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 			Actor.need_refresh = true
 			Actor.guessing_spec = nil
