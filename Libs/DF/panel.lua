@@ -1589,7 +1589,7 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 		local accept_custom_icon = function()
 			local path = detailsFramework.IconPickFrame.customIconEntry:GetText()
 
-			detailsFramework:QuickDispatch (detailsFramework.IconPickFrame.callback, path, detailsFramework.IconPickFrame.param1, detailsFramework.IconPickFrame.param2)
+			detailsFramework:QuickDispatch(detailsFramework.IconPickFrame.callback, path, detailsFramework.IconPickFrame.param1, detailsFramework.IconPickFrame.param2)
 
 			if (detailsFramework.IconPickFrame.click_close) then
 				close_button:Click()
@@ -1658,7 +1658,7 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 
 		local onClickFunction = function(self)
 
-			detailsFramework:QuickDispatch (detailsFramework.IconPickFrame.callback, self.icon:GetTexture(), detailsFramework.IconPickFrame.param1, detailsFramework.IconPickFrame.param2)
+			detailsFramework:QuickDispatch(detailsFramework.IconPickFrame.callback, self.icon:GetTexture(), detailsFramework.IconPickFrame.param1, detailsFramework.IconPickFrame.param2)
 
 			if (detailsFramework.IconPickFrame.click_close) then
 				close_button:Click()
@@ -3782,7 +3782,7 @@ function detailsFramework:CreateSimpleListBox (parent, name, title, empty_text, 
 	f.list_table = list_table
 	f.func = function(self, button, value)
 		--onclick (value)
-		detailsFramework:QuickDispatch (onclick, value)
+		detailsFramework:QuickDispatch(onclick, value)
 		f:Refresh()
 	end
 	f.widgets = {}
@@ -3795,7 +3795,7 @@ function detailsFramework:CreateSimpleListBox (parent, name, title, empty_text, 
 	if (f.options.x_button_func) then
 		local original_X_function = f.options.x_button_func
 		f.options.x_button_func = function(self, button, value)
-			detailsFramework:QuickDispatch (original_X_function, value)
+			detailsFramework:QuickDispatch(original_X_function, value)
 			f:Refresh()
 		end
 	end
@@ -3976,7 +3976,7 @@ function detailsFramework:CreateKeybindBox (parent, name, data, callback, width,
 		--build data table for the character class
 		local _, unitClass = UnitClass("player")
 		if (unitClass) then
-			local specIds = detailsFramework:GetClassSpecIDs (unitClass)
+			local specIds = detailsFramework:GetClassSpecIDs(unitClass)
 			if (specIds) then
 				for _, specId in ipairs(specIds) do
 					data [specId] = {}
@@ -4018,7 +4018,7 @@ function detailsFramework:CreateKeybindBox (parent, name, data, callback, width,
 	--format the button label and icon with the spec information
 	local className, class = UnitClass("player")
 	local i = 1
-	local specIds = detailsFramework:GetClassSpecIDs (class)
+	local specIds = detailsFramework:GetClassSpecIDs(class)
 
 	for index, specId in ipairs(specIds) do
 		local button = new_keybind_frame ["SpecButton" .. index]
@@ -4086,7 +4086,7 @@ function detailsFramework:CreateKeybindBox (parent, name, data, callback, width,
 		enter_the_key:Hide()
 		new_keybind_frame.keybindScroll:UpdateScroll()
 
-		detailsFramework:QuickDispatch (callback)
+		detailsFramework:QuickDispatch(callback)
 	end
 
 	local set_keybind_key = function(self, button, keybindIndex)
@@ -4111,14 +4111,14 @@ function detailsFramework:CreateKeybindBox (parent, name, data, callback, width,
 	local set_action_text = function(keybindIndex, _, text)
 		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
 		keybind.actiontext = text
-		detailsFramework:QuickDispatch (callback)
+		detailsFramework:QuickDispatch(callback)
 	end
 
 	local set_action_on_espace_press = function(textentry, capsule)
 		capsule = capsule or textentry.MyObject
 		local keybind = new_keybind_frame.CurrentKeybindEditingSet [capsule.CurIndex]
 		textentry:SetText(keybind.actiontext)
-		detailsFramework:QuickDispatch (callback)
+		detailsFramework:QuickDispatch(callback)
 	end
 
 	local lock_textentry = {
@@ -4134,7 +4134,7 @@ function detailsFramework:CreateKeybindBox (parent, name, data, callback, width,
 		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
 		keybind.action = value
 		new_keybind_frame.keybindScroll:UpdateScroll()
-		detailsFramework:QuickDispatch (callback)
+		detailsFramework:QuickDispatch(callback)
 	end
 	local fill_action_dropdown = function()
 
@@ -4176,13 +4176,13 @@ function detailsFramework:CreateKeybindBox (parent, name, data, callback, width,
 				detailsFramework:Msg("Keybind copied to " .. (specName or ""))
 			end
 		end
-		detailsFramework:QuickDispatch (callback)
+		detailsFramework:QuickDispatch(callback)
 	end
 
 	local delete_keybind = function(self, button, keybindIndex)
 		tremove(new_keybind_frame.CurrentKeybindEditingSet, keybindIndex)
 		new_keybind_frame.keybindScroll:UpdateScroll()
-		detailsFramework:QuickDispatch (callback)
+		detailsFramework:QuickDispatch(callback)
 	end
 
 	local newTitle = detailsFramework:CreateLabel(new_keybind_frame, "Create a new Keybind:", 12, "silver")
@@ -5710,7 +5710,7 @@ function detailsFramework:CreateLoadFilterParser (callback)
 
 		--print("Plater Script Update:", event, ...)
 
-		detailsFramework:QuickDispatch (callback, f.EncounterIDCached)
+		detailsFramework:QuickDispatch(callback, f.EncounterIDCached)
 	end)
 end
 
@@ -5733,7 +5733,7 @@ function detailsFramework:PassLoadFilters(loadTable, encounterID)
 		if (passLoadClass) then
 			--if is allowed to load on this class, check if the talents isn't from another class
 			local _, classFileName = UnitClass("player")
-			local specsForThisClass = detailsFramework:GetClassSpecIDs (classFileName)
+			local specsForThisClass = detailsFramework:GetClassSpecIDs(classFileName)
 
 			canCheckTalents = false
 
@@ -5970,7 +5970,7 @@ function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameO
 		--create the radio group for character spec
 			if IS_WOW_PROJECT_MAINLINE then
 				local specs = {}
-				for _, specID in ipairs(detailsFramework:GetClassSpecIDs (select(2, UnitClass("player")))) do
+				for _, specID in ipairs(detailsFramework:GetClassSpecIDs(select(2, UnitClass("player")))) do
 					local specID, specName, specDescription, specIcon, specBackground, specRole, specClass = DetailsFramework.GetSpecializationInfoByID (specID)
 					tinsert(specs, {
 						name = specName,
@@ -6474,7 +6474,7 @@ detailsFramework.DataScrollFunctions = {
 		end
 
 		if (line:GetParent().OnUpdateLineHook) then
-			detailsFramework:CoreDispatch ((line:GetName() or "ScrollBoxDataScrollUpdateLineHook") .. ":UpdateLineHook()", line:GetParent().OnUpdateLineHook, line, lineIndex, data)
+			detailsFramework:CoreDispatch((line:GetName() or "ScrollBoxDataScrollUpdateLineHook") .. ":UpdateLineHook()", line:GetParent().OnUpdateLineHook, line, lineIndex, data)
 		end
 	end,
 }

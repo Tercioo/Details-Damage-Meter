@@ -122,7 +122,7 @@ function DF:CreateAddOn (name, global_saved, global_table, options_table, broker
 		end
 
 		if (addon.OnInit) then
-			xpcall (addon.OnInit, geterrorhandler(), addon)
+			xpcall(addon.OnInit, geterrorhandler(), addon)
 		end
 		
 	end

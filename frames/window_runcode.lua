@@ -165,7 +165,7 @@ function Details.OpenRunCodeWindow()
             
             if (func) then
                 DF:SetEnvironment(func)
-                DF:QuickDispatch (func)
+                DF:QuickDispatch(func)
             else
                 errortext_frame:Flash(0.2, 0.2, 0.4, true, nil, nil, "NONE")
             end

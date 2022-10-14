@@ -5884,14 +5884,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (_detalhes.in_combat and _detalhes.tabela_vigente) then
 			tinsert(_detalhes_global.exit_log, "3 - Leaving current combat.")
 			currentStep = "Leaving Current Combat"
-			xpcall (_detalhes.SairDoCombate, saver_error)
+			xpcall(_detalhes.SairDoCombate, saver_error)
 			_detalhes.can_panic_mode = true
 		end
 
 		if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and _detalhes.tabela_instancias and getmetatable(_detalhes.tabela_instancias[1])) then
 			tinsert(_detalhes_global.exit_log, "4 - Reversing switches.")
 			currentStep = "Check Switch on Logon"
-			xpcall (_detalhes.CheckSwitchOnLogon, saver_error)
+			xpcall(_detalhes.CheckSwitchOnLogon, saver_error)
 		end
 
 		if (_detalhes.wipe_full_config) then
@@ -5904,11 +5904,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--save the config
 		tinsert(_detalhes_global.exit_log, "6 - Saving Config.")
 		currentStep = "Saving Config"
-		xpcall (_detalhes.SaveConfig, saver_error)
+		xpcall(_detalhes.SaveConfig, saver_error)
 
 		tinsert(_detalhes_global.exit_log, "7 - Saving Profiles.")
 		currentStep = "Saving Profile"
-		xpcall (_detalhes.SaveProfile, saver_error)
+		xpcall(_detalhes.SaveProfile, saver_error)
 
 	--save the nicktag cache
 		tinsert(_detalhes_global.exit_log, "8 - Saving nicktag cache.")
@@ -5916,7 +5916,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local saveNicktabCache = function()
 			_detalhes_database.nick_tag_cache = Details.CopyTable(_detalhes_database.nick_tag_cache)
 		end
-		xpcall (saveNicktabCache, saver_error)
+		xpcall(saveNicktabCache, saver_error)
 	end)
 
 	-- ~parserstart ~startparser ~cleu

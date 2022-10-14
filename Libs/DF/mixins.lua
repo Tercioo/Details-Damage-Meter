@@ -54,7 +54,7 @@ detailsFramework.TooltipHandlerMixin = {
 
 		if (type(tooltipText) == "function") then
 			local tooltipFunction = tooltipText
-			local gotTooltip, tooltipString = pcall(tooltipFunction)
+			local gotTooltip, tooltipString = xpcall(tooltipFunction, geterrorhandler())
 			if (gotTooltip) then
 				tooltipText = tooltipString
 			end
@@ -353,9 +353,11 @@ detailsFramework.ScriptHookMixin = {
 		end
 
 		for i, func in ipairs(hooks) do
-			local success, canInterrupt = pcall(func, ...)
+			local success, canInterrupt = xpcall(func, geterrorhandler(), ...)
+
 			if (not success) then
-				error("Details! Framework: " .. event .. " hook for " .. self:GetName() .. ": " .. canInterrupt)
+				--error("Details! Framework: " .. event .. " hook for " .. self:GetName() .. ": " .. canInterrupt)
+				return false
 
 			elseif (canInterrupt) then
 				return true

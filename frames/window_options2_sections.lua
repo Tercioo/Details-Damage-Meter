@@ -6901,16 +6901,13 @@ end
 
 -- ~19 - search results
 do
+    --[=
     local buildSection = function(sectionFrame)
-
-        local sectionOptions = {
-
-        }
-
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        --local sectionOptions = {}
+        --DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
-
     tinsert(Details.optionsSection, buildSection)
+    --]=]
 end
 
 

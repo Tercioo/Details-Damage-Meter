@@ -775,7 +775,7 @@ local SwitchOnClick = function(self, button, forced_value, value)
 			value = slider:return_func (value)
 		end
 
-		local success, errorText = xpcall (slider.OnSwitch, geterrorhandler(), slider, slider.FixedValue, value)
+		local success, errorText = xpcall(slider.OnSwitch, geterrorhandler(), slider, slider.FixedValue, value)
 		if (not success) then
 			return
 		end

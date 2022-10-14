@@ -234,7 +234,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	
 		f.db.aura_tracker.track_method = method
 		if (change_callback) then
-			DF:QuickDispatch (change_callback)
+			DF:QuickDispatch(change_callback)
 		end
 
 		if (method == 0x1) then
@@ -427,7 +427,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				--refresh the buff blacklist frame
 				f.buff_ignored:DoRefresh()
 
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -458,7 +458,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				--refresh the buff blacklist frame
 				f.buff_ignored:DoRefresh()
 
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -485,7 +485,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				--refresh the buff blacklist frame
 				f.debuff_ignored:DoRefresh()
 				
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -515,7 +515,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				--refresh the buff blacklist frame
 				f.debuff_ignored:DoRefresh()
 				
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -558,7 +558,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				--refresh the buff blacklist frame
 				f.debuff_tracked:DoRefresh()
 				
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -587,7 +587,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				--refresh the buff blacklist frame
 				f.debuff_tracked:DoRefresh()
 				
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -614,7 +614,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				f.buff_tracked:DoRefresh()
 
 				--callback the addon
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -646,7 +646,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 				f.buff_tracked:DoRefresh()
 
 				--callback the addon
-				DF:QuickDispatch (change_callback)
+				DF:QuickDispatch(change_callback)
 				
 				--add to spells with the same name cache
 				same_name_spells_add (spellId)
@@ -793,7 +793,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			db ["".. (spellID or "")] = nil -- cleanup...
 			parent [member]:DoRefresh()
 			if (removeFunc) then
-				DF:QuickDispatch (removeFunc)
+				DF:QuickDispatch(removeFunc)
 			end
 		end
 		
@@ -874,23 +874,23 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 	
 	local buff_tracked = createAuraScrollBox (f_auto, "$parentBuffTracked", "BuffTrackerScroll", f.LocTexts.BUFFS_TRACKED, f.db.aura_tracker.buff_tracked, function() 
 		if (change_callback) then
-			DF:QuickDispatch (change_callback)
+			DF:QuickDispatch(change_callback)
 		end
 	end)
 	local debuff_tracked = createAuraScrollBox (f_auto, "$parentDebuffTracked", "DebuffTrackerScroll", f.LocTexts.DEBUFFS_TRACKED, f.db.aura_tracker.debuff_tracked, function() 
 		if (change_callback) then
-			DF:QuickDispatch (change_callback)
+			DF:QuickDispatch(change_callback)
 		end
 	end)
 	
 	local buff_ignored = createAuraScrollBox (f_auto, "$parentBuffIgnored", "BuffIgnoredScroll", f.LocTexts.BUFFS_IGNORED, f.db.aura_tracker.buff_banned, function() 
 		if (change_callback) then
-			DF:QuickDispatch (change_callback)
+			DF:QuickDispatch(change_callback)
 		end
 	end)
 	local debuff_ignored = createAuraScrollBox (f_auto, "$parentDebuffIgnored", "DebuffIgnoredScroll", f.LocTexts.DEBUFFS_IGNORED, f.db.aura_tracker.debuff_banned, function() 
 		if (change_callback) then
-			DF:QuickDispatch (change_callback)
+			DF:QuickDispatch(change_callback)
 		end
 	end)
 	

@@ -593,7 +593,7 @@
 
 			--show the plugin window
 			if (pluginObject.RefreshWindow and callRefresh) then
-				DetailsFramework:QuickDispatch (pluginObject.RefreshWindow)
+				DetailsFramework:QuickDispatch(pluginObject.RefreshWindow)
 			end
 
 			--highlight the plugin button on the menu

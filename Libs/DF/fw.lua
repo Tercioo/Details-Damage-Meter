@@ -1,6 +1,6 @@
 
 
-local dversion = 380
+local dversion = 381
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1769,6 +1769,9 @@ end
 						local label = colorpick.hasLabel
 						label.text = (languageTable and languageTable[widgetTable.namePhraseId]) or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or ""
 						label:SetTemplate(widgetTable.text_template or textTemplate)
+
+						label:ClearAllPoints()
+						colorpick:ClearAllPoints()
 
 						if (widgetTable.boxfirst or useBoxFirstOnAllWidgets) then
 							label:SetPoint("left", colorpick, "right", 2)
@@ -3934,7 +3937,7 @@ local specs_per_class = {
 	["EVOKER"] = {1467, 1468},
 }
 
-function DF:GetClassSpecIDs (class)
+function DF:GetClassSpecIDs(class)
 	return specs_per_class [class]
 end
 
@@ -3943,19 +3946,19 @@ local dispatch_error = function(context, errortext)
 end
 
 --safe call an external func with payload and without telling who is calling
-function DF:QuickDispatch (func, ...)
+function DF:QuickDispatch(func, ...)
 	if (type(func) ~= "function") then
 		return
 	end
-	
-	local okay, errortext = pcall(func, ...)
-	
+
+	local okay, errortext = xpcall(func, geterrorhandler(), ...)
+
 	if (not okay) then
 		--trigger an error msg
-		dispatch_error (_, errortext)
+		dispatch_error(_, errortext)
 		return
 	end
-	
+
 	return true
 end
 
@@ -3964,7 +3967,7 @@ function DF:Dispatch(func, ...)
 		return dispatch_error (_, "DF:Dispatch expect a function as parameter 1.")
 	end
 
-	local dispatchResult = {xpcall (func, geterrorhandler(), ...)}
+	local dispatchResult = {xpcall(func, geterrorhandler(), ...)}
 	local okay = dispatchResult[1]
 
 	if (not okay) then
@@ -3977,14 +3980,14 @@ function DF:Dispatch(func, ...)
 end
 
 --[=[
-	DF:CoreDispatch (func, context, ...)
+	DF:CoreDispatch(func, context, ...)
 	safe call a function making a error window with what caused, the context and traceback of the error
 	this func is only used inside the framework for sensitive calls where the func must run without errors
 	@func = the function which will be called
 	@context = what made the function be called
 	... parameters to pass in the function call
 --]=]
-function DF:CoreDispatch (context, func, ...)
+function DF:CoreDispatch(context, func, ...)
 	if (type(func) ~= "function") then
 		local stack = debugstack(2)
 		local errortext = "D!Framework " .. context .. " error: invalid function to call\n====================\n" .. stack .. "\n====================\n"

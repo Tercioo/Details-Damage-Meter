@@ -166,7 +166,7 @@ end
 	
 		if (button.tooltip) then
 			if (button.menu) then
-				_detalhes.gump:QuickDispatch (button.menu)
+				_detalhes.gump:QuickDispatch(button.menu)
 				
 				local next_check = 0.8
 				

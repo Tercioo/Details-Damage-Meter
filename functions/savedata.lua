@@ -91,10 +91,10 @@ function _detalhes:SaveConfig()
 			_detalhes_database.tabela_pets = _detalhes.tabela_pets.pets
 		end
 		
-		xpcall (_detalhes.TimeDataCleanUpTemporary, _detalhes.saver_error_func)
+		xpcall(_detalhes.TimeDataCleanUpTemporary, _detalhes.saver_error_func)
 		
 	--buffs
-		xpcall (_detalhes.Buffs.SaveBuffs, _detalhes.saver_error_func)
+		xpcall(_detalhes.Buffs.SaveBuffs, _detalhes.saver_error_func)
 	
 	--date
 		_detalhes.last_day = date ("%d")
