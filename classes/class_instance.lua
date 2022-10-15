@@ -2053,7 +2053,7 @@ function Details:PostponeSwitchToCurrent(instance)
 		instance.last_interaction = Details._tempo
 	end
 	--instance._postponing_switch = Details:ScheduleTimer("PostponeSwitchToCurrent", 1, instance)
-	instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, instance)
+	instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, Details, instance)
 end
 
 function Details:CheckSwitchToCurrent()
@@ -2066,7 +2066,7 @@ function Details:CheckSwitchToCurrent()
 			if ((instance.last_interaction and (instance.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.playerDetailWindow:IsShown())) then
 				--postpone
 				--instance._postponing_switch = Details:ScheduleTimer("PostponeSwitchToCurrent", 1, instance)
-				instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, instance)
+				instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, Details, instance)
 			else
 				instance:TrocaTabela(0) --muda o segmento pra current
 				instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
