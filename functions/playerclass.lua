@@ -1,33 +1,30 @@
 --[[ detect actor class ]]
 
-do 
+do
 
 	local _detalhes	= 	_G._detalhes
 	local _
 	local pairs = pairs
 	local ipairs = ipairs
-	local _UnitClass = UnitClass
-	local select = select
-	local _unpack = unpack
+	local unpack = table.unpack or _G.unpack
 
 	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-
 	local unknown_class_coords = {0.75, 1, 0.75, 1}
 
 	function Details:GetUnknownClassIcon()
 		return [[Interface\AddOns\Details\images\classes_small]], unpack(unknown_class_coords)
 	end
-	
+
 	function _detalhes:GetIconTexture (iconType, withAlpha)
 		iconType = string.lower(iconType)
-		
+
 		if (iconType == "spec") then
 			if (withAlpha) then
 				return [[Interface\AddOns\Details\images\spec_icons_normal_alpha]]
 			else
 				return [[Interface\AddOns\Details\images\spec_icons_normal]]
 			end
-			
+
 		elseif (iconType == "class") then
 			if (withAlpha) then
 				return [[Interface\AddOns\Details\images\classes_small_alpha]]
@@ -36,11 +33,11 @@ do
 			end
 		end
 	end
-	
+
 	-- try get the class from actor name
 	function _detalhes:GetClass(name)
-		local _, class = _UnitClass (name)
-		
+		local _, class = UnitClass (name)
+
 		if (not class) then
 			for index, container in ipairs(_detalhes.tabela_overall) do
 				local index = container._NameIndexTable [name]
@@ -53,7 +50,7 @@ do
 					end
 				end
 			end
-			
+
 			return "UNKNOW", 0.75, 1, 0.75, 1, 1, 1, 1, 1
 		else
 			local left, right, top, bottom = unpack(_detalhes.class_coords [class])
@@ -61,23 +58,23 @@ do
 			return class, left, right, top, bottom, r or 1, g or 1, b or 1
 		end
 	end
-	
+
 	local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
-	
+
 	local roles = {
 		DAMAGER = {421/512, 466/512, 381/512, 427/512},
 		HEALER = {467/512, 512/512, 381/512, 427/512},
 		TANK = {373/512, 420/512, 381/512, 427/512},
 		NONE = {0, 50/512, 110/512, 150/512},
-	} 
+	}
 	function _detalhes:GetRoleIcon (role)
 		return [[Interface\AddOns\Details\images\icons2]], unpack(roles [role])
 	end
-	
+
 	function _detalhes:GetClassIcon (class)
-	
+
 		local c
-	
+
 		if (self.classe) then
 			c = self.classe
 		elseif (type(class) == "table" and class.classe) then
@@ -87,7 +84,7 @@ do
 		else
 			c = "UNKNOW"
 		end
-		
+
 		if (c == "UNKNOW") then
 			return [[Interface\LFGFRAME\LFGROLE_BW]], 0.25, 0.5, 0, 1
 		elseif (c == "UNGROUPPLAYER") then
@@ -95,16 +92,12 @@ do
 		elseif (c == "PET") then
 			return [[Interface\AddOns\Details\images\classes_small]], 0.25, 0.49609375, 0.75, 1
 		else
-			return [[Interface\AddOns\Details\images\classes_small]], _unpack(_detalhes.class_coords [c])
+			return [[Interface\AddOns\Details\images\classes_small]], unpack(_detalhes.class_coords [c])
 		end
 	end
-	
-	function _detalhes:GetSpecIcon (spec, useAlpha)
+
+	function _detalhes:GetSpecIcon(spec, useAlpha)
 		if (spec) then
-			if (spec > 600) then --hack to new spec ids on new leveling zones from level 1-10
-				spec = 65
-			end
-			
 			if (spec == 0) then
 				return [[Interface\AddOns\Details\images\classes_small]], unpack(_detalhes.class_coords["UNKNOW"])
 			end
@@ -116,28 +109,28 @@ do
 			end
 		end
 	end
-	
+
 	local default_color = {1, 1, 1, 1}
 	function _detalhes:GetClassColor (class)
 		if (self.classe) then
 			return unpack(_detalhes.class_colors [self.classe] or default_color)
-			
+
 		elseif (type(class) == "table" and class.classe) then
 			return unpack(_detalhes.class_colors [class.classe] or default_color)
-		
+
 		elseif (type(class) == "string") then
 			return unpack(_detalhes.class_colors [class] or default_color)
-			
+
 		elseif (self.color) then
 			return unpack(self.color)
 		else
 			return unpack(default_color)
 		end
 	end
-	
+
 	function _detalhes:GetPlayerIcon (playerName, segment)
 		segment = segment or _detalhes.tabela_vigente
-		
+
 		local texture
 		local L, R, T, B
 
@@ -145,7 +138,7 @@ do
 		if (not playerObject or not playerObject.spec) then
 			playerObject = segment (2, playerName)
 		end
-		
+
 		if (playerObject) then
 			local spec = playerObject.spec
 			if (spec) then
@@ -159,34 +152,34 @@ do
 			texture = [[Interface\AddOns\Details\images\classes_small]]
 			L, R, T, B = unpack(_detalhes.class_coords ["UNKNOW"])
 		end
-		
+
 		return texture, L, R, T, B
 	end
-	
+
 	function _detalhes:GuessClass (t)
-	
+
 		local Actor, container, tries = t[1], t[2], t[3]
-		
+
 		if (not Actor) then
 			return false
 		end
-		
+
 		if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-			for spellid, _ in pairs(Actor.spells._ActorTable) do 
+			for spellid, _ in pairs(Actor.spells._ActorTable) do
 				local class = _detalhes.ClassSpellList [spellid]
 				if (class) then
 					Actor.classe = class
 					Actor.guessing_class = nil
-					
+
 					if (container) then
 						container.need_refresh = true
 					end
-					
+
 					if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 						Actor.minha_barra.minha_tabela = nil
 						_detalhes:ScheduleWindowUpdate (2, true)
 					end
-				
+
 					return class
 				end
 			end
@@ -203,40 +196,40 @@ do
 			end
 			return
 		end
-		
+
 		local class = _detalhes:GetClass(Actor.nome)
 		if (class and class ~= "UNKNOW") then
 			Actor.classe = class
 			Actor.need_refresh = true
 			Actor.guessing_class = nil
-			
+
 			if (container) then
 				container.need_refresh = true
 			end
-			
+
 			if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
 				_detalhes:ScheduleWindowUpdate (2, true)
 			end
-			
+
 			return class
 		end
-		
-		if (tries and tries < 10) then 
+
+		if (tries and tries < 10) then
 			t[3] = tries + 1 --thanks @Farmbuyer on curseforge
 			--_detalhes:ScheduleTimer("GuessClass", 2, {Actor, container, tries+1})
 			_detalhes:ScheduleTimer("GuessClass", 2, t) --passing the same table instead of creating a new one
 		end
-		
+
 		return false
 	end
-	
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	function _detalhes:GetSpecByGUID (unitSerial)
 		return _detalhes.cached_specs [unitSerial]
 	end
-	
+
 	-- try get the spec from actor name
 	function _detalhes:GetSpec (name)
 
@@ -247,7 +240,7 @@ do
 				return spec
 			end
 		end
-		
+
 		for index, container in ipairs(_detalhes.tabela_overall) do
 			local index = container._NameIndexTable [name]
 			if (index) then
@@ -255,7 +248,7 @@ do
 				return actor and actor.spec
 			end
 		end
-		
+
 	end
 
 	function Details:GetUnitId(unitName)
@@ -274,7 +267,7 @@ do
 					return unitId
 				end
 			end
- 
+
 		elseif (IsInGroup()) then
 			for i = 1, GetNumGroupMembers() -1 do
 				local unitId = "party" .. i
@@ -287,11 +280,11 @@ do
 			end
 		end
 	end
-	
+
 	function _detalhes:ReGuessSpec (t)
 		local Actor, container = t[1], t[2]
 		local SpecSpellList = _detalhes.SpecSpellList
-		
+
 		--get from the spell cast list
 		if (_detalhes.tabela_vigente) then
 			local misc_actor = _detalhes.tabela_vigente(4, Actor.nome)
@@ -300,55 +293,55 @@ do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
-					
+
 						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 						Actor.guessing_spec = nil
 
 						Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-						
+
 						if (container) then
 							container.need_refresh = true
 						end
-						
+
 						if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 							Actor.minha_barra.minha_tabela = nil
 							_detalhes:ScheduleWindowUpdate (2, true)
 						end
-					
+
 						return spec
 					end
 				end
 			end
 		else
 			if (Actor.spells) then
-				for spellid, _ in pairs(Actor.spells._ActorTable) do 
+				for spellid, _ in pairs(Actor.spells._ActorTable) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						if (spec ~= Actor.spec) then
 							_detalhes.cached_specs [Actor.serial] = spec
-						
+
 							Actor:SetSpecId(spec)
 							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 
 							Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-							
+
 							if (container) then
 								container.need_refresh = true
 							end
-							
+
 							if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 								Actor.minha_barra.minha_tabela = nil
 								_detalhes:ScheduleWindowUpdate (2, true)
 							end
-						
+
 							return spec
 						else
 							break
 						end
 					end
 				end
-				
+
 				if (Actor.classe == "HUNTER") then
 					local container_misc = _detalhes.tabela_vigente[4]
 					local index = container_misc._NameIndexTable [Actor.nome]
@@ -361,21 +354,21 @@ do
 								if (spec) then
 									if (spec ~= Actor.spec) then
 										_detalhes.cached_specs [Actor.serial] = spec
-									
+
 										Actor:SetSpecId(spec)
 										Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 
 										Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-										
+
 										if (container) then
 											container.need_refresh = true
 										end
-										
+
 										if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 											Actor.minha_barra.minha_tabela = nil
 											_detalhes:ScheduleWindowUpdate (2, true)
 										end
-									
+
 										return spec
 									else
 										break
@@ -385,122 +378,122 @@ do
 						end
 					end
 				end
-				
+
 			end
 		end
 	end
-	
+
 	function _detalhes:GuessSpec (t)
-		
+
 		local Actor, container, tries = t[1], t[2], t[3]
 		if (not Actor) then
 			return false
 		end
-		
+
 		local SpecSpellList = _detalhes.SpecSpellList
-		
+
 		--local misc_actor = info.instancia.showing (4, self:name())
 		--spell_cast
-		
+
 		--get from the spec cache
 		local spec = _detalhes.cached_specs [Actor.serial]
 		if (spec) then
 			Actor:SetSpecId(spec)
 			Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
-			
+
 			Actor.guessing_spec = nil
-			
+
 			if (container) then
 				container.need_refresh = true
 			end
-			
+
 			if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
 				_detalhes:ScheduleWindowUpdate (2, true)
 			end
-		
+
 			return spec
 		end
-		
+
 		--get from the spell cast list
 		if (_detalhes.tabela_vigente) then
 			local misc_actor = _detalhes.tabela_vigente(4, Actor.nome)
-			
+
 			if (misc_actor and misc_actor.spell_cast) then
 				for spellid, _ in pairs(misc_actor.spell_cast) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
-					
+
 						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 
 						Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-						
+
 						Actor.guessing_spec = nil
-						
+
 						if (container) then
 							container.need_refresh = true
 						end
-						
+
 						if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 							Actor.minha_barra.minha_tabela = nil
 							_detalhes:ScheduleWindowUpdate (2, true)
 						end
-					
+
 						return spec
 					end
 				end
 			else
 				if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-					for spellid, _ in pairs(Actor.spells._ActorTable) do 
+					for spellid, _ in pairs(Actor.spells._ActorTable) do
 						local spec = SpecSpellList [spellid]
 						if (spec) then
 							_detalhes.cached_specs [Actor.serial] = spec
-						
+
 							Actor:SetSpecId(spec)
 							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 							Actor.guessing_spec = nil
 
 							Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-							
+
 							if (container) then
 								container.need_refresh = true
 							end
-							
+
 							if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 								Actor.minha_barra.minha_tabela = nil
 								_detalhes:ScheduleWindowUpdate (2, true)
 							end
-						
+
 							return spec
 						end
 					end
 				end
 			end
 		else
-			
+
 			if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-				for spellid, _ in pairs(Actor.spells._ActorTable) do 
+				for spellid, _ in pairs(Actor.spells._ActorTable) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
-					
+
 						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 						Actor.guessing_spec = nil
 
 						Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-						
+
 						if (container) then
 							container.need_refresh = true
 						end
-						
+
 						if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 							Actor.minha_barra.minha_tabela = nil
 							_detalhes:ScheduleWindowUpdate (2, true)
 						end
-					
+
 						return spec
 					end
 				end
@@ -517,24 +510,24 @@ do
 					for spellid, spell in pairs(buffs) do
 						local spec = SpecSpellList [spellid]
 						if (spec) then
-						
+
 							_detalhes.cached_specs [Actor.serial] = spec
-						
+
 							Actor:SetSpecId(spec)
 							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 							Actor.guessing_spec = nil
 
 							Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-							
+
 							if (container) then
 								container.need_refresh = true
 							end
-							
+
 							if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 								Actor.minha_barra.minha_tabela = nil
 								_detalhes:ScheduleWindowUpdate (2, true)
 							end
-						
+
 							return spec
 						end
 					end
@@ -544,38 +537,38 @@ do
 
 		local spec = _detalhes:GetSpec (Actor.nome)
 		if (spec) then
-		
+
 			_detalhes.cached_specs [Actor.serial] = spec
-		
+
 			Actor:SetSpecId(spec)
 			Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
 			Actor.need_refresh = true
 			Actor.guessing_spec = nil
-			
+
 			if (container) then
 				container.need_refresh = true
 			end
-			
+
 			if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
 				_detalhes:ScheduleWindowUpdate (2, true)
 			end
-			
+
 			return spec
 		end
-		
+
 		if (_detalhes.streamer_config.quick_detection) then
-			if (tries and tries < 30) then 
+			if (tries and tries < 30) then
 				t[3] = tries + 1
 				_detalhes:ScheduleTimer("GuessSpec", 1, t)
-			end		
+			end
 		else
-			if (tries and tries < 10) then 
+			if (tries and tries < 10) then
 				t[3] = tries + 1
 				_detalhes:ScheduleTimer("GuessSpec", 3, t)
-			end		
+			end
 		end
-		
+
 		return false
 	end
 
@@ -593,7 +586,7 @@ function _detalhes:AddColorString (player_name, class)
 			return player_name
 		end
 	end
-	
+
 	--if failed, return the player name without modifications
 	return player_name
 end
@@ -614,7 +607,7 @@ end
 function _detalhes:AddClassOrSpecIcon (playerName, class, spec, iconSize, useAlphaIcons)
 
 	local size = iconSize or 16
-	
+
 	if (spec) then
 		local specString = ""
 		local L, R, T, B = unpack(_detalhes.class_specs_coords [spec])
@@ -627,7 +620,7 @@ function _detalhes:AddClassOrSpecIcon (playerName, class, spec, iconSize, useAlp
 			return specString .. " " .. playerName
 		end
 	end
-	
+
 	if (class) then
 		local classString = ""
 		local L, R, T, B = unpack(_detalhes.class_coords [class])
@@ -641,6 +634,6 @@ function _detalhes:AddClassOrSpecIcon (playerName, class, spec, iconSize, useAlp
 			return classString .. " " .. playerName
 		end
 	end
-	
+
 	return playerName
 end
