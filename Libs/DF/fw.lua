@@ -2630,6 +2630,12 @@ end
 
 DF.ClientLanguage = clientLanguage
 
+function DF:DetectTextLanguage(text)
+	for i = 1, #text do
+		--or not
+	end
+end
+
 --returns which region the language the client is running, return "western", "russia" or "asia"
 function DF:GetClientRegion()
 	if (clientLanguage == "zhCN" or clientLanguage == "koKR" or clientLanguage == "zhTW") then

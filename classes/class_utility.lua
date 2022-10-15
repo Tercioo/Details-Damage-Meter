@@ -198,10 +198,16 @@ function atributo_misc:CreateBuffTargetObject()
 	}
 end
 
-local backgroundColor = {0, 0, 0, 1}
-local statusBarDamageBackgroundTable = {value = 100, texture = [[Interface\AddOns\Details\images\bar_serenity]], color = {1, 0, 0, 0.1}}
+local statusBarBackgroundTable_ForDeathTooltip = {
+	value = 100,
+	texture = [[Interface\AddOns\Details\images\bar_serenity]],
+	color = {DetailsFramework:GetDefaultBackdropColor()}
+}
 
-function Details:ShowDeathTooltip(combatObject, deathTable)
+--expose in case someone want to customize the death tooltip background
+Details.StatusBarBackgroundTable_ForDeathTooltip = statusBarBackgroundTable_ForDeathTooltip
+
+function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 	local events = deathTable[1]
 	local timeOfDeath = deathTable[2]
 	local maxHP = max(deathTable[5], 0.001)
@@ -209,13 +215,22 @@ function Details:ShowDeathTooltip(combatObject, deathTable)
 	local lastcooldown = false
 	local gameCooltip = GameCooltip
 
+	local showSpark = Details.death_tooltip_spark
+	local barTypeColors = Details.death_log_colors
+	local statusbarTexture = Details.death_tooltip_texture
+	local tooltipWidth = Details.death_tooltip_width
+
+	local damageSourceColor = "FFFFFFFF" --FFC6B0D9
+	local healingSourceColor = "FF988EA0" --FFC6B0D9
+
+	local damageAmountColor = "FFFFFFFF"
+	local healingAmountColor = "FF988EA0"
+
 	gameCooltip:Reset()
 	gameCooltip:SetType("tooltipbar")
 
-	gameCooltip:AddLine(Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, unpack(self.click_to_report_color))
+	gameCooltip:AddLine(Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, unpack(Details.click_to_report_color))
 	gameCooltip:AddIcon([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
-
-	local barTypeColors = Details.death_log_colors
 
 	--death parser
 	for i, event in ipairs(events) do
@@ -229,7 +244,7 @@ function Details:ShowDeathTooltip(combatObject, deathTable)
 		local spellName, _, spellIcon = _GetSpellInfo(event[2])
 		local amount = event[3]
 		local eventTime = event[4]
-		local source = event[6]
+		local source = Details:GetOnlyName(event[6] or "")
 
 		if (eventTime + 12 > timeOfDeath) then
 			if (type(evType) == "boolean") then
@@ -252,34 +267,34 @@ function Details:ShowDeathTooltip(combatObject, deathTable)
 							--end
 
 						overkill = " (" .. Details:ToK(overkill) .. " |cFFFF8800overkill|r)"
-						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s |cFFFFFF00" .. spellName .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
+						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s |cFFFFFF00" .. spellName .. "|r (|c" .. damageSourceColor .. source .. "|r)", "|c" .. damageAmountColor .. "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					else
 						overkill = ""
-						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|cFFC6B0D9" .. source .. "|r)", "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
+						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. damageSourceColor .. source .. "|r)", "|c" .. damageAmountColor .. "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					end
 
 					gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
 
 					if (event[9]) then
 						--friendly fire
-						gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.friendlyfire, true, statusBarDamageBackgroundTable)
+						gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.friendlyfire, showSpark, statusBarBackgroundTable_ForDeathTooltip)
 					else
 						--from a enemy
-						gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.damage, true, statusBarDamageBackgroundTable)
+						gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.damage, showSpark, statusBarBackgroundTable_ForDeathTooltip)
 					end
 				else
 					--heal
 					if (amount > Details.deathlog_healingdone_min) then
 						if (combatObject.is_arena) then
 							if (amount > Details.deathlog_healingdone_min_arena) then
-								gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|cFFC6B0D9" .. source .. "|r)", "+" .. Details:ToK(amount) .. " (" .. healthPercent .. "%)", 1, "white", "white")
+								gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. healingSourceColor .. source .. "|r)", "|c" .. healingAmountColor .. "+" .. Details:ToK(amount) .. " (" .. healthPercent .. "%)", 1, "white", "white")
 								gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
-								gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.heal, true)
+								gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.heal, showSpark, statusBarBackgroundTable_ForDeathTooltip)
 							end
 						else
-							gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|cFFC6B0D9" .. source .. "|r)", "+" .. Details:ToK(amount) .. " (" .. healthPercent .. "%)", 1, "white", "white")
+							gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. healingSourceColor .. source .. "|r)", "|c" .. healingAmountColor .. "+" .. Details:ToK(amount) .. " (" .. healthPercent .. "%)", 1, "white", "white")
 							gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
-							gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.heal, true)
+							gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.heal, showSpark, statusBarBackgroundTable_ForDeathTooltip)
 						end
 					end
 				end
@@ -289,7 +304,7 @@ function Details:ShowDeathTooltip(combatObject, deathTable)
 					--cooldown
 					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "cooldown (" .. healthPercent .. "%)", 1, "white", "white")
 					gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
-					gameCooltip:AddStatusBar(100, 1, barTypeColors.cooldown, true)
+					gameCooltip:AddStatusBar(100, 1, barTypeColors.cooldown, showSpark)
 
 				elseif (evType == 2 and not battleress) then
 					--battle ress
@@ -301,10 +316,9 @@ function Details:ShowDeathTooltip(combatObject, deathTable)
 
 				elseif (evType == 4) then
 					--debuff
-					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s [x" .. amount .. "] " .. spellName .. " (" .. source .. ")", "debuff (" .. healthPercent .. "%)", 1, "white", "white")
+					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "x" .. amount .. AURA_TYPE_DEBUFF .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					gameCooltip:AddIcon(spellIcon)
-					gameCooltip:AddStatusBar(100, 1, barTypeColors.debuff, true)
-
+					gameCooltip:AddStatusBar(100, 1, barTypeColors.debuff, showSpark)
 				end
 			end
 		end
@@ -348,26 +362,33 @@ function Details:ShowDeathTooltip(combatObject, deathTable)
 	--move each line in the Y axis (vertical offsett)
 	gameCooltip:SetOption("LineYOffset", 0)
 
-	gameCooltip:SetOption("FixedWidth", (type(_detalhes.death_tooltip_width) == "number" and _detalhes.death_tooltip_width) or 300)
+	--tooltip width
+	gameCooltip:SetOption("FixedWidth", (type(tooltipWidth) == "number" and tooltipWidth) or 300)
+
+	--progress bar texture
+	gameCooltip:SetOption("StatusBarTexture", statusbarTexture)
+
+	return true
 end
 
 function Details:ToolTipDead(instance, deathTable, barFrame)
 	local gameCooltip = GameCooltip
 
-	Details:ShowDeathTooltip(instance:GetShowingCombat(), deathTable)
+	local builtTooltip = Details.ShowDeathTooltipFunction(instance, barFrame, instance:GetShowingCombat(), deathTable)
+	if (builtTooltip) then
+		local myPoint = Details.tooltip.anchor_point
+		local anchorPoint = Details.tooltip.anchor_relative
+		local xOffset = Details.tooltip.anchor_offset[1]
+		local yOffset = Details.tooltip.anchor_offset[2]
 
-	local myPoint = Details.tooltip.anchor_point
-	local anchorPoint = Details.tooltip.anchor_relative
-	local xOffset = Details.tooltip.anchor_offset[1]
-	local yOffset = Details.tooltip.anchor_offset[2]
+		if (Details.tooltip.anchored_to == 1) then
+			gameCooltip:SetHost(barFrame, myPoint, anchorPoint, xOffset, yOffset)
+		else
+			gameCooltip:SetHost(DetailsTooltipAnchor, myPoint, anchorPoint, xOffset, yOffset)
+		end
 
-	if (Details.tooltip.anchored_to == 1) then
-		gameCooltip:SetHost(barFrame, myPoint, anchorPoint, xOffset, yOffset)
-	else
-		gameCooltip:SetHost(DetailsTooltipAnchor, myPoint, anchorPoint, xOffset, yOffset)
+		gameCooltip:ShowCooltip()
 	end
-
-	gameCooltip:ShowCooltip()
 end
 
 local function RefreshBarraMorte (morte, barra, instancia)

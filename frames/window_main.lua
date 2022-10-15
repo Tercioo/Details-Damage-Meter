@@ -3532,14 +3532,14 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.button_up:SetHeight(32)
 		baseframe.button_up:SetNormalTexture([[Interface\BUTTONS\UI-ScrollBar-ScrollUpButton-Up]])
 		baseframe.button_up:SetPushedTexture([[Interface\BUTTONS\UI-ScrollBar-ScrollUpButton-Down]])
-		baseframe.button_up:SetDisabledTexture ([[Interface\BUTTONS\UI-ScrollBar-ScrollUpButton-Disabled]])
+		baseframe.button_up:SetDisabledTexture([[Interface\BUTTONS\UI-ScrollBar-ScrollUpButton-Disabled]])
 		baseframe.button_up:Disable()
 
 		baseframe.button_down:SetWidth(29)
 		baseframe.button_down:SetHeight(32)
 		baseframe.button_down:SetNormalTexture([[Interface\BUTTONS\UI-ScrollBar-ScrollDownButton-Up]])
 		baseframe.button_down:SetPushedTexture([[Interface\BUTTONS\UI-ScrollBar-ScrollDownButton-Down]])
-		baseframe.button_down:SetDisabledTexture ([[Interface\BUTTONS\UI-ScrollBar-ScrollDownButton-Disabled]])
+		baseframe.button_down:SetDisabledTexture([[Interface\BUTTONS\UI-ScrollBar-ScrollDownButton-Disabled]])
 		baseframe.button_down:Disable()
 
 		baseframe.button_up:SetPoint("topright", baseframe.scroll_up, "topright", -4, 3)
@@ -3801,7 +3801,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.break_snap_button:SetScript("OnLeave", unSnapButtonOnLeave)
 
 		instancia.break_snap_button:SetNormalTexture(DEFAULT_SKIN)
-		instancia.break_snap_button:SetDisabledTexture (DEFAULT_SKIN)
+		instancia.break_snap_button:SetDisabledTexture(DEFAULT_SKIN)
 		instancia.break_snap_button:SetHighlightTexture(DEFAULT_SKIN, "ADD")
 		instancia.break_snap_button:SetPushedTexture(DEFAULT_SKIN)
 
@@ -7112,7 +7112,7 @@ function Details:ChangeSkin(skin_name)
 		self.baseframe.resize_esquerda.texture:SetTexture(skin_file) --bot�o de redimencionar da esquerda
 
 		self.break_snap_button:SetNormalTexture(skin_file) --cadeado
-		self.break_snap_button:SetDisabledTexture (skin_file)
+		self.break_snap_button:SetDisabledTexture(skin_file)
 		self.break_snap_button:SetHighlightTexture(skin_file, "ADD")
 		self.break_snap_button:SetPushedTexture(skin_file)
 

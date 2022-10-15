@@ -36,6 +36,15 @@ function Details:StartMeUp() --I'll never stop!
 
 		self.click_to_report_color = {1, 0.8, 0, 1}
 
+		--death tooltip function, exposed for 3rd party customization
+		--called when the mouse hover over a player line when displaying deaths
+		--the function called receives 4 parameters: instanceObject, lineFrame, combatObject, deathTable
+		--@instance: the details! object of the window showing the deaths
+		--@lineFrame: the frame to setpoint your frame
+		--@combatObject: the combat it self
+		--@deathTable: a table containing all the information about the player's death
+		Details.ShowDeathTooltipFunction = Details.ShowDeathTooltip
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialize
 	C_Timer.After(2, function()

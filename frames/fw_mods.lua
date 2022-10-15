@@ -68,7 +68,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 	
 	new_button:SetNormalTexture(pic_up)
 	new_button:SetPushedTexture(pic_down)
-	new_button:SetDisabledTexture (pic_disabled)
+	new_button:SetDisabledTexture(pic_disabled)
 	new_button:SetHighlightTexture(pic_highlight, "ADD")
 
 	local new_text = new_button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -223,7 +223,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 	function new_button:ChangeIcon (icon1, icon2, icon3, icon4)
 		new_button:SetNormalTexture(icon1)
 		new_button:SetPushedTexture(icon2)
-		new_button:SetDisabledTexture (icon3)
+		new_button:SetDisabledTexture(icon3)
 		new_button:SetHighlightTexture(icon4, "ADD")
 	end
 	
@@ -519,7 +519,7 @@ function gump:NewScrollBar2 (master, slave, x, y)
 	botao_cima:SetHeight(32)
 	botao_cima:SetNormalTexture([[Interface\Buttons\Arrow-Up-Up]])
 	botao_cima:SetPushedTexture([[Interface\Buttons\Arrow-Up-Down]])
-	botao_cima:SetDisabledTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
+	botao_cima:SetDisabledTexture([[Interface\Buttons\Arrow-Up-Disabled]])
 	botao_cima:Show()
 	botao_cima:Disable()
 
@@ -536,7 +536,7 @@ function gump:NewScrollBar2 (master, slave, x, y)
 	botao_baixo:SetHeight(32)
 	botao_baixo:SetNormalTexture([[Interface\Buttons\Arrow-Down-Up]])
 	botao_baixo:SetPushedTexture([[Interface\Buttons\Arrow-Down-Down]])
-	botao_baixo:SetDisabledTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
+	botao_baixo:SetDisabledTexture([[Interface\Buttons\Arrow-Down-Disabled]])
 	botao_baixo:Show()
 	botao_baixo:Disable()
 

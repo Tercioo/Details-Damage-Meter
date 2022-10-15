@@ -42,7 +42,7 @@
 		--textures
 		button:SetNormalTexture(icon)
 		button:SetPushedTexture(icon)
-		button:SetDisabledTexture (icon)
+		button:SetDisabledTexture(icon)
 		button:SetHighlightTexture(icon, "ADD")
 		button.__icon = icon
 		button.__name = pluginname

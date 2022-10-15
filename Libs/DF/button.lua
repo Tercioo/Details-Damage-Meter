@@ -123,169 +123,170 @@ DF:Mixin(ButtonMetaFunctions, DF.ScriptHookMixin)
 	ButtonMetaFunctions.GetMembers["textfont"] = gmember_textfont --alias
 	ButtonMetaFunctions.GetMembers["textsize"] = gmember_textsize --alias
 
-	ButtonMetaFunctions.__index = function(_table, _member_requested)
-
-		local func = ButtonMetaFunctions.GetMembers [_member_requested]
+	ButtonMetaFunctions.__index = function(object, key)
+		local func = ButtonMetaFunctions.GetMembers[key]
 		if (func) then
-			return func (_table, _member_requested)
+			return func(object, key)
 		end
 
-		local fromMe = rawget(_table, _member_requested)
-		if (fromMe) then
-			return fromMe
+		local alreadyHaveKey = rawget(object, key)
+		if (alreadyHaveKey) then
+			return alreadyHaveKey
 		end
 
-		return ButtonMetaFunctions [_member_requested]
+		return ButtonMetaFunctions[key]
 	end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--tooltip
-	local smember_tooltip = function(_object, _value)
-		return _object:SetTooltip (_value)
+	local smember_tooltip = function(object, value)
+		return object:SetTooltip (value)
 	end
 
 	--show
-	local smember_show = function(_object, _value)
-		if (_value) then
-			return _object:Show()
+	local smember_show = function(object, value)
+		if (value) then
+			return object:Show()
 		else
-			return _object:Hide()
+			return object:Hide()
 		end
 	end
 
 	--hide
-	local smember_hide = function(_object, _value)
-		if (not _value) then
-			return _object:Show()
+	local smember_hide = function(object, value)
+		if (not value) then
+			return object:Show()
 		else
-			return _object:Hide()
+			return object:Hide()
 		end
 	end
 
 	--frame width
-	local smember_width = function(_object, _value)
-		return _object.button:SetWidth(_value)
+	local smember_width = function(object, value)
+		return object.button:SetWidth(value)
 	end
 
 	--frame height
-	local smember_height = function(_object, _value)
-		return _object.button:SetHeight(_value)
+	local smember_height = function(object, value)
+		return object.button:SetHeight(value)
 	end
 
 	--text
-	local smember_text = function(_object, _value)
-		return _object.button.text:SetText(_value)
+	local smember_text = function(object, value)
+		return object.button.text:SetText(value)
 	end
 
 	--function
-	local smember_function = function(_object, _value)
-		return rawset(_object, "func", _value)
+	local smember_function = function(object, value)
+		return rawset(object, "func", value)
 	end
 
 	--param1
-	local smember_param1 = function(_object, _value)
-		return rawset(_object, "param1", _value)
+	local smember_param1 = function(object, value)
+		return rawset(object, "param1", value)
 	end
 
 	--param2
-	local smember_param2 = function(_object, _value)
-		return rawset(_object, "param2", _value)
+	local smember_param2 = function(object, value)
+		return rawset(object, "param2", value)
 	end
 
 	--text color
-	local smember_textcolor = function(_object, _value)
-		local _value1, _value2, _value3, _value4 = DF:ParseColors(_value)
-		return _object.button.text:SetTextColor(_value1, _value2, _value3, _value4)
+	local smember_textcolor = function(object, value)
+		local value1, value2, value3, value4 = DF:ParseColors(value)
+		return object.button.text:SetTextColor(value1, value2, value3, value4)
 	end
 
 	--text font
-	local smember_textfont = function(_object, _value)
-		return DF:SetFontFace (_object.button.text, _value)
+	local smember_textfont = function(object, value)
+		return DF:SetFontFace (object.button.text, value)
 	end
 
 	--text size
-	local smember_textsize = function(_object, _value)
-		return DF:SetFontSize (_object.button.text, _value)
+	local smember_textsize = function(object, value)
+		return DF:SetFontSize (object.button.text, value)
 	end
 
 	--texture
-	local smember_texture = function(_object, _value)
-		if (type(_value) == "table") then
-			local _value1, _value2, _value3, _value4 = unpack(_value)
-			if (_value1) then
-				_object.button:SetNormalTexture(_value1)
+	local smember_texture = function(object, value)
+		if (type(value) == "table") then
+			local value1, value2, value3, value4 = unpack(value)
+			if (value1) then
+				object.button:SetNormalTexture(value1)
 			end
-			if (_value2) then
-				_object.button:SetHighlightTexture(_value2, "ADD")
+			if (value2) then
+				object.button:SetHighlightTexture(value2, "ADD")
 			end
-			if (_value3) then
-				_object.button:SetPushedTexture(_value3)
+			if (value3) then
+				object.button:SetPushedTexture(value3)
 			end
-			if (_value4) then
-				_object.button:SetDisabledTexture (_value4)
+			if (value4) then
+				object.button:SetDisabledTexture(value4)
 			end
 		else
-			_object.button:SetNormalTexture(_value)
-			_object.button:SetHighlightTexture(_value, "ADD")
-			_object.button:SetPushedTexture(_value)
-			_object.button:SetDisabledTexture (_value)
+			object.button:SetNormalTexture(value)
+			object.button:SetHighlightTexture(value, "ADD")
+			object.button:SetPushedTexture(value)
+			object.button:SetDisabledTexture(value)
 		end
 		return
 	end
 
 	--locked
-	local smember_locked = function(_object, _value)
-		if (_value) then
-			_object.button:SetMovable(false)
-			return rawset(_object, "is_locked", true)
+	local smember_locked = function(object, value)
+		if (value) then
+			object.button:SetMovable(false)
+			return rawset(object, "is_locked", true)
 		else
-			_object.button:SetMovable(true)
-			rawset(_object, "is_locked", false)
+			object.button:SetMovable(true)
+			rawset(object, "is_locked", false)
 			return
 		end
 	end
 
 	--text align
-	local smember_textalign = function(_object, _value)
-		if (_value == "left" or _value == "<") then
-			_object.button.text:SetPoint("left", _object.button, "left", 2, 0)
-			_object.capsule_textalign = "left"
-		elseif (_value == "center" or _value == "|") then
-			_object.button.text:SetPoint("center", _object.button, "center", 0, 0)
-			_object.capsule_textalign = "center"
-		elseif (_value == "right" or _value == ">") then
-			_object.button.text:SetPoint("right", _object.button, "right", -2, 0)
-			_object.capsule_textalign = "right"
+	local smember_textalign = function(object, value)
+		if (value == "left" or value == "<") then
+			object.button.text:SetPoint("left", object.button, "left", 2, 0)
+			object.capsule_textalign = "left"
+
+		elseif (value == "center" or value == "|") then
+			object.button.text:SetPoint("center", object.button, "center", 0, 0)
+			object.capsule_textalign = "center"
+
+		elseif (value == "right" or value == ">") then
+			object.button.text:SetPoint("right", object.button, "right", -2, 0)
+			object.capsule_textalign = "right"
 		end
 	end
 
-	ButtonMetaFunctions.SetMembers = ButtonMetaFunctions.SetMembers or {}
-	ButtonMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
-	ButtonMetaFunctions.SetMembers ["show"] = smember_show
-	ButtonMetaFunctions.SetMembers ["hide"] = smember_hide
-	ButtonMetaFunctions.SetMembers ["width"] = smember_width
-	ButtonMetaFunctions.SetMembers ["height"] = smember_height
-	ButtonMetaFunctions.SetMembers ["text"] = smember_text
-	ButtonMetaFunctions.SetMembers ["clickfunction"] = smember_function
-	ButtonMetaFunctions.SetMembers ["param1"] = smember_param1
-	ButtonMetaFunctions.SetMembers ["param2"] = smember_param2
-	ButtonMetaFunctions.SetMembers ["textcolor"] = smember_textcolor
-	ButtonMetaFunctions.SetMembers ["textfont"] = smember_textfont
-	ButtonMetaFunctions.SetMembers ["textsize"] = smember_textsize
-	ButtonMetaFunctions.SetMembers ["fontcolor"] = smember_textcolor--alias
-	ButtonMetaFunctions.SetMembers ["fontface"] = smember_textfont--alias
-	ButtonMetaFunctions.SetMembers ["fontsize"] = smember_textsize--alias
-	ButtonMetaFunctions.SetMembers ["texture"] = smember_texture
-	ButtonMetaFunctions.SetMembers ["locked"] = smember_locked
-	ButtonMetaFunctions.SetMembers ["textalign"] = smember_textalign
+	ButtonMetaFunctions.SetMembers= ButtonMetaFunctions.SetMembers or {}
+	ButtonMetaFunctions.SetMembers["tooltip"] = smember_tooltip
+	ButtonMetaFunctions.SetMembers["show"] = smember_show
+	ButtonMetaFunctions.SetMembers["hide"] = smember_hide
+	ButtonMetaFunctions.SetMembers["width"] = smember_width
+	ButtonMetaFunctions.SetMembers["height"] = smember_height
+	ButtonMetaFunctions.SetMembers["text"] = smember_text
+	ButtonMetaFunctions.SetMembers["clickfunction"] = smember_function
+	ButtonMetaFunctions.SetMembers["param1"] = smember_param1
+	ButtonMetaFunctions.SetMembers["param2"] = smember_param2
+	ButtonMetaFunctions.SetMembers["textcolor"] = smember_textcolor
+	ButtonMetaFunctions.SetMembers["textfont"] = smember_textfont
+	ButtonMetaFunctions.SetMembers["textsize"] = smember_textsize
+	ButtonMetaFunctions.SetMembers["fontcolor"] = smember_textcolor--alias
+	ButtonMetaFunctions.SetMembers["fontface"] = smember_textfont--alias
+	ButtonMetaFunctions.SetMembers["fontsize"] = smember_textsize--alias
+	ButtonMetaFunctions.SetMembers["texture"] = smember_texture
+	ButtonMetaFunctions.SetMembers["locked"] = smember_locked
+	ButtonMetaFunctions.SetMembers["textalign"] = smember_textalign
 
-	ButtonMetaFunctions.__newindex = function(_table, _key, _value)
-		local func = ButtonMetaFunctions.SetMembers [_key]
+	ButtonMetaFunctions.__newindex = function(object, key, value)
+		local func = ButtonMetaFunctions.SetMembers[key]
 		if (func) then
-			return func (_table, _value)
+			return func(object, value)
 		else
-			return rawset(_table, _key, _value)
+			return rawset(object, key, value)
 		end
 	end
 

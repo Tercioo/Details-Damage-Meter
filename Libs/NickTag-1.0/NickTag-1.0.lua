@@ -954,7 +954,7 @@ do
 			if ( index <= numMacroIcons and texture ) then
 				macroPopupButton:SetNormalTexture(texture)
 				macroPopupButton:SetPushedTexture(texture)
-				macroPopupButton:SetDisabledTexture (texture)
+				macroPopupButton:SetDisabledTexture(texture)
 				macroPopupButton:SetHighlightTexture(texture, "ADD")
 				macroPopupButton.IconID = index
 				macroPopupButton:Show()
@@ -978,7 +978,7 @@ do
 			if ( index <= numMacroIcons and texture ) then
 				macroPopupButton:SetNormalTexture(texture)
 				macroPopupButton:SetPushedTexture(texture)
-				macroPopupButton:SetDisabledTexture (texture)
+				macroPopupButton:SetDisabledTexture(texture)
 				macroPopupButton:SetHighlightTexture(texture, "ADD")
 				macroPopupButton.IconID = index
 				macroPopupButton:Show()

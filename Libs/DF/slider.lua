@@ -421,8 +421,8 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 	buttonPlus:SetPushedTexture([[Interface\Buttons\UI-PlusButton-Down]])
 	buttonMinor:SetPushedTexture([[Interface\Buttons\UI-MinusButton-Down]])
 
-	buttonPlus:SetDisabledTexture ([[Interface\Buttons\UI-PlusButton-Disabled]])
-	buttonMinor:SetDisabledTexture ([[Interface\Buttons\UI-MinusButton-Disabled]])
+	buttonPlus:SetDisabledTexture([[Interface\Buttons\UI-PlusButton-Disabled]])
+	buttonMinor:SetDisabledTexture([[Interface\Buttons\UI-MinusButton-Disabled]])
 
 	buttonPlus:SetHighlightTexture([[Interface\Buttons\UI-PlusButton-Hilight]])
 	buttonMinor:SetHighlightTexture([[Interface\Buttons\UI-PlusButton-Hilight]])
@@ -1047,9 +1047,7 @@ function DF:CreateSlider (parent, w, h, min, max, step, defaultv, isDecemal, mem
 	return slider, label
 end
 
-function DF:NewSlider (parent, container, name, member, w, h, min, max, step, defaultv, isDecemal, isSwitch, with_label, slider_template, label_template)
-
---early checks
+function DF:NewSlider (parent, container, name, member, width, height, minValue, maxValue, step, defaultValue, isDecemal, isSwitch, with_label, slider_template, label_template)
 	if (not name) then
 		name = "DetailsFrameworkSlider" .. DF.SliderCounter
 		DF.SliderCounter = DF.SliderCounter + 1
@@ -1080,13 +1078,13 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	end
 
 --defaults
-	min = min or 1
-	max = max or 2
+	minValue = minValue or 1
+	maxValue = maxValue or 2
 	step = step or 1
-	defaultv = defaultv or min
+	defaultValue = defaultValue or minValue
 
-	w = w or 130
-	h = h or 19
+	width = width or 130
+	height = height or 19
 
 	--default members:
 		SliderObject.lockdown = false
@@ -1098,40 +1096,40 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	SliderObject.useDecimals = isDecemal or false
 
 	if (SliderObject.useDecimals) then
-		SliderObject.slider:SetValueStep (0.01)
+		SliderObject.slider:SetValueStep(0.01)
 	else
-		SliderObject.slider:SetValueStep (step)
+		SliderObject.slider:SetValueStep(step)
 	end
 
 	if (not APISliderFunctions) then
 		APISliderFunctions = true
 		local idx = getmetatable(SliderObject.slider).__index
 		for funcName, funcAddress in pairs(idx) do
-			if (not DFSliderMetaFunctions [funcName]) then
-				DFSliderMetaFunctions [funcName] = function(object, ...)
+			if (not DFSliderMetaFunctions[funcName]) then
+				DFSliderMetaFunctions[funcName] = function(object, ...)
 					local x = loadstring ( "return _G['"..object.slider:GetName().."']:"..funcName.."(...)")
-					return x (...)
+					return x(...)
 				end
 			end
 		end
 	end
 
 	SliderObject.slider.MyObject = SliderObject
-	SliderObject.slider:SetWidth(w)
-	SliderObject.slider:SetHeight(h)
+	SliderObject.slider:SetWidth(width)
+	SliderObject.slider:SetHeight(height)
 	SliderObject.slider:SetOrientation ("horizontal")
-	SliderObject.slider:SetMinMaxValues(min, max)
-	SliderObject.slider:SetValue(defaultv)
-	SliderObject.ivalue = defaultv
+	SliderObject.slider:SetMinMaxValues(minValue, maxValue)
+	SliderObject.slider:SetValue(defaultValue)
+	SliderObject.ivalue = defaultValue
 
 	SliderObject.slider:SetBackdrop({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8})
 	SliderObject.slider:SetBackdropColor(0.9, 0.7, 0.7, 1.0)
 
 	SliderObject.thumb = SliderObject.slider:CreateTexture(nil, "artwork")
 	SliderObject.thumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
-	SliderObject.thumb:SetSize(30+(h*0.2), h*1.2)
+	SliderObject.thumb:SetSize(30 + (height * 0.2), height * 1.2)
 	SliderObject.thumb.originalWidth = SliderObject.thumb:GetWidth()
-	SliderObject.thumb.originalHeight =SliderObject.thumb:GetHeight()
+	SliderObject.thumb.originalHeight = SliderObject.thumb:GetHeight()
 	SliderObject.thumb:SetAlpha(0.7)
 	SliderObject.slider:SetThumbTexture (SliderObject.thumb)
 	SliderObject.slider.thumb = SliderObject.thumb
@@ -1142,9 +1140,9 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 
 	SliderObject.amt = SliderObject.slider:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 
-	local amt = defaultv
+	local amt = defaultValue
 	if (amt < 10 and amt >= 1) then
-		amt = "0"..amt
+		amt = "0" .. amt
 	end
 
 	if (SliderObject.useDecimals) then
@@ -1157,7 +1155,7 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	SliderObject.amt:SetPoint("center", SliderObject.thumb, "center")
 	SliderObject.slider.amt = SliderObject.amt
 
-	SliderObject.previous_value = {defaultv or 0, 0, 0}
+	SliderObject.previous_value = {defaultValue or 0, 0, 0}
 
 	--hooks
 	SliderObject.HookList = {
@@ -1200,7 +1198,6 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 	end
 
 	return SliderObject, with_label
-
 end
 
 DF.AdjustmentSliderOptions = {

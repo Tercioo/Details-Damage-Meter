@@ -323,21 +323,23 @@ elseif (isExpansion_Shadowlands()) then
 
 elseif (isExpansion_Dragonflight()) then
 	LIB_OPEN_RAID_BLOODLUST = {
-		[2825] = true, --bloodlust
-		[32182] = true, --heroism
-		[80353] = true, --timewarp
-		[90355] = true, --ancient hysteria
-		[309658] = true, --current exp drums
+		[2825] = true, --bloodlust (shaman)
+		[32182] = true, --heroism (shaman)
+		[80353] = true, --timewarp (mage)
+		[90355] = true, --ancient hysteria (hunter)
+		[309658] = true, --current exp drums (letherwork)
+		--need to get the 30% haste buff from evokers
 	}
 
 	LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 180653
-	LIB_OPEN_RAID_AUGMENTATED_RUNE = 347901
+	LIB_OPEN_RAID_AUGMENTATED_RUNE = 0 --need to update to dragonflight
 
 	LIB_OPEN_RAID_COVENANT_ICONS = {
-		[[Interface\ICONS\UI_Sigil_Kyrian]], --kyrian
-		[[Interface\ICONS\UI_Sigil_Venthyr]], --venthyr
-		[[Interface\ICONS\UI_Sigil_NightFae]], --nightfae
-		[[Interface\ICONS\UI_Sigil_Necrolord]], --necrolords
+		--need to get the icon for the new 4 covanants in dragonflight
+		--"Interface\\ICONS\\UI_Sigil_Kyrian", --kyrian
+		--"Interface\\ICONS\\UI_Sigil_Venthyr", --venthyr
+		--"Interface\\ICONS\\UI_Sigil_NightFae", --nightfae
+		--"Interface\\ICONS\\UI_Sigil_Necrolord", --necrolords
 	}
 
 	--which gear slots can be enchanted on the latest retail version of the game
@@ -360,78 +362,68 @@ elseif (isExpansion_Dragonflight()) then
 	-- local enchandId = select(3, strsplit(":", itemLink))
 	-- print("enchantId:", enchandId)
 	LIB_OPEN_RAID_ENCHANT_IDS = {
+		--need to get this data to dragonflight
 		--FEET
 			--[6207] = INVSLOT_FEET, --[Enchant Boots - Speed of Soul]
-			[6211] = INVSLOT_FEET, --[Enchant Boots - Eternal Agility] + 15 agi
-			[6212] = INVSLOT_FEET, --[Enchant Boots - Agile Soulwalker] + 10 agi
+			--[6211] = INVSLOT_FEET, --[Enchant Boots - Eternal Agility] + 15 agi
+			--[6212] = INVSLOT_FEET, --[Enchant Boots - Agile Soulwalker] + 10 agi
 
 		--WRIST
 			--[6222] = INVSLOT_WRIST, [Enchant Bracers - Shaded Hearthing]
-			[6219] = INVSLOT_WRIST, --[Enchant Bracers - Illuminated Soul] + 10 int
-			[6220] = INVSLOT_WRIST, --[Enchant Bracers - Eternal Intellect] + 15 int
+			--[6219] = INVSLOT_WRIST, --[Enchant Bracers - Illuminated Soul] + 10 int
+			--[6220] = INVSLOT_WRIST, --[Enchant Bracers - Eternal Intellect] + 15 int
 
 		--HAND
 			--[6205] = INVSLOT_HAND, --[Enchant Gloves - Shadowlands Gathering]
-			[6209] = INVSLOT_HAND, --[Enchant Gloves - Strength of Soul] +10 str
-			[6210] = INVSLOT_HAND, --[Enchant Gloves - Eternal Strength] +15 str
+			--[6209] = INVSLOT_HAND, --[Enchant Gloves - Strength of Soul] +10 str
+			--[6210] = INVSLOT_HAND, --[Enchant Gloves - Eternal Strength] +15 str
 
 		--FINGER
-			[6164] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Critical Strike] +16
-			[6166] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Haste] +16
-			[6168] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Mastery] +16
-			[6170] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Versatility] +16
+			--[6164] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Critical Strike] +16
+			--[6166] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Haste] +16
+			--[6168] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Mastery] +16
+			--[6170] = INVSLOT_FINGER1, --[Enchant Ring - Tenet of Versatility] +16
 
 		--BACK
-			[6202] = INVSLOT_BACK, --[Enchant Cloak - Fortified Speed] +20 stam +30 speed
-			[6203] = INVSLOT_BACK, --[Enchant Cloak - Fortified Avoidance] +20 stam +30 avoidance
-			[6204] = INVSLOT_BACK, --[Enchant Cloak - Fortified Leech]
-			[6208] = INVSLOT_BACK, --[Enchant Cloak - Soul Vitality]
+			--[6202] = INVSLOT_BACK, --[Enchant Cloak - Fortified Speed] +20 stam +30 speed
+			--[6203] = INVSLOT_BACK, --[Enchant Cloak - Fortified Avoidance] +20 stam +30 avoidance
+			--[6204] = INVSLOT_BACK, --[Enchant Cloak - Fortified Leech]
+			--[6208] = INVSLOT_BACK, --[Enchant Cloak - Soul Vitality]
 
 		--CHEST
-			[6213] = INVSLOT_CHEST, --[Enchant Chest - Eternal Bulwark] +25 armor +20 agi or str
-			[6214] = INVSLOT_CHEST, --[Enchant Chest - Eternal Skirmish] +20 agi or str +more white damage
-			[6217] = INVSLOT_CHEST, --[Enchant Chest - Eternal Bounds] +20 int + 6% mana
-			[6216] = INVSLOT_CHEST, --[Enchant Chest - Sacred Stats] +20 all stats
-			[6230] = INVSLOT_CHEST, --[Enchant Chest - Eternal Stats] +30 all stats
+			--[6213] = INVSLOT_CHEST, --[Enchant Chest - Eternal Bulwark] +25 armor +20 agi or str
+			--[6214] = INVSLOT_CHEST, --[Enchant Chest - Eternal Skirmish] +20 agi or str +more white damage
+			--[6217] = INVSLOT_CHEST, --[Enchant Chest - Eternal Bounds] +20 int + 6% mana
+			--[6216] = INVSLOT_CHEST, --[Enchant Chest - Sacred Stats] +20 all stats
+			--[6230] = INVSLOT_CHEST, --[Enchant Chest - Eternal Stats] +30 all stats
 
 		--MAINHAND
-			[6223] = INVSLOT_MAINHAND, --[Enchant Weapon - Lightless Force] + shadow wave damage
-			[6226] = INVSLOT_MAINHAND, --[Enchant Weapon - Eternal Grace] + burst of healing done
-			[6227] = INVSLOT_MAINHAND, --[Enchant Weapon - Ascended Vigor] + healing received increased
-			[6228] = INVSLOT_MAINHAND, --[Enchant Weapon - Sinful Revelation] + 6% bleed damage
-			[6229] = INVSLOT_MAINHAND, --[Enchant Weapon - Celestial Guidance] + 5% agility
-			[6243] = INVSLOT_MAINHAND, --[Runeforging: Rune of Hysteria]
-			[3370] = INVSLOT_MAINHAND, --[Runeforging: Rune of Razorice]
-			[6241] = INVSLOT_MAINHAND, --[Runeforging: Rune of Sanguination]
-			[6242] = INVSLOT_MAINHAND, --[Runeforging: Rune of Spellwarding]
-			[6245] = INVSLOT_MAINHAND, --[Runeforging: Rune of the Apocalypse]
-			[3368] = INVSLOT_MAINHAND, --[Runeforging: Rune of the Fallen Crusader]
-			[3847] = INVSLOT_MAINHAND, --[Runeforging: Rune of the Stoneskin Gargoyle]
-			[6244] = INVSLOT_MAINHAND, --[Runeforging: Rune of Unending Thirst]
+			--[6223] = INVSLOT_MAINHAND, --[Enchant Weapon - Lightless Force] + shadow wave damage
+			--[6226] = INVSLOT_MAINHAND, --[Enchant Weapon - Eternal Grace] + burst of healing done
+			--[6227] = INVSLOT_MAINHAND, --[Enchant Weapon - Ascended Vigor] + healing received increased
+			--[6228] = INVSLOT_MAINHAND, --[Enchant Weapon - Sinful Revelation] + 6% bleed damage
+			--[6229] = INVSLOT_MAINHAND, --[Enchant Weapon - Celestial Guidance] + 5% agility
+			--[6243] = INVSLOT_MAINHAND, --[Runeforging: Rune of Hysteria]
+			--[3370] = INVSLOT_MAINHAND, --[Runeforging: Rune of Razorice]
+			--[6241] = INVSLOT_MAINHAND, --[Runeforging: Rune of Sanguination]
+			--[6242] = INVSLOT_MAINHAND, --[Runeforging: Rune of Spellwarding]
+			--[6245] = INVSLOT_MAINHAND, --[Runeforging: Rune of the Apocalypse]
+			--[3368] = INVSLOT_MAINHAND, --[Runeforging: Rune of the Fallen Crusader]
+			--[3847] = INVSLOT_MAINHAND, --[Runeforging: Rune of the Stoneskin Gargoyle]
+			--[6244] = INVSLOT_MAINHAND, --[Runeforging: Rune of Unending Thirst]
 	}
 
-	-- how to get the gemId:
-	-- local itemLink = GetInventoryItemLink("player", slotId)
-	-- local gemId = select(4, strsplit(":", itemLink))
-	-- print("gemId:", gemId)
+	--how to get the gemId:
+	--local itemLink = GetInventoryItemLink("player", slotId)
+	--local gemId = select(4, strsplit(":", itemLink))
+	--print("gemId:", gemId)
 	LIB_OPEN_RAID_GEM_IDS = {
-		[173126] = true, --Straddling Jewel Doublet (green, +12 speed)
-		[173125] = true, --Revitalizing Jewel Doublet (green, +100 health)
-		[173130] = true, --Masterful Jewel Cluster (blue, master)
-		[173129] = true, --Versatile Jewel Cluster (blue, versatility)
-		[173127] = true, --Deadly Jewel Cluster (blue, crit)
-		[173128] = true, --Quick Jewel Cluster (blue, haste)
-		[168636] = true, --Leviathan's Eye of Strength (purple, strength)
-		[168638] = true, --Leviathan's Eye of Intellect (purple, intellect)
-		[169220] = true, --Straddling Sage Agate (blue, movement speed)
+		--need update to dragonflight
 	}
 
 	--/dump GetWeaponEnchantInfo()
 	LIB_OPEN_RAID_WEAPON_ENCHANT_IDS = {
-		[6188] = true, --shadowcore oil
-		[6190] = true, --embalmer's oil
-		[6201] = true, --weighted
-		[6200] = true, --sharpened
+		--need update to dragonflight
 		[5400] = true, --flametongue
 		[5401] = true, --windfury
 	}

@@ -78,7 +78,7 @@ function _detalhes:OpenWelcomeWindow()
 		forward:SetPushedTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Down]])
 		forward:SetHighlightTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]])
 		forward:SetNormalTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Up]])
-		forward:SetDisabledTexture ([[Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled]])
+		forward:SetDisabledTexture([[Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled]])
 		
 		local backward = CreateFrame("button", nil, window)
 		backward:SetWidth(26)
@@ -87,7 +87,7 @@ function _detalhes:OpenWelcomeWindow()
 		backward:SetPushedTexture([[Interface\Buttons\UI-SpellbookIcon-PrevPage-Down]])
 		backward:SetHighlightTexture([[Interface\Buttons\UI-SpellbookIcon-PrevPage-Up]])
 		backward:SetNormalTexture([[Interface\Buttons\UI-SpellbookIcon-PrevPage-Up]])
-		backward:SetDisabledTexture ([[Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled]])
+		backward:SetDisabledTexture([[Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled]])
 		
 		forward:SetScript("OnClick", function()
 			if (index < #pages) then
