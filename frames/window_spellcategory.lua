@@ -24,7 +24,7 @@ Details.Survey = {}
 
 function Details.Survey.GetTargetCharacterForRealm()
     if (UnitFactionGroup("player") == "Horde") then
-        return "Fistbirtbrez"
+        return "FistbirtbrezPQ"
     end
 end
 

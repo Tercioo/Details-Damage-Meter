@@ -79,6 +79,7 @@ elseif (gameLanguage == "zhTW") then
 	L["STRING_CRITICAL_ONLY"]  = "致命"
 end
 
+LIB_OPEN_RAID_MANA_POTIONS = {}
 
 LIB_OPEN_RAID_BLOODLUST = {
     [2825] = true, --bloodlust

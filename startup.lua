@@ -557,6 +557,7 @@ function Details:StartMeUp() --I'll never stop!
 		end
 	end)
 
+	--[=[ --survey for cooldown types are done
 	if (DetailsFramework.IsDragonflight()) then
 		DetailsFramework.Schedules.NewTimer(5, Details.RegisterDragonFlightEditMode)
 		--run only on beta, remove on 10.0 launch
@@ -569,6 +570,7 @@ function Details:StartMeUp() --I'll never stop!
 			end
 		end
 	end
+	--]=]
 
 	function Details:InstallOkey()
 		return true
