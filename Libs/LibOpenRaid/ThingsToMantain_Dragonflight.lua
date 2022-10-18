@@ -229,6 +229,10 @@ LIB_OPEN_RAID_HEALING_POTIONS = {
 	[6262] = 1, --Warlock's Healthstone
 }
 
+LIB_OPEN_RAID_MANA_POTIONS = {
+	
+}
+
 
 --end of per expansion content
 --------------------------------------------------------------------------------------------
