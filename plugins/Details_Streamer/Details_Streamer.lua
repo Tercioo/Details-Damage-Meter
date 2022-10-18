@@ -207,7 +207,7 @@ local function CreatePluginFrames()
 	SOF:EnableMouse(true)
 	SOF:SetMovable(true)
 	SOF:SetResizable(true)
-	SOF:SetClampedToScreen (true)
+	SOF:SetClampedToScreen(true)
 
 	pcall(function()
 		if (DetailsFramework.IsDragonflight()) then
@@ -566,7 +566,7 @@ local function CreatePluginFrames()
 		end
 
 		--CastStart from the cast_send
-		table.insert (StreamOverlay.battle_content, 1, {icon1, text1, color1, icon2, icon2coords, text2, color2, backgroundcolor, bordercolor, CastID = ID, CastStart = CastStart, startTime = startTime, endTime = endTime})
+		table.insert(StreamOverlay.battle_content, 1, {icon1, text1, color1, icon2, icon2coords, text2, color2, backgroundcolor, bordercolor, CastID = ID, CastStart = CastStart, startTime = startTime, endTime = endTime})
 		table.remove (StreamOverlay.battle_content, StreamOverlay.total_lines+1)
 
 		if (StreamOverlay.db.use_square_mode) then
@@ -681,8 +681,8 @@ local function CreatePluginFrames()
 			row:SetPoint("topright", SOF, "topright", 0, h)
 		end
 		
-		StreamOverlay:SetFontSize (row.text1, StreamOverlay.db.font_size)
-		StreamOverlay:SetFontSize (row.text2, StreamOverlay.db.font_size)
+		StreamOverlay:SetFontSize(row.text1, StreamOverlay.db.font_size)
+		StreamOverlay:SetFontSize(row.text2, StreamOverlay.db.font_size)
 		
 		local font = SharedMedia:Fetch ("font", StreamOverlay.db.font_face)
 		StreamOverlay:SetFontFace (row.text1, font)
@@ -1630,7 +1630,7 @@ function StreamOverlay:UpdateDpsHpsFrameConfig (PluginDisabled)
 	
 	local db = StreamOverlay.db.per_second
 
-	StreamOverlay:SetFontSize (screen_frame.text, db.size)
+	StreamOverlay:SetFontSize(screen_frame.text, db.size)
 	StreamOverlay:SetFontOutline (screen_frame.text, db.font_shadow)
 	screen_frame:SetScale(db.scale)
 	
@@ -2458,7 +2458,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 						icon:SetTexture([[Interface\MINIMAP\MOVIERECORDINGICON]])
 						local title = welcomeWindow:CreateFontString(nil, "overlay", "GameFontNormal")
 						title:SetText("Details!: Action Tracker (plugin)")
-						StreamOverlay:SetFontSize (title, 20)
+						StreamOverlay:SetFontSize(title, 20)
 
 						local youtubeTwitchIcons = welcomeWindow:CreateTexture(nil, "overlay")
 						youtubeTwitchIcons:SetTexture([[Interface\AddOns\Details\images\icons2]])

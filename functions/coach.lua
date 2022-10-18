@@ -445,7 +445,7 @@ function Details.Coach.WelcomePanel()
     if (not welcomePanel) then
 		welcomePanel = DetailsFramework:CreateSimplePanel(UIParent)
 		welcomePanel:SetSize(400, 280)
-		welcomePanel:SetTitle ("Details! Coach")
+		welcomePanel:SetTitle("Details! Coach")
 		welcomePanel:ClearAllPoints()
 		welcomePanel:SetPoint("left", UIParent, "left", 10, 0)
         welcomePanel:Hide()

@@ -3309,7 +3309,7 @@ do
 	tooltip_anchor:SetSize(140, 20)
 	tooltip_anchor:SetAlpha(0)
 	tooltip_anchor:SetMovable(false)
-	tooltip_anchor:SetClampedToScreen (true)
+	tooltip_anchor:SetClampedToScreen(true)
 	tooltip_anchor.locked = true
 	tooltip_anchor:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 2, bottom = 1}})
 	tooltip_anchor:SetBackdropColor(0, 0, 0, 1)
@@ -3592,7 +3592,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- main window config -------------------------------------------------------------------------------------------------------------------------------------------------
 
-		baseframe:SetClampedToScreen (true)
+		baseframe:SetClampedToScreen(true)
 		baseframe:SetSize(Details.new_window_size.width, Details.new_window_size.height)
 
 		baseframe:SetPoint("center", UIParent)
@@ -6224,7 +6224,7 @@ function Details:GetSegmentInfo(index)
 
 			end
 
-			local p = Details:GetBossPortrait (combat.is_boss.mapid, combat.is_boss.index)
+			local p = Details:GetBossPortrait(combat.is_boss.mapid, combat.is_boss.index)
 			if (p) then
 				portrait = p
 			end
@@ -6357,17 +6357,17 @@ local buildSegmentTooltip = function(self, deltaTime)
 							if (isMythicOverallSegment) then
 								--mostrar o tempo da dungeon
 								local totalTime = combat_time
-								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", Details.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color)
+								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", Details.gump:IntegerToTimer(endedAt - startedAt), 1, dungeon_color)
 								gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
 							else
 								if (segmentID == "trashoverall") then
 									local trashIcon = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:14:58:98:160|t"
-									gameCooltip:AddLine(trashIcon .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", Details.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
+									gameCooltip:AddLine(trashIcon .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", Details.gump:IntegerToTimer(endedAt - startedAt), 1, dungeon_color, "gray")
 									gameCooltip:AddLine((encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
 								else
 									local skull = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:496:512:0:16|t"
-									gameCooltip:AddLine(skull .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", Details.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
+									gameCooltip:AddLine(skull .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", Details.gump:IntegerToTimer(combat_time), 1, dungeon_color, "gray")
 									gameCooltip:AddLine((encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
 								end
 								gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
@@ -6388,27 +6388,27 @@ local buildSegmentTooltip = function(self, deltaTime)
 							local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
 
 							if (segmentID == "trashoverall") then
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
 								local totalRealTime = endedAt - startedAt
 								local wasted = totalRealTime - decorrido
 
 								--wasted time
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (endedAt - startedAt), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(endedAt - startedAt), 2, "white", "white")
 
 							elseif (isMythicOverallSegment) then
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
 								local totalRealTime = endedAt - startedAt
 								local wasted = totalRealTime - decorrido
 
 								--wasted time
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(totalRealTime), 2, "white", "white")
 
 							else
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
 							end
 
 							if (thisCombat.is_boss) then
@@ -6422,12 +6422,12 @@ local buildSegmentTooltip = function(self, deltaTime)
 							--the combat has mythic dungeon tag but doesn't have a mythic dungeon table information
 							--so this is a trash cleanup segment
 							local trashInfo = thisCombat:GetMythicDungeonTrashInfo()
-							gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"] .. " (#" .. i .. ")", Details.gump:IntegerToTimer (thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
+							gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"] .. " (#" .. i .. ")", Details.gump:IntegerToTimer(thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
 							gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
 
 							--submenu
 							gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
-							gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (thisCombat:GetCombatTime()), 2, "white", "white")
+							gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(thisCombat:GetCombatTime()), 2, "white", "white")
 							gameCooltip:AddLine("", "", 2, "white", "white")
 							gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
 							gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
@@ -6471,7 +6471,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 							end
 						end
 
-						local portrait = Details:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
+						local portrait = Details:GetBossPortrait(thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
 						if (portrait) then
 							gameCooltip:AddIcon(portrait, 2, "top", 128, 64)
 						else
@@ -6646,24 +6646,24 @@ local buildSegmentTooltip = function(self, deltaTime)
 					if (isMythicOverallSegment) then
 						--mostrar o tempo da dungeon
 						local totalTime = combat_time
-						--CoolTip:AddLine(zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (totalTime), 1, dungeon_color)
-						--CoolTip:AddLine(zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color)
+						--CoolTip:AddLine(zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer(totalTime), 1, dungeon_color)
+						--CoolTip:AddLine(zoneName .. " +" .. mythicLevel .. " (overall)", _detalhes.gump:IntegerToTimer(endedAt - startedAt), 1, dungeon_color)
 						--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 						gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
 
 					else
 						if (segmentID == "trashoverall") then
-							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
-							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer (endedAt - startedAt), 1, dungeon_color, "gray")
+							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer(combat_time), 1, dungeon_color, "gray")
+							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", _detalhes.gump:IntegerToTimer(endedAt - startedAt), 1, dungeon_color, "gray")
 							gameCooltip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
 						else
-							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer (combat_time), 1, dungeon_color, "gray")
+							--CoolTip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", _detalhes.gump:IntegerToTimer(combat_time), 1, dungeon_color, "gray")
 							gameCooltip:AddLine(encounterName .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
 						end
 						--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 					end
 
-					local portrait = (thisCombat.is_boss and thisCombat.is_boss.bossimage) or Details:GetBossPortrait (nil, nil, encounterName, EJID)
+					local portrait = (thisCombat.is_boss and thisCombat.is_boss.bossimage) or Details:GetBossPortrait(nil, nil, encounterName, EJID)
 					if (portrait) then
 						gameCooltip:AddIcon(portrait, 2, "top", 128, 64, 0, 1, 0, 0.96)
 					end
@@ -6682,28 +6682,28 @@ local buildSegmentTooltip = function(self, deltaTime)
 						local totalRealTime = endedAt - startedAt
 						local wasted = totalRealTime - decorrido
 
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
 
 						--wasted time
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 						gameCooltip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (endedAt - startedAt) .. " [|cFFFF3300" .. Details.gump:IntegerToTimer (totalRealTime - decorrido) .. "|r]", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(endedAt - startedAt) .. " [|cFFFF3300" .. Details.gump:IntegerToTimer(totalRealTime - decorrido) .. "|r]", 2, "white", "white")
 
 					elseif (isMythicOverallSegment) then
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
 						local totalRealTime = endedAt - startedAt
 						local wasted = totalRealTime - decorrido
 
 
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer (totalRealTime), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(totalRealTime), 2, "white", "white")
 
 						--wasted time
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer (wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
 						gameCooltip:AddStatusBar (100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
 
 					else
-						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (decorrido), 2, "white", "white")
+						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
 					end
 
 					if (thisCombat.is_boss) then
@@ -6719,13 +6719,13 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 					local trashInfo = thisCombat:GetMythicDungeonTrashInfo()
 
-					--CoolTip:AddLine(Loc["STRING_SEGMENT_TRASH"], _detalhes.gump:IntegerToTimer (thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
+					--CoolTip:AddLine(Loc["STRING_SEGMENT_TRASH"], _detalhes.gump:IntegerToTimer(thisCombat:GetCombatTime()), 1, dungeon_color_trash, "gray")
 					--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125, "red")
 					--CoolTip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
 
 					--submenu
 					gameCooltip:AddLine(Loc["STRING_SEGMENT_TRASH"], nil, 2, "white", "white")
-					gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer (thisCombat:GetCombatTime()), 2, "white", "white")
+					gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(thisCombat:GetCombatTime()), 2, "white", "white")
 					gameCooltip:AddLine("", "", 2, "white", "white")
 					gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
 					gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
@@ -6741,7 +6741,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 				segment_info_added = true
 
 			elseif (Details.tabela_vigente.is_boss and Details.tabela_vigente.is_boss.name) then
-				local portrait = Details:GetBossPortrait (Details.tabela_vigente.is_boss.mapid, Details.tabela_vigente.is_boss.index) or Details.tabela_vigente.is_boss.bossimage
+				local portrait = Details:GetBossPortrait(Details.tabela_vigente.is_boss.mapid, Details.tabela_vigente.is_boss.index) or Details.tabela_vigente.is_boss.bossimage
 				if (portrait) then
 					gameCooltip:AddIcon(portrait, 2, "top", 128, 64)
 				else

@@ -346,7 +346,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		f:SetBackdropColor(unpack(_detalhes.realtime_dps_meter.frame_settings.backdrop_color))
 		f:EnableMouse(true)
 		f:SetMovable(true)
-		f:SetClampedToScreen (true)
+		f:SetClampedToScreen(true)
 
 		f.movemeLabel = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		f.movemeLabel:SetText("Move-Me")
@@ -467,7 +467,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		local TitleString = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		TitleString:SetPoint("top", f, "top", 0, -5)
 		TitleString:SetText("Details! Arena Real Time DPS Tracker")
-		DF:SetFontSize (TitleString, 9)
+		DF:SetFontSize(TitleString, 9)
 		local TitleBackground = f:CreateTexture(nil, "artwork")
 		TitleBackground:SetTexture([[Interface\Tooltips\UI-Tooltip-Background]])
 		TitleBackground:SetVertexColor(.1, .1, .1, .9)
@@ -500,7 +500,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 	--labels for mythic dungeon / group party
 		local labelGroupDamage = f:CreateFontString(nil, "overlay", "GameFontNormal")
 		labelGroupDamage:SetText("Real Time Group DPS")
-		DF:SetFontSize (labelGroupDamage, 14)
+		DF:SetFontSize(labelGroupDamage, 14)
 		DF:SetFontOutline (labelGroupDamage, "NONE")
 		
 		local labelGroupDamage_DPS = f:CreateFontString(nil, "overlay", "GameFontNormal")
@@ -564,12 +564,12 @@ function Details:CreateCurrentDpsFrame(parent, name)
 				--update arena labels
 				DF:SetFontColor(labelPlayerTeam_DPS, _detalhes.realtime_dps_meter.font_color)
 				DF:SetFontFace (labelPlayerTeam_DPS, _detalhes.realtime_dps_meter.font_face)
-				DF:SetFontSize (labelPlayerTeam_DPS, _detalhes.realtime_dps_meter.font_size)
+				DF:SetFontSize(labelPlayerTeam_DPS, _detalhes.realtime_dps_meter.font_size)
 				DF:SetFontOutline (labelPlayerTeam_DPS, _detalhes.realtime_dps_meter.font_shadow)
 
 				DF:SetFontColor(labelYellowTeam_DPS, _detalhes.realtime_dps_meter.font_color)
 				DF:SetFontFace (labelYellowTeam_DPS, _detalhes.realtime_dps_meter.font_face)
-				DF:SetFontSize (labelYellowTeam_DPS, _detalhes.realtime_dps_meter.font_size)
+				DF:SetFontSize(labelYellowTeam_DPS, _detalhes.realtime_dps_meter.font_size)
 				DF:SetFontOutline (labelYellowTeam_DPS, _detalhes.realtime_dps_meter.font_shadow)
 
 				--wipe current data for arena
@@ -608,7 +608,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 
 				DF:SetFontColor(labelGroupDamage_DPS, _detalhes.realtime_dps_meter.font_color)
 				DF:SetFontFace (labelGroupDamage_DPS, _detalhes.realtime_dps_meter.font_face)
-				DF:SetFontSize (labelGroupDamage_DPS, _detalhes.realtime_dps_meter.font_size)
+				DF:SetFontSize(labelGroupDamage_DPS, _detalhes.realtime_dps_meter.font_size)
 				DF:SetFontOutline (labelGroupDamage_DPS, _detalhes.realtime_dps_meter.font_shadow)
 
 				--wipe current data for mythic dungeon

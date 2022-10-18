@@ -400,7 +400,7 @@ local function CreatePluginFrames (data)
 		alert:SetFrameLevel(302)
 		alert.label = "Click here (on the skull icon) to bring the Encounter Breakdown panel"
 		alert.Text:SetSpacing (4)
-		alert:SetClampedToScreen (true)
+		alert:SetClampedToScreen(true)
 		MicroButtonAlert_SetText (alert, alert.label)
 		alert:SetPoint("bottom", EncounterDetails.ToolbarButton, "top", 0, 22)
 		alert.CloseButton:HookScript ("OnClick", hook_AlertButtonCloseButton)
@@ -1300,8 +1300,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local barra = container.barras [index]
 				if (not barra) then
 					barra = EncounterDetails:CreateRow (index, container, 1, 0, -1)
-					_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
-					_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
+					_detalhes:SetFontSize(barra.lineText1, CONST_FONT_SIZE)
+					_detalhes:SetFontSize(barra.lineText4, CONST_FONT_SIZE)
 					barra.TTT = "damage_taken" -- tool tip type --damage taken
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! "..Loc ["STRING_DAMAGE_TAKEN_REPORT"] 
 				end
@@ -1520,8 +1520,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra = EncounterDetails:CreateRow (index, container, 1, 0, -1)
 					barra.TTT = "habilidades_inimigas" -- tool tip type --enemy abilities
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! " .. Loc ["STRING_ABILITY_DAMAGE"]
-					_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
-					_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
+					_detalhes:SetFontSize(barra.lineText1, CONST_FONT_SIZE)
+					_detalhes:SetFontSize(barra.lineText4, CONST_FONT_SIZE)
 					barra.t:SetVertexColor(1, .8, .8, .8)
 				end
 				
@@ -1809,8 +1809,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra.lineText1:SetPoint("left", add_damage_done, "right", 2, 0)
 				barra.textura:SetStatusBarTexture(nil)
 				
-				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText4, CONST_FONT_SIZE)
 				
 				barra.TTT = "add"
 				add_damage_done.TTT = "add"
@@ -1896,8 +1896,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local barra = container.barras [index]
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 0, -6)
-				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText4, CONST_FONT_SIZE)
 				barra.TTT = "total_interrupt" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPTS_OF"]
 				barra:SetWidth(155)
@@ -2010,8 +2010,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local barra = container.barras [index]
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 3, -6)
-				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText4, CONST_FONT_SIZE)
 				barra.TTT = "dispell" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_DISPELLS_OF"]
 				barra:SetWidth(160)
@@ -2072,8 +2072,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra = EncounterDetails:CreateRow (index, container, 3, 0, 1)
 				barra.TTT = "morte" -- tool tip type
 				barra.report_text = "Details! " .. Loc ["STRING_DEAD_LOG"]
-				_detalhes:SetFontSize (barra.lineText1, CONST_FONT_SIZE)
-				_detalhes:SetFontSize (barra.lineText4, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText1, CONST_FONT_SIZE)
+				_detalhes:SetFontSize(barra.lineText4, CONST_FONT_SIZE)
 				barra:SetWidth(169)
 				
 				local overlayTexture = barra:CreateTexture(nil, "overlay")

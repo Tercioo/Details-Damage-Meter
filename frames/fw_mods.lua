@@ -24,7 +24,7 @@ function gump:NewLabel2 (parent, container, member, text, font, size, color)
 	newFontString:SetText(text)
 	
 	if (size) then
-		_detalhes:SetFontSize (newFontString, size)
+		_detalhes:SetFontSize(newFontString, size)
 	end
 	
 	if (color) then
@@ -491,7 +491,7 @@ end
 
 function gump:NewScrollBar2 (master, slave, x, y)
 
-	local slider_gump = CreateFrame("Slider", master:GetName() and master:GetName() .. "SliderGump" or "DetailsSliderGump" .. math.random (1, 10000000), master)
+	local slider_gump = CreateFrame("Slider", master:GetName() and master:GetName() .. "SliderGump" or "DetailsSliderGump" .. math.random(1, 10000000), master)
 	slider_gump.scrollMax = 560 --default - tamanho da janela de fundo
 
 	-- ///// SLIDER /////

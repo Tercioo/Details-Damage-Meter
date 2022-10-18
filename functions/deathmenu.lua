@@ -283,7 +283,7 @@ function detailsOnDeathMenu.ShowPanel()
 		detailsOnDeathMenu.disableLabel.alpha = 0.5
 		detailsOnDeathMenu:SetHeight(detailsOnDeathMenu:GetHeight() + 10)
 		
-		if (math.random (1, 3) == 3) then
+		if (math.random(1, 3) == 3) then
 			Details:SetTutorialCVar ("DISABLE_ONDEATH_PANEL", true)
 		end
 	end

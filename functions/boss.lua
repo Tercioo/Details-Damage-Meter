@@ -281,7 +281,7 @@ do
 	end
 	
 	--return the boss portrit
-	function _detalhes:GetBossPortrait (mapid, bossindex, encounterName, ejID)
+	function _detalhes:GetBossPortrait(mapid, bossindex, encounterName, ejID)
 		if (mapid and bossindex) then
 			local haveIcon = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
 			if (haveIcon) then
@@ -317,8 +317,8 @@ do
 			if (displayInfo ~= 0 and abilityIcon == "") then
 				actors [title] = {model = displayInfo, info = description}
 			end
-			table.insert (stack, siblingID)
-			table.insert (stack, nextSectionID)
+			table.insert(stack, siblingID)
+			table.insert(stack, nextSectionID)
 			curSectionID = table.remove (stack)
 		until not curSectionID
 		

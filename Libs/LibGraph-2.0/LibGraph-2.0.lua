@@ -11,7 +11,7 @@ Description: Allows for easy creation of graphs
 --Thanks to Nelson Minar for catching several errors where width was being used instead of height (damn copy and paste >_>)
 
 local major = "LibGraph-2.0"
-local minor = 90000 + tonumber(("$Revision: 57 $"):match("(%d+)"))
+local minor = 90000 + tonumber(("$Revision: 58 $"):match("(%d+)"))
 
 
 --Search for just Addon\\ at the front since the interface part often gets trimmed
@@ -30,6 +30,8 @@ do
 		end
 	end
 end
+
+TextureDirectory = "Interface\\Addons\\Details\\Libs\\LibGraph-2.0"
 
 
 if not LibStub then error(major .. " requires LibStub") end

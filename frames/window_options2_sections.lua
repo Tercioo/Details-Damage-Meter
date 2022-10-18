@@ -6377,7 +6377,7 @@ do
 		end
 
 		sectionFrame.ConsolidadeSpellsSwitch:SetPoint(startX, startY - 20)
-        _detalhes:SetFontSize (sectionFrame.ConsolidadeSpellsLabel, 12)
+        _detalhes:SetFontSize(sectionFrame.ConsolidadeSpellsLabel, 12)
         
         local sectionOptions = {
 

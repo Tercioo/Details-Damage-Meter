@@ -32,12 +32,12 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
     if (not DetailsRaidHistoryWindow or not DetailsRaidHistoryWindow.Initialized) then
 
         DetailsRaidHistoryWindow.Initialized = true
-        
+
         local f = DetailsRaidHistoryWindow or CreateFrame("frame", "DetailsRaidHistoryWindow", UIParent,"BackdropTemplate") --, "ButtonFrameTemplate"
         f:SetPoint("center", UIParent, "center")
         f:SetFrameStrata("HIGH")
         f:SetToplevel (true)
-        
+
         f:SetMovable(true)
         f:SetWidth(850)
         f:SetHeight(500)
@@ -73,13 +73,13 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         f.bg1:SetHorizTile(true)
         f.bg1:SetSize(790, 454)
         f.bg1:SetAllPoints()
-        
+
         f:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
         f:SetBackdropColor(.5, .5, .5, .5)
         f:SetBackdropBorderColor(0, 0, 0, 1)
 
         local titlebar = DF:CreateTitleBar(f, "Details! " .. Loc ["STRING_STATISTICS"])
-            
+
         if (not Details:GetTutorialCVar("HISTORYPANEL_TUTORIAL")) then
             local tutorialFrame = CreateFrame("frame", "$parentTutorialFrame",f,"BackdropTemplate")
             tutorialFrame:SetPoint("center", f, "center")
@@ -88,19 +88,19 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             tutorialFrame:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
             insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize=1})
             tutorialFrame:SetBackdropColor(0, 0, 0, 1)
-            
+
             tutorialFrame.Title = DF:CreateLabel(tutorialFrame, "Statistics" , 12, "orange") --curse localization isn't adding new strings (and I deleted the old one)
             tutorialFrame.Title:SetPoint("top", tutorialFrame, "top", 0, -5)
-            
+
             tutorialFrame.Desc = DF:CreateLabel(tutorialFrame, Loc ["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"], 12)
             tutorialFrame.Desc.width = 370
             tutorialFrame.Desc:SetPoint("topleft", tutorialFrame, "topleft", 10, -45)
-            
+
             local closeButton = DF:CreateButton(tutorialFrame, function() Details:SetTutorialCVar ("HISTORYPANEL_TUTORIAL", true); tutorialFrame:Hide() end, 80, 20, Loc ["STRING_OPTIONS_CHART_CLOSE"])
             closeButton:SetPoint("bottom", tutorialFrame, "bottom", 0, 10)
             closeButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
         end
-        
+
         --background
             local background = f:CreateTexture("$parentBackgroundImage", "border")
             background:SetAlpha(0.3)
@@ -292,7 +292,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
 
             local ReportButton = DF:CreateButton(f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub(":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
             ReportButton:SetPoint("right", GuildSyncButton, "left", -2, 0)
-            ReportButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)			
+            ReportButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 
         --
         function f:SetBackgroundImage (encounterId)
@@ -321,7 +321,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 if (button == "RightButton") then
                     self:Hide()
                 else
-                    self:StartMoving() 
+                    self:StartMoving()
                     self.isMoving = true
                 end
             end)
@@ -531,15 +531,15 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                                     tinsert(bossList, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
                                     bossRepeated [encounterId] = true
                                 end
-                                
+
                                 if (not raidRepeated [instance.name]) then
                                     tinsert(raidList, {value = instance.id, label = instance.name, icon = icon, onclick = onRaidSelect})
                                     raidRepeated [instance.name] = true
                                 end
-                                
+
                             end
                         end
-                        
+
                         for index, encounter in ipairs(encounterTable) do
                             local guild = encounter.guild
                             if (not guildRepeated [guild]) then
@@ -550,10 +550,10 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     end
                 end
             end
-            
+
             table.sort (bossList, function(t1, t2) return t1.label < t2.label end)
-            
-            
+
+
             diff_dropdown:Refresh()
             diff_dropdown:Select(1, true)
             boss_dropdown:Refresh()
@@ -562,7 +562,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 raid_dropdown:Refresh()
                 raid_dropdown:Select(1, true)
             end
-            
+
             guild_dropdown:Refresh()
             if (currentGuild) then
                 guild_dropdown:Select(currentGuild)
@@ -570,13 +570,13 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 guild_dropdown:Select(1, true)
             end
         end
-        
+
         function f.UpdateBossDropdown()
-        
+
             local raidSelected = DetailsRaidHistoryWindow.select_raid:GetValue()
             local boss_repeated = {}
             wipe (bossList)
-            
+
             for difficulty, encounterIdTable in pairs(db) do
                 if (type(difficulty) == "number") then
                     if (difficulty == 14) then
@@ -604,7 +604,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         end
                     end
 
-                    for encounterId, encounterTable in pairs(encounterIdTable) do 
+                    for encounterId, encounterTable in pairs(encounterIdTable) do
                         if (not boss_repeated [encounterId]) then
                             local encounter, instance = Details:GetBossEncounterDetailsFromEncounterId (_, encounterId)
                             if (encounter) then
@@ -621,7 +621,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                                         end
                                     else
                                         tinsert(bossList, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
-                                    end									
+                                    end
                                 --]=]
                                     tinsert(bossList, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
                                     boss_repeated [encounterId] = true
@@ -631,65 +631,64 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     end
                 end
             end
-            
+
             table.sort (bossList, function(t1, t2) return t1.label < t2.label end)
             boss_dropdown:Refresh()
         end
-        
+
         --anchors:
         raid_string:SetPoint("topleft", f, "topleft", 10, -70)
         raid_dropdown:SetPoint("topleft", f, "topleft", 10, -85)
-        
+
         boss_string:SetPoint("topleft", f, "topleft", 10, -110)
         boss_dropdown:SetPoint("topleft", f, "topleft", 10, -125)
-        
+
         diff_string:SetPoint("topleft", f, "topleft", 10, -150)
         diff_dropdown:SetPoint("topleft", f, "topleft", 10, -165)
-        
+
         role_string:SetPoint("topleft", f, "topleft", 10, -190)
         role_dropdown:SetPoint("topleft", f, "topleft", 10, -205)
-        
+
         guild_string:SetPoint("topleft", f, "topleft", 10, -230)
         guild_dropdown:SetPoint("topleft", f, "topleft", 10, -245)
-        
+
         player_string:SetPoint("topleft", f, "topleft", 10, -270)
         player_dropdown:SetPoint("topleft", f, "topleft", 10, -285)
-        
+
         player2_string:SetPoint("topleft", f, "topleft", 10, -310)
         player2_dropdown:SetPoint("topleft", f, "topleft", 10, -325)
         player2_string:Hide()
         player2_dropdown:Hide()
-        
+
         --refresh the window:
-        
+
         function f:BuildPlayerTable (playerName)
-            
+
             local encounterTable, guild, role = unpack(f.build_player2_data or {})
             local data = {}
-            
+
             if (type(playerName) == "string" and string.len(playerName) > 1) then
                 for encounterIndex, encounter in ipairs(encounterTable) do
-                    
+
                     if (encounter.guild == guild) then
                         local roleTable = encounter [role]
-                        
+
                         local date = encounter.date
                         date = date:gsub(".*%s", "")
                         date = date:sub (1, -4)
 
                         local player = roleTable [playerName]
-                        
+
                         if (player) then
-                        
+
                             --tinsert(data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
                             tinsert(data, {text = date, value = player[1]/encounter.elapsed, utext = Details:ToK2 (player[1]/encounter.elapsed), data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
                         end
                     end
                 end
-                
+
                 --update graphic
                 if (not f.gframe) then
-                    
                     local onenter = function(self)
                         GameCooltip:Reset()
                         GameCooltip:SetType ("tooltip")
@@ -703,42 +702,43 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         GameCooltip:SetOwner(self.ball.tooltip_anchor)
                         GameCooltip:Show()
                     end
+
                     local onleave = function(self)
                         GameCooltip:Hide()
                     end
+
                     f.gframe = DF:CreateGFrame (f, 650, 400, 35, onenter, onleave, "gframe", "$parentGF")
                     f.gframe:SetPoint("topleft", f, "topleft", 190, -65)
                 end
-                
+
                 f.gframe:Reset()
-                f.gframe:UpdateLines (data)
-                
+                f.gframe:UpdateLines(data)
             end
         end
-        
+
         local fillpanel = DF:NewFillPanel (f, {}, "$parentFP", "fillpanel", 710, 501, false, false, true, nil)
         fillpanel:SetPoint("topleft", f, "topleft", 195, -65)
 
-        
+
         function f:BuildGuildRankTable (encounterTable, guild, role)
-            
+
             local header = {{name = "Player Name", type = "text"}, {name = "Per Second", type = "text"}, {name = "Total", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
             local players = {}
             local players_index = {}
-            
+
             local playerScore = {}
-            
+
             --get the best of each player
             for encounterIndex, encounter in ipairs(encounterTable) do
                 if (encounter.guild == guild) then
                     local roleTable = encounter [role]
-                    
+
                     local date = encounter.date
                     date = date:gsub(".*%s", "")
                     date = date:sub (1, -4)
-                    
+
                     for playerName, playerTable in pairs(roleTable) do
-                    
+
                         if (not playerScore [playerName]) then
                             playerScore [playerName] = {
                                 total = 0,
@@ -749,10 +749,10 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                                 length = 0,
                             }
                         end
-                    
+
                         local total = playerTable [1]
                         local dps = total / encounter.elapsed
-                        
+
                         --if (total > playerScore [playerName].total) then
                         if (dps > playerScore [playerName].ps) then
                             playerScore [playerName].total = total
@@ -765,7 +765,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     end
                 end
             end
-            
+
             local sortTable = {}
             for playerName, t in pairs(playerScore) do
                 local className = select(2, GetClassInfo (t.class or 0))
@@ -773,64 +773,64 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 if (className) then
                     classColor = RAID_CLASS_COLORS [className] and RAID_CLASS_COLORS [className].colorStr
                 end
-            
+
                 local playerNameFormated = Details:GetOnlyName(playerName)
                 tinsert(sortTable, {
                     "|c" .. classColor .. playerNameFormated .. "|r",
                     Details:comma_value (t.ps),
                     Details:ToK2 (t.total),
-                    DF:IntegerToTimer (t.length),
+                    DF:IntegerToTimer(t.length),
                     floor(t.ilvl),
                     t.date,
                     t.total,
                     t.ps,
                 })
             end
-            
+
             table.sort (sortTable, function(a, b) return a[8] > b[8] end)
-            
+
             --add the number before the player name
             for i = 1, #sortTable do
                 local t = sortTable [i]
                 t [1] = i .. ". " .. t [1]
             end
-            
+
             fillpanel:SetFillFunction (function(index) return sortTable [index] end)
             fillpanel:SetTotalFunction (function() return #sortTable end)
             fillpanel:UpdateRows (header)
             fillpanel:Refresh()
-            
+
             f.LatestResourceTable = sortTable
         end
-        
+
         function f:BuildRaidTable (encounterTable, guild, role)
-            
+
             if (f.Mode == 2) then
                 f:BuildGuildRankTable (encounterTable, guild, role)
                 return
             end
-            
+
             local header = {{name = "Player Name", type = "text"}} -- , width = 90
             local players = {}
             local players_index = {}
             local player_class = {}
             local amt_encounters = 0
-            
+
             for encounterIndex, encounter in ipairs(encounterTable) do
                 if (encounter.guild == guild) then
                     local roleTable = encounter [role]
-                    
+
                     local date = encounter.date
                     date = date:gsub(".*%s", "")
                     date = date:sub (1, -4)
                     amt_encounters = amt_encounters + 1
-                    
+
                     tinsert(header, {name = date, type = "text"})
-                    
+
                     for playerName, playerTable in pairs(roleTable) do
                         local index = players_index [playerName]
                         local player
-                        
+
                         if (not index) then
                             player = {playerName}
                             player_class [playerName] = playerTable [3]
@@ -840,7 +840,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                             tinsert(player, Details:ToK2 (playerTable [1] / encounter.elapsed))
                             tinsert(players, player)
                             players_index [playerName] = #players
-                            
+
                             --print("not index", playerName, amt_encounters, date, 2, amt_encounters-1)
                         else
                             player = players [index]
@@ -849,14 +849,14 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                             end
                             tinsert(player, Details:ToK2 (playerTable [1] / encounter.elapsed))
                         end
-                        
+
                     end
                 end
             end
-            
+
             --sort alphabetical
             table.sort (players, function(a, b) return a[1] < b[1] end)
-            
+
             for index, playerTable in ipairs(players) do
                 for i = #playerTable, amt_encounters do
                     tinsert(playerTable, "")
@@ -869,16 +869,16 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                     playerTable [1] = "|c" .. classColor .. playerNameFormated .. "|r"
                 end
             end
-            
+
             fillpanel:SetFillFunction (function(index) return players [index] end)
             fillpanel:SetTotalFunction (function() return #players end)
-            
+
             fillpanel:UpdateRows (header)
-            
+
             fillpanel:Refresh()
             fillpanel:SetPoint("topleft", f, "topleft", 200, -65)
         end
-        
+
         function f:Refresh (player_name)
             --build the main table
             local diff = diff_dropdown.value
@@ -886,12 +886,12 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
             local role = role_dropdown.value
             local guild = guild_dropdown.value
             local player = player_dropdown.value
-            
+
             local diffTable = db [diff]
-            
+
             f:SetBackgroundImage (boss)
             --Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name)
-            
+
             if (diffTable) then
                 local encounters = diffTable [boss]
                 if (encounters) then
@@ -913,15 +913,15 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                         player2_dropdown:Show()
                         f.build_player2_data = {encounters, guild, role}
                         player2_dropdown:Refresh()
-                        
+
                         player_name = f.latest_player_selected or player_name
-                        
+
                         if (player_name) then
                             player2_dropdown:Select(player_name)
                         else
                             player2_dropdown:Select(1, true)
                         end
-                        
+
                         f:BuildPlayerTable (player2_dropdown.value)
                     end
                 else

@@ -1387,11 +1387,11 @@ local window_openned_at = time()
 			
 			local joe = current_combat[1]:PegarCombatente ("0x0000000000001", "Joe", 0x114, true)
 			joe.grupo = true
-			joe.classe = actors_classes [math.random (1, #actors_classes)]
+			joe.classe = actors_classes [math.random(1, #actors_classes)]
 			joe.total = 7500000
 			joe.total_without_pet = 7500000
-			joe.damage_taken = math.random (100000, 600000)
-			joe.friendlyfire_total = math.random (100000, 600000)
+			joe.damage_taken = math.random(100000, 600000)
+			joe.friendlyfire_total = math.random(100000, 600000)
 			
 			total_damage = total_damage + joe.total
 
@@ -1400,7 +1400,7 @@ local window_openned_at = time()
 			--joe_death.classe = joe.classe
 			--local esta_morte = {{true, 96648, 100000, time(), 0, "Lady Holenna"}, {true, 96648, 100000, time()-52, 100000, "Lady Holenna"}, {true, 96648, 100000, time()-86, 200000, "Lady Holenna"}, {true, 96648, 100000, time()-101, 300000, "Lady Holenna"}, {false, 55296, 400000, time()-54, 400000, "King Djoffrey"}, {true, 14185, 0, time()-59, 400000, "Lady Holenna"}, {false, 87351, 400000, time()-154, 400000, "King Djoffrey"}, {false, 56236, 400000, time()-158, 400000, "King Djoffrey"} } 
 			--local t = {esta_morte, time(), joe.nome, joe.classe, 400000, "52m 12s",  ["dead"] = true}
-			--table.insert (current_combat.last_events_tables, #current_combat.last_events_tables+1, t)
+			--table.insert(current_combat.last_events_tables, #current_combat.last_events_tables+1, t)
 			
 			rawset (_detalhes.spellcache, 300000, {"A Gun in Your Hand", 300000, [[Interface\ICONS\INV_Legendary_Gun]]})
 			rawset (_detalhes.spellcache, 300001, {"Shot", 300001, [[Interface\ICONS\INV_Archaeology_Ogres_HarGunn_Eye]]})

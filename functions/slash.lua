@@ -515,7 +515,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "garbage") then
 		local a = {}
 		for i = 1, 10000 do 
-			a [i] = {math.random (50000)}
+			a [i] = {math.random(50000)}
 		end
 		table.wipe(a)
 	
@@ -1303,8 +1303,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 			a:SetScript("OnUpdate", function(self, deltaTime)
 				elapsedTime = elapsedTime + deltaTime
 				
-				--texture:SetSize(math.random (50, 300), math.random (50, 300))
-				--local spec = allspecs [math.random (#allspecs)]
+				--texture:SetSize(math.random(50, 300), math.random(50, 300))
+				--local spec = allspecs [math.random(#allspecs)]
 				texture:SetTexture([[Interface\AddOns\Details\images\options_window]])
 				--texture:SetTexture([[Interface\Store\Store-Splash]])
 				--texture:SetTexture([[Interface\AddOns\Details\images\options_window]])
@@ -1428,7 +1428,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 		newCombat.is_trash = false
-		_detalhes:Msg("done merging, segments: " .. segmentsAdded .. ", total time: " .. DetailsFramework:IntegerToTimer (totalTime))
+		_detalhes:Msg("done merging, segments: " .. segmentsAdded .. ", total time: " .. DetailsFramework:IntegerToTimer(totalTime))
 
 		--[[ --mythic+ debug
 		--tag the segment as mythic overall segment
@@ -1760,7 +1760,7 @@ function Details:UpdateUserPanel (usersTable)
 	if (not Details.UserPanel) then
 		DetailsUserPanel = DetailsFramework:CreateSimplePanel(UIParent)
 		DetailsUserPanel:SetSize(707, 505)
-		DetailsUserPanel:SetTitle ("Details! Version Check")
+		DetailsUserPanel:SetTitle("Details! Version Check")
 		DetailsUserPanel.Data = {}
 		DetailsUserPanel:ClearAllPoints()
 		DetailsUserPanel:SetPoint("left", UIParent, "left", 10, 0)

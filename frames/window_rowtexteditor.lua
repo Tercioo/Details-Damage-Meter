@@ -36,7 +36,7 @@ local buttonTemplate = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 local textentry = DF:NewSpecialLuaEditorEntry (panel, scrollWidth, 555, "editbox", "$parentEntry")
 textentry:SetPoint("topleft", panel, "topleft", 10, y)
 DF:ApplyStandardBackdrop(textentry)
-DF:SetFontSize (textentry.editbox, 14)
+DF:SetFontSize(textentry.editbox, 14)
 DF:ReskinSlider(textentry.scroll)
 
 local arg1_button = DF:NewButton(panel, nil, "$parentButton1", nil, 80, 20, function() textentry.editbox:Insert ("{data1}") end, nil, nil, nil, string.format(Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "1"), 1)

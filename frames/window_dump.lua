@@ -21,7 +21,7 @@ function Details:Dump (...)
 	if (not DetailsDumpFrame) then
 		DetailsDumpFrame = DetailsFramework:CreateSimplePanel(_G.UIParent)
 		DetailsDumpFrame:SetSize(700, 600)
-		DetailsDumpFrame:SetTitle ("Details! Dump Table [|cFFFF3333Ready Only|r]")
+		DetailsDumpFrame:SetTitle("Details! Dump Table [|cFFFF3333Ready Only|r]")
 		
 		local text_editor = DetailsFramework:NewSpecialLuaEditorEntry (DetailsDumpFrame, 680, 560, "Editbox", "$parentEntry", true)
 		text_editor:SetPoint("topleft", DetailsDumpFrame, "topleft", 10, -30)

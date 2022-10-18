@@ -1024,7 +1024,7 @@ end
 	end
 
 	--font size
-	function _detalhes:SetFontSize (fontString, ...)
+	function _detalhes:SetFontSize(fontString, ...)
 		local fonte, _, flags = fontString:GetFont()
 		fontString:SetFont (fonte, _math_max (...), flags)
 	end

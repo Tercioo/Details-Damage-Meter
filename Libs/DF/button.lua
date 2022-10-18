@@ -205,7 +205,7 @@ DF:Mixin(ButtonMetaFunctions, DF.ScriptHookMixin)
 
 	--text size
 	local smember_textsize = function(object, value)
-		return DF:SetFontSize (object.button.text, value)
+		return DF:SetFontSize(object.button.text, value)
 	end
 
 	--texture

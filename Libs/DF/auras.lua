@@ -813,7 +813,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, change_callback, options, t
 			icon:SetSize(lineHeight - 2, lineHeight - 2)
 			
 			local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-			DF:SetFontSize (name, 10)
+			DF:SetFontSize(name, 10)
 
 			local remove_button = CreateFrame("button", "$parentRemoveButton", line, "UIPanelCloseButton")
 			remove_button:SetSize(16, 16)

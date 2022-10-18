@@ -4604,7 +4604,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--soft switch
 			_detalhes.capture_current [capture_type] = on_off
 			if (time) then
-				local schedule_id = math.random (1, 10000000)
+				local schedule_id = math.random(1, 10000000)
 				local new_schedule = _detalhes:ScheduleTimer("CaptureTimeout", time, {capture_type, schedule_id})
 				tinsert(_detalhes.capture_schedules, {new_schedule, schedule_id})
 			end

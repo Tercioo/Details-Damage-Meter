@@ -76,7 +76,7 @@ local create_deathrecap_line = function(parent, n)
 	Details.gump:SetFontColor(timeAt, "gray")
 	Details.gump:SetFontColor(sourceName, "yellow")
 	
-	Details.gump:SetFontSize (sourceName, 10)
+	Details.gump:SetFontSize(sourceName, 10)
 
 	--text alpha
 	timeAt:SetAlpha(textAlpha)
@@ -120,8 +120,8 @@ local create_deathrecap_line = function(parent, n)
 		backgroundTexture2:SetPoint("topright", backgroundTexture, "bottomright", 0, 0)
 		backgroundTexture2:SetHeight(32)
 
-		Details.gump:SetFontSize (amount, 14)
-		Details.gump:SetFontSize (lifePercent, 14)
+		Details.gump:SetFontSize(amount, 14)
+		Details.gump:SetFontSize(lifePercent, 14)
 		backgroundTexture:SetVertexColor(.2, .1, .1, .3)
 	end
 	

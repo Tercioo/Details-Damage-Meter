@@ -1248,7 +1248,7 @@
 									line:SetDrawLayer("background")
 									line:SetPoint("left", thisButton.button, "right", -110, -3)
 									
-									table.insert (actorsFrameButtons, #actorsFrameButtons+1, thisButton)
+									table.insert(actorsFrameButtons, #actorsFrameButtons+1, thisButton)
 								end
 								
 								y = y + 20
@@ -1456,7 +1456,7 @@
 									line:SetDrawLayer("background")
 									line:SetPoint("left", thisButton.button, "right", -110, -3)
 									
-									table.insert (actorsFrameButtons, #actorsFrameButtons+1, thisButton)
+									table.insert(actorsFrameButtons, #actorsFrameButtons+1, thisButton)
 								end
 								
 								y = y + 20
@@ -1617,7 +1617,7 @@
 								line:SetDrawLayer("background")
 								line:SetPoint("left", thisButton.button, "right", -60, -3)
 								
-								table.insert (spellsFrameButtons, #spellsFrameButtons+1, thisButton)
+								table.insert(spellsFrameButtons, #spellsFrameButtons+1, thisButton)
 							end
 							
 							y = y + 20

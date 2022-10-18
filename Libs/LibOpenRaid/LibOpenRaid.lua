@@ -15,6 +15,11 @@ Code Rules:
     - Public callbacks are callbacks registered by an external addon.
 
 Change Log:
+    - things to maintain now has 1 file per expansion
+    - player conduits, covenant internally renamed to playerInfo1 and playerInfo2 to make the lib more future proof
+    - player conduits tree is now Borrowed Talents Tree, for future proof
+    - removed the talent size limitation on 7 indexes
+
     - added:
         * openRaidLib.GetFlaskInfoBySpellId(spellId)
         * openRaidLib.GetFlaskTierFromAura(auraInfo)
@@ -63,7 +68,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 60
+local CONST_LIB_VERSION = 62
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -80,6 +85,9 @@ local unpack = table.unpack or _G.unpack
 --default values
     openRaidLib.inGroup = false
     openRaidLib.UnitIDCache = {}
+
+    local CONST_CVAR_TEMPCACHE = "LibOpenRaidTempCache"
+    local CONST_CVAR_TEMPCACHE_DEBUG = "LibOpenRaidTempCacheDebug"
 
     --show failures (when the function return an error) results to chat
     local CONST_DIAGNOSTIC_ERRORS = false
@@ -114,6 +122,9 @@ local unpack = table.unpack or _G.unpack
     local CONST_TWO_SECONDS = 2.0
     local CONST_THREE_SECONDS = 3.0
 
+    local CONST_SPECIALIZATION_VERSION_CLASSIC = 0
+    local CONST_SPECIALIZATION_VERSION_MODERN = 1
+
     local CONST_COOLDOWN_CHECK_INTERVAL = CONST_TWO_SECONDS
     local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_TWO_SECONDS
 
@@ -126,6 +137,16 @@ local unpack = table.unpack or _G.unpack
     local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
     local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
     local GetContainerItemLink = GetContainerItemLink or C_Container.GetContainerItemLink
+
+    --from vanilla to cataclysm, the specID did not existed, hence its considered version 0
+    --for mists of pandaria and beyond it's version 1
+    local getSpecializationVersion = function()
+        if (gameVersion >= 50000) then
+            return CONST_SPECIALIZATION_VERSION_MODERN
+        else
+            return CONST_SPECIALIZATION_VERSION_CLASSIC
+        end
+    end
 
     function openRaidLib.ShowDiagnosticErrors(value)
         CONST_DIAGNOSTIC_ERRORS = value
@@ -174,6 +195,147 @@ local unpack = table.unpack or _G.unpack
             end
         end
     end
+
+--------------------------------------------------------------------------------------------------------------------------------
+--~internal cache
+--use a console variable to create a flash cache to keep data while the game reload
+--this is not a long term database as saved variables are and it get clean up often
+
+C_CVar.RegisterCVar(CONST_CVAR_TEMPCACHE)
+C_CVar.RegisterCVar(CONST_CVAR_TEMPCACHE_DEBUG)
+
+--internal namespace
+local tempCache = {
+    debugString = "",
+}
+
+tempCache.copyCache = function(t1, t2)
+    for key, value in pairs(t2) do
+        if (type(value) == "table") then
+            t1[key] = t1[key] or {}
+            tempCache.copyCache(t1[key], t2[key])
+        else
+            t1[key] = value
+        end
+    end
+    return t1
+end
+
+--use debug cvar to find issues that occurred during the logoff process
+function openRaidLib.PrintTempCacheDebug()
+    local debugMessage = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE_DEBUG)
+    sendChatMessage("|cFFFF9922OpenRaidLib|r Temp CVar Result:\n", debugMessage)
+end
+
+function tempCache.SaveDebugText()
+    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE_DEBUG, tempCache.debugString)
+end
+
+function tempCache.AddDebugText(text)
+    tempCache.debugString = tempCache.debugString .. date("%H:%M:%S") .. "| " .. text .. "\n"
+end
+
+function tempCache.SaveCacheOnCVar(data)
+    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE, data)
+    tempCache.AddDebugText("CVars Saved on saveCahceOnCVar(), Size: " .. #data)
+end
+
+function tempCache.RestoreData()
+    local data = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE)
+    if (data and type(data) == "string" and data ~= "") then
+        local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0", true)
+        if (LibAceSerializer) then
+            local okay, cacheInfo = LibAceSerializer:Deserialize(data)
+            if (okay) then
+                local age = cacheInfo.createdAt
+                --if the data is older than 5 minutes, much has been changed from the group and the data is out dated
+                if (age + (60 * 5) < time()) then
+                    return
+                end
+
+                local unitsInfo = cacheInfo.unitsInfo
+                local cooldownsInfo = cacheInfo.cooldownsInfo
+                local gearInfo = cacheInfo.gearInfo
+
+                local okayUnitsInfo, unitsInfo = LibAceSerializer:Deserialize(unitsInfo)
+                local okayCooldownsInfo, cooldownsInfo = LibAceSerializer:Deserialize(cooldownsInfo)
+                local okayGearInfo, gearInfo = LibAceSerializer:Deserialize(gearInfo)
+
+                if (okayUnitsInfo and unitsInfo) then
+                    openRaidLib.UnitInfoManager.UnitData = tempCache.copyCache(openRaidLib.UnitInfoManager.UnitData, unitsInfo)
+                else
+                    tempCache.AddDebugText("invalid UnitInfo")
+                end
+
+                if (okayCooldownsInfo and cooldownsInfo) then
+                    openRaidLib.CooldownManager.UnitData = tempCache.copyCache(openRaidLib.CooldownManager.UnitData, cooldownsInfo)
+                else
+                    tempCache.AddDebugText("invalid CooldownsInfo")
+                end
+
+                if (okayGearInfo and gearInfo) then
+                    openRaidLib.GearManager.UnitData = tempCache.copyCache(openRaidLib.GearManager.UnitData, gearInfo)
+                else
+                    tempCache.AddDebugText("invalid GearInfo")
+                end
+            else
+                tempCache.AddDebugText("Deserialization not okay")
+            end
+        else
+            tempCache.AddDebugText("LibAceSerializer not found")
+        end
+    else
+        tempCache.AddDebugText("invalid temporary cache, isn't string or cvar not found")
+    end
+end
+
+function tempCache.SaveData()
+    tempCache.AddDebugText("SaveData() called.")
+
+    local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0", true)
+    if (LibAceSerializer) then
+        local allUnitsInfo = openRaidLib.UnitInfoManager.UnitData
+        local allUnitsCooldowns = openRaidLib.CooldownManager.UnitData
+        local allPlayersGear = openRaidLib.GearManager.UnitData
+
+        local cacheInfo = {
+            createdAt = time(),
+        }
+
+        local unitsInfoSerialized = LibAceSerializer:Serialize(allUnitsInfo)
+        local unitsCooldownsSerialized = LibAceSerializer:Serialize(allUnitsCooldowns)
+        local playersGearSerialized = LibAceSerializer:Serialize(allPlayersGear)
+
+        if (unitsInfoSerialized) then
+            cacheInfo.unitsInfo = unitsInfoSerialized
+            tempCache.AddDebugText("SaveData() units info serialized okay.")
+        else
+            tempCache.AddDebugText("SaveData() units info serialized failed.")
+        end
+
+        if (unitsCooldownsSerialized) then
+            cacheInfo.cooldownsInfo = unitsCooldownsSerialized
+            tempCache.AddDebugText("SaveData() cooldowns info serialized okay.")
+        else
+            tempCache.AddDebugText("SaveData() cooldowns info serialized failed.")
+        end
+
+        if (playersGearSerialized) then
+            cacheInfo.gearInfo = playersGearSerialized
+            tempCache.AddDebugText("SaveData() gear info serialized okay.")
+        else
+            tempCache.AddDebugText("SaveData() gear info serialized failed.")
+        end
+
+        local cacheInfoSerialized = LibAceSerializer:Serialize(cacheInfo)
+        tempCache.SaveCacheOnCVar(cacheInfoSerialized)
+    else
+        tempCache.AddDebugText("SaveData() AceSerializer not found.")
+    end
+
+    tempCache.SaveDebugText()
+end
+
 
 --------------------------------------------------------------------------------------------------------------------------------
 --~comms
@@ -276,7 +438,7 @@ local unpack = table.unpack or _G.unpack
     --0x2: to raid
     --0x4: to guild
     local sendData = function(dataEncoded, channel)
-        local aceComm = LibStub:GetLibrary("AceComm-3.0")
+        local aceComm = LibStub:GetLibrary("AceComm-3.0", true)
         if (aceComm) then
             aceComm:SendCommMessage(CONST_COMM_PREFIX, dataEncoded, channel, nil, "ALERT")
         else
@@ -700,6 +862,10 @@ local unpack = table.unpack or _G.unpack
         ["CHALLENGE_MODE_COMPLETED"] = function()
             openRaidLib.internalCallback.TriggerEvent("mythicDungeonEnd")
         end,
+
+        ["PLAYER_LOGOUT"] = function()
+            tempCache.SaveData()
+        end,
     }
     openRaidLib.eventFunctions = eventFunctions
 
@@ -721,6 +887,7 @@ local unpack = table.unpack or _G.unpack
         eventFrame:RegisterEvent("PLAYER_DEAD")
         eventFrame:RegisterEvent("PLAYER_ALIVE")
         eventFrame:RegisterEvent("PLAYER_UNGHOST")
+        eventFrame:RegisterEvent("PLAYER_LOGOUT")
 
         if (checkClientVersion("retail")) then
             eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
@@ -998,36 +1165,36 @@ local unpack = table.unpack or _G.unpack
     --@unitName: player name
     function openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo(data, unitName)
         local specId = tonumber(data[1])
-        local renown = tonumber(data[2])
 
-        local covenantId = tonumber(data[3])
-        if (not covenantId or covenantId > 4) then --cleanup on 10.0
-            --invalid covanentId
+        local playerInfo1 = tonumber(data[2])
+
+        local playerInfo2 = tonumber(data[3])
+        if (not playerInfo2 or playerInfo2 > 4) then --cleanup on 10.0
+            --invalid covanentId - different lib versions, it'll fix itself on dragonflight
             return
         end
 
         local talentsSize = tonumber(data[4])
-        if (not talentsSize or talentsSize > 7) then --talents rework on 10.0
-            --invalid talents size
+        if (not talentsSize) then
             return
         end
 
-        local conduitsTableIndex = tonumber((talentsSize + 1) + 3) + 1 -- +3 for spec, renown and covenant data | talentSizeIndex + talentSize | +1 for talents size
-        local conduitsSize = data[conduitsTableIndex]
+        local borrowedTalentsTableIndex = tonumber((talentsSize + 1) + 3) + 1 -- +3 for spec, playerInfo1 and playerInfo2 data | talentSizeIndex + talentSize | +1 for talents size
+        local borrowedTalentsSize = data[borrowedTalentsTableIndex]
 
-        local pvpTalentsTableIndex = 3 + 3 + talentsSize + conduitsSize -- +3 for spec, renown and covenant data | +3 for talents, conduit and pvptalents index for size
+        local pvpTalentsTableIndex = 3 + 3 + talentsSize + borrowedTalentsSize -- +3 for spec, playerInfo1 and playerInfo2 data | +3 for talents, conduit and pvptalents index for size
         local pvpTalentsSize = data[pvpTalentsTableIndex]
 
         --unpack the talents data as a ipairs table
         local talentsTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, talentsSize)
 
-        --unpack the conduits data as a ipairs table
-        local conduitsTableUnpacked = openRaidLib.UnpackTable(data, conduitsTableIndex, false, false, conduitsSize)
+        --unpack the borrowed talents data as a ipairs table
+        local borrowedTalentsTableUnpacked = openRaidLib.UnpackTable(data, borrowedTalentsTableIndex, false, false, borrowedTalentsSize)
 
         --back compatibility with versions without pvp talents
         if (type(data[pvpTalentsTableIndex]) == "string" or not data[pvpTalentsTableIndex]) then
             --add a dummy table as pvp talents
-            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, {0, 0, 0})
+            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, {0, 0, 0})
             return
         end
 
@@ -1035,7 +1202,7 @@ local unpack = table.unpack or _G.unpack
         local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, pvpTalentsTableIndex, false, false, pvpTalentsSize)
 
         --add to the list of players information and also trigger a public callback
-        openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+        openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, pvpTalentsTableUnpacked)
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PREFIX, openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo)
 
@@ -1044,17 +1211,24 @@ function openRaidLib.UnitInfoManager.SendAllPlayerInfo()
 
     local dataToSend = CONST_COMM_PLAYERINFO_PREFIX .. ","
     dataToSend = dataToSend .. playerInfo[1] .. "," --spec id
-    dataToSend = dataToSend .. playerInfo[2] .. "," --renown
-    dataToSend = dataToSend .. playerInfo[3] .. "," --covenantId
-    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[4]) .. "," --talents
-    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[5]) .. "," --conduits
-    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[6]) .. "," --pvp talents
+    dataToSend = dataToSend .. playerInfo[2] .. "," --player info 1
+    dataToSend = dataToSend .. playerInfo[3] .. "," --player info 2
+    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[4]) .. "," --player talents class-spec
+    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[5]) .. "," --player talents borrowed
+    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[6]) .. "," --player talents pvp
 
     --send the data
     openRaidLib.commHandler.SendCommData(dataToSend)
     diagnosticComm("SendGetUnitInfoFullData| " .. dataToSend) --debug
 end
 
+--player info format:
+--index 1: number: specId
+--index 2: number: tbd, depends on expansion
+--index 3: number: tbd, depends on expansion
+--index 4: talents 1: player talents: length vary depends on talent system
+--index 5: talents 2: borrowed power talents: length vary from expansions
+--index 6: talents 3: pvp talents
 function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
     local playerInfo = {}
 
@@ -1064,29 +1238,28 @@ function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
         return {0, 0, 0, {0, 0, 0, 0, 0, 0, 0}, {0, 0}, 0}
     end
 
-    --spec
     local specId = 0
-    local selectedSpecialization = GetSpecialization()
-    if (selectedSpecialization) then
-        specId = GetSpecializationInfo(selectedSpecialization) or 0
+    if (getSpecializationVersion() == CONST_SPECIALIZATION_VERSION_MODERN) then
+        local selectedSpecialization = GetSpecialization()
+        if (selectedSpecialization) then
+            specId = GetSpecializationInfo(selectedSpecialization) or 0
+        end
     end
     playerInfo[1] = specId
 
-    --shadowlands-renown
-    local renown = C_CovenantSanctumUI.GetRenownLevel() or 1
-    playerInfo[2] = renown
+    --player information 1 (this can be different for each expansion)
+    playerInfo[2] = openRaidLib.UnitInfoManager.GetPlayerInfo1()
 
-    --shadowlands-covenant
-    local covenant = C_Covenants.GetActiveCovenantID()
-    playerInfo[3] = covenant
+    --player information 2 (this can be different for each expansion)
+    playerInfo[3] = openRaidLib.UnitInfoManager.GetPlayerInfo2()
 
-    --talents
+    --player class-spec talents
     local talents = openRaidLib.UnitInfoManager.GetPlayerTalents()
     playerInfo[4] = talents
 
-    --shadowlands-conduits
-    local conduits = openRaidLib.UnitInfoManager.GetPlayerConduits()
-    playerInfo[5] = conduits
+    --borrowed talents (conduits talents on shadowlands)
+    local borrowedTalents = openRaidLib.UnitInfoManager.GetPlayerBorrowedTalents()
+    playerInfo[5] = borrowedTalents
 
     --pvp talents
     local pvpTalents = openRaidLib.UnitInfoManager.GetPlayerPvPTalents()
@@ -2328,3 +2501,5 @@ C_Timer.After(0.1, function()
         end
     end)
 end)
+
+tempCache.RestoreData()

@@ -686,3 +686,142 @@ detailsFramework.SortFunctions = {
 		end
 	end
 }
+
+detailsFramework.DataMixin = {
+	DataConstructor = function(self)
+		self._dataInfo = {
+			data = {},
+			dataCurrentIndex = 1,
+			callbacks = {},
+		}
+	end,
+
+	AddDataChangeCallback = function(self, func, ...)
+		assert(type(func) == "function", "invalid function for AddDataChangeCallback.")
+		local allCallbacks = self._dataInfo.callbacks
+		allCallbacks[func] = {...}
+	end,
+
+	RemoveDataChangeCallback = function(self, func)
+		assert(type(func) == "function", "invalid function for RemoveDataChangeCallback.")
+		local allCallbacks = self._dataInfo.callbacks
+		allCallbacks[func] = nil
+	end,
+
+	SetData = function(self, data)
+		assert(type(data) == "table", "invalid table for SetData.")
+		self._dataInfo.data = data
+		self:ResetDataIndex()
+
+		local allCallbacks = self._dataInfo.callbacks
+		for	func, payload in pairs(allCallbacks) do
+			xpcall(func, geterrorhandler(), data, unpack(payload))
+		end
+	end,
+
+	GetData = function(self)
+		return self._dataInfo.data
+	end,
+
+	GetDataNextValue = function(self)
+		local currentValue = self._dataInfo.dataCurrentIndex
+		local value = self:GetData()[currentValue]
+		self._dataInfo.dataCurrentIndex = self._dataInfo.dataCurrentIndex + 1
+		return value
+	end,
+
+	ResetDataIndex = function(self)
+		self._dataInfo.dataCurrentIndex = 1
+	end,
+
+	GetDataSize = function(self)
+		return #self:GetData()
+	end,
+
+	GetDataFirstValue = function(self)
+		return self:GetData()[1]
+	end,
+
+	GetDataLastValue = function(self)
+		local data = self:GetData()
+		return data[#data]
+	end,
+
+	--if the value stored is number, return the min and max values
+	GetDataMinMaxValues = function(self)
+		local minDataValue = 0
+		local maxDataValue = 0
+
+		local data = self:GetData()
+		for i = 1, #data do
+			local thisData = data[i]
+			if (thisData > maxDataValue) then
+				maxDataValue = thisData
+
+			elseif (thisData < minDataValue) then
+				minDataValue = thisData
+			end
+		end
+
+		return minDataValue, maxDataValue
+	end,
+
+	--when data uses sub tables, get the min max values from a specific index or key
+	GetDataMinMaxValueFromSubTable = function(self, key)
+		local minDataValue = 0
+		local maxDataValue = 0
+
+		local data = self:GetData()
+		for i = 1, #data do
+			local thisData = data[i]
+			if (thisData[key] > maxDataValue) then
+				maxDataValue = thisData[key]
+
+			elseif (thisData[key] < minDataValue) then
+				minDataValue = thisData[key]
+			end
+		end
+
+		return minDataValue, maxDataValue
+	end,
+}
+
+detailsFramework.ValueMixin = {
+	ValueConstructor = function(self)
+		self.minValue = 0
+		self.maxValue = 1
+	end,
+
+	SetMinMaxValues = function(self, minValue, maxValue)
+		self.minValue = minValue
+		self.maxValue = maxValue
+	end,
+
+	GetMinMaxValues = function(self)
+		return self.minValue, self.maxValue
+	end,
+
+	GetMinValue = function(self)
+		return self.minValue
+	end,
+
+	GetMaxValue = function(self)
+		return self.maxValue
+	end,
+
+	SetMinValue = function(self, minValue)
+		self.minValue = minValue
+	end,
+
+	SetMinValueIfLower = function(self, ...)
+		self.minValue = min(self.minValue, ...)
+	end,
+
+	SetMaxValue = function(self, maxValue)
+		self.maxValue = maxValue
+	end,
+
+	SetMaxValueIfBigger = function(self, ...)
+		self.maxValue = max(self.maxValue, ...)
+	end,
+}

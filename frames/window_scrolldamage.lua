@@ -8,7 +8,7 @@ function Details:ScrollDamage()
 	if (not DetailsScrollDamage) then
 		DetailsScrollDamage = DetailsFramework:CreateSimplePanel(UIParent)
 		DetailsScrollDamage:SetSize(427 - 40 - 20 - 20, 505 - 150 + 20 + 40)
-		DetailsScrollDamage:SetTitle ("Details! Scroll Damage (/details scroll)")
+		DetailsScrollDamage:SetTitle("Details! Scroll Damage (/details scroll)")
 		DetailsScrollDamage.Data = {}
 		DetailsScrollDamage:ClearAllPoints()
 		DetailsScrollDamage:SetPoint("left", UIParent, "left", 10, 0)

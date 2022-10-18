@@ -3480,7 +3480,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 	local segmentTime = ""
 	if (combatObject) then
 		local combatTime = combatObject:GetCombatTime()
-		segmentTime = _detalhes.gump:IntegerToTimer (combatTime or 0)
+		segmentTime = _detalhes.gump:IntegerToTimer(combatTime or 0)
 	end
 
 	--effective ou active time

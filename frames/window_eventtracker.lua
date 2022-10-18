@@ -253,7 +253,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		f:EnableMouse(true)
 		f:SetMovable(true)
 		f:SetResizable(true)
-		f:SetClampedToScreen (true)
+		f:SetClampedToScreen(true)
 		
 		local LibWindow = LibStub("LibWindow-1.1")
 		LibWindow.RegisterConfig(f, _detalhes.event_tracker.frame)
@@ -363,11 +363,11 @@ function Details:CreateEventTrackerFrame(parent, name)
 			righticon:SetPoint("right", line, "right", 0, 0)
 			
 			local lefttext = statusbar:CreateFontString("$parentLeftText", "overlay", "GameFontNormal")
-			DF:SetFontSize (lefttext, 9)
+			DF:SetFontSize(lefttext, 9)
 			lefttext:SetPoint("left", lefticon, "right", 2, 0)
 			
 			local righttext = statusbar:CreateFontString("$parentRightText", "overlay", "GameFontNormal")
-			DF:SetFontSize (righttext, 9)
+			DF:SetFontSize(righttext, 9)
 			righttext:SetPoint("right", righticon, "left", -2, 0)
 			
 			lefttext:SetJustifyH("left")
@@ -620,13 +620,13 @@ function Details:CreateEventTrackerFrame(parent, name)
 			--update left text
 			DF:SetFontColor(line.LeftText, _detalhes.event_tracker.font_color)
 			DF:SetFontFace (line.LeftText, _detalhes.event_tracker.font_face)
-			DF:SetFontSize (line.LeftText, _detalhes.event_tracker.font_size)
+			DF:SetFontSize(line.LeftText, _detalhes.event_tracker.font_size)
 			DF:SetFontOutline (line.LeftText, _detalhes.event_tracker.font_shadow)
 			
 			--update right text
 			DF:SetFontColor(line.RightText, _detalhes.event_tracker.font_color)
 			DF:SetFontFace (line.RightText, _detalhes.event_tracker.font_face)
-			DF:SetFontSize (line.RightText, _detalhes.event_tracker.font_size)
+			DF:SetFontSize(line.RightText, _detalhes.event_tracker.font_size)
 			DF:SetFontOutline (line.RightText, _detalhes.event_tracker.font_shadow)
 
 			--adjust where the line is anchored

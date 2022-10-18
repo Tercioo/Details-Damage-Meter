@@ -2,7 +2,7 @@
 
 --local pointer to details object
 local Details = _G._detalhes
-local debugmode = false --print debug lines
+local debugmode = true --print debug lines
 local verbosemode = false --auto open the chart panel
 local _
 
@@ -22,6 +22,8 @@ Should the chart data be volatile?
 local mythicDungeonCharts = Details:CreateEventListener()
 _G.DetailsMythicDungeonChartHandler = mythicDungeonCharts
 
+--DetailsMythicDungeonChartHandler.ChartTable.Players["playername"].ChartData = {max_value = 0}
+
 function mythicDungeonCharts:Debug(...)
 	if (debugmode or verbosemode) then
 		print("Details! DungeonCharts: ", ...)
@@ -38,7 +40,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 	end
 
 	--get the player data
-	local playerData = mythicDungeonCharts.ChartTable.Players [CLName]
+	local playerData = mythicDungeonCharts.ChartTable.Players[CLName]
 
 	--if this is the first tick for the player, ignore the damage done on this tick
 	--this is done to prevent a tick tick with all the damage the player did on the previous segment
@@ -61,7 +63,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 			LastCombatID = -1,
 		}
 
-		mythicDungeonCharts.ChartTable.Players [CLName] = playerData
+		mythicDungeonCharts.ChartTable.Players[CLName] = playerData
 		bIsFirstTick = true
 	end
 
@@ -569,12 +571,12 @@ function mythicDungeonCharts.ShowChart()
 
 				bossWidget:SetPoint("bottomright", dungeonChartFrame.ChartFrame.Graphic, "bottomleft", xPosition, 0)
 
-				bossWidget.TimeText:SetText(Details:GetFramework():IntegerToTimer (bossTable[1]))
+				bossWidget.TimeText:SetText(Details:GetFramework():IntegerToTimer(bossTable[1]))
 
 				if (bossTable[2].bossimage) then
 					bossWidget.AvatarTexture:SetTexture(bossTable[2].bossimage)
 				else
-					local bossAvatar = Details:GetBossPortrait (nil, nil, bossTable[2].name, bossTable[2].ej_instance_id)
+					local bossAvatar = Details:GetBossPortrait(nil, nil, bossTable[2].name, bossTable[2].ej_instance_id)
 					bossWidget.AvatarTexture:SetTexture(bossAvatar)
 				end
 			end
@@ -616,15 +618,14 @@ function mythicDungeonCharts.ShowChart()
 	mythicDungeonCharts.PlayerGraphIndex = {}
 
 	for playerName, playerTable in pairs(charts) do
-
 		local chartData = playerTable.ChartData
 		local lineName = playerTable.Name
 
-		classDuplicated [playerTable.Class] = (classDuplicated [playerTable.Class] or 0) + 1
+		classDuplicated[playerTable.Class] = (classDuplicated[playerTable.Class] or 0) + 1
 
 		local lineColor
 		if (playerTable.Class) then
-			local classColor = mythicDungeonCharts.ClassColors [playerTable.Class .. classDuplicated [playerTable.Class]]
+			local classColor = mythicDungeonCharts.ClassColors[playerTable.Class .. classDuplicated[playerTable.Class]]
 			if (classColor) then
 				lineColor = {classColor.r, classColor.g, classColor.b}
 			else
@@ -639,12 +640,12 @@ function mythicDungeonCharts.ShowChart()
 
 		--lowess smooth
 		--chartData = mythicDungeonCharts.LowessSmoothing (chartData, 75)
-		chartData = mythicDungeonCharts.Frame.ChartFrame:CalcLowessSmoothing (chartData, 75)
+		chartData = mythicDungeonCharts.Frame.ChartFrame:CalcLowessSmoothing(chartData, 75)
 
 		local maxValue = 0
 		for i = 1, #chartData do
 			if (chartData [i] > maxValue) then
-				maxValue = chartData [i]
+				maxValue = chartData[i]
 			end
 		end
 		chartData.max_value = maxValue
@@ -653,24 +654,24 @@ function mythicDungeonCharts.ShowChart()
 		tinsert(mythicDungeonCharts.PlayerGraphIndex, playerName)
 	end
 
-	mythicDungeonCharts.Frame.ChartFrame:RefreshBossTimeline (mythicDungeonCharts.ChartTable.BossDefeated, mythicDungeonCharts.ChartTable.ElapsedTime)
+	mythicDungeonCharts.Frame.ChartFrame:RefreshBossTimeline(mythicDungeonCharts.ChartTable.BossDefeated, mythicDungeonCharts.ChartTable.ElapsedTime)
 
 	--generate boss time table
 	local bossTimeTable = {}
 	for i, bossTable in ipairs(mythicDungeonCharts.ChartTable.BossDefeated) do
-		local combatTime = bossTable [3] or math.random (10, 30)
+		local combatTime = bossTable [3] or math.random(10, 30)
 
 		tinsert(bossTimeTable, bossTable[1])
 		tinsert(bossTimeTable, bossTable[1] - combatTime)
 	end
 
-	mythicDungeonCharts.Frame.ChartFrame:AddOverlay (bossTimeTable, {1, 1, 1, 0.05}, "Show Boss", "")
+	mythicDungeonCharts.Frame.ChartFrame:AddOverlay(bossTimeTable, {1, 1, 1, 0.05}, "Show Boss", "")
 
 	--local phrase = " Average Dps (under development)\npress Escape to hide, Details! Alpha Build." .. _detalhes.build_counter .. "." .. _detalhes.realversion
 	local phrase = "Details!: Average Dps for "
 
-	mythicDungeonCharts.Frame.ChartFrame:SetTitle ("")
-	Details:GetFramework():SetFontSize (mythicDungeonCharts.Frame.ChartFrame.chart_title, 14)
+	mythicDungeonCharts.Frame.ChartFrame:SetTitle("")
+	Details:GetFramework():SetFontSize(mythicDungeonCharts.Frame.ChartFrame.chart_title, 14)
 
 	mythicDungeonCharts.Frame.TitleText:SetText(mythicDungeonCharts.ChartTable.DungeonName and phrase .. mythicDungeonCharts.ChartTable.DungeonName or phrase)
 
@@ -890,8 +891,12 @@ mythicDungeonCharts.ClassColors = {
 	["DEMONHUNTER1"] = { r = 0.64, g = 0.19, b = 0.79, colorStr = "ffa330c9" },
 	["DEMONHUNTER2"] = { r = 0.44, g = 0.09, b = 0.59, colorStr = "ffa330c9" },
 	["DEMONHUNTER3"] = { r = 0.24, g = 0.09, b = 0.39, colorStr = "ffa330c9" },
+
+	["EVOKER1"] = { r = 0.0, g = 1.00 , b = 0.59, colorStr = "FF205F45" },
+	["EVOKER2"] = { r = 0.0, g = 0.8 , b = 0.39, colorStr = "FF126442" },
+	["EVOKER3"] = { r = 0.0, g = 0.6 , b = 0.19, colorStr = "FF274B3C" },
 };
 
 if (debugmode) then
-	C_Timer.After(1, mythicDungeonCharts.ShowChart)
+	--C_Timer.After(1, mythicDungeonCharts.ShowChart)
 end

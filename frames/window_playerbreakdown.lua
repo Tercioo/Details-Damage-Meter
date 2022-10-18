@@ -1747,12 +1747,12 @@ function gump:CriaJanelaInfo()
 	este_gump.topright_text1 = este_gump:CreateFontString(nil, "overlay", "GameFontNormal")
 	este_gump.topright_text1:SetPoint("bottomright", este_gump, "topright",  -18 - (94 * (1-1)), -36)
 	este_gump.topright_text1:SetJustifyH("right")
-	_detalhes.gump:SetFontSize (este_gump.topright_text1, 10)
+	_detalhes.gump:SetFontSize(este_gump.topright_text1, 10)
 
 	este_gump.topright_text2 = este_gump:CreateFontString(nil, "overlay", "GameFontNormal")
 	este_gump.topright_text2:SetPoint("bottomright", este_gump, "topright",  -18 - (94 * (1-1)), -48)
 	este_gump.topright_text2:SetJustifyH("right")
-	_detalhes.gump:SetFontSize (este_gump.topright_text2, 10)
+	_detalhes.gump:SetFontSize(este_gump.topright_text2, 10)
 
 	function este_gump:SetTopRightTexts (text1, text2, size, color, font)
 		if (text1) then
@@ -1767,8 +1767,8 @@ function gump:CriaJanelaInfo()
 		end
 
 		if (size and type(size) == "number") then
-			_detalhes.gump:SetFontSize (este_gump.topright_text1, size)
-			_detalhes.gump:SetFontSize (este_gump.topright_text2, size)
+			_detalhes.gump:SetFontSize(este_gump.topright_text1, size)
+			_detalhes.gump:SetFontSize(este_gump.topright_text2, size)
 		end
 		if (color) then
 			_detalhes.gump:SetFontColor(este_gump.topright_text1, color)
@@ -2762,10 +2762,10 @@ function gump:CriaJanelaInfo()
 			--local waButton = DF:CreateButton(line, wa_button, 18, 18)
 			--waButton:SetIcon ([[Interface\AddOns\WeakAuras\Media\Textures\icon]])
 
-			DF:SetFontSize (name, text_size)
-			DF:SetFontSize (uptime, text_size)
-			DF:SetFontSize (apply, text_size)
-			DF:SetFontSize (refresh, text_size)
+			DF:SetFontSize(name, text_size)
+			DF:SetFontSize(uptime, text_size)
+			DF:SetFontSize(apply, text_size)
+			DF:SetFontSize(refresh, text_size)
 
 			icon:SetPoint("left", line, "left", 2, 0)
 			name:SetPoint("left", icon, "right", 2, 0)
@@ -2810,7 +2810,7 @@ function gump:CriaJanelaInfo()
 					line.Icon:SetTexCoord(.1, .9, .1, .9)
 
 					line.Name:SetText(aura [2])
-					line.Uptime:SetText(DF:IntegerToTimer (aura [3]) .. " (|cFFBBAAAA" .. floor(aura [6]) .. "%|r)")
+					line.Uptime:SetText(DF:IntegerToTimer(aura [3]) .. " (|cFFBBAAAA" .. floor(aura [6]) .. "%|r)")
 					line.Apply:SetText(aura [4])
 					line.Refresh:SetText(aura [5])
 
@@ -4777,7 +4777,7 @@ function gump:CriaJanelaInfo()
 			noPLayersToShow:SetSize(spell_compare_frame_width[2] - 10, spell_compare_frame_height)
 			noPLayersToShow:SetJustifyH("center")
 			noPLayersToShow:SetJustifyV ("center")
-			_detalhes.gump:SetFontSize (noPLayersToShow, 14)
+			_detalhes.gump:SetFontSize(noPLayersToShow, 14)
 			_detalhes.gump:SetFontColor(noPLayersToShow, "gray")
 			frame2.NoPLayersToShow = noPLayersToShow
 
@@ -4841,7 +4841,7 @@ function gump:CriaJanelaInfo()
 			noPLayersToShow:SetSize(spell_compare_frame_width[2] - 10, spell_compare_frame_height)
 			noPLayersToShow:SetJustifyH("center")
 			noPLayersToShow:SetJustifyV ("center")
-			_detalhes.gump:SetFontSize (noPLayersToShow, 14)
+			_detalhes.gump:SetFontSize(noPLayersToShow, 14)
 			_detalhes.gump:SetFontColor(noPLayersToShow, "gray")
 			frame3.NoPLayersToShow = noPLayersToShow
 

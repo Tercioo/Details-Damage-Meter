@@ -783,7 +783,7 @@ local align_rows = function(self)
 					text:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
 					text:SetWidth(row.width)
 
-					detailsFramework:SetFontSize (text, row.textsize or 10)
+					detailsFramework:SetFontSize(text, row.textsize or 10)
 					text:SetJustifyH(row.textalign or "left")
 				end
 			elseif (rowType == "entry") then
@@ -953,7 +953,7 @@ local update_rows = function(self, updated_rows)
 			--
 
 			widget.text:SetText(t.name)
-			detailsFramework:SetFontSize (widget.text, raw.textsize or 10)
+			detailsFramework:SetFontSize(widget.text, raw.textsize or 10)
 			widget.text:SetJustifyH(raw.textalign or "left")
 		end
 	end
@@ -2874,82 +2874,80 @@ local chart_panel_onresize = function(self)
 	self.Graphic:SetPoint("topleft", self, "topleft", 108, -35)
 end
 
-local chart_panel_add_data = function(self, graphicData, color, name, elapsed_time, lineTexture, smoothLevel, firstIndex)
-	local f = self
-	self = self.Graphic
+local chart_panel_add_data = function(self, graphicData, color, name, elapsedTime, lineTexture, smoothLevel, firstIndex)
+	local chartPanel = self --chartPanel from the framework CreateChartPanel
+	local LibGraphChartFrame = self.Graphic
 
-	local _data = {}
-	local max_value = graphicData.max_value
-	local amount = #graphicData
-
-	local scaleW = 1/self:GetWidth()
-
+	local builtData = {}
+	local maxValue = graphicData.max_value
+	local scaleWidth = 1 / LibGraphChartFrame:GetWidth()
 	local content = graphicData
+
+	--smooth the start and end of the chart
 	tinsert(content, 1, 0)
 	tinsert(content, 1, 0)
 	tinsert(content, #content+1, 0)
 	tinsert(content, #content+1, 0)
 
-	local _i = 3
+	local index = 3
+	local graphMaxDps = math.max(LibGraphChartFrame.max_value, maxValue)
 
-	local graphMaxDps = math.max(self.max_value, max_value)
-
+	--do smoothness progress
 	if (not smoothLevel) then
-		while (_i <= #content-2) do
-			local v = (content[_i-2]+content[_i-1]+content[_i]+content[_i+1]+content[_i+2])/5 --normalize
-			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --x and y coords
-			_i = _i + 1
+		while (index <= #content-2) do
+			local value = (content[index-2] + content[index-1] + content[index] + content[index+1] + content[index+2]) / 5 --normalize
+			builtData[#builtData+1] = {scaleWidth * (index-2), value / graphMaxDps} -- x and y coords
+			index = index + 1
 		end
 
 	elseif (smoothLevel == "SHORT") then
-		while (_i <= #content-2) do
-			local value = (content[_i] + content[_i+1]) / 2
-			_data [#_data+1] = {scaleW*(_i-2), value}
-			_data [#_data+1] = {scaleW*(_i-2), value}
-			_i = _i + 2
+		while (index <= #content-2) do
+			local value = (content[index] + content[index+1]) / 2
+			builtData [#builtData+1] = {scaleWidth*(index-2), value}
+			builtData [#builtData+1] = {scaleWidth*(index-2), value}
+			index = index + 2
 		end
 
 	elseif (smoothLevel == "SMA") then
 		reset_SMA()
-		while (_i <= #content-2) do
-			local value, is_new_max_value = do_SMA (content[_i], max_value)
+		while (index <= #content-2) do
+			local value, is_new_max_value = do_SMA(content[index], maxValue)
 			if (is_new_max_value) then
-				max_value = is_new_max_value
+				maxValue = is_new_max_value
 			end
-			_data [#_data+1] = {scaleW*(_i-2), value} --x and y coords
-			_i = _i + 1
+			builtData [#builtData+1] = {scaleWidth * (index-2), value} -- x and y coords
+			index = index + 1
 		end
 
 	elseif (smoothLevel == -1) then
-		while (_i <= #content-2) do
-			local current = content[_i]
+		while (index <= #content-2) do
+			local current = content[index]
 
-			local minus_2 = content[_i-2] * 0.6
-			local minus_1 = content[_i-1] * 0.8
-			local plus_1 = content[_i+1] * 0.8
-			local plus_2 = content[_i+2] * 0.6
+			local minus_2 = content[index-2] * 0.6
+			local minus_1 = content[index-1] * 0.8
+			local plus_1 = content[index+1] * 0.8
+			local plus_2 = content[index+2] * 0.6
 
-			local v = (current + minus_2 + minus_1 + plus_1 + plus_2)/5 --normalize
-			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --x and y coords
-			_i = _i + 1
+			local value = (current + minus_2 + minus_1 + plus_1 + plus_2) / 5 --normalize
+			builtData [#builtData+1] = {scaleWidth * (index-2), value / graphMaxDps} -- x and y coords
+			index = index + 1
 		end
 
 	elseif (smoothLevel == 1) then
-		_i = 2
-		while (_i <= #content-1) do
-			local v = (content[_i-1]+content[_i]+content[_i+1])/3 --normalize
-			_data [#_data+1] = {scaleW*(_i-1), v/graphMaxDps} --x and y coords
-			_i = _i + 1
+		index = 2
+		while (index <= #content-1) do
+			local value = (content[index-1]+content[index]+content[index+1])/3 --normalize
+			builtData [#builtData+1] = {scaleWidth*(index-1), value/graphMaxDps} -- x and y coords
+			index = index + 1
 		end
 
 	elseif (smoothLevel == 2) then
-		_i = 1
-		while (_i <= #content) do
-			local v = content[_i] --do not normalize
-			_data [#_data+1] = {scaleW*(_i), v/graphMaxDps} --x and y coords
-			_i = _i + 1
+		index = 1
+		while (index <= #content) do
+			local value = content[index] --do not normalize
+			builtData [#builtData+1] = {scaleWidth*(index), value/graphMaxDps} -- x and y coords
+			index = index + 1
 		end
-
 	end
 
 	tremove(content, 1)
@@ -2957,55 +2955,46 @@ local chart_panel_add_data = function(self, graphicData, color, name, elapsed_ti
 	tremove(content, #graphicData)
 	tremove(content, #graphicData)
 
-	if (max_value > self.max_value) then
+	if (maxValue > LibGraphChartFrame.max_value) then
 		--normalize previous data
-		if (self.max_value > 0) then
-			local normalizePercent = self.max_value / max_value
-			for dataIndex, Data in ipairs(self.Data) do
+		if (LibGraphChartFrame.max_value > 0) then
+			local normalizePercent = LibGraphChartFrame.max_value / maxValue
+			for dataIndex, Data in ipairs(LibGraphChartFrame.Data) do
 				local Points = Data.Points
 				for i = 1, #Points do
-					Points[i][2] = Points[i][2]*normalizePercent
+					Points[i][2] = Points[i][2] * normalizePercent
 				end
 			end
 		end
 
-		self.max_value = max_value
-		f:SetScale(max_value)
+		LibGraphChartFrame.max_value = maxValue
+		chartPanel:SetScale(maxValue)
 	end
 
-	tinsert(f.GData, {_data, color or line_default_color, lineTexture, max_value, elapsed_time})
+	tinsert(chartPanel.GData, {builtData, color or line_default_color, lineTexture, maxValue, elapsedTime})
 	if (name) then
-		f:AddLabel (color or line_default_color, name, "graphic", #f.GData)
+		chartPanel:AddLabel(color or line_default_color, name, "graphic", #chartPanel.GData)
 	end
+
+	local newLineTexture = "Interface\\AddOns\\Details\\Libs\\LibGraph-2.0\\line"
 
 	if (firstIndex) then
-		if (lineTexture) then
-			if (not lineTexture:find("\\") and not lineTexture:find("//")) then
-				local path = string.match(debugstack (1, 1, 0), "AddOns\\(.+)LibGraph%-2%.0%.lua")
-				if path then
-					lineTexture = "Interface\\AddOns\\" .. path .. lineTexture
-				else
-					lineTexture = nil
-				end
-			end
-		end
-
-		table.insert (self.Data, 1, {Points = _data, Color = color or line_default_color, lineTexture = lineTexture, ElapsedTime = elapsed_time})
-		self.NeedsUpdate = true
+		table.insert(LibGraphChartFrame.Data, 1, {Points = builtData, Color = color or line_default_color, lineTexture = newLineTexture, ElapsedTime = elapsedTime})
+		LibGraphChartFrame.NeedsUpdate = true
 	else
-		self:AddDataSeries (_data, color or line_default_color, nil, lineTexture)
-		self.Data [#self.Data].ElapsedTime = elapsed_time
+		LibGraphChartFrame:AddDataSeries(builtData, color or line_default_color, nil, newLineTexture)
+		LibGraphChartFrame.Data[#LibGraphChartFrame.Data].ElapsedTime = elapsedTime
 	end
 
-	local max_time = 0
-	for _, data in ipairs(self.Data) do
-		if (data.ElapsedTime > max_time) then
-			max_time = data.ElapsedTime
+	local maxTime = 0
+	for _, data in ipairs(LibGraphChartFrame.Data) do
+		if (data.ElapsedTime > maxTime) then
+			maxTime = data.ElapsedTime
 		end
 	end
 
-	f:SetTime(max_time)
-	chart_panel_onresize (f)
+	chartPanel:SetTime(maxTime)
+	chart_panel_onresize(chartPanel)
 end
 
 
@@ -3061,50 +3050,50 @@ local chart_panel_right_click_close = function(self, value)
 	end
 end
 
-function detailsFramework:CreateChartPanel(parent, w, h, name)
+function detailsFramework:CreateChartPanel(parent, width, height, name)
 	if (not name) then
 		name = "DFPanel" .. detailsFramework.PanelCounter
 		detailsFramework.PanelCounter = detailsFramework.PanelCounter + 1
 	end
 
 	parent = parent or UIParent
-	w = w or 800
-	h = h or 500
+	width = width or 800
+	height = height or 500
 
-	local f = CreateFrame("frame", name, parent, "BackdropTemplate")
-	f:SetSize(w or 500, h or 400)
-	f:EnableMouse(true)
-	f:SetMovable(true)
+	local chartFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
+	chartFrame:SetSize(width or 500, height or 400)
+	chartFrame:EnableMouse(true)
+	chartFrame:SetMovable(true)
 
-	f:SetScript("OnMouseDown", chart_panel_mousedown)
-	f:SetScript("OnMouseUp", chart_panel_mouseup)
+	chartFrame:SetScript("OnMouseDown", chart_panel_mousedown)
+	chartFrame:SetScript("OnMouseUp", chart_panel_mouseup)
 
-	f:SetBackdrop(chart_panel_backdrop)
-	f:SetBackdropColor(.3, .3, .3, .3)
+	chartFrame:SetBackdrop(chart_panel_backdrop)
+	chartFrame:SetBackdropColor(.3, .3, .3, .3)
 
-	local c = CreateFrame("Button", nil, f, "UIPanelCloseButton", "BackdropTemplate")
-	c:SetWidth(32)
-	c:SetHeight(32)
-	c:SetPoint("TOPRIGHT",  f, "TOPRIGHT", -3, -7)
-	c:SetFrameLevel(f:GetFrameLevel()+1)
-	c:SetAlpha(0.9)
-	f.CloseButton = c
+	local closeButton = CreateFrame("Button", nil, chartFrame, "UIPanelCloseButton", "BackdropTemplate")
+	closeButton:SetWidth(32)
+	closeButton:SetHeight(32)
+	closeButton:SetPoint("TOPRIGHT",  chartFrame, "TOPRIGHT", -3, -7)
+	closeButton:SetFrameLevel(chartFrame:GetFrameLevel()+1)
+	closeButton:SetAlpha(0.9)
+	chartFrame.CloseButton = closeButton
 
-	local title = detailsFramework:NewLabel(f, nil, "$parentTitle", "chart_title", "Chart!", nil, 20, {1, 1, 0})
-	title:SetPoint("topleft", f, "topleft", 110, -13)
+	local title = detailsFramework:NewLabel(chartFrame, nil, "$parentTitle", "chart_title", "Chart!", nil, 20, {1, 1, 0})
+	title:SetPoint("topleft", chartFrame, "topleft", 110, -13)
 
-	f.Overlays = {}
-	f.OverlaysAmount = 1
+	chartFrame.Overlays = {}
+	chartFrame.OverlaysAmount = 1
 
-	f.BoxLabels = {}
-	f.BoxLabelsAmount = 1
+	chartFrame.BoxLabels = {}
+	chartFrame.BoxLabelsAmount = 1
 
-	f.ShowHeader = true
-	f.HeaderOnlyIndicator = false
-	f.HeaderShowOverlays = true
+	chartFrame.ShowHeader = true
+	chartFrame.HeaderOnlyIndicator = false
+	chartFrame.HeaderShowOverlays = true
 
 	--graphic
-		local g = LibStub:GetLibrary("LibGraph-2.0"):CreateGraphLine (name .. "Graphic", f, "topleft","topleft", 108, -35, w - 120, h - 67)
+		local g = LibStub:GetLibrary("LibGraph-2.0"):CreateGraphLine (name .. "Graphic", chartFrame, "topleft","topleft", 108, -35, width - 120, height - 67)
 		g:SetXAxis (-1,1)
 		g:SetYAxis (-1,1)
 		g:SetGridSpacing (false, false)
@@ -3122,10 +3111,10 @@ function detailsFramework:CreateChartPanel(parent, w, h, name)
 
 		g:SetLineTexture ("line")
 
-		f.Graphic = g
-		f.GData = {}
-		f.OData = {}
-		f.ChartFrames = {}
+		chartFrame.Graphic = g
+		chartFrame.GData = {}
+		chartFrame.OData = {}
+		chartFrame.ChartFrames = {}
 
 	--div lines
 		for i = 1, 8, 1 do
@@ -3134,10 +3123,10 @@ function detailsFramework:CreateChartPanel(parent, w, h, name)
 			line:SetWidth(670)
 			line:SetHeight(1.1)
 
-			local s = f:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
-			f ["dpsamt"..i] = s
+			local s = chartFrame:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+			chartFrame ["dpsamt"..i] = s
 			s:SetText("100k")
-			s:SetPoint("topleft", f, "topleft", 27, -61 + (-(24.6*i)))
+			s:SetPoint("topleft", chartFrame, "topleft", 27, -61 + (-(24.6*i)))
 
 			line:SetPoint("topleft", s, "bottom", -27, 0)
 			line:SetPoint("topright", g, "right", 0, 0)
@@ -3145,49 +3134,49 @@ function detailsFramework:CreateChartPanel(parent, w, h, name)
 		end
 
 	--create time labels and the bottom texture to use as a background to these labels
-		f.TimeLabels = {}
-		f.TimeLabelsHeight = 16
+		chartFrame.TimeLabels = {}
+		chartFrame.TimeLabelsHeight = 16
 
 		for i = 1, 17 do
-			local timeString = f:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+			local timeString = chartFrame:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
 			timeString:SetText("00:00")
-			timeString:SetPoint("bottomleft", f, "bottomleft", 78 + ((i-1)*36), f.TimeLabelsHeight)
-			f.TimeLabels [i] = timeString
+			timeString:SetPoint("bottomleft", chartFrame, "bottomleft", 78 + ((i-1)*36), chartFrame.TimeLabelsHeight)
+			chartFrame.TimeLabels [i] = timeString
 
-			local line = f:CreateTexture(nil, "border")
-			line:SetSize(1, h-45)
+			local line = chartFrame:CreateTexture(nil, "border")
+			line:SetSize(1, height-45)
 			line:SetColorTexture(1, 1, 1, .1)
 			line:SetPoint("bottomleft", timeString, "topright", 0, -10)
 			line:Hide()
 			timeString.line = line
 		end
 
-		local bottom_texture = detailsFramework:NewImage(f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
+		local bottom_texture = detailsFramework:NewImage(chartFrame, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
 		bottom_texture:SetColorTexture(.1, .1, .1, .7)
 		bottom_texture:SetPoint("topright", g, "bottomright", 0, 0)
-		bottom_texture:SetPoint("bottomleft", f, "bottomleft", 8, 12)
+		bottom_texture:SetPoint("bottomleft", chartFrame, "bottomleft", 8, 12)
 
 
 
-	f.SetTime = chart_panel_align_timelabels
-	f.EnableVerticalLines = chart_panel_vlines_on
-	f.DisableVerticalLines = chart_panel_vlines_off
-	f.SetTitle = chart_panel_set_title
-	f.SetScale = chart_panel_set_scale
-	f.Reset = chart_panel_reset
-	f.AddLine = chart_panel_add_data
-	f.CanMove = chart_panel_can_move
-	f.AddLabel = chart_panel_add_label
-	f.AddOverlay = chart_panel_add_overlay
-	f.HideCloseButton = chart_panel_hide_close_button
-	f.RightClickClose = chart_panel_right_click_close
-	f.CalcStdDev = calc_stddev
-	f.CalcLowessSmoothing = calc_lowess_smoothing
+	chartFrame.SetTime = chart_panel_align_timelabels
+	chartFrame.EnableVerticalLines = chart_panel_vlines_on
+	chartFrame.DisableVerticalLines = chart_panel_vlines_off
+	chartFrame.SetTitle = chart_panel_set_title
+	chartFrame.SetScale = chart_panel_set_scale
+	chartFrame.Reset = chart_panel_reset
+	chartFrame.AddLine = chart_panel_add_data
+	chartFrame.CanMove = chart_panel_can_move
+	chartFrame.AddLabel = chart_panel_add_label
+	chartFrame.AddOverlay = chart_panel_add_overlay
+	chartFrame.HideCloseButton = chart_panel_hide_close_button
+	chartFrame.RightClickClose = chart_panel_right_click_close
+	chartFrame.CalcStdDev = calc_stddev
+	chartFrame.CalcLowessSmoothing = calc_lowess_smoothing
 
-	f:SetScript("OnSizeChanged", chart_panel_onresize)
-	chart_panel_onresize(f)
+	chartFrame:SetScript("OnSizeChanged", chart_panel_onresize)
+	chart_panel_onresize(chartFrame)
 
-	return f
+	return chartFrame
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3264,13 +3253,13 @@ local gframe_create_line = function(self)
 	textBackground:SetColorTexture(0, 0, 0, 0.5)
 	textBackground:SetPoint("bottom", f.ball, "top", 0, -6)
 	text:SetPoint("center", textBackground, "center")
-	detailsFramework:SetFontSize (text, 10)
+	detailsFramework:SetFontSize(text, 10)
 	f.text = text
 	f.textBackground = textBackground
 
 	local timeline = f:CreateFontString(nil, "overlay", "GameFontNormal")
 	timeline:SetPoint("bottomright", f, "bottomright", -2, 0)
-	detailsFramework:SetFontSize (timeline, 8)
+	detailsFramework:SetFontSize(timeline, 8)
 	f.timeline = timeline
 
 	return f
@@ -3351,34 +3340,32 @@ local gframe_update = function(self, lines)
 
 		o = o + 1
 	end
-
 end
 
-function detailsFramework:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, name)
-	local f = CreateFrame("frame", name, parent, "BackdropTemplate")
-	f:SetSize(w or 450, h or 150)
-	--f.CustomLine = [[Interface\AddOns\Details\Libs\LibGraph-2.0\line]]
+function detailsFramework:CreateGFrame(parent, width, height, lineWidth, onEnter, onLeave, member, name)
+	local newGraphicFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
+	newGraphicFrame:SetSize(width or 450, height or 150)
 
 	if (member) then
-		parent [member] = f
+		parent[member] = newGraphicFrame
 	end
 
-	f.CreateLine = gframe_create_line
-	f.GetLine = gframe_getline
-	f.Reset = gframe_reset
-	f.UpdateLines = gframe_update
+	newGraphicFrame.CreateLine = gframe_create_line
+	newGraphicFrame.GetLine = gframe_getline
+	newGraphicFrame.Reset = gframe_reset
+	newGraphicFrame.UpdateLines = gframe_update
 
-	f.MaxValue = 0
+	newGraphicFrame.MaxValue = 0
 
-	f._lines = {}
+	newGraphicFrame._lines = {}
 
-	f._onenter_line = onenter
-	f._onleave_line = onleave
+	newGraphicFrame._onenter_line = onEnter
+	newGraphicFrame._onleave_line = onLeave
 
-	f._linewidth = linewidth or 50
-	f._maxlines = floor(f:GetWidth() / f._linewidth)
+	newGraphicFrame._linewidth = lineWidth or 50
+	newGraphicFrame._maxlines = floor(newGraphicFrame:GetWidth() / newGraphicFrame._linewidth)
 
-	return f
+	return newGraphicFrame
 end
 
 
@@ -4500,7 +4487,7 @@ detailsFramework.TitleFunctions = {
 		end
 
 		if (size) then
-			detailsFramework:SetFontSize (self.TitleLabel, size)
+			detailsFramework:SetFontSize(self.TitleLabel, size)
 		end
 	end
 
@@ -4683,7 +4670,7 @@ detailsFramework.IconRowFunctions = {
 					iconFrame.CountdownText:SetText(formattedTime)
 
 					iconFrame.CountdownText:SetPoint(self.options.text_anchor or "center", iconFrame, self.options.text_rel_anchor or "center", self.options.text_x_offset or 0, self.options.text_y_offset or 0)
-					detailsFramework:SetFontSize (iconFrame.CountdownText, self.options.text_size)
+					detailsFramework:SetFontSize(iconFrame.CountdownText, self.options.text_size)
 					detailsFramework:SetFontFace (iconFrame.CountdownText, self.options.text_font)
 					detailsFramework:SetFontOutline (iconFrame.CountdownText, self.options.text_outline)
 
@@ -4715,7 +4702,7 @@ detailsFramework.IconRowFunctions = {
 				iconFrame.Desc:SetText(descText.text)
 				iconFrame.Desc:SetTextColor(detailsFramework:ParseColors(descText.text_color or self.options.desc_text_color))
 				iconFrame.Desc:SetPoint(self.options.desc_text_anchor or "bottom", iconFrame, self.options.desc_text_rel_anchor or "top", self.options.desc_text_x_offset or 0, self.options.desc_text_y_offset or 2)
-				detailsFramework:SetFontSize (iconFrame.Desc, descText.text_size or self.options.desc_text_size)
+				detailsFramework:SetFontSize(iconFrame.Desc, descText.text_size or self.options.desc_text_size)
 				detailsFramework:SetFontFace (iconFrame.Desc, self.options.desc_text_font)
 				detailsFramework:SetFontOutline (iconFrame.Desc, self.options.desc_text_outline)
 			else
@@ -4727,7 +4714,7 @@ detailsFramework.IconRowFunctions = {
 				iconFrame.StackText:SetText(count)
 				iconFrame.StackText:SetTextColor(detailsFramework:ParseColors(self.options.desc_text_color))
 				iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "bottomright", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
-				detailsFramework:SetFontSize (iconFrame.StackText, self.options.stack_text_size)
+				detailsFramework:SetFontSize(iconFrame.StackText, self.options.stack_text_size)
 				detailsFramework:SetFontFace (iconFrame.StackText, self.options.stack_text_font)
 				detailsFramework:SetFontOutline (iconFrame.StackText, self.options.stack_text_outline)
 			else
@@ -7416,7 +7403,7 @@ detailsFramework.PowerFrameFunctions = {
 			self.percentText:Show()
 			PixelUtil.SetPoint(self.percentText, "center", self, "center", 0, 0)
 
-			detailsFramework:SetFontSize (self.percentText, 9)
+			detailsFramework:SetFontSize(self.percentText, 9)
 			detailsFramework:SetFontColor(self.percentText, "white")
 			detailsFramework:SetFontOutline (self.percentText, "OUTLINE")
 		else
@@ -8630,7 +8617,7 @@ detailsFramework.BorderFunctions = {
 
 -- ~borderframe
 function detailsFramework:CreateBorderFrame (parent, name)
-	local parentName = name or "DetailsFrameworkBorderFrame" .. tostring(math.random (1, 100000000))
+	local parentName = name or "DetailsFrameworkBorderFrame" .. tostring(math.random(1, 100000000))
 
 	local f = CreateFrame("frame", parentName, parent, "BackdropTemplate")
 	f:SetFrameLevel(f:GetFrameLevel()+1)
@@ -9131,7 +9118,7 @@ end
 -- ~unitframe
 local globalBaseFrameLevel = 1 -- to be increased + used across each new plate
 function detailsFramework:CreateUnitFrame(parent, name, unitFrameSettingsOverride, healthBarSettingsOverride, castBarSettingsOverride, powerBarSettingsOverride)
-	local parentName = name or ("DetailsFrameworkUnitFrame" .. tostring(math.random (1, 100000000)))
+	local parentName = name or ("DetailsFrameworkUnitFrame" .. tostring(math.random(1, 100000000)))
 
 	--create the main unit frame
 	local mewUnitFrame = CreateFrame("button", parentName, parent, "BackdropTemplate")
@@ -9281,7 +9268,7 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 		end
 
 		detailsFramework:SetFontColor(label, self.options.text_color)
-		detailsFramework:SetFontSize (label, self.options.text_size)
+		detailsFramework:SetFontSize(label, self.options.text_size)
 		detailsFramework:SetFontFace (label, self.options.text_font)
 		detailsFramework:SetFontOutline (label, self.options.text_outline)
 
@@ -9325,7 +9312,7 @@ detailsFramework.TimeLineElapsedTimeFunctions = {
 
 			local secondsOfTime = pixelPerSecond * xOffset
 
-			label:SetText(detailsFramework:IntegerToTimer (floor(secondsOfTime)))
+			label:SetText(detailsFramework:IntegerToTimer(floor(secondsOfTime)))
 
 			if (label.line:IsShown()) then
 				label.line:SetHeight(parent:GetParent():GetHeight())

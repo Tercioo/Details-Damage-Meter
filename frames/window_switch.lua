@@ -523,7 +523,7 @@ function Details.switch:ShowMe(instancia)
 		
 			function Details.switch:CreateSegmentBlock()
 				local s = gump:CreateLabel(Details.switch.frame)
-				Details:SetFontSize (s, 9)
+				Details:SetFontSize(s, 9)
 				
 				local index = #Details.switch.segments_blocks
 				if (index == 1) then --overall button

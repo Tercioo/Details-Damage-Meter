@@ -289,8 +289,8 @@ DF:Mixin(SplitBarMetaFunctions, DF.ScriptHookMixin)
 	end
 	--font size
 	local smember_textsize = function(_object, _value)
-		DF:SetFontSize (_object.textleft, _value)
-		return DF:SetFontSize (_object.textright, _value)
+		DF:SetFontSize(_object.textleft, _value)
+		return DF:SetFontSize(_object.textright, _value)
 	end
 	--font color
 	local smember_textcolor = function(_object, _value)
@@ -691,12 +691,12 @@ local build_statusbar = function(self)
 	self.spark:SetPoint("LEFT", self, "RIGHT", -17, -1)
 	
 	self.lefttext = self:CreateFontString("$parent_TextLeft", "OVERLAY", "GameFontHighlight")
-	DF:SetFontSize (self.lefttext, 10)
+	DF:SetFontSize(self.lefttext, 10)
 	self.lefttext:SetJustifyH("left")
 	self.lefttext:SetPoint("LEFT", self.lefticon, "RIGHT", 3, 0)
 	
 	self.righttext = self:CreateFontString("$parent_TextRight", "OVERLAY", "GameFontHighlight")
-	DF:SetFontSize (self.righttext, 10)
+	DF:SetFontSize(self.righttext, 10)
 	self.righttext:SetJustifyH("right")
 	self.righttext:SetPoint("RIGHT", self.righticon, "LEFT", -3, 0)
 

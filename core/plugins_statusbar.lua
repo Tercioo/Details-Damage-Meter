@@ -477,7 +477,7 @@
 		local text = _detalhes.gump:NewLabel(frame, nil, "$parentText", "text", "0")
 		text:SetPoint("right", frame, "right", 0, 0)
 		text:SetJustifyH("right")
-		_detalhes:SetFontSize (text, 9.8)
+		_detalhes:SetFontSize(text, 9.8)
 		
 		frame:SetHook("OnEnter", OnEnter)
 		frame:SetHook("OnLeave", OnLeave)
@@ -567,7 +567,7 @@
 			end
 		
 			child.options.textSize = value or 9
-			child:SetFontSize (child.text, child.options.textSize)
+			child:SetFontSize(child.text, child.options.textSize)
 			
 		elseif (option == "textface") then
 		
@@ -830,8 +830,8 @@ do
 			-----------------------------------------------------------------------------------------------------------------------------
 			
 			--now we insert all widgets created on widgets table
-			table.insert (widgets, window.segmentOptionLabel)
-			table.insert (widgets, window.segmentTypeDropdown)
+			table.insert(widgets, window.segmentOptionLabel)
+			table.insert(widgets, window.segmentTypeDropdown)
 
 			--after first call we replace this function with widgets table
 			PSegment.ExtraOptions = widgets
@@ -1017,8 +1017,8 @@ do
 			-----------------------------------------------------------------------------------------------------------------------------
 			
 			--now we insert all widgets created on widgets table
-			table.insert (widgets, window.ClockTypeLabel)
-			table.insert (widgets, window.ClockTypeDropdown)
+			table.insert(widgets, window.ClockTypeLabel)
+			table.insert(widgets, window.ClockTypeDropdown)
 
 			--after first call we replace this function with widgets table
 			Clock.ExtraOptions = widgets
@@ -1431,8 +1431,8 @@ do
 			-----------------------------------------------------------------------------------------------------------------------------
 			
 			--now we insert all widgets created on widgets table
-			table.insert (widgets, window.TimeTypeLabel)
-			table.insert (widgets, window.TimeTypeDropdown)
+			table.insert(widgets, window.TimeTypeLabel)
+			table.insert(widgets, window.TimeTypeDropdown)
 
 			--after first call we replace this function with widgets table
 			PTime.ExtraOptions = widgets

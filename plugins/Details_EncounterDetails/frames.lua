@@ -956,7 +956,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 					end
 				end
 				
-				table.insert (self.Data, 1, {Points=data;Color=color})
+				table.insert(self.Data, 1, {Points=data;Color=color})
 				
 				self.NeedsUpdate=true
 			end
@@ -2381,13 +2381,13 @@ local ScrollCreateLine = function(self, index)
 	icon:SetSize(ScrollLineHeight, ScrollLineHeight)
 	
 	local name = statusBar:CreateFontString("$parentName", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (name, 10)
+	_detalhes.gump:SetFontSize(name, 10)
 	icon:SetPoint("left", line, "left", 2, 0)
 	name:SetPoint("left", icon, "right", 2, 0)
 	_detalhes.gump:SetFontColor(name, "white")
 	
 	local done = statusBar:CreateFontString("$parentDone", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (done, 10)
+	_detalhes.gump:SetFontSize(done, 10)
 	_detalhes.gump:SetFontColor(done, "white")
 	done:SetPoint("right", line, "right", -2, 0)
 	
@@ -2457,9 +2457,9 @@ for i = 1, 10 do
 	icon:SetSize(16, 16)
 	icon:SetTexture([[Interface\AddOns\Details\images\clock]])
 	local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (name, 10)
+	_detalhes.gump:SetFontSize(name, 10)
 	local done = line:CreateFontString("$parentDone", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (done, 10)
+	_detalhes.gump:SetFontSize(done, 10)
 	
 	icon:SetPoint("left", line, "left", 2, 0)
 	name:SetPoint("left", icon, "right", 2, 0)
@@ -2485,11 +2485,11 @@ for i = 1, 20 do
 	line:SetBackdropColor(unpack(BGColorDefault))
 	line:Hide()
 	local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (name, 9)
+	_detalhes.gump:SetFontSize(name, 9)
 	name:SetPoint("left", line, "left", 2, 0)
 	
 	local done = line:CreateFontString("$parentDone", "overlay", "GameFontNormal")
-	_detalhes.gump:SetFontSize (done, 9)
+	_detalhes.gump:SetFontSize(done, 9)
 	done:SetPoint("right", line, "right", -2, 0)
 	
 	line.name = name
@@ -2546,7 +2546,7 @@ function PhaseFrame:UpdatePhaseBars()
 	for index, phase in ipairs(timers) do
 		local timer = hash [phase]
 		PhaseFrame.PhasesBars [i].name:SetText("|cFFC0C0C0Phase:|r |cFFFFFFFF" .. phase)
-		PhaseFrame.PhasesBars [i].done:SetText(_detalhes.gump:IntegerToTimer (timer))
+		PhaseFrame.PhasesBars [i].done:SetText(_detalhes.gump:IntegerToTimer(timer))
 		PhaseFrame.PhasesBars [i].phase = phase
 		PhaseFrame.PhasesBars [i]:Show()
 		i = i + 1
@@ -2571,12 +2571,12 @@ function PhaseFrame:UpdateSegmentCompareBars (phase)
 				if (segment ~= segmentTable) then
 					bar.name:SetText("Segment " .. i .. ":")
 					_detalhes.gump:SetFontColor(bar.name, "orange")
-					bar.done:SetText(_detalhes.gump:IntegerToTimer (timers [phase]))
+					bar.done:SetText(_detalhes.gump:IntegerToTimer(timers [phase]))
 					_detalhes.gump:SetFontColor(bar.done, "orange")
 				else
 					bar.name:SetText("Segment " .. i .. ":")
 					_detalhes.gump:SetFontColor(bar.name, "white")
-					bar.done:SetText(_detalhes.gump:IntegerToTimer (timers [phase]))
+					bar.done:SetText(_detalhes.gump:IntegerToTimer(timers [phase]))
 					_detalhes.gump:SetFontColor(bar.done, "white")
 				end
 			else
