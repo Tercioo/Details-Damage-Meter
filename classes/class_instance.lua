@@ -9,7 +9,7 @@ local _math_floor = math.floor --lua local
 local abs = math.abs --lua local
 local _table_remove = table.remove --lua local
 local _getmetatable = getmetatable --lua local
-local _setmetatable = setmetatable --lua local
+local setmetatable = setmetatable --lua local
 local _string_len = string.len --lua local
 local _unpack = unpack --lua local
 local _cstr = string.format --lua local
@@ -49,7 +49,7 @@ local segmentos = _detalhes.segmentos
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (not _getmetatable (instancia)) then
-				_setmetatable(_detalhes.tabela_instancias[index], _detalhes)
+				setmetatable(_detalhes.tabela_instancias[index], _detalhes)
 			end
 		end
 
@@ -1353,7 +1353,7 @@ end
 				LastModo = modo_grupo,
 		}
 
-		_setmetatable(new_instance, _detalhes)
+		setmetatable(new_instance, _detalhes)
 		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
 
 		--fill the empty instance with default values
@@ -1375,7 +1375,7 @@ end
 	function _detalhes:NovaInstancia (ID)
 
 		local new_instance = {}
-		_setmetatable(new_instance, _detalhes)
+		setmetatable(new_instance, _detalhes)
 		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
 
 		--instance number
@@ -3012,7 +3012,7 @@ function _detalhes:FormatReportLines (report_table, data, f1, f2, f3)
 		fontSize = 10
 	end
 	local fonte, _, flags = _detalhes.fontstring_len:GetFont()
-	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
+	_detalhes.fontstring_len:SetFont(fonte, fontSize, flags)
 	_detalhes.fontstring_len:SetText("DEFAULT NAME")
 	local biggest_len = _detalhes.fontstring_len:GetStringWidth()
 

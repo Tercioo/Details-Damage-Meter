@@ -273,7 +273,7 @@
 	end
 
 	local register_event_func = function(self, event)
-		self.Frame:RegisterEvent (event)
+		self.Frame:RegisterEvent(event)
 	end
 	local unregister_event_func = function(self, event)
 		self.Frame:UnregisterEvent (event)
@@ -285,8 +285,8 @@
 		local NewPlugin = {__options = PluginOptions, __enabled = true, RegisterEvent = register_event_func, UnregisterEvent = unregister_event_func}
 		
 		local Frame = CreateFrame("Frame", FrameName, UIParent,"BackdropTemplate")
-		Frame:RegisterEvent ("PLAYER_LOGIN")
-		Frame:RegisterEvent ("PLAYER_LOGOUT")
+		Frame:RegisterEvent("PLAYER_LOGIN")
+		Frame:RegisterEvent("PLAYER_LOGOUT")
 		
 		Frame:SetScript("OnEvent", function(self, event, ...) 
 			if (NewPlugin.OnEvent) then
@@ -360,7 +360,7 @@
 			options_frame:SetMovable(true)
 			options_frame:EnableMouse(true)
 			options_frame:SetFrameStrata("DIALOG")
-			options_frame:SetToplevel (true)
+			options_frame:SetToplevel(true)
 			
 			options_frame:Hide()
 			
@@ -398,7 +398,7 @@
 			options_frame:SetMovable(true)
 			options_frame:EnableMouse(true)
 			options_frame:SetFrameStrata("DIALOG")
-			options_frame:SetToplevel (true)
+			options_frame:SetToplevel(true)
 			
 			options_frame:Hide()
 			

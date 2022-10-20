@@ -15,7 +15,7 @@ end
 
 local f = CreateFrame("frame", nil, UIParent)
 f:Hide()
-f:RegisterEvent ("ADDON_LOADED")
+f:RegisterEvent("ADDON_LOADED")
 
 f:SetScript("OnEvent", function(self, event, addonName)
 

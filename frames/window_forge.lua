@@ -47,7 +47,7 @@ function Details:OpenForge()
         local f = DetailsForgePanel or Details.gump:CreateSimplePanel(UIParent, 960, 600, "Details! " .. L["STRING_SPELLLIST"], "DetailsForgePanel")
         f:SetPoint("center", UIParent, "center")
         f:SetFrameStrata("HIGH")
-        f:SetToplevel (true)
+        f:SetToplevel(true)
         f:SetMovable(true)
         f.Title:SetTextColor(1, .8, .2)
         

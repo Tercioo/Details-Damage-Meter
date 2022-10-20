@@ -103,7 +103,7 @@ function Details:CreateOrOpenNewsWindow()
 				tile = true, tileSize = 16,
 				insets = {left = 1, right = 1, top = 0, bottom = 1},})
 		frameUpper:SetBackdropColor(.1, .1, .1, .3)
-		frameUpper:SetScrollChild (frameLower)
+		frameUpper:SetScrollChild(frameLower)
 		
 		local slider = CreateFrame("slider", "DetailsNewsWindowSlider", frame, "BackdropTemplate")
 		slider.bg = slider:CreateTexture(nil, "background")
@@ -115,7 +115,7 @@ function Details:CreateOrOpenNewsWindow()
 		slider.thumb:SetSize(25, 25)
 		
 		slider:SetThumbTexture (slider.thumb)
-		slider:SetOrientation ("vertical");
+		slider:SetOrientation("vertical");
 		slider:SetSize(16, 499)
 		slider:SetPoint("topleft", frameUpper, "topright")
 		slider:SetMinMaxValues(0, 2000)

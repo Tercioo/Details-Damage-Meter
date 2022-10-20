@@ -707,10 +707,10 @@ do
 		
 		--Register needed events
 		-- here we are redirecting the event to an specified function, otherwise events need to be handle inside "PDps:OnDetailsEvent (event)"
-		_detalhes:RegisterEvent (PDps, "DETAILS_INSTANCE_CHANGESEGMENT", PDps.ChangeSegment)
-		_detalhes:RegisterEvent (PDps, "DETAILS_DATA_RESET", PDps.DataReset)
-		_detalhes:RegisterEvent (PDps, "COMBAT_PLAYER_ENTER", PDps.PlayerEnterCombat)
-		_detalhes:RegisterEvent (PDps, "COMBAT_PLAYER_LEAVE", PDps.PlayerLeaveCombat)
+		_detalhes:RegisterEvent(PDps, "DETAILS_INSTANCE_CHANGESEGMENT", PDps.ChangeSegment)
+		_detalhes:RegisterEvent(PDps, "DETAILS_DATA_RESET", PDps.DataReset)
+		_detalhes:RegisterEvent(PDps, "COMBAT_PLAYER_ENTER", PDps.PlayerEnterCombat)
+		_detalhes:RegisterEvent(PDps, "COMBAT_PLAYER_LEAVE", PDps.PlayerLeaveCombat)
 
 end
 
@@ -860,9 +860,9 @@ do
 		end
 		
 		--Register needed events
-		_detalhes:RegisterEvent (PSegment, "DETAILS_INSTANCE_CHANGESEGMENT", PSegment.OnSegmentChange)
-		_detalhes:RegisterEvent (PSegment, "DETAILS_DATA_RESET", PSegment.Change)
-		_detalhes:RegisterEvent (PSegment, "COMBAT_PLAYER_ENTER", PSegment.NewCombat)
+		_detalhes:RegisterEvent(PSegment, "DETAILS_INSTANCE_CHANGESEGMENT", PSegment.OnSegmentChange)
+		_detalhes:RegisterEvent(PSegment, "DETAILS_DATA_RESET", PSegment.Change)
+		_detalhes:RegisterEvent(PSegment, "COMBAT_PLAYER_ENTER", PSegment.NewCombat)
 		
 end
 
@@ -908,7 +908,7 @@ do
 		end
 		
 		--Register needed events
-		_detalhes:RegisterEvent (PAttribute, "DETAILS_INSTANCE_CHANGEATTRIBUTE", PAttribute.Change)
+		_detalhes:RegisterEvent(PAttribute, "DETAILS_INSTANCE_CHANGEATTRIBUTE", PAttribute.Change)
 		
 end
 
@@ -1066,11 +1066,11 @@ do
 		end
 		
 		--Register needed events
-		_detalhes:RegisterEvent (Clock, "COMBAT_PLAYER_ENTER", Clock.PlayerEnterCombat)
-		_detalhes:RegisterEvent (Clock, "COMBAT_PLAYER_LEAVE", Clock.PlayerLeaveCombat)
-		_detalhes:RegisterEvent (Clock, "DETAILS_INSTANCE_CHANGESEGMENT", _detalhes.ClockPluginTickOnSegment)
-		_detalhes:RegisterEvent (Clock, "DETAILS_DATA_SEGMENTREMOVED", _detalhes.ClockPluginTick)
-		_detalhes:RegisterEvent (Clock, "DETAILS_DATA_RESET", Clock.DataReset)
+		_detalhes:RegisterEvent(Clock, "COMBAT_PLAYER_ENTER", Clock.PlayerEnterCombat)
+		_detalhes:RegisterEvent(Clock, "COMBAT_PLAYER_LEAVE", Clock.PlayerLeaveCombat)
+		_detalhes:RegisterEvent(Clock, "DETAILS_INSTANCE_CHANGESEGMENT", _detalhes.ClockPluginTickOnSegment)
+		_detalhes:RegisterEvent(Clock, "DETAILS_DATA_SEGMENTREMOVED", _detalhes.ClockPluginTick)
+		_detalhes:RegisterEvent(Clock, "DETAILS_DATA_RESET", Clock.DataReset)
 
 end
 
@@ -1138,7 +1138,7 @@ do
 			
 			local new_child = _detalhes.StatusBar:CreateChildTable (instance, Threat, myframe)
 
-			myframe.widget:RegisterEvent ("PLAYER_TARGET_CHANGED")
+			myframe.widget:RegisterEvent("PLAYER_TARGET_CHANGED")
 			myframe.widget:SetScript("OnEvent", function()
 				_detalhes:ThreatPluginTick()
 			end)
@@ -1154,8 +1154,8 @@ do
 		end
 		
 		--Register needed events
-		_detalhes:RegisterEvent (Threat, "COMBAT_PLAYER_ENTER", Threat.PlayerEnterCombat)
-		_detalhes:RegisterEvent (Threat, "COMBAT_PLAYER_LEAVE", Threat.PlayerLeaveCombat)
+		_detalhes:RegisterEvent(Threat, "COMBAT_PLAYER_ENTER", Threat.PlayerEnterCombat)
+		_detalhes:RegisterEvent(Threat, "COMBAT_PLAYER_LEAVE", Threat.PlayerLeaveCombat)
 
 
 end
@@ -1280,12 +1280,12 @@ do
 		end
 
 		function PDurability:OnEnable()
-			self.frame.widget:RegisterEvent ("PLAYER_DEAD")
-			self.frame.widget:RegisterEvent ("PLAYER_UNGHOST")
-			self.frame.widget:RegisterEvent ("UPDATE_INVENTORY_DURABILITY")
-			self.frame.widget:RegisterEvent ("MERCHANT_SHOW")
-			self.frame.widget:RegisterEvent ("MERCHANT_CLOSED")
-			self.frame.widget:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
+			self.frame.widget:RegisterEvent("PLAYER_DEAD")
+			self.frame.widget:RegisterEvent("PLAYER_UNGHOST")
+			self.frame.widget:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
+			self.frame.widget:RegisterEvent("MERCHANT_SHOW")
+			self.frame.widget:RegisterEvent("MERCHANT_CLOSED")
+			self.frame.widget:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 			self:UpdateDurability()
 		end
 		
@@ -1356,8 +1356,8 @@ do
 			texture:SetHeight(12)
 			myframe.texture = texture
 			
-			myframe.widget:RegisterEvent ("PLAYER_MONEY")
-			myframe.widget:RegisterEvent ("PLAYER_ENTERING_WORLD")
+			myframe.widget:RegisterEvent("PLAYER_MONEY")
+			myframe.widget:RegisterEvent("PLAYER_ENTERING_WORLD")
 			myframe.widget:SetScript("OnEvent", function(event)
 				if (event == "PLAYER_ENTERING_WORLD") then
 					return PGold:ScheduleTimer("GoldPluginTick", 10)

@@ -1986,7 +1986,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         f:SetFrameStrata("DIALOG")
         f:EnableMouse(true)
         f:SetMovable(true)
-        f:SetToplevel (true)
+        f:SetToplevel(true)
         
         --background
         f.bg1 = f:CreateTexture(nil, "background")

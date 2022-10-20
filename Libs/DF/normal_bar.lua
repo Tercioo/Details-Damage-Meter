@@ -1,20 +1,15 @@
 
-local DF = _G ["DetailsFramework"]
+local DF = _G["DetailsFramework"]
 if (not DF or not DetailsFrameworkCanLoad) then
-	return 
+	return
 end
 
 local _
-local _rawset = rawset --lua locals
-local _rawget = rawget --lua locals
-local _setmetatable = setmetatable --lua locals
-local _unpack = unpack --lua locals
-local type = type --lua locals
-local _math_floor = math.floor --lua locals
+local _unpack = unpack
+local type = type
+local _math_floor = math.floor
 
-local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
-
-local cleanfunction = function() end
+local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local APIBarFunctions
 
 do
@@ -26,7 +21,7 @@ do
 	--check if there's a metaPrototype already existing
 	if (_G[DF.GlobalWidgetControlNames["normal_bar"]]) then
 		--get the already existing metaPrototype
-		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames ["normal_bar"]]
+		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames["normal_bar"]]
 		--check if is older
 		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < DF.dversion) ) then
 			--the version is older them the currently loading one
@@ -37,7 +32,7 @@ do
 		end
 	else
 		--first time loading the framework
-		_G[DF.GlobalWidgetControlNames ["normal_bar"]] = metaPrototype
+		_G[DF.GlobalWidgetControlNames["normal_bar"]] = metaPrototype
 	end
 end
 
@@ -47,15 +42,15 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --metatables
 
-	BarMetaFunctions.__call = function(_table, value)
+	BarMetaFunctions.__call = function(object, value)
 		if (not value) then
-			return _table.statusbar:GetValue()
+			return object.statusbar:GetValue()
 		else
-			return _table.statusbar:SetValue(value)
+			return object.statusbar:SetValue(value)
 		end
 	end
 
-	BarMetaFunctions.__add = function(v1, v2) 
+	BarMetaFunctions.__add = function(v1, v2)
 		if (type(v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v + v2
@@ -67,7 +62,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		end
 	end
 
-	BarMetaFunctions.__sub = function(v1, v2) 
+	BarMetaFunctions.__sub = function(v1, v2)
 		if (type(v1) == "table") then
 			local v = v1.statusbar:GetValue()
 			v = v - v2
@@ -168,7 +163,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 			return func (_table, _member_requested)
 		end
 		
-		local fromMe = _rawget (_table, _member_requested)
+		local fromMe = rawget (_table, _member_requested)
 		if (fromMe) then
 			return fromMe
 		end
@@ -350,7 +345,7 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 		if (func) then
 			return func (_table, _value)
 		else
-			return _rawset (_table, _key, _value)
+			return rawset (_table, _key, _value)
 		end
 	end
 
@@ -444,13 +439,13 @@ DF:Mixin(BarMetaFunctions, DF.ScriptHookMixin)
 -- tooltip
 	function BarMetaFunctions:SetTooltip (tooltip)
 		if (tooltip) then
-			return _rawset (self, "have_tooltip", tooltip)
+			return rawset (self, "have_tooltip", tooltip)
 		else
-			return _rawset (self, "have_tooltip", nil)
+			return rawset (self, "have_tooltip", nil)
 		end
 	end
 	function BarMetaFunctions:GetTooltip()
-		return _rawget (self, "have_tooltip")
+		return rawget (self, "have_tooltip")
 	end
 	
 -- frame levels
@@ -855,7 +850,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		BarObject.statusbar:SetScript("OnMouseUp", OnMouseUp)
 		
 	--set class
-		_setmetatable(BarObject, BarMetaFunctions)
+		setmetatable(BarObject, BarMetaFunctions)
 
 	--set texture
 		if (texture_name) then

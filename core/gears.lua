@@ -1811,11 +1811,11 @@ local ilvl_core = _detalhes:CreateEventListener()
 ilvl_core.amt_inspecting = 0
 _detalhes.ilevel.core = ilvl_core
 
-ilvl_core:RegisterEvent ("GROUP_ONENTER", "OnEnter")
-ilvl_core:RegisterEvent ("GROUP_ONLEAVE", "OnLeave")
-ilvl_core:RegisterEvent ("COMBAT_PLAYER_ENTER", "EnterCombat")
-ilvl_core:RegisterEvent ("COMBAT_PLAYER_LEAVE", "LeaveCombat")
-ilvl_core:RegisterEvent ("ZONE_TYPE_CHANGED", "ZoneChanged")
+ilvl_core:RegisterEvent("GROUP_ONENTER", "OnEnter")
+ilvl_core:RegisterEvent("GROUP_ONLEAVE", "OnLeave")
+ilvl_core:RegisterEvent("COMBAT_PLAYER_ENTER", "EnterCombat")
+ilvl_core:RegisterEvent("COMBAT_PLAYER_LEAVE", "LeaveCombat")
+ilvl_core:RegisterEvent("ZONE_TYPE_CHANGED", "ZoneChanged")
 
 local inspecting = {}
 ilvl_core.forced_inspects = {}
@@ -1828,7 +1828,7 @@ function ilvl_core:HasQueuedInspec (unitName)
 end
 
 local inspect_frame = CreateFrame("frame")
-inspect_frame:RegisterEvent ("INSPECT_READY")
+inspect_frame:RegisterEvent("INSPECT_READY")
 
 local two_hand = {
 	["INVTYPE_2HWEAPON"] = true,
@@ -2939,6 +2939,7 @@ function Details.GenerateSpecSpellList()
 	end)
 end
 
+--fill the passed table with spells from talents and spellbook, affect only the active spec
 function Details.FillTableWithPlayerSpells(completeListOfSpells)
     local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
     local classNameLoc, className, classId = UnitClass("player")
@@ -3105,4 +3106,47 @@ function Details:HandleRogueCombatSpecIconByGameVersion()
 		rogueCombatCoords[3] = 384 / 512
 		rogueCombatCoords[4] = 448 / 512
 	end
+end
+
+function CopyText(text)
+	if (not Details.CopyTextField) then
+		Details.CopyTextField = CreateFrame("Frame", "DetailsCopyText", UIParent, "BackdropTemplate")
+		Details.CopyTextField:SetHeight(14)
+		Details.CopyTextField:SetWidth(120)
+		Details.CopyTextField:SetPoint("center", UIParent, "center")
+		Details.CopyTextField:SetBackdrop(backdrop)
+
+		DetailsFramework:ApplyStandardBackdrop(Details.CopyTextField)
+
+		tinsert(UISpecialFrames, "DetailsCopyText")
+
+		Details.CopyTextField.textField = CreateFrame("editbox", nil, Details.CopyTextField, "BackdropTemplate")
+		Details.CopyTextField.textField:SetPoint("topleft", Details.CopyTextField, "topleft")
+		Details.CopyTextField.textField:SetAutoFocus(false)
+		Details.CopyTextField.textField:SetFontObject("GameFontHighlightSmall")
+		Details.CopyTextField.textField:SetAllPoints()
+		Details.CopyTextField.textField:EnableMouse(true)
+
+		Details.CopyTextField.textField:SetScript("OnEnterPressed", function()
+			Details.CopyTextField.textField:ClearFocus()
+			Details.CopyTextField:Hide()
+		end)
+
+		Details.CopyTextField.textField:SetScript("OnEscapePressed", function()
+			Details.CopyTextField.textField:ClearFocus()
+			Details.CopyTextField:Hide()
+		end)
+
+		Details.CopyTextField.textField:SetScript("OnChar", function()
+			Details.CopyTextField.textField:ClearFocus()
+			Details.CopyTextField:Hide()
+		end)
+	end
+
+	C_Timer.After(0.1, function()
+		Details.CopyTextField:Show()
+		Details.CopyTextField.textField:SetFocus()
+		Details.CopyTextField.textField:SetText(text)
+		Details.CopyTextField.textField:HighlightText()
+	end)
 end

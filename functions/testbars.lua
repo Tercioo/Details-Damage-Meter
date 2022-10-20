@@ -252,7 +252,7 @@ function Details:CreateTestBars (alphabet, isArena)
             table.insert(current_combat.last_events_tables, #current_combat.last_events_tables+1, t)
             
         elseif (robot.nome == "Mr. President") then	
-            rawset (Details.spellcache, 56488, {"Nuke", 56488, [[Interface\ICONS\inv_gizmo_supersappercharge]]})
+            rawset(Details.spellcache, 56488, {"Nuke", 56488, [[Interface\ICONS\inv_gizmo_supersappercharge]]})
             robot.spells:PegaHabilidade (56488, true, "SPELL_DAMAGE")
             robot.spells._ActorTable [56488].total = robot.total
         end

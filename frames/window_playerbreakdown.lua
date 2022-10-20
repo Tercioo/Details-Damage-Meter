@@ -875,7 +875,7 @@ local function cria_container_barras (este_gump, SWW)
 
 	container_barras_window:SetWidth(300)
 	container_barras_window:SetHeight(145)
-	container_barras_window:SetScrollChild (container_barras)
+	container_barras_window:SetScrollChild(container_barras)
 	container_barras_window:SetPoint("TOPLEFT", este_gump, "TOPLEFT", 21, -76)
 
 	container_barras_window:SetScript("OnSizeChanged", function(self)
@@ -958,7 +958,7 @@ local function cria_container_alvos (este_gump, SWW)
 
 	container_alvos_window:SetWidth(300)
 	container_alvos_window:SetHeight(100)
-	container_alvos_window:SetScrollChild (container_alvos)
+	container_alvos_window:SetScrollChild(container_alvos)
 	container_alvos_window:SetPoint("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 20, 6) --56 default
 
 	container_alvos_window:SetScript("OnSizeChanged", function(self)
@@ -1627,7 +1627,7 @@ function gump:CriaJanelaInfo()
 	este_gump.Loaded = true
 
 	este_gump:SetFrameStrata("HIGH")
-	este_gump:SetToplevel (true)
+	este_gump:SetToplevel(true)
 
 	este_gump.extra_frames = {}
 
@@ -4438,7 +4438,7 @@ function gump:CriaJanelaInfo()
 
 				local _, size, flags = bar.lefttext:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
-				bar.lefttext:SetFont (font, 11)
+				bar.lefttext:SetFont(font, 11)
 
 				bar.lefttext:SetPoint("left", bar, "left", 4, 0)
 				bar.lefttext:SetJustifyH("left")
@@ -4455,7 +4455,7 @@ function gump:CriaJanelaInfo()
 
 				local _, size, flags = bar.righttext:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
-				bar.righttext:SetFont (font, 11)
+				bar.righttext:SetFont(font, 11)
 
 				bar.righttext:SetPoint("right", bar, "right", -2, 0)
 				bar.righttext:SetJustifyH("right")
@@ -4465,7 +4465,7 @@ function gump:CriaJanelaInfo()
 
 				local _, size, flags = bar.righttext2:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
-				bar.righttext2:SetFont (font, 11)
+				bar.righttext2:SetFont(font, 11)
 
 				bar.righttext2:SetPoint("right", bar, "right", -42, 0)
 				bar.righttext2:SetJustifyH("right")
@@ -4636,7 +4636,7 @@ function gump:CriaJanelaInfo()
 					bar.lefttext = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 					local _, size, flags = bar.lefttext:GetFont()
 					local font = SharedMedia:Fetch ("font", "Arial Narrow")
-					bar.lefttext:SetFont (font, 11)
+					bar.lefttext:SetFont(font, 11)
 					bar.lefttext:SetPoint("left", bar, "left", 2, 0)
 					bar.lefttext:SetJustifyH("left")
 					bar.lefttext:SetTextColor(1, 1, 1, 1)
@@ -4652,7 +4652,7 @@ function gump:CriaJanelaInfo()
 					bar.righttext = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 					local _, size, flags = bar.righttext:GetFont()
 					local font = SharedMedia:Fetch ("font", "Arial Narrow")
-					bar.righttext:SetFont (font, 11)
+					bar.righttext:SetFont(font, 11)
 					bar.righttext:SetPoint("right", bar, "right", -2, 0)
 					bar.righttext:SetJustifyH("right")
 					bar.righttext:SetTextColor(1, 1, 1, 1)
@@ -4660,7 +4660,7 @@ function gump:CriaJanelaInfo()
 					bar.righttext2 = bar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 					local _, size, flags = bar.righttext2:GetFont()
 					local font = SharedMedia:Fetch ("font", "Arial Narrow")
-					bar.righttext2:SetFont (font, 11)
+					bar.righttext2:SetFont(font, 11)
 					bar.righttext2:SetPoint("right", bar, "right", -46, 0)
 					bar.righttext2:SetJustifyH("right")
 					bar.righttext2:SetTextColor(1, 1, 1, 1)

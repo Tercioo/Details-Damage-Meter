@@ -36,13 +36,16 @@
 		Details.gameVersionPrefix = gameVersionPrefix
 
 		function Details.GetVersionString()
-			local alphaId = _detalhes.curseforgeVersion:match("%-(%d+)%-")
+			local curseforgeVersion = _detalhes.curseforgeVersion or ""
+			local alphaId = curseforgeVersion:match("%-(%d+)%-")
+
 			if (not alphaId) then
 				--this is a release version
 				alphaId = "R1"
 			else
 				alphaId = "A" .. alphaId
 			end
+			
 			return Details.gameVersionPrefix .. Details.build_counter .. "." .. Details.acounter .. "." .. alphaId .. "(" .. Details.game_version .. ")"
 		end
 
@@ -572,7 +575,7 @@ do
 
 		_detalhes.gump:NewColor("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
 
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE",
+		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {0, 0, 0, .5},
@@ -580,7 +583,7 @@ do
 				onentercolor = {0.3, 0.3, 0.3, .5},
 			}
 		)
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE",
+		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {0, 0, 0, .5},
@@ -589,7 +592,7 @@ do
 			}
 		)
 
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE",
+		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {1, 1, 1, .5},
@@ -601,7 +604,7 @@ do
 				height = 20,
 			}
 		)
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE",
+		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {1, 1, 1, .5},
@@ -614,14 +617,14 @@ do
 			}
 		)
 
-		_detalhes.gump:InstallTemplate ("button", "DETAILS_TAB_BUTTON_TEMPLATE",
+		_detalhes.gump:InstallTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE",
 			{
 				width = 100,
 				height = 20,
 			},
 			"DETAILS_PLUGIN_BUTTON_TEMPLATE"
 		)
-		_detalhes.gump:InstallTemplate ("button","DETAILS_TAB_BUTTONSELECTED_TEMPLATE",
+		_detalhes.gump:InstallTemplate("button","DETAILS_TAB_BUTTONSELECTED_TEMPLATE",
 			{
 				width = 100,
 				height = 20,
@@ -868,7 +871,7 @@ do
 
 	--Event Frame
 		_detalhes.listener = CreateFrame("Frame", nil, UIParent)
-		_detalhes.listener:RegisterEvent ("ADDON_LOADED")
+		_detalhes.listener:RegisterEvent("ADDON_LOADED")
 		_detalhes.listener:SetFrameStrata("LOW")
 		_detalhes.listener:SetFrameLevel(9)
 		_detalhes.listener.FrameTime = 0
@@ -926,7 +929,7 @@ do
 					self.isMoving = nil
 				end
 			end)
-			f:SetToplevel (true)
+			f:SetToplevel(true)
 			f:SetMovable(true)
 		end
 
@@ -942,6 +945,8 @@ do
 	--register textures and fonts for shared media
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		--default bars
+		SharedMedia:Register("statusbar", "Details Hyanda", [[Interface\AddOns\Details\images\bar_hyanda]])
+
 		SharedMedia:Register("statusbar", "Details D'ictum", [[Interface\AddOns\Details\images\bar4]])
 		SharedMedia:Register("statusbar", "Details Vidro", [[Interface\AddOns\Details\images\bar4_vidro]])
 		SharedMedia:Register("statusbar", "Details D'ictum (reverse)", [[Interface\AddOns\Details\images\bar4_reverse]])
@@ -1062,6 +1067,7 @@ do
 		Details.failed_to_load = C_Timer.NewTimer(1, function() Details.Schedules.NewTimer(20, _detalhes.WelcomeMsgLogon) end)
 
 	--key binds
+	--[=[
 		--header
 			_G ["BINDING_HEADER_Details"] = "Details!"
 			_G ["BINDING_HEADER_DETAILS_KEYBIND_SEGMENTCONTROL"] = Loc ["STRING_KEYBIND_SEGMENTCONTROL"]
@@ -1097,6 +1103,7 @@ do
 			_G ["BINDING_NAME_DETAILS_BOOKMARK8"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 8)
 			_G ["BINDING_NAME_DETAILS_BOOKMARK9"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 9)
 			_G ["BINDING_NAME_DETAILS_BOOKMARK10"] = format(Loc ["STRING_KEYBIND_BOOKMARK_NUMBER"], 10)
+	--]=]
 
 end
 

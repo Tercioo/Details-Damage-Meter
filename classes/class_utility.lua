@@ -5,7 +5,7 @@ local tinsert = table.insert
 local _table_size = table.getn
 local ipairs = ipairs
 local pairs = pairs
-local _rawget= rawget
+local rawget= rawget
 local min = math.min
 local _math_max = math.max
 local abs = math.abs
@@ -434,7 +434,7 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 			fontSize = 10
 		end
 		local fonte, _, flags = _detalhes.fontstring_len:GetFont()
-		_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
+		_detalhes.fontstring_len:SetFont(fonte, fontSize, flags)
 		_detalhes.fontstring_len:SetText("thisisspacement")
 	end
 	local default_len = _detalhes.fontstring_len:GetStringWidth()

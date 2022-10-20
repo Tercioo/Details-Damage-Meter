@@ -17,7 +17,7 @@ function Details:OpenBrokerTextEditor()
 
         local titleBar = DF:CreateTitleBar (panel, "Broker Text Editor")
     
-        local textentry = DF:NewSpecialLuaEditorEntry (panel, 650, 270, "editbox", "$parentEntry", true)
+        local textentry = DF:NewSpecialLuaEditorEntry(panel, 650, 270, "editbox", "$parentEntry", true)
         textentry:SetPoint("topleft", panel, "topleft", 2, -25)
 
         DF:ApplyStandardBackdrop(textentry)

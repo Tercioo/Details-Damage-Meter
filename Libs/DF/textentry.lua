@@ -5,7 +5,6 @@ if (not DF or not DetailsFrameworkCanLoad) then
 end
 
 local _
-local loadstring = loadstring --lua local
 local APITextEntryFunctions = false
 
 do
@@ -624,8 +623,8 @@ function DF:NewTextEntry(parent, container, name, member, width, height, func, p
 	return newTextEntryObject, withLabel
 end
 
-function DF:NewSpellEntry(parent, func, w, h, param1, param2, member, name)
-	local editbox = DF:NewTextEntry(parent, parent, name, member, w, h, func, param1, param2)
+function DF:NewSpellEntry(parent, func, width, height, param1, param2, member, name)
+	local editbox = DF:NewTextEntry(parent, parent, name, member, width, height, func, param1, param2)
 	return editbox
 end
 
@@ -644,114 +643,6 @@ end
 local function_setfocus = function(self)
 	return self.editbox:SetFocus(true)
 end
-
-------------------------------------------------------------------------------------
---auto complete
-
--- block -------------------
---code author Saiket from  http://www.wowinterface.com/forums/showpost.php?p=245759&postcount=6
---- @return StartPos, EndPos of highlight in this editbox.
-local function GetTextHighlight ( self )
-	local Text, Cursor = self:GetText(), self:GetCursorPosition();
-	self:Insert( "" ); -- Delete selected text
-	local TextNew, CursorNew = self:GetText(), self:GetCursorPosition();
-	-- Restore previous text
-	self:SetText( Text );
-	self:SetCursorPosition( Cursor );
-	local Start, End = CursorNew, #Text - ( #TextNew - CursorNew );
-	self:HighlightText( Start, End );
-	return Start, End;
-end
-local StripColors;
-do
-	local CursorPosition, CursorDelta;
-	--- Callback for gsub to remove unescaped codes.
-	local function StripCodeGsub ( Escapes, Code, End )
-		if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
-			if ( CursorPosition and CursorPosition >= End - 1 ) then
-				CursorDelta = CursorDelta - #Code;
-			end
-			return Escapes;
-		end
-	end
-	--- Removes a single escape sequence.
-	local function StripCode ( Pattern, Text, OldCursor )
-		CursorPosition, CursorDelta = OldCursor, 0;
-		return Text:gsub( Pattern, StripCodeGsub ), OldCursor and CursorPosition + CursorDelta;
-	end
-	--- Strips Text of all color escape sequences.
-	-- @param Cursor  Optional cursor position to keep track of.
-	-- @return Stripped text, and the updated cursor position if Cursor was given.
-	function StripColors ( Text, Cursor )
-		Text, Cursor = StripCode( "(|*)(|c%x%x%x%x%x%x%x%x)()", Text, Cursor );
-		return StripCode( "(|*)(|r)()", Text, Cursor );
-	end
-end
-
-local COLOR_END = "|r";
---- Wraps this editbox's selected text with the given color.
-local function ColorSelection ( self, ColorCode )
-	local Start, End = GetTextHighlight( self );
-	local Text, Cursor = self:GetText(), self:GetCursorPosition();
-	if ( Start == End ) then -- Nothing selected
-		--Start, End = Cursor, Cursor; -- Wrap around cursor
-		return; -- Wrapping the cursor in a color code and hitting backspace crashes the client!
-	end
-	-- Find active color code at the end of the selection
-	local ActiveColor;
-	if ( End < #Text ) then -- There is text to color after the selection
-		local ActiveEnd;
-		local CodeEnd, _, Escapes, Color = 0;
-		while ( true ) do
-			_, CodeEnd, Escapes, Color = Text:find( "(|*)(|c%x%x%x%x%x%x%x%x)", CodeEnd + 1 );
-			if ( not CodeEnd or CodeEnd > End ) then
-				break;
-			end
-			if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
-				ActiveColor, ActiveEnd = Color, CodeEnd;
-			end
-		end
-
-		if ( ActiveColor ) then
-			-- Check if color gets terminated before selection ends
-			CodeEnd = 0;
-			while ( true ) do
-				_, CodeEnd, Escapes = Text:find( "(|*)|r", CodeEnd + 1 );
-				if ( not CodeEnd or CodeEnd > End ) then
-					break;
-				end
-				if ( CodeEnd > ActiveEnd and #Escapes % 2 == 0 ) then -- Terminates ActiveColor
-					ActiveColor = nil;
-					break;
-				end
-			end
-		end
-	end
-
-	local Selection = Text:sub( Start + 1, End );
-	-- Remove color codes from the selection
-	local Replacement, CursorReplacement = StripColors( Selection, Cursor - Start );
-
-	self:SetText( ( "" ):join(
-		Text:sub( 1, Start ),
-		ColorCode, Replacement, COLOR_END,
-		ActiveColor or "", Text:sub( End + 1 )
-	) );
-
-	-- Restore cursor and highlight, adjusting for wrapper text
-	Cursor = Start + CursorReplacement;
-	if ( CursorReplacement > 0 ) then -- Cursor beyond start of color code
-		Cursor = Cursor + #ColorCode;
-	end
-	if ( CursorReplacement >= #Replacement ) then -- Cursor beyond end of color
-		Cursor = Cursor + #COLOR_END;
-	end
-
-	self:SetCursorPosition( Cursor );
-	-- Highlight selection and wrapper
-	self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
-end
--- end of the block ---------------------
 
 local get_last_word = function(self)
 	self.lastword = ""
@@ -951,8 +842,7 @@ local AutoComplete_OnChar = function(editboxWidget, char, capsule)
 	editboxWidget.ignore_input = false
 end
 
-function TextEntryMetaFunctions:SetAsAutoComplete (poolName, poolTable, shouldOptimize)
-
+function TextEntryMetaFunctions:SetAsAutoComplete(poolName, poolTable, shouldOptimize)
 	if (not self.SetHook) then
 		--self is borderframe
 		self = self.editbox
@@ -996,23 +886,21 @@ end
 
 local set_speciallua_editor_font_size = function(borderFrame, newSize)
 	local file, size, flags = borderFrame.editbox:GetFont()
-	borderFrame.editbox:SetFont (file, newSize, flags)
-
-	borderFrame.editboxlines:SetFont (file, newSize, flags)
+	borderFrame.editbox:SetFont(file, newSize, flags)
+	borderFrame.editboxlines:SetFont(file, newSize, flags)
 end
 
-function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, showLineNumbers)
-
+function DF:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointent, showLineNumbers)
 	if (name:find("$parent")) then
 		local parentName = DF.GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
 	local borderframe = CreateFrame("Frame", name, parent,"BackdropTemplate")
-	borderframe:SetSize(w, h)
+	borderframe:SetSize(width, height)
 
 	if (member) then
-		parent [member] = borderframe
+		parent[member] = borderframe
 	end
 
 	local scrollframe = CreateFrame("ScrollFrame", name, borderframe, "UIPanelScrollFrameTemplate, BackdropTemplate")
@@ -1024,7 +912,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 	scrollframe.editbox:SetScript("OnCursorChanged", _G.ScrollingEdit_OnCursorChanged)
 	scrollframe.editbox:SetScript("OnEscapePressed", _G.EditBox_ClearFocus)
 	scrollframe.editbox:SetFontObject("GameFontHighlightSmall")
-	scrollframe:SetScrollChild (scrollframe.editbox)
+	scrollframe:SetScrollChild(scrollframe.editbox)
 
 	--line number
 	if (showLineNumbers) then
@@ -1039,7 +927,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 		scrollframeNumberLines.editbox:SetPoint("topleft", borderframe, "topleft", 10, -10)
 		scrollframeNumberLines.editbox:SetPoint("bottomright", borderframe, "bottomright", -30, 10)
 
-		scrollframeNumberLines:SetScrollChild (scrollframeNumberLines.editbox)
+		scrollframeNumberLines:SetScrollChild(scrollframeNumberLines.editbox)
 		scrollframeNumberLines:EnableMouseWheel(false)
 
 		for i = 1, 1000 do
@@ -1111,7 +999,7 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 	borderframe.SetTemplate = TextEntryMetaFunctions.SetTemplate
 
 	if (not nointent) then
-		IndentationLib.enable (scrollframe.editbox, nil, 4)
+		IndentationLib.enable(scrollframe.editbox, nil, 4)
 	end
 
 	borderframe:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
@@ -1133,51 +1021,4 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent, show
 	borderframe.editbox.borderframe = borderframe
 
 	return borderframe
-end
-
--- encryption table
-local base64chars = {[0]='A',[1]='B',[2]='C',[3]='D',[4]='E',[5]='F',[6]='G',[7]='H',[8]='I',[9]='J',[10]='K',[11]='L',[12]='M',[13]='N',[14]='O',[15]='P',[16]='Q',[17]='R',[18]='S',[19]='T',[20]='U',[21]='V',[22]='W',[23]='X',[24]='Y',[25]='Z',[26]='a',[27]='b',[28]='c',[29]='d',[30]='e',[31]='f',[32]='g',[33]='h',[34]='i',[35]='j',[36]='k',[37]='l',[38]='m',[39]='n',[40]='o',[41]='p',[42]='q',[43]='r',[44]='s',[45]='t',[46]='u',[47]='v',[48]='w',[49]='x',[50]='y',[51]='z',[52]='0',[53]='1',[54]='2',[55]='3',[56]='4',[57]='5',[58]='6',[59]='7',[60]='8',[61]='9',[62]='-',[63]='_'}
-
--- decryption table
-local base64bytes = {['A']=0,['B']=1,['C']=2,['D']=3,['E']=4,['F']=5,['G']=6,['H']=7,['I']=8,['J']=9,['K']=10,['L']=11,['M']=12,['N']=13,['O']=14,['P']=15,['Q']=16,['R']=17,['S']=18,['T']=19,['U']=20,['V']=21,['W']=22,['X']=23,['Y']=24,['Z']=25,['a']=26,['b']=27,['c']=28,['d']=29,['e']=30,['f']=31,['g']=32,['h']=33,['i']=34,['j']=35,['k']=36,['l']=37,['m']=38,['n']=39,['o']=40,['p']=41,['q']=42,['r']=43,['s']=44,['t']=45,['u']=46,['v']=47,['w']=48,['x']=49,['y']=50,['z']=51,['0']=52,['1']=53,['2']=54,['3']=55,['4']=56,['5']=57,['6']=58,['7']=59,['8']=60,['9']=61,['-']=62,['_']=63,['=']=nil}
-
--- shift left
-local function lsh (value,shift)
-	return (value*(2^shift)) % 256
-end
-
--- shift right
-local function rsh (value,shift)
-	return math.floor(value/2^shift) % 256
-end
-
--- return single bit (for OR)
-local function bit (x,b)
-	return (x % 2^b - x % 2^(b-1) > 0)
-end
-
-local function lor (x,y)
-	local result = 0
-	for p=1,8 do result = result + (((bit(x,p) or bit(y,p)) == true) and 2^(p-1) or 0) end
-	return result
-end
-
-function DF.EncodeString (data)
-	local bytes = {}
-	local result = ""
-	for spos=0,string.len(data)-1,3 do
-		for byte=1,3 do bytes[byte] = string.byte(string.sub(data,(spos+byte))) or 0 end
-		result = string.format('%s%s%s%s%s',result,base64chars[rsh(bytes[1],2)],base64chars[lor(lsh((bytes[1] % 4),4), rsh(bytes[2],4))] or "=",((#data-spos) > 1) and base64chars[lor(lsh(bytes[2] % 16,2), rsh(bytes[3],6))] or "=",((#data-spos) > 2) and base64chars[(bytes[3] % 64)] or "=")
-	end
-	return result
-end
-
-function DF.DecodeString (data)
-	local chars = {}
-	local result=""
-	for dpos=0,string.len(data)-1,4 do
-		for char=1,4 do chars[char] = base64bytes[(string.sub(data,(dpos+char),(dpos+char)) or "=")] end
-		result = string.format('%s%s%s%s',result,string.char(lor(lsh(chars[1],2), rsh(chars[2],4))),(chars[3] ~= nil) and string.char(lor(lsh(chars[2],4), rsh(chars[3],2))) or "",(chars[4] ~= nil) and string.char(lor(lsh(chars[3],6) % 192, (chars[4]))) or "")
-	end
-	return result
 end

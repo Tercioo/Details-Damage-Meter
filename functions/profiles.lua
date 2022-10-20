@@ -126,9 +126,9 @@ function _detalhes:SetProfileCProp (name, cprop, value)
 
 	if (profile) then
 		if (type(value) == "table") then
-			rawset (profile, cprop, Details.CopyTable(value))
+			rawset(profile, cprop, Details.CopyTable(value))
 		else
-			rawset (profile, cprop, value)
+			rawset(profile, cprop, value)
 		end
 	else
 		return

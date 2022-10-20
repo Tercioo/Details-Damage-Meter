@@ -3497,15 +3497,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	local AlternatePowerEnableFrame = CreateFrame("frame")
 	local AlternatePowerMonitorFrame = CreateFrame("frame")
 
-	AlternatePowerEnableFrame:RegisterEvent ("UNIT_POWER_BAR_SHOW")
-	--AlternatePowerEnableFrame:RegisterEvent ("UNIT_POWER_BAR_HIDE")
-	AlternatePowerEnableFrame:RegisterEvent ("ENCOUNTER_END")
-	--AlternatePowerEnableFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+	AlternatePowerEnableFrame:RegisterEvent("UNIT_POWER_BAR_SHOW")
+	--AlternatePowerEnableFrame:RegisterEvent("UNIT_POWER_BAR_HIDE")
+	AlternatePowerEnableFrame:RegisterEvent("ENCOUNTER_END")
+	--AlternatePowerEnableFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	AlternatePowerEnableFrame.IsRunning = false
 
 	AlternatePowerEnableFrame:SetScript("OnEvent", function(self, event)
 		if (event == "UNIT_POWER_BAR_SHOW") then
-			AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER_UPDATE") -- 8.0
+			AlternatePowerMonitorFrame:RegisterEvent("UNIT_POWER_UPDATE") -- 8.0
 			AlternatePowerEnableFrame.IsRunning = true
 		elseif (AlternatePowerEnableFrame.IsRunning and (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED")) then -- and not InCombatLockdown()
 			AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER_UPDATE")

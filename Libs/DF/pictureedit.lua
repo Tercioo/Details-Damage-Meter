@@ -71,7 +71,7 @@ local CreateImageEditorFrame = function()
 
 		local topSlider = DF:NewSlider (editorWindow, nil, "$parentTopSlider", "topSlider", 100, 100, 0.1, 100, 0.1, 0)
 		topSlider:SetAllPoints(editorWindow.widget)
-		topSlider:SetOrientation ("VERTICAL")
+		topSlider:SetOrientation("VERTICAL")
 		topSlider.backdrop = nil
 		topSlider.fractional = true
 		topSlider:SetHook("OnEnter", function() return true end)
@@ -102,7 +102,7 @@ local CreateImageEditorFrame = function()
 
 		local bottomSlider = DF:NewSlider (editorWindow, nil, "$parentBottomSlider", "bottomSlider", 100, 100, 0.1, 100, 0.1, 100)
 		bottomSlider:SetAllPoints(editorWindow.widget)
-		bottomSlider:SetOrientation ("VERTICAL")
+		bottomSlider:SetOrientation("VERTICAL")
 		bottomSlider.backdrop = nil
 		bottomSlider.fractional = true
 		bottomSlider:SetHook("OnEnter", function() return true end)
@@ -311,7 +311,7 @@ local CreateImageEditorFrame = function()
 		alphaFrame:Hide()
 		local alphaSlider = DF:NewSlider (alphaFrame, nil, "$parentAlphaSlider", "alphaSlider", 30, 220, 1, 100, 1, edit_texture:GetAlpha()*100)
 		alphaSlider:SetPoint("top", alphaFrame, "top", 0, -5)
-		alphaSlider:SetOrientation ("VERTICAL")
+		alphaSlider:SetOrientation("VERTICAL")
 		alphaSlider.thumb:SetSize(40, 30)
 		--leftSlider.backdrop = nil
 		--leftSlider.fractional = true

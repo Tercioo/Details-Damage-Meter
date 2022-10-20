@@ -298,10 +298,10 @@ detailsFramework.LayoutFrame = {
 	local smember_locked = function(_object, _value)
 		if (_value) then
 			_object.frame:SetMovable(false)
-			return rawset (_object, "is_locked", true)
+			return rawset(_object, "is_locked", true)
 		else
 			_object.frame:SetMovable(true)
-			rawset (_object, "is_locked", false)
+			rawset(_object, "is_locked", false)
 			return
 		end
 	end
@@ -313,7 +313,7 @@ detailsFramework.LayoutFrame = {
 
 	--close with right button
 	local smember_right_close = function(_object, _value)
-		return rawset (_object, "rightButtonClose", _value)
+		return rawset(_object, "rightButtonClose", _value)
 	end
 
 	PanelMetaFunctions.SetMembers = PanelMetaFunctions.SetMembers or {}
@@ -332,7 +332,7 @@ detailsFramework.LayoutFrame = {
 		if (func) then
 			return func (_table, _value)
 		else
-			return rawset (_table, _key, _value)
+			return rawset(_table, _key, _value)
 		end
 	end
 
@@ -451,9 +451,9 @@ detailsFramework.LayoutFrame = {
 -- tooltip
 	function PanelMetaFunctions:SetTooltip (tooltip)
 		if (tooltip) then
-			return rawset (self, "have_tooltip", tooltip)
+			return rawset(self, "have_tooltip", tooltip)
 		else
-			return rawset (self, "have_tooltip", nil)
+			return rawset(self, "have_tooltip", nil)
 		end
 	end
 	function PanelMetaFunctions:GetTooltip()
@@ -5644,18 +5644,18 @@ local default_load_conditions_frame_options = {
 
 function detailsFramework:CreateLoadFilterParser (callback)
 	local f = CreateFrame("frame")
-	f:RegisterEvent ("PLAYER_ENTERING_WORLD")
+	f:RegisterEvent("PLAYER_ENTERING_WORLD")
 	if IS_WOW_PROJECT_MAINLINE then
-		f:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
-		f:RegisterEvent ("PLAYER_TALENT_UPDATE")
+		f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+		f:RegisterEvent("PLAYER_TALENT_UPDATE")
 	end
-	f:RegisterEvent ("PLAYER_ROLES_ASSIGNED")
-	f:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
+	f:RegisterEvent("PLAYER_ROLES_ASSIGNED")
+	f:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	if IS_WOW_PROJECT_MAINLINE then
-		f:RegisterEvent ("CHALLENGE_MODE_START")
+		f:RegisterEvent("CHALLENGE_MODE_START")
 	end
-	f:RegisterEvent ("ENCOUNTER_START")
-	f:RegisterEvent ("PLAYER_REGEN_ENABLED")
+	f:RegisterEvent("ENCOUNTER_START")
+	f:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 	f:SetScript("OnEvent", function(self, event, ...)
 		if (event == "ENCOUNTER_START") then
@@ -7031,7 +7031,7 @@ detailsFramework.StatusBarFunctions = {
 						if (isUnitEvent) then
 							self:RegisterUnitEvent (event, self.displayedUnit, self.unit)
 						else
-							self:RegisterEvent (event)
+							self:RegisterEvent(event)
 						end
 					end
 				end
@@ -7362,7 +7362,7 @@ detailsFramework.PowerFrameFunctions = {
 					if (isUnitEvent) then
 						self:RegisterUnitEvent (event, self.displayedUnit)
 					else
-						self:RegisterEvent (event)
+						self:RegisterEvent(event)
 					end
 				end
 
@@ -7799,7 +7799,7 @@ detailsFramework.CastFrameFunctions = {
 						if (isUnitEvent) then
 							self:RegisterUnitEvent (event, unit)
 						else
-							self:RegisterEvent (event)
+							self:RegisterEvent(event)
 						end
 					end
 				end
@@ -8777,7 +8777,7 @@ end
 			for index, eventTable in ipairs(self.UnitFrameEvents) do
 				local event, isUnitEvent = unpack(eventTable)
 				if (not isUnitEvent) then
-					self:RegisterEvent (event)
+					self:RegisterEvent(event)
 				else
 					self:RegisterUnitEvent (event, self.unit, self.displayedUnit ~= unit and self.displayedUnit or nil)
 				end

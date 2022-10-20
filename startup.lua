@@ -269,7 +269,7 @@ function Details:StartMeUp() --I'll never stop!
 			self.listener:RegisterEvent("CHALLENGE_MODE_COMPLETED")
 		end
 
-		self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		self.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 	--update is in group
 	self.details_users = {}

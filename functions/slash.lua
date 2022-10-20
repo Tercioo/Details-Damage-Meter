@@ -233,7 +233,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			}
 			
 			for i = 1, window1.baseframe:GetNumPoints() do
-				state ["Point" .. i] = {window1.baseframe:GetPoint (i)}
+				state ["Point" .. i] = {window1.baseframe:GetPoint(i)}
 			end
 			
 			local parent = window1.baseframe:GetParent()
@@ -733,7 +733,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local barra = instancia.barras [whichRowLine]
 		
 		for i = 1, barra:GetNumPoints() do 
-			local point, relativeTo, relativePoint, xOfs, yOfs = barra:GetPoint (i)
+			local point, relativeTo, relativePoint, xOfs, yOfs = barra:GetPoint(i)
 			print(point, relativeTo, relativePoint, xOfs, yOfs)
 		end
 	
@@ -1928,7 +1928,7 @@ function _detalhes:CreateListPanel()
 	
 	container_barras_window:SetWidth(460)
 	container_barras_window:SetHeight(550)
-	container_barras_window:SetScrollChild (container_barras)
+	container_barras_window:SetScrollChild(container_barras)
 	container_barras_window:SetPoint("TOPLEFT", _detalhes.ListPanel.widget, "TOPLEFT", 21, -10)
 
 	_detalhes.gump:NewScrollBar (container_barras_window, container_barras, -10, -17)

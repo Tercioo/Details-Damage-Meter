@@ -11,7 +11,7 @@ local IsInGroup = _G.IsInGroup
 local GetNumGroupMembers = _G.GetNumGroupMembers
 
 -- lua locals
-local _setmetatable = setmetatable
+local setmetatable = setmetatable
 local _bit_band = bit.band --lua local
 local pairs = pairs
 local ipairs = ipairs
@@ -22,7 +22,7 @@ local is_ignored = _detalhes.pets_ignored
 
 function container_pets:NovoContainer()
 	local esta_tabela = {}
-	_setmetatable(esta_tabela, _detalhes.container_pets)
+	setmetatable(esta_tabela, _detalhes.container_pets)
 	esta_tabela.pets = {} --armazena a pool -> uma dictionary com o [serial do pet] -> nome do dono
 	esta_tabela._ActorTable = {} --armazena os 15 ultimos pets do jogador -> [jogador nome] -> {nil, nil, nil, ...}
 	return esta_tabela
@@ -256,6 +256,6 @@ function _detalhes:SchedulePetUpdate(seconds)
 end
 
 function _detalhes.refresh:r_container_pets (container)
-	_setmetatable(container, container_pets)
+	setmetatable(container, container_pets)
 end
 

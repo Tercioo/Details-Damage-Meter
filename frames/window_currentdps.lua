@@ -901,11 +901,11 @@ function Details:CreateCurrentDpsFrame(parent, name)
 			end
 		end
 
-		eventListener:RegisterEvent ("COMBAT_ARENA_START", "ArenaStarted")
-		eventListener:RegisterEvent ("COMBAT_ARENA_END", "ArenaEnded")
-		eventListener:RegisterEvent ("COMBAT_MYTHICDUNGEON_START", "MythicDungeonStarted")
-		eventListener:RegisterEvent ("COMBAT_MYTHICDUNGEON_END", "MythicDungeonEnded")
-		eventListener:RegisterEvent ("COMBAT_PLAYER_ENTER", "ResetBuffer")
+		eventListener:RegisterEvent("COMBAT_ARENA_START", "ArenaStarted")
+		eventListener:RegisterEvent("COMBAT_ARENA_END", "ArenaEnded")
+		eventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_START", "MythicDungeonStarted")
+		eventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_END", "MythicDungeonEnded")
+		eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", "ResetBuffer")
 
 	_detalhes.Broadcaster_CurrentDpsLoaded = true
 	_detalhes.Broadcaster_CurrentDpsFrame = f

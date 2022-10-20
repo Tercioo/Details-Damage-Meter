@@ -307,9 +307,9 @@ local function CreatePluginFrames (data)
 				wipe (current_table_bigwigs)
 			end
 		end)
-		event_frame:RegisterEvent ("ENCOUNTER_START")
-		event_frame:RegisterEvent ("ENCOUNTER_END")
-		event_frame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+		event_frame:RegisterEvent("ENCOUNTER_START")
+		event_frame:RegisterEvent("ENCOUNTER_END")
+		event_frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 		
 --DBM_TimerStart Timer183828cdcount	2 Death Brand CD (2) 42.5 Interface\Icons\warlock_summon_doomguard cdcount 183828 1 1438		
 --DBM_TimerStart Timer183828cdcount	3 Death Brand CD (3) 42.5 Interface\Icons\warlock_summon_doomguard cdcount 183828 1 1438

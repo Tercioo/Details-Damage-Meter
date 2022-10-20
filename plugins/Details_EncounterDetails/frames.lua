@@ -1027,7 +1027,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 	local DetailsFrameWork = _detalhes.gump
 
 	BossFrame:SetFrameStrata("HIGH")
-	BossFrame:SetToplevel (true)
+	BossFrame:SetToplevel(true)
 	
 	BossFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 	BossFrame:SetBackdropColor(.5, .5, .5, .5)
@@ -2707,7 +2707,7 @@ end
 		
 		container_damagetaken_window:SetWidth(BOX_WIDTH)
 		container_damagetaken_window:SetHeight(BOX_HEIGHT)
-		container_damagetaken_window:SetScrollChild (container_damagetaken_frame)
+		container_damagetaken_window:SetScrollChild(container_damagetaken_frame)
 		container_damagetaken_window:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -92)
 
 		DetailsFrameWork:NewScrollBar (container_damagetaken_window, container_damagetaken_frame, 4, -16)
@@ -2760,7 +2760,7 @@ end
 		
 		container_habilidades_window:SetWidth(BOX_WIDTH)
 		container_habilidades_window:SetHeight(BOX_HEIGHT)
-		container_habilidades_window:SetScrollChild (container_habilidades_frame)
+		container_habilidades_window:SetScrollChild(container_habilidades_frame)
 		container_habilidades_window:SetPoint("TOPLEFT", container_damagetaken_window, "bottomleft", 0, CONST_BOX_VERTICAL_SPACING) --LOCATION
 
 		DetailsFrameWork:NewScrollBar (container_habilidades_window, container_habilidades_frame, 4, -16)
@@ -2803,7 +2803,7 @@ end
 		
 		container_adds_window:SetWidth(BOX_WIDTH)
 		container_adds_window:SetHeight(BOX_HEIGHT_UPPER)
-		container_adds_window:SetScrollChild (container_adds_frame)
+		container_adds_window:SetScrollChild(container_adds_frame)
 		container_adds_window:SetPoint("TOPLEFT", container_damagetaken_window, "topright", CONST_BOX_HORIZONTAL_SPACING, 0)
 
 		DetailsFrameWork:NewLabel(container_adds_window, container_adds_window, nil, "titulo", "Enemy Damage Taken", "GameFontHighlight")
@@ -2848,7 +2848,7 @@ end
 		
 		container_interrupt_window:SetWidth(BOX_WIDTH)
 		container_interrupt_window:SetHeight(BOX_HEIGHT_UPPER)
-		container_interrupt_window:SetScrollChild (container_interrupt_frame)
+		container_interrupt_window:SetScrollChild(container_interrupt_frame)
 		container_interrupt_window:SetPoint("TOPLEFT", container_adds_window, "TOPRIGHT", CONST_BOX_HORIZONTAL_SPACING, 0)
 
 		DetailsFrameWork:NewLabel(container_interrupt_window, container_interrupt_window, nil, "titulo", Loc ["STRING_INTERRUPTS"], "GameFontHighlight")
@@ -2894,7 +2894,7 @@ end
 		
 		container_dispell_window:SetWidth(BOX_WIDTH)
 		container_dispell_window:SetHeight(BOX_HEIGHT_UPPER)
-		container_dispell_window:SetScrollChild (container_dispell_frame)
+		container_dispell_window:SetScrollChild(container_dispell_frame)
 		container_dispell_window:SetPoint("TOPLEFT", container_adds_window, "BOTTOMLEFT", 0, CONST_BOX_VERTICAL_SPACING)
 
 		DetailsFrameWork:NewLabel(container_dispell_window, container_dispell_window, nil, "titulo", Loc ["STRING_DISPELLS"], "GameFontHighlight")
@@ -2944,7 +2944,7 @@ end
 		
 		container_dead_window:SetWidth(BOX_WIDTH)
 		container_dead_window:SetHeight(BOX_HEIGHT_UPPER)
-		container_dead_window:SetScrollChild (container_dead_frame)
+		container_dead_window:SetScrollChild(container_dead_frame)
 		container_dead_window:SetPoint("TOPLEFT", container_dispell_window, "TOPRIGHT", CONST_BOX_HORIZONTAL_SPACING, 0)
 		
 		DetailsFrameWork:NewLabel(container_dead_window, container_dead_window, nil, "titulo", Loc ["STRING_DEATH_LOG"], "GameFontHighlight")
@@ -2965,13 +2965,13 @@ end
 		
 	--emotes frame
 	local emote_frame = CreateFrame("frame", "DetailsEncountersEmoteFrame", UIParent, "BackdropTemplate")
-	emote_frame:RegisterEvent ("CHAT_MSG_RAID_BOSS_EMOTE")
-	emote_frame:RegisterEvent ("CHAT_MSG_RAID_BOSS_WHISPER")
-	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_EMOTE")
-	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_SAY")
-	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_WHISPER")
-	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_PARTY")
-	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_YELL")
+	emote_frame:RegisterEvent("CHAT_MSG_RAID_BOSS_EMOTE")
+	emote_frame:RegisterEvent("CHAT_MSG_RAID_BOSS_WHISPER")
+	emote_frame:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
+	emote_frame:RegisterEvent("CHAT_MSG_MONSTER_SAY")
+	emote_frame:RegisterEvent("CHAT_MSG_MONSTER_WHISPER")
+	emote_frame:RegisterEvent("CHAT_MSG_MONSTER_PARTY")
+	emote_frame:RegisterEvent("CHAT_MSG_MONSTER_YELL")
 	
 	local emote_table = {
 		["CHAT_MSG_RAID_BOSS_EMOTE"] = 1,

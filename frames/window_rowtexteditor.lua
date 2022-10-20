@@ -33,7 +33,7 @@ end
 local y = -32
 local buttonTemplate = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
-local textentry = DF:NewSpecialLuaEditorEntry (panel, scrollWidth, 555, "editbox", "$parentEntry")
+local textentry = DF:NewSpecialLuaEditorEntry(panel, scrollWidth, 555, "editbox", "$parentEntry")
 textentry:SetPoint("topleft", panel, "topleft", 10, y)
 DF:ApplyStandardBackdrop(textentry)
 DF:SetFontSize(textentry.editbox, 14)

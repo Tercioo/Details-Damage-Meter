@@ -61,7 +61,7 @@ local libwindow = LibStub("LibWindow-1.1")
             f.Title:SetTextColor(.8, .8, .8, 1)
             f.Title:SetText("Details! Benchmark")
             
-            DF:InstallTemplate ("font", "DETAILS_BENCHMARK_NORMAL", {color = "white", size = 10, font = "Friz Quadrata TT"})
+            DF:InstallTemplate("font", "DETAILS_BENCHMARK_NORMAL", {color = "white", size = 10, font = "Friz Quadrata TT"})
             
             function f.CreateCombatObject()
                 local t = {}
@@ -93,8 +93,8 @@ local libwindow = LibStub("LibWindow-1.1")
             end
             
             --events
-            f:RegisterEvent ("PLAYER_REGEN_DISABLED")
-            f:RegisterEvent ("PLAYER_REGEN_ENABLED")
+            f:RegisterEvent("PLAYER_REGEN_DISABLED")
+            f:RegisterEvent("PLAYER_REGEN_ENABLED")
             
             f:SetScript("OnEvent", function(self, event, ...)
                 if (event == "PLAYER_REGEN_DISABLED") then

@@ -117,7 +117,7 @@ function Details:RefreshPlaterIntegration()
 		wipe (plater_integration_frame.DamageTaken)
 		
 		--read cleu events
-		plater_integration_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		plater_integration_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		
 		--start the real time dps updater
 		plater_integration_frame.OnTickFrame.NextUpdate = CONST_REALTIME_UPDATE_TIME

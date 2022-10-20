@@ -6,8 +6,8 @@ if (not DF or not DetailsFrameworkCanLoad) then
 end
 
 local _
-local _rawset = rawset --lua local
-local _rawget = rawget --lua local
+local rawset = rawset --lua local
+local rawget = rawget --lua local
 
 local APIHelpFunctions = false
 local HelpMetaFunctions = {}
@@ -21,7 +21,7 @@ local HelpMetaFunctions = {}
 			return func (_table, _member_requested)
 		end
 		
-		local fromMe = _rawget (_table, _member_requested)
+		local fromMe = rawget (_table, _member_requested)
 		if (fromMe) then
 			return fromMe
 		end
@@ -36,7 +36,7 @@ local HelpMetaFunctions = {}
 		if (func) then
 			return func (_table, _value)
 		else
-			return _rawset (_table, _key, _value)
+			return rawset (_table, _key, _value)
 		end
 	end
 	

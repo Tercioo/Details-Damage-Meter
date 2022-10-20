@@ -33,7 +33,7 @@ function Details.OpenRunCodeWindow()
         local f = DetailsRunCodePanel or DF:CreateSimplePanel(UIParent, 700, 480, "Details! Run Code", "DetailsRunCodePanel")
 
         --lua editor
-        local code_editor = DF:NewSpecialLuaEditorEntry (f, 885, 510, "text", "$parentCodeEditorWindow")
+        local code_editor = DF:NewSpecialLuaEditorEntry(f, 885, 510, "text", "$parentCodeEditorWindow")
         f.CodeEditor = code_editor
         code_editor:SetPoint("topleft", f, "topleft", 20, -56)
         

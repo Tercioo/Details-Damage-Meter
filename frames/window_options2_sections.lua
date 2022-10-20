@@ -3560,7 +3560,7 @@ do
             y = y - 20
     
             --plugins installed, adding their abs name
-            DF.table.addunique (installedToolbarPlugins, absName)
+            DF.table.addunique(installedToolbarPlugins, absName)
         
         end
     
@@ -3698,7 +3698,7 @@ do
             end
     
             --plugins installed, adding their abs name
-            DF.table.addunique (installedRaidPlugins, absName)
+            DF.table.addunique(installedRaidPlugins, absName)
             
             i = i + 1
             y = y - 20
@@ -6418,7 +6418,7 @@ do
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
     
-    local big_code_editor = DF:NewSpecialLuaEditorEntry (sectionFrame, 683, 422, "bigCodeEditor", "$parentBigCodeEditor")
+    local big_code_editor = DF:NewSpecialLuaEditorEntry(sectionFrame, 683, 422, "bigCodeEditor", "$parentBigCodeEditor")
     big_code_editor:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 70)
     big_code_editor:SetFrameLevel(sectionFrame:GetFrameLevel()+6)
     big_code_editor:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
@@ -6488,7 +6488,7 @@ do
         sectionFrame.userTimeCaptureFillPanel:Refresh()
     end
     
-    local big_code_editor2 = DF:NewSpecialLuaEditorEntry (sectionFrame, 643, 402, "exportEditor", "$parentExportEditor", true)
+    local big_code_editor2 = DF:NewSpecialLuaEditorEntry(sectionFrame, 643, 402, "exportEditor", "$parentExportEditor", true)
     big_code_editor2:SetPoint("topleft", sectionFrame, "topleft", 7, -70)
     big_code_editor2:SetFrameLevel(sectionFrame:GetFrameLevel()+6)
     big_code_editor2:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})
@@ -6606,7 +6606,7 @@ do
         
         --function
             local capture_func = DF:NewLabel(addframe, nil, "$parentFunctionLabel", "functionLabel", Loc ["STRING_OPTIONS_CHART_ADDCODE"])
-            local capture_func_entry = DF:NewSpecialLuaEditorEntry (addframe.widget, 300, 200, "funcEntry", "$parentFuncEntry")
+            local capture_func_entry = DF:NewSpecialLuaEditorEntry(addframe.widget, 300, 200, "funcEntry", "$parentFuncEntry")
             capture_func_entry:SetPoint("topleft", capture_func.widget, "topright", 2, 0)
             capture_func_entry:SetSize(500, 220)
             capture_func_entry:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -6655,9 +6655,9 @@ do
         
     --open import panel button
     
-        local importframe = DF:NewSpecialLuaEditorEntry (sectionFrame, 683, 422, "importEditor", "$parentImportEditor", true)
+        local importframe = DF:NewSpecialLuaEditorEntry(sectionFrame, 683, 422, "importEditor", "$parentImportEditor", true)
         local font, size, flag = importframe.editbox:GetFont()
-        importframe.editbox:SetFont (font, 9, flag)
+        importframe.editbox:SetFont(font, 9, flag)
         importframe:SetPoint("topleft", sectionFrame, "topleft", startX, startY - 70)
         importframe:SetFrameLevel(sectionFrame:GetFrameLevel()+6)
         importframe:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,tile = 1, tileSize = 16})

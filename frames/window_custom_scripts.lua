@@ -26,7 +26,7 @@ local CONST_EDITBOX_BUTTON_HEIGHT = 20
 local CONST_BUTTON_TEMPLATE = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 local CONST_TEXTENTRY_TEMPLATE = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
-DF:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS", 
+DF:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS", 
     {
         icon = {texture = [[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]]},
         width = 160,
@@ -34,24 +34,24 @@ DF:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS",
     "DETAILS_PLUGIN_BUTTON_TEMPLATE"
 )
 
-DF:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_REGULAR_BUTTON", 
+DF:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_REGULAR_BUTTON", 
     {
         width = 130,
     }, 
     "DETAILS_PLUGIN_BUTTON_TEMPLATE"
 )
 
-DF:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX", {
+DF:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX", {
     backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
     backdropcolor = {.2, .2, .2, 0.6},
     backdropbordercolor = {0, 0, 0, 1},
 })
-DF:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED", {
+DF:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED", {
     backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
     backdropcolor = {.2, .2, .2, 1},
     backdropbordercolor = {0, 0, 0, 1},
 })
-DF:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON", {
+DF:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON", {
     backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
     backdropcolor = {.2, .2, .2, 1},
     backdropbordercolor = {0, 0, 0, 1},

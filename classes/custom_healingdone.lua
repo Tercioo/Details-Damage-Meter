@@ -14,10 +14,10 @@
 	local _table_sort = table.sort --lua local
 	local tinsert = table.insert --lua local
 	local _table_size = table.getn --lua local
-	local _setmetatable = setmetatable --lua local
+	local setmetatable = setmetatable --lua local
 	local ipairs = ipairs --lua local
 	local pairs = pairs --lua local
-	local _rawget= rawget --lua local
+	local rawget= rawget --lua local
 	local _math_min = math.min --lua local
 	local _math_max = math.max --lua local
 	local _bit_band = bit.band --lua local

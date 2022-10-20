@@ -237,8 +237,8 @@ end
 		end
 	end	
 
-	_detalhes:RegisterEvent (_detalhes.ToolBar, "DETAILS_INSTANCE_OPEN", "OnInstanceOpen")
-	_detalhes:RegisterEvent (_detalhes.ToolBar, "DETAILS_INSTANCE_CLOSE", "OnInstanceClose")
+	_detalhes:RegisterEvent(_detalhes.ToolBar, "DETAILS_INSTANCE_OPEN", "OnInstanceOpen")
+	_detalhes:RegisterEvent(_detalhes.ToolBar, "DETAILS_INSTANCE_CLOSE", "OnInstanceClose")
 	_detalhes.ToolBar.Enabled = true --must have this member or wont receive the event
 	_detalhes.ToolBar.__enabled = true
 

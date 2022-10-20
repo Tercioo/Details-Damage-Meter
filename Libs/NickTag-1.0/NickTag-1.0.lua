@@ -321,8 +321,8 @@ end
 	
 	--when the roster changes or the player enters the game, send the persona to guild mates
 	--send on roster update can only happen every 30 seconds, if is on cooldown, it'll schedule an update
-	NickTag.EventFrame:RegisterEvent ("GROUP_ROSTER_UPDATE")
-	NickTag.EventFrame:RegisterEvent ("PLAYER_LOGIN")
+	NickTag.EventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+	NickTag.EventFrame:RegisterEvent("PLAYER_LOGIN")
 	
 	NickTag.EventFrame:SetScript("OnEvent", NickTag.OnEvent)
 

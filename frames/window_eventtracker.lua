@@ -725,7 +725,7 @@ function Details:CreateEventTrackerFrame(parent, name)
 		local crowdControlFromFramework = DetailsFramework.CrowdControlSpells
 		
 		local combatLog = CreateFrame("frame")
-		combatLog:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		combatLog:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		local OBJECT_TYPE_PLAYER = 0x00000400
 		local OBJECT_TYPE_ENEMY = 0x00000040
 		

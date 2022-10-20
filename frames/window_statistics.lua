@@ -36,7 +36,7 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
         local f = DetailsRaidHistoryWindow or CreateFrame("frame", "DetailsRaidHistoryWindow", UIParent,"BackdropTemplate") --, "ButtonFrameTemplate"
         f:SetPoint("center", UIParent, "center")
         f:SetFrameStrata("HIGH")
-        f:SetToplevel (true)
+        f:SetToplevel(true)
 
         f:SetMovable(true)
         f:SetWidth(850)
@@ -257,8 +257,8 @@ function Details:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild
                 end
             end
 
-            eventListener:RegisterEvent ("COMM_EVENT_RECEIVED", "OnCommReceived")
-            eventListener:RegisterEvent ("COMM_EVENT_SENT", "OnCommSent")
+            eventListener:RegisterEvent("COMM_EVENT_RECEIVED", "OnCommReceived")
+            eventListener:RegisterEvent("COMM_EVENT_SENT", "OnCommSent")
 
         --report results
             function f.BuildReport()

@@ -68,7 +68,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 62
+local CONST_LIB_VERSION = 63
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -242,7 +242,7 @@ end
 
 function tempCache.RestoreData()
     local data = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE)
-    if (data and type(data) == "string" and data ~= "") then
+    if (data and type(data) == "string" and string.len(data) > 1) then
         local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0", true)
         if (LibAceSerializer) then
             local okay, cacheInfo = LibAceSerializer:Deserialize(data)
@@ -279,13 +279,21 @@ function tempCache.RestoreData()
                     tempCache.AddDebugText("invalid GearInfo")
                 end
             else
-                tempCache.AddDebugText("Deserialization not okay")
+                tempCache.AddDebugText("Deserialization not okay, reason: " .. cacheInfo)
             end
         else
             tempCache.AddDebugText("LibAceSerializer not found")
         end
     else
-        tempCache.AddDebugText("invalid temporary cache, isn't string or cvar not found")
+        if (not data) then
+            tempCache.AddDebugText("invalid temporary cache: getCVar returned nil")
+        elseif (type(data) ~= "string") then
+            tempCache.AddDebugText("invalid temporary cache: getCVar did not returned a string")
+        elseif (string.len(data) < 2) then
+            tempCache.AddDebugText("invalid temporary cache: data length lower than 2 bytes (first login?)")
+        else
+            tempCache.AddDebugText("invalid temporary cache: no reason found")
+        end
     end
 end
 

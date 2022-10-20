@@ -507,7 +507,7 @@ function gump:NewScrollBar2 (master, slave, x, y)
 	slider_gump.thumb:SetSize(29, 30)
 	slider_gump:SetThumbTexture (slider_gump.thumb)
 	
-	slider_gump:SetOrientation ("VERTICAL")
+	slider_gump:SetOrientation("VERTICAL")
 	slider_gump:SetSize(16, 100)
 	slider_gump:SetMinMaxValues(0, slider_gump.scrollMax)
 	slider_gump:SetValue(0)

@@ -265,9 +265,9 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 	end
 end
 
-mythicDungeonCharts:RegisterEvent ("COMBAT_MYTHICDUNGEON_START", "OnStartMythicDungeon")
-mythicDungeonCharts:RegisterEvent ("COMBAT_MYTHICDUNGEON_END", "OnEndMythicDungeon")
-mythicDungeonCharts:RegisterEvent ("COMBAT_BOSS_DEFEATED", "OnBossDefeated")
+mythicDungeonCharts:RegisterEvent("COMBAT_MYTHICDUNGEON_START", "OnStartMythicDungeon")
+mythicDungeonCharts:RegisterEvent("COMBAT_MYTHICDUNGEON_END", "OnEndMythicDungeon")
+mythicDungeonCharts:RegisterEvent("COMBAT_BOSS_DEFEATED", "OnBossDefeated")
 
 -- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
 -- /run _G.DetailsMythicDungeonChartHandler.ShowReadyPanel()

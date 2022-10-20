@@ -15,7 +15,7 @@
 	local UnitGUID = UnitGUID --api local
 	local strsplit = strsplit --api local
 	
-	local _setmetatable = setmetatable --lua local
+	local setmetatable = setmetatable --lua local
 	local _getmetatable = getmetatable --lua local
 	local _bit_band = bit.band --lua local
 	local _table_sort = table.sort --lua local
@@ -160,7 +160,7 @@
 			_NameIndexTable = {}
 		}
 		
-		_setmetatable(_newContainer, container_combatentes)
+		setmetatable(_newContainer, container_combatentes)
 
 		return _newContainer
 	end
@@ -876,7 +876,7 @@
 
 	function _detalhes.refresh:r_container_combatentes (container, shadow)
 		--reconstr�i meta e indexes
-			_setmetatable(container, _detalhes.container_combatentes)
+			setmetatable(container, _detalhes.container_combatentes)
 			container.__index = _detalhes.container_combatentes
 			container.funcao_de_criacao = container_combatentes:FuncaoDeCriacao (container.tipo)
 

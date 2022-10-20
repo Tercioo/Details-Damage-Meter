@@ -8,8 +8,8 @@
 	local _
 	local pairs = pairs --lua local
 	local ipairs = ipairs --lua local
-	local _rawget = rawget --lua local
-	local _setmetatable = setmetatable --lua local
+	local rawget = rawget --lua local
+	local setmetatable = setmetatable --lua local
 	local _table_remove = table.remove --lua local
 	local _bit_band = bit.band --lua local
 	local wipe = table.wipe --lua local

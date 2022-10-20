@@ -2,7 +2,7 @@
 --lua locals
 local _cstr = string.format
 local _math_floor = math.floor
-local _setmetatable = setmetatable
+local setmetatable = setmetatable
 local pairs = pairs
 local ipairs = ipairs
 local _unpack = unpack
@@ -112,7 +112,7 @@ function atributo_heal:NovaTabela (serial, nome, link)
 		targets_absorbs = {}
 	}
 	
-	_setmetatable(_new_healActor, atributo_heal)
+	setmetatable(_new_healActor, atributo_heal)
 
 	return _new_healActor
 end
@@ -2915,7 +2915,7 @@ atributo_heal.__sub = function(tabela1, tabela2)
 end
 
 function _detalhes.refresh:r_atributo_heal (este_jogador, shadow)
-	_setmetatable(este_jogador, atributo_heal)
+	setmetatable(este_jogador, atributo_heal)
 	este_jogador.__index = atributo_heal
 	
 	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow and shadow.spells)

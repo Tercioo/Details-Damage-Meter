@@ -1291,21 +1291,21 @@ eventFrame.track_spell_cast = function()
 end
 
 function eventFrame:RegisterMyEvents()
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_START")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_SENT")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_SUCCEEDED")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTED")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_FAILED_QUIET")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_FAILED")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_DELAYED")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_CHANNEL_START")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_CHANNEL_STOP")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_CHANNEL_UPDATE")
-	eventFrame:RegisterEvent ("UNIT_SPELLCAST_STOP")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_START")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+	eventFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
 
 	if (not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
-		eventFrame:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTIBLE")
-		eventFrame:RegisterEvent ("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+		eventFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
+		eventFrame:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 	end
 end
 
@@ -1340,8 +1340,8 @@ local AMP_Tick = C_Timer.NewTicker(1, function()
 	ACTIONS = 0
 end)
 local APM_FRAME = CreateFrame("frame", "DetailsAPMFrame", UIParent, "BackdropTemplate")
-APM_FRAME:RegisterEvent ("PLAYER_STARTED_MOVING")
-APM_FRAME:RegisterEvent ("PLAYER_STOPPED_MOVING")
+APM_FRAME:RegisterEvent("PLAYER_STARTED_MOVING")
+APM_FRAME:RegisterEvent("PLAYER_STOPPED_MOVING")
 APM_FRAME:SetScript("OnEvent", function()
 	ACTIONS = ACTIONS + 1
 end)
@@ -2500,7 +2500,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				end
 				
 				--wipe (StreamOverlay.db)
-				SOF:RegisterEvent ("PLAYER_LOGOUT")
+				SOF:RegisterEvent("PLAYER_LOGOUT")
 				
 				--profile name
 				SOF.PlayerNameProfile = UnitName("player") .. " - " .. GetRealmName()

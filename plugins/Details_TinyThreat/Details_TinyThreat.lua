@@ -143,9 +143,9 @@ local function CreatePluginFrames (data)
 			ThreatMeterFrame:UnregisterEvent ("PLAYER_REGEN_ENABLED")
 
 		elseif (event == "PLUGIN_ENABLED") then
-			ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
-			ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
-			ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+			ThreatMeterFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+			ThreatMeterFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+			ThreatMeterFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 		end
 	end
 
@@ -863,17 +863,17 @@ function ThreatMeter:OnEvent (_, event, ...)
 				end
 
 				--Register needed events
-				_G._detalhes:RegisterEvent (ThreatMeter, "COMBAT_PLAYER_ENTER")
-				_G._detalhes:RegisterEvent (ThreatMeter, "COMBAT_PLAYER_LEAVE")
-				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_ENDRESIZE")
-				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_SIZECHANGED")
-				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_STARTSTRETCH")
-				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_ENDSTRETCH")
-				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_OPTIONS_MODIFIED")
+				_G._detalhes:RegisterEvent(ThreatMeter, "COMBAT_PLAYER_ENTER")
+				_G._detalhes:RegisterEvent(ThreatMeter, "COMBAT_PLAYER_LEAVE")
+				_G._detalhes:RegisterEvent(ThreatMeter, "DETAILS_INSTANCE_ENDRESIZE")
+				_G._detalhes:RegisterEvent(ThreatMeter, "DETAILS_INSTANCE_SIZECHANGED")
+				_G._detalhes:RegisterEvent(ThreatMeter, "DETAILS_INSTANCE_STARTSTRETCH")
+				_G._detalhes:RegisterEvent(ThreatMeter, "DETAILS_INSTANCE_ENDSTRETCH")
+				_G._detalhes:RegisterEvent(ThreatMeter, "DETAILS_OPTIONS_MODIFIED")
 
-				ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
-				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
-				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+				ThreatMeterFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+				ThreatMeterFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+				ThreatMeterFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 				--Saved data
 				ThreatMeter.saveddata = saveddata or {}

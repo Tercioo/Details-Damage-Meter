@@ -13,7 +13,7 @@ do
 		panel:SetFrameStrata("TOOLTIP")
 		panel:SetPoint("center", UIParent, "center")
 		panel.locked = false
-		panel:SetToplevel (true)
+		panel:SetToplevel(true)
 		panel:SetMovable(true)
 		panel:SetScript("OnMouseDown", function(self, button)
 			if (self.isMoving) then

@@ -21,7 +21,7 @@
 	local _table_sort = table.sort --lua local
 	local tinsert = table.insert --lua local
 	local _unpack = unpack --lua local
-	local _setmetatable = setmetatable --lua local
+	local setmetatable = setmetatable --lua local
 
 	local _GetSpellInfo = _detalhes.getspellinfo --api local
 	local CreateFrame = CreateFrame --api local
@@ -56,7 +56,7 @@
 	local CONST_BUTTON_TEMPLATE = gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 	local CONST_TEXTENTRY_TEMPLATE = gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 	
-	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS", 
+	gump:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BUTTONS", 
 		{
 			icon = {texture = [[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]]},
 			width = 160,
@@ -64,24 +64,24 @@
 		"DETAILS_PLUGIN_BUTTON_TEMPLATE"
 	)
 	
-	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_REGULAR_BUTTON", 
+	gump:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_REGULAR_BUTTON", 
 		{
 			width = 130,
 		}, 
 		"DETAILS_PLUGIN_BUTTON_TEMPLATE"
 	)
 	
-	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX", {
+	gump:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX", {
 		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 		backdropcolor = {.2, .2, .2, 0.6},
 		backdropbordercolor = {0, 0, 0, 1},
 	})
-	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED", {
+	gump:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_EXPANDED", {
 		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 		backdropcolor = {.2, .2, .2, 1},
 		backdropbordercolor = {0, 0, 0, 1},
 	})
-	gump:InstallTemplate ("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON", {
+	gump:InstallTemplate("button", "DETAILS_CUSTOMDISPLAY_CODE_BOX_BUTTON", {
 		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 		backdropcolor = {.2, .2, .2, 1},
 		backdropbordercolor = {0, 0, 0, 1},
@@ -508,7 +508,7 @@
 						}
 
 						tinsert(_detalhes.custom, new_custom_object)
-						_setmetatable(new_custom_object, _detalhes.atributo_custom)
+						setmetatable(new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
 						_detalhes:Msg(Loc ["STRING_CUSTOM_CREATED"])
 					end
@@ -591,7 +591,7 @@
 						end
 						
 						tinsert(_detalhes.custom, new_custom_object)
-						_setmetatable(new_custom_object, _detalhes.atributo_custom)
+						setmetatable(new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
 						_detalhes:Msg(Loc ["STRING_CUSTOM_CREATED"])
 					end
@@ -1725,7 +1725,7 @@
 				box2:Hide()
 			
 			--create the code editbox
-				local code_editor = gump:NewSpecialLuaEditorEntry (custom_window, CONST_EDITBOX_WIDTH, CONST_EDITBOX_HEIGHT, "codeeditor", "$parentCodeEditor")
+				local code_editor = gump:NewSpecialLuaEditorEntry(custom_window, CONST_EDITBOX_WIDTH, CONST_EDITBOX_HEIGHT, "codeeditor", "$parentCodeEditor")
 				code_editor:SetPoint("topleft", custom_window, "topleft", CONST_MENU_X_POSITION, CONST_EDITBOX_Y_POSITION)
 				code_editor:SetFrameLevel(custom_window:GetFrameLevel()+4)
 				code_editor:SetBackdrop(nil)
@@ -1754,7 +1754,7 @@
 				code_editor.font_size = 11
 				
 				local file, size, flags = code_editor.editbox:GetFont()
-				code_editor.editbox:SetFont (file, 11, flags)
+				code_editor.editbox:SetFont(file, 11, flags)
 				
 				local expand_func = function()
 					if (code_editor.expanded) then
@@ -1778,11 +1778,11 @@
 					if (increase) then
 						local file, size, flags = code_editor.editbox:GetFont()
 						code_editor.font_size = code_editor.font_size + 1
-						code_editor.editbox:SetFont (file, code_editor.font_size, flags)
+						code_editor.editbox:SetFont(file, code_editor.font_size, flags)
 					else
 						local file, size, flags = code_editor.editbox:GetFont()
 						code_editor.font_size = code_editor.font_size - 1
-						code_editor.editbox:SetFont (file, code_editor.font_size, flags)
+						code_editor.editbox:SetFont(file, code_editor.font_size, flags)
 					end
 				end
 				

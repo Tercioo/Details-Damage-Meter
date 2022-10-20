@@ -126,7 +126,7 @@ local common_events = {
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --register a event
 
-	function _detalhes:RegisterEvent (object, event, func)
+	function _detalhes:RegisterEvent(object, event, func)
 
 		if (not _detalhes.RegistredEvents [event]) then
 			if (object.Msg) then
@@ -391,8 +391,8 @@ local common_events = {
 	local listener_meta = setmetatable({}, _detalhes)
 	listener_meta.__index = listener_meta
 	
-	function listener_meta:RegisterEvent (event, func)
-		return _detalhes:RegisterEvent (self, event, func)
+	function listener_meta:RegisterEvent(event, func)
+		return _detalhes:RegisterEvent(self, event, func)
 	end
 	function listener_meta:UnregisterEvent (event)
 		return _detalhes:UnregisterEvent (self, event)

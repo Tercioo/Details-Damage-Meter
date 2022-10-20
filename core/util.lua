@@ -1026,7 +1026,7 @@ end
 	--font size
 	function _detalhes:SetFontSize(fontString, ...)
 		local fonte, _, flags = fontString:GetFont()
-		fontString:SetFont (fonte, _math_max (...), flags)
+		fontString:SetFont(fonte, _math_max (...), flags)
 	end
 	function _detalhes:GetFontSize (fontString)
 		local _, size = fontString:GetFont()
@@ -1036,7 +1036,7 @@ end
 	--font face
 	function _detalhes:SetFontFace (fontString, fontface)
 		local _, size, flags = fontString:GetFont()
-		fontString:SetFont (fontface, size, flags)
+		fontString:SetFont(fontface, size, flags)
 	end
 	function _detalhes:GetFontFace (fontString)
 		local fontface = fontString:GetFont()
@@ -1066,7 +1066,7 @@ end
 			end
 		end
 
-		fontString:SetFont (fonte, size, outline)
+		fontString:SetFont(fonte, size, outline)
 	end
 
 	function _detalhes:UseOutline (outline)
