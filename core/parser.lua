@@ -2200,6 +2200,14 @@
 			cura_efetiva = cura_efetiva + amount - overhealing
 		end
 
+		if (isTBC) then
+			--life bloom explosion (second part of the heal)
+			if (spellid == SPELLID_DRUID_LIFEBLOOM_HEAL) then
+				TBC_LifeBloomLatestHeal = cura_efetiva
+				return
+			end
+		end
+
 		if (isTBC or isWOTLK) then
 			--earth shield
 			if (spellid == SPELLID_SHAMAN_EARTHSHIELD_HEAL) then
@@ -2216,11 +2224,6 @@
 					who_serial, who_name, who_flags = unpack(sourceData)
 					TBC_PrayerOfMendingCache[who_name] = nil
 				end
-
-			--life bloom explosion (second part of the heal)
-			elseif (spellid == SPELLID_DRUID_LIFEBLOOM_HEAL) then
-				TBC_LifeBloomLatestHeal = cura_efetiva
-				return
 
 			elseif (spellid == 27163 and false) then --Judgement of Light (paladin) --disabled on 25 September 2022
 				--check if the hit was landed in the same cleu tick
