@@ -1,6 +1,6 @@
 
 
-local dversion = 382
+local dversion = 383
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -3392,11 +3392,11 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 	parent.overlay:SetPoint("TOPLEFT", parent, "TOPLEFT", -frameWidth * 0.32, frameHeight * 0.36)
 	parent.overlay:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", frameWidth * 0.32, -frameHeight * 0.36)
 
-	local r, g, b, a = DF:ParseColors(antsColor or defaultColor)
+	local r, g, b, a = DF:ParseColors(antsColor)
 	glowFrame.ants:SetVertexColor(r, g, b, a)
 	glowFrame.AntsColor = {r, g, b, a}
 
-	local r, g, b, a = DF:ParseColors(glowColor or defaultColor)
+	local r, g, b, a = DF:ParseColors(glowColor)
 	glowFrame.outerGlow:SetVertexColor(r, g, b, a)
 	glowFrame.GlowColor = {r, g, b, a}
 

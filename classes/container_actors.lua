@@ -191,7 +191,7 @@
 			end
 		end
 
-		local _, engClass = _UnitClass (nome or "")
+		local _, engClass = _UnitClass(nome or "")
 
 		if (engClass) then
 			novo_objeto.classe = engClass

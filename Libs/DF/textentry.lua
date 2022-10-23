@@ -924,8 +924,8 @@ function DF:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointe
 		scrollframeNumberLines.editbox:SetJustifyH("left")
 		scrollframeNumberLines.editbox:SetJustifyV ("top")
 		scrollframeNumberLines.editbox:SetTextColor(.3, .3, .3, .5)
-		scrollframeNumberLines.editbox:SetPoint("topleft", borderframe, "topleft", 10, -10)
-		scrollframeNumberLines.editbox:SetPoint("bottomright", borderframe, "bottomright", -30, 10)
+		scrollframeNumberLines.editbox:SetPoint("topleft", borderframe, "topleft", 0, -10)
+		scrollframeNumberLines.editbox:SetPoint("bottomleft", borderframe, "bottomleft", 0, 10)
 
 		scrollframeNumberLines:SetScrollChild(scrollframeNumberLines.editbox)
 		scrollframeNumberLines:EnableMouseWheel(false)
@@ -945,7 +945,7 @@ function DF:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointe
 		end)
 
 		--place the number lines scroll in the begining of the editing code space
-		scrollframeNumberLines:SetPoint("topleft", borderframe, "topleft", 10, -10)
+		scrollframeNumberLines:SetPoint("topleft", borderframe, "topleft", 2, -10)
 		scrollframeNumberLines:SetPoint("bottomright", borderframe, "bottomright", -10, 10)
 
 		scrollframeNumberLines.editbox:SetJustifyH("left")
@@ -967,6 +967,57 @@ function DF:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointe
 		scrollframeNumberLines.ScrollBar:Hide()
 		scrollframeNumberLines:SetBackdrop(nil)
 		scrollframeNumberLines.editbox:SetBackdrop(nil)
+
+		local stringLengthFontString = scrollframeNumberLines:CreateFontString(nil, "overlay", "GameFontNormal")
+
+		local currentUpdateLineCounterTimer = nil
+
+		local updateLineCounter = function()
+			scrollframeNumberLines.editbox:SetSize(scrollframe.editbox:GetSize())
+
+			local text = scrollframe.editbox:GetText()
+			local textInArray = DF:SplitTextInLines(text)
+
+			local maxStringWidth = scrollframe.editbox:GetWidth()
+			scrollframeNumberLines.editbox:SetWidth(maxStringWidth)
+
+			local font, size, flags = scrollframe.editbox:GetFont()
+			scrollframeNumberLines.editbox:SetFont(font, size, flags)
+			stringLengthFontString:SetFont(font, size, flags)
+
+			local resultText = ""
+
+			--this approuch has many problems but it is better than nothing
+			for i = 1, #textInArray do
+				--set the line text into a fontstring to get its width
+				local thisText = textInArray[i]
+				stringLengthFontString:SetText(thisText)
+				local lineTextLength = ceil(stringLengthFontString:GetStringWidth())
+
+				if (lineTextLength < maxStringWidth) then
+					resultText = resultText .. i .. "\n"
+				else
+					--if the text width is bigger than the editbox width, add a blank line into the line counter
+					local linesToOccupy = floor(lineTextLength / maxStringWidth)
+					local fillingText = i .. ""
+					for o = 1, linesToOccupy do
+						fillingText = fillingText .. "\n"
+					end
+					resultText = resultText .. fillingText .. "\n"
+				end
+			end
+
+			scrollframeNumberLines.editbox:SetText(resultText)
+
+			currentUpdateLineCounterTimer = nil
+		end
+
+		scrollframe.editbox:HookScript("OnTextChanged", function()
+			if (currentUpdateLineCounterTimer) then
+				return
+			end
+			currentUpdateLineCounterTimer = C_Timer.NewTimer(0.25, updateLineCounter)
+		end)
 
 	else
 		scrollframe:SetPoint("topleft", borderframe, "topleft", 10, -10)

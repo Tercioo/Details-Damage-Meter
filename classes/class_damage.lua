@@ -667,12 +667,12 @@ end
 			GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.8, false,  byspell_tooltip_background)
 
 			if (class) then
-				local specID = Details:GetSpec (t[1])
+				local specID = Details:GetSpec(t[1])
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 					GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
 				else
-					local texture, l, r, t, b = Details:GetClassIcon (class)
+					local texture, l, r, t, b = Details:GetClassIcon(class)
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, lineHeight, lineHeight, l, r, t, b)
 				end
 
@@ -1093,7 +1093,7 @@ end
 						GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
 					else
 
-						local specID = Details:GetSpec (t[1])
+						local specID = Details:GetSpec(t[1])
 						if (specID) then
 							local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 							GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
@@ -1499,7 +1499,7 @@ end
 
 			local classe = Details:GetClass(t[1])
 			if (classe) then
-				local specID = Details:GetSpec (t[1])
+				local specID = Details:GetSpec(t[1])
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 					GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
@@ -3910,7 +3910,7 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 		if (classe == "UNKNOW") then
 			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, lineHeight, lineHeight, unpack(Details.class_coords ["UNKNOW"]))
 		else
-			local specID = Details:GetSpec (DamagedPlayers[i][1])
+			local specID = Details:GetSpec(DamagedPlayers[i][1])
 			if (specID) then
 				local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 				GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)

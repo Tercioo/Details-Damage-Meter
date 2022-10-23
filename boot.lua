@@ -360,9 +360,7 @@ do
 
 		--current instances of the exp (need to maintain)
 			_detalhes.InstancesToStoreData = { --mapId
-				[2296] = true, --castle narnia
-				[2450] = true, --sanctum of domination
-				[2481] = true, --sepulcher of the first ones
+				[2522] = true, --sepulcher of the first ones
 			}
 
 		--armazena os escudos - Shields information for absorbs
@@ -901,18 +899,14 @@ do
 
 ------------------------------------------------------------------------------------------
 -- welcome panel
-	function _detalhes:CreateWelcomePanel (name, parent, width, height, make_movable)
-		local f = CreateFrame("frame", name, parent or UIParent, "BackdropTemplate")
+	function _detalhes:CreateWelcomePanel(name, parent, width, height, makeMovable)
+		local newWelcomePanel = CreateFrame("frame", name, parent or UIParent, "BackdropTemplate")
 
-		--f:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3}, edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
-		f:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=0, right=0, top=0, bottom=0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-		f:SetBackdropColor(1, 1, 1, 0.75)
-		f:SetBackdropBorderColor(0, 0, 0, 1)
+		DetailsFramework:ApplyStandardBackdrop(newWelcomePanel)
+		newWelcomePanel:SetSize(width or 1, height or 1)
 
-		f:SetSize(width or 1, height or 1)
-
-		if (make_movable) then
-			f:SetScript("OnMouseDown", function(self, button)
+		if (makeMovable) then
+			newWelcomePanel:SetScript("OnMouseDown", function(self, button)
 				if (self.isMoving) then
 					return
 				end
@@ -923,17 +917,18 @@ do
 					self.isMoving = true
 				end
 			end)
-			f:SetScript("OnMouseUp", function(self, button)
+
+			newWelcomePanel:SetScript("OnMouseUp", function(self, button)
 				if (self.isMoving and button == "LeftButton") then
 					self:StopMovingOrSizing()
 					self.isMoving = nil
 				end
 			end)
-			f:SetToplevel(true)
-			f:SetMovable(true)
+			newWelcomePanel:SetToplevel(true)
+			newWelcomePanel:SetMovable(true)
 		end
 
-		return f
+		return newWelcomePanel
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1012,7 +1007,7 @@ do
 				copy = {}
 				for orig_key, orig_value in next, orig, nil do
 					--print(orig_key, orig_value)
-					copy [Details.CopyTable(orig_key)] = Details.CopyTable(orig_value)
+					copy[Details.CopyTable(orig_key)] = Details.CopyTable(orig_value)
 				end
 			else
 				copy = orig
@@ -1021,9 +1016,9 @@ do
 		end
 
 	--delay messages
-		function _detalhes:DelayMsg (msg)
+		function _detalhes:DelayMsg(msg)
 			_detalhes.delaymsgs = _detalhes.delaymsgs or {}
-			_detalhes.delaymsgs [#_detalhes.delaymsgs+1] = msg
+			_detalhes.delaymsgs[#_detalhes.delaymsgs+1] = msg
 		end
 		function _detalhes:ShowDelayMsg()
 			if (_detalhes.delaymsgs and #_detalhes.delaymsgs > 0) then
@@ -1035,12 +1030,11 @@ do
 		end
 
 	--print messages
-		function _detalhes:Msg(_string, arg1, arg2, arg3, arg4)
+		function _detalhes:Msg(str, arg1, arg2, arg3, arg4)
 			if (self.__name) then
-				--yes, we have a name!
-				print("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+				print("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. (str or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			else
-				print(Loc ["STRING_DETAILS1"] .. (_string or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+				print(Loc ["STRING_DETAILS1"] .. (str or ""), arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			end
 		end
 

@@ -593,7 +593,7 @@ talentsTable = Details:GetTalents (guid)
 if available, returns a table with 7 indexes with the talentId selected for each tree {talentId, talentId, talentId, talentId, talentId, talentId, talentId}.
 use with GetTalentInfoByID()
 
-spec = Details:GetSpec (guid)
+spec = Details:GetSpec(guid)
 if available, return the spec id of the actor, use with GetSpecializationInfoByID()
 
 Details:SetDeathLogLimit (limit)

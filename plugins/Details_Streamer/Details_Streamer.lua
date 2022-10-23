@@ -1492,7 +1492,7 @@ function StreamOverlay.OnDeath (_, token, time, who_serial, who_name, who_flags,
 			local sourceObject = Details:GetActor("current", 1, source)
 			local classIcon, l, r, t, b
 			if (sourceObject) then
-				classIcon, l, r, t, b = StreamOverlay:GetClassIcon (sourceObject.classe)
+				classIcon, l, r, t, b = StreamOverlay:GetClassIcon(sourceObject.classe)
 			else
 				classIcon, l, r, t, b = defaultAttackIcon, 0, 1, 0, 1
 			end

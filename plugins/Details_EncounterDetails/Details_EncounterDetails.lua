@@ -673,7 +673,7 @@ end
 				else
 					--heal
 					local class = Details:GetClass(source)
-					local spec = Details:GetSpec (source)
+					local spec = Details:GetSpec(source)
 
 					GameCooltip:AddLine("" .. _cstr ("%.1f", timeInSeconds - hora_da_morte) .. "s " .. spellname .. " (" .. Details:GetOnlyName(Details:AddClassOrSpecIcon (source, class, spec, 16, true)) .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon, 1, 1, 16, 16, .1, .9, .1, .9)
@@ -766,7 +766,7 @@ local function DispellInfo (dispell, barra)
 		else
 			GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), tabela[2], 1, "white", "orange")
 			
-			local specID = Details:GetSpec (tabela[1])
+			local specID = Details:GetSpec(tabela[1])
 			if (specID) then
 				local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 				GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
@@ -808,7 +808,7 @@ local function KickBy (magia, barra)
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		GameCooltip:AddLine(EncounterDetails:GetOnlyName(tabela[1]), tabela[2], 1, "white")
 		
-		local specID = Details:GetSpec (tabela[1])
+		local specID = Details:GetSpec(tabela[1])
 		if (specID) then
 			local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 			GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
@@ -861,13 +861,13 @@ local function EnemySkills (habilidade, barra)
 		
 		local actorClass = Details:GetClass(tabela[1])
 		if (actorClass) then
-			local r, g, b = Details:GetClassColor (actorClass)
+			local r, g, b = Details:GetClassColor(actorClass)
 			GameCooltip:AddStatusBar (tabela[2] / topValue * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		else
 			GameCooltip:AddStatusBar (tabela[2] / topValue * 100, 1, r, g, b, a, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 		end		
 		
-		local specID = Details:GetSpec (tabela[1])
+		local specID = Details:GetSpec(tabela[1])
 		if (specID) then
 			local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 			GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight - 0, EncounterDetails.CooltipLineHeight - 0, l, r, t, b)
@@ -1327,7 +1327,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					barra.textura:SetValue(jogador.damage_taken/dano_do_primeiro *100)
 				end
 				
-				local specID = Details:GetSpec (jogador.nome)
+				local specID = Details:GetSpec(jogador.nome)
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 					barra.icone:SetTexture(texture)
@@ -1665,7 +1665,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				GameCooltip:AddLine(EncounterDetails:GetOnlyName(esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
 				
-				local specID = Details:GetSpec (esta_tabela[1])
+				local specID = Details:GetSpec(esta_tabela[1])
 				if (specID) then
 					local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 					GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
@@ -1675,7 +1675,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				
 				local actorClass = Details:GetClass(esta_tabela[1])
 				if (actorClass) then
-					local r, g, b = Details:GetClassColor (actorClass)
+					local r, g, b = Details:GetClassColor(actorClass)
 					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 				else
 					GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
@@ -1714,7 +1714,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				if (coords) then
 					GameCooltip:AddLine(EncounterDetails:GetOnlyName(esta_tabela[1]), _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, "white", "orange", nil, nil, "MONOCHRONE")
 					
-					local specID = Details:GetSpec (esta_tabela[1])
+					local specID = Details:GetSpec(esta_tabela[1])
 					if (specID) then
 						local texture, l, r, t, b = Details:GetSpecIcon (specID, false)
 						GameCooltip:AddIcon (texture, 1, 1, EncounterDetails.CooltipLineHeight, EncounterDetails.CooltipLineHeight, l, r, t, b)
@@ -1724,7 +1724,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					
 					local actorClass = Details:GetClass(esta_tabela[1])
 					if (actorClass) then
-						local r, g, b = Details:GetClassColor (actorClass)
+						local r, g, b = Details:GetClassColor(actorClass)
 						GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, r, g, b, EncounterDetailsFrame.CooltipStatusbarAlpha, false, {value = 100, color = {.21, .21, .21, 0.5}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 					else
 						GameCooltip:AddStatusBar (esta_tabela[2] / topDamage * 100, 1, .3, .3, .3, .3, false, {value = 100, color = {.21, .21, .21, 0.8}, texture = [[Interface\AddOns\Details\images\bar_serenity]]})

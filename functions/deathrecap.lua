@@ -495,7 +495,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                     
                     --parse source and cut the length of the string after setting the spellname and source
                     local sourceClass = Details:GetClass(source)
-                    local sourceSpec = Details:GetSpec (source)
+                    local sourceSpec = Details:GetSpec(source)
                     
                     if (not sourceClass) then
                         local combat = Details:GetCurrentCombat()

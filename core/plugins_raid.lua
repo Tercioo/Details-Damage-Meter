@@ -355,7 +355,7 @@
 			else
 				local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
 				
-				local _, class = _UnitClass (who_name)
+				local _, class = _UnitClass(who_name)
 				local class_color = "|cFFFF3333"
 				
 				if (class) then
@@ -457,10 +457,10 @@
 			local msg
 			local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
 			
-			local _, class = _UnitClass (who_name)
+			local _, class = _UnitClass(who_name)
 			local class_color = "|cFFFFFFFF"
 			
-			local _, class2 = _UnitClass (alvo_name)
+			local _, class2 = _UnitClass(alvo_name)
 			local class_color2 = "|cFFFFFFFF"
 			
 			if (class) then
@@ -556,7 +556,7 @@
 			
 			local msg
 			if (where == 4) then --observer
-				local _, class = _UnitClass (alvo_name)
+				local _, class = _UnitClass(alvo_name)
 				local class_color = "|cFFFFFFFF"
 				
 				if (class) then

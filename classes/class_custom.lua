@@ -1588,7 +1588,7 @@
 
 				    local class, _, _, _, _, r, g, b = _detalhes:GetClass(target [1])
 				    if (class and class ~= "UNKNOW") then
-					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+					local texture, l, r, t, b = _detalhes:GetClassIcon(class)
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height, l, r, t, b)
 				    else
 					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)
@@ -1722,7 +1722,7 @@
 
 				    local class, _, _, _, _, r, g, b = _detalhes:GetClass(t [1])
 				    if (class and class ~= "UNKNOW") then
-					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+					local texture, l, r, t, b = _detalhes:GetClassIcon(class)
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height, l, r, t, b)
 				    else
 					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, _detalhes.tooltip.line_height, _detalhes.tooltip.line_height)

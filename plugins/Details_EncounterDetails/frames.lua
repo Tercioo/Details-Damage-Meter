@@ -763,7 +763,7 @@ _detalhes.EncounterDetailsTempWindow = function(EncounterDetails)
 						dlabel.righttext.text = _detalhes:ToK (_math_floor(player [2]))
 						
 						local class = EncounterDetails:GetClass(player [1])
-						local spec = EncounterDetails:GetSpec (player [1])
+						local spec = EncounterDetails:GetSpec(player [1])
 						
 						if (spec) then
 							dlabel.icon.texture = [[Interface\AddOns\Details\images\spec_icons_normal]]
@@ -2336,7 +2336,7 @@ local ScrollRefresh = function(self, data, offset, total_lines)
 		local player = data [index]
 		if (player) then
 			local line = self:GetLine (i)
-			local texture, L, R, T, B = _detalhes:GetPlayerIcon (player[1], PhaseFrame.CurrentSegment)
+			local texture, L, R, T, B = _detalhes:GetPlayerIcon(player[1], PhaseFrame.CurrentSegment)
 			
 			line.icon:SetTexture(texture)
 			line.icon:SetTexCoord(L, R, T, B)

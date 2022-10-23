@@ -1820,7 +1820,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 				if (classe == "UNKNOW") then
 					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
 				else
-					local specID = _detalhes:GetSpec (alvos[i][1])
+					local specID = _detalhes:GetSpec(alvos[i][1])
 					if (specID) then
 						local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
 						GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)
@@ -1900,7 +1900,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 				if (classe == "UNKNOW") then
 					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, lineHeight, lineHeight, .25, .5, 0, 1)
 				else
-					local specID = _detalhes:GetSpec (alvos[i][1])
+					local specID = _detalhes:GetSpec(alvos[i][1])
 					if (specID) then
 						local texture, l, r, t, b = _detalhes:GetSpecIcon (specID, false)
 						GameCooltip:AddIcon (texture, 1, 1, lineHeight, lineHeight, l, r, t, b)

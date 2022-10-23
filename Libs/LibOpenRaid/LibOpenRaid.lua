@@ -68,7 +68,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 63
+local CONST_LIB_VERSION = 64
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -766,6 +766,7 @@ end
 
                 if (IsInGroup()) then
                     openRaidLib.RequestAllData()
+                    openRaidLib.UpdateUnitIDCache()
                 end
 
                 --this part is under development
@@ -1154,6 +1155,14 @@ end
 
         local specId, specName, specDescription, specIcon, role = GetSpecializationInfoByID(specId or 0)
         local className, classString, classId = UnitClass(unitName)
+
+        --cold login bug where the player class info cannot be retrived by the player name, after a /reload it's all good
+        if (not className) then
+            local playerName = UnitName("player")
+            if (playerName == unitName) then
+                className, classString, classId = UnitClass("player")
+            end
+        end
 
         unitInfo.specId = specId or unitInfo.specId
         unitInfo.specName = specName or unitInfo.specName

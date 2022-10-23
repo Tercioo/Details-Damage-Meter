@@ -53,14 +53,13 @@ function Details:Dump (...)
 		return
 	else
 		if (type(t) == "table") then
-			local s = Details.table.dump(t)
+			local s = DetailsFramework.table.dump(t)
 			DetailsDumpFrame.Editbox:SetText(s)
 		else
 			t = {...}
+			local s = DetailsFramework.table.dump(t)
+			DetailsDumpFrame.Editbox:SetText(s)
 		end
-
-		local s = Details.table.dump(t)
-		DetailsDumpFrame.Editbox:SetText(s)
 	end
 
 	DetailsDumpFrame:Show()
