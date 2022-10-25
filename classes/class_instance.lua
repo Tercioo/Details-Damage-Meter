@@ -1615,6 +1615,13 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 			self.mostrando = "normal"
 		end
 
+	--internal stuff
+		self.oldwith = self.baseframe:GetWidth()
+
+		self:RestoreMainWindowPosition()
+		self:ReajustaGump()
+		--self:SaveMainWindowPosition()
+	
 		--fix for the weird white window default skin
 		--this is a auto detect for configuration corruption, happens usually when the user install Details! over old config settings
 		--check if the skin used in the window is the default skin, check if statusbar is in use and if the color of the window is full white
@@ -1624,15 +1631,8 @@ function _detalhes:RestauraJanela(index, temp, load_only)
 				self.skin = "no skin"
 				self:ChangeSkin(_detalhes.default_skin_to_use)
 			end
-		end
-
-	--internal stuff
-		self.oldwith = self.baseframe:GetWidth()
-
-		self:RestoreMainWindowPosition()
-		self:ReajustaGump()
-		--self:SaveMainWindowPosition()
-
+		end	
+	
 		if (not load_only) then
 			self.iniciada = true
 			self:AtivarInstancia (temp)
