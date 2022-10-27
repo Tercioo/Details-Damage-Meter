@@ -565,10 +565,11 @@
 						flag = 0x514
 					else
 						for playerName in text:gmatch("([^%s]+)") do
-							local isInRaid = _detalhes.tabela_vigente.raid_roster[playerName]
-							if (isInRaid) then
+							playerName = playerName:gsub(",", "")
+							local playerIsOnRaidCache = _detalhes.tabela_vigente.raid_roster[playerName]
+							if (playerIsOnRaidCache) then
 								serial = UnitGUID(playerName)
-								nome = text
+								nome = playerName
 								flag = 0x514
 								break
 							end
