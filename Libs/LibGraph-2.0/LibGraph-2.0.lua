@@ -1,6 +1,6 @@
 --[[
 Name: LibGraph-2.0
-Revision: $Rev: 56 $
+Revision: $Rev: 62 $
 Author(s): Cryect (cryect@gmail.com), Xinhuan
 Website: http://www.wowace.com/
 Documentation: http://www.wowace.com/wiki/GraphLib
@@ -11,7 +11,7 @@ Description: Allows for easy creation of graphs
 --Thanks to Nelson Minar for catching several errors where width was being used instead of height (damn copy and paste >_>)
 
 local major = "LibGraph-2.0"
-local minor = 90000 + tonumber(("$Revision: 58 $"):match("(%d+)"))
+local minor = 90000 + tonumber(("$Revision: 62 $"):match("(%d+)"))
 
 
 --Search for just Addon\\ at the front since the interface part often gets trimmed
@@ -19,20 +19,14 @@ local minor = 90000 + tonumber(("$Revision: 58 $"):match("(%d+)"))
 --doesn't get modified with a newer revision (this one)
 local TextureDirectory
 do
-	local path = string.match(debugstack(1, 1, 0), "AddOns\\(.+)LibGraph%-2%.0%.lua")
+	local path = string.match(debugstack(1, 1, 0), "AddOns[\\/](.+)LibGraph%-2%.0%.lua")
+
 	if path then
-		TextureDirectory = "Interface\\AddOns\\"..path
+		TextureDirectory = path
 	else
-		--error(major.." cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call")
-		--beta doing some errors here
-		if (Details) then
-			TextureDirectory = [[Interface\AddOns\Details\Libs\LibGraph-2.0]]
-		end
+		error(major.." cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call")
 	end
 end
-
-TextureDirectory = "Interface\\Addons\\Details\\Libs\\LibGraph-2.0"
-
 
 if not LibStub then error(major .. " requires LibStub") end
 
