@@ -64,6 +64,14 @@ do
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
+	--[=[
+	- 
+	- 
+	- this is an empty comment section
+	- 
+	- 
+	--]=]
+
 	local news = {
 		{"v9.2.0.10001.146", "Aug 10th, 2022"},
 		"New feature: Arena DPS Bar, can be enabled at the Broadcaster Tools section, shows a bar in 'kamehameha' style showing which team is doing more damage in the latest 3 seconds.",
