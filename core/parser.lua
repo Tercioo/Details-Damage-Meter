@@ -5072,11 +5072,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:Msg("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
 
-		C_Timer.After(1, function()
-			if (C_CVar.GetCVar("AdvancedCombatLogging") == "1") then
-				Details:Msg("you have Advanced Combat Logging enabled, your numbers might be different of other players (bug in the game).")
-			end
-		end)
+		if (not isWOTLK) then
+			C_Timer.After(1, function()
+				if (C_CVar.GetCVar("AdvancedCombatLogging") == "1") then
+					Details:Msg("you have Advanced Combat Logging enabled, your numbers might be different of other players (bug in the game).")
+				end
+			end)
+		end
 
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
 		if (_detalhes.latest_ENCOUNTER_END + 10 > GetTime()) then
