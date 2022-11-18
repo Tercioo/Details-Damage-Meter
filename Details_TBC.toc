@@ -25,6 +25,7 @@ indent.lua
 core\util.lua
 API.lua
 
+functions\private.lua
 functions\profiles.lua
 functions\hooks.lua
 functions\bossmods.lua

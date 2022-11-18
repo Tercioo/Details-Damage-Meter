@@ -1,0 +1,523 @@
+
+--whenever it say 'CombatID' it is referencing the Details! unique combatId
+--whenever it say 'SegmentID' it is referencing the internal chart data registered for some details! combat
+
+local Details = _G.Details
+local detailsFramework = _G.DetailsFramework
+local addonName, detailsInternal = ...
+
+local CONST_LATEST_SEGMENT = 1
+
+local tinsert = table.insert
+local tremove = table.remove
+
+local CONST_TICKER_NAME = "ChartDataTicker"
+local CONST_TICKER_INTERVAL = 3
+
+--create the chart object
+detailsInternal.Charts = {}
+local chartsObject = detailsInternal.Charts
+
+--store all segments data
+chartsObject.SegmentsData = {}
+--current segment being displayed in the charts
+chartsObject.SegmentOnVisualization = 0
+
+--this table will hold the saved variable which tells which infomation to get during combat
+chartsObject.DataToCapture = {}
+
+function chartsObject.GetConfigToCaptureData()
+    return chartsObject.DataToCapture
+end
+
+function chartsObject.SetConfigToCaptureData(configTable)
+    chartsObject.DataToCapture = configTable
+end
+
+function chartsObject.GetSavedVariable()
+    return Details.data_harvested_for_charts
+end
+
+function chartsObject.StoreChartsForCurrentCombat()
+    local savedVariableTable = chartsObject.GetSavedVariable()
+
+    --Details.data_harvested_for_charts
+end
+
+function chartsObject.BuildPlayersTable(playersTable)
+    if (IsInRaid()) then
+        for i = 1, GetNumGroupMembers() do
+            local unitName = GetUnitName("raid" .. i, true)
+            playersTable[unitName] = {}
+        end
+
+    elseif (InIsParty()) then
+        for i = 1, GetNumGroupMembers() - 1 do
+            local unitName = GetUnitName("party" .. i, true)
+            playersTable[unitName] = {}
+        end
+        playersTable[UnitName("player")] = {}
+    else
+        playersTable[UnitName("player")] = {}
+    end
+end
+
+function chartsObject.CreateTableToReceiveChartData()
+    local t = {}
+
+    --get the list of players captures
+    local configsForCaptureData = chartsObject.GetConfigToCaptureData()
+
+    --data set to capture data of each individual player
+    local playerCaptures = configsForCaptureData.players
+    --data set to capture data of some combat attribute or totals
+    local combatTotalCaptures = configsForCaptureData.totals
+
+    if (#playerCaptures > 0) then
+        t.players = {}
+        for i = 1, #playerCaptures do
+            local capturePreset = playerCaptures[i]
+            local playersTable = {}
+            t.players[capturePreset.name] = playersTable
+            chartsObject.BuildPlayersTable(playersTable)
+        end
+    end
+
+    if (#combatTotalCaptures > 0) then
+        t.totals = {}
+        for i = 1, #combatTotalCaptures do
+            local capturePreset = combatTotalCaptures[i]
+            t.totals[capturePreset.name] = {}
+        end
+    end
+
+    return t
+end
+
+--function to grab data during combat
+function chartsObject.Ticker()
+    if (chartsObject.HasValidAndOpenCombat()) then
+        --get Details! combat object
+        local detaisCurrentCombat = Details:GetCurrentCombat()
+
+        --get the list of players captures
+        local configsForCaptureData = chartsObject.GetConfigToCaptureData()
+
+        --data set to capture data of each individual player
+        local playerCaptures = configsForCaptureData.players
+        --data set to capture data of some combat attribute or totals
+        local combatTotalCaptures = configsForCaptureData.totals
+
+        local currentSegmentData = chartsObject.GetCurrentSegmentData()
+        local chartData = currentSegmentData.ChartData
+
+        if (#playerCaptures > 0) then
+            --PAREI AQUI, PRECISA PEGAR O CAPTURE NAME, A TABELA COM OS NOMES DOS JOGADORES E PEGAR OS DADOS DO SEGMENTO DO DETAILS!
+            --DEPOIS TEM QUE FECHAR ISSO AQUI E GRAGAR NO SEGMENT DA CHART
+            --DEPOIS FAZER O MENU DE SELECIONAR O SEGMENTO MOSTRAR OS SEGMENTOS DO DETAILS PARA SELECIONAR
+            --POR FIM PROGRAMAR AS CHARTS PRA MOSTRAR OS GRAFICOS
+            for i = 1, #playerCaptures do
+                local capturePreset = playerCaptures[i]
+                local thisCaptureTable = chartData[capturePreset.Name]
+                t.players[capturePreset.name] = playersTable
+                chartsObject.BuildPlayersTable(playersTable)
+            end
+        end
+    
+        if (#combatTotalCaptures > 0) then
+            t.totals = {}
+            for i = 1, #combatTotalCaptures do
+                local capturePreset = combatTotalCaptures[i]
+                t.totals[capturePreset.name] = {}
+            end
+        end
+
+        for i = 1, #playerCaptures do
+            local capturePreset = playerCaptures[i]
+            if (capturePreset.combatObjectSubTable) then
+                local subTable = detaisCurrentCombat[capturePreset.combatObjectSubTableName]
+                local value = subTable[capturePreset.combatObjectSubTableKey]
+
+            end
+        end
+    end
+end
+
+--[=[]]
+    players = {
+        --damage done by each player
+        {
+            name = "Damage of Each Individual Player",
+            combatObjectContainer = 1,
+            playerOnly = true,
+            playerKey = "total",
+        },
+
+        --total damage done by the raid group
+        {
+            name = "Damage of All Player Combined",
+            combatObjectSubTableName = "totals",
+            combatObjectSubTableKey = 1,
+        },
+    },
+--]=]
+
+function chartsObject.GetConfigToDataCaptureFromDetailsOptions()
+    local detailsObject = Details
+    local configTable = detailsObject.data_harvest_for_charsts
+    chartsObject.SetConfigToCaptureData(configTable)
+end
+
+function chartsObject.StartCombatDataTicker()
+    detailsInternal.Scheduler.NewTicker(CONST_TICKER_INTERVAL, chartsObject.Ticker, CONST_TICKER_NAME)
+end
+
+function chartsObject.StopCombatDataTicker()
+    detailsInternal.Scheduler.Cancel(CONST_TICKER_NAME)
+end
+
+--get a segment combat data
+function chartsObject.GetSegmentsCombatData(combatIndex)
+    return chartsObject.SegmentsData[combatIndex]
+end
+
+--get a segment combat data by Details! combatId
+function chartsObject.GetSegmentCombatDataByDetailsCombatID(detailsCombatId)
+    for i = 1, chartsObject.GetNumSegments() do
+        local thisSegmentCombatData = chartsObject.SegmentsData[i]
+        if (thisSegmentCombatData.detailsCombatID == detailsCombatId) then
+            return thisSegmentCombatData
+        end
+    end
+end
+
+--select a combat to make the chart frames show
+function chartsObject.SelectSegmentDataToShow(segmentId)
+    segmentId = segmentId or CONST_LATEST_SEGMENT
+    local numSegments = chartsObject.GetNumSegments()
+    if (numSegments > 0) then
+        --pre step before calling the function which will signal the frame to update
+        chartsObject.ChartFramesShowSegment(CONST_LATEST_SEGMENT)
+    else
+        chartsObject.ChartFramesClear()
+    end
+end
+
+function chartsObject.ChartFramesClear()
+    --pre step before calling the function which will signal the frame to update
+    chartsObject.ChartFramesShowSegment(0)
+end
+
+--this function shouldn't be called directly, always call from SelectSegmentDataToShow or ChartFramesClear
+function chartsObject.ChartFramesShowSegment(segmentId)
+    --set the combat data into the charts
+    chartsObject.SegmentOnVisualization = segmentId
+    --here go into the frames created and call refresh using the segment data
+
+    local segmentCombatData = chartsObject.GetSegmentsCombatData(segmentId)
+    if (segmentCombatData) then
+       --this is the lowest function and will call the frame api to refresh the data
+    else
+        chartsObject.SegmentOnVisualization = 0
+        --this is the lowest function and will call the frame api to refresh the data
+    end
+end
+
+--called when Details! reset the data
+function chartsObject.ResetSegmentData()
+    wipe(chartsObject.SegmentsData)
+
+    --stop the ticker
+    chartsObject.StopCombatDataTicker()
+    --don't allow anything to be process under the start of a new combat
+    chartsObject.SetCombatState(false)
+    --signal the frames to update and shown no data
+    chartsObject.ChartFramesClear()
+end
+
+--set the combat state
+function chartsObject.SetCombatState(state)
+    chartsObject.InCombat = state
+end
+
+function chartsObject.HasValidAndOpenCombat()
+    local bCombatState = chartsObject.GetCombatState()
+    if (bCombatState) then
+        local detaisCurrentCombat = Details:GetCurrentCombat()
+        local chartCurrentSegmentData = chartsObject.GetCurrentSegmentData()
+        if (detaisCurrentCombat:GetCombatId() == chartCurrentSegmentData:GetCombatId()) then
+            --it's all good
+            return true
+        end
+    end
+end
+
+--return true if in combat
+function chartsObject.GetCombatState()
+    return chartsObject.InCombat
+end
+
+function chartsObject.RemoveSegmentData(segmentId)
+    tremove(chartsObject.SegmentsData, segmentId)
+    chartsObject.SelectSegmentDataToShow(CONST_LATEST_SEGMENT)
+end
+
+function chartsObject.GetNumSegments()
+    return #chartsObject.SegmentsData
+end
+
+function chartsObject.GetCurrentSegmentData()
+    return chartsObject.segmentData
+end
+
+--add the new combatData into the first index
+local segmentDataMixin = {
+    GetCombatId = function(self)
+        return self.detailsCombatID
+    end,
+}
+
+--this is called when the player enter in combat
+function chartsObject.CreateNewSegmentData(detailsCombatObject)
+    chartsObject.segmentData = {
+        --players Damage for the segment
+        PlayersDamage = {},
+        --players Healing for the segment
+        PlayersHealing = {},
+        --each index is a boss fight
+        BossTryDamage = 0,
+        --blood lust timer
+        BloodLustTimers = {},
+        --combatId
+        detailsCombatID = detailsCombatObject:GetCombatId(),
+        --charts data captured
+        ChartData = chartsObject.CreateTableToReceiveChartData(),
+    }
+
+    detailsFramework:Mixin(chartsObject.segmentData, segmentDataMixin)
+    tinsert(chartsObject.SegmentsData, 1, chartsObject.segmentData)
+
+    chartsObject.GetConfigToDataCaptureFromDetailsOptions()
+    chartsObject.SetCombatState(true)
+    chartsObject.StartCombatDataTicker()
+
+    return chartsObject.segmentData
+end
+
+--when a combat is finished, close and store the current combatData
+function chartsObject.CloseSegmentData(bIsInvalid)
+    --in case a combat_invalid passed by here first
+    if (not chartsObject.GetCombatState()) then
+        return
+    end
+
+    chartsObject.StopCombatDataTicker()
+    chartsObject.SetCombatState(false)
+
+    local currentCombat = chartsObject.GetSegmentsCombatData(1)
+    currentCombat.Done = true
+
+    if (bIsInvalid) then
+        currentCombat.Invalid = true
+        chartsObject.RemoveSegmentData(1)
+    else
+        --check if the window is opened and update the chart current in sight
+    end
+end
+
+--Details Events:
+function chartsObject.OnDetailsEvent(event, ...)
+    if (event == "COMBAT_PLAYER_ENTER") then --> combat started
+        local combatObject = select(1, ...)
+        if (not combatObject and Details) then
+            combatObject = Details:GetCurrentCombat()
+            if (not combatObject) then
+                return
+            end
+        end
+        chartsObject.CreateNewSegmentData(combatObject)
+
+    elseif (event == "COMBAT_PLAYER_LEAVE") then
+        chartsObject.CloseSegmentData()
+
+    elseif (event == "DETAILS_DATA_RESET") then
+        chartsObject.ResetSegmentData()
+
+    elseif (event == "COMBAT_INVALID") then
+        local bIsInvalid = true
+        chartsObject.CloseSegmentData(bIsInvalid)
+
+    elseif (event == "DETAILS_STARTED") then
+        --install the new tab on the Player Breakdown
+        chartsObject.InstallTab()
+    end
+end
+
+
+local eventListener = Details:CreateEventListener()
+eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", chartsObject.OnDetailsEvent)
+eventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", chartsObject.OnDetailsEvent)
+eventListener:RegisterEvent("DETAILS_DATA_RESET", chartsObject.OnDetailsEvent)
+eventListener:RegisterEvent("COMBAT_INVALID", chartsObject.OnDetailsEvent)
+eventListener:RegisterEvent("DETAILS_STARTED", chartsObject.OnDetailsEvent)
+
+function chartsObject.InstallTab()
+    local tabName = "Charts"
+    local tabNameLoc = "Damage Charts"
+
+    local canShowTab = function(tabOBject, playerObject)
+        local combatObject = Details:GetCombatFromBreakdownWindow()
+        if (combatObject) then
+            local chartsCombatData = chartsObject.GetSegmentCombatDataByDetailsCombatID(combatObject:GetCombatId())
+            if (chartsCombatData) then
+                return true
+            end
+        end
+        return false
+    end
+
+    local fillTab = function(tab, playerObject, combat)
+        --update the tab frame with information
+
+    end
+
+    local createdChartsTab = function(tab, frame)
+        chartsObject.CreateChartFrames(tab, frame)
+    end
+
+    local iconSettings = {
+        texture = [[Interface\BUTTONS\UI-GuildButton-OfficerNote-Disabled]],
+        coords = {0, 1, 0, 1},
+        width = 16,
+        height = 16,
+    }
+
+    Details:CreatePlayerDetailsTab(tabName, tabNameLoc, canShowTab, fillTab, nil, createdChartsTab, iconSettings)
+end
+
+
+function chartsObject.CreateChartFrames(tab, tabFrame)
+
+    --First Option: each player dps chart on each segment, this show the evolution of damage of each player
+    --Second Option: Total Damage Done by the entire raid comparing with other segments (one line of raid damage per segment)
+    --Thrid Option: your damage compared with other of the same class (chart damage of  each player required)
+    --Your habilites compared segment by segment (no chart data required)
+
+    --segment scroll in the left
+        --boss image, boss name, 
+
+    --when selecting a boss show the chart for the boss
+
+    local defaultChartSections = {
+        {
+            Name = "Raid Damage",
+            ChartID = 1,
+            ChartData = "alldamagers-segment",
+        },
+        {
+
+        },
+    }
+
+
+    local scrollWidth = 200
+    local scrollHeight = 500
+    local scrollButtonHeight = 20
+    local amountScrollLines = floor(scrollHeight / scrollButtonHeight)
+    local allLinesCreated = {}
+    local lineSelectedBackdropColor = {.5, .5, .5, .5}
+
+    local onClickLine_SelectChartToView = function(button, mouseButton)
+        for buttonId, line in ipairs(allLinesCreated) do
+            line:SetDefaultBackdropColor()
+        end
+    end
+
+    local lineMixin = {
+        SetDefaultBackdropColor = function(line)
+            line.__background:SetVertexColor(unpack(line.defaultBackgroundColor))
+        end,
+
+        SetSelectedBackdropColor = function(line)
+            line.__background:SetVertexColor(unpack(lineSelectedBackdropColor))
+        end,
+
+        OnClickLine = function(line)
+            --select the chart to view
+        end,
+    }
+
+    --function to create a line in the scroll frame
+    local createScrollLine = function(self, index)
+        --create a new line
+        local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
+        detailsFramework:Mixin(line, lineMixin)
+
+        --set its parameters
+        line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (scrollButtonHeight+1)) - 1)
+        line:SetSize(scrollWidth-19, scrollButtonHeight)
+        line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+
+        line:SetScript("OnClick", line.OnClickLine)
+
+        detailsFramework:ApplyStandardBackdrop(line)
+        line.defaultBackgroundColor = {line.__background:GetVertexColor()}
+
+        local icon = line:CreateTexture("$parentSpecIcon", "artwork")
+        icon:SetSize(scrollButtonHeight, scrollButtonHeight)
+        icon:SetAlpha(0.71)
+
+        local chartData = defaultChartSections[index]
+        local chartName = detailsFramework:CreateLabel(line, chartData.Name, 11, "white", "GameFontNormal")
+
+        icon:SetPoint("left", line, "left", 0, 0)
+        chartName:SetPoint("topleft", icon, "topright", 2, -3)
+
+        line.Icon = icon
+        line.ChartName = chartName
+        return line
+    end
+
+    local refreshScroll = function(self, data, offset, totalLines)
+        for i = 1, totalLines do
+            local index = i + offset
+            local chartData = data[index]
+            if (chartData) then
+                local line = self:GetLine(i)
+                line.ChartID = chartData.ChartID
+                line.ChartData = chartData.ChartData
+                line.ChartName.text = chartData.Name
+            end
+        end
+    end
+
+    --Create the scrollbox showing the selection for charts
+    local chartSelectionScrollBox = detailsFramework:CreateScrollBox(
+        tabFrame,
+        "$parentChartSelectionScroll",
+        refreshScroll,
+        {},
+        scrollWidth,
+        scrollHeight,
+        amountScrollLines,
+        scrollButtonHeight
+    )
+
+    detailsFramework:ReskinSlider(chartSelectionScrollBox)
+    chartSelectionScrollBox.ScrollBar:ClearAllPoints()
+    chartSelectionScrollBox.ScrollBar:SetPoint("topright", chartSelectionScrollBox, "topright", -2, -17)
+    chartSelectionScrollBox.ScrollBar:SetPoint("bottomright", chartSelectionScrollBox, "bottomright", -2, 17)
+    chartSelectionScrollBox:SetPoint("topright", tabFrame, "topleft", -1, 0)
+    chartSelectionScrollBox:SetPoint("bottomright", tabFrame, "bottomleft", -1, 0)
+
+    detailsFramework:ApplyStandardBackdrop(chartSelectionScrollBox)
+
+    tabFrame.chartSelectionScrollBox = chartSelectionScrollBox
+
+    --create the scrollbox lines
+    for i = 1, amountScrollLines do
+        chartSelectionScrollBox:CreateLine(createScrollLine)
+    end
+
+
+end

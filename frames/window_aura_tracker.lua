@@ -147,7 +147,7 @@ function Details.AuraTracker.CreatePanel()
     local statusBar = DetailsFramework:CreateStatusBar(auraTrackerFrame)
     statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
     statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
-    statusBar.text:SetText("Details! Damage Meter")
+    statusBar.text:SetText("By Terciob | Part of Details! Damage Meter")
     DetailsFramework:SetFontSize(statusBar.text, 11)
     DetailsFramework:SetFontColor(statusBar.text, "gray")
 
@@ -156,8 +156,8 @@ function Details.AuraTracker.CreatePanel()
         {text = "", width = 20},
         {text = "Aura Name", width = 162},
         {text = "Spell Id", width = 100},
-        {text = "Lua Table", width = 250},
-        {text = "Points", width = 100},
+        {text = "Lua Table", width = 200},
+        {text = "Payload (Points)", width = 296},
     }
     local headerOptions = {
         padding = 2,
@@ -260,6 +260,9 @@ local formatToLuaTable = {
     end,
 }
 
+--if you need your own table format, override the function below as: function(auraInfo) return "" end
+--[[GLOBAL]] DETAILS_AURATRACKER_LUATABLE_FUNC = nil
+
 --[371354] = {[131] = 1, [151] = 2, [174] = 3, [1] = 131, [2] = 151, [3] = 174}, --Phial of the Eye in the Storm
 
 function Details.AuraTracker.RefreshScroll(self, data, offset, totalLines)
@@ -273,8 +276,13 @@ function Details.AuraTracker.RefreshScroll(self, data, offset, totalLines)
             line.Icon.texture = auraInfo.icon
             line.Name.text = auraInfo.name
             line.SpellId.text = auraInfo.spellId
-            line.LuaTableEntry.text = formatToLuaTable.doFormat5(auraInfo) --doFormat2NoIndex
-            line.Points.text = formatToLuaTable.doFormat2NoIndexFromCache(auraInfo)
+            local globalfunc = DETAILS_AURATRACKER_LUATABLE_FUNC
+            line.LuaTableEntry.text = globalfunc and globalfunc(auraInfo) or formatToLuaTable.doFormat2NoIndex(auraInfo) --doFormat2NoIndex
+            line.Points.text = formatToLuaTable.doFormat5(auraInfo)
+
+            line.Name:SetCursorPosition(0)
+            line.LuaTableEntry:SetCursorPosition(0)
+            line.Points:SetCursorPosition(0)
         end
     end
 end

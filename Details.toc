@@ -1,4 +1,4 @@
-## Interface: 100000
+## Interface: 100002
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## SavedVariables: _detalhes_global
@@ -28,6 +28,7 @@ core\util.lua
 API.lua
 functions\events.lua
 
+functions\private.lua
 functions\profiles.lua
 functions\hooks.lua
 functions\bossmods.lua

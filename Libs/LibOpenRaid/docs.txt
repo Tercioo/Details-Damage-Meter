@@ -55,6 +55,12 @@ local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, current
 @spells: a table containing spellIds {spellId, spellId, spellId, ...}
 openRaidLib.AddCooldownFilter(filterName, spells)
 
+--get a list of filters which a spell has, returns a table in map format: {[filterName] = true}
+--@spellId: the ID of a spell
+--@defaultFilterOnly (bool): if true only return built-in filters, example: "defensive-raid", "ofensive".
+--@customFiltersOnly (bool): if true onlt return a list of custom filters where the spell was added.
+local filterListArray = openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly)
+
 --request information about a spell for all units in the raid, units which has this cooldown will report back with a "CooldownUpdate" event
 openRaidLib.RequestCooldownInfo(spellId)
 
