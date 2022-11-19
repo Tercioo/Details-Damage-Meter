@@ -390,8 +390,8 @@ end
 
         --check if the window exists, if not create it
         if (not _G.DetailsCDTrackerWindow or not _G.DetailsCDTrackerWindow.Initialized) then
-            _G.DetailsCDTrackerWindow.Initialized = true
             local f = _G.DetailsCDTrackerWindow or DF:CreateSimplePanel(UIParent, 700, 480, "Details! Online CD Tracker", "DetailsCDTrackerWindow")
+            _G.DetailsCDTrackerWindow.Initialized = true
             DF:ApplyStandardBackdrop(f)
             --enabled with a toggle button
             --execute to reset position
