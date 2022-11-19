@@ -30,8 +30,10 @@ local doFullAuraUpdate = function()
     wipe(Details.AuraTracker.buff)
     wipe(Details.AuraTracker.debuff)
 
+    local unitId = "player"
+
     local function HandleAuraBuff(aura)
-        local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", aura.auraInstanceID)
+        local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID(unitId, aura.auraInstanceID)
 
         local spellId = auraInfo.spellId
         local isBossAura = auraInfo.isBossAura --"] = false
@@ -58,14 +60,18 @@ local doFullAuraUpdate = function()
     end
 
     local function HandleAuraDebuff(aura)
-        local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", aura.auraInstanceID)
+        local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID(unitId, aura.auraInstanceID)
         Details.AuraTracker.debuff[aura.auraInstanceID] = auraInfo
     end
 
     local batchCount = nil
     local usePackedAura = true
-    AuraUtil.ForEachAura("player", "HELPFUL", batchCount, HandleAuraBuff, usePackedAura)
-    AuraUtil.ForEachAura("player", "HARMFUL", batchCount, HandleAuraDebuff, usePackedAura)
+    AuraUtil.ForEachAura(unitId, "HELPFUL", batchCount, HandleAuraBuff, usePackedAura)
+    AuraUtil.ForEachAura(unitId, "HARMFUL", batchCount, HandleAuraDebuff, usePackedAura)
+
+    unitId = "pet"
+    AuraUtil.ForEachAura(unitId, "HELPFUL", batchCount, HandleAuraBuff, usePackedAura)
+    AuraUtil.ForEachAura(unitId, "HARMFUL", batchCount, HandleAuraDebuff, usePackedAura)
 
     Details.AuraTracker.RefreshScrollData()
 end
@@ -305,21 +311,7 @@ function Details.AuraTracker.RefreshScrollData()
 end
 
 function Details.AuraTracker.OnUnitAuraEvent(self, event, unit, unitAuraUpdateInfo)
-    if (unitAuraUpdateInfo == nil or unitAuraUpdateInfo.isFullUpdate) then
-        doFullAuraUpdate()
-    else
-        if (unitAuraUpdateInfo.removedAuraInstanceIDs) then
-            doRemovedAuraUpdate(unitAuraUpdateInfo.removedAuraInstanceIDs)
-        end
-
-        if (unitAuraUpdateInfo.updatedAuraInstanceIDs) then
-            doIncrementalAuraUpdate(unitAuraUpdateInfo.updatedAuraInstanceIDs)
-        end
-
-        if (unitAuraUpdateInfo.addedAuras) then
-            doAddedAuraUpdate(unitAuraUpdateInfo.addedAuras)
-        end
-    end
+    doFullAuraUpdate()
 end
 
 function Details.AuraTracker.CreateScrollLine(self, lineId)

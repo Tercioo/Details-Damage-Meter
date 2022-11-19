@@ -272,7 +272,7 @@ end
         end
 
         local cooldownsOrganized = {}
-        for classId = 1, 12 do --12 classes
+        for classId = 1, 13 do --13 classes
             cooldownsOrganized[classId] = {}
         end
 
@@ -309,7 +309,7 @@ end
             Details.CooldownTracking.ProcessUnitCooldowns("player", unitCooldowns, cooldownsOrganized)
         end
 
-        for classId = 1, 12 do --12 classes
+        for classId = 1, 13 do --13 classes
             table.sort(cooldownsOrganized[classId], function(t1, t2) return t1.spellId < t2.spellId end)
         end
 
@@ -319,7 +319,7 @@ end
         local maxWidth = Details.ocd_tracker.width + 2
         local cooldownFrameIndex = 1
 
-        for classId = 1, 12 do
+        for classId = 1, 13 do
             local cooldownFrameList = cooldownsOrganized[classId]
             for index, cooldownFrame in ipairs(cooldownFrameList) do
                 local cooldownInfo = cooldownFrame.cooldownInfo
