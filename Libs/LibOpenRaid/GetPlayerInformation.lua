@@ -394,19 +394,22 @@ local playerHasPetOfNpcId = function(npcId)
 end
 
 local addCooldownToTable = function(cooldowns, cooldownsHash, cooldownSpellId, timeNow)
+    local timeLeft, charges, startTimeOffset, duration, auraDuration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(cooldownSpellId)
+
     cooldowns[#cooldowns+1] = cooldownSpellId
-    local timeLeft, charges, startTimeOffset, duration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(cooldownSpellId)
     cooldowns[#cooldowns+1] = timeLeft
     cooldowns[#cooldowns+1] = charges
     cooldowns[#cooldowns+1] = startTimeOffset
     cooldowns[#cooldowns+1] = duration
-    cooldownsHash[cooldownSpellId] = {timeLeft, charges, startTimeOffset, duration, timeNow}
+    cooldowns[#cooldowns+1] = auraDuration
+
+    cooldownsHash[cooldownSpellId] = {timeLeft, charges, startTimeOffset, duration, timeNow, auraDuration}
 end
 
 local canAddCooldown = function(cooldownInfo)
-        local needPetNpcId = cooldownInfo.pet
-    if (needPetNpcId) then
-        if (not playerHasPetOfNpcId(needPetNpcId)) then
+    local petNpcIdNeeded = cooldownInfo.pet
+    if (petNpcIdNeeded) then
+        if (not playerHasPetOfNpcId(petNpcIdNeeded)) then
             return false
         end
     end
@@ -418,7 +421,7 @@ local getSpellListAsHashTableFromSpellBook = function()
 
     --this line might not be compatible with classic
     local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
-    local classNameLoc, className, classId = UnitClass("player")
+    --local classNameLoc, className, classId = UnitClass("player") --not in use
     local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
 
     --get racials from the general tab
@@ -430,8 +433,8 @@ local getSpellListAsHashTableFromSpellBook = function()
         if (spellId and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId] and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].raceid == playerRaceId) then
             spellId = C_SpellBook.GetOverrideSpell(spellId)
             local spellName = GetSpellInfo(spellId)
-            local isPassive = IsPassiveSpell(entryOffset, "player")
-            if (spellName and not isPassive) then
+            local bIsPassive = IsPassiveSpell(spellId, "player")
+            if (spellName and not bIsPassive) then
                 completeListOfSpells[spellId] = true
             end
         end
@@ -449,8 +452,8 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (spellType == "SPELL") then
                         spellId = C_SpellBook.GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local isPassive = IsPassiveSpell(entryOffset, "player")
-                        if (spellName and not isPassive) then
+                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        if (spellName and not bIsPassive) then
                             completeListOfSpells[spellId] = true
                         end
                     end
@@ -469,9 +472,29 @@ local getSpellListAsHashTableFromSpellBook = function()
             if (spellType == "SPELL") then
                 spellId = C_SpellBook.GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
-                local isPassive = IsPassiveSpell(entryOffset, "player")
-                if (spellName and not isPassive) then
+                local bIsPassive = IsPassiveSpell(spellId, "player")
+                if (spellName and not bIsPassive) then
                     completeListOfSpells[spellId] = true
+                end
+            end
+        end
+    end
+
+    local getNumPetSpells = function()
+        --'HasPetSpells' contradicts the name and return the amount of pet spells available instead of a boolean
+        return HasPetSpells()
+    end
+
+    --get pet spells from the pet spellbook 
+    local numPetSpells = getNumPetSpells()
+    if (numPetSpells) then
+        for i = 1, numPetSpells do
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, "pet")
+            if (unmaskedSpellId) then
+                unmaskedSpellId = C_SpellBook.GetOverrideSpell(unmaskedSpellId)
+                local bIsPassive = IsPassiveSpell(unmaskedSpellId, "pet")
+                if (spellName and not bIsPassive) then
+                    completeListOfSpells[unmaskedSpellId] = true
                 end
             end
         end
@@ -525,14 +548,14 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
 
                 --check if the player has a talent which makes this cooldown unavailable
                 local ignoredByTalentId = cooldownInfo.ignoredIfTalent
-                local isIgnoredByTalentId = false
+                local bIsIgnoredByTalentId = false
                 if (ignoredByTalentId) then
                     if (talentsHash[ignoredByTalentId]) then
-                        isIgnoredByTalentId = true
+                        bIsIgnoredByTalentId = true
                     end
                 end
 
-                if (not isIgnoredByTalentId) then
+                if (not bIsIgnoredByTalentId) then
                     if (talentId) then
                         --check if the player has the talent selected
                         if (talentsHash[talentId]) then
@@ -557,10 +580,10 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
 end
 
 --aura frame handles only UNIT_AURA events to grab the duration of the buff placed by the aura
-local IS_NEW_UNIT_AURA_AVAILABLE = C_UnitAuras and C_UnitAuras.GetAuraDataBySlot and true
+local bIsNewUnitAuraAvailable = C_UnitAuras and C_UnitAuras.GetAuraDataBySlot and true
 
 local auraSpellID
-local foundAuraDuration
+local auraDurationTime
 
 local handleBuffAura = function(aura)
     local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", aura.auraInstanceID)
@@ -568,7 +591,7 @@ local handleBuffAura = function(aura)
         local spellId = auraInfo.spellId
         if (auraSpellID == spellId) then
             auraSpellID = nil
-            foundAuraDuration = auraInfo.duration
+            auraDurationTime = auraInfo.duration
             return true
         end
     end
@@ -580,21 +603,20 @@ local getAuraDuration = function(spellId)
     local customBuffDuration = LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId].durationSpellId
     --spellId = customBuffDuration or spellId --can't replace the spellId by customBuffDurationSpellId has it wount be found in LIB_OPEN_RAID_PLAYERCOOLDOWNS
 
-    if (IS_NEW_UNIT_AURA_AVAILABLE) then
-        local batchCount = nil
-        local usePackedAura = true
+    if (bIsNewUnitAuraAvailable) then
+        local bBatchCount = false
+        local bUsePackedAura = true
         auraSpellID = customBuffDuration or spellId
-        foundAuraDuration = 0 --reset duration
+        auraDurationTime = 0 --reset duration
 
-        AuraUtil.ForEachAura("player", "HELPFUL", batchCount, handleBuffAura, usePackedAura) --check auras to find a buff for the spellId
+        AuraUtil.ForEachAura("player", "HELPFUL", bBatchCount, handleBuffAura, bUsePackedAura) --check auras to find a buff for the spellId
 
-        if (foundAuraDuration == 0) then --if the buff wasn't found, attempt to get the duration from the file
-            local spellName = GetSpellInfo(spellId)
+        if (auraDurationTime == 0) then --if the buff wasn't found, attempt to get the duration from the file
             return LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId].duration or 0
         end
-        return foundAuraDuration
+        return auraDurationTime
     else
-
+        --this is classic
     end
 end
 

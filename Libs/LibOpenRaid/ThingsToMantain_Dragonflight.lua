@@ -395,6 +395,8 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[384318] = {cooldown = 90,	duration = 0,	specs = {71, 72, 73},		talent = false,	charges = 1,	class = "WARRIOR",	type = 1}, --Thunderous Roar
 	[46968] = {cooldown = 40,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "WARRIOR",	type = 8}, --Shockwave
 	[23920] = {cooldown = 25,	duration = 5,	specs = {},					talent = false,	charges = 1,	class = "WARRIOR",	type = 5}, --Shockwave
+	[107570] = {cooldown = 30,	duration = 4,	specs = {},					talent = false,	charges = 1,	class = "WARRIOR",	type = 8}, --Storm Bolt
+	[23920] = {cooldown = 25, duration = 0, 	specs = {}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 5}, --Spell Refleciton
 
 	--warlock
 	-- 265 - Affliction
@@ -404,7 +406,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[113858] = {cooldown = 120,	duration = 20,	specs = {267},				talent = false,	charges = 1,	class = "WARLOCK",	type = 1}, --Dark Soul: Instability
 	[113860] = {cooldown = 120,	duration = 20,	specs = {265},				talent = false,	charges = 1,	class = "WARLOCK",	type = 1}, --Dark Soul: Misery
 	[267171] = {cooldown = 60,	duration = 0,	specs = {266},				talent = false,	charges = 1,	class = "WARLOCK",	type = 1}, --Demonic Strength
-	[333889] = {cooldown = 180,	duration = 15,	specs = {265, 266, 267},	talent = false,	charges = 1,	class = "WARLOCK",	type = 1}, --Fel Domination
+	[333889] = {cooldown = 180,	duration = 15,	specs = {265, 266, 267},	talent = false,	charges = 1,	class = "WARLOCK",	type = 5}, --Fel Domination
 	[111898] = {cooldown = 120,	duration = 15,	specs = {266},				talent = false,	charges = 1,	class = "WARLOCK",	type = 1}, --Grimoire: Felguard
 	[5484] = {cooldown = 40,	duration = 20,	specs = {265, 266, 267},	talent = false,	charges = 1,	class = "WARLOCK",	type = 8}, --Howl of Terror
 	[267217] = {cooldown = 180,	duration = 20,	specs = {266},				talent = false,	charges = 1,	class = "WARLOCK",	type = 1}, --Nether Portal
@@ -434,12 +436,10 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[192249] = {cooldown = 150,	duration = 30,	specs = {262},				talent = false,	charges = 1,	class = "SHAMAN",	type = 1}, --Storm Elemental
 	[8143] = {cooldown = 60,	duration = 10,	specs = {262, 263, 264},	talent = false,	charges = 1,	class = "SHAMAN",	type = 5}, --Tremor Totem
 	[192077] = {cooldown = 120,	duration = 15,	specs = {262, 263, 264},	talent = false,	charges = 1,	class = "SHAMAN",	type = 5}, --Wind Rush Totem
-	--[198838] = {cooldown = 60,	duration = 15,	specs = {264},			talent = false,	charges = 1,	class = "SHAMAN",	type = 4}, --Earthen Wall Totem
-	[51485] = {cooldown = 60,	duration = 20,	specs = {262, 263, 264},		talent = false,	charges = 1,	class = "SHAMAN",	type = 8}, --Earthgrab Totem
-	--[383017] = {cooldown = 30,	duration = 0,	specs = {},				talent = false,	charges = 1,	class = "SHAMAN",	type = 4}, --Stoneskin Totem
+	[198838] = {cooldown = 60,	duration = 15,	specs = {264},				talent = false,	charges = 1,	class = "SHAMAN",	type = 4}, --Earthen Wall Totem
+	[51485] = {cooldown = 60,	duration = 20,	specs = {262, 263, 264},	talent = false,	charges = 1,	class = "SHAMAN",	type = 8}, --Earthgrab Totem
+	[383017] = {cooldown = 30,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "SHAMAN",	type = 4}, --Stoneskin Totem
 	[51514] = {cooldown = 30,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "SHAMAN",	type = 8}, --Hex
-	[108968] = {cooldown = 5*60,	duration = 0,	specs = {},				talent = false,	charges = 1,	class = "PRIEST",	type = 3}, --Void Shift
-
 
 	--monk
 	-- 268 - Brewmaster
@@ -488,6 +488,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[288613] = {cooldown = 180,	duration = 15,	specs = {254},				talent = false,	charges = 1,	class = "HUNTER",	type = 1}, --Trueshot
 	[264735] = {cooldown = 180,	duration = 0,	specs = {253, 254, 255},	talent = false,	charges = 1,	class = "HUNTER",	type = 2}, --Survival of the Fittest
 	[187698] = {cooldown = 30,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "HUNTER",	type = 8}, --Tar Trap
+	[392060] = {cooldown = 60,	duration = 3,	specs = {},					talent = false,	charges = 1,	class = "HUNTER",	type = 8}, --Wailing Arrow
 
 	--druid
 	-- 102 - Balance
@@ -588,6 +589,9 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[113724] = {cooldown = 45,	duration = 10,	specs = {62, 63, 64},		talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Ring of Frost
 	[31661] = {cooldown = 45,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Dragon's Breath
 
+	-- This needs more work to actually function
+	--[342245] = {cooldown = 60,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Alter Time
+
 	--priest
 	-- 256 - Discipline
 	-- 257 - Holy
@@ -616,6 +620,10 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[64901] = {cooldown = 300,	duration = 6,	specs = {257},				talent = false,	charges = 1,	class = "PRIEST",	type = 4}, --Symbol of Hope
 	[15286] = {cooldown = 120,	duration = 15,	specs = {258},				talent = false,	charges = 1,	class = "PRIEST",	type = 4}, --Vampiric Embrace
 	[228260] = {cooldown = 90,	duration = 15,	specs = {258},				talent = false,	charges = 1,	class = "PRIEST",	type = 1}, --Void Eruption
+	[32375] = {cooldown = 45,	duration= 0,	specs = {},					talent = false,	charges = 1,	class = "PRIEST",	type = 7}, --Mass Dispell
+	[586] = {cooldown = 30,	duration= 0,	specs = {},					talent = false,	charges = 1,	class = "PRIEST",	type = 2}, --Fade
+	[108968] = {cooldown = 5*60,duration = 0,	specs = {},					talent = false,	charges = 1,	class = "PRIEST",	type = 3}, --Void Shift
+
 
 	--rogue
 	-- 259 - Assasination
@@ -787,6 +795,5 @@ LIB_OPEN_RAID_SPELL_DEFAULT_IDS = {
 	--187827 vengeance need to test these spellIds
 	--191427 havoc
 }
---need to add mass dispell (32375)
 
 LIB_OPEN_RAID_DATABASE_LOADED = true

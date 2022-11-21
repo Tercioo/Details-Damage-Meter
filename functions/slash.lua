@@ -2446,8 +2446,6 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					scrollFrame:Refresh()
 				end
 
-				--open raid lib callbacks
-				--openRaidLib.RegisterCallback(Details.CooldownTracking, "CooldownListUpdate", "OnReceiveUnitFullCooldownList")
 				function f.OnKeystoneUpdate(unitId, keystoneInfo, allKeystonesInfo)
 					if (f:IsShown()) then
 						f.RefreshData()

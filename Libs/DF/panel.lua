@@ -7625,6 +7625,9 @@ detailsFramework.CastFrameFunctions = {
 		{"UNIT_SPELLCAST_CHANNEL_START"},
 		{"UNIT_SPELLCAST_CHANNEL_UPDATE"},
 		{"UNIT_SPELLCAST_CHANNEL_STOP"},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_START"},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_UPDATE"},
+		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_EMPOWER_STOP"},
 		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_INTERRUPTIBLE"},
 		{(IS_WOW_PROJECT_MAINLINE) and "UNIT_SPELLCAST_NOT_INTERRUPTIBLE"},
 		{"PLAYER_ENTERING_WORLD"},
@@ -7643,6 +7646,8 @@ detailsFramework.CastFrameFunctions = {
 		FadeOutTime = 0.5, --amount of time in seconds to go from 100% to zero alpha when the cast finishes
 		CanLazyTick = true, --if true, it'll execute the lazy tick function, it ticks in a much slower pace comparece with the regular tick
 		LazyUpdateCooldown = 0.2, --amount of time to wait for the next lazy update, this updates non critical things like the cast timer
+
+		ShowEmpoweredDuration = true, --full hold time for empowered spells
 
 		FillOnInterrupt = true,
 		HideSparkOnInterrupt = true,
@@ -8228,12 +8233,40 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UpdateChannelInfo = function(self, unit, ...)
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo (unit)
 
 		--is valid?
 		if (not self:IsValid (unit, name, isTradeSkill, true)) then
 			return
 		end
+		
+		--empowered?
+			self.empStages = {}
+			if numStages and numStages > 0 then
+				self.holdAtMaxTime = GetUnitEmpowerHoldAtMaxTime(unit)
+				self.empowered = true
+
+				local lastStageEndTime = 0
+				for i = 1, numStages do
+					self.empStages[i] = {
+						start = lastStageEndTime,
+						finish = lastStageEndTime - GetUnitEmpowerStageDuration(unit, i - 1) / 1000,
+					}
+					lastStageEndTime = self.empStages[i].finish
+					
+					if startTime / 1000 + lastStageEndTime <= GetTime() then
+						self.curStage = i
+					end
+				end
+				
+				if (self.Settings.ShowEmpoweredDuration) then
+					endTime = endTime + self.holdAtMaxTime
+				end
+			else
+				self.holdAtMaxTime = 0
+				self.empowered = false
+				self.curStage = 0
+			end
 
 		--setup cast
 			self.casting = nil
@@ -8250,6 +8283,7 @@ detailsFramework.CastFrameFunctions = {
 			self.spellEndTime = endTime / 1000
 			self.value = self.spellEndTime - GetTime()
 			self.maxValue = self.spellEndTime - self.spellStartTime
+			self.numStages = numStages
 
 			self:SetMinMaxValues(0, self.maxValue)
 			self:SetValue(self.value)
@@ -8366,6 +8400,18 @@ detailsFramework.CastFrameFunctions = {
 			self:UpdateCastColor()
 		end
 	end,
+	
+	UNIT_SPELLCAST_EMPOWER_START = function(self, unit, ...)
+		self:UNIT_SPELLCAST_CHANNEL_START(unit, ...)
+	end,
+	
+	UNIT_SPELLCAST_EMPOWER_UPDATE = function(self, unit, ...)
+		self:UNIT_SPELLCAST_CHANNEL_UPDATE(unit, ...)
+	end,
+	
+	UNIT_SPELLCAST_EMPOWER_STOP = function(self, unit, ...)
+		self:UNIT_SPELLCAST_CHANNEL_STOP(unit, ...)
+	end,
 
 	UNIT_SPELLCAST_FAILED = function(self, unit, ...)
 		local unitID, castID, spellID = ...
@@ -8431,7 +8477,7 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UNIT_SPELLCAST_CHANNEL_UPDATE = function(self, unit, ...)
-		local name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo (unit)
 
 		if (not self:IsValid (unit, name, isTradeSkill)) then
 			return

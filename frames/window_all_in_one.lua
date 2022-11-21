@@ -1,3 +1,6 @@
+    --parei (20/11) declarando o header, precisa agora modificar a config do header quando atualizar
+    --fazer uma função para alterar a config header.columns para adicionar ou remover attributos
+    
     --próximo: ao criar uma janela AllInOne, precisa criar uma nova instancia no Details!
         --na tabela de configuração precisa dizer que é uma all in one e o details vai chamar esse arquivo pra atualizar
 
@@ -12,6 +15,37 @@
     local LibWindow = LibStub("LibWindow-1.1")
     local df = DetailsFramework
     local detailsFramework = DetailsFramework
+    local Details = Details
+    local addonName, DetailsPrivite = ...
+
+    local defaultWindowSettings =  {
+        isOpened = true,
+
+        libwindow = {},
+        width = 350,
+        height = 150,
+
+        titlebar = {
+            --done here: all options can be retrived from details! settings
+        },
+
+        header = {
+            show_name = true, --false | on for debug
+            show_icon = true,
+            auto_size = true, --false | on for debug
+            columns = { --damage, dps, percent
+                {1, 1},
+                {1, 2},
+                {1, 1, "%"}
+            },
+        },
+    }
+
+    --namespace
+    DetailsPrivite.AllInOneWindow = {}
+    local attributeCodes = {
+        
+    }
 
     local textureCoords = {
         show_mainmenu = {0/256, 32/256, 0, 1},
@@ -233,7 +267,13 @@
         end,
     }
 
-    local titleBarMixin = {
+    local headerMixin = {
+        Constructor = function(header)
+
+        end,
+    }
+
+    local titleBarMixin = { --~titlebar
         --run when the title bar is created
         Constructor = function(titleBar)
             titleBar:EnableMouse(false)
@@ -244,6 +284,12 @@
             --create the elapsed time string
             titleBar:CreateCombatTimeString()
             titleBar:SetCombatTimeText("02:36") --debug
+
+            --create titlebar texture
+            titleBar:CreateTexture()
+
+            --create header
+            titleBar:CreateHeader()
         end,
 
         GetSettings = function(titleBar)
@@ -287,6 +333,43 @@
 
         end,
 
+        SetTexture = function(titleBar, texturePath, textureCoord, vertexColor, maskTexture)
+            if (texturePath) then
+                titleBar.BackgroundTexture:SetTexture(texturePath)
+
+                if (maskTexture) then
+                    titleBar.BackgroundTexture:SetMask(maskTexture)
+                else
+                    titleBar.BackgroundTexture:SetMask("")
+                end
+
+                if (vertexColor) then
+                    local r, g, b, a = detailsFramework:ParseColors(vertexColor)
+                    titleBar.BackgroundTexture:SetVertexColor(r, g, b, a)
+                else
+                    titleBar.BackgroundTexture:SetVertexColor(1, 1, 1, 1)
+                end
+
+                if (textureCoord) then
+                    titleBar.BackgroundTexture:SetTexCoord(unpack(textureCoord))
+                else
+                    titleBar.BackgroundTexture:SetTexCoord(0, 1, 0, 1)
+                end
+            else
+                titleBar.BackgroundTexture:SetTexture("")
+            end
+        end,
+
+        CreateTexture = function(titleBar)
+            local texture = titleBar:CreateTexture("$parentBackgroundTexture", "border")
+            titleBar.BackgroundTexture = texture
+            return texture
+        end,
+
+        GetTexture = function(titleBar)
+            return titleBar.BackgroundTexture
+        end,
+
         CreateCombatTimeString = function(titleBar)
             local combatTimeString = titleBar:CreateFontString("$parentCombatTime", "overlay", "GameFontNormal")
             titleBar.CombatTime = combatTimeString
@@ -312,34 +395,37 @@
         end,
 
         Refresh = function(titleBar)
-            local config = titleBar:GetSettings()
+            local settings = titleBar:GetSettings()
 
-            --height
-            local height = config.titlebar.height
-            titleBar:SetHeight(height)
+            --title bar is always shown
+            settings.titlebar_shown = true
 
-            local timerShown = config.timer_show
+            --titlebar_shown = false,
+            --titlebar_height = 16,
+            --titlebar_texture = "Details Serenity",
+            --titlebar_texture_color = {.2, .2, .2, 0.8},
+
+            if (settings.titlebar_shown) then
+                titleBar:Show()
+                --height
+                local height = settings.titlebar_height
+                titleBar:SetHeight(height)
+
+                titleBar:SetTexture(settings.titlebar_texture, nil, settings.titlebar_texture_color)
+
+                local header = titleBar:GetHeader()
+
+            else
+                titleBar:Hide()
+            end
+
+
+
+            local timerShown = settings.timer_show
+
 
             local menuSupportFrame = titleBar:GetMenuSupportFrame()
             menuSupportFrame:Update()
-
-            --[=[
-                --height = 20,
-            timer_show = true,
-            timer_ignore_openworld = true,
-            timer_only_encounters = false,
-
-            text_size = 10,
-            text_font = "Friz Quadrata TT",
-            text_outline = "NONE",
-            text_shadow = {
-                enabled = false,
-                color = {1, 1, 1, 1},
-                x_offset = 1,
-                y_offset = -1,
-            },
-            --]=]
-
         end,
 
         GetMenuSupportFrame = function(titleBar)
@@ -355,6 +441,34 @@
             return menuSupportFrame
         end,
 
+        CreateHeader = function(titleBar)
+            local defaultHeaderTable = {
+                {text = "", width = 20}, --spec icon
+                {text = "Actor Name", width = 60, attribute = {name = true}},
+
+                {text = "Damage Done", width = 60, attribute = {1, 1}},
+                {text = "DPS", width = 50, attribute = {1, 2}},
+                {text = "Damage %", width = 50, attribute = {percent = true}},
+
+                {text = "Healing Done", width = 60, attribute = {1, 1}},
+                {text = "HPS", width = 50, attribute = {1, 2}},
+                {text = "Healing %", width = 50, attribute = {percent = true}},
+            }
+
+            local defaultHeaderOptions = {
+                padding = 2,
+            }
+
+            local headerFrame = DetailsFramework:CreateHeader(titleBar, defaultHeaderTable, defaultHeaderOptions)
+            titleBar.Header = headerFrame
+            detailsFramework:Mixin(headerFrame, headerMixin)
+            headerFrame:Constructor()
+            return headerFrame
+        end,
+
+        GetHeader = function(titleBar)
+            return titleBar.Header
+        end,
     }
 
     local AllInOneWindowMixin = {
@@ -428,50 +542,6 @@
     --override
     titleBarMixin.SetSetting = AllInOneWindowMixin.SetSetting
 
-    local defaultWindowSettings =  {
-        isOpened = true,
-
-        libwindow = {},
-        width = 350, --
-        height = 150, --
-
-        titlebar = {
-            --done here: all options can be retrived from details! settings
-            menu_buttons = {},
-
-        },
-
-    }
-
-    --create only the frame for a new window ~newwindow ñewwindow
-    function Details.AllInOneWindow.CreateFrame(settingId)
-        --create the new window
-        local newWindowFrame = CreateFrame("frame", "DetailsNewWindow" .. settingId, UIParent, "BackdropTemplate")
-        newWindowFrame.id = settingId
-        df:Mixin(newWindowFrame, AllInOneWindowMixin)
-
-        newWindowFrame:SetPoint("center", UIParent, "center", -400, 0)
-
-        --create the title bar
-        newWindowFrame:CreateTitleBar()
-
-        --creare header
-
-
-
-        --create scroll bar
-
-
-
-        --create resizers
-
-
-
-        --add the frame to the frame pool
-        local frameId = Details.AllInOneWindow.AddFrame(newWindowFrame)
-        return newWindowFrame
-    end
-
     --[=[
         lib window need to be on the AllInOneWindow:Update() so it can register the new libwindow table on profile change
         --register on libwindow
@@ -497,30 +567,58 @@
         combatTimeString:SetPoint("left", titleBar, "left", 2, 0)
     --]=]
 
+    --create only the frame for a new window ~newwindow ñewwindow
+    function Details.AllInOneWindow.CreateFrame(settingId)
+        --create the new window
+        local newFrame = CreateFrame("frame", "DetailsNewWindow" .. settingId, UIParent, "BackdropTemplate")
+        newFrame.id = settingId
+        df:Mixin(newFrame, AllInOneWindowMixin)
+
+        newFrame:SetPoint("center", UIParent, "center", -400, 0)
+
+        --create the title bar
+        newFrame:CreateTitleBar()
+
+
+
+        --create scroll bar
+
+
+
+        --create resizers
+
+
+
+        --add the frame to the frame pool
+        local frameId = Details.AllInOneWindow.AddFrame(newFrame)
+        return newFrame
+    end
+
+    --Entry Point to create a new window, must pass here at least once
     --create the settings for a new window plus the frames
-    function Details:CreateNewAllInOneWindow()
-        --get profile settings
-        local profileSettings = Details:GetSettingsForAll_AllInOneWindows()
-
-        --get what is the ID if a new window is added
-        local nextSettingId = Details.AllInOneWindow.GetNextSettingID()
-
+    function Details.AllInOneWindow.CreateNew()
+        local newSettings = {}
         --copy the settings prototype
-        local windowSettings = df.table.deploy({}, defaultWindowSettings)
+        df.table.deploy(newSettings, defaultWindowSettings)
+        --copy the settings from a skin
+        local skinTable = Details:GetSkin("Minimalistic")
+        df.table.deploy(newSettings, skinTable.instance_cprops)
+
         --add the new settings table into the profile where the new window settings are stored
-        local settingId = Details.AllInOneWindow.AddSetting(windowSettings)
+        local settingId = Details.AllInOneWindow.AddSetting(newSettings)
 
-        --create window body
-        local windowFrame = Details.AllInOneWindow.CreateFrame(settingId)
+        --reload all windows
+        Details.AllInOneWindow.ReloadAll()
 
-        return windowFrame
+        return settingId
     end
 
     --assuming this will run when the profile is loaded
-
+    --assuming there will be only one All In One Window
 
     --used when a profile finished loading
-    --CURRENT THE ONLY ENTRY POINT
+    --entry point for loading a window on profile change, on Initialization or when a new window is created
+    --at the moment of details! creation, there's zero settings available
     function Details.AllInOneWindow.ReloadAll()
         --get the amount of settings
         local numSettings = Details.AllInOneWindow.GetNumSettings()
@@ -539,6 +637,12 @@
                 end
                 frameIndex = frameIndex + 1
                 windowFrame:SetSettingID(settingId)
+
+                --libwindow
+                LibWindow.RegisterConfig(windowFrame, windowSetting.libwindow)
+                LibWindow.RestorePosition(windowFrame)
+                LibWindow.MakeDraggable(windowFrame)
+
                 --setup the frame using the settings
                 windowFrame:Refresh()
             end
