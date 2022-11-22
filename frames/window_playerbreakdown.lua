@@ -6,6 +6,7 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local gump = 			_detalhes.gump
 local _
+local addonName, Details222 = ...
 --lua locals
 --local _string_len = string.len
 local _math_floor = math.floor
@@ -609,8 +610,13 @@ local detalhes_inforeport_onleave = function(self)
 	Details.FadeHandler.Fader(self, "IN")
 end
 
+local getFrameFromDetailInfoBlock = function(self)
+	return self.bg
+end
+
 function gump:CriaDetalheInfo(index)
 	local spellInfoBlock = {}
+	spellInfoBlock.GetFrame = getFrameFromDetailInfoBlock
 
 	spellInfoBlock.bg = CreateFrame("StatusBar", "DetailsPlayerDetailsWindow_DetalheInfoBG" .. index, _detalhes.playerDetailWindow.container_detalhes, "BackdropTemplate")
 	spellInfoBlock.bg:SetStatusBarTexture("Interface\\AddOns\\Details\\images\\bar_detalhes2")
@@ -674,6 +680,12 @@ end
 
 --determina qual a pocis�o que a barra de detalhes vai ocupar
 ------------------------------------------------------------------------------------------------------------------------------
+--namespace
+Details222.BreakdownWindow = {}
+function Details222.BreakdownWindow.GetBlockIndex(index)
+	return Details.playerDetailWindow.grupos_detalhes[index]
+end
+
 function gump:SetaDetalheInfoAltura(index, xmod, ymod)
 	local spellInfoBlock = _detalhes.playerDetailWindow.grupos_detalhes[index]
 	--local janela =  _detalhes.playerDetailWindow.container_detalhes

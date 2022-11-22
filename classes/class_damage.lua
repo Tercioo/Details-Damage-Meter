@@ -5101,12 +5101,154 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		end
 	end
 
-
 	--Details:BuildPlayerDetailsSpellChart()
 	--DetailsPlayerDetailSmallChart.ShowChart (Details.playerDetailWindow.grupos_detalhes [5].bg, info.instancia.showing, info.instancia.showing.cleu_events, self.nome, false, spellid, 1, 2, 3, 4, 5, 6, 7, 8, 15)
 
 	--spell damage chart
 	--events: 1 2 3 4 5 6 7 8 15
+	local spellTable = esta_magia
+
+	local blockId = 6
+	local thatRectangle66 = Details222.BreakdownWindow.GetBlockIndex(blockId)
+	thatRectangle66 = thatRectangle66:GetFrame()
+
+	--hide all textures created
+	if (thatRectangle66.ChartTextures) then
+		for i = 1, #thatRectangle66.ChartTextures do
+			thatRectangle66.ChartTextures[i]:Hide()
+		end
+	end
+
+	local chartData = Details222.TimeCapture.GetChartDataFromSpell(spellTable)
+	if (chartData and instance) then
+		local width, height = thatRectangle66:GetSize()
+		--reset which texture is the next to be used
+		thatRectangle66.nextChartTextureId = 1
+
+		local amountOfTimeStamps = 12
+
+		if (not thatRectangle66.timeStamps) then
+			thatRectangle66.timeStamps = {}
+			for i = 1, amountOfTimeStamps do
+				thatRectangle66.timeStamps[i] = thatRectangle66:CreateFontString(nil, "overlay", "GameFontNormal")
+				thatRectangle66.timeStamps[i]:SetPoint("topleft", thatRectangle66, "topleft", 2 + (i - 1) * (width / amountOfTimeStamps), -2)
+				DetailsFramework:SetFontSize(thatRectangle66.timeStamps[i], 9)
+			end
+		end
+
+		if (not thatRectangle66.bloodLustIndicators) then
+			thatRectangle66.bloodLustIndicators = {}
+			for i = 1, 2 do
+				local thisIndicator = thatRectangle66:CreateTexture(nil, "artwork", nil, 4)
+				thisIndicator:SetColorTexture(0.0980392,		0.0980392,						0.439216)
+				thatRectangle66.bloodLustIndicators[#thatRectangle66.bloodLustIndicators+1] = thisIndicator
+			end
+		end
+
+		for i = 1, #thatRectangle66.bloodLustIndicators do
+			thatRectangle66.bloodLustIndicators[i]:Hide()
+		end
+
+		if (not thatRectangle66.ChartTextures) then
+			thatRectangle66.ChartTextures = {}
+			function thatRectangle66:GetChartTexture()
+				local thisTexture = thatRectangle66.ChartTextures[thatRectangle66.nextChartTextureId]
+				if (not thisTexture) then
+					thisTexture = thatRectangle66:CreateTexture(nil, "artwork", nil, 5)
+					thisTexture:SetColorTexture(1, 1, 1, 0.65)
+					thatRectangle66.ChartTextures[thatRectangle66.nextChartTextureId] = thisTexture
+				end
+				thatRectangle66.nextChartTextureId = thatRectangle66.nextChartTextureId + 1
+
+				return thisTexture
+			end
+		end
+
+		--elapsed combat time
+		local combatObject = instance:GetShowingCombat()
+		local combatTime = math.floor(combatObject:GetCombatTime())
+		thatRectangle66.timeStamps[1]:SetText(DetailsFramework:IntegerToTimer(0))
+		for i = 2, #thatRectangle66.timeStamps do
+			local timePerSegment = combatTime / #thatRectangle66.timeStamps
+			thatRectangle66.timeStamps[i]:SetText(DetailsFramework:IntegerToTimer(i * timePerSegment))
+		end
+		--compute the width oif each texture
+		local textureWidth = width / combatTime
+		--compute the max height of a texture can have
+		local maxValue = 0
+		local numData = 0
+
+		--need to put the data in order FIRST
+		--each damage then need to be parsed
+
+		local dataInOrder = {}
+
+		local CONST_INDEX_TIMESTAMP = 1
+		local CONST_INDEX_DAMAGEDONE = 2
+		local CONST_INDEX_EVENTDAMAGE = 3
+
+		for timeStamp, value in pairs(chartData) do
+			dataInOrder[#dataInOrder+1] = {timeStamp, value}
+			dataInOrder[#dataInOrder+1] = {timeStamp, value}
+			dataInOrder[#dataInOrder+1] = {timeStamp, value}
+			numData = numData + 1
+		end
+
+		table.sort(dataInOrder, function(t1, t2)  return t1[CONST_INDEX_TIMESTAMP] < t2[CONST_INDEX_TIMESTAMP] end)
+		local damageDoneByTime = dataInOrder
+
+		--parser the damage done
+		local currentTotalDamage = 0
+
+		for i = 1, #damageDoneByTime do
+			local damageEvent = damageDoneByTime[i]
+
+			local atTime = damageEvent[CONST_INDEX_TIMESTAMP]
+			local totalDamageUntilHere = damageEvent[CONST_INDEX_DAMAGEDONE] --raw damage
+
+			local spellDamage = totalDamageUntilHere - currentTotalDamage
+			currentTotalDamage = currentTotalDamage + spellDamage
+
+			damageEvent[CONST_INDEX_EVENTDAMAGE] = spellDamage
+
+			maxValue = math.max(spellDamage, maxValue)
+		end
+
+		--build the chart
+		for i = 1, #damageDoneByTime do
+		--for timeStamp, value in pairs(chartData) do --as it is pairs the data is scattered
+			local damageEvent = damageDoneByTime[i]
+			local timeStamp = damageEvent[CONST_INDEX_TIMESTAMP]
+			local damageDone = damageEvent[CONST_INDEX_EVENTDAMAGE]
+
+			local thisTexture = thatRectangle66:GetChartTexture()
+			thisTexture:SetWidth(textureWidth)
+
+			local texturePosition = textureWidth * timeStamp
+
+			thisTexture:SetPoint("bottomleft", thatRectangle66, "bottomleft", 1 + texturePosition, 1)
+
+			local percentFromPeak = damageDone / maxValue --normalized
+			thisTexture:SetHeight(math.min(percentFromPeak * height, height - 15))
+			thisTexture:Show()
+
+			--print("DEBUG", 7 , "Peak:", percentFromPeak, "position:", texturePosition, "damage done:", damageDone) --debug
+		end
+
+		--show bloodlust indicators, member .bloodlust is not guarantted
+		if (combatObject.bloodlust) then
+			--bloodlust not being added into the combat object, probably a bug on Parser
+			local bloodlustDuration = 40
+			for i = 1, #combatObject.bloodlust do
+				thatRectangle66.bloodLustIndicators[i]:Show()
+				thatRectangle66.bloodLustIndicators[i]:SetSize(bloodlustDuration / combatTime * width, height - 2)
+				thatRectangle66.bloodLustIndicators[i]:SetPoint("bottomleft", thatRectangle66, "bottomleft", 0, 0)
+			end
+		end
+
+		DetailsPlayerDetailsWindow_DetalheInfoBG_bg_end6:Hide()
+		thatRectangle66:SetShown(true)
+	end
 
 	_table_sort(data, Details.Sort1)
 

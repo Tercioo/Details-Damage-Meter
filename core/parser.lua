@@ -3608,7 +3608,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					--main actor
 					local este_jogador = energy_cache [actorName]
 					if (not este_jogador) then --pode ser um desconhecido ou um pet
-						este_jogador, meu_dono, actorName = _current_energy_container:PegarCombatente (UnitGUID(unitID), actorName, 0x514, true)
+						este_jogador, meu_dono, actorName = _current_energy_container:PegarCombatente (UnitGUID(unitID), actorName, 0x514, true) --global leak
 						energy_cache [actorName] = este_jogador
 					end
 					este_jogador.alternatepower = este_jogador.alternatepower + addPower
