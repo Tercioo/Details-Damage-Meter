@@ -1940,6 +1940,59 @@
 
 	end
 
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+	--SPELL_EMPOWER
+-----------------------------------------------------------------------------------------------------------------------------------------
+	function parser:spell_empower(token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellSchool, empowerLevel)
+		--empowerLevel only exists on _END and _INTERRUPT
+
+		if (not empowerLevel) then
+			return
+		end
+
+		--early checks
+		if (not sourceGUID or not sourceName or not sourceFlags) then
+			return
+		end
+
+		--source damager, should this only register for Players?
+		if (sourceFlags and bitBand(sourceFlags, OBJECT_TYPE_PLAYER) == 0) then
+			return
+		end
+
+		local sourceObject = damage_cache[sourceGUID] or damage_cache[sourceName]
+
+		if (not sourceObject) then
+			sourceObject = _current_damage_container:PegarCombatente(sourceGUID, sourceName, sourceFlags, true)
+		end
+
+		if (not sourceObject) then
+			return
+		end
+
+		--actor spells table
+		local spellTable = sourceObject.spells._ActorTable[spellId]
+		if (not spellTable) then
+			spellTable = sourceObject.spells:PegaHabilidade(spellId, true, token)
+			spellTable.spellschool = spellSchool or 1
+		end
+
+		spellTable.e_lvl = (spellTable.e_lvl or 0) + empowerLevel
+		spellTable.e_amt = (spellTable.e_amt or 0) + 1
+
+		--print("spellTable.e_lvl", spellTable.e_lvl, "spellTable.e_amt", spellTable.e_amt, "average:", spellTable.e_lvl / spellTable.e_amt)
+	end
+	--parser.spell_empower
+	--10/30 15:32:11.515  SPELL_EMPOWER_START,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
+	--10/30 15:32:12.433  SPELL_EMPOWER_END,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
+	--10/30 15:33:45.970  SPELL_EMPOWER_INTERRUPT,Player-4184-00218B4F,"Minng-Valdrakken",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1			
+
+	--10/30 15:34:47.249  SPELL_EMPOWER_START,Player-4184-0048EE5B,"Nezaland-Valdrakken",0x514,0x0,Player-4184-0048EE5B,"Nezaland-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
+	--357209 damage spell is different from the spell cast
+
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--SUMMON 	serach key: ~summon										|
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -4632,6 +4685,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			token_list ["DAMAGE_SHIELD_MISSED"] = nil
 			token_list ["ENVIRONMENTAL_DAMAGE"] = nil
 			token_list ["SPELL_BUILDING_DAMAGE"] = nil
+			token_list ["SPELL_EMPOWER_START"] = nil
+			token_list ["SPELL_EMPOWER_END"] = nil
+			token_list ["SPELL_EMPOWER_INTERRUPT"] = nil
 
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
@@ -4679,6 +4735,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--SPELL_DISPEL_FAILED --need research
 	--SPELL_BUILDING_HEAL --need research
 
+
 	function _detalhes:CaptureEnable (capture_type)
 
 		capture_type = string.lower(capture_type)
@@ -4699,6 +4756,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			token_list ["SPELL_BUILDING_MISSED"] = parser.missed
 			token_list ["DAMAGE_SHIELD_MISSED"] = parser.missed
 			token_list ["ENVIRONMENTAL_DAMAGE"] = parser.environment
+
+			token_list ["SPELL_EMPOWER_START"] = parser.spell_empower --evoker only
+			token_list ["SPELL_EMPOWER_END"] = parser.spell_empower --evoker only
+			token_list ["SPELL_EMPOWER_INTERRUPT"] = parser.spell_empower --evoker only
 
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
@@ -4761,6 +4822,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		["ress"] = parser.ress,
 		["interrupt"] = parser.interrupt,
 		["dead"] = parser.dead,
+		["spell_empower"] = parser.spell_empower,
 	}
 
 	function parser:SetParserFunction (token, func)
@@ -5968,6 +6030,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 		xpcall(saveNicktabCache, saver_error)
 	end)
+
+	--10/30 15:32:11.515  SPELL_EMPOWER_START,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
+	--10/30 15:32:12.433  SPELL_EMPOWER_END,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
+	--10/30 15:33:45.970  SPELL_EMPOWER_INTERRUPT,Player-4184-00218B4F,"Minng-Valdrakken",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
 
 	-- ~parserstart ~startparser ~cleu
 	function _detalhes.OnParserEvent(...)

@@ -162,7 +162,7 @@ end
             if (eventFrame.scheduleRosterUpdate) then
                 return
             end
-            eventFrame.scheduleRosterUpdate = C_Timer.NewTimer(1, Details222.CooldownTracking.RefreshCooldownFrames)
+            --eventFrame.scheduleRosterUpdate = C_Timer.NewTimer(1, Details222.CooldownTracking.RefreshCooldownFrames)
         end
     end)
 
@@ -243,6 +243,11 @@ end
 
 --update cooldown frames based on the amount of players in the group or raid
     function Details222.CooldownTracking.RefreshCooldownFrames(filterName)
+        if (not Details.ocd_tracker.enabled) then
+            Details222.CooldownTracking.DisableTracker()
+            return
+        end
+
         local allPanels = Details222.CooldownTracking.GetAllPanels()
         local screenPanel = allPanels[filterName or "main"]
 

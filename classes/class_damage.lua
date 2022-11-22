@@ -4952,13 +4952,20 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			cast_string = cast_string .. spell_cast
 		end
 
+		local averageEmpowerLevel
+		if (esta_magia.e_lvl) then --spell empowered
+			averageEmpowerLevel = format("Empower Average: %.2f", esta_magia.e_lvl / esta_magia.e_amt)
+		end
+
 		gump:SetaDetalheInfoTexto( index, 100,
 			cast_string,
 			Loc ["STRING_DAMAGE"]..": "..Details:ToK(esta_magia.total),
 			schooltext, --offhand,
 			Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media),
 			this_dps,
-			Loc ["STRING_HITS"]..": " .. hits_string
+			Loc ["STRING_HITS"]..": " .. hits_string,
+			averageEmpowerLevel or "",
+			""
 		)
 
 	--NORMAL
@@ -5035,6 +5042,9 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			t3[8] = (outros_desvios+erros) .. " / " .. format("%.1f", porcentagem_defesas) .. "%"
 			t3[9] = "MISS" .. ": " .. misses
 		end
+
+	--empowered
+
 
 	--Details:BuildPlayerDetailsSpellChart()
 	--DetailsPlayerDetailSmallChart.ShowChart (Details.playerDetailWindow.grupos_detalhes [5].bg, info.instancia.showing, info.instancia.showing.cleu_events, self.nome, false, spellid, 1, 2, 3, 4, 5, 6, 7, 8, 15)
