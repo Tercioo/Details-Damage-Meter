@@ -628,6 +628,7 @@ function gump:CriaDetalheInfo(index)
 
 	spellInfoBlock.middleStringUp = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	spellInfoBlock.middleStringDown = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	spellInfoBlock.middleStringMiddle = spellInfoBlock.bg:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
 	spellInfoBlock.bg.overlay = spellInfoBlock.bg:CreateTexture("DetailsPlayerDetailsWindow_DetalheInfoBG_Overlay" .. index, "ARTWORK")
 	spellInfoBlock.bg.overlay:SetTexture("Interface\\AddOns\\Details\\images\\overlay_detalhes")
@@ -719,15 +720,17 @@ function gump:SetaDetalheInfoAltura(index, xmod, ymod)
 	spellInfoBlock.dano:SetPoint("TOPLEFT", background, "TOPLEFT", xOffset, yOffset + (-24))
 	spellInfoBlock.dano_media:SetPoint("TOPLEFT", background, "TOPLEFT", xOffset, yOffset + (-44))
 
-	spellInfoBlock.nome2:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right,  yOffset + (-2))
+	spellInfoBlock.nome2:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right,  yOffset + (-4))
 	spellInfoBlock.dano_porcento:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right, yOffset + (-24))
 	spellInfoBlock.dano_dps:SetPoint("TOPRIGHT", background, "TOPRIGHT", -xOffset + right, yOffset + (-44))
 
 	spellInfoBlock.middleStringUp:SetPoint("center", background, "center", 0, 0)
-	spellInfoBlock.middleStringUp:SetPoint("top", background, "top", 0, -2)
+	spellInfoBlock.middleStringUp:SetPoint("top", background, "top", 0, -7)
 
 	spellInfoBlock.middleStringDown:SetPoint("center", background, "center", 0, 0)
-	spellInfoBlock.middleStringDown:SetPoint("bottom", background, "bottom", 0, 2)
+	spellInfoBlock.middleStringDown:SetPoint("bottom", background, "bottom", 0, 19)
+
+	spellInfoBlock.middleStringMiddle:SetPoint("center", background, "center", 0, 6)
 
 	spellInfoBlock.bg:SetPoint("TOPLEFT", background, "TOPLEFT", 1, -1)
 	spellInfoBlock.bg:SetHeight(background:GetHeight() - 2)
@@ -746,7 +749,7 @@ end
 
 --seta o conte�do da barra de detalhes
 ------------------------------------------------------------------------------------------------------------------------------
-function gump:SetaDetalheInfoTexto(index, data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+function gump:SetaDetalheInfoTexto(index, data, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 	local spellInfoBlock = _detalhes.playerDetailWindow.grupos_detalhes[index]
 
 	if (data) then
@@ -808,6 +811,12 @@ function gump:SetaDetalheInfoTexto(index, data, arg1, arg2, arg3, arg4, arg5, ar
 		spellInfoBlock.middleStringDown:SetText("")
 	end
 
+	if (arg9) then
+		spellInfoBlock.middleStringMiddle:SetText(arg9)
+	else
+		spellInfoBlock.middleStringMiddle:SetText("")
+	end
+
 	spellInfoBlock.nome:Show()
 	spellInfoBlock.dano:Show()
 	spellInfoBlock.dano_porcento:Show()
@@ -816,6 +825,8 @@ function gump:SetaDetalheInfoTexto(index, data, arg1, arg2, arg3, arg4, arg5, ar
 	spellInfoBlock.nome2:Show()
 	spellInfoBlock.middleStringUp:Show()
 	spellInfoBlock.middleStringDown:Show()
+	spellInfoBlock.middleStringDown:Show()
+	spellInfoBlock.middleStringMiddle:Show()
 end
 
 --cria as 5 caixas de detalhes infos que ser�o usados

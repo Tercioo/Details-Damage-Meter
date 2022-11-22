@@ -13,7 +13,7 @@
 	local UnitGUID = UnitGUID
 	local IsInRaid = IsInRaid
 	local IsInGroup = IsInGroup
-	local GetNumGroupMembers = GetNumGroupMembers
+	--local GetNumGroupMembers = GetNumGroupMembers
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 	local GetTime = GetTime
 	local tonumber = tonumber
@@ -156,6 +156,8 @@
 		local buffs_to_other_players = {
 			[10060] = true, --power infusion
 		}
+
+		local empower_cache = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
@@ -1392,6 +1394,29 @@
 			end
 		end
 
+		--empowerment data
+		if (empower_cache[who_serial]) then
+			local empowerSpellInfo = empower_cache[who_serial][spellname]
+			if (empowerSpellInfo) then
+				if (not empowerSpellInfo.counted) then
+					--total of empowerment
+					spell.e_total = (spell.e_total or 0) + empowerSpellInfo.empowerLevel --usado para calcular o average empowerment
+					--total amount of empowerment
+					spell.e_amt = (spell.e_amt or 0) + 1 --usado para calcular o average empowerment
+
+					--amount of casts on each level
+					spell.e_lvl = spell.e_lvl or {}
+					spell.e_lvl[empowerSpellInfo.empowerLevel] = (spell.e_lvl[empowerSpellInfo.empowerLevel] or 0) + 1
+
+					empowerSpellInfo.counted = true
+				end
+
+				--damage bracket
+				spell.e_dmg = spell.e_dmg or {}
+				spell.e_dmg[empowerSpellInfo.empowerLevel] = (spell.e_dmg[empowerSpellInfo.empowerLevel] or 0) + amount
+			end
+		end
+
 		if (trinketData[spellid] and _in_combat) then
 			local thisData = trinketData[spellid]
 			if (thisData.lastCombatId == _global_combat_counter) then
@@ -1949,6 +1974,10 @@
 	function parser:spell_empower(token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellSchool, empowerLevel)
 		--empowerLevel only exists on _END and _INTERRUPT
 
+		if (token == "SPELL_EMPOWER_START" or token == "SPELL_EMPOWER_INTERRUPT") then
+			return
+		end
+
 		if (not empowerLevel) then
 			return
 		end
@@ -1973,17 +2002,14 @@
 			return
 		end
 
-		--actor spells table
-		local spellTable = sourceObject.spells._ActorTable[spellId]
-		if (not spellTable) then
-			spellTable = sourceObject.spells:PegaHabilidade(spellId, true, token)
-			spellTable.spellschool = spellSchool or 1
-		end
-
-		spellTable.e_lvl = (spellTable.e_lvl or 0) + empowerLevel
-		spellTable.e_amt = (spellTable.e_amt or 0) + 1
-
-		--print("spellTable.e_lvl", spellTable.e_lvl, "spellTable.e_amt", spellTable.e_amt, "average:", spellTable.e_lvl / spellTable.e_amt)
+		empower_cache[sourceGUID] = empower_cache[sourceGUID] or {}
+		local empowerTable = {
+			spellName = spellName,
+			empowerLevel = empowerLevel,
+			time = time,
+			counted = false,
+		}
+		empower_cache[sourceGUID][spellName] = empowerTable
 	end
 	--parser.spell_empower
 	--10/30 15:32:11.515  SPELL_EMPOWER_START,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
@@ -2491,6 +2517,29 @@
 			end
 			if (_current_combat.is_boss and who_flags and bitBand(who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
 				_detalhes.spell_school_cache [spellname] = spelltype or school
+			end
+		end
+
+		--empowerment data
+		if (empower_cache[who_serial]) then
+			local empowerSpellInfo = empower_cache[who_serial][spellname]
+			if (empowerSpellInfo) then
+				if (not empowerSpellInfo.counted) then
+					--total of empowerment
+					spell.e_total = (spell.e_total or 0) + empowerSpellInfo.empowerLevel --usado para calcular o average empowerment
+					--total amount of empowerment
+					spell.e_amt = (spell.e_amt or 0) + 1 --usado para calcular o average empowerment
+
+					--amount of casts on each level
+					spell.e_lvl = spell.e_lvl or {}
+					spell.e_lvl[empowerSpellInfo.empowerLevel] = (spell.e_lvl[empowerSpellInfo.empowerLevel] or 0) + 1
+
+					empowerSpellInfo.counted = true
+				end
+
+				--healing bracket
+				spell.e_heal = spell.e_heal or {}
+				spell.e_heal[empowerSpellInfo.empowerLevel] = (spell.e_heal[empowerSpellInfo.empowerLevel] or 0) + cura_efetiva
 			end
 		end
 
@@ -5274,6 +5323,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(necro_cheat_deaths) --remove on 10.0
 		wipe(dk_pets_cache.army)
 		wipe(dk_pets_cache.apoc)
+		wipe(empower_cache)
 
 		--remove on 10.0 spikeball from painsmith
 			spikeball_damage_cache  = {
@@ -5462,6 +5512,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (not OnRegenEnabled) then
 			wipe(bitfield_swap_cache)
+			wipe(empower_cache)
 			_detalhes:DispatchAutoRunCode("on_leavecombat")
 		end
 
@@ -6031,11 +6082,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		xpcall(saveNicktabCache, saver_error)
 	end)
 
-	--10/30 15:32:11.515  SPELL_EMPOWER_START,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
-	--10/30 15:32:12.433  SPELL_EMPOWER_END,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
-	--10/30 15:33:45.970  SPELL_EMPOWER_INTERRUPT,Player-4184-00218B4F,"Minng-Valdrakken",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
-
-	-- ~parserstart ~startparser ~cleu
+	-- ~parserstart ~startparser ~cleu ~parser
 	function _detalhes.OnParserEvent(...)
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 
@@ -6113,6 +6160,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(misc_cache_pets)
 		wipe(misc_cache_petsOwners)
 		wipe(npcid_cache)
+		wipe(empower_cache)
 
 		wipe(ignore_death)
 
@@ -6167,6 +6215,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(tanks_members_cache)
 		wipe(auto_regen_cache)
 		wipe(bitfield_swap_cache)
+		wipe(empower_cache)
 
 		local roster = _detalhes.tabela_vigente.raid_roster
 

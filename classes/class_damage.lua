@@ -4952,9 +4952,8 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			cast_string = cast_string .. spell_cast
 		end
 
-		local averageEmpowerLevel
-		if (esta_magia.e_lvl) then --spell empowered
-			averageEmpowerLevel = format("Empower Average: %.2f", esta_magia.e_lvl / esta_magia.e_amt)
+		if (esta_magia.e_total) then
+			cast_string = Loc ["STRING_CAST"] .. ": " .. "|cFFFFFF00" .. esta_magia.e_total .. "|r"
 		end
 
 		gump:SetaDetalheInfoTexto( index, 100,
@@ -4963,9 +4962,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			schooltext, --offhand,
 			Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media),
 			this_dps,
-			Loc ["STRING_HITS"]..": " .. hits_string,
-			averageEmpowerLevel or "",
-			""
+			Loc ["STRING_HITS"]..": " .. hits_string
 		)
 
 	--NORMAL
@@ -5044,6 +5041,65 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		end
 
 	--empowered
+	if (esta_magia.e_total) then
+		local empowerLevelSum = esta_magia.e_total --total sum of empower levels
+		local empowerAmount = esta_magia.e_amt --amount of casts with empower
+		local empowerAmountPerLevel = esta_magia.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
+		local empowerDamagePerLevel = esta_magia.e_dmg --{[1] = 54548745, [2] = 74548745}
+
+		data[#data+1] = t4
+
+		local level1AverageDamage = "0"
+		local level2AverageDamage = "0"
+		local level3AverageDamage = "0"
+		local level4AverageDamage = "0"
+		local level5AverageDamage = "0"
+
+		if (empowerDamagePerLevel[1]) then
+			level1AverageDamage = Details:ToK(empowerDamagePerLevel[1] / empowerAmountPerLevel[1])
+		end
+		if (empowerDamagePerLevel[2]) then
+			level2AverageDamage = Details:ToK(empowerDamagePerLevel[2] / empowerAmountPerLevel[2])
+		end
+		if (empowerDamagePerLevel[3]) then
+			level3AverageDamage = Details:ToK(empowerDamagePerLevel[3] / empowerAmountPerLevel[3])
+		end
+		if (empowerDamagePerLevel[4]) then
+			level4AverageDamage = Details:ToK(empowerDamagePerLevel[4] / empowerAmountPerLevel[4])
+		end
+		if (empowerDamagePerLevel[5]) then
+			level5AverageDamage = Details:ToK(empowerDamagePerLevel[5] / empowerAmountPerLevel[5])
+		end
+
+		t4[1] = 0
+		t4[2] = {p = 100, c = {0.282353, 0.239216, 0.545098, 0.6}}
+		t4[3] = "Spell Empower Average Level: " .. format("%.2f", empowerLevelSum / empowerAmount)
+		t4[4] = ""
+		t4[5] = ""
+		t4[6] = ""
+		t4[10] = ""
+		t4[11] = ""
+
+		if (level1AverageDamage ~= "0") then
+			t4[4] = "Level 1 Average: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")"
+		end
+
+		if (level2AverageDamage ~= "0") then
+			t4[6] = "Level 2 Average: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")"
+		end
+
+		if (level3AverageDamage ~= "0") then
+			t4[11] = "Level 3 Average: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")"
+		end
+
+		if (level4AverageDamage ~= "0") then
+			t4[10] = "Level 4 Average: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")"
+		end
+
+		if (level5AverageDamage ~= "0") then
+			t4[5] = "Level 5 Average: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")"
+		end
+	end
 
 
 	--Details:BuildPlayerDetailsSpellChart()
@@ -5055,7 +5111,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 	_table_sort(data, Details.Sort1)
 
 	for index, tabela in ipairs(data) do
-		gump:SetaDetalheInfoTexto(index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8], tabela[9])
+		gump:SetaDetalheInfoTexto(index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8], tabela[9], tabela[10], tabela[11], tabela[12])
 	end
 
 	for i = #data+2, 5 do
