@@ -89,6 +89,7 @@ LIB_OPEN_RAID_BLOODLUST = {
 	[80353] = true, --timewarp (mage)
 	[90355] = true, --ancient hysteria (hunter)
 	[309658] = true, --current exp drums (letherwork)
+	[264667] = true, --primal rage (hunter)
 	--need to get the 30% haste buff from evokers
 }
 
