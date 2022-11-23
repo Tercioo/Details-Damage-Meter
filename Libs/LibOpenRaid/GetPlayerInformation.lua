@@ -600,6 +600,11 @@ end
 local getAuraDuration = function(spellId)
     --some auras does not have the same spellId of the cast as the spell for its aura duration
     --in these cases, it's necessary to declare the buff spellId which tells the duration of the effect by adding 'durationSpellId = spellId' within the cooldown data
+    if (not LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId]) then
+        --local spellname = GetSpellInfo(spellId)
+        --print("spell not found:", spellname)
+        return 0
+    end
     local customBuffDuration = LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId].durationSpellId
     --spellId = customBuffDuration or spellId --can't replace the spellId by customBuffDurationSpellId has it wount be found in LIB_OPEN_RAID_PLAYERCOOLDOWNS
 

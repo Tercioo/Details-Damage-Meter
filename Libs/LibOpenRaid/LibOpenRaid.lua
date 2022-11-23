@@ -64,7 +64,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 76
+local CONST_LIB_VERSION = 77
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -821,6 +821,8 @@ end
             delayedTalentChange()
         end,
 
+        --SPELLS_CHANGED
+
         ["PLAYER_PVP_TALENT_UPDATE"] = function(...)
             openRaidLib.internalCallback.TriggerEvent("pvpTalentUpdate")
         end,
@@ -921,7 +923,7 @@ end
             eventFrame:RegisterEvent("ENCOUNTER_END")
             eventFrame:RegisterEvent("CHALLENGE_MODE_START")
             eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
-            --eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+            eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
             eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
         end
     end
@@ -2561,3 +2563,16 @@ C_Timer.After(0.1, function()
 end)
 
 tempCache.RestoreData()
+
+
+--[=[
+3x ...ns/Details/Libs/LibOpenRaid/GetPlayerInformation.lua:603: attempt to index field '?' (a nil value)
+[string "@Interface/AddOns/Details/Libs/LibOpenRaid/GetPlayerInformation.lua"]:634: in function `GetPlayerCooldownStatus'
+[string "@Interface/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua"]:1696: in function `CleanupCooldownTickers'
+[string "@Interface/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua"]:1925: in function <...face/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua:1924>
+[string "=[C]"]: in function `xpcall'
+[string "@Interface/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua"]:506: in function <...face/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua:496>
+
+
+
+]=]
