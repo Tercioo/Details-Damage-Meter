@@ -2244,7 +2244,7 @@ function openRaidLib.CooldownManager.OnReceiveUnitCooldowns(data, unitName)
     --unpack the table as a pairs table
     local unpackedTable = openRaidLib.UnpackTable(data, 1, true, true, CONST_COOLDOWN_INFO_SIZE)
     --local unpackedTable = openRaidLib.UnpackTable(data, 1, true, true, 5)
-    dumpt(unpackedTable)
+    --dumpt(unpackedTable)
 
     --add the list of cooldowns
     openRaidLib.CooldownManager.AddUnitCooldownsList(unitName, unpackedTable)
