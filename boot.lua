@@ -6,8 +6,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10286
-		_detalhes.alpha_build_counter = 10286 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10287
+		_detalhes.alpha_build_counter = 10287 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -72,6 +72,7 @@ do
 		"Wago: Details! Standalone version is now hosted on addons.wago.io and WowUp.com.",
 		"",
 
+		"Added a little damage chart for your spells in the Player Breakdown Window.",
 		"Details! will count class play time, everyone using Details! from day 1 in Dragonflight should have an accurate play time in the class.",
 		"Visual updates on default skin.",
 		"All panels from options to plugins received visual updates.",
@@ -829,6 +830,29 @@ do
 				end
 			end
 			return Details:Dump(value)
+		end
+
+		function FindSpellByName(spellName) --[[GLOBAL]]
+			if (spellName and type(spellName) == "string") then
+				local GSI = GetSpellInfo
+				local foundSpells = {}
+				spellName = spellName:lower()
+				for i = 1, 450000 do
+					local thisSpellName = GSI(i)
+					if (thisSpellName) then
+						thisSpellName = thisSpellName:lower()
+						if (spellName == thisSpellName) then
+							foundSpells[#foundSpells+1] = {GSI(i)}
+						end
+					end
+				end
+
+				if (#foundSpells > 0) then
+					dumpt(foundSpells)
+				else
+					Details:Msg("spell", spellName, "not found.")
+				end
+			end
 		end
 
 	--copies a full table
