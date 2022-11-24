@@ -1354,6 +1354,8 @@ local default_global_data = {
 		current_exp_raid_encounters = {},
 		installed_skins_cache = {},
 
+		show_warning_id1 = true,
+
 		combat_id_global = 0,
 
 		slash_me_used = false,

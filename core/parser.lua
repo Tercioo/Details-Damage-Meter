@@ -5165,7 +5165,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not isWOTLK) then
 			C_Timer.After(1, function()
 				if (C_CVar.GetCVar("AdvancedCombatLogging") == "1") then
-					Details:Msg("you have Advanced Combat Logging enabled, your numbers might be different of other players (bug in the game).")
+					if (Details.show_warning_id1) then
+						Details:Msg("you have Advanced Combat Logging enabled, your numbers might be different of other players (bug in the game).")
+					end
 				end
 			end)
 		end
