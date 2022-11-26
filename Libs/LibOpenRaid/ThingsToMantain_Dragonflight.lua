@@ -86,7 +86,6 @@ do
 			L["STRING_CRITICAL_ONLY"]  = "致命"
 		end
 
-
 		LIB_OPEN_RAID_FOOD_BUFF = {} --default
 		LIB_OPEN_RAID_FLASK_BUFF = {} --default
 
@@ -97,7 +96,7 @@ do
 			[90355] = true, --ancient hysteria (hunter)
 			[309658] = true, --current exp drums (letherwork)
 			[264667] = true, --primal rage (hunter)
-			--need to get the 30% haste buff from evokers
+			[390386] = true, --fury of the aspects
 		}
 
 		LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 180653

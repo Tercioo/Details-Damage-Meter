@@ -5030,11 +5030,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (zoneType == "party" or zoneType == "raid") then
 			_is_in_instance = true
-
-			--if (DetailsFramework.IsDragonflight()) then
-			--	Details:Msg("friendly reminder to enabled combat logs (/combatlog) if you're recording them (Dragonflight Beta).")
-			--	Details:Msg("and if you wanna help, you may post them on Details! discord as well.")
-			--end
 		end
 
 		if (_detalhes.last_zone_type ~= zoneType) then
@@ -5163,16 +5158,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:Msg("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
 
-		if (not isWOTLK) then
-			C_Timer.After(1, function()
-				if (C_CVar.GetCVar("AdvancedCombatLogging") == "1") then
-					if (Details.show_warning_id1) then
-						Details:Msg("you have Advanced Combat Logging enabled, your numbers might be different of other players (bug in the game).")
-					end
-				end
-			end)
-		end
-
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
 		if (_detalhes.latest_ENCOUNTER_END + 10 > GetTime()) then
 			return
@@ -5275,6 +5260,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function _detalhes.parser_functions:ENCOUNTER_END(...)
 		if (_detalhes.debug) then
 			_detalhes:Msg("(debug) |cFFFFFF00ENCOUNTER_END|r event triggered.")
+		end
+
+		if (not isWOTLK) then
+			C_Timer.After(1, function()
+				if (Details.show_warning_id1) then
+					if (Details.show_warning_id1_amount < 5) then
+						Details.show_warning_id1_amount = Details.show_warning_id1_amount + 1
+						Details:Msg("you may find differences on damage done, this is due to a bug in the game client (" .. Details.show_warning_id1_amount .. " / 5).")
+					end
+				end
+			end)
 		end
 
 		_current_encounter_id = nil
