@@ -6,8 +6,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10287
-		_detalhes.alpha_build_counter = 10287 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10288
+		_detalhes.alpha_build_counter = 10288 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -35,18 +35,20 @@
 
 		Details.gameVersionPrefix = gameVersionPrefix
 
+		--WD 10288 RELEASE 10.0.2
+		--WD 10288 ALPHA 21 10.0.2
 		function Details.GetVersionString()
 			local curseforgeVersion = _detalhes.curseforgeVersion or ""
 			local alphaId = curseforgeVersion:match("%-(%d+)%-")
 
 			if (not alphaId) then
 				--this is a release version
-				alphaId = "R1"
+				alphaId = "RELEASE"
 			else
-				alphaId = "A" .. alphaId
+				alphaId = "ALPHA " .. alphaId
 			end
-			
-			return Details.gameVersionPrefix .. Details.build_counter .. "." .. Details.acounter .. "." .. alphaId .. "(" .. Details.game_version .. ")"
+
+			return Details.gameVersionPrefix .. " " .. Details.build_counter .. " " .. alphaId .. " " .. Details.game_version .. ""
 		end
 
 		--namespace for the player breakdown window

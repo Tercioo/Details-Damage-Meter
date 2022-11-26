@@ -64,7 +64,14 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 79
+local CONST_LIB_VERSION = 80
+
+if (not LIB_OPEN_RAID_MAX_VERSION) then
+    LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
+else
+    LIB_OPEN_RAID_MAX_VERSION = math.max(LIB_OPEN_RAID_MAX_VERSION, CONST_LIB_VERSION)
+end
+
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -72,9 +79,12 @@ local unpack = table.unpack or _G.unpack
 --declae the library within the LibStub
     local libStub = _G.LibStub
     local openRaidLib = libStub:NewLibrary(major, CONST_LIB_VERSION)
+
     if (not openRaidLib) then
         return
     end
+
+    openRaidLib.__version = CONST_LIB_VERSION
 
     LIB_OPEN_RAID_CAN_LOAD = true
 

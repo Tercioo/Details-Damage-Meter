@@ -2649,6 +2649,7 @@
 			------------------------------------------------------------------------------------------------
 			--buff uptime
 
+				--print(spellid, spellname, LIB_OPEN_RAID_BLOODLUST and LIB_OPEN_RAID_BLOODLUST[spellid], _detalhes.playername, alvo_name, _detalhes.playername == alvo_name)
 				if (LIB_OPEN_RAID_BLOODLUST and LIB_OPEN_RAID_BLOODLUST[spellid]) then --~bloodlust
 					if (_detalhes.playername == alvo_name) then
 						_current_combat.bloodlust = _current_combat.bloodlust or {}
