@@ -5158,6 +5158,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:Msg("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
 
+		if (not isWOTLK) then
+			C_Timer.After(1, function()
+				if (Details.show_warning_id1) then
+					if (Details.show_warning_id1_amount < 10) then
+						Details.show_warning_id1_amount = Details.show_warning_id1_amount + 1
+						Details:Msg("|cFFFFFF00you might find differences on damage done, this is due to a bug in the game client, nothing related to Details! itself (" .. Details.show_warning_id1_amount .. " / 10).")
+					end
+				end
+			end)
+		end
+
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
 		if (_detalhes.latest_ENCOUNTER_END + 10 > GetTime()) then
 			return
@@ -5265,9 +5276,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not isWOTLK) then
 			C_Timer.After(1, function()
 				if (Details.show_warning_id1) then
-					if (Details.show_warning_id1_amount < 5) then
+					if (Details.show_warning_id1_amount < 10) then
 						Details.show_warning_id1_amount = Details.show_warning_id1_amount + 1
-						Details:Msg("you may find differences on damage done, this is due to a bug in the game client (" .. Details.show_warning_id1_amount .. " / 5).")
+						Details:Msg("|cFFFFFF00you may find differences on damage done, this is due to a bug in the game client, nothing related to Details! itself (" .. Details.show_warning_id1_amount .. " / 10).")
 					end
 				end
 			end)
