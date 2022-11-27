@@ -453,7 +453,11 @@ local getSpellListAsHashTableFromSpellBook = function()
                         spellId = C_SpellBook.GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
                         local bIsPassive = IsPassiveSpell(spellId, "player")
-                        if (spellName and not bIsPassive) then
+                        if LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId] then
+                            for _, overrideSpellId in pairs(LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId]) do
+                                completeListOfSpells[overrideSpellId] = true
+                            end
+                        elseif (spellName and not bIsPassive) then
                             completeListOfSpells[spellId] = true
                         end
                     end
@@ -473,7 +477,11 @@ local getSpellListAsHashTableFromSpellBook = function()
                 spellId = C_SpellBook.GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
                 local bIsPassive = IsPassiveSpell(spellId, "player")
-                if (spellName and not bIsPassive) then
+                if LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId] then
+                    for _, overrideSpellId in pairs(LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS[spellId]) do
+                        completeListOfSpells[overrideSpellId] = true
+                    end
+                elseif (spellName and not bIsPassive) then
                     completeListOfSpells[spellId] = true
                 end
             end

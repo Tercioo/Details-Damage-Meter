@@ -803,6 +803,11 @@ do
 			--187827 vengeance need to test these spellIds
 			--191427 havoc
 		}
+		LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS = {
+			[106898] = {106898,77764,77761},
+			[77764] = {106898,77764,77761},
+			[77761] = {106898,77764,77761},
+		}
 
 		LIB_OPEN_RAID_SPECID_TO_CLASSID = {
 			[577] = 12,
