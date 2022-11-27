@@ -5326,6 +5326,24 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
+		--tag item level of all players
+		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+		local allUnitsInfo = openRaidLib.GetAllUnitsInfo()
+		local allPlayersGear = openRaidLib.GetAllUnitsGear()
+
+		local status = xpcall(function()
+			for actorIndex, actorObject in Details:GetCurrentCombat():GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
+				local gearInfo = allPlayersGear[actorObject:Name()]
+				if (gearInfo) then
+					actorObject.ilvl = gearInfo.ilevel
+				end
+			end
+		end, geterrorhandler())
+
+		if (not status) then
+			Details:Msg("ilvl error:", status)
+		end
+
 		_detalhes:SendEvent("COMBAT_ENCOUNTER_END", nil, ...)
 
 		wipe(_detalhes.encounter_table)

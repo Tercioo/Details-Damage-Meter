@@ -60,6 +60,7 @@ functions\deathmenu.lua
 functions\macros.lua
 functions\testbars.lua
 functions\editmode.lua
+functions\warcraftlogs.lua
 
 core\timemachine.lua
 
