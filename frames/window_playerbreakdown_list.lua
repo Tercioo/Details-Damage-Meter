@@ -1,7 +1,7 @@
 
     local Details = _G.Details
     local detailsFramework = _G.DetailsFramework
-	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 	local addonName, Details222 = ...
 
     local breakdownWindowPlayerList = {}
@@ -49,6 +49,7 @@
 				if (playerObject) then
 					local line = self:GetLine(i)
 					line.playerObject = playerObject
+					line.combatObject = combatObject
 					line.index = index
 					line:UpdateLine(topResult, encounterId, difficultyId)
 				end
@@ -124,7 +125,7 @@
 				self.roleIcon:SetTexture("")
 			end
 
-			local playerGear = openRaidLib.GetUnitGear(self.playerObject.nome)
+			local playerGear = openRaidLib and openRaidLib.GetUnitGear(self.playerObject.nome)
 
 			--do not show the role icon
 			self.roleIcon:SetTexture("") --not in use
@@ -141,17 +142,26 @@
 
 			local actorSpecId = self.playerObject.spec
 			local actorTotal = self.playerObject.total
+			local combatObject = self.combatObject
 
 			--warcraftlogs percentile
 			if (self.playerObject.tipo == DETAILS_ATTRIBUTE_DAMAGE) then
-				local parcePercent = Details222.WarcraftLogs.GetDamageParsePercent(encounterId, difficultyId, actorSpecId, actorTotal)
-				if (parcePercent) then
-					self.percentileText:SetText(math.floor(parcePercent))
+				local actorDPS = self.playerObject.total / combatObject:GetCombatTime()
+
+				local parsePercent = Details222.WarcraftLogs.GetDamageParsePercent(encounterId, difficultyId, actorSpecId, actorDPS)
+				if (parsePercent) then
+					parsePercent =  math.floor(parsePercent)
+					local colorName = Details222.WarcraftLogs.GetParseColor(parsePercent)
+					self.percentileText:SetTextColor(detailsFramework:ParseColors(colorName))
+					self.percentileText:SetText(math.floor(parsePercent))
 					self.percentileText.alpha = 1
 				else
-					parcePercent = Details222.ParsePercent.GetPercent(DETAILS_ATTRIBUTE_DAMAGE, difficultyId, encounterId, actorSpecId, actorTotal)
-					if (parcePercent) then
-						self.percentileText:SetText(math.floor(parcePercent))
+					parsePercent = Details222.ParsePercent.GetPercent(DETAILS_ATTRIBUTE_DAMAGE, difficultyId, encounterId, actorSpecId, actorDPS)
+					if (parsePercent) then
+						parsePercent =  math.floor(parsePercent)
+						local colorName = Details222.WarcraftLogs.GetParseColor(parsePercent)
+						self.percentileText:SetTextColor(detailsFramework:ParseColors(colorName))
+						self.percentileText:SetText(math.floor(parsePercent))
 						self.percentileText.alpha = 1
 					else
 						self.percentileText:SetText("#.def")
@@ -225,6 +235,7 @@
 				playerName.outline = fontOutline
 			end
 
+			--~create
 			playerName.textcolor = {1, 1, 1, .9}
 
 			local className = detailsFramework:CreateLabel(upFrame, "", "GameFontNormal")
@@ -244,7 +255,7 @@
 			rankText.textsize = fontSize
 
 			local totalStatusBar = CreateFrame("statusbar", nil, line)
-			totalStatusBar:SetSize(scrollbox_size[1]-19-player_line_height, 4)
+			totalStatusBar:SetSize(scrollbox_size[1]-player_line_height, 4)
 			totalStatusBar:SetMinMaxValues(0, 100)
 			totalStatusBar:SetStatusBarTexture([[Interface\AddOns\Details\images\bar_skyline]])
 			totalStatusBar:SetFrameLevel(line:GetFrameLevel()+1)
@@ -296,6 +307,11 @@
 		f.Header = DetailsFramework:CreateHeader(f, headerTable, headerOptions)
 		f.Header:SetPoint("topleft", playerScroll, "topleft", 0, -1)
 		f.Header:SetPoint("topright", playerScroll, "topright", 0, -1)
+
+		detailsFramework:ApplyStandardBackdrop(f.Header)
+		f.Header.__background:SetColorTexture(.60, .60, .60)
+
+		--print(f.Header:GetSize())
 
 		local playerSelectionLabel = detailsFramework:CreateLabel(playerScroll, "click to select a player", 14)
 		playerSelectionLabel:SetPoint("bottom", playerScroll, "bottom", 0, 7)
@@ -367,6 +383,18 @@
 		f:HookScript("OnShow", function()
 			Details:UpdateBreakdownPlayerList()
 		end)
+
+		f:HookScript("OnHide", function()
+			for lineIndex, line in ipairs(f.playerScrollBox:GetLines()) do
+				line.playerObject = nil
+				line.combatObject = nil
+			end
+		end)
+
+		local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
+		local gradientBelow = DetailsFramework:CreateTexture(f.playerScrollBox, 
+		{gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 90, "artwork", {0, 1, 0, 1})
+		gradientBelow:SetPoint("bottoms", 1, 1)
     end
 
 	function Details.PlayerBreakdown.CreatePlayerListFrame()

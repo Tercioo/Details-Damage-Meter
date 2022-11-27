@@ -1,10 +1,8 @@
 
     local Details = _G.Details
     local detailsFramework = _G.DetailsFramework
-	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 	local addonName, Details222 = ...
-
-    local specIdToClassId = {}
 
 	--wrap warcraftlogs addon api
 	Details222.WarcraftLogs = {} --namespace
@@ -13,6 +11,27 @@
         local WCLAddonName = "WarcraftLogs"
         local WarcraftLogs = _G[WCLAddonName]
         return WarcraftLogs
+    end
+
+    function Details222.WarcraftLogs.GetParseColor(percent)
+        if (percent == 100) then
+            return "moccasin"
+
+        elseif (percent >= 91) then
+            return "palevioletred"
+
+        elseif (percent >= 70) then
+            return "blueviolet"
+
+        elseif (percent >= 50) then
+            return "SHAMAN"
+
+        elseif (percent >= 30) then
+            return "lime"
+
+        else
+            return "gray"
+        end
     end
 
 	function Details222.WarcraftLogs.GetPlayerProfile(actorObject)
@@ -93,8 +112,8 @@
 	end
 
     --details wrap
-    function Details222.WarcraftLogs.GetDamageParsePercent(encounterId, difficultyId, specId, damageDone)
-        local classId = LIB_OPEN_RAID_SPECID_TO_CLASSID[specId]
+    function Details222.WarcraftLogs.GetDamageParsePercent(encounterId, difficultyId, specId, amount)
+        local classId = LIB_OPEN_RAID_SPECID_TO_CLASSID and LIB_OPEN_RAID_SPECID_TO_CLASSID[specId]
         local classPercentileTable = Details222.WarcraftLogs.GetClassPercentileForEncounterID(encounterId, difficultyId, classId) --wrapped
 
         local specPercentile = classPercentileTable[specId]
@@ -102,7 +121,7 @@
             local minDamage = specPercentile.min
             local maxDamage = specPercentile.max
 
-            local percentScalar = detailsFramework:MapRangeClamped(minDamage, maxDamage, 0, 100, damageDone)
+            local percentScalar = detailsFramework:MapRangeClamped(minDamage, maxDamage, 0, 100, amount)
             return percentScalar
         else
             return nil
@@ -310,9 +329,7 @@
         },
 
         --[14] = {} --normal
-
         --[17] = {} --raid finder
-        --},
     }
 
 

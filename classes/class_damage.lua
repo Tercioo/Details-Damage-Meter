@@ -488,7 +488,7 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --damage taken by spell
 
-	local byspell_tooltip_background = {value = 100, color = {0.1960, 0.1960, 0.1960, 0.9097}, texture = [[Interface\AddOns\Details\images\bar_background2]]}
+	local byspell_tooltip_background = {value = 100, color = {0.1960, 0.1960, 0.1960, 0.9097}, texture = [[Interface\AddOns\Details\images\bar_background_dark]]}
 
 	function Details:ToolTipBySpell (instance, tabela, thisLine, keydown)
 
@@ -5091,7 +5091,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		end
 
 		t4[1] = 0
-		t4[2] = {p = 100, c = {0.282353, 0.239216, 0.545098, 0.6}}
+		t4[2] = {p = 100, c = {0.200, 0.576, 0.498, 0.6}}
 		t4[3] = "Spell Empower Average Level: " .. format("%.2f", empowerLevelSum / empowerAmount)
 		t4[4] = ""
 		t4[5] = ""
@@ -5100,23 +5100,23 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		t4[11] = ""
 
 		if (level1AverageDamage ~= "0") then
-			t4[4] = "Level 1 Average: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")"
+			t4[4] = "Level 1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")"
 		end
 
 		if (level2AverageDamage ~= "0") then
-			t4[6] = "Level 2 Average: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")"
+			t4[6] = "Level 2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")"
 		end
 
 		if (level3AverageDamage ~= "0") then
-			t4[11] = "Level 3 Average: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")"
+			t4[11] = "Level 3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")"
 		end
 
 		if (level4AverageDamage ~= "0") then
-			t4[10] = "Level 4 Average: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")"
+			t4[10] = "Level 4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")"
 		end
 
 		if (level5AverageDamage ~= "0") then
-			t4[5] = "Level 5 Average: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")"
+			t4[5] = "Level 5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")"
 		end
 	end
 

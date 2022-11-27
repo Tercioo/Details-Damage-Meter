@@ -20,6 +20,7 @@ do
 	local compareTwo = Details:NewPluginObject ("Details_Compare2", _G.DETAILSPLUGIN_ALWAYSENABLED)
 	--> just localizing here the plugin's main frame
 	local frame = compareTwo.Frame
+
 	--> set the description
 	compareTwo:SetPluginDescription("Replaces the default comparison window on the player breakdown.")
 
@@ -1328,6 +1329,10 @@ do
 				return newComparisonFrame
 			end
 			
+			if (not frame.__background) then
+				DetailsFramework:ApplyStandardBackdrop(frame)
+				frame.__background:SetAlpha(0.6)
+			end
 		end
 		
 		local buildSpellAndTargetTables = function (player, combat, attribute)
@@ -1375,7 +1380,7 @@ do
 		--main tab function to be executed when the tab is shown
 		local playerComparisonFill = function (tab, player, combat)
 			local frame = tab.frame
-			
+
 			--update player name
 			frame.mainPlayerName.text = player:GetDisplayName()
 			

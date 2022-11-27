@@ -57,6 +57,7 @@ functions\plater.lua
 functions\deathmenu.lua
 functions\macros.lua
 functions\testbars.lua
+functions\warcraftlogs.lua
 
 core\timemachine.lua
 
