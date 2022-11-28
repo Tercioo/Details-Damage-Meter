@@ -853,9 +853,9 @@ local default_profile = {
 			--0.2000,
 			--0.4980,
 			--0.5764,
-			0.20000001788139,
-			0.57647061347961,
-			0.49803924560547,
+			0.2000,
+			0.5764,
+			0.4980,
 		},
 	},
 
@@ -1103,7 +1103,9 @@ local default_profile = {
 			fontcolor = {1, 1, 1, 1},
 			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
 			fontshadow = false,
-			background = {0.1960, 0.1960, 0.1960, 0.8697},
+			bar_color = {0.3960, 0.3960, 0.3960, 0.8700},
+			background = {0.0941, 0.0941, 0.0941, 0.8},
+			divisor_color = {1, 1, 1, 1},
 			abbreviation = 2, -- 2 = ToK I Upper 5 = ToK I Lower -- was 8
 			maximize_method = 1,
 			show_amount = false,
