@@ -1403,7 +1403,7 @@
 		if (empower_cache[who_serial]) then
 			local empowerSpellInfo = empower_cache[who_serial][spellname]
 			if (empowerSpellInfo) then
-				if (not empowerSpellInfo.counted) then
+				if (not empowerSpellInfo.counted_healing) then
 					--total of empowerment
 					spell.e_total = (spell.e_total or 0) + empowerSpellInfo.empowerLevel --usado para calcular o average empowerment
 					--total amount of empowerment
@@ -1413,7 +1413,7 @@
 					spell.e_lvl = spell.e_lvl or {}
 					spell.e_lvl[empowerSpellInfo.empowerLevel] = (spell.e_lvl[empowerSpellInfo.empowerLevel] or 0) + 1
 
-					empowerSpellInfo.counted = true
+					empowerSpellInfo.counted_healing = true
 				end
 
 				--damage bracket
@@ -2012,7 +2012,8 @@
 			spellName = spellName,
 			empowerLevel = empowerLevel,
 			time = time,
-			counted = false,
+			counted_healing = false,
+			counted_damage  = false,
 		}
 		empower_cache[sourceGUID][spellName] = empowerTable
 	end
@@ -2529,7 +2530,7 @@
 		if (empower_cache[who_serial]) then
 			local empowerSpellInfo = empower_cache[who_serial][spellname]
 			if (empowerSpellInfo) then
-				if (not empowerSpellInfo.counted) then
+				if (not empowerSpellInfo.counted_damage) then
 					--total of empowerment
 					spell.e_total = (spell.e_total or 0) + empowerSpellInfo.empowerLevel --usado para calcular o average empowerment
 					--total amount of empowerment
@@ -2539,7 +2540,7 @@
 					spell.e_lvl = spell.e_lvl or {}
 					spell.e_lvl[empowerSpellInfo.empowerLevel] = (spell.e_lvl[empowerSpellInfo.empowerLevel] or 0) + 1
 
-					empowerSpellInfo.counted = true
+					empowerSpellInfo.counted_damage = true
 				end
 
 				--healing bracket
