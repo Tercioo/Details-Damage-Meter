@@ -6289,8 +6289,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			for i = 1, GetNumGroupMembers() do
 				local name = GetUnitName("raid"..i, true)
 
-				raid_members_cache[UnitGUID("raid"..i)] = true
-				roster[name] = true
+				local guid = UnitGUID("raid"..i)
+				raid_members_cache[guid] = name
+				roster[name] = guid
 
 				local role = _UnitGroupRolesAssigned(name)
 				if (role == "TANK") then
@@ -6307,24 +6308,25 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			for i = 1, GetNumGroupMembers()-1 do
 				local name = GetUnitName("party"..i, true)
 
-				raid_members_cache[UnitGUID("party"..i)] = true
-				roster[name] = true
+				local guid = UnitGUID("party"..i)
+				raid_members_cache[guid] = name
+				roster[name] = guid
 
 				local role = _UnitGroupRolesAssigned(name)
 				if (role == "TANK") then
-					tanks_members_cache[UnitGUID("party"..i)] = true
+					tanks_members_cache[guid] = true
 				end
 
-				if (auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("party" .. i)]]) then
-					auto_regen_cache[name] = auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("party" .. i)]]
+				if (auto_regen_power_specs[_detalhes.cached_specs[guid]]) then
+					auto_regen_cache[name] = auto_regen_power_specs[_detalhes.cached_specs[guid]]
 				end
 			end
 
 			--player
 			local name = GetUnitName("player", true)
 
-			raid_members_cache[UnitGUID("player")] = true
-			roster[name] = true
+			raid_members_cache[UnitGUID("player")] = name
+			roster[name] = UnitGUID("player")
 
 			local role = _UnitGroupRolesAssigned(name)
 			if (role == "TANK") then
@@ -6337,8 +6339,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		else
 			local name = GetUnitName("player", true)
 
-			raid_members_cache[UnitGUID("player")] = true
-			roster[name] = true
+			raid_members_cache[UnitGUID("player")] = name
+			roster[name] = UnitGUID("player")
 
 			local role = _UnitGroupRolesAssigned(name)
 			if (role == "TANK") then
