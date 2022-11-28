@@ -7,3 +7,4 @@ move-folders:
     Details/plugins/Details_DataStorage: Details_DataStorage
     Details/plugins/Details_RaidCheck: Details_RaidCheck
     Details/plugins/Details_Streamer: Details_Streamer
+    Details/plugins/Details_Compare2: Details_Compare2
