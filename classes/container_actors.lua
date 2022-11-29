@@ -6,6 +6,8 @@
 	local _
 	local addonName, Details222 = ...
 
+	local bIsDragonflight = DetailsFramework.IsDragonflight()
+
 	local CONST_CLIENT_LANGUAGE = DF.ClientLanguage
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -475,22 +477,24 @@
 			return
 		end
 
-		pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
-		pet_tooltip_frame:SetHyperlink ("unit:" .. (serial or ""))
-		local tooltipData = pet_tooltip_frame:GetTooltipData()
+		if (bIsDragonflight) then
+			pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
+			pet_tooltip_frame:SetHyperlink ("unit:" .. (serial or ""))
+			local tooltipData = pet_tooltip_frame:GetTooltipData()
 
-		if (tooltipData and tooltipData.lines[1]) then
-			if (tooltipData.lines[1].leftText == nome) then
-				for i = 2, #tooltipData.lines do
-					local tooltipLine = tooltipData.lines[i]
-					local args = tooltipLine.args
-					if (args) then
-						if (args[4] and args[4].field == "guid") then
-							local guidVal = args[4].guidVal
-							local guidCache = Details:GetParserPlayerCache()
-							if (guidCache[guidVal]) then
-								find_pet_found_owner(guidCache[guidVal], serial, nome, flag, self)
-								return
+			if (tooltipData and tooltipData.lines[1]) then
+				if (tooltipData.lines[1].leftText == nome) then
+					for i = 2, #tooltipData.lines do
+						local tooltipLine = tooltipData.lines[i]
+						local args = tooltipLine.args
+						if (args) then
+							if (args[4] and args[4].field == "guid") then
+								local guidVal = args[4].guidVal
+								local guidCache = Details:GetParserPlayerCache()
+								if (guidCache[guidVal]) then
+									find_pet_found_owner(guidCache[guidVal], serial, nome, flag, self)
+									return
+								end
 							end
 						end
 					end
