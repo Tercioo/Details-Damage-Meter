@@ -3126,10 +3126,8 @@ function Details.GetPlayTimeOnClassString()
     return "|cffffff00Time played this class (" .. expansionName .. "): " .. days .. " " .. hours .. " " .. minutes
 end
 
-local timePlayerFrame = CreateFrame("frame")
-timePlayerFrame:RegisterEvent("TIME_PLAYED_MSG")
-timePlayerFrame:SetScript("OnEvent", function()
-	--C_Timer.After(0, function() print(Details.GetPlayTimeOnClassString()) end)
+hooksecurefunc("ChatFrame_DisplayTimePlayed", function()
+	print(Details.GetPlayTimeOnClassString())
 end)
 
 --game freeze prevention, there are people calling UpdateAddOnMemoryUsage() making the game client on the end user to freeze, this is bad, really bad.
