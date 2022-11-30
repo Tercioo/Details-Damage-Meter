@@ -3968,7 +3968,7 @@ end
 --------------------------------------------- // JANELA DETALHES // ---------------------------------------------
 
 
----------DETALHES BIFURCA��O ~detalhes ~detailswindow
+---------DETALHES BIFURCA��O ~detalhes ~detailswindow ~bi
 function atributo_damage:MontaInfo()
 	if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 6) then --damage done & dps
 		return self:MontaInfoDamageDone()
@@ -4306,11 +4306,16 @@ function atributo_damage:MontaInfoDamageDone()
 	local allLines = info.barras1
 	local instance = info.instancia
 
+	local combatObject = instance:GetShowingCombat()
+
 	local totalDamageWithoutPet = actorObject.total_without_pet
 	local actorTotalDamage = actorObject.total
 
 	local actorSpellsSorted = {}
 	local actorSpells = actorObject:GetSpellList()
+
+	local bShouldMergePlayerAbilities = true
+	local bShouldMergePetAbilities = true
 
 	--get time type
 	local actorCombatTime
@@ -4323,7 +4328,26 @@ function atributo_damage:MontaInfoDamageDone()
 	for spellId, spellTable in pairs(actorSpells) do
 		local spellName, _, spellIcon = _GetSpellInfo(spellId)
 		if (spellName) then
-			tinsert(actorSpellsSorted, {spellId, spellTable.total, spellTable.total / actorTotalDamage * 100, spellName, spellIcon, nil, spellTable.spellschool})
+			local spellTotal = spellTable.total
+			local spellPercent = spellTable.total / actorTotalDamage * 100
+			local nameString = spellName
+
+			if (bShouldMergePlayerAbilities) then
+				local bAlreadyAdded = false
+				for i = 1, #actorSpellsSorted do
+					local thisSpell = actorSpellsSorted[i]
+					if (thisSpell[4] == nameString) then
+						bAlreadyAdded = true
+						thisSpell[2] = thisSpell[2] + spellTotal
+					end
+				end
+
+				if (not bAlreadyAdded) then
+					tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, nil, spellTable.spellschool})
+				end
+			else
+				tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, nil, spellTable.spellschool})
+			end
 		end
 	end
 
@@ -4354,21 +4378,39 @@ function atributo_damage:MontaInfoDamageDone()
 
 	--show damage percentille within item level bracket
 
-
 	--add pets
-	local ActorPets = self.pets
+	local actorPets = self.pets
 	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
-	local class_color = "FFCCBBBB"
+	local classColor = "FFCCBBBB"
 	--local class_color = "FFDDDD44"
-	for _, PetName in ipairs(ActorPets) do
-		local PetActor = instance.showing (class_type, PetName)
-		if (PetActor) then
-			local PetSkillsContainer = PetActor.spells._ActorTable
-			for _spellid, _skill in pairs(PetSkillsContainer) do --da foreach em cada spellid do container
-				local nome, _, icone = _GetSpellInfo(_spellid)
+	for _, petName in ipairs(actorPets) do
+		local petActor = combatObject(class_type, petName)
+		if (petActor) then
+			local spells = petActor:GetSpellList()
+			for spellId, spellTable in pairs(spells) do --da foreach em cada spellid do container
+				local spellName, _, spellIcon = _GetSpellInfo(spellId)
 				--tinsert(ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
-				if (nome) then
-					tinsert(actorSpellsSorted, {_spellid, _skill.total, _skill.total/actorTotalDamage*100, nome .. " (|c" .. class_color .. PetName:gsub((" <.*"), "") .. "|r)", icone, PetActor, _skill.spellschool})
+				if (spellName) then
+					local spellTotal = spellTable.total
+					local spellPercent = spellTable.total / actorTotalDamage * 100
+					local nameString = spellName .. " (|c" .. classColor .. petName:gsub((" <.*"), "") .. "|r)"
+
+					if (bShouldMergePetAbilities) then
+						local bAlreadyAdded = false
+						for i = 1, #actorSpellsSorted do
+							local thisPetSpell = actorSpellsSorted[i]
+							if (thisPetSpell[1] == spellId) then
+								bAlreadyAdded = true
+								thisPetSpell[2] = thisPetSpell[2] + spellTotal
+							end
+						end
+
+						if (not bAlreadyAdded) then
+							tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, petActor, spellTable.spellschool})
+						end
+					else
+						tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, petActor, spellTable.spellschool})
+					end
 				end
 			end
 		end
@@ -4509,7 +4551,7 @@ function atributo_damage:MontaInfoDamageDone()
 		local meus_inimigos = {}
 
 		--my target container
-		conteudo = self.targets
+		conteudo = self.targets --warning: global
 		for target_name, amount in pairs(conteudo) do
 			tinsert(meus_inimigos, {target_name, amount, amount/totalDamageWithoutPet*100})
 		end
