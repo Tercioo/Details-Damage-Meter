@@ -161,6 +161,16 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 		end
 	end
 
+	local infoNumPoints = info:GetNumPoints()
+	for i = 1, infoNumPoints do
+		local a, b, c, d, e = info:GetPoint(i)
+		if (not b) then
+			info:ClearAllPoints()
+		end
+	end
+
+	info:SetPoint("center", _G.UIParent, "center", 0, 0)
+
 	--passar os par�metros para dentro da tabela da janela.
 
 	info.ativo = true --sinaliza o addon que a janela esta aberta
@@ -1666,9 +1676,6 @@ function gump:CriaJanelaInfo()
 
 	--fehcar com o esc
 	tinsert(UISpecialFrames, este_gump:GetName())
-
-	--propriedades da janela
-	este_gump:SetPoint("CENTER", UIParent)
 
 	este_gump:SetWidth(PLAYER_DETAILS_WINDOW_WIDTH)
 	este_gump:SetHeight(PLAYER_DETAILS_WINDOW_HEIGHT)
