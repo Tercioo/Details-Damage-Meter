@@ -54,6 +54,9 @@
 
 		--namespace for the player breakdown window
 		Details.PlayerBreakdown = {}
+		Details222.PlayerBreakdown = {
+			DamageSpellsCache = {}
+		}
 
 		--color namespace
 		Details222.ColorScheme = {
@@ -63,6 +66,8 @@
 		function Details222.ColorScheme.GetColorFor(colorScheme)
 			return Details222.ColorScheme[colorScheme]
 		end
+
+		Details222.DamageSpells = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff

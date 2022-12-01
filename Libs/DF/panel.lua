@@ -5038,6 +5038,10 @@ detailsFramework.HeaderFunctions = {
 		tinsert(self.FramesToAlign, frame)
 	end,
 
+	GetFramesFromHeaderAlignment = function(self, frame)
+		return self.FramesToAlign or {}
+	end,
+
 	--@self: an object like a line
 	--@headerFrame: the main header frame
 	--@anchor: which side the columnHeaders are attach
