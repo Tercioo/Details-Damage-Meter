@@ -4324,18 +4324,34 @@ local getSpellDetails = function(unitGUID, spellName)
 		if (#spellsTableForSpellName > 1) then
 			local t = spellsTableForSpellName
 			local spellId = t[1].id
-			local resultTable = Details222.DamageSpells.CreateSpellTable(spellId)
+			local newSpellTable = Details222.DamageSpells.CreateSpellTable(spellId)
+
+			newSpellTable.n_min = 99999999
+			newSpellTable.c_min = 99999999
+			newSpellTable.n_max = 0
+			newSpellTable.c_max = 0
+
 			for i = 1, #t do
 				for key, value in pairs(t[i]) do
 					if (type(value) == "number") then
-						if (key ~= "id" and key ~= "spellschool") then
-							resultTable[key] = (resultTable[key] or 0) + value
+						if (key == "n_min" or key == "c_min") then
+							if (value < newSpellTable[key]) then
+								newSpellTable[key] = value
+							end
+
+						elseif (key == "n_max" or key == "c_max") then
+							if (value > newSpellTable[key]) then
+								newSpellTable[key] = value
+							end
+
+						elseif (key ~= "id" and key ~= "spellschool") then
+							newSpellTable[key] = (newSpellTable[key] or 0) + value
 						end
 					end
 				end
 			end
 
-			return resultTable
+			return newSpellTable
 		else
 			--there's only one table, so return the first
 			return spellsTableForSpellName[1]
@@ -4350,7 +4366,30 @@ function atributo_damage:MontaInfoDamageDone()
 	local allLines = info.barras1
 	local instance = info.instancia
 
+	--damage rank
 	local combatObject = instance:GetShowingCombat()
+	local diff = combatObject:GetDifficulty()
+	local attribute, subAttribute = instance:GetDisplay()
+
+	--check if is a raid encounter and if is heroic or mythic
+	if (diff and (diff == 15 or diff == 16)) then
+		local db = Details.OpenStorage()
+		if (db) then
+			local bestRank, encounterTable = Details.storage:GetBestFromPlayer (diff, combatObject:GetBossInfo().id, "damage", self.nome, true)
+			if (bestRank) then
+				--discover which are the player position in the guild rank
+				local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combatObject:GetBossInfo().id, "damage", self.nome, true)
+				local text1 = self.nome .. " Guild Rank on " .. (combatObject:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
+				info:SetStatusbarText (text1, 10, "gray")
+			else
+				info:SetStatusbarText()
+			end
+		else
+			info:SetStatusbarText()
+		end
+	else
+		info:SetStatusbarText()
+	end
 
 	local totalDamageWithoutPet = actorObject.total_without_pet
 	local actorTotalDamage = actorObject.total
@@ -4358,8 +4397,10 @@ function atributo_damage:MontaInfoDamageDone()
 	local actorSpellsSorted = {}
 	local actorSpells = actorObject:GetSpellList()
 
-	local bShouldMergePlayerAbilities = true
-	local bShouldMergePetAbilities = true
+	local bShouldMergePlayerAbilities = Details.merge_player_abilities
+	local bShouldMergePetAbilities = Details.merge_pet_abilities
+
+	wipeSpellCache()
 
 	--get time type
 	local actorCombatTime
@@ -4368,8 +4409,6 @@ function atributo_damage:MontaInfoDamageDone()
 	elseif (Details.time_type == 2) then
 		actorCombatTime = info.instancia.showing:GetCombatTime()
 	end
-
-	wipeSpellCache()
 
 	for spellId, spellTable in pairs(actorSpells) do
 		local spellName, _, spellIcon = _GetSpellInfo(spellId)
@@ -4400,31 +4439,6 @@ function atributo_damage:MontaInfoDamageDone()
 		end
 	end
 
-	--damage rank
-	local combat = instance:GetShowingCombat()
-	local diff = combat:GetDifficulty()
-	local attribute, subAttribute = instance:GetDisplay()
-
-	--check if is a raid encounter and if is heroic or mythic
-	if (diff and (diff == 15 or diff == 16)) then
-		local db = Details.OpenStorage()
-		if (db) then
-			local bestRank, encounterTable = Details.storage:GetBestFromPlayer (diff, combat:GetBossInfo().id, "damage", self.nome, true)
-			if (bestRank) then
-				--discover which are the player position in the guild rank
-				local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combat:GetBossInfo().id, "damage", self.nome, true)
-				local text1 = self.nome .. " Guild Rank on " .. (combat:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
-				info:SetStatusbarText (text1, 10, "gray")
-			else
-				info:SetStatusbarText()
-			end
-		else
-			info:SetStatusbarText()
-		end
-	else
-		info:SetStatusbarText()
-	end
-
 	--show damage percentille within item level bracket
 
 	--add pets
@@ -4432,8 +4446,9 @@ function atributo_damage:MontaInfoDamageDone()
 	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
 	local classColor = "FFCCBBBB"
 	--local class_color = "FFDDDD44"
+
 	for _, petName in ipairs(actorPets) do
-		local petActor = combatObject(class_type, petName)
+		local petActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, petName)
 		if (petActor) then
 			local spells = petActor:GetSpellList()
 			for spellId, spellTable in pairs(spells) do --da foreach em cada spellid do container
@@ -4447,10 +4462,10 @@ function atributo_damage:MontaInfoDamageDone()
 					if (bShouldMergePetAbilities) then
 						local bAlreadyAdded = false
 						for i = 1, #actorSpellsSorted do
-							local thisPetSpell = actorSpellsSorted[i]
-							if (thisPetSpell[1] == spellId) then
+							local thisPetSpellTable = actorSpellsSorted[i]
+							if (thisPetSpellTable[1] == spellId) then
 								bAlreadyAdded = true
-								thisPetSpell[2] = thisPetSpell[2] + spellTotal
+								thisPetSpellTable[2] = thisPetSpellTable[2] + spellTotal
 							end
 						end
 
@@ -4458,7 +4473,7 @@ function atributo_damage:MontaInfoDamageDone()
 							tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, petActor, spellTable.spellschool})
 						end
 
-						addToSpellCache(actorObject:GetGUID(), spellName, spellTable)
+						addToSpellCache(actorObject:GetGUID(), spellName, spellTable) --all pet spells are added to later be combined and shown in the spell details
 					else
 						tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, petActor, spellTable.spellschool})
 					end
@@ -4969,24 +4984,33 @@ end
 
 
 function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
-	local esta_magia
+	local spellTable
 	if (spellLine.other_actor) then
-		esta_magia = spellLine.other_actor.spells._ActorTable [spellId]
+		spellTable = spellLine.other_actor.spells._ActorTable [spellId]
+		--self = spellLine.other_actor
 	else
-		esta_magia = self.spells._ActorTable [spellId]
+		spellTable = self.spells._ActorTable [spellId]
 	end
 
 	if (spellId == -51) then
 		return MontaDetalhesBuffProcs(self, spellLine, instance)
 	end
 
-	if (not esta_magia) then
+	if (not spellTable) then
 		return
 	end
 
 	local spellName, _, icone = _GetSpellInfo(spellId)
 
-	esta_magia = getSpellDetails(self:GetGUID(), spellName)
+	local bShouldMergePlayerAbilities = Details.merge_player_abilities
+	local bShouldMergePetAbilities = Details.merge_pet_abilities
+
+	if (bShouldMergePlayerAbilities or bShouldMergePetAbilities) then
+		local mergedSpellTable = getSpellDetails(self:GetGUID(), spellName) --it's not merging
+		if (mergedSpellTable) then
+			spellTable = mergedSpellTable
+		end
+	end
 
 	Details.playerDetailWindow.spell_icone:SetTexture(icone)
 
@@ -5000,7 +5024,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		meu_tempo = info.instancia.showing:GetCombatTime()
 	end
 
-	local total_hits = esta_magia.counter
+	local total_hits = spellTable.counter
 
 	local index = 1
 	local data = data_table
@@ -5014,17 +5038,17 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 	--GERAL
 		local media = 0
 		if (total_hits > 0) then
-			media = esta_magia.total/total_hits
+			media = spellTable.total/total_hits
 		end
 
 		local this_dps = nil
-		if (esta_magia.counter > esta_magia.c_amt) then
-			this_dps = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (esta_magia.total/meu_tempo)
+		if (spellTable.counter > spellTable.c_amt) then
+			this_dps = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (spellTable.total/meu_tempo)
 		else
 			this_dps = Loc ["STRING_DPS"] .. ": " .. Loc ["STRING_SEE_BELOW"]
 		end
 
-		local spellschool, schooltext = esta_magia.spellschool, ""
+		local spellschool, schooltext = spellTable.spellschool, ""
 		if (spellschool) then
 			local t = Details.spells_school [spellschool]
 			if (t and t.name) then
@@ -5038,7 +5062,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		local misc_actor = info.instancia.showing (4, self:name())
 		if (misc_actor) then
 
-			local uptime_spellid = esta_magia.id
+			local uptime_spellid = spellTable.id
 			--if (uptime_spellid == 233490) then
 			--	uptime_spellid = 233496
 			--	uptime_spellid = 233490
@@ -5066,13 +5090,13 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			cast_string = cast_string .. spell_cast
 		end
 
-		if (esta_magia.e_total) then
-			cast_string = Loc ["STRING_CAST"] .. ": " .. "|cFFFFFF00" .. esta_magia.e_total .. "|r"
+		if (spellTable.e_total) then
+			cast_string = Loc ["STRING_CAST"] .. ": " .. "|cFFFFFF00" .. spellTable.e_total .. "|r"
 		end
 
 		gump:SetaDetalheInfoTexto( index, 100,
 			cast_string,
-			Loc ["STRING_DAMAGE"]..": "..Details:ToK(esta_magia.total),
+			Loc ["STRING_DAMAGE"]..": "..Details:ToK(spellTable.total),
 			schooltext, --offhand,
 			Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media),
 			this_dps,
@@ -5080,11 +5104,11 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		)
 
 	--NORMAL
-		local normal_hits = esta_magia.n_amt
+		local normal_hits = spellTable.n_amt
 		if (normal_hits > 0) then
-			local normal_dmg = esta_magia.n_dmg
+			local normal_dmg = spellTable.n_dmg
 			local media_normal = normal_dmg/normal_hits
-			local T = (meu_tempo*normal_dmg)/ max(esta_magia.total, 0.001)
+			local T = (meu_tempo*normal_dmg)/ max(spellTable.total, 0.001)
 			local P = media/media_normal*100
 			T = P*T/100
 
@@ -5092,11 +5116,11 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 
 			data[#data+1] = t1
 
-			t1[1] = esta_magia.n_amt
+			t1[1] = spellTable.n_amt
 			t1[2] = normal_table
 			t1[3] = Loc ["STRING_NORMAL_HITS"]
-			t1[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.n_min)
-			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.n_max)
+			t1[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:comma_value (spellTable.n_min)
+			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (spellTable.n_max)
 			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_normal)
 			t1[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (normal_dmg/T)
 			t1[8] = normal_hits .. " [|cFFC0C0C0" .. format("%.1f", normal_hits/max(total_hits, 0.0001)*100) .. "%|r]"
@@ -5104,36 +5128,36 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 		end
 
 	--CRITICO
-		if (esta_magia.c_amt > 0) then
-			local media_critico = esta_magia.c_dmg/esta_magia.c_amt
-			local T = (meu_tempo*esta_magia.c_dmg)/esta_magia.total
+		if (spellTable.c_amt > 0) then
+			local media_critico = spellTable.c_dmg/spellTable.c_amt
+			local T = (meu_tempo*spellTable.c_dmg)/spellTable.total
 			local P = media/max(media_critico, 0.0001)*100
 			T = P*T/100
-			local crit_dps = esta_magia.c_dmg/T
+			local crit_dps = spellTable.c_dmg/T
 			if (not crit_dps) then
 				crit_dps = 0
 			end
 
-			critical_table.p = esta_magia.c_amt/total_hits*100
+			critical_table.p = spellTable.c_amt/total_hits*100
 
 			data[#data+1] = t2
 
-			t2[1] = esta_magia.c_amt
+			t2[1] = spellTable.c_amt
 			t2[2] = critical_table
 			t2[3] = Loc ["STRING_CRITICAL_HITS"]
-			t2[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.c_min)
-			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (esta_magia.c_max)
+			t2[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:comma_value (spellTable.c_min)
+			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:comma_value (spellTable.c_max)
 			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. Details:comma_value (media_critico)
 			t2[7] = Loc ["STRING_DPS"] .. ": " .. Details:comma_value (crit_dps)
-			t2[8] = esta_magia.c_amt .. " [|cFFC0C0C0" .. format("%.1f", esta_magia.c_amt/total_hits*100) .. "%|r]"
+			t2[8] = spellTable.c_amt .. " [|cFFC0C0C0" .. format("%.1f", spellTable.c_amt/total_hits*100) .. "%|r]"
 			t2[9] = ""
 		end
 
 	--Outros erros: GLACING, resisted, blocked, absorbed
-		local outros_desvios = esta_magia.g_amt + esta_magia.b_amt
-		local parry = esta_magia ["PARRY"] or 0
-		local dodge = esta_magia ["DODGE"] or 0
-		local misses = esta_magia ["MISS"] or 0
+		local outros_desvios = spellTable.g_amt + spellTable.b_amt
+		local parry = spellTable ["PARRY"] or 0
+		local dodge = spellTable ["DODGE"] or 0
+		local misses = spellTable ["MISS"] or 0
 
 		local erros = parry + dodge + misses
 
@@ -5146,20 +5170,20 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			t3[1] = outros_desvios+erros
 			t3[2] = defenses_table
 			t3[3] = Loc ["STRING_DEFENSES"]
-			t3[4] = Loc ["STRING_GLANCING"] .. ": " .. _math_floor(esta_magia.g_amt/esta_magia.counter*100) .. "%"
+			t3[4] = Loc ["STRING_GLANCING"] .. ": " .. _math_floor(spellTable.g_amt/spellTable.counter*100) .. "%"
 			t3[5] = Loc ["STRING_PARRY"] .. ": " .. parry
 			t3[6] = Loc ["STRING_DODGE"] .. ": " .. dodge
-			t3[7] = Loc ["STRING_BLOCKED"] .. ": " .. _math_floor(esta_magia.b_amt/esta_magia.counter*100)
+			t3[7] = Loc ["STRING_BLOCKED"] .. ": " .. _math_floor(spellTable.b_amt/spellTable.counter*100)
 			t3[8] = (outros_desvios+erros) .. " / " .. format("%.1f", porcentagem_defesas) .. "%"
 			t3[9] = "MISS" .. ": " .. misses
 		end
 
 	--~empowered
-	if (esta_magia.e_total) then
-		local empowerLevelSum = esta_magia.e_total --total sum of empower levels
-		local empowerAmount = esta_magia.e_amt --amount of casts with empower
-		local empowerAmountPerLevel = esta_magia.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
-		local empowerDamagePerLevel = esta_magia.e_dmg --{[1] = 54548745, [2] = 74548745}
+	if (spellTable.e_total) then
+		local empowerLevelSum = spellTable.e_total --total sum of empower levels
+		local empowerAmount = spellTable.e_amt --amount of casts with empower
+		local empowerAmountPerLevel = spellTable.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
+		local empowerDamagePerLevel = spellTable.e_dmg --{[1] = 54548745, [2] = 74548745}
 
 		data[#data+1] = t4
 
@@ -5220,7 +5244,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 
 	--spell damage chart
 	--events: 1 2 3 4 5 6 7 8 15
-	local spellTable = esta_magia
+	local spellTable = spellTable
 
 	local blockId = 6
 	local thatRectangle66 = Details222.BreakdownWindow.GetBlockIndex(blockId)

@@ -99,6 +99,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		dumpt(returnTable)
 
+	elseif (command == "mergepetspells") then
+		Details.merge_pet_abilities = not Details.merge_pet_abilities
+		Details:Msg("Merging pet spells:", Details.merge_pet_abilities or "false")
+
 	elseif (command == "softhide") then
 		for instanceID, instance in _detalhes:ListInstances() do
 			if (instance:IsEnabled()) then

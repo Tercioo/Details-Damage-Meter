@@ -1364,6 +1364,9 @@ local default_global_data = {
 		slash_me_used = false,
 		trinket_data = {},
 
+		merge_pet_abilities = false,
+		merge_player_abilities = false,
+
 	--spell category feedback
 		spell_category_savedtable = {},
 		spell_category_latest_query = 0,
