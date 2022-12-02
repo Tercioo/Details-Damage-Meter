@@ -3174,6 +3174,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 		r, g, b = unpack(Details.class_colors [self.classe])
 	end
 
+	local combatObject = instancia:GetShowingCombat()
+
 	--habilidades
 	local icon_size = Details.tooltip.icon_size
 	local icon_border = Details.tooltip.icon_border_texcoord
@@ -3219,18 +3221,21 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				end
 			end
 			--sort
-			_table_sort(ActorSkillsSortTable, Details.Sort2)
+			table.sort(ActorSkillsSortTable, Details.Sort2)
 
 		--TOP INIMIGOS
 			--get variables
 			local ActorTargetsSortTable = {}
 
 			--add
-			for target_name, amount in pairs(self.targets) do
-				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {target_name, amount}
+			for targetName, amount in pairs(self.targets) do
+				local targetActorObject = combatObject(DETAILS_ATTRIBUTE_DAMAGE, targetName)
+				local npcId = targetActorObject and targetActorObject.aID
+				npcId = tonumber(npcId or 0)
+				ActorTargetsSortTable[#ActorTargetsSortTable+1] = {targetName, amount, npcId}
 			end
 			--sort
-			_table_sort(ActorTargetsSortTable, Details.Sort2)
+			table.sort(ActorTargetsSortTable, Details.Sort2)
 
 			--tooltip stuff
 			local tooltip_max_abilities = Details.tooltip.tooltip_max_abilities
@@ -3316,13 +3321,12 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			end
 
 		--MOSTRA INIMIGOS
-			local topEnemy = ActorTargetsSortTable [1] and ActorTargetsSortTable [1][2] or 0
+			local topEnemy = ActorTargetsSortTable[1] and ActorTargetsSortTable[1][2] or 0
 			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
-
 				--small blank space
-				Details:AddTooltipSpellHeaderText ("", headerColor, 1, false, 0.1, 0.9, 0.1, 0.9, true)
+				Details:AddTooltipSpellHeaderText("", headerColor, 1, false, 0.1, 0.9, 0.1, 0.9, true)
 
-				Details:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #ActorTargetsSortTable, [[Interface\Addons\Details\images\icons]], 0, 0.03125, 0.126953125, 0.15625)
+				Details:AddTooltipSpellHeaderText(Loc ["STRING_TARGETS"], headerColor, #ActorTargetsSortTable, [[Interface\Addons\Details\images\icons]], 0, 0.03125, 0.126953125, 0.15625)
 
 				local max_targets = Details.tooltip.tooltip_max_targets
 				local is_maximized = false
@@ -3333,18 +3337,25 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 				if (is_maximized) then
 					--highlight
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
-					Details:AddTooltipHeaderStatusbar (r, g, b, 1)
+					GameCooltip:AddIcon([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay2)
+					Details:AddTooltipHeaderStatusbar(r, g, b, 1)
 				else
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
-					Details:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+					GameCooltip:AddIcon([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, Details.tooltip_key_size_width, Details.tooltip_key_size_height, 0, 1, 0, 0.640625, Details.tooltip_key_overlay1)
+					Details:AddTooltipHeaderStatusbar(r, g, b, barAlha)
 				end
 
-				for i = 1, _math_min(max_targets, #ActorTargetsSortTable) do
-					local este_inimigo = ActorTargetsSortTable [i]
-					GameCooltip:AddLine(este_inimigo[1], FormatTooltipNumber (_, este_inimigo[2]) .." ("..format("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
-					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, icon_size.W, icon_size.H, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
-					Details:AddTooltipBackgroundStatusbar (false, este_inimigo[2] / topEnemy * 100)
+				for i = 1, math.min(max_targets, #ActorTargetsSortTable) do
+					local enemyTable = ActorTargetsSortTable[i]
+					GameCooltip:AddLine(enemyTable[1], FormatTooltipNumber(_, enemyTable[2]) .." ("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
+					
+					local portraitTexture = Details222.Textures.GetPortraitTextureForNpcID(enemyTable[3])
+					if (portraitTexture) then
+						GameCooltip:AddIcon(portraitTexture, 1, 1, icon_size.W, icon_size.H)
+					else
+						GameCooltip:AddIcon([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, icon_size.W, icon_size.H, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
+					end
+
+					Details:AddTooltipBackgroundStatusbar(false, enemyTable[2] / topEnemy * 100)
 				end
 			end
 	end
@@ -4525,42 +4536,42 @@ function atributo_damage:MontaInfoDamageDone()
 		self:FocusLock(barra, tabela[1])
 	end
 
-	--TOP INIMIGOS
-	if (instance.sub_atributo == 6) then
-
-		local damage_taken = self.damage_taken
-		local agressores = self.damage_from
-		local tabela_do_combate = instance.showing
-		local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
+	--targets
+	if (instance.sub_atributo == DETAILS_SUBATTRIBUTE_ENEMIES) then
+		local totalDamageTaken = self.damage_taken
+		local damageTakenFrom = self.damage_from
+		local combatObject = instance:GetShowingCombat()
+		local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 		local barras = info.barras2
-		local meus_agressores = {}
+		local enemyTable = {}
+		local targetName = self:Name()
 
-		local este_agressor
-		for nome, _ in pairs(agressores) do
-			este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
-			if (este_agressor) then
-				local este_alvo = este_agressor.targets [self.nome]
-				if (este_alvo) then
-					meus_agressores [#meus_agressores+1] = {nome, este_alvo, este_alvo/damage_taken*100, este_agressor.classe}
+		local enemyActorObject
+		for enemyName in pairs(damageTakenFrom) do
+			enemyActorObject = damageContainer:GetActor(enemyName)
+			if (enemyActorObject) then
+				local damageDoneToTarget = enemyActorObject.targets[targetName]
+				if (damageDoneToTarget) then
+					local npcId = DetailsFramework:GetNpcIdFromGuid(enemyActorObject:GetGUID())
+					enemyTable[#enemyTable+1] = {enemyName, damageDoneToTarget, damageDoneToTarget / totalDamageTaken * 100, enemyActorObject:Class(), npcId}
 				end
 			end
 		end
 
-		local amt = #meus_agressores
+		local enemyAmount = #enemyTable
 
-		if (amt < 1) then --caso houve apenas friendly fire
+		if (enemyAmount < 1) then
 			return true
 		end
 
-		gump:JI_AtualizaContainerAlvos (amt)
+		gump:JI_AtualizaContainerAlvos(enemyAmount)
 
-		--_table_sort(meus_agressores, function(a, b) return a[2] > b[2] end)
-		_table_sort(meus_agressores, Details.Sort2)
+		table.sort(enemyTable, Details.Sort2)
 
-		local max_ = meus_agressores[1] and meus_agressores[1][2] or 0 --dano que a primeiro magia vez
+		local topDamage = enemyTable[1] and enemyTable[1][2] or 0
 
 		local barra
-		for index, tabela in ipairs(meus_agressores) do
+		for index, tabela in ipairs(enemyTable) do
 			barra = barras [index]
 
 			if (not barra) then --se a barra n�o existir, criar ela ent�o
@@ -4571,7 +4582,7 @@ function atributo_damage:MontaInfoDamageDone()
 			if (index == 1) then
 				barra.textura:SetValue(100)
 			else
-				barra.textura:SetValue(tabela[2]/max_*100)
+				barra.textura:SetValue(tabela[2] / topDamage * 100)
 			end
 
 			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(tabela[1])) --seta o texto da esqueda
@@ -4614,45 +4625,53 @@ function atributo_damage:MontaInfoDamageDone()
 			barra:Show() --mostra a barra
 		end
 	else
-		local meus_inimigos = {}
+		local combatObject = instance:GetShowingCombat()
+		local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		local allActorTargets = {}
 
-		--my target container
-		conteudo = self.targets --warning: global
-		for target_name, amount in pairs(conteudo) do
-			tinsert(meus_inimigos, {target_name, amount, amount/totalDamageWithoutPet*100})
+		--table with actor names and damage done which the player caused damage to
+		local targetsTable = self.targets
+		for targetName, damageDone in pairs(targetsTable) do
+			tinsert(allActorTargets, {targetName, damageDone, damageDone / totalDamageWithoutPet * 100})
 		end
 
-		--sort
-		_table_sort(meus_inimigos, Details.Sort2)
+		table.sort(allActorTargets, Details.Sort2)
 
-		local amt_alvos = #meus_inimigos
-		if (amt_alvos < 1) then
+		local enemyAmount = #allActorTargets
+		if (enemyAmount < 1) then
 			return
 		end
 
-		gump:JI_AtualizaContainerAlvos (amt_alvos)
+		gump:JI_AtualizaContainerAlvos(enemyAmount)
 
-		local max_inimigos = meus_inimigos[1] and meus_inimigos[1][2] or 0
+		local topDamage = allActorTargets[1] and allActorTargets[1][2] or 0
 
 		local barra
-		for index, tabela in ipairs(meus_inimigos) do
-
-			barra = info.barras2 [index]
+		for index, targetTable in ipairs(allActorTargets) do
+			barra = info.barras2[index]
 
 			if (not barra) then
-				barra = gump:CriaNovaBarraInfo2 (instance, index)
+				barra = gump:CriaNovaBarraInfo2(instance, index)
 				barra.textura:SetStatusBarColor(1, 1, 1, 1)
 			end
 
 			if (index == 1) then
 				barra.textura:SetValue(100)
 			else
-				barra.textura:SetValue(tabela[2]/max_inimigos*100)
+				barra.textura:SetValue(targetTable[2] / topDamage * 100)
 			end
 
-			local target_actor = instance.showing (1, tabela[1])
-			if (target_actor) then
-				target_actor:SetClassIcon(barra.icone, instance, target_actor.classe)
+			local targetName = targetTable[1]
+			local targetActorObject = damageContainer:GetActor(targetName)
+			local npcId = DetailsFramework:GetNpcIdFromGuid(targetActorObject:GetGUID())
+
+			if (targetActorObject) then
+				local portraitTexture = Details222.Textures.GetPortraitTextureForNpcID(npcId)
+				if (portraitTexture) then
+					Details222.Textures.FormatPortraitAsTexture(portraitTexture, barra.icone)
+				else
+					targetActorObject:SetClassIcon(barra.icone, instance, targetActorObject.classe)
+				end
 			else
 				barra.icone:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
 				local texCoords = Details.class_coords ["ENEMY"]
@@ -4662,12 +4681,12 @@ function atributo_damage:MontaInfoDamageDone()
 			barra.textura:SetStatusBarColor(1, 0.8, 0.8)
 			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 
-			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(tabela[1]))
+			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(targetName))
 
 			if (info.sub_atributo == 2) then
-				barra.lineText4:SetText(Details:comma_value ( _math_floor(tabela[2]/actorCombatTime)) .. " (" .. format("%.1f", tabela[3]) .. "%)")
+				barra.lineText4:SetText(Details:comma_value ( _math_floor(targetTable[2]/actorCombatTime)) .. " (" .. format("%.1f", targetTable[3]) .. "%)")
 			else
-				barra.lineText4:SetText(SelectedToKFunction(_, tabela[2]) .." (" .. format("%.1f", tabela[3]) .. "%)")
+				barra.lineText4:SetText(SelectedToKFunction(_, targetTable[2]) .." (" .. format("%.1f", targetTable[3]) .. "%)")
 			end
 
 			if (barra.mouse_over) then --atualizar o tooltip
@@ -4682,10 +4701,10 @@ function atributo_damage:MontaInfoDamageDone()
 			end
 
 			barra.minha_tabela = self --grava o jogador na tabela
-			barra.nome_inimigo = tabela [1] --salva o nome do inimigo na barra --isso � necess�rio?
+			barra.nome_inimigo = targetTable [1] --salva o nome do inimigo na barra --isso � necess�rio?
 
 			-- no rank do spell id colocar o que?
-			barra.spellid = tabela[5]
+			barra.spellid = targetTable[5]
 			barra:Show()
 		end
 	end

@@ -261,6 +261,8 @@ function Details:StartMeUp() --I'll never stop!
 
 		self.listener:RegisterEvent("UNIT_FACTION")
 
+		self.listener:RegisterEvent("PLAYER_TARGET_CHANGED")
+
 		if (not DetailsFramework.IsTimewalkWoW()) then
 			self.listener:RegisterEvent("PET_BATTLE_OPENING_START")
 			self.listener:RegisterEvent("PET_BATTLE_CLOSE")

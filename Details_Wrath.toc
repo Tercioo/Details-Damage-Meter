@@ -58,6 +58,7 @@ functions\deathmenu.lua
 functions\macros.lua
 functions\testbars.lua
 functions\warcraftlogs.lua
+functions\textures.lua
 
 core\timemachine.lua
 

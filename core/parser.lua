@@ -6017,6 +6017,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes:SchedulePetUpdate(5)
 	end
 
+	function Details.parser_functions:PLAYER_TARGET_CHANGED(...)
+		Details:SendEvent("PLAYER_TARGET")
+	end
+
 	local parser_functions = _detalhes.parser_functions
 
 	function _detalhes:OnEvent(event, ...)

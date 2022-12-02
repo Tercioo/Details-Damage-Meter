@@ -11,7 +11,7 @@
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
-		_detalhes.realversion = 147 --core version, this is used to check API version for scripts and plugins (see alias below)
+		_detalhes.realversion = 148 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 
@@ -58,7 +58,7 @@
 			DamageSpellsCache = {}
 		}
 
-		--color namespace
+		--namespace color
 		Details222.ColorScheme = {
 			["gradient-background"] = {0.1215, 0.1176, 0.1294, 0.8},
 		}
@@ -67,7 +67,12 @@
 			return Details222.ColorScheme[colorScheme]
 		end
 
+		--namespace for damage spells (spellTable)
 		Details222.DamageSpells = {}
+
+
+		--namespace for texture
+		Details222.Textures = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff

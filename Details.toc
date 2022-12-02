@@ -61,6 +61,7 @@ functions\macros.lua
 functions\testbars.lua
 functions\editmode.lua
 functions\warcraftlogs.lua
+functions\textures.lua
 
 core\timemachine.lua
 
