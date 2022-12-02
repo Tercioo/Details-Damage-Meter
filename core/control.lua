@@ -1658,7 +1658,7 @@
 			GameCooltip:Reset()
 			GameCooltip:SetType ("tooltip")
 
-			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background_dark]])
+			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background_dark_withline]])
 
 			GameCooltip:SetOption("TextSize", Details.tooltip.fontsize)
 			GameCooltip:SetOption("TextFont",  Details.tooltip.fontface)
