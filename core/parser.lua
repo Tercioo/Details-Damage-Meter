@@ -11,7 +11,6 @@
 	local UnitHealth = UnitHealth
 	local UnitHealthMax = UnitHealthMax
 	local UnitGUID = UnitGUID
-	local IsInRaid = IsInRaid
 	local IsInGroup = IsInGroup
 	--local GetNumGroupMembers = GetNumGroupMembers
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
@@ -93,6 +92,8 @@
 		local bitfield_swap_cache = {}
 	--damage and heal last events
 		local last_events_cache = {} --initialize table (placeholder)
+	--hunter pet frenzy cache
+		local pet_frenzy_cache = {}
 	--npcId cache
 		local npcid_cache = {}
 	--pets
@@ -2625,6 +2626,19 @@
 	--BUFFS & DEBUFFS 	search key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+	local isAuraActived = function(who_name, spellid)
+		local miscActorObject = misc_cache[who_name]
+		if (miscActorObject) then
+			--fastest way to query data
+			local spellTable = miscActorObject.buff_uptime_spells and miscActorObject.buff_uptime_spells._ActorTable[spellid]
+			if (spellTable) then
+				if (spellTable.actived) then
+					return true
+				end
+			end
+		end
+	end
+
 	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, tipo, amount, arg1, arg2, arg3)
 
 	--not yet well know about unnamed buff casters
@@ -2697,6 +2711,32 @@
 				end
 
 				if (_recording_buffs_and_debuffs) then
+					if (spellid == 272790) then --hunter pet Frenzy quick fix for show the Frenzy uptime
+						if (pet_frenzy_cache[who_name]) then
+							if (DetailsFramework:IsNearlyEqual(pet_frenzy_cache[who_name], time, 0.2)) then
+								return
+							end
+						end
+
+						if (not _detalhes.in_combat) then
+							C_Timer.After(1, function()
+								if (_detalhes.in_combat) then
+									if (pet_frenzy_cache[who_name]) then
+										if (DetailsFramework:IsNearlyEqual(pet_frenzy_cache[who_name], time, 0.2)) then
+											return
+										end
+									end
+									parser:add_buff_uptime(token, time, who_serial, who_name, who_flags, who_serial, who_name, who_flags, 0x0, spellid, spellname, "BUFF_UPTIME_IN")
+								end
+							end)
+							return
+						end
+
+						pet_frenzy_cache[who_name] = time --when the buffIN happened
+						parser:add_buff_uptime(token, time, who_serial, who_name, who_flags, who_serial, who_name, who_flags, 0x0, spellid, spellname, "BUFF_UPTIME_IN")
+						return
+					end
+
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--call record buffs uptime
 						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_IN")
@@ -2946,6 +2986,25 @@
 			------------------------------------------------------------------------------------------------
 			--buff uptime
 				if (_recording_buffs_and_debuffs) then
+					if (spellid == 272790) then --hunter pet Frenzy spellid
+						local miscActorObject = misc_cache[who_name]
+						if (miscActorObject) then
+							--fastest way to query utility spell data
+							local spellTable = miscActorObject.buff_uptime_spells and miscActorObject.buff_uptime_spells._ActorTable[spellid]
+							if (spellTable) then
+								if (spellTable.actived and pet_frenzy_cache[who_name]) then
+									if (DetailsFramework:IsNearlyEqual(pet_frenzy_cache[who_name], time, 0.2)) then
+										return
+									end
+								end
+							end
+						end
+
+						parser:add_buff_uptime(token, time, who_serial, who_name, who_flags, who_serial, who_name, who_flags, 0x0, spellid, spellname, "BUFF_UPTIME_REFRESH")
+						pet_frenzy_cache[who_name] = time
+						return
+					end
+
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--call record buffs uptime
 						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_REFRESH")
@@ -2955,6 +3014,7 @@
 
 					elseif (buffs_to_other_players[spellid]) then
 						parser:add_buff_uptime(token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_REFRESH")
+
 					end
 				end
 
@@ -3089,6 +3149,15 @@
 			------------------------------------------------------------------------------------------------
 			--buff uptime
 				if (_recording_buffs_and_debuffs) then
+					if (spellid == 272790) then --hunter pet Frenzy spellid
+						if (not pet_frenzy_cache[who_name]) then
+							return
+						end
+						parser:add_buff_uptime(token, time, who_serial, who_name, who_flags, who_serial, who_name, who_flags, 0x0, spellid, spellname, "BUFF_UPTIME_OUT")
+						pet_frenzy_cache[who_name] = nil
+						return
+					end
+
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--call record buffs uptime
 						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_OUT")
