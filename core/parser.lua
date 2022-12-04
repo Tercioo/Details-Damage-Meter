@@ -160,6 +160,33 @@
 
 		local empower_cache = {}
 
+--[[		
+12/4 10:47:00.989  SPELL_AURA_APPLIED,Creature-0-3886-2526-5652-196202-00048CC779,"Spectral Invoker",0xa48,0x0,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,387843,"Astral Bomb",0x40,DEBUFF
+12/4 10:47:01.006  SPELL_ABSORBED,Player-1427-0DABD1EE,"Lelomonk-Ragnaros",0x512,0x20,Player-1427-0DABD1EE,"Lelomonk-Ragnaros",0x512,0x20,124255,"Stagger",0x1,Player-1427-0DABD1EE,"Lelomonk-Ragnaros",0x512,0x20,322507,"Celestial Brew",0x1,1191,1588,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Creature-0-3886-2526-5652-196200-00040CC779,"Algeth'ar Echoknight",0xa48,0x0,387848,"Astral Nova",0x40,Creature-0-3886-2526-5652-196200-00040CC779,0000000000000000,169349,894431,0,0,5043,0,1,0,0,0,1603.44,-3099.31,2097,3.7225,70,52614,52613,-1,64,0,0,0,nil,nil,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Creature-0-3886-2526-5652-196202-00048CC779,"Spectral Invoker",0xa48,0x0,387848,"Astral Nova",0x40,Creature-0-3886-2526-5652-196202-00048CC779,0000000000000000,209329,787100,0,0,5043,0,0,2705,3155,0,1605.05,-3097.38,2097,3.1653,70,52613,52613,-1,64,0,0,0,nil,nil,nil
+12/4 10:47:04.006  SPELL_ABSORBED,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Player-1427-0DABD1EE,"Lelomonk-Ragnaros",0x512,0x20,387848,"Astral Nova",0x40,Player-1427-0DABD1EE,"Lelomonk-Ragnaros",0x512,0x20,115069,"Stagger",0x1,7494,52613,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Player-1427-0DABD1EE,"Lelomonk-Ragnaros",0x512,0x20,387848,"Astral Nova",0x40,Player-1427-0DABD1EE,0000000000000000,219800,251260,7508,2089,2940,0,3,47,100,0,1602.66,-3099.89,2097,0.6025,358,18901,52613,-1,64,0,0,15594,nil,nil,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Creature-0-3886-2526-5652-196200-00020CC779,"Algeth'ar Echoknight",0xa48,0x0,387848,"Astral Nova",0x40,Creature-0-3886-2526-5652-196200-00020CC779,0000000000000000,376786,894431,0,0,5043,0,1,0,0,0,1603.34,-3100.07,2097,3.5999,70,52614,52613,-1,64,0,0,0,nil,nil,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,387848,"Astral Nova",0x40,Player-76-0B708257,0000000000000000,119598,173060,6447,6199,8170,0,0,236194,250000,0,1600.90,-3099.16,2097,0.1218,349,48130,52613,-1,64,0,0,0,nil,nil,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Creature-0-3886-2526-5652-196200-00018CC779,"Algeth'ar Echoknight",0x10a48,0x0,387848,"Astral Nova",0x40,Creature-0-3886-2526-5652-196200-00018CC779,0000000000000000,323098,894431,0,0,5043,0,1,0,0,0,1603.81,-3091.19,2097,4.5580,70,52614,52613,-1,64,0,0,0,nil,nil,nil
+12/4 10:47:04.006  SPELL_DAMAGE,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,Creature-0-3886-2526-5652-196200-00038CC779,"Algeth'ar Echoknight",0xa48,0x0,387848,"Astral Nova",0x40,Creature-0-3886-2526-5652-196200-00038CC779,0000000000000000,416176,894431,0,0,5043,0,1,0,0,0,1604.87,-3097.03,2097,4.0294,70,52614,52613,-1,64,0,0,0,nil,nil,nil
+12/4 10:47:04.006  SPELL_AURA_REMOVED,Creature-0-3886-2526-5652-196202-00048CC779,"Spectral Invoker",0xa48,0x0,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,387843,"Astral Bomb",0x40,DEBUFF
+
+12/4 10:47:57.680  SPELL_CAST_START,Creature-0-3886-2526-5652-196202-00068CC779,"Spectral Invoker",0x10a48,0x0,0000000000000000,nil,0x80000000,0x80000000,387843,"Astral Bomb",0x40
+12/4 10:47:59.008  SPELL_CAST_SUCCESS,Creature-0-3886-2526-5652-196202-00068CC779,"Spectral Invoker",0x10a48,0x0,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,387843,"Astral Bomb",0x40,Creature-0-3886-2526-5652-196202-00068CC779,0000000000000000,412702,787100,0,0,5043,0,0,3005,3155,0,1536.18,-3090.44,2097,4.2586,70
+12/4 10:47:59.008  SPELL_AURA_APPLIED,Creature-0-3886-2526-5652-196202-00068CC779,"Spectral Invoker",0x10a48,0x0,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,387843,"Astral Bomb",0x40,DEBUFF
+
+12/4 10:48:02.026  SPELL_ABSORBED,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,387848,"Astral Nova",0x40,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,386124,"Fel Armor",0x20,4909,53686,nil
+12/4 10:48:02.026  SPELL_ABSORBED,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,387848,"Astral Nova",0x40,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,108366,"Soul Leech",0x20,29764,53686,nil
+12/4 10:48:02.026  SPELL_DAMAGE,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,387848,"Astral Nova",0x40,Player-3209-0B826167,0000000000000000,184012,198429,493,5950,1348,0,0,250000,250000,0,1532.53,-3098.32,2097,1.0368,346,14417,53686,-1,64,0,0,34673,nil,nil,nil
+12/4 10:48:02.026  SPELL_DAMAGE,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,Creature-0-3886-2526-5652-196200-00028CC779,"Algeth'ar Echoknight",0xa48,0x0,387848,"Astral Nova",0x40,Creature-0-3886-2526-5652-196200-00028CC779,0000000000000000,465014,894431,0,0,5043,0,1,0,0,0,1536.72,-3091.76,2097,0.6027,70,53687,53686,-1,64,0,0,0,nil,nil,nil
+12/4 10:48:02.026  SPELL_DAMAGE,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,Player-76-0B708257,"Serrandra-Sargeras",0x511,0x0,387848,"Astral Nova",0x40,Player-76-0B708257,0000000000000000,123949,173060,6447,6199,8170,0,0,222440,250000,0,1535.88,-3094.22,2097,2.1937,349,49111,53686,-1,64,0,0,0,nil,nil,nil
+
+12/4 10:48:02.026  SPELL_AURA_REMOVED,Creature-0-3886-2526-5652-196202-00068CC779,"Spectral Invoker",0x10a48,0x0,Player-3209-0B826167,"Falavock-Azralon",0x512,0x0,387843,"Astral Bomb",0x40,DEBUFF
+
+
+--]]
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
@@ -1283,14 +1310,6 @@
 				end
 			end
 
-			if (_current_encounter_id == 2543) then --malganis REMOVE ON 10.0
-				if (bitfield_swap_cache [who_serial] or (meu_dono and bitfield_swap_cache [meu_dono.serial])) then
-					is_friendly_fire = false
-
-				elseif (bitfield_swap_cache [alvo_serial] or (alvo_dono and bitfield_swap_cache [alvo_dono.serial])) then
-					is_friendly_fire = false
-				end
-			end
 		else
 			if (
 				(bitBand(alvo_flags, REACTION_FRIENDLY) ~= 0 and bitBand(who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
