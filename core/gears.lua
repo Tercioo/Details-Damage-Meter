@@ -3127,7 +3127,9 @@ function Details.GetPlayTimeOnClassString()
 end
 
 hooksecurefunc("ChatFrame_DisplayTimePlayed", function()
-	print(Details.GetPlayTimeOnClassString())
+	if (Details.played_class_time) then
+		print(Details.GetPlayTimeOnClassString() .. " (/details playedclass)")
+	end
 end)
 
 --game freeze prevention, there are people calling UpdateAddOnMemoryUsage() making the game client on the end user to freeze, this is bad, really bad.
@@ -3137,8 +3139,7 @@ local bigStutterCounter = 0
 local UpdateAddOnMemoryUsage_Original = _G.UpdateAddOnMemoryUsage
 Details.UpdateAddOnMemoryUsage_Original = _G.UpdateAddOnMemoryUsage
 
---to ignore this, use /run _G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Original or add to any script that run on login
-_G["UpdateAddOnMemoryUsage"] = function()
+Details.UpdateAddOnMemoryUsage_Custom = function()
 	local currentTime = debugprofilestop()
 	UpdateAddOnMemoryUsage_Original()
 	local deltaTime = debugprofilestop() - currentTime

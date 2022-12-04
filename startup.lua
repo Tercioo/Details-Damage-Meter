@@ -586,6 +586,12 @@ function Details:StartMeUp() --I'll never stop!
 		end
 	end)
 
+	--to ignore this, use /run _G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Original or add to any script that run on login
+	--also the slash command "/details stopperfcheck" stop it as well
+	if (Details.check_stuttering) then
+		_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
+	end
+
 	function Details:InstallOkey()
 		return true
 	end

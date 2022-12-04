@@ -70,6 +70,19 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes:ShutDownAllInstances()
 		end
 
+	elseif (command == "classtime" or command == "playedclass") then
+		Details.played_class_time = not Details.played_class_time
+		Details:Msg("played class:", Details.played_class_time and "enabled" or "disabled")
+
+	elseif (command == "stopperfcheck") then
+		Details.check_stuttering = not Details.check_stuttering
+		Details:Msg("stuttering/freeze checker:", Details.check_stuttering and "enabled" or "disabled")
+		if (Details.check_stuttering) then
+			_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
+		else
+			_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Original
+		end
+
 	elseif (command == "perf") then
 		local performanceData = Details.performanceData
 		local framesLost = ceil(performanceData.deltaTime / 60)
