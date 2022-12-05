@@ -170,7 +170,15 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 			end
 		end
 
-		info:SetPoint("center", _G.UIParent, "center", 0, 0)
+		local okay = pcall(function()
+			info:SetPoint("center", _G.UIParent, "center", 0, 0)
+		end)
+
+		if (not okay) then
+			info:ClearAllPoints()
+			info:SetPoint("center", _G.UIParent, "center", 0, 0)
+		end
+
 		info:SetUserPlaced(false)
 		info:SetDontSavePosition(true)
 		info.bHasInitialized = true

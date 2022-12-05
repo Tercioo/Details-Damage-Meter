@@ -6,8 +6,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10304
-		_detalhes.alpha_build_counter = 10304 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10333
+		_detalhes.alpha_build_counter = 10333 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -86,6 +86,12 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+		{"v10.0.2.10333.147", "Nov 18th, 2022"},
+		"Added two checkboxes for Merge Pet and Player spell on the Breakdown window.",
+		"Added uptime for Hunter's Pet Frenzy Buff, it now show in the 'Auras' tab in the Breakdown Window.",
+		"/played is showing something new!",
+		"Options panel now closes by pressing Escape (Flamanis).",
+
 		{"v10.0.2.10277.146", "Nov 18th, 2022"},
 		"REMINDER: '/details coach' to get damage/healing/deaths in real time as the 21st person (coach) for the next raid tier in dragonflight.",
 		"New Compare tab: recreated from scratch, this new Compare has no player limitation, pets merged, bigger lines.",
