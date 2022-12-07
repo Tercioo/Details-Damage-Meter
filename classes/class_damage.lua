@@ -3320,7 +3320,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				end
 			end
 
-		--MOSTRA INIMIGOS
+		--targets (enemies)
 			local topEnemy = ActorTargetsSortTable[1] and ActorTargetsSortTable[1][2] or 0
 			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
 				--small blank space
@@ -3348,7 +3348,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					local enemyTable = ActorTargetsSortTable[i]
 					GameCooltip:AddLine(enemyTable[1], FormatTooltipNumber(_, enemyTable[2]) .." ("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
 					
-					local portraitTexture = Details222.Textures.GetPortraitTextureForNpcID(enemyTable[3])
+					local portraitTexture-- = Details222.Textures.GetPortraitTextureForNpcID(enemyTable[3]) --disabled atm
 					if (portraitTexture) then
 						GameCooltip:AddIcon(portraitTexture, 1, 1, icon_size.W, icon_size.H)
 					else
@@ -4570,59 +4570,59 @@ function atributo_damage:MontaInfoDamageDone()
 
 		local topDamage = enemyTable[1] and enemyTable[1][2] or 0
 
-		local barra
-		for index, tabela in ipairs(enemyTable) do
-			barra = barras [index]
+		local thisLine
+		for index, thisEnemyTable in ipairs(enemyTable) do
+			thisLine = barras[index]
 
-			if (not barra) then --se a barra n�o existir, criar ela ent�o
-				barra = gump:CriaNovaBarraInfo2 (instance, index)
-				barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
+			if (not thisLine) then --se a barra n�o existir, criar ela ent�o
+				thisLine = gump:CriaNovaBarraInfo2 (instance, index)
+				thisLine.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 			end
 
 			if (index == 1) then
-				barra.textura:SetValue(100)
+				thisLine.textura:SetValue(100)
 			else
-				barra.textura:SetValue(tabela[2] / topDamage * 100)
+				thisLine.textura:SetValue(thisEnemyTable[2] / topDamage * 100)
 			end
 
-			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(tabela[1])) --seta o texto da esqueda
-			barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format("%.1f", tabela[3]) .. "%)") --seta o texto da direita
+			thisLine.lineText1:SetText(index .. ". " .. Details:GetOnlyName(thisEnemyTable[1])) --left text
+			thisLine.lineText4:SetText(Details:comma_value (thisEnemyTable[2]) .. " (" .. format("%.1f", thisEnemyTable[3]) .. "%)") --right text
 
-			barra.icone:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
+			thisLine.icone:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]]) --class icon
 
-			local texCoords = Details.class_coords [tabela[4]]
+			local texCoords = Details.class_coords[thisEnemyTable[4]]
 			if (not texCoords) then
-				texCoords = Details.class_coords ["UNKNOW"]
+				texCoords = Details.class_coords["UNKNOW"]
 			end
-			barra.icone:SetTexCoord(unpack(texCoords))
+			thisLine.icone:SetTexCoord(unpack(texCoords))
 
-			local color = Details.class_colors [tabela[4]]
+			local color = Details.class_colors[thisEnemyTable[4]]
 			if (color) then
-				barra.textura:SetStatusBarColor(unpack(color))
+				thisLine.textura:SetStatusBarColor(unpack(color))
 			else
-				barra.textura:SetStatusBarColor(1, 1, 1)
+				thisLine.textura:SetStatusBarColor(1, 1, 1)
 			end
 
-			Details:name_space_info (barra)
+			Details:name_space_info(thisLine)
 
-			if (barra.mouse_over) then --atualizar o tooltip
-				if (barra.isAlvo) then
+			if (thisLine.mouse_over) then --atualizar o tooltip
+				if (thisLine.isAlvo) then
 					GameTooltip:Hide()
-					GameTooltip:SetOwner(barra, "ANCHOR_TOPRIGHT")
-					if (not barra.minha_tabela:MontaTooltipDamageTaken (barra, index)) then
+					GameTooltip:SetOwner(thisLine, "ANCHOR_TOPRIGHT")
+					if (not thisLine.minha_tabela:MontaTooltipDamageTaken(thisLine, index)) then
 						return
 					end
 					GameTooltip:Show()
 				end
 			end
 
-			barra.minha_tabela = self --grava o jogador na tabela
-			barra.nome_inimigo = tabela [1] --salva o nome do inimigo na barra --isso � necess�rio?
+			thisLine.minha_tabela = self --grava o jogador na tabela
+			thisLine.nome_inimigo = thisEnemyTable[1] --salva o nome do inimigo na barra --isso � necess�rio?
 
 			-- no rank do spell id colocar o que?
-			barra.spellid = "enemies"
+			thisLine.spellid = "enemies"
 
-			barra:Show() --mostra a barra
+			thisLine:Show() --mostra a barra
 		end
 	else
 		local combatObject = instance:GetShowingCombat()
@@ -4663,9 +4663,9 @@ function atributo_damage:MontaInfoDamageDone()
 
 			local targetName = targetTable[1]
 			local targetActorObject = damageContainer:GetActor(targetName)
-			local npcId = DetailsFramework:GetNpcIdFromGuid(targetActorObject:GetGUID())
 
 			if (targetActorObject) then
+				local npcId = DetailsFramework:GetNpcIdFromGuid(targetActorObject:GetGUID())
 				local portraitTexture = Details222.Textures.GetPortraitTextureForNpcID(npcId)
 				if (portraitTexture) then
 					Details222.Textures.FormatPortraitAsTexture(portraitTexture, barra.icone)
