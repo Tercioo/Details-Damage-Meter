@@ -1443,7 +1443,7 @@ local default_global_data = {
 		},
 
 	--auras (wa auras created from the aura panel)
-		details_auras = {},
+		details_auras = {}, --deprecated due to major security wa code revamp
 
 	--ilvl
 		item_level_pool = {},
@@ -1467,7 +1467,7 @@ local default_global_data = {
 		npcid_pool = {},
 
 	--aura creation frame libwindow
-		createauraframe = {},
+		createauraframe = {}, --deprecated
 
 	--min health done on the death report
 		deathlog_healingdone_min = 1,

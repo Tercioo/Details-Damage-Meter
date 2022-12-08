@@ -13,6 +13,12 @@ function Details:StartMeUp() --I'll never stop!
 	Details.lastArenaStartTime = GetTime()
 	Details.lastBattlegroundStartTime = GetTime()
 
+	--save the time when the addon finished loading
+	Details.AddOnStartTime = GetTime()
+	function Details.GetStartupTime()
+		return Details.AddOnStartTime or GetTime()
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --row single click, this determines what happen when the user click on a bar
 
@@ -492,12 +498,6 @@ function Details:StartMeUp() --I'll never stop!
 
 	--embed windows on the chat window
 	Details.chat_embed:CheckChatEmbed(true)
-
-	--save the time when the addon finished loading
-	Details.AddOnStartTime = GetTime()
-	function Details.GetStartupTime()
-		return Details.AddOnStartTime or GetTime()
-	end
 
 	if (Details.player_details_window.skin ~= "ElvUI") then
 		local setDefaultSkinOnPlayerBreakdownWindow = function()

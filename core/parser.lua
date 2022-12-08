@@ -6136,9 +6136,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_instance_backup = {},
 		}
 		local exitErrors = __details_backup._exit_error
-		
+
 		local addToExitErrors = function(text)
-			table.insert(exitErrors, 1, text)
+			table.insert(exitErrors, 1, date() .. "|" .. text)
 			table.remove(exitErrors, 10)
 		end
 
@@ -6150,7 +6150,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end)
 
 		if (not savePlayTimeClass) then
-			addToExitErrors("Saving Play Time:" .. savePlayTimeError)
+			addToExitErrors("Saving Play Time: " .. savePlayTimeError)
 		end
 
 		--SAVINGDATA = true
