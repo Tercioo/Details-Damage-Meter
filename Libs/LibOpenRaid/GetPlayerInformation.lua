@@ -340,7 +340,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
                 local enchantAttribute = LIB_OPEN_RAID_ENCHANT_SLOTS[equipmentSlotId]
                 local nEnchantId = 0
 
-                if (enchantAttribute) then --this slot can receive an enchat
+                if (enchantAttribute) then --this slot can receive an enchant
                     if (enchantId and enchantId ~= "") then
                         local number = tonumber(enchantId)
                         nEnchantId = number
@@ -378,6 +378,54 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
     end
 
     return slotsWithoutGems, slotsWithoutEnchant
+end
+
+function openRaidLib.GearManager.BuildPlayerEquipmentList()
+    local equipmentList = {}
+    local debug
+    for equipmentSlotId = 1, 17 do
+        local itemLink = GetInventoryItemLink("player", equipmentSlotId)
+        if (itemLink) then
+            local itemStatsTable = {}
+            local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(2, strsplit(":", itemLink))
+            itemID = tonumber(itemID)
+
+            GetItemStats(itemLink, itemStatsTable)
+            local gemSlotsAvailable = itemStatsTable and itemStatsTable.EMPTY_SOCKET_PRISMATIC or 0
+            local _, _, _, itemLevel = GetItemInfo(itemLink)
+
+            local noPrefixItemLink = itemLink : gsub("^|c%x%x%x%x%x%x%x%x|Hitem", "")
+            local linkTable = {strsplit(":", noPrefixItemLink)}
+            local numModifiers = linkTable[14]
+            numModifiers = numModifiers and tonumber(numModifiers) or 0
+
+            for i = #linkTable, 14 + numModifiers + 1, -1 do
+                tremove(linkTable, i)
+            end
+
+            local newItemLink = table.concat(linkTable, ":")
+            newItemLink = newItemLink
+            equipmentList[#equipmentList+1] = {equipmentSlotId, gemSlotsAvailable, itemLevel, newItemLink}
+
+            if (equipmentSlotId == 2) then
+                debug = {itemLink:gsub("|H", ""), newItemLink}
+            end
+        end
+    end
+
+    --[[ debug
+    local str = ""
+    for i = 1, #equipmentList do
+        local t = equipmentList[i]
+        local s = t[1] .. "," .. t[2] .. "," .. t[3] .. "," .. t[4]
+        str = str .. s
+    end
+
+    table.insert(debug, str)
+    dumpt(debug)
+    --]]
+
+    return equipmentList
 end
 
 local playerHasPetOfNpcId = function(npcId)
