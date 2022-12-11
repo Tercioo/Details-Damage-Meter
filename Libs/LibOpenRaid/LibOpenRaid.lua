@@ -88,6 +88,8 @@ local unpack = table.unpack or _G.unpack
 
     LIB_OPEN_RAID_CAN_LOAD = true
 
+    openRaidLib.__errors = {} --/dump LibStub:GetLibrary("LibOpenRaid-1.0").__errors
+
 --default values
     openRaidLib.inGroup = false
     openRaidLib.UnitIDCache = {}
@@ -1013,9 +1015,11 @@ end
             local playerFullInfo = openRaidLib.UnitInfoManager.GetPlayerFullInfo()
             openRaidLib.UnitInfoManager.AddUnitInfo(unitName, unpack(playerFullInfo))
 
-        --gear info
-            local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
-            openRaidLib.GearManager.AddUnitGearList(unitName, unpack(playerGearInfo))
+            --gear info
+            --C_Timer.After(2, function()
+                local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
+                openRaidLib.GearManager.AddUnitGearList(unitName, unpack(playerGearInfo))
+            --end)
 
         --cooldowns
             openRaidLib.CooldownManager.UpdatePlayerCooldownsLocally()

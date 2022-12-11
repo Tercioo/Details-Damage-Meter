@@ -79,6 +79,19 @@ playerGear = {
     .noGems = {socketId}
     .noEnchants = {socketId}
     .weaponEnchant = number (oils)
+    .equippedGear = {
+        {
+            .slotId = number
+            .gemSlots = number
+            .itemLevel = number
+            .itemLink = string
+            .itemQuality = number
+            .itemId = number
+            .itemName = string
+            .enchantId = number
+            .gemId = number
+        }
+    }
 }
 
 

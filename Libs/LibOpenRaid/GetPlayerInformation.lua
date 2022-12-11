@@ -20,6 +20,10 @@ local CONST_BTALENT_VERSION_COVENANTS = 9
 local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
 local CONST_SPELLBOOK_GENERAL_TABID = 1
 
+local GetItemInfo = GetItemInfo
+local GetItemStats = GetItemStats
+local GetInventoryItemLink = GetInventoryItemLink
+
 local isTimewalkWoW = function()
     local _, _, _, buildInfo = GetBuildInfo()
     if (buildInfo < 40000) then
@@ -390,9 +394,15 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
             local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(2, strsplit(":", itemLink))
             itemID = tonumber(itemID)
 
+            local effectiveILvl, isPreview, baseILvl = GetDetailedItemLevelInfo(itemLink)
+            if (not effectiveILvl) then
+                openRaidLib.mainControl.scheduleUpdatePlayerData()
+                effectiveILvl = 0
+                openRaidLib.__errors[#openRaidLib.__errors+1] = "Fail to get Item Level: " .. (itemID or "invalid itemID") .. " " .. (itemLink and itemLink:gsub("|H", "") or "invalid itemLink")
+            end
+
             GetItemStats(itemLink, itemStatsTable)
             local gemSlotsAvailable = itemStatsTable and itemStatsTable.EMPTY_SOCKET_PRISMATIC or 0
-            local _, _, _, itemLevel = GetItemInfo(itemLink)
 
             local noPrefixItemLink = itemLink : gsub("^|c%x%x%x%x%x%x%x%x|Hitem", "")
             local linkTable = {strsplit(":", noPrefixItemLink)}
@@ -405,7 +415,7 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
 
             local newItemLink = table.concat(linkTable, ":")
             newItemLink = newItemLink
-            equipmentList[#equipmentList+1] = {equipmentSlotId, gemSlotsAvailable, itemLevel, newItemLink}
+            equipmentList[#equipmentList+1] = {equipmentSlotId, gemSlotsAvailable, effectiveILvl, newItemLink}
 
             if (equipmentSlotId == 2) then
                 debug = {itemLink:gsub("|H", ""), newItemLink}

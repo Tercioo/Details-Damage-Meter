@@ -429,6 +429,7 @@ function openRaidLib.GetFoodTierFromAura(auraInfo)
     return nil
 end
 
+--called from AddUnitGearList() on LibOpenRaid file
 function openRaidLib.GearManager.BuildEquipmentItemLinks(equippedGearList)
     equippedGearList = equippedGearList or {} --nil table for older versions
 
@@ -441,64 +442,71 @@ function openRaidLib.GearManager.BuildEquipmentItemLinks(equippedGearList)
         local itemLevel = equipmentTable[3]
         local partialItemLink = equipmentTable[4]
 
-        --get the itemId from the partial link to query the itemName with GetItemInfo
-        local itemId = partialItemLink:match("^%:(%d+)%:")
-        itemId = tonumber(itemId)
-        local itemName, _, itemQuality = GetItemInfo(itemId)
+        if (partialItemLink and type(partialItemLink) == "string") then
+            --get the itemId from the partial link to query the itemName with GetItemInfo
+            local itemId = partialItemLink:match("^%:(%d+)%:")
+            itemId = tonumber(itemId)
 
-        --build the full item link
-        local itemLink = "|cFFEEEEEE|Hitem" .. partialItemLink .. "|h[" .. itemName .. "]|r"
+            if (itemId) then
+                local itemName = GetItemInfo(itemId)
+                if (itemName) then
+                    --build the full item link
+                    local itemLink = "|cFFEEEEEE|Hitem" .. partialItemLink .. "|h[" .. itemName .. "]|r"
 
-        --use GetItemInfo again with the now completed itemLink to query the item color
-        local _, _, itemQuality = GetItemInfo(itemLink)
-        local qualityColor = ITEM_QUALITY_COLORS[itemQuality]
+                    --use GetItemInfo again with the now completed itemLink to query the item color
+                    local _, _, itemQuality = GetItemInfo(itemLink)
+                    itemQuality = itemQuality or 1
+                    local qualityColor = ITEM_QUALITY_COLORS[itemQuality]
 
-        --replace the item color
-        --local r, g, b, hex = GetItemQualityColor(qualityColor)
-        itemLink = itemLink:gsub("FFEEEEEE", qualityColor.color:GenerateHexColor())
+                    --replace the item color
+                    --local r, g, b, hex = GetItemQualityColor(qualityColor)
+                    itemLink = itemLink:gsub("FFEEEEEE", qualityColor.color:GenerateHexColor())
 
-        wipe(equipmentTable)
+                    wipe(equipmentTable)
 
-        equipmentTable.slotId = slotId
-        equipmentTable.gemSlots = numGemSlots
-        equipmentTable.itemLevel = itemLevel
-        equipmentTable.itemLink = itemLink
-        equipmentTable.itemQuality = itemQuality
-        equipmentTable.itemId = itemId
-        equipmentTable.itemName = itemName
+                    equipmentTable.slotId = slotId
+                    equipmentTable.gemSlots = numGemSlots
+                    equipmentTable.itemLevel = itemLevel
+                    equipmentTable.itemLink = itemLink
+                    equipmentTable.itemQuality = itemQuality
+                    equipmentTable.itemId = itemId
+                    equipmentTable.itemName = itemName
 
-        local _, _, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
+                    local _, _, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
 
-        local enchantAttribute = LIB_OPEN_RAID_ENCHANT_SLOTS[slotId]
-        local nEnchantId = 0
-        if (enchantAttribute) then --this slot can receive an enchat
-            if (enchantId and enchantId ~= "") then
-                enchantId = tonumber(enchantId)
-                nEnchantId = enchantId
-            end
+                    local enchantAttribute = LIB_OPEN_RAID_ENCHANT_SLOTS[slotId]
+                    local nEnchantId = 0
+                    if (enchantAttribute) then --this slot can receive an enchat
+                        if (enchantId and enchantId ~= "") then
+                            enchantId = tonumber(enchantId)
+                            nEnchantId = enchantId
+                        end
 
-            --6400 and above is dragonflight enchantId number space
-            if (nEnchantId < 6300 and not LIB_OPEN_RAID_DEATHKNIGHT_RUNEFORGING_ENCHANT_IDS[nEnchantId]) then
-                nEnchantId = 0
-            end
-        end
-        equipmentTable.enchantId = nEnchantId
+                        --6400 and above is dragonflight enchantId number space
+                        if (nEnchantId < 6300 and not LIB_OPEN_RAID_DEATHKNIGHT_RUNEFORGING_ENCHANT_IDS[nEnchantId]) then
+                            nEnchantId = 0
+                        end
+                    end
+                    equipmentTable.enchantId = nEnchantId
 
-        local nGemId = 0
-        local gemsIds = {gemId1, gemId2, gemId3, gemId4}
+                    local nGemId = 0
+                    local gemsIds = {gemId1, gemId2, gemId3, gemId4}
 
-        --check if the item has a socket
-        if (numGemSlots) then
-            --check if the socket is empty
-            for gemSlotId = 1, numGemSlots do
-                local gemId = tonumber(gemsIds[gemSlotId])
-                if (gemId and gemId >= 180000) then
-                    nGemId = gemId
-                    break
+                    --check if the item has a socket
+                    if (numGemSlots) then
+                        --check if the socket is empty
+                        for gemSlotId = 1, numGemSlots do
+                            local gemId = tonumber(gemsIds[gemSlotId])
+                            if (gemId and gemId >= 180000) then
+                                nGemId = gemId
+                                break
+                            end
+                        end
+                    end
+
+                    equipmentTable.gemId = nGemId
                 end
             end
         end
-
-        equipmentTable.gemId = nGemId
     end
 end
