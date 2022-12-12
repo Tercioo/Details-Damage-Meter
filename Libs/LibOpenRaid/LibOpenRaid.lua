@@ -64,7 +64,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 85
+local CONST_LIB_VERSION = 86
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -1573,7 +1573,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local specMainAttribute = openRaidLib.specAttribute[playerClass][specId] --1 int, 2 dex, 3 str
 
         if (not specId or not specMainAttribute) then
-            return {0, 0, 0, {}, {}}
+            return {0, 0, 0, {}, {}, {}}
         end
 
         --item level
