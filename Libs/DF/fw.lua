@@ -1307,10 +1307,11 @@ end
 			local colorString = red
 			--hexadecimal
 			if (string.find(colorString, "#")) then
-				red, green, blue, alpha = string_match(colorString,"#?(%x%x)(%x%x)(%x%x)(%x?%x?).*")
-				if(red) then
-					if(alpha == '') then alpha = 'ff' end
-					red, green, blue, alpha = tonumber(red, 16)/255, tonumber(green, 16)/255, tonumber(blue, 16)/255, tonumber(alpha, 16)/255
+				colorString = colorString:gsub("#","")
+				if (string.len(colorString) == 8) then --with alpha
+					red, green, blue, alpha = tonumber(colorString:sub(3, 4), 16)/255, tonumber(colorString:sub(5, 6), 16)/255, tonumber(colorString:sub(7, 8), 16)/255, tonumber(colorString:sub(1, 2), 16)/255
+				else
+					red, green, blue, alpha = tonumber(colorString:sub(1, 2), 16)/255, tonumber(colorString:sub(3, 4), 16)/255, tonumber(colorString:sub(5, 6), 16)/255, 1
 				end
 			else
 				--name of the color
