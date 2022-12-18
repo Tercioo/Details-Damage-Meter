@@ -2127,7 +2127,7 @@
 			]]
 		if(isWOTLK) then
 			if(npcId == 15439) then
-				_detalhes.tabela_pets:Adicionar(alvo_serial:gsub("-15439-", "-15438-"), "Greater Fire Elemental", alvo_flags, who_serial, who_name, who_flags)
+				_detalhes.tabela_pets:Adicionar (alvo_serial:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", alvo_flags, who_serial, who_name, who_flags)
 			elseif (npcId == 15438) then
 				return
 			end
