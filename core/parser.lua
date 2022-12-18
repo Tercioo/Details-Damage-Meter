@@ -2127,9 +2127,7 @@
 			]]
 		if(isWOTLK) then
 			if(npcId == 15439) then
-				alvo_serial = alvo_serial:gsub("-15439-", "-15438-")
-				alvo_name = "Greater Fire Elemental"
-				--Don't need to set the pet flags since it is a guardian and will always hit the 2nd part of tabela_pets:Adicionar
+				_detalhes.tabela_pets:Adicionar(alvo_serial:gsub("-15439-", "-15438-"), "Greater Fire Elemental", alvo_flags, who_serial, who_name, who_flags)
 			elseif (npcId == 15438) then
 				return
 			end
