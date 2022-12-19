@@ -2744,6 +2744,13 @@ end
 								end
 
 							end
+						elseif(key == "e_heal" or key == "e_lvl") then
+							if (not habilidade_shadow[key]) then
+								habilidade_shadow[key] = {}
+							end
+							for empowermentLevel, empowermentValue in pairs(habilidade[key]) do 
+								habilidade_shadow[key][empowermentLevel] = empowermentValue
+							end
 						end
 					end
 
@@ -2851,6 +2858,13 @@ atributo_heal.__add = function(tabela1, tabela2)
 						else
 							habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
 						end
+					end
+				elseif(key == "e_heal" or key == "e_lvl") then
+					if (not habilidade_tabela1[key]) then
+						habilidade_tabela1[key] = {}
+					end
+					for empowermentLevel, empowermentValue in pairs(habilidade[key]) do 
+						habilidade_tabela1[key][empowermentLevel] = habilidade_tabela1[key][empowermentValue] or 0 + empowermentValue
 					end
 				end
 			end
