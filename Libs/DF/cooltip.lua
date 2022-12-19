@@ -15,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 9
+local version = 10
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -2169,6 +2169,11 @@ function DF:CreateCoolTip()
 		end
 	end
 
+	--get the value of the fixed parameter
+	function gameCooltip:GetFixedParameter()
+		return gameCooltip.FixedValue
+	end
+
 	--set a fixed value for menu, the fixedValue is sent with the menu callback function
 	function gameCooltip:SetFixedParameter(value, injected)
 		if (injected ~= nil) then
@@ -3070,6 +3075,10 @@ function DF:CreateCoolTip()
 	function gameCooltip:Show(frame, menuType, color)
 		gameCooltip.hadInteractions = false
 		return gameCooltip:ShowCooltip(frame, menuType, color)
+	end
+
+	function gameCooltip:IsShown()
+		return frame1:IsShown()
 	end
 
 	function gameCooltip:ShowCooltip(frame, menuType, color)
