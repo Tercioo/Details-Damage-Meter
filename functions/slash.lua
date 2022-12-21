@@ -2356,10 +2356,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					elseif (columnIndex == 4) then
 						sortByIndex = 3
 					--sort by classic dungeon name
-					elseif (columnIndex == 5) then
-						sortByIndex = 4
+					--elseif (columnIndex == 5) then
+					--	sortByIndex = 4
 					--sort by mythic+ ranting
-					elseif (columnIndex == 6) then
+					elseif (columnIndex == 5) then
 						sortByIndex = 6
 					end
 
