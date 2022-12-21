@@ -1223,6 +1223,9 @@ local default_player_data = {
 			lines_per_column = 12,
 		},
 
+	--mythic plus log
+		mythic_plus_log = {},
+
 	--force all fonts to have this outline
 		force_font_outline = "",
 

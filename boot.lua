@@ -57,25 +57,20 @@
 		Details222.PlayerBreakdown = {
 			DamageSpellsCache = {}
 		}
-
 		--namespace color
 		Details222.ColorScheme = {
 			["gradient-background"] = {0.1215, 0.1176, 0.1294, 0.8},
 		}
-
 		function Details222.ColorScheme.GetColorFor(colorScheme)
 			return Details222.ColorScheme[colorScheme]
 		end
-
 		--namespace for damage spells (spellTable)
 		Details222.DamageSpells = {}
-
-
 		--namespace for texture
 		Details222.Textures = {}
-
 		--namespace for pet
 		Details222.Pets = {}
+		Details222.MythicPlus = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
