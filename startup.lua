@@ -579,6 +579,9 @@ function Details:StartMeUp() --I'll never stop!
 		_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
 	end
 
+	
+	pcall(Details222.EJCache.MakeCache)
+
 	function Details:InstallOkey()
 		return true
 	end

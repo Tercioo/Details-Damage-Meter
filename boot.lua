@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --global name declaration
-
+--local _StartDebugTime = debugprofilestop() print(debugprofilestop() - _StartDebugTime)
 		_ = nil
 		_G._detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		local addonName, Details222 = ...
@@ -71,6 +71,7 @@
 		--namespace for pet
 		Details222.Pets = {}
 		Details222.MythicPlus = {}
+		Details222.EJCache = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff

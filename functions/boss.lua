@@ -212,8 +212,10 @@ do
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
 	end
 
+
+
 	function _detalhes:GetEncounterInfoFromEncounterName (EJID, encountername)
-		DetailsFramework.EncounterJournal.EJ_SelectInstance (EJID)
+		DetailsFramework.EncounterJournal.EJ_SelectInstance (EJID) --11ms per call
 		for i = 1, 20 do
 			local name = DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, EJID)
 			if (not name) then
@@ -292,6 +294,7 @@ do
 
 		if (encounterName and ejID and ejID ~= 0) then
 			local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (ejID, encounterName)
+
 			if (index and name and encounterID) then
 				local id, name, description, displayInfo, iconImage = DetailsFramework.EncounterJournal.EJ_GetCreatureInfo (1, encounterID)
 				if (iconImage) then
@@ -442,6 +445,250 @@ do
 		end
 
 		return bossIndexedTable, bossInfoTable, raidInfoTable
+	end
+
+	function Details222.EJCache.GetInstanceData(...)
+		for i = 1, select("#", ...) do
+			local value = select(i, ...)
+			local instanceData = Details222.EJCache.GetInstanceDataByName(value) or Details222.EJCache.GetInstanceDataByInstanceId(value) or Details222.EJCache.GetInstanceDataByMapId(value)
+			if (instanceData) then
+				return instanceData
+			end
+		end
+	end
+
+	function Details222.EJCache.GetEncounterDataFromInstanceData(instanceData, ...)
+		if (not instanceData) then
+			if (Details.debug) then
+				Details:Msg("GetEncounterDataFromInstanceData expects instanceData on first parameter.")
+			end
+		end
+
+		for i = 1, select("#", ...) do
+			local value = select(i, ...)
+			if (value) then
+				local encounterData = instanceData.encountersArray[value]
+				if (encounterData) then
+					return encounterData
+				end
+
+				encounterData = instanceData.encountersByName[value]
+				if (encounterData) then
+					return encounterData
+				end
+
+				encounterData = instanceData.encountersByDungeonEncounterId[value]
+				if (encounterData) then
+					return encounterData
+				end
+
+				encounterData = instanceData.encountersByJournalEncounterId[value]
+				if (encounterData) then
+					return encounterData
+				end
+			end
+		end
+	end
+
+	function Details222.EJCache.GetInstanceDataByName(instanceName)
+		local raidData = Details222.EJCache.CacheRaidData_ByInstanceName[instanceName]
+		local dungeonData = Details222.EJCache.CacheDungeonData_ByInstanceName[instanceName]
+		return raidData or dungeonData
+	end
+	function Details222.EJCache.GetInstanceDataByInstanceId(instanceId)
+		local raidData = Details222.EJCache.CacheRaidData_ByInstanceId[instanceId]
+		local dungeonData = Details222.EJCache.CacheDungeonData_ByInstanceId[instanceId]
+		return raidData or dungeonData
+	end
+	function Details222.EJCache.GetInstanceDataByMapId(mapId)
+		local raidData = Details222.EJCache.CacheRaidData_ByMapId[mapId]
+		local dungeonData = Details222.EJCache.CacheDungeonData_ByMapId[mapId]
+		return raidData or dungeonData
+	end
+
+	function Details222.EJCache.GetRaidDataByName(instanceName)
+		return Details222.EJCache.CacheRaidData_ByInstanceName[instanceName]
+	end
+	function Details222.EJCache.GetRaidDataByInstanceId(instanceId)
+		return Details222.EJCache.CacheRaidData_ByInstanceId[instanceId]
+	end
+	function Details222.EJCache.GetRaidDataByMapId(instanceId)
+		return Details222.EJCache.CacheRaidData_ByMapId[instanceId]
+	end
+
+	function Details222.EJCache.GetDungeonDataByName(instanceName)
+		return Details222.EJCache.CacheDungeonData_ByInstanceName[instanceName]
+	end
+	function Details222.EJCache.GetDungeonDataByInstanceId(instanceId)
+		return Details222.EJCache.CacheDungeonData_ByInstanceId[instanceId]
+	end
+	function Details222.EJCache.GetDungeonDataByMapId(instanceId)
+		return Details222.EJCache.CacheDungeonData_ByMapId[instanceId]
+	end
+
+	function Details222.EJCache.MakeCache()
+		Details222.EJCache.CacheRaidData_ByInstanceId = {}
+		Details222.EJCache.CacheRaidData_ByInstanceName = {} --this is localized name
+		Details222.EJCache.CacheRaidData_ByMapId = {} --retrivied from GetInstanceInfo()
+
+		Details222.EJCache.CacheDungeonData_ByInstanceId = {}
+		Details222.EJCache.CacheDungeonData_ByInstanceName = {}
+		Details222.EJCache.CacheDungeonData_ByMapId = {}
+
+		--todo generate encounter spells cache
+
+		--check if the encounter journal added is loaded
+		if (not EncounterJournal) then
+			EncounterJournal_LoadUI()
+		end
+
+		do
+			--iterate among all raid instances, by passing true in the second argument of EJ_GetInstanceByIndex, indicates to the API we want to get raid instances
+			local bGetRaidInstances = true
+			for instanceIndex = 10, 2, -1 do
+				local journalInstanceID, instanceName, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID = EJ_GetInstanceByIndex(instanceIndex, bGetRaidInstances)
+
+				if (journalInstanceID) then
+					--tell the encounter journal to display the raid instance by the instanceId
+					EncounterJournal_DisplayInstance(journalInstanceID)
+
+					--build a table with data of the raid instance
+					local instanceData = {
+						name = instanceName,
+						mapId = dungeonAreaMapID,
+						bgImage = bgImage,
+						instanceId = journalInstanceID,
+
+						encountersArray = {},
+						encountersByName = {},
+						encountersByDungeonEncounterId = {},
+						encountersByJournalEncounterId = {},
+
+						icon = buttonImage1,
+						iconSize = {70, 36},
+						iconCoords = {0.01, .67, 0.025, .725},
+
+						iconLore = loreImage,
+						iconLoreSize = {70, 36},
+						iconLoreCoords = {0, 1, 0, 0.95},
+
+						iconTexture = buttonImage2,
+						iconTextureSize = {70, 36},
+						iconTextureCoords = {0, 1, 0, 0.95},
+					}
+
+					--cache the raidData on different tables using different indexes
+					Details222.EJCache.CacheRaidData_ByInstanceId[journalInstanceID] = instanceData
+					Details222.EJCache.CacheRaidData_ByInstanceName[instanceName] = instanceData
+					Details222.EJCache.CacheRaidData_ByMapId[dungeonAreaMapID] = instanceData
+
+					for encounterIndex = 1, 20 do
+						local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = _G.EJ_GetEncounterInfoByIndex(encounterIndex, journalInstanceID)
+						if (name) then
+
+							local encounterData = {
+								name = name,
+								mapId = dungeonAreaMapID,
+								uiMapId = UiMapID,
+								dungeonEncounterId = dungeonEncounterID,
+								journalEncounterId = journalEncounterID,
+								journalInstanceId = journalInstanceID,
+							}
+
+							local journalEncounterCreatureId, creatureName, creatureDescription, creatureDisplayID, iconImage, uiModelSceneID = EJ_GetCreatureInfo(1, journalEncounterID)
+							if (journalEncounterCreatureId) then
+								encounterData.creatureName = creatureName
+								encounterData.creatureIcon = iconImage
+								encounterData.creatureId = journalEncounterCreatureId
+								encounterData.creatureDisplayId = creatureDisplayID
+								encounterData.creatureUIModelSceneId = uiModelSceneID
+							end
+
+							instanceData.encountersArray[#instanceData.encountersArray+1] = encounterData
+							instanceData.encountersByName[name] = encounterData
+							instanceData.encountersByDungeonEncounterId[dungeonEncounterID] = encounterData
+							instanceData.encountersByJournalEncounterId[journalEncounterID] = encounterData
+						end
+					end
+				end
+			end
+		end
+
+		do
+			--iterate among all dungeon instances, by passing false in the second argument of EJ_GetInstanceByIndex, indicates to the API we want to get dungeon instances
+
+			--issue: not getting vintage dungoen like Halls of Valor
+
+			local bGetRaidInstances = false
+			for instanceIndex = 20, 1, -1 do
+				local journalInstanceID, instanceName, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID = EJ_GetInstanceByIndex(instanceIndex, bGetRaidInstances)
+
+				if (journalInstanceID) then
+					--tell the encounter journal to display the dungeon instance by the instanceId
+					EncounterJournal_DisplayInstance(journalInstanceID)
+
+					--build a table with data of the raid instance
+					local instanceData = {
+						name = instanceName,
+						mapId = dungeonAreaMapID,
+						bgImage = bgImage,
+						instanceId = journalInstanceID,
+
+						encountersArray = {},
+						encountersByName = {},
+						encountersByDungeonEncounterId = {},
+						encountersByJournalEncounterId = {},
+
+						icon = buttonImage1,
+						iconSize = {70, 36},
+						iconCoords = {0.01, .67, 0.025, .725},
+
+						iconLore = loreImage,
+						iconLoreSize = {70, 36},
+						iconLoreCoords = {0, 1, 0, 0.95},
+
+						iconTexture = buttonImage2,
+						iconTextureSize = {70, 36},
+						iconTextureCoords = {0, 1, 0, 0.95},
+					}
+
+					--cache the raidData on different tables using different indexes
+					Details222.EJCache.CacheDungeonData_ByInstanceId[journalInstanceID] = instanceData
+					Details222.EJCache.CacheDungeonData_ByInstanceName[instanceName] = instanceData
+					Details222.EJCache.CacheDungeonData_ByMapId[dungeonAreaMapID] = instanceData
+
+					--iterate among all encounters of the dungeon instance
+					for encounterIndex = 1, 20 do
+						local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = _G.EJ_GetEncounterInfoByIndex(encounterIndex, journalInstanceID)
+						if (name) then
+
+							local encounterData = {
+								name = name,
+								mapId = dungeonAreaMapID,
+								uiMapId = UiMapID,
+								dungeonEncounterId = dungeonEncounterID,
+								journalEncounterId = journalEncounterID,
+								journalInstanceId = journalInstanceID,
+							}
+
+							local journalEncounterCreatureId, creatureName, creatureDescription, creatureDisplayID, iconImage, uiModelSceneID = EJ_GetCreatureInfo(1, journalEncounterID)
+							if (journalEncounterCreatureId) then
+								encounterData.creatureName = creatureName
+								encounterData.creatureIcon = iconImage
+								encounterData.creatureId = journalEncounterCreatureId
+								encounterData.creatureDisplayId = creatureDisplayID
+								encounterData.creatureUIModelSceneId = uiModelSceneID
+							end
+
+							instanceData.encountersArray[#instanceData.encountersArray+1] = encounterData
+							instanceData.encountersByName[name] = encounterData
+							instanceData.encountersByDungeonEncounterId[dungeonEncounterID] = encounterData
+							instanceData.encountersByJournalEncounterId[journalEncounterID] = encounterData
+						end
+					end
+				end
+			end
+		end
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1610,8 +1610,8 @@ function Details.Database.StoreEncounter(combat)
 		return
 	end
 
-	local boss_info = combat:GetBossInfo()
-	local encounter_id = boss_info and boss_info.id
+	local encounterInfo = combat:GetBossInfo()
+	local encounter_id = encounterInfo and encounterInfo.id
 
 	if (not encounter_id) then
 		if (_detalhes.debug) then
