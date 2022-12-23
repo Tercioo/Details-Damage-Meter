@@ -6361,22 +6361,50 @@ local buildSegmentTooltip = function(self, deltaTime)
 								end
 							end
 
+							local addIconAndStatusBar = function(redTint)
+								gameCooltip:AddIcon([[Interface\AddOns\Details\images\empty16]], 2, 1, 12, 12)
+								gameCooltip:AddStatusBar(100, 2, redTint or 0, 0, 0, 0.85, false, false, "Skyline")
+							end
+
 							--is mythic overall
 							if (isMythicOverallSegment) then
-								--mostrar o tempo da dungeon
-								local totalTime = elapsedCombatTime
-								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", Details.gump:IntegerToTimer(endedAt - startedAt), 1, dungeonColor)
+								local overallIcon = "|TInterface\\GLUES\\CharacterSelect\\Glues-AddOn-Icons:16:16:0:0:64:16:48:64:0:16|t"
+
+								gameCooltip:AddLine(overallIcon .. zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", Details.gump:IntegerToTimer(endedAt - startedAt), 1, dungeonColor)
 								gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
+								gameCooltip:AddStatusBar(100, 1, .5, .1, 0, 0.55, false, false, "Skyline")
+
 								gameCooltip:AddLine(zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", nil, 2, "white", "white")
+								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.85, false, false, "Skyline")
 							else
 								if (segmentID == "trashoverall") then
 									local trashIcon = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:14:58:98:160|t"
 									gameCooltip:AddLine(trashIcon .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", Details.gump:IntegerToTimer(endedAt - startedAt), 1, dungeonColor, "gray")
+									addIconAndStatusBar()
 									gameCooltip:AddLine((encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_TRASH"] .. ")", nil, 2, "white", "white")
+									addIconAndStatusBar()
 								else
 									local skull = "|TInterface\\AddOns\\Details\\images\\icons:16:16:0:0:512:512:496:512:0:16|t"
 									gameCooltip:AddLine(skull .. "" .. (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", Details.gump:IntegerToTimer(elapsedCombatTime), 1, dungeonColor, "gray")
+									addIconAndStatusBar()
 									gameCooltip:AddLine((encounterName or Loc["STRING_UNKNOW"]) .. " (" .. Loc["STRING_SEGMENTS_LIST_BOSS"] .. ")", nil, 2, "white", "white")
+									addIconAndStatusBar()
+
+									do
+										local avatarPoint = {"bottomleft", "topleft", -3, -4}
+										local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
+										local textPoint = {"left", "right", -11, -5}
+										local avatarTexCoord = {0, 1, 0, 1}
+										local backgroundColor = {0, 0, 0, 0.6}
+										local avatarTextColor = {1, 1, 1, 1}
+
+										--gameCooltip:SetBannerImage(2, 1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --overlay [2] avatar path
+										local anchor = {"bottom", "top", 0, 0}
+
+										--these need to be per line, current are per frame
+										--gameCooltip:SetBannerImage(2, 2, [[Interface\PetBattles\Weather-Windy]], 200, 55, anchor, {1, 0.129609375, 1, 0})
+										--gameCooltip:SetBannerText(2, 2, encounterName, textPoint, avatarTextColor, 14, SharedMedia:Fetch("font", Details.tooltip.fontface))
+									end
 								end
 								gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 14, 10, 479/512, 510/512, 24/512, 51/512)
 							end
@@ -6404,35 +6432,43 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 							if (segmentID == "trashoverall") then
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
+								addIconAndStatusBar()
 								local totalRealTime = endedAt - startedAt
 								local wasted = totalRealTime - decorrido
 
 								--wasted time
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
+								addIconAndStatusBar(0.15)
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(endedAt - startedAt), 2, "white", "white")
+								addIconAndStatusBar()
 
 							elseif (isMythicOverallSegment) then
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
+								addIconAndStatusBar()
 								local totalRealTime = endedAt - startedAt
 								local wasted = totalRealTime - decorrido
 
 								--wasted time
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								gameCooltip:AddStatusBar(100, 2, 0, 0, 0, 0.35, false, false, "Skyline")
+								addIconAndStatusBar(0.15)
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(totalRealTime), 2, "white", "white")
+								addIconAndStatusBar()
 
 							else
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
+								addIconAndStatusBar()
 							end
 
 							if (thisCombat.is_boss) then
 								gameCooltip:AddLine("", "", 2, "white", "white")
+								addIconAndStatusBar()
 							end
 
 							gameCooltip:AddLine(Loc["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+							addIconAndStatusBar()
 							gameCooltip:AddLine(Loc["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
-							gameCooltip:AddStatusBar (100, 1, .3, .3, .3, 0.2, false, false, "Skyline")
+							addIconAndStatusBar()
+							--gameCooltip:AddStatusBar(100, 1, .3, .3, .3, 0.2, false, false, "Skyline")
 						else
 							--the combat has mythic dungeon tag but doesn't have a mythic dungeon table information
 							--so this is a trash cleanup segment
