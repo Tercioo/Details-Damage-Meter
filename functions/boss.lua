@@ -547,6 +547,8 @@ do
 			EncounterJournal_LoadUI()
 		end
 
+		hooksecurefunc("EncounterJournal_OpenJournalLink", Details222.EJCache.OnClickEncounterJournalLink)
+
 		do
 			--iterate among all raid instances, by passing true in the second argument of EJ_GetInstanceByIndex, indicates to the API we want to get raid instances
 			local bGetRaidInstances = true
@@ -770,9 +772,20 @@ do
 		end
 
 		--reset the dungeon journal to the default state
-		if (EncounterJournalSuggestTab) then
-			EncounterJournalSuggestTab:Click()
-		end
+		C_Timer.After(0.5, function()
+			EncounterJournal_ResetDisplay(nil, "none")
+		end)
+		C_Timer.After(1, function()
+			if (EncounterJournalSuggestTab) then
+				EncounterJournalSuggestTab:Click()
+			end
+		end)
+
+		--EncounterJournal_OpenJournalLink(tag, jtype, id, difficultyID)
+		--EncounterJournal_OpenJournal(difficultyID, instanceID, encounterID, sectionID, creatureID, itemID, tierIndex)
+
+		--local tooltipInfo = CreateBaseTooltipInfo("GetHyperlink", link, classID, specID);
+
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

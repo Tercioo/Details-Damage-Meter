@@ -12,7 +12,6 @@
 	local UnitHealthMax = UnitHealthMax
 	local UnitGUID = UnitGUID
 	local IsInGroup = IsInGroup
-	--local GetNumGroupMembers = GetNumGroupMembers
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 	local GetTime = GetTime
 	local tonumber = tonumber
@@ -5583,7 +5582,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--in case the player left the raid during the encounter
-	local check_for_encounter_end = function()
+	--this function clear the encounter_id from the cache
+	local checkIfEncounterIsDone = function()
 		if (not _current_encounter_id) then
 			return
 		end
@@ -5623,8 +5623,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	--this function is guaranteed to run after a combat is done
 	--can also run when the player leaves combat state (regen enabled)
-	function _detalhes:RunScheduledEventsAfterCombat (OnRegenEnabled)
-
+	function _detalhes:RunScheduledEventsAfterCombat(OnRegenEnabled)
 		if (_detalhes.debug) then
 			_detalhes:Msg("(debug) running scheduled events after combat end.")
 		end
@@ -5777,13 +5776,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (_detalhes.debug) then
 			_detalhes:Msg("(debug) |cFFFFFF00PLAYER_REGEN_ENABLED|r event triggered.")
 
-			print("combat lockdown:", InCombatLockdown())
-			print("affecting combat:", UnitAffectingCombat("player"))
+			--print("combat lockdown:", InCombatLockdown())
+			--print("affecting combat:", UnitAffectingCombat("player"))
 
-			if (_current_encounter_id and IsInInstance()) then
-				print("has a encounter ID")
-				print("player is dead:", UnitHealth ("player") < 1)
-			end
+			--if (_current_encounter_id and IsInInstance()) then
+				--print("has a encounter ID")
+				--print("player is dead:", UnitHealth ("player") < 1)
+			--end
 		end
 
 		if (Details.auto_swap_to_dynamic_overall) then
@@ -5791,23 +5790,22 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		--elapsed combat time
-		_detalhes.LatestCombatDone = GetTime()
-		_detalhes.tabela_vigente.CombatEndedAt = GetTime()
-		_detalhes.tabela_vigente.TotalElapsedCombatTime = _detalhes.tabela_vigente.CombatEndedAt - (_detalhes.tabela_vigente.CombatStartedAt or 0)
+		Details.LatestCombatDone = GetTime()
 
-		C_Timer.After(10, check_for_encounter_end)
+		local currentCombat = Details:GetCurrentCombat()
+		currentCombat.CombatEndedAt = GetTime()
+		currentCombat.TotalElapsedCombatTime = currentCombat.CombatEndedAt - (currentCombat.CombatStartedAt or 0)
+
+		C_Timer.After(10, checkIfEncounterIsDone)
 
 		--playing alone, just finish the combat right now
 		if (not IsInGroup() and not IsInRaid()) then
-			_detalhes.tabela_vigente.playing_solo = true
-			_detalhes:SairDoCombate()
-
+			currentCombat.playing_solo = true
+			Details:SairDoCombate()
 		else
 			--is in a raid or party group
 			C_Timer.After(1, function()
-				local inCombat
 				if (IsInRaid()) then
-					--raid
 					local inCombat = false
 					for i = 1, GetNumGroupMembers() do
 						if (UnitAffectingCombat("raid" .. i)) then
@@ -5817,11 +5815,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					end
 
 					if (not inCombat) then
-						_detalhes:RunScheduledEventsAfterCombat (true)
+						Details:RunScheduledEventsAfterCombat(true)
 					end
 
 				elseif (IsInGroup()) then
-					--party (dungeon)
 					local inCombat = false
 					for i = 1, GetNumGroupMembers() -1 do
 						if (UnitAffectingCombat("party" .. i)) then
@@ -5831,7 +5828,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					end
 
 					if (not inCombat) then
-						_detalhes:RunScheduledEventsAfterCombat (true)
+						Details:RunScheduledEventsAfterCombat(true)
 					end
 				end
 			end)
@@ -5952,41 +5949,38 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.in_group = IsInGroup() or IsInRaid()
 
 			if (_detalhes.in_group) then
-				--entrou num grupo
-				_detalhes:IniciarColetaDeLixo (true)
-				_detalhes:WipePets()
-				_detalhes:SchedulePetUpdate(1)
-				_detalhes:InstanceCall(_detalhes.AdjustAlphaByContext)
+				--player entered in a group, cleanup and set the new enviromnent
+				Details:RestartInternalGarbageCollector(true)
+				Details:WipePets()
+				Details:SchedulePetUpdate(1)
+				Details:InstanceCall(Details.AdjustAlphaByContext)
 
-				_detalhes:CheckSwitchOnLogon()
-				_detalhes:CheckVersion()
-				_detalhes:SendEvent("GROUP_ONENTER")
+				Details:CheckSwitchOnLogon()
+				Details:CheckVersion()
+				Details:SendEvent("GROUP_ONENTER")
 
-				_detalhes:DispatchAutoRunCode("on_groupchange")
+				Details:DispatchAutoRunCode("on_groupchange")
 
-				wipe (_detalhes.trusted_characters)
-				C_Timer.After(5, _detalhes.ScheduleSyncPlayerActorData)
+				wipe (Details.trusted_characters)
+				C_Timer.After(5, Details.ScheduleSyncPlayerActorData)
 			end
 
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()
 
 			if (not _detalhes.in_group) then
-				--saiu do grupo
-				_detalhes:IniciarColetaDeLixo(true)
-				_detalhes:WipePets()
-				_detalhes:SchedulePetUpdate(1)
-				wipe(_detalhes.details_users)
-				_detalhes:InstanceCall(_detalhes.AdjustAlphaByContext)
-				_detalhes:CheckSwitchOnLogon()
-				_detalhes:SendEvent("GROUP_ONLEAVE")
-
-				_detalhes:DispatchAutoRunCode("on_groupchange")
-
-				wipe (_detalhes.trusted_characters)
-
+				--player left the group, run routines to cleanup the environment
+				Details:RestartInternalGarbageCollector(true)
+				Details:WipePets()
+				Details:SchedulePetUpdate(1)
+				wipe(Details.details_users)
+				Details:InstanceCall(Details.AdjustAlphaByContext)
+				Details:CheckSwitchOnLogon()
+				Details:SendEvent("GROUP_ONLEAVE")
+				Details:DispatchAutoRunCode("on_groupchange")
+				wipe(Details.trusted_characters)
 			else
-				--ainda esta no grupo
+				--player is still in a group
 				_detalhes:SchedulePetUpdate(2)
 
 				--send char data
@@ -6415,34 +6409,43 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(bitfield_swap_cache)
 		wipe(empower_cache)
 
-		local roster = _detalhes.tabela_vigente.raid_roster
+		local groupRoster = _detalhes.tabela_vigente.raid_roster
 
 		if (IsInRaid()) then
+			local unitIdCache = Details222.UnitIdCache.Raid
+
 			for i = 1, GetNumGroupMembers() do
-				local name = GetUnitName("raid"..i, true)
+				local unitId = unitIdCache[i]
+				local unitName = GetUnitName(unitId, true)
+				local unitGUID = UnitGUID(unitId)
 
-				local guid = UnitGUID("raid"..i)
-				raid_members_cache[guid] = name
-				roster[name] = guid
+				local _, unitClass = UnitClass(unitId)
+				Details222.ClassCache.ByName[unitName] = unitClass
+				Details222.ClassCache.ByGUID[unitGUID] = unitClass
 
-				local role = _UnitGroupRolesAssigned(name)
+				raid_members_cache[unitGUID] = unitName
+				groupRoster[unitName] = unitGUID
+
+				local role = _UnitGroupRolesAssigned(unitName)
 				if (role == "TANK") then
-					tanks_members_cache[UnitGUID("raid"..i)] = true
+					tanks_members_cache[unitGUID] = true
 				end
 
-				if (auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("raid" .. i)]]) then
-					auto_regen_cache[name] = auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("raid" .. i)]]
+				if (auto_regen_power_specs[_detalhes.cached_specs[unitGUID]]) then
+					auto_regen_cache[unitName] = auto_regen_power_specs[_detalhes.cached_specs[unitGUID]]
 				end
 			end
 
 		elseif (IsInGroup()) then
-			--party
+			local unitIdCache = Details222.UnitIdCache.Party
 			for i = 1, GetNumGroupMembers()-1 do
-				local name = GetUnitName("party"..i, true)
+				local unitId = unitIdCache[i]
 
-				local guid = UnitGUID("party"..i)
+				local name = GetUnitName(unitId, true)
+
+				local guid = UnitGUID(unitId)
 				raid_members_cache[guid] = name
-				roster[name] = guid
+				groupRoster[name] = guid
 
 				local role = _UnitGroupRolesAssigned(name)
 				if (role == "TANK") then
@@ -6455,44 +6458,46 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 			--player
-			local name = GetUnitName("player", true)
+			local playerName = GetUnitName("player", true)
+			local playerGUID = UnitGUID("player")
 
-			raid_members_cache[UnitGUID("player")] = name
-			roster[name] = UnitGUID("player")
+			raid_members_cache[playerGUID] = playerName
+			groupRoster[playerName] = playerGUID
 
-			local role = _UnitGroupRolesAssigned(name)
+			local role = _UnitGroupRolesAssigned(playerName)
 			if (role == "TANK") then
-				tanks_members_cache[UnitGUID("player")] = true
+				tanks_members_cache[playerGUID] = true
 			end
 
-			if (auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("player")]]) then
-				auto_regen_cache[name] = auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("player")]]
+			if (auto_regen_power_specs[_detalhes.cached_specs[playerGUID]]) then
+				auto_regen_cache[playerName] = auto_regen_power_specs[_detalhes.cached_specs[playerGUID]]
 			end
 		else
-			local name = GetUnitName("player", true)
+			local playerName = GetUnitName("player", true)
+			local playerGUID = UnitGUID("player")
 
-			raid_members_cache[UnitGUID("player")] = name
-			roster[name] = UnitGUID("player")
+			raid_members_cache[playerGUID] = playerName
+			groupRoster[playerName] = playerGUID
 
-			local role = _UnitGroupRolesAssigned(name)
+			local role = _UnitGroupRolesAssigned(playerName)
 			if (role == "TANK") then
-				tanks_members_cache[UnitGUID("player")] = true
+				tanks_members_cache[playerGUID] = true
 			else
 				local spec = DetailsFramework.GetSpecialization()
 				if (spec and spec ~= 0) then
 					if (DetailsFramework.GetSpecializationRole (spec) == "TANK") then
-						tanks_members_cache[UnitGUID("player")] = true
+						tanks_members_cache[playerGUID] = true
 					end
 				end
 			end
 
-			if (auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("player")]]) then
-				auto_regen_cache[name] = auto_regen_power_specs[_detalhes.cached_specs[UnitGUID("player")]]
+			if (auto_regen_power_specs[_detalhes.cached_specs[playerGUID]]) then
+				auto_regen_cache[playerName] = auto_regen_power_specs[_detalhes.cached_specs[playerGUID]]
 			end
 		end
 
 		local orderNames = {}
-		for playerName in pairs(roster) do
+		for playerName in pairs(groupRoster) do
 			orderNames[#orderNames+1] = playerName
 		end
 		table.sort(orderNames, function(name1, name2)
@@ -6500,20 +6505,28 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end)
 		_detalhes.tabela_vigente.raid_roster_indexed = orderNames
 
-
 		if (_detalhes.iam_a_tank) then
 			tanks_members_cache[UnitGUID("player")] = true
 		end
 	end
 
-	function _detalhes:IsATank(playerguid)
-		return tanks_members_cache[playerguid]
+	---return true or false
+	---@param unitGUID string
+	---@return boolean
+	function Details:IsATank(unitGUID)
+		return tanks_members_cache[unitGUID] or false
 	end
 
-	function _detalhes:IsInCache(playerguid)
-		return raid_members_cache[playerguid]
+	---returns the unit name
+	---@param unitGUID string
+	---@return string
+	function Details:IsInCache(unitGUID)
+		return raid_members_cache[unitGUID]
 	end
-	function _detalhes:GetParserPlayerCache()
+
+	---return the internal raid members cache, containing the unitGUID as key and the unitName as value
+	---@return table
+	function Details:GetParserPlayerCache()
 		return raid_members_cache
 	end
 

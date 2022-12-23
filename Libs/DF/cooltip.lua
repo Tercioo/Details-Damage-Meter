@@ -15,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 11
+local version = 12
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -2649,10 +2649,12 @@ function DF:CreateCoolTip()
 
 		if (anchor and index == 1) then
 			local myAnchor, hisAnchor, x, y = unpack(anchor)
+			fontstring:ClearAllPoints()
 			fontstring:SetPoint(myAnchor, frame.upperImage, hisAnchor or myAnchor, x or 0, y or 0)
 
 		elseif (anchor and index == 2) then
 			local myAnchor, hisAnchor, x, y = unpack(anchor)
+			fontstring:ClearAllPoints()
 			fontstring:SetPoint(myAnchor, frame, hisAnchor or myAnchor, x or 0, y or 0)
 		end
 
@@ -2725,10 +2727,12 @@ function DF:CreateCoolTip()
 			if (type(anchor[1]) == "table") then
 				for anchorIndex, anchorPoints in ipairs(anchor) do
 					local myAnchor, hisAnchor, x, y = unpack(anchorPoints)
+					texture:ClearAllPoints()
 					texture:SetPoint(myAnchor, frame, hisAnchor or myAnchor, x or 0, y or 0)
 				end
 			else
 				local myAnchor, hisAnchor, x, y = unpack(anchor)
+				texture:ClearAllPoints()
 				texture:SetPoint(myAnchor, frame, hisAnchor or myAnchor, x or 0, y or 0)
 			end
 		end
@@ -2737,8 +2741,10 @@ function DF:CreateCoolTip()
 			local leftCoord, rightCoord, topCoord, bottomCoord = unpack(texCoord)
 			texture:SetTexCoord(leftCoord, rightCoord, topCoord, bottomCoord)
 		end
+
 		if (overlay) then
-			texture:SetVertexColor(unpack(overlay))
+			local red, green, blue, alpha = DF:ParseColors(overlay)
+			texture:SetVertexColor(red, green, blue, alpha)
 		end
 
 		gameCooltip.Banner[index] = true

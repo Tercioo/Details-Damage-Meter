@@ -1,6 +1,6 @@
 
 
-local dversion = 406
+local dversion = 407
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -773,6 +773,13 @@ function DF:AddClassColorToText(text, className)
 	end
 
 	return text
+end
+
+function DF:MakeStringFromSpellId(spellId)
+	local spellName, _, spellIcon = GetSpellInfo(spellId)
+	if (spellName) then
+		return "|T" .. spellIcon .. ":16:16:0:0:64:64:4:60:4:60|t " .. spellName
+	end
 end
 
 function DF:GetClassTCoordsAndTexture(class)

@@ -72,6 +72,7 @@
 		Details222.Pets = {}
 		Details222.MythicPlus = {}
 		Details222.EJCache = {}
+		Details222.Segments = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -994,3 +995,83 @@ if (select(4, GetBuildInfo()) >= 100000) then
 		end
 	end)
 end
+
+Details222.ClassCache = {}
+Details222.ClassCache.ByName = {}
+Details222.ClassCache.ByGUID = {}
+
+function Details222.ClassCache.GetClass(value)
+	local className = Details222.ClassCache.ByName[value] or Details222.ClassCache.ByGUID[value]
+	if (className) then
+		return className
+	end
+
+	local _, unitClass = UnitClass(value)
+	return unitClass
+end
+
+function Details222.ClassCache.MakeCache()
+	--iterage among all segments in the container history, get the damage container and get the actor list, check if the actor is a player and if it is, get the class and store it in the cache
+	for _, combatObject in ipairs(Details.tabela_historico.tabelas) do
+		for _, actorObject in combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
+			if (actorObject:IsPlayer()) then
+				local actorName = actorObject.nome
+				local actorClass = actorObject.classe
+				local actorGUID = actorObject.serial
+				Details222.ClassCache.ByName[actorName] = actorClass
+				Details222.ClassCache.ByGUID[actorGUID] = actorClass
+			end
+		end
+	end
+end
+
+Details222.UnitIdCache = {}
+Details222.UnitIdCache.Raid = {
+	[1] = "raid1",
+	[2] = "raid2",
+	[3] = "raid3",
+	[4] = "raid4",
+	[5] = "raid5",
+	[6] = "raid6",
+	[7] = "raid7",
+	[8] = "raid8",
+	[9] = "raid9",
+	[10] = "raid10",
+	[11] = "raid11",
+	[12] = "raid12",
+	[13] = "raid13",
+	[14] = "raid14",
+	[15] = "raid15",
+	[16] = "raid16",
+	[17] = "raid17",
+	[18] = "raid18",
+	[19] = "raid19",
+	[20] = "raid20",
+	[21] = "raid21",
+	[22] = "raid22",
+	[23] = "raid23",
+	[24] = "raid24",
+	[25] = "raid25",
+	[26] = "raid26",
+	[27] = "raid27",
+	[28] = "raid28",
+	[29] = "raid29",
+	[30] = "raid30",
+	[31] = "raid31",
+	[32] = "raid32",
+	[33] = "raid33",
+	[34] = "raid34",
+	[35] = "raid35",
+	[36] = "raid36",
+	[37] = "raid37",
+	[38] = "raid38",
+	[39] = "raid39",
+	[40] = "raid40",
+}
+
+Details222.UnitIdCache.Party = {
+	[1] = "party1",
+	[2] = "party2",
+	[3] = "party3",
+	[4] = "party4",
+}
