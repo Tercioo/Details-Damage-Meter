@@ -102,7 +102,9 @@
 	--cache
 		local cacheAnything = {
 			arenaHealth = {},
+			paladin_vivaldi_blessings = {},
 		}
+		
 	--druids kyrian bounds
 		local druid_kyrian_bounds = {} --remove on 10.0
 	--spell containers for special cases
@@ -961,7 +963,14 @@
 			--Light of the Martyr - paladin spell which causes damage to the caster it self
 			elseif (spellid == 196917) then -- or spellid == 183998 < healing part
 				return parser:LOTM_damage(token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+
+			elseif (spellid == 388009 or spellid == 388012) then --damage from the paladin blessings of the seasons
+				local blessingSource = cacheAnything.paladin_vivaldi_blessings[who_serial]
+				if (blessingSource) then
+					who_serial, who_name, who_flags = unpack(blessingSource)
+				end
 			end
+
 		--end
 
 		if (isWOTLK) then
@@ -2739,7 +2748,10 @@
 					end
 				end
 
-				if (spellid == 27827) then --spirit of redemption (holy ~priest) ~spirit
+				if (spellid == 388007 or spellid == 388011) then --buff: bleesing of the summer and winter
+					cacheAnything.paladin_vivaldi_blessings[alvo_serial] = {who_serial, who_name, who_flags}
+
+				elseif (spellid == 27827) then --spirit of redemption (holy ~priest) ~spirit
 					--C_Timer.After(0.1, function()
 						parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 						ignore_death [who_name] = true
@@ -3235,6 +3247,9 @@
 
 				elseif (spellid == SPELLID_NECROMANCER_CHEAT_DEATH) then --remove on 10.0
 					necro_cheat_deaths[who_serial] = nil
+
+				elseif (spellid == 388007 or spellid == 388011) then --buff: bleesing of the summer
+					cacheAnything.paladin_vivaldi_blessings[alvo_serial] = nil
 				end
 
 				--druid kyrian empower bounds (9.0 kyrian covenant - probably remove on 10.0)
@@ -6342,7 +6357,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return _detalhes.cache_healing_group
 	end
 
-	function _detalhes:ClearParserCache()
+	function _detalhes:ClearParserCache() --~wipe
 		wipe(damage_cache)
 		wipe(damage_cache_pets)
 		wipe(damage_cache_petsOwners)
@@ -6364,6 +6379,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		wipe(dk_pets_cache.army)
 		wipe(dk_pets_cache.apoc)
+
+		wipe(cacheAnything.paladin_vivaldi_blessings)
 
 		damage_cache = setmetatable({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable({}, _detalhes.weaktable)

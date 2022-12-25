@@ -73,6 +73,7 @@
 		Details222.MythicPlus = {}
 		Details222.EJCache = {}
 		Details222.Segments = {}
+		Details222.Tables = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -1075,3 +1076,9 @@ Details222.UnitIdCache.Party = {
 	[3] = "party3",
 	[4] = "party4",
 }
+
+function Details222.Tables.MakeWeakTable(mode)
+	local newTable = {}
+	setmetatable(newTable, {__mode = mode or "v"})
+	return newTable
+end
