@@ -865,6 +865,7 @@ local default_profile = {
 		friendlyfire = "darkorange",
 		cooldown = "yellow",
 		debuff = "purple",
+		buff = "silver",
 	},
 
 	fade_speed = 0.15,
@@ -1475,6 +1476,7 @@ local default_global_data = {
 	--min health done on the death report
 		deathlog_healingdone_min = 1,
 		deathlog_healingdone_min_arena = 400,
+		deathlog_line_height = 16,
 
 	--mythic plus config
 		mythic_plus = {

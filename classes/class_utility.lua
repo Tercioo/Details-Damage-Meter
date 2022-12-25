@@ -213,6 +213,8 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 	local damageAmountColor = "FFFFFFFF"
 	local healingAmountColor = "FF988EA0"
 
+	local lineHeight = Details.deathlog_line_height
+
 	gameCooltip:Reset()
 	gameCooltip:SetType("tooltipbar")
 
@@ -260,7 +262,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 						gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. damageSourceColor .. source .. "|r)", "|c" .. damageAmountColor .. "-" .. Details:ToK(amount) .. critOrCrush .. overkill .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					end
 
-					gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
+					gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
 
 					if (event[9]) then
 						--friendly fire
@@ -275,12 +277,12 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 						if (combatObject.is_arena) then
 							if (amount > Details.deathlog_healingdone_min_arena) then
 								gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. healingSourceColor .. source .. "|r)", "|c" .. healingAmountColor .. "+" .. Details:ToK(amount) .. " (" .. healthPercent .. "%)", 1, "white", "white")
-								gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
+								gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
 								gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.heal, showSpark, statusBarBackgroundTable_ForDeathTooltip)
 							end
 						else
 							gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (|c" .. healingSourceColor .. source .. "|r)", "|c" .. healingAmountColor .. "+" .. Details:ToK(amount) .. " (" .. healthPercent .. "%)", 1, "white", "white")
-							gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
+							gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
 							gameCooltip:AddStatusBar(healthPercent, 1, barTypeColors.heal, showSpark, statusBarBackgroundTable_ForDeathTooltip)
 						end
 					end
@@ -290,7 +292,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 				if (evType == 1) then
 					--cooldown
 					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "cooldown (" .. healthPercent .. "%)", 1, "white", "white")
-					gameCooltip:AddIcon(spellIcon, nil, nil, nil, nil, .1, .9, .1, .9)
+					gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
 					gameCooltip:AddStatusBar(100, 1, barTypeColors.cooldown, showSpark)
 
 				elseif (evType == 2 and not battleress) then
@@ -304,8 +306,14 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 				elseif (evType == 4) then
 					--debuff
 					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "x" .. amount .. " " .. AURA_TYPE_DEBUFF .. " (" .. healthPercent .. "%)", 1, "white", "white")
-					gameCooltip:AddIcon(spellIcon)
+					gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
 					gameCooltip:AddStatusBar(100, 1, barTypeColors.debuff, showSpark)
+
+				elseif (evType == 5) then
+					--buff
+					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "x" .. amount .. " " .. AURA_TYPE_BUFF .. " (" .. healthPercent .. "%)", 1, "white", "white")
+					gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
+					gameCooltip:AddStatusBar(100, 1, barTypeColors.buff, showSpark)
 				end
 			end
 		end
@@ -318,7 +326,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 	if (battleress) then
 		local spellName, _, spellIcon = _GetSpellInfo(battleress[2])
 		gameCooltip:AddLine("+" .. format("%.1f", battleress[4] - timeOfDeath) .. "s " .. spellName .. " (" .. battleress[6] .. ")", "", 1, "white")
-		gameCooltip:AddIcon("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
+		gameCooltip:AddIcon("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, lineHeight, lineHeight, .75, 1, 0, 1)
 		gameCooltip:AddStatusBar(0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 	end
 
@@ -326,7 +334,7 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 		if (lastcooldown[3] == 1) then
 			local spellName, _, spellIcon = _GetSpellInfo(lastcooldown[2])
 			gameCooltip:AddLine(format("%.1f", lastcooldown[4] - timeOfDeath) .. "s " .. spellName .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
-			gameCooltip:AddIcon(spellIcon)
+			gameCooltip:AddIcon(spellIcon, 1, 1, lineHeight, lineHeight, .1, .9, .1, .9)
 		else
 			gameCooltip:AddLine(Loc ["STRING_NOLAST_COOLDOWN"])
 			gameCooltip:AddIcon([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]], 1, 1, 18, 18)
@@ -382,7 +390,7 @@ local function RefreshBarraMorte (morte, barra, instancia)
 	atributo_misc:DeadAtualizarBarra (morte, morte.minha_barra, barra.colocacao, instancia)
 end
 
---objeto death:
+--object death:
 --[1] tabela [2] time [3] nome [4] classe [5] maxhealth [6] time of death
 --[1] true damage/ false heal [2] spellid [3] amount [4] time [5] current health [6] source
 

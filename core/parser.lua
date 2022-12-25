@@ -2752,10 +2752,41 @@
 					cacheAnything.paladin_vivaldi_blessings[alvo_serial] = {who_serial, who_name, who_flags}
 
 				elseif (spellid == 27827) then --spirit of redemption (holy ~priest) ~spirit
-					--C_Timer.After(0.1, function()
+					local deathLog = last_events_cache[alvo_name]
+					if (not deathLog) then
+						deathLog = _current_combat:CreateLastEventsTable(alvo_name)
+					end
+
+					local i = deathLog.n
+					local thisEvent = deathLog[i]
+
+					if (not thisEvent) then
+						return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
+					end
+
+					thisEvent[1] = 5 --5 = buff aplication
+					thisEvent[2] = spellid --spellid
+					thisEvent[3] = 1
+					thisEvent[4] = time --parser time
+					thisEvent[5] = UnitHealth(alvo_name) --current unit heal
+					thisEvent[6] = who_name --source name
+					thisEvent[7] = false
+					thisEvent[8] = false
+					thisEvent[9] = false
+					thisEvent[10] = false
+
+					i = i + 1
+
+					if (i == _death_event_amt+1) then
+						deathLog.n = 1
+					else
+						deathLog.n = i
+					end
+
+					C_Timer.After(0.05, function() --25/12/2022: enabled the delay to wait the combatlog dump damage events which will happen after the buff is applied
 						parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 						ignore_death [who_name] = true
-					--end)
+					end)
 					return
 
 				elseif (spellid == SPELLID_MONK_GUARD) then
