@@ -1,6 +1,6 @@
 
 
-local dversion = 407
+local dversion = 408
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -757,6 +757,19 @@ function DF:SetFontRotation(fontString, degrees)
 	end
 end
 
+function DF:AddColorToText(text, color) --wrap text with a color
+	local r, g, b = DF:ParseColors(color)
+	if (not r) then
+		return text
+	end
+
+	local hexColor = DF:FormatColor("hex", r, g, b)
+
+	text = "|c" .. hexColor .. text .. "|r"
+
+	return text
+end
+
 function DF:AddClassColorToText(text, className)
 	if (type(className) ~= "string") then
 		return DF:RemoveRealName(text)
@@ -1246,6 +1259,7 @@ end
 
 	--convert a any format of color to any other format of color
 	function DF:FormatColor(newFormat, r, g, b, a, decimalsAmount)
+		a = a or 1
 		r, g, b, a = DF:ParseColors(r, g, b, a)
 		decimalsAmount = decimalsAmount or 4
 
