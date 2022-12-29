@@ -345,7 +345,6 @@
 			end
 
 			local IDs = Details.storage:GetIDsToGuildSync()
-			dumpt(IDs)
 
 			if (IDs and IDs [1]) then
 				local from = UnitName("player")
@@ -358,9 +357,6 @@
 
 		elseif (type == "L") then --RoC - the player received the IDs list and send back which IDs he doesn't have
 			local missingIds = Details.storage:CheckMissingIDsToGuildSync(data)
-
-			print("data from:", sourceName, "missing ids", #missingIds)
-			dumpt(data)
 
 			if (missingIds and missingIds[1]) then
 				local from = UnitName ("player")

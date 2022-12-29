@@ -2068,7 +2068,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local backdrop_color_inguild = {.5, .8, .5, 0.2}
 				local backdrop_color_on_enter_inguild = {.5, 1, .5, 0.4}
 
-				local f = DetailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones", "DetailsKeystoneInfoFrame")
+				local f = DetailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones (/key)", "DetailsKeystoneInfoFrame")
 				f:SetPoint("center", UIParent, "center", 0, 0)
 
 				f:SetScript("OnMouseDown", nil) --disable framework native moving scripts
