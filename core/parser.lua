@@ -6340,6 +6340,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		container_pets = _detalhes.tabela_pets.pets
 	end
 
+	function Details:GetActorFromCache(value)
+		return damage_cache[value] or damage_cache_pets[value] or damage_cache_petsOwners[value]
+	end
+
 	function _detalhes:PrintParserCacheIndexes()
 		local amount = 0
 		for n, nn in pairs(damage_cache) do

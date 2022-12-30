@@ -73,38 +73,60 @@
 
 	local debugPetname = false
 
-	local KirinTor = GetFactionInfoByID (1090) or "1"
-	local Valarjar = GetFactionInfoByID (1948) or "1"
-	local HighmountainTribe = GetFactionInfoByID (1828) or "1"
-	local CourtofFarondis = GetFactionInfoByID (1900) or "1"
-	local Dreamweavers = GetFactionInfoByID (1883) or "1"
-	local TheNightfallen = GetFactionInfoByID (1859) or "1"
-	local TheWardens = GetFactionInfoByID (1894) or "1"
-
 	local SPELLID_SANGUINE_HEAL = 226510
 	local sanguineActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
-	local IsFactionNpc = {
-		[KirinTor] = true,
-		[Valarjar] = true,
-		[HighmountainTribe] = true,
-		[CourtofFarondis] = true,
-		[Dreamweavers] = true,
-		[TheNightfallen] = true,
-		[TheWardens] = true,
-	}
-	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --api functions
 
+---attempt to the owner of a pet using tooltip scan, if the owner isn't found, return nil
+---@param petGUID string
+---@param petName string
+---@return string|nil ownerName
+---@return string|nil ownerGUID
+---@return integer|nil ownerFlags
 	function Details222.Pets.GetPetOwner(petGUID, petName)
 		pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
 		pet_tooltip_frame:SetHyperlink(("unit:" .. petGUID) or "")
 
 		if (bIsDragonflight) then
-			local tooltipData = pet_tooltip_frame:GetTooltipData()
-			if (tooltipData and tooltipData.lines[1]) then
-				if (tooltipData.lines[1].leftText == petName) then
+			local tooltipData = pet_tooltip_frame:GetTooltipData() --is pet tooltip reliable with the new tooltips changes?
+			if (tooltipData) then
+				local tooltipLines = tooltipData.lines
+				for lineIndex = 1, #tooltipLines do
+					local thisLine = tooltipLines[lineIndex]
+					--get the type of information this line is showing
+					local lineType = thisLine.type --type 0 = 'friendly' type 2 = 'name' type 16 = controller guid
+
+					--parse the different types of information
+					if (lineType == 2) then --unit name
+						if (thisLine.leftText ~= petName) then
+							--tooltip isn't showing our pet
+							return
+						end
+
+					elseif (lineType == 16) then --controller guid
+						--assuming the unit name always comes before the controller guid
+						local GUID = thisLine.guid
+						--very fast way to get an actorObject, this cache only lives while in combat
+						local actorObject = Details:GetActorFromCache(GUID)
+						if (actorObject) then
+							--Details:Msg("(debug) pet found (1)", petName, "owner:", actorObject.nome)
+							return actorObject.nome, GUID, actorObject.flag_original
+						else
+							--return the actor name for a guid, this cache lives for current combat until next segment
+							local guidCache = Details:GetParserPlayerCache()
+							local ownerName = guidCache[GUID]
+							if (ownerName) then
+								--Details:Msg("(debug) pet found (2)", petName, "owner:", ownerName)
+								return ownerName, GUID, 0x514
+							end
+						end
+					end
+				end
+
+				--[=[
+				if (tooltipData.lines[1].leftText == petName) then --should rely on the first line carrying the pet name?
 					for i = 2, #tooltipData.lines do
 						local tooltipLine = tooltipData.lines[i]
 						local args = tooltipLine.args
@@ -114,12 +136,13 @@
 								local guidCache = Details:GetParserPlayerCache()
 								local ownerName = guidCache[ownerGUID]
 								if (ownerName) then
-									return ownerName, ownerGUID
+									return ownerName, ownerGUID, 0x514
 								end
 							end
 						end
 					end
 				end
+				--]=]
 			end
 		end
 

@@ -6838,8 +6838,10 @@ detailsFramework.StatusBarFunctions = {
 		self.barTextureMask:SetTexture([[Interface\CHATFRAME\CHATFRAMEBACKGROUND]])
 
 		--border texture
-		self.barBorderTextureForMask = self:CreateTexture(nil, "artwork", nil, 7)
+		self.barBorderTextureForMask = self:CreateTexture(nil, "overlay", nil, 7)
 		self.barBorderTextureForMask:SetAllPoints()
+		--self.barBorderTextureForMask:SetPoint("topleft", self, "topleft", -1, 1)
+		--self.barBorderTextureForMask:SetPoint("bottomright", self, "bottomright", 1, -1)
 		self.barBorderTextureForMask:Hide()
 
 		barTexture:AddMaskTexture(self.barTextureMask)
