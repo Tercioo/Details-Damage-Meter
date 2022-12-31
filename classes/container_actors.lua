@@ -147,9 +147,6 @@ end
 			local tooltipData = pet_tooltip_frame:GetTooltipData() --is pet tooltip reliable with the new tooltips changes?
 			if (tooltipData) then
 
-				print("new pet debug", petGUID, petName)
-				dumpt(tooltipData)
-
 				local tooltipLines = tooltipData.lines
 				for lineIndex = 1, #tooltipLines do
 					local thisLine = tooltipLines[lineIndex]
@@ -159,12 +156,9 @@ end
 					--parse the different types of information
 					if (lineType == 2) then --unit name
 						if (thisLine.leftText ~= petName) then
-							print("return tooltip isn't from the pet")
 							--tooltip isn't showing our pet
 							return
 						end
-
-						print("pet scanned:", thisLine.leftText:GetText())
 
 					elseif (lineType == 16) then --controller guid
 						--assuming the unit name always comes before the controller guid
