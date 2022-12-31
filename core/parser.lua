@@ -2604,9 +2604,9 @@
 			if (empowerSpellInfo) then
 				if (not empowerSpellInfo.counted_damage) then
 					--total of empowerment
-					spell.e_total = (spell.e_total or 0) + empowerSpellInfo.empowerLevel --usado para calcular o average empowerment
+					spell.e_total = (spell.e_total or 0) + empowerSpellInfo.empowerLevel --used to calculate the average empowerment
 					--total amount of empowerment
-					spell.e_amt = (spell.e_amt or 0) + 1 --usado para calcular o average empowerment
+					spell.e_amt = (spell.e_amt or 0) + 1 --used to calculate the average empowerment
 
 					--amount of casts on each level
 					spell.e_lvl = spell.e_lvl or {}

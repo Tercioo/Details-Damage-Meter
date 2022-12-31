@@ -2377,11 +2377,11 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			t3[8] = _detalhes:comma_value (esta_magia.anti_heal) .. " / " .. _cstr ("%.1f", porcentagem_anti_heal) .. "%"
 
 		--empowered
-		elseif (esta_magia.e_total) then
+		elseif (esta_magia.e_total and esta_magia.e_heal) then
 			local empowerLevelSum = esta_magia.e_total --total sum of empower levels
 			local empowerAmount = esta_magia.e_amt --amount of casts with empower
 			local empowerAmountPerLevel = esta_magia.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
-			local empowerDamagePerLevel = esta_magia.e_heal --{[1] = 54548745, [2] = 74548745}
+			local empowerHealPerLevel = esta_magia.e_heal --{[1] = 54548745, [2] = 74548745}
 
 			data[3] = t3
 
@@ -2391,20 +2391,20 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			local level4AverageDamage = "0"
 			local level5AverageDamage = "0"
 
-			if (empowerDamagePerLevel[1]) then
-				level1AverageDamage = Details:ToK(empowerDamagePerLevel[1] / empowerAmountPerLevel[1])
+			if (empowerHealPerLevel[1]) then
+				level1AverageDamage = Details:ToK(empowerHealPerLevel[1] / empowerAmountPerLevel[1])
 			end
-			if (empowerDamagePerLevel[2]) then
-				level2AverageDamage = Details:ToK(empowerDamagePerLevel[2] / empowerAmountPerLevel[2])
+			if (empowerHealPerLevel[2]) then
+				level2AverageDamage = Details:ToK(empowerHealPerLevel[2] / empowerAmountPerLevel[2])
 			end
-			if (empowerDamagePerLevel[3]) then
-				level3AverageDamage = Details:ToK(empowerDamagePerLevel[3] / empowerAmountPerLevel[3])
+			if (empowerHealPerLevel[3]) then
+				level3AverageDamage = Details:ToK(empowerHealPerLevel[3] / empowerAmountPerLevel[3])
 			end
-			if (empowerDamagePerLevel[4]) then
-				level4AverageDamage = Details:ToK(empowerDamagePerLevel[4] / empowerAmountPerLevel[4])
+			if (empowerHealPerLevel[4]) then
+				level4AverageDamage = Details:ToK(empowerHealPerLevel[4] / empowerAmountPerLevel[4])
 			end
-			if (empowerDamagePerLevel[5]) then
-				level5AverageDamage = Details:ToK(empowerDamagePerLevel[5] / empowerAmountPerLevel[5])
+			if (empowerHealPerLevel[5]) then
+				level5AverageDamage = Details:ToK(empowerHealPerLevel[5] / empowerAmountPerLevel[5])
 			end
 
 			t3[1] = 0
