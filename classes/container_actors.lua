@@ -79,6 +79,58 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --api functions
 
+--[=[
+["AzeriteItemPowerDescription"] = 9,
+["SellPrice"] = 11,
+["CurrencyTotal"] = 14,
+["GemSocket"] = 3,
+["QuestObjective"] = 8,
+["UnitName"] = 2,
+["SpellName"] = 13,
+["ItemEnchantmentPermanent"] = 15,
+["RuneforgeLegendaryPowerDescription"] = 10,
+["QuestPlayer"] = 18,
+["Blank"] = 1,
+["UnitOwner"] = 16,
+["LearnableSpell"] = 6,
+["ProfessionCraftingQuality"] = 12,
+["UnitThreat"] = 7,
+["QuestTitle"] = 17,
+["ItemBinding"] = 20,
+["NestedBlock"] = 19,
+["AzeriteEssencePower"] = 5,
+["AzeriteEssenceSlot"] = 4,
+["None"] = 0,
+--]=]
+
+--attempt to get the owner of rogue's Akaari's Soul from Secrect Technique
+function Details222.Pets.AkaarisSoulOwner(petGUID, petName)
+	local tooltipData = C_TooltipInfo.GetHyperlink("unit:" .. petGUID)
+	local args = tooltipData.args
+
+	local playerGUID
+	--iteragfe among args and find into the value field == guid and it must have guidVal
+	for i = 1, #args do
+		local arg = args[i]
+		if (arg.field == "guid") then
+			playerGUID = arg.guidVal
+			break
+		end
+	end
+
+	if (playerGUID) then
+		local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
+		if (actorObject) then
+			return actorObject.nome, playerGUID, actorObject.flag_original
+		end
+		local guidCache = Details:GetParserPlayerCache() --cahe exists until the next combat starts
+		local ownerName = guidCache[playerGUID]
+		if (ownerName) then
+			return ownerName, playerGUID, 0x514
+		end
+	end
+end
+
 ---attempt to the owner of a pet using tooltip scan, if the owner isn't found, return nil
 ---@param petGUID string
 ---@param petName string
@@ -89,9 +141,15 @@
 		pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
 		pet_tooltip_frame:SetHyperlink(("unit:" .. petGUID) or "")
 
+		--C_TooltipInfo.GetHyperlink 
+
 		if (bIsDragonflight) then
 			local tooltipData = pet_tooltip_frame:GetTooltipData() --is pet tooltip reliable with the new tooltips changes?
 			if (tooltipData) then
+
+				print("new pet debug", petGUID, petName)
+				dumpt(tooltipData)
+
 				local tooltipLines = tooltipData.lines
 				for lineIndex = 1, #tooltipLines do
 					local thisLine = tooltipLines[lineIndex]
@@ -101,9 +159,12 @@
 					--parse the different types of information
 					if (lineType == 2) then --unit name
 						if (thisLine.leftText ~= petName) then
+							print("return tooltip isn't from the pet")
 							--tooltip isn't showing our pet
 							return
 						end
+
+						print("pet scanned:", thisLine.leftText:GetText())
 
 					elseif (lineType == 16) then --controller guid
 						--assuming the unit name always comes before the controller guid

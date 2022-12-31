@@ -743,13 +743,39 @@
 			--print(time, spellid, spellname, who_serial, who_name, who_flags)
 		--end
 
-		--secret technique
+		--secret technique | when akari's soul gives damage
 		if (spellid == 282449) then
-			local ownerName, ownerGUID, ownerFlags = Details222.Pets.GetPetOwner(who_serial, who_name)
-			if (ownerName and ownerGUID) then
-				who_serial = ownerGUID
-				who_name = ownerName
-				who_flags = ownerFlags
+
+			--[=[
+				["1"] = "SPELL_DAMAGE",
+				["2"] = 1672504648.022,
+				["3"] = "Creature-0-4230-1-26993-144961-0000B06548",
+				["4"] = "Akaari's Soul",
+				["5"] = 8472,
+				["6"] = "Creature-0-4230-1-26993-153285-00012DCA2F",
+				["7"] = "Training Dummy",
+				["8"] = 68136,
+				["9"] = 0,
+				["10"] = 282449,
+				["11"] = "Secret Technique",
+				["12"] = 32,
+				["13"] = 13471,
+				["14"] = -1,
+				["15"] = 32,
+				["19"] = false,
+				["20"] = false,
+				["21"] = false,
+			--]=]
+
+			--npcID
+			local npcId = Details:GetNpcIdFromGuid(who_serial)
+			if (npcId == 144961) then
+				local ownerName, ownerGUID, ownerFlags = Details222.Pets.AkaarisSoulOwner(who_serial, who_name)
+				if (ownerName and ownerGUID) then
+					who_serial = ownerGUID
+					who_name = ownerName
+					who_flags = ownerFlags
+				end
 			end
 		end
 
