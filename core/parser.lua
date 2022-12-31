@@ -41,7 +41,16 @@
 	local container_habilidades = _detalhes.container_habilidades --details local
 
 	--localize the cooldown table from the framework
-	local defensive_cooldowns = DetailsFramework.CooldownsAllDeffensive
+	local defensive_cooldowns = DetailsFramework.CooldownsAllDeffensive --default from all game versions
+
+	if (LIB_OPEN_RAID_COOLDOWNS_INFO) then
+		--check if the cooldown is type 2 or 3 or 4 and add to the defensive_cooldowns table
+		for spellId, spellTable in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
+			if (spellTable.type == 2 or spellTable.type == 3 or spellTable.type == 4) then
+				defensive_cooldowns[spellId] = true
+			end
+		end
+	end
 
 	local spell_damage_func = _detalhes.habilidade_dano.Add --details local
 	local spell_damageMiss_func = _detalhes.habilidade_dano.AddMiss --details local
