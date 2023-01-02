@@ -172,15 +172,21 @@ function Details:ContainerSort (container, amount, keyName2) --[[exported]]
 	end
 end
 
+---return true if the actor is or was in the player group
+---@param self table
+---@return boolean|nil
 function Details:IsGroupPlayer() --[[exported]]
 	return self.grupo
 end
 
-
+---return true if the player is a pet or guardian
+---@return boolean
 function Details:IsPetOrGuardian() --[[exported]]
 	return self.owner and true or false
 end
 
+---return true if the actor is a player
+---@return boolean
 function Details:IsPlayer() --[[exported]]
 	if (self.flag_original) then
 		if (bitBand(self.flag_original, OBJECT_TYPE_PLAYER) ~= 0) then
@@ -190,6 +196,8 @@ function Details:IsPlayer() --[[exported]]
 	return false
 end
 
+---return true if the actor is an enemy of neutral npc
+---@return boolean
 function Details:IsNeutralOrEnemy() --[[exported]]
 	if (self.flag_original) then
 		if (bitBand(self.flag_original, 0x00000060) ~= 0) then
@@ -203,6 +211,8 @@ function Details:IsNeutralOrEnemy() --[[exported]]
 	return false
 end
 
+---return true if the actor is a friendly npc
+---@return boolean
 function Details:IsFriendlyNpc() --[[exported]]
 	local flag = self.flag_original
 	if (flag) then

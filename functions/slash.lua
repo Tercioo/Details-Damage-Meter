@@ -2152,7 +2152,9 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							local L, R, T, B = unpack(iconTexCoords)
 							line.icon:SetTexCoord(L+0.02, R-0.02, T+0.02, B-0.02)
 
-							line.playerNameText.text = unitName
+							--remove the realm name from the player name (if any)
+							local unitNameNoRealm = DetailsFramework:RemoveRealmName(unitName)
+							line.playerNameText.text = unitNameNoRealm
 							line.keystoneLevelText.text = level
 							line.dungeonNameText.text = mapName
 							DetailsFramework:TruncateText(line.dungeonNameText, 240)

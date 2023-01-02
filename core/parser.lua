@@ -6707,36 +6707,36 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 --details api functions
 
 	--number of combat
-	function  _detalhes:GetCombatId()
-		return _detalhes.combat_id
+	function  Details:GetCombatId()
+		return Details.combat_id
 	end
 
 	--if in combat
-	function _detalhes:IsInCombat()
+	function Details:IsInCombat()
 		return _in_combat
 	end
 
-	function _detalhes:IsInEncounter()
-		return _detalhes.encounter_table.id and true or false
+	function Details:IsInEncounter()
+		return Details.encounter_table.id and true or false
 	end
 
 	--get combat
-	function _detalhes:GetCombat(combat)
+	function Details:GetCombat(combat)
 		if (not combat) then
 			return _current_combat
 
 		elseif (type(combat) == "number") then
 			if (combat == -1) then --overall
-				return _detalhes.tabela_overall
+				return Details.tabela_overall
 			elseif (combat == 0) then --current
 				return _current_combat
 			else
-				return _detalhes.tabela_historico.tabelas [combat]
+				return Details.tabela_historico.tabelas [combat]
 			end
 
 		elseif (type(combat) == "string") then
 			if (combat == "overall") then
-				return _detalhes.tabela_overall
+				return Details.tabela_overall
 			elseif (combat == "current") then
 				return _current_combat
 			end
@@ -6745,17 +6745,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return nil
 	end
 
-	function _detalhes:GetAllActors(_combat, _actorname)
-		return _detalhes:GetActor(_combat, 1, _actorname), _detalhes:GetActor(_combat, 2, _actorname), _detalhes:GetActor(_combat, 3, _actorname), _detalhes:GetActor(_combat, 4, _actorname)
+	function Details:GetAllActors(_combat, _actorname)
+		return Details:GetActor(_combat, 1, _actorname), Details:GetActor(_combat, 2, _actorname), Details:GetActor(_combat, 3, _actorname), Details:GetActor(_combat, 4, _actorname)
 	end
 
 	--get player
-	function _detalhes:GetPlayer(_actorname, _combat, _attribute)
-		return _detalhes:GetActor(_combat, _attribute, _actorname)
+	function Details:GetPlayer(_actorname, _combat, _attribute)
+		return Details:GetActor(_combat, _attribute, _actorname)
 	end
 
 	--get an actor
-	function _detalhes:GetActor(combat, attribute, actorName)
+	function Details:GetActor(combat, attribute, actorName)
 		if (not combat) then
 			combat = "current" --current combat
 		end
@@ -6765,11 +6765,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not actorName) then
-			actorName = _detalhes.playername
+			actorName = Details.playername
 		end
 
 		if (combat == 0 or combat == "current") then
-			local actor = _detalhes.tabela_vigente(attribute, actorName)
+			local actor = Details.tabela_vigente(attribute, actorName)
 			if (actor) then
 				return actor
 			else
@@ -6777,7 +6777,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 		elseif (combat == -1 or combat == "overall") then
-			local actor = _detalhes.tabela_overall(attribute, actorName)
+			local actor = Details.tabela_overall(attribute, actorName)
 			if (actor) then
 				return actor
 			else
@@ -6785,7 +6785,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 		elseif (type(combat) == "number") then
-			local combatTables = _detalhes.tabela_historico.tabelas[combat]
+			local combatTables = Details.tabela_historico.tabelas[combat]
 			if (combatTables) then
 				local actor = combatTables(attribute, actorName)
 				if (actor) then

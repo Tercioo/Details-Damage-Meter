@@ -36,8 +36,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 
-	local combatente =			_detalhes.combatente
-	local container_combatentes =	_detalhes.container_combatentes
+	local actorContainer =	_detalhes.container_combatentes
+
 	local alvo_da_habilidade = 	_detalhes.alvo_da_habilidade
 	local atributo_damage =		_detalhes.atributo_damage
 	local atributo_heal =			_detalhes.atributo_heal
@@ -103,8 +103,12 @@
 ["None"] = 0,
 --]=]
 
---attempt to get the owner of rogue's Akaari's Soul from Secrect Technique
-function Details222.Pets.AkaarisSoulOwner(petGUID, petName)
+---attempt to get the owner of rogue's Akaari's Soul from Secrect Technique
+---@param petGUID string
+---@return string|any
+---@return string|any
+---@return number|any
+function Details222.Pets.AkaarisSoulOwner(petGUID)
 	local tooltipData = C_TooltipInfo.GetHyperlink("unit:" .. petGUID)
 	local args = tooltipData.args
 
@@ -232,79 +236,94 @@ end
 		end
 	end
 
-	function container_combatentes:GetActor(actorName)
+	---return the actor object for a given actor name
+	---@param actorName string
+	---@return table|nil
+	function actorContainer:GetActor(actorName)
 		local index = self._NameIndexTable [actorName]
 		if (index) then
 			return self._ActorTable [index]
 		end
 	end
-	
-	function container_combatentes:GetSpellSource (spellid)
+
+	---return an actor name which used the spell passed 'spellId'
+	---@param spellId number
+	---@return string|nil
+	function actorContainer:GetSpellSource(spellId)
 		local t = self._ActorTable
-		--print("getting the source", spellid, #t)
 		for i = 1, #t do
-			if (t[i].spells._ActorTable [spellid]) then
+			if (t[i].spells._ActorTable[spellId]) then
 				return t[i].nome
 			end
 		end
 	end
-	
-	function container_combatentes:GetAmount (actorName, key)
+
+	---return the value stored in the 'key' for an actor, the key can be any value stored in the actor table such like 'total', 'damage_taken', 'heal', 'interrupt', etc
+	---@param actorName string
+	---@param key string
+	---@return number
+	function actorContainer:GetAmount(actorName, key)
 		key = key or "total"
-		local index = self._NameIndexTable [actorName]
+		local index = self._NameIndexTable[actorName]
 		if (index) then
-			return self._ActorTable [index] [key] or 0
+			return self._ActorTable[index][key] or 0
 		else
 			return 0
 		end
 	end
-	
-	function container_combatentes:GetTotal (key)
+
+	---return the total value stored in the 'key' for all actors, the key can be any value stored in the actor table such like 'total', 'damage_taken', 'heal', 'interrupt', etc
+	---@param key string
+	---@return number
+	function actorContainer:GetTotal(key)
 		local total = 0
 		key = key or "total"
 		for _, actor in ipairs(self._ActorTable) do
-			total = total + (actor [key] or 0)
+			total = total + (actor[key] or 0)
 		end
-		
 		return total
 	end
-	
-	function container_combatentes:GetTotalOnRaid (key, combat)
+
+	function actorContainer:GetTotalOnRaid(key, combat)
 		local total = 0
 		key = key or "total"
 		local roster = combat.raid_roster
 		for _, actor in ipairs(self._ActorTable) do
 			if (roster [actor.nome]) then
-				total = total + (actor [key] or 0)
+				total = total + (actor[key] or 0)
 			end
 		end
-		
 		return total
 	end
 
-	function container_combatentes:ListActors()
+	---return an ipairs iterator for all actors stored in this Container
+	---usage: for index, actorObject in container:ListActors() do
+	---@return function
+	function actorContainer:ListActors()
 		return ipairs(self._ActorTable)
 	end
-	
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internals
 
-	--build a new actor container
-	function container_combatentes:NovoContainer (tipo_do_container, combat_table, combat_id)
-		local _newContainer = {
-			funcao_de_criacao = container_combatentes:FuncaoDeCriacao (tipo_do_container),
-			
-			tipo = tipo_do_container,
-			
-			combatId = combat_id,
-			
+	---create a new actor container, can be a damage container, heal container, enemy container or utility container
+	---actors can be added by using newContainer.GetOrCreateActor
+	---actors can be retrieved using the same function above
+	---@param containerType number
+	---@param combatObject table
+	---@param combatId number
+	---@return table
+	function actorContainer:NovoContainer(containerType, combatObject, combatId)
+		local newContainer = {
+			funcao_de_criacao = actorContainer:FuncaoDeCriacao(containerType),
+			tipo = containerType,
+			combatId = combatId,
 			_ActorTable = {},
 			_NameIndexTable = {}
 		}
-		
-		setmetatable(_newContainer, container_combatentes)
 
-		return _newContainer
+		setmetatable(newContainer, actorContainer)
+		return newContainer
 	end
 
 	--try to get the actor class from name
@@ -709,12 +728,17 @@ end
 		end
 	end
 
-	--english alias
-	function container_combatentes:GetOrCreateActor (serial, nome, flag, criar)
-		return self:PegarCombatente (serial, nome, flag, criar)
+	---get an actor from the container, if the actor doesn't exists, and the bShouldCreate is true, create a new actor
+	---@param serial string
+	---@param actorName string
+	---@param actorFlags number
+	---@param bShouldCreate boolean
+	---@return table
+	function actorContainer:GetOrCreateActor (serial, actorName, actorFlags, bShouldCreate)
+		return self:PegarCombatente(serial, actorName, actorFlags, criar)
 	end
 
-	function container_combatentes:PegarCombatente (serial, nome, flag, criar)
+	function actorContainer:PegarCombatente (serial, nome, flag, criar)
 		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
 	
 		--if (flag and nome:find("Kastfall") and bit.band(flag, 0x2000) ~= 0) then
@@ -986,7 +1010,7 @@ end
 		table.wipe(petBlackList)
 	end
 
-	function container_combatentes:FuncaoDeCriacao (tipo)
+	function actorContainer:FuncaoDeCriacao (tipo)
 		if (tipo == container_damage_target) then
 			return alvo_da_habilidade.NovaTabela
 			
@@ -1018,7 +1042,7 @@ end
 	end
 
 	--chama a fun��o para ser executada em todos os atores
-	function container_combatentes:ActorCallFunction (funcao, ...)
+	function actorContainer:ActorCallFunction (funcao, ...)
 		for index, actor in ipairs(self._ActorTable) do
 			funcao (nil, actor, ...)
 		end
@@ -1029,18 +1053,18 @@ end
 		return (t1 [bykey] or 0) > (t2 [bykey] or 0)
 	end
 	
-	function container_combatentes:SortByKey (key)
+	function actorContainer:SortByKey (key)
 		assert(type(key) == "string", "Container:SortByKey() expects a keyname on parameter 1.")
 		bykey = key
 		_table_sort (self._ActorTable, sort)
 		self:remapear()
 	end
 	
-	function container_combatentes:Remap()
+	function actorContainer:Remap()
 		return self:remapear()
 	end
 	
-	function container_combatentes:remapear()
+	function actorContainer:remapear()
 		local mapa = self._NameIndexTable
 		local conteudo = self._ActorTable
 		for i = 1, #conteudo do
@@ -1052,7 +1076,7 @@ end
 		--reconstr�i meta e indexes
 			setmetatable(container, _detalhes.container_combatentes)
 			container.__index = _detalhes.container_combatentes
-			container.funcao_de_criacao = container_combatentes:FuncaoDeCriacao (container.tipo)
+			container.funcao_de_criacao = actorContainer:FuncaoDeCriacao (container.tipo)
 
 		--repara mapa
 			local mapa = {}
