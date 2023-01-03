@@ -1,4 +1,11 @@
 
+--Damage Class
+--a damage object is created inside an actor container
+--an actor container is created inside a combat object
+--combat objects has 4 actor containers: damage, healing, energy, utility
+--these containers are indexed within the combat object table: combatObject[1] = damage container, combatObject[2] = healing container, combatObject[3] = energy container, combatObject[4] = utility container
+
+
 --damage object
 	local Details = _G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
@@ -422,49 +429,69 @@ function Details:GameTooltipSetSpellByID(spellid) --[[exported]]
 end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---class constructor
+--class ~constructor
 
-	function atributo_damage:NovaTabela (serial, nome, link)
+	---create a new actorObject and set the metatable to the actor prototype
+	---this function is called from within an actorContainer when it needs to create a new actorObject for a new actor
+	---actorObject is a ordinary table with the actor attributes and a metatable to inherit the functions from Details object
+	---@return table
+	function atributo_damage:NovaTabela() --create new actorObject
+		local alphabetical = Details:GetOrderNumber()
 
-		local alphabetical = Details:GetOrderNumber(nome)
-
-		--constructor
-		local _new_damageActor = {
-
+		--constructor: creates a table with the actor attributes and then set the metatable to the actor prototype
+		local newDamageActor = {
+			--type of the actor
 			tipo = class_type,
 
+			--total: amount of damage done
 			total = alphabetical,
+			--totalabsorbed: amount of damage done absorbed by shields
 			totalabsorbed = alphabetical,
+			--total_without_pet: amount of damage done without pet damage
 			total_without_pet = alphabetical,
+			--custom: used by custom scripts, works more like a cache
 			custom = 0,
 
+			--damage_taken: amount of damage the actor took during the combat
 			damage_taken = alphabetical,
+			--damage_from: table with actor names as keys and boolean true as value
 			damage_from = {},
 
+			--dps_started: is false until this actor does damage
 			dps_started = false,
+			--last_event: the time when the actor as last edited by a damage effect: suffered damage, did damage
 			last_event = 0,
+			--on_hold: if the actor is idle, doing nothing during combat, on_hold is true
 			on_hold = false,
+			--delay: the time when the actor went idle
 			delay = 0,
+			--caches
 			last_value = nil,
-			last_dps = 0,
-
-			end_time = nil,
+			last_dps = 0, --cache of the latest dps value calculated for this actor
+			--start_time: the time when the actor started to do damage
 			start_time = 0,
+			--end_time: the time when the actor stopped to do damage
+			end_time = nil,
 
+			--table indexed with pet names
 			pets = {},
-
+			--table where key is the raid target flags and the value is the damage done to that target
 			raid_targets = {},
 
+			--friendlyfire_total: amount of damage done to friendly players
 			friendlyfire_total = 0,
+			--friendlyfire: table where key is a player name and value is a table with .total: damage inflicted and .spells a table with spell names as keys and damage done as value
 			friendlyfire = {},
 
+			--targets: table where key is the target name (actor name) and the value is the amount of damage done to that target
 			targets = {},
-			spells = container_habilidades:NovoContainer (container_damage)
+			--spells: spell container
+			spells = container_habilidades:NovoContainer(container_damage)
 		}
 
-		setmetatable(_new_damageActor, atributo_damage)
+		setmetatable(newDamageActor, atributo_damage)
 
-		return _new_damageActor
+		return newDamageActor
 	end
 
 
