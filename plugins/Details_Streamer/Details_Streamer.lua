@@ -2411,7 +2411,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 						update_speed = 0.05,
 					},
 					
-					is_first_run = true,
+					is_first_run = false,
 				}
 				
 				StreamOverlay.DefaultConfigTable = default_options_table
@@ -2428,76 +2428,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				
 				StreamOverlay:SetPluginDescription ("Show in real time the spells you are casting.\n\nThe viewer can now follow what you are doing, what spells you are casting, learn your rotation.\n\nAlso tells who is the target and its class/spec on raiding or role if you are in arena.\n\nWhen you die, the panel is filled with your death log.")
 				
-				if (StreamOverlay.db.is_first_run) then --problem with setting the plugin as disabled
-					if (Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
-						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
-						StreamOverlay.db.is_first_run = false
-					else
-						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
-					end
-				end
-
-				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
-					local show_frame = function()
-
-						if ((DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) or not StreamOverlay.db.is_first_run) then
-							return
-						end
-
-						StreamOverlay.ShowWelcomeFrame:Cancel()
-
-						local welcomeWindow = CreateFrame ("frame", "StreamOverlayWelcomeWindow", UIParent, "BackdropTemplate")
-						welcomeWindow:SetPoint ("center", UIParent, "center")
-						welcomeWindow:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-						welcomeWindow:SetBackdropColor (0, 0, 0, 0.5)
-						welcomeWindow:SetBackdropBorderColor (0, 0, 0, 1)
-						welcomeWindow:SetSize (740, 270)
-						DetailsFramework:ApplyStandardBackdrop(welcomeWindow)
-
-						local icon = welcomeWindow:CreateTexture (nil, "overlay")
-						icon:SetTexture ([[Interface\MINIMAP\MOVIERECORDINGICON]])
-						local title = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
-						title:SetText ("Details!: Action Tracker (plugin)")
-						StreamOverlay:SetFontSize (title, 20)
-
-						local youtubeTwitchIcons = welcomeWindow:CreateTexture(nil, "overlay")
-						youtubeTwitchIcons:SetTexture([[Interface\AddOns\Details\images\icons2]])
-						youtubeTwitchIcons:SetTexCoord(0, 109/512, 370/512, 413/512)
-						youtubeTwitchIcons:SetSize(109, 413 - 370)
-						youtubeTwitchIcons:SetPoint("topleft", welcomeWindow, "topleft", 123, -61)
-
-						local text1 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
-						text1:SetText ("SHOW TO YOUR VIEWERS YOUR ROTATION\nThis way they can learn while watching your content")
-						local text2 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
-						text2:SetText ("Use the command:")
-						local text3 = welcomeWindow:CreateFontString (nil, "overlay", "GameFontNormal")
-						text3:SetText ("/streamer")
-						DetailsFramework:SetFontSize(text3, 16)
-
-						icon:SetPoint ("topleft", welcomeWindow, "topleft", 10, -20)
-						title:SetPoint ("left", icon, "right", 10, 0)
-
-						text1:SetPoint ("topleft", welcomeWindow, "topleft", 10, -120)
-						text2:SetPoint ("center", text1, "center", 0, -40)
-						text3:SetPoint ("center", text2, "center", 0, -16)
-
-						local image1 = welcomeWindow:CreateTexture(nil, "overlay")
-						image1:SetTexture([[Interface\AddOns\Details_Streamer\streamer_plugin_lines]])
-						image1:SetPoint("topleft", welcomeWindow, "topleft", 410, -6)
-						image1:SetSize(512, 256)
-						
-						local close_func = function()
-							StreamOverlay.db.is_first_run = false
-							Details:SetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN", true)
-							welcomeWindow:Hide()
-						end
-						
-						local close = Details.gump:CreateButton (welcomeWindow, close_func, 120, 20, "Okay", nil, nil, nil, nil, nil, nil, Details.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
-						close:SetPoint ("center", text3, "center", 0, -50)
-					end
-					
-					--StreamOverlay.ShowWelcomeFrame = C_Timer.NewTicker (5, show_frame)
-				end
+				StreamOverlay.db.is_first_run = false
 				
 				--wipe (StreamOverlay.db)
 				SOF:RegisterEvent ("PLAYER_LOGOUT")
