@@ -47,7 +47,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 90
+local CONST_LIB_VERSION = 91
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -712,6 +712,7 @@ end
         ["playerPetChange"] = {},
         ["mythicDungeonEnd"] = {},
         ["unitAuraRemoved"] = {},
+        ["cleanUpData"] = {},
     }
 
     openRaidLib.internalCallback.RegisterCallback = function(event, func)
@@ -773,6 +774,13 @@ end
                 --using random time, players won't trigger all at the same time
                 local randomTime = 0.3 + math.random(0, 0.7)
                 openRaidLib.Schedules.NewUniqueTimer(randomTime, openRaidLib.mainControl.SendFullData, "mainControl", "sendFullData_Schedule")
+
+                local groupSize = GetNumGroupMembers()
+                if (groupSize < openRaidLib.currentGroupSize) then
+                    --a member left the group and the group size is smaller, trigger an event to modules clean up data
+                    openRaidLib.Schedules.NewUniqueTimer(2, openRaidLib.mainControl.CleanUpData, "mainControl", "sendCleanUpData_Schedule")
+                    openRaidLib.currentGroupSize = groupSize
+                end
             end
 
             openRaidLib.UpdateUnitIDCache()
@@ -791,6 +799,9 @@ end
         ["PLAYER_ENTERING_WORLD"] = function(...)
             --has the selected character just loaded?
             if (not openRaidLib.bHasEnteredWorld) then
+                --save the amount of members in the group
+                openRaidLib.currentGroupSize = GetNumGroupMembers()
+
                 --register events
                 openRaidLib.OnEnterWorldRegisterEvents()
 
@@ -1058,6 +1069,10 @@ end
         diagnosticComm("OnPlayerRess| " .. dataToSend) --debug
 
         openRaidLib.publicCallback.TriggerCallback("UnitAlive", "player")
+    end
+
+    function openRaidLib.mainControl.CleanUpData()
+        openRaidLib.internalCallback.TriggerEvent("cleanUpData")
     end
 
     openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.mainControl.onEnterWorld)
@@ -2110,6 +2125,26 @@ end
         end
     end
 
+    function openRaidLib.CooldownManager.OnCleanUpCall()
+        --the group has less players, need to check which players isn't in the group anymore and remove them from the cooldown database
+        --get the cooldown database table with all players
+        local cooldownDatabase = openRaidLib.CooldownManager.UnitData
+        local bAnyUnitGotRemoved = false
+        --foreach player in the database
+        for unitName in pairs(cooldownDatabase) do
+            --check if the player is in the group
+            if (not UnitInRaid(unitName) and not UnitInParty(unitName)) then
+                --remove the player from the database
+                openRaidLib.CooldownManager.UnitData[unitName] = nil
+                bAnyUnitGotRemoved = true
+            end
+        end
+
+        if (bAnyUnitGotRemoved) then
+            
+        end
+    end
+
     openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", openRaidLib.CooldownManager.OnPlayerLeaveGroup)
     openRaidLib.internalCallback.RegisterCallback("playerCast", openRaidLib.CooldownManager.OnPlayerCast)
     openRaidLib.internalCallback.RegisterCallback("onPlayerRess", openRaidLib.CooldownManager.OnPlayerRess)
@@ -2119,6 +2154,7 @@ end
     openRaidLib.internalCallback.RegisterCallback("mythicDungeonStart", openRaidLib.CooldownManager.OnMythicPlusStart)
     openRaidLib.internalCallback.RegisterCallback("playerPetChange", openRaidLib.CooldownManager.OnPlayerPetChanged)
     openRaidLib.internalCallback.RegisterCallback("unitAuraRemoved", openRaidLib.CooldownManager.OnAuraRemoved)
+    openRaidLib.internalCallback.RegisterCallback("cleanUpData", openRaidLib.CooldownManager.OnCleanUpCall)
 
 --send a list through comm with cooldowns added or removed
 function openRaidLib.CooldownManager.CheckCooldownChanges()

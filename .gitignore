@@ -34,3 +34,4 @@ functions/pack2.lua
 wowapi.lua
 plugins/Details_TinyThreat/Details_TinyThreat_original.lua
 *.png
+Descriptions.lua

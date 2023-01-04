@@ -113,7 +113,7 @@ function Details222.Pets.AkaarisSoulOwner(petGUID)
 	local args = tooltipData.args
 
 	local playerGUID
-	--iteragfe among args and find into the value field == guid and it must have guidVal
+	--iterate among args and find into the value field == guid and it must have guidVal
 	for i = 1, #args do
 		local arg = args[i]
 		if (arg.field == "guid") then

@@ -241,7 +241,7 @@ local CreatePluginFrames = function()
 	end
 
 	--create line for the scroll
-	local scrollCreateLine = function(self, index)
+	local scrollCreateLine = function(self, index) --~create
 		local line = CreateFrame("button", "$parentLine" .. index, self, "BackdropTemplate")
 		line:SetPoint("topleft", self, "topleft", 1, -((index-1) * (scrollLineHeight + 1)) - 1)
 		line:SetSize(scrollWidth - 2, scrollLineHeight)
@@ -441,9 +441,11 @@ local CreatePluginFrames = function()
 					elseif (playerTable.Eating) then
 						line.FoodIndicator.texture = eatingFoodIcon.texture
 						line.FoodIndicator.texcoord = eatingFoodIcon.coords
+						line.FoodTierIndicator.text = ""
 
 					else
 						line.FoodIndicator.texture = ""
+						line.FoodTierIndicator.text = ""
 					end
 
 					local flaskInfo = playerTable.Flask
@@ -602,7 +604,7 @@ local CreatePluginFrames = function()
 		end
 	end)
 
-	local updateRaidCheckFrame = function(self, deltaTime)
+	local updateRaidCheckFrame = function(self, deltaTime) --~update
 		raidCheckFrame.NextUpdate = raidCheckFrame.NextUpdate - deltaTime
 		if (raidCheckFrame.NextUpdate > 0) then
 			return

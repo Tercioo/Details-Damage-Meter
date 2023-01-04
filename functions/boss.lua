@@ -777,7 +777,7 @@ do
 		end)
 		C_Timer.After(1, function()
 			if (EncounterJournalSuggestTab) then
-				EncounterJournalSuggestTab:Click()
+				--EncounterJournalSuggestTab:Click()
 			end
 		end)
 

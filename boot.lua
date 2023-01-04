@@ -87,6 +87,31 @@ do
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 	local news = {
+		{"v10.0.2.10333.147", "Jan 04th, 2023"},
+
+		"Enemy Cast (non-interrupted) now is shown in the death log.",
+		"Damage Done by Blessing of Winter and Summer now counts torward the paladin.",
+		"Tooltips for Mythic Dungeon segments in the segments menu, now brings more information about the combat.",
+		"List of Potions updated (Jooooo)",
+		"Priest Spirit of Redemption now shows in the Death Log breakdown.",
+		"/keystone doesn't show the player realm anymore",
+		"When importing a profile, the confirmation box (asking a name for the new profile) got a check box to opt-out of importing Code.",
+		"Major fixes for Guild Sync and Statistics window: /details stats",
+		"Raid Check (plugin): Added M+ Score and fixed the flask usage.",
+		"Streamer (plugin): Fixed the plugin window hidding after login.",
+		"Fixed Evoker and several other cooldowns which wasn't showing in the cooldown usage display.",
+		"Fixed a small freeze that was happening when hovering over the segments menu.",
+		"Fixed some slash commands not working for deDE localization.",
+		"Fixed Rogue Akaari's Soul not getting detected properly during combat (Flamanis).",
+		"Fixed the sorting columns on /keystone panel which key stone level wasn't sorting correctly (Benjamin H.).",
+		"Fix for Fire Elemental on Wrath (Flamanis).",
+		"Fixed Evoker bug where empowered abilities wasn't showing in overall data (Flamanis).",
+		"Fixed an error when Details! attempted to use Ghost Frame in Wrath, but Ghost frame doesn't exists on that expansion (Flamanis).",
+		"Fixed spec detection for some specs on retail (Flamanis).",
+		"Fixed ToC for Compare2, how it also works on Wrath (Flamanis).",
+		"Fixed an issue with buff and debuff uptime sometimes not closing properly after the combat.",
+
+
 		{"v10.0.2.10333.147", "Nov 18th, 2022"},
 		"Added two checkboxes for Merge Pet and Player spell on the Breakdown window.",
 		"Added uptime for Hunter's Pet Frenzy Buff, it now show in the 'Auras' tab in the Breakdown Window.",

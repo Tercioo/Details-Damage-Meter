@@ -131,7 +131,11 @@ function _detalhes:ContainerSortMisc(container, amount, keyName2)
 	end
 end
 
---[[exported]] function _detalhes:GetSpellCastAmount(combat, actorName, spellId)
+---attempt to get the amount of casts of a spell
+---@param combat table the combat object
+---@param actorName string name of the actor
+---@param spellId number spell id
+function Details:GetSpellCastAmount(combat, actorName, spellId) --[[exported]]
 	local actorUtilityObject = combat:GetActor(4, actorName)
 	if (actorUtilityObject) then
 		local castAmountTable = actorUtilityObject.spell_cast
