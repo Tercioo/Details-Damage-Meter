@@ -314,6 +314,13 @@ function Details.ShowDeathTooltip(instance, lineFrame, combatObject, deathTable)
 					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "x" .. amount .. " " .. AURA_TYPE_BUFF .. " (" .. healthPercent .. "%)", 1, "white", "white")
 					gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
 					gameCooltip:AddStatusBar(100, 1, barTypeColors.buff, showSpark)
+
+				elseif (evType == 6) then
+					--enemy cast
+					gameCooltip:AddLine("" .. format("%.1f", eventTime - timeOfDeath) .. "s " .. spellName .. " (" .. source .. ")", "x" .. amount .. "", 1, "white", "white")
+					gameCooltip:AddIcon(spellIcon, nil, nil, lineHeight, lineHeight, .1, .9, .1, .9)
+					local r, g, b, a = DetailsFramework:ParseColors("honeydew")
+					gameCooltip:AddStatusBar(100, 1, {r, g, b, 0.6}, showSpark)
 				end
 			end
 		end

@@ -337,8 +337,7 @@
 		return playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown
 	end
 
-	--get the fractional number representing the alphabetical letter
-	function _detalhes:GetOrderNumber(who_name)
+	function Details:GetOrderNumber() --who_name
 		--local name = upper (who_name .. "zz")
 		--local byte1 = abs(_string_byte (name, 2)-91)/1000000
 		--return byte1 + abs(_string_byte (name, 1)-91)/10000
