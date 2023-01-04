@@ -1641,7 +1641,7 @@ do
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     afterUpdate()
                 end,
-                min = 0,
+                min = -10,
                 max = 125,
                 step = 1,
                 name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 1),
@@ -1656,7 +1656,7 @@ do
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     afterUpdate()
                 end,
-                min = 0,
+                min = -10,
                 max = 75,
                 step = 1,
                 name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 2),
@@ -1671,7 +1671,7 @@ do
                     editInstanceSetting(currentInstance, "InstanceRefreshRows")
                     afterUpdate()
                 end,
-                min = 0,
+                min = -10,
                 max = 50,
                 step = 1,
                 name = string.format(Loc["STRING_OPTIONS_ALIGNED_TEXT_COLUMNS_OFFSET"], 3),
