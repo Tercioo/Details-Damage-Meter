@@ -316,11 +316,11 @@
 
 			[222031] = 199547, --deamonhunter ChaosStrike
 			[200685] = 199552, --deamonhunter Blade Dance
-			[931378] = 199552, --^
+			[391378] = 199552, --^
 			[391374] = 199552, --^
 			[210155] = 210153, --deamonhunter Death Sweep
 			[393055] = 210153, --^
-			[398054] = 210153, --^
+			[393054] = 210153, --^
 			[393035] = 337819, --demonhunter throw glaive
 			[227518] = 201428, --deamonhunter Annihilation
 			[187727] = 178741, --deamonhunter Immolation Aura
