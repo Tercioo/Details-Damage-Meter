@@ -4728,23 +4728,29 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					end
 				end
 
-				local firstEventTime = eventsBeforePlayerDeath[1][4]
-				local lastEventTime = eventsBeforePlayerDeath[#eventsBeforePlayerDeath][4]
+				local bHadDeathEvent = false
+				local firstEventTime
+				local lastEventTime
 
-				--enemy_cast_cache store spellId as key and a table as value, the value is an indexed table with which stores tables with the time in the first index and the enemy name in the second argument
-				--sub tables {unix time when the event happened, name of the caster}
+				if (eventsBeforePlayerDeath[1]) then
+					bHadDeathEvent = true
+					firstEventTime = eventsBeforePlayerDeath[1][4]
+					lastEventTime = eventsBeforePlayerDeath[#eventsBeforePlayerDeath][4]
+				end
+
+				--enemy_cast_cache store the time of the event as key and a table as value
+				--the value has [1] = enemyName, [2] = spellid, [3] = amount of casts on that time (in case many enemies casted the same spell at the same time)
+				--enemy_cast_cache[time] = {enemyName, spellId, 1}
 				local enemyCastCache = enemy_cast_cache
-				local enemyCastMerged = {}
-				local enemyNameBySpellId = {}
-
-				--enemy_cast_cache[time] = {enemyName, spellid, 1}
 
 				--as multiple enemies can have casted the same spell at the same time, iterate over the enemyCastCache and merge the casts that happened really close to each other
 				--transfer the casts that happened within the the events window of the player death to a new indexed table
 				local enemyCastCacheIndexed = {}
-				for time, enemyCastTable in pairs(enemyCastCache) do
-					if (time >= firstEventTime and time <= lastEventTime) then
-						enemyCastCacheIndexed[#enemyCastCacheIndexed+1] = {time, unpack(enemyCastTable)} --time, enemyName, spellId, amount of casts
+				if (bHadDeathEvent) then
+					for time, enemyCastTable in pairs(enemyCastCache) do
+						if (time >= firstEventTime and time <= lastEventTime) then
+							enemyCastCacheIndexed[#enemyCastCacheIndexed+1] = {time, unpack(enemyCastTable)} --time, enemyName, spellId, amount of casts
+						end
 					end
 				end
 
@@ -4934,6 +4940,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		["SPELL_SUMMON"] = parser.summon,
 		--["SPELL_CAST_FAILED"] = parser.spell_fail
 	}
+
+	--@debug@ 
+	Details.token_list = token_list
+	--@end-debug@
 
 	--serach key: ~capture
 
@@ -6438,7 +6448,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end)
 
 	-- ~parserstart ~startparser ~cleu ~parser
-	function _detalhes.OnParserEvent(...)
+	function _detalhes.OnParserEvent()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 
 		local func = token_list[token]
@@ -6446,7 +6456,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		end
 	end
-
 	_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEvent)
 
 	function _detalhes:UpdateParser()
