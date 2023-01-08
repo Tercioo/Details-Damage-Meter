@@ -75,6 +75,7 @@ function Details.options.SetCurrentInstanceAndRefresh(instance)
             sectionFrame:RefreshOptions()
         end
     end
+    Details.options.UpdateAutoHideSettings(instance)
 end
 
 function Details.options.UpdateAutoHideSettings(instance)
