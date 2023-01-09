@@ -396,6 +396,10 @@ do
 		local bossInfoTable = {} --[bossId] = bossInfo
 		local raidInfoTable = {}
 
+		if (not EncounterJournal_LoadUI) then
+			return bossIndexedTable, bossInfoTable, raidInfoTable
+		end
+
 		if (not EncounterJournal) then
 			EncounterJournal_LoadUI()
 		end
@@ -537,6 +541,10 @@ do
 
 		--exit this function if is classic wow using DetailsFramework
 		if (DetailsFramework.IsClassicWow()) then
+			return
+		end
+
+		if (not EncounterJournal_LoadUI) then
 			return
 		end
 
@@ -788,6 +796,9 @@ do
 
 		--todo: should run one second after the player_login event or entering_world
 		C_Timer.After(1, function()
+			if (not EncounterJournal_LoadUI) then
+				return
+			end
 			createEJCache()
 		end)
 
