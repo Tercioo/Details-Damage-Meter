@@ -998,8 +998,9 @@
 				if (token == "SPELL_PERIODIC_DAMAGE" and sourceName == _detalhes.playername) then
 					--ignora burning rush se o jogador estiver fora de combate
 					--111400 warlock's burning rush
-					--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat (good to deprecate)
-					if (spellId == 111400 or spellId == 368637) then
+					--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
+					--371070 is "Iced Phial of Corrupting Rage" effect triggers randomly, even out-of-combat
+					if (spellId == 111400 or spellId == 371070 or spellId == 368637) then
 						return
 					end
 
