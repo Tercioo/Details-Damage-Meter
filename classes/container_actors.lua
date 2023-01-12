@@ -677,72 +677,70 @@ end
 		end
 	end
 
-	---get an actor from the container, if the actor doesn't exists, and the bShouldCreate is true, create a new actor
-	---@param serial string
+	---get an actor from the container, if the actor doesn't exists, and the bShouldCreateActor is true, create a new actor
+	---this function is an alias for PegarCombatente which is the function name is in portuguese
+	---@param actorSerial string
 	---@param actorName string
 	---@param actorFlags number
-	---@param bShouldCreate boolean
+	---@param bShouldCreateActor boolean
 	---@return table
-	function actorContainer:GetOrCreateActor (serial, actorName, actorFlags, bShouldCreate)
-		return self:PegarCombatente(serial, actorName, actorFlags, criar)
+	function actorContainer:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
+		return self:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
 	end
 
-	function actorContainer:PegarCombatente (serial, nome, flag, criar)
+	---@param actorSerial string
+	---@param actorName string
+	---@param actorFlags number
+	---@param bShouldCreateActor boolean
+	---@return table
+	function actorContainer:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
 		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
-
-		--if (flag and nome:find("Kastfall") and bit.band(flag, 0x2000) ~= 0) then
-			--print("PET:", nome, _detalhes.tabela_pets.pets [serial], container_pets [serial])
-		--else
-			--print(nome, flag)
-		--end
-
-		local npcId = Details:GetNpcIdFromGuid(serial or "")
 
 		--verifica se � um pet, se for confere se tem o nome do dono, se n�o tiver, precisa por
 		local dono_do_pet
-		serial = serial or "ns"
+		actorSerial = actorSerial or "ns"
 
-		if (container_pets[serial]) then --� um pet reconhecido
+		if (container_pets[actorSerial]) then --� um pet reconhecido
 			--[[statistics]]-- _detalhes.statistics.container_pet_calls = _detalhes.statistics.container_pet_calls + 1
-			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono (serial, nome, flag)
+			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono (actorSerial, actorName, actorFlags)
 			if (petName and ownerName) then
-				nome = petName
+				actorName = petName
 				dono_do_pet = self:PegarCombatente(ownerGUID, ownerName, ownerFlag, true)
 			end
 
-		elseif (not petBlackList[serial]) then --verifica se � um pet
-			petBlackList[serial] = true
+		elseif (not petBlackList[actorSerial]) then --verifica se � um pet
+			petBlackList[actorSerial] = true
 
 			--try to find the owner
-			if (flag and bitBand(flag, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
+			if (actorFlags and bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
 				--[[statistics]]-- _detalhes.statistics.container_unknow_pet = _detalhes.statistics.container_unknow_pet + 1
-				local find_nome, find_owner = find_pet_owner(serial, nome, flag, self)
+				local find_nome, find_owner = find_pet_owner(actorSerial, actorName, actorFlags, self)
 				if (find_nome and find_owner) then
-					nome, dono_do_pet = find_nome, find_owner
+					actorName, dono_do_pet = find_nome, find_owner
 				end
 			end
 		end
 
 		--pega o index no mapa
-		local index = self._NameIndexTable[nome]
+		local index = self._NameIndexTable[actorName]
 		--retorna o actor
 		if (index) then
-			return self._ActorTable[index], dono_do_pet, nome
+			return self._ActorTable[index], dono_do_pet, actorName
 
 		--n�o achou, criar
-		elseif (criar) then
-			local novo_objeto = self.funcao_de_criacao(_, serial, nome)
-			novo_objeto.nome = nome
-			novo_objeto.flag_original = flag
-			novo_objeto.serial = serial
+		elseif (bShouldCreateActor) then
+			local novo_objeto = self.funcao_de_criacao(_, actorSerial, actorName)
+			novo_objeto.nome = actorName
+			novo_objeto.flag_original = actorFlags
+			novo_objeto.serial = actorSerial
 
 			--seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
 			novo_objeto.classe = "UNKNOW"
 			local forceClass
 
 			--get the aID (actor id)
-			if (serial:match("^C")) then
-				novo_objeto.aID = tostring(Details:GetNpcIdFromGuid(serial))
+			if (actorSerial:match("^C")) then
+				novo_objeto.aID = tostring(Details:GetNpcIdFromGuid(actorSerial))
 
 				if (Details.immersion_special_units) then
 					local shouldBeInGroup, class = Details.Immersion.IsNpcInteresting(novo_objeto.aID)
@@ -753,8 +751,8 @@ end
 					end
 				end
 
-			elseif (serial:match("^P")) then
-				novo_objeto.aID = serial:gsub("Player%-", "")
+			elseif (actorSerial:match("^P")) then
+				novo_objeto.aID = actorSerial:gsub("Player%-", "")
 
 			else
 				novo_objeto.aID = ""
@@ -774,12 +772,12 @@ end
 
 			if (self.tipo == container_damage) then --CONTAINER DAMAGE
 
-				local shouldScanOnce = getActorClass (novo_objeto, nome, flag, serial)
+				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
 
-				readActorFlag (novo_objeto, dono_do_pet, serial, flag, nome, "damage")
+				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "damage")
 
 				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, nome)
+					AddUnique (dono_do_pet.pets, actorName)
 				end
 
 				if (self.shadow) then
@@ -789,7 +787,7 @@ end
 				end
 
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (flag, REACTION_HOSTILE ) ~= 0) then --is hostile
+					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
 						novo_objeto.enemy = true
 					end
 
@@ -809,11 +807,11 @@ end
 
 			elseif (self.tipo == container_heal) then --CONTAINER HEALING
 
-				local shouldScanOnce = getActorClass (novo_objeto, nome, flag, serial)
-				readActorFlag (novo_objeto, dono_do_pet, serial, flag, nome, "heal")
+				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
+				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "heal")
 
 				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, nome)
+					AddUnique (dono_do_pet.pets, actorName)
 				end
 
 				if (self.shadow) then
@@ -823,7 +821,7 @@ end
 				end
 
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (flag, REACTION_HOSTILE ) ~= 0) then --is hostile
+					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
 						novo_objeto.enemy = true --print(nome.." EH UM INIMIGO -> " .. engRace)
 					end
 
@@ -836,15 +834,15 @@ end
 
 			elseif (self.tipo == container_energy) then --CONTAINER ENERGY
 
-				local shouldScanOnce = getActorClass (novo_objeto, nome, flag, serial)
-				readActorFlag (novo_objeto, dono_do_pet, serial, flag, nome, "energy")
+				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
+				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "energy")
 
 				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, nome)
+					AddUnique (dono_do_pet.pets, actorName)
 				end
 
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (flag, REACTION_HOSTILE ) ~= 0) then --is hostile
+					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
 						novo_objeto.enemy = true
 					end
 
@@ -856,15 +854,15 @@ end
 
 			elseif (self.tipo == container_misc) then --CONTAINER MISC
 
-				local shouldScanOnce = getActorClass (novo_objeto, nome, flag, serial)
-				readActorFlag (novo_objeto, dono_do_pet, serial, flag, nome, "misc")
+				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
+				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "misc")
 
 				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, nome)
+					AddUnique (dono_do_pet.pets, actorName)
 				end
 
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (flag, REACTION_HOSTILE ) ~= 0) then --is hostile
+					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
 						novo_objeto.enemy = true
 					end
 
@@ -894,12 +892,12 @@ end
 
 			elseif (self.tipo == container_friendlyfire) then --CONTAINER FRIENDLY FIRE
 
-				local shouldScanOnce = getActorClass (novo_objeto, nome, serial)
+				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorSerial)
 
 			end
 
 			--sanguine affix
-			if (nome == sanguineActorName) then
+			if (actorName == sanguineActorName) then
 				novo_objeto.grupo = true
 			end
 
@@ -907,14 +905,14 @@ end
 	-- grava o objeto no mapa do container
 			local size = #self._ActorTable+1
 			self._ActorTable [size] = novo_objeto --grava na tabela de indexes
-			self._NameIndexTable [nome] = size --grava no hash map o index deste jogador
+			self._NameIndexTable [actorName] = size --grava no hash map o index deste jogador
 
 			if (Details.is_in_battleground or Details.is_in_arena) then
 				novo_objeto.pvp = true
 			end
 
 			if (Details.debug) then
-				if (Details.debug_chr and nome:find(Details.debug_chr) and self.tipo == 1) then
+				if (Details.debug_chr and actorName:find(Details.debug_chr) and self.tipo == 1) then
 					local logLine = ""
 					local when = "[" .. date ("%H:%M:%S") .. format(".%4f", GetTime()-floor(GetTime())) .. "]"
 					local log = "actor created - class: " .. (novo_objeto.classe or "noclass")
@@ -930,7 +928,7 @@ end
 				novo_objeto.classe = forceClass
 			end
 
-			return novo_objeto, dono_do_pet, nome
+			return novo_objeto, dono_do_pet, actorName
 		else
 			return nil, nil, nil
 		end
