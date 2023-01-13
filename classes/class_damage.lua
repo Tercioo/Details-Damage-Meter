@@ -1716,7 +1716,7 @@ function atributo_damage:RefreshWindow(instancia, combatObject, forcar, exportar
 			elseif (subAttribute == 2) then --DPS
 				keyName = "last_dps"
 
-			elseif (subAttribute == 3) then --TAMAGE TAKEN
+			elseif (subAttribute == 3) then --DAMAGE TAKEN
 				keyName = "damage_taken"
 				if (Details.damage_taken_everything) then
 					windowMode = modo_ALL
@@ -1753,7 +1753,7 @@ function atributo_damage:RefreshWindow(instancia, combatObject, forcar, exportar
 		elseif (subAttribute == 2) then --DPS
 			keyName = "last_dps"
 
-		elseif (subAttribute == 3) then --TAMAGE TAKEN
+		elseif (subAttribute == 3) then --DAMAGE TAKEN
 			keyName = "damage_taken"
 			if (Details.damage_taken_everything) then
 				windowMode = modo_ALL
