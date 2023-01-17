@@ -28,9 +28,10 @@ locales\Details-zhTW.lua
 boot.lua
 indent.lua
 core\util.lua
+functions\mixin.lua
 API.lua
-functions\events.lua
 
+functions\events.lua
 functions\private.lua
 functions\profiles.lua
 functions\hooks.lua
