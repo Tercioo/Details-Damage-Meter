@@ -644,7 +644,7 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
         end
     end
 
-    return {}
+    return {}, {}
 end
 
 --aura frame handles only UNIT_AURA events to grab the duration of the buff placed by the aura
@@ -693,13 +693,20 @@ local getAuraDuration = function(spellId)
     end
 end
 
+---get the duration of a buff placed by a spell
+---@param spellId number
+---@return number duration
 function openRaidLib.CooldownManager.GetSpellBuffDuration(spellId)
     return getAuraDuration(spellId)
 end
 
---check if a player cooldown is ready or if is in cooldown
---@spellId: the spellId to check for cooldown
---return timeLeft, charges, startTimeOffset, duration, buffDuration
+---check if a player cooldown is ready or if is in cooldown
+---@spellId: the spellId to check for cooldown
+---@return number timeLeft
+---@return number charges
+---@return number startTimeOffset
+---@return number duration
+---@return number buffDuration
 function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
     --check if is a charge spell
     local cooldownInfo = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
@@ -713,7 +720,7 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
                 --return the time to the next charge
                 local timeLeft = start + duration - GetTime()
                 local startTimeOffset = start - GetTime()
-                return ceil(timeLeft), chargesAvailable, startTimeOffset, duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                return ceil(timeLeft), chargesAvailable, startTimeOffset, duration, buffDuration
             end
         else
             local start, duration = GetSpellCooldown(spellId)
@@ -748,7 +755,7 @@ do
         end
     end
 
-	function openRaidLib.AuraTracker.ScanPlayerAuras(unitId)
+	function openRaidLib.AuraTracker.ScanUnitAuras(unitId)
 		local batchCount = nil
 		local usePackedAura = true
         openRaidLib.AuraTracker.CurrentUnitId = unitId
@@ -775,7 +782,7 @@ do
         auraFrameEvent:RegisterUnitEvent("UNIT_AURA", unitId)
 
         auraFrameEvent:SetScript("OnEvent", function()
-            openRaidLib.AuraTracker.ScanPlayerAuras(unitId)
+            openRaidLib.AuraTracker.ScanUnitAuras(unitId)
         end)
     end
 
