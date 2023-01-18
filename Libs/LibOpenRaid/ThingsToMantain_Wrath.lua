@@ -124,6 +124,14 @@ LIB_OPEN_RAID_FLASK_BUFF = {}
 
 LIB_OPEN_RAID_ALL_POTIONS = {}
 
+LIB_OPEN_RAID_HEALING_POTIONS = {
+	[33447] = true, --Runic Healing Potion
+	[41166] = true, --Runic Healing Injector
+	[47875] = true, --Warlock's Healthstone (0/2 Talent)
+	[47867] = true, --Warlock's Healthstone (1/2 Talent)
+	[47877] = true, --Warlock's Healthstone (2/2 Talent)
+}
+
 LIB_OPEN_RAID_MELEE_SPECS = {
 	[251] = "DEATHKNIGHT",
 	[252] = "DEATHKNIGHT",
