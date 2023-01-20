@@ -623,7 +623,7 @@ if (IS_WOW_PROJECT_NOT_MAINLINE) then
 	DF.CooldownsBySpec[258][19242] = 5 --desperate prayer Rank 6
 	DF.CooldownsBySpec[258][19243] = 5 --desperate prayer Rank 7
 	DF.CooldownsBySpec[258][25437] = 5 --desperate prayer Rank 8
-	DF.CooldownsBySpec[258][15286] = 5 --vampiric embrace is a debuff in classic, not a buff
+	DF.CooldownsBySpec[258][15286] = not IS_WOW_PROJECT_CLASSIC_WRATH and 5 or nil --vampiric embrace is a debuff in classic, not a buff; a 30min buff in wotlk (don't track it...)
 
 	--ROGUE - 259
 	DF.CooldownsBySpec[259][1857] = 2 --vanish Rank 2
