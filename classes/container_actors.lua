@@ -394,24 +394,7 @@ end
 				local spellId = Details.SpecialSpellActorsName[actorObject.nome]
 				if (spellId) then
 					actorObject.grupo = true
-
-					if (Details.KyrianWeaponSpellIds[spellId]) then --can be deprecated
-						actorObject.spellicon = GetSpellTexture(Details.KyrianWeaponActorSpellId)
-						actorObject.nome = Details.KyrianWeaponActorName
-						actorObject.displayName = Details.KyrianWeaponActorName
-						actorObject.customColor = Details.KyrianWeaponColor
-						actorName = Details.KyrianWeaponActorName
-
-					elseif (Details.GrimrailDepotCannonWeaponSpellIds[spellId]) then  --can be deprecated
-						actorObject.spellicon = GetSpellTexture(Details.GrimrailDepotCannonWeaponActorSpellId)
-						actorObject.nome = Details.GrimrailDepotCannonWeaponActorName
-						actorObject.displayName = Details.GrimrailDepotCannonWeaponActorName
-						actorObject.customColor = Details.GrimrailDepotCannonWeaponColor
-						actorName = Details.GrimrailDepotCannonWeaponActorName
-
-					else
-						actorObject.spellicon = GetSpellTexture(spellId)
-					end
+					actorObject.spellicon = GetSpellTexture(spellId)
 				end
 
 				--check if this actor can be flagged as a unit in the player's group
