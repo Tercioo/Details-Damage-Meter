@@ -5592,6 +5592,10 @@ local row_on_enter = function(self)
 			info.jogador.detalhes = self.show --minha tabela = jogador = jogador.detales = spellid ou nome que esta sendo mostrado na direita
 			info.jogador:MontaDetalhes (self.show, self, info.instancia) --passa a spellid ou nome e a barra
 		end
+	elseif (self.isDetalhe and type(self.show) == "number") then
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+		Details:GameTooltipSetSpellByID(self.show)
+		GameTooltip:Show()
 	end
 end
 
