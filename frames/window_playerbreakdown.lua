@@ -5635,6 +5635,8 @@ local row_on_leave = function(self)
 
 	elseif (self.isAlvo) then
 		self:SetHeight(CONST_TARGET_HEIGHT)
+	elseif (self.isDetalhe) then
+		self:SetHeight(16)
 	end
 end
 
@@ -6054,13 +6056,15 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 
 	esta_barra:EnableMouse(true)
 
-	CriaTexturaBarra(esta_barra)
+	
 
 	--icone
 	esta_barra.icone = esta_barra:CreateTexture(nil, "OVERLAY")
 	esta_barra.icone:SetWidth(14)
 	esta_barra.icone:SetHeight(14)
-	esta_barra.icone:SetPoint("RIGHT", esta_barra.textura, "LEFT", 18, 0)
+	esta_barra.icone:SetPoint("LEFT", esta_barra, "LEFT", 0, 0)
+
+	CriaTexturaBarra(esta_barra)
 
 	esta_barra:SetAlpha(0.9)
 	esta_barra.icone:SetAlpha(1)
