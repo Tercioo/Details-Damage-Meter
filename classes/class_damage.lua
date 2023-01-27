@@ -4307,7 +4307,7 @@ end
 
 	elseif (class) then
 		local color = Details.class_colors[class]
-		if (color) then
+		if (color and class ~= "UNKNOW") then
 			row.textura:SetStatusBarColor(unpack(color))
 		else
 			row.textura:SetStatusBarColor(1, 1, 1)
