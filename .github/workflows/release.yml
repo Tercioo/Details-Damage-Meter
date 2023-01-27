@@ -8,14 +8,25 @@ on:
 env:
   CF_API_KEY: ${{ secrets.CF_API_KEY }}
   WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-  # for github releases, this secret is automatically provided to the workflow
 
 jobs:
-  release: # "release" is a job, you can name it anything you want
+  full_package_release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # reads history for commit changelog
+          fetch-depth: 0
 
       - uses: BigWigsMods/packager@v2
+
+  standalone_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: BigWigsMods/packager@v2
+        with:
+          pkgmeta: package_sa.pkgmeta
+          args: -a qv63A7Gb
