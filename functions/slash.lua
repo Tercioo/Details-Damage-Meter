@@ -2430,6 +2430,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							--this unit in the cache isn't shown?
 							if (not unitsAdded[unitName] and keystoneTable.guild_name == guildName and keystoneTable.date > cutoffDate) then
 								if (keystoneTable[2] > 0 or keystoneTable[6] > 0) then
+									keystoneTable[11] = UnitInParty(unitName) and (string.byte(unitName, 1) + string.byte(unitName, 2)) or 0 --isInMyParty
 									keystoneTable[12] = false --isOnline
 									newData[#newData+1] = keystoneTable
 									unitsAdded[unitName] = true
