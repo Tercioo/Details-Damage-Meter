@@ -35,3 +35,8 @@ wowapi.lua
 plugins/Details_TinyThreat/Details_TinyThreat_original.lua
 *.png
 Descriptions.lua
+plugins/Details_EncounterDetails/.github/workflows/release.yml
+plugins/Details_RaidCheck/.github/workflows/release.yml
+plugins/Details_Streamer/.github/workflows/release.yml
+plugins/Details_TinyThreat/.github/workflows/release.yml
+plugins/Details_Vanguard/.github/workflows/release.yml

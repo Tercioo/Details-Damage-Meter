@@ -1,9 +1,11 @@
-## Interface: 100002
+## Interface: 100005
 ## Title: Details!: Encounter Breakdown (plugin)
 ## Notes: Show detailed information about a boss encounter. Also provide damage per phase, graphic charts, easy weakauras creation.
 ## RequiredDeps: Details
 ## OptionalDeps: Ace3
 ## SavedVariablesPerCharacter: EncounterDetailsDB
+
+## X-Wago-ID: 7nGvv0Gx
 
 enUS.lua
 ptBR.lua

@@ -1,8 +1,10 @@
-## Interface: 100002
+## Interface: 100005
 ## Title: Details!: Streamer (plugin)
 ## Notes: Show which spells you are casting, viewers can see what are you doing and follow your steps.
 ## RequiredDeps: Details
 ## SavedVariables: Details_StreamerDB
+
+## X-Wago-ID: VBNB9MGx
 
 #@no-lib-strip@
 embeds.xml
