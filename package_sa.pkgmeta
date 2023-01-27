@@ -1,0 +1,4 @@
+package-as: Details
+
+ignore:
+  - plugins
