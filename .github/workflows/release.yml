@@ -1,23 +1,24 @@
 name: Release AddOn
 
-on:
-  push:
-    tags:
-      - '**'
+on: [push]
+#on:
+#  push:
+#    tags:
+#      - '**'
 
 env:
   CF_API_KEY: ${{ secrets.CF_API_KEY }}
   WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
 
 jobs:
-  full_package_release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+#  full_package_release:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
 
-      - uses: BigWigsMods/packager@v2
+#      - uses: BigWigsMods/packager@v2
 
   standalone_release:
     runs-on: ubuntu-latest
