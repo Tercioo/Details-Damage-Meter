@@ -583,6 +583,8 @@ function Details:StartMeUp() --I'll never stop!
 
 	pcall(Details222.ClassCache.MakeCache)
 
+	Details222.Cache.DoMaintenance()
+
 	function Details:InstallOkey()
 		return true
 	end

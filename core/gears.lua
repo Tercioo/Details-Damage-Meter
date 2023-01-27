@@ -1,4 +1,5 @@
 local _detalhes = 		_G._detalhes
+local addonName, Details222 = ...
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 
 local UnitName = UnitName
@@ -3274,4 +3275,54 @@ function CopyText(text) --[[GLOBAL]]
 		Details.CopyTextField.textField:SetText(text)
 		Details.CopyTextField.textField:HighlightText()
 	end)
+end
+
+
+-------------------------------------------------------------------------
+--> cache maintenance
+
+function Details222.Cache.DoMaintenance()
+	local currentTime = time()
+	local delay = 1036800 --12 days
+
+	if (currentTime > Details.latest_spell_pool_access + delay) then
+		local spellIdPoolBackup = DetailsFramework.table.copy({}, Details.spell_pool)
+
+		wipe(Details.spell_pool)
+
+		--preserve ignored spells spellId
+		for spellId in pairs(Details.spellid_ignored) do
+			Details.spell_pool[spellId] = spellIdPoolBackup[spellId]
+		end
+
+		Details.latest_spell_pool_access = currentTime
+		wipe(spellIdPoolBackup)
+	end
+
+	if (currentTime > Details.latest_npcid_pool_access + delay) then
+		local npcIdPoolBackup = DetailsFramework.table.copy({}, Details.npcid_pool)
+
+		wipe(Details.npcid_pool)
+
+		--preserve ignored npcs npcId
+		for npcId in pairs (Details.npcid_ignored) do
+			Details.npcid_pool[npcId] = npcIdPoolBackup[npcId]
+		end
+		Details.latest_npcid_pool_access = currentTime
+		wipe(npcIdPoolBackup)
+	end
+
+	if (currentTime > Details.latest_encounter_spell_pool_access + delay) then
+		wipe(Details.encounter_spell_pool)
+		Details.latest_encounter_spell_pool_access = currentTime
+	end
+
+	if (currentTime > Details.boss_mods_timers.latest_boss_mods_access + delay) then
+		wipe(Details.boss_mods_timers.encounter_timers_bw)
+		wipe(Details.boss_mods_timers.encounter_timers_dbm)
+		Details.boss_mods_timers.latest_boss_mods_access = currentTime
+	end
+
+	--latest_shield_spellid_cache_access
+	--shield_spellid_cache
 end

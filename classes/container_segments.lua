@@ -507,8 +507,8 @@ function segmentClass:resetar()
 	--limpa o cache de magias
 	Details:ClearSpellCache()
 
-	--limpa a tabela de escudos
-	wipe(Details.escudos)
+	--limpa a tabela de ShieldCache
+	wipe(Details.ShieldCache)
 
 	--reinicia a time machine
 	timeMachine:Reiniciar()

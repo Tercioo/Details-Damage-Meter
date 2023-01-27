@@ -834,7 +834,7 @@
 		Details:ResetSpecCache()
 
 		--cleanup the shield cache
-		wipe(Details.escudos)
+		wipe(Details.ShieldCache)
 
 		--set the time of the latest internal garbage collect
 		Details.ultima_coleta = _detalhes._tempo

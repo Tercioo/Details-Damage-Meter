@@ -1463,13 +1463,34 @@ local default_global_data = {
 			show_life_percent = false,
 			show_segments = false,
 		},
+
+	--spell caches
 		boss_mods_timers = {
 			encounter_timers_dbm = {},
 			encounter_timers_bw = {},
+			latest_boss_mods_access = time(),
 		},
+
 		spell_pool = {},
-		encounter_spell_pool = {},
+		latest_spell_pool_access = time(),
+
 		npcid_pool = {},
+		latest_npcid_pool_access = time(),
+
+		encounter_spell_pool = {},
+		latest_encounter_spell_pool_access = time(),
+
+		--store spells that passed by the healing absorb event on the parser, this list will help counting the overhealing of shields
+		shield_spellid_cache = {},
+		latest_shield_spellid_cache_access = time(),
+
+	--parser options
+		parser_options = {
+			--compute the overheal of shields
+			shield_overheal = false,
+			--compute the energy wasted by players when they current energy is equal to the maximum energy
+			energy_overflow = false,
+		},
 
 	--aura creation frame libwindow
 		createauraframe = {}, --deprecated
@@ -1737,6 +1758,10 @@ local exportProfileBlacklist = {
 	mythic_plus = true,
 	plugin_window_pos = true,
 	switchSaved = true,
+	installed_skins_cache = true,
+	trinket_data = true,
+	keystone_cache = true,
+	performance_profiles = true,
 }
 
 --transform the current profile into a string which can be shared in the internet

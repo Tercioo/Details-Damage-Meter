@@ -76,6 +76,8 @@
 		Details222.Segments = {}
 		Details222.Tables = {}
 		Details222.Mixins = {}
+		Details222.Cache = {}
+		Details222.Perf = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -252,8 +254,9 @@ do
 				[2522] = true, --sepulcher of the first ones
 			}
 
-		--armazena os escudos - Shields information for absorbs
-			_detalhes.escudos = {}
+		--store shield information for absorbs
+			_detalhes.ShieldCache = {}
+
 		--armazena as fun��es dos frames - Frames functions
 			_detalhes.gump = _G ["DetailsFramework"]
 			function _detalhes:GetFramework()

@@ -961,37 +961,32 @@ function atributo_heal:RefreshBarra(thisLine, instancia, from_resize)
 end
 
 function _detalhes:CloseShields(combat)
-	local escudos = _detalhes.escudos
+	if (not _detalhes.parser_options.shield_overheal) then
+		return
+	end
+
+	local shieldCache = _detalhes.ShieldCache
 	local container = combat[2]
 	local timeNow = time()
 	local parser = _detalhes.parser
-	local GetSpellInfo = GetSpellInfo --n�o colocar no cache de spells
+	local getSpellInfo = GetSpellInfo --does not add the spell into the spell info cache
 
-	for alvo_name, spellid_table in pairs(escudos) do
-
-		local tgt = container:PegarCombatente (_, alvo_name)
+	for targetName, spellid_table in pairs(shieldCache) do
+		local tgt = container:PegarCombatente (_, targetName)
 		if (tgt) then
-
 			for spellid, owner_table in pairs(spellid_table) do
-
-				local spellname = GetSpellInfo(spellid)
+				local spellname = getSpellInfo(spellid)
 				for owner, amount in pairs(owner_table) do
-
 					if (amount > 0) then
 						local obj = container:PegarCombatente (_, owner)
 						if (obj) then
-							parser:heal ("SPELL_AURA_REMOVED", timeNow, obj.serial, owner, obj.flag_original, tgt.serial, alvo_name, tgt.flag_original, nil, spellid, spellname, nil, 0, _math_ceil (amount), 0, 0, nil, true)
+							parser:heal("SPELL_AURA_REMOVED", timeNow, obj.serial, owner, obj.flag_original, tgt.serial, targetName, tgt.flag_original, nil, spellid, spellname, nil, 0, _math_ceil (amount), 0, 0, nil, true)
 						end
 					end
-
 				end
 			end
-
 		end
-
 	end
-
-	--escudo [alvo_name] [spellid] [who_name]
 end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
