@@ -22,6 +22,8 @@
 	local ipairs = ipairs
 	local type = type
 
+	local meleeString = _G["MELEE"]
+
 	local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
 	local _GetSpellInfo = _detalhes.getspellinfo
 	local isWOTLK = DetailsFramework.IsWotLKWow()
@@ -455,14 +457,14 @@
 	--DAMAGE 	serach key: ~damage											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, _G["MELEE"], 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand) --localize-me
+	--function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+	--	return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, _G["MELEE"], 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 																		--spellid, spellname, spelltype
-	end
+	--end
 
-	function parser:range       (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-	end
+	--function parser:range       (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+	--	return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+	--end
 
 	local who_aggro = function(self)
 		if ((_detalhes.LastPullMsg or 0) + 30 > time()) then
@@ -559,6 +561,11 @@
 				--pets must have a serial
 				return
 			end
+		end
+
+		--melee
+		if (token == "SWING_DAMAGE") then
+			spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand = 1, meleeString, 00000001, spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical
 		end
 
 		if (not targetName) then
@@ -1676,7 +1683,8 @@
 		if (missType == "ABSORB") then
 			if (token == "SWING_MISSED") then
 				este_jogador.totalabsorbed = este_jogador.totalabsorbed + amountMissed
-				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
+				--return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
+				return parser:spell_dmg ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 
 			elseif (token == "RANGE_MISSED") then
 				este_jogador.totalabsorbed = este_jogador.totalabsorbed + amountMissed
@@ -4507,7 +4515,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			token_list ["SPELL_EXTRA_ATTACKS"] = nil --parser.spell_dmg_extra_attacks
 			token_list ["SPELL_DAMAGE"] = parser.spell_dmg
 			token_list ["SPELL_BUILDING_DAMAGE"] = parser.spell_dmg
-			token_list ["SWING_DAMAGE"] = parser.swing
+			token_list ["SWING_DAMAGE"] = parser.spell_dmg --parser.swing
 			token_list ["RANGE_DAMAGE"] = parser.spell_dmg --parser.range
 			token_list ["DAMAGE_SHIELD"] = parser.spell_dmg
 			token_list ["DAMAGE_SPLIT"] = parser.spell_dmg
@@ -4563,7 +4571,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	parser.original_functions = {
 		["spell_dmg"] = parser.spell_dmg,
 		["spell_dmg_extra_attacks"] = nil, --parser.spell_dmg_extra_attacks,
-		["swing"] = parser.swing,
+		["swing"] = parser.spell_dmg, --parser.swing,
 		["range"] = parser.spell_dmg, --parser.range,
 		["rangemissed"] = parser.rangemissed,
 		["swingmissed"] = parser.swingmissed,
@@ -4603,7 +4611,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		["SPELL_EXTRA_ATTACKS"] = nil, --"spell_dmg_extra_attacks",
 		["SPELL_DAMAGE"] = "spell_dmg",
 		["SPELL_BUILDING_DAMAGE"] = "spell_dmg",
-		["SWING_DAMAGE"] = "swing",
+		["SWING_DAMAGE"] = "spell_dmg", --"swing"
 		["RANGE_DAMAGE"] = "spell_dmg", --"range",
 		["DAMAGE_SHIELD"] = "spell_dmg",
 		["DAMAGE_SPLIT"] = "spell_dmg",
