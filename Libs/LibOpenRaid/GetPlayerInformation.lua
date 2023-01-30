@@ -19,6 +19,11 @@ local CONST_BTALENT_VERSION_COVENANTS = 9
 
 local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
 local CONST_SPELLBOOK_GENERAL_TABID = 1
+local CONST_ISITEM_BY_TYPEID = {
+    [10] = true, --healing items
+    [11] = true, --attack items
+    [12] = true, --utility items
+}
 
 local GetItemInfo = GetItemInfo
 local GetItemStats = GetItemStats
@@ -580,9 +585,9 @@ local updateCooldownAvailableList = function()
     --build a list of all spells assigned as cooldowns for the player class
     for spellID, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
         --type 10 is an item cooldown and does not have a class or raceid
-        if (spellData.class == playerClass or spellData.raceid == playerRaceId or spellData.type == 10) then --need to implement here to get the racial as racial cooldowns does not carry a class
+        if (spellData.class == playerClass or spellData.raceid == playerRaceId or CONST_ISITEM_BY_TYPEID[spellData.type]) then --need to implement here to get the racial as racial cooldowns does not carry a class
             --type 10 is an item cooldown and does not have a spellbook entry
-            if (spellBookSpellList[spellID] or spellData.type == 10) then
+            if (spellBookSpellList[spellID] or CONST_ISITEM_BY_TYPEID[spellData.type]) then
                 LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellID] = spellData
             end
         end
@@ -711,8 +716,8 @@ end
 ---@return number buffDuration
 function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
     --check if is a charge spell
-    local cooldownInfo = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
-    if (cooldownInfo) then
+    local spellData = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
+    if (spellData) then
         local buffDuration = getAuraDuration(spellId)
         local chargesAvailable, chargesTotal, start, duration = GetSpellCharges(spellId)
         if chargesAvailable then

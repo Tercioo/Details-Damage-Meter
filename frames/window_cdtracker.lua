@@ -324,17 +324,15 @@ end
         end
 
         local xPos = 1
-        local yPos = 0
-        local maxHeight = 0
-        local maxWidth = Details.ocd_tracker.width + 2
         local cooldownFrameIndex = 1
+        local lineIndex = 1
+        local totalLinesUsed = 0
 
         for classId = 1, 13 do
             local cooldownFrameList = cooldownsOrganized[classId]
             for index, cooldownFrame in ipairs(cooldownFrameList) do
                 local cooldownInfo = cooldownFrame.cooldownInfo
                 local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
-                --local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromUnitSpellID(cooldownFrame.unitName, cooldownFrame.spellId)
 
                 if (not isReady) then
                     cooldownFrame:SetTimer(currentValue, minValue, maxValue)
@@ -342,30 +340,34 @@ end
                     cooldownFrame:SetTimer()
                 end
 
-                --positioning
-                if (cooldownFrameIndex % Details.ocd_tracker.lines_per_column == 0) then
+                cooldownFrame:ClearAllPoints()
+                local yLocation = (lineIndex - 1) * Details.ocd_tracker.height * -1
+                cooldownFrame:SetPoint("topleft", screenPanel, "topleft", xPos, yLocation - 1)
+
+                lineIndex = lineIndex + 1
+
+                if (lineIndex > Details.ocd_tracker.lines_per_column) then
                     xPos = xPos + Details.ocd_tracker.width + 2
-                    maxWidth = xPos + Details.ocd_tracker.width + 2
-                    yPos = 0
-                end
-                cooldownFrame:SetPoint("topleft", screenPanel, "topleft", xPos, yPos)
-                yPos = yPos - Details.ocd_tracker.height - 1
-                if (yPos < maxHeight)  then
-                    maxHeight = yPos
+                    lineIndex = 1
                 end
 
                 cooldownFrameIndex = cooldownFrameIndex + 1
+                totalLinesUsed = totalLinesUsed + 1
             end
         end
 
-        maxHeight = abs(maxHeight)
-
-        if (maxHeight == 0) then
+        if (totalLinesUsed == 0) then
             screenPanel:Hide()
             return
         end
 
-        screenPanel:SetSize(maxWidth, maxHeight)
+        local totalColumns = ceil(totalLinesUsed / Details.ocd_tracker.lines_per_column)
+        local maxRows = math.min(Details.ocd_tracker.lines_per_column, totalLinesUsed)
+
+        local width = 1 + totalColumns * Details.ocd_tracker.width + (totalColumns * 2)
+        local height =  2 + maxRows * Details.ocd_tracker.height
+
+        screenPanel:SetSize(width, height)
         screenPanel:Show()
     end
 
@@ -538,13 +540,35 @@ end
 
                 {--filter: item cooldowns
                     type = "toggle",
-                    get = function() return Details.ocd_tracker.filters["item"] end,
+                    get = function() return Details.ocd_tracker.filters["itemheal"] end,
                     set = function(self, fixedparam, value)
-                        Details.ocd_tracker.filters["item"] = value
+                        Details.ocd_tracker.filters["itemheal"] = value
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
-                    name = "Item Cooldowns",
+                    name = "Item: Healing",
                     desc = "Example: Healthstone.",
+                },
+
+                {--filter: item cooldowns
+                    type = "toggle",
+                    get = function() return Details.ocd_tracker.filters["itempower"] end,
+                    set = function(self, fixedparam, value)
+                        Details.ocd_tracker.filters["itempower"] = value
+                        Details222.CooldownTracking.RefreshCooldownFrames()
+                    end,
+                    name = "Item: Power Increase",
+                    desc = "Example: Elemental Potion of Power.",
+                },
+
+                {--filter: item cooldowns
+                    type = "toggle",
+                    get = function() return Details.ocd_tracker.filters["itemutil"] end,
+                    set = function(self, fixedparam, value)
+                        Details.ocd_tracker.filters["itemutil"] = value
+                        Details222.CooldownTracking.RefreshCooldownFrames()
+                    end,
+                    name = "Item: Utility",
+                    desc = "Example: Invisibility Potion.",
                 },
 
                 {type = "breakline"},
