@@ -478,7 +478,7 @@ end
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
                     name = "Defensive: Raid",
-                    desc = "Exanple: druid tranquility.",
+                    desc = "Example: druid tranquility.",
                 },
 
                 {--filter: show target defensive cooldowns
@@ -489,7 +489,7 @@ end
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
                     name = "Defensive: Target",
-                    desc = "Exanple: priest pain suppression.",
+                    desc = "Example: priest pain suppression.",
                 },
 
                 {--filter: show personal defensive cooldowns
@@ -500,7 +500,7 @@ end
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
                     name = "Defensive: Personal",
-                    desc = "Exanple: mage ice block.",
+                    desc = "Example: mage ice block.",
                 },
 
                 {--filter: show ofensive cooldowns
@@ -511,7 +511,7 @@ end
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
                     name = "Offensive Cooldowns",
-                    desc = "Exanple: priest power infusion.",
+                    desc = "Example: priest power infusion.",
                 },
 
                 {--filter: show utility cooldowns
@@ -522,7 +522,7 @@ end
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
                     name = "Utility Cooldowns",
-                    desc = "Exanple: druid roar.",
+                    desc = "Example: druid roar.",
                 },
 
                 {--filter: show interrupt cooldowns
@@ -533,8 +533,19 @@ end
                         Details222.CooldownTracking.RefreshCooldownFrames()
                     end,
                     name = "Interrupt Cooldowns",
-                    desc = "Exanple: rogue kick.",
-                },                
+                    desc = "Example: rogue kick.",
+                },
+
+                {--filter: item cooldowns
+                    type = "toggle",
+                    get = function() return Details.ocd_tracker.filters["item"] end,
+                    set = function(self, fixedparam, value)
+                        Details.ocd_tracker.filters["item"] = value
+                        Details222.CooldownTracking.RefreshCooldownFrames()
+                    end,
+                    name = "Item Cooldowns",
+                    desc = "Example: Healthstone.",
+                },
 
                 {type = "breakline"},
 

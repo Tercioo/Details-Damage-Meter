@@ -18,6 +18,7 @@ local CONST_COOLDOWN_TYPE_DEFENSIVE_TARGET = 3
 local CONST_COOLDOWN_TYPE_DEFENSIVE_RAID = 4
 local CONST_COOLDOWN_TYPE_UTILITY = 5
 local CONST_COOLDOWN_TYPE_INTERRUPT = 6
+local CONST_COOLDOWN_TYPE_ITEM = 10
 
 --hold spellIds and which custom caches the spell is in
 --map[spellId] = map[filterName] = true
@@ -179,6 +180,7 @@ local filterStringToCooldownType = {
     ["ofensive"] = CONST_COOLDOWN_TYPE_OFFENSIVE,
     ["utility"] = CONST_COOLDOWN_TYPE_UTILITY,
     ["interrupt"] = CONST_COOLDOWN_TYPE_INTERRUPT,
+    ["item"] = CONST_COOLDOWN_TYPE_ITEM,
 }
 
 local filterStringToCooldownTypeReverse = {
@@ -188,6 +190,7 @@ local filterStringToCooldownTypeReverse = {
     [CONST_COOLDOWN_TYPE_OFFENSIVE] = "ofensive",
     [CONST_COOLDOWN_TYPE_UTILITY] = "utility",
     [CONST_COOLDOWN_TYPE_INTERRUPT] = "interrupt",
+    [CONST_COOLDOWN_TYPE_ITEM] = "item",
 }
 
 local removeSpellFromCustomFilterCache = function(spellId, filterName)

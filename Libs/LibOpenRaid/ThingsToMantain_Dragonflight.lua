@@ -195,7 +195,7 @@ do
 			[370511] = 1, --Refreshing Healing Potion
 			[371039] = 1, --Potion of Withering Vitality
 			[370607] = 1, --Aerated Mana Potion
-			[371024] = 1, --Elemental Potion of Power
+			[371024] = 1, --Elemental Potion of Power --querying cooldown with GetSpellCooldown(371024) gives the cooldown of both potions
 			[371028] = 1, --Elemental Potion of Ultimate Power
 			[371033] = 1, --Potion of Frozen Focus
 			[371125] = 1, --Potion of the Hushed Zephyr
@@ -256,6 +256,13 @@ do
 			-- 7 dispel
 			-- 8 crowd control
 			-- 9 racials
+			-- 10 items
+
+			--attack potions
+			[371024] = {cooldown = 300,	duration = 30,	specs = {},	talent = false,	charges = 1, class = "", type = 10}, --Elemental Potion of Power
+			--defensive potions
+			[6262] = {cooldown = 60,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10}, --Healthstone
+			[370511] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10}, --Refreshing Healing Potion
 
 			--racials 
 			--maintanance: login into the new race and type /run Details.GenerateRacialSpellList()

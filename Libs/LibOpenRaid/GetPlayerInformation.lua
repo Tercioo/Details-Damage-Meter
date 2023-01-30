@@ -579,8 +579,10 @@ local updateCooldownAvailableList = function()
 
     --build a list of all spells assigned as cooldowns for the player class
     for spellID, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
-        if (spellData.class == playerClass or spellData.raceid == playerRaceId) then --need to implement here to get the racial as racial cooldowns does not carry a class
-            if (spellBookSpellList[spellID]) then
+        --type 10 is an item cooldown and does not have a class or raceid
+        if (spellData.class == playerClass or spellData.raceid == playerRaceId or spellData.type == 10) then --need to implement here to get the racial as racial cooldowns does not carry a class
+            --type 10 is an item cooldown and does not have a spellbook entry
+            if (spellBookSpellList[spellID] or spellData.type == 10) then
                 LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellID] = spellData
             end
         end

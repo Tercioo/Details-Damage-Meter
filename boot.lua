@@ -97,6 +97,7 @@ do
 	--Remove multi-spec entries for shaman guessing (Flamanis).
 	--More Demon hunter abilities added to be merged (Flamanis).
 	--Added duck polymorph to Mage CCs (Flamanis).
+	--Fixed offline player showing as party members in the /keys panel (Flamanis).
 	--Fixed an issue with some options not updating when the window is selected at the bottom right corner of the options panel (Flamanis).
 
 

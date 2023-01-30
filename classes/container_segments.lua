@@ -517,7 +517,7 @@ function segmentClass:resetar()
 	wipe(Details.cache_healing_group)
 	Details:UpdateParserGears()
 
-	if (not InCombatLockdown() and not UnitAffectingCombat("player")) then
+	if (not InCombatLockdown() and not UnitAffectingCombat("player") and false) then
 		--workarround for the "script run too long" issue while outside the combat lockdown
 		local cleargarbage = function()
 			collectgarbage()
