@@ -439,6 +439,7 @@ local function CreatePluginFrames (data)
 		--deprecated
 	end
 	
+	--[=[
 	EncounterDetailsFrame:HookScript ("OnShow", function()
 		C_Timer.After (0.1, function()
 			if (not EncounterDetails.LastOpenedTime or EncounterDetails.LastOpenedTime + 2 < GetTime()) then
@@ -448,7 +449,8 @@ local function CreatePluginFrames (data)
 			end
 		end)
 	end)
-	
+	--]=]
+
 	--> user clicked on button, need open or close window
 	function EncounterDetails:OpenWindow()
 		
@@ -2236,7 +2238,7 @@ local installPluginFunc = function()
 
 		--embed the plugin into the plugin window
 		if (DetailsPluginContainerWindow) then
-			DetailsPluginContainerWindow.EmbedPlugin(EncounterDetails, EncounterDetails.Frame)
+			DetailsPluginContainerWindow.EmbedPlugin(EncounterDetails, EncounterDetails.Frame, false, EncounterDetails.OpenAndRefresh)
 		end
 	end
 end

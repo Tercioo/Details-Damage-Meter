@@ -1210,6 +1210,9 @@ local default_player_data = {
 				["defensive-personal"] = false,
 				["ofensive"] = true,
 				["utility"] = false,
+				["itemheal"] = false,
+				["itempower"] = false,
+				["itemutil"] = false,
 			}, --when creating a filter, add it here and also add to 'own_frame'
 
 			own_frame = {
@@ -1219,6 +1222,9 @@ local default_player_data = {
 				["ofensive"] = false,
 				["utility"] = false,
 			},
+
+			show_title = true,
+			group_frames = true,
 
 			width = 120,
 			height = 18,

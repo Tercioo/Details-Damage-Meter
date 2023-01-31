@@ -613,7 +613,13 @@
 
 			--show the container
 			f:Show()
-			
+
+			--check if the plugin has a callback for when showing the frame
+			if (pluginObject.__OnClickFromOptionsCallback) then
+				--safe run the plugin callback
+				DetailsFramework:QuickDispatch(pluginObject.__OnClickFromOptionsCallback)
+			end
+
 			return true
 		end
 		
@@ -655,7 +661,7 @@
 		end
 
 		--a plugin request to be embed into the main plugin window
-		function f.EmbedPlugin(pluginObject, frame, isUtility)
+		function f.EmbedPlugin(pluginObject, frame, isUtility, callback)
 
 			--check if the plugin has a frame
 			if (not pluginObject.Frame) then
@@ -708,14 +714,18 @@
 			end
 
 			--format the plugin main frame
-			f.RefreshFrame (frame)
+			f.RefreshFrame(frame)
+
+			--save the callback function for when clicking in the button from the options panel
+			pluginObject.__OnClickFromOptionsCallback = callback
+
 			--add the plugin to embed table
 			tinsert(f.EmbedPlugins, pluginObject)
 			frame:SetParent(f)
 
-			f.DebugMsg ("plugin added", pluginObject.__name)
+			f.DebugMsg("plugin added", pluginObject.__name)
 		end
-		
+
 		function f.OpenPlugin (pluginObject)
 			--just simulate a click on the menu button
 			f.OnMenuClick (_, _, pluginObject.real_name)
