@@ -1211,10 +1211,6 @@ function atributo_energy:MontaInfoRegenRecebido()
 end
 
 function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
-
-	for _, barra in ipairs(info.barras3) do 
-		barra:Hide()
-	end
 	
 	reset_tooltips_table()
 	
@@ -1262,12 +1258,15 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 
 	local max_ = energy_tooltips_table [1][2]
 	
+	local lastIndex = 1
 	local barra
 	for index, tabela in ipairs(from) do
 	
 		if (tabela [2] < 1) then
 			break
 		end
+
+		lastIndex = index
 	
 		barra = barras [index]
 
@@ -1275,6 +1274,8 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
 			barra.textura:SetStatusBarColor(1, 1, 1, 1)
 		end
+
+		barra.show = tabela[1]
 		
 		if (index == 1) then
 			barra.textura:SetValue(100)
@@ -1296,6 +1297,11 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 			break
 		end
 	end
+
+	for i = lastIndex+1, #barras do
+		barras[i]:Hide()
+	end
+
 end
 
 function atributo_energy:MontaTooltipAlvos (esta_barra, index)
