@@ -1705,11 +1705,11 @@ function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 	local got_switch = false
 
 	if (role == "DAMAGER" and self.switch_damager) then
-		self:SwitchTo (self.switch_damager)
+		self:SwitchTo (self.switch_damager, true)
 		got_switch = true
 
 	elseif (role == "HEALER" and self.switch_healer) then
-		self:SwitchTo (self.switch_healer)
+		self:SwitchTo (self.switch_healer, true)
 		got_switch = true
 
 	elseif (role == "TANK" and self.switch_tank) then

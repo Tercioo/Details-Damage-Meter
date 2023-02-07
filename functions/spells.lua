@@ -466,7 +466,6 @@ do
 			[871] = 73, --Shield Wall
 			[1161] = 73, --Challenging Shout
 			[394062] = 73, --Rend
-			[190456] = 73, --Ignore Pain
 			[385952] = 73, --Shield Charge
 			[392966] = 73, --Spell Block
 

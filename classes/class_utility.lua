@@ -2208,10 +2208,6 @@ end
 ------ Detalhe Info Interrupt
 function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 
-	for _, barra in ipairs(info.barras3) do
-		barra:Hide()
-	end
-
 	local esta_magia = self.interrupt_spells._ActorTable [spellid]
 	if (not esta_magia) then
 		return
@@ -2240,14 +2236,18 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 	table.sort (habilidades_alvos, _detalhes.Sort2)
 	local max_ = habilidades_alvos[1][2]
 
+	local lastIndex = 1
 	local barra
 	for index, tabela in ipairs(habilidades_alvos) do
+		lastIndex = index
 		barra = barras [index]
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
 			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 		end
+
+		barra.show = tabela[1]
 
 		if (index == 1) then
 			barra.textura:SetValue(100)
@@ -2267,6 +2267,10 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 		if (index == 15) then
 			break
 		end
+	end
+
+	for i = lastIndex+1, #barras do
+		barras[i]:Hide()
 	end
 
 end

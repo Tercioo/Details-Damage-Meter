@@ -449,7 +449,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 
 			Details.FadeHandler.Fader(row1, "out")
 
-			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], iter_last-1, 1 do --vai atualizar s� o range que esta sendo mostrado
 					if (conteudo[i]) then
 						conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
@@ -519,7 +519,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 
 			Details.FadeHandler.Fader(row1, "out")
 
-			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				conteudo[myPos]:RefreshLine(instancia, barras_container, whichRowLine, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				whichRowLine = whichRowLine+1
 				for i = iter_last-1, instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
@@ -2130,10 +2130,6 @@ end
 
 function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 
-	for _, barra in ipairs(info.barras3) do
-		barra:Hide()
-	end
-
 	local barras = info.barras3
 	local instancia = info.instancia
 
@@ -2160,14 +2156,18 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 
 	local max_ = minhas_magias[1] and minhas_magias[1][2] or 0 --dano que a primeiro magia vez
 
+	local lastIndex = 1
 	local barra
 	for index, tabela in ipairs(minhas_magias) do
+		lastIndex = index
 		barra = barras [index]
 
 		if (not barra) then --se a barra n�o existir, criar ela ent�o
 			barra = gump:CriaNovaBarraInfo3 (instancia, index)
 			barra.textura:SetStatusBarColor(1, 1, 1, 1) --isso aqui � a parte da sele��o e descele��o
 		end
+
+		barra.show = tabela[1]
 
 		if (index == 1) then
 			barra.textura:SetValue(100)
@@ -2186,6 +2186,11 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 			break
 		end
 	end
+
+	for i = lastIndex+1, #barras do
+		barras[i]:Hide()
+	end
+
 end
 
 local absorbed_table = {c = {1, 1, 1, 0.4}, p = 0}
