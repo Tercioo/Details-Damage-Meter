@@ -795,7 +795,7 @@ do
 		end
 
 		--todo: should run one second after the player_login event or entering_world
-		C_Timer.After(1, function()
+		C_Timer.After(10, function()
 			if (not EncounterJournal_LoadUI) then
 				return
 			end
