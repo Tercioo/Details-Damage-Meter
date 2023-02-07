@@ -430,7 +430,11 @@ function _detalhes:LoadConfig()
 
 		--custom
 			_detalhes.custom = _detalhes_global.custom
+			if (_detalhes_global.custom.__index) then
+				C_Timer.After(5, function() print("|cFFFFAA00Details!|r error 0x8487, report on discord") end)
+			end
 			_detalhes.refresh:r_atributo_custom()
+			
 end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
