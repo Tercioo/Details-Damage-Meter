@@ -15,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 13
+local version = 14
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -1649,8 +1649,8 @@ function DF:CreateCoolTip()
 		frame2:EnableMouse(false)
 
 		--width
-		if (gameCooltip.OptionsTable.FixedWidth) then
-			frame2:SetWidth(gameCooltip.OptionsTable.FixedWidth)
+		if (gameCooltip.OptionsTable.FixedWidthSub) then
+			frame2:SetWidth(gameCooltip.OptionsTable.FixedWidthSub)
 		end
 
 		frame2.w = gameCooltip.OptionsTable.FixedWidth or 0
@@ -1731,7 +1731,7 @@ function DF:CreateCoolTip()
 			menuButton:EnableMouse(false)
 		end
 
-		if (not gameCooltip.OptionsTable.FixedWidth) then
+		if (not gameCooltip.OptionsTable.FixedWidthSub) then
 			if (gameCooltip.Type == 2) then --with bars
 				if (gameCooltip.OptionsTable.MinWidth) then
 					local width = frame2.w + 34
@@ -1785,6 +1785,23 @@ function DF:CreateCoolTip()
 			menuButton:SetAlpha(1)
 			if (menuButton.spark:IsShown() or menuButton.spark2:IsShown()) then
 				gameCooltip:RefreshSpark(menuButton)
+			end
+		end
+
+		--hole in the code: the sub-tooltip point should be handled by the sabe function that handle the sub-menu point
+		local frame2CenterX = frame2:GetCenter()
+		if (frame2CenterX) then
+			local frame2HalfWidth = frame2:GetWidth() / 2
+			local frame1CenterX = frame1:GetCenter()
+			if (frame1CenterX) then
+				local frame1HalfWidth = frame1:GetWidth() / 2
+				local frame1EndPoint = frame1CenterX + frame1HalfWidth - 3
+				local frame2StartPoint = frame2CenterX - frame2HalfWidth
+
+				if (frame2StartPoint < frame1EndPoint) then
+					frame2:ClearAllPoints()
+					frame2:SetPoint("bottomright", frame1, "bottomleft", -4, 0)
+				end
 			end
 		end
 	end

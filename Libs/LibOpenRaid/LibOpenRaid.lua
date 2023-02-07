@@ -1555,9 +1555,9 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
     --send only the gear durability
     function openRaidLib.GearManager.SendDurability()
         local dataToSend = "" .. CONST_COMM_GEARINFO_DURABILITY_PREFIX .. ","
-        local playerGearDurability = openRaidLib.GearManager.GetPlayerGearDurability()
+        local averageGearDurability, lowestDurability = openRaidLib.GearManager.GetPlayerGearDurability()
 
-        dataToSend = dataToSend .. playerGearDurability
+        dataToSend = dataToSend .. averageGearDurability
 
         --send the data
         openRaidLib.commHandler.SendCommData(dataToSend)
@@ -1937,13 +1937,22 @@ end
         return calculatePercent(timeOffset, duration, updateTime, charges)
     end
 
-    --return the values to be use on a progress bar or cooldown frame
-    --require the cooldownInfo table
-    --values returned: isReady, timeLeft, charges, normalized percent, minValue, maxValue, currentValue
-    --values are in the GetTime() format
-    --GetPercentFromCooldownInfo
+    ---return the values to be use on a progress bar or cooldown frame
+    ---values returned: bIsReady, percent, timeLeft, charges, minValue, maxValue, currentValue, duration
+    ---@param cooldownInfo table
+    ---@return boolean bIsReady
+    ---@return number percent
+    ---@return number timeLeft
+    ---@return number charges
+    ---@return number minValue
+    ---@return number maxValue
+    ---@return number currentValue
+    ---@return number duration
     function openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
         local timeLeft, charges, timeOffset, duration, updateTime, auraDuration = openRaidLib.CooldownManager.GetCooldownInfoValues(cooldownInfo)
+        if (not timeOffset) then
+            return false, 0, 0, 0, 0, 0, 0, 0
+        end
         return calculatePercent(timeOffset, duration, updateTime, charges)
     end
 

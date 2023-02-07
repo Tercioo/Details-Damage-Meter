@@ -301,20 +301,29 @@ end
 --return an integer between zero and one hundret indicating the player gear durability
 function openRaidLib.GearManager.GetPlayerGearDurability()
     local durabilityTotalPercent, totalItems = 0, 0
+    --hold the lowest item durability of all the player gear
+    --this prevent the case where the player has an average of 80% durability but an item with 15% durability
+    local lowestGearDurability = 100
+
     for i = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
         local durability, maxDurability = GetInventoryItemDurability(i)
         if (durability and maxDurability) then
             local itemDurability = durability / maxDurability * 100
+
+            if (itemDurability < lowestGearDurability) then
+                lowestGearDurability = itemDurability
+            end
+
             durabilityTotalPercent = durabilityTotalPercent + itemDurability
             totalItems = totalItems + 1
         end
     end
 
     if (totalItems == 0) then
-        return 100
+        return 100, lowestGearDurability
     end
 
-    return floor(durabilityTotalPercent / totalItems)
+    return floor(durabilityTotalPercent / totalItems), lowestGearDurability
 end
 
 function openRaidLib.GearManager.GetPlayerWeaponEnchant()

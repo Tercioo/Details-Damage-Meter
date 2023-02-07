@@ -258,7 +258,11 @@ end
             cooldownLine:SetIcon(spellIcon, .1, .9, .1, .9)
 
             local classColor = C_ClassColor.GetClassColor(cooldownLine.class or "PRIEST")
-            cooldownLine:SetStatusBarColor(classColor.r, classColor.g, classColor.b)
+            if (classColor) then
+                cooldownLine:SetStatusBarColor(classColor.r, classColor.g, classColor.b)
+            else
+                cooldownLine:SetStatusBarColor(1, 1, 1)
+            end
             cooldownLine:SetLeftText(DF:RemoveRealmName(cooldownLine.unitName))
             cooldownLine:SetSize(Details.ocd_tracker.width, Details.ocd_tracker.height)
         end

@@ -3403,8 +3403,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--MISC 	search key: ~cooldown											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
-
+	function parser:add_defensive_cooldown(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
 	------------------------------------------------------------------------------------------------
 	--early checks and fixes
 
@@ -3414,60 +3413,64 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--get actors
 
 		--main actor
-		local este_jogador, meu_dono = misc_cache [who_name]
-		if (not este_jogador) then --pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
-				misc_cache [who_name] = este_jogador
+		local sourceActor, ownerActor = misc_cache[sourceName], nil
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+			if (not ownerActor) then
+				misc_cache[sourceName] = sourceActor
 			end
 		end
 
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly
-		if (not este_jogador.cooldowns_defensive) then
-			este_jogador.cooldowns_defensive = _detalhes:GetOrderNumber(who_name)
-			este_jogador.cooldowns_defensive_targets = {}
-			este_jogador.cooldowns_defensive_spells = container_habilidades:NovoContainer (container_misc) --cria o container das habilidades
+		if (not sourceActor.cooldowns_defensive) then
+			sourceActor.cooldowns_defensive = _detalhes:GetOrderNumber(sourceName)
+			sourceActor.cooldowns_defensive_targets = {}
+			sourceActor.cooldowns_defensive_spells = container_habilidades:NovoContainer(container_misc)
 		end
+
+		--local targetActor, targetOwner = damage_cache[targetSerial] or damage_cache_pets[targetSerial] or damage_cache[targetName], damage_cache_petsOwners[targetSerial]
+		--sourceActor, ownerActor, sourceName
 
 	------------------------------------------------------------------------------------------------
 	--add amount
 
 		--actor cooldowns used
-		este_jogador.cooldowns_defensive = este_jogador.cooldowns_defensive + 1
+		sourceActor.cooldowns_defensive = sourceActor.cooldowns_defensive + 1
 
 		--combat totals
-		_current_total [4].cooldowns_defensive = _current_total [4].cooldowns_defensive + 1
+		_current_total[4].cooldowns_defensive = _current_total[4].cooldowns_defensive + 1
 
-		if (este_jogador.grupo) then
-			_current_gtotal [4].cooldowns_defensive = _current_gtotal [4].cooldowns_defensive + 1
+		if (sourceActor.grupo) then
+			_current_gtotal[4].cooldowns_defensive = _current_gtotal[4].cooldowns_defensive + 1
 
-			if (who_name == alvo_name) then
-
-				local damage_actor = damage_cache [who_serial]
-				if (not damage_actor) then --pode ser um desconhecido ou um pet
-					damage_actor = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
-					if (who_flags) then --se n�o for um pet, adicionar no cache
-						damage_cache [who_serial] = damage_actor
+			if (sourceName == targetName) then
+				--[=[
+				local damage_actor = damage_cache[sourceSerial]
+				if (not damage_actor) then
+					damage_actor = _current_damage_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+					if (sourceFlags) then
+						damage_cache[sourceSerial] = damage_actor
 					end
 				end
+				--]=]
 
 				--last events
-				local t = last_events_cache [who_name]
+				local t = last_events_cache[sourceName]
 
 				if (not t) then
-					t = _current_combat:CreateLastEventsTable (who_name)
+					t = _current_combat:CreateLastEventsTable(sourceName)
 				end
 
 				local i = t.n
-				local this_event = t [i]
+				local thisEvent = t [i]
 
-				this_event [1] = 1 --true if this is a damage || false for healing || 1 for cooldown
-				this_event [2] = spellid --spellid || false if this is a battle ress line
-				this_event [3] = 1 --amount of damage or healing
-				this_event [4] = time --parser time
-				this_event [5] = UnitHealth (who_name) --current unit heal
-				this_event [6] = who_name --source name
+				thisEvent[1] = 1 --true if this is a damage || false for healing || 1 for cooldown
+				thisEvent[2] = spellId --spellid || false if this is a battle ress line
+				thisEvent[3] = 1 --amount of damage or healing
+				thisEvent[4] = time
+				thisEvent[5] = UnitHealth(sourceName)
+				thisEvent[6] = sourceName
 
 				i = i + 1
 				if (i == _amount_of_last_events+1) then
@@ -3476,32 +3479,33 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					t.n = i
 				end
 
-				este_jogador.last_cooldown = {time, spellid}
-
+				sourceActor.last_cooldown = {time, spellId}
 			end
-
 		end
 
 		--update last event
-		este_jogador.last_event = _tempo
+		sourceActor.last_event = _tempo
 
 		--actor targets
-		este_jogador.cooldowns_defensive_targets [alvo_name] = (este_jogador.cooldowns_defensive_targets [alvo_name] or 0) + 1
+		sourceActor.cooldowns_defensive_targets[targetName] = (sourceActor.cooldowns_defensive_targets [targetName] or 0) + 1
 
 		--actor spells table
-		local spell = este_jogador.cooldowns_defensive_spells._ActorTable [spellid]
-		if (not spell) then
-			spell = este_jogador.cooldowns_defensive_spells:PegaHabilidade (spellid, true, token)
+		local spellTable = sourceActor.cooldowns_defensive_spells._ActorTable[spellId]
+		if (not spellTable) then
+			spellTable = sourceActor.cooldowns_defensive_spells:PegaHabilidade(spellId, true, token)
 		end
 
 		if (_hook_cooldowns) then
 			--send event to registred functions
-			for _, func in ipairs(_hook_cooldowns_container) do
-				func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+			for i = 1, #_hook_cooldowns_container do
+				local successful, errorText = pcall(_hook_cooldowns_container[i], nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName)
+				if (not successful) then
+					_detalhes:Msg("error occurred on a cooldown hook function:", errorText)
+				end
 			end
 		end
 
-		return _spell_utility_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, token, "BUFF_OR_DEBUFF", "COOLDOWN")
+		return _spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, token, "BUFF_OR_DEBUFF", "COOLDOWN")
 	end
 
 	--serach key: ~interrupts
@@ -4029,49 +4033,49 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---number 6: emeny casted a spell
 	---@param token string
 	---@param time number
-	---@param who_serial string
-	---@param who_name string
-	---@param who_flags number
-	---@param alvo_serial string
-	---@param alvo_name string
-	---@param alvo_flags number
-	function parser:dead (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+	---@param sourceSerial string
+	---@param sourceName string
+	---@param sourceFlags number
+	---@param targetSerial string
+	---@param targetName string
+	---@param targetFlags number
+	function parser:dead (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
 	--early checks and fixes
-		if (not alvo_name) then
+		if (not targetName) then
 			return
 		end
 
 	------------------------------------------------------------------------------------------------
 	--build dead
 
-		local damageActor = _current_damage_container:GetActor(alvo_name)
+		local damageActor = _current_damage_container:GetActor(targetName)
 		--check for outsiders
-		if (_in_combat and alvo_flags and (not damageActor or (bitBand(alvo_flags, 0x00000008) ~= 0 and not damageActor.grupo))) then
+		if (_in_combat and targetFlags and (not damageActor or (bitBand(targetFlags, 0x00000008) ~= 0 and not damageActor.grupo))) then
 			--frags
-				if (_detalhes.only_pvp_frags and (bitBand(alvo_flags, 0x00000400) == 0 or (bitBand(alvo_flags, 0x00000040) == 0 and bitBand(alvo_flags, 0x00000020) == 0))) then --byte 2 = 4 (HOSTILE) byte 3 = 4 (OBJECT_TYPE_PLAYER)
+				if (_detalhes.only_pvp_frags and (bitBand(targetFlags, 0x00000400) == 0 or (bitBand(targetFlags, 0x00000040) == 0 and bitBand(targetFlags, 0x00000020) == 0))) then --byte 2 = 4 (HOSTILE) byte 3 = 4 (OBJECT_TYPE_PLAYER)
 					return
 				end
 
-				if (not _current_combat.frags [alvo_name]) then
-					_current_combat.frags [alvo_name] = 1
+				if (not _current_combat.frags [targetName]) then
+					_current_combat.frags [targetName] = 1
 				else
-					_current_combat.frags [alvo_name] = _current_combat.frags [alvo_name] + 1
+					_current_combat.frags [targetName] = _current_combat.frags [targetName] + 1
 				end
 
 				_current_combat.frags_need_refresh = true
 
 		--player death
-		elseif (not UnitIsFeignDeath (alvo_name)) then
+		elseif (not UnitIsFeignDeath(targetName)) then
 			if (
 				--player in your group
-				(bitBand(alvo_flags, AFFILIATION_GROUP) ~= 0 or (damageActor and damageActor.grupo)) and
+				(bitBand(targetFlags, AFFILIATION_GROUP) ~= 0 or (damageActor and damageActor.grupo)) and
 				--must be a player
-				bitBand(alvo_flags, OBJECT_TYPE_PLAYER) ~= 0 and
+				bitBand(targetFlags, OBJECT_TYPE_PLAYER) ~= 0 and
 				--must be in combat
 				_in_combat
 			) then
-				if (ignore_death[alvo_name]) then
-					ignore_death[alvo_name] = nil
+				if (ignore_death[targetName]) then
+					ignore_death[targetName] = nil
 					return
 				end
 
@@ -4082,11 +4086,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_current_gtotal [4].dead = _current_gtotal [4].dead + 1
 
 				--main actor no container de misc que ir� armazenar a morte
-				local thisPlayer, meu_dono = misc_cache [alvo_name]
+				local thisPlayer, meu_dono = misc_cache [targetName]
 				if (not thisPlayer) then --pode ser um desconhecido ou um pet
-					thisPlayer, meu_dono, who_name = _current_misc_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+					thisPlayer, meu_dono, sourceName = _current_misc_container:PegarCombatente (targetSerial, targetName, targetFlags, true)
 					if (not meu_dono) then --se n�o for um pet, adicionar no cache
-						misc_cache [alvo_name] = thisPlayer
+						misc_cache [targetName] = thisPlayer
 					end
 				end
 
@@ -4094,9 +4098,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				local eventsBeforePlayerDeath = {}
 
 				--get the table where is registered the last events before the player died
-				local recordedEvents = last_events_cache[alvo_name]
+				local recordedEvents = last_events_cache[targetName]
 				if (not recordedEvents) then
-					recordedEvents = _current_combat:CreateLastEventsTable(alvo_name)
+					recordedEvents = _current_combat:CreateLastEventsTable(targetName)
 				end
 
 				--lesses index = older / higher index = newer
@@ -4226,7 +4230,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					eventTable[3] = 0 --amount of damage or healing but in this case is 0
 					eventTable[4] = thisPlayer.last_cooldown[1] --when the event happened using unix time
 					eventTable[5] = 0 --player health when the event happened
-					eventTable[6] = alvo_name --source name
+					eventTable[6] = targetName --source name
 					eventsBeforePlayerDeath[#eventsBeforePlayerDeath+1] = eventTable
 				else
 					--no last cooldown found so just add a last cooldown used event with no spellId and time 0
@@ -4236,7 +4240,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					eventTable [3] = 0 --amount of damage or healing but in this case is 0
 					eventTable [4] = 0 --when the event happened using unix time
 					eventTable [5] = 0 --player health when the event happened
-					eventTable [6] = alvo_name --source name
+					eventTable [6] = targetName --source name
 					eventsBeforePlayerDeath[#eventsBeforePlayerDeath+1] = eventTable
 				end
 
@@ -4271,15 +4275,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 					["dead"] = true,
 					["last_cooldown"] = thisPlayer.last_cooldown,
-					["dead_at"] = combatElapsedTime
+					["dead_at"] = combatElapsedTime,
 				}
+
 				tinsert(_current_combat.last_events_tables, #_current_combat.last_events_tables+1, playerDeathTable)
 
 				if (_hook_deaths) then
 					--send event to registred functions
 					for _, func in ipairs(_hook_deaths_container) do
-						local copiedDeathTable = Details.CopyTable(playerDeathTable)
-						local successful, errortext = pcall(func, nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, copiedDeathTable, thisPlayer.last_cooldown, combatElapsedTime, maxHealth)
+						local successful, errortext = pcall(func, nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, playerDeathTable, thisPlayer.last_cooldown, combatElapsedTime, maxHealth)
 						if (not successful) then
 							_detalhes:Msg("error occurred on a death hook function:", errortext)
 						end
@@ -4298,9 +4302,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 						--get the elapsed time
 						local timeElapsed = GetTime() - _detalhes.tabela_overall:GetStartTime()
-						local minutos, segundos = floor(timeElapsed/60), floor(timeElapsed%60)
+						local minutes, seconds = floor(timeElapsed/60), floor(timeElapsed % 60)
 
-						overallDeathTable [6] = minutos.."m "..segundos.."s"
+						overallDeathTable [6] = minutes .. "m " .. seconds .. "s"
 						overallDeathTable.dead_at = timeElapsed
 
 						tinsert(_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables + 1, overallDeathTable)
@@ -4308,36 +4312,35 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 
 				--remove the player death events from the cache
-				last_events_cache[alvo_name] = nil
+				last_events_cache[targetName] = nil
 			end
 		end
 	end
 
-	function parser:environment (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, env_type, amount)
-
-		local spelid
+	function parser:environment(token, time, sourceSerial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, env_type, amount)
+		local spelId
 
 		if (env_type == "Falling") then
 			who_name = ENVIRONMENTAL_FALLING_NAME
-			spelid = 3
+			spelId = 3
 		elseif (env_type == "Drowning") then
 			who_name = ENVIRONMENTAL_DROWNING_NAME
-			spelid = 4
+			spelId = 4
 		elseif (env_type == "Fatigue") then
 			who_name = ENVIRONMENTAL_FATIGUE_NAME
-			spelid = 5
+			spelId = 5
 		elseif (env_type == "Fire") then
 			who_name = ENVIRONMENTAL_FIRE_NAME
-			spelid = 6
+			spelId = 6
 		elseif (env_type == "Lava") then
 			who_name = ENVIRONMENTAL_LAVA_NAME
-			spelid = 7
+			spelId = 7
 		elseif (env_type == "Slime") then
 			who_name = ENVIRONMENTAL_SLIME_NAME
-			spelid = 8
+			spelId = 8
 		end
 
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spelid or 1, env_type, 00000003, amount, -1, 1) --localize-me
+		return parser:spell_dmg(token, time, sourceSerial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spelId or 1, env_type, 00000003, amount, -1, 1)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -15,6 +15,9 @@ Details222.Mixins.ActorMixin = {
 
 		elseif (containerType == "spell") then
 			return self.spells
+
+		elseif (containerType == "cooldowns") then
+			return self.cooldowns_defensive_spells
 		end
 
 	end,

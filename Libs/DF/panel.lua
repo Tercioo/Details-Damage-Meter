@@ -7316,7 +7316,6 @@ detailsFramework.StatusBarFunctions = {
 			self:UpdateHealPrediction()
 		end
 
-
 -- ~healthbar
 function detailsFramework:CreateHealthBar (parent, name, settingsOverride)
 
