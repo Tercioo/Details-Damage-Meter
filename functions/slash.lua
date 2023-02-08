@@ -2359,7 +2359,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					local totalMembers, onlineMembers, onlineAndMobileMembers = GetNumGuildMembers()
 					local realmName = GetRealmName()
 					--create a string to use into the gsub call when removing the realm name from the player name, by default all player names returned from GetGuildRosterInfo() has PlayerName-RealmName format
-					local realmNameGsub = "%-" .. realmName
+					local realmNameGsub = "%-.*"
 					local guildName = GetGuildInfo("player")
 
 					if (guildName) then
