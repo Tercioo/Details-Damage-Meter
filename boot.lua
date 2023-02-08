@@ -7,8 +7,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10410
-		_detalhes.alpha_build_counter = 10410 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10561
+		_detalhes.alpha_build_counter = 10561 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -91,20 +91,34 @@ do
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
+	--Framework Updates including GameCooltip now supports and secondary frame for tooltips.
+	--When a player dies, the death callback hooks will now send the regular death log table instead of a copy of it.
 
 	--Fixed load errors on Wrath.
 	--Fixed enemy cast time in the death tooltip sometimes showing off time.
 	--Allow negative offsets on Aligned Text Columns (Flamanis).
-	--Remove multi-spec entries for shaman guessing (Flamanis).
+	--Fixed Shaman and Warrior spec detection (Flamanis).
 	--More Demon hunter abilities added to be merged (Flamanis).
 	--Added duck polymorph to Mage CCs (Flamanis).
-	--Fixed offline player showing as party members in the /keys panel (Flamanis).
+	--Fixed offline player showing as party members in the /keys panel and players from other realms not caching (Flamanis).
 	--Fixed an issue with some options not updating when the window is selected at the bottom right corner of the options panel (Flamanis).
-
+	--Fixed some issues with the breakdown window for 'Damage Taken' (Flamanis).
+	--Fixed an issue where sometimes the 'Always Show Me' wouldn't show if the total bar is enabled (Ricodyn).
 
 	local news = {
-		{"v10.0.2.10333.147", "Jan 04th, 2023"},
+		{"v10.0.2.10333.147", "Feb 08th, 2023"},
+		"Fixed load errors on Wrath.",
+		"Fixed enemy cast time in the death tooltip sometimes showing off time.",
+		"Allow negative offsets on Aligned Text Columns (Flamanis).",
+		"Fixed Shaman and Warrior spec detection (Flamanis).",
+		"More Demon hunter abilities added to be merged (Flamanis).",
+		"Added duck polymorph to Mage CCs (Flamanis).",
+		"Fixed offline player showing as party members in the /keys panel and players from other realms not caching (Flamanis).",
+		"Fixed an issue with some options not updating when the window is selected at the bottom right corner of the options panel (Flamanis).",
+		"Fixed some issues with the breakdown window for 'Damage Taken' (Flamanis).",
+		"Fixed an issue where sometimes the 'Always Show Me' wouldn't show if the total bar is enabled (Ricodyn).",
 
+		{"v10.0.2.10333.147", "Jan 04th, 2023"},
 		"Enemy Cast (non-interrupted) now is shown in the death log.",
 		"Damage Done by Blessing of Winter and Summer now counts torward the paladin.",
 		"Tooltips for Mythic Dungeon segments in the segments menu, now brings more information about the combat.",

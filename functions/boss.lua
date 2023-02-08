@@ -390,24 +390,36 @@ do
 		return _detalhes.EncounterInformation [mapid] and true
 	end
 
+	--this cache is local and isn't shared with other components of the addon
+	local expansionBossList_Cache = {build = false}
 
-	function Details:GetExpansionBossList() --~bosslist
+	function Details:GetExpansionBossList() --~bosslist - load on demand from gears-gsync and statistics-valid boss for exp
+		if (expansionBossList_Cache.build) then
+			return expansionBossList_Cache.bossIndexedTable, expansionBossList_Cache.bossInfoTable, expansionBossList_Cache.raidInfoTable
+		end
+
 		local bossIndexedTable = {}
 		local bossInfoTable = {} --[bossId] = bossInfo
 		local raidInfoTable = {}
 
+		--check if can load the adventure guide on demand
 		if (not EncounterJournal_LoadUI) then
 			return bossIndexedTable, bossInfoTable, raidInfoTable
-		end
 
-		if (not EncounterJournal) then
-			EncounterJournal_LoadUI()
+		--don't load if details! isn't full loaded
+		elseif (not Details.AddOnStartTime) then
+			return bossIndexedTable, bossInfoTable, raidInfoTable
+
+		--don't load at login where other addons are still getting their stuff processing
+		elseif (Details.AddOnStartTime + 10 > GetTime()) then
+			return bossIndexedTable, bossInfoTable, raidInfoTable
 		end
 
 		for instanceIndex = 10, 2, -1 do
 			local raidInstanceID, instanceName, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID = EJ_GetInstanceByIndex(instanceIndex, true)
 			if (raidInstanceID) then
-				EncounterJournal_DisplayInstance(raidInstanceID)
+				--EncounterJournal_DisplayInstance(raidInstanceID)
+				EJ_SelectInstance(raidInstanceID)
 
 				raidInfoTable[raidInstanceID] = {
 					raidName = instanceName,
@@ -425,7 +437,7 @@ do
 				}
 
 				for i = 20, 1, -1 do
-					local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = _G.EJ_GetEncounterInfoByIndex(i, raidInstanceID)
+					local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = EJ_GetEncounterInfoByIndex(i, raidInstanceID)
 					if (name) then
 						local id, creatureName, creatureDescription, displayInfo, iconImage = EJ_GetCreatureInfo(1, journalEncounterID)
 						local thisbossIndexedTable = {
@@ -447,6 +459,17 @@ do
 				end
 			end
 		end
+
+		expansionBossList_Cache.bossIndexedTable = bossIndexedTable
+		expansionBossList_Cache.bossInfoTable = bossInfoTable
+		expansionBossList_Cache.raidInfoTable = raidInfoTable
+		expansionBossList_Cache.build = true
+
+		C_Timer.After(0.5, function()
+			if (EncounterJournal_ResetDisplay) then
+				EncounterJournal_ResetDisplay(nil, "none")
+			end
+		end)
 
 		return bossIndexedTable, bossInfoTable, raidInfoTable
 	end
@@ -556,26 +579,62 @@ do
 			--check if the encounter journal added is loaded
 			if (not EncounterJournal) then
 				--local startTime = debugprofilestop()
-				EncounterJournal_LoadUI()
+				--[[EncounterJournal_LoadUI()]]
 				--local endTime = debugprofilestop()
 				--print("DE loading EJ:", endTime - startTime)
 			end
 
-			hooksecurefunc("EncounterJournal_OpenJournalLink", Details222.EJCache.OnClickEncounterJournalLink)
+			--[[hooksecurefunc("EncounterJournal_OpenJournalLink", Details222.EJCache.OnClickEncounterJournalLink)]]
 
-			do
-				--iterate among all raid instances, by passing true in the second argument of EJ_GetInstanceByIndex, indicates to the API we want to get raid instances
-				local bGetRaidInstances = true
+			---iterate among all raid instances, by passing true in the second argument of EJ_GetInstanceByIndex, indicates to the API we want to get raid instances
+			---@type boolean
+			local bGetRaidInstances = true
 
-				EncounterJournalRaidTab:Click()
-				EncounterJournal_TierDropDown_Select(_, 10) --select Dragonflight
+			---returns the number of valid encounter journal tier indices
+			---@type number
+			local tierAmount = EJ_GetNumTiers()
 
-				for instanceIndex = 10, 2, -1 do
+			---returns the currently active encounter journal tier index
+			---@type number
+			local currentTier = EJ_GetCurrentTier()
+
+			---increment this each expansion
+			---@type number
+			local currentTierId = 10 --maintenance
+
+			---is the id of where it shows the mythic+ dungeons available for the season
+			---can be found in the adventure guide in the dungeons tab > dropdown
+			---@type number
+			local currentMythicPlusTierId = 11 --maintenance
+
+			---maximum amount of raid tiers in the expansion
+			---@type number
+			local maxAmountOfRaidTiers = 10
+
+			---maximum amount of dungeons in the expansion
+			---@type number
+			local maxAmountOfDungeons = 20
+
+			---the index of the first raid tier in the expansion, ignoring the first tier as it is open world bosses
+			---@type number
+			local raidTierStartIndex = 2
+
+			---max amount of bosses which a raid tier can have
+			---@type number
+			local maxRaidBosses = 20
+
+			do --get raid instances data
+				--EncounterJournalRaidTab:Click()
+				--EncounterJournal_TierDropDown_Select(_, 10) --select Dragonflight
+				EJ_SelectTier(currentTierId)
+
+				for instanceIndex = maxAmountOfRaidTiers, raidTierStartIndex, -1 do
 					local journalInstanceID, instanceName, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID = EJ_GetInstanceByIndex(instanceIndex, bGetRaidInstances)
 
 					if (journalInstanceID) then
 						--tell the encounter journal to display the raid instance by the instanceId
-						EncounterJournal_DisplayInstance(journalInstanceID)
+						--EncounterJournal_DisplayInstance(journalInstanceID)
+						EJ_SelectInstance(journalInstanceID)
 
 						--build a table with data of the raid instance
 						local instanceData = {
@@ -607,10 +666,10 @@ do
 						Details222.EJCache.CacheRaidData_ByInstanceName[instanceName] = instanceData
 						Details222.EJCache.CacheRaidData_ByMapId[dungeonAreaMapID] = instanceData
 
-						for encounterIndex = 1, 20 do
-							local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = _G.EJ_GetEncounterInfoByIndex(encounterIndex, journalInstanceID)
-							if (name) then
+						for encounterIndex = 1, maxRaidBosses do
+							local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = EJ_GetEncounterInfoByIndex(encounterIndex, journalInstanceID)
 
+							if (name) then
 								local encounterData = {
 									name = name,
 									mapId = dungeonAreaMapID,
@@ -639,17 +698,20 @@ do
 				end
 			end
 
-			do
-				local bGetRaidInstances = false
-				EncounterJournalDungeonTab:Click()
-				EncounterJournal_TierDropDown_Select(_, 11) --select mythic+
+			do --get current expansion dungeon instances data and mythic+ data
+				bGetRaidInstances = false
+				--EncounterJournalDungeonTab:Click()
+				--EncounterJournal_TierDropDown_Select(_, 11) --select mythic+
 
-				for instanceIndex = 20, 1, -1 do
+				--get mythic+ dungeon data
+				EJ_SelectTier(currentMythicPlusTierId)
+
+				for instanceIndex = maxAmountOfDungeons, 1, -1 do
 					local journalInstanceID, instanceName, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID = EJ_GetInstanceByIndex(instanceIndex, bGetRaidInstances)
-
 					if (journalInstanceID) then
 						--tell the encounter journal to display the dungeon instance by the instanceId
-						EncounterJournal_DisplayInstance(journalInstanceID)
+						--EncounterJournal_DisplayInstance(journalInstanceID)
+						EJ_SelectInstance(journalInstanceID)
 
 						--build a table with data of the raid instance
 						local instanceData = {
@@ -684,8 +746,8 @@ do
 						--iterate among all encounters of the dungeon instance
 						for encounterIndex = 1, 20 do
 							local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = _G.EJ_GetEncounterInfoByIndex(encounterIndex, journalInstanceID)
-							if (name) then
 
+							if (name) then
 								local encounterData = {
 									name = name,
 									mapId = dungeonAreaMapID,
@@ -713,14 +775,17 @@ do
 					end
 				end
 
-				EncounterJournal_TierDropDown_Select(_, 10) --select Dragonflight
+				--EncounterJournal_TierDropDown_Select(_, 10) --select Dragonflight
+				--get current expansion dungeons data
+				EJ_SelectTier(currentTierId)
 
 				for instanceIndex = 20, 1, -1 do
 					local journalInstanceID, instanceName, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID = EJ_GetInstanceByIndex(instanceIndex, bGetRaidInstances)
 
 					if (journalInstanceID and not Details222.EJCache.CacheDungeonData_ByInstanceId[journalInstanceID]) then
 						--tell the encounter journal to display the dungeon instance by the instanceId
-						EncounterJournal_DisplayInstance(journalInstanceID)
+						--EncounterJournal_DisplayInstance(journalInstanceID)
+						EJ_SelectInstance(journalInstanceID)
 
 						--build a table with data of the raid instance
 						local instanceData = {
@@ -787,7 +852,9 @@ do
 
 			--reset the dungeon journal to the default state
 			C_Timer.After(0.5, function()
-				EncounterJournal_ResetDisplay(nil, "none")
+				if (EncounterJournal_ResetDisplay) then
+					EncounterJournal_ResetDisplay(nil, "none")
+				end
 			end)
 
 			--EncounterJournal_OpenJournalLink(tag, jtype, id, difficultyID)
@@ -799,11 +866,9 @@ do
 			if (not EncounterJournal_LoadUI) then
 				return
 			end
+
 			createEJCache()
 		end)
-
-		--local tooltipInfo = CreateBaseTooltipInfo("GetHyperlink", link, classID, specID);
-
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
