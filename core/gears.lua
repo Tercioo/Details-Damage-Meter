@@ -3317,10 +3317,12 @@ function Details222.Cache.DoMaintenance()
 		Details.latest_encounter_spell_pool_access = currentTime
 	end
 
-	if (currentTime > Details.boss_mods_timers.latest_boss_mods_access + delay) then
-		wipe(Details.boss_mods_timers.encounter_timers_bw)
-		wipe(Details.boss_mods_timers.encounter_timers_dbm)
-		Details.boss_mods_timers.latest_boss_mods_access = currentTime
+	if (Details.boss_mods_timers and Details.boss_mods_timers.latest_boss_mods_access) then
+		if (currentTime > Details.boss_mods_timers.latest_boss_mods_access + delay) then
+			wipe(Details.boss_mods_timers.encounter_timers_bw)
+			wipe(Details.boss_mods_timers.encounter_timers_dbm)
+			Details.boss_mods_timers.latest_boss_mods_access = currentTime
+		end
 	end
 
 	--latest_shield_spellid_cache_access
