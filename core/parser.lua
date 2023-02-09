@@ -5816,7 +5816,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.can_panic_mode = true
 		end
 
-		if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and _detalhes.tabela_instancias and getmetatable(_detalhes.tabela_instancias[1])) then
+		if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias and _detalhes.tabela_instancias[1] and getmetatable(_detalhes.tabela_instancias[1])) then
 			tinsert(_detalhes_global.exit_log, "4 - Reversing switches.")
 			currentStep = "Check Switch on Logon"
 			xpcall(_detalhes.CheckSwitchOnLogon, saver_error)
