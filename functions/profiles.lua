@@ -1839,6 +1839,12 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 	if (dataTable) then
 
 		local profileObject = Details:GetProfile (newProfileName, false)
+		local nameWasDuplicate = false
+		while(profileObject) do
+			newProfileName = newProfileName .. '2';
+			profileObject = Details:GetProfile(newProfileName, false)
+			nameWasDuplicate = true
+		end
 		if (not profileObject) then
 			--profile doesn't exists, create new
 			profileObject = Details:CreateProfile (newProfileName)
@@ -1929,7 +1935,11 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 			DetailsFramework.table.copy(instance.hide_on_context, Details.instance_defaults.hide_on_context)
 		end
 
-		Details:Msg("profile successfully imported.")--localize-me
+		if(nameWasDuplicate) then
+			Details:Msg("profile name already exists and was imported as:", newProfileName)--localize-me
+		else
+			Details:Msg("profile successfully imported.")--localize-me
+		end
 		return true
 	else
 		Details:Msg("failed to decompress profile data.")--localize-me
