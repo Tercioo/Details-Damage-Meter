@@ -3509,117 +3509,121 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--serach key: ~interrupts
-	function parser:interrupt (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
-
-	------------------------------------------------------------------------------------------------
-	--early checks and fixes
-
+	---comment: this function is called when a spell is interrupted
+	---@param token string
+	---@param time number
+	---@param sourceSerial string
+	---@param sourceName string
+	---@param sourceFlags number
+	---@param targetSerial string
+	---@param targetName string
+	---@param targetFlags number
+	---@param targetFlags2 number
+	---@param spellId number
+	---@param spellName string
+	---@param spellType number
+	---@param extraSpellID number
+	---@param extraSpellName string
+	---@param extraSchool number
+	function parser:interrupt(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 		--quake affix from mythic+
-		if (spellid == 240448) then
+		if (spellId == 240448) then
 			return
 		end
 
-		if (not who_name) then
-			who_name = "[*] "..spellname
-		elseif (not alvo_name) then
-			return
-		end
+		if (not sourceName) then
+			sourceName = "[*] "..spellName
 
-		--development honey pot for interrupt spells
-		if (TrackerCleuDB and TrackerCleuDB.honey_pot) then
-			TrackerCleuDB.honey_pot[spellid] = true
+		elseif (not targetName) then
+			return
 		end
 
 		_current_misc_container.need_refresh = true
 
 	------------------------------------------------------------------------------------------------
 	--get actors
-
 		--main actor
-		local este_jogador, meu_dono = misc_cache [who_name]
-		if (not este_jogador) then --pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
-				misc_cache [who_name] = este_jogador
+		local sourceActor, ownerActor = misc_cache[sourceName], nil
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+			if (not ownerActor) then
+				misc_cache[sourceName] = sourceActor
 			end
 		end
 
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly
-
-		if (not este_jogador.interrupt) then
-			este_jogador.interrupt = _detalhes:GetOrderNumber(who_name)
-			este_jogador.interrupt_targets = {}
-			este_jogador.interrupt_spells = container_habilidades:NovoContainer (container_misc)
-			este_jogador.interrompeu_oque = {}
+		if (not sourceActor.interrupt) then
+			sourceActor.interrupt = _detalhes:GetOrderNumber(sourceName)
+			sourceActor.interrupt_targets = {}
+			sourceActor.interrupt_spells = container_habilidades:NovoContainer(container_misc)
+			sourceActor.interrompeu_oque = {}
 		end
 
 	------------------------------------------------------------------------------------------------
 	--add amount
 
 		--actor interrupt amount
-		este_jogador.interrupt = este_jogador.interrupt + 1
+		sourceActor.interrupt = sourceActor.interrupt + 1
 
 		--combat totals
-		_current_total [4].interrupt = _current_total [4].interrupt + 1
+		_current_total[4].interrupt = _current_total[4].interrupt + 1
 
-		if (este_jogador.grupo) then
-			_current_gtotal [4].interrupt = _current_gtotal [4].interrupt + 1
+		if (sourceActor.grupo) then
+			_current_gtotal[4].interrupt = _current_gtotal[4].interrupt + 1
 		end
 
 		--update last event
-		este_jogador.last_event = _tempo
+		sourceActor.last_event = _tempo
 
 		--spells interrupted
-		este_jogador.interrompeu_oque [extraSpellID] = (este_jogador.interrompeu_oque [extraSpellID] or 0) + 1
+		sourceActor.interrompeu_oque[extraSpellID] = (sourceActor.interrompeu_oque[extraSpellID] or 0) + 1
 
 		--actor targets
-		este_jogador.interrupt_targets [alvo_name] = (este_jogador.interrupt_targets [alvo_name] or 0) + 1
+		sourceActor.interrupt_targets[targetName] = (sourceActor.interrupt_targets[targetName] or 0) + 1
 
 		--actor spells table
-		local spell = este_jogador.interrupt_spells._ActorTable [spellid]
+		local spell = sourceActor.interrupt_spells._ActorTable[spellId]
 		if (not spell) then
-			spell = este_jogador.interrupt_spells:PegaHabilidade (spellid, true, token)
+			spell = sourceActor.interrupt_spells:PegaHabilidade(spellId, true, token)
 		end
-		_spell_utility_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		_spell_utility_func(spell, targetSerial, targetName, targetFlags, sourceName, token, extraSpellID, extraSpellName)
 
 		--verifica se tem dono e adiciona o interrupt para o dono
-		if (meu_dono) then
-
-			if (not meu_dono.interrupt) then
-				meu_dono.interrupt = _detalhes:GetOrderNumber(who_name)
-				meu_dono.interrupt_targets = {}
-				meu_dono.interrupt_spells = container_habilidades:NovoContainer (container_misc)
-				meu_dono.interrompeu_oque = {}
+		if (ownerActor) then
+			if (not ownerActor.interrupt) then
+				ownerActor.interrupt = _detalhes:GetOrderNumber(sourceName)
+				ownerActor.interrupt_targets = {}
+				ownerActor.interrupt_spells = container_habilidades:NovoContainer(container_misc)
+				ownerActor.interrompeu_oque = {}
 			end
 
 			-- adiciona ao total
-			meu_dono.interrupt = meu_dono.interrupt + 1
+			ownerActor.interrupt = ownerActor.interrupt + 1
 
 			-- adiciona aos alvos
-			meu_dono.interrupt_targets [alvo_name] = (meu_dono.interrupt_targets [alvo_name] or 0) + 1
+			ownerActor.interrupt_targets[targetName] = (ownerActor.interrupt_targets[targetName] or 0) + 1
 
 			-- update last event
-			meu_dono.last_event = _tempo
+			ownerActor.last_event = _tempo
 
 			-- spells interrupted
-			meu_dono.interrompeu_oque [extraSpellID] = (meu_dono.interrompeu_oque [extraSpellID] or 0) + 1
+			ownerActor.interrompeu_oque[extraSpellID] = (ownerActor.interrompeu_oque[extraSpellID] or 0) + 1
 
 			--pet interrupt
 			if (_hook_interrupt) then
 				for _, func in ipairs(_hook_interrupt_container) do
-					func (nil, token, time, meu_dono.serial, meu_dono.nome, meu_dono.flag_original, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+					func(nil, token, time, ownerActor.serial, ownerActor.nome, ownerActor.flag_original, targetSerial, targetName, targetFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 				end
 			end
 		else
 			--player interrupt
 			if (_hook_interrupt) then
 				for _, func in ipairs(_hook_interrupt_container) do
-					func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+					func(nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 				end
 			end
 		end
-
 	end
 
 	--search key: ~spellcast ~castspell ~cast

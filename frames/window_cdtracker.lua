@@ -273,7 +273,12 @@ end
             local unitInfo = openRaidLib.GetUnitInfo(unitId)
             local filterName = false
 
-            if (unitInfo) then
+            local classId = unitInfo and unitInfo.classId
+            if (unitInfo and not classId) then
+                classId = select(3, UnitClass(unitInfo.nameFull))
+            end
+
+            if (unitInfo and classId) then
                 local allCooldownFrames = Details222.CooldownTracking.GetAllCooldownFrames()
 
                 for spellId, cooldownInfo in pairs(unitCooldowns) do
@@ -290,7 +295,7 @@ end
                     Details222.CooldownTracking.SetupCooldownLine(cooldownLine)
 
                     --add the cooldown into the organized by class table
-                    tinsert(cooldownsOrganized[unitInfo.classId], cooldownLine)
+                    tinsert(cooldownsOrganized[classId], cooldownLine)
 
                     --iterate to the next cooldown line
                     cooldownFrame.nextLineId = cooldownFrame.nextLineId + 1
