@@ -345,7 +345,14 @@
 
 	--list of ignored npcs by the user
 	_detalhes.default_ignored_npcs = {
-		--empty!
+		--DH Havoc Talent Fodder to the Flame
+		[169421] = true,
+		[169425] = true,
+		[168932] = true,
+		[169426] = true,
+		[169429] = true,
+		[169428] = true,
+		[169430] = true,
 	}
 
 	local ignored_npcids = {}
