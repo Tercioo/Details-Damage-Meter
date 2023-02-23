@@ -1917,6 +1917,19 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_SIZE"],
                 desc = Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"],
             },
+            {--text yoffset  
+                type = "range",
+                get = function() return currentInstance.row_info.text_yoffset end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                min = -10,
+                max = 10,
+                step = 1,
+                name = "Text Y Offset", -- Loc ["STRING_OPTIONS_TEXT_YOFFSET"]
+                desc = "Change the vertical offset for both left and right texts.", -- Loc ["STRING_OPTIONS_TEXT_YOFFSET_DESC"]
+            },
             {--text font 3
                 type = "select",
                 get = function() return currentInstance.row_info.font_face end,
@@ -2003,6 +2016,19 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"],
+            },
+            {--text offset  
+                type = "range",
+                get = function() return currentInstance.row_info.textL_offset end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                min = -10,
+                max = 50,
+                step = 1,
+                name = "Offset", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET"]
+                desc = "Change the horizontal offset.", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET_DESC"]
             },
 
             {type = "blank"}, --13
