@@ -803,6 +803,7 @@ local function move_janela(baseframe, iniciando, instancia, just_updating)
 				instancia_alvo:SaveMainWindowPosition()
 				instancia_alvo:RestoreMainWindowPosition()
 
+				instancia_alvo:ShutDown()
 				Details.FadeHandler.Fader(instancia_alvo.baseframe, 1)
 				Details.FadeHandler.Fader(instancia_alvo.rowframe, parseRowFrameAlpha(1))
 				Details.FadeHandler.Fader(instancia_alvo.baseframe.cabecalho.ball, 1)
