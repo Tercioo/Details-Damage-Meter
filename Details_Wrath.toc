@@ -21,6 +21,8 @@ locales\Details-ruRU.lua
 locales\Details-zhCN.lua
 locales\Details-zhTW.lua
 
+Definitions.lua
+
 boot.lua
 indent.lua
 core\util.lua
