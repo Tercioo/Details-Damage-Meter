@@ -288,6 +288,8 @@
 		return m, s
 	end
 
+	---return the amount of time the combat has elapsed
+	---@return number
 	function combate:GetCombatTime()
 		if (self.end_time) then
 			return _math_max (self.end_time - self.start_time, 0.1)
@@ -301,21 +303,44 @@
 	function combate:GetStartTime()
 		return self.start_time
 	end
-	function combate:SetStartTime (t)
-		self.start_time = t
+	function combate:SetStartTime(thisTime)
+		self.start_time = thisTime
 	end
 
 	function combate:GetEndTime()
 		return self.end_time
 	end
-	function combate:SetEndTime (t)
-		self.end_time = t
+	function combate:SetEndTime(thisTime)
+		self.end_time = thisTime
+	end
+
+	---copy deaths from combat2 into combat1
+	---if bMythicPlus is true it'll check if the death has mythic plus death time and use it instead of the normal death time
+	---@param combat1 combat 
+	---@param combat2 combat
+	---@param bMythicPlus boolean
+	function combate.CopyDeathsFrom(combat1, combat2, bMythicPlus)
+		local deathsTable = combat1:GetDeaths()
+		local deathsToCopy = combat2:GetDeaths()
+
+		for i = 1, #deathsToCopy do
+			local thisDeath = DetailsFramework.table.copy({}, deathsToCopy[i])
+
+			if (bMythicPlus and thisDeath.mythic_plus) then
+				thisDeath[6] = thisDeath.mythic_plus_dead_at_string
+				thisDeath.dead_at = thisDeath.mythic_plus_dead_at
+			end
+
+			deathsTable[#deathsTable+1] = thisDeath
+		end
+
+		print("Details! - debug - CopyDeathsFrom() success!")
 	end
 
 	--return the total of a specific attribute
 	local power_table = {0, 1, 3, 6, 0, "alternatepower"}
 
-	function combate:GetTotal (attribute, subAttribute, onlyGroup)
+	function combate:GetTotal(attribute, subAttribute, onlyGroup)
 		if (attribute == 1 or attribute == 2) then
 			if (onlyGroup) then
 				return self.totals_grupo [attribute]
