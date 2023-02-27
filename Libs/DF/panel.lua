@@ -3517,24 +3517,24 @@ local tab_container_on_show = function(self)
 	self.SelectIndex (self.AllButtons[index], nil, index)
 end
 
-function detailsFramework:CreateTabContainer (parent, title, frame_name, frameList, options_table, hookList)
+function detailsFramework:CreateTabContainer (parent, title, frameName, frameList, optionsTable, hookList, languageInfo)
 	local options_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
 	local options_dropdown_template = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 	local options_switch_template = detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
 	local options_slider_template = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
 	local options_button_template = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
-	options_table = options_table or {}
+	optionsTable = optionsTable or {}
 	local parentFrameWidth = parent:GetWidth()
-	local y_offset = options_table.y_offset or 0
-	local buttonWidth = options_table.button_width or 160
-	local buttonHeight = options_table.button_height or 20
-	local buttonAnchorX = options_table.button_x or 230
-	local buttonAnchorY = options_table.button_y or -32
-	local button_text_size = options_table.button_text_size or 10
-	local containerWidthOffset = options_table.container_width_offset or 0
+	local y_offset = optionsTable.y_offset or 0
+	local buttonWidth = optionsTable.button_width or 160
+	local buttonHeight = optionsTable.button_height or 20
+	local buttonAnchorX = optionsTable.button_x or 230
+	local buttonAnchorY = optionsTable.button_y or -32
+	local button_text_size = optionsTable.button_text_size or 10
+	local containerWidthOffset = optionsTable.container_width_offset or 0
 
-	local mainFrame = CreateFrame("frame", frame_name, parent.widget or parent, "BackdropTemplate")
+	local mainFrame = CreateFrame("frame", frameName, parent.widget or parent, "BackdropTemplate")
 	mainFrame:SetAllPoints()
 	detailsFramework:Mixin(mainFrame, detailsFramework.TabContainerFunctions)
 	mainFrame.hookList = hookList or {}
@@ -3548,50 +3548,69 @@ function detailsFramework:CreateTabContainer (parent, title, frame_name, frameLi
 	mainFrame.AllButtons = {}
 	mainFrame.CurrentIndex = 1
 	mainFrame.IsContainer = true
-	mainFrame.ButtonSelectedBorderColor = options_table.button_selected_border_color or {1, 1, 0, 1}
-	mainFrame.ButtonNotSelectedBorderColor = options_table.button_border_color or {0, 0, 0, 0}
+	mainFrame.ButtonSelectedBorderColor = optionsTable.button_selected_border_color or {1, 1, 0, 1}
+	mainFrame.ButtonNotSelectedBorderColor = optionsTable.button_border_color or {0, 0, 0, 0}
 
-	if (options_table.right_click_interact ~= nil) then
-		mainFrame.CanCloseWithRightClick = options_table.right_click_interact
+	if (optionsTable.right_click_interact ~= nil) then
+		mainFrame.CanCloseWithRightClick = optionsTable.right_click_interact
 	else
 		mainFrame.CanCloseWithRightClick = true
 	end
 
-	for i, frame in ipairs(frameList) do
-		local f = CreateFrame("frame", "$parent" .. frame.name, mainFrame, "BackdropTemplate")
+	--languageInfo
+	local addonId = languageInfo.language_addonId
+	local languageTable = DetailsFramework.Language.GetLanguageTable(addonId)
+
+	for i, frameInfo in ipairs(frameList) do
+		local f = CreateFrame("frame", "$parent" .. frameInfo.name, mainFrame, "BackdropTemplate")
 		f:SetAllPoints()
 		f:SetFrameLevel(210)
 		f:Hide()
 
-		local title = detailsFramework:CreateLabel(f, frame.title, 16, "silver")
+		--attempt to get the localized text from the language system using the addonId and the frameInfo.title
+		local phraseId = frameInfo.title
+		local bIsLanguagePrahseID = detailsFramework.Language.DoesPhraseIDExistsInDefaultLanguage(addonId, phraseId)
+
+		local title = detailsFramework:CreateLabel(f, "", 16, "silver")
+		if (bIsLanguagePrahseID) then
+			DetailsFramework.Language.RegisterObjectWithDefault(addonId, title.widget, frameInfo.title, frameInfo.title)
+		else
+			title:SetText(frameInfo.title)
+		end
+
 		title:SetPoint("topleft", mainTitle, "bottomleft", 0, 0)
 		f.titleText = title
 
-		local tabButton = detailsFramework:CreateButton(mainFrame, detailsFramework.TabContainerFunctions.SelectIndex, buttonWidth, buttonHeight, frame.title, i, nil, nil, nil, "$parentTabButton" .. frame.name, false, button_tab_template)
+		local tabButton = detailsFramework:CreateButton(mainFrame, detailsFramework.TabContainerFunctions.SelectIndex, buttonWidth, buttonHeight, frameInfo.title, i, nil, nil, nil, "$parentTabButton" .. frameInfo.name, false, button_tab_template)
+
+		if (bIsLanguagePrahseID) then
+			DetailsFramework.Language.RegisterObjectWithDefault(addonId, tabButton.widget, frameInfo.title, frameInfo.title)
+		end
+
 		PixelUtil.SetSize(tabButton, buttonWidth, buttonHeight)
 		tabButton:SetFrameLevel(220)
 		tabButton.textsize = button_text_size
 		tabButton.mainFrame = mainFrame
-		detailsFramework.TabContainerFunctions.CreateUnderlineGlow (tabButton)
+		detailsFramework.TabContainerFunctions.CreateUnderlineGlow(tabButton)
 
-		local right_click_to_back
-		if (i == 1 or options_table.rightbutton_always_close) then
-			right_click_to_back = detailsFramework:CreateLabel(f, "right click to close", 10, "gray")
-			right_click_to_back:SetPoint("bottomright", f, "bottomright", -1, options_table.right_click_y or 0)
-			if (options_table.close_text_alpha) then
-				right_click_to_back:SetAlpha(options_table.close_text_alpha)
+		local rightClickToBack
+		if (i == 1 or optionsTable.rightbutton_always_close) then
+			rightClickToBack = detailsFramework:CreateLabel(f, "right click to close", 10, "gray")
+			rightClickToBack:SetPoint("bottomright", f, "bottomright", -1, optionsTable.right_click_y or 0)
+			if (optionsTable.close_text_alpha) then
+				rightClickToBack:SetAlpha(optionsTable.close_text_alpha)
 			end
 			f.IsFrontPage = true
 		else
-			right_click_to_back = detailsFramework:CreateLabel(f, "right click to go back to main menu", 10, "gray")
-			right_click_to_back:SetPoint("bottomright", f, "bottomright", -1, options_table.right_click_y or 0)
-			if (options_table.close_text_alpha) then
-				right_click_to_back:SetAlpha(options_table.close_text_alpha)
+			rightClickToBack = detailsFramework:CreateLabel(f, "right click to go back to main menu", 10, "gray")
+			rightClickToBack:SetPoint("bottomright", f, "bottomright", -1, optionsTable.right_click_y or 0)
+			if (optionsTable.close_text_alpha) then
+				rightClickToBack:SetAlpha(optionsTable.close_text_alpha)
 			end
 		end
 
-		if (options_table.hide_click_label) then
-			right_click_to_back:Hide()
+		if (optionsTable.hide_click_label) then
+			rightClickToBack:Hide()
 		end
 
 		f:SetScript("OnMouseDown", detailsFramework.TabContainerFunctions.OnMouseDown)
@@ -3628,6 +3647,7 @@ function detailsFramework:CreateTabContainer (parent, title, frame_name, frameLi
 	--select the first frame
 	mainFrame.SelectIndex (mainFrame.AllButtons[1], nil, 1)
 
+	print()
 	return mainFrame
 end
 

@@ -37,6 +37,7 @@ DF:Mixin(DropDownMetaFunctions, DF.SetPointMixin)
 DF:Mixin(DropDownMetaFunctions, DF.FrameMixin)
 DF:Mixin(DropDownMetaFunctions, DF.TooltipHandlerMixin)
 DF:Mixin(DropDownMetaFunctions, DF.ScriptHookMixin)
+DF:Mixin(DropDownMetaFunctions, DF.Language.LanguageMixin)
 
 ------------------------------------------------------------------------------------------------------------
 --metatables
@@ -492,7 +493,28 @@ function DropDownMetaFunctions:Selected(thisOption)
 	self.last_select = thisOption
 	self:NoOption(false)
 
-	self.label:SetText(thisOption.label)
+	local addonId = self.addonId
+	local languageId = thisOption.languageId
+	local phraseId = thisOption.phraseId
+
+	local overrideFont
+	if (addonId) then
+		local thisLanguageId = languageId or DF.Language.GetLanguageIdForAddonId(addonId)
+		if (thisLanguageId) then
+			if (thisLanguageId ~= self.label.languageId) then
+				local newFont = DF.Language.GetFontForLanguageID(thisLanguageId)
+				self.label.languageId = thisLanguageId
+				overrideFont = newFont
+			end
+		end
+  	end
+
+	if (addonId and phraseId) then
+		self.label:SetText(DF.Language.GetText(addonId, phraseId))
+	else
+		self.label:SetText(thisOption.label)
+	end
+
 	self.icon:SetTexture(thisOption.icon)
 
 	if (thisOption.icon) then
@@ -543,8 +565,12 @@ function DropDownMetaFunctions:Selected(thisOption)
 		self.label:SetTextColor(1, 1, 1, 1)
 	end
 
-	if (thisOption.font) then
+	if (overrideFont) then
+		self.label:SetFont(overrideFont, 10)
+
+	elseif (thisOption.font) then
 		self.label:SetFont(thisOption.font, 10)
+
 	else
 		self.label:SetFont("GameFontHighlightSmall", 10)
 	end
@@ -648,7 +674,7 @@ end
 function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 	local object = button.MyObject
 
-	--click to open
+	--~click to open
 	if (not object.opened and not rawget(object, "lockdown")) then
 		local optionsTable = DF:Dispatch(object.func, object)
 		object.builtMenu = optionsTable
@@ -734,12 +760,6 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame.icon:SetSize(thisOptionFrame:GetHeight()-6, thisOptionFrame:GetHeight()-6)
 					end
 
-					if (thisOption.font) then
-						thisOptionFrame.label:SetFont(thisOption.font, 10.5)
-					else
-						thisOptionFrame.label:SetFont("GameFontHighlightSmall", 10.5)
-					end
-
 					if (thisOption.statusbar) then
 						thisOptionFrame.statusbar:SetTexture(thisOption.statusbar)
 						if (thisOption.statusbarcolor) then
@@ -757,7 +777,34 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame.rightButton:Hide()
 					end
 
+					local overrideFont
+					local languageId = thisOption.languageId
+					if (languageId) then
+						if (languageId ~= thisOptionFrame.label.languageId) then
+							local newFont = DF.Language.GetFontForLanguageID(languageId)
+							thisOptionFrame.label.languageId = languageId
+							overrideFont = newFont
+						end
+					else
+						languageId = DF.Language.DetectLanguageId(thisOption.label)
+						if (languageId ~= thisOptionFrame.label.languageId) then
+							local newFont = DF.Language.GetFontForLanguageID(languageId)
+							thisOptionFrame.label.languageId = languageId
+							overrideFont = newFont
+						end
+					end
+
 					thisOptionFrame.label:SetText(thisOption.label)
+
+					if (overrideFont) then
+						thisOptionFrame.label:SetFont(overrideFont, 10.5)
+
+					elseif (thisOption.font) then
+						thisOptionFrame.label:SetFont(thisOption.font, 10.5)
+
+					else
+						thisOptionFrame.label:SetFont("GameFontHighlightSmall", 10.5)
+					end
 
 					if (currentText and currentText == thisOption.label) then
 						if (thisOption.icon) then
@@ -859,10 +906,6 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 			end
 
 			object:Open()
-
-			--scrollFrame:SetHeight(300)
-			--scrollChild:SetHeight(300)
-			--scrollBorder:SetHeight(300)
 		else
 			--clear menu
 		end
