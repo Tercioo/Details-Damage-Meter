@@ -1055,6 +1055,8 @@ local default_profile = {
 			line_height = 16,
 			line_texture = "Details Serenity",
 			line_color = {.1, .1, .1, 0.3},
+			show_crowdcontrol_pvp = true,
+			show_crowdcontrol_pvm = false,
 		},
 
 	--current damage

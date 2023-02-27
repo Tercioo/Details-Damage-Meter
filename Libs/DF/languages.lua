@@ -1572,7 +1572,7 @@ end
 
 ---return a font (path for a file) which works for the languageId passed, if the languageId is not registered, it'll return a compatible font registered by another addon or the default font
 ---@param languageId string
----@param addonId string
+---@param addonId string|nil
 ---@return string
 function DF.Language.GetFontForLanguageID(languageId, addonId)
     if (addonId) then

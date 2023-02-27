@@ -3558,8 +3558,7 @@ function detailsFramework:CreateTabContainer (parent, title, frameName, frameLis
 	end
 
 	--languageInfo
-	local addonId = languageInfo.language_addonId
-	local languageTable = DetailsFramework.Language.GetLanguageTable(addonId)
+	local addonId = languageInfo and languageInfo.language_addonId or "none"
 
 	for i, frameInfo in ipairs(frameList) do
 		local f = CreateFrame("frame", "$parent" .. frameInfo.name, mainFrame, "BackdropTemplate")
