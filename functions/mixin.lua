@@ -6,19 +6,37 @@ local addonName, Details222 = ...
 
 
 Details222.Mixins.ActorMixin = {
-	GetSpellContainer = function(self, containerType)
+	---return a spellContainer from an actor
+	---@param actor actor
+	---@param containerType string
+	---@return spellcontainer|nil
+	GetSpellContainer = function(actor, containerType)
 		if (containerType == "debuff") then
-			return self.debuff_uptime_spells
+			return actor.debuff_uptime_spells
 
 		elseif (containerType == "buff") then
-			return self.buff_uptime_spells
+			return actor.buff_uptime_spells
 
 		elseif (containerType == "spell") then
-			return self.spells
+			return actor.spells
 
 		elseif (containerType == "cooldowns") then
-			return self.cooldowns_defensive_spells
+			return actor.cooldowns_defensive_spells
 		end
+	end,
 
+	---return a spellTable from a spellContainer
+	---@param actor actor
+	---@param spellContainerName string
+	---@param spellId number
+	---@return spelltable|nil
+	GetSpellTableFromContainer = function(actor, spellContainerName, spellId)
+		---@type spellcontainer
+		local spellContainer = actor[spellContainerName]
+		if (spellContainer) then
+			---@type spelltable
+			local spellTable = spellContainer._ActorTable[spellId]
+			return spellTable
+		end
 	end,
 }

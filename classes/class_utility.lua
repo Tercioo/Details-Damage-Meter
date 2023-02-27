@@ -161,14 +161,6 @@ function Details:GetSpellCastAmount(combat, actorName, spellId) --[[exported]]
 	return 0
 end
 
---[[exported]] function Details:GetSpellTableFromContainer(spellContainerName, spellId)
-	local spellContainer = self[spellContainerName]
-	if (spellContainer) then
-		local spellTable = spellContainer._ActorTable[spellId]
-		return spellTable
-	end
-end
-
 function atributo_misc:NovaTabela(serial, nome, link)
 	local newUtilityActor = {
 		last_event = 0,
@@ -675,107 +667,120 @@ function atributo_misc:DeadAtualizarBarra (morte, whichRowLine, colocacao, insta
 
 end
 
-function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, exportar, refresh_needed)
+function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bIsExport)
+	---@type actorcontainer
+	local utilityActorContainer = combatObject[class_type]
 
-	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
-
-	if (#showing._ActorTable < 1) then --n�o h� barras para mostrar
-		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
+	if (#utilityActorContainer._ActorTable < 1) then --n�o h� barras para mostrar
+		return _detalhes:EsconderBarrasNaoUsadas (instance, utilityActorContainer), "", 0, 0
 	end
 
 	local total = 0
-	instancia.top = 0
+	instance.top = 0
 
-	local sub_atributo = instancia.sub_atributo --o que esta sendo mostrado nesta inst�ncia
-	local conteudo = showing._ActorTable
+	--the main attribute is utility, the sub attribute is the type of utility (cc break, ress, etc)
+	local subAttribute = instance.sub_atributo
+	local conteudo = utilityActorContainer._ActorTable
 	local amount = #conteudo
-	local modo = instancia.modo
+	local modo = instance.modo
 
-	if (exportar) then
-		if (type(exportar) == "boolean") then
-			if (sub_atributo == 1) then --CC BREAKS
+	if (bIsExport) then
+		if (type(bIsExport) == "boolean") then
+			if (subAttribute == 1) then --CC BREAKS
 				keyName = "cc_break"
-			elseif (sub_atributo == 2) then --RESS
+			elseif (subAttribute == 2) then --RESS
 				keyName = "ress"
-			elseif (sub_atributo == 3) then --INTERRUPT
+			elseif (subAttribute == 3) then --INTERRUPT
 				keyName = "interrupt"
-			elseif (sub_atributo == 4) then --DISPELLS
+			elseif (subAttribute == 4) then --DISPELLS
 				keyName = "dispell"
-			elseif (sub_atributo == 5) then --DEATHS
+			elseif (subAttribute == 5) then --DEATHS
 				keyName = "dead"
-			elseif (sub_atributo == 6) then --DEFENSIVE COOLDOWNS
+			elseif (subAttribute == 6) then --DEFENSIVE COOLDOWNS
 				keyName = "cooldowns_defensive"
-			elseif (sub_atributo == 7) then --BUFF UPTIME
+			elseif (subAttribute == 7) then --BUFF UPTIME
 				keyName = "buff_uptime"
-			elseif (sub_atributo == 8) then --DEBUFF UPTIME
+			elseif (subAttribute == 8) then --DEBUFF UPTIME
 				keyName = "debuff_uptime"
 			end
 		else
-			keyName = exportar.key
-			modo = exportar.modo
+			keyName = bIsExport.key
+			modo = bIsExport.modo
 		end
 
-	elseif (instancia.atributo == 5) then --custom
+	elseif (instance.atributo == 5) then --custom
 		keyName = "custom"
-		total = tabela_do_combate.totals [instancia.customName]
+		total = combatObject.totals [instance.customName]
 
 	else
 
 		--pega qual a sub key que ser� usada
-		if (sub_atributo == 1) then --CC BREAKS
+		if (subAttribute == 1) then --CC BREAKS
 			keyName = "cc_break"
-		elseif (sub_atributo == 2) then --RESS
+		elseif (subAttribute == 2) then --RESS
 			keyName = "ress"
-		elseif (sub_atributo == 3) then --INTERRUPT
+		elseif (subAttribute == 3) then --INTERRUPT
 			keyName = "interrupt"
-		elseif (sub_atributo == 4) then --DISPELLS
+		elseif (subAttribute == 4) then --DISPELLS
 			keyName = "dispell"
-		elseif (sub_atributo == 5) then --DEATHS
+		elseif (subAttribute == 5) then --DEATHS
 			keyName = "dead"
-		elseif (sub_atributo == 6) then --DEFENSIVE COOLDOWNS
+		elseif (subAttribute == 6) then --DEFENSIVE COOLDOWNS
 			keyName = "cooldowns_defensive"
-		elseif (sub_atributo == 7) then --BUFF UPTIME
+		elseif (subAttribute == 7) then --BUFF UPTIME
 			keyName = "buff_uptime"
-		elseif (sub_atributo == 8) then --DEBUFF UPTIME
+		elseif (subAttribute == 8) then --DEBUFF UPTIME
 			keyName = "debuff_uptime"
 		end
-
 	end
 
 	if (keyName == "dead") then
-		local mortes = tabela_do_combate.last_events_tables
-		instancia.top = 1
-		total = #mortes
+		local allDeathsInTheCombat = combatObject.last_events_tables
+		instance.top = 1
+		total = #allDeathsInTheCombat
 
-		if (exportar) then
-			return mortes
+		if (bIsExport) then
+			return allDeathsInTheCombat
 		end
 
 		if (total < 1) then
-			instancia:EsconderScrollBar()
-			return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
+			instance:EsconderScrollBar()
+			return _detalhes:EndRefresh(instance, total, combatObject, utilityActorContainer)
 		end
 
-		--estra mostrando ALL ent�o posso seguir o padr�o correto? primeiro, atualiza a scroll bar...
-		instancia:RefreshScrollBar (total)
+		instance:RefreshScrollBar(total)
 
-		--depois faz a atualiza��o normal dele atrav�s dos_ iterators
 		local whichRowLine = 1
-		local barras_container = instancia.barras
-		local percentage_type = instancia.row_info.percent_type
+		local bIsReverse =  true
 
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
-			if (mortes[i]) then --corre��o para um raro e desconhecido problema onde mortes[i] � nil
-				atributo_misc:DeadAtualizarBarra (mortes[i], whichRowLine, i, instancia)
-				whichRowLine = whichRowLine+1
+		--if this is reverse, need to invert the values in the table which holds the deaths in the combat
+		if (bIsReverse) then
+			local tempTable = {}
+			for i = #allDeathsInTheCombat, 1, -1 do
+				tempTable[#tempTable+1] = allDeathsInTheCombat[i]
+			end
+
+			--update only the lines shown
+			for i = instance.barraS[1], instance.barraS[2], 1 do
+				if (tempTable[i]) then
+					atributo_misc:DeadAtualizarBarra(tempTable[i], whichRowLine, i, instance)
+					whichRowLine = whichRowLine+1
+				end
+			end
+		else
+			--update only the lines shown
+			for i = instance.barraS[1], instance.barraS[2], 1 do
+				if (allDeathsInTheCombat[i]) then
+					atributo_misc:DeadAtualizarBarra(allDeathsInTheCombat[i], whichRowLine, i, instance)
+					whichRowLine = whichRowLine+1
+				end
 			end
 		end
 
-		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
-
+		return _detalhes:EndRefresh(instance, total, combatObject, utilityActorContainer)
 	else
 
-		if (instancia.atributo == 5) then --custom
+		if (instance.atributo == 5) then --custom
 			--faz o sort da categoria e retorna o amount corrigido
 			table.sort (conteudo, _detalhes.SortIfHaveKey)
 
@@ -789,10 +794,10 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			end
 
 			--pega o total ja aplicado na tabela do combate
-			total = tabela_do_combate.totals [class_type] [keyName]
+			total = combatObject.totals [class_type] [keyName]
 
 			--grava o total
-			instancia.top = conteudo[1][keyName]
+			instance.top = conteudo[1][keyName]
 
 		elseif (modo == modo_ALL) then --mostrando ALL
 
@@ -808,10 +813,10 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			end
 
 			--pega o total ja aplicado na tabela do combate
-			total = tabela_do_combate.totals [class_type] [keyName]
+			total = combatObject.totals [class_type] [keyName]
 
 			--grava o total
-			instancia.top = conteudo[1][keyName]
+			instance.top = conteudo[1][keyName]
 
 		elseif (modo == modo_GROUP) then --mostrando GROUP
 
@@ -824,7 +829,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 						amount = index - 1
 						break
 					elseif (index == 1) then --esse IF aqui, precisa mesmo ser aqui? n�o daria pra pega-lo com uma chave [1] nad grupo == true?
-						instancia.top = conteudo[1][keyName]
+						instance.top = conteudo[1][keyName]
 					end
 
 					total = total + player[keyName]
@@ -838,46 +843,46 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	end
 
 	--refaz o mapa do container
-	showing:remapear()
+	utilityActorContainer:remapear()
 
-	if (exportar) then
-		return total, keyName, instancia.top, amount
+	if (bIsExport) then
+		return total, keyName, instance.top, amount
 	end
 
 	if (amount < 1) then --n�o h� barras para mostrar
-		instancia:EsconderScrollBar() --precisaria esconder a scroll bar
-		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
+		instance:EsconderScrollBar() --precisaria esconder a scroll bar
+		return _detalhes:EndRefresh (instance, total, combatObject, utilityActorContainer) --retorna a tabela que precisa ganhar o refresh
 	end
 
 	--estra mostrando ALL ent�o posso seguir o padr�o correto? primeiro, atualiza a scroll bar...
-	instancia:RefreshScrollBar (amount)
+	instance:RefreshScrollBar (amount)
 
 	--depois faz a atualiza��o normal dele atrav�s dos_ iterators
 	local whichRowLine = 1
-	local barras_container = instancia.barras
-	local percentage_type = instancia.row_info.percent_type
-	local bars_show_data = instancia.row_info.textR_show_data
-	local bars_brackets = instancia:GetBarBracket()
-	local bars_separator = instancia:GetBarSeparator()
-	local use_animations = _detalhes.is_using_row_animations and (not instancia.baseframe.isStretching and not forcar)
+	local barras_container = instance.barras
+	local percentage_type = instance.row_info.percent_type
+	local bars_show_data = instance.row_info.textR_show_data
+	local bars_brackets = instance:GetBarBracket()
+	local bars_separator = instance:GetBarSeparator()
+	local use_animations = _detalhes.is_using_row_animations and (not instance.baseframe.isStretching and not bIsForceRefresh)
 
 	if (total == 0) then
 		total = 0.00000001
 	end
 
-	UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
-	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
+	UsingCustomLeftText = instance.row_info.textL_enable_custom_text
+	UsingCustomRightText = instance.row_info.textR_enable_custom_text
 
-	if (instancia.bars_sort_direction == 1) then --top to bottom
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
-			conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+	if (instance.bars_sort_direction == 1) then --top to bottom
+		for i = instance.barraS[1], instance.barraS[2], 1 do --vai atualizar s� o range que esta sendo mostrado
+			conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, subAttribute, bIsForceRefresh, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 			whichRowLine = whichRowLine+1
 		end
 
-	elseif (instancia.bars_sort_direction == 2) then --bottom to top
-		for i = instancia.barraS[2], instancia.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
+	elseif (instance.bars_sort_direction == 2) then --bottom to top
+		for i = instance.barraS[2], instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
 			if (conteudo[i]) then
-				conteudo[i]:RefreshLine(instancia, barras_container, whichRowLine, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+				conteudo[i]:RefreshLine(instance, barras_container, whichRowLine, i, total, subAttribute, bIsForceRefresh, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 				whichRowLine = whichRowLine+1
 			end
 		end
@@ -885,10 +890,10 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	end
 
 	if (use_animations) then
-		instancia:PerformAnimations (whichRowLine-1)
+		instance:PerformAnimations (whichRowLine-1)
 	end
 
-	if (instancia.atributo == 5) then --custom
+	if (instance.atributo == 5) then --custom
 		--zerar o .custom dos_ Actors
 		for index, player in ipairs(conteudo) do
 			if (player.custom > 0) then
@@ -900,15 +905,15 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	end
 
 	--beta, hidar barras n�o usadas durante um refresh for�ado
-	if (forcar) then
-		if (instancia.modo == 2) then --group
-			for i = whichRowLine, instancia.rows_fit_in_window  do
-				Details.FadeHandler.Fader(instancia.barras [i], "in", Details.fade_speed)
+	if (bIsForceRefresh) then
+		if (instance.modo == 2) then --group
+			for i = whichRowLine, instance.rows_fit_in_window  do
+				Details.FadeHandler.Fader(instance.barras [i], "in", Details.fade_speed)
 			end
 		end
 	end
 
-	return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --retorna a tabela que precisa ganhar o refresh
+	return _detalhes:EndRefresh (instance, total, combatObject, utilityActorContainer) --retorna a tabela que precisa ganhar o refresh
 
 end
 

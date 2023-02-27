@@ -4090,6 +4090,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					return
 				end
 
+				local bIsMythicRun = false
+				--check if this is a mythic+ run for overall deaths
+				local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() --classic wow doesn't not have C_ChallengeMode API
+				if (mythicLevel and type(mythicLevel) == "number" and mythicLevel >= 2) then --several checks to be future proof
+					bIsMythicRun = true
+				end
+
 				_current_misc_container.need_refresh = true
 
 				--combat totals
@@ -4255,9 +4262,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					eventsBeforePlayerDeath[#eventsBeforePlayerDeath+1] = eventTable
 				end
 
-				local combatElapsedTime = GetTime() - _current_combat:GetStartTime()
-				local minutes, seconds = floor(combatElapsedTime /  60), floor(combatElapsedTime % 60)
-
 				local maxHealth
 				if (thisPlayer.arena_enemy) then
 					--this is an arena enemy, get the heal with the unit Id
@@ -4276,34 +4280,29 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					maxHealth = UnitHealthMax(thisPlayer.nome)
 				end
 
-				local playerDeathTable = {
-					eventsBeforePlayerDeath, --table
-					time, --number unix time
-					thisPlayer.nome, --string player name
-					thisPlayer.classe, --string player class
-					maxHealth, --number max health
-					minutes .. "m " .. seconds .. "s", --time of death as string
+				local playerDeathTable
+				local combatElapsedTime = GetTime() - _current_combat:GetStartTime()
 
-					["dead"] = true,
-					["last_cooldown"] = thisPlayer.last_cooldown,
-					["dead_at"] = combatElapsedTime,
-				}
+				do
+					local minutes, seconds = floor(combatElapsedTime /  60), floor(combatElapsedTime % 60)
+
+					playerDeathTable = {
+						eventsBeforePlayerDeath, --table
+						time, --number unix time
+						thisPlayer.nome, --string player name
+						thisPlayer.classe, --string player class
+						maxHealth, --number max health
+						minutes .. "m " .. seconds .. "s", --time of death as string
+						["dead"] = true,
+						["last_cooldown"] = thisPlayer.last_cooldown,
+						["dead_at"] = combatElapsedTime,
+					}
+				end
 
 				tinsert(_current_combat.last_events_tables, #_current_combat.last_events_tables+1, playerDeathTable)
 
-				if (_hook_deaths) then
-					--send event to registred functions
-					for _, func in ipairs(_hook_deaths_container) do
-						local successful, errortext = pcall(func, nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, playerDeathTable, thisPlayer.last_cooldown, combatElapsedTime, maxHealth)
-						if (not successful) then
-							_detalhes:Msg("error occurred on a death hook function:", errortext)
-						end
-					end
-				end
-
 				--check if this is a mythic+ run for overall deaths
-				local mythicLevel = C_ChallengeMode and C_ChallengeMode.GetActiveKeystoneInfo() --classic wow doesn't not have C_ChallengeMode API
-				if (mythicLevel and type(mythicLevel) == "number" and mythicLevel >= 2) then --several checks to be future proof
+				if (bIsMythicRun) then
 					--more checks for integrity
 					if (_detalhes.tabela_overall and _detalhes.tabela_overall.last_events_tables) then
 						--this is a mythic dungeon run, add the death to overall data
@@ -4312,13 +4311,28 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 						local overallDeathTable = DetailsFramework.table.copy({}, playerDeathTable)
 
 						--get the elapsed time
-						local timeElapsed = GetTime() - _detalhes.tabela_overall:GetStartTime()
-						local minutes, seconds = floor(timeElapsed/60), floor(timeElapsed % 60)
+						local mythicPlusElapsedTime = GetTime() - _detalhes.tabela_overall:GetStartTime()
+						local minutes, seconds = floor(mythicPlusElapsedTime/60), floor(mythicPlusElapsedTime % 60)
 
-						overallDeathTable [6] = minutes .. "m " .. seconds .. "s"
-						overallDeathTable.dead_at = timeElapsed
+						overallDeathTable[6] = minutes .. "m " .. seconds .. "s"
+						overallDeathTable.dead_at = mythicPlusElapsedTime
+
+						--save data about the mythic run in the deathTable which goes in the regular segment
+						playerDeathTable["mythic_plus"] = true
+						playerDeathTable["mythic_plus_dead_at"] = mythicPlusElapsedTime
+						playerDeathTable["mythic_plus_dead_at_string"] = overallDeathTable[6]
 
 						tinsert(_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables + 1, overallDeathTable)
+					end
+				end
+
+				if (_hook_deaths) then
+					--send event to registred functions
+					for _, func in ipairs(_hook_deaths_container) do
+						local successful, errortext = pcall(func, nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, playerDeathTable, thisPlayer.last_cooldown, combatElapsedTime, maxHealth, playerDeathTable["mythic_plus_dead_at"] or 0)
+						if (not successful) then
+							_detalhes:Msg("error occurred on a death hook function:", errortext)
+						end
 					end
 				end
 

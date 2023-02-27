@@ -60,7 +60,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
     Details222.MythicPlus.LogStep("MergeSegmentsOnEnd started | creating the overall segment at the end of the run.")
 
     --create a new combat to be the overall for the mythic run
-    Details:EntrarEmCombate()
+    Details:StartCombat()
 
     --get the current combat just created and the table with all past segments
     local newCombat = Details:GetCurrentCombat()
@@ -72,30 +72,32 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
     local totalSegments = 0
 
     --add all boss segments from this run to this new segment
-    for i = 1, 25 do --from the newer combat to the oldest
-        local pastCombat = segmentHistory [i]
-        if (pastCombat and pastCombat.is_mythic_dungeon_run_id == Details.mythic_dungeon_id) then
+    for i = 1, 40 do --from the newer combat to the oldest
+        local thisCombat = segmentHistory[i]
+        if (thisCombat and thisCombat.is_mythic_dungeon_run_id == Details.mythic_dungeon_id) then
             local canAddThisSegment = true
             if (_detalhes.mythic_plus.make_overall_boss_only) then
-                if (not pastCombat.is_boss) then
+                if (not thisCombat.is_boss) then
                     canAddThisSegment = false
                 end
             end
 
             if (canAddThisSegment) then
-                newCombat = newCombat + pastCombat
-                totalTime = totalTime + pastCombat:GetCombatTime()
+                newCombat = newCombat + thisCombat
+                newCombat:CopyDeathsFrom(thisCombat, true)
+
+                totalTime = totalTime + thisCombat:GetCombatTime()
                 totalSegments = totalSegments + 1
 
                 if (DetailsMythicPlusFrame.DevelopmentDebug) then
-                    print("MergeSegmentsOnEnd() > adding time:", pastCombat:GetCombatTime(), pastCombat.is_boss and pastCombat.is_boss.name)
+                    print("MergeSegmentsOnEnd() > adding time:", thisCombat:GetCombatTime(), thisCombat.is_boss and thisCombat.is_boss.name)
                 end
 
                 if (endDate == "") then
-                    local _, whenEnded = pastCombat:GetDate()
+                    local _, whenEnded = thisCombat:GetDate()
                     endDate =whenEnded
                 end
-                lastSegment = pastCombat
+                lastSegment = thisCombat
             end
         end
     end
@@ -186,6 +188,8 @@ function DetailsMythicPlusFrame.MergeTrashCleanup (isFromSchedule)
             local pastCombat = segmentsToMerge[i]
             newCombat = newCombat + pastCombat
             totalTime = totalTime + pastCombat:GetCombatTime()
+
+            newCombat:CopyDeathsFrom(pastCombat, true)
 
             --tag this combat as already added to a boss trash overall
             pastCombat._trashoverallalreadyadded = true
