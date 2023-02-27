@@ -333,8 +333,6 @@
 
 			deathsTable[#deathsTable+1] = thisDeath
 		end
-
-		print("Details! - debug - CopyDeathsFrom() success!")
 	end
 
 	--return the total of a specific attribute
