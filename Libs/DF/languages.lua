@@ -210,42 +210,21 @@ local languagesAvailable = {
     zhTW = {text = "繁體中文", font = [[Fonts\blei00d.TTF]]},
 }
 
-local fontPathToLanguageId = {
-    ["Fonts\\FRIZQT__.TTF"] = "enUS",
-    ["Fonts\\FRIZQT___CYR.TTF"] = "ruRU",
-}
+--store a list of letters, characters and symbols used on each language
+---@type table<string, string>
+DF.LanguageKnowledge = DF.LanguageKnowledge or {}
 
-local cyrillic = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЁЂЃЄЅІЇЈЉЊЋЌЎЏҐабвгдежзийклмнопрстуфхцчшщъыьэюяёђѓєѕіїјљњћќўџґАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя"
-local latin = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-local zhCN = "的一是不了人有在他这与大为上们国我以要他时来用到也再说生去子到了地个用发当没成方主于作者我自以前从他者进过家对小多然些起主要只当从把以后看作者们进无对从以后就以于着个过去以及时日能够年月进天们动"
-local zhTW = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟﾡﾢﾣﾤﾥﾦﾧﾨﾩﾪﾫﾬﾭﾮﾯﾰﾱﾲﾳﾴﾵﾶﾷﾸﾹﾺﾻﾼﾽﾾￂￃￄￅￆￇￊￋￌￍￎￏￒￓￔￕￖￗￚￛￜ"
-local koKR = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ"
-local arAR = "ءآأؤإئابتثجحخدذرزسشصضطظعغفقكلمنهويىًٌٍَُِّْٰ"
-
-local alphabetTable = {}
-
-for letter in latin:gmatch(".") do
-    alphabetTable[letter] = "enUS"
-end
-
-for letter in cyrillic:gmatch(".") do
-    alphabetTable[letter] = "ruRU"
-end
-
-for letter in zhCN:gmatch(".") do
-    alphabetTable[letter] = "zhCN"
-end
-
-for letter in zhTW:gmatch(".") do
-    alphabetTable[letter] = "zhTW"
-end
-
-for letter in koKR:gmatch(".") do
-    alphabetTable[letter] = "koKR"
-end
-
-for letter in arAR:gmatch(".") do
-    alphabetTable[letter] = "arAR"
+---register the letters and symbols used on phrases
+---@param languageId any
+---@param languageTable any
+local registerCharacters = function(languageId, languageTable)
+    for stringId, textString in pairs(languageTable) do
+        for character in textString:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+            if (not DF.LanguageKnowledge[character]) then
+                DF.LanguageKnowledge[character] = languageId
+            end
+        end
+    end
 end
 
 local functionSignature = {
@@ -888,9 +867,15 @@ end
 ---@param text string
 ---@return string
 function DF.Language.DetectLanguageId(text)
-    for letter in text:gmatch(".") do
-        if (alphabetTable[letter]) then
-            return alphabetTable[letter]
+    --if the text is not a string, return the default languageId
+    if (type(text) ~= "string") then
+        return "enUS"
+    end
+
+    for letter in text:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+        local languageId = DF.LanguageKnowledge[letter]
+        if (languageId) then
+            return languageId
         end
     end
     return "enUS"
@@ -973,6 +958,12 @@ function DF.Language.RegisterLanguage(addonId, languageId, bNotSupportedWoWLangu
     --create a table to hold traslations for this languageId
     local languageTable = {}
     setLanguageTableForLanguageId(addonNamespaceTable, languageId, languageTable)
+
+    --after the language is registered, usualy comes the registration of phrases of the language registered
+    --let the phrases be registered and after that register the characters and symbols used on that language
+    C_Timer.After(0, function()
+        registerCharacters(languageId, languageTable)
+    end)
 
     return languageTable
 end
