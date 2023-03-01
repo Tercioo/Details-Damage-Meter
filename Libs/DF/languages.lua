@@ -187,9 +187,9 @@ local fontLanguageCompatibility = {
     ["itIT"] = 1,
     ["ptBR"] = 1,
     ["zhCN"] = 2,
-    ["zhTW"] = 2,
-    ["koKR"] = 3,
-    ["ruRU"] = 4,
+    ["zhTW"] = 3,
+    ["koKR"] = 4,
+    ["ruRU"] = 5,
 }
 
 --this table contains all the registered languages with their name and fonts
@@ -210,9 +210,25 @@ local languagesAvailable = {
     zhTW = {text = "繁體中文", font = [[Fonts\blei00d.TTF]]},
 }
 
+local ignoredCharacters = {}
+local punctuations = ".,;:!?-–—()[]{}'\"`/\\@_+*^%$#&~=<>|"
+for character in punctuations:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+    ignoredCharacters[character] = true
+end
+
+local accentedLetters = "áàâäãåæçéèêëíìîïñóòôöõøœúùûüýÿ"
+for character in accentedLetters:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+    ignoredCharacters[character] = true
+end
+
 --store a list of letters, characters and symbols used on each language
 ---@type table<string, string>
 DF.LanguageKnowledge = DF.LanguageKnowledge or {}
+
+local latinAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+for character in latinAlphabet:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+    DF.LanguageKnowledge[character] = CONST_LANGUAGEID_ENUS
+end
 
 ---register the letters and symbols used on phrases
 ---@param languageId any
@@ -220,8 +236,14 @@ DF.LanguageKnowledge = DF.LanguageKnowledge or {}
 local registerCharacters = function(languageId, languageTable)
     for stringId, textString in pairs(languageTable) do
         for character in textString:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
-            if (not DF.LanguageKnowledge[character]) then
-                DF.LanguageKnowledge[character] = languageId
+            if (not ignoredCharacters[character]) then
+                if (not DF.LanguageKnowledge[character]) then
+                    if (fontLanguageCompatibility[languageId] == 1) then
+                        DF.LanguageKnowledge[character] = CONST_LANGUAGEID_ENUS
+                    else
+                        DF.LanguageKnowledge[character] = languageId
+                    end
+                end
             end
         end
     end
