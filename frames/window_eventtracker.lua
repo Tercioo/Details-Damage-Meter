@@ -540,8 +540,8 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 					line.LeftIcon:SetTexture(texture)
 					line.LeftIcon:SetTexCoord(L, R, T, B)
 
-					--[=[language system test
 					local sourceName = ability[ABILITYTABLE_CASTERNAME]
+					--[=[language system test
 					if (math.random(3) == 2) then
 						sourceName = "Снизуслева"
 
