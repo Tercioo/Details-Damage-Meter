@@ -625,7 +625,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 							targetName = add_role_and_class_color (targetName, targetSerial)
 						end
 
-						line.RightText:SetText(targetName or "unknown target")
+						line.RightText:SetText(targetName or spellName or "")
 
 						line.ActionIcon:SetTexture([[Interface\AddOns\Details\images\event_tracker_icons]])
 						line.ActionIcon:SetTexCoord(0.376, 0.5, 0, 1)
