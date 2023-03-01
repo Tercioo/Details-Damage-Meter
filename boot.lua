@@ -10,8 +10,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10562
-		_detalhes.alpha_build_counter = 10562 --if this is higher than the regular counter, use it instead
+		_detalhes.build_counter = 10661
+		_detalhes.alpha_build_counter = 10661 --if this is higher than the regular counter, use it instead
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
@@ -89,26 +89,17 @@ local _
 
 do
 	local _detalhes = _G._detalhes
-
 	_detalhes.resize_debug = {}
 
-	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
-
-	--Framework Updates including GameCooltip now supports and secondary frame for tooltips.
-	--When a player dies, the death callback hooks will now send the regular death log table instead of a copy of it.
-
-	--Fixed load errors on Wrath.
-	--Fixed enemy cast time in the death tooltip sometimes showing off time.
-	--Allow negative offsets on Aligned Text Columns (Flamanis).
-	--Fixed Shaman and Warrior spec detection (Flamanis).
-	--More Demon hunter abilities added to be merged (Flamanis).
-	--Added duck polymorph to Mage CCs (Flamanis).
-	--Fixed offline player showing as party members in the /keys panel and players from other realms not caching (Flamanis).
-	--Fixed an issue with some options not updating when the window is selected at the bottom right corner of the options panel (Flamanis).
-	--Fixed some issues with the breakdown window for 'Damage Taken' (Flamanis).
-	--Fixed an issue where sometimes the 'Always Show Me' wouldn't show if the total bar is enabled (Ricodyn).
+	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 	local news = {
+		{"v10.0.5.10661.147", "Mar 1st, 2023"},
+		"Major fixes and updates on the Event Tracker feature (for streamers).",
+		"When trying to import a profile with a name that already exists, it'll rename it and import (Flamanis).",
+		"Ignoring Fodder to the Flame npcs (Flamanis).",
+		"Mythic plus overall segments now have the list of player deaths.",
+
 		{"v10.0.2.10333.147", "Feb 08th, 2023"},
 		"Fixed load errors on Wrath.",
 		"Fixed enemy cast time in the death tooltip sometimes showing off time.",
