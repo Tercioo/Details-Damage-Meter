@@ -64,7 +64,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 97
+local CONST_LIB_VERSION = 96
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -1588,7 +1588,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local specMainAttribute = openRaidLib.specAttribute[playerClass][specId] --1 int, 2 dex, 3 str
 
         if (not specId or not specMainAttribute) then
-            return {0, 0, 0, {}, {}, {}, 0, 0}
+            return {0, 0, 0, {}, {}, {}}
         end
 
         --item level
@@ -1598,7 +1598,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local gearDurability = openRaidLib.GearManager.GetPlayerGearDurability()
 
         --get weapon enchant
-        local weaponEnchant, mainHandEnchantId, offHandEnchantId = openRaidLib.GearManager.GetPlayerWeaponEnchant()
+        local weaponEnchant = openRaidLib.GearManager.GetPlayerWeaponEnchant()
 
         --enchants and gems
         local slotsWithoutGems, slotsWithoutEnchant = openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
@@ -1614,14 +1614,12 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         playerGearInfo[#playerGearInfo+1] = slotsWithoutEnchant --[4] - undefined
         playerGearInfo[#playerGearInfo+1] = slotsWithoutGems    --[5] - undefined
         playerGearInfo[#playerGearInfo+1] = equippedGearList    --[6] - undefined
-        playerGearInfo[#playerGearInfo+1] = mainHandEnchantId   --[7]
-        playerGearInfo[#playerGearInfo+1] = offHandEnchantId    --[8]
 
         return playerGearInfo
     end
 
     --when received the gear update from another player, store it and trigger a callback
-    function openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTable, noGemsTable, equippedGearList, mainHandEnchantId, offHandEnchantId)
+    function openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTable, noGemsTable, equippedGearList)
         local unitGearInfo = openRaidLib.GearManager.GetUnitGear(unitName, true)
 
         unitGearInfo.ilevel = itemLevel
@@ -1629,8 +1627,6 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         unitGearInfo.weaponEnchant = weaponEnchant
         unitGearInfo.noGems = noGemsTable
         unitGearInfo.noEnchants = noEnchantTable
-        unitGearInfo.mainHandEnchantId = mainHandEnchantId
-        unitGearInfo.offHandEnchantId = offHandEnchantId
 
         --parse and replace the 'equippedGearList'
         openRaidLib.GearManager.BuildEquipmentItemLinks(equippedGearList)
@@ -1653,12 +1649,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local noGemsTableSize = data[noGemsTableIndex]
 
         local equippedGearListIndex = tonumber(noEnchantTableSize + noGemsTableSize + 6) --6 is the same has the 5 but +1 index for the gems table size
-        local equippedGearListSize = data[equippedGearListIndex]
-
-        local mainHandEnchantIdIndex = tonumber(noEnchantTableSize + noGemsTableSize + equippedGearListSize + 7)
-        local mainHandEnchantId = tonumber(data[mainHandEnchantIdIndex])
-        local offHandEnchantIdIndex = tonumber(mainHandEnchantIdIndex + 1)
-        local offHandEnchantId = tonumber(data[offHandEnchantIdIndex])
+        --local equippedGearListSize = data[noGemsTableIndex]
 
         --unpack the enchant data as a ipairs table
         local noEnchantTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, noEnchantTableSize)
@@ -1668,22 +1659,20 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local equippedGearListUnpacked = equippedGearListIndex and openRaidLib.UnpackTable(data, equippedGearListIndex, false, true, 4) or {}
 
         --add to the list of gear information
-        openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTableUnpacked, noGemsTableUnpacked, equippedGearListUnpacked, mainHandEnchantId, offHandEnchantId)
+        openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTableUnpacked, noGemsTableUnpacked, equippedGearListUnpacked)
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_GEARINFO_FULL_PREFIX, openRaidLib.GearManager.OnReceiveGearFullInfo)
 
     --todo: on changing an item in the inventory, send an update only for the slot that got changed
 
     function openRaidLib.GearManager.SendAllGearInfo()
-        --get gear information, gear info has 8 indexes:
+        --get gear information, gear info has 6 indexes:
         --[1] int item level
         --[2] int durability
         --[3] int weapon enchant
         --[4] table with integers of equipSlot without enchant
         --[5] table with integers of equipSlot which has a gem slot but the slot is empty
         --[6] table with all gear from the player
-        --[7] int mainHandEnchantId
-        --[8] int offHandEnchantId
 
         local dataToSend = "" .. CONST_COMM_GEARINFO_FULL_PREFIX .. ","
         local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
@@ -1696,9 +1685,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         dataToSend = dataToSend .. playerGearInfo[3] .. "," --weapon enchant
         dataToSend = dataToSend .. openRaidLib.PackTable(playerGearInfo[4]) .. "," --slots without enchant
         dataToSend = dataToSend .. openRaidLib.PackTable(playerGearInfo[5]) .. "," -- slots with empty gem sockets
-        dataToSend = dataToSend .. openRaidLib.PackTableAndSubTables(playerGearInfo[6]) .. "," --full equipped equipment
-        dataToSend = dataToSend .. playerGearInfo[7] .. "," -- mainHandEnchantID
-        dataToSend = dataToSend .. playerGearInfo[8] -- offHandEnchantID
+        dataToSend = dataToSend .. openRaidLib.PackTableAndSubTables(playerGearInfo[6]) --full equipped equipment
 
         --send the data
         openRaidLib.commHandler.SendCommData(dataToSend)
