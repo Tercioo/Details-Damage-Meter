@@ -335,7 +335,7 @@ function openRaidLib.GearManager.GetPlayerWeaponEnchant()
     elseif(LIB_OPEN_RAID_WEAPON_ENCHANT_IDS[offHandEnchantId]) then
         weaponEnchant = 1
     end
-    return weaponEnchant
+    return weaponEnchant, mainHandEnchantId or 0, offHandEnchantId or 0
 end
 
 function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
