@@ -2330,7 +2330,7 @@ function atributo_damage:RefreshWindow(instancia, combatObject, forcar, exportar
 			Details.FadeHandler.Fader(row1, "out")
 			totalBarIsShown = true
 
-			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos+1) then
 				for i = instancia.barraS[1], iterLast-1, 1 do
 					if (actorTableContent[i]) then
 						actorTableContent[i]:RefreshLine(instancia, lineContainer, whichRowLine, i, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
@@ -2400,7 +2400,7 @@ function atributo_damage:RefreshWindow(instancia, combatObject, forcar, exportar
 			Details.FadeHandler.Fader(row1, "out")
 			totalBarIsShown = true
 
-			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+			if (following and myPos and myPos+1 > instancia.rows_fit_in_window and instancia.barraS[2] < myPos+1) then
 				actorTableContent[myPos]:RefreshLine(instancia, lineContainer, whichRowLine, myPos, total, subAttribute, forcar, keyName, combatTime, percentageType, useAnimations, barsShowData, barsBrackets, barsSeparator)
 				whichRowLine = whichRowLine+1
 				for i = iter_last-1, instancia.barraS[1], -1 do
