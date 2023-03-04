@@ -411,6 +411,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 					instance:RestoreMainWindowPosition()
 					instance:ReajustaGump()
 					--instance:SaveMainWindowPosition()
+					--Load StatusBarSaved values and options.
+					instance.StatusBarSaved = skin.StatusBarSaved or {options = {}}
+					instance.StatusBar.options = instance.StatusBarSaved.options
+					_detalhes.StatusBar:UpdateChilds (instance)
 					instance:ChangeSkin()
 
 				else

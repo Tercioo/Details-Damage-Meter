@@ -3061,11 +3061,31 @@ do
 
 	}
 
+	local cooldownKeys = { --LIB_OPEN_RAID_COOLDOWNS_INFO types
+		[1] = true,
+		[2] = true,
+		[3] = true,
+		[4] = true,
+		[5] = true,
+		[6] = true,
+		[7] = true,
+		[8] = true,
+	}
+
 	local getCooldownsForClass = function(class)
 		local result = {}
-		for spellId, spellInfo in pairs(_G.DetailsFramework.CooldownsInfo) do
-			if (class == spellInfo.class) then
-				result[#result+1] = spellId
+		--Use LibOpenRaid if possible. Otherwise fallback to DF.
+		if (LIB_OPEN_RAID_COOLDOWNS_INFO) then
+			for spellId, spellInfo in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
+				if (class == spellInfo.class and cooldownKeys[spellInfo.type]) then
+					result[#result+1] = spellId
+				end
+			end
+		else
+			for spellId, spellInfo in pairs(_G.DetailsFramework.CooldownsInfo) do
+				if (class == spellInfo.class) then
+					result[#result+1] = spellId
+				end
 			end
 		end
 		return result
@@ -3073,7 +3093,9 @@ do
 
 	_detalhes.DefensiveCooldownSpells = {
 		["DEATHKNIGHT"] = getCooldownsForClass("DEATHKNIGHT"),
+		["DEMONHUNTER"] = getCooldownsForClass("DEMONHUNTER"),
 		["DRUID"] = getCooldownsForClass("DRUID"),
+		["EVOKER"] = getCooldownsForClass("EVOKER"),
 		["HUNTER"] = getCooldownsForClass("HUNTER"),
 		["MAGE"] = getCooldownsForClass("MAGE"),
 		["MONK"] = getCooldownsForClass("MONK"),
