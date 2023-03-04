@@ -3061,15 +3061,19 @@ do
 
 	}
 
-	local cooldownKeys = { --LIB_OPEN_RAID_COOLDOWNS_INFO types
-		[1] = true,
-		[2] = true,
-		[3] = true,
-		[4] = true,
-		[5] = true,
-		[6] = true,
-		[7] = true,
-		[8] = true,
+	local allowedCooldownTypes = { --LIB_OPEN_RAID_COOLDOWNS_INFO types
+		[1] = false, --attack
+		[2] = true, --defensive
+		[3] = true, --defensive
+		[4] = true, --defensive
+		[5] = false, --utility
+		[6] = false, --interrupt
+		[7] = false, --dispel
+		[8] = false, --crowd control
+		[9] = false, --racials
+		[10] = false, --item heal
+		[11] = false, --item power
+		[12] = false, --item utility
 	}
 
 	local getCooldownsForClass = function(class)
@@ -3077,7 +3081,7 @@ do
 		--Use LibOpenRaid if possible. Otherwise fallback to DF.
 		if (LIB_OPEN_RAID_COOLDOWNS_INFO) then
 			for spellId, spellInfo in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
-				if (class == spellInfo.class and cooldownKeys[spellInfo.type]) then
+				if (class == spellInfo.class and allowedCooldownTypes[spellInfo.type]) then
 					result[#result+1] = spellId
 				end
 			end
