@@ -394,7 +394,7 @@ function Details:ToolTipDead(instance, deathTable, barFrame)
 end
 
 local function RefreshBarraMorte (morte, barra, instancia)
-	atributo_misc:DeadAtualizarBarra (morte, morte.minha_barra, barra.colocacao, instancia)
+	atributo_misc:UpdateDeathRow (morte, morte.minha_barra, barra.colocacao, instancia)
 end
 
 --object death:
@@ -593,78 +593,79 @@ function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instance)
 	return _detalhes:Reportar (report_table, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-function atributo_misc:DeadAtualizarBarra (morte, whichRowLine, colocacao, instancia)
+---update a row in an instance (window) showing death logs
+---@param morte table
+---@param whichRowLine number
+---@param rankPosition number
+---@param instance table
+function atributo_misc:UpdateDeathRow(morte, whichRowLine, rankPosition, instance)
+	morte["dead"] = true
+	local thisRow = instance.barras[whichRowLine]
 
-	morte ["dead"] = true --marca que esta tabela � uma tabela de mortes, usado no controla na hora de montar o tooltip
-	local esta_barra = instancia.barras[whichRowLine] --pega a refer�ncia da barra na janela
-
-	if (not esta_barra) then
-		print("DEBUG: problema com <instancia.esta_barra> "..whichRowLine.." "..lugar)
+	if (not thisRow) then
+		print("DEBUG: problema com <instancia.esta_barra> "..whichRowLine.." "..rankPosition)
 		return
 	end
 
-	local tabela_anterior = esta_barra.minha_tabela
+	thisRow.minha_tabela = morte
 
-	esta_barra.minha_tabela = morte
-
-	morte.nome = morte [3] --evita dar erro ao redimencionar a janela
+	morte.nome = morte[3] --void an issue while resizing the window
 	morte.minha_barra = whichRowLine
-	esta_barra.colocacao = colocacao
+	thisRow.colocacao = rankPosition
 
 	if (not getmetatable(morte)) then
 		setmetatable(morte, {__call = RefreshBarraMorte})
 		morte._custom = true
 	end
 
-	esta_barra.lineText1:SetText(colocacao .. ". " .. morte [3]:gsub(("%-.*"), ""))
-	esta_barra.lineText2:SetText("")
-	esta_barra.lineText3:SetText("")
-	esta_barra.lineText4:SetText(morte [6])
+	thisRow.lineText1:SetText(rankPosition .. ". " .. morte[3]:gsub(("%-.*"), ""))
+	thisRow.lineText2:SetText("")
+	thisRow.lineText3:SetText("")
+	thisRow.lineText4:SetText(morte[6])
 
-	esta_barra:SetValue(100)
-	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-		Details.FadeHandler.Fader(esta_barra, "out")
+	thisRow:SetValue(100)
+	if (thisRow.hidden or thisRow.fading_in or thisRow.faded) then
+		Details.FadeHandler.Fader(thisRow, "out")
 	end
 
 	--seta a cor da barra e a cor do texto caso eles esteja mostrando com a cor da classe
-	local r, g, b, a = unpack(_detalhes.class_colors [morte[4]])
-	_detalhes:SetBarColors(esta_barra, instancia, r, g, b, a)
+	local r, g, b, a = unpack(_detalhes.class_colors[morte[4]])
+	_detalhes:SetBarColors(thisRow, instance, r, g, b, a)
 
-	if (instancia.row_info.use_spec_icons) then
+	if (instance.row_info.use_spec_icons) then
 		local nome = morte[3]
-		local spec = instancia.showing (1, nome) and instancia.showing (1, nome).spec or (instancia.showing (2, nome) and instancia.showing (2, nome).spec)
+		local spec = instance.showing (1, nome) and instance.showing (1, nome).spec or (instance.showing (2, nome) and instance.showing (2, nome).spec)
 		if (spec and spec ~= 0) then
-			esta_barra.icone_classe:SetTexture(instancia.row_info.spec_file)
-			esta_barra.icone_classe:SetTexCoord(unpack(_detalhes.class_specs_coords[spec]))
+			thisRow.icone_classe:SetTexture(instance.row_info.spec_file)
+			thisRow.icone_classe:SetTexCoord(unpack(_detalhes.class_specs_coords[spec]))
 		else
 			if (CLASS_ICON_TCOORDS [morte[4]]) then
-				esta_barra.icone_classe:SetTexture(instancia.row_info.icon_file)
-				esta_barra.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
+				thisRow.icone_classe:SetTexture(instance.row_info.icon_file)
+				thisRow.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
 			else
 				local texture, l, r, t, b = Details:GetUnknownClassIcon()
-				esta_barra.icone_classe:SetTexture(texture)
-				esta_barra.icone_classe:SetTexCoord(l, r, t, b)
+				thisRow.icone_classe:SetTexture(texture)
+				thisRow.icone_classe:SetTexCoord(l, r, t, b)
 			end
 		end
 	else
 		if (CLASS_ICON_TCOORDS [morte[4]]) then
-			esta_barra.icone_classe:SetTexture(instancia.row_info.icon_file)
-			esta_barra.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
+			thisRow.icone_classe:SetTexture(instance.row_info.icon_file)
+			thisRow.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
 		else
 			local texture, l, r, t, b = Details:GetUnknownClassIcon()
-			esta_barra.icone_classe:SetTexture(texture)
-			esta_barra.icone_classe:SetTexCoord(l, r, t, b)
+			thisRow.icone_classe:SetTexture(texture)
+			thisRow.icone_classe:SetTexCoord(l, r, t, b)
 		end
 	end
 
-	esta_barra.icone_classe:SetVertexColor(1, 1, 1)
+	thisRow.icone_classe:SetVertexColor(1, 1, 1)
 
-	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --precisa atualizar o tooltip
-		gump:UpdateTooltip (whichRowLine, esta_barra, instancia)
+	if (thisRow.mouse_over and not instance.baseframe.isMoving) then --precisa atualizar o tooltip
+		gump:UpdateTooltip (whichRowLine, thisRow, instance)
 	end
 
-	esta_barra.lineText1:SetSize(esta_barra:GetWidth() - esta_barra.lineText4:GetStringWidth() - 20, 15)
-
+	thisRow.lineText1:SetSize(thisRow:GetWidth() - thisRow.lineText4:GetStringWidth() - 20, 15)
 end
 
 function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bIsExport)
@@ -751,7 +752,7 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 		instance:RefreshScrollBar(total)
 
 		local whichRowLine = 1
-		local bIsReverse =  true
+		local bIsReverse = false --debug (default false)
 
 		--if this is reverse, need to invert the values in the table which holds the deaths in the combat
 		if (bIsReverse) then
@@ -763,7 +764,7 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 			--update only the lines shown
 			for i = instance.barraS[1], instance.barraS[2], 1 do
 				if (tempTable[i]) then
-					atributo_misc:DeadAtualizarBarra(tempTable[i], whichRowLine, i, instance)
+					atributo_misc:UpdateDeathRow(tempTable[i], whichRowLine, i, instance)
 					whichRowLine = whichRowLine+1
 				end
 			end
@@ -771,7 +772,7 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 			--update only the lines shown
 			for i = instance.barraS[1], instance.barraS[2], 1 do
 				if (allDeathsInTheCombat[i]) then
-					atributo_misc:DeadAtualizarBarra(allDeathsInTheCombat[i], whichRowLine, i, instance)
+					atributo_misc:UpdateDeathRow(allDeathsInTheCombat[i], whichRowLine, i, instance)
 					whichRowLine = whichRowLine+1
 				end
 			end
