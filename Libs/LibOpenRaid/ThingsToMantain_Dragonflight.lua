@@ -121,6 +121,7 @@ do
 			[INVSLOT_MAINHAND] = true,
 			[INVSLOT_FEET] = true,
 			[INVSLOT_WRIST] = true,
+			[INVSLOT_LEGS] = true,
 			[INVSLOT_HAND] = true,
 		}
 
