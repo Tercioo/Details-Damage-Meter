@@ -752,10 +752,9 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 		instance:RefreshScrollBar(total)
 
 		local whichRowLine = 1
-		local bIsReverse = false --debug (default false)
 
-		--if this is reverse, need to invert the values in the table which holds the deaths in the combat
-		if (bIsReverse) then
+		--if sort direction is descending, need to invert the values in the table which holds the deaths in the combat 
+		if (instance.bars_sort_direction == 1) then
 			local tempTable = {}
 			for i = #allDeathsInTheCombat, 1, -1 do
 				tempTable[#tempTable+1] = allDeathsInTheCombat[i]
