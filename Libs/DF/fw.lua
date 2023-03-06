@@ -1,6 +1,6 @@
 
 
-local dversion = 419
+local dversion = 420
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -2085,8 +2085,20 @@ end
 						textentry.text = widgetTable.get()
 						textentry._get = widgetTable.get
 						textentry.widget_type = "textentry"
-						textentry:SetHook("OnEnterPressed", widgetTable.func or widgetTable.set)
-						textentry:SetHook("OnEditFocusLost", widgetTable.func or widgetTable.set)
+						textentry:SetHook("OnEnterPressed", function(...)
+							local upFunc = widgetTable.func or widgetTable.set
+							upFunc(...)
+							if (valueChangeHook) then
+								valueChangeHook()
+							end
+						end)
+						textentry:SetHook("OnEditFocusLost", function(...)
+							local upFunc = widgetTable.func or widgetTable.set
+							upFunc(...)
+							if (valueChangeHook) then
+								valueChangeHook()
+							end
+						end)
 
 						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
 						textentry.hasLabel.text = namePhrase
