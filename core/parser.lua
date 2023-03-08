@@ -358,6 +358,9 @@
 		[169429] = true,
 		[169428] = true,
 		[169430] = true,
+
+		--Volatile Spark on razga'reth
+		[194999] = true,
 	}
 
 	local ignored_npcids = {}
