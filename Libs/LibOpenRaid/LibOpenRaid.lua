@@ -1588,7 +1588,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local specMainAttribute = openRaidLib.specAttribute[playerClass][specId] --1 int, 2 dex, 3 str
 
         if (not specId or not specMainAttribute) then
-            return {0, 0, 0, {}, {}, {}}
+            return {0, 0, 0, {}, {}, {}, 0, 0}
         end
 
         --item level
@@ -1598,7 +1598,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local gearDurability = openRaidLib.GearManager.GetPlayerGearDurability()
 
         --get weapon enchant
-        local weaponEnchant = openRaidLib.GearManager.GetPlayerWeaponEnchant()
+        local weaponEnchant, mainHandEnchantId, offHandEnchantId = openRaidLib.GearManager.GetPlayerWeaponEnchant()
 
         --enchants and gems
         local slotsWithoutGems, slotsWithoutEnchant = openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
@@ -1614,12 +1614,14 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         playerGearInfo[#playerGearInfo+1] = slotsWithoutEnchant --[4] - undefined
         playerGearInfo[#playerGearInfo+1] = slotsWithoutGems    --[5] - undefined
         playerGearInfo[#playerGearInfo+1] = equippedGearList    --[6] - undefined
+        playerGearInfo[#playerGearInfo+1] = mainHandEnchantId   --[7]
+        playerGearInfo[#playerGearInfo+1] = offHandEnchantId    --[8]
 
         return playerGearInfo
     end
 
     --when received the gear update from another player, store it and trigger a callback
-    function openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTable, noGemsTable, equippedGearList)
+    function openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTable, noGemsTable, equippedGearList, mainHandEnchantId, offHandEnchantId)
         local unitGearInfo = openRaidLib.GearManager.GetUnitGear(unitName, true)
 
         unitGearInfo.ilevel = itemLevel
@@ -1627,6 +1629,8 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         unitGearInfo.weaponEnchant = weaponEnchant
         unitGearInfo.noGems = noGemsTable
         unitGearInfo.noEnchants = noEnchantTable
+        unitGearInfo.mainHandEnchantId = mainHandEnchantId
+        unitGearInfo.offHandEnchantId = offHandEnchantId
 
         --parse and replace the 'equippedGearList'
         openRaidLib.GearManager.BuildEquipmentItemLinks(equippedGearList)
@@ -1649,7 +1653,16 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local noGemsTableSize = data[noGemsTableIndex]
 
         local equippedGearListIndex = tonumber(noEnchantTableSize + noGemsTableSize + 6) --6 is the same has the 5 but +1 index for the gems table size
-        --local equippedGearListSize = data[noGemsTableIndex]
+
+        local equippedGearListSize = data[equippedGearListIndex]
+
+        local mainHandEnchantId, offHandEnchantId = 0, 0
+        if equippedGearListSize then
+            local mainHandEnchantIdIndex = tonumber(noEnchantTableSize + noGemsTableSize + equippedGearListSize + 7)
+            mainHandEnchantId = tonumber(data[mainHandEnchantIdIndex]) or 0
+            local offHandEnchantIdIndex = tonumber(mainHandEnchantIdIndex + 1)
+            offHandEnchantId = tonumber(data[offHandEnchantIdIndex]) or 0
+        end
 
         --unpack the enchant data as a ipairs table
         local noEnchantTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, noEnchantTableSize)
@@ -1659,7 +1672,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local equippedGearListUnpacked = equippedGearListIndex and openRaidLib.UnpackTable(data, equippedGearListIndex, false, true, 4) or {}
 
         --add to the list of gear information
-        openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTableUnpacked, noGemsTableUnpacked, equippedGearListUnpacked)
+        openRaidLib.GearManager.AddUnitGearList(unitName, itemLevel, durability, weaponEnchant, noEnchantTableUnpacked, noGemsTableUnpacked, equippedGearListUnpacked, mainHandEnchantId, offHandEnchantId)
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_GEARINFO_FULL_PREFIX, openRaidLib.GearManager.OnReceiveGearFullInfo)
 
@@ -1673,6 +1686,8 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         --[4] table with integers of equipSlot without enchant
         --[5] table with integers of equipSlot which has a gem slot but the slot is empty
         --[6] table with all gear from the player
+        --[7] int mainHandEnchantId
+        --[8] int offHandEnchantId
 
         local dataToSend = "" .. CONST_COMM_GEARINFO_FULL_PREFIX .. ","
         local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
