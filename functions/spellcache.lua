@@ -248,6 +248,8 @@ do
 
 				--/dump C_Item.GetItemNameByID(137486) --to check an item
 				--default tooltip script gets the item id
+
+				[377459] = {name = formatTextForItem(194306)}, --trinket: All-Totem of the Master
 			}
 
 			for spellId, spellCustomization in pairs(dragonflightTrinkets) do
