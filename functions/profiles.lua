@@ -1,122 +1,99 @@
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local _detalhes = 		_G._detalhes
+local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
+local _
+local addonName, Details222 = ...
+local detailsFramework = DetailsFramework
 
-	local _detalhes = 		_G._detalhes
-	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
-	local _
-	local addonName, Details222 = ...
-	local detailsFramework = DetailsFramework
-
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---Profiles:
-	--return the current profile name
-
+---return the current profile name
+---@return string
 function _detalhes:GetCurrentProfileName()
-
-	--check is have a profile name
-		if (_detalhes_database.active_profile == "") then --  or not _detalhes_database.active_profile
-			local character_key = UnitName ("player") .. "-" .. GetRealmName()
-			_detalhes_database.active_profile = character_key
-		end
-
-	--end
-		return _detalhes_database.active_profile
+	if (_detalhes_database.active_profile == "") then
+		local characterKey = UnitName ("player") .. "-" .. GetRealmName()
+		_detalhes_database.active_profile = characterKey
+	end
+	return _detalhes_database.active_profile
 end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---Profiles:
-	--create a new profile
-
-function _detalhes:CreateProfile (name)
-
-	if (not name or type(name) ~= "string" or name == "") then
+---create a new profile
+---@param profileName string
+---@return boolean|table
+function _detalhes:CreateProfile(profileName)
+	if (not profileName or type(profileName) ~= "string" or profileName == "") then
 		return false
 	end
 
 	--check if already exists
-		if (_detalhes_global.__profiles [name]) then
-			return false
-		end
+	if (_detalhes_global.__profiles[profileName]) then
+		return false
+	end
 
 	--copy the default table
-		local new_profile = Details.CopyTable(_detalhes.default_profile)
-		new_profile.instances = {}
+	local newProfile = Details.CopyTable(_detalhes.default_profile)
+	newProfile.instances = {}
 
 	--add to global container
-		_detalhes_global.__profiles [name] = new_profile
+	_detalhes_global.__profiles[profileName] = newProfile
 
 	--end
-		return new_profile
-
+	return newProfile
 end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---Profiles:
-	--return the list os all profiles
-
+---return the list os all profiles
+---@return table
 function _detalhes:GetProfileList()
-
-	--build the table
-		local t = {}
-		for name, profile in pairs(_detalhes_global.__profiles) do
-			t [#t + 1] = name
-		end
-
-	--end
-		return t
+	local profileList = {}
+	for profileName in pairs(_detalhes_global.__profiles) do
+		profileList[#profileList + 1] = profileName
+	end
+	return profileList
 end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---Profiles:
-	--delete a profile
+---delete a profile
+---@param profileName string|nil
+---@return boolean
+function Details:EraseProfile(profileName)
+	if (not profileName) then
+		return false
+	end
 
-function _detalhes:EraseProfile (profile_name)
+	--erase the profile from the profile container
+	_detalhes_global.__profiles[profileName] = nil
 
-	--erase profile table
-		_detalhes_global.__profiles [profile_name] = nil
+	if (_detalhes_database.active_profile == profileName) then
+		local characterKey = UnitName("player") .. "-" .. GetRealmName()
+		local profile = Details:GetProfile(characterKey)
 
-		if (_detalhes_database.active_profile == profile_name) then
-
-			local character_key = UnitName ("player") .. "-" .. GetRealmName()
-
-			local my_profile = _detalhes:GetProfile (character_key)
-
-			if (my_profile) then
-				_detalhes:ApplyProfile (character_key, true)
-			else
-				local profile = _detalhes:CreateProfile (character_key)
-				_detalhes:ApplyProfile (character_key, true)
-			end
-
+		if (profile) then
+			Details:ApplyProfile(characterKey, true)
+		else
+			Details:CreateProfile(characterKey)
+			Details:ApplyProfile(characterKey, true)
 		end
+	end
 
-	--end
-		return true
+	return true
 end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---Profiles:
-	--return the profile table requested
+---return the profile table requested
+---@param profileName string
+---@param create boolean
+---@return table|boolean
+function Details:GetProfile(profileName, create)
+	if (not profileName) then
+		profileName = Details:GetCurrentProfileName()
+	end
 
-function _detalhes:GetProfile (name, create)
+	local profile = _detalhes_global.__profiles[profileName]
 
-	--get the profile, create and return
-		if (not name) then
-			name = _detalhes:GetCurrentProfileName()
-		end
+	if (not profile and not create) then
+		return false
 
-		local profile = _detalhes_global.__profiles [name]
+	elseif (not profile and create) then
+		profile = Details:CreateProfile(profileName)
+	end
 
-		if (not profile and not create) then
-			return false
-
-		elseif (not profile and create) then
-			profile = _detalhes:CreateProfile (name)
-
-		end
-
-	--end
-		return profile
+	return profile
 end
 
 function _detalhes:SetProfileCProp (name, cprop, value)
@@ -188,6 +165,7 @@ function _detalhes:ResetProfile (profile_name)
 	--end
 		return true
 end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --Profiles:
 	--return the profile table requested
