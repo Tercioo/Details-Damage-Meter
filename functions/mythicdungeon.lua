@@ -475,15 +475,8 @@ function DetailsMythicPlusFrame.BossDefeated(this_is_end_end, encounterID, encou
     --close the combat
     if (this_is_end_end) then
         --player left the dungeon
-        if (in_combat and _detalhes.mythic_plus.always_in_combat) then
-            Details:SairDoCombate()
-        end
+        --had some deprecated code removed about alweays in combat
     else
-        --re-enter in combat if details! is set to always be in combat during mythic plus
-        if (Details.mythic_plus.always_in_combat) then
-            Details:EntrarEmCombate()
-        end
-
         --increase the segment number for the mythic run
         Details.MythicPlus.SegmentID = Details.MythicPlus.SegmentID + 1
 
@@ -679,16 +672,6 @@ function DetailsMythicPlusFrame.MythicDungeonStarted()
     Details.MythicPlus.PreviousBossKilledAt = time()
 
     Details:SaveState_CurrentMythicDungeonRun (Details.mythic_dungeon_id, zoneName, currentZoneID, time()+9.7, 1, mythicLevel, ejID, time())
-
-    --start a new combat segment after 10 seconds
-    if (_detalhes.mythic_plus.always_in_combat) then
-        C_Timer.After(9.7, function()
-            if (DetailsMythicPlusFrame.DevelopmentDebug) then
-                print("Details!", "New segment for mythic dungeon created.")
-            end
-            _detalhes:EntrarEmCombate()
-        end)
-    end
 
     local name, groupType, difficultyID, difficult = GetInstanceInfo()
     if (groupType == "party" and Details.overall_clear_newchallenge) then

@@ -6915,15 +6915,6 @@ do
 
         local sectionOptions = {
             {type = "label", get = function() return Loc["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-            {--always in combat
-                type = "toggle",
-                get = function() return Details.mythic_plus.always_in_combat end,
-                set = function(self, fixedparam, value)
-                    Details.mythic_plus.always_in_combat = value
-                end,
-                name = "Always in Combat",
-                desc = "Details won't create new segments for trash or boss and treat the run as a single segment.",
-            },
 
             {--dedicated segment for bosses
                 type = "toggle",

@@ -1492,7 +1492,6 @@ local default_global_data = {
 
 	--mythic plus config
 		mythic_plus = {
-			always_in_combat = false, --
 			merge_boss_trash = true, --
 			delete_trash_after_merge = true, --
 			--merge_boss_with_trash = false, --this won't be used
@@ -1892,7 +1891,6 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 
 		--profile imported, set mythic dungeon to default settings
 		local mythicPlusSettings = Details.mythic_plus
-		mythicPlusSettings.always_in_combat = false
 		mythicPlusSettings.merge_boss_trash = true
 		mythicPlusSettings.delete_trash_after_merge = true
 		mythicPlusSettings.boss_dedicated_segment = true
