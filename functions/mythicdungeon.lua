@@ -76,11 +76,6 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
         local thisCombat = segmentHistory[i]
         if (thisCombat and thisCombat.is_mythic_dungeon_run_id == Details.mythic_dungeon_id) then
             local canAddThisSegment = true
-            if (_detalhes.mythic_plus.make_overall_boss_only) then
-                if (not thisCombat.is_boss) then
-                    canAddThisSegment = false
-                end
-            end
 
             if (canAddThisSegment) then
                 newCombat = newCombat + thisCombat

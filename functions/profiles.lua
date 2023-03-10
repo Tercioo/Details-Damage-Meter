@@ -1497,7 +1497,6 @@ local default_global_data = {
 			--merge_boss_with_trash = false, --this won't be used
 			boss_dedicated_segment = true, --
 			make_overall_when_done = true, --
-			make_overall_boss_only = false, --
 			show_damage_graphic = true,
 			delay_to_show_graphic = 5,
 			last_mythicrun_chart = {},
@@ -1895,7 +1894,6 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		mythicPlusSettings.delete_trash_after_merge = true
 		mythicPlusSettings.boss_dedicated_segment = true
 		mythicPlusSettings.make_overall_when_done = true
-		mythicPlusSettings.make_overall_boss_only = false
 		mythicPlusSettings.show_damage_graphic = true
 		mythicPlusSettings.delay_to_show_graphic = 5
 		mythicPlusSettings.last_mythicrun_chart = {}
