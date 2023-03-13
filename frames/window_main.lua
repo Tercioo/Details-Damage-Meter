@@ -2022,21 +2022,21 @@ end
 function Details:HandleTextsOnMouseClick(row, type)
 	if (self.bars_inverted) then
 		if (type == "down") then
-			row.lineText4:SetPoint("left", row.statusbar, "left", -self.fontstrings_text4_anchor + 2, self.row_info.text_yoffset - 1)
+			row.lineText4:SetPoint("left", row.statusbar, "left", self.fontstrings_text4_anchor + 2, self.row_info.text_yoffset - 1)
 
 			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint("right", row.statusbar, "right", self.row_info.textL_offset - 1, self.row_info.text_yoffset - 1)
+				row.lineText1:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 1, self.row_info.text_yoffset - 1)
 			else
-				row.lineText1:SetPoint("right", row.icone_classe, "left",self.row_info.textL_offset - 1, self.row_info.text_yoffset - 1)
+				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 1, self.row_info.text_yoffset - 1)
 			end
 
 		elseif (type == "up") then
-			row.lineText4:SetPoint("left", row.statusbar, "left", -self.fontstrings_text4_anchor + 1, self.row_info.text_yoffset)
+			row.lineText4:SetPoint("left", row.statusbar, "left", self.fontstrings_text4_anchor + 1, self.row_info.text_yoffset)
 
 			if (self.row_info.no_icon) then
-				row.lineText1:SetPoint("right", row.statusbar, "right", self.row_info.textL_offset - 2, self.row_info.text_yoffset)
+				row.lineText1:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
 			else
-				row.lineText1:SetPoint("right", row.icone_classe, "left", self.row_info.textL_offset - 2, self.row_info.text_yoffset)
+				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
 			end
 		end
 
@@ -4854,7 +4854,7 @@ function Details:InstanceRefreshRows(instance)
 			if (no_icon) then
 				row.statusbar:SetPoint("topleft", row, "topleft")
 				row.statusbar:SetPoint("bottomright", row, "bottomright")
-				row.lineText1:SetPoint("right", row.statusbar, "right", self.row_info.textL_offset - 2, self.row_info.text_yoffset)
+				row.lineText1:SetPoint("right", row.statusbar, "right", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
 				row.icone_classe:Hide()
 				row.iconHighlight:Hide()
 				--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
@@ -4874,7 +4874,7 @@ function Details:InstanceRefreshRows(instance)
 
 				row.statusbar:SetPoint("topleft", row, "topleft")
 
-				row.lineText1:SetPoint("right", row.icone_classe, "left", self.row_info.textL_offset - 2, self.row_info.text_yoffset)
+				row.lineText1:SetPoint("right", row.icone_classe, "left", -self.row_info.textL_offset - 2, self.row_info.text_yoffset)
 			end
 		end
 
