@@ -2198,9 +2198,9 @@ do
         sectionOptions.always_boxfirst = true
         DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 
-        local separatorOption = sectionFrame.widget_list[23]
-        local bracketOption = sectionFrame.widget_list[24]
-        local warningLabel = sectionFrame.widget_list[25]
+        local separatorOption = sectionFrame.widget_list[25]
+        local bracketOption = sectionFrame.widget_list[26]
+        local warningLabel = sectionFrame.widget_list[27]
         Details.options.textSeparatorOption = separatorOption
         Details.options.textbracketOption = bracketOption
 
