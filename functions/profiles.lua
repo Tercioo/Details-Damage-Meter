@@ -1197,6 +1197,7 @@ local default_player_data = {
 				["itemheal"] = false,
 				["itempower"] = false,
 				["itemutil"] = false,
+				["crowdcontrol"] = false,
 			}, --when creating a filter, add it here and also add to 'own_frame'
 
 			own_frame = {
@@ -1492,13 +1493,14 @@ local default_global_data = {
 
 	--mythic plus config
 		mythic_plus = {
-			merge_boss_trash = true, --
-			delete_trash_after_merge = true, --
-			--merge_boss_with_trash = false, --this won't be used
-			boss_dedicated_segment = true, --
-			make_overall_when_done = true, --
+			merge_boss_trash = true,
+			boss_dedicated_segment = true,
+			make_overall_when_done = true,
 			show_damage_graphic = true,
-			delay_to_show_graphic = 5,
+
+			reverse_death_log = false,
+
+			delay_to_show_graphic = 10,
 			last_mythicrun_chart = {},
 			mythicrun_chart_frame = {},
 			mythicrun_chart_frame_minimized = {},
@@ -1702,9 +1704,6 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 end
 
 
-
-
-
 --------------------------------------------------------------------------------------------------------------------------------------------
 --~export ~ import ~profile
 
@@ -1891,11 +1890,11 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		--profile imported, set mythic dungeon to default settings
 		local mythicPlusSettings = Details.mythic_plus
 		mythicPlusSettings.merge_boss_trash = true
-		mythicPlusSettings.delete_trash_after_merge = true
 		mythicPlusSettings.boss_dedicated_segment = true
 		mythicPlusSettings.make_overall_when_done = true
 		mythicPlusSettings.show_damage_graphic = true
-		mythicPlusSettings.delay_to_show_graphic = 5
+		mythicPlusSettings.reverse_death_log = false
+		mythicPlusSettings.delay_to_show_graphic = 10
 		mythicPlusSettings.last_mythicrun_chart = {}
 		mythicPlusSettings.mythicrun_chart_frame = {}
 		mythicPlusSettings.mythicrun_chart_frame_minimized = {}

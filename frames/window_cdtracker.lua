@@ -675,6 +675,17 @@ end
                     desc = "Example: Invisibility Potion.",
                 },
 
+                {--filter: crowd control
+                    type = "toggle",
+                    get = function() return Details.ocd_tracker.filters["crowdcontrol"] end,
+                    set = function(self, fixedparam, value)
+                        Details.ocd_tracker.filters["crowdcontrol"] = value
+                        Details222.CooldownTracking.RefreshAllCooldownFrames()
+                    end,
+                    name = "Crowd Control",
+                    desc = "Example: Incapacitaion Roar.",
+                },
+
                 {type = "breakline"},
 
                 {--bar width

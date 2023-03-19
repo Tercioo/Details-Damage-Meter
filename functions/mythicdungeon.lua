@@ -71,6 +71,24 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
     local lastSegment
     local totalSegments = 0
 
+    if (Details.mythic_plus.reverse_death_log) then
+        for i = 1, 40 do --copy the deaths from the first segment to the last one
+            local thisCombat = segmentHistory[i]
+            if (thisCombat and thisCombat.is_mythic_dungeon_run_id == Details.mythic_dungeon_id) then
+                newCombat:CopyDeathsFrom(thisCombat, true)
+            end
+        end
+    else
+        for i = 40, 1, -1 do --copy the deaths from the last segment to the new segment
+            local thisCombat = segmentHistory[i]
+            if (thisCombat) then
+                if (thisCombat.is_mythic_dungeon_run_id == Details.mythic_dungeon_id) then
+                    newCombat:CopyDeathsFrom(thisCombat, true)
+                end
+            end
+        end
+    end
+
     --add all boss segments from this run to this new segment
     for i = 1, 40 do --from the newer combat to the oldest
         local thisCombat = segmentHistory[i]
@@ -79,7 +97,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
 
             if (canAddThisSegment) then
                 newCombat = newCombat + thisCombat
-                newCombat:CopyDeathsFrom(thisCombat, true)
+                --newCombat:CopyDeathsFrom(thisCombat, true)
 
                 totalTime = totalTime + thisCombat:GetCombatTime()
                 totalSegments = totalSegments + 1
@@ -231,33 +249,21 @@ function DetailsMythicPlusFrame.MergeTrashCleanup (isFromSchedule)
             print("Details!", "MergeTrashCleanup() > finished merging trash segments.", _detalhes.tabela_vigente, _detalhes.tabela_vigente.is_boss)
         end
 
-        --should delete the trash segments after the merge?
-        if (_detalhes.mythic_plus.delete_trash_after_merge) then
-            local segmentHistory = Details:GetCombatSegments()
-            for i = #segmentHistory, 1, -1 do
-                local segment = segmentHistory [i]
-                if (segment and segment._trashoverallalreadyadded) then
-                    tremove(segmentHistory, i)
-                end
+        --delete all segments that were merged
+        local segmentHistory = Details:GetCombatSegments()
+        for segmentId = #segmentHistory, 1, -1 do
+            local segment = segmentHistory[segmentId]
+            if (segment and segment._trashoverallalreadyadded) then
+                tremove(segmentHistory, segmentId)
             end
-
-            for i = #segmentsToMerge, 1, -1 do
-                tremove(segmentsToMerge, i)
-            end
-
-            Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
-        else
-            --clear the segments to merge table
-            for i = #segmentsToMerge, 1, -1 do
-                tremove(segmentsToMerge, i)
-                --notify plugins about a segment deleted
-                Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
-            end
-
-            --clear encounter name and id
-            segmentsToMerge.EncounterID = nil
-            segmentsToMerge.EncounterName = nil
         end
+
+        for i = #segmentsToMerge, 1, -1 do
+            tremove(segmentsToMerge, i)
+        end
+
+        --call the segment removed event to notify third party addons
+        Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 
         --update all windows
         Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
@@ -311,6 +317,7 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("MergeRemainingTrashAfterAllBossesDone() > total combat time:", totalTime)
     end
+
     --set the segment date
     local startDate = overallCombat:GetDate()
     overallCombat:SetDate (startDate, endDate)
@@ -328,57 +335,48 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
         print("MergeRemainingTrashAfterAllBossesDone() > elapsed time after:", mythicDungeonInfo.EndedAt - mythicDungeonInfo.StartedAt)
     end
 
-    --should delete the trash segments after the merge?
-    if (_detalhes.mythic_plus.delete_trash_after_merge) then
-        local removedCurrentSegment = false
-        local segmentHistory = Details:GetCombatSegments()
-        for _, pastCombat in ipairs(segmentsToMerge) do
-            for i = #segmentHistory, 1, -1 do
-                local segment = segmentHistory [i]
-                if (segment == pastCombat) then
-                    --remove the segment
-                    if (_detalhes.tabela_vigente == segment) then
-                        removedCurrentSegment = true
-                    end
-                    tremove(segmentHistory, i)
-                    break
+    --remove trash segments from the segment history after the merge
+    local removedCurrentSegment = false
+    local segmentHistory = Details:GetCombatSegments()
+    for _, pastCombat in ipairs(segmentsToMerge) do
+        for i = #segmentHistory, 1, -1 do
+            local segment = segmentHistory [i]
+            if (segment == pastCombat) then
+                --remove the segment
+                if (_detalhes.tabela_vigente == segment) then
+                    removedCurrentSegment = true
                 end
+                tremove(segmentHistory, i)
+                break
             end
-        end
-
-        for i = #segmentsToMerge, 1, -1 do
-            tremove(segmentsToMerge, i)
-        end
-
-        if (removedCurrentSegment) then
-            --find another current segment
-            local segmentHistory = Details:GetCombatSegments()
-            _detalhes.tabela_vigente = segmentHistory [1]
-
-            if (not _detalhes.tabela_vigente) then
-                --assuming there's no segment from the dungeon run
-                Details:EntrarEmCombate()
-                Details:SairDoCombate()
-            end
-
-            --update all windows
-            Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-            Details:InstanciaCallFunction(Details.AtualizaSegmentos)
-            Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
-            Details:InstanciaCallFunction(Details.ResetaGump)
-            Details:RefreshMainWindow(-1, true)
-        end
-
-        Details222.MythicPlus.LogStep("delete_trash_after_merge | concluded")
-        Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
-    else
-        --clear the segments to merge table
-        for i = #segmentsToMerge, 1, -1 do
-            tremove(segmentsToMerge, i)
-            --notify plugins about a segment deleted
-            Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
         end
     end
+
+    for i = #segmentsToMerge, 1, -1 do
+        tremove(segmentsToMerge, i)
+    end
+
+    if (removedCurrentSegment) then
+        --find another current segment
+        local segmentHistory = Details:GetCombatSegments()
+        _detalhes.tabela_vigente = segmentHistory [1]
+
+        if (not _detalhes.tabela_vigente) then
+            --assuming there's no segment from the dungeon run
+            Details:EntrarEmCombate()
+            Details:SairDoCombate()
+        end
+
+        --update all windows
+        Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
+        Details:InstanciaCallFunction(Details.AtualizaSegmentos)
+        Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
+        Details:InstanciaCallFunction(Details.ResetaGump)
+        Details:RefreshMainWindow(-1, true)
+    end
+
+    Details222.MythicPlus.LogStep("delete_trash_after_merge | concluded")
+    Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 
     DetailsMythicPlusFrame.TrashMergeScheduled2 = nil
     DetailsMythicPlusFrame.TrashMergeScheduled2_OverallCombat = nil

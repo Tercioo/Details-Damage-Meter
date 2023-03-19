@@ -6922,7 +6922,7 @@ do
                 set = function(self, fixedparam, value)
                     Details.mythic_plus.boss_dedicated_segment = value
                 end,
-                name = "Boss Dedicated Segment",
+                name = "New Combat on Boss Pull",
                 desc = "If a boss is pulled while in combat, Details! close the combat and start a new one for the boss.",
             },
 
@@ -6946,15 +6946,7 @@ do
                 desc = "Merge Trash",
             },
 
-            {--delete merged trash
-                type = "toggle",
-                get = function() return Details.mythic_plus.delete_trash_after_merge end,
-                set = function(self, fixedparam, value)
-                    Details.mythic_plus.delete_trash_after_merge = value
-                end,
-                name = "Delete Merged Trash Segments",
-                desc = "After have the segment merged, if this option is enabled it'll delete those merged segments.",
-            },            
+            {type = "blank"},
 
             {--show chart popup
                 type = "toggle",
