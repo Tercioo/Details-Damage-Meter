@@ -64,7 +64,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 96
+local CONST_LIB_VERSION = 97
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -666,9 +666,22 @@ end
         local eventCallbacks = openRaidLib.publicCallback.events[event]
 
         for i = 1, #eventCallbacks do
-            local thisCallback = eventCallbacks[i]
-            local addonObject = thisCallback[1]
+            local thisCallback = eventCallbacks[i] --got a case where this was nil, which is kinda impossible? | event: CooldownUpdate 
+            local addonObject = thisCallback[1] --670: attempt to index local 'thisCallback' (a nil value)
             local functionName = thisCallback[2]
+
+            --[=[
+                eventCallbacks = {
+                    1 = {}
+                }
+
+                (for index) = 2
+                (for limit) = 2
+                (for step) = 1
+                i = 2    
+                
+                thisCallback = nil
+            --]=]
 
             --get the function from within the addon object
             local functionToCallback = addonObject[functionName]

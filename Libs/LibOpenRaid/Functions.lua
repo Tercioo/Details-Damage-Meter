@@ -21,6 +21,7 @@ local CONST_COOLDOWN_TYPE_INTERRUPT = 6
 local CONST_COOLDOWN_TYPE_ITEMHEAL = 10
 local CONST_COOLDOWN_TYPE_ITEMPOWER = 11
 local CONST_COOLDOWN_TYPE_ITEMUTIL = 12
+local CONST_COOLDOWN_TYPE_CROWDCONTROL = 8
 
 --hold spellIds and which custom caches the spell is in
 --map[spellId] = map[filterName] = true
@@ -185,6 +186,7 @@ local filterStringToCooldownType = {
     ["itemutil"] = CONST_COOLDOWN_TYPE_ITEMUTIL,
     ["itemheal"] = CONST_COOLDOWN_TYPE_ITEMHEAL,
     ["itempower"] = CONST_COOLDOWN_TYPE_ITEMPOWER,
+    ["crowdcontrol"] = CONST_COOLDOWN_TYPE_CROWDCONTROL,
 }
 
 local filterStringToCooldownTypeReverse = {
@@ -197,6 +199,7 @@ local filterStringToCooldownTypeReverse = {
     [CONST_COOLDOWN_TYPE_ITEMUTIL]  = "itemutil",
     [CONST_COOLDOWN_TYPE_ITEMHEAL] = "itemheal",
     [CONST_COOLDOWN_TYPE_ITEMPOWER] = "itempower",
+    [CONST_COOLDOWN_TYPE_CROWDCONTROL] = "crowdcontrol",
 }
 
 local removeSpellFromCustomFilterCache = function(spellId, filterName)

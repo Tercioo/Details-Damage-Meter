@@ -206,8 +206,8 @@ local languagesAvailable = {
     koKR = {text = "한국어", font = [[Fonts\2002.TTF]]},
     ptBR = {text = "Português (BR)", font = "Fonts\\FRIZQT__.TTF"},
     ruRU = {text = "Русский", font = "Fonts\\FRIZQT___CYR.TTF"},
-    zhCN = {text = "简体中文", font = [[Fonts\ARKai_T.ttf]]},
-    zhTW = {text = "繁體中文", font = [[Fonts\blei00d.TTF]]},
+    zhCN = {text = "简体中文", font = [[Fonts\ARHei.ttf]]},
+    zhTW = {text = "繁體中文", font = [[Fonts\ARHei.ttf]]},
 }
 
 local ignoredCharacters = {}
@@ -230,6 +230,7 @@ for character in latinAlphabet:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
     DF.LanguageKnowledge[character] = CONST_LANGUAGEID_ENUS
 end
 
+--version 1:
 ---register the letters and symbols used on phrases
 ---@param languageId any
 ---@param languageTable any
@@ -238,10 +239,50 @@ local registerCharacters = function(languageId, languageTable)
         for character in textString:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
             if (not ignoredCharacters[character]) then
                 if (not DF.LanguageKnowledge[character]) then
-                    if (fontLanguageCompatibility[languageId] == 1) then
-                        DF.LanguageKnowledge[character] = CONST_LANGUAGEID_ENUS
-                    else
+                    if (fontLanguageCompatibility[languageId] ~= 1) then
                         DF.LanguageKnowledge[character] = languageId
+                    end
+                end
+            end
+        end
+    end
+end
+
+---receives a character and attempt to get its byte code
+---@param character string
+---@return string, number
+local getByteCodeForCharacter = function(character)
+    local byteCode = ""
+    local amountOfBytes = 0
+    for symbolPiece in character:gmatch(".") do --separate each byte, can one, two or three bytes
+        byteCode = byteCode .. string.byte(symbolPiece)
+        amountOfBytes = amountOfBytes + 1
+    end
+    return byteCode, amountOfBytes
+end
+
+---receives a character and attempt to get its byte code
+---@param character string
+---@return string
+local getQuickByteCodeForCharacter = function(character)
+    local byte1, byte2, byte3, byte4 = string.byte(character, 1, #character)
+    return (byte1 or "") .. "" .. (byte2 or "") .. "" .. (byte3 or "") .. "" .. (byte4 or "")
+end
+
+--version 2:
+---register the letters and symbols used on phrases
+---@param languageId any
+---@param languageTable any
+local registerCharacters = function(languageId, languageTable)
+    if (fontLanguageCompatibility[languageId] ~= 1) then
+        for stringId, textString in pairs(languageTable) do
+            for character in textString:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+                local byteCode, amountOfBytes = getByteCodeForCharacter(character)
+
+                --latin letters and escape sequences always use one byte per character
+                if (amountOfBytes >= 2) then --at least 2 bytes
+                    if (not DF.LanguageKnowledge[byteCode]) then
+                        DF.LanguageKnowledge[byteCode] = languageId
                     end
                 end
             end
@@ -894,8 +935,9 @@ function DF.Language.DetectLanguageId(text)
         return "enUS"
     end
 
-    for letter in text:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
-        local languageId = DF.LanguageKnowledge[letter]
+    for character in text:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+        local byteCode, amountOfBytes = getByteCodeForCharacter(character)
+        local languageId = DF.LanguageKnowledge[byteCode]
         if (languageId) then
             return languageId
         end

@@ -1,6 +1,6 @@
 
 
-local dversion = 420
+local dversion = 421
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -675,6 +675,42 @@ function DF:SplitTextInLines(text)
 	return lines
 end
 
+DF.strings = {}
+
+---receive an array and output a string with the values separated by commas
+---if bDoCompression is true, the string will be compressed using LibDeflate
+---@param t table
+---@param bDoCompression boolean|nil
+---@return string
+function DF.strings.tabletostring(t, bDoCompression)
+	local newString = ""
+	for i = 1, #t do
+		newString = newString .. t[i] .. ","
+	end
+
+	newString = newString:sub(1, -2)
+
+	if (bDoCompression) then
+		local LibDeflate = LibStub:GetLibrary("LibDeflate")
+		if (LibDeflate) then
+			newString = LibDeflate:CompressDeflate(newString, {level = 9})
+		end
+	end
+
+	return newString
+end
+
+function DF.strings.stringtotable(thisString, bDoCompression)
+	if (bDoCompression) then
+		local LibDeflate = LibStub:GetLibrary("LibDeflate")
+		if (LibDeflate) then
+			thisString = LibDeflate:DecompressDeflate(thisString)
+		end
+	end
+
+	local newTable = {strsplit(",", thisString)}
+	return newTable
+end
 
 DF.www_icons = {
 	texture = "feedback_sites",
@@ -1048,7 +1084,10 @@ function DF:trim(string)
 	return from > #string and "" or string:match(".*%S", from)
 end
 
---truncated revoming at a maximum of 10 character from the string
+
+---truncate removing at a maximum of 10 character from the string
+---@param fontString table
+---@param maxWidth number
 function DF:TruncateTextSafe(fontString, maxWidth)
 	local text = fontString:GetText()
 	local numIterations = 10
@@ -1070,6 +1109,9 @@ function DF:TruncateTextSafe(fontString, maxWidth)
 	fontString:SetText(text)
 end
 
+---truncate removing characters from the string until the maxWidth is reach
+---@param fontString table
+---@param maxWidth number
 function DF:TruncateText(fontString, maxWidth)
 	local text = fontString:GetText()
 
