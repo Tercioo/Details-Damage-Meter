@@ -76,6 +76,10 @@
 		end
 	end
 
+	function timeMachine:TurnOn()
+		return timeMachine:Ligar()
+	end
+
 	function timeMachine:Ligar()
 		self.atualizador = self:ScheduleRepeatingTimer ("Core", 1)
 		self.ligada = true
@@ -87,6 +91,10 @@
 				jogador:RegistrarNaTimeMachine()
 			end
 		end
+	end
+
+	function timeMachine:TurnOff()
+		return timeMachine:Desligar()
 	end
 
 	function timeMachine:Desligar()
@@ -102,6 +110,10 @@
 		table.wipe(self.tabelas[1])
 		table.wipe(self.tabelas[2])
 		self.tabelas = {{}, {}} --1 dano 2 cura
+	end
+
+	function timeMachine:UnregisterActor(actorObject)
+		return actorObject:DesregistrarNaTimeMachine()
 	end
 
 	function _detalhes:DesregistrarNaTimeMachine()
@@ -127,9 +139,9 @@
 		local esta_tabela = timeMachine.tabelas [self.tipo]
 		tinsert(esta_tabela, self)
 		self.timeMachine = #esta_tabela
-	end 
+	end
 
-	function _detalhes:ManutencaoTimeMachine()
+	function Details:TimeMachineMaintenance()
 		for tipo, tabela in ipairs(timeMachine.tabelas) do
 			local t = {}
 			local removed = 0

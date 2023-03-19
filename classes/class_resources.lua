@@ -1523,10 +1523,6 @@ end
 			return shadow
 		end
 
-function atributo_energy:ColetarLixo (lastevent)
-	return _detalhes:ColetarLixo (class_type, lastevent)
-end
-
 function _detalhes.refresh:r_atributo_energy (este_jogador, shadow)
 	detailsFramework:Mixin(este_jogador, Details222.Mixins.ActorMixin)
 	setmetatable(este_jogador, _detalhes.atributo_energy)

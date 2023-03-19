@@ -485,7 +485,7 @@ function segmentClass:resetar()
 		wipe (Details.schedule_add_to_overall)
 	end
 
-	Details:LimparPets()
+	Details:PetContainerCleanup()
 	Details:ResetSpecCache (true) --for�ar
 
 	-- novo container de historico

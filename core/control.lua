@@ -628,9 +628,7 @@
 				--	Details:EqualizeActorsSchedule (Details.host_of)
 				end
 
-				--verifica memoria
 				Details:FlagActorsOnCommonFight() --fight_component
-				--Details:CheckMemoryAfterCombat() -- 7.2.5 is doing some weird errors even out of combat
 			else
 
 				--this segment is a boss fight

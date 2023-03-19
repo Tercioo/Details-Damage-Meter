@@ -1,7 +1,7 @@
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	local _detalhes = 		_G._detalhes
-	local _tempo = time()
+	local _detalhes = _G._detalhes
+	local Details = _detalhes
+	local tocName, Details222 = ...
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
@@ -40,14 +40,16 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core
 
-	--reconstr�i o mapa do container
-		local function ReconstroiMapa (tabela)
-			local mapa = {}
-			for i = 1, #tabela._ActorTable do
-				mapa [tabela._ActorTable[i].nome] = i
-			end
-			tabela._NameIndexTable = mapa
+	---wipe the naming list and rebuild it
+	---@param actorContainer actorcontainer
+	local fullRemap = function(actorContainer)
+		local namingMap = actorContainer._NameIndexTable
+		wipe(namingMap)
+		for i = 1, #actorContainer._ActorTable do
+			local actorName = actorContainer._ActorTable[i].nome
+			namingMap[actorName] = i
 		end
+	end
 
 	--reaplica as tabelas no overall
 		function _detalhes:RestauraOverallMetaTables()
@@ -560,7 +562,7 @@
 							end
 
 							if (_iter.cleaned > 0) then
-								ReconstroiMapa (_tabela)
+								fullRemap(_tabela)
 							end
 						end
 					end
@@ -697,7 +699,7 @@
 								end
 
 								if (_iter.cleaned > 0) then
-									ReconstroiMapa (_tabela)
+									fullRemap(_tabela)
 								end
 
 							end
@@ -732,7 +734,7 @@
 				_detalhes:DoContainerIndexCleanup()
 		end
 
-	function _detalhes:reset_window (instancia)
+	function _detalhes:reset_window(instancia)
 		if (instancia.segmento == -1) then
 			instancia.showing[instancia.atributo].need_refresh = true
 			instancia.v_barras = true
@@ -741,65 +743,44 @@
 		end
 	end
 
-	--desativado 7.2.5 veio com algum bug e a checagem de memoria esta sendo feita durante o combate
-	function _detalhes:CheckMemoryAfterCombat()
-		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat("player")) then
-			_detalhes.next_memory_check = time()+_detalhes.intervalo_memoria
-			UpdateAddOnMemoryUsage()
-			local memory = GetAddOnMemoryUsage ("Details")
-			if (memory > _detalhes.memory_ram) then
-				_detalhes:RestartInternalGarbageCollector (true, 60) --sending true doesn't check anythink
-			end
-		end
-	end
-
-	function _detalhes:CheckMemoryPeriodically()
-		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat and not UnitAffectingCombat("player")) then
-			_detalhes.next_memory_check = time() + _detalhes.intervalo_memoria - 3
-			UpdateAddOnMemoryUsage()
-			local memory = GetAddOnMemoryUsage ("Details")
-			if (_detalhes.debug) then
-				_detalhes:Msg("(debug) checking memory periodically. Using: ",math.floor(memory))
-			end
-			if (memory > _detalhes.memory_ram * 1000) then
-				_detalhes:RestartInternalGarbageCollector (1, 60) --sending 1 only check for combat and ignore garbage collect cooldown
-			end
-		end
-	end
-
-	function _detalhes:RestartInternalGarbageCollector(bShouldForceCollect, lastEvent)
+	---start/restart the internal garbage collector runtime
+	---@param bShouldForceCollect boolean if true, the garbage collector will run regardless of the time interval
+	---@param lastEvent unixtime no call is passing lastEvent at the moment
+	function Details222.GarbageCollector.RestartInternalGarbageCollector(bShouldForceCollect, lastEvent)
+		--print("d! debug: running garbage collector...")
 		if (not bShouldForceCollect) then
-			if (_detalhes.ultima_coleta + _detalhes.intervalo_coleta > _detalhes._tempo + 1)  then
+			local thisTime = Details222.GarbageCollector.lastCollectTime + Details222.GarbageCollector.intervalTime
+			if (thisTime > Details._tempo + 1)  then
 				return
 
-			elseif (_detalhes.in_combat or _InCombatLockdown() or _detalhes:IsInInstance()) then
-				_detalhes:ScheduleTimer("RestartInternalGarbageCollector", 5)
+			elseif (Details.in_combat or _InCombatLockdown() or Details:IsInInstance()) then
+				Details.Schedules.After(5, Details222.GarbageCollector.RestartInternalGarbageCollector, false, lastEvent)
 				return
 			end
 		else
 			if (type(bShouldForceCollect) ~= "boolean") then
 				if (bShouldForceCollect == 1) then
-					if (_detalhes.in_combat or _InCombatLockdown()) then
-						_detalhes:ScheduleTimer("RestartInternalGarbageCollector", 5, bShouldForceCollect)
+					if (Details.in_combat or _InCombatLockdown()) then
+						Details.Schedules.After(5, Details222.GarbageCollector.RestartInternalGarbageCollector, bShouldForceCollect, lastEvent)
 						return
 					end
 				end
 			end
 		end
 
-		if (_detalhes.debug) then
+		if (Details.debug) then
 			if (bShouldForceCollect) then
-				_detalhes:Msg("(debug) collecting garbage with forced state:", bShouldForceCollect)
+				Details:Msg("(debug) collecting garbage with forced state:", bShouldForceCollect)
 			else
-				_detalhes:Msg("(debug) collecting garbage.")
+				Details:Msg("(debug) collecting garbage.")
 			end
 		end
 
 		--cleanup all the parser caches
 		Details:ClearParserCache()
 
-		--cleanup all the window lines (bars) which isn't in use
-		for index, instanceObject in ipairs(Details.tabela_instancias) do
+		--cleanup lines which isn't shown but has an actor attached to
+		for instanceId, instanceObject in Details:ListInstances() do
 			if (instanceObject.barras and instanceObject.barras[1]) then
 				for i, lineRow in ipairs(instanceObject.barras) do
 					if (not lineRow:IsShown()) then
@@ -809,26 +790,24 @@
 			end
 		end
 
-		--do garbage collection on the handler for each actor class
-		local damage = classDamage:ColetarLixo(lastEvent)
-		local heal = classHeal:ColetarLixo(lastEvent)
-		local energy = classEnergy:ColetarLixo(lastEvent)
-		local misc = classUtility:ColetarLixo(lastEvent)
-
-		local limpados = damage + heal + energy + misc
+		--print("d! debug: RunGarbageCollector() Start")
+		---@type number
+		local amountActorRemoved = Details222.GarbageCollector.RunGarbageCollector(lastEvent)
+		--print("d! debug: RunGarbageCollector() Ended, cleanup:", amountActorRemoved, "actors.") --139 actor removed, but don't remove anything (/reload it remove again)
+		--UpdateAddOnMemoryUsage()
+		--local memoryUsage = GetAddOnMemoryUsage("Details")
+		--print("Memory:", floor(memoryUsage)/1000, "MBytes")
 
 		--refresh nas janelas
-		if (limpados > 0) then
-			Details:InstanciaCallFunction(_detalhes.reset_window)
+		if (amountActorRemoved > 0) then
+			Details:InstanciaCallFunction(Details.reset_window)
 		end
 
-		Details:ManutencaoTimeMachine()
+		Details:TimeMachineMaintenance()
 
 		--cleanup backlisted pets within the handler of actor containers
-		_detalhes:LimparPets()
-		if (not _detalhes.in_combat) then
-			Details:ClearCCPetsBlackList()
-		end
+		Details:PetContainerCleanup()
+		Details:ClearCCPetsBlackList()
 
 		--cleanup spec cache
 		Details:ResetSpecCache()
@@ -836,152 +815,134 @@
 		--cleanup the shield cache
 		wipe(Details.ShieldCache)
 
-		--set the time of the latest internal garbage collect
-		Details.ultima_coleta = _detalhes._tempo
+		--set the time of the last run
+		Details222.GarbageCollector.lastCollectTime = Details._tempo
 
-		if (_detalhes.debug) then
+		if (Details.debug) then
 			Details:Msg("(debug) executing: collectgarbage().")
 			collectgarbage()
-			UpdateAddOnMemoryUsage()
 		end
 	end
 
-	--combates Normais
-	local function FazColeta (_combate, tipo, intervalo_overwrite)
-
-		local conteudo = _combate [tipo]._ActorTable
-		local _iter = {index = 1, data = conteudo[1], cleaned = 0}
-		local _tempo  = _time()
-
-		--local links_removed = 0
+	---check all the actors and remove the ones which are not in use
+	---@param combatObject combat
+	---@param overriteInterval unixtime
+	---@return integer
+	local collectGarbage = function(combatObject, overriteInterval)
+		--amount of actors removed
+		local amountCleaned = 0
 
 		--do not collect things in a mythic+ dungeon segment
-		if (_combate.is_mythic_dungeon_trash or _combate.is_mythic_dungeon_run_id or _combate.is_mythic_dungeon_segment) then
-			return 0
+		if (combatObject.is_mythic_dungeon_trash or combatObject.is_mythic_dungeon_run_id or combatObject.is_mythic_dungeon_segment) then
+			return amountCleaned
 		end
 
-		while (_iter.data) do
+		---@type number
+		local _tempo = _time()
 
-			local _actor = _iter.data
-			local can_garbage = false
+		for containerId = 1, 4 do
+			local actorContainer = combatObject:GetContainer(containerId)
+			---@type table<number, actor>
+			local actorList = actorContainer:GetActorTable()
+			local beforeCleanupAmountOfActors = #actorList
 
-			local t
-			if (intervalo_overwrite) then
-				t =  _actor.last_event + intervalo_overwrite
-			else
-				t = _actor.last_event + _detalhes.intervalo_coleta
-			end
+			for actorIndex = #actorList, 1, -1 do
+				---@type actor
+				local actorObject = actorList[actorIndex]
 
-			if (t < _tempo and not _actor.grupo and not _actor.boss and not _actor.fight_component and not _actor.boss_fight_component) then
-				local owner = _actor.owner
-				if (owner) then
-					local owner_actor = _combate (tipo, owner.nome)
-					if (not owner.grupo and not owner.boss and not owner.boss_fight_component) then
-						can_garbage = true
+				if (not actorObject.grupo and not actorObject.boss and not actorObject.fight_component and not actorObject.boss_fight_component) then
+					local canCollect = false
+
+					--check the time of the last seen event coming from the actor
+					---@type unixtime
+					local lastSeenEventTime = actorObject.last_event
+
+					---@type number
+					local nextGarbageCollection
+
+					if (overriteInterval) then
+						nextGarbageCollection = lastSeenEventTime + overriteInterval
+					else
+						nextGarbageCollection = lastSeenEventTime + Details222.GarbageCollector.intervalTime
 					end
-				else
-					can_garbage = true
+
+					if (nextGarbageCollection - 1 < _tempo) then
+						local owner = actorObject.owner --is the name or object?
+						if (owner) then
+							--local owner_actor = combatObject (tipo, owner.nome)
+							if (not owner.grupo and not owner.boss and not owner.boss_fight_component) then
+								canCollect = true
+							end
+						else
+							canCollect = true
+						end
+					end
+
+					if (canCollect) then
+						if (not actorObject.owner) then --not a pet
+							actorObject:subtract_total(combatObject)
+						end
+
+						amountCleaned = amountCleaned + 1
+
+						if (containerId == 1 or containerId == 2) then --damage or healing
+							Details.timeMachine:UnregisterActor(actorObject)
+						end
+
+						--remove the actor from the container
+						tremove(actorList, actorIndex)
+					end
 				end
 			end
 
-			if (can_garbage) then
-				if (not _actor.owner) then --pet
-					_actor:subtract_total (_combate)
-				end
-
-				_iter.cleaned = _iter.cleaned+1
-
-				if (_actor.tipo == 1 or _actor.tipo == 2) then
-					_actor:DesregistrarNaTimeMachine()
-				end
-
-				_table_remove(conteudo, _iter.index)
-				_iter.data = conteudo [_iter.index]
-			else
-				_iter.index = _iter.index + 1
-				_iter.data = conteudo [_iter.index]
+			if (amountCleaned > 0) then
+				fullRemap(combatObject[containerId])
+				combatObject[containerId].need_refresh = true
+				--print(beforeCleanupAmountOfActors, "before cleanup, after:", #combatObject[1]._ActorTable)
 			end
-
 		end
 
-		--if (_detalhes.debug) then
-			-- _detalhes:Msg("- garbage collect:", tipo, "actors removed:",_iter.cleaned)
-		--end
-
-		if (_iter.cleaned > 0) then
-			ReconstroiMapa (_combate [tipo])
-			_combate [tipo].need_refresh = true
-		end
-
-		return _iter.cleaned
+		return amountCleaned
 	end
 
-	--Combate overall
-	function _detalhes:ColetarLixo (tipo, lastevent)
+	---run the garbage collector
+	---@param overriteLastEvent unixtime
+	function Details222.GarbageCollector.RunGarbageCollector(overriteLastEvent)
+		---@type number
+		local amountRemoved = 0
 
-		--print("fazendo coleta...")
+		--create a list of all combats except the current one
+		---@type table<number, combat>
+		local allSegments = Details:GetCombatSegments()
+		---@type table
+		local segmentsList = {}
 
-		local _tempo  = _time()
-		local limpados = 0
-
-		--monta a lista de combates
-		local tabelas_de_combate = {}
-		for _, _tabela in ipairs(_detalhes.tabela_historico.tabelas) do
-			if (_tabela ~= _detalhes.tabela_vigente) then
-				tabelas_de_combate [#tabelas_de_combate+1] = _tabela
+		for _, combatObject in ipairs(allSegments) do
+			if (combatObject ~= Details.tabela_vigente) then
+				segmentsList[#segmentsList+1] = combatObject
 			end
 		end
-		tabelas_de_combate [#tabelas_de_combate+1] = _detalhes.tabela_vigente
 
-		--faz a coleta em todos os combates para este atributo
-		for _, _combate in ipairs(tabelas_de_combate) do
-			limpados = limpados + FazColeta (_combate, tipo, lastevent)
-		end
+		--add the current segment at the end of the list
+		segmentsList[#segmentsList+1] = Details.tabela_vigente
 
-		--limpa a tabela overall para o atributo atual (limpa para os 4, um de cada vez atrav�s do ipairs)
-		local _overall_combat = _detalhes.tabela_overall
-		local conteudo = _overall_combat [tipo]._ActorTable
-		local _iter = {index = 1, data = conteudo[1], cleaned = 0} --._ActorTable[1] para pegar o primeiro index
-
-		while (_iter.data) do
-
-			local _actor = _iter.data
-
-			local can_garbage = false
-			if (not _actor.grupo and not _actor.owner and not _actor.boss_fight_component and not _actor.fight_component) then
-				can_garbage = true
+		--collect the garbage
+		for i, combatObject in ipairs(segmentsList) do
+			local removedActors = collectGarbage(combatObject, overriteLastEvent)
+			if (i == #segmentsList) then
+				--print("current segment removed:", removedActors, "actors.")
 			end
-
-			if (can_garbage) then --n�o h� refer�ncias a este objeto
-
-				if (not _actor.owner) then --pet
-					_actor:subtract_total (_overall_combat)
-				end
-
-				--apaga a refer�ncia deste jogador na tabela overall
-				_iter.cleaned = _iter.cleaned+1
-
-				_table_remove(conteudo, _iter.index)
-
-				_iter.data = conteudo [_iter.index]
-			else
-				_iter.index = _iter.index + 1
-				_iter.data = conteudo [_iter.index]
-			end
-
+			amountRemoved = amountRemoved + removedActors
 		end
 
-		--termina o coletor de lixo
-		if (_iter.cleaned > 0) then
-			_overall_combat[tipo].need_refresh = true
-			ReconstroiMapa (_overall_combat [tipo])
-			limpados = limpados + _iter.cleaned
+		---@type combat
+		local overallCombatObject = Details.tabela_overall
+		amountRemoved = amountRemoved + collectGarbage(overallCombatObject, overriteLastEvent)
+
+		if (amountRemoved > 0) then
+			Details:InstanciaCallFunction(Details.ScheduleUpdate)
+			Details:RefreshMainWindow(-1)
 		end
 
-		if (limpados > 0) then
-			_detalhes:InstanciaCallFunction(_detalhes.ScheduleUpdate)
-			_detalhes:RefreshMainWindow(-1)
-		end
-
-		return limpados
+		return amountRemoved
 	end

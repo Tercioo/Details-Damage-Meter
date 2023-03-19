@@ -6005,11 +6005,6 @@ end
 			return shadow
 		end
 
-function atributo_damage:ColetarLixo (lastevent)
-	return Details:ColetarLixo (class_type, lastevent)
-end
-
-
 --actor 1 is who will receive the sum from actor2
 function Details.SumDamageActors(actor1, actor2, actorContainer)
 	--general

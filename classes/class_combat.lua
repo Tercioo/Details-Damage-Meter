@@ -110,10 +110,13 @@
 		return self.is_mythic_dungeon_trash
 	end
 
+	---return if the combat is a mythic dungeon segment and the run id
+	---@return boolean
+	---@return number
 	function combate:IsMythicDungeon()
-		local is_segment = self.is_mythic_dungeon_segment
-		local run_id = self.is_mythic_dungeon_run_id
-		return is_segment, run_id
+		local bIsMythicPlusSegment = self.is_mythic_dungeon_segment
+		local runId = self.is_mythic_dungeon_run_id
+		return bIsMythicPlusSegment, runId
 	end
 
 	function combate:IsMythicDungeonOverall()

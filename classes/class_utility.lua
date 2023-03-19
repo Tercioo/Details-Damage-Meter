@@ -2743,10 +2743,6 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 
 end
 
-function atributo_misc:ColetarLixo (lastevent)
-	return _detalhes:ColetarLixo (class_type, lastevent)
-end
-
 function _detalhes.refresh:r_atributo_misc(thisActor, shadow)
 	setmetatable(thisActor, _detalhes.atributo_misc)
 	detailsFramework:Mixin(thisActor, Details222.Mixins.ActorMixin)

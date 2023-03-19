@@ -280,6 +280,12 @@ end
 		return ipairs(self._ActorTable)
 	end
 
+	---return a table<actorIndex, actorObject> for all actors stored in this Container
+	---@return table
+	function actorContainer:GetActorTable()
+		return self._ActorTable
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internals
 
@@ -995,10 +1001,10 @@ end
 	end
 
 	function actorContainer:remapear()
-		local mapa = self._NameIndexTable
-		local conteudo = self._ActorTable
-		for i = 1, #conteudo do
-			mapa [conteudo[i].nome] = i
+		local namingMap = self._NameIndexTable
+		local actorList = self._ActorTable
+		for i = 1, #actorList do
+			namingMap[actorList[i].nome] = i
 		end
 	end
 

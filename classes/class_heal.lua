@@ -2760,10 +2760,6 @@ end
 			return shadow
 		end
 
-function atributo_heal:ColetarLixo (lastevent)
-	return _detalhes:ColetarLixo (class_type, lastevent)
-end
-
 atributo_heal.__add = function(tabela1, tabela2)
 
 	--tempo decorrido
