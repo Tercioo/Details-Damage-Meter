@@ -308,6 +308,16 @@
 ---@field boss boolean
 ---@field last_event unixtime
 
+---@class segmentid : number
+---@class instanceid : number
+
+---@class instance : table
+---@field GetCombat fun(instance: instance, segmentId: segmentid) get the combat of the segment
+---@field GetInstanceGroup fun() : table
+---@field showing combat
+---@field meu_id instanceid
+---@field is_interacting boolean
+---@field modo number
 
 
 

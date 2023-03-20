@@ -6258,31 +6258,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.encounter_table.id and true or false
 	end
 
-	--get combat
-	function Details:GetCombat(combat)
-		if (not combat) then
-			return _current_combat
-
-		elseif (type(combat) == "number") then
-			if (combat == -1) then --overall
-				return Details.tabela_overall
-			elseif (combat == 0) then --current
-				return _current_combat
-			else
-				return Details.tabela_historico.tabelas [combat]
-			end
-
-		elseif (type(combat) == "string") then
-			if (combat == "overall") then
-				return Details.tabela_overall
-			elseif (combat == "current") then
-				return _current_combat
-			end
-		end
-
-		return nil
-	end
-
 	function Details:GetAllActors(_combat, _actorname)
 		return Details:GetActor(_combat, 1, _actorname), Details:GetActor(_combat, 2, _actorname), Details:GetActor(_combat, 3, _actorname), Details:GetActor(_combat, 4, _actorname)
 	end

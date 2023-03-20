@@ -2595,7 +2595,7 @@ do
                 name = Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS"],
                 desc = Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS_DESC"],
             },
-
+            
             {--auto hide buttons
                 type = "toggle",
                 get = function() return currentInstance.auto_hide_menu.left end,
@@ -5519,27 +5519,28 @@ do
 
 		for id, i in ipairs(optionsOrder) do
 			local line = _G.CreateFrame("frame", nil, sectionFrame,"BackdropTemplate")
-			line:SetSize(300, 22)
+			line:SetSize(322, 22)
 			line:SetPoint("topleft", sectionFrame, "topleft", right_start_at, yyy + ((id) * -23) + 4)
 			DetailsFramework:ApplyStandardBackdrop(line)
 
 			local contextLabel = DetailsFramework:CreateLabel(line, typeCombatAlpha[i])
 			contextLabel:SetPoint("left", line, "left", 2, 0)
+            contextLabel.textsize = 10
 
 			local enabledCheckbox = DetailsFramework:NewSwitch(line, nil, nil, nil, 20, 20, nil, nil, false, nil, nil, nil, nil, options_switch_template)
-			enabledCheckbox:SetPoint("left", line, "left", 118, 0)
+			enabledCheckbox:SetPoint("left", line, "left", 140, 0)
 			enabledCheckbox:SetAsCheckBox()
 			enabledCheckbox.OnSwitch = onEnableHideContext
 			enabledCheckbox:SetFixedParameter(i)
 
 			local reverseCheckbox = DetailsFramework:NewSwitch(line, nil, nil, nil, 20, 20, nil, nil, false, nil, nil, nil, nil, options_switch_template)
-			reverseCheckbox:SetPoint("left", line, "left", 140, 0)
+			reverseCheckbox:SetPoint("left", line, "left", 162, 0)
 			reverseCheckbox:SetAsCheckBox()
 			reverseCheckbox.OnSwitch = onInverseValue
 			reverseCheckbox:SetFixedParameter(i)
 
 			local alphaSlider = DetailsFramework:CreateSlider(line, 138, 20, 0, 100, 1, 100, false, nil, nil, nil, options_slider_template)
-			alphaSlider:SetPoint("left", line, "left", 162, 0)
+			alphaSlider:SetPoint("left", line, "left", 184, 0)
 			alphaSlider:SetHook("OnValueChanged", onAlphaChanged)
 			alphaSlider:SetFixedParameter(i)
             alphaSlider.thumb:SetWidth(32)

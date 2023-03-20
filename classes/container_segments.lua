@@ -31,6 +31,35 @@ function Details:GetCurrentCombat()
 	return Details.tabela_vigente
 end
 
+function Details:GetOverallCombat()
+	return _detalhes.tabela_overall
+end
+
+function Details:GetCombat(combat)
+	if (not combat) then
+		return Details.tabela_vigente
+
+	elseif (type(combat) == "number") then
+		if (combat == -1) then --overall
+			return Details.tabela_overall
+
+		elseif (combat == 0) then --current
+			return Details.tabela_vigente
+		else
+			return Details.tabela_historico.tabelas[combat]
+		end
+
+	elseif (type(combat) == "string") then
+		if (combat == "overall") then
+			return Details.tabela_overall
+		elseif (combat == "current") then
+			return Details.tabela_vigente
+		end
+	end
+
+	return nil
+end
+
 --returns a private table containing all stored segments
 function Details:GetCombatSegments()
 	return Details.tabela_historico.tabelas

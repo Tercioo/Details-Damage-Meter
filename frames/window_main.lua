@@ -8943,14 +8943,7 @@ function Details:SetTooltipBackdrop(border_texture, border_size, border_color)
 end
 
 --reset button functions
-	local reset_button_onenter = function(self, _, forced, from_click)
-		if (Details.instances_menu_click_to_open and not forced) then
-			return
-		end
-
-		local instancia = self._instance or self.widget._instance
-		local baseframe = instancia.baseframe
-
+	local resetButton_OnEnter = function(self, _, bForceOpen)
 		local gameCooltip = GameCooltip
 
 		OnEnterMainWindow(self.instance, self)
@@ -8961,8 +8954,13 @@ end
 			self:GetNormalTexture():SetDesaturated(false)
 		end
 
+		if (Details.instances_menu_click_to_open and not bForceOpen) then
+			return
+		end
+
+		--prepare the reset button menu
 		gameCooltip:Reset()
-		gameCooltip:SetType ("menu")
+		gameCooltip:SetType("menu")
 
 		gameCooltip:SetOption("ButtonsYMod", -6)
 		gameCooltip:SetOption("HeighMod", 6)
@@ -8982,13 +8980,13 @@ end
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
 		gameCooltip:AddMenu(1, Details.tabela_historico.resetar)
 
-		show_anti_overlap (self.instance, self, "top")
+		show_anti_overlap(self.instance, self, "top")
 
-		Details:SetMenuOwner (self, self.instance)
+		Details:SetMenuOwner(self, self.instance)
 		gameCooltip:ShowCooltip()
 	end
 
-	local reset_button_onleave = function(self)
+	local resetButton_OnLeave = function(self)
 		OnLeaveMainWindow(self.instance, self)
 
 		if (self.instance.desaturated_menu) then
@@ -9010,7 +9008,7 @@ end
 
 --close button functions
 
-	local close_button_onclick = function(self, button_type, button)
+	local closeButton_OnClick = function(self, button_type, button)
 		if (self and not self.instancia and button and button.instancia) then
 			self = button
 		end
@@ -9020,16 +9018,13 @@ end
 		self:Disable()
 		self.instancia:DesativarInstancia()
 
-		--n�o h� mais inst�ncias abertas, ent�o manda msg alertando
+		--check if there's no more windows opened
 		if (Details.opened_windows == 0) then
 			Details:Msg(Loc["STRING_CLOSEALL"])
 		end
 
-		--tutorial, how to fully delete a window
-		--_detalhes:SetTutorialCVar ("FULL_DELETE_WINDOW", false)
-
 		if (not Details:GetTutorialCVar("FULL_DELETE_WINDOW")) then
-			Details:SetTutorialCVar ("FULL_DELETE_WINDOW", true)
+			Details:SetTutorialCVar("FULL_DELETE_WINDOW", true)
 
 			local panel = gump:Create1PxPanel(UIParent, 600, 100, "|cFFFFFFFFDetails!, the window hit the ground, bang bang...|r", nil, nil, nil, nil)
 			panel:SetBackdropColor(0, 0, 0, 0.9)
@@ -9044,10 +9039,10 @@ end
 
 		GameCooltip:Hide()
 	end
-	Details.close_instancia_func = close_button_onclick
+	Details.close_instancia_func = closeButton_OnClick
 
-	local close_button_onenter = function(self)
-		OnEnterMainWindow(self.instance, self, 3)
+	local closeButton_OnEnter = function(self)
+		OnEnterMainWindow(self.instance, self)
 
 		if (self.instance.desaturated_menu) then
 			self:GetNormalTexture():SetDesaturated(false)
@@ -9059,7 +9054,7 @@ end
 		self.instance.baseframe.cabecalho.button_mouse_over = true
 
 		GameCooltip:Reset()
-		GameCooltip:SetType ("menu")
+		GameCooltip:SetType("menu")
 		GameCooltip:SetOption("ButtonsYMod", -7)
 		GameCooltip:SetOption("ButtonsYModSub", -2)
 		GameCooltip:SetOption("YSpacingMod", 0)
@@ -9070,14 +9065,12 @@ end
 		GameCooltip:SetOption("IgnoreButtonAutoHeightSub", false)
 		GameCooltip:SetOption("SubMenuIsTooltip", true)
 		GameCooltip:SetOption("FixedWidthSub", 180)
-		--GameCooltip:SetOption("FixedHeight", 30)
 
 		GameCooltip:SetOption("HeighMod", 9)
 
-		local font = SharedMedia:Fetch("font", "Friz Quadrata TT")
 		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		GameCooltip:AddIcon([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 1, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
-		GameCooltip:AddMenu(1, close_button_onclick, self)
+		GameCooltip:AddMenu(1, closeButton_OnClick, self)
 
 		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE_DESC"], nil, 2, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		GameCooltip:AddIcon([[Interface\CHATFRAME\UI-ChatIcon-Minimize-Up]], 2, 1, 18, 18)
@@ -9085,14 +9078,13 @@ end
 		GameCooltip:AddLine(Loc["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		GameCooltip:AddIcon([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
 
-		GameCooltip:SetWallpaper (1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
-		GameCooltip:SetWallpaper (2, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
+		GameCooltip:SetWallpaper(1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
+		GameCooltip:SetWallpaper(2, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop(1, menus_backdrop, nil, menus_bordercolor)
 		GameCooltip:SetBackdrop(2, menus_backdrop, nil, menus_bordercolor)
 
-		show_anti_overlap (self.instance, self, "top")
-
-		Details:SetMenuOwner (self, self.instance)
+		show_anti_overlap(self.instance, self, "top")
+		Details:SetMenuOwner(self, self.instance)
 		GameCooltip:ShowCooltip()
 	end
 
@@ -9119,26 +9111,11 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --build upper menu bar
 
-local menu_can_open = function()
-	if (GameCooltip.active) then
-		local owner = GameCooltip:GetOwner()
-		if (owner and owner:GetScript("OnUpdate") == on_leave_menu) then
-			owner:SetScript("OnUpdate", nil)
-		end
-		return true
-	end
-end
-
-local report_on_enter = function(self, motion, forced, from_click)
-	local is_cooltip_opened = menu_can_open() --  and not is_cooltip_opened
-	if (Details.instances_menu_click_to_open and not forced) then
-		return
-	end
-
+local reportButton_OnEnter = function(self, motion, forced)
 	local instancia = self._instance or self.widget._instance
 	local baseframe = instancia.baseframe
 
-	OnEnterMainWindow(instancia, self, 3)
+	OnEnterMainWindow(instancia, self)
 	if (instancia.desaturated_menu) then
 		self:GetNormalTexture():SetDesaturated(false)
 	end
@@ -9146,9 +9123,13 @@ local report_on_enter = function(self, motion, forced, from_click)
 	GameCooltip.buttonOver = true
 	baseframe.cabecalho.button_mouse_over = true
 
+	if (Details.instances_menu_click_to_open and not forced) then
+		return
+	end
+
 	GameCooltip:Reset()
 
-	GameCooltip:SetType ("menu")
+	GameCooltip:SetType("menu")
 	GameCooltip:SetOption("ButtonsYMod", -6)
 	GameCooltip:SetOption("HeighMod", 6)
 	GameCooltip:SetOption("YSpacingMod", -1)
@@ -9159,20 +9140,19 @@ local report_on_enter = function(self, motion, forced, from_click)
 
 	Details:CheckLastReportsIntegrity()
 
-	local last_reports = Details.latest_report_table
-	if (#last_reports > 0) then
-		local amountReports = #last_reports
-		amountReports = math.min (amountReports, 10)
+	local lastPeports = Details.latest_report_table
+	if (#lastPeports > 0) then
+		local amountReports = #lastPeports
+		amountReports = math.min(amountReports, 10)
 
 		for index = amountReports, 1, -1 do
-			local report = last_reports [index]
-			local instance_number, attribute, subattribute, amt, report_where, custom_name = unpack(report)
+			local report = lastPeports[index]
+			local instanceId, attribute, subattribute, amt, report_where, custom_name = unpack(report)
 
-			local name = Details:GetSubAttributeName (attribute, subattribute, custom_name)
+			local subAttributeName = Details:GetSubAttributeName(attribute, subattribute, custom_name)
+			local artwork =  Details.GetReportIconAndColor(report_where)
 
-			local artwork =  Details.GetReportIconAndColor (report_where)
-
-			GameCooltip:AddLine(name .. " (#" .. amt .. ")", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+			GameCooltip:AddLine(subAttributeName .. " (#" .. amt .. ")", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 			if (artwork) then
 				GameCooltip:AddIcon(artwork.icon, 1, 1, 14, 14, artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4], artwork.color, nil, false)
 			end
@@ -9186,17 +9166,17 @@ local report_on_enter = function(self, motion, forced, from_click)
 	GameCooltip:AddIcon([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 	GameCooltip:AddMenu(1, Details.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 
-	show_anti_overlap (instancia, self, "top")
-	Details:SetMenuOwner (self, instancia)
+	show_anti_overlap(instancia, self, "top")
+	Details:SetMenuOwner(self, instancia)
 
 	GameCooltip:ShowCooltip()
 end
 
-local report_on_leave = function(self, motion, forced, from_click)
+local reportButton_OnLeave = function(self, motion, forced, from_click)
 	local instancia = self._instance or self.widget._instance
 	local baseframe = instancia.baseframe
 
-	OnLeaveMainWindow(instancia, self, 3)
+	OnLeaveMainWindow(instancia, self)
 
 	hide_anti_overlap(instancia.baseframe.anti_menu_overlap)
 
@@ -9208,23 +9188,18 @@ local report_on_leave = function(self, motion, forced, from_click)
 	end
 
 	if (GameCooltip.active) then
-		parameters_table [2] = from_click and 1 or 0
+		parameters_table[2] = from_click and 1 or 0
 		self:SetScript("OnUpdate", on_leave_menu)
 	else
 		self:SetScript("OnUpdate", nil)
 	end
 end
 
-local atributo_on_enter = function(self, motion, forced, from_click)
-	local is_cooltip_opened = menu_can_open() --  and not is_cooltip_opened
-	if (Details.instances_menu_click_to_open and not forced) then
-		return
-	end
-
+local attributeButton_OnEnter = function(self, motion, forced, from_click)
 	local instancia = self._instance or self.widget._instance
 	local baseframe = instancia.baseframe
 
-	OnEnterMainWindow(instancia, self, 3)
+	OnEnterMainWindow(instancia, self)
 
 	if (instancia.desaturated_menu) then
 		self:GetNormalTexture():SetDesaturated(false)
@@ -9233,19 +9208,22 @@ local atributo_on_enter = function(self, motion, forced, from_click)
 	GameCooltip.buttonOver = true
 	baseframe.cabecalho.button_mouse_over = true
 
-	show_anti_overlap (instancia, self, "top")
+	show_anti_overlap(instancia, self, "top")
+
+	if (Details.instances_menu_click_to_open and not forced) then
+		return
+	end
 
 	GameCooltip:Reset()
-	GameCooltip:SetType (3)
+	GameCooltip:SetType(3)
 	GameCooltip:SetFixedParameter(instancia)
 
 	if (Details.solo and Details.solo == instancia.meu_id) then
 		Details:MontaSoloOption(instancia)
 
 	elseif (instancia:IsRaidMode()) then
-
-		local have_plugins = Details:MontaRaidOption(instancia)
-		if (not have_plugins) then
+		local hasRaidPlugins = Details:MontaRaidOption(instancia)
+		if (not hasRaidPlugins) then
 			GameCooltip:SetType ("tooltip")
 			GameCooltip:SetOption("ButtonsYMod", 0)
 
@@ -9253,31 +9231,25 @@ local atributo_on_enter = function(self, motion, forced, from_click)
 			GameCooltip:SetOption("IgnoreButtonAutoHeight", false)
 			GameCooltip:AddLine("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch("font", "Friz Quadrata TT"))
 			GameCooltip:AddIcon([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
-			GameCooltip:SetWallpaper (1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
-
+			GameCooltip:SetWallpaper(1, Details.tooltip.menus_bg_texture, Details.tooltip.menus_bg_coords, Details.tooltip.menus_bg_color, true)
 		end
-
 	else
-		Details:MontaAtributosOption (instancia)
+		Details:MontaAtributosOption(instancia)
 		GameCooltip:SetOption("YSpacingMod", -1)
 		GameCooltip:SetOption("YSpacingModSub", -2)
 	end
 
 	GameCooltip:SetOption("TextSize", Details.font_sizes.menus)
-
-	Details:SetMenuOwner (self, instancia)
-
-
+	Details:SetMenuOwner(self, instancia)
 	GameCooltip:ShowCooltip()
 end
 
-local atributo_on_leave = function(self, motion, forced, from_click)
+local attributeButton_OnLeave = function(self, motion, forced, from_click)
 	local instancia = self._instance or self.widget._instance
 	local baseframe = instancia.baseframe
 
-	OnLeaveMainWindow(instancia, self, 3)
-
-	hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
+	OnLeaveMainWindow(instancia, self)
+	hide_anti_overlap(instancia.baseframe.anti_menu_overlap)
 
 	if (instancia.desaturated_menu) then
 		self:GetNormalTexture():SetDesaturated(true)
@@ -9287,7 +9259,7 @@ local atributo_on_leave = function(self, motion, forced, from_click)
 	baseframe.cabecalho.button_mouse_over = false
 
 	if (GameCooltip.active) then
-		parameters_table [2] = 0
+		parameters_table[2] = 0
 		self:SetScript("OnUpdate", on_leave_menu)
 	else
 		self:SetScript("OnUpdate", nil)
@@ -9295,10 +9267,6 @@ local atributo_on_leave = function(self, motion, forced, from_click)
 end
 
 local segmentButton_OnEnter = function(self, motion, forced, fromClick)
-	if (Details.instances_menu_click_to_open and not forced) then
-		return
-	end
-
 	local instance = self._instance or self.widget._instance
 	local baseframe = instance.baseframe
 
@@ -9310,6 +9278,10 @@ local segmentButton_OnEnter = function(self, motion, forced, fromClick)
 
 	GameCooltip.buttonOver = true
 	baseframe.cabecalho.button_mouse_over = true
+
+	if (Details.instances_menu_click_to_open and not forced) then
+		return
+	end
 
 	local timeToOpen = 0
 	if (_G.GameCooltip.active) then
@@ -9343,16 +9315,11 @@ local segmentButton_OnLeave = function(self, motion, forced, fromClick)
 	end
 end
 
-local modo_selecao_on_enter = function(self, motion, forced, from_click)
-	local is_cooltip_opened = menu_can_open() --  not is_cooltip_opened
-	if (Details.instances_menu_click_to_open and not forced) then
-		return
-	end
-
+local modeSelector_OnEnter = function(self, motion, forced, from_click)
 	local instancia = self._instance or self.widget._instance
 	local baseframe = instancia.baseframe
 
-	OnEnterMainWindow(instancia, self, 3)
+	OnEnterMainWindow(instancia, self)
 
 	if (instancia.desaturated_menu) then
 		self:GetNormalTexture():SetDesaturated(false)
@@ -9361,9 +9328,13 @@ local modo_selecao_on_enter = function(self, motion, forced, from_click)
 	GameCooltip.buttonOver = true
 	baseframe.cabecalho.button_mouse_over = true
 
-	local passou = 0
+	if (Details.instances_menu_click_to_open and not forced) then
+		return
+	end
+
+	local elapsedTime = 0
 	if (_G.GameCooltip.active) then
-		passou = 0.15
+		elapsedTime = 0.15
 	end
 
 	local checked
@@ -9377,20 +9348,19 @@ local modo_selecao_on_enter = function(self, motion, forced, from_click)
 		checked = 3
 	end
 
-	parameters_table [1] = instancia
-	parameters_table [2] = from_click and 1 or passou
-	parameters_table [3] = checked
+	parameters_table[1] = instancia
+	parameters_table[2] = from_click and 1 or elapsedTime
+	parameters_table[3] = checked
 
 	self:SetScript("OnUpdate", build_mode_list)
 end
 
-local modo_selecao_on_leave = function(self)
+local modeSelector_OnLeave = function(self)
 	local instancia = self._instance or self.widget._instance
 	local baseframe = instancia.baseframe
 
-	OnLeaveMainWindow(instancia, self, 3)
-
-	hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
+	OnLeaveMainWindow(instancia, self)
+	hide_anti_overlap(instancia.baseframe.anti_menu_overlap)
 
 	if (instancia.desaturated_menu) then
 		self:GetNormalTexture():SetDesaturated(true)
@@ -9400,107 +9370,50 @@ local modo_selecao_on_leave = function(self)
 	baseframe.cabecalho.button_mouse_over = false
 
 	if (GameCooltip.active) then
-		parameters_table [2] = 0
+		parameters_table[2] = 0
 		self:SetScript("OnUpdate", on_leave_menu)
 	else
 		self:SetScript("OnUpdate", nil)
 	end
 end
 
-
--- these can
-local title_bar_icons = {
-	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {0/256, 32/256, 0, 1}},
-	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {32/256, 64/256, 0, 1}},
-	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {66/256, 93/256, 0, 1}},
-	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {96/256, 128/256, 0, 1}},
-	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {128/256, 160/256, 0, 1}},
-}
-function Details:GetTitleBarIconsTexture(button, instance)
-	if (instance or self.meu_id) then
-		local textureFile = self.toolbar_icon_file or instance.toolbar_icon_file
-		local t = title_bar_icons [button]
-		if (t and textureFile) then
-			t.texture = textureFile
-		end
-		return t or title_bar_icons
-	end
-	return title_bar_icons [button] or title_bar_icons
-end
-
-function Details:CreateFakeWindow()
-	local t = CreateFrame("frame")
-	t:SetSize(200, 91)
-	t:SetBackdrop({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
-	t:SetBackdropColor(0.0941, 0.0941, 0.0941, 0.3)
-	local tb = CreateFrame("frame", nil, t)
-	tb:SetPoint("bottomleft", t, "topleft", 0, 0)
-	tb:SetPoint("bottomright", t, "topright", 0, 0)
-	tb:SetHeight(16)
-	tb:SetBackdrop({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
-	tb:SetBackdropColor(0.7, 0.7, 0.7, 0.4)
-	local tt = tb:CreateFontString(nil, "overlay", "GameFontNormal")
-	Details:SetFontColor(tt, "white")
-	Details:SetFontSize(tt, 10)
-	Details:SetFontFace(tt, LibStub:GetLibrary("LibSharedMedia-3.0"):Fetch("font", "Accidental Presidency"))
-	tt:SetPoint("bottomleft", tb, 3, 4)
-	tt:SetText("Damage Done")
-
-	t.TitleIcons = {}
-	for i = 1, 5 do
-		local b = tb:CreateTexture(nil, "overlay")
-		b:SetSize(12, 12)
-		b:SetPoint("bottomright", tb, "bottomright", -((abs(i-6)-1)*11) - 1, 2)
-		local button_texture_texcoord = Details:GetTitleBarIconsTexture(i)
-		b:SetTexture(button_texture_texcoord.texture)
-		b:SetTexCoord(unpack(button_texture_texcoord.texcoord))
-		tinsert(t.TitleIcons, b)
-	end
-
-	t.TitleBar = tb
-	t.TitleText = tt
-
-	return t
-end
-
-local function click_to_change_segment (instancia, buttontype)
+local changeSegmentOnClick = function(instancia, buttontype)
 	if (buttontype == "LeftButton") then
-
-		local segmento_goal = instancia.segmento + 1
-		if (segmento_goal > segmentsUsed) then
-			segmento_goal = -1
-		elseif (segmento_goal > Details.segments_amount) then
-			segmento_goal = -1
+		--previous segment as the pointer move upwards getting older segments
+		local previousSegment = instancia.segmento + 1
+		if (previousSegment > segmentsUsed) then
+			previousSegment = -1
+		elseif (previousSegment > Details.segments_amount) then
+			previousSegment = -1
 		end
 
-		local total_shown = segmentsFilled+2
-		local goal = segmento_goal+1
+		local maxSegments = segmentsFilled + 2
+		previousSegment = previousSegment + 1
 
-		local select_ = math.abs(goal - total_shown)
-		GameCooltip:Select(1, select_)
+		local segmentId = math.abs(previousSegment - maxSegments)
+		GameCooltip:Select(1, segmentId)
 
-		instancia:TrocaTabela(segmento_goal)
+		instancia:TrocaTabela(previousSegment) --todo: use new api
 
-		segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 
 	elseif (buttontype == "RightButton") then
-
-		local segmento_goal = instancia.segmento - 1
-		if (segmento_goal < -1) then
-			segmento_goal = segmentsUsed
+		--next segment as the pointer move downwards getting newer segments
+		local nextSegment = instancia.segmento - 1
+		if (nextSegment < -1) then
+			nextSegment = segmentsUsed
 		end
 
-		local total_shown = segmentsFilled+2
-		local goal = segmento_goal+1
+		local maxSegments = segmentsFilled + 2
+		nextSegment = nextSegment + 1
 
-		local select_ = math.abs(goal - total_shown)
-		GameCooltip:Select(1, select_)
+		local segmentId = math.abs(nextSegment - maxSegments)
+		GameCooltip:Select(1, segmentId)
 
-		instancia:TrocaTabela(segmento_goal)
-		segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		instancia:TrocaTabela(nextSegment)
+		segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 
 	elseif (buttontype == "MiddleButton") then
-
 		local segmento_goal = 0
 
 		local total_shown = segmentsFilled+2
@@ -9540,10 +9453,10 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar.instancia = instancia
 	baseframe.cabecalho.fechar.instance = instancia
 
-	baseframe.cabecalho.fechar:SetScript("OnEnter", close_button_onenter)
+	baseframe.cabecalho.fechar:SetScript("OnEnter", closeButton_OnEnter)
 	baseframe.cabecalho.fechar:SetScript("OnLeave", close_button_onleave)
 
-	baseframe.cabecalho.fechar:SetScript("OnClick", close_button_onclick)
+	baseframe.cabecalho.fechar:SetScript("OnClick", closeButton_OnClick)
 
 	--bola do canto esquedo superior --primeiro criar a arma��o para apoiar as texturas
 	baseframe.cabecalho.ball_point = instancia.floatingframe:CreateTexture(nil, "overlay")
@@ -9666,33 +9579,31 @@ function gump:CriaCabecalho (baseframe, instancia)
 	instancia.menu_points = {MenuAnchorLeft, MenuAnchorRight}
 	instancia.menu2_points = {Menu2AnchorRight}
 
--- bot�es
 -------------------------------------------------------------------------------------------------------------------------------------------------
+--title bar buttons
 
-	local CoolTip = _G.GameCooltip
-
-	--SELE��O DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
-	local modo_selecao_button_click = function()
+	--mode selection
+	local modeSelector_OnClick = function()
 		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "mode" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe(false)
 				instancia.LastMenuOpened = nil
 			else
-				modo_selecao_on_enter (instancia.baseframe.cabecalho.modo_selecao.widget, _, true, true)
+				modeSelector_OnEnter(instancia.baseframe.cabecalho.modo_selecao.widget, _, true, true)
 				instancia.LastMenuOpened = "mode"
 			end
 		else
-			Details:OpenOptionsWindow (instancia)
+			Details:OpenOptionsWindow(instancia)
 		end
 	end
 
-	baseframe.cabecalho.modo_selecao = gump:NewButton(baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, modo_selecao_button_click, nil, nil, [[Interface\AddOns\Details\images\modo_icone]])
+	baseframe.cabecalho.modo_selecao = gump:NewButton(baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, modeSelector_OnClick, nil, nil, [[Interface\AddOns\Details\images\modo_icone]])
 	baseframe.cabecalho.modo_selecao:SetPoint("bottomleft", baseframe.cabecalho.ball, "bottomright", instancia.menu_anchor [1], instancia.menu_anchor [2])
 	baseframe.cabecalho.modo_selecao:SetFrameLevel(baseframe:GetFrameLevel()+5)
 	baseframe.cabecalho.modo_selecao.widget._instance = instancia
 
-	baseframe.cabecalho.modo_selecao:SetScript("OnEnter", modo_selecao_on_enter)
-	baseframe.cabecalho.modo_selecao:SetScript("OnLeave", modo_selecao_on_leave)
+	baseframe.cabecalho.modo_selecao:SetScript("OnEnter", modeSelector_OnEnter)
+	baseframe.cabecalho.modo_selecao:SetScript("OnLeave", modeSelector_OnLeave)
 
 	local b = baseframe.cabecalho.modo_selecao.widget
 	b:SetNormalTexture([[Interface\AddOns\Details\images\toolbar_icons]])
@@ -9703,28 +9614,28 @@ function gump:CriaCabecalho (baseframe, instancia)
 	b:GetPushedTexture():SetTexCoord(0/256, 32/256, 0, 1)
 
 
-	--SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
-	local segmento_button_click = function(self, button, param1)
+	--segment selection
+	local segmentSelector_OnClick = function(self, button, param1)
 		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "segments" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe(false)
 				instancia.LastMenuOpened = nil
 			else
-				segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+				segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 				instancia.LastMenuOpened = "segments"
 			end
 		else
-			click_to_change_segment (instancia, button)
+			changeSegmentOnClick(instancia, button)
 		end
 	end
 
-	baseframe.cabecalho.segmento = gump:NewButton(baseframe, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, segmento_button_click, nil, nil, [[Interface\AddOns\Details\images\segmentos_icone]])
+	baseframe.cabecalho.segmento = gump:NewButton(baseframe, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, segmentSelector_OnClick, nil, nil, [[Interface\AddOns\Details\images\segmentos_icone]])
 	baseframe.cabecalho.segmento:SetFrameLevel(baseframe.UPFrame:GetFrameLevel()+1)
 	baseframe.cabecalho.segmento.widget._instance = instancia
 	baseframe.cabecalho.segmento:SetPoint("left", baseframe.cabecalho.modo_selecao, "right", 0, 0)
 
 	--ativa bot�o do meio e direito
-	baseframe.cabecalho.segmento:SetClickFunction(segmento_button_click, nil, nil, "rightclick")
+	baseframe.cabecalho.segmento:SetClickFunction(segmentSelector_OnClick, nil, nil, "rightclick")
 
 	baseframe.cabecalho.segmento:SetScript("OnEnter", segmentButton_OnEnter)
 	baseframe.cabecalho.segmento:SetScript("OnLeave", segmentButton_OnLeave)
@@ -9744,7 +9655,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:ShowMe(false)
 				instancia.LastMenuOpened = nil
 			else
-				atributo_on_enter (instancia.baseframe.cabecalho.atributo.widget, _, true, true)
+				attributeButton_OnEnter (instancia.baseframe.cabecalho.atributo.widget, _, true, true)
 				instancia.LastMenuOpened = "attributes"
 			end
 		end
@@ -9755,8 +9666,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.atributo.widget._instance = instancia
 	baseframe.cabecalho.atributo:SetPoint("left", baseframe.cabecalho.segmento.widget, "right", 0, 0)
 
-	baseframe.cabecalho.atributo:SetScript("OnEnter", atributo_on_enter)
-	baseframe.cabecalho.atributo:SetScript("OnLeave", atributo_on_leave)
+	baseframe.cabecalho.atributo:SetScript("OnEnter", attributeButton_OnEnter)
+	baseframe.cabecalho.atributo:SetScript("OnLeave", attributeButton_OnLeave)
 
 	local b = baseframe.cabecalho.atributo.widget
 	b:SetNormalTexture([[Interface\AddOns\Details\images\toolbar_icons]])
@@ -9766,39 +9677,36 @@ function gump:CriaCabecalho (baseframe, instancia)
 	b:SetPushedTexture([[Interface\AddOns\Details\images\toolbar_icons]])
 	b:GetPushedTexture():SetTexCoord(68/256, 93/256, 0, 1)
 
-	--REPORTAR ~report ----------------------------------------------------------------------------------------------------------------------------------------------------
-	local report_func = function()
-		instancia:Reportar ("INSTANCE" .. instancia.meu_id)
+	--report button ~report
+	local reportButtton_OnClick = function()
+		instancia:Reportar("INSTANCE" .. instancia.meu_id)
 		GameCooltip2:Hide()
 	end
-	baseframe.cabecalho.report = gump:NewButton(baseframe, nil, "DetailsReportButton"..instancia.meu_id, nil, 8, 16, report_func)
+
+	baseframe.cabecalho.report = gump:NewButton(baseframe, nil, "DetailsReportButton"..instancia.meu_id, nil, 8, 16, reportButtton_OnClick)
 	baseframe.cabecalho.report:SetFrameLevel(baseframe.UPFrame:GetFrameLevel()+1)
 	baseframe.cabecalho.report.widget._instance = instancia
 	baseframe.cabecalho.report:SetPoint("left", baseframe.cabecalho.atributo, "right", -6, 0)
 
-	baseframe.cabecalho.report:SetScript("OnEnter", report_on_enter)
-	baseframe.cabecalho.report:SetScript("OnLeave", report_on_leave)
+	baseframe.cabecalho.report:SetScript("OnEnter", reportButton_OnEnter)
+	baseframe.cabecalho.report:SetScript("OnLeave", reportButton_OnLeave)
 
-	local b = baseframe.cabecalho.report.widget
-	b:SetNormalTexture([[Interface\AddOns\Details\images\toolbar_icons]])
-	b:GetNormalTexture():SetTexCoord(96/256, 128/256, 0, 1)
-	b:SetHighlightTexture([[Interface\AddOns\Details\images\toolbar_icons]])
-	b:GetHighlightTexture():SetTexCoord(96/256, 128/256, 0, 1)
-	b:SetPushedTexture([[Interface\AddOns\Details\images\toolbar_icons]])
-	b:GetPushedTexture():SetTexCoord(96/256, 128/256, 0, 1)
+	local reportButton = baseframe.cabecalho.report.widget
+	reportButton:SetNormalTexture([[Interface\AddOns\Details\images\toolbar_icons]])
+	reportButton:GetNormalTexture():SetTexCoord(96/256, 128/256, 0, 1)
+	reportButton:SetHighlightTexture([[Interface\AddOns\Details\images\toolbar_icons]])
+	reportButton:GetHighlightTexture():SetTexCoord(96/256, 128/256, 0, 1)
+	reportButton:SetPushedTexture([[Interface\AddOns\Details\images\toolbar_icons]])
+	reportButton:GetPushedTexture():SetTexCoord(96/256, 128/256, 0, 1)
 
-
-
--- ~delete ~erase ~reset
---reset ----------------------------------------------------------------------------------------------------------------------------------------------------
-
-	local reset_func = function()
+	--reset button ~delete ~erase ~reset
+	local resetButton_OnClick = function()
 		if (Details.instances_menu_click_to_open) then
 			if (instancia.LastMenuOpened == "reset" and GameCooltipFrame1:IsShown()) then
 				GameCooltip:ShowMe(false)
 				instancia.LastMenuOpened = nil
 			else
-				reset_button_onenter (instancia.baseframe.cabecalho.reset, _, true, true)
+				resetButton_OnEnter(instancia.baseframe.cabecalho.reset, _, true, true)
 				instancia.LastMenuOpened = "reset"
 			end
 		else
@@ -9817,16 +9725,17 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.reset.instance = instancia
 	baseframe.cabecalho.reset._instance = instancia
 
-	baseframe.cabecalho.reset:SetScript("OnClick", reset_func)
-	baseframe.cabecalho.reset:SetScript("OnEnter", reset_button_onenter)
-	baseframe.cabecalho.reset:SetScript("OnLeave", reset_button_onleave)
+	baseframe.cabecalho.reset:SetScript("OnClick", resetButton_OnClick)
+	baseframe.cabecalho.reset:SetScript("OnEnter", resetButton_OnEnter)
+	baseframe.cabecalho.reset:SetScript("OnLeave", resetButton_OnLeave)
 
-	local b = baseframe.cabecalho.reset
-	b:SetNormalTexture([[Interface\AddOns\Details\images\toolbar_icons]])
-	b:GetNormalTexture():SetTexCoord(128/256, 160/256, 0, 1)
-	b:SetHighlightTexture([[Interface\AddOns\Details\images\toolbar_icons]])
-	b:GetHighlightTexture():SetTexCoord(128/256, 160/256, 0, 1)
-	b:SetPushedTexture([[Interface\AddOns\Details\images\toolbar_icons]])
-	b:GetPushedTexture():SetTexCoord(128/256, 160/256, 0, 1)
+	local resetButton = baseframe.cabecalho.reset
+	resetButton:SetNormalTexture([[Interface\AddOns\Details\images\toolbar_icons]])
+	resetButton:GetNormalTexture():SetTexCoord(128/256, 160/256, 0, 1)
 
+	resetButton:SetHighlightTexture([[Interface\AddOns\Details\images\toolbar_icons]])
+	resetButton:GetHighlightTexture():SetTexCoord(128/256, 160/256, 0, 1)
+
+	resetButton:SetPushedTexture([[Interface\AddOns\Details\images\toolbar_icons]])
+	resetButton:GetPushedTexture():SetTexCoord(128/256, 160/256, 0, 1)
 end
