@@ -74,6 +74,7 @@
 		Details222.Textures = {}
 		--namespace for pet
 		Details222.Pets = {}
+		Details222.Instances = {}
 		Details222.MythicPlus = {}
 		Details222.EJCache = {}
 		Details222.Segments = {}

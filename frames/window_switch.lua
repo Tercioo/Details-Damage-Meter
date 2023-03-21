@@ -119,7 +119,7 @@ do
 			end
 
 			if (instance.modo == Details._detalhes_props["MODO_ALONE"] or instance.modo == Details._detalhes_props["MODO_RAID"]) then
-				instance:AlteraModo(instance, 2)
+				instance:SetMode(2)
 			end
 
 			instance:TrocaTabela(instance, true, attribute, subAttribute)
@@ -846,10 +846,10 @@ function Details:FastSwitch(button, bookmark, bookmarkNumber, selectNew)
 	end
 
 	if (Details.switch.current_instancia.modo == Details._detalhes_props["MODO_ALONE"]) then
-		Details.switch.current_instancia:AlteraModo (Details.switch.current_instancia, 2)
+		Details.switch.current_instancia:SetMode(2)
 
 	elseif (Details.switch.current_instancia.modo == Details._detalhes_props["MODO_RAID"]) then
-		Details.switch.current_instancia:AlteraModo (Details.switch.current_instancia, 2)
+		Details.switch.current_instancia:SetMode(2)
 	end
 
 	if (bookmark.atributo == "plugin") then

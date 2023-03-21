@@ -54,7 +54,7 @@
 				end
 				local group_func = function()
 					local instance = plugin:GetPluginInstance()
-					instance:AlteraModo (instance, DETAILS_MODE_GROUP)
+					instance:SetMode(DETAILS_MODE_GROUP)
 					button.close_confirmation:Hide()
 					
 					instance.baseframe.cabecalho.modo_selecao:GetScript("OnEnter")(instance.baseframe.cabecalho.modo_selecao)
@@ -326,22 +326,20 @@
 		end
 	end
 
-	function _detalhes:InstanciaCheckForDisabledSolo (instancia)
-
-		if (not instancia) then
-			instancia = self
+	function _detalhes:InstanciaCheckForDisabledSolo(instance)
+		if (not instance) then
+			instance = self
 		end
-		
-		
-		if (instancia.modo == modo_alone) then
+
+		if (instance.modo == modo_alone) then
 			--print("arrumando a instancia "..instancia.meu_id)
-			if (instancia.iniciada) then
-				_detalhes:AlteraModo (instancia, modo_grupo)
-				instancia:SoloMode (false)
-				_detalhes:ResetaGump (instancia)
+			if (instance.iniciada) then
+				instance:SetMode(modo_grupo)
+				instance:SoloMode(false)
+				_detalhes:ResetaGump(instance)
 			else
-				instancia.modo = modo_grupo
-				instancia.last_modo = modo_grupo
+				instance.modo = modo_grupo
+				instance.last_modo = modo_grupo
 			end
 		end
 	end

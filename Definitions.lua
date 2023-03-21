@@ -310,14 +310,24 @@
 
 ---@class segmentid : number
 ---@class instanceid : number
+---@class attributeid : number
+---@class modeid : number
 
 ---@class instance : table
----@field GetCombat fun(instance: instance, segmentId: segmentid) get the combat of the segment
----@field GetInstanceGroup fun() : table
 ---@field showing combat
 ---@field meu_id instanceid
 ---@field is_interacting boolean
----@field modo number
+---@field modo modeid
+---@field atributo attributeid
+---@field sub_atributo attributeid
+---@field GetInstanceGroup fun() : table
+---@field GetCombat fun(instance: instance)
+---@field ChangeIcon fun(instance: instance)
+---@field CheckIntegrity fun(instance: instance)
+---@field SetMode fun(instance: instance, mode: modeid)
+---@field GetMode fun(instance: instance) : modeid
+---@field IsInteracting fun(instance: instance) : boolean
+---@field IsLowerInstance fun(instance: instance) : boolean
 
 
 

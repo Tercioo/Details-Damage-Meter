@@ -5991,15 +5991,15 @@ local build_mode_list = function(self, deltaTime)
 		Details:SetTooltipMinWidth()
 
 		gameCooltip:AddLine(Loc["STRING_MODE_GROUP"])
-		gameCooltip:AddMenu(1, instance.AlteraModo, 2, true)
+		gameCooltip:AddMenu(1, function() instance:SetMode(2) end)
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256, 32/256*2, 0, 1)
 
 		gameCooltip:AddLine(Loc["STRING_MODE_ALL"])
-		gameCooltip:AddMenu(1, instance.AlteraModo, 3, true)
+		gameCooltip:AddMenu(1, function() instance:SetMode(3) end)
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
 
 		gameCooltip:AddLine(Loc["STRING_OPTIONS_PLUGINS"])
-		gameCooltip:AddMenu(1, instance.AlteraModo, 4, true)
+		gameCooltip:AddMenu(1, function() instance:SetMode(4) end)
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
 
 		--build raid plugins list
@@ -6023,7 +6023,7 @@ local build_mode_list = function(self, deltaTime)
 		end
 
 		--window control
-		GameCooltip:AddLine("$div")
+		gameCooltip:AddLine("$div")
 		gameCooltip:AddLine(Loc["STRING_MENU_INSTANCE_CONTROL"])
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.625, 0.75, 0, 1)
 
@@ -9088,7 +9088,7 @@ end
 		GameCooltip:ShowCooltip()
 	end
 
-	local close_button_onleave = function(self)
+	local closeButton_OnLeave = function(self)
 		OnLeaveMainWindow(self.instance, self, 3)
 
 		if (self.instance.desaturated_menu) then
@@ -9454,7 +9454,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar.instance = instancia
 
 	baseframe.cabecalho.fechar:SetScript("OnEnter", closeButton_OnEnter)
-	baseframe.cabecalho.fechar:SetScript("OnLeave", close_button_onleave)
+	baseframe.cabecalho.fechar:SetScript("OnLeave", closeButton_OnLeave)
 
 	baseframe.cabecalho.fechar:SetScript("OnClick", closeButton_OnClick)
 
