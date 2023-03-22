@@ -47,6 +47,8 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_BUFFUPTIME = 7
 		--[[global]] DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 
+	--[[global]] DETAILS_ATTRIBUTE_CUSTOM = 5
+
 	_detalhes.atributos_capture = {
 		"damage", --damage done
 		"damage", --dps

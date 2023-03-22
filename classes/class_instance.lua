@@ -174,18 +174,11 @@ end
 
 --instance class prototype/mixin
 local instanceMixins = {
-	---get the combat object which the instance is showing
-	---@param instance instance
-	---@return combat
-	GetCombat = function(instance)
-		return instance.showing
-	end,
-
 	---check if the instance is the lower instance id
 	---@param instance instance
 	---@return boolean
 	IsLowerInstance = function(instance)
-		return Details:GetLowerInstanceNumber() == instance.meu_id
+		return Details:GetLowerInstanceNumber() == instance:GetId()
 	end,
 
 	---@param instance instance
@@ -194,14 +187,15 @@ local instanceMixins = {
 		return instance.is_interacting
 	end,
 
+	---check if the instance is enabled
 	---@param instance instance
-	---@return modeid
-	GetMode = function(instance)
-		---@type modeid
-		local modeId = instance.modo
-		return instance.modo
+	---@return boolean
+	IsEnabled = function(instance)
+		return instance.ativa
 	end,
 
+	---check if some basic aspects of the instance are valid
+	---@param instance instance
 	CheckIntegrity = function(instance)
 		if (not instance.atributo) then
 			instance.atributo = 1
@@ -216,6 +210,56 @@ local instanceMixins = {
 		instance.showing[instance.atributo].need_refresh = true
 	end,
 
+	---set the combatObject by the segmentId the instance is showing
+	---@param instance instance
+	RefreshCombat = function(instance)
+		local segmentId = instance:GetSegmentId()
+		if (segmentId == DETAILS_SEGMENTID_OVERALL) then
+			instance.showing = Details:GetOverallCombat()
+		elseif (segmentId == DETAILS_SEGMENTID_CURRENT) then
+			instance.showing = Details:GetCurrentCombat()
+		else
+			instance.showing = Details:GetCombat(segmentId)
+		end
+	end,
+
+	---get the combat object which the instance is showing
+	---@param instance instance
+	---@return combat
+	GetCombat = function(instance)
+		return instance.showing
+	end,
+
+	---return the instance id
+	---@param instance instance
+	---@return instanceid
+	GetId = function(instance)
+		return instance.meu_id
+	end,
+
+	---@param instance instance
+	---@return modeid
+	GetMode = function(instance)
+		---@type modeid
+		local modeId = instance.modo
+		return instance.modo
+	end,
+
+	---return the segmentId
+	---@param instance instance
+	---@return segmentid
+	GetSegmentId = function(instance)
+		return instance.segment
+	end,
+
+	---return the mais attribute id and the sub attribute
+	---@param instance instance
+	---@return attributeid
+	---@return attributeid
+	GetDisplay = function(instance)
+		return instance.atributo, instance.sub_atributo
+	end,
+
 	---@param instance instance
 	---@param modeId modeid
 	SetMode = function(instance, modeId)
@@ -224,39 +268,169 @@ local instanceMixins = {
 		instance:CheckIntegrity()
 		Details222.Instances.OnModeChanged(instance)
 	end,
+
+	---change the segment shown in the instance, this changes the segmentID and also refresh the combat object in the instance
+	---@param instance instance
+	---@param segmentId segmentid
+	---@param bForceChange boolean|nil
+	SetSegment = function(instance, segmentId, bForceChange)
+		local currentSegment = instance:GetSegmentId()
+		if (segmentId ~= currentSegment or bForceChange) then
+			--check if the instance is frozen
+			if (instance.freezed) then
+				instance:UnFreeze()
+			end
+
+			instance.segmento = segmentId
+			instance:RefreshCombat()
+			Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)
+
+			if (Details.instances_segments_locked) then
+				for _, thisInstance in ipairs(Details:GetAllInstances()) do
+					if (instance:GetId() ~= thisInstance:GetId() and thisInstance:IsEnabled() and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
+						if (thisInstance:GetSegmentId() >= 0) then --not overall data
+							if (thisInstance.modo == 2 or thisInstance.modo == 3) then
+								--check if the instance is frozen
+								if (thisInstance.freezed) then
+									thisInstance:UnFreeze()
+								end
+
+								thisInstance.segmento = segmentId
+								thisInstance:RefreshCombat()
+
+								if (not thisInstance.showing) then
+									thisInstance:Freeze()
+									return
+								end
+
+								thisInstance.v_barras = true
+								thisInstance.showing[thisInstance.atributo].need_refresh = true
+
+								thisInstance:ResetaGump()
+								thisInstance:RefreshMainWindow(true)
+
+								Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, thisInstance, segmentId)
+							end
+						end
+					end
+				end
+			end
+		end
+	end,
+
+    ---@param instance instance
+	---@param segmentId segmentid
+	---@param attributeId attributeid
+	---@param subAttributeId attributeid
+	---@param modeId modeid
+	SetDisplay = function(instance, segmentId, attributeId, subAttributeId, modeId)
+		--change the mode of the window if the mode is different
+		---@type modeid
+		local currentModeId = instance:GetMode()
+		if (currentModeId ~= modeId) then
+			instance:SetMode(modeId)
+		end
+
+		--change the segment of the window if the segment is different
+		if (segmentId and type(segmentId) == "number") then
+			instance:SetSegment(segmentId)
+		end
+
+		local currentAttributeId, currentSubAttributeId = instance:GetDisplay()
+		local bHasMainAttributeChanged = false
+
+		--change the attributes, need to deal with plugins and custom displays
+		if (type(attributeId) == "number" and type(subAttributeId) == "number") then
+			if (Details222.Instances.ValidateAttribute(attributeId, subAttributeId)) then
+				if (attributeId == DETAILS_ATTRIBUTE_CUSTOM) then
+					if (#Details.custom < 1) then
+						attributeId = 1
+						subAttributeId = 1
+					end
+				end
+
+				if (attributeId ~= currentAttributeId or (instance.modo == modo_alone or instance.modo == modo_raid)) then
+					if (instance.modo == modo_alone) then
+						return Details.SoloTables.switch(nil, nil, -1)
+
+					elseif (instance.modo == modo_raid) then
+						return --do nothing when clicking in the button
+					end
+
+					instance.atributo = attributeId
+					instance.sub_atributo = instance.sub_atributo_last[attributeId]
+
+					bHasMainAttributeChanged = true
+
+					instance:ChangeIcon()
+					Details:InstanceCall(Details.CheckPsUpdate)
+					Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
+				end
+			end
+		end
+
+		if (subAttributeId ~= currentSubAttributeId or bHasMainAttributeChanged) then
+			instance.sub_atributo = subAttributeId
+			instance.sub_atributo_last[instance.atributo] = instance.sub_atributo
+			instance:ChangeIcon()
+			Details:InstanceCall(Details.CheckPsUpdate)
+			Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
+		end
+
+		if (Details.playerDetailWindow:IsShown() and instance == Details.playerDetailWindow.instancia) then
+			local combatObject = instance:GetCombat()
+			if (not combatObject or instance.atributo > 4) then
+				Details:FechaJanelaInfo()
+			else
+				local actorObject = Details:GetPlayerObjectFromBreakdownWindow()
+				if (actorObject) then
+					instance:AbreJanelaInfo(actorObject, true)
+				else
+					Details:FechaJanelaInfo()
+				end
+			end
+		end
+	end,
 }
 
-function _detalhes:GetInstance(id)
-	return _detalhes.tabela_instancias[id]
+---get the table with all instances, these instance could be not initialized yet, some might be open, some not in use
+---@return table
+function Details:GetAllInstances()
+	return Details.tabela_instancias
 end
+
+function Details:GetInstance(id)
+	return Details.tabela_instancias[id]
+end
+
 --user friendly alias
-function _detalhes:GetWindow(id)
-	return _detalhes.tabela_instancias[id]
+function Details:GetWindow(id)
+	return Details.tabela_instancias[id]
 end
 
 function Details:GetNumInstances()
-	return #_detalhes.tabela_instancias
+	return #Details.tabela_instancias
 end
 
-function _detalhes:GetId()
+function Details:GetId()
 	return self.meu_id
 end
-function _detalhes:GetInstanceId()
+function Details:GetInstanceId()
 	return self.meu_id
 end
 
-function _detalhes:GetSegment()
+function Details:GetSegment()
 	return self.segmento
 end
 
-function _detalhes:GetSoloMode()
-	return _detalhes.tabela_instancias [_detalhes.solo]
+function Details:GetSoloMode()
+	return Details.tabela_instancias[Details.solo]
 end
-function _detalhes:GetRaidMode()
-	return _detalhes.tabela_instancias [_detalhes.raid]
+function Details:GetRaidMode()
+	return Details.tabela_instancias[Details.raid]
 end
 
-function _detalhes:IsSoloMode (offline)
+function _detalhes:IsSoloMode(offline)
 	if (offline) then
 		return self.modo == 1
 	end
@@ -2105,8 +2279,7 @@ function Details:CheckSwitchToCurrent()
 	end
 end
 
-function Details:Freeze (instancia)
-
+function Details:Freeze(instancia)
 	if (not instancia) then
 		instancia = self
 	end
@@ -2116,24 +2289,22 @@ function Details:Freeze (instancia)
 		Details.FadeHandler.Fader(instancia, "in", nil, "barras")
 	end
 
-	instancia:InstanceMsg (Loc ["STRING_FREEZE"], [[Interface\CHARACTERFRAME\Disconnect-Icon]], "silver")
+	instancia:InstanceMsg(Loc ["STRING_FREEZE"], [[Interface\CHARACTERFRAME\Disconnect-Icon]], "silver")
 
 	--instancia.freeze_icon:Show()
 	--instancia.freeze_texto:Show()
-
-	local width = instancia:GetSize()
-	instancia.freeze_texto:SetWidth(width-64)
+	--local width = instancia:GetSize()
+	--instancia.freeze_texto:SetWidth(width-64)
 
 	instancia.freezed = true
 end
 
-function _detalhes:UnFreeze (instancia)
-
+function _detalhes:UnFreeze(instancia)
 	if (not instancia) then
 		instancia = self
 	end
 
-	self:InstanceMsg (false)
+	self:InstanceMsg(false)
 
 	--instancia.freeze_icon:Hide()
 	--instancia.freeze_texto:Hide()
@@ -2193,24 +2364,32 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 	end
 end
 
-local function ValidateAttribute (atributo, sub_atributo)
-	if (atributo == 1) then
-		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[1]) then
+---return if the attribute and sub attribute passed are in range of valid attributes
+---@param attributeId attributeid
+---@param subAttributeId attributeid
+---@return boolean
+function Details222.Instances.ValidateAttribute(attributeId, subAttributeId)
+	if (attributeId == 1) then
+		if (subAttributeId < 0 or subAttributeId > _detalhes.atributos[1]) then
 			return false
 		end
-	elseif (atributo == 2) then
-		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[2]) then
+
+	elseif (attributeId == 2) then
+		if (subAttributeId < 0 or subAttributeId > _detalhes.atributos[2]) then
 			return false
 		end
-	elseif (atributo == 3) then
-		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[3]) then
+
+	elseif (attributeId == 3) then
+		if (subAttributeId < 0 or subAttributeId > _detalhes.atributos[3]) then
 			return false
 		end
-	elseif (atributo == 4) then
-		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[4]) then
+
+	elseif (attributeId == 4) then
+		if (subAttributeId < 0 or subAttributeId > _detalhes.atributos[4]) then
 			return false
 		end
-	elseif (atributo == 5) then
+
+	elseif (attributeId == 5) then
 		return true
 	else
 		return false
@@ -2329,10 +2508,10 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 
 	--j� esta mostrando isso que esta pedindo
 	if (not fromInstanceStart and segmentId == current_segmento and attributeId == current_atributo and subAttributeId == current_sub_atributo and not _detalhes.initializing) then
-		return
+		return false
 	end
 
-	if (not ValidateAttribute (attributeId, subAttributeId)) then
+	if (not Details222.Instances.ValidateAttribute(attributeId, subAttributeId)) then
 		subAttributeId = 1
 		attributeId = 1
 		_detalhes:Msg("invalid attribute, switching to damage done.")
@@ -2517,7 +2696,7 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 		if (not fromInstanceStart) then
 			instance:Freeze()
 		end
-		return
+		return false
 	else
 		--refresh clock plugin
 	end
@@ -2529,6 +2708,8 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 		instance:ResetaGump()
 		instance:RefreshMainWindow(true)
 	end
+
+	return true
 end
 
 function _detalhes:GetRaidPluginName()

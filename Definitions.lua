@@ -314,12 +314,16 @@
 ---@class modeid : number
 
 ---@class instance : table
+---@field segment segmentid
 ---@field showing combat
 ---@field meu_id instanceid
 ---@field is_interacting boolean
 ---@field modo modeid
 ---@field atributo attributeid
 ---@field sub_atributo attributeid
+---@field ativa boolean
+---@field freezed boolean
+---@field sub_atributo_last table
 ---@field GetInstanceGroup fun() : table
 ---@field GetCombat fun(instance: instance)
 ---@field ChangeIcon fun(instance: instance)
@@ -328,7 +332,12 @@
 ---@field GetMode fun(instance: instance) : modeid
 ---@field IsInteracting fun(instance: instance) : boolean
 ---@field IsLowerInstance fun(instance: instance) : boolean
-
+---@field GetId fun(instance: instance) : instanceid
+---@field GetSegmentId fun(instance: instance) : segmentid
+---@field RefreshCombat fun(instance: instance)
+---@field UnFreeze fun(instance: instance)
+---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
+---@field GetDisplay fun(instance: instance) : attributeid, attributeid
 
 
 
