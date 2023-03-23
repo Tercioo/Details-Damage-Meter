@@ -95,6 +95,12 @@ do
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
+	--change logs
+	--[=[
+	
+
+	--]=]
+
 	local news = {
 		{"v10.0.5.10661.147", "Mar 1st, 2023"},
 		"Major fixes and updates on the Event Tracker feature (for streamers).",

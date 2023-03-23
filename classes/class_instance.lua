@@ -274,6 +274,7 @@ local instanceMixins = {
 	---@param segmentId segmentid
 	---@param bForceChange boolean|nil
 	SetSegment = function(instance, segmentId, bForceChange)
+		if true then return end
 		local currentSegment = instance:GetSegmentId()
 		if (segmentId ~= currentSegment or bForceChange) then
 			--check if the instance is frozen
@@ -324,6 +325,8 @@ local instanceMixins = {
 	---@param subAttributeId attributeid
 	---@param modeId modeid
 	SetDisplay = function(instance, segmentId, attributeId, subAttributeId, modeId)
+		if true then return end
+
 		--change the mode of the window if the mode is different
 		---@type modeid
 		local currentModeId = instance:GetMode()
@@ -369,7 +372,7 @@ local instanceMixins = {
 			end
 		end
 
-		if (subAttributeId ~= currentSubAttributeId or bHasMainAttributeChanged) then
+		if (type(subAttributeId) == "number" and subAttributeId ~= currentSubAttributeId or bHasMainAttributeChanged) then
 			instance.sub_atributo = subAttributeId
 			instance.sub_atributo_last[instance.atributo] = instance.sub_atributo
 			instance:ChangeIcon()
