@@ -9387,14 +9387,14 @@ local changeSegmentOnClick = function(instancia, buttontype)
 			previousSegment = -1
 		end
 
+		--cooltip menu update
 		local maxSegments = segmentsFilled + 2
-		previousSegment = previousSegment + 1
+		local targetSegment = previousSegment + 1
+		local segmentIndex = math.abs(targetSegment - maxSegments)
+		GameCooltip:Select(1, segmentIndex)
 
-		local segmentId = math.abs(previousSegment - maxSegments)
-		GameCooltip:Select(1, segmentId)
-
+		--change the segment
 		instancia:TrocaTabela(previousSegment) --todo: use new api
-
 		segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 
 	elseif (buttontype == "RightButton") then
@@ -9404,11 +9404,11 @@ local changeSegmentOnClick = function(instancia, buttontype)
 			nextSegment = segmentsUsed
 		end
 
+		--cooltip menu update
 		local maxSegments = segmentsFilled + 2
-		nextSegment = nextSegment + 1
-
-		local segmentId = math.abs(nextSegment - maxSegments)
-		GameCooltip:Select(1, segmentId)
+		local targetSegment = nextSegment + 1
+		local segmentIndex = math.abs(targetSegment - maxSegments)
+		GameCooltip:Select(1, segmentIndex)
 
 		instancia:TrocaTabela(nextSegment)
 		segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
