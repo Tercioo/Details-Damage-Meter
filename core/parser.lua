@@ -319,6 +319,28 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
+
+			--ring powers merged, https://gist.github.com/ljosberinn/65abe150133ff3a08cd70f840f7dd019 (by Gerrit Alex - WCL)
+			[403225] = 404884, -- Flame Licked Stone
+			[404974] = 404884, -- Shining Obsidian Stone
+			[405220] = 404884, -- Pestilent Plague Stone
+			[405221] = 404884, -- Pestilent Plague Stone
+			[405209] = 404884, -- Humming Arcane Stone
+			[403391] = 404884, -- Freezing Ice Stone
+			[404911] = 404884, -- Desirous Blood Stone
+			[404941] = 404884, -- Shining Obsidian Stone
+			[403087] = 404884, -- Storm Infused Stone
+			[403273] = 404884, -- Fel Flame via Entropic Fel Stone
+			[403171] = 404884, -- Uncontainable Charge via Echoing Thunder Stone
+			[405235] = 404884, -- Wild Spirit Stone
+			[403381] = 404884, -- Deluging Water Stone
+			[405118] = 404884, -- Exuding Steam Stone
+			[403408] = 404884, -- Exuding Steam Stone
+			[403336] = 404884, -- Indomitable Earth Stone
+			[403392] = 404884, -- Cold Frost Stone
+			[403376] = 404884, -- Gleaming Iron Stone
+			[403253] = 404884, -- Raging Magma Stone
+			[403257] = 404884, -- Searing Smokey Stone
 		}
 	end
 
