@@ -113,7 +113,10 @@
 		local cacheAnything = {
 			arenaHealth = {},
 			paladin_vivaldi_blessings = {},
+			track_hunter_frenzy = false,
 		}
+
+		
 
 	--cache the data for passive trinkets procs
 		local _trinket_data_cache = {}
@@ -2506,7 +2509,7 @@
 				--BfA monk talent
 				monk_guard_talent [sourceSerial] = amount
 
-			elseif (spellId == 272790) then --hunter pet Frenzy quick fix for show the Frenzy uptime
+			elseif (spellId == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy quick fix for show the Frenzy uptime
 				if (pet_frenzy_cache[sourceName]) then
 					if (DetailsFramework:IsNearlyEqual(pet_frenzy_cache[sourceName], time, 0.2)) then
 						return
@@ -2715,7 +2718,7 @@
 		end
 
 		if (tipo == "BUFF") then
-			if (spellid == 272790) then --hunter pet Frenzy spellid
+			if (spellid == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
 				local miscActorObject = misc_cache[sourceName]
 				if (miscActorObject) then
 					--fastest way to query utility spell data
@@ -2803,7 +2806,7 @@
 		end
 
 		if (tipo == "BUFF") then
-				if (spellid == 272790) then --hunter pet Frenzy spellid
+				if (spellid == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
 					if (not pet_frenzy_cache[sourceName]) then
 						return
 					end
@@ -6005,6 +6008,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(dk_pets_cache.apoc)
 
 		wipe(cacheAnything.paladin_vivaldi_blessings)
+
+		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 
 		damage_cache = setmetatable({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable({}, _detalhes.weaktable)

@@ -24,6 +24,7 @@ end
     ~17 - charts data
     ~18 - mythic dungeon
     ~19 - search results
+    ~20 - combatlog options
 --]]
 
 
@@ -226,31 +227,8 @@ do
                 return eraseDataOptions
             end
 
-        --deathlog limit
-            local onSelectDeathLogLimit = function(_, _, limitAmount)
-                _detalhes:SetDeathLogLimit(limitAmount)
-            end
-            local DeathLogLimitOptions = {
-                {value = 16, label = "16 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
-                {value = 32, label = "32 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
-                {value = 45, label = "45 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
-            }
-            local buildDeathLogLimitMenu = function()
-                return DeathLogLimitOptions
-            end
-
         local sectionOptions = {
             {type = "label", get = function() return Loc ["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
-            {--segments locked
-                type = "toggle",
-                get = function() return Details.instances_segments_locked end,
-                set = function(self, fixedparam, value)
-                    Details.instances_segments_locked = value
-                end,
-                name = Loc ["STRING_OPTIONS_LOCKSEGMENTS"],
-                desc = Loc ["STRING_OPTIONS_LOCKSEGMENTS_DESC"],
-                boxfirst = true,
-            },
             {--animate bars
                 type = "toggle",
                 get = function() return _detalhes.use_row_animations end,
@@ -329,48 +307,16 @@ do
             },
 
             {type = "blank"},
+            {type = "label", get = function() return "Segments:" end, text_template = subSectionTitleTextTemplate},
 
-            {--auto erase settings | erase data
-                type = "select",
-                get = function() return _detalhes.segments_auto_erase end,
-                values = function()
-                    return buildEraseDataMenu()
-                end,
-                name = Loc ["STRING_OPTIONS_ED"],
-                desc = Loc ["STRING_OPTIONS_ED_DESC"],
-            },
-
-            {--auto erase trash segments
+            {--segments locked
                 type = "toggle",
-                get = function() return _detalhes.trash_auto_remove end,
+                get = function() return Details.instances_segments_locked end,
                 set = function(self, fixedparam, value)
-                    _detalhes.trash_auto_remove = value
-                    afterUpdate()
+                    Details.instances_segments_locked = value
                 end,
-                name = Loc ["STRING_OPTIONS_CLEANUP"],
-                desc = Loc ["STRING_OPTIONS_CLEANUP_DESC"],
-                boxfirst = true,
-            },
-            {--auto erase world segments
-                type = "toggle",
-                get = function() return _detalhes.world_combat_is_trash end,
-                set = function(self, fixedparam, value)
-                    _detalhes.world_combat_is_trash = value
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_PERFORMANCE_ERASEWORLD"],
-                desc = Loc ["STRING_OPTIONS_PERFORMANCE_ERASEWORLD_DESC"],
-                boxfirst = true,
-            },
-            {--erase chart data
-                type = "toggle",
-                get = function() return _detalhes.clear_graphic end,
-                set = function(self, fixedparam, value)
-                    _detalhes.clear_graphic = value
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_ERASECHARTDATA"],
-                desc = Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"],
+                name = Loc ["STRING_OPTIONS_LOCKSEGMENTS"],
+                desc = Loc ["STRING_OPTIONS_LOCKSEGMENTS_DESC"],
                 boxfirst = true,
             },
 
@@ -424,52 +370,50 @@ do
             },
 
             {type = "blank"},
+            {type = "label", get = function() return "Auto Erase:" end, text_template = subSectionTitleTextTemplate},
 
-            {--pvp frags
-                type = "toggle",
-                get = function() return _detalhes.only_pvp_frags end,
-                set = function(self, fixedparam, value)
-                    _detalhes.only_pvp_frags = value
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_PVPFRAGS"],
-                desc = Loc ["STRING_OPTIONS_PVPFRAGS_DESC"],
-                boxfirst = true,
-            },
-
-            {--damage taken everything
-                type = "toggle",
-                get = function() return _detalhes.damage_taken_everything end,
-                set = function(self, fixedparam, value)
-                    _detalhes.damage_taken_everything = value
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"],
-                desc = Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"],
-                boxfirst = true,
-            },
-
-            {--death log size
+            {--auto erase settings | erase data
                 type = "select",
-                get = function() return _detalhes.deadlog_events end,
+                get = function() return _detalhes.segments_auto_erase end,
                 values = function()
-                    return buildDeathLogLimitMenu()
+                    return buildEraseDataMenu()
                 end,
-                name = Loc ["STRING_OPTIONS_DEATHLIMIT"],
-                desc = Loc ["STRING_OPTIONS_DEATHLIMIT_DESC"],
+                name = Loc ["STRING_OPTIONS_ED"],
+                desc = Loc ["STRING_OPTIONS_ED_DESC"],
             },
-            {--death log min healing
-                type = "range",
-                get = function() return _detalhes.deathlog_healingdone_min end,
+
+            {--auto erase trash segments
+                type = "toggle",
+                get = function() return _detalhes.trash_auto_remove end,
                 set = function(self, fixedparam, value)
-                    _detalhes.deathlog_healingdone_min = value
+                    _detalhes.trash_auto_remove = value
                     afterUpdate()
                 end,
-                min = 0,
-                max = 100000,
-                step = 1,
-                name = Loc ["STRING_OPTIONS_DEATHLOG_MINHEALING"],
-                desc = Loc ["STRING_OPTIONS_DEATHLOG_MINHEALING_DESC"],
+                name = Loc ["STRING_OPTIONS_CLEANUP"],
+                desc = Loc ["STRING_OPTIONS_CLEANUP_DESC"],
+                boxfirst = true,
+            },
+            {--auto erase world segments
+                type = "toggle",
+                get = function() return _detalhes.world_combat_is_trash end,
+                set = function(self, fixedparam, value)
+                    _detalhes.world_combat_is_trash = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_PERFORMANCE_ERASEWORLD"],
+                desc = Loc ["STRING_OPTIONS_PERFORMANCE_ERASEWORLD_DESC"],
+                boxfirst = true,
+            },
+            {--erase chart data
+                type = "toggle",
+                get = function() return _detalhes.clear_graphic end,
+                set = function(self, fixedparam, value)
+                    _detalhes.clear_graphic = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_ERASECHARTDATA"],
+                desc = Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"],
+                boxfirst = true,
             },
 
             {type = "breakline"},
@@ -597,31 +541,6 @@ do
                 icontexcoords = {0.1, .64, 0.1, .69},
                 name = Loc ["STRING_OPTIONS_WC_BOOKMARK"],
                 desc = Loc ["STRING_OPTIONS_WC_BOOKMARK_DESC"],
-            },
-
-            {type = "blank"},
-
-            {--click through
-                type = "toggle",
-                get = function() return currentInstance.clickthrough_window end,
-                set = function(self, fixedparam, value)
-                    Details:InstanceGroupCall(currentInstance, "UpdateClickThroughSettings", nil, value, value, value)
-                    afterUpdate()
-                end,
-                name = "Click Through",
-                desc = "Click Through",
-                boxfirst = true,
-            },
-            {--click only in combat
-                type = "toggle",
-                get = function() return currentInstance.clickthrough_incombatonly end,
-                set = function(self, fixedparam, value)
-                    Details:InstanceGroupCall(currentInstance, "UpdateClickThroughSettings", value)
-                    afterUpdate()
-                end,
-                name = "Click Through Only in Combat",
-                desc = "Click Through Only in Combat",
-                boxfirst = true,
             },
 
             {type = "blank"},
@@ -2948,6 +2867,29 @@ do
                 desc = Loc ["STRING_OPTIONS_INSTANCE_BACKDROP_DESC"],
             },
 
+            {type = "blank"},
+            {--click through
+                type = "toggle",
+                get = function() return currentInstance.clickthrough_window end,
+                set = function(self, fixedparam, value)
+                    Details:InstanceGroupCall(currentInstance, "UpdateClickThroughSettings", nil, value, value, value)
+                    afterUpdate()
+                end,
+                name = "Click Through",
+                desc = "Click Through",
+                boxfirst = true,
+            },
+            {--click only in combat
+                type = "toggle",
+                get = function() return currentInstance.clickthrough_incombatonly end,
+                set = function(self, fixedparam, value)
+                    Details:InstanceGroupCall(currentInstance, "UpdateClickThroughSettings", value)
+                    afterUpdate()
+                end,
+                name = "Click Through Only in Combat",
+                desc = "Click Through Only in Combat",
+                boxfirst = true,
+            },            
             {type = "blank"},
 
             {--disable grouping
@@ -6982,7 +6924,133 @@ do
 end
 
 
---[[]
+-- ~20 combat log settings
+do
+    local buildSection = function(sectionFrame)
+        --deathlog limit
+        local onSelectDeathLogLimit = function(_, _, limitAmount)
+            _detalhes:SetDeathLogLimit(limitAmount)
+        end
+        local DeathLogLimitOptions = {
+            {value = 16, label = "16 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
+            {value = 32, label = "32 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
+            {value = 45, label = "45 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
+        }
+        local buildDeathLogLimitMenu = function()
+            return DeathLogLimitOptions
+        end
+
+        local sectionOptions = {
+            {type = "label", get = function() return "Death Log Options:" end, text_template = subSectionTitleTextTemplate},
+            {--reverse death logs
+                type = "toggle",
+                get = function() return Details.combat_log.inverse_deathlog_raid end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.inverse_deathlog_raid = value
+                end,
+                name = "Invert Death Log (Raid)",
+                desc = "Invert Death Log (Raid)",
+            },
+
+            {--reverse death logs
+                type = "toggle",
+                get = function() return Details.combat_log.inverse_deathlog_mplus end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.inverse_deathlog_mplus = value
+                end,
+                name = "Invert Death Log (M+)",
+                desc = "Invert Death Log (M+)",
+            },
+
+            {--reverse death logs
+                type = "toggle",
+                get = function() return Details.combat_log.inverse_deathlog_overalldata end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.inverse_deathlog_overalldata = value
+                end,
+                name = "Invert Death Log (Overall Data)",
+                desc = "Invert Death Log (Overall Data)",
+            },
+
+            {--pvp frags
+                type = "toggle",
+                get = function() return _detalhes.only_pvp_frags end,
+                set = function(self, fixedparam, value)
+                    _detalhes.only_pvp_frags = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_PVPFRAGS"],
+                desc = Loc ["STRING_OPTIONS_PVPFRAGS_DESC"],
+                boxfirst = true,
+            },
+
+            {--death log size
+                type = "select",
+                get = function() return _detalhes.deadlog_events end,
+                values = function()
+                    return buildDeathLogLimitMenu()
+                end,
+                name = Loc ["STRING_OPTIONS_DEATHLIMIT"],
+                desc = Loc ["STRING_OPTIONS_DEATHLIMIT_DESC"],
+            },
+
+            {--death log min healing
+                type = "range",
+                get = function() return _detalhes.deathlog_healingdone_min end,
+                set = function(self, fixedparam, value)
+                    _detalhes.deathlog_healingdone_min = value
+                    afterUpdate()
+                end,
+                min = 0,
+                max = 100000,
+                step = 1,
+                name = Loc ["STRING_OPTIONS_DEATHLOG_MINHEALING"],
+                desc = Loc ["STRING_OPTIONS_DEATHLOG_MINHEALING_DESC"],
+            },
+
+            {type = "blank"},
+            {type = "label", get = function() return "Damage Options:" end, text_template = subSectionTitleTextTemplate},
+            {--damage taken everything
+                type = "toggle",
+                get = function() return _detalhes.damage_taken_everything end,
+                set = function(self, fixedparam, value)
+                    _detalhes.damage_taken_everything = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"],
+                desc = Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"],
+                boxfirst = true,
+            },
+
+            {type = "blank"},
+            {type = "label", get = function() return "Class Options:" end, text_template = subSectionTitleTextTemplate},
+
+            {--damage taken everything
+                type = "toggle",
+                get = function() return Details.combat_log.track_hunter_frenzy end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.track_hunter_frenzy = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                end,
+                name = DF:AddClassIconToText("Hunter Track Pet Frenzy", false, "HUNTER"),
+                desc = "Hunter Track Pet Frenzy",
+                boxfirst = true,
+            },
+            
+            
+        }
+
+        sectionFrame.sectionOptions = sectionOptions
+        sectionOptions.always_boxfirst = true
+        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+    end
+
+    tinsert(Details.optionsSection, buildSection)
+end
+
+
+--[=[
 do
     local buildSection = function(sectionFrame)
 
@@ -6995,5 +7063,4 @@ do
 
     tinsert(Details.optionsSection, buildSection)
 end
---]]
-
+--]=]

@@ -2,13 +2,9 @@ if (true) then
     --return
 end
 
-
 local Details = _G.Details
 local DF = _G.DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
---local SharedMedia = _G.LibStub:GetLibrary("LibSharedMedia-3.0")
---local LDB = _G.LibStub("LibDataBroker-1.1", true)
---local LDBIcon = LDB and _G.LibStub("LibDBIcon-1.0", true)
 
 --options panel namespace
 Details.options = {}
@@ -26,7 +22,6 @@ local options_text_template = DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
 local options_dropdown_template = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local options_switch_template = DF:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
 local options_slider_template = DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
-
 local options_button_template = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 local options_button_template_selected = DF.table.copy({}, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 options_button_template_selected.backdropbordercolor = {1, .8, .2}
@@ -95,7 +90,7 @@ function Details.options.InitializeOptionsWindow(instance)
             --what the window is showing
             local atributo = instance.atributo
             local sub_atributo = instance.sub_atributo
-            
+
             if (atributo == 5) then --custom
                 local CustomObject = _detalhes.custom [sub_atributo]
                 if (not CustomObject) then
@@ -108,7 +103,7 @@ function Details.options.InitializeOptionsWindow(instance)
                 end
             else
                 local modo = instance.modo
-                
+
                 if (modo == 1) then --solo plugin
                     atributo = _detalhes.SoloTables.Mode or 1
                     local SoloInfo = _detalhes.SoloTables.Menu [atributo]
@@ -117,7 +112,7 @@ function Details.options.InitializeOptionsWindow(instance)
                     else
                         instanceList [#instanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectInstance, icon = ""}
                     end
-                    
+
                 elseif (modo == 4) then --raid plugin
                     local plugin_name = instance.current_raid_plugin or instance.last_raid_plugin
                     if (plugin_name) then
@@ -298,18 +293,20 @@ function Details.options.InitializeOptionsWindow(instance)
         [15] = "Broadcaster Tools",
         [16] = Loc ["STRING_OPTIONSMENU_SPELLS"],
         [17] = Loc ["STRING_OPTIONSMENU_DATACHART"],
-
         [18] = "Mythic Dungeon",
-
         [19] = "Search Results",
-
+        [20] = "Combat Log",
     }
 
     local optionsSectionsOrder = {
-        1, "", 3, 4, "", 5, 6, 7, 12, 13, "", 9, 2, 8, 10, 11, 18, "", 14, 15, 16, 17, "", 19
+        1, 20, "", 3, 4, "", 5, 6, 7, 12, 13, "", 9, 2, 8, 10, 11, 18, "", 14, 15, 16, 17, "", 19
     }
 
-    local maxSectionIds = 19
+    local maxSectionIds = 0
+    for k in pairs(sectionsName) do
+        maxSectionIds = maxSectionIds + 1
+    end
+
     Details.options.maxSectionIds = maxSectionIds
 
     local buttonYPosition = -40
@@ -403,7 +400,7 @@ function Details.options.InitializeOptionsWindow(instance)
 			Details:OpenOptionsWindow(_G.DetailsOptionsWindow.instance)
         end
     end
-    
+
     Details.options.SelectOptionsSection(1)
 end
 
