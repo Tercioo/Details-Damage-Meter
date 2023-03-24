@@ -3028,9 +3028,9 @@ end
 ---@param instance instance
 function Details222.Instances.OnModeChanged(instance)
 	local modeId = instance:GetMode()
-
+	
 	if (modeId == modo_alone) then
-		if (instance:IsRaidMode()) then
+		if (instance.LastModo == modo_raid) then
 			Details.RaidTables:DisableRaidMode(instance)
 		end
 
@@ -3040,17 +3040,17 @@ function Details222.Instances.OnModeChanged(instance)
 		instance:SoloMode(true)
 
 	elseif (modeId == modo_raid) then
-		if (instance:IsSoloMode()) then
+		if (instance.LastModo == modo_alone) then
 			instance:SoloMode(false)
 		end
 		instance:ChangeIcon()
 		Details.RaidTables:EnableRaidMode(instance)
 
 	elseif (modeId == modo_grupo or modeId == modo_all) then
-		if (instance:IsSoloMode()) then
+		if (instance.LastModo == modo_alone) then
 			instance:SoloMode(false)
 
-		elseif (instance:IsRaidMode()) then
+		elseif (instance.LastModo == modo_raid) then
 			Details.RaidTables:DisableRaidMode(instance)
 		end
 
