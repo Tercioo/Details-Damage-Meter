@@ -322,6 +322,8 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
+			[94472] = 81751, --disc priest attonement and crit. Crits use separate id.
+			[281469] = 270501, --disc priest contrition attonement and crit. Crits use separate id.
 		}
 	end
 
