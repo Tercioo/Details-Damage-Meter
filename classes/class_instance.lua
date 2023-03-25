@@ -2577,47 +2577,47 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 		_detalhes:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)
 
 		if (_detalhes.instances_segments_locked and not fromInstanceStart) then
-			for _, instance in ipairs(_detalhes.tabela_instancias) do
-				if (instance.meu_id ~= instance.meu_id and instance.ativa and not instance._postponing_switch and not instance._postponing_current) then
-					if (instance:GetSegment() >= 0 and instance:GetSegment() ~= -1) then
-						if (instance.modo == 2 or instance.modo == 3) then
+			for _, thisInstance in ipairs(_detalhes.tabela_instancias) do
+				if (thisInstance.meu_id ~= instance.meu_id and thisInstance.ativa and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
+					if (thisInstance:GetSegment() >= 0) then
+						if (thisInstance.modo == 2 or thisInstance.modo == 3) then
 							--check if the instance is frozen
-							if (instance.freezed) then
+							if (thisInstance.freezed) then
 								if (not fromInstanceStart) then
-									instance:UnFreeze()
+									thisInstance:UnFreeze()
 								else
-									instance.freezed = false
+									thisInstance.freezed = false
 								end
 							end
 
-							instance.segmento = segmentId
+							thisInstance.segmento = segmentId
 
 							if (segmentId == DETAILS_SEGMENTID_OVERALL) then
-								instance.showing = Details:GetOverallCombat()
+								thisInstance.showing = Details:GetOverallCombat()
 
 							elseif (segmentId == DETAILS_SEGMENTID_CURRENT) then
-								instance.showing = Details:GetCurrentCombat()
+								thisInstance.showing = Details:GetCurrentCombat()
 
 							else
-								instance.showing = Details:GetCombat(segmentId)
+								thisInstance.showing = Details:GetCombat(segmentId)
 							end
 
-							if (not instance.showing) then
+							if (not thisInstance.showing) then
 								if (not fromInstanceStart) then
-									instance:Freeze()
+									thisInstance:Freeze()
 								end
 								return
 							end
 
-							instance.v_barras = true
-							instance.showing [attributeId].need_refresh = true
+							thisInstance.v_barras = true
+							thisInstance.showing [attributeId].need_refresh = true
 
 							if (not _detalhes.initializing and not fromInstanceStart) then
-								instance:ResetaGump()
-								instance:RefreshMainWindow(true)
+								thisInstance:ResetaGump()
+								thisInstance:RefreshMainWindow(true)
 							end
 
-							_detalhes:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)
+							_detalhes:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, thisInstance, segmentId)
 						end
 					end
 				end
