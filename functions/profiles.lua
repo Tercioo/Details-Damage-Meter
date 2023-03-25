@@ -1148,6 +1148,7 @@ local default_player_data = {
 			inverse_deathlog_mplus = false,
 			inverse_deathlog_overalldata = false,
 			track_hunter_frenzy = false,
+			merge_gemstones_1007 = false,
 		},
 
 		--this is used by the new data capture for charts

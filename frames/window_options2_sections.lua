@@ -7022,6 +7022,19 @@ do
                 boxfirst = true,
             },
 
+            {--merge gemstone 10.0.7
+                type = "toggle",
+                get = function() return Details.combat_log.merge_gemstones_1007 end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.merge_gemstones_1007 = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                end,
+                name = "Merge Primordial Stones 10.0.7",
+                desc = "Merge Primordial Stones 10.0.7",
+                boxfirst = true,
+            },
+
             {type = "blank"},
             {type = "label", get = function() return "Class Options:" end, text_template = subSectionTitleTextTemplate},
 
@@ -7037,8 +7050,7 @@ do
                 desc = "Hunter Track Pet Frenzy",
                 boxfirst = true,
             },
-            
-            
+
         }
 
         sectionFrame.sectionOptions = sectionOptions

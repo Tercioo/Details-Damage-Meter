@@ -322,30 +322,6 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
-
-			--ring powers merged, https://gist.github.com/ljosberinn/65abe150133ff3a08cd70f840f7dd019 (by Gerrit Alex - WCL)
-			--[=[]]
-			[403225] = 404884, -- Flame Licked Stone
-			[404974] = 404884, -- Shining Obsidian Stone
-			[405220] = 404884, -- Pestilent Plague Stone
-			[405221] = 404884, -- Pestilent Plague Stone
-			[405209] = 404884, -- Humming Arcane Stone
-			[403391] = 404884, -- Freezing Ice Stone
-			[404911] = 404884, -- Desirous Blood Stone
-			[404941] = 404884, -- Shining Obsidian Stone
-			[403087] = 404884, -- Storm Infused Stone
-			[403273] = 404884, -- Fel Flame via Entropic Fel Stone
-			[403171] = 404884, -- Uncontainable Charge via Echoing Thunder Stone
-			[405235] = 404884, -- Wild Spirit Stone
-			[403381] = 404884, -- Deluging Water Stone
-			[405118] = 404884, -- Exuding Steam Stone
-			[403408] = 404884, -- Exuding Steam Stone
-			[403336] = 404884, -- Indomitable Earth Stone
-			[403392] = 404884, -- Cold Frost Stone
-			[403376] = 404884, -- Gleaming Iron Stone
-			[403253] = 404884, -- Raging Magma Stone
-			[403257] = 404884, -- Searing Smokey Stone
-			--]=]
 		}
 	end
 
@@ -6012,6 +5988,51 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(cacheAnything.paladin_vivaldi_blessings)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
+
+		if (Details.combat_log.merge_gemstones_1007) then
+			--ring powers merged, https://gist.github.com/ljosberinn/65abe150133ff3a08cd70f840f7dd019 (by Gerrit Alex - WCL)
+			override_spellId[403225] = 404884 --Flame Licked Stone
+			override_spellId[404974] = 404884 --Shining Obsidian Stone
+			override_spellId[405220] = 404884 --Pestilent Plague Stone
+			override_spellId[405221] = 404884 --Pestilent Plague Stone
+			override_spellId[405209] = 404884 --Humming Arcane Stone
+			override_spellId[403391] = 404884 --Freezing Ice Stone
+			override_spellId[404911] = 404884 --Desirous Blood Stone
+			override_spellId[404941] = 404884 --Shining Obsidian Stone
+			override_spellId[403087] = 404884 --Storm Infused Stone
+			override_spellId[403273] = 404884 --Fel Flame via Entropic Fel Stone
+			override_spellId[403171] = 404884 --Uncontainable Charge via Echoing Thunder Stone
+			override_spellId[405235] = 404884 --Wild Spirit Stone
+			override_spellId[403381] = 404884 --Deluging Water Stone
+			override_spellId[405118] = 404884 --Exuding Steam Stone
+			override_spellId[403408] = 404884 --Exuding Steam Stone
+			override_spellId[403336] = 404884 --Indomitable Earth Stone
+			override_spellId[403392] = 404884 --Cold Frost Stone
+			override_spellId[403376] = 404884 --Gleaming Iron Stone
+			override_spellId[403253] = 404884 --Raging Magma Stone
+			override_spellId[403257] = 404884 --Searing Smokey Stone
+		else
+			override_spellId[403225] = nil --Flame Licked Stone
+			override_spellId[404974] = nil --Shining Obsidian Stone
+			override_spellId[405220] = nil --Pestilent Plague Stone
+			override_spellId[405221] = nil --Pestilent Plague Stone
+			override_spellId[405209] = nil --Humming Arcane Stone
+			override_spellId[403391] = nil --Freezing Ice Stone
+			override_spellId[404911] = nil --Desirous Blood Stone
+			override_spellId[404941] = nil --Shining Obsidian Stone
+			override_spellId[403087] = nil --Storm Infused Stone
+			override_spellId[403273] = nil --Fel Flame via Entropic Fel Stone
+			override_spellId[403171] = nil --Uncontainable Charge via Echoing Thunder Stone
+			override_spellId[405235] = nil --Wild Spirit Stone
+			override_spellId[403381] = nil --Deluging Water Stone
+			override_spellId[405118] = nil --Exuding Steam Stone
+			override_spellId[403408] = nil --Exuding Steam Stone
+			override_spellId[403336] = nil --Indomitable Earth Stone
+			override_spellId[403392] = nil --Cold Frost Stone
+			override_spellId[403376] = nil --Gleaming Iron Stone
+			override_spellId[403253] = nil --Raging Magma Stone
+			override_spellId[403257] = nil --Searing Smokey Stone
+		end
 
 		damage_cache = setmetatable({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable({}, _detalhes.weaktable)
