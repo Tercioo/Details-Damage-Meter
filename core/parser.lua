@@ -322,8 +322,7 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
-			[94472] = 81751, --disc priest attonement and crit. Crits use separate id.
-			[281469] = 270501, --disc priest contrition attonement and crit. Crits use separate id.
+			
 		}
 	end
 
@@ -6035,6 +6034,19 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			override_spellId[403253] = nil --Raging Magma Stone
 			override_spellId[403257] = nil --Searing Smokey Stone
 		end
+
+		if (Details.combat_log.merge_critical_heals) then
+			override_spellId[94472] = 81751, --disc priest attonement and crit. Crits use separate id.
+			override_spellId[281469] = 270501, --disc priest contrition attonement and crit. Crits use separate id.
+			override_spellId[388025] = 388024, --MW monk Ancient Teachings, heals from damage, crit and normal are separate.
+			override_spellId[389325] = 389328, --MW monk Awakened Faeline, ^
+		else
+			override_spellId[94472] = nil, --disc priest attonement and crit. Crits use separate id.
+			override_spellId[281469] = nil, --disc priest contrition attonement and crit. Crits use separate id.
+			override_spellId[388025] = nil, --MW monk Ancient Teachings, heals from damage, crit and normal are separate.
+			override_spellId[389325] = nil, --MW monk Awakened Faeline, ^
+		end
+
 
 		damage_cache = setmetatable({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable({}, _detalhes.weaktable)
