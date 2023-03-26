@@ -1911,12 +1911,19 @@ local iconTableCompare = {
     height = 14,
 }
 
-C_Timer.After(2, function()
+function Details:InitializeCompareTab()
+    --check if the tab is already created
+    for i = 1, #_detalhes.player_details_tabs do
+        local tabButton = _detalhes.player_details_tabs[i]
+        if (tabButton.tabname == "Compare" or tabButton.tabname == "New Compare") then
+            return
+        end
+    end
+
     for i = 1, #_detalhes.player_details_tabs do
         local tabButton = _detalhes.player_details_tabs[i]
         if (tabButton.replaces) then
             if (tabButton.replaces.bIsCompareTab) then
-                print("already installed a compare tab")
                 return
             end
         end
@@ -2004,4 +2011,4 @@ C_Timer.After(2, function()
         compare_create, --[6] oncreate
         iconTableCompare --icon table
     )
-end)
+end
