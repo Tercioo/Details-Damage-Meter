@@ -641,7 +641,6 @@ end
 		end
 	end
 
-	------------------------------------------------------------------------------------------------------------------------------
 	local function seta_scripts (este_gump)  --> spells tab
 		--Janela
 		este_gump:SetScript("OnMouseDown", mouse_down_func)
@@ -661,7 +660,6 @@ end
 			_detalhes:FechaJanelaInfo()
 		end)
 	end
-
 
 ------------------------------------------------------------------------------------------------------------------------------
 function gump:HidaDetalheInfo (index)  --> spells tab
@@ -940,7 +938,6 @@ local function cria_barras_detalhes()
 	end
 end
 
-
 --cria os textos em geral da janela info
 ------------------------------------------------------------------------------------------------------------------------------
 local function cria_textos (este_gump, SWW)
@@ -971,7 +968,6 @@ local function cria_textos (este_gump, SWW)
 	este_gump.avatar_bg:Hide()
 	este_gump.avatar_nick:Hide()
 end
-
 
 --esquerdo superior
 local function cria_container_barras (este_gump, SWW)
@@ -1729,7 +1725,6 @@ _detalhes:InstallPDWSkin ("ElvUI", {func = elvui_skin, author = "Details! Team",
 
 --search key: ~create ~inicio ~start
 function gump:CriaJanelaInfo()
-
 	--cria a janela em si
 	local este_gump = info
 	este_gump.Loaded = true
@@ -1756,10 +1751,6 @@ function gump:CriaJanelaInfo()
 
 	local scaleBar = Details.gump:CreateScaleBar (este_gump, Details.player_details_window)
 	este_gump:SetScale(Details.player_details_window.scale)
-
-	--classic:
-	--este_gump:SetWidth(590)
-	--este_gump:SetHeight(354)
 
 	--joga a janela para a global
 	_detalhes.playerDetailWindow = este_gump
@@ -1790,7 +1781,6 @@ function gump:CriaJanelaInfo()
 	este_gump.close_button:SetText("X")
 	este_gump.close_button:SetFrameLevel(este_gump:GetFrameLevel()+5)
 
-
 	--�cone da magia selecionada para mais detalhes
 	este_gump.bg_icone_bg = este_gump:CreateTexture(nil, "ARTWORK")
 	este_gump.bg_icone_bg:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT",  -15, -12)
@@ -1818,7 +1808,7 @@ function gump:CriaJanelaInfo()
 	este_gump.options_button:Hide()
 
 	--titulo
-	gump:NewLabel(este_gump, este_gump, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	gump:NewLabel(este_gump, este_gump, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r)", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	este_gump.title_string:SetPoint("center", este_gump, "center")
 	este_gump.title_string:SetPoint("top", este_gump, "top", 0, -18)
 
@@ -1885,8 +1875,6 @@ function gump:CriaJanelaInfo()
 		end
 	end
 
--------------------------------------------------
-
 	local alpha_bgs = 1
 
 	-- backgrounds das 5 boxes do lado direito
@@ -1925,7 +1913,6 @@ function gump:CriaJanelaInfo()
 		este_gump.bg3_sec_texture:SetDrawLayer("BORDER", 2)
 		este_gump.bg3_sec_texture:SetPoint("topleft", este_gump.bg2_sec_texture, "topleft", 0, 0)
 		este_gump.bg3_sec_texture:SetPoint("bottomright", este_gump.bg2_sec_texture, "bottomright", 0, 0)
-		--este_gump.bg3_sec_texture:SetColorTexture(0, 0, 0, 1)
 		este_gump.bg3_sec_texture:Hide()
 
 		este_gump.no_targets = SWW:CreateTexture("DetailsPlayerDetailsWindow_no_targets", "overlay")
@@ -1952,12 +1939,6 @@ function gump:CriaJanelaInfo()
 
 	--cria o container onde vai abrigar os alvos do jogador
 	cria_container_alvos (este_gump, SWW)
-
---	local leftbars1_backgound = SWW:CreateTexture(nil, "background")
---	leftbars1_backgound:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
---	leftbars1_backgound:SetSize(303, 149)
---	leftbars1_backgound:SetAlpha(alpha_bgs)
---	este_gump.leftbars1_backgound = leftbars1_backgound
 
 	local leftbars1_backgound = CreateFrame("frame", "DetailsPlayerDetailsWindow_Left_SpellsBackground", SWW, "BackdropTemplate")
 	leftbars1_backgound:EnableMouse(false)
@@ -2000,7 +1981,6 @@ function gump:CriaJanelaInfo()
 	--bot�o de reportar da caixa da esquerda, onde fica as barras principais
 	este_gump.report_esquerda = gump:NewDetailsButton (SWW, este_gump, nil, _detalhes.Reportar, este_gump, 1, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
-	--este_gump.report_esquerda:SetPoint("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  281, 3)
 	este_gump.report_esquerda:SetPoint("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  33, 3)
 	este_gump.report_esquerda:SetFrameLevel(este_gump:GetFrameLevel()+2)
 	este_gump.topleft_report = este_gump.report_esquerda
@@ -2297,7 +2277,6 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 end
 
 function _detalhes.playerDetailWindow:monta_relatorio (botao)
-
 	local atributo = info.atributo
 	local sub_atributo = info.sub_atributo
 	local player = info.jogador
@@ -2423,7 +2402,6 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 				if (i == amt) then
 					break
 				end
-
 			end
 
 			--dano                       --damage tanken (mostra as magias que o alvo usou)
@@ -2444,7 +2422,6 @@ function _detalhes.playerDetailWindow:monta_relatorio (botao)
 		end
 
 	elseif (botao >= 11) then --primeira caixa dos detalhes
-
 		botao =  botao - 10
 
 		local nome
@@ -2808,7 +2785,6 @@ local target_on_enter = function(self)
 
 			--add and sort
 			for target_name, amount in pairs(ActorTargetsContainer) do
-				--print(target_name, amount)
 				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {target_name, amount or 0}
 				total = total + (amount or 0)
 			end
@@ -2912,8 +2888,6 @@ local target_on_leave = function(self)
 	self.texture:SetAlpha(.7)
 	self:SetAlpha(.7)
 end
-
-
 
 function gump:CriaNovaBarraInfo1(instancia, index)
 	if (_detalhes.playerDetailWindow.barras1[index]) then
