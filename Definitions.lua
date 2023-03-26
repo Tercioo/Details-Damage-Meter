@@ -314,7 +314,7 @@
 ---@class modeid : number
 
 ---@class instance : table
----@field segment segmentid
+---@field segmento segmentid
 ---@field showing combat
 ---@field meu_id instanceid
 ---@field is_interacting boolean
@@ -332,13 +332,17 @@
 ---@field GetMode fun(instance: instance) : modeid
 ---@field IsInteracting fun(instance: instance) : boolean
 ---@field IsLowerInstance fun(instance: instance) : boolean
+---@field IsEnabled fun(instance: instance) : boolean
 ---@field GetId fun(instance: instance) : instanceid
 ---@field GetSegmentId fun(instance: instance) : segmentid
 ---@field RefreshCombat fun(instance: instance)
+---@field Freeze fun(instance: instance)
 ---@field UnFreeze fun(instance: instance)
 ---@field SetSegment fun(instance: instance, segment: segmentid, force: boolean|nil)
 ---@field GetDisplay fun(instance: instance) : attributeid, attributeid
-
+---@field ResetWindow fun(instance: instance, resetType: number|nil, segmentId: segmentid|nil)
+---@field RefreshData fun(instance: instance, force: boolean|nil)
+---@field RefreshWindow fun(instance: instance, force: boolean|nil)
 
 
 

@@ -112,10 +112,14 @@ function Details:GetBreakdownWindow()
 	return Details.playerDetailWindow
 end
 
+function Details:IsBreakdownWindowOpen()
+	return info.ativo
+end
+
 --english alias
 --window object from Details:GetWindow(n) and playerObject from Details:GetPlayer(playerName, attribute)
-function Details:OpenPlayerBreakdown (windowObject, playerObject) --windowObject = instanceObject
-	windowObject:AbreJanelaInfo (playerObject)
+function Details:OpenPlayerBreakdown(windowObject, playerObject, from_att_change) --windowObject = instanceObject
+	windowObject:AbreJanelaInfo(playerObject, from_att_change)
 end
 
 function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDown, ControlKeyDown)
@@ -559,6 +563,12 @@ end
 --self � qualquer coisa que chamar esta fun��o
 ------------------------------------------------------------------------------------------------------------------------------
 -- � chamado pelo click no X e pelo reset do historico
+
+--alias
+function Details:CloseBreakdownWindow(bFromEscape)
+	return _detalhes:FechaJanelaInfo(bFromEscape)
+end
+
 function _detalhes:FechaJanelaInfo (fromEscape)
 	if (info.ativo) then --se a janela tiver aberta
 		--playerDetailWindow:Hide()

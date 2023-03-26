@@ -213,6 +213,7 @@ local instanceMixins = {
 	---set the combatObject by the segmentId the instance is showing
 	---@param instance instance
 	RefreshCombat = function(instance)
+		---@type segmentid
 		local segmentId = instance:GetSegmentId()
 		if (segmentId == DETAILS_SEGMENTID_OVERALL) then
 			instance.showing = Details:GetOverallCombat()
@@ -220,6 +221,120 @@ local instanceMixins = {
 			instance.showing = Details:GetCurrentCombat()
 		else
 			instance.showing = Details:GetCombat(segmentId)
+		end
+
+		---@type combat
+		local combatObject = instance:GetCombat()
+		if (combatObject) then
+			---@type attributeid
+			local attributeId = instance:GetDisplay()
+			combatObject[attributeId].need_refresh = true
+		end
+	end,
+
+	---reset some of the instance properties needed to show a new segment
+	---@param instance instance
+	---@param resetType number|nil
+	---@param segmentId segmentid|nil
+	ResetWindow = function(instance, resetType, segmentId) --deprecates Details:ResetaGump()
+		--check the reset type, 0x1: entering in combat
+		if (resetType and resetType == 0x1) then
+			--if is showing the overall data, do nothing
+			if (instance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL) then
+				return
+			end
+		end
+
+		if (segmentId and instance:GetSegmentId() ~= segmentId) then
+			return
+		end
+
+		--reset some instance properties
+		instance.barraS = {nil, nil}
+		instance.rows_showing = 0
+		instance.need_rolagem = false
+		instance.bar_mod = nil
+
+		--clean up all bars
+		for i = 1, instance.rows_created do
+			local thisBar = instance.barras[i]
+			thisBar.minha_tabela = nil
+			thisBar.animacao_fim = 0
+			thisBar.animacao_fim2 = 0
+		end
+
+		if (instance.rolagem) then
+			--hide the scroll bar
+			instance:EsconderScrollBar()
+		end
+	end,
+
+	---call a refresh in the data shown in the instance
+	---@param instance instance
+	---@param bForceRefresh boolean|nil
+	RefreshData = function(instance, bForceRefresh) --deprecates Details:RefreshAllMainWindows()
+		local combatObject = instance.showing
+
+		--check if the combat object exists, if not, freeze the window
+		if (not combatObject) then
+			if (not instance.freezed) then
+				return instance:Freeze()
+			end
+			return
+		end
+
+		local needRefresh = combatObject[instance.atributo].need_refresh
+		if (not needRefresh and not bForceRefresh) then
+			return
+		end
+
+		if (instance.atributo == 1) then --damage
+			Details.atributo_damage:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
+
+		elseif (instance.atributo == 2) then --heal
+			Details.atributo_heal:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
+
+		elseif (instance.atributo == 3) then --energy
+			Details.atributo_energy:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
+
+		elseif (instance.atributo == 4) then --utility
+			Details.atributo_misc:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
+
+		elseif (instance.atributo == 5) then --custom
+			Details.atributo_custom:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
+		end
+	end,
+
+	---refresh the instance window
+	---@param instance instance
+	---@param bForceRefresh boolean|nil
+	RefreshWindow = function(instance, bForceRefresh) --deprecates Details:RefreshMainWindow()
+		if (not bForceRefresh) then
+			Details.LastUpdateTick = Details._tempo
+		end
+
+		if (instance:IsEnabled()) then
+			---@type modeid
+			local modeId = instance:GetMode()
+
+			if (modeId == DETAILS_MODE_GROUP or modeId == DETAILS_MODE_ALL) then
+				instance:RefreshData(bForceRefresh)
+			end
+
+			if (instance:GetCombat()) then
+				if (instance:GetMode() == DETAILS_MODE_GROUP or instance:GetMode() == DETAILS_MODE_ALL) then
+					if (instance.atributo <= 4) then
+						instance.showing[instance.atributo].need_refresh = false
+					end
+				end
+			end
+
+			--update player breakdown window if opened
+			if (not bForceRefresh) then
+				if (Details:IsBreakdownWindowOpen()) then
+					return Details:GetPlayerObjectFromBreakdownWindow():MontaInfo()
+				end
+			end
 		end
 	end,
 
@@ -242,14 +357,14 @@ local instanceMixins = {
 	GetMode = function(instance)
 		---@type modeid
 		local modeId = instance.modo
-		return instance.modo
+		return modeId
 	end,
 
 	---return the segmentId
 	---@param instance instance
 	---@return segmentid
 	GetSegmentId = function(instance)
-		return instance.segment
+		return instance.segmento
 	end,
 
 	---return the mais attribute id and the sub attribute
@@ -274,7 +389,6 @@ local instanceMixins = {
 	---@param segmentId segmentid
 	---@param bForceChange boolean|nil
 	SetSegment = function(instance, segmentId, bForceChange)
-		if true then return end
 		local currentSegment = instance:GetSegmentId()
 		if (segmentId ~= currentSegment or bForceChange) then
 			--check if the instance is frozen
@@ -286,11 +400,15 @@ local instanceMixins = {
 			instance:RefreshCombat()
 			Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)
 
+			instance:ResetWindow()
+			instance:RefreshWindow(true)
+
 			if (Details.instances_segments_locked) then
+				---@param thisInstance instance
 				for _, thisInstance in ipairs(Details:GetAllInstances()) do
 					if (instance:GetId() ~= thisInstance:GetId() and thisInstance:IsEnabled() and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
 						if (thisInstance:GetSegmentId() >= 0) then --not overall data
-							if (thisInstance.modo == 2 or thisInstance.modo == 3) then
+							if (thisInstance.modo == DETAILS_MODE_GROUP or thisInstance.modo == DETAILS_MODE_ALL) then
 								--check if the instance is frozen
 								if (thisInstance.freezed) then
 									thisInstance:UnFreeze()
@@ -307,8 +425,8 @@ local instanceMixins = {
 								thisInstance.v_barras = true
 								thisInstance.showing[thisInstance.atributo].need_refresh = true
 
-								thisInstance:ResetaGump()
-								thisInstance:RefreshMainWindow(true)
+								thisInstance:ResetWindow()
+								thisInstance:RefreshWindow(true)
 
 								Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, thisInstance, segmentId)
 							end
@@ -325,22 +443,35 @@ local instanceMixins = {
 	---@param subAttributeId attributeid
 	---@param modeId modeid
 	SetDisplay = function(instance, segmentId, attributeId, subAttributeId, modeId)
-		if true then return end
-
 		--change the mode of the window if the mode is different
 		---@type modeid
 		local currentModeId = instance:GetMode()
-		if (currentModeId ~= modeId) then
+		if (modeId and type(modeId) == "number" and currentModeId ~= modeId) then
 			instance:SetMode(modeId)
+			currentModeId = modeId
 		end
 
 		--change the segment of the window if the segment is different
-		if (segmentId and type(segmentId) == "number") then
+		---@type segmentid
+		local currentSegmentId = instance:GetSegmentId()
+		if (segmentId and type(segmentId) == "number" and currentSegmentId ~= segmentId) then
 			instance:SetSegment(segmentId)
 		end
 
+		---@type attributeid, attributeid
 		local currentAttributeId, currentSubAttributeId = instance:GetDisplay()
+		---@type boolean
 		local bHasMainAttributeChanged = false
+
+		if (not subAttributeId) then
+			if (attributeId == currentAttributeId) then
+				subAttributeId  = currentSubAttributeId
+			else
+				subAttributeId  = instance.sub_atributo_last[attributeId]
+			end
+		elseif (type(subAttributeId) ~= "number") then
+			subAttributeId = instance.sub_atributo
+		end
 
 		--change the attributes, need to deal with plugins and custom displays
 		if (type(attributeId) == "number" and type(subAttributeId) == "number") then
@@ -352,12 +483,13 @@ local instanceMixins = {
 					end
 				end
 
-				if (attributeId ~= currentAttributeId or (instance.modo == modo_alone or instance.modo == modo_raid)) then
-					if (instance.modo == modo_alone) then
+				if (attributeId ~= currentAttributeId or (currentModeId == DETAILS_MODE_SOLO or currentModeId == DETAILS_MODE_RAID)) then
+					if (currentModeId == DETAILS_MODE_SOLO) then
 						return Details.SoloTables.switch(nil, nil, -1)
 
-					elseif (instance.modo == modo_raid) then
-						return --do nothing when clicking in the button
+					elseif (currentModeId == DETAILS_MODE_RAID) then
+						--do nothing when clicking in the button
+						return
 					end
 
 					instance.atributo = attributeId
@@ -381,18 +513,35 @@ local instanceMixins = {
 		end
 
 		if (Details.playerDetailWindow:IsShown() and instance == Details.playerDetailWindow.instancia) then
+			---@type combat
 			local combatObject = instance:GetCombat()
 			if (not combatObject or instance.atributo > 4) then
-				Details:FechaJanelaInfo()
+				Details:CloseBreakdownWindow()
 			else
+				---@type actor
 				local actorObject = Details:GetPlayerObjectFromBreakdownWindow()
 				if (actorObject) then
-					instance:AbreJanelaInfo(actorObject, true)
+					Details:OpenPlayerBreakdown(instance, actorObject, true)
 				else
-					Details:FechaJanelaInfo()
+					Details:CloseBreakdownWindow()
 				end
 			end
 		end
+
+		--end of change attributes, mode and segment
+		--if there's no combat object to show, freeze the window
+		---@type combat
+		local combatObject = instance:GetCombat()
+		if (not combatObject) then
+			instance:Freeze()
+			return false
+		end
+
+		instance.v_barras = true
+		combatObject[attributeId].need_refresh = true
+
+		instance:ResetWindow()
+		instance:RefreshWindow(true)
 	end,
 }
 

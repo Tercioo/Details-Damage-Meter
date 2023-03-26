@@ -599,7 +599,7 @@
 		return self:RestoreMainWindowPosition()
 	end
 
-	function Details:ResetaGump (instancia, tipo, segmento)
+	function Details:ResetaGump (instancia, tipo, segmento) --replaced by instance:ResetWindow(resetType, segmentId)
 		if (not instancia or type(instancia) == "boolean") then
 			segmento = tipo
 			tipo = instancia
