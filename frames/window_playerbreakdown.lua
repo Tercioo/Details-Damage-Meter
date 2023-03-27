@@ -1090,7 +1090,6 @@ local default_icon_change = function(jogador, classe)
 				info.nome:SetTextColor(151/255, 215/255, 1, 1)
 			end
 		else
-			info.classe_iconePlus:SetTexture()
 			info.nome:SetTextColor(1, 1, 1, 1)
 		end
 	else
@@ -1108,7 +1107,6 @@ local default_icon_change = function(jogador, classe)
 		else
 			info.classe_icone:SetTexCoord(_detalhes.class_coords ["MONSTER"][1], _detalhes.class_coords ["MONSTER"][2], _detalhes.class_coords ["MONSTER"][3], _detalhes.class_coords ["MONSTER"][4])
 		end
-		info.classe_iconePlus:SetTexture()
 	end
 end
 
@@ -1141,7 +1139,7 @@ function _detalhes:ApplyPDWSkin(skin_name)
 	end
 
 --apply default first
-	local default_skin = _detalhes.playerdetailwindow_skins ["WoWClassic"]
+	local default_skin = _detalhes.playerdetailwindow_skins["WoWClassic"]
 	pcall(default_skin.func)
 
 --than do the change
@@ -1193,204 +1191,7 @@ function _detalhes:SetPDWBarConfig (texture)
 	end
 end
 
-local default_skin = function()
-	local window = DetailsPlayerDetailsWindow
-	window.bg1:SetTexture([[Interface\AddOns\Details\images\info_window_background]])
-	window.bg1:SetSize(1024, 512)
-	window.bg1:SetAlpha(1)
-	window.bg1:SetVertexColor(1, 1, 1)
-	window:SetBackdrop(nil)
-	window:SetBackdropColor(1, 1, 1, 1)
-	window:SetBackdropBorderColor(1, 1, 1, 1)
-	window.bg_icone_bg:Show()
-	window.bg_icone:Show()
-
-	window.leftbars1_backgound:SetPoint("topleft", window.container_barras, "topleft", -3, 3)
-	window.leftbars1_backgound:SetPoint("bottomright", window.container_barras, "bottomright", 3, -3)
-	window.leftbars2_backgound:SetPoint("topleft", window.container_alvos, "topleft", -3, 23)
-	window.leftbars2_backgound:SetPoint("bottomright", window.container_alvos, "bottomright", 3, 0)
-	window.leftbars1_backgound:SetAlpha(1)
-	window.leftbars2_backgound:SetAlpha(1)
-	window.right_background1:SetAlpha(1)
-	window.right_background2:SetAlpha(1)
-	window.right_background3:SetAlpha(1)
-	window.right_background4:SetAlpha(1)
-	window.right_background5:SetAlpha(1)
-
-	window.close_button:GetNormalTexture():SetDesaturated(false)
-
-	window.title_string:ClearAllPoints()
-	window.title_string:SetPoint("center", window, "center")
-	window.title_string:SetPoint("top", window, "top", 0, -18)
-	window.title_string:SetParent(window)
-	window.title_string:SetTextColor(.890, .729, .015, 1)
-
-	window.classe_icone:SetParent(window)
-	window.classe_icone:SetPoint("TOPLEFT", window, "TOPLEFT", 4, 0)
-	window.classe_icone:SetWidth(64)
-	window.classe_icone:SetHeight(64)
-	window.classe_icone:SetDrawLayer("BACKGROUND", 1)
-	window.classe_icone:SetAlpha(1)
-
-	window.close_button:SetWidth(32)
-	window.close_button:SetHeight(32)
-	window.close_button:SetPoint("TOPRIGHT", window, "TOPRIGHT", 5, -8)
-
-	window.options_button:SetPoint("topright", window, "topright", -26, -16)
-	window.options_button:SetSize(16, 16)
-
-	window.avatar:SetParent(window)
-
-	_detalhes:SetPDWBarConfig ("Skyline")
-
-	--bar container
-	window.container_barras:SetSize(300, 145)
-	window.container_barras:SetPoint("TOPLEFT", window, "TOPLEFT", 20, -76)
-
-	--target container
-	window.container_alvos:SetPoint("BOTTOMLEFT", window, "BOTTOMLEFT", 20, 6)
-	window.container_alvos:SetSize(300, 100)
-
-	--icons
-	window.SetClassIcon = default_icon_change
-	window.apoio_icone_direito:SetBlendMode("BLEND")
-	window.apoio_icone_esquerdo:SetBlendMode("BLEND")
-
-	--texts
-	window.targets:SetPoint("TOPLEFT", window, "TOPLEFT", 24, -273)
-	window.nome:SetPoint("TOPLEFT", window, "TOPLEFT", 105, -54)
-
-	--report button
-	window.topleft_report:SetPoint("BOTTOMLEFT", window.container_barras, "TOPLEFT",  33, 3)
-
-	--no targets texture
-	window.no_targets:SetPoint("BOTTOMLEFT", window, "BOTTOMLEFT", 20, 6)
-	window.no_targets:SetSize(301, 100)
-	window.no_targets:SetAlpha(1)
-
-	--right panel textures
-	window.bg2_sec_texture:SetPoint("topleft", window.bg1_sec_texture, "topleft", 8, 0)
-	window.bg2_sec_texture:SetPoint("bottomright", window.bg1_sec_texture, "bottomright", -30, 0)
-	window.bg2_sec_texture:SetTexture([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
-	window.bg2_sec_texture:SetDesaturated(true)
-	window.bg2_sec_texture:SetAlpha(0.3)
-
-	window.bg3_sec_texture:SetPoint("topleft", window.bg2_sec_texture, "topleft", 0, 0)
-	window.bg3_sec_texture:SetPoint("bottomright", window.bg2_sec_texture, "bottomright", 0, 0)
-	window.bg3_sec_texture:SetTexture(0, 0, 0, 1)
-
-	--the 5 spell details blocks
-	for i, infoblock in ipairs(_detalhes.playerDetailWindow.grupos_detalhes) do
-		infoblock.bg:SetSize(219, 47) --219 original
-	end
-	local xLocation = {-85, -136, -191, -246, -301, -356}
-	local heightTable = {43, 48, 48, 48, 48, 48}
-
-	for i = 1, spellInfoSettings.amount do
-		window ["right_background" .. i]:SetPoint("topleft", window, "topleft", 357, xLocation [i]) --357 original
-		window ["right_background" .. i]:SetSize(220, heightTable [i]) --220
-	end
-
-	--info container
-	info:SetDetailInfoConfigs("Interface\\AddOns\\Details\\images\\bar_background_dark_dark", {1, 1, 1, 0.5}, 0, 0)
-
-	window.bg1_sec_texture:SetPoint("topleft", window.bg1, "topleft", 348, -86)
-	window.bg1_sec_texture:SetHeight(262)
-	window.bg1_sec_texture:SetWidth(264)
-
-	--container bars 3
-	local x_start = 61
-	local y_start = -10
-	local janela = window.container_detalhes
-
-	container3_bars_pointFunc = function(barra, index)
-		local y = (index-1) * 17
-		y = y*-1
-		barra:SetPoint("LEFT", janela, "LEFT", x_start, 0)
-		barra:SetPoint("RIGHT", janela, "RIGHT", 65, 0)
-		barra:SetPoint("TOP", janela, "TOP", 0, y+y_start)
-	end
-
-	for index, barra in ipairs(window.barras3) do
-		local y = (index-1) * 17
-		y = y*-1
-		barra:SetPoint("LEFT", janela, "LEFT", x_start, 0)
-		barra:SetPoint("RIGHT", janela, "RIGHT", 65, 0)
-		barra:SetPoint("TOP", janela, "TOP", 0, y+y_start)
-	end
-
-	--scrollbar
-	window.container_barras.cima:SetNormalTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
-	window.container_barras.cima:SetPushedTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Down")
-	window.container_barras.cima:SetDisabledTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Disabled")
-	window.container_barras.cima:GetNormalTexture():ClearAllPoints()
-	window.container_barras.cima:GetPushedTexture():ClearAllPoints()
-	window.container_barras.cima:GetDisabledTexture():ClearAllPoints()
-	window.container_barras.cima:GetNormalTexture():SetPoint("center", window.container_barras.cima, "center", 0, 0)
-	window.container_barras.cima:GetPushedTexture():SetPoint("center", window.container_barras.cima, "center", 0, 0)
-	window.container_barras.cima:GetDisabledTexture():SetPoint("center", window.container_barras.cima, "center", 0, 0)
-	window.container_barras.cima:SetSize(29, 32)
-	window.container_barras.cima:SetBackdrop(nil)
-
-	window.container_barras.baixo:SetNormalTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
-	window.container_barras.baixo:SetPushedTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Down")
-	window.container_barras.baixo:SetDisabledTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Disabled")
-	window.container_barras.baixo:GetNormalTexture():ClearAllPoints()
-	window.container_barras.baixo:GetPushedTexture():ClearAllPoints()
-	window.container_barras.baixo:GetDisabledTexture():ClearAllPoints()
-	window.container_barras.baixo:GetNormalTexture():SetPoint("center", window.container_barras.baixo, "center", 0, 0)
-	window.container_barras.baixo:GetPushedTexture():SetPoint("center", window.container_barras.baixo, "center", 0, 0)
-	window.container_barras.baixo:GetDisabledTexture():SetPoint("center", window.container_barras.baixo, "center", 0, 0)
-	window.container_barras.baixo:SetSize(29, 32)
-	window.container_barras.baixo:SetBackdrop(nil)
-
-	window.container_barras.slider:SetBackdrop(nil)
-
-	window.container_barras.slider:Altura (117)
-	window.container_barras.slider:cimaPoint (0, 1)
-	window.container_barras.slider:baixoPoint (0, -3)
-	window.container_barras.slider.thumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
-	window.container_barras.slider.thumb:SetTexCoord(0, 1, 0, 1)
-	window.container_barras.slider.thumb:SetSize(29, 30)
-	window.container_barras.slider.thumb:SetVertexColor(1, 1, 1, 1)
-
-	--
-	window.container_alvos.cima:SetNormalTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
-	window.container_alvos.cima:SetPushedTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Down")
-	window.container_alvos.cima:SetDisabledTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Disabled")
-	window.container_alvos.cima:GetNormalTexture():ClearAllPoints()
-	window.container_alvos.cima:GetPushedTexture():ClearAllPoints()
-	window.container_alvos.cima:GetDisabledTexture():ClearAllPoints()
-	window.container_alvos.cima:GetNormalTexture():SetPoint("center", window.container_alvos.cima, "center", 0, 0)
-	window.container_alvos.cima:GetPushedTexture():SetPoint("center", window.container_alvos.cima, "center", 0, 0)
-	window.container_alvos.cima:GetDisabledTexture():SetPoint("center", window.container_alvos.cima, "center", 0, 0)
-	window.container_alvos.cima:SetSize(29, 32)
-	window.container_alvos.cima:SetBackdrop(nil)
-
-	window.container_alvos.baixo:SetNormalTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
-	window.container_alvos.baixo:SetPushedTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Down")
-	window.container_alvos.baixo:SetDisabledTexture("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Disabled")
-	window.container_alvos.baixo:GetNormalTexture():ClearAllPoints()
-	window.container_alvos.baixo:GetPushedTexture():ClearAllPoints()
-	window.container_alvos.baixo:GetDisabledTexture():ClearAllPoints()
-	window.container_alvos.baixo:GetNormalTexture():SetPoint("center", window.container_alvos.baixo, "center", 0, 0)
-	window.container_alvos.baixo:GetPushedTexture():SetPoint("center", window.container_alvos.baixo, "center", 0, 0)
-	window.container_alvos.baixo:GetDisabledTexture():SetPoint("center", window.container_alvos.baixo, "center", 0, 0)
-	window.container_alvos.baixo:SetSize(29, 32)
-	window.container_alvos.baixo:SetBackdrop(nil)
-
-	window.container_alvos.slider:SetBackdrop(nil)
-
-	window.container_alvos.slider:Altura (88)
-	window.container_alvos.slider:cimaPoint (0, 1)
-	window.container_alvos.slider:baixoPoint (0, -3)
-
-	window.container_alvos.slider.thumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
-	window.container_alvos.slider.thumb:SetTexCoord(0, 1, 0, 1)
-	window.container_alvos.slider.thumb:SetSize(29, 30)
-	window.container_alvos.slider.thumb:SetVertexColor(1, 1, 1, 1)
-
-end
+local default_skin = function()end
 _detalhes:InstallPDWSkin ("WoWClassic", {func = default_skin, author = "Details! Team", version = "v1.0", desc = "Default skin."})
 
 local elvui_skin = function()
@@ -1468,8 +1269,6 @@ local elvui_skin = function()
 	window.close_button:SetHeight(20)
 	window.close_button:SetPoint("TOPRIGHT", window, "TOPRIGHT", 0, -3)
 
-	window.options_button:SetPoint("topright", window, "topright", -17, -7)
-	window.options_button:SetSize(12, 12)
 
 	window.avatar:SetParent(titlebar)
 
@@ -1725,157 +1524,131 @@ _detalhes:InstallPDWSkin ("ElvUI", {func = elvui_skin, author = "Details! Team",
 
 --search key: ~create ~inicio ~start
 function gump:CriaJanelaInfo()
-	--cria a janela em si
-	local este_gump = info
-	este_gump.Loaded = true
+	local breakdownFrame = info
+	table.insert(UISpecialFrames, breakdownFrame:GetName())
+	breakdownFrame.extra_frames = {}
+	breakdownFrame.Loaded = true
+	Details.playerDetailWindow = breakdownFrame
 
-	este_gump:SetFrameStrata("HIGH")
-	este_gump:SetToplevel(true)
+	--stopped: started the skin merge with the window creation
 
-	este_gump.extra_frames = {}
+	breakdownFrame:SetWidth(PLAYER_DETAILS_WINDOW_WIDTH)
+	breakdownFrame:SetHeight(PLAYER_DETAILS_WINDOW_HEIGHT)
+	breakdownFrame:SetFrameStrata("HIGH")
+	breakdownFrame:SetToplevel(true)
+	breakdownFrame:EnableMouse(true)
+	breakdownFrame:SetResizable(false)
+	breakdownFrame:SetMovable(true)
 
-	--fehcar com o esc
-	tinsert(UISpecialFrames, este_gump:GetName())
-
-	este_gump:SetWidth(PLAYER_DETAILS_WINDOW_WIDTH)
-	este_gump:SetHeight(PLAYER_DETAILS_WINDOW_HEIGHT)
-
-	este_gump:EnableMouse(true)
-	este_gump:SetResizable(false)
-	este_gump:SetMovable(true)
-
-	este_gump.SummaryWindowWidgets = CreateFrame("frame", "DetailsPlayerDetailsWindowSummaryWidgets", este_gump, "BackdropTemplate")
-	local SWW = este_gump.SummaryWindowWidgets
+	breakdownFrame.SummaryWindowWidgets = CreateFrame("frame", "DetailsPlayerDetailsWindowSummaryWidgets", breakdownFrame, "BackdropTemplate")
+	local SWW = breakdownFrame.SummaryWindowWidgets
 	SWW:SetAllPoints()
-	tinsert(SummaryWidgets, SWW)
+	table.insert(SummaryWidgets, SWW) --where SummaryWidgets is declared: at the header of the file, what is the purpose of this table?
 
-	local scaleBar = Details.gump:CreateScaleBar (este_gump, Details.player_details_window)
-	este_gump:SetScale(Details.player_details_window.scale)
+	DetailsFramework:CreateScaleBar(breakdownFrame, Details.player_details_window)
+	breakdownFrame:SetScale(Details.player_details_window.scale)
 
-	--joga a janela para a global
-	_detalhes.playerDetailWindow = este_gump
+	--class icon
+	breakdownFrame.classe_icone = breakdownFrame:CreateTexture(nil, "BACKGROUND", nil, 1)
+	breakdownFrame.classe_icone:SetPoint("TOPLEFT", breakdownFrame, "TOPLEFT", 4, 0)
+	breakdownFrame.classe_icone:SetSize(64, 64)
 
-	--icone da classe no canto esquerdo superior
-	este_gump.classe_icone = este_gump:CreateTexture(nil, "BACKGROUND")
-	este_gump.classe_icone:SetPoint("TOPLEFT", este_gump, "TOPLEFT", 4, 0)
-	este_gump.classe_icone:SetWidth(64)
-	este_gump.classe_icone:SetHeight(64)
-	este_gump.classe_icone:SetDrawLayer("BACKGROUND", 1)
-	--complemento do icone
-	este_gump.classe_iconePlus = este_gump:CreateTexture(nil, "BACKGROUND")
-	este_gump.classe_iconePlus:SetPoint("TOPLEFT", este_gump, "TOPLEFT", 4, 0)
-	este_gump.classe_iconePlus:SetWidth(64)
-	este_gump.classe_iconePlus:SetHeight(64)
-	este_gump.classe_iconePlus:SetDrawLayer("BACKGROUND", 2)
+	--background topleft?
+	breakdownFrame.bg1 = breakdownFrame:CreateTexture("DetailsPSWBackground", "BORDER", nil, 1)
+	breakdownFrame.bg1:SetPoint("TOPLEFT", breakdownFrame, "TOPLEFT", 0, 0)
 
-	--top left
-	este_gump.bg1 = este_gump:CreateTexture("DetailsPSWBackground", "BORDER")
-	este_gump.bg1:SetPoint("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
-	este_gump.bg1:SetDrawLayer("BORDER", 1)
+	--close button
+	breakdownFrame.close_button = CreateFrame("Button", nil, breakdownFrame, "UIPanelCloseButton")
+	breakdownFrame.close_button:SetSize(32, 32)
+	breakdownFrame.close_button:SetPoint("TOPRIGHT", breakdownFrame, "TOPRIGHT", 5, -8)
+	breakdownFrame.close_button:SetText("X")
+	breakdownFrame.close_button:SetFrameLevel(breakdownFrame:GetFrameLevel()+5)
 
-	--bot�o de fechar
-	este_gump.close_button = CreateFrame("Button", nil, este_gump, "UIPanelCloseButton")
-	este_gump.close_button:SetWidth(32)
-	este_gump.close_button:SetHeight(32)
-	este_gump.close_button:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT", 5, -8)
-	este_gump.close_button:SetText("X")
-	este_gump.close_button:SetFrameLevel(este_gump:GetFrameLevel()+5)
+	--�cone da magia selecionada para mais detalhes (is this a window thing or tab thing?)
+	--or this is even in use?
+	breakdownFrame.bg_icone_bg = breakdownFrame:CreateTexture(nil, "ARTWORK")
+	breakdownFrame.bg_icone_bg:SetPoint("TOPRIGHT", breakdownFrame, "TOPRIGHT",  -15, -12)
+	breakdownFrame.bg_icone_bg:SetTexture("Interface\\AddOns\\Details\\images\\icone_bg_fundo")
+	breakdownFrame.bg_icone_bg:SetDrawLayer("ARTWORK", -1)
+	breakdownFrame.bg_icone_bg:Show()
 
-	--�cone da magia selecionada para mais detalhes
-	este_gump.bg_icone_bg = este_gump:CreateTexture(nil, "ARTWORK")
-	este_gump.bg_icone_bg:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT",  -15, -12)
-	este_gump.bg_icone_bg:SetTexture("Interface\\AddOns\\Details\\images\\icone_bg_fundo")
-	este_gump.bg_icone_bg:SetDrawLayer("ARTWORK", -1)
-	este_gump.bg_icone_bg:Show()
+	breakdownFrame.bg_icone = breakdownFrame:CreateTexture(nil, "OVERLAY")
+	breakdownFrame.bg_icone:SetPoint("TOPRIGHT", breakdownFrame, "TOPRIGHT",  -15, -12)
+	breakdownFrame.bg_icone:SetTexture("Interface\\AddOns\\Details\\images\\icone_bg")
+	breakdownFrame.bg_icone:Show()
 
-	este_gump.bg_icone = este_gump:CreateTexture(nil, "OVERLAY")
-	este_gump.bg_icone:SetPoint("TOPRIGHT", este_gump, "TOPRIGHT",  -15, -12)
-	este_gump.bg_icone:SetTexture("Interface\\AddOns\\Details\\images\\icone_bg")
-	este_gump.bg_icone:Show()
+	--title
+	DetailsFramework:NewLabel(breakdownFrame, breakdownFrame, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r)", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	breakdownFrame.title_string:SetPoint("center", breakdownFrame, "center")
+	breakdownFrame.title_string:SetPoint("top", breakdownFrame, "top", 0, -18)
 
-	--bot�o de op��es
-	local open_options = function()
-		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
-		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
-	end
-	este_gump.options_button = gump:CreateButton(este_gump, open_options, 16, 16, nil, nil, nil, [[Interface\Buttons\UI-OptionsButton]])
-	este_gump.options_button:SetPoint("topright", este_gump, "topright", -26, -16)
-	este_gump.options_button:SetAlpha(0.5)
-	este_gump.options_button.button:GetNormalTexture():SetDesaturated(true)
-	este_gump.options_button.tooltip = "Select Skin"
+	--spell icon is still in use? what's the difference from the bg_icone?
+	breakdownFrame.spell_icone = breakdownFrame:CreateTexture(nil, "ARTWORK")
+	breakdownFrame.spell_icone:SetPoint("BOTTOMRIGHT", breakdownFrame.bg_icone, "BOTTOMRIGHT",  -19, 2)
+	breakdownFrame.spell_icone:SetWidth(35)
+	breakdownFrame.spell_icone:SetHeight(34)
+	breakdownFrame.spell_icone:SetDrawLayer("ARTWORK", 0)
+	breakdownFrame.spell_icone:Show()
+	breakdownFrame.spell_icone:SetTexCoord(4/64, 60/64, 4/64, 60/64)
 
-	--desativando o bot�o de config
-	este_gump.options_button:Hide()
-
-	--titulo
-	gump:NewLabel(este_gump, este_gump, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r)", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-	este_gump.title_string:SetPoint("center", este_gump, "center")
-	este_gump.title_string:SetPoint("top", este_gump, "top", 0, -18)
-
-	este_gump.spell_icone = este_gump:CreateTexture(nil, "ARTWORK")
-	este_gump.spell_icone:SetPoint("BOTTOMRIGHT", este_gump.bg_icone, "BOTTOMRIGHT",  -19, 2)
-	este_gump.spell_icone:SetWidth(35)
-	este_gump.spell_icone:SetHeight(34)
-	este_gump.spell_icone:SetDrawLayer("ARTWORK", 0)
-	este_gump.spell_icone:Show()
-	este_gump.spell_icone:SetTexCoord(4/64, 60/64, 4/64, 60/64)
-
-	--coisinhas do lado do icone
-	este_gump.apoio_icone_esquerdo = este_gump:CreateTexture(nil, "ARTWORK")
-	este_gump.apoio_icone_direito = este_gump:CreateTexture(nil, "ARTWORK")
-	este_gump.apoio_icone_esquerdo:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
-	este_gump.apoio_icone_direito:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
+	--coisinhas do lado do icone - is this still in use?
+	breakdownFrame.apoio_icone_esquerdo = breakdownFrame:CreateTexture(nil, "ARTWORK")
+	breakdownFrame.apoio_icone_direito = breakdownFrame:CreateTexture(nil, "ARTWORK")
+	breakdownFrame.apoio_icone_esquerdo:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
+	breakdownFrame.apoio_icone_direito:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollSidebarTabs")
 
 	local apoio_altura = 13/256
-	este_gump.apoio_icone_esquerdo:SetTexCoord(0, 1, 0, apoio_altura)
-	este_gump.apoio_icone_direito:SetTexCoord(0, 1, apoio_altura+(1/256), apoio_altura+apoio_altura)
+	breakdownFrame.apoio_icone_esquerdo:SetTexCoord(0, 1, 0, apoio_altura)
+	breakdownFrame.apoio_icone_direito:SetTexCoord(0, 1, apoio_altura+(1/256), apoio_altura+apoio_altura)
 
-	este_gump.apoio_icone_esquerdo:SetPoint("bottomright", este_gump.bg_icone, "bottomleft",  42, 0)
-	este_gump.apoio_icone_direito:SetPoint("bottomleft", este_gump.bg_icone, "bottomright",  -17, 0)
+	breakdownFrame.apoio_icone_esquerdo:SetPoint("bottomright", breakdownFrame.bg_icone, "bottomleft",  42, 0)
+	breakdownFrame.apoio_icone_direito:SetPoint("bottomleft", breakdownFrame.bg_icone, "bottomright",  -17, 0)
 
-	este_gump.apoio_icone_esquerdo:SetWidth(64)
-	este_gump.apoio_icone_esquerdo:SetHeight(13)
-	este_gump.apoio_icone_direito:SetWidth(64)
-	este_gump.apoio_icone_direito:SetHeight(13)
+	breakdownFrame.apoio_icone_esquerdo:SetWidth(64)
+	breakdownFrame.apoio_icone_esquerdo:SetHeight(13)
+	breakdownFrame.apoio_icone_direito:SetWidth(64)
+	breakdownFrame.apoio_icone_direito:SetHeight(13)
 
+	breakdownFrame.topright_text1 = breakdownFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+	breakdownFrame.topright_text1:SetPoint("bottomright", breakdownFrame, "topright",  -18 - (94 * (1-1)), -36)
+	breakdownFrame.topright_text1:SetJustifyH("right")
+	_detalhes.gump:SetFontSize(breakdownFrame.topright_text1, 10)
 
-	este_gump.topright_text1 = este_gump:CreateFontString(nil, "overlay", "GameFontNormal")
-	este_gump.topright_text1:SetPoint("bottomright", este_gump, "topright",  -18 - (94 * (1-1)), -36)
-	este_gump.topright_text1:SetJustifyH("right")
-	_detalhes.gump:SetFontSize(este_gump.topright_text1, 10)
+	breakdownFrame.topright_text2 = breakdownFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+	breakdownFrame.topright_text2:SetPoint("bottomright", breakdownFrame, "topright",  -18 - (94 * (1-1)), -48)
+	breakdownFrame.topright_text2:SetJustifyH("right")
+	_detalhes.gump:SetFontSize(breakdownFrame.topright_text2, 10)
 
-	este_gump.topright_text2 = este_gump:CreateFontString(nil, "overlay", "GameFontNormal")
-	este_gump.topright_text2:SetPoint("bottomright", este_gump, "topright",  -18 - (94 * (1-1)), -48)
-	este_gump.topright_text2:SetJustifyH("right")
-	_detalhes.gump:SetFontSize(este_gump.topright_text2, 10)
-
-	function este_gump:SetTopRightTexts (text1, text2, size, color, font)
+	--what goes in the top right text? - looks like it's not in use
+	function breakdownFrame:SetTopRightTexts(text1, text2, size, color, font)
 		if (text1) then
-			este_gump.topright_text1:SetText(text1)
+			breakdownFrame.topright_text1:SetText(text1)
 		else
-			este_gump.topright_text1:SetText("")
+			breakdownFrame.topright_text1:SetText("")
 		end
 		if (text2) then
-			este_gump.topright_text2:SetText(text2)
+			breakdownFrame.topright_text2:SetText(text2)
 		else
-			este_gump.topright_text2:SetText("")
+			breakdownFrame.topright_text2:SetText("")
 		end
 
 		if (size and type(size) == "number") then
-			_detalhes.gump:SetFontSize(este_gump.topright_text1, size)
-			_detalhes.gump:SetFontSize(este_gump.topright_text2, size)
+			_detalhes.gump:SetFontSize(breakdownFrame.topright_text1, size)
+			_detalhes.gump:SetFontSize(breakdownFrame.topright_text2, size)
 		end
 		if (color) then
-			_detalhes.gump:SetFontColor(este_gump.topright_text1, color)
-			_detalhes.gump:SetFontColor(este_gump.topright_text2, color)
+			_detalhes.gump:SetFontColor(breakdownFrame.topright_text1, color)
+			_detalhes.gump:SetFontColor(breakdownFrame.topright_text2, color)
 		end
 		if (font) then
-			_detalhes.gump:SetFontFace (este_gump.topright_text1, font)
-			_detalhes.gump:SetFontFace (este_gump.topright_text2, font)
+			_detalhes.gump:SetFontFace (breakdownFrame.topright_text1, font)
+			_detalhes.gump:SetFontFace (breakdownFrame.topright_text2, font)
 		end
 	end
 
 	local alpha_bgs = 1
+
+	local este_gump = breakdownFrame
 
 	-- backgrounds das 5 boxes do lado direito
 		local right_background_X = 457
