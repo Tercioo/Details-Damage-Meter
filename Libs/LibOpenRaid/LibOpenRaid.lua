@@ -14,33 +14,6 @@ Code Rules:
     - Internal callbacks are the internal communication of the library, e.g. when an event triggers it send to all modules that registered that event.
     - Public callbacks are callbacks registered by an external addon.
 
-Change Log (most recent on 2022 Nov 18):
-    - added racials with cooldown type 9
-    - added buff duration in the index 6 of the cooldownInfo table returned on any cooldown event
-    - added 'durationSpellId' for cooldowns where the duration effect is another spell other than the casted cooldown spellId, add this member on cooldown table at LIB_OPEN_RAID_COOLDOWNS_INFO
-
-------- Nov 07 and older
-    - added:
-        * added openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly) (see docs)
-    - passing a spellId of a non registered cooldown on LIB_OPEN_RAID_COOLDOWNS_INFO will trigger a diagnostic error if diagnostic errors are enabled.
-    - player cast doesn't check anymore for cooldowns in the player spec, now it check towards the cache LIB_OPEN_RAID_PLAYERCOOLDOWNS.
-        LIB_OPEN_RAID_PLAYERCOOLDOWNS is a cache built with cooldowns present in the player spellbook.
-
-    - things to maintain now has 1 file per expansion
-    - player conduits, covenant internally renamed to playerInfo1 and playerInfo2 to make the lib more future proof
-    - player conduits tree is now Borrowed Talents Tree, for future proof
-    - removed the talent size limitation on 7 indexes
-
-    - added:
-        * openRaidLib.GetFlaskInfoBySpellId(spellId)
-        * openRaidLib.GetFlaskTierFromAura(auraInfo)
-        * openRaidLib.GetFoodInfoBySpellId(spellId)
-        * openRaidLib.GetFoodTierFromAura(auraInfo)
-        * added dragonflight talents support
-        * added openRaidLib.RequestCooldownInfo(spellId)
-        * added openRaidLib.AddCooldownFilter(filterName, spells)
-    - ensure to register events after 'PLAYER_ENTERING_WORLD' has triggered
-
 TODO:
     - add into gear info how many tier set parts the player has
     - raid lockouts normal-heroic-mythic
@@ -64,7 +37,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 97
+local CONST_LIB_VERSION = 98
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -268,7 +241,8 @@ function openRaidLib.PrintTempCacheDebug()
 end
 
 function tempCache.SaveDebugText()
-    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE_DEBUG, tempCache.debugString)
+    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE_DEBUG, "0")
+    --C_CVar.SetCVar(CONST_CVAR_TEMPCACHE_DEBUG, tempCache.debugString)
 end
 
 function tempCache.AddDebugText(text)
@@ -276,13 +250,14 @@ function tempCache.AddDebugText(text)
 end
 
 function tempCache.SaveCacheOnCVar(data)
-    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE, data)
+    C_CVar.SetCVar(CONST_CVAR_TEMPCACHE, "0")
+    --C_CVar.SetCVar(CONST_CVAR_TEMPCACHE, data)
     tempCache.AddDebugText("CVars Saved on saveCahceOnCVar(), Size: " .. #data)
 end
 
 function tempCache.RestoreData()
     local data = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE)
-    if (data and type(data) == "string" and string.len(data) > 1) then
+    if (data and type(data) == "string" and string.len(data) > 2) then
         local LibAceSerializer = LibStub:GetLibrary("AceSerializer-3.0", true)
         if (LibAceSerializer) then
             local okay, cacheInfo = LibAceSerializer:Deserialize(data)
