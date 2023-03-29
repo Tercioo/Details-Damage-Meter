@@ -7035,6 +7035,19 @@ do
                 boxfirst = true,
             },
 
+            {--merge healing criticals
+            type = "toggle",
+            get = function() return Details.combat_log.merge_critical_heals end,
+            set = function(self, fixedparam, value)
+                Details.combat_log.merge_critical_heals = value
+                afterUpdate()
+                Details:ClearParserCache()
+            end,
+            name = "Merge Critical Heals",
+            desc = "Merges spells like Atonement and Awakened Faeline with their critical damage component.",
+            boxfirst = true,
+        },
+
             {type = "blank"},
             {type = "label", get = function() return "Class Options:" end, text_template = subSectionTitleTextTemplate},
 
