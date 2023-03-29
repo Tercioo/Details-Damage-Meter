@@ -6036,15 +6036,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (Details.combat_log.merge_critical_heals) then
-			override_spellId[94472] = 81751, --disc priest attonement and crit. Crits use separate id.
-			override_spellId[281469] = 270501, --disc priest contrition attonement and crit. Crits use separate id.
-			override_spellId[388025] = 388024, --MW monk Ancient Teachings, heals from damage, crit and normal are separate.
-			override_spellId[389325] = 389328, --MW monk Awakened Faeline, ^
+			override_spellId[94472] = 81751 --disc priest attonement and crit. Crits use separate id.
+			override_spellId[281469] = 270501 --disc priest contrition attonement and crit. Crits use separate id.
+			override_spellId[388025] = 388024 --MW monk Ancient Teachings, heals from damage, crit and normal are separate.
+			override_spellId[389325] = 389328 --MW monk Awakened Faeline, ^
 		else
-			override_spellId[94472] = nil, --disc priest attonement and crit. Crits use separate id.
-			override_spellId[281469] = nil, --disc priest contrition attonement and crit. Crits use separate id.
-			override_spellId[388025] = nil, --MW monk Ancient Teachings, heals from damage, crit and normal are separate.
-			override_spellId[389325] = nil, --MW monk Awakened Faeline, ^
+			override_spellId[94472] = nil --disc priest attonement and crit. Crits use separate id.
+			override_spellId[281469] = nil --disc priest contrition attonement and crit. Crits use separate id.
+			override_spellId[388025] = nil --MW monk Ancient Teachings, heals from damage, crit and normal are separate.
+			override_spellId[389325] = nil --MW monk Awakened Faeline, ^
 		end
 
 
