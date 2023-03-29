@@ -108,9 +108,59 @@ function Details222.Pets.AkaarisSoulOwner(petGUID)
 	local tooltipData = C_TooltipInfo.GetHyperlink("unit:" .. petGUID)
 	local args = tooltipData.args
 
+	if (not args) then
+		do
+			local ownerGUID = tooltipData.guid --tooltipData.guid seems to exists on all akari soul tooltips and point to the owner guid
+			if (ownerGUID) then
+				if (ownerGUID:find("^P")) then
+					local playerGUID = ownerGUID
+					local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
+					if (actorObject) then
+						return actorObject.nome, playerGUID, actorObject.flag_original
+					end
+
+					local guidCache = Details:GetParserPlayerCache() --cahe exists until the next combat starts
+					local ownerName = guidCache[playerGUID]
+					if (ownerName) then
+						return ownerName, playerGUID, 0x514
+					end
+				end
+			end
+		end
+
+		do
+			if (tooltipData.lines) then
+				for i = 1, #tooltipData.lines do
+					local lineData = tooltipData.lines[i]
+					if (lineData.unitToken) then --unit token seems to exists when the add belongs to the "player"
+						local ownerGUID = UnitGUID(lineData.unitToken)
+						if (ownerGUID and ownerGUID:find("^P")) then
+							local playerGUID = ownerGUID
+							local actorObject = Details:GetActorFromCache(playerGUID) --quick cache only exists during conbat
+							if (actorObject) then
+								return actorObject.nome, playerGUID, actorObject.flag_original
+							end
+
+							local guidCache = Details:GetParserPlayerCache() --cahe exists until the next combat starts
+							local ownerName = guidCache[playerGUID]
+							if (ownerName) then
+								return ownerName, playerGUID, 0x514
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	if (not args) then
+		--new tooltip data from 10.1.0 seems to not have .args
+		return
+	end
+
 	local playerGUID
 	--iterate among args and find into the value field == guid and it must have guidVal
-	for i = 1, #args do
+	for i = 1, #args do --this is erroring in the ptr 10.1.0, as .args doesn't seem to exists on akari soul tooltip
 		local arg = args[i]
 		if (arg.field == "guid") then
 			playerGUID = arg.guidVal
