@@ -20,7 +20,10 @@
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 
 		_detalhes.acounter = 1 --in case of a second release with the same .build_counter
-		_detalhes.curseforgeVersion = GetAddOnMetadata("Details", "Version")
+		_detalhes.curseforgeVersion = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("Details", "Version")
+		if (not _detalhes.curseforgeVersion and GetAddOnMetadata) then
+			_detalhes.curseforgeVersion = GetAddOnMetadata("Details", "Version")
+		end
 
 		function _detalhes:GetCoreVersion()
 			return _detalhes.realversion
