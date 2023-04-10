@@ -122,11 +122,6 @@ end
 
 --tooltip function
 
-
-local function RefreshNpcHealingTakenBar(tabela, barra, instancia)
-	atributo_damage:UpdateNpcHealingTaken(tabela, tabela.minha_barra, barra.colocacao, instancia)
-end
-
 local on_switch_NHT_show = function(instance) --npc healing taken
 	instance:TrocaTabela(instance, true, 1, 8)
 	return true
@@ -1868,8 +1863,138 @@ function atributo_heal:MontaInfoOverHealing()
 end
 
 function atributo_heal:MontaInfoHealingDone()
+	---@type actor
+	local actorObject = self
+	---@type instance
+	local instance = info.instancia
+	---@type combat
+	local combatObject = instance:GetCombat()
+	---@type string
+	local playerName = actorObject:Name()
 
-	--pegar as habilidade de dar sort no heal
+	---@type number
+	local actorTotal = actorObject.total
+	---@type table
+	local actorSpellsSorted = {}
+	---@type table<number, spelltable>
+	local actorSpells = actorObject:GetSpellList()
+
+	--get time
+	local actorCombatTime
+	if (Details.time_type == 1 or not actorObject.grupo) then
+		actorCombatTime = actorObject:Tempo()
+	elseif (Details.time_type == 2) then
+		actorCombatTime = info.instancia.showing:GetCombatTime()
+	end
+
+	--actor spells
+	---@type table<string, number>
+	local alreadyAdded = {}
+	for spellId, spellTable in pairs(actorSpells) do
+		---@cast spellId number
+		---@cast spellTable spelltable
+
+		spellTable.ChartData = nil
+
+		---@type string
+		local spellName = _GetSpellInfo(spellId)
+		if (spellName) then
+			---@type number in which index the spell with the same name was stored
+			local index = alreadyAdded[spellName]
+			if (index) then
+				---@type breakdownspelldata
+				local bkSpellData = actorSpellsSorted[index]
+				bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+				bkSpellData.petNames[#bkSpellData.petNames+1] = ""
+				bkSpellData.bCanExpand = true
+			else
+				---@type breakdownspelldata
+				local bkSpellData = {
+					id = spellId,
+					spellschool = spellTable.spellschool,
+					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+					bCanExpand = false,
+
+					spellIds = {spellId},
+					spellTables = {spellTable}, --sub spell tables to show if the spell is expanded
+					petNames = {""},
+				}
+
+				actorSpellsSorted[#actorSpellsSorted+1] = bkSpellData
+				alreadyAdded[spellName] = #actorSpellsSorted
+			end
+		end
+	end
+
+	--pets spells
+	local actorPets = actorObject:GetPets()
+	for _, petName in ipairs(actorPets) do
+		---@type actor
+		local petActor = combatObject(DETAILS_ATTRIBUTE_HEAL, petName)
+		if (petActor) then --PET
+			local spells = petActor:GetSpellList()
+			for spellId, spellTable in pairs(spells) do
+				---@cast spellId number
+				---@cast spellTable spelltable
+
+				spellTable.ChartData = nil
+				--PET
+				---@type string
+				local spellName = _GetSpellInfo(spellId)
+				if (spellName) then
+					---@type number in which index the spell with the same name was stored
+					local index = alreadyAdded[spellName]
+					if (index) then --PET
+						---@type breakdownspelldata
+						local bkSpellData = actorSpellsSorted[index]
+						bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+						bkSpellData.petNames[#bkSpellData.petNames+1] = petName
+						bkSpellData.bCanExpand = true
+					else --PET
+						---@type breakdownspelldata
+						local bkSpellData = {
+							id = spellId,
+							spellschool = spellTable.spellschool,
+							expanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+							bCanExpand = false,
+
+							spellIds = {spellId},
+							spellTables = {spellTable},
+							petNames = {petName},
+						}
+						actorSpellsSorted[#actorSpellsSorted+1] = bkSpellData
+						alreadyAdded[spellName] = #actorSpellsSorted
+					end
+				end
+			end
+		end
+	end
+
+	for i = 1, #actorSpellsSorted do
+		---@type breakdownspelldata
+		local bkSpellData = actorSpellsSorted[i]
+		Details:SumSpellTables(bkSpellData.spellTables, bkSpellData)
+	end
+
+	--table.sort(actorSpellsSorted, Details.Sort2)
+	table.sort(actorSpellsSorted, function(t1, t2)
+		return t1.total > t2.total
+	end)
+
+	actorSpellsSorted.totalValue = actorTotal
+	actorSpellsSorted.combatTime = actorCombatTime
+
+	--actorSpellsSorted has the spell infomation, need to pass to the summary tab
+
+	--cleanup
+	table.wipe(alreadyAdded)
+
+	--send to the breakdown window
+	Details222.BreakdownWindow.SendSpellData(actorSpellsSorted, actorObject, combatObject, instance)
+
+	if 1 then return end
 
 	local instancia = info.instancia
 	local total = self.total
@@ -2306,7 +2431,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 	--NORMAL
 		local normal_hits = esta_magia.n_amt
 		if (normal_hits > 0) then
-			local normal_curado = esta_magia.n_curado
+			local normal_curado = esta_magia.n_total
 			local media_normal = normal_curado/normal_hits
 			media_normal = max(media_normal, 0.000001)
 
@@ -2337,11 +2462,11 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 
 	--CRITICO
 		if (esta_magia.c_amt > 0) then
-			local media_critico = esta_magia.c_curado/esta_magia.c_amt
-			local T = (meu_tempo*esta_magia.c_curado)/esta_magia.total
+			local media_critico = esta_magia.c_total/esta_magia.c_amt
+			local T = (meu_tempo*esta_magia.c_total)/esta_magia.total
 			local P = media/max(media_critico, 0.0001)*100
 			T = P*T/100
-			local crit_hps = esta_magia.c_curado/T
+			local crit_hps = esta_magia.c_total/T
 			if (not crit_hps) then
 				crit_hps = 0
 			end

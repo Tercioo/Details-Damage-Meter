@@ -314,15 +314,17 @@
 ---@field total number
 ---@field spellschool number
 ---@field counter number amount of hits
----@field c_amt number critical hits
----@field c_min number
----@field c_max number
----@field c_dmg number
----@field n_amt number normal hits
----@field n_dmg number total damage made by normal hits
----@field n_min number min damage made by normal hits
----@field n_max number max damage made by normal hits
+---@field c_amt number critical hits by a damage or heal spell
+---@field c_min number min damage or healing done by critical hits of the spell
+---@field c_max number min damage or healing done by critical hits of the spell
+---@field c_total number total damage or heal made by critical hits of the spell
+---@field n_amt number normal hits by a damage or heal spell
+---@field n_min number min damage or healing done by normal hits of the spell
+---@field n_max number min damage or healing done by normal hits of the spell
+---@field n_total number total damage or heal made by normal hits of the spell
 ---@field targets table<string, number> store the [target name] = total value
+---@field targets_overheal table<string, number>
+---@field targets_absorbs table<string, number>
 ---@field id number --spellid
 ---@field successful_casted number successful casted times (only for enemies)
 ---@field g_amt number glacing hits
@@ -333,6 +335,11 @@
 ---@field b_dmg number
 ---@field a_amt number --absorved
 ---@field a_dmg number
+---@field totalabsorb number healing absorbed
+---@field absorbed number damage absorbed by shield | healing absorbed by buff or debuff
+---@field overheal number
+---@field totaldenied number
+
 
 ---@class actor : table
 ---@field GetSpellContainer fun(actor: actor, containerType: string)
@@ -449,9 +456,9 @@
 ---@field c_amt number critical hits
 ---@field c_min number
 ---@field c_max number
----@field c_dmg number
+---@field c_total number
 ---@field n_amt number normal hits
----@field n_dmg number total damage made by normal hits
+---@field n_total number total damage made by normal hits
 ---@field n_min number min damage made by normal hits
 ---@field n_max number max damage made by normal hits
 ---@field successful_casted number successful casted times (only for enemies)

@@ -964,11 +964,11 @@ function Details.UnitDamageSpellInfo (unitId, spellId, isLiteral, segment)
 		spellInfo.regularMin = spellObject.n_min
 		spellInfo.regularMax = spellObject.n_max
 		spellInfo.regularHits = spellObject.n_amt
-		spellInfo.regularDamage = spellObject.n_dmg
+		spellInfo.regularDamage = spellObject.n_total
 		spellInfo.criticalMin = spellObject.c_min
 		spellInfo.criticalMax = spellObject.c_max
 		spellInfo.criticalHits = spellObject.c_amt
-		spellInfo.criticalDamage = spellObject.c_dmg
+		spellInfo.criticalDamage = spellObject.c_total
 	end
 	
 	return spellInfo
@@ -1695,11 +1695,11 @@ function Details.UnitHealingSpellInfo (unitId, spellId, isLiteral, segment)
 		spellInfo.regularMin = spellObject.n_min
 		spellInfo.regularMax = spellObject.n_max
 		spellInfo.regularHits = spellObject.n_amt
-		spellInfo.regularHealing = spellObject.n_dmg
+		spellInfo.regularHealing = spellObject.n_total
 		spellInfo.criticalMin = spellObject.c_min
 		spellInfo.criticalMax = spellObject.c_max
 		spellInfo.criticalHits = spellObject.c_amt
-		spellInfo.criticalHealing = spellObject.c_dmg
+		spellInfo.criticalHealing = spellObject.c_total
 	end
 	
 	return spellInfo

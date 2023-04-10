@@ -72,7 +72,7 @@ function spellsTab.GetSpellBlockContainer()
 	return spellsTab.TabFrame.SpellBlockContainer
 end
 
----@type {name: string, width: number, label: string, align: string, enabled: boolean}[]
+---@type {name: string, width: number, label: string, align: string, enabled: boolean, attribute: number|nil}[]
 local columnInfo = {
 	{name = "icon", width = 22, label = "", align = "center", enabled = true,},
 	{name = "target", width = 22, label = "", align = "center", enabled = true},
@@ -80,14 +80,49 @@ local columnInfo = {
 	{name = "expand", label = "^", width = 16, align = "center", enabled = true},
 	{name = "name", label = "spell name", width = 246, align = "left", enabled = true},
 	{name = "amount", label = "total", width = 50, align = "left", enabled = true},
-	{name = "persecond", label = "ps", width = 50, align = "left", enabled = false},
+	{name = "persecond", label = "ps", width = 50, align = "left", enabled = true},
 	{name = "percent", label = "%", width = 50, align = "left", enabled = true},
-	{name = "casts", label = "casts", width = 40, align = "left", enabled = false},
-	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = false},
-	{name = "hits", label = "hits", width = 40, align = "left", enabled = false},
-	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = false},
-	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = false},
+	{name = "casts", label = "casts", width = 40, align = "left", enabled = true},
+	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = true},
+	{name = "hits", label = "hits", width = 40, align = "left", enabled = true},
+	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = true},
+	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = true},
+	{name = "overheal", label = "overheal", width = 45, align = "left", enabled = true, attribute = DETAILS_ATTRIBUTE_HEAL},
+	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = true, attribute = DETAILS_ATTRIBUTE_HEAL},
 }
+
+function spellsTab.BuildHeaderTable()
+	---@type {name: string, width: number, label: string, align: string, enabled: boolean}[]
+	local headerTable = {}
+
+    ---@type instance
+    local instance = spellsTab.GetInstance()
+
+	---@type number, number
+	local mainAttribute, subAttribute = instance:GetDisplay()
+
+	for i = 1, #columnInfo do
+		local columnData = columnInfo[i]
+		if (columnData.enabled) then
+			local bCanAdd = true
+			if (columnData.attribute) then
+				if (columnData.attribute ~= mainAttribute) then
+					bCanAdd = false
+				end
+			end
+
+			if (bCanAdd) then
+				headerTable[#headerTable+1] = {
+					text = columnData.label,
+					width = columnData.width,
+					name = columnData.name,
+					--align = column.align,
+				}
+			end
+		end
+	end
+	return headerTable
+end
 
 --store the current spellbar selected, this is used to lock the spellblock container to the spellbar selected
 spellsTab.selectedSpellBar = nil
@@ -147,23 +182,6 @@ function spellsTab.OnShownTab()
 	spellsTab.UnSelectSpellBar()
 	--reset the spell blocks
 	spellsTab.GetSpellBlockContainer():ClearBlocks()
-end
-
-
-function spellsTab.BuildHeaderTable()
-	local headerTable = {}
-	for i = 1, #columnInfo do
-		local columnData = columnInfo[i]
-		if (columnData.enabled) then
-			headerTable[#headerTable+1] = {
-				text = columnData.label,
-				width = columnData.width,
-				name = columnData.name,
-				--align = column.align,
-			}
-		end
-	end
-	return headerTable
 end
 
 --called when the tab is getting created
@@ -307,7 +325,7 @@ function spellsTab.TrocaBackgroundInfo(tabFrame) --> spells tab | to be refactor
 	end
 end
 
-do --hide bars functions
+do --hide bars functions - to be refactored
     --hide all the bars of the skills in the window info
     function spellsTab.HidaAllBarrasInfo()
         local allBars = _detalhes.playerDetailWindow.barras1
@@ -477,7 +495,9 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 		GameTooltip:Show()
 	end
 
-	if (mainAttribute == DETAILS_ATTRIBUTE_DAMAGE and subAttribute == DETAILS_SUBATTRIBUTE_DAMAGEDONE) then
+	if (mainAttribute == DETAILS_ATTRIBUTE_DAMAGE) then --this should run within the damage class
+		local bShowDamageDone = subAttribute == DETAILS_SUBATTRIBUTE_DAMAGEDONE or subAttribute == DETAILS_SUBATTRIBUTE_DPS
+
 		---@type number
 		local blockIndex = 1
 
@@ -508,13 +528,6 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 		---@type number
 		local normalHitsAmt = spellTable.n_amt
 
-		--problem: spellTable is in facts bkSpellTable, fuck!
-		if (not normalHitsAmt) then
-			print(spellTable.spellTables, spellTable.petNames)
-			dumpt(spellTable)
-			return
-		end
-
 		if (normalHitsAmt > 0) then
 			---@type breakdownspellblock
 			local normalHitsBlock = spellBlockContainer:GetBlock(blockIndex)
@@ -533,13 +546,13 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.n_min))
 			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.n_max))
 
-			local normalAverage = spellTable.n_dmg / math.max(normalHitsAmt, 0.0001)
+			local normalAverage = spellTable.n_total / math.max(normalHitsAmt, 0.0001)
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(normalAverage))
 
-			local tempo = (elapsedTime * spellTable.n_dmg) / math.max(spellTable.total, 0.001)
+			local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
 			local normalAveragePercent = spellBar.average / normalAverage * 100
 			local normalTempoPercent = normalAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.n_dmg / normalTempoPercent))
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
 		end
 
 		---@type number
@@ -562,13 +575,100 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_min))
 			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_max))
 
-			local critAverage = spellTable.c_dmg / math.max(criticalHitsAmt, 0.0001)
+			local critAverage = spellTable.c_total / math.max(criticalHitsAmt, 0.0001)
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(critAverage))
 
-			local tempo = (elapsedTime * spellTable.c_dmg) / math.max(spellTable.total, 0.001)
+			local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
 			local critAveragePercent = spellBar.average / critAverage * 100
 			local critTempoPercent = critAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_dmg / critTempoPercent))
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
+		end
+
+	elseif (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then --this should run within the heal class
+		---@type number
+		local blockIndex = 1
+
+		---@type number
+		local totalHits = spellTable.counter
+
+		--damage section showing damage done sub section
+		--get the first spell block to use as summary
+		---@type breakdownspellblock
+		local summaryBlock = spellBlockContainer:GetBlock(blockIndex)
+		summaryBlock:Show()
+		blockIndex = blockIndex + 1
+
+		do --update the texts in the summary block
+			local blockLine1, blockLine2, blockLine3 = summaryBlock:GetLines()
+
+			blockLine1.leftText:SetText(Loc ["STRING_CAST"] .. ": " .. spellBar.amountCasts) --total amount of casts
+			blockLine1.rightText:SetText(Loc ["STRING_HITS"]..": " .. totalHits) --hits and uptime
+
+			blockLine2.leftText:SetText(Loc ["STRING_DAMAGE"]..": " .. Details:Format(spellTable.total)) --total damage
+			blockLine2.rightText:SetText(Details:GetSpellSchoolFormatedName(spellTable.spellschool)) --spell school
+
+			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:Format(spellBar.average)) --average damage
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
+		end
+
+		--check if there's normal hits and build the block
+		---@type number
+		local normalHitsAmt = spellTable.n_amt
+
+		if (normalHitsAmt > 0) then
+			---@type breakdownspellblock
+			local normalHitsBlock = spellBlockContainer:GetBlock(blockIndex)
+			normalHitsBlock:Show()
+			blockIndex = blockIndex + 1
+
+			local percent = normalHitsAmt / math.max(totalHits, 0.0001) * 100
+			normalHitsBlock:SetValue(percent)
+			normalHitsBlock.sparkTexture:SetPoint("left", normalHitsBlock, "left", percent / 100 * normalHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			normalHitsBlock:SetStatusBarColor(1, 1, 1, .5)
+
+			local blockLine1, blockLine2, blockLine3 = normalHitsBlock:GetLines()
+			blockLine1.leftText:SetText(Loc ["STRING_NORMAL_HITS"])
+			blockLine1.rightText:SetText(normalHitsAmt .. " [|cFFC0C0C0" .. string.format("%.1f", normalHitsAmt / math.max(totalHits, 0.0001) * 100) .. "%|r]")
+
+			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.n_min))
+			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.n_max))
+
+			local normalAverage = spellTable.n_total / math.max(normalHitsAmt, 0.0001)
+			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(normalAverage))
+
+			local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
+			local normalAveragePercent = spellBar.average / normalAverage * 100
+			local normalTempoPercent = normalAveragePercent * tempo / 100
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
+		end
+
+		---@type number
+		local criticalHitsAmt = spellTable.c_amt
+		if (criticalHitsAmt > 0) then
+			---@type breakdownspellblock
+			local critHitsBlock = spellBlockContainer:GetBlock(blockIndex)
+			critHitsBlock:Show()
+			blockIndex = blockIndex + 1
+
+			local percent = criticalHitsAmt / math.max(totalHits, 0.0001) * 100
+			critHitsBlock:SetValue(percent)
+			critHitsBlock.sparkTexture:SetPoint("left", critHitsBlock, "left", percent / 100 * critHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			critHitsBlock:SetStatusBarColor(1, 1, 1, .5)
+
+			local blockLine1, blockLine2, blockLine3 = critHitsBlock:GetLines()
+			blockLine1.leftText:SetText(Loc ["STRING_CRITICAL_HITS"])
+			blockLine1.rightText:SetText(criticalHitsAmt .. " [|cFFC0C0C0" .. string.format("%.1f", criticalHitsAmt / math.max(totalHits, 0.0001) * 100) .. "%|r]")
+
+			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_min))
+			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_max))
+
+			local critAverage = spellTable.c_total / math.max(criticalHitsAmt, 0.0001)
+			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(critAverage))
+
+			local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
+			local critAveragePercent = spellBar.average / critAverage * 100
+			local critTempoPercent = critAveragePercent * tempo / 100
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
 		end
 	end
 
@@ -1071,12 +1171,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "hits") then --ok
+		elseif (header.name == "hits") then
 			text:SetText(spellTable.counter)
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "castavg") then --ok
+		elseif (header.name == "castavg") then
 			spellBar.castAverage = value / amtCasts
 			text:SetText(Details:Format(spellBar.castAverage))
 			spellBar:AddFrameToHeaderAlignment(text)
@@ -1086,6 +1186,17 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			text:SetText(string.format("%.1f", uptime / combatTime * 100) .. "%")
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
+
+		elseif (header.name == "overheal") then
+			text:SetText(Details:Format(spellTable.overheal or 0))
+			spellBar:AddFrameToHeaderAlignment(text)
+			textIndex = textIndex + 1
+
+		elseif (header.name == "absorbed") then
+			text:SetText(Details:Format(spellTable.absorbed or 0))
+			spellBar:AddFrameToHeaderAlignment(text)
+			textIndex = textIndex + 1
+
 		end
 	end
 
@@ -1227,7 +1338,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 		header_height = 14,
 	}
 
-	local headerTable = spellsTab.BuildHeaderTable()
+	local headerTable = {}
 
 	scrollFrame.Header = DetailsFramework:CreateHeader(scrollFrame, headerTable, headerOptions)
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 0)

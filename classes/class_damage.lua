@@ -4520,7 +4520,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 	---@type number
 	local totalDamageWithoutPet = actorObject.total_without_pet
 	---@type number
-	local actorTotalDamage = actorObject.total
+	local actorTotal = actorObject.total
 	---@type table
 	local actorSpellsSorted = {}
 	---@type table<number, spelltable>
@@ -4537,7 +4537,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 	end
 
 	--actor spells
-	---@type {[string]: number}
+	---@type table<string, number>
 	local alreadyAdded = {}
 	for spellId, spellTable in pairs(actorSpells) do
 		---@cast spellId number
@@ -4632,7 +4632,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 		return t1.total > t2.total
 	end)
 
-	actorSpellsSorted.totalValue = actorTotalDamage
+	actorSpellsSorted.totalValue = actorTotal
 	actorSpellsSorted.combatTime = actorCombatTime
 
 	--actorSpellsSorted has the spell infomation, need to pass to the summary tab
@@ -5283,7 +5283,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 	--NORMAL
 		local normal_hits = spellTable.n_amt
 		if (normal_hits > 0) then
-			local normal_dmg = spellTable.n_dmg
+			local normal_dmg = spellTable.n_total
 			local media_normal = normal_dmg/normal_hits
 			local T = (meu_tempo*normal_dmg)/ max(spellTable.total, 0.001)
 			local P = media/media_normal*100
@@ -5306,11 +5306,11 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 
 	--CRITICO
 		if (spellTable.c_amt > 0) then
-			local media_critico = spellTable.c_dmg/spellTable.c_amt
-			local T = (meu_tempo*spellTable.c_dmg)/spellTable.total
+			local media_critico = spellTable.c_total/spellTable.c_amt
+			local T = (meu_tempo*spellTable.c_total)/spellTable.total
 			local P = media/max(media_critico, 0.0001)*100
 			T = P*T/100
-			local crit_dps = spellTable.c_dmg/T
+			local crit_dps = spellTable.c_total/T
 			if (not crit_dps) then
 				crit_dps = 0
 			end
