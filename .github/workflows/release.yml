@@ -1,10 +1,12 @@
 name: Release AddOn
 
-on: [push]
-#on:
-#  push:
-#    tags:
-#      - '**'
+#on: [push]
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '**'
 
 env:
   CF_API_KEY: ${{ secrets.CF_API_KEY }}
