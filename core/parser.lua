@@ -322,8 +322,12 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
-			
 		}
+
+		--all totem
+		--377461 382133
+		--377458 377459
+
 	end
 
 	local bitfield_debuffs = {}

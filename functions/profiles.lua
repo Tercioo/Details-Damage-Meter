@@ -1407,6 +1407,18 @@ local default_global_data = {
 			},
 		},
 
+	--breakdown spell tab
+	breakdown_spell_tab = {
+		blockcontainer_width = 430,
+		blockcontainer_height = 270,
+		blockspell_height = 50,
+		blockspellline_height = 13,
+		blockspell_spark_offset = -2,
+		blockspell_spark_width = 2,
+		blockspell_spark_show = true,
+		blockspell_spark_color = {1, 1, 1, 0.7},
+	},
+
 	--profile by spec
 		profile_by_spec = {},
 

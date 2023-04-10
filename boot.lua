@@ -87,6 +87,7 @@
 		Details222.Perf = {}
 		Details222.Cooldowns = {}
 		Details222.GarbageCollector = {}
+		Details222.BreakdownWindow = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -777,8 +778,9 @@ do
 	local UIParent = UIParent --api locals
 
 	--Info Window
-		_detalhes.playerDetailWindow = CreateFrame("Frame", "DetailsPlayerDetailsWindow", UIParent, "BackdropTemplate")
+		_detalhes.playerDetailWindow = CreateFrame("Frame", "DetailsBreakdownWindow", UIParent, "BackdropTemplate")
 		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
+		Details.BreakdownWindow = _detalhes.playerDetailWindow
 
 	--Event Frame
 		_detalhes.listener = CreateFrame("Frame", nil, UIParent)

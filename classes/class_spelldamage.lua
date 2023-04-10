@@ -34,10 +34,13 @@
 			id = id, --spellid
 			successful_casted = 0, --successful casted times (only for enemies)
 
-			--normal hits
+			--min damage made by normal hits
 			n_min = 0,
+			--max damage made by normal hits
 			n_max = 0,
+			--amount normal hits
 			n_amt = 0,
+			--total damage of normal hits
 			n_dmg = 0,
 
 			--critical hits

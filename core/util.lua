@@ -518,6 +518,7 @@
 			local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
+		
 		function _detalhes:comma_value_raw (n)
 			local left,num,right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
@@ -676,6 +677,15 @@
 	function _detalhes:GetCurrentToKFunction()
 		return _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
 	end
+
+	--alias
+	---transfor an integer into a string separating thousands with a comma
+	---@param number number
+	---@return string
+	function Details:CommaValue(number)
+		return Details:comma_value(number)
+	end
+
 
 ------------------------------------------------------------------------------------------------------------
 --numerical system

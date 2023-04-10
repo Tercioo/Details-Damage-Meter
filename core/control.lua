@@ -42,6 +42,14 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --details api functions
+	---for a number to the current selected abbreviation
+	---@param number number
+	---@return string
+	function Details:Format(number)
+		return Details.ToKFunctions[Details.ps_abbreviation](nil, number)
+	end
+
+
 
 	--try to find the opponent of last fight, can be called during a fight as well
 		function Details:FindEnemy()

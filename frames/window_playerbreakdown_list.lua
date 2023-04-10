@@ -30,7 +30,7 @@
 	}
 
 	function breakdownWindowPlayerList.CreatePlayerListFrame()
-		local f = _G.DetailsPlayerDetailsWindow
+		local f = _G.DetailsBreakdownWindow
 
 		local refreshPlayerList = function(self, data, offset, totalLines)
 			--update the scroll

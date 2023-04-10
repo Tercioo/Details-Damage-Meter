@@ -102,6 +102,41 @@
 		[73967] = true, --xuen
 	}
 
+	--damage mixin
+	local damageClassMixin = {
+		---check which data is shown in the instance and call a function to build the data for a broker
+		---@param actor actor
+		---@param instance instance
+		BuildSpellDetails = function(actor, instance, spellId)
+			local mainSection, subSection = instance:GetDisplay()
+			local combatObject = instance:GetCombat()
+			if (subSection == 1 or subSection == 2) then
+				return actor:BuildSpellDamageDoneDetails(instance, combatObject, spellId)
+		
+			elseif (subSection == 3) then
+				return self:MontaDetalhesDamageTaken (spellid, barra, instancia)
+		
+			elseif (subSection == 4) then
+				return self:MontaDetalhesFriendlyFire (spellid, barra, instancia)
+		
+			elseif (subSection == 6) then
+				if (bitBand(self.flag_original, 0x00000400) ~= 0) then --� um jogador
+					return self:MontaDetalhesDamageDone (spellid, barra, instancia)
+				end
+				return self:MontaDetalhesEnemy (spellid, barra, instancia)
+			end
+		end,
+
+	}
+
+	---prepare data to send to a broker to show details about a spell
+	---@param actor actor
+	---@param combat combat
+	---@param spellId number
+	damageClassMixin.BuildSpellDamageDoneDetails = function(actor, combat, spellId)
+
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --exported functions
 
@@ -492,6 +527,7 @@ end
 
 		setmetatable(newDamageActor, atributo_damage)
 		detailsFramework:Mixin(newDamageActor, Details222.Mixins.ActorMixin)
+		detailsFramework:Mixin(newDamageActor, damageClassMixin)
 
 		return newDamageActor
 	end
@@ -3090,7 +3126,7 @@ end
 	end
 end
 
---@self: actor object
+---@self: actor object
 function Details:SetClassIcon(texture, instance, class) --[[ exported]]
 	local customIcon
 	if (Details.immersion_unit_special_icons) then
@@ -4431,135 +4467,187 @@ local getSpellDetails = function(unitGUID, spellName)
 	end
 end
 
+
+--[=[
+	current: passando todas as spells para o breakdown, até mesmo as spells que não tem merge é enviado a spell total e a a spellTable logo em seguida
+	isso forma uma array com o dobro do tamanho e spells duplicadas
+
+	passar as spells repetidas em uma segunda array?
+
+	não passar nada e deixar o sistema aprender sozinho, como o sistema vai saber que precisa por uma arrow na linha? (para expandi-la)
+
+	
+--]=]
+
 ------ Damage Done & Dps
-function atributo_damage:MontaInfoDamageDone()
+function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of spells in the topleft scrollBar in the summary tab
+	--the goal of this function is to build a list of spells the actor used and send the data to Details! which will delivery to the summary tab actived
+	--so the script only need to build the list of spells and send it to Details!
+	---@type actor
 	local actorObject = self
-
-	local allLines = info.barras1
+	---@type instance
 	local instance = info.instancia
-
-	--damage rank
-	local combatObject = instance:GetShowingCombat()
+	---@type combat
+	local combatObject = instance:GetCombat()
+	---@type number
 	local diff = combatObject:GetDifficulty()
-	local attribute, subAttribute = instance:GetDisplay()
+	---@type string
+	local playerName = actorObject:Name()
 
+	--guild ranking on a boss
 	--check if is a raid encounter and if is heroic or mythic
-	if (diff and (diff == 15 or diff == 16)) then
-		local db = Details.OpenStorage()
-		if (db) then
-			local bestRank, encounterTable = Details.storage:GetBestFromPlayer (diff, combatObject:GetBossInfo().id, "damage", self.nome, true)
-			if (bestRank) then
-				--discover which are the player position in the guild rank
-				local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combatObject:GetBossInfo().id, "damage", self.nome, true)
-				local text1 = self.nome .. " Guild Rank on " .. (combatObject:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
-				info:SetStatusbarText (text1, 10, "gray")
+	do
+		if (diff and (diff == 15 or diff == 16)) then
+			local db = Details.OpenStorage()
+			if (db) then
+				local bestRank, encounterTable = Details.storage:GetBestFromPlayer(diff, combatObject:GetBossInfo().id, "damage", playerName, true)
+				if (bestRank) then
+					--discover which are the player position in the guild rank
+					local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combatObject:GetBossInfo().id, "damage", playerName, true)
+					local text1 = playerName .. " Guild Rank on " .. (combatObject:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
+					info:SetStatusbarText (text1, 10, "gray")
+				else
+					info:SetStatusbarText()
+				end
 			else
 				info:SetStatusbarText()
 			end
 		else
 			info:SetStatusbarText()
 		end
-	else
-		info:SetStatusbarText()
 	end
 
+	---@type number
 	local totalDamageWithoutPet = actorObject.total_without_pet
+	---@type number
 	local actorTotalDamage = actorObject.total
-
+	---@type table
 	local actorSpellsSorted = {}
+	---@type table<number, spelltable>
 	local actorSpells = actorObject:GetSpellList()
-
-	local bShouldMergePlayerAbilities = Details.merge_player_abilities
-	local bShouldMergePetAbilities = Details.merge_pet_abilities
 
 	wipeSpellCache()
 
-	--get time type
+	--get time
 	local actorCombatTime
-	if (Details.time_type == 1 or not self.grupo) then
-		actorCombatTime = self:Tempo()
+	if (Details.time_type == 1 or not actorObject.grupo) then
+		actorCombatTime = actorObject:Tempo()
 	elseif (Details.time_type == 2) then
 		actorCombatTime = info.instancia.showing:GetCombatTime()
 	end
 
+	--actor spells
+	---@type {[string]: number}
+	local alreadyAdded = {}
 	for spellId, spellTable in pairs(actorSpells) do
-		local spellName, _, spellIcon = _GetSpellInfo(spellId)
+		---@cast spellId number
+		---@cast spellTable spelltable
+
+		spellTable.ChartData = nil
+
+		---@type string
+		local spellName = _GetSpellInfo(spellId)
 		if (spellName) then
-			local spellTotal = spellTable.total
-			local spellPercent = spellTable.total / actorTotalDamage * 100
-			local nameString = spellName
-
-			--problem: will show the first ability found when hovering over the spell
-			if (bShouldMergePlayerAbilities) then
-				local bAlreadyAdded = false
-				for i = 1, #actorSpellsSorted do
-					local thisSpell = actorSpellsSorted[i]
-					if (thisSpell[4] == nameString) then
-						bAlreadyAdded = true
-						thisSpell[2] = thisSpell[2] + spellTotal
-					end
-				end
-
-				if (not bAlreadyAdded) then
-					tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, nil, spellTable.spellschool})
-				end
-
-				addToSpellCache(actorObject:GetGUID(), spellName, spellTable)
+			---@type number in which index the spell with the same name was stored
+			local index = alreadyAdded[spellName]
+			if (index) then
+				---@type breakdownspelldata
+				local bkSpellData = actorSpellsSorted[index]
+				bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+				bkSpellData.petNames[#bkSpellData.petNames+1] = ""
+				bkSpellData.bCanExpand = true
 			else
-				tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, nil, spellTable.spellschool})
+				---@type breakdownspelldata
+				local bkSpellData = {
+					id = spellId,
+					spellschool = spellTable.spellschool,
+					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+					bCanExpand = false,
+
+					spellIds = {spellId},
+					spellTables = {spellTable}, --sub spell tables to show if the spell is expanded
+					petNames = {""},
+				}
+
+				actorSpellsSorted[#actorSpellsSorted+1] = bkSpellData
+				alreadyAdded[spellName] = #actorSpellsSorted
 			end
 		end
 	end
 
-	--show damage percentille within item level bracket
-
-	--add pets
-	local actorPets = self.pets
-	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
-	local classColor = "FFCCBBBB"
-	--local class_color = "FFDDDD44"
-
+	--pets spells
+	local actorPets = actorObject:GetPets()
 	for _, petName in ipairs(actorPets) do
+		---@type actor
 		local petActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, petName)
-		if (petActor) then
+		if (petActor) then --PET
 			local spells = petActor:GetSpellList()
-			for spellId, spellTable in pairs(spells) do --da foreach em cada spellid do container
-				local spellName, _, spellIcon = _GetSpellInfo(spellId)
-				--tinsert(ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
+			for spellId, spellTable in pairs(spells) do
+				---@cast spellId number
+				---@cast spellTable spelltable
+
+				spellTable.ChartData = nil
+				--PET
+				---@type string
+				local spellName = _GetSpellInfo(spellId)
 				if (spellName) then
-					local spellTotal = spellTable.total
-					local spellPercent = spellTable.total / actorTotalDamage * 100
-					local nameString = spellName .. " (|c" .. classColor .. petName:gsub((" <.*"), "") .. "|r)"
+					---@type number in which index the spell with the same name was stored
+					local index = alreadyAdded[spellName]
+					if (index) then --PET
+						---@type breakdownspelldata
+						local bkSpellData = actorSpellsSorted[index]
+						bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+						bkSpellData.petNames[#bkSpellData.petNames+1] = petName
+						bkSpellData.bCanExpand = true
+					else --PET
+						---@type breakdownspelldata
+						local bkSpellData = {
+							id = spellId,
+							spellschool = spellTable.spellschool,
+							expanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+							bCanExpand = false,
 
-					if (bShouldMergePetAbilities) then
-						local bAlreadyAdded = false
-						for i = 1, #actorSpellsSorted do
-							local thisPetSpellTable = actorSpellsSorted[i]
-							if (thisPetSpellTable[1] == spellId) then
-								bAlreadyAdded = true
-								thisPetSpellTable[2] = thisPetSpellTable[2] + spellTotal
-							end
-						end
-
-						if (not bAlreadyAdded) then
-							tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, petActor, spellTable.spellschool})
-						end
-
-						addToSpellCache(actorObject:GetGUID(), spellName, spellTable) --all pet spells are added to later be combined and shown in the spell details
-					else
-						tinsert(actorSpellsSorted, {spellId, spellTotal, spellPercent, nameString, spellIcon, petActor, spellTable.spellschool})
+							spellIds = {spellId},
+							spellTables = {spellTable},
+							petNames = {petName},
+						}
+						actorSpellsSorted[#actorSpellsSorted+1] = bkSpellData
+						alreadyAdded[spellName] = #actorSpellsSorted
 					end
 				end
 			end
 		end
 	end
 
-	_table_sort(actorSpellsSorted, Details.Sort2)
+	for i = 1, #actorSpellsSorted do
+		---@type breakdownspelldata
+		local bkSpellData = actorSpellsSorted[i]
+		Details:SumSpellTables(bkSpellData.spellTables, bkSpellData)
+	end
 
-	gump:JI_AtualizaContainerBarras (#actorSpellsSorted + 1)
+	--table.sort(actorSpellsSorted, Details.Sort2)
+	table.sort(actorSpellsSorted, function(t1, t2)
+		return t1.total > t2.total
+	end)
+
+	actorSpellsSorted.totalValue = actorTotalDamage
+	actorSpellsSorted.combatTime = actorCombatTime
+
+	--actorSpellsSorted has the spell infomation, need to pass to the summary tab
+
+	--cleanup
+	table.wipe(alreadyAdded)
+
+	--send to the breakdown window
+	Details222.BreakdownWindow.SendSpellData(actorSpellsSorted, actorObject, combatObject, instance)
+
+	if 1 then return end
+
+	--gump:JI_AtualizaContainerBarras (#actorSpellsSorted + 1)
 
 	local max_ = actorSpellsSorted[1] and actorSpellsSorted[1][2] or 0 --dano que a primeiro magia vez
-
 	local barra
 
 	--aura bar
@@ -4752,12 +4840,9 @@ function atributo_damage:MontaInfoDamageDone()
 
 			if (barra.mouse_over) then --atualizar o tooltip
 				if (barra.isAlvo) then
-					--GameTooltip:Hide()
-					--GameTooltip:SetOwner(barra, "ANCHOR_TOPRIGHT")
 					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index, instance)) then
 						return
 					end
-					--GameTooltip:Show()
 				end
 			end
 
@@ -5074,7 +5159,7 @@ local MontaDetalhesBuffProcs = function(actor, row, instance)
 end
 
 
-
+--this build p the 6 rectangle boxes in the right side of the breakdown window summary tab
 function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 	local spellTable
 	if (spellLine.other_actor) then
@@ -5477,7 +5562,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
 			end
 		end
 
-		DetailsPlayerDetailsWindow_DetalheInfoBG_bg_end6:Hide()
+		DetailsBreakdownWindow_DetalheInfoBG_bg_end6:Hide()
 		thatRectangle66:SetShown(true)
 	end
 
@@ -6319,6 +6404,8 @@ end
 function Details.refresh:r_atributo_damage (este_jogador, shadow)
 	--restaura metas do ator
 		detailsFramework:Mixin(este_jogador, Details222.Mixins.ActorMixin)
+		detailsFramework:Mixin(este_jogador, damageClassMixin)
+		
 		setmetatable(este_jogador, Details.atributo_damage)
 		este_jogador.__index = Details.atributo_damage
 	--restaura as metas dos containers

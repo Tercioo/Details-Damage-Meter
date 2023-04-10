@@ -40,7 +40,7 @@ local addonName, Details222 = ...
 	---get the spellTable for the passed spellId
 	---@param spellId number
 	---@return table
-	function container_habilidades:GetSpell (spellId)
+	function container_habilidades:GetSpell(spellId)
 		return self._ActorTable[spellId]
 	end
 

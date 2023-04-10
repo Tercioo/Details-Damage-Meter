@@ -5084,6 +5084,15 @@ detailsFramework.HeaderFunctions = {
 		tinsert(self.FramesToAlign, frame)
 	end,
 
+	ResetFramesToHeaderAlignment = function(self)
+		wipe(self.FramesToAlign)
+	end,
+
+	SetFramesToHeaderAlignment = function(self, ...)
+		wipe(self.FramesToAlign)
+		self.FramesToAlign = {...}
+	end,
+
 	GetFramesFromHeaderAlignment = function(self, frame)
 		return self.FramesToAlign or {}
 	end,
@@ -5100,16 +5109,18 @@ detailsFramework.HeaderFunctions = {
 			frame:ClearAllPoints()
 
 			local columnHeader = columnHeaderFrames[i]
-			local offset = 0
+			if (columnHeader) then
+				local offset = 0
 
-			if (columnHeader.columnAlign == "right") then
-				offset = columnHeader:GetWidth()
-				if (frame:GetObjectType() == "FontString") then
-					frame:SetJustifyH("right")
+				if (columnHeader.columnAlign == "right") then
+					offset = columnHeader:GetWidth()
+					if (frame:GetObjectType() == "FontString") then
+						frame:SetJustifyH("right")
+					end
 				end
-			end
 
-			frame:SetPoint(columnHeader.columnAlign, self, anchor, columnHeader.XPosition + columnHeader.columnOffset + offset, 0)
+				frame:SetPoint(columnHeader.columnAlign, self, anchor, columnHeader.XPosition + columnHeader.columnOffset + offset, 0)
+			end
 		end
 	end,
 
