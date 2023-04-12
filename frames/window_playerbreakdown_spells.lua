@@ -211,6 +211,17 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
 	tabFrame.barras3 = {} --deprecated
 
     spellsTab.TabFrame = tabFrame
+
+	--open the breakdown window at startup
+	--[=[
+	C_Timer.After(1, function()
+		Details:OpenPlayerDetails(1)
+		C_Timer.After(1, function()
+			Details:OpenPlayerDetails(1)
+			Details:OpenPlayerDetails(1)
+		end)
+	end)
+	--]=]
 end
 
 function spellsTab.TrocaBackgroundInfo(tabFrame) --> spells tab | to be refactored | called fom OpenJanelaInfo function
@@ -359,40 +370,6 @@ do --hide bars functions - to be refactored
     end
 end
 
---bar scripts
-local onMouseDownCallback = function(self, button)
-    local hostFrame = breakdownWindow
-
-    if (button == "LeftButton") then
-        hostFrame:StartMoving()
-        hostFrame.isMoving = true
-
-    elseif (button == "RightButton" and not self.isMoving) then
-        Details:CloseBreakdownWindow()
-    end
-end
-
-local onMouseUpCallback = function(self, button)
-    local hostFrame = breakdownWindow
-
-    if (hostFrame.isMoving) then
-        hostFrame:StopMovingOrSizing()
-        hostFrame.isMoving = false
-    end
-end
-
-function spellsTab.ApplyScripts()
-    local hostFrame = breakdownWindow --cannot be breakdown window, it should be the frame of the tab
-    hostFrame.SpellScrollFrame.gump:SetScript("OnMouseDown", onMouseDownCallback)
-    hostFrame.SpellScrollFrame.gump:SetScript("OnMouseUp", onMouseUpCallback)
-
-    hostFrame.container_detalhes:SetScript("OnMouseDown", onMouseDownCallback)
-    hostFrame.container_detalhes:SetScript("OnMouseUp", onMouseUpCallback)
-
-    hostFrame.container_alvos.gump:SetScript("OnMouseDown", onMouseDownCallback)
-    hostFrame.container_alvos.gump:SetScript("OnMouseUp", onMouseUpCallback)
-end
-
 function spellsTab.CreateReportButtons(tabFrame)
     --spell list report button
 	tabFrame.report_esquerda = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 1, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
@@ -439,7 +416,6 @@ end
 ---@param spellBar breakdownspellbar
 local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por nomes nas funções e formatar as linhas das funcções
 	--all values from spellBar are cached values
-
 	--check if there's a spellbar selected, if there's one, ignore the mouseover
 	if (spellsTab.HasSelectedSpellBar()) then
 		return
@@ -707,44 +683,29 @@ end
 ---@param spellBar breakdownspellbar
 ---@param button string
 local onMouseDownBreakdownSpellBar = function(spellBar, button)
-	print(1, spellBar:GetName())
-	if false then
-		local x, y = _G.GetCursorPosition()
-		spellBar.cursorPosX = math.floor(x)
-		spellBar.cursorPosY = math.floor(y)
-		Details222.PlayerBreakdown.OnMouseDown(spellBar, button)
-	end
+	local x, y = _G.GetCursorPosition()
+	spellBar.cursorPosX = math.floor(x)
+	spellBar.cursorPosY = math.floor(y)
 end
 
 ---on mouse up a breakdownspellbar in the breakdown window
 ---@param spellBar breakdownspellbar
 ---@param button string
 local onMouseUpBreakdownSpellBar = function(spellBar, button)
-	print(2, spellBar:GetName())
-	if false then
-		if (spellBar.onMouseUpTime == GetTime()) then
-			return
-		end
+	spellBar.onMouseUpTime = GetTime()
 
-		spellBar.onMouseUpTime = GetTime()
+	---@type number, number
+	local x, y = _G.GetCursorPosition()
+	x = math.floor(x)
+	y = math.floor(y)
 
-		---@type number, number
-		local x, y = _G.GetCursorPosition()
-		x = math.floor(x)
-		y = math.floor(y)
+	---@type boolean
+	local bIsMouseInTheSamePosition = (x == spellBar.cursorPosX) and (y == spellBar.cursorPosY)
 
-		---@type boolean
-		local bIsMouseInTheSamePosition = (x == spellBar.cursorPosX) and (y == spellBar.cursorPosY)
-
-		--if the mouse is in the same position, then the user clicked the bar
-		--clicking the bar activate the lock mechanism
-		if (bIsMouseInTheSamePosition) then
-			spellsTab.SelectSpellBar(spellBar)
-		end
+	--if the mouse is in the same position, then the user clicked the bar
+	if (bIsMouseInTheSamePosition) then
+		spellsTab.SelectSpellBar(spellBar)
 	end
-
-	--print("selecting spell bar")
-	--spellsTab.SelectSpellBar(spellBar)
 end
 
 
@@ -1229,7 +1190,7 @@ end
 ---@param scrollData breakdownscrolldata
 ---@param offset number
 ---@param totalLines number
-local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~refresh spells
+local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refresh
 	---@type number
 	local maxValue = scrollData[1] and scrollData[1].total
 	---@type number
@@ -1336,7 +1297,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	local headerTable = {}
 
 	scrollFrame.Header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
-	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 0)
+	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 1)
 
 	--create the scroll lines
 	for i = 1, CONST_SPELLSCROLL_AMTLINES do
@@ -1544,29 +1505,6 @@ end
 ---@param index number
 ---@return breakdownspellbar
 function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~create ~createline
-
-	if (index == 1) then
-		--on this debug the onmousedown and onmouseup are working properly because is parented to the breakdownWindow
-		--but not on the spellbar which is parented to the spellscrollframe
-		local b = CreateFrame("button", nil, breakdownWindow, "BackdropTemplate")
-		b:SetSize(64, 64)
-		b:EnableMouse(true)
-		b:RegisterForClicks("AnyUp", "AnyDown")
-		b:SetPoint("topleft", breakdownWindow, "topleft", 50, -30)
-		b:SetScript("OnMouseDown", function() print("hi") end)
-		b:SetScript("OnMouseUp", function() print("bye") end)
-		DF:ApplyStandardBackdrop(b)
-	end
-
-	local buttonTest = CreateFrame("button", self:GetName() .. "SpellBarTest" .. index, self, "BackdropTemplate")
-	buttonTest:SetSize(64, 64)
-	buttonTest:EnableMouse(true)
-	buttonTest:RegisterForClicks("AnyUp", "AnyDown")
-	buttonTest:SetFrameStrata("TOOLTIP")
-	buttonTest:SetScript("OnMouseDown", function() print("hi") end)
-	buttonTest:SetScript("OnMouseUp", function() print("bye") end)
-	DF:ApplyStandardBackdrop(buttonTest)
-
 	---@type breakdownspellbar
 	local spellBar = CreateFrame("button", self:GetName() .. "SpellBar" .. index, self, "BackdropTemplate")
 	spellBar.index = index
@@ -1576,8 +1514,6 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
 	spellBar:SetPoint("topleft", self, "topleft", 0, y)
 	spellBar:SetPoint("topright", self, "topright", 0, y)
-
-	buttonTest:SetPoint("topleft", self, "topleft", 0, y)
 
 	spellBar:EnableMouse(true)
 	spellBar:RegisterForClicks("AnyUp", "AnyDown")
@@ -1591,7 +1527,6 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	spellBar.ExpandedChildren = {}
 
 	DF:Mixin(spellBar, DF.HeaderFunctions)
-	DF:Mixin(buttonTest, DF.HeaderFunctions)
 
 	---@type statusbar
 	local statusBar = CreateFrame("StatusBar", "$parentStatusBar", spellBar, "BackdropTemplate")

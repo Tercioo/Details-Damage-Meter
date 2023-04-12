@@ -84,19 +84,22 @@ end
 ---@param bIsShiftKeyDown boolean|nil
 ---@param bIsControlKeyDown boolean|nil
 function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown)
+	---@type number, number
+	local mainAttribute, subAttribute = instanceObject:GetDisplay()
+
 	--create the player list frame in the left side of the window
 	Details.PlayerBreakdown.CreatePlayerListFrame()
 
-	if (not Details.row_singleclick_overwrite[instanceObject.atributo] or not Details.row_singleclick_overwrite[instanceObject.atributo][instanceObject.sub_atributo]) then
+	if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
 		Details:CloseBreakdownWindow()
 		return
 
-	elseif (type(Details.row_singleclick_overwrite[instanceObject.atributo][instanceObject.sub_atributo]) == "function") then
+	elseif (type(Details.row_singleclick_overwrite[mainAttribute][subAttribute]) == "function") then
 		if (bFromAttributeChange) then
 			Details:CloseBreakdownWindow()
 			return
 		end
-		return Details.row_singleclick_overwrite[instanceObject.atributo][instanceObject.sub_atributo](_, actorObject, instanceObject, bIsShiftKeyDown, bIsControlKeyDown)
+		return Details.row_singleclick_overwrite[mainAttribute][subAttribute](_, actorObject, instanceObject, bIsShiftKeyDown, bIsControlKeyDown)
 	end
 
 	if (instanceObject:GetMode() == DETAILS_MODE_RAID) then
@@ -105,7 +108,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	end
 
 	--Details.info_jogador armazena o jogador que esta sendo mostrado na janela de detalhes
-	if (breakdownWindow.jogador and breakdownWindow.jogador == actorObject and instanceObject and breakdownWindow.atributo and instanceObject.atributo == breakdownWindow.atributo and instanceObject.sub_atributo == breakdownWindow.sub_atributo and not bIsRefresh) then
+	if (breakdownWindow.jogador and breakdownWindow.jogador == actorObject and instanceObject and breakdownWindow.atributo and mainAttribute == breakdownWindow.atributo and subAttribute == breakdownWindow.sub_atributo and not bIsRefresh) then
 		Details:CloseBreakdownWindow() --se clicou na mesma barra ent�o fecha a janela de detalhes
 		return
 
@@ -142,15 +145,16 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 		breakdownWindow:CreateRightSideBar()
 	end
 
+	--todo: all portuguese keys to english
+
 	breakdownWindow.ativo = true --sinaliza o addon que a janela esta aberta
-	breakdownWindow.atributo = instanceObject.atributo --instancia.atributo -> grava o atributo (damage, heal, etc)
-	breakdownWindow.sub_atributo = instanceObject.sub_atributo --instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
+	breakdownWindow.atributo = mainAttribute --instancia.atributo -> grava o atributo (damage, heal, etc)
+	breakdownWindow.sub_atributo = subAttribute --instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
 	breakdownWindow.jogador = actorObject --de qual jogador (objeto classe_damage)
 	breakdownWindow.instancia = instanceObject --salva a refer�ncia da inst�ncia que pediu o breakdownWindow
 	breakdownWindow.target_text = Loc ["STRING_TARGETS"] .. ":"
 	breakdownWindow.target_member = "total"
 	breakdownWindow.target_persecond = false
-
 	breakdownWindow.mostrando = nil
 
 	local nome = breakdownWindow.jogador.nome --nome do jogador
@@ -299,6 +303,8 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 				tabButton:DoClick()
 				tabButton:OnShowFunc()
 				shownTab = tabButton
+
+				actorObject:MontaInfo() --old api to update the breakdown window
 			end
 		end
 	end
@@ -644,40 +650,32 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 		tabName = "unnamed"
 	end
 
-	--create a button for the tab
-	--tabOnClickFunc
-	local newTabButton = gump:CreateButton(breakdownWindow, function()end, 20, 20, nil, nil, nil, nil, nil, breakdownWindow:GetName() .. "TabButton" .. tabName .. math.random(1, 1000))
-	newTabButton:SetTemplate("DETAILS_TAB_BUTTON_TEMPLATE")
+	--create a button to select the tab
+	local tabButton = DetailsFramework:CreateButton(breakdownWindow, function()end, 20, 20, locName, nil, nil, nil, nil, breakdownWindow:GetName() .. "TabButton" .. tabName .. math.random(1, 1000), nil, "DETAILS_TAB_BUTTON_TEMPLATE")
+	tabButton:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
+	tabButton:Hide()
+
 	if (tabName == "Summary") then
-		newTabButton:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
+		tabButton:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
 	end
 
-	newTabButton.IsDefaultTab = bIsDefaultTab
-
-	newTabButton:SetText(locName)
-	newTabButton:SetFrameStrata("HIGH")
-	newTabButton:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
-	newTabButton:Hide()
-
-	newTabButton.condition = conditionFunc
-	newTabButton.tabname = tabName
-	newTabButton.localized_name = locName
-	newTabButton.onclick = tabOnClickFunc
-	newTabButton.fillfunction = fillFunc
-	newTabButton.last_actor = {}
+	tabButton.IsDefaultTab = bIsDefaultTab
+	tabButton.condition = conditionFunc
+	tabButton.tabname = tabName
+	tabButton.localized_name = locName
+	tabButton.onclick = tabOnClickFunc
+	tabButton.fillfunction = fillFunc
+	tabButton.last_actor = {}
 
 	---@type tabframe
-	local tabFrame = CreateFrame("frame", breakdownWindow:GetName() .. "TabFrame" .. tabName .. math.random(1, 1000), UIParent, "BackdropTemplate")
-	newTabButton.tabFrame = tabFrame
-	newTabButton.frame = tabFrame
-
-	tabFrame:SetParent(breakdownWindow)
-	tabFrame:SetFrameStrata("HIGH")
-	tabFrame:SetFrameLevel(breakdownWindow:GetFrameLevel()+5)
-	tabFrame:EnableMouse(true)
+	local tabFrame = CreateFrame("frame", breakdownWindow:GetName() .. "TabFrame" .. tabName .. math.random(1, 10000), breakdownWindow, "BackdropTemplate")
+	tabFrame:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
 	tabFrame:SetPoint("topleft", breakdownWindow, "topleft", 0, -70)
 	tabFrame:SetPoint("bottomright", breakdownWindow, "bottomright", 0, 20)
 	tabFrame:Hide()
+
+	tabButton.tabFrame = tabFrame
+	tabButton.frame = tabFrame
 
 	if (iconSettings) then
 		local texture = iconSettings.texture
@@ -687,35 +685,43 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 
 		local overlay, textdistance, leftpadding, textheight, short_method --nil
 
-		newTabButton:SetIcon (texture, width, height, "overlay", coords, overlay, textdistance, leftpadding, textheight, short_method)
+		tabButton:SetIcon(texture, width, height, "overlay", coords, overlay, textdistance, leftpadding, textheight, short_method)
 		if (iconSettings.desaturated) then
-			newTabButton.icon:SetDesaturated(true)
+			tabButton.icon:SetDesaturated(true)
 		end
 	end
 
-	if (newTabButton.fillfunction) then
+	if (tabButton.fillfunction) then
 		tabFrame:SetScript("OnShow", function()
-			if (newTabButton.last_actor == breakdownWindow.jogador) then
+			---@type actor
+			local actorObject = Details:GetActorObjectFromBreakdownWindow()
+			---@type instance
+			local instanceObject = Details:GetActiveWindowFromBreakdownWindow()
+			---@type combat
+			local combatObject = instanceObject:GetCombat()
+
+			if (tabButton.last_actor == actorObject) then
 				return
 			end
-			newTabButton.last_actor = breakdownWindow.jogador
-			newTabButton:fillfunction(breakdownWindow.jogador, breakdownWindow.instancia.showing)
+
+			tabButton.last_actor = actorObject
+			tabButton:fillfunction(actorObject, combatObject)
 		end)
 	end
 
 	if (onCreateFunc) then
-		onCreateFunc(newTabButton, tabFrame)
+		onCreateFunc(tabButton, tabFrame)
 	end
 
-	newTabButton.replaces = replace
-	Details.player_details_tabs[#Details.player_details_tabs+1] = newTabButton
+	tabButton.replaces = replace
+	Details.player_details_tabs[#Details.player_details_tabs+1] = tabButton
 
-	local onTabClickCallback = function(self)
-		self = self.MyObject or self
+	local onTabClickCallback = function(self) --self = tabButton
+		self = self.MyObject or self --framework button
 
-		for _, tab in ipairs(Details:GetBreakdownTabsInUse()) do
-			tab.frame:Hide()
-			tab:SetTemplate("DETAILS_TAB_BUTTON_TEMPLATE")
+		for _, thisTabButton in ipairs(Details:GetBreakdownTabsInUse()) do
+			thisTabButton.frame:Hide()
+			thisTabButton:SetTemplate("DETAILS_TAB_BUTTON_TEMPLATE")
 		end
 
 		self:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
@@ -723,35 +729,35 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	end
 
 	if (not tabOnClickFunc) then
-		newTabButton.OnShowFunc = function(self)
+		tabButton.OnShowFunc = function(self)
 			--hide all tab frames, reset the template on all tabs
 			--then set the template on this tab and set as selected tab
 			onTabClickCallback(self)
 			--show the tab frame
 			tabFrame:Show()
 		end
-		newTabButton:SetScript("OnClick", newTabButton.OnShowFunc)
+		tabButton:SetScript("OnClick", tabButton.OnShowFunc)
 	else
 		--custom
-		newTabButton.OnShowFunc = function(self)
+		tabButton.OnShowFunc = function(self)
 			--hide all tab frames, reset the template on all tabs
 			--then set the template on this tab and set as selected tab
 			onTabClickCallback(self)
 
 			--run onclick func
-			local result, errorText = pcall(tabOnClickFunc, newTabButton, tabFrame)
+			local result, errorText = pcall(tabOnClickFunc, tabButton, tabFrame)
 			if (not result) then
 				print("error on running tabOnClick function:", errorText)
 			end
 		end
-		newTabButton:SetScript("OnClick", newTabButton.OnShowFunc)
+		tabButton:SetScript("OnClick", tabButton.OnShowFunc)
 	end
 
-	function newTabButton:DoClick()
+	function tabButton:DoClick()
 		self:GetScript("OnClick")(self)
 	end
 
-	newTabButton:SetScript("PostClick", function(self)
+	tabButton:SetScript("PostClick", function(self)
 		CurrentTab = self.tabname or self.MyObject.tabname
 
 		if (CurrentTab ~= "Summary") then
@@ -765,5 +771,5 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 		end
 	end)
 
-	return newTabButton, tabFrame
+	return tabButton, tabFrame
 end

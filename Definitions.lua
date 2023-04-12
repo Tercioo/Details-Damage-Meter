@@ -415,6 +415,7 @@
 ---@field texture texture
 
 ---@class breakdownspellscrollframe : frame
+---@field Header frame
 
 ---@class breakdownspellbar : button
 ---@field index number

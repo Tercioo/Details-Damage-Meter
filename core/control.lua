@@ -1848,17 +1848,17 @@
 			self:RefreshMainWindow(true)
 		end
 
-		function Details:RefreshMainWindow(instance, bForceRefresh)
-			if (not instance or type(instance) == "boolean") then
-				bForceRefresh = instance
-				instance = self
+		function Details:RefreshMainWindow(instanceObject, bForceRefresh)
+			if (not instanceObject or type(instanceObject) == "boolean") then
+				bForceRefresh = instanceObject
+				instanceObject = self
 			end
 
 			if (not bForceRefresh) then
 				Details.LastUpdateTick = Details._tempo
 			end
 
-			if (instance == -1) then
+			if (instanceObject == -1) then
 				--update
 				for index, thisInstance in ipairs(Details.tabela_instancias) do
 					if (thisInstance.ativa) then
@@ -1884,19 +1884,16 @@
 						return info.jogador:MontaInfo()
 					end
 				end
-
 				return
-
 			else
-				if (not instance.ativa) then
-					--print("instance not actived", instance.RefreshMainWindow, 1+nil)
+				if (not instanceObject.ativa) then
 					return
 				end
 			end
 
-			if (instance.modo == modo_ALL or instance.modo == modo_GROUP) then
-				--print("updating all instances...")
-				return instance:RefreshAllMainWindows(bForceRefresh)
+			local currentMode = instanceObject:GetMode()
+			if (currentMode == DETAILS_MODE_ALL or currentMode == DETAILS_MODE_GROUP) then
+				return instanceObject:RefreshAllMainWindows(bForceRefresh)
 			end
 		end
 
