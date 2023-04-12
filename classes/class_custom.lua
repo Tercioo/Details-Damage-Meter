@@ -1748,7 +1748,7 @@
 			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
 			source = false,
 			target = false,
-			script_version = 8,
+			script_version = 9,
 			script = [[
 				--get the parameters passed
 				local combat, instance_container, instance = ...

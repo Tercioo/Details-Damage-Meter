@@ -94,7 +94,7 @@ function Details:StartMeUp()
 	Details.MicroButtonAlert:Hide()
 
 	--actor details window
-	Details.playerDetailWindow = Details.gump:CriaJanelaInfo()
+	Details.playerDetailWindow = Details:CreateBreakdownWindow()
 	Details.FadeHandler.Fader(Details.playerDetailWindow, 1)
 
 	--copy and paste window

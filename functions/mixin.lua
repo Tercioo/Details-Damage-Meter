@@ -146,6 +146,10 @@ local spellTable_FieldsToSum = {
 	["b_dmg"] = true,
 	["a_amt"] = true,
 	["a_dmg"] = true,
+	["totalabsorb"] = true,
+	["absorbed"] = true,
+	["overheal"] = true,
+	["totaldenied"] = true,
 }
 
 ---get the array of spelltables and sum each spellTable with the first spellTable found or on targetTable

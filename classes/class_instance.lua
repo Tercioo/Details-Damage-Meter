@@ -332,7 +332,7 @@ local instanceMixins = {
 			--update player breakdown window if opened
 			if (not bForceRefresh) then
 				if (Details:IsBreakdownWindowOpen()) then
-					return Details:GetPlayerObjectFromBreakdownWindow():MontaInfo()
+					return Details:GetActorObjectFromBreakdownWindow():MontaInfo()
 				end
 			end
 		end
@@ -519,9 +519,9 @@ local instanceMixins = {
 				Details:CloseBreakdownWindow()
 			else
 				---@type actor
-				local actorObject = Details:GetPlayerObjectFromBreakdownWindow()
+				local actorObject = Details:GetActorObjectFromBreakdownWindow()
 				if (actorObject) then
-					Details:OpenPlayerBreakdown(instance, actorObject, true)
+					Details:OpenBreakdownWindow(instance, actorObject, true)
 				else
 					Details:CloseBreakdownWindow()
 				end
@@ -2832,13 +2832,13 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 
 	if (Details.playerDetailWindow:IsShown() and instance == Details.playerDetailWindow.instancia) then
 		if (not instance.showing or instance.atributo > 4) then
-			Details:FechaJanelaInfo()
+			Details:CloseBreakdownWindow()
 		else
-			local actor = instance.showing (instance.atributo, Details.playerDetailWindow.jogador.nome)
-			if (actor) then
-				instance:AbreJanelaInfo (actor, true)
+			local actorObject = instance.showing (instance.atributo, Details.playerDetailWindow.jogador.nome)
+			if (actorObject) then
+				Details:OpenBreakdownWindow(instance, actorObject, true)
 			else
-				Details:FechaJanelaInfo()
+				Details:CloseBreakdownWindow()
 			end
 		end
 	end

@@ -471,9 +471,6 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		--update tooltip settings
 		_detalhes:SetTooltipBackdrop()
 
-		--update player detail window
-		_detalhes:ApplyPDWSkin()
-
 		--update the numerical system
 		_detalhes:SelectNumericalSystem()
 

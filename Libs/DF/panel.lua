@@ -5054,7 +5054,7 @@ local default_icon_row_options = {
 }
 
 function detailsFramework:CreateIconRow (parent, name, options)
-	local f = CreateFrame("frame", name, parent, "BackdropTemplate")
+	local f = _G.CreateFrame("frame", name, parent, "BackdropTemplate")
 	f.IconPool = {}
 	f.NextIcon = 1
 	f.AuraCache = {}
@@ -5077,19 +5077,46 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --~header
 
+--definitions
+---@class headerframe: frame
+---@field GetColumnWidth fun(self: headerframe, columnId: number)
+---@field SetHeaderTable fun(self: headerframe, newTable)
+---@field GetSelectedColumn fun(self: headerframe)
+---@field Refresh fun(self: headerframe)
+---@field UpdateSortArrow fun(self: headerframe, columnHeader: headercolumnframe, defaultShown: boolean, defaultOrder: string)
+---@field UpdateColumnHeader fun(self: headerframe, columnHeader: headercolumnframe, headerIndex)
+---@field ResetColumnHeaderBackdrop fun(self: headerframe, columnHeader: headercolumnframe)
+---@field SetBackdropColorForSelectedColumnHeader fun(self: headerframe, columnHeader: headercolumnframe)
+---@field ClearColumnHeader fun(self: headerframe, columnHeader: headercolumnframe)
+---@field GetNextHeader fun(self: headerframe) : headercolumnframe
+---@field columnHeadersCreated headercolumnframe[]
+---@field HeaderTable table
+---@field NextHeader number
+---@field HeaderWidth number
+---@field HeaderHeight number
+---@field columnSelected number
+
+---@class headercolumnframe: frame
+---@field Icon texture
+---@field Text fontstring
+---@field Arrow texture
+---@field Separator texture
+---@field resizerButton button
+
+
 --mixed functions
 detailsFramework.HeaderFunctions = {
 	AddFrameToHeaderAlignment = function(self, frame)
 		self.FramesToAlign = self.FramesToAlign or {}
-		tinsert(self.FramesToAlign, frame)
+		_G.tinsert(self.FramesToAlign, frame)
 	end,
 
 	ResetFramesToHeaderAlignment = function(self)
-		wipe(self.FramesToAlign)
+		_G.wipe(self.FramesToAlign)
 	end,
 
 	SetFramesToHeaderAlignment = function(self, ...)
-		wipe(self.FramesToAlign)
+		_G.wipe(self.FramesToAlign)
 		self.FramesToAlign = {...}
 	end,
 
@@ -5097,9 +5124,9 @@ detailsFramework.HeaderFunctions = {
 		return self.FramesToAlign or {}
 	end,
 
-	--@self: an object like a line
-	--@headerFrame: the main header frame
-	--@anchor: which side the columnHeaders are attach
+	---@param self uiobject
+	---@param headerFrame headerframe
+	---@param anchor string
 	AlignWithHeader = function(self, headerFrame, anchor)
 		local columnHeaderFrames = headerFrame.columnHeadersCreated
 		anchor = anchor or "topleft"
@@ -5108,6 +5135,7 @@ detailsFramework.HeaderFunctions = {
 			local frame = self.FramesToAlign[i]
 			frame:ClearAllPoints()
 
+			---@type headercolumnframe
 			local columnHeader = columnHeaderFrames[i]
 			if (columnHeader) then
 				local offset = 0
@@ -5124,10 +5152,12 @@ detailsFramework.HeaderFunctions = {
 		end
 	end,
 
-	--@self: column header button
+	---comment
+	---@param self button
+	---@param buttonClicked string
 	OnClick = function(self, buttonClicked)
-
 		--get the header main frame
+		---@type headerframe
 		local headerFrame = self:GetParent()
 
 		--if this header does not have a clickable header, just ignore
@@ -5136,6 +5166,7 @@ detailsFramework.HeaderFunctions = {
 		end
 
 		--get the latest column header selected
+		---@type headercolumnframe
 		local previousColumnHeader = headerFrame.columnHeadersCreated[headerFrame.columnSelected]
 		previousColumnHeader.Arrow:Hide()
 		headerFrame:ResetColumnHeaderBackdrop(previousColumnHeader)
@@ -5159,13 +5190,37 @@ detailsFramework.HeaderFunctions = {
 			end
 		end
 	end,
+
+	---comment
+	---@param self button
+	---@param buttonClicked string
+	OnMouseDown = function(self, buttonClicked)
+		if (buttonClicked == "LeftButton") then
+			
+		end
+	end,
+
+	---comment
+	---@param self button
+	---@param buttonClicked string
+	OnMouseUp = function(self, buttonClicked)
+		if (buttonClicked == "LeftButton") then
+			
+		end
+	end,
 }
 
+
 detailsFramework.HeaderCoreFunctions = {
+	---@param self headerframe
+	---@param columnId number
+	---@return number
 	GetColumnWidth = function(self, columnId)
 		return self.HeaderTable[columnId].width
 	end,
 
+	---@param self headerframe
+	---@param newTable table
 	SetHeaderTable = function(self, newTable)
 		self.columnHeadersCreated = self.columnHeadersCreated or {}
 		self.HeaderTable = newTable
@@ -5176,12 +5231,14 @@ detailsFramework.HeaderCoreFunctions = {
 	end,
 
 	--return which header is current selected and the the order ASC DESC
+	---@param self headerframe
 	GetSelectedColumn = function(self)
 		return self.columnSelected, self.columnHeadersCreated[self.columnSelected or 1].order
 	end,
 
 	--clean up and rebuild the header following the header options
 	--@self: main header frame
+	---@param self headerframe
 	Refresh = function(self)
 		--refresh background frame
 		self:SetBackdrop(self.options.backdrop)
@@ -5263,7 +5320,10 @@ detailsFramework.HeaderCoreFunctions = {
 		self:SetSize(self.HeaderWidth, self.HeaderHeight)
 	end,
 
-	--@self: main header frame
+	---@param self headerframe
+	---@param columnHeader headercolumnframe
+	---@param defaultShown boolean
+	---@param defaultOrder string
 	UpdateSortArrow = function(self, columnHeader, defaultShown, defaultOrder)
 		local options = self.options
 		local order = defaultOrder or columnHeader.order
@@ -5292,7 +5352,9 @@ detailsFramework.HeaderCoreFunctions = {
 		end
 	end,
 
-	--@self: main header frame
+	---@param self headerframe
+	---@param columnHeader headercolumnframe
+	---@param headerIndex number
 	UpdateColumnHeader = function(self, columnHeader, headerIndex)
 		local headerData = self.HeaderTable[headerIndex]
 
@@ -5378,21 +5440,24 @@ detailsFramework.HeaderCoreFunctions = {
 		columnHeader.InUse = true
 	end,
 
-	--reset column header backdrop
-	--@self: main header frame
+	---reset column header backdrop
+	---@param self headerframe
+	---@param columnHeader headercolumnframe
 	ResetColumnHeaderBackdrop = function(self, columnHeader)
 		columnHeader:SetBackdrop(self.options.header_backdrop)
 		columnHeader:SetBackdropColor(unpack(self.options.header_backdrop_color))
 		columnHeader:SetBackdropBorderColor(unpack(self.options.header_backdrop_border_color))
 	end,
 
-	--@self: main header frame
+	---@param self headerframe
+	---@param columnHeader headercolumnframe
 	SetBackdropColorForSelectedColumnHeader = function(self, columnHeader)
 		columnHeader:SetBackdropColor(unpack(self.options.header_backdrop_color_selected))
 	end,
 
-	--clear the column header
-	--@self: main header frame
+	---clear the column header
+	---@param self headerframe
+	---@param columnHeader headercolumnframe
 	ClearColumnHeader = function(self, columnHeader)
 		columnHeader:SetSize(self.options.header_width, self.options.header_height)
 		self:ResetColumnHeaderBackdrop(columnHeader)
@@ -5405,16 +5470,27 @@ detailsFramework.HeaderCoreFunctions = {
 		columnHeader.Text:Hide()
 	end,
 
-	--get the next column header, create one if doesn't exists
-	--@self: main header frame
+	---get the next column header, create one if doesn't exists
+	---@param self headerframe
 	GetNextHeader = function(self)
 		local nextHeader = self.NextHeader
 		local columnHeader = self.columnHeadersCreated[nextHeader]
 
 		if (not columnHeader) then
 			--create a new column header
+			---@type headercolumnframe
 			local newHeader = CreateFrame("button", "$parentHeaderIndex" .. nextHeader, self, "BackdropTemplate")
 			newHeader:SetScript("OnClick", detailsFramework.HeaderFunctions.OnClick)
+			newHeader:SetMovable(true)
+			newHeader:SetResizable(true)
+
+			newHeader:SetScript("OnMouseDown", function()
+				print(11)
+			end)
+
+			newHeader:SetScript("OnMouseUp", function()
+				print(22) --doesn't work either
+			end)			
 
 			--header icon
 			detailsFramework:CreateImage(newHeader, "", self.options.header_height, self.options.header_height, "ARTWORK", nil, "Icon", "$parentIcon")
@@ -5424,6 +5500,33 @@ detailsFramework.HeaderCoreFunctions = {
 			detailsFramework:CreateLabel(newHeader, "", self.options.text_size, self.options.text_color, "GameFontNormal", "Text", "$parentText", "ARTWORK")
 			--header selected and order icon
 			detailsFramework:CreateImage(newHeader, self.options.arrow_up_texture, 12, 12, "ARTWORK", nil, "Arrow", "$parentArrow")
+
+			---rezise button
+			---@type button
+			local resizerButton = _G.CreateFrame("button", "$parentResizer", newHeader)
+			resizerButton:SetWidth(4)
+			resizerButton:SetFrameLevel(newHeader:GetFrameLevel()+2)
+			resizerButton:SetPoint("topright", newHeader, "topright", -1, 0)
+			resizerButton:SetPoint("bottomright", newHeader, "bottomright", -1, 0)
+			resizerButton:EnableMouse(true)
+			resizerButton:RegisterForClicks("LeftButtonDown", "LeftButtonUp")
+			newHeader.resizerButton = resizerButton
+
+			resizerButton:SetScript("OnMouseDown", function()
+				newHeader.bIsRezising = true
+				print(1)
+				--newHeader:StartSizing("right")
+			end)
+
+			resizerButton:SetScript("OnMouseUp", function()
+				newHeader.bIsRezising = false
+				print(2)
+				--newHeader:StopMovingOrSizing()
+			end)
+
+			resizerButton.texture = resizerButton:CreateTexture(nil, "overlay")
+			resizerButton.texture:SetAllPoints()
+			resizerButton.texture:SetColorTexture(1, 1, 1, 1)
 
 			newHeader.Arrow:SetPoint("right", newHeader, "right", -1, 0)
 
@@ -5480,8 +5583,10 @@ local default_header_options = {
 	line_separator_gap_align = false,
 }
 
+---@return headerframe
 function detailsFramework:CreateHeader(parent, headerTable, options, frameName)
-	local newHeader = CreateFrame("frame", frameName or "$parentHeaderLine", parent, "BackdropTemplate")
+	---@type headerframe
+	local newHeader = _G.CreateFrame("frame", frameName or "$parentHeaderLine", parent, "BackdropTemplate")
 
 	detailsFramework:Mixin(newHeader, detailsFramework.OptionsFunctions)
 	detailsFramework:Mixin(newHeader, detailsFramework.HeaderCoreFunctions)

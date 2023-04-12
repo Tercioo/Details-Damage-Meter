@@ -103,7 +103,7 @@
 ---@field SetAttribute fun(self: frame, name: string, value: any)
 ---@field SetScript fun(self: frame, event: string, handler: function)
 ---@field GetScript fun(self: frame, event: string) : function
----@field SetFrameStrata fun(self: frame, strata: framestrata|string)
+---@field SetFrameStrata fun(self: frame, strata: framestrata|"background"|"low"|"medium"|"high"|"dialog"|"fullscreen"|"fullscreen_dialog"|"tooltip")
 ---@field SetFrameLevel fun(self: frame, level: number)
 ---@field SetClampedToScreen fun(self: frame, clamped: boolean)
 ---@field SetClampRectInsets fun(self: frame, left: number, right: number, top: number, bottom: number)
@@ -116,6 +116,9 @@
 ---@field SetToplevel fun(self: frame, toplevel: boolean)
 ---@field SetPropagateKeyboardInput fun(self: frame, propagate: boolean)
 ---@field SetPropagateGamepadInput fun(self: frame, propagate: boolean)
+---@field StartMoving fun(self: frame)
+---@field StartSizing fun(self: frame, point: string)
+---@field StopMovingOrSizing fun(self: frame)
 ---@field GetAttribute fun(self: frame, name: string) : any
 ---@field GetFrameLevel fun(self: frame) : number
 ---@field GetFrameStrata fun(self: frame) : framestrata|string
@@ -150,7 +153,7 @@
 ---@field GetFontString fun(self: button) : fontstring
 ---@field SetButtonState fun(self: button, state: string, enable: boolean)
 ---@field GetButtonState fun(self: button, state: string) : boolean
----@field RegisterForClicks fun(self: button, button1: string|nil, button2: string|nil)
+---@field RegisterForClicks fun(self: button, button1: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down", button2: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down")
 
 ---@class fontstring : uiobject
 ---@field SetDrawLayer fun(self: fontstring, layer: "background"|"border"|"artwork"|"overlay"|"highlight", subLayer: number|nil)
@@ -326,6 +329,7 @@
 ---@field targets_overheal table<string, number>
 ---@field targets_absorbs table<string, number>
 ---@field id number --spellid
+---@field is_shield boolean --true if the spell is a shield
 ---@field successful_casted number successful casted times (only for enemies)
 ---@field g_amt number glacing hits
 ---@field g_dmg number

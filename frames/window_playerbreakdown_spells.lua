@@ -31,11 +31,6 @@ local spellBlockContainerSettings = {
 
 local spellBreakdownSettings = {}
 
-local row_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		insets = {left = 0, right = 0, top = 0, bottom = 0}}
-local row_backdrop_onleave = {bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
-		insets = {left = 1, right = 1, top = 0, bottom = 1}}
-
 local CONST_BAR_HEIGHT = 20
 local CONST_TARGET_HEIGHT = 18
 
@@ -82,13 +77,13 @@ local columnInfo = {
 	{name = "amount", label = "total", width = 50, align = "left", enabled = true},
 	{name = "persecond", label = "ps", width = 50, align = "left", enabled = true},
 	{name = "percent", label = "%", width = 50, align = "left", enabled = true},
-	{name = "casts", label = "casts", width = 40, align = "left", enabled = true},
-	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = true},
-	{name = "hits", label = "hits", width = 40, align = "left", enabled = true},
-	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = true},
-	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = true},
-	{name = "overheal", label = "overheal", width = 45, align = "left", enabled = true, attribute = DETAILS_ATTRIBUTE_HEAL},
-	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = true, attribute = DETAILS_ATTRIBUTE_HEAL},
+	{name = "casts", label = "casts", width = 40, align = "left", enabled = false},
+	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = false},
+	{name = "hits", label = "hits", width = 40, align = "left", enabled = false},
+	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = false},
+	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = false},
+	{name = "overheal", label = "overheal", width = 45, align = "left", enabled = false, attribute = DETAILS_ATTRIBUTE_HEAL},
+	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = false, attribute = DETAILS_ATTRIBUTE_HEAL},
 }
 
 function spellsTab.BuildHeaderTable()
@@ -187,6 +182,7 @@ end
 --called when the tab is getting created
 function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
 	spellBreakdownSettings = Details.breakdown_spell_tab
+	DetailsFramework:ApplyStandardBackdrop(tabFrame)
 
     --create the scrollbar to show the spells in the breakdown window
 	---@type breakdownspellscrollframe
@@ -209,13 +205,10 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
     spellsTab.CreateReportButtons(tabFrame)
 
 	--these bars table are kinda deprecated now:
-
     --store the spell bars for the spell container
-	tabFrame.barras1 = {}
-	--store the target bars for the target container
-	tabFrame.barras2 = {}
+	tabFrame.barras1 = {} --deprecated
 	--store the special bars shown in the right side of the breakdown window, this is only shown when spellBlocks aren't in use
-	tabFrame.barras3 = {}
+	tabFrame.barras3 = {} --deprecated
 
     spellsTab.TabFrame = tabFrame
 end
@@ -332,15 +325,6 @@ do --hide bars functions - to be refactored
         for index = 1, #allBars, 1 do
             allBars[index]:Hide()
             allBars[index].textura:SetStatusBarColor(1, 1, 1, 1)
-            allBars[index].on_focus = false
-        end
-    end
-
-    --hide all the bars of the player's targets
-    function spellsTab.HidaAllBarrasAlvo()
-        local allBars = _detalhes.playerDetailWindow.barras2
-        for index = 1, #allBars, 1 do
-            allBars[index]:Hide()
         end
     end
 
@@ -604,11 +588,11 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			blockLine1.leftText:SetText(Loc ["STRING_CAST"] .. ": " .. spellBar.amountCasts) --total amount of casts
 			blockLine1.rightText:SetText(Loc ["STRING_HITS"]..": " .. totalHits) --hits and uptime
 
-			blockLine2.leftText:SetText(Loc ["STRING_DAMAGE"]..": " .. Details:Format(spellTable.total)) --total damage
+			blockLine2.leftText:SetText(Loc ["STRING_HEAL"]..": " .. Details:Format(spellTable.total)) --total damage
 			blockLine2.rightText:SetText(Details:GetSpellSchoolFormatedName(spellTable.spellschool)) --spell school
 
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:Format(spellBar.average)) --average damage
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
+			blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
 		end
 
 		--check if there's normal hits and build the block
@@ -639,7 +623,7 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
 			local normalAveragePercent = spellBar.average / normalAverage * 100
 			local normalTempoPercent = normalAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
+			blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
 		end
 
 		---@type number
@@ -668,7 +652,36 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
 			local critAveragePercent = spellBar.average / critAverage * 100
 			local critTempoPercent = critAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
+			blockLine3.rightText:SetText(Loc ["STRING_HPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
+		end
+
+		---@type number
+		local overheal = spellTable.overheal
+		if (overheal > 0) then
+			blockIndex = blockIndex + 1 --skip one block
+			---@type breakdownspellblock
+			local critHitsBlock = spellBlockContainer:GetBlock(blockIndex)
+			critHitsBlock:Show()
+			blockIndex = blockIndex + 1
+
+			local blockName
+			if (spellTable.is_shield) then
+				blockName = Loc ["STRING_SHIELD_OVERHEAL"]
+			else
+				blockName = Loc ["STRING_OVERHEAL"]
+			end
+
+			local percent = overheal / (overheal + spellTable.total) * 100
+			critHitsBlock:SetValue(percent)
+			critHitsBlock.sparkTexture:SetPoint("left", critHitsBlock, "left", percent / 100 * critHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			critHitsBlock:SetStatusBarColor(1, 1, 1, .5)
+
+			local blockLine1, blockLine2, blockLine3 = critHitsBlock:GetLines()
+			blockLine1.leftText:SetText(blockName)
+
+			local overhealString = Details:CommaValue(overheal)
+			local overhealText = overhealString .. " / " .. string.format("%.1f", percent) .. "%"
+			blockLine1.rightText:SetText(overhealText)
 		end
 	end
 
@@ -682,74 +695,56 @@ end
 ---run this function when the mouse leaves a breakdownspellbar
 ---@param spellBar breakdownspellbar
 local onLeaveBreakdownSpellBar = function(spellBar)
-	--diminui o tamanho da barra
+	--remove effects on entering the bar line
 	spellBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
-	--volta com o alfa antigo da barra que era de 0.9
 	spellBar:SetAlpha(0.9)
-
-	--volto o background ao normal
-	spellBar:SetBackdrop(row_backdrop_onleave)
-	spellBar:SetBackdropBorderColor(0, 0, 0, 0)
-	spellBar:SetBackdropColor(0, 0, 0, 0)
 
 	GameTooltip:Hide()
 	GameCooltip:Hide()
-
-	if (spellBar.isMain) then
-		--retira o zoom no icone
-		spellBar.spellIcon:SetSize(CONST_SPELLSCROLL_LINEHEIGHT, CONST_SPELLSCROLL_LINEHEIGHT)
-		spellBar.spellIcon:SetAlpha(1)
-
-		--remover o conte�do que estava sendo mostrado na direita
-		if (breakdownWindow.mostrando_mouse_over) then
-			breakdownWindow.mostrando = nil
-			breakdownWindow.mostrando_mouse_over = false
-			breakdownWindow.showing = nil
-			breakdownWindow.jogador.detalhes = nil
-			spellsTab.HidaAllDetalheInfo()
-		end
-
-	elseif (spellBar.isAlvo) then
-		spellBar:SetHeight(CONST_TARGET_HEIGHT)
-
-	elseif (spellBar.isDetalhe) then
-		spellBar:SetHeight(16)
-	end
 end
 
 ---on mouse down a breakdownspellbar in the breakdown window
 ---@param spellBar breakdownspellbar
 ---@param button string
 local onMouseDownBreakdownSpellBar = function(spellBar, button)
-	local x, y = _G.GetCursorPosition()
-	spellBar.cursorPosX = math.floor(x)
-	spellBar.cursorPosY = math.floor(y)
-	Details222.PlayerBreakdown.OnMouseDown(spellBar, button)
+	print(1, spellBar:GetName())
+	if false then
+		local x, y = _G.GetCursorPosition()
+		spellBar.cursorPosX = math.floor(x)
+		spellBar.cursorPosY = math.floor(y)
+		Details222.PlayerBreakdown.OnMouseDown(spellBar, button)
+	end
 end
 
 ---on mouse up a breakdownspellbar in the breakdown window
 ---@param spellBar breakdownspellbar
 ---@param button string
 local onMouseUpBreakdownSpellBar = function(spellBar, button)
-	if (spellBar.onMouseUpTime == GetTime()) then
-		return
+	print(2, spellBar:GetName())
+	if false then
+		if (spellBar.onMouseUpTime == GetTime()) then
+			return
+		end
+
+		spellBar.onMouseUpTime = GetTime()
+
+		---@type number, number
+		local x, y = _G.GetCursorPosition()
+		x = math.floor(x)
+		y = math.floor(y)
+
+		---@type boolean
+		local bIsMouseInTheSamePosition = (x == spellBar.cursorPosX) and (y == spellBar.cursorPosY)
+
+		--if the mouse is in the same position, then the user clicked the bar
+		--clicking the bar activate the lock mechanism
+		if (bIsMouseInTheSamePosition) then
+			spellsTab.SelectSpellBar(spellBar)
+		end
 	end
 
-	spellBar.onMouseUpTime = GetTime()
-
-	---@type number, number
-	local x, y = _G.GetCursorPosition()
-	x = math.floor(x)
-	y = math.floor(y)
-
-	---@type boolean
-	local bIsMouseInTheSamePosition = (x == spellBar.cursorPosX) and (y == spellBar.cursorPosY)
-
-	--if the mouse is in the same position, then the user clicked the bar
-	--clicking the bar activate the lock mechanism
-	if (bIsMouseInTheSamePosition) then
-		spellsTab.SelectSpellBar(spellBar)
-	end
+	--print("selecting spell bar")
+	--spellsTab.SelectSpellBar(spellBar)
 end
 
 
@@ -1340,7 +1335,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 
 	local headerTable = {}
 
-	scrollFrame.Header = DetailsFramework:CreateHeader(scrollFrame, headerTable, headerOptions)
+	scrollFrame.Header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 0)
 
 	--create the scroll lines
@@ -1375,7 +1370,7 @@ local onEnterSpellTarget = function(targetFrame)
 	local spellId = targetFrame.spellId
 
 	---@type actor
-	local actorObject = Details:GetPlayerObjectFromBreakdownWindow()
+	local actorObject = Details:GetActorObjectFromBreakdownWindow()
 
 	local targets
 	if (targetFrame.bIsMainLine) then
@@ -1549,16 +1544,45 @@ end
 ---@param index number
 ---@return breakdownspellbar
 function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~create ~createline
+
+	if (index == 1) then
+		--on this debug the onmousedown and onmouseup are working properly because is parented to the breakdownWindow
+		--but not on the spellbar which is parented to the spellscrollframe
+		local b = CreateFrame("button", nil, breakdownWindow, "BackdropTemplate")
+		b:SetSize(64, 64)
+		b:EnableMouse(true)
+		b:RegisterForClicks("AnyUp", "AnyDown")
+		b:SetPoint("topleft", breakdownWindow, "topleft", 50, -30)
+		b:SetScript("OnMouseDown", function() print("hi") end)
+		b:SetScript("OnMouseUp", function() print("bye") end)
+		DF:ApplyStandardBackdrop(b)
+	end
+
+	local buttonTest = CreateFrame("button", self:GetName() .. "SpellBarTest" .. index, self, "BackdropTemplate")
+	buttonTest:SetSize(64, 64)
+	buttonTest:EnableMouse(true)
+	buttonTest:RegisterForClicks("AnyUp", "AnyDown")
+	buttonTest:SetFrameStrata("TOOLTIP")
+	buttonTest:SetScript("OnMouseDown", function() print("hi") end)
+	buttonTest:SetScript("OnMouseUp", function() print("bye") end)
+	DF:ApplyStandardBackdrop(buttonTest)
+
 	---@type breakdownspellbar
 	local spellBar = CreateFrame("button", self:GetName() .. "SpellBar" .. index, self, "BackdropTemplate")
-	spellBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
 	spellBar.index = index
+
+	--size and positioning
+	spellBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
 	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
 	spellBar:SetPoint("topleft", self, "topleft", 0, y)
 	spellBar:SetPoint("topright", self, "topright", 0, y)
-	spellBar:SetFrameLevel(self:GetFrameLevel() + 1)
+
+	buttonTest:SetPoint("topleft", self, "topleft", 0, y)
+
 	spellBar:EnableMouse(true)
-	spellBar:RegisterForClicks("LeftButtonDown", "RightButtonUp")
+	spellBar:RegisterForClicks("AnyUp", "AnyDown")
+	spellBar:SetAlpha(0.9)
+	spellBar:SetFrameStrata("HIGH")
 	spellBar:SetScript("OnEnter", onEnterBreakdownSpellBar)
 	spellBar:SetScript("OnLeave", onLeaveBreakdownSpellBar)
 	spellBar:SetScript("OnMouseDown", onMouseDownBreakdownSpellBar)
@@ -1567,9 +1591,11 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	spellBar.ExpandedChildren = {}
 
 	DF:Mixin(spellBar, DF.HeaderFunctions)
+	DF:Mixin(buttonTest, DF.HeaderFunctions)
 
 	---@type statusbar
 	local statusBar = CreateFrame("StatusBar", "$parentStatusBar", spellBar, "BackdropTemplate")
+	statusBar:EnableMouse(false)
 	statusBar:SetFrameLevel(spellBar:GetFrameLevel()-1)
 	statusBar:SetAllPoints()
 	statusBar:SetAlpha(0.5)
@@ -1672,90 +1698,8 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	end
 
 	spellBar:AlignWithHeader(self.Header, "left")
-
-	spellBar.on_focus = false
-
 	return spellBar
 end
-
-
---[=[
-function gump:CriaNovaBarraInfo2(instance, index) --not used on this file, used on class damage, heal, etc
-	if (_detalhes.playerDetailWindow.barras2[index]) then
-		return
-	end
-
-	local janela = info.container_alvos.gump
-
-	local newBar = CreateFrame("Button", "Details_infobox2_bar_" .. index, info.container_alvos.gump, "BackdropTemplate")
-	newBar:SetHeight(CONST_TARGET_HEIGHT)
-
-	local y = (index-1) * (CONST_TARGET_HEIGHT + 1)
-	y = y* - 1
-
-	newBar:SetPoint("LEFT", janela, "LEFT", CONST_TARGET_HEIGHT, 0)
-	newBar:SetPoint("RIGHT", janela, "RIGHT", 0, 0)
-	newBar:SetPoint("TOP", janela, "TOP", 0, y)
-	newBar:SetFrameLevel(janela:GetFrameLevel() + 1)
-	newBar:EnableMouse(true)
-	newBar:RegisterForClicks("LeftButtonDown","RightButtonUp")
-
-	--icon
-	newBar.icone = newBar:CreateTexture(nil, "OVERLAY")
-	newBar.icone:SetWidth(CONST_TARGET_HEIGHT)
-	newBar.icone:SetHeight(CONST_TARGET_HEIGHT)
-	newBar.icone:SetPoint("RIGHT", newBar, "LEFT", 0, 0)
-
-	CriaTexturaBarra(newBar)
-
-	newBar:SetAlpha(ALPHA_BLEND_AMOUNT)
-	newBar.icone:SetAlpha(1)
-
-	newBar.isAlvo = true
-
-	SetBarraScripts(newBar, instance, index)
-
-	info.barras2[index] = newBar --barra adicionada
-
-	return newBar
-end
-
-function gump:CriaNovaBarraInfo3(instance, index) --not used on this file, used on class damage, heal, etc
-	if (_detalhes.playerDetailWindow.barras3[index]) then
-		return
-	end
-
-	local janela = info.container_detalhes
-
-	local newBar = CreateFrame("button", "Details_infobox3_bar_" .. index, janela, "BackdropTemplate")
-	newBar:SetHeight(16)
-
-	local y = (index-1) * 17
-	y = y*-1
-
-	container3_bars_pointFunc(newBar, index) --what this fun does?
-	newBar:EnableMouse(true)
-
-	--icon
-	newBar.icone = newBar:CreateTexture(nil, "OVERLAY")
-	newBar.icone:SetWidth(14)
-	newBar.icone:SetHeight(14)
-	newBar.icone:SetPoint("LEFT", newBar, "LEFT", 0, 0)
-
-	CriaTexturaBarra(newBar)
-
-	newBar:SetAlpha(0.9)
-	newBar.icone:SetAlpha(1)
-
-	newBar.isDetalhe = true
-
-	SetBarraScripts(newBar, instance, index)
-
-	info.barras3[index] = newBar
-
-	return newBar
-end
---]=]
 
 -----------------------------------------------------------------------------------------------------------------------
 --> report data
