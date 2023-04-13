@@ -69,13 +69,16 @@ end
 
 function spellsTab.OnProfileChange()
 	spellsTab.spellcontainer_header_settings = Details.breakdown_spell_tab.spellcontainer_headers
-	spellsTab.UpdateHeadersSettings()
+	spellsTab.UpdateHeadersSettings("spells")
 end
+
+---@type table<table, string>
+local headerContainerType = {}
 
 ---default settings for the header of the spells container
 ---label is a localized string
 ---@type {name: string, width: number, label: string, align: string, enabled: boolean, attribute: number|nil}[]
-local columnInfo = {
+local spellContainerColumnInfo = {
 	{name = "icon", width = 22, label = "", align = "center", enabled = true,},
 	{name = "target", width = 22, label = "", align = "center", enabled = true},
 	{name = "rank", label = "#", width = 16, align = "center", enabled = true},
@@ -93,21 +96,59 @@ local columnInfo = {
 	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = false, attribute = DETAILS_ATTRIBUTE_HEAL},
 }
 
-function spellsTab.UpdateHeadersSettings()
-	--profile settings
+---callback for when the user resizes a column on the header
+---@param headerFrame headerframe
+---@param optionName string
+---@param columnName string
+---@param value any
+local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName, value)
+	---@type string
+	local containerType = headerContainerType[headerFrame]
 	---@type table
-	local settings = spellsTab.spellcontainer_header_settings
+	local settings
 
-	--do a loop and check if the column exists in the profile settings, if not, create it
-	for i = 1, #columnInfo do
+	if (containerType == "spells") then
+		settings = spellsTab.spellcontainer_header_settings
+
+	elseif (containerType == "targets") then
+
+	end
+
+	settings[columnName][optionName] = value
+
+	spellsTab.UpdateHeadersSettings(containerType)
+end
+
+---update details profile
+---copy settings from the ColumnInfo table which doesn't exists in the details profile
+---this is called when the profile changes or when the tab is opened with a different actor than before
+---@param containerType "spells"|"targets"
+function spellsTab.UpdateHeadersSettings(containerType)
+	---details table which hold the settings for a container header
+	---@type table
+	local settings
+	---@type table
+	local containerInfo
+	if (containerType == "spells") then
+		settings = spellsTab.spellcontainer_header_settings
+		containerInfo = spellContainerColumnInfo
+
+	elseif (containerType == "targets") then
+
+	end
+
+	--do a loop and check if the column data from columnInfo exists in the details profile settings, if not, add it
+	for i = 1, #containerInfo do
 		--default column settings
-		local columnData = columnInfo[i]
+		local columnData = containerInfo[i]
+		---@type string
+		local columnName = columnData.name
 		--column settings for the column on details profile
-		local columnSettings = settings[columnData.name]
+		local columnSettings = settings[columnName]
 		--check if this column does not have a mirror table in details profile
 		if (not columnSettings) then
 			--create the mirror table
-			settings[columnData.name] = {
+			settings[columnName] = {
 				enabled = columnData.enabled,
 				width = columnData.width,
 				align = columnData.align,
@@ -115,13 +156,20 @@ function spellsTab.UpdateHeadersSettings()
 		end
 	end
 
-	spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable()
-	print("headerTable = ", #spellsTab.spellsHeaderData)
-	spellsTab.SpellScrollFrame.Header:SetHeaderTable(spellsTab.spellsHeaderData)
+	if (containerType == "spells") then
+		spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable("spells")
+		spellsTab.SpellScrollFrame.Header:SetHeaderTable(spellsTab.spellsHeaderData)
+
+	elseif (containerType == "targets") then
+		spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable("targets")
+	end
 end
 
-function spellsTab.BuildHeaderTable()
-	---@type {name: string, width: number, label: string, align: string, enabled: boolean}[]
+---parse the data from details profile and build a table with the data to be used by the header
+---@param containerType "spells"|"targets"
+---@return {name: string, width: number, text: string, align: string}[]
+function spellsTab.BuildHeaderTable(containerType)
+	---@type {name: string, width: number, text: string, align: string}[]
 	local headerTable = {}
 
     ---@type instance
@@ -131,10 +179,20 @@ function spellsTab.BuildHeaderTable()
 	local mainAttribute, subAttribute = instance:GetDisplay()
 
 	--settings from profile | updated at UpdateHeadersSettings() > called on OnProfileChange() and when the tab is opened
-	local settings = spellsTab.spellcontainer_header_settings
+	local settings
 
-	for i = 1, #columnInfo do
-		local columnData = columnInfo[i]
+	---@type table
+	local containerInfo
+
+	if (containerType == "spells") then
+		settings = spellsTab.spellcontainer_header_settings
+		containerInfo = spellContainerColumnInfo
+	elseif (containerType == "targets") then
+
+	end
+
+	for i = 1, #containerInfo do
+		local columnData = containerInfo[i]
 		local columnSettings = settings[columnData.name]
 
 		if (columnSettings.enabled) then
@@ -218,7 +276,7 @@ function spellsTab.OnShownTab()
 	--reset the spell blocks
 	spellsTab.GetSpellBlockContainer():ClearBlocks()
 	--update spells header frame
-	spellsTab.UpdateHeadersSettings()
+	spellsTab.UpdateHeadersSettings("spells")
 end
 
 --called when the tab is getting created, run only once
@@ -1336,13 +1394,22 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	--~header
 	local headerOptions = {
 		padding = 2,
+
 		header_height = 14,
+		reziser_shown = true,
+		reziser_width = 2,
+		reziser_color = {.5, .5, .5, 0.7},
+		reziser_max_width = 246,
 	}
 
 	local headerTable = {}
 
 	scrollFrame.Header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 1)
+	scrollFrame.Header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
+
+	--cache the type of this container
+	headerContainerType[scrollFrame.Header] = "spells"
 
 	--create the scroll lines
 	for i = 1, CONST_SPELLSCROLL_AMTLINES do

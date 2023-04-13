@@ -76,7 +76,7 @@
 ---@field SetDuration fun(self: animationgroup, duration: number)
 ---@field SetEndDelay fun(self: animationgroup, delay: number)
 ---@field SetLooping fun(self: animationgroup, loop: boolean)
----@field SetScript fun(self: animationgroup, event: string, handler: function)
+---@field SetScript fun(self: animationgroup, event: string, handler: function) "OnEvent"|"OnShow"
 ---@field SetSmoothProgress fun(self: animationgroup, smooth: boolean)
 ---@field Stop fun(self: animationgroup)
 
@@ -117,7 +117,7 @@
 ---@field SetPropagateKeyboardInput fun(self: frame, propagate: boolean)
 ---@field SetPropagateGamepadInput fun(self: frame, propagate: boolean)
 ---@field StartMoving fun(self: frame)
----@field StartSizing fun(self: frame, point: string)
+---@field StartSizing fun(self: frame, point: "top"|"topright"|"right"|"bottomright"|"bottom"|"bottomleft"|"left"|"topleft")
 ---@field StopMovingOrSizing fun(self: frame)
 ---@field GetAttribute fun(self: frame, name: string) : any
 ---@field GetFrameLevel fun(self: frame) : number
@@ -133,6 +133,7 @@
 ---@field CreateFontString fun(self: frame, name: string|nil, layer: "background"|"border"|"artwork"|"overlay"|"highlight", inherits: string|nil, subLayer: number|nil) : fontstring
 ---@field EnableMouse fun(self: frame, enable: boolean)
 ---@field SetResizable fun(self: frame, enable: boolean)
+---@field SetResizeBounds fun(minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
 
 ---@class button : frame
 ---@field SetNormalTexture fun(self: button, texture: texture)
@@ -155,12 +156,29 @@
 ---@field GetButtonState fun(self: button, state: string) : boolean
 ---@field RegisterForClicks fun(self: button, button1: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down", button2: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down")
 
----@class fontstring : uiobject
+---@class statusbar : frame
+---@field SetStatusBarColor fun(self: statusbar, r: red|number, g: green|number, b: blue|number, a: alpha|number)
+---@field SetStatusBarTexture fun(self: statusbar, path: string)
+---@field SetMinMaxValues fun(self: statusbar, minValue: number, maxValue: number)
+---@field SetValue fun(self: statusbar, value: number)
+---@field SetValueStep fun(self: statusbar, valueStep: number)
+---@field SetOrientation fun(self: statusbar, orientation: string)
+---@field SetReverseFill fun(self: statusbar, reverseFill: boolean)
+---@field GetMinMaxValues fun(self: statusbar) : number, number
+---@field GetValue fun(self: statusbar) : number
+---@field GetValueStep fun(self: statusbar) : number
+---@field GetOrientation fun(self: statusbar) : string
+---@field GetReverseFill fun(self: statusbar) : boolean
+
+---@class region : uiobject
+
+---@class fontstring : region
 ---@field SetDrawLayer fun(self: fontstring, layer: "background"|"border"|"artwork"|"overlay"|"highlight", subLayer: number|nil)
 ---@field SetFont fun(self: fontstring, font: string, size: number, flags: string)
 ---@field SetText fun(self: fontstring, text: string|number)
 ---@field GetText fun(self: fontstring) : string
 ---@field GetFont fun(self: fontstring) : string, number, string
+---@field GetStringWidth fun(self: fontstring) : number return the width of the string in pixels
 ---@field SetShadowColor fun(self: fontstring, r: red|number, g: green|number, b: blue|number, a: alpha|number)
 ---@field GetShadowColor fun(self: fontstring) : number, number, number, number
 ---@field SetShadowOffset fun(self: fontstring, offsetX: number, offsetY: number)
@@ -171,10 +189,6 @@
 ---@field GetJustifyH fun(self: fontstring) : string
 ---@field SetJustifyV fun(self: fontstring, justifyV: string)
 ---@field GetJustifyV fun(self: fontstring) : string
----@field SetWidth fun(self: fontstring, width: number)
----@field GetWidth fun(self: fontstring) : number
----@field SetHeight fun(self: fontstring, height: number)
----@field GetHeight fun(self: fontstring) : number
 ---@field SetNonSpaceWrap fun(self: fontstring, nonSpaceWrap: boolean)
 ---@field GetNonSpaceWrap fun(self: fontstring) : boolean
 ---@field SetIndentedWordWrap fun(self: fontstring, indentedWordWrap: boolean)
@@ -205,40 +219,17 @@
 ---@field SetTextTruncateLines fun(self: fontstring, lines: number)
 ---@field GetTextTruncateLines fun(self: fontstring) : number
 
----@class statusbar : frame
----@field SetStatusBarColor fun(self: statusbar, r: red|number, g: green|number, b: blue|number, a: alpha|number)
----@field SetStatusBarTexture fun(self: statusbar, path: string)
----@field SetMinMaxValues fun(self: statusbar, minValue: number, maxValue: number)
----@field SetValue fun(self: statusbar, value: number)
----@field SetValueStep fun(self: statusbar, valueStep: number)
----@field SetOrientation fun(self: statusbar, orientation: string)
----@field SetReverseFill fun(self: statusbar, reverseFill: boolean)
----@field GetMinMaxValues fun(self: statusbar) : number, number
----@field GetValue fun(self: statusbar) : number
----@field GetValueStep fun(self: statusbar) : number
----@field GetOrientation fun(self: statusbar) : string
----@field GetReverseFill fun(self: statusbar) : boolean
-
----@class texture : uiobject
+---@class texture : region
 ---@field SetDrawLayer fun(self: texture, layer: "background"|"border"|"artwork"|"overlay"|"highlight", subLayer: number|nil)
 ---@field SetTexture fun(self: texture, path: string)
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number)
 ---@field SetDesaturated fun(self: texture, desaturate: boolean)
 ---@field SetBlendMode fun(self: texture, mode: "ADD"|"BLEND"|"DISABLE"|"MOD"|"MOD2X"|"OVERLAY"|"REPLACE"|"SUBTRACT")
 ---@field SetVertexColor fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number)
----@field SetAlpha fun(self: texture, alpha: number)
----@field GetAlpha fun(self: texture) : number
----@field SetWidth fun(self: texture, width: number)
----@field SetHeight fun(self: texture, height: number)
----@field GetWidth fun(self: texture) : number
----@field GetHeight fun(self: texture) : number
 ---@field GetPoint fun(self: texture, index: number) : string, table, string, number, number
 ---@field SetShown fun(self: texture, state: boolean)
 ---@field IsShown fun(self: texture) : boolean
----@field SetParent fun(self: texture, parent: table)
 ---@field GetParent fun(self: texture) : table
----@field SetScale fun(self: texture, scale: number)
----@field GetScale fun(self: texture) : number
 ---@field SetTexCoord fun(self: texture, left: number, right: number, top: number, bottom: number)
 ---@field GetTexCoord fun(self: texture) : number, number, number, number
 ---@field SetRotation fun(self: texture, rotation: number)

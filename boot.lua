@@ -2,6 +2,7 @@
 --global name declaration
 --local _StartDebugTime = debugprofilestop() print(debugprofilestop() - _StartDebugTime)
 --test if the packager will deploy to wago
+--https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
 
 --make an option to show death in the order of newest to oldest
 

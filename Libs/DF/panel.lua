@@ -5090,12 +5090,14 @@ end
 ---@field SetBackdropColorForSelectedColumnHeader fun(self: headerframe, columnHeader: headercolumnframe)
 ---@field ClearColumnHeader fun(self: headerframe, columnHeader: headercolumnframe)
 ---@field GetNextHeader fun(self: headerframe) : headercolumnframe
+---@field SetColumnSettingChangedCallback fun(self: headerframe, func: function) : boolean
 ---@field columnHeadersCreated headercolumnframe[]
 ---@field HeaderTable table
 ---@field NextHeader number
 ---@field HeaderWidth number
 ---@field HeaderHeight number
 ---@field columnSelected number
+---@field OnColumnSettingChangeCallback function
 
 ---@class headercolumnframe: frame
 ---@field Icon texture
@@ -5103,7 +5105,9 @@ end
 ---@field Arrow texture
 ---@field Separator texture
 ---@field resizerButton button
-
+---@field bIsRezising boolean
+---@field bInUse boolean
+---@field columnData table
 
 --mixed functions
 detailsFramework.HeaderFunctions = {
@@ -5231,6 +5235,18 @@ detailsFramework.HeaderCoreFunctions = {
 		self:Refresh()
 	end,
 
+	---@param self headerframe
+	---@param func function
+	---@return boolean
+	SetColumnSettingChangedCallback = function(self, func)
+		if (type(func) ~= "function") then
+			self.OnColumnSettingChangeCallback = nil
+			return false
+		end
+		self.OnColumnSettingChangeCallback = func
+		return true
+	end,
+
 	--return which header is current selected and the the order ASC DESC
 	---@param self headerframe
 	GetSelectedColumn = function(self)
@@ -5249,7 +5265,7 @@ detailsFramework.HeaderCoreFunctions = {
 		--reset all header frames
 		for i = 1, #self.columnHeadersCreated do
 			local columnHeader = self.columnHeadersCreated[i]
-			columnHeader.InUse = false
+			columnHeader.bInUse = false
 			columnHeader:Hide()
 		end
 
@@ -5357,13 +5373,14 @@ detailsFramework.HeaderCoreFunctions = {
 	---@param columnHeader headercolumnframe
 	---@param headerIndex number
 	UpdateColumnHeader = function(self, columnHeader, headerIndex)
-		local headerData = self.HeaderTable[headerIndex]
+		--this is the data to update the columnHeader
+		local columnData = self.HeaderTable[headerIndex]
 
-		if (headerData.icon) then
-			columnHeader.Icon:SetTexture(headerData.icon)
+		if (columnData.icon) then
+			columnHeader.Icon:SetTexture(columnData.icon)
 
-			if (headerData.texcoord) then
-				columnHeader.Icon:SetTexCoord(unpack(headerData.texcoord))
+			if (columnData.texcoord) then
+				columnHeader.Icon:SetTexCoord(unpack(columnData.texcoord))
 			else
 				columnHeader.Icon:SetTexCoord(0, 1, 0, 1)
 			end
@@ -5372,8 +5389,8 @@ detailsFramework.HeaderCoreFunctions = {
 			columnHeader.Icon:Show()
 		end
 
-		if (headerData.text) then
-			columnHeader.Text:SetText(headerData.text)
+		if (columnData.text) then
+			columnHeader.Text:SetText(columnData.text)
 
 			--text options
 			detailsFramework:SetFontColor(columnHeader.Text, self.options.text_color)
@@ -5381,7 +5398,7 @@ detailsFramework.HeaderCoreFunctions = {
 			detailsFramework:SetFontOutline(columnHeader.Text, self.options.text_shadow)
 
 			--point
-			if (not headerData.icon) then
+			if (not columnData.icon) then
 				columnHeader.Text:SetPoint("left", columnHeader, "left", self.options.padding, 0)
 			else
 				columnHeader.Text:SetPoint("left", columnHeader.Icon, "right", self.options.padding, 0)
@@ -5393,37 +5410,37 @@ detailsFramework.HeaderCoreFunctions = {
 		--column header index
 		columnHeader.columnIndex = headerIndex
 
-		if (headerData.canSort) then
+		if (columnData.canSort) then
 			columnHeader.order = "DESC"
 			columnHeader.Arrow:SetTexture(self.options.arrow_up_texture)
 		else
 			columnHeader.Arrow:Hide()
 		end
 
-		if (headerData.selected) then
+		if (columnData.selected) then
 			columnHeader.Arrow:Show()
 			columnHeader.Arrow:SetAlpha(.843)
 			self:UpdateSortArrow(columnHeader, true, columnHeader.order)
 			self.columnSelected = headerIndex
 		else
-			if (headerData.canSort) then
+			if (columnData.canSort) then
 				self:UpdateSortArrow(columnHeader, false, columnHeader.order)
 			end
 		end
 
 		--size
-		if (headerData.width) then
-			columnHeader:SetWidth(headerData.width)
+		if (columnData.width) then
+			columnHeader:SetWidth(columnData.width)
 		end
-		if (headerData.height) then
-			columnHeader:SetHeight(headerData.height)
+		if (columnData.height) then
+			columnHeader:SetHeight(columnData.height)
 		end
 
 		columnHeader.XPosition = self.HeaderWidth -- + self.options.padding
 		columnHeader.YPosition = self.HeaderHeight -- + self.options.padding
 
-		columnHeader.columnAlign = headerData.align or "left"
-		columnHeader.columnOffset = headerData.offset or 0
+		columnHeader.columnAlign = columnData.align or "left"
+		columnHeader.columnOffset = columnData.offset or 0
 
 		--add the header piece size to the total header size
 		local growDirection = string.lower(self.options.grow_direction)
@@ -5437,8 +5454,20 @@ detailsFramework.HeaderCoreFunctions = {
 			self.HeaderHeight = self.HeaderHeight + columnHeader:GetHeight() + self.options.padding
 		end
 
+		local bShowColumnHeaderReziser = self.options.reziser_shown
+		if (bShowColumnHeaderReziser) then
+			local resizerButton = columnHeader.resizerButton
+			resizerButton:Show()
+			resizerButton.texture:SetVertexColor(unpack(self.options.reziser_color))
+			resizerButton:SetWidth(self.options.reziser_width)
+			resizerButton:SetHeight(columnHeader:GetHeight())
+		else
+			columnHeader.resizerButton:Hide()
+		end
+
 		columnHeader:Show()
-		columnHeader.InUse = true
+		columnHeader.bInUse = true
+		columnHeader.columnData = columnData
 	end,
 
 	---reset column header backdrop
@@ -5480,64 +5509,90 @@ detailsFramework.HeaderCoreFunctions = {
 		if (not columnHeader) then
 			--create a new column header
 			---@type headercolumnframe
-			local newHeader = CreateFrame("button", "$parentHeaderIndex" .. nextHeader, self, "BackdropTemplate")
-			newHeader:SetScript("OnClick", detailsFramework.HeaderFunctions.OnClick)
-			newHeader:SetMovable(true)
-			newHeader:SetResizable(true)
+			columnHeader = CreateFrame("button", "$parentHeaderIndex" .. nextHeader, self, "BackdropTemplate")
+			columnHeader:SetScript("OnClick", detailsFramework.HeaderFunctions.OnClick)
+			columnHeader:SetMovable(true)
+			columnHeader:SetResizable(true)
 
-			newHeader:SetScript("OnMouseDown", function()
+			columnHeader:SetScript("OnMouseDown", function()
 				print(11)
 			end)
 
-			newHeader:SetScript("OnMouseUp", function()
+			columnHeader:SetScript("OnMouseUp", function()
 				print(22) --doesn't work either
 			end)			
 
 			--header icon
-			detailsFramework:CreateImage(newHeader, "", self.options.header_height, self.options.header_height, "ARTWORK", nil, "Icon", "$parentIcon")
+			detailsFramework:CreateImage(columnHeader, "", self.options.header_height, self.options.header_height, "ARTWORK", nil, "Icon", "$parentIcon")
 			--header separator
-			detailsFramework:CreateImage(newHeader, "", 1, 1, "ARTWORK", nil, "Separator", "$parentSeparator")
+			detailsFramework:CreateImage(columnHeader, "", 1, 1, "ARTWORK", nil, "Separator", "$parentSeparator")
 			--header name text
-			detailsFramework:CreateLabel(newHeader, "", self.options.text_size, self.options.text_color, "GameFontNormal", "Text", "$parentText", "ARTWORK")
+			detailsFramework:CreateLabel(columnHeader, "", self.options.text_size, self.options.text_color, "GameFontNormal", "Text", "$parentText", "ARTWORK")
 			--header selected and order icon
-			detailsFramework:CreateImage(newHeader, self.options.arrow_up_texture, 12, 12, "ARTWORK", nil, "Arrow", "$parentArrow")
+			detailsFramework:CreateImage(columnHeader, self.options.arrow_up_texture, 12, 12, "ARTWORK", nil, "Arrow", "$parentArrow")
 
 			---rezise button
 			---@type button
-			local resizerButton = _G.CreateFrame("button", "$parentResizer", newHeader)
+			local resizerButton = _G.CreateFrame("button", "$parentResizer", columnHeader)
 			resizerButton:SetWidth(4)
-			resizerButton:SetFrameLevel(newHeader:GetFrameLevel()+2)
-			resizerButton:SetPoint("topright", newHeader, "topright", -1, 0)
-			resizerButton:SetPoint("bottomright", newHeader, "bottomright", -1, 0)
+			resizerButton:SetFrameLevel(columnHeader:GetFrameLevel()+2)
+			resizerButton:SetPoint("topright", columnHeader, "topright", -1, -1)
+			resizerButton:SetPoint("bottomright", columnHeader, "bottomright", -1, 1)
 			resizerButton:EnableMouse(true)
 			resizerButton:RegisterForClicks("LeftButtonDown", "LeftButtonUp")
-			newHeader.resizerButton = resizerButton
+			columnHeader.resizerButton = resizerButton
 
-			resizerButton:SetScript("OnMouseDown", function()
-				newHeader.bIsRezising = true
-				print(1)
-				newHeader:StartSizing("right")
+			resizerButton:SetScript("OnEnter", function()
+				resizerButton.texture:SetVertexColor(1, 1, 1, 0.9)
+			end)
+
+			resizerButton:SetScript("OnLeave", function()
+				resizerButton.texture:SetVertexColor(unpack(self.options.reziser_color))
+			end)
+
+			resizerButton:SetScript("OnMouseDown", function() --move this to a single function
+				if (not columnHeader.bIsRezising) then
+					--get the string length to know the min size
+					local textLength = columnHeader.Text:GetStringWidth() + 6
+					columnHeader:SetResizeBounds(math.max(textLength, self.options.reziser_min_width), columnHeader:GetHeight(), self.options.reziser_max_width, columnHeader:GetHeight())
+					columnHeader.bIsRezising = true
+					columnHeader:StartSizing("right")
+				end
 			end)
 
 			resizerButton:SetScript("OnMouseUp", function()
-				newHeader.bIsRezising = false
-				print(2)
-				newHeader:StopMovingOrSizing()
+				if (columnHeader.bIsRezising) then
+					columnHeader.bIsRezising = false
+					columnHeader:StopMovingOrSizing()
+
+					--callback or modify into a passed by table?
+					if (self.OnColumnSettingChangeCallback) then --need to get the header name
+						local columnName = columnHeader.columnData.name
+						xpcall(self.OnColumnSettingChangeCallback, geterrorhandler(), self, "width", columnName, columnHeader:GetWidth())
+					end
+				end
+			end)
+
+			resizerButton:SetScript("OnHide", function()
+				if (columnHeader.bIsRezising) then
+					columnHeader:StopMovingOrSizing()
+					columnHeader.bIsRezising = false
+				end
 			end)
 
 			resizerButton.texture = resizerButton:CreateTexture(nil, "overlay")
 			resizerButton.texture:SetAllPoints()
 			resizerButton.texture:SetColorTexture(1, 1, 1, 1)
 
-			newHeader.Arrow:SetPoint("right", newHeader, "right", -1, 0)
+			columnHeader.Arrow:SetPoint("right", columnHeader, "right", -1, 0)
 
-			newHeader.Separator:Hide()
-			newHeader.Arrow:Hide()
+			columnHeader.Separator:Hide()
+			columnHeader.Arrow:Hide()
 
-			self:UpdateSortArrow(newHeader, false, "DESC")
+			self:UpdateSortArrow(columnHeader, false, "DESC")
 
-			tinsert(self.columnHeadersCreated, newHeader)
-			columnHeader = newHeader
+			tinsert(self.columnHeadersCreated, columnHeader)
+			columnHeader = columnHeader
 		end
 
 		self:ClearColumnHeader(columnHeader)
@@ -5560,6 +5615,12 @@ local default_header_options = {
 	text_shadow = false,
 	grow_direction = "RIGHT",
 	padding = 2,
+
+	reziser_shown = false, --make sure to set the callback function with: header:SetOnColumnResizeScript(callbackFunction)
+	reziser_width = 2,
+	reziser_color = {1, 0.6, 0, 0.6},
+	reziser_min_width = 16,
+	reziser_max_width = 200,
 
 	--each piece of the header
 	header_backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
