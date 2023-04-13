@@ -52,7 +52,7 @@ function spellsTab.GetCombat()
 end
 
 function spellsTab.GetInstance()
-	return spellsTab.instance
+	return spellsTab.instance or Details:GetActiveWindowFromBreakdownWindow()
 end
 
 ---return the breakdownspellscrollframe object, there's only one of this in the breakdown window
@@ -67,6 +67,13 @@ function spellsTab.GetSpellBlockContainer()
 	return spellsTab.TabFrame.SpellBlockContainer
 end
 
+function spellsTab.OnProfileChange()
+	spellsTab.spellcontainer_header_settings = Details.breakdown_spell_tab.spellcontainer_headers
+	spellsTab.UpdateHeadersSettings()
+end
+
+---default settings for the header of the spells container
+---label is a localized string
 ---@type {name: string, width: number, label: string, align: string, enabled: boolean, attribute: number|nil}[]
 local columnInfo = {
 	{name = "icon", width = 22, label = "", align = "center", enabled = true,},
@@ -86,6 +93,33 @@ local columnInfo = {
 	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = false, attribute = DETAILS_ATTRIBUTE_HEAL},
 }
 
+function spellsTab.UpdateHeadersSettings()
+	--profile settings
+	---@type table
+	local settings = spellsTab.spellcontainer_header_settings
+
+	--do a loop and check if the column exists in the profile settings, if not, create it
+	for i = 1, #columnInfo do
+		--default column settings
+		local columnData = columnInfo[i]
+		--column settings for the column on details profile
+		local columnSettings = settings[columnData.name]
+		--check if this column does not have a mirror table in details profile
+		if (not columnSettings) then
+			--create the mirror table
+			settings[columnData.name] = {
+				enabled = columnData.enabled,
+				width = columnData.width,
+				align = columnData.align,
+			}
+		end
+	end
+
+	spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable()
+	print("headerTable = ", #spellsTab.spellsHeaderData)
+	spellsTab.SpellScrollFrame.Header:SetHeaderTable(spellsTab.spellsHeaderData)
+end
+
 function spellsTab.BuildHeaderTable()
 	---@type {name: string, width: number, label: string, align: string, enabled: boolean}[]
 	local headerTable = {}
@@ -96,9 +130,14 @@ function spellsTab.BuildHeaderTable()
 	---@type number, number
 	local mainAttribute, subAttribute = instance:GetDisplay()
 
+	--settings from profile | updated at UpdateHeadersSettings() > called on OnProfileChange() and when the tab is opened
+	local settings = spellsTab.spellcontainer_header_settings
+
 	for i = 1, #columnInfo do
 		local columnData = columnInfo[i]
-		if (columnData.enabled) then
+		local columnSettings = settings[columnData.name]
+
+		if (columnSettings.enabled) then
 			local bCanAdd = true
 			if (columnData.attribute) then
 				if (columnData.attribute ~= mainAttribute) then
@@ -109,13 +148,14 @@ function spellsTab.BuildHeaderTable()
 			if (bCanAdd) then
 				headerTable[#headerTable+1] = {
 					text = columnData.label,
-					width = columnData.width,
+					width = columnSettings.width,
 					name = columnData.name,
 					--align = column.align,
 				}
 			end
 		end
 	end
+
 	return headerTable
 end
 
@@ -177,10 +217,14 @@ function spellsTab.OnShownTab()
 	spellsTab.UnSelectSpellBar()
 	--reset the spell blocks
 	spellsTab.GetSpellBlockContainer():ClearBlocks()
+	--update spells header frame
+	spellsTab.UpdateHeadersSettings()
 end
 
---called when the tab is getting created
+--called when the tab is getting created, run only once
 function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
+	spellsTab.spellcontainer_header_settings = Details.breakdown_spell_tab.spellcontainer_headers
+
 	spellBreakdownSettings = Details.breakdown_spell_tab
 	DetailsFramework:ApplyStandardBackdrop(tabFrame)
 
@@ -1206,8 +1250,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 	---@type instance
 	local instanceObject = spellsTab.GetInstance()
 
-	local headerTable = spellsTab.BuildHeaderTable()
-	scrollFrame.Header:SetHeaderTable(headerTable)
+	local headerTable = spellsTab.spellsHeaderData
 
 	local lineIndex = 1
 	for i = 1, totalLines do
@@ -1281,7 +1324,9 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	scrollFrame:SetPoint("topleft", tabFrame, "topleft", 5, -5) --need to set the points
 	scrollFrame:EnableMouse(true)
 	scrollFrame:SetMovable(true)
+	scrollFrame.DontHideChildrenOnPreRefresh = true
 	tabFrame.SpellScrollFrame = scrollFrame
+	spellsTab.SpellScrollFrame = scrollFrame
 
 	function scrollFrame:RefreshMe(data)
 		self:SetData(data)
@@ -1860,13 +1905,8 @@ function Details.InitializeSpellBreakdownTab()
 			end
 		end,
 
-		function() --[4] fill function
-			--spellsTab.JI_AtualizaContainerBarras(-1) --not in use anymore
-			spellsTab.TabFrame.no_targets:Hide() --this is nil
-			spellsTab.TabFrame.no_targets.text:Hide()
-
+		function() --[4] fill function | passing a fill function, it'll set a OnShow() script on the tabFrame | only run if the actor is different
 			spellsTab.OnShownTab()
-			--spellsTab.TrocaBackgroundInfo(spellsTab.TabFrame)
 		end,
 
 		function(tabButton, tabFrame) --[5] onclick
@@ -1893,5 +1933,12 @@ function Details.InitializeSpellBreakdownTab()
 		spellsTab.instance = instance
 		spellsTab.TabFrame.SpellScrollFrame:RefreshMe(data)
 	end
+
+	---@type detailseventlistener
+	local eventListener = Details:CreateEventListener()
+	eventListener:RegisterEvent("DETAILS_PROFILE_APPLYED", function()
+		--this event don't trigger at details startup
+		spellsTab.OnProfileChange()
+	end)
 end
 

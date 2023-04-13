@@ -426,7 +426,9 @@ detailsFramework.ScrollBoxFunctions = {
 		--hide all frames and tag as not in use
 		self._LinesInUse = 0
 		for index, frame in ipairs(self.Frames) do
-			frame:Hide()
+			if (not self.DontHideChildrenOnPreRefresh) then
+				frame:Hide()
+			end
 			frame._InUse = nil
 		end
 

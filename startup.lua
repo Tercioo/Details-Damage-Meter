@@ -15,6 +15,8 @@ function Details:StartMeUp()
 	end
 	Details.AndIWillNeverStop = true
 
+	--note: this runs after profile loaded
+
 	--set default time for arena and bg to be the Details! load time in case the client loads mid event
 	Details.lastArenaStartTime = GetTime()
 	Details.lastBattlegroundStartTime = GetTime()

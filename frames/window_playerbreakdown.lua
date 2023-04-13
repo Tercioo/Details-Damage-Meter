@@ -7,14 +7,17 @@ local gump = 			Details.gump
 local _
 local addonName, Details222 = ...
 
---lua locals
+--remove warnings in the code
 local ipairs = ipairs
-local pairs = pairs
+local tinsert = tinsert
+local tremove = tremove
 local type = type
 local unpack = _G.unpack
-
---api locals
+local PixelUtil = PixelUtil
+local UISpecialFrames = UISpecialFrames
+local wipe = wipe
 local CreateFrame = _G.CreateFrame
+
 local subAttributes = Details.sub_atributos
 local breakdownWindow = Details.playerDetailWindow
 
@@ -220,7 +223,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	--spellsTab.ResetBars() --to be implemented
 
 	---@type string
-	local actorClass = actorObject.classe
+	local actorClass = actorObject.classe --classe not registered because it should be renamed to english
 
 	if (not actorClass) then
 		actorClass = "monster"
@@ -239,7 +242,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	local tabsReplaced = {}
 	local tabReplacedAmount = 0
 
-	table.wipe(breakdownWindow.currentTabsInUse)
+	wipe(breakdownWindow.currentTabsInUse)
 
 	for index = 1, #Details.player_details_tabs do
 		local tab = Details.player_details_tabs[index]
@@ -314,16 +317,11 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	end
 end
 
-function Details:CloseBreakdownWindow(fromEscape)
+function Details:CloseBreakdownWindow()
 	if (breakdownWindow.ativo) then
-		if (fromEscape) then
-			Details.FadeHandler.Fader(breakdownWindow, "in")
-		else
-			Details.FadeHandler.Fader(breakdownWindow, 1)
-		end
-		breakdownWindow.ativo = false --sinaliza o addon que a janela esta agora fechada
+		Details.FadeHandler.Fader(breakdownWindow, 1)
 
-		--Details.info_jogador.detalhes = nil
+		breakdownWindow.ativo = false --sinaliza o addon que a janela esta agora fechada
 		breakdownWindow.jogador = nil
 		breakdownWindow.atributo = nil
 		breakdownWindow.sub_atributo = nil
@@ -331,6 +329,13 @@ function Details:CloseBreakdownWindow(fromEscape)
 
 		breakdownWindow.actorName:SetText("")
 		breakdownWindow.attributeName:SetText("")
+
+		--iterate all tabs and clear caches
+		local tabsInUse = Details:GetBreakdownTabsInUse()
+		for index = 1, #tabsInUse do
+			local tabButton = tabsInUse[index]
+			tabButton.last_actor = nil
+		end
 	end
 end
 
@@ -695,16 +700,17 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 		tabFrame:SetScript("OnShow", function()
 			---@type actor
 			local actorObject = Details:GetActorObjectFromBreakdownWindow()
-			---@type instance
-			local instanceObject = Details:GetActiveWindowFromBreakdownWindow()
-			---@type combat
-			local combatObject = instanceObject:GetCombat()
 
 			if (tabButton.last_actor == actorObject) then
 				return
 			end
 
-			tabButton.last_actor = actorObject
+			---@type instance
+			local instanceObject = Details:GetActiveWindowFromBreakdownWindow()
+			---@type combat
+			local combatObject = instanceObject:GetCombat()
+
+			tabButton.last_actor = actorObject --it's caching the actor, on pre-reset need to clean up this variable (need to check this later)
 			tabButton:fillfunction(actorObject, combatObject)
 		end)
 	end

@@ -3889,6 +3889,7 @@ function detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width
 	scroll.Frames = {}
 	scroll.ReajustNumFrames = autoAmount
 	scroll.CreateLineFunc = createLineFunc
+	scroll.DontHideChildrenOnPreRefresh = false
 
 	detailsFramework:Mixin(scroll, detailsFramework.SortFunctions)
 	detailsFramework:Mixin(scroll, detailsFramework.ScrollBoxFunctions)
@@ -5515,13 +5516,13 @@ detailsFramework.HeaderCoreFunctions = {
 			resizerButton:SetScript("OnMouseDown", function()
 				newHeader.bIsRezising = true
 				print(1)
-				--newHeader:StartSizing("right")
+				newHeader:StartSizing("right")
 			end)
 
 			resizerButton:SetScript("OnMouseUp", function()
 				newHeader.bIsRezising = false
 				print(2)
-				--newHeader:StopMovingOrSizing()
+				newHeader:StopMovingOrSizing()
 			end)
 
 			resizerButton.texture = resizerButton:CreateTexture(nil, "overlay")
