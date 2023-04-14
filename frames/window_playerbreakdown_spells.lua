@@ -75,25 +75,28 @@ end
 ---@type table<table, string>
 local headerContainerType = {}
 
+---@type number
+local columnOffset = 0
+
 ---default settings for the header of the spells container
 ---label is a localized string
----@type {name: string, width: number, label: string, align: string, enabled: boolean, attribute: number|nil}[]
+---@type {name: string, width: number, selected: boolean|nil, label: string, align: string, enabled: boolean, attribute: number|nil, canSort: boolean|nil, dataType: string|nil, order: string|nil, offset: number|nil}[]
 local spellContainerColumnInfo = {
-	{name = "icon", width = 22, label = "", align = "center", enabled = true,},
-	{name = "target", width = 22, label = "", align = "center", enabled = true},
-	{name = "rank", label = "#", width = 16, align = "center", enabled = true},
-	{name = "expand", label = "^", width = 16, align = "center", enabled = true},
-	{name = "name", label = "spell name", width = 246, align = "left", enabled = true},
-	{name = "amount", label = "total", width = 50, align = "left", enabled = true},
-	{name = "persecond", label = "ps", width = 50, align = "left", enabled = true},
-	{name = "percent", label = "%", width = 50, align = "left", enabled = true},
-	{name = "casts", label = "casts", width = 40, align = "left", enabled = false},
-	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = false},
-	{name = "hits", label = "hits", width = 40, align = "left", enabled = false},
-	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = false},
-	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = false},
-	{name = "overheal", label = "overheal", width = 45, align = "left", enabled = false, attribute = DETAILS_ATTRIBUTE_HEAL},
-	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = false, attribute = DETAILS_ATTRIBUTE_HEAL},
+	{name = "icon", width = 22, label = "", align = "center", enabled = true, offset = columnOffset},
+	{name = "target", width = 22, label = "", align = "center", enabled = true, offset = columnOffset},
+	{name = "rank", label = "#", width = 16, align = "center", enabled = true, offset = columnOffset, dataType = "number"},
+	{name = "expand", label = "^", width = 16, align = "center", enabled = true, offset = columnOffset},
+	{name = "name", label = "spell name", width = 246, align = "left", enabled = true, offset = columnOffset},
+	{name = "amount", label = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, dataType = "number", order = "DESC", offset = columnOffset},
+	{name = "persecond", label = "ps", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "percent", label = "%", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "casts", label = "casts", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "hits", label = "hits", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "overheal", label = "overheal", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 }
 
 ---callback for when the user resizes a column on the header
@@ -117,6 +120,23 @@ local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName
 	settings[columnName][optionName] = value
 
 	spellsTab.UpdateHeadersSettings(containerType)
+end
+
+---run when the user clicks the columnHeader
+---@param headerFrame headerframe
+---@param columnHeader headercolumnframe
+local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
+
+	print("column header clicked!")
+
+	---@type string
+	local containerType = headerContainerType[headerFrame]
+
+	if (containerType == "spells") then
+		spellsTab.TabFrame.SpellScrollFrame:Refresh()
+	end
+
+	--tab:fillfunction(Details:GetPlayerObjectFromBreakdownWindow(), Details:GetCombatFromBreakdownWindow())
 end
 
 ---update details profile
@@ -192,8 +212,12 @@ function spellsTab.BuildHeaderTable(containerType)
 	end
 
 	for i = 1, #containerInfo do
+		---@type {name: string, width: number, selected: boolean|nil, label: string, align: string, enabled: boolean, attribute: number|nil, canSort: boolean|nil, dataType: string|nil, order: string|nil, offset: number|nil}
 		local columnData = containerInfo[i]
+		---@type {enabled: boolean, width: number, align: string}
 		local columnSettings = settings[columnData.name]
+
+		--, canSort = true, dataType = "number", order = "DESC", offset = 0
 
 		if (columnSettings.enabled) then
 			local bCanAdd = true
@@ -205,10 +229,17 @@ function spellsTab.BuildHeaderTable(containerType)
 
 			if (bCanAdd) then
 				headerTable[#headerTable+1] = {
-					text = columnData.label,
 					width = columnSettings.width,
+					text = columnData.label,
 					name = columnData.name,
-					--align = column.align,
+
+					--these values may be nil
+					selected = columnData.selected,
+					align = columnData.align,
+					canSort = columnData.canSort,
+					dataType = columnData.dataType,
+					order = columnData.order,
+					offset = columnData.offset,
 				}
 			end
 		end
@@ -1310,6 +1341,17 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 
 	local headerTable = spellsTab.spellsHeaderData
 
+	--get which column is currently selected and the sort order
+	local columnIndex, order = scrollFrame.Header:GetSelectedColumn()
+
+	--[=[
+	if (order == "DESC") then
+		table.sort(allSpells, function (t1, t2) return t1[4] > t2[4] end)
+	else
+		table.sort(allSpells, function (t1, t2) return t1[4] < t2[4] end)
+	end
+	--]=]
+
 	local lineIndex = 1
 	for i = 1, totalLines do
 		local index = i + offset
@@ -1400,6 +1442,8 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 		reziser_width = 2,
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
+
+		header_click_callback = onColumnHeaderClickCallback,
 	}
 
 	local headerTable = {}

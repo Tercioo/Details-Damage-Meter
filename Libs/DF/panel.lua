@@ -5158,15 +5158,20 @@ detailsFramework.HeaderFunctions = {
 	end,
 
 	---comment
-	---@param self button
+	---@param columnHeader headercolumnframe
 	---@param buttonClicked string
-	OnClick = function(self, buttonClicked)
+	OnClick = function(columnHeader, buttonClicked)
 		--get the header main frame
 		---@type headerframe
-		local headerFrame = self:GetParent()
+		local headerFrame = columnHeader:GetParent()
 
 		--if this header does not have a clickable header, just ignore
 		if (not headerFrame.columnSelected) then
+			return
+		end
+
+		--check if this column has 'canSort' key, otherwise ignore the click
+		if (not columnHeader.columnData.canSort) then
 			return
 		end
 
@@ -5175,21 +5180,21 @@ detailsFramework.HeaderFunctions = {
 		local previousColumnHeader = headerFrame.columnHeadersCreated[headerFrame.columnSelected]
 		previousColumnHeader.Arrow:Hide()
 		headerFrame:ResetColumnHeaderBackdrop(previousColumnHeader)
-		headerFrame:SetBackdropColorForSelectedColumnHeader(self)
+		headerFrame:SetBackdropColorForSelectedColumnHeader(columnHeader)
 
-		if (headerFrame.columnSelected == self.columnIndex) then
-			self.order = self.order ~= "ASC" and "ASC" or "DESC"
+		if (headerFrame.columnSelected == columnHeader.columnIndex) then
+			columnHeader.order = columnHeader.order ~= "ASC" and "ASC" or "DESC"
 		end
-		headerFrame.columnOrder = self.order
+		headerFrame.columnOrder = columnHeader.order
 
 		--set the new column header selected
-		headerFrame.columnSelected = self.columnIndex
+		headerFrame.columnSelected = columnHeader.columnIndex
 
-		headerFrame:UpdateSortArrow(self)
+		headerFrame:UpdateSortArrow(columnHeader)
 
 		if (headerFrame.options.header_click_callback) then
 			--callback with the main header frame, column header, column index and column order as payload
-			local okay, errortext = pcall(headerFrame.options.header_click_callback, headerFrame, self, self.columnIndex, self.order)
+			local okay, errortext = pcall(headerFrame.options.header_click_callback, headerFrame, columnHeader, columnHeader.columnIndex, columnHeader.order)
 			if (not okay) then
 				print("DF: Header onClick callback error:", errortext)
 			end
@@ -5513,14 +5518,6 @@ detailsFramework.HeaderCoreFunctions = {
 			columnHeader:SetScript("OnClick", detailsFramework.HeaderFunctions.OnClick)
 			columnHeader:SetMovable(true)
 			columnHeader:SetResizable(true)
-
-			columnHeader:SetScript("OnMouseDown", function()
-				print(11)
-			end)
-
-			columnHeader:SetScript("OnMouseUp", function()
-				print(22) --doesn't work either
-			end)			
 
 			--header icon
 			detailsFramework:CreateImage(columnHeader, "", self.options.header_height, self.options.header_height, "ARTWORK", nil, "Icon", "$parentIcon")
