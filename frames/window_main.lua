@@ -4498,7 +4498,7 @@ function Details:SetBarSettings(height, texture, colorclass, fixedcolor, backgro
 	if (fixedcolor) then
 		local red, green, blue = gump:ParseColors(fixedcolor)
 		local color = self.row_info.fixed_texture_color
-		color[1], color[2], color[3], color[4] = red, green, blue, self.row_info.alpha
+		color[1], color[2], color[3] = red, green, blue
 	end
 
 	--background texture

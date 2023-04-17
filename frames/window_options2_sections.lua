@@ -1284,7 +1284,7 @@ do
                 get = function()
                     local r, g, b = unpack(currentInstance.row_info.fixed_texture_color)
                     local alpha = currentInstance.row_info.alpha
-                    return {r, g, b, a}
+                    return {r, g, b, alpha}
 				end,
 				set = function(self, r, g, b, a)
                     editInstanceSetting(currentInstance, "SetBarSettings", nil, nil, nil, {r, g, b})
@@ -1348,8 +1348,7 @@ do
 			{--background color
                 type = "color",
                 get = function()
-                    local r, g, b = unpack(currentInstance.row_info.fixed_texture_background_color)
-                    local alpha = currentInstance.row_info.alpha
+                    local r, g, b, a = unpack(currentInstance.row_info.fixed_texture_background_color)
                     return {r, g, b, a}
                 end,
                 set = function(self, r, g, b, a)
@@ -1906,7 +1905,7 @@ do
 			{--outline small color 10
                 type = "color",
                 get = function()
-                    local r, g, b = unpack(currentInstance.row_info.textL_outline_small_color)
+                    local r, g, b, a = unpack(currentInstance.row_info.textL_outline_small_color)
                     return {r, g, b, a}
                 end,
                 set = function(self, r, g, b, a)
@@ -2016,7 +2015,7 @@ do
 			{--outline small color 21
                 type = "color",
                 get = function()
-                    local r, g, b = unpack(currentInstance.row_info.textR_outline_small_color)
+                    local r, g, b, a = unpack(currentInstance.row_info.textR_outline_small_color)
                     return {r, g, b, a}
                 end,
                 set = function(self, r, g, b, a)
