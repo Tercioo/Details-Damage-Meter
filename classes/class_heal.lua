@@ -951,6 +951,13 @@ function atributo_heal:RefreshBarra(thisLine, instancia, from_resize)
 
 	--icon
 	self:SetClassIcon (thisLine.icone_classe, instancia, class)
+	
+	if(thisLine.mouse_over) then
+		local classIcon = thisLine:GetClassIcon()
+		thisLine.iconHighlight:SetTexture(classIcon:GetTexture())
+		thisLine.iconHighlight:SetTexCoord(classIcon:GetTexCoord())
+		thisLine.iconHighlight:SetVertexColor(classIcon:GetVertexColor())
+	end
 	--texture color
 	self:SetBarColors(thisLine, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	--left text
