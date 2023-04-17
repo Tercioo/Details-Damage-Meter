@@ -406,9 +406,8 @@ function Details222.BreakdownWindow.IsSpellExpanded(spellID)
 	return Details222.BreakdownWindow.ExpandedSpells[spellID]
 end
 
-
 ---receives spell data to show in the summary tab
----@param data table
+---@param data breakdownspelldatalist
 ---@param actorObject actor
 ---@param combatObject combat
 ---@param instance instance

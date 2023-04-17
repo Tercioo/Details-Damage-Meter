@@ -5108,6 +5108,8 @@ end
 ---@field bIsRezising boolean
 ---@field bInUse boolean
 ---@field columnData table
+---@field order string
+---@field key string used to sort the values
 
 --mixed functions
 detailsFramework.HeaderFunctions = {
@@ -5254,8 +5256,14 @@ detailsFramework.HeaderCoreFunctions = {
 
 	--return which header is current selected and the the order ASC DESC
 	---@param self headerframe
+	---@return number, string
 	GetSelectedColumn = function(self)
-		return self.columnSelected, self.columnHeadersCreated[self.columnSelected or 1].order
+		---@type number
+		local columnSelected = self.columnSelected
+		---@type headercolumnframe
+		local columnHeader = self.columnHeadersCreated[columnSelected or 1]
+
+		return columnSelected, columnHeader.order, columnHeader.key
 	end,
 
 	--clean up and rebuild the header following the header options
@@ -5277,8 +5285,10 @@ detailsFramework.HeaderCoreFunctions = {
 		local previousColumnHeader
 		local growDirection = string.lower(self.options.grow_direction)
 
-		--update header frames
+		--amount of headers to be updated
 		local headerSize = #self.HeaderTable
+
+		--update header frames
 		for i = 1, headerSize do
 			--get the header button, a new one is created if it doesn't exists yet
 			local columnHeader = self:GetNextHeader()
@@ -5380,6 +5390,8 @@ detailsFramework.HeaderCoreFunctions = {
 	UpdateColumnHeader = function(self, columnHeader, headerIndex)
 		--this is the data to update the columnHeader
 		local columnData = self.HeaderTable[headerIndex]
+
+		columnHeader.key = columnData.key or "total"
 
 		if (columnData.icon) then
 			columnHeader.Icon:SetTexture(columnData.icon)

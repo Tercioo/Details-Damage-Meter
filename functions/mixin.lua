@@ -154,7 +154,7 @@ local spellTable_FieldsToSum = {
 
 ---get the array of spelltables and sum each spellTable with the first spellTable found or on targetTable
 ---only sum the keys found in the spellTable_FieldsToSum table
----@param spellTables table<number, spelltable>[]
+---@param spellTables spelltable[]
 ---@param targetTable table
 function Details:SumSpellTables(spellTables, targetTable)
 	local amtSpellTables = #spellTables
@@ -166,10 +166,11 @@ function Details:SumSpellTables(spellTables, targetTable)
 	targetTable = targetTable or spellTables[1]
 
 	for i = 1, amtSpellTables do
-		---@type spelltable
 		local spellTable = spellTables[i]
 		if (spellTable) then
 			for key, value in pairs(spellTable) do
+				---@cast key string
+				---@cast value number
 				if (spellTable_FieldsToSum[key]) then
 					targetTable[key] = (targetTable[key] or 0) + value
 				end

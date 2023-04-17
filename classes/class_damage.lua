@@ -4517,12 +4517,13 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 		end
 	end
 
+	---@type breakdownspelldatalist
+	local breakdownSpellDataList = {}
+
 	---@type number
 	local totalDamageWithoutPet = actorObject.total_without_pet
 	---@type number
 	local actorTotal = actorObject.total
-	---@type table
-	local actorSpellsSorted = {}
 	---@type table<number, spelltable>
 	local actorSpells = actorObject:GetSpellList()
 
@@ -4539,10 +4540,9 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 	--actor spells
 	---@type table<string, number>
 	local alreadyAdded = {}
-	for spellId, spellTable in pairs(actorSpells) do
-		---@cast spellId number
-		---@cast spellTable spelltable
 
+	---@type number, spelltable
+	for spellId, spellTable in pairs(actorSpells) do
 		spellTable.ChartData = nil
 
 		---@type string
@@ -4552,7 +4552,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 			local index = alreadyAdded[spellName]
 			if (index) then
 				---@type breakdownspelldata
-				local bkSpellData = actorSpellsSorted[index]
+				local bkSpellData = breakdownSpellDataList[index]
 				bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
 				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 				bkSpellData.petNames[#bkSpellData.petNames+1] = ""
@@ -4570,8 +4570,8 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 					petNames = {""},
 				}
 
-				actorSpellsSorted[#actorSpellsSorted+1] = bkSpellData
-				alreadyAdded[spellName] = #actorSpellsSorted
+				breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
+				alreadyAdded[spellName] = #breakdownSpellDataList
 			end
 		end
 	end
@@ -4596,7 +4596,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 					local index = alreadyAdded[spellName]
 					if (index) then --PET
 						---@type breakdownspelldata
-						local bkSpellData = actorSpellsSorted[index]
+						local bkSpellData = breakdownSpellDataList[index]
 						bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
 						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 						bkSpellData.petNames[#bkSpellData.petNames+1] = petName
@@ -4613,41 +4613,38 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 							spellTables = {spellTable},
 							petNames = {petName},
 						}
-						actorSpellsSorted[#actorSpellsSorted+1] = bkSpellData
-						alreadyAdded[spellName] = #actorSpellsSorted
+						breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
+						alreadyAdded[spellName] = #breakdownSpellDataList
 					end
 				end
 			end
 		end
 	end
 
-	for i = 1, #actorSpellsSorted do
+	--copy the keys from the spelltable and add them to the breakdownspelldata
+	--repeated spells will be summed
+	for i = 1, #breakdownSpellDataList do
 		---@type breakdownspelldata
-		local bkSpellData = actorSpellsSorted[i]
+		local bkSpellData = breakdownSpellDataList[i]
 		Details:SumSpellTables(bkSpellData.spellTables, bkSpellData)
 	end
 
-	--table.sort(actorSpellsSorted, Details.Sort2)
-	table.sort(actorSpellsSorted, function(t1, t2)
-		return t1.total > t2.total
-	end)
-
-	actorSpellsSorted.totalValue = actorTotal
-	actorSpellsSorted.combatTime = actorCombatTime
-
-	--actorSpellsSorted has the spell infomation, need to pass to the summary tab
+	breakdownSpellDataList.totalValue = actorTotal
+	breakdownSpellDataList.combatTime = actorCombatTime
 
 	--cleanup
 	table.wipe(alreadyAdded)
 
 	--send to the breakdown window
-	Details222.BreakdownWindow.SendSpellData(actorSpellsSorted, actorObject, combatObject, instance)
+	Details222.BreakdownWindow.SendSpellData(breakdownSpellDataList, actorObject, combatObject, instance)
 
 	if 1 then return end
 
+	--to be deprecated and removed:
+
 	--gump:JI_AtualizaContainerBarras (#actorSpellsSorted + 1)
 
-	local max_ = actorSpellsSorted[1] and actorSpellsSorted[1][2] or 0 --dano que a primeiro magia vez
+	local max_ = breakdownSpellDataList[1] and breakdownSpellDataList[1][2] or 0 --dano que a primeiro magia vez
 	local barra
 
 	--aura bar
@@ -4661,7 +4658,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 	end
 
 	--spell bars
-	for index, tabela in ipairs(actorSpellsSorted) do
+	for index, tabela in ipairs(breakdownSpellDataList) do
 
 		--index = index + 1 --with the aura bar
 		index = index

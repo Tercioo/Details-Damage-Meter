@@ -87,16 +87,16 @@ local spellContainerColumnInfo = {
 	{name = "rank", label = "#", width = 16, align = "center", enabled = true, offset = columnOffset, dataType = "number"},
 	{name = "expand", label = "^", width = 16, align = "center", enabled = true, offset = columnOffset},
 	{name = "name", label = "spell name", width = 246, align = "left", enabled = true, offset = columnOffset},
-	{name = "amount", label = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, dataType = "number", order = "DESC", offset = columnOffset},
-	{name = "persecond", label = "ps", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "percent", label = "%", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "casts", label = "casts", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "critpercent", label = "crit %", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "hits", label = "hits", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "castavg", label = "cast avg", width = 50, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "uptime", label = "uptime", width = 45, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "overheal", label = "overheal", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
-	{name = "absorbed", label = "absorbed", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "amount", label = "total", key = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
+	{name = "persecond", label = "ps", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "ps", offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "casts", label = "casts", key = "total", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "critpercent", label = "crit %", key = "total", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "castavg", label = "cast avg", key = "total", width = 50, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "uptime", label = "uptime", key = "total", width = 45, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "overheal", label = "overheal", key = "total", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "absorbed", label = "absorbed", key = "total", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 }
 
 ---callback for when the user resizes a column on the header
@@ -1320,7 +1320,7 @@ end
 
 ---refresh the data shown in the spells scroll box
 ---@param scrollFrame table
----@param scrollData breakdownscrolldata
+---@param scrollData breakdownspelldatalist
 ---@param offset number
 ---@param totalLines number
 local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refresh
@@ -1328,7 +1328,6 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 	local maxValue = scrollData[1] and scrollData[1].total
 	---@type number
 	local totalValue = scrollData.totalValue
-
 	---@type actor
 	local actorObject = spellsTab.GetActor()
 	---@type string
@@ -1341,16 +1340,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 
 	local headerTable = spellsTab.spellsHeaderData
 
-	--get which column is currently selected and the sort order
-	local columnIndex, order = scrollFrame.Header:GetSelectedColumn()
-
-	--[=[
-	if (order == "DESC") then
-		table.sort(allSpells, function (t1, t2) return t1[4] > t2[4] end)
-	else
-		table.sort(allSpells, function (t1, t2) return t1[4] < t2[4] end)
-	end
-	--]=]
+	--todo: when swapping sort orders, close allexpanded spells
 
 	local lineIndex = 1
 	for i = 1, totalLines do
@@ -1428,11 +1418,6 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	tabFrame.SpellScrollFrame = scrollFrame
 	spellsTab.SpellScrollFrame = scrollFrame
 
-	function scrollFrame:RefreshMe(data)
-		self:SetData(data)
-		self:Refresh()
-	end
-
 	--~header
 	local headerOptions = {
 		padding = 2,
@@ -1448,7 +1433,9 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 
 	local headerTable = {}
 
-	scrollFrame.Header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
+	---@type headerframe
+	local header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
+	scrollFrame.Header = header
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 1)
 	scrollFrame.Header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
 
@@ -1458,6 +1445,44 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	--create the scroll lines
 	for i = 1, CONST_SPELLSCROLL_AMTLINES do
 		scrollFrame:CreateLine(spellsTab.CreateSpellBar)
+	end
+
+	---set the data and refresh the scrollframe
+	---@param self any
+	---@param data breakdownspelldatalist
+	function scrollFrame:RefreshMe(data)
+		--get which column is currently selected and the sort order
+		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
+
+		--here need an api from the header frame to get the key to sort
+		print("key:", key)
+
+		--pre process the data which may be used into the scroll
+
+		---@type string
+		local keyToSort = "total"
+		if (columnIndex == 1) then
+			keyToSort = "total"
+		end
+
+		if (order == "DESC") then
+			table.sort(data,
+			---@param t1 breakdownspelldata
+			---@param t2 breakdownspelldata
+			function(t1, t2)
+				return t1[keyToSort] > t2[keyToSort]
+			end)
+		else
+			table.sort(data,
+			---@param t1 breakdownspelldata
+			---@param t2 breakdownspelldata
+			function(t1, t2)
+				return t1[keyToSort] < t2[keyToSort]
+			end)
+		end
+
+		self:SetData(data)
+		self:Refresh()
 	end
 
 	return scrollFrame
@@ -2034,7 +2059,7 @@ function Details.InitializeSpellBreakdownTab()
 	spellsTab.TabFrame = tabFrame
 
 	---on receive data from a class
-	---@param data table
+	---@param data breakdownspelldatalist
 	---@param actorObject actor
 	---@param combatObject combat
 	---@param instance instance

@@ -413,6 +413,8 @@
 ---@class breakdownspellscrollframe : frame
 ---@field Header frame
 
+
+
 ---@class breakdownspellbar : button
 ---@field index number
 ---@field rank number
@@ -478,6 +480,10 @@
 ---@field spellTable spelltable
 ---@field texture texture
 ---@field bIsMainLine boolean
+
+---@class breakdownspelldatalist : breakdownspelldata[]
+---@field totalValue number
+---@field combatTime number
 
 ---@class tabframe : frame this is the tab frame object for the breakdown window
 
