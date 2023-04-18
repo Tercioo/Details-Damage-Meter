@@ -267,7 +267,7 @@ detailsFramework.SetPointMixin = {
 	end,
 }
 
---mixin for options functions
+---mixin for options
 detailsFramework.OptionsFunctions = {
 	SetOption = function(self, optionName, optionValue)
 		if (self.options) then

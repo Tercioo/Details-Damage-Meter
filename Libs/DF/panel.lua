@@ -3907,28 +3907,52 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~resizers
 
-function detailsFramework:CreateResizeGrips (parent)
+--these options are copied to the object with object:BuildOptionsTable()
+local rezieGripOptions = {
+	width = 32,
+	height = 32,
+	should_mirror_left_texture = true,
+	normal_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]],
+	highlight_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]],
+	pushed_texture = [[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]],
+}
+
+---create the two resize grips for a frame, one in the bottom left and another in the bottom right
+---@param parent frame
+---@return frame, frame
+function detailsFramework:CreateResizeGrips(parent, options, frameName)
 	if (parent) then
 		local parentName = parent:GetName()
 
-		local leftResizer = CreateFrame("button", parentName and parentName .. "LeftResizer" or nil, parent, "BackdropTemplate")
-		local rightResizer = CreateFrame("button", parentName and parentName .. "RightResizer" or nil, parent, "BackdropTemplate")
+		local leftResizer = CreateFrame("button", frameName or (parentName and "$parentLeftResizer"), parent, "BackdropTemplate")
+		local rightResizer = CreateFrame("button", frameName or (parentName and "$parentRightResizer"), parent, "BackdropTemplate")
 
-		leftResizer:SetPoint("bottomleft", parent, "bottomleft")
-		rightResizer:SetPoint("bottomright", parent, "bottomright")
-		leftResizer:SetSize(16, 16)
-		rightResizer:SetSize(16, 16)
+		parent.leftResizer = leftResizer
+		parent.rightResizer = rightResizer
 
-		rightResizer:SetNormalTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]])
-		rightResizer:SetHighlightTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]])
-		rightResizer:SetPushedTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]])
-		leftResizer:SetNormalTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]])
-		leftResizer:SetHighlightTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]])
-		leftResizer:SetPushedTexture([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]])
+		detailsFramework:Mixin(leftResizer, detailsFramework.OptionsFunctions)
+		detailsFramework:Mixin(rightResizer, detailsFramework.OptionsFunctions)
+		leftResizer:BuildOptionsTable(rezieGripOptions, options)
+		rightResizer:BuildOptionsTable(rezieGripOptions, options)
 
-		leftResizer:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
-		leftResizer:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
-		leftResizer:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
+		leftResizer:SetPoint("bottomleft", parent, "bottomleft", 0, 0)
+		rightResizer:SetPoint("bottomright", parent, "bottomright", 0, 0)
+		leftResizer:SetSize(leftResizer.options.width, leftResizer.options.height)
+		rightResizer:SetSize(leftResizer.options.width, leftResizer.options.height)
+
+		rightResizer:SetNormalTexture(rightResizer.options.normal_texture)
+		rightResizer:SetHighlightTexture(rightResizer.options.highlight_texture)
+		rightResizer:SetPushedTexture(rightResizer.options.pushed_texture)
+
+		leftResizer:SetNormalTexture(leftResizer.options.normal_texture)
+		leftResizer:SetHighlightTexture(leftResizer.options.highlight_texture)
+		leftResizer:SetPushedTexture(leftResizer.options.pushed_texture)
+
+		if (leftResizer.options.should_mirror_left_texture) then
+			leftResizer:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
+			leftResizer:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
+			leftResizer:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
+		end
 
 		return leftResizer, rightResizer
 	end

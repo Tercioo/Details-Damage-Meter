@@ -133,7 +133,8 @@
 ---@field CreateFontString fun(self: frame, name: string|nil, layer: "background"|"border"|"artwork"|"overlay"|"highlight", inherits: string|nil, subLayer: number|nil) : fontstring
 ---@field EnableMouse fun(self: frame, enable: boolean)
 ---@field SetResizable fun(self: frame, enable: boolean)
----@field SetResizeBounds fun(minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
+---@field EnableMouseWheel fun(self: frame, enable: boolean)
+---@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
 
 ---@class button : frame
 ---@field SetNormalTexture fun(self: button, texture: texture)
