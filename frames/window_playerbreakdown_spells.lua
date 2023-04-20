@@ -1258,13 +1258,28 @@ end
 ---@param tabFrame tabframe
 ---@return breakdownspellscrollframe
 function spellsTab.CreateSpellScrollContainer(tabFrame)
+	--create a container for the scrollframe
+	local options = {
+		width = CONST_SPELLSCROLL_WIDTH,
+		height = CONST_SPELLSCROLL_HEIGHT,
+		can_resize = false,
+		can_move = false,
+		can_move_children = false,
+		use_bottom_resizer = true,
+		use_right_resizer = true,
+	}
+	---@type dfframecontainer
+	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "SpellScrollContainer")
+	container:SetPoint("topleft", tabFrame, "topleft", 5, -5)
+
     --replace this with a framework scrollframe
-	local scrollFrame = DF:CreateScrollBox(tabFrame, "$parentSpellScroll", refreshFunc, {}, CONST_SPELLSCROLL_WIDTH, CONST_SPELLSCROLL_HEIGHT, CONST_SPELLSCROLL_AMTLINES, CONST_SPELLSCROLL_LINEHEIGHT)
+	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshFunc, {}, CONST_SPELLSCROLL_WIDTH, CONST_SPELLSCROLL_HEIGHT, CONST_SPELLSCROLL_AMTLINES, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(scrollFrame)
 	DF:ApplyStandardBackdrop(scrollFrame)
-	scrollFrame:SetPoint("topleft", tabFrame, "topleft", 5, -5) --need to set the points
-	scrollFrame:EnableMouse(true)
-	scrollFrame:SetMovable(true)
+	container:RegisterChildForDrag(scrollFrame)
+	scrollFrame:SetPoint("topleft", container, "topleft", 0, 0) --need to set the points
+	--scrollFrame:EnableMouse(true)
+	--scrollFrame:SetMovable(true)
 	scrollFrame.DontHideChildrenOnPreRefresh = true
 	tabFrame.SpellScrollFrame = scrollFrame
 	spellsTab.SpellScrollFrame = scrollFrame
@@ -1307,6 +1322,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 
 		--here need an api from the header frame to get the key to sort
 		print("key:", key)
+		--problem: -----
 
 		--pre process the data which may be used into the scroll
 

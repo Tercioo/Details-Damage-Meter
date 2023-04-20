@@ -121,6 +121,56 @@ function DF:Round(num, numDecimalPlaces)
 	return math.floor(num * mult + 0.5) / mult
 end
 
+local BoundingBox = {}
+BoundingBox.CoordinatesData = {
+	["topleft"] = {["x"] = 'number', ["y"] = 'number'},
+	["topright"] = {["x"] = 'number', ["y"] = 'number'},
+	["bottomleft"] = {["x"] = 'number', ["y"] = 'number'},
+	["bottomright"] = {["x"] = 'number', ["y"] = 'number'},
+	["center"] = {["x"] = 'number', ["y"] = 'number'},
+	["width"] = 'number',
+	["height"] = 'number',
+}
+
+---@class objectcoordinates
+---@field topleft {["x"]: number, ["y"]: number}
+---@field topright {["x"]: number, ["y"]: number}
+---@field bottomleft {["x"]: number, ["y"]: number}
+---@field bottomright {["x"]: number, ["y"]: number}
+---@field center {["x"]: number, ["y"]: number}
+---@field width number
+---@field height number
+---@field left number
+---@field right number
+---@field top number
+---@field bottom number
+
+---return the coordinates of the four corners of an object
+---@param object uiobject
+---@return objectcoordinates
+function DF:GetObjectCoordinates(object)
+	local centerX, centerY = object:GetCenter()
+	local width = object:GetWidth()
+	local height = object:GetHeight()
+
+	local halfWidth = width / 2
+	local halfHeight = height / 2
+
+	return {
+		["width"] = width,
+		["height"] = height,
+		["left"] = centerX - halfWidth,
+		["right"] = centerX + halfWidth,
+		["top"] = centerY + halfHeight,
+		["bottom"] = centerY - halfHeight,
+		["center"] = {x = centerX, y = centerY},
+		["topleft"] = {x = centerX - halfWidth, y = centerY + halfHeight},
+		["topright"] = {x = centerX + halfWidth, y = centerY + halfHeight},
+		["bottomleft"] = {x = centerX - halfWidth, y = centerY - halfHeight},
+		["bottomright"] = {x = centerX + halfWidth, y = centerY - halfHeight},
+	}
+end
+
 function DF:ScaleBack()
 
 end

@@ -3919,43 +3919,41 @@ local rezieGripOptions = {
 
 ---create the two resize grips for a frame, one in the bottom left and another in the bottom right
 ---@param parent frame
+---@param options table|nil
+---@param leftResizerName string|nil
+---@param rightResizerName string|nil
 ---@return frame, frame
-function detailsFramework:CreateResizeGrips(parent, options, frameName)
-	if (parent) then
-		local parentName = parent:GetName()
+function detailsFramework:CreateResizeGrips(parent, options, leftResizerName, rightResizerName)
+	local parentName = parent:GetName()
 
-		local leftResizer = CreateFrame("button", frameName or (parentName and "$parentLeftResizer"), parent, "BackdropTemplate")
-		local rightResizer = CreateFrame("button", frameName or (parentName and "$parentRightResizer"), parent, "BackdropTemplate")
+	local leftResizer = _G.CreateFrame("button", leftResizerName or (parentName and "$parentLeftResizer"), parent, "BackdropTemplate")
+	local rightResizer = _G.CreateFrame("button", rightResizerName or (parentName and "$parentRightResizer"), parent, "BackdropTemplate")
 
-		parent.leftResizer = leftResizer
-		parent.rightResizer = rightResizer
+	detailsFramework:Mixin(leftResizer, detailsFramework.OptionsFunctions)
+	detailsFramework:Mixin(rightResizer, detailsFramework.OptionsFunctions)
+	leftResizer:BuildOptionsTable(rezieGripOptions, options)
+	rightResizer:BuildOptionsTable(rezieGripOptions, options)
 
-		detailsFramework:Mixin(leftResizer, detailsFramework.OptionsFunctions)
-		detailsFramework:Mixin(rightResizer, detailsFramework.OptionsFunctions)
-		leftResizer:BuildOptionsTable(rezieGripOptions, options)
-		rightResizer:BuildOptionsTable(rezieGripOptions, options)
+	leftResizer:SetPoint("bottomleft", parent, "bottomleft", 0, 0)
+	rightResizer:SetPoint("bottomright", parent, "bottomright", 0, 0)
+	leftResizer:SetSize(leftResizer.options.width, leftResizer.options.height)
+	rightResizer:SetSize(leftResizer.options.width, leftResizer.options.height)
 
-		leftResizer:SetPoint("bottomleft", parent, "bottomleft", 0, 0)
-		rightResizer:SetPoint("bottomright", parent, "bottomright", 0, 0)
-		leftResizer:SetSize(leftResizer.options.width, leftResizer.options.height)
-		rightResizer:SetSize(leftResizer.options.width, leftResizer.options.height)
+	rightResizer:SetNormalTexture(rightResizer.options.normal_texture)
+	rightResizer:SetHighlightTexture(rightResizer.options.highlight_texture)
+	rightResizer:SetPushedTexture(rightResizer.options.pushed_texture)
 
-		rightResizer:SetNormalTexture(rightResizer.options.normal_texture)
-		rightResizer:SetHighlightTexture(rightResizer.options.highlight_texture)
-		rightResizer:SetPushedTexture(rightResizer.options.pushed_texture)
+	leftResizer:SetNormalTexture(leftResizer.options.normal_texture)
+	leftResizer:SetHighlightTexture(leftResizer.options.highlight_texture)
+	leftResizer:SetPushedTexture(leftResizer.options.pushed_texture)
 
-		leftResizer:SetNormalTexture(leftResizer.options.normal_texture)
-		leftResizer:SetHighlightTexture(leftResizer.options.highlight_texture)
-		leftResizer:SetPushedTexture(leftResizer.options.pushed_texture)
-
-		if (leftResizer.options.should_mirror_left_texture) then
-			leftResizer:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
-			leftResizer:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
-			leftResizer:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
-		end
-
-		return leftResizer, rightResizer
+	if (leftResizer.options.should_mirror_left_texture) then
+		leftResizer:GetNormalTexture():SetTexCoord(1, 0, 0, 1)
+		leftResizer:GetHighlightTexture():SetTexCoord(1, 0, 0, 1)
+		leftResizer:GetPushedTexture():SetTexCoord(1, 0, 0, 1)
 	end
+
+	return leftResizer, rightResizer
 end
 
 

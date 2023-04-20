@@ -1,4 +1,11 @@
 
+--uiobject: is an object that represents a UI element, such as a frame, a texture, or a button. UIObjects are the base class for all UI elements in the WoW API.
+--3D World: is an object which is placed behind|below all UI elements, cannot be parent of any object, in the 3D World object is where the game world is rendered
+--size: corresponds to the height and height of an object, it is measure in pixels, must be bigger than zero.
+--scale: the size of an object is multiplied by this value, it is measure in percentage, must be between 0.65 and 2.40.
+--alpha: corresponds to the transparency of an object, the bigger is the value less transparent is the object, it is measure in percentage, must be between 0 and 1, zero is fully transparent and one is fully opaque.
+
+
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)
 ---@field RegisterStateDriver fun(statedriver: frame, attribute: string, conditional: string)
@@ -34,18 +41,19 @@
 ---@class unit : string string that represents a unit in the game, such as the player, a party member, or a raid member.
 ---@class health : number amount of hit points (health) of a unit. This value can be changed by taking damage or healing.
 ---@class role : string @string(TANK, HEALER, DAMAGER, NONE) is a string that represents the role of a unit, such as tank, healer, or damage dealer.
+---@class point : string @string(topleft, topright, bottomleft, bottomright, top, bottom, left, right, center) is a string that represents a point on a frame. Points are used to position frames relative to each other.
 
 ---@class uiobject
----@field Show fun(self: uiobject)
----@field Hide fun(self: uiobject)
----@field SetShown fun(self: uiobject, state: boolean)
----@field IsShown fun(self: uiobject) : boolean
----@field SetAllPoints fun(self: uiobject)
----@field SetParent fun(self: uiobject, parent: frame)
----@field SetSize fun(self: uiobject, width: width|number, height: height|number)
----@field SetWidth fun(self: uiobject, width: width|number)
----@field SetHeight fun(self: uiobject, height: height|number)
----@field SetAlpha fun(self: uiobject, alpha: alpha|number)
+---@field Show fun(self: uiobject) make the object be shown on the user screen
+---@field Hide fun(self: uiobject) make the object be hidden from the user screen
+---@field SetShown fun(self: uiobject, state: boolean) show or hide the object
+---@field IsShown fun(self: uiobject) : boolean return if the object is shown or not
+---@field SetAllPoints fun(self: uiobject) set the object to be the same size as its parent
+---@field SetParent fun(self: uiobject, parent: frame) set the parent object of the object
+---@field SetSize fun(self: uiobject, width: width|number, height: height|number) set the width and height of the object
+---@field SetWidth fun(self: uiobject, width: width|number) set only the width of the object
+---@field SetHeight fun(self: uiobject, height: height|number) set only the height of the object
+---@field SetAlpha fun(self: uiobject, alpha: alpha|number) set the transparency of the object
 ---@field SetScale fun(self: uiobject, scale: scale|number)
 ---@field GetWidth fun(self: uiobject) : width|number
 ---@field GetHeight fun(self: uiobject) : height|number
@@ -54,6 +62,7 @@
 ---@field GetSize fun(self: uiobject) : width|number, height|number
 ---@field GetParent fun(self: uiobject) : frame
 ---@field GetPoint fun(self: uiobject, index: number): string, frame, string, number, number
+---@field GetCenter fun(self: uiobject): number, number
 ---@field SetPoint fun(self: uiobject, point: "topleft"|"topright"|"bottomleft"|"bottomright"|"top"|"bottom"|"left"|"right"|"center", relativeFrame: uiobject, relativePoint: "topleft"|"topright"|"bottomleft"|"bottomright"|"top"|"bottom"|"left"|"right"|"center", xOffset: number, yOffset: number)
 ---@field ClearAllPoints fun(self: uiobject)
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup
@@ -134,6 +143,7 @@
 ---@field EnableMouse fun(self: frame, enable: boolean)
 ---@field SetResizable fun(self: frame, enable: boolean)
 ---@field EnableMouseWheel fun(self: frame, enable: boolean)
+---@field RegisterForDrag fun(self: frame, button: string)
 ---@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
 
 ---@class button : frame
@@ -156,6 +166,10 @@
 ---@field SetButtonState fun(self: button, state: string, enable: boolean)
 ---@field GetButtonState fun(self: button, state: string) : boolean
 ---@field RegisterForClicks fun(self: button, button1: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down", button2: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down")
+---@field GetNormalTexture fun(self: button) : texture
+---@field GetPushedTexture fun(self: button) : texture
+---@field GetHighlightTexture fun(self: button) : texture
+---@field GetDisabledTexture fun(self: button) : texture
 
 ---@class statusbar : frame
 ---@field SetStatusBarColor fun(self: statusbar, r: red|number, g: green|number, b: blue|number, a: alpha|number)
