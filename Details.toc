@@ -114,6 +114,7 @@ frames\window_statistics.lua
 frames\window_aura_tracker.lua
 
 classes\class_error.lua
+classes\class_spelltable.lua
 classes\class_combat.lua
 classes\class_damage.lua
 classes\class_spelldamage.lua

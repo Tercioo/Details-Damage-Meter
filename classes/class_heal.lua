@@ -1975,7 +1975,7 @@ function atributo_heal:MontaInfoHealingDone()
 	for i = 1, #actorSpellsSorted do
 		---@type breakdownspelldata
 		local bkSpellData = actorSpellsSorted[i]
-		Details:SumSpellTables(bkSpellData.spellTables, bkSpellData)
+		Details.SpellTableMixin.SumSpellTables(bkSpellData.spellTables, bkSpellData)
 	end
 
 	--table.sort(actorSpellsSorted, Details.Sort2)

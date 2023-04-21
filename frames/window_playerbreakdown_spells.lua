@@ -14,7 +14,7 @@ local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
 
---Expose the object to the global namespace
+--expose the object to the global namespace
 DetailsSpellBreakdownTab = spellsTab
 
 local iconTableSummary = {
@@ -43,14 +43,17 @@ Details.SpellGroups = {
 	[193473] = 15407, --mind flay
 }
 
+---@return actor
 function spellsTab.GetActor()
 	return spellsTab.currentActor
 end
 
+---@return combat
 function spellsTab.GetCombat()
 	return spellsTab.combatObject
 end
 
+---@return instance
 function spellsTab.GetInstance()
 	return spellsTab.instance or Details:GetActiveWindowFromBreakdownWindow()
 end
@@ -101,9 +104,9 @@ local spellContainerColumnInfo = {
 	{name = "name", label = "spell name", width = 246, align = "left", enabled = true, offset = columnOffset},
 	{name = "amount", label = "total", key = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
 	{name = "persecond", label = "ps", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "ps", offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "percent", label = "%", key = "percent", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "casts", label = "casts", key = "casts", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "critpercent", label = "crit %", key = "total", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "critpercent", label = "crit %", key = "critpercent", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "castavg", label = "cast avg", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "uptime", label = "uptime", key = "total", width = 45, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
@@ -533,7 +536,7 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			critHitsBlock:Show()
 			blockIndex = blockIndex + 1
 
-			local percent = criticalHitsAmt / math.max(totalHits, 0.0001) * 100
+			local percent = Details.SpellTableMixin.GetCritPercent(spellTable)
 			critHitsBlock:SetValue(percent)
 			critHitsBlock.sparkTexture:SetPoint("left", critHitsBlock, "left", percent / 100 * critHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
 			critHitsBlock:SetStatusBarColor(1, 1, 1, .5)
@@ -545,7 +548,7 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_min))
 			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_max))
 
-			local critAverage = spellTable.c_total / math.max(criticalHitsAmt, 0.0001)
+			local critAverage = Details.SpellTableMixin.GetCritAverage(spellTable)
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(critAverage))
 
 			local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
@@ -1346,15 +1349,24 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
 
-		--key = "casts", key = "percent",
-		--at this stage, data does not have the information about amount of casts and percent, it only has the total value, how to solve this?
-		--need to pre process the data before sorting it
-		--key "total" is workng as intended
+		--examples of values from key: "casts", "percent", "total"
 
 		---@type string
-		local keyToSort = "total"
-		if (columnIndex == 1) then
-			keyToSort = "total"
+		local keyToSort = key
+		if (keyToSort == "critpercent") then
+			for i = 1, #data do
+				---@type breakdownspelldata
+				local bkSpellData = data[i]
+				--as the bkSpellData is a copy from the actual spelltable from the actor spell, it can have methods inherited from spelltablemixin
+				bkSpellData.critpercent = bkSpellData:GetCritPercent()
+			end
+
+		elseif (keyToSort == "casts") then
+			for i = 1, #data do
+				---@type breakdownspelldata
+				local bkSpellData = data[i]
+				bkSpellData.casts = bkSpellData:GetCastsAmount(spellsTab.GetActor():Name(), spellsTab.GetCombat())
+			end
 		end
 
 		if (order == "DESC") then

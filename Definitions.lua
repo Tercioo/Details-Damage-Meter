@@ -284,7 +284,6 @@
 ---@field GetCombat fun(self: details) : combat
 ---@field GetSpellSchoolFormatedName fun(self: details, spellschool: number) : string
 ---@field CommaValue fun(self: details, number: number) : string
----@field SumSpellTables fun(self: details, spellTables: spelltable[], targetTable: table)
 ---@field CreateEventListener fun(self: details) : table
 
 ---@class detailseventlistener : table
@@ -301,9 +300,9 @@
 ---@field GetEndTime fun(combat: combat, time: number)
 ---@field SetEndTime fun(combat: combat, time: number)
 ---@field CopyDeathsFrom fun(combat1: combat, combat2: combat, bMythicPlus: boolean) copy the deaths from combat2 to combat1, use true on bMythicPlus if the combat is from a mythic plus run
----@field GetContainer fun(combat: combat, containerType: number) get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
----@field GetSpellCastAmount fun(combat: combat, actorName: string, spellId: number) get the amount of times a spell was casted
----@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) get the uptime of a buff or debuff
+---@field GetContainer fun(combat: combat, containerType: number) : table get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
+---@field GetSpellCastAmount fun(combat: combat, actorName: string, spellId: number) : number get the amount of times a spell was casted
+---@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
 ---@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
@@ -459,7 +458,7 @@
 ---@field AddFrameToHeaderAlignment fun(self: breakdownspellbar, frame: uiobject)
 ---@field AlignWithHeader fun(self: breakdownspellbar, header: table, align: string|"left")
 
----@class breakdownspelldata : table
+---@class breakdownspelldata : table, spelltablemixin
 ---@field id number main spellId to be used on the tooltip, name and icon
 ---@field total number total done by the spell
 ---@field counter number amount of hits

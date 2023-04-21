@@ -3339,8 +3339,11 @@ function DF:OpenInterfaceProfile()
 end
 
 -----------------------------
---safe copy from blizz api
-function DF:Mixin(object, ...)
+---copy all members from #2 ... to #1 object
+---@param object table
+---@param ... any
+---@return any
+function DF:Mixin(object, ...) --safe copy from blizz api
 	for i = 1, select("#", ...) do
 		local mixin = select(i, ...)
 		for key, value in pairs(mixin) do
