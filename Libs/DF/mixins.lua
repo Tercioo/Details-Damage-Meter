@@ -268,7 +268,7 @@ detailsFramework.SetPointMixin = {
 }
 
 ---mixin for options
----@class dfoptionsmixin
+---@class df_optionsmixin
 detailsFramework.OptionsFunctions = {
 	SetOption = function(self, optionName, optionValue)
 		if (self.options) then

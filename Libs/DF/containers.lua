@@ -11,7 +11,7 @@ local CreateFrame = CreateFrame
 local wipe = wipe
 local unpack = unpack
 
----@class dfframecontainer : frame, dfframecontainermixin, dfoptionsmixin
+---@class dfframecontainer : frame, dfframecontainermixin, df_optionsmixin
 ---@field bIsSizing boolean
 ---@field options table
 ---@field currentWidth number

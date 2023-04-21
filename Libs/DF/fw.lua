@@ -827,35 +827,34 @@ end
 ---@param value number
 ---@return string
 function DF:IntegerToTimer(value) --~formattime
-	return "" .. floor(value/60) .. ":" .. format("%02.f", value%60)
+	return "" .. math.floor(value/60) .. ":" .. string.format("%02.f", value%60)
 end
 
 ---remove the realm name from a name
 ---@param name string
----@return string
+---@return string, number
 function DF:RemoveRealmName(name)
 	return name:gsub(("%-.*"), "")
 end
 
 ---remove the realm name from a name
 ---@param name string
----@return string
+---@return string, number
 function DF:RemoveRealName(name)
 	return name:gsub(("%-.*"), "")
 end
 
 ---get the UIObject of type 'FontString' named fontString and set the font size to the maximum value of the arguments
----@param fontString FontString
+---@param fontString fontstring
 ---@vararg number
 function DF:SetFontSize(fontString, ...)
 	local font, _, flags = fontString:GetFont()
-	fontString:SetFont(font, max(...), flags)
+	fontString:SetFont(font, math.max(...), flags)
 end
 
 ---get the UIObject of type 'FontString' named fontString and set the font to the argument fontface
----@param fontString FontString
+---@param fontString fontstring
 ---@param fontface string
----@return nil
 function DF:SetFontFace(fontString, fontface)
 	local font = SharedMedia:Fetch("font", fontface, true)
 	if (font) then
@@ -867,26 +866,24 @@ function DF:SetFontFace(fontString, fontface)
 end
 
 ---get the FontString passed and set the font color
----@param fontString FontString
+---@param fontString fontstring
 ---@param r any
 ---@param g number|nil
 ---@param b number|nil
 ---@param a number|nil
----@return nil
 function DF:SetFontColor(fontString, r, g, b, a)
 	r, g, b, a = DF:ParseColors(r, g, b, a)
 	fontString:SetTextColor(r, g, b, a)
 end
 
 ---get the FontString passed and set the font shadow color and offset
----@param fontString FontString
+---@param fontString fontstring
 ---@param r number
 ---@param g number
 ---@param b number
 ---@param a number
 ---@param x number
 ---@param y number
----@return nil
 function DF:SetFontShadow(fontString, r, g, b, a, x, y)
 	r, g, b, a = DF:ParseColors(r, g, b, a)
 	fontString:SetShadowColor(r, g, b, a)
@@ -899,9 +896,8 @@ function DF:SetFontShadow(fontString, r, g, b, a, x, y)
 end
 
 ---get the FontString object passed and set the rotation of the text shown
----@param fontString FontString
+---@param fontString fontstring
 ---@param degrees number
----@return nil
 function DF:SetFontRotation(fontString, degrees)
 	if (type(degrees) == "number") then
 		if (not fontString.__rotationAnimation) then

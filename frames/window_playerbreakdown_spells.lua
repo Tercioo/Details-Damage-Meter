@@ -78,9 +78,21 @@ local headerContainerType = {}
 ---@type number
 local columnOffset = 0
 
----default settings for the header of the spells container
----label is a localized string
----@type {name: string, width: number, selected: boolean|nil, label: string, align: string, enabled: boolean, attribute: number|nil, canSort: boolean|nil, dataType: string|nil, order: string|nil, offset: number|nil}[]
+---@class headercolumndatasaved : {enabled: boolean, width: number, align: string}
+local settingsPrototype = {
+	enabled = true,
+	width = 100,
+	align = "left",
+}
+
+---headercolumndata goes inside the header table which is passed to the header constructor or header:SetHeaderTable()
+---@class headercolumndata : {name:string, width:number, text:string, align:string, key:string, selected:boolean, canSort:boolean, dataType:string, order:string, offset:number, key:string}
+
+---columndata is the raw table with all options which can be used to create a headertable, some may not be used due to settings or filtering
+---@class columndata : {name:string, width:number, key:string, selected:boolean, label:string, align:string, enabled:boolean, attribute:number, canSort:boolean, dataType:string, order:string, offset:number}
+
+---default settings for the header of the spells container, label is a localized string, name is a string used to save the column settings, key is the key used to get the value from the spell table, width is the width of the column, align is the alignment of the text, enabled is if the column is enabled, canSort is if the column can be sorted, sortKey is the key used to sort the column, dataType is the type of data the column is sorting, order is the order of the sorting, offset is the offset of the column
+---@type columndata[]
 local spellContainerColumnInfo = {
 	{name = "icon", width = 22, label = "", align = "center", enabled = true, offset = columnOffset},
 	{name = "target", width = 22, label = "", align = "center", enabled = true, offset = columnOffset},
@@ -89,18 +101,18 @@ local spellContainerColumnInfo = {
 	{name = "name", label = "spell name", width = 246, align = "left", enabled = true, offset = columnOffset},
 	{name = "amount", label = "total", key = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
 	{name = "persecond", label = "ps", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "ps", offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "casts", label = "casts", key = "total", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "critpercent", label = "crit %", key = "total", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "castavg", label = "cast avg", key = "total", width = 50, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "uptime", label = "uptime", key = "total", width = 45, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "percent", label = "%", key = "percent", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "casts", label = "casts", key = "casts", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "critpercent", label = "crit %", key = "total", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "castavg", label = "cast avg", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "uptime", label = "uptime", key = "total", width = 45, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "overheal", label = "overheal", key = "total", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 	{name = "absorbed", label = "absorbed", key = "total", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 }
 
 ---callback for when the user resizes a column on the header
----@param headerFrame headerframe
+---@param headerFrame df_headerframe
 ---@param optionName string
 ---@param columnName string
 ---@param value any
@@ -123,8 +135,8 @@ local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName
 end
 
 ---run when the user clicks the columnHeader
----@param headerFrame headerframe
----@param columnHeader headercolumnframe
+---@param headerFrame df_headerframe
+---@param columnHeader df_headercolumnframe
 local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
 
 	print("column header clicked!")
@@ -163,16 +175,21 @@ function spellsTab.UpdateHeadersSettings(containerType)
 		local columnData = containerInfo[i]
 		---@type string
 		local columnName = columnData.name
+
 		--column settings for the column on details profile
+		---@type headercolumndatasaved
 		local columnSettings = settings[columnName]
+
 		--check if this column does not have a mirror table in details profile
 		if (not columnSettings) then
-			--create the mirror table
-			settings[columnName] = {
-				enabled = columnData.enabled,
-				width = columnData.width,
-				align = columnData.align,
-			}
+			--create a table in Details! saved variables to save the column settings
+			---@type headercolumndatasaved
+			local newColumnSettings = DetailsFramework.table.copy({}, settingsPrototype)
+			settings[columnName] = newColumnSettings
+
+			newColumnSettings.enabled = columnData.enabled
+			newColumnSettings.width = columnData.width
+			newColumnSettings.align = columnData.align
 		end
 	end
 
@@ -189,7 +206,7 @@ end
 ---@param containerType "spells"|"targets"
 ---@return {name: string, width: number, text: string, align: string}[]
 function spellsTab.BuildHeaderTable(containerType)
-	---@type {name: string, width: number, text: string, align: string}[]
+	---@type headercolumndata[]
 	local headerTable = {}
 
     ---@type instance
@@ -207,12 +224,12 @@ function spellsTab.BuildHeaderTable(containerType)
 	if (containerType == "spells") then
 		settings = spellsTab.spellcontainer_header_settings
 		containerInfo = spellContainerColumnInfo
+
 	elseif (containerType == "targets") then
 
 	end
 
 	for i = 1, #containerInfo do
-		---@type {name: string, width: number, selected: boolean|nil, label: string, align: string, enabled: boolean, attribute: number|nil, canSort: boolean|nil, dataType: string|nil, order: string|nil, offset: number|nil}
 		local columnData = containerInfo[i]
 		---@type {enabled: boolean, width: number, align: string}
 		local columnSettings = settings[columnData.name]
@@ -228,7 +245,11 @@ function spellsTab.BuildHeaderTable(containerType)
 			end
 
 			if (bCanAdd) then
-				headerTable[#headerTable+1] = {
+				--print("key added:", columnData.key)
+				--key = "casts", key = "percent",
+
+				---@type headercolumndata
+				local headerColumnData = {
 					width = columnSettings.width,
 					text = columnData.label,
 					name = columnData.name,
@@ -240,8 +261,13 @@ function spellsTab.BuildHeaderTable(containerType)
 					dataType = columnData.dataType,
 					order = columnData.order,
 					offset = columnData.offset,
+					key = columnData.key,
 				}
+
+				headerTable[#headerTable+1] = headerColumnData
 			end
+		else
+			--targets
 		end
 	end
 
@@ -343,7 +369,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
     spellsTab.TabFrame = tabFrame
 
 	--open the breakdown window at startup
-	--[=[
+	--[=
 	C_Timer.After(1, function()
 		Details:OpenPlayerDetails(1)
 		C_Timer.After(1, function()
@@ -1299,7 +1325,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 
 	local headerTable = {}
 
-	---@type headerframe
+	---@type df_headerframe
 	local header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
 	scrollFrame.Header = header
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 1)
@@ -1320,11 +1346,10 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
 
-		--here need an api from the header frame to get the key to sort
-		print("key:", key)
-		--problem: -----
-
-		--pre process the data which may be used into the scroll
+		--key = "casts", key = "percent",
+		--at this stage, data does not have the information about amount of casts and percent, it only has the total value, how to solve this?
+		--need to pre process the data before sorting it
+		--key "total" is workng as intended
 
 		---@type string
 		local keyToSort = "total"
