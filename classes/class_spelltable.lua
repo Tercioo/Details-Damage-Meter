@@ -33,8 +33,9 @@ local spellTable_FieldsToSum = {
 ---@class spelltablemixin
 ---@field GetCritPercent fun(spellTable: spelltable) : number
 ---@field GetCritAverage fun(spellTable: spelltable) : number
+---@field GetCastAmount fun(spellTable: spelltable, actorName: string, combatObject: combat)
+---@field GetCastAverage fun(spellTable: spelltable, castAmount: number)
 ---@field SumSpellTables fun(spellTables: spelltable[], targetTable: table)
----@field GetCastsAmount fun(spellTable: spelltable, actorName: string, combatObject: combat)
 
 Details.SpellTableMixin = {
     ---return the critical hits percent
@@ -56,8 +57,19 @@ Details.SpellTableMixin = {
     ---@param actorName string
     ---@param combatObject combat
     ---@return number
-    GetCastsAmount = function(spellTable, actorName, combatObject)
+    GetCastAmount = function(spellTable, actorName, combatObject)
         return combatObject:GetSpellCastAmount(actorName, spellTable.id)
+    end,
+
+    ---return the average damage per cast
+    ---@param spellTable spelltable
+    ---@param castAmount number
+    ---@return number
+    GetCastAverage = function(spellTable, castAmount)
+        if (castAmount > 0) then
+            return spellTable.total / castAmount
+        end
+        return 0
     end,
 
     ---get the array of spelltables and sum each spellTable with the first spellTable found or on targetTable

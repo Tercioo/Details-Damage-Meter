@@ -361,7 +361,7 @@
 ---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
 ---@field GetSpellList fun(actor: actor) : table<number, spelltable>
----@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: breakdownspelldata) : table
+---@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table
 ---@field BuildSpellTargetFromSpellTable fun(actor: actor, spellTable: spelltable) : table
 ---@field debuff_uptime_spells table
 ---@field buff_uptime_spells table
@@ -419,7 +419,7 @@
 ---@class breakdownscrolldata : table
 ---@field totalValue number total done by the actor
 ---@field combatTime number
----@field [breakdownspelldata] breakdownspelldata indexed part of the table
+---@field [spelltableadv] spelltableadv indexed part of the table
 
 ---@class breakdownexpandbutton : button
 ---@field texture texture
@@ -444,7 +444,7 @@
 ---@field cursorPosX number mouse position when the spellbar got OnMouseDown event
 ---@field cursorPosY number mouse position when the spellbar got OnMouseDown event
 ---@field spellTable spelltable
----@field bkSpellData breakdownspelldata
+---@field bkSpellData spelltableadv
 ---@field statusBar statusbar
 ---@field expandButton breakdownexpandbutton
 ---@field spellIconFrame frame
@@ -458,11 +458,8 @@
 ---@field AddFrameToHeaderAlignment fun(self: breakdownspellbar, frame: uiobject)
 ---@field AlignWithHeader fun(self: breakdownspellbar, header: table, align: string|"left")
 
----@class breakdownspelldata : table, spelltablemixin
----@field id number main spellId to be used on the tooltip, name and icon
----@field total number total done by the spell
----@field counter number amount of hits
----@field spellschool number the school of the spell
+---spelltableadv is similar to spelltable but allow custom members, methods and any modification isn't save to saved variables
+---@class spelltableadv : spelltable, spelltablemixin
 ---@field expanded boolean if is true the show the nested spells
 ---@field spellTables spelltable[]
 ---@field spellIds number[]
@@ -470,32 +467,15 @@
 ---@field bCanExpand boolean
 ---@field expandedIndex number
 ---@field bIsExpanded boolean
----@field c_amt number critical hits
----@field c_min number
----@field c_max number
----@field c_total number
----@field n_amt number normal hits
----@field n_total number total damage made by normal hits
----@field n_min number min damage made by normal hits
----@field n_max number max damage made by normal hits
----@field successful_casted number successful casted times (only for enemies)
----@field g_amt number glacing hits
----@field g_dmg number
----@field r_amt number --resisted
----@field r_dmg number
----@field b_amt number --blocked
----@field b_dmg number
----@field a_amt number --absorved
----@field a_dmg number
 
 ---@class breakdowntargetframe : frame
 ---@field spellId number
----@field bkSpellData breakdownspelldata
+---@field bkSpellData spelltableadv
 ---@field spellTable spelltable
 ---@field texture texture
 ---@field bIsMainLine boolean
 
----@class breakdownspelldatalist : breakdownspelldata[]
+---@class breakdownspelldatalist : spelltableadv[]
 ---@field totalValue number
 ---@field combatTime number
 

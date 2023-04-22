@@ -53,9 +53,9 @@ Details222.Mixins.ActorMixin = {
 		return actor.spells._ActorTable
 	end,
 
-	---this function sums all the targets of all spellTables conteining on a 'breakdownspelldata'
+	---this function sums all the targets of all spellTables conteining on a 'spelltableadv'
 	---@param actor actor
-	---@param bkSpellData breakdownspelldata
+	---@param bkSpellData spelltableadv
 	---@param targetTableName string
 	---@return table<string, number>
 	BuildSpellTargetFromBreakdownSpellData = function(actor, bkSpellData, targetTableName)

@@ -34,7 +34,7 @@ local spellBreakdownSettings = {}
 local CONST_BAR_HEIGHT = 20
 local CONST_TARGET_HEIGHT = 18
 
-local CONST_SPELLSCROLL_WIDTH = 435
+local CONST_SPELLSCROLL_WIDTH = 535
 local CONST_SPELLSCROLL_HEIGHT = 311
 local CONST_SPELLSCROLL_AMTLINES = 14
 local CONST_SPELLSCROLL_LINEHEIGHT = 20
@@ -108,10 +108,10 @@ local spellContainerColumnInfo = {
 	{name = "casts", label = "casts", key = "casts", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "critpercent", label = "crit %", key = "critpercent", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "castavg", label = "cast avg", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "uptime", label = "uptime", key = "total", width = 45, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "overheal", label = "overheal", key = "total", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
-	{name = "absorbed", label = "absorbed", key = "total", width = 45, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "castavg", label = "cast avg", key = "castavg", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "uptime", label = "uptime", key = "uptime", width = 45, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
+	{name = "overheal", label = "overheal", key = "overheal", width = 55, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "absorbed", label = "absorbed", key = "healabsorbed", width = 55, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 }
 
 ---callback for when the user resizes a column on the header
@@ -141,17 +141,12 @@ end
 ---@param headerFrame df_headerframe
 ---@param columnHeader df_headercolumnframe
 local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
-
-	print("column header clicked!")
-
 	---@type string
 	local containerType = headerContainerType[headerFrame]
 
 	if (containerType == "spells") then
 		spellsTab.TabFrame.SpellScrollFrame:Refresh()
 	end
-
-	--tab:fillfunction(Details:GetPlayerObjectFromBreakdownWindow(), Details:GetCombatFromBreakdownWindow())
 end
 
 ---update details profile
@@ -381,24 +376,6 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
 		end)
 	end)
 	--]=]
-end
-
-function spellsTab.CreateReportButtons(tabFrame)
-    --spell list report button
-	tabFrame.report_esquerda = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 1, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
-	tabFrame.report_esquerda:SetPoint("bottomleft", tabFrame.SpellScrollFrame, "TOPLEFT",  33, 3)
-	tabFrame.report_esquerda:SetFrameLevel(tabFrame:GetFrameLevel()+2)
-	tabFrame.topleft_report = tabFrame.report_esquerda
-
-	--targets report button
-	tabFrame.report_alvos = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 3, 16, 16,	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
-	tabFrame.report_alvos:SetPoint("bottomright", tabFrame.container_alvos, "TOPRIGHT",  -2, -1)
-	tabFrame.report_alvos:SetFrameLevel(3) --solved inactive problem
-
-	--special barras in the right report button
-	tabFrame.report_direita = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 2, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
-	tabFrame.report_direita:SetPoint("TOPRIGHT", tabFrame, "TOPRIGHT",  -10, -70)
-	tabFrame.report_direita:Show()
 end
 
 ----------------------------------------------------------------------
@@ -645,7 +622,7 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 		end
 
 		---@type number
-		local overheal = spellTable.overheal
+		local overheal = spellTable.overheal or 0
 		if (overheal > 0) then
 			blockIndex = blockIndex + 1 --skip one block
 			---@type breakdownspellblock
@@ -994,7 +971,7 @@ end
 ---@param combatObject combat
 ---@param scrollFrame table
 ---@param headerTable table
----@param bkSpellData breakdownspelldata
+---@param bkSpellData spelltableadv
 ---@param bkSpellStableIndex number
 ---@param totalValue number
 ---@param maxValue number
@@ -1051,7 +1028,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		spellBar.spellIconFrame.spellId = spellId
 
 		--statusbar size by percent, statusbar color by school
-		spellBar.statusBar:SetValue(value / maxValue * 100)
+		if (maxValue > 0) then
+			spellBar.statusBar:SetValue(value / maxValue * 100)
+		else
+			spellBar.statusBar:SetValue(0)
+		end
+
 		local r, g, b = Details:GetSpellSchoolColor(spellTable.spellschool or 1)
 		spellBar.statusBar:SetStatusBarColor(r, g, b, 1)
 
@@ -1130,12 +1112,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "casts") then --the tab doesn't have information about the amount of casts
+		elseif (header.name == "casts") then
 			text:SetText(amtCasts)
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "critpercent") then --the tab does not have this information
+		elseif (header.name == "critpercent") then
 			text:SetText(string.format("%.1f", spellTable.c_amt / (spellTable.counter) * 100) .. "%")
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
@@ -1146,8 +1128,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			textIndex = textIndex + 1
 
 		elseif (header.name == "castavg") then
-			spellBar.castAverage = value / amtCasts
-			text:SetText(Details:Format(spellBar.castAverage))
+			if (amtCasts > 0) then
+				spellBar.castAverage = value / amtCasts
+				text:SetText(Details:Format(spellBar.castAverage))
+			else
+				text:SetText("0")
+			end
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
@@ -1226,7 +1212,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 	for i = 1, totalLines do
 		local index = i + offset
 
-		---@type breakdownspelldata
+		---@type spelltableadv
 		local bkSpellData = scrollData[index]
 
 		if (bkSpellData) then
@@ -1349,37 +1335,48 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
 
-		--examples of values from key: "casts", "percent", "total"
+		---@type combat
+		local combatObject = spellsTab.GetCombat()
+		---@type number, number
+		local mainAttribute, subAttribute = spellsTab.GetInstance():GetDisplay()
 
-		---@type string
-		local keyToSort = key
-		if (keyToSort == "critpercent") then
-			for i = 1, #data do
-				---@type breakdownspelldata
-				local bkSpellData = data[i]
-				--as the bkSpellData is a copy from the actual spelltable from the actor spell, it can have methods inherited from spelltablemixin
-				bkSpellData.critpercent = bkSpellData:GetCritPercent()
-			end
+		--filling necessary information to sort the data in the order the header wants
+		for i = 1, #data do
+			---@type spelltableadv
+			local bkSpellData = data[i]
 
-		elseif (keyToSort == "casts") then
-			for i = 1, #data do
-				---@type breakdownspelldata
-				local bkSpellData = data[i]
-				bkSpellData.casts = bkSpellData:GetCastsAmount(spellsTab.GetActor():Name(), spellsTab.GetCombat())
+			--crit percent
+			bkSpellData.critpercent = bkSpellData:GetCritPercent()
+
+			--cast amount
+			bkSpellData.casts = bkSpellData:GetCastAmount(spellsTab.GetActor():Name(), combatObject)
+
+			--cast avg
+			bkSpellData.castavg = bkSpellData:GetCastAverage(bkSpellData.casts)
+
+			--uptime
+			local uptime = combatObject:GetSpellUptime(spellsTab:GetActor():Name(), bkSpellData.id)
+			bkSpellData.uptime = uptime
+
+			if (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then
+				bkSpellData.healabsorbed = bkSpellData.absorbed
 			end
 		end
 
+		---@type string
+		local keyToSort = key
+
 		if (order == "DESC") then
 			table.sort(data,
-			---@param t1 breakdownspelldata
-			---@param t2 breakdownspelldata
+			---@param t1 spelltableadv
+			---@param t2 spelltableadv
 			function(t1, t2)
 				return t1[keyToSort] > t2[keyToSort]
 			end)
 		else
 			table.sort(data,
-			---@param t1 breakdownspelldata
-			---@param t2 breakdownspelldata
+			---@param t1 spelltableadv
+			---@param t2 spelltableadv
 			function(t1, t2)
 				return t1[keyToSort] < t2[keyToSort]
 			end)
@@ -1404,7 +1401,7 @@ local onEnterSpellTarget = function(targetFrame)
 
 	local targets
 	if (targetFrame.bIsMainLine) then
-		---@type breakdownspelldata
+		---@type spelltableadv
 		local bkSpellData = targetFrame.bkSpellData
 		targets = actorObject:BuildSpellTargetFromBreakdownSpellData(bkSpellData)
 	else
@@ -1706,9 +1703,78 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 end
 
 -----------------------------------------------------------------------------------------------------------------------
+--> create the new tab
+function Details.InitializeSpellBreakdownTab()
+	local tabButton, tabFrame = Details:CreatePlayerDetailsTab(
+		"Summary", --[1] tab name
+		Loc ["STRING_SPELLS"], --[2] localized name
+		function(tabOBject, playerObject) --[3] condition
+			if (playerObject) then
+				return true
+			else
+				return false
+			end
+		end,
+
+		function() --[4] fill function | passing a fill function, it'll set a OnShow() script on the tabFrame | only run if the actor is different
+			spellsTab.OnShownTab()
+		end,
+
+		function(tabButton, tabFrame) --[5] onclick
+			tabFrame:Show()
+		end,
+
+		spellsTab.OnCreateTabCallback, --[6] oncreate
+		iconTableSummary, --[7] icon table
+		nil, --[8] replace tab
+		true --[9] is default tab
+	)
+
+	spellsTab.TabButton = tabButton
+	spellsTab.TabFrame = tabFrame
+
+	---on receive data from a class
+	---@param data breakdownspelldatalist
+	---@param actorObject actor
+	---@param combatObject combat
+	---@param instance instance
+	function tabButton.OnReceiveSpellData(data, actorObject, combatObject, instance)
+		spellsTab.currentActor = actorObject
+		spellsTab.combatObject = combatObject
+		spellsTab.instance = instance
+		spellsTab.TabFrame.SpellScrollFrame:RefreshMe(data)
+	end
+
+	---@type detailseventlistener
+	local eventListener = Details:CreateEventListener()
+	eventListener:RegisterEvent("DETAILS_PROFILE_APPLYED", function()
+		--this event don't trigger at details startup
+		spellsTab.OnProfileChange()
+	end)
+end
+
+-----------------------------------------------------------------------------------------------------------------------
 --> report data
 
-function spellsTab.monta_relatorio(botao)
+function spellsTab.CreateReportButtons(tabFrame)
+    --spell list report button
+	tabFrame.report_esquerda = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 1, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
+	tabFrame.report_esquerda:SetPoint("bottomleft", tabFrame.SpellScrollFrame, "TOPLEFT",  33, 3)
+	tabFrame.report_esquerda:SetFrameLevel(tabFrame:GetFrameLevel()+2)
+	tabFrame.topleft_report = tabFrame.report_esquerda
+
+	--targets report button
+	tabFrame.report_alvos = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 3, 16, 16,	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
+	tabFrame.report_alvos:SetPoint("bottomright", tabFrame.container_alvos, "TOPRIGHT",  -2, -1)
+	tabFrame.report_alvos:SetFrameLevel(3) --solved inactive problem
+
+	--special barras in the right report button
+	tabFrame.report_direita = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 2, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
+	tabFrame.report_direita:SetPoint("TOPRIGHT", tabFrame, "TOPRIGHT",  -10, -70)
+	tabFrame.report_direita:Show()
+end
+
+function spellsTab.monta_relatorio(botao) --deprecated?
     ---@type attributeid
 	local mainSection = breakdownWindow.atributo
     ---@type attributeid
@@ -1914,55 +1980,3 @@ function spellsTab.monta_relatorio(botao)
 
 	return instance:envia_relatorio(report_lines)
 end
-
------------------------------------------------------------------------------------------------------------------------
---> create the new tab
-function Details.InitializeSpellBreakdownTab()
-	local tabButton, tabFrame = Details:CreatePlayerDetailsTab(
-		"Summary", --[1] tab name
-		Loc ["STRING_SPELLS"], --[2] localized name
-		function(tabOBject, playerObject) --[3] condition
-			if (playerObject) then
-				return true
-			else
-				return false
-			end
-		end,
-
-		function() --[4] fill function | passing a fill function, it'll set a OnShow() script on the tabFrame | only run if the actor is different
-			spellsTab.OnShownTab()
-		end,
-
-		function(tabButton, tabFrame) --[5] onclick
-			tabFrame:Show()
-		end,
-
-		spellsTab.OnCreateTabCallback, --[6] oncreate
-		iconTableSummary, --[7] icon table
-		nil, --[8] replace tab
-		true --[9] is default tab
-	)
-
-	spellsTab.TabButton = tabButton
-	spellsTab.TabFrame = tabFrame
-
-	---on receive data from a class
-	---@param data breakdownspelldatalist
-	---@param actorObject actor
-	---@param combatObject combat
-	---@param instance instance
-	function tabButton.OnReceiveSpellData(data, actorObject, combatObject, instance)
-		spellsTab.currentActor = actorObject
-		spellsTab.combatObject = combatObject
-		spellsTab.instance = instance
-		spellsTab.TabFrame.SpellScrollFrame:RefreshMe(data)
-	end
-
-	---@type detailseventlistener
-	local eventListener = Details:CreateEventListener()
-	eventListener:RegisterEvent("DETAILS_PROFILE_APPLYED", function()
-		--this event don't trigger at details startup
-		spellsTab.OnProfileChange()
-	end)
-end
-

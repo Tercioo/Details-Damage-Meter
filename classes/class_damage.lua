@@ -4551,14 +4551,14 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 			---@type number in which index the spell with the same name was stored
 			local index = alreadyAdded[spellName]
 			if (index) then
-				---@type breakdownspelldata
+				---@type spelltableadv
 				local bkSpellData = breakdownSpellDataList[index]
 				bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
 				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 				bkSpellData.petNames[#bkSpellData.petNames+1] = ""
 				bkSpellData.bCanExpand = true
 			else
-				---@type breakdownspelldata
+				---@type spelltableadv
 				local bkSpellData = {
 					id = spellId,
 					spellschool = spellTable.spellschool,
@@ -4596,14 +4596,14 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 					---@type number in which index the spell with the same name was stored
 					local index = alreadyAdded[spellName]
 					if (index) then --PET
-						---@type breakdownspelldata
+						---@type spelltableadv
 						local bkSpellData = breakdownSpellDataList[index]
 						bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
 						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 						bkSpellData.petNames[#bkSpellData.petNames+1] = petName
 						bkSpellData.bCanExpand = true
 					else --PET
-						---@type breakdownspelldata
+						---@type spelltableadv
 						local bkSpellData = {
 							id = spellId,
 							spellschool = spellTable.spellschool,
@@ -4624,10 +4624,10 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 		end
 	end
 
-	--copy the keys from the spelltable and add them to the breakdownspelldata
+	--copy the keys from the spelltable and add them to the spelltableadv
 	--repeated spells will be summed
 	for i = 1, #breakdownSpellDataList do
-		---@type breakdownspelldata
+		---@type spelltableadv
 		local bkSpellData = breakdownSpellDataList[i]
 		Details.SpellTableMixin.SumSpellTables(bkSpellData.spellTables, bkSpellData)
 	end
