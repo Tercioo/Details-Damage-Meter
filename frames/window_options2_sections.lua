@@ -6878,6 +6878,16 @@ do
                 desc = "When the run is done, make an overall segment.",
             },
 
+            {--overall only with bosses
+                type = "toggle",
+                get = function() return Details.mythic_plus.make_overall_boss_only end,
+                set = function(self, fixedparam, value)
+                    Details.mythic_plus.make_overall_boss_only = value
+                end,
+                name = "Overall Segment Boss Only",
+                desc = "Only add boss segments on the overall.",
+            },
+
             {--merge trash
                 type = "toggle",
                 get = function() return Details.mythic_plus.merge_boss_trash end,
