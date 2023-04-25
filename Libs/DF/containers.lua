@@ -11,7 +11,7 @@ local CreateFrame = CreateFrame
 local wipe = wipe
 local unpack = unpack
 
----@class dfframecontainer : frame, dfframecontainermixin, df_optionsmixin
+---@class df_framecontainer : frame, dfframecontainermixin, df_optionsmixin
 ---@field bIsSizing boolean
 ---@field options table
 ---@field currentWidth number
@@ -28,24 +28,27 @@ local unpack = unpack
 ---@field sideResizers framecontainerresizer[]
 ---@field components table<frame, boolean>
 ---@field moverFrame frame
----@field movableChildren frame[]
----@field OnSizeChanged fun(frameContainer: dfframecontainer)
+---@field movableChildren table<frame, boolean>
+---@field settingChangedCallback fun(frameContainer: df_framecontainer, settingName: string, settingValue: any)
+---@field OnSizeChanged fun(frameContainer: df_framecontainer)
 ---@field OnResizerMouseDown fun(resizerButton: button, mouseButton: string)
 ---@field OnResizerMouseUp fun(resizerButton: button, mouseButton: string)
----@field HideResizer fun(frameContainer: dfframecontainer)
----@field ShowResizer fun(frameContainer: dfframecontainer)
----@field OnInitialize fun(frameContainer: dfframecontainer)
----@field SetResizeLocked fun(frameContainer: dfframecontainer, isLocked: boolean)
----@field SetMovableLocked fun(frameContainer: dfframecontainer, isLocked: boolean)
----@field CheckResizeLockedState fun(frameContainer: dfframecontainer)
----@field CheckMovableLockedState fun(frameContainer: dfframecontainer)
----@field CreateMover fun(frameContainer: dfframecontainer)
----@field CreateResizers fun(frameContainer: dfframecontainer)
----@field RegisterChildForDrag fun(frameContainer: dfframecontainer, child: frame)
----@field UnregisterChildForDrag fun(frameContainer: dfframecontainer, child: frame)
----@field RefreshChildrenState fun(frameContainer: dfframecontainer)
----@field OnChildDragStart fun(frameContainer: dfframecontainer, child: frame)
----@field OnChildDragStop fun(frameContainer: dfframecontainer, child: frame)
+---@field HideResizer fun(frameContainer: df_framecontainer)
+---@field ShowResizer fun(frameContainer: df_framecontainer)
+---@field OnInitialize fun(frameContainer: df_framecontainer)
+---@field SetResizeLocked fun(frameContainer: df_framecontainer, isLocked: boolean)
+---@field SetMovableLocked fun(frameContainer: df_framecontainer, isLocked: boolean)
+---@field CheckResizeLockedState fun(frameContainer: df_framecontainer)
+---@field CheckMovableLockedState fun(frameContainer: df_framecontainer)
+---@field CreateMover fun(frameContainer: df_framecontainer)
+---@field CreateResizers fun(frameContainer: df_framecontainer)
+---@field RegisterChildForDrag fun(frameContainer: df_framecontainer, child: frame)
+---@field UnregisterChildForDrag fun(frameContainer: df_framecontainer, child: frame)
+---@field RefreshChildrenState fun(frameContainer: df_framecontainer)
+---@field OnChildDragStart fun(frameContainer: df_framecontainer, child: frame)
+---@field OnChildDragStop fun(frameContainer: df_framecontainer, child: frame)
+---@field SetSettingChangedCallback fun(frameContainer: df_framecontainer, callback: fun(frameContainer: df_framecontainer, settingName: string, settingValue: any))
+---@field SendSettingChangedCallback fun(frameContainer: df_framecontainer, settingName: string, settingValue: any)
 
 
 
@@ -64,8 +67,8 @@ detailsFramework.FrameContainerMixin = {
             return
         end
 
-        ---@type dfframecontainer
-        local frameContainer = resizerButton:GetParent() --Cannot assign `frame` to `dfframecontainer`. .. but dfframecontainer is inherited from frame
+        ---@type df_framecontainer
+        local frameContainer = resizerButton:GetParent() --Cannot assign `frame` to `df_framecontainer`. .. but df_framecontainer is inherited from frame
 
         if (frameContainer.bIsSizing) then
             return
@@ -79,8 +82,8 @@ detailsFramework.FrameContainerMixin = {
     ---@param resizerButton framecontainerresizer
     ---@param mouseButton string
     OnResizerMouseUp = function(resizerButton, mouseButton)
-        ---@type dfframecontainer
-        local frameContainer = resizerButton:GetParent() --Cannot assign `frame` to `dfframecontainer`. .. but dfframecontainer is inherited from frame
+        ---@type df_framecontainer
+        local frameContainer = resizerButton:GetParent() --Cannot assign `frame` to `df_framecontainer`. .. but df_framecontainer is inherited from frame
 
         if (not frameContainer.bIsSizing) then
             return
@@ -91,7 +94,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---hide resizer
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     HideResizer = function(frameContainer)
         for i = 1, #frameContainer.cornerResizers do
             frameContainer.cornerResizers[i]:Hide()
@@ -103,7 +106,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---show resizer
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     ShowResizer = function(frameContainer)
         --corner resizers
         if (frameContainer.options.use_bottomleft_resizer) then
@@ -135,7 +138,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---check the lock state and show or hide the resizer, set the frame as movable or not, resizeable or not
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     CheckResizeLockedState = function(frameContainer)
         if (frameContainer.options.can_resize) then
             frameContainer:ShowResizer()
@@ -147,7 +150,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---check if the framecontainer can be moved and show or hide the mover
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     CheckMovableLockedState = function(frameContainer)
         if (frameContainer.options.can_move) then
             frameContainer:SetMovable(true)
@@ -161,7 +164,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---set the lock state
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     ---@param isLocked boolean
     SetResizeLocked = function(frameContainer, isLocked)
         frameContainer.options.can_resize = not isLocked
@@ -169,7 +172,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---set the state of the mover frame
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     ---@param isLocked boolean
     SetMovableLocked = function(frameContainer, isLocked)
         frameContainer.options.can_move = not isLocked
@@ -177,7 +180,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---create a mover to move the frame
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     CreateMover = function(frameContainer)
         local mover = CreateFrame("button", nil, frameContainer)
         frameContainer.moverFrame = mover
@@ -198,7 +201,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---create four corner resizer and four side resizer
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     CreateResizers = function(frameContainer)
         local parent = frameContainer:GetParent()
         --create resizers for the container corners
@@ -214,7 +217,7 @@ detailsFramework.FrameContainerMixin = {
         frameContainer.topResizer = topResizer
         frameContainer.bottomResizer = bottomResizer
 
-        local leftResizer, rightResizer = detailsFramework:CreateResizeGrips(frameContainer, nil, parent:GetName() .. "LeftResizer", parent:GetName() .. "TopResizer")
+        local leftResizer, rightResizer = detailsFramework:CreateResizeGrips(frameContainer, nil, parent:GetName() .. "LeftResizer", parent:GetName() .. "RightResizer")
         frameContainer.leftResizer = leftResizer
         frameContainer.rightResizer = rightResizer
 
@@ -235,16 +238,17 @@ detailsFramework.FrameContainerMixin = {
         --add all resizers to the frameContainer.components table
         for i = 1, #frameContainer.cornerResizers do
             frameContainer.components[frameContainer.cornerResizers[i]] = true
-            frameContainer.cornerResizers[i]:SetFrameStrata("TOOLTIP")
         end
         for i = 1, #frameContainer.sideResizers do
             frameContainer.components[frameContainer.sideResizers[i]] = true
-            frameContainer.sideResizers[i]:SetFrameStrata("TOOLTIP")
         end
+
+        --hide all resizers
+        frameContainer:HideResizer()
     end,
 
     ---run when the container is created
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     OnInitialize = function(frameContainer) --õninit ~init ~oninit
         --set the default members
         frameContainer.bIsSizing = false
@@ -256,7 +260,7 @@ detailsFramework.FrameContainerMixin = {
             frameContainer.cornerResizers[i]:SetScript("OnMouseUp", frameContainer.OnResizerMouseUp)
         end
 
-        local sideResizeThickness = 3
+        local sideResizeThickness = 2
 
         --iterate among the side resizers and set the mouse down and up scripts; set the texture color; clear all points; set the thickness
         for i = 1, #frameContainer.sideResizers do
@@ -298,14 +302,14 @@ detailsFramework.FrameContainerMixin = {
         frameContainer.rightResizer.sizingFrom = "right"
 
         --set the side resizer points
-        frameContainer.topResizer:SetPoint("topleft", frameContainer, "topleft", 0, 0)
-        frameContainer.topResizer:SetPoint("topright", frameContainer, "topright", 0, 0)
-        frameContainer.bottomResizer:SetPoint("bottomleft", frameContainer, "bottomleft", 0, 0)
-        frameContainer.bottomResizer:SetPoint("bottomright", frameContainer, "bottomright", 0, 0)
-        frameContainer.leftResizer:SetPoint("topleft", frameContainer, "topleft", 0, 0)
-        frameContainer.leftResizer:SetPoint("bottomleft", frameContainer, "bottomleft", 0, 0)
-        frameContainer.rightResizer:SetPoint("topright", frameContainer, "topright", 0, 0)
-        frameContainer.rightResizer:SetPoint("bottomright", frameContainer, "bottomright", 0, 0)
+        frameContainer.topResizer:SetPoint("topleft", frameContainer, "topleft", 0, 2)
+        frameContainer.topResizer:SetPoint("topright", frameContainer, "topright", 0, 2)
+        frameContainer.bottomResizer:SetPoint("bottomleft", frameContainer, "bottomleft", 0, -2)
+        frameContainer.bottomResizer:SetPoint("bottomright", frameContainer, "bottomright", 0, -2)
+        frameContainer.leftResizer:SetPoint("topleft", frameContainer, "topleft", -2, 0)
+        frameContainer.leftResizer:SetPoint("bottomleft", frameContainer, "bottomleft", -2, 0)
+        frameContainer.rightResizer:SetPoint("topright", frameContainer, "topright", 2, 0)
+        frameContainer.rightResizer:SetPoint("bottomright", frameContainer, "bottomright", 2, 0)
 
         if (frameContainer.options.can_resize) then
             frameContainer:ShowResizer()
@@ -319,7 +323,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---run when the container has its size changed
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     OnSizeChanged = function(frameContainer)
         ---@type frame[]
         local children = {frameContainer:GetChildren()}
@@ -346,6 +350,9 @@ detailsFramework.FrameContainerMixin = {
         --update the current size of the container
         frameContainer.currentWidth = frameContainer:GetWidth()
         frameContainer.currentHeight = frameContainer:GetHeight()
+
+        frameContainer:SendSettingChangedCallback("width", frameContainer.currentWidth)
+        frameContainer:SendSettingChangedCallback("height", frameContainer.currentHeight)
     end,
 
     OnChildDragStop = function(child)
@@ -353,8 +360,9 @@ detailsFramework.FrameContainerMixin = {
         child:SetScript("OnUpdate", nil)
     end,
 
+    ---@param child frame
     OnChildDragStart = function(child)
-        ---@type dfframecontainer
+        ---@type df_framecontainer
         local frameContainer = child:GetParent()
 
         ---get the coordinates for the frame container, which is called 'boundingBox' for convenience
@@ -388,7 +396,7 @@ detailsFramework.FrameContainerMixin = {
     end,
 
     ---check if the children can be moved and set the properties on thisFrame
-    ---@param frameContainer dfframecontainer
+    ---@param frameContainer df_framecontainer
     RefreshChildrenState = function(frameContainer)
         frameContainer:EnableMouse(true)
         if (frameContainer.options.can_move_children) then
@@ -410,18 +418,40 @@ detailsFramework.FrameContainerMixin = {
         end
     end,
 
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
     RegisterChildForDrag = function(frameContainer, child)
         frameContainer.movableChildren[child] = true
         frameContainer:RefreshChildrenState()
+        child:SetFrameStrata(frameContainer:GetFrameStrata())
+        child:SetFrameLevel(frameContainer:GetFrameLevel() - 3)
     end,
 
+    ---@param frameContainer df_framecontainer
+    ---@param child frame
     UnregisterChildForDrag = function(frameContainer, child)
         frameContainer.movableChildren[child] = nil
         frameContainer:RefreshChildrenState()
     end,
+
+    ---@param frameContainer df_framecontainer
+    ---@param callback function
+    SetSettingChangedCallback = function(frameContainer, callback)
+        frameContainer.settingChangedCallback = callback
+    end,
+
+    ---send a callback to the setting changed callback
+    ---@param frameContainer df_framecontainer
+    ---@param key string
+    ---@param value any
+    SendSettingChangedCallback = function(frameContainer, key, value)
+        if (type(frameContainer.settingChangedCallback) == "function") then
+            detailsFramework:Dispatch(frameContainer.settingChangedCallback, frameContainer, key, value)
+        end
+    end,
 }
 
----these are the default settings for the frame container; these keys can be accessed by dfframecontainer.options[key]
+---these are the default settings for the frame container; these keys can be accessed by df_framecontainer.options[key]
 ---@type table<string, any>
 local frameContainerOptions = {
     --default settings
@@ -433,7 +463,7 @@ local frameContainerOptions = {
     use_topleft_resizer = false,
     use_topright_resizer = false,
     use_bottomleft_resizer = false,
-    use_bottomright_resizer = true,
+    use_bottomright_resizer = false,
     use_top_resizer = false,
     use_bottom_resizer = false,
     use_left_resizer = false,
@@ -444,9 +474,9 @@ local frameContainerOptions = {
 ---@param parent frame
 ---@param options table|nil
 ---@param frameName string|nil
----@return dfframecontainer
+---@return df_framecontainer
 function DF:CreateFrameContainer(parent, options, frameName)
-    ---@type dfframecontainer
+    ---@type df_framecontainer
     local frameContainer = CreateFrame("frame", frameName or ("$parentFrameContainer" .. math.random(10000, 99999)), parent, "BackdropTemplate")
     frameContainer.components = {}
     frameContainer.movableChildren = {}

@@ -1417,6 +1417,12 @@ local default_global_data = {
 		blockspell_spark_show = true,
 		blockspell_spark_color = {1, 1, 1, 0.7},
 
+		spellcontainer_width = 535,
+		spellcontainer_height = 311,
+		spellcontainer_locked = true,
+		--spellline_height = 20,
+
+
 		spellcontainer_headers = {}, --store information about active headers and their sizes
 		spellcontainer_header_height = 20,
 		spellcontainer_header_fontsize = 10,

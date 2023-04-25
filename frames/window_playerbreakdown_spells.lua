@@ -149,7 +149,6 @@ local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
 	end
 end
 
----update details profile
 ---copy settings from the ColumnInfo table which doesn't exists in the details profile
 ---this is called when the profile changes or when the tab is opened with a different actor than before
 ---@param containerType "spells"|"targets"
@@ -366,7 +365,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
 
     spellsTab.TabFrame = tabFrame
 
-	--open the breakdown window at startup
+	--open the breakdown window at startup for testing
 	--[=
 	C_Timer.After(1, function()
 		Details:OpenPlayerDetails(1)
@@ -1272,29 +1271,59 @@ end
 ---creates a scrollframe which show breakdownspellbar to show the spells used by an actor
 ---@param tabFrame tabframe
 ---@return breakdownspellscrollframe
-function spellsTab.CreateSpellScrollContainer(tabFrame)
+function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
+	---@type width
+	local width = Details.breakdown_spell_tab.spellcontainer_width
+	---@type height
+	local height = Details.breakdown_spell_tab.spellcontainer_height
+
 	--create a container for the scrollframe
 	local options = {
-		width = CONST_SPELLSCROLL_WIDTH,
-		height = CONST_SPELLSCROLL_HEIGHT,
-		can_resize = false,
+		width = Details.breakdown_spell_tab.spellcontainer_width,
+		height = Details.breakdown_spell_tab.spellcontainer_height,
+		can_resize = Details.breakdown_spell_tab.spellcontainer_locked,
 		can_move = false,
 		can_move_children = false,
 		use_bottom_resizer = true,
 		use_right_resizer = true,
+
 	}
-	---@type dfframecontainer
+
+	---@type df_framecontainer
 	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "SpellScrollContainer")
 	container:SetPoint("topleft", tabFrame, "topleft", 5, -5)
+	container:SetFrameLevel(tabFrame:GetFrameLevel() + 10)
+
+	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue) --doiing here the callback for thge settings changed in the container
+		if (frameContainer:IsShown()) then
+			if (settingName == "height") then
+				---@type height
+				local currentHeight = spellsTab.SpellScrollFrame:GetHeight()
+				Details.breakdown_spell_tab.spellcontainer_height = settingValue
+				spellsTab.SpellScrollFrame:SetNumFramesShown(math.floor(currentHeight / CONST_SPELLSCROLL_LINEHEIGHT) - 1)
+			elseif (settingName == "width") then
+				Details.breakdown_spell_tab.spellcontainer_width = settingValue
+			elseif (settingName == "can_resize") then
+				Details.breakdown_spell_tab.spellcontainer_locked = settingValue
+			end
+		end
+	end
+
+	local defaultAmountOfLines = 50
+
+	container:SetSettingChangedCallback(settingChangedCallbackFunction)
+	container:SetResizeLocked(false) --debug
 
     --replace this with a framework scrollframe
-	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshFunc, {}, CONST_SPELLSCROLL_WIDTH, CONST_SPELLSCROLL_HEIGHT, CONST_SPELLSCROLL_AMTLINES, CONST_SPELLSCROLL_LINEHEIGHT)
+	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(scrollFrame)
-	DF:ApplyStandardBackdrop(scrollFrame)
-	container:RegisterChildForDrag(scrollFrame)
+	scrollFrame:SetBackdrop(nil)
+
 	scrollFrame:SetPoint("topleft", container, "topleft", 0, 0) --need to set the points
-	--scrollFrame:EnableMouse(true)
-	--scrollFrame:SetMovable(true)
+	scrollFrame:SetPoint("bottomright", container, "bottomright", 0, 0) --need to set the points
+
+	container:RegisterChildForDrag(scrollFrame)
+
 	scrollFrame.DontHideChildrenOnPreRefresh = true
 	tabFrame.SpellScrollFrame = scrollFrame
 	spellsTab.SpellScrollFrame = scrollFrame
@@ -1315,7 +1344,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	local headerTable = {}
 
 	---@type df_headerframe
-	local header = DetailsFramework:CreateHeader(tabFrame, headerTable, headerOptions)
+	local header = DetailsFramework:CreateHeader(container, headerTable, headerOptions)
 	scrollFrame.Header = header
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 1)
 	scrollFrame.Header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
@@ -1324,7 +1353,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame)
 	headerContainerType[scrollFrame.Header] = "spells"
 
 	--create the scroll lines
-	for i = 1, CONST_SPELLSCROLL_AMTLINES do
+	for i = 1, defaultAmountOfLines do
 		scrollFrame:CreateLine(spellsTab.CreateSpellBar)
 	end
 

@@ -31,9 +31,9 @@
 ---@class color : table, string @table(r: red|number, g: green|number, b: blue|number, a: alpha|number) @string(color name) @hex (000000-ffffff) value representing a color, the value must be a table with the following fields: r, g, b, a. r, g, b are numbers between 0 and 1, a is a number between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
 ---@class scale : number @number(0.65-2.40) value representing the scale factor of the UIObject, the value must be between 0.65 and 2.40, the width and height of the UIObject will be multiplied by this value.
 ---@class texture : string, number is an object that represents a graphical image. Textures are used to display visual elements such as icons, backgrounds, borders, and more.
----@class frame : uiobject represents a container for other UI elements, such as textures, buttons, text, and more.
+---@class frame : uiobject represents a container for other UI elements, such as textures, buttons, text, and more. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'width' is used.
 ---@class width : number property that represents the horizontal size of a UI element, such as a frame or a texture.
----@class height : number property that represents the vertical size of a UI element, such as a frame or a texture.
+---@class height : number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
 ---@class script : string, function is a piece of code that is executed in response to a specific event, such as a button click or a frame update. Scripts can be used to implement behavior and logic for UI elements.
 ---@class event : string is a notification that is sent to a frame when something happens, such as a button click or a frame update. Events can be used to trigger scripts.
 ---@class framestrata : string @string(BACKGROUND, LOW, MEDIUM, HIGH, DIALOG, FULLSCREEN, FULLSCREEN_DIALOG, TOOLTIP) property that determines the stacking order of frames. Higher strata values indicate frames that should be displayed on top of frames with lower strata values.
@@ -85,7 +85,7 @@
 ---@field SetDuration fun(self: animationgroup, duration: number)
 ---@field SetEndDelay fun(self: animationgroup, delay: number)
 ---@field SetLooping fun(self: animationgroup, loop: boolean)
----@field SetScript fun(self: animationgroup, event: string, handler: function) "OnEvent"|"OnShow"
+---@field SetScript fun(self: animationgroup, event: string, handler: function|nil) "OnEvent"|"OnShow"
 ---@field SetSmoothProgress fun(self: animationgroup, smooth: boolean)
 ---@field Stop fun(self: animationgroup)
 
@@ -104,13 +104,13 @@
 ---@field SetDuration fun(self: animation, duration: number)
 ---@field SetEndDelay fun(self: animation, delay: number)
 ---@field SetOrder fun(self: animation, order: number)
----@field SetScript fun(self: animation, event: string, handler: function)
+---@field SetScript fun(self: animation, event: string, handler: function|nil)
 ---@field SetSmoothing fun(self: animation, smoothing: string)
 ---@field Stop fun(self: animation)
 
 ---@class frame : uiobject
 ---@field SetAttribute fun(self: frame, name: string, value: any)
----@field SetScript fun(self: frame, event: string, handler: function)
+---@field SetScript fun(self: frame, event: string, handler: function|nil)
 ---@field GetScript fun(self: frame, event: string) : function
 ---@field SetFrameStrata fun(self: frame, strata: framestrata|"background"|"low"|"medium"|"high"|"dialog"|"fullscreen"|"fullscreen_dialog"|"tooltip")
 ---@field SetFrameLevel fun(self: frame, level: number)
