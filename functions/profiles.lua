@@ -1419,9 +1419,8 @@ local default_global_data = {
 
 		spellcontainer_width = 535,
 		spellcontainer_height = 311,
-		spellcontainer_locked = true,
+		spellcontainer_islocked = true,
 		--spellline_height = 20,
-
 
 		spellcontainer_headers = {}, --store information about active headers and their sizes
 		spellcontainer_header_height = 20,

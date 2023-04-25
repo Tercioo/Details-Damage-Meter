@@ -242,9 +242,6 @@ function spellsTab.BuildHeaderTable(containerType)
 			end
 
 			if (bCanAdd) then
-				--print("key added:", columnData.key)
-				--key = "casts", key = "percent",
-
 				---@type headercolumndata
 				local headerColumnData = {
 					width = columnSettings.width,
@@ -355,7 +352,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame)
     spellsTab.CreateTargetContainer(tabFrame)
 
     --create the report buttons for each container
-    spellsTab.CreateReportButtons(tabFrame)
+    --spellsTab.CreateReportButtons(tabFrame)
 
 	--these bars table are kinda deprecated now:
     --store the spell bars for the spell container
@@ -1281,7 +1278,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 	local options = {
 		width = Details.breakdown_spell_tab.spellcontainer_width,
 		height = Details.breakdown_spell_tab.spellcontainer_height,
-		can_resize = Details.breakdown_spell_tab.spellcontainer_locked,
+		is_locked = Details.breakdown_spell_tab.spellcontainer_islocked,
 		can_move = false,
 		can_move_children = false,
 		use_bottom_resizer = true,
@@ -1293,18 +1290,21 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "SpellScrollContainer")
 	container:SetPoint("topleft", tabFrame, "topleft", 5, -5)
 	container:SetFrameLevel(tabFrame:GetFrameLevel() + 10)
+	spellsTab.SpellContainerFrame = container
 
-	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue) --doiing here the callback for thge settings changed in the container
+	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue) --doing here the callback for thge settings changed in the container
 		if (frameContainer:IsShown()) then
 			if (settingName == "height") then
 				---@type height
 				local currentHeight = spellsTab.SpellScrollFrame:GetHeight()
 				Details.breakdown_spell_tab.spellcontainer_height = settingValue
 				spellsTab.SpellScrollFrame:SetNumFramesShown(math.floor(currentHeight / CONST_SPELLSCROLL_LINEHEIGHT) - 1)
+
 			elseif (settingName == "width") then
 				Details.breakdown_spell_tab.spellcontainer_width = settingValue
-			elseif (settingName == "can_resize") then
-				Details.breakdown_spell_tab.spellcontainer_locked = settingValue
+
+			elseif (settingName == "is_locked") then
+				Details.breakdown_spell_tab.spellcontainer_islocked = settingValue
 			end
 		end
 	end
@@ -1312,13 +1312,11 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 	local defaultAmountOfLines = 50
 
 	container:SetSettingChangedCallback(settingChangedCallbackFunction)
-	container:SetResizeLocked(false) --debug
 
     --replace this with a framework scrollframe
 	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(scrollFrame)
 	scrollFrame:SetBackdrop(nil)
-
 	scrollFrame:SetPoint("topleft", container, "topleft", 0, 0) --need to set the points
 	scrollFrame:SetPoint("bottomright", container, "bottomright", 0, 0) --need to set the points
 
@@ -1601,7 +1599,7 @@ end
 ---@return breakdownspellbar
 function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~create ~createline
 	---@type breakdownspellbar
-	local spellBar = CreateFrame("button", self:GetName() .. "SpellBar" .. index, self, "BackdropTemplate")
+	local spellBar = CreateFrame("button", self:GetName() .. "SpellBarButton" .. index, self, "BackdropTemplate")
 	spellBar.index = index
 
 	--size and positioning
@@ -1859,7 +1857,7 @@ function spellsTab.monta_relatorio(botao) --deprecated?
 
 	elseif (botao == 3) then --targets
 		if (mainSection == 1 and subSection == 3) then
-			print(Loc ["STRING_ACTORFRAME_NOTHING"])
+			Details:Msg(Loc ["STRING_ACTORFRAME_NOTHING"])
 			return
 		end
 
@@ -1878,7 +1876,7 @@ function spellsTab.monta_relatorio(botao) --deprecated?
         --dano --damage done --dps --heal
 		if ((mainSection == 1 and (subSection == 1 or subSection == 2)) or (mainSection == 2)) then
 			if (not player.detalhes) then
-				print(Loc ["STRING_ACTORFRAME_NOTHING"])
+				Details:Msg(Loc ["STRING_ACTORFRAME_NOTHING"])
 				return
 			end
 

@@ -140,26 +140,26 @@ detailsFramework.FrameContainerMixin = {
     ---check the lock state and show or hide the resizer, set the frame as movable or not, resizeable or not
     ---@param frameContainer df_framecontainer
     CheckResizeLockedState = function(frameContainer)
-        if (frameContainer.options.can_resize) then
-            frameContainer:ShowResizer()
-            frameContainer:SetResizable(true)
-        else
+        if (frameContainer.options.is_locked) then
             frameContainer:HideResizer()
             frameContainer:SetResizable(false)
+        else
+            frameContainer:ShowResizer()
+            frameContainer:SetResizable(true)
         end
     end,
 
     ---check if the framecontainer can be moved and show or hide the mover
     ---@param frameContainer df_framecontainer
     CheckMovableLockedState = function(frameContainer)
-        if (frameContainer.options.can_move) then
-            frameContainer:SetMovable(true)
-            frameContainer:EnableMouse(true)
-            frameContainer.moverFrame:Show()
-        else
+        if (frameContainer.options.is_movement_locked) then
             frameContainer:SetMovable(false)
             frameContainer:EnableMouse(false)
             frameContainer.moverFrame:Hide()
+        else
+            frameContainer:SetMovable(true)
+            frameContainer:EnableMouse(true)
+            frameContainer.moverFrame:Show()
         end
     end,
 
@@ -167,7 +167,8 @@ detailsFramework.FrameContainerMixin = {
     ---@param frameContainer df_framecontainer
     ---@param isLocked boolean
     SetResizeLocked = function(frameContainer, isLocked)
-        frameContainer.options.can_resize = not isLocked
+        frameContainer.options.is_locked = isLocked
+        frameContainer:SendSettingChangedCallback("is_locked", isLocked)
         frameContainer:CheckResizeLockedState()
     end,
 
@@ -175,7 +176,8 @@ detailsFramework.FrameContainerMixin = {
     ---@param frameContainer df_framecontainer
     ---@param isLocked boolean
     SetMovableLocked = function(frameContainer, isLocked)
-        frameContainer.options.can_move = not isLocked
+        frameContainer.options.is_movement_locked = isLocked
+        frameContainer:SendSettingChangedCallback("is_movement_locked", isLocked)
         frameContainer:CheckMovableLockedState()
     end,
 
@@ -185,15 +187,16 @@ detailsFramework.FrameContainerMixin = {
         local mover = CreateFrame("button", nil, frameContainer)
         frameContainer.moverFrame = mover
         mover:SetAllPoints(frameContainer)
+        mover:EnableMouse(false)
         mover:SetMovable(true)
         mover:SetScript("OnMouseDown", function(self, mouseButton)
-            if (mouseButton ~= "LeftButton" or not frameContainer.options.can_move) then
+            if (mouseButton ~= "LeftButton" or frameContainer.options.is_movement_locked) then
                 return
             end
             frameContainer:StartMoving()
         end)
         mover:SetScript("OnMouseUp", function(self, mouseButton)
-            if (mouseButton ~= "LeftButton" or not frameContainer.options.can_move) then
+            if (mouseButton ~= "LeftButton" or frameContainer.options.is_movement_locked) then
                 return
             end
             frameContainer:StopMovingOrSizing()
@@ -311,10 +314,10 @@ detailsFramework.FrameContainerMixin = {
         frameContainer.rightResizer:SetPoint("topright", frameContainer, "topright", 2, 0)
         frameContainer.rightResizer:SetPoint("bottomright", frameContainer, "bottomright", 2, 0)
 
-        if (frameContainer.options.can_resize) then
-            frameContainer:ShowResizer()
-        else
+        if (frameContainer.options.is_locked) then
             frameContainer:HideResizer()
+        else
+            frameContainer:ShowResizer()
         end
 
         frameContainer:CheckResizeLockedState()
@@ -424,7 +427,7 @@ detailsFramework.FrameContainerMixin = {
         frameContainer.movableChildren[child] = true
         frameContainer:RefreshChildrenState()
         child:SetFrameStrata(frameContainer:GetFrameStrata())
-        child:SetFrameLevel(frameContainer:GetFrameLevel() - 3)
+        child:SetFrameLevel(frameContainer:GetFrameLevel() + 1)
     end,
 
     ---@param frameContainer df_framecontainer
@@ -457,8 +460,8 @@ local frameContainerOptions = {
     --default settings
     width = 300,
     height = 150,
-    can_resize = false, --can or not be resized
-    can_move = false, --can or not be moved
+    is_locked = true, --can or not be resized
+    is_movement_locked = true, --can or not be moved
     can_move_children = true,
     use_topleft_resizer = false,
     use_topright_resizer = false,
@@ -480,6 +483,7 @@ function DF:CreateFrameContainer(parent, options, frameName)
     local frameContainer = CreateFrame("frame", frameName or ("$parentFrameContainer" .. math.random(10000, 99999)), parent, "BackdropTemplate")
     frameContainer.components = {}
     frameContainer.movableChildren = {}
+    frameContainer:EnableMouse(false)
 
     detailsFramework:Mixin(frameContainer, detailsFramework.FrameContainerMixin)
     detailsFramework:Mixin(frameContainer, detailsFramework.OptionsFunctions)
