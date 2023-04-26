@@ -293,16 +293,19 @@ function detailsOnDeathMenu.ShowPanel()
 	end
 end
 
-hooksecurefunc ("StaticPopup_Show", function(which, text_arg1, text_arg2, data, insertedFrame)
+local hook_show_func = function(which, text_arg1, text_arg2, data, insertedFrame)
 	if (which == "DEATH") then
 		if (detailsOnDeathMenu.Debug) then
 			C_Timer.After(0.5, detailsOnDeathMenu.ShowPanel)
 		end
 	end
-end)
+end
 
-hooksecurefunc ("StaticPopup_Hide", function(which, data)
+hooksecurefunc ("StaticPopup_Show", hook_show_func)
+
+local hook_close_func = function(which, data)
 	if (which == "DEATH") then
 		detailsOnDeathMenu:Hide()
 	end
-end)
+end
+hooksecurefunc ("StaticPopup_Hide", hook_close_func)
