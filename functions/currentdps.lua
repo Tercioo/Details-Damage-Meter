@@ -68,6 +68,7 @@ currentDpsFrame.OnUpdateFunc = function(self, deltaTime)
 
     currentDelay = 0
 end
+--[[
 
 --start the proccess of updating the current dps and hps for each player
 function Details.CurrentDps.StartCurrentDpsTracker()
@@ -81,6 +82,7 @@ function Details.CurrentDps.StopCurrentDpsTracker()
     currentDpsFrame:SetScript("OnUpdate", nil)
 end
 
+]]
 --serial = guid
 function Details.CurrentDps.GetCurrentDps(serial)
     local actorTable = Details.CurrentDps.Dps[serial]
