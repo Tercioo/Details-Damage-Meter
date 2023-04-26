@@ -237,7 +237,7 @@
 ---@class texture : region
 ---@field SetDrawLayer fun(self: texture, layer: "background"|"border"|"artwork"|"overlay"|"highlight", subLayer: number|nil)
 ---@field SetTexture fun(self: texture, path: string)
----@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number)
+---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)
 ---@field SetDesaturated fun(self: texture, desaturate: boolean)
 ---@field SetBlendMode fun(self: texture, mode: "ADD"|"BLEND"|"DISABLE"|"MOD"|"MOD2X"|"OVERLAY"|"REPLACE"|"SUBTRACT")
 ---@field SetVertexColor fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number)
@@ -445,7 +445,7 @@
 ---@field cursorPosY number mouse position when the spellbar got OnMouseDown event
 ---@field spellTable spelltable
 ---@field bkSpellData spelltableadv
----@field statusBar statusbar
+---@field statusBar breakdownspellbarstatusbar
 ---@field expandButton breakdownexpandbutton
 ---@field spellIconFrame frame
 ---@field spellIcon texture
@@ -457,6 +457,11 @@
 ---@field InLineTexts fontstring[]
 ---@field AddFrameToHeaderAlignment fun(self: breakdownspellbar, frame: uiobject)
 ---@field AlignWithHeader fun(self: breakdownspellbar, header: table, align: string|"left")
+
+---@class breakdownspellbarstatusbar : statusbar
+---@field backgroundTexture texture
+---@field overlayTexture texture
+---@field highlightTexture texture
 
 ---spelltableadv is similar to spelltable but allow custom members, methods and any modification isn't save to saved variables
 ---@class spelltableadv : spelltable, spelltablemixin
@@ -491,8 +496,10 @@
 ---@field Lines breakdownspellblockline[]
 ---@field reportButton button
 ---@field overlay texture
+---@field statusBarTexture texture
 ---@field sparkTexture texture
 ---@field gradientTexture texture
+---@field backgroundTexture texture
 ---@field GetLine fun(self: breakdownspellblock, index: number) : breakdownspellblockline
 ---@field GetLines fun(self: breakdownspellblock) : breakdownspellblockline, breakdownspellblockline, breakdownspellblockline
 

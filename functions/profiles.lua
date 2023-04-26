@@ -1410,17 +1410,25 @@ local default_global_data = {
 	breakdown_spell_tab = {
 		blockcontainer_width = 430,
 		blockcontainer_height = 270,
+		blockcontainer_islocked = true,
+
 		blockspell_height = 50,
-		blockspellline_height = 13,
+		blockspell_padding = 5,
+		blockspell_color = {0, 0, 0, 0.7},
+		blockspell_bordercolor = {0, 0, 0, 0.7},
+		blockspell_backgroundcolor = {0.1, 0.1, 0.1, 0.4},
 		blockspell_spark_offset = -2,
 		blockspell_spark_width = 2,
 		blockspell_spark_show = true,
 		blockspell_spark_color = {1, 1, 1, 0.7},
 
+		blockspellline_height = 13,
+
 		spellcontainer_width = 535,
 		spellcontainer_height = 311,
 		spellcontainer_islocked = true,
-		--spellline_height = 20,
+
+		spellbar_background_alpha = 0.92,
 
 		spellcontainer_headers = {}, --store information about active headers and their sizes
 		spellcontainer_header_height = 20,
