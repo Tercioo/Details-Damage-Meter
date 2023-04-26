@@ -1670,9 +1670,9 @@ function Details.UnitHealingSpellInfo (unitId, spellId, isLiteral, segment)
 		return spellInfo
 	end
 
+	local spellName = GetSpellInfo(spellId)
 	local miscPlayerObject = getActorObjectFromCombat (combatObject, 4, unitName)
 	if (miscPlayerObject) then
-		local spellName = GetSpellInfo(spellId)
 		local castedAmount = miscPlayerObject.spell_cast and miscPlayerObject.spell_cast [spellId]
 
 		if (castedAmount) then
