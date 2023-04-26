@@ -78,9 +78,10 @@ function Details222.EJCache.OnClickEncounterJournalLink(tag, journalTypeString, 
 
     if (not Details222.EJCache.HasJournalOnHideHooked) then
         Details222.EJCache.HasJournalOnHideHooked = true
-        EncounterJournal:HookScript("OnHide", function()
+		local hide_func = function()
             GameCooltip:Hide()
-        end)
+        end
+        EncounterJournal:HookScript("OnHide", hide_func)
     end
 end
 
@@ -118,7 +119,8 @@ function Details222.DamageSpells.GetDamageDoneToPlayersBySpell(spellId, combatId
         local className = Details222.ClassCache.GetClass(targetName)
         sortedResult[#sortedResult + 1] = {targetName, damageDone, className}
     end
-    table.sort(sortedResult, function(a, b) return a[2] > b[2] end)
+	local sort_func = function(a, b) return a[2] > b[2] end
+    table.sort(sortedResult, sort_func)
 
     return sortedResult
 end
