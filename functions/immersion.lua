@@ -41,11 +41,12 @@ function immersionFrame.CheckIfCanEnableImmersion()
 end
 
 --check events
-immersionFrame:SetScript("OnEvent", function(_, event, ...)
+local zone_change_func = function(_, event, ...)
     if (event == "ZONE_CHANGED_NEW_AREA") then
         C_Timer.After(3, immersionFrame.CheckIfCanEnableImmersion)
     end
-end)
+end
+immersionFrame:SetScript("OnEvent", zone_change_func)
 
 --store the GUID of the npc or player and point to the coords there the icon is
 local iconPath1 = [[Interface\AddOns\Details\images\special_bar_icons]]
