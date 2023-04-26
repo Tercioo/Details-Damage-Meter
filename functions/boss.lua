@@ -465,11 +465,13 @@ do
 		expansionBossList_Cache.raidInfoTable = raidInfoTable
 		expansionBossList_Cache.build = true
 
-		C_Timer.After(0.5, function()
+		local reset_display_func = function()
 			if (EncounterJournal_ResetDisplay) then
 				EncounterJournal_ResetDisplay(nil, "none")
 			end
-		end)
+		end
+
+		C_Timer.After(0.5, reset_display_func)
 
 		return bossIndexedTable, bossInfoTable, raidInfoTable
 	end
@@ -850,25 +852,27 @@ do
 				end
 			end
 
-			--reset the dungeon journal to the default state
-			C_Timer.After(0.5, function()
+			local reset_display_func = function()
 				if (EncounterJournal_ResetDisplay) then
 					EncounterJournal_ResetDisplay(nil, "none")
 				end
-			end)
+			end
+			--reset the dungeon journal to the default state
+			C_Timer.After(0.5, reset_display_func)
 
 			--EncounterJournal_OpenJournalLink(tag, jtype, id, difficultyID)
 			--EncounterJournal_OpenJournal(difficultyID, instanceID, encounterID, sectionID, creatureID, itemID, tierIndex)
 		end
 
 		--todo: should run one second after the player_login event or entering_world
-		C_Timer.After(1, function()
+		local cache_func = function()
 			if (not EncounterJournal_LoadUI) then
 				return
 			end
 
 			createEJCache()
-		end)
+		end
+		C_Timer.After(1, cache_func)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
