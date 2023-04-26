@@ -54,14 +54,15 @@ autoRunCodeEventFrame.OnEventFunc = function(self, event)
     if (event == "PLAYER_SPECIALIZATION_CHANGED") then
         --create a trigger for the event, many times it is triggered more than once
         --so if the event is triggered a second time, it will be ignored
-        local newTimer = C_Timer.NewTimer(1, function()
-            Details:DispatchAutoRunCode("on_specchanged")
-            
+		local spec_changed_func = function()
+			Details:DispatchAutoRunCode("on_specchanged")
+
             --clear and invalidate the timer
             autoRunCodeEventFrame[event]:Cancel()
             autoRunCodeEventFrame[event] = nil
-        end)
-        
+		end
+        local newTimer = C_Timer.NewTimer(1, spec_changed_func)
+
         --store the trigger
         autoRunCodeEventFrame[event] = newTimer
     end
@@ -70,7 +71,7 @@ end
 autoRunCodeEventFrame:SetScript("OnEvent", autoRunCodeEventFrame.OnEventFunc)
 
 --dispatch scripts at startup
-C_Timer.After(2, function()
+local startup_func = function()
     Details:DispatchAutoRunCode("on_init")
     Details:DispatchAutoRunCode("on_specchanged")
     Details:DispatchAutoRunCode("on_zonechanged")
@@ -82,7 +83,8 @@ C_Timer.After(2, function()
     end
 
     Details:DispatchAutoRunCode("on_groupchange")
-end)
+end
+C_Timer.After(2, startup_func)
 
 function Details:StartAutoRun()
     --compile code
