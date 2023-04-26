@@ -237,9 +237,12 @@ function Details.Coach.StartUp()
     eventListener:RegisterEvent("ZONE_TYPE_CHANGED", "OnZoneChanged")
 end
 
-C_Timer.After(0.1, function()
-    --Details.debug = true
-end)
+--[[
+local debug_func = function()
+	Details.debug = true
+end
+C_Timer.After(0.1, debug_func)
+]]
 
 --received an answer from server telling if the raidleader has the coach feature enabled
 --the request is made when the player enters a new group or reconnects
