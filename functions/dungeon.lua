@@ -302,12 +302,14 @@ function mythicDungeonCharts.ShowReadyPanel()
 		LibWindow.SavePosition(readyFrame)
 
 		--show button
-		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, Loc ["STRING_SLASH_SHOW"])
+		local show_func = function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end
+		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, show_func, 80, 20, Loc ["STRING_SLASH_SHOW"])
 		readyFrame.ShowButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 		readyFrame.ShowButton:SetPoint("topright", readyFrame, "topright", -5, -30)
 
 		--discart button
-		readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, function() readyFrame:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
+		local discard_func = function() readyFrame:Hide() end
+		readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, discard_func, 80, 20, Loc ["STRING_DISCARD"])
 		readyFrame.DiscartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 		readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowButton, "left", -5, 0)
 
@@ -479,12 +481,13 @@ function mythicDungeonCharts.ShowChart()
 		minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
 		minimizeButtonWhenMinimized:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-MinimizeButton-Highlight]])
 
-		closeButtonWhenMinimized:SetScript("OnClick", function()
+		local close_func = function()
 			dungeonChartFrame.IsMinimized = false
 			fMinimized:Hide()
 			minimizeButtonWhenMinimized:SetNormalTexture([[Interface\BUTTONS\UI-Panel-HideButton-Up]])
 			minimizeButtonWhenMinimized:SetPushedTexture([[Interface\BUTTONS\UI-Panel-HideButton-Down]])
-		end)
+		end
+		closeButtonWhenMinimized:SetScript("OnClick", close_func)
 
 		--replace the default click function
 		local minimize_func = function(self)
@@ -534,6 +537,7 @@ function mythicDungeonCharts.ShowChart()
 		dungeonChartFrame.ChartFrame.Graphic:SetBackdropBorderColor(0, 0, 0, 0.5)
 
 		function dungeonChartFrame.ChartFrame.RefreshBossTimeline(self, bossTable, elapsedTime)
+			local framework = Details:GetFramework()
 			for i, bossTable in ipairs(mythicDungeonCharts.ChartTable.BossDefeated) do
 				local bossWidget = dungeonChartFrame.BossWidgetsFrame.Widgets [i]
 
@@ -544,19 +548,19 @@ function mythicDungeonCharts.ShowChart()
 					newBossWidget:SetBackdropColor(0, 0, 0, 0.1)
 					newBossWidget:SetBackdropBorderColor(0, 0, 0, 0)
 
-					local bossAvatar = Details:GetFramework():CreateImage(newBossWidget, "", 64, 32, "border")
+					local bossAvatar = framework:CreateImage(newBossWidget, "", 64, 32, "border")
 					bossAvatar:SetPoint("bottomleft", newBossWidget, "bottomleft", 0, 0)
 					newBossWidget.AvatarTexture = bossAvatar
 
-					local verticalLine = Details:GetFramework():CreateImage(newBossWidget, "", 1, dungeonChartFrame.ChartFrame.Graphic:GetHeight(), "overlay")
+					local verticalLine = framework:CreateImage(newBossWidget, "", 1, dungeonChartFrame.ChartFrame.Graphic:GetHeight(), "overlay")
 					verticalLine:SetColorTexture(1, 1, 1, 0.3)
 					verticalLine:SetPoint("bottomleft", newBossWidget, "bottomright", 0, 0)
 
-					local timeText = Details:GetFramework():CreateLabel(newBossWidget)
+					local timeText = framework:CreateLabel(newBossWidget)
 					timeText:SetPoint("bottomright", newBossWidget, "bottomright", 0, 0)
 					newBossWidget.TimeText = timeText
 
-					local timeBackground = Details:GetFramework():CreateImage(newBossWidget, "", 30, 12, "artwork")
+					local timeBackground = framework:CreateImage(newBossWidget, "", 30, 12, "artwork")
 					timeBackground:SetColorTexture(0, 0, 0, 0.5)
 					timeBackground:SetPoint("topleft", timeText, "topleft", -2, 2)
 					timeBackground:SetPoint("bottomright", timeText, "bottomright", 2, 0)
@@ -571,7 +575,7 @@ function mythicDungeonCharts.ShowChart()
 
 				bossWidget:SetPoint("bottomright", dungeonChartFrame.ChartFrame.Graphic, "bottomleft", xPosition, 0)
 
-				bossWidget.TimeText:SetText(Details:GetFramework():IntegerToTimer(bossTable[1]))
+				bossWidget.TimeText:SetText(framework:IntegerToTimer(bossTable[1]))
 
 				if (bossTable[2].bossimage) then
 					bossWidget.AvatarTexture:SetTexture(bossTable[2].bossimage)
