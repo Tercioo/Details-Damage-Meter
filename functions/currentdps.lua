@@ -92,10 +92,14 @@ function Details.CurrentDps.GetCurrentDps(serial)
 end
 
 --handle internal details! events
+--[[
 local eventListener = Details:CreateEventListener()
-eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
+local start_func = function()
 	--Details.CurrentDps.StartCurrentDpsTracker()
-end)
-eventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", function()
+end
+eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", start_func)
+local end_func = function()
 	--Details.CurrentDps.StopCurrentDpsTracker()
-end)
+end
+eventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", end_func)
+]]
