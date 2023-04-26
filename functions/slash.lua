@@ -49,7 +49,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia(nil, true)
 
-	elseif (command == Loc ["STRING_SLASH_HISTORY"] or 
+	elseif (command == Loc ["STRING_SLASH_HISTORY"] or
 	command == "history" or
 	command == "score" or
 	command == "rank" or
@@ -383,9 +383,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		b:SetTarget (texture)
 		A:Play()
 
-		C_Timer.NewTicker(1, function()
+		local rand_cord_func = function()
 			texture:SetTexCoord(math.random(), math.random(), math.random(), math.random(), math.random(), math.random(), math.random(), math.random())
-		end)
+		end
+		C_Timer.NewTicker(1, rand_cord_func)
 
 
 	elseif (msg == "realmsync") then
@@ -797,25 +798,23 @@ function SlashCmdList.DETAILS (msg, editbox)
 						Details.id_frame.texto:SetBackdropBorderColor(0.3, 0.3, 0.30, 0.80)
 						Details.id_frame.texto:SetText("")
 						Details.id_frame.texto.perdeu_foco = nil
-
-						Details.id_frame.texto:SetScript("OnEnterPressed", function()
+						local hide_func = function()
 							Details.id_frame.texto:ClearFocus()
 							Details.id_frame:Hide()
-						end)
+						end
+						Details.id_frame.texto:SetScript("OnEnterPressed", hide_func)
 
-						Details.id_frame.texto:SetScript("OnEscapePressed", function()
-							Details.id_frame.texto:ClearFocus()
-							Details.id_frame:Hide()
-						end)
+						Details.id_frame.texto:SetScript("OnEscapePressed", hide_func)
 
 					end
 
-					C_Timer.After(0.1, function()
+					local start_func = function()
 						Details.id_frame:Show()
 						Details.id_frame.texto:SetFocus()
 						Details.id_frame.texto:SetText("" .. npcId)
 						Details.id_frame.texto:HighlightText()
-					end)
+					end
+					C_Timer.After(0.1, start_func)
 				end
 			end
 		end
@@ -853,25 +852,23 @@ function SlashCmdList.DETAILS (msg, editbox)
 					Details.id_frame.texto:SetBackdropBorderColor(0.3, 0.3, 0.30, 0.80)
 					Details.id_frame.texto:SetText("")
 					Details.id_frame.texto.perdeu_foco = nil
-
-					Details.id_frame.texto:SetScript("OnEnterPressed", function()
+					local hide_func = function()
 						Details.id_frame.texto:ClearFocus()
 						Details.id_frame:Hide()
-					end)
+					end
+					Details.id_frame.texto:SetScript("OnEnterPressed", hide_func)
 
-					Details.id_frame.texto:SetScript("OnEscapePressed", function()
-						Details.id_frame.texto:ClearFocus()
-						Details.id_frame:Hide()
-					end)
+					Details.id_frame.texto:SetScript("OnEscapePressed", hide_func)
 
 				end
 
-				C_Timer.After(0.1, function()
+				local start_func = function()
 					Details.id_frame:Show()
 					Details.id_frame.texto:SetFocus()
 					Details.id_frame.texto:SetText("" .. npcId)
 					Details.id_frame.texto:HighlightText()
-				end)
+				end
+				C_Timer.After(0.1, start_func)
 			end
 		end
 
@@ -891,33 +888,21 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		print(Loc ["STRING_DETAILS1"] .. "highfive sent, HI!")
 
-		C_Timer.After(0.3, function()
+		local refresh_func_a = function()
 			Details.RefreshUserList()
-		end)
-		C_Timer.After(0.6, function()
+		end
+		local refresh_func_b = function()
 			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(0.9, function()
-			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(1.3, function()
-			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(1.6, function()
-			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(3, function()
-			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(4, function()
-			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(5, function()
-			Details.RefreshUserList (true)
-		end)
-		C_Timer.After(8, function()
-			Details.RefreshUserList (true)
-		end)
+		end
+		C_Timer.After(0.3, refresh_func_a)
+		C_Timer.After(0.6, refresh_func_b)
+		C_Timer.After(0.9, refresh_func_b)
+		C_Timer.After(1.3, refresh_func_b)
+		C_Timer.After(1.6, refresh_func_b)
+		C_Timer.After(3, refresh_func_b)
+		C_Timer.After(4, refresh_func_b)
+		C_Timer.After(5, refresh_func_b)
+		C_Timer.After(8, refresh_func_b)
 
 	elseif (command == "names") then
 		local t, filter = rest:match("^(%S*)%s*(.-)$")
@@ -1064,7 +1049,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local x, y = GetPlayerMapPosition ("player")
 
 		if (not DetailsPosBox) then
-			_detalhes.gump:CreateTextEntry(UIParent, function()end, 200, 20, nil, "DetailsPosBox")
+			local func = function()end
+			_detalhes.gump:CreateTextEntry(UIParent, func, 200, 20, nil, "DetailsPosBox")
 			DetailsPosBox:SetPoint("center", UIParent, "center")
 		end
 
@@ -1088,7 +1074,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "sell") then
 
 		--sell gray
-		local c, i, n, v = 0
+		local c, i, n, v, q = 0
 		for b = 0, 4 do
 			for s = 1, GetContainerNumSlots(b) do
 				i = {GetContainerItemInfo (b, s)}
@@ -1105,7 +1091,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print(GetCoinText(c))
 
 		--sell green equip
-		local c, i, n, v = 0
+		c, i, n, v = 0
 		for b = 0, 4 do
 			for s = 1, GetContainerNumSlots(b) do
 				local texture, itemCount, locked, quality, readable, lootable, itemLink = GetContainerItemInfo (b, s)
@@ -1291,7 +1277,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 --	https://www.dropbox.com/s/ulyeqa2z0ummlu7/1024.tga?dl=0
 
 			local elapsedTime = 0
-			a:SetScript("OnUpdate", function(self, deltaTime)
+			local update_func = function(self, deltaTime)
 				elapsedTime = elapsedTime + deltaTime
 
 				--texture:SetSize(math.random(50, 300), math.random(50, 300))
@@ -1304,7 +1290,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 				--a:SetAlpha(abs(math.sin (time)))
 				--a:SetValue(abs(math.sin (time)))
-			end)
+			end
+			a:SetScript("OnUpdate", update_func)
 		end
 
 	elseif (msg == "alert") then
@@ -1642,7 +1629,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 			--Interface\Cooldown\star4
 			--efeito de batida?
 			--Interface\Artifacts\ArtifactAnim2
-			local animationHub = DetailsFramework:CreateAnimationHub (f, function() f:Show() end)
+			local show_func = function() f:Show() end
+			local animationHub = DetailsFramework:CreateAnimationHub (f, show_func)
 
 			DetailsFramework:CreateAnimation(animationHub, "Scale", 1, .10, .9, .9, 1.1, 1.1)
 			DetailsFramework:CreateAnimation(animationHub, "Scale", 2, .10, 1.2, 1.2, 1, 1)
@@ -1808,10 +1796,10 @@ function Details.RefreshUserList (ignoreIfHidden)
 	end
 
 	local newList = DetailsFramework.table.copy({}, _detalhes.users or {})
-
-	table.sort (newList, function(t1, t2)
+	local sort_func = function(t1, t2)
 		return t1[3] > t2[3]
-	end)
+	end
+	table.sort (newList, sort_func)
 
 	--search for people that didn't answered
 	if (IsInRaid()) then
@@ -1963,12 +1951,13 @@ function Details:UpdateUserPanel(usersTable)
 		for i = 1, scroll_lines do
 			usersScroll:CreateLine (scroll_createline)
 		end
+		local show_func = function()
+		end
+		local hide_func = function()
+		end
+		DetailsUserPanel:SetScript("OnShow", show_func)
 
-		DetailsUserPanel:SetScript("OnShow", function()
-		end)
-
-		DetailsUserPanel:SetScript("OnHide", function()
-		end)
+		DetailsUserPanel:SetScript("OnHide", hide_func)
 	end
 
 	Details.UserPanel.ScrollBox:SetData (usersTable)
@@ -2464,9 +2453,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					end
 
 					if (order == "DESC") then
-						table.sort(newData, function(t1, t2) return t1[sortByIndex] > t2[sortByIndex] end)
+						local sort_func = function(t1, t2) return t1[sortByIndex] > t2[sortByIndex] end
+						table.sort(newData, sort_func)
 					else
-						table.sort(newData, function(t1, t2) return t1[sortByIndex] < t2[sortByIndex] end)
+						local sort_func = function(t1, t2) return t1[sortByIndex] < t2[sortByIndex] end
+						table.sort(newData, sort_func)
 					end
 
 					--remove offline guild players from the list
@@ -2492,7 +2483,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						end
 
 						if (#playersInTheParty > 0) then
-							table.sort(playersInTheParty, function(t1, t2) return t1[11] > t2[11] end)
+							local sort_func = function(t1, t2) return t1[11] > t2[11] end
+							table.sort(playersInTheParty, sort_func)
 							for i = 1, #playersInTheParty do
 								local keystoneTable = playersInTheParty[i]
 								tinsert(newData, 1, keystoneTable)
@@ -2516,10 +2508,10 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						f.RefreshData()
 					end
 				end
-
-				f:SetScript("OnHide", function()
+				local hide_func = function()
 					openRaidLib.UnregisterCallback(DetailsKeystoneInfoFrame, "KeystoneUpdate", "OnKeystoneUpdate")
-				end)
+				end
+				f:SetScript("OnHide", hide_func)
 			end
 
 			--call an update on the guild roster

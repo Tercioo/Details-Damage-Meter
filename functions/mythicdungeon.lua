@@ -793,12 +793,15 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
         if (lowerInstance) then
             lowerInstance = _detalhes:GetInstance(lowerInstance)
             if (lowerInstance) then
-                C_Timer.After(3, function()
+				local func = {function() end}
+				local lower_instance_alert = function()
                     if (lowerInstance:IsEnabled()) then
                         --todo, need localization
-                        lowerInstance:InstanceAlert("Details!" .. " " .. "Damage" .. " " .. "Meter", {[[Interface\AddOns\Details\images\minimap]], 16, 16, false}, 3, {function() end}, false, true)
+                        lowerInstance:InstanceAlert("Details!" .. " " .. "Damage" .. " " .. "Meter", {[[Interface\AddOns\Details\images\minimap]], 16, 16, false}, 3, func, false, true)
                     end
-                end)
+                end
+
+                C_Timer.After(3, lower_instance_alert)
             end
         end
 
@@ -840,7 +843,7 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
     end
 end
 
-DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
+local frame_event_func = function(_, event, ...)
     if (event == "START_TIMER") then
         DetailsMythicPlusFrame.LastTimer = GetTime()
 
@@ -876,4 +879,6 @@ DetailsMythicPlusFrame:SetScript("OnEvent", function(_, event, ...)
             end
         end
     end
-end)
+end
+
+DetailsMythicPlusFrame:SetScript("OnEvent", frame_event_func)

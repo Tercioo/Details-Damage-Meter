@@ -1695,9 +1695,10 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 
 				print("D! (debug) mythic dungeon state restored.")
 
-				C_Timer.After(2, function()
+				local event_func = function()
 					_detalhes:SendEvent("COMBAT_MYTHICDUNGEON_START")
-				end)
+				end
+				C_Timer.After(2, event_func)
 				return
 			else
 				print("D! (debug) mythic level isn't equal.", mythicLevel, savedTable.level)
@@ -1947,9 +1948,12 @@ function Details.ShowImportProfileConfirmation(message, callback)
 		promptFrame:EnableMouse(true)
 		promptFrame:SetMovable(true)
 		promptFrame:RegisterForDrag ("LeftButton")
-		promptFrame:SetScript("OnDragStart", function() promptFrame:StartMoving() end)
-		promptFrame:SetScript("OnDragStop", function() promptFrame:StopMovingOrSizing() end)
-		promptFrame:SetScript("OnMouseDown", function(self, button) if (button == "RightButton") then promptFrame.EntryBox:ClearFocus() promptFrame:Hide() end end)
+		local move_func = function() promptFrame:StartMoving() end
+		promptFrame:SetScript("OnDragStart", move_func)
+		local stop_move_func = function() promptFrame:StopMovingOrSizing() end
+		promptFrame:SetScript("OnDragStop", stop_move_func)
+		local click_func = function(self, button) if (button == "RightButton") then promptFrame.EntryBox:ClearFocus() promptFrame:Hide() end end
+		promptFrame:SetScript("OnMouseDown", click_func)
 		tinsert(UISpecialFrames, "DetailsImportProfileDialog")
 
 		detailsFramework:CreateTitleBar(promptFrame, "Import Profile Confirmation")
@@ -1964,12 +1968,13 @@ function Details.ShowImportProfileConfirmation(message, callback)
 		local button_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
 		local options_dropdown_template = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 
-		local textbox = detailsFramework:CreateTextEntry(promptFrame, function()end, 380, 20, "textbox", nil, nil, options_dropdown_template)
+		local func = function()end
+		local textbox = detailsFramework:CreateTextEntry(promptFrame, func, 380, 20, "textbox", nil, nil, options_dropdown_template)
 		textbox:SetPoint("topleft", promptFrame, "topleft", 10, -60)
 		promptFrame.EntryBox = textbox
 
 		--create a detailsframework checkbox to select if want to import the auto run scripts
-		local checkbox = detailsFramework:CreateSwitch(promptFrame, function()end, false, _, _, _, _, _, _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+		local checkbox = detailsFramework:CreateSwitch(promptFrame, func, false, _, _, _, _, _, _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		checkbox:SetPoint("topleft", promptFrame, "topleft", 10, -90)
 		checkbox:SetAsCheckBox()
 		promptFrame.checkbox = checkbox
@@ -1985,7 +1990,8 @@ function Details.ShowImportProfileConfirmation(message, callback)
 		buttonTrue:SetPoint("bottomright", promptFrame, "bottomright", -10, 5)
 		promptFrame.button_true = buttonTrue
 
-		local buttonFalse = detailsFramework:CreateButton(promptFrame, function() promptFrame.textbox:ClearFocus() promptFrame:Hide() end, 60, 20, "Cancel", nil, nil, nil, nil, nil, nil, options_dropdown_template)
+		local text_clear_func = function() promptFrame.textbox:ClearFocus() promptFrame:Hide() end
+		local buttonFalse = detailsFramework:CreateButton(promptFrame, text_clear_func, 60, 20, "Cancel", nil, nil, nil, nil, nil, nil, options_dropdown_template)
 		buttonFalse:SetPoint("bottomleft", promptFrame, "bottomleft", 10, 5)
 		promptFrame.button_false = buttonFalse
 
@@ -2002,13 +2008,9 @@ function Details.ShowImportProfileConfirmation(message, callback)
 			end
 		end
 
-		buttonTrue:SetClickFunction(function()
-			executeCallback()
-		end)
+		buttonTrue:SetClickFunction(executeCallback)
 
-		textbox:SetHook("OnEnterPressed", function()
-			executeCallback()
-		end)
+		textbox:SetHook("OnEnterPressed", executeCallback)
 
 		promptFrame:Hide()
 		Details.profileConfirmationDialog = promptFrame
@@ -2022,6 +2024,3 @@ function Details.ShowImportProfileConfirmation(message, callback)
 	Details.profileConfirmationDialog.button_true.true_function = callback
 	Details.profileConfirmationDialog.textbox:SetFocus(true)
 end
-
-
-

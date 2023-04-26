@@ -24,7 +24,8 @@
     end
 
     local releaseTextureForPortraitPool = function(texture)
-        pcall(function() table.remove(portraitPool.inUse, detailsFramework.table.find(portraitPool.inUse, texture)) end)
+		local callback = function() table.remove(portraitPool.inUse, detailsFramework.table.find(portraitPool.inUse, texture)) end
+        pcall(callback)
         table.insert(portraitPool.available, texture)
     end
 
@@ -66,16 +67,17 @@
 
     local eventListener = Details:CreateEventListener()
 
-    eventListener:RegisterEvent("DETAILS_DATA_RESET", function()
-        --> on reset data, release all textures:
-            for i = 1, #portraitPool.inUse do
-                local texture = portraitPool.inUse[i]
-                releaseTextureForPortraitPool(texture)
-            end
-            table.wipe(portraitPool.npcIdToTexture)
-    end)
+	local reset_func = function()
+	--> on reset data, release all textures:
+		for i = 1, #portraitPool.inUse do
+			local texture = portraitPool.inUse[i]
+			releaseTextureForPortraitPool(texture)
+		end
+		table.wipe(portraitPool.npcIdToTexture)
+    end
+    eventListener:RegisterEvent("DETAILS_DATA_RESET", reset_func)
 
-    eventListener:RegisterEvent("COMBAT_ENCOUNTER_START", function()
+	local start_encounter = function()
         --> save a portrait texture for each boss in the boss list
         for i = 1, 9 do
             local unitId = "boss" .. i
@@ -83,15 +85,17 @@
                 Details222.Textures.SavePortraitTextureForUnitID(unitId)
             end
         end
-    end)
+    end
+    eventListener:RegisterEvent("COMBAT_ENCOUNTER_START", start_encounter)
 
-    eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
+	local player_enter_combat = function()
         if (UnitExists("target")) then
             Details222.Textures.SavePortraitTextureForUnitID("target")
         end
-    end)
+    end
+    eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", player_enter_combat)
 
-    eventListener:RegisterEvent("PLAYER_TARGET", function()
+	local target_func = function()
         if (Details.in_combat) then
             if (UnitExists("target")) then
                 Details222.Textures.SavePortraitTextureForUnitID("target")
@@ -100,8 +104,5 @@
                 Details222.Textures.SavePortraitTextureForUnitID("focus")
             end
         end
-    end)
-
-
-
-
+    end
+    eventListener:RegisterEvent("PLAYER_TARGET", target_func)

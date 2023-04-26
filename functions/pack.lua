@@ -181,7 +181,7 @@ function Details.packFunctions.PackCombatData(combatObject, flags)
         local dataEncoded = LibDeflate:EncodeForWoWAddonChannel(dataCompressed)
 
         --print("encoded for WowAddonChannel (debug):", format("%.2f", #dataEncoded/1024), "KBytes")
-        
+
         return dataEncoded
 end
 
@@ -343,7 +343,7 @@ local packActorSerial = function(actor)
 
     elseif (serial:match("^P") == "P") then
         return "P"
-    
+
     elseif (serial == "") then
         return "C12345"
     end
@@ -490,7 +490,9 @@ function Details.packFunctions.PackDamage(combatObject)
             end
         end
     end
-    table.sort(allPlayerNames, function(t1, t2) return t1 < t2 end)
+
+	local sort_func = function(t1, t2) return t1 < t2 end
+    table.sort(allPlayerNames, sort_func)
 
     local playerName = UnitName("player")
     for i = 1, #allPlayerNames do
@@ -740,7 +742,8 @@ function Details.packFunctions.PackHeal(combatObject)
             end
         end
     end
-    table.sort(allPlayerNames, function(t1, t2) return t1 < t2 end)
+	local sort_func = function(t1, t2) return t1 < t2 end
+    table.sort(allPlayerNames, sort_func)
 
     local playerName = UnitName("player")
     for i = 1, #allPlayerNames do
@@ -994,7 +997,8 @@ function Details.packFunctions.PackUtility(combatObject)
             end
         end
     end
-    table.sort(allPlayerNames, function(t1, t2) return t1 < t2 end)
+	local sort_func = function(t1, t2) return t1 < t2 end
+    table.sort(allPlayerNames, sort_func)
 
     local playerName = UnitName("player")
     for i = 1, #allPlayerNames do
@@ -1277,7 +1281,7 @@ function Details.packFunctions.PackUtility(combatObject)
                 --reserve an index to tell the length of spells
                 actorUtilityInfo [#actorUtilityInfo + 1] = 0
                 local reservedSpellSizeIndex = #actorUtilityInfo
-            
+
                 for spellId, spellInfo in pairs(dispelsContainer) do
                     local spellTotal = spellInfo.dispell
                     local spellTargets = spellInfo.targets
@@ -1325,7 +1329,7 @@ function Details.packFunctions.PackUtility(combatObject)
                 --reserve an index to tell the length of spells
                 actorUtilityInfo [#actorUtilityInfo + 1] = 0
                 local reservedSpellSizeIndex = #actorUtilityInfo
-            
+
                 for spellId, spellInfo in pairs(ressContainer) do
                     local spellTotal = spellInfo.ress
                     local spellTargets = spellInfo.targets
@@ -1842,7 +1846,7 @@ function Details.packFunctions.DeployPackedCombatData(packedCombatData)
                     end
                 end
             end
-        end        
+        end
     end
 
     --refresh windows

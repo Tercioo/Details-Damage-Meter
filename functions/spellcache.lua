@@ -54,7 +54,7 @@ do
 		end
 
 		if (not spellName) then
-			return spell, _, AllSpellNames [spell] or defaultSpellIcon
+			return spell, _, AllSpellNames [spell] or unknowSpell
 		end
 
 		return spellName, _, AllSpellNames [spell] or spellIcon
@@ -324,9 +324,10 @@ do
 		end
 	end
 
-	C_Timer.After(0, function()
+	local fill_func = function()
 		Details:FillUserCustomSpells()
-	end)
+	end
+	C_Timer.After(0, fill_func)
 
 	function Details:UserCustomSpellAdd(spellid, name, icon)
 		local isOverwrite = false
@@ -418,7 +419,7 @@ do
 
 		Details.spellcachefull = SpellCache
 
-		load_frame:SetScript("OnUpdate", function()
+		local update_func = function()
 			for spellid = step, step+500 do
 				local name, _, icon = blizzGetSpellInfo (spellid)
 				if (name) then
@@ -440,10 +441,9 @@ do
 				DetailsLoadSpellCacheProgress:Hide()
 				load_frame:SetScript("OnUpdate", nil)
 			end
+		end
 
-		end)
-
-
+		load_frame:SetScript("OnUpdate", update_func)
 
 		return true
 	end
