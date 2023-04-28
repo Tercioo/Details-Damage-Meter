@@ -65,13 +65,24 @@ function spellsTab.GetSpellScrollFrame()
 	return spellsTab.TabFrame.SpellScrollFrame
 end
 
----return the breakdownspellblockcontainer object, there's only one of this in the breakdown window
----@return breakdownspellblockcontainer
+---@return df_framecontainer
+function spellsTab.GetSpellScrollContainer()
+	return spellsTab.SpellContainerFrame
+end
+
+---return the breakdownspellblockframe object, there's only one of this in the breakdown window
+---@return breakdownspellblockframe
 function spellsTab.GetSpellBlockFrame()
 	return spellsTab.TabFrame.SpellBlockFrame
 end
 
+---@return df_framecontainer
+function spellsTab.GetSpellBlockContainer()
+	return spellsTab.BlocksContainerFrame
+end
+
 function spellsTab.OnProfileChange()
+	--no need to cache, just call the db from there
 	spellsTab.spellcontainer_header_settings = Details.breakdown_spell_tab.spellcontainer_headers
 	spellsTab.UpdateHeadersSettings("spells")
 end
@@ -232,8 +243,6 @@ function spellsTab.BuildHeaderTable(containerType)
 		---@type {enabled: boolean, width: number, align: string}
 		local columnSettings = settings[columnData.name]
 
-		--, canSort = true, dataType = "number", order = "DESC", offset = 0
-
 		if (columnSettings.enabled) then
 			local bCanAdd = true
 			if (columnData.attribute) then
@@ -342,7 +351,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 
     --create the 6 spell blocks in the right side of the breakdown window
     --these blocks show the spell info like normal hits, critical hits, average, etc
-	---@type breakdownspellblockcontainer
+	---@type breakdownspellblockframe
     local spellBlockContainer = spellsTab.CreateSpellBlockContainer(tabFrame)
 
     --create the targets container
@@ -397,12 +406,15 @@ end
 
 ---run this function when the mouse hover over a breakdownspellbar
 ---@param spellBar breakdownspellbar
-local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por nomes nas funções e formatar as linhas das funcções
+---@param motion boolean|nil
+local onEnterBreakdownSpellBar = function(spellBar, motion) --parei aqui: precisa por nomes nas funções e formatar as linhas das funcções
 	--all values from spellBar are cached values
 	--check if there's a spellbar selected, if there's one, ignore the mouseover
-	if (spellsTab.HasSelectedSpellBar()) then
+	if (spellsTab.HasSelectedSpellBar() and motion) then
 		return
 	end
+
+	spellsTab.currentSpellBar = spellBar
 
     ---@type instance
     local instance = spellsTab.GetInstance()
@@ -410,7 +422,7 @@ local onEnterBreakdownSpellBar = function(spellBar) --parei aqui: precisa por no
 	---@type number, number
 	local mainAttribute, subAttribute = instance:GetDisplay()
 
-	---@type breakdownspellblockcontainer
+	---@type breakdownspellblockframe
 	local spellBlockContainer = spellsTab.GetSpellBlockFrame()
 	spellBlockContainer:ClearBlocks()
 
@@ -645,12 +657,19 @@ end
 ---run this function when the mouse leaves a breakdownspellbar
 ---@param spellBar breakdownspellbar
 local onLeaveBreakdownSpellBar = function(spellBar)
+	spellsTab.currentSpellBar = nil
+
 	--remove effects on entering the bar line
 	spellBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
 	spellBar:SetAlpha(0.9)
 
 	GameTooltip:Hide()
 	GameCooltip:Hide()
+
+	--clear spell blocks
+	if (not spellsTab.HasSelectedSpellBar()) then
+		spellsTab.GetSpellBlockFrame():ClearBlocks()
+	end
 end
 
 ---on mouse down a breakdownspellbar in the breakdown window
@@ -724,7 +743,7 @@ local spellBlockMixin = {
 }
 
 ---create a spell block into the spellblockcontainer
----@param spellBlockContainer breakdownspellblockcontainer
+---@param spellBlockContainer breakdownspellblockframe
 ---@param index number
 ---@return breakdownspellblock
 function spellsTab.CreateSpellBlock(spellBlockContainer, index) --~breakdownspellblock ~create ~spellblocks
@@ -804,7 +823,7 @@ end
 local spellBlockContainerMixin = {
 	---refresh all the spellblocks in the container ~UpdateBlocks
 	---this function adjust the frame properties, does not update the data shown on them
-	---@param self breakdownspellblockcontainer
+	---@param self breakdownspellblockframe
 	UpdateBlocks = function(self) --~update
 		---@type number, number
 		local width, height = Details.breakdown_spell_tab.blockcontainer_width, Details.breakdown_spell_tab.blockcontainer_height
@@ -826,6 +845,7 @@ local spellBlockContainerMixin = {
 			spellBlock:SetSize(width - 2, blockHeight)
 			spellBlock:SetPoint("topleft", self, "topleft", 1, (blockHeight * (i - 1) - i) * -1 - (i*2) + ((i-1) * padding))
 			spellBlock:SetPoint("topright", self, "topright", 1, (blockHeight * (i - 1) - i) * -1 - (i*2) + ((i-1) * padding))
+
 			spellBlock.sparkTexture:SetSize(spellBreakdownSettings.blockspell_spark_width, blockHeight)
 			spellBlock.sparkTexture:SetShown(spellBreakdownSettings.blockspell_spark_show)
 			spellBlock.sparkTexture:SetVertexColor(unpack(spellBreakdownSettings.blockspell_spark_color))
@@ -853,7 +873,7 @@ local spellBlockContainerMixin = {
 		end
 	end,
 
-	---@param self breakdownspellblockcontainer
+	---@param self breakdownspellblockframe
 	ClearBlocks = function(self)
 		for i = 1, #self.SpellBlocks do
 			---@type breakdownspellblock
@@ -870,7 +890,7 @@ local spellBlockContainerMixin = {
 	end,
 
 	---get a breakdownspellblock from the container
-	---@param self breakdownspellblockcontainer
+	---@param self breakdownspellblockframe
 	---@param index number
 	---@return breakdownspellblock
 	GetBlock = function(self, index)
@@ -880,7 +900,7 @@ local spellBlockContainerMixin = {
 
 ---create the spell blocks which shows the critical hits, normal hits, etc
 ---@param tabFrame tabframe
----@return breakdownspellblockcontainer
+---@return breakdownspellblockframe
 function spellsTab.CreateSpellBlockContainer(tabFrame)
 	--create a container for the scrollframe
 	local options = {
@@ -895,13 +915,23 @@ function spellsTab.CreateSpellBlockContainer(tabFrame)
 
 	---@type df_framecontainer
 	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "SpellScrollContainer")
-	container:SetPoint("topleft", spellsTab.SpellContainerFrame, "topright", 26, 0)
+	container:SetPoint("topleft", spellsTab.GetSpellScrollContainer(), "topright", 26, 0)
 	container:SetFrameLevel(tabFrame:GetFrameLevel() + 10)
 	spellsTab.BlocksContainerFrame = container
 
-	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue) --doing here the callback for thge settings changed in the container
+	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue)
 		if (frameContainer:IsShown()) then
-			if (settingName == "height") then
+			if (settingName == "UpdateSize") then
+				--get the tabFrame width and height
+				local width, height = tabFrame:GetSize()
+				--get with of the container holding the spellscrollframe
+				local containerWidth = spellsTab.GetSpellScrollContainer():GetWidth()
+				--calculate the widh of the spellblockcontainer by subtracting the width of the spellscrollframe container from the tabFrame width
+				local spellBlockContainerWidth = width - containerWidth - 38
+				--set the width of the spellblockcontainer
+				container:SetWidth(spellBlockContainerWidth)
+
+			elseif (settingName == "height") then
 				---@type number
 				local currentHeight = spellsTab.GetSpellScrollFrame():GetHeight()
 				Details.breakdown_spell_tab.blockcontainer_height = settingValue
@@ -913,12 +943,19 @@ function spellsTab.CreateSpellBlockContainer(tabFrame)
 			elseif (settingName == "is_locked") then
 				Details.breakdown_spell_tab.blockcontainer_islocked = settingValue
 			end
+
+			--update the spell blocks
+			spellsTab.GetSpellBlockFrame():UpdateBlocks()
+
+			if (spellsTab.GetSelectedSpellBar()) then
+				onEnterBreakdownSpellBar(spellsTab.GetSelectedSpellBar())
+			end
 		end
 	end
 	container:SetSettingChangedCallback(settingChangedCallbackFunction)
 
 	--create the container which will hold the spell blocks
-	---@type breakdownspellblockcontainer
+	---@type breakdownspellblockframe
 	local spellBlockFrame = CreateFrame("Frame", "$parentSpellBlockContainer", container, "BackdropTemplate")
 	spellBlockFrame:EnableMouse(false)
 	spellBlockFrame:SetResizable(false)
@@ -1365,6 +1402,8 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 			elseif (settingName == "is_locked") then
 				Details.breakdown_spell_tab.spellcontainer_islocked = settingValue
 			end
+
+			spellsTab.GetSpellBlockContainer():SendSettingChangedCallback("UpdateSize", -1)
 		end
 	end
 	local defaultAmountOfLines = 50

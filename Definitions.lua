@@ -498,13 +498,13 @@
 
 ---@class tabframe : frame this is the tab frame object for the breakdown window
 
----@class breakdownspellblockcontainer : frame container for the spellblocks in the breakdown window
+---@class breakdownspellblockframe : frame container for the spellblocks in the breakdown window
 ---@field SpellBlocks breakdownspellblock[]
----@field UpdateBlocks fun(self: breakdownspellblockcontainer)
----@field ClearBlocks fun(self: breakdownspellblockcontainer)
----@field GetBlock fun(self: breakdownspellblockcontainer, index: number) : breakdownspellblock
+---@field UpdateBlocks fun(self: breakdownspellblockframe)
+---@field ClearBlocks fun(self: breakdownspellblockframe)
+---@field GetBlock fun(self: breakdownspellblockframe, index: number) : breakdownspellblock
 
----@class breakdownspellblock : statusbar breakdownspellblock object which is created inside the breakdownspellblockcontainer
+---@class breakdownspellblock : statusbar breakdownspellblock object which is created inside the breakdownspellblockframe
 ---@field Lines breakdownspellblockline[]
 ---@field reportButton button
 ---@field overlay texture
