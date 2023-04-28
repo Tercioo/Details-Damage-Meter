@@ -56,6 +56,7 @@ local geterrorhandler = geterrorhandler
 ---@field texture texture
 
 --mixed functions
+---@class df_headerfunctions : table
 detailsFramework.HeaderFunctions = {
     ---comment
     ---@param self df_headerchild

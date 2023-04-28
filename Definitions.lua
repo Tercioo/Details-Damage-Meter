@@ -185,6 +185,16 @@
 ---@field GetOrientation fun(self: statusbar) : string
 ---@field GetReverseFill fun(self: statusbar) : boolean
 
+---@class scrollframe : frame
+---@field SetScrollChild fun(self: scrollframe, child: frame)
+---@field GetScrollChild fun(self: scrollframe) : frame
+---@field SetHorizontalScroll fun(self: scrollframe, offset: number)
+---@field SetVerticalScroll fun(self: scrollframe, offset: number)
+---@field GetHorizontalScroll fun(self: scrollframe) : number
+---@field GetVerticalScroll fun(self: scrollframe) : number
+---@field GetHorizontalScrollRange fun(self: scrollframe) : number
+---@field GetVerticalScrollRange fun(self: scrollframe) : number
+
 ---@class region : uiobject
 
 ---@class fontstring : region
@@ -424,12 +434,14 @@
 ---@class breakdownexpandbutton : button
 ---@field texture texture
 
----@class breakdownspellscrollframe : frame
----@field Header frame
+---@class breakdownspellscrollframe : df_scrollboxmixin, scrollframe
+---@field Header df_headerframe
+---@field RefreshMe fun(scrollFrame: breakdownspellscrollframe, data: table|nil)
 
 
 
----@class breakdownspellbar : button
+
+---@class breakdownspellbar : button, df_headerfunctions
 ---@field index number
 ---@field rank number
 ---@field spellId number

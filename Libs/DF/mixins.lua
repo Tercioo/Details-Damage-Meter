@@ -418,7 +418,7 @@ detailsFramework.ScriptHookMixin = {
 
 ---mixin to use with DetailsFramework:Mixin(table, detailsFramework.SortFunctions)
 ---add methods to be used on scrollframes
----@class DetailsFramework.ScrollBoxFunctions
+---@class df_scrollboxmixin
 detailsFramework.ScrollBoxFunctions = {
 	---refresh the scrollbox by resetting all lines created with :CreateLine(), then calling the refresh_func which was set at :CreateScrollBox()
 	---@param self table
@@ -686,6 +686,9 @@ detailsFramework.ScrollBoxFunctions = {
 		return showScrollBar;
 	end,
 }
+
+--back compatibility, can be removed in the future (28/04/2023)
+---@class DetailsFramework.ScrollBoxFunctions : df_scrollboxmixin
 
 local SortMember = ""
 local SortByMember = function(t1, t2)
