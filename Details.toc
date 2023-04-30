@@ -87,6 +87,8 @@ frames\window_playerbreakdown_list.lua
 frames\window_playerbreakdown_compare.lua
 frames\window_playerbreakdown_avoidance.lua
 frames\window_playerbreakdown_auras.lua
+frames\window_playerbreakdown_spells.lua
+frames\window_playerbreakdown_spells_options.lua
 frames\window_report.lua
 frames\window_main.lua
 frames\window_custom.lua
@@ -113,6 +115,7 @@ frames\window_statistics.lua
 frames\window_aura_tracker.lua
 
 classes\class_error.lua
+classes\class_spelltable.lua
 classes\class_combat.lua
 classes\class_damage.lua
 classes\class_spelldamage.lua

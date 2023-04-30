@@ -1,7 +1,9 @@
 
-
 local Details = _G.Details
 local addonName, Details222 = ...
+
+local bIsEnabled = false
+local testCharacterName = "Ditador"
 
 --namespace
 Details.CurrentDps = {
@@ -41,27 +43,27 @@ currentDpsFrame.OnUpdateFunc = function(self, deltaTime)
             --get the damage done on this tick
             local totalDamageThisTick = actorObject.total - actorTable.latestDamageAmount
             --add the damage to the cache
-            tinsert(actorTable.cache, 1, totalDamageThisTick)
+            table.insert(actorTable.cache, 1, totalDamageThisTick)
             --set the latest damage amount
             actorTable.latestDamageAmount = actorObject.total
             --sum the total damage the actor inflicted
             actorTable.totalDamage = actorTable.totalDamage + totalDamageThisTick
 
             --cut the damage
-            local damageRemoved = tremove(actorTable.cache, cacheOverflowIndex)
+            local damageRemoved = table.remove(actorTable.cache, cacheOverflowIndex)
             if (damageRemoved) then
                 actorTable.totalDamage = actorTable.totalDamage - damageRemoved
-                actorTable.totalDamage = max(0, actorTable.totalDamage) --safe guard
+                actorTable.totalDamage = math.max(0, actorTable.totalDamage) --safe guard
             end
 
             actorTable.currentDps = actorTable.totalDamage / dpsTime
-            if (actorObject.nome == "Ditador") then
+            if (actorObject.nome == testCharacterName) then --debug
                 local formatToKFunc = Details:GetCurrentToKFunction()
                 print(actorTable.totalDamage, #actorTable.cache, dpsTime, formatToKFunc(nil, actorTable.currentDps))
             end
 
-            if (actorObject.nome == "Ditador") then
-                --print("Dps:", actorTable.currentDps)
+            if (actorObject.nome == testCharacterName) then --debug
+                print("Dps:", actorTable.currentDps)
             end
         end
     end
@@ -94,8 +96,13 @@ end
 --handle internal details! events
 local eventListener = Details:CreateEventListener()
 eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
-	--Details.CurrentDps.StartCurrentDpsTracker()
+    if (bIsEnabled) then
+	    Details.CurrentDps.StartCurrentDpsTracker()
+    end
 end)
+
 eventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", function()
-	--Details.CurrentDps.StopCurrentDpsTracker()
+    if (bIsEnabled) then
+	    Details.CurrentDps.StopCurrentDpsTracker()
+    end
 end)

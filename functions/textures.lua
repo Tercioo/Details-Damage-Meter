@@ -51,6 +51,8 @@
     end
 
     function Details222.Textures.SavePortraitTextureForUnitID(unitId)
+        if true then return end --portrait saving disabled atm
+
         local npcId = detailsFramework:GetNpcIdFromGuid(UnitGUID(unitId) or "")
         if (npcId and not Details222.Textures.GetPortraitTextureForNpcID(npcId)) then
             local texture = getTextureForPortraitPool()

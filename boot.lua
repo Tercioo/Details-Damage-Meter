@@ -2,6 +2,7 @@
 --global name declaration
 --local _StartDebugTime = debugprofilestop() print(debugprofilestop() - _StartDebugTime)
 --test if the packager will deploy to wago
+--https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
 
 --make an option to show death in the order of newest to oldest
 
@@ -15,7 +16,7 @@
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
-		_detalhes.realversion = 148 --core version, this is used to check API version for scripts and plugins (see alias below)
+		_detalhes.realversion = 149 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 
@@ -87,6 +88,7 @@
 		Details222.Perf = {}
 		Details222.Cooldowns = {}
 		Details222.GarbageCollector = {}
+		Details222.BreakdownWindow = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -777,8 +779,9 @@ do
 	local UIParent = UIParent --api locals
 
 	--Info Window
-		_detalhes.playerDetailWindow = CreateFrame("Frame", "DetailsPlayerDetailsWindow", UIParent, "BackdropTemplate")
+		_detalhes.playerDetailWindow = CreateFrame("Frame", "DetailsBreakdownWindow", UIParent, "BackdropTemplate")
 		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
+		Details.BreakdownWindow = _detalhes.playerDetailWindow
 
 	--Event Frame
 		_detalhes.listener = CreateFrame("Frame", nil, UIParent)

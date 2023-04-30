@@ -322,8 +322,12 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
-			
 		}
+
+		--all totem
+		--377461 382133
+		--377458 377459
+
 	end
 
 	local bitfield_debuffs = {}
@@ -2308,6 +2312,9 @@
 			if (bIsShield) then
 				spellTable.is_shield = true
 			end
+
+			spellTable.spellschool = spellType
+
 			if (_current_combat.is_boss and sourceFlags and bitBand(sourceFlags, OBJECT_TYPE_ENEMY) ~= 0) then
 				_detalhes.spell_school_cache[spellName] = spellType
 			end
@@ -5823,10 +5830,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes.logoff_saving_data = true
 
 		--close info window
-		if (_detalhes.FechaJanelaInfo) then
+		if (_detalhes.CloseBreakdownWindow) then
 			tinsert(_detalhes_global.exit_log, "1 - Closing Janela Info.")
 			currentStep = "Fecha Janela Info"
-			xpcall(_detalhes.FechaJanelaInfo, saver_error)
+			xpcall(_detalhes.CloseBreakdownWindow, saver_error)
 		end
 
 		--do not save window pos

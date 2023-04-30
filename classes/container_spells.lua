@@ -40,7 +40,7 @@ local addonName, Details222 = ...
 	---get the spellTable for the passed spellId
 	---@param spellId number
 	---@return table
-	function container_habilidades:GetSpell (spellId)
+	function container_habilidades:GetSpell(spellId)
 		return self._ActorTable[spellId]
 	end
 
@@ -56,6 +56,7 @@ local addonName, Details222 = ...
 	end
 
 	---return an iterator for all spellTables in this container
+	---@param self spellcontainer
 	---@return fun(table: table<<K>, <V>>, index?: <K>):<K>, <V>
 	function container_habilidades:ListActors()
 		return pairs(self._ActorTable)

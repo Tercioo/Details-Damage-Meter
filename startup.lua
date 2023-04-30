@@ -15,6 +15,8 @@ function Details:StartMeUp()
 	end
 	Details.AndIWillNeverStop = true
 
+	--note: this runs after profile loaded
+
 	--set default time for arena and bg to be the Details! load time in case the client loads mid event
 	Details.lastArenaStartTime = GetTime()
 	Details.lastBattlegroundStartTime = GetTime()
@@ -77,6 +79,8 @@ function Details:StartMeUp()
 	Details:InitializePlaterIntegrationWindow()
 	Details:InitializeMacrosWindow()
 
+	Details.InitializeSpellBreakdownTab()
+
 	if (Details.ocd_tracker.show_options) then
 		Details:InitializeCDTrackerWindow()
 	end
@@ -92,7 +96,7 @@ function Details:StartMeUp()
 	Details.MicroButtonAlert:Hide()
 
 	--actor details window
-	Details.playerDetailWindow = Details.gump:CriaJanelaInfo()
+	Details.playerDetailWindow = Details:CreateBreakdownWindow()
 	Details.FadeHandler.Fader(Details.playerDetailWindow, 1)
 
 	--copy and paste window

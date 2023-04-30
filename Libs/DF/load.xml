@@ -4,6 +4,8 @@
 	<Script file="fw.lua"/>
 	<Script file="mixins.lua"/>
 	<Script file="util.lua"/>
+	<Script file="header.lua"/>
+	<Script file="containers.lua"/>
 	<Script file="iteminfo.lua"/>
 	<Script file="addon.lua"/>
 	<Script file="colors.lua"/>

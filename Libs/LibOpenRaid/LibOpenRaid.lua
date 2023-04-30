@@ -37,7 +37,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 98
+local CONST_LIB_VERSION = 99
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -1688,7 +1688,9 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         dataToSend = dataToSend .. playerGearInfo[3] .. "," --weapon enchant
         dataToSend = dataToSend .. openRaidLib.PackTable(playerGearInfo[4]) .. "," --slots without enchant
         dataToSend = dataToSend .. openRaidLib.PackTable(playerGearInfo[5]) .. "," -- slots with empty gem sockets
-        dataToSend = dataToSend .. openRaidLib.PackTableAndSubTables(playerGearInfo[6]) --full equipped equipment
+        dataToSend = dataToSend .. openRaidLib.PackTableAndSubTables(playerGearInfo[6]) .. "," --full equipped equipment
+        dataToSend = dataToSend .. playerGearInfo[7] .. "," --main hand weapon enchant
+        dataToSend = dataToSend .. playerGearInfo[8] --off hand weapon enchant
 
         --send the data
         openRaidLib.commHandler.SendCommData(dataToSend)

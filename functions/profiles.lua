@@ -1,5 +1,5 @@
 
-local _detalhes = 		_G._detalhes
+local Details = 		_G.Details
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local _
 local addonName, Details222 = ...
@@ -7,7 +7,7 @@ local detailsFramework = DetailsFramework
 
 ---return the current profile name
 ---@return string
-function _detalhes:GetCurrentProfileName()
+function Details:GetCurrentProfileName()
 	if (_detalhes_database.active_profile == "") then
 		local characterKey = UnitName ("player") .. "-" .. GetRealmName()
 		_detalhes_database.active_profile = characterKey
@@ -18,7 +18,7 @@ end
 ---create a new profile
 ---@param profileName string
 ---@return boolean|table
-function _detalhes:CreateProfile(profileName)
+function Details:CreateProfile(profileName)
 	if (not profileName or type(profileName) ~= "string" or profileName == "") then
 		return false
 	end
@@ -29,7 +29,7 @@ function _detalhes:CreateProfile(profileName)
 	end
 
 	--copy the default table
-	local newProfile = Details.CopyTable(_detalhes.default_profile)
+	local newProfile = Details.CopyTable(Details.default_profile)
 	newProfile.instances = {}
 
 	--add to global container
@@ -41,7 +41,7 @@ end
 
 ---return the list os all profiles
 ---@return table
-function _detalhes:GetProfileList()
+function Details:GetProfileList()
 	local profileList = {}
 	for profileName in pairs(_detalhes_global.__profiles) do
 		profileList[#profileList + 1] = profileName
@@ -96,12 +96,12 @@ function Details:GetProfile(profileName, create)
 	return profile
 end
 
-function _detalhes:SetProfileCProp (name, cprop, value)
+function Details:SetProfileCProp (name, cprop, value)
 	if (not name) then
-		name = _detalhes:GetCurrentProfileName()
+		name = Details:GetCurrentProfileName()
 	end
 
-	local profile = _detalhes:GetProfile (name, false)
+	local profile = Details:GetProfile (name, false)
 
 	if (profile) then
 		if (type(value) == "table") then
@@ -117,37 +117,37 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --Profiles:
 	--reset the profile
-function _detalhes:ResetProfile (profile_name)
+function Details:ResetProfile (profile_name)
 
 	--get the profile
-		local profile = _detalhes:GetProfile (profile_name, true)
+		local profile = Details:GetProfile (profile_name, true)
 
 		if (not profile) then
 			return false
 		end
 
 	--reset all already created instances
-		for index, instance in _detalhes:ListInstances() do
+		for index, instance in Details:ListInstances() do
 			if (not instance.baseframe) then
 				instance:AtivarInstancia()
 			end
 			instance.skin = ""
-			instance:ChangeSkin (_detalhes.default_skin_to_use)
+			instance:ChangeSkin (Details.default_skin_to_use)
 		end
 
-		for index, instance in pairs(_detalhes.unused_instances) do
+		for index, instance in pairs(Details.unused_instances) do
 			if (not instance.baseframe) then
 				instance:AtivarInstancia()
 			end
 			instance.skin = ""
-			instance:ChangeSkin(_detalhes.default_skin_to_use)
+			instance:ChangeSkin(Details.default_skin_to_use)
 		end
 
 	--reset the profile
 		table.wipe(profile.instances)
 
 		--export first instance
-		local instance = _detalhes:GetInstance(1)
+		local instance = Details:GetInstance(1)
 		local exported = instance:ExportSkin()
 		exported.__was_opened = instance:IsEnabled()
 		exported.__pos = Details.CopyTable(instance:GetPosition())
@@ -160,7 +160,7 @@ function _detalhes:ResetProfile (profile_name)
 		instance.verticalSnap = false
 		instance.snap = {}
 
-		_detalhes:ApplyProfile (profile_name, true)
+		Details:ApplyProfile (profile_name, true)
 
 	--end
 		return true
@@ -170,39 +170,39 @@ end
 --Profiles:
 	--return the profile table requested
 
-function _detalhes:CreatePanicWarning()
-	_detalhes.instance_load_failed = CreateFrame("frame", "DetailsPanicWarningFrame", UIParent,"BackdropTemplate")
-	_detalhes.instance_load_failed:SetHeight(80)
+function Details:CreatePanicWarning()
+	Details.instance_load_failed = CreateFrame("frame", "DetailsPanicWarningFrame", UIParent,"BackdropTemplate")
+	Details.instance_load_failed:SetHeight(80)
 	--tinsert(UISpecialFrames, "DetailsPanicWarningFrame")
-	_detalhes.instance_load_failed.text = _detalhes.instance_load_failed:CreateFontString(nil, "overlay", "GameFontNormal")
-	_detalhes.instance_load_failed.text:SetPoint("center", _detalhes.instance_load_failed, "center")
-	_detalhes.instance_load_failed.text:SetTextColor(1, 0.6, 0)
-	_detalhes.instance_load_failed:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-	_detalhes.instance_load_failed:SetBackdropColor(1, 0, 0, 0.2)
-	_detalhes.instance_load_failed:SetPoint("topleft", UIParent, "topleft", 0, -250)
-	_detalhes.instance_load_failed:SetPoint("topright", UIParent, "topright", 0, -250)
+	Details.instance_load_failed.text = Details.instance_load_failed:CreateFontString(nil, "overlay", "GameFontNormal")
+	Details.instance_load_failed.text:SetPoint("center", Details.instance_load_failed, "center")
+	Details.instance_load_failed.text:SetTextColor(1, 0.6, 0)
+	Details.instance_load_failed:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+	Details.instance_load_failed:SetBackdropColor(1, 0, 0, 0.2)
+	Details.instance_load_failed:SetPoint("topleft", UIParent, "topleft", 0, -250)
+	Details.instance_load_failed:SetPoint("topright", UIParent, "topright", 0, -250)
 end
 
 local safe_load = function(func, param1, ...)
 	local okey, errortext = pcall(func, param1, ...)
 	if (not okey) then
-		if (not _detalhes.instance_load_failed) then
-			_detalhes:CreatePanicWarning()
+		if (not Details.instance_load_failed) then
+			Details:CreatePanicWarning()
 		end
-		_detalhes.do_not_save_skins = true
-		_detalhes.instance_load_failed.text:SetText("Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: " .. errortext .. "")
+		Details.do_not_save_skins = true
+		Details.instance_load_failed.text:SetText("Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: " .. errortext .. "")
 	end
 	return okey
 end
 
-function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
+function Details:ApplyProfile (profile_name, nosave, is_copy)
 
 	--get the profile
-		local profile = _detalhes:GetProfile (profile_name, true)
+		local profile = Details:GetProfile (profile_name, true)
 
 	--if the profile doesn't exist, just quit
 		if (not profile) then
-			_detalhes:Msg("Profile Not Found.")
+			Details:Msg("Profile Not Found.")
 			return false
 		end
 
@@ -211,15 +211,15 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 	--always save the previous profile, except if nosave flag is up
 		if (not nosave) then
 			--salva o profile ativo no momento
-			_detalhes:SaveProfile()
+			Details:SaveProfile()
 		end
 
 	--update profile keys before go
-		for key, value in pairs(_detalhes.default_profile) do
+		for key, value in pairs(Details.default_profile) do
 			--the entire key doesn't exist
 			if (profile [key] == nil) then
 				if (type(value) == "table") then
-					profile [key] = Details.CopyTable(_detalhes.default_profile [key])
+					profile [key] = Details.CopyTable(Details.default_profile [key])
 				else
 					profile [key] = value
 				end
@@ -227,45 +227,45 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			--the key exist and is a table, check for missing values on sub tables
 			elseif (type(value) == "table") then
 				--deploy only copy non existing data
-				_detalhes.table.deploy(profile [key], value)
+				Details.table.deploy(profile [key], value)
 			end
 		end
 
 	--apply the profile values
-		for key, _ in pairs(_detalhes.default_profile) do
+		for key, _ in pairs(Details.default_profile) do
 			local value = profile [key]
 
 			if (type(value) == "table") then
 				if (key == "class_specs_coords") then
-					value = Details.CopyTable(_detalhes.default_profile.class_specs_coords)
+					value = Details.CopyTable(Details.default_profile.class_specs_coords)
 				end
 
 				local ctable = Details.CopyTable(value)
-				_detalhes [key] = ctable
+				Details [key] = ctable
 			else
-				_detalhes [key] = value
+				Details [key] = value
 			end
 		end
 
 	--set the current profile
 	if (not is_copy) then
-		_detalhes.active_profile = profile_name
+		Details.active_profile = profile_name
 		_detalhes_database.active_profile = profile_name
 	end
 
 	--apply the skin
 
 		--first save the local instance configs
-		_detalhes:SaveLocalInstanceConfig()
+		Details:SaveLocalInstanceConfig()
 
 		local saved_skins = profile.instances
-		local instance_limit = _detalhes.instances_amount
+		local instance_limit = Details.instances_amount
 
 		--then close all opened instances
-		for index, instance in _detalhes:ListInstances() do
+		for index, instance in Details:ListInstances() do
 			if (not getmetatable(instance)) then
 				instance.iniciada = false
-				setmetatable(instance, _detalhes)
+				setmetatable(instance, Details)
 			end
 			if (instance:IsStarted()) then
 				if (instance:IsEnabled()) then
@@ -276,16 +276,16 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 		--check if there is a skin saved or this is a empty profile
 		if (#saved_skins == 0) then
-			local instance1 = _detalhes:GetInstance(1)
+			local instance1 = Details:GetInstance(1)
 			if (not instance1) then
-				instance1 = _detalhes:CreateInstance (1)
+				instance1 = Details:CreateInstance (1)
 			end
 
 			--apply default config on this instance (flat skin texture was 'ResetInstanceConfig' running).
 			instance1.modo = 2
 			instance1:ResetInstanceConfig()
 			instance1.skin = "no skin"
-			instance1:ChangeSkin (_detalhes.default_skin_to_use)
+			instance1:ChangeSkin (Details.default_skin_to_use)
 
 			--release the snap and lock
 			instance1:LoadLocalInstanceConfig()
@@ -294,11 +294,11 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			instance1.verticalSnap = nil
 			instance1:LockInstance (false)
 
-			if (#_detalhes.tabela_instancias > 1) then
-				for i = #_detalhes.tabela_instancias, 2, -1 do
-					_detalhes.tabela_instancias [i].modo = 2
-					_detalhes.unused_instances [i] = _detalhes.tabela_instancias [i]
-					_detalhes.tabela_instancias [i] = nil
+			if (#Details.tabela_instancias > 1) then
+				for i = #Details.tabela_instancias, 2, -1 do
+					Details.tabela_instancias [i].modo = 2
+					Details.unused_instances [i] = Details.tabela_instancias [i]
+					Details.tabela_instancias [i] = nil
 				end
 			end
 		else
@@ -312,10 +312,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				end
 
 				--get the instance
-				local instance = _detalhes:GetInstance(index)
+				local instance = Details:GetInstance(index)
 				if (not instance) then
 					--create a instance without creating its frames (not initializing)
-					instance = _detalhes:CreateDisabledInstance (index, skin)
+					instance = Details:CreateDisabledInstance (index, skin)
 				end
 
 				--copy skin
@@ -339,7 +339,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				--load data saved for this character only
 				instance:LoadLocalInstanceConfig()
 				if (skin.__was_opened) then
-					if (not safe_load (_detalhes.AtivarInstancia, instance, nil, true)) then
+					if (not safe_load (Details.AtivarInstancia, instance, nil, true)) then
 						return
 					end
 				else
@@ -351,7 +351,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				--load data saved again
 				instance:LoadLocalInstanceConfig()
 				--check window positioning
-				if (_detalhes.profile_save_pos) then
+				if (Details.profile_save_pos) then
 					--print("is profile save pos", skin.__pos.normal.x, skin.__pos.normal.y)
 					if (skin.__pos) then
 						instance.posicao = Details.CopyTable(skin.__pos)
@@ -385,14 +385,14 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 					instance:LockInstance (instance.isLocked)
 
-					--tinsert(_detalhes.resize_debug, #_detalhes.resize_debug+1, "libwindow X (427): " .. (instance.libwindow.x or 0))
+					--tinsert(Details.resize_debug, #Details.resize_debug+1, "libwindow X (427): " .. (instance.libwindow.x or 0))
 					instance:RestoreMainWindowPosition()
 					instance:ReajustaGump()
 					--instance:SaveMainWindowPosition()
 					--Load StatusBarSaved values and options.
 					instance.StatusBarSaved = skin.StatusBarSaved or {options = {}}
 					instance.StatusBar.options = instance.StatusBarSaved.options
-					_detalhes.StatusBar:UpdateChilds (instance)
+					Details.StatusBar:UpdateChilds (instance)
 					instance:ChangeSkin()
 
 				else
@@ -403,18 +403,18 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			end
 
 			--move unused instances for unused container
-			if (#_detalhes.tabela_instancias > instances_loaded) then
-				for i = #_detalhes.tabela_instancias, instances_loaded+1, -1 do
-					_detalhes.unused_instances [i] = _detalhes.tabela_instancias [i]
-					_detalhes.tabela_instancias [i] = nil
+			if (#Details.tabela_instancias > instances_loaded) then
+				for i = #Details.tabela_instancias, instances_loaded+1, -1 do
+					Details.unused_instances [i] = Details.tabela_instancias [i]
+					Details.tabela_instancias [i] = nil
 				end
 			end
 
 			--check all snaps for invalid entries
 			for i = 1, instances_loaded do
-				local instance = _detalhes:GetInstance(i)
-				local previous_instance_id = _detalhes:GetInstance(i-1) and _detalhes:GetInstance(i-1):GetId() or 0
-				local next_instance_id = _detalhes:GetInstance(i+1) and _detalhes:GetInstance(i+1):GetId() or 0
+				local instance = Details:GetInstance(i)
+				local previous_instance_id = Details:GetInstance(i-1) and Details:GetInstance(i-1):GetId() or 0
+				local next_instance_id = Details:GetInstance(i+1) and Details:GetInstance(i+1):GetId() or 0
 
 				for snap_side, instance_id in pairs(instance.snap) do
 					if (instance_id < 1) then --invalid instance
@@ -426,18 +426,18 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			end
 
 			--auto realign windows
-			if (not _detalhes.initializing) then
-				for _, instance in _detalhes:ListInstances() do
+			if (not Details.initializing) then
+				for _, instance in Details:ListInstances() do
 					if (instance:IsEnabled()) then
-						_detalhes.move_janela_func(instance.baseframe, true, instance)
-						_detalhes.move_janela_func(instance.baseframe, false, instance)
+						Details.move_janela_func(instance.baseframe, true, instance)
+						Details.move_janela_func(instance.baseframe, false, instance)
 					end
 				end
 			else
 				--is in startup
-				for _, instance in _detalhes:ListInstances() do
+				for _, instance in Details:ListInstances() do
 					for side, id in pairs(instance.snap) do
-						local window = _detalhes.tabela_instancias [id]
+						local window = Details.tabela_instancias [id]
 						if (not window.ativa) then
 							instance.snap [side] = nil
 							if ((side == 1 or side == 3) and (not instance.snap [1] and not instance.snap [3])) then
@@ -460,38 +460,37 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		end
 
 		--check instance amount
-		_detalhes.opened_windows = 0
-		for index = 1, _detalhes.instances_amount do
-			local instance = _detalhes.tabela_instancias [index]
+		Details.opened_windows = 0
+		for index = 1, Details.instances_amount do
+			local instance = Details.tabela_instancias [index]
 			if (instance and instance.ativa) then
-				_detalhes.opened_windows = _detalhes.opened_windows + 1
+				Details.opened_windows = Details.opened_windows + 1
 			end
 		end
 
 		--update tooltip settings
-		_detalhes:SetTooltipBackdrop()
-
-		--update player detail window
-		_detalhes:ApplyPDWSkin()
+		Details:SetTooltipBackdrop()
 
 		--update the numerical system
-		_detalhes:SelectNumericalSystem()
+		Details:SelectNumericalSystem()
 
 		--refresh the update interval
-		_detalhes:RefreshUpdater()
+		Details:RefreshUpdater()
 
 		--refresh animation functions
-		_detalhes:RefreshAnimationFunctions()
+		Details:RefreshAnimationFunctions()
 
 		--refresh broadcaster tools
-		_detalhes:LoadFramesForBroadcastTools()
+		Details:LoadFramesForBroadcastTools()
 
 		--change the rogue spec combat icon to outlaw depending on the game version
 		Details:HandleRogueCombatSpecIconByGameVersion()
 
-	if (_detalhes.initializing) then
-		_detalhes.profile_loaded = true
+	if (Details.initializing) then
+		Details.profile_loaded = true
 	end
+
+	Details:SendEvent("DETAILS_PROFILE_APPLYED", profile_name)
 
 	return true
 end
@@ -500,7 +499,7 @@ end
 --Profiles:
 	--return the profile table requested
 
-function _detalhes:SaveProfile (saveas)
+function Details:SaveProfile (saveas)
 
 	--get the current profile
 
@@ -509,15 +508,15 @@ function _detalhes:SaveProfile (saveas)
 		if (saveas) then
 			profile_name = saveas
 		else
-			profile_name = _detalhes:GetCurrentProfileName()
+			profile_name = Details:GetCurrentProfileName()
 		end
 
-		local profile = _detalhes:GetProfile (profile_name, true)
+		local profile = Details:GetProfile (profile_name, true)
 
 	--save default keys
-		for key, _ in pairs(_detalhes.default_profile) do
+		for key, _ in pairs(Details.default_profile) do
 
-			local current_value = _detalhes [key]
+			local current_value = Details [key]
 
 			if (type(current_value) == "table") then
 				local ctable = Details.CopyTable(current_value)
@@ -529,9 +528,9 @@ function _detalhes:SaveProfile (saveas)
 		end
 
 	--save skins
-	if (not _detalhes.do_not_save_skins) then
+	if (not Details.do_not_save_skins) then
 		table.wipe(profile.instances)
-		for index, instance in ipairs(_detalhes.tabela_instancias) do
+		for index, instance in ipairs(Details.tabela_instancias) do
 			local exported = instance:ExportSkin()
 			exported.__was_opened = instance:IsEnabled()
 			exported.__pos = Details.CopyTable(instance:GetPosition())
@@ -542,8 +541,8 @@ function _detalhes:SaveProfile (saveas)
 			profile.instances[index] = exported
 		end
 	end
-	_detalhes.do_not_save_skins = nil
-	_detalhes:SaveLocalInstanceConfig()
+	Details.do_not_save_skins = nil
+	Details:SaveLocalInstanceConfig()
 
 	return profile
 end
@@ -1071,7 +1070,7 @@ local default_profile = {
 		},
 
 	--streamer
---	_detalhes.streamer_config.
+--	Details.streamer_config.
 		streamer_config = {
 			reset_spec_cache = false,
 			disable_mythic_dungeon = false,
@@ -1133,7 +1132,7 @@ local default_profile = {
 	auto_swap_to_dynamic_overall = false,
 }
 
-_detalhes.default_profile = default_profile
+Details.default_profile = default_profile
 
 -- aqui fica as propriedades do jogador que n�o ser�o armazenadas no profile
 local default_player_data = {
@@ -1262,7 +1261,7 @@ local default_player_data = {
 	--information about this character
 		character_data = {logons = 0},
 	--version
-		last_realversion = _detalhes.realversion,
+		last_realversion = Details.realversion,
 		last_version = "v1.0.0",
 	--profile
 		active_profile = "",
@@ -1321,7 +1320,7 @@ local default_player_data = {
 		on_death_menu = false,
 }
 
-_detalhes.default_player_data = default_player_data
+Details.default_player_data = default_player_data
 
 local default_global_data = {
 
@@ -1406,6 +1405,42 @@ local default_global_data = {
 				scale = 1
 			},
 		},
+
+	--breakdown spell tab
+	breakdown_spell_tab = {
+		blockcontainer_width = 430,
+		blockcontainer_height = 270,
+		blockcontainer_islocked = true,
+
+		blockspell_height = 50,
+		blockspell_padding = 5,
+		blockspell_color = {0, 0, 0, 0.7},
+		blockspell_bordercolor = {0, 0, 0, 0.7},
+		blockspell_backgroundcolor = {0.1, 0.1, 0.1, 0.4},
+		blockspell_spark_offset = -2,
+		blockspell_spark_width = 2,
+		blockspell_spark_show = true,
+		blockspell_spark_color = {1, 1, 1, 0.7},
+
+		blockspellline_height = 13,
+
+		spellcontainer_width = 429,
+		spellcontainer_height = 311,
+		spellcontainer_islocked = true,
+
+		targetcontainer_width = 429,
+		targetcontainer_height = 140,
+		targetcontainer_islocked = true,
+
+		spellbar_background_alpha = 0.92,
+
+		spellcontainer_headers = {}, --store information about active headers and their sizes (spells)
+		targetcontainer_headers = {}, --store information about active headers and their sizes (target)
+		spellcontainer_header_height = 20,
+		spellcontainer_header_fontsize = 10,
+		spellcontainer_header_fontcolor = {1, 1, 1, 1},
+
+	},
 
 	--profile by spec
 		profile_by_spec = {},
@@ -1569,35 +1604,35 @@ local default_global_data = {
 		},
 }
 
-_detalhes.default_global_data = default_global_data
+Details.default_global_data = default_global_data
 
-function _detalhes:GetTutorialCVar(key, default)
+function Details:GetTutorialCVar(key, default)
 	--is disabling all popups from the streamer options
-	if (_detalhes.streamer_config.no_alerts) then
+	if (Details.streamer_config.no_alerts) then
 		return true
 	end
 
-	local value = _detalhes.tutorial [key]
+	local value = Details.tutorial [key]
 	if (value == nil and default) then
-		_detalhes.tutorial [key] = default
+		Details.tutorial [key] = default
 		value = default
 	end
 	return value
 end
-function _detalhes:SetTutorialCVar (key, value)
-	_detalhes.tutorial [key] = value
+function Details:SetTutorialCVar (key, value)
+	Details.tutorial [key] = value
 end
 
-function _detalhes:SaveProfileSpecial()
+function Details:SaveProfileSpecial()
 
 	--get the current profile
-		local profile_name = _detalhes:GetCurrentProfileName()
-		local profile = _detalhes:GetProfile (profile_name, true)
+		local profile_name = Details:GetCurrentProfileName()
+		local profile = Details:GetProfile (profile_name, true)
 
 	--save default keys
-		for key, _ in pairs(_detalhes.default_profile) do
+		for key, _ in pairs(Details.default_profile) do
 
-			local current_value = _detalhes_database [key] or _detalhes_global [key] or _detalhes.default_player_data [key] or _detalhes.default_global_data [key]
+			local current_value = _detalhes_database [key] or _detalhes_global [key] or Details.default_player_data [key] or Details.default_global_data [key]
 
 			if (type(current_value) == "table") then
 				local ctable = Details.CopyTable(current_value)
@@ -1611,8 +1646,8 @@ function _detalhes:SaveProfileSpecial()
 	--save skins
 		table.wipe(profile.instances)
 
-		if (_detalhes.tabela_instancias) then
-			for index, instance in ipairs(_detalhes.tabela_instancias) do
+		if (Details.tabela_instancias) then
+			for index, instance in ipairs(Details.tabela_instancias) do
 				local exported = instance:ExportSkin()
 				profile.instances [index] = exported
 			end
@@ -1623,8 +1658,8 @@ function _detalhes:SaveProfileSpecial()
 end
 
 --save things for the mythic dungeon run
-function _detalhes:SaveState_CurrentMythicDungeonRun (runID, zoneName, zoneID, startAt, segmentID, level, ejID, latestBossAt)
-	local savedTable = _detalhes.mythic_dungeon_currentsaved
+function Details:SaveState_CurrentMythicDungeonRun (runID, zoneName, zoneID, startAt, segmentID, level, ejID, latestBossAt)
+	local savedTable = Details.mythic_dungeon_currentsaved
 	savedTable.started = true
 	savedTable.run_id = runID
 	savedTable.dungeon_name = zoneName
@@ -1636,8 +1671,8 @@ function _detalhes:SaveState_CurrentMythicDungeonRun (runID, zoneName, zoneID, s
 	savedTable.previous_boss_killed_at = latestBossAt
 end
 
-function _detalhes:UpdateState_CurrentMythicDungeonRun (stillOngoing, segmentID, latestBossAt)
-	local savedTable = _detalhes.mythic_dungeon_currentsaved
+function Details:UpdateState_CurrentMythicDungeonRun (stillOngoing, segmentID, latestBossAt)
+	local savedTable = Details.mythic_dungeon_currentsaved
 
 	if (not stillOngoing) then
 		savedTable.started = false
@@ -1652,14 +1687,14 @@ function _detalhes:UpdateState_CurrentMythicDungeonRun (stillOngoing, segmentID,
 	end
 end
 
-function _detalhes:RestoreState_CurrentMythicDungeonRun()
+function Details:RestoreState_CurrentMythicDungeonRun()
 
 	--no need to check for mythic+ if the user is playing on classic wow
 	if (DetailsFramework.IsTimewalkWoW()) then
 		return
 	end
 
-	local savedTable = _detalhes.mythic_dungeon_currentsaved
+	local savedTable = Details.mythic_dungeon_currentsaved
 	local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 	local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
 	local mapID =  C_Map.GetBestMapForUnit ("player")
@@ -1682,21 +1717,21 @@ function _detalhes:RestoreState_CurrentMythicDungeonRun()
 			--is there a mythic run ongoing and the level is the same as the saved state?
 			if (mythicLevel and mythicLevel == savedTable.level) then
 				--restore the state
-				_detalhes.MythicPlus.Started = true
-				_detalhes.MythicPlus.DungeonName = zoneName
-				_detalhes.MythicPlus.DungeonID = currentZoneID
-				_detalhes.MythicPlus.StartedAt = savedTable.started_at
-				_detalhes.MythicPlus.SegmentID = savedTable.segment_id
-				_detalhes.MythicPlus.Level = mythicLevel
-				_detalhes.MythicPlus.ejID = ejID
-				_detalhes.MythicPlus.PreviousBossKilledAt = savedTable.previous_boss_killed_at
-				_detalhes.MythicPlus.IsRestoredState = true
+				Details.MythicPlus.Started = true
+				Details.MythicPlus.DungeonName = zoneName
+				Details.MythicPlus.DungeonID = currentZoneID
+				Details.MythicPlus.StartedAt = savedTable.started_at
+				Details.MythicPlus.SegmentID = savedTable.segment_id
+				Details.MythicPlus.Level = mythicLevel
+				Details.MythicPlus.ejID = ejID
+				Details.MythicPlus.PreviousBossKilledAt = savedTable.previous_boss_killed_at
+				Details.MythicPlus.IsRestoredState = true
 				DetailsMythicPlusFrame.IsDoingMythicDungeon = true
 
 				print("D! (debug) mythic dungeon state restored.")
 
 				C_Timer.After(2, function()
-					_detalhes:SendEvent("COMBAT_MYTHICDUNGEON_START")
+					Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
 				end)
 				return
 			else

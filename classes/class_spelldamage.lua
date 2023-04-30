@@ -34,17 +34,20 @@
 			id = id, --spellid
 			successful_casted = 0, --successful casted times (only for enemies)
 
-			--normal hits
+			--min damage made by normal hits
 			n_min = 0,
+			--max damage made by normal hits
 			n_max = 0,
+			--amount normal hits
 			n_amt = 0,
-			n_dmg = 0,
+			--total damage of normal hits
+			n_total = 0,
 
 			--critical hits
 			c_min = 0,
 			c_max = 0,
 			c_amt = 0,
-			c_dmg = 0,
+			c_total = 0,
 
 			--glacing hits
 			g_amt = 0,
@@ -114,7 +117,7 @@
 			self.g_amt = self.g_amt+1 --amount � o total de dano
 
 		elseif (critical) then
-			self.c_dmg = self.c_dmg+amount --amount � o total de dano
+			self.c_total = self.c_total+amount --amount � o total de dano
 			self.c_amt = self.c_amt+1 --amount � o total de dano
 			if (amount > self.c_max) then
 				self.c_max = amount
@@ -124,7 +127,7 @@
 			end
 
 		else
-			self.n_dmg = self.n_dmg+amount
+			self.n_total = self.n_total+amount
 			self.n_amt = self.n_amt+1
 			if (amount > self.n_max) then
 				self.n_max = amount

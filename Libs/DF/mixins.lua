@@ -267,7 +267,8 @@ detailsFramework.SetPointMixin = {
 	end,
 }
 
---mixin for options functions
+---mixin for options
+---@class df_optionsmixin
 detailsFramework.OptionsFunctions = {
 	SetOption = function(self, optionName, optionValue)
 		if (self.options) then
@@ -417,7 +418,7 @@ detailsFramework.ScriptHookMixin = {
 
 ---mixin to use with DetailsFramework:Mixin(table, detailsFramework.SortFunctions)
 ---add methods to be used on scrollframes
----@class DetailsFramework.ScrollBoxFunctions
+---@class df_scrollboxmixin
 detailsFramework.ScrollBoxFunctions = {
 	---refresh the scrollbox by resetting all lines created with :CreateLine(), then calling the refresh_func which was set at :CreateScrollBox()
 	---@param self table
@@ -426,7 +427,9 @@ detailsFramework.ScrollBoxFunctions = {
 		--hide all frames and tag as not in use
 		self._LinesInUse = 0
 		for index, frame in ipairs(self.Frames) do
-			frame:Hide()
+			if (not self.DontHideChildrenOnPreRefresh) then
+				frame:Hide()
+			end
 			frame._InUse = nil
 		end
 
@@ -683,6 +686,9 @@ detailsFramework.ScrollBoxFunctions = {
 		return showScrollBar;
 	end,
 }
+
+--back compatibility, can be removed in the future (28/04/2023)
+---@class DetailsFramework.ScrollBoxFunctions : df_scrollboxmixin
 
 local SortMember = ""
 local SortByMember = function(t1, t2)

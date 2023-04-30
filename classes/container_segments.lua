@@ -451,7 +451,7 @@ function segmentClass:resetar_overall()
 	--	_detalhes.schedule_remove_overall = true
 	--else
 		--fecha a janela de informa��es do jogador
-		Details:FechaJanelaInfo()
+		Details:CloseBreakdownWindow()
 
 		Details.tabela_overall = combatClass:NovaTabela()
 
@@ -498,7 +498,7 @@ function segmentClass:resetar()
 	--_detalhes.schedule_remove_overall = nil
 
 	--fecha a janela de informa��es do jogador
-	Details:FechaJanelaInfo()
+	Details:CloseBreakdownWindow()
 
 	--empty temporary tables
 	Details.atributo_damage:ClearTempTables()

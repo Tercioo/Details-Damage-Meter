@@ -180,6 +180,75 @@
 		return self.alternate_power
 	end
 
+	---return the amount of casts of a spells from an actor
+	---@param actorName string
+	---@param spellId number
+	---@return number
+	function combate:GetSpellCastAmount(actorName, spellId)
+		---@type actorcontainer
+		local utilityContainer = self:GetContainer(DETAILS_ATTRIBUTE_MISC)
+		---@type actor
+		local actorObject = utilityContainer:GetActor(actorName)
+		if (actorObject) then
+			if (actorObject.spell_cast) then
+				return actorObject.spell_cast[spellId] or 0
+			else
+				return 0
+			end
+		else
+			return 0
+		end
+	end
+
+	---return the uptime of a buff from an actor
+	---@param actorName string
+	---@param spellId number
+	---@param auraType string|nil if nil get 'buff'
+	---@return number
+	function combate:GetSpellUptime(actorName, spellId, auraType)
+		---@type actorcontainer
+		local utilityContainer = self:GetContainer(DETAILS_ATTRIBUTE_MISC)
+		---@type actor
+		local actorObject = utilityContainer:GetActor(actorName)
+		if (actorObject) then
+			if (auraType) then
+				---@type spellcontainer
+				local buffUptimeContainer = actorObject:GetSpellContainer(auraType)
+				if (buffUptimeContainer) then
+					---@type spelltable
+					local spellTable = buffUptimeContainer:GetSpell(spellId)
+					if (spellTable) then
+						return spellTable.uptime or 0
+					end
+				end
+			else
+				do --if not auraType passed, attempt to get the uptime from debuffs first, if it fails, get from buffs
+					---@type spellcontainer
+					local debuffContainer = actorObject:GetSpellContainer("debuff")
+					if (debuffContainer) then
+						---@type spelltable
+						local spellTable = debuffContainer:GetSpell(spellId)
+						if (spellTable) then
+							return spellTable.uptime or 0
+						end
+					end
+				end
+				do
+					---@type spellcontainer
+					local buffContainer = actorObject:GetSpellContainer("buff")
+					if (buffContainer) then
+						---@type spelltable
+						local spellTable = buffContainer:GetSpell(spellId)
+						if (spellTable) then
+							return spellTable.uptime or 0
+						end
+					end
+				end
+			end
+		end
+		return 0
+	end
+
 	--return the name of the encounter or enemy
 	function combate:GetCombatName(try_find)
 		if (self.is_pvp) then

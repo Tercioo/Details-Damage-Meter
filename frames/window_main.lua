@@ -1950,19 +1950,22 @@ local lineScript_Onmousedown = function(self, button)
 end
 
 local lineScript_Onmouseup = function(self, button)
-	local is_shift_down = _IsShiftKeyDown()
-	local is_control_down = _IsControlKeyDown()
+	local bIsShiftDown = _IsShiftKeyDown()
+	local bIsControlDown = _IsControlKeyDown()
 
-	if (self._instance.baseframe.isMoving) then
-		move_janela(self._instance.baseframe, false, self._instance)
-		self._instance:SaveMainWindowPosition()
+	---@type instance
+	local instanceObject = self._instance
 
-		if (self._instance:MontaTooltip(self, self.row_id)) then
+	if (instanceObject.baseframe.isMoving) then
+		move_janela(instanceObject.baseframe, false, instanceObject)
+		instanceObject:SaveMainWindowPosition()
+
+		if (instanceObject:MontaTooltip(self, self.row_id)) then
 			GameCooltip:Show (self, 1)
 		end
 	end
 
-	self._instance:HandleTextsOnMouseClick (self, "up")
+	instanceObject:HandleTextsOnMouseClick (self, "up")
 
 	local x, y = _GetCursorPosition()
 	x = floor(x)
@@ -1970,14 +1973,14 @@ local lineScript_Onmouseup = function(self, button)
 
 	if (self.mouse_down and (self.mouse_down+0.4 > GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
-			if (self._instance.atributo == 5 or is_shift_down) then
+			if (instanceObject.atributo == 5 or bIsShiftDown) then
 				--report
-				if (self._instance.atributo == 5 and is_shift_down) then
-					local custom = self._instance:GetCustomObject()
+				if (instanceObject.atributo == 5 and bIsShiftDown) then
+					local custom = instanceObject:GetCustomObject()
 					if (custom and custom.on_shift_click) then
-						local func = loadstring (custom.on_shift_click)
+						local func = loadstring(custom.on_shift_click)
 						if (func) then
-							local successful, errortext = pcall(func, self, self.minha_tabela, self._instance)
+							local successful, errortext = pcall(func, self, self.minha_tabela, instanceObject)
 							if (not successful) then
 								Details:Msg("error occurred custom script shift+click:", errortext)
 							end
@@ -1986,18 +1989,18 @@ local lineScript_Onmouseup = function(self, button)
 					end
 				end
 
-				if (Details.row_singleclick_overwrite [self._instance.atributo] and type(Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
-					return Details.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (_, self.minha_tabela, self._instance, is_shift_down, is_control_down)
+				if (Details.row_singleclick_overwrite [instanceObject.atributo] and type(Details.row_singleclick_overwrite [instanceObject.atributo][instanceObject.sub_atributo]) == "function") then
+					return Details.row_singleclick_overwrite [instanceObject.atributo][instanceObject.sub_atributo] (_, self.minha_tabela, instanceObject, bIsShiftDown, bIsControlDown)
 				end
 
-				return Details:ReportSingleLine (self._instance, self)
+				return Details:ReportSingleLine (instanceObject, self)
 			end
 
 			if (not self.minha_tabela) then
 				return Details:Msg("this bar is waiting update.")
 			end
 
-			self._instance:AbreJanelaInfo (self.minha_tabela, nil, nil, is_shift_down, is_control_down)
+			Details:OpenBreakdownWindow(instanceObject, self.minha_tabela, nil, nil, bIsShiftDown, bIsControlDown)
 		end
 	end
 end

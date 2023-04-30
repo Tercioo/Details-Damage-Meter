@@ -270,10 +270,9 @@ local instanceMixins = {
 	end,
 
 	---call a refresh in the data shown in the instance
-	---@param instance instance
 	---@param bForceRefresh boolean|nil
 	RefreshData = function(instance, bForceRefresh) --deprecates Details:RefreshAllMainWindows()
-		local combatObject = instance.showing
+		local combatObject = instance:GetCombat()
 
 		--check if the combat object exists, if not, freeze the window
 		if (not combatObject) then
@@ -283,24 +282,26 @@ local instanceMixins = {
 			return
 		end
 
-		local needRefresh = combatObject[instance.atributo].need_refresh
+		local mainAttribute, subAttribute = instance:GetDisplay()
+
+		local needRefresh = combatObject:GetContainer(mainAttribute).need_refresh
 		if (not needRefresh and not bForceRefresh) then
 			return
 		end
 
-		if (instance.atributo == 1) then --damage
+		if (mainAttribute == 1) then --damage
 			Details.atributo_damage:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
 
-		elseif (instance.atributo == 2) then --heal
+		elseif (mainAttribute == 2) then --heal
 			Details.atributo_heal:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
 
-		elseif (instance.atributo == 3) then --energy
+		elseif (mainAttribute == 3) then --energy
 			Details.atributo_energy:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
 
-		elseif (instance.atributo == 4) then --utility
+		elseif (mainAttribute == 4) then --utility
 			Details.atributo_misc:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
 
-		elseif (instance.atributo == 5) then --custom
+		elseif (mainAttribute == 5) then --custom
 			Details.atributo_custom:RefreshWindow(instance, combatObject, bForceRefresh, nil, needRefresh)
 		end
 	end,
@@ -330,11 +331,11 @@ local instanceMixins = {
 			end
 
 			--update player breakdown window if opened
-			if (not bForceRefresh) then
+			--if (not bForceRefresh) then
 				if (Details:IsBreakdownWindowOpen()) then
-					return Details:GetPlayerObjectFromBreakdownWindow():MontaInfo()
+					return Details:GetActorObjectFromBreakdownWindow():MontaInfo()
 				end
-			end
+			--end
 		end
 	end,
 
@@ -519,9 +520,9 @@ local instanceMixins = {
 				Details:CloseBreakdownWindow()
 			else
 				---@type actor
-				local actorObject = Details:GetPlayerObjectFromBreakdownWindow()
+				local actorObject = Details:GetActorObjectFromBreakdownWindow()
 				if (actorObject) then
-					Details:OpenPlayerBreakdown(instance, actorObject, true)
+					Details:OpenBreakdownWindow(instance, actorObject, true)
 				else
 					Details:CloseBreakdownWindow()
 				end
@@ -2832,13 +2833,13 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 
 	if (Details.playerDetailWindow:IsShown() and instance == Details.playerDetailWindow.instancia) then
 		if (not instance.showing or instance.atributo > 4) then
-			Details:FechaJanelaInfo()
+			Details:CloseBreakdownWindow()
 		else
-			local actor = instance.showing (instance.atributo, Details.playerDetailWindow.jogador.nome)
-			if (actor) then
-				instance:AbreJanelaInfo (actor, true)
+			local actorObject = instance.showing (instance.atributo, Details.playerDetailWindow.jogador.nome)
+			if (actorObject) then
+				Details:OpenBreakdownWindow(instance, actorObject, true)
 			else
-				Details:FechaJanelaInfo()
+				Details:CloseBreakdownWindow()
 			end
 		end
 	end
