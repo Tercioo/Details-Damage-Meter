@@ -4494,6 +4494,8 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 	---@type string
 	local playerName = actorObject:Name()
 
+	local attribute, subAttribute = instance:GetDisplay()
+
 	--guild ranking on a boss
 	--check if is a raid encounter and if is heroic or mythic
 	do
@@ -4640,6 +4642,31 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 
 	--send to the breakdown window
 	Details222.BreakdownWindow.SendSpellData(breakdownSpellDataList, actorObject, combatObject, instance)
+
+	--targets
+
+	---an array of breakdowntargettable
+	---@type breakdowntargettablelist
+	local targetList = {}
+
+	local targetTotalValue = 0
+
+	local targetsTable = self:GetTargets()
+	for targetName, amount in pairs(targetsTable) do
+		---@class breakdowntargettable
+		local bkTargetData = {
+			name = targetName,
+			total = amount,
+			overheal = 0,
+		}
+		targetTotalValue = targetTotalValue + amount
+		tinsert(targetList, bkTargetData)
+	end
+
+	targetList.totalValue = targetTotalValue
+	targetList.combatTime = actorCombatTime
+
+	Details222.BreakdownWindow.SendTargetData(targetList, actorObject, combatObject, instance)
 
 	if 1 then return end
 

@@ -1997,6 +1997,58 @@ function atributo_heal:MontaInfoHealingDone()
 	--send to the breakdown window
 	Details222.BreakdownWindow.SendSpellData(actorSpellsSorted, actorObject, combatObject, instance)
 
+	--targets
+
+	---an array of breakdowntargettable
+	---@type breakdowntargettable[]
+	local targetList = {}
+
+	--get the targets table: in the class heal, an actor has two targets table, one for normal healing and one for overheal
+	---@type targettable
+	local normalTargetsTable = self:GetTargets("targets")
+	---@type targettable
+	local overhealTargetsTable = self:GetTargets("targets_overheal")
+
+	local targetTotalValue = 0
+	local targetOverhealTotalValue = 0
+
+	--build the data required by the breakdown window
+	for targetName, amount in pairs(normalTargetsTable) do
+		if (amount > 0) then
+			local overhealAmount = overhealTargetsTable[targetName] or 0
+			---@type breakdowntargettable
+			local bkTargetData = {
+				name = targetName,
+				total = amount,
+				overheal = overhealAmount,
+			}
+			targetTotalValue = targetTotalValue + amount
+			targetOverhealTotalValue = targetOverhealTotalValue + (overhealAmount)
+			tinsert(targetList, bkTargetData)
+		end
+	end
+
+	for targetName, amount in pairs(overhealTargetsTable) do
+		if (amount > 0) then
+			if (not normalTargetsTable[targetName]) then
+				---@type breakdowntargettable
+				local bkTargetData = {
+					name = targetName,
+					total = 0,
+					overheal = amount,
+				}
+				targetOverhealTotalValue = targetOverhealTotalValue + (amount)
+				tinsert(targetList, bkTargetData)
+			end
+		end
+	end
+
+	targetList.totalValue = targetTotalValue
+	targetList.totalValueOverheal = targetOverhealTotalValue
+	targetList.combatTime = actorCombatTime
+
+	Details222.BreakdownWindow.SendTargetData(targetList, actorObject, combatObject, instance)
+
 	if 1 then return end
 
 	local instancia = info.instancia

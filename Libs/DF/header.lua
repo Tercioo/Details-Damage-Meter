@@ -546,7 +546,8 @@ detailsFramework.HeaderMixin = {
 			resizerButton.texture:SetAllPoints()
 			resizerButton.texture:SetColorTexture(1, 1, 1, 1)
 
-			columnHeader.Arrow:SetPoint("right", columnHeader, "right", -1, 0)
+			local xOffset = self.options.reziser_shown and -5 or -1
+			columnHeader.Arrow:SetPoint("right", columnHeader, "right", xOffset, 0)
 
 			columnHeader.Separator:Hide()
 			columnHeader.Arrow:Hide()

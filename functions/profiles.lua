@@ -1424,13 +1424,18 @@ local default_global_data = {
 
 		blockspellline_height = 13,
 
-		spellcontainer_width = 535,
+		spellcontainer_width = 429,
 		spellcontainer_height = 311,
 		spellcontainer_islocked = true,
 
+		targetcontainer_width = 429,
+		targetcontainer_height = 140,
+		targetcontainer_islocked = true,
+
 		spellbar_background_alpha = 0.92,
 
-		spellcontainer_headers = {}, --store information about active headers and their sizes
+		spellcontainer_headers = {}, --store information about active headers and their sizes (spells)
+		targetcontainer_headers = {}, --store information about active headers and their sizes (target)
 		spellcontainer_header_height = 20,
 		spellcontainer_header_fontsize = 10,
 		spellcontainer_header_fontcolor = {1, 1, 1, 1},

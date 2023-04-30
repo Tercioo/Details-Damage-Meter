@@ -46,6 +46,14 @@ Details222.Mixins.ActorMixin = {
 		return actor.pets
 	end,
 
+	---return a table containing the targets of the actor
+	---@param actor actor
+	---@param key string optional, if not provided, will use the default target table: 'targets'
+	---@return targettable
+	GetTargets = function(actor, key)
+		return actor[key or "targets"]
+	end,
+
 	---return a table containing spellTables
 	---@param actor actor
 	---@return table<number, spelltable>
@@ -92,19 +100,19 @@ Details222.Mixins.ActorMixin = {
 		return result
 	end,
 
-	---this function receives a target table name and return a table containing the targets and the damage done in order of bigger to lower value
+	---this function receives a key for the name of the target table (usually is 'targets') and return a table containing the targets and the damage done in order of bigger to lower value
 	---@param actor actor
 	---@param spellTable spelltable
-	---@param targetTableName string
+	---@param targetKey string
 	---@return table<string, number>
-	BuildSpellTargetFromSpellTable = function(actor, spellTable, targetTableName)
-		targetTableName = targetTableName or "targets"
+	BuildSpellTargetFromSpellTable = function(actor, spellTable, targetKey)
+		targetKey = targetKey or "targets"
 
 		---@type table<string, number>[] store the result which is returned by this function
 		local result = {}
 
 		---@type table<string, number>
-		local targets = spellTable[targetTableName]
+		local targets = spellTable[targetKey]
 
 		for targetName, value in pairs(targets) do
 			---@cast targetName string

@@ -145,7 +145,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	end
 
 	if (not breakdownWindow.RightSideBar) then
-		breakdownWindow:CreateRightSideBar()
+		--breakdownWindow:CreateRightSideBar()
 	end
 
 	--todo: all portuguese keys to english
@@ -223,7 +223,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	--spellsTab.ResetBars() --to be implemented
 
 	---@type string
-	local actorClass = actorObject.classe --classe not registered because it should be renamed to english
+	local actorClass = actorObject.classe --classe not registered because it should be renamed to english 'class'
 
 	if (not actorClass) then
 		actorClass = "monster"
@@ -418,6 +418,17 @@ function Details222.BreakdownWindow.SendSpellData(data, actorObject, combatObjec
 		--tab is the tab button
 		if (tab.OnReceiveSpellData) then
 			tab.OnReceiveSpellData(data, actorObject, combatObject, instance)
+		end
+	end
+end
+
+function Details222.BreakdownWindow.SendTargetData(targetList, actorObject, combatObject, instance)
+	--need to get the tab showing the summary and transmit the data to it
+	local tab = Details222.BreakdownWindow.CurrentDefaultTab
+	if (tab) then
+		--tab is the tab button
+		if (tab.OnReceiveTargetData) then
+			tab.OnReceiveTargetData(targetList, actorObject, combatObject, instance)
 		end
 	end
 end

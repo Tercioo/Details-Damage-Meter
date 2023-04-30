@@ -291,6 +291,7 @@
 
 ---@class details
 ---@field GetInstance fun(self: details) : instance
+---@field GetWindow fun(self: details) : instance this is an alias of GetInstance
 ---@field GetCombat fun(self: details) : combat
 ---@field GetSpellSchoolFormatedName fun(self: details, spellschool: number) : string
 ---@field CommaValue fun(self: details, number: number) : string
@@ -301,21 +302,21 @@
 ---@field UnregisterEvent fun(self: detailseventlistener, event: "DETAILS_INSTANCE_OPEN"|"DETAILS_INSTANCE_CLOSE"|"DETAILS_INSTANCE_SIZECHANGED"|"DETAILS_INSTANCE_STARTRESIZE"|"DETAILS_INSTANCE_ENDRESIZE"|"DETAILS_INSTANCE_STARTSTRETCH"|"DETAILS_INSTANCE_ENDSTRETCH"|"DETAILS_INSTANCE_CHANGESEGMENT"|"DETAILS_INSTANCE_CHANGEATTRIBUTE"|"DETAILS_INSTANCE_CHANGEMODE"|"DETAILS_INSTANCE_NEWROW"|"DETAILS_OPTIONS_MODIFIED"|"DETAILS_DATA_RESET"|"DETAILS_DATA_SEGMENTREMOVED"|"COMBAT_ENCOUNTER_START"|"COMBAT_ENCOUNTER_END"|"COMBAT_PLAYER_ENTER"|"COMBAT_PLAYER_LEAVE"|"COMBAT_PLAYER_TIMESTARTED"|"COMBAT_BOSS_WIPE"|"COMBAT_BOSS_DEFEATED"|"COMBAT_BOSS_FOUND"|"COMBAT_INVALID"|"COMBAT_PREPOTION_UPDATED"|"COMBAT_CHARTTABLES_CREATING"|"COMBAT_CHARTTABLES_CREATED"|"COMBAT_ENCOUNTER_PHASE_CHANGED"|"COMBAT_ARENA_START"|"COMBAT_ARENA_END"|"COMBAT_MYTHICDUNGEON_START"|"COMBAT_MYTHICDUNGEON_END"|"GROUP_ONENTER"|"GROUP_ONLEAVE"|"ZONE_TYPE_CHANGED"|"REALM_CHANNEL_ENTER"|"REALM_CHANNEL_LEAVE"|"COMM_EVENT_RECEIVED"|"COMM_EVENT_SENT"|"UNIT_SPEC"|"UNIT_TALENTS"|"PLAYER_TARGET"|"DETAILS_PROFILE_APPLYED")
 
 ---@class combat : table
----@field GetCombatTime fun(combat)
----@field GetDeaths fun(combat) --get the table which contains the deaths of the combat
 ---@field end_time number
 ---@field start_time number
----@field GetStartTime fun(combat: combat, time: number)
----@field SetStartTime fun(combat: combat, time: number)
----@field GetEndTime fun(combat: combat, time: number)
----@field SetEndTime fun(combat: combat, time: number)
----@field CopyDeathsFrom fun(combat1: combat, combat2: combat, bMythicPlus: boolean) copy the deaths from combat2 to combat1, use true on bMythicPlus if the combat is from a mythic plus run
----@field GetContainer fun(combat: combat, containerType: number) : table get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
----@field GetSpellCastAmount fun(combat: combat, actorName: string, spellId: number) : number get the amount of times a spell was casted
----@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
 ---@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
+---@field GetCombatTime fun(combat) : number
+---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
+---@field GetStartTime fun(combat: combat) : number
+---@field SetStartTime fun(combat: combat, time: number)
+---@field GetEndTime fun(combat: combat) : number
+---@field SetEndTime fun(combat: combat, time: number)
+---@field CopyDeathsFrom fun(combat1: combat, combat2: combat, bMythicPlus: boolean) copy the deaths from combat2 to combat1, use true on bMythicPlus if the combat is from a mythic plus run
+---@field GetContainer fun(combat: combat, containerType: number) : actorcontainer get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
+---@field GetSpellCastAmount fun(combat: combat, actorName: string, spellId: number) : number get the amount of times a spell was casted
+---@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
 
 ---@class actorcontainer : table
 ---@field _ActorTable table
@@ -364,6 +365,7 @@
 ---@field overheal number
 ---@field totaldenied number
 
+---@class targettable : {[string]: number}
 
 ---@class actor : table
 ---@field GetSpellContainer fun(actor: actor, containerType: string)
@@ -389,6 +391,7 @@
 ---@field total number
 ---@field spell_cast table<number, number>
 ---@field pets table<number, string>
+---@field targets targettable
 
 ---@class segmentid : number
 ---@class instanceid : number
@@ -438,8 +441,21 @@
 ---@field Header df_headerframe
 ---@field RefreshMe fun(scrollFrame: breakdownspellscrollframe, data: table|nil)
 
+---@class breakdowntargetscrollframe : df_scrollboxmixin, scrollframe
+---@field Header df_headerframe
+---@field RefreshMe fun(scrollFrame: breakdowntargetscrollframe, data: table|nil)
 
-
+---@class breakdowntargetbar : button, df_headerfunctions
+---@field index number
+---@field rank number
+---@field name string
+---@field percent number
+---@field amount number
+---@field total number
+---@field bkTargetData breakdowntargettable
+---@field Icon texture
+---@field InLineTexts fontstring[]
+---@field statusBar breakdownspellbarstatusbar
 
 ---@class breakdownspellbar : button, df_headerfunctions
 ---@field index number
@@ -484,6 +500,7 @@
 ---@field bCanExpand boolean
 ---@field expandedIndex number
 ---@field bIsExpanded boolean
+---@field statusBarValue number
 
 ---@class breakdowntargetframe : frame
 ---@field spellId number
@@ -491,6 +508,18 @@
 ---@field spellTable spelltable
 ---@field texture texture
 ---@field bIsMainLine boolean
+
+---@class breakdowntargettablelist : breakdowntargettable[]
+---@field totalValue number
+---@field totalValueOverheal number
+---@field combatTime number
+
+---@class breakdowntargettable : table
+---@field name string
+---@field total number
+---@field overheal number|nil
+---@field absorbed number|nil
+---@field statusBarValue number
 
 ---@class breakdownspelldatalist : spelltableadv[]
 ---@field totalValue number
@@ -514,6 +543,7 @@
 ---@field backgroundTexture texture
 ---@field GetLine fun(self: breakdownspellblock, index: number) : breakdownspellblockline
 ---@field GetLines fun(self: breakdownspellblock) : breakdownspellblockline, breakdownspellblockline, breakdownspellblockline
+---@field SetColor fun(self: breakdownspellblock, r: any, g: number|nil, b: number|nil, a: number|nil)
 
 ---@class breakdownspellblockline : frame a line inside a breakdownspellblock, there's 3 of them in each breakdownspellblock
 ---@field leftText fontstring
