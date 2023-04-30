@@ -2911,10 +2911,12 @@ end
 						end
 					end
 
+					habilidade_shadow.spellschool = habilidade.spellschool
+
 					--soma todos os demais valores
 					for key, value in pairs(habilidade) do
 						if (type(value) == "number") then
-							if (key ~= "id") then
+							if (key ~= "id" and key ~= "spellschool") then
 								if (not habilidade_shadow [key]) then
 									habilidade_shadow [key] = 0
 								end

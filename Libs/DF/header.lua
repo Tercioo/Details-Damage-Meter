@@ -8,6 +8,7 @@ end
 local unpack = unpack
 local CreateFrame = CreateFrame
 local geterrorhandler = geterrorhandler
+local wipe = wipe
 
 --definitions
 ---@class df_headerchild : uiobject
@@ -69,12 +70,12 @@ detailsFramework.HeaderFunctions = {
     ---comment
     ---@param self df_headerchild
 	ResetFramesToHeaderAlignment = function(self)
-		table.wipe(self.FramesToAlign)
+		wipe(self.FramesToAlign)
 	end,
 
 	SetFramesToHeaderAlignment = function(self, ...)
         ---@cast self df_headerchild
-		table.wipe(self.FramesToAlign)
+		wipe(self.FramesToAlign)
 		self.FramesToAlign = {...}
 	end,
 

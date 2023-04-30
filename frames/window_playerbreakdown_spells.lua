@@ -403,7 +403,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	optionsButton.textcolor = "white"
 
 	--open the breakdown window at startup for testing
-	--[= debug
+	--[=[ debug
 	C_Timer.After(1, function()
 		Details:OpenPlayerDetails(1)
 		C_Timer.After(1, function()
@@ -441,7 +441,7 @@ end
 ---run this function when the mouse hover over a breakdownspellbar
 ---@param spellBar breakdownspellbar
 ---@param motion boolean|nil
-local onEnterBreakdownSpellBar = function(spellBar, motion) --parei aqui: precisa por nomes nas funções e formatar as linhas das funcções
+local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nomes nas funções e formatar as linhas das funcções
 	--all values from spellBar are cached values
 	--check if there's a spellbar selected, if there's one, ignore the mouseover
 	if (spellsTab.HasSelectedSpellBar() and motion) then
@@ -695,7 +695,7 @@ end
 
 ---run this function when the mouse leaves a breakdownspellbar
 ---@param spellBar breakdownspellbar
-local onLeaveBreakdownSpellBar = function(spellBar)
+local onLeaveSpellBar = function(spellBar)
 	spellsTab.currentSpellBar = nil
 
 	--remove effects on entering the bar line
@@ -1002,7 +1002,7 @@ function spellsTab.CreateSpellBlockContainer(tabFrame) --~create
 			spellsTab.GetSpellBlockFrame():UpdateBlocks()
 
 			if (spellsTab.GetSelectedSpellBar()) then
-				onEnterBreakdownSpellBar(spellsTab.GetSelectedSpellBar())
+				onEnterSpellBar(spellsTab.GetSelectedSpellBar())
 			end
 		end
 	end
@@ -1039,10 +1039,10 @@ end
 
 function spellsTab.UpdateShownSpellBlock()
 	if (spellsTab.currentSpellBar) then
-		onEnterBreakdownSpellBar(spellsTab.currentSpellBar)
+		onEnterSpellBar(spellsTab.currentSpellBar)
 
 	elseif (spellsTab.GetSelectedSpellBar()) then
-		onEnterBreakdownSpellBar(spellsTab.GetSelectedSpellBar())
+		onEnterSpellBar(spellsTab.GetSelectedSpellBar())
 	end
 
 end
@@ -1077,7 +1077,7 @@ end
 ---@param bkTargetData breakdowntargettable
 ---@param totalValue number
 ---@param topValue number the amount done of the first target, used to calculate the length of the statusbar
-local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue) --~target ~update ~targetbar
+local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue) --~target ~update ~targetbar ~updatetargetbar
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
 
 	local textIndex = 1
@@ -1091,6 +1091,9 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 
 		---@type number
 		local combatTime = combatObject:GetCombatTime()
+
+		local actorContainer = combatObject:GetContainer(spellsTab.mainAttribute)
+		local targetActorObject = actorContainer:GetActor(bkTargetData.name)
 
 		targetBar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.spellbar_background_alpha)
 
@@ -1112,7 +1115,16 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 
 		if (header.name == "icon") then --ok
 			targetBar.Icon:Show()
-			targetBar.Icon:SetTexture(CONST_TARGET_TEXTURE)
+
+			if (targetActorObject) then
+				Details.SetClassIcon(targetActorObject, targetBar.Icon, spellsTab.GetInstance(), targetActorObject:Class())
+			else
+				targetBar.Icon:SetTexture([[Interface\AddOns\Details\images\classes_small_alpha]])
+				---@type {key1: number, key2: number, key3: number, key4: number}
+				local texCoords = Details.class_coords["ENEMY"]
+				targetBar.Icon:SetTexCoord(unpack(texCoords))
+			end
+
 			targetBar:AddFrameToHeaderAlignment(targetBar.Icon)
 
 		elseif (header.name == "rank") then --ok
@@ -1174,6 +1186,9 @@ local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines)
 	local combatObject = spellsTab.GetCombat()
 	---@type instance
 	local instanceObject = spellsTab.GetInstance()
+
+	---@type number
+	local mainAttribute = spellsTab.mainAttribute
 
 	local headerTable = spellsTab.targetsHeaderData
 
@@ -1421,10 +1436,13 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		---@type number
 		local amtCasts = combatObject:GetSpellCastAmount(actorName, spellId)
 		spellBar.amountCasts = amtCasts
+
 		---@type number
 		local uptime = combatObject:GetSpellUptime(actorName, spellId)
+
 		---@type number
 		local combatTime = combatObject:GetCombatTime()
+
 		---@type string, number, string
 		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
 
@@ -1445,6 +1463,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		end
 
 		--statusbar color by school
+		--print("spell school:", spellTable.spellschool) --healing has the spellschool not filled, it's nil
 		local r, g, b = Details:GetSpellSchoolColor(spellTable.spellschool or 1)
 		spellBar.statusBar:SetStatusBarColor(r, g, b, 1)
 
@@ -2248,8 +2267,8 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	spellBar:RegisterForClicks("AnyUp", "AnyDown")
 	spellBar:SetAlpha(0.9)
 	spellBar:SetFrameStrata("HIGH")
-	spellBar:SetScript("OnEnter", onEnterBreakdownSpellBar)
-	spellBar:SetScript("OnLeave", onLeaveBreakdownSpellBar)
+	spellBar:SetScript("OnEnter", onEnterSpellBar)
+	spellBar:SetScript("OnLeave", onLeaveSpellBar)
 	spellBar:SetScript("OnMouseDown", onMouseDownBreakdownSpellBar)
 	spellBar:SetScript("OnMouseUp", onMouseUpBreakdownSpellBar)
 	spellBar.onMouseUpTime = 0
@@ -2405,6 +2424,12 @@ function Details.InitializeSpellBreakdownTab()
 		spellsTab.currentActor = actorObject
 		spellsTab.combatObject = combatObject
 		spellsTab.instance = instance
+
+		---@type number, number
+		local mainAttribute, subAttribute = instance:GetDisplay()
+		spellsTab.mainAttribute = mainAttribute
+		spellsTab.subAttribute = subAttribute
+
 		spellsTab.GetSpellScrollFrame():RefreshMe(data)
 	end
 
@@ -2413,6 +2438,10 @@ function Details.InitializeSpellBreakdownTab()
 	---@param combatObject combat
 	---@param instance instance
 	function tabButton.OnReceiveTargetData(data, actorObject, combatObject, instance)
+		---@type number, number
+		local mainAttribute, subAttribute = instance:GetDisplay()
+		spellsTab.mainAttribute = mainAttribute
+		spellsTab.subAttribute = subAttribute
 		spellsTab.GetTargetScrollFrame():RefreshMe(data)
 	end
 
@@ -2427,7 +2456,7 @@ end
 -----------------------------------------------------------------------------------------------------------------------
 --> report data
 
-function spellsTab.CreateReportButtons(tabFrame)
+function spellsTab.CreateReportButtons(tabFrame) --deprecated?
     --spell list report button
 	tabFrame.report_esquerda = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 1, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
 	tabFrame.report_esquerda:SetPoint("bottomleft", spellsTab.GetSpellScrollFrame(), "TOPLEFT",  33, 3)

@@ -253,7 +253,7 @@
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)
 ---@field SetDesaturated fun(self: texture, desaturate: boolean)
 ---@field SetBlendMode fun(self: texture, mode: "ADD"|"BLEND"|"DISABLE"|"MOD"|"MOD2X"|"OVERLAY"|"REPLACE"|"SUBTRACT")
----@field SetVertexColor fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number)
+---@field SetVertexColor fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)
 ---@field GetPoint fun(self: texture, index: number) : string, table, string, number, number
 ---@field SetShown fun(self: texture, state: boolean)
 ---@field IsShown fun(self: texture) : boolean
@@ -383,6 +383,8 @@
 ---@field debuff_uptime_spells table
 ---@field buff_uptime_spells table
 ---@field spells table
+---@field aID number|string
+---@field spellicon number|string
 ---@field cooldowns_defensive_spells table
 ---@field nome string
 ---@field serial string
@@ -561,6 +563,8 @@
 ---@class breakdownspelltab
 ---@field selectedSpellBar breakdownspellbar
 ---@field TabFrame breakdownspellstab
+---@field mainAttribute number
+---@field subAttribute number
 ---@field GetActor fun() : actor
 ---@field GetCombat fun() : combat
 ---@field GetInstance fun() : instance

@@ -3126,7 +3126,11 @@ end
 	end
 end
 
----@self: actor object
+---set the icon of the actor spec, class, pet, enemy, custom icom, spellicon, etc.
+---@param self actor
+---@param texture texture
+---@param instance instance
+---@param class string
 function Details:SetClassIcon(texture, instance, class) --[[ exported]]
 	local customIcon
 	if (Details.immersion_unit_special_icons) then
@@ -6096,6 +6100,8 @@ end
 					for spellId, amount in pairs(habilidade.extra) do
 						habilidade_shadow.extra [spellId] = (habilidade_shadow.extra [spellId] or 0) + amount
 					end
+
+					habilidade_shadow.spellschool = habilidade.spellschool
 
 					--soma todos os demais valores
 					for key, value in pairs(habilidade) do

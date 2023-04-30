@@ -190,7 +190,11 @@
 		---@type actor
 		local actorObject = utilityContainer:GetActor(actorName)
 		if (actorObject) then
-			return actorObject.spell_cast[spellId] or 0
+			if (actorObject.spell_cast) then
+				return actorObject.spell_cast[spellId] or 0
+			else
+				return 0
+			end
 		else
 			return 0
 		end

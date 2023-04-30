@@ -2312,6 +2312,9 @@
 			if (bIsShield) then
 				spellTable.is_shield = true
 			end
+
+			spellTable.spellschool = spellType
+
 			if (_current_combat.is_boss and sourceFlags and bitBand(sourceFlags, OBJECT_TYPE_ENEMY) ~= 0) then
 				_detalhes.spell_school_cache[spellName] = spellType
 			end
