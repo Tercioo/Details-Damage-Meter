@@ -56,6 +56,7 @@ local addonName, Details222 = ...
 	end
 
 	---return an iterator for all spellTables in this container
+	---@param self spellcontainer
 	---@return fun(table: table<<K>, <V>>, index?: <K>):<K>, <V>
 	function container_habilidades:ListActors()
 		return pairs(self._ActorTable)

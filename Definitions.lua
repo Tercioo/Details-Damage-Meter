@@ -24,6 +24,9 @@
 ---@field NewTimer fun(delay: number, func: function): timer
 ---@field NewTicker fun(interval: number, func: function, iterations: number|nil): timer
 
+---@class tablesize : {H: number, W: number}
+---@class tablecoords : {L: number, R: number, T: number, B: number}
+
 ---@class red : number color value representing the red component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
 ---@class green : number color value representing the green component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
 ---@class blue : number color value representing the blue component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
@@ -331,6 +334,7 @@
 
 ---@class spellcontainer : table
 ---@field GetSpell fun(container: spellcontainer, spellId: number) get a spell by its id
+---@field ListActors fun(container: spellcontainer) : pairs usage: for spellId, spelltable in container:ListActors() do
 ---@field _ActorTable table
 
 ---@class spelltable : table
@@ -360,6 +364,7 @@
 ---@field b_dmg number
 ---@field a_amt number --absorved
 ---@field a_dmg number
+---@field isReflection boolean
 ---@field totalabsorb number healing absorbed
 ---@field absorbed number damage absorbed by shield | healing absorbed by buff or debuff
 ---@field overheal number
@@ -368,7 +373,7 @@
 ---@class targettable : {[string]: number}
 
 ---@class actor : table
----@field GetSpellContainer fun(actor: actor, containerType: string)
+---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns") : spellcontainer
 ---@field Name fun(actor: actor) : string get the name of the actor
 ---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
@@ -429,6 +434,8 @@
 ---@field RefreshData fun(instance: instance, force: boolean|nil)
 ---@field RefreshWindow fun(instance: instance, force: boolean|nil)
 
+---@class tabframe : frame this is the tab frame object for the breakdown window
+
 ---@class breakdownscrolldata : table
 ---@field totalValue number total done by the actor
 ---@field combatTime number
@@ -452,6 +459,7 @@
 ---@field percent number
 ---@field amount number
 ---@field total number
+---@field actorName string
 ---@field bkTargetData breakdowntargettable
 ---@field Icon texture
 ---@field InLineTexts fontstring[]
@@ -483,8 +491,6 @@
 ---@field bIsExpandedSpell boolean
 ---@field ExpandedChildren breakdownspellbar[] store the spellbars which are expanded from this spellbar (spellbars shown when the expand button is pressed)
 ---@field InLineTexts fontstring[]
----@field AddFrameToHeaderAlignment fun(self: breakdownspellbar, frame: uiobject)
----@field AlignWithHeader fun(self: breakdownspellbar, header: table, align: string|"left")
 
 ---@class breakdownspellbarstatusbar : statusbar
 ---@field backgroundTexture texture
@@ -525,7 +531,9 @@
 ---@field totalValue number
 ---@field combatTime number
 
----@class tabframe : frame this is the tab frame object for the breakdown window
+---@class breakdownspellstab : tabframe
+---@field SpellScrollFrame breakdownspellscrollframe
+---@field SpellBlockFrame breakdownspellblockframe
 
 ---@class breakdownspellblockframe : frame container for the spellblocks in the breakdown window
 ---@field SpellBlocks breakdownspellblock[]
@@ -550,6 +558,34 @@
 ---@field centerText fontstring
 ---@field rightText fontstring
 
+---@class breakdownspelltab
+---@field selectedSpellBar breakdownspellbar
+---@field TabFrame breakdownspellstab
+---@field GetActor fun() : actor
+---@field GetCombat fun() : combat
+---@field GetInstance fun() : instance
+---@field GetSpellScrollFrame fun() : breakdownspellscrollframe
+---@field GetSpellBlockFrame fun() : breakdownspellblockframe
+---@field GetTargetScrollFrame fun() : breakdowntargetscrollframe
+---@field GetSpellScrollContainer fun() : df_framecontainer
+---@field GetSpellBlockContainer fun() : df_framecontainer
+---@field GetTargetScrollContainer fun() : df_framecontainer
+---@field OnProfileChange fun()
+---@field UpdateHeadersSettings fun(containerType: string)
+---@field BuildHeaderTable fun(containerType: string) : {name: string, width: number, text: string, align: string}[]
+---@field SelectSpellBar fun(spellBar: breakdownspellbar)
+---@field UnSelectSpellBar fun()
+---@field GetSelectedSpellBar fun() : breakdownspellbar
+---@field HasSelectedSpellBar fun() : boolean
+---@field OnShownTab fun()
+---@field OnCreateTabCallback fun(tabButton: button, tabFrame: frame)
+---@field CreateSpellBlock fun(spellBlockContainer: breakdownspellblockframe, index: number) : breakdownspellblock
+---@field CreateSpellBlockContainer fun(tabFrame: tabframe) : breakdownspellblockframe
+---@field UpdateShownSpellBlock fun()
+---@field CreateTargetContainer fun(tabFrame: tabframe) : breakdowntargetscrollframe
+---@field CreateSpellScrollContainer fun(tabFrame: tabframe) : breakdownspellscrollframe
+---@field CreateTargetBar fun(self: breakdowntargetscrollframe, index: number) : breakdowntargetbar
+---@field CreateSpellBar fun(self: breakdownspellscrollframe, index: number) : breakdownspellbar
 
 
 

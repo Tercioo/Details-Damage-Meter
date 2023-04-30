@@ -4842,7 +4842,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 
 			if (targetActorObject) then
 				local npcId = DetailsFramework:GetNpcIdFromGuid(targetActorObject:GetGUID())
-				local portraitTexture = Details222.Textures.GetPortraitTextureForNpcID(npcId)
+				local portraitTexture -- = Details222.Textures.GetPortraitTextureForNpcID(npcId) disabled
 				if (portraitTexture) then
 					Details222.Textures.FormatPortraitAsTexture(portraitTexture, barra.icone)
 				else
@@ -5187,7 +5187,10 @@ end
 
 
 --this build p the 6 rectangle boxes in the right side of the breakdown window summary tab
-function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance)
+function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance) --this should be ~deprecated with the new breakdown tab
+
+	print("MontaDetalhesDamageDone - deprecated", debugstack())
+
 	local spellTable
 	if (spellLine.other_actor) then
 		spellTable = spellLine.other_actor.spells._ActorTable [spellId]
@@ -5727,7 +5730,7 @@ function atributo_damage:MontaTooltipDamageTaken (thisLine, index)
 
 end
 
-function atributo_damage:MontaTooltipAlvos (thisLine, index, instancia)
+function atributo_damage:MontaTooltipAlvos (thisLine, index, instancia) --~deprecated
 
 	local inimigo = thisLine.nome_inimigo
 	local habilidades = {}

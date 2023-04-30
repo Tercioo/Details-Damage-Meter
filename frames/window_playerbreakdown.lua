@@ -218,10 +218,6 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 
 	breakdownWindow.attributeName:SetPoint("CENTER", breakdownWindow.actorName, "CENTER", 0, 14)
 
-	--need a way to comunicate with the main tab showing spells
-	--need to send a signal to reset its contents and prepare for a new player
-	--spellsTab.ResetBars() --to be implemented
-
 	---@type string
 	local actorClass = actorObject.classe --classe not registered because it should be renamed to english 'class'
 

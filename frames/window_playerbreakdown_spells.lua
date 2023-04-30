@@ -1,6 +1,5 @@
 
 local addonName, Details222 = ...
-local spellsTab = {}
 local breakdownWindow = Details.BreakdownWindow
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -14,6 +13,11 @@ local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
+
+
+
+---@type breakdownspelltab
+local spellsTab = {}
 
 --expose the object to the global namespace
 DetailsSpellBreakdownTab = spellsTab
@@ -32,11 +36,6 @@ local spellBlockContainerSettings = {
 
 local spellBreakdownSettings = {}
 
-local CONST_TARGET_HEIGHT = 18
-local CONST_SPELLSCROLL_WIDTH = 535
-local CONST_SPELLSCROLL_HEIGHT = 311
-local CONST_SPELLSCROLL_AMTLINES = 14
-
 local CONST_BAR_HEIGHT = 20
 local CONST_SPELLSCROLL_LINEHEIGHT = 20
 local CONST_TARGET_TEXTURE = [[Interface\MINIMAP\TRACKING\Target]]
@@ -48,13 +47,15 @@ Details.SpellGroups = {
 	[193473] = 15407, --mind flay
 }
 
+---return the actor currently in use by the breakdown window
 ---@return actor
-function spellsTab.GetActor()
+function spellsTab.GetActor() --this cache must be cleared when the actor changes or the breakdown window is closed
 	return spellsTab.currentActor
 end
 
+---return the combat currently in use by the breakdown window
 ---@return combat
-function spellsTab.GetCombat()
+function spellsTab.GetCombat() --must be cleared
 	return spellsTab.combatObject
 end
 
@@ -95,11 +96,8 @@ function spellsTab.GetTargetScrollContainer()
 	return spellsTab.TargetsContainerFrame
 end
 
-
 function spellsTab.OnProfileChange()
 	--no need to cache, just call the db from there
-	spellsTab.spellcontainer_header_settings = Details.breakdown_spell_tab.spellcontainer_headers
-	spellsTab.targetcontainer_header_settings = Details.breakdown_spell_tab.targetcontainer_headers
 	spellsTab.UpdateHeadersSettings("spells")
 	spellsTab.UpdateHeadersSettings("targets")
 end
@@ -169,10 +167,10 @@ local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName
 	local settings
 
 	if (containerType == "spells") then
-		settings = spellsTab.spellcontainer_header_settings
+		settings = Details.breakdown_spell_tab.spellcontainer_headers
 
 	elseif (containerType == "targets") then
-		settings = spellsTab.targetcontainer_header_settings
+		settings = Details.breakdown_spell_tab.targetcontainer_headers
 	end
 
 	settings[columnName][optionName] = value
@@ -206,11 +204,11 @@ function spellsTab.UpdateHeadersSettings(containerType)
 	local containerColumnData
 
 	if (containerType == "spells") then
-		settings = spellsTab.spellcontainer_header_settings
+		settings = Details.breakdown_spell_tab.spellcontainer_headers
 		containerColumnData = spellContainerColumnData
 
 	elseif (containerType == "targets") then
-		settings = spellsTab.targetcontainer_header_settings
+		settings = Details.breakdown_spell_tab.targetcontainer_headers
 		containerColumnData = targetContainerColumnData
 	end
 
@@ -269,11 +267,11 @@ function spellsTab.BuildHeaderTable(containerType)
 	local containerColumnData
 
 	if (containerType == "spells") then
-		settings = spellsTab.spellcontainer_header_settings
+		settings = Details.breakdown_spell_tab.spellcontainer_headers
 		containerColumnData = spellContainerColumnData
 
 	elseif (containerType == "targets") then
-		settings = spellsTab.targetcontainer_header_settings
+		settings = Details.breakdown_spell_tab.targetcontainer_headers
 		containerColumnData = targetContainerColumnData
 	end
 
@@ -379,12 +377,10 @@ function spellsTab.OnShownTab()
 	spellsTab.UpdateHeadersSettings("targets")
 end
 
---called when the tab is getting created, run only once
+---called when the tab is getting created, run only once
+---@param tabButton button
+---@param tabFrame breakdownspellstab
 function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
-	--get the saved variables settings for the headers
-	spellsTab.spellcontainer_header_settings = Details.breakdown_spell_tab.spellcontainer_headers
-	spellsTab.targetcontainer_header_settings = Details.breakdown_spell_tab.targetcontainer_headers
-
 	spellBreakdownSettings = Details.breakdown_spell_tab
 	DetailsFramework:ApplyStandardBackdrop(tabFrame)
 
@@ -1080,8 +1076,8 @@ end
 ---@param headerTable table
 ---@param bkTargetData breakdowntargettable
 ---@param totalValue number
----@param maxValue number
-local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, maxValue) --~target ~update ~targetbar
+---@param topValue number the amount done of the first target, used to calculate the length of the statusbar
+local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue) --~target ~update ~targetbar
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
 
 	local textIndex = 1
@@ -1091,9 +1087,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 		local value
 
 		targetBar.bkTargetData = bkTargetData
-		value = bkTargetData.total --hardcoded to be the total healing done or damage // has to be changed
-		--the maxValue received is also the max healing done or damage done // has to be changed to make the statusbar in the correct length
-		--when sorting by another key
+		value = bkTargetData.total
 
 		---@type number
 		local combatTime = combatObject:GetCombatTime()
@@ -1101,8 +1095,8 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 		targetBar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.spellbar_background_alpha)
 
 		--statusbar size by percent
-		if (maxValue > 0) then
-			targetBar.statusBar:SetValue(bkTargetData.statusBarValue / maxValue * 100)
+		if (topValue > 0) then
+			targetBar.statusBar:SetValue(bkTargetData.statusBarValue / topValue * 100)
 		else
 			targetBar.statusBar:SetValue(0)
 		end
@@ -1110,6 +1104,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 		--statusbar color
 		targetBar.statusBar:SetStatusBarColor(1, 1, 1, 1)
 		targetBar.combatTime = combatTime
+		targetBar.actorName = bkTargetData.name
 
 		---@type fontstring
 		local text = targetBar.InLineTexts[textIndex]
@@ -1207,9 +1202,9 @@ local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines)
 	end
 end
 
---sort by overheal, the statusbar length keep using healing done
---sort by overheal, the percent keep using the healing done
-
+---create the target container
+---@param tabFrame tabframe
+---@return breakdowntargetscrollframe
 function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 	---@type width
 	local width = Details.breakdown_spell_tab.targetcontainer_width
@@ -1269,7 +1264,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 	spellsTab.TargetScrollFrame = targetScrollFrame
 
 	---@param data breakdowntargettablelist
-	function targetScrollFrame:RefreshMe(data) --~refreshme (targets)
+	function targetScrollFrame:RefreshMe(data) --~refreshme (targets) ~refreshmetargets
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = targetScrollFrame.Header:GetSelectedColumn()
 
@@ -1331,7 +1326,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 		targetScrollFrame:CreateLine(spellsTab.CreateTargetBar)
 	end
 
-	tabFrame.targets = tabFrame:CreateFontString(nil, "OVERLAY", "QuestFont_Large")
+	tabFrame.targets = tabFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
 	tabFrame.targets:SetPoint("bottomleft", container, "topleft", 2, 2)
 	tabFrame.targets:SetText(Loc ["STRING_TARGETS"] .. ":")
 
@@ -2018,21 +2013,144 @@ local onLeaveSpellTarget = function(self)
 	self:SetAlpha(.7)
 end
 
----@param self breakdowntargetbar
-local onEnterBreakdownTargetBar = function(self)
-	self:SetAlpha(1)
+---@param targetBar breakdowntargetbar
+local onEnterBreakdownTargetBar = function(targetBar)
+	targetBar:SetAlpha(1)
+
+	---@type string @the name of the target
+	local targetName = targetBar.actorName
+
+	---@type number @amount done of the target, at this point the code doesn't know if it's damage, healing, etc
+	local totalValue = targetBar.bkTargetData.statusBarValue
+
+	Details:FormatCooltipForSpells()
+	GameCooltip:SetOwner(targetBar, "bottom", "top", 4, -5)
+	GameCooltip:SetOption("MinWidth", math.max(230, targetBar:GetWidth() * 0.98))
+
+	--build a list of spells which the target was hit by
+	local spellsSortedResult = {}
+	local total = 0
+
+	---@type actor
+	local actorObject = spellsTab.GetActor()
+
+	---@type combat
+	local combatObject = spellsTab.GetCombat()
+
+	---@type instance
+	local instanceObject = spellsTab.GetInstance()
+
+	---@type number
+	local mainAttribute = instanceObject:GetDisplay()
+
+	---@type spellcontainer
+	local spellContainer = actorObject:GetSpellContainer("spell")
+
+	local targetScrollFrame = spellsTab.GetTargetScrollFrame()
+
+	---@type number, string, string
+	local columnIndex, order, key = targetScrollFrame.Header:GetSelectedColumn()
+
+	---@type string the label shown at the top of the tooltip
+	local labelTooltipTitle = Loc ["STRING_DAMAGE_FROM"]
+
+	local targetTableName = "targets"
+	if (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then
+		if (key == "total") then
+			labelTooltipTitle = Loc ["STRING_HEALING_FROM"]
+
+		elseif (key == "overheal") then
+			targetTableName = "targets_overheal"
+			labelTooltipTitle = Loc ["STRING_OVERHEALED"]
+		end
+	end
+
+	--this part kinda belong top damage or healing class, shouldn't be here
+
+	---@type number, spelltable
+	for spellId, spellTable in spellContainer:ListActors() do
+		if (spellTable.isReflection) then
+			---@type string, number
+			for spellTargetName, amount in pairs(spellTable.targets) do
+				if (spellTargetName == targetName) then
+					for reflectedSpellId, reflectedAmount in pairs(spellTable.extra) do
+						local spellName, _, spellIcon = _GetSpellInfo(reflectedSpellId)
+						table.insert(spellsSortedResult, {reflectedSpellId, reflectedAmount, spellName .. " (|cFFCCBBBBreflected|r)", spellIcon})
+						total = total + reflectedAmount
+					end
+				end
+			end
+		else
+			for spellTargetName, amount in pairs(spellTable[targetTableName]) do
+				if (spellTargetName == targetName) then
+					local spellName, _, spellIcon = _GetSpellInfo(spellId)
+					table.insert(spellsSortedResult, {spellId, amount, spellName, spellIcon})
+					total = total + amount
+				end
+			end
+		end
+	end
+
+	--add pets
+	local petArray = actorObject:GetPets()
+	for _, petName in ipairs(petArray) do
+		local petActorObject = combatObject(mainAttribute, petName)
+		if (petActorObject) then
+			---@type spellcontainer
+			local petSpellContainer = petActorObject:GetSpellContainer("spell")
+
+			---@type number, spelltable
+			for spellId, spellTable in petSpellContainer:ListActors() do
+				for spellTargetName, amount in pairs(spellTable[targetTableName]) do
+					if (spellTargetName == targetName) then
+						local spellName, _, spellIcon = _GetSpellInfo(spellId)
+						table.insert(spellsSortedResult, {spellId, amount, spellName .. " (" .. petName:gsub((" <.*"), "") .. ")", spellIcon})
+						total = total + amount
+					end
+				end
+			end
+		end
+	end
+
+	table.sort(spellsSortedResult, Details.Sort2)
+
+	--need to change is this is a healing
+	Details:AddTooltipSpellHeaderText(labelTooltipTitle .. ":", {1, 0.9, 0.0, 1}, 1, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
+	Details:AddTooltipHeaderStatusbar(1, 1, 1, 1)
+
+	---@type tablesize
+	local iconSize = Details.tooltip.icon_size
+	---@type tablecoords
+	local iconBorder = Details.tooltip.icon_border_texcoord
+
+	local topValue = spellsSortedResult[1] and spellsSortedResult[1][2]
+
+	if (topValue) then
+		for index, tabela in ipairs(spellsSortedResult) do
+			local spellId, amount, spellName, spellIcon = unpack(tabela)
+			if (amount < 1) then
+				break
+			end
+			GameCooltip:AddLine(spellName, Details:Format(amount) .. " (" .. string.format("%.1f", amount / total * 100) .. "%)")
+			GameCooltip:AddIcon(spellIcon, nil, nil, iconSize.W + 4, iconSize.H + 4, iconBorder.L, iconBorder.R, iconBorder.T, iconBorder.B)
+			Details:AddTooltipBackgroundStatusbar(false, amount / topValue * 100)
+		end
+	end
+
+	GameCooltip:Show()
 end
 
 ---@param self breakdowntargetbar
 local onLeaveBreakdownTargetBar = function(self)
 	self:SetAlpha(0.9)
+	GameCooltip:Hide()
 end
 
 ---create a targetbar within the target scroll
 ---@param self breakdowntargetscrollframe
 ---@param index number
 ---@return breakdowntargetbar
-function spellsTab.CreateTargetBar(self, index)
+function spellsTab.CreateTargetBar(self, index) --~create ~target ~createtarget ~targetbar
 	---@type breakdowntargetbar
 	local targetBar = CreateFrame("button", self:GetName() .. "TargetBarButton" .. index, self)
 	targetBar.index = index
