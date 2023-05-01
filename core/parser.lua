@@ -44,7 +44,7 @@
 		--check if the cooldown is type 2 or 3 or 4 and add to the defensive_cooldowns table
 		for spellId, spellTable in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
 			if (spellTable.type == 2 or spellTable.type == 3 or spellTable.type == 4) then
-				defensive_cooldowns[spellId] = true
+				defensive_cooldowns[spellId] = spellTable
 			end
 		end
 	end
@@ -3652,105 +3652,102 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	--search key: ~spellcast ~castspell ~cast
-	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype)
-
-	------------------------------------------------------------------------------------------------
-	--early checks and fixes
-
+	---search key: ~spellcast ~castspell ~cast
+	---comment: this function is called when a spell is casted
+	---@param token string
+	---@param time number
+	---@param sourceSerial string
+	---@param sourceName string
+	---@param sourceFlags number
+	---@param targetSerial string
+	---@param targetName string
+	---@param targetFlags number
+	---@param targetRaidFlags number
+	---@param spellId number
+	---@param spellName string
+	---@param spellType number
+	function parser:spellcast(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellType)
 		--only capture if is in combat
 		if (not _in_combat) then
 			return
 		end
 
-		if (not who_name) then
-			who_name = "[*] " .. spellname
+		if (not sourceName) then
+			sourceName = "[*] " .. spellName
 		end
 
-	------------------------------------------------------------------------------------------------
-	--get actors
-
-		--main actor
-
-		local este_jogador, meu_dono = misc_cache [who_serial] or misc_cache_pets [who_serial] or misc_cache [who_name], misc_cache_petsOwners [who_serial]
-		--local este_jogador = misc_cache [who_name]
-
-		if (not este_jogador) then
-
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-
-			if (meu_dono) then --� um pet
-				if (who_serial ~= "") then
-					misc_cache_pets [who_serial] = este_jogador
-					misc_cache_petsOwners [who_serial] = meu_dono
+		local sourceActor, ownerActor = misc_cache[sourceSerial] or misc_cache_pets[sourceSerial] or misc_cache[sourceName], misc_cache_petsOwners[sourceSerial]
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente (sourceSerial, sourceName, sourceFlags, true)
+			if (ownerActor) then
+				if (sourceSerial ~= "") then
+					misc_cache_pets [sourceSerial] = sourceActor
+					misc_cache_petsOwners [sourceSerial] = ownerActor
 				end
-
-				--conferir se o dono j� esta no cache
-				if (not misc_cache [meu_dono.serial] and meu_dono.serial ~= "") then
-					misc_cache [meu_dono.serial] = meu_dono
+				if (not misc_cache[ownerActor.serial] and ownerActor.serial ~= "") then
+					misc_cache[ownerActor.serial] = ownerActor
 				end
 			else
-				if (who_flags) then
-					misc_cache [who_name] = este_jogador
+				if (sourceFlags) then
+					misc_cache[sourceName] = sourceActor
 				end
 			end
 		end
 
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly
-		local spell_cast = este_jogador.spell_cast
-		if (not spell_cast) then
-			este_jogador.spell_cast = {[spellid] = 1}
-		else
-			spell_cast [spellid] = (spell_cast [spellid] or 0) + 1
+		--amount of casts by actors ~casts
+		local castsByPlayer = _current_combat.amountCasts[sourceName]
+		if (not castsByPlayer) then
+			castsByPlayer = {}
+			_current_combat.amountCasts[sourceName] = castsByPlayer
 		end
+		local amountOfCasts = _current_combat.amountCasts[sourceName][spellName] or 0
+		amountOfCasts = amountOfCasts + 1
+		_current_combat.amountCasts[sourceName][spellName] = amountOfCasts
 
 	------------------------------------------------------------------------------------------------
-	--record cooldowns cast which can't track with buff applyed.
-
-		--foi um jogador que castou
-		if (raid_members_cache [who_serial]) then
-			--check if is a cooldown :D
-			if (defensive_cooldowns [spellid]) then
-				--usou cooldown
-				if (not alvo_name) then
-					if (DetailsFramework.CooldownsDeffense [spellid]) then
-						alvo_name = who_name
-
-					elseif (DetailsFramework.CooldownsRaid [spellid]) then
-						alvo_name = Loc ["STRING_RAID_WIDE"]
-
+	--record cooldowns cast which can't track with buff applyed
+		--a player is the caster
+		if (raid_members_cache[sourceSerial]) then
+			--check if is a cooldown
+			local cooldownInfo = defensive_cooldowns[spellId]
+			if (cooldownInfo) then
+				if (not targetName) then
+					if (cooldownInfo.type == 2 or cooldownInfo.type == 3) then
+						targetName = sourceName
+					elseif (cooldownInfo.type == 4) then
+						targetName = Loc ["STRING_RAID_WIDE"]
 					else
-						alvo_name = "--x--x--"
+						targetName = "--x--x--"
 					end
 				end
-				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
+				return parser:add_defensive_cooldown(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName)
 			end
-
 		else
 			--enemy successful casts (not interrupted)
-			if (bitBand(who_flags, 0x00000040) ~= 0 and who_name) then --byte 2 = 4 (enemy)
+			if (bitBand(sourceFlags, 0x00000040) ~= 0 and sourceName) then --byte 2 = 4 (enemy)
 				--damager
-				local este_jogador = damage_cache [who_serial]
+				local este_jogador = damage_cache [sourceSerial]
 				if (not este_jogador) then
-					este_jogador = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
+					este_jogador = _current_damage_container:PegarCombatente (sourceSerial, sourceName, sourceFlags, true)
 				end
 
 				if (este_jogador) then
 					--actor spells table
-					local spell = este_jogador.spells._ActorTable [spellid] --line where the actor was nil
+					local spell = este_jogador.spells._ActorTable [spellId] --line where the actor was nil
 					if (not spell) then
-						spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+						spell = este_jogador.spells:PegaHabilidade (spellId, true, token)
 					end
 					spell.successful_casted = spell.successful_casted + 1
 				end
 
 				--add the spellId in the enemy_cast_cache table to store the time the enemy successfully cast a spell
 				--check if the spell is in the table
-				local enemyName = who_name
+				local enemyName = sourceName
 
 				if (not enemy_cast_cache[time]) then
-					enemy_cast_cache[time] = {enemyName, spellid, 1}
+					enemy_cast_cache[time] = {enemyName, spellId, 1}
 				else
 					enemy_cast_cache[time][3] = enemy_cast_cache[time][3] + 1
 				end

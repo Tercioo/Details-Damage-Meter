@@ -960,6 +960,8 @@ local on_enter = function(self)
     frame3.tooltip:SetPoint("bottomleft", bar3[2], "topleft", -18, 5)
 
     local spellid = bar1[3][4]
+
+    --these are player names
     local player1 = frame1.player
     local player2 = frame2.player
     local player3 = frame3.player
@@ -968,9 +970,12 @@ local on_enter = function(self)
     local average = bar1[3][2]
     local critical = bar1[3][3]
 
-    local player1_misc = info.instancia.showing (4, player1)
-    local player2_misc = info.instancia.showing (4, player2)
-    local player3_misc = info.instancia.showing (4, player3)
+    ---@type combat
+    local combatObject = info.instancia.showing
+
+    local player1_misc = combatObject(4, player1)
+    local player2_misc = combatObject(4, player2)
+    local player3_misc = combatObject(4, player3)
 
     local player1_uptime
     local player1_casts
@@ -1000,7 +1005,6 @@ local on_enter = function(self)
         frame1.tooltip.crit_label2:SetText(COMPARE_FIRSTPLAYER_PERCENT)
 
         if (player1_misc) then
-
             --uptime
             local spell = player1_misc.debuff_uptime_spells and player1_misc.debuff_uptime_spells._ActorTable and player1_misc.debuff_uptime_spells._ActorTable [spellid]
             if (spell) then
@@ -1018,38 +1022,20 @@ local on_enter = function(self)
             end
 
             --total casts
-            local amt_casts = player1_misc.spell_cast and player1_misc.spell_cast [spellid]
-            if (amt_casts) then
-                frame1.tooltip.casts_label3:SetText(amt_casts)
+            local amountOfCasts = combatObject:GetSpellCastAmount(player1, GetSpellInfo(spellid))
+            if (amountOfCasts) then
+                frame1.tooltip.casts_label3:SetText(amountOfCasts)
                 frame1.tooltip.casts_label2:SetText(COMPARE_FIRSTPLAYER_PERCENT)
 
                 Details.gump:SetFontColor(frame1.tooltip.casts_label3, "white")
 
-                player1_casts = amt_casts
+                player1_casts = amountOfCasts
             else
-                local spellname = GetSpellInfo(spellid)
-                local extra_search_found
-                for casted_spellid, amount in pairs(player1_misc.spell_cast or {}) do
-                    local casted_spellname = GetSpellInfo(casted_spellid)
-                    if (casted_spellname == spellname) then
-                        frame1.tooltip.casts_label3:SetText(amount)
-                        frame1.tooltip.casts_label2:SetText(COMPARE_FIRSTPLAYER_PERCENT)
+                frame1.tooltip.casts_label3:SetText("?")
+                frame1.tooltip.casts_label2:SetText("?")
 
-                        Details.gump:SetFontColor(frame1.tooltip.casts_label3, "white")
-
-                        player1_casts = amount
-                        extra_search_found = true
-                        break
-                    end
-                end
-
-                if (not extra_search_found) then
-                    frame1.tooltip.casts_label3:SetText("?")
-                    frame1.tooltip.casts_label2:SetText("?")
-
-                    Details.gump:SetFontColor(frame1.tooltip.casts_label3, "silver")
-                    Details.gump:SetFontColor(frame1.tooltip.casts_label2, "silver")
-                end
+                Details.gump:SetFontColor(frame1.tooltip.casts_label3, "silver")
+                Details.gump:SetFontColor(frame1.tooltip.casts_label2, "silver")
             end
         else
             frame1.tooltip.uptime_label3:SetText(COMPARE_UNKNOWNDATA)
@@ -1190,19 +1176,9 @@ local on_enter = function(self)
             end
 
             --total casts
-            local amt_casts = player2_misc.spell_cast and player2_misc.spell_cast [spellid]
-            if (not amt_casts) then
-                local spellname = GetSpellInfo(spellid)
-                for casted_spellid, amount in pairs(player2_misc.spell_cast or {}) do
-                    local casted_spellname = GetSpellInfo(casted_spellid)
-                    if (casted_spellname == spellname) then
-                        amt_casts = amount
-                        break
-                    end
-                end
-            end
-            if (amt_casts) then
+            local amt_casts = combatObject:GetSpellCastAmount(player2_misc:Name(), GetSpellInfo(spellid))
 
+            if (amt_casts) then
                 if (not player1_casts) then
                     frame2.tooltip.casts_label3:SetText(amt_casts)
                     frame2.tooltip.casts_label2:SetText(COMPARE_UNKNOWNDATA)
@@ -1356,17 +1332,7 @@ local on_enter = function(self)
             end
 
             --total casts
-            local amt_casts = player3_misc.spell_cast and player3_misc.spell_cast [spellid]
-            if (not amt_casts) then
-                local spellname = GetSpellInfo(spellid)
-                for casted_spellid, amount in pairs(player3_misc.spell_cast or {}) do
-                    local casted_spellname = GetSpellInfo(casted_spellid)
-                    if (casted_spellname == spellname) then
-                        amt_casts = amount
-                        break
-                    end
-                end
-            end
+            local amt_casts = combatObject:GetSpellCastAmount(player3_misc:Name(), GetSpellInfo(spellid))
 
             if (amt_casts) then
 

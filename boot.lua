@@ -16,7 +16,7 @@
 		_detalhes.dont_open_news = true
 		_detalhes.game_version = version
 		_detalhes.userversion = version .. " " .. _detalhes.build_counter
-		_detalhes.realversion = 149 --core version, this is used to check API version for scripts and plugins (see alias below)
+		_detalhes.realversion = 150 --core version, this is used to check API version for scripts and plugins (see alias below)
 		_detalhes.APIVersion = _detalhes.realversion --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
 

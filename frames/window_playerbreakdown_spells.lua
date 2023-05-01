@@ -14,8 +14,6 @@ local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
 
-
-
 ---@type breakdownspelltab
 local spellsTab = {}
 
@@ -1397,9 +1395,9 @@ end
 ---@param bkSpellData spelltableadv
 ---@param bkSpellStableIndex number
 ---@param totalValue number
----@param maxValue number
+---@param topValue number
 ---@param bIsMainLine boolean if true this is the line which has all the values of the spell merged
-local updateSpellBar = function(spellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, bkSpellStableIndex, totalValue, maxValue, bIsMainLine)
+local updateSpellBar = function(spellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, bkSpellStableIndex, totalValue, topValue, bIsMainLine)
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
 
 	local textIndex = 1
@@ -1433,8 +1431,11 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		---@cast spellTable spelltable
 		spellBar.spellTable = spellTable
 
+		---@type string, number, string
+		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+
 		---@type number
-		local amtCasts = combatObject:GetSpellCastAmount(actorName, spellId)
+		local amtCasts = combatObject:GetSpellCastAmount(actorName, spellName)
 		spellBar.amountCasts = amtCasts
 
 		---@type number
@@ -1442,9 +1443,6 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 
 		---@type number
 		local combatTime = combatObject:GetCombatTime()
-
-		---@type string, number, string
-		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
 
 		if (petName ~= "") then
 			spellName = spellName .. " (" .. petName .. ")"
@@ -1456,8 +1454,8 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		spellBar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.spellbar_background_alpha)
 
 		--statusbar size by percent
-		if (maxValue > 0) then
-			spellBar.statusBar:SetValue(bkSpellData.statusBarValue / maxValue * 100)
+		if (topValue > 0) then
+			spellBar.statusBar:SetValue(bkSpellData.statusBarValue / topValue * 100)
 		else
 			spellBar.statusBar:SetValue(0)
 		end
@@ -1673,7 +1671,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 				end
 			end
 
-			--then it adds the lines for each spell merged, but it cannot use the bkSpellData, it needs the spellTable
+			--then it adds the lines for each spell merged, but it cannot use the bkSpellData, it needs the spellTable, it's kinda using bkSpellData, need to debug
 			if (bkSpellData.bIsExpanded and spellTablesAmount > 1) then
 				---@type number spellTableIndex is the same counter as bkSpellStableIndex
 				for spellTableIndex = 1, spellTablesAmount do
@@ -1686,6 +1684,9 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 						---@type string
 						local nameToUse = petName ~= "" and petName or actorName
 						local bIsMainLine = false
+
+						
+
 						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, maxValue, bIsMainLine)
 						mainSpellBar.ExpandedChildren[#mainSpellBar.ExpandedChildren + 1] = spellBar
 					end
@@ -1891,137 +1892,6 @@ local onEnterSpellTarget = function(targetFrame)
 
 	cooltip:SetOwner(targetFrame)
 	cooltip:Show()
-
-	if true then return end
-
-	do
-		if (spellId and type(spellId) == "number") then
-			---@type actor
-			local actorObject = lineBar.other_actor or breakdownWindow.jogador
-			local spellTable = actorObject.spells and actorObject.spells:GetSpell(spellId)
-
-			if (spellTable) then
-				local spellsSortedResult = {}
-				local targetContainer
-				local total = 0
-
-				if (spellTable.isReflection) then
-					targetContainer = spellTable.extra
-				else
-					local attribute, subAttribute = breakdownWindow.instancia:GetDisplay()
-					if (attribute == 1 or attribute == 3) then
-						targetContainer = spellTable.targets
-					else
-						if (subAttribute == 3) then --overheal
-							targetContainer = spellTable.targets_overheal
-
-						elseif (subAttribute == 6) then --absorbs
-							targetContainer = spellTable.targets_absorbs
-
-						else
-							targetContainer = spellTable.targets
-						end
-					end
-				end
-
-				--add and sort
-				for targetName, amount in pairs(targetContainer) do
-					if (amount > 0) then
-						spellsSortedResult[#spellsSortedResult+1] = {targetName, amount}
-						total = total + amount
-					end
-				end
-				table.sort(spellsSortedResult, Details.Sort2)
-
-				local spellName, _, spellIcon = _GetSpellInfo(spellId)
-
-				GameTooltip:SetOwner(targetFrame, "ANCHOR_TOPRIGHT")
-				GameTooltip:AddLine(lineBar.index .. ". " .. spellName)
-				GameTooltip:AddLine(Loc ["STRING_TARGETS"] .. ":")
-				GameTooltip:AddLine(" ")
-
-				--get time type
-				local timeElapsed
-				if (Details.time_type == 1 or not actorObject.grupo) then
-					timeElapsed = actorObject:Tempo()
-				elseif (Details.time_type == 2) then
-					timeElapsed = breakdownWindow.instancia.showing:GetCombatTime()
-				end
-
-				local abbreviationFunction = Details.ToKFunctions[Details.ps_abbreviation]
-
-				if (spellTable.isReflection) then
-					Details:FormatCooltipForSpells()
-					GameCooltip:SetOwner(targetFrame, "bottomright", "top", 4, -2)
-
-					Details:AddTooltipSpellHeaderText("Spells Reflected", {1, 0.9, 0.0, 1}, 1, select(3, _GetSpellInfo(spellTable.id)), 0.1, 0.9, 0.1, 0.9) --localize-me
-					Details:AddTooltipHeaderStatusbar(1, 1, 1, 0.4)
-
-					GameCooltip:AddIcon(select(3, _GetSpellInfo(spellTable.id)), 1, 1, 16, 16, .1, .9, .1, .9)
-					Details:AddTooltipHeaderStatusbar(1, 1, 1, 0.5)
-
-					local topAmount = spellsSortedResult[1] and spellsSortedResult[1][2]
-
-					for index, targetTable in ipairs(spellsSortedResult) do
-						local targetName = targetTable[1]
-						local amount = targetTable[2]
-
-						GameCooltip:AddLine(spellName, abbreviationFunction(_, amount) .. " (" .. math.floor(amount / topAmount * 100) .. "%)")
-						GameCooltip:AddIcon(spellIcon, 1, 1, 16, 16, .1, .9, .1, .9)
-						Details:AddTooltipBackgroundStatusbar(false, amount / topAmount * 100)
-					end
-
-					GameCooltip:Show()
-
-					targetFrame.texture:SetAlpha(1)
-					targetFrame:SetAlpha(1)
-					lineBar:GetScript("OnEnter")(lineBar)
-					return
-				else
-					for index, targetTable in ipairs(spellsSortedResult) do
-						local targetName = targetTable[1]
-						local amount = targetTable[2]
-
-						local class = Details:GetClass(targetName)
-						if (class and Details.class_coords[class]) then
-							local cords = Details.class_coords[class]
-							if (breakdownWindow.target_persecond) then
-								GameTooltip:AddDoubleLine(index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. targetName, Details:comma_value(math.floor(amount / timeElapsed)), 1, 1, 1, 1, 1, 1)
-							else
-								GameTooltip:AddDoubleLine(index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. targetName, abbreviationFunction(_, amount), 1, 1, 1, 1, 1, 1)
-							end
-						else
-							if (breakdownWindow.target_persecond) then
-								GameTooltip:AddDoubleLine(index .. ". " .. targetName, Details:comma_value(math.floor(amount / timeElapsed)), 1, 1, 1, 1, 1, 1)
-							else
-								GameTooltip:AddDoubleLine(index .. ". " .. targetName, abbreviationFunction(_, amount), 1, 1, 1, 1, 1, 1)
-							end
-						end
-					end
-				end
-
-				GameTooltip:Show()
-			else
-				GameTooltip:SetOwner(targetFrame, "ANCHOR_TOPRIGHT")
-				GameTooltip:AddLine(lineBar.index .. ". " .. lineBar.spellId)
-				GameTooltip:AddLine(breakdownWindow.target_text)
-				GameTooltip:AddLine(Loc ["STRING_NO_TARGET"], 1, 1, 1)
-				GameTooltip:AddLine(Loc ["STRING_MORE_INFO"], 1, 1, 1)
-				GameTooltip:Show()
-			end
-		else
-			GameTooltip:SetOwner(targetFrame, "ANCHOR_TOPRIGHT")
-			GameTooltip:AddLine(lineBar.index .. ". " .. lineBar.spellId)
-			GameTooltip:AddLine(breakdownWindow.target_text)
-			GameTooltip:AddLine(Loc ["STRING_NO_TARGET"], 1, 1, 1)
-			GameTooltip:AddLine(Loc ["STRING_MORE_INFO"], 1, 1, 1)
-			GameTooltip:Show()
-		end
-
-		targetFrame.texture:SetAlpha(.7)
-		targetFrame:SetAlpha(1)
-		lineBar:GetScript("OnEnter")(lineBar)
-	end
 end
 
 local onLeaveSpellTarget = function(self)

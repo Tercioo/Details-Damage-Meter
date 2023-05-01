@@ -181,23 +181,31 @@
 	end
 
 	---return the amount of casts of a spells from an actor
+	---@param self combat
 	---@param actorName string
-	---@param spellId number
+	---@param spellName string
 	---@return number
-	function combate:GetSpellCastAmount(actorName, spellId)
-		---@type actorcontainer
-		local utilityContainer = self:GetContainer(DETAILS_ATTRIBUTE_MISC)
-		---@type actor
-		local actorObject = utilityContainer:GetActor(actorName)
-		if (actorObject) then
-			if (actorObject.spell_cast) then
-				return actorObject.spell_cast[spellId] or 0
-			else
-				return 0
-			end
+	function combate:GetSpellCastAmount(actorName, spellName)
+		return self.amountCasts[actorName] and self.amountCasts[actorName][spellName] or 0
+	end
+
+	---return the cast amount table
+	---@param self combat
+	---@param actorName string|nil
+	---@return table
+	function combate:GetSpellCastTable(actorName)
+		if (actorName) then
+			return self.amountCasts[actorName] or {}
 		else
-			return 0
+			return self.amountCasts
 		end
+	end
+
+	---delete an actor from the spell casts amount
+	---@param self combat
+	---@param actorName string
+	function combate:RemoveActorFromSpellCastTable(actorName)
+		self.amountCasts[actorName] = nil
 	end
 
 	---return the uptime of a buff from an actor
@@ -547,6 +555,8 @@
 		esta_tabela [5] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_DAMAGE_CLASS, esta_tabela, combatId) --place holder for customs
 
 		setmetatable(esta_tabela, combate)
+
+		esta_tabela.amountCasts = {}
 
 		_detalhes.combat_counter = _detalhes.combat_counter + 1
 		esta_tabela.combat_counter = _detalhes.combat_counter

@@ -283,56 +283,60 @@ do
 	end
 
 	function _detalhes:ReGuessSpec (t)
-		local Actor, container = t[1], t[2]
+		local actorObject, container = t[1], t[2]
 		local SpecSpellList = _detalhes.SpecSpellList
 
+		---@type combat
+		local combatObject = Details:GetCurrentCombat()
+
 		--get from the spell cast list
-		if (_detalhes.tabela_vigente) then
-			local misc_actor = _detalhes.tabela_vigente(4, Actor.nome)
-			if (misc_actor and misc_actor.spell_cast) then
-				for spellid, _ in pairs(misc_actor.spell_cast) do
-					local spec = SpecSpellList [spellid]
-					if (spec) then
-						_detalhes.cached_specs [Actor.serial] = spec
+		if (combatObject) then
+			local spellCastTable = combatObject:GetSpellCastTable(actorObject.nome)
 
-						Actor:SetSpecId(spec)
-						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
-						Actor.guessing_spec = nil
+			for spellName in pairs(spellCastTable) do
+				local _, _, _, _, _, _, spellid = GetSpellInfo(spellName)
+				local spec = SpecSpellList[spellid]
+				if (spec) then
+					_detalhes.cached_specs[actorObject.serial] = spec
 
-						Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
+					actorObject:SetSpecId(spec)
+					actorObject.classe = _detalhes.SpecIDToClass[spec] or actorObject.classe
+					actorObject.guessing_spec = nil
 
-						if (container) then
-							container.need_refresh = true
-						end
+					Details:SendEvent("UNIT_SPEC", nil, actorObject:GetUnitId(), spec, actorObject.serial)
 
-						if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
-							Actor.minha_barra.minha_tabela = nil
-							_detalhes:ScheduleWindowUpdate (2, true)
-						end
-
-						return spec
+					if (container) then
+						container.need_refresh = true
 					end
+
+					if (actorObject.minha_barra and type(actorObject.minha_barra) == "table") then
+						actorObject.minha_barra.minha_tabela = nil
+						_detalhes:ScheduleWindowUpdate (2, true)
+					end
+
+					return spec
 				end
 			end
+
 		else
-			if (Actor.spells) then
-				for spellid, _ in pairs(Actor.spells._ActorTable) do
+			if (actorObject.spells) then
+				for spellid, _ in pairs(actorObject.spells._ActorTable) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
-						if (spec ~= Actor.spec) then
-							_detalhes.cached_specs [Actor.serial] = spec
+						if (spec ~= actorObject.spec) then
+							_detalhes.cached_specs [actorObject.serial] = spec
 
-							Actor:SetSpecId(spec)
-							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
+							actorObject:SetSpecId(spec)
+							actorObject.classe = _detalhes.SpecIDToClass [spec] or actorObject.classe
 
-							Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
+							Details:SendEvent("UNIT_SPEC", nil, actorObject:GetUnitId(), spec, actorObject.serial)
 
 							if (container) then
 								container.need_refresh = true
 							end
 
-							if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
-								Actor.minha_barra.minha_tabela = nil
+							if (actorObject.minha_barra and type(actorObject.minha_barra) == "table") then
+								actorObject.minha_barra.minha_tabela = nil
 								_detalhes:ScheduleWindowUpdate (2, true)
 							end
 
@@ -343,9 +347,9 @@ do
 					end
 				end
 
-				if (Actor.classe == "HUNTER") then
+				if (actorObject.classe == "HUNTER") then
 					local container_misc = _detalhes.tabela_vigente[4]
-					local index = container_misc._NameIndexTable [Actor.nome]
+					local index = container_misc._NameIndexTable [actorObject.nome]
 					if (index) then
 						local misc_actor = container_misc._ActorTable [index]
 						local buffs = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable
@@ -353,20 +357,20 @@ do
 							for spellid, spell in pairs(buffs) do
 								local spec = SpecSpellList [spellid]
 								if (spec) then
-									if (spec ~= Actor.spec) then
-										_detalhes.cached_specs [Actor.serial] = spec
+									if (spec ~= actorObject.spec) then
+										_detalhes.cached_specs [actorObject.serial] = spec
 
-										Actor:SetSpecId(spec)
-										Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
+										actorObject:SetSpecId(spec)
+										actorObject.classe = _detalhes.SpecIDToClass [spec] or actorObject.classe
 
-										Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
+										Details:SendEvent("UNIT_SPEC", nil, actorObject:GetUnitId(), spec, actorObject.serial)
 
 										if (container) then
 											container.need_refresh = true
 										end
 
-										if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
-											Actor.minha_barra.minha_tabela = nil
+										if (actorObject.minha_barra and type(actorObject.minha_barra) == "table") then
+											actorObject.minha_barra.minha_tabela = nil
 											_detalhes:ScheduleWindowUpdate (2, true)
 										end
 
@@ -384,18 +388,13 @@ do
 		end
 	end
 
-	function _detalhes:GuessSpec (t)
-
+	function _detalhes:GuessSpec(t)
 		local Actor, container, tries = t[1], t[2], t[3]
 		if (not Actor) then
 			return false
 		end
 
 		local SpecSpellList = _detalhes.SpecSpellList
-
-		--local misc_actor = info.instancia.showing (4, self:name())
-		--spell_cast
-
 		--get from the spec cache
 		local spec = _detalhes.cached_specs [Actor.serial]
 		if (spec) then
@@ -418,20 +417,45 @@ do
 
 		--get from the spell cast list
 		if (_detalhes.tabela_vigente) then
-			local misc_actor = _detalhes.tabela_vigente(4, Actor.nome)
+			local spellCastTable = _detalhes.tabela_vigente:GetSpellCastTable(Actor.nome)
 
-			if (misc_actor and misc_actor.spell_cast) then
-				for spellid, _ in pairs(misc_actor.spell_cast) do
+			for spellName, _ in pairs(spellCastTable) do
+				local _, _, _, _, _, _, spellid = GetSpellInfo(spellName)
+				local spec = SpecSpellList[spellid]
+				if (spec) then
+					_detalhes.cached_specs [Actor.serial] = spec
+
+					Actor:SetSpecId(spec)
+					Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
+
+					Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
+
+					Actor.guessing_spec = nil
+
+					if (container) then
+						container.need_refresh = true
+					end
+
+					if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
+						Actor.minha_barra.minha_tabela = nil
+						_detalhes:ScheduleWindowUpdate (2, true)
+					end
+
+					return spec
+				end
+			end
+
+			if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
+				for spellid, _ in pairs(Actor.spells._ActorTable) do
 					local spec = SpecSpellList [spellid]
 					if (spec) then
 						_detalhes.cached_specs [Actor.serial] = spec
 
 						Actor:SetSpecId(spec)
 						Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
+						Actor.guessing_spec = nil
 
 						Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-
-						Actor.guessing_spec = nil
 
 						if (container) then
 							container.need_refresh = true
@@ -443,32 +467,6 @@ do
 						end
 
 						return spec
-					end
-				end
-			else
-				if (Actor.spells) then --correcao pros containers misc, precisa pegar os diferentes tipos de containers de  l�
-					for spellid, _ in pairs(Actor.spells._ActorTable) do
-						local spec = SpecSpellList [spellid]
-						if (spec) then
-							_detalhes.cached_specs [Actor.serial] = spec
-
-							Actor:SetSpecId(spec)
-							Actor.classe = _detalhes.SpecIDToClass [spec] or Actor.classe
-							Actor.guessing_spec = nil
-
-							Details:SendEvent("UNIT_SPEC", nil, Actor:GetUnitId(), spec, Actor.serial)
-
-							if (container) then
-								container.need_refresh = true
-							end
-
-							if (Actor.minha_barra and type(Actor.minha_barra) == "table") then
-								Actor.minha_barra.minha_tabela = nil
-								_detalhes:ScheduleWindowUpdate (2, true)
-							end
-
-							return spec
-						end
 					end
 				end
 			end

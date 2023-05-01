@@ -353,12 +353,11 @@ do
 			local noData = "-"
 			
 			--amount of casts
-			local castAmount = 0
 			local combatObject = Details:GetCombatFromBreakdownWindow()
-			local playerMiscObject = combatObject:GetActor (DETAILS_ATTRIBUTE_MISC, playerName)
+			local castAmount = combatObject:GetSpellCastAmount(playerName, GetSpellInfo(spellId))
+			local playerMiscObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, playerName)
 			
-			if (playerMiscObject) then
-				castAmount = playerMiscObject.spell_cast and playerMiscObject.spell_cast [spellId] or 0
+			if (castAmount > 0) then
 				tooltip.casts_label2:SetText (fullPercent)
 				tooltip.casts_label3:SetText (castAmount)
 				DetailsFramework:SetFontColor (tooltip.casts_label2, "gray")
@@ -470,15 +469,14 @@ do
 			local spellId = rawSpellTable.id
 			local noData = "-"
 
-			tooltip.player_name_label:SetText (Details:GetOnlyName (actualPlayerName))
-			
+			tooltip.player_name_label:SetText(Details:GetOnlyName(actualPlayerName))
+
 			--amount of casts	
-			local castAmount = 0	
-			local combatObject = Details:GetCombatFromBreakdownWindow()			
+			local combatObject = Details:GetCombatFromBreakdownWindow()
 			local playerMiscObject = combatObject:GetActor (DETAILS_ATTRIBUTE_MISC, playerName)
-			
-			if (playerMiscObject) then
-				castAmount = playerMiscObject.spell_cast and playerMiscObject.spell_cast [spellId] or 0
+
+			local castAmount = combatObject:GetSpellCastAmount(playerName, GetSpellInfo(spellId))
+			if (castAmount > 0) then
 				tooltip.casts_label2:SetText (getPercentComparison (mainCastAmount, castAmount))
 				tooltip.casts_label3:SetText (castAmount)
 				DetailsFramework:SetFontColor (tooltip.casts_label2, "white")
@@ -1564,6 +1562,7 @@ do
 					[2] = {1, 2, 3, 4, 5, 6, 7, 8},
 				},
 				tabNameToReplace = "Compare",
+				bIsCompareTab = true,
 			} --replace tab [attribute] = [sub attributes]
 		)
 	end

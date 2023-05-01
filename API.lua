@@ -376,8 +376,6 @@ spell.counter = how many hits this spell made.
 spell.id = spellid
 
 spell.successful_casted = how many times this spell has been casted successfully (only for enemies).
-- players has its own spell cast counter inside Misc Container with the member "spell_cast".
-- the reason os this is spell_cast holds all spells regardless of its attribute (can hold healing/damage/energy/misc).
 
 spell.n_min = minimal damage made on a normal hit.
 spell.n_max = max damage made on a normal hit.

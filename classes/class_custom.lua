@@ -1748,7 +1748,7 @@
 			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
 			source = false,
 			target = false,
-			script_version = 9,
+			script_version = 10,
 			script = [[
 				--get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1824,7 +1824,7 @@
 
 			    local spellschool, schooltext = spell.spellschool, ""
 			    if (spellschool) then
-				local t = _detalhes.spells_school [spellschool]
+				local t = Details.spells_school [spellschool]
 				if (t and t.name) then
 				    schooltext = t.formated
 				end
@@ -1834,28 +1834,20 @@
 			    local combat_time = instance.showing:GetCombatTime()
 
 			    local debuff_uptime_total, cast_string = "", ""
-			    local misc_actor = instance.showing (4, _detalhes.playername)
+			    local misc_actor = instance.showing (4, Details.playername)
 			    if (misc_actor) then
 				local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [spell.id] and misc_actor.debuff_uptime_spells._ActorTable [spell.id].uptime
 				if (debuff_uptime) then
 				    debuff_uptime_total = floor(debuff_uptime / instance.showing:GetCombatTime() * 100)
 				end
 
-				local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spell.id]
+				local spellName = GetSpellInfo(spell.id)
+				local amountOfCasts = combat:GetSpellCastAmount(Details.playername, spellName)
 
-				if (not spell_cast and misc_actor.spell_cast) then
-				    local spellname = GetSpellInfo(spell.id)
-				    for casted_spellid, amount in pairs(misc_actor.spell_cast) do
-					local casted_spellname = GetSpellInfo(casted_spellid)
-					if (casted_spellname == spellname) then
-					    spell_cast = amount .. " (|cFFFFFF00?|r)"
-					end
-				    end
+				if (amountOfCasts == 0) then
+				    amountOfCasts = "(|cFFFFFF00?|r)"
 				end
-				if (not spell_cast) then
-				    spell_cast = "(|cFFFFFF00?|r)"
-				end
-				cast_string = cast_string .. spell_cast
+				cast_string = cast_string .. amountOfCasts
 			    end
 
 			    --Cooltip code

@@ -4113,40 +4113,44 @@ local SplitLoadFunc = function(self, deltaTime)
                     if (actorToIndex [containerName]) then
                         local spellList = actorToIndex [containerName]._ActorTable
                         if (spellList) then
-                        
-                            local SpellPool = Details.spell_pool
-                            local EncounterSpellPool = Details.encounter_spell_pool
+                            local spellPool = Details.spell_pool
+                            local encounterSpellPool = Details.encounter_spell_pool
                             
-                            for spellID, _ in pairs(spellList) do
-                                if (not SpellPool [spellID]) then
-                                    SpellPool [spellID] = source
+                            for spellId, _ in pairs(spellList) do
+                                if (not spellPool[spellId]) then
+                                    spellPool[spellId] = source
                                 end
-                                if (encounterID and not EncounterSpellPool [spellID]) then
+                                if (encounterID and not encounterSpellPool[spellId]) then
                                     if (actorToIndex:IsEnemy()) then
-                                        EncounterSpellPool [spellID] = {encounterID, source}
+                                        encounterSpellPool[spellId] = {encounterID, source}
                                     end
                                 end
                             end
                         end
                     end
                 end
-                
+
+				--[=[ .spell_cast is deprecated
                 --spells the actor casted
                 if (actorToIndex.spell_cast) then
-                    local SpellPool = Details.spell_pool
-                    local EncounterSpellPool = Details.encounter_spell_pool
-                    
-                    for spellID, _ in pairs(actorToIndex.spell_cast) do
-                        if (not SpellPool [spellID]) then
-                            SpellPool [spellID] = source
-                        end
-                        if (encounterID and not EncounterSpellPool [spellID]) then
-                            if (actorToIndex:IsEnemy()) then
-                                EncounterSpellPool [spellID] = {encounterID, source}
-                            end
-                        end
+                    local spellPool = Details.spell_pool
+                    local encounterSpellPool = Details.encounter_spell_pool
+
+                    for spellName, _ in pairs(actorToIndex.spell_cast) do
+						local _, _, _, _, _, _, spellId = GetSpellInfo(spellName)
+						if (spellId) then
+							if (not spellPool[spellId]) then
+								spellPool[spellId] = source
+							end
+							if (encounterID and not encounterSpellPool[spellId]) then
+								if (actorToIndex:IsEnemy()) then
+									encounterSpellPool[spellId] = {encounterID, source}
+								end
+							end
+						end
                     end
                 end
+				--]=]
             end
         end
     end

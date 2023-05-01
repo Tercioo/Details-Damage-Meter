@@ -840,11 +840,12 @@
 		---@type number
 		local _tempo = _time()
 
+		---@type number
 		for containerId = 1, 4 do
+			---@type actorcontainer
 			local actorContainer = combatObject:GetContainer(containerId)
 			---@type table<number, actor>
 			local actorList = actorContainer:GetActorTable()
-			local beforeCleanupAmountOfActors = #actorList
 
 			for actorIndex = #actorList, 1, -1 do
 				---@type actor
@@ -879,6 +880,9 @@
 					end
 
 					if (canCollect) then
+						local actorName = actorObject:Name()
+						combatObject:RemoveActorFromSpellCastTable(actorName)
+
 						if (not actorObject.owner) then --not a pet
 							actorObject:subtract_total(combatObject)
 						end
@@ -917,14 +921,17 @@
 		---@type table
 		local segmentsList = {}
 
+		---@type combat
+		local currentCombat = Details:GetCurrentCombat()
+
 		for _, combatObject in ipairs(allSegments) do
-			if (combatObject ~= Details.tabela_vigente) then
+			if (combatObject ~= currentCombat) then
 				segmentsList[#segmentsList+1] = combatObject
 			end
 		end
 
 		--add the current segment at the end of the list
-		segmentsList[#segmentsList+1] = Details.tabela_vigente
+		segmentsList[#segmentsList+1] = currentCombat
 
 		--collect the garbage
 		for i, combatObject in ipairs(segmentsList) do

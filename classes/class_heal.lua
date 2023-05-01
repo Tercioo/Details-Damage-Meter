@@ -2403,7 +2403,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 	end
 
 	--icone direito superior
-	local _, _, icone = _GetSpellInfo(spellid)
+	local spellName, _, icone = _GetSpellInfo(spellid)
 	info.spell_icone:SetTexture(icone)
 
 	local total = self.total
@@ -2457,21 +2457,11 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(buff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
 
-			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellid]
-
-			if (not spell_cast and misc_actor.spell_cast) then
-				local spellname = GetSpellInfo(spellid)
-				for casted_spellid, amount in pairs(misc_actor.spell_cast) do
-					local casted_spellname = GetSpellInfo(casted_spellid)
-					if (casted_spellname == spellname) then
-						spell_cast = amount .. " (|cFFFFFF00?|r)"
-					end
-				end
+			local amountOfCasts = info.instancia.showing:GetSpellCastAmount(self:Name(), spellName)
+			if (not amountOfCasts) then
+				amountOfCasts = "(|cFFFFFF00?|r)"
 			end
-			if (not spell_cast) then
-				spell_cast = "(|cFFFFFF00?|r)"
-			end
-			cast_string = cast_string .. spell_cast
+			cast_string = cast_string .. amountOfCasts
 		end
 
 		gump:SetaDetalheInfoTexto( index, 100,

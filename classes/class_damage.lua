@@ -5272,33 +5272,17 @@ function atributo_damage:MontaDetalhesDamageDone (spellId, spellLine, instance) 
 
 		local misc_actor = info.instancia.showing (4, self:name())
 		if (misc_actor) then
-
 			local uptime_spellid = spellTable.id
-			--if (uptime_spellid == 233490) then
-			--	uptime_spellid = 233496
-			--	uptime_spellid = 233490
-			--end
-
 			local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [uptime_spellid] and misc_actor.debuff_uptime_spells._ActorTable [uptime_spellid].uptime
 			if (debuff_uptime) then
 				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(debuff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
 
-			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellId]
-
-			if (not spell_cast and misc_actor.spell_cast) then
-				local spellname = GetSpellInfo(spellId)
-				for casted_spellid, amount in pairs(misc_actor.spell_cast) do
-					local casted_spellname = GetSpellInfo(casted_spellid)
-					if (casted_spellname == spellname) then
-						spell_cast = amount .. " (|cFFFFFF00?|r)"
-					end
-				end
+			local amountOfCasts = info.instancia.showing:GetSpellCastAmount(self:Name(), spellName)
+			if (amountOfCasts == 0) then
+				amountOfCasts = "(|cFFFFFF00?|r)"
 			end
-			if (not spell_cast) then
-				spell_cast = "(|cFFFFFF00?|r)"
-			end
-			cast_string = cast_string .. spell_cast
+			cast_string = cast_string .. amountOfCasts
 		end
 
 		if (spellTable.e_total) then

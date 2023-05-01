@@ -135,30 +135,9 @@ end
 ---attempt to get the amount of casts of a spell
 ---@param combat table the combat object
 ---@param actorName string name of the actor
----@param spellId number spell id
-function Details:GetSpellCastAmount(combat, actorName, spellId) --[[exported]]
-	local actorUtilityObject = combat:GetActor(4, actorName)
-	if (actorUtilityObject) then
-		local castAmountTable = actorUtilityObject.spell_cast
-		if (castAmountTable) then
-			local castAmount = castAmountTable[spellId]
-			if (castAmount) then
-				return castAmount
-
-			elseif (not castAmount) then
-				--if the amount of casts is not found, attempt to find a spell with the same name and get the amount of casts of that spell instead
-				local spellName = GetSpellInfo(spellId)
-				for thisSpellId, thisCastAmount in pairs(castAmountTable) do
-					local thisSpellName = GetSpellInfo(thisSpellId)
-					if (thisSpellName == spellName and thisCastAmount and thisCastAmount > 0) then
-						return thisCastAmount
-					end
-				end
-			end
-		end
-	end
-
-	return 0
+---@param spellName string
+function Details:GetSpellCastAmount(combat, actorName, spellName) --[[exported]]
+	return combat:GetSpellCastAmount(actorName, spellName)
 end
 
 function atributo_misc:NovaTabela(serial, nome, link)
@@ -2414,16 +2393,6 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 
 	_detalhes.refresh:r_atributo_misc (actor, shadow)
 
-	--spell cast
-	if (actor.spell_cast) then
-		if (not shadow.spell_cast) then
-			shadow.spell_cast = {}
-		end
-		for spellid, _ in pairs(actor.spell_cast) do
-			shadow.spell_cast [spellid] = shadow.spell_cast [spellid] or 0
-		end
-	end
-
 	--cc done
 		if (actor.cc_done) then
 			refresh_alvos (shadow.cc_done_targets, actor.cc_done_targets)
@@ -2549,16 +2518,6 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 	--pets (add unique pet names)
 	for _, petName in ipairs(actor.pets) do
 		DetailsFramework.table.addunique (shadow.pets, petName)
-	end
-
-	if (actor.spell_cast) then
-		if (not shadow.spell_cast) then
-			shadow.spell_cast = {}
-		end
-
-		for spellid, amount in pairs(actor.spell_cast) do
-			shadow.spell_cast [spellid] = (shadow.spell_cast [spellid] or 0) + amount
-		end
 	end
 
 	if (actor.cc_done) then
@@ -2761,13 +2720,6 @@ function _detalhes.refresh:r_atributo_misc(thisActor, shadow)
 
 	thisActor.__index = _detalhes.atributo_misc
 
-	--refresh spell cast
-	if (thisActor.spell_cast) then
-		if (shadow and not shadow.spell_cast) then
-			shadow.spell_cast = {}
-		end
-	end
-
 	--refresh cc done
 	if (thisActor.cc_done) then
 		if (shadow and not shadow.cc_done_targets) then
@@ -2903,13 +2855,6 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 end
 
 atributo_misc.__add = function(tabela1, tabela2)
-
-	if (tabela2.spell_cast) then
-		for spellid, amount in pairs(tabela2.spell_cast) do
-			tabela1.spell_cast [spellid] = (tabela1.spell_cast [spellid] or 0) + amount
-		end
-	end
-
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done + tabela2.cc_done
 
@@ -3169,13 +3114,6 @@ local subtrair_keys = function(habilidade, habilidade_tabela1)
 end
 
 atributo_misc.__sub = function(tabela1, tabela2)
-
-	if (tabela2.spell_cast) then
-		for spellid, amount in pairs(tabela2.spell_cast) do
-			tabela1.spell_cast [spellid] = (tabela1.spell_cast [spellid] or 0) - amount
-		end
-	end
-
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done - tabela2.cc_done
 

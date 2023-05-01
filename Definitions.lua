@@ -305,6 +305,7 @@
 ---@field UnregisterEvent fun(self: detailseventlistener, event: "DETAILS_INSTANCE_OPEN"|"DETAILS_INSTANCE_CLOSE"|"DETAILS_INSTANCE_SIZECHANGED"|"DETAILS_INSTANCE_STARTRESIZE"|"DETAILS_INSTANCE_ENDRESIZE"|"DETAILS_INSTANCE_STARTSTRETCH"|"DETAILS_INSTANCE_ENDSTRETCH"|"DETAILS_INSTANCE_CHANGESEGMENT"|"DETAILS_INSTANCE_CHANGEATTRIBUTE"|"DETAILS_INSTANCE_CHANGEMODE"|"DETAILS_INSTANCE_NEWROW"|"DETAILS_OPTIONS_MODIFIED"|"DETAILS_DATA_RESET"|"DETAILS_DATA_SEGMENTREMOVED"|"COMBAT_ENCOUNTER_START"|"COMBAT_ENCOUNTER_END"|"COMBAT_PLAYER_ENTER"|"COMBAT_PLAYER_LEAVE"|"COMBAT_PLAYER_TIMESTARTED"|"COMBAT_BOSS_WIPE"|"COMBAT_BOSS_DEFEATED"|"COMBAT_BOSS_FOUND"|"COMBAT_INVALID"|"COMBAT_PREPOTION_UPDATED"|"COMBAT_CHARTTABLES_CREATING"|"COMBAT_CHARTTABLES_CREATED"|"COMBAT_ENCOUNTER_PHASE_CHANGED"|"COMBAT_ARENA_START"|"COMBAT_ARENA_END"|"COMBAT_MYTHICDUNGEON_START"|"COMBAT_MYTHICDUNGEON_END"|"GROUP_ONENTER"|"GROUP_ONLEAVE"|"ZONE_TYPE_CHANGED"|"REALM_CHANNEL_ENTER"|"REALM_CHANNEL_LEAVE"|"COMM_EVENT_RECEIVED"|"COMM_EVENT_SENT"|"UNIT_SPEC"|"UNIT_TALENTS"|"PLAYER_TARGET"|"DETAILS_PROFILE_APPLYED")
 
 ---@class combat : table
+---@field amountCasts {[string]: table<string, number>}
 ---@field end_time number
 ---@field start_time number
 ---@field is_mythic_dungeon_trash boolean
@@ -318,8 +319,11 @@
 ---@field SetEndTime fun(combat: combat, time: number)
 ---@field CopyDeathsFrom fun(combat1: combat, combat2: combat, bMythicPlus: boolean) copy the deaths from combat2 to combat1, use true on bMythicPlus if the combat is from a mythic plus run
 ---@field GetContainer fun(combat: combat, containerType: number) : actorcontainer get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
----@field GetSpellCastAmount fun(combat: combat, actorName: string, spellId: number) : number get the amount of times a spell was casted
+---@field GetSpellCastAmount fun(combat: combat, actorName: string, spellName: string) : number get the amount of times a spell was casted
+---@field RemoveActorFromSpellCastTable fun(combat: combat, actorName: string)
+---@field GetSpellCastTable fun(combat: combat, actorName: string|nil) : table
 ---@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
+---@field GetActor fun(combat: combat, attribute: number, playerName: string) : actor
 
 ---@class actorcontainer : table
 ---@field _ActorTable table
@@ -396,7 +400,6 @@
 ---@field last_event unixtime
 ---@field total_without_pet number
 ---@field total number
----@field spell_cast table<number, number>
 ---@field pets table<number, string>
 ---@field targets targettable
 
