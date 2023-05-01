@@ -14,6 +14,8 @@ do
 	local setmetatable =	setmetatable
 	local _GetSpellInfo =	GetSpellInfo
 	local _unpack	=	unpack
+	local GetSpellInfo = GetSpellInfo
+	local unpack = unpack
 
 	--is this a timewalking exp?
 	local is_classic_exp = DetailsFramework.IsClassicWow()
@@ -187,6 +189,8 @@ do
 		local iconSize = 14 --icon size
 		local coords = {0.14, 0.86, 0.14, 0.86}
 
+		---@param itemId number
+		---@return string
 		local formatTextForItem = function(itemId)
 			local result = ""
 
@@ -194,7 +198,7 @@ do
 			local itemName = C_Item.GetItemNameByID(itemId)
 
 			if (itemIcon and itemName) then
-				result = " (" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ")"
+				result = "" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ""
 			end
 
 			return result
@@ -218,32 +222,32 @@ do
 
 		if (GetSpellInfo(394453)) then
 			local dragonflightTrinkets = {
-				[394453] = {name = GetSpellInfo(394453) .. formatTextForItem(195480), isPassive = true, itemId = 195480}, --ring: Seal of Diurna's Chosen
+				[394453] = {name = formatTextForItem(195480), isPassive = true, itemId = 195480}, --ring: Seal of Diurna's Chosen
 
-				[382135] = {name = GetSpellInfo(382135) .. formatTextForItem(194308)}, --trinket: Manic Grieftorch
-				[382058] = {name = GetSpellInfo(382056) .. formatTextForItem(194299)}, --trinket: Decoration of Flame (shield)
-				[382056] = {name = GetSpellInfo(382056) .. formatTextForItem(194299)}, --trinket: Decoration of Flame
-				[382090] = {name = GetSpellInfo(382090) .. formatTextForItem(194302)}, --trinket: Storm-Eater's Boon
-				[381967] = {name = GetSpellInfo(381967) .. formatTextForItem(194305)}, --trinket: Controlled Current Technique
-				[382426] = {name = GetSpellInfo(382426) .. formatTextForItem(194309), isPassive = true, itemId = 194309}, --trinket: Spiteful Storm
-				[377455] = {name = GetSpellInfo(377455) .. formatTextForItem(194304)}, --trinket: Iceblood Deathsnare
-				[377451] = {name = GetSpellInfo(377451) .. formatTextForItem(194300)}, --trinket: Conjured Chillglobe
-				[382097] = {name = GetSpellInfo(382097) .. formatTextForItem(194303)}, --trinket: Rumbling Ruby
+				[382135] = {name = formatTextForItem(194308)}, --trinket: Manic Grieftorch
+				[382058] = {name = formatTextForItem(194299)}, --trinket: Decoration of Flame (shield)
+				[382056] = {name = formatTextForItem(194299)}, --trinket: Decoration of Flame
+				[382090] = {name = formatTextForItem(194302)}, --trinket: Storm-Eater's Boon
+				[381967] = {name = formatTextForItem(194305)}, --trinket: Controlled Current Technique
+				[382426] = {name = formatTextForItem(194309), isPassive = true, itemId = 194309}, --trinket: Spiteful Storm
+				[377455] = {name = formatTextForItem(194304)}, --trinket: Iceblood Deathsnare
+				[377451] = {name = formatTextForItem(194300)}, --trinket: Conjured Chillglobe
+				[382097] = {name = formatTextForItem(194303)}, --trinket: Rumbling Ruby
 
-				[385903] = {name = GetSpellInfo(385903) .. formatTextForItem(193639), isPassive = true, itemId = 193639}, --trinket: Umbrelskul's Fractured Heart
-				[381475] = {name = GetSpellInfo(381475) .. formatTextForItem(193769)}, --trinket: Erupting Spear Fragment
-				[388739] = {name = GetSpellInfo(388739) .. formatTextForItem(193660), isPassive = true, itemId = 193660}, --trinket: Idol of Pure Decay
-				[388855] = {name = GetSpellInfo(388855) .. formatTextForItem(193678)}, --trinket: Miniature Singing Stone
-				[388755] = {name = GetSpellInfo(388755) .. formatTextForItem(193677), isPassive = true, itemId = 193677}, --trinket: Furious Ragefeather
-				[383934] = {name = GetSpellInfo(383934) .. formatTextForItem(193736)}, --trinket: Water's Beating Heart
-				[214052] = {name = GetSpellInfo(214052) .. formatTextForItem(133641), isPassive = true, itemId = 133641}, --trinket: Eye of Skovald
-				[214200] = {name = GetSpellInfo(214200) .. formatTextForItem(133646)}, --trinket: Mote of Sanctification
-				[387036] = {name = GetSpellInfo(387036) .. formatTextForItem(193748)}, --trinket: Kyrakka's Searing Embers (heal)
-				[397376] = {name = GetSpellInfo(397376) .. formatTextForItem(193748), isPassive = true, itemId = 193748}, --trinket: Kyrakka's Searing Embers (damage)
+				[385903] = {name = formatTextForItem(193639), isPassive = true, itemId = 193639}, --trinket: Umbrelskul's Fractured Heart
+				[381475] = {name = formatTextForItem(193769)}, --trinket: Erupting Spear Fragment
+				[388739] = {name = formatTextForItem(193660), isPassive = true, itemId = 193660}, --trinket: Idol of Pure Decay
+				[388855] = {name = formatTextForItem(193678)}, --trinket: Miniature Singing Stone
+				[388755] = {name = formatTextForItem(193677), isPassive = true, itemId = 193677}, --trinket: Furious Ragefeather
+				[383934] = {name = formatTextForItem(193736)}, --trinket: Water's Beating Heart
+				[214052] = {name = formatTextForItem(133641), isPassive = true, itemId = 133641}, --trinket: Eye of Skovald
+				[214200] = {name = formatTextForItem(133646)}, --trinket: Mote of Sanctification
+				[387036] = {name = formatTextForItem(193748)}, --trinket: Kyrakka's Searing Embers (heal)
+				[397376] = {name = formatTextForItem(193748), isPassive = true, itemId = 193748}, --trinket: Kyrakka's Searing Embers (damage)
 				--[] = {name = GetSpellInfo() .. formatTextForItem(193757), isPassive = true}, --trinket: Ruby Whelp Shell
 
-				[214985] = {name = GetSpellInfo(214985) .. formatTextForItem(137486)}, --trinket: Windscar Whetstone
-				[384004] = {name = GetSpellInfo(384004) .. formatTextForItem(193815)}, --trinket: Homeland Raid Horn
+				[214985] = {name = formatTextForItem(137486)}, --trinket: Windscar Whetstone
+				[384004] = {name = formatTextForItem(193815)}, --trinket: Homeland Raid Horn
 				--[] = {name = GetSpellInfo() .. formatTextForItem()}, --trinket: Mutated Magmammoth Scale - did no proc
 
 				--/dump C_Item.GetItemNameByID(137486) --to check an item
