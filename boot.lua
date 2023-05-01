@@ -8,6 +8,10 @@
 
 		_ = nil
 		_G.Details = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
+
+		--add the original name to the global namespace
+		_detalhes = _G.Details --[[GLOBAL]]
+
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
