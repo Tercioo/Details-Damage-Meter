@@ -1,5 +1,5 @@
 --custom window
-	local _detalhes = 		_G._detalhes
+	local _detalhes = 		_G.Details
 	local gump = 			_detalhes.gump
 	local _
 	local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )

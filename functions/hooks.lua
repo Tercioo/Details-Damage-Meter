@@ -13,7 +13,7 @@
 	--[[global]] DETAILS_HOOK_BUFF = "HOOK_BUFF" --[[REMOVED--]]
 	
 	
-	local _detalhes = _G._detalhes
+	local _detalhes = _G.Details
 	local _
 	local addonName, Details222 = ...
 

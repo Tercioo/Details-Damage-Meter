@@ -15,11 +15,11 @@ local getCombatObject = function(segmentNumber)
 
 	--select which segment to use, use low level variables for performance
 	if (segmentNumber == -1) then
-		combatObject = _detalhes.tabela_overall
+		combatObject = Details.tabela_overall
 	elseif (segmentNumber == 0) then
-		combatObject = _detalhes.tabela_vigente
+		combatObject = Details.tabela_vigente
 	else
-		combatObject = _detalhes.tabela_historico.tabelas [segmentNumber]
+		combatObject = Details.tabela_historico.tabelas [segmentNumber]
 	end
 
 	return combatObject

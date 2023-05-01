@@ -6,7 +6,7 @@
 
 --values added into 'instance_skin_ignored_values' won't be passed when the user exports the profile or exports the skin individually.
 
-local _detalhes = 		_G._detalhes
+local _detalhes = 		_G.Details
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local addonName, Details222 = ...
 local _ = nil

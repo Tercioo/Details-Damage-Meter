@@ -56,7 +56,7 @@ local ignored_debuffs = {
 ---------------------------------------------------------------------------------------------
 
 --Create plugin Object
-local Vanguard = _detalhes:NewPluginObject ("Details_Vanguard")
+local Vanguard = Details:NewPluginObject ("Details_Vanguard")
 --Main Frame
 local VanguardFrame = Vanguard.Frame
 
@@ -98,12 +98,12 @@ local function CreatePluginFrames (data)
 				welcome:SetSize(400, 200)
 				DF:ApplyStandardBackdrop(welcome)
 				
-				local str = _detalhes.gump:CreateLabel(welcome, "Welcome to Vanguard!\n\n\n- The green-left bar represents the incoming healing plus absorbs on the tank.\n\n- The red-right show the incoming damage.\n\n- Tanks health bar and debuffs on them are shown in the bottom side.\n\n- Click anywhere to show options.", nil, nil, "GameFontNormal")
+				local str = Details.gump:CreateLabel(welcome, "Welcome to Vanguard!\n\n\n- The green-left bar represents the incoming healing plus absorbs on the tank.\n\n- The red-right show the incoming damage.\n\n- Tanks health bar and debuffs on them are shown in the bottom side.\n\n- Click anywhere to show options.", nil, nil, "GameFontNormal")
 				str:SetPoint(15, -15)
 				str:SetWidth(375)
 				
-				local close_button = _detalhes.gump:CreateButton(welcome, function() welcome:Hide() end, 120, 20, "Close")
-				close_button:SetTemplate(_detalhes.gump:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+				local close_button = Details.gump:CreateButton(welcome, function() welcome:Hide() end, 120, 20, "Close")
+				close_button:SetTemplate(Details.gump:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
 				close_button:SetPoint("center", welcome, "center")
 				close_button:SetPoint("bottom", welcome, "bottom", 0, 10)
 				
@@ -118,7 +118,7 @@ local function CreatePluginFrames (data)
 			Vanguard:ResetBars()
 			
 			Vanguard:IdentifyTanks()
-			Vanguard.CurrentCombat = _detalhes:GetCombat("current")
+			Vanguard.CurrentCombat = Details:GetCombat("current")
 
 			VanguardFrame:SetFrameStrata(Vanguard.CurrentInstance.baseframe:GetFrameStrata())
 			VanguardFrame:SetFrameLevel(Vanguard.CurrentInstance.baseframe:GetFrameLevel()+5)
@@ -376,7 +376,7 @@ local function CreatePluginFrames (data)
 		elseif (button == "RightButton") then
 			local instance = Vanguard:GetPluginInstance()
 			if (instance) then
-				_detalhes.switch:ShowMe(instance)
+				Details.switch:ShowMe(instance)
 			end
 		end
 	end
@@ -1099,7 +1099,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 		local AddonName = arg1
 		if (AddonName == "Details_Vanguard") then
 			
-			if (_G._detalhes) then
+			if (_G.Details) then
 			
 				if (DetailsFramework.IsClassicWow()) then
 					return
@@ -1127,7 +1127,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 				--Install
 				function Vanguard:OnDetailsEvent() end --dummy func to stop warnings.
 				
-				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_04", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", "v3.0", default_saved_table)
+				local install, saveddata = _G.Details:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_04", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", "v3.0", default_saved_table)
 				if (type(install) == "table" and install.error) then
 					print(install.error)
 				end
@@ -1138,12 +1138,12 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 				CreatePluginFrames()
 
 				--Register needed events
-				_G._detalhes:RegisterEvent(Vanguard, "COMBAT_PLAYER_ENTER")
-				_G._detalhes:RegisterEvent(Vanguard, "COMBAT_PLAYER_LEAVE")
-				_G._detalhes:RegisterEvent(Vanguard, "DETAILS_INSTANCE_ENDRESIZE")
-				_G._detalhes:RegisterEvent(Vanguard, "DETAILS_INSTANCE_SIZECHANGED")
-				_G._detalhes:RegisterEvent(Vanguard, "GROUP_ONLEAVE")
-				_G._detalhes:RegisterEvent(Vanguard, "DETAILS_OPTIONS_MODIFIED")
+				_G.Details:RegisterEvent(Vanguard, "COMBAT_PLAYER_ENTER")
+				_G.Details:RegisterEvent(Vanguard, "COMBAT_PLAYER_LEAVE")
+				_G.Details:RegisterEvent(Vanguard, "DETAILS_INSTANCE_ENDRESIZE")
+				_G.Details:RegisterEvent(Vanguard, "DETAILS_INSTANCE_SIZECHANGED")
+				_G.Details:RegisterEvent(Vanguard, "GROUP_ONLEAVE")
+				_G.Details:RegisterEvent(Vanguard, "DETAILS_OPTIONS_MODIFIED")
 				
 				VanguardFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 				VanguardFrame:RegisterEvent("PLAYER_ENTERING_WORLD")

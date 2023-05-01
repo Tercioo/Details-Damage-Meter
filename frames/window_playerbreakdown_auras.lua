@@ -264,8 +264,8 @@ local iconTableAuras = {
 
 function Details:InitializeAurasTab()
     --check if the tab is already created
-    for i = 1, #_detalhes.player_details_tabs do
-        local tabButton = _detalhes.player_details_tabs[i]
+    for i = 1, #Details.player_details_tabs do
+        local tabButton = Details.player_details_tabs[i]
         if (tabButton.tabname == "Auras") then
             return
         end

@@ -5,7 +5,7 @@ local tremove = table.remove
 local tinsert = table.insert
 local wipe = table.wipe
 
-local Details = _G._detalhes
+local Details = _G.Details
 local _
 local addonName, Details222 = ...
 
@@ -32,7 +32,7 @@ function Details:GetCurrentCombat()
 end
 
 function Details:GetOverallCombat()
-	return _detalhes.tabela_overall
+	return Details.tabela_overall
 end
 
 function Details:GetCombat(combat)

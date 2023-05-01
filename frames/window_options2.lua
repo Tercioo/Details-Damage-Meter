@@ -74,9 +74,9 @@ function Details.options.InitializeOptionsWindow(instance)
 
     --select the instance to edit
     local onSelectInstance = function(_, _, instanceId)
-        local instance = _detalhes.tabela_instancias[instanceId]
+        local instance = Details.tabela_instancias[instanceId]
         if (not instance:IsEnabled() or not instance:IsStarted()) then
-            _detalhes.CriarInstancia (_, _, instance.meu_id)
+            Details.CriarInstancia (_, _, instance.meu_id)
         end
         Details.options.SetCurrentInstanceAndRefresh(instance)
         f.updateMicroFrames()
@@ -84,20 +84,20 @@ function Details.options.InitializeOptionsWindow(instance)
 
     local buildInstanceMenu = function()
         local instanceList = {}
-        for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount) do
-            local instance = _detalhes.tabela_instancias[index]
+        for index = 1, math.min (#Details.tabela_instancias, Details.instances_amount) do
+            local instance = Details.tabela_instancias[index]
 
             --what the window is showing
             local atributo = instance.atributo
             local sub_atributo = instance.sub_atributo
 
             if (atributo == 5) then --custom
-                local CustomObject = _detalhes.custom [sub_atributo]
+                local CustomObject = Details.custom [sub_atributo]
                 if (not CustomObject) then
                     instance:ResetAttribute()
                     atributo = instance.atributo
                     sub_atributo = instance.sub_atributo
-                    instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectInstance, icon = _detalhes.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = _detalhes.sub_atributos [atributo].icones[sub_atributo] [2]}
+                    instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. Details.atributos.lista [atributo] .. " - " .. Details.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectInstance, icon = Details.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = Details.sub_atributos [atributo].icones[sub_atributo] [2]}
                 else
                     instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. CustomObject.name, onclick = onSelectInstance, icon = CustomObject.icon}
                 end
@@ -105,8 +105,8 @@ function Details.options.InitializeOptionsWindow(instance)
                 local modo = instance.modo
 
                 if (modo == 1) then --solo plugin
-                    atributo = _detalhes.SoloTables.Mode or 1
-                    local SoloInfo = _detalhes.SoloTables.Menu [atributo]
+                    atributo = Details.SoloTables.Mode or 1
+                    local SoloInfo = Details.SoloTables.Menu [atributo]
                     if (SoloInfo) then
                         instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. SoloInfo [1], onclick = onSelectInstance, icon = SoloInfo [2]}
                     else
@@ -116,7 +116,7 @@ function Details.options.InitializeOptionsWindow(instance)
                 elseif (modo == 4) then --raid plugin
                     local plugin_name = instance.current_raid_plugin or instance.last_raid_plugin
                     if (plugin_name) then
-                        local plugin_object = _detalhes:GetPlugin (plugin_name)
+                        local plugin_object = Details:GetPlugin (plugin_name)
                         if (plugin_object) then
                             instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. plugin_object.__name, onclick = onSelectInstance, icon = plugin_object.__icon}
                         else
@@ -126,7 +126,7 @@ function Details.options.InitializeOptionsWindow(instance)
                         instanceList [#instanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectInstance, icon = ""}
                     end
                 else
-                    instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectInstance, icon = _detalhes.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = _detalhes.sub_atributos [atributo].icones[sub_atributo] [2]}
+                    instanceList [#instanceList+1] = {value = index, label = "#".. index .. " " .. Details.atributos.lista [atributo] .. " - " .. Details.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectInstance, icon = Details.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = Details.sub_atributos [atributo].icones[sub_atributo] [2]}
                 end
             end
         end
@@ -157,9 +157,9 @@ function Details.options.InitializeOptionsWindow(instance)
 
     --editing group checkbox
     local onToggleEditingGroup = function(self, fixparam, value)
-        _detalhes.options_group_edit = value
+        Details.options_group_edit = value
     end
-    local editingGroupCheckBox = DF:CreateSwitch(footerFrame, onToggleEditingGroup, _detalhes.options_group_edit, _, _, _, _, _, "$parentEditGroupCheckbox", _, _, _, _, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+    local editingGroupCheckBox = DF:CreateSwitch(footerFrame, onToggleEditingGroup, Details.options_group_edit, _, _, _, _, _, "$parentEditGroupCheckbox", _, _, _, _, DF:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
     editingGroupCheckBox:SetAsCheckBox()
     editingGroupCheckBox.tooltip = Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL2"]
 
@@ -171,11 +171,11 @@ function Details.options.InitializeOptionsWindow(instance)
 	--create test bars
         DF:NewColor("C_OptionsButtonOrange", 0.9999, 0.8196, 0, 1)
         local create_test_bars_func = function()
-            _detalhes.CreateTestBars()
-            if (not _detalhes.test_bar_update) then
-                _detalhes:StartTestBarUpdate()
+            Details.CreateTestBars()
+            if (not Details.test_bar_update) then
+                Details:StartTestBarUpdate()
             else
-                _detalhes:StopTestBarUpdate()
+                Details:StopTestBarUpdate()
             end
         end
         local fillbars = DF:NewButton(footerFrame, _, "$parentCreateExampleBarsButton", nil, 140, 20, create_test_bars_func, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
@@ -184,7 +184,7 @@ function Details.options.InitializeOptionsWindow(instance)
         fillbars:SetIcon ("Interface\\AddOns\\Details\\images\\icons", nil, nil, nil, {323/512, 365/512, 42/512, 78/512}, {1, 1, 1, 0.6}, 4, 2)
 
     --change log
-        local changelog = DF:NewButton(footerFrame, _, "$parentOpenChangeLogButton", nil, 140, 20, _detalhes.OpenNewsWindow, "change_log", nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
+        local changelog = DF:NewButton(footerFrame, _, "$parentOpenChangeLogButton", nil, 140, 20, Details.OpenNewsWindow, "change_log", nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
         changelog:SetPoint("left", fillbars, "right", 10, 0)
         changelog:SetTemplate(options_button_template)
         changelog:SetIcon ("Interface\\AddOns\\Details\\images\\icons", nil, nil, nil, {367/512, 399/512, 43/512, 76/512}, {1, 1, 1, 0.8}, 4, 2)

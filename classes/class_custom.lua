@@ -1,4 +1,4 @@
-	local _detalhes = 		_G._detalhes
+	local _detalhes = 		_G.Details
 	local _ = nil
 	_detalhes.custom_function_cache = {}
 	local addonName, Details222 = ...

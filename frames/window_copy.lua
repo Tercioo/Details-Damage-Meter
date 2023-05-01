@@ -1,6 +1,6 @@
 do
 
-	local _detalhes = _G._detalhes
+	local _detalhes = _G.Details
 	local DetailsFrameWork = _detalhes.gump
 	local _
 --panel

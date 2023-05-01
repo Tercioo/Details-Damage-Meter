@@ -1,5 +1,5 @@
 
-	local Details = _G._detalhes
+	local Details = _G.Details
 	local _
 	local addonName, Details222 = ...
 	local healingAbility = Details.habilidade_cura

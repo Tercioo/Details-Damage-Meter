@@ -149,7 +149,7 @@ function Details.InstallRaidInfo()
 			{boss = "Sylvanas Windrunner", portrait = 4071443},
 		}
 
-		_detalhes:InstallEncounter ({
+		Details:InstallEncounter ({
 			id = INSTANCE_MAPID, --map id
 			ej_id = INSTANCE_EJID, --encounter journal id
 			name = InstanceName,
@@ -240,7 +240,7 @@ function Details.InstallRaidInfo()
 			end
 		end
 
-		_detalhes:InstallEncounter ({
+		Details:InstallEncounter ({
 			id = INSTANCE_MAPID, --map id
 			ej_id = INSTANCE_EJID, --encounter journal id
 			name = InstanceName,

@@ -5,7 +5,7 @@ do
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --On The Fly SpellCache
 
-	local Details = 	_G._detalhes
+	local Details = 	_G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local addonName, Details222 = ...
 	local _

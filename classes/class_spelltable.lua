@@ -58,7 +58,8 @@ Details.SpellTableMixin = {
     ---@param combatObject combat
     ---@return number
     GetCastAmount = function(spellTable, actorName, combatObject)
-        return combatObject:GetSpellCastAmount(actorName, spellTable.id)
+        local spellName = GetSpellInfo(spellTable.id)
+        return combatObject:GetSpellCastAmount(actorName, spellName)
     end,
 
     ---return the average damage per cast

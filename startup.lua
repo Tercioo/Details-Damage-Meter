@@ -601,7 +601,7 @@ function Details:StartMeUp()
 	end
 
 	if (DetailsFramework:IsNearlyEqual(Details.class_coords.ROGUE[4], 0.25)) then
-		DetailsFramework.table.copy(Details.class_coords, _detalhes.default_profile.class_coords)
+		DetailsFramework.table.copy(Details.class_coords, Details.default_profile.class_coords)
 	end
 
 	--shutdown the old OnDeathMenu

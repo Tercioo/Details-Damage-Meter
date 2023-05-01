@@ -293,6 +293,7 @@
 
 
 ---@class details
+---@field SpellTableMixin spelltablemixin
 ---@field GetInstance fun(self: details) : instance
 ---@field GetWindow fun(self: details) : instance this is an alias of GetInstance
 ---@field GetCombat fun(self: details) : combat

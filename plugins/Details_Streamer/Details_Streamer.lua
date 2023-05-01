@@ -9,7 +9,7 @@ local _
 
 --> create the plugin object
 -- "Details_StreamOverlay" is the old name
-local StreamOverlay = _detalhes:NewPluginObject("Details_Streamer", DETAILSPLUGIN_ALWAYSENABLED)
+local StreamOverlay = Details:NewPluginObject("Details_Streamer", DETAILSPLUGIN_ALWAYSENABLED)
 --tinsert (UISpecialFrames, "Details_StreamOverlays")
 --> main frame (shortcut)
 local SOF = StreamOverlay.Frame
@@ -1669,11 +1669,11 @@ end
 
 function StreamOverlay:UpdateDpsHpsFrame()
 	--> low level actor parsing - we can just use Details:GetActor(), but is faster without having to call functions
-	local container = _detalhes.tabela_vigente [screen_frame_attribute]
+	local container = Details.tabela_vigente [screen_frame_attribute]
 	local actor = container._ActorTable [container._NameIndexTable [playerName]]
 	
 	if (actor) then
-		screen_frame_text:SetText (format_function (_, actor.total / _detalhes.tabela_vigente:GetCombatTime()))
+		screen_frame_text:SetText (format_function (_, actor.total / Details.tabela_vigente:GetCombatTime()))
 	else
 		if (StreamOverlay.db.per_second.attribute_type == 1) then
 			screen_frame_text:SetText ("DPS")
@@ -2214,13 +2214,13 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 			--> save the current config on the profile
 			local current_profile = Details_StreamerDB.characters [pname]
 			local current_ptable = Details_StreamerDB.profiles [current_profile]
-			_detalhes.table.overwrite (current_ptable, StreamOverlay.db) --overwrite the profile with the local settings
+			Details.table.overwrite (current_ptable, StreamOverlay.db) --overwrite the profile with the local settings
 			
 			--> get the selected profile and overwrite the settings
 			local ptable = Details_StreamerDB.profiles [profileName]
 			
-			_detalhes.table.deploy (ptable, StreamOverlay.DefaultConfigTable) --update with any new config from the default table
-			_detalhes.table.overwrite (StreamOverlay.db, ptable) --overwrite the local settings with the profile settings
+			Details.table.deploy (ptable, StreamOverlay.DefaultConfigTable) --update with any new config from the default table
+			Details.table.overwrite (StreamOverlay.db, ptable) --overwrite the local settings with the profile settings
 			
 			Details_StreamerDB.characters [pname] = profileName
 			
@@ -2268,8 +2268,8 @@ function StreamOverlay.OpenOptionsPanel (fromOptionsPanel)
 				Details_StreamerDB.characters [pname] = pname
 				--load dbtable
 				Details_StreamerDB.profiles [pname] = {}
-				_detalhes.table.overwrite (Details_StreamerDB.profiles [pname], StreamOverlay.db)
-				_detalhes.table.deploy (Details_StreamerDB.profiles [pname], StreamOverlay.DefaultConfigTable) --update with any new config from the default table
+				Details.table.overwrite (Details_StreamerDB.profiles [pname], StreamOverlay.db)
+				Details.table.deploy (Details_StreamerDB.profiles [pname], StreamOverlay.DefaultConfigTable) --update with any new config from the default table
 				--StreamOverlay.db = Details_StreamerDB.profiles [pname] --no can't change the local database table
 				
 				optionsFrame.NewProfileButton:Hide()
@@ -2361,7 +2361,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 			
 			playerName = UnitName ("player")
 
-			if (_G._detalhes) then
+			if (_G.Details) then
 			
 				if (DetailsFramework.IsClassicWow()) then
 					return
@@ -2417,7 +2417,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 				StreamOverlay.DefaultConfigTable = default_options_table
 				
 				--> Install
-				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Action Tracker", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", StreamOverlay.CurrentVersion, default_options_table)
+				local install, saveddata = _G.Details:InstallPlugin ("TOOLBAR", "Action Tracker", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Terciob", StreamOverlay.CurrentVersion, default_options_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
@@ -2518,8 +2518,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 				
 				--load dbtable
 				local ptable = Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] or {} --already existen config set or empty table
-				_detalhes.table.overwrite (StreamOverlay.db, ptable) --profile overwrite the local settings
-				_detalhes.table.deploy (ptable, StreamOverlay.db) --local settings deploy stuff which non exist on profile
+				Details.table.overwrite (StreamOverlay.db, ptable) --profile overwrite the local settings
+				Details.table.deploy (ptable, StreamOverlay.db) --local settings deploy stuff which non exist on profile
 				
 				Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] = ptable
 			end

@@ -73,7 +73,7 @@ function Details:ScrollDamage()
 		DetailsScrollDamage.searchCache = {}
 
 		local refreshFunc = function(self, data, offset, totalLines) --~refresh
-			local ToK = _detalhes:GetCurrentToKFunction()
+			local ToK = Details:GetCurrentToKFunction()
 
 			for i = 1, totalLines do
 				local index = i + offset

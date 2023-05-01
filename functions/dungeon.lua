@@ -1,6 +1,6 @@
 
 --local pointer to details object
-local Details = _G._detalhes
+local Details = _G.Details
 local debugmode = false --print debug lines
 local verbosemode = false --auto open the chart panel
 local _
@@ -220,7 +220,7 @@ function mythicDungeonCharts:OnStartMythicDungeon()
 
 	--save the chart for development
 	if (debugmode) then
-		_detalhes.mythic_plus.last_mythicrun_chart = mythicDungeonCharts.ChartTable
+		Details.mythic_plus.last_mythicrun_chart = mythicDungeonCharts.ChartTable
 	end
 
 	if (verbosemode) then
@@ -251,8 +251,8 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 		mythicDungeonCharts:Debug("Dungeon ended successfully, chart data capture stopped, scheduling to open the window.")
 
 		--the run is valid, schedule to open the chart window
-		_detalhes.mythic_plus.delay_to_show_graphic = 5
-		C_Timer.After(_detalhes.mythic_plus.delay_to_show_graphic or 5, mythicDungeonCharts.ShowReadyPanel)
+		Details.mythic_plus.delay_to_show_graphic = 5
+		C_Timer.After(Details.mythic_plus.delay_to_show_graphic or 5, mythicDungeonCharts.ShowReadyPanel)
 
 		if (verbosemode) then
 			mythicDungeonCharts:Debug("OnEndMythicDungeon() success!")
@@ -275,7 +275,7 @@ mythicDungeonCharts:RegisterEvent("COMBAT_BOSS_DEFEATED", "OnBossDefeated")
 --show a small panel telling the chart is ready to show
 function mythicDungeonCharts.ShowReadyPanel()
 	--check if is enabled
-	if (not _detalhes.mythic_plus.show_damage_graphic) then
+	if (not Details.mythic_plus.show_damage_graphic) then
 		return
 	end
 
@@ -313,10 +313,10 @@ function mythicDungeonCharts.ShowReadyPanel()
 
 		--disable feature check box (dont show this again)
 		local on_switch_enable = function(self, _, value)
-			_detalhes.mythic_plus.show_damage_graphic = not value
+			Details.mythic_plus.show_damage_graphic = not value
 		end
 
-		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch(readyFrame, on_switch_enable, not _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch(readyFrame, on_switch_enable, not Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
 		notAgainSwitch:ClearAllPoints()
 		notAgainLabel:SetPoint("left", notAgainSwitch, "right", 2, 0)
 		notAgainSwitch:SetPoint("bottomleft", readyFrame, "bottomleft", 5, 5)
@@ -362,7 +362,7 @@ function mythicDungeonCharts.ShowChart()
 			titlebar:SetBackdropBorderColor(0, 0, 0, 1)
 
 			--title
-			local titleLabel = _detalhes.gump:NewLabel(titlebar, titlebar, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+			local titleLabel = Details.gump:NewLabel(titlebar, titlebar, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 			titleLabel:SetPoint("center", titlebar , "center")
 			titleLabel:SetPoint("top", titlebar , "top", 0, -5)
 			dungeonChartFrame.TitleText = titleLabel
@@ -377,7 +377,7 @@ function mythicDungeonCharts.ShowChart()
 			titlebarMinimized:SetBackdropBorderColor(0, 0, 0, 1)
 
 			--title
-			local titleLabelMinimized = _detalhes.gump:NewLabel(titlebarMinimized, titlebarMinimized, nil, "titulo", "Dungeon Run Chart", "GameFontHighlightLeft", 10, {227/255, 186/255, 4/255})
+			local titleLabelMinimized = Details.gump:NewLabel(titlebarMinimized, titlebarMinimized, nil, "titulo", "Dungeon Run Chart", "GameFontHighlightLeft", 10, {227/255, 186/255, 4/255})
 			titleLabelMinimized:SetPoint("left", titlebarMinimized , "left", 4, 0)
 			--titleLabelMinimized:SetPoint("top", titlebarMinimized , "top", 0, -5)
 			dungeonChartFrame.TitleTextMinimized = titleLabelMinimized
@@ -509,9 +509,9 @@ function mythicDungeonCharts.ShowChart()
 		--enabled box
 		-- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
 		local on_switch_enable = function(_, _, state)
-			_detalhes.mythic_plus.show_damage_graphic = state
+			Details.mythic_plus.show_damage_graphic = state
 		end
-		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch(dungeonChartFrame, on_switch_enable, _detalhes.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", Details.gump:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+		local enabledSwitch, enabledLabel = Details.gump:CreateSwitch(dungeonChartFrame, on_switch_enable, Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, "Enabled", Details.gump:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
 		enabledSwitch:SetAsCheckBox()
 		enabledSwitch.tooltip = "Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."
 		enabledLabel:SetPoint("right", minimizeButton, "left", -22, 0)
@@ -705,10 +705,10 @@ local PixelFrameOnEnter = function(self)
 	GameCooltip2:Preset(2)
 	GameCooltip2:SetOption("FixedWidth", 100)
 	GameCooltip2:SetOption("TextSize", 10)
-	local onlyName = _detalhes:GetOnlyName(playerName)
+	local onlyName = Details:GetOnlyName(playerName)
 	GameCooltip2:AddLine(onlyName)
 
-	local classIcon, L, R, B, T = _detalhes:GetClassIcon(mythicDungeonCharts.ChartTable.Players [playerName] and mythicDungeonCharts.ChartTable.Players [playerName].Class)
+	local classIcon, L, R, B, T = Details:GetClassIcon(mythicDungeonCharts.ChartTable.Players [playerName] and mythicDungeonCharts.ChartTable.Players [playerName].Class)
 	GameCooltip2:AddIcon (classIcon, 1, 1, 16, 16, L, R, B, T)
 
 	GameCooltip2:AddLine(Details:GetCurrentToKFunction()(nil, floor(dps)))

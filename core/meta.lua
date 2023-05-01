@@ -1,5 +1,5 @@
 
-	local _detalhes = _G._detalhes
+	local _detalhes = _G.Details
 	local Details = _detalhes
 	local tocName, Details222 = ...
 

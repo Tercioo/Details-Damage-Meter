@@ -1,7 +1,7 @@
 --[[ Attributes: Damage, Heal, Energy, Miscellaneous ]]
 
 do
-	local _detalhes = _G._detalhes
+	local _detalhes = _G.Details
 	local addonName, Details222 = ...
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 

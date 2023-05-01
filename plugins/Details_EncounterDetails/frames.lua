@@ -1,5 +1,5 @@
 do
-	local _detalhes = _G._detalhes
+	local _detalhes = _G.Details
 	local DetailsFrameWork = _detalhes.gump
 	local AceLocale = LibStub ("AceLocale-3.0")
 	local Loc = AceLocale:GetLocale ("Details_EncounterDetails")

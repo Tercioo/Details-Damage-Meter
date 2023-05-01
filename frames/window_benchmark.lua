@@ -12,7 +12,7 @@ local libwindow = LibStub("LibWindow-1.1")
 	
         --main frame
             
-            local DF = _detalhes.gump
+            local DF = Details.gump
             local _ = nil
             
             --declaration
@@ -28,7 +28,7 @@ local libwindow = LibStub("LibWindow-1.1")
             
             --register to libwindow
             local LibWindow = LibStub("LibWindow-1.1")
-            LibWindow.RegisterConfig(f, _detalhes.benchmark_db.frame)
+            LibWindow.RegisterConfig(f, Details.benchmark_db.frame)
             LibWindow.RestorePosition(f)
             LibWindow.MakeDraggable(f)
             LibWindow.SavePosition(f)
@@ -46,9 +46,9 @@ local libwindow = LibStub("LibWindow-1.1")
             f.Close = CreateFrame("button", "$parentCloseButton", f,"BackdropTemplate")
             f.Close:SetPoint("right", f.TitleBar, "right", -2, 0)
             f.Close:SetSize(16, 16)
-            f.Close:SetNormalTexture(_detalhes.gump.folder .. "icons")
-            f.Close:SetHighlightTexture(_detalhes.gump.folder .. "icons")
-            f.Close:SetPushedTexture(_detalhes.gump.folder .. "icons")
+            f.Close:SetNormalTexture(Details.gump.folder .. "icons")
+            f.Close:SetHighlightTexture(Details.gump.folder .. "icons")
+            f.Close:SetPushedTexture(Details.gump.folder .. "icons")
             f.Close:GetNormalTexture():SetTexCoord(0, 16/128, 0, 1)
             f.Close:GetHighlightTexture():SetTexCoord(0, 16/128, 0, 1)
             f.Close:GetPushedTexture():SetTexCoord(0, 16/128, 0, 1)

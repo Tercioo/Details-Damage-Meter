@@ -1,4 +1,4 @@
-local _detalhes = _G._detalhes
+local _detalhes = _G.Details
 local L = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 
 --default weaktable

@@ -7,34 +7,34 @@
 --make an option to show death in the order of newest to oldest
 
 		_ = nil
-		_G._detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
+		_G.Details = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		_detalhes.build_counter = 10737
-		_detalhes.alpha_build_counter = 10737 --if this is higher than the regular counter, use it instead
-		_detalhes.dont_open_news = true
-		_detalhes.game_version = version
-		_detalhes.userversion = version .. " " .. _detalhes.build_counter
-		_detalhes.realversion = 150 --core version, this is used to check API version for scripts and plugins (see alias below)
-		_detalhes.APIVersion = _detalhes.realversion --core version
-		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")" --simple stirng to show to players
+		Details.build_counter = 10737
+		Details.alpha_build_counter = 10737 --if this is higher than the regular counter, use it instead
+		Details.dont_open_news = true
+		Details.game_version = version
+		Details.userversion = version .. " " .. Details.build_counter
+		Details.realversion = 150 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.APIVersion = Details.realversion --core version
+		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 
-		_detalhes.acounter = 1 --in case of a second release with the same .build_counter
-		_detalhes.curseforgeVersion = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("Details", "Version")
-		if (not _detalhes.curseforgeVersion and GetAddOnMetadata) then
-			_detalhes.curseforgeVersion = GetAddOnMetadata("Details", "Version")
+		Details.acounter = 1 --in case of a second release with the same .build_counter
+		Details.curseforgeVersion = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("Details", "Version")
+		if (not Details.curseforgeVersion and GetAddOnMetadata) then
+			Details.curseforgeVersion = GetAddOnMetadata("Details", "Version")
 		end
 
-		function _detalhes:GetCoreVersion()
-			return _detalhes.realversion
+		function Details:GetCoreVersion()
+			return Details.realversion
 		end
 
-		_detalhes.BFACORE = 131 --core version on BFA launch
-		_detalhes.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
-		_detalhes.DRAGONFLIGHT = 147 --core version on Dragonflight launch
+		Details.BFACORE = 131 --core version on BFA launch
+		Details.SHADOWLANDSCORE = 143 --core version on Shadowlands launch
+		Details.DRAGONFLIGHT = 147 --core version on Dragonflight launch
 
-		Details = _detalhes
+		Details = Details
 
 		local gameVersionPrefix = "Unknown Game Version - You're probably using a Details! not compatible with this version of the Game"
 		--these are the game versions currently compatible with this Details! versions
@@ -47,7 +47,7 @@
 		--WD 10288 RELEASE 10.0.2
 		--WD 10288 ALPHA 21 10.0.2
 		function Details.GetVersionString()
-			local curseforgeVersion = _detalhes.curseforgeVersion or ""
+			local curseforgeVersion = Details.curseforgeVersion or ""
 			local alphaId = curseforgeVersion:match("%-(%d+)%-")
 
 			if (not alphaId) then
@@ -95,7 +95,7 @@
 local _
 
 do
-	local _detalhes = _G._detalhes
+	local _detalhes = _G.Details
 	_detalhes.resize_debug = {}
 
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")

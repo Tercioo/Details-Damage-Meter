@@ -1,7 +1,7 @@
 
 local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 
-local Details = _G._detalhes
+local Details = _G.Details
 local gump = Details.gump
 local _
 

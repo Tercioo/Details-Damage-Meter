@@ -73,11 +73,11 @@ end
 --cancel button always closes the window and okay calls the comfirm function passed in the argument
 --default text is the text shown show the window is show()
 
-function _detalhes:DumpString (text)
-	_detalhes:ShowImportWindow (text)
+function Details:DumpString (text)
+	Details:ShowImportWindow (text)
 end
 
-function _detalhes:ShowImportWindow (defaultText, confirmFunc, titleText)
+function Details:ShowImportWindow (defaultText, confirmFunc, titleText)
 	if (not _G.DetailsExportWindow) then
 		local importWindow = DetailsFramework:CreateSimplePanel(_G.UIParent, 800, 610, "Details! Dump String", "DetailsExportWindow")
 		importWindow:SetFrameStrata("FULLSCREEN")
@@ -117,12 +117,12 @@ function _detalhes:ShowImportWindow (defaultText, confirmFunc, titleText)
 			end
 			importWindow:Hide()
 		end
-		local okayButton = DetailsFramework:CreateButton(importTextEditor, onClickImportButton, 120, 20, "Okay", -1, nil, nil, nil, nil, nil, _detalhes.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"), _detalhes.gump:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")) --localize-me
+		local okayButton = DetailsFramework:CreateButton(importTextEditor, onClickImportButton, 120, 20, "Okay", -1, nil, nil, nil, nil, nil, Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"), Details.gump:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")) --localize-me
 		okayButton:SetIcon ([[Interface\BUTTONS\UI-Panel-BiggerButton-Up]], 20, 20, "overlay", {0.1, .9, 0.1, .9})
 		importTextEditor.OkayButton = okayButton
 	
 		--cancel button
-		local cancelButton = DetailsFramework:CreateButton(importTextEditor, function() importWindow:Hide() end, 120, 20, "Cancel", -1, nil, nil, nil, nil, nil, _detalhes.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"), _detalhes.gump:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")) --localize-me
+		local cancelButton = DetailsFramework:CreateButton(importTextEditor, function() importWindow:Hide() end, 120, 20, "Cancel", -1, nil, nil, nil, nil, nil, Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"), Details.gump:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")) --localize-me
 		cancelButton:SetIcon ([[Interface\BUTTONS\UI-Panel-MinimizeButton-Up]], 20, 20, "overlay", {0.1, .9, 0.1, .9})
 
 		okayButton:SetPoint("topright", importTextEditor, "bottomright", 0, -10)

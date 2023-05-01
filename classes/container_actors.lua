@@ -1,7 +1,7 @@
 -- actor container file
 -- group members are the actors which will be shown in the window while in standard view mode, most of the times they are players in the same group as the player
 
-	local Details = _G._detalhes
+	local Details = _G.Details
 	local DF = _G.DetailsFramework
 	local _
 	local addonName, Details222 = ...

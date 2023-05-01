@@ -1,5 +1,5 @@
 
-	local Details =	_G._detalhes
+	local Details =	_G.Details
 	local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 	local libwindow = LibStub("LibWindow-1.1")
 	local _

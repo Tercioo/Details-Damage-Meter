@@ -1,4 +1,4 @@
-local _detalhes = 		_G._detalhes
+local _detalhes = 		_G.Details
 local gump = 			_detalhes.gump
 local container_pets =		_detalhes.container_pets
 local _

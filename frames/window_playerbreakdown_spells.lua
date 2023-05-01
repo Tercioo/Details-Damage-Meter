@@ -9,6 +9,7 @@ local wipe = wipe
 local GetCursorPosition = GetCursorPosition
 local CreateFrame = CreateFrame
 local GetSpellLink = GetSpellLink
+local GetSpellInfo = GetSpellInfo
 local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
@@ -309,6 +310,33 @@ function spellsTab.BuildHeaderTable(containerType)
 	end
 
 	return headerTable
+end
+
+---some values required by the header sort key is not available in the spellTable, so they need to be calculated
+---@param combatObject combat
+---@param spellData spelltable|spelltableadv
+---@param key string
+---@return any
+local getValueForHeaderSortKey = function(combatObject, spellData, key)
+	if (key == "critpercent") then
+		return Details.SpellTableMixin.GetCritPercent(spellData)
+
+	elseif (key == "casts") then
+		local spellName = GetSpellInfo(spellData.id)
+		local amountOfCasts = combatObject:GetSpellCastAmount(spellsTab.GetActor():Name(), spellName)
+		return amountOfCasts
+
+	elseif (key == "castavg") then
+		local spellName = GetSpellInfo(spellData.id)
+		local amountOfCasts = combatObject:GetSpellCastAmount(spellsTab.GetActor():Name(), spellName)
+		return Details.SpellTableMixin.GetCastAverage(spellData, amountOfCasts)
+
+	elseif (key == "uptime") then
+		return combatObject:GetSpellUptime(spellsTab.GetActor():Name(), spellData.id)
+
+	elseif (key == "healabsorbed") then
+		return spellData.absorbed
+	end
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1075,7 +1103,8 @@ end
 ---@param bkTargetData breakdowntargettable
 ---@param totalValue number
 ---@param topValue number the amount done of the first target, used to calculate the length of the statusbar
-local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue) --~target ~update ~targetbar ~updatetargetbar
+---@param sortKey string
+local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue, sortKey) --~target ~update ~targetbar ~updatetargetbar
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
 
 	local textIndex = 1
@@ -1097,7 +1126,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 
 		--statusbar size by percent
 		if (topValue > 0) then
-			targetBar.statusBar:SetValue(bkTargetData.statusBarValue / topValue * 100)
+			targetBar.statusBar:SetValue(bkTargetData[sortKey] / topValue * 100)
 		else
 			targetBar.statusBar:SetValue(0)
 		end
@@ -1173,7 +1202,7 @@ end
 ---@param totalLines number
 local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines) --~refresh ~target ~refreshtargets
 	---@type number
-	local maxValue = scrollFrame.maxValue
+	local topValue = scrollFrame.topValue
 	---@type number
 	local totalValue = scrollData.totalValue
 	---@type actor
@@ -1188,6 +1217,7 @@ local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines)
 	---@type number
 	local mainAttribute = spellsTab.mainAttribute
 
+	local sortKey = scrollFrame.SortKey
 	local headerTable = spellsTab.targetsHeaderData
 
 	local lineIndex = 1
@@ -1204,7 +1234,7 @@ local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines)
 			do
 				if (targetBar) then
 					lineIndex = lineIndex + 1
-					updateTargetBar(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, maxValue)
+					updateTargetBar(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue, sortKey)
 				end
 			end
 
@@ -1280,28 +1310,23 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 	function targetScrollFrame:RefreshMe(data) --~refreshme (targets) ~refreshmetargets
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = targetScrollFrame.Header:GetSelectedColumn()
+		targetScrollFrame.SortKey = key
 
 		---@type string
 		local keyToSort = key
-
-		for i = 1, #data do
-			---@type spelltableadv
-			local bkSpellData = data[i]
-			bkSpellData.statusBarValue = bkSpellData[keyToSort]
-		end
 
 		if (order == "DESC") then
 			table.sort(data,
 			function(t1, t2)
 				return t1[keyToSort] > t2[keyToSort]
 			end)
-			targetScrollFrame.maxValue = data[1] and data[1][keyToSort]
+			targetScrollFrame.topValue = data[1] and data[1][keyToSort]
 		else
 			table.sort(data,
 			function(t1, t2)
 				return t1[keyToSort] < t2[keyToSort]
 			end)
-			targetScrollFrame.maxValue = data[#data] and data[#data][keyToSort]
+			targetScrollFrame.topValue = data[#data] and data[#data][keyToSort]
 		end
 
 		if (key == "overheal") then
@@ -1385,6 +1410,20 @@ local onClickExpandButton = function(expandButton, button)
 	scrolFrame:Refresh()
 end
 
+local formatPetName = function(petName, spellName, ownerName)
+	--petName is raw (with the owner name)
+	local petNameWithoutOwner = petName:gsub((" <.*"), "")
+
+	local texture = [[Interface\AddOns\Details\images\classes_small]]
+
+	local bUseAlphaIcons = true
+	local specIcon = false
+	local iconSize = 14
+	petNameWithoutOwner = Details:AddClassOrSpecIcon(petNameWithoutOwner, "PET", specIcon, iconSize, bUseAlphaIcons)
+
+	return spellName .. " |cFFCCBBBB" .. petNameWithoutOwner .. "|r"
+end
+
 ---update a line using the data passed
 ---@param spellBar breakdownspellbar
 ---@param index number spell position (from best to wrost)
@@ -1393,11 +1432,12 @@ end
 ---@param scrollFrame table
 ---@param headerTable table
 ---@param bkSpellData spelltableadv
----@param bkSpellStableIndex number
+---@param spellTableIndex number
 ---@param totalValue number
 ---@param topValue number
 ---@param bIsMainLine boolean if true this is the line which has all the values of the spell merged
-local updateSpellBar = function(spellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, bkSpellStableIndex, totalValue, topValue, bIsMainLine)
+---@param sortKey string
+local updateSpellBar = function(spellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey)
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
 
 	local textIndex = 1
@@ -1417,12 +1457,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellTable = bkSpellData
 			value = bkSpellData.total
 			spellId = bkSpellData.id
-			petName = bkSpellData.petNames[bkSpellStableIndex]
+			petName = bkSpellData.petNames[spellTableIndex]
 		else
-			spellTable = bkSpellData.spellTables[bkSpellStableIndex]
+			spellTable = bkSpellData.spellTables[spellTableIndex]
 			value = spellTable.total
 			spellId = spellTable.id
-			petName = bkSpellData.petNames[bkSpellStableIndex]
+			petName = bkSpellData.petNames[spellTableIndex]
 			spellBar.bIsExpandedSpell = true
 		end
 
@@ -1444,8 +1484,16 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		---@type number
 		local combatTime = combatObject:GetCombatTime()
 
+		--statusbar size by percent
+		if (topValue > 0) then
+			local barValue = spellTable[sortKey] or getValueForHeaderSortKey(combatObject, spellTable, sortKey)
+			spellBar.statusBar:SetValue(barValue / topValue * 100)
+		else
+			spellBar.statusBar:SetValue(0)
+		end
+
 		if (petName ~= "") then
-			spellName = spellName .. " (" .. petName .. ")"
+			spellName = formatPetName(petName, spellName, actorName)
 		end
 
 		spellBar.spellId = spellId
@@ -1453,15 +1501,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 
 		spellBar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.spellbar_background_alpha)
 
-		--statusbar size by percent
-		if (topValue > 0) then
-			spellBar.statusBar:SetValue(bkSpellData.statusBarValue / topValue * 100)
-		else
-			spellBar.statusBar:SetValue(0)
-		end
-
 		--statusbar color by school
-		--print("spell school:", spellTable.spellschool) --healing has the spellschool not filled, it's nil
 		local r, g, b = Details:GetSpellSchoolColor(spellTable.spellschool or 1)
 		spellBar.statusBar:SetStatusBarColor(r, g, b, 1)
 
@@ -1579,7 +1619,6 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			text:SetText(Details:Format(spellTable.absorbed or 0))
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
-
 		end
 	end
 
@@ -1619,7 +1658,7 @@ end
 ---@param totalLines number
 local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refreshfunc ~refresh
 	---@type number
-	local maxValue = scrollFrame.maxValue
+	local topValue = scrollFrame.topValue
 	---@type number
 	local totalValue = scrollData.totalValue
 	---@type actor
@@ -1632,6 +1671,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 	---@type instance
 	local instanceObject = spellsTab.GetInstance()
 
+	local sortKey = scrollFrame.SortKey
 	local headerTable = spellsTab.spellsHeaderData
 
 	--todo: when swapping sort orders, close allexpanded spells
@@ -1667,7 +1707,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 				if (mainSpellBar) then
 					lineIndex = lineIndex + 1
 					local bIsMainLine = true
-					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, maxValue, bIsMainLine)
+					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, sortKey)
 				end
 			end
 
@@ -1685,9 +1725,9 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 						local nameToUse = petName ~= "" and petName or actorName
 						local bIsMainLine = false
 
-						
 
-						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, maxValue, bIsMainLine)
+
+						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey)
 						mainSpellBar.ExpandedChildren[#mainSpellBar.ExpandedChildren + 1] = spellBar
 					end
 				end
@@ -1797,6 +1837,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 	function scrollFrame:RefreshMe(data) --~refreshme (spells)
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
+		scrollFrame.SortKey = key
 
 		---@type string
 		local keyToSort = key
@@ -1806,29 +1847,14 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 		---@type number, number
 		local mainAttribute, subAttribute = spellsTab.GetInstance():GetDisplay()
 
-		--filling necessary information to sort the data in the order the header wants
+		--filling necessary information to sort the data by the selected header column
 		for i = 1, #data do
 			---@type spelltableadv
 			local bkSpellData = data[i]
-
-			--crit percent
-			bkSpellData.critpercent = bkSpellData:GetCritPercent()
-
-			--cast amount
-			bkSpellData.casts = bkSpellData:GetCastAmount(spellsTab.GetActor():Name(), combatObject)
-
-			--cast avg
-			bkSpellData.castavg = bkSpellData:GetCastAverage(bkSpellData.casts)
-
-			--uptime
-			local uptime = combatObject:GetSpellUptime(spellsTab:GetActor():Name(), bkSpellData.id)
-			bkSpellData.uptime = uptime
-
-			if (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then
-				bkSpellData.healabsorbed = bkSpellData.absorbed
+			if (not bkSpellData[keyToSort]) then
+				local value = getValueForHeaderSortKey(combatObject, bkSpellData, keyToSort)
+				bkSpellData[keyToSort] = value
 			end
-
-			bkSpellData.statusBarValue = bkSpellData[keyToSort]
 		end
 
 		if (order == "DESC") then
@@ -1838,7 +1864,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 			function(t1, t2)
 				return t1[keyToSort] > t2[keyToSort]
 			end)
-			self.maxValue = data[1] and data[1][keyToSort]
+			self.topValue = data[1] and data[1][keyToSort]
 		else
 			table.sort(data,
 			---@param t1 spelltableadv
@@ -1846,7 +1872,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
 			function(t1, t2)
 				return t1[keyToSort] < t2[keyToSort]
 			end)
-			self.maxValue = data[#data] and data[#data][keyToSort]
+			self.topValue = data[#data] and data[#data][keyToSort]
 		end
 
 		self:SetData(data)
@@ -1908,9 +1934,6 @@ local onEnterBreakdownTargetBar = function(targetBar)
 
 	---@type string @the name of the target
 	local targetName = targetBar.actorName
-
-	---@type number @amount done of the target, at this point the code doesn't know if it's damage, healing, etc
-	local totalValue = targetBar.bkTargetData.statusBarValue
 
 	Details:FormatCooltipForSpells()
 	GameCooltip:SetOwner(targetBar, "bottom", "top", 4, -5)
@@ -2328,18 +2351,18 @@ end
 
 function spellsTab.CreateReportButtons(tabFrame) --deprecated?
     --spell list report button
-	tabFrame.report_esquerda = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 1, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
+	tabFrame.report_esquerda = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, Details.Reportar, tabFrame, 1, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
 	tabFrame.report_esquerda:SetPoint("bottomleft", spellsTab.GetSpellScrollFrame(), "TOPLEFT",  33, 3)
 	tabFrame.report_esquerda:SetFrameLevel(tabFrame:GetFrameLevel()+2)
 	tabFrame.topleft_report = tabFrame.report_esquerda
 
 	--targets report button
-	tabFrame.report_alvos = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 3, 16, 16,	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
+	tabFrame.report_alvos = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, Details.Reportar, tabFrame, 3, 16, 16,	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
 	tabFrame.report_alvos:SetPoint("bottomright", tabFrame.container_alvos, "TOPRIGHT",  -2, -1)
 	tabFrame.report_alvos:SetFrameLevel(3) --solved inactive problem
 
 	--special barras in the right report button
-	tabFrame.report_direita = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, _detalhes.Reportar, tabFrame, 2, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
+	tabFrame.report_direita = Details.gump:NewDetailsButton(tabFrame, tabFrame, nil, Details.Reportar, tabFrame, 2, 16, 16, "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
 	tabFrame.report_direita:SetPoint("TOPRIGHT", tabFrame, "TOPRIGHT",  -10, -70)
 	tabFrame.report_direita:Show()
 end
@@ -2354,12 +2377,12 @@ function spellsTab.monta_relatorio(botao) --deprecated?
     ---@type instance
 	local instance = breakdownWindow.instancia
     ---@type number
-    local amt = _detalhes.report_lines
+    local amt = Details.report_lines
 
     local tabFrame = spellsTab.TabFrame
 
 	if (not player) then
-		_detalhes:Msg("Player not found.")
+		Details:Msg("Player not found.")
 		return
 	end
 
@@ -2373,7 +2396,7 @@ function spellsTab.monta_relatorio(botao) --deprecated?
 			report_lines = {"Details!: " .. player.nome .. " " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"] .. ":"}
 
 		else
-			report_lines = {"Details!: " .. player.nome .. " - " .. _detalhes.sub_atributos [mainSection].lista [subSection] .. ""}
+			report_lines = {"Details!: " .. player.nome .. " - " .. Details.sub_atributos [mainSection].lista [subSection] .. ""}
 		end
 
 		for index, barra in ipairs(tabFrame.barras1) do
@@ -2404,7 +2427,7 @@ function spellsTab.monta_relatorio(botao) --deprecated?
 			return
 		end
 
-		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTARGETS"] .. " " .. _detalhes.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome}
+		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTARGETS"] .. " " .. Details.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome}
 
 		for index, barra in ipairs(tabFrame.barras2) do
 			if (barra:IsShown()) then
@@ -2425,11 +2448,11 @@ function spellsTab.monta_relatorio(botao) --deprecated?
 
 			local nome = _GetSpellInfo(player.detalhes)
 
-			report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [mainSection].lista [subSection] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome,
+			report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. Details.sub_atributos [mainSection].lista [subSection] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome,
 			Loc ["STRING_ACTORFRAME_SPELLDETAILS"] .. ": " .. nome}
 
 			for i = 1, 5 do
-				local caixa = _detalhes.playerDetailWindow.grupos_detalhes[i]
+				local caixa = Details.playerDetailWindow.grupos_detalhes[i]
 				if (caixa.bg:IsShown()) then
 
 					local linha = ""
@@ -2474,7 +2497,7 @@ function spellsTab.monta_relatorio(botao) --deprecated?
 		--dano --damage tanken
 		elseif ( (mainSection == 1 and subSection == 3) or mainSection == 3) then
 			if (player.detalhes) then
-				report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.detalhes.. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. player.nome}
+				report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. Details.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.detalhes.. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. player.nome}
 				for index, barra in ipairs(tabFrame.barras3) do
 					if (barra:IsShown()) then
 						report_lines [#report_lines+1] = barra.lineText1:GetText() .. " ....... " .. barra.lineText4:GetText()
@@ -2506,10 +2529,10 @@ function spellsTab.monta_relatorio(botao) --deprecated?
 			nome = ""
 		end
 
-		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [mainSection].lista [subSection].. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome,
+		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. Details.sub_atributos [mainSection].lista [subSection].. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome,
 		Loc ["STRING_ACTORFRAME_SPELLDETAILS"] .. ": " .. nome}
 
-		local caixa = _detalhes.playerDetailWindow.grupos_detalhes[botao]
+		local caixa = Details.playerDetailWindow.grupos_detalhes[botao]
 
 		local linha = ""
 		local nome2 = caixa.nome2:GetText() --golpes

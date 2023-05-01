@@ -14,7 +14,7 @@ function Details:OpenEventTrackerOptions(bFromOptionsPanel)
 		optionsPanel:SetScript("OnMouseUp", nil)
 
 		local LibWindow = LibStub("LibWindow-1.1")
-		LibWindow.RegisterConfig(optionsPanel, _detalhes.event_tracker.options_frame)
+		LibWindow.RegisterConfig(optionsPanel, Details.event_tracker.options_frame)
 		LibWindow.MakeDraggable(optionsPanel)
 		LibWindow.RestorePosition(optionsPanel)
 
@@ -216,9 +216,9 @@ function Details:OpenEventTrackerOptions(bFromOptionsPanel)
 
 			{
 				type = "toggle",
-				get = function() return _detalhes.event_tracker.show_crowdcontrol_pvp end,
+				get = function() return Details.event_tracker.show_crowdcontrol_pvp end,
 				set = function(self, fixedparam, value)
-					_detalhes.event_tracker.show_crowdcontrol_pvp = value
+					Details.event_tracker.show_crowdcontrol_pvp = value
 				end,
 				desc = "Show Crowd Control (Arena & BG)",
 				name = "Show Crowd Control when inside a PvP zone",
@@ -226,9 +226,9 @@ function Details:OpenEventTrackerOptions(bFromOptionsPanel)
 			},
 			{
 				type = "toggle",
-				get = function() return _detalhes.event_tracker.show_crowdcontrol_pvm end,
+				get = function() return Details.event_tracker.show_crowdcontrol_pvm end,
 				set = function(self, fixedparam, value)
-					_detalhes.event_tracker.show_crowdcontrol_pvm = value
+					Details.event_tracker.show_crowdcontrol_pvm = value
 				end,
 				desc = "Show Crowd Control (Dungeon & Raid)",
 				name = "Show Crowd Control when inside a PvE zone",
@@ -255,7 +255,7 @@ end
 
 
 function Details:CreateEventTrackerFrame(parentObject, name)
-	local DF = _detalhes.gump
+	local DF = Details.gump
 	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 
 	--> screen frame
@@ -269,17 +269,17 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			--f:SetResizeBounds(150, 40, 800, 1024)
 		end
 
-		screenFrame:SetSize(_detalhes.event_tracker.frame.width, _detalhes.event_tracker.frame.height)
+		screenFrame:SetSize(Details.event_tracker.frame.width, Details.event_tracker.frame.height)
 
 		screenFrame:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
-		screenFrame:SetBackdropColor(unpack(_detalhes.event_tracker.frame.backdrop_color))
+		screenFrame:SetBackdropColor(unpack(Details.event_tracker.frame.backdrop_color))
 		screenFrame:EnableMouse(true)
 		screenFrame:SetMovable(true)
 		screenFrame:SetResizable(true)
 		screenFrame:SetClampedToScreen(true)
 
 		local LibWindow = LibStub("LibWindow-1.1")
-		LibWindow.RegisterConfig(screenFrame, _detalhes.event_tracker.frame)
+		LibWindow.RegisterConfig(screenFrame, Details.event_tracker.frame)
 		LibWindow.MakeDraggable(screenFrame)
 		LibWindow.RestorePosition(screenFrame)
 
@@ -287,7 +287,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 		local leftResize, rightResize = DF:CreateResizeGrips(screenFrame)
 
 		leftResize:SetScript("OnMouseDown", function(self)
-			if (not screenFrame.resizing and not _detalhes.event_tracker.frame.locked) then
+			if (not screenFrame.resizing and not Details.event_tracker.frame.locked) then
 				screenFrame.resizing = true
 				screenFrame:StartSizing("bottomleft")
 			end
@@ -296,12 +296,12 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			if (screenFrame.resizing) then
 				screenFrame.resizing = false
 				screenFrame:StopMovingOrSizing()
-				_detalhes.event_tracker.frame.width = screenFrame:GetWidth()
-				_detalhes.event_tracker.frame.height = screenFrame:GetHeight()
+				Details.event_tracker.frame.width = screenFrame:GetWidth()
+				Details.event_tracker.frame.height = screenFrame:GetHeight()
 			end
 		end)
 		rightResize:SetScript("OnMouseDown", function(self)
-			if (not screenFrame.resizing and not _detalhes.event_tracker.frame.locked) then
+			if (not screenFrame.resizing and not Details.event_tracker.frame.locked) then
 				screenFrame.resizing = true
 				screenFrame:StartSizing("bottomright")
 			end
@@ -310,8 +310,8 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			if (screenFrame.resizing) then
 				screenFrame.resizing = false
 				screenFrame:StopMovingOrSizing()
-				_detalhes.event_tracker.frame.width = screenFrame:GetWidth()
-				_detalhes.event_tracker.frame.height = screenFrame:GetHeight()
+				Details.event_tracker.frame.width = screenFrame:GetWidth()
+				Details.event_tracker.frame.height = screenFrame:GetHeight()
 			end
 		end)
 
@@ -407,7 +407,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			line.ActionIcon = actionicon
 
 			--set some parameters
-			_detalhes:UpdateWorldTrackerLines (line)
+			Details:UpdateWorldTrackerLines (line)
 
 			--set scripts
 			line:SetScript("OnUpdate", lineOnTick)
@@ -434,7 +434,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
 		local get_spec_or_class = function(serial, unitName)
 			local class
-			local spec = _detalhes.cached_specs [serial]
+			local spec = Details.cached_specs [serial]
 			if (not spec) then
 				local _, engClass = UnitClass(unitName)
 				if (engClass) then
@@ -452,9 +452,9 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
 		local get_player_icon = function(spec, class)
 			if (spec) then
-				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack(_detalhes.class_specs_coords [spec])
+				return [[Interface\AddOns\Details\images\spec_icons_normal]], unpack(Details.class_specs_coords [spec])
 			elseif (class) then
-				return [[Interface\AddOns\Details\images\classes_small]], unpack(_detalhes.class_coords [class])
+				return [[Interface\AddOns\Details\images\classes_small]], unpack(Details.class_coords [class])
 			else
 				return [[Interface\AddOns\Details\images\classes_plus]], 0.50390625, 0.62890625, 0, 0.125
 			end
@@ -462,11 +462,11 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
 		local add_role_and_class_color = function(unitName, unitSerial)
 			--get the actor object
-			local actor = _detalhes.tabela_vigente[1]:GetActor(unitName)
+			local actor = Details.tabela_vigente[1]:GetActor(unitName)
 
 			if (actor) then
 				--remove realm name
-				unitName = _detalhes:GetOnlyName(unitName)
+				unitName = Details:GetOnlyName(unitName)
 
 				local class, spec, role = actor.classe, actor.spec, actor.role
 				if (not class) then
@@ -474,26 +474,26 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				end
 
 				--add the class color
-				if (_detalhes.player_class [class]) then
+				if (Details.player_class [class]) then
 					--is a player, add the class color
-					unitName = _detalhes:AddColorString (unitName, class)
+					unitName = Details:AddColorString (unitName, class)
 				end
 
 				--add the role icon
 				if (role ~= "NONE") then
 					--have a role
-					unitName = _detalhes:AddRoleIcon (unitName, role, _detalhes.event_tracker.line_height)
+					unitName = Details:AddRoleIcon (unitName, role, Details.event_tracker.line_height)
 				end
 
 			else
 				local spec, class = get_spec_or_class (unitSerial, unitName)
-				unitName = _detalhes:GetOnlyName(unitName)
+				unitName = Details:GetOnlyName(unitName)
 
 				if (class) then
 					--add the class color
-					if (_detalhes.player_class [class]) then
+					if (Details.player_class [class]) then
 						--is a player, add the class color
-						unitName = _detalhes:AddColorString (unitName, class)
+						unitName = Details:AddColorString (unitName, class)
 					end
 				end
 			end
@@ -502,7 +502,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 		end
 
 		local get_text_size = function()
-			local iconsSpace = _detalhes.event_tracker.line_height * 3
+			local iconsSpace = Details.event_tracker.line_height * 3
 			local textSpace = 4
 			local saveSpace = 14
 
@@ -553,7 +553,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 					end
 					--]=]
 
-					local sourceNameNoRealm = _detalhes:GetOnlyName(sourceName)
+					local sourceNameNoRealm = Details:GetOnlyName(sourceName)
 
 					--need to use the language system from details framework to detect which language is being used
 					local languageId = DF.Language.DetectLanguageId(sourceNameNoRealm)
@@ -564,7 +564,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 						local fontPath = DF.Language.GetFontForLanguageID(languageId)
 						if (fontPath) then
 							if (languageId == "enUS") then
-								DF:SetFontFace(line.LeftText, _detalhes.event_tracker.font_face)
+								DF:SetFontFace(line.LeftText, Details.event_tracker.font_face)
 							else
 								DF:SetFontFace(line.LeftText, fontPath)
 							end
@@ -657,7 +657,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 		local CurrentShowing = {}
 
 		--scrollframe
-		local scrollframe = DF:CreateScrollBox (screenFrame, "$parentScrollFrame", scroll_refresh, CurrentShowing, scroll_width, 400, scroll_line_amount, _detalhes.event_tracker.line_height, scroll_createline, true, true)
+		local scrollframe = DF:CreateScrollBox (screenFrame, "$parentScrollFrame", scroll_refresh, CurrentShowing, scroll_width, 400, scroll_line_amount, Details.event_tracker.line_height, scroll_createline, true, true)
 		scrollframe:SetPoint("topleft", screenFrame, "topleft", 0, -header_size)
 		scrollframe:SetPoint("topright", screenFrame, "topright", 0, -header_size)
 		scrollframe:SetPoint("bottomleft", screenFrame, "bottomleft", 0, 0)
@@ -670,40 +670,40 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			local index = line.Index
 
 			--update left text
-			DF:SetFontColor(line.LeftText, _detalhes.event_tracker.font_color)
-			DF:SetFontFace (line.LeftText, _detalhes.event_tracker.font_face)
-			DF:SetFontSize(line.LeftText, _detalhes.event_tracker.font_size)
-			DF:SetFontOutline (line.LeftText, _detalhes.event_tracker.font_shadow)
+			DF:SetFontColor(line.LeftText, Details.event_tracker.font_color)
+			DF:SetFontFace (line.LeftText, Details.event_tracker.font_face)
+			DF:SetFontSize(line.LeftText, Details.event_tracker.font_size)
+			DF:SetFontOutline (line.LeftText, Details.event_tracker.font_shadow)
 
 			--update right text
-			DF:SetFontColor(line.RightText, _detalhes.event_tracker.font_color)
-			DF:SetFontFace (line.RightText, _detalhes.event_tracker.font_face)
-			DF:SetFontSize(line.RightText, _detalhes.event_tracker.font_size)
-			DF:SetFontOutline (line.RightText, _detalhes.event_tracker.font_shadow)
+			DF:SetFontColor(line.RightText, Details.event_tracker.font_color)
+			DF:SetFontFace (line.RightText, Details.event_tracker.font_face)
+			DF:SetFontSize(line.RightText, Details.event_tracker.font_size)
+			DF:SetFontOutline (line.RightText, Details.event_tracker.font_shadow)
 
 			--adjust where the line is anchored
-			line:SetPoint("topleft", line:GetParent(), "topleft", 1, -0.5 -((index-1)*(_detalhes.event_tracker.line_height+1)))
-			line:SetPoint("topright", line:GetParent(), "topright", -1, -0.5 -((index-1)*(_detalhes.event_tracker.line_height+1)))
+			line:SetPoint("topleft", line:GetParent(), "topleft", 1, -0.5 -((index-1)*(Details.event_tracker.line_height+1)))
+			line:SetPoint("topright", line:GetParent(), "topright", -1, -0.5 -((index-1)*(Details.event_tracker.line_height+1)))
 
 			--set its height
-			line:SetHeight(_detalhes.event_tracker.line_height)
+			line:SetHeight(Details.event_tracker.line_height)
 
 			--set texture
-			local texture = SharedMedia:Fetch ("statusbar", _detalhes.event_tracker.line_texture)
+			local texture = SharedMedia:Fetch ("statusbar", Details.event_tracker.line_texture)
 			line.StatusbarTexture:SetTexture(texture)
-			line.StatusbarTexture:SetVertexColor(unpack(_detalhes.event_tracker.line_color))
+			line.StatusbarTexture:SetVertexColor(unpack(Details.event_tracker.line_color))
 
 			--set icon size
-			line.LeftIcon:SetSize(_detalhes.event_tracker.line_height, _detalhes.event_tracker.line_height)
-			line.RightIcon:SetSize(_detalhes.event_tracker.line_height, _detalhes.event_tracker.line_height)
-			line.ActionIcon:SetSize(_detalhes.event_tracker.line_height-4, _detalhes.event_tracker.line_height-4)
+			line.LeftIcon:SetSize(Details.event_tracker.line_height, Details.event_tracker.line_height)
+			line.RightIcon:SetSize(Details.event_tracker.line_height, Details.event_tracker.line_height)
+			line.ActionIcon:SetSize(Details.event_tracker.line_height-4, Details.event_tracker.line_height-4)
 			line.ActionIcon:SetAlpha(0.65)
 		end
 
 		-- /run _detalhes.event_tracker.font_shadow = 24
 		-- /run _detalhes:UpdateWorldTrackerLines()
 
-		function _detalhes:UpdateWorldTrackerLines (line)
+		function Details:UpdateWorldTrackerLines (line)
 			--don't run if the featured hasn't loaded
 			if (not screenFrame) then
 				return
@@ -716,23 +716,23 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				for index, line in ipairs(scrollframe:GetFrames()) do
 					update_line (line)
 				end
-				scrollframe:SetFramesHeight (_detalhes.event_tracker.line_height)
+				scrollframe:SetFramesHeight (Details.event_tracker.line_height)
 				scrollframe:Refresh()
 			end
 		end
 
-		function _detalhes:UpdateEventTrackerFrame()
+		function Details:UpdateEventTrackerFrame()
 			--don't run if the featured hasn't loaded
 			if (not screenFrame) then
 				return
 			end
 
-			screenFrame:SetSize(_detalhes.event_tracker.frame.width, _detalhes.event_tracker.frame.height)
-			LibWindow.RegisterConfig(screenFrame, _detalhes.event_tracker.frame)
+			screenFrame:SetSize(Details.event_tracker.frame.width, Details.event_tracker.frame.height)
+			LibWindow.RegisterConfig(screenFrame, Details.event_tracker.frame)
 			LibWindow.RestorePosition(screenFrame)
 			scrollframe:OnSizeChanged()
 
-			if (_detalhes.event_tracker.frame.locked) then
+			if (Details.event_tracker.frame.locked) then
 				screenFrame:EnableMouse(false)
 				leftResize:Hide()
 				rightResize:Hide()
@@ -742,7 +742,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				rightResize:Show()
 			end
 
-			if (_detalhes.event_tracker.frame.show_title) then
+			if (Details.event_tracker.frame.show_title) then
 				TitleString:Show()
 				TitleBackground:Show()
 				scrollframe:SetPoint("topleft", screenFrame, "topleft", 0, -header_size)
@@ -754,12 +754,12 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				scrollframe:SetPoint("topright", screenFrame, "topright", 0, 0)
 			end
 
-			screenFrame:SetBackdropColor(unpack(_detalhes.event_tracker.frame.backdrop_color))
-			scrollframe.__background:SetVertexColor(unpack(_detalhes.event_tracker.frame.backdrop_color))
+			screenFrame:SetBackdropColor(unpack(Details.event_tracker.frame.backdrop_color))
+			scrollframe.__background:SetVertexColor(unpack(Details.event_tracker.frame.backdrop_color))
 
-			screenFrame:SetFrameStrata(_detalhes.event_tracker.frame.strata)
+			screenFrame:SetFrameStrata(Details.event_tracker.frame.strata)
 
-			_detalhes:UpdateWorldTrackerLines()
+			Details:UpdateWorldTrackerLines()
 			scrollframe:Refresh()
 		end
 
@@ -824,15 +824,15 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 				--check if isnt a pet
 				if (caster_flags and is_player(caster_flags)) then
 					--the target is a player
-					if (_detalhes.event_tracker.show_crowdcontrol_pvp) then
-						if (_detalhes.zone_type == "arena" or _detalhes.zone_type  == "pvp" or _detalhes.zone_type  == "none") then
+					if (Details.event_tracker.show_crowdcontrol_pvp) then
+						if (Details.zone_type == "arena" or Details.zone_type  == "pvp" or Details.zone_type  == "none") then
 							tinsert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 							added = true
 						end
 					end
 
-					if (_detalhes.event_tracker.show_crowdcontrol_pvm) then
-						if (_detalhes.zone_type == "party" or _detalhes.zone_type  == "raid") then
+					if (Details.event_tracker.show_crowdcontrol_pvm) then
+						if (Details.zone_type == "party" or Details.zone_type  == "raid") then
 							tinsert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 							added = true
 						end
@@ -859,7 +859,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
 		end)
 
-	_detalhes.Broadcaster_EventTrackerLoaded = true
-	_detalhes.Broadcaster_EventTrackerFrame = screenFrame
+	Details.Broadcaster_EventTrackerLoaded = true
+	Details.Broadcaster_EventTrackerFrame = screenFrame
 	screenFrame:Hide()
 end

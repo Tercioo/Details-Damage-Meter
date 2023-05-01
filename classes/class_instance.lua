@@ -16,7 +16,7 @@ local _UnitName = UnitName --wow api locals
 local _UnitIsPlayer = UnitIsPlayer --wow api locals
 local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --wow api locals
 
-local _detalhes = 		_G._detalhes
+local _detalhes = 		_G.Details
 local _
 local addonName, Details222 = ...
 local gump = 			_detalhes.gump

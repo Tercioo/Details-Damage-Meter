@@ -1879,15 +1879,15 @@ local iconTableCompare = {
 
 function Details:InitializeCompareTab()
     --check if the tab is already created
-    for i = 1, #_detalhes.player_details_tabs do
-        local tabButton = _detalhes.player_details_tabs[i]
+    for i = 1, #Details.player_details_tabs do
+        local tabButton = Details.player_details_tabs[i]
         if (tabButton.tabname == "Compare" or tabButton.tabname == "New Compare") then
             return
         end
     end
 
-    for i = 1, #_detalhes.player_details_tabs do
-        local tabButton = _detalhes.player_details_tabs[i]
+    for i = 1, #Details.player_details_tabs do
+        local tabButton = Details.player_details_tabs[i]
         if (tabButton.replaces) then
             if (tabButton.replaces.bIsCompareTab) then
                 return

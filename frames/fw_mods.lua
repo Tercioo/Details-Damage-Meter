@@ -9,7 +9,7 @@ local GetCursorPosition = GetCursorPosition
 local GameTooltip = GameTooltip
 local select = select
 
-local _detalhes = 		_G._detalhes
+local _detalhes = 		_G.Details
 local gump = 			_detalhes.gump
 
 
