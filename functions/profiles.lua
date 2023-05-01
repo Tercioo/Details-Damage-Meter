@@ -1412,17 +1412,17 @@ local default_global_data = {
 		blockcontainer_height = 270,
 		blockcontainer_islocked = true,
 
-		blockspell_height = 50,
+		blockspell_height = 67,
 		blockspell_padding = 5,
 		blockspell_color = {0, 0, 0, 0.7},
 		blockspell_bordercolor = {0, 0, 0, 0.7},
 		blockspell_backgroundcolor = {0.1, 0.1, 0.1, 0.4},
-		blockspell_spark_offset = -2,
-		blockspell_spark_width = 2,
+		blockspell_spark_offset = -1,
+		blockspell_spark_width = 4,
 		blockspell_spark_show = true,
 		blockspell_spark_color = {1, 1, 1, 0.7},
 
-		blockspellline_height = 13,
+		blockspellline_height = 18,
 
 		spellcontainer_width = 429,
 		spellcontainer_height = 311,

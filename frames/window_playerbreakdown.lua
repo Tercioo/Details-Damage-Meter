@@ -2,7 +2,7 @@
 local Details = _G.Details
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = _G.LibStub:GetLibrary("LibSharedMedia-3.0")
-
+local UIParent = UIParent
 local gump = 			Details.gump
 local _
 local addonName, Details222 = ...
@@ -55,7 +55,8 @@ function Details:GetCombatFromBreakdownWindow()
 	return breakdownWindow.instancia and breakdownWindow.instancia.showing
 end
 
---return the window that requested to open the player breakdown window
+---return the window that requested to open the player breakdown window
+---@return instance
 function Details:GetActiveWindowFromBreakdownWindow()
 	return breakdownWindow.instancia
 end
@@ -133,12 +134,12 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 		breakdownWindow:SetDontSavePosition(true)
 
 		local okay, errorText = pcall(function()
-			breakdownWindow:SetPoint("center", _G.UIParent, "center", 0, 0)
+			breakdownWindow:SetPoint("center", UIParent, "center", 0, 0)
 		end)
 
 		if (not okay) then
 			breakdownWindow:ClearAllPoints()
-			breakdownWindow:SetPoint("center", _G.UIParent, "center", 0, 0)
+			breakdownWindow:SetPoint("center", UIParent, "center", 0, 0)
 		end
 
 		breakdownWindow.bHasInitialized = true

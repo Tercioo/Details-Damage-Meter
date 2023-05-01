@@ -23,6 +23,37 @@ local createOptionsPanel = function()
     optionsFrame:SetPoint("topleft", UIParent, "topleft", 2, -40)
     optionsFrame:Show()
 
+    local resetSettings = function()
+        for key, value in pairs (Details.default_global_data.breakdown_spell_tab) do
+            if (type(value) == "table") then
+                local t = DF.table.copy({}, value)
+                Details.breakdown_spell_tab[key] = t
+            else
+                Details.breakdown_spell_tab[key] = value
+            end
+        end
+
+        local instanceObject = Details:GetActiveWindowFromBreakdownWindow()
+        local actorObject = Details:GetActorObjectFromBreakdownWindow()
+        local bFromAttributeChange = true
+        local bIsRefresh = true
+        local bIsShiftKeyDown = false
+        local bIsControlKeyDown = false
+
+        Details:CloseBreakdownWindow()
+        Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttributeChange, bIsRefresh, bIsShiftKeyDown, bIsControlKeyDown)
+        DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
+        DetailsSpellBreakdownTab.UpdateShownSpellBlock()
+        DetailsSpellBreakdownTab.UpdateHeadersSettings("spells")
+        DetailsSpellBreakdownOptionsPanel:RefreshOptions()
+
+        Details:Msg("Settings reseted to default.")
+    end
+
+    local resetSettingsButton = DF:CreateButton(optionsFrame, resetSettings, 130, 20, "Reset Settings")
+    resetSettingsButton:SetPoint("bottomleft", optionsFrame, "bottomleft", 5, 5)
+    resetSettingsButton:SetTemplate(options_button_template)
+
     local subSectionTitleTextTemplate = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
 
     local optionsTable = {
