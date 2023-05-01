@@ -322,7 +322,12 @@ detailsFramework.FrameContainerMixin = {
 
         frameContainer:CheckResizeLockedState()
         frameContainer:CheckMovableLockedState()
-        frameContainer:SetResizeBounds(50, 50, 1000, 1000)
+        if (DF.IsClassicWow()) then
+            frameContainer:SetMinResize(50, 50)
+            frameContainer:SetMaxResize(1000,1000)
+        else
+            frameContainer:SetResizeBounds(50, 50, 1000, 1000)
+        end
     end,
 
     ---run when the container has its size changed

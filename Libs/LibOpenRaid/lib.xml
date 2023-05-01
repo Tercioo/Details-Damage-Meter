@@ -6,4 +6,5 @@
 	<Script file="ThingsToMantain_Dragonflight.lua" />
 	<Script file="ThingsToMantain_Shadowlands.lua" />
 	<Script file="ThingsToMantain_Wrath.lua" />
+	<Script file="ThingsToMantain_Era.lua" />
 </Ui>

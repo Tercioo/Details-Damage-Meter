@@ -1232,12 +1232,12 @@ local window_openned_at = time()
 		bookmark_frame:SetPoint("bottomright", instance1.baseframe, "bottomright")
 		bookmark_frame:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64})
 		bookmark_frame:SetBackdropColor(0, 0, 0, 0.8)
+		
+		--local desc_anchor_topleft = _detalhes.gump:NewImage(bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.19921875, 0.2724609375, 0.6796875, 0.783203125}, "descAnchorBottomLeftImage", "$parentDescAnchorBottomLeftImage") --204 696 279 802
+		--desc_anchor_topleft:SetPoint("topleft", bookmark_frame, "topleft", -5, 5)
 
-		local desc_anchor_topleft = _detalhes.gump:NewImage(bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.19921875, 0.2724609375, 0.6796875, 0.783203125}, "descAnchorBottomLeftImage", "$parentDescAnchorBottomLeftImage") --204 696 279 802
-		desc_anchor_topleft:SetPoint("topleft", bookmark_frame, "topleft", -5, 5)
-
-		local desc_anchor_bottomleft = _detalhes.gump:NewImage(bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.2724609375, 0.19921875, 0.783203125, 0.6796875}, "descAnchorTopLeftImage", "$parentDescAnchorTopLeftImage") --204 696 279 802
-		desc_anchor_bottomleft:SetPoint("bottomright", bookmark_frame, "bottomright", 5, -5)
+		--local desc_anchor_bottomleft = _detalhes.gump:NewImage(bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.2724609375, 0.19921875, 0.783203125, 0.6796875}, "descAnchorTopLeftImage", "$parentDescAnchorTopLeftImage") --204 696 279 802
+		--desc_anchor_bottomleft:SetPoint("bottomright", bookmark_frame, "bottomright", 5, -5)
 
 		local bmf_string = bookmark_frame:CreateFontString("overlay", nil, "GameFontNormal")
 		bmf_string:SetPoint("center", bookmark_frame, "center")
