@@ -465,6 +465,7 @@ end
 		return newContainer
 	end
 
+
 	--try to get the actor class from name
 	local getActorClass = function(actorObject, actorName, actorFlags, actorSerial)
 		--get spec

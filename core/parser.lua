@@ -1241,6 +1241,7 @@
 		end
 
 		if (_trinket_data_cache[spellId] and _in_combat) then
+			---@type trinketdata
 			local thisData = _trinket_data_cache[spellId]
 			if (thisData.lastCombatId == _global_combat_counter) then
 				if (thisData.lastPlayerName == sourceName) then
@@ -1264,6 +1265,18 @@
 				thisData.lastCombatId = _global_combat_counter
 				thisData.lastActivation = time
 				thisData.lastPlayerName = sourceName
+			end
+
+			if (_current_combat.trinketProcs) then
+				local playerTrinketData = _current_combat.trinketProcs[sourceName] or {}
+				_current_combat.trinketProcs[sourceName] = playerTrinketData
+				local trinketData = playerTrinketData[spellId] or {cooldown = 0, total = 0}
+				playerTrinketData[spellId] = trinketData
+
+				if (trinketData.cooldown < time) then
+					trinketData.cooldown = time + 20
+					trinketData.total = trinketData.total + 1
+				end
 			end
 		end
 

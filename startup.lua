@@ -446,7 +446,8 @@ function Details:StartMeUp()
 	Details:LoadFramesForBroadcastTools()
 	Details:BrokerTick()
 
-	--build trinket data
+	---return the table where the trinket data is stored
+	---@return table<spellid, trinketdata>
 	function Details:GetTrinketData()
 		return Details.trinket_data
 	end
@@ -456,6 +457,7 @@ function Details:StartMeUp()
 	for spellId, trinketTable in pairs(customSpellList) do
 		if (trinketTable.isPassive) then
 			if (not trinketData[spellId]) then
+				---@type trinketdata
 				local thisTrinketData = {
 					itemName = C_Item.GetItemNameByID(trinketTable.itemId),
 					spellName = GetSpellInfo(spellId) or "spell not found",

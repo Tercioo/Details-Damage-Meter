@@ -244,16 +244,26 @@ do
 				[214200] = {name = formatTextForItem(133646)}, --trinket: Mote of Sanctification
 				[387036] = {name = formatTextForItem(193748)}, --trinket: Kyrakka's Searing Embers (heal)
 				[397376] = {name = formatTextForItem(193748), isPassive = true, itemId = 193748}, --trinket: Kyrakka's Searing Embers (damage)
-				--[] = {name = GetSpellInfo() .. formatTextForItem(193757), isPassive = true}, --trinket: Ruby Whelp Shell
-
 				[214985] = {name = formatTextForItem(137486)}, --trinket: Windscar Whetstone
 				[384004] = {name = formatTextForItem(193815)}, --trinket: Homeland Raid Horn
-				--[] = {name = GetSpellInfo() .. formatTextForItem()}, --trinket: Mutated Magmammoth Scale - did no proc
-
-				--/dump C_Item.GetItemNameByID(137486) --to check an item
-				--default tooltip script gets the item id
-
 				[377459] = {name = formatTextForItem(194306)}, --trinket: All-Totem of the Master
+
+				--[] = {name = GetSpellInfo() .. formatTextForItem(193757), isPassive = true}, --trinket: Ruby Whelp Shell
+				--to check an item : /dump C_Item.GetItemNameByID(137486)
+				--get the itemId from default tooltip using /code > script name > "SpellID on Tooltip"
+				--spellId is from details breakdown
+				--/de trinket on the spell icon on the breakdown, trinket equipped
+
+				[408815] = {name = formatTextForItem(202569)}, --weapon: Djaruun, Pillar of the Elder Flame
+				[407961] = {name = formatTextForItem(203996), isPassive = true, itemId = 203996}, --trinket: Igneous Flowstone
+				[408682] = {name = formatTextForItem(202610)}, --trinket: Dragonfire Bomb Dispenser
+				[401324] = {name = formatTextForItem(202617), isPassive = true, itemId = 202617}, --trinket: Elementium Pocket Anvil
+				[401306] = {name = formatTextForItem(202617)}, --trinket: Elementium Pocket Anvil (use)
+				[402583] = {name = formatTextForItem(203963)}, --trinket: Beacon to the Beyond
+				[384325] = {name = formatTextForItem(193672), isPassive = true, itemId = 193672}, --trinket: Frenzying Signoll Flare
+				[384290] = {name = formatTextForItem(193672), isPassive = true, itemId = 193672}, --trinket: Frenzying Signoll Flare (dot)
+				[388948] = {name = formatTextForItem(193732)}, --trinket: Globe of Jagged Ice
+				[381760] = {name = formatTextForItem(193786), isPassive = true, itemId = 193786}, --trinket: Mutated Magmammoth Scale (melee)
 			}
 
 			for spellId, spellCustomization in pairs(dragonflightTrinkets) do

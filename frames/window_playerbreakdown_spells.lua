@@ -423,7 +423,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
     spellsTab.TabFrame = tabFrame
 
 	--create a button in the breakdown window to open the options for this tab
-	local optionsButton = DF:CreateButton(Details.playerDetailWindow, Details.OpenSpellBreakdownOptions, 130, 20, "Open Options", 10, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+	local optionsButton = DF:CreateButton(Details.playerDetailWindow, Details.OpenSpellBreakdownOptions, 130, 20, "Options", 10, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 	optionsButton:SetPoint("topleft", Details.playerDetailWindow, "topleft", 210, -45)
 	optionsButton.textsize = 15
 	optionsButton.textcolor = "white"
@@ -479,6 +479,9 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
     ---@type instance
     local instance = spellsTab.GetInstance()
 
+	---@type combat
+	local combatObject = spellsTab.GetCombat()
+
 	---@type number, number
 	local mainAttribute, subAttribute = instance:GetDisplay()
 
@@ -491,6 +494,9 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 
 	---@type number
 	local elapsedTime = spellBar.combatTime --this should be actorObject:Tempo()
+
+	---@type string
+	local actorName = spellsTab.GetActor():Name()
 
 	---@type spelltable
 	local spellTable = spellBar.spellTable
@@ -509,6 +515,9 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 		GameTooltip:AddLine(Loc ["STRING_SPIRIT_LINK_TOTEM_DESC"])
 		GameTooltip:Show()
 	end
+
+	---@type trinketdata
+	local trinketData = Details:GetTrinketData()
 
 	---@type number
 	local blockIndex = 1
@@ -533,8 +542,18 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local blockLine1, blockLine2, blockLine3 = summaryBlock:GetLines()
 
 			local totalCasts = spellBar.amountCasts > 0 and spellBar.amountCasts or "(?)"
-
 			blockLine1.leftText:SetText(Loc ["STRING_CAST"] .. ": " .. totalCasts) --total amount of casts
+
+			if (trinketData[spellId] and combatObject.trinketProcs) then
+				local trinketProcData = combatObject.trinketProcs[actorName]
+				if (trinketProcData) then
+					local trinketProc = trinketProcData[spellId]
+					if (trinketProc) then
+						blockLine1.leftText:SetText("Procs: " .. trinketProc.total)
+					end
+				end
+			end
+
 			blockLine1.rightText:SetText(Loc ["STRING_HITS"]..": " .. totalHits) --hits and uptime
 
 			blockLine2.leftText:SetText(Loc ["STRING_DAMAGE"]..": " .. Details:Format(spellTable.total)) --total damage
@@ -600,6 +619,28 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local critAveragePercent = spellBar.average / critAverage * 100
 			local critTempoPercent = critAveragePercent * tempo / 100
 			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
+		end
+
+		if (trinketData[spellId]) then
+			---@type trinketdata
+			local trinketInfo = trinketData[spellId]
+
+			local minTime = trinketInfo.minTime
+			local maxTime = trinketInfo.maxTime
+			local average = trinketInfo.averageTime
+
+			---@type breakdownspellblock
+			local trinketBlock = spellBlockContainer:GetBlock(blockIndex)
+			trinketBlock:Show()
+			trinketBlock:SetValue(100)
+			blockIndex = blockIndex + 1
+
+			local blockLine1, blockLine2, blockLine3 = trinketBlock:GetLines()
+			blockLine1.leftText:SetText("Trinket Info")
+
+			blockLine1.rightText:SetText("PPM: " .. string.format("%.2f", average / 60))
+			blockLine2.leftText:SetText("Min Time: " .. math.floor(minTime))
+			blockLine2.rightText:SetText("Max Time: " .. math.floor(maxTime))
 		end
 
 	elseif (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then --this should run within the heal class ~healing
@@ -1419,6 +1460,11 @@ local formatPetName = function(petName, spellName, ownerName)
 	local bUseAlphaIcons = true
 	local specIcon = false
 	local iconSize = 14
+
+	if (petName:len() == 0) then
+		return Details:AddClassOrSpecIcon(spellName, "PET", specIcon, iconSize, bUseAlphaIcons)
+	end
+
 	petNameWithoutOwner = Details:AddClassOrSpecIcon(petNameWithoutOwner, "PET", specIcon, iconSize, bUseAlphaIcons)
 
 	return spellName .. " |cFFCCBBBB" .. petNameWithoutOwner .. "|r"
@@ -1437,7 +1483,8 @@ end
 ---@param topValue number
 ---@param bIsMainLine boolean if true this is the line which has all the values of the spell merged
 ---@param sortKey string
-local updateSpellBar = function(spellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey)
+---@param spellTablesAmount number
+local updateSpellBar = function(spellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey, spellTablesAmount)
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
 
 	local textIndex = 1
@@ -1493,7 +1540,14 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		end
 
 		if (petName ~= "") then
-			spellName = formatPetName(petName, spellName, actorName)
+			--if is a pet spell and has more pets nested
+			if (spellTablesAmount > 1 and bIsMainLine) then
+				spellName = formatPetName("", spellName, "")
+			elseif (bIsMainLine) then
+				spellName = formatPetName(petName, spellName, actorName)
+			else
+				spellName = formatPetName(petName, "", "")
+			end
 		end
 
 		spellBar.spellId = spellId
@@ -1674,7 +1728,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 	local sortKey = scrollFrame.SortKey
 	local headerTable = spellsTab.spellsHeaderData
 
-	--todo: when swapping sort orders, close allexpanded spells
+	--todo: when swapping sort orders, close already expanded spells
 
 	local lineIndex = 1
 	for i = 1, totalLines do
@@ -1707,13 +1761,14 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 				if (mainSpellBar) then
 					lineIndex = lineIndex + 1
 					local bIsMainLine = true
-					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, sortKey)
+					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, sortKey, spellTablesAmount)
 				end
 			end
 
 			--then it adds the lines for each spell merged, but it cannot use the bkSpellData, it needs the spellTable, it's kinda using bkSpellData, need to debug
 			if (bkSpellData.bIsExpanded and spellTablesAmount > 1) then
 				---@type number spellTableIndex is the same counter as bkSpellStableIndex
+				--as the nested actors or spells never get sorted, it might be required to sort the data here
 				for spellTableIndex = 1, spellTablesAmount do
 					---@type breakdownspellbar
 					local spellBar = getSpellBar(scrollFrame, lineIndex)
@@ -1725,9 +1780,7 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 						local nameToUse = petName ~= "" and petName or actorName
 						local bIsMainLine = false
 
-
-
-						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey)
+						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey, spellTablesAmount)
 						mainSpellBar.ExpandedChildren[#mainSpellBar.ExpandedChildren + 1] = spellBar
 					end
 				end

@@ -4613,7 +4613,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 						local bkSpellData = {
 							id = spellId,
 							spellschool = spellTable.spellschool,
-							expanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+							bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 							bCanExpand = false,
 
 							spellIds = {spellId},

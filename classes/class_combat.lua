@@ -1,5 +1,5 @@
 
-	local _detalhes = 		_G.Details
+	local Details = 		_G.Details
 	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 	local _
 	local addonName, Details222 = ...
@@ -43,12 +43,12 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 
-	local combate 	=	_detalhes.combate
-	local container_combatentes = _detalhes.container_combatentes
-	local class_type_dano 	= _detalhes.atributos.dano
-	local class_type_cura		= _detalhes.atributos.cura
-	local class_type_e_energy 	= _detalhes.atributos.e_energy
-	local class_type_misc 	= _detalhes.atributos.misc
+	local classCombat 	=	Details.combate
+	local classActorContainer = Details.container_combatentes
+	local class_type_dano 	= Details.atributos.dano
+	local class_type_cura		= Details.atributos.cura
+	local class_type_e_energy 	= Details.atributos.e_energy
+	local class_type_misc 	= Details.atributos.misc
 
 	local REACTION_HOSTILE =	0x00000040
 	local CONTROL_PLAYER =		0x00000100
@@ -60,21 +60,21 @@
 --api functions
 
 	--combat (container type, actor name)
-	_detalhes.call_combate = function(self, class_type, name)
+	Details.call_combate = function(self, class_type, name)
 		local container = self[class_type]
 		local index_mapa = container._NameIndexTable [name]
 		local actor = container._ActorTable [index_mapa]
 		return actor
 	end
-	combate.__call = _detalhes.call_combate
+	classCombat.__call = Details.call_combate
 
 	--get the start date and end date
-	function combate:GetDate()
+	function classCombat:GetDate()
 		return self.data_inicio, self.data_fim
 	end
 
 	--set the combat date
-	function combate:SetDate (started, ended)
+	function classCombat:SetDate (started, ended)
 		if (started and type(started) == "string") then
 			self.data_inicio = started
 		end
@@ -84,76 +84,76 @@
 	end
 
 	--return data for charts
-	function combate:GetTimeData (name)
+	function classCombat:GetTimeData (name)
 		return self.TimeData [name]
 	end
 
-	function combate:GetContainer (attribute)
+	function classCombat:GetContainer (attribute)
 		return self [attribute]
 	end
 
-	function combate:GetRoster()
+	function classCombat:GetRoster()
 		return self.raid_roster
 	end
 
-	function combate:InstanceType()
+	function classCombat:InstanceType()
 		return rawget(self, "instance_type")
 	end
 
-	function combate:IsTrash()
+	function classCombat:IsTrash()
 		return rawget(self, "is_trash")
 	end
 
-	function combate:GetDifficulty()
+	function classCombat:GetDifficulty()
 		return self.is_boss and self.is_boss.diff
 	end
 
-	function combate:GetEncounterCleuID()
+	function classCombat:GetEncounterCleuID()
 		return self.is_boss and self.is_boss.id
 	end
 
-	function combate:GetBossInfo()
+	function classCombat:GetBossInfo()
 		return self.is_boss
 	end
 
-	function combate:GetPhases()
+	function classCombat:GetPhases()
 		return self.PhaseData
 	end
 
-	function combate:GetPvPInfo()
+	function classCombat:GetPvPInfo()
 		return self.is_pvp
 	end
 
-	function combate:GetMythicDungeonInfo()
+	function classCombat:GetMythicDungeonInfo()
 		return self.is_mythic_dungeon
 	end
 
-	function combate:GetMythicDungeonTrashInfo()
+	function classCombat:GetMythicDungeonTrashInfo()
 		return self.is_mythic_dungeon_trash
 	end
 
 	---return if the combat is a mythic dungeon segment and the run id
 	---@return boolean
 	---@return number
-	function combate:IsMythicDungeon()
+	function classCombat:IsMythicDungeon()
 		local bIsMythicPlusSegment = self.is_mythic_dungeon_segment
 		local runId = self.is_mythic_dungeon_run_id
 		return bIsMythicPlusSegment, runId
 	end
 
-	function combate:IsMythicDungeonOverall()
+	function classCombat:IsMythicDungeonOverall()
 		return self.is_mythic_dungeon and self.is_mythic_dungeon.OverallSegment
 	end
 
-	function combate:GetArenaInfo()
+	function classCombat:GetArenaInfo()
 		return self.is_arena
 	end
 
-	function combate:GetDeaths()
+	function classCombat:GetDeaths()
 		return self.last_events_tables
 	end
 
-	function combate:GetPlayerDeaths(deadPlayerName)
+	function classCombat:GetPlayerDeaths(deadPlayerName)
 		local allDeaths = self:GetDeaths()
 		local deaths = {}
 
@@ -168,15 +168,15 @@
 		return deaths
 	end
 
-	function combate:GetCombatId()
+	function classCombat:GetCombatId()
 		return self.combat_id
 	end
 
-	function combate:GetCombatNumber()
+	function classCombat:GetCombatNumber()
 		return self.combat_counter
 	end
 
-	function combate:GetAlteranatePower()
+	function classCombat:GetAlteranatePower()
 		return self.alternate_power
 	end
 
@@ -185,7 +185,7 @@
 	---@param actorName string
 	---@param spellName string
 	---@return number
-	function combate:GetSpellCastAmount(actorName, spellName)
+	function classCombat:GetSpellCastAmount(actorName, spellName)
 		return self.amountCasts[actorName] and self.amountCasts[actorName][spellName] or 0
 	end
 
@@ -193,7 +193,7 @@
 	---@param self combat
 	---@param actorName string|nil
 	---@return table
-	function combate:GetSpellCastTable(actorName)
+	function classCombat:GetSpellCastTable(actorName)
 		if (actorName) then
 			return self.amountCasts[actorName] or {}
 		else
@@ -204,7 +204,7 @@
 	---delete an actor from the spell casts amount
 	---@param self combat
 	---@param actorName string
-	function combate:RemoveActorFromSpellCastTable(actorName)
+	function classCombat:RemoveActorFromSpellCastTable(actorName)
 		self.amountCasts[actorName] = nil
 	end
 
@@ -213,7 +213,7 @@
 	---@param spellId number
 	---@param auraType string|nil if nil get 'buff'
 	---@return number
-	function combate:GetSpellUptime(actorName, spellId, auraType)
+	function classCombat:GetSpellUptime(actorName, spellId, auraType)
 		---@type actorcontainer
 		local utilityContainer = self:GetContainer(DETAILS_ATTRIBUTE_MISC)
 		---@type actor
@@ -258,7 +258,7 @@
 	end
 
 	--return the name of the encounter or enemy
-	function combate:GetCombatName(try_find)
+	function classCombat:GetCombatName(try_find)
 		if (self.is_pvp) then
 			return self.is_pvp.name
 
@@ -276,15 +276,15 @@
 				return self.enemy
 			end
 			if (try_find) then
-				return _detalhes:FindEnemy()
+				return Details:FindEnemy()
 			end
 		end
 		return Loc ["STRING_UNKNOW"]
 	end
 
-	function combate:GetCombatType()
+	function classCombat:GetCombatType()
 		--mythic dungeon
-		local isMythicDungeon = is_mythic_dungeon_segment
+		local isMythicDungeon = self.is_mythic_dungeon_segment
 		if (isMythicDungeon) then
 			local isMythicDungeonTrash = self.is_mythic_dungeon_trash
 			if (isMythicDungeonTrash) then
@@ -340,7 +340,7 @@
 		end
 
 		--overall data
-		if (self == _detalhes.tabela_overall) then
+		if (self == Details.tabela_overall) then
 			return DETAILS_SEGMENTTYPE_OVERALL
 		end
 
@@ -348,48 +348,53 @@
 	end
 
 	--return a numeric table with all actors on the specific containter
-	function combate:GetActorList (container)
+	function classCombat:GetActorList (container)
 		return self [container]._ActorTable
 	end
 
-	function combate:GetActor(container, name)
-		local index = self [container] and self [container]._NameIndexTable [name]
+	---return an actor object for the given container and actor name
+	---@param container number
+	---@param name string
+	---@return actor|nil
+	function classCombat:GetActor(container, name)
+		local index = self[container] and self[container]._NameIndexTable[name]
 		if (index) then
-			return self [container]._ActorTable [index]
+			return self[container]._ActorTable[index]
 		end
 		return nil
 	end
 
-	--return the combat time in seconds
-	function combate:GetFormatedCombatTime()
+	---return the combat time in seconds
+	---@return number, number
+	function classCombat:GetFormatedCombatTime()
 		local combatTime = self:GetCombatTime()
-		local m, s = floor(combatTime/60), floor(combatTime%60)
-		return m, s
+		local minute, second = floor(combatTime / 60), floor(combatTime % 60)
+		return minute, second
 	end
 
 	---return the amount of time the combat has elapsed
 	---@return number
-	function combate:GetCombatTime()
+	function classCombat:GetCombatTime()
 		if (self.end_time) then
 			return _math_max (self.end_time - self.start_time, 0.1)
-		elseif (self.start_time and _detalhes.in_combat and self ~= _detalhes.tabela_overall) then
+		elseif (self.start_time and Details.in_combat and self ~= Details.tabela_overall) then
 			return _math_max (GetTime() - self.start_time, 0.1)
 		else
 			return 0.1
 		end
 	end
 
-	function combate:GetStartTime()
+	function classCombat:GetStartTime()
 		return self.start_time
 	end
-	function combate:SetStartTime(thisTime)
+	function classCombat:SetStartTime(thisTime)
 		self.start_time = thisTime
 	end
 
-	function combate:GetEndTime()
+	function classCombat:GetEndTime()
 		return self.end_time
 	end
-	function combate:SetEndTime(thisTime)
+	function classCombat:SetEndTime(thisTime)
 		self.end_time = thisTime
 	end
 
@@ -398,7 +403,7 @@
 	---@param combat1 combat 
 	---@param combat2 combat
 	---@param bMythicPlus boolean
-	function combate.CopyDeathsFrom(combat1, combat2, bMythicPlus)
+	function classCombat.CopyDeathsFrom(combat1, combat2, bMythicPlus)
 		local deathsTable = combat1:GetDeaths()
 		local deathsToCopy = combat2:GetDeaths()
 
@@ -417,7 +422,7 @@
 	--return the total of a specific attribute
 	local power_table = {0, 1, 3, 6, 0, "alternatepower"}
 
-	function combate:GetTotal(attribute, subAttribute, onlyGroup)
+	function classCombat:GetTotal(attribute, subAttribute, onlyGroup)
 		if (attribute == 1 or attribute == 2) then
 			if (onlyGroup) then
 				return self.totals_grupo [attribute]
@@ -436,7 +441,7 @@
 			end
 
 		elseif (attribute == 4) then
-			local subName = _detalhes:GetInternalSubAttributeName (attribute, subAttribute)
+			local subName = Details:GetInternalSubAttributeName (attribute, subAttribute)
 			if (onlyGroup) then
 				return self.totals_grupo [attribute] [subName]
 			else
@@ -447,14 +452,14 @@
 		return 0
 	end
 
-	function combate:CreateAlternatePowerTable (actorName)
+	function classCombat:CreateAlternatePowerTable (actorName)
 		local t = {last = 0, total = 0}
 		self.alternate_power [actorName] = t
 		return t
 	end
 
 	--delete an actor from the combat ~delete ~erase ~remove
-	function combate:DeleteActor(attribute, actorName, removeDamageTaken, cannotRemap)
+	function classCombat:DeleteActor(attribute, actorName, removeDamageTaken, cannotRemap)
 		local container = self[attribute]
 		if (container) then
 
@@ -539,110 +544,117 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internals
 
-	function combate:CreateNewCombatTable()
-		return combate:NovaTabela()
+	function classCombat:CreateNewCombatTable()
+		return classCombat:NovaTabela()
 	end
 
-	--class constructor
-	function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
+	---class constructor
+	---@param bTimeStarted boolean if true set the start time to now with GetTime
+	---@param overallCombatObject combat
+	---@param combatId number
+	---@param ... unknown
+	---@return combat
+	function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...)
+		---@type combat
+		local combatObject = {}
 
-		local esta_tabela = {true, true, true, true, true}
+		combatObject[1] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --Damage
+		combatObject[2] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_HEAL_CLASS,	combatObject, combatId) --Healing
+		combatObject[3] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_ENERGY_CLASS,	combatObject, combatId) --Energies
+		combatObject[4] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_MISC_CLASS,	combatObject, combatId) --Misc
+		combatObject[5] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --place holder for customs
 
-		esta_tabela [1] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_DAMAGE_CLASS, esta_tabela, combatId) --Damage
-		esta_tabela [2] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_HEAL_CLASS, esta_tabela, combatId) --Healing
-		esta_tabela [3] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_ENERGY_CLASS, esta_tabela, combatId) --Energies
-		esta_tabela [4] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS, esta_tabela, combatId) --Misc
-		esta_tabela [5] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_DAMAGE_CLASS, esta_tabela, combatId) --place holder for customs
+		setmetatable(combatObject, classCombat)
 
-		setmetatable(esta_tabela, combate)
-
-		esta_tabela.amountCasts = {}
-
-		_detalhes.combat_counter = _detalhes.combat_counter + 1
-		esta_tabela.combat_counter = _detalhes.combat_counter
+		Details.combat_counter = Details.combat_counter + 1
+		combatObject.combat_counter = Details.combat_counter
 
 		--try discover if is a pvp combat
 		local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...
 		if (who_serial) then --aqui ir� identificar o boss ou o oponente
 			if (alvo_name and _bit_band (alvo_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
-				esta_tabela.contra = alvo_name
+				combatObject.contra = alvo_name
 				if (_bit_band (alvo_flags, CONTROL_PLAYER) ~= 0) then
-					esta_tabela.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
+					combatObject.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
 				end
 			elseif (who_name and _bit_band (who_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
-				esta_tabela.contra = who_name
+				combatObject.contra = who_name
 				if (_bit_band (who_flags, CONTROL_PLAYER) ~= 0) then
-					esta_tabela.pvp = true --o who � da fac��o oposta ou foi dado mind control
+					combatObject.pvp = true --o who � da fac��o oposta ou foi dado mind control
 				end
 			else
-				esta_tabela.pvp = true --se ambos s�o friendly, seria isso um PVP entre jogadores da mesma fac��o?
+				combatObject.pvp = true --se ambos s�o friendly, seria isso um PVP entre jogadores da mesma fac��o?
 			end
 		end
 
 		--start/end time (duration)
-		esta_tabela.data_fim = 0
-		esta_tabela.data_inicio = 0
-		esta_tabela.tempo_start = _tempo
+		combatObject.data_fim = 0
+		combatObject.data_inicio = 0
+		combatObject.tempo_start = _tempo
+
+		---store trinket procs
+		combatObject.trinketProcs = {}
+
+		---store the amount of casts of each player
+		---@type table<actorname, table<spellname, number>>
+		combatObject.amountCasts = {}
 
 		--record deaths
-		esta_tabela.last_events_tables = {}
+		combatObject.last_events_tables = {}
 
 		--last events from players
-		esta_tabela.player_last_events = {}
+		combatObject.player_last_events = {}
 
 		--players in the raid
-		esta_tabela.raid_roster = {}
-		esta_tabela.raid_roster_indexed = {}
+		combatObject.raid_roster = {}
+		combatObject.raid_roster_indexed = {}
 
 		--frags
-		esta_tabela.frags = {}
-		esta_tabela.frags_need_refresh = false
+		combatObject.frags = {}
+		combatObject.frags_need_refresh = false
 
 		--alternate power
-		esta_tabela.alternate_power = {}
+		combatObject.alternate_power = {}
 
 		--time data container
-		esta_tabela.TimeData = _detalhes:TimeDataCreateCombatTables()
-		esta_tabela.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
+		combatObject.TimeData = Details:TimeDataCreateCombatTables()
+		combatObject.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
 
 		--for external plugin usage, these tables are guaranteed to be saved with the combat
-		esta_tabela.spells_cast_timeline = {}
-		esta_tabela.aura_timeline = {}
-		esta_tabela.cleu_timeline = {}
+		combatObject.spells_cast_timeline = {}
+		combatObject.aura_timeline = {}
+		combatObject.cleu_timeline = {}
 
 		--cleu events
-		esta_tabela.cleu_events = {
+		combatObject.cleu_events = {
 			n = 1 --event counter
 		}
 
-		--Skill cache (not used)
-		esta_tabela.CombatSkillCache = {}
-
-		-- a tabela sem o tempo de inicio � a tabela descartavel do inicio do addon
-		if (iniciada) then
+		--a tabela sem o tempo de inicio � a tabela descartavel do inicio do addon
+		if (bTimeStarted) then
 			--esta_tabela.start_time = _tempo
-			esta_tabela.start_time = GetTime()
-			esta_tabela.end_time = nil
+			combatObject.start_time = GetTime()
+			combatObject.end_time = nil
 		else
-			esta_tabela.start_time = 0
-			esta_tabela.end_time = nil
+			combatObject.start_time = 0
+			combatObject.end_time = nil
 		end
 
 		-- o container ir� armazenar as classes de dano -- cria um novo container de indexes de seriais de jogadores --par�metro 1 classe armazenada no container, par�metro 2 = flag da classe
-		esta_tabela[1].need_refresh = true
-		esta_tabela[2].need_refresh = true
-		esta_tabela[3].need_refresh = true
-		esta_tabela[4].need_refresh = true
-		esta_tabela[5].need_refresh = true
+		combatObject[1].need_refresh = true
+		combatObject[2].need_refresh = true
+		combatObject[3].need_refresh = true
+		combatObject[4].need_refresh = true
+		combatObject[5].need_refresh = true
 
-		if (_tabela_overall) then --link � a tabela de combate do overall
-			esta_tabela[1].shadow = _tabela_overall[1]
-			esta_tabela[2].shadow = _tabela_overall[2]
-			esta_tabela[3].shadow = _tabela_overall[3]
-			esta_tabela[4].shadow = _tabela_overall[4]
+		if (overallCombatObject) then --link � a tabela de combate do overall
+			combatObject[1].shadow = overallCombatObject[1]
+			combatObject[2].shadow = overallCombatObject[2]
+			combatObject[3].shadow = overallCombatObject[3]
+			combatObject[4].shadow = overallCombatObject[4]
 		end
 
-		esta_tabela.totals = {
+		combatObject.totals = {
 			0, --dano
 			0, --cura
 			{--e_energy
@@ -669,7 +681,7 @@
 			--end
 		}
 
-		esta_tabela.totals_grupo = {
+		combatObject.totals_grupo = {
 			0, --dano
 			0, --cura
 			{--e_energy
@@ -691,15 +703,15 @@
 			}
 		}
 
-		return esta_tabela
+		return combatObject
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core
 
-	function combate:CreateLastEventsTable (player_name)
+	function classCombat:CreateLastEventsTable (player_name)
 		local t = {}
-		for i = 1, _detalhes.deadlog_events do
+		for i = 1, Details.deadlog_events do
 			t [i] = {}
 		end
 		t.n = 1
@@ -708,7 +720,7 @@
 	end
 
 	--trava o tempo dos jogadores ap�s o t�rmino do combate.
-	function combate:TravarTempos()
+	function classCombat:TravarTempos()
 		if (self [1]) then
 			for _, jogador in ipairs(self [1]._ActorTable) do --damage
 				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
@@ -741,26 +753,26 @@
 		end
 	end
 
-	function combate:seta_data (tipo)
-		if (tipo == _detalhes._detalhes_props.DATA_TYPE_START) then
+	function classCombat:seta_data (tipo)
+		if (tipo == Details._detalhes_props.DATA_TYPE_START) then
 			self.data_inicio = _date ("%H:%M:%S")
-		elseif (tipo == _detalhes._detalhes_props.DATA_TYPE_END) then
+		elseif (tipo == Details._detalhes_props.DATA_TYPE_END) then
 			self.data_fim = _date ("%H:%M:%S")
 		end
 	end
 
-	function combate:seta_tempo_decorrido()
+	function classCombat:seta_tempo_decorrido()
 		--self.end_time = _tempo
 		self.end_time = GetTime()
 	end
 
-	function _detalhes.refresh:r_combate (tabela_combate, shadow)
-		setmetatable(tabela_combate, _detalhes.combate)
-		tabela_combate.__index = _detalhes.combate
+	function Details.refresh:r_combate (tabela_combate, shadow)
+		setmetatable(tabela_combate, Details.combate)
+		tabela_combate.__index = Details.combate
 		tabela_combate.shadow = shadow
 	end
 
-	function _detalhes.clear:c_combate (tabela_combate)
+	function Details.clear:c_combate (tabela_combate)
 		--tabela_combate.__index = {}
 		tabela_combate.__index = nil
 		tabela_combate.__call = {}
@@ -768,9 +780,9 @@
 		tabela_combate.shadow = nil
 	end
 
-	combate.__sub = function(combate1, combate2)
+	classCombat.__sub = function(combate1, combate2)
 
-		if (combate1 ~= _detalhes.tabela_overall) then
+		if (combate1 ~= Details.tabela_overall) then
 			return
 		end
 
@@ -843,11 +855,11 @@
 
 	end
 
-	combate.__add = function(combate1, combate2)
+	classCombat.__add = function(combate1, combate2)
 
 		local all_containers = {combate2 [class_type_dano]._ActorTable, combate2 [class_type_cura]._ActorTable, combate2 [class_type_e_energy]._ActorTable, combate2 [class_type_misc]._ActorTable}
 		local custom_combat
-		if (combate1 ~= _detalhes.tabela_overall) then
+		if (combate1 ~= Details.tabela_overall) then
 			custom_combat = combate1
 		end
 
@@ -856,13 +868,13 @@
 				local shadow
 
 				if (class_type == class_type_dano) then
-					shadow = _detalhes.atributo_damage:r_connect_shadow (actor, true, custom_combat)
+					shadow = Details.atributo_damage:r_connect_shadow (actor, true, custom_combat)
 				elseif (class_type == class_type_cura) then
-					shadow = _detalhes.atributo_heal:r_connect_shadow (actor, true, custom_combat)
+					shadow = Details.atributo_heal:r_connect_shadow (actor, true, custom_combat)
 				elseif (class_type == class_type_e_energy) then
-					shadow = _detalhes.atributo_energy:r_connect_shadow (actor, true, custom_combat)
+					shadow = Details.atributo_energy:r_connect_shadow (actor, true, custom_combat)
 				elseif (class_type == class_type_misc) then
-					shadow = _detalhes.atributo_misc:r_connect_shadow (actor, true, custom_combat)
+					shadow = Details.atributo_misc:r_connect_shadow (actor, true, custom_combat)
 				end
 
 				shadow.boss_fight_component = actor.boss_fight_component or shadow.boss_fight_component
@@ -885,6 +897,6 @@
 		return combate1
 	end
 
-	function _detalhes:UpdateCombat()
-		_tempo = _detalhes._tempo
+	function Details:UpdateCombat()
+		_tempo = Details._tempo
 	end

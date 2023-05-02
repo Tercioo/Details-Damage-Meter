@@ -607,6 +607,31 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		--Details.VarDump (_detalhes.ResetButton)
 
+	elseif (command == "trinket") then
+		local tooltipData = GameTooltip:GetTooltipData()
+		if (tooltipData) then
+			local spellId = tooltipData.id
+			local spellName = GetSpellInfo(spellId)
+			
+			if (spellName) then
+				
+				local itemLink = GetInventoryItemLink("player", 13)
+				if (itemLink) then
+					local itemName = GetItemInfo(itemLink)
+					if (itemName) then
+						local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(2, strsplit(":", itemLink))
+						
+						itemID = tonumber(itemID)
+						
+						if (itemID) then
+							local s = "["..spellId.."] = {name = formatTextForItem("..itemID..")}, --trinket: ".. itemName
+							dumpt({s})
+						end
+					end
+				end
+			end
+		end
+
 	elseif (command == "mini") then
 		local instance = _detalhes.tabela_instancias [1]
 		--Details.VarDump ()

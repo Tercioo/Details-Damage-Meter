@@ -27,6 +27,10 @@
 ---@class tablesize : {H: number, W: number}
 ---@class tablecoords : {L: number, R: number, T: number, B: number}
 
+---@class spellid : number
+---@class actorname : string
+---@class spellname : string
+---@class actorid : string
 ---@class red : number color value representing the red component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
 ---@class green : number color value representing the green component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
 ---@class blue : number color value representing the blue component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
@@ -312,6 +316,7 @@
 ---@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
+---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>
 ---@field GetCombatTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
 ---@field GetStartTime fun(combat: combat) : number
@@ -439,6 +444,18 @@
 ---@field ResetWindow fun(instance: instance, resetType: number|nil, segmentId: segmentid|nil)
 ---@field RefreshData fun(instance: instance, force: boolean|nil)
 ---@field RefreshWindow fun(instance: instance, force: boolean|nil)
+
+---@class trinketdata : table
+---@field itemName string
+---@field spellName string
+---@field lastActivation number
+---@field lastPlayerName string
+---@field totalCooldownTime number
+---@field activations number
+---@field lastCombatId number
+---@field minTime number
+---@field maxTime number
+---@field averageTime number
 
 ---@class tabframe : frame this is the tab frame object for the breakdown window
 
