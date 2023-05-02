@@ -17,6 +17,7 @@ local PixelUtil = PixelUtil
 local UISpecialFrames = UISpecialFrames
 local wipe = wipe
 local CreateFrame = _G.CreateFrame
+local detailsFramework = DetailsFramework
 
 local subAttributes = Details.sub_atributos
 local breakdownWindow = Details.playerDetailWindow
@@ -336,14 +337,14 @@ function Details:CloseBreakdownWindow()
 	end
 end
 
-function breakdownWindow:CreateRightSideBar()
+function breakdownWindow:CreateRightSideBar() --not enabled
 	breakdownWindow.RightSideBar = CreateFrame("frame", nil, breakdownWindow, "BackdropTemplate")
 	breakdownWindow.RightSideBar:SetWidth(20)
 	breakdownWindow.RightSideBar:SetPoint("topleft", breakdownWindow, "topright", 1, 0)
 	breakdownWindow.RightSideBar:SetPoint("bottomleft", breakdownWindow, "bottomright", 1, 0)
 	local rightSideBarAlpha = 0.75
 
-	DetailsFramework:ApplyStandardBackdrop(breakdownWindow.RightSideBar)
+	detailsFramework:ApplyStandardBackdrop(breakdownWindow.RightSideBar)
 
 	local toggleMergePlayerSpells = function()
 		Details.merge_player_abilities = not Details.merge_player_abilities
@@ -353,13 +354,13 @@ function breakdownWindow:CreateRightSideBar()
 		Details:OpenBreakdownWindow(instanceObject, playerObject)
 	end
 
-	local mergePlayerSpellsCheckbox = DetailsFramework:CreateSwitch(breakdownWindow, toggleMergePlayerSpells, Details.merge_player_abilities, _, _, _, _, _, _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+	local mergePlayerSpellsCheckbox = detailsFramework:CreateSwitch(breakdownWindow, toggleMergePlayerSpells, Details.merge_player_abilities, _, _, _, _, _, _, _, _, _, _, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 	mergePlayerSpellsCheckbox:SetAsCheckBox()
 	mergePlayerSpellsCheckbox:SetPoint("bottom", breakdownWindow.RightSideBar, "bottom", 0, 2)
 
 	local mergePlayerSpellsLabel = breakdownWindow.RightSideBar:CreateFontString(nil, "overlay", "GameFontNormal")
 	mergePlayerSpellsLabel:SetText("Merge Player Spells")
-	DetailsFramework:SetFontRotation(mergePlayerSpellsLabel, 90)
+	detailsFramework:SetFontRotation(mergePlayerSpellsLabel, 90)
 	mergePlayerSpellsLabel:SetPoint("center", mergePlayerSpellsCheckbox.widget, "center", -6, mergePlayerSpellsCheckbox:GetHeight()/2 + mergePlayerSpellsLabel:GetStringWidth() / 2)
 
 	--
@@ -371,13 +372,13 @@ function breakdownWindow:CreateRightSideBar()
 		Details:OpenBreakdownWindow(instanceObject, playerObject) --toggle
 		Details:OpenBreakdownWindow(instanceObject, playerObject)
 	end
-	local mergePetSpellsCheckbox = DetailsFramework:CreateSwitch(breakdownWindow, toggleMergePetSpells, Details.merge_pet_abilities, _, _, _, _, _, _, _, _, _, _, DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+	local mergePetSpellsCheckbox = detailsFramework:CreateSwitch(breakdownWindow, toggleMergePetSpells, Details.merge_pet_abilities, _, _, _, _, _, _, _, _, _, _, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 	mergePetSpellsCheckbox:SetAsCheckBox(true)
 	mergePetSpellsCheckbox:SetPoint("bottom", breakdownWindow.RightSideBar, "bottom", 0, 160)
 
 	local mergePetSpellsLabel = breakdownWindow.RightSideBar:CreateFontString(nil, "overlay", "GameFontNormal")
 	mergePetSpellsLabel:SetText("Merge Pet Spells")
-	DetailsFramework:SetFontRotation(mergePetSpellsLabel, 90)
+	detailsFramework:SetFontRotation(mergePetSpellsLabel, 90)
 	mergePetSpellsLabel:SetPoint("center", mergePetSpellsCheckbox.widget, "center", -6, mergePetSpellsCheckbox:GetHeight()/2 + mergePetSpellsLabel:GetStringWidth() / 2)
 
 	mergePlayerSpellsCheckbox:SetAlpha(rightSideBarAlpha)
@@ -479,6 +480,26 @@ function Details:CreateBreakdownWindow()
 	breakdownWindow:SetResizable(true)
 	breakdownWindow:SetMovable(true)
 
+	--make the window movable
+	if (not breakdownWindow.registeredLibWindow) then
+		local LibWindow = LibStub("LibWindow-1.1")
+		breakdownWindow.registeredLibWindow = true
+		if (LibWindow) then
+			breakdownWindow.libWindowTable = breakdownWindow.libWindowTable or {}
+			LibWindow.RegisterConfig(breakdownWindow, breakdownWindow.libWindowTable)
+			LibWindow.RestorePosition(breakdownWindow)
+			LibWindow.MakeDraggable(breakdownWindow)
+			LibWindow.SavePosition(breakdownWindow)
+		end
+	end
+
+	detailsFramework:ApplyStandardBackdrop(breakdownWindow)
+
+	--background
+	breakdownWindow.backgroundTexture = breakdownWindow:CreateTexture("$parent", "background", nil, -3)
+	breakdownWindow.backgroundTexture:SetAllPoints()
+	breakdownWindow.backgroundTexture:Hide()
+
 	--host the textures and fontstring of the default frame of the player breakdown window
 	--what is the summary window: is the frame where all the widgets for the summary tab are created
 	breakdownWindow.SummaryWindowWidgets = CreateFrame("frame", "DetailsBreakdownWindowSummaryWidgets", breakdownWindow, "BackdropTemplate")
@@ -487,7 +508,7 @@ function Details:CreateBreakdownWindow()
 	table.insert(SummaryWidgets, SWW) --where SummaryWidgets is declared: at the header of the file, what is the purpose of this table?
 	breakdownWindow.SummaryWindowWidgets:Hide()
 
-	DetailsFramework:CreateScaleBar(breakdownWindow, Details.player_details_window)
+	detailsFramework:CreateScaleBar(breakdownWindow, Details.player_details_window)
 	breakdownWindow:SetScale(Details.player_details_window.scale)
 
 	--class icon
@@ -495,22 +516,19 @@ function Details:CreateBreakdownWindow()
 	breakdownWindow.classIcon:SetPoint("topleft", breakdownWindow, "topleft", 4, 0)
 	breakdownWindow.classIcon:SetSize(64, 64)
 
-	--background
-	breakdownWindow.backgroundTexture = breakdownWindow:CreateTexture("$parent", "background", nil, -3)
-	breakdownWindow.backgroundTexture:SetAllPoints()
-
 	--close button
 	breakdownWindow.closeButton = CreateFrame("Button", nil, breakdownWindow, "UIPanelCloseButton")
-	breakdownWindow.closeButton:SetSize(32, 32)
-	breakdownWindow.closeButton:SetPoint("TOPRIGHT", breakdownWindow, "TOPRIGHT", 5, -8)
-	breakdownWindow.closeButton:SetText("X")
+	breakdownWindow.closeButton:SetSize(20, 20)
+	breakdownWindow.closeButton:SetPoint("TOPRIGHT", breakdownWindow, "TOPRIGHT", -5, -4)
 	breakdownWindow.closeButton:SetFrameLevel(breakdownWindow:GetFrameLevel()+5)
+	breakdownWindow.closeButton:GetNormalTexture():SetDesaturated(true)
+	breakdownWindow.closeButton:GetNormalTexture():SetVertexColor(.6, .6, .6)
     breakdownWindow.closeButton:SetScript("OnClick", function(self)
         Details:CloseBreakdownWindow()
     end)
 
 	--title
-	DetailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r) - Report Bugs At Discord > 'breakdown-bug-report' channel", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	detailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r) - Report Bugs At Discord > 'breakdown-bug-report' channel", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	breakdownWindow.titleText:SetPoint("center", breakdownWindow, "center")
 	breakdownWindow.titleText:SetPoint("top", breakdownWindow, "top", 0, -18)
 
@@ -541,11 +559,11 @@ function Details:CreateBreakdownWindow()
 	end
 
 	--create the gradients in the top and bottom side of the breakdown window
-	do
+	if false then
 		local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
-		local gradientUp = DetailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = "transparent", toColor = gradientStartColor}, 1, 300, "artwork", {0, 1, 0, 1})
+		local gradientUp = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = "transparent", toColor = gradientStartColor}, 1, 40, "artwork", {0, 1, 0, 1})
 		gradientUp:SetPoint("tops", 1, 1)
-		local gradientDown = DetailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 50, "artwork", {0, 1, 0, 1})
+		local gradientDown = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 50, "artwork", {0, 1, 0, 1})
 		gradientDown:SetPoint("bottoms")
 	end
 
@@ -554,10 +572,10 @@ function Details:CreateBreakdownWindow()
 	statusBar:SetPoint("bottomleft", breakdownWindow, "bottomleft")
 	statusBar:SetPoint("bottomright", breakdownWindow, "bottomright")
 	statusBar:SetHeight(PLAYER_DETAILS_STATUSBAR_HEIGHT)
-	DetailsFramework:ApplyStandardBackdrop(statusBar)
+	detailsFramework:ApplyStandardBackdrop(statusBar)
 	statusBar:SetAlpha(PLAYER_DETAILS_STATUSBAR_ALPHA)
 
-	statusBar.Text = DetailsFramework:CreateLabel(statusBar)
+	statusBar.Text = detailsFramework:CreateLabel(statusBar)
 	statusBar.Text:SetPoint("left", 2, 0)
 
 	function breakdownWindow:SetStatusbarText(text, fontSize, fontColor)
@@ -663,7 +681,7 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	end
 
 	--create a button to select the tab
-	local tabButton = DetailsFramework:CreateButton(breakdownWindow, function()end, 20, 20, locName, nil, nil, nil, nil, breakdownWindow:GetName() .. "TabButton" .. tabName .. math.random(1, 1000), nil, "DETAILS_TAB_BUTTON_TEMPLATE")
+	local tabButton = detailsFramework:CreateButton(breakdownWindow, function()end, 20, 20, locName, nil, nil, nil, nil, breakdownWindow:GetName() .. "TabButton" .. tabName .. math.random(1, 1000), nil, "DETAILS_TAB_BUTTON_TEMPLATE")
 	tabButton:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
 	tabButton:Hide()
 
