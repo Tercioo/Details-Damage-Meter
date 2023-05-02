@@ -5901,6 +5901,30 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	local eraNamedSpellsToID = {}
 
+	
+
+	-- ~parserstart ~startparser ~cleu ~parser
+	function _detalhes.OnParserEvent()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+
+		local func = token_list[token]
+		if (func) then
+			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		end
+	end
+
+	function _detalhes.OnParserEventClassicEra()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+
+		local func = token_list[token]
+		if (func) then
+			if(eraNamedSpellsToID[token]) then
+				A1 = A2
+			end
+			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		end
+	end
+
 	if(DetailsFramework.IsClassicWow()) then
 		eraNamedSpellsToID = {
 		["SPELL_PERIODIC_DAMAGE"] = true,
@@ -5933,21 +5957,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		["SPELL_RESURRECT"] = true,
 		["SPELL_INTERRUPT"] = true,
 		}
+		_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEventClassicEra)
+	else
+		_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEvent)
 	end
-
-	-- ~parserstart ~startparser ~cleu ~parser
-	function _detalhes.OnParserEvent()
-		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
-
-		local func = token_list[token]
-		if (func) then
-			if(eraNamedSpellsToID[token]) then
-				A1 = A2
-			end
-			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
-		end
-	end
-	_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEvent)
 
 	function _detalhes:UpdateParser()
 		_tempo = _detalhes._tempo
