@@ -6,7 +6,7 @@ local DF = DetailsFramework
 
 local createOptionsPanel = function()
     local startX = 5
-    local startY = -24
+    local startY = -32
     local heightSize = 540
 
     local DetailsSpellBreakdownTab = DetailsSpellBreakdownTab
@@ -22,6 +22,9 @@ local createOptionsPanel = function()
     optionsFrame:SetFrameStrata("HIGH")
     optionsFrame:SetPoint("topleft", UIParent, "topleft", 2, -40)
     optionsFrame:Show()
+
+    local bUseSolidColor = true
+    DF:ApplyStandardBackdrop(optionsFrame, bUseSolidColor)
 
     local resetSettings = function()
         for key, value in pairs (Details.default_global_data.breakdown_spell_tab) do
