@@ -38,7 +38,7 @@
 	local container_habilidades = _detalhes.container_habilidades --details local
 
 	--localize the cooldown table from the framework
-	local defensive_cooldowns = DetailsFramework.CooldownsAllDeffensive --default from all game versions
+	local defensive_cooldowns = {}
 
 	if (LIB_OPEN_RAID_COOLDOWNS_INFO) then
 		--check if the cooldown is type 2 or 3 or 4 and add to the defensive_cooldowns table
