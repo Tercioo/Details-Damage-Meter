@@ -218,7 +218,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 		breakdownWindow.attributeName:Show()
 	end
 
-	breakdownWindow.attributeName:SetPoint("CENTER", breakdownWindow.actorName, "CENTER", 0, 14)
+	breakdownWindow.attributeName:SetPoint("bottomleft", breakdownWindow.actorName, "topleft", 0, 2)
 
 	---@type string
 	local actorClass = actorObject.classe --classe not registered because it should be renamed to english 'class'
@@ -431,32 +431,27 @@ function Details222.BreakdownWindow.SendTargetData(targetList, actorObject, comb
 	end
 end
 
-function breakdownWindow.SetClassIcon(jogador, classe)
-	if (classe ~= "UNKNOW" and classe ~= "UNGROUPPLAYER") then
-		breakdownWindow.classIcon:SetTexCoord(Details.class_coords [classe][1], Details.class_coords [classe][2], Details.class_coords [classe][3], Details.class_coords [classe][4])
-		if (jogador.enemy) then
-			if (Details.faction_against == "Horde") then
-				breakdownWindow.actorName:SetTextColor(1, 91/255, 91/255, 1)
-			else
-				breakdownWindow.actorName:SetTextColor(151/255, 215/255, 1, 1)
-			end
-		else
-			breakdownWindow.actorName:SetTextColor(1, 1, 1, 1)
-		end
+---set the class or spec icon for the actor displayed
+---@param actorObject actor
+---@param class string
+function breakdownWindow.SetClassIcon(actorObject, class)
+	if (actorObject.spellicon) then
+		breakdownWindow.classIcon:SetTexture(actorObject.spellicon)
+		breakdownWindow.classIcon:SetTexCoord(.1, .9, .1, .9)
+
+	elseif (actorObject.spec) then
+		breakdownWindow.classIcon:SetTexture([[Interface\AddOns\Details\images\spec_icons_normal_alpha]])
+		breakdownWindow.classIcon:SetTexCoord(unpack(_detalhes.class_specs_coords [actorObject.spec]))
 	else
-		if (jogador.enemy) then
-			if (Details.class_coords [Details.faction_against]) then
-				breakdownWindow.classIcon:SetTexCoord(unpack(Details.class_coords [Details.faction_against]))
-				if (Details.faction_against == "Horde") then
-					breakdownWindow.actorName:SetTextColor(1, 91/255, 91/255, 1)
-				else
-					breakdownWindow.actorName:SetTextColor(151/255, 215/255, 1, 1)
-				end
-			else
-				breakdownWindow.actorName:SetTextColor(1, 1, 1, 1)
-			end
+		local coords = CLASS_ICON_TCOORDS[class]
+		if (coords) then
+			breakdownWindow.classIcon:SetTexture([[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-CLASSES]])
+			local l, r, t, b = unpack(coords)
+			breakdownWindow.classIcon:SetTexCoord(l+0.01953125, r-0.01953125, t+0.01953125, b-0.01953125)
 		else
-			breakdownWindow.classIcon:SetTexCoord(Details.class_coords ["MONSTER"][1], Details.class_coords ["MONSTER"][2], Details.class_coords ["MONSTER"][3], Details.class_coords ["MONSTER"][4])
+			local c = _detalhes.class_coords ["MONSTER"]
+			breakdownWindow.classIcon:SetTexture("Interface\\AddOns\\Details\\images\\classes")
+			breakdownWindow.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
 		end
 	end
 end
@@ -512,9 +507,10 @@ function Details:CreateBreakdownWindow()
 	breakdownWindow:SetScale(Details.player_details_window.scale)
 
 	--class icon
-	breakdownWindow.classIcon = breakdownWindow:CreateTexture(nil, "BACKGROUND", nil, 1)
-	breakdownWindow.classIcon:SetPoint("topleft", breakdownWindow, "topleft", 4, 0)
-	breakdownWindow.classIcon:SetSize(64, 64)
+	breakdownWindow.classIcon = breakdownWindow:CreateTexture(nil, "overlay", nil, 1)
+	breakdownWindow.classIcon:SetPoint("topleft", breakdownWindow, "topleft", 2, -17)
+	breakdownWindow.classIcon:SetSize(54, 54)
+	breakdownWindow.classIcon:SetAlpha(0.7)
 
 	--close button
 	breakdownWindow.closeButton = CreateFrame("Button", nil, breakdownWindow, "UIPanelCloseButton")
@@ -528,14 +524,14 @@ function Details:CreateBreakdownWindow()
     end)
 
 	--title
-	detailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r) - Report Bugs At Discord > 'breakdown-bug-report' channel", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	detailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r) - Report Bugs At Discord", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	breakdownWindow.titleText:SetPoint("center", breakdownWindow, "center")
-	breakdownWindow.titleText:SetPoint("top", breakdownWindow, "top", 0, -18)
+	breakdownWindow.titleText:SetPoint("top", breakdownWindow, "top", 0, -6)
 
 	--create the texts shown on the window
 	do
-		breakdownWindow.actorName = breakdownWindow:CreateFontString(nil, "OVERLAY", "QuestFont_Large")
-		breakdownWindow.actorName:SetPoint("TOPLEFT", breakdownWindow, "TOPLEFT", 105, -54)
+		breakdownWindow.actorName = breakdownWindow:CreateFontString(nil, "overlay", "QuestFont_Large")
+		breakdownWindow.actorName:SetPoint("left", breakdownWindow.classIcon, "right", 20, -7)
 
 		breakdownWindow.attributeName = breakdownWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 
@@ -558,15 +554,6 @@ function Details:CreateBreakdownWindow()
 		breakdownWindow.avatar_nick:Hide()
 	end
 
-	--create the gradients in the top and bottom side of the breakdown window
-	if false then
-		local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
-		local gradientUp = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = "transparent", toColor = gradientStartColor}, 1, 40, "artwork", {0, 1, 0, 1})
-		gradientUp:SetPoint("tops", 1, 1)
-		local gradientDown = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 50, "artwork", {0, 1, 0, 1})
-		gradientDown:SetPoint("bottoms")
-	end
-
 	--statusbar
 	local statusBar = CreateFrame("frame", nil, breakdownWindow, "BackdropTemplate")
 	statusBar:SetPoint("bottomleft", breakdownWindow, "bottomleft")
@@ -574,9 +561,20 @@ function Details:CreateBreakdownWindow()
 	statusBar:SetHeight(PLAYER_DETAILS_STATUSBAR_HEIGHT)
 	detailsFramework:ApplyStandardBackdrop(statusBar)
 	statusBar:SetAlpha(PLAYER_DETAILS_STATUSBAR_ALPHA)
+	breakdownWindow.statusBar = statusBar
 
 	statusBar.Text = detailsFramework:CreateLabel(statusBar)
 	statusBar.Text:SetPoint("left", 2, 0)
+
+	--create the gradients in the top and bottom side of the breakdown window
+	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
+	local gradientUp = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = gradientStartColor, toColor = {0, 0, 0, 0.2}}, 1, 68, "artwork", {0, 1, 0, 1})
+	gradientUp:SetPoint("tops", 1, 1)
+
+	local gradientHeight = 481
+	local gradientDown = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.7}}, 1, gradientHeight, "border", {0, 1, 0, 1})
+	gradientDown:SetPoint("bottomleft", breakdownWindow.statusBar, "topleft", 1, 1)
+	gradientDown:SetPoint("bottomright", breakdownWindow.statusBar, "topright", -1, 1)
 
 	function breakdownWindow:SetStatusbarText(text, fontSize, fontColor)
 		if (not text) then
@@ -601,11 +599,11 @@ function Details:CreateBreakdownWindow()
 		local tablePool = Details:GetBreakdownTabsInUse()
 
 		for index = 1, #tablePool do
-			local tab = tablePool[index]
+			local tabButton = tablePool[index]
 
-			if (tab:condition(breakdownWindow.jogador, breakdownWindow.atributo, breakdownWindow.sub_atributo) and not tab.replaced) then
+			if (tabButton:condition(breakdownWindow.jogador, breakdownWindow.atributo, breakdownWindow.sub_atributo) and not tabButton.replaced) then
 				--test if can show the tutorial for the comparison tab
-				if (tab.tabname == "Compare") then
+				if (tabButton.tabname == "Compare") then
 					--Details:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", false)
 					if (not Details:GetTutorialCVar("DETAILS_INFO_TUTORIAL1")) then
 						Details:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", true)
@@ -614,15 +612,15 @@ function Details:CreateBreakdownWindow()
 						alert.ArrowUP:Show()
 						alert.ArrowGlowUP:Show()
 						alert.Text:SetText(Loc ["STRING_INFO_TUTORIAL_COMPARISON1"])
-						alert:SetPoint("bottom", tab.widget or tab, "top", 5, 28)
+						alert:SetPoint("bottom", tabButton.widget or tabButton, "top", 5, 28)
 						alert:Show()
 					end
 				end
 
-				tab:Show()
+				tabButton:Show()
 				tabsShown = tabsShown + 1
 
-				tab:ClearAllPoints()
+				tabButton:ClearAllPoints()
 
 				--get the button width
 				local buttonTemplate = gump:GetTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE")
@@ -630,44 +628,45 @@ function Details:CreateBreakdownWindow()
 
 				--pixelutil might not be compatible with classic wow
 				if (PixelUtil) then
-					PixelUtil.SetSize(tab, buttonTemplate.width, buttonTemplate.height)
+					PixelUtil.SetSize(tabButton, buttonTemplate.width, buttonTemplate.height)
 					if (tabsShown >= breakLine) then --next row of icons
-						PixelUtil.SetPoint(tab, "bottomright", breakdownWindow, "topright",  -514 + (buttonWidth * (secondRowIndex)), -50)
+						PixelUtil.SetPoint(tabButton, "bottomright", breakdownWindow, "topright", -514 + (buttonWidth * (secondRowIndex)), -50)
 						secondRowIndex = secondRowIndex + 1
 					else
-						PixelUtil.SetPoint(tab, "bottomright", breakdownWindow, "topright",  -514 + (buttonWidth * tabsShown), -72)
+						PixelUtil.SetPoint(tabButton, "bottomright", breakdownWindow, "topright", -514 + (buttonWidth * tabsShown), -69)
 					end
 				else
-					tab:SetSize(buttonTemplate.width, buttonTemplate.height)
+					tabButton:SetSize(buttonTemplate.width, buttonTemplate.height)
 					if (tabsShown >= breakLine) then --next row of icons
-						tab:SetPoint("bottomright", breakdownWindow, "topright",  -514 + (buttonWidth * (secondRowIndex)), -50)
+						tabButton:SetPoint("bottomright", breakdownWindow, "topright", -514 + (buttonWidth * (secondRowIndex)), -50)
 						secondRowIndex = secondRowIndex + 1
 					else
-						tab:SetPoint("bottomright", breakdownWindow, "topright", -514 + (buttonWidth * tabsShown), -72)
+						tabButton:SetPoint("bottomright", breakdownWindow, "topright", -514 + (buttonWidth * tabsShown), -69)
 					end
 				end
 
-				tab:SetAlpha(0.8)
+				tabButton:SetAlpha(0.8)
 			else
-				tab.frame:Hide()
-				tab:Hide()
+				tabButton.frame:Hide()
+				tabButton:Hide()
 			end
 		end
 
 		if (tabsShown < 2) then
-			tablePool[1]:SetPoint("BOTTOMLEFT", breakdownWindow.container_barras, "TOPLEFT",  490 - (94 * (1-0)), 1)
+			tablePool[1]:SetPoint("bottomleft", breakdownWindow.container_barras, "topleft", 490 - (94 * (1-0)), 1)
 		end
 
 		--selected by default
 		tablePool[1]:Click()
 	end
-		breakdownWindow:SetScript("OnHide", function(self)
-			Details:CloseBreakdownWindow()
-			for _, tab in ipairs(Details.player_details_tabs) do
-				tab:Hide()
-				tab.frame:Hide()
-			end
-		end)
+
+	breakdownWindow:SetScript("OnHide", function(self)
+		Details:CloseBreakdownWindow()
+		for _, tab in ipairs(Details.player_details_tabs) do
+			tab:Hide()
+			tab.frame:Hide()
+		end
+	end)
 
 	breakdownWindow.tipo = 1 --tipo da janela // 1 = janela normal
 	return breakdownWindow
@@ -695,14 +694,27 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	tabButton.localized_name = locName
 	tabButton.onclick = tabOnClickFunc
 	tabButton.fillfunction = fillFunc
-	tabButton.last_actor = {}
+	tabButton.last_actor = {} --need to double check is this getting cleared
 
 	---@type tabframe
 	local tabFrame = CreateFrame("frame", breakdownWindow:GetName() .. "TabFrame" .. tabName .. math.random(1, 10000), breakdownWindow, "BackdropTemplate")
 	tabFrame:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
 	tabFrame:SetPoint("topleft", breakdownWindow, "topleft", 0, -70)
-	tabFrame:SetPoint("bottomright", breakdownWindow, "bottomright", 0, 20)
+	tabFrame:SetPoint("bottomright", breakdownWindow, "bottomright", -1, 20)
 	tabFrame:Hide()
+
+	DetailsFramework:ApplyStandardBackdrop(tabFrame)
+	tabFrame:SetBackdropBorderColor(0, 0, 0, 0.3)
+	tabFrame.__background:SetAlpha(0.3)
+	tabFrame.RightEdge:Hide()
+
+	--create the gradients in the top and bottom side of the breakdown window
+	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
+	local red, green, blue = unpack(gradientStartColor)
+
+	local gradientUpDown = detailsFramework:CreateTexture(tabFrame, {gradient = "vertical", fromColor = {red, green, blue, 0}, toColor = {red, green, blue, 0.4}}, 1, 34*2, "artwork", {0, 1, 0, 1})
+	gradientUpDown:SetPoint("topleft", tabFrame, "topleft", 0, 0)
+	gradientUpDown:SetPoint("topright", tabFrame, "topright", 0, 0)
 
 	tabButton.tabFrame = tabFrame
 	tabButton.frame = tabFrame

@@ -1,4 +1,4 @@
-## Interface: 100007
+## Interface: 100100
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## SavedVariables: _detalhes_global, __details_backup

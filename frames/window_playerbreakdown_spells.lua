@@ -408,7 +408,6 @@ end
 ---@param tabFrame breakdownspellstab
 function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	spellBreakdownSettings = Details.breakdown_spell_tab
-	DetailsFramework:ApplyStandardBackdrop(tabFrame)
 
     --create the scrollbar to show the spells in the breakdown window
     spellsTab.CreateSpellScrollContainer(tabFrame) --finished
@@ -423,10 +422,10 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
     spellsTab.TabFrame = tabFrame
 
 	--create a button in the breakdown window to open the options for this tab
-	local optionsButton = DF:CreateButton(Details.playerDetailWindow, Details.OpenSpellBreakdownOptions, 130, 20, "Options", 10, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
-	optionsButton:SetPoint("topleft", Details.playerDetailWindow, "topleft", 210, -45)
-	optionsButton.textsize = 15
-	optionsButton.textcolor = "white"
+	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 20, "options", 14, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -5, 5)
+	optionsButton.textsize = 16
+	optionsButton.textcolor = "yellow"
 
 	--open the breakdown window at startup for testing
 	--[=[ debug
@@ -621,6 +620,68 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
 		end
 
+		local emporwerSpell = spellTable.e_total
+		if (emporwerSpell) then
+			local empowerLevelSum = spellTable.e_total --total sum of empower levels
+			local empowerAmount = spellTable.e_amt --amount of casts with empower
+			local empowerAmountPerLevel = spellTable.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
+			local empowerDamagePerLevel = spellTable.e_dmg --{[1] = 54548745, [2] = 74548745}
+
+			---@type breakdownspellblock
+			local empowerBlock = spellBlockContainer:GetBlock(blockIndex)
+			empowerBlock:Show()
+			blockIndex = blockIndex + 1
+
+			local level1AverageDamage = "0"
+			local level2AverageDamage = "0"
+			local level3AverageDamage = "0"
+			local level4AverageDamage = "0"
+			local level5AverageDamage = "0"
+
+			if (empowerDamagePerLevel[1]) then
+				level1AverageDamage = Details:Format(empowerDamagePerLevel[1] / empowerAmountPerLevel[1])
+			end
+			if (empowerDamagePerLevel[2]) then
+				level2AverageDamage = Details:Format(empowerDamagePerLevel[2] / empowerAmountPerLevel[2])
+			end
+			if (empowerDamagePerLevel[3]) then
+				level3AverageDamage = Details:Format(empowerDamagePerLevel[3] / empowerAmountPerLevel[3])
+			end
+			if (empowerDamagePerLevel[4]) then
+				level4AverageDamage = Details:Format(empowerDamagePerLevel[4] / empowerAmountPerLevel[4])
+			end
+			if (empowerDamagePerLevel[5]) then
+				level5AverageDamage = Details:Format(empowerDamagePerLevel[5] / empowerAmountPerLevel[5])
+			end
+
+			empowerBlock:SetValue(100)
+			empowerBlock.sparkTexture:SetPoint("left", empowerBlock, "left", empowerBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			empowerBlock:SetColor(0.200, 0.576, 0.498, 0.6)
+
+			local blockLine1, blockLine2, blockLine3 = empowerBlock:GetLines()
+			blockLine1.leftText:SetText("Spell Empower Average Level: " .. string.format("%.2f", empowerLevelSum / empowerAmount))
+
+			if (level1AverageDamage ~= "0") then
+				blockLine2.leftText:SetText("Level 1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")")
+			end
+
+			if (level2AverageDamage ~= "0") then
+				blockLine2.centerText:SetText("Level 2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")")
+			end
+
+			if (level3AverageDamage ~= "0") then
+				blockLine2.rightText:SetText("Level 3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")")
+			end
+
+			if (level4AverageDamage ~= "0") then
+				blockLine3.leftText:SetText("Level 4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")")
+			end
+
+			if (level5AverageDamage ~= "0") then
+				blockLine3.rightText:SetText("Level 5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")")
+			end
+		end
+
 		if (trinketData[spellId]) then
 			---@type trinketdata
 			local trinketInfo = trinketData[spellId]
@@ -633,6 +694,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local trinketBlock = spellBlockContainer:GetBlock(blockIndex)
 			trinketBlock:Show()
 			trinketBlock:SetValue(100)
+			trinketBlock.sparkTexture:SetPoint("left", trinketBlock, "left", trinketBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
 			blockIndex = blockIndex + 1
 
 			local blockLine1, blockLine2, blockLine3 = trinketBlock:GetLines()

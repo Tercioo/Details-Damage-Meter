@@ -4526,6 +4526,9 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~standard backdrop
 ---this is the standard backdrop for detailsframework, it's a dark-ish color semi transparent with a thin opaque black border
+---for the background it uses UI-Tooltip-Background with detailsFramework:GetDefaultBackdropColor() color
+---for the border it uses Interface\Buttons\WHITE8X8
+---also creates an additional texture frame.__background = texture with the same setting of the backdrop background
 ---@param frame table
 ---@param bUseSolidColor any
 ---@param alphaScale number
@@ -7954,6 +7957,7 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UpdateChannelInfo = function(self, unit, ...)
+		local unitID, castID, spellID = ...
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo (unit)
 
 		--is valid?
@@ -8081,7 +8085,9 @@ detailsFramework.CastFrameFunctions = {
 			end
 
 			self.casting = nil
+			self.channeling = nil
 			self.finished = true
+			self.castID = nil
 
 			if (not self:HasScheduledHide()) then
 				--check if settings has no fade option or if its parents are not visible
@@ -8112,8 +8118,10 @@ detailsFramework.CastFrameFunctions = {
 			local _, maxValue = self:GetMinMaxValues()
 			self:SetValue(self.maxValue or maxValue or 1)
 
+			self.casting = nil
 			self.channeling = nil
 			self.finished = true
+			self.castID = nil
 
 			if (not self:HasScheduledHide()) then
 				--check if settings has no fade option or if its parents are not visible
@@ -8153,6 +8161,7 @@ detailsFramework.CastFrameFunctions = {
 			self.channeling = nil
 			self.failed = true
 			self.finished = true
+			self.castID = nil
 			self:SetValue(self.maxValue or select(2, self:GetMinMaxValues()) or 1)
 
 			--set the statusbar color
@@ -8174,6 +8183,7 @@ detailsFramework.CastFrameFunctions = {
 			self.channeling = nil
 			self.interrupted = true
 			self.finished = true
+			self.castID = nil
 
 			if (self.Settings.FillOnInterrupt) then
 				self:SetValue(self.maxValue or select(2, self:GetMinMaxValues()) or 1)
