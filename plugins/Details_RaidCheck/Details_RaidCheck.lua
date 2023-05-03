@@ -1,6 +1,6 @@
 
 --do not load if this is a classic version of the game
-if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow()) then
+if (DetailsFramework.IsTBCWow() or DetailsFramework.IsWotLKWow() or DetailsFramework.IsClassicWow()) then
 	return
 end
 
