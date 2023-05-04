@@ -15,12 +15,12 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 10737
-		Details.alpha_build_counter = 10737 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 10985
+		Details.alpha_build_counter = 10985 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 150 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 151 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 
@@ -93,15 +93,7 @@
 		Details222.Cooldowns = {}
 		Details222.GarbageCollector = {}
 		Details222.BreakdownWindow = {}
-
 		Details222.PlayerStats = {}
-
-		---add a statistic, log, or any other data to the player stat table
-		---@param statName string
-		---@param value number
-		function Details222.PlayerStats:AddStat(statName, value)
-			Details.player_stats[statName] = (Details.player_stats[statName] or 0) + value
-		end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -120,6 +112,25 @@ do
 	--]=]
 
 	local news = {
+		{"v10.1.0.10985.147", "May 4th, 2023"},
+		"The Breakdown Window has been completely rebuilt from the ground up and now includes support for several new features.",
+		"A significant portion of the back-end code has been revamped, resulting in improved performance and stability.",
+		"Combatlog now supports options, check them at the Combat Log section in the options panel.",
+		"Big plugin updates with improvements to Cast Log and new features for Advanced Death Log.",
+		"Added Real-time dps bar for arena streamers.",
+		"Flamanis:",
+		"Changed Pet Ownership detection to be hopefully more robust for future patches.",
+		"Added option to merge Atonement, Contrition, Ancient Teachings, and Awakened Faeline with their Crits, in the Combat Log section.",
+		"Added DemonHunter and Evoker Defensive cooldowns.",
+		"Readded option to have M+ Overall Segment only contain Bosses.",
+		"Fixed issue with swapping to/from Tiny Threat and other plugins using bookmarks.",
+		"Fixed position persistency for Statusbar elements.",
+		"Fixed alpha channel persistency for certain color options.",
+		"Fixed stack overflow related to changing option tabs or profiles too many times.",
+		"Fixed the highlight image of a bar icon not swapping to the new icon upon scrolling.",
+		"Fixed issues related to the new Left Text Offset position.",
+		"Fixed the wrong options being unusable with Aligned Text Columns enabled.",
+
 		{"v10.0.5.10661.147", "Mar 1st, 2023"},
 		"Major fixes and updates on the Event Tracker feature (for streamers).",
 		"When trying to import a profile with a name that already exists, it'll rename it and import (Flamanis).",
@@ -1161,3 +1172,24 @@ function Details222.Tables.MakeWeakTable(mode)
 end
 
 --STRING_CUSTOM_POT_DEFAULT
+
+---add a statistic, log, or any other data to the player stat table
+---@param statName string
+---@param value number
+function Details222.PlayerStats:AddStat(statName, value)
+	Details.player_stats[statName] = (Details.player_stats[statName] or 0) + value
+end
+
+---same thing as above but set the value instead of adding
+---@param statName string
+---@param value number
+function Details222.PlayerStats:SetStat(statName, value)
+	Details.player_stats[statName] = value
+end
+
+---get the value of a saved stat
+---@param statName string
+---@return any
+function Details222.PlayerStats:GetStat(statName, value)
+	return Details.player_stats[statName]
+end

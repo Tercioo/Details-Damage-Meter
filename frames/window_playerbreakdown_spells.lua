@@ -1531,8 +1531,11 @@ local onClickExpandButton = function(expandButton, button)
 
 	--toggle this spell expand mode
 	Details222.BreakdownWindow.SetSpellAsExpanded(expandButton.spellId, not bIsSpellExpaded)
-	--refresh the scrollFrame
-	scrolFrame:Refresh()
+
+	--call the refresh function of the window
+	---@type instance
+	local instanceObject = spellsTab.GetInstance()
+	instanceObject:RefreshWindow(true)
 end
 
 local formatPetName = function(petName, spellName, ownerName)
