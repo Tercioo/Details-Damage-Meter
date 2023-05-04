@@ -28,6 +28,11 @@ local spellTable_FieldsToSum = {
 	["absorbed"] = true,
 	["overheal"] = true,
 	["totaldenied"] = true,
+    ["e_amt"] = true,
+    ["e_dmg"] = true,
+    ["e_heal"] = true,
+    ["e_lvl"] = true,
+    ["e_total"] = true,
 }
 
 ---@class spelltablemixin
@@ -90,16 +95,21 @@ Details.SpellTableMixin = {
             local spellTable = spellTables[i]
             if (spellTable) then
                 for key, value in pairs(spellTable) do
-                    ---@cast key string
-                    ---@cast value number
                     if (spellTable_FieldsToSum[key]) then
-                        targetTable[key] = (targetTable[key] or 0) + value
+                        --evoker empowerment levels
+                        if (key == "e_lvl" or key == "e_heal" or key == "e_dmg") then
+                            targetTable[key] = targetTable[key] or {}
+                            for level, amount in pairs(value) do
+                                targetTable[key][level] = (targetTable[key][level] or 0) + amount
+                            end
+                        else
+                            targetTable[key] = (targetTable[key] or 0) + value
+                        end
                     end
                 end
             end
         end
     end,
-
 }
 
 --detailsFramework:Mixin(Details, Details.SpellTableMixin)

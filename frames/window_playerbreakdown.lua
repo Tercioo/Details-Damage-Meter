@@ -94,6 +94,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 
 	--create the player list frame in the left side of the window
 	Details.PlayerBreakdown.CreatePlayerListFrame()
+	Details.PlayerBreakdown.CreateDumpDataFrame()
 
 	if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
 		Details:CloseBreakdownWindow()
@@ -335,6 +336,25 @@ function Details:CloseBreakdownWindow()
 			tabButton.last_actor = nil
 		end
 	end
+end
+
+function Details.PlayerBreakdown.CreateDumpDataFrame()
+	breakdownWindow.dumpDataFrame = CreateFrame("frame", "$parentDumpTableFrame", DetailsBreakdownWindowPlayerScrollBox, "BackdropTemplate")
+	breakdownWindow.dumpDataFrame:SetPoint("topleft", DetailsBreakdownWindowPlayerScrollBox, "topleft", 0, 0)
+	breakdownWindow.dumpDataFrame:SetPoint("bottomright", DetailsBreakdownWindowPlayerScrollBox, "bottomright", 0, 0)
+	breakdownWindow.dumpDataFrame:SetFrameLevel(DetailsBreakdownWindowPlayerScrollBox:GetFrameLevel() + 10)
+	detailsFramework:ApplyStandardBackdrop(breakdownWindow.dumpDataFrame, true)
+	breakdownWindow.dumpDataFrame:Hide()
+
+	--create a details framework special lua editor
+	breakdownWindow.dumpDataFrame.luaEditor = detailsFramework:NewSpecialLuaEditorEntry(breakdownWindow.dumpDataFrame, 1, 1, "text", "$parentCodeEditorWindow")
+	breakdownWindow.dumpDataFrame.luaEditor:SetPoint("topleft", breakdownWindow.dumpDataFrame, "topleft", 2, -2)
+	breakdownWindow.dumpDataFrame.luaEditor:SetPoint("bottomright", breakdownWindow.dumpDataFrame, "bottomright", -2, 2)
+	breakdownWindow.dumpDataFrame.luaEditor:SetFrameLevel(breakdownWindow.dumpDataFrame:GetFrameLevel()+1)
+	breakdownWindow.dumpDataFrame.luaEditor:SetBackdrop({})
+
+	--hide the scroll bar
+	DetailsBreakdownWindowPlayerScrollBoxDumpTableFrameCodeEditorWindowScrollBar:Hide()
 end
 
 function breakdownWindow:CreateRightSideBar() --not enabled

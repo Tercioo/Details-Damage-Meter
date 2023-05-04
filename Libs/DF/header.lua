@@ -93,8 +93,9 @@ detailsFramework.HeaderFunctions = {
         ---@cast self df_headerchild
 
 		for i = 1, #self.FramesToAlign do
-			local frame = self.FramesToAlign[i]
-			frame:ClearAllPoints()
+			---@type uiobject
+			local uiObject = self.FramesToAlign[i]
+			uiObject:ClearAllPoints()
 
 			---@type df_headercolumnframe
 			local columnHeader = columnHeaderFrames[i]
@@ -103,12 +104,20 @@ detailsFramework.HeaderFunctions = {
 
 				if (columnHeader.columnAlign == "right") then
 					offset = columnHeader:GetWidth()
-					if (frame:GetObjectType() == "FontString") then
-						frame:SetJustifyH("right")
+				end
+
+				if (uiObject:GetObjectType() == "FontString") then
+					---@cast uiObject fontstring
+					if (columnHeader.columnAlign == "right") then
+						uiObject:SetJustifyH("right")
+					elseif (columnHeader.columnAlign == "left") then
+						uiObject:SetJustifyH("left")
+					elseif (columnHeader.columnAlign == "center") then
+						uiObject:SetJustifyH("center")
 					end
 				end
 
-				frame:SetPoint(columnHeader.columnAlign, self, anchor, columnHeader.XPosition + columnHeader.columnOffset + offset, 0)
+				uiObject:SetPoint(columnHeader.columnAlign, self, anchor, columnHeader.XPosition + columnHeader.columnOffset + offset, 0)
 			end
 		end
 	end,

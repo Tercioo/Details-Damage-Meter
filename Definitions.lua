@@ -51,6 +51,7 @@
 ---@class point : string @string(topleft, topright, bottomleft, bottomright, top, bottom, left, right, center) is a string that represents a point on a frame. Points are used to position frames relative to each other.
 
 ---@class uiobject
+---@field GetObjectType fun(self: uiobject) : string
 ---@field Show fun(self: uiobject) make the object be shown on the user screen
 ---@field Hide fun(self: uiobject) make the object be hidden from the user screen
 ---@field SetShown fun(self: uiobject, state: boolean) show or hide the object
@@ -142,7 +143,6 @@
 ---@field GetNumPoints fun(self: frame) : number
 ---@field GetNumRegions fun(self: frame) : number
 ---@field GetName fun(self: frame) : string
----@field GetObjectType fun(self: frame) : string
 ---@field GetChildren fun(self: frame) : frame[]
 ---@field GetRegions fun(self: frame) : region[]
 ---@field CreateTexture fun(self: frame, name: string|nil, layer: "background"|"border"|"artwork"|"overlay"|"highlight", inherits: string|nil, subLayer: number|nil) : texture

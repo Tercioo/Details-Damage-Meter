@@ -1104,7 +1104,7 @@ end
 		thisLine.icone_classe:SetTexture(spellIcon)
 		thisLine.icone_classe:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
 		thisLine.icone_classe:SetVertexColor(1, 1, 1)
-		if(thisLine.mouse_over and not instancia.baseframe.isMoving) then
+		if(thisLine.mouse_over and not instance.baseframe.isMoving) then
 			local classIcon = thisLine:GetClassIcon()
 			thisLine.iconHighlight:SetTexture(classIcon:GetTexture())
 			thisLine.iconHighlight:SetTexCoord(classIcon:GetTexCoord())

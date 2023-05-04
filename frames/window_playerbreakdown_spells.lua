@@ -130,8 +130,8 @@ local spellContainerColumnData = {
 	--the align seems to be bugged as the left is aligning in the center and center is on the left side
 	{name = "icon", width = 22, label = "", align = "left", enabled = true, offset = columnOffset},
 	{name = "target", width = 22, label = "", align = "left", enabled = true, offset = columnOffset},
-	{name = "rank", label = "#", width = 16, align = "left", enabled = true, offset = columnOffset, dataType = "number"},
-	{name = "expand", label = "^", width = 16, align = "center", enabled = true, offset = columnOffset},
+	{name = "rank", label = "#", width = 16, align = "center", enabled = true, offset = 6, dataType = "number"},
+	{name = "expand", label = "^", width = 16, align = "left", enabled = true, offset = -4}, --maybe -3
 	{name = "name", label = "spell name", width = 246, align = "left", enabled = true, offset = columnOffset},
 	{name = "amount", label = "total", key = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
 	{name = "persecond", label = "ps", key = "total", width = 50, align = "left", enabled = false, canSort = true, sortKey = "ps", offset = columnOffset, order = "DESC", dataType = "number"},
@@ -503,10 +503,27 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 	if (IsShiftKeyDown()) then
 		if (type(spellId) == "number") then
 			GameCooltip:Preset(2)
-			GameCooltip:SetOwner(spellBar, "ANCHOR_TOPRIGHT")
+			GameCooltip:SetOwner(spellBar)
 			GameCooltip:AddLine(Loc ["ABILITY_ID"] .. ": " .. spellBar.spellId)
 			GameCooltip:Show()
+
+			local t = combatObject:GetActor(1, actorName).spells._ActorTable[spellId]
+
+			local textToEditor = ""
+			for key, value in pairs(t) do
+				if (type(value) ~= "function" and type(value) ~= "table") then
+					textToEditor = textToEditor .. key .. " = " .. tostring(value) .. "\n"
+				end
+			end
+
+			breakdownWindow.dumpDataFrame:Show()
+			breakdownWindow.dumpDataFrame.luaEditor:SetText(textToEditor)
+			--hide the scroll bar
+			DetailsBreakdownWindowPlayerScrollBoxDumpTableFrameCodeEditorWindowScrollBar:Hide()
 		end
+
+	elseif (breakdownWindow.dumpDataFrame:IsShown()) then
+		breakdownWindow.dumpDataFrame:Hide()
 	end
 
 	if (spellId == 98021) then --spirit link totem
@@ -560,6 +577,69 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 
 			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:Format(spellBar.average)) --average damage
 			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
+		end
+
+		local emporwerSpell = spellTable.e_total
+		if (emporwerSpell) then
+			local empowerLevelSum = spellTable.e_total --total sum of empower levels
+			local empowerAmount = spellTable.e_amt --amount of casts with empower
+			local empowerAmountPerLevel = spellTable.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
+			local empowerDamagePerLevel = spellTable.e_dmg --{[1] = 54548745, [2] = 74548745}
+
+			---@type breakdownspellblock
+			local empowerBlock = spellBlockContainer:GetBlock(blockIndex)
+			blockIndex = blockIndex + 1
+
+			local level1AverageDamage = "0"
+			local level2AverageDamage = "0"
+			local level3AverageDamage = "0"
+			local level4AverageDamage = "0"
+			local level5AverageDamage = "0"
+
+			if (empowerDamagePerLevel[1]) then
+				level1AverageDamage = Details:Format(empowerDamagePerLevel[1] / empowerAmountPerLevel[1])
+			end
+			if (empowerDamagePerLevel[2]) then
+				level2AverageDamage = Details:Format(empowerDamagePerLevel[2] / empowerAmountPerLevel[2])
+			end
+			if (empowerDamagePerLevel[3]) then
+				level3AverageDamage = Details:Format(empowerDamagePerLevel[3] / empowerAmountPerLevel[3])
+			end
+			if (empowerDamagePerLevel[4]) then
+				level4AverageDamage = Details:Format(empowerDamagePerLevel[4] / empowerAmountPerLevel[4])
+			end
+			if (empowerDamagePerLevel[5]) then
+				level5AverageDamage = Details:Format(empowerDamagePerLevel[5] / empowerAmountPerLevel[5])
+			end
+
+			empowerBlock:Show()
+			empowerBlock:SetValue(100)
+
+			empowerBlock.sparkTexture:SetPoint("left", empowerBlock, "left", empowerBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			empowerBlock:SetColor(0.200, 0.576, 0.498, 0.6)
+
+			local blockLine1, blockLine2, blockLine3 = empowerBlock:GetLines()
+			blockLine1.leftText:SetText("Spell Empower Average Level: " .. string.format("%.2f", empowerLevelSum / empowerAmount))
+
+			if (level1AverageDamage ~= "0") then
+				blockLine2.leftText:SetText("Level 1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")")
+			end
+
+			if (level2AverageDamage ~= "0") then
+				blockLine2.centerText:SetText("Level 2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")")
+			end
+
+			if (level3AverageDamage ~= "0") then
+				blockLine2.rightText:SetText("Level 3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")")
+			end
+
+			if (level4AverageDamage ~= "0") then
+				blockLine3.leftText:SetText("Level 4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")")
+			end
+
+			if (level5AverageDamage ~= "0") then
+				blockLine3.rightText:SetText("Level 5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")")
+			end
 		end
 
 		--check if there's normal hits and build the block
@@ -618,68 +698,6 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			local critAveragePercent = spellBar.average / critAverage * 100
 			local critTempoPercent = critAveragePercent * tempo / 100
 			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
-		end
-
-		local emporwerSpell = spellTable.e_total
-		if (emporwerSpell) then
-			local empowerLevelSum = spellTable.e_total --total sum of empower levels
-			local empowerAmount = spellTable.e_amt --amount of casts with empower
-			local empowerAmountPerLevel = spellTable.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
-			local empowerDamagePerLevel = spellTable.e_dmg --{[1] = 54548745, [2] = 74548745}
-
-			---@type breakdownspellblock
-			local empowerBlock = spellBlockContainer:GetBlock(blockIndex)
-			empowerBlock:Show()
-			blockIndex = blockIndex + 1
-
-			local level1AverageDamage = "0"
-			local level2AverageDamage = "0"
-			local level3AverageDamage = "0"
-			local level4AverageDamage = "0"
-			local level5AverageDamage = "0"
-
-			if (empowerDamagePerLevel[1]) then
-				level1AverageDamage = Details:Format(empowerDamagePerLevel[1] / empowerAmountPerLevel[1])
-			end
-			if (empowerDamagePerLevel[2]) then
-				level2AverageDamage = Details:Format(empowerDamagePerLevel[2] / empowerAmountPerLevel[2])
-			end
-			if (empowerDamagePerLevel[3]) then
-				level3AverageDamage = Details:Format(empowerDamagePerLevel[3] / empowerAmountPerLevel[3])
-			end
-			if (empowerDamagePerLevel[4]) then
-				level4AverageDamage = Details:Format(empowerDamagePerLevel[4] / empowerAmountPerLevel[4])
-			end
-			if (empowerDamagePerLevel[5]) then
-				level5AverageDamage = Details:Format(empowerDamagePerLevel[5] / empowerAmountPerLevel[5])
-			end
-
-			empowerBlock:SetValue(100)
-			empowerBlock.sparkTexture:SetPoint("left", empowerBlock, "left", empowerBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
-			empowerBlock:SetColor(0.200, 0.576, 0.498, 0.6)
-
-			local blockLine1, blockLine2, blockLine3 = empowerBlock:GetLines()
-			blockLine1.leftText:SetText("Spell Empower Average Level: " .. string.format("%.2f", empowerLevelSum / empowerAmount))
-
-			if (level1AverageDamage ~= "0") then
-				blockLine2.leftText:SetText("Level 1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")")
-			end
-
-			if (level2AverageDamage ~= "0") then
-				blockLine2.centerText:SetText("Level 2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")")
-			end
-
-			if (level3AverageDamage ~= "0") then
-				blockLine2.rightText:SetText("Level 3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")")
-			end
-
-			if (level4AverageDamage ~= "0") then
-				blockLine3.leftText:SetText("Level 4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")")
-			end
-
-			if (level5AverageDamage ~= "0") then
-				blockLine3.rightText:SetText("Level 5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")")
-			end
 		end
 
 		if (trinketData[spellId]) then
@@ -837,6 +855,10 @@ local onLeaveSpellBar = function(spellBar)
 	--clear spell blocks
 	if (not spellsTab.HasSelectedSpellBar()) then
 		spellsTab.GetSpellBlockFrame():ClearBlocks()
+	end
+
+	if (breakdownWindow.dumpDataFrame:IsShown()) then
+		breakdownWindow.dumpDataFrame:Hide()
 	end
 end
 
@@ -1619,7 +1641,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 
 		--statusbar color by school
 		local r, g, b = Details:GetSpellSchoolColor(spellTable.spellschool or 1)
-		spellBar.statusBar:SetStatusBarColor(r, g, b, 1)
+		spellBar.statusBar:SetStatusBarColor(r, g, b, 0.963)
 
 		spellBar.average = value / spellTable.counter
 		spellBar.combatTime = combatTime
@@ -1631,6 +1653,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		if (header.name == "icon") then --ok
 			spellBar.spellIcon:Show()
 			spellBar.spellIcon:SetTexture(spellIcon)
+			spellBar.spellIcon:SetAlpha(0.92)
 			spellBar:AddFrameToHeaderAlignment(spellBar.spellIconFrame)
 
 		elseif (header.name == "target") then --the tab does not have knownledge about the targets of the spell, it must be passed over
@@ -1663,7 +1686,16 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 				spellBar.expandButton:SetScript("OnClick", onClickExpandButton)
 
 				--update the texture taking the state of the expanded value
-				spellBar.expandButton.texture:SetTexture(bIsSpellExpaded and [[Interface\BUTTONS\Arrow-Up-Down]] or [[Interface\BUTTONS\Arrow-Down-Down]])
+				if (bIsSpellExpaded) then
+					spellBar.expandButton.texture:SetTexture([[Interface\AddOns\Details\images\arrow_face_down]])
+					spellBar.expandButton.texture:SetTexCoord(0, 1, 1, 0)
+				else
+					spellBar.expandButton.texture:SetTexture([[Interface\AddOns\Details\images\arrow_face_down]])
+					spellBar.expandButton.texture:SetTexCoord(0, 1, 0, 1)
+				end
+
+				spellBar.expandButton.texture:SetAlpha(0.7)
+				spellBar.expandButton.texture:SetSize(16, 16)
 			end
 
 		elseif (header.name == "name") then --ok
