@@ -532,6 +532,8 @@ end
 	--read the actor flag
 	local readActorFlag = function(actorObject, ownerActorObject, actorSerial, actorFlags, actorName)
 		if (actorFlags) then
+			local _, zoneType = GetInstanceInfo()
+
 			--this is player actor
 			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
 				if (not Details.ignore_nicktag) then
@@ -549,7 +551,7 @@ end
 					end
 				end
 
-				if (Details.all_players_are_group or Details.immersion_enabled) then
+				if (zoneType ~= "arena" and (Details.all_players_are_group or Details.immersion_enabled)) then
 					actorObject.grupo = true
 				end
 
@@ -583,7 +585,7 @@ end
 					end
 				end
 
-				if (Details.is_in_arena) then
+				if (zoneType == "arena") then
 					--local my_team_color = GetBattlefieldArenaFaction and GetBattlefieldArenaFaction() or 0
 
 					--my team
@@ -958,7 +960,7 @@ end
 
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
 					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
-						novo_objeto.enemy = true --print(nome.." EH UM INIMIGO -> " .. engRace)
+						novo_objeto.enemy = true
 					end
 
 					--try to guess his class

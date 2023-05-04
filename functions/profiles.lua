@@ -1142,6 +1142,8 @@ local default_player_data = {
 			last_coach_name = false,
 		},
 
+		player_stats = {},
+
 		combat_log = {
 			inverse_deathlog_raid = false,
 			inverse_deathlog_mplus = false,

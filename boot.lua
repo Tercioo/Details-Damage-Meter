@@ -94,6 +94,15 @@
 		Details222.GarbageCollector = {}
 		Details222.BreakdownWindow = {}
 
+		Details222.PlayerStats = {}
+
+		---add a statistic, log, or any other data to the player stat table
+		---@param statName string
+		---@param value number
+		function Details222.PlayerStats:AddStat(statName, value)
+			Details.player_stats[statName] = (Details.player_stats[statName] or 0) + value
+		end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
 local _
