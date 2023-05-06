@@ -309,6 +309,9 @@
 ---@field RegisterEvent fun(self: detailseventlistener, event: "DETAILS_INSTANCE_OPEN"|"DETAILS_INSTANCE_CLOSE"|"DETAILS_INSTANCE_SIZECHANGED"|"DETAILS_INSTANCE_STARTRESIZE"|"DETAILS_INSTANCE_ENDRESIZE"|"DETAILS_INSTANCE_STARTSTRETCH"|"DETAILS_INSTANCE_ENDSTRETCH"|"DETAILS_INSTANCE_CHANGESEGMENT"|"DETAILS_INSTANCE_CHANGEATTRIBUTE"|"DETAILS_INSTANCE_CHANGEMODE"|"DETAILS_INSTANCE_NEWROW"|"DETAILS_OPTIONS_MODIFIED"|"DETAILS_DATA_RESET"|"DETAILS_DATA_SEGMENTREMOVED"|"COMBAT_ENCOUNTER_START"|"COMBAT_ENCOUNTER_END"|"COMBAT_PLAYER_ENTER"|"COMBAT_PLAYER_LEAVE"|"COMBAT_PLAYER_TIMESTARTED"|"COMBAT_BOSS_WIPE"|"COMBAT_BOSS_DEFEATED"|"COMBAT_BOSS_FOUND"|"COMBAT_INVALID"|"COMBAT_PREPOTION_UPDATED"|"COMBAT_CHARTTABLES_CREATING"|"COMBAT_CHARTTABLES_CREATED"|"COMBAT_ENCOUNTER_PHASE_CHANGED"|"COMBAT_ARENA_START"|"COMBAT_ARENA_END"|"COMBAT_MYTHICDUNGEON_START"|"COMBAT_MYTHICDUNGEON_END"|"GROUP_ONENTER"|"GROUP_ONLEAVE"|"ZONE_TYPE_CHANGED"|"REALM_CHANNEL_ENTER"|"REALM_CHANNEL_LEAVE"|"COMM_EVENT_RECEIVED"|"COMM_EVENT_SENT"|"UNIT_SPEC"|"UNIT_TALENTS"|"PLAYER_TARGET"|"DETAILS_PROFILE_APPLYED", callback: function)
 ---@field UnregisterEvent fun(self: detailseventlistener, event: "DETAILS_INSTANCE_OPEN"|"DETAILS_INSTANCE_CLOSE"|"DETAILS_INSTANCE_SIZECHANGED"|"DETAILS_INSTANCE_STARTRESIZE"|"DETAILS_INSTANCE_ENDRESIZE"|"DETAILS_INSTANCE_STARTSTRETCH"|"DETAILS_INSTANCE_ENDSTRETCH"|"DETAILS_INSTANCE_CHANGESEGMENT"|"DETAILS_INSTANCE_CHANGEATTRIBUTE"|"DETAILS_INSTANCE_CHANGEMODE"|"DETAILS_INSTANCE_NEWROW"|"DETAILS_OPTIONS_MODIFIED"|"DETAILS_DATA_RESET"|"DETAILS_DATA_SEGMENTREMOVED"|"COMBAT_ENCOUNTER_START"|"COMBAT_ENCOUNTER_END"|"COMBAT_PLAYER_ENTER"|"COMBAT_PLAYER_LEAVE"|"COMBAT_PLAYER_TIMESTARTED"|"COMBAT_BOSS_WIPE"|"COMBAT_BOSS_DEFEATED"|"COMBAT_BOSS_FOUND"|"COMBAT_INVALID"|"COMBAT_PREPOTION_UPDATED"|"COMBAT_CHARTTABLES_CREATING"|"COMBAT_CHARTTABLES_CREATED"|"COMBAT_ENCOUNTER_PHASE_CHANGED"|"COMBAT_ARENA_START"|"COMBAT_ARENA_END"|"COMBAT_MYTHICDUNGEON_START"|"COMBAT_MYTHICDUNGEON_END"|"GROUP_ONENTER"|"GROUP_ONLEAVE"|"ZONE_TYPE_CHANGED"|"REALM_CHANNEL_ENTER"|"REALM_CHANNEL_LEAVE"|"COMM_EVENT_RECEIVED"|"COMM_EVENT_SENT"|"UNIT_SPEC"|"UNIT_TALENTS"|"PLAYER_TARGET"|"DETAILS_PROFILE_APPLYED")
 
+---@class savedspelldata : {key1: number, key2: string, key3: number}
+---@class alternatepowertable : {last: number, total: number}
+
 ---@class combat : table
 ---@field amountCasts {[string]: table<string, number>}
 ---@field end_time number
@@ -317,6 +320,7 @@
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
 ---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>
+---@field alternate_power table<actorname, alternatepowertable>
 ---@field GetCombatTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
 ---@field GetStartTime fun(combat: combat) : number
@@ -330,6 +334,7 @@
 ---@field GetSpellCastTable fun(combat: combat, actorName: string|nil) : table
 ---@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
 ---@field GetActor fun(combat: combat, attribute: number, playerName: string) : actor
+---@field CreateAlternatePowerTable fun(combat: combat, actorName: string) : alternatepowertable
 
 ---@class actorcontainer : table
 ---@field _ActorTable table

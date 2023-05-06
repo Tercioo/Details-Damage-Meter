@@ -1603,12 +1603,20 @@ function DF.Language.CreateLanguageSelector(addonId, parent, callback, selectedL
         end)
     end
 
+    ---build a table with the all languageIDs registered to show as options in the dropdown
+    ---@return table
     local buildOptionsFunc = function()
+        ---@type {value: string, label: string, onclick: function, font: string}
         local resultTable = {}
 
         for languageId in pairs(allLanguagesRegistered) do
             local languageIdInfo = languagesAvailable[languageId]
-            resultTable[#resultTable+1] = {value = languageId, label = languageIdInfo.text, onclick = onSelectLanguage, font = languageIdInfo.font}
+            if (not languageIdInfo) then
+                --for debug
+                print("DetailsFramework: languageId is registered but has no languageInfo:", languageId)
+            else
+                resultTable[#resultTable+1] = {value = languageId, label = languageIdInfo.text, onclick = onSelectLanguage, font = languageIdInfo.font}
+            end
         end
 
         return resultTable

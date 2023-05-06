@@ -452,10 +452,14 @@
 		return 0
 	end
 
-	function classCombat:CreateAlternatePowerTable (actorName)
-		local t = {last = 0, total = 0}
-		self.alternate_power [actorName] = t
-		return t
+	---create an alternate power table for the given actor
+	---@param actorName string
+	---@return alternatepowertable
+	function classCombat:CreateAlternatePowerTable(actorName)
+		---@type alternatepowertable
+		local alternatePowerTable = {last = 0, total = 0}
+		self.alternate_power[actorName] = alternatePowerTable
+		return alternatePowerTable
 	end
 
 	--delete an actor from the combat ~delete ~erase ~remove
@@ -855,8 +859,11 @@
 
 	end
 
+	---add combat2 data into combat1
+	---@param combate1 combat
+	---@param combate2 combat
+	---@return combat
 	classCombat.__add = function(combate1, combate2)
-
 		local all_containers = {combate2 [class_type_dano]._ActorTable, combate2 [class_type_cura]._ActorTable, combate2 [class_type_e_energy]._ActorTable, combate2 [class_type_misc]._ActorTable}
 		local custom_combat
 		if (combate1 ~= Details.tabela_overall) then
@@ -886,12 +893,30 @@
 		--alternate power
 			local overallPowerTable = combate1.alternate_power
 			for actorName, powerTable in pairs(combate2.alternate_power) do
-				local power = overallPowerTable [actorName]
-				if (not power) then
-					power = combate1:CreateAlternatePowerTable (actorName)
+				local alternatePowerTable = overallPowerTable[actorName]
+				if (not alternatePowerTable) then
+					alternatePowerTable = combate1:CreateAlternatePowerTable(actorName)
 				end
-				power.total = power.total + powerTable.total
-				combate2.alternate_power [actorName].last = 0
+				alternatePowerTable.total = alternatePowerTable.total + powerTable.total
+				combate2.alternate_power[actorName].last = 0
+			end
+
+		--cast amount
+			local combat1CastData = combate1.amountCasts
+			for actorName, castData in pairs(combate2.amountCasts) do
+				local playerCastTable = combat1CastData[actorName]
+				if (not playerCastTable) then
+					playerCastTable = {}
+					combat1CastData[actorName] = playerCastTable
+				end
+				for spellName, amountOfCasts in pairs(castData) do
+					local spellAmount = playerCastTable[spellName]
+					if (not spellAmount) then
+						spellAmount = 0
+						playerCastTable[spellName] = spellAmount
+					end
+					playerCastTable[spellName] = spellAmount + amountOfCasts
+				end
 			end
 
 		return combate1

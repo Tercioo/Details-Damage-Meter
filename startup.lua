@@ -374,6 +374,11 @@ function Details:StartMeUp()
 		Details:AddDefaultCustomDisplays()
 	end
 
+	C_Timer.After(1, function()
+		--load custom spells on every login
+		Details:FillUserCustomSpells()
+	end)
+
 	local lowerInstanceId = Details:GetLowerInstanceNumber()
 	if (lowerInstanceId) then
 		local instance = Details:GetInstance(lowerInstanceId)

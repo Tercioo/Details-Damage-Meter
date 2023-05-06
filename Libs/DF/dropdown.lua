@@ -385,18 +385,19 @@ local canRunCallbackFunctionForOption = function(canRunCallback, optionTable, dr
 	end
 end
 
---if onlyShown is true it'll first create a table with visible options that has .shown and then select in this table the index passed (if byOptionNumber)
---@optionName: value or string shown in the name of the option
---@byOptionNumber: the option name is considered a number and selects the index of the menu
---@onlyShown: the selected option index when selecting by option number must be visible
---@runCallback: run the callback (onclick) function after selecting the option
-function DropDownMetaFunctions:Select(optionName, byOptionNumber, onlyShown, runCallback)
+---if bOnlyShown is true it'll first create a table with visible options that has .shown and then select in this table the index passed (if byOptionNumber)
+---@param optionName string value or string shown in the name of the option
+---@param byOptionNumber number the option name is considered a number and selects the index of the menu
+---@param bOnlyShown boolean the selected option index when selecting by option number must be visible
+---@param runCallback function run the callback (onclick) function after selecting the option
+---@return boolean
+function DropDownMetaFunctions:Select(optionName, byOptionNumber, bOnlyShown, runCallback)
 	if (type(optionName) == "boolean" and not optionName) then
 		self:NoOptionSelected()
 		return false
 	end
 
-	local optionsTable = DF:Dispatch(self.func, self)
+	local optionsTable = DF:Dispatch(self.func, self) --399
 
 	if (#optionsTable == 0) then
 		self:NoOption(true)
@@ -408,7 +409,7 @@ function DropDownMetaFunctions:Select(optionName, byOptionNumber, onlyShown, run
 	if (byOptionNumber and type(optionName) == "number") then
 		local optionIndex = optionName
 
-		if (onlyShown) then
+		if (bOnlyShown) then
 			local onlyShownOptions = {}
 
 			for i = 1, #optionsTable do

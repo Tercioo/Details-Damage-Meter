@@ -3689,6 +3689,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			sourceName = "[*] " .. spellName
 		end
 
+		---@type actor, actor
 		local sourceActor, ownerActor = misc_cache[sourceSerial] or misc_cache_pets[sourceSerial] or misc_cache[sourceName], misc_cache_petsOwners[sourceSerial]
 		if (not sourceActor) then
 			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente (sourceSerial, sourceName, sourceFlags, true)
@@ -3719,6 +3720,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		amountOfCasts = amountOfCasts + 1
 		_current_combat.amountCasts[sourceName][spellName] = amountOfCasts
 
+		--if (sourceSerial == UnitGUID("player")) then
+		--	print(sourceName, spellName, amountOfCasts)
+		--end
+
 	------------------------------------------------------------------------------------------------
 	--record cooldowns cast which can't track with buff applyed
 		--a player is the caster
@@ -3741,18 +3746,20 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--enemy successful casts (not interrupted)
 			if (bitBand(sourceFlags, 0x00000040) ~= 0 and sourceName) then --byte 2 = 4 (enemy)
 				--damager
-				local este_jogador = damage_cache [sourceSerial]
-				if (not este_jogador) then
-					este_jogador = _current_damage_container:PegarCombatente (sourceSerial, sourceName, sourceFlags, true)
+				---@type actor
+				local enemyActorObject = damage_cache[sourceSerial]
+				if (not enemyActorObject) then
+					enemyActorObject = _current_damage_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
 				end
 
-				if (este_jogador) then
+				if (enemyActorObject) then
 					--actor spells table
-					local spell = este_jogador.spells._ActorTable [spellId] --line where the actor was nil
-					if (not spell) then
-						spell = este_jogador.spells:PegaHabilidade (spellId, true, token)
+					---@type spelltable
+					local spellTable = enemyActorObject.spells._ActorTable[spellId]
+					if (not spellTable) then
+						spellTable = enemyActorObject.spells:PegaHabilidade(spellId, true, token)
 					end
-					spell.successful_casted = spell.successful_casted + 1
+					spellTable.successful_casted = spellTable.successful_casted + 1
 				end
 
 				--add the spellId in the enemy_cast_cache table to store the time the enemy successfully cast a spell
@@ -3765,7 +3772,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					enemy_cast_cache[time][3] = enemy_cast_cache[time][3] + 1
 				end
 			end
-			return
 		end
 	end
 
