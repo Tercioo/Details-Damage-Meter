@@ -340,7 +340,7 @@ end
 								local pName = playerName
 								playerName = playerName:gsub("%-.*", "") --remove realm name
 								if (find_name_declension(actorName, playerName)) then
-									ownerGUID = unitGUID(pName)
+									ownerGUID = UnitGUID(pName)
 									ownerName = pName
 									ownerFlags = 0x514
 									break
