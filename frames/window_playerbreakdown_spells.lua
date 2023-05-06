@@ -274,6 +274,10 @@ function spellsTab.BuildHeaderTable(containerType)
 		containerColumnData = targetContainerColumnData
 	end
 
+	---result of the sum of all columns width
+	---@type number
+	local totalWidth = 0
+
 	for i = 1, #containerColumnData do
 		local columnData = containerColumnData[i]
 		---@type {enabled: boolean, width: number, align: string}
@@ -304,9 +308,17 @@ function spellsTab.BuildHeaderTable(containerType)
 					key = columnData.key,
 				}
 
+				totalWidth = totalWidth + headerColumnData.width
 				headerTable[#headerTable+1] = headerColumnData
 			end
 		end
+	end
+
+	if (containerType == "spells") then
+		--set the spell contaner width to the sum of all columns width
+	--	spellsTab.GetSpellScrollContainer():SetWidth(totalWidth)
+		--save the width of the spell container in Details settings
+	--	Details.breakdown_spell_tab.spellcontainer_width = totalWidth
 	end
 
 	return headerTable
@@ -719,7 +731,11 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			blockLine1.leftText:SetText("Trinket Info")
 
 			blockLine1.rightText:SetText("PPM: " .. string.format("%.2f", average / 60))
-			blockLine2.leftText:SetText("Min Time: " .. math.floor(minTime))
+			if (minTime == 9999999) then
+				blockLine2.leftText:SetText("Min Time: " .. _G["UNKNOWN"])
+			else
+				blockLine2.leftText:SetText("Min Time: " .. math.floor(minTime))
+			end
 			blockLine2.rightText:SetText("Max Time: " .. math.floor(maxTime))
 		end
 
@@ -1106,7 +1122,7 @@ local spellBlockContainerMixin = {
 ---create the spell blocks which shows the critical hits, normal hits, etc
 ---@param tabFrame tabframe
 ---@return breakdownspellblockframe
-function spellsTab.CreateSpellBlockContainer(tabFrame) --~create
+function spellsTab.CreateSpellBlockContainer(tabFrame) --~create ~createblock ~spellblock ~block ~container
 	--create a container for the scrollframe
 	local options = {
 		width = Details.breakdown_spell_tab.blockcontainer_width,
@@ -1893,7 +1909,7 @@ end
 ---creates a scrollframe which show breakdownspellbar to show the spells used by an actor
 ---@param tabFrame tabframe
 ---@return breakdownspellscrollframe
-function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create
+function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell ~container
 	---@type width
 	local width = Details.breakdown_spell_tab.spellcontainer_width
 	---@type height

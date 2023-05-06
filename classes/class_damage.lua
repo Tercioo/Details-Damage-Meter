@@ -4251,6 +4251,9 @@ end
 ------ Damage Taken
 function atributo_damage:MontaInfoDamageTaken()
 
+	--build the code for the new breakdown window
+
+
 	local damage_taken = self.damage_taken
 	local agressores = self.damage_from
 	local instancia = info.instancia

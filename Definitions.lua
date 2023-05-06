@@ -381,6 +381,11 @@
 ---@field b_dmg number
 ---@field a_amt number --absorved
 ---@field a_dmg number
+---@field e_total number
+---@field e_amt number
+---@field e_lvl table<number, number>
+---@field e_dmg table<number, number>
+---@field e_heal table<number, number>
 ---@field isReflection boolean
 ---@field totalabsorb number healing absorbed
 ---@field absorbed number damage absorbed by shield | healing absorbed by buff or debuff
