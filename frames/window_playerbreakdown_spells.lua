@@ -1915,7 +1915,6 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	---@type height
 	local height = Details.breakdown_spell_tab.spellcontainer_height
 
-	--create a container for the scrollframe
 	local options = {
 		width = Details.breakdown_spell_tab.spellcontainer_width,
 		height = Details.breakdown_spell_tab.spellcontainer_height,
@@ -1927,12 +1926,14 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 
 	}
 
+	---create a container for the scrollframe
 	---@type df_framecontainer
 	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "SpellScrollContainer")
 	container:SetPoint("topleft", tabFrame, "topleft", 5, -5)
 	container:SetFrameLevel(tabFrame:GetFrameLevel() + 10)
 	spellsTab.SpellContainerFrame = container
 
+	--when a setting is changed in the container, it will call this function, it is registered below with SetSettingChangedCallback()
 	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue) --doing here the callback for thge settings changed in the container
 		if (frameContainer:IsShown()) then
 			if (settingName == "height") then
@@ -1951,8 +1952,10 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 			spellsTab.GetSpellBlockContainer():SendSettingChangedCallback("UpdateSize", -1)
 		end
 	end
-	local defaultAmountOfLines = 50
 	container:SetSettingChangedCallback(settingChangedCallbackFunction)
+
+	--amount of lines which will be created for the scrollframe
+	local defaultAmountOfLines = 50
 
     --replace this with a framework scrollframe
 	---@type breakdownspellscrollframe
@@ -1983,13 +1986,14 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 
 	local headerTable = {}
 
+	---create the header frame, the header frame is the frame which shows the columns names to describe the data shown in the scrollframe
 	---@type df_headerframe
 	local header = DetailsFramework:CreateHeader(container, headerTable, headerOptions)
 	scrollFrame.Header = header
 	scrollFrame.Header:SetPoint("topleft", scrollFrame, "topleft", 0, 1)
 	scrollFrame.Header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
 
-	--cache the type of this container
+	--cache the containerType which this header is used for
 	headerContainerType[scrollFrame.Header] = "spells"
 
 	--create the scroll lines
