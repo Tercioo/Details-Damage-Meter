@@ -1867,6 +1867,7 @@
 			sourceName = "[*] " .. spellName
 		end
 
+
 		local npcId = tonumber(select(6, strsplit("-", petSerial)) or 0)
 
 		--differenciate army and apoc pets for DK
@@ -5914,6 +5915,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		xpcall(saveNicktabCache, saver_error)
 	end)
 
+	local eraNamedSpellsToID = {}
+
+	
+
 	-- ~parserstart ~startparser ~cleu ~parser
 	function _detalhes.OnParserEvent()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
@@ -5923,7 +5928,55 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		end
 	end
-	_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEvent)
+
+	function _detalhes.OnParserEventClassicEra()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+
+		local func = token_list[token]
+		if (func) then
+			if(eraNamedSpellsToID[token]) then
+				A1 = A2
+			end
+			return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		end
+	end
+
+	if(DetailsFramework.IsClassicWow()) then
+		eraNamedSpellsToID = {
+		["SPELL_PERIODIC_DAMAGE"] = true,
+		["SPELL_DAMAGE"] = true,
+		["SPELL_BUILDING_DAMAGE"] = true,
+		["DAMAGE_SHIELD"] = true,
+		["DAMAGE_SPLIT"] = true,
+		["SPELL_MISSED"] = true,
+		["SPELL_PERIODIC_MISSED"] = true,
+		["SPELL_BUILDING_MISSED"] = true,
+		["DAMAGE_SHIELD_MISSED"] = true,
+
+		["SPELL_HEAL"] = true,
+		["SPELL_PERIODIC_HEAL"] = true,
+		["SPELL_HEAL_ABSORBED"] = true,
+		["SPELL_ABSORBED"] = true,
+
+		["SPELL_AURA_APPLIED"] = true,
+		["SPELL_AURA_REMOVED"] = true,
+		["SPELL_AURA_REFRESH"] = true,
+		["SPELL_AURA_APPLIED_DOSE"] = true,
+		["SPELL_ENERGIZE"] = true,
+		["SPELL_PERIODIC_ENERGIZE"] = true,
+
+		["SPELL_CAST_SUCCESS"] = true,
+		["SPELL_DISPEL"] = true,
+		["SPELL_STOLEN"] = true,
+		["SPELL_AURA_BROKEN"] = true,
+		["SPELL_AURA_BROKEN_SPELL"] = true,
+		["SPELL_RESURRECT"] = true,
+		["SPELL_INTERRUPT"] = true,
+		}
+		_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEventClassicEra)
+	else
+		_detalhes.parser_frame:SetScript("OnEvent", _detalhes.OnParserEvent)
+	end
 
 	function _detalhes:UpdateParser()
 		_tempo = _detalhes._tempo

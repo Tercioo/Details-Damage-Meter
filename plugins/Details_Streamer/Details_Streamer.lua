@@ -2354,7 +2354,9 @@ end
 
 
 function StreamOverlay:OnEvent (_, event, ...)
-
+	if (DetailsFramework and DetailsFramework.IsClassicWow()) then
+		return
+	end
 	if (event == "ADDON_LOADED") then
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_Streamer") then
@@ -2363,9 +2365,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 
 			if (_G.Details) then
 			
-				if (DetailsFramework.IsClassicWow()) then
-					return
-				end
+				
 
 				--> create widgets
 				CreatePluginFrames()
