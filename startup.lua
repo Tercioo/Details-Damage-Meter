@@ -457,7 +457,7 @@ function Details:StartMeUp()
 		return Details.trinket_data
 	end
 
-	local customSpellList = Details:GetDefaultCustomSpellsList()
+	local customSpellList = Details:GetDefaultCustomItemList()
 	local trinketData = Details:GetTrinketData()
 	for spellId, trinketTable in pairs(customSpellList) do
 		if (trinketTable.isPassive) then

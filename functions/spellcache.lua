@@ -106,43 +106,33 @@ do
 	lightOfTheMartyr_Name = lightOfTheMartyr_Name or "Deprecated Spell - Light of the Martyr"
 	lightOfTheMartyr_Icon = lightOfTheMartyr_Icon or ""
 
+	---@type table<number, customspellinfo>
 	local defaultSpellCustomization = {}
 
-	local itemData_Retail = {
-		[394453] = {itemId = 195480, isPassive = true}, --ring: Seal of Diurna's Chosen
-		[382135] = {itemId = 194308}, --trinket: Manic Grieftorch
-		[382058] = {itemId = 194299}, --trinket: Decoration of Flame (shield)
-		[382056] = {itemId = 194299}, --trinket: Decoration of Flame
-		[382090] = {itemId = 194302}, --trinket: Storm-Eater's Boon
-		[381967] = {itemId = 194305}, --trinket: Controlled Current Technique
-		[382426] = {itemId = 194309, isPassive = true}, --trinket: Spiteful Storm
-		[377455] = {itemId = 194304}, --trinket: Iceblood Deathsnare
-		[377451] = {itemId = 194300}, --trinket: Conjured Chillglobe
-		[382097] = {itemId = 194303}, --trinket: Rumbling Ruby
-		[385903] = {itemId = 193639, isPassive = true}, --trinket: Umbrelskul's Fractured Heart
-		[381475] = {itemId = 193769}, --trinket: Erupting Spear Fragment
-		[388739] = {itemId = 193660, isPassive = true}, --trinket: Idol of Pure Decay
-		[388855] = {itemId = 193678}, --trinket: Miniature Singing Stone
-		[388755] = {itemId = 193677, isPassive = true}, --trinket: Furious Ragefeather
-		[383934] = {itemId = 193736}, --trinket: Water's Beating Heart
-		[214052] = {itemId = 133641, isPassive = true}, --trinket: Eye of Skovald
-		[214200] = {itemId = 133646}, --trinket: Mote of Sanctification
-		[387036] = {itemId = 193748}, --trinket: Kyrakka's Searing Embers (heal)
-		[397376] = {itemId = 193748, isPassive = true}, --trinket: Kyrakka's Searing Embers (damage)
-		[214985] = {itemId = 137486}, --trinket: Windscar Whetstone
-		[384004] = {itemId = 193815}, --trinket: Homeland Raid Horn
-		[377459] = {itemId = 194306}, --trinket: All-Totem of the Master
-		[408815] = {itemId = 202569}, --weapon: Djaruun, Pillar of the Elder Flame
-		[407961] = {itemId = 203996, isPassive = true}, --trinket: Igneous Flowstone
-		[408682] = {itemId = 202610}, --trinket: Dragonfire Bomb Dispenser
-		[401324] = {itemId = 202617, isPassive = true}, --trinket: Elementium Pocket Anvil
-		[401306] = {itemId = 202617}, --trinket: Elementium Pocket Anvil (use)
-		[402583] = {itemId = 203963}, --trinket: Beacon to the Beyond
-		[384325] = {itemId = 193672, isPassive = true}, --trinket: Frenzying Signoll Flare
-		[384290] = {itemId = 193672, isPassive = true}, --trinket: Frenzying Signoll Flare (dot)
-		[388948] = {itemId = 193732}, --trinket: Globe of Jagged Ice
-		[381760] = {itemId = 193786, isPassive = true}, --trinket: Mutated Magmammoth Scale (melee)
-	}
+	---@type table<number, customiteminfo>
+	local customItemList = {}
+
+	local iconSize = 14
+	local coords = {0.14, 0.86, 0.14, 0.86}
+
+	---@param itemId number
+	---@return string
+	local formatTextForItem = function(itemId)
+		local result = ""
+
+		local itemIcon = C_Item.GetItemIconByID(itemId)
+		local itemName = C_Item.GetItemNameByID(itemId)
+
+		if (itemName == "") then
+			itemName = "@notloaded@"
+		end
+
+		if (itemIcon and itemName) then
+			result = "" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ""
+		end
+
+		return result
+	end
 
 	if (DetailsFramework.IsClassicWow()) then
 		defaultSpellCustomization = {
@@ -218,29 +208,6 @@ do
 			[278057] = {name = GetSpellInfo(278057) .. " (Trinket)"}, --[Vigilant's Bloodshaper]
 		}
 	else
-		--retail
-		local iconSize = 14 --icon size
-		local coords = {0.14, 0.86, 0.14, 0.86}
-
-		---@param itemId number
-		---@return string
-		local formatTextForItem = function(itemId)
-			local result = ""
-
-			local itemIcon = C_Item.GetItemIconByID(itemId)
-			local itemName = C_Item.GetItemNameByID(itemId)
-
-			if (itemName == "") then
-				itemName = "@notloaded@"
-			end
-
-			if (itemIcon and itemName) then
-				result = "" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ""
-			end
-
-			return result
-		end
-
 		defaultSpellCustomization = {
 			[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\ICONS\INV_Sword_04]]},
 			[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\ICONS\INV_Weapon_Bow_07]]},
@@ -256,53 +223,40 @@ do
 			[77535] = {name = GetSpellInfo(77535), icon = "Interface\\Addons\\Details\\images\\icon_blood_shield"},
 		}
 
-		if (GetSpellInfo(394453)) then --this is running at load time, this data could not be available at player logon
-			local dragonflightTrinkets = {
-				[394453] = {name = formatTextForItem(195480), isPassive = true, itemId = 195480}, --ring: Seal of Diurna's Chosen
-				[382135] = {name = formatTextForItem(194308)}, --trinket: Manic Grieftorch
-				[382058] = {name = formatTextForItem(194299)}, --trinket: Decoration of Flame (shield)
-				[382056] = {name = formatTextForItem(194299)}, --trinket: Decoration of Flame
-				[382090] = {name = formatTextForItem(194302)}, --trinket: Storm-Eater's Boon
-				[381967] = {name = formatTextForItem(194305)}, --trinket: Controlled Current Technique
-				[382426] = {name = formatTextForItem(194309), isPassive = true, itemId = 194309}, --trinket: Spiteful Storm
-				[377455] = {name = formatTextForItem(194304)}, --trinket: Iceblood Deathsnare
-				[377451] = {name = formatTextForItem(194300)}, --trinket: Conjured Chillglobe
-				[382097] = {name = formatTextForItem(194303)}, --trinket: Rumbling Ruby
-				[385903] = {name = formatTextForItem(193639), isPassive = true, itemId = 193639}, --trinket: Umbrelskul's Fractured Heart
-				[381475] = {name = formatTextForItem(193769)}, --trinket: Erupting Spear Fragment
-				[388739] = {name = formatTextForItem(193660), isPassive = true, itemId = 193660}, --trinket: Idol of Pure Decay
-				[388855] = {name = formatTextForItem(193678)}, --trinket: Miniature Singing Stone
-				[388755] = {name = formatTextForItem(193677), isPassive = true, itemId = 193677}, --trinket: Furious Ragefeather
-				[383934] = {name = formatTextForItem(193736)}, --trinket: Water's Beating Heart
-				[214052] = {name = formatTextForItem(133641), isPassive = true, itemId = 133641}, --trinket: Eye of Skovald
-				[214200] = {name = formatTextForItem(133646)}, --trinket: Mote of Sanctification
-				[387036] = {name = formatTextForItem(193748)}, --trinket: Kyrakka's Searing Embers (heal)
-				[397376] = {name = formatTextForItem(193748), isPassive = true, itemId = 193748}, --trinket: Kyrakka's Searing Embers (damage)
-				[214985] = {name = formatTextForItem(137486)}, --trinket: Windscar Whetstone
-				[384004] = {name = formatTextForItem(193815)}, --trinket: Homeland Raid Horn
-				[377459] = {name = formatTextForItem(194306)}, --trinket: All-Totem of the Master
-				[408815] = {name = formatTextForItem(202569)}, --weapon: Djaruun, Pillar of the Elder Flame
-				[407961] = {name = formatTextForItem(203996), isPassive = true, itemId = 203996}, --trinket: Igneous Flowstone
-				[408682] = {name = formatTextForItem(202610)}, --trinket: Dragonfire Bomb Dispenser
-				[401324] = {name = formatTextForItem(202617), isPassive = true, itemId = 202617}, --trinket: Elementium Pocket Anvil
-				[401306] = {name = formatTextForItem(202617)}, --trinket: Elementium Pocket Anvil (use)
-				[402583] = {name = formatTextForItem(203963)}, --trinket: Beacon to the Beyond
-				[384325] = {name = formatTextForItem(193672), isPassive = true, itemId = 193672}, --trinket: Frenzying Signoll Flare
-				[384290] = {name = formatTextForItem(193672), isPassive = true, itemId = 193672}, --trinket: Frenzying Signoll Flare (dot)
-				[388948] = {name = formatTextForItem(193732)}, --trinket: Globe of Jagged Ice
-				[381760] = {name = formatTextForItem(193786), isPassive = true, itemId = 193786}, --trinket: Mutated Magmammoth Scale (melee)
-			}
-
-			--[] = {name = GetSpellInfo() .. formatTextForItem(193757), isPassive = true}, --trinket: Ruby Whelp Shell
-			--to check an item : /dump C_Item.GetItemNameByID(137486)
-			--get the itemId from default tooltip using /code > script name > "SpellID on Tooltip"
-			--spellId is from details breakdown
-			--/de trinket on the spell icon on the breakdown, trinket equipped
-
-			for spellId, spellCustomization in pairs(dragonflightTrinkets) do
-				defaultSpellCustomization[spellId] = spellCustomization
-			end
-		end
+		customItemList[394453] = {itemId = 195480, isPassive = true} --ring: Seal of Diurna's Chosen
+		customItemList[382135] = {itemId = 194308} --trinket: Manic Grieftorch
+		customItemList[382058] = {itemId = 194299} --trinket: Decoration of Flame (shield)
+		customItemList[382056] = {itemId = 194299} --trinket: Decoration of Flame
+		customItemList[382090] = {itemId = 194302} --trinket: Storm-Eater's Boon
+		customItemList[381967] = {itemId = 194305} --trinket: Controlled Current Technique
+		customItemList[382426] = {itemId = 194309, isPassive = true} --trinket: Spiteful Storm
+		customItemList[377455] = {itemId = 194304} --trinket: Iceblood Deathsnare
+		customItemList[377451] = {itemId = 194300} --trinket: Conjured Chillglobe
+		customItemList[382097] = {itemId = 194303} --trinket: Rumbling Ruby
+		customItemList[385903] = {itemId = 193639, isPassive = true} --trinket: Umbrelskul's Fractured Heart
+		customItemList[381475] = {itemId = 193769} --trinket: Erupting Spear Fragment
+		customItemList[388739] = {itemId = 193660, isPassive = true} --trinket: Idol of Pure Decay
+		customItemList[388855] = {itemId = 193678} --trinket: Miniature Singing Stone
+		customItemList[388755] = {itemId = 193677, isPassive = true} --trinket: Furious Ragefeather
+		customItemList[383934] = {itemId = 193736} --trinket: Water's Beating Heart
+		customItemList[214052] = {itemId = 133641, isPassive = true} --trinket: Eye of Skovald
+		customItemList[214200] = {itemId = 133646} --trinket: Mote of Sanctification
+		customItemList[387036] = {itemId = 193748} --trinket: Kyrakka's Searing Embers (heal)
+		customItemList[397376] = {itemId = 193748, isPassive = true} --trinket: Kyrakka's Searing Embers (damage)
+		customItemList[214985] = {itemId = 137486} --trinket: Windscar Whetstone
+		customItemList[384004] = {itemId = 193815} --trinket: Homeland Raid Horn
+		customItemList[377459] = {itemId = 194306} --trinket: All-Totem of the Master
+		customItemList[408815] = {itemId = 202569} --weapon: Djaruun, Pillar of the Elder Flame
+		customItemList[407961] = {itemId = 203996, isPassive = true} --trinket: Igneous Flowstone
+		customItemList[408682] = {itemId = 202610} --trinket: Dragonfire Bomb Dispenser
+		customItemList[401324] = {itemId = 202617, isPassive = true} --trinket: Elementium Pocket Anvil
+		customItemList[401306] = {itemId = 202617} --trinket: Elementium Pocket Anvil (use)
+		customItemList[402583] = {itemId = 203963} --trinket: Beacon to the Beyond
+		customItemList[384325] = {itemId = 193672, isPassive = true} --trinket: Frenzying Signoll Flare
+		customItemList[384290] = {itemId = 193672, isPassive = true} --trinket: Frenzying Signoll Flare (dot)
+		customItemList[388948] = {itemId = 193732} --trinket: Globe of Jagged Ice
+		customItemList[381760] = {itemId = 193786, isPassive = true} --trinket: Mutated Magmammoth Scale (melee)
+		customItemList[389839] = {itemId = 193757, isPassive = true} --trinket: Ruby Whelp Shell
 	end
 
 	if (LIB_OPEN_RAID_SPELL_CUSTOM_NAMES) then
@@ -316,6 +270,10 @@ do
 
 	function Details:GetDefaultCustomSpellsList()
 		return defaultSpellCustomization
+	end
+
+	function Details:GetDefaultCustomItemList()
+		return customItemList
 	end
 
 	function Details:UserCustomSpellUpdate(index, spellName, spellIcon)
@@ -359,6 +317,22 @@ do
 		for spellId, spellTable in pairs(defaultSpellCustomization) do
 			local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
 			Details:UserCustomSpellAdd(spellId, spellTable.name or spellName or "Unknown", spellTable.icon or spellIcon or [[Interface\InventoryItems\WoWUnknownItem01]])
+		end
+
+		--itens
+		--[381760] = {name = formatTextForItem(193786), isPassive = true, itemId = 193786},
+		---@type number, customiteminfo
+		for spellId, itemInfo in pairs(customItemList) do
+			local bIsPassive = itemInfo.isPassive
+			local itemId = itemInfo.itemId
+			local spellName, _, spellIcon = GetSpellInfo(spellId)
+
+			local itemName = formatTextForItem(itemId)
+			if (itemName == "") then
+				itemName = "Unknown Item"
+			end
+
+			Details:UserCustomSpellAdd(spellId, itemName, spellIcon or [[Interface\InventoryItems\WoWUnknownItem01]])
 		end
 
 		for i = #Details.savedCustomSpells, 1, -1 do
