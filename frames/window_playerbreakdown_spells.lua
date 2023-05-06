@@ -237,7 +237,20 @@ function spellsTab.UpdateHeadersSettings(containerType)
 
 	if (containerType == "spells") then
 		spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable("spells")
-		spellsTab.GetSpellScrollFrame().Header:SetHeaderTable(spellsTab.spellsHeaderData)
+
+		local spellContainer = spellsTab.GetSpellScrollContainer()
+		local spellScrollFrame = spellsTab.GetSpellScrollFrame()
+		local headerFrame = spellScrollFrame.Header
+
+		headerFrame:SetHeaderTable(spellsTab.spellsHeaderData)
+
+		local width = headerFrame:GetWidth()
+
+		--SetHeaderTable() calls Header:Refresh() which reset its width
+		--if the spell container get a resize to be as big as the sum of all columns width, the option to resize the container's width is useless
+		spellContainer:SetWidth(width)
+		--save the width of the spell container in Details settings
+		Details.breakdown_spell_tab.spellcontainer_width = width
 
 	elseif (containerType == "targets") then
 		spellsTab.targetsHeaderData = spellsTab.BuildHeaderTable("targets")
@@ -312,13 +325,6 @@ function spellsTab.BuildHeaderTable(containerType)
 				headerTable[#headerTable+1] = headerColumnData
 			end
 		end
-	end
-
-	if (containerType == "spells") then
-		--set the spell contaner width to the sum of all columns width
-	--	spellsTab.GetSpellScrollContainer():SetWidth(totalWidth)
-		--save the width of the spell container in Details settings
-	--	Details.breakdown_spell_tab.spellcontainer_width = totalWidth
 	end
 
 	return headerTable
@@ -1448,7 +1454,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 	spellsTab.TargetScrollFrame = targetScrollFrame
 
 	---@param data breakdowntargettablelist
-	function targetScrollFrame:RefreshMe(data) --~refreshme (targets) ~refreshmetargets
+	function targetScrollFrame:RefreshMe(data) --~refreshme (targets) ~refreshmet
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = targetScrollFrame.Header:GetSelectedColumn()
 		targetScrollFrame.SortKey = key
@@ -1922,8 +1928,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 		can_move = false,
 		can_move_children = false,
 		use_bottom_resizer = true,
-		use_right_resizer = true,
-
+		use_right_resizer = false,
 	}
 
 	---create a container for the scrollframe
@@ -2004,7 +2009,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	---set the data and refresh the scrollframe
 	---@param self any
 	---@param data breakdownspelldatalist
-	function scrollFrame:RefreshMe(data) --~refreshme (spells)
+	function scrollFrame:RefreshMe(data) --~refreshme (spells) ~refreshmes
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
 		scrollFrame.SortKey = key
