@@ -19,7 +19,7 @@ local createOptionsPanel = function()
     local options_button_template = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
     local optionsFrame = DF:CreateSimplePanel(UIParent, 550, 500, "Details! Breakdown Options", "DetailsSpellBreakdownOptionsPanel")
-    optionsFrame:SetFrameStrata("HIGH")
+    optionsFrame:SetFrameStrata("DIALOG")
     optionsFrame:SetPoint("topleft", UIParent, "topleft", 2, -40)
     optionsFrame:Show()
 
