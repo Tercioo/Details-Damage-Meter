@@ -6,7 +6,6 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local unpack = unpack
 local GetTime = GetTime
 local wipe = wipe
-local GetCursorPosition = GetCursorPosition
 local CreateFrame = CreateFrame
 local GetSpellLink = GetSpellLink
 local GetSpellInfo = GetSpellInfo
@@ -14,6 +13,7 @@ local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
+local tinsert = tinsert
 
 ---@type breakdownspelltab
 local spellsTab = {}
@@ -80,6 +80,11 @@ function spellsTab.GetTargetScrollFrame()
 	return spellsTab.TargetScrollFrame
 end
 
+---@return breakdowntargetscrollframe
+function spellsTab.GetPhaseScrollFrame()
+	return spellsTab.PhaseScrollFrame
+end
+
 ---@return df_framecontainer
 function spellsTab.GetSpellScrollContainer()
 	return spellsTab.SpellContainerFrame
@@ -95,10 +100,28 @@ function spellsTab.GetTargetScrollContainer()
 	return spellsTab.TargetsContainerFrame
 end
 
+---@return df_framecontainer
+function spellsTab.GetPhaseScrollContainer()
+	return spellsTab.PhaseContainerFrame
+end
+
+function spellsTab.GetScrollFrameByContainerType(containerType)
+	if (containerType == "spells") then
+		return spellsTab.GetSpellScrollFrame()
+
+	elseif (containerType == "targets") then
+		return spellsTab.GetTargetScrollFrame()
+
+	elseif (containerType == "phases") then
+		return spellsTab.GetPhaseScrollFrame()
+	end
+end
+
 function spellsTab.OnProfileChange()
 	--no need to cache, just call the db from there
 	spellsTab.UpdateHeadersSettings("spells")
 	spellsTab.UpdateHeadersSettings("targets")
+	spellsTab.UpdateHeadersSettings("phases")
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -111,12 +134,16 @@ local headerContainerType = {}
 ---@type number
 local columnOffset = 0
 
+---column header information saved into details database: if is enabaled, its with and align
 ---@class headercolumndatasaved : {enabled: boolean, width: number, align: string}
 local settingsPrototype = {
 	enabled = true,
 	width = 100,
 	align = "left",
 }
+
+---contains the column settings for each header column, the table key is columnName and the value is headercolumndatasaved
+---@class headercolumndatabase : table<string, headercolumndatasaved>
 
 ---headercolumndata goes inside the header table which is passed to the header constructor or header:SetHeaderTable()
 ---@class headercolumndata : {name:string, width:number, text:string, align:string, key:string, selected:boolean, canSort:boolean, dataType:string, order:string, offset:number, key:string}
@@ -154,26 +181,53 @@ local targetContainerColumnData = {
 	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 }
 
+local phaseContainerColumnData = {
+	{name = "icon", width = 22, label = "", align = "left", enabled = true, offset = columnOffset},
+	{name = "name", label = "name", width = 90, align = "left", enabled = true, offset = columnOffset},
+	{name = "rank", label = "#", width = 30, align = "left", enabled = true, offset = columnOffset},
+	{name = "amount", label = "total", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset, selected = true},
+	{name = "persecond", label = "ps", key = "total", width = 44, align = "left", enabled = true, canSort = true, sortKey = "ps", dataType = "number", order = "DESC", offset = columnOffset},
+	{name = "percent", label = "%", key = "total", width = 44, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
+}
+
+---get the header settings from details saved variables and the container column data
+---@param containerType "spells"|"targets"|"phases"
+---@return headercolumndatabase
+---@return columndata
+function spellsTab.GetHeaderSettings(containerType)
+	local settings
+	---@type headercolumndata
+	local containerColumnData
+
+	if (containerType == "spells") then
+		settings = Details.breakdown_spell_tab.spellcontainer_headers
+		containerColumnData = spellContainerColumnData
+
+	elseif (containerType == "targets") then
+		settings = Details.breakdown_spell_tab.targetcontainer_headers
+		containerColumnData = targetContainerColumnData
+
+	elseif (containerType == "phases") then
+		settings = Details.breakdown_spell_tab.phasecontainer_headers
+		containerColumnData = phaseContainerColumnData
+	end
+
+	---@cast settings headercolumndatabase
+	return settings, containerColumnData
+end
+
 ---callback for when the user resizes a column on the header
 ---@param headerFrame df_headerframe
 ---@param optionName string
 ---@param columnName string
 ---@param value any
 local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName, value)
-	---@type "spells"|"targets"
+	---@type "spells"|"targets"|"phases"
 	local containerType = headerContainerType[headerFrame]
-	---@type table
-	local settings
-
-	if (containerType == "spells") then
-		settings = Details.breakdown_spell_tab.spellcontainer_headers
-
-	elseif (containerType == "targets") then
-		settings = Details.breakdown_spell_tab.targetcontainer_headers
-	end
+	---@type headercolumndatabase
+	local settings = spellsTab.GetHeaderSettings(containerType)
 
 	settings[columnName][optionName] = value
-
 	spellsTab.UpdateHeadersSettings(containerType)
 end
 
@@ -184,32 +238,16 @@ local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
 	---@type string
 	local containerType = headerContainerType[headerFrame]
 
-	if (containerType == "spells") then
-		spellsTab.GetSpellScrollFrame():Refresh()
-
-	elseif (containerType == "targets") then
-		spellsTab.GetTargetScrollFrame():Refresh()
-	end
+	local scrollFrame = spellsTab.GetScrollFrameByContainerType(containerType)
+	scrollFrame:Refresh()
 end
 
 ---copy settings from the ColumnInfo table which doesn't exists in the details profile
 ---this is called when the profile changes or when the tab is opened with a different actor than before
----@param containerType "spells"|"targets"
+---@param containerType "spells"|"targets"|"phases"
 function spellsTab.UpdateHeadersSettings(containerType)
 	---details table which hold the settings for a container header
-	---@type table
-	local settings
-	---@type table
-	local containerColumnData
-
-	if (containerType == "spells") then
-		settings = Details.breakdown_spell_tab.spellcontainer_headers
-		containerColumnData = spellContainerColumnData
-
-	elseif (containerType == "targets") then
-		settings = Details.breakdown_spell_tab.targetcontainer_headers
-		containerColumnData = targetContainerColumnData
-	end
+	local settings, containerColumnData = spellsTab.GetHeaderSettings(containerType)
 
 	--do a loop and check if the column data from columnInfo exists in the details profile settings, if not, add it
 	for i = 1, #containerColumnData do
@@ -236,12 +274,12 @@ function spellsTab.UpdateHeadersSettings(containerType)
 	end
 
 	if (containerType == "spells") then
-		spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable("spells")
+		spellsTab.spellsHeaderData = spellsTab.BuildHeaderTable(containerType)
 
 		local spellContainer = spellsTab.GetSpellScrollContainer()
 		local spellScrollFrame = spellsTab.GetSpellScrollFrame()
-		local headerFrame = spellScrollFrame.Header
 
+		local headerFrame = spellScrollFrame.Header
 		headerFrame:SetHeaderTable(spellsTab.spellsHeaderData)
 
 		local width = headerFrame:GetWidth()
@@ -253,14 +291,24 @@ function spellsTab.UpdateHeadersSettings(containerType)
 		Details.breakdown_spell_tab.spellcontainer_width = width
 
 	elseif (containerType == "targets") then
-		spellsTab.targetsHeaderData = spellsTab.BuildHeaderTable("targets")
+		spellsTab.targetsHeaderData = spellsTab.BuildHeaderTable(containerType)
 		spellsTab.GetTargetScrollFrame().Header:SetHeaderTable(spellsTab.targetsHeaderData)
+
+		local width = spellsTab.GetTargetScrollFrame().Header:GetWidth()
+		spellsTab.GetTargetScrollContainer():SetWidth(width)
+
+		--save the width of the target container in Details settings
+		Details.breakdown_spell_tab.targetcontainer_width = width
+
+	elseif (containerType == "phases") then
+		spellsTab.phasesHeaderData = spellsTab.BuildHeaderTable(containerType)
+		spellsTab.GetPhaseScrollFrame().Header:SetHeaderTable(spellsTab.phasesHeaderData)
 	end
 end
 
 ---get the header settings from details profile and build a header table using the table which store all headers columns information
 ---the data for each header is stored on 'spellContainerColumnInfo' and 'targetContainerColumnInfo' variables
----@param containerType "spells"|"targets"
+---@param containerType "spells"|"targets"|"phases"
 ---@return {name: string, width: number, text: string, align: string}[]
 function spellsTab.BuildHeaderTable(containerType)
 	---@type headercolumndata[]
@@ -273,19 +321,7 @@ function spellsTab.BuildHeaderTable(containerType)
 	local mainAttribute, subAttribute = instance:GetDisplay()
 
 	--settings from profile | updated at UpdateHeadersSettings() > called on OnProfileChange() and when the tab is opened
-	local settings
-
-	---@type table
-	local containerColumnData
-
-	if (containerType == "spells") then
-		settings = Details.breakdown_spell_tab.spellcontainer_headers
-		containerColumnData = spellContainerColumnData
-
-	elseif (containerType == "targets") then
-		settings = Details.breakdown_spell_tab.targetcontainer_headers
-		containerColumnData = targetContainerColumnData
-	end
+	local settings, containerColumnData = spellsTab.GetHeaderSettings(containerType)
 
 	---result of the sum of all columns width
 	---@type number
@@ -293,7 +329,7 @@ function spellsTab.BuildHeaderTable(containerType)
 
 	for i = 1, #containerColumnData do
 		local columnData = containerColumnData[i]
-		---@type {enabled: boolean, width: number, align: string}
+		---@type headercolumndatasaved
 		local columnSettings = settings[columnData.name]
 
 		if (columnSettings.enabled) then
@@ -419,6 +455,7 @@ function spellsTab.OnShownTab()
 	--update spells and target header frame (spellscroll and targetscroll)
 	spellsTab.UpdateHeadersSettings("spells")
 	spellsTab.UpdateHeadersSettings("targets")
+	spellsTab.UpdateHeadersSettings("phases")
 end
 
 ---called when the tab is getting created, run only once
@@ -433,6 +470,8 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
     spellsTab.CreateSpellBlockContainer(tabFrame)
     --create the targets container
     spellsTab.CreateTargetContainer(tabFrame)
+	--create phases container
+	spellsTab.CreatePhasesContainer(tabFrame)
 
     --create the report buttons for each container
     --spellsTab.CreateReportButtons(tabFrame)
@@ -537,7 +576,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			breakdownWindow.dumpDataFrame:Show()
 			breakdownWindow.dumpDataFrame.luaEditor:SetText(textToEditor)
 			--hide the scroll bar
-			DetailsBreakdownWindowPlayerScrollBoxDumpTableFrameCodeEditorWindowScrollBar:Hide()
+			_G["DetailsBreakdownWindowPlayerScrollBoxDumpTableFrameCodeEditorWindowScrollBar"]:Hide()
 		end
 
 	elseif (breakdownWindow.dumpDataFrame:IsShown()) then
@@ -1308,7 +1347,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 			textIndex = textIndex + 1
 
 		elseif (header.name == "name") then --ok
-			text:SetText(bkTargetData.name)
+			text:SetText(DF:RemoveRealmName(bkTargetData.name))
 			targetBar.name = bkTargetData.name
 			targetBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
@@ -1347,7 +1386,7 @@ end
 ---@param scrollData breakdowntargettablelist
 ---@param offset number
 ---@param totalLines number
-local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines) --~refresh ~target ~refreshtargets
+local refreshTargetsFunc = function(scrollFrame, scrollData, offset, totalLines) --~refresh ~target ~refreshtargets
 	---@type number
 	local topValue = scrollFrame.topValue
 	---@type number
@@ -1392,10 +1431,358 @@ local refreshFuncTargets = function(scrollFrame, scrollData, offset, totalLines)
 	end
 end
 
+---create a targetbar within the target scroll
+---@param self breakdownphasescrollframe
+---@param index number
+---@return breakdownphasebar
+function spellsTab.CreatePhaseBar(self, index) --~create ~createphase ~phasebar
+	---@type breakdownphasebar
+	local phaseBar = CreateFrame("button", self:GetName() .. "PhaseBarButton" .. index, self)
+	phaseBar.index = index
+
+	--size and positioning
+	phaseBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
+	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
+	phaseBar:SetPoint("topleft", self, "topleft", 0, y)
+	phaseBar:SetPoint("topright", self, "topright", 0, y)
+
+	phaseBar:EnableMouse(true)
+
+	phaseBar:SetAlpha(0.9)
+	phaseBar:SetFrameStrata("HIGH")
+	phaseBar:SetScript("OnEnter", nil)
+	phaseBar:SetScript("OnLeave", nil)
+
+	DF:Mixin(phaseBar, DF.HeaderFunctions)
+
+	---@type breakdownspellbarstatusbar
+	local statusBar = CreateFrame("StatusBar", "$parentStatusBar", phaseBar)
+	statusBar:SetAllPoints()
+	statusBar:SetAlpha(0.5)
+	statusBar:SetMinMaxValues(0, 100)
+	statusBar:SetValue(50)
+	statusBar:EnableMouse(false)
+	statusBar:SetFrameLevel(phaseBar:GetFrameLevel() - 1)
+	phaseBar.statusBar = statusBar
+
+	---@type texture this is the statusbar texture
+	local statusBarTexture = statusBar:CreateTexture("$parentTexture", "artwork")
+	statusBarTexture:SetTexture(SharedMedia:Fetch("statusbar", "Details Hyanda"))
+	statusBar:SetStatusBarTexture(statusBarTexture)
+	statusBar:SetStatusBarColor(1, 1, 1, 1)
+
+	---@type texture shown when the mouse hoverover this bar
+	local hightlightTexture = statusBar:CreateTexture("$parentTextureHighlight", "highlight")
+	hightlightTexture:SetColorTexture(1, 1, 1, 0.2)
+	hightlightTexture:SetAllPoints()
+	statusBar.highlightTexture = hightlightTexture
+
+	---@type texture background texture
+	local backgroundTexture = statusBar:CreateTexture("$parentTextureBackground", "border")
+	backgroundTexture:SetAllPoints()
+	backgroundTexture:SetColorTexture(.05, .05, .05)
+	backgroundTexture:SetAlpha(1)
+	statusBar.backgroundTexture = backgroundTexture
+
+	--create an icon
+	---@type texture
+	local icon = statusBar:CreateTexture("$parentTexture", "overlay")
+	icon:SetPoint("left", statusBar, "left", 0, 0)
+	icon:SetSize(CONST_SPELLSCROLL_LINEHEIGHT-2, CONST_SPELLSCROLL_LINEHEIGHT-2)
+	icon:SetTexCoord(.1, .9, .1, .9)
+	phaseBar.Icon = icon
+
+	phaseBar:AddFrameToHeaderAlignment(icon)
+
+	phaseBar.InLineTexts = {}
+
+	for i = 1, 5 do
+		---@type fontstring
+		local fontString = phaseBar:CreateFontString("$parentFontString" .. i, "overlay", "GameFontHighlightSmall")
+		fontString:SetJustifyH("left")
+		fontString:SetTextColor(1, 1, 1, 1)
+		fontString:SetNonSpaceWrap(true)
+		fontString:SetWordWrap(false)
+		phaseBar["lineText" .. i] = fontString
+		phaseBar.InLineTexts[i] = fontString
+		fontString:SetTextColor(1, 1, 1, 1)
+		phaseBar:AddFrameToHeaderAlignment(fontString)
+	end
+
+	phaseBar:AlignWithHeader(self.Header, "left")
+
+	return phaseBar
+end
+
+---get a spell bar from the scroll box, if it doesn't exist, return nil
+---@param scrollFrame table
+---@param lineIndex number
+---@return breakdownphasebar
+local getPhaseBar = function(scrollFrame, lineIndex)
+	---@type breakdownphasebar
+	local phaseBar = scrollFrame:GetLine(lineIndex)
+
+	--reset header alignment
+	phaseBar:ResetFramesToHeaderAlignment()
+
+	--reset columns, hiding them
+	phaseBar.Icon:Hide()
+	for inLineIndex = 1, #phaseBar.InLineTexts do
+		phaseBar.InLineTexts[inLineIndex]:SetText("")
+	end
+
+	return phaseBar
+end
+
+---@param scrollFrame table
+---@param scrollData table
+---@param offset number
+---@param totalLines number
+local refreshPhaseFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refreshfunc ~refresh ~refreshp ~updatephasebar
+	local lineIndex = 1
+	local formatFunc = Details:GetCurrentToKFunction()
+	local phaseElapsedTime = scrollData.phaseElapsed
+
+	for i = 1, totalLines do
+		local index = i + offset
+		local dataTable = scrollData[index]
+
+		if (dataTable) then
+			local phaseBar = getPhaseBar(scrollFrame, lineIndex)
+
+			phaseBar.statusBar:SetValue(100)
+
+			local totalDone = dataTable.amountDone
+			local phaseName = dataTable.phaseName
+			local phaseNameFormatted = "Phase: " .. phaseName
+			local amountDoneFormatted = formatFunc(nil, totalDone)
+			local positionWithInPhase = math.floor(dataTable.positionWithInPhase)
+			local percentDone = string.format("%.1f", dataTable.percentDone)
+
+			local elapsedTime = phaseElapsedTime[phaseName]
+			local phaseDps = formatFunc(nil, totalDone / elapsedTime)
+
+			phaseBar.Icon:Show()
+			phaseBar.Icon:SetTexture([[Interface\Garrison\orderhall-missions-mechanic9]])
+			phaseBar.Icon:SetTexCoord(11/64, 53/64, 11/64, 53/64)
+			phaseBar.Icon:SetSize(CONST_SPELLSCROLL_LINEHEIGHT-2, CONST_SPELLSCROLL_LINEHEIGHT-2)
+			phaseBar:AddFrameToHeaderAlignment(phaseBar.Icon)
+
+			for inLineIndex = 1, #phaseBar.InLineTexts do
+				phaseBar.InLineTexts[inLineIndex]:SetText("")
+			end
+
+			local text1 = phaseBar.InLineTexts[1]
+			phaseBar:AddFrameToHeaderAlignment(text1)
+			text1:SetText(phaseNameFormatted)
+
+			local text2 = phaseBar.InLineTexts[2]
+			phaseBar:AddFrameToHeaderAlignment(text2)
+			text2:SetText("#" .. positionWithInPhase)
+
+			local text3 = phaseBar.InLineTexts[3]
+			phaseBar:AddFrameToHeaderAlignment(text3)
+			text3:SetText(amountDoneFormatted)
+
+			local text4 = phaseBar.InLineTexts[4]
+			phaseBar:AddFrameToHeaderAlignment(text4)
+			text4:SetText(phaseDps)
+
+			local text5 = phaseBar.InLineTexts[5]
+			phaseBar:AddFrameToHeaderAlignment(text5)
+			text5:SetText(percentDone .. "%")
+
+			lineIndex = lineIndex + 1
+		end
+	end
+end
+
+---create a container to show value per phase
+---@param tabFrame tabframe
+---@return breakdowntargetscrollframe
+function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontainer ~createphasescroll
+	---@type width
+	local width = Details.breakdown_spell_tab.phasecontainer_width
+	---@type height
+	local height = Details.breakdown_spell_tab.phasecontainer_height
+
+	local defaultAmountOfLines = 10
+
+	--create a container for the scrollframe
+	local options = {
+		width = Details.breakdown_spell_tab.phasecontainer_width,
+		height = Details.breakdown_spell_tab.phasecontainer_height,
+		is_locked = Details.breakdown_spell_tab.phasecontainer_islocked,
+		can_move = false,
+		can_move_children = false,
+		use_top_resizer = true,
+		use_right_resizer = true,
+		use_left_resizer = true,
+		use_bottom_resizer = true,
+	}
+
+	---@type df_framecontainer
+	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "PhaseScrollContainer")
+	container:SetPoint("topleft", spellsTab.GetTargetScrollContainer(), "topright", 26, 0)
+	container:SetFrameLevel(tabFrame:GetFrameLevel() + 10)
+	spellsTab.PhaseContainerFrame = container
+
+	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue)
+		if (frameContainer:IsShown()) then
+			if (settingName == "height") then
+				---@type number
+				local currentHeight = spellsTab.GetPhaseScrollFrame():GetHeight()
+				Details.breakdown_spell_tab.phasecontainer_height = settingValue
+				local lineAmount = math.floor(currentHeight / CONST_SPELLSCROLL_LINEHEIGHT)
+				spellsTab.GetPhaseScrollFrame():SetNumFramesShown(lineAmount)
+
+			elseif (settingName == "width") then
+				Details.breakdown_spell_tab.phasecontainer_width = settingValue
+
+			elseif (settingName == "is_locked") then
+				Details.breakdown_spell_tab.phasecontainer_islocked = settingValue
+			end
+		end
+	end
+	container:SetSettingChangedCallback(settingChangedCallbackFunction)
+
+	---@type breakdowntargetscrollframe not sure is this is correct
+	local phaseScrollFrame = DF:CreateScrollBox(container, "$parentPhaseScroll", refreshPhaseFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
+	DF:ReskinSlider(phaseScrollFrame)
+	phaseScrollFrame:SetBackdrop({})
+	phaseScrollFrame:SetAllPoints()
+
+	container:RegisterChildForDrag(phaseScrollFrame)
+
+	phaseScrollFrame.DontHideChildrenOnPreRefresh = false
+	tabFrame.PhaseScrollFrame = phaseScrollFrame
+	spellsTab.PhaseScrollFrame = phaseScrollFrame
+
+	function phaseScrollFrame:RefreshMe() --~refreshme (phases) ~refreshmep
+    	--get the value of the top 1 ranking spell
+		---@type actor
+		local actorObject = spellsTab.GetActor()
+		---@type combat
+		local combatObject = spellsTab.GetCombat()
+		local actorName = actorObject:Name()
+		---@type instance
+		local instanceObject = spellsTab.GetInstance()
+
+		local mainAttribute = instanceObject:GetDisplay()
+
+	   local data = {
+		   --playerObject = playerObject,
+		   --attribute = attribute,
+		   --combatObject = combatObject,
+		   combatTime = combatObject:GetCombatTime(),
+	   }
+
+	   local playerPhases = {}
+	   local totalDamage = 0
+	   local phaseElapsed = {}
+
+	   --local bossInfo = combatObject:GetBossInfo()
+	   local phasesInfo = combatObject:GetPhases()
+
+	   if (phasesInfo) then --bossInfo and
+		   if (#phasesInfo >= 1) then
+			   --get phase elapsed time
+			   for i = 1, #phasesInfo do
+				   local thisPhase = phasesInfo[i]
+				   local phaseName = thisPhase[1]
+				   local startTime = thisPhase[2]
+
+				   local nextPhase = phasesInfo[i + 1]
+				   if (nextPhase) then
+					   --if there's a next phase, use it's start time as end time to calcule elapsed time
+					   local endTime = nextPhase[2]
+					   local elapsedTime = endTime - startTime
+					   phaseElapsed[phaseName] = (phaseElapsed[phaseName] or 0) + elapsedTime
+				   else
+					   --if there's no next phase, use the combat end time as end time to calcule elapsed time
+					   local endTime = combatObject:GetCombatTime()
+					   local elapsedTime = endTime - startTime
+					   phaseElapsed[phaseName] = (phaseElapsed[phaseName] or 0) + elapsedTime
+				   end
+			   end
+
+			   --get damage info
+			   local dataTable = mainAttribute == 1 and phasesInfo.damage or phasesInfo.heal
+			   for phaseName, playersTable in pairs(dataTable) do --each phase
+				   local allPlayers = {} --all players for this phase
+				   for playerName, amount in pairs(playersTable) do
+					   tinsert(allPlayers, {playerName, amount})
+					   totalDamage = totalDamage + amount
+				   end
+				   table.sort(allPlayers, function(a, b) return a[2] > b[2] end)
+
+				   local myRank = 0
+				   for i = 1, #allPlayers do
+					   if (allPlayers[i][1] == actorName) then
+						   myRank = i
+						   break
+					   end
+				   end
+
+				   tinsert(playerPhases, {phaseName, playersTable[actorName] or 0, myRank, (playersTable [actorName] or 0) / totalDamage * 100})
+			   end
+		   end
+	   end
+
+	   table.sort(playerPhases, function(a, b) return a[1] < b[1] end)
+
+	   for i = 1, #playerPhases do
+		   data[#data+1] = {
+			   phaseName = playerPhases[i][1],
+			   amountDone = playerPhases[i][2],
+			   positionWithInPhase = playerPhases[i][3],
+			   percentDone = playerPhases[i][4],
+		   }
+	   end
+
+	   data.totalDamage = totalDamage
+	   data.phaseElapsed = phaseElapsed
+
+		phaseScrollFrame:SetData(data)
+		phaseScrollFrame:Refresh()
+	end
+
+	--~header
+	local headerOptions = {
+		padding = 2,
+		header_height = 14,
+
+		reziser_shown = true,
+		reziser_width = 2,
+		reziser_color = {.5, .5, .5, 0.7},
+		reziser_max_width = 246,
+	}
+
+	---@type df_headerframe
+	local header = DetailsFramework:CreateHeader(container, phaseContainerColumnData, headerOptions)
+	phaseScrollFrame.Header = header
+	phaseScrollFrame.Header:SetPoint("topleft", phaseScrollFrame, "topleft", 0, 1)
+	phaseScrollFrame.Header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
+
+	--cache the type of this container
+	headerContainerType[phaseScrollFrame.Header] = "phases"
+
+	--create the scroll lines
+	for i = 1, defaultAmountOfLines do
+		phaseScrollFrame:CreateLine(spellsTab.CreatePhaseBar)
+	end
+
+	tabFrame.phases = tabFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
+	tabFrame.phases:SetPoint("bottomleft", container, "topleft", 2, 2)
+	tabFrame.phases:SetText("Phases:") --localize-me
+
+	return phaseScrollFrame
+end
+
 ---create the target container
 ---@param tabFrame tabframe
 ---@return breakdowntargetscrollframe
-function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
+function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtargetcontainer ~createtargetscroll ~createtarget
 	---@type width
 	local width = Details.breakdown_spell_tab.targetcontainer_width
 	---@type height
@@ -1426,7 +1813,9 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 				---@type number
 				local currentHeight = spellsTab.GetTargetScrollFrame():GetHeight()
 				Details.breakdown_spell_tab.targetcontainer_height = settingValue
-				local lineAmount = math.floor(currentHeight / CONST_SPELLSCROLL_LINEHEIGHT)
+				--the -0.1 is the avoid the random fraction of 1.9999999990 to 2.0000000001
+				local lineAmount = currentHeight / CONST_SPELLSCROLL_LINEHEIGHT - 0.1
+				lineAmount = math.floor(lineAmount)
 				spellsTab.GetTargetScrollFrame():SetNumFramesShown(lineAmount)
 
 			elseif (settingName == "width") then
@@ -1442,7 +1831,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target
 	--create the scrollframe similar to scrollframe used in the spellscrollframe
     --replace this with a framework scrollframe
 	---@type breakdowntargetscrollframe
-	local targetScrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshFuncTargets, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
+	local targetScrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshTargetsFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(targetScrollFrame)
 	targetScrollFrame:SetBackdrop({})
 	targetScrollFrame:SetAllPoints()
@@ -1829,7 +2218,7 @@ end
 ---@param scrollData breakdownspelldatalist
 ---@param offset number
 ---@param totalLines number
-local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refreshfunc ~refresh
+local refreshSpellsFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refreshfunc ~refresh ~refreshs
 	---@type number
 	local topValue = scrollFrame.topValue
 	---@type number
@@ -1978,7 +2367,7 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 
     --replace this with a framework scrollframe
 	---@type breakdownspellscrollframe
-	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
+	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshSpellsFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(scrollFrame)
 	scrollFrame:SetBackdrop({})
 	scrollFrame:SetPoint("topleft", container, "topleft", 0, 0) --need to set the points
@@ -2514,6 +2903,7 @@ function Details.InitializeSpellBreakdownTab()
 		spellsTab.subAttribute = subAttribute
 
 		spellsTab.GetSpellScrollFrame():RefreshMe(data)
+		spellsTab.GetPhaseScrollFrame():RefreshMe(data)
 	end
 
 	---@param data breakdowntargettablelist

@@ -322,6 +322,7 @@
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
 ---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>
+---@field GetPhases fun(combat: combat) : table
 ---@field alternate_power table<actorname, alternatepowertable>
 ---@field GetCombatTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
@@ -488,6 +489,16 @@
 ---@class breakdowntargetscrollframe : df_scrollboxmixin, scrollframe
 ---@field Header df_headerframe
 ---@field RefreshMe fun(scrollFrame: breakdowntargetscrollframe, data: table|nil)
+
+---@class breakdownphasescrollframe : df_scrollboxmixin, scrollframe
+---@field Header df_headerframe
+---@field RefreshMe fun(scrollFrame: breakdownphasescrollframe, data: table|nil)
+
+---@class breakdownphasebar : button, df_headerfunctions
+---@field index number
+---@field Icon texture
+---@field InLineTexts fontstring[]
+---@field statusBar breakdownspellbarstatusbar
 
 ---@class breakdowntargetbar : button, df_headerfunctions
 ---@field index number
