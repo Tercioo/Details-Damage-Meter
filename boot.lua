@@ -1193,3 +1193,15 @@ end
 function Details222.PlayerStats:GetStat(statName, value)
 	return Details.player_stats[statName]
 end
+
+---destroy a table and remove it from the object, if the key isn't passed, the object itself is destroyed
+---@param object any
+---@param key string|nil
+function Details:Destroy(object, key)
+	if (key) then
+		table.wipe(object[key])
+		object[key] = nil
+	else
+		table.wipe(object)
+	end
+end

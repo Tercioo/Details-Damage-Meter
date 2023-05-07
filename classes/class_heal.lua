@@ -1904,9 +1904,12 @@ function atributo_heal:MontaInfoHealingDone()
 			if (index) then
 				---@type spelltableadv
 				local bkSpellData = actorSpellsSorted[index]
-				bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+
 				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
-				bkSpellData.petNames[#bkSpellData.petNames+1] = ""
+
+				---@type bknesteddata
+				local nestedData = {spellId = spellId, spellTable = spellTable, petName = "", value = 0}
+				bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 				bkSpellData.bCanExpand = true
 			else
 				---@type spelltableadv
@@ -1916,9 +1919,8 @@ function atributo_heal:MontaInfoHealingDone()
 					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 					bCanExpand = false,
 
-					spellIds = {spellId},
-					spellTables = {spellTable}, --sub spell tables to show if the spell is expanded
-					petNames = {""},
+					spellTables = {spellTable},
+					nestedData = {{spellId = spellId, spellTable = spellTable, petName = "", value = 0}},
 				}
 				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 
@@ -1949,9 +1951,12 @@ function atributo_heal:MontaInfoHealingDone()
 					if (index) then --PET
 						---@type spelltableadv
 						local bkSpellData = actorSpellsSorted[index]
-						bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+
 						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
-						bkSpellData.petNames[#bkSpellData.petNames+1] = petName
+
+						---@type bknesteddata
+						local nestedData = {spellId = spellId, spellTable = spellTable, petName = petName, value = 0}
+						bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 						bkSpellData.bCanExpand = true
 					else --PET
 						---@type spelltableadv
@@ -1961,9 +1966,8 @@ function atributo_heal:MontaInfoHealingDone()
 							expanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 							bCanExpand = false,
 
-							spellIds = {spellId},
 							spellTables = {spellTable},
-							petNames = {petName},
+							nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
 						}
 						detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 
@@ -1979,6 +1983,7 @@ function atributo_heal:MontaInfoHealingDone()
 		---@type spelltableadv
 		local bkSpellData = actorSpellsSorted[i]
 		Details.SpellTableMixin.SumSpellTables(bkSpellData.spellTables, bkSpellData)
+		Details:Destroy(bkSpellData, "spellTables")
 	end
 
 	--table.sort(actorSpellsSorted, Details.Sort2)
@@ -1989,11 +1994,10 @@ function atributo_heal:MontaInfoHealingDone()
 	actorSpellsSorted.totalValue = actorTotal
 	actorSpellsSorted.combatTime = actorCombatTime
 
-	--actorSpellsSorted has the spell infomation, need to pass to the summary tab
-
 	--cleanup
-	table.wipe(alreadyAdded)
+	Details:Destroy(alreadyAdded)
 
+	--actorSpellsSorted has the spell infomation, need to pass to the summary tab
 	--send to the breakdown window
 	Details222.BreakdownWindow.SendSpellData(actorSpellsSorted, actorObject, combatObject, instance)
 

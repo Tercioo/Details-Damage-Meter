@@ -4562,9 +4562,12 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 			if (index) then
 				---@type spelltableadv
 				local bkSpellData = breakdownSpellDataList[index]
-				bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+
 				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
-				bkSpellData.petNames[#bkSpellData.petNames+1] = ""
+
+				---@type bknesteddata
+				local nestedData = {spellId = spellId, spellTable = spellTable, petName = "", value = 0}
+				bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 				bkSpellData.bCanExpand = true
 			else
 				---@type spelltableadv
@@ -4574,12 +4577,11 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 					bCanExpand = false,
 
-					spellIds = {spellId},
-					spellTables = {spellTable}, --sub spell tables to show if the spell is expanded
-					petNames = {""},
+					spellTables = {spellTable},
+					nestedData = {{spellId = spellId, spellTable = spellTable, petName = "", value = 0}},
 				}
-				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 
+				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 				breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
 				alreadyAdded[spellName] = #breakdownSpellDataList
 			end
@@ -4607,9 +4609,12 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 					if (index) then --PET
 						---@type spelltableadv
 						local bkSpellData = breakdownSpellDataList[index]
-						bkSpellData.spellIds[#bkSpellData.spellIds+1] = spellId
+
 						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
-						bkSpellData.petNames[#bkSpellData.petNames+1] = petName
+
+						---@type bknesteddata
+						local nestedData = {spellId = spellId, spellTable = spellTable, petName = petName, value = 0}
+						bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 						bkSpellData.bCanExpand = true
 					else --PET
 						---@type spelltableadv
@@ -4619,12 +4624,11 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 							bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 							bCanExpand = false,
 
-							spellIds = {spellId},
 							spellTables = {spellTable},
-							petNames = {petName},
+							nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
 						}
-						detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 
+						detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 						breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
 						alreadyAdded[spellName] = #breakdownSpellDataList
 					end
@@ -4639,13 +4643,13 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 		---@type spelltableadv
 		local bkSpellData = breakdownSpellDataList[i]
 		Details.SpellTableMixin.SumSpellTables(bkSpellData.spellTables, bkSpellData)
+		Details:Destroy(bkSpellData, "spellTables")
 	end
 
 	breakdownSpellDataList.totalValue = actorTotal
 	breakdownSpellDataList.combatTime = actorCombatTime
 
-	--cleanup
-	table.wipe(alreadyAdded)
+	Details:Destroy(alreadyAdded)
 
 	--send to the breakdown window
 	Details222.BreakdownWindow.SendSpellData(breakdownSpellDataList, actorObject, combatObject, instance)

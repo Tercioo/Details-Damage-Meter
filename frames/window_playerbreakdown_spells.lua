@@ -1613,12 +1613,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellTable = bkSpellData
 			value = bkSpellData.total
 			spellId = bkSpellData.id
-			petName = bkSpellData.petNames[spellTableIndex]
+			petName = bkSpellData.nestedData[spellTableIndex].petName
 		else
-			spellTable = bkSpellData.spellTables[spellTableIndex]
+			spellTable = bkSpellData.nestedData[spellTableIndex].spellTable
 			value = spellTable.total
 			spellId = spellTable.id
-			petName = bkSpellData.petNames[spellTableIndex]
+			petName = bkSpellData.nestedData[spellTableIndex].petName
 			spellBar.bIsExpandedSpell = true
 		end
 
@@ -1844,7 +1844,8 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 	---@type instance
 	local instanceObject = spellsTab.GetInstance()
 
-	local sortKey = scrollFrame.SortKey
+	local keyToSort = scrollFrame.SortKey
+	local orderToSort = scrollFrame.SortKey
 	local headerTable = spellsTab.spellsHeaderData
 
 	--todo: when swapping sort orders, close already expanded spells
@@ -1857,20 +1858,8 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 		local bkSpellData = scrollData[index]
 
 		if (bkSpellData) then
-			--before getting a line, check if the data for the line is a expanded line and if the spell is expanded
-			local expandedIndex = bkSpellData.expandedIndex
-			local spellId = bkSpellData.id
-			local value = math.floor(bkSpellData.total)
-
-			---@type number[]
-			local spellIds = bkSpellData.spellIds --array with spellIds
-			---@type spelltable[]
-			local spellTables = bkSpellData.spellTables --array with spellTables
 			---@type number
-			local spellTablesAmount = #spellTables
-			---@type string[]
-			local petNames = bkSpellData.petNames --array with pet names
-			---@type boolean
+			local spellTablesAmount = #bkSpellData.nestedData
 
 			---called mainSpellBar because it is the line that shows the sum of all spells merged (if any)
 			---@type breakdownspellbar
@@ -1880,26 +1869,51 @@ local refreshFunc = function(scrollFrame, scrollData, offset, totalLines) --~ref
 				if (mainSpellBar) then
 					lineIndex = lineIndex + 1
 					local bIsMainLine = true
-					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, sortKey, spellTablesAmount)
+					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
 				end
 			end
 
 			--then it adds the lines for each spell merged, but it cannot use the bkSpellData, it needs the spellTable, it's kinda using bkSpellData, need to debug
 			if (bkSpellData.bIsExpanded and spellTablesAmount > 1) then
-				---@type number spellTableIndex is the same counter as bkSpellStableIndex
-				--as the nested actors or spells never get sorted, it might be required to sort the data here
+				--filling necessary information to sort the data by the selected header column
+				for spellTableIndex = 1, spellTablesAmount do
+					---@type bknesteddata
+					local nestedBkSpellData = bkSpellData.nestedData[spellTableIndex]
+					---@type spelltable
+					local spellTable = nestedBkSpellData.spellTable
+					nestedBkSpellData.value = spellTable[keyToSort] or getValueForHeaderSortKey(combatObject, spellTable, keyToSort)
+				end
+
+				--sort the nested data
+				if (orderToSort == "DESC") then
+					table.sort(bkSpellData.nestedData,
+					function(t1, t2)
+						return t1.value < t2.value
+					end)
+				else
+					table.sort(bkSpellData.nestedData,
+					function(t1, t2)
+						return t1.value > t2.value
+					end)
+				end
+
 				for spellTableIndex = 1, spellTablesAmount do
 					---@type breakdownspellbar
 					local spellBar = getSpellBar(scrollFrame, lineIndex)
 					if (spellBar) then
+						---@type bknesteddata
+						local nestedBkSpellData = bkSpellData.nestedData[spellTableIndex]
+
 						lineIndex = lineIndex + 1
 						---@type string
-						local petName = petNames[spellTableIndex]
+						local petName = nestedBkSpellData.petName
 						---@type string
 						local nameToUse = petName ~= "" and petName or actorName
 						local bIsMainLine = false
 
-						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, sortKey, spellTablesAmount)
+						bkSpellData[keyToSort] = nestedBkSpellData.value
+
+						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
 						mainSpellBar.ExpandedChildren[#mainSpellBar.ExpandedChildren + 1] = spellBar
 					end
 				end
@@ -2007,12 +2021,13 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	end
 
 	---set the data and refresh the scrollframe
-	---@param self any
+	---@param self breakdownspellscrollframe
 	---@param data breakdownspelldatalist
 	function scrollFrame:RefreshMe(data) --~refreshme (spells) ~refreshmes
 		--get which column is currently selected and the sort order
 		local columnIndex, order, key = scrollFrame.Header:GetSelectedColumn()
 		scrollFrame.SortKey = key
+		scrollFrame.SortOrder = order
 
 		---@type string
 		local keyToSort = key

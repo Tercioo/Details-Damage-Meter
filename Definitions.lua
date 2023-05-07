@@ -482,6 +482,8 @@
 ---@class breakdownspellscrollframe : df_scrollboxmixin, scrollframe
 ---@field Header df_headerframe
 ---@field RefreshMe fun(scrollFrame: breakdownspellscrollframe, data: table|nil)
+---@field SortKey string
+---@field SortOrder string
 
 ---@class breakdowntargetscrollframe : df_scrollboxmixin, scrollframe
 ---@field Header df_headerframe
@@ -536,12 +538,13 @@
 ---@class spelltableadv : spelltable, spelltablemixin
 ---@field expanded boolean if is true the show the nested spells
 ---@field spellTables spelltable[]
----@field spellIds number[]
----@field petNames string[]
+---@field nestedData bknesteddata[]
 ---@field bCanExpand boolean
 ---@field expandedIndex number
 ---@field bIsExpanded boolean
 ---@field statusBarValue number
+
+---@class bknesteddata : {spellId: number, spellTable: spelltable, petName: string, value: number}
 
 ---@class breakdowntargetframe : frame
 ---@field spellId number
