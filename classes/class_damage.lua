@@ -4643,7 +4643,7 @@ function atributo_damage:MontaInfoDamageDone() --I guess this fills the list of 
 		---@type spelltableadv
 		local bkSpellData = breakdownSpellDataList[i]
 		Details.SpellTableMixin.SumSpellTables(bkSpellData.spellTables, bkSpellData)
-		Details:Destroy(bkSpellData, "spellTables")
+		--Details:Destroy(bkSpellData, "spellTables") --temporary fix for BuildSpellTargetFromBreakdownSpellData, that function need to use bkSpellData.nestedData
 	end
 
 	breakdownSpellDataList.totalValue = actorTotal

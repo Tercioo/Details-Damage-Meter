@@ -1983,7 +1983,7 @@ function atributo_heal:MontaInfoHealingDone()
 		---@type spelltableadv
 		local bkSpellData = actorSpellsSorted[i]
 		Details.SpellTableMixin.SumSpellTables(bkSpellData.spellTables, bkSpellData)
-		Details:Destroy(bkSpellData, "spellTables")
+		--Details:Destroy(bkSpellData, "spellTables")
 	end
 
 	--table.sort(actorSpellsSorted, Details.Sort2)
