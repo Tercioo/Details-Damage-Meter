@@ -24,6 +24,9 @@
 ---@field NewTimer fun(delay: number, func: function): timer
 ---@field NewTicker fun(interval: number, func: function, iterations: number|nil): timer
 
+---@class C_ChallengeMode : table
+---@field GetActiveKeystoneInfo fun(): number, number[], boolean @returns keystoneLevel, affixIDs, wasActive
+
 ---@class tablesize : {H: number, W: number}
 ---@class tablecoords : {L: number, R: number, T: number, B: number}
 

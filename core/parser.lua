@@ -5411,6 +5411,36 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (difficultyID == 8) then
 			_detalhes:SendEvent("COMBAT_MYTHICDUNGEON_END")
 		end
+
+		local okay, errorText = pcall(function()
+			local mapChallengeModeID, mythicLevel, time, onTime, keystoneUpgradeLevels, practiceRun, oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord, PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
+			if (mapChallengeModeID) then
+				local statName = "mythicdungeoncompletedDF2"
+				local mythicDungeonRuns = Details222.PlayerStats:GetStat(statName)
+				mythicDungeonRuns = mythicDungeonRuns or {}
+
+				mythicDungeonRuns[mapChallengeModeID] = mythicDungeonRuns[mapChallengeModeID] or {}
+				mythicDungeonRuns[mapChallengeModeID][mythicLevel] = mythicDungeonRuns[mapChallengeModeID][mythicLevel] or {}
+
+				local currentRun = mythicDungeonRuns[mapChallengeModeID][mythicLevel]
+				currentRun.completed = (currentRun.completed or 0) + 1
+				currentRun.totalTime = (currentRun.totalTime or 0) + time
+				if (not currentRun.minTime or time < currentRun.minTime) then
+					currentRun.minTime = time
+				end
+
+				currentRun.history = currentRun.history or {}
+				local day, month, year = tonumber(date("%d")), tonumber(date("%m")), tonumber(date("%Y"))
+				local amountDeaths = C_ChallengeMode.GetDeathCount() or 0
+				tinsert(currentRun.history, {day = day, month = month, year = year, runTime = time, onTime = onTime, deaths = amountDeaths, affix = PrimaryAffix})
+
+				Details222.PlayerStats:SetStat("mythicdungeoncompletedDF2", mythicDungeonRuns)
+			end
+		end)
+
+		if (not okay) then
+			_detalhes:Msg("something went wrong (0x7878):", errorText)
+		end
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED(...)

@@ -15,8 +15,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 10993
-		Details.alpha_build_counter = 10993 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11000
+		Details.alpha_build_counter = 11000 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -1176,18 +1176,18 @@ function Details222.PlayerStats:AddStat(statName, value)
 	Details.player_stats[statName] = (Details.player_stats[statName] or 0) + value
 end
 
+---get the value of a saved stat
+---@param statName string
+---@return any
+function Details222.PlayerStats:GetStat(statName)
+	return Details.player_stats[statName]
+end
+
 ---same thing as above but set the value instead of adding
 ---@param statName string
 ---@param value number
 function Details222.PlayerStats:SetStat(statName, value)
 	Details.player_stats[statName] = value
-end
-
----get the value of a saved stat
----@param statName string
----@return any
-function Details222.PlayerStats:GetStat(statName, value)
-	return Details.player_stats[statName]
 end
 
 ---destroy a table and remove it from the object, if the key isn't passed, the object itself is destroyed

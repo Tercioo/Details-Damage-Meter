@@ -505,6 +505,12 @@ function Details:CreateBreakdownWindow()
 			LibWindow.RestorePosition(breakdownWindow)
 			LibWindow.MakeDraggable(breakdownWindow)
 			LibWindow.SavePosition(breakdownWindow)
+
+			breakdownWindow:SetScript("OnMouseDown", function(self, button)
+				if (button == "RightButton") then
+					Details:CloseBreakdownWindow()
+				end
+			end)
 		end
 	end
 
