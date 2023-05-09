@@ -550,7 +550,7 @@ function Details:CreateBreakdownWindow()
     end)
 
 	--title
-	detailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"] .. " (|cFFFF8811Under Maintenance|r) - Report Bugs At Discord", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	detailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	breakdownWindow.titleText:SetPoint("center", breakdownWindow, "center")
 	breakdownWindow.titleText:SetPoint("top", breakdownWindow, "top", 0, -6)
 
