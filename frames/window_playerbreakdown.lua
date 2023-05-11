@@ -507,6 +507,7 @@ function Details:CreateBreakdownWindow()
 	breakdownWindow:EnableMouse(true)
 	breakdownWindow:SetResizable(true)
 	breakdownWindow:SetMovable(true)
+	breakdownWindow:SetClampedToScreen(true)
 
 	--make the window movable
 	if (not breakdownWindow.registeredLibWindow) then
