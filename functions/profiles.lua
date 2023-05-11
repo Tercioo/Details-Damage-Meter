@@ -1408,12 +1408,17 @@ local default_global_data = {
 			},
 		},
 
---/run wipe(Details.breakdown_spell_tab) .genericcontainer_headers
+--/run Details.breakdown_spell_tab.statusbar_alpha = 0.823
 	--breakdown spell tab
 	breakdown_spell_tab = {
 		blockcontainer_width = 430,
 		blockcontainer_height = 270,
 		blockcontainer_islocked = true,
+
+		statusbar_background_color = {.15, .15, .15},
+		statusbar_background_alpha = 0.7,
+		statusbar_texture = [[Interface\AddOns\Details\images\bar_skyline]],
+		statusbar_alpha = 0.70,
 
 		blockspell_height = 67,
 		blockspell_padding = 5,

@@ -63,6 +63,24 @@ function spellsTab.GetInstance()
 	return spellsTab.instance or Details:GetActiveWindowFromBreakdownWindow()
 end
 
+---set the backdrop of scrollframe and container following the settings of the breakdown window
+---@param containerFrame frame
+---@param scrollFrame frame|nil
+function spellsTab.ApplyStandardBackdrop(containerFrame, scrollFrame)
+	C_Timer.After(0, function()
+		containerFrame:SetBackdrop(Details222.BreakdownWindow.BackdropSettings.backdrop)
+		containerFrame:SetBackdropColor(unpack(Details222.BreakdownWindow.BackdropSettings.backdropcolor))
+		containerFrame:SetBackdropBorderColor(unpack(Details222.BreakdownWindow.BackdropSettings.backdropbordercolor))
+
+		if (scrollFrame) then
+			scrollFrame:SetBackdrop({})
+			if (scrollFrame["__background"]) then
+				scrollFrame["__background"]:Hide()
+			end
+		end
+	end)
+end
+
 ---return the breakdownspellscrollframe object, there's only one of this in the breakdown window
 ---@return breakdownspellscrollframe
 function spellsTab.GetSpellScrollFrame()
@@ -651,10 +669,18 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 	summaryBlock:SetValue(50)
 	summaryBlock:SetValue(100)
 
-	if (mainAttribute == DETAILS_ATTRIBUTE_DAMAGE) then --this should run within the damage class ~damage
+	if (mainAttribute == DETAILS_ATTRIBUTE_DAMAGE) then
 		--bounce to damage class to handle the spell details
 		if (subAttribute == 1 or subAttribute == 2 or subAttribute == 6) then
 			Details.atributo_damage:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex, summaryBlock, spellId, elapsedTime, actorName, spellTable, trinketData, combatObject)
+		end
+
+		--need to know how many blocks the damage class used
+		local blocksInUse = spellBlockContainer:GetBlocksInUse()
+		local maxBlocks = spellBlockContainer:GetBlocksAmount()
+
+		for i = blocksInUse + 1, math.min(maxBlocks, 4) do --in the current state of the breakdown, showing 5 will overlap with the phase container
+			spellBlockContainer:ShowEmptyBlock(i)
 		end
 
 	elseif (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then --this should run within the heal class ~healing
@@ -897,12 +923,7 @@ function spellsTab.CreateSpellBlock(spellBlockContainer, index) --~breakdownspel
 	spellBlock:SetValue(100)
 
 	--set the backdrop to have a 8x8 edge file
-	spellBlock:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-
-	local backgroundTexture = spellBlock:CreateTexture("$parentBackground", "artwork")
-	backgroundTexture:SetColorTexture(1, 1, 1, 1)
-	backgroundTexture:SetAllPoints()
-	spellBlock.backgroundTexture = backgroundTexture
+	spellsTab.ApplyStandardBackdrop(spellBlock)
 
 	--create the lines which will host the texts
 	spellBlock.Lines = {}
@@ -946,6 +967,7 @@ function spellsTab.CreateSpellBlock(spellBlockContainer, index) --~breakdownspel
     local gradientDown = DetailsFramework:CreateTexture(spellBlock, {gradient = "vertical", fromColor = {0, 0, 0, 0.1}, toColor = "transparent"}, 1, spellBlock:GetHeight(), "background", {0, 1, 0, 1})
     gradientDown:SetPoint("bottoms")
 	spellBlock.gradientTexture = gradientDown
+	spellBlock.gradientTexture:Hide()
 
 	return spellBlock
 end
@@ -983,8 +1005,6 @@ local spellBlockContainerMixin = {
 			spellBlock.gradientTexture:SetHeight(blockHeight)
 
 			spellBlock:SetBackdropBorderColor(unpack(borderColor)) --border color
-			spellBlock.backgroundTexture:SetVertexColor(unpack(backgroundColor)) --background color
-
 			spellBlock.statusBarTexture:SetVertexColor(unpack(Details.breakdown_spell_tab.blockspell_color)) --bar color
 
 			--update the lines
@@ -1005,12 +1025,17 @@ local spellBlockContainerMixin = {
 
 	---@param self breakdownspellblockframe
 	ClearBlocks = function(self)
-		for i = 1, #self.SpellBlocks do
+		for i = 1, self:GetBlocksAmount() do
 			---@type breakdownspellblock
 			local spellBlock = self.SpellBlocks[i]
 			spellBlock:Hide()
 
 			spellBlock:SetColor(unpack(CONST_SPELLBLOCK_DEFAULT_COLOR))
+
+			--set the status bar value to zero
+			spellBlock:SetValue(0)
+			spellBlock.statusBarTexture:Show()
+			spellBlock.sparkTexture:Show()
 
 			--clear the text shown in their lines
 			for o = 1, 3 do
@@ -1026,6 +1051,23 @@ local spellBlockContainerMixin = {
 				spellBlock.Lines[o].rightText:SetText("")
 			end
 		end
+
+		for i = 1, math.min(self:GetBlocksAmount(), 4) do
+			self:ShowEmptyBlock(i)
+		end
+
+		self.blocksInUse = 0
+	end,
+
+	---show the empty block in the container, this is done to preview where the rectangle will be
+	---@param self breakdownspellblockframe
+	---@param index number
+	ShowEmptyBlock = function(self, index)
+		local spellBlock = self.SpellBlocks[index]
+		spellBlock:Show()
+		spellBlock:SetValue(0)
+		spellBlock.statusBarTexture:Hide()
+		spellBlock.sparkTexture:Hide()
 	end,
 
 	---get a breakdownspellblock from the container
@@ -1033,7 +1075,25 @@ local spellBlockContainerMixin = {
 	---@param index number
 	---@return breakdownspellblock
 	GetBlock = function(self, index)
+		self.blocksInUse = self.blocksInUse + 1
+		local spellBlock = self.SpellBlocks[index]
+		spellBlock.statusBarTexture:Show()
+		spellBlock.sparkTexture:Show()
 		return self.SpellBlocks[index]
+	end,
+
+	---get the amount of blocks in use
+	---@param self breakdownspellblockframe
+	---@return number
+	GetBlocksInUse = function(self)
+		return self.blocksInUse
+	end,
+
+	---get the total blocks created
+	---@param self breakdownspellblockframe
+	---@return number
+	GetBlocksAmount = function(self)
+		return #self.SpellBlocks
 	end,
 }
 
@@ -1116,6 +1176,7 @@ function spellsTab.CreateSpellBlockContainer(tabFrame) --~create ~createblock ~s
 	container:RegisterChildForDrag(spellBlockFrame)
 
 	spellBlockFrame.SpellBlocks = {}
+	spellBlockFrame.blocksInUse = 0
 
 	--create the spell blocks within the spellBlockFrame
 	for i = 1, spellBlockContainerSettings.amount do
@@ -1150,6 +1211,8 @@ local getTargetBar = function(scrollFrame, lineIndex)
 
 	--reset header alignment
 	targetBar:ResetFramesToHeaderAlignment()
+
+	spellsTab.UpdateBarSettings(targetBar)
 
 	--reset columns, hiding them
 	targetBar.Icon:Hide()
@@ -1324,12 +1387,12 @@ function spellsTab.CreatePhaseBar(self, index) --~create ~createphase ~phasebar
 	--size and positioning
 	phaseBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
 	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
-	phaseBar:SetPoint("topleft", self, "topleft", 0, y)
-	phaseBar:SetPoint("topright", self, "topright", 0, y)
+	phaseBar:SetPoint("topleft", self, "topleft", 1, y)
+	phaseBar:SetPoint("topright", self, "topright", -1, y)
 
 	phaseBar:EnableMouse(true)
 
-	phaseBar:SetAlpha(0.9)
+	phaseBar:SetAlpha(0.823)
 	phaseBar:SetFrameStrata("HIGH")
 	phaseBar:SetScript("OnEnter", nil)
 	phaseBar:SetScript("OnLeave", nil)
@@ -1425,6 +1488,8 @@ local getPhaseBar = function(scrollFrame, lineIndex)
 
 	--reset header alignment
 	phaseBar:ResetFramesToHeaderAlignment()
+
+	spellsTab.UpdateBarSettings(phaseBar)
 
 	--reset columns, hiding them
 	phaseBar.Icon:Hide()
@@ -1638,6 +1703,8 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 	tabFrame.PhaseScrollFrame = phaseScrollFrame
 	spellsTab.PhaseScrollFrame = phaseScrollFrame
 
+	spellsTab.ApplyStandardBackdrop(container, phaseScrollFrame)
+
 	function phaseScrollFrame:RefreshMe() --~refreshme (phases) ~refreshmep
     	--get the value of the top 1 ranking spell
 		---@type actor
@@ -1736,6 +1803,9 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 		reziser_width = 2,
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
+
+		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
+		text_color = {1, 1, 1, 0.823},
 	}
 
 	---@type df_headerframe
@@ -1942,6 +2012,9 @@ function spellsTab.CreateGenericContainer(tabFrame) --~create ~generic ~createge
 		reziser_width = 2,
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
+
+		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
+		text_color = {1, 1, 1, 0.823},
 	}
 
 	---@type df_headerframe
@@ -2026,6 +2099,8 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 	tabFrame.TargetScrollFrame = targetScrollFrame
 	spellsTab.TargetScrollFrame = targetScrollFrame
 
+	spellsTab.ApplyStandardBackdrop(container, targetScrollFrame)
+
 	---@param data breakdowntargettablelist
 	function targetScrollFrame:RefreshMe(data) --~refreshme (targets) ~refreshmet
 		--get which column is currently selected and the sort order
@@ -2068,6 +2143,9 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 		reziser_width = 2,
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
+
+		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
+		text_color = {1, 1, 1, 0.823},
 	}
 
 	---@type df_headerframe
@@ -2386,6 +2464,8 @@ local getSpellBar = function(scrollFrame, lineIndex)
 	--reset header alignment
 	spellBar:ResetFramesToHeaderAlignment()
 
+	spellsTab.UpdateBarSettings(spellBar)
+
 	--reset columns, hiding them
 	spellBar.spellIcon:Hide()
 	spellBar.expandButton:Hide()
@@ -2502,7 +2582,7 @@ end
 ---creates a scrollframe which show breakdownspellbar to show the spells used by an actor
 ---@param tabFrame tabframe
 ---@return breakdownspellscrollframe
-function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell ~container
+function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell ~container ~createspellcontainer
 	---@type width
 	local width = Details.breakdown_spell_tab.spellcontainer_width
 	---@type height
@@ -2553,7 +2633,6 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	---@type breakdownspellscrollframe
 	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshSpellsFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(scrollFrame)
-	scrollFrame:SetBackdrop({})
 	scrollFrame:SetPoint("topleft", container, "topleft", 0, 0) --need to set the points
 	scrollFrame:SetPoint("bottomright", container, "bottomright", 0, 0) --need to set the points
 
@@ -2562,6 +2641,8 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	scrollFrame.DontHideChildrenOnPreRefresh = true
 	tabFrame.SpellScrollFrame = scrollFrame
 	spellsTab.SpellScrollFrame = scrollFrame
+
+	spellsTab.ApplyStandardBackdrop(container, scrollFrame)
 
 	--~header
 	local headerOptions = {
@@ -2574,6 +2655,9 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 		reziser_max_width = 246,
 
 		header_click_callback = onColumnHeaderClickCallback,
+
+		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
+		text_color = {1, 1, 1, 0.823},
 	}
 
 	local headerTable = {}
@@ -2833,12 +2917,11 @@ function spellsTab.CreateTargetBar(self, index) --~create ~target ~createtarget 
 	--size and positioning
 	targetBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
 	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
-	targetBar:SetPoint("topleft", self, "topleft", 0, y)
-	targetBar:SetPoint("topright", self, "topright", 0, y)
-
+	targetBar:SetPoint("topleft", self, "topleft", 1, y)
+	targetBar:SetPoint("topright", self, "topright", -1, y)
 	targetBar:EnableMouse(true)
 
-	targetBar:SetAlpha(0.9)
+	targetBar:SetAlpha(0.823)
 	targetBar:SetFrameStrata("HIGH")
 	targetBar:SetScript("OnEnter", onEnterBreakdownTargetBar)
 	targetBar:SetScript("OnLeave", onLeaveBreakdownTargetBar)
@@ -2904,11 +2987,21 @@ function spellsTab.CreateTargetBar(self, index) --~create ~target ~createtarget 
 	return targetBar
 end
 
+
+function spellsTab.UpdateBarSettings(bar)
+	if (bar.statusBar) then
+		bar.statusBar:SetAlpha(Details.breakdown_spell_tab.statusbar_alpha) --could be moved to when the bar is updated
+		bar.statusBar:GetStatusBarTexture():SetTexture(Details.breakdown_spell_tab.statusbar_texture)
+		bar.statusBar.backgroundTexture:SetColorTexture(unpack(Details.breakdown_spell_tab.statusbar_background_color))
+		bar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.statusbar_background_alpha)
+	end
+end
+
 ---create a spellbar within the spell scroll
 ---@param self breakdownspellscrollframe
 ---@param index number
 ---@return breakdownspellbar
-function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~create ~createline ~createspell
+function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~create ~createline ~createspell ~createspellbar
 	---@type breakdownspellbar
 	local spellBar = CreateFrame("button", self:GetName() .. "SpellBarButton" .. index, self)
 	spellBar.index = index
@@ -2916,12 +3009,12 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	--size and positioning
 	spellBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
 	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
-	spellBar:SetPoint("topleft", self, "topleft", 0, y)
-	spellBar:SetPoint("topright", self, "topright", 0, y)
+	spellBar:SetPoint("topleft", self, "topleft", 1, y)
+	spellBar:SetPoint("topright", self, "topright", -1, y)
 
 	spellBar:EnableMouse(true)
 	spellBar:RegisterForClicks("AnyUp", "AnyDown")
-	spellBar:SetAlpha(0.9)
+	spellBar:SetAlpha(0.823)
 	spellBar:SetFrameStrata("HIGH")
 	spellBar:SetScript("OnEnter", onEnterSpellBar)
 	spellBar:SetScript("OnLeave", onLeaveSpellBar)
@@ -2944,9 +3037,13 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 
 	---@type texture this is the statusbar texture
 	local statusBarTexture = statusBar:CreateTexture("$parentTexture", "artwork")
-	statusBarTexture:SetTexture(SharedMedia:Fetch("statusbar", "Details Hyanda"))
 	statusBar:SetStatusBarTexture(statusBarTexture)
 	statusBar:SetStatusBarColor(1, 1, 1, 1)
+
+	---@type texture background texture
+	local backgroundTexture = statusBar:CreateTexture("$parentTextureBackground", "border")
+	backgroundTexture:SetAllPoints()
+	statusBar.backgroundTexture = backgroundTexture
 
 	---@type texture overlay texture to use when the spellbar is selected
 	local statusBarOverlayTexture = statusBar:CreateTexture("$parentTextureOverlay", "overlay", nil, 7)
@@ -2962,13 +3059,6 @@ function spellsTab.CreateSpellBar(self, index) --~spellbar ~spellline ~spell ~cr
 	hightlightTexture:SetColorTexture(1, 1, 1, 0.2)
 	hightlightTexture:SetAllPoints()
 	statusBar.highlightTexture = hightlightTexture
-
-	---@type texture background texture
-	local backgroundTexture = statusBar:CreateTexture("$parentTextureBackground", "border")
-	backgroundTexture:SetAllPoints()
-	backgroundTexture:SetColorTexture(.05, .05, .05)
-	backgroundTexture:SetAlpha(1)
-	statusBar.backgroundTexture = backgroundTexture
 
 	--button to expand the bar when there's spells merged
 	---@type breakdownexpandbutton

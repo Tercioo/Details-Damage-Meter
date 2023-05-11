@@ -79,8 +79,6 @@ function Details:StartMeUp()
 	Details:InitializePlaterIntegrationWindow()
 	Details:InitializeMacrosWindow()
 
-	Details.InitializeSpellBreakdownTab()
-
 	if (Details.ocd_tracker.show_options) then
 		Details:InitializeCDTrackerWindow()
 	end
@@ -596,6 +594,8 @@ function Details:StartMeUp()
 	if (Details.check_stuttering) then
 		_G["UpdateAddOnMemoryUsage"] = Details.UpdateAddOnMemoryUsage_Custom
 	end
+
+	Details.InitializeSpellBreakdownTab()
 
 	pcall(Details222.EJCache.MakeCache)
 

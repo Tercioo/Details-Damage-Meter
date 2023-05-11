@@ -33,6 +33,12 @@ local PLAYER_DETAILS_STATUSBAR_ALPHA = 1
 Details.player_details_tabs = {}
 breakdownWindow.currentTabsInUse =  {}
 
+Details222.BreakdownWindow.BackdropSettings = {
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	backdropcolor = {DetailsFramework:GetDefaultBackdropColor()},
+	backdropbordercolor = {0, 0, 0, 0.7},
+}
+
 ------------------------------------------------------------------------------------------------------------------------------
 --self = instancia
 --jogador = classe_damage ou classe_heal

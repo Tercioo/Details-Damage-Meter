@@ -103,39 +103,7 @@
 	}
 
 	--damage mixin
-	local damageClassMixin = {
-		---check which data is shown in the instance and call a function to build the data for a broker
-		---@param actor actor
-		---@param instance instance
-		BuildSpellDetails = function(actor, instance, spellId)
-			local mainSection, subSection = instance:GetDisplay()
-			local combatObject = instance:GetCombat()
-			if (subSection == 1 or subSection == 2) then
-				return actor:BuildSpellDamageDoneDetails(instance, combatObject, spellId)
-		
-			elseif (subSection == 3) then
-				return self:MontaDetalhesDamageTaken (spellid, barra, instancia)
-		
-			elseif (subSection == 4) then
-				return self:MontaDetalhesFriendlyFire (spellid, barra, instancia)
-		
-			elseif (subSection == 6) then
-				if (bitBand(self.flag_original, 0x00000400) ~= 0) then --� um jogador
-					return self:MontaDetalhesDamageDone (spellid, barra, instancia)
-				end
-				return self:MontaDetalhesEnemy (spellid, barra, instancia)
-			end
-		end,
-
-	}
-
-	---prepare data to send to a broker to show details about a spell
-	---@param actor actor
-	---@param combat combat
-	---@param spellId number
-	damageClassMixin.BuildSpellDamageDoneDetails = function(actor, combat, spellId)
-
-	end
+	local damageClassMixin = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --exported functions

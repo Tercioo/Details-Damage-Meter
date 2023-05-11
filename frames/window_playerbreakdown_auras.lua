@@ -221,37 +221,44 @@ local auras_tab_create = function(tab, frame)
 end
 
 local auras_tab_fill = function(tab, player, combat)
+    ---@type actor
     local miscActor = combat:GetActor(4, player:name())
+    ---@type number
     local combatTime = combat:GetCombatTime()
 
-    do --buffs
-        local newAuraTable = {}
-        if (miscActor and miscActor.buff_uptime_spells) then
-            for spellID, spellObject in pairs(miscActor.buff_uptime_spells._ActorTable) do
-                local spellName, _, spellIcon = GetSpellInfo(spellID)
-                if (not spellObject.uptime) then
-                    --print(_GetSpellInfo(spellID))
-                    --dumpt(spellObject)
+    if (miscActor) then
+        do --buffs
+            local newAuraTable = {}
+            local spellContainer = miscActor:GetSpellContainer("buff")
+            if (spellContainer) then
+                for spellId, spellTable in spellContainer:ListSpells() do
+                    local spellName, _, spellIcon = GetSpellInfo(spellId)
+                    if (not spellTable.uptime) then
+                        --print(_GetSpellInfo(spellID))
+                        --dumpt(spellObject)
+                    end
+                    local uptime = spellTable.uptime or 0
+                    table.insert(newAuraTable, {spellIcon, spellName, uptime, spellTable.appliedamt, spellTable.refreshamt, uptime / combatTime * 100, spellID = spellId})
                 end
-                table.insert(newAuraTable, {spellIcon, spellName, spellObject.uptime, spellObject.appliedamt, spellObject.refreshamt, spellObject.uptime/combatTime*100, spellID = spellID})
             end
+            table.sort(newAuraTable, Details.Sort3)
+            tab.BuffScroll:SetData(newAuraTable)
+            tab.BuffScroll:Refresh()
         end
-        table.sort (newAuraTable, Details.Sort3)
-        tab.BuffScroll:SetData (newAuraTable)
-        tab.BuffScroll:Refresh()
-    end
 
-    do --debuffs
-        local newAuraTable = {}
-        if (miscActor and miscActor.debuff_uptime_spells) then
-            for spellID, spellObject in pairs(miscActor.debuff_uptime_spells._ActorTable) do
-                local spellName, _, spellIcon = GetSpellInfo(spellID)
-                table.insert(newAuraTable, {spellIcon, spellName, spellObject.uptime, spellObject.appliedamt, spellObject.refreshamt, spellObject.uptime/combatTime*100, spellID = spellID})
+        do --debuffs
+            local newAuraTable = {}
+            local spellContainer = miscActor:GetSpellContainer("debuff")
+            if (spellContainer) then
+                for spellId, spellTable in spellContainer:ListSpells() do
+                    local spellName, _, spellIcon = GetSpellInfo(spellId)
+                    table.insert(newAuraTable, {spellIcon, spellName, spellTable.uptime, spellTable.appliedamt, spellTable.refreshamt, spellTable.uptime / combatTime * 100, spellID = spellId})
+                end
             end
+            table.sort(newAuraTable, Details.Sort3)
+            tab.DebuffScroll:SetData(newAuraTable)
+            tab.DebuffScroll:Refresh()
         end
-        table.sort (newAuraTable, Details.Sort3)
-        tab.DebuffScroll:SetData (newAuraTable)
-        tab.DebuffScroll:Refresh()
     end
 end
 

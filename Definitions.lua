@@ -358,7 +358,8 @@
 
 ---@class spellcontainer : table
 ---@field GetSpell fun(container: spellcontainer, spellId: number) get a spell by its id
----@field ListActors fun(container: spellcontainer) : pairs usage: for spellId, spelltable in container:ListActors() do
+---@field ListActors fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
+---@field ListSpells fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
 ---@field _ActorTable table
 
 ---@class spelltable : table
@@ -614,10 +615,14 @@
 ---@field SpellBlockFrame breakdownspellblockframe
 
 ---@class breakdownspellblockframe : frame container for the spellblocks in the breakdown window
----@field SpellBlocks breakdownspellblock[]
----@field UpdateBlocks fun(self: breakdownspellblockframe)
----@field ClearBlocks fun(self: breakdownspellblockframe)
----@field GetBlock fun(self: breakdownspellblockframe, index: number) : breakdownspellblock
+---@field SpellBlocks breakdownspellblock[] array of spellblocks
+---@field blocksInUse number number of blocks currently in use
+---@field UpdateBlocks fun(self: breakdownspellblockframe) update the blocks
+---@field ClearBlocks fun(self: breakdownspellblockframe) clear all blocks
+---@field GetBlock fun(self: breakdownspellblockframe, index: number) : breakdownspellblock return the block at the index
+---@field GetBlocksInUse fun(self: breakdownspellblockframe) : number return the number of blocks currently in use
+---@field GetBlocksAmount fun(self: breakdownspellblockframe) : number return the total blocks created
+---@field ShowEmptyBlock fun(self: breakdownspellblockframe, index: number) show the empty block
 
 ---@class breakdownspellblock : statusbar breakdownspellblock object which is created inside the breakdownspellblockframe
 ---@field Lines breakdownspellblockline[]
