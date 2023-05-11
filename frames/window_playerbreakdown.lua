@@ -431,22 +431,29 @@ end
 ---@param instance instance
 function Details222.BreakdownWindow.SendSpellData(data, actorObject, combatObject, instance)
 	--need to get the tab showing the summary and transmit the data to it
-	local tab = Details222.BreakdownWindow.CurrentDefaultTab
-	if (tab) then
+	local tabButton = Details222.BreakdownWindow.CurrentDefaultTab
+	if (tabButton) then
 		--tab is the tab button
-		if (tab.OnReceiveSpellData) then
-			tab.OnReceiveSpellData(data, actorObject, combatObject, instance)
+		if (tabButton.OnReceiveSpellData) then
+			tabButton.OnReceiveSpellData(data, actorObject, combatObject, instance)
 		end
 	end
 end
 
 function Details222.BreakdownWindow.SendTargetData(targetList, actorObject, combatObject, instance)
-	--need to get the tab showing the summary and transmit the data to it
-	local tab = Details222.BreakdownWindow.CurrentDefaultTab
-	if (tab) then
-		--tab is the tab button
-		if (tab.OnReceiveTargetData) then
-			tab.OnReceiveTargetData(targetList, actorObject, combatObject, instance)
+	local tabButton = Details222.BreakdownWindow.CurrentDefaultTab
+	if (tabButton) then
+		if (tabButton.OnReceiveTargetData) then
+			tabButton.OnReceiveTargetData(targetList, actorObject, combatObject, instance)
+		end
+	end
+end
+
+function Details222.BreakdownWindow.SendGenericData(resultTable, actorObject, combatObject, instance)
+	local tabButton = Details222.BreakdownWindow.CurrentDefaultTab
+	if (tabButton) then
+		if (tabButton.OnReceiveGenericData) then
+			tabButton.OnReceiveGenericData(resultTable, actorObject, combatObject, instance)
 		end
 	end
 end

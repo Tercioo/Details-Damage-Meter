@@ -12,11 +12,63 @@ do
 	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 	local unknown_class_coords = {0.75, 1, 0.75, 1}
 
+	---return a table containing information about the texture to use for the actor icon
+	---@param actorObject actor
+	---@return texturetable
+	function Details:GetActorIcon(actorObject)
+		---@type instance
+		local instance = Details:GetInstance(1)
+
+		local spec = actorObject:Spec()
+		if (spec and spec > 0) then
+			---@type string
+			local fileName
+
+			--get the spec icon file currently in use
+			if (instance) then
+				fileName = instance.row_info.spec_file
+			else
+				fileName = Details.instance_defaults.row_info.spec_file
+			end
+
+			local left, right, top, bottom = unpack(Details.class_specs_coords[spec])
+
+			local textureTable = {
+				texture = fileName,
+				coords = {left = left, right = right, top = top, bottom = bottom},
+				size = {height = 16, width = 16},
+			}
+
+			return textureTable
+		end
+
+		local class = actorObject:Class() or "UNKNOW"
+		local left, right, top, bottom = unpack(Details.class_coords[class])
+
+		---@type string
+		local fileName
+			--get the spec icon file currently in use
+			if (instance) then
+				fileName = instance.row_info.icon_file
+			else
+				fileName = Details.instance_defaults.row_info.icon_file
+			end
+
+		local textureTable = {
+			texture = fileName,
+			coords = {left = left, right = right, top = top, bottom = bottom},
+			size = {height = 16, width = 16},
+		}
+
+		return textureTable
+	end
+
+
 	function Details:GetUnknownClassIcon()
 		return [[Interface\AddOns\Details\images\classes_small]], unpack(unknown_class_coords)
 	end
 
-	function Details:GetIconTexture (iconType, withAlpha)
+	function Details:GetIconTexture(iconType, withAlpha)
 		iconType = string.lower(iconType)
 
 		if (iconType == "spec") then
@@ -37,16 +89,16 @@ do
 
 	-- try get the class from actor name
 	function Details:GetClass(name)
-		local _, class = UnitClass (name)
+		local _, class = UnitClass(name)
 
 		if (not class) then
 			for index, container in ipairs(Details.tabela_overall) do
-				local index = container._NameIndexTable [name]
+				local index = container._NameIndexTable[name]
 				if (index) then
-					local actor = container._ActorTable [index]
+					local actor = container._ActorTable[index]
 					if (actor.classe ~= "UNGROUPPLAYER") then
-						local left, right, top, bottom = unpack(Details.class_coords [actor.classe] or unknown_class_coords)
-						local r, g, b = unpack(Details.class_colors [actor.classe])
+						local left, right, top, bottom = unpack(Details.class_coords[actor.classe] or unknown_class_coords)
+						local r, g, b = unpack(Details.class_colors[actor.classe])
 						return actor.classe, left, right, top, bottom, r or 1, g or 1, b or 1
 					end
 				end
@@ -54,8 +106,8 @@ do
 
 			return "UNKNOW", 0.75, 1, 0.75, 1, 1, 1, 1, 1
 		else
-			local left, right, top, bottom = unpack(Details.class_coords [class])
-			local r, g, b = unpack(Details.class_colors [class])
+			local left, right, top, bottom = unpack(Details.class_coords[class])
+			local r, g, b = unpack(Details.class_colors[class])
 			return class, left, right, top, bottom, r or 1, g or 1, b or 1
 		end
 	end
@@ -69,7 +121,7 @@ do
 		NONE = {0, 50/512, 110/512, 150/512},
 	}
 	function Details:GetRoleIcon (role)
-		return [[Interface\AddOns\Details\images\icons2]], unpack(roles [role])
+		return [[Interface\AddOns\Details\images\icons2]], unpack(roles[role])
 	end
 
 	function Details:GetClassIcon(class)

@@ -85,6 +85,11 @@ function spellsTab.GetPhaseScrollFrame()
 	return spellsTab.PhaseScrollFrame
 end
 
+---@return breakdowntargetscrollframe
+function spellsTab.GetGenericScrollFrame()
+	return spellsTab.GenericScrollFrame
+end
+
 ---@return df_framecontainer
 function spellsTab.GetSpellScrollContainer()
 	return spellsTab.SpellContainerFrame
@@ -105,6 +110,11 @@ function spellsTab.GetPhaseScrollContainer()
 	return spellsTab.PhaseContainerFrame
 end
 
+---@return df_framecontainer
+function spellsTab.GetGenericScrollContainer()
+	return spellsTab.GenericContainerFrame
+end
+
 function spellsTab.GetScrollFrameByContainerType(containerType)
 	if (containerType == "spells") then
 		return spellsTab.GetSpellScrollFrame()
@@ -114,6 +124,9 @@ function spellsTab.GetScrollFrameByContainerType(containerType)
 
 	elseif (containerType == "phases") then
 		return spellsTab.GetPhaseScrollFrame()
+
+	elseif (containerType == "generic") then
+		return spellsTab.GetGenericScrollFrame()
 	end
 end
 
@@ -122,6 +135,7 @@ function spellsTab.OnProfileChange()
 	spellsTab.UpdateHeadersSettings("spells")
 	spellsTab.UpdateHeadersSettings("targets")
 	spellsTab.UpdateHeadersSettings("phases")
+	spellsTab.UpdateHeadersSettings("generic")
 end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -135,7 +149,6 @@ local headerContainerType = {}
 local columnOffset = 0
 
 ---column header information saved into details database: if is enabaled, its with and align
----@class headercolumndatasaved : {enabled: boolean, width: number, align: string}
 local settingsPrototype = {
 	enabled = true,
 	width = 100,
@@ -190,8 +203,18 @@ local phaseContainerColumnData = {
 	{name = "percent", label = "%", key = "total", width = 44, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
 }
 
+--generic container can show data from any attribute
+local genericContainerColumnData = {
+	{name = "icon", width = 22, label = "", align = "left", enabled = true, offset = columnOffset},
+	{name = "name", label = "name", width = 200, align = "left", enabled = true, offset = columnOffset},
+	{name = "rank", label = "#", width = 30, align = "left", enabled = true, offset = columnOffset},
+	{name = "amount", label = "total", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset, selected = true},
+	{name = "persecond", label = "ps", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "ps", dataType = "number", order = "DESC", offset = columnOffset},
+	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
+}
+
 ---get the header settings from details saved variables and the container column data
----@param containerType "spells"|"targets"|"phases"
+---@param containerType "spells"|"targets"|"phases"|"generic"
 ---@return headercolumndatabase
 ---@return columndata
 function spellsTab.GetHeaderSettings(containerType)
@@ -210,6 +233,22 @@ function spellsTab.GetHeaderSettings(containerType)
 	elseif (containerType == "phases") then
 		settings = Details.breakdown_spell_tab.phasecontainer_headers
 		containerColumnData = phaseContainerColumnData
+
+	elseif (containerType == "generic") then
+		settings = Details.breakdown_spell_tab.genericcontainer_headers
+		containerColumnData = genericContainerColumnData
+
+		--as the generic data is received, it may have which columns can be shown
+		if (spellsTab.headersAllowed) then
+			for index, columnData in ipairs(containerColumnData) do
+				local newEnabledState = spellsTab.headersAllowed[columnData.name] or false
+				columnData.enabled = newEnabledState
+				--check if the settings already has the data, and then set the header enabled value to follow the headersAllowed table
+				if (settings[columnData.name]) then
+					settings[columnData.name].enabled = newEnabledState
+				end
+			end
+		end
 	end
 
 	---@cast settings headercolumndatabase
@@ -222,7 +261,7 @@ end
 ---@param columnName string
 ---@param value any
 local onHeaderColumnOptionChanged = function(headerFrame, optionName, columnName, value)
-	---@type "spells"|"targets"|"phases"
+	---@type "spells"|"targets"|"phases"|"generic"
 	local containerType = headerContainerType[headerFrame]
 	---@type headercolumndatabase
 	local settings = spellsTab.GetHeaderSettings(containerType)
@@ -244,7 +283,7 @@ end
 
 ---copy settings from the ColumnInfo table which doesn't exists in the details profile
 ---this is called when the profile changes or when the tab is opened with a different actor than before
----@param containerType "spells"|"targets"|"phases"
+---@param containerType "spells"|"targets"|"phases"|"generic"
 function spellsTab.UpdateHeadersSettings(containerType)
 	---details table which hold the settings for a container header
 	local settings, containerColumnData = spellsTab.GetHeaderSettings(containerType)
@@ -303,12 +342,16 @@ function spellsTab.UpdateHeadersSettings(containerType)
 	elseif (containerType == "phases") then
 		spellsTab.phasesHeaderData = spellsTab.BuildHeaderTable(containerType)
 		spellsTab.GetPhaseScrollFrame().Header:SetHeaderTable(spellsTab.phasesHeaderData)
+
+	elseif (containerType == "generic") then
+		spellsTab.genericHeaderData = spellsTab.BuildHeaderTable(containerType)
+		spellsTab.GetGenericScrollFrame().Header:SetHeaderTable(spellsTab.genericHeaderData)
 	end
 end
 
 ---get the header settings from details profile and build a header table using the table which store all headers columns information
 ---the data for each header is stored on 'spellContainerColumnInfo' and 'targetContainerColumnInfo' variables
----@param containerType "spells"|"targets"|"phases"
+---@param containerType "spells"|"targets"|"phases"|"generic"
 ---@return {name: string, width: number, text: string, align: string}[]
 function spellsTab.BuildHeaderTable(containerType)
 	---@type headercolumndata[]
@@ -456,6 +499,7 @@ function spellsTab.OnShownTab()
 	spellsTab.UpdateHeadersSettings("spells")
 	spellsTab.UpdateHeadersSettings("targets")
 	spellsTab.UpdateHeadersSettings("phases")
+	spellsTab.UpdateHeadersSettings("generic")
 end
 
 ---called when the tab is getting created, run only once
@@ -463,6 +507,11 @@ end
 ---@param tabFrame breakdownspellstab
 function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	spellBreakdownSettings = Details.breakdown_spell_tab
+
+	spellsTab.TabFrame = tabFrame
+
+	--initialize the allowed headers for generic data container
+	spellsTab.headersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
 
     --create the scrollbar to show the spells in the breakdown window
     spellsTab.CreateSpellScrollContainer(tabFrame) --finished
@@ -472,11 +521,11 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
     spellsTab.CreateTargetContainer(tabFrame)
 	--create phases container
 	spellsTab.CreatePhasesContainer(tabFrame)
+	--create generic container
+	spellsTab.CreateGenericContainer(tabFrame)
 
     --create the report buttons for each container
     --spellsTab.CreateReportButtons(tabFrame)
-
-    spellsTab.TabFrame = tabFrame
 
 	--create a button in the breakdown window to open the options for this tab
 	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 20, "options", 14, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -603,185 +652,9 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 	summaryBlock:SetValue(100)
 
 	if (mainAttribute == DETAILS_ATTRIBUTE_DAMAGE) then --this should run within the damage class ~damage
-		local bShowDamageDone = subAttribute == DETAILS_SUBATTRIBUTE_DAMAGEDONE or subAttribute == DETAILS_SUBATTRIBUTE_DPS
-
-		---@type number
-		local totalHits = spellTable.counter
-
-		--damage section showing damage done sub section
-		blockIndex = blockIndex + 1
-
-		do --update the texts in the summary block
-			local blockLine1, blockLine2, blockLine3 = summaryBlock:GetLines()
-
-			local totalCasts = spellBar.amountCasts > 0 and spellBar.amountCasts or "(?)"
-			blockLine1.leftText:SetText(Loc ["STRING_CAST"] .. ": " .. totalCasts) --total amount of casts
-
-			if (trinketData[spellId] and combatObject.trinketProcs) then
-				local trinketProcData = combatObject.trinketProcs[actorName]
-				if (trinketProcData) then
-					local trinketProc = trinketProcData[spellId]
-					if (trinketProc) then
-						blockLine1.leftText:SetText("Procs: " .. trinketProc.total)
-					end
-				end
-			end
-
-			blockLine1.rightText:SetText(Loc ["STRING_HITS"]..": " .. totalHits) --hits and uptime
-
-			blockLine2.leftText:SetText(Loc ["STRING_DAMAGE"]..": " .. Details:Format(spellTable.total)) --total damage
-			blockLine2.rightText:SetText(Details:GetSpellSchoolFormatedName(spellTable.spellschool)) --spell school
-
-			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:Format(spellBar.average)) --average damage
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
-		end
-
-		local emporwerSpell = spellTable.e_total
-		if (emporwerSpell) then
-			local empowerLevelSum = spellTable.e_total --total sum of empower levels
-			local empowerAmount = spellTable.e_amt --amount of casts with empower
-			local empowerAmountPerLevel = spellTable.e_lvl --{[1] = 4; [2] = 9; [3] = 15}
-			local empowerDamagePerLevel = spellTable.e_dmg --{[1] = 54548745, [2] = 74548745}
-
-			---@type breakdownspellblock
-			local empowerBlock = spellBlockContainer:GetBlock(blockIndex)
-			blockIndex = blockIndex + 1
-
-			local level1AverageDamage = "0"
-			local level2AverageDamage = "0"
-			local level3AverageDamage = "0"
-			local level4AverageDamage = "0"
-			local level5AverageDamage = "0"
-
-			if (empowerDamagePerLevel[1]) then
-				level1AverageDamage = Details:Format(empowerDamagePerLevel[1] / empowerAmountPerLevel[1])
-			end
-			if (empowerDamagePerLevel[2]) then
-				level2AverageDamage = Details:Format(empowerDamagePerLevel[2] / empowerAmountPerLevel[2])
-			end
-			if (empowerDamagePerLevel[3]) then
-				level3AverageDamage = Details:Format(empowerDamagePerLevel[3] / empowerAmountPerLevel[3])
-			end
-			if (empowerDamagePerLevel[4]) then
-				level4AverageDamage = Details:Format(empowerDamagePerLevel[4] / empowerAmountPerLevel[4])
-			end
-			if (empowerDamagePerLevel[5]) then
-				level5AverageDamage = Details:Format(empowerDamagePerLevel[5] / empowerAmountPerLevel[5])
-			end
-
-			empowerBlock:Show()
-			empowerBlock:SetValue(100)
-
-			empowerBlock.sparkTexture:SetPoint("left", empowerBlock, "left", empowerBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
-			empowerBlock:SetColor(0.200, 0.576, 0.498, 0.6)
-
-			local blockLine1, blockLine2, blockLine3 = empowerBlock:GetLines()
-			blockLine1.leftText:SetText("Spell Empower Average Level: " .. string.format("%.2f", empowerLevelSum / empowerAmount))
-
-			if (level1AverageDamage ~= "0") then
-				blockLine2.leftText:SetText("Level 1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")")
-			end
-
-			if (level2AverageDamage ~= "0") then
-				blockLine2.centerText:SetText("Level 2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")")
-			end
-
-			if (level3AverageDamage ~= "0") then
-				blockLine2.rightText:SetText("Level 3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")")
-			end
-
-			if (level4AverageDamage ~= "0") then
-				blockLine3.leftText:SetText("Level 4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")")
-			end
-
-			if (level5AverageDamage ~= "0") then
-				blockLine3.rightText:SetText("Level 5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")")
-			end
-		end
-
-		--check if there's normal hits and build the block
-		---@type number
-		local normalHitsAmt = spellTable.n_amt
-
-		if (normalHitsAmt > 0) then
-			---@type breakdownspellblock
-			local normalHitsBlock = spellBlockContainer:GetBlock(blockIndex)
-			normalHitsBlock:Show()
-			blockIndex = blockIndex + 1
-
-			local percent = normalHitsAmt / math.max(totalHits, 0.0001) * 100
-			normalHitsBlock:SetValue(percent)
-			normalHitsBlock.sparkTexture:SetPoint("left", normalHitsBlock, "left", percent / 100 * normalHitsBlock:GetWidth() + Details.breakdown_spell_tab.blockspell_spark_offset, 0)
-
-			local blockLine1, blockLine2, blockLine3 = normalHitsBlock:GetLines()
-			blockLine1.leftText:SetText(Loc ["STRING_NORMAL_HITS"])
-			blockLine1.rightText:SetText(normalHitsAmt .. " [|cFFC0C0C0" .. string.format("%.1f", normalHitsAmt / math.max(totalHits, 0.0001) * 100) .. "%|r]")
-
-			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.n_min))
-			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.n_max))
-
-			local normalAverage = spellTable.n_total / math.max(normalHitsAmt, 0.0001)
-			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(normalAverage))
-
-			local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
-			local normalAveragePercent = spellBar.average / normalAverage * 100
-			local normalTempoPercent = normalAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
-		end
-
-		---@type number
-		local criticalHitsAmt = spellTable.c_amt
-		if (criticalHitsAmt > 0) then
-			---@type breakdownspellblock
-			local critHitsBlock = spellBlockContainer:GetBlock(blockIndex)
-			critHitsBlock:Show()
-			blockIndex = blockIndex + 1
-
-			local percent = Details.SpellTableMixin.GetCritPercent(spellTable)
-			critHitsBlock:SetValue(percent)
-			critHitsBlock.sparkTexture:SetPoint("left", critHitsBlock, "left", percent / 100 * critHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
-
-			local blockLine1, blockLine2, blockLine3 = critHitsBlock:GetLines()
-			blockLine1.leftText:SetText(Loc ["STRING_CRITICAL_HITS"])
-			blockLine1.rightText:SetText(criticalHitsAmt .. " [|cFFC0C0C0" .. string.format("%.1f", criticalHitsAmt / math.max(totalHits, 0.0001) * 100) .. "%|r]")
-
-			blockLine2.leftText:SetText(Loc ["STRING_MINIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_min))
-			blockLine2.rightText:SetText(Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. Details:CommaValue(spellTable.c_max))
-
-			local critAverage = Details.SpellTableMixin.GetCritAverage(spellTable)
-			blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(critAverage))
-
-			local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
-			local critAveragePercent = spellBar.average / critAverage * 100
-			local critTempoPercent = critAveragePercent * tempo / 100
-			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
-		end
-
-		if (trinketData[spellId]) then
-			---@type trinketdata
-			local trinketInfo = trinketData[spellId]
-
-			local minTime = trinketInfo.minTime
-			local maxTime = trinketInfo.maxTime
-			local average = trinketInfo.averageTime
-
-			---@type breakdownspellblock
-			local trinketBlock = spellBlockContainer:GetBlock(blockIndex)
-			trinketBlock:Show()
-			trinketBlock:SetValue(100)
-			trinketBlock.sparkTexture:SetPoint("left", trinketBlock, "left", trinketBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
-			blockIndex = blockIndex + 1
-
-			local blockLine1, blockLine2, blockLine3 = trinketBlock:GetLines()
-			blockLine1.leftText:SetText("Trinket Info")
-
-			blockLine1.rightText:SetText("PPM: " .. string.format("%.2f", average / 60))
-			if (minTime == 9999999) then
-				blockLine2.leftText:SetText("Min Time: " .. _G["UNKNOWN"])
-			else
-				blockLine2.leftText:SetText("Min Time: " .. math.floor(minTime))
-			end
-			blockLine2.rightText:SetText("Max Time: " .. math.floor(maxTime))
+		--bounce to damage class to handle the spell details
+		if (subAttribute == 1 or subAttribute == 2 or subAttribute == 6) then
+			Details.atributo_damage:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex, summaryBlock, spellId, elapsedTime, actorName, spellTable, trinketData, combatObject)
 		end
 
 	elseif (mainAttribute == DETAILS_ATTRIBUTE_HEAL) then --this should run within the heal class ~healing
@@ -1190,8 +1063,16 @@ function spellsTab.CreateSpellBlockContainer(tabFrame) --~create ~createblock ~s
 			if (settingName == "UpdateSize") then
 				--get the tabFrame width and height
 				local width, height = tabFrame:GetSize()
+				local containerWidth
+
 				--get with of the container holding the spellscrollframe
-				local containerWidth = spellsTab.GetSpellScrollContainer():GetWidth()
+				if (spellsTab.GetSpellScrollContainer():IsShown()) then
+					containerWidth = spellsTab.GetSpellScrollContainer():GetWidth()
+
+				elseif (spellsTab.GetGenericScrollContainer():IsShown()) then
+					containerWidth = spellsTab.GetGenericScrollContainer():GetWidth()
+				end
+
 				--calculate the widh of the spellblockcontainer by subtracting the width of the spellscrollframe container from the tabFrame width
 				local spellBlockContainerWidth = width - containerWidth - 38
 				--set the width of the spellblockcontainer
@@ -1518,6 +1399,26 @@ end
 ---@param scrollFrame table
 ---@param lineIndex number
 ---@return breakdownphasebar
+local getGenericBar = function(scrollFrame, lineIndex)
+	---@type breakdowngenericbar
+	local genericBar = scrollFrame:GetLine(lineIndex)
+
+	--reset header alignment
+	genericBar:ResetFramesToHeaderAlignment()
+
+	--reset columns, hiding them
+	genericBar.Icon:Hide()
+	for inLineIndex = 1, #genericBar.InLineTexts do
+		genericBar.InLineTexts[inLineIndex]:SetText("")
+	end
+
+	return genericBar
+end
+
+---get a spell bar from the scroll box, if it doesn't exist, return nil
+---@param scrollFrame table
+---@param lineIndex number
+---@return breakdownphasebar
 local getPhaseBar = function(scrollFrame, lineIndex)
 	---@type breakdownphasebar
 	local phaseBar = scrollFrame:GetLine(lineIndex)
@@ -1538,7 +1439,86 @@ end
 ---@param scrollData table
 ---@param offset number
 ---@param totalLines number
-local refreshPhaseFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshspells ~refreshfunc ~refresh ~refreshp ~updatephasebar
+local refreshGenericFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshgeneric ~refreshfunc ~refresh ~refreshg ~updategenericbar
+	local lineIndex = 1
+	local combatTime = scrollData.combatTime
+	local totalValue = scrollData.totalValue
+
+	for i = 1, totalLines do
+		local index = i + offset
+		local dataTable = scrollData[index]
+
+		if (dataTable) then
+			local genericBar = getGenericBar(scrollFrame, lineIndex)
+			genericBar.statusBar:SetValue(dataTable.total / scrollFrame.topValue * 100)
+
+			---@type number
+			local textIndex = 1
+
+			if (scrollData.headersAllowed.icon) then
+				---@type texturetable
+				local dataIcon = dataTable.icon
+				genericBar.Icon:Show()
+				genericBar.Icon:SetTexture(dataIcon.texture)
+				genericBar.Icon:SetTexCoord(dataIcon.coords.left, dataIcon.coords.right, dataIcon.coords.top, dataIcon.coords.bottom)
+				genericBar.Icon:SetSize(CONST_SPELLSCROLL_LINEHEIGHT-2, CONST_SPELLSCROLL_LINEHEIGHT-2)
+				genericBar:AddFrameToHeaderAlignment(genericBar.Icon)
+			end
+
+			if (scrollData.headersAllowed.name) then
+				---@type fontstring
+				local fontString = genericBar.InLineTexts[textIndex]
+				genericBar:AddFrameToHeaderAlignment(fontString)
+				fontString:SetText(dataTable.name)
+				textIndex = textIndex + 1
+			end
+
+			if (scrollData.headersAllowed.rank) then
+				---@type fontstring
+				local fontString = genericBar.InLineTexts[textIndex]
+				genericBar:AddFrameToHeaderAlignment(fontString)
+				fontString:SetText(index)
+				textIndex = textIndex + 1
+			end
+
+			if (scrollData.headersAllowed.amount) then
+				---@type fontstring
+				local fontString = genericBar.InLineTexts[textIndex]
+				genericBar:AddFrameToHeaderAlignment(fontString)
+				fontString:SetText(Details:Format(dataTable.total))
+				textIndex = textIndex + 1
+			end
+
+			if (scrollData.headersAllowed.persecond) then
+				---@type fontstring
+				local fontString = genericBar.InLineTexts[textIndex]
+				genericBar:AddFrameToHeaderAlignment(fontString)
+				fontString:SetText(Details:Format(dataTable.total / combatTime))
+				textIndex = textIndex + 1
+			end
+
+			if (scrollData.headersAllowed.percent) then
+				---@type fontstring
+				local fontString = genericBar.InLineTexts[textIndex]
+				genericBar:AddFrameToHeaderAlignment(fontString)
+				fontString:SetText(string.format("%.1f", dataTable.total / totalValue * 100) .. "%")
+				textIndex = textIndex + 1
+			end
+
+			lineIndex = lineIndex + 1
+			if (lineIndex > totalLines) then
+				break
+			end
+		end
+	end
+end
+
+
+---@param scrollFrame table
+---@param scrollData table
+---@param offset number
+---@param totalLines number
+local refreshPhaseFunc = function(scrollFrame, scrollData, offset, totalLines) --~refreshphases ~refreshfunc ~refresh ~refreshp ~updatephasebar
 	local lineIndex = 1
 	local formatFunc = Details:GetCurrentToKFunction()
 	local phaseElapsedTime = scrollData.phaseElapsed
@@ -1772,11 +1752,215 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 		phaseScrollFrame:CreateLine(spellsTab.CreatePhaseBar)
 	end
 
-	tabFrame.phases = tabFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
+	tabFrame.phases = container:CreateFontString(nil, "overlay", "QuestFont_Large")
 	tabFrame.phases:SetPoint("bottomleft", container, "topleft", 2, 2)
 	tabFrame.phases:SetText("Phases:") --localize-me
 
 	return phaseScrollFrame
+end
+
+---create a genericbar within the generic scroll
+---@param self breakdowngenericscrollframe
+---@param index number
+---@return breakdowngenericbar
+function spellsTab.CreateGenericBar(self, index) --~create ~generic ~creategeneric ~genericbar
+	---@type breakdowngenericbar
+	local genericBar = CreateFrame("button", self:GetName() .. "GenericBarButton" .. index, self)
+	genericBar.index = index
+
+	--size and positioning
+	genericBar:SetHeight(CONST_SPELLSCROLL_LINEHEIGHT)
+	local y = (index-1) * CONST_SPELLSCROLL_LINEHEIGHT * -1 + (1 * -index) - 15
+	genericBar:SetPoint("topleft", self, "topleft", 0, y)
+	genericBar:SetPoint("topright", self, "topright", 0, y)
+
+	genericBar:EnableMouse(true)
+
+	genericBar:SetAlpha(0.9)
+	genericBar:SetFrameStrata("HIGH")
+	genericBar:SetScript("OnEnter", onEnterBreakdownGenericBar)
+	genericBar:SetScript("OnLeave", onLeaveBreakdownGenericBar)
+
+	DF:Mixin(genericBar, DF.HeaderFunctions)
+
+	---@type breakdownspellbarstatusbar
+	local statusBar = CreateFrame("StatusBar", "$parentStatusBar", genericBar)
+	statusBar:SetAllPoints()
+	statusBar:SetAlpha(0.5)
+	statusBar:SetMinMaxValues(0, 100)
+	statusBar:SetValue(50)
+	statusBar:EnableMouse(false)
+	statusBar:SetFrameLevel(genericBar:GetFrameLevel() - 1)
+	genericBar.statusBar = statusBar
+
+	---@type texture this is the statusbar texture
+	local statusBarTexture = statusBar:CreateTexture("$parentTexture", "artwork")
+	statusBarTexture:SetTexture(SharedMedia:Fetch("statusbar", "Details Hyanda"))
+	statusBar:SetStatusBarTexture(statusBarTexture)
+	statusBar:SetStatusBarColor(1, 1, 1, 1)
+
+	---@type texture shown when the mouse hoverover this bar
+	local hightlightTexture = statusBar:CreateTexture("$parentTextureHighlight", "highlight")
+	hightlightTexture:SetColorTexture(1, 1, 1, 0.2)
+	hightlightTexture:SetAllPoints()
+	statusBar.highlightTexture = hightlightTexture
+
+	---@type texture background texture
+	local backgroundTexture = statusBar:CreateTexture("$parentTextureBackground", "border")
+	backgroundTexture:SetAllPoints()
+	backgroundTexture:SetColorTexture(.05, .05, .05)
+	backgroundTexture:SetAlpha(1)
+	statusBar.backgroundTexture = backgroundTexture
+
+	--create an icon
+	---@type texture
+	local icon = statusBar:CreateTexture("$parentTexture", "overlay")
+	icon:SetPoint("left", statusBar, "left", 0, 0)
+	icon:SetSize(CONST_SPELLSCROLL_LINEHEIGHT-2, CONST_SPELLSCROLL_LINEHEIGHT-2)
+	icon:SetTexCoord(.1, .9, .1, .9)
+	genericBar.Icon = icon
+
+	genericBar:AddFrameToHeaderAlignment(icon)
+
+	genericBar.InLineTexts = {}
+
+	for i = 1, 5 do
+		---@type fontstring
+		local fontString = genericBar:CreateFontString("$parentFontString" .. i, "overlay", "GameFontHighlightSmall")
+		fontString:SetJustifyH("left")
+		fontString:SetTextColor(1, 1, 1, 1)
+		fontString:SetNonSpaceWrap(true)
+		fontString:SetWordWrap(false)
+		genericBar["lineText" .. i] = fontString
+		genericBar.InLineTexts[i] = fontString
+		fontString:SetTextColor(1, 1, 1, 1)
+		genericBar:AddFrameToHeaderAlignment(fontString)
+	end
+
+	genericBar:AlignWithHeader(self.Header, "left")
+
+	return genericBar
+end
+
+---create the generic container, this container hold bars that can show any type of data
+---@param tabFrame tabframe
+---@return breakdowngenericscrollframe
+function spellsTab.CreateGenericContainer(tabFrame) --~create ~generic ~creategenericcontainer ~creategenericscroll ~creategeneric
+	---@type width
+	local width = Details.breakdown_spell_tab.genericcontainer_width
+	---@type height
+	local height = Details.breakdown_spell_tab.genericcontainer_height
+
+	local defaultAmountOfLines = 50
+
+	--create a container for the scrollframe
+	local options = {
+		width = Details.breakdown_spell_tab.genericcontainer_width,
+		height = Details.breakdown_spell_tab.genericcontainer_height,
+		is_locked = Details.breakdown_spell_tab.genericcontainer_islocked,
+		can_move = false,
+		can_move_children = false,
+		use_top_resizer = true,
+		use_right_resizer = true,
+		use_bottom_resizer = true,
+		use_left_resizer = true,
+	}
+
+	---@type df_framecontainer
+	local container = DF:CreateFrameContainer(tabFrame, options, tabFrame:GetName() .. "GenericScrollContainer")
+	container:SetPoint("topleft", tabFrame, "topleft", 0, 0)
+	container:SetFrameLevel(tabFrame:GetFrameLevel()+1)
+	spellsTab.GenericContainerFrame = container
+
+	--when a setting is changed in the container, it will call this function, it is registered below with SetSettingChangedCallback()
+	local settingChangedCallbackFunction = function(frameContainer, settingName, settingValue)
+		if (frameContainer:IsShown()) then
+			if (settingName == "height") then
+				---@type number
+				local currentHeight = spellsTab.GetGenericScrollFrame():GetHeight()
+				Details.breakdown_spell_tab.genericcontainer_height = settingValue
+				spellsTab.GetGenericScrollFrame():SetNumFramesShown(math.floor(currentHeight / CONST_SPELLSCROLL_LINEHEIGHT) - 2)
+
+			elseif (settingName == "width") then
+				Details.breakdown_spell_tab.genericcontainer_width = settingValue
+
+			elseif (settingName == "is_locked") then
+				Details.breakdown_spell_tab.genericcontainer_islocked = settingValue
+			end
+
+			spellsTab.GetSpellBlockContainer():SendSettingChangedCallback("UpdateSize", -1)
+		end
+	end
+	container:SetSettingChangedCallback(settingChangedCallbackFunction)
+
+	--create a scrollframe
+	local genericScrollFrame = DF:CreateScrollBox(container, "$parentGenericScroll", refreshGenericFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
+	DF:ReskinSlider(genericScrollFrame)
+	genericScrollFrame:SetBackdrop({})
+	genericScrollFrame:SetAllPoints()
+
+	container:RegisterChildForDrag(genericScrollFrame)
+
+	genericScrollFrame.DontHideChildrenOnPreRefresh = false
+	tabFrame.GenericScrollFrame = genericScrollFrame
+	spellsTab.GenericScrollFrame = genericScrollFrame
+
+	--settingChangedCallbackFunction(container, "height", Details.breakdown_spell_tab.genericcontainer_height)
+
+	function genericScrollFrame:RefreshMe(data) --~refreshme (generic) ~refreshg
+		--get which column is currently selected and the sort order
+		local columnIndex, order, key = genericScrollFrame.Header:GetSelectedColumn()
+		genericScrollFrame.SortKey = key
+
+		---@type string
+		local keyToSort = key
+
+		if (order == "DESC") then
+			table.sort(data,
+			function(t1, t2)
+				return t1[keyToSort] > t2[keyToSort]
+			end)
+			genericScrollFrame.topValue = data[1] and data[1][keyToSort]
+		else
+			table.sort(data,
+			function(t1, t2)
+				return t1[keyToSort] < t2[keyToSort]
+			end)
+			genericScrollFrame.topValue = data[#data] and data[#data][keyToSort]
+		end
+
+		genericScrollFrame:SetData(data)
+		genericScrollFrame:Refresh()
+	end
+
+	--~header
+	local headerOptions = {
+		padding = 2,
+		header_height = 14,
+
+		reziser_shown = true,
+		reziser_width = 2,
+		reziser_color = {.5, .5, .5, 0.7},
+		reziser_max_width = 246,
+	}
+
+	---@type df_headerframe
+	local header = DetailsFramework:CreateHeader(container, genericContainerColumnData, headerOptions)
+	genericScrollFrame.Header = header
+	genericScrollFrame.Header:SetPoint("topleft", genericScrollFrame, "topleft", 0, 1)
+	genericScrollFrame.Header:SetColumnSettingChangedCallback(onHeaderColumnOptionChanged)
+
+	--cache the type of this container
+	headerContainerType[genericScrollFrame.Header] = "generic"
+
+	--create the scroll lines
+	for i = 1, defaultAmountOfLines do
+		genericScrollFrame:CreateLine(spellsTab.CreateGenericBar)
+	end
+
+	--need to create the second scroll frame to show the details about the spelltable/actor hovered over
+
+	return genericScrollFrame
 end
 
 ---create the target container
@@ -1831,7 +2015,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 	--create the scrollframe similar to scrollframe used in the spellscrollframe
     --replace this with a framework scrollframe
 	---@type breakdowntargetscrollframe
-	local targetScrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshTargetsFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
+	local targetScrollFrame = DF:CreateScrollBox(container, "$parentTargetScroll", refreshTargetsFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(targetScrollFrame)
 	targetScrollFrame:SetBackdrop({})
 	targetScrollFrame:SetAllPoints()
@@ -2902,6 +3086,15 @@ function Details.InitializeSpellBreakdownTab()
 		spellsTab.mainAttribute = mainAttribute
 		spellsTab.subAttribute = subAttribute
 
+		--show the regular containers
+		spellsTab.GetSpellScrollContainer():Show()
+		spellsTab.GetPhaseScrollContainer():Show()
+		spellsTab.GetTargetScrollContainer():Show()
+
+		--hide the generic container
+		spellsTab.GetGenericScrollContainer():Hide()
+
+		--refresh the data
 		spellsTab.GetSpellScrollFrame():RefreshMe(data)
 		spellsTab.GetPhaseScrollFrame():RefreshMe(data)
 	end
@@ -2916,6 +3109,35 @@ function Details.InitializeSpellBreakdownTab()
 		spellsTab.mainAttribute = mainAttribute
 		spellsTab.subAttribute = subAttribute
 		spellsTab.GetTargetScrollFrame():RefreshMe(data)
+	end
+
+	---when the window handler sends data which is not a spell or target data
+	---@param data table
+	---@param actorObject actor
+	---@param combatObject combat
+	---@param instance instance
+	function tabButton.OnReceiveGenericData(data, actorObject, combatObject, instance)
+		---@type number, number
+		local mainAttribute, subAttribute = instance:GetDisplay()
+		spellsTab.mainAttribute = mainAttribute
+		spellsTab.subAttribute = subAttribute
+
+		if (spellsTab.headersAllowed ~= data.headersAllowed) then
+			--refresh the header frame
+			spellsTab.UpdateHeadersSettings("generic")
+			--bug: now allowing to sort
+		end
+
+		--when generic data is shown, the damage-healing-targets-scrolls / spell details blocks/ can be removed
+		spellsTab.GetSpellScrollContainer():Hide()
+		spellsTab.GetPhaseScrollContainer():Hide()
+		spellsTab.GetTargetScrollContainer():Hide()
+
+		--show the generic scroll
+		spellsTab.GetGenericScrollContainer():Show()
+
+		--refresh the data
+		spellsTab.GetGenericScrollFrame():RefreshMe(data)
 	end
 
 	---@type detailseventlistener

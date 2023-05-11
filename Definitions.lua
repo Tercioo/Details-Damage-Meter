@@ -29,6 +29,9 @@
 
 ---@class tablesize : {H: number, W: number}
 ---@class tablecoords : {L: number, R: number, T: number, B: number}
+---@class texturecoords: {left: number, right: number, top: number, bottom: number}
+---@class objectsize : {height: number, width: number}
+---@class texturetable : {texture: string, coords: texturecoords, size: objectsize}
 
 ---@class spellid : number
 ---@class actorname : string
@@ -399,11 +402,6 @@
 ---@class targettable : {[string]: number}
 
 ---@class actor : table
----@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns") : spellcontainer
----@field Name fun(actor: actor) : string get the name of the actor
----@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
----@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
----@field GetSpellList fun(actor: actor) : table<number, spelltable>
 ---@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table
 ---@field BuildSpellTargetFromSpellTable fun(actor: actor, spellTable: spelltable) : table
 ---@field debuff_uptime_spells table
@@ -424,6 +422,15 @@
 ---@field total number
 ---@field pets table<number, string>
 ---@field targets targettable
+---@field damage_taken number amount of damage the actor took durent the segment
+---@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
+---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns") : spellcontainer
+---@field Class fun(actor: actor) : string get the ingame class of the actor
+---@field Spec fun(actor: actor) : string get the ingame spec of the actor
+---@field Name fun(actor: actor) : string get the name of the actor
+---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
+---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
+---@field GetSpellList fun(actor: actor) : table<number, spelltable>
 
 ---@class segmentid : number
 ---@class instanceid : number
@@ -441,6 +448,7 @@
 ---@field ativa boolean
 ---@field freezed boolean
 ---@field sub_atributo_last table
+---@field row_info table
 ---@field GetInstanceGroup fun() : table
 ---@field GetCombat fun(instance: instance)
 ---@field ChangeIcon fun(instance: instance)
@@ -480,6 +488,8 @@
 ---@field combatTime number
 ---@field [spelltableadv] spelltableadv indexed part of the table
 
+---@class headercolumndatasaved : {enabled: boolean, width: number, align: string}
+
 ---@class breakdownexpandbutton : button
 ---@field texture texture
 
@@ -493,12 +503,28 @@
 ---@field Header df_headerframe
 ---@field RefreshMe fun(scrollFrame: breakdowntargetscrollframe, data: table|nil)
 
+---@class breakdowngenericscrollframe : df_scrollboxmixin, scrollframe
+---@field Header df_headerframe
+---@field RefreshMe fun(scrollFrame: breakdowngenericscrollframe, data: table|nil)
+
 ---@class breakdownphasescrollframe : df_scrollboxmixin, scrollframe
 ---@field Header df_headerframe
 ---@field RefreshMe fun(scrollFrame: breakdownphasescrollframe, data: table|nil)
 
 ---@class breakdownphasebar : button, df_headerfunctions
 ---@field index number
+---@field Icon texture
+---@field InLineTexts fontstring[]
+---@field statusBar breakdownspellbarstatusbar
+
+---@class breakdowngenericbar : button, df_headerfunctions
+---@field index number
+---@field rank number
+---@field name string
+---@field percent number
+---@field amount number
+---@field total number
+---@field actorName string
 ---@field Icon texture
 ---@field InLineTexts fontstring[]
 ---@field statusBar breakdownspellbarstatusbar

@@ -1408,7 +1408,7 @@ local default_global_data = {
 			},
 		},
 
---/run Details.breakdown_spell_tab.targetcontainer_height = 140
+--/run wipe(Details.breakdown_spell_tab) .genericcontainer_headers
 	--breakdown spell tab
 	breakdown_spell_tab = {
 		blockcontainer_width = 430,
@@ -1440,11 +1440,18 @@ local default_global_data = {
 		phasecontainer_height = 140,
 		phasecontainer_islocked = true,
 
+		genericcontainer_enabled = true,
+		genericcontainer_width = 429,
+		genericcontainer_height = 311 + 140 + 30,
+		genericcontainer_islocked = true,
+
 		spellbar_background_alpha = 0.92,
 
 		spellcontainer_headers = {}, --store information about active headers and their sizes (spells)
 		targetcontainer_headers = {}, --store information about active headers and their sizes (target)
 		phasecontainer_headers = {}, --store information about active headers and their sizes (phases)
+		genericcontainer_headers = {}, --store information about active headers and their sizes (generic)
+
 		spellcontainer_header_height = 20,
 		spellcontainer_header_fontsize = 10,
 		spellcontainer_header_fontcolor = {1, 1, 1, 1},
