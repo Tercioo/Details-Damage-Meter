@@ -1803,31 +1803,30 @@ function damageClass:RefreshWindow(instancia, combatObject, forcar, exportar, re
 		local index = 0
 
 		for fragName, fragAmount in pairs(frags) do
-
-			index = index + 1
-
 			local fragged_actor = showing._NameIndexTable [fragName] --get index
-			local actor_classe
 			if (fragged_actor) then
 				fragged_actor = showing._ActorTable [fragged_actor] --get object
-				actor_classe = fragged_actor.classe
-			end
+				if (fragged_actor) then
+					index = index + 1
+					local actor_classe = fragged_actor.classe
 
-			if (fragged_actor and fragged_actor.monster) then
-				actor_classe = "ENEMY"
-			elseif (not actor_classe) then
-				actor_classe = "UNGROUPPLAYER"
-			end
+					if (fragged_actor and fragged_actor.monster) then
+						actor_classe = "ENEMY"
+					elseif (not actor_classe) then
+						actor_classe = "UNGROUPPLAYER"
+					end
 
-			if (ntable [index]) then
-				ntable [index] [1] = fragName
-				ntable [index] [2] = fragAmount
-				ntable [index] [3] = actor_classe
-			else
-				ntable [index] = {fragName, fragAmount, actor_classe}
-			end
+					if (ntable [index]) then
+						ntable [index] [1] = fragName
+						ntable [index] [2] = fragAmount
+						ntable [index] [3] = actor_classe
+					else
+						ntable [index] = {fragName, fragAmount, actor_classe}
+					end
 
-			frags_total_kills = frags_total_kills + fragAmount
+					frags_total_kills = frags_total_kills + fragAmount
+				end
+			end
 		end
 
 		local tsize = #ntable
@@ -3646,6 +3645,9 @@ local FRAGS_format_name = function(player_name) return Details:GetOnlyName(playe
 local FRAGS_format_amount = function(amount) return Details:ToK(amount) .. " (" .. format("%.1f", amount / frags_tooltip_table.damage_total * 100) .. "%)" end
 
 function damageClass:ReportSingleFragsLine (frag, instance, ShiftKeyDown, ControlKeyDown)
+	if (not frags_tooltip_table) then --some cases a friendly object is getting threat as neutral, example is Druid's Efflorescense
+		return
+	end
 
 	if (ShiftKeyDown) then
 		return damageClass:ReportEnemyDamageTaken (frag, instance, ShiftKeyDown, ControlKeyDown, true)
