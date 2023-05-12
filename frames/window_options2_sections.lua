@@ -7044,19 +7044,6 @@ do
                 boxfirst = true,
             },
 
-            {--merge healing criticals
-            type = "toggle",
-            get = function() return Details.combat_log.merge_critical_heals end,
-            set = function(self, fixedparam, value)
-                Details.combat_log.merge_critical_heals = value
-                afterUpdate()
-                Details:ClearParserCache()
-            end,
-            name = "Merge Critical Heals",
-            desc = "Merges spells like Atonement and Awakened Faeline with their critical damage component.",
-            boxfirst = true,
-        },
-
             {type = "blank"},
             {type = "label", get = function() return "Class Options:" end, text_template = subSectionTitleTextTemplate},
 
@@ -7073,6 +7060,49 @@ do
                 boxfirst = true,
             },
 
+            {type = "blank"},
+            {type = "label", get = function() return "Parser Options:" end, text_template = subSectionTitleTextTemplate},
+
+            {--overheal shields
+                type = "toggle",
+                get = function() return Details.parser_options.shield_overheal end,
+                set = function(self, fixedparam, value)
+                    Details.parser_options.shield_overheal = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                    Details:UpdateParserGears()
+                end,
+                name = "Calculate Shield Wasted Amount",
+                desc = "This is the 'overheal' of shields, it is calculated when a shield get replaced or removed.",
+                boxfirst = true,
+            },
+
+            {--energy wasted energy overflown
+                type = "toggle",
+                get = function() return Details.parser_options.energy_overflow end,
+                set = function(self, fixedparam, value)
+                    Details.parser_options.energy_overflow = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                    Details:UpdateParserGears()
+                end,
+                name = "Calculate Energy Wasted Amount",
+                desc = "Compute the energy wasted by players when they are at maximum energy.",
+                boxfirst = true,
+            },
+
+            {--merge healing criticals
+                type = "toggle",
+                get = function() return Details.combat_log.merge_critical_heals end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.merge_critical_heals = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                end,
+                name = "Merge Critical Heals",
+                desc = "Merges spells like Atonement and Awakened Faeline with their critical damage component.",
+                boxfirst = true,
+            },
         }
 
         sectionFrame.sectionOptions = sectionOptions

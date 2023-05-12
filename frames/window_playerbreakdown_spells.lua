@@ -629,10 +629,11 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 			GameCooltip:AddLine(Loc ["ABILITY_ID"] .. ": " .. spellBar.spellId)
 			GameCooltip:Show()
 
-			local t = combatObject:GetActor(1, actorName).spells._ActorTable[spellId]
+			---@type spelltable
+			local thisSpellTable = combatObject:GetActor(mainAttribute, actorName).spells._ActorTable[spellId]
 
 			local textToEditor = ""
-			for key, value in pairs(t) do
+			for key, value in pairs(thisSpellTable) do
 				if (type(value) ~= "function" and type(value) ~= "table") then
 					textToEditor = textToEditor .. key .. " = " .. tostring(value) .. "\n"
 				end
