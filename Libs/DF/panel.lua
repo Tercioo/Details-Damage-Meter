@@ -18,13 +18,7 @@ local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_CLASSIC_ERA = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
-local UnitCastingInfo = UnitCastingInfo
-local UnitChannelInfo = UnitChannelInfo
-
-if IS_WOW_PROJECT_CLASSIC_ERA then
-    UnitCastingInfo = CastingInfo
-    UnitChannelInfo = ChannelInfo
-end
+local CastInfo = detailsFramework.CastInfo
 
 local PixelUtil = PixelUtil or DFPixelUtil
 
@@ -7610,7 +7604,7 @@ detailsFramework.CastFrameFunctions = {
 
 		if (self.unit) then
 			if (self.casting) then
-				local name, text, texture, startTime = UnitCastingInfo (self.unit)
+				local name, text, texture, startTime = CastInfo.UnitCastingInfo (self.unit)
 				if (name) then
 					--[[if not self.spellStartTime then
 						self:UpdateCastingInfo(self.unit)
@@ -7621,7 +7615,7 @@ detailsFramework.CastFrameFunctions = {
 				self:RunHooksForWidget("OnShow", self, self.unit)
 
 			elseif (self.channeling) then
-				local name, text, texture, endTime = UnitChannelInfo (self.unit)
+				local name, text, texture, endTime = CastInfo.UnitChannelInfo (self.unit)
 				if (name) then
 					--[[if not self.spellEndTime then
 						self:UpdateChannelInfo(self.unit)
@@ -7817,8 +7811,8 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	PLAYER_ENTERING_WORLD = function(self, unit, arg1)
-		local isChannel = UnitChannelInfo (unit)
-		local isRegularCast = UnitCastingInfo (unit)
+		local isChannel = CastInfo.UnitChannelInfo (unit)
+		local isRegularCast = CastInfo.UnitCastingInfo (unit)
 
 		if (isChannel) then
 			self.channeling = true
@@ -7842,7 +7836,7 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UpdateCastingInfo = function(self, unit)
-		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = CastInfo.UnitCastingInfo (unit)
 
 		--is valid?
 		if (not self:IsValid (unit, name, isTradeSkill, true)) then
@@ -7958,7 +7952,7 @@ detailsFramework.CastFrameFunctions = {
 
 	UpdateChannelInfo = function(self, unit, ...)
 		local unitID, castID, spellID = ...
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = CastInfo.UnitChannelInfo (unit)
 
 		--is valid?
 		if (not self:IsValid (unit, name, isTradeSkill, true)) then
@@ -8204,7 +8198,7 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UNIT_SPELLCAST_DELAYED = function(self, unit, ...)
-		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = CastInfo.UnitCastingInfo (unit)
 
 		if (not self:IsValid (unit, name, isTradeSkill)) then
 			return
@@ -8219,7 +8213,7 @@ detailsFramework.CastFrameFunctions = {
 	end,
 
 	UNIT_SPELLCAST_CHANNEL_UPDATE = function(self, unit, ...)
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo (unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = CastInfo.UnitChannelInfo (unit)
 
 		if (not self:IsValid (unit, name, isTradeSkill)) then
 			return
@@ -8256,90 +8250,6 @@ detailsFramework.CastFrameFunctions = {
 }
 
 detailsFramework:Mixin(detailsFramework.CastFrameFunctions, detailsFramework.ScriptHookMixin)
-
--- for classic era use LibClassicCasterino:
-local LibCC = LibStub("LibClassicCasterino", true)
-if IS_WOW_PROJECT_CLASSIC_ERA and LibCC then
-	local fCast = CreateFrame("frame")
-
-	local getCastBar = function(unitId)
-		local plateFrame = C_NamePlate.GetNamePlateForUnit (unitId)
-		if (not plateFrame) then
-			return
-		end
-
-		local castBar = plateFrame.unitFrame and plateFrame.unitFrame.castBar
-		if (not castBar) then
-			return
-		end
-
-		return castBar
-	end
-
-	local triggerCastEvent = function(castBar, event, unitId, ...)
-		if (castBar and castBar.OnEvent) then
-			castBar.OnEvent (castBar, event, unitId)
-		end
-	end
-
-	local funcCast = function(event, unitId, ...)
-		local castBar = getCastBar (unitId)
-		if (castBar) then
-			triggerCastEvent (castBar, event, unitId)
-		end
-	end
-
-	fCast.UNIT_SPELLCAST_START = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_STOP = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_DELAYED = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_FAILED = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_INTERRUPTED = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_CHANNEL_START = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_CHANNEL_UPDATE = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	fCast.UNIT_SPELLCAST_CHANNEL_STOP = function(self, event, unitId, ...)
-		triggerCastEvent (getCastBar (unitId), event, unitId)
-	end
-
-	if LibCC then
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_START", funcCast)
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_DELAYED", funcCast) -- only for player
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_STOP", funcCast)
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_FAILED", funcCast)
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_INTERRUPTED", funcCast)
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_CHANNEL_START", funcCast)
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_CHANNEL_UPDATE", funcCast) -- only for player
-		LibCC.RegisterCallback(fCast,"UNIT_SPELLCAST_CHANNEL_STOP", funcCast)
-
-		UnitCastingInfo = function(unit)
-			return LibCC:UnitCastingInfo (unit)
-		end
-
-		UnitChannelInfo = function(unit)
-			return LibCC:UnitChannelInfo (unit)
-		end
-	end
-end -- end classic era
 
 -- ~castbar
 

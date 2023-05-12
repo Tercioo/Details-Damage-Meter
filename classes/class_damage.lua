@@ -4310,50 +4310,6 @@ function damageClass:MontaInfoDamageTaken()
 		local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]))
 		self:UpdadeInfoBar(barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
 	end
-
-
-	--[=[
-	---@type number, spelltable
-		for spellId, spellTable in pairs(actorSpells) do
-			spellTable.ChartData = nil
-
-			---@type string
-			local spellName = _GetSpellInfo(spellId)
-			if (spellName) then
-				---@type number in which index the spell with the same name was stored
-				local index = alreadyAdded[spellName]
-				if (index) then
-					---@type spelltableadv
-					local bkSpellData = breakdownSpellDataList[index]
-
-					bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
-
-					---@type bknesteddata
-					local nestedData = {spellId = spellId, spellTable = spellTable, petName = "", value = 0}
-					bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
-					bkSpellData.bCanExpand = true
-				else
-					---@type spelltableadv
-					local bkSpellData = {
-						id = spellId,
-						spellschool = spellTable.spellschool,
-						bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
-						bCanExpand = false,
-
-						spellTables = {spellTable},
-						nestedData = {{spellId = spellId, spellTable = spellTable, petName = "", value = 0}},
-					}
-
-					detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
-					breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
-					alreadyAdded[spellName] = #breakdownSpellDataList
-				end
-			end
-		end
-
-	--]=]
-
-
 end
 
 --[[exported]] function Details:UpdadeInfoBar(row, index, spellId, name, value, formattedValue, max, percent, icon, detalhes, texCoords, spellSchool, class)

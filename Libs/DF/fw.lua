@@ -1,6 +1,6 @@
 
 
-local dversion = 426
+local dversion = 427
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4215,6 +4215,12 @@ function DF:ReskinSlider(slider, heightOffset)
 		--up button
 		local offset = 1 --space between the scrollbox and the scrollar
 
+		local backgroundColor_Red = 0.1
+		local backgroundColor_Green = 0.1
+		local backgroundColor_Blue = 0.1
+		local backgroundColor_Alpha = 1
+		local backdrop_Alpha = 0.3
+
 		do
 			local normalTexture = slider.ScrollBar.ScrollUpButton.Normal
 			normalTexture:SetTexture([[Interface\Buttons\Arrow-Up-Up]])
@@ -4239,6 +4245,21 @@ function DF:ReskinSlider(slider, heightOffset)
 			disabledTexture:SetPoint("bottomright", slider.ScrollBar.ScrollUpButton, "bottomright", offset, 0)
 
 			slider.ScrollBar.ScrollUpButton:SetSize(16, 16)
+
+			if (not slider.ScrollBar.ScrollUpButton.BackgroundTexture) then
+				local backgroundTexture = slider.ScrollBar.ScrollUpButton:CreateTexture(nil, "border")
+				slider.ScrollBar.ScrollUpButton.BackgroundTexture = backgroundTexture
+
+				backgroundTexture:SetColorTexture(backgroundColor_Red, backgroundColor_Green, backgroundColor_Blue)
+				backgroundTexture:SetAlpha(backgroundColor_Alpha)
+
+				backgroundTexture:SetPoint("topleft", slider.ScrollBar.ScrollUpButton, "topleft", 1, 0)
+				backgroundTexture:SetPoint("bottomright", slider.ScrollBar.ScrollUpButton, "bottomright", -1, 0)
+			end
+
+			DF:Mixin(slider.ScrollBar.ScrollUpButton, BackdropTemplateMixin)
+			slider.ScrollBar.ScrollUpButton:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+			slider.ScrollBar.ScrollUpButton:SetBackdropBorderColor(0, 0, 0, backdrop_Alpha)
 		end
 
 		--down button
@@ -4266,6 +4287,21 @@ function DF:ReskinSlider(slider, heightOffset)
 			disabledTexture:SetPoint("bottomright", slider.ScrollBar.ScrollDownButton, "bottomright", offset, -4)
 
 			slider.ScrollBar.ScrollDownButton:SetSize(16, 16)
+
+			if (not slider.ScrollBar.ScrollDownButton.BackgroundTexture) then
+				local backgroundTexture = slider.ScrollBar.ScrollDownButton:CreateTexture(nil, "border")
+				slider.ScrollBar.ScrollDownButton.BackgroundTexture = backgroundTexture
+
+				backgroundTexture:SetColorTexture(backgroundColor_Red, backgroundColor_Green, backgroundColor_Blue)
+				backgroundTexture:SetAlpha(backgroundColor_Alpha)
+
+				backgroundTexture:SetPoint("topleft", slider.ScrollBar.ScrollDownButton, "topleft", 1, 0)
+				backgroundTexture:SetPoint("bottomright", slider.ScrollBar.ScrollDownButton, "bottomright", -1, 0)
+			end
+
+			DF:Mixin(slider.ScrollBar.ScrollDownButton, BackdropTemplateMixin)
+			slider.ScrollBar.ScrollDownButton:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+			slider.ScrollBar.ScrollDownButton:SetBackdropBorderColor(0, 0, 0, backdrop_Alpha)
 		end
 
 		--if the parent has a editbox, this is a code editor
@@ -4279,7 +4315,21 @@ function DF:ReskinSlider(slider, heightOffset)
 		end
 
 		slider.ScrollBar.ThumbTexture:SetColorTexture(.5, .5, .5, .3)
-		slider.ScrollBar.ThumbTexture:SetSize(12, 8)
+		slider.ScrollBar.ThumbTexture:SetSize(14, 8)
+
+		if (not slider.ScrollBar.SliderTexture) then
+			local alpha = 1
+			local offset = 1
+			slider.ScrollBar.SliderTexture = slider.ScrollBar:CreateTexture(nil, "background")
+			slider.ScrollBar.SliderTexture:SetColorTexture(backgroundColor_Red, backgroundColor_Green, backgroundColor_Blue)
+			slider.ScrollBar.SliderTexture:SetAlpha(backgroundColor_Alpha)
+			slider.ScrollBar.SliderTexture:SetPoint("TOPLEFT", slider.ScrollBar, "TOPLEFT", offset, -2)
+			slider.ScrollBar.SliderTexture:SetPoint("BOTTOMRIGHT", slider.ScrollBar, "BOTTOMRIGHT", -offset, 2)
+		end
+
+		DF:Mixin(slider.ScrollBar, BackdropTemplateMixin)
+		slider.ScrollBar:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+		slider.ScrollBar:SetBackdropBorderColor(0, 0, 0, backdrop_Alpha)
 	end
 end
 

@@ -21,6 +21,7 @@
 	<Script file="languages.lua"/>
 	<Script file="timebar.lua"/>
 	<Script file="charts.lua"/>
+	<Script file="externals.lua"/>
 	
 	<Include file="tutorial_alert.xml"/>
 	<Include file="split_bar.xml"/>

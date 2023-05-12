@@ -1430,8 +1430,6 @@ local default_global_data = {
 		blockspell_spark_show = true,
 		blockspell_spark_color = {1, 1, 1, 0.7},
 
-		blockspellline_height = 18,
-
 		spellcontainer_width = 429,
 		spellcontainer_height = 311,
 		spellcontainer_islocked = true,

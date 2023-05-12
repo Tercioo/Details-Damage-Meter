@@ -1,4 +1,6 @@
 
+--note: do maintenance on spelltable.ChartData
+
 local addonName, Details222 = ...
 local breakdownWindow = Details.BreakdownWindow
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
@@ -32,8 +34,6 @@ local spellBlockContainerSettings = {
 	amount = 6, --amount of block the container have
 	lineAmount = 3, --amount of line each block have
 }
-
-local spellBreakdownSettings = {}
 
 local CONST_BAR_HEIGHT = 20
 local CONST_SPELLSCROLL_LINEHEIGHT = 20
@@ -524,8 +524,6 @@ end
 ---@param tabButton button
 ---@param tabFrame breakdownspellstab
 function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
-	spellBreakdownSettings = Details.breakdown_spell_tab
-
 	spellsTab.TabFrame = tabFrame
 
 	--initialize the allowed headers for generic data container
@@ -716,7 +714,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 
 			local percent = normalHitsAmt / math.max(totalHits, 0.0001) * 100
 			normalHitsBlock:SetValue(percent)
-			normalHitsBlock.sparkTexture:SetPoint("left", normalHitsBlock, "left", percent / 100 * normalHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			normalHitsBlock.sparkTexture:SetPoint("left", normalHitsBlock, "left", percent / 100 * normalHitsBlock:GetWidth() + Details.breakdown_spell_tab.blockspell_spark_offset, 0)
 
 			local blockLine1, blockLine2, blockLine3 = normalHitsBlock:GetLines()
 			blockLine1.leftText:SetText(Loc ["STRING_NORMAL_HITS"])
@@ -744,7 +742,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 
 			local percent = criticalHitsAmt / math.max(totalHits, 0.0001) * 100
 			critHitsBlock:SetValue(percent)
-			critHitsBlock.sparkTexture:SetPoint("left", critHitsBlock, "left", percent / 100 * critHitsBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			critHitsBlock.sparkTexture:SetPoint("left", critHitsBlock, "left", percent / 100 * critHitsBlock:GetWidth() + Details.breakdown_spell_tab.blockspell_spark_offset, 0)
 
 			local blockLine1, blockLine2, blockLine3 = critHitsBlock:GetLines()
 			blockLine1.leftText:SetText(Loc ["STRING_CRITICAL_HITS"])
@@ -780,7 +778,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 
 			local percent = overheal / (overheal + spellTable.total) * 100
 			overhealBlock:SetValue(percent)
-			overhealBlock.sparkTexture:SetPoint("left", overhealBlock, "left", percent / 100 * overhealBlock:GetWidth() + spellBreakdownSettings.blockspell_spark_offset, 0)
+			overhealBlock.sparkTexture:SetPoint("left", overhealBlock, "left", percent / 100 * overhealBlock:GetWidth() + Details.breakdown_spell_tab.blockspell_spark_offset, 0)
 
 			overhealBlock:SetColor(1, 0, 0, 0.4)
 
@@ -998,21 +996,23 @@ local spellBlockContainerMixin = {
 			spellBlock:SetPoint("topleft", self, "topleft", 1, (blockHeight * (i - 1) - i) * -1 - (i*2) + ((i-1) * padding))
 			spellBlock:SetPoint("topright", self, "topright", 1, (blockHeight * (i - 1) - i) * -1 - (i*2) + ((i-1) * padding))
 
-			spellBlock.sparkTexture:SetSize(spellBreakdownSettings.blockspell_spark_width, blockHeight)
-			spellBlock.sparkTexture:SetShown(spellBreakdownSettings.blockspell_spark_show)
-			spellBlock.sparkTexture:SetVertexColor(unpack(spellBreakdownSettings.blockspell_spark_color))
+			spellBlock.sparkTexture:SetSize(Details.breakdown_spell_tab.blockspell_spark_width, blockHeight)
+			spellBlock.sparkTexture:SetShown(Details.breakdown_spell_tab.blockspell_spark_show)
+			spellBlock.sparkTexture:SetVertexColor(unpack(Details.breakdown_spell_tab.blockspell_spark_color))
 			spellBlock.reportButton:SetPoint("bottomright", spellBlock.overlay, "bottomright", -2, 2)
 			spellBlock.gradientTexture:SetHeight(blockHeight)
 
 			spellBlock:SetBackdropBorderColor(unpack(borderColor)) --border color
 			spellBlock.statusBarTexture:SetVertexColor(unpack(Details.breakdown_spell_tab.blockspell_color)) --bar color
 
+			local lineHeight = blockHeight * 0.2687
+
 			--update the lines
 			local previousLine
 			for o = 1, spellBlockContainerSettings.lineAmount do
 				---@type breakdownspellblockline
 				local line = spellBlock.Lines[o]
-				line:SetSize(width - 2, spellBreakdownSettings.blockspellline_height)
+				line:SetSize(width - 2, lineHeight)
 				if (previousLine) then
 					line:SetPoint("topleft", previousLine, "bottomleft", 0, -2)
 				else
@@ -1693,7 +1693,9 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 
 	---@type breakdowntargetscrollframe not sure is this is correct
 	local phaseScrollFrame = DF:CreateScrollBox(container, "$parentPhaseScroll", refreshPhaseFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
+	dededebug = 1
 	DF:ReskinSlider(phaseScrollFrame)
+	dededebug = nil
 	phaseScrollFrame:SetBackdrop({})
 	phaseScrollFrame:SetAllPoints()
 
@@ -1717,64 +1719,76 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 
 		local mainAttribute = instanceObject:GetDisplay()
 
-	   local data = {
+	   	local data = {
 		   --playerObject = playerObject,
 		   --attribute = attribute,
 		   --combatObject = combatObject,
 		   combatTime = combatObject:GetCombatTime(),
-	   }
+	   	}
 
-	   local playerPhases = {}
-	   local totalDamage = 0
-	   local phaseElapsed = {}
+	   	local playerPhases = {}
+	   	local totalDamage = 0
+	   	local phaseElapsed = {}
 
-	   --local bossInfo = combatObject:GetBossInfo()
-	   local phasesInfo = combatObject:GetPhases()
+	   	local phasesInfo = combatObject:GetPhases()
 
-	   if (phasesInfo) then --bossInfo and
-		   if (#phasesInfo >= 1) then
-			   --get phase elapsed time
-			   for i = 1, #phasesInfo do
-				   local thisPhase = phasesInfo[i]
-				   local phaseName = thisPhase[1]
-				   local startTime = thisPhase[2]
+		if (not phasesInfo) then
+			spellsTab.PhaseContainerFrame:Hide()
+			return
+		end
 
-				   local nextPhase = phasesInfo[i + 1]
-				   if (nextPhase) then
-					   --if there's a next phase, use it's start time as end time to calcule elapsed time
-					   local endTime = nextPhase[2]
-					   local elapsedTime = endTime - startTime
-					   phaseElapsed[phaseName] = (phaseElapsed[phaseName] or 0) + elapsedTime
-				   else
-					   --if there's no next phase, use the combat end time as end time to calcule elapsed time
-					   local endTime = combatObject:GetCombatTime()
-					   local elapsedTime = endTime - startTime
-					   phaseElapsed[phaseName] = (phaseElapsed[phaseName] or 0) + elapsedTime
-				   end
-			   end
+		if (#phasesInfo == 1) then
+		   --if there's only one phase, then there's no need to show phases
+		   spellsTab.PhaseContainerFrame:Hide()
+		   return
+	   	else
+		   spellsTab.PhaseContainerFrame:Show()
+	   	end
 
-			   --get damage info
-			   local dataTable = mainAttribute == 1 and phasesInfo.damage or phasesInfo.heal
-			   for phaseName, playersTable in pairs(dataTable) do --each phase
-				   local allPlayers = {} --all players for this phase
-				   for playerName, amount in pairs(playersTable) do
-					   tinsert(allPlayers, {playerName, amount})
-					   totalDamage = totalDamage + amount
-				   end
-				   table.sort(allPlayers, function(a, b) return a[2] > b[2] end)
+		if (#phasesInfo >= 1) then
+			--get phase elapsed time
+			for i = 1, #phasesInfo do
+				local thisPhase = phasesInfo[i]
+				local phaseName = thisPhase[1]
+				local startTime = thisPhase[2]
 
-				   local myRank = 0
-				   for i = 1, #allPlayers do
-					   if (allPlayers[i][1] == actorName) then
-						   myRank = i
-						   break
-					   end
-				   end
+				local nextPhase = phasesInfo[i + 1]
+				if (nextPhase) then
+					--if there's a next phase, use it's start time as end time to calcule elapsed time
+					local endTime = nextPhase[2]
+					local elapsedTime = endTime - startTime
+					phaseElapsed[phaseName] = (phaseElapsed[phaseName] or 0) + elapsedTime
+				else
+					--if there's no next phase, use the combat end time as end time to calcule elapsed time
+					local endTime = combatObject:GetCombatTime()
+					local elapsedTime = endTime - startTime
+					phaseElapsed[phaseName] = (phaseElapsed[phaseName] or 0) + elapsedTime
+				end
+			end
 
-				   tinsert(playerPhases, {phaseName, playersTable[actorName] or 0, myRank, (playersTable [actorName] or 0) / totalDamage * 100})
-			   end
-		   end
-	   end
+			--get damage info
+			local dataTable = mainAttribute == 1 and phasesInfo.damage or phasesInfo.heal
+			for phaseName, playersTable in pairs(dataTable) do --each phase
+				local allPlayers = {} --all players for this phase
+				for playerName, amount in pairs(playersTable) do
+					tinsert(allPlayers, {playerName, amount})
+					totalDamage = totalDamage + amount
+				end
+				table.sort(allPlayers, function(a, b)
+					return a[2] > b[2]
+				end)
+
+				local myRank = 0
+				for i = 1, #allPlayers do
+					if (allPlayers[i][1] == actorName) then
+						myRank = i
+						break
+					end
+				end
+
+				tinsert(playerPhases, {phaseName, playersTable[actorName] or 0, myRank, (playersTable[actorName] or 0) / totalDamage * 100})
+			end
+		end
 
 	   table.sort(playerPhases, function(a, b) return a[1] < b[1] end)
 

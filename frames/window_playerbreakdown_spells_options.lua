@@ -61,34 +61,6 @@ local createOptionsPanel = function()
 
     local optionsTable = {
         {type = "label", get = function() return "Spell Details Block" end, text_template = subSectionTitleTextTemplate},
-            {--width
-                type = "range",
-                get = function() return Details.breakdown_spell_tab.blockcontainer_width end,
-                set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.blockcontainer_width = value
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-                end,
-                min = 150,
-                max = 450,
-                step = 1,
-                name = "Width",
-                desc = "Width",
-                hidden = true,
-            },
-            {--height
-                type = "range",
-                get = function() return Details.breakdown_spell_tab.blockcontainer_height end,
-                set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.blockcontainer_height = value
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-                end,
-                min = 150,
-                max = 450,
-                step = 1,
-                name = "Height",
-                desc = "Height",
-                hidden = true,
-            },
             {--block height
                 type = "range",
                 get = function() return Details.breakdown_spell_tab.blockspell_height end,
@@ -101,71 +73,6 @@ local createOptionsPanel = function()
                 step = 1,
                 name = "Block Height",
                 desc = "Block Height",
-            },
-            {--line height
-                type = "range",
-                get = function() return Details.breakdown_spell_tab.blockspellline_height end,
-                set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.blockspellline_height = value
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-                end,
-                min = 10,
-                max = 30,
-                step = 1,
-                name = "Line Height",
-                desc = "Line Height",
-            },
-            {--show spark
-                type = "toggle",
-                get = function() return Details.breakdown_spell_tab.blockspell_spark_show end,
-                set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.blockspell_spark_show = value
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-                end,
-                name = "Show Spark",
-                desc = "Show Spark",
-            },
-            {--spark width
-                type = "range",
-                get = function() return Details.breakdown_spell_tab.blockspell_spark_width end,
-                set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.blockspell_spark_width = value
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-                end,
-                min = 1,
-                max = 24,
-                step = 1,
-                name = "Spark Width",
-                desc = "Spark Width",
-            },
-            {--spark offset
-                type = "range",
-                get = function() return Details.breakdown_spell_tab.blockspell_spark_offset end,
-                set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.blockspell_spark_offset = value
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-                    DetailsSpellBreakdownTab.UpdateShownSpellBlock()
-                end,
-                min = -12,
-                max = 12,
-                step = 1,
-                name = "Spark Offset",
-                desc = "Spark Offset",
-            },
-			{--spark color
-				type = "color",
-                get = function()
-                    return Details.breakdown_spell_tab.blockspell_spark_color
-				end,
-				set = function(self, r, g, b, a)
-                    Details.breakdown_spell_tab.blockspell_spark_color[1] = r
-                    Details.breakdown_spell_tab.blockspell_spark_color[2] = g
-                    Details.breakdown_spell_tab.blockspell_spark_color[3] = b
-                    Details.breakdown_spell_tab.blockspell_spark_color[4] = a
-                    DetailsSpellBreakdownTab.GetSpellBlockFrame():UpdateBlocks()
-				end,
-				name = "Spark Color",
-				desc = "Spark Color",
             },
 
         {type = "blank"},
