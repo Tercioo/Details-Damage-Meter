@@ -199,7 +199,7 @@ local spellContainerColumnData = {
 	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "castavg", label = "cast avg", key = "castavg", width = 50, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "uptime", label = "uptime", key = "uptime", width = 45, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "overheal", label = "overheal", key = "overheal", width = 55, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "overheal", label = "overheal", key = "overheal", width = 65, align = "left", enabled = true, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 	{name = "absorbed", label = "absorbed", key = "healabsorbed", width = 55, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 }
 
@@ -1311,8 +1311,13 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 			targetBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "overheal") then
-			text:SetText(Details:Format(bkTargetData.overheal or 0))
+		elseif (header.name == "overheal" and bkTargetData.overheal) then
+			if (bkTargetData.overheal > 0) then
+				local totalHeal = bkTargetData.overheal + value
+				text:SetText(string.format("%.1f", bkTargetData.overheal / totalHeal * 100) .. "%")
+			else
+				text:SetText("0%")
+			end
 			targetBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
@@ -2450,8 +2455,13 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "overheal") then
-			text:SetText(Details:Format(spellTable.overheal or 0))
+		elseif (header.name == "overheal" and spellTable.overheal) then
+			if (spellTable.overheal > 0) then
+				local totalHeal = spellTable.overheal + value
+				text:SetText(string.format("%.1f", spellTable.overheal / totalHeal * 100) .. "%")
+			else
+				text:SetText("0%")
+			end
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
