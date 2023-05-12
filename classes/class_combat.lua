@@ -558,7 +558,7 @@
 	---@param combatId number
 	---@param ... unknown
 	---@return combat
-	function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...)
+	function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...) --~init
 		---@type combat
 		local combatObject = {}
 

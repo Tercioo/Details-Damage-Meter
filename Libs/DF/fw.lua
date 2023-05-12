@@ -1,6 +1,6 @@
 
 
-local dversion = 427
+local dversion = 428
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4360,7 +4360,7 @@ local specs_per_class = {
 	["WARLOCK"] = {265, 266, 267},
 	["PALADIN"] = {65, 66, 70},
 	["MONK"] = {268, 269, 270},
-	["EVOKER"] = {1467, 1468},
+	["EVOKER"] = {1467, 1468, 1473},
 }
 
 function DF:GetClassSpecIDs(class)
@@ -4791,6 +4791,7 @@ DF.ClassSpecs = {
 	["EVOKER"] = {
 		[1467] = true,
 		[1468] = true,
+		[1473] = true,
 	},
 }
 
@@ -4858,6 +4859,7 @@ DF.SpecListByClass = {
 	["EVOKER"] = {
 		1467,
 		1468,
+		1473,
 	},
 }
 
