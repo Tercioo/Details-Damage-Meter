@@ -33,6 +33,9 @@ local spellTable_FieldsToSum = {
     ["e_heal"] = true,
     ["e_lvl"] = true,
     ["e_total"] = true,
+    ["DODGE"] = true,
+    ["PARRY"] = true,
+    ["MISS"] = true,
 }
 
 ---@class spelltablemixin

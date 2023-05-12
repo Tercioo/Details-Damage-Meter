@@ -5209,7 +5209,7 @@ end
 ---@param spellId number
 ---@param elapsedTime number
 ---@param actorName string
----@param spellTable spelltable
+---@param spellTable spelltableadv
 ---@param trinketData trinketdata
 ---@param combatObject combat
 function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex, summaryBlock, spellId, elapsedTime, actorName, spellTable, trinketData, combatObject)
@@ -5365,7 +5365,50 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
 	end
 
-	
+	--missing hits
+	local semiDodgeAmount = spellTable.g_amt + spellTable.b_amt --glancing and blocking
+	local fullDodgeAmount = spellTable["DODGE"] or 0
+	local parryAmount = spellTable["PARRY"] or 0
+	local missedHitsAmount = spellTable["MISS"] or 0
+
+	local hitErrorsAmount = parryAmount + fullDodgeAmount + missedHitsAmount
+
+	if (semiDodgeAmount > 0 or hitErrorsAmount > 0) then
+		---@type breakdownspellblock
+		local defensesBlock = spellBlockContainer:GetBlock(blockIndex)
+		defensesBlock:Show()
+		blockIndex = blockIndex + 1
+
+		local percent = (semiDodgeAmount + hitErrorsAmount) / spellTable.counter * 100
+		defensesBlock:SetValue(percent)
+		defensesBlock.sparkTexture:SetPoint("left", defensesBlock, "left", percent / 100 * defensesBlock:GetWidth() + Details.breakdown_spell_tab.blockspell_spark_offset, 0)
+
+		local blockLine1, blockLine2, blockLine3 = defensesBlock:GetLines()
+		blockLine1.leftText:SetText(Loc ["STRING_DEFENSES"])
+		blockLine1.rightText:SetText((semiDodgeAmount + hitErrorsAmount) .. " / " .. format("%.1f", percent) .. "%")
+
+		if (missedHitsAmount > 0) then
+			blockLine2.leftText:SetText("Miss" .. ": " .. missedHitsAmount)
+		end
+		if (parryAmount > 0) then
+			blockLine2.centerText:SetText(Loc ["STRING_PARRY"] .. ": " .. parryAmount)
+		end
+		if (fullDodgeAmount > 0) then
+			blockLine2.rightText:SetText(Loc ["STRING_DODGE"] .. ": " .. fullDodgeAmount)
+		end
+		if (spellTable.b_amt > 0) then
+			blockLine3.leftText:SetText(Loc ["STRING_BLOCKED"] .. ": " .. spellTable.b_amt)
+		end
+		if (spellTable.g_amt > 0) then
+			blockLine3.rightText:SetText(Loc ["STRING_GLANCING"] .. ": " .. spellTable.g_amt)
+		end
+	end
+
+--[=[ percent
+	Loc ["STRING_GLANCING"] .. ": " .. math.floor(spellTable.g_amt / spellTable.counter * 100) .. "%"
+	Loc ["STRING_BLOCKED"] .. ": " .. math.floor(spellTable.b_amt / spellTable.counter * 100) .. "%"
+--]=]
+
 
 	if (trinketData[spellId]) then
 		---@type trinketdata
