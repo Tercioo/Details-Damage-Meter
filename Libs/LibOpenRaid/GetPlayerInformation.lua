@@ -504,12 +504,30 @@ local getSpellListAsHashTableFromSpellBook = function()
     local tabEnd = offset + numSpells
     for entryOffset = offset, tabEnd - 1 do
         local spellType, spellId = GetSpellBookItemInfo(entryOffset, "player")
-        if (spellId and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId] and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].raceid and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].raceid[playerRaceId]) then
-            spellId = C_SpellBook.GetOverrideSpell(spellId)
-            local spellName = GetSpellInfo(spellId)
-            local bIsPassive = IsPassiveSpell(spellId, "player")
-            if (spellName and not bIsPassive) then
-                completeListOfSpells[spellId] = true
+        local spellInfo = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
+        if (spellInfo) then
+            local raceId = spellInfo.raceid
+            if (raceId) then
+                if (type(raceId) == "table") then
+                    if (raceId[playerRaceId]) then
+                        spellId = C_SpellBook.GetOverrideSpell(spellId)
+                        local spellName = GetSpellInfo(spellId)
+                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        if (spellName and not bIsPassive) then
+                            completeListOfSpells[spellId] = true
+                        end
+                    end
+
+                elseif (type(raceId) == "number") then
+                    if (raceId == playerRaceId) then
+                        spellId = C_SpellBook.GetOverrideSpell(spellId)
+                        local spellName = GetSpellInfo(spellId)
+                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        if (spellName and not bIsPassive) then
+                            completeListOfSpells[spellId] = true
+                        end
+                    end
+                end
             end
         end
     end
