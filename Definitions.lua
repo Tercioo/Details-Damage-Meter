@@ -362,6 +362,10 @@
 ---@field ListSpells fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
 ---@field _ActorTable table
 
+---@class friendlyfiretable : table
+---@field total number total amount of friendly fire caused by the actor
+---@field spells table<number, number> spellId = total
+
 ---@class spelltable : table
 ---@field uptime number
 ---@field total number
@@ -423,8 +427,6 @@
 ---@field total number
 ---@field pets table<number, string>
 ---@field targets targettable
----@field damage_taken number amount of damage the actor took durent the segment
----@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 ---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns") : spellcontainer
 ---@field Class fun(actor: actor) : string get the ingame class of the actor
 ---@field Spec fun(actor: actor) : string get the ingame spec of the actor
@@ -432,6 +434,12 @@
 ---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
 ---@field GetSpellList fun(actor: actor) : table<number, spelltable>
+
+---@class actordamage : actor
+---@field friendlyfire_total number
+---@field friendlyfire friendlyfiretable
+---@field damage_taken number amount of damage the actor took durent the segment
+---@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 
 ---@class segmentid : number
 ---@class instanceid : number

@@ -3591,6 +3591,13 @@ local ENEMIES_format_name = function(player) if (player == 0) then return false 
 local ENEMIES_format_amount = function(amount) if (amount <= 0) then return false end return Details:ToK(amount) .. " (" .. format("%.1f", amount / tooltip_temp_table.damage_total * 100) .. "%)" end
 
 function damageClass:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, ControlKeyDown, fromFrags)
+
+	--can open the breakdown window now
+
+
+
+	if (true) then return end
+
 	if (ShiftKeyDown) then
 		local inimigo = actor.nome
 		local custom_name = inimigo .. " -" .. Loc ["STRING_CUSTOM_ENEMY_DT"]
@@ -4077,7 +4084,49 @@ end
 
 
 ------ Friendly Fire
-function damageClass:MontaInfoFriendlyFire()
+local friendlyFireHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
+function damageClass:MontaInfoFriendlyFire() --~friendlyfire ~friendly ~ff
+	---@type actordamage
+	local actorObject = self
+	---@type instance
+	local instance = info.instancia
+	---@type combat
+	local combatObject = instance:GetCombat()
+	---@type string
+	local actorName = actorObject:Name()
+
+	---@type number
+	local friendlyFireTotal = actorObject.friendlyfire_total
+	---@type table<string, friendlyfiretable>
+	local damagedPlayers = actorObject.friendlyfire --players which got hit by this actor
+	---@type actorcontainer
+	local damageContainer = combatObject:GetContainer(class_type)
+
+	local resultTable = {}
+
+	for targetName, friendlyFireTable in pairs(damagedPlayers) do
+		local amountOfFriendlyFire = friendlyFireTable.total
+		if (amountOfFriendlyFire > 0) then
+			local targetActorObject = damageContainer:GetActor(targetName)
+			if (targetActorObject) then
+				---@type texturetable
+				local iconTable = Details:GetActorIcon(targetActorObject)
+
+				---@type {name: string, amount: number, icon: texturetable}
+				local ffTable = {name = targetName, total = amountOfFriendlyFire, icon = iconTable}
+
+				resultTable[#resultTable+1] = ffTable
+			end
+		end
+	end
+
+	resultTable.totalValue = friendlyFireTotal
+	resultTable.combatTime = combatObject:GetCombatTime()
+	resultTable.headersAllowed = friendlyFireHeadersAllowed
+
+	Details222.BreakdownWindow.SendGenericData(resultTable, actorObject, combatObject, instance)
+
+	if true then return end
 
 	local instancia = info.instancia
 	local combat = instancia:GetShowingCombat()
@@ -4263,7 +4312,7 @@ function damageClass:MontaInfoDamageTaken()
 
 	Details222.BreakdownWindow.SendGenericData(resultTable, actorObject, combatObject, instance)
 
-	if 1 then return end
+	if true then return end
 
 	local barras = info.barras1
 	local meus_agressores = {}

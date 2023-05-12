@@ -1666,7 +1666,53 @@ function atributo_heal:MontaInfo()
 	end
 end
 
+local healingTakenHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
 function atributo_heal:MontaInfoHealTaken()
+	---@type actor
+	local actorObject = self
+	---@type instance
+	local instance = info.instancia
+	---@type combat
+	local combatObject = instance:GetCombat()
+	---@type string
+	local actorName = actorObject:Name()
+
+	---@type number
+	local healTakenTotal = actorObject.healing_taken
+	---@type table<string, boolean>
+	local healTakenFrom = actorObject.healing_from
+	---@type actorcontainer
+	local healContainer = combatObject:GetContainer(class_type)
+
+	local resultTable = {}
+
+	---@type string
+	for healerName in pairs(healTakenFrom) do
+		local sourceActorObject = healContainer:GetActor(healerName)
+		if (sourceActorObject) then
+			---@type table<string, number>
+			local targets = sourceActorObject:GetTargets()
+			---@type number|nil
+			local amountOfHeal = targets[actorName]
+			if (amountOfHeal) then
+				---@type texturetable
+				local iconTable = Details:GetActorIcon(sourceActorObject)
+
+				---@type {name: string, amount: number, icon: texturetable}
+				local healTakenTable = {name = healerName, total = amountOfHeal, icon = iconTable}
+
+				resultTable[#resultTable+1] = healTakenTable
+			end
+		end
+	end
+
+	resultTable.totalValue = healTakenTotal
+	resultTable.combatTime = combatObject:GetCombatTime()
+	resultTable.headersAllowed = healingTakenHeadersAllowed
+
+	Details222.BreakdownWindow.SendGenericData(resultTable, actorObject, combatObject, instance)
+
+	if true then return end
 
 	local healing_taken = self.healing_taken
 	local curandeiros = self.healing_from

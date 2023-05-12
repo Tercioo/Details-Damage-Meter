@@ -1060,6 +1060,8 @@ end
 
 function atributo_energy:MontaInfoRegenRecebido()
 
+	if true then return end
+
 	reset_tooltips_table()
 
 	local barras = info.barras1

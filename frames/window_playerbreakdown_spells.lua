@@ -1535,7 +1535,8 @@ local refreshGenericFunc = function(scrollFrame, scrollData, offset, totalLines)
 				---@type fontstring
 				local fontString = genericBar.InLineTexts[textIndex]
 				genericBar:AddFrameToHeaderAlignment(fontString)
-				fontString:SetText(dataTable.name)
+				local nameWithoutRealm = DF:RemoveRealmName(dataTable.name)
+				fontString:SetText(nameWithoutRealm or dataTable.name)
 				textIndex = textIndex + 1
 			end
 
@@ -2177,7 +2178,7 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 		targetScrollFrame:CreateLine(spellsTab.CreateTargetBar)
 	end
 
-	tabFrame.targets = tabFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
+	tabFrame.targets = targetScrollFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
 	tabFrame.targets:SetPoint("bottomleft", container, "topleft", 2, 2)
 	tabFrame.targets:SetText(Loc ["STRING_TARGETS"] .. ":")
 
