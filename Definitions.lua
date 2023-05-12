@@ -160,6 +160,7 @@
 ---@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
 
 ---@class button : frame
+---@field Click fun(self: button)
 ---@field SetNormalTexture fun(self: button, texture: texture)
 ---@field SetPushedTexture fun(self: button, texture: texture)
 ---@field SetHighlightTexture fun(self: button, texture: texture)

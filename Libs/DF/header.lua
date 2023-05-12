@@ -27,7 +27,7 @@ local wipe = wipe
 ---@field OnColumnSettingChangeCallback function
 ---@field GetColumnWidth fun(self: df_headerframe, columnId: number)
 ---@field SetHeaderTable fun(self: df_headerframe, newTable)
----@field GetSelectedColumn fun(self: df_headerframe) : number, string, string
+---@field GetSelectedColumn fun(self: df_headerframe) : number, string, string, string
 ---@field Refresh fun(self: df_headerframe)
 ---@field UpdateSortArrow fun(self: df_headerframe, columnHeader: df_headercolumnframe, defaultShown: boolean|nil, defaultOrder: string|nil)
 ---@field UpdateColumnHeader fun(self: df_headerframe, columnHeader: df_headercolumnframe, headerIndex)
@@ -37,7 +37,7 @@ local wipe = wipe
 ---@field GetNextHeader fun(self: df_headerframe) : df_headercolumnframe
 ---@field SetColumnSettingChangedCallback fun(self: df_headerframe, func: function) : boolean
 
----@class df_headercolumnframe : frame
+---@class df_headercolumnframe : button
 ---@field Icon texture
 ---@field Text fontstring
 ---@field Arrow texture
@@ -219,14 +219,13 @@ detailsFramework.HeaderMixin = {
 
 	--return which header is current selected and the the order ASC DESC
 	---@param self df_headerframe
-	---@return number, string
+	---@return number, string, string, string
 	GetSelectedColumn = function(self)
 		---@type number
 		local columnSelected = self.columnSelected
 		---@type df_headercolumnframe
 		local columnHeader = self.columnHeadersCreated[columnSelected or 1]
-
-		return columnSelected, columnHeader.order, columnHeader.key
+		return columnSelected, columnHeader.order, columnHeader.key, columnHeader.columnData.name
 	end,
 
 	--clean up and rebuild the header following the header options
@@ -571,6 +570,18 @@ detailsFramework.HeaderMixin = {
 		self:ClearColumnHeader(columnHeader)
 		self.NextHeader = self.NextHeader + 1
 		return columnHeader
+	end,
+
+	---return a header button by passing its name (.name on the column table)
+	---@param self df_headerframe
+	---@param columnName string
+	---@return df_headercolumnframe|nil
+	GetHeaderColumnByName = function(self, columnName)
+		for _, headerColumnFrame in ipairs(self.columnHeadersCreated) do
+			if (headerColumnFrame.columnData.name == columnName) then
+				return headerColumnFrame
+			end
+		end
 	end,
 
 	NextHeader = 1,

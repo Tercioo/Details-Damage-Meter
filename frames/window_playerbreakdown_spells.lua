@@ -190,7 +190,7 @@ local spellContainerColumnData = {
 	{name = "target", width = 22, label = "", align = "left", enabled = true, offset = columnOffset},
 	{name = "rank", label = "#", width = 16, align = "center", enabled = true, offset = 6, dataType = "number"},
 	{name = "expand", label = "^", width = 16, align = "left", enabled = true, offset = -4}, --maybe -3
-	{name = "name", label = "spell name", width = 246, align = "left", enabled = true, offset = columnOffset},
+	{name = "name", label = "spell name", width = 231, align = "left", enabled = true, offset = columnOffset},
 	{name = "amount", label = "total", key = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
 	{name = "persecond", label = "ps", key = "total", width = 50, align = "left", enabled = false, canSort = true, sortKey = "ps", offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
@@ -199,16 +199,16 @@ local spellContainerColumnData = {
 	{name = "hits", label = "hits", key = "counter", width = 40, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "castavg", label = "cast avg", key = "castavg", width = 50, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 	{name = "uptime", label = "uptime", key = "uptime", width = 45, align = "left", enabled = false, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
-	{name = "overheal", label = "overheal", key = "overheal", width = 65, align = "left", enabled = true, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
+	{name = "overheal", label = "overheal", key = "overheal", width = 70, align = "left", enabled = true, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 	{name = "absorbed", label = "absorbed", key = "healabsorbed", width = 55, align = "left", enabled = false, canSort = true, order = "DESC", dataType = "number", attribute = DETAILS_ATTRIBUTE_HEAL, offset = columnOffset},
 }
 
 local targetContainerColumnData = {
 	{name = "icon", width = 22, label = "", align = "left", enabled = true, offset = columnOffset},
 	{name = "rank", label = "#", width = 20, align = "left", enabled = true, offset = columnOffset},
-	{name = "name", label = "name", width = 200, align = "left", enabled = true, offset = columnOffset},
+	{name = "name", label = "name", width = 185, align = "left", enabled = true, offset = columnOffset},
 	{name = "amount", label = "total", key = "total", selected = true, width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset},
-	{name = "overheal", label = "overheal", key = "overheal", width = 50, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset, attribute = DETAILS_ATTRIBUTE_HEAL},
+	{name = "overheal", label = "overheal", key = "overheal", width = 70, align = "left", enabled = true, canSort = true, sortKey = "total", dataType = "number", order = "DESC", offset = columnOffset, attribute = DETAILS_ATTRIBUTE_HEAL},
 	{name = "percent", label = "%", key = "total", width = 50, align = "left", enabled = true, canSort = true, offset = columnOffset, order = "DESC", dataType = "number"},
 }
 
@@ -297,6 +297,14 @@ local onColumnHeaderClickCallback = function(headerFrame, columnHeader)
 
 	local scrollFrame = spellsTab.GetScrollFrameByContainerType(containerType)
 	scrollFrame:Refresh()
+
+	local instance = spellsTab.GetInstance()
+	instance:RefreshWindow(true)
+end
+
+local onAnyColumnHeaderClickCallback = function()
+	local instance = spellsTab.GetInstance()
+	instance:RefreshWindow(true)
 end
 
 ---copy settings from the ColumnInfo table which doesn't exists in the details profile
@@ -1825,6 +1833,8 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
 
+		header_click_callback = onAnyColumnHeaderClickCallback,
+
 		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
 		text_color = {1, 1, 1, 0.823},
 	}
@@ -2034,6 +2044,8 @@ function spellsTab.CreateGenericContainer(tabFrame) --~create ~generic ~createge
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
 
+		header_click_callback = onAnyColumnHeaderClickCallback,
+
 		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
 		text_color = {1, 1, 1, 0.823},
 	}
@@ -2164,6 +2176,8 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 		reziser_width = 2,
 		reziser_color = {.5, .5, .5, 0.7},
 		reziser_max_width = 246,
+
+		header_click_callback = onAnyColumnHeaderClickCallback,
 
 		header_backdrop_color = {0.1, 0.1, 0.1, 0.4},
 		text_color = {1, 1, 1, 0.823},
@@ -2458,7 +2472,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		elseif (header.name == "overheal" and spellTable.overheal) then
 			if (spellTable.overheal > 0) then
 				local totalHeal = spellTable.overheal + value
-				text:SetText(string.format("%.1f", spellTable.overheal / totalHeal * 100) .. "%")
+				text:SetText(Details:ToK2(spellTable.overheal) .. " (" .. math.floor(spellTable.overheal / totalHeal * 100) .. "%)")
 			else
 				text:SetText("0%")
 			end

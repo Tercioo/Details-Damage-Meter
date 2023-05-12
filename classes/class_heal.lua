@@ -1658,11 +1658,75 @@ end
 ---------- bifurca��o
 function atributo_heal:MontaInfo()
 	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
-		return self:MontaInfoHealingDone()
+		self:MontaInfoHealingDone()
+
+		--[=[
+		local bNeedUpdateAgain = false
+
+		--sort by healing done
+		---@type df_headerframe
+		local spellsHeader = DetailsSpellBreakdownTab.GetSpellScrollFrame().Header
+		local totalHeader = spellsHeader:GetHeaderColumnByName("amount")
+		if (totalHeader and totalHeader:IsShown()) then
+			local columnSelected, order, key, name = spellsHeader:GetSelectedColumn()
+			if (name == "overheal") then
+				totalHeader:Click()
+				bNeedUpdateAgain = true
+			end
+		end
+
+		---@type df_headerframe
+		local targetsHeader = DetailsSpellBreakdownTab.GetTargetScrollFrame().Header
+		local totalHeader = targetsHeader:GetHeaderColumnByName("amount")
+		if (totalHeader and totalHeader:IsShown()) then
+			local columnSelected, order, key, name = targetsHeader:GetSelectedColumn()
+			if (name == "overheal") then
+				totalHeader:Click()
+				bNeedUpdateAgain = true
+			end
+		end
+
+		if (bNeedUpdateAgain) then
+			self:MontaInfoHealingDone()
+		end
+		--]=]
+
 	elseif (info.sub_atributo == 3) then
-		return self:MontaInfoOverHealing()
+		self:MontaInfoHealingDone()
+
+		--[=[
+		local bNeedUpdateAgain = false
+
+		--sort by overhealing
+		---@type df_headerframe
+		local spellsHeader = DetailsSpellBreakdownTab.GetSpellScrollFrame().Header
+		local overhealHeader = spellsHeader:GetHeaderColumnByName("overheal")
+		if (overhealHeader and overhealHeader:IsShown()) then
+			local columnSelected, order, key, name = spellsHeader:GetSelectedColumn()
+			if (name ~= "overheal") then
+				overhealHeader:Click()
+				bNeedUpdateAgain = true
+			end
+		end
+
+		---@type df_headerframe
+		local targetsHeader = DetailsSpellBreakdownTab.GetTargetScrollFrame().Header
+		local overhealHeader = targetsHeader:GetHeaderColumnByName("overheal")
+		if (overhealHeader and overhealHeader:IsShown()) then
+			local columnSelected, order, key, name = targetsHeader:GetSelectedColumn()
+			if (name ~= "overheal") then
+				overhealHeader:Click()
+				bNeedUpdateAgain = true
+			end
+		end
+
+		if (bNeedUpdateAgain) then
+			self:MontaInfoHealingDone()
+		end
+		--]=]
+
 	elseif (info.sub_atributo == 4) then
-		return self:MontaInfoHealTaken()
+		self:MontaInfoHealTaken()
 	end
 end
 
@@ -1768,7 +1832,7 @@ function atributo_heal:MontaInfoHealTaken()
 
 end
 
-function atributo_heal:MontaInfoOverHealing()
+function atributo_heal:MontaInfoOverHealing() --this should be deprecated now
 --pegar as habilidade de dar sort no heal
 
 	local instancia = info.instancia
