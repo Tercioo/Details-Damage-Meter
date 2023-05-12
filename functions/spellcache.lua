@@ -123,10 +123,6 @@ do
 		local itemIcon = C_Item.GetItemIconByID(itemId)
 		local itemName = C_Item.GetItemNameByID(itemId)
 
-		if (itemName == "") then
-			itemName = "@notloaded@"
-		end
-
 		if (itemIcon and itemName) then
 			result = "" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ""
 		end
@@ -328,11 +324,13 @@ do
 			local spellName, _, spellIcon = GetSpellInfo(spellId)
 
 			local itemName = formatTextForItem(itemId)
-			if (itemName == "") then
-				itemName = "Unknown Item"
+			if (itemName ~= "") then
+				Details:UserCustomSpellAdd(spellId, itemName, spellIcon or [[Interface\InventoryItems\WoWUnknownItem01]])
+			else
+				if (not Details.UpdateIconsTimer or Details.UpdateIconsTimer:IsCancelled()) then
+					Details.UpdateIconsTimer = C_Timer.NewTimer(3, Details.FillUserCustomSpells)
+				end
 			end
-
-			Details:UserCustomSpellAdd(spellId, itemName, spellIcon or [[Interface\InventoryItems\WoWUnknownItem01]])
 		end
 
 		for i = #Details.savedCustomSpells, 1, -1 do

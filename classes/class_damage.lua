@@ -4557,7 +4557,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 
 	---@type number, spelltable
 	for spellId, spellTable in pairs(actorSpells) do
-		spellTable.ChartData = nil
+		spellTable.ChartData = nil --~ChartData
 
 		---@type string
 		local spellName = _GetSpellInfo(spellId)
@@ -5364,6 +5364,8 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		local critTempoPercent = critAveragePercent * tempo / 100
 		blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
 	end
+
+	
 
 	if (trinketData[spellId]) then
 		---@type trinketdata
