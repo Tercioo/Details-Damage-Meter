@@ -200,6 +200,27 @@ local createOptionsPanel = function()
                 desc = "Background Alpha",
             },
 
+        {type = "blank"},
+        {type = "label", get = function() return "Merge Options" end, text_template = subSectionTitleTextTemplate},
+            { --merge player spells
+                type = "toggle",
+                get = function() return Details.breakdown_spell_tab.merge_players_spells_with_same_name end,
+                set = function(self, fixedparam, value)
+                    Details.breakdown_spell_tab.merge_players_spells_with_same_name = value
+                end,
+                name = "Group Player Spells With Same Name",
+                desc = "Group Player Spells With Same Name",
+            },
+
+            { --merge pet spells with the same name
+                type = "toggle",
+                get = function() return Details.breakdown_spell_tab.merge_pet_spells_with_same_name end,
+                set = function(self, fixedparam, value)
+                    Details.breakdown_spell_tab.merge_pet_spells_with_same_name = value
+                end,
+                name = "Group Pets By Spell",
+                desc = "Group Pets By Spell",
+            },
     }
 
     --build the menu

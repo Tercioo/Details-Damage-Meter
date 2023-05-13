@@ -1411,6 +1411,8 @@ local default_global_data = {
 --/run Details.breakdown_spell_tab.statusbar_alpha = 0.823
 	--breakdown spell tab
 	breakdown_spell_tab = {
+		merge_players_spells_with_same_name = true,
+		merge_pet_spells_with_same_name = true,
 		blockcontainer_width = 430,
 		blockcontainer_height = 270,
 		blockcontainer_islocked = true,

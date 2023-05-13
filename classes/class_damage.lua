@@ -3592,10 +3592,7 @@ local ENEMIES_format_amount = function(amount) if (amount <= 0) then return fals
 function damageClass:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, ControlKeyDown, fromFrags)
 
 	--can open the breakdown window now
-
-
-
-	if (true) then return end
+	--this function is deprecated
 
 	if (ShiftKeyDown) then
 		local inimigo = actor.nome
@@ -3633,6 +3630,8 @@ function damageClass:ReportEnemyDamageTaken (actor, instance, ShiftKeyDown, Cont
 
 		return instance:TrocaTabela(instance.segmento, 5, #Details.custom)
 	end
+
+	if (true) then return end
 
 	local report_table = {"Details!: " .. actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"]}
 
@@ -4606,6 +4605,8 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	---@type table<string, number>
 	local alreadyAdded = {}
 
+	local bShouldMergePlayerSpells = Details.breakdown_spell_tab.merge_players_spells_with_same_name
+
 	---@type number, spelltable
 	for spellId, spellTable in pairs(actorSpells) do
 		spellTable.ChartData = nil --~ChartData
@@ -4615,7 +4616,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 		if (spellName) then
 			---@type number in which index the spell with the same name was stored
 			local index = alreadyAdded[spellName]
-			if (index) then
+			if (index and bShouldMergePlayerSpells) then
 				---@type spelltableadv
 				local bkSpellData = breakdownSpellDataList[index]
 
@@ -4645,48 +4646,73 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	end
 
 	--pets spells
+	local bShouldMergeSpellsWithThePet = false
+	local bShouldMergePetSpells = Details.breakdown_spell_tab.merge_pet_spells_with_same_name
+
 	local actorPets = actorObject:GetPets()
 	for _, petName in ipairs(actorPets) do
 		---@type actor
 		local petActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, petName)
 		if (petActor) then --PET
-			local spells = petActor:GetSpellList()
-			for spellId, spellTable in pairs(spells) do
-				---@cast spellId number
-				---@cast spellTable spelltable
+			if (bShouldMergeSpellsWithThePet) then
+				--so, this is the bar with the pet name, it'll have a sum of all pet damage and other stuff to show in a bar
+				---@type spelltableadv
+				local bkSpellData = {
+					id = 0,
+					spellschool = spellTable.spellschool,
+					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+					bCanExpand = false,
 
-				spellTable.ChartData = nil
-				--PET
-				---@type string
-				local spellName = _GetSpellInfo(spellId)
-				if (spellName) then
-					---@type number in which index the spell with the same name was stored
-					local index = alreadyAdded[spellName]
-					if (index) then --PET
-						---@type spelltableadv
-						local bkSpellData = breakdownSpellDataList[index]
+					spellTables = {spellTable},
+					nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
+				}
 
-						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
+				breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
+				alreadyAdded[spellName] = #breakdownSpellDataList
 
-						---@type bknesteddata
-						local nestedData = {spellId = spellId, spellTable = spellTable, petName = petName, value = 0}
-						bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
-						bkSpellData.bCanExpand = true
-					else --PET
-						---@type spelltableadv
-						local bkSpellData = {
-							id = spellId,
-							spellschool = spellTable.spellschool,
-							bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
-							bCanExpand = false,
 
-							spellTables = {spellTable},
-							nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
-						}
 
-						detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
-						breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
-						alreadyAdded[spellName] = #breakdownSpellDataList
+			else
+				local spells = petActor:GetSpellList()
+				--all these spells belong to the current pet in the loop
+				for spellId, spellTable in pairs(spells) do
+					---@cast spellId number
+					---@cast spellTable spelltable
+
+					spellTable.ChartData = nil
+					--PET
+					---@type string
+					local spellName = _GetSpellInfo(spellId)
+					if (spellName) then
+						---@type number in which index the spell with the same name was stored
+						local index = alreadyAdded[spellName]
+						if (index and bShouldMergePetSpells) then --PET
+							---@type spelltableadv
+							local bkSpellData = breakdownSpellDataList[index]
+
+							bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+
+							---@type bknesteddata
+							local nestedData = {spellId = spellId, spellTable = spellTable, petName = petName, value = 0}
+							bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
+							bkSpellData.bCanExpand = true
+						else --PET
+							---@type spelltableadv
+							local bkSpellData = {
+								id = spellId,
+								spellschool = spellTable.spellschool,
+								bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
+								bCanExpand = false,
+
+								spellTables = {spellTable},
+								nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
+							}
+
+							detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
+							breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
+							alreadyAdded[spellName] = #breakdownSpellDataList
+						end
 					end
 				end
 			end
@@ -5258,12 +5284,12 @@ end
 ---@param blockIndex number
 ---@param summaryBlock breakdownspellblock
 ---@param spellId number
----@param elapsedTime number
+---@param combatTime number
 ---@param actorName string
 ---@param spellTable spelltableadv
 ---@param trinketData trinketdata
 ---@param combatObject combat
-function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex, summaryBlock, spellId, elapsedTime, actorName, spellTable, trinketData, combatObject)
+function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex, summaryBlock, spellId, combatTime, actorName, spellTable, trinketData, combatObject)
 	---@type number
 	local totalHits = spellTable.counter
 
@@ -5292,7 +5318,11 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		blockLine2.rightText:SetText(Details:GetSpellSchoolFormatedName(spellTable.spellschool)) --spell school
 
 		blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:Format(spellBar.average)) --average damage
-		blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
+		if (spellBar.perSecond and spellBar.perSecond > 0) then
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellBar.perSecond)) --dps
+		else
+			blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.total / combatTime)) --dps
+		end
 	end
 
 	local emporwerSpell = spellTable.e_total
@@ -5382,7 +5412,7 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		local normalAverage = spellTable.n_total / math.max(normalHitsAmt, 0.0001)
 		blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(normalAverage))
 
-		local tempo = (elapsedTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
+		local tempo = (combatTime * spellTable.n_total) / math.max(spellTable.total, 0.001)
 		local normalAveragePercent = spellBar.average / normalAverage * 100
 		local normalTempoPercent = normalAveragePercent * tempo / 100
 		blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.n_total / normalTempoPercent))
@@ -5410,7 +5440,7 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		local critAverage = Details.SpellTableMixin.GetCritAverage(spellTable)
 		blockLine3.leftText:SetText(Loc ["STRING_AVERAGE"] .. ": " .. Details:CommaValue(critAverage))
 
-		local tempo = (elapsedTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
+		local tempo = (combatTime * spellTable.c_total) / math.max(spellTable.total, 0.001)
 		local critAveragePercent = spellBar.average / critAverage * 100
 		local critTempoPercent = critAveragePercent * tempo / 100
 		blockLine3.rightText:SetText(Loc ["STRING_DPS"] .. ": " .. Details:CommaValue(spellTable.c_total / critTempoPercent))
