@@ -15,8 +15,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11010
-		Details.alpha_build_counter = 11010 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11011
+		Details.alpha_build_counter = 11011 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -108,7 +108,21 @@ do
 	--]=]
 
 	local news = {
-		{"v10.1.0.10985.147", "May 4th, 2023"},
+		{"v10.1.0.11011.151", "May 13th, 2023"},
+		"Added options: 'Group Player Spells With Same Name' and 'Group Pets By Spell' on the breakdown options.",
+		"Added combat log options for 'Calculate Shield Wasted Amount' and 'Calculate Energy Wasted Amount' under the options > Combat Log.",
+		"Framework and OpenRaid Updated.",
+		"Breakdown window won't go off screen anymore.",
+		"Breakdown now shows damage per phase if the segment has more than one phase.",
+		"Overhealing can now be seen within the Healing Done breakdown. This removes the necessity of having to go back and forward between healing done and overhealing.",
+		"Friendly Fire can now be seen in the breakdown window by clicking on the player bar (before the click on the player bar opened the report screen).",
+		"Healing Taken can also be seen on the breakdown window.",
+		"Some options from the Breakdown options got removed, most of them are now auto calculated by the system.",
+		"Fixed an issue where the Frags display was showinig death of friendly objects like Efflorescense.",
+		"Fixed an issue where item damage was showing 'Unknown Item' on cold logins.",
+		"Fixed defenses gauge (miss, dodge, parry) not showing in the spell details on the breakdown window.",
+
+		{"v10.1.0.10985.151", "May 4th, 2023"},
 		"The Breakdown Window has been completely rebuilt from the ground up and now includes support for several new features.",
 		"A significant portion of the back-end code has been revamped, resulting in improved performance and stability.",
 		"Combatlog now supports options, check them at the Combat Log section in the options panel.",
