@@ -201,25 +201,51 @@ local createOptionsPanel = function()
             },
 
         {type = "blank"},
-        {type = "label", get = function() return "Merge Options" end, text_template = subSectionTitleTextTemplate},
-            { --merge player spells
+        {type = "label", get = function() return "Group Player Spells:" end, text_template = subSectionTitleTextTemplate},
+            { --nest player spells | merge player spells
                 type = "toggle",
-                get = function() return Details.breakdown_spell_tab.merge_players_spells_with_same_name end,
+                get = function() return Details.breakdown_spell_tab.nest_players_spells_with_same_name end,
                 set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.merge_players_spells_with_same_name = value
+                    Details.breakdown_spell_tab.nest_players_spells_with_same_name = value
                 end,
                 name = "Group Player Spells With Same Name",
-                desc = "Group Player Spells With Same Name",
+                desc = "Group spells casted by players which has the same name",
             },
 
-            { --merge pet spells with the same name
+        {type = "blank"},
+        {type = "label", get = function() return "Group Pet Spells:" end, text_template = subSectionTitleTextTemplate},
+
+            { --nest pet spells with the same name
                 type = "toggle",
-                get = function() return Details.breakdown_spell_tab.merge_pet_spells_with_same_name end,
+                get = function() return Details.breakdown_spell_tab.nest_pet_spells_by_name end,
                 set = function(self, fixedparam, value)
-                    Details.breakdown_spell_tab.merge_pet_spells_with_same_name = value
+                    Details.breakdown_spell_tab.nest_pet_spells_by_name = value
                 end,
-                name = "Group Pets By Spell",
+                name = "Group Pet Names Under a Pet Spell Bar",
+                desc = "Group Pets By Name",
+                hooks = {["OnSwitch"] = function()
+                    if (Details.breakdown_spell_tab.nest_pet_spells_by_name) then
+                        Details.breakdown_spell_tab.nest_pet_spells_by_caster = false
+                        DetailsSpellBreakdownOptionsPanel:RefreshOptions()
+                    end
+                end}
+            },
+
+            { --nest pet spells with the same name
+                type = "toggle",
+                get = function() return Details.breakdown_spell_tab.nest_pet_spells_by_caster end,
+                set = function(self, fixedparam, value)
+                    Details.breakdown_spell_tab.nest_pet_spells_by_caster = value
+
+                end,
+                name = "Group Pet Spells Under a Pet Name Bar",
                 desc = "Group Pets By Spell",
+                hooks = {["OnSwitch"] = function()
+                    if (Details.breakdown_spell_tab.nest_pet_spells_by_caster) then
+                        Details.breakdown_spell_tab.nest_pet_spells_by_name = false
+                        DetailsSpellBreakdownOptionsPanel:RefreshOptions()
+                    end
+                end}
             },
     }
 

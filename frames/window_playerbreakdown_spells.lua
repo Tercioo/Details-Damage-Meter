@@ -2238,7 +2238,7 @@ local onClickExpandButton = function(expandButton, button)
 	--todo: check is any other bar has expanded state true, and close the expand (or not)
 
 	--toggle this spell expand mode
-	Details222.BreakdownWindow.SetSpellAsExpanded(expandButton.spellId, not bIsSpellExpaded)
+	Details222.BreakdownWindow.SetSpellAsExpanded(expandButton.petName or expandButton.spellId, not bIsSpellExpaded)
 
 	--call the refresh function of the window
 	---@type instance
@@ -2291,20 +2291,34 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		---@type spelltable
 		local spellTable
 
-		local petName = ""
-
 		spellBar.bkSpellData = bkSpellData
 
-		if (bIsMainLine) then
+		local petName = ""
+		---@type boolean @if true, this is the main line of an actor which has its spells nested in the bkSpellData.nestedData
+		local bIsActorHeader = bkSpellData.bIsActorHeader
+
+		if (bIsMainLine and bIsActorHeader) then
+			spellTable = bkSpellData
+			value = bkSpellData.total
+			spellId = 0
+			petName = actorName
+
+		elseif (bIsMainLine) then
 			spellTable = bkSpellData
 			value = bkSpellData.total
 			spellId = bkSpellData.id
-			petName = bkSpellData.nestedData[spellTableIndex].petName
+			petName = bkSpellData.nestedData[spellTableIndex].actorName
+
 		else
 			spellTable = bkSpellData.nestedData[spellTableIndex].spellTable
 			value = spellTable.total
 			spellId = spellTable.id
-			petName = bkSpellData.nestedData[spellTableIndex].petName
+
+			--if isn't a spell from a nested actor, then it can use the pet name in the spell name
+			if (not bkSpellData.nestedData[spellTableIndex].bIsActorHeader) then
+				petName = bkSpellData.nestedData[spellTableIndex].actorName
+			end
+
 			spellBar.bIsExpandedSpell = true
 		end
 
@@ -2315,6 +2329,10 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 
 		---@type string, number, string
 		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+		if (not spellName) then
+			spellName = actorName
+			spellIcon = bkSpellData.actorIcon or ""
+		end
 
 		---@type number
 		local amtCasts = combatObject:GetSpellCastAmount(actorName, spellName)
@@ -2335,9 +2353,9 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		end
 
 		if (petName ~= "") then
-			--if is a pet spell and has more pets nested
+			--if is a pet spell and has more pets nested || nop, now is a pet with its spells nested
 			if (spellTablesAmount > 1 and bIsMainLine) then
-				spellName = formatPetName("", spellName, "")
+				spellName = formatPetName("", spellName, "") --causing error as spellName is nil
 			elseif (bIsMainLine) then
 				spellName = formatPetName(petName, spellName, actorName)
 			else
@@ -2361,7 +2379,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		local text = spellBar.InLineTexts[textIndex]
 		local header = headerTable[headerIndex]
 
-		if (header.name == "icon") then --ok
+		if (header.name == "icon") then
 			spellBar.spellIcon:Show()
 			spellBar.spellIcon:SetTexture(spellIcon)
 			spellBar.spellIcon:SetAlpha(0.92)
@@ -2377,7 +2395,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			targetsSquareFrame.bIsMainLine = bIsMainLine
 			spellBar:AddFrameToHeaderAlignment(targetsSquareFrame)
 
-		elseif (header.name == "rank") then --ok
+		elseif (header.name == "rank") then
 			text:SetText(index)
 			spellBar:AddFrameToHeaderAlignment(text)
 			spellBar.rank = index
@@ -2390,9 +2408,8 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 
 			if (bkSpellData.bCanExpand and bIsMainLine) then
 				spellBar.expandButton:Show()
-				local bIsSpellExpaded = Details222.BreakdownWindow.IsSpellExpanded(spellId)
-
-				spellBar.expandButton.spellId = spellId
+				local bIsSpellExpaded = Details222.BreakdownWindow.IsSpellExpanded(bIsActorHeader and actorName or spellId)
+				spellBar.expandButton.spellId = bIsActorHeader and actorName or spellId
 				spellBar.expandButton.bIsSpellExpaded = bIsSpellExpaded
 				spellBar.expandButton:SetScript("OnClick", onClickExpandButton)
 
@@ -2409,18 +2426,18 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 				spellBar.expandButton.texture:SetSize(16, 16)
 			end
 
-		elseif (header.name == "name") then --ok
-			text:SetText(spellName)
+		elseif (header.name == "name") then
+			text:SetText(Details:RemoveOwnerName(spellName))
 			spellBar.name = spellName
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "amount") then --ok
+		elseif (header.name == "amount") then
 			text:SetText(Details:Format(value))
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "persecond") then --ok
+		elseif (header.name == "persecond") then
 			spellBar.perSecond = value / combatTime
 
 			---@type string
@@ -2430,7 +2447,7 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "percent") then --ok
+		elseif (header.name == "percent") then
 			spellBar.percent = value / totalValue * 100
 			---@type string
 			local percentFormatted = string.format("%.1f", spellBar.percent) .. "%"
@@ -2562,12 +2579,18 @@ local refreshSpellsFunc = function(scrollFrame, scrollData, offset, totalLines) 
 				if (mainSpellBar) then
 					lineIndex = lineIndex + 1
 					local bIsMainLine = true
-					updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
+
+					if (bkSpellData.bIsActorHeader) then
+						updateSpellBar(mainSpellBar, index, bkSpellData.actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
+					else
+						updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
+					end
 				end
 			end
 
+			--if the spell is expanded
 			--then it adds the lines for each spell merged, but it cannot use the bkSpellData, it needs the spellTable, it's kinda using bkSpellData, need to debug
-			if (bkSpellData.bIsExpanded and spellTablesAmount > 1) then
+			if (bkSpellData.bIsExpanded and (spellTablesAmount > 1)) then
 				--filling necessary information to sort the data by the selected header column
 				for spellTableIndex = 1, spellTablesAmount do
 					---@type bknesteddata
@@ -2599,7 +2622,7 @@ local refreshSpellsFunc = function(scrollFrame, scrollData, offset, totalLines) 
 
 						lineIndex = lineIndex + 1
 						---@type string
-						local petName = nestedBkSpellData.petName
+						local petName = nestedBkSpellData.actorName
 						---@type string
 						local nameToUse = petName ~= "" and petName or actorName
 						local bIsMainLine = false

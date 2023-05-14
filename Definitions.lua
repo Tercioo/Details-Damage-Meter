@@ -358,10 +358,11 @@
 ---@field ListActors fun(container: actorcontainer) usage: for index, actorObject in container:ListActors() do
 
 ---@class spellcontainer : table
+---@field _ActorTable table store [spellId] = spelltable
 ---@field GetSpell fun(container: spellcontainer, spellId: number) get a spell by its id
 ---@field ListActors fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
 ---@field ListSpells fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
----@field _ActorTable table
+---@field HasTwoOrMoreSpells fun(container: spellcontainer) : boolean return true if the container has two or more spells
 
 ---@class friendlyfiretable : table
 ---@field total number total amount of friendly fire caused by the actor
@@ -593,8 +594,11 @@
 ---@field expandedIndex number
 ---@field bIsExpanded boolean
 ---@field statusBarValue number
+---@field actorName string --when showing an actor header, this is the actor name
+---@field bIsActorHeader boolean is this is true, the spellbar is an actor header, which is a bar with the actor name with the actor spells nested
+---@field actorIcon texture
 
----@class bknesteddata : {spellId: number, spellTable: spelltable, petName: string, value: number}
+---@class bknesteddata : {spellId: number, spellTable: spelltable, actorName: string, value: number, bIsActorHeader: boolean} fills .nestedData table in spelltableadv, used to store the nested spells data, 'value' is set when the breakdown sort the values by the selected header
 
 ---@class breakdowntargetframe : frame
 ---@field spellId number

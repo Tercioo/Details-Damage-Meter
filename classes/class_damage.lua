@@ -4446,7 +4446,7 @@ end
 end
 
 --lock into a line after clicking on it
---[[exported]] function Details:FocusLock(row, spellId)
+--[[exported]] function Details:FocusLock(row, spellId) --will be deprecated
 	if (not info.mostrando_mouse_over) then
 		if (spellId == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
 			if (not row.on_focus) then --se a barra n�o tiver no foco
@@ -4466,11 +4466,11 @@ end
 	end
 end
 
-local wipeSpellCache = function()
+local wipeSpellCache = function() --deprecated
 	table.wipe(Details222.PlayerBreakdown.DamageSpellsCache)
 end
 
-local addToSpellCache = function(unitGUID, spellName, spellTable)
+local addToSpellCache = function(unitGUID, spellName, spellTable) --deprecated
 	local unitSpellCache = Details222.PlayerBreakdown.DamageSpellsCache[unitGUID]
 	if (not unitSpellCache) then
 		unitSpellCache = {}
@@ -4486,7 +4486,7 @@ local addToSpellCache = function(unitGUID, spellName, spellTable)
 	table.insert(spellCache, spellTable)
 end
 
-local getSpellDetails = function(unitGUID, spellName)
+local getSpellDetails = function(unitGUID, spellName) --deprecated
 	local unitCachedSpells = Details222.PlayerBreakdown.DamageSpellsCache[unitGUID]
 	local spellsTableForSpellName = unitCachedSpells and unitCachedSpells[spellName]
 
@@ -4605,7 +4605,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	---@type table<string, number>
 	local alreadyAdded = {}
 
-	local bShouldMergePlayerSpells = Details.breakdown_spell_tab.merge_players_spells_with_same_name
+	local bShouldMergePlayerSpells = Details.breakdown_spell_tab.nest_players_spells_with_same_name
 
 	---@type number, spelltable
 	for spellId, spellTable in pairs(actorSpells) do
@@ -4623,7 +4623,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 
 				---@type bknesteddata
-				local nestedData = {spellId = spellId, spellTable = spellTable, petName = "", value = 0}
+				local nestedData = {spellId = spellId, spellTable = spellTable, actorName = "", value = 0}
 				bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 				bkSpellData.bCanExpand = true
 			else
@@ -4635,7 +4635,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 					bCanExpand = false,
 
 					spellTables = {spellTable},
-					nestedData = {{spellId = spellId, spellTable = spellTable, petName = "", value = 0}},
+					nestedData = {{spellId = spellId, spellTable = spellTable, actorName = "", value = 0}},
 				}
 
 				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
@@ -4646,33 +4646,46 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	end
 
 	--pets spells
-	local bShouldMergeSpellsWithThePet = false
-	local bShouldMergePetSpells = Details.breakdown_spell_tab.merge_pet_spells_with_same_name
+	local bShouldMergeSpellsWithThePet = Details.breakdown_spell_tab.nest_pet_spells_by_caster
+	local bShouldMergePetSpells = Details.breakdown_spell_tab.nest_pet_spells_by_name
 
 	local actorPets = actorObject:GetPets()
 	for _, petName in ipairs(actorPets) do
 		---@type actor
 		local petActor = combatObject(DETAILS_ATTRIBUTE_DAMAGE, petName)
 		if (petActor) then --PET
-			if (bShouldMergeSpellsWithThePet) then
-				--so, this is the bar with the pet name, it'll have a sum of all pet damage and other stuff to show in a bar
+			--get the amount of spells the pet used, if the pet used only one there`s no reason to nest one spell with the pet
+			local petSpellContainer = petActor:GetSpellContainer("spell")
+
+			if (bShouldMergeSpellsWithThePet and petSpellContainer:HasTwoOrMoreSpells()) then
 				---@type spelltableadv
 				local bkSpellData = {
+					bIsActorHeader = true, --tag this spelltable as an actor header, when the actor is the header it will nest the spells use by this actor
+					actorName = petName,
 					id = 0,
-					spellschool = spellTable.spellschool,
-					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
-					bCanExpand = false,
-
-					spellTables = {spellTable},
-					nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
+					spellschool = 0,
+					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(petName),
+					spellTables = {}, --populated below with the spells the pet used
+					nestedData = {}, --there's none data here in the main bar as the first bar is the pet name
+					bCanExpand = true,
+					actorIcon = [[Interface\AddOns\Details\images\pets\pet_icon_1]],
 				}
-
 				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
+
+				--output
 				breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
-				alreadyAdded[spellName] = #breakdownSpellDataList
 
-
-
+				--fill here the spellTables using the actor abilities 
+				--all these spells belong to the current actor in the loop
+				for spellId, spellTable in petSpellContainer:ListSpells() do
+					local spellName, _, spellIcon = GetSpellInfo(spellId)
+					if (spellName) then
+						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
+						---@type bknesteddata
+						local nestedData = {spellId = spellId, spellTable = spellTable, actorName = petName, value = 0, bIsActorHeader = true} --value to be defined
+						bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
+					end
+				end
 			else
 				local spells = petActor:GetSpellList()
 				--all these spells belong to the current pet in the loop
@@ -4694,7 +4707,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 							bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 
 							---@type bknesteddata
-							local nestedData = {spellId = spellId, spellTable = spellTable, petName = petName, value = 0}
+							local nestedData = {spellId = spellId, spellTable = spellTable, actorName = petName, value = 0}
 							bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 							bkSpellData.bCanExpand = true
 						else --PET
@@ -4706,7 +4719,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 								bCanExpand = false,
 
 								spellTables = {spellTable},
-								nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
+								nestedData = {{spellId = spellId, spellTable = spellTable, actorName = petName, value = 0}},
 							}
 
 							detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
@@ -5368,23 +5381,23 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		blockLine1.leftText:SetText("Spell Empower Average Level: " .. string.format("%.2f", empowerLevelSum / empowerAmount))
 
 		if (level1AverageDamage ~= "0") then
-			blockLine2.leftText:SetText("Level 1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")")
+			blockLine2.leftText:SetText("#1 Avg: " .. level1AverageDamage .. " (" .. (empowerAmountPerLevel[1] or 0) .. ")")
 		end
 
 		if (level2AverageDamage ~= "0") then
-			blockLine2.centerText:SetText("Level 2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")")
+			blockLine2.centerText:SetText("#2 Avg: " .. level2AverageDamage .. " (" .. (empowerAmountPerLevel[2] or 0) .. ")")
 		end
 
 		if (level3AverageDamage ~= "0") then
-			blockLine2.rightText:SetText("Level 3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")")
+			blockLine2.rightText:SetText("#3 Avg: " .. level3AverageDamage .. " (" .. (empowerAmountPerLevel[3] or 0) .. ")")
 		end
 
 		if (level4AverageDamage ~= "0") then
-			blockLine3.leftText:SetText("Level 4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")")
+			blockLine3.leftText:SetText("#4 Avg: " .. level4AverageDamage .. " (" .. (empowerAmountPerLevel[4] or 0) .. ")")
 		end
 
 		if (level5AverageDamage ~= "0") then
-			blockLine3.rightText:SetText("Level 5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")")
+			blockLine3.rightText:SetText("#5 Avg: " .. level5AverageDamage .. " (" .. (empowerAmountPerLevel[5] or 0) .. ")")
 		end
 	end
 

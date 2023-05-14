@@ -71,6 +71,20 @@ local addonName, Details222 = ...
 		return self:PegaHabilidade (id, shouldCreate, token)
 	end
 
+	---return (boolean) if the container two or more spells within
+	---@return boolean
+	function container_habilidades:HasTwoOrMoreSpells()
+		local count = 0
+		for _ in pairs(self._ActorTable) do
+			count = count + 1
+			if (count >= 2) then
+				return true
+			end
+		end
+		return false
+	end
+
+
 	function container_habilidades:PegaHabilidade (id, criar, token)
 
 		local esta_habilidade = self._ActorTable [id]

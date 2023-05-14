@@ -418,17 +418,17 @@ end
 Details222.BreakdownWindow.ExpandedSpells = {}
 
 ---set a spell as expanded or not in the breakdown window
----@param spellID number
+---@param key any
 ---@param bIsExpanded boolean
-function Details222.BreakdownWindow.SetSpellAsExpanded(spellID, bIsExpanded)
-	Details222.BreakdownWindow.ExpandedSpells[spellID] = bIsExpanded
+function Details222.BreakdownWindow.SetSpellAsExpanded(key, bIsExpanded)
+	Details222.BreakdownWindow.ExpandedSpells[key] = bIsExpanded
 end
 
 ---get the state of the expanded for a spell
----@param spellID number
+---@param key any
 ---@return boolean
-function Details222.BreakdownWindow.IsSpellExpanded(spellID)
-	return Details222.BreakdownWindow.ExpandedSpells[spellID]
+function Details222.BreakdownWindow.IsSpellExpanded(key)
+	return Details222.BreakdownWindow.ExpandedSpells[key]
 end
 
 ---receives spell data to show in the summary tab
