@@ -436,6 +436,7 @@
 ---@field Tempo fun(actor: actor) : number get the activity or effective time of the actor
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
 ---@field GetSpellList fun(actor: actor) : table<number, spelltable>
+---@field GetSpellContainerNames fun(container: actorcontainer) : string[] get the table which contains the names of the spell containers
 
 ---@class actordamage : actor
 ---@field friendlyfire_total number

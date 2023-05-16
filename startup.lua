@@ -27,6 +27,11 @@ function Details:StartMeUp()
 		return Details.AddOnStartTime or GetTime()
 	end
 
+	C_Timer.After(3, function()
+		--load custom spells on login
+		Details:FillUserCustomSpells()
+	end)
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --row single click, this determines what happen when the user click on a bar
 
@@ -390,11 +395,6 @@ function Details:StartMeUp()
 		Details:FillUserCustomSpells()
 		Details:AddDefaultCustomDisplays()
 	end
-
-	C_Timer.After(1, function()
-		--load custom spells on every login
-		Details:FillUserCustomSpells()
-	end)
 
 	local lowerInstanceId = Details:GetLowerInstanceNumber()
 	if (lowerInstanceId) then

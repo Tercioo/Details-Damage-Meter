@@ -44,6 +44,13 @@ local addonName, Details222 = ...
 		return self._ActorTable[spellId]
 	end
 
+
+	---return a table containing keys as spellid and value as spelltable
+	---@return table<number, table>
+	function container_habilidades:GetRawSpellTable()
+		return self._ActorTable
+	end
+
 	---return the value of the spellTable[key] for the passed spellId
 	---@param spellId number
 	---@param key string

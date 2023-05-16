@@ -3303,6 +3303,7 @@ Details.snap_alert:Hide()
 Details.snap_alert:SetFrameStrata("FULLSCREEN")
 
 function Details:SnapAlert()
+	print("alert started")
 	Details.snap_alert:ClearAllPoints()
 	Details.snap_alert:SetPoint("topleft", self.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
 	Details.snap_alert:SetPoint("bottomright", self.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)

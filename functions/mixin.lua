@@ -4,7 +4,17 @@ local detailsFramework = _G.DetailsFramework
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 local addonName, Details222 = ...
 
+local actorSpellContainers = {
+	"debuff", "buff", "spell", "cooldowns"
+}
+
 Details222.Mixins.ActorMixin = {
+	---return a table containing the spellContainers names: 'debuff', 'buff', 'spell', 'cooldowns'
+	---@return string[]
+	GetSpellContainerNames = function()
+		return actorSpellContainers
+	end,
+
 	---return a spellContainer from an actor
 	---@param actor actor
 	---@param containerType string

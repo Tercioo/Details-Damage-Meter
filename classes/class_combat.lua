@@ -8,6 +8,8 @@
 --[[global]] DETAILS_SEGMENTID_OVERALL = -1
 --[[global]] DETAILS_SEGMENTID_CURRENT = 0
 
+--[[global]] DETAILS_COMBAT_AMOUNT_CONTAINERS = 4
+
 --enum segments type
 --[[global]] DETAILS_SEGMENTTYPE_GENERIC = 0
 

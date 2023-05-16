@@ -30,6 +30,8 @@
 
 	local pet_tooltip_frame = _G.DetailsPetOwnerFinder
 
+	local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 
@@ -469,26 +471,17 @@ end
 	--try to get the actor class from name
 	local getActorClass = function(actorObject, actorName, actorFlags, actorSerial)
 		--get spec
-		if (Details.track_specs) then
-			local specId = Details.cached_specs[actorSerial]
-			if (specId) then
-				actorObject:SetSpecId(specId)
-				--check is didn't changed the spec:
-				if (Details.streamer_config.quick_detection) then
-					--validate the spec more times if on quick detection
-					Details:ScheduleTimer("ReGuessSpec", 2, {actorObject})
-					Details:ScheduleTimer("ReGuessSpec", 4, {actorObject})
-					Details:ScheduleTimer("ReGuessSpec", 6, {actorObject})
-				end
-				Details:ScheduleTimer("ReGuessSpec", 15, {actorObject})
-			else
-				if (Details.streamer_config.quick_detection) then
-					--shoot detection early if in quick detection
-					Details:ScheduleTimer("GuessSpec", 1, {actorObject, nil, 1})
-				else
-					Details:ScheduleTimer("GuessSpec", 3, {actorObject, nil, 1})
-				end
-			end
+		local specId = Details.cached_specs[actorSerial]
+		if (specId) then
+			actorObject:SetSpecId(specId)
+		end
+
+		if (not specId and Details.track_specs) then
+			Details:ScheduleTimer("GuessSpec", 2, {actorObject, nil, 1})
+--			if (Details.streamer_config.quick_detection) then
+--			else
+--				Details:ScheduleTimer("GuessSpec", 3, {actorObject, nil, 1})
+--			end
 		end
 
 		local _, engClass = UnitClass(actorName or "")

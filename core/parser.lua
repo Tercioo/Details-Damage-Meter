@@ -6484,6 +6484,38 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+
+	function Details:GetUnitId(unitName)
+		unitName = unitName or self.nome
+		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+		if (openRaidLib) then
+			local unitId = openRaidLib.GetUnitID(unitName)
+			if (unitId) then
+				return unitId
+			end
+		end
+
+		if (IsInRaid()) then
+			for i = 1, GetNumGroupMembers() do
+				local unitId = "raid" .. i
+				if (GetUnitName(unitId, true) == unitName) then
+					return unitId
+				end
+			end
+
+		elseif (IsInGroup()) then
+			for i = 1, GetNumGroupMembers() -1 do
+				local unitId = "party" .. i
+				if (GetUnitName(unitId, true) == unitName) then
+					return unitId
+				end
+			end
+			if (UnitName("player") == unitName) then
+				return "player"
+			end
+		end
+	end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --battleground parser
 
