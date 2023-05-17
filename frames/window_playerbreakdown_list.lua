@@ -32,13 +32,14 @@
 	function breakdownWindowPlayerList.CreatePlayerListFrame()
 		local f = _G.DetailsBreakdownWindow
 
-		local refreshPlayerList = function(self, data, offset, totalLines)
+		local refreshScrollFunc = function(self, data, offset, totalLines)
 			--update the scroll
 			local topResult = data[1]
 			if (topResult) then
 				topResult = topResult.total
 			end
 
+			---@type combat
 			local combatObject = Details:GetCombatFromBreakdownWindow()
 			local encounterId = combatObject:GetEncounterCleuID()
 			local difficultyId = combatObject:GetDifficulty()
@@ -105,7 +106,11 @@
 					if (DetailsFramework.IsTimewalkWoW()) then
 						specRole = "NONE"
 					else
-						specRole = select(5, _G.GetSpecializationInfoByID(self.playerObject.spec))
+						---@type number
+						local spec = self.playerObject.spec
+						if (spec) then
+							specRole = select(5, _G.GetSpecializationInfoByID(self.playerObject.spec))
+						end
 					end
 				else
 					self.specIcon:SetTexture("")
@@ -290,7 +295,7 @@
 			return line
 		end
 
-		local playerScroll = detailsFramework:CreateScrollBox(f, "$parentPlayerScrollBox", refreshPlayerList, {}, player_scroll_size[1] + 22, player_scroll_size[2], scrollbox_lines, player_line_height)
+		local playerScroll = detailsFramework:CreateScrollBox(f, "$parentPlayerScrollBox", refreshScrollFunc, {}, player_scroll_size[1] + 22, player_scroll_size[2], scrollbox_lines, player_line_height)
 		detailsFramework:ReskinSlider(playerScroll)
 		playerScroll.ScrollBar:ClearAllPoints()
 		playerScroll.ScrollBar:SetPoint("topright", playerScroll, "topright", -2, -37)
@@ -337,20 +342,25 @@
 
 		--get the player list from the segment and build a table compatible with the scroll box
 		function breakdownWindowPlayerList.BuildPlayerList()
-			local segment = Details:GetCombatFromBreakdownWindow()
+			---@type combat
+			local combatObject = Details:GetCombatFromBreakdownWindow()
 			local playerTable = {}
 
-			if (segment) then
+			if (combatObject) then
 				local displayType = Details:GetDisplayTypeFromBreakdownWindow()
 				local containerType = displayType == 1 and DETAILS_ATTRIBUTE_DAMAGE or DETAILS_ATTRIBUTE_HEAL
-				local container = segment:GetContainer(containerType)
+				---@type actorcontainer
+				local actorContainer = combatObject:GetContainer(containerType)
 
-				for index, playerObject in container:ListActors() do
-					if (playerObject:IsPlayer()) then
-						local unitClassID = classIds [playerObject:Class()] or 13
-						local unitName = playerObject:Name()
+				for index, actorObject in actorContainer:ListActors() do
+					if (actorObject:IsPlayer() and actorObject:IsGroupPlayer()) then
+						local unitClassID = classIds[actorObject:Class()] or 13
+						local unitName = actorObject:Name()
 						local playerPosition = (((unitClassID or 0) + 128) ^ 4) + tonumber(string.byte(unitName, 1) .. "" .. string.byte(unitName, 2))
-						tinsert(playerTable, {playerObject, playerPosition, playerObject.total})
+
+						---@type {key1: actor, key2: number, key3: number}
+						local data = {actorObject, playerPosition, actorObject.total}
+						tinsert(playerTable, data)
 					end
 				end
 			end
