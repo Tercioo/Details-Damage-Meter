@@ -2018,7 +2018,7 @@ function atributo_heal:MontaInfoHealingDone()
 				bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 
 				---@type bknesteddata
-				local nestedData = {spellId = spellId, spellTable = spellTable, petName = "", value = 0}
+				local nestedData = {spellId = spellId, spellTable = spellTable, actorName = "", value = 0}
 				bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 				bkSpellData.bCanExpand = true
 			else
@@ -2030,7 +2030,7 @@ function atributo_heal:MontaInfoHealingDone()
 					bCanExpand = false,
 
 					spellTables = {spellTable},
-					nestedData = {{spellId = spellId, spellTable = spellTable, petName = "", value = 0}},
+					nestedData = {{spellId = spellId, spellTable = spellTable, actorName = "", value = 0}},
 				}
 				detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 
@@ -2065,7 +2065,7 @@ function atributo_heal:MontaInfoHealingDone()
 						bkSpellData.spellTables[#bkSpellData.spellTables+1] = spellTable
 
 						---@type bknesteddata
-						local nestedData = {spellId = spellId, spellTable = spellTable, petName = petName, value = 0}
+						local nestedData = {spellId = spellId, spellTable = spellTable, actorName = petName, value = 0}
 						bkSpellData.nestedData[#bkSpellData.nestedData+1] = nestedData
 						bkSpellData.bCanExpand = true
 					else --PET
@@ -2077,7 +2077,7 @@ function atributo_heal:MontaInfoHealingDone()
 							bCanExpand = false,
 
 							spellTables = {spellTable},
-							nestedData = {{spellId = spellId, spellTable = spellTable, petName = petName, value = 0}},
+							nestedData = {{spellId = spellId, spellTable = spellTable, actorName = petName, value = 0}},
 						}
 						detailsFramework:Mixin(bkSpellData, Details.SpellTableMixin)
 
