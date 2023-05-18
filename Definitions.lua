@@ -140,6 +140,7 @@
 ---@field SetPropagateKeyboardInput fun(self: frame, propagate: boolean)
 ---@field SetPropagateGamepadInput fun(self: frame, propagate: boolean)
 ---@field StartMoving fun(self: frame)
+---@field IsMovable fun(self: frame) : boolean
 ---@field StartSizing fun(self: frame, point: "top"|"topright"|"right"|"bottomright"|"bottom"|"bottomleft"|"left"|"topleft")
 ---@field StopMovingOrSizing fun(self: frame)
 ---@field GetAttribute fun(self: frame, name: string) : any

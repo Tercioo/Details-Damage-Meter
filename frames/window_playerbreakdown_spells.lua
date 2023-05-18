@@ -2579,11 +2579,21 @@ local refreshSpellsFunc = function(scrollFrame, scrollData, offset, totalLines) 
 				if (mainSpellBar) then
 					lineIndex = lineIndex + 1
 					local bIsMainLine = true
+					local bIsActorHeader = bkSpellData.bIsActorHeader
+					local spellTableIndex = 1
+					local spellBar = mainSpellBar
 
-					if (bkSpellData.bIsActorHeader) then
-						updateSpellBar(mainSpellBar, index, bkSpellData.actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
+					local nameToUse = actorName
+					if (bIsActorHeader) then
+						nameToUse = bkSpellData.actorName
+					end
+
+					---@debug both calls are equal but the traceback will be different in case of an error
+					if (bIsActorHeader) then
+						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
 					else
-						updateSpellBar(mainSpellBar, index, actorName, combatObject, scrollFrame, headerTable, bkSpellData, 1, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
+						--here
+						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
 					end
 				end
 			end
