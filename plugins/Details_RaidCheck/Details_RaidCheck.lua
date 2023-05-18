@@ -840,55 +840,57 @@ local CreatePluginFrames = function()
 		local unitSerial = UnitGUID(unitId)
 
 		local function handleAuraBuff(aura)
-			local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID(unitId, aura.auraInstanceID)
-			if (auraInfo) then
-				local buffName = auraInfo.name
-				local spellId = auraInfo.spellId
+			if (aura) then
+				local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID(unitId, aura.auraInstanceID)
+				if (auraInfo) then
+					local buffName = auraInfo.name
+					local spellId = auraInfo.spellId
 
-				if (buffName) then
-					local flashInfo = flaskList[spellId]
-					if (flashInfo) then
-						local flaskTier = openRaidLib.GetFlaskTierFromAura(auraInfo)
-						DetailsRaidCheck.unitsWithFlaskTable[unitSerial] = {spellId, flaskTier, auraInfo.icon}
-						consumableTable.Flask = consumableTable.Flask + 1
-					end
-
-					local foodInfo = foodInfoList[spellId]
-
-					if (DetailsRaidCheck.db.food_tier1) then
-						if (foodInfo) then
-							local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
-							DetailsRaidCheck.unitWithFoodTable[unitSerial] = {spellId, foodTier or 1, auraInfo.icon}
-							consumableTable.Food = consumableTable.Food + 1
+					if (buffName) then
+						local flashInfo = flaskList[spellId]
+						if (flashInfo) then
+							local flaskTier = openRaidLib.GetFlaskTierFromAura(auraInfo)
+							DetailsRaidCheck.unitsWithFlaskTable[unitSerial] = {spellId, flaskTier, auraInfo.icon}
+							consumableTable.Flask = consumableTable.Flask + 1
 						end
-					end
 
-					if (DetailsRaidCheck.db.food_tier2) then
-						if (foodInfo) then
-							local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
-							if (foodTier and foodTier >= 2) then
-								DetailsRaidCheck.unitWithFoodTable[unitSerial] = {spellId, foodTier, auraInfo.icon}
+						local foodInfo = foodInfoList[spellId]
+
+						if (DetailsRaidCheck.db.food_tier1) then
+							if (foodInfo) then
+								local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
+								DetailsRaidCheck.unitWithFoodTable[unitSerial] = {spellId, foodTier or 1, auraInfo.icon}
 								consumableTable.Food = consumableTable.Food + 1
 							end
 						end
-					end
 
-					if (DetailsRaidCheck.db.food_tier3) then
-						if (foodInfo) then
-							local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
-							if (foodTier and foodTier >= 3) then
-								DetailsRaidCheck.unitWithFoodTable[unitSerial] = {spellId, foodTier, auraInfo.icon}
-								consumableTable.Food = consumableTable.Food + 1
+						if (DetailsRaidCheck.db.food_tier2) then
+							if (foodInfo) then
+								local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
+								if (foodTier and foodTier >= 2) then
+									DetailsRaidCheck.unitWithFoodTable[unitSerial] = {spellId, foodTier, auraInfo.icon}
+									consumableTable.Food = consumableTable.Food + 1
+								end
 							end
 						end
-					end
 
-					if (runeIds[spellId]) then
-						DetailsRaidCheck.havefocusaug_table[unitSerial] = spellId
-					end
+						if (DetailsRaidCheck.db.food_tier3) then
+							if (foodInfo) then
+								local foodTier = openRaidLib.GetFoodTierFromAura(auraInfo)
+								if (foodTier and foodTier >= 3) then
+									DetailsRaidCheck.unitWithFoodTable[unitSerial] = {spellId, foodTier, auraInfo.icon}
+									consumableTable.Food = consumableTable.Food + 1
+								end
+							end
+						end
 
-					if (buffName == localizedFoodDrink) then
-						DetailsRaidCheck.iseating_table[unitSerial] = true
+						if (runeIds[spellId]) then
+							DetailsRaidCheck.havefocusaug_table[unitSerial] = spellId
+						end
+
+						if (buffName == localizedFoodDrink) then
+							DetailsRaidCheck.iseating_table[unitSerial] = true
+						end
 					end
 				end
 			end
