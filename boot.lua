@@ -15,8 +15,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11011
-		Details.alpha_build_counter = 11011 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11022
+		Details.alpha_build_counter = 11022 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -108,6 +108,17 @@ do
 	--]=]
 
 	local news = {
+		{"v10.1.0.11022.151", "May 20th, 2023"},
+		"Breakdown pet options has changed to: 'Group Pets by Their Names' or 'Group Pets by Their Spells'.",
+		"Evoker empowered level now ocupies less space on the rectangle showing the damage by empower level.",
+		"Another Framework update.",
+		"Fixed an issue where some pet bars still showing the owner name.",
+		"Fixed an issue with the player selector on Breakdown window causing an error when selecting some players.",
+		"Fixed an issue caused by opening the breakdown window while seeing healing overall.",
+		"Fixed an issue with the min and max damage of a spell when viewing the 'merged' damage of two or more spells.",
+		"Fixed an issue with the Raid Check plugin throwing an error on Shuffle Arenas.",
+		"Fixed shields for Classic versions (Flamanis).",
+
 		{"v10.1.0.11011.151", "May 13th, 2023"},
 		"Added options: 'Group Player Spells With Same Name' and 'Group Pets By Spell' on the breakdown options.",
 		"Added combat log options for 'Calculate Shield Wasted Amount' and 'Calculate Energy Wasted Amount' under the options > Combat Log.",
@@ -1202,16 +1213,4 @@ end
 ---@param value number
 function Details222.PlayerStats:SetStat(statName, value)
 	Details.player_stats[statName] = value
-end
-
----destroy a table and remove it from the object, if the key isn't passed, the object itself is destroyed
----@param object any
----@param key string|nil
-function Details:Destroy(object, key)
-	if (key) then
-		table.wipe(object[key])
-		object[key] = nil
-	else
-		table.wipe(object)
-	end
 end

@@ -459,7 +459,9 @@ end
 			funcao_de_criacao = actorContainer:FuncaoDeCriacao(containerType),
 			tipo = containerType,
 			combatId = combatId,
+			---@type actor[]
 			_ActorTable = {},
+			---@type table<string, number>
 			_NameIndexTable = {}
 		}
 

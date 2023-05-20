@@ -1708,9 +1708,8 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 
 	---@type breakdowntargetscrollframe not sure is this is correct
 	local phaseScrollFrame = DF:CreateScrollBox(container, "$parentPhaseScroll", refreshPhaseFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
-	dededebug = 1
 	DF:ReskinSlider(phaseScrollFrame)
-	dededebug = nil
+
 	phaseScrollFrame:SetBackdrop({})
 	phaseScrollFrame:SetAllPoints()
 

@@ -653,6 +653,7 @@
 		combatObject[4].need_refresh = true
 		combatObject[5].need_refresh = true
 
+		--isn't shadow deprecated?
 		if (overallCombatObject) then --link � a tabela de combate do overall
 			combatObject[1].shadow = overallCombatObject[1]
 			combatObject[2].shadow = overallCombatObject[2]

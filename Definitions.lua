@@ -424,6 +424,7 @@
 ---@field grupo boolean
 ---@field fight_component boolean
 ---@field boss_fight_component boolean
+---@field pvp_component boolean
 ---@field boss boolean
 ---@field last_event unixtime
 ---@field total_without_pet number

@@ -34,4 +34,5 @@
 
 	<Script file="pictureedit.lua"/>
 	<Script file="auras.lua"/>
+	<Script file="tabcontainer.lua"/>
 </Ui>
