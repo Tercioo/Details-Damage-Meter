@@ -12,10 +12,10 @@ local addonName, Details222 = ...
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 
-	local container_damage	=	_detalhes.container_type.CONTAINER_DAMAGE_CLASS
-	local container_heal		= 	_detalhes.container_type.CONTAINER_HEAL_CLASS
-	local container_energy 	=	_detalhes.container_type.CONTAINER_ENERGY_CLASS
-	local container_misc 		=	_detalhes.container_type.CONTAINER_MISC_CLASS
+	local classDamage	=	_detalhes.container_type.CONTAINER_DAMAGE_CLASS
+	local classHeal		= 	_detalhes.container_type.CONTAINER_HEAL_CLASS
+	local classEnergy 	=	_detalhes.container_type.CONTAINER_ENERGY_CLASS
+	local classUtility 		=	_detalhes.container_type.CONTAINER_MISC_CLASS
 	local habilidade_dano 	= 	_detalhes.habilidade_dano
 	local habilidade_cura 		=	_detalhes.habilidade_cura
 	local habilidade_e_energy 	= 	_detalhes.habilidade_e_energy
@@ -43,7 +43,6 @@ local addonName, Details222 = ...
 	function container_habilidades:GetSpell(spellId)
 		return self._ActorTable[spellId]
 	end
-
 
 	---return a table containing keys as spellid and value as spelltable
 	---@return table<number, table>
@@ -113,16 +112,16 @@ local addonName, Details222 = ...
 	end
 
 	function container_habilidades:FuncaoDeCriacao (tipo)
-		if (tipo == container_damage) then
+		if (tipo == classDamage) then
 			return habilidade_dano.NovaTabela
 
-		elseif (tipo == container_heal) then
+		elseif (tipo == classHeal) then
 			return habilidade_cura.NovaTabela
 
-		elseif (tipo == container_energy) then
+		elseif (tipo == classEnergy) then
 			return habilidade_e_energy.NovaTabela
 
-		elseif (tipo == container_misc) then
+		elseif (tipo == classUtility) then
 			return habilidade_misc.NovaTabela
 
 		end

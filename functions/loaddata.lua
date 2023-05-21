@@ -1,340 +1,261 @@
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local Details = 		_G.Details
+local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
+local _
+local addonName, Details222 = ...
+local C_Timer
+local UnitName = UnitName
 
-	local _detalhes = 		_G.Details
-	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
-	local _
-	local addonName, Details222 = ...
-
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---On Details! Load:
-	--load default keys into the main object
-
-function _detalhes:ApplyBasicKeys()
-
-	--we are not in debug mode
-		self.debug = false
-
-	--connected to realm channel
-		self.is_connected = false
-
-	--who is
-		self.playername = UnitName ("player")
-		self.playerserial = UnitGUID("player")
-
-	--player faction and enemy faction
-		self.faction = UnitFactionGroup ("player")
-		if (self.faction == PLAYER_FACTION_GROUP[0]) then --player is horde
-			self.faction_against = PLAYER_FACTION_GROUP[1] --ally
-			self.faction_id = 0
-		elseif (self.faction == PLAYER_FACTION_GROUP[1]) then --player is alliance
-			self.faction_against = PLAYER_FACTION_GROUP[0] --horde
-			self.faction_id = 1
-		end
-
-		self.zone_type = nil
-		_detalhes.temp_table1 = {}
-
-	--combat
-		self.encounter = {}
-		self.in_combat = false
-		self.combat_id = 0
-
-	--instances (windows)
-		self.solo = self.solo or nil
-		self.raid = self.raid or nil
-		self.opened_windows = 0
-
-		self.default_texture = [[Interface\AddOns\Details\images\bar4]]
-		self.default_texture_name = "Details D'ictum"
-
-		self.class_coords_version = 1
-		self.class_colors_version = 1
-
-		self.school_colors = {
-			[1] = {1.00, 1.00, 0.00},
-			[2] = {1.00, 0.90, 0.50},
-			[4] = {1.00, 0.50, 0.00},
-			[8] = {0.30, 1.00, 0.30},
-			[16] = {0.50, 1.00, 1.00},
-			[32] = {0.50, 0.50, 1.00},
-			[64] = {1.00, 0.50, 1.00},
-			["unknown"] = {0.5, 0.75, 0.75, 1}
-		}
-
-	--load default profile keys
-		for key, value in pairs(_detalhes.default_profile) do
-			if (type(value) == "table") then
-				local ctable = Details.CopyTable(value)
-				self [key] = ctable
-			else
-				self [key] = value
-			end
-		end
-
-	--end
-		return true
-
-end
-
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---On Details! Load:
-	--check if this is a first run, reset, or just load the saved data.
-
-function _detalhes:LoadGlobalAndCharacterData()
-
-	--check and build the default container for character database
-
-		--it exists?
-		if (not _detalhes_database) then
-			_detalhes_database = Details.CopyTable(_detalhes.default_player_data)
-		end
-
-		--load saved values
-		for key, value in pairs(_detalhes.default_player_data) do
-
-			--check if key exists, e.g. a new key was added
-			if (_detalhes_database [key] == nil) then
-				if (type(value) == "table") then
-					_detalhes_database [key] = Details.CopyTable(_detalhes.default_player_data [key])
-				else
-					_detalhes_database [key] = value
-				end
-
-			elseif (type(_detalhes_database [key]) == "table") then
-				if (type(_detalhes.default_player_data [key]) == "string") then
-					print("|cFFFFAA00Details!|r error 0x8538, report on discord", key, _detalhes_database [key], _detalhes.default_player_data [key])
-				end
-				for key2, value2 in pairs(_detalhes.default_player_data [key]) do
-					if (_detalhes_database [key] [key2] == nil) then
-						if (type(value2) == "table") then
-							_detalhes_database [key] [key2] = Details.CopyTable(_detalhes.default_player_data [key] [key2])
-						else
-							_detalhes_database [key] [key2] = value2
-						end
-					end
-				end
-			end
-
-			--copy the key from saved table to details object
-			if (type(value) == "table") then
-				_detalhes [key] = Details.CopyTable(_detalhes_database [key])
-			else
-				_detalhes [key] = _detalhes_database [key]
-			end
-
-		end
-
-	--check and build the default container for account database
-		if (not _detalhes_global) then
-			_detalhes_global = Details.CopyTable(_detalhes.default_global_data)
-		end
-
-		for key, value in pairs(_detalhes.default_global_data) do
-
-			--check if key exists
-			if (_detalhes_global [key] == nil) then
-				if (type(value) == "table") then
-					_detalhes_global [key] = Details.CopyTable(_detalhes.default_global_data [key])
-				else
-					_detalhes_global [key] = value
-				end
-
-			elseif (type(_detalhes_global [key]) == "table") then
-
-				if (type(_detalhes.default_global_data [key]) == "string") then
-					C_Timer.After(5, function()
-						print("|cFFFFAA00Details!|r error 0x8547, report on discord", key, _detalhes_global [key], _detalhes.default_global_data [key])
-					end)
-				end
-
-				if (key == "always_use_profile_name") then
-					_detalhes_global ["always_use_profile_name"] = ""
-				end
-
-				if (type(_detalhes_global [key]) == "table") then
-					for key2, value2 in pairs(_detalhes.default_global_data [key]) do
-						if (_detalhes_global [key] [key2] == nil) then
-							if (type(value2) == "table") then
-								_detalhes_global [key] [key2] = Details.CopyTable(_detalhes.default_global_data [key] [key2])
-							else
-								_detalhes_global [key] [key2] = value2
-							end
-						end
-					end
-				end
-			end
-
-			--copy the key from saved table to details object
-			if (type(value) == "table") then
-				_detalhes [key] = Details.CopyTable(_detalhes_global [key])
-			else
-				_detalhes [key] = _detalhes_global [key]
-			end
-
-		end
-
-	--end
-		return true
-end
-
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---On Details! Load:
-	--load previous saved combat data
-
-function _detalhes:LoadCombatTables()
-
-	--if isn't nothing saved, build a new one
-		if (not _detalhes_database.tabela_historico) then
-			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-			_detalhes:UpdateContainerCombatentes()
+--On Details! Load load default keys into the main object
+function Details222.LoadSavedVariables.DefaultProfile()
+	for key, value in pairs(Details.default_profile) do
+		if (type(value) == "table") then
+			Details[key] = Details.CopyTable(value)
 		else
+			Details[key] = value
+		end
+	end
+end
 
-			--build basic containers
-				-- segments
-				_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico()
-				-- overall
-				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
+function Details222.LoadSavedVariables.CharacterData()
+	local defaultCharacterData = Details.default_player_data
+	local currentCharacterData = _detalhes_database
 
-				-- pets
-				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-				if (_detalhes_database.tabela_pets) then
-					_detalhes.tabela_pets.pets = Details.CopyTable(_detalhes_database.tabela_pets)
+	--check if the player data exists, if not, load from default
+	if (not currentCharacterData) then
+		currentCharacterData = Details.CopyTable(defaultCharacterData)
+		--[[GLOBAL]] _detalhes_database = currentCharacterData
+	end
+
+	--verify if there's new data added to 'default_player_data' and copy it to the savedvariable table
+	--do this up to a deepness level of 2, example: currentCharacterData[key][subKey] = any
+	for key, value in pairs(defaultCharacterData) do
+		if (currentCharacterData[key] == nil) then --the key doesn't exists, add it
+			if (type(value) == "table") then
+				currentCharacterData[key] = Details.CopyTable(defaultCharacterData[key])
+			else
+				currentCharacterData[key] = value
+			end
+
+		elseif (type(currentCharacterData[key]) == "table") then
+			for subKey, subValue in pairs(defaultCharacterData[key]) do
+				if (currentCharacterData[key][subKey] == nil) then
+					if (type(subValue) == "table") then
+						currentCharacterData[key][subKey] = Details.CopyTable(defaultCharacterData[key][subKey])
+					else
+						currentCharacterData[key][subKey] = subValue
+					end
 				end
-				_detalhes:UpdateContainerCombatentes()
+			end
+		end
 
-			--if the core revision was incremented, reset all combat data
-				if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.realversion) then
-					--details was been hard upgraded
-					_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-					_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-					_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-					_detalhes:UpdateContainerCombatentes()
+		--copy the key from saved table to Details object
+		if (type(value) == "table") then
+			Details[key] = Details.CopyTable(currentCharacterData[key])
+		else
+			Details[key] = currentCharacterData[key]
+		end
+	end
+end
 
-					_detalhes_database.tabela_historico = nil
-					_detalhes_database.tabela_overall = nil
-				else
-					--check integrity
-					local combat = _detalhes.tabela_historico.tabelas [1]
-					if (combat) then
-						if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
-							--something went wrong in last logon, let's just reset and we are good to go
-							_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-							_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-							_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-							_detalhes:UpdateContainerCombatentes()
+--check if this is a first run, reset, or just load the saved data.
+function Details222.LoadSavedVariables.SharedData()
+	local defaultAccountData = Details.default_global_data
+	local currentAccountData = _detalhes_global
+
+	if (not currentAccountData) then
+		currentAccountData = Details.CopyTable(defaultAccountData)
+		--[[GLOBAL]] _detalhes_global = currentAccountData
+	end
+
+	for key, value in pairs(defaultAccountData) do
+		if (currentAccountData[key] == nil) then
+			if (type(value) == "table") then
+				currentAccountData[key] = Details.CopyTable(defaultAccountData[key])
+			else
+				currentAccountData[key] = value
+			end
+
+		elseif (type(currentAccountData[key]) == "table") then
+			if (key == "always_use_profile_name") then
+				currentAccountData["always_use_profile_name"] = ""
+			end
+
+			if (type(currentAccountData[key]) == "table") then
+				for subKey, subValue in pairs(defaultAccountData[key]) do
+					if (currentAccountData[key][subKey] == nil) then
+						if (type(subValue) == "table") then
+							currentAccountData[key][subKey] = Details.CopyTable(defaultAccountData[key][subKey])
+						else
+							currentAccountData[key][subKey] = subValue
 						end
 					end
 				end
-
-				if (not _detalhes.overall_clear_logout) then
-					if (_detalhes_database.tabela_overall) then
-						_detalhes.tabela_overall = _detalhes_database.tabela_overall
-						_detalhes:RestauraOverallMetaTables()
-					end
-				else
-					_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-				end
-
-			--re-build all indexes and metatables
-				_detalhes:RestauraMetaTables()
-
-			--get last combat table
-				local historico_UM = _detalhes.tabela_historico.tabelas[1]
-
-				if (historico_UM) then
-					_detalhes.tabela_vigente = historico_UM --significa que elas eram a mesma tabela, ent�o aqui elas se tornam a mesma tabela
-				else
-					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-				end
-
-			--need refresh for all containers
-				for _, container in ipairs(_detalhes.tabela_overall) do
-					container.need_refresh = true
-				end
-				for _, container in ipairs(_detalhes.tabela_vigente) do
-					container.need_refresh = true
-				end
-
-			--erase combat data from the database
-				_detalhes_database.tabela_vigente = nil
-				_detalhes_database.tabela_historico = nil
-				_detalhes_database.tabela_pets = nil
-
-				-- double check for pet container
-				if (not _detalhes.tabela_pets or not _detalhes.tabela_pets.pets) then
-					_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-				end
-				_detalhes:UpdateContainerCombatentes()
-
+			end
 		end
+
+		--copy the key from savedvariables to Details object
+		if (type(value) == "table") then
+			Details[key] = Details.CopyTable(currentAccountData[key])
+		else
+			Details[key] = currentAccountData[key]
+		end
+	end
+end
+
+--load previous saved combat data
+function Details222.LoadSavedVariables.CombatSegments()
+	local currentCharacterData = _G["_detalhes_database"] --no need to check if it exists, it's already checked
+
+	--if isn't nothing saved, build a new one and quit
+	if (not currentCharacterData.tabela_historico) then
+		Details.tabela_historico = Details.historico:NovoHistorico()
+		Details.tabela_overall = Details.combate:NovaTabela()
+		Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
+		Details.tabela_pets = Details.container_pets:NovoContainer()
+		Details:UpdateContainerCombatentes()
+		return
+	else
+		Details.tabela_historico = Details.CopyTable(currentCharacterData.tabela_historico)
+		Details.tabela_overall = Details.combate:NovaTabela()
+		Details.tabela_pets = Details.container_pets:NovoContainer()
+		if (currentCharacterData.tabela_pets) then
+			Details.tabela_pets.pets = Details.CopyTable(currentCharacterData.tabela_pets)
+		end
+		Details:UpdateContainerCombatentes()
+
+		--if the core revision was incremented, reset all combat data to avoid incompatible data
+		if (currentCharacterData.last_realversion and currentCharacterData.last_realversion < Details.realversion) then
+			--details was been hard upgraded
+			Details.tabela_historico = Details.historico:NovoHistorico()
+			Details.tabela_overall = Details.combate:NovaTabela()
+			Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
+			Details.tabela_pets = Details.container_pets:NovoContainer()
+			Details:UpdateContainerCombatentes()
+
+			currentCharacterData.tabela_historico = nil
+			currentCharacterData.tabela_overall = nil
+		else
+			--check integrity
+			local combat = Details.tabela_historico.tabelas[1]
+			if (combat) then
+				if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
+					--something went wrong in last logon, let's just reset and we are good to go
+					Details.tabela_historico = Details.historico:NovoHistorico()
+					Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
+					Details.tabela_pets = Details.container_pets:NovoContainer()
+					Details:UpdateContainerCombatentes()
+				end
+			end
+		end
+
+		if (not Details.overall_clear_logout) then
+			if (currentCharacterData.tabela_overall) then
+				Details.tabela_overall = currentCharacterData.tabela_overall
+				Details:RestoreOverallMetatables()
+			end
+		else
+			Details.tabela_overall = Details.combate:NovaTabela()
+		end
+
+		--re-build all indexes and metatables
+		Details:RestoreMetatables()
+
+		--get lastest combat the player participated
+		---@type combat
+		local firstSegment = Details.tabela_historico.tabelas[1]
+
+		if (firstSegment) then
+			Details.tabela_vigente = firstSegment
+		else
+			Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
+		end
+
+		--need refresh for all containers
+		for _, actorContainer in ipairs(Details.tabela_overall) do
+			actorContainer.need_refresh = true
+		end
+		for _, actorContainer in ipairs(Details.tabela_vigente) do
+			actorContainer.need_refresh = true
+		end
+
+		--erase combat data from the database
+		if (currentCharacterData.tabela_historico) then
+			Details:Destroy(currentCharacterData.tabela_historico)
+		end
+		if (currentCharacterData.tabela_pets) then
+			Details:Destroy(currentCharacterData.tabela_pets)
+		end
+
+		--double check for pet container
+		if (not Details.tabela_pets or not Details.tabela_pets.pets) then
+			Details.tabela_pets = Details.container_pets:NovoContainer()
+		end
+		Details:UpdateContainerCombatentes()
+	end
 end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --On Details! Load:
 	--load the saved config on the addon
 
-function _detalhes:LoadConfig()
+function Details:LoadConfig()
 
 	--plugins data
-		_detalhes.plugin_database = _detalhes_database.plugin_database or {}
+		Details.plugin_database = _detalhes_database.plugin_database or {}
 
 	--startup
 
 		--set the nicktag cache host
-			_detalhes:NickTagSetCache (_detalhes_database.nick_tag_cache)
+			Details:NickTagSetCache (_detalhes_database.nick_tag_cache)
 
 		--count data
-			_detalhes:CountDataOnLoad()
+			Details:CountDataOnLoad()
 
 		--solo e raid plugin
 			if (_detalhes_database.SoloTablesSaved) then
 				if (_detalhes_database.SoloTablesSaved.Mode) then
-					_detalhes.SoloTables.Mode = _detalhes_database.SoloTablesSaved.Mode
-					_detalhes.SoloTables.LastSelected = _detalhes_database.SoloTablesSaved.LastSelected
+					Details.SoloTables.Mode = _detalhes_database.SoloTablesSaved.Mode
+					Details.SoloTables.LastSelected = _detalhes_database.SoloTablesSaved.LastSelected
 				else
-					_detalhes.SoloTables.Mode = 1
+					Details.SoloTables.Mode = 1
 				end
 			end
 
 		--switch tables
-			_detalhes.switch.slots = _detalhes_global.switchSaved.slots
-			_detalhes.switch.table = _detalhes_global.switchSaved.table
+			Details.switch.slots = _detalhes_global.switchSaved.slots
+			Details.switch.table = _detalhes_global.switchSaved.table
 
-			if (_detalhes.switch.table) then
-				for i = 1, #_detalhes.switch.table do
-					if (not _detalhes.switch.table [i]) then
-						_detalhes.switch.table [i] = {}
+			if (Details.switch.table) then
+				for i = 1, #Details.switch.table do
+					if (not Details.switch.table [i]) then
+						Details.switch.table [i] = {}
 					end
 				end
 			end
 
 		--last boss
-			_detalhes.last_encounter = _detalhes_database.last_encounter
+			Details.last_encounter = _detalhes_database.last_encounter
 
 		--buffs
-			_detalhes.savedbuffs = _detalhes_database.savedbuffs
-			_detalhes.Buffs:BuildTables()
+			Details.savedbuffs = _detalhes_database.savedbuffs
+			Details.Buffs:BuildTables()
 
 		--initialize parser
-			_detalhes.capture_current = {}
-			for captureType, captureValue in pairs(_detalhes.capture_real) do
-				_detalhes.capture_current [captureType] = captureValue
+			Details.capture_current = {}
+			for captureType, captureValue in pairs(Details.capture_real) do
+				Details.capture_current [captureType] = captureValue
 			end
 
 		--row animations
-			_detalhes:SetUseAnimations()
+			Details:SetUseAnimations()
 
 		--initialize spell cache
-			_detalhes:ClearSpellCache()
+			Details:ClearSpellCache()
 
 		--version first run
-			if (not _detalhes_database.last_version or _detalhes_database.last_version ~= _detalhes.userversion) then
-				_detalhes.is_version_first_run = true
+			if (not _detalhes_database.last_version or _detalhes_database.last_version ~= Details.userversion) then
+				Details.is_version_first_run = true
 			end
 
 	--profile
@@ -342,45 +263,45 @@ function _detalhes:LoadConfig()
 		local unitname = UnitName ("player")
 
 		--fix for old versions
-		if (type(_detalhes.always_use_profile) == "string") then
-			_detalhes.always_use_profile = false
-			_detalhes.always_use_profile_name = ""
+		if (type(Details.always_use_profile) == "string") then
+			Details.always_use_profile = false
+			Details.always_use_profile_name = ""
 		end
 
-		if (type(_detalhes.always_use_profile_name) ~= "string") then
-			_detalhes.always_use_profile = false
-			_detalhes.always_use_profile_name = ""
+		if (type(Details.always_use_profile_name) ~= "string") then
+			Details.always_use_profile = false
+			Details.always_use_profile_name = ""
 		end
 
 		--check for "always use this profile"
-			if (_detalhes.always_use_profile and not _detalhes.always_use_profile_exception [unitname]) then
-				local profile_name = _detalhes.always_use_profile_name
-				if (profile_name and profile_name ~= "" and _detalhes:GetProfile (profile_name)) then
+			if (Details.always_use_profile and not Details.always_use_profile_exception [unitname]) then
+				local profile_name = Details.always_use_profile_name
+				if (profile_name and profile_name ~= "" and Details:GetProfile (profile_name)) then
 					_detalhes_database.active_profile = profile_name
 				end
 			end
 
 		--character first run
 			if (_detalhes_database.active_profile == "") then
-				_detalhes.character_first_run = true
+				Details.character_first_run = true
 				--� a primeira vez que este character usa profiles,  precisa copiar as keys existentes
-				local current_profile_name = _detalhes:GetCurrentProfileName()
-				_detalhes:GetProfile (current_profile_name, true)
-				_detalhes:SaveProfileSpecial()
+				local current_profile_name = Details:GetCurrentProfileName()
+				Details:GetProfile (current_profile_name, true)
+				Details:SaveProfileSpecial()
 			end
 
 		--load profile and active instances
-			local current_profile_name = _detalhes:GetCurrentProfileName()
+			local current_profile_name = Details:GetCurrentProfileName()
 		--check if exists, if not, create one
-			local profile = _detalhes:GetProfile (current_profile_name, true)
+			local profile = Details:GetProfile (current_profile_name, true)
 
 		--instances
-			_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
+			Details.tabela_instancias = _detalhes_database.tabela_instancias or {}
 
 			--fix for version 1.21.0
-			if (#_detalhes.tabela_instancias > 0) then --only happens once after the character logon
+			if (#Details.tabela_instancias > 0) then --only happens once after the character logon
 				for index, saved_skin in ipairs(profile.instances) do
-					local instance = _detalhes.tabela_instancias [index]
+					local instance = Details.tabela_instancias [index]
 					if (instance) then
 						saved_skin.__was_opened = instance.ativa
 						saved_skin.__pos = Details.CopyTable(instance.posicao)
@@ -390,7 +311,7 @@ function _detalhes:LoadConfig()
 						saved_skin.__snapV = instance.verticalSnap
 
 						for key, value in pairs(instance) do
-							if (_detalhes.instance_defaults [key] ~= nil) then
+							if (Details.instance_defaults [key] ~= nil) then
 								if (type(value) == "table") then
 									saved_skin [key] = Details.CopyTable(value)
 								else
@@ -401,8 +322,8 @@ function _detalhes:LoadConfig()
 					end
 				end
 
-				for index, instance in _detalhes:ListInstances() do
-					_detalhes.local_instances_config [index] = {
+				for index, instance in Details:ListInstances() do
+					Details.local_instances_config [index] = {
 						pos = Details.CopyTable(instance.posicao),
 						is_open = instance.ativa,
 						attribute = instance.atributo,
@@ -417,51 +338,46 @@ function _detalhes:LoadConfig()
 						isLocked = instance.isLocked
 					}
 
-					if (_detalhes.local_instances_config [index].isLocked == nil) then
-						_detalhes.local_instances_config [index].isLocked = false
+					if (Details.local_instances_config [index].isLocked == nil) then
+						Details.local_instances_config [index].isLocked = false
 					end
 				end
 
-				_detalhes.tabela_instancias = {}
+				Details.tabela_instancias = {}
 			end
 
 		--apply the profile
-			_detalhes:ApplyProfile (current_profile_name, true)
+		Details:ApplyProfile(current_profile_name, true)
 
 		--custom
-			_detalhes.custom = _detalhes_global.custom
-			if (_detalhes_global.custom and _detalhes_global.custom[1] and _detalhes_global.custom[1].__index and _detalhes_global.custom[1].__index._InstanceLastCombatShown) then
-				C_Timer.After(5, function() print("|cFFFFAA00Details!|r error 0x8487, report on discord") end)
-			end
-			_detalhes.refresh:r_atributo_custom()
-			
+		Details.custom = _detalhes_global.custom
+		if (_detalhes_global.custom and _detalhes_global.custom[1] and _detalhes_global.custom[1].__index and _detalhes_global.custom[1].__index._InstanceLastCombatShown) then
+			C_Timer.After(5, function() print("|cFFFFAA00Details!|r error 0x8487, report on discord") end)
+		end
+		Details.refresh:r_atributo_custom()
+
 end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---On Details! Load:
-	--count logons, tutorials, etc
-
-function _detalhes:CountDataOnLoad()
-
+--On Details! Load count logons, tutorials, etc
+function Details:CountDataOnLoad()
 	--basic
-		if (not _detalhes_global.got_first_run) then
-			_detalhes.is_first_run = true
-		end
+	if (not _detalhes_global.got_first_run) then
+		Details.is_first_run = true
+	end
 
 	--tutorial
-		self.tutorial = self.tutorial or {}
+	self.tutorial = self.tutorial or {}
 
-		self.tutorial.logons = self.tutorial.logons or 0
-		self.tutorial.logons = self.tutorial.logons + 1
+	self.tutorial.logons = self.tutorial.logons or 0
+	self.tutorial.logons = self.tutorial.logons + 1
 
-		self.tutorial.unlock_button = self.tutorial.unlock_button or 0
-		self.tutorial.version_announce = self.tutorial.version_announce or 0
-		self.tutorial.main_help_button = self.tutorial.main_help_button or 0
-		self.tutorial.alert_frames = self.tutorial.alert_frames or {false, false, false, false, false, false}
+	self.tutorial.unlock_button = self.tutorial.unlock_button or 0
+	self.tutorial.version_announce = self.tutorial.version_announce or 0
+	self.tutorial.main_help_button = self.tutorial.main_help_button or 0
+	self.tutorial.alert_frames = self.tutorial.alert_frames or {false, false, false, false, false, false}
 
-		self.tutorial.main_help_button = self.tutorial.main_help_button + 1
+	self.tutorial.main_help_button = self.tutorial.main_help_button + 1
 
-		self.character_data = self.character_data or {logons = 0}
-		self.character_data.logons = self.character_data.logons + 1
-
+	self.character_data = self.character_data or {logons = 0}
+	self.character_data.logons = self.character_data.logons + 1
 end

@@ -1677,12 +1677,12 @@ end
 		end
 
 		local _, _, icon = GetSpellInfo(self.damage_spellid)
-		local school_color = Details.school_colors [self.spellschool]
-		if (not school_color) then
-			school_color = Details.school_colors ["unknown"]
+		local spellSchoolColor = Details.spells_school[self.spellschool] and Details.spells_school[self.spellschool].decimals
+		if (not spellSchoolColor) then
+			spellSchoolColor = Details.spells_school[1]
 		end
 
-		Details:SetBarColors(thisLine, instancia, unpack(school_color))
+		Details:SetBarColors(thisLine, instancia, unpack(spellSchoolColor))
 
 		thisLine.icone_classe:SetTexture(icon)
 		thisLine.icone_classe:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)

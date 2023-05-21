@@ -44,6 +44,8 @@
 
 		Details.gameVersionPrefix = gameVersionPrefix
 
+		pcall(function() Details.version_alpha_id = tonumber(Details.curseforgeVersion:match("%-(%d+)%-")) end)
+
 		--WD 10288 RELEASE 10.0.2
 		--WD 10288 ALPHA 21 10.0.2
 		function Details.GetVersionString()
@@ -90,6 +92,7 @@
 		Details222.GarbageCollector = {}
 		Details222.BreakdownWindow = {}
 		Details222.PlayerStats = {}
+		Details222.LoadSavedVariables = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff

@@ -166,6 +166,9 @@
 
 		local buffs_to_other_players = {
 			[10060] = true, --power infusion
+			[413426] = true, --rippling anthem (trinket 10.1)
+			[405734] = true, --spore tender
+			[406785] = true, --invigorating spore cloud
 		}
 
 		local empower_cache = {}
@@ -3205,7 +3208,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		[SPELL_POWER_FURY] = true, --warrior demonhunter dps
 	}
 
-	local resource_power_type = {
+	local resourcePowerType = {
 		[SPELL_POWER_COMBO_POINTS2] = SPELL_POWER_ENERGY, --combo points
 		[SPELL_POWER_SOUL_SHARDS] = SPELL_POWER_MANA, --warlock
 		[SPELL_POWER_LUNAR_POWER] = SPELL_POWER_MANA, --druid
@@ -3320,121 +3323,105 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	-- ~energy ~resource
-	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overpower, powertype, altpower)
-
-	------------------------------------------------------------------------------------------------
-	--early checks and fixes
-		if (not who_name) then
-			who_name = "[*] "..spellname
-		elseif (not alvo_name) then
+	function parser:energize (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, amount, overpower, powerType, altpower)
+		if (not sourceName) then
+			sourceName = "[*] " .. spellName
+		elseif (not targetName) then
 			return
 		end
 
-	------------------------------------------------------------------------------------------------
-	--check if is energy or resource
-
-		--Details:Dump({token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overpower, powertype, altpower})
-
 		--get resource type
-		local is_resource, resource_amount, resource_id = resource_power_type [powertype], amount, powertype
+		local bIsResource, resourceAmount, resourceId = resourcePowerType[powerType], amount, powerType
 
 		--check if is valid
-		if (not energy_types [powertype] and not is_resource) then
+		if (not energy_types[powerType] and not bIsResource) then
 			return
 
-		elseif (is_resource) then
-			powertype = is_resource
+		elseif (bIsResource) then
+			powerType = bIsResource
 			amount = 0
 		end
 
 		overpower = overpower or 0
-
-		--[[statistics]]-- _detalhes.statistics.energy_calls = _detalhes.statistics.energy_calls + 1
-
 		_current_energy_container.need_refresh = true
 
-------------------------------------------------------------------------------------------------
-	--get actors
+		--get actors
+		---@type actor
+		local sourceActor = energy_cache[sourceName]
+		local ownerActor
 
-		--main actor
-		local este_jogador, meu_dono = energy_cache [who_name] --meu_dono is always nil
-		if (not este_jogador) then --pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			este_jogador.powertype = powertype
-			if (meu_dono) then
-				meu_dono.powertype = powertype
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_energy_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+			sourceActor.powertype = powerType
+			if (ownerActor) then
+				ownerActor.powertype = powerType
 			end
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
-				--does pet generates energy to its owner in any circustance?
-				energy_cache [who_name] = este_jogador
-			end
-		end
-
-		if (not este_jogador.powertype) then
-			este_jogador.powertype = powertype
-		end
-
-		--target
-		local jogador_alvo, alvo_dono = energy_cache [alvo_name]
-		if (not jogador_alvo) then
-			jogador_alvo, alvo_dono, alvo_name = _current_energy_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			jogador_alvo.powertype = powertype
-			if (alvo_dono) then
-				alvo_dono.powertype = powertype
-			end
-			if (not alvo_dono) then
-				energy_cache [alvo_name] = jogador_alvo
+			if (not ownerActor) then
+				energy_cache[sourceName] = sourceActor
 			end
 		end
 
-		if (jogador_alvo.powertype ~= este_jogador.powertype) then
-			--print("error: different power types: who -> ", este_jogador.powertype, " target -> ", jogador_alvo.powertype)
+		if (not sourceActor.powertype) then
+			sourceActor.powertype = powerType
+		end
+
+		---@type actor
+		local targetActor = energy_cache[targetName]
+		local ownerTarget
+		if (not targetActor) then
+			targetActor, ownerTarget, targetName = _current_energy_container:PegarCombatente(targetSerial, targetName, targetFlags, true)
+			targetActor.powertype = powerType
+			if (ownerTarget) then
+				ownerTarget.powertype = powerType
+			end
+			if (not ownerTarget) then
+				energy_cache[targetName] = targetActor
+			end
+		end
+
+		if (targetActor.powertype ~= sourceActor.powertype) then
 			return
 		end
 
-		este_jogador.last_event = _tempo
+		sourceActor.last_event = _tempo
 
-	------------------------------------------------------------------------------------------------
-	--amount add
+		--amount add
 
-		if (not is_resource) then
-
-			--amount = amount - overpower
-
+		if (not bIsResource) then
 			--add to targets
-			este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
+			sourceActor.targets[targetName] = (sourceActor.targets[targetName] or 0) + amount
 
 			--add to combat total
-			_current_total [3] [powertype] = _current_total [3] [powertype] + amount
+			_current_total[3][powerType] = _current_total[3][powerType] + amount
 
-			if (este_jogador.grupo) then
-				_current_gtotal [3] [powertype] = _current_gtotal [3] [powertype] + amount
+			if (sourceActor.grupo) then
+				_current_gtotal [3] [powerType] = _current_gtotal [3] [powerType] + amount
 			end
 
 			--regen produced amount
-			este_jogador.total = este_jogador.total + amount
-			este_jogador.totalover = este_jogador.totalover + overpower
+			sourceActor.total = sourceActor.total + amount
+			sourceActor.totalover = sourceActor.totalover + overpower
 
 			--target regenerated amount
-			jogador_alvo.received = jogador_alvo.received + amount
+			targetActor.received = targetActor.received + amount
 
 			--owner
-			if (meu_dono) then
-				meu_dono.total = meu_dono.total + amount
+			if (ownerActor) then
+				ownerActor.total = ownerActor.total + amount
 			end
 
 			--actor spells table
-			local spellTable = este_jogador.spells._ActorTable[spellid]
+			local spellTable = sourceActor.spells._ActorTable[spellId]
 			if (not spellTable) then
-				spellTable = este_jogador.spells:PegaHabilidade(spellid, true, token)
+				spellTable = sourceActor.spells:PegaHabilidade(spellId, true, token)
 			end
 
 			--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
-			return _spell_energy_func (spellTable, alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype, overpower)
+			return _spell_energy_func (spellTable, targetSerial, targetName, targetFlags, amount, sourceName, powerType, overpower)
 		else
 			--is a resource
-			este_jogador.resource = este_jogador.resource + resource_amount
-			este_jogador.resource_type = resource_id
+			sourceActor.resource = sourceActor.resource + resourceAmount
+			sourceActor.resource_type = resourceId
 		end
 	end
 
@@ -3583,7 +3570,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	------------------------------------------------------------------------------------------------
 	--get actors
-		--main actor
+		---@type actorutility, actorutility
 		local sourceActor, ownerActor = misc_cache[sourceName], nil
 		if (not sourceActor) then
 			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
@@ -3595,12 +3582,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly
 		if (not sourceActor.interrupt) then
-			sourceActor.interrupt = _detalhes:GetOrderNumber(sourceName)
+			sourceActor.interrupt = Details:GetOrderNumber()
 			sourceActor.interrupt_targets = {}
 			sourceActor.interrupt_spells = container_habilidades:NovoContainer(container_misc)
 			sourceActor.interrompeu_oque = {}
 		end
-
+		
 	------------------------------------------------------------------------------------------------
 	--add amount
 
@@ -3985,86 +3972,70 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--serach key: ~cc
-	function parser:break_cc (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
-
-	------------------------------------------------------------------------------------------------
-	--early checks and fixes
-		if (not cc_spell_list [spellid]) then
-			return
-			--print("NO CC:", spellid, spellname, extraSpellID, extraSpellName)
-		end
-
-		if (bitBand(who_flags, AFFILIATION_GROUP) == 0) then
-			return
-		end
-
-		if (not spellname) then
-			spellname = "Melee"
-		end
-
-		if (not alvo_name) then
-			--no target name, just quit
+	function parser:break_cc(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool, auraType)
+		if (not cc_spell_list[spellId]) then
 			return
 
-		elseif (not who_name) then
-			--no actor name, use spell name instead
-			who_name = "[*] " .. spellname
-			who_flags = 0xa48
-			who_serial = ""
+		elseif (bitBand(sourceFlags, AFFILIATION_GROUP) == 0) then
+			return
+
+		elseif (not targetName) then
+			return --no target name, just quit
+		end
+
+		if (not spellName) then
+			spellName = "Melee"
+		end
+
+		if (not sourceName) then
+			sourceName = "[*] " .. spellName --if there's no sourceName, use spellName instead
+			sourceFlags = 0xa48
+			sourceSerial = ""
 		end
 
 		_current_misc_container.need_refresh = true
 
-	------------------------------------------------------------------------------------------------
-	--get actors
-
-		local este_jogador, meu_dono = misc_cache [who_name]
-		if (not este_jogador) then --pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
-				misc_cache [who_name] = este_jogador
+		---@type actorutility, actorutility
+		local sourceActor, ownerActor = misc_cache[sourceName], nil
+		if (not sourceActor) then --unknown if is a pet or player
+			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+			if (not ownerActor) then --not a pet: add to cache
+				misc_cache[sourceName] = sourceActor
 			end
 		end
 
-	------------------------------------------------------------------------------------------------
-	--build containers on the fly
-
-		if (not este_jogador.cc_break) then
-			--constr�i aqui a tabela dele
-			este_jogador.cc_break = _detalhes:GetOrderNumber(who_name)
-			este_jogador.cc_break_targets = {}
-			este_jogador.cc_break_spells = container_habilidades:NovoContainer (container_misc)
-			este_jogador.cc_break_oque = {}
+		--create the spell container on the fly
+		if (not sourceActor.cc_break) then
+			sourceActor.cc_break = Details:GetOrderNumber()
+			sourceActor.cc_break_targets = {}
+			sourceActor.cc_break_oque = {}
+			---@type spellcontainer
+			sourceActor.cc_break_spells = container_habilidades:NovoContainer(container_misc)
 		end
 
-	------------------------------------------------------------------------------------------------
-	--add amount
+		sourceActor.last_event = _tempo
 
-		--update last event
-		este_jogador.last_event = _tempo
-
-		--combat cc break total
-		_current_total [4].cc_break = _current_total [4].cc_break + 1
-
-		if (este_jogador.grupo) then
-			_current_combat.totals_grupo[4].cc_break = _current_combat.totals_grupo[4].cc_break+1
+		--add amount
+		_current_total[4].cc_break = _current_total[4].cc_break + 1
+		if (sourceActor.grupo) then
+			_current_combat.totals_grupo[4].cc_break = _current_combat.totals_grupo[4].cc_break + 1
 		end
 
 		--add amount
-		este_jogador.cc_break = este_jogador.cc_break + 1
+		sourceActor.cc_break = sourceActor.cc_break + 1
 
 		--broke what
-		este_jogador.cc_break_oque [spellid] = (este_jogador.cc_break_oque [spellid] or 0) + 1
+		sourceActor.cc_break_oque[spellId] = (sourceActor.cc_break_oque[spellId] or 0) + 1
 
 		--actor targets
-		este_jogador.cc_break_targets [alvo_name] = (este_jogador.cc_break_targets [alvo_name] or 0) + 1
+		sourceActor.cc_break_targets[targetName] = (sourceActor.cc_break_targets[targetName] or 0) + 1
 
-		--actor spells table
-		local spell = este_jogador.cc_break_spells._ActorTable [extraSpellID]
-		if (not spell) then
-			spell = este_jogador.cc_break_spells:PegaHabilidade (extraSpellID, true, token)
+		---@type spelltable
+		local spellTable = sourceActor.cc_break_spells._ActorTable[extraSpellID]
+		if (not spellTable) then
+			spellTable = sourceActor.cc_break_spells:PegaHabilidade(extraSpellID, true, token)
 		end
-		return _spell_utility_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, token, spellid, spellname)
+		return _spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, token, spellId, spellName)
 	end
 
 	--serach key: ~dead ~death ~morte
@@ -4087,30 +4058,28 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@param targetSerial string
 	---@param targetName string
 	---@param targetFlags number
-	function parser:dead (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
-	--early checks and fixes
+	function parser:dead(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
+		--early checks and fixes
 		if (not targetName) then
 			return
 		end
 
-	------------------------------------------------------------------------------------------------
-	--build dead
-
+		---@type actordamage
 		local damageActor = _current_damage_container:GetActor(targetName)
-		--check for outsiders
+		--check if the dead actor is an actor outside the player group, for instance a pvp player or a npc
 		if (_in_combat and targetFlags and (not damageActor or (bitBand(targetFlags, 0x00000008) ~= 0 and not damageActor.grupo))) then
 			--frags
-				if (_detalhes.only_pvp_frags and (bitBand(targetFlags, 0x00000400) == 0 or (bitBand(targetFlags, 0x00000040) == 0 and bitBand(targetFlags, 0x00000020) == 0))) then --byte 2 = 4 (HOSTILE) byte 3 = 4 (OBJECT_TYPE_PLAYER)
-					return
-				end
+			if (_detalhes.only_pvp_frags and (bitBand(targetFlags, 0x00000400) == 0 or (bitBand(targetFlags, 0x00000040) == 0 and bitBand(targetFlags, 0x00000020) == 0))) then --byte 2 = 4 (HOSTILE) byte 3 = 4 (OBJECT_TYPE_PLAYER)
+				return
+			end
 
-				if (not _current_combat.frags [targetName]) then
-					_current_combat.frags [targetName] = 1
-				else
-					_current_combat.frags [targetName] = _current_combat.frags [targetName] + 1
-				end
+			if (not _current_combat.frags[targetName]) then
+				_current_combat.frags[targetName] = 1
+			else
+				_current_combat.frags[targetName] = _current_combat.frags[targetName] + 1
+			end
 
-				_current_combat.frags_need_refresh = true
+			_current_combat.frags_need_refresh = true
 
 		--player death
 		elseif (not UnitIsFeignDeath(targetName)) then
@@ -4137,8 +4106,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_current_misc_container.need_refresh = true
 
 				--combat totals
-				_current_total [4].dead = _current_total [4].dead + 1
-				_current_gtotal [4].dead = _current_gtotal [4].dead + 1
+				_current_total[4].dead = _current_total[4].dead + 1
+				_current_gtotal[4].dead = _current_gtotal[4].dead + 1
 
 				--main actor no container de misc que ir� armazenar a morte
 				local thisPlayer, meu_dono = misc_cache [targetName]
@@ -4415,7 +4384,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 --core
 
 	function parser:WipeSourceCache()
-		wipe (monk_guard_talent)
+		Details:Destroy(monk_guard_talent)
 	end
 
 	local token_list = {
@@ -4430,85 +4399,84 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	--serach key: ~capture
 
-	_detalhes.capture_types = {"damage", "heal", "energy", "miscdata", "aura", "spellcast"}
-	_detalhes.capture_schedules = {}
+	Details.capture_types = {"damage", "heal", "energy", "miscdata", "aura", "spellcast"}
+	Details.capture_schedules = {}
 
-	function _detalhes:CaptureIsAllEnabled()
-		for _, _thisType in ipairs(_detalhes.capture_types) do
-			if (not _detalhes.capture_real [_thisType]) then
+	function Details:CaptureIsAllEnabled()
+		for _, thisType in ipairs(Details.capture_types) do
+			if (not Details.capture_real[thisType]) then
 				return false
 			end
 		end
 		return true
 	end
 
-	function _detalhes:CaptureIsEnabled (capture)
-		if (_detalhes.capture_real [capture]) then
+	function Details:CaptureIsEnabled(capture)
+		if (Details.capture_real[capture]) then
 			return true
 		end
 		return false
 	end
 
-	function _detalhes:CaptureRefresh()
-		for _, _thisType in ipairs(_detalhes.capture_types) do
-			if (_detalhes.capture_current [_thisType]) then
-				_detalhes:CaptureEnable (_thisType)
+	function Details:CaptureRefresh()
+		for _, thisType in ipairs(Details.capture_types) do
+			if (Details.capture_current[thisType]) then
+				Details:CaptureEnable(thisType)
 			else
-				_detalhes:CaptureDisable (_thisType)
+				Details:CaptureDisable(thisType)
 			end
 		end
 	end
 
-	function _detalhes:CaptureGet(capture_type)
-		return _detalhes.capture_real [capture_type]
+	function Details:CaptureGet(captureType)
+		return Details.capture_real[captureType]
 	end
 
-	function _detalhes:CaptureSet (on_off, capture_type, real, time)
-
-		if (on_off == nil) then
-			on_off = _detalhes.capture_real [capture_type]
+	function Details:CaptureSet(onOff, captureType, real, time)
+		if (onOff == nil) then
+			onOff = Details.capture_real[captureType]
 		end
 
 		if (real) then
 			--hard switch
-			_detalhes.capture_real [capture_type] = on_off
-			_detalhes.capture_current [capture_type] = on_off
+			Details.capture_real[captureType] = onOff
+			Details.capture_current[captureType] = onOff
 		else
 			--soft switch
-			_detalhes.capture_current [capture_type] = on_off
+			Details.capture_current[captureType] = onOff
 			if (time) then
-				local schedule_id = math.random(1, 10000000)
-				local new_schedule = _detalhes:ScheduleTimer("CaptureTimeout", time, {capture_type, schedule_id})
-				tinsert(_detalhes.capture_schedules, {new_schedule, schedule_id})
+				local scheduleId = math.random(1, 10000000)
+				local new_schedule = Details:ScheduleTimer("CaptureTimeout", time, {captureType, scheduleId}) --todo: use Details.Schedule
+				tinsert(Details.capture_schedules, {new_schedule, scheduleId})
 			end
 		end
 
-		_detalhes:CaptureRefresh()
+		Details:CaptureRefresh()
 	end
 
-	function _detalhes:CancelAllCaptureSchedules()
-		for i = 1, #_detalhes.capture_schedules do
-			local schedule_table, schedule_id = unpack(_detalhes.capture_schedules[i])
-			_detalhes:CancelTimer(schedule_table)
+	function Details:CancelAllCaptureSchedules()
+		for i = 1, #Details.capture_schedules do
+			local schedule_table, schedule_id = unpack(Details.capture_schedules[i])
+			Details:CancelTimer(schedule_table)
 		end
-		wipe(_detalhes.capture_schedules)
+		wipe(Details.capture_schedules)
 	end
 
-	function _detalhes:CaptureTimeout (table)
+	function Details:CaptureTimeout (table)
 		local capture_type, schedule_id = unpack(table)
-		_detalhes.capture_current [capture_type] = _detalhes.capture_real [capture_type]
-		_detalhes:CaptureRefresh()
+		Details.capture_current [capture_type] = Details.capture_real [capture_type]
+		Details:CaptureRefresh()
 
-		for index, table in ipairs(_detalhes.capture_schedules) do
+		for index, table in ipairs(Details.capture_schedules) do
 			local id = table [2]
 			if (schedule_id == id) then
-				tremove(_detalhes.capture_schedules, index)
+				tremove(Details.capture_schedules, index)
 				break
 			end
 		end
 	end
 
-	function _detalhes:CaptureDisable (capture_type)
+	function Details:CaptureDisable (capture_type)
 
 		capture_type = string.lower(capture_type)
 
@@ -5718,50 +5686,64 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--~load
-	local start_details = function()
-		if (not _detalhes.gump) then
+	local TurnTheSpeakersOn = function()
+		if (not Details.gump) then
 			--failed to load the framework
-
-			if (not _detalhes.instance_load_failed) then
-				_detalhes:CreatePanicWarning()
+			if (not Details.instance_load_failed) then
+				Details:CreatePanicWarning()
 			end
-			_detalhes.instance_load_failed.text:SetText("Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension.")
-
+			Details.instance_load_failed.text:SetText("Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension.")
 			return
 		end
 
-		--cooltip
-		if (not _G.GameCooltip) then
-			_detalhes.popup = _G.GameCooltip
-		else
-			_detalhes.popup = _G.GameCooltip
+		Details.popup = _G.GameCooltip
+		Details.in_group = IsInGroup() or IsInRaid()
+		Details.temp_table1 = {}
+		Details.encounter = {}
+		Details.in_combat = false
+		Details.combat_id = 0
+		Details.opened_windows = 0
+		Details.playername = UnitName("player")
+
+		--player faction and enemy faction
+		Details.faction = UnitFactionGroup("player")
+		if (Details.faction == PLAYER_FACTION_GROUP[0]) then --player is horde
+			Details.faction_against = PLAYER_FACTION_GROUP[1] --ally
+			Details.faction_id = 0
+
+		elseif (Details.faction == PLAYER_FACTION_GROUP[1]) then --player is alliance
+			Details.faction_against = PLAYER_FACTION_GROUP[0] --horde
+			Details.faction_id = 1
 		end
 
-		--check group
-		_detalhes.in_group = IsInGroup() or IsInRaid()
+		local startLoadTime = debugprofilestop()
 
-		--write into details object all basic keys and default profile
-		_detalhes:ApplyBasicKeys()
-		--check if is first run, update keys for character and global data
-		_detalhes:LoadGlobalAndCharacterData()
+		--this function applies the Details.default_profile to Details object, this isn't yet the player profile which will load later
+		Details222.LoadSavedVariables.DefaultProfile()
 
-		--details updated and not reopened the game client
-		if (_detalhes.FILEBROKEN) then
-			return
-		end
+		--load up data from savedvariables for the character
+		Details222.LoadSavedVariables.CharacterData()
 
-		--load all the saved combats
-		_detalhes:LoadCombatTables()
+		--load up data from saved variables for the account (shared among all the players' characters; this is not the Blizzard account, lol).
+		Details222.LoadSavedVariables.SharedData()
+
+		--load data of the segments saved from latest game session
+		Details222.LoadSavedVariables.CombatSegments()
 
 		--load the profiles
-		_detalhes:LoadConfig()
+		Details:LoadConfig()
 
-		_detalhes:UpdateParserGears()
+		Details:UpdateParserGears()
 
 		--load auto run code
 		Details:StartAutoRun()
 
 		Details.isLoaded = true
+
+		local endLoadTime = debugprofilestop() - startLoadTime
+		if (Details.version_alpha_id and Details.version_alpha_id > 0 or true) then
+			Details:Msg("load time: " .. math.floor(endLoadTime) .. "ms", "alpha:", Details.version_alpha_id)
+		end
 	end
 
 	function Details.IsLoaded()
@@ -5769,9 +5751,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function _detalhes.parser_functions:ADDON_LOADED(...)
-		local addon_name = select(1, ...)
-		if (addon_name == "Details") then
-			start_details()
+		local addonName = select(1, ...)
+		if (addonName == "Details") then
+			TurnTheSpeakersOn()
 		end
 	end
 

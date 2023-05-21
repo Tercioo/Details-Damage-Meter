@@ -337,11 +337,13 @@
 		return playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown
 	end
 
-	function Details:GetOrderNumber() --who_name
-		--local name = upper (who_name .. "zz")
-		--local byte1 = abs(_string_byte (name, 2)-91)/1000000
-		--return byte1 + abs(_string_byte (name, 1)-91)/10000
-		return _math_random (1000, 9000) / 1000000
+	---get a random fraction number
+	---@return number
+	function Details:GetOrderNumber() --anyString
+		--local name = upper(anyString .. "zz")
+		--local byte1 = abs(_string_byte(name, 2)-91) / 1000000
+		--return byte1 + abs(_string_byte(name, 1)-91) / 10000
+		return _math_random(1000, 9000) / 1000000
 	end
 
 	--/script print(tonumber(4/1000000)) - 4e-006

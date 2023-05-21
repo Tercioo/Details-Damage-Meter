@@ -446,6 +446,23 @@
 ---@field damage_taken number amount of damage the actor took durent the segment
 ---@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 
+---@class actorheal : actor
+
+---@class actorenergy : actor
+
+---@class actorutility : actor
+---@field cc_break number amount of times the actor broke a cc
+---@field dispell number amount of times the actor dispelled a buff or debuff
+---@field interrupt number amount of times the actor interrupted a spell
+---@field ress number amount of times the actor ressed a player
+---@field dead number amount of times the actor died
+---@field cooldowns_defensive number amount of times the actor used a defensive cooldown
+---@field buff_uptime number amount of time the actor had a buff
+---@field debuff_uptime number amount of time the actor had a debuff
+--interrupt_targets interrupt_spells interrompeu_oque
+--cc_break_targets cc_break_spells cc_break_oque
+
+
 ---@class segmentid : number
 ---@class instanceid : number
 ---@class attributeid : number
