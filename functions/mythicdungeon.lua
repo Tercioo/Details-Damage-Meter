@@ -809,7 +809,7 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
 
         --reset spec cache if broadcaster requested
         if (Details.streamer_config.reset_spec_cache) then
-            wipe (Details.cached_specs)
+            Details:Destroy (Details.cached_specs)
         end
 
         C_Timer.After(0.5, DetailsMythicPlusFrame.OnChallengeModeStart)

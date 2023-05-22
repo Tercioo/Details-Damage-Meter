@@ -159,6 +159,7 @@
 ---@field EnableMouseWheel fun(self: frame, enable: boolean)
 ---@field RegisterForDrag fun(self: frame, button: string)
 ---@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
+---@field RegisterEvent fun(self: frame, event: string)
 
 ---@class button : frame
 ---@field Click fun(self: button)
@@ -357,6 +358,8 @@
 ---@field GetTotalOnRaid fun(container: actorcontainer, key: string, combat: combat) get the total amount of actor[key] only for the actors which are in the raid
 ---@field GetActorTable fun(container: actorcontainer) get the table<actorIndex, actorObject> which contains the actors
 ---@field ListActors fun(container: actorcontainer) usage: for index, actorObject in container:ListActors() do
+---@field RemoveActor fun(container: actorcontainer, actor: actor) remove an actor from the container
+---@field GetType fun(container: actorcontainer) : number get the container type, 1 for damage, 2 for heal, 3 for energy, 4 for utility
 
 ---@class spellcontainer : table
 ---@field _ActorTable table store [spellId] = spelltable

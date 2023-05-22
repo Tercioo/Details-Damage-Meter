@@ -74,7 +74,7 @@
                 local texture = portraitPool.inUse[i]
                 releaseTextureForPortraitPool(texture)
             end
-            table.wipe(portraitPool.npcIdToTexture)
+            Details:Destroy(portraitPool.npcIdToTexture)
     end)
 
     eventListener:RegisterEvent("COMBAT_ENCOUNTER_START", function()

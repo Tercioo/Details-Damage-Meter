@@ -27,8 +27,8 @@ function Details.AuraTracker.AddAura(auraType, spellid)
 end
 
 local doFullAuraUpdate = function()
-    wipe(Details.AuraTracker.buff)
-    wipe(Details.AuraTracker.debuff)
+    Details:Destroy(Details.AuraTracker.buff)
+    Details:Destroy(Details.AuraTracker.debuff)
 
     local unitId = "player"
 

@@ -2536,11 +2536,11 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 	local index = 1
 	local data = data_table
 
-	table.wipe(t1)
-	table.wipe(t2)
-	table.wipe(t3)
-	table.wipe(t4)
-	table.wipe(data)
+	Details:Destroy(t1)
+	Details:Destroy(t2)
+	Details:Destroy(t3)
+	Details:Destroy(t4)
+	Details:Destroy(data)
 
 	if (esta_magia.total > 0) then
 

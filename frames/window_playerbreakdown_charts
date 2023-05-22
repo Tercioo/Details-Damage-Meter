@@ -225,7 +225,7 @@ end
 
 --called when Details! reset the data
 function chartsObject.ResetSegmentData()
-    wipe(chartsObject.SegmentsData)
+    Details:Destroy(chartsObject.SegmentsData)
 
     --stop the ticker
     chartsObject.StopCombatDataTicker()

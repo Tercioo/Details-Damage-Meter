@@ -510,8 +510,8 @@ function Details:StartMeUp()
 	--dailly reset of the cache for talents and specs
 	local today = date("%d")
 	if (Details.last_day ~= today) then
-		wipe(Details.cached_specs)
-		wipe(Details.cached_talents)
+		Details:Destroy(Details.cached_specs)
+		Details:Destroy(Details.cached_talents)
 	end
 
 	--get the player spec
@@ -568,12 +568,12 @@ function Details:StartMeUp()
 
 	if (GetExpansionLevel() == 9) then
 		if (not Details.data_wipes_exp["10"]) then
-			wipe(Details.encounter_spell_pool or {})
-			wipe(Details.boss_mods_timers or {})
-			wipe(Details.spell_school_cache or {})
-			wipe(Details.spell_pool or {})
-			wipe(Details.npcid_pool or {})
-			wipe(Details.current_exp_raid_encounters or {})
+			Details:Destroy(Details.encounter_spell_pool or {})
+			Details:Destroy(Details.boss_mods_timers or {})
+			Details:Destroy(Details.spell_school_cache or {})
+			Details:Destroy(Details.spell_pool or {})
+			Details:Destroy(Details.npcid_pool or {})
+			Details:Destroy(Details.current_exp_raid_encounters or {})
 			Details.data_wipes_exp["10"] = true
 		end
 	end
@@ -582,9 +582,9 @@ function Details:StartMeUp()
 	Details.boss_mods_timers.encounter_timers_bw = Details.boss_mods_timers.encounter_timers_bw or {}
 
 	--clear overall data on new session
-	if (Details.overall_clear_logout) then
-		Details.tabela_overall = Details.combate:NovaTabela()
-	end
+	--if (Details.overall_clear_logout) then --this is suppose to be in the load data file
+	--	Details.tabela_overall = Details.combate:NovaTabela()
+	--end
 
 	if (not DetailsFramework.IsTimewalkWoW()) then
 		--wipe overall on torghast - REMOVE ON 10.0

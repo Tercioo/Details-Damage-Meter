@@ -263,7 +263,7 @@
 
 		--check if is a spell target custom
 		if (custom_object:IsSpellTarget()) then
-			table.wipe(classCustom._TargetActorsProcessed)
+			Details:Destroy(classCustom._TargetActorsProcessed)
 			classCustom._TargetActorsProcessedAmt = 0
 			classCustom._TargetActorsProcessedTotal = 0
 			classCustom._TargetActorsProcessedTop = 0
@@ -736,8 +736,8 @@
 	end
 
 	function classCustom:WipeCustomActorContainer()
-		table.wipe(self._ActorTable)
-		table.wipe(self._NameIndexTable)
+		Details:Destroy(self._ActorTable)
+		Details:Destroy(self._NameIndexTable)
 	end
 
 	function classCustom:GetValue (actor)
@@ -1071,7 +1071,7 @@
 	end
 
 	function _detalhes:ResetCustomFunctionsCache()
-		table.wipe(_detalhes.custom_function_cache)
+		Details:Destroy(_detalhes.custom_function_cache)
 	end
 
 	function _detalhes.refresh:r_atributo_custom()

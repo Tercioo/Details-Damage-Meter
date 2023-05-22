@@ -354,7 +354,7 @@
 		for key, value in pairs(_table) do
 			temptable [string.lower(key)] = value
 		end
-		temptable, _table = table.wipe(_table), temptable
+		temptable, _table = Details:Destroy(_table), temptable
 		return _table
 	end
 
@@ -526,7 +526,7 @@
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
 
-		wipe (_detalhes.ToKFunctions)
+		Details:Destroy (_detalhes.ToKFunctions)
 
 		tinsert(_detalhes.ToKFunctions, _detalhes.NoToK)
 		tinsert(_detalhes.ToKFunctions, _detalhes.ToK)
@@ -659,7 +659,7 @@
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
 
-		wipe (_detalhes.ToKFunctions)
+		Details:Destroy (_detalhes.ToKFunctions)
 
 		tinsert(_detalhes.ToKFunctions, _detalhes.NoToK)
 		tinsert(_detalhes.ToKFunctions, _detalhes.ToK)

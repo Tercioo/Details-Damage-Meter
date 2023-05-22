@@ -20,7 +20,7 @@
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 151 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 152 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 
@@ -1218,8 +1218,6 @@ function Details222.PlayerStats:SetStat(statName, value)
 	Details.player_stats[statName] = value
 end
 
-
-
 ---destroy a table and remove it from the object, if the key isn't passed, the object itself is destroyed
 ---@param object any
 ---@param key string|nil
@@ -1240,133 +1238,119 @@ function Details:Destroy(object, key)
 	end
 end
 
----destroy an actor within a combat object, this call will 
+---destroy the actor, also calls container:RemoveActor(actor)
+---@param self details
 ---@param actorObject actor
+---@param actorContainer actorcontainer
 ---@param combatObject combat
-function Details:DestroyActor(actorObject, combatObject)
-	--using low level api here for performance
-	---@type actor[]
-	local allActors = {}
+function Details:DestroyActor(actorObject, actorContainer, combatObject)
+	local containerType = actorContainer:GetType()
+	local combatTotalsTable = combatObject.totals[containerType] --without group
+	local combatTotalsTableInGroup = combatObject.totals_grupo[containerType] --with group
 
-	for containerType = 1, 4 do
-		local index = combatObject[containerType]._NameIndexTable[actorObject.nome]
-		if (index) then
-			---@type actor
-			local actor = combatObject[containerType]._ActorTable[index]
+	if (containerType == 1 or containerType == 2) then --damage|healing done
+		combatTotalsTable = combatTotalsTable - actorObject.total
+		if (actorObject.grupo) then
+			combatTotalsTableInGroup = combatTotalsTableInGroup - actorObject.total
+		end
 
-			if (actor) then
-				allActors[#allActors+1] = actor
+	elseif (containerType == 3) then
+		if (actorObject.total and actorObject.total > 0) then
+			if (actorObject.powertype) then
+				combatTotalsTable[actorObject.powertype] = combatTotalsTable[actorObject.powertype] - actorObject.total
+				combatTotalsTableInGroup[actorObject.powertype] = combatTotalsTableInGroup[actorObject.powertype] - actorObject.total
+			end
+		end
+		if (actorObject.alternatepower and actorObject.alternatepower > 0) then
+			combatTotalsTable.alternatepower = combatTotalsTable.alternatepower - actorObject.alternatepower
+			combatTotalsTableInGroup.alternatepower = combatTotalsTableInGroup.alternatepower - actorObject.alternatepower
+		end
 
-				--need to reduce the amount done by the actor from the combatObject
-				local combatTotalsTable = combatObject.totals --without group
-				local combatTotalsTableInGroup = combatObject.totals_grupo --with group
+	elseif (containerType == 4) then
+		--decrease the amount of CC break from the combat totals
+		if (actorObject.cc_break and actorObject.cc_break > 0) then
+			if (combatTotalsTable.cc_break) then
+				combatTotalsTable.cc_break = combatTotalsTable.cc_break - actorObject.cc_break
+			end
+			if (combatTotalsTableInGroup.cc_break) then
+				combatTotalsTableInGroup.cc_break = combatTotalsTableInGroup.cc_break - actorObject.cc_break
+			end
+		end
 
-				if (containerType == 1 or containerType == 2) then --damage|healing done
-					combatTotalsTable[containerType] = combatTotalsTable[containerType] - actor.total
-					if (actor.grupo) then
-						combatTotalsTableInGroup[containerType] = combatTotalsTableInGroup[containerType] - actor.total
-					end
+		--decrease the amount of dispell from the combat totals
+		if (actorObject.dispell and actorObject.dispell > 0) then
+			if (combatTotalsTable.dispell) then
+				combatTotalsTable.dispell = combatTotalsTable.dispell - actorObject.dispell
+			end
+			if (combatTotalsTableInGroup.dispell) then
+				combatTotalsTableInGroup.dispell = combatTotalsTableInGroup.dispell - actorObject.dispell
+			end
+		end
 
-				elseif (containerType == 3) then
-					if (actor.total and actor.total > 0) then
-						combatTotalsTable[containerType][actor.powertype] = combatTotalsTable[containerType][actor.powertype] - actor.total
-						combatTotalsTableInGroup[containerType][actor.powertype] = combatTotalsTableInGroup[containerType][actor.powertype] - actor.total
-					end
-					if (actor.alternatepower and actor.alternatepower > 0) then
-						combatTotalsTable[containerType].alternatepower = combatTotalsTable[containerType].alternatepower - actor.alternatepower
-						combatTotalsTableInGroup[containerType].alternatepower = combatTotalsTableInGroup[containerType].alternatepower - actor.alternatepower
-					end
+		--decrease the amount of interrupt from the combat totals
+		if (actorObject.interrupt and actorObject.interrupt > 0) then
+			if (combatTotalsTable.interrupt) then
+				combatTotalsTable.interrupt = combatTotalsTable.interrupt - actorObject.interrupt
+			end
+			if (combatTotalsTableInGroup.interrupt) then
+				combatTotalsTableInGroup.interrupt = combatTotalsTableInGroup.interrupt - actorObject.interrupt
+			end
+		end
 
-				elseif (containerType == 4) then
-					--decrease the amount of CC break from the combat totals
-					if (actor.cc_break and actor.cc_break > 0) then
-						if (combatTotalsTable[containerType].cc_break) then
-							combatTotalsTable[containerType].cc_break = combatTotalsTable[containerType].cc_break - actor.cc_break
-						end
-						if (combatTotalsTableInGroup[containerType].cc_break) then
-							combatTotalsTableInGroup[containerType].cc_break = combatTotalsTableInGroup[containerType].cc_break - actor.cc_break
-						end
-					end
+		--decrease the amount of ress from the combat totals
+		if (actorObject.ress and actorObject.ress > 0) then
+			if (combatTotalsTable.ress) then
+				combatTotalsTable.ress = combatTotalsTable.ress - actorObject.ress
+			end
+			if (combatTotalsTableInGroup.ress) then
+				combatTotalsTableInGroup.ress = combatTotalsTableInGroup.ress - actorObject.ress
+			end
+		end
 
-					--decrease the amount of dispell from the combat totals
-					if (actor.dispell and actor.dispell > 0) then
-						if (combatTotalsTable[containerType].dispell) then
-							combatTotalsTable[containerType].dispell = combatTotalsTable[containerType].dispell - actor.dispell
-						end
-						if (combatTotalsTableInGroup[containerType].dispell) then
-							combatTotalsTableInGroup[containerType].dispell = combatTotalsTableInGroup[containerType].dispell - actor.dispell
-						end
-					end
+		--decrease the amount of dead from the combat totals
+		if (actorObject.dead and actorObject.dead > 0) then
+			if (combatTotalsTable.dead) then
+				combatTotalsTable.dead = combatTotalsTable.dead - actorObject.dead
+			end
+			if (combatTotalsTableInGroup.dead) then
+				combatTotalsTableInGroup.dead = combatTotalsTableInGroup.dead - actorObject.dead
+			end
+		end
 
-					--decrease the amount of interrupt from the combat totals
-					if (actor.interrupt and actor.interrupt > 0) then
-						if (combatTotalsTable[containerType].interrupt) then
-							combatTotalsTable[containerType].interrupt = combatTotalsTable[containerType].interrupt - actor.interrupt
-						end
-						if (combatTotalsTableInGroup[containerType].interrupt) then
-							combatTotalsTableInGroup[containerType].interrupt = combatTotalsTableInGroup[containerType].interrupt - actor.interrupt
-						end
-					end
+		--decreate the amount of cooldowns used from the combat totals
+		if (actorObject.cooldowns_defensive and actorObject.cooldowns_defensive > 0) then
+			if (combatTotalsTable.cooldowns_defensive) then
+				combatTotalsTable.cooldowns_defensive = combatTotalsTable.cooldowns_defensive - actorObject.cooldowns_defensive
+			end
+			if (combatTotalsTableInGroup.cooldowns_defensive) then
+				combatTotalsTableInGroup.cooldowns_defensive = combatTotalsTableInGroup.cooldowns_defensive - actorObject.cooldowns_defensive
+			end
+		end
 
-					--decrease the amount of ress from the combat totals
-					if (actor.ress and actor.ress > 0) then
-						if (combatTotalsTable[containerType].ress) then
-							combatTotalsTable[containerType].ress = combatTotalsTable[containerType].ress - actor.ress
-						end
-						if (combatTotalsTableInGroup[containerType].ress) then
-							combatTotalsTableInGroup[containerType].ress = combatTotalsTableInGroup[containerType].ress - actor.ress
-						end
-					end
+		--decrease the amount of buff uptime from the combat totals
+		if (actorObject.buff_uptime and actorObject.buff_uptime > 0) then
+			if (combatTotalsTable.buff_uptime) then
+				combatTotalsTable.buff_uptime = combatTotalsTable.buff_uptime - actorObject.buff_uptime
+			end
+			if (combatTotalsTableInGroup.buff_uptime) then
+				combatTotalsTableInGroup.buff_uptime = combatTotalsTableInGroup.buff_uptime - actorObject.buff_uptime
+			end
+		end
 
-					--decrease the amount of dead from the combat totals
-					if (actor.dead and actor.dead > 0) then
-						if (combatTotalsTable[containerType].dead) then
-							combatTotalsTable[containerType].dead = combatTotalsTable[containerType].dead - actor.dead
-						end
-						if (combatTotalsTableInGroup[containerType].dead) then
-							combatTotalsTableInGroup[containerType].dead = combatTotalsTableInGroup[containerType].dead - actor.dead
-						end
-					end
-
-					--decreate the amount of cooldowns used from the combat totals
-					if (actor.cooldowns_defensive and actor.cooldowns_defensive > 0) then
-						if (combatTotalsTable[containerType].cooldowns_defensive) then
-							combatTotalsTable[containerType].cooldowns_defensive = combatTotalsTable[containerType].cooldowns_defensive - actor.cooldowns_defensive
-						end
-						if (combatTotalsTableInGroup[containerType].cooldowns_defensive) then
-							combatTotalsTableInGroup[containerType].cooldowns_defensive = combatTotalsTableInGroup[containerType].cooldowns_defensive - actor.cooldowns_defensive
-						end
-					end
-
-					--decrease the amount of buff uptime from the combat totals
-					if (actor.buff_uptime and actor.buff_uptime > 0) then
-						if (combatTotalsTable[containerType].buff_uptime) then
-							combatTotalsTable[containerType].buff_uptime = combatTotalsTable[containerType].buff_uptime - actor.buff_uptime
-						end
-						if (combatTotalsTableInGroup[containerType].buff_uptime) then
-							combatTotalsTableInGroup[containerType].buff_uptime = combatTotalsTableInGroup[containerType].buff_uptime - actor.buff_uptime
-						end
-					end
-
-					--decrease the amount of debuff uptime from the combat totals
-					if (actor.debuff_uptime and actor.debuff_uptime > 0) then
-						if (combatTotalsTable[containerType].debuff_uptime) then
-							combatTotalsTable[containerType].debuff_uptime = combatTotalsTable[containerType].debuff_uptime - actor.debuff_uptime
-						end
-						if (combatTotalsTableInGroup[containerType].debuff_uptime) then
-							combatTotalsTableInGroup[containerType].debuff_uptime = combatTotalsTableInGroup[containerType].debuff_uptime - actor.debuff_uptime
-						end
-					end
-				end
-
-				for i = 1, #allActors do
-					local thisActor = allActors[i]
-					setmetatable(thisActor, nil)
-					thisActor.__index = nil
-					thisActor.__newindex = nil
-					Details:Destroy(thisActor)
-				end
+		--decrease the amount of debuff uptime from the combat totals
+		if (actorObject.debuff_uptime and actorObject.debuff_uptime > 0) then
+			if (combatTotalsTable.debuff_uptime) then
+				combatTotalsTable.debuff_uptime = combatTotalsTable.debuff_uptime - actorObject.debuff_uptime
+			end
+			if (combatTotalsTableInGroup.debuff_uptime) then
+				combatTotalsTableInGroup.debuff_uptime = combatTotalsTableInGroup.debuff_uptime - actorObject.debuff_uptime
 			end
 		end
 	end
+
+	setmetatable(actorObject, nil)
+	actorObject.__index = nil
+	actorObject.__newindex = nil
+	actorContainer:RemoveActor(actorObject)
+	Details:Destroy(actorObject)
 end

@@ -80,11 +80,11 @@ function Details.packFunctions.PackCombatData(combatObject, flags)
     --0x8 misc
     --0x10 no combat header
 
-    table.wipe(actorInformation)
-    table.wipe(actorInformationIndexes)
-    table.wipe(actorDamageInfo)
-    table.wipe(actorHealInfo)
-    table.wipe(actorUtilityInfo)
+    Details:Destroy(actorInformation)
+    Details:Destroy(actorInformationIndexes)
+    Details:Destroy(actorDamageInfo)
+    Details:Destroy(actorHealInfo)
+    Details:Destroy(actorUtilityInfo)
 
     --reset the serial counter
     entitySerialCounter = 0

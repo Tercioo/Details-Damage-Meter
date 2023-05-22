@@ -1056,7 +1056,8 @@ local addonName, Details222 = ...
 			
 		end
 
-		table.wipe(instance1.snap); table.wipe(instance2.snap)
+		Details:Destroy(instance1.snap)
+		Details:Destroy(instance2.snap)
 		instance1.snap [3] = 2; instance2.snap [1] = 1;
 		instance1.horizontalSnap = true; instance2.horizontalSnap = true
 		

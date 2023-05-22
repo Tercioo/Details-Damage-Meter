@@ -16,7 +16,6 @@ local GetNumGroupMembers = _G.GetNumGroupMembers
 local setmetatable = setmetatable
 local _bit_band = bit.band --lua local
 local pairs = pairs
-local wipe = table.wipe
 
 --details locals
 local is_ignored = _detalhes.pets_ignored
@@ -210,7 +209,7 @@ end
 
 function container_pets:Remover (pet_serial)
 	if (_detalhes.tabela_pets.pets [pet_serial]) then
-		table.wipe(_detalhes.tabela_pets.pets [pet_serial])
+		Details:Destroy(_detalhes.tabela_pets.pets [pet_serial])
 	end
 	_detalhes.tabela_pets.pets [pet_serial] = nil
 end
@@ -224,7 +223,7 @@ function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial,
 end
 
 function _detalhes:WipePets()
-	return wipe(_detalhes.tabela_pets.pets)
+	return Details:Destroy(_detalhes.tabela_pets.pets)
 end
 
 function _detalhes:PetContainerCleanup()

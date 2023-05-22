@@ -7,7 +7,6 @@ local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local unpack = unpack
 local GetTime = GetTime
-local wipe = wipe
 local CreateFrame = CreateFrame
 local GetSpellLink = GetSpellLink
 local GetSpellInfo = GetSpellInfo
@@ -2515,7 +2514,7 @@ local getSpellBar = function(scrollFrame, lineIndex)
 
 	spellBar.bIsExpandedSpell = false
 
-	wipe(spellBar.ExpandedChildren)
+	Details:Destroy(spellBar.ExpandedChildren)
 
 	--reset header alignment
 	spellBar:ResetFramesToHeaderAlignment()

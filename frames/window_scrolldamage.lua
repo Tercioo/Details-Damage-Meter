@@ -239,7 +239,7 @@ function Details:ScrollDamage()
 						DetailsScrollDamage.Data.Started = time()
 					end
 					tinsert(DetailsScrollDamage.Data, 1, {timew, token, hidding, sourceSerial, sourceName, sourceFlag, sourceFlag2, targetSerial, targetName, targetFlag, targetFlag2, spellID, spellName, spellType, amount, overKill or 0, school or 1, resisted or 0, blocked or 0, absorbed or 0, isCritical})
-					wipe(DetailsScrollDamage.searchCache)
+					Details:Destroy(DetailsScrollDamage.searchCache)
 					damageScroll:RefreshScroll()
 
 				elseif (token == "SWING_DAMAGE") then
@@ -251,7 +251,7 @@ function Details:ScrollDamage()
 		end)
 
 		DetailsScrollDamage:SetScript("OnShow", function()
-			wipe(DetailsScrollDamage.Data)
+			Details:Destroy(DetailsScrollDamage.Data)
 			damageScroll:RefreshScroll()
 			combatLogReader:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		end)

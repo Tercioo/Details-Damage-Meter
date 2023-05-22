@@ -328,7 +328,7 @@ end
         end
 
         cooldownFrame.scheduleRosterUpdate = nil
-        wipe(cooldownFrame.playerCache)
+        Details:Destroy(cooldownFrame.playerCache)
         cooldownFrame.nextLineId = 1
 
         if (Details.ocd_tracker.show_conditions.only_in_group) then

@@ -583,8 +583,8 @@ function Details:CreateCurrentDpsFrame(parent, name)
 				DF:SetFontOutline (labelYellowTeam_DPS, Details.realtime_dps_meter.font_shadow)
 
 				--wipe current data for arena
-				wipe (f.PlayerTeamBuffer)
-				wipe (f.YellowTeamBuffer)
+				Details:Destroy (f.PlayerTeamBuffer)
+				Details:Destroy (f.YellowTeamBuffer)
 
 				--reset damage
 				f.PlayerTeamDamage = 0
@@ -902,9 +902,9 @@ function Details:CreateCurrentDpsFrame(parent, name)
 		
 		function eventListener:ResetBuffer()
 			if (f:IsShown()) then
-				wipe (f.PlayerTeamBuffer)
-				wipe (f.YellowTeamBuffer)
-				wipe (f.GroupBuffer)
+				Details:Destroy (f.PlayerTeamBuffer)
+				Details:Destroy (f.YellowTeamBuffer)
+				Details:Destroy (f.GroupBuffer)
 				f.GroupTotalDamage = 0
 				f.PlayerTeamDamage = 0
 				f.YellowDamage = 0

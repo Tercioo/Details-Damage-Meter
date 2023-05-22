@@ -15,7 +15,6 @@ local type = type
 local unpack = _G.unpack
 local PixelUtil = PixelUtil
 local UISpecialFrames = UISpecialFrames
-local wipe = wipe
 local CreateFrame = _G.CreateFrame
 local detailsFramework = DetailsFramework
 
@@ -248,7 +247,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	local tabsReplaced = {}
 	local tabReplacedAmount = 0
 
-	wipe(breakdownWindow.currentTabsInUse)
+	Details:Destroy(breakdownWindow.currentTabsInUse)
 
 	for index = 1, #Details.player_details_tabs do
 		local tab = Details.player_details_tabs[index]

@@ -4459,7 +4459,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			local schedule_table, schedule_id = unpack(Details.capture_schedules[i])
 			Details:CancelTimer(schedule_table)
 		end
-		wipe(Details.capture_schedules)
+		Details:Destroy(Details.capture_schedules)
 	end
 
 	function Details:CaptureTimeout (table)
@@ -4870,7 +4870,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 				--reset spec cache if broadcaster requested
 				if (_detalhes.streamer_config.reset_spec_cache) then
-					wipe (_detalhes.cached_specs)
+					Details:Destroy (_detalhes.cached_specs)
 				end
 			end
 
@@ -4972,7 +4972,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes.boss1_health_percent = 1
 
 		local dbm_mod, dbm_time = _detalhes.encounter_table.DBM_Mod, _detalhes.encounter_table.DBM_ModTime
-		wipe(_detalhes.encounter_table)
+		Details:Destroy(_detalhes.encounter_table)
 
 		_detalhes.encounter_table.phase = 1
 
@@ -5100,10 +5100,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		_detalhes:SendEvent("COMBAT_ENCOUNTER_END", nil, ...)
 
-		wipe(_detalhes.encounter_table)
-		wipe(dk_pets_cache.army)
-		wipe(dk_pets_cache.apoc)
-		wipe(empower_cache)
+		Details:Destroy(_detalhes.encounter_table)
+		Details:Destroy(dk_pets_cache.army)
+		Details:Destroy(dk_pets_cache.apoc)
+		Details:Destroy(empower_cache)
 
 		return true
 	end
@@ -5285,8 +5285,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not OnRegenEnabled) then
-			wipe(bitfield_swap_cache)
-			wipe(empower_cache)
+			Details:Destroy(bitfield_swap_cache)
+			Details:Destroy(empower_cache)
 			_detalhes:DispatchAutoRunCode("on_leavecombat")
 		end
 
@@ -5601,7 +5601,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 				Details:DispatchAutoRunCode("on_groupchange")
 
-				wipe (Details.trusted_characters)
+				Details:Destroy (Details.trusted_characters)
 				C_Timer.After(5, Details.ScheduleSyncPlayerActorData)
 			end
 
@@ -5613,12 +5613,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				Details222.GarbageCollector.RestartInternalGarbageCollector(true)
 				Details:WipePets()
 				Details:SchedulePetUpdate(1)
-				wipe(Details.details_users)
+				Details:Destroy(Details.details_users)
 				Details:InstanceCall(Details.AdjustAlphaByContext)
 				Details:CheckSwitchOnLogon()
 				Details:SendEvent("GROUP_ONLEAVE")
 				Details:DispatchAutoRunCode("on_groupchange")
-				wipe(Details.trusted_characters)
+				Details:Destroy(Details.trusted_characters)
 			else
 				--player is still in a group
 				_detalhes:SchedulePetUpdate(2)
@@ -5716,8 +5716,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details.faction_id = 1
 		end
 
-		local startLoadTime = debugprofilestop()
-
 		--this function applies the Details.default_profile to Details object, this isn't yet the player profile which will load later
 		Details222.LoadSavedVariables.DefaultProfile()
 
@@ -5739,11 +5737,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:StartAutoRun()
 
 		Details.isLoaded = true
-
-		local endLoadTime = debugprofilestop() - startLoadTime
-		if (Details.version_alpha_id and Details.version_alpha_id > 0 or true) then
-			Details:Msg("load time: " .. math.floor(endLoadTime) .. "ms", "alpha:", Details.version_alpha_id)
-		end
 	end
 
 	function Details.IsLoaded()
@@ -5807,33 +5800,39 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	_detalhes.listener:SetScript("OnEvent", _detalhes.OnEvent)
 
 	--logout function ~save ~logout
-	local saver = CreateFrame("frame", nil, UIParent)
-	saver:RegisterEvent("PLAYER_LOGOUT")
-	saver:SetScript("OnEvent", function(...)
+	---@type frame
+	local databaseSaver = CreateFrame("frame")
+	databaseSaver:RegisterEvent("PLAYER_LOGOUT")
+	databaseSaver:SetScript("OnEvent", function(...)
+		--safe guard logs and user settings
 		__details_backup = __details_backup or {
 			_exit_error = {},
 			_instance_backup = {},
 		}
+
+		---@type table
 		local exitErrors = __details_backup._exit_error
 
+		---@param text string the error to be logged
 		local addToExitErrors = function(text)
 			table.insert(exitErrors, 1, date() .. "|" .. text)
 			table.remove(exitErrors, 10)
 		end
 
+		---@type string current step of the logout process, used to log which is the current step when an error happens
 		local currentStep = ""
 
 		--save the time played on this class, run protected
-		local savePlayTimeClass, savePlayTimeError = pcall(function()
-			Details.SavePlayTimeOnClass()
-		end)
+		local savePlayTimeClass, savePlayTimeErrorText = pcall(function() Details.SavePlayTimeOnClass() end)
 
 		if (not savePlayTimeClass) then
-			addToExitErrors("Saving Play Time: " .. savePlayTimeError)
+			addToExitErrors("Saving Play Time: " .. savePlayTimeErrorText)
 		end
 
-		--SAVINGDATA = true
+		---@type table record a log of events that happened during the logout process
 		_detalhes_global.exit_log = {}
+
+		---@type table record errors that happened during the logout process
 		_detalhes_global.exit_errors = _detalhes_global.exit_errors or {}
 
 		currentStep = "Checking the framework integrity"
@@ -5845,8 +5844,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return
 		end
 
-		local saver_error = function(errortext)
-			--if the error log cause an error?
+		local logSaverError = function(errortext)
 			local writeLog = function()
 				_detalhes_global = _detalhes_global or {}
 				tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
@@ -5856,52 +5854,54 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			xpcall(writeLog, addToExitErrors)
 		end
 
-		_detalhes.saver_error_func = saver_error
+		_detalhes.saver_error_func = logSaverError
 		_detalhes.logoff_saving_data = true
 
-		--close info window
+		--close breakdown window
 		if (_detalhes.CloseBreakdownWindow) then
-			tinsert(_detalhes_global.exit_log, "1 - Closing Janela Info.")
-			currentStep = "Fecha Janela Info"
-			xpcall(_detalhes.CloseBreakdownWindow, saver_error)
+			tinsert(_detalhes_global.exit_log, "1 - Closing Breakdown Window.")
+			currentStep = "Closing Breakdown Window"
+			xpcall(_detalhes.CloseBreakdownWindow, logSaverError)
 		end
 
 		--do not save window pos
 		if (_detalhes.tabela_instancias) then
 			local clearInstances = function()
 				currentStep = "Dealing With Instances"
-				tinsert(_detalhes_global.exit_log, "2 - Clearing user place from instances.")
+				tinsert(_detalhes_global.exit_log, "2 - Clearing user placed position from instance windows.")
 				for id, instance in _detalhes:ListInstances() do
 					if (id) then
 						tinsert(_detalhes_global.exit_log, "  - " .. id .. " has baseFrame: " .. (instance.baseframe and "yes" or "no") .. ".")
 						if (instance.baseframe) then
-							instance.baseframe:SetUserPlaced (false)
-							instance.baseframe:SetDontSavePosition (true)
+							instance.baseframe:SetUserPlaced(false)
+							instance.baseframe:SetDontSavePosition(true)
 						end
 					end
 				end
 			end
-			xpcall(clearInstances, saver_error)
+			xpcall(clearInstances, logSaverError)
 		else
 			tinsert(_detalhes_global.exit_errors, 1, "not _detalhes.tabela_instancias")
 			tremove(_detalhes_global.exit_errors, 6)
 			addToExitErrors("not _detalhes.tabela_instancias")
 		end
 
-		--leave combat start save tables
+		--if is in combat during the logout, stop the combat
 		if (_detalhes.in_combat and _detalhes.tabela_vigente) then
 			tinsert(_detalhes_global.exit_log, "3 - Leaving current combat.")
 			currentStep = "Leaving Current Combat"
-			xpcall(_detalhes.SairDoCombate, saver_error)
+			xpcall(_detalhes.SairDoCombate, logSaverError)
 			_detalhes.can_panic_mode = true
 		end
 
+		--switch back to default, settings changed by automation
 		if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias and _detalhes.tabela_instancias[1] and getmetatable(_detalhes.tabela_instancias[1])) then
 			tinsert(_detalhes_global.exit_log, "4 - Reversing switches.")
 			currentStep = "Check Switch on Logon"
-			xpcall(_detalhes.CheckSwitchOnLogon, saver_error)
+			xpcall(_detalhes.CheckSwitchOnLogon, logSaverError)
 		end
 
+		--user requested a wipe of the full configuration
 		if (_detalhes.wipe_full_config) then
 			tinsert(_detalhes_global.exit_log, "5 - Is a full config wipe.")
 			addToExitErrors("true: _detalhes.wipe_full_config")
@@ -5910,22 +5910,22 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return
 		end
 
-	--save the config
+		--save the config
 		tinsert(_detalhes_global.exit_log, "6 - Saving Config.")
 		currentStep = "Saving Config"
-		xpcall(_detalhes.SaveConfig, saver_error)
+		xpcall(_detalhes.SaveConfig, logSaverError)
 
 		tinsert(_detalhes_global.exit_log, "7 - Saving Profiles.")
 		currentStep = "Saving Profile"
-		xpcall(_detalhes.SaveProfile, saver_error)
+		xpcall(_detalhes.SaveProfile, logSaverError)
 
-	--save the nicktag cache
+		--save the nicktag cache
 		tinsert(_detalhes_global.exit_log, "8 - Saving nicktag cache.")
 
 		local saveNicktabCache = function()
 			_detalhes_database.nick_tag_cache = Details.CopyTable(_detalhes_database.nick_tag_cache)
 		end
-		xpcall(saveNicktabCache, saver_error)
+		xpcall(saveNicktabCache, logSaverError)
 	end)
 
 	local eraNamedSpellsToID = {}
@@ -6052,30 +6052,30 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function _detalhes:ClearParserCache() --~wipe
-		wipe(damage_cache)
-		wipe(damage_cache_pets)
-		wipe(damage_cache_petsOwners)
-		wipe(healing_cache)
-		wipe(energy_cache)
-		wipe(misc_cache)
-		wipe(misc_cache_pets)
-		wipe(misc_cache_petsOwners)
-		wipe(npcid_cache)
-		wipe(enemy_cast_cache)
-		wipe(empower_cache)
+		Details:Destroy(damage_cache)
+		Details:Destroy(damage_cache_pets)
+		Details:Destroy(damage_cache_petsOwners)
+		Details:Destroy(healing_cache)
+		Details:Destroy(energy_cache)
+		Details:Destroy(misc_cache)
+		Details:Destroy(misc_cache_pets)
+		Details:Destroy(misc_cache_petsOwners)
+		Details:Destroy(npcid_cache)
+		Details:Destroy(enemy_cast_cache)
+		Details:Destroy(empower_cache)
 
-		wipe(ignore_death_cache)
+		Details:Destroy(ignore_death_cache)
 
-		wipe(reflection_damage)
-		wipe(reflection_debuffs)
-		wipe(reflection_events)
-		wipe(reflection_auras)
-		wipe(reflection_dispels)
+		Details:Destroy(reflection_damage)
+		Details:Destroy(reflection_debuffs)
+		Details:Destroy(reflection_events)
+		Details:Destroy(reflection_auras)
+		Details:Destroy(reflection_dispels)
 
-		wipe(dk_pets_cache.army)
-		wipe(dk_pets_cache.apoc)
+		Details:Destroy(dk_pets_cache.army)
+		Details:Destroy(dk_pets_cache.apoc)
 
-		wipe(cacheAnything.paladin_vivaldi_blessings)
+		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 
@@ -6175,11 +6175,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function _detalhes:UptadeRaidMembersCache()
-		wipe(raid_members_cache)
-		wipe(tanks_members_cache)
-		wipe(auto_regen_cache)
-		wipe(bitfield_swap_cache)
-		wipe(empower_cache)
+		Details:Destroy(raid_members_cache)
+		Details:Destroy(tanks_members_cache)
+		Details:Destroy(auto_regen_cache)
+		Details:Destroy(bitfield_swap_cache)
+		Details:Destroy(empower_cache)
 
 		local groupRoster = _detalhes.tabela_vigente.raid_roster
 
@@ -6332,7 +6332,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs --can be deprecated
 		_in_combat = _detalhes.in_combat
 
-		wipe(ignored_npcids)
+		Details:Destroy(ignored_npcids)
 
 		--fill it with the default npcs ignored
 		for npcId in pairs(_detalhes.default_ignored_npcs) do

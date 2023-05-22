@@ -2302,7 +2302,7 @@ function icon_frame_events:EnterCombat()
 		anim.icon_frame.icon_animation = nil
 		anim.icon_frame = nil
 	end
-	wipe (Details.icon_animations.load.in_use)
+	Details:Destroy (Details.icon_animations.load.in_use)
 end
 
 icon_frame_events:RegisterEvent("COMBAT_PLAYER_ENTER", "EnterCombat")
@@ -3060,7 +3060,7 @@ function Details:InstanceAlert (msg, icon, timeInSeconds, clickfunc, doflash, fo
 	end
 
 	self.alert.button.func = nil
-	wipe (self.alert.button.func_param)
+	Details:Destroy (self.alert.button.func_param)
 
 	if (clickfunc) then
 		self.alert.button.func = clickfunc[1]
@@ -5609,7 +5609,7 @@ function Details:SetIconAlpha(alpha, hide, noAnimations)
 		end
 	end
 
-	table.wipe(SetIconAlphaCacheButtonsTable)
+	Details:Destroy(SetIconAlphaCacheButtonsTable)
 	SetIconAlphaCacheButtonsTable[1] = self.baseframe.cabecalho.modo_selecao
 	SetIconAlphaCacheButtonsTable[2] = self.baseframe.cabecalho.segmento
 	SetIconAlphaCacheButtonsTable[3] = self.baseframe.cabecalho.atributo
@@ -5703,7 +5703,7 @@ function Details:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report, _r
 	self.menu_icons[5] = _reset
 	self.menu_icons[6] = _close
 
-	table.wipe(tbuttons)
+	Details:Destroy(tbuttons)
 
 	tbuttons[1] = self.baseframe.cabecalho.modo_selecao
 	tbuttons[2] = self.baseframe.cabecalho.segmento

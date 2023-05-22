@@ -1874,7 +1874,7 @@ function damageClass:RefreshWindow(instancia, combatObject, forcar, exportar, re
 	elseif (keyName == "damage_taken_by_spells") then
 
 		local bs_index, total = 0, 0
-		wipe (bs_index_table)
+		Details:Destroy (bs_index_table)
 
 		local combat = combatObject
 		local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
@@ -2590,11 +2590,11 @@ end
 local eventListener = Details:CreateEventListener()
 eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
 	if (Details.CacheInLineMaxDistance) then
-		wipe(Details.CacheInLineMaxDistance)
+		Details:Destroy(Details.CacheInLineMaxDistance)
 
 		for i = 1, 10 do
 			C_Timer.After(i, function()
-				wipe(Details.CacheInLineMaxDistance)
+				Details:Destroy(Details.CacheInLineMaxDistance)
 			end)
 		end
 	end
@@ -4467,7 +4467,7 @@ end
 end
 
 local wipeSpellCache = function() --deprecated
-	table.wipe(Details222.PlayerBreakdown.DamageSpellsCache)
+	Details:Destroy(Details222.PlayerBreakdown.DamageSpellsCache)
 end
 
 local addToSpellCache = function(unitGUID, spellName, spellTable) --deprecated
@@ -5582,11 +5582,11 @@ function damageClass:MontaDetalhesDamageDone (spellId, spellLine, instance) --th
 	local index = 1
 	local data = data_table
 
-	table.wipe(t1)
-	table.wipe(t2)
-	table.wipe(t3)
-	table.wipe(t4)
-	table.wipe(data)
+	Details:Destroy(t1)
+	Details:Destroy(t2)
+	Details:Destroy(t3)
+	Details:Destroy(t4)
+	Details:Destroy(data)
 
 	--GERAL
 		local media = 0
@@ -6213,14 +6213,14 @@ end
 			end
 
 			if (bs_tooltip_table) then
-				wipe (bs_tooltip_table)
+				Details:Destroy (bs_tooltip_table)
 			end
 			if (frags_tooltip_table) then
-				wipe (frags_tooltip_table)
+				Details:Destroy (frags_tooltip_table)
 			end
-			wipe (bs_index_table)
-			wipe (tooltip_temp_table)
-			wipe (tooltip_void_zone_temp)
+			Details:Destroy (bs_index_table)
+			Details:Destroy (tooltip_temp_table)
+			Details:Destroy (tooltip_void_zone_temp)
 		end
 
 	--atualize a funcao de abreviacao

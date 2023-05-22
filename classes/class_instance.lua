@@ -547,7 +547,7 @@ local instanceMixins = {
 }
 
 ---get the table with all instances, these instance could be not initialized yet, some might be open, some not in use
----@return table
+---@return instance[]
 function Details:GetAllInstances()
 	return Details.tabela_instancias
 end

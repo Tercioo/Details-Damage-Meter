@@ -3,7 +3,6 @@ local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 --lua api
 local tremove = table.remove
 local tinsert = table.insert
-local wipe = table.wipe
 
 local Details = _G.Details
 local _
@@ -74,7 +73,7 @@ function segmentClass:NovoHistorico()
 	return esta_tabela
 end
 
-function segmentClass:adicionar_overall (combatObject)
+function segmentClass:adicionar_overall(combatObject)
 	local zoneName, zoneType = GetInstanceInfo()
 	if (zoneType ~= "none" and combatObject:GetCombatTime() <= Details.minimum_overall_combat_time) then
 		return
@@ -106,6 +105,7 @@ function segmentClass:adicionar_overall (combatObject)
 		if (mythicInfo.TrashOverallSegment) then
 			Details:Msg("error > attempt to add a TrashOverallSegment > func historico:adicionar_overall()")
 			return
+
 		elseif (mythicInfo.OverallSegment) then
 			Details:Msg("error > attempt to add a OverallSegment > func historico:adicionar_overall()")
 			return
@@ -158,7 +158,7 @@ function segmentClass:adicionar_overall (combatObject)
 
 	for id, instance in Details:ListInstances() do
 		if (instance:IsEnabled()) then
-			if (instance:GetSegment() == -1) then
+			if (instance:GetSegment() == DETAILS_SEGMENTID_OVERALL) then
 				instance:ForceRefresh()
 			end
 		end
@@ -243,233 +243,247 @@ function Details:CanAddCombatToOverall (tabela)
 	return false
 end
 
---sai do combate, chamou adicionar a tabela ao hist�rico
-function segmentClass:adicionar(tabela)
+---add the combat to the segment table, check adding to overall
+---@param combatObject combat
+function segmentClass:adicionar(combatObject)
+	---@type combat[]
+	local segmentTable = self.tabelas
+	---@type number
+	local maxSegmentsAllowed = Details.segments_amount
 
-	local tamanho = #self.tabelas
-
-	--verifica se precisa dar UnFreeze()
-	if (tamanho < Details.segments_amount) then --vai preencher um novo index vazio
-		local ultima_tabela = self.tabelas[tamanho]
-		if (not ultima_tabela) then --n�o ha tabelas no historico, esta ser� a #1
-			--pega a tabela do combate atual
-			ultima_tabela = tabela
+	--check all instances for freeze state
+	if (#segmentTable < maxSegmentsAllowed) then
+		---@type combat
+		local oldestCombatObject = segmentTable[#segmentTable]
+		--if there's no segment stored, then this as the first segment
+		if (not oldestCombatObject) then
+			oldestCombatObject = combatObject
 		end
-		Details:InstanciaCallFunction(Details.CheckFreeze, tamanho+1, ultima_tabela)
+		Details:InstanciaCallFunction(Details.CheckFreeze, #segmentTable + 1, oldestCombatObject)
 	end
 
-	--add to history table
-	tinsert(self.tabelas, 1, tabela)
+	--add to the first index of the segment table
+	tinsert(segmentTable, 1, combatObject)
 
 	--count boss tries
-	local boss = tabela.is_boss and tabela.is_boss.name
-	if (boss) then
-		local try_number = Details.encounter_counter [boss]
+	---@type string
+	local bossName = combatObject.is_boss and combatObject.is_boss.name
+	if (bossName) then
+		local tryNumber = Details.encounter_counter[bossName]
 
-		if (not try_number) then
-			local previous_combat
-			for i = 2, #self.tabelas do
-				previous_combat = self.tabelas [i]
-				if (previous_combat and previous_combat.is_boss and previous_combat.is_boss.name and previous_combat.is_boss.try_number and previous_combat.is_boss.name == boss and not previous_combat.is_boss.killed) then
-					try_number = previous_combat.is_boss.try_number + 1
+		if (not tryNumber) then
+			---@type combat
+			local previousCombatObject
+			for i = 2, #segmentTable do
+				previousCombatObject = segmentTable[i]
+				if (previousCombatObject and previousCombatObject.is_boss and previousCombatObject.is_boss.name and previousCombatObject.is_boss.try_number and previousCombatObject.is_boss.name == bossName and not previousCombatObject.is_boss.killed) then
+					tryNumber = previousCombatObject.is_boss.try_number + 1
 					break
 				end
 			end
 
-			if (not try_number) then
-				try_number = 1
+			if (not tryNumber) then
+				tryNumber = 1
 			end
 		else
-			try_number = Details.encounter_counter [boss] + 1
+			tryNumber = Details.encounter_counter[bossName] + 1
 		end
 
-		Details.encounter_counter [boss] = try_number
-		tabela.is_boss.try_number = try_number
+		Details.encounter_counter[bossName] = tryNumber
+		combatObject.is_boss.try_number = tryNumber
 	end
 
 	--see if can add the encounter to overall data
-	local canAddToOverall = Details:CanAddCombatToOverall(tabela)
+	local canAddToOverall = Details:CanAddCombatToOverall(combatObject)
 
 	if (canAddToOverall) then
-		--if (InCombatLockdown()) then
-		--	_detalhes:ScheduleAddCombatToOverall (tabela)
-		--	if (_detalhes.debug) then
-		--		_detalhes:Msg("(debug) overall data flag match > in combat scheduling overall addition.")
-		--	end
-		--else
-			if (Details.debug) then
-				Details:Msg("(debug) overall data flag match addind the combat to overall data.")
-			end
-			segmentClass:adicionar_overall (tabela)
-		--end
+		if (Details.debug) then
+			Details:Msg("(debug) overall data flag match addind the combat to overall data.")
+		end
+		segmentClass:adicionar_overall(combatObject)
 	end
 
 	--erase trash segments
-	if (self.tabelas[2]) then
-		local _segundo_combate = self.tabelas[2]
-		local container_damage = _segundo_combate [1]
-		local container_heal = _segundo_combate [2]
+	if (segmentTable[2]) then
+		---@type combat
+		local previousCombatObject = segmentTable[2]
+		---@type actorcontainer
+		local containerDamage = previousCombatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		---@type actorcontainer
+		local containerHeal = previousCombatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL)
 
 		--regular cleanup
-		for _, jogador in ipairs(container_damage._ActorTable) do
-			--remover a tabela de last events
-			jogador.last_events_table =  nil
-			--verifica se ele ainda esta registrado na time machine
-			if (jogador.timeMachine) then
-				jogador:DesregistrarNaTimeMachine()
+		for _, actorObject in containerDamage:ListActors() do
+			---@cast actorObject actor
+			--clear last events table
+			actorObject.last_events_table =  nil
+
+			--unregister from time machine
+			if (actorObject.timeMachine) then
+				actorObject:DesregistrarNaTimeMachine()
 			end
 		end
-		for _, jogador in ipairs(container_heal._ActorTable) do
-			--remover a tabela de last events
-			jogador.last_events_table =  nil
-			--verifica se ele ainda esta registrado na time machine
-			if (jogador.timeMachine) then
-				jogador:DesregistrarNaTimeMachine()
+
+		for _, actorObject in containerHeal:ListActors() do
+			---@cast actorObject actor
+			--clear last events table
+			actorObject.last_events_table =  nil
+
+			--unregister from time machine
+			if (actorObject.timeMachine) then
+				actorObject:DesregistrarNaTimeMachine()
 			end
 		end
 
 		if (Details.trash_auto_remove) then
-			local _terceiro_combate = self.tabelas[3]
+			---@type combat
+			local thirdCombat = segmentTable[3]
 
-			if (_terceiro_combate and not _terceiro_combate.is_mythic_dungeon_segment) then
-
-				if ((_terceiro_combate.is_trash and not _terceiro_combate.is_boss) or (_terceiro_combate.is_temporary)) then
-					--verificar novamente a time machine
-					for _, jogador in ipairs(_terceiro_combate [1]._ActorTable) do --damage
-						if (jogador.timeMachine) then
-							jogador:DesregistrarNaTimeMachine()
+			if (thirdCombat and not thirdCombat.is_mythic_dungeon_segment) then
+				if ((thirdCombat.is_trash and not thirdCombat.is_boss) or (thirdCombat.is_temporary)) then
+					--verify again the time machine
+					for _, actorObject in thirdCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
+						if (actorObject.timeMachine) then
+							actorObject:DesregistrarNaTimeMachine()
 						end
 					end
-					for _, jogador in ipairs(_terceiro_combate [2]._ActorTable) do --heal
-						if (jogador.timeMachine) then
-							jogador:DesregistrarNaTimeMachine()
+					for _, actorObject in thirdCombat:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
+						if (actorObject.timeMachine) then
+							actorObject:DesregistrarNaTimeMachine()
 						end
 					end
-					--remover
-					tremove(self.tabelas, 3)
-					Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
+
+					--remove
+					tremove(segmentTable, 3)
+					Details:Destroy(thirdCombat)
+					Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 				end
-
 			end
-
 		end
-
 	end
 
-	--verifica se precisa apagar a �ltima tabela do hist�rico
-	if (#self.tabelas > Details.segments_amount) then
+	--check if the segment table is full
+	if (#segmentTable > maxSegmentsAllowed) then
+		---@type combat
+		local combatObjectRemoved
+		---@type number
+		local segmentIdRemoved
 
-		local combat_removed, combat_index
+		--verify if the last combat is a boss and if there's more bosses with the same bossId in the segment table
+		--then check which combat has the least amount of elapsed time and remove it
+		--won't remove the latest 3 segments as they are fresh and the player may still look into them
+		local bossId = combatObject.is_boss and combatObject.is_boss.id
 
-		--verifica se est�o dando try em um boss e remove o combate menos relevante
-		local bossid = tabela.is_boss and tabela.is_boss.id
+		---@type combat
+		local oldestSegment = segmentTable[#segmentTable]
+		local oldestBossId = oldestSegment.is_boss and oldestSegment.is_boss.id
 
-		local last_segment = self.tabelas [#self.tabelas]
-		local last_bossid = last_segment.is_boss and last_segment.is_boss.id
+		if (Details.zone_type == "raid" and bossId and oldestBossId and bossId == oldestBossId) then
+			---@type combat
+			local shorterCombatObject
+			---@type number
+			local shorterSegmentId
+			local minTime = 99999
 
-		if (Details.zone_type == "raid" and bossid and last_bossid and bossid == last_bossid) then
-
-			local shorter_combat
-			local shorter_id
-			local min_time = 99999
-
-			for i = 4, #self.tabelas do
-				local combat = self.tabelas [i]
-				if (combat.is_boss and combat.is_boss.id == bossid and combat:GetCombatTime() < min_time and not combat.is_boss.killed) then
-					shorter_combat = combat
-					shorter_id = i
-					min_time = combat:GetCombatTime()
+			for segmentId = 4, #segmentTable do
+				---@type combat
+				local thisCombatObject = segmentTable[segmentId]
+				if (thisCombatObject.is_boss and thisCombatObject.is_boss.id == bossId and thisCombatObject:GetCombatTime() < minTime and not thisCombatObject.is_boss.killed) then
+					shorterCombatObject = thisCombatObject
+					shorterSegmentId = segmentId
+					minTime = thisCombatObject:GetCombatTime()
 				end
 			end
 
-			if (shorter_combat) then
-				combat_removed = shorter_combat
-				combat_index = shorter_id
+			if (shorterCombatObject) then
+				combatObjectRemoved = shorterCombatObject
+				segmentIdRemoved = shorterSegmentId
 			end
 		end
 
-		if (not combat_removed) then
-			combat_removed = self.tabelas [#self.tabelas]
-			combat_index = #self.tabelas
+		--if couldn't find a boss to remove, then remove the oldest segment
+		if (not combatObjectRemoved) then
+			combatObjectRemoved = segmentTable[#segmentTable]
+			segmentIdRemoved = #segmentTable
 		end
 
-		--verificar novamente a time machine
-		for _, jogador in ipairs(combat_removed [1]._ActorTable) do --damage
-			if (jogador.timeMachine) then
-				jogador:DesregistrarNaTimeMachine()
+		--check time machine
+		for _, actorObject in combatObjectRemoved:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
+			if (actorObject.timeMachine) then
+				actorObject:DesregistrarNaTimeMachine()
 			end
 		end
-		for _, jogador in ipairs(combat_removed [2]._ActorTable) do --heal
-			if (jogador.timeMachine) then
-				jogador:DesregistrarNaTimeMachine()
+		for _, actorObject in combatObjectRemoved:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
+			if (actorObject.timeMachine) then
+				actorObject:DesregistrarNaTimeMachine()
 			end
 		end
 
-		--remover
-		tremove(self.tabelas, combat_index)
+		--remove it
+		tremove(segmentTable, segmentIdRemoved)
+		Details:Destroy(combatObjectRemoved)
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
 
-	--chama a fun��o que ir� atualizar as inst�ncias com segmentos no hist�rico
+	--update the combat shown on all instances
 	Details:InstanciaCallFunction(Details.AtualizaSegmentos_AfterCombat, self)
-	--_detalhes:InstanciaCallFunction(_detalhes.AtualizarJanela)
 end
 
---verifica se tem alguma instancia congelada mostrando o segmento rec�m liberado
-function Details:CheckFreeze (instancia, index_liberado, tabela)
-	if (instancia.freezed) then --esta congelada
-		if (instancia.segmento == index_liberado) then
-			instancia.showing = tabela
-			instancia:UnFreeze()
+---verify if the instance is freezed, if true unfreeze it
+---@param instanceObject instance
+---@param segmentId number
+---@param combatObject combat
+function Details:CheckFreeze(instanceObject, segmentId, combatObject)
+	if (instanceObject.freezed) then
+		if (instanceObject:GetSegmentId() == segmentId) then
+			instanceObject:RefreshCombat()
+			instanceObject:UnFreeze()
 		end
 	end
 end
 
-function Details:SetOverallResetOptions (reset_new_boss, reset_new_challenge, reset_on_logoff, reset_new_pvp)
-	if (reset_new_boss == nil) then
-		reset_new_boss = Details.overall_clear_newboss
+function Details:SetOverallResetOptions(resetOnNewBoss, resetOnNewChallenge, resetOnLogoff, resetOnNewPVP)
+	if (resetOnNewBoss == nil) then
+		resetOnNewBoss = Details.overall_clear_newboss
 	end
-	if (reset_new_challenge == nil) then
-		reset_new_challenge = Details.overall_clear_newchallenge
+	if (resetOnNewChallenge == nil) then
+		resetOnNewChallenge = Details.overall_clear_newchallenge
 	end
-	if (reset_on_logoff == nil) then
-		reset_on_logoff = Details.overall_clear_logout
+	if (resetOnLogoff == nil) then
+		resetOnLogoff = Details.overall_clear_logout
 	end
-	if (reset_new_pvp == nil) then
-		reset_new_pvp = Details.overall_clear_pvp
+	if (resetOnNewPVP == nil) then
+		resetOnNewPVP = Details.overall_clear_pvp
 	end
 
-	Details.overall_clear_newboss = reset_new_boss
-	Details.overall_clear_newchallenge = reset_new_challenge
-	Details.overall_clear_logout = reset_on_logoff
-	Details.overall_clear_pvp	 = reset_new_pvp
+	Details.overall_clear_newboss = resetOnNewBoss
+	Details.overall_clear_newchallenge = resetOnNewChallenge
+	Details.overall_clear_logout = resetOnLogoff
+	Details.overall_clear_pvp = resetOnNewPVP
 end
 
 function segmentClass:resetar_overall()
-	--if (InCombatLockdown()) then
-	--	_detalhes:Msg(Loc ["STRING_ERASE_IN_COMBAT"])
-	--	_detalhes.schedule_remove_overall = true
-	--else
-		--fecha a janela de informa��es do jogador
-		Details:CloseBreakdownWindow()
+	Details:CloseBreakdownWindow()
 
-		Details.tabela_overall = combatClass:NovaTabela()
+	Details:Destroy(Details.tabela_overall)
+	Details.tabela_overall = combatClass:NovaTabela()
 
-		for index, instancia in ipairs(Details.tabela_instancias) do
-			if (instancia.ativa and instancia.segmento == -1) then
-				instancia:InstanceReset()
-				instancia:ReajustaGump()
+	for index, instanceObject in ipairs(Details:GetAllInstances()) do
+		if (instanceObject:IsEnabled()) then
+			local segmentId = instanceObject:GetSegmentId()
+			if (segmentId == DETAILS_SEGMENTID_OVERALL) then
+				instanceObject:InstanceReset()
+				instanceObject:ReajustaGump()
 			end
 		end
+	end
 
-		if (Details.schedule_add_to_overall) then --deprecated
-			wipe (Details.schedule_add_to_overall)
-		end
-	--end
+	if (Details.schedule_add_to_overall) then --deprecated
+		Details:Destroy(Details.schedule_add_to_overall)
+	end
 
 	--stop bar testing if any
 	Details:StopTestBarUpdate()
-
 	Details:ClockPluginTickOnSegment()
 end
 
@@ -503,19 +517,21 @@ function segmentClass:resetar()
 	--empty temporary tables
 	Details.atributo_damage:ClearTempTables()
 
-	for _, combate in ipairs(Details.tabela_historico.tabelas) do
-		wipe(combate)
+	for _, combatObject in ipairs(Details.tabela_historico.tabelas) do
+		---@cast combatObject combat
+		Details:Destroy(combatObject)
 	end
-	wipe(Details.tabela_vigente)
-	wipe(Details.tabela_overall)
-	wipe(Details.spellcache)
+
+	Details:Destroy(Details.tabela_vigente)
+	Details:Destroy(Details.tabela_overall)
+	Details:Destroy(Details.spellcache)
 
 	if (Details.schedule_add_to_overall) then --deprecated
-		wipe (Details.schedule_add_to_overall)
+		Details:Destroy(Details.schedule_add_to_overall)
 	end
 
 	Details:PetContainerCleanup()
-	Details:ResetSpecCache (true) --for�ar
+	Details:ResetSpecCache(true)
 
 	-- novo container de historico
 	Details.tabela_historico = segmentClass:NovoHistorico() --joga fora a tabela antiga e cria uma nova
@@ -531,19 +547,16 @@ function segmentClass:resetar()
 	--marca o addon como fora de combate
 	Details.in_combat = false
 	--zera o contador de combates
-	Details:NumeroCombate (0)
+	Details:NumeroCombate(0)
 
-	--limpa o cache de magias
+	--clear caches
 	Details:ClearSpellCache()
-
-	--limpa a tabela de ShieldCache
-	wipe(Details.ShieldCache)
+	Details:Destroy(Details.ShieldCache)
+	Details:Destroy(Details.cache_damage_group)
+	Details:Destroy(Details.cache_healing_group)
 
 	--reinicia a time machine
 	timeMachine:Reiniciar()
-
-	wipe(Details.cache_damage_group)
-	wipe(Details.cache_healing_group)
 	Details:UpdateParserGears()
 
 	if (not InCombatLockdown() and not UnitAffectingCombat("player")) then

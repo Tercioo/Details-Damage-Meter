@@ -133,8 +133,8 @@ function Details:CreateCallbackListeners()
             end
 
             current_encounter = false
-            wipe (current_table_dbm)
-            wipe (current_table_bigwigs)
+            Details:Destroy (current_table_dbm)
+            Details:Destroy (current_table_bigwigs)
         end
     end)
     event_frame:RegisterEvent("ENCOUNTER_START")

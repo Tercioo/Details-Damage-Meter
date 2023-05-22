@@ -74,8 +74,8 @@ end
 --start the proccess of updating the current dps and hps for each player
 function Details.CurrentDps.StartCurrentDpsTracker()
     Details.CurrentDps.CombatObject = Details:GetCurrentCombat()
-    wipe(Details.CurrentDps.Dps)
-    wipe(Details.CurrentDps.Hps)
+    Details:Destroy(Details.CurrentDps.Dps)
+    Details:Destroy(Details.CurrentDps.Hps)
     currentDpsFrame:SetScript("OnUpdate", currentDpsFrame.OnUpdateFunc)
 end
 --stop what the function above started

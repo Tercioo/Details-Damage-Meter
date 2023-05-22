@@ -144,7 +144,7 @@ function Details:ResetProfile (profile_name)
 		end
 
 	--reset the profile
-		table.wipe(profile.instances)
+		Details:Destroy(profile.instances)
 
 		--export first instance
 		local instance = Details:GetInstance(1)
@@ -529,7 +529,7 @@ function Details:SaveProfile (saveas)
 
 	--save skins
 	if (not Details.do_not_save_skins) then
-		table.wipe(profile.instances)
+		Details:Destroy(profile.instances)
 		for index, instance in ipairs(Details.tabela_instancias) do
 			local exported = instance:ExportSkin()
 			exported.__was_opened = instance:IsEnabled()
@@ -1668,7 +1668,7 @@ function Details:SaveProfileSpecial()
 		end
 
 	--save skins
-		table.wipe(profile.instances)
+		Details:Destroy(profile.instances)
 
 		if (Details.tabela_instancias) then
 			for index, instance in ipairs(Details.tabela_instancias) do

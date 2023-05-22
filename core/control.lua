@@ -12,7 +12,6 @@
 	local _math_max = math.max --lua local
 	local ipairs = ipairs --lua local
 	local pairs = pairs --lua local
-	local wipe = table.wipe --lua local
 	local bitBand = bit.band --lua local
 
 	local GetInstanceInfo = GetInstanceInfo --wow api local
@@ -358,14 +357,14 @@
 
 			Details:ClearCCPetsBlackList()
 
-			wipe(Details.encounter_end_table)
+			Details:Destroy(Details.encounter_end_table)
 
-			wipe(Details.pets_ignored)
-			wipe(Details.pets_no_owner)
+			Details:Destroy(Details.pets_ignored)
+			Details:Destroy(Details.pets_no_owner)
 			Details.container_pets:BuscarPets()
 
-			wipe(Details.cache_damage_group)
-			wipe(Details.cache_healing_group)
+			Details:Destroy(Details.cache_damage_group)
+			Details:Destroy(Details.cache_healing_group)
 			Details:UpdateParserGears()
 
 			--get all buff already applied before the combat start
@@ -878,11 +877,11 @@
 			Details.leaving_combat = false
 
 			Details:OnCombatPhaseChanged()
-			wipe(Details.tabela_vigente.PhaseData.damage_section)
-			wipe(Details.tabela_vigente.PhaseData.heal_section)
+			Details:Destroy(Details.tabela_vigente.PhaseData.damage_section)
+			Details:Destroy(Details.tabela_vigente.PhaseData.heal_section)
 
-			wipe(Details.cache_damage_group)
-			wipe(Details.cache_healing_group)
+			Details:Destroy(Details.cache_damage_group)
+			Details:Destroy(Details.cache_healing_group)
 
 			Details:UpdateParserGears()
 
@@ -899,7 +898,7 @@
 
 			--do not wipe the encounter table if is in the argus encounter ~REMOVE on 8.0
 			if (Details.encounter_table and Details.encounter_table.id ~= 2092) then
-				wipe(Details.encounter_table)
+				Details:Destroy(Details.encounter_table)
 			else
 				if (Details.debug) then
 					Details:Msg("(debug) in argus encounter, cannot wipe the encounter table.")
@@ -938,7 +937,7 @@
 
 			--enemies
 			local enemiesAmount = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
-			table.wipe(_detalhes.arena_enemies)
+			Details:Destroy(_detalhes.arena_enemies)
 
 			for i = 1, enemiesAmount do
 				local enemyName = _G.GetUnitName("arena" .. i, true)
@@ -1330,7 +1329,7 @@
 			--store pets sent through 'needpetowner'
 			Details.sent_pets = Details.sent_pets or {n = time()}
 			if (Details.sent_pets.n+20 < time()) then
-				wipe(Details.sent_pets)
+				Details:Destroy(Details.sent_pets)
 				Details.sent_pets.n = time()
 			end
 

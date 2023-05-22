@@ -3,7 +3,7 @@ local Details = 		_G.Details
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local _
 local addonName, Details222 = ...
-local C_Timer
+local C_Timer = C_Timer
 local UnitName = UnitName
 
 --On Details! Load load default keys into the main object
@@ -22,7 +22,7 @@ function Details222.LoadSavedVariables.CharacterData()
 	local currentCharacterData = _detalhes_database
 
 	--check if the player data exists, if not, load from default
-	if (not currentCharacterData) then
+	if (not currentCharacterData) then --NOT EXISTS
 		currentCharacterData = Details.CopyTable(defaultCharacterData)
 		--[[GLOBAL]] _detalhes_database = currentCharacterData
 	end
@@ -106,70 +106,90 @@ end
 --load previous saved combat data
 function Details222.LoadSavedVariables.CombatSegments()
 	local currentCharacterData = _G["_detalhes_database"] --no need to check if it exists, it's already checked
+	if (currentCharacterData == nil) then
+		currentCharacterData = {}
+	end
 
-	--if isn't nothing saved, build a new one and quit
-	if (not currentCharacterData.tabela_historico) then
+	--custom displays - if there's no saved custom display, they will be filled from the StartMeUp() when a new version is installed
+	if (_detalhes_global.custom) then
+		Details.custom = _detalhes_global.custom
+		Details.refresh:r_atributo_custom()
+	end
+
+	local bShouldClearAndExit = not currentCharacterData.tabela_historico
+
+	--check integrity of the sub table 'tabelas' and its first index 'current segment'
+	if (not bShouldClearAndExit) then
+		if (not currentCharacterData.tabela_historico.tabelas or not currentCharacterData.tabela_historico.tabelas[1]) then
+			bShouldClearAndExit = true
+		end
+	end
+
+	--check if is a major version upgrade (usualy API or low level changes)
+	if (not bShouldClearAndExit) then
+		bShouldClearAndExit = currentCharacterData.last_realversion and currentCharacterData.last_realversion < Details.realversion
+	end
+
+	--if can just clear all data and exit
+	if (bShouldClearAndExit) then
 		Details.tabela_historico = Details.historico:NovoHistorico()
 		Details.tabela_overall = Details.combate:NovaTabela()
 		Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
 		Details.tabela_pets = Details.container_pets:NovoContainer()
 		Details:UpdateContainerCombatentes()
+
+		if (currentCharacterData.tabela_pets) then
+			Details:Destroy(currentCharacterData.tabela_pets) --saved pet data
+			currentCharacterData.tabela_pets = nil
+		end
+		if (currentCharacterData.tabela_overall) then --saved overall data
+			Details:Destroy(currentCharacterData.tabela_overall)
+			currentCharacterData.tabela_overall = nil
+		end
+		if (currentCharacterData.tabela_historico) then
+			Details:Destroy(currentCharacterData.tabela_historico)
+			currentCharacterData.tabela_historico = nil
+		end
+
 		return
 	else
-		Details.tabela_historico = Details.CopyTable(currentCharacterData.tabela_historico)
-		Details.tabela_overall = Details.combate:NovaTabela()
-		Details.tabela_pets = Details.container_pets:NovoContainer()
-		if (currentCharacterData.tabela_pets) then
-			Details.tabela_pets.pets = Details.CopyTable(currentCharacterData.tabela_pets)
-		end
-		Details:UpdateContainerCombatentes()
-
-		--if the core revision was incremented, reset all combat data to avoid incompatible data
-		if (currentCharacterData.last_realversion and currentCharacterData.last_realversion < Details.realversion) then
-			--details was been hard upgraded
-			Details.tabela_historico = Details.historico:NovoHistorico()
-			Details.tabela_overall = Details.combate:NovaTabela()
-			Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
+		--pet owners cache saved on logout
+		do
 			Details.tabela_pets = Details.container_pets:NovoContainer()
-			Details:UpdateContainerCombatentes()
+			if (currentCharacterData.tabela_pets) then
+				--pet ownership table only exists if the player logoff inside a raid or dungeon
+				Details.tabela_pets.pets = Details.CopyTable(currentCharacterData.tabela_pets)
+				Details:Destroy(currentCharacterData.tabela_pets)
+				currentCharacterData.tabela_pets = nil
+			end
+		end
 
-			currentCharacterData.tabela_historico = nil
-			currentCharacterData.tabela_overall = nil
-		else
-			--check integrity
-			local combat = Details.tabela_historico.tabelas[1]
-			if (combat) then
-				if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
-					--something went wrong in last logon, let's just reset and we are good to go
-					Details.tabela_historico = Details.historico:NovoHistorico()
-					Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
-					Details.tabela_pets = Details.container_pets:NovoContainer()
-					Details:UpdateContainerCombatentes()
+		--restore saved overall data
+		do
+			if (not Details.overall_clear_logout) then
+				if (currentCharacterData.tabela_overall) then
+					Details.tabela_overall = Details.CopyTable(currentCharacterData.tabela_overall)
+					Details:RestoreOverallMetatables()
 				end
+			else
+				Details.tabela_overall = Details.combate:NovaTabela()
 			end
-		end
 
-		if (not Details.overall_clear_logout) then
 			if (currentCharacterData.tabela_overall) then
-				Details.tabela_overall = currentCharacterData.tabela_overall
-				Details:RestoreOverallMetatables()
+				Details:Destroy(currentCharacterData.tabela_overall)
+				currentCharacterData.tabela_overall = nil
 			end
-		else
-			Details.tabela_overall = Details.combate:NovaTabela()
 		end
 
-		--re-build all indexes and metatables
-		Details:RestoreMetatables()
-
-		--get lastest combat the player participated
-		---@type combat
-		local firstSegment = Details.tabela_historico.tabelas[1]
-
-		if (firstSegment) then
-			Details.tabela_vigente = firstSegment
-		else
-			Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
+		--restore saved segments
+		do
+			Details.tabela_historico = Details.CopyTable(currentCharacterData.tabela_historico)
+			Details:Destroy(currentCharacterData.tabela_historico)
+			currentCharacterData.tabela_historico = nil
 		end
+
+		--get the first segment saved and use it as current segment
+		Details.tabela_vigente = Details.tabela_historico.tabelas[1]
 
 		--need refresh for all containers
 		for _, actorContainer in ipairs(Details.tabela_overall) do
@@ -179,19 +199,8 @@ function Details222.LoadSavedVariables.CombatSegments()
 			actorContainer.need_refresh = true
 		end
 
-		--erase combat data from the database
-		if (currentCharacterData.tabela_historico) then
-			Details:Destroy(currentCharacterData.tabela_historico)
-		end
-		if (currentCharacterData.tabela_pets) then
-			Details:Destroy(currentCharacterData.tabela_pets)
-		end
-
-		--double check for pet container
-		if (not Details.tabela_pets or not Details.tabela_pets.pets) then
-			Details.tabela_pets = Details.container_pets:NovoContainer()
-		end
 		Details:UpdateContainerCombatentes()
+		Details:RestoreMetatables()
 	end
 end
 
@@ -348,14 +357,6 @@ function Details:LoadConfig()
 
 		--apply the profile
 		Details:ApplyProfile(current_profile_name, true)
-
-		--custom
-		Details.custom = _detalhes_global.custom
-		if (_detalhes_global.custom and _detalhes_global.custom[1] and _detalhes_global.custom[1].__index and _detalhes_global.custom[1].__index._InstanceLastCombatShown) then
-			C_Timer.After(5, function() print("|cFFFFAA00Details!|r error 0x8487, report on discord") end)
-		end
-		Details.refresh:r_atributo_custom()
-
 end
 
 --On Details! Load count logons, tutorials, etc

@@ -371,6 +371,13 @@ end
 		end
 	end
 
+	---return the actor type which is containing on this container
+	---@self actorcontainer
+	---@return number
+	function actorContainer:GetType()
+		return self.tipo
+	end
+
 	---return the actor object for a given actor name
 	---@param actorName string
 	---@return table|nil
@@ -1087,7 +1094,7 @@ end
 		Details:UpdatePetsOnParser()
 	end
 	function Details:ClearCCPetsBlackList()
-		table.wipe(petBlackList)
+		Details:Destroy(petBlackList)
 	end
 
 	function actorContainer:FuncaoDeCriacao (tipo)
@@ -1142,6 +1149,17 @@ end
 
 	function actorContainer:Remap()
 		return self:remapear()
+	end
+
+	---remove an actor from the container, by removing this way, the container does not need to be remapped
+	---@param self actorcontainer
+	---@param actorObject actor
+	function actorContainer:RemoveActor(actorObject)
+		local nameMap = self._NameIndexTable
+		local actorList = self._ActorTable
+		local actorIndex = nameMap[actorObject.nome]
+		nameMap[actorObject.nome] = nil --actorObject.nome a nil value | Details/boot.lua"]:1374: in function `DestroyActor' | meta.lua"]:590: in function `PrepareTablesForSave' | savedata.lua"]:86
+		table.remove(actorList, actorIndex)
 	end
 
 	function actorContainer:remapear()

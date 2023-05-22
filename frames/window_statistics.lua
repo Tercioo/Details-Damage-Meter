@@ -453,10 +453,10 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
             local currentGuild = guildDropdown.value
 
             --wipe data
-            wipe(difficultyList)
-            wipe(bossList)
-            wipe(raidList)
-            wipe(guildList)
+            Details:Destroy(difficultyList)
+            Details:Destroy(bossList)
+            Details:Destroy(raidList)
+            Details:Destroy(guildList)
 
             local bossRepeated = {}
             local raidRepeated = {}
@@ -618,8 +618,8 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
 
             local raidSelected = DetailsRaidHistoryWindow.select_raid:GetValue()
             local bossRepeated = {}
-            wipe(bossList)
-            wipe(difficultyList)
+            Details:Destroy(bossList)
+            Details:Destroy(difficultyList)
 
             for difficulty, encounterIdTable in pairs(db) do
                 if (type(difficulty) == "number" and allowedKeysForDifficulty[difficulty]) then
