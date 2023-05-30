@@ -37,7 +37,6 @@
 
 	local actorContainer =	Details.container_combatentes
 
-	local alvo_da_habilidade = 	Details.alvo_da_habilidade
 	local atributo_damage =		Details.atributo_damage
 	local atributo_heal =			Details.atributo_heal
 	local atributo_energy =		Details.atributo_energy
@@ -45,13 +44,9 @@
 
 	local container_damage =		Details.container_type.CONTAINER_DAMAGE_CLASS
 	local container_heal = 		Details.container_type.CONTAINER_HEAL_CLASS
-	local container_heal_target = 	Details.container_type.CONTAINER_HEALTARGET_CLASS
-	local container_friendlyfire =	Details.container_type.CONTAINER_FRIENDLYFIRE
-	local container_damage_target = Details.container_type.CONTAINER_DAMAGETARGET_CLASS
 	local container_energy = 		Details.container_type.CONTAINER_ENERGY_CLASS
 	local container_energy_target =	Details.container_type.CONTAINER_ENERGYTARGET_CLASS
 	local container_misc = 		Details.container_type.CONTAINER_MISC_CLASS
-	local container_misc_target = 	Details.container_type.CONTAINER_MISCTARGET_CLASS
 	local container_enemydebufftarget_target = Details.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
 
 	local container_pets = {}
@@ -74,32 +69,6 @@
 	local SPELLID_SANGUINE_HEAL = 226510
 	local sanguineActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---api functions
-
---[=[
-["AzeriteItemPowerDescription"] = 9,
-["SellPrice"] = 11,
-["CurrencyTotal"] = 14,
-["GemSocket"] = 3,
-["QuestObjective"] = 8,
-["UnitName"] = 2,
-["SpellName"] = 13,
-["ItemEnchantmentPermanent"] = 15,
-["RuneforgeLegendaryPowerDescription"] = 10,
-["QuestPlayer"] = 18,
-["Blank"] = 1,
-["UnitOwner"] = 16,
-["LearnableSpell"] = 6,
-["ProfessionCraftingQuality"] = 12,
-["UnitThreat"] = 7,
-["QuestTitle"] = 17,
-["ItemBinding"] = 20,
-["NestedBlock"] = 19,
-["AzeriteEssencePower"] = 5,
-["AzeriteEssenceSlot"] = 4,
-["None"] = 0,
---]=]
 
 ---attempt to get the owner of rogue's Akaari's Soul from Secrect Technique
 ---@param petGUID string
@@ -382,9 +351,9 @@ end
 	---@param actorName string
 	---@return table|nil
 	function actorContainer:GetActor(actorName)
-		local index = self._NameIndexTable [actorName]
+		local index = self._NameIndexTable[actorName]
 		if (index) then
-			return self._ActorTable [index]
+			return self._ActorTable[index]
 		end
 	end
 
@@ -486,11 +455,7 @@ end
 		end
 
 		if (not specId and Details.track_specs) then
-			Details:ScheduleTimer("GuessSpec", 2, {actorObject, nil, 1})
---			if (Details.streamer_config.quick_detection) then
---			else
---				Details:ScheduleTimer("GuessSpec", 3, {actorObject, nil, 1})
---			end
+			Details:ScheduleTimer("GuessSpec", 3, {actorObject, nil, 1})
 		end
 
 		local _, engClass = UnitClass(actorName or "")
@@ -608,7 +573,6 @@ end
 
 					if (playerArenaInfo) then
 						actorObject.role = playerArenaInfo.role
-
 						if (playerArenaInfo.role == "NONE") then
 							local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned(actorName)
 							if (role and role ~= "NONE") then
@@ -616,9 +580,9 @@ end
 							end
 						end
 					else
-						local oponentes = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
+						local amountOpponents = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
 						local found = false
-						for i = 1, oponentes do
+						for i = 1, amountOpponents do
 							local name = GetUnitName("arena" .. i, true)
 							if (name == actorName) then
 								local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(i)
@@ -712,115 +676,13 @@ end
 		end
 	end
 
-	
-
-	--Deprecated 4/3/2023 in favor of Details222.Pets.GetPetOwner
-	local find_pet_owner = function(petGUID, petName, petFlags, self)
-		if (not Details.tabela_vigente) then
-			return
-		end
-
-		if (bIsDragonflight) then
-			pet_tooltip_frame:SetOwner(WorldFrame, "ANCHOR_NONE")
-			pet_tooltip_frame:SetHyperlink("unit:" .. (petGUID or ""))
-			local tooltipData = pet_tooltip_frame:GetTooltipData()
-
-			if (tooltipData and tooltipData.lines[1]) then
-				if (tooltipData.lines[1].leftText == petName) then
-					for i = 2, #tooltipData.lines do
-						local tooltipLine = tooltipData.lines[i]
-						local args = tooltipLine.args
-						if (args) then
-							if (args[4] and args[4].field == "guid") then
-								local guidVal = args[4].guidVal
-								local guidCache = Details:GetParserPlayerCache()
-								if (guidCache[guidVal]) then
-									return petOwnerFound(guidCache[guidVal], petGUID, petName, petFlags, self, guidVal)
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-
-		Details.tabela_vigente.raid_roster_indexed = Details.tabela_vigente.raid_roster_indexed or {}
-
-		local line1 = _G ["DetailsPetOwnerFinderTextLeft2"]
-		local text1 = line1 and line1:GetText()
-		if (text1 and text1 ~= "") then
-			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
-			for playerName, _ in pairs(Details.tabela_vigente.raid_roster) do
-				local pName = playerName
-				playerName = playerName:gsub("%-.*", "") --remove realm name
-
-				--if the user client is in russian language
-				--make an attempt to remove declensions from the character's name
-				--this is equivalent to remove 's from the owner on enUS
-				if (CONST_CLIENT_LANGUAGE == "ruRU") then
-					if (find_name_declension (text1, playerName)) then
-						return petOwnerFound (pName, petGUID, petName, petFlags, self)
-					else
-						--print("not found declension (1):", pName, nome)
-						if (text1:find(playerName)) then
-							return petOwnerFound (pName, petGUID, petName, petFlags, self)
-						end
-					end
-				else
-					if (text1:find(playerName)) then
-						return petOwnerFound (pName, petGUID, petName, petFlags, self)
-					else
-						local ownerName = (string.match(text1, string.gsub(UNITNAME_TITLE_PET, "%%s", "(%.*)")) or string.match(text1, string.gsub(UNITNAME_TITLE_MINION, "%%s", "(%.*)")) or string.match(text1, string.gsub(UNITNAME_TITLE_GUARDIAN, "%%s", "(%.*)")))
-						if (ownerName) then
-							if (Details.tabela_vigente.raid_roster[ownerName]) then
-								return petOwnerFound (ownerName, petGUID, petName, petFlags, self)
-							end
-						end
-					end
-				end
-			end
-		end
-
-		local line2 = _G ["DetailsPetOwnerFinderTextLeft3"]
-		local text2 = line2 and line2:GetText()
-		if (text2 and text2 ~= "") then
-			for playerName, _ in pairs(Details.tabela_vigente.raid_roster) do
-			--for _, playerName in ipairs(Details.tabela_vigente.raid_roster_indexed) do
-				local pName = playerName
-				playerName = playerName:gsub("%-.*", "") --remove realm name
-
-				if (CONST_CLIENT_LANGUAGE == "ruRU") then
-					if (find_name_declension (text2, playerName)) then
-						return petOwnerFound (pName, petGUID, petName, petFlags, self)
-					else
-						--print("not found declension (2):", pName, nome)
-						if (text2:find(playerName)) then
-							return petOwnerFound (pName, petGUID, petName, petFlags, self)
-						end
-					end
-				else
-					if (text2:find(playerName)) then
-						return petOwnerFound (pName, petGUID, petName, petFlags, self)
-					else
-						local ownerName = (string.match(text2, string.gsub(UNITNAME_TITLE_PET, "%%s", "(%.*)")) or string.match(text2, string.gsub(UNITNAME_TITLE_MINION, "%%s", "(%.*)")) or string.match(text2, string.gsub(UNITNAME_TITLE_GUARDIAN, "%%s", "(%.*)")))
-						if (ownerName) then
-							if (Details.tabela_vigente.raid_roster[ownerName]) then
-								return petOwnerFound (ownerName, petGUID, petName, petFlags, self)
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-
 	---get an actor from the container, if the actor doesn't exists, and the bShouldCreateActor is true, create a new actor
 	---this function is an alias for PegarCombatente which is the function name is in portuguese
 	---@param actorSerial string
 	---@param actorName string
 	---@param actorFlags number
 	---@param bShouldCreateActor boolean
-	---@return table
+	---@return table|nil, table|nil, string|nil
 	function actorContainer:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
 		return self:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
 	end
@@ -829,249 +691,168 @@ end
 	---@param actorName string
 	---@param actorFlags number
 	---@param bShouldCreateActor boolean
-	---@return table
+	---@return table|nil, table|nil, string|nil
 	function actorContainer:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
-		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
-
-		--verifica se � um pet, se for confere se tem o nome do dono, se n�o tiver, precisa por
-		local dono_do_pet
+		--need to check if the actor is a pet
+		local petOwnerObject
 		actorSerial = actorSerial or "ns"
 
-		if (container_pets[actorSerial]) then --� um pet reconhecido
-			--[[statistics]]-- _detalhes.statistics.container_pet_calls = _detalhes.statistics.container_pet_calls + 1
-			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono (actorSerial, actorName, actorFlags)
+		if (container_pets[actorSerial]) then --this is a registered pet
+			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono(actorSerial, actorName, actorFlags)
 			if (petName and ownerName) then
 				actorName = petName
-				dono_do_pet = self:PegarCombatente(ownerGUID, ownerName, ownerFlag, true)
+				petOwnerObject = self:PegarCombatente(ownerGUID, ownerName, ownerFlag, true)
 			end
 
-		elseif (not petBlackList[actorSerial]) then --verifica se � um pet
+		elseif (not petBlackList[actorSerial]) then --check if is a pet
 			petBlackList[actorSerial] = true
 
 			--try to find the owner
 			if (actorFlags and bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
-				--[[statistics]]-- _detalhes.statistics.container_unknow_pet = _detalhes.statistics.container_unknow_pet + 1
 				local ownerName, ownerGUID, ownerFlags = Details222.Pets.GetPetOwner(actorSerial, actorName)
 				if (ownerName and ownerGUID) then
-					local newPetName, ownerObject = petOwnerFound (ownerName, actorSerial, actorName, actorFlags, self, ownerGUID)
+					local newPetName, ownerObject = petOwnerFound(ownerName, actorSerial, actorName, actorFlags, self, ownerGUID)
 					if (newPetName and ownerObject) then
-						actorName, dono_do_pet = newPetName, ownerObject
+						actorName, petOwnerObject = newPetName, ownerObject
 					end
 				end
 			end
 		end
 
-		--pega o index no mapa
-		local index = self._NameIndexTable[actorName]
-		--retorna o actor
-		if (index) then
-			return self._ActorTable[index], dono_do_pet, actorName
+		--get the actor index in the hash map
+		local actorIndex = self._NameIndexTable[actorName]
+		if (actorIndex) then
+			return self._ActorTable[actorIndex], petOwnerObject, actorName
+		end
 
-		--n�o achou, criar
-		elseif (bShouldCreateActor) then
-			local novo_objeto = self.funcao_de_criacao(_, actorSerial, actorName)
-			novo_objeto.nome = actorName
-			novo_objeto.flag_original = actorFlags
-			novo_objeto.serial = actorSerial
+		if (not bShouldCreateActor) then
+			return
+		end
 
-			--seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
-			novo_objeto.classe = "UNKNOW"
-			local forceClass
+		---@type actor
+		local newActor = self.funcao_de_criacao(_, actorSerial, actorName)
+		newActor.nome = actorName
+		newActor.flag_original = actorFlags
+		newActor.serial = actorSerial
+		newActor.classe = "UNKNOW"
 
-			--get the aID (actor id)
-			if (actorSerial:match("^C")) then
-				novo_objeto.aID = tostring(Details:GetNpcIdFromGuid(actorSerial))
+		local forceClass
 
-				if (Details.immersion_special_units) then
-					local shouldBeInGroup, class = Details.Immersion.IsNpcInteresting(novo_objeto.aID)
-					novo_objeto.grupo = shouldBeInGroup
-					if (class) then
-						novo_objeto.classe = class
-						forceClass = novo_objeto.classe
-					end
-				end
+		--get the aID (actor id)
+		if (actorSerial:match("^C")) then
+			newActor.aID = tostring(Details:GetNpcIdFromGuid(actorSerial))
 
-			elseif (actorSerial:match("^P")) then
-				novo_objeto.aID = actorSerial:gsub("Player%-", "")
-
-			else
-				novo_objeto.aID = ""
-			end
-
-			--check ownership
-			if (dono_do_pet and Details.immersion_pets_on_solo_play) then
-				if (UnitIsUnit("player", dono_do_pet.nome)) then
-					if (not Details.in_group) then
-						novo_objeto.grupo = true
-					end
+			--immersion stuff
+			if (Details.immersion_special_units) then
+				local shouldBeInGroup, class = Details.Immersion.IsNpcInteresting(newActor.aID)
+				newActor.grupo = shouldBeInGroup
+				if (class) then
+					newActor.classe = class
+					forceClass = newActor.classe
 				end
 			end
 
-		-- tipo do container
-	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		elseif (actorSerial:match("^P")) then
+			newActor.aID = actorSerial:gsub("Player%-", "")
 
-			if (self.tipo == container_damage) then --CONTAINER DAMAGE
-
-				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
-
-				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "damage")
-
-				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, actorName)
-				end
-
-				if (self.shadow) then
-					if (novo_objeto.grupo and Details.in_combat) then
-						Details.cache_damage_group [#Details.cache_damage_group+1] = novo_objeto
-					end
-				end
-
-				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
-						novo_objeto.enemy = true
-					end
-
-					--try to guess his class
-					if (self.shadow) then --n�o executar 2x
-						Details:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
-					end
-
-				elseif (shouldScanOnce) then
-
-
-				end
-
-				if (novo_objeto.isTank) then
-					novo_objeto.avoidance = Details:CreateActorAvoidanceTable()
-				end
-
-			elseif (self.tipo == container_heal) then --CONTAINER HEALING
-
-				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
-				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "heal")
-
-				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, actorName)
-				end
-
-				if (self.shadow) then
-					if (novo_objeto.grupo and Details.in_combat) then
-						Details.cache_healing_group [#Details.cache_healing_group+1] = novo_objeto
-					end
-				end
-
-				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
-						novo_objeto.enemy = true
-					end
-
-					--try to guess his class
-					if (self.shadow) then --n�o executar 2x
-						Details:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
-					end
-				end
-
-
-			elseif (self.tipo == container_energy) then --CONTAINER ENERGY
-
-				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
-				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "energy")
-
-				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, actorName)
-				end
-
-				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
-						novo_objeto.enemy = true
-					end
-
-					--try to guess his class
-					if (self.shadow) then --n�o executar 2x
-						Details:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
-					end
-				end
-
-			elseif (self.tipo == container_misc) then --CONTAINER MISC
-
-				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorFlags, actorSerial)
-				readActorFlag (novo_objeto, dono_do_pet, actorSerial, actorFlags, actorName, "misc")
-
-				if (dono_do_pet) then
-					AddUnique (dono_do_pet.pets, actorName)
-				end
-
-				if (novo_objeto.classe == "UNGROUPPLAYER") then --is a player
-					if (bitBand (actorFlags, REACTION_HOSTILE ) ~= 0) then --is hostile
-						novo_objeto.enemy = true
-					end
-
-					--try to guess his class
-					if (self.shadow) then --n�o executar 2x
-						Details:ScheduleTimer("GuessClass", 1, {novo_objeto, self, 1})
-					end
-				end
-
-			elseif (self.tipo == container_damage_target) then --CONTAINER ALVO DO DAMAGE
-
-			elseif (self.tipo == container_energy_target) then --CONTAINER ALVOS DO ENERGY
-
-				novo_objeto.mana = 0
-				novo_objeto.e_rage = 0
-				novo_objeto.e_energy = 0
-				novo_objeto.runepower = 0
-
-			elseif (self.tipo == container_enemydebufftarget_target) then
-
-				novo_objeto.uptime = 0
-				novo_objeto.actived = false
-				novo_objeto.activedamt = 0
-
-			elseif (self.tipo == container_misc_target) then --CONTAINER ALVOS DO MISC
-
-
-			elseif (self.tipo == container_friendlyfire) then --CONTAINER FRIENDLY FIRE
-
-				local shouldScanOnce = getActorClass (novo_objeto, actorName, actorSerial)
-
-			end
-
-			--sanguine affix
-			if (actorName == sanguineActorName) then
-				novo_objeto.grupo = true
-			end
-
-	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	-- grava o objeto no mapa do container
-			local size = #self._ActorTable+1
-			self._ActorTable [size] = novo_objeto --grava na tabela de indexes
-			self._NameIndexTable [actorName] = size --grava no hash map o index deste jogador
-
-			if (Details.is_in_battleground or Details.is_in_arena) then
-				novo_objeto.pvp = true
-			end
-
-			if (Details.debug) then
-				if (Details.debug_chr and actorName:find(Details.debug_chr) and self.tipo == 1) then
-					local logLine = ""
-					local when = "[" .. date ("%H:%M:%S") .. format(".%4f", GetTime()-floor(GetTime())) .. "]"
-					local log = "actor created - class: " .. (novo_objeto.classe or "noclass")
-					local from = debugstack (2, 1, 0)
-					logLine = logLine .. when .. " " .. log .. " " .. from .. "\n"
-
-					_detalhes_global.debug_chr_log = _detalhes_global.debug_chr_log .. logLine
-				end
-			end
-
-			--only happens with npcs from immersion feature
-			if (forceClass) then
-				novo_objeto.classe = forceClass
-			end
-
-			return novo_objeto, dono_do_pet, actorName
 		else
-			return nil, nil, nil
+			newActor.aID = ""
 		end
+
+		--check ownership
+		if (petOwnerObject and Details.immersion_pets_on_solo_play) then
+			if (UnitIsUnit("player", petOwnerObject.nome)) then
+				if (not Details.in_group) then
+					newActor.grupo = true
+				end
+			end
+		end
+
+		if (self.tipo == container_damage) then --containerType damage
+			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "damage")
+
+			if (petOwnerObject) then
+				AddUnique(petOwnerObject.pets, actorName)
+			end
+
+			if (newActor.grupo and Details.in_combat) then
+				Details.cache_damage_group[#Details.cache_damage_group+1] = newActor
+			end
+
+			if (newActor.isTank) then
+				newActor.avoidance = Details:CreateActorAvoidanceTable()
+			end
+
+		elseif (self.tipo == container_heal) then --containerType healing
+			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "heal")
+
+			if (petOwnerObject) then
+				AddUnique(petOwnerObject.pets, actorName)
+			end
+
+			if (newActor.grupo and Details.in_combat) then
+				Details.cache_healing_group[#Details.cache_healing_group+1] = newActor
+			end
+
+		elseif (self.tipo == container_energy) then --containerType resources
+			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "energy")
+
+			if (petOwnerObject) then
+				AddUnique(petOwnerObject.pets, actorName)
+			end
+
+		elseif (self.tipo == container_misc) then --containerType utility
+			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "misc")
+
+			if (petOwnerObject) then
+				AddUnique(petOwnerObject.pets, actorName)
+			end
+
+		elseif (self.tipo == container_energy_target) then --deprecated
+			newActor.mana = 0
+			newActor.e_rage = 0
+			newActor.e_energy = 0
+			newActor.runepower = 0
+			print("111111111111111111")
+
+		elseif (self.tipo == container_enemydebufftarget_target) then --deprecated
+			newActor.uptime = 0
+			newActor.actived = false
+			newActor.activedamt = 0
+			print("222222222222222222")
+		end
+
+		--sanguine affix
+		if (actorName == sanguineActorName) then
+			newActor.grupo = true
+		end
+
+		--enemy player
+		if (newActor.classe == "UNGROUPPLAYER") then --is a player
+			if (bitBand(actorFlags, REACTION_HOSTILE) ~= 0) then --is hostile
+				newActor.enemy = true
+			end
+		end
+
+		--battleground
+		if (Details.is_in_battleground or Details.is_in_arena) then
+			newActor.pvp = true
+		end
+
+		local nextActorIndex = #self._ActorTable+1
+		self._ActorTable[nextActorIndex] = newActor
+		self._NameIndexTable[actorName] = nextActorIndex
+
+		--only happens with npcs from immersion feature
+		if (forceClass) then
+			newActor.classe = forceClass
+		end
+
+		return newActor, petOwnerObject, actorName
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1093,45 +874,23 @@ end
 		container_pets = Details.tabela_pets.pets
 		Details:UpdatePetsOnParser()
 	end
+
 	function Details:ClearCCPetsBlackList()
 		Details:Destroy(petBlackList)
 	end
 
-	function actorContainer:FuncaoDeCriacao (tipo)
-		if (tipo == container_damage_target) then
-			return alvo_da_habilidade.NovaTabela
-
-		elseif (tipo == container_damage) then
+	function actorContainer:FuncaoDeCriacao(tipo)
+		if (tipo == container_damage) then
 			return atributo_damage.NovaTabela
-
-		elseif (tipo == container_heal_target) then
-			return alvo_da_habilidade.NovaTabela
 
 		elseif (tipo == container_heal) then
 			return atributo_heal.NovaTabela
 
-		elseif (tipo == container_enemydebufftarget_target) then
-			return alvo_da_habilidade.NovaTabela
-
 		elseif (tipo == container_energy) then
 			return atributo_energy.NovaTabela
 
-		elseif (tipo == container_energy_target) then
-			return alvo_da_habilidade.NovaTabela
-
 		elseif (tipo == container_misc) then
 			return atributo_misc.NovaTabela
-
-		elseif (tipo == container_misc_target) then
-			return alvo_da_habilidade.NovaTabela
-
-		end
-	end
-
-	--chama a fun��o para ser executada em todos os atores
-	function actorContainer:ActorCallFunction (funcao, ...)
-		for index, actor in ipairs(self._ActorTable) do
-			funcao (nil, actor, ...)
 		end
 	end
 
@@ -1140,15 +899,11 @@ end
 		return (t1 [bykey] or 0) > (t2 [bykey] or 0)
 	end
 
-	function actorContainer:SortByKey (key)
+	function actorContainer:SortByKey(key)
 		assert(type(key) == "string", "Container:SortByKey() expects a keyname on parameter 1.")
 		bykey = key
-		tableSort (self._ActorTable, sort)
+		tableSort(self._ActorTable, sort)
 		self:remapear()
-	end
-
-	function actorContainer:Remap()
-		return self:remapear()
 	end
 
 	---remove an actor from the container, by removing this way, the container does not need to be remapped
@@ -1157,43 +912,68 @@ end
 	function actorContainer:RemoveActor(actorObject)
 		local nameMap = self._NameIndexTable
 		local actorList = self._ActorTable
-		local actorIndex = nameMap[actorObject.nome]
-		nameMap[actorObject.nome] = nil --actorObject.nome a nil value | Details/boot.lua"]:1374: in function `DestroyActor' | meta.lua"]:590: in function `PrepareTablesForSave' | savedata.lua"]:86
-		table.remove(actorList, actorIndex)
+
+		local actorName = actorObject.nome
+		if (actorName) then
+			local actorIndex = nameMap[actorObject.nome]
+			nameMap[actorObject.nome] = nil
+			if (actorObject == actorList[actorIndex]) then
+				table.remove(actorList, actorIndex)
+			end
+		end
+
+		self:Remap()
+	end
+
+	---remove all destroyed actors from the container, must to be called after a possible DestroyActor() call
+	function actorContainer:Cleanup()
+		local actorList = self._ActorTable
+		for i = #actorList, 1, -1 do
+			local actorObject = actorList[i]
+			if (actorObject.__destroyed) then
+				table.remove(actorList, i)
+			end
+		end
+		self:Remap()
+	end
+
+	function actorContainer:Remap() --alias
+		return self:remapear()
 	end
 
 	function actorContainer:remapear()
-		local namingMap = self._NameIndexTable
+		local namingMap = self._NameIndexTable or {}
+		Details:Destroy(namingMap)
+
 		local actorList = self._ActorTable
 		for i = 1, #actorList do
-			namingMap[actorList[i].nome] = i
-		end
-	end
-
-	function Details.refresh:r_container_combatentes (container, shadow)
-		--reconstr�i meta e indexes
-			setmetatable(container, Details.container_combatentes)
-			container.__index = Details.container_combatentes
-			container.funcao_de_criacao = actorContainer:FuncaoDeCriacao (container.tipo)
-
-		--repara mapa
-			local mapa = {}
-			for i = 1, #container._ActorTable do
-				mapa [container._ActorTable[i].nome] = i
+			local playerName = actorList[i].nome
+			if (playerName) then
+				namingMap[playerName] = i
+			else
+				Details:Msg("actorContainer:Remap() found an actor without a name, playerName:", playerName, "__destroyed:", actorList[i].__destroyed)
 			end
-			container._NameIndexTable = mapa
+		end
 
-		--seta a shadow
-			container.shadow = shadow
+		self._NameIndexTable = namingMap
 	end
 
-	function Details.clear:c_container_combatentes (container)
+	function Details.refresh:r_container_combatentes(container) --runs on login from meta.lua
+		--set the metatable, __index and the function which will create new actors in the container
+		setmetatable(container, Details.container_combatentes)
+		container.__index = Details.container_combatentes
+		container.funcao_de_criacao = actorContainer:FuncaoDeCriacao(container.tipo)
+
+		--rebuild the actor map
+		container:Remap()
+	end
+
+	function Details.clear:c_container_combatentes(container)
 		container.__index = nil
-		container.shadow = nil
-		--container._NameIndexTable = nil
 		container.need_refresh = nil
 		container.funcao_de_criacao = nil
 	end
-	function Details.clear:c_container_combatentes_index (container)
+
+	function Details.clear:c_container_combatentes_index(container)
 		container._NameIndexTable = nil
 	end

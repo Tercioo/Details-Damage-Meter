@@ -327,12 +327,15 @@
 ---@field amountCasts {[string]: table<string, number>}
 ---@field end_time number
 ---@field start_time number
+---@field overall_added boolean is true when the combat got added into the overall combat
 ---@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
 ---@field is_mythic_dungeon_segment boolean
 ---@field trinketProcs table<actorname, table<spellid, {cooldown: number, total: number}>>
----@field GetPhases fun(combat: combat) : table
 ---@field alternate_power table<actorname, alternatepowertable>
+---@field totals {key1: table, key2: table, key3: table, key3: table}
+---@field totals_grupo {key1: table, key2: table, key3: table, key3: table}
+---@field GetPhases fun(combat: combat) : table
 ---@field GetCombatTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
 ---@field GetStartTime fun(combat: combat) : number
@@ -348,9 +351,9 @@
 ---@field GetActor fun(combat: combat, attribute: number, playerName: string) : actor
 ---@field CreateAlternatePowerTable fun(combat: combat, actorName: string) : alternatepowertable
 
----@class actorcontainer : table
----@field _ActorTable table
----@field _NameIndexTable table
+---@class actorcontainer : table contains two tables _ActorTable and _NameIndexTable, the _ActorTable contains the actors, the _NameIndexTable contains the index of the actors in the _ActorTable, making quick to reorder them without causing overhead
+---@field _ActorTable table array of actors
+---@field _NameIndexTable table<string, number> [actorName] = actorIndex in the _ActorTable, actorcontainer:Remap() refreshes the _NameIndexTable
 ---@field GetActor fun(container: actorcontainer, actorName: string) get an actor by its name
 ---@field GetSpellSource fun(container: actorcontainer, spellId: number) get the first actor found which casted the spell
 ---@field GetAmount fun(container: actorcontainer, actorName: string, key: string) get the amount of actor[key]
@@ -360,13 +363,16 @@
 ---@field ListActors fun(container: actorcontainer) usage: for index, actorObject in container:ListActors() do
 ---@field RemoveActor fun(container: actorcontainer, actor: actor) remove an actor from the container
 ---@field GetType fun(container: actorcontainer) : number get the container type, 1 for damage, 2 for heal, 3 for energy, 4 for utility
+---@field Remap fun(container: actorcontainer) refreshes the _NameIndexTable part of the container
+---@field Cleanup fun(container: actorcontainer) remove all destroyed actors from the container
 
 ---@class spellcontainer : table
 ---@field _ActorTable table store [spellId] = spelltable
----@field GetSpell fun(container: spellcontainer, spellId: number) get a spell by its id
+---@field GetSpell fun(container: spellcontainer, spellId: number) get a spell by its id, does not create if not found
 ---@field ListActors fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
 ---@field ListSpells fun(container: spellcontainer) : any, any usage: for spellId, spelltable in container:ListActors() do
 ---@field HasTwoOrMoreSpells fun(container: spellcontainer) : boolean return true if the container has two or more spells
+---@field GetOrCreateSpell fun(self: spellcontainer, spellId: number, bCanCreateSpellIfMissing: boolean|nil, cleuToken: string|nil) : spelltable
 
 ---@class friendlyfiretable : table
 ---@field total number total amount of friendly fire caused by the actor
@@ -388,6 +394,7 @@
 ---@field targets table<string, number> store the [target name] = total value
 ---@field targets_overheal table<string, number>
 ---@field targets_absorbs table<string, number>
+---@field extra table store extra data
 ---@field id number --spellid
 ---@field is_shield boolean --true if the spell is a shield
 ---@field successful_casted number successful casted times (only for enemies)
@@ -413,15 +420,23 @@
 ---@class targettable : {[string]: number}
 
 ---@class actor : table
----@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table
----@field BuildSpellTargetFromSpellTable fun(actor: actor, spellTable: spelltable) : table
+---@field owner actor
+---@field ownerName string name of the owner of the pet, a pet without an owner is considered an orphan and be suitable for garbage collection
+---@field pets table<number, string>
+---@field arena_enemy boolean if true the actor is an enemy in an arena match
+---@field start_time unixtime when this actor started to be tracked
+---@field end_time number when this actor stopped to be tracked, end_time - start_time is the activity time of the actor
+---@field displayName string actor name shown in the regular window
+---@field pvp boolean indicates if the actor is a part of a pvp match
+---@field flag_original number original actor flag from what was received in the combat log
 ---@field debuff_uptime_spells table
 ---@field buff_uptime_spells table
----@field spells table
----@field aID number|string
+---@field spells spellcontainer
+---@field aID number|string actorID is a realm-playername or npcID
 ---@field spellicon number|string
 ---@field cooldowns_defensive_spells table
----@field nome string
+---@field nome string name of the actor
+---@field isTank boolean if true the player had the spec TANK during the combat
 ---@field serial string
 ---@field spec number
 ---@field grupo boolean
@@ -432,8 +447,10 @@
 ---@field last_event unixtime
 ---@field total_without_pet number
 ---@field total number
----@field pets table<number, string>
 ---@field targets targettable
+---@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table
+---@field BuildSpellTargetFromSpellTable fun(actor: actor, spellTable: spelltable) : table
+---@field raid_targets table<number, number>
 ---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns") : spellcontainer
 ---@field Class fun(actor: actor) : string get the ingame class of the actor
 ---@field Spec fun(actor: actor) : string get the ingame spec of the actor
@@ -446,12 +463,25 @@
 ---@class actordamage : actor
 ---@field friendlyfire_total number
 ---@field friendlyfire friendlyfiretable
----@field damage_taken number amount of damage the actor took durent the segment
+---@field damage_taken number amount of damage the actor took during the segment
 ---@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
+---@field totalabsorbed number amount of damage dealt by the actor by got absorbed by the target, this is a "ABSORB" type of miss but still counts as damage done
 
 ---@class actorheal : actor
+---@field healing_taken number amount of healing the actor took during the segment
+---@field totalover number amount of healing that was overhealed
+---@field totalabsorb number amount of healing that was absorbed
+---@field heal_enemy_amt number amount of healing done to enemies this included enemy to enemy heals
+---@field totaldenied number amount of healing that was denied by the target - from cleu event SPELL_HEAL_ABSORBED
+---@field totalover_without_pet number amount of healing that was overhealed without the pet healing
+---@field healing_from table<string, boolean> store the name of the actors which healed the actor, format: [actorName] = true
+---@field heal_enemy table<number, number> store the amount of healing done by each spell that landed into an enemy, format: [spellId] = healing done
+---@field targets_overheal table<string, number> [targetName] = overheal
+---@field targets_absorbs table<string, number> [targetName] = absorbs
 
----@class actorenergy : actor
+---@class actorresource : actor
+---@field powertype number power type of the actor
+---@field alternatepower number alternate power of the actor
 
 ---@class actorutility : actor
 ---@field cc_break number amount of times the actor broke a cc
@@ -462,6 +492,9 @@
 ---@field cooldowns_defensive number amount of times the actor used a defensive cooldown
 ---@field buff_uptime number amount of time the actor had a buff
 ---@field debuff_uptime number amount of time the actor had a debuff
+---@field cc_done number amount of times the actor applyed a crowdcontrol on a target
+---@field cc_done_targets table<string, number> [targetName] = amount of times the actor cc'd the target
+---@field cc_done_spells spellcontainer
 --interrupt_targets interrupt_spells interrompeu_oque
 --cc_break_targets cc_break_spells cc_break_oque
 

@@ -1,264 +1,242 @@
 
-	local Details = _G.Details
-	local Details = Details
-	local tocName, Details222 = ...
+local Details = _G.Details
+local tocName, Details222 = ...
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---local pointers
-	local _
-	local pairs = pairs --lua local
-	local ipairs = ipairs --lua local
-	local rawget = rawget --lua local
-	local setmetatable = setmetatable --lua local
-	local _table_remove = table.remove --lua local
-	local _bit_band = bit.band --lua local
-	local _time = time --lua local
+local _
+local pairs = pairs --lua local
+local ipairs = ipairs --lua local
+local rawget = rawget --lua local
+local setmetatable = setmetatable --lua local
+local _table_remove = table.remove --lua local
+local _bit_band = bit.band --lua local
+local _time = time --lua local
 
-	local _InCombatLockdown = InCombatLockdown --wow api local
+local InCombatLockdown = InCombatLockdown --wow api local
 
-	local classDamage =	Details.atributo_damage --details local
-	local classHeal =		Details.atributo_heal --details local
-	local classEnergy =		Details.atributo_energy --details local
-	local classUtility =		Details.atributo_misc --details local
+local classDamage =	Details.atributo_damage --details local
+local classHeal =		Details.atributo_heal --details local
+local classEnergy =		Details.atributo_energy --details local
+local classUtility =		Details.atributo_misc --details local
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---constants
+local classTypeDamage = Details.atributos.dano
+local classTypeHeal = Details.atributos.cura
+local classTypeEnergy = Details.atributos.e_energy
+local classTypeUtility = Details.atributos.misc
 
-	local classTypeDamage = Details.atributos.dano
-	local classTypeHeal = Details.atributos.cura
-	local classTypeEnergy = Details.atributos.e_energy
-	local classTypeUtility = Details.atributos.misc
+	--restore actor containers indexes e metatables
+	function Details:RestoreOverallMetatables()
+		local bIsInInstance = select(1, IsInInstance())
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---core
+		---@type combat
+		local combatObjectOverall = Details.tabela_overall
+		combatObjectOverall.overall_refreshed = true
+		combatObjectOverall.__call = Details.call_combate
 
-	---wipe the naming list and rebuild it
-	---@param actorContainer actorcontainer
-	local fullRemap = function(actorContainer)
-		local namingMap = actorContainer._NameIndexTable
-		Details:Destroy(namingMap)
-		for i = 1, #actorContainer._ActorTable do
-			local actorName = actorContainer._ActorTable[i].nome --so the actor got wiped, but the actor table is still there but without any members
-			namingMap[actorName] = i
+		Details.refresh:r_combate(combatObjectOverall)
+
+		Details.refresh:r_container_combatentes(combatObjectOverall[classTypeDamage])
+		Details.refresh:r_container_combatentes(combatObjectOverall[classTypeHeal])
+		Details.refresh:r_container_combatentes(combatObjectOverall[classTypeEnergy])
+		Details.refresh:r_container_combatentes(combatObjectOverall[classTypeUtility])
+		Details.refresh:r_container_combatentes(combatObjectOverall[5]) --ghost container
+
+		local todos_atributos = {
+			combatObjectOverall[classTypeDamage]._ActorTable,
+			combatObjectOverall[classTypeHeal]._ActorTable,
+			combatObjectOverall[classTypeEnergy]._ActorTable,
+			combatObjectOverall[classTypeUtility]._ActorTable
+		}
+
+		for classType = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+			local actorContainer = combatObjectOverall[classType]
+			local actorTable = actorContainer._ActorTable
+			for i = 1, #actorTable do
+				---@type actor
+				local thisActor = actorTable[i]
+				local actorName = thisActor.nome
+
+				if (bIsInInstance and Details.remove_realm_from_name) then
+					thisActor.displayName = actorName:gsub(("%-.*"), "")
+				elseif (Details.remove_realm_from_name) then
+					thisActor.displayName = actorName:gsub(("%-.*"), "") --"%*"
+				else
+					thisActor.displayName = actorName
+				end
+
+				if (classType == classTypeDamage) then
+					Details.refresh:r_atributo_damage(thisActor)
+
+				elseif (classType == classTypeHeal) then
+					Details.refresh:r_atributo_heal(thisActor)
+
+				elseif (classType == classTypeEnergy) then
+					Details.refresh:r_atributo_energy(thisActor)
+
+				elseif (classType == classTypeUtility) then
+					Details.refresh:r_atributo_misc(thisActor)
+				end
+
+				if (thisActor.ownerName) then
+					thisActor.owner = combatObjectOverall(classType, thisActor.ownerName)
+					if (not thisActor.owner) then
+						Details:Msg("found orphan pet (overall), owner not found: ", thisActor.ownerName, " - ", thisActor.nome)
+					end
+				end
+			end
 		end
 	end
 
-	--reaplica as tabelas no overall
-		function Details:RestoreOverallMetatables()
-			local is_in_instance = select(1, IsInInstance())
+	--restore actor containers indexes e metatables
+	function Details:RestoreMetatables() --called from Details222.LoadSavedVariables.CombatSegments()
+		--pet table
+		setmetatable(Details.tabela_pets, Details.container_pets)
 
-			local combate = Details.tabela_overall
-			combate.overall_refreshed = true
-			combate.hasSaved = true
+		--segment container
+		setmetatable(Details.tabela_historico, Details.historico)
 
-			combate.__call = Details.call_combate
+		---@type combat
+		local overallCombatObject = Details.tabela_overall
 
-			Details.refresh:r_combate (combate)
+		---@type combat[]
+		local allSegments = Details.tabela_historico.tabelas
 
-			Details.refresh:r_container_combatentes (combate [classTypeDamage])
-			Details.refresh:r_container_combatentes (combate [classTypeHeal])
-			Details.refresh:r_container_combatentes (combate [classTypeEnergy])
-			Details.refresh:r_container_combatentes (combate [classTypeUtility])
+		--retore the call "combat()" functionality
+		for _, combatObject in ipairs(allSegments) do
+			combatObject.__call = Details.call_combate
+		end
 
-			Details.refresh:r_container_combatentes (combate [5]) --ghost container
+		--true if the overall data was saved and restored
+		local bHadOverallDataSaved = overallCombatObject.overall_refreshed
 
-			local todos_atributos = {combate [classTypeDamage]._ActorTable, combate [classTypeHeal]._ActorTable, combate [classTypeEnergy]._ActorTable, combate [classTypeUtility]._ActorTable}
+		if (not bHadOverallDataSaved) then
+			overallCombatObject.start_time = GetTime()
+			overallCombatObject.end_time = GetTime()
+		end
 
-			for class_type, atributo in ipairs(todos_atributos) do
-				for _, esta_classe in ipairs(atributo) do
-					local nome = esta_classe.nome
+		overallCombatObject.segments_added = overallCombatObject.segments_added or {}
 
-					if (is_in_instance and Details.remove_realm_from_name) then
-						esta_classe.displayName = nome:gsub(("%-.*"), "")
-					elseif (Details.remove_realm_from_name) then
-						esta_classe.displayName = nome:gsub(("%-.*"), "") --"%*"
+		local bIsInInstance = IsInInstance()
+
+		--inicia a recupera��o das tabelas e montagem do overall
+		if (#allSegments > 0) then
+			for index, thisCombatObject in ipairs(allSegments) do
+				---@cast thisCombatObject combat
+
+				--set the metatable, __call and __index
+				Details.refresh:r_combate(thisCombatObject)
+
+				--related to overall data
+				if (not bHadOverallDataSaved and thisCombatObject.overall_added) then
+					--overall data endTime
+					if (thisCombatObject.end_time and thisCombatObject.start_time) then
+						overallCombatObject.start_time = overallCombatObject.start_time - (thisCombatObject.end_time - thisCombatObject.start_time)
+					end
+
+					--overall data startTime
+					if (overallCombatObject.data_inicio == 0) then
+						overallCombatObject.data_inicio = thisCombatObject.data_inicio or 0
+					end
+
+					--overall data finished time
+					overallCombatObject.data_fim = thisCombatObject.data_fim or overallCombatObject.data_fim
+
+					--overall data enemy name
+					if (not Details.tabela_overall.overall_enemy_name) then
+						Details.tabela_overall.overall_enemy_name = thisCombatObject.is_boss and thisCombatObject.is_boss.name or thisCombatObject.enemy
 					else
-						esta_classe.displayName = nome
+						if (Details.tabela_overall.overall_enemy_name ~= (thisCombatObject.is_boss and thisCombatObject.is_boss.name or thisCombatObject.enemy)) then
+							Details.tabela_overall.overall_enemy_name = "-- x -- x --"
+						end
 					end
 
-					if (class_type == classTypeDamage) then
-						Details.refresh:r_atributo_damage (esta_classe)
-
-					elseif (class_type == classTypeHeal) then
-						Details.refresh:r_atributo_heal (esta_classe)
-
-					elseif (class_type == classTypeEnergy) then
-						Details.refresh:r_atributo_energy (esta_classe)
-
-					elseif (class_type == classTypeUtility) then
-						Details.refresh:r_atributo_misc (esta_classe)
-					end
-				end
-			end
-
-			for class_type, atributo in ipairs(todos_atributos) do
-				for _, esta_classe in ipairs(atributo) do
-					if (esta_classe.ownerName) then --nome do owner
-						esta_classe.owner = combate (class_type, esta_classe.ownerName)
-					end
-				end
-			end
-		end
-
-	--reaplica indexes e metatables
-		function Details:RestoreMetatables()
-			--container de pets e hist�rico
-				Details.refresh:r_container_pets (Details.tabela_pets)
-				Details.refresh:r_historico (Details.tabela_historico)
-
-			--tabelas dos combates
-				local combate_overall = Details.tabela_overall
-				local overall_dano = combate_overall [classTypeDamage] --damage atalho
-				local overall_cura = combate_overall [classTypeHeal] --heal atalho
-				local overall_energy = combate_overall [classTypeEnergy] --energy atalho
-				local overall_misc = combate_overall [classTypeUtility] --misc atalho
-
-				local tabelas_do_historico = Details.tabela_historico.tabelas --atalho
-
-			--recupera meta function
-				for _, combat_table in ipairs(tabelas_do_historico) do
-					combat_table.__call = Details.call_combate
+					--overall data segments added
+					local dateStart, dateEnd = thisCombatObject:GetDate()
+					table.insert(overallCombatObject.segments_added, {name = thisCombatObject:GetCombatName(true), elapsed = thisCombatObject:GetCombatTime(), clock = dateStart})
 				end
 
-				for i = #tabelas_do_historico-1, 1, -1 do
-					local combat = tabelas_do_historico [i]
-					combat.previous_combat = tabelas_do_historico [i+1]
+				--ghost container (container for custom displays, this is not a real container)
+				if (thisCombatObject[5]) then
+					Details.refresh:r_container_combatentes(thisCombatObject[5])
 				end
 
-			--tempo padrao do overall
+				local damageActorContainer = thisCombatObject[classTypeDamage]
+				local healActorContainer = thisCombatObject[classTypeHeal]
+				local resourcesActorContainer = thisCombatObject[classTypeEnergy]
+				local utilityActorContainer = thisCombatObject[classTypeUtility]
 
-				local overall_saved = combate_overall.overall_refreshed
+				--recupera a meta e indexes dos 4 container
+				Details.refresh:r_container_combatentes(damageActorContainer)
+				Details.refresh:r_container_combatentes(healActorContainer)
+				Details.refresh:r_container_combatentes(resourcesActorContainer)
+				Details.refresh:r_container_combatentes(utilityActorContainer)
 
-				if (not overall_saved) then
-					combate_overall.start_time = GetTime()
-					combate_overall.end_time = GetTime()
-				end
+				for classType = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+					local actorContainer = thisCombatObject[classType]
+					local actorTable = actorContainer._ActorTable
+					for i = 1, #actorTable do
+						---@type actor
+						local actorObject = actorTable[i]
+						local actorName = actorObject.nome
 
-				local is_in_instance = select(1, IsInInstance())
+						--set back the display name (isn't saved with the object)
+						if (bIsInInstance and Details.remove_realm_from_name) then
+							actorObject.displayName = actorName:gsub(("%-.*"), "")
+						elseif (Details.remove_realm_from_name) then
+							actorObject.displayName = actorName:gsub(("%-.*"), "")
+						else
+							actorObject.displayName = actorName
+						end
 
-			--inicia a recupera��o das tabelas e montagem do overall
-				if (#tabelas_do_historico > 0) then
-					for index, combate in ipairs(tabelas_do_historico) do
-
-						combate.hasSaved = true
-
-						--recupera a meta e indexes da tabela do combate
-						Details.refresh:r_combate (combate, combate_overall)
-
-						--aumenta o tempo do combate do overall, seta as datas e os combates armazenados
-						if (not overall_saved and combate.overall_added) then
-
-							if (combate.end_time and combate.start_time) then
-								combate_overall.start_time = combate_overall.start_time - (combate.end_time - combate.start_time)
-							end
-							--
-							if (combate_overall.data_inicio == 0) then
-								combate_overall.data_inicio = combate.data_inicio or 0
-							end
-							combate_overall.data_fim = combate.data_fim or combate_overall.data_fim
-							--
-							if (not Details.tabela_overall.overall_enemy_name) then
-								Details.tabela_overall.overall_enemy_name = combate.is_boss and combate.is_boss.name or combate.enemy
+						if (classType == classTypeDamage) then
+							if (thisCombatObject.overall_added and not bHadOverallDataSaved) then
+								--add the actorObject into another combat, if does not exists there, create it, if exists sum the values
+								local bRefreshActor = true
+								classDamage:AddToCombat(actorObject, bRefreshActor, overallCombatObject)
 							else
-								if (Details.tabela_overall.overall_enemy_name ~= (combate.is_boss and combate.is_boss.name or combate.enemy)) then
-									Details.tabela_overall.overall_enemy_name = "-- x -- x --"
-								end
+								Details.refresh:r_atributo_damage(actorObject)
 							end
 
-							combate_overall.segments_added =combate_overall.segments_added or {}
-							local date_start, date_end = combate:GetDate()
-							tinsert(combate_overall.segments_added, {name = combate:GetCombatName(true), elapsed = combate:GetCombatTime(), clock = date_start})
+						elseif (classType == classTypeHeal) then
+							if (thisCombatObject.overall_added and not bHadOverallDataSaved) then
+								local bRefreshActor = true
+								classHeal:AddToCombat(actorObject, bRefreshActor, overallCombatObject)
+							else
+								Details.refresh:r_atributo_heal(actorObject)
+							end
 
-						end
+						elseif (classType == classTypeEnergy) then
+							if (thisCombatObject.overall_added and not bHadOverallDataSaved) then
+								classEnergy:r_connect_shadow (actorObject)
+							else
+								classEnergy:r_onlyrefresh_shadow (actorObject)
+							end
 
-						--recupera a meta e indexes dos 4 container
-						Details.refresh:r_container_combatentes (combate [classTypeDamage], overall_dano)
-						Details.refresh:r_container_combatentes (combate [classTypeHeal], overall_cura)
-						Details.refresh:r_container_combatentes (combate [classTypeEnergy], overall_energy)
-						Details.refresh:r_container_combatentes (combate [classTypeUtility], overall_misc)
-
-						--ghost container
-						if (combate[5]) then
-							Details.refresh:r_container_combatentes (combate [5], combate_overall [5])
-						end
-
-						--tabela com os 4 tabelas de jogadores
-						local todos_atributos = {combate [classTypeDamage]._ActorTable, combate [classTypeHeal]._ActorTable, combate [classTypeEnergy]._ActorTable, combate [classTypeUtility]._ActorTable}
-
-						for class_type, atributo in ipairs(todos_atributos) do
-							for _, esta_classe in ipairs(atributo) do
-
-								local nome = esta_classe.nome
-
-								if (is_in_instance and Details.remove_realm_from_name) then
-									esta_classe.displayName = nome:gsub(("%-.*"), "")
-								elseif (Details.remove_realm_from_name) then
-									esta_classe.displayName = nome:gsub(("%-.*"), "") --%*
-								else
-									esta_classe.displayName = nome
-								end
-
-								local shadow
-
-								if (class_type == classTypeDamage) then
-									if (combate.overall_added and not overall_saved) then
-										shadow = classDamage:r_connect_shadow (esta_classe)
-									else
-										shadow = classDamage:r_onlyrefresh_shadow (esta_classe)
-									end
-
-								elseif (class_type == classTypeHeal) then
-									if (combate.overall_added and not overall_saved) then
-										shadow = classHeal:r_connect_shadow (esta_classe)
-									else
-										shadow = classHeal:r_onlyrefresh_shadow (esta_classe)
-									end
-
-								elseif (class_type == classTypeEnergy) then
-									if (combate.overall_added and not overall_saved) then
-										shadow = classEnergy:r_connect_shadow (esta_classe)
-									else
-										shadow = classEnergy:r_onlyrefresh_shadow (esta_classe)
-									end
-
-								elseif (class_type == classTypeUtility) then
-									if (combate.overall_added and not overall_saved) then
-										shadow = classUtility:r_connect_shadow (esta_classe)
-									else
-										shadow = classUtility:r_onlyrefresh_shadow (esta_classe)
-									end
-								end
-
+						elseif (classType == classTypeUtility) then
+							if (thisCombatObject.overall_added and not bHadOverallDataSaved) then
+								classUtility:r_connect_shadow (actorObject)
+							else
+								classUtility:r_onlyrefresh_shadow (actorObject)
 							end
 						end
-
-						--reconstr�i a tabela dos pets
-						for class_type, atributo in ipairs(todos_atributos) do
-							for _, esta_classe in ipairs(atributo) do
-								if (esta_classe.ownerName) then --nome do owner
-									esta_classe.owner = combate (class_type, esta_classe.ownerName)
-								end
-							end
-						end
-
 					end
-				--fim
 				end
 
-			--restaura last_events_table
-				local primeiro_combate = tabelas_do_historico [1] --primeiro combate
-				if (primeiro_combate) then
-					primeiro_combate [1]:ActorCallFunction (classDamage.r_last_events_table)
-					primeiro_combate [2]:ActorCallFunction (classHeal.r_last_events_table)
+				--link pets to owners
+				for class_type = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+					local actorContainer = thisCombatObject[class_type]
+					local actorTable = actorContainer._ActorTable
+					for i = 1, #actorTable do
+						---@type actor
+						local actorObject = actorTable[i]
+						if (actorObject.ownerName) then --name of the pet owner
+							actorObject.owner = thisCombatObject(class_type, actorObject.ownerName)
+							--technically, if the owner isn't found, this is an orphan and it could be removed from the combat
+						end
+					end
 				end
-
-				local segundo_combate = tabelas_do_historico [2] --segundo combate
-				if (segundo_combate) then
-					segundo_combate [1]:ActorCallFunction (classDamage.r_last_events_table)
-					segundo_combate [2]:ActorCallFunction (classHeal.r_last_events_table)
-				end
-
+			end
 		end
+	end
 
 	function Details:DoInstanceCleanup()
 		for _, instanceObject in ipairs(Details.tabela_instancias) do
@@ -357,18 +335,19 @@
 		end
 	end
 
-	function Details:DoOwnerCleanup()
+	---remove all .owner references from actors, this unlink pets from owners but still leave the actor.ownerName member to rebuild later
+	function Details:RemoveOwnerFromPets()
 		---@type combat[]
 		local combatTables = Details.tabela_historico.tabelas or {}
 		local bOverallAdded
 		if (not Details.overall_clear_logout) then
-			tinsert(combatTables, Details.tabela_overall)
+			table.insert(combatTables, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
-		for _, combat in ipairs(combatTables) do
-			---@cast combat combat
-			for _, actorContainer in ipairs(combat) do
+		for _, combatObject in ipairs(combatTables) do
+			---@cast combatObject combat
+			for _, actorContainer in ipairs(combatObject) do
 				---@cast actorContainer actorcontainer
 				for _, actorObject in ipairs(actorContainer._ActorTable) do
 					---@cast actorObject actor
@@ -378,7 +357,7 @@
 		end
 
 		if (bOverallAdded) then
-			tremove(combatTables, #combatTables)
+			table.remove(combatTables, #combatTables)
 		end
 	end
 
@@ -389,7 +368,7 @@
 		if (not Details.overall_clear_logout) then
 			--add the overall segment to the cleanup within the other segments
 			--it is removed after the cleanup
-			tinsert(combatTables, Details.tabela_overall)
+			table.insert(combatTables, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
@@ -421,7 +400,7 @@
 
 		if (bOverallAdded) then
 			--remove the overall segment from the regular segments
-			tremove(combatTables, #combatTables)
+			table.remove(combatTables, #combatTables)
 		end
 	end
 
@@ -430,7 +409,7 @@
 		local combatTables = Details.tabela_historico.tabelas or {}
 		local bOverallAdded
 		if (not Details.overall_clear_logout) then
-			tinsert(combatTables, Details.tabela_overall)
+			table.insert(combatTables, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
@@ -444,7 +423,7 @@
 		end
 
 		if (bOverallAdded) then
-			tremove(combatTables, #combatTables)
+			table.remove(combatTables, #combatTables)
 		end
 	end
 
@@ -453,7 +432,7 @@
 		local allSegments = Details.tabela_historico.tabelas or {}
 		local bOverallAdded
 		if (not Details.overall_clear_logout) then
-			tinsert(allSegments, Details.tabela_overall)
+			table.insert(allSegments, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
@@ -464,18 +443,18 @@
 		end
 
 		if (bOverallAdded) then
-			tremove(allSegments, #allSegments)
+			table.remove(allSegments, #allSegments)
 		end
 	end
 
-	--limpa indexes, metatables e shadows
+	--limpa indexes e metatables
 	function Details:PrepareTablesForSave()
 		Details.clear_ungrouped = true
 
 		--clear instances
-		Details:DoInstanceCleanup() --checked
-		Details:DoClassesCleanup() --checked
-		Details:DoContainerCleanup() --checked
+		Details:DoInstanceCleanup()
+		Details:DoClassesCleanup()
+		Details:DoContainerCleanup()
 
 		--clear combats
 		---@type combat[]
@@ -487,9 +466,9 @@
 		for i = #allSegments, 1, -1  do
 			---@type combat
 			local combatObject = allSegments[i]
-			if (combatObject:IsTrash()) then
+			if (combatObject:IsTrash()) then --error, IsTrash is not a function, probably because the combat got destroyed
 				table.remove(allSegments, i)
-				Details:Destroy(combatObject)
+				Details:DestroyCombat(combatObject)
 			end
 		end
 
@@ -500,7 +479,7 @@
 					---@type combat
 					local combatObject = Details.tabela_historico.tabelas[i]
 					table.remove(Details.tabela_historico.tabelas, i)
-					Details:Destroy(combatObject)
+					Details:DestroyCombat(combatObject)
 				end
 			end
 		end
@@ -509,12 +488,10 @@
 		if (Details.overall_clear_logout) then
 			Details.tabela_overall = nil
 			_detalhes_database.tabela_overall = nil
-			Details:Destroy(Details.tabela_overall)
+			Details:DestroyCombat(Details.tabela_overall)
 		else
 			---@type combat
 			local overallCombatObject = Details.tabela_overall
-
-			overallCombatObject.previous_combat = nil
 
 			--this is a cleanup for overall data (overall)
 			if (Details.clear_ungrouped) then
@@ -525,10 +502,17 @@
 					for actorIndex = #actorTable, 1, -1 do
 						---@type actor
 						local actorObject = actorTable[actorIndex]
-						if (not actorObject.grupo and not actorObject.boss and not actorObject.boss_fight_component and not actorObject.fight_component and not actorObject.pvp_component and not actorObject.arena_enemy and not actorObject.enemy) then
+
+						for funcName in pairs(Details222.Mixins.ActorMixin) do
+							actorObject[funcName] = nil
+						end
+
+						if (Details222.Actors.IsDisposable(actorObject) and not actorObject.owner) then
+							Details222.SaveVariables.LogEvent("actor removed " .. actorObject.nome .. " (disposable)")
 							Details:DestroyActor(actorObject, actorContainer, overallCombatObject)
 						end
 					end
+					actorContainer:Cleanup()
 				end
 			end
 
@@ -540,13 +524,15 @@
 				for actorIndex = #actorTable, 1, -1 do
 					---@type actor
 					local actorObject = actorTable[actorIndex]
-
 					if (actorObject.owner) then
+						--does this pet owner got removed from the database?
 						if (not actorObject.owner.serial) then
+							Details222.SaveVariables.LogEvent("actor removed " .. actorObject.nome .. " (owner not found)")
 							Details:DestroyActor(actorObject, actorContainer, overallCombatObject)
 						end
 					end
 				end
+				actorContainer:Cleanup()
 			end
 		end
 
@@ -565,9 +551,6 @@
 				combatObject.TimeData = {}
 			end
 
-			--clear the reference of the previous combat
-			combatObject.previous_combat = nil
-
 			local bIsBossEncounter = combatObject.is_boss
 			if (bIsBossEncounter) then
 				if (combatObject.pvp) then
@@ -584,21 +567,31 @@
 						for o = #actorTable, 1, -1 do
 							---@type actor
 							local actorObject = actorTable[o]
-							if (not actorObject.grupo and not actorObject.boss and not actorObject.boss_fight_component and not bIsBossEncounter and not actorObject.pvp_component and not actorObject.fight_component) then
+
+							for funcName in pairs(Details222.Mixins.ActorMixin) do
+								actorObject[funcName] = nil
+							end
+
+							if (not actorObject.owner and not actorObject.grupo and not actorObject.boss and not actorObject.boss_fight_component and not bIsBossEncounter and not actorObject.pvp_component and not actorObject.fight_component) then
+								Details222.SaveVariables.LogEvent("actor removed " .. actorObject.nome .. " (ungrouped)")
 								Details:DestroyActor(actorObject, actorContainer, combatObject)
 							end
 						end
+						actorContainer:Cleanup()
 
 						--find orphans
 						for o = #actorTable, 1, -1 do
 							---@type actor
 							local actorObject = actorTable[o]
 							if (actorObject.owner) then
+								--does this pet owner got removed from the database?
 								if (not actorObject.owner.serial) then
+									Details222.SaveVariables.LogEvent("actor removed " .. actorObject.nome .. " (orphan)")
 									Details:DestroyActor(actorObject, actorContainer, combatObject)
 								end
 							end
 						end
+						actorContainer:Cleanup()
 					end
 				end
 			end
@@ -622,7 +615,7 @@
 		Details.clear:c_atributo_custom()
 
 		--clear owners
-		Details:DoOwnerCleanup()
+		Details:RemoveOwnerFromPets()
 
 		--clear container indexes
 		Details:DoContainerIndexCleanup()
@@ -647,14 +640,14 @@
 			if (thisTime > Details._tempo + 1)  then
 				return
 
-			elseif (Details.in_combat or _InCombatLockdown() or Details:IsInInstance()) then
+			elseif (Details.in_combat or InCombatLockdown() or Details:IsInInstance()) then
 				Details.Schedules.After(5, Details222.GarbageCollector.RestartInternalGarbageCollector, false, lastEvent)
 				return
 			end
 		else
 			if (type(bShouldForceCollect) ~= "boolean") then
 				if (bShouldForceCollect == 1) then
-					if (Details.in_combat or _InCombatLockdown()) then
+					if (Details.in_combat or InCombatLockdown()) then
 						Details.Schedules.After(5, Details222.GarbageCollector.RestartInternalGarbageCollector, bShouldForceCollect, lastEvent)
 						return
 					end
@@ -745,7 +738,7 @@
 				---@type actor
 				local actorObject = actorList[actorIndex]
 
-				if (not actorObject.grupo and not actorObject.boss and not actorObject.fight_component and not actorObject.boss_fight_component) then
+				if (Details222.Actors.IsDisposable(actorObject) and not actorObject.owner) then
 					local canCollect = false
 
 					--check the time of the last seen event coming from the actor
@@ -762,42 +755,37 @@
 					end
 
 					if (nextGarbageCollection - 1 < _tempo) then
-						local owner = actorObject.owner --is the name or object?
-						if (owner) then
-							--local owner_actor = combatObject (tipo, owner.nome)
-							if (not owner.grupo and not owner.boss and not owner.boss_fight_component) then
-								canCollect = true
-							end
-						else
-							canCollect = true
-						end
+						canCollect = true
 					end
 
 					if (canCollect) then
-						local actorName = actorObject:Name()
-						combatObject:RemoveActorFromSpellCastTable(actorName)
-
-						if (not actorObject.owner) then --not a pet
-							actorObject:subtract_total(combatObject)
-						end
-
 						amountCleaned = amountCleaned + 1
-
 						if (containerId == 1 or containerId == 2) then --damage or healing
 							Details.timeMachine:UnregisterActor(actorObject)
 						end
-
 						--remove the actor from the container
-						tremove(actorList, actorIndex)
+						Details:DestroyActor(actorObject, actorContainer, combatObject)
 					end
 				end
 			end
 
+			actorContainer:Cleanup()
+
 			if (amountCleaned > 0) then
-				fullRemap(combatObject[containerId])
-				combatObject[containerId].need_refresh = true
-				--print(beforeCleanupAmountOfActors, "before cleanup, after:", #combatObject[1]._ActorTable)
+				--destroy orphans
+				local orphansCleaned = 0
+				for actorIndex = #actorList, 1, -1 do
+					---@type actor
+					local actorObject = actorList[actorIndex]
+					if (actorObject.owner and not actorObject.owner.serial) then
+						Details:DestroyActor(actorObject, actorContainer, combatObject)
+						orphansCleaned = orphansCleaned + 1
+					end
+				end
+				actorContainer:Cleanup()
 			end
+
+			actorContainer.need_refresh = true
 		end
 
 		return amountCleaned
@@ -846,4 +834,15 @@
 		end
 
 		return amountRemoved
+	end
+
+	---return true if the actor is disposable, in other words, if it can be removed from the combat without affecting the results
+	---@param actor actor
+	---@return boolean
+	function Details222.Actors.IsDisposable(actor)
+		if (not actor.grupo and not actor.boss and not actor.boss_fight_component and not actor.fight_component and not actor.pvp_component and not actor.arena_enemy and not actor.enemy) then
+			return true
+		else
+			return false
+		end
 	end

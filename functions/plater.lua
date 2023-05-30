@@ -114,7 +114,7 @@ function Details:RefreshPlaterIntegration()
 	if (Plater and Details.plater.realtime_dps_enabled or Details.plater.realtime_dps_player_enabled or Details.plater.damage_taken_enabled) then
 		
 		--wipe the cache
-		Details:Destroy (plater_integration_frame.DamageTaken)
+		Details:Destroy(plater_integration_frame.DamageTaken)
 		
 		--read cleu events
 		plater_integration_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")

@@ -383,10 +383,11 @@
         local avoidance_fill = function(tab, player, combat)
             local elapsed_time = combat:GetCombatTime()
 
-            local last_combat = combat.previous_combat
+            local last_combat = combat.previous_combat --this is always nil from 2023 may 26
             if (not last_combat or not last_combat [1]) then
                 last_combat = combat
             end
+            
             local last_actor = last_combat (1, player.nome)
             local n = player.nome
             if (n:find("-")) then

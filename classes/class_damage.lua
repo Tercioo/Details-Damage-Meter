@@ -1874,7 +1874,7 @@ function damageClass:RefreshWindow(instancia, combatObject, forcar, exportar, re
 	elseif (keyName == "damage_taken_by_spells") then
 
 		local bs_index, total = 0, 0
-		Details:Destroy (bs_index_table)
+		Details:Destroy(bs_index_table)
 
 		local combat = combatObject
 		local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
@@ -6213,14 +6213,14 @@ end
 			end
 
 			if (bs_tooltip_table) then
-				Details:Destroy (bs_tooltip_table)
+				Details:Destroy(bs_tooltip_table)
 			end
 			if (frags_tooltip_table) then
-				Details:Destroy (frags_tooltip_table)
+				Details:Destroy(frags_tooltip_table)
 			end
-			Details:Destroy (bs_index_table)
-			Details:Destroy (tooltip_temp_table)
-			Details:Destroy (tooltip_void_zone_temp)
+			Details:Destroy(bs_index_table)
+			Details:Destroy(tooltip_temp_table)
+			Details:Destroy(tooltip_void_zone_temp)
 		end
 
 	--atualize a funcao de abreviacao
@@ -6245,236 +6245,160 @@ end
 			end
 		end
 
-	--restaura a tabela de last event
-		function damageClass:r_last_events_table (actor)
-			if (not actor) then
-				actor = self
-			end
-			--actor.last_events_table = Details:CreateActorLastEventTable()
+	---sum the passed actor into a combat, if the combat isn't passed, it will use the overall combat
+	---the function returns the actor that was created of found in the combat passed
+	---@param actorObject actor
+	---@param bRefreshActor boolean|nil
+	---@param combatObject combat|nil
+	---@return actor
+	function damageClass:AddToCombat(actorObject, bRefreshActor, combatObject)
+		--check if there's a custom combat, if not just use the overall container
+		combatObject = combatObject or Details.tabela_overall --same as Details:GetCombat(DETAILS_SEGMENTID_OVERALL)
+
+		--check if the combatObject has an actor with the same name, if not, just create one new
+		local actorContainer = combatObject[DETAILS_ATTRIBUTE_DAMAGE] --same as combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		local overallActor = actorContainer._ActorTable[actorContainer._NameIndexTable[actorObject.nome]] --same as actorContainer:GetActor(actorObject:Name())
+
+		if (not overallActor) then
+			overallActor = actorContainer:GetOrCreateActor(actorObject.serial, actorObject.nome, actorObject.flag_original, true)
+			overallActor.classe = actorObject.classe
+			overallActor:SetSpecId(actorObject.spec)
+			overallActor.isTank = actorObject.isTank
+			overallActor.pvp = actorObject.pvp
+			overallActor.boss = actorObject.boss
+			overallActor.start_time = time() - 3
+			overallActor.end_time = time()
 		end
 
-	--restaura e liga o ator com a sua shadow durante a inicializa��o (startup function)
-		function damageClass:r_onlyrefresh_shadow (actor)
-			--criar uma shadow desse ator se ainda n�o tiver uma
-				local overall_dano = Details.tabela_overall [1]
-				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
+		overallActor.displayName = actorObject.displayName or actorObject.nome
+		overallActor.boss_fight_component = actorObject.boss_fight_component or overallActor.boss_fight_component
+		overallActor.fight_component = actorObject.fight_component or overallActor.fight_component
+		overallActor.grupo = actorObject.grupo or overallActor.grupo
 
-				if (not shadow) then
-					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
-
-					shadow.classe = actor.classe
-					shadow:SetSpecId(actor.spec)
-					shadow.grupo = actor.grupo
-					shadow.pvp = actor.pvp
-					shadow.isTank = actor.isTank
-					shadow.boss = actor.boss
-					shadow.boss_fight_component = actor.boss_fight_component
-					shadow.fight_component = actor.fight_component
-
-					shadow.start_time = time() - 3
-					shadow.end_time = time()
-				end
-
-			--restaura a meta e indexes ao ator
-			Details.refresh:r_atributo_damage (actor, shadow)
-
-			--copia o container de alvos (captura de dados)
-				for target_name, amount in pairs(actor.targets) do
-					--cria e soma o valor do total
-					if (not shadow.targets [target_name]) then
-						shadow.targets [target_name] = 0
-					end
-				end
-
-			--copia o container de habilidades (captura de dados)
-				for spellid, habilidade in pairs(actor.spells._ActorTable) do
-					--cria e soma o valor
-					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, nil, true)
-
-					--create the target value
-					for target_name, amount in pairs(habilidade.targets) do
-						if (not habilidade_shadow.targets [target_name]) then
-							habilidade_shadow.targets [target_name] = 0
-						end
-					end
-
-					--create the extra value
-					for spellId, amount in pairs(habilidade.extra) do
-						if (not habilidade_shadow.extra [spellId]) then
-							habilidade_shadow.extra [spellId] = 0
-						end
-					end
-
-				end
-
-			--copia o container de friendly fire (captura de dados)
-				for target_name, ff_table in pairs(actor.friendlyfire) do
-					--cria ou pega a shadow
-					local friendlyFire_shadow = shadow.friendlyfire [target_name] or shadow:CreateFFTable (target_name)
-					--some as spells
-					for spellid, amount in pairs(ff_table.spells) do
-						friendlyFire_shadow.spells [spellid] = 0
-					end
-				end
-
-			return shadow
+		--check if need to restore meta tables and indexes for this actor
+		if (bRefreshActor) then
+			--this call will reenable the metatable, __index and set the metatable on the .spells container
+			Details.refresh:r_atributo_damage(actorObject)
 		end
 
-		function damageClass:r_connect_shadow (actor, no_refresh, combat_object)
+		--elapsed time
+		local endTime = actorObject.end_time
+		if (not actorObject.end_time) then
+			endTime = time()
+		end
 
-			--check if there's a custom combat, if not just use the overall container
-			local host_combat = combat_object or Details.tabela_overall
+		local tempo = endTime - actorObject.start_time
+		overallActor.start_time = overallActor.start_time - tempo
 
-			--check if the host combat object has a shadow actor for this actor, if not, just create one new
-				local overall_dano = host_combat [1]
-				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
+		--pets (add unique pet names)
+		for _, petName in ipairs(actorObject.pets) do --same as actorObject:GetPets()
+			DetailsFramework.table.addunique(overallActor.pets, petName)
+		end
 
-				if (not shadow) then
-					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+		---@cast actorObject actordamage
 
-					shadow.classe = actor.classe
-					shadow:SetSpecId(actor.spec)
-					shadow.isTank = actor.isTank
-					shadow.grupo = actor.grupo
-					shadow.pvp = actor.pvp
-					shadow.boss = actor.boss
-					shadow.boss_fight_component = actor.boss_fight_component
-					shadow.fight_component = actor.fight_component
+		--sum total damage
+		overallActor.total = overallActor.total + actorObject.total
+		overallActor.totalabsorbed = overallActor.totalabsorbed + actorObject.totalabsorbed
 
-					shadow.start_time = time() - 3
-					shadow.end_time = time()
-				end
+		--sum total damage without pet
+		overallActor.total_without_pet = overallActor.total_without_pet + actorObject.total_without_pet
 
-			shadow.displayName = actor.displayName or actor.nome
+		--sum total damage taken
+		overallActor.damage_taken = overallActor.damage_taken + actorObject.damage_taken
 
-			shadow.boss_fight_component = actor.boss_fight_component or shadow.boss_fight_component
-			shadow.fight_component = actor.fight_component or shadow.fight_component
-			shadow.grupo = actor.grupo or shadow.grupo
+		--sum friendly fire
+		overallActor.friendlyfire_total = overallActor.friendlyfire_total + actorObject.friendlyfire_total
 
-			--check if need to restore meta tables and indexes for this actor
-			if (not no_refresh) then
-				Details.refresh:r_atributo_damage (actor, shadow)
+		--sum total damage on the combatObject passed
+		combatObject.totals[1] = combatObject.totals[1] + actorObject.total
+		if (actorObject.grupo) then
+			combatObject.totals_grupo[1] = combatObject.totals_grupo[1] + actorObject.total
+		end
+
+		--copy damage taken from
+		for aggressorName, _ in pairs(actorObject.damage_from) do
+			overallActor.damage_from[aggressorName] = true
+		end
+
+		--copy targets
+		for targetName, amount in pairs(actorObject.targets) do
+			overallActor.targets[targetName] = (overallActor.targets[targetName] or 0) + amount
+		end
+
+		--copy raid targets
+		for flag, amount in pairs(actorObject.raid_targets) do
+			overallActor.raid_targets = overallActor.raid_targets or {}
+			overallActor.raid_targets[flag] = (overallActor.raid_targets[flag] or 0) + amount
+		end
+
+		---@type spellcontainer
+		local overallSpellsContainer = overallActor.spells --same as overallActor:GetSpellContainer("spell")
+
+		--copy spell table
+		for spellId, spellTable in pairs(actorObject.spells._ActorTable) do --same as overallSpellsContainer:GetRawSpellTable()
+			--var name has 'overall' but this function accepts any combat table
+			local overallSpellTable = overallSpellsContainer:GetOrCreateSpell(spellId, true)
+
+			--sum spell targets
+			for targetName, amount in pairs(spellTable.targets) do
+				overallSpellTable.targets[targetName] = (overallSpellTable.targets[targetName] or 0) + amount
 			end
 
-			--tempo decorrido (captura de dados)
-				local end_time = actor.end_time
-				if (not actor.end_time) then
-					end_time = time()
-				end
+			--refresh and add extra values
+			for extraSpellId, amount in pairs(spellTable.extra) do
+				overallSpellTable.extra[extraSpellId] = (overallSpellTable.extra[extraSpellId] or 0) + amount
+			end
 
-				local tempo = end_time - actor.start_time
-				shadow.start_time = shadow.start_time - tempo
+			overallSpellTable.spellschool = spellTable.spellschool
 
-			--pets (add unique pet names)
-				for _, petName in ipairs(actor.pets) do
-					local hasPet = false
-					for i = 1, #shadow.pets do
-						if (shadow.pets[i] == petName) then
-							hasPet = true
-							break
+			--sum all values of the spelltable which can be summed
+			for key, value in pairs(spellTable) do
+				if (type(value) == "number") then
+					if (key ~= "id" and key ~= "spellschool") then
+						if (not overallSpellTable [key]) then
+							overallSpellTable [key] = 0
+						end
+
+						if (key == "n_min" or key == "c_min") then
+							if (overallSpellTable [key] > value) then
+								overallSpellTable [key] = value
+							end
+						elseif (key == "n_max" or key == "c_max") then
+							if (overallSpellTable [key] < value) then
+								overallSpellTable [key] = value
+							end
+						else
+							overallSpellTable [key] = overallSpellTable [key] + value
 						end
 					end
 
-					if (not hasPet) then
-						shadow.pets [#shadow.pets+1] = petName
+				--empowered spells
+				elseif(key == "e_dmg" or key == "e_lvl") then
+					if (not overallSpellTable[key]) then
+						overallSpellTable[key] = {}
+					end
+					for empowermentLevel, empowermentValue in pairs(spellTable[key]) do
+						overallSpellTable[key][empowermentLevel] = empowermentValue
 					end
 				end
-
-			--total de dano (captura de dados)
-				shadow.total = shadow.total + actor.total
-				shadow.totalabsorbed = shadow.totalabsorbed + actor.totalabsorbed
-			--total de dano sem o pet (captura de dados)
-				shadow.total_without_pet = shadow.total_without_pet + actor.total_without_pet
-			--total de dano que o ator sofreu (captura de dados)
-				shadow.damage_taken = shadow.damage_taken + actor.damage_taken
-			--total do friendly fire causado
-				shadow.friendlyfire_total = shadow.friendlyfire_total + actor.friendlyfire_total
-
-			--total no combate overall (captura de dados)
-				host_combat.totals[1] = host_combat.totals[1] + actor.total
-				if (actor.grupo) then
-					host_combat.totals_grupo[1] = host_combat.totals_grupo[1] + actor.total
-				end
-
-			--copia o damage_from (captura de dados)
-				for nome, _ in pairs(actor.damage_from) do
-					shadow.damage_from [nome] = true
-				end
-
-			--copia o container de alvos (captura de dados)
-				for target_name, amount in pairs(actor.targets) do
-					shadow.targets [target_name] = (shadow.targets [target_name] or 0) + amount
-				end
-
-			--copiar o container de raid targets
-				for flag, amount in pairs(actor.raid_targets) do
-					shadow.raid_targets = shadow.raid_targets or {} --deu invalido noutro dia
-					shadow.raid_targets [flag] = (shadow.raid_targets [flag] or 0) + amount
-				end
-
-			--copia o container de habilidades (captura de dados)
-				for spellid, habilidade in pairs(actor.spells._ActorTable) do
-					--cria e soma o valor
-					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, nil, true)
-
-					--refresh e soma os valores dos alvos
-					for target_name, amount in pairs(habilidade.targets) do
-						habilidade_shadow.targets [target_name] = (habilidade_shadow.targets [target_name] or 0) + amount
-					end
-
-					--refresh and add extra values
-					for spellId, amount in pairs(habilidade.extra) do
-						habilidade_shadow.extra [spellId] = (habilidade_shadow.extra [spellId] or 0) + amount
-					end
-
-					habilidade_shadow.spellschool = habilidade.spellschool
-
-					--soma todos os demais valores
-					for key, value in pairs(habilidade) do
-						if (type(value) == "number") then
-							if (key ~= "id" and key ~= "spellschool") then
-								if (not habilidade_shadow [key]) then
-									habilidade_shadow [key] = 0
-								end
-
-								if (key == "n_min" or key == "c_min") then
-									if (habilidade_shadow [key] > value) then
-										habilidade_shadow [key] = value
-									end
-								elseif (key == "n_max" or key == "c_max") then
-									if (habilidade_shadow [key] < value) then
-										habilidade_shadow [key] = value
-									end
-								else
-									habilidade_shadow [key] = habilidade_shadow [key] + value
-								end
-
-							end
-						elseif(key == "e_dmg" or key == "e_lvl") then
-							if (not habilidade_shadow[key]) then
-								habilidade_shadow[key] = {}
-							end
-							for empowermentLevel, empowermentValue in pairs(habilidade[key]) do 
-								habilidade_shadow[key][empowermentLevel] = empowermentValue
-							end
-						end
-					end
-				end
-
-			--copia o container de friendly fire (captura de dados)
-				for target_name, ff_table in pairs(actor.friendlyfire) do
-					--cria ou pega a shadow
-					local friendlyFire_shadow = shadow.friendlyfire [target_name] or shadow:CreateFFTable (target_name)
-					--soma o total
-					friendlyFire_shadow.total = friendlyFire_shadow.total + ff_table.total
-					--some as spells
-					for spellid, amount in pairs(ff_table.spells) do
-						friendlyFire_shadow.spells [spellid] = (friendlyFire_shadow.spells [spellid] or 0) + amount
-					end
-				end
-
-			return shadow
+			end
 		end
+
+		--copy the friendly fire container
+		for targetName, friendlyFireTable in pairs(actorObject.friendlyfire) do
+			--get or create the friendly fire table in the overall data
+			local friendlyFireOverall = overallActor.friendlyfire[targetName] or overallActor:CreateFFTable(targetName)
+			--sum the total
+			friendlyFireOverall.total = friendlyFireOverall.total + friendlyFireTable.total
+			--sum spells
+			for friendlyFireSpellId, amount in pairs(friendlyFireTable.spells) do
+				friendlyFireOverall.spells[friendlyFireSpellId] = (friendlyFireOverall.spells[friendlyFireSpellId] or 0) + amount
+			end
+		end
+
+		return overallActor
+	end
 
 --actor 1 is who will receive the sum from actor2
 function Details.SumDamageActors(actor1, actor2, actorContainer)
@@ -6765,20 +6689,19 @@ damageClass.__sub = function(tabela1, tabela2)
 	return tabela1
 end
 
-function Details.refresh:r_atributo_damage (este_jogador, shadow)
-	--restaura metas do ator
-		detailsFramework:Mixin(este_jogador, Details222.Mixins.ActorMixin)
-		detailsFramework:Mixin(este_jogador, damageClassMixin)
-		
-		setmetatable(este_jogador, Details.atributo_damage)
-		este_jogador.__index = Details.atributo_damage
-	--restaura as metas dos containers
-		Details.refresh:r_container_habilidades (este_jogador.spells, shadow and shadow.spells)
+function Details.refresh:r_atributo_damage(actorObject)
+	detailsFramework:Mixin(actorObject, Details222.Mixins.ActorMixin)
+	detailsFramework:Mixin(actorObject, damageClassMixin)
+
+	setmetatable(actorObject, Details.atributo_damage)
+	actorObject.__index = Details.atributo_damage
+
+	--restore metatable for the spell container
+	Details.refresh:r_container_habilidades(actorObject.spells)
 end
 
 function Details.clear:c_atributo_damage (este_jogador)
 	este_jogador.__index = nil
-	este_jogador.shadow = nil
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil
 

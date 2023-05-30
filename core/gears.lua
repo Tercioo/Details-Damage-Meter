@@ -2175,7 +2175,7 @@ function ilvl_core:QueryInspect (unitName, callback, param1)
 end
 
 function ilvl_core:ClearQueryInspectQueue()
-	Details:Destroy (ilvl_core.forced_inspects)
+	Details:Destroy(ilvl_core.forced_inspects)
 	ilvl_core.clear_queued_list = nil
 end
 

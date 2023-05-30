@@ -5,11 +5,11 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 local addonName, Details222 = ...
 
 local actorSpellContainers = {
-	"debuff", "buff", "spell", "cooldowns"
+	"debuff", "buff", "spell", "cooldowns", "crowdcontrol"
 }
 
 Details222.Mixins.ActorMixin = {
-	---return a table containing the spellContainers names: 'debuff', 'buff', 'spell', 'cooldowns'
+	---return a table containing the spellContainers names: 'debuff', 'buff', 'spell', 'cooldowns', 'crowdcontrol'
 	---@return string[]
 	GetSpellContainerNames = function()
 		return actorSpellContainers
@@ -31,6 +31,10 @@ Details222.Mixins.ActorMixin = {
 
 		elseif (containerType == "cooldowns") then
 			return actor.cooldowns_defensive_spells
+
+		elseif (containerType == "crowdcontrol") then
+			---@cast actor actorutility
+			return actor.cc_done_spells
 		end
 	end,
 

@@ -334,20 +334,19 @@
 			--re-lock nos tempos da tabela passada -- lock again last table times
 			Details.tabela_vigente:TravarTempos()
 
-			local n_combate = Details:NumeroCombate (1) --aumenta o contador de combates -- combat number up
+			---@type number
+			local combatCounter = Details:GetOrSetCombatId(1) --increate the combat counter by 1
 
 			--cria a nova tabela de combates -- create new table
 			local ultimo_combate = Details.tabela_vigente
-			Details.tabela_vigente = Details.combate:NovaTabela (true, Details.tabela_overall, n_combate, ...) --cria uma nova tabela de combate
+			Details.tabela_vigente = Details.combate:NovaTabela (true, Details.tabela_overall, combatCounter, ...) --cria uma nova tabela de combate
 
 			--flag this combat as being created
 			Details.tabela_vigente.IsBeingCreated = true
 
-			Details.tabela_vigente.previous_combat = ultimo_combate
-
 			Details.tabela_vigente:seta_data (Details._detalhes_props.DATA_TYPE_START) --seta na tabela do combate a data do inicio do combate -- setup time data
 			Details.in_combat = true --sinaliza ao addon que h� um combate em andamento -- in combat flag up
-			Details.tabela_vigente.combat_id = n_combate --grava o n�mero deste combate na tabela atual -- setup combat id on new table
+			Details.tabela_vigente.combat_id = combatCounter --grava o n�mero deste combate na tabela atual -- setup combat id on new table
 			Details.last_combat_pre_pot_used = nil
 
 			Details:FlagCurrentCombat()
@@ -755,14 +754,14 @@
 			end
 
 			local tempo_do_combate = Details.tabela_vigente:GetCombatTime()
-			local invalid_combat
+
+			---@type combat
+			local invalidCombat
 
 			local zoneName, zoneType = GetInstanceInfo()
 			if (not Details.tabela_vigente.discard_segment and (zoneType == "none" or tempo_do_combate >= Details.minimum_combat_time or not Details.tabela_historico.tabelas[1])) then
-				Details.tabela_historico:adicionar (Details.tabela_vigente) --move a tabela atual para dentro do hist�rico
-				--8.0.1 miss data isn't required at the moment, spells like akari's soul has been removed from the game
-				--Details:CanSendMissData()
-
+				--combat accepted
+				Details.tabela_historico:adicionar(Details.tabela_vigente) --move a tabela atual para dentro do hist�rico
 				if (Details.tabela_vigente.is_boss) then
 					if (IsInRaid()) then
 						local cleuID = Details.tabela_vigente.is_boss.id
@@ -813,17 +812,19 @@
 				end
 
 			else
-				invalid_combat = Details.tabela_vigente
+				--combat did not pass the filter and cannot be added into the segment history
+				invalidCombat = Details.tabela_vigente
 
 				--tutorial about the combat time < then 'minimum_combat_time'
 				local hasSeenTutorial = Details:GetTutorialCVar("MIN_COMBAT_TIME")
 				if (not hasSeenTutorial) then
-					local lower_instance = Details:GetLowerInstanceNumber()
-					if (lower_instance) then
-						lower_instance = Details:GetInstance(lower_instance)
-						if (lower_instance) then
-							lower_instance:InstanceAlert ("combat ignored: less than 5 seconds.", {[[Interface\BUTTONS\UI-GROUPLOOT-PASS-DOWN]], 18, 18, false, 0, 1, 0, 1}, 20, {function() Details:Msg("combat ignored: elapsed time less than 5 seconds."); Details:Msg("add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time.") end})
-							Details:SetTutorialCVar ("MIN_COMBAT_TIME", true)
+					local lowerInstanceId = Details:GetLowerInstanceNumber()
+					if (lowerInstanceId) then
+						---@type instance
+						local lowerInstanceObject = Details:GetInstance(lowerInstanceId)
+						if (lowerInstanceObject) then
+							lowerInstanceObject:InstanceAlert("combat ignored: less than 5 seconds.", {[[Interface\BUTTONS\UI-GROUPLOOT-PASS-DOWN]], 18, 18, false, 0, 1, 0, 1}, 20, {function() Details:Msg("combat ignored: elapsed time less than 5 seconds."); Details:Msg("add '|cFFFFFF00Details.minimum_combat_time = 2;|r' on Auto Run Code to change the minimum time.") end})
+							Details:SetTutorialCVar("MIN_COMBAT_TIME", true)
 						end
 					end
 				end
@@ -832,28 +833,21 @@
 				if (not Details.tabela_historico.tabelas[1]) then
 					Details.tabela_vigente = Details.tabela_vigente
 				else
-					Details.tabela_vigente = Details.tabela_historico.tabelas[1] --pega a tabela do ultimo combate
+					Details.tabela_vigente = Details.tabela_historico.tabelas[1] --get the latest combat available in the segment history
 				end
 
 				if (Details.tabela_vigente:GetStartTime() == 0) then
-					--Details.tabela_vigente.start_time = Details._tempo
-					Details.tabela_vigente:SetStartTime (GetTime())
-					--Details.tabela_vigente.end_time = Details._tempo
-					Details.tabela_vigente:SetEndTime (GetTime())
+					Details.tabela_vigente:SetStartTime(GetTime())
+					Details.tabela_vigente:SetEndTime(GetTime())
 				end
 
 				Details.tabela_vigente.resincked = true
-
-				--tabela foi descartada, precisa atualizar os baseframes // precisa atualizer todos ou apenas o overall?
 				Details:InstanciaCallFunction(Details.AtualizarJanela)
 
 				if (Details.solo) then
-					local esta_instancia = Details.tabela_instancias[Details.solo]
-					if (Details.SoloTables.CombatID == Details:NumeroCombate()) then --significa que o solo mode validou o combate, como matar um bixo muito low level com uma s� porrada
+					if (Details.SoloTables.CombatID == Details:GetOrSetCombatId()) then --significa que o solo mode validou o combate, como matar um bixo muito low level com uma s� porrada
 						if (Details.SoloTables.CombatIDLast and Details.SoloTables.CombatIDLast ~= 0) then --volta os dados da luta anterior
-
 							Details.SoloTables.CombatID = Details.SoloTables.CombatIDLast
-
 						else
 							if (Details.RefreshSolo) then
 								Details:RefreshSolo()
@@ -863,7 +857,7 @@
 					end
 				end
 
-				Details:NumeroCombate (-1)
+				Details:GetOrSetCombatId(-1)
 			end
 
 			Details.host_of = nil
@@ -877,19 +871,19 @@
 			Details.leaving_combat = false
 
 			Details:OnCombatPhaseChanged()
+
 			Details:Destroy(Details.tabela_vigente.PhaseData.damage_section)
 			Details:Destroy(Details.tabela_vigente.PhaseData.heal_section)
-
 			Details:Destroy(Details.cache_damage_group)
 			Details:Destroy(Details.cache_healing_group)
 
 			Details:UpdateParserGears()
 
 			--hide / alpha in combat
-			for index, instancia in ipairs(Details.tabela_instancias) do
-				if (instancia.ativa) then
-					if (instancia.auto_switch_to_old) then
-						instancia:CheckSwitchOnCombatEnd()
+			for index, instance in ipairs(Details.tabela_instancias) do
+				if (instance.ativa) then
+					if (instance.auto_switch_to_old) then
+						instance:CheckSwitchOnCombatEnd()
 					end
 				end
 			end
@@ -907,9 +901,9 @@
 
 			Details:InstanceCall(Details.CheckPsUpdate)
 
-			if (invalid_combat) then
+			if (invalidCombat) then
 				Details:SendEvent("COMBAT_INVALID")
-				Details:SendEvent("COMBAT_PLAYER_LEAVE", nil, invalid_combat)
+				Details:SendEvent("COMBAT_PLAYER_LEAVE", nil, invalidCombat)
 			else
 				Details:SendEvent("COMBAT_PLAYER_LEAVE", nil, Details.tabela_vigente)
 			end
@@ -917,7 +911,9 @@
 			Details:CheckForTextTimeCounter()
 			Details.StoreSpells()
 			Details:RunScheduledEventsAfterCombat()
-		end
+
+			--issue: invalidCombat will be just floating around in memory if not destroyed
+		end --end of leaving combat function
 
 		function Details:GetPlayersInArena()
 			local aliados = GetNumGroupMembers() -- LE_PARTY_CATEGORY_HOME
@@ -1566,15 +1562,18 @@
 			end
 		end
 
-	--internal GetCombatId() version
-		function Details:NumeroCombate (flag)
-			if (flag == 0) then
-				Details.combat_id = 0
-			elseif (flag) then
-				Details.combat_id = Details.combat_id + flag
-			end
-			return Details.combat_id
+	---internal GetCombatId() version
+	---@param self details
+	---@param numberId number|nil if nil, return the current combat id, if 0 resets the id, if a number will add it to the current combat id
+	---@return number
+	function Details:GetOrSetCombatId(numberId)
+		if (numberId == 0) then
+			Details.combat_id = 0
+		elseif (numberId) then
+			Details.combat_id = Details.combat_id + numberId
 		end
+		return Details.combat_id
+	end
 
 	--tooltip fork / search key: ~tooltip
 		local avatarPoint = {"bottomleft", "topleft", -3, -4}
@@ -1801,7 +1800,7 @@
 				return
 			end
 
-			local needRefresh = combatObject[self.atributo].need_refresh
+			local needRefresh = combatObject[self.atributo].need_refresh --erro de index nil value
 			if (not needRefresh and not bForceRefresh) then
 				return
 			end

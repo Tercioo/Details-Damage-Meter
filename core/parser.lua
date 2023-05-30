@@ -115,9 +115,8 @@
 			arenaHealth = {},
 			paladin_vivaldi_blessings = {},
 			track_hunter_frenzy = false,
+			rampage_cast_amount = {},
 		}
-
-		
 
 	--cache the data for passive trinkets procs
 		local _trinket_data_cache = {}
@@ -326,12 +325,13 @@
 			[45284] = 188196, --shaman lightining bolt overloaded
 
 			[228361] = 228360, --shadow priest void erruption
+
+			[401422] = 401428, --vessel of searing shadow (trinket)
 		}
 
 		--all totem
 		--377461 382133
 		--377458 377459
-
 	end
 
 	local bitfield_debuffs = {}
@@ -800,6 +800,11 @@
 					--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
 					--371070 is "Iced Phial of Corrupting Rage" effect triggers randomly, even out-of-combat
 					if (spellId == 111400 or spellId == 371070 or spellId == 368637) then
+						return
+					end
+
+					--warlock corruption dot that never expires
+					if (spellId == 146739) then
 						return
 					end
 
@@ -2623,87 +2628,74 @@
 		end
 	end
 
-	-- ~crowd control ~ccdone
-	function parser:add_cc_done(token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
-
-	------------------------------------------------------------------------------------------------
-	--early checks and fixes
-
+	--~crowd control ~ccdone
+	function parser:add_cc_done(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
 		_current_misc_container.need_refresh = true
 
-	------------------------------------------------------------------------------------------------
-	--get actors
-
-		--main actor
-		local este_jogador, meu_dono = misc_cache [who_name]
-		if (not este_jogador) then --pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
-				misc_cache [who_name] = este_jogador
+		---@type actor
+		local sourceActor, ownerActor = misc_cache[sourceName]
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+			if (not ownerActor) then
+				misc_cache[sourceName] = sourceActor
 			end
 		end
 
-	------------------------------------------------------------------------------------------------
-	--build containers on the fly
+		sourceActor.last_event = _tempo
 
-		if (not este_jogador.cc_done) then
-			este_jogador.cc_done = _detalhes:GetOrderNumber()
-			este_jogador.cc_done_spells = container_habilidades:NovoContainer (container_misc)
-			este_jogador.cc_done_targets = {}
+		if (not sourceActor.cc_done) then
+			sourceActor.cc_done = Details:GetOrderNumber()
+			sourceActor.cc_done_spells = container_habilidades:NovoContainer(container_misc)
+			sourceActor.cc_done_targets = {}
 		end
-
-	------------------------------------------------------------------------------------------------
-	--add amount
-
-		--update last event
-		este_jogador.last_event = _tempo
 
 		--add amount
-		este_jogador.cc_done = este_jogador.cc_done + 1
-		este_jogador.cc_done_targets [alvo_name] = (este_jogador.cc_done_targets [alvo_name] or 0) + 1
+		sourceActor.cc_done = sourceActor.cc_done + 1
+		sourceActor.cc_done_targets[targetName] = (sourceActor.cc_done_targets[targetName] or 0) + 1
 
 		--actor spells table
-		local spell = este_jogador.cc_done_spells._ActorTable [spellid]
-		if (not spell) then
-			spell = este_jogador.cc_done_spells:PegaHabilidade (spellid, true)
+		local spellTable = sourceActor.cc_done_spells._ActorTable[spellId]
+		if (not spellTable) then
+			spellTable = sourceActor.cc_done_spells:PegaHabilidade(spellId, true)
 		end
-
-		spell.targets [alvo_name] = (spell.targets [alvo_name] or 0) + 1
-		spell.counter = spell.counter + 1
+		spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
+		spellTable.counter = spellTable.counter + 1
 
 		--add the crowd control for the pet owner
-		if (meu_dono) then
-
-			if (not meu_dono.cc_done) then
-				meu_dono.cc_done = _detalhes:GetOrderNumber()
-				meu_dono.cc_done_spells = container_habilidades:NovoContainer (container_misc)
-				meu_dono.cc_done_targets = {}
+		if (ownerActor) then
+			if (not ownerActor.cc_done) then
+				ownerActor.cc_done = Details:GetOrderNumber()
+				ownerActor.cc_done_spells = container_habilidades:NovoContainer(container_misc)
+				ownerActor.cc_done_targets = {}
 			end
 
 			--add amount
-			meu_dono.cc_done = meu_dono.cc_done + 1
-			meu_dono.cc_done_targets [alvo_name] = (meu_dono.cc_done_targets [alvo_name] or 0) + 1
+			ownerActor.cc_done = ownerActor.cc_done + 1
+			ownerActor.cc_done_targets[targetName] = (ownerActor.cc_done_targets[targetName] or 0) + 1
 
 			--actor spells table
-			local spell = meu_dono.cc_done_spells._ActorTable [spellid]
-			if (not spell) then
-				spell = meu_dono.cc_done_spells:PegaHabilidade (spellid, true)
+			local ownerSpellTable = ownerActor.cc_done_spells._ActorTable[spellId]
+			if (not ownerSpellTable) then
+				ownerSpellTable = ownerActor.cc_done_spells:PegaHabilidade(spellId, true)
 			end
 
-			spell.targets [alvo_name] = (spell.targets [alvo_name] or 0) + 1
-			spell.counter = spell.counter + 1
+			ownerSpellTable.targets[targetName] = (ownerSpellTable.targets[targetName] or 0) + 1
+			ownerSpellTable.counter = ownerSpellTable.counter + 1
 		end
 
-		--verifica a classe
-		if (who_flags and bitBand(who_flags, OBJECT_TYPE_PLAYER) ~= 0) then
-			if (este_jogador.classe == "UNKNOW" or este_jogador.classe == "UNGROUPPLAYER") then
-				local damager_object = damage_cache [who_serial]
-				if (damager_object and (damager_object.classe ~= "UNKNOW" and damager_object.classe ~= "UNGROUPPLAYER")) then
-					este_jogador.classe = damager_object.classe
-				else
-					local healing_object = healing_cache [who_serial]
-					if (healing_object and (healing_object.classe ~= "UNKNOW" and healing_object.classe ~= "UNGROUPPLAYER")) then
-						este_jogador.classe = healing_object.classe
+		if (not sourceActor.classe) then
+			if (sourceFlags and bitBand(sourceFlags, OBJECT_TYPE_PLAYER) ~= 0) then
+				if (sourceActor.classe == "UNKNOW" or sourceActor.classe == "UNGROUPPLAYER") then
+					---@type actor
+					local damageActor = damage_cache [sourceSerial]
+					if (damageActor and (damageActor.classe ~= "UNKNOW" and damageActor.classe ~= "UNGROUPPLAYER")) then
+						sourceActor.classe = damageActor.classe
+					else
+						---@type actor
+						local healingActor = healing_cache[sourceSerial]
+						if (healingActor and (healingActor.classe ~= "UNKNOW" and healingActor.classe ~= "UNGROUPPLAYER")) then
+							sourceActor.classe = healingActor.classe
+						end
 					end
 				end
 			end
@@ -3705,6 +3697,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			castsByPlayer = {}
 			_current_combat.amountCasts[sourceName] = castsByPlayer
 		end
+
+		--rampage cast spam
+		if (spellId == 184367 or spellId == 184707 or spellId == 201364) then --rampage spellIds (IDs from Retail - wow patch 10.1.0)
+			local latestRampageCastByPlayer = (cacheAnything.rampage_cast_amount[sourceName] or 0)
+			if (latestRampageCastByPlayer > time - 0.8) then
+				return
+			end
+			cacheAnything.rampage_cast_amount[sourceName] = time
+		end
+
 		local amountOfCasts = _current_combat.amountCasts[sourceName][spellName] or 0
 		amountOfCasts = amountOfCasts + 1
 		_current_combat.amountCasts[sourceName][spellName] = amountOfCasts
@@ -4870,7 +4872,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 				--reset spec cache if broadcaster requested
 				if (_detalhes.streamer_config.reset_spec_cache) then
-					Details:Destroy (_detalhes.cached_specs)
+					Details:Destroy(_detalhes.cached_specs)
 				end
 			end
 
@@ -5601,7 +5603,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 				Details:DispatchAutoRunCode("on_groupchange")
 
-				Details:Destroy (Details.trusted_characters)
+				Details:Destroy(Details.trusted_characters)
 				C_Timer.After(5, Details.ScheduleSyncPlayerActorData)
 			end
 
@@ -5799,23 +5801,60 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	_detalhes.listener:SetScript("OnEvent", _detalhes.OnEvent)
 
-	--logout function ~save ~logout
+	---return the backup table with regular logs, error and backups /dumpt __details_backup._general_logs
+	function Details222.SaveVariables.GetBackupLogs()
+		---@type {_general_logs: table, _exit_error: table, _instance_backup: table}
+		local backupTable = __details_backup
+		if (not backupTable) then
+			__details_backup = { --[[GLOBAL]]
+				_general_logs = {},
+				_exit_error = {},
+				_instance_backup = {},
+			}
+			return __details_backup
+		end
+
+		backupTable._general_logs = backupTable._general_logs or {}
+		backupTable._exit_error = backupTable._exit_error or {}
+		backupTable._instance_backup = backupTable._instance_backup or {}
+
+		return backupTable
+	end
+
+	function Details222.SaveVariables.LogEvent(...)
+		local args = {...}
+		local newArgs = {}
+		for index, value in ipairs(args) do
+			if (type(value) == "string" or type(value) == "number" or type(value) == "boolean") then
+				newArgs[index] = tostring(value)
+			end
+		end
+
+		local currentDate = Details222.Date.GetDateForLogs()
+		local text = currentDate .. " | " .. table.concat(newArgs, ", ")
+
+		local backupLogs = Details222.SaveVariables.GetBackupLogs()
+		table.insert(backupLogs._general_logs, 1, text)
+		table.remove(backupLogs._general_logs, 30)
+	end
+
+	--logout function ~save ~logout ~savedata
 	---@type frame
 	local databaseSaver = CreateFrame("frame")
 	databaseSaver:RegisterEvent("PLAYER_LOGOUT")
 	databaseSaver:SetScript("OnEvent", function(...)
+		--maximum amount of exit errors to be logged, new error are always added to the top of the list (index 1)
+		local exitErrorsMaxSize = 10
+
 		--safe guard logs and user settings
-		__details_backup = __details_backup or {
-			_exit_error = {},
-			_instance_backup = {},
-		}
+		local backupLogs = Details222.SaveVariables.GetBackupLogs()
 
 		---@type table
-		local exitErrors = __details_backup._exit_error
+		local exitErrors = backupLogs._exit_error
 
 		---@param text string the error to be logged
 		local addToExitErrors = function(text)
-			table.insert(exitErrors, 1, date() .. "|" .. text)
+			table.insert(exitErrors, 1, Details222.Date.GetDateForLogs() .. "|" .. text)
 			table.remove(exitErrors, 10)
 		end
 
@@ -5840,16 +5879,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not _detalhes.gump) then
 			--failed to load the framework
 			tinsert(_detalhes_global.exit_log, "The framework wasn't in Details member 'gump'.")
-			tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|Framework wasn't loaded|")
+			tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. Details222.Date.GetDateForLogs() .. "|" .. _detalhes.userversion .. "|Framework wasn't loaded|")
 			return
 		end
 
 		local logSaverError = function(errortext)
 			local writeLog = function()
 				_detalhes_global = _detalhes_global or {}
-				tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
-				tremove(_detalhes_global.exit_errors, 6)
-				addToExitErrors(currentStep .. "|" .. date() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
+				tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. Details222.Date.GetDateForLogs() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
+				tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
+				addToExitErrors(currentStep .. "|" .. Details222.Date.GetDateForLogs() .. "|" .. _detalhes.userversion .. "|" .. errortext .. "|" .. debugstack())
 			end
 			xpcall(writeLog, addToExitErrors)
 		end
@@ -5882,7 +5921,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			xpcall(clearInstances, logSaverError)
 		else
 			tinsert(_detalhes_global.exit_errors, 1, "not _detalhes.tabela_instancias")
-			tremove(_detalhes_global.exit_errors, 6)
+			tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
 			addToExitErrors("not _detalhes.tabela_instancias")
 		end
 
@@ -5926,11 +5965,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes_database.nick_tag_cache = Details.CopyTable(_detalhes_database.nick_tag_cache)
 		end
 		xpcall(saveNicktabCache, logSaverError)
-	end)
+	end) --end of saving data
+
+
 
 	local eraNamedSpellsToID = {}
-
-	
 
 	-- ~parserstart ~startparser ~cleu ~parser
 	function _detalhes.OnParserEvent()
@@ -6076,6 +6115,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(dk_pets_cache.apoc)
 
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
+		Details:Destroy(cacheAnything.rampage_cast_amount)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 

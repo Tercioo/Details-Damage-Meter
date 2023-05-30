@@ -417,7 +417,7 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 	end
 	local default_len = _detalhes.fontstring_len:GetStringWidth()
 
-	Details:Destroy (report_table)
+	Details:Destroy(report_table)
 	local report_array = report_table
 	report_array[1] = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. morte [6], "", "", ""}
 
@@ -2814,9 +2814,7 @@ function _detalhes.refresh:r_atributo_misc(thisActor, shadow)
 end
 
 function _detalhes.clear:c_atributo_misc (este_jogador)
-
 	este_jogador.__index = nil
-	este_jogador.shadow = nil
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil
 

@@ -1552,7 +1552,6 @@ end
 
 function _detalhes.clear:c_atributo_energy (este_jogador)
 	este_jogador.__index = nil
-	este_jogador.shadow = nil
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil
 	

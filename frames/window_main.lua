@@ -2302,7 +2302,7 @@ function icon_frame_events:EnterCombat()
 		anim.icon_frame.icon_animation = nil
 		anim.icon_frame = nil
 	end
-	Details:Destroy (Details.icon_animations.load.in_use)
+	Details:Destroy(Details.icon_animations.load.in_use)
 end
 
 icon_frame_events:RegisterEvent("COMBAT_PLAYER_ENTER", "EnterCombat")
@@ -3060,7 +3060,7 @@ function Details:InstanceAlert (msg, icon, timeInSeconds, clickfunc, doflash, fo
 	end
 
 	self.alert.button.func = nil
-	Details:Destroy (self.alert.button.func_param)
+	Details:Destroy(self.alert.button.func_param)
 
 	if (clickfunc) then
 		self.alert.button.func = clickfunc[1]
@@ -5654,17 +5654,17 @@ function Details:SetIconAlpha(alpha, hide, noAnimations)
 	end
 end
 
-function Details:ToolbarMenuSetButtonsOptions(spacement, shadow)
+function Details:ToolbarMenuSetButtonsOptions(spacement, iconShadows)
 	if (type(spacement) ~= "number") then
 		spacement = self.menu_icons.space
 	end
 
-	if (type(shadow) ~= "boolean") then
-		shadow = self.menu_icons.shadow
+	if (type(iconShadows) ~= "boolean") then
+		iconShadows = self.menu_icons.shadow
 	end
 
 	self.menu_icons.space = spacement
-	self.menu_icons.shadow = shadow
+	self.menu_icons.shadow = iconShadows
 
 	return self:ToolbarMenuSetButtons()
 end
@@ -6339,7 +6339,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 		for i = Details.segments_amount, 1, -1 do
 			if (i <= fill) then
 				local thisCombat = Details.tabela_historico.tabelas[i]
-				if (thisCombat) then
+				if (thisCombat and not thisCombat.__destroyed) then
 					local enemy = thisCombat.is_boss and thisCombat.is_boss.name
 					local segmentInfoAdded = false
 					segmentsUsed = segmentsUsed + 1
@@ -6622,7 +6622,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 					if (not segmentInfoAdded) then
 						gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
-						local decorrido = thisCombat:GetCombatTime()
+						local decorrido = thisCombat:GetCombatTime() --attempt to call method 'GetCombatTime' (a nil value)
 						local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
 						gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
 
@@ -6632,11 +6632,16 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 					amountOfSegments = amountOfSegments + 1
 				else
-					gameCooltip:AddLine(Loc["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
-					gameCooltip:AddMenu(1, instance.TrocaTabela, i)
-					gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
-					gameCooltip:AddLine(Loc["STRING_SEGMENT_EMPTY"], _, 2)
-					gameCooltip:AddIcon([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
+					if (thisCombat and thisCombat.__destroyed) then
+						Details:Msg("a deleted combat object was found on the history table, please report this bug on discord:")
+						Details:Msg("combat destroyed by:", thisCombat.__destroyedBy)
+					else
+						gameCooltip:AddLine(Loc["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
+						gameCooltip:AddMenu(1, instance.TrocaTabela, i)
+						gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
+						gameCooltip:AddLine(Loc["STRING_SEGMENT_EMPTY"], _, 2)
+						gameCooltip:AddIcon([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
+					end
 				end
 
 				if (menuIndex) then

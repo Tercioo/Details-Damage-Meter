@@ -52,6 +52,11 @@
 	local class_type_e_energy 	= Details.atributos.e_energy
 	local class_type_misc 	= Details.atributos.misc
 
+	local classTypeDamage = Details.atributos.dano
+	local classTypeHeal = Details.atributos.cura
+	local classTypeResource = Details.atributos.e_energy
+	local classTypeUtility = Details.atributos.misc
+
 	local REACTION_HOSTILE =	0x00000040
 	local CONTROL_PLAYER =		0x00000100
 
@@ -550,180 +555,176 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internals
 
-	function classCombat:CreateNewCombatTable()
-		return classCombat:NovaTabela()
-	end
+function classCombat:CreateNewCombatTable()
+	return classCombat:NovaTabela()
+end
 
-	---class constructor
-	---@param bTimeStarted boolean if true set the start time to now with GetTime
-	---@param overallCombatObject combat
-	---@param combatId number
-	---@param ... unknown
-	---@return combat
-	function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...) --~init
-		---@type combat
-		local combatObject = {}
+---class constructor
+---@param bTimeStarted boolean if true set the start time to now with GetTime
+---@param overallCombatObject combat
+---@param combatId number
+---@param ... unknown
+---@return combat
+function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...) --~init
+	---@type combat
+	local combatObject = {}
 
-		combatObject[1] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --Damage
-		combatObject[2] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_HEAL_CLASS,	combatObject, combatId) --Healing
-		combatObject[3] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_ENERGY_CLASS,	combatObject, combatId) --Energies
-		combatObject[4] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_MISC_CLASS,	combatObject, combatId) --Misc
-		combatObject[5] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --place holder for customs
+	combatObject[1] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --Damage
+	combatObject[2] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_HEAL_CLASS,	combatObject, combatId) --Healing
+	combatObject[3] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_ENERGY_CLASS,	combatObject, combatId) --Energies
+	combatObject[4] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_MISC_CLASS,	combatObject, combatId) --Misc
+	combatObject[5] = classActorContainer:NovoContainer(Details.container_type.CONTAINER_DAMAGE_CLASS,	combatObject, combatId) --place holder for customs
 
-		setmetatable(combatObject, classCombat)
+	setmetatable(combatObject, classCombat)
 
-		Details.combat_counter = Details.combat_counter + 1
-		combatObject.combat_counter = Details.combat_counter
+	Details.combat_counter = Details.combat_counter + 1
+	combatObject.combat_counter = Details.combat_counter
 
-		--try discover if is a pvp combat
-		local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...
-		if (who_serial) then --aqui ir� identificar o boss ou o oponente
-			if (alvo_name and _bit_band (alvo_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
-				combatObject.contra = alvo_name
-				if (_bit_band (alvo_flags, CONTROL_PLAYER) ~= 0) then
-					combatObject.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
-				end
-			elseif (who_name and _bit_band (who_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
-				combatObject.contra = who_name
-				if (_bit_band (who_flags, CONTROL_PLAYER) ~= 0) then
-					combatObject.pvp = true --o who � da fac��o oposta ou foi dado mind control
-				end
-			else
-				combatObject.pvp = true --se ambos s�o friendly, seria isso um PVP entre jogadores da mesma fac��o?
+	--try discover if is a pvp combat
+	local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...
+	if (who_serial) then --aqui ir� identificar o boss ou o oponente
+		if (alvo_name and _bit_band (alvo_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
+			combatObject.contra = alvo_name
+			if (_bit_band (alvo_flags, CONTROL_PLAYER) ~= 0) then
+				combatObject.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
 			end
-		end
-
-		--start/end time (duration)
-		combatObject.data_fim = 0
-		combatObject.data_inicio = 0
-		combatObject.tempo_start = _tempo
-
-		---store trinket procs
-		combatObject.trinketProcs = {}
-
-		---store the amount of casts of each player
-		---@type table<actorname, table<spellname, number>>
-		combatObject.amountCasts = {}
-
-		--record deaths
-		combatObject.last_events_tables = {}
-
-		--last events from players
-		combatObject.player_last_events = {}
-
-		--players in the raid
-		combatObject.raid_roster = {}
-		combatObject.raid_roster_indexed = {}
-
-		--frags
-		combatObject.frags = {}
-		combatObject.frags_need_refresh = false
-
-		--alternate power
-		combatObject.alternate_power = {}
-
-		--time data container
-		combatObject.TimeData = Details:TimeDataCreateCombatTables()
-		combatObject.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
-
-		--for external plugin usage, these tables are guaranteed to be saved with the combat
-		combatObject.spells_cast_timeline = {}
-		combatObject.aura_timeline = {}
-		combatObject.cleu_timeline = {}
-
-		--cleu events
-		combatObject.cleu_events = {
-			n = 1 --event counter
-		}
-
-		--a tabela sem o tempo de inicio � a tabela descartavel do inicio do addon
-		if (bTimeStarted) then
-			--esta_tabela.start_time = _tempo
-			combatObject.start_time = GetTime()
-			combatObject.end_time = nil
+		elseif (who_name and _bit_band (who_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
+			combatObject.contra = who_name
+			if (_bit_band (who_flags, CONTROL_PLAYER) ~= 0) then
+				combatObject.pvp = true --o who � da fac��o oposta ou foi dado mind control
+			end
 		else
-			combatObject.start_time = 0
-			combatObject.end_time = nil
+			combatObject.pvp = true --se ambos s�o friendly, seria isso um PVP entre jogadores da mesma fac��o?
 		end
-
-		-- o container ir� armazenar as classes de dano -- cria um novo container de indexes de seriais de jogadores --par�metro 1 classe armazenada no container, par�metro 2 = flag da classe
-		combatObject[1].need_refresh = true
-		combatObject[2].need_refresh = true
-		combatObject[3].need_refresh = true
-		combatObject[4].need_refresh = true
-		combatObject[5].need_refresh = true
-
-		--isn't shadow deprecated?
-		if (overallCombatObject) then --link � a tabela de combate do overall
-			combatObject[1].shadow = overallCombatObject[1]
-			combatObject[2].shadow = overallCombatObject[2]
-			combatObject[3].shadow = overallCombatObject[3]
-			combatObject[4].shadow = overallCombatObject[4]
-		end
-
-		combatObject.totals = {
-			0, --dano
-			0, --cura
-			{--e_energy
-				[0] = 0, --mana
-				[1] = 0, --rage
-				[3] = 0, --energy (rogues cat)
-				[6] = 0, --runepower (dk)
-				alternatepower = 0,
-			},
-			{--misc
-				cc_break = 0, --armazena quantas quebras de CC
-				ress = 0, --armazena quantos pessoas ele reviveu
-				interrupt = 0, --armazena quantos interrupt a pessoa deu
-				dispell = 0, --armazena quantos dispell esta pessoa recebeu
-				dead = 0, --armazena quantas vezes essa pessia morreu
-				cooldowns_defensive = 0, --armazena quantos cooldowns a raid usou
-				buff_uptime = 0, --armazena quantos cooldowns a raid usou
-				debuff_uptime = 0 --armazena quantos cooldowns a raid usou
-			},
-
-			--avoid using this values bellow, they aren't updated by the parser, only on demand by a user interaction.
-				voidzone_damage = 0,
-				frags_total = 0,
-			--end
-		}
-
-		combatObject.totals_grupo = {
-			0, --dano
-			0, --cura
-			{--e_energy
-				[0] = 0, --mana
-				[1] = 0, --rage
-				[3] = 0, --energy (rogues cat)
-				[6] = 0, --runepower (dk)
-				alternatepower = 0,
-			},
-			{--misc
-				cc_break = 0, --armazena quantas quebras de CC
-				ress = 0, --armazena quantos pessoas ele reviveu
-				interrupt = 0, --armazena quantos interrupt a pessoa deu
-				dispell = 0, --armazena quantos dispell esta pessoa recebeu
-				dead = 0, --armazena quantas vezes essa oessia morreu
-				cooldowns_defensive = 0, --armazena quantos cooldowns a raid usou
-				buff_uptime = 0,
-				debuff_uptime = 0
-			}
-		}
-
-		return combatObject
 	end
+
+	--start/end time (duration)
+	combatObject.data_fim = 0
+	combatObject.data_inicio = 0
+	combatObject.tempo_start = _tempo
+
+	---store trinket procs
+	combatObject.trinketProcs = {}
+
+	---store the amount of casts of each player
+	---@type table<actorname, table<spellname, number>>
+	combatObject.amountCasts = {}
+
+	--record deaths
+	combatObject.last_events_tables = {}
+
+	--last events from players
+	combatObject.player_last_events = {}
+
+	--players in the raid
+	combatObject.raid_roster = {}
+	combatObject.raid_roster_indexed = {}
+
+	--frags
+	combatObject.frags = {}
+	combatObject.frags_need_refresh = false
+
+	--alternate power
+	combatObject.alternate_power = {}
+
+	--time data container
+	combatObject.TimeData = Details:TimeDataCreateCombatTables()
+	combatObject.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
+
+	--for external plugin usage, these tables are guaranteed to be saved with the combat
+	combatObject.spells_cast_timeline = {}
+	combatObject.aura_timeline = {}
+	combatObject.cleu_timeline = {}
+
+	--cleu events
+	combatObject.cleu_events = {
+		n = 1 --event counter
+	}
+
+	--a tabela sem o tempo de inicio � a tabela descartavel do inicio do addon
+	if (bTimeStarted) then
+		--esta_tabela.start_time = _tempo
+		combatObject.start_time = GetTime()
+		combatObject.end_time = nil
+	else
+		combatObject.start_time = 0
+		combatObject.end_time = nil
+	end
+
+	-- o container ir� armazenar as classes de dano -- cria um novo container de indexes de seriais de jogadores --par�metro 1 classe armazenada no container, par�metro 2 = flag da classe
+	combatObject[1].need_refresh = true
+	combatObject[2].need_refresh = true
+	combatObject[3].need_refresh = true
+	combatObject[4].need_refresh = true
+	combatObject[5].need_refresh = true
+
+	combatObject.totals = {
+		0, --dano
+		0, --cura
+		{--e_energy
+			[0] = 0, --mana
+			[1] = 0, --rage
+			[3] = 0, --energy (rogues cat)
+			[6] = 0, --runepower (dk)
+			alternatepower = 0,
+		},
+		{--misc
+			cc_break = 0, --armazena quantas quebras de CC
+			ress = 0, --armazena quantos pessoas ele reviveu
+			interrupt = 0, --armazena quantos interrupt a pessoa deu
+			dispell = 0, --armazena quantos dispell esta pessoa recebeu
+			dead = 0, --armazena quantas vezes essa pessia morreu
+			cooldowns_defensive = 0, --armazena quantos cooldowns a raid usou
+			buff_uptime = 0, --armazena quantos cooldowns a raid usou
+			debuff_uptime = 0 --armazena quantos cooldowns a raid usou
+		},
+
+		--avoid using this values bellow, they aren't updated by the parser, only on demand by a user interaction.
+			voidzone_damage = 0,
+			frags_total = 0,
+		--end
+	}
+
+	combatObject.totals_grupo = {
+		0, --dano
+		0, --cura
+		{--e_energy
+			[0] = 0, --mana
+			[1] = 0, --rage
+			[3] = 0, --energy (rogues cat)
+			[6] = 0, --runepower (dk)
+			alternatepower = 0,
+		},
+		{--misc
+			cc_break = 0, --armazena quantas quebras de CC
+			ress = 0, --armazena quantos pessoas ele reviveu
+			interrupt = 0, --armazena quantos interrupt a pessoa deu
+			dispell = 0, --armazena quantos dispell esta pessoa recebeu
+			dead = 0, --armazena quantas vezes essa oessia morreu
+			cooldowns_defensive = 0, --armazena quantos cooldowns a raid usou
+			buff_uptime = 0,
+			debuff_uptime = 0
+		}
+	}
+
+	return combatObject
+end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core
 
-	function classCombat:CreateLastEventsTable (player_name)
-		local t = {}
+	---create the table which will contain the latest events of the player while alive
+	---@param self combat
+	---@param playerName string
+	---@return table
+	function classCombat:CreateLastEventsTable(playerName)
+		local lastEventsTable = {}
 		for i = 1, Details.deadlog_events do
-			t [i] = {}
+			lastEventsTable [i] = {}
 		end
-		t.n = 1
-		self.player_last_events [player_name] = t
-		return t
+		lastEventsTable.n = 1
+		self.player_last_events[playerName] = lastEventsTable
+		return lastEventsTable
 	end
 
 	--trava o tempo dos jogadores ap�s o t�rmino do combate.
@@ -760,11 +761,11 @@
 		end
 	end
 
-	function classCombat:seta_data (tipo)
+	function classCombat:seta_data(tipo)
 		if (tipo == Details._detalhes_props.DATA_TYPE_START) then
-			self.data_inicio = _date ("%H:%M:%S")
+			self.data_inicio = _date("%H:%M:%S")
 		elseif (tipo == Details._detalhes_props.DATA_TYPE_END) then
-			self.data_fim = _date ("%H:%M:%S")
+			self.data_fim = _date("%H:%M:%S")
 		end
 	end
 
@@ -773,18 +774,20 @@
 		self.end_time = GetTime()
 	end
 
-	function Details.refresh:r_combate (tabela_combate, shadow)
-		setmetatable(tabela_combate, Details.combate)
-		tabela_combate.__index = Details.combate
-		tabela_combate.shadow = shadow
+	---set combat metatable and class lookup
+	---@self any
+	---@param combatObject combat
+	function Details.refresh:r_combate(combatObject)
+		setmetatable(combatObject, Details.combate)
+		combatObject.__index = Details.combate
 	end
 
-	function Details.clear:c_combate (tabela_combate)
-		--tabela_combate.__index = {}
-		tabela_combate.__index = nil
-		tabela_combate.__call = {}
-		tabela_combate._combat_table = nil
-		tabela_combate.shadow = nil
+	---clear combat object
+	---@self any
+	---@param combatObject combat
+	function Details.clear:c_combate(combatObject)
+		combatObject.__index = nil
+		combatObject.__call = nil
 	end
 
 	classCombat.__sub = function(combate1, combate2)
@@ -862,67 +865,76 @@
 
 	end
 
-	---add combat2 data into combat1
-	---@param combate1 combat
-	---@param combate2 combat
+	---add combatToAdd into combatRecevingTheSum
+	---@param combatRecevingTheSum combat
+	---@param combatToAdd combat
 	---@return combat
-	classCombat.__add = function(combate1, combate2)
-		local all_containers = {combate2 [class_type_dano]._ActorTable, combate2 [class_type_cura]._ActorTable, combate2 [class_type_e_energy]._ActorTable, combate2 [class_type_misc]._ActorTable}
-		local custom_combat
-		if (combate1 ~= Details.tabela_overall) then
-			custom_combat = combate1
+	classCombat.__add = function(combatRecevingTheSum, combatToAdd)
+		---@type combat
+		local customCombat
+		if (combatRecevingTheSum ~= Details.tabela_overall) then
+			customCombat = combatRecevingTheSum
 		end
 
-		for class_type, actor_container in ipairs(all_containers) do
-			for _, actor in ipairs(actor_container) do
-				local shadow
+		local bRefreshActor = false
 
-				if (class_type == class_type_dano) then
-					shadow = Details.atributo_damage:r_connect_shadow (actor, true, custom_combat)
-				elseif (class_type == class_type_cura) then
-					shadow = Details.atributo_heal:r_connect_shadow (actor, true, custom_combat)
-				elseif (class_type == class_type_e_energy) then
-					shadow = Details.atributo_energy:r_connect_shadow (actor, true, custom_combat)
-				elseif (class_type == class_type_misc) then
-					shadow = Details.atributo_misc:r_connect_shadow (actor, true, custom_combat)
+		for classType = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+			local actorContainer = combatToAdd[classType]
+			local actorTable = actorContainer._ActorTable
+			for _, actorObject in ipairs(actorTable) do
+				---@cast actorObject actor
+				---@type actor
+				local actorCreatedInTheReceivingCombat
+
+				if (classType == classTypeDamage) then
+					actorCreatedInTheReceivingCombat = Details.atributo_damage:AddToCombat(actorObject, bRefreshActor, customCombat)
+
+				elseif (classType == classTypeHeal) then
+					actorCreatedInTheReceivingCombat = Details.atributo_heal:AddToCombat(actorObject, bRefreshActor, customCombat)
+
+				elseif (classType == classTypeResource) then
+					actorCreatedInTheReceivingCombat = Details.atributo_energy:r_connect_shadow(actorObject, true, customCombat)
+
+				elseif (classType == classTypeUtility) then
+					actorCreatedInTheReceivingCombat = Details.atributo_misc:r_connect_shadow(actorObject, true, customCombat)
 				end
 
-				shadow.boss_fight_component = actor.boss_fight_component or shadow.boss_fight_component
-				shadow.fight_component = actor.fight_component or shadow.fight_component
-				shadow.grupo = actor.grupo or shadow.grupo
+				actorCreatedInTheReceivingCombat.boss_fight_component = actorObject.boss_fight_component or actorCreatedInTheReceivingCombat.boss_fight_component
+				actorCreatedInTheReceivingCombat.fight_component = actorObject.fight_component or actorCreatedInTheReceivingCombat.fight_component
+				actorCreatedInTheReceivingCombat.grupo = actorObject.grupo or actorCreatedInTheReceivingCombat.grupo
 			end
 		end
 
 		--alternate power
-			local overallPowerTable = combate1.alternate_power
-			for actorName, powerTable in pairs(combate2.alternate_power) do
-				local alternatePowerTable = overallPowerTable[actorName]
-				if (not alternatePowerTable) then
-					alternatePowerTable = combate1:CreateAlternatePowerTable(actorName)
-				end
-				alternatePowerTable.total = alternatePowerTable.total + powerTable.total
-				combate2.alternate_power[actorName].last = 0
+		local overallPowerTable = combatRecevingTheSum.alternate_power
+		for actorName, powerTable in pairs(combatToAdd.alternate_power) do
+			local alternatePowerTable = overallPowerTable[actorName]
+			if (not alternatePowerTable) then
+				alternatePowerTable = combatRecevingTheSum:CreateAlternatePowerTable(actorName)
 			end
+			alternatePowerTable.total = alternatePowerTable.total + powerTable.total
+			combatToAdd.alternate_power[actorName].last = 0
+		end
 
 		--cast amount
-			local combat1CastData = combate1.amountCasts
-			for actorName, castData in pairs(combate2.amountCasts) do
-				local playerCastTable = combat1CastData[actorName]
-				if (not playerCastTable) then
-					playerCastTable = {}
-					combat1CastData[actorName] = playerCastTable
-				end
-				for spellName, amountOfCasts in pairs(castData) do
-					local spellAmount = playerCastTable[spellName]
-					if (not spellAmount) then
-						spellAmount = 0
-						playerCastTable[spellName] = spellAmount
-					end
-					playerCastTable[spellName] = spellAmount + amountOfCasts
-				end
+		local combat1CastData = combatRecevingTheSum.amountCasts
+		for actorName, castData in pairs(combatToAdd.amountCasts) do
+			local playerCastTable = combat1CastData[actorName]
+			if (not playerCastTable) then
+				playerCastTable = {}
+				combat1CastData[actorName] = playerCastTable
 			end
+			for spellName, amountOfCasts in pairs(castData) do
+				local spellAmount = playerCastTable[spellName]
+				if (not spellAmount) then
+					spellAmount = 0
+					playerCastTable[spellName] = spellAmount
+				end
+				playerCastTable[spellName] = spellAmount + amountOfCasts
+			end
+		end
 
-		return combate1
+		return combatRecevingTheSum
 	end
 
 	function Details:UpdateCombat()

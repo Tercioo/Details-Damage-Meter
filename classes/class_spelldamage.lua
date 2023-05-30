@@ -14,6 +14,7 @@ function Details.CreateSpellTable(spellId, cleuToken)
 end
 
 ---create a spelltable to store the damage of a spell
+---@param self any
 ---@param spellId number
 ---@param link nil
 ---@param token string

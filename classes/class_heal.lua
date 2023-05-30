@@ -33,7 +33,7 @@ local detailsFramework = DetailsFramework
 local alvo_da_habilidade = 	_detalhes.alvo_da_habilidade
 local container_habilidades = 	_detalhes.container_habilidades
 local container_combatentes =	_detalhes.container_combatentes
-local atributo_heal =		_detalhes.atributo_heal
+local healingClass =		_detalhes.atributo_heal
 local habilidade_cura = 		_detalhes.habilidade_cura
 
 local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
@@ -66,7 +66,7 @@ local headerColor = "yellow"
 local info = _detalhes.playerDetailWindow
 local keyName
 
-function atributo_heal:NovaTabela (serial, nome, link)
+function healingClass:NovaTabela (serial, nome, link)
 	local alphabetical = _detalhes:GetOrderNumber(nome)
 
 	--constructor
@@ -109,7 +109,7 @@ function atributo_heal:NovaTabela (serial, nome, link)
 	}
 
 	detailsFramework:Mixin(thisActor, Details222.Mixins.ActorMixin)
-	setmetatable(thisActor, atributo_heal)
+	setmetatable(thisActor, healingClass)
 
 	return thisActor
 end
@@ -168,7 +168,7 @@ function _detalhes:ContainerSortHeal (container, amount, keyName2)
 	end
 end
 
-function atributo_heal:ContainerRefreshHps (container, combat_time)
+function healingClass:ContainerRefreshHps (container, combat_time)
 
 	local total = 0
 
@@ -191,7 +191,7 @@ function atributo_heal:ContainerRefreshHps (container, combat_time)
 	return total
 end
 
-function atributo_heal:ReportSingleDamagePreventedLine (actor, instancia)
+function healingClass:ReportSingleDamagePreventedLine (actor, instancia)
 	local barra = instancia.barras [actor.minha_barra]
 
 	local reportar = {"Details!: " .. actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"]}
@@ -206,7 +206,7 @@ function atributo_heal:ReportSingleDamagePreventedLine (actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
+function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 
 	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura
 
@@ -285,7 +285,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 
 		if (sub_atributo == 2) then --hps
 			local combat_time = instancia.showing:GetCombatTime()
-			total = atributo_heal:ContainerRefreshHps (conteudo, combat_time)
+			total = healingClass:ContainerRefreshHps (conteudo, combat_time)
 		else
 			--pega o total ja aplicado na tabela do combate
 			total = tabela_do_combate.totals [class_type]
@@ -301,12 +301,11 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		end
 
 		if (using_cache) then
-
 			conteudo = _detalhes.cache_healing_group
 
 			if (sub_atributo == 2) then --hps
 				local combat_time = instancia.showing:GetCombatTime()
-				atributo_heal:ContainerRefreshHps (conteudo, combat_time)
+				healingClass:ContainerRefreshHps (conteudo, combat_time)
 			end
 
 			if (#conteudo < 1) then
@@ -329,7 +328,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		else
 			if (sub_atributo == 2) then --hps
 				local combat_time = instancia.showing:GetCombatTime()
-				atributo_heal:ContainerRefreshHps (conteudo, combat_time)
+				healingClass:ContainerRefreshHps (conteudo, combat_time)
 			end
 
 			_detalhes.SortGroupHeal (conteudo, keyName)
@@ -587,7 +586,7 @@ end
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 --function atributo_heal:RefreshLine(instancia, whichRowLine, lugar, total, sub_atributo, forcar)
-function atributo_heal:RefreshLine(instancia, barras_container, whichRowLine, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 
 	local thisLine = instancia.barras[whichRowLine] --pega a refer�ncia da barra na janela
 
@@ -867,7 +866,7 @@ function atributo_heal:RefreshLine(instancia, barras_container, whichRowLine, lu
 	return self:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
 end
 
-function atributo_heal:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
+function healingClass:RefreshBarra2 (thisLine, instancia, tabela_anterior, forcar, esta_porcentagem, whichRowLine, barras_container, use_animations)
 
 	--primeiro colocado
 	if (thisLine.colocacao == 1) then
@@ -936,7 +935,7 @@ function atributo_heal:RefreshBarra2 (thisLine, instancia, tabela_anterior, forc
 
 end
 
-function atributo_heal:RefreshBarra(thisLine, instancia, from_resize)
+function healingClass:RefreshBarra(thisLine, instancia, from_resize)
 
 	local class, enemy, arena_enemy, arena_ally = self.classe, self.enemy, self.arena_enemy, self.arena_ally
 
@@ -995,7 +994,7 @@ end
 
 
 ---------TOOLTIPS BIFURCA��O ~tooltip
-function atributo_heal:ToolTip (instancia, numero, barra, keydown)
+function healingClass:ToolTip (instancia, numero, barra, keydown)
 	--seria possivel aqui colocar o icone da classe dele?
 
 	if (instancia.atributo == 5) then --custom
@@ -1019,7 +1018,7 @@ local r, g, b
 local barAlha = .6
 
 ---------HEAL DENIED
-function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
+function healingClass:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -1212,7 +1211,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 end
 
 ---------HEALING TAKEN
-function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
+function healingClass:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -1301,7 +1300,7 @@ end
 ---------HEALING DONE / HPS / OVERHEAL
 local background_heal_vs_absorbs = {value = 100, color = {1, 1, 0, .25}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_glass]]}
 
-function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
+function healingClass:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -1656,7 +1655,7 @@ end
 
 --------------------------------------------- // JANELA DETALHES // ---------------------------------------------
 ---------- bifurca��o
-function atributo_heal:MontaInfo()
+function healingClass:MontaInfo()
 	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
 		self:MontaInfoHealingDone()
 
@@ -1731,7 +1730,7 @@ function atributo_heal:MontaInfo()
 end
 
 local healingTakenHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
-function atributo_heal:MontaInfoHealTaken()
+function healingClass:MontaInfoHealTaken()
 	---@type actor
 	local actorObject = self
 	---@type instance
@@ -1832,7 +1831,7 @@ function atributo_heal:MontaInfoHealTaken()
 
 end
 
-function atributo_heal:MontaInfoOverHealing() --this should be deprecated now
+function healingClass:MontaInfoOverHealing() --this should be deprecated now
 --pegar as habilidade de dar sort no heal
 
 	local instancia = info.instancia
@@ -1972,7 +1971,7 @@ function atributo_heal:MontaInfoOverHealing() --this should be deprecated now
 	end
 end
 
-function atributo_heal:MontaInfoHealingDone()
+function healingClass:MontaInfoHealingDone()
 	---@type actor
 	local actorObject = self
 	---@type instance
@@ -2315,7 +2314,7 @@ function atributo_heal:MontaInfoHealingDone()
 
 end
 
-function atributo_heal:MontaTooltipAlvos (thisLine, index, instancia)
+function healingClass:MontaTooltipAlvos (thisLine, index, instancia)
 
 	local inimigo = thisLine.nome_inimigo
 	local container = self.spells._ActorTable
@@ -2420,16 +2419,16 @@ function atributo_heal:MontaTooltipAlvos (thisLine, index, instancia)
 
 end
 
-function atributo_heal:MontaDetalhes (spellid, barra)
+function healingClass:MontaDetalhes (spellid, barra)
 	--bifurga��es
 	if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then
 		return self:MontaDetalhesHealingDone (spellid, barra)
 	elseif (info.sub_atributo == 4) then
-		atributo_heal:MontaDetalhesHealingTaken (spellid, barra)
+		healingClass:MontaDetalhesHealingTaken (spellid, barra)
 	end
 end
 
-function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
+function healingClass:MontaDetalhesHealingTaken (nome, barra)
 
 	local barras = info.barras3
 	local instancia = info.instancia
@@ -2503,7 +2502,7 @@ local critical_table = {c = {1, 1, 1, 0.4}, p = 0}
 local data_table = {}
 local t1, t2, t3, t4 = {}, {}, {}, {}
 
-function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
+function healingClass:MontaDetalhesHealingDone (spellid, barra) --deprecated with the new breakdown window
 
 	local esta_magia
 	if (barra.other_actor) then
@@ -2768,7 +2767,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 end
 
 --controla se o dps do jogador esta travado ou destravado
-function atributo_heal:Iniciar (iniciar)
+function healingClass:Iniciar (iniciar)
 	if (iniciar == nil) then
 		return self.iniciar_hps --retorna se o dps esta aberto ou fechado para este jogador
 	elseif (iniciar) then
@@ -2784,7 +2783,7 @@ end
 --core functions
 
 	--atualize a funcao de abreviacao
-		function atributo_heal:UpdateSelectedToKFunction()
+		function healingClass:UpdateSelectedToKFunction()
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
 			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
 			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
@@ -2792,269 +2791,193 @@ end
 		end
 
 	--subtract total from a combat table
-		function atributo_heal:subtract_total (combat_table)
+		function healingClass:subtract_total (combat_table)
 			combat_table.totals [class_type] = combat_table.totals [class_type] - self.total
 			if (self.grupo) then
 				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] - self.total
 			end
 		end
-		function atributo_heal:add_total (combat_table)
+		function healingClass:add_total (combat_table)
 			combat_table.totals [class_type] = combat_table.totals [class_type] + self.total
 			if (self.grupo) then
 				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] + self.total
 			end
 		end
 
-	--restaura a tabela de last event
-		function atributo_heal:r_last_events_table (actor)
-			if (not actor) then
-				actor = self
-			end
-			--actor.last_events_table = _detalhes:CreateActorLastEventTable()
+	---sum the passed actor into a combat, if the combat isn't passed, it will use the overall combat
+	---the function returns the actor that was created of found in the combat passed
+	---@param actorObject actor
+	---@param bRefreshActor boolean|nil
+	---@param combatObject combat|nil
+	---@return actor
+	function healingClass:AddToCombat(actorObject, bRefreshActor, combatObject)
+		--check if there's a custom combat, if not just use the overall container
+		combatObject = combatObject or _detalhes.tabela_overall --same as Details:GetCombat(DETAILS_SEGMENTID_OVERALL)
+
+		--check if the combatObject has an actor with the same name, if not, just create one new
+		local actorContainer = combatObject[DETAILS_ATTRIBUTE_HEAL] --same as combatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL)
+		local overallActor = actorContainer._ActorTable[actorContainer._NameIndexTable[actorObject.nome]] --same as actorContainer:GetActor(actorObject:Name())
+
+		if (not overallActor) then
+			overallActor = actorContainer:GetOrCreateActor(actorObject.serial, actorObject.nome, actorObject.flag_original, true)
+			overallActor.classe = actorObject.classe
+			overallActor:SetSpecId(actorObject.spec)
+			overallActor.pvp = actorObject.pvp
+			overallActor.isTank = actorObject.isTank
+			overallActor.boss = actorObject.boss
+			overallActor.start_time = time() - 3
+			overallActor.end_time = time()
 		end
 
-	--restaura e liga o ator com a sua shadow durante a inicializa��o
-		function atributo_heal:r_onlyrefresh_shadow (actor)
+		overallActor.displayName = actorObject.displayName or actorObject.nome
+		overallActor.boss_fight_component = actorObject.boss_fight_component or overallActor.boss_fight_component
+		overallActor.fight_component = actorObject.fight_component or overallActor.fight_component
+		overallActor.grupo = actorObject.grupo or overallActor.grupo
 
-			--criar uma shadow desse ator se ainda n�o tiver uma
-				local overall_cura = _detalhes.tabela_overall [2]
-				local shadow = overall_cura._ActorTable [overall_cura._NameIndexTable [actor.nome]]
-
-				if (not shadow) then
-					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
-
-					shadow.classe = actor.classe
-					shadow:SetSpecId(actor.spec)
-					shadow.grupo = actor.grupo
-					shadow.pvp = actor.pvp
-					shadow.isTank = actor.isTank
-					shadow.boss = actor.boss
-					shadow.boss_fight_component = actor.boss_fight_component
-					shadow.fight_component = actor.fight_component
-
-					shadow.start_time = time() - 3
-					shadow.end_time = time()
-				end
-
-			--restaura a meta e indexes ao ator
-				_detalhes.refresh:r_atributo_heal (actor, shadow)
-
-			--copia o container de alvos (captura de dados)
-				for target_name, amount in pairs(actor.targets) do
-					shadow.targets [target_name] = 0
-				end
-				for target_name, amount in pairs(actor.targets_overheal) do
-					shadow.targets_overheal [target_name] = 0
-				end
-				for target_name, amount in pairs(actor.targets_absorbs) do
-					shadow.targets_absorbs [target_name] = 0
-				end
-
-			--copia o container de habilidades (captura de dados)
-				for spellid, habilidade in pairs(actor.spells._ActorTable) do
-					--cria e soma o valor
-					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, nil, true)
-					--refresh e soma os valores dos alvos
-
-					for target_name, amount in pairs(habilidade.targets) do
-						if (not habilidade_shadow.targets [target_name]) then
-							habilidade_shadow.targets [target_name] = 0
-						end
-					end
-					for target_name, amount in pairs(habilidade.targets_overheal) do
-						if (not habilidade_shadow.targets_overheal [target_name]) then
-							habilidade_shadow.targets_overheal [target_name] = 0
-						end
-					end
-					for target_name, amount in pairs(habilidade.targets_absorbs) do
-						if (not habilidade_shadow.targets_absorbs [target_name]) then
-							habilidade_shadow.targets_absorbs [target_name] = 0
-						end
-					end
-
-					--copia o container de heal negado se ele existir
-					if (habilidade.heal_denied) then
-						--cria o container na shadow de ele n�o existir
-						habilidade_shadow.heal_denied = habilidade_shadow.heal_denied or {}
-						habilidade_shadow.heal_denied_healers = habilidade_shadow.heal_denied_healers or {}
-						--copia
-						for spellID, amount in pairs(habilidade.heal_denied) do
-							if (not habilidade_shadow.heal_denied [spellID]) then
-								habilidade_shadow.heal_denied [spellID] = 0
-							end
-						end
-						for healerName, amount in pairs(habilidade.heal_denied_healers) do
-							if (not habilidade_shadow.heal_denied_healers [healerName]) then
-								habilidade_shadow.heal_denied_healers [healerName] = 0
-							end
-						end
-					end
-
-				end
-
-			return shadow
+		--check if need to restore meta tables and indexes for this actor
+		if (bRefreshActor) then
+			--this call will reenable the metatable, __index and set the metatable on the .spells container
+			Details.refresh:r_atributo_heal(actorObject)
 		end
 
-		function atributo_heal:r_connect_shadow (actor, no_refresh, combat_object)
+		--elapsed time
+		local endTime = actorObject.end_time
+		if (not actorObject.end_time) then
+			endTime = time()
+		end
 
-			local host_combat = combat_object or _detalhes.tabela_overall
+		local tempo = endTime - actorObject.start_time
+		overallActor.start_time = overallActor.start_time - tempo
 
-			--criar uma shadow desse ator se ainda n�o tiver uma
-				local overall_cura = host_combat [2]
-				local shadow = overall_cura._ActorTable [overall_cura._NameIndexTable [actor.nome]]
+		--pets (add unique pet names)
+		for _, petName in ipairs(actorObject.pets) do
+			DetailsFramework.table.addunique(overallActor.pets, petName)
+		end
 
-				if (not shadow) then
-					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+		---@cast actorObject actorheal
 
-					shadow.classe = actor.classe
-					shadow:SetSpecId(actor.spec)
-					shadow.grupo = actor.grupo
-					shadow.pvp = actor.pvp
-					shadow.isTank = actor.isTank
-					shadow.boss = actor.boss
-					shadow.boss_fight_component = actor.boss_fight_component
-					shadow.fight_component = actor.fight_component
+		--total healing done and total overheal
+		overallActor.total = overallActor.total + actorObject.total
+		overallActor.totalover = overallActor.totalover + actorObject.totalover
 
-					shadow.start_time = time() - 3
-					shadow.end_time = time()
-				end
+		--healing done by shields
+		overallActor.totalabsorb = overallActor.totalabsorb + actorObject.totalabsorb
 
-			--restaura a meta e indexes ao ator
-				if (not no_refresh) then
-					_detalhes.refresh:r_atributo_heal (actor, shadow)
-				end
+		--enemy healing done
+		overallActor.heal_enemy_amt = overallActor.heal_enemy_amt + actorObject.heal_enemy_amt
 
-			--tempo decorrido (captura de dados)
-				local end_time = actor.end_time
-				if (not actor.end_time) then
-					end_time = time()
-				end
+		--heal denied
+		overallActor.totaldenied = overallActor.totaldenied + actorObject.totaldenied
 
-				local tempo = end_time - actor.start_time
-				shadow.start_time = shadow.start_time - tempo
+		--healing done without pets
+		overallActor.total_without_pet = overallActor.total_without_pet + actorObject.total_without_pet
+		overallActor.totalover_without_pet = overallActor.totalover_without_pet + actorObject.totalover_without_pet
 
-			--pets (add unique pet names)
-			for _, petName in ipairs(actor.pets) do
-				DetailsFramework.table.addunique (shadow.pets, petName)
+		--healing taken
+		overallActor.healing_taken = overallActor.healing_taken + actorObject.healing_taken
+
+		--total no combate overall (captura de dados)
+		combatObject.totals[2] = combatObject.totals[2] + actorObject.total
+		if (actorObject.grupo) then --same as Details:IsGroupPlayer()
+			combatObject.totals_grupo[2] = combatObject.totals_grupo[2] + actorObject.total
+		end
+
+		--copy healing taken from
+		for healerName, _ in pairs(actorObject.healing_from) do
+			overallActor.healing_from[healerName] = true
+		end
+
+		--copy enemy healing
+		for spellId, amount in pairs(actorObject.heal_enemy) do
+			overallActor.heal_enemy[spellId] = (overallActor.heal_enemy[spellId] or 0) + amount
+		end
+
+		--copy target tables
+		for targetName, amount in pairs(actorObject.targets) do
+			overallActor.targets[targetName] = (overallActor.targets[targetName] or 0) + amount
+		end
+
+		for targetName, amount in pairs(actorObject.targets_overheal) do
+			overallActor.targets_overheal[targetName] = (overallActor.targets_overheal[targetName] or 0) + amount
+		end
+
+		for targetName, amount in pairs(actorObject.targets_absorbs) do
+			overallActor.targets_absorbs[targetName] = (overallActor.targets_absorbs[targetName] or 0) + amount
+		end
+
+		---@type spellcontainer
+		local overallSpellsContainer = overallActor.spells --same as overallActor:GetSpellContainer("spell")
+
+		--copy spell table
+		for spellId, spellTable in pairs(actorObject.spells._ActorTable) do --same as overallSpellsContainer:GetRawSpellTable()
+			--var name has 'overall' but this function accepts any combat table
+			local overallSpellTable = overallSpellsContainer:GetOrCreateSpell(spellId, true)
+
+			--sum spell targets
+			for targetName, amount in pairs(spellTable.targets) do
+				overallSpellTable.targets[targetName] = (overallSpellTable.targets[targetName] or 0) + amount
 			end
 
-			--total de cura (captura de dados)
-				shadow.total = shadow.total + actor.total
-			--total de overheal (captura de dados)
-				shadow.totalover = shadow.totalover + actor.totalover
-			--total de absorbs (captura de dados)
-				shadow.totalabsorb = shadow.totalabsorb + actor.totalabsorb
-			--total de cura feita em inimigos (captura de dados)
-				shadow.heal_enemy_amt = shadow.heal_enemy_amt + actor.heal_enemy_amt
-			--total de heal negado
-				shadow.totaldenied = shadow.totaldenied + actor.totaldenied
-			--total sem pets (captura de dados)
-				shadow.total_without_pet = shadow.total_without_pet + actor.total_without_pet
-				shadow.totalover_without_pet = shadow.totalover_without_pet + actor.totalover_without_pet
-			--total de cura recebida (captura de dados)
-				shadow.healing_taken = shadow.healing_taken + actor.healing_taken
+			for targetName, amount in pairs(spellTable.targets_overheal) do
+				overallSpellTable.targets_overheal[targetName] = (overallSpellTable.targets_overheal[targetName] or 0) + amount
+			end
 
-			--total no combate overall (captura de dados)
-				host_combat.totals[2] = host_combat.totals[2] + actor.total
-				if (actor.grupo) then
-					host_combat.totals_grupo[2] = host_combat.totals_grupo[2] + actor.total
+			for targetName, amount in pairs(spellTable.targets_absorbs) do
+				overallSpellTable.targets_absorbs[targetName] = (overallSpellTable.targets_absorbs[targetName] or 0) + amount
+			end
+
+			--copy heal denied if it exists
+			if (spellTable.heal_denied) then
+				overallSpellTable.heal_denied = overallSpellTable.heal_denied or {}
+				overallSpellTable.heal_denied_healers = overallSpellTable.heal_denied_healers or {}
+				--copy
+				for spellID, amount in pairs(spellTable.heal_denied) do
+					overallSpellTable.heal_denied[spellID] = (overallSpellTable.heal_denied[spellID] or 0) + amount
 				end
-
-			--copia o healing_from  (captura de dados)
-				for nome, _ in pairs(actor.healing_from) do
-					shadow.healing_from [nome] = true
+				for healerName, amount in pairs(spellTable.heal_denied_healers) do
+					overallSpellTable.heal_denied_healers[healerName] = (overallSpellTable.heal_denied_healers[healerName] or 0) + amount
 				end
+			end
 
-			--copia o heal_enemy (captura de dados)
-				for spellid, amount in pairs(actor.heal_enemy) do
-					if (shadow.heal_enemy [spellid]) then
-						shadow.heal_enemy [spellid] = shadow.heal_enemy [spellid] + amount
-					else
-						shadow.heal_enemy [spellid] = amount
-					end
-				end
+			overallSpellTable.spellschool = spellTable.spellschool
 
-			--copia o container de alvos (captura de dados)
-				for target_name, amount in pairs(actor.targets) do
-					shadow.targets [target_name] = (shadow.targets [target_name] or 0) + amount
-				end
-				for target_name, amount in pairs(actor.targets_overheal) do
-					shadow.targets_overheal [target_name] = (shadow.targets_overheal [target_name] or 0) + amount
-				end
-				for target_name, amount in pairs(actor.targets_absorbs) do
-					shadow.targets_absorbs [target_name] = (shadow.targets_absorbs [target_name] or 0) + amount
-				end
-
-			--copia o container de habilidades (captura de dados)
-				for spellid, habilidade in pairs(actor.spells._ActorTable) do
-					--cria e soma o valor
-					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, nil, true)
-
-					--refresh e soma os valores dos alvos
-					for target_name, amount in pairs(habilidade.targets) do
-						habilidade_shadow.targets [target_name] = (habilidade_shadow.targets [target_name] or 0) + amount
-					end
-					for target_name, amount in pairs(habilidade.targets_overheal) do
-						habilidade_shadow.targets_overheal [target_name] = (habilidade_shadow.targets_overheal [target_name] or 0) + amount
-					end
-					for target_name, amount in pairs(habilidade.targets_absorbs) do
-						habilidade_shadow.targets_absorbs [target_name] = (habilidade_shadow.targets_absorbs [target_name] or 0) + amount
-					end
-
-					--copia o container de heal negado se ele existir
-					if (habilidade.heal_denied) then
-						--cria o container na shadow de ele n�o existir
-						habilidade_shadow.heal_denied = habilidade_shadow.heal_denied or {}
-						habilidade_shadow.heal_denied_healers = habilidade_shadow.heal_denied_healers or {}
-						--copia
-						for spellID, amount in pairs(habilidade.heal_denied) do
-							habilidade_shadow.heal_denied [spellID] = (habilidade_shadow.heal_denied [spellID] or 0) + amount
+			--sum all values of the spelltable which can be summed
+			for key, value in pairs(spellTable) do
+				if (type(value) == "number") then
+					if (key ~= "id" and key ~= "spellschool") then
+						if (not overallSpellTable[key]) then
+							overallSpellTable[key] = 0
 						end
-						for healerName, amount in pairs(habilidade.heal_denied_healers) do
-							habilidade_shadow.heal_denied_healers [healerName] = (habilidade_shadow.heal_denied_healers [healerName] or 0) + amount
+
+						if (key == "n_min" or key == "c_min") then
+							if (overallSpellTable[key] > value) then
+								overallSpellTable[key] = value
+							end
+						elseif (key == "n_max" or key == "c_max") then
+							if (overallSpellTable[key] < value) then
+								overallSpellTable[key] = value
+							end
+						else
+							overallSpellTable[key] = overallSpellTable[key] + value
 						end
 					end
 
-					habilidade_shadow.spellschool = habilidade.spellschool
-
-					--soma todos os demais valores
-					for key, value in pairs(habilidade) do
-						if (type(value) == "number") then
-							if (key ~= "id" and key ~= "spellschool") then
-								if (not habilidade_shadow [key]) then
-									habilidade_shadow [key] = 0
-								end
-
-								if (key == "n_min" or key == "c_min") then
-									if (habilidade_shadow [key] > value) then
-										habilidade_shadow [key] = value
-									end
-								elseif (key == "n_max" or key == "c_max") then
-									if (habilidade_shadow [key] < value) then
-										habilidade_shadow [key] = value
-									end
-								else
-									habilidade_shadow [key] = habilidade_shadow [key] + value
-								end
-
-							end
-						elseif(key == "e_heal" or key == "e_lvl") then
-							if (not habilidade_shadow[key]) then
-								habilidade_shadow[key] = {}
-							end
-							for empowermentLevel, empowermentValue in pairs(habilidade[key]) do 
-								habilidade_shadow[key][empowermentLevel] = empowermentValue
-							end
-						end
+				--empowered spells
+				elseif(key == "e_heal" or key == "e_lvl") then
+					if (not overallSpellTable[key]) then
+						overallSpellTable[key] = {}
 					end
-
+					for empowermentLevel, empowermentValue in pairs(spellTable[key]) do
+						overallSpellTable[key][empowermentLevel] = empowermentValue
+					end
 				end
-
-			return shadow
+			end
 		end
 
-atributo_heal.__add = function(tabela1, tabela2)
+		return overallActor
+	end
 
+healingClass.__add = function(tabela1, tabela2)
 	--tempo decorrido
 		local tempo = (tabela2.end_time or time()) - tabela2.start_time
 		tabela1.start_time = tabela1.start_time - tempo
@@ -3092,13 +3015,13 @@ atributo_heal.__add = function(tabela1, tabela2)
 
 	--somar o container de alvos
 		for target_name, amount in pairs(tabela2.targets) do
-			tabela1.targets [target_name] = (tabela1.targets [target_name] or 0) + amount
+			tabela1.targets[target_name] = (tabela1.targets[target_name] or 0) + amount
 		end
 		for target_name, amount in pairs(tabela2.targets_overheal) do
-			tabela1.targets_overheal [target_name] = (tabela1.targets_overheal [target_name] or 0) + amount
+			tabela1.targets_overheal[target_name] = (tabela1.targets_overheal[target_name] or 0) + amount
 		end
 		for target_name, amount in pairs(tabela2.targets_absorbs) do
-			tabela1.targets_absorbs [target_name] = (tabela1.targets_absorbs [target_name] or 0) + amount
+			tabela1.targets_absorbs[target_name] = (tabela1.targets_absorbs[target_name] or 0) + amount
 		end
 
 	--soma o container de habilidades
@@ -3107,26 +3030,25 @@ atributo_heal.__add = function(tabela1, tabela2)
 			local habilidade_tabela1 = tabela1.spells:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
 			--soma os alvos
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets = (habilidade_tabela1.targets [target_name] or 0) + amount
+				habilidade_tabela1.targets = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 			for target_name, amount in pairs(habilidade.targets_overheal) do
-				habilidade_tabela1.targets_overheal = (habilidade_tabela1.targets_overheal [target_name] or 0) + amount
+				habilidade_tabela1.targets_overheal = (habilidade_tabela1.targets_overheal[target_name] or 0) + amount
 			end
 			for target_name, amount in pairs(habilidade.targets_absorbs) do
-				habilidade_tabela1.targets_absorbs = (habilidade_tabela1.targets_absorbs [target_name] or 0) + amount
+				habilidade_tabela1.targets_absorbs = (habilidade_tabela1.targets_absorbs[target_name] or 0) + amount
 			end
 
 			--copia o container de heal negado se ele existir
 			if (habilidade.heal_denied) then
-				--cria o container na shadow de ele n�o existir
 				habilidade_tabela1.heal_denied = habilidade_tabela1.heal_denied or {}
 				habilidade_tabela1.heal_denied_healers = habilidade_tabela1.heal_denied_healers or {}
 				--copia
 				for spellID, amount in pairs(habilidade.heal_denied) do
-					habilidade_tabela1.heal_denied [spellID] = (habilidade_tabela1.heal_denied [spellID] or 0) + amount
+					habilidade_tabela1.heal_denied[spellID] = (habilidade_tabela1.heal_denied[spellID] or 0) + amount
 				end
 				for healerName, amount in pairs(habilidade.heal_denied_healers) do
-					habilidade_tabela1.heal_denied_healers [healerName] = (habilidade_tabela1.heal_denied_healers [healerName] or 0) + amount
+					habilidade_tabela1.heal_denied_healers[healerName] = (habilidade_tabela1.heal_denied_healers[healerName] or 0) + amount
 				end
 			end
 
@@ -3163,7 +3085,7 @@ atributo_heal.__add = function(tabela1, tabela2)
 	return tabela1
 end
 
-atributo_heal.__sub = function(tabela1, tabela2)
+healingClass.__sub = function(tabela1, tabela2)
 
 	--tempo decorrido
 		local tempo = (tabela2.end_time or time()) - tabela2.start_time
@@ -3235,7 +3157,6 @@ atributo_heal.__sub = function(tabela1, tabela2)
 
 			--copia o container de heal negado se ele existir
 			if (habilidade.heal_denied) then
-				--cria o container na shadow de ele n�o existir
 				habilidade_tabela1.heal_denied = habilidade_tabela1.heal_denied or {}
 				habilidade_tabela1.heal_denied_healers = habilidade_tabela1.heal_denied_healers or {}
 				--copia
@@ -3273,19 +3194,19 @@ atributo_heal.__sub = function(tabela1, tabela2)
 	return tabela1
 end
 
-function _detalhes.refresh:r_atributo_heal(thisActor, shadow)
-	setmetatable(thisActor, atributo_heal)
-	thisActor.__index = atributo_heal
+function Details.refresh:r_atributo_heal(thisActor)
 	detailsFramework:Mixin(thisActor, Details222.Mixins.ActorMixin)
 
-	_detalhes.refresh:r_container_habilidades(thisActor.spells, shadow and shadow.spells)
+	setmetatable(thisActor, healingClass)
+	thisActor.__index = healingClass
+
+	Details.refresh:r_container_habilidades(thisActor.spells)
 end
 
-function _detalhes.clear:c_atributo_heal (este_jogador)
+function Details.clear:c_atributo_heal (este_jogador)
 	este_jogador.__index = nil
-	este_jogador.shadow = nil
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil
 
-	_detalhes.clear:c_container_habilidades (este_jogador.spells)
+	Details.clear:c_container_habilidades (este_jogador.spells)
 end

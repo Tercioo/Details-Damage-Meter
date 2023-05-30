@@ -354,8 +354,8 @@ function segmentClass:adicionar(combatObject)
 					end
 
 					--remove
-					tremove(segmentTable, 3)
-					Details:Destroy(thirdCombat)
+					thirdCombat = tremove(segmentTable, 3)
+					Details:DestroyCombat(thirdCombat)
 					Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 				end
 			end
@@ -420,8 +420,8 @@ function segmentClass:adicionar(combatObject)
 		end
 
 		--remove it
-		tremove(segmentTable, segmentIdRemoved)
-		Details:Destroy(combatObjectRemoved)
+		combatObjectRemoved = tremove(segmentTable, segmentIdRemoved)
+		Details:DestroyCombat(combatObjectRemoved)
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
 
@@ -465,7 +465,7 @@ end
 function segmentClass:resetar_overall()
 	Details:CloseBreakdownWindow()
 
-	Details:Destroy(Details.tabela_overall)
+	Details:DestroyCombat(Details.tabela_overall)
 	Details.tabela_overall = combatClass:NovaTabela()
 
 	for index, instanceObject in ipairs(Details:GetAllInstances()) do
@@ -519,11 +519,11 @@ function segmentClass:resetar()
 
 	for _, combatObject in ipairs(Details.tabela_historico.tabelas) do
 		---@cast combatObject combat
-		Details:Destroy(combatObject)
+		Details:DestroyCombat(combatObject)
 	end
 
-	Details:Destroy(Details.tabela_vigente)
-	Details:Destroy(Details.tabela_overall)
+	Details:DestroyCombat(Details.tabela_vigente)
+	Details:DestroyCombat(Details.tabela_overall)
 	Details:Destroy(Details.spellcache)
 
 	if (Details.schedule_add_to_overall) then --deprecated
@@ -542,12 +542,12 @@ function segmentClass:resetar()
 	-- nova tabela do overall e current
 	Details.tabela_overall = combatClass:NovaTabela() --joga fora a tabela antiga e cria uma nova
 	-- cria nova tabela do combate atual
-	Details.tabela_vigente = combatClass:NovaTabela (nil, Details.tabela_overall)
+	Details.tabela_vigente = combatClass:NovaTabela(nil, Details.tabela_overall)
 
 	--marca o addon como fora de combate
 	Details.in_combat = false
 	--zera o contador de combates
-	Details:NumeroCombate(0)
+	Details:GetOrSetCombatId(0)
 
 	--clear caches
 	Details:ClearSpellCache()

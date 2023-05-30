@@ -1961,7 +1961,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         spellname = select(1, GetSpellInfo(spellid))
     end
 
-    Details:Destroy (empty_other_values)
+    Details:Destroy(empty_other_values)
     other_values = other_values or empty_other_values
     
     if (not DetailsAuraPanel or not DetailsAuraPanel.Initialized) then

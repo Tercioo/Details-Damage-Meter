@@ -4,49 +4,68 @@ local _detalhes = 		_G.Details
 local _
 local addonName, Details222 = ...
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---local pointers
+local setmetatable = setmetatable --lua local
 
-	local setmetatable = setmetatable --lua local
+local spellContainerClass = 	_detalhes.container_habilidades
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---constants
 
-	local classDamage	=	_detalhes.container_type.CONTAINER_DAMAGE_CLASS
-	local classHeal		= 	_detalhes.container_type.CONTAINER_HEAL_CLASS
-	local classEnergy 	=	_detalhes.container_type.CONTAINER_ENERGY_CLASS
-	local classUtility 		=	_detalhes.container_type.CONTAINER_MISC_CLASS
-	local habilidade_dano 	= 	_detalhes.habilidade_dano
-	local habilidade_cura 		=	_detalhes.habilidade_cura
-	local habilidade_e_energy 	= 	_detalhes.habilidade_e_energy
-	local habilidade_misc 	=	_detalhes.habilidade_misc
-	local container_habilidades = 	_detalhes.container_habilidades
+local classDamage	=	_detalhes.container_type.CONTAINER_DAMAGE_CLASS
+local classHeal		= 	_detalhes.container_type.CONTAINER_HEAL_CLASS
+local classEnergy 	=	_detalhes.container_type.CONTAINER_ENERGY_CLASS
+local classUtility 		=	_detalhes.container_type.CONTAINER_MISC_CLASS
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---internals
+local classDamageSpellTable 	= 	Details.habilidade_dano
 
-	function container_habilidades:NovoContainer (tipo_do_container)
-		local _newContainer = {
-			funcao_de_criacao = container_habilidades:FuncaoDeCriacao (tipo_do_container),
-			tipo = tipo_do_container,
+local habilidade_cura 		=	_detalhes.habilidade_cura
+local habilidade_e_energy 	= 	_detalhes.habilidade_e_energy
+local habilidade_misc 	=	_detalhes.habilidade_misc
+
+
+	---return a function from the class responsible for creating the new spelltable
+	---@param containerType number @the container type to be created (1 damage 2 heal 3 resources 4 utility)
+	---@return fun() : spelltable
+	function spellContainerClass:GetSpellTableFuncCreator(containerType)
+		if (containerType == classDamage) then
+			return classDamageSpellTable.NovaTabela
+
+		elseif (containerType == classHeal) then
+			return habilidade_cura.NovaTabela
+
+		elseif (containerType == classEnergy) then
+			return habilidade_e_energy.NovaTabela
+
+		elseif (containerType == classUtility) then
+			return habilidade_misc.NovaTabela
+		end
+
+		error("GetSpellTableFuncCreator: containerType is invalid: " .. tostring(containerType))
+	end
+
+	---create a new spellcontainer
+	---@param containerType number @the container type to be created (1 damage 2 heal 3 resources 4 utility)
+	---@return spellcontainer
+	function spellContainerClass:NovoContainer(containerType)
+		---@type spellcontainer
+		local spellContainer = {
+			funcao_de_criacao = spellContainerClass:GetSpellTableFuncCreator(containerType),
+			tipo = containerType,
 			_ActorTable = {}
 		}
 
-		setmetatable(_newContainer, container_habilidades)
-
-		return _newContainer
+		setmetatable(spellContainer, spellContainerClass)
+		return spellContainer
 	end
 
 	---get the spellTable for the passed spellId
 	---@param spellId number
 	---@return table
-	function container_habilidades:GetSpell(spellId)
+	function spellContainerClass:GetSpell(spellId)
 		return self._ActorTable[spellId]
 	end
 
 	---return a table containing keys as spellid and value as spelltable
 	---@return table<number, table>
-	function container_habilidades:GetRawSpellTable()
+	function spellContainerClass:GetRawSpellTable()
 		return self._ActorTable
 	end
 
@@ -54,7 +73,7 @@ local addonName, Details222 = ...
 	---@param spellId number
 	---@param key string
 	---@return any
-	function container_habilidades:GetAmount(spellId, key)
+	function spellContainerClass:GetAmount(spellId, key)
 		local spell = self._ActorTable[spellId]
 		if (spell) then
 			return spell[key]
@@ -64,22 +83,18 @@ local addonName, Details222 = ...
 	---return an iterator for all spellTables in this container
 	---@param self spellcontainer
 	---@return fun(table: table<<K>, <V>>, index?: <K>):<K>, <V>
-	function container_habilidades:ListActors()
+	function spellContainerClass:ListActors()
 		return pairs(self._ActorTable)
 	end
 
 	--same as the function above, just an alias
-	function container_habilidades:ListSpells()
+	function spellContainerClass:ListSpells()
 		return pairs(self._ActorTable)
-	end
-
-	function container_habilidades:GetOrCreateSpell(id, shouldCreate, token)
-		return self:PegaHabilidade (id, shouldCreate, token)
 	end
 
 	---return (boolean) if the container two or more spells within
 	---@return boolean
-	function container_habilidades:HasTwoOrMoreSpells()
+	function spellContainerClass:HasTwoOrMoreSpells()
 		local count = 0
 		for _ in pairs(self._ActorTable) do
 			count = count + 1
@@ -90,54 +105,42 @@ local addonName, Details222 = ...
 		return false
 	end
 
+	function spellContainerClass:GetOrCreateSpell(spellId, bCanCreateSpellIfMissing, cleuToken)
+		return self:PegaHabilidade(spellId, bCanCreateSpellIfMissing, cleuToken)
+	end
 
-	function container_habilidades:PegaHabilidade (id, criar, token)
+	---create a new spelltable for the passed spellId
+	---@param self any
+	---@param spellId number
+	---@param bCanCreateSpellIfMissing boolean
+	---@param cleuToken string
+	---@return spelltable|nil
+	function spellContainerClass:PegaHabilidade(spellId, bCanCreateSpellIfMissing, cleuToken)
+		---@type spelltable
+		local spellTable = self._ActorTable [spellId]
 
-		local esta_habilidade = self._ActorTable [id]
-
-		if (esta_habilidade) then
-			return esta_habilidade
+		if (spellTable) then
+			return spellTable
 		else
-			if (criar) then
-
-				local novo_objeto = self.funcao_de_criacao (nil, id, nil, token)
-
-				self._ActorTable [id] = novo_objeto
-
-				return novo_objeto
+			if (bCanCreateSpellIfMissing) then
+				---@type spelltable
+				local newSpellTable = self.funcao_de_criacao(nil, spellId, nil, cleuToken)
+				self._ActorTable[spellId] = newSpellTable
+				return newSpellTable
 			else
 				return nil
 			end
 		end
 	end
 
-	function container_habilidades:FuncaoDeCriacao (tipo)
-		if (tipo == classDamage) then
-			return habilidade_dano.NovaTabela
-
-		elseif (tipo == classHeal) then
-			return habilidade_cura.NovaTabela
-
-		elseif (tipo == classEnergy) then
-			return habilidade_e_energy.NovaTabela
-
-		elseif (tipo == classUtility) then
-			return habilidade_misc.NovaTabela
-
-		end
+	function _detalhes.refresh:r_container_habilidades(container)
+		setmetatable(container, _detalhes.container_habilidades)
+		container.__index = _detalhes.container_habilidades
+		local func_criacao = spellContainerClass:GetSpellTableFuncCreator(container.tipo)
+		container.funcao_de_criacao = func_criacao
 	end
 
-	function _detalhes.refresh:r_container_habilidades (container, shadow)
-		--reconstr�i meta e indexes
-			setmetatable(container, _detalhes.container_habilidades)
-			container.__index = _detalhes.container_habilidades
-			local func_criacao = container_habilidades:FuncaoDeCriacao (container.tipo)
-			container.funcao_de_criacao = func_criacao
-	end
-
-	function _detalhes.clear:c_container_habilidades (container)
-		--container.__index = {}
+	function _detalhes.clear:c_container_habilidades(container)
 		container.__index = nil
-		container.shadow = nil
 		container.funcao_de_criacao = nil
 	end

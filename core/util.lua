@@ -526,7 +526,7 @@
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
 
-		Details:Destroy (_detalhes.ToKFunctions)
+		Details:Destroy(_detalhes.ToKFunctions)
 
 		tinsert(_detalhes.ToKFunctions, _detalhes.NoToK)
 		tinsert(_detalhes.ToKFunctions, _detalhes.ToK)
@@ -659,7 +659,7 @@
 			return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 		end
 
-		Details:Destroy (_detalhes.ToKFunctions)
+		Details:Destroy(_detalhes.ToKFunctions)
 
 		tinsert(_detalhes.ToKFunctions, _detalhes.NoToK)
 		tinsert(_detalhes.ToKFunctions, _detalhes.ToK)

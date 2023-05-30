@@ -275,7 +275,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local segmentToErase = tonumber(segmentId)
 			local combatObject = tremove(Details.tabela_historico.tabelas, segmentToErase)
 			if (combatObject) then
-				Details:Destroy(combatObject)
+				Details:DestroyCombat(combatObject)
 				Details:Msg("segment removed.")
 				collectgarbage()
 			else
@@ -1361,7 +1361,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		for i = 25, 1, -1 do
 			local pastCombat = segmentHistory [i]
 			if (pastCombat and pastCombat ~= newCombat) then
-				Details:Destroy(pastCombat)
+				Details:DestroyCombat(pastCombat)
 				segmentHistory [i] = nil
 			end
 		end
@@ -1575,64 +1575,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "survey") then
 		Details.Survey.OpenSurveyPanel()
 
-	elseif (msg == "share") then
-
-		local f = {}
-
-		local elapsed = GetTime()
-
-		local ignoredKeys = {
-			minha_barra = true,
-			__index = true,
-			shadow = true,
-			links = true,
-			__call = true,
-			_combat_table = true,
-			previous_combat = true,
-			owner = true,
-		}
-
-		local keys = {}
-
-		--copy from table2 to table1 overwriting values
-		function f.copy(t1, t2)
-			if (t1.Timer) then
-				t1, t2 = t1.t1, t1.t2
-			end
-			for key, value in pairs(t2) do
-				if (not ignoredKeys [key] and type(value) ~= "function") then
-					if (key == "targets") then
-						t1 [key] = {}
-
-					elseif (type(value) == "table") then
-						t1 [key] = t1 [key] or {}
-
-						--print(key, value)
-						--local d = C_Timer.NewTimer(1, f.copy)
-						--d.t1 = t1 [key]
-						--d.t2 = t2 [key]
-						--d.Timer = true
-
-						keys [key] = true
-
-						f.copy(t1 [key], t2 [key])
-					else
-						t1 [key] = value
-					end
-				end
-			end
-			return t1
-		end
-
-		--local copySegment = f.copy({}, _detalhes.tabela_vigente)
-		local copySegment = f.copy({}, Details.tabela_historico.tabelas [2])
-
-		--the segment received is raw and does not have metatables, need to refresh them
-		local zipData = Details:CompressData (copySegment, "print")
-
-		--print(zipData)
-		--Details:Dump (keys)
-		Details:Dump ({zipData})
 	else
 
 		--if (_detalhes.opened_windows < 1) then
