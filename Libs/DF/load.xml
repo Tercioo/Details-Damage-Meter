@@ -32,6 +32,7 @@
 	<Include file="normal_bar.xml"/>
 	<Include file="panel.xml"/>
 
+	<Script file="icon.lua"/>
 	<Script file="pictureedit.lua"/>
 	<Script file="auras.lua"/>
 	<Script file="tabcontainer.lua"/>

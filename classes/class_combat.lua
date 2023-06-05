@@ -91,8 +91,8 @@
 	end
 
 	--return data for charts
-	function classCombat:GetTimeData (name)
-		return self.TimeData [name]
+	function classCombat:GetTimeData(name)
+		return self.TimeData[name]
 	end
 
 	function classCombat:GetContainer (attribute)
@@ -628,7 +628,7 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	combatObject.alternate_power = {}
 
 	--time data container
-	combatObject.TimeData = Details:TimeDataCreateCombatTables()
+	combatObject.TimeData = Details:TimeDataCreateChartTables()
 	combatObject.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
 
 	--for external plugin usage, these tables are guaranteed to be saved with the combat

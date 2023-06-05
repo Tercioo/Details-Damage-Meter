@@ -969,6 +969,7 @@ DF.CrowdControlSpells = {
 	[105421] = "PALADIN", --Blinding Light (talent)
 	[31935] = "PALADIN", --Avengers Shield
 	[217824] = "PALADIN", --Shield of Virtue
+	[10326] = "PALADIN", --Turn Evil
 	
 	[221562] = "DEATHKNIGHT", --Asphyxiate
 	[108194] = "DEATHKNIGHT", --Asphyxiate (talent)
@@ -1002,6 +1003,7 @@ DF.CrowdControlSpells = {
 	[24394] = "HUNTER", --Intimidation
 	[117405] = "HUNTER", --Binding Shot (trigger)
 	[117526] = "HUNTER", --Binding Shot (triggered)
+	[1513] = "HUNTER", --Scare Beast
 	
 	[119381] = "MONK", --Leg Sweep
 	[115078] = "MONK", --Paralysis
@@ -1034,6 +1036,7 @@ DF.CrowdControlSpells = {
 	[331866] = "COVENANT|VENTHYR", --Agent of Chaos (Nadia soulbind)
 	
 	[372245] = "EVOKER", --Terror of the Skies
+	[360806] = "EVOKER", --Sleep Walk
 }
 
 -- additionals for classic

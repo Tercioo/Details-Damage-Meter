@@ -78,8 +78,7 @@
 	end
 
 	--matrix = table containing {max_value = 0, last_value = 0}
-	function Details:TimeDataRegister (name, func, matrix, author, version, icon, is_enabled, force_no_save)
-
+	function Details:TimeDataRegister(name, func, matrix, author, version, icon, is_enabled, force_no_save)
 		--check name
 		if (not name) then
 			return "Couldn't register the time capture, name was nil."
@@ -167,10 +166,9 @@
 	local tick_time = 0
 
 	--starting a combat
-	function Details:TimeDataCreateCombatTables()
-
+	function Details:TimeDataCreateChartTables()
 		--create capture table
-		local data_captured = {}
+		local chartTables = {}
 
 		--drop the last capture exec table without wiping
 		local exec = {}
@@ -180,25 +178,24 @@
 
 		--build the exec table
 		for index, t in ipairs(Details.savedTimeCaptures) do
-			if (t [INDEX_ENABLED]) then
-
+			if (t[INDEX_ENABLED]) then
 				local data = {}
-				data_captured [t [INDEX_NAME]] = data
+				chartTables[t[INDEX_NAME]] = data
 
-				if (type(t [INDEX_FUNCTION]) == "string") then
+				if (type(t[INDEX_FUNCTION]) == "string") then
 					--user
-					local func, errortext = loadstring (t [INDEX_FUNCTION])
+					local func, errortext = loadstring(t[INDEX_FUNCTION])
 					if (func) then
 						DetailsFramework:SetEnvironment(func)
-						tinsert(exec, { func = func, data = data, attributes = Details.CopyTable(t [INDEX_MATRIX]), is_user = true })
+						tinsert(exec, {func = func, data = data, attributes = Details.CopyTable(t[INDEX_MATRIX]), is_user = true})
 					else
 						Details:Msg("|cFFFF9900error compiling script for time data (charts)|r: ", errortext)
 					end
 				else
 					--plugin
-					local func = t [INDEX_FUNCTION]
+					local func = t[INDEX_FUNCTION]
 					DetailsFramework:SetEnvironment(func)
-					tinsert(exec, { func = func, data = data, attributes = Details.CopyTable(t [INDEX_MATRIX]) })
+					tinsert(exec, {func = func, data = data, attributes = Details.CopyTable(t[INDEX_MATRIX])})
 				end
 
 			end
@@ -209,7 +206,7 @@
 		tick_time = 0
 
 		--return the capture table the to combat object
-		return data_captured
+		return chartTables
 	end
 
 	local exec_user_func = function(func, attributes, data, this_second)
