@@ -4,6 +4,7 @@
 ## SavedVariablesPerCharacter: _detalhes_databaseVanguard
 ## RequiredDeps: Details
 ## OptionalDeps: Ace3
+## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: ZQ6abgKW
 

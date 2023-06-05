@@ -4,6 +4,7 @@
 ## RequiredDeps: Details
 ## OptionalDeps: Ace3
 ## SavedVariablesPerCharacter: EncounterDetailsDB
+## IconTexture: Interface\AddOns\Details\images\minimap
 
 enUS.lua
 ptBR.lua
