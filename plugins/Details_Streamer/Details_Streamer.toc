@@ -3,6 +3,7 @@
 ## Notes: Show which spells you are casting, viewers can see what are you doing and follow your steps.
 ## RequiredDeps: Details
 ## SavedVariables: Details_StreamerDB
+## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: VBNB9MGx
 
