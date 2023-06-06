@@ -593,7 +593,7 @@ function Details:StartMeUp()
 		torghastTracker:SetScript("OnEvent", function(self, event, level, towerType)
 			if (level == 1) then
 				if (Details.overall_clear_newtorghast) then
-					Details.historico:resetar_overall()
+					Details.historico:ResetOverallData()
 					Details:Msg("overall data are now reset.") --localize-me
 				end
 			end

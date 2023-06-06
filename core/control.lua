@@ -761,7 +761,7 @@
 			local zoneName, zoneType = GetInstanceInfo()
 			if (not Details.tabela_vigente.discard_segment and (zoneType == "none" or tempo_do_combate >= Details.minimum_combat_time or not Details.tabela_historico.tabelas[1])) then
 				--combat accepted
-				Details.tabela_historico:adicionar(Details.tabela_vigente) --move a tabela atual para dentro do hist�rico
+				Details.tabela_historico:AddCombat(Details.tabela_vigente) --move a tabela atual para dentro do hist�rico
 				if (Details.tabela_vigente.is_boss) then
 					if (IsInRaid()) then
 						local cleuID = Details.tabela_vigente.is_boss.id
@@ -1933,7 +1933,7 @@
 			no:SetPoint("bottomleft", panel, "bottomleft", 30, 10)
 			no:InstallCustomTexture (nil, nil, nil, nil, true)
 
-			local yes = Details.gump:CreateButton(panel, function() panel:Hide(); Details.tabela_historico:resetar() end, 90, 20, Loc ["STRING_YES"])
+			local yes = Details.gump:CreateButton(panel, function() panel:Hide(); Details.tabela_historico:ResetAllCombatData() end, 90, 20, Loc ["STRING_YES"])
 			yes:SetPoint("bottomright", panel, "bottomright", -30, 10)
 			yes:InstallCustomTexture (nil, nil, nil, nil, true)
 		end
@@ -1943,14 +1943,14 @@
 
 	function Details:CheckForAutoErase (mapid)
 		if (Details.last_instance_id ~= mapid) then
-			Details.tabela_historico:resetar_overall()
+			Details.tabela_historico:ResetOverallData()
 
 			if (Details.segments_auto_erase == 2) then
 				--ask
 				Details:ScheduleTimer("AutoEraseConfirm", 1)
 			elseif (Details.segments_auto_erase == 3) then
 				--erase
-				Details.tabela_historico:resetar()
+				Details.tabela_historico:ResetAllCombatData()
 			end
 		else
 			if (_tempo > Details.last_instance_time + 21600) then --6 hours
@@ -1959,7 +1959,7 @@
 					Details:ScheduleTimer("AutoEraseConfirm", 1)
 				elseif (Details.segments_auto_erase == 3) then
 					--erase
-					Details.tabela_historico:resetar()
+					Details.tabela_historico:ResetAllCombatData()
 				end
 			end
 		end

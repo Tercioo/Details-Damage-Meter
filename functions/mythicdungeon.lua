@@ -673,7 +673,7 @@ function DetailsMythicPlusFrame.MythicDungeonStarted()
 
     local name, groupType, difficultyID, difficult = GetInstanceInfo()
     if (groupType == "party" and Details.overall_clear_newchallenge) then
-        Details.historico:resetar_overall()
+        Details.historico:ResetOverallData()
         Details:Msg("overall data are now reset.")
 
         if (Details.debug) then

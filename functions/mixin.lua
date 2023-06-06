@@ -35,6 +35,10 @@ Details222.Mixins.ActorMixin = {
 		elseif (containerType == "crowdcontrol") then
 			---@cast actor actorutility
 			return actor.cc_done_spells
+
+		elseif (containerType == "dispel") then
+			---@cast actor actorutility
+			return actor.dispell_spells
 		end
 	end,
 

@@ -11,18 +11,19 @@ local addonName, Details222 = ...
 local combatClass = Details.combate
 local segmentClass = Details.historico
 local timeMachine = Details.timeMachine
+local bitBand = bit.band
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --API
 
 --reset only the overall data
 function Details:ResetSegmentOverallData()
-	return segmentClass:resetar_overall()
+	return segmentClass:ResetOverallData()
 end
 
 --reset segments and overall data
 function Details:ResetSegmentData()
-	return segmentClass:resetar()
+	return segmentClass:ResetAllCombatData()
 end
 
 --returns the current active segment
@@ -89,7 +90,7 @@ function segmentClass:adicionar_overall(combatObject)
 				for index, combat in ipairs(Details.tabela_historico.tabelas) do
 					combat.overall_added = false
 				end
-				segmentClass:resetar_overall()
+				segmentClass:ResetOverallData()
 			end
 		end
 	end
@@ -201,7 +202,7 @@ function Details:CanAddCombatToOverall (tabela)
 	end
 
 	--raid boss - flag 0x1
-	if (bit.band(Details.overall_flag, 0x1) ~= 0) then
+	if (bitBand(Details.overall_flag, 0x1) ~= 0) then
 		if (tabela.is_boss and tabela.instance_type == "raid" and not tabela.is_pvp) then
 			if (tabela:GetCombatTime() >= 30) then
 				return true
@@ -210,28 +211,28 @@ function Details:CanAddCombatToOverall (tabela)
 	end
 
 	--raid trash - flag 0x2
-	if (bit.band(Details.overall_flag, 0x2) ~= 0) then
+	if (bitBand(Details.overall_flag, 0x2) ~= 0) then
 		if (tabela.is_trash and tabela.instance_type == "raid") then
 			return true
 		end
 	end
 
 	--dungeon boss - flag 0x4
-	if (bit.band(Details.overall_flag, 0x4) ~= 0) then
+	if (bitBand(Details.overall_flag, 0x4) ~= 0) then
 		if (tabela.is_boss and tabela.instance_type == "party" and not tabela.is_pvp) then
 			return true
 		end
 	end
 
 	--dungeon trash - flag 0x8
-	if (bit.band(Details.overall_flag, 0x8) ~= 0) then
+	if (bitBand(Details.overall_flag, 0x8) ~= 0) then
 		if ((tabela.is_trash or tabela.is_mythic_dungeon_trash) and tabela.instance_type == "party") then
 			return true
 		end
 	end
 
 	--any combat
-	if (bit.band(Details.overall_flag, 0x10) ~= 0) then
+	if (bitBand(Details.overall_flag, 0x10) ~= 0) then
 		return true
 	end
 
@@ -245,7 +246,7 @@ end
 
 ---add the combat to the segment table, check adding to overall
 ---@param combatObject combat
-function segmentClass:adicionar(combatObject)
+function segmentClass:AddCombat(combatObject)
 	---@type combat[]
 	local segmentTable = self.tabelas
 	---@type number
@@ -263,7 +264,7 @@ function segmentClass:adicionar(combatObject)
 	end
 
 	--add to the first index of the segment table
-	tinsert(segmentTable, 1, combatObject)
+	table.insert(segmentTable, 1, combatObject)
 
 	--count boss tries
 	---@type string
@@ -354,9 +355,11 @@ function segmentClass:adicionar(combatObject)
 					end
 
 					--remove
-					thirdCombat = tremove(segmentTable, 3)
-					Details:DestroyCombat(thirdCombat)
-					Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+					local combatObjectRemoved = table.remove(segmentTable, 3)
+					if (combatObjectRemoved) then
+						Details:DestroyCombat(thirdCombat)
+						Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+					end
 				end
 			end
 		end
@@ -365,9 +368,9 @@ function segmentClass:adicionar(combatObject)
 	--check if the segment table is full
 	if (#segmentTable > maxSegmentsAllowed) then
 		---@type combat
-		local combatObjectRemoved
+		local combatObjectToBeRemoved
 		---@type number
-		local segmentIdRemoved
+		local segmentIdToBeRemoved
 
 		--verify if the last combat is a boss and if there's more bosses with the same bossId in the segment table
 		--then check which combat has the least amount of elapsed time and remove it
@@ -396,33 +399,36 @@ function segmentClass:adicionar(combatObject)
 			end
 
 			if (shorterCombatObject) then
-				combatObjectRemoved = shorterCombatObject
-				segmentIdRemoved = shorterSegmentId
+				combatObjectToBeRemoved = shorterCombatObject
+				segmentIdToBeRemoved = shorterSegmentId
 			end
 		end
 
 		--if couldn't find a boss to remove, then remove the oldest segment
-		if (not combatObjectRemoved) then
-			combatObjectRemoved = segmentTable[#segmentTable]
-			segmentIdRemoved = #segmentTable
+		if (not combatObjectToBeRemoved) then
+			combatObjectToBeRemoved = segmentTable[#segmentTable]
+			segmentIdToBeRemoved = #segmentTable
 		end
 
 		--check time machine
-		for _, actorObject in combatObjectRemoved:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
+		for _, actorObject in combatObjectToBeRemoved:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
 			if (actorObject.timeMachine) then
 				actorObject:DesregistrarNaTimeMachine()
 			end
 		end
-		for _, actorObject in combatObjectRemoved:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
+		for _, actorObject in combatObjectToBeRemoved:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
 			if (actorObject.timeMachine) then
 				actorObject:DesregistrarNaTimeMachine()
 			end
 		end
 
 		--remove it
-		combatObjectRemoved = tremove(segmentTable, segmentIdRemoved)
-		Details:DestroyCombat(combatObjectRemoved)
-		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+		---@type combat
+		local combatObjectRemoved = table.remove(segmentTable, segmentIdToBeRemoved)
+		if (combatObjectRemoved) then
+			Details:DestroyCombat(combatObjectRemoved)
+			Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+		end
 	end
 
 	--update the combat shown on all instances
@@ -462,7 +468,7 @@ function Details:SetOverallResetOptions(resetOnNewBoss, resetOnNewChallenge, res
 	Details.overall_clear_pvp = resetOnNewPVP
 end
 
-function segmentClass:resetar_overall()
+function segmentClass:ResetOverallData()
 	Details:CloseBreakdownWindow()
 
 	Details:DestroyCombat(Details.tabela_overall)
@@ -487,7 +493,7 @@ function segmentClass:resetar_overall()
 	Details:ClockPluginTickOnSegment()
 end
 
-function segmentClass:resetar()
+function segmentClass:ResetAllCombatData()
 	if (Details.bosswindow) then
 		Details.bosswindow:Reset()
 	end

@@ -6200,7 +6200,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core functions
 
-	--limpa as tabelas tempor�rias ao resetar
+	--limpa as tabelas tempor�rias ao ResetAllCombatData
 		function damageClass:ClearTempTables()
 			for i = #ntable, 1, -1 do
 				ntable [i] = nil

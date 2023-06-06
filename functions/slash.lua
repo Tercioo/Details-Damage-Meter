@@ -180,7 +180,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		Details:WipeConfig()
 
 	elseif (command == Loc ["STRING_SLASH_RESET"] or command == Loc ["STRING_SLASH_RESET_ALIAS1"] or command == "reset") then
-		Details.tabela_historico:resetar()
+		Details.tabela_historico:ResetAllCombatData()
 
 	elseif (command == Loc ["STRING_SLASH_DISABLE"] or command == "disable") then
 		Details:CaptureSet(false, "damage", true)

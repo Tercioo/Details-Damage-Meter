@@ -1001,7 +1001,7 @@
 					mob ["PARTIAL_ABSORB_AMT"] = mob ["PARTIAL_ABSORB_AMT"] + absorbed
 					mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + absorbed
 				else
-					--adicionar aos hits sem absorbs
+					--add aos hits sem absorbs
 					overall ["FULL_HIT"] = overall ["FULL_HIT"] + 1
 					overall ["FULL_HIT_AMT"] = overall ["FULL_HIT_AMT"] + amount
 					mob ["FULL_HIT"] = mob ["FULL_HIT"] + 1
@@ -1428,7 +1428,7 @@
 			mob ["PARTIAL_ABSORB_AMT"] = mob ["PARTIAL_ABSORB_AMT"] + absorbed
 			mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + absorbed
 		else
-			--adicionar aos hits sem absorbs
+			--add aos hits sem absorbs
 			overall ["FULL_HIT"] = overall ["FULL_HIT"] + 1
 			overall ["FULL_HIT_AMT"] = overall ["FULL_HIT_AMT"] + amount
 			mob ["FULL_HIT"] = mob ["FULL_HIT"] + 1
@@ -1976,7 +1976,7 @@
 		local este_jogador, meu_dono = healing_cache [who_serial]
 		if (not este_jogador) then --pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono and who_flags and who_serial ~= "") then --se n�o for um pet, adicionar no cache
+			if (not meu_dono and who_flags and who_serial ~= "") then --se n�o for um pet, add no cache
 				healing_cache [who_serial] = este_jogador
 			end
 		end
@@ -2379,7 +2379,7 @@
 		local este_jogador, meu_dono = healing_cache [who_serial]
 		if (not este_jogador) then --pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono and who_flags and who_serial ~= "") then --se n�o for um pet, adicionar no cache
+			if (not meu_dono and who_flags and who_serial ~= "") then --se n�o for um pet, add no cache
 				healing_cache [who_serial] = este_jogador
 			end
 		end
@@ -3788,7 +3788,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
+			if (not meu_dono) then --se n�o for um pet, add no cache
 				misc_cache [who_name] = este_jogador
 			end
 		end
@@ -3896,7 +3896,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, adicionar no cache
+			if (not meu_dono) then --se n�o for um pet, add no cache
 				misc_cache [who_name] = este_jogador
 			end
 		end
@@ -4115,7 +4115,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				local thisPlayer, meu_dono = misc_cache [targetName]
 				if (not thisPlayer) then --pode ser um desconhecido ou um pet
 					thisPlayer, meu_dono, sourceName = _current_misc_container:PegarCombatente (targetSerial, targetName, targetFlags, true)
-					if (not meu_dono) then --se n�o for um pet, adicionar no cache
+					if (not meu_dono) then --se n�o for um pet, add no cache
 						misc_cache [targetName] = thisPlayer
 					end
 				end
@@ -4825,7 +4825,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 			if(not _detalhes.is_in_battleground and _detalhes.overall_clear_pvp) then
-				_detalhes.tabela_historico:resetar_overall()
+				_detalhes.tabela_historico:ResetOverallData()
 			end
 
 			_detalhes.is_in_battleground = true
@@ -4868,7 +4868,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 			if (not _detalhes.is_in_arena) then
 				if (_detalhes.overall_clear_pvp) then
-					_detalhes.tabela_historico:resetar_overall()
+					_detalhes.tabela_historico:ResetOverallData()
 				end
 				--reset spec cache if broadcaster requested
 				if (_detalhes.streamer_config.reset_spec_cache) then
@@ -5340,7 +5340,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					_detalhes:Msg("(debug) found schedule overall data clean up.")
 				end
 				_detalhes.schedule_remove_overall = false
-				_detalhes.tabela_historico:resetar_overall()
+				_detalhes.tabela_historico:ResetOverallData()
 			end
 
 			if (_detalhes.wipe_called and false) then --disabled

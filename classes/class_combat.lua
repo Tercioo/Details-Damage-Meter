@@ -34,8 +34,8 @@
 --local pointers
 	local ipairs = ipairs -- lua local
 	local pairs = pairs -- lua local
-	local _bit_band = bit.band -- lua local
-	local _date = date -- lua local
+	local bitBand = bit.band -- lua local
+	local date = date -- lua local
 	local tremove = table.remove -- lua local
 	local rawget = rawget
 	local _math_max = math.max
@@ -583,14 +583,14 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	--try discover if is a pvp combat
 	local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...
 	if (who_serial) then --aqui ir� identificar o boss ou o oponente
-		if (alvo_name and _bit_band (alvo_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
+		if (alvo_name and bitBand (alvo_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
 			combatObject.contra = alvo_name
-			if (_bit_band (alvo_flags, CONTROL_PLAYER) ~= 0) then
+			if (bitBand (alvo_flags, CONTROL_PLAYER) ~= 0) then
 				combatObject.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
 			end
-		elseif (who_name and _bit_band (who_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
+		elseif (who_name and bitBand (who_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
 			combatObject.contra = who_name
-			if (_bit_band (who_flags, CONTROL_PLAYER) ~= 0) then
+			if (bitBand (who_flags, CONTROL_PLAYER) ~= 0) then
 				combatObject.pvp = true --o who � da fac��o oposta ou foi dado mind control
 			end
 		else
@@ -763,9 +763,9 @@ end
 
 	function classCombat:seta_data(tipo)
 		if (tipo == Details._detalhes_props.DATA_TYPE_START) then
-			self.data_inicio = _date("%H:%M:%S")
+			self.data_inicio = date("%H:%M:%S")
 		elseif (tipo == Details._detalhes_props.DATA_TYPE_END) then
-			self.data_fim = _date("%H:%M:%S")
+			self.data_fim = date("%H:%M:%S")
 		end
 	end
 

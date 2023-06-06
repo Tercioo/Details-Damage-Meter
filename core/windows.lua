@@ -1342,7 +1342,7 @@
 
 						--2 = reset data
 						elseif (Details.minimap.onclick_what_todo == 2) then
-							Details.tabela_historico:resetar()
+							Details.tabela_historico:ResetAllCombatData()
 
 						--3 = show hide windows
 						elseif (Details.minimap.onclick_what_todo == 3) then
@@ -1367,7 +1367,7 @@
 						GameCooltip:SetOption("TextSize", 10)
 
 						--reset
-						GameCooltip:AddMenu (1, Details.tabela_historico.resetar, true, nil, nil, Loc ["STRING_ERASE_DATA"], nil, true)
+						GameCooltip:AddMenu (1, Details.tabela_historico.ResetAllCombatData, true, nil, nil, Loc ["STRING_ERASE_DATA"], nil, true)
 						GameCooltip:AddIcon ([[Interface\COMMON\VOICECHAT-MUTED]], 1, 1, 14, 14)
 
 						GameCooltip:AddLine("$div")
@@ -1456,12 +1456,12 @@
 				end
 
 			elseif (Details.hotcorner_topleft.onclick_what_todo == 2) then
-				Details.tabela_historico:resetar()
+				Details.tabela_historico:ResetAllCombatData()
 			end
 		end
 
 		local quickclick_func1 = function(frame, button)
-			Details.tabela_historico:resetar()
+			Details.tabela_historico:ResetAllCombatData()
 		end
 
 		local quickclick_func2 = function(frame, button)

@@ -19,8 +19,11 @@
 
 ---@class combat : table
 ---@field amountCasts {[string]: table<string, number>}
+---@field instance_type string "raid" or "party" or "pvp" or "arena" or "none"
 ---@field end_time number
 ---@field start_time number
+---@field is_trash boolean while in raid this is set to true if the combat isn't raid boss, in dungeon this is set to true if the combat isn't a boss or if the dungeon isn't a mythic+
+---@field raid_roster table<string, string> [unitName] = unitGUID
 ---@field overall_added boolean is true when the combat got added into the overall combat
 ---@field is_mythic_dungeon_trash boolean
 ---@field is_mythic_dungeon_run_id number
@@ -35,6 +38,9 @@
 ---@field GetStartTime fun(combat: combat) : number
 ---@field SetStartTime fun(combat: combat, time: number)
 ---@field GetEndTime fun(combat: combat) : number
+---@field GetDifficulty fun(combat: combat) : number return the dungeon or raid difficulty for boss fights
+---@field GetEncounterCleuID fun(combat: combat) : number return the encounterId for boss fights, this number is gotten from the ENCOUNTER_START event
+---@field GetBossInfo fun(combat: combat) : table a table containing many informations about the boss fight
 ---@field SetEndTime fun(combat: combat, time: number)
 ---@field CopyDeathsFrom fun(combat1: combat, combat2: combat, bMythicPlus: boolean) copy the deaths from combat2 to combat1, use true on bMythicPlus if the combat is from a mythic plus run
 ---@field GetContainer fun(combat: combat, containerType: number) : actorcontainer get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
@@ -44,6 +50,12 @@
 ---@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
 ---@field GetActor fun(combat: combat, attribute: number, playerName: string) : actor
 ---@field CreateAlternatePowerTable fun(combat: combat, actorName: string) : alternatepowertable
+---@field GetCombatNumber fun(combat: combat) : number get a unique number representing the combatId, each combat has a unique number
+---@field SetDate fun(combat: combat, startDate: string, endDate: string) set the start and end date of the combat, format: "H:M:S"
+---@field GetDate fun(combat: combat) : string, string get the start and end date of the combat, format: "H:M:S"
+---@field GetRoster fun(combat: combat) : table<string, string> get the roster of the combat, the table contains the names of the players in the combat
+---@field InstanceType fun(combat: combat) : string get the instance type of the combat, can be "raid" or "party" or "pvp" or "arena" or "none"
+---@field IsTrash fun(combat: combat) : boolean is true if the combat is a trash combat
 
 ---@class actorcontainer : table contains two tables _ActorTable and _NameIndexTable, the _ActorTable contains the actors, the _NameIndexTable contains the index of the actors in the _ActorTable, making quick to reorder them without causing overhead
 ---@field _ActorTable table array of actors
@@ -179,7 +191,6 @@
 
 ---@class actorutility : actor
 ---@field cc_break number amount of times the actor broke a cc
----@field dispell number amount of times the actor dispelled a buff or debuff
 ---@field interrupt number amount of times the actor interrupted a spell
 ---@field ress number amount of times the actor ressed a player
 ---@field dead number amount of times the actor died
@@ -189,6 +200,11 @@
 ---@field cc_done number amount of times the actor applyed a crowdcontrol on a target
 ---@field cc_done_targets table<string, number> [targetName] = amount of times the actor cc'd the target
 ---@field cc_done_spells spellcontainer
+---@field dispell number amount of times the actor dispelled a buff or debuff
+---@field dispell_spells spellcontainer
+---@field dispell_targets table<string, number> [targetName] = amount
+---@field dispell_oque table<number, number> [spellId] = amount, amount of times the actor dispelled the spellId
+
 --interrupt_targets interrupt_spells interrompeu_oque
 --cc_break_targets cc_break_spells cc_break_oque
 

@@ -1,6 +1,6 @@
 <Bindings>
 	<Binding name="DETAILS_RESET_SEGMENTS" description="Clear all segments." header="DETAILS_KEYBIND_SEGMENTCONTROL" category="Details!">
-		_detalhes.tabela_historico:resetar()
+		_detalhes.tabela_historico:ResetAllCombatData()
 	</Binding>
 	
 	<Binding name="DETAILS_SCROLL_DOWN" description="Scroll down the window which you have the mouse over." header="DETAILS_KEYBIND_SCROLLING" category="Details!">

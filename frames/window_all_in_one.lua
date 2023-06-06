@@ -1,5 +1,5 @@
     --parei (20/11) declarando o header, precisa agora modificar a config do header quando atualizar
-    --fazer uma função para alterar a config header.columns para adicionar ou remover attributos
+    --fazer uma função para alterar a config header.columns para add ou remover attributos
     
     --próximo: ao criar uma janela AllInOne, precisa criar uma nova instancia no Details!
         --na tabela de configuração precisa dizer que é uma all in one e o details vai chamar esse arquivo pra atualizar
@@ -7,7 +7,7 @@
     --(ainda aqui) parei atualizando o height da titlebar
     --proximo passo: atualizar o resto das propriedade da title bar
     --fazer as funcções para setar os valores na titleBar
-    --verificar se precisa adicionar funcções no mixin dos bottões como SetTexture, SetVertexColor
+    --verificar se precisa add funcções no mixin dos bottões como SetTexture, SetVertexColor
 
     --tem que fazer a função de ShowWindow() e ToggleWindows()
     --fazer a criação do header e fazer o header ser redirecionado (aumentar ou diminuir o tamanho by dragging)

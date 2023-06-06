@@ -3733,7 +3733,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 	end
 
-	--adicionar o tempo de luta
+	--add the combat time
 	local segmentTime = ""
 	if (combatObject) then
 		local combatTime = combatObject:GetCombatTime()

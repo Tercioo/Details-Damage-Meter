@@ -8981,13 +8981,13 @@ end
 
 		gameCooltip:AddLine(Loc["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
-		gameCooltip:AddMenu(1, Details.tabela_historico.resetar_overall)
+		gameCooltip:AddMenu(1, Details.tabela_historico.ResetOverallData)
 
 		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 
 		gameCooltip:AddLine(Loc["STRING_ERASE_DATA"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
-		gameCooltip:AddMenu(1, Details.tabela_historico.resetar)
+		gameCooltip:AddMenu(1, Details.tabela_historico.ResetAllCombatData)
 
 		show_anti_overlap(self.instance, self, "top")
 
@@ -9720,7 +9720,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 			end
 		else
 			if (not Details.disable_reset_button) then
-				Details.tabela_historico:resetar()
+				Details.tabela_historico:ResetAllCombatData()
 			else
 				Details:Msg(Loc["STRING_OPTIONS_DISABLED_RESET"])
 			end

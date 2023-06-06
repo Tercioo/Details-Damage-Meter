@@ -28,7 +28,7 @@ function _detalhes:OpenWelcomeWindow()
 		window:SetScript("OnMouseDown", function() window:StartMoving() end)
 		window:SetScript("OnMouseUp", function() window:StopMovingOrSizing() end)
 		window:SetScript("OnHide", function()
-			_detalhes.tabela_historico:resetar()
+			_detalhes.tabela_historico:ResetAllCombatData()
 
 			if (DetailsFramework.IsClassicWow()) then
 				local new_instance = Details:GetWindow (1)
@@ -321,7 +321,7 @@ local window_openned_at = time()
 				local instance1 = Details:GetInstance(1)
 				local instance2 = Details:GetInstance(2)
 
-				_detalhes.tabela_historico:resetar()
+				_detalhes.tabela_historico:ResetAllCombatData()
 
 				if (fixedParameter == 1) then --latin
 					if (instance1 and instance1:IsEnabled()) then
@@ -1043,7 +1043,7 @@ local window_openned_at = time()
 		local update_frame_alert = CreateFrame("frame", nil, window)
 		update_frame_alert:SetScript("OnShow", function()
 
-			_detalhes.tabela_historico:resetar()
+			_detalhes.tabela_historico:ResetAllCombatData()
 			created_test_bars = 0
 
 			_detalhes.zone_type = "pvp"
@@ -1297,7 +1297,7 @@ local window_openned_at = time()
 
 		local group_frame_alert = CreateFrame("frame", nil, window)
 		group_frame_alert:SetScript("OnShow", function()
-			_detalhes.tabela_historico:resetar()
+			_detalhes.tabela_historico:ResetAllCombatData()
 			created_test_bars = 0
 		end)
 
@@ -1342,7 +1342,7 @@ local window_openned_at = time()
 		local tooltip_frame = CreateFrame("frame", nil, window)
 		tooltip_frame:SetScript("OnShow", function(self)
 
-			_detalhes.tabela_historico:resetar()
+			_detalhes.tabela_historico:ResetAllCombatData()
 			created_test_bars = 0
 
 			local current_combat = _detalhes:GetCombat("current")
