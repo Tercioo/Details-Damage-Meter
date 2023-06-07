@@ -600,13 +600,13 @@ local classTypeUtility = Details.atributos.misc
 		--panic mode (in case the player disconnets during a boss encounter, drop all tables to speedup the login and login back process)
 		if (Details.segments_panic_mode and Details.can_panic_mode) then
 			if (Details.tabela_vigente.is_boss) then
-				Details.tabela_historico = Details.historico:NovoHistorico()
+				Details.tabela_historico = Details.historico:CreateNewSegmentDatabase()
 			end
 		end
 
 		--clear all segments on logoff
 		if (Details.data_cleanup_logout) then
-			Details.tabela_historico = Details.historico:NovoHistorico()
+			Details.tabela_historico = Details.historico:CreateNewSegmentDatabase()
 			Details.tabela_overall = nil
 			_detalhes_database.tabela_overall = nil
 		end

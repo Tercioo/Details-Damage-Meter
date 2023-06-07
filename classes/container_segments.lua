@@ -1,8 +1,3 @@
-local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
-
---lua api
-local tremove = table.remove
-local tinsert = table.insert
 
 local Details = _G.Details
 local _
@@ -68,13 +63,13 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internal
 
-function segmentClass:NovoHistorico()
-	local esta_tabela = {tabelas = {}}
-	setmetatable(esta_tabela, segmentClass)
-	return esta_tabela
+function segmentClass:CreateNewSegmentDatabase()
+	local newSegmentDatabase = {tabelas = {}}
+	setmetatable(newSegmentDatabase, segmentClass)
+	return newSegmentDatabase
 end
 
-function segmentClass:adicionar_overall(combatObject)
+function segmentClass:AddToOverallData(combatObject)
 	local zoneName, zoneType = GetInstanceInfo()
 	if (zoneType ~= "none" and combatObject:GetCombatTime() <= Details.minimum_overall_combat_time) then
 		return
@@ -96,7 +91,7 @@ function segmentClass:adicionar_overall(combatObject)
 	end
 
 	if (combatObject.overall_added) then
-		Details:Msg("error > attempt to add a segment already added > func historico:adicionar_overall()")
+		Details:Msg("error > attempt to add a segment already added > func historico:AddToOverallData()")
 		return
 	end
 
@@ -104,27 +99,27 @@ function segmentClass:adicionar_overall(combatObject)
 	if (mythicInfo) then
 		--do not add overall mythic+ dungeon segments
 		if (mythicInfo.TrashOverallSegment) then
-			Details:Msg("error > attempt to add a TrashOverallSegment > func historico:adicionar_overall()")
+			Details:Msg("error > attempt to add a TrashOverallSegment > func historico:AddToOverallData()")
 			return
 
 		elseif (mythicInfo.OverallSegment) then
-			Details:Msg("error > attempt to add a OverallSegment > func historico:adicionar_overall()")
+			Details:Msg("error > attempt to add a OverallSegment > func historico:AddToOverallData()")
 			return
 		end
 	end
 
 	--store the segments added to the overall data
 	Details.tabela_overall.segments_added = Details.tabela_overall.segments_added or {}
-	local this_clock = combatObject.data_inicio
+	local startDate = combatObject.data_inicio
 
 	local combatName = combatObject:GetCombatName(true)
 	local combatTime = combatObject:GetCombatTime()
 	local combatType = combatObject:GetCombatType()
 
-	tinsert(Details.tabela_overall.segments_added, 1, {name = combatName, elapsed = combatTime, clock = this_clock, type = combatType})
+	table.insert(Details.tabela_overall.segments_added, 1, {name = combatName, elapsed = combatTime, clock = startDate, type = combatType})
 
 	if (#Details.tabela_overall.segments_added > 40) then
-		tremove(Details.tabela_overall.segments_added, 41)
+		table.remove(Details.tabela_overall.segments_added, 41)
 	end
 
 	if (Details.debug) then
@@ -143,18 +138,18 @@ function segmentClass:adicionar_overall(combatObject)
 	end
 
 	if (Details.tabela_overall.start_time == 0) then
-		Details.tabela_overall:SetStartTime (combatObject.start_time)
-		Details.tabela_overall:SetEndTime (combatObject.end_time)
+		Details.tabela_overall:SetStartTime(combatObject.start_time)
+		Details.tabela_overall:SetEndTime(combatObject.end_time)
 	else
-		Details.tabela_overall:SetStartTime (combatObject.start_time - Details.tabela_overall:GetCombatTime())
-		Details.tabela_overall:SetEndTime (combatObject.end_time)
+		Details.tabela_overall:SetStartTime(combatObject.start_time - Details.tabela_overall:GetCombatTime())
+		Details.tabela_overall:SetEndTime(combatObject.end_time)
 	end
 
 	if (Details.tabela_overall.data_inicio == 0) then
 		Details.tabela_overall.data_inicio = Details.tabela_vigente.data_inicio or 0
 	end
 
-	Details.tabela_overall:seta_data (Details._detalhes_props.DATA_TYPE_END)
+	Details.tabela_overall:seta_data(Details._detalhes_props.DATA_TYPE_END)
 	Details:ClockPluginTickOnSegment()
 
 	for id, instance in Details:ListInstances() do
@@ -166,31 +161,27 @@ function segmentClass:adicionar_overall(combatObject)
 	end
 end
 
-function Details:ScheduleAddCombatToOverall (combat) --deprecated (15/03/2019)
-	local canAdd = Details:CanAddCombatToOverall (combat)
-	if (canAdd) then
-		Details.schedule_add_to_overall = Details.schedule_add_to_overall or {}
-		tinsert(Details.schedule_add_to_overall, combat)
-	end
-end
-
-function Details:CanAddCombatToOverall (tabela)
+---return true if the combatObject can be added to the overall data
+---@param self details
+---@param combatObject table
+---@return boolean canAdd
+function Details:CanAddCombatToOverall(combatObject)
 	--already added
-	if (tabela.overall_added) then
+	if (combatObject.overall_added) then
 		return false
 	end
 
 	--already scheduled to add
 	if (Details.schedule_add_to_overall) then --deprecated
 		for _, combat in ipairs(Details.schedule_add_to_overall) do
-			if (combat == tabela) then
+			if (combat == combatObject) then
 				return false
 			end
 		end
 	end
 
 	--special cases
-	local mythicInfo = tabela.is_mythic_dungeon
+	local mythicInfo = combatObject.is_mythic_dungeon
 	if (mythicInfo) then
 		--do not add overall mythic+ dungeon segments
 		if (mythicInfo.TrashOverallSegment) then
@@ -203,8 +194,8 @@ function Details:CanAddCombatToOverall (tabela)
 
 	--raid boss - flag 0x1
 	if (bitBand(Details.overall_flag, 0x1) ~= 0) then
-		if (tabela.is_boss and tabela.instance_type == "raid" and not tabela.is_pvp) then
-			if (tabela:GetCombatTime() >= 30) then
+		if (combatObject.is_boss and combatObject.instance_type == "raid" and not combatObject.is_pvp) then
+			if (combatObject:GetCombatTime() >= 30) then
 				return true
 			end
 		end
@@ -212,21 +203,21 @@ function Details:CanAddCombatToOverall (tabela)
 
 	--raid trash - flag 0x2
 	if (bitBand(Details.overall_flag, 0x2) ~= 0) then
-		if (tabela.is_trash and tabela.instance_type == "raid") then
+		if (combatObject.is_trash and combatObject.instance_type == "raid") then
 			return true
 		end
 	end
 
 	--dungeon boss - flag 0x4
 	if (bitBand(Details.overall_flag, 0x4) ~= 0) then
-		if (tabela.is_boss and tabela.instance_type == "party" and not tabela.is_pvp) then
+		if (combatObject.is_boss and combatObject.instance_type == "party" and not combatObject.is_pvp) then
 			return true
 		end
 	end
 
 	--dungeon trash - flag 0x8
 	if (bitBand(Details.overall_flag, 0x8) ~= 0) then
-		if ((tabela.is_trash or tabela.is_mythic_dungeon_trash) and tabela.instance_type == "party") then
+		if ((combatObject.is_trash or combatObject.is_mythic_dungeon_trash) and combatObject.instance_type == "party") then
 			return true
 		end
 	end
@@ -237,7 +228,7 @@ function Details:CanAddCombatToOverall (tabela)
 	end
 
 	--is a PvP combat
-	if (tabela.is_pvp or tabela.is_arena) then
+	if (combatObject.is_pvp or combatObject.is_arena) then
 		return true
 	end
 
@@ -301,7 +292,7 @@ function segmentClass:AddCombat(combatObject)
 		if (Details.debug) then
 			Details:Msg("(debug) overall data flag match addind the combat to overall data.")
 		end
-		segmentClass:adicionar_overall(combatObject)
+		segmentClass:AddToOverallData(combatObject)
 	end
 
 	--erase trash segments
@@ -341,7 +332,7 @@ function segmentClass:AddCombat(combatObject)
 			local thirdCombat = segmentTable[3]
 
 			if (thirdCombat and not thirdCombat.is_mythic_dungeon_segment) then
-				if ((thirdCombat.is_trash and not thirdCombat.is_boss) or (thirdCombat.is_temporary)) then
+				if ((thirdCombat.is_trash and not thirdCombat.is_boss) or(thirdCombat.is_temporary)) then
 					--verify again the time machine
 					for _, actorObject in thirdCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
 						if (actorObject.timeMachine) then
@@ -540,7 +531,7 @@ function segmentClass:ResetAllCombatData()
 	Details:ResetSpecCache(true)
 
 	-- novo container de historico
-	Details.tabela_historico = segmentClass:NovoHistorico() --joga fora a tabela antiga e cria uma nova
+	Details.tabela_historico = segmentClass:CreateNewSegmentDatabase() --joga fora a tabela antiga e cria uma nova
 	--novo container para armazenar pets
 	Details.tabela_pets = Details.container_pets:NovoContainer()
 	Details:UpdateContainerCombatentes()
@@ -580,7 +571,7 @@ function segmentClass:ResetAllCombatData()
 
 	Details:InstanciaCallFunction(Details.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
 	Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
-	Details:InstanciaCallFunction(Details.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
+	Details:InstanciaCallFunction(Details.ResetaGump) --_detalhes:ResetaGump("de todas as instancias")
 	Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
 
 	Details:RefreshMainWindow(-1) --atualiza todas as instancias
@@ -588,7 +579,7 @@ function segmentClass:ResetAllCombatData()
 	Details:SendEvent("DETAILS_DATA_RESET", nil, nil)
 end
 
-function Details.refresh:r_historico (este_historico)
+function Details.refresh:r_historico(este_historico)
 	setmetatable(este_historico, segmentClass)
 	--este_historico.__index = historico
 end

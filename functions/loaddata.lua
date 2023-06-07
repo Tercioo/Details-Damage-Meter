@@ -132,7 +132,7 @@ function Details222.LoadSavedVariables.CombatSegments()
 
 	--if can just clear all data and exit
 	if (bShouldClearAndExit) then
-		Details.tabela_historico = Details.historico:NovoHistorico()
+		Details.tabela_historico = Details.historico:CreateNewSegmentDatabase()
 		Details.tabela_overall = Details.combate:NovaTabela()
 		Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
 		Details.tabela_pets = Details.container_pets:NovoContainer()

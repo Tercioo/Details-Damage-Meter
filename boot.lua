@@ -422,6 +422,13 @@ do
 				--"LoadScreenOrgrimmarArena", --Ring of Valor
 			}
 
+			Details.IgnoredEnemyNpcsTable = {
+				[31216] = true, --mirror image
+				[53006] = true, --spirit link totem
+				[63508] = true, --xuen
+				[73967] = true, --xuen
+			}
+
 			function _detalhes:GetArenaInfo (mapid)
 				local t = _detalhes.arena_info [mapid]
 				if (t) then
@@ -1055,7 +1062,7 @@ do
 			_detalhes:Msg("you can always reset the addon running the command |cFFFFFF00'/details reinstall'|r if it does fail to load after being updated.")
 
 			function _detalhes:wipe_combat_after_failed_load()
-				_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+				_detalhes.tabela_historico = _detalhes.historico:CreateNewSegmentDatabase()
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()

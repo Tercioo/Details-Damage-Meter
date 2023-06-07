@@ -4,8 +4,13 @@ local detailsFramework = _G.DetailsFramework
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 local addonName, Details222 = ...
 
+local bitBand = bit.band
+
+local CONST_OBJECT_TYPE_PLAYER = 0x00000400
+local CONST_OBJECT_TYPE_NEUTRAL_OR_ENEMY = 0x00000060
+
 local actorSpellContainers = {
-	"debuff", "buff", "spell", "cooldowns", "crowdcontrol"
+	"debuff", "buff", "spell", "cooldowns", "crowdcontrol", "dispel"
 }
 
 Details222.Mixins.ActorMixin = {
@@ -145,6 +150,45 @@ Details222.Mixins.ActorMixin = {
 		return result
 	end,
 
+	---return true if the actor is controlled by a player
+	---@param actorObject actor
+	---@return boolean
+	IsPlayer = function(actorObject)
+		if (actorObject.flag_original) then
+			if (bitBand(actorObject.flag_original, CONST_OBJECT_TYPE_PLAYER) ~= 0) then
+				return true
+			end
+		end
+		return false
+	end,
 
+	---return true if the actor is a pet or guardian
+	---@param actorObject actor
+	---@return boolean
+	IsPetOrGuardian = function(actorObject)
+		return actorObject.owner and true or false
+	end,
 
+	---return true if the actor is or was in the player group
+	---@param actorObject table
+	---@return boolean
+	IsGroupPlayer = function(actorObject)
+		return actorObject.grupo and true or false
+	end,
+
+	---return true if the actor is an enemy of neutral npc
+	---@param actorObject actor
+	---@return boolean
+	IsNeutralOrEnemy = function(actorObject)
+		if (actorObject.flag_original) then
+			if (bitBand(actorObject.flag_original, CONST_OBJECT_TYPE_NEUTRAL_OR_ENEMY) ~= 0) then
+				local npcId = Details:GetNpcIdFromGuid(actorObject.serial)
+				if (Details.IgnoredEnemyNpcsTable[npcId]) then
+					return false
+				end
+				return true
+			end
+		end
+		return false
+	end,
 }

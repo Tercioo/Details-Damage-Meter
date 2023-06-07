@@ -95,12 +95,7 @@
 
 	local OBJECT_TYPE_FRIENDLY_NPC 	=	0x00000A18
 
-	local ignoredEnemyNpcsTable = {
-		[31216] = true, --mirror image
-		[53006] = true, --spirit link totem
-		[63508] = true, --xuen
-		[73967] = true, --xuen
-	}
+	local ignoredEnemyNpcsTable = Details.IgnoredEnemyNpcsTable
 
 	--damage mixin
 	local damageClassMixin = {}
@@ -181,45 +176,6 @@ function Details:ContainerSort (container, amount, keyName2) --[[exported]]
 
 		return amount
 	end
-end
-
----return true if the actor is or was in the player group
----@param self table
----@return boolean|nil
-function Details:IsGroupPlayer() --[[exported]]
-	return self.grupo
-end
-
----return true if the player is a pet or guardian
----@return boolean
-function Details:IsPetOrGuardian() --[[exported]]
-	return self.owner and true or false
-end
-
----return true if the actor is a player
----@return boolean
-function Details:IsPlayer() --[[exported]]
-	if (self.flag_original) then
-		if (bitBand(self.flag_original, OBJECT_TYPE_PLAYER) ~= 0) then
-			return true
-		end
-	end
-	return false
-end
-
----return true if the actor is an enemy of neutral npc
----@return boolean
-function Details:IsNeutralOrEnemy() --[[exported]]
-	if (self.flag_original) then
-		if (bitBand(self.flag_original, 0x00000060) ~= 0) then
-			local npcid1 = Details:GetNpcIdFromGuid(self.serial)
-			if (ignoredEnemyNpcsTable[npcid1]) then
-				return false
-			end
-			return true
-		end
-	end
-	return false
 end
 
 ---return true if the actor is a friendly npc

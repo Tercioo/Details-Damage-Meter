@@ -157,7 +157,10 @@
 ---@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table
 ---@field BuildSpellTargetFromSpellTable fun(actor: actor, spellTable: spelltable) : table
 ---@field raid_targets table<number, number>
----@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns") : spellcontainer
+---@field IsPlayer fun(actor: actor) : boolean return true if the actor is controlled by a player
+---@field IsPetOrGuardian fun(actor: actor) : boolean return true if the actor is a pet or guardian
+---@field IsGroupPlayer fun(actor: actor) : boolean return true if the actor is a player in the group (or was in the group during the combat)
+---@field GetSpellContainer fun(actor: actor, containerType: "debuff"|"buff"|"spell"|"cooldowns"|"dispel") : spellcontainer
 ---@field Class fun(actor: actor) : string get the ingame class of the actor
 ---@field Spec fun(actor: actor) : string get the ingame spec of the actor
 ---@field Name fun(actor: actor) : string get the name of the actor
