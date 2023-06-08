@@ -426,8 +426,6 @@
 		local _in_resting_zone = false
 		local _global_combat_counter = 0
 
-		local _is_activity_time = false
-
 		---amount of events allowed to store in the table which records the latest events that happened to a player before his death, this value can also be retrieved with Details.deadlog_events
 		local _amount_of_last_events = 16
 
@@ -581,6 +579,7 @@
 
 	end
 
+	--~spell ~spelldamage
 	function parser:spell_dmg(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellType, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, isreflected)
 		--early checks and fixes
 		if (sourceSerial == "") then
@@ -1061,7 +1060,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--~activity time
-		if (not sourceActor.dps_started and _is_activity_time) then
+		if (not sourceActor.dps_started) then
 			--register on time machine
 			sourceActor:Iniciar(true)
 
@@ -2261,7 +2260,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--~activity time
-		if (not sourceActor.iniciar_hps and _is_activity_time) then
+		if (not sourceActor.iniciar_hps) then
 			sourceActor:Iniciar (true) --inicia o hps do jogador
 
 			if (ownerActor and not ownerActor.iniciar_hps) then
@@ -4901,8 +4900,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--end
 		end
 
-		_is_activity_time = Details.time_type == 1
-
 		Details:DispatchAutoRunCode("on_zonechanged")
 		Details:SchedulePetUpdate(7)
 		Details:CheckForPerformanceProfile()
@@ -6352,7 +6349,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_amount_of_last_events = Details.deadlog_events
 
 		_use_shield_overheal = Details.parser_options.shield_overheal
-		_is_activity_time  = Details.time_type == 1
 		shield_spellid_cache = Details.shield_spellid_cache
 
 		--refresh total containers
