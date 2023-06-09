@@ -512,6 +512,7 @@ local classTypeUtility = Details.atributos.misc
 							Details:DestroyActor(actorObject, actorContainer, overallCombatObject)
 						end
 					end
+
 					actorContainer:Cleanup()
 				end
 			end
@@ -532,6 +533,7 @@ local classTypeUtility = Details.atributos.misc
 						end
 					end
 				end
+
 				actorContainer:Cleanup()
 			end
 		end
@@ -591,6 +593,7 @@ local classTypeUtility = Details.atributos.misc
 								end
 							end
 						end
+
 						actorContainer:Cleanup()
 					end
 				end
@@ -690,8 +693,6 @@ local classTypeUtility = Details.atributos.misc
 			Details:InstanciaCallFunction(Details.reset_window)
 		end
 
-		Details:TimeMachineMaintenance()
-
 		--cleanup backlisted pets within the handler of actor containers
 		Details:PetContainerCleanup()
 		Details:ClearCCPetsBlackList()
@@ -761,7 +762,7 @@ local classTypeUtility = Details.atributos.misc
 					if (canCollect) then
 						amountCleaned = amountCleaned + 1
 						if (containerId == 1 or containerId == 2) then --damage or healing
-							Details.timeMachine:UnregisterActor(actorObject)
+							Details222.TimeMachine.RemoveActor(actorObject)
 						end
 						--remove the actor from the container
 						Details:DestroyActor(actorObject, actorContainer, combatObject)
@@ -782,6 +783,7 @@ local classTypeUtility = Details.atributos.misc
 						orphansCleaned = orphansCleaned + 1
 					end
 				end
+
 				actorContainer:Cleanup()
 			end
 

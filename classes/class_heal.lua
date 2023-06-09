@@ -2071,6 +2071,7 @@ function healingClass:MontaInfoHealingDone()
 						---@type spelltableadv
 						local bkSpellData = {
 							id = spellId,
+							actorName = petName,
 							spellschool = spellTable.spellschool,
 							expanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 							bCanExpand = false,
@@ -2772,10 +2773,10 @@ function healingClass:Iniciar (iniciar)
 		return self.iniciar_hps --retorna se o dps esta aberto ou fechado para este jogador
 	elseif (iniciar) then
 		self.iniciar_hps = true
-		self:RegistrarNaTimeMachine() --coloca ele da timeMachine
+		Details222.TimeMachine.AddActor(self)
 	else
 		self.iniciar_hps = false
-		self:DesregistrarNaTimeMachine() --retira ele da timeMachine
+		Details222.TimeMachine.RemoveActor(self)
 	end
 end
 

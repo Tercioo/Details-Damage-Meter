@@ -4,7 +4,100 @@
 --size: corresponds to the height and height of an object, it is measure in pixels, must be bigger than zero.
 --scale: the size of an object is multiplied by this value, it is measure in percentage, must be between 0.65 and 2.40.
 --alpha: corresponds to the transparency of an object, the bigger is the value less transparent is the object, it is measure in percentage, must be between 0 and 1, zero is fully transparent and one is fully opaque.
+--controller: abstract term to define who's in control of an entity, can be the server or a player.
+--npc: an entity shown in the 3d world with a name and a health bar, can be friendly or hostile, can be interacted with, always controlled by the server.
+--player: is an entity that represents a player character, the controller is always player.
+--pet: represents a npc controlled by the server and can accept commands from the player.
+--guadians: represents a npc, the server has the possess of the controller, don't accept commands like pets, helps attacking the enemies of the npc or player.
+--role: is a string that represents the role of a unit, such as tank, healer, or damage dealer. only players can have a role.
 
+---@alias role
+---| "TANK"
+---| "HEALER"
+---| "DAMAGER"
+---| "NONE"
+
+---@alias anchorpoint
+---| "topleft"
+---| "topright"
+---| "bottomleft"
+---| "bottomright"
+---| "top"
+---| "bottom"
+---| "left"
+---| "right"
+---| "center"
+
+---@alias framestrata
+---| "background"
+---| "low"
+---| "medium"
+---| "high"
+---| "dialog"
+---| "fullscreen"
+---| "fullscreen_dialog"
+---| "tooltip"
+---| "BACKGROUND"
+---| "LOW"
+---| "MEDIUM"
+---| "HIGH"
+---| "DIALOG"
+---| "FULLSCREEN"
+---| "FULLSCREEN_DIALOG"
+---| "TOOLTIP"
+
+---@alias sizingpoint
+---| "top"
+---| "topright"
+---| "right"
+---| "bottomright"
+---| "bottom"
+---| "bottomleft"
+---| "left"
+---| "topleft"
+
+---@alias drawlayer
+---| "background"
+---| "border"
+---| "artwork"
+---| "overlay"
+---| "highlight"
+
+---@alias buttontype
+---| "AnyUp"
+---| "AnyDown"
+---| "LeftButtonDown"
+---| "LeftButtonUp"
+---| "MiddleButtonUp"
+---| "MiddleButtonDown"
+---| "RightButtonDown"
+---| "RightButtonUp"
+---| "Button4Up"
+---| "Button4Down"
+---| "Button5Up"
+---| "Button5Down"
+
+---@alias width number property that represents the horizontal size of a UI element, such as a frame or a texture. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'height' is used.
+---@alias height number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
+---@alias red number color value representing the red component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
+---@alias green number color value representing the green component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
+---@alias blue number color value representing the blue component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
+---@alias alpha number @number(0-1.0) value representing the alpha (transparency) of a UIObject, the value must be between 0 and 1. 0 is fully transparent, 1 is fully opaque.
+---@alias unit string string that represents a unit in the game, such as the player, a party member, or a raid member.
+---@alias health number amount of hit points (health) of a unit. This value can be changed by taking damage or healing.
+---@alias spellid number each spell in the game has a unique spell id, this id can be used to identify a spell.
+---@alias actorname string name of a unit
+---@alias spellname string name of a spell
+---@alias actorid string unique id of a unit (GUID)
+---@alias serial string unique id of a unit (GUID)
+---@alias color table, string @table(r: red|number, g: green|number, b: blue|number, a: alpha|number) @string(color name) @hex (000000-ffffff) value representing a color, the value must be a table with the following fields: r, g, b, a. r, g, b are numbers between 0 and 1, a is a number between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
+---@alias scale number @number(0.65-2.40) value representing the scale factor of the UIObject, the value must be between 0.65 and 2.40, the width and height of the UIObject will be multiplied by this value.
+---@alias script string, function is a piece of code that is executed in response to a specific event, such as a button click or a frame update. Scripts can be used to implement behavior and logic for UI elements.
+---@alias event string is a notification that is sent to a frame when something happens, such as a button click or a frame update. Events can be used to trigger scripts.
+---@alias backdrop table @table(bgFile: string, edgeFile: string, tile: edgeSize: number, backgroundColor: color, borderColor: color) is a table that contains information about the backdrop of a frame. The backdrop is the background of a frame, which can be a solid color, a gradient, or a texture.
+---@alias npcid number a number that identifies a specific npc in the game.
+---@alias textureid number each texture from the game client has an id.
+---@alias texturepath string access textures from addons.
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)
@@ -34,29 +127,6 @@
 ---@class objectsize : {height: number, width: number}
 ---@class texturetable : {texture: string, coords: texturecoords, size: objectsize}
 
----@class spellid : number
----@class actorname : string
----@class spellname : string
----@class actorid : string
----@class red : number color value representing the red component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
----@class green : number color value representing the green component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
----@class blue : number color value representing the blue component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
----@class alpha : number @number(0-1.0) value representing the alpha (transparency) of a UIObject, the value must be between 0 and 1. 0 is fully transparent, 1 is fully opaque.
----@class color : table, string @table(r: red|number, g: green|number, b: blue|number, a: alpha|number) @string(color name) @hex (000000-ffffff) value representing a color, the value must be a table with the following fields: r, g, b, a. r, g, b are numbers between 0 and 1, a is a number between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
----@class scale : number @number(0.65-2.40) value representing the scale factor of the UIObject, the value must be between 0.65 and 2.40, the width and height of the UIObject will be multiplied by this value.
----@class texture : string, number is an object that represents a graphical image. Textures are used to display visual elements such as icons, backgrounds, borders, and more.
----@class frame : uiobject represents a container for other UI elements, such as textures, buttons, text, and more. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'width' is used.
----@class width : number property that represents the horizontal size of a UI element, such as a frame or a texture.
----@class height : number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
----@class script : string, function is a piece of code that is executed in response to a specific event, such as a button click or a frame update. Scripts can be used to implement behavior and logic for UI elements.
----@class event : string is a notification that is sent to a frame when something happens, such as a button click or a frame update. Events can be used to trigger scripts.
----@class framestrata : string @string(BACKGROUND, LOW, MEDIUM, HIGH, DIALOG, FULLSCREEN, FULLSCREEN_DIALOG, TOOLTIP) property that determines the stacking order of frames. Higher strata values indicate frames that should be displayed on top of frames with lower strata values.
----@class backdrop : table @table(bgFile: string, edgeFile: string, tile: edgeSize: number, backgroundColor: color, borderColor: color) is a table that contains information about the backdrop of a frame. The backdrop is the background of a frame, which can be a solid color, a gradient, or a texture.
----@class unit : string string that represents a unit in the game, such as the player, a party member, or a raid member.
----@class health : number amount of hit points (health) of a unit. This value can be changed by taking damage or healing.
----@class role : string @string(TANK, HEALER, DAMAGER, NONE) is a string that represents the role of a unit, such as tank, healer, or damage dealer.
----@class point : string @string(topleft, topright, bottomleft, bottomright, top, bottom, left, right, center) is a string that represents a point on a frame. Points are used to position frames relative to each other.
-
 ---@class uiobject
 ---@field GetObjectType fun(self: uiobject) : string
 ---@field Show fun(self: uiobject) make the object be shown on the user screen
@@ -78,7 +148,7 @@
 ---@field GetParent fun(self: uiobject) : frame
 ---@field GetPoint fun(self: uiobject, index: number): string, frame, string, number, number
 ---@field GetCenter fun(self: uiobject): number, number
----@field SetPoint fun(self: uiobject, point: "topleft"|"topright"|"bottomleft"|"bottomright"|"top"|"bottom"|"left"|"right"|"center", relativeFrame: uiobject, relativePoint: "topleft"|"topright"|"bottomleft"|"bottomright"|"top"|"bottom"|"left"|"right"|"center", xOffset: number, yOffset: number)
+---@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
 ---@field ClearAllPoints fun(self: uiobject)
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup
 
@@ -128,7 +198,7 @@
 ---@field SetAttribute fun(self: frame, name: string, value: any)
 ---@field SetScript fun(self: frame, event: string, handler: function|nil)
 ---@field GetScript fun(self: frame, event: string) : function
----@field SetFrameStrata fun(self: frame, strata: framestrata|"background"|"low"|"medium"|"high"|"dialog"|"fullscreen"|"fullscreen_dialog"|"tooltip")
+---@field SetFrameStrata fun(self: frame, strata: framestrata)
 ---@field SetFrameLevel fun(self: frame, level: number)
 ---@field SetClampedToScreen fun(self: frame, clamped: boolean)
 ---@field SetClampRectInsets fun(self: frame, left: number, right: number, top: number, bottom: number)
@@ -143,19 +213,19 @@
 ---@field SetPropagateGamepadInput fun(self: frame, propagate: boolean)
 ---@field StartMoving fun(self: frame)
 ---@field IsMovable fun(self: frame) : boolean
----@field StartSizing fun(self: frame, point: "top"|"topright"|"right"|"bottomright"|"bottom"|"bottomleft"|"left"|"topleft")
+---@field StartSizing fun(self: frame, sizingpoint: sizingpoint|nil)
 ---@field StopMovingOrSizing fun(self: frame)
 ---@field GetAttribute fun(self: frame, name: string) : any
 ---@field GetFrameLevel fun(self: frame) : number
----@field GetFrameStrata fun(self: frame) : framestrata|string
+---@field GetFrameStrata fun(self: frame) : framestrata
 ---@field GetNumChildren fun(self: frame) : number
 ---@field GetNumPoints fun(self: frame) : number
 ---@field GetNumRegions fun(self: frame) : number
 ---@field GetName fun(self: frame) : string
 ---@field GetChildren fun(self: frame) : frame[]
 ---@field GetRegions fun(self: frame) : region[]
----@field CreateTexture fun(self: frame, name: string|nil, layer: "background"|"border"|"artwork"|"overlay"|"highlight", inherits: string|nil, subLayer: number|nil) : texture
----@field CreateFontString fun(self: frame, name: string|nil, layer: "background"|"border"|"artwork"|"overlay"|"highlight", inherits: string|nil, subLayer: number|nil) : fontstring
+---@field CreateTexture fun(self: frame, name: string|nil, layer: drawlayer, inherits: string|nil, subLayer: number|nil) : texture
+---@field CreateFontString fun(self: frame, name: string|nil, layer: drawlayer, inherits: string|nil, subLayer: number|nil) : fontstring
 ---@field EnableMouse fun(self: frame, enable: boolean)
 ---@field SetResizable fun(self: frame, enable: boolean)
 ---@field EnableMouseWheel fun(self: frame, enable: boolean)
@@ -183,7 +253,7 @@
 ---@field GetFontString fun(self: button) : fontstring
 ---@field SetButtonState fun(self: button, state: string, enable: boolean)
 ---@field GetButtonState fun(self: button, state: string) : boolean
----@field RegisterForClicks fun(self: button, button1: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down", button2: nil|"AnyUp"|"AnyDown"|"LeftButtonDown"|"LeftButtonUp"|"MiddleButtonUp"|"MiddleButtonDown"|"RightButtonDown"|"RightButtonUp"|"Button4Up"|"Button4Down"|"Button5Up"|"Button5Down")
+---@field RegisterForClicks fun(self: button, button1: nil|buttontype, button2: nil|buttontype, button3: nil|buttontype, button4: nil|buttontype)
 ---@field GetNormalTexture fun(self: button) : texture
 ---@field GetPushedTexture fun(self: button) : texture
 ---@field GetHighlightTexture fun(self: button) : texture
@@ -191,7 +261,7 @@
 
 ---@class statusbar : frame
 ---@field SetStatusBarColor fun(self: statusbar, r: red|number, g: green|number, b: blue|number, a: alpha|number)
----@field SetStatusBarTexture fun(self: statusbar, path: string)
+---@field SetStatusBarTexture fun(self: statusbar, path: string|texture)
 ---@field GetStatusBarTexture fun(self: statusbar) : texture
 ---@field SetMinMaxValues fun(self: statusbar, minValue: number, maxValue: number)
 ---@field SetValue fun(self: statusbar, value: number)
@@ -217,7 +287,7 @@
 ---@class region : uiobject
 
 ---@class fontstring : region
----@field SetDrawLayer fun(self: fontstring, layer: "background"|"border"|"artwork"|"overlay"|"highlight", subLayer: number|nil)
+---@field SetDrawLayer fun(self: fontstring, layer: drawlayer, subLayer: number|nil)
 ---@field SetFont fun(self: fontstring, font: string, size: number, flags: string)
 ---@field SetText fun(self: fontstring, text: string|number)
 ---@field GetText fun(self: fontstring) : string
@@ -264,7 +334,7 @@
 ---@field GetTextTruncateLines fun(self: fontstring) : number
 
 ---@class texture : region
----@field SetDrawLayer fun(self: texture, layer: "background"|"border"|"artwork"|"overlay"|"highlight", subLayer: number|nil)
+---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number|nil)
 ---@field SetTexture fun(self: texture, path: string)
 ---@field SetAtlas fun(self: texture, atlas: string)
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)

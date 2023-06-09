@@ -309,22 +309,14 @@ function segmentClass:AddCombat(combatObject)
 			---@cast actorObject actor
 			--clear last events table
 			actorObject.last_events_table =  nil
-
-			--unregister from time machine
-			if (actorObject.timeMachine) then
-				actorObject:DesregistrarNaTimeMachine()
-			end
+			Details222.TimeMachine.RemoveActor(actorObject)
 		end
 
 		for _, actorObject in containerHeal:ListActors() do
 			---@cast actorObject actor
 			--clear last events table
 			actorObject.last_events_table =  nil
-
-			--unregister from time machine
-			if (actorObject.timeMachine) then
-				actorObject:DesregistrarNaTimeMachine()
-			end
+			Details222.TimeMachine.RemoveActor(actorObject)
 		end
 
 		if (Details.trash_auto_remove) then
@@ -335,14 +327,10 @@ function segmentClass:AddCombat(combatObject)
 				if ((thirdCombat.is_trash and not thirdCombat.is_boss) or(thirdCombat.is_temporary)) then
 					--verify again the time machine
 					for _, actorObject in thirdCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
-						if (actorObject.timeMachine) then
-							actorObject:DesregistrarNaTimeMachine()
-						end
+						Details222.TimeMachine.RemoveActor(actorObject)
 					end
 					for _, actorObject in thirdCombat:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
-						if (actorObject.timeMachine) then
-							actorObject:DesregistrarNaTimeMachine()
-						end
+						Details222.TimeMachine.RemoveActor(actorObject)
 					end
 
 					--remove
@@ -403,14 +391,10 @@ function segmentClass:AddCombat(combatObject)
 
 		--check time machine
 		for _, actorObject in combatObjectToBeRemoved:GetContainer(DETAILS_ATTRIBUTE_DAMAGE):ListActors() do
-			if (actorObject.timeMachine) then
-				actorObject:DesregistrarNaTimeMachine()
-			end
+			Details222.TimeMachine.RemoveActor(actorObject)
 		end
 		for _, actorObject in combatObjectToBeRemoved:GetContainer(DETAILS_ATTRIBUTE_HEAL):ListActors() do
-			if (actorObject.timeMachine) then
-				actorObject:DesregistrarNaTimeMachine()
-			end
+			Details222.TimeMachine.RemoveActor(actorObject)
 		end
 
 		--remove it
@@ -553,7 +537,7 @@ function segmentClass:ResetAllCombatData()
 	Details:Destroy(Details.cache_healing_group)
 
 	--reinicia a time machine
-	timeMachine:Reiniciar()
+	Details222.TimeMachine.Restart()
 	Details:UpdateParserGears()
 
 	if (not InCombatLockdown() and not UnitAffectingCombat("player")) then
@@ -605,14 +589,10 @@ end
 
 					--verificar novamente a time machine
 					for _, jogador in ipairs(_terceiro_combate [1]._ActorTable) do --damage
-						if (jogador.timeMachine) then
-							jogador:DesregistrarNaTimeMachine()
-						end
+						Details222.TimeMachine.RemoveActor(jogador)
 					end
 					for _, jogador in ipairs(_terceiro_combate [2]._ActorTable) do --heal
-						if (jogador.timeMachine) then
-							jogador:DesregistrarNaTimeMachine()
-						end
+						Details222.TimeMachine.RemoveActor(jogador)
 					end
 					--remover
 					_table_remove(self.tabelas, 3)

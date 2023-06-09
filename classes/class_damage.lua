@@ -4618,6 +4618,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 				local bkSpellData = {
 					bIsActorHeader = true, --tag this spelltable as an actor header, when the actor is the header it will nest the spells use by this actor
 					actorName = petName,
+					npcId = petActor.aID,
 					id = 0,
 					spellschool = 0,
 					bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(petName),
@@ -4670,6 +4671,8 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 							---@type spelltableadv
 							local bkSpellData = {
 								id = spellId,
+								actorName = petName,
+								npcId = petActor.aID,
 								spellschool = spellTable.spellschool,
 								bIsExpanded = Details222.BreakdownWindow.IsSpellExpanded(spellId),
 								bCanExpand = false,
@@ -6146,10 +6149,10 @@ function damageClass:Iniciar (iniciar)
 		return self.dps_started --retorna se o dps esta aberto ou fechado para este jogador
 	elseif (iniciar) then
 		self.dps_started = true
-		self:RegistrarNaTimeMachine() --coloca ele da timeMachine
+		Details222.TimeMachine.AddActor(self)
 	else
 		self.dps_started = false
-		self:DesregistrarNaTimeMachine() --retira ele da timeMachine
+		Details222.TimeMachine.RemoveActor(self)
 	end
 end
 

@@ -41,7 +41,7 @@ function Details:StartMeUp()
 		--healing, hps, overheal, healing taken
 			Details.row_singleclick_overwrite[2] = {true, true, true, true, false, Details.atributo_heal.ReportSingleDamagePreventedLine}
 		--mana, rage, energy, runepower
-			Details.row_singleclick_overwrite[3] = {true, true, true, true}
+			Details.row_singleclick_overwrite[3] = {true, true, true, true} --missing other resources and alternate power
 		--cc breaks, ress, interrupts, dispells, deaths
 			Details.row_singleclick_overwrite[4] = {true, true, true, true, Details.atributo_misc.ReportSingleDeadLine, Details.atributo_misc.ReportSingleCooldownLine, Details.atributo_misc.ReportSingleBuffUptimeLine, Details.atributo_misc.ReportSingleDebuffUptimeLine}
 
@@ -113,7 +113,7 @@ function Details:StartMeUp()
 	Details:GetLowerInstanceNumber()
 
 	--start time machine
-	Details.timeMachine:TurnOn()
+	Details222.TimeMachine.Start()
 
 	--update abbreviation shortcut
 	Details.atributo_damage:UpdateSelectedToKFunction()

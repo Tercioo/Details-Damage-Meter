@@ -2268,7 +2268,6 @@
 				if (ownerActor.end_time) then
 					ownerActor.end_time = nil
 				else
-					--meu_dono:IniciarTempo (_tempo)
 					ownerActor.start_time = _tempo
 				end
 			end
@@ -2276,7 +2275,6 @@
 			if (sourceActor.end_time) then --o combate terminou, reabrir o tempo
 				sourceActor.end_time = nil
 			else
-				--este_jogador:IniciarTempo (_tempo)
 				sourceActor.start_time = _tempo
 			end
 		end

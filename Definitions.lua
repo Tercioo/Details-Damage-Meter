@@ -1,10 +1,13 @@
 
+---@alias spellschool number
+
+
 ---@class details
 ---@field SpellTableMixin spelltablemixin
 ---@field GetInstance fun(self: details) : instance
 ---@field GetWindow fun(self: details) : instance this is an alias of GetInstance
 ---@field GetCombat fun(self: details) : combat
----@field GetSpellSchoolFormatedName fun(self: details, spellschool: number) : string
+---@field GetSpellSchoolFormatedName fun(self: details, spellschool: spellschool) : string
 ---@field CommaValue fun(self: details, number: number) : string
 ---@field CreateEventListener fun(self: details) : table
 
@@ -127,9 +130,11 @@
 
 ---@class actor : table
 ---@field owner actor
+---@field tipo number the container type
 ---@field ownerName string name of the owner of the pet, a pet without an owner is considered an orphan and be suitable for garbage collection
 ---@field pets table<number, string>
 ---@field arena_enemy boolean if true the actor is an enemy in an arena match
+---@field dps_started boolean if true the actor started to do damage or healing
 ---@field start_time unixtime when this actor started to be tracked
 ---@field end_time number when this actor stopped to be tracked, end_time - start_time is the activity time of the actor
 ---@field displayName string actor name shown in the regular window
@@ -154,6 +159,7 @@
 ---@field total_without_pet number
 ---@field total number
 ---@field targets targettable
+---@field GetSpell fun(actor: actor, spellId: number) : spelltable
 ---@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table
 ---@field BuildSpellTargetFromSpellTable fun(actor: actor, spellTable: spelltable) : table
 ---@field raid_targets table<number, number>
@@ -363,9 +369,10 @@
 ---@field expandedIndex number
 ---@field bIsExpanded boolean
 ---@field statusBarValue number
+---@field npcId npcid
 ---@field actorName string --when showing an actor header, this is the actor name
----@field bIsActorHeader boolean is this is true, the spellbar is an actor header, which is a bar with the actor name with the actor spells nested
----@field actorIcon texture
+---@field bIsActorHeader boolean if this is true, the spellbar is an actor header, which is a bar with the actor name with the actor spells nested
+---@field actorIcon textureid|texturepath
 
 ---@class bknesteddata : {spellId: number, spellTable: spelltable, actorName: string, value: number, bIsActorHeader: boolean} fills .nestedData table in spelltableadv, used to store the nested spells data, 'value' is set when the breakdown sort the values by the selected header
 
@@ -428,6 +435,14 @@
 ---@field TabFrame breakdownspellstab
 ---@field mainAttribute number
 ---@field subAttribute number
+---@field TargetScrollFrame breakdowntargetscrollframe
+---@field PhaseScrollFrame breakdownphasescrollframe
+---@field GenericScrollFrame breakdowngenericscrollframe
+---@field SpellContainerFrame df_framecontainer
+---@field BlocksContainerFrame df_framecontainer
+---@field TargetsContainerFrame df_framecontainer
+---@field PhaseContainerFrame df_framecontainer
+---@field GenericContainerFrame df_framecontainer
 ---@field GetActor fun() : actor
 ---@field GetCombat fun() : combat
 ---@field GetInstance fun() : instance
@@ -454,6 +469,16 @@
 ---@field CreateTargetBar fun(self: breakdowntargetscrollframe, index: number) : breakdowntargetbar
 ---@field CreateSpellBar fun(self: breakdownspellscrollframe, index: number) : breakdownspellbar
 
+---@class timemachine : table
+---@field Ticker fun() runs each second and check if actors are performing damage and healing actions, if the actor isn't, stop the activity time of that actor
+---@field Start fun() start the time machine, called once from the start.lua
+---@field Cleanup fun() check for actors with __destroyed flag and remove them from the time machine
+---@field Restart fun() reset all data inside the time machine
+---@field AddActor fun(actor: actor) add the actor to the time machine
+---@field RemoveActor fun(actor: actor) remove the actor from the time machine
+---@field StopTime fun(actor: actor) stop the time of the actor
+---@field SetOrGetPauseState fun(actor: actor, bPause: boolean|nil) : boolean|nil set or get the pause state of the actor, if bPause is nil, then it will return the current pause state
 
-
+---@class details222 : table
+---@field TimeMachine timemachine
 
