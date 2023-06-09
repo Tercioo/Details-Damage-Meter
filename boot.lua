@@ -97,6 +97,8 @@
 		Details222.LoadSavedVariables = {}
 		Details222.SaveVariables = {}
 
+		Details222.TimeMachine = {}
+
 		Details222.Date = {
 			GetDateForLogs = function()
 				return _G.date("%Y-%m-%d %H:%M:%S")
@@ -494,6 +496,22 @@ do
 				["UNIT_DIED"] = 33,
 				["UNIT_DESTROYED"] = 34,
 			}
+
+		---@type table<npcid, textureid>
+		local npcIdToIcon = {
+			[98035] = 1378282, --dreadstalker
+			[17252] = 136216, --felguard
+			[136404] = 132182, --bilescourge
+			[136398] = 626007, --illidari satyr
+			[136403] = 1100177, --void terror
+			[136402] = 1581747, --ur'zyk
+			[136399] = 1709931, --visious hellhound
+			[136406] = 615148, --shivarra
+			[136407] = 615025, --wrathguard
+			[136408] = 1709932, --darkhound
+
+		}
+		_detalhes.NpcIdToIcon = npcIdToIcon
 
 		--armazena instancias inativas
 			_detalhes.unused_instances = {}
@@ -1256,6 +1274,14 @@ function Details:Destroy(object, key)
 end
 
 function Details:DestroyCombat(combatObject)
+	--destroy each individual actor, hence more cleanups are done
+	for i = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
+		local actorContainer = combatObject:GetContainer(i)
+		for index, actorObject in actorContainer:ListActors() do
+			Details:DestroyActor(actorObject, actorContainer, combatObject, 3)
+		end
+	end
+
 	setmetatable(combatObject, nil)
 	combatObject.__index = nil
 	combatObject.__newindex = nil
@@ -1271,7 +1297,7 @@ end
 ---@param actorObject actor
 ---@param actorContainer actorcontainer
 ---@param combatObject combat
-function Details:DestroyActor(actorObject, actorContainer, combatObject)
+function Details:DestroyActor(actorObject, actorContainer, combatObject, callStackDepth)
 	local containerType = actorContainer:GetType()
 	local combatTotalsTable = combatObject.totals[containerType] --without group
 	local combatTotalsTableInGroup = combatObject.totals_grupo[containerType] --with group
@@ -1380,6 +1406,8 @@ function Details:DestroyActor(actorObject, actorContainer, combatObject)
 		end
 	end
 
+	Details222.TimeMachine.RemoveActor(actorObject)
+
 	local actorName = actorObject:Name()
 	combatObject:RemoveActorFromSpellCastTable(actorName)
 
@@ -1390,5 +1418,5 @@ function Details:DestroyActor(actorObject, actorContainer, combatObject)
 
 	--leave a trace that the actor has been deleted
 	actorObject.__destroyed = true
-	actorObject.__destroyedBy = debugstack(2, 1, 0)
+	actorObject.__destroyedBy = debugstack(callStackDepth or 2, 1, 0)
 end
