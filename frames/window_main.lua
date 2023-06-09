@@ -1989,11 +1989,12 @@ local lineScript_Onmouseup = function(self, button)
 					end
 				end
 
-				if (Details.row_singleclick_overwrite [instanceObject.atributo] and type(Details.row_singleclick_overwrite [instanceObject.atributo][instanceObject.sub_atributo]) == "function") then
-					return Details.row_singleclick_overwrite [instanceObject.atributo][instanceObject.sub_atributo] (_, self.minha_tabela, instanceObject, bIsShiftDown, bIsControlDown)
+				--if there's a function to overwrite the default behavior
+				if (Details.row_singleclick_overwrite[instanceObject.atributo] and type(Details.row_singleclick_overwrite[instanceObject.atributo][instanceObject.sub_atributo]) == "function") then
+					return Details.row_singleclick_overwrite[instanceObject.atributo][instanceObject.sub_atributo](_, self.minha_tabela, instanceObject, bIsShiftDown, bIsControlDown)
 				end
 
-				return Details:ReportSingleLine (instanceObject, self)
+				return Details:ReportSingleLine(instanceObject, self)
 			end
 
 			if (not self.minha_tabela) then

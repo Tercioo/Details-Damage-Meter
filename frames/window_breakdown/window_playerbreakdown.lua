@@ -97,10 +97,6 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	---@type number, number
 	local mainAttribute, subAttribute = instanceObject:GetDisplay()
 
-	--create the player list frame in the left side of the window
-	Details.PlayerBreakdown.CreatePlayerListFrame()
-	Details.PlayerBreakdown.CreateDumpDataFrame()
-
 	if (not Details.row_singleclick_overwrite[mainAttribute] or not Details.row_singleclick_overwrite[mainAttribute][subAttribute]) then
 		Details:CloseBreakdownWindow()
 		return
@@ -128,6 +124,10 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 		Details:CloseBreakdownWindow()
 		return
 	end
+
+	--create the player list frame in the left side of the window
+	Details.PlayerBreakdown.CreatePlayerListFrame()
+	Details.PlayerBreakdown.CreateDumpDataFrame()
 
 	if (not breakdownWindow.bHasInitialized) then
 		local infoNumPoints = breakdownWindow:GetNumPoints()
