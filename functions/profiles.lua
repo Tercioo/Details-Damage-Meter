@@ -1454,12 +1454,16 @@ local default_global_data = {
 		genericcontainer_height = 311 + 140 + 30,
 		genericcontainer_islocked = true,
 
+		genericcontainer_right_width = 403,
+		genericcontainer_right_height = 460,
+
 		spellbar_background_alpha = 0.92,
 
 		spellcontainer_headers = {}, --store information about active headers and their sizes (spells)
 		targetcontainer_headers = {}, --store information about active headers and their sizes (target)
 		phasecontainer_headers = {}, --store information about active headers and their sizes (phases)
-		genericcontainer_headers = {}, --store information about active headers and their sizes (generic)
+		genericcontainer_headers = {}, --store information about active headers and their sizes (generic left)
+		genericcontainer_headers_right = {}, --store information about active headers and their sizes (generic right)
 
 		spellcontainer_header_height = 20,
 		spellcontainer_header_fontsize = 10,
@@ -2009,7 +2013,7 @@ function Details.ShowImportProfileConfirmation(message, callback)
 		promptFrame:SetScript("OnDragStart", function() promptFrame:StartMoving() end)
 		promptFrame:SetScript("OnDragStop", function() promptFrame:StopMovingOrSizing() end)
 		promptFrame:SetScript("OnMouseDown", function(self, button) if (button == "RightButton") then promptFrame.EntryBox:ClearFocus() promptFrame:Hide() end end)
-		tinsert(UISpecialFrames, "DetailsImportProfileDialog")
+		table.insert(UISpecialFrames, "DetailsImportProfileDialog")
 
 		detailsFramework:CreateTitleBar(promptFrame, "Import Profile Confirmation")
 		detailsFramework:ApplyStandardBackdrop(promptFrame)

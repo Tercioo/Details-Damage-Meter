@@ -28,7 +28,7 @@
 	local atributo_energy = Details.atributo_energy --details local
 	local atributo_misc = Details.atributo_misc --details local
 	local atributo_custom = Details.atributo_custom --details local
-	local info = Details.playerDetailWindow --details local
+	local breakdownWindowFrame = Details.BreakdownWindowFrame --details local
 
 	local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
 
@@ -788,13 +788,13 @@
 							if (Details.tabela_vigente.is_boss.killed) then
 								cleuIDData.kills = cleuIDData.kills + 1
 								cleuIDData.best_try = 0
-								tinsert(cleuIDData.try_history, {0, Details.tabela_vigente:GetCombatTime()})
+								table.insert(cleuIDData.try_history, {0, Details.tabela_vigente:GetCombatTime()})
 								--print("KILL", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
 							else
 								cleuIDData.wipes = cleuIDData.wipes + 1
 								if (Details.boss1_health_percent and Details.boss1_health_percent < cleuIDData.best_try) then
 									cleuIDData.best_try = Details.boss1_health_percent
-									tinsert(cleuIDData.try_history, {Details.boss1_health_percent, Details.tabela_vigente:GetCombatTime()})
+									table.insert(cleuIDData.try_history, {Details.boss1_health_percent, Details.tabela_vigente:GetCombatTime()})
 								end
 								--print("WIPE", "best try", cleuIDData.best_try, "amt kills", cleuIDData.kills, "wipes", cleuIDData.wipes, "longest", cleuIDData.longest)
 							end
@@ -1489,7 +1489,7 @@
 					(instance.ativa) and
 					(instance.last_interaction+3 < _tempo) and
 					(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and
-					(not Details.playerDetailWindow:IsShown())
+					(not Details.BreakdownWindowFrame:IsShown())
 				)
 			) then
 				instance._postponing_current = nil
@@ -1515,7 +1515,7 @@
 						end
 					end
 
-					if ((instancia.last_interaction and (instancia.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.playerDetailWindow:IsShown())) then
+					if ((instancia.last_interaction and (instancia.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.BreakdownWindowFrame:IsShown())) then
 						--postpone
 						instancia._postponing_current = Details:ScheduleTimer("PostponeInstanceToCurrent", 1, instancia)
 						return
@@ -1789,7 +1789,7 @@
 		end
 
 	--call update functions
-		function Details:RefreshAllMainWindows(bForceRefresh)
+		function Details:RefreshAllMainWindows(bForceRefresh) --getting deprecated soon
 			local combatObject = self.showing
 
 			--the the segment does not have a valid combat, freeze the window
@@ -1846,7 +1846,7 @@
 			self:RefreshMainWindow(true)
 		end
 
-		function Details:RefreshMainWindow(instanceObject, bForceRefresh)
+		function Details:RefreshMainWindow(instanceObject, bForceRefresh) --getting deprecated soon
 			if (not instanceObject or type(instanceObject) == "boolean") then
 				bForceRefresh = instanceObject
 				instanceObject = self
@@ -1859,17 +1859,18 @@
 			if (instanceObject == -1) then
 				--update
 				for index, thisInstance in ipairs(Details.tabela_instancias) do
-					if (thisInstance.ativa) then
-						if (thisInstance.modo == modo_GROUP or thisInstance.modo == modo_ALL) then
-							thisInstance:RefreshAllMainWindows(bForceRefresh)
+					---@cast thisInstance instance
+					if (thisInstance:IsEnabled()) then
+						if (thisInstance:GetMode() == DETAILS_MODE_GROUP or thisInstance:GetMode() == DETAILS_MODE_ALL) then
+							thisInstance:RefreshData(bForceRefresh)
 						end
 					end
 				end
 
 				--flag windows as no need update next tick
 				for index, thisInstance in ipairs(Details.tabela_instancias) do
-					if (thisInstance.ativa and thisInstance.showing) then
-						if (thisInstance.modo == modo_GROUP or thisInstance.modo == modo_ALL) then
+					if (thisInstance:IsEnabled() and thisInstance.showing) then
+						if (thisInstance:GetMode() == DETAILS_MODE_GROUP or thisInstance:GetMode() == DETAILS_MODE_ALL) then
 							if (thisInstance.atributo <= 4) then
 								thisInstance.showing[thisInstance.atributo].need_refresh = false
 							end
@@ -1878,8 +1879,8 @@
 				end
 
 				if (not bForceRefresh) then --update player details window if opened
-					if (info.ativo) then
-						return info.jogador:MontaInfo()
+					if (breakdownWindowFrame.ativo) then
+						return breakdownWindowFrame.jogador:MontaInfo()
 					end
 				end
 				return

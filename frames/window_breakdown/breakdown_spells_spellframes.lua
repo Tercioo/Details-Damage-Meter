@@ -12,7 +12,7 @@ local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
-local tinsert = tinsert
+local tinsert = table.insert
 
 local spellsTab = DetailsSpellBreakdownTab
 
@@ -31,7 +31,7 @@ local spellBlockContainerSettings = {
 local headerContainerType = spellsTab.headerContainerType
 
 local formatPetName = function(petName, spellName, ownerName)
-	--petName is raw (with the owner name)
+	--remove the owner name from the pet name
 	local petNameWithoutOwner = petName:gsub((" <.*"), "")
 
 	local texture = [[Interface\AddOns\Details\images\classes_small]]
@@ -557,7 +557,7 @@ function spellsTab.CreateSpellBlock(spellBlockContainer, index) --~breakdownspel
 	Details.FadeHandler.Fader(spellBlock.overlay, 1) --hide
 
 	--report button, also only shown when the spell block is hovered over
-	spellBlock.reportButton = Details.gump:NewDetailsButton(spellBlock, nil, nil, Details.Reportar, Details.playerDetailWindow, 10 + index, 16, 16,
+	spellBlock.reportButton = Details.gump:NewDetailsButton(spellBlock, nil, nil, Details.Reportar, Details.BreakdownWindowFrame, 10 + index, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport1")
 	Details.FadeHandler.Fader(spellBlock.reportButton, 1) --hide
 	spellBlock.reportButton:SetScript("OnEnter", onEnterInfoReport)
@@ -1146,7 +1146,6 @@ local refreshSpellsFunc = function(scrollFrame, scrollData, offset, totalLines) 
 	local headerTable = spellsTab.spellsHeaderData
 
 	--todo: when swapping sort orders, close already expanded spells
-
 	local lineIndex = 1
 	for i = 1, totalLines do
 		local index = i + offset

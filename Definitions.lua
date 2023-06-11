@@ -1,6 +1,12 @@
 
----@alias spellschool number
 
+---@alias plugintype
+---| "SOLO"
+---| "RAID"
+---| "TOOLBAR"
+---| "STATUSBAR"
+
+---@alias containertype number this container type is the number used to identify the actorcontainer type when using combat:GetContainer(containertype), can be 1, 2, 3, or 4.
 
 ---@class details
 ---@field SpellTableMixin spelltablemixin
@@ -46,12 +52,12 @@
 ---@field GetBossInfo fun(combat: combat) : table a table containing many informations about the boss fight
 ---@field SetEndTime fun(combat: combat, time: number)
 ---@field CopyDeathsFrom fun(combat1: combat, combat2: combat, bMythicPlus: boolean) copy the deaths from combat2 to combat1, use true on bMythicPlus if the combat is from a mythic plus run
----@field GetContainer fun(combat: combat, containerType: number) : actorcontainer get an actor container, containerType can be 1 for damage, 2 heal, 3 energy, 4 utility
+---@field GetContainer fun(combat: combat, containerType: containertype) : actorcontainer get an actorcontainer, containerType can be 1 for damage, 2 heal, 3 resources, 4 utility
 ---@field GetSpellCastAmount fun(combat: combat, actorName: string, spellName: string) : number get the amount of times a spell was casted
 ---@field RemoveActorFromSpellCastTable fun(combat: combat, actorName: string)
 ---@field GetSpellCastTable fun(combat: combat, actorName: string|nil) : table
 ---@field GetSpellUptime fun(combat: combat, actorName: string, spellId: number, auraType: string|nil) : number get the uptime of a buff or debuff
----@field GetActor fun(combat: combat, attribute: number, playerName: string) : actor
+---@field GetActor fun(combat: combat, containerType: number, playerName: string) : actor
 ---@field CreateAlternatePowerTable fun(combat: combat, actorName: string) : alternatepowertable
 ---@field GetCombatNumber fun(combat: combat) : number get a unique number representing the combatId, each combat has a unique number
 ---@field SetDate fun(combat: combat, startDate: string, endDate: string) set the start and end date of the combat, format: "H:M:S"
@@ -61,6 +67,7 @@
 ---@field IsTrash fun(combat: combat) : boolean is true if the combat is a trash combat
 
 ---@class actorcontainer : table contains two tables _ActorTable and _NameIndexTable, the _ActorTable contains the actors, the _NameIndexTable contains the index of the actors in the _ActorTable, making quick to reorder them without causing overhead
+---@field need_refresh boolean when true the container is dirty and needs to be refreshed
 ---@field _ActorTable table array of actors
 ---@field _NameIndexTable table<string, number> [actorName] = actorIndex in the _ActorTable, actorcontainer:Remap() refreshes the _NameIndexTable
 ---@field GetActor fun(container: actorcontainer, actorName: string) get an actor by its name
@@ -85,7 +92,7 @@
 
 ---@class friendlyfiretable : table
 ---@field total number total amount of friendly fire caused by the actor
----@field spells table<number, number> spellId = total
+---@field spells table<spellid, number> spellId = total
 
 ---@class spelltable : table
 ---@field uptime number
@@ -177,7 +184,7 @@
 
 ---@class actordamage : actor
 ---@field friendlyfire_total number
----@field friendlyfire friendlyfiretable
+---@field friendlyfire table<actorname, friendlyfiretable>
 ---@field damage_taken number amount of damage the actor took during the segment
 ---@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 ---@field totalabsorbed number amount of damage dealt by the actor by got absorbed by the target, this is a "ABSORB" type of miss but still counts as damage done
@@ -235,6 +242,7 @@
 ---@field freezed boolean
 ---@field sub_atributo_last table
 ---@field row_info table
+---@field GetSize fun(instance: instance) : width, height
 ---@field GetInstanceGroup fun() : table
 ---@field GetCombat fun(instance: instance)
 ---@field ChangeIcon fun(instance: instance)
@@ -268,6 +276,15 @@
 ---@field averageTime number
 
 ---@class tabframe : frame this is the tab frame object for the breakdown window
+
+---@class breakdownwindow : frame
+---@field shownPluginObject table
+---@field BreakdownSideMenuFrame frame frame attached to the left or right side of the breakdown window
+---@field BreakdownPluginSelectionFrame frame frame which has buttons to select a plugin to show in the breakdown window
+---@field BreakdownTabsFrame frame where the tab buttons are located (parent frame)
+---@field RegisteredPluginButtons button[] table which contains plugins buttons that are registered to the breakdown window
+---@field RegisterPluginButton fun(button: button) register a plugin button to the breakdown window
+
 
 ---@class breakdownscrolldata : table
 ---@field totalValue number total done by the actor
@@ -314,6 +331,8 @@
 ---@field Icon texture
 ---@field InLineTexts fontstring[]
 ---@field statusBar breakdownspellbarstatusbar
+---@field bIsFromLeftScroll boolean
+---@field bIsFromRightScroll boolean
 
 ---@class breakdowntargetbar : button, df_headerfunctions
 ---@field index number
@@ -437,12 +456,14 @@
 ---@field subAttribute number
 ---@field TargetScrollFrame breakdowntargetscrollframe
 ---@field PhaseScrollFrame breakdownphasescrollframe
----@field GenericScrollFrame breakdowngenericscrollframe
+---@field GenericScrollFrameLeft breakdowngenericscrollframe
+---@field GenericScrollFrameRight breakdowngenericscrollframe
 ---@field SpellContainerFrame df_framecontainer
 ---@field BlocksContainerFrame df_framecontainer
 ---@field TargetsContainerFrame df_framecontainer
 ---@field PhaseContainerFrame df_framecontainer
----@field GenericContainerFrame df_framecontainer
+---@field GenericContainerFrameLeft df_framecontainer
+---@field GenericContainerFrameRight df_framecontainer
 ---@field GetActor fun() : actor
 ---@field GetCombat fun() : combat
 ---@field GetInstance fun() : instance
@@ -465,6 +486,7 @@
 ---@field CreateSpellBlockContainer fun(tabFrame: tabframe) : breakdownspellblockframe
 ---@field UpdateShownSpellBlock fun()
 ---@field CreateTargetContainer fun(tabFrame: tabframe) : breakdowntargetscrollframe
+---@field CreateGenericContainers fun(tabFrame: tabframe) : breakdowngenericscrollframe, breakdowngenericscrollframe
 ---@field CreateSpellScrollContainer fun(tabFrame: tabframe) : breakdownspellscrollframe
 ---@field CreateTargetBar fun(self: breakdowntargetscrollframe, index: number) : breakdowntargetbar
 ---@field CreateSpellBar fun(self: breakdownspellscrollframe, index: number) : breakdownspellbar

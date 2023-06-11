@@ -3,13 +3,12 @@ local Details = _G.Details
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = _G.LibStub:GetLibrary("LibSharedMedia-3.0")
 local UIParent = UIParent
-local gump = 			Details.gump
 local _
 local addonName, Details222 = ...
 
 --remove warnings in the code
 local ipairs = ipairs
-local tinsert = tinsert
+local tinsert = table.insert
 local tremove = tremove
 local type = type
 local unpack = _G.unpack
@@ -17,20 +16,26 @@ local PixelUtil = PixelUtil
 local UISpecialFrames = UISpecialFrames
 local CreateFrame = _G.CreateFrame
 local detailsFramework = DetailsFramework
+local breakdownWindowFrame = Details.BreakdownWindowFrame
 
-local subAttributes = Details.sub_atributos
-local breakdownWindow = Details.playerDetailWindow
+---@type button[]
+breakdownWindowFrame.RegisteredPluginButtons = {}
 
-local SummaryWidgets = {}
-local CurrentTab = "Summary"
+---register a plugin button to be shown in the breakdown window
+---@param button button
+function breakdownWindowFrame.RegisterPluginButton(button)
+	table.insert(breakdownWindowFrame.RegisteredPluginButtons, button)
+end
 
-local PLAYER_DETAILS_WINDOW_WIDTH = 890
-local PLAYER_DETAILS_WINDOW_HEIGHT = 574
+local PLAYER_DETAILS_WINDOW_WIDTH = 925
+local PLAYER_DETAILS_WINDOW_HEIGHT = 620
 local PLAYER_DETAILS_STATUSBAR_HEIGHT = 20
 local PLAYER_DETAILS_STATUSBAR_ALPHA = 1
 
+---@type button[]
 Details.player_details_tabs = {}
-breakdownWindow.currentTabsInUse =  {}
+---@type button[]
+breakdownWindowFrame.currentTabsInUse =  {}
 
 Details222.BreakdownWindow.BackdropSettings = {
 	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
@@ -38,12 +43,63 @@ Details222.BreakdownWindow.BackdropSettings = {
 	backdropbordercolor = {0, 0, 0, 0.7},
 }
 
+--create a base frame which will hold the scrollbox and plugin buttons
+local breakdownSideMenu = CreateFrame("frame", "DetailsBreakdownLeftMenuFrame", breakdownWindowFrame, "BackdropTemplate")
+breakdownWindowFrame.BreakdownSideMenuFrame = breakdownSideMenu
+
+--create a frame to hold plugin buttons
+local pluginsFrame = CreateFrame("frame", "DetailsBreakdownLeftMenuPluginsFrame", breakdownSideMenu, "BackdropTemplate")
+breakdownWindowFrame.BreakdownPluginSelectionFrame = pluginsFrame
+
+--create the frame to hold tab buttons
+local tabButtonsFrame = CreateFrame("frame", "DetailsBreakdownTabsFrame", breakdownWindowFrame, "BackdropTemplate")
+breakdownWindowFrame.BreakdownTabsFrame = tabButtonsFrame
+
+local summaryWidgets = {}
+local currentTab = "Summary"
+local subAttributes = Details.sub_atributos
+
+function Details222.BreakdownWindow.OnShowPluginFrame(pluginObject)
+	--need to selected the selected tab and hide its content
+	for index = 1, #Details.player_details_tabs do
+		local tabButton = Details.player_details_tabs[index]
+		tabButton.frame:Hide()
+	end
+	breakdownWindowFrame.BreakdownTabsFrame:Hide()
+	breakdownWindowFrame.shownPluginObject = pluginObject
+
+	breakdownWindowFrame.classIcon:Hide()
+	breakdownWindowFrame.closeButton:Hide()
+	breakdownWindowFrame.actorName:Hide()
+	breakdownWindowFrame.attributeName:Hide()
+	breakdownWindowFrame.avatar:Hide()
+	breakdownWindowFrame.avatar_bg:Hide()
+	breakdownWindowFrame.avatar_attribute:Hide()
+	breakdownWindowFrame.avatar_nick:Hide()
+end
+
+function Details222.BreakdownWindow.HidePluginFrame()
+	if (breakdownWindowFrame.shownPluginObject) then
+		breakdownWindowFrame.shownPluginObject.Frame:Hide()
+		breakdownWindowFrame.shownPluginObject = nil
+	end
+
+	breakdownWindowFrame.classIcon:Show()
+	breakdownWindowFrame.closeButton:Show()
+	breakdownWindowFrame.actorName:Show()
+	breakdownWindowFrame.attributeName:Show()
+	breakdownWindowFrame.avatar:Show()
+	breakdownWindowFrame.avatar_bg:Show()
+	breakdownWindowFrame.avatar_attribute:Show()
+	breakdownWindowFrame.avatar_nick:Show()
+end
+
 ------------------------------------------------------------------------------------------------------------------------------
 --self = instancia
 --jogador = classe_damage ou classe_heal
 
 function Details:GetBreakdownTabsInUse()
-	return breakdownWindow.currentTabsInUse
+	return breakdownWindowFrame.currentTabsInUse
 end
 
 function Details:GetBreakdownTabByName(tabName, tablePool)
@@ -58,31 +114,33 @@ end
 
 --return the combat being used to show the data in the opened breakdown window
 function Details:GetCombatFromBreakdownWindow()
-	return breakdownWindow.instancia and breakdownWindow.instancia.showing
+	---@type instance
+	local instance = breakdownWindowFrame.instancia
+	return instance:GetCombat()
 end
 
 ---return the window that requested to open the player breakdown window
 ---@return instance
 function Details:GetActiveWindowFromBreakdownWindow()
-	return breakdownWindow.instancia
+	return breakdownWindowFrame.instancia
 end
 
 --return if the breakdown window is showing damage or heal
 function Details:GetDisplayTypeFromBreakdownWindow()
-	return breakdownWindow.atributo, breakdownWindow.sub_atributo
+	return breakdownWindowFrame.atributo, breakdownWindowFrame.sub_atributo
 end
 
 --return the actor object in use by the breakdown window
 function Details:GetActorObjectFromBreakdownWindow()
-	return breakdownWindow.jogador
+	return breakdownWindowFrame.jogador
 end
 
 function Details:GetBreakdownWindow()
-	return Details.playerDetailWindow
+	return Details.BreakdownWindowFrame
 end
 
 function Details:IsBreakdownWindowOpen()
-	return breakdownWindow.ativo
+	return breakdownWindowFrame.ativo
 end
 
 ---open the breakdown window
@@ -116,11 +174,14 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	end
 
 	--Details.info_jogador armazena o jogador que esta sendo mostrado na janela de detalhes
-	if (breakdownWindow.jogador and breakdownWindow.jogador == actorObject and instanceObject and breakdownWindow.atributo and mainAttribute == breakdownWindow.atributo and subAttribute == breakdownWindow.sub_atributo and not bIsRefresh) then
-		Details:CloseBreakdownWindow() --se clicou na mesma barra ent�o fecha a janela de detalhes
-		return
+	if (breakdownWindowFrame.jogador and breakdownWindowFrame.jogador == actorObject and instanceObject and breakdownWindowFrame.atributo and mainAttribute == breakdownWindowFrame.atributo and subAttribute == breakdownWindowFrame.sub_atributo and not bIsRefresh) then
+		if (not breakdownWindowFrame.shownPluginObject) then
+			Details:CloseBreakdownWindow() --clicked in the same player bar, close the window
+			return
+		end
+	end
 
-	elseif (not actorObject) then
+	if (not actorObject) then
 		Details:CloseBreakdownWindow()
 		return
 	end
@@ -129,115 +190,121 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	Details.PlayerBreakdown.CreatePlayerListFrame()
 	Details.PlayerBreakdown.CreateDumpDataFrame()
 
-	if (not breakdownWindow.bHasInitialized) then
-		local infoNumPoints = breakdownWindow:GetNumPoints()
+	--show the frame containing the tab buttons
+	breakdownWindowFrame.BreakdownTabsFrame:Show()
+
+	--hide the plugin if any is shown
+	Details222.BreakdownWindow.HidePluginFrame()
+
+	if (not breakdownWindowFrame.bHasInitialized) then
+		local infoNumPoints = breakdownWindowFrame:GetNumPoints()
 		for i = 1, infoNumPoints do
-			local point1, anchorObject, point2, x, y = breakdownWindow:GetPoint(i)
+			local point1, anchorObject, point2, x, y = breakdownWindowFrame:GetPoint(i)
 			if (not anchorObject) then
-				breakdownWindow:ClearAllPoints()
+				breakdownWindowFrame:ClearAllPoints()
 			end
 		end
 
-		breakdownWindow:SetUserPlaced(false)
-		breakdownWindow:SetDontSavePosition(true)
+		breakdownWindowFrame:SetUserPlaced(false)
+		breakdownWindowFrame:SetDontSavePosition(true)
 
 		local okay, errorText = pcall(function()
-			breakdownWindow:SetPoint("center", UIParent, "center", 0, 0)
+			breakdownWindowFrame:SetPoint("center", UIParent, "center", 0, 0)
 		end)
 
 		if (not okay) then
-			breakdownWindow:ClearAllPoints()
-			breakdownWindow:SetPoint("center", UIParent, "center", 0, 0)
+			breakdownWindowFrame:ClearAllPoints()
+			breakdownWindowFrame:SetPoint("center", UIParent, "center", 0, 0)
 		end
 
-		breakdownWindow.bHasInitialized = true
+		breakdownWindowFrame.bHasInitialized = true
 	end
 
-	if (not breakdownWindow.RightSideBar) then
+	if (not breakdownWindowFrame.RightSideBar) then
 		--breakdownWindow:CreateRightSideBar()
 	end
 
 	--todo: all portuguese keys to english
 
-	breakdownWindow.ativo = true --sinaliza o addon que a janela esta aberta
-	breakdownWindow.atributo = mainAttribute --instancia.atributo -> grava o atributo (damage, heal, etc)
-	breakdownWindow.sub_atributo = subAttribute --instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
-	breakdownWindow.jogador = actorObject --de qual jogador (objeto classe_damage)
-	breakdownWindow.instancia = instanceObject --salva a refer�ncia da inst�ncia que pediu o breakdownWindow
-	breakdownWindow.target_text = Loc ["STRING_TARGETS"] .. ":"
-	breakdownWindow.target_member = "total"
-	breakdownWindow.target_persecond = false
-	breakdownWindow.mostrando = nil
+	breakdownWindowFrame.ativo = true --sinaliza o addon que a janela esta aberta
+	breakdownWindowFrame.atributo = mainAttribute --instancia.atributo -> grava o atributo (damage, heal, etc)
+	breakdownWindowFrame.sub_atributo = subAttribute --instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
+	breakdownWindowFrame.jogador = actorObject --de qual jogador (objeto classe_damage)
+	breakdownWindowFrame.instancia = instanceObject --salva a refer�ncia da inst�ncia que pediu o breakdownWindow
+	breakdownWindowFrame.target_text = Loc ["STRING_TARGETS"] .. ":"
+	breakdownWindowFrame.target_member = "total"
+	breakdownWindowFrame.target_persecond = false
+	breakdownWindowFrame.mostrando = nil
 
-	local nome = breakdownWindow.jogador.nome --nome do jogador
-	local atributo_nome = subAttributes[breakdownWindow.atributo].lista [breakdownWindow.sub_atributo] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] --// nome do atributo // precisa ser o sub atributo correto???
+	local playerName = breakdownWindowFrame.jogador:Name()
+	local atributo_nome = subAttributes[breakdownWindowFrame.atributo].lista [breakdownWindowFrame.sub_atributo] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] --// nome do atributo // precisa ser o sub atributo correto???
 
 	--removendo o nome da realm do jogador
-	if (nome:find("-")) then
-		nome = nome:gsub(("-.*"), "")
+	if (playerName:find("-")) then
+		playerName = playerName:gsub(("-.*"), "")
 	end
 
-	if (breakdownWindow.instancia.atributo == 1 and breakdownWindow.instancia.sub_atributo == 6) then --enemy
-		atributo_nome = subAttributes [breakdownWindow.atributo].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"]
+	if (breakdownWindowFrame.instancia.atributo == 1 and breakdownWindowFrame.instancia.sub_atributo == 6) then --enemy
+		atributo_nome = subAttributes [breakdownWindowFrame.atributo].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"]
 	end
 
-	breakdownWindow.actorName:SetText(nome) --found it
-	breakdownWindow.attributeName:SetText(atributo_nome)
+	breakdownWindowFrame.actorName:SetText(playerName) --found it
+	breakdownWindowFrame.attributeName:SetText(atributo_nome)
 
 	local serial = actorObject.serial
 	local avatar
 	if (serial ~= "") then
-		avatar = NickTag:GetNicknameTable (serial)
+		avatar = NickTag:GetNicknameTable(serial)
 	end
 
-	if (avatar and avatar [1]) then
-		breakdownWindow.actorName:SetText((not Details.ignore_nicktag and avatar [1]) or nome)
+	if (avatar and avatar[1]) then
+		breakdownWindowFrame.actorName:SetText((not Details.ignore_nicktag and avatar[1]) or playerName)
 	end
 
-	if (avatar and avatar [2]) then
-		breakdownWindow.avatar:SetTexture(avatar [2])
-		breakdownWindow.avatar_bg:SetTexture(avatar [4])
-		if (avatar [5]) then
-			breakdownWindow.avatar_bg:SetTexCoord(unpack(avatar [5]))
+	if (avatar and avatar[2]) then
+		breakdownWindowFrame.avatar:SetTexture(avatar[2])
+		breakdownWindowFrame.avatar_bg:SetTexture(avatar[4])
+		if (avatar[5]) then
+			breakdownWindowFrame.avatar_bg:SetTexCoord(unpack(avatar[5]))
 		end
-		if (avatar [6]) then
-			breakdownWindow.avatar_bg:SetVertexColor(unpack(avatar [6]))
+		if (avatar[6]) then
+			breakdownWindowFrame.avatar_bg:SetVertexColor(unpack(avatar[6]))
 		end
 
-		breakdownWindow.avatar_nick:SetText(avatar [1] or nome)
-		breakdownWindow.avatar_attribute:SetText(atributo_nome)
+		breakdownWindowFrame.avatar_nick:SetText(avatar[1] or playerName)
+		breakdownWindowFrame.avatar_attribute:SetText(atributo_nome)
 
-		breakdownWindow.avatar_attribute:SetPoint("CENTER", breakdownWindow.avatar_nick, "CENTER", 0, 14)
-		breakdownWindow.avatar:Show()
-		breakdownWindow.avatar_bg:Show()
-		breakdownWindow.avatar_bg:SetAlpha(.65)
-		breakdownWindow.avatar_nick:Show()
-		breakdownWindow.avatar_attribute:Show()
-		breakdownWindow.actorName:Hide()
-		breakdownWindow.attributeName:Hide()
+		breakdownWindowFrame.avatar_attribute:SetPoint("CENTER", breakdownWindowFrame.avatar_nick, "CENTER", 0, 14)
+		breakdownWindowFrame.avatar:Show()
+		breakdownWindowFrame.avatar_bg:Show()
+		breakdownWindowFrame.avatar_bg:SetAlpha(.65)
+		breakdownWindowFrame.avatar_nick:Show()
+		breakdownWindowFrame.avatar_attribute:Show()
+		breakdownWindowFrame.actorName:Hide()
+		breakdownWindowFrame.attributeName:Hide()
 	else
-		breakdownWindow.avatar:Hide()
-		breakdownWindow.avatar_bg:Hide()
-		breakdownWindow.avatar_nick:Hide()
-		breakdownWindow.avatar_attribute:Hide()
+		breakdownWindowFrame.avatar:Hide()
+		breakdownWindowFrame.avatar_bg:Hide()
+		breakdownWindowFrame.avatar_nick:Hide()
+		breakdownWindowFrame.avatar_attribute:Hide()
 
-		breakdownWindow.actorName:Show()
-		breakdownWindow.attributeName:Show()
+		breakdownWindowFrame.actorName:Show()
+		breakdownWindowFrame.attributeName:Show()
 	end
 
-	breakdownWindow.attributeName:SetPoint("bottomleft", breakdownWindow.actorName, "topleft", 0, 2)
+	breakdownWindowFrame.attributeName:SetPoint("bottomleft", breakdownWindowFrame.actorName, "topleft", 0, 2)
 
 	---@type string
-	local actorClass = actorObject.classe --classe not registered because it should be renamed to english 'class'
+	local actorClass = actorObject:Class()
 
 	if (not actorClass) then
 		actorClass = "monster"
 	end
 
-	breakdownWindow.classIcon:SetTexture("Interface\\AddOns\\Details\\images\\classes") --top left
-	breakdownWindow.SetClassIcon(actorObject, actorClass)
+	breakdownWindowFrame.classIcon:SetTexture("Interface\\AddOns\\Details\\images\\classes") --top left
+	breakdownWindowFrame.SetClassIcon(actorObject, actorClass)
 
-	Details.FadeHandler.Fader(breakdownWindow, 0)
+	Details.FadeHandler.Fader(breakdownWindowFrame, 0)
 	Details:UpdateBreakdownPlayerList()
 	Details:InitializeAurasTab()
 	Details:InitializeCompareTab()
@@ -247,7 +314,7 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	local tabsReplaced = {}
 	local tabReplacedAmount = 0
 
-	Details:Destroy(breakdownWindow.currentTabsInUse)
+	Details:Destroy(breakdownWindowFrame.currentTabsInUse)
 
 	for index = 1, #Details.player_details_tabs do
 		local tab = Details.player_details_tabs[index]
@@ -261,8 +328,8 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 
 		if (tab.replaces) then
 			local attributeList = tab.replaces.attributes
-			if (attributeList[breakdownWindow.atributo]) then
-				if (attributeList[breakdownWindow.atributo][breakdownWindow.sub_atributo]) then
+			if (attributeList[breakdownWindowFrame.atributo]) then
+				if (attributeList[breakdownWindowFrame.atributo][breakdownWindowFrame.sub_atributo]) then
 					local tabReplaced, tabIndex = Details:GetBreakdownTabByName(tab.replaces.tabNameToReplace, tabsShown)
 					if (tabReplaced and tabIndex < index) then
 						tabReplaced:Hide()
@@ -271,8 +338,8 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 						tremove(tabsShown, tabIndex)
 						tinsert(tabsShown, tabIndex, tab)
 
-						if (tabReplaced.tabname == breakdownWindow.selectedTab) then
-							breakdownWindow.selectedTab = tab.tabname
+						if (tabReplaced.tabname == breakdownWindowFrame.selectedTab) then
+							breakdownWindowFrame.selectedTab = tab.tabname
 						end
 
 						tabReplaced.replaced = true
@@ -294,20 +361,20 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 	end
 
 	tabsShown = newTabsShown
-	breakdownWindow.currentTabsInUse = newTabsShown
+	breakdownWindowFrame.currentTabsInUse = newTabsShown
 
-	breakdownWindow:ShowTabs()
+	breakdownWindowFrame:ShowTabs()
 	Details222.BreakdownWindow.CurrentDefaultTab = nil
 
 	local shownTab
 	for index = 1, #tabsShown do
 		local tabButton = tabsShown[index]
-		if (tabButton:condition(breakdownWindow.jogador, breakdownWindow.atributo, breakdownWindow.sub_atributo)) then
+		if (tabButton:condition(breakdownWindowFrame.jogador, breakdownWindowFrame.atributo, breakdownWindowFrame.sub_atributo)) then
 			if (tabButton.IsDefaultTab) then
 				Details222.BreakdownWindow.CurrentDefaultTab = tabButton
 			end
 
-			if (breakdownWindow.selectedTab == tabButton.tabname) then
+			if (breakdownWindowFrame.selectedTab == tabButton.tabname) then
 				tabButton:DoClick()
 				tabButton:OnShowFunc()
 				shownTab = tabButton
@@ -323,17 +390,17 @@ function Details:OpenBreakdownWindow(instanceObject, actorObject, bFromAttribute
 end
 
 function Details:CloseBreakdownWindow()
-	if (breakdownWindow.ativo) then
-		Details.FadeHandler.Fader(breakdownWindow, 1)
+	if (breakdownWindowFrame.ativo) then
+		Details.FadeHandler.Fader(breakdownWindowFrame, 1)
 
-		breakdownWindow.ativo = false --sinaliza o addon que a janela esta agora fechada
-		breakdownWindow.jogador = nil
-		breakdownWindow.atributo = nil
-		breakdownWindow.sub_atributo = nil
-		breakdownWindow.instancia = nil
+		breakdownWindowFrame.ativo = false --sinaliza o addon que a janela esta agora fechada
+		breakdownWindowFrame.jogador = nil
+		breakdownWindowFrame.atributo = nil
+		breakdownWindowFrame.sub_atributo = nil
+		breakdownWindowFrame.instancia = nil
 
-		breakdownWindow.actorName:SetText("")
-		breakdownWindow.attributeName:SetText("")
+		breakdownWindowFrame.actorName:SetText("")
+		breakdownWindowFrame.attributeName:SetText("")
 
 		--iterate all tabs and clear caches
 		local tabsInUse = Details:GetBreakdownTabsInUse()
@@ -345,32 +412,33 @@ function Details:CloseBreakdownWindow()
 end
 
 function Details.PlayerBreakdown.CreateDumpDataFrame()
-	breakdownWindow.dumpDataFrame = CreateFrame("frame", "$parentDumpTableFrame", DetailsBreakdownWindowPlayerScrollBox, "BackdropTemplate")
-	breakdownWindow.dumpDataFrame:SetPoint("topleft", DetailsBreakdownWindowPlayerScrollBox, "topleft", 0, 0)
-	breakdownWindow.dumpDataFrame:SetPoint("bottomright", DetailsBreakdownWindowPlayerScrollBox, "bottomright", 0, 0)
-	breakdownWindow.dumpDataFrame:SetFrameLevel(DetailsBreakdownWindowPlayerScrollBox:GetFrameLevel() + 10)
-	detailsFramework:ApplyStandardBackdrop(breakdownWindow.dumpDataFrame, true)
-	breakdownWindow.dumpDataFrame:Hide()
+	local playerSelectionScrollFrame = DetailsBreakdownWindowPlayerScrollBox
+	breakdownWindowFrame.dumpDataFrame = CreateFrame("frame", "$parentDumpTableFrame", playerSelectionScrollFrame, "BackdropTemplate")
+	breakdownWindowFrame.dumpDataFrame:SetPoint("topleft", playerSelectionScrollFrame, "topleft", 0, 0)
+	breakdownWindowFrame.dumpDataFrame:SetPoint("bottomright", playerSelectionScrollFrame, "bottomright", 0, 0)
+	breakdownWindowFrame.dumpDataFrame:SetFrameLevel(playerSelectionScrollFrame:GetFrameLevel() + 10)
+	detailsFramework:ApplyStandardBackdrop(breakdownWindowFrame.dumpDataFrame, true)
+	breakdownWindowFrame.dumpDataFrame:Hide()
 
 	--create a details framework special lua editor
-	breakdownWindow.dumpDataFrame.luaEditor = detailsFramework:NewSpecialLuaEditorEntry(breakdownWindow.dumpDataFrame, 1, 1, "text", "$parentCodeEditorWindow")
-	breakdownWindow.dumpDataFrame.luaEditor:SetPoint("topleft", breakdownWindow.dumpDataFrame, "topleft", 2, -2)
-	breakdownWindow.dumpDataFrame.luaEditor:SetPoint("bottomright", breakdownWindow.dumpDataFrame, "bottomright", -2, 2)
-	breakdownWindow.dumpDataFrame.luaEditor:SetFrameLevel(breakdownWindow.dumpDataFrame:GetFrameLevel()+1)
-	breakdownWindow.dumpDataFrame.luaEditor:SetBackdrop({})
+	breakdownWindowFrame.dumpDataFrame.luaEditor = detailsFramework:NewSpecialLuaEditorEntry(breakdownWindowFrame.dumpDataFrame, 1, 1, "text", "$parentCodeEditorWindow")
+	breakdownWindowFrame.dumpDataFrame.luaEditor:SetPoint("topleft", breakdownWindowFrame.dumpDataFrame, "topleft", 2, -2)
+	breakdownWindowFrame.dumpDataFrame.luaEditor:SetPoint("bottomright", breakdownWindowFrame.dumpDataFrame, "bottomright", -2, 2)
+	breakdownWindowFrame.dumpDataFrame.luaEditor:SetFrameLevel(breakdownWindowFrame.dumpDataFrame:GetFrameLevel()+1)
+	breakdownWindowFrame.dumpDataFrame.luaEditor:SetBackdrop({})
 
 	--hide the scroll bar
 	DetailsBreakdownWindowPlayerScrollBoxDumpTableFrameCodeEditorWindowScrollBar:Hide()
 end
 
-function breakdownWindow:CreateRightSideBar() --not enabled
-	breakdownWindow.RightSideBar = CreateFrame("frame", nil, breakdownWindow, "BackdropTemplate")
-	breakdownWindow.RightSideBar:SetWidth(20)
-	breakdownWindow.RightSideBar:SetPoint("topleft", breakdownWindow, "topright", 1, 0)
-	breakdownWindow.RightSideBar:SetPoint("bottomleft", breakdownWindow, "bottomright", 1, 0)
+function breakdownWindowFrame:CreateRightSideBar() --not enabled
+	breakdownWindowFrame.RightSideBar = CreateFrame("frame", nil, breakdownWindowFrame, "BackdropTemplate")
+	breakdownWindowFrame.RightSideBar:SetWidth(20)
+	breakdownWindowFrame.RightSideBar:SetPoint("topleft", breakdownWindowFrame, "topright", 1, 0)
+	breakdownWindowFrame.RightSideBar:SetPoint("bottomleft", breakdownWindowFrame, "bottomright", 1, 0)
 	local rightSideBarAlpha = 0.75
 
-	detailsFramework:ApplyStandardBackdrop(breakdownWindow.RightSideBar)
+	detailsFramework:ApplyStandardBackdrop(breakdownWindowFrame.RightSideBar)
 
 	local toggleMergePlayerSpells = function()
 		Details.merge_player_abilities = not Details.merge_player_abilities
@@ -380,11 +448,11 @@ function breakdownWindow:CreateRightSideBar() --not enabled
 		Details:OpenBreakdownWindow(instanceObject, playerObject)
 	end
 
-	local mergePlayerSpellsCheckbox = detailsFramework:CreateSwitch(breakdownWindow, toggleMergePlayerSpells, Details.merge_player_abilities, _, _, _, _, _, _, _, _, _, _, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+	local mergePlayerSpellsCheckbox = detailsFramework:CreateSwitch(breakdownWindowFrame, toggleMergePlayerSpells, Details.merge_player_abilities, _, _, _, _, _, _, _, _, _, _, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 	mergePlayerSpellsCheckbox:SetAsCheckBox()
-	mergePlayerSpellsCheckbox:SetPoint("bottom", breakdownWindow.RightSideBar, "bottom", 0, 2)
+	mergePlayerSpellsCheckbox:SetPoint("bottom", breakdownWindowFrame.RightSideBar, "bottom", 0, 2)
 
-	local mergePlayerSpellsLabel = breakdownWindow.RightSideBar:CreateFontString(nil, "overlay", "GameFontNormal")
+	local mergePlayerSpellsLabel = breakdownWindowFrame.RightSideBar:CreateFontString(nil, "overlay", "GameFontNormal")
 	mergePlayerSpellsLabel:SetText("Merge Player Spells")
 	detailsFramework:SetFontRotation(mergePlayerSpellsLabel, 90)
 	mergePlayerSpellsLabel:SetPoint("center", mergePlayerSpellsCheckbox.widget, "center", -6, mergePlayerSpellsCheckbox:GetHeight()/2 + mergePlayerSpellsLabel:GetStringWidth() / 2)
@@ -398,11 +466,11 @@ function breakdownWindow:CreateRightSideBar() --not enabled
 		Details:OpenBreakdownWindow(instanceObject, playerObject) --toggle
 		Details:OpenBreakdownWindow(instanceObject, playerObject)
 	end
-	local mergePetSpellsCheckbox = detailsFramework:CreateSwitch(breakdownWindow, toggleMergePetSpells, Details.merge_pet_abilities, _, _, _, _, _, _, _, _, _, _, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+	local mergePetSpellsCheckbox = detailsFramework:CreateSwitch(breakdownWindowFrame, toggleMergePetSpells, Details.merge_pet_abilities, _, _, _, _, _, _, _, _, _, _, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 	mergePetSpellsCheckbox:SetAsCheckBox(true)
-	mergePetSpellsCheckbox:SetPoint("bottom", breakdownWindow.RightSideBar, "bottom", 0, 160)
+	mergePetSpellsCheckbox:SetPoint("bottom", breakdownWindowFrame.RightSideBar, "bottom", 0, 160)
 
-	local mergePetSpellsLabel = breakdownWindow.RightSideBar:CreateFontString(nil, "overlay", "GameFontNormal")
+	local mergePetSpellsLabel = breakdownWindowFrame.RightSideBar:CreateFontString(nil, "overlay", "GameFontNormal")
 	mergePetSpellsLabel:SetText("Merge Pet Spells")
 	detailsFramework:SetFontRotation(mergePetSpellsLabel, 90)
 	mergePetSpellsLabel:SetPoint("center", mergePetSpellsCheckbox.widget, "center", -6, mergePetSpellsCheckbox:GetHeight()/2 + mergePetSpellsLabel:GetStringWidth() / 2)
@@ -467,60 +535,60 @@ end
 ---set the class or spec icon for the actor displayed
 ---@param actorObject actor
 ---@param class string
-function breakdownWindow.SetClassIcon(actorObject, class)
+function breakdownWindowFrame.SetClassIcon(actorObject, class)
 	if (actorObject.spellicon) then
-		breakdownWindow.classIcon:SetTexture(actorObject.spellicon)
-		breakdownWindow.classIcon:SetTexCoord(.1, .9, .1, .9)
+		breakdownWindowFrame.classIcon:SetTexture(actorObject.spellicon)
+		breakdownWindowFrame.classIcon:SetTexCoord(.1, .9, .1, .9)
 
 	elseif (actorObject.spec) then
-		breakdownWindow.classIcon:SetTexture([[Interface\AddOns\Details\images\spec_icons_normal_alpha]])
-		breakdownWindow.classIcon:SetTexCoord(unpack(_detalhes.class_specs_coords [actorObject.spec]))
+		breakdownWindowFrame.classIcon:SetTexture([[Interface\AddOns\Details\images\spec_icons_normal_alpha]])
+		breakdownWindowFrame.classIcon:SetTexCoord(unpack(_detalhes.class_specs_coords [actorObject.spec]))
 	else
 		local coords = CLASS_ICON_TCOORDS[class]
 		if (coords) then
-			breakdownWindow.classIcon:SetTexture([[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-CLASSES]])
+			breakdownWindowFrame.classIcon:SetTexture([[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-CLASSES]])
 			local l, r, t, b = unpack(coords)
-			breakdownWindow.classIcon:SetTexCoord(l+0.01953125, r-0.01953125, t+0.01953125, b-0.01953125)
+			breakdownWindowFrame.classIcon:SetTexCoord(l+0.01953125, r-0.01953125, t+0.01953125, b-0.01953125)
 		else
 			local c = _detalhes.class_coords ["MONSTER"]
-			breakdownWindow.classIcon:SetTexture("Interface\\AddOns\\Details\\images\\classes")
-			breakdownWindow.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
+			breakdownWindowFrame.classIcon:SetTexture("Interface\\AddOns\\Details\\images\\classes")
+			breakdownWindowFrame.classIcon:SetTexCoord(c[1], c[2], c[3], c[4])
 		end
 	end
 end
 
 function Details:SetBreakdownWindowBackgroundTexture(texture)
-	breakdownWindow.backgroundTexture:SetTexture(texture)
+	breakdownWindowFrame.backgroundTexture:SetTexture(texture)
 end
 
 --search key: ~create ~inicio ~start
 function Details:CreateBreakdownWindow()
-	table.insert(UISpecialFrames, breakdownWindow:GetName())
-	breakdownWindow.extra_frames = {}
-	breakdownWindow.Loaded = true
-	Details.playerDetailWindow = breakdownWindow
+	table.insert(UISpecialFrames, breakdownWindowFrame:GetName())
+	breakdownWindowFrame.extra_frames = {}
+	breakdownWindowFrame.Loaded = true
+	Details.BreakdownWindowFrame = breakdownWindowFrame
 
-	breakdownWindow:SetWidth(PLAYER_DETAILS_WINDOW_WIDTH)
-	breakdownWindow:SetHeight(PLAYER_DETAILS_WINDOW_HEIGHT)
-	breakdownWindow:SetFrameStrata("HIGH")
-	breakdownWindow:SetToplevel(true)
-	breakdownWindow:EnableMouse(true)
-	breakdownWindow:SetResizable(true)
-	breakdownWindow:SetMovable(true)
-	breakdownWindow:SetClampedToScreen(true)
+	breakdownWindowFrame:SetWidth(PLAYER_DETAILS_WINDOW_WIDTH)
+	breakdownWindowFrame:SetHeight(PLAYER_DETAILS_WINDOW_HEIGHT)
+	breakdownWindowFrame:SetFrameStrata("HIGH")
+	breakdownWindowFrame:SetToplevel(true)
+	breakdownWindowFrame:EnableMouse(true)
+	breakdownWindowFrame:SetResizable(true)
+	breakdownWindowFrame:SetMovable(true)
+	breakdownWindowFrame:SetClampedToScreen(true)
 
 	--make the window movable
-	if (not breakdownWindow.registeredLibWindow) then
+	if (not breakdownWindowFrame.registeredLibWindow) then
 		local LibWindow = LibStub("LibWindow-1.1")
-		breakdownWindow.registeredLibWindow = true
+		breakdownWindowFrame.registeredLibWindow = true
 		if (LibWindow) then
-			breakdownWindow.libWindowTable = breakdownWindow.libWindowTable or {}
-			LibWindow.RegisterConfig(breakdownWindow, breakdownWindow.libWindowTable)
-			LibWindow.RestorePosition(breakdownWindow)
-			LibWindow.MakeDraggable(breakdownWindow)
-			LibWindow.SavePosition(breakdownWindow)
+			breakdownWindowFrame.libWindowTable = breakdownWindowFrame.libWindowTable or {}
+			LibWindow.RegisterConfig(breakdownWindowFrame, breakdownWindowFrame.libWindowTable)
+			LibWindow.RestorePosition(breakdownWindowFrame)
+			LibWindow.MakeDraggable(breakdownWindowFrame)
+			LibWindow.SavePosition(breakdownWindowFrame)
 
-			breakdownWindow:SetScript("OnMouseDown", function(self, button)
+			breakdownWindowFrame:SetScript("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
 					Details:CloseBreakdownWindow()
 				end
@@ -528,97 +596,96 @@ function Details:CreateBreakdownWindow()
 		end
 	end
 
-	detailsFramework:ApplyStandardBackdrop(breakdownWindow)
+	detailsFramework:ApplyStandardBackdrop(breakdownWindowFrame)
 
 	--background
-	breakdownWindow.backgroundTexture = breakdownWindow:CreateTexture("$parent", "background", nil, -3)
-	breakdownWindow.backgroundTexture:SetAllPoints()
-	breakdownWindow.backgroundTexture:Hide()
+	breakdownWindowFrame.backgroundTexture = breakdownWindowFrame:CreateTexture("$parent", "background", nil, -3)
+	breakdownWindowFrame.backgroundTexture:SetAllPoints()
+	breakdownWindowFrame.backgroundTexture:Hide()
 
 	--host the textures and fontstring of the default frame of the player breakdown window
 	--what is the summary window: is the frame where all the widgets for the summary tab are created
-	breakdownWindow.SummaryWindowWidgets = CreateFrame("frame", "DetailsBreakdownWindowSummaryWidgets", breakdownWindow, "BackdropTemplate")
-	local SWW = breakdownWindow.SummaryWindowWidgets
+	breakdownWindowFrame.SummaryWindowWidgets = CreateFrame("frame", "DetailsBreakdownWindowSummaryWidgets", breakdownWindowFrame, "BackdropTemplate")
+	local SWW = breakdownWindowFrame.SummaryWindowWidgets
 	SWW:SetAllPoints()
-	table.insert(SummaryWidgets, SWW) --where SummaryWidgets is declared: at the header of the file, what is the purpose of this table?
-	breakdownWindow.SummaryWindowWidgets:Hide()
+	table.insert(summaryWidgets, SWW) --where SummaryWidgets is declared: at the header of the file, what is the purpose of this table?
+	breakdownWindowFrame.SummaryWindowWidgets:Hide()
 
-	detailsFramework:CreateScaleBar(breakdownWindow, Details.player_details_window)
-	breakdownWindow:SetScale(Details.player_details_window.scale)
+	detailsFramework:CreateScaleBar(breakdownWindowFrame, Details.player_details_window)
+	breakdownWindowFrame:SetScale(Details.player_details_window.scale)
 
 	--class icon
-	breakdownWindow.classIcon = breakdownWindow:CreateTexture(nil, "overlay", nil, 1)
-	breakdownWindow.classIcon:SetPoint("topleft", breakdownWindow, "topleft", 2, -17)
-	breakdownWindow.classIcon:SetSize(54, 54)
-	breakdownWindow.classIcon:SetAlpha(0.7)
+	breakdownWindowFrame.classIcon = breakdownWindowFrame:CreateTexture(nil, "overlay", nil, 1)
+	breakdownWindowFrame.classIcon:SetPoint("topleft", breakdownWindowFrame, "topleft", 2, -17)
+	breakdownWindowFrame.classIcon:SetSize(54, 54)
+	breakdownWindowFrame.classIcon:SetAlpha(0.7)
 
 	--close button
-	breakdownWindow.closeButton = CreateFrame("Button", nil, breakdownWindow, "UIPanelCloseButton")
-	breakdownWindow.closeButton:SetSize(20, 20)
-	breakdownWindow.closeButton:SetPoint("TOPRIGHT", breakdownWindow, "TOPRIGHT", -5, -4)
-	breakdownWindow.closeButton:SetFrameLevel(breakdownWindow:GetFrameLevel()+5)
-	breakdownWindow.closeButton:GetNormalTexture():SetDesaturated(true)
-	breakdownWindow.closeButton:GetNormalTexture():SetVertexColor(.6, .6, .6)
-    breakdownWindow.closeButton:SetScript("OnClick", function(self)
+	breakdownWindowFrame.closeButton = CreateFrame("Button", nil, breakdownWindowFrame, "UIPanelCloseButton")
+	breakdownWindowFrame.closeButton:SetSize(20, 20)
+	breakdownWindowFrame.closeButton:SetPoint("TOPRIGHT", breakdownWindowFrame, "TOPRIGHT", -5, -4)
+	breakdownWindowFrame.closeButton:SetFrameLevel(breakdownWindowFrame:GetFrameLevel()+5)
+	breakdownWindowFrame.closeButton:GetNormalTexture():SetDesaturated(true)
+	breakdownWindowFrame.closeButton:GetNormalTexture():SetVertexColor(.6, .6, .6)
+    breakdownWindowFrame.closeButton:SetScript("OnClick", function(self)
         Details:CloseBreakdownWindow()
     end)
 
 	--title
-	detailsFramework:NewLabel(breakdownWindow, breakdownWindow, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-	breakdownWindow.titleText:SetPoint("center", breakdownWindow, "center")
-	breakdownWindow.titleText:SetPoint("top", breakdownWindow, "top", 0, -6)
+	detailsFramework:NewLabel(breakdownWindowFrame, breakdownWindowFrame, nil, "titleText", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	breakdownWindowFrame.titleText:SetPoint("center", breakdownWindowFrame, "center")
+	breakdownWindowFrame.titleText:SetPoint("top", breakdownWindowFrame, "top", 0, -6)
 
 	--create the texts shown on the window
 	do
-		breakdownWindow.actorName = breakdownWindow:CreateFontString(nil, "overlay", "QuestFont_Large")
-		breakdownWindow.actorName:SetPoint("left", breakdownWindow.classIcon, "right", 20, -7)
+		breakdownWindowFrame.actorName = breakdownWindowFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
+		breakdownWindowFrame.actorName:SetPoint("left", breakdownWindowFrame.classIcon, "right", 20, -7)
 
-		breakdownWindow.attributeName = breakdownWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		breakdownWindowFrame.attributeName = breakdownWindowFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		breakdownWindowFrame.avatar = breakdownWindowFrame:CreateTexture(nil, "overlay")
+		breakdownWindowFrame.avatar_bg = breakdownWindowFrame:CreateTexture(nil, "overlay")
+		breakdownWindowFrame.avatar_attribute = breakdownWindowFrame:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+		breakdownWindowFrame.avatar_nick = breakdownWindowFrame:CreateFontString(nil, "overlay", "QuestFont_Large")
+		breakdownWindowFrame.avatar:SetDrawLayer("overlay", 3)
+		breakdownWindowFrame.avatar_bg:SetDrawLayer("overlay", 2)
+		breakdownWindowFrame.avatar_nick:SetDrawLayer("overlay", 4)
 
-		breakdownWindow.avatar = breakdownWindow:CreateTexture(nil, "overlay")
-		breakdownWindow.avatar_bg = breakdownWindow:CreateTexture(nil, "overlay")
-		breakdownWindow.avatar_attribute = breakdownWindow:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
-		breakdownWindow.avatar_nick = breakdownWindow:CreateFontString(nil, "overlay", "QuestFont_Large")
-		breakdownWindow.avatar:SetDrawLayer("overlay", 3)
-		breakdownWindow.avatar_bg:SetDrawLayer("overlay", 2)
-		breakdownWindow.avatar_nick:SetDrawLayer("overlay", 4)
+		breakdownWindowFrame.avatar:SetPoint("TOPLEFT", breakdownWindowFrame, "TOPLEFT", 60, -10)
+		breakdownWindowFrame.avatar_bg:SetPoint("TOPLEFT", breakdownWindowFrame, "TOPLEFT", 60, -12)
+		breakdownWindowFrame.avatar_bg:SetSize(275, 60)
 
-		breakdownWindow.avatar:SetPoint("TOPLEFT", breakdownWindow, "TOPLEFT", 60, -10)
-		breakdownWindow.avatar_bg:SetPoint("TOPLEFT", breakdownWindow, "TOPLEFT", 60, -12)
-		breakdownWindow.avatar_bg:SetSize(275, 60)
+		breakdownWindowFrame.avatar_nick:SetPoint("TOPLEFT", breakdownWindowFrame, "TOPLEFT", 195, -54)
 
-		breakdownWindow.avatar_nick:SetPoint("TOPLEFT", breakdownWindow, "TOPLEFT", 195, -54)
-
-		breakdownWindow.avatar:Hide()
-		breakdownWindow.avatar_bg:Hide()
-		breakdownWindow.avatar_nick:Hide()
+		breakdownWindowFrame.avatar:Hide()
+		breakdownWindowFrame.avatar_bg:Hide()
+		breakdownWindowFrame.avatar_nick:Hide()
 	end
 
 	--statusbar
-	local statusBar = CreateFrame("frame", nil, breakdownWindow, "BackdropTemplate")
-	statusBar:SetPoint("bottomleft", breakdownWindow, "bottomleft")
-	statusBar:SetPoint("bottomright", breakdownWindow, "bottomright")
+	local statusBar = CreateFrame("frame", nil, breakdownWindowFrame, "BackdropTemplate")
+	statusBar:SetPoint("bottomleft", breakdownWindowFrame, "bottomleft")
+	statusBar:SetPoint("bottomright", breakdownWindowFrame, "bottomright")
 	statusBar:SetHeight(PLAYER_DETAILS_STATUSBAR_HEIGHT)
 	detailsFramework:ApplyStandardBackdrop(statusBar)
 	statusBar:SetAlpha(PLAYER_DETAILS_STATUSBAR_ALPHA)
-	breakdownWindow.statusBar = statusBar
+	breakdownWindowFrame.statusBar = statusBar
 
 	statusBar.Text = detailsFramework:CreateLabel(statusBar)
 	statusBar.Text:SetPoint("left", 2, 0)
 
 	--create the gradients in the top and bottom side of the breakdown window
 	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
-	local gradientUp = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = gradientStartColor, toColor = {0, 0, 0, 0.2}}, 1, 68, "artwork", {0, 1, 0, 1})
+	local gradientUp = detailsFramework:CreateTexture(breakdownWindowFrame, {gradient = "vertical", fromColor = gradientStartColor, toColor = {0, 0, 0, 0.2}}, 1, 68, "artwork", {0, 1, 0, 1})
 	gradientUp:SetPoint("tops", 1, 1)
 
 	local gradientHeight = 481
-	local gradientDown = detailsFramework:CreateTexture(breakdownWindow, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.7}}, 1, gradientHeight, "border", {0, 1, 0, 1})
-	gradientDown:SetPoint("bottomleft", breakdownWindow.statusBar, "topleft", 1, 1)
-	gradientDown:SetPoint("bottomright", breakdownWindow.statusBar, "topright", -1, 1)
+	local gradientDown = detailsFramework:CreateTexture(breakdownWindowFrame, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.7}}, 1, gradientHeight, "border", {0, 1, 0, 1})
+	gradientDown:SetPoint("bottomleft", breakdownWindowFrame.statusBar, "topleft", 1, 1)
+	gradientDown:SetPoint("bottomright", breakdownWindowFrame.statusBar, "topright", -1, 1)
 
-	function breakdownWindow:SetStatusbarText(text, fontSize, fontColor)
+	function breakdownWindowFrame:SetStatusbarText(text, fontSize, fontColor)
 		if (not text) then
-			breakdownWindow:SetStatusbarText("Details! Damage Meter | Use '/details stats' for statistics", 10, "gray")
+			breakdownWindowFrame:SetStatusbarText("Details! Damage Meter | Use '/details stats' for statistics", 10, "gray")
 			return
 		end
 		statusBar.Text.text = text
@@ -627,28 +694,28 @@ function Details:CreateBreakdownWindow()
 	end
 
 	--set default text
-	breakdownWindow:SetStatusbarText()
+	breakdownWindowFrame:SetStatusbarText()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --tabs ~tabs
-	function breakdownWindow:ShowTabs()
+	function breakdownWindowFrame:ShowTabs()
 		local tabsShown = 0
 		local secondRowIndex = 1
-		local breakLine = 6 --the tab it'll start the second line
+		local breakLine = 7 --the tab it'll start the second line
 
 		local tablePool = Details:GetBreakdownTabsInUse()
 
 		for index = 1, #tablePool do
 			local tabButton = tablePool[index]
 
-			if (tabButton:condition(breakdownWindow.jogador, breakdownWindow.atributo, breakdownWindow.sub_atributo) and not tabButton.replaced) then
+			if (tabButton:condition(breakdownWindowFrame.jogador, breakdownWindowFrame.atributo, breakdownWindowFrame.sub_atributo) and not tabButton.replaced) then
 				--test if can show the tutorial for the comparison tab
 				if (tabButton.tabname == "Compare") then
 					--Details:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", false)
 					if (not Details:GetTutorialCVar("DETAILS_INFO_TUTORIAL1")) then
 						Details:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", true)
 
-						local alert = CreateFrame("frame", "DetailsInfoPopUp1", breakdownWindow, "DetailsHelpBoxTemplate")
+						local alert = CreateFrame("frame", "DetailsInfoPopUp1", breakdownWindowFrame, "DetailsHelpBoxTemplate")
 						alert.ArrowUP:Show()
 						alert.ArrowGlowUP:Show()
 						alert.Text:SetText(Loc ["STRING_INFO_TUTORIAL_COMPARISON1"])
@@ -663,25 +730,25 @@ function Details:CreateBreakdownWindow()
 				tabButton:ClearAllPoints()
 
 				--get the button width
-				local buttonTemplate = gump:GetTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE")
+				local buttonTemplate = detailsFramework:GetTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE")
 				local buttonWidth = buttonTemplate.width + 1
 
 				--pixelutil might not be compatible with classic wow
 				if (PixelUtil) then
 					PixelUtil.SetSize(tabButton, buttonTemplate.width, buttonTemplate.height)
 					if (tabsShown >= breakLine) then --next row of icons
-						PixelUtil.SetPoint(tabButton, "bottomright", breakdownWindow, "topright", -514 + (buttonWidth * (secondRowIndex)), -50)
+						PixelUtil.SetPoint(tabButton, "bottomright", breakdownWindowFrame, "topright", -613 + (buttonWidth * (secondRowIndex)), -48)
 						secondRowIndex = secondRowIndex + 1
 					else
-						PixelUtil.SetPoint(tabButton, "bottomright", breakdownWindow, "topright", -514 + (buttonWidth * tabsShown), -69)
+						PixelUtil.SetPoint(tabButton, "bottomright", breakdownWindowFrame, "topright", -613 + (buttonWidth * tabsShown), -69)
 					end
 				else
 					tabButton:SetSize(buttonTemplate.width, buttonTemplate.height)
 					if (tabsShown >= breakLine) then --next row of icons
-						tabButton:SetPoint("bottomright", breakdownWindow, "topright", -514 + (buttonWidth * (secondRowIndex)), -50)
+						tabButton:SetPoint("bottomright", breakdownWindowFrame, "topright", -613 + (buttonWidth * (secondRowIndex)), -48)
 						secondRowIndex = secondRowIndex + 1
 					else
-						tabButton:SetPoint("bottomright", breakdownWindow, "topright", -514 + (buttonWidth * tabsShown), -69)
+						tabButton:SetPoint("bottomright", breakdownWindowFrame, "topright", -613 + (buttonWidth * tabsShown), -69)
 					end
 				end
 
@@ -693,14 +760,14 @@ function Details:CreateBreakdownWindow()
 		end
 
 		if (tabsShown < 2) then
-			tablePool[1]:SetPoint("bottomleft", breakdownWindow.container_barras, "topleft", 490 - (94 * (1-0)), 1)
+			tablePool[1]:SetPoint("bottomleft", breakdownWindowFrame.container_barras, "topleft", 490 - (94 * (1-0)), 1)
 		end
 
 		--selected by default
 		tablePool[1]:Click()
 	end
 
-	breakdownWindow:SetScript("OnHide", function(self)
+	breakdownWindowFrame:SetScript("OnHide", function(self)
 		Details:CloseBreakdownWindow()
 		for _, tab in ipairs(Details.player_details_tabs) do
 			tab:Hide()
@@ -708,11 +775,11 @@ function Details:CreateBreakdownWindow()
 		end
 	end)
 
-	breakdownWindow.tipo = 1 --tipo da janela // 1 = janela normal
-	return breakdownWindow
+	breakdownWindowFrame.tipo = 1 --tipo da janela // 1 = janela normal
+	return breakdownWindowFrame
 end
 
-breakdownWindow.selectedTab = "Summary"
+breakdownWindowFrame.selectedTab = "Summary"
 
 function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFunc, tabOnClickFunc, onCreateFunc, iconSettings, replace, bIsDefaultTab) --~tab
 	if (not tabName) then
@@ -720,8 +787,8 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	end
 
 	--create a button to select the tab
-	local tabButton = detailsFramework:CreateButton(breakdownWindow, function()end, 20, 20, locName, nil, nil, nil, nil, breakdownWindow:GetName() .. "TabButton" .. tabName .. math.random(1, 1000), nil, "DETAILS_TAB_BUTTON_TEMPLATE")
-	tabButton:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
+	local tabButton = detailsFramework:CreateButton(breakdownWindowFrame.BreakdownTabsFrame, function()end, 20, 20, locName, nil, nil, nil, nil, breakdownWindowFrame:GetName() .. "TabButton" .. tabName .. math.random(1, 1000), nil, "DETAILS_TAB_BUTTON_TEMPLATE")
+	tabButton:SetFrameLevel(breakdownWindowFrame.BreakdownTabsFrame:GetFrameLevel()+1)
 	tabButton:Hide()
 
 	if (tabName == "Summary") then
@@ -737,10 +804,10 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	tabButton.last_actor = {} --need to double check is this getting cleared
 
 	---@type tabframe
-	local tabFrame = CreateFrame("frame", breakdownWindow:GetName() .. "TabFrame" .. tabName .. math.random(1, 10000), breakdownWindow, "BackdropTemplate")
-	tabFrame:SetFrameLevel(breakdownWindow:GetFrameLevel()+1)
-	tabFrame:SetPoint("topleft", breakdownWindow, "topleft", 0, -70)
-	tabFrame:SetPoint("bottomright", breakdownWindow, "bottomright", -1, 20)
+	local tabFrame = CreateFrame("frame", breakdownWindowFrame:GetName() .. "TabFrame" .. tabName .. math.random(1, 10000), breakdownWindowFrame, "BackdropTemplate")
+	tabFrame:SetFrameLevel(breakdownWindowFrame:GetFrameLevel()+1)
+	tabFrame:SetPoint("topleft", breakdownWindowFrame, "topleft", 1, -70)
+	tabFrame:SetPoint("bottomright", breakdownWindowFrame, "bottomright", -1, 20)
 	tabFrame:Hide()
 
 	DetailsFramework:ApplyStandardBackdrop(tabFrame)
@@ -808,7 +875,7 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 		end
 
 		self:SetTemplate("DETAILS_TAB_BUTTONSELECTED_TEMPLATE")
-		breakdownWindow.selectedTab = self.tabname
+		breakdownWindowFrame.selectedTab = self.tabname
 	end
 
 	if (not tabOnClickFunc) then
@@ -841,14 +908,14 @@ function Details:CreatePlayerDetailsTab(tabName, locName, conditionFunc, fillFun
 	end
 
 	tabButton:SetScript("PostClick", function(self)
-		CurrentTab = self.tabname or self.MyObject.tabname
+		currentTab = self.tabname or self.MyObject.tabname
 
-		if (CurrentTab ~= "Summary") then
-			for _, widget in ipairs(SummaryWidgets) do
+		if (currentTab ~= "Summary") then
+			for _, widget in ipairs(summaryWidgets) do
 				widget:Hide()
 			end
 		else
-			for _, widget in ipairs(SummaryWidgets) do
+			for _, widget in ipairs(summaryWidgets) do
 				widget:Show()
 			end
 		end

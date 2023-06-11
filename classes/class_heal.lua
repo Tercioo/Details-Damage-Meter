@@ -63,7 +63,7 @@ local TooltipMaximizedMethod = 1
 
 local headerColor = "yellow"
 
-local info = _detalhes.playerDetailWindow
+local breakdownWindowFrame = Details.BreakdownWindowFrame
 local keyName
 
 function healingClass:NovaTabela (serial, nome, link)
@@ -1656,7 +1656,7 @@ end
 --------------------------------------------- // JANELA DETALHES // ---------------------------------------------
 ---------- bifurca��o
 function healingClass:MontaInfo()
-	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
+	if (breakdownWindowFrame.sub_atributo == 1 or breakdownWindowFrame.sub_atributo == 2) then
 		self:MontaInfoHealingDone()
 
 		--[=[
@@ -1690,7 +1690,7 @@ function healingClass:MontaInfo()
 		end
 		--]=]
 
-	elseif (info.sub_atributo == 3) then
+	elseif (breakdownWindowFrame.sub_atributo == 3) then
 		self:MontaInfoHealingDone()
 
 		--[=[
@@ -1724,7 +1724,7 @@ function healingClass:MontaInfo()
 		end
 		--]=]
 
-	elseif (info.sub_atributo == 4) then
+	elseif (breakdownWindowFrame.sub_atributo == 4) then
 		self:MontaInfoHealTaken()
 	end
 end
@@ -1734,7 +1734,7 @@ function healingClass:MontaInfoHealTaken()
 	---@type actor
 	local actorObject = self
 	---@type instance
-	local instance = info.instancia
+	local instance = breakdownWindowFrame.instancia
 	---@type combat
 	local combatObject = instance:GetCombat()
 	---@type string
@@ -1779,10 +1779,10 @@ function healingClass:MontaInfoHealTaken()
 
 	local healing_taken = self.healing_taken
 	local curandeiros = self.healing_from
-	local instancia = info.instancia
+	local instancia = breakdownWindowFrame.instancia
 	local tabela_do_combate = instancia.showing
 	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
-	local barras = info.barras1
+	local barras = breakdownWindowFrame.barras1
 	local meus_curandeiros = {}
 
 	local este_curandeiro
@@ -1834,11 +1834,11 @@ end
 function healingClass:MontaInfoOverHealing() --this should be deprecated now
 --pegar as habilidade de dar sort no heal
 
-	local instancia = info.instancia
+	local instancia = breakdownWindowFrame.instancia
 	local total = self.totalover
 	local tabela = self.spells._ActorTable
 	local minhas_curas = {}
-	local barras = info.barras1
+	local barras = breakdownWindowFrame.barras1
 
 	for spellid, tabela in pairs(tabela) do
 		local nome, _, icone = _GetSpellInfo(spellid)
@@ -1876,13 +1876,13 @@ function healingClass:MontaInfoOverHealing() --this should be deprecated now
 			barra.on_focus = false
 		end
 
-		if (not info.mostrando_mouse_over) then
+		if (not breakdownWindowFrame.mostrando_mouse_over) then
 			if (tabela[1] == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
 				if (not barra.on_focus) then --se a barra n�o tiver no foco
 					barra.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
 					barra.on_focus = true
-					if (not info.mostrando) then
-						info.mostrando = barra
+					if (not breakdownWindowFrame.mostrando) then
+						breakdownWindowFrame.mostrando = barra
 					end
 				end
 			else
@@ -1938,7 +1938,7 @@ function healingClass:MontaInfoOverHealing() --this should be deprecated now
 
 	for index, tabela in ipairs(jogadores_overhealed) do
 
-		local barra = info.barras2 [index]
+		local barra = breakdownWindowFrame.barras2 [index]
 
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo2 (instancia, index)
@@ -1975,7 +1975,7 @@ function healingClass:MontaInfoHealingDone()
 	---@type actor
 	local actorObject = self
 	---@type instance
-	local instance = info.instancia
+	local instance = breakdownWindowFrame.instancia
 	---@type combat
 	local combatObject = instance:GetCombat()
 	---@type string
@@ -1993,7 +1993,7 @@ function healingClass:MontaInfoHealingDone()
 	if (Details.time_type == 1 or not actorObject.grupo) then
 		actorCombatTime = actorObject:Tempo()
 	elseif (Details.time_type == 2) then
-		actorCombatTime = info.instancia.showing:GetCombatTime()
+		actorCombatTime = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
 	--actor spells
@@ -2165,18 +2165,18 @@ function healingClass:MontaInfoHealingDone()
 
 	if 1 then return end
 
-	local instancia = info.instancia
+	local instancia = breakdownWindowFrame.instancia
 	local total = self.total
 	local tabela = self.spells._ActorTable
 	local minhas_curas = {}
-	local barras = info.barras1
+	local barras = breakdownWindowFrame.barras1
 
 	--get time type
 	local meu_tempo
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
 	elseif (_detalhes.time_type == 2) then
-		meu_tempo = info.instancia.showing:GetCombatTime()
+		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
 	for spellid, tabela in pairs(tabela) do
@@ -2192,7 +2192,7 @@ function healingClass:MontaInfoHealingDone()
 		})
 	end
 
-	info:SetStatusbarText()
+	breakdownWindowFrame:SetStatusbarText()
 
 	--add pets
 	local ActorPets = self.pets
@@ -2238,7 +2238,7 @@ function healingClass:MontaInfoHealingDone()
 
 		barra.other_actor = tabela [6]
 
-		if (info.sub_atributo == 2) then
+		if (breakdownWindowFrame.sub_atributo == 2) then
 			local formated_value = SelectedToKFunction (_, _math_floor(tabela[2]/meu_tempo))
 			self:UpdadeInfoBar(barra, index, tabela[1], tabela[4], tabela[2], formated_value, max_, tabela[3], tabela[5], true)
 		else
@@ -2272,7 +2272,7 @@ function healingClass:MontaInfoHealingDone()
 	local topHealingDone = max(healedTargets[1] and healedTargets[1][2] or 0, 0.0001)
 
 	for index, healDataTable in ipairs(healedTargets) do
-		local barra = info.barras2[index]
+		local barra = breakdownWindowFrame.barras2[index]
 
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo2(instancia, index)
@@ -2299,7 +2299,7 @@ function healingClass:MontaInfoHealingDone()
 		barra.lineText1:SetText(index .. ". " .. _detalhes:GetOnlyName(healDataTable[1]))
 		barra.textura:SetStatusBarColor(1, 1, 1, 1)
 
-		if (info.sub_atributo == 2) then
+		if (breakdownWindowFrame.sub_atributo == 2) then
 			barra.lineText4:SetText(_detalhes:comma_value(_math_floor(healingDone/meu_tempo)) .." (" .. _cstr ("%.1f", healDataTable[3]) .. "%)")
 		else
 			barra.lineText4:SetText(SelectedToKFunction(_, healingDone) .. " (" .. _cstr ("%.1f", healDataTable[3]) .. "%)")
@@ -2321,7 +2321,7 @@ function healingClass:MontaTooltipAlvos (thisLine, index, instancia)
 	local container = self.spells._ActorTable
 	local habilidades = {}
 	local total
-	local sub_atributo = info.instancia.sub_atributo
+	local sub_atributo = breakdownWindowFrame.instancia.sub_atributo
 
 	local targets_key = ""
 
@@ -2372,10 +2372,10 @@ function healingClass:MontaTooltipAlvos (thisLine, index, instancia)
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
 	elseif (_detalhes.time_type == 2) then
-		meu_tempo = info.instancia.showing:GetCombatTime()
+		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
-	local is_hps = info.instancia.sub_atributo == 2
+	local is_hps = breakdownWindowFrame.instancia.sub_atributo == 2
 
 	if (is_hps) then
 		--GameTooltip:AddLine(index..". "..inimigo)
@@ -2422,25 +2422,25 @@ end
 
 function healingClass:MontaDetalhes (spellid, barra)
 	--bifurga��es
-	if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then
+	if (breakdownWindowFrame.sub_atributo == 1 or breakdownWindowFrame.sub_atributo == 2 or breakdownWindowFrame.sub_atributo == 3) then
 		return self:MontaDetalhesHealingDone (spellid, barra)
-	elseif (info.sub_atributo == 4) then
+	elseif (breakdownWindowFrame.sub_atributo == 4) then
 		healingClass:MontaDetalhesHealingTaken (spellid, barra)
 	end
 end
 
 function healingClass:MontaDetalhesHealingTaken (nome, barra)
 
-	local barras = info.barras3
-	local instancia = info.instancia
+	local barras = breakdownWindowFrame.barras3
+	local instancia = breakdownWindowFrame.instancia
 
-	local tabela_do_combate = info.instancia.showing
+	local tabela_do_combate = breakdownWindowFrame.instancia.showing
 	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
 
 	local este_curandeiro = showing._ActorTable[showing._NameIndexTable[nome]]
 	local conteudo = este_curandeiro.spells._ActorTable --pairs[] com os IDs das magias
 
-	local actor = info.jogador.nome
+	local actor = breakdownWindowFrame.jogador.nome
 
 	local total = este_curandeiro.targets [actor]
 
@@ -2518,7 +2518,7 @@ function healingClass:MontaDetalhesHealingDone (spellid, barra) --deprecated wit
 
 	--icone direito superior
 	local spellName, _, icone = _GetSpellInfo(spellid)
-	info.spell_icone:SetTexture(icone)
+	breakdownWindowFrame.spell_icone:SetTexture(icone)
 
 	local total = self.total
 
@@ -2529,7 +2529,7 @@ function healingClass:MontaDetalhesHealingDone (spellid, barra) --deprecated wit
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
 	elseif (_detalhes.time_type == 2) then
-		meu_tempo = info.instancia.showing:GetCombatTime()
+		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
 	local total_hits = esta_magia.counter
@@ -2564,14 +2564,14 @@ function healingClass:MontaDetalhesHealingDone (spellid, barra) --deprecated wit
 		local hits_string = "" .. total_hits
 		local cast_string = Loc ["STRING_CAST"] .. ": "
 
-		local misc_actor = info.instancia.showing (4, self:name())
+		local misc_actor = breakdownWindowFrame.instancia.showing (4, self:name())
 		if (misc_actor) then
 			local buff_uptime = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable [spellid] and misc_actor.buff_uptime_spells._ActorTable [spellid].uptime
 			if (buff_uptime) then
-				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(buff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
+				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(buff_uptime / breakdownWindowFrame.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
 
-			local amountOfCasts = info.instancia.showing:GetSpellCastAmount(self:Name(), spellName)
+			local amountOfCasts = breakdownWindowFrame.instancia.showing:GetSpellCastAmount(self:Name(), spellName)
 			if (not amountOfCasts) then
 				amountOfCasts = "(|cFFFFFF00?|r)"
 			end

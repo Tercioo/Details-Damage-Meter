@@ -34,7 +34,7 @@ local IconTexCoord = {5/64, 59/64, 5/64, 59/64}
 local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
-local info = Details.playerDetailWindow
+local breakdownWindowFrame = Details.BreakdownWindowFrame
 
 local fill_compare_targets = function(self, player, other_players, target_pool)
     local offset = _G.FauxScrollFrame_GetOffset(self)
@@ -324,7 +324,7 @@ local fill_compare_actors = function(self, player, other_players)
 
     --main player pets
     for petIndex, petName in ipairs(player:Pets()) do
-        local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
+        local petActor = breakdownWindowFrame.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
         if (petActor) then
             for _spellid, _skill in pairs(petActor:GetActorSpells()) do
                 spells_sorted [#spells_sorted+1] = {_skill, _skill.total, petName}
@@ -359,7 +359,7 @@ local fill_compare_actors = function(self, player, other_players)
         end
         --player 2 pets
         for petIndex, petName in ipairs(other_players [1]:Pets()) do
-            local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
+            local petActor = breakdownWindowFrame.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
             if (petActor) then
                 for _spellid, _skill in pairs(petActor:GetActorSpells()) do
                     player_2_spells_sorted [#player_2_spells_sorted+1] = {_skill, _skill.total, petName}
@@ -401,7 +401,7 @@ local fill_compare_actors = function(self, player, other_players)
             end
             --player 3 pets
             for petIndex, petName in ipairs(other_players [2]:Pets()) do
-                local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
+                local petActor = breakdownWindowFrame.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
                 if (petActor) then
                     for _spellid, _skill in pairs(petActor:GetActorSpells()) do
                         player_3_spells_sorted [#player_3_spells_sorted+1] = {_skill, _skill.total, petName}
@@ -462,7 +462,7 @@ local fill_compare_actors = function(self, player, other_players)
             if (not spell and petName and player_2) then
                 for _petIndex, _petName in ipairs(player_2:Pets()) do
                     if (_petName:gsub(" <.*", "") == petName:gsub(" <.*", "")) then
-                        local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
+                        local petActor = breakdownWindowFrame.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
                         spell = petActor and petActor.spells._ActorTable [spellid]
                         name = name .. " (|cFFCCBBBB" .. _petName:gsub(" <.*", "") .. "|r)"
                     end
@@ -541,7 +541,7 @@ local fill_compare_actors = function(self, player, other_players)
                 if (not spell and petName and player_3) then
                     for _petIndex, _petName in ipairs(player_3:Pets()) do
                         if (_petName:gsub(" <.*", "") == petName:gsub(" <.*", "")) then
-                            local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
+                            local petActor = breakdownWindowFrame.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
                             spell = petActor and petActor.spells._ActorTable [spellid]
                             local name, _, icon = _GetSpellInfo(spellid)
                             name = name .. " (|cFFCCBBBB" .. _petName:gsub(" <.*", "") .. "|r)"
@@ -971,7 +971,7 @@ local on_enter = function(self)
     local critical = bar1[3][3]
 
     ---@type combat
-    local combatObject = info.instancia.showing
+    local combatObject = breakdownWindowFrame.instancia.showing
 
     local player1_misc = combatObject(4, player1)
     local player2_misc = combatObject(4, player2)
@@ -1470,7 +1470,7 @@ local compare_create = function(tab, frame)
         bar.righttext2:SetJustifyH("right")
         bar.righttext2:SetTextColor(1, 1, 1, 1)
 
-        tinsert(parent.bars, {spellicon, bar, {0, 0, 0}})
+        table.insert(parent.bars, {spellicon, bar, {0, 0, 0}})
     end
 
     local create_tooltip = function(name)
@@ -1675,7 +1675,7 @@ local compare_create = function(tab, frame)
             bar.bg = bg_line1
 
             local object = {spellicon, bar}
-            tinsert(tooltip.bars, object)
+            table.insert(tooltip.bars, object)
             return object
         end
 
@@ -1899,7 +1899,7 @@ function Details:InitializeCompareTab()
         Loc ["STRING_INFO_TAB_COMPARISON"],  --[2] localized name
         function(tabOBject, playerObject)  --[3] condition
 
-            if (info.atributo > 2) then
+            if (breakdownWindowFrame.atributo > 2) then
                 return false
             end
 
@@ -1917,11 +1917,11 @@ function Details:InitializeCompareTab()
             tabOBject.player = playerObject
             tabOBject.spells_amt = my_spells_total
 
-            if (not info.instancia.showing) then
+            if (not breakdownWindowFrame.instancia.showing) then
                 return false
             end
 
-            for index, actor in ipairs(info.instancia.showing [info.atributo]._ActorTable) do
+            for index, actor in ipairs(breakdownWindowFrame.instancia.showing [breakdownWindowFrame.atributo]._ActorTable) do
                 if (actor.classe == class and actor ~= playerObject) then
 
                     local same_spells = 0
@@ -1934,7 +1934,7 @@ function Details:InitializeCompareTab()
                     local match_percentage = same_spells / math.max(my_spells_total, 0.000001) * 100
 
                     if (match_percentage > 30) then
-                        tinsert(tabOBject.players, actor)
+                        table.insert(tabOBject.players, actor)
                     end
                 end
             end

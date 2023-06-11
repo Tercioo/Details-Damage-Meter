@@ -276,6 +276,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local combatObject = tremove(Details.tabela_historico.tabelas, segmentToErase)
 			if (combatObject) then
 				Details:DestroyCombat(combatObject)
+				Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 				Details:Msg("segment removed.")
 				collectgarbage()
 			else
@@ -1362,6 +1363,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local pastCombat = segmentHistory [i]
 			if (pastCombat and pastCombat ~= newCombat) then
 				Details:DestroyCombat(pastCombat)
+				--send the event segment removed
+				Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 				segmentHistory [i] = nil
 			end
 		end

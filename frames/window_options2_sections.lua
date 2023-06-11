@@ -37,13 +37,11 @@ local LDBIcon = LDB and _G.LibStub("LibDBIcon-1.0", true)
 local addonName, Details222 = ...
 local _ = nil
 local unpack = _G.unpack
-local tinsert = _G.tinsert
+local tinsert = table.insert
 
 local startX = 200
 local startY = -40
 local heightSize = 540
-local optionsWidth, optionsHeight = 1100, 650
-local mainHeightSize = 800
 local presetVersion = 3
 
 --templates
@@ -56,7 +54,6 @@ local options_button_template = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLAT
 local subSectionTitleTextTemplate = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
 
 local font_select_icon, font_select_texcoord = [[Interface\AddOns\Details\images\icons]], {472/512, 513/512, 186/512, 230/512}
-local texture_select_icon, texture_select_texcoord = [[Interface\AddOns\Details\images\icons]], {472/512, 513/512, 186/512, 230/512}
 
 --store the current instance being edited
 local currentInstance

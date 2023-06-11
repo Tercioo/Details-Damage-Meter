@@ -867,38 +867,39 @@ do
 	local CreateFrame = CreateFrame --api locals
 	local UIParent = UIParent --api locals
 
-	--Info Window
-		_detalhes.playerDetailWindow = CreateFrame("Frame", "DetailsBreakdownWindow", UIParent, "BackdropTemplate")
-		_detalhes.PlayerDetailsWindow = _detalhes.playerDetailWindow
-		Details.BreakdownWindow = _detalhes.playerDetailWindow
+	--create the breakdown window frame
+	---@type breakdownwindow
+	Details.BreakdownWindowFrame = CreateFrame("Frame", "DetailsBreakdownWindow", UIParent, "BackdropTemplate")
+	Details.PlayerDetailsWindow = Details.BreakdownWindowFrame
+	Details.BreakdownWindow = Details.BreakdownWindowFrame
 
 	--Event Frame
-		_detalhes.listener = CreateFrame("Frame", nil, UIParent)
-		_detalhes.listener:RegisterEvent("ADDON_LOADED")
-		_detalhes.listener:SetFrameStrata("LOW")
-		_detalhes.listener:SetFrameLevel(9)
-		_detalhes.listener.FrameTime = 0
+	Details.listener = CreateFrame("Frame", nil, UIParent)
+	Details.listener:RegisterEvent("ADDON_LOADED")
+	Details.listener:SetFrameStrata("LOW")
+	Details.listener:SetFrameLevel(9)
+	Details.listener.FrameTime = 0
 
-		_detalhes.overlay_frame = CreateFrame("Frame", nil, UIParent)
-		_detalhes.overlay_frame:SetFrameStrata("TOOLTIP")
+	Details.overlay_frame = CreateFrame("Frame", nil, UIParent)
+	Details.overlay_frame:SetFrameStrata("TOOLTIP")
 
 	--Pet Owner Finder
-		CreateFrame("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
+	CreateFrame("GameTooltip", "DetailsPetOwnerFinder", nil, "GameTooltipTemplate")
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --plugin defaults
 	--backdrop
-	_detalhes.PluginDefaults = {}
+	Details.PluginDefaults = {}
 
-	_detalhes.PluginDefaults.Backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+	Details.PluginDefaults.Backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 	edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
 	insets = {left = 1, right = 1, top = 1, bottom = 1}}
-	_detalhes.PluginDefaults.BackdropColor = {0, 0, 0, .6}
-	_detalhes.PluginDefaults.BackdropBorderColor = {0, 0, 0, 1}
+	Details.PluginDefaults.BackdropColor = {0, 0, 0, .6}
+	Details.PluginDefaults.BackdropBorderColor = {0, 0, 0, 1}
 
-	function _detalhes.GetPluginDefaultBackdrop()
-		return _detalhes.PluginDefaults.Backdrop, _detalhes.PluginDefaults.BackdropColor, _detalhes.PluginDefaults.BackdropBorderColor
+	function Details.GetPluginDefaultBackdrop()
+		return Details.PluginDefaults.Backdrop, Details.PluginDefaults.BackdropColor, Details.PluginDefaults.BackdropBorderColor
 	end
 
 

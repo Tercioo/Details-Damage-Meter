@@ -78,7 +78,7 @@
 
 	local headerColor = {1, 0.9, 0.0, 1}
 
-	local info = Details.playerDetailWindow
+	local breakdownWindowFrame = Details.BreakdownWindowFrame
 	local keyName
 
 	local OBJECT_TYPE_PLAYER =	0x00000400
@@ -4011,42 +4011,70 @@ end
 
 ---------DETALHES BIFURCA��O ~detalhes ~detailswindow ~bi
 function damageClass:MontaInfo()
-	if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 6) then --damage done & dps
-		return self:MontaInfoDamageDone()
-	elseif (info.sub_atributo == 3) then --damage taken
-		return self:MontaInfoDamageTaken()
-	elseif (info.sub_atributo == 4) then --friendly fire
-		return self:MontaInfoFriendlyFire()
+	if (breakdownWindowFrame.sub_atributo == 1 or breakdownWindowFrame.sub_atributo == 2 or breakdownWindowFrame.sub_atributo == 6) then --damage done & dps
+		return self:MontaInfoDamageDone() --has new code for the new destails window | left scroll and 6 blocks implemented
+	elseif (breakdownWindowFrame.sub_atributo == 3) then --damage taken
+		return self:MontaInfoDamageTaken() --has new code for the new destails window | left and right scrolls implemented
+	elseif (breakdownWindowFrame.sub_atributo == 4) then --friendly fire
+		return self:MontaInfoFriendlyFire() --has new code for the new destails window | left scroll implemeneted (need to implemente the right scroll yet)
 	end
 end
 
 ---------DETALHES bloco da direita BIFURCA��O
-function damageClass:MontaDetalhes (spellid, barra, instancia)
-	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
-		return self:MontaDetalhesDamageDone (spellid, barra, instancia)
+function damageClass:MontaDetalhes (spellid, barra, instancia) --these functions were used to fill the 5 blocks from the old breakdown window
+	if (breakdownWindowFrame.sub_atributo == 1 or breakdownWindowFrame.sub_atributo == 2) then
+		return self:MontaDetalhesDamageDone (spellid, barra, instancia) --deprecated
 
-	elseif (info.sub_atributo == 3) then
+	elseif (breakdownWindowFrame.sub_atributo == 3) then
 		return self:MontaDetalhesDamageTaken (spellid, barra, instancia)
 
-	elseif (info.sub_atributo == 4) then
+	elseif (breakdownWindowFrame.sub_atributo == 4) then
 		return self:MontaDetalhesFriendlyFire (spellid, barra, instancia)
 
-	elseif (info.sub_atributo == 6) then
+	elseif (breakdownWindowFrame.sub_atributo == 6) then
 		if (bitBand(self.flag_original, 0x00000400) ~= 0) then --� um jogador
-			return self:MontaDetalhesDamageDone (spellid, barra, instancia)
+			return self:MontaDetalhesDamageDone (spellid, barra, instancia) --deprecated
 		end
 		return self:MontaDetalhesEnemy (spellid, barra, instancia)
 	end
 end
 
+local friendlyFireSpellSourcesHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
+---when hovering over the player name in the breakdown window, this function will be called to build a the list of spells used to inflict damage on that player
+---@param friendlyFireAggressorActor actordamage
+---@param targetName string
+function damageClass.BuildFriendlySpellListFromAgressor(friendlyFireAggressorActor, targetName)
+	---@type combat
+	local combatObject = Details:GetCombatFromBreakdownWindow()
+
+	---@type friendlyfiretable
+	local friendlyFireTable = friendlyFireAggressorActor.friendlyfire[targetName]
+
+	local totalDamage = friendlyFireTable.total
+	local spellsUsed = friendlyFireTable.spells
+
+	--create the table which will be returned with the data
+	---@type {topValue: number, totalValue: number, headersAllowed: table, combatTime: number}
+	local resultTable = {topValue = 0, totalValue = totalDamage, headersAllowed = friendlyFireSpellSourcesHeadersAllowed, combatTime = combatObject:GetCombatTime()}
+
+	--iterate among the spells used by the aggressorActor
+	for spellId, amountDamage in pairs(spellsUsed) do
+		--add the spell to the list
+		local spellName = GetSpellInfo(spellId)
+		resultTable[#resultTable+1] = {spellId = spellId, total = amountDamage, petName = "", spellScholl = Details.spell_school_cache[spellName] or 1}
+	end
+
+	return resultTable
+end
 
 ------ Friendly Fire
 local friendlyFireHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
+---build the friendly fire list, the list contains players who were damaged by this actor.
 function damageClass:MontaInfoFriendlyFire() --~friendlyfire ~friendly ~ff
 	---@type actordamage
 	local actorObject = self
 	---@type instance
-	local instance = info.instancia
+	local instance = breakdownWindowFrame.instancia
 	---@type combat
 	local combatObject = instance:GetCombat()
 	---@type string
@@ -4064,13 +4092,14 @@ function damageClass:MontaInfoFriendlyFire() --~friendlyfire ~friendly ~ff
 	for targetName, friendlyFireTable in pairs(damagedPlayers) do
 		local amountOfFriendlyFire = friendlyFireTable.total
 		if (amountOfFriendlyFire > 0) then
+			---@type actordamage this is an actor who was damaged by the friendly fire of the actorObject
 			local targetActorObject = damageContainer:GetActor(targetName)
 			if (targetActorObject) then
 				---@type texturetable
 				local iconTable = Details:GetActorIcon(targetActorObject)
 
-				---@type {name: string, amount: number, icon: texturetable}
-				local ffTable = {name = targetName, total = amountOfFriendlyFire, icon = iconTable}
+				---@type {name: string, amount: number, icon: texturetable, class: string}
+				local ffTable = {name = targetName, total = amountOfFriendlyFire, icon = iconTable, class = targetActorObject:Class()}
 
 				resultTable[#resultTable+1] = ffTable
 			end
@@ -4084,151 +4113,204 @@ function damageClass:MontaInfoFriendlyFire() --~friendlyfire ~friendly ~ff
 	Details222.BreakdownWindow.SendGenericData(resultTable, actorObject, combatObject, instance)
 
 	if true then return end
+	do
+		local instancia = breakdownWindowFrame.instancia
+		local combat = instancia:GetShowingCombat()
+		local barras = breakdownWindowFrame.barras1
+		local barras2 = breakdownWindowFrame.barras2
+		local barras3 = breakdownWindowFrame.barras3
 
-	local instancia = info.instancia
-	local combat = instancia:GetShowingCombat()
-	local barras = info.barras1
-	local barras2 = info.barras2
-	local barras3 = info.barras3
+		local FriendlyFireTotal = self.friendlyfire_total
 
-	local FriendlyFireTotal = self.friendlyfire_total
+		local DamagedPlayers = {}
+		local Skills = {}
 
-	local DamagedPlayers = {}
-	local Skills = {}
+		for target_name, ff_table in pairs(self.friendlyfire) do
 
-	for target_name, ff_table in pairs(self.friendlyfire) do
+			local actor = combat (1, target_name)
+			if (actor) then
+				tinsert(DamagedPlayers, {target_name, ff_table.total, ff_table.total / FriendlyFireTotal * 100, actor.classe})
 
-		local actor = combat (1, target_name)
-		if (actor) then
-			tinsert(DamagedPlayers, {target_name, ff_table.total, ff_table.total / FriendlyFireTotal * 100, actor.classe})
-
-			for spellid, amount in pairs(ff_table.spells) do
-				Skills [spellid] = (Skills [spellid] or 0) + amount
+				for spellid, amount in pairs(ff_table.spells) do
+					Skills [spellid] = (Skills [spellid] or 0) + amount
+				end
 			end
 		end
-	end
 
-	_table_sort(DamagedPlayers, Details.Sort2)
+		_table_sort(DamagedPlayers, Details.Sort2)
 
-	local amt = #DamagedPlayers
-	gump:JI_AtualizaContainerBarras (amt)
+		local amt = #DamagedPlayers
+		gump:JI_AtualizaContainerBarras (amt)
 
-	local FirstPlaceDamage = DamagedPlayers [1] and DamagedPlayers [1][2] or 0
+		local FirstPlaceDamage = DamagedPlayers [1] and DamagedPlayers [1][2] or 0
 
-	for index, tabela in ipairs(DamagedPlayers) do
-		local barra = barras [index]
+		for index, tabela in ipairs(DamagedPlayers) do
+			local barra = barras [index]
 
-		if (not barra) then
-			barra = gump:CriaNovaBarraInfo1 (instancia, index)
-			barra.textura:SetStatusBarColor(1, 1, 1, 1)
-			barra.on_focus = false
-		end
+			if (not barra) then
+				barra = gump:CriaNovaBarraInfo1 (instancia, index)
+				barra.textura:SetStatusBarColor(1, 1, 1, 1)
+				barra.on_focus = false
+			end
 
-		if (not info.mostrando_mouse_over) then
-			if (tabela[1] == self.detalhes) then --tabela [1] = NOME = NOME que esta na caixa da direita
-				if (not barra.on_focus) then --se a barra n�o tiver no foco
-					barra.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
-					barra.on_focus = true
-					if (not info.mostrando) then
-						info.mostrando = barra
+			if (not breakdownWindowFrame.mostrando_mouse_over) then
+				if (tabela[1] == self.detalhes) then --tabela [1] = NOME = NOME que esta na caixa da direita
+					if (not barra.on_focus) then --se a barra n�o tiver no foco
+						barra.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
+						barra.on_focus = true
+						if (not breakdownWindowFrame.mostrando) then
+							breakdownWindowFrame.mostrando = barra
+						end
+					end
+				else
+					if (barra.on_focus) then
+						barra.textura:SetStatusBarColor(1, 1, 1, 1) --volta a cor antiga
+						barra:SetAlpha(.9) --volta a alfa antiga
+						barra.on_focus = false
 					end
 				end
+			end
+
+			if (index == 1) then
+				barra.textura:SetValue(100)
 			else
-				if (barra.on_focus) then
-					barra.textura:SetStatusBarColor(1, 1, 1, 1) --volta a cor antiga
-					barra:SetAlpha(.9) --volta a alfa antiga
-					barra.on_focus = false
-				end
+				barra.textura:SetValue(tabela[2]/FirstPlaceDamage*100)
+			end
+
+			barra.lineText1:SetText(index .. instancia.divisores.colocacao .. Details:GetOnlyName(tabela[1])) --seta o texto da esqueda
+			barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format("%.1f", tabela[3]) .."%)") --seta o texto da direita
+
+			local classe = tabela[4]
+			if (not classe) then
+				classe = "MONSTER"
+			end
+
+			barra.icone:SetTexture(breakdownWindowFrame.instancia.row_info.icon_file)
+
+			if (Details.class_coords [classe]) then
+				barra.icone:SetTexCoord(unpack(Details.class_coords [classe]))
+			else
+				barra.icone:SetTexture("")
+			end
+
+			local color = Details.class_colors [classe]
+			if (color) then
+				barra.textura:SetStatusBarColor(unpack(color))
+			else
+				barra.textura:SetStatusBarColor(1, 1, 1)
+			end
+
+			barra.minha_tabela = self
+			barra.show = tabela[1]
+			barra:Show()
+
+			if (self.detalhes and self.detalhes == barra.show) then
+				self:MontaDetalhes (self.detalhes, barra, instancia)
 			end
 		end
 
-		if (index == 1) then
-			barra.textura:SetValue(100)
-		else
-			barra.textura:SetValue(tabela[2]/FirstPlaceDamage*100)
+		local SkillTable = {}
+		for spellid, amt in pairs(Skills) do
+			local nome, _, icone = _GetSpellInfo(spellid)
+			SkillTable [#SkillTable+1] = {nome, amt, amt/FriendlyFireTotal*100, icone}
 		end
 
-		barra.lineText1:SetText(index .. instancia.divisores.colocacao .. Details:GetOnlyName(tabela[1])) --seta o texto da esqueda
-		barra.lineText4:SetText(Details:comma_value (tabela[2]) .. " (" .. format("%.1f", tabela[3]) .."%)") --seta o texto da direita
+		_table_sort(SkillTable, Details.Sort2)
 
-		local classe = tabela[4]
-		if (not classe) then
-			classe = "MONSTER"
+		amt = #SkillTable
+		if (amt < 1) then
+			return
 		end
 
-		barra.icone:SetTexture(info.instancia.row_info.icon_file)
+		gump:JI_AtualizaContainerAlvos (amt)
 
-		if (Details.class_coords [classe]) then
-			barra.icone:SetTexCoord(unpack(Details.class_coords [classe]))
-		else
-			barra.icone:SetTexture("")
+		FirstPlaceDamage = SkillTable [1] and SkillTable [1][2] or 0
+
+		for index, tabela in ipairs(SkillTable) do
+			local barra = barras2 [index]
+
+			if (not barra) then
+				barra = gump:CriaNovaBarraInfo2 (instancia, index)
+				barra.textura:SetStatusBarColor(1, 1, 1, 1)
+			end
+
+			if (index == 1) then
+				barra.textura:SetValue(100)
+			else
+				barra.textura:SetValue(tabela[2]/FirstPlaceDamage*100)
+			end
+
+			barra.lineText1:SetText(index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
+			barra.lineText4:SetText(Details:comma_value (tabela[2]) .." (" ..format("%.1f", tabela[3]) .. ")") --seta o texto da direita
+			barra.icone:SetTexture(tabela[4])
+
+			barra.minha_tabela = nil --desativa o tooltip
+
+			barra:Show()
 		end
+	end
+end
 
-		local color = Details.class_colors [classe]
-		if (color) then
-			barra.textura:SetStatusBarColor(unpack(color))
-		else
-			barra.textura:SetStatusBarColor(1, 1, 1)
-		end
+local damageTakenSpellSourcesHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
+function damageClass.BuildDamageTakenSpellListFromAgressor(targetActor, aggressorActor)
+	--target actor name
+	local targetActorName = targetActor:Name()
 
-		barra.minha_tabela = self
-		barra.show = tabela[1]
-		barra:Show()
+	---@type combat
+	local combatObject = Details:GetCombatFromBreakdownWindow()
 
-		if (self.detalhes and self.detalhes == barra.show) then
-			self:MontaDetalhes (self.detalhes, barra, instancia)
+	--get the list of spells from the aggressorActor and check each one to see if it was casted on the targetActor
+	---@type spellcontainer
+	local spellContainer = aggressorActor:GetSpellContainer("spell")
+
+	--create the table which will be returned with the data
+	---@type {topValue: number, totalValue: number, headersAllowed: table, combatTime: number}
+	local resultTable = {topValue = 0, totalValue = 0, headersAllowed = damageTakenSpellSourcesHeadersAllowed, combatTime = combatObject:GetCombatTime()}
+
+	for spellId, spellTable in spellContainer:ListSpells() do
+		---@cast spellTable spelltable
+		for targetName, amount in pairs(spellTable.targets) do
+			if (targetName == targetActorName) then
+				--add the spell to the list
+				resultTable[#resultTable+1] = {spellId = spellId, total = amount, petName = "", spellScholl = spellTable.spellschool}
+				resultTable.totalValue = resultTable.totalValue + amount
+			end
 		end
 	end
 
-	local SkillTable = {}
-	for spellid, amt in pairs(Skills) do
-		local nome, _, icone = _GetSpellInfo(spellid)
-		SkillTable [#SkillTable+1] = {nome, amt, amt/FriendlyFireTotal*100, icone}
-	end
+	--iterate among the pets of the aggressorActor and get the spells casted by them
+	---@type table<number, actorname>
+	local petTable = aggressorActor.pets
 
-	_table_sort(SkillTable, Details.Sort2)
+	for i = 1, #petTable do
+		local petName = petTable[i]
+		local petActorObject = combatObject:GetActor(DETAILS_ATTRIBUTE_DAMAGE, petName)
+		if (petActorObject) then
+			---@type spellcontainer
+			local petSpellContainer = petActorObject:GetSpellContainer("spell")
 
-	amt = #SkillTable
-	if (amt < 1) then
-		return
-	end
-
-	gump:JI_AtualizaContainerAlvos (amt)
-
-	FirstPlaceDamage = SkillTable [1] and SkillTable [1][2] or 0
-
-	for index, tabela in ipairs(SkillTable) do
-		local barra = barras2 [index]
-
-		if (not barra) then
-			barra = gump:CriaNovaBarraInfo2 (instancia, index)
-			barra.textura:SetStatusBarColor(1, 1, 1, 1)
+			for spellId, spellTable in petSpellContainer:ListSpells() do
+				for targetName, amount in pairs(spellTable.targets) do
+					if (targetName == targetActorName) then
+						--add the spell to the list
+						resultTable[#resultTable+1] = {spellId = spellId, total = amount, petName = petName, spellScholl = spellTable.spellschool}
+						resultTable.totalValue = resultTable.totalValue + amount
+					end
+				end
+			end
 		end
-
-		if (index == 1) then
-			barra.textura:SetValue(100)
-		else
-			barra.textura:SetValue(tabela[2]/FirstPlaceDamage*100)
-		end
-
-		barra.lineText1:SetText(index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
-		barra.lineText4:SetText(Details:comma_value (tabela[2]) .." (" ..format("%.1f", tabela[3]) .. ")") --seta o texto da direita
-		barra.icone:SetTexture(tabela[4])
-
-		barra.minha_tabela = nil --desativa o tooltip
-
-		barra:Show()
 	end
 
+	return resultTable
 end
 
 ------ Damage Taken
 local damageTakenHeadersAllowed = {icon = true, name = true, rank = true, amount = true, persecond = true, percent = true}
 function damageClass:MontaInfoDamageTaken()
-	---@type actor
+	---@type actordamage
 	local actorObject = self
 	---@type instance
-	local instance = info.instancia
+	local instance = breakdownWindowFrame.instancia
 	---@type combat
 	local combatObject = instance:GetCombat()
 	---@type string
@@ -4245,18 +4327,18 @@ function damageClass:MontaInfoDamageTaken()
 
 	---@type string
 	for aggressorName in pairs(damageTakenFrom) do
-		local sourceActorObject = damageContainer:GetActor(aggressorName)
-		if (sourceActorObject) then
+		local aggressorActor = damageContainer:GetActor(aggressorName)
+		if (aggressorActor) then
 			---@type table<string, number>
-			local targets = sourceActorObject:GetTargets()
+			local targets = aggressorActor:GetTargets()
 			---@type number|nil
 			local amountOfDamage = targets[actorName]
 			if (amountOfDamage) then
 				---@type texturetable
-				local iconTable = Details:GetActorIcon(sourceActorObject)
+				local iconTable = Details:GetActorIcon(aggressorActor)
 
 				---@type {name: string, amount: number, icon: texturetable}
-				local damageTakenTable = {name = aggressorName, total = amountOfDamage, icon = iconTable}
+				local damageTakenTable = {name = aggressorName, total = amountOfDamage, icon = iconTable, class = aggressorActor:Class()}
 
 				resultTable[#resultTable+1] = damageTakenTable
 			end
@@ -4268,54 +4350,6 @@ function damageClass:MontaInfoDamageTaken()
 	resultTable.headersAllowed = damageTakenHeadersAllowed
 
 	Details222.BreakdownWindow.SendGenericData(resultTable, actorObject, combatObject, instance)
-
-	if true then return end
-
-	local barras = info.barras1
-	local meus_agressores = {}
-
-	local este_agressor
-	for nome, _ in pairs(damageTakenFrom) do
-		este_agressor = damageContainer._ActorTable[damageContainer._NameIndexTable[nome]]
-		if (este_agressor) then
-			local alvos = este_agressor.targets
-			local este_alvo = alvos [self.nome]
-			if (este_alvo) then
-				meus_agressores [#meus_agressores+1] = {nome, este_alvo, este_alvo/damageTakenTotal*100, este_agressor.classe}
-			end
-		end
-	end
-
-	local amt = #meus_agressores
-
-	if (amt < 1) then --caso houve apenas friendly fire
-		return true
-	end
-
-	--_table_sort(meus_agressores, function(a, b) return a[2] > b[2] end)
-	_table_sort(meus_agressores, Details.Sort2)
-
-	gump:JI_AtualizaContainerBarras (amt)
-
-	local max_ = meus_agressores [1] and meus_agressores [1][2] or 0
-
-	local barra
-	for index, tabela in ipairs(meus_agressores) do
-		barra = barras [index]
-		if (not barra) then
-			barra = gump:CriaNovaBarraInfo1 (instance, index)
-		end
-
-		self:FocusLock(barra, tabela[1])
-
-		local texCoords = Details.class_coords [tabela[4]]
-		if (not texCoords) then
-			texCoords = Details.class_coords ["UNKNOW"]
-		end
-
-		local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]))
-		self:UpdadeInfoBar(barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
-	end
 end
 
 --[[exported]] function Details:UpdadeInfoBar(row, index, spellId, name, value, formattedValue, max, percent, icon, detalhes, texCoords, spellSchool, class)
@@ -4396,20 +4430,20 @@ end
 		end
 	end
 
-	if (detalhes and self.detalhes and self.detalhes == spellId and info.showing == index) then
-		self:MontaDetalhes(row.show, row, info.instancia)
+	if (detalhes and self.detalhes and self.detalhes == spellId and breakdownWindowFrame.showing == index) then
+		self:MontaDetalhes(row.show, row, breakdownWindowFrame.instancia)
 	end
 end
 
 --lock into a line after clicking on it
 --[[exported]] function Details:FocusLock(row, spellId) --will be deprecated
-	if (not info.mostrando_mouse_over) then
+	if (not breakdownWindowFrame.mostrando_mouse_over) then
 		if (spellId == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
 			if (not row.on_focus) then --se a barra n�o tiver no foco
 				row.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
 				row.on_focus = true
-				if (not info.mostrando) then
-					info.mostrando = row
+				if (not breakdownWindowFrame.mostrando) then
+					breakdownWindowFrame.mostrando = row
 				end
 			end
 		else
@@ -4504,7 +4538,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	---@type actor
 	local actorObject = self
 	---@type instance
-	local instance = info.instancia
+	local instance = breakdownWindowFrame.instancia
 	---@type combat
 	local combatObject = instance:GetCombat()
 	---@type number
@@ -4525,15 +4559,15 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 					--discover which are the player position in the guild rank
 					local playerTable, onEncounter, rankPosition = Details.storage:GetPlayerGuildRank (diff, combatObject:GetBossInfo().id, "damage", playerName, true)
 					local text1 = playerName .. " Guild Rank on " .. (combatObject:GetBossInfo().name or "") .. ": |cFFFFFF00" .. (rankPosition or "x") .. "|r Best Dps: |cFFFFFF00" .. Details:ToK2((bestRank[1] or 0) / encounterTable.elapsed) .. "|r (" .. encounterTable.date:gsub(".*%s", "") .. ")"
-					info:SetStatusbarText (text1, 10, "gray")
+					breakdownWindowFrame:SetStatusbarText (text1, 10, "gray")
 				else
-					info:SetStatusbarText()
+					breakdownWindowFrame:SetStatusbarText()
 				end
 			else
-				info:SetStatusbarText()
+				breakdownWindowFrame:SetStatusbarText()
 			end
 		else
-			info:SetStatusbarText()
+			breakdownWindowFrame:SetStatusbarText()
 		end
 	end
 
@@ -4554,7 +4588,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	if (Details.time_type == 1 or not actorObject.grupo) then
 		actorCombatTime = actorObject:Tempo()
 	elseif (Details.time_type == 2) then
-		actorCombatTime = info.instancia.showing:GetCombatTime()
+		actorCombatTime = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
 	--actor spells
@@ -4766,7 +4800,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 
 		local name = tabela[4]
 
-		if (info.sub_atributo == 2) then
+		if (breakdownWindowFrame.sub_atributo == 2) then
 			local formated_value = SelectedToKFunction(_, _math_floor(tabela[2]/actorCombatTime))
 			self:UpdadeInfoBar(barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
@@ -4783,7 +4817,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 		local damageTakenFrom = self.damage_from
 		local combatObject = instance:GetShowingCombat()
 		local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
-		local barras = info.barras2
+		local barras = breakdownWindowFrame.barras2
 		local enemyTable = {}
 		local targetName = self:Name()
 
@@ -4889,7 +4923,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 
 		local barra
 		for index, targetTable in ipairs(allActorTargets) do
-			barra = info.barras2[index]
+			barra = breakdownWindowFrame.barras2[index]
 
 			if (not barra) then
 				barra = gump:CriaNovaBarraInfo2(instance, index)
@@ -4924,7 +4958,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 
 			barra.lineText1:SetText(index .. ". " .. Details:GetOnlyName(targetName))
 
-			if (info.sub_atributo == 2) then
+			if (breakdownWindowFrame.sub_atributo == 2) then
 				barra.lineText4:SetText(Details:comma_value ( _math_floor(targetTable[2]/actorCombatTime)) .. " (" .. format("%.1f", targetTable[3]) .. "%)")
 			else
 				barra.lineText4:SetText(SelectedToKFunction(_, targetTable[2]) .." (" .. format("%.1f", targetTable[3]) .. "%)")
@@ -4952,10 +4986,10 @@ end
 ------ Detalhe Info Friendly Fire
 function damageClass:MontaDetalhesFriendlyFire (nome, barra)
 
-	local barras = info.barras3
-	local instancia = info.instancia
+	local barras = breakdownWindowFrame.barras3
+	local instancia = breakdownWindowFrame.instancia
 
-	local tabela_do_combate = info.instancia.showing
+	local tabela_do_combate = breakdownWindowFrame.instancia.showing
 	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
 
 	local friendlyfire = self.friendlyfire
@@ -5017,9 +5051,9 @@ end
 -- detalhes info enemies
 function damageClass:MontaDetalhesEnemy (spellid, barra)
 
-	local container = info.instancia.showing[1]
-	local barras = info.barras3
-	local instancia = info.instancia
+	local container = breakdownWindowFrame.instancia.showing[1]
+	local barras = breakdownWindowFrame.barras3
+	local instancia = breakdownWindowFrame.instancia
 
 	local other_actor = barra.other_actor
 	if (other_actor) then
@@ -5041,7 +5075,7 @@ function damageClass:MontaDetalhesEnemy (spellid, barra)
 
 	for target_name, amount in pairs(targets) do
 		local classe
-		local this_actor = info.instancia.showing (1, target_name)
+		local this_actor = breakdownWindowFrame.instancia.showing (1, target_name)
 		if (this_actor) then
 			classe = this_actor.classe or "UNKNOW"
 		else
@@ -5115,10 +5149,10 @@ end
 ------ Detalhe Info Damage Taken
 function damageClass:MontaDetalhesDamageTaken (nome, barra)
 
-	local barras = info.barras3
-	local instancia = info.instancia
+	local barras = breakdownWindowFrame.barras3
+	local instancia = breakdownWindowFrame.instancia
 
-	local tabela_do_combate = info.instancia.showing
+	local tabela_do_combate = breakdownWindowFrame.instancia.showing
 	local showing = tabela_do_combate [class_type] --o que esta sendo mostrado -> [1] - dano [2] - cura --pega o container com ._NameIndexTable ._ActorTable
 
 	local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
@@ -5129,7 +5163,7 @@ function damageClass:MontaDetalhesDamageTaken (nome, barra)
 
 	local conteudo = este_agressor.spells._ActorTable --pairs[] com os IDs das magias
 
-	local actor = info.jogador.nome
+	local actor = breakdownWindowFrame.jogador.nome
 
 	local total = este_agressor.targets [actor] or 0
 
@@ -5212,7 +5246,7 @@ end
 
 local MontaDetalhesBuffProcs = function(actor, row, instance)
 
-	instance = instance or info.instancia
+	instance = instance or breakdownWindowFrame.instancia
 
 	local spec = actor.spec
 	if (spec) then
@@ -5524,7 +5558,7 @@ function damageClass:MontaDetalhesDamageDone (spellId, spellLine, instance) --th
 		end
 	end
 
-	Details.playerDetailWindow.spell_icone:SetTexture(icone)
+	Details.BreakdownWindowFrame.spell_icone:SetTexture(icone)
 
 	local total = self.total
 
@@ -5533,7 +5567,7 @@ function damageClass:MontaDetalhesDamageDone (spellId, spellLine, instance) --th
 		meu_tempo = self:Tempo()
 
 	elseif (Details.time_type == 2) then
-		meu_tempo = info.instancia.showing:GetCombatTime()
+		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
 	local total_hits = spellTable.counter
@@ -5571,15 +5605,15 @@ function damageClass:MontaDetalhesDamageDone (spellId, spellLine, instance) --th
 		local hits_string = "" .. total_hits
 		local cast_string = Loc ["STRING_CAST"] .. ": "
 
-		local misc_actor = info.instancia.showing (4, self:name())
+		local misc_actor = breakdownWindowFrame.instancia.showing (4, self:name())
 		if (misc_actor) then
 			local uptime_spellid = spellTable.id
 			local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [uptime_spellid] and misc_actor.debuff_uptime_spells._ActorTable [uptime_spellid].uptime
 			if (debuff_uptime) then
-				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(debuff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
+				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor(debuff_uptime / breakdownWindowFrame.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
 
-			local amountOfCasts = info.instancia.showing:GetSpellCastAmount(self:Name(), spellName)
+			local amountOfCasts = breakdownWindowFrame.instancia.showing:GetSpellCastAmount(self:Name(), spellName)
 			if (amountOfCasts == 0) then
 				amountOfCasts = "(|cFFFFFF00?|r)"
 			end
@@ -5736,7 +5770,7 @@ function damageClass:MontaDetalhesDamageDone (spellId, spellLine, instance) --th
 	end
 
 	--Details:BuildPlayerDetailsSpellChart()
-	--DetailsPlayerDetailSmallChart.ShowChart (Details.playerDetailWindow.grupos_detalhes [5].bg, info.instancia.showing, info.instancia.showing.cleu_events, self.nome, false, spellid, 1, 2, 3, 4, 5, 6, 7, 8, 15)
+	--DetailsPlayerDetailSmallChart.ShowChart (Details.BreakdownWindowFrame.grupos_detalhes [5].bg, info.instancia.showing, info.instancia.showing.cleu_events, self.nome, false, spellid, 1, 2, 3, 4, 5, 6, 7, 8, 15)
 
 	--spell damage chart
 	--events: 1 2 3 4 5 6 7 8 15
@@ -5905,7 +5939,7 @@ function Details:BuildPlayerDetailsSpellChart()
 
 	if (not playerDetailSmallChart) then
 
-		playerDetailSmallChart = CreateFrame("frame", "DetailsPlayerDetailSmallChart", info,"BackdropTemplate")
+		playerDetailSmallChart = CreateFrame("frame", "DetailsPlayerDetailSmallChart", breakdownWindowFrame,"BackdropTemplate")
 		DetailsFramework:ApplyStandardBackdrop(playerDetailSmallChart)
 		playerDetailSmallChart.Lines = {}
 
@@ -5915,7 +5949,7 @@ function Details:BuildPlayerDetailsSpellChart()
 			tinsert(playerDetailSmallChart.Lines, texture)
 		end
 
-		--Details.playerDetailWindow.grupos_detalhes [index]
+		--Details.BreakdownWindowFrame.grupos_detalhes [index]
 		function playerDetailSmallChart.ShowChart (parent, combatObject, cleuData, playerName, targetName, spellId, ...)
 			local tokenIdList = {}
 			local eventList = {}
@@ -5984,7 +6018,7 @@ function Details:BuildPlayerDetailsSpellChart()
 end
 
 function damageClass:MontaTooltipDamageTaken (thisLine, index)
-	local aggressor = info.instancia.showing [1]:PegarCombatente (_, thisLine.nome_inimigo)
+	local aggressor = breakdownWindowFrame.instancia.showing [1]:PegarCombatente (_, thisLine.nome_inimigo)
 	local container = aggressor.spells._ActorTable
 	local habilidades = {}
 
@@ -6099,10 +6133,10 @@ function damageClass:MontaTooltipAlvos (thisLine, index, instancia) --~deprecate
 	if (Details.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
 	elseif (Details.time_type == 2) then
-		meu_tempo = info.instancia.showing:GetCombatTime()
+		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
-	local is_dps = info.instancia.sub_atributo == 2
+	local is_dps = breakdownWindowFrame.instancia.sub_atributo == 2
 
 	if (is_dps) then
 		Details:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_DPS_IN"] .. ":", {1, 0.9, 0.0, 1}, 1, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))

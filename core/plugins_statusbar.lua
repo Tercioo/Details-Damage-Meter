@@ -896,18 +896,20 @@ do
 	--1 sec tick
 	function Details:ClockPluginTick(force)
 		for index, childObject in ipairs(Clock.childs) do
+			---@type instance
 			local instance = childObject.instance
 			if (childObject.enabled and instance:IsEnabled()) then
-				if (instance.showing and ((instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL) or (instance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL and not Details.in_combat) or force)) then
-
+				---@type combat
+				local combatObject = instance:GetCombat()
+				if (combatObject and ((instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL) or (instance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL and not Details.in_combat) or force)) then
 					local timeType = childObject.options.timeType
 					if (timeType == 1) then
-						local combatTime = instance.showing:GetCombatTime()
+						local combatTime = combatObject:GetCombatTime()
 						local minutos, segundos = math.floor(combatTime/60), math.floor(combatTime%60)
 						childObject.text:SetText(minutos .. "m " .. segundos .. "s")
 
 					elseif (timeType == 2) then
-						local combatTime = instance.showing:GetCombatTime()
+						local combatTime = combatObject:GetCombatTime()
 						childObject.text:SetText(combatTime .. "s")
 
 					elseif (timeType == 3) then
@@ -922,7 +924,7 @@ do
 						end
 
 						local lastFight = Details:GetCombat(segmentId)
-						local currentCombatTime = instance.showing:GetCombatTime()
+						local currentCombatTime = combatObject:GetCombatTime()
 
 						if (lastFight) then
 							childObject.text:SetText(currentCombatTime - lastFight:GetCombatTime() .. "s")
@@ -1016,7 +1018,8 @@ do
 	Details:RegisterEvent(Clock, "COMBAT_PLAYER_LEAVE", Clock.PlayerLeaveCombat)
 	Details:RegisterEvent(Clock, "DETAILS_INSTANCE_CHANGESEGMENT", Details.ClockPluginTickOnSegment)
 	Details:RegisterEvent(Clock, "DETAILS_DATA_SEGMENTREMOVED", Details.ClockPluginTick)
-	Details:RegisterEvent(Clock, "DETAILS_DATA_RESET", Clock.DataReset)
+	Details:RegisterEvent(Clock, "DETAILS_DATA_RESET", Clock.PlayerLeaveCombat)
+	Details:RegisterEvent(Clock, "DETAILS_DATA_SEGMENTREMOVED", Clock.PlayerLeaveCombat)
 end
 
 ---------BUILT-IN THREAT PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

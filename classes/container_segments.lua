@@ -447,6 +447,7 @@ function segmentClass:ResetOverallData()
 	Details:CloseBreakdownWindow()
 
 	Details:DestroyCombat(Details.tabela_overall)
+	Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	Details.tabela_overall = combatClass:NovaTabela()
 
 	for index, instanceObject in ipairs(Details:GetAllInstances()) do
@@ -501,10 +502,17 @@ function segmentClass:ResetAllCombatData()
 	for _, combatObject in ipairs(Details.tabela_historico.tabelas) do
 		---@cast combatObject combat
 		Details:DestroyCombat(combatObject)
+		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
 
-	Details:DestroyCombat(Details.tabela_vigente)
+	--the current combat when finished will be moved to the first index of "tabela_historico.tabelas", need the check if the current combat was already destroyed
+	if (not Details.tabela_vigente.__destroyed) then
+		Details:DestroyCombat(Details.tabela_vigente)
+		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+	end
+
 	Details:DestroyCombat(Details.tabela_overall)
+	Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	Details:Destroy(Details.spellcache)
 
 	if (Details.schedule_add_to_overall) then --deprecated

@@ -47,7 +47,7 @@ local UsingCustomRightText = false
 
 local TooltipMaximizedMethod = 1
 
-local info = _detalhes.playerDetailWindow
+local breakdownWindowFrame = Details.BreakdownWindowFrame
 local keyName
 
 local headerColor = "yellow"
@@ -2042,14 +2042,14 @@ end
 
 ---------DETALHES BIFURCA��O
 function atributo_misc:MontaInfo()
-	if (info.sub_atributo == 3) then --interrupt
+	if (breakdownWindowFrame.sub_atributo == 3) then --interrupt
 		return self:MontaInfoInterrupt()
 	end
 end
 
 ---------DETALHES bloco da direita BIFURCA��O
 function atributo_misc:MontaDetalhes (spellid, barra)
-	if (info.sub_atributo == 3) then --interrupt
+	if (breakdownWindowFrame.sub_atributo == 3) then --interrupt
 		return self:MontaDetalhesInterrupt (spellid, barra)
 	end
 end
@@ -2065,8 +2065,8 @@ function atributo_misc:MontaInfoInterrupt()
 
 	local minha_tabela = self.interrupt_spells._ActorTable
 
-	local barras = info.barras1
-	local instancia = info.instancia
+	local barras = breakdownWindowFrame.barras1
+	local instancia = breakdownWindowFrame.instancia
 
 	local meus_interrupts = {}
 
@@ -2110,13 +2110,13 @@ function atributo_misc:MontaInfoInterrupt()
 
 		--isso aqui � tudo da sele��o e descele��o das barras
 
-		if (not info.mostrando_mouse_over) then
+		if (not breakdownWindowFrame.mostrando_mouse_over) then
 			if (tabela[1] == self.detalhes) then --tabela [1] = spellid = spellid que esta na caixa da direita
 				if (not barra.on_focus) then --se a barra n�o tiver no foco
 					barra.textura:SetStatusBarColor(129/255, 125/255, 69/255, 1)
 					barra.on_focus = true
-					if (not info.mostrando) then
-						info.mostrando = barra
+					if (not breakdownWindowFrame.mostrando) then
+						breakdownWindowFrame.mostrando = barra
 					end
 				end
 			else
@@ -2166,7 +2166,7 @@ function atributo_misc:MontaInfoInterrupt()
 	local barra
 	for index, tabela in ipairs(meus_alvos) do
 
-		barra = info.barras2 [index]
+		barra = breakdownWindowFrame.barras2 [index]
 
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo2 (instancia, index)
@@ -2214,7 +2214,7 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 	local nome, _, icone = _GetSpellInfo(spellid)
 	local infospell = {nome, nil, icone}
 
-	_detalhes.playerDetailWindow.spell_icone:SetTexture(infospell[3])
+	Details.BreakdownWindowFrame.spell_icone:SetTexture(infospell[3])
 
 	local total = self.interrupt
 	local meu_total = esta_magia.counter
@@ -2223,8 +2223,8 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 
 	local data = {}
 
-	local barras = info.barras3
-	local instancia = info.instancia
+	local barras = breakdownWindowFrame.barras3
+	local instancia = breakdownWindowFrame.instancia
 
 	local habilidades_alvos = {}
 	for spellid, amt in pairs(esta_magia.interrompeu_oque) do
@@ -2278,7 +2278,7 @@ function atributo_misc:MontaTooltipAlvos (esta_barra, index)
 	local inimigo = esta_barra.nome_inimigo
 
 	local container
-	if (info.instancia.sub_atributo == 3) then --interrupt
+	if (breakdownWindowFrame.instancia.sub_atributo == 3) then --interrupt
 		container = self.interrupt_spells._ActorTable
 	end
 

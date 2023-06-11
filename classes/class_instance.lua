@@ -270,6 +270,7 @@ local instanceMixins = {
 	end,
 
 	---call a refresh in the data shown in the instance
+	---@param instance instance
 	---@param bForceRefresh boolean|nil
 	RefreshData = function(instance, bForceRefresh) --deprecates Details:RefreshAllMainWindows()
 		local combatObject = instance:GetCombat()
@@ -282,9 +283,20 @@ local instanceMixins = {
 			return
 		end
 
+		--debug: check if the if combatObject has been destroyed
+		if (combatObject.__destroyed) then
+			Details:Msg("a deleted combat object was found refreshing a window, please report this bug on discord:")
+			Details:Msg("combat destroyed by:", combatObject.__destroyedBy)
+			local bForceChange = true
+			instance:SetSegment(DETAILS_SEGMENTID_CURRENT, bForceChange)
+			return
+		end
+
 		local mainAttribute, subAttribute = instance:GetDisplay()
 
-		local needRefresh = combatObject:GetContainer(mainAttribute).need_refresh
+		---@type actorcontainer
+		local actorContainer = combatObject:GetContainer(mainAttribute)
+		local needRefresh = actorContainer.need_refresh
 		if (not needRefresh and not bForceRefresh) then
 			return
 		end
@@ -513,7 +525,7 @@ local instanceMixins = {
 			Details:SendEvent("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, attributeId, subAttributeId)
 		end
 
-		if (Details.playerDetailWindow:IsShown() and instance == Details.playerDetailWindow.instancia) then
+		if (Details.BreakdownWindowFrame:IsShown() and instance == Details.BreakdownWindowFrame.instancia) then
 			---@type combat
 			local combatObject = instance:GetCombat()
 			if (not combatObject or instance.atributo > 4) then
@@ -2393,7 +2405,7 @@ function Details:PostponeSwitchToCurrent(instance)
 			(instance.ativa) and
 			(instance.last_interaction+3 < Details._tempo) and
 			(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and
-			(not Details.playerDetailWindow:IsShown())
+			(not Details.BreakdownWindowFrame:IsShown())
 		)
 	) then
 		instance._postponing_switch = nil
@@ -2419,7 +2431,7 @@ function Details:CheckSwitchToCurrent()
 				instance.last_interaction = Details._tempo
 			end
 
-			if ((instance.last_interaction and (instance.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.playerDetailWindow:IsShown())) then
+			if ((instance.last_interaction and (instance.last_interaction+3 > Details._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (Details.BreakdownWindowFrame:IsShown())) then
 				--postpone
 				--instance._postponing_switch = Details:ScheduleTimer("PostponeSwitchToCurrent", 1, instance)
 				instance._postponing_switch = Details.Schedules.NewTimer(1, Details.PostponeSwitchToCurrent, Details, instance)
@@ -2831,11 +2843,11 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 		instance:ChangeIcon()
 	end
 
-	if (Details.playerDetailWindow:IsShown() and instance == Details.playerDetailWindow.instancia) then
+	if (Details.BreakdownWindowFrame:IsShown() and instance == Details.BreakdownWindowFrame.instancia) then
 		if (not instance.showing or instance.atributo > 4) then
 			Details:CloseBreakdownWindow()
 		else
-			local actorObject = instance.showing (instance.atributo, Details.playerDetailWindow.jogador.nome)
+			local actorObject = instance.showing (instance.atributo, Details.BreakdownWindowFrame.jogador.nome)
 			if (actorObject) then
 				Details:OpenBreakdownWindow(instance, actorObject, true)
 			else
@@ -3387,13 +3399,13 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			--push it to  front
 			local t = tremove(_detalhes.latest_report_table, already_exists)
 			t [4] = amt
-			tinsert(_detalhes.latest_report_table, 1, t)
+			table.insert(_detalhes.latest_report_table, 1, t)
 		else
 			if (self.atributo == 5) then
 				local custom_name = self:GetCustomObject():GetName()
-				tinsert(_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where, custom_name})
+				table.insert(_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where, custom_name})
 			else
-				tinsert(_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
+				table.insert(_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
 			end
 		end
 
@@ -3532,7 +3544,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		if (is_reverse) then
 			local t = {}
 			for i = #raw_data_to_report, 1, -1 do
-				tinsert(t, raw_data_to_report [i])
+				table.insert(t, raw_data_to_report [i])
 				if (#t >= amt) then
 					break
 				end

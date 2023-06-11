@@ -468,7 +468,7 @@ local classTypeUtility = Details.atributos.misc
 			local combatObject = allSegments[i]
 			if (combatObject:IsTrash()) then --error, IsTrash is not a function, probably because the combat got destroyed
 				table.remove(allSegments, i)
-				Details:DestroyCombat(combatObject)
+				Details:DestroyCombat(combatObject) --no need to send DETAILS_DATA_SEGMENTREMOVED due to this be in the logout process
 			end
 		end
 
@@ -819,6 +819,11 @@ local classTypeUtility = Details.atributos.misc
 
 		--collect the garbage
 		for i, combatObject in ipairs(segmentsList) do
+			if (combatObject.__destroyed) then
+				Details:Msg("a deleted combat object was found by the g.collector, please report this bug on discord:")
+				Details:Msg("combat destroyed by:", combatObject.__destroyedBy)
+			end
+
 			local removedActors = collectGarbage(combatObject, overriteLastEvent)
 			if (i == #segmentsList) then
 				--print("current segment removed:", removedActors, "actors.")

@@ -44,6 +44,7 @@ function Details.options.InitializeOptionsWindow(instance)
 	f.real_name = "DETAILS_OPTIONS"
 	f.__icon = [[Interface\Scenarios\ScenarioIcon-Interact]]
     _G.DetailsPluginContainerWindow.EmbedPlugin(f, f, true)
+
     f.sectionFramesContainer = {}
 
     DF:ApplyStandardBackdrop(f)
