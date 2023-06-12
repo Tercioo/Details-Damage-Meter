@@ -336,7 +336,7 @@ function segmentClass:AddCombat(combatObject)
 					--remove
 					local combatObjectRemoved = table.remove(segmentTable, 3)
 					if (combatObjectRemoved) then
-						Details:DestroyCombat(thirdCombat)
+						Details:DestroyCombat(combatObjectRemoved)
 						Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 					end
 				end
@@ -511,8 +511,9 @@ function segmentClass:ResetAllCombatData()
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
 
-	Details:DestroyCombat(Details.tabela_overall)
+	Details:DestroyCombat(Details.tabela_overall) --not creating a new one immediatelly
 	Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+
 	Details:Destroy(Details.spellcache)
 
 	if (Details.schedule_add_to_overall) then --deprecated
@@ -532,6 +533,17 @@ function segmentClass:ResetAllCombatData()
 	Details.tabela_overall = combatClass:NovaTabela() --joga fora a tabela antiga e cria uma nova
 	-- cria nova tabela do combate atual
 	Details.tabela_vigente = combatClass:NovaTabela(nil, Details.tabela_overall)
+
+	---@type instance[]
+	local allInstances = Details:GetAllInstances()
+
+	for i = 1, #allInstances do
+		---@type instance
+		local instance = allInstances[i]
+		if (instance:IsEnabled()) then
+			Details:UpdateCombatObjectInUse(instance)
+		end
+	end
 
 	--marca o addon como fora de combate
 	Details.in_combat = false
@@ -561,7 +573,7 @@ function segmentClass:ResetAllCombatData()
 		Details.schedule_hard_garbage_collect = true
 	end
 
-	Details:InstanciaCallFunction(Details.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
+	Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse) -- atualiza o instancia.showing para as novas tabelas criadas
 	Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
 	Details:InstanciaCallFunction(Details.ResetaGump) --_detalhes:ResetaGump("de todas as instancias")
 	Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")

@@ -1319,18 +1319,25 @@ detailsFramework.CloseButtonMixin = {
 ---@return df_closebutton
 function detailsFramework:CreateCloseButton(parent, frameName)
 	---@type df_closebutton
-	local closeButton = CreateFrame("button", frameName, parent)
+	local closeButton = CreateFrame("button", frameName, parent, "UIPanelCloseButton")
 	closeButton:SetFrameLevel(parent:GetFrameLevel() + 1)
 	closeButton:SetSize(16, 16)
 
 	detailsFramework:Mixin(closeButton, detailsFramework.CloseButtonMixin)
 
-	closeButton:SetNormalTexture([[Interface\GLUES\LOGIN\Glues-CheckBox-Check]])
-	closeButton:SetHighlightTexture([[Interface\GLUES\LOGIN\Glues-CheckBox-Check]])
-	closeButton:SetPushedTexture([[Interface\GLUES\LOGIN\Glues-CheckBox-Check]])
-	closeButton:GetNormalTexture():SetDesaturated(true)
-	closeButton:GetHighlightTexture():SetDesaturated(true)
-	closeButton:GetPushedTexture():SetDesaturated(true)
+	local normalTexture = closeButton:GetNormalTexture()
+	local pushedTexture = closeButton:GetPushedTexture()
+	local highlightTexture = closeButton:GetHighlightTexture()
+	local disabledTexture = closeButton:GetDisabledTexture()
+
+	normalTexture:SetAtlas("RedButton-Exit")
+	highlightTexture:SetAtlas("RedButton-Highlight")
+	pushedTexture:SetAtlas("RedButton-exit-pressed")
+	disabledTexture:SetAtlas("RedButton-Exit-Disabled")
+
+	normalTexture:SetDesaturated(true)
+	highlightTexture:SetDesaturated(true)
+	pushedTexture:SetDesaturated(true)
 
 	closeButton:SetAlpha(0.7)
 	closeButton:SetScript("OnClick", closeButton.OnClick)

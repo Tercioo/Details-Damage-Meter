@@ -1373,7 +1373,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		collectgarbage()
 
 		Details:InstanciaCallFunction(Details.FadeHandler.Fader, "in", nil, "barras")
-		Details:InstanciaCallFunction(Details.AtualizaSegmentos)
+		Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
 		Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
 		Details:InstanciaCallFunction(Details.ResetaGump)
 		Details:RefreshMainWindow(-1, true)

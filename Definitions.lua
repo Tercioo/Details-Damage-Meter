@@ -27,6 +27,7 @@
 ---@class alternatepowertable : {last: number, total: number}
 
 ---@class combat : table
+---@field __destroyedBy string
 ---@field amountCasts {[string]: table<string, number>}
 ---@field instance_type string "raid" or "party" or "pvp" or "arena" or "none"
 ---@field end_time number
@@ -285,6 +286,7 @@
 ---@field BreakdownTabsFrame frame where the tab buttons are located (parent frame)
 ---@field RegisteredPluginButtons button[] table which contains plugins buttons that are registered to the breakdown window
 ---@field RegisterPluginButton fun(button: button) register a plugin button to the breakdown window
+---@field GetShownPluginObject fun() : table get the plugin object that is currently shown in the breakdown window
 
 
 ---@class breakdownscrolldata : table

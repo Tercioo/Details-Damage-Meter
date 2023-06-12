@@ -59,12 +59,26 @@ local summaryWidgets = {}
 local currentTab = "Summary"
 local subAttributes = Details.sub_atributos
 
+---return true if the breakdown window is shown and showing a plugin
+---@return boolean
+function Details222.BreakdownWindow.IsPluginShown()
+	if (breakdownWindowFrame:IsShown()) then
+		return breakdownWindowFrame.shownPluginObject ~= nil
+	end
+	return false
+end
+
+function breakdownWindowFrame.GetShownPluginObject()
+	return breakdownWindowFrame.shownPluginObject
+end
+
 function Details222.BreakdownWindow.OnShowPluginFrame(pluginObject)
 	--need to selected the selected tab and hide its content
 	for index = 1, #Details.player_details_tabs do
 		local tabButton = Details.player_details_tabs[index]
 		tabButton.frame:Hide()
 	end
+
 	breakdownWindowFrame.BreakdownTabsFrame:Hide()
 	breakdownWindowFrame.shownPluginObject = pluginObject
 
@@ -575,7 +589,7 @@ function Details:CreateBreakdownWindow()
 	breakdownWindowFrame:EnableMouse(true)
 	breakdownWindowFrame:SetResizable(true)
 	breakdownWindowFrame:SetMovable(true)
-	breakdownWindowFrame:SetClampedToScreen(true)
+	--breakdownWindowFrame:SetClampedToScreen(true)
 
 	--make the window movable
 	if (not breakdownWindowFrame.registeredLibWindow) then

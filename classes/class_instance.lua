@@ -97,9 +97,10 @@ end
 ---@param func function
 ---@vararg any
 function Details:InstanciaCallFunction(func, ...)
-	for index, instancia in ipairs(Details.tabela_instancias) do
-		if (instancia:IsAtiva()) then
-			func(_, instancia, ...)
+	for index, instance in ipairs(Details.tabela_instancias) do
+		---@cast instance instance
+		if (instance:IsEnabled()) then
+			func(_, instance, ...)
 		end
 	end
 end
@@ -2300,7 +2301,7 @@ function _detalhes:InstanceReset(instance)
 	end
 
 	Details.FadeHandler.Fader(self, "in", nil, "barras")
-	self:AtualizaSegmentos(self)
+	self:UpdateCombatObjectInUse(self)
 	self:AtualizaSoloMode_AfertReset()
 	self:ResetaGump()
 
@@ -2481,18 +2482,20 @@ function _detalhes:UnFreeze(instancia)
 	end
 end
 
-function _detalhes:AtualizaSegmentos (instancia)
-	if (instancia.iniciada) then
-		if (instancia.segmento == -1) then
-			--instancia.baseframe.rodape.segmento:SetText(segmentos.overall) --localiza-me
-			instancia.showing = _detalhes.tabela_overall
-		elseif (instancia.segmento == 0) then
-			--instancia.baseframe.rodape.segmento:SetText(segmentos.current) --localiza-me
-			instancia.showing = _detalhes.tabela_vigente
-			--print("==> Changing the Segment now! - classe_instancia.lua 1922")
+--handle internal details! events
+local eventListener = Details:CreateEventListener()
+eventListener:RegisterEvent("DETAILS_DATA_SEGMENTREMOVED", function()
+	Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
+end)
+
+function Details:UpdateCombatObjectInUse(instance)
+	if (instance.iniciada) then
+		if (instance.segmento == -1) then
+			instance.showing = Details.tabela_overall
+		elseif (instance.segmento == 0) then
+			instance.showing = Details.tabela_vigente
 		else
-			instancia.showing = _detalhes.tabela_historico.tabelas [instancia.segmento]
-			--instancia.baseframe.rodape.segmento:SetText(segmentos.past..instancia.segmento) --localiza-me
+			instance.showing = Details.tabela_historico.tabelas[instance.segmento]
 		end
 	end
 end

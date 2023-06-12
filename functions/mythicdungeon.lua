@@ -159,7 +159,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
 
     --update all windows
     Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-    Details:InstanciaCallFunction(Details.AtualizaSegmentos)
+    Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
     Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
     Details:InstanciaCallFunction(Details.ResetaGump)
     Details:RefreshMainWindow(-1, true)
@@ -272,7 +272,7 @@ function DetailsMythicPlusFrame.MergeTrashCleanup (isFromSchedule)
 
         --update all windows
         Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-        Details:InstanciaCallFunction(Details.AtualizaSegmentos)
+        Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
         Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
         Details:InstanciaCallFunction(Details.ResetaGump)
         Details:RefreshMainWindow(-1, true)
@@ -374,7 +374,7 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
 
         --update all windows
         Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-        Details:InstanciaCallFunction(Details.AtualizaSegmentos)
+        Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
         Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
         Details:InstanciaCallFunction(Details.ResetaGump)
         Details:RefreshMainWindow(-1, true)

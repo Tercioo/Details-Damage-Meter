@@ -195,7 +195,13 @@
 ---@field SetSmoothing fun(self: animation, smoothing: string)
 ---@field Stop fun(self: animation)
 
+---@class line : uiobject
+---@field SetStartPoint fun(self: line, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
+---@field SetEndPoint fun(self: line, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
+---@field SetColorTexture fun(self: line, red: number, green: number, blue: number, alpha: number)
+
 ---@class frame : uiobject
+---@field CreateLine fun(self: frame, name: string|nil, drawLayer: drawlayer, templateName: string|nil, subLevel: number|nil) : line
 ---@field SetID fun(self: frame, id: number) set an ID for the frame
 ---@field SetAttribute fun(self: frame, name: string, value: any)
 ---@field SetScript fun(self: frame, event: string, handler: function|nil)
@@ -237,11 +243,11 @@
 
 ---@class button : frame
 ---@field Click fun(self: button)
----@field SetNormalTexture fun(self: button, texture: texture)
----@field SetPushedTexture fun(self: button, texture: texture)
----@field SetHighlightTexture fun(self: button, texture: texture)
----@field SetDisabledTexture fun(self: button, texture: texture)
----@field SetCheckedTexture fun(self: button, texture: texture)
+---@field SetNormalTexture fun(self: button, texture: textureid|texturepath)
+---@field SetPushedTexture fun(self: button, texture: textureid|texturepath)
+---@field SetHighlightTexture fun(self: button, texture: textureid|texturepath)
+---@field SetDisabledTexture fun(self: button, texture: textureid|texturepath)
+---@field SetCheckedTexture fun(self: button, texture: textureid|texturepath)
 ---@field SetNormalFontObject fun(self: button, fontString: fontstring)
 ---@field SetHighlightFontObject fun(self: button, fontString: fontstring)
 ---@field SetDisabledFontObject fun(self: button, fontString: fontstring)

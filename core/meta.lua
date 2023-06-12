@@ -725,6 +725,12 @@ local classTypeUtility = Details.atributos.misc
 			return amountCleaned
 		end
 
+		if (combatObject.__destroyed) then
+			Details:Msg("a deleted combat object was found on g2.collector, please report this bug on discord:")
+			Details:Msg("combat destroyed by:", combatObject.__destroyedBy)
+			return 0
+		end
+
 		---@type number
 		local _tempo = _time()
 

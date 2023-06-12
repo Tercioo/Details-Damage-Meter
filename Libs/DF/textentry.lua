@@ -1,6 +1,6 @@
 
-local DF = _G["DetailsFramework"]
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
@@ -10,15 +10,15 @@ local APITextEntryFunctions = false
 do
 	local metaPrototype = {
 		WidgetType = "textentry",
-		dversion = DF.dversion,
+		dversion = detailsFramework.dversion,
 	}
 
 	--check if there's a metaPrototype already existing
-	if (_G[DF.GlobalWidgetControlNames["textentry"]]) then
+	if (_G[detailsFramework.GlobalWidgetControlNames["textentry"]]) then
 		--get the already existing metaPrototype
-		local oldMetaPrototype = _G[DF.GlobalWidgetControlNames["textentry"]]
+		local oldMetaPrototype = _G[detailsFramework.GlobalWidgetControlNames["textentry"]]
 		--check if is older
-		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < DF.dversion) ) then
+		if ( (not oldMetaPrototype.dversion) or (oldMetaPrototype.dversion < detailsFramework.dversion) ) then
 			--the version is older them the currently loading one
 			--copy the new values into the old metatable
 			for funcName, _ in pairs(metaPrototype) do
@@ -27,18 +27,18 @@ do
 		end
 	else
 		--first time loading the framework
-		_G[DF.GlobalWidgetControlNames["textentry"]] = metaPrototype
+		_G[detailsFramework.GlobalWidgetControlNames["textentry"]] = metaPrototype
 	end
 end
 
-local TextEntryMetaFunctions = _G[DF.GlobalWidgetControlNames["textentry"]]
+local TextEntryMetaFunctions = _G[detailsFramework.GlobalWidgetControlNames["textentry"]]
 
-DF:Mixin(TextEntryMetaFunctions, DF.SetPointMixin)
-DF:Mixin(TextEntryMetaFunctions, DF.FrameMixin)
-DF:Mixin(TextEntryMetaFunctions, DF.TooltipHandlerMixin)
-DF:Mixin(TextEntryMetaFunctions, DF.ScriptHookMixin)
+detailsFramework:Mixin(TextEntryMetaFunctions, detailsFramework.SetPointMixin)
+detailsFramework:Mixin(TextEntryMetaFunctions, detailsFramework.FrameMixin)
+detailsFramework:Mixin(TextEntryMetaFunctions, detailsFramework.TooltipHandlerMixin)
+detailsFramework:Mixin(TextEntryMetaFunctions, detailsFramework.ScriptHookMixin)
 
-DF.TextEntryCounter = DF.TextEntryCounter or 1
+detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 
 ------------------------------------------------------------------------------------------------------------
 --metatables
@@ -231,7 +231,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 			self.editbox:SetBackdropColor(unpack(self.enabled_backdrop_color))
 			self.editbox:SetTextColor(unpack(self.enabled_text_color))
 			if (self.editbox.borderframe) then
-				local r, g, b, a = DF:ParseColors(unpack(self.editbox.borderframe.onleave_backdrop))
+				local r, g, b, a = detailsFramework:ParseColors(unpack(self.editbox.borderframe.onleave_backdrop))
 				self.editbox.borderframe:SetBackdropColor(r, g, b, a)
 			end
 		end
@@ -320,7 +320,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 	local OnEnterPressed = function(textentry, byScript)
 		local object = textentry.MyObject
 		if (object.ignoreNextCallback) then
-			DF.Schedules.RunNextTick(function() object.ignoreNextCallback = nil end)
+			detailsFramework.Schedules.RunNextTick(function() object.ignoreNextCallback = nil end)
 			return
 		end
 
@@ -329,7 +329,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 			return
 		end
 
-		local text = DF:Trim(textentry:GetText())
+		local text = detailsFramework:Trim(textentry:GetText())
 		if (string.len(text) > 0) then
 			textentry.text = text
 			if (textentry.MyObject.func) then
@@ -372,7 +372,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 	local OnEditFocusLost = function(textEntry)
 		local object = textEntry.MyObject
 		if (object.ignoreNextCallback) then
-			DF.Schedules.RunNextTick(function() object.ignoreNextCallback = nil end)
+			detailsFramework.Schedules.RunNextTick(function() object.ignoreNextCallback = nil end)
 			return
 		end
 
@@ -383,7 +383,7 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 			end
 
 			if (not textEntry.focuslost) then
-				local text = DF:Trim(textEntry:GetText())
+				local text = detailsFramework:Trim(textEntry:GetText())
 				if (string.len(text) > 0) then
 					textEntry.MyObject.currenttext = text
 					if (textEntry.MyObject.func) then
@@ -447,6 +447,57 @@ DF.TextEntryCounter = DF.TextEntryCounter or 1
 		OnEnterPressed(self.editbox, byScript)
 	end
 
+	function TextEntryMetaFunctions:SetAsSearchBox()
+		if (self.__bIsSearchBox) then
+			return
+		end
+
+		self:SetJustifyH("left")
+		self:SetJustifyV("center")
+		self:SetTextInsets(18, 14, 0, 0)
+
+		local magnifyingGlassTexture = self:CreateTexture(nil, "OVERLAY")
+		magnifyingGlassTexture:SetAtlas("common-search-magnifyingglass")
+		magnifyingGlassTexture:SetPoint("left", self.widget, "left", 4, 0)
+		magnifyingGlassTexture:SetSize(self:GetHeight()-10, self:GetHeight()-10)
+		magnifyingGlassTexture:SetAlpha(0.5)
+
+		local searchFontString = self:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		searchFontString:SetText("search")
+		searchFontString:SetAlpha(0.3)
+		searchFontString:SetPoint("left", magnifyingGlassTexture, "right", 2, 0)
+		detailsFramework:SetFontSize(searchFontString, 10)
+
+		local clearSearchButton = CreateFrame("button", nil, self.widget, "UIPanelCloseButton")
+		clearSearchButton:SetPoint("right", self.widget, "right", -3, 0)
+		clearSearchButton:SetSize(10, 10)
+		clearSearchButton:SetAlpha(0.3)
+		clearSearchButton:GetNormalTexture():SetAtlas("common-search-clearbutton")
+		clearSearchButton:GetHighlightTexture():SetAtlas("common-search-clearbutton")
+		clearSearchButton:GetPushedTexture():SetAtlas("common-search-clearbutton")
+		clearSearchButton:Hide()
+
+		clearSearchButton:SetScript("OnClick", function()
+			self:SetText("")
+			local bByScript = true
+			self:PressEnter(bByScript)
+			self:ClearFocus()
+		end)
+
+		self:SetHook("OnEditFocusGained", function()
+			clearSearchButton:Show()
+			searchFontString:Hide()
+		end)
+
+		self:SetHook("OnEditFocusLost", function()
+			if (self:GetText() == "") then
+				searchFontString:Show()
+				clearSearchButton:Hide()
+			end
+		end)
+
+		self.__bIsSearchBox = true
+	end
 ------------------------------------------------------------------------------------------------------------
 
 function TextEntryMetaFunctions:SetTemplate(template)
@@ -461,12 +512,12 @@ function TextEntryMetaFunctions:SetTemplate(template)
 		self.editbox:SetBackdrop(template.backdrop)
 	end
 	if (template.backdropcolor) then
-		local r, g, b, a = DF:ParseColors(template.backdropcolor)
+		local r, g, b, a = detailsFramework:ParseColors(template.backdropcolor)
 		self.editbox:SetBackdropColor(r, g, b, a)
 		self.onleave_backdrop = {r, g, b, a}
 	end
 	if (template.backdropbordercolor) then
-		local r, g, b, a = DF:ParseColors(template.backdropbordercolor)
+		local r, g, b, a = detailsFramework:ParseColors(template.backdropbordercolor)
 		self.editbox:SetBackdropBorderColor(r, g, b, a)
 		self.editbox.current_bordercolor[1] = r
 		self.editbox.current_bordercolor[2] = g
@@ -479,14 +530,14 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
-function DF:CreateTextEntry(parent, func, w, h, member, name, with_label, entry_template, label_template)
-	return DF:NewTextEntry(parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
+function detailsFramework:CreateTextEntry(parent, func, w, h, member, name, with_label, entry_template, label_template)
+	return detailsFramework:NewTextEntry(parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
 end
 
-function DF:NewTextEntry(parent, container, name, member, width, height, func, param1, param2, space, withLabel, entryTemplate, labelTemplate)
+function detailsFramework:NewTextEntry(parent, container, name, member, width, height, func, param1, param2, space, withLabel, entryTemplate, labelTemplate)
 	if (not name) then
-		name = "DetailsFrameworkTextEntryNumber" .. DF.TextEntryCounter
-		DF.TextEntryCounter = DF.TextEntryCounter + 1
+		name = "DetailsFrameworkTextEntryNumber" .. detailsFramework.TextEntryCounter
+		detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter + 1
 
 	elseif (not parent) then
 		return error("Details! FrameWork: parent not found.", 2)
@@ -497,7 +548,7 @@ function DF:NewTextEntry(parent, container, name, member, width, height, func, p
 	end
 
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = detailsFramework.GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
@@ -607,7 +658,7 @@ function DF:NewTextEntry(parent, container, name, member, width, height, func, p
 	setmetatable(newTextEntryObject, TextEntryMetaFunctions)
 
 	if (withLabel) then
-		local label = DF:CreateLabel(newTextEntryObject.editbox, withLabel, nil, nil, nil, "label", nil, "overlay")
+		local label = detailsFramework:CreateLabel(newTextEntryObject.editbox, withLabel, nil, nil, nil, "label", nil, "overlay")
 		label.text = withLabel
 		newTextEntryObject.editbox:SetPoint("left", label.widget, "right", 2, 0)
 		if (labelTemplate) then
@@ -623,8 +674,8 @@ function DF:NewTextEntry(parent, container, name, member, width, height, func, p
 	return newTextEntryObject, withLabel
 end
 
-function DF:NewSpellEntry(parent, func, width, height, param1, param2, member, name)
-	local editbox = DF:NewTextEntry(parent, parent, name, member, width, height, func, param1, param2)
+function detailsFramework:NewSpellEntry(parent, func, width, height, param1, param2, member, name)
+	local editbox = detailsFramework:NewTextEntry(parent, parent, name, member, width, height, func, param1, param2)
 	return editbox
 end
 
@@ -890,9 +941,9 @@ local set_speciallua_editor_font_size = function(borderFrame, newSize)
 	borderFrame.editboxlines:SetFont(file, newSize, flags)
 end
 
-function DF:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointent, showLineNumbers)
+function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointent, showLineNumbers)
 	if (name:find("$parent")) then
-		local parentName = DF.GetParentName(parent)
+		local parentName = detailsFramework.GetParentName(parent)
 		name = name:gsub("$parent", parentName)
 	end
 
@@ -976,7 +1027,7 @@ function DF:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointe
 			scrollframeNumberLines.editbox:SetSize(scrollframe.editbox:GetSize())
 
 			local text = scrollframe.editbox:GetText()
-			local textInArray = DF:SplitTextInLines(text)
+			local textInArray = detailsFramework:SplitTextInLines(text)
 
 			local maxStringWidth = scrollframe.editbox:GetWidth()
 			scrollframeNumberLines.editbox:SetWidth(maxStringWidth)

@@ -328,7 +328,7 @@
 
 				Details:InstanciaCallFunction(Details.ResetaGump, nil, -1) --reseta scrollbar, iterators, rodap�, etc
 				Details:InstanciaCallFunction(Details.InstanciaFadeBarras, -1) --esconde todas as barras
-				Details:InstanciaCallFunction(Details.AtualizaSegmentos) --atualiza o showing
+				Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse) --atualiza o showing
 			end
 
 			--re-lock nos tempos da tabela passada -- lock again last table times

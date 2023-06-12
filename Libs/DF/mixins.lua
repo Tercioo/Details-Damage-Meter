@@ -375,14 +375,14 @@ detailsFramework.ScriptHookMixin = {
 				local isRemoval = false
 				for i = #self.HookList[hookType], 1, -1 do
 					if (self.HookList[hookType][i] == func) then
-						tremove(self.HookList[hookType], i)
+						table.remove(self.HookList[hookType], i)
 						isRemoval = true
 						break
 					end
 				end
 
 				if (not isRemoval) then
-					tinsert(self.HookList[hookType], func)
+					table.insert(self.HookList[hookType], func)
 				end
 			else
 				if (detailsFramework.debug) then
@@ -717,6 +717,19 @@ detailsFramework.SortFunctions = {
 	end
 }
 
+---@class data : table
+---@field data table
+---@field dataCurrentIndex number
+---@field callbacks table
+---@field DataConstructor fun(self: data)
+---@field AddDataChangeCallback fun(self: data, callback: function, ...: any)
+---@field RemoveDataChangeCallback fun(self: data, callback: function)
+---@field GetData fun(self: data)
+---@field SetData fun(self: data, data: table)
+---@field GetDataNextValue fun(self: data) : any
+---@field ResetDataIndex fun(self: data)
+
+
 ---mixin to use with DetailsFramework:Mixin(table, detailsFramework.DataMixin)
 ---add 'data' to a table, this table can be used to store data for the object
 ---@class DetailsFramework.DataMixin
@@ -781,6 +794,7 @@ detailsFramework.DataMixin = {
 	end,
 
 	---reset the data index, making GetDataNextValue() return the first value again
+	---@param self table
 	ResetDataIndex = function(self)
 		self._dataInfo.dataCurrentIndex = 1
 	end,

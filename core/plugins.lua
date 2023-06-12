@@ -7,6 +7,7 @@
 	local detailsFramework = DetailsFramework
 	local UIParent = UIParent
 	local UISpecialFrames = UISpecialFrames
+	local breakdownWindowFrame = Details.BreakdownWindowFrame
 
 	DETAILSPLUGIN_ALWAYSENABLED = 0x1 --[[GLOBAL]]
 
@@ -527,6 +528,12 @@
 					LibWindow.SavePosition(pluginContainerFrame)
 					Details:Msg("detected options panel out of screen, position has reset")
 				end
+
+				local scaleFactor = pluginContainerFrame:GetScale()
+				if (scaleFactor < 0.65) then
+					pluginContainerFrame:SetScale(0.65)
+					Details:Msg("detected options panel scale issue, scale has reset, please reload the UI")
+				end
 			end)
 		end)
 
@@ -564,11 +571,32 @@
 		end
 
 		local hideOtherPluginFrames = function(pluginObject)
+			local bIsShowingAPlugin = Details222.BreakdownWindow.IsPluginShown()
+			local pluginShownInBreakdownWindow = breakdownWindowFrame.GetShownPluginObject()
+
 			for index, thisPluginObject in ipairs(pluginContainerFrame.EmbedPlugins) do
 				if (thisPluginObject ~= pluginObject) then
-					--hide this plugin
-					if (thisPluginObject.Frame:IsShown()) then
-						thisPluginObject.Frame:Hide()
+					if (thisPluginObject.__isUtility) then
+						--hide this plugin
+						if (thisPluginObject.Frame:IsShown()) then
+							thisPluginObject.Frame:Hide()
+						end
+					else
+						if (bIsShowingAPlugin) then
+							if (pluginShownInBreakdownWindow == thisPluginObject) then
+								--do nothing yet
+							else
+								--hide this plugin
+								if (thisPluginObject.Frame:IsShown()) then
+									thisPluginObject.Frame:Hide()
+								end
+							end
+						else
+							--hide this plugin
+							if (thisPluginObject.Frame:IsShown()) then
+								thisPluginObject.Frame:Hide()
+							end
+						end
 					end
 				end
 			end
@@ -686,6 +714,7 @@
 			newButton.PluginAbsName = pluginObject.real_name
 			newButton.PluginName = pluginObject.__name
 			newButton.IsUtility = bIsUtility
+			pluginObject.__isUtility = bIsUtility
 
 			newButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
 			newButton:SetText(pluginObject.__name)
