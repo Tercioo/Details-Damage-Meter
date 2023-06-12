@@ -711,174 +711,198 @@ end
 	end
 
 	local DTBS_search_code = [[
-		--get the parameters passed
-		local combat, instance_container, instance = ...
+		---@type combat, table, instance
+		local combatObject, instanceContainer, instanceObject = ...
+		
 		--declade the values to return
-		local total, top, amount = 0, 0, 0
-		--hold the targets
-		local Targets = {}
-
-		local from_spell = @SPELLID@
-		local from_spellname
-		if (from_spell) then
-			from_spellname = select(1, GetSpellInfo(from_spell))
+		local totalDamage, topDamage, amount = 0, 0, 0
+		
+		---@type {key1: actorname, key2: number, key3: actor}[]
+		local damageTakenFrom = {}
+		
+		local spellId = @SPELLID@
+		local spellName
+		if (spellId) then
+			spellName = select(1, GetSpellInfo(spellId))
 		end
-
-		--get a list of all damage actors
-		local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
-
-		local is_custom_spell = false
-		for _, spellcustom in ipairs(Details.savedCustomSpells) do
-		    if (spellcustom[1] == from_spell) then
-			is_custom_spell = true
-		    end
-		end
-
-		for index, character in ipairs(AllDamageCharacters) do
-
-		    if (is_custom_spell) then
-			for playername, ff_table in pairs(character.friendlyfire) do
-			    if (ff_table.spells [from_spell]) then
-				local damage_actor = combat (1, playername)
-				local heal_actor = combat (2, playername)
-
-				if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
-
-				    local got
-
-				    for index, t in ipairs(Targets) do
-					if (t[1] == playername) then
-					    t[2] = t[2] + ff_table.spells [from_spell]
-					    if (t[2] > top) then
-						top = t[2]
-					    end
-					    got = true
-					    break
-					end
-				    end
-
-				    if (not got) then
-					Targets [#Targets+1] = {playername, ff_table.spells [from_spell], damage_actor or heal_actor}
-					if (ff_table.spells [from_spell] > top) then
-					    top = ff_table.spells [from_spell]
-					end
-				    end
-				end
-			    end
+		
+		---@type actorcontainer
+		local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		---@type actorcontainer
+		local healContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL)
+		
+		local bIsCustomSpell = false
+		for _, customSpellObject in ipairs(Details.savedCustomSpells) do
+			if (customSpellObject[1] == spellId) then
+				bIsCustomSpell = true
 			end
-		    else
-
-			for playername, ff_table in pairs(character.friendlyfire) do
-			    for spellid, amount in pairs(ff_table.spells) do
-				local spellname = select(1, GetSpellInfo(spellid))
-				if (spellname == from_spellname) then
-				    local damage_actor = combat (1, playername)
-				    local heal_actor = combat (2, playername)
-				    if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
-					local got
-					for index, t in ipairs(Targets) do
-					    if (t[1] == playername) then
-						t[2] = t[2] + amount
-						if (t[2] > top) then
-						    top = t[2]
+		end
+		
+		for index, actorObject in damageContainer:ListActors() do
+			---@cast actorObject actordamage
+		
+			--> handle friendly fire spell damage taken
+			if (actorObject:IsPlayer()) then
+				if (bIsCustomSpell) then --if the spell has been modified, check only by its spellId, as it can't get other spells with the same name
+					for playerName, friendlyFireTable in pairs(actorObject.friendlyfire) do
+						---@cast friendlyFireTable friendlyfiretable
+						if (friendlyFireTable.spells[spellId]) then
+							---@type actordamage
+							local damageActor = damageContainer:GetActor(playerName)
+							---@type actorheal
+							local healingActor = healContainer:GetActor(playerName)
+		
+							if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
+								local got
+		
+								for index, damageTakenTable in ipairs(damageTakenFrom) do
+									if (damageTakenTable[1] == playerName) then
+										damageTakenTable[2] = damageTakenTable[2] + friendlyFireTable.spells[spellId]
+										if (damageTakenTable[2] > topDamage) then
+											topDamage = damageTakenTable[2]
+										end
+										got = true
+										break
+									end
+								end
+		
+								if (not got) then
+									---@type {key1: actorname, key2: number, key3: actor}
+									local damageTakenTable = {playerName, friendlyFireTable.spells[spellId], damageActor or healingActor}
+									damageTakenFrom[#damageTakenFrom+1] = damageTakenTable
+									if (friendlyFireTable.spells[spellId] > topDamage) then
+										topDamage = friendlyFireTable.spells[spellId]
+									end
+								end
+							end
 						end
-						got = true
-						break
-					    end
 					end
-
-					if (not got) then
-					    Targets [#Targets+1] = {playername, amount, damage_actor or heal_actor}
-					    if (amount > top) then
-						top = amount
-					    end
+				else
+					for playerName, friendlyFireTable in pairs(actorObject.friendlyfire) do
+						---@cast friendlyFireTable friendlyfiretable
+						for ffSpellId, damageAmount in pairs(friendlyFireTable.spells) do
+							local ffSpellName = select(1, GetSpellInfo(ffSpellId))
+							if (ffSpellName == spellName) then
+								---@type actordamage
+								local damageActor = damageContainer:GetActor(playerName)
+								---@type actorheal
+								local healingActor = healContainer:GetActor(playerName)
+		
+								if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
+									local got
+									for index, damageTakenTable in ipairs(damageTakenFrom) do
+										if (damageTakenTable[1] == playerName) then
+											damageTakenTable[2] = damageTakenTable[2] + damageAmount
+											if (damageTakenTable[2] > topDamage) then
+												topDamage = damageTakenTable[2]
+											end
+											got = true
+											break
+										end
+									end
+		
+									if (not got) then
+										---@type {key1: actorname, key2: number, key3: actor}
+										local damageTakenTable = {playerName, damageAmount, damageActor or healingActor}
+										damageTakenFrom[#damageTakenFrom+1] = damageTakenTable
+										if (damageAmount > topDamage) then
+											topDamage = damageAmount
+										end
+									end
+								end
+							end
+						end
 					end
-				    end
 				end
-			    end
 			end
-		    end
-
-		    --search actors which used the spell shown in the bar
-		    local spell = character.spells._ActorTable [from_spell]
-
-		    if (spell) then
-			for targetname, amount in pairs(spell.targets) do
-
-			    local got = false
-
-			    local damage_actor = combat (1, targetname)
-			    local heal_actor = combat (2, targetname)
-
-			    if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
-				for index, t in ipairs(Targets) do
-				    if (t[1] == targetname) then
-					t[2] = t[2] + amount
-					if (t[2] > top) then
-					    top = t[2]
-					end
-					got = true
-					break
-				    end
-				end
-				if (not got) then
-				    Targets [#Targets+1] = {targetname, amount, damage_actor or heal_actor}
-				    if (amount > top) then
-					top = amount
-				    end
-				end
-			    end
-			end
-		    end
-
-		    if (not is_custom_spell) then
-			for spellid, spell in pairs(character.spells._ActorTable) do
-			    if (spellid ~= from_spell) then
-				local spellname = select(1, GetSpellInfo(spellid))
-				if (spellname == from_spellname) then
-				    for targetname, amount in pairs(spell.targets) do
-
+		
+			--> handle regular damage taken from spells
+			---@type spelltable
+			local spellTable = actorObject:GetSpell(spellId)
+		
+			if (spellTable) then
+				for targetName, damageAmount in pairs(spellTable.targets) do
 					local got = false
-
-					local damage_actor = combat (1, targetname)
-					local heal_actor = combat (2, targetname)
-
-					if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
-					    for index, t in ipairs(Targets) do
-						if (t[1] == targetname) then
-						    t[2] = t[2] + amount
-						    if (t[2] > top) then
-							top = t[2]
-						    end
-						    got = true
-						    break
+		
+					---@type actordamage
+					local damageActor = damageContainer:GetActor(targetName)
+					---@type actorheal
+					local healingActor = healContainer:GetActor(targetName)
+		
+					if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
+						for index, damageTakenTable in ipairs(damageTakenFrom) do
+							if (damageTakenTable[1] == targetName) then
+								damageTakenTable[2] = damageTakenTable[2] + damageAmount
+								if (damageTakenTable[2] > topDamage) then
+									topDamage = damageTakenTable[2]
+								end
+								got = true
+								break
+							end
 						end
-					    end
-					    if (not got) then
-						Targets [#Targets+1] = {targetname, amount, damage_actor or heal_actor}
-						if (amount > top) then
-						    top = amount
+		
+						if (not got) then
+							---@type {key1: actorname, key2: number, key3: actor}
+							local damageTakenTable = {targetName, damageAmount, damageActor or healingActor}
+							damageTakenFrom[#damageTakenFrom+1] = damageTakenTable
+							if (damageAmount > topDamage) then
+								topDamage = damageAmount
+							end
 						end
-					    end
 					end
-				    end
 				end
-			    end
 			end
-		    end
-
+		
+			if (not bIsCustomSpell) then
+				for spellId, spellTable in pairs(actorObject.spells._ActorTable) do
+					if (spellId ~= spellId) then
+						local spellname = select(1, GetSpellInfo(spellId))
+						if (spellname == spellName) then
+							for targetName, damageAmount in pairs(spellTable.targets) do
+								local got = false
+		
+								---@type actordamage
+								local damageActor = damageContainer:GetActor(targetName)
+								---@type actorheal
+								local healingActor = healContainer:GetActor(targetName)
+		
+								if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
+									for index, damageTakenTable in ipairs(damageTakenFrom) do
+										if (damageTakenTable[1] == targetName) then
+											damageTakenTable[2] = damageTakenTable[2] + damageAmount
+											if (damageTakenTable[2] > topDamage) then
+												topDamage = damageTakenTable[2]
+											end
+											got = true
+											break
+										end
+									end
+		
+									if (not got) then
+										---@type {key1: actorname, key2: number, key3: actor}
+										local damageTakenTable = {targetName, damageAmount, damageActor or healingActor}
+										damageTakenFrom[#damageTakenFrom+1] = damageTakenTable
+										if (damageAmount > topDamage) then
+											topDamage = damageAmount
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
 		end
-
-		table.sort (Targets, Details.Sort2)
-
-		local amount = 0
-		for index, t in ipairs(Targets) do
-			instance_container:AddValue (t[3], t[2])
-			total = total + t[2]
+		
+		table.sort(damageTakenFrom, Details.Sort2)
+		
+		for index, damageTakenTable in ipairs(damageTakenFrom) do
+			instanceContainer:AddValue(damageTakenTable[3], damageTakenTable[2]) --actorObject, amountDamage
+			totalDamage = totalDamage + damageTakenTable[2] --amountDamage
 			amount = amount + 1
 		end
-
-		return total, top, amount
+		
+		return totalDamage, topDamage, amount
 	]]
 
 	local function ShowDTBSInWindow (spell, instance)
