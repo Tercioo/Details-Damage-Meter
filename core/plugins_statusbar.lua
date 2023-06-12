@@ -901,7 +901,7 @@ do
 			if (childObject.enabled and instance:IsEnabled()) then
 				---@type combat
 				local combatObject = instance:GetCombat()
-				if (combatObject and ((instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL) or (instance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL and not Details.in_combat) or force)) then
+				if (combatObject and not combatObject.__destroyed and ((instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL) or (instance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL and not Details.in_combat) or force)) then
 					local timeType = childObject.options.timeType
 					if (timeType == 1) then
 						local combatTime = combatObject:GetCombatTime()
