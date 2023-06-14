@@ -43,6 +43,7 @@
 ---@field totals {key1: table, key2: table, key3: table, key3: table}
 ---@field totals_grupo {key1: table, key2: table, key3: table, key3: table}
 ---@field __destroyed boolean
+---@field GetTimeData fun(dataName: string) : table
 ---@field GetPhases fun(combat: combat) : table
 ---@field GetCombatTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat

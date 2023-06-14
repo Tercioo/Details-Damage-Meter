@@ -67,10 +67,10 @@
 --api functions
 
 	--combat (container type, actor name)
-	Details.call_combate = function(self, class_type, name)
-		local container = self[class_type]
-		local index_mapa = container._NameIndexTable [name]
-		local actor = container._ActorTable [index_mapa]
+	Details.call_combate = function(self, classType, actorName)
+		local container = self[classType]
+		local index_mapa = container._NameIndexTable[actorName]
+		local actor = container._ActorTable[index_mapa]
 		return actor
 	end
 	classCombat.__call = Details.call_combate
@@ -81,7 +81,7 @@
 	end
 
 	--set the combat date
-	function classCombat:SetDate (started, ended)
+	function classCombat:SetDate(started, ended)
 		if (started and type(started) == "string") then
 			self.data_inicio = started
 		end
@@ -95,7 +95,7 @@
 		return self.TimeData[name]
 	end
 
-	function classCombat:GetContainer (attribute)
+	function classCombat:GetContainer(attribute)
 		return self [attribute]
 	end
 

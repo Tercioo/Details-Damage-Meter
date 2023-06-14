@@ -16,6 +16,9 @@ local _UnitName = UnitName --wow api locals
 local _UnitIsPlayer = UnitIsPlayer --wow api locals
 local _UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned --wow api locals
 
+local segmentClass = Details.historico
+local combatClass = Details.combate
+
 local _detalhes = 		_G.Details
 local _
 local addonName, Details222 = ...
@@ -217,11 +220,30 @@ local instanceMixins = {
 		---@type segmentid
 		local segmentId = instance:GetSegmentId()
 		if (segmentId == DETAILS_SEGMENTID_OVERALL) then
-			instance.showing = Details:GetOverallCombat()
+			---@type combat
+			local combatObject = Details:GetOverallCombat()
+			if (combatObject.__destroyed) then
+				combatObject = combatClass:NovaTabela()
+			end
+			instance.showing = combatObject
+
 		elseif (segmentId == DETAILS_SEGMENTID_CURRENT) then
-			instance.showing = Details:GetCurrentCombat()
+			---@type combat
+			local combatObject = Details:GetCurrentCombat()
+			if (combatObject.__destroyed) then
+				combatObject = combatClass:NovaTabela(nil, Details.tabela_overall)
+			end
+			instance.showing = combatObject
+
 		else
-			instance.showing = Details:GetCombat(segmentId)
+			---@type combat
+			local combatObject = Details:GetCombat(segmentId)
+			if (combatObject.__destroyed) then
+				table.remove(Details:GetCombatSegments(), segmentId)
+				combatObject = combatClass:NovaTabela()
+				table.insert(Details:GetCombatSegments(), segmentId, combatObject)
+			end
+			instance.showing = combatObject
 		end
 
 		---@type combat

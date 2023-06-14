@@ -314,7 +314,6 @@ function segmentClass:AddCombat(combatObject)
 
 		for _, actorObject in containerHeal:ListActors() do
 			---@cast actorObject actor
-			--clear last events table
 			actorObject.last_events_table =  nil
 			Details222.TimeMachine.RemoveActor(actorObject)
 		end
@@ -344,8 +343,10 @@ function segmentClass:AddCombat(combatObject)
 		end
 	end
 
+	local segmentsTable = Details.tabela_historico.tabelas
+
 	--check if the segment table is full
-	if (#segmentTable > maxSegmentsAllowed) then
+	if (#segmentsTable > maxSegmentsAllowed) then
 		---@type combat
 		local combatObjectToBeRemoved
 		---@type number
@@ -357,7 +358,7 @@ function segmentClass:AddCombat(combatObject)
 		local bossId = combatObject.is_boss and combatObject.is_boss.id
 
 		---@type combat
-		local oldestSegment = segmentTable[#segmentTable]
+		local oldestSegment = segmentsTable[#segmentsTable]
 		local oldestBossId = oldestSegment.is_boss and oldestSegment.is_boss.id
 
 		if (Details.zone_type == "raid" and bossId and oldestBossId and bossId == oldestBossId) then
@@ -367,9 +368,9 @@ function segmentClass:AddCombat(combatObject)
 			local shorterSegmentId
 			local minTime = 99999
 
-			for segmentId = 4, #segmentTable do
+			for segmentId = 4, #segmentsTable do
 				---@type combat
-				local thisCombatObject = segmentTable[segmentId]
+				local thisCombatObject = segmentsTable[segmentId]
 				if (thisCombatObject.is_boss and thisCombatObject.is_boss.id == bossId and thisCombatObject:GetCombatTime() < minTime and not thisCombatObject.is_boss.killed) then
 					shorterCombatObject = thisCombatObject
 					shorterSegmentId = segmentId
@@ -385,8 +386,8 @@ function segmentClass:AddCombat(combatObject)
 
 		--if couldn't find a boss to remove, then remove the oldest segment
 		if (not combatObjectToBeRemoved) then
-			combatObjectToBeRemoved = segmentTable[#segmentTable]
-			segmentIdToBeRemoved = #segmentTable
+			combatObjectToBeRemoved = segmentsTable[#segmentsTable]
+			segmentIdToBeRemoved = #segmentsTable
 		end
 
 		--check time machine
@@ -398,13 +399,16 @@ function segmentClass:AddCombat(combatObject)
 		end
 
 		--remove it
+		segmentsTable = Details.tabela_historico.tabelas
 		---@type combat
-		local combatObjectRemoved = table.remove(segmentTable, segmentIdToBeRemoved)
+		local combatObjectRemoved = table.remove(segmentsTable, segmentIdToBeRemoved)
 		if (combatObjectRemoved) then
 			Details:DestroyCombat(combatObjectRemoved)
 			Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 		end
 	end
+
+	Details:InstanceCall(function(instanceObject) instanceObject:RefreshCombat() end)
 
 	--update the combat shown on all instances
 	Details:InstanciaCallFunction(Details.AtualizaSegmentos_AfterCombat, self)
@@ -499,15 +503,19 @@ function segmentClass:ResetAllCombatData()
 	--empty temporary tables
 	Details.atributo_damage:ClearTempTables()
 
-	for _, combatObject in ipairs(Details.tabela_historico.tabelas) do
-		---@cast combatObject combat
-		Details:DestroyCombat(combatObject)
+	for i = #Details.tabela_historico.tabelas, 1, -1 do
+		---@type combat
+		local combtaObjectRemoved = table.remove(Details.tabela_historico.tabelas, i)
+		Details:DestroyCombat(combtaObjectRemoved)
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
 
 	--the current combat when finished will be moved to the first index of "tabela_historico.tabelas", need the check if the current combat was already destroyed
 	if (not Details.tabela_vigente.__destroyed) then
 		Details:DestroyCombat(Details.tabela_vigente)
+		if (Details.tabela_vigente == Details.tabela_historico.tabelas[1]) then
+			table.remove(Details.tabela_historico.tabelas, 1)
+		end
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
 
@@ -525,14 +533,15 @@ function segmentClass:ResetAllCombatData()
 
 	-- novo container de historico
 	Details.tabela_historico = segmentClass:CreateNewSegmentDatabase() --joga fora a tabela antiga e cria uma nova
-	--novo container para armazenar pets
-	Details.tabela_pets = Details.container_pets:NovoContainer()
-	Details:UpdateContainerCombatentes()
-	Details.container_pets:BuscarPets()
 	-- nova tabela do overall e current
 	Details.tabela_overall = combatClass:NovaTabela() --joga fora a tabela antiga e cria uma nova
 	-- cria nova tabela do combate atual
 	Details.tabela_vigente = combatClass:NovaTabela(nil, Details.tabela_overall)
+
+	--novo container para armazenar pets
+	Details.tabela_pets = Details.container_pets:NovoContainer()
+	Details:UpdateContainerCombatentes()
+	Details.container_pets:BuscarPets()
 
 	---@type instance[]
 	local allInstances = Details:GetAllInstances()

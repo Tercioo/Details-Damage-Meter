@@ -196,9 +196,13 @@
 ---@field Stop fun(self: animation)
 
 ---@class line : uiobject
----@field SetStartPoint fun(self: line, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
----@field SetEndPoint fun(self: line, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
+---@field GetEndPoint fun(self: line) : relativePoint: anchorpoint, relativeTo: anchorpoint, offsetX: number, offsetY: number
+---@field GetStartPoint fun(self: line) : relativePoint: anchorpoint, relativeTo: anchorpoint, offsetX: number, offsetY: number
+---@field GetThickness fun(self: line) : number
+---@field SetStartPoint fun(self: line, point: anchorpoint, relativeFrame: uiobject|number, relativePoint: anchorpoint|number, xOffset: number|nil, yOffset: number|nil)
+---@field SetEndPoint fun(self: line, point: anchorpoint, relativeFrame: uiobject|number, relativePoint: anchorpoint|number, xOffset: number|nil, yOffset: number|nil)
 ---@field SetColorTexture fun(self: line, red: number, green: number, blue: number, alpha: number)
+---@field SetThickness fun(self: line, thickness: number)
 
 ---@class frame : uiobject
 ---@field CreateLine fun(self: frame, name: string|nil, drawLayer: drawlayer, templateName: string|nil, subLevel: number|nil) : line

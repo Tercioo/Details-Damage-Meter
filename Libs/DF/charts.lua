@@ -1,19 +1,30 @@
 
-local DF = _G["DetailsFramework"]
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
+local CreateFrame = CreateFrame
+local unpack = unpack
 local _
 
----@class df_chart: frame, data
----@field _dataInfo data
+---@class df_chartshared: table
+---@field yAxisLine line the vertical line which can be anchored in the left or right side of the frame, if the chart is a multi chart, this line is shared by all charts
+---@field xAxisLine line
+---@field lineThickness number
+---@field yAxisLabels fontstring[]
+---@field xAxisLabels fontstring[]
+---@field SetAxisColor fun(self: df_chartmulti, red: number|string|table|nil, green: number|nil, blue: number|nil, alpha: number|nil) : boolean set the color of both axis lines
+---@field SetAxisThickness fun(self: df_chartmulti, thickness: number) : boolean set the thickness of both axis lines
+
+---@class df_chart: frame, df_data, df_value, df_chartshared
+---@field _dataInfo df_data
+---@field color number[] red green blue alpha
 ---@field nextLine number
 ---@field minValue number
 ---@field maxValue number
----@field lineThickness number
----@field data table
----@field lines table
+---@field data number[]
+---@field lines line[]
 ---@field ChartFrameConstructor fun(self: df_chart) set the default values for the chart frame
 ---@field GetLine fun(self: df_chart) : line return a line and also internally handle next line
 ---@field GetLines fun(self: df_chart) : line[] return a table with all lines already created
@@ -24,14 +35,126 @@ local _
 ---@field OnSizeChanged fun(self: df_chart)
 ---@field HideLines fun(self: df_chart) hide all lines already created
 ---@field Reset fun(self: df_chart) hide all lines and reset the next line to 1
+---@field SetColor fun(self: df_chart, r: number|string|table|nil, g: number|nil, b: number|nil, a: number|nil) set the color for the lines
 ---@field SetLineThickness fun(self: df_chart, thickness: number) set the line thickness
 ---@field CalcYAxisPointForValue fun(self: df_chart, value: number)
 ---@field UpdateFrameSizeCache fun(self: df_chart)
 
+---@class df_chartmulti : df_chart, df_chartshared
+---@field chartFrames df_chart[]
+---@field nextChartselframe number
+---@field biggestDataValue number
+---@field MultiChartFrameConstructor fun(self: df_chartmulti)
+---@field GetCharts fun(self: df_chartmulti) : df_chart[]
+---@field GetChart fun(self: df_chartmulti) : df_chart
+---@field AddData fun(self: df_chartmulti, data: table, red: number|string|table|nil, green: number|nil, blue: number|nil, alpha: number|nil)
+---@field GetAmountCharts fun(self: df_chartmulti): number
+---@field HideCharts fun(self: df_chartmulti)
+---@field Reset fun(self: df_chartmulti)
+---@field SetChartsMinMaxValues fun(self: df_chartmulti, minValue: number, maxValue: number)
+---@field SetMaxDataSize fun(self: df_chartmulti, dataSize: number)
+---@field GetMaxDataSize fun(self: df_chartmulti)
+---@field SetLineThickness fun(self: df_chart, thickness: number) set the line thickness for all chart frames
+---@field Plot fun(self: df_chartmulti)
 
+detailsFramework.ChartFrameSharedMixin = {
+    ---set the color of both axis lines
+    ---@param self df_chart|df_chartmulti
+    ---@param red any
+    ---@param green number|nil
+    ---@param blue number|nil
+    ---@param alpha number|nil
+    ---@return boolean bColorChanged return true if the color was set, false if the axis lines are not created yet
+    SetAxisColor = function(self, red, green, blue, alpha)
+        if (not self.yAxisLine) then
+            return false
+        end
+        red, green, blue, alpha = detailsFramework:ParseColors(red, green, blue, alpha)
+        self.yAxisLine:SetColorTexture(red, green, blue, alpha)
+        self.xAxisLine:SetColorTexture(red, green, blue, alpha)
+        return true
+    end,
 
+    ---set the thickness of both axis lines
+    ---@param self df_chart|df_chartmulti
+    ---@param thickness number
+    ---@return boolean bThicknessChanged return true if the thickness was set, false if the axis lines are not created yet
+    SetAxisThickness = function(self, thickness)
+        if (not self.yAxisLine) then
+            return false
+        end
+        self.yAxisLine:SetThickness(thickness)
+        self.xAxisLine:SetThickness(thickness)
+        return true
+    end,
+}
 
-local ChartFrameMixin = {
+--> functions shared by both single and multi chart frames
+
+---create the x and y axis lines with their labels
+---@param self df_chart|df_chartmulti
+---@param whichSide "left"|"right"
+---@param thickness number
+---@param amountYLabels number
+---@param amountXLabels number
+---@param red any
+---@param green number|nil
+---@param blue number|nil
+---@param alpha number|nil
+---@return boolean
+local createAxysLines = function(self, whichSide, thickness, amountYLabels, amountXLabels, red, green, blue, alpha)
+    if (self.axisCreated) then
+        return false
+    end
+
+    self.yAxisLabels = {}
+    self.xAxisLabels = {}
+
+    --this is the vertical line which can be anchored in the left or right side of the frame, it separates the chart lines from the measurements texts
+    ---@type line
+    local yAxisLine = self:CreateLine("$parentYAxisLine", "overlay")
+    self.yAxisLine = yAxisLine
+
+    --and the horizontal line which is always anchored in the bottom of the frame
+    ---@type line
+    local xAxisLine = self:CreateLine("$parentXAxisLine", "overlay")
+    self.xAxisLine = xAxisLine
+
+    red, green, blue, alpha = detailsFramework:ParseColors(red, green, blue, alpha)
+
+    self:SetAxisColor(red, green, blue, alpha)
+    self:SetAxisThickness(thickness)
+
+    --create the labels in the vertical axis line
+    for i = 1, amountYLabels do
+        local label = self:CreateFontString("$parentYAxisLabel" .. i, "overlay", "GameFontNormal")
+        label:SetJustifyH("right")
+        label:SetTextColor(red, green, blue, alpha)
+        table.insert(self.yAxisLabels, label)
+    end
+
+    --create the labels in the horizontal axis line
+    for i = 1, amountXLabels do
+        local label = self:CreateFontString("$parentXAxisLabel" .. i, "overlay", "GameFontNormal")
+        label:SetJustifyH("left")
+        label:SetTextColor(red, green, blue, alpha)
+        table.insert(self.xAxisLabels, label)
+    end
+
+    yAxisLine:SetStartPoint("topleft", self, "topleft", 0, 0)
+    yAxisLine:SetEndPoint("bottomleft", self, "bottomleft", 0, 0)
+    yAxisLine:Hide()
+
+    xAxisLine:SetStartPoint("bottomleft", self, "bottomleft", 0, 0)
+    xAxisLine:SetEndPoint("bottomright", self, "bottomright", 0, 0)
+    xAxisLine:Hide()
+
+    self.axisCreated = true
+
+    return true
+end
+
+detailsFramework.ChartFrameMixin = {
     ---set the default values for the chart frame
     ---@param self df_chart
     ChartFrameConstructor = function(self)
@@ -41,19 +164,38 @@ local ChartFrameMixin = {
         self.lineThickness = 1
         self.data = {}
         self.lines = {}
+        self.color = {1, 1, 1, 1}
 
         --OnSizeChanged
         self:SetScript("OnSizeChanged", self.OnSizeChanged)
     end,
 
+    ---set the color for the lines
+    ---@param self df_chart
+    ---@param r number
+    ---@param g number
+    ---@param b number
+    ---@param a number|nil
+    SetColor = function(self, r, g, b, a)
+        r, g, b, a = detailsFramework:ParseColors(r, g, b, a)
+        self.color[1] = r
+        self.color[2] = g
+        self.color[3] = b
+        self.color[4] = a or 1
+    end,
+
     ---internally handle next line
     ---@param self df_chart
     GetLine = function(self)
+        ---@type line
         local line = self.lines[self.nextLine]
+
         if (not line) then
+            ---@type line
             line = self:CreateLine(nil, "overlay")
             self.lines[self.nextLine] = line
         end
+
         self.nextLine = self.nextLine + 1
         line:Show()
         return line
@@ -160,8 +302,8 @@ local ChartFrameMixin = {
 
         for i = 1, maxLines do
             local line = self:GetLine()
-            line:SetColorTexture(1, 1, 1, 1)
-            line:SetThickness(1)
+            line:SetColorTexture(unpack(self.color))
+            line:SetThickness(self.lineThickness)
 
             --the start point starts where the latest point finished
             line:SetStartPoint("bottomleft", currentXPoint, currentYPoint)
@@ -185,9 +327,10 @@ local createChartFrame = function(parent, name)
     ---@type df_chart
     local chartFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
 
-    DF:Mixin(chartFrame, DF.DataMixin)
-    DF:Mixin(chartFrame, DF.ValueMixin)
-    DF:Mixin(chartFrame, ChartFrameMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.DataMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.ValueMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.ChartFrameMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.ChartFrameSharedMixin)
 
     chartFrame:DataConstructor()
     chartFrame:ValueConstructor()
@@ -205,22 +348,35 @@ local createChartFrame = function(parent, name)
     return chartFrame
 end
 
-function DF:CreateGraphicLineFrame(parent, name)
+function detailsFramework:CreateGraphicLineFrame(parent, name)
     ---@type df_chart
     local newGraphicFrame = createChartFrame(parent, name)
     return newGraphicFrame
 end
 
-local MultiChartFrameMixin = {
+detailsFramework.MultiChartFrameMixin = {
     MultiChartFrameConstructor = function(self)
         self.nextChartselframe = 1
         self.biggestDataValue = 0
+        self.lineThickness = 1
         self.chartFrames = {}
     end,
 
-    AddData = function(self, data)
+    CreateAxisLines = function(self, whichSide, thickness, amountYLabels, amountXLabels, red, green, blue, alpha)
+        createAxysLines(self, whichSide, thickness, amountYLabels, amountXLabels, red, green, blue, alpha)
+    end,
+
+    ---add a new chart data and create a new chart frame if necessary to the multi chart
+    ---@param self df_chartmulti
+    ---@param data table
+    ---@param red number|string|table|nil
+    ---@param green number|nil
+    ---@param blue number|nil
+    ---@param alpha number|nil
+    AddData = function(self, data, red, green, blue, alpha)
         assert(type(data) == "table", "MultiChartFrame:AddData() usage: AddData(table)")
         local chartFrame = self:GetChart()
+        chartFrame:SetColor(red, green, blue, alpha)
         chartFrame:SetData(data)
 
         self:SetMaxValueIfBigger(chartFrame:GetMaxValue())
@@ -230,7 +386,9 @@ local MultiChartFrameMixin = {
         self:SetMaxDataSize(dataAmount)
     end,
 
-    --internally handle next line
+    ---internally handle next line
+    ---@param self df_chartmulti
+    ---@return df_chart
     GetChart = function(self)
         local chartFrame = self.chartFrames[self.nextChartFrame]
         if (not chartFrame) then
@@ -244,14 +402,22 @@ local MultiChartFrameMixin = {
         return chartFrame
     end,
 
+    ---get all charts added to the multi chart frame
+    ---@param self df_chartmulti
+    ---@return df_chart[]
     GetCharts = function(self)
         return self.chartFrames
     end,
 
+    ---get the amount of charts added to the multi chart frame
+    ---@param self df_chartmulti
+    ---@return number
     GetAmountCharts = function(self)
         return self.nextChartFrame - 1
     end,
 
+    ---hide all charts
+    ---@param self df_chartmulti
     HideCharts = function(self)
         local charts = self:GetCharts()
         for i = 1, #charts do
@@ -260,11 +426,17 @@ local MultiChartFrameMixin = {
         end
     end,
 
+    ---reset the multi chart frame
+    ---@param self df_chartmulti
     Reset = function(self)
         self:HideCharts()
         self.nextChartFrame = 1
     end,
 
+    ---set the min and max values of all charts
+    ---@param self df_chartmulti
+    ---@param minValue number
+    ---@param maxValue number
     SetChartsMinMaxValues = function(self, minValue, maxValue)
         local allCharts = self:GetCharts()
         for i = 1, self:GetAmountCharts() do
@@ -273,14 +445,29 @@ local MultiChartFrameMixin = {
         end
     end,
 
+    ---set the max data size of all charts
+    ---@param self df_chartmulti
+    ---@param dataSize number
     SetMaxDataSize = function(self, dataSize)
-        self.biggestDataValue = max(self.biggestDataValue, dataSize)
+        self.biggestDataValue = math.max(self.biggestDataValue, dataSize)
     end,
 
+    ---get the max data size of all charts
+    ---@param self df_chartmulti
+    ---@return number
     GetMaxDataSize = function(self)
         return self.biggestDataValue
     end,
 
+    ---@param self df_chartmulti
+    ---@param value number
+    SetLineThickness = function(self, value)
+        assert(type(value) == "number", "number expected on :SetLineThickness(number)")
+        self.lineThickness = value
+    end,
+
+    ---draw all the charts added to the multi chart frame
+    ---@param self df_chartmulti
     Plot = function(self)
         local minValue, maxValue = self:GetMinMaxValues()
         self:SetChartsMinMaxValues(minValue, maxValue)
@@ -292,6 +479,7 @@ local MultiChartFrameMixin = {
         local allCharts = self:GetCharts()
         for i = 1, self:GetAmountCharts() do
             local chartFrame = allCharts[i]
+            chartFrame:SetLineThickness(self.lineThickness)
             chartFrame:SetLineWidth(eachLineWidth)
             chartFrame:Plot()
         end
@@ -301,14 +489,16 @@ local MultiChartFrameMixin = {
 ---create a chart frame object with support to multi lines
 ---@param parent frame
 ---@param name string|nil
----@return df_chart
-function DF:CreateGraphicMultiLineFrame(parent, name)
+---@return df_chartmulti
+function detailsFramework:CreateGraphicMultiLineFrame(parent, name)
     name = name or ("DetailsMultiChartFrameID" .. math.random(1, 10000000))
 
+    ---@type df_chartmulti
     local chartFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
 
-    DF:Mixin(chartFrame, DF.ValueMixin)
-    DF:Mixin(chartFrame, MultiChartFrameMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.ValueMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.MultiChartFrameMixin)
+    detailsFramework:Mixin(chartFrame, detailsFramework.ChartFrameSharedMixin)
 
     chartFrame:ValueConstructor()
     chartFrame:MultiChartFrameConstructor()
