@@ -443,7 +443,7 @@ local instanceMixins = {
 				---@param thisInstance instance
 				for _, thisInstance in ipairs(Details:GetAllInstances()) do
 					if (instance:GetId() ~= thisInstance:GetId() and thisInstance:IsEnabled() and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
-						if (thisInstance:GetSegmentId() >= 0) then --not overall data
+						if (thisInstance:GetSegmentId() >= 0 or thisInstance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL) then
 							if (thisInstance.modo == DETAILS_MODE_GROUP or thisInstance.modo == DETAILS_MODE_ALL) then
 								--check if the instance is frozen
 								if (thisInstance.freezed) then
@@ -2766,7 +2766,7 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 		if (_detalhes.instances_segments_locked and not fromInstanceStart) then
 			for _, thisInstance in ipairs(_detalhes.tabela_instancias) do
 				if (thisInstance.meu_id ~= instance.meu_id and thisInstance.ativa and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
-					if (thisInstance:GetSegment() >= 0) then
+					if (thisInstance:GetSegment() >= 0 or thisInstance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL) then
 						if (thisInstance.modo == 2 or thisInstance.modo == 3) then
 							--check if the instance is frozen
 							if (thisInstance.freezed) then
