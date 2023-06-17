@@ -2766,7 +2766,7 @@ function _detalhes:TrocaTabela(instance, segmentId, attributeId, subAttributeId,
 		if (_detalhes.instances_segments_locked and not fromInstanceStart) then
 			for _, thisInstance in ipairs(_detalhes.tabela_instancias) do
 				if (thisInstance.meu_id ~= instance.meu_id and thisInstance.ativa and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
-					if (thisInstance:GetSegment() >= 0 or thisInstance:GetSegmentId() == DETAILS_SEGMENTID_OVERALL) then
+					if (thisInstance:GetSegment() >= 0 or thisInstance:GetSegment() == DETAILS_SEGMENTID_OVERALL) then
 						if (thisInstance.modo == 2 or thisInstance.modo == 3) then
 							--check if the instance is frozen
 							if (thisInstance.freezed) then
