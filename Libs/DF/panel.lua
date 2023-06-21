@@ -13,6 +13,7 @@ local unpack = table.unpack or unpack --lua local
 local type = type --lua local
 local floor = math.floor --lua local
 local loadstring = loadstring --lua local
+local CreateFrame = CreateFrame
 
 local IS_WOW_PROJECT_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IS_WOW_PROJECT_NOT_MAINLINE = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
@@ -4391,11 +4392,18 @@ detailsFramework.TitleFunctions = {
 
 }
 
-function detailsFramework:CreateTitleBar (f, titleText)
+---@class df_titlebar : frame
+---@field TitleLabel fontstring
+---@field CloseButton button
 
-	local titleBar = CreateFrame("frame", f:GetName() and f:GetName() .. "TitleBar" or nil, f,"BackdropTemplate")
-	titleBar:SetPoint("topleft", f, "topleft", 2, -3)
-	titleBar:SetPoint("topright", f, "topright", -2, -3)
+---create a title bar with a font string in the center and a close button in the right side
+---@param parent frame
+---@param titleText string
+---@return df_titlebar
+function detailsFramework:CreateTitleBar(parent, titleText)
+	local titleBar = CreateFrame("frame", parent:GetName() and parent:GetName() .. "TitleBar" or nil, parent, "BackdropTemplate")
+	titleBar:SetPoint("topleft", parent, "topleft", 2, -3)
+	titleBar:SetPoint("topright", parent, "topright", -2, -3)
 	titleBar:SetHeight(20)
 	titleBar:SetBackdrop(SimplePanel_frame_backdrop) --it's an upload from this file
 	titleBar:SetBackdropColor(.2, .2, .2, 1)
@@ -4415,7 +4423,7 @@ function detailsFramework:CreateTitleBar (f, titleText)
 	closeButton:SetScript("OnClick", simple_panel_close_click) --upvalue from this file
 
 	local titleLabel = titleBar:CreateFontString(titleBar:GetName() and titleBar:GetName() .. "TitleText" or nil, "overlay", "GameFontNormal")
-	titleLabel:SetTextColor(.8, .8, .8, 1)
+	titleLabel:SetTextColor(detailsFramework:ParseColors("gold"))
 	titleLabel:SetText(titleText or "")
 
 	--anchors
@@ -4423,14 +4431,14 @@ function detailsFramework:CreateTitleBar (f, titleText)
 	titleLabel:SetPoint("center", titleBar, "center")
 
 	--members
-	f.TitleBar = titleBar
-	f.CloseButton = closeButton
-	f.TitleLabel = titleLabel
+	parent.TitleBar = titleBar
+	parent.CloseButton = closeButton
+	parent.TitleLabel = titleLabel
 
 	titleBar.CloseButton = closeButton
 	titleBar.Text = titleLabel
 
-	detailsFramework:Mixin(f, detailsFramework.TitleFunctions)
+	detailsFramework:Mixin(parent, detailsFramework.TitleFunctions)
 
 	return titleBar
 end

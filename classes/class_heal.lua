@@ -2768,7 +2768,7 @@ function healingClass:MontaDetalhesHealingDone (spellid, barra) --deprecated wit
 end
 
 --controla se o dps do jogador esta travado ou destravado
-function healingClass:Iniciar (iniciar)
+function healingClass:GetOrChangeActivityStatus (iniciar)
 	if (iniciar == nil) then
 		return self.iniciar_hps --retorna se o dps esta aberto ou fechado para este jogador
 	elseif (iniciar) then

@@ -401,7 +401,8 @@ function _detalhes:TrackSpecsNow (track_everything)
 		end
 	else
 		local combatlist = {}
-		for _, combat in ipairs(_detalhes.tabela_historico.tabelas) do
+		local segmentsTable = Details:GetCombatSegments()
+		for _, combat in ipairs(segmentsTable) do
 			tinsert(combatlist, combat)
 		end
 		tinsert(combatlist, _detalhes.tabela_vigente)

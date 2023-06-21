@@ -105,6 +105,7 @@ end
 
 --load previous saved combat data
 function Details222.LoadSavedVariables.CombatSegments()
+	--this is the table where the character data is saved as well the combat data
 	local currentCharacterData = _G["_detalhes_database"] --no need to check if it exists, it's already checked
 	if (currentCharacterData == nil) then
 		currentCharacterData = {}
@@ -189,7 +190,7 @@ function Details222.LoadSavedVariables.CombatSegments()
 		end
 
 		--get the first segment saved and use it as current segment
-		Details.tabela_vigente = Details.tabela_historico.tabelas[1]
+		Details.tabela_vigente = Details.tabela_historico.tabelas[1] --only low level access to this table allowed
 
 		--need refresh for all containers
 		for _, actorContainer in ipairs(Details.tabela_overall) do

@@ -1062,10 +1062,10 @@
 	--~activity time
 		if (not sourceActor.dps_started) then
 			--register on time machine
-			sourceActor:Iniciar(true)
+			sourceActor:GetOrChangeActivityStatus(true)
 
 			if (ownerActor and not ownerActor.dps_started) then
-				ownerActor:Iniciar(true)
+				ownerActor:GetOrChangeActivityStatus(true)
 				if (ownerActor.end_time) then
 					ownerActor.end_time = nil
 				else
@@ -1983,7 +1983,7 @@
 		local jogador_alvo, alvo_dono = healing_cache [alvo_serial]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			if (not alvo_dono and alvo_flags and also_serial ~= "") then
+			if (not alvo_dono and alvo_flags and alvo_serial ~= "") then
 				healing_cache [alvo_serial] = jogador_alvo
 			end
 		end
@@ -2261,10 +2261,10 @@
 	------------------------------------------------------------------------------------------------
 	--~activity time
 		if (not sourceActor.iniciar_hps) then
-			sourceActor:Iniciar (true) --inicia o hps do jogador
+			sourceActor:GetOrChangeActivityStatus (true) --inicia o hps do jogador
 
 			if (ownerActor and not ownerActor.iniciar_hps) then
-				ownerActor:Iniciar (true)
+				ownerActor:GetOrChangeActivityStatus (true)
 				if (ownerActor.end_time) then
 					ownerActor.end_time = nil
 				else
@@ -4898,7 +4898,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--end
 		end
 
-		Details:DispatchAutoRunCode("on_zonechanged")
+		Details222.AutoRunCode.DispatchAutoRunCode("on_zonechanged")
 		Details:SchedulePetUpdate(7)
 		Details:CheckForPerformanceProfile()
 	end
@@ -5183,7 +5183,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
-		Details:DispatchAutoRunCode("on_entercombat")
+		Details222.AutoRunCode.DispatchAutoRunCode("on_entercombat")
 
 		Details.tabela_vigente.CombatStartedAt = GetTime()
 	end
@@ -5284,7 +5284,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not OnRegenEnabled) then
 			Details:Destroy(bitfield_swap_cache)
 			Details:Destroy(empower_cache)
-			Details:DispatchAutoRunCode("on_leavecombat")
+			Details222.AutoRunCode.DispatchAutoRunCode("on_leavecombat")
 		end
 
 		if (Details.solo and Details.PluginCount.SOLO > 0) then --code too old and I don't have documentation for it
@@ -5596,7 +5596,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				Details:CheckVersion()
 				Details:SendEvent("GROUP_ONENTER")
 
-				Details:DispatchAutoRunCode("on_groupchange")
+				Details222.AutoRunCode.DispatchAutoRunCode("on_groupchange")
 
 				Details:Destroy(Details.trusted_characters)
 				C_Timer.After(5, Details.ScheduleSyncPlayerActorData)
@@ -5614,7 +5614,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				Details:InstanceCall(Details.AdjustAlphaByContext)
 				Details:CheckSwitchOnLogon()
 				Details:SendEvent("GROUP_ONLEAVE")
-				Details:DispatchAutoRunCode("on_groupchange")
+				Details222.AutoRunCode.DispatchAutoRunCode("on_groupchange")
 				Details:Destroy(Details.trusted_characters)
 			else
 				--player is still in a group
@@ -5670,7 +5670,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	function Details:CreateBattlegroundSegment()
 		if (_in_combat) then
-			Details.tabela_vigente.discard_segment = true
+			Details222.discardSegment = true
 			Details:EndCombat()
 		end
 
@@ -5692,6 +5692,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details.instance_load_failed.text:SetText("Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension.")
 			return
 		end
+
+		Details222.AutoRunCode.Code = {}
 
 		Details.popup = _G.GameCooltip
 		Details.in_group = IsInGroup() or IsInRaid()
@@ -5731,7 +5733,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:UpdateParserGears()
 
 		--load auto run code
-		Details:StartAutoRun()
+		Details222.AutoRunCode.StartAutoRun()
 
 		Details.isLoaded = true
 	end
@@ -5855,6 +5857,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		---@type string current step of the logout process, used to log which is the current step when an error happens
 		local currentStep = ""
+
+		Details222.AutoRunCode.OnLogout()
 
 		--save the time played on this class, run protected
 		local savePlayTimeClass, savePlayTimeErrorText = pcall(function() Details.SavePlayTimeOnClass() end)
@@ -6035,6 +6039,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	function Details:GetActorFromCache(value)
 		return damage_cache[value] or damage_cache_pets[value] or damage_cache_petsOwners[value]
+	end
+
+	---return tables containing the cache of actors
+	---@return table damageCache, table damageCachePets, table damageCachePetOwners, table healingCache
+	function Details222.Cache.GetParserCacheTables()
+		return damage_cache, damage_cache_pets, damage_cache_petsOwners, healing_cache
 	end
 
 	function Details:PrintParserCacheIndexes()
@@ -6455,9 +6465,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--get an actor
-	function Details:GetActor(combat, attribute, actorName)
-		if (not combat) then
-			combat = "current" --current combat
+	function Details:GetActor(combatId, attribute, actorName)
+		if (not combatId) then
+			combatId = "current" --current combat
 		end
 
 		if (not attribute) then
@@ -6468,7 +6478,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			actorName = Details.playername
 		end
 
-		if (combat == 0 or combat == "current") then
+		if (combatId == 0 or combatId == "current") then
 			local actor = Details.tabela_vigente(attribute, actorName)
 			if (actor) then
 				return actor
@@ -6476,7 +6486,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				return nil
 			end
 
-		elseif (combat == -1 or combat == "overall") then
+		elseif (combatId == -1 or combatId == "overall") then
 			local actor = Details.tabela_overall(attribute, actorName)
 			if (actor) then
 				return actor
@@ -6484,12 +6494,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				return nil
 			end
 
-		elseif (type(combat) == "number") then
-			local combatTables = Details.tabela_historico.tabelas[combat]
-			if (combatTables) then
-				local actor = combatTables(attribute, actorName)
-				if (actor) then
-					return actor
+		elseif (type(combatId) == "number") then
+			local segmentsTable = Details:GetCombatSegments()
+			---@type combat
+			local combatObject = segmentsTable[combatId]
+
+			if (combatObject) then
+				---@type actor
+				local actorObject = combatObject(attribute, actorName)
+				if (actorObject) then
+					return actorObject
 				else
 					return nil
 				end

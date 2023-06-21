@@ -6206,7 +6206,8 @@ function Details:GetSegmentInfo(index)
 	elseif (index == 0 or index == "current") then
 		combat = Details.tabela_vigente
 	else
-		combat = Details.tabela_historico.tabelas[index]
+		local segmentsTable = Details:GetCombatSegments()
+		combat = segmentsTable[index]
 	end
 
 	if (combat) then
@@ -6319,8 +6320,10 @@ local buildSegmentTooltip = function(self, deltaTime)
 		local amountOfSegments = 0
 		local segmentsWithACombat = 0
 
+		local segmentsTable = Details:GetCombatSegments()
+
 		for i = 1, Details.segments_amount do
-			if (Details.tabela_historico.tabelas[i]) then
+			if (segmentsTable[i]) then
 				segmentsWithACombat = segmentsWithACombat + 1
 			else
 				break
@@ -6339,7 +6342,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 		local isMythicDungeon = false
 		for i = Details.segments_amount, 1, -1 do
 			if (i <= fill) then
-				local thisCombat = Details.tabela_historico.tabelas[i]
+				local thisCombat = segmentsTable[i]
 				if (thisCombat and not thisCombat.__destroyed) then
 					local enemy = thisCombat.is_boss and thisCombat.is_boss.name
 					local segmentInfoAdded = false

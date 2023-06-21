@@ -2562,8 +2562,8 @@ end
 function PhaseFrame:UpdateSegmentCompareBars (phase)
 	--segmento atual (numero)
 	local segmentNumber = EncounterDetails._segment
-	local segmentTable = PhaseFrame.CurrentSegment
-	local bossID = segmentTable:GetBossInfo() and segmentTable:GetBossInfo().id
+	local segmentsTable = PhaseFrame.CurrentSegment
+	local bossID = segmentsTable:GetBossInfo() and segmentsTable:GetBossInfo().id
 
 	local index = 1
 	for i, segment in ipairs (_detalhes:GetCombatSegments()) do
@@ -2573,7 +2573,7 @@ function PhaseFrame:UpdateSegmentCompareBars (phase)
 			local timers = PhaseFrame:GetPhaseTimers (segment)
 			
 			if (timers [phase]) then
-				if (segment ~= segmentTable) then
+				if (segment ~= segmentsTable) then
 					bar.name:SetText ("Segment " .. i .. ":")
 					_detalhes.gump:SetFontColor (bar.name, "orange")
 					bar.done:SetText (_detalhes.gump:IntegerToTimer (timers [phase]))

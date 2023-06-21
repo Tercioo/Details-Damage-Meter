@@ -98,10 +98,10 @@ local classTypeUtility = Details.atributos.misc
 		local overallCombatObject = Details.tabela_overall
 
 		---@type combat[]
-		local allSegments = Details.tabela_historico.tabelas
+		local segmentsTable = Details:GetCombatSegments()
 
 		--retore the call "combat()" functionality
-		for _, combatObject in ipairs(allSegments) do
+		for _, combatObject in ipairs(segmentsTable) do
 			combatObject.__call = Details.call_combate
 		end
 
@@ -118,8 +118,8 @@ local classTypeUtility = Details.atributos.misc
 		local bIsInInstance = IsInInstance()
 
 		--inicia a recupera��o das tabelas e montagem do overall
-		if (#allSegments > 0) then
-			for index, thisCombatObject in ipairs(allSegments) do
+		if (#segmentsTable > 0) then
+			for index, thisCombatObject in ipairs(segmentsTable) do
 				---@cast thisCombatObject combat
 
 				--set the metatable, __call and __index
@@ -338,14 +338,15 @@ local classTypeUtility = Details.atributos.misc
 	---remove all .owner references from actors, this unlink pets from owners but still leave the actor.ownerName member to rebuild later
 	function Details:RemoveOwnerFromPets()
 		---@type combat[]
-		local combatTables = Details.tabela_historico.tabelas or {}
+		local segmentsTable = Details:GetCombatSegments() or {}
+
 		local bOverallAdded
 		if (not Details.overall_clear_logout) then
-			table.insert(combatTables, Details.tabela_overall)
+			table.insert(segmentsTable, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
-		for _, combatObject in ipairs(combatTables) do
+		for _, combatObject in ipairs(segmentsTable) do
 			---@cast combatObject combat
 			for _, actorContainer in ipairs(combatObject) do
 				---@cast actorContainer actorcontainer
@@ -357,22 +358,22 @@ local classTypeUtility = Details.atributos.misc
 		end
 
 		if (bOverallAdded) then
-			table.remove(combatTables, #combatTables)
+			table.remove(segmentsTable, #segmentsTable)
 		end
 	end
 
 	function Details:DoClassesCleanup()
 		---@type combat[]
-		local combatTables = Details.tabela_historico.tabelas or {}
+		local segmentsTable = Details:GetCombatSegments() or {}
 		local bOverallAdded = false
 		if (not Details.overall_clear_logout) then
 			--add the overall segment to the cleanup within the other segments
 			--it is removed after the cleanup
-			table.insert(combatTables, Details.tabela_overall)
+			table.insert(segmentsTable, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
-		for index, combatObject in ipairs(combatTables) do
+		for index, combatObject in ipairs(segmentsTable) do
 			---@cast combatObject combat
 			for classType, actorContainer in ipairs(combatObject) do
 				---@cast actorContainer actorcontainer
@@ -400,20 +401,20 @@ local classTypeUtility = Details.atributos.misc
 
 		if (bOverallAdded) then
 			--remove the overall segment from the regular segments
-			table.remove(combatTables, #combatTables)
+			table.remove(segmentsTable, #segmentsTable)
 		end
 	end
 
 	function Details:DoContainerCleanup()
 		---@type combat[]
-		local combatTables = Details.tabela_historico.tabelas or {}
+		local segmentsTable = Details:GetCombatSegments() or {}
 		local bOverallAdded
 		if (not Details.overall_clear_logout) then
-			table.insert(combatTables, Details.tabela_overall)
+			table.insert(segmentsTable, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
-		for _, combatObject in ipairs(combatTables) do
+		for _, combatObject in ipairs(segmentsTable) do
 			---@cast combatObject combat
 			Details.clear:c_combate(combatObject)
 			for _, actorContainer in ipairs(combatObject) do
@@ -423,27 +424,27 @@ local classTypeUtility = Details.atributos.misc
 		end
 
 		if (bOverallAdded) then
-			table.remove(combatTables, #combatTables)
+			table.remove(segmentsTable, #segmentsTable)
 		end
 	end
 
 	function Details:DoContainerIndexCleanup()
 		---@type combat[]
-		local allSegments = Details.tabela_historico.tabelas or {}
+		local segmentsTable = Details:GetCombatSegments() or {}
 		local bOverallAdded
 		if (not Details.overall_clear_logout) then
-			table.insert(allSegments, Details.tabela_overall)
+			table.insert(segmentsTable, Details.tabela_overall)
 			bOverallAdded = true
 		end
 
-		for _, combatObject in ipairs(allSegments) do
+		for _, combatObject in ipairs(segmentsTable) do
 			for _, actorContainer in ipairs(combatObject) do
 				Details.clear:c_container_combatentes_index(actorContainer)
 			end
 		end
 
 		if (bOverallAdded) then
-			table.remove(allSegments, #allSegments)
+			table.remove(segmentsTable, #segmentsTable)
 		end
 	end
 
@@ -460,26 +461,32 @@ local classTypeUtility = Details.atributos.misc
 		---@type combat[]
 		local combatTables = {}
 		---@type combat[]
-		local allSegments = Details.tabela_historico.tabelas or {}
+		local segmentsTable = Details:GetCombatSegments() or {}
 
-		--remove segments marked as 'trash'
-		for i = #allSegments, 1, -1  do
+		for i = #segmentsTable, 1, -1  do
 			---@type combat
-			local combatObject = allSegments[i]
-			if (combatObject:IsTrash()) then --error, IsTrash is not a function, probably because the combat got destroyed
-				table.remove(allSegments, i)
-				Details:DestroyCombat(combatObject) --no need to send DETAILS_DATA_SEGMENTREMOVED due to this be in the logout process
+			local combatObject = segmentsTable[i]
+			if (combatObject.__destroyed) then
+				table.remove(segmentsTable, i)
 			end
 		end
+
+		--remove segments marked as 'trash'
+		for i = #segmentsTable, 1, -1  do
+			---@type combat
+			local combatObject = segmentsTable[i]
+			if (combatObject:IsTrash()) then
+				table.remove(segmentsTable, i)
+			end
+		end
+
+		segmentsTable = Details:GetCombatSegments() or {}
 
 		--remove segments > of the segment limit to save
 		if (Details.segments_amount_to_save and Details.segments_amount_to_save < Details.segments_amount) then
 			for i = Details.segments_amount, Details.segments_amount_to_save + 1, -1  do
-				if (Details.tabela_historico.tabelas[i]) then
-					---@type combat
-					local combatObject = Details.tabela_historico.tabelas[i]
-					table.remove(Details.tabela_historico.tabelas, i)
-					Details:DestroyCombat(combatObject)
+				if (segmentsTable[i]) then
+					table.remove(segmentsTable, i)
 				end
 			end
 		end
@@ -488,7 +495,6 @@ local classTypeUtility = Details.atributos.misc
 		if (Details.overall_clear_logout) then
 			Details.tabela_overall = nil
 			_detalhes_database.tabela_overall = nil
-			Details:DestroyCombat(Details.tabela_overall)
 		else
 			---@type combat
 			local overallCombatObject = Details.tabela_overall
@@ -538,7 +544,7 @@ local classTypeUtility = Details.atributos.misc
 			end
 		end
 
-		for i, combatObject in ipairs(allSegments) do
+		for i, combatObject in ipairs(segmentsTable) do
 			---@cast combatObject combat
 			combatTables[#combatTables+1] = combatObject
 		end
@@ -805,21 +811,38 @@ local classTypeUtility = Details.atributos.misc
 		---@type number
 		local amountRemoved = 0
 
-		--create a list of all combats except the current one
-		---@type table<number, combat>
-		local allSegments = Details:GetCombatSegments()
-		---@type table
-		local segmentsList = {}
-
 		---@type combat
 		local currentCombat = Details:GetCurrentCombat()
 
-		for _, combatObject in ipairs(allSegments) do
+		--create a list of all combats except the current one
+		---@type table<number, combat>
+		local segmentsTable = Details:GetCombatSegments()
+
+		--collect destroyed combat objects
+		local bGotSegmentsRemoved = false
+		for i = #segmentsTable, 1, -1 do
+			local combatObject = segmentsTable[i]
+			if (combatObject ~= currentCombat) then
+				if (combatObject.__destroyed) then
+					table.remove(segmentsTable, i)
+					bGotSegmentsRemoved = true
+				end
+			end
+		end
+
+		if (bGotSegmentsRemoved) then
+			Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+		end
+
+		---@type table
+		local segmentsList = {}
+
+		--add all segments except the current one
+		for _, combatObject in ipairs(segmentsTable) do
 			if (combatObject ~= currentCombat) then
 				segmentsList[#segmentsList+1] = combatObject
 			end
 		end
-
 		--add the current segment at the end of the list
 		segmentsList[#segmentsList+1] = currentCombat
 

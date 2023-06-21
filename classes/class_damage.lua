@@ -854,9 +854,9 @@ end
 			end
 		
 			if (not bIsCustomSpell) then
-				for spellId, spellTable in pairs(actorObject.spells._ActorTable) do
-					if (spellId ~= spellId) then
-						local spellname = select(1, GetSpellInfo(spellId))
+				for thisSpellId, spellTable in pairs(actorObject.spells._ActorTable) do
+					if (thisSpellId ~= spellId) then --this is invalid
+						local spellname = select(1, GetSpellInfo(thisSpellId))
 						if (spellname == spellName) then
 							for targetName, damageAmount in pairs(spellTable.targets) do
 								local got = false
@@ -905,8 +905,7 @@ end
 		return totalDamage, topDamage, amount
 	]]
 
-	local function ShowDTBSInWindow (spell, instance)
-
+	local function ShowDTBSInWindow (spell, instance) --for hold shift key and click, show players which took damage from this spell
 		local spellname, _, icon = _GetSpellInfo(spell [1])
 		local custom_name = spellname .. " - " .. Loc ["STRING_CUSTOM_DTBS"] .. ""
 
@@ -2657,10 +2656,12 @@ function damageClass:RefreshLine(instance, lineContainer, whichRowLine, rank, to
 		percentString = format("%.1f", self[keyName] / instance.top * 100)
 	end
 
+	local currentCombat = Details:GetCurrentCombat()
+
 	--calculate the actor dps
 	if ((Details.time_type == 2 and self.grupo) or not Details:CaptureGet("damage") or instance.segmento == -1) then
 		if (instance.segmento == -1 and combat_time == 0) then
-			local actor = Details.tabela_vigente(1, self.nome)
+			local actor = currentCombat(1, self.nome)
 			if (actor) then
 				local combatTime = actor:Tempo()
 				dps = damageTotal / combatTime
@@ -6198,16 +6199,17 @@ function damageClass:MontaTooltipAlvos (thisLine, index, instancia) --~deprecate
 	GameCooltip:Show()
 
 	return true
-
 end
 
 --controla se o dps do jogador esta travado ou destravado
-function damageClass:Iniciar (iniciar)
-	if (iniciar == nil) then
+function damageClass:GetOrChangeActivityStatus(activityStatus)
+	if (activityStatus == nil) then
 		return self.dps_started --retorna se o dps esta aberto ou fechado para este jogador
-	elseif (iniciar) then
+
+	elseif (activityStatus) then
 		self.dps_started = true
 		Details222.TimeMachine.AddActor(self)
+
 	else
 		self.dps_started = false
 		Details222.TimeMachine.RemoveActor(self)

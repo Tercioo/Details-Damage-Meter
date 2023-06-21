@@ -108,7 +108,7 @@ function chartsObject.Ticker()
         --data set to capture data of some combat attribute or totals
         local combatTotalCaptures = configsForCaptureData.totals
 
-        local currentSegmentData = chartsObject.GetCurrentSegmentData()
+        local currentSegmentData = chartsObject.GetCurrentCombatData()
         local chartData = currentSegmentData.ChartData
 
         if (#playerCaptures > 0) then
@@ -244,7 +244,7 @@ function chartsObject.HasValidAndOpenCombat()
     local bCombatState = chartsObject.GetCombatState()
     if (bCombatState) then
         local detaisCurrentCombat = Details:GetCurrentCombat()
-        local chartCurrentSegmentData = chartsObject.GetCurrentSegmentData()
+        local chartCurrentSegmentData = chartsObject.GetCurrentCombatData()
         if (detaisCurrentCombat:GetCombatId() == chartCurrentSegmentData:GetCombatId()) then
             --it's all good
             return true
@@ -266,7 +266,7 @@ function chartsObject.GetNumSegments()
     return #chartsObject.SegmentsData
 end
 
-function chartsObject.GetCurrentSegmentData()
+function chartsObject.GetCurrentCombatData()
     return chartsObject.segmentData
 end
 

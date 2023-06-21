@@ -9,6 +9,7 @@ local _
 local unpack = unpack
 local floor = math.floor
 local gameCooltip = GameCooltip
+local CreateFrame = CreateFrame
 
 --api locals
 do
@@ -164,7 +165,7 @@ do
 		self.MainFrame.texture:SetBlendMode("BLEND")
 		on_leave_all_switch_button(self.MainFrame)
 	end
-	
+
 	allDisplaysFrame.check_text_size = function(font_string)
 		local text_width = font_string:GetStringWidth()
 		while (text_width > 104) do
@@ -174,20 +175,20 @@ do
 			text_width = font_string:GetStringWidth()
 		end
 	end
-	
+
 	local create_all_switch_button = function(attribute, sub_attribute, x, y)
 		local button = CreateFrame("button", "DetailsAllAttributesFrame" .. attribute .. sub_attribute, allDisplaysFrame)
 		button:SetSize(130, 16)
 		button.texture = button:CreateTexture(nil, "overlay")
 		button.texture:SetPoint("left", 0, 0)
 		button.texture:SetSize(icon_size, icon_size)
-		
+
 		local texture_highlight_frame = CreateFrame("button", "DetailsAllAttributesFrame" .. attribute .. sub_attribute .. "IconFrame", button)
 		texture_highlight_frame:SetSize(icon_size, icon_size)
 		texture_highlight_frame:SetPoint("left", 0, 0)
 		texture_highlight_frame.texture = button.texture
 		texture_highlight_frame.MainFrame = button
-		
+
 		button.text = button:CreateFontString(nil, "overlay", "GameFontNormal")
 		button.text:SetPoint("left", button.texture, "right", 2, 0)
 		button.attribute = attribute
@@ -195,22 +196,22 @@ do
 		button:SetPoint("topleft", x, y)
 		Details:SetFontSize(button.text, Details.all_switch_config.font_size)
 		Details:SetFontColor(button.text, text_color)
-		
+
 		button:SetScript("OnClick", on_click_all_switch_button)
 		button:SetScript("OnEnter", on_enter_all_switch_button)
 		button:SetScript("OnLeave", on_leave_all_switch_button)
-		
+
 		texture_highlight_frame:SetScript("OnClick", on_click_all_switch_button)
 		texture_highlight_frame:SetScript("OnEnter", on_enter_all_switch_button_icon)
 		texture_highlight_frame:SetScript("OnLeave", on_leave_all_switch_button_icon)
-		
+
 		button:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
 
 		return button
 	end
-	
+
 	allDisplaysFrame:SetScript("OnShow", function()
-		
+
 		if (not allDisplaysFrame.already_built) then
 			local x, y = 8, -8
 			allDisplaysFrame.higher_counter = 0
@@ -228,9 +229,9 @@ do
 				local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 				title_str:SetPoint("left", title_icon, "right", 2, 0)
 				title_str:SetText(loc_attribute_name)
-				
+
 				y = y - 20
-				
+
 				allDisplaysFrame.buttons [attribute] = {}
 				for i = 1, #Details.sub_atributos [attribute].lista do
 					--localized sub attribute name
@@ -246,20 +247,20 @@ do
 					tinsert(allDisplaysFrame.buttons [attribute], button)
 					y = y - 17
 				end
-				
+
 				if (#Details.sub_atributos [attribute].lista > allDisplaysFrame.higher_counter) then
 					allDisplaysFrame.higher_counter = #Details.sub_atributos [attribute].lista
 				end
-				
+
 				x = x + 130
 				y = -8
 			end
-			
+
 			--prepare for scripts
 			allDisplaysFrame.x = x
 			allDisplaysFrame.y = -8
 			allDisplaysFrame.buttons [Details.atributos[0]+1] = {}
-			
+
 			local title_icon = allDisplaysFrame:CreateTexture(nil, "overlay")
 			local texture, l, r, t, b = Details:GetAttributeIcon (Details.atributos[0]+1)
 			title_icon:SetTexture([[Interface\AddOns\Details\images\icons]])
@@ -269,11 +270,11 @@ do
 			local title_str = allDisplaysFrame:CreateFontString(nil, "overlay", "GameFontNormal")
 			title_str:SetPoint("left", title_icon, "right", 2, 0)
 			title_str:SetText("Scripts")
-			
+
 			title_icon:SetPoint("topleft", allDisplaysFrame.x, allDisplaysFrame.y)
 			allDisplaysFrame.y = allDisplaysFrame.y - 20
 			allDisplaysFrame.title_custom = title_icon
-			
+
 			allDisplaysFrame.already_built = true
 
 			--prepare for plugins
@@ -289,13 +290,13 @@ do
 				title_icon:SetPoint("topleft", allDisplaysFrame.x + 130, -8)
 				allDisplaysFrame.title_scripts = title_icon
 		end
-		
+
 		--update scripts
 		local custom_index = Details.atributos[0]+1
 		for _, button in ipairs(allDisplaysFrame.buttons [custom_index]) do
 			button:Hide()
 		end
-		
+
 		local button_index = 1
 		for i = #Details.custom, 1, -1 do
 			local button = allDisplaysFrame.buttons [custom_index] [button_index]
@@ -304,7 +305,7 @@ do
 				tinsert(allDisplaysFrame.buttons [custom_index], button)
 				allDisplaysFrame.y = allDisplaysFrame.y - 17
 			end
-			
+
 			local custom = Details.custom [i]
 			button.text:SetText(custom.name)
 			Details:SetFontSize(button.text, Details.all_switch_config.font_size)
@@ -313,10 +314,10 @@ do
 			button.texture:SetTexture(custom.icon)
 			button.texture:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
 			button:Show()
-			
+
 			button_index = button_index + 1
 		end
-		
+
 		if (#Details.custom > allDisplaysFrame.higher_counter) then
 			allDisplaysFrame.higher_counter = #Details.custom
 		end
@@ -351,12 +352,12 @@ do
 
 						button.text:SetText(ptable[1])
 						Details:SetFontSize(button.text, Details.all_switch_config.font_size)
-						
+
 						allDisplaysFrame.check_text_size(button.text)
 						button.texture:SetTexture(ptable[2])
 						button.texture:SetTexCoord(0.078125, 0.921875, 0.078125, 0.921875)
 						button:Show()
-						
+
 						button_index = button_index + 1
 					end
 				end
@@ -496,42 +497,42 @@ function Details.switch:ShowMe(instancia)
 					Details.switch.CloseMe()
 				end
 			end
-			
+
 			local hide_label = function(self)
 				self.texture:Hide()
 				self.button:Hide()
 				self.background:Hide()
 				self:Hide()
 			end
-			
+
 			local show_label = function(self)
 				self.texture:Show()
 				self.button:Show()
 				self.background:Show()
 				self:Show()
 			end
-			
+
 			local on_enter = function(self)
 				--self.MyObject.this_background:SetBlendMode("ADD")
 				--self.MyObject.boss_texture:SetBlendMode("ADD")
 			end
-			
+
 			local on_leave = function(self)
 				self.MyObject.this_background:SetBlendMode("BLEND")
 				self.MyObject.boss_texture:SetBlendMode("BLEND")
 			end
-		
+
 			function Details.switch:CreateSegmentBlock()
 				local s = gump:CreateLabel(Details.switch.frame)
 				Details:SetFontSize(s, 9)
-				
+
 				local index = #Details.switch.segments_blocks
 				if (index == 1) then --overall button
 					index = -1
 				elseif (index >= 2) then
 					index = index - 1
 				end
-				
+
 				local button = gump:CreateButton(Details.switch.frame, segment_switch, 100, 20, "", index)
 				button:SetPoint("topleft", s, "topleft", -17, 0)
 				button:SetPoint("bottomright", s, "bottomright", 0, 0)
@@ -546,24 +547,24 @@ function Details.switch:ShowMe(instancia)
 				background:SetWidth(85)
 				background:SetPoint("topleft", s.widget, "topleft", -16, 3)
 				background:SetPoint("bottomright", s.widget, "bottomright", -3, -5)
-				
+
 				button.this_background = background
 				button.boss_texture = boss_texture.widget
-				
+
 				s.texture = boss_texture
 				s.button = button
 				s.background = background
-				
+
 				button:SetScript("OnEnter", on_enter)
 				button:SetScript("OnLeave", on_leave)
-				
+
 				s.HideMe = hide_label
 				s.ShowMe = show_label
-				
+
 				tinsert(Details.switch.segments_blocks, s)
 				return s
 			end
-			
+
 			function Details.switch:GetSegmentBlock (index)
 				local block = Details.switch.segments_blocks [index]
 				if (not block) then
@@ -572,38 +573,38 @@ function Details.switch:ShowMe(instancia)
 					return block
 				end
 			end
-			
+
 			function Details.switch:ClearSegmentBlocks()
 				for _, block in ipairs(Details.switch.segments_blocks) do
 					block:HideMe()
 				end
 			end
-			
+
 			function Details.switch:ResizeSegmentBlocks()
 
 				local x = 7
 				local y = 5
-				
+
 				local window_width, window_height = Details.switch.current_instancia:GetSize()
-				
+
 				local horizontal_amt = floor(math.max(window_width / 100, 2))
 				local vertical_amt = floor((window_height - y) / 20)
 				local size = window_width / horizontal_amt
-				
+
 				local frame = Details.switch.frame
-				
+
 				Details.switch:ClearSegmentBlocks()
-				
+
 				local i = 1
 				for vertical = 1, vertical_amt do
 					x = 7
 					for horizontal = 1, horizontal_amt do
 						local button = Details.switch:GetSegmentBlock (i)
-						
+
 						button:SetPoint("topleft", frame, "topleft", x + 16, -y)
 						button:SetSize(size - 22, 12)
 						button:ShowMe()
-						
+
 						i = i + 1
 						x = x + size
 						if (i > 40) then
@@ -613,37 +614,39 @@ function Details.switch:ShowMe(instancia)
 					y = y + 20
 				end
 			end
-		
+
 			Details.switch.segments_blocks = {}
 
 			--current and overall
 			Details.switch:CreateSegmentBlock()
 			Details.switch:CreateSegmentBlock()
-			
+
 			local block1 = Details.switch:GetSegmentBlock (1)
 			block1:SetText(Loc["STRING_CURRENTFIGHT"])
 			block1.texture:SetTexture([[Interface\Scenarios\ScenariosParts]])
 			block1.texture:SetTexCoord(55/512, 81/512, 368/512, 401/512)
-			
+
 			local block2 = Details.switch:GetSegmentBlock (2)
 			block2:SetText(Loc["STRING_SEGMENT_OVERALL"])
 			block2.texture:SetTexture([[Interface\Scenarios\ScenariosParts]])
 			block2.texture:SetTexCoord(55/512, 81/512, 368/512, 401/512)
 		end
-		
+
 		Details.switch:ClearSegmentBlocks()
 		Details.switch:HideAllBookmarks()
-		
-		local segment_index = 1
-		for i = 3, #Details.tabela_historico.tabelas + 2 do
-		
-			local combat = Details.tabela_historico.tabelas [segment_index]
-		
-			local block = Details.switch:GetSegmentBlock (i)
-			local enemy, color, raid_type, killed, is_trash, portrait, background, background_coords = Details:GetSegmentInfo (segment_index)
 
-			block:SetText("#" .. segment_index .. " " .. enemy)
-			
+		local segmentsTable = Details:GetCombatSegments()
+
+		local segmentIndex = 1
+		for i = 3, #segmentsTable + 2 do
+			---@type combat
+			local combat = segmentsTable[segmentIndex]
+
+			local block = Details.switch:GetSegmentBlock(i)
+			local enemy, color, raid_type, killed, is_trash, portrait, background, background_coords = Details:GetSegmentInfo(segmentIndex)
+
+			block:SetText("#" .. segmentIndex .. " " .. enemy)
+
 			if (combat.is_boss and combat.instance_type == "raid") then
 				local L, R, T, B, Texture = Details:GetBossIcon (combat.is_boss.mapid, combat.is_boss.index)
 				if (L) then
@@ -655,30 +658,30 @@ function Details.switch:ShowMe(instancia)
 			else
 				block.texture:SetTexture([[Interface\Scenarios\ScenarioIcon-Boss]])
 			end
-			
+
 			block:ShowMe()
-			segment_index = segment_index + 1
+			segmentIndex = segmentIndex + 1
 		end
-		
+
 		Details.switch.frame:SetScale(instancia.window_scale)
 		Details.switch:ResizeSegmentBlocks()
-		
-		for i = segment_index+2, #Details.switch.segments_blocks do
+
+		for i = segmentIndex+2, #Details.switch.segments_blocks do
 			Details.switch.segments_blocks [i]:HideMe()
 		end
-		
+
 		Details.switch.frame:SetPoint("topleft", instancia.baseframe, "topleft", 0, 1)
 		Details.switch.frame:SetPoint("bottomright", instancia.baseframe, "bottomright", 0, 1)
 		Details.switch.frame:Show()
-		
+
 		return
-		
+
 	else
 		if (Details.switch.segments_blocks) then
 			Details.switch:ClearSegmentBlocks()
 		end
 	end
-	
+
 	--check if there is some custom contidional
 	if (instancia.atributo == 5) then
 		local custom_object = instancia:GetCustomObject()
@@ -689,13 +692,13 @@ function Details.switch:ShowMe(instancia)
 			end
 		end
 	end
-	
+
 	Details.switch.frame:SetPoint("topleft", instancia.baseframe, "topleft", 0, 1)
 	Details.switch.frame:SetPoint("bottomright", instancia.baseframe, "bottomright", 0, 1)
 
 	local altura = instancia.baseframe:GetHeight()
 	local mostrar_quantas = floor(altura / Details.switch.button_height) * 2
-	
+
 	local precisa_mostrar = 0
 	for i = 1, #Details.switch.table do
 		local slot = Details.switch.table [i]
@@ -709,31 +712,31 @@ function Details.switch:ShowMe(instancia)
 			break
 		end
 	end
-	
-	if (Details.switch.mostrar_quantas ~= mostrar_quantas) then 
+
+	if (Details.switch.mostrar_quantas ~= mostrar_quantas) then
 		for i = 1, #Details.switch.buttons do
-			if (i <= mostrar_quantas) then 
+			if (i <= mostrar_quantas) then
 				Details.switch.buttons [i]:Show()
 			else
 				Details.switch.buttons [i]:Hide()
 			end
 		end
-		
+
 		if (#Details.switch.buttons < mostrar_quantas) then
 			Details.switch.slots = mostrar_quantas
 		end
-		
+
 		Details.switch.mostrar_quantas = mostrar_quantas
 	end
-	
+
 	Details.switch:Resize (precisa_mostrar)
 	Details.switch:Update()
-	
+
 	Details.switch.frame:SetScale(instancia.window_scale)
 	Details.switch.frame:Show()
-	
+
 	Details.switch:Resize (precisa_mostrar)
-	
+
 	if (DetailsSwitchPanel.all_switch:IsShown()) then
 		return DetailsSwitchPanel.all_switch:Hide()
 	end
@@ -927,7 +930,7 @@ function Details.switch:Update()
 	for i = 1, slots_shown do
 		--bookmark index
 		local index = (offset * Details.switch.vertical_amt) + i
-	
+
 		--button
 		local button = Details.switch.buttons [i]
 		if (not button) then
@@ -937,21 +940,21 @@ function Details.switch:Update()
 		end
 
 		local options = Details.switch.table [index]
-		if (not options and index <= 40) then 
+		if (not options and index <= 40) then
 			options = {}
 			Details.switch.table [index] = options
 		end
-		
+
 		button.bookmark_number = index --button on icon
 		button.button2.bookmark_number = index --button on text
-		
+
 		local icone
 		local coords
 		local name
 		local vcolor
 		local add
 		local textColor = "white"
-		
+
 		if (options and options.sub_atributo) then
 			if (options.atributo == 5) then --custom
 				local CustomObject = Details.custom [options.sub_atributo]
@@ -967,7 +970,7 @@ function Details.switch:Update()
 					name = CustomObject.name
 					vcolor = vertex_color_default
 				end
-				
+
 			elseif (options.atributo == "plugin") then --plugin
 
 				local plugin = Details:GetPlugin (options.sub_atributo)

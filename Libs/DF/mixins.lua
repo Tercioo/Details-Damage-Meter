@@ -730,7 +730,8 @@ detailsFramework.SortFunctions = {
 ---@field GetDataLastValue fun(self: df_data) : any
 ---@field GetDataMinMaxValues fun(self: df_data) : number, number
 ---@field GetDataMinMaxValueFromSubTable fun(self: df_data, key: string) : number, number when data uses sub tables, get the min max values from a specific index or key, if the value stored is number, return the min and max values
----@field SetData fun(self: df_data, data: table)
+---@field SetData fun(self: df_data, data: table, anyValue: any)
+---@field SetDataRaw fun(self: df_data, data: table) set the data without triggering callback
 ---@field GetDataNextValue fun(self: df_data) : any
 ---@field ResetDataIndex fun(self: df_data)
 
@@ -767,17 +768,27 @@ detailsFramework.DataMixin = {
 		allCallbacks[func] = nil
 	end,
 
+	---set the data without callback
+	---@param self table
+	---@param data table
+	SetDataRaw = function(self, data)
+		assert(type(data) == "table", "invalid table for SetData.")
+		self._dataInfo.data = data
+		self:ResetDataIndex()
+	end,
+
 	---set the data table
 	---@param self table
 	---@param data table
-	SetData = function(self, data)
+	---@param anyValue any @any value to pass to the callback functions before the payload is added
+	SetData = function(self, data, anyValue)
 		assert(type(data) == "table", "invalid table for SetData.")
 		self._dataInfo.data = data
 		self:ResetDataIndex()
 
 		local allCallbacks = self._dataInfo.callbacks
 		for	func, payload in pairs(allCallbacks) do
-			xpcall(func, geterrorhandler(), data, unpack(payload))
+			xpcall(func, geterrorhandler(), data, anyValue, unpack(payload))
 		end
 	end,
 

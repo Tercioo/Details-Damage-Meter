@@ -273,7 +273,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local segmentId = rest and tonumber(rest)
 		if (segmentId and segmentId ~= 1) then
 			local segmentToErase = tonumber(segmentId)
-			local combatObject = tremove(Details.tabela_historico.tabelas, segmentToErase)
+			local combatObject = table.remove(Details:GetCombatSegments(), segmentToErase)
+
 			if (combatObject) then
 				Details:DestroyCombat(combatObject)
 				Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")

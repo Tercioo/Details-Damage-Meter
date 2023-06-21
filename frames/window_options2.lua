@@ -195,6 +195,7 @@ function Details.options.InitializeOptionsWindow(instance)
     --search field
         local searchBox = detailsFramework:CreateTextEntry(footerFrame, function()end, 140, 20, _, _, _, options_dropdown_template)
         searchBox:SetPoint("left", changelog, "right", 10, 0)
+        searchBox:SetAsSearchBox()
 
         local searchLabel = detailsFramework:CreateLabel(footerFrame, "Search:") --localize-me
         searchLabel:SetPoint("bottomleft", searchBox, "topleft", 0, 2)

@@ -2316,7 +2316,7 @@ function atributo_misc:MontaTooltipAlvos (esta_barra, index)
 end
 
 --controla se o dps do jogador esta travado ou destravado
-function atributo_misc:Iniciar (iniciar)
+function atributo_misc:GetOrChangeActivityStatus (iniciar)
 	return false --retorna se o dps esta aberto ou fechado para este jogador
 end
 

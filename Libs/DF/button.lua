@@ -1317,7 +1317,7 @@ detailsFramework.CloseButtonMixin = {
 ---@param parent frame
 ---@param frameName string|nil
 ---@return df_closebutton
-function detailsFramework:CreateCloseButton(parent, frameName)
+function detailsFramework:CreateCloseButton(parent, frameName) --make documentation
 	---@type df_closebutton
 	local closeButton = CreateFrame("button", frameName, parent, "UIPanelCloseButton")
 	closeButton:SetFrameLevel(parent:GetFrameLevel() + 1)

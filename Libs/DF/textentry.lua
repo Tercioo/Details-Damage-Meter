@@ -447,6 +447,7 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		OnEnterPressed(self.editbox, byScript)
 	end
 
+	---set the textEntry as a search box, it will add a magnifying glass icon on the left side and a clearSearchButton in the right.
 	function TextEntryMetaFunctions:SetAsSearchBox()
 		if (self.__bIsSearchBox) then
 			return
@@ -941,10 +942,14 @@ local set_speciallua_editor_font_size = function(borderFrame, newSize)
 	borderFrame.editboxlines:SetFont(file, newSize, flags)
 end
 
-function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointent, showLineNumbers)
-	if (name:find("$parent")) then
-		local parentName = detailsFramework.GetParentName(parent)
-		name = name:gsub("$parent", parentName)
+function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member, name, nointent, showLineNumbers, bNoName)
+	if (not bNoName) then
+		if (name:find("$parent")) then
+			local parentName = detailsFramework.GetParentName(parent)
+			name = name:gsub("$parent", parentName)
+		end
+	else
+		name =  nil
 	end
 
 	local borderframe = CreateFrame("Frame", name, parent,"BackdropTemplate")
@@ -955,9 +960,9 @@ function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member
 	end
 
 	local scrollframe = CreateFrame("ScrollFrame", name, borderframe, "UIPanelScrollFrameTemplate, BackdropTemplate")
-	local scrollframeNumberLines = CreateFrame("ScrollFrame", name .. "NumberLines", borderframe, "UIPanelScrollFrameTemplate, BackdropTemplate")
+	local scrollframeNumberLines = CreateFrame("ScrollFrame", name and (name .. "NumberLines"), borderframe, "UIPanelScrollFrameTemplate, BackdropTemplate")
 
-	scrollframe.editbox = CreateFrame("editbox", "$parentEditBox", scrollframe,"BackdropTemplate")
+	scrollframe.editbox = CreateFrame("editbox", name and "$parentEditBox", scrollframe,"BackdropTemplate")
 	scrollframe.editbox:SetMultiLine (true)
 	scrollframe.editbox:SetAutoFocus(false)
 	scrollframe.editbox:SetScript("OnCursorChanged", _G.ScrollingEdit_OnCursorChanged)
@@ -967,7 +972,7 @@ function detailsFramework:NewSpecialLuaEditorEntry(parent, width, height, member
 
 	--line number
 	if (showLineNumbers) then
-		scrollframeNumberLines.editbox = CreateFrame("editbox", "$parentLineNumbers", scrollframeNumberLines, "BackdropTemplate")
+		scrollframeNumberLines.editbox = CreateFrame("editbox", name and "$parentLineNumbers", scrollframeNumberLines, "BackdropTemplate")
 		scrollframeNumberLines.editbox:SetMultiLine (true)
 		scrollframeNumberLines.editbox:SetAutoFocus(false)
 		scrollframeNumberLines.editbox:SetEnabled (false)

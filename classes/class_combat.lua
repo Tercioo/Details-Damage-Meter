@@ -731,9 +731,9 @@ end
 	function classCombat:TravarTempos()
 		if (self [1]) then
 			for _, jogador in ipairs(self [1]._ActorTable) do --damage
-				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
+				if (jogador:GetOrChangeActivityStatus()) then -- retorna se ele esta com o dps ativo
 					Details222.TimeMachine.StopTime(jogador)
-					jogador:Iniciar(false) --lock the actor timer
+					jogador:GetOrChangeActivityStatus(false) --lock the actor timer
 				else
 					if (jogador.start_time == 0) then
 						jogador.start_time = _tempo
@@ -746,9 +746,9 @@ end
 		end
 		if (self [2]) then
 			for _, jogador in ipairs(self [2]._ActorTable) do --healing
-				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
+				if (jogador:GetOrChangeActivityStatus()) then -- retorna se ele esta com o dps ativo
 					Details222.TimeMachine.StopTime(jogador)
-					jogador:Iniciar(false) --lock the actor timer
+					jogador:GetOrChangeActivityStatus(false) --lock the actor timer
 				else
 					if (jogador.start_time == 0) then
 						jogador.start_time = _tempo

@@ -77,6 +77,20 @@
 ---| "Button5Up"
 ---| "Button5Down"
 
+---@alias justifyh
+---| "left"
+---| "right"
+---| "center"
+
+---@alias justifyv
+---| "top"
+---| "bottom"
+---| "middle"
+
+---@alias orientation
+---| "HORIZONTAL"
+---| "VERTICAL"
+
 ---@alias width number property that represents the horizontal size of a UI element, such as a frame or a texture. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'height' is used.
 ---@alias height number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
 ---@alias red number color value representing the red component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
@@ -99,7 +113,7 @@
 ---@alias npcid number a number that identifies a specific npc in the game.
 ---@alias textureid number each texture from the game client has an id.
 ---@alias texturepath string access textures from addons.
-
+---@alias unixtime number
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)
@@ -108,8 +122,6 @@
 ---@field UnitName fun(unit: string): string
 ---@field GetCursorPosition fun(): number, number return the position of the cursor on the screen, in pixels, relative to the bottom left corner of the screen.
 ---@field C_Timer C_Timer
-
----@class unixtime : number const
 
 ---@class timer : table
 ---@field Cancel fun(self: timer)
@@ -238,12 +250,13 @@
 ---@field GetRegions fun(self: frame) : region[]
 ---@field CreateTexture fun(self: frame, name: string|nil, layer: drawlayer, inherits: string|nil, subLayer: number|nil) : texture
 ---@field CreateFontString fun(self: frame, name: string|nil, layer: drawlayer, inherits: string|nil, subLayer: number|nil) : fontstring
----@field EnableMouse fun(self: frame, enable: boolean)
----@field SetResizable fun(self: frame, enable: boolean)
----@field EnableMouseWheel fun(self: frame, enable: boolean)
----@field RegisterForDrag fun(self: frame, button: string)
----@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number)
----@field RegisterEvent fun(self: frame, event: string)
+---@field EnableMouse fun(self: frame, enable: boolean) enable mouse interaction
+---@field SetResizable fun(self: frame, enable: boolean) enable resizing of the frame
+---@field EnableMouseWheel fun(self: frame, enable: boolean) enable mouse wheel scrolling
+---@field RegisterForDrag fun(self: frame, button: string) register the frame for drag events, allowing it to be dragged by the mouse
+---@field SetResizeBounds fun(self: frame, minWidth: number, minHeight: number, maxWidth: number, maxHeight: number) set the minimum and maximum size of the frame
+---@field RegisterEvent fun(self: frame, event: string) register for an event, trigers "OnEvent" script when the event is fired
+---@field HookScript fun(self: frame, event: string, handler: function) run a function after the frame's script has been executed, carrying the same arguments
 
 ---@class button : frame
 ---@field Click fun(self: button)
@@ -278,12 +291,12 @@
 ---@field SetMinMaxValues fun(self: statusbar, minValue: number, maxValue: number)
 ---@field SetValue fun(self: statusbar, value: number)
 ---@field SetValueStep fun(self: statusbar, valueStep: number)
----@field SetOrientation fun(self: statusbar, orientation: string)
+---@field SetOrientation fun(self: statusbar, orientation: orientation)
 ---@field SetReverseFill fun(self: statusbar, reverseFill: boolean)
 ---@field GetMinMaxValues fun(self: statusbar) : number, number
 ---@field GetValue fun(self: statusbar) : number
 ---@field GetValueStep fun(self: statusbar) : number
----@field GetOrientation fun(self: statusbar) : string
+---@field GetOrientation fun(self: statusbar) : orientation
 ---@field GetReverseFill fun(self: statusbar) : boolean
 
 ---@class scrollframe : frame
@@ -311,9 +324,9 @@
 ---@field GetShadowOffset fun(self: fontstring) : number, number
 ---@field SetTextColor fun(self: fontstring, r: red|number, g: green|number, b: blue|number, a: alpha|number)
 ---@field GetTextColor fun(self: fontstring) : number, number, number, number
----@field SetJustifyH fun(self: fontstring, justifyH: string)
+---@field SetJustifyH fun(self: fontstring, justifyH: justifyh)
 ---@field GetJustifyH fun(self: fontstring) : string
----@field SetJustifyV fun(self: fontstring, justifyV: string)
+---@field SetJustifyV fun(self: fontstring, justifyV: justifyv)
 ---@field GetJustifyV fun(self: fontstring) : string
 ---@field SetNonSpaceWrap fun(self: fontstring, nonSpaceWrap: boolean)
 ---@field GetNonSpaceWrap fun(self: fontstring) : boolean

@@ -1374,7 +1374,7 @@ end
 
 
 --controla se o dps do jogador esta travado ou destravado
-function atributo_energy:Iniciar (iniciar)
+function atributo_energy:GetOrChangeActivityStatus (iniciar)
 	return false --retorna se o dps esta aberto ou fechado para este jogador
 end
 

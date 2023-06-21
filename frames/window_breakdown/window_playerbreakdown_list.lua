@@ -47,6 +47,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 			---@type button
 			local pluginButton = breakdownWindowFrame.RegisteredPluginButtons[i]
 			pluginButton:Show()
+			pluginButton:Hide() --not ready yet
 			pluginButton:ClearAllPoints()
 
 			if (i == 1) then
@@ -451,7 +452,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	end)
 
 	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
-	local gradientBelow = DetailsFramework:CreateTexture(breakdownWindowFrame.playerScrollBox, 
+	local gradientBelow = DetailsFramework:CreateTexture(breakdownWindowFrame.playerScrollBox,
 	{gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 90, "artwork", {0, 1, 0, 1})
 	gradientBelow:SetPoint("bottoms", 1, 1)
 end

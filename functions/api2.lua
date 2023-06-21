@@ -11,6 +11,7 @@ local addonName, Details222 = ...
 
 --local helpers
 local getCombatObject = function(segmentNumber)
+	---@type combat
 	local combatObject
 
 	--select which segment to use, use low level variables for performance
@@ -19,7 +20,8 @@ local getCombatObject = function(segmentNumber)
 	elseif (segmentNumber == 0) then
 		combatObject = Details.tabela_vigente
 	else
-		combatObject = Details.tabela_historico.tabelas [segmentNumber]
+		local segmentsTable = Details:GetCombatSegments()
+		combatObject = segmentsTable[segmentNumber]
 	end
 
 	return combatObject
