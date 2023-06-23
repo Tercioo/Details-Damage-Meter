@@ -5724,11 +5724,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--load up data from saved variables for the account (shared among all the players' characters; this is not the Blizzard account, lol).
 		Details222.LoadSavedVariables.SharedData()
 
-		--load data of the segments saved from latest game session
-		Details222.LoadSavedVariables.CombatSegments()
-
 		--load the profiles
 		Details:LoadConfig()
+
+		--load data of the segments saved from latest game session
+		Details222.LoadSavedVariables.CombatSegments()
 
 		Details:UpdateParserGears()
 
@@ -5852,13 +5852,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		---@param text string the error to be logged
 		local addToExitErrors = function(text)
 			table.insert(exitErrors, 1, Details222.Date.GetDateForLogs() .. "|" .. text)
-			table.remove(exitErrors, 10)
+			table.remove(exitErrors, 11)
 		end
 
 		---@type string current step of the logout process, used to log which is the current step when an error happens
 		local currentStep = ""
-
-		Details222.AutoRunCode.OnLogout()
 
 		--save the time played on this class, run protected
 		local savePlayTimeClass, savePlayTimeErrorText = pcall(function() Details.SavePlayTimeOnClass() end)
@@ -5964,6 +5962,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes_database.nick_tag_cache = Details.CopyTable(_detalhes_database.nick_tag_cache)
 		end
 		xpcall(saveNicktabCache, logSaverError)
+
+		--save auto run code data
+		tinsert(_detalhes_global.exit_log, "9 - Saving Auto Run Code.")
+		local saveAutoRunCode = function()
+			Details222.AutoRunCode.OnLogout()
+		end
+		xpcall(saveAutoRunCode, logSaverError)
 	end) --end of saving data
 
 

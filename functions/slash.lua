@@ -261,6 +261,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		resultLog[#resultLog+1] = ""
 
+		--from backup
 		if (__details_backup._exit_error) then
 			for _, str in ipairs(__details_backup._exit_error) do
 				resultLog[#resultLog+1] = str

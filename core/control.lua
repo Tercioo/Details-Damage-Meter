@@ -95,7 +95,6 @@
 
 	-- try get the current encounter name during the encounter
 	local boss_found_not_registered = function(t, ZoneName, ZoneMapID, DifficultyID)
-
 		local boss_table = {
 			index = 0,
 			name = t[1],
@@ -113,7 +112,6 @@
 	end
 
 	local boss_found = function(index, name, zone, mapid, diff, encounterid)
-
 		local mapID = C_Map.GetBestMapForUnit ("player")
 		local ejid
 		if (mapID) then
@@ -141,16 +139,16 @@
 			id = encounterid,
 		}
 
-		if (not Details:IsRaidRegistered (mapid) and Details.zone_type == "raid") then
+		if (not Details:IsRaidRegistered(mapid) and Details.zone_type == "raid") then
 			local boss_list = Details:GetCurrentDungeonBossListFromEJ()
 			if (boss_list) then
-				local ActorsContainer = Details.tabela_vigente [class_type_dano]._ActorTable
+				local ActorsContainer = Details.tabela_vigente[class_type_dano]._ActorTable
 				if (ActorsContainer) then
 					for index, Actor in ipairs(ActorsContainer) do
 						if (not Actor.grupo) then
-							if (boss_list [Actor.nome]) then
+							if (boss_list[Actor.nome]) then
 								Actor.boss = true
-								boss_table.bossimage = boss_list [Actor.nome][4]
+								boss_table.bossimage = boss_list[Actor.nome][4]
 								break
 							end
 						end
@@ -1424,7 +1422,6 @@
 	end
 
 	function Details:FlagActorsOnCommonFight()
-
 		local damage_container = Details.tabela_vigente [1]
 		local healing_container = Details.tabela_vigente [2]
 		local energy_container = Details.tabela_vigente [3]

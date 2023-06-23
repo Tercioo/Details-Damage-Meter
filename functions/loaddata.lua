@@ -171,6 +171,8 @@ function Details222.LoadSavedVariables.CombatSegments()
 				if (currentCharacterData.tabela_overall) then
 					Details.tabela_overall = Details.CopyTable(currentCharacterData.tabela_overall)
 					Details:RestoreOverallMetatables()
+				else
+					Details.tabela_overall = Details.combate:NovaTabela()
 				end
 			else
 				Details.tabela_overall = Details.combate:NovaTabela()

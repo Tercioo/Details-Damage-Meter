@@ -1,6 +1,6 @@
 
 
-local dversion = 441
+local dversion = 442
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -835,6 +835,23 @@ end
 ---@return string, number
 function DF:RemoveRealmName(name)
 	return name:gsub(("%-.*"), "")
+end
+
+---remove the owner name of the pet or guardian
+---@param name string
+---@return string, number
+function DF:RemoveOwnerName(name)
+	return name:gsub((" <.*"), "")
+end
+
+---remove realm and owner names also remove brackets from spell actors
+---@param name string
+---@return string
+function DF:CleanUpName(name)
+	name =  DF:RemoveRealmName(name)
+	name = DF:RemoveOwnerName(name)
+	name = name:gsub("%[%*%]%s", "")
+	return name
 end
 
 ---remove the realm name from a name
