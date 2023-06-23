@@ -5851,7 +5851,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		---@param text string the error to be logged
 		local addToExitErrors = function(text)
-			table.insert(exitErrors, 1, Details222.Date.GetDateForLogs() .. "|" .. text)
+			table.insert(exitErrors, 1, Details222.Date.GetDateForLogs() .. " | " .. text)
 			table.remove(exitErrors, 11)
 		end
 
@@ -5876,16 +5876,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not Details.gump) then
 			--failed to load the framework
 			tinsert(_detalhes_global.exit_log, "The framework wasn't in Details member 'gump'.")
-			tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. Details222.Date.GetDateForLogs() .. "|" .. Details.userversion .. "|Framework wasn't loaded|")
+			tinsert(_detalhes_global.exit_errors, 1, currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | Framework wasn't loaded |")
 			return
 		end
 
 		local logSaverError = function(errortext)
 			local writeLog = function()
 				_detalhes_global = _detalhes_global or {}
-				tinsert(_detalhes_global.exit_errors, 1, currentStep .. "|" .. Details222.Date.GetDateForLogs() .. "|" .. Details.userversion .. "|" .. errortext .. "|" .. debugstack())
+				tinsert(_detalhes_global.exit_errors, 1, currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | " .. errortext .. " | " .. debugstack())
 				tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
-				addToExitErrors(currentStep .. "|" .. Details222.Date.GetDateForLogs() .. "|" .. Details.userversion .. "|" .. errortext .. "|" .. debugstack())
+				addToExitErrors(currentStep .. " | " .. Details222.Date.GetDateForLogs() .. " | " .. Details.GetVersionString() .. " | " .. errortext .. " | " .. debugstack())
 			end
 			xpcall(writeLog, addToExitErrors)
 		end
@@ -5919,7 +5919,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		else
 			tinsert(_detalhes_global.exit_errors, 1, "not _detalhes.tabela_instancias")
 			tremove(_detalhes_global.exit_errors, exitErrorsMaxSize)
-			addToExitErrors("not _detalhes.tabela_instancias")
+			addToExitErrors("not _detalhes.tabela_instancias | " .. Details.GetVersionString())
 		end
 
 		--if is in combat during the logout, stop the combat
@@ -5940,7 +5940,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--user requested a wipe of the full configuration
 		if (Details.wipe_full_config) then
 			tinsert(_detalhes_global.exit_log, "5 - Is a full config wipe.")
-			addToExitErrors("true: _detalhes.wipe_full_config")
+			addToExitErrors("true: _detalhes.wipe_full_config | " .. Details.GetVersionString())
 			_detalhes_global = nil
 			_detalhes_database = nil
 			return
