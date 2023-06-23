@@ -167,20 +167,11 @@ function Details222.LoadSavedVariables.CombatSegments()
 
 		--restore saved overall data
 		do
-			if (not Details.overall_clear_logout) then
-				if (currentCharacterData.tabela_overall) then
-					Details.tabela_overall = Details.CopyTable(currentCharacterData.tabela_overall)
-					Details:RestoreOverallMetatables()
-				else
-					Details.tabela_overall = Details.combate:NovaTabela()
-				end
+			if (currentCharacterData.tabela_overall) then
+				Details.tabela_overall = Details.CopyTable(currentCharacterData.tabela_overall)
+				Details:RestoreOverallMetatables()
 			else
 				Details.tabela_overall = Details.combate:NovaTabela()
-			end
-
-			if (currentCharacterData.tabela_overall) then
-				Details:Destroy(currentCharacterData.tabela_overall)
-				currentCharacterData.tabela_overall = nil
 			end
 		end
 

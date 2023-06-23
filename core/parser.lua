@@ -5724,11 +5724,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--load up data from saved variables for the account (shared among all the players' characters; this is not the Blizzard account, lol).
 		Details222.LoadSavedVariables.SharedData()
 
-		--load the profiles
-		Details:LoadConfig()
-
 		--load data of the segments saved from latest game session
 		Details222.LoadSavedVariables.CombatSegments()
+
+		--load the profiles
+		Details:LoadConfig()
 
 		Details:UpdateParserGears()
 

@@ -90,12 +90,10 @@ function Details:SaveConfig()
 
 	if (Details.overall_clear_logout) then
 		if (_detalhes_database.tabela_overall) then
-			Details:Destroy(_detalhes_database.tabela_overall)
 			_detalhes_database.tabela_overall = nil
 		end
 	else
 		_detalhes_database.tabela_overall = Details.tabela_overall
-		--did it prepared the overall table for save?
 	end
 
 	local name, instanceType = GetInstanceInfo()
