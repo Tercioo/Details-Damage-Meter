@@ -483,7 +483,9 @@
 
 		--options table
 		childTable.options = instance.StatusBar.options[mainObject.real_name]
-		if (not childTable.options) then
+		if (instance.StatusBar.options[mainObject.real_name]) then
+			childTable.options = instance.StatusBar.options[mainObject.real_name]
+		else
 			childTable.options = {
 			textStyle = 2,
 			textColor = {unpack(DEFAULT_CHILD_FONTCOLOR)},
