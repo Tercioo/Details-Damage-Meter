@@ -768,8 +768,8 @@
 					(not Details.in_group and sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0)
 				)
 			) then
-				--avoid Fel Armor and Undulating Maneuvers to start a combat
-				if ((spellId == 387846 or spellId == 352561) and sourceName == Details.playername) then
+				--avoid Fel Armor, Undulating Maneuvers, and "Vessel of Seared Shadows" trinket from starting a combat.
+				if ((spellId == 387846 or spellId == 352561 or spellId == 401394) and sourceName == Details.playername) then
 					return
 				end
 
