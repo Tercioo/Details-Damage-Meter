@@ -18,6 +18,24 @@
 	local CONST_PLUGINWINDOW_WIDTH = 925
 	local CONST_PLUGINWINDOW_HEIGHT = 600
 
+	---default cooltip appearance for plugin tooltips
+	function Details:SetCooltipForPlugins()
+		local gameCooltip = GameCooltip
+        gameCooltip:Preset(2)
+		gameCooltip:SetOption("TextSize", Details.font_sizes.menus)
+		gameCooltip:SetOption("TextFont", Details.font_faces.menus)
+		gameCooltip:SetOption("LineHeightSizeOffset", 0)
+		gameCooltip:SetOption("LineYOffset", 0)
+		gameCooltip:SetOption("LinePadding", -1)
+		gameCooltip:SetOption("FrameHeightSizeOffset", 0)
+		gameCooltip:SetOption("FixedWidth", 280)
+		gameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_serenity]])
+		gameCooltip:SetOption("LeftTextWidth", 280 - 22 - 90)
+		gameCooltip:SetOption("LeftTextHeight", 14)
+		Details:SetTooltipMinWidth()
+	end
+
+
 	---comment
 	---@param pluginAbsoluteName string
 	---@return unknown

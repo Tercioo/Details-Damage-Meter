@@ -4359,7 +4359,7 @@ function detailsFramework:ApplyStandardBackdrop(frame, bUseSolidColor, alphaScal
 	end
 
 	if (not frame.__background) then
-		frame.__background = frame:CreateTexture(nil, "background")
+		frame.__background = frame:CreateTexture(nil, "border", nil, -6)
 		frame.__background:SetColorTexture(red, green, blue)
 		frame.__background:SetAllPoints()
 	end

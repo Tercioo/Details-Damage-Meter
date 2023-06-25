@@ -114,6 +114,7 @@
 ---@alias textureid number each texture from the game client has an id.
 ---@alias texturepath string access textures from addons.
 ---@alias unixtime number
+---@alias valueamount number used to represent a value, such as a damage amount, a healing amount, or a resource amount.
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)
