@@ -53,6 +53,7 @@ function Details222.AutoRunCode.OpenRunCodeWindow()
         end)
         detailsRunCodePanel:SetScript("OnHide", function()
             codeEditor:Hide()
+            _G.DetailsPluginContainerWindow:Hide()
         end)
 
         --code editor appearance
