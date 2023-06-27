@@ -2059,6 +2059,7 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	close:SetAlpha(0.7)
 	close:SetScript("OnClick", simple_panel_close_click)
 	simplePanel.Close = close
+	simplePanel.closeButton = close
 
 	local titleText = titleBar:CreateFontString(frameName and frameName .. "Title", "overlay", "GameFontNormal")
 	titleText:SetTextColor(.8, .8, .8, 1)

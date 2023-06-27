@@ -91,6 +91,21 @@
 ---| "HORIZONTAL"
 ---| "VERTICAL"
 
+---@alias class
+---| "WARRIOR"
+---| "PALADIN"
+---| "HUNTER"
+---| "ROGUE"
+---| "PRIEST"
+---| "DEATHKNIGHT"
+---| "SHAMAN"
+---| "MAGE"
+---| "WARLOCK"
+---| "MONK"
+---| "DRUID"
+---| "DEMONHUNTER"
+---| "EVOKER"
+
 ---@alias width number property that represents the horizontal size of a UI element, such as a frame or a texture. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'height' is used.
 ---@alias height number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
 ---@alias red number color value representing the red component of a color, the value must be between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
@@ -101,10 +116,15 @@
 ---@alias health number amount of hit points (health) of a unit. This value can be changed by taking damage or healing.
 ---@alias spellid number each spell in the game has a unique spell id, this id can be used to identify a spell.
 ---@alias actorname string name of a unit
+---@alias petname string refers to a pet's name
+---@alias ownername string refers to the pet's owner name
 ---@alias spellname string name of a spell
 ---@alias spellschool number each spell in the game has a school, such as fire, frost, shadow and many others. This value can be used to identify the school of a spell.
 ---@alias actorid string unique id of a unit (GUID)
 ---@alias serial string unique id of a unit (GUID)
+---@alias guid string unique id of a unit (GUID)
+---@alias specialization number the ID of a class specialization
+---@alias controlflags number flags telling what unit type the is (player, npc, pet, etc); it's relatiotionship to the player (friendly, hostile, etc); who controls the unit (controlled by the player, controlled by the server, etc)
 ---@alias color table, string @table(r: red|number, g: green|number, b: blue|number, a: alpha|number) @string(color name) @hex (000000-ffffff) value representing a color, the value must be a table with the following fields: r, g, b, a. r, g, b are numbers between 0 and 1, a is a number between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
 ---@alias scale number @number(0.65-2.40) value representing the scale factor of the UIObject, the value must be between 0.65 and 2.40, the width and height of the UIObject will be multiplied by this value.
 ---@alias script string, function is a piece of code that is executed in response to a specific event, such as a button click or a frame update. Scripts can be used to implement behavior and logic for UI elements.
@@ -115,6 +135,8 @@
 ---@alias texturepath string access textures from addons.
 ---@alias unixtime number
 ---@alias valueamount number used to represent a value, such as a damage amount, a healing amount, or a resource amount.
+---@alias timestring string refers to a string showing a time value, such as "1:23" or "1:23:45".
+---@alias combattime number elapsed time of a combat or time in seconds that a unit has been in combat.
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)

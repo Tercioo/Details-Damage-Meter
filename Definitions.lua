@@ -52,6 +52,17 @@
 
 ---@alias containertype number this container type is the number used to identify the actorcontainer type when using combat:GetContainer(containertype), can be 1, 2, 3, or 4.
 
+---@alias actorclass string this is the class of the actor, can be "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "DEMONHUNTER"
+---@alias actorspec number this is the specID of the actor
+
+---@class petinfo : table
+---@field key1 ownername
+---@field key2 guid
+---@field key3 unixtime
+---@field key4 boolean
+---@field key5 petname
+---@field key6 guid
+
 ---@class details
 ---@field SpellTableMixin spelltablemixin
 ---@field GetInstance fun(self: details) : instance
@@ -82,6 +93,7 @@
 ---@class alternatepowertable : {last: number, total: number}
 
 ---@class combat : table
+---@field bIsClosed boolean if true the combat is closed (passed by the EndCombat() function)
 ---@field __destroyedBy string
 ---@field amountCasts {[string]: table<string, number>}
 ---@field instance_type string "raid" or "party" or "pvp" or "arena" or "none"
@@ -100,6 +112,8 @@
 ---@field __destroyed boolean
 ---@field PhaseData table
 ---@field is_boss table
+---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
+---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
 ---@field GetTimeData fun(dataName: string) : table
 ---@field GetPhases fun(combat: combat) : table
 ---@field GetCombatTime fun(combat) : number

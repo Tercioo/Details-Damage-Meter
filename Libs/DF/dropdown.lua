@@ -533,7 +533,11 @@ function DropDownMetaFunctions:Selected(thisOption)
 			self.icon:SetVertexColor(1, 1, 1, 1)
 		end
 
-		self.icon:SetSize(self:GetHeight()-4, self:GetHeight()-4)
+		if (thisOption.iconsize) then
+			self.icon:SetSize(thisOption.iconsize[1], thisOption.iconsize[2])
+		else
+			self.icon:SetSize(self:GetHeight()-4, self:GetHeight()-4)
+		end
 	else
 		self.label:SetPoint("left", self.label:GetParent(), "left", 4, 0)
 	end
