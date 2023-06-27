@@ -692,20 +692,6 @@ local movement_onupdate = function(self, elapsed)
 							end
 						end
 					end
-
-					if (tem_livre) then
-						if (not Details.snap_alert.playing) then
-							instancia_alvo:SnapAlert()
-							Details.snap_alert.playing = true
-
-							if (not DetailsFramework.IsTimewalkWoW()) then
-								Details.MicroButtonAlert.Text:SetText(string.format(Loc["STRING_ATACH_DESC"], self.instance.meu_id, instancia_alvo.meu_id))
-								Details.MicroButtonAlert:SetPoint("bottom", instancia_alvo.baseframe.cabecalho.modo_selecao.widget, "top", 0, 18)
-								Details.MicroButtonAlert:SetHeight(200)
-								Details.MicroButtonAlert:Show()
-							end
-						end
-					end
 				end
 
 				tempo_movendo = 1
@@ -964,10 +950,6 @@ local function move_janela(baseframe, iniciando, instancia, just_updating)
 		for _, this_instance in ipairs(group) do
 			this_instance.isMoving = false
 		end
-
-		Details.snap_alert.playing = false
-		Details.snap_alert.animIn:Stop()
-		Details.snap_alert.animOut:Play()
 
 		if (not DetailsFramework.IsTimewalkWoW()) then
 			Details.MicroButtonAlert:Hide()
@@ -3299,18 +3281,6 @@ local function show_anti_overlap (instance, host, side)
 	anti_menu_overlap:Show()
 end
 
-Details.snap_alert = CreateFrame("frame", "DetailsSnapAlertFrame", UIParent, "ActionBarButtonSpellActivationAlert")
-Details.snap_alert:Hide()
-Details.snap_alert:SetFrameStrata("FULLSCREEN")
-
-function Details:SnapAlert()
-	print("alert started")
-	Details.snap_alert:ClearAllPoints()
-	Details.snap_alert:SetPoint("topleft", self.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
-	Details.snap_alert:SetPoint("bottomright", self.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)
-	Details.snap_alert.animOut:Stop()
-	Details.snap_alert.animIn:Play()
-end
 
 do
 
@@ -5926,13 +5896,13 @@ function Details:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report, _r
 
 end
 
-function Details:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
-	return self:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report)
+function Details:ToolbarMenuButtons(_mode, _segment, _attributes, _report)
+	return self:ToolbarMenuSetButtons(_mode, _segment, _attributes, _report)
 end
 
 local parameters_table = {}
 
-local on_leave_menu = function(self, elapsed)
+local onLeaveMenuFunc = function(self, elapsed)
 	parameters_table[2] = parameters_table[2] + elapsed
 	if (parameters_table[2] > 0.3) then
 		if (not _G.GameCooltip.mouseOver and not _G.GameCooltip.buttonOver and (not _G.GameCooltip:GetOwner() or _G.GameCooltip:GetOwner() == self)) then
@@ -5943,7 +5913,6 @@ local on_leave_menu = function(self, elapsed)
 end
 
 local OnClickNovoMenu = function(_, _, id, instance)
-
 	local is_new
 	if (not Details.tabela_instancias [id]) then
 		--esta criando uma nova
@@ -9013,7 +8982,7 @@ end
 
 		if (GameCooltip.active) then
 			parameters_table [2] = 0
-			self:SetScript("OnUpdate", on_leave_menu)
+			self:SetScript("OnUpdate", onLeaveMenuFunc)
 		else
 			self:SetScript("OnUpdate", nil)
 		end
@@ -9115,7 +9084,7 @@ end
 
 		if (GameCooltip.active) then
 			parameters_table [2] = 0
-			self:SetScript("OnUpdate", on_leave_menu)
+			self:SetScript("OnUpdate", onLeaveMenuFunc)
 		else
 			self:SetScript("OnUpdate", nil)
 		end
@@ -9202,7 +9171,7 @@ local reportButton_OnLeave = function(self, motion, forced, from_click)
 
 	if (GameCooltip.active) then
 		parameters_table[2] = from_click and 1 or 0
-		self:SetScript("OnUpdate", on_leave_menu)
+		self:SetScript("OnUpdate", onLeaveMenuFunc)
 	else
 		self:SetScript("OnUpdate", nil)
 	end
@@ -9273,7 +9242,7 @@ local attributeButton_OnLeave = function(self, motion, forced, from_click)
 
 	if (GameCooltip.active) then
 		parameters_table[2] = 0
-		self:SetScript("OnUpdate", on_leave_menu)
+		self:SetScript("OnUpdate", onLeaveMenuFunc)
 	else
 		self:SetScript("OnUpdate", nil)
 	end
@@ -9322,7 +9291,7 @@ local segmentButton_OnLeave = function(self, motion, forced, fromClick)
 
 	if (GameCooltip.active) then
 		parameters_table[2] = 0
-		self:SetScript("OnUpdate", on_leave_menu)
+		self:SetScript("OnUpdate", onLeaveMenuFunc)
 	else
 		self:SetScript("OnUpdate", nil)
 	end
@@ -9384,7 +9353,7 @@ local modeSelector_OnLeave = function(self)
 
 	if (GameCooltip.active) then
 		parameters_table[2] = 0
-		self:SetScript("OnUpdate", on_leave_menu)
+		self:SetScript("OnUpdate", onLeaveMenuFunc)
 	else
 		self:SetScript("OnUpdate", nil)
 	end
