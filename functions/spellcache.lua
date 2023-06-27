@@ -278,7 +278,7 @@ do
 		local savedSpellData = Details.savedCustomSpells[index]
 		if (savedSpellData) then
 			savedSpellData[2], savedSpellData[3] = spellName or savedSpellData[2], spellIcon or savedSpellData[3]
-			return rawset (Details.spellcache, savedSpellData[1], {savedSpellData[2], 1, savedSpellData[3]})
+			return rawset(Details.spellcache, savedSpellData[1], {savedSpellData[2], 1, savedSpellData[3]})
 		else
 			return false
 		end
@@ -382,12 +382,12 @@ do
 
 	--overwrite for API GetSpellInfo function
 	Details.getspellinfo = function(spellId)
-		return unpack(Details.spellcache[spellId])
+		return unpack(Details.spellcache[spellId]) --won't be nil due to the __index metatable in the spellcache table
 	end
 	Details.GetSpellInfo = Details.getspellinfo
 
 	--overwrite SpellInfo if the spell is a DoT, so Details.GetSpellInfo will return the name modified
-	function Details:SpellIsDot(spellId)
+	function Details:SetAsDotSpell(spellId)
 		--do nothing if this spell already has a customization
 		if (defaultSpellCustomization[spellId]) then
 			return

@@ -316,7 +316,7 @@ function Details:StartMeUp()
 		Details.AnnounceStartup = nil
 	end
 
-	Details.Schedules.NewTimer(5, Details.AnnounceStartup, Details)
+	Details.Schedules.NewTimer(4, Details.AnnounceStartup, Details)
 
 	if (Details.failed_to_load) then
 		Details.failed_to_load:Cancel()
@@ -520,7 +520,7 @@ function Details:StartMeUp()
 	--embed windows on the chat window
 	Details.chat_embed:CheckChatEmbed(true)
 
-	if (Details.player_details_window.skin ~= "ElvUI") then
+	if (Details.player_details_window.skin ~= "ElvUI") then --obsolete
 		local setDefaultSkinOnPlayerBreakdownWindow = function()
 			Details:ApplyPDWSkin("ElvUI")
 		end

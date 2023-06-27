@@ -1,18 +1,18 @@
 
 do
 
-	local _detalhes = _G.Details
+	local Details = _G.Details
 	local addonName, Details222 = ...
-	_detalhes.EncounterInformation = {}
+	Details.EncounterInformation = {}
 	local ipairs = ipairs --lua local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --details api functions
 
 	--return if the player is inside a raid supported by details
-	function _detalhes:IsInInstance()
+	function Details:IsInInstance()
 		local _, _, _, _, _, _, _, zoneMapID = GetInstanceInfo()
-		if (_detalhes.EncounterInformation [zoneMapID]) then
+		if (Details.EncounterInformation [zoneMapID]) then
 			return true
 		else
 			return false
@@ -20,8 +20,8 @@ do
 	end
 
 	--return the full table with all data for the instance
-	function _detalhes:GetRaidInfoFromEncounterID (encounterID, encounterEJID)
-		for id, raidTable in pairs(_detalhes.EncounterInformation) do
+	function Details:GetRaidInfoFromEncounterID (encounterID, encounterEJID)
+		for id, raidTable in pairs(Details.EncounterInformation) do
 			if (encounterID) then
 				local ids = raidTable.encounter_ids2 --combatlog
 				if (ids) then
@@ -42,12 +42,12 @@ do
 	end
 
 	--return the ids of trash mobs in the instance
-	function _detalhes:GetInstanceTrashInfo (mapid)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].trash_ids
+	function Details:GetInstanceTrashInfo (mapid)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].trash_ids
 	end
 
-	function _detalhes:GetInstanceIdFromEncounterId (encounterid)
-		for id, instanceTable in pairs(_detalhes.EncounterInformation) do
+	function Details:GetInstanceIdFromEncounterId (encounterid)
+		for id, instanceTable in pairs(Details.EncounterInformation) do
 			--combatlog encounter id
 			local ids = instanceTable.encounter_ids2
 			if (ids) then
@@ -66,10 +66,10 @@ do
 	end
 
 	--return the boss table using a encounter id
-	function _detalhes:GetBossEncounterDetailsFromEncounterId (mapid, encounterid)
+	function Details:GetBossEncounterDetailsFromEncounterId (mapid, encounterid)
 		if (not mapid) then
 			local bossIndex, instance
-			for id, instanceTable in pairs(_detalhes.EncounterInformation) do
+			for id, instanceTable in pairs(Details.EncounterInformation) do
 				local ids = instanceTable.encounter_ids2
 				if (ids) then
 					bossIndex = ids [encounterid]
@@ -90,41 +90,41 @@ do
 			return
 		end
 
-		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
+		local bossindex = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounter_ids and Details.EncounterInformation [mapid].encounter_ids [encounterid]
 		if (bossindex) then
-			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex], bossindex
+			return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex], bossindex
 		else
-			local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids2 and _detalhes.EncounterInformation [mapid].encounter_ids2 [encounterid]
+			local bossindex = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounter_ids2 and Details.EncounterInformation [mapid].encounter_ids2 [encounterid]
 			if (bossindex) then
-				return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex], bossindex
+				return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex], bossindex
 			end
 		end
 	end
 
 	--return the EJ boss id
-	function _detalhes:GetEncounterIdFromBossIndex (mapid, index)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [index]
+	function Details:GetEncounterIdFromBossIndex (mapid, index)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounter_ids and Details.EncounterInformation [mapid].encounter_ids [index]
 	end
 
 	--return the table which contain information about the start of a encounter
-	function _detalhes:GetEncounterStartInfo (mapid, encounterid)
-		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
+	function Details:GetEncounterStartInfo (mapid, encounterid)
+		local bossindex = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounter_ids and Details.EncounterInformation [mapid].encounter_ids [encounterid]
 		if (bossindex) then
-			return _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].encounter_start
+			return Details.EncounterInformation [mapid].encounters [bossindex] and Details.EncounterInformation [mapid].encounters [bossindex].encounter_start
 		end
 	end
 
 	--return the table which contain information about the end of a encounter
-	function _detalhes:GetEncounterEndInfo (mapid, encounterid)
-		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
+	function Details:GetEncounterEndInfo (mapid, encounterid)
+		local bossindex = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounter_ids and Details.EncounterInformation [mapid].encounter_ids [encounterid]
 		if (bossindex) then
-			return _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].encounter_end
+			return Details.EncounterInformation [mapid].encounters [bossindex] and Details.EncounterInformation [mapid].encounters [bossindex].encounter_end
 		end
 	end
 
 	--return the function for the boss
-	function _detalhes:GetEncounterEnd (mapid, bossindex)
-		local t = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
+	function Details:GetEncounterEnd (mapid, bossindex)
+		local t = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex]
 		if (t) then
 			local _end = t.combat_end
 			if (_end) then
@@ -135,37 +135,37 @@ do
 	end
 
 	--generic boss find function
-	function _detalhes:GetRaidBossFindFunction (mapid)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].find_boss_encounter
+	function Details:GetRaidBossFindFunction (mapid)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].find_boss_encounter
 	end
 
 	--return if the boss need sync
-	function _detalhes:GetEncounterEqualize (mapid, bossindex)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].equalize
+	function Details:GetEncounterEqualize (mapid, bossindex)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex] and Details.EncounterInformation [mapid].encounters [bossindex].equalize
 	end
 
 	--return the function for the boss
-	function _detalhes:GetBossFunction (mapid, bossindex)
-		local func = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].func
+	function Details:GetBossFunction (mapid, bossindex)
+		local func = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex] and Details.EncounterInformation [mapid].encounters [bossindex].func
 		if (func) then
-			return func, _detalhes.EncounterInformation [mapid].encounters [bossindex].funcType
+			return func, Details.EncounterInformation [mapid].encounters [bossindex].funcType
 		end
 		return
 	end
 
 	--return the boss table with information about name, adds, spells, etc
-	function _detalhes:GetBossDetails (mapid, bossindex)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
+	function Details:GetBossDetails (mapid, bossindex)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex]
 	end
 
 	--return a table with all names of boss enemies
-	function _detalhes:GetEncounterActors (mapid, bossindex)
+	function Details:GetEncounterActors (mapid, bossindex)
 
 	end
 
 	--return a table with spells id of specified encounter
-	function _detalhes:GetEncounterSpells (mapid, bossindex)
-		local encounter = _detalhes:GetBossDetails (mapid, bossindex)
+	function Details:GetEncounterSpells (mapid, bossindex)
+		local encounter = Details:GetBossDetails (mapid, bossindex)
 		local habilidades_poll = {}
 		if (encounter.continuo) then
 			for index, spellid in ipairs(encounter.continuo) do
@@ -186,35 +186,35 @@ do
 	end
 
 	--return a table with all boss ids from a raid instance
-	function _detalhes:GetBossIds (mapid)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].boss_ids
+	function Details:GetBossIds (mapid)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].boss_ids
 	end
 
-	function _detalhes:InstanceIsRaid (mapid)
-		return _detalhes:InstanceisRaid (mapid)
+	function Details:InstanceIsRaid (mapid)
+		return Details:InstanceisRaid (mapid)
 	end
-	function _detalhes:InstanceisRaid (mapid)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].is_raid
+	function Details:InstanceisRaid (mapid)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].is_raid
 	end
 
 	--return a table with all encounter names present in raid instance
-	function _detalhes:GetBossNames (mapid)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].boss_names
+	function Details:GetBossNames (mapid)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].boss_names
 	end
 
 	--return the encounter name
-	function _detalhes:GetBossName (mapid, bossindex)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].boss_names [bossindex]
+	function Details:GetBossName (mapid, bossindex)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].boss_names [bossindex]
 	end
 
 	--same thing as GetBossDetails, just a alias
-	function _detalhes:GetBossEncounterDetails (mapid, bossindex)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
+	function Details:GetBossEncounterDetails (mapid, bossindex)
+		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex]
 	end
 
 
 
-	function _detalhes:GetEncounterInfoFromEncounterName (EJID, encountername)
+	function Details:GetEncounterInfoFromEncounterName (EJID, encountername)
 		DetailsFramework.EncounterJournal.EJ_SelectInstance (EJID) --11ms per call
 		for i = 1, 20 do
 			local name = DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, EJID)
@@ -228,8 +228,8 @@ do
 	end
 
 	--return the wallpaper for the raid instance
-	function _detalhes:GetRaidBackground (mapid)
-		local bosstables = _detalhes.EncounterInformation [mapid]
+	function Details:GetRaidBackground (mapid)
+		local bosstables = Details.EncounterInformation [mapid]
 		if (bosstables) then
 			local bg = bosstables.backgroundFile
 			if (bg) then
@@ -238,8 +238,8 @@ do
 		end
 	end
 	--return the icon for the raid instance
-	function _detalhes:GetRaidIcon (mapid, ejID, instanceType)
-		local raidIcon = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].icon
+	function Details:GetRaidIcon (mapid, ejID, instanceType)
+		local raidIcon = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].icon
 		if (raidIcon) then
 			return raidIcon
 		end
@@ -258,8 +258,8 @@ do
 		return nil
 	end
 
-	function _detalhes:GetBossIndex (mapid, encounterCLID, encounterEJID, encounterName)
-		local raidInfo = _detalhes.EncounterInformation [mapid]
+	function Details:GetBossIndex (mapid, encounterCLID, encounterEJID, encounterName)
+		local raidInfo = Details.EncounterInformation [mapid]
 		if (raidInfo) then
 			local index = raidInfo.encounter_ids2 [encounterCLID] or raidInfo.encounter_ids [encounterEJID]
 			if (not index) then
@@ -275,25 +275,25 @@ do
 	end
 
 	--return the boss icon
-	function _detalhes:GetBossIcon (mapid, bossindex)
-		if (_detalhes.EncounterInformation [mapid]) then
+	function Details:GetBossIcon (mapid, bossindex)
+		if (Details.EncounterInformation [mapid]) then
 			local line = math.ceil (bossindex / 4)
 			local x = ( bossindex - ( (line-1) * 4 ) )  / 4
-			return x-0.25, x, 0.25 * (line-1), 0.25 * line, _detalhes.EncounterInformation [mapid].icons
+			return x-0.25, x, 0.25 * (line-1), 0.25 * line, Details.EncounterInformation [mapid].icons
 		end
 	end
 
 	--return the boss portrit
-	function _detalhes:GetBossPortrait(mapid, bossindex, encounterName, ejID)
+	function Details:GetBossPortrait(mapid, bossindex, encounterName, ejID)
 		if (mapid and bossindex) then
-			local haveIcon = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
+			local haveIcon = Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex] and Details.EncounterInformation [mapid].encounters [bossindex].portrait
 			if (haveIcon) then
 				return haveIcon
 			end
 		end
 
 		if (encounterName and ejID and ejID ~= 0) then
-			local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (ejID, encounterName)
+			local index, name, description, encounterID, rootSectionID, link = Details:GetEncounterInfoFromEncounterName (ejID, encounterName)
 
 			if (index and name and encounterID) then
 				local id, name, description, displayInfo, iconImage = DetailsFramework.EncounterJournal.EJ_GetCreatureInfo (1, encounterID)
@@ -307,7 +307,7 @@ do
 	end
 
 	--return a list with names of adds and bosses
-	function _detalhes:GetEncounterActorsName (EJ_EncounterID)
+	function Details:GetEncounterActorsName (EJ_EncounterID)
 		--code snippet from wowpedia
 		local actors = {}
 		local stack, encounter, _, _, curSectionID = {}, DetailsFramework.EncounterJournal.EJ_GetEncounterInfo (EJ_EncounterID)
@@ -329,10 +329,10 @@ do
 		return actors
 	end
 
-	function _detalhes:GetInstanceEJID (mapid)
+	function Details:GetInstanceEJID (mapid)
 		mapid = mapid or select(8, GetInstanceInfo())
 		if (mapid) then
-			local instance_info = _detalhes.EncounterInformation [mapid]
+			local instance_info = Details.EncounterInformation [mapid]
 			if (instance_info) then
 				return instance_info.ej_id or 0
 			end
@@ -340,7 +340,7 @@ do
 		return 0
 	end
 
-	function _detalhes:GetCurrentDungeonBossListFromEJ()
+	function Details:GetCurrentDungeonBossListFromEJ()
 
 		local mapID = C_Map.GetBestMapForUnit ("player")
 
@@ -352,8 +352,8 @@ do
 		local EJ_CInstance = DetailsFramework.EncounterJournal.EJ_GetInstanceForMap(mapID)
 
 		if (EJ_CInstance and EJ_CInstance ~= 0) then
-			if (_detalhes.encounter_dungeons [EJ_CInstance]) then
-				return _detalhes.encounter_dungeons [EJ_CInstance]
+			if (Details.encounter_dungeons [EJ_CInstance]) then
+				return Details.encounter_dungeons [EJ_CInstance]
 			end
 
 			DetailsFramework.EncounterJournal.EJ_SelectInstance (EJ_CInstance)
@@ -380,14 +380,14 @@ do
 				end
 			end
 
-			_detalhes.encounter_dungeons [EJ_CInstance] = boss_list
+			Details.encounter_dungeons [EJ_CInstance] = boss_list
 
 			return boss_list
 		end
 	end
 
-	function _detalhes:IsRaidRegistered(mapid)
-		return _detalhes.EncounterInformation [mapid] and true
+	function Details:IsRaidRegistered(mapid)
+		return Details.EncounterInformation [mapid] and true
 	end
 
 	--this cache is local and isn't shared with other components of the addon
@@ -874,8 +874,8 @@ do
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core
 
-	function _detalhes:InstallEncounter(InstanceTable)
-		_detalhes.EncounterInformation[InstanceTable.id] = InstanceTable
+	function Details:InstallEncounter(InstanceTable)
+		Details.EncounterInformation[InstanceTable.id] = InstanceTable
 		return true
 	end
 end

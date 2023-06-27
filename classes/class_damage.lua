@@ -373,18 +373,18 @@ function Details:GetSpellLink(spellid) --[[exported]]
 	end
 end
 
-function Details:GameTooltipSetSpellByID(spellid) --[[exported]]
-	if (spellid == 1) then
+function Details:GameTooltipSetSpellByID(spellId) --[[exported]]
+	if (spellId == 1) then
 		GameTooltip:SetSpellByID(6603)
 
-	elseif (spellid == 2) then
+	elseif (spellId == 2) then
 		GameTooltip:SetSpellByID(75)
 
-	elseif (spellid > 10) then
-		GameTooltip:SetSpellByID(spellid)
+	elseif (spellId > 10) then
+		GameTooltip:SetSpellByID(spellId)
 
 	else
-		GameTooltip:SetSpellByID(spellid)
+		GameTooltip:SetSpellByID(spellId)
 	end
 end
 
@@ -6201,10 +6201,11 @@ function damageClass:MontaTooltipAlvos (thisLine, index, instancia) --~deprecate
 	return true
 end
 
---controla se o dps do jogador esta travado ou destravado
+--controls the activity time of the actor
 function damageClass:GetOrChangeActivityStatus(activityStatus)
 	if (activityStatus == nil) then
-		return self.dps_started --retorna se o dps esta aberto ou fechado para este jogador
+		--if no value passed, return the current activity status
+		return self.dps_started
 
 	elseif (activityStatus) then
 		self.dps_started = true
@@ -6219,14 +6220,16 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core functions
 
-	--limpa as tabelas tempor�rias ao ResetAllCombatData
-		function damageClass:ClearTempTables()
+	--clear cache tables when resetting data
+		function damageClass:ClearCacheTables()
 			for i = #ntable, 1, -1 do
 				ntable [i] = nil
 			end
+
 			for i = #vtable, 1, -1 do
 				vtable [i] = nil
 			end
+
 			for i = #bs_table, 1, -1 do
 				bs_table [i] = nil
 			end
@@ -6234,9 +6237,11 @@ end
 			if (bs_tooltip_table) then
 				Details:Destroy(bs_tooltip_table)
 			end
+
 			if (frags_tooltip_table) then
 				Details:Destroy(frags_tooltip_table)
 			end
+
 			Details:Destroy(bs_index_table)
 			Details:Destroy(tooltip_temp_table)
 			Details:Destroy(tooltip_void_zone_temp)

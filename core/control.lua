@@ -344,31 +344,41 @@
 			Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse) --atualiza o showing
 		end
 
-		--re-lock nos tempos da tabela passada -- lock again last table times
-		Details.tabela_vigente:TravarTempos()
+		--get the yet 'current' combat and lock the activity time on all actors
+		local pastCombatObject = Details:GetCurrentCombat()
+		if (not pastCombatObject.__destroyed) then
+			pastCombatObject:LockActivityTime()
+		end
 
-		---@type number
-		local combatCounter = Details:GetOrSetCombatId(1) --increate the combat counter by 1
+		---@type number increate the combat counter by 1
+		local combatCounter = Details:GetOrSetCombatId(1)
 
-		Details.tabela_vigente = Details.combate:NovaTabela (true, Details.tabela_overall, combatCounter, ...) --cria uma nova tabela de combate
-
+		--create a new combat object and preplace the current one
+		local newCombatObject = Details.combate:NovaTabela(true, Details.tabela_overall, combatCounter, ...)
+		Details.tabela_vigente = newCombatObject
 		--flag this combat as being created
-		Details.tabela_vigente.IsBeingCreated = true
+		newCombatObject.IsBeingCreated = true
 
-		Details.tabela_vigente:seta_data (Details._detalhes_props.DATA_TYPE_START) --seta na tabela do combate a data do inicio do combate -- setup time data
-		Details.in_combat = true --sinaliza ao addon que h� um combate em andamento -- in combat flag up
-		Details.tabela_vigente.combat_id = combatCounter --grava o n�mero deste combate na tabela atual -- setup combat id on new table
+		--flag Details! as 'in combat'
+		Details.in_combat = true
+
+		newCombatObject:seta_data(Details._detalhes_props.DATA_TYPE_START) --seta na tabela do combate a data do inicio do combate -- setup time data
+
+		--set the combat id on the combat object
+		newCombatObject.combat_id = combatCounter
+
+		--clear cache
 		Details.last_combat_pre_pot_used = nil
 
-		Details:FlagCurrentCombat()
+		--flags the new combat as pvp or arena match
+		Details:FlagNewCombat_PVPState()
 
-		--� o timer que ve se o jogador ta em combate ou n�o -- check if any party or raid members are in combat
-		Details.tabela_vigente.verifica_combate = Details:ScheduleRepeatingTimer ("EstaEmCombate", 1)
+		--start the ticker to know if the player is in combat or not
+		Details:StartCombatTicker()
 
 		Details:ClearCCPetsBlackList()
 
 		Details:Destroy(Details.encounter_end_table)
-
 		Details:Destroy(Details.pets_ignored)
 		Details:Destroy(Details.pets_no_owner)
 		Details.container_pets:BuscarPets()
@@ -378,8 +388,8 @@
 		Details:UpdateParserGears()
 
 		--get all buff already applied before the combat start
-		Details:CatchRaidBuffUptime ("BUFF_UPTIME_IN")
-		Details:CatchRaidDebuffUptime ("DEBUFF_UPTIME_IN")
+		Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
+		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
 		Details:UptadeRaidMembersCache()
 
 		--Details222.TimeCapture.StartCombatTimer(Details.tabela_vigente)
@@ -469,37 +479,39 @@
 		end
 	end
 
-	function Details:EndCombat()
-		return Details:SairDoCombate()
+	--alias
+	function Details:EndCombat(bossKilled, bIsFromEncounterEnd)
+		return Details:SairDoCombate(bossKilled, bIsFromEncounterEnd)
 	end
 
 	-- ~end ~leave
-	function Details:SairDoCombate (bossKilled, from_encounter_end)
-
+	function Details:SairDoCombate(bossKilled, bIsFromEncounterEnd)
 		if (Details.debug) then
 			Details:Msg("(debug) |cFFFFFF00ended a combat|r|cFFFF7700", Details.encounter_table and Details.encounter_table.name or "")
 		end
 
-		--in case of something somehow someway call to close the same combat a second time.
-		if (Details.tabela_vigente == Details.last_closed_combat) then
+		if (Details.tabela_vigente.bIsClosed) then
 			return
 		end
-		Details.last_closed_combat = Details.tabela_vigente
+		Details.tabela_vigente.bIsClosed = true
 
-		--if (Details.statistics) then
-		--	for k, v in pairs(Details.statistics) do
-		--		print(k, v)
-		--	end
-		--end
+		if (Details.tabela_vigente.__destroyed) then
+			Details:Msg("a deleted combat was found during combat end, please report this bug on discord:")
+			Details:Msg("combat destroyed by:", Details.tabela_vigente.__destroyedBy)
+		end
 
+		--flag the addon as 'leaving combat'
 		Details.leaving_combat = true
+		--save the unixtime of the latest combat end
 		Details.last_combat_time = _tempo
 
-		Details:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
-		Details:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
+		Details:CatchRaidBuffUptime("BUFF_UPTIME_OUT")
+		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_OUT")
 		Details:CloseEnemyDebuffsUptime()
 
-		--Details222.TimeCapture.StopCombat()
+		Details222.GuessSpecSchedules.ClearSchedules()
+
+		--Details222.TimeCapture.StopCombat() --it did not start
 
 		--check if this isn't a boss and try to find a boss in the segment
 		if (not Details.tabela_vigente.is_boss) then
@@ -520,19 +532,18 @@
 			end
 		end
 
+		Details:OnCombatPhaseChanged() --.PhaseData is nil here on alpha-32
+
 		if (Details.tabela_vigente.bossFunction) then
 			Details:CancelTimer(Details.tabela_vigente.bossFunction)
 			Details.tabela_vigente.bossFunction = nil
 		end
 
-		--finaliza a checagem se esta ou n�o no combate -- finish combat check
-		if (Details.tabela_vigente.verifica_combate) then
-			Details:CancelTimer(Details.tabela_vigente.verifica_combate)
-			Details.tabela_vigente.verifica_combate = nil
-		end
+		--stop combat ticker
+		Details:StopCombatTicker()
 
 		--lock timers
-		Details.tabela_vigente:TravarTempos()
+		Details.tabela_vigente:LockActivityTime()
 
 		--get waste shields
 		if (Details.close_shields) then
@@ -550,8 +561,8 @@
 		local _, InstanceType = GetInstanceInfo()
 		Details.tabela_vigente.instance_type = InstanceType
 
-		if (not Details.tabela_vigente.is_boss and from_encounter_end and type(from_encounter_end) == "table") then
-			local encounterID, encounterName, difficultyID, raidSize, endStatus = unpack(from_encounter_end)
+		if (not Details.tabela_vigente.is_boss and bIsFromEncounterEnd and type(bIsFromEncounterEnd) == "table") then
+			local encounterID, encounterName, difficultyID, raidSize, endStatus = unpack(bIsFromEncounterEnd)
 			if (encounterID) then
 				local ZoneName, InstanceType, DifficultyID, DifficultyName, _, _, _, ZoneMapID = GetInstanceInfo()
 
@@ -625,7 +636,7 @@
 			else
 				if (not in_instance) then
 					if (Details.world_combat_is_trash) then
-						Details.tabela_vigente.is_temporary = true
+						Details.tabela_vigente.is_world_trash_combat = true
 					end
 				end
 			end
@@ -691,72 +702,64 @@
 
 			end
 
-			--if (Details:GetBossDetails (Details.tabela_vigente.is_boss.mapid, Details.tabela_vigente.is_boss.index) or ) then
+			Details.tabela_vigente.is_boss.index = Details.tabela_vigente.is_boss.index or 1
 
-				Details.tabela_vigente.is_boss.index = Details.tabela_vigente.is_boss.index or 1
+			Details.tabela_vigente.enemy = Details.tabela_vigente.is_boss.encounter
 
-				Details.tabela_vigente.enemy = Details.tabela_vigente.is_boss.encounter
+			if (Details.tabela_vigente.instance_type == "raid") then
 
-				if (Details.tabela_vigente.instance_type == "raid") then
+				Details.last_encounter2 = Details.last_encounter
+				Details.last_encounter = Details.tabela_vigente.is_boss.name
 
-					Details.last_encounter2 = Details.last_encounter
-					Details.last_encounter = Details.tabela_vigente.is_boss.name
-
-					if (Details.pre_pot_used) then
-						Details.last_combat_pre_pot_used = Details.CopyTable(Details.pre_pot_used)
-					end
-
-					if (Details.pre_pot_used and Details.announce_prepots.enabled) then
-						Details:Msg(Details.pre_pot_used or "")
-						Details.pre_pot_used = nil
-					end
+				if (Details.pre_pot_used) then
+					Details.last_combat_pre_pot_used = Details.CopyTable(Details.pre_pot_used)
 				end
 
-				if (from_encounter_end) then
-					if (Details.encounter_table.start) then
-						Details.tabela_vigente:SetStartTime (Details.encounter_table.start)
-					end
-					Details.tabela_vigente:SetEndTime (Details.encounter_table ["end"] or GetTime())
+				if (Details.pre_pot_used and Details.announce_prepots.enabled) then
+					Details:Msg(Details.pre_pot_used or "")
+					Details.pre_pot_used = nil
 				end
+			end
 
-				--encounter boss function
-				local bossFunction, bossFunctionType = Details:GetBossFunction (Details.tabela_vigente.is_boss.mapid or 0, Details.tabela_vigente.is_boss.index or 0)
-				if (bossFunction) then
-					if (bitBand(bossFunctionType, 0x2) ~= 0) then --end of combat
-						if (not Details.logoff_saving_data) then
-							local successful, errortext = pcall(bossFunction, Details.tabela_vigente)
-							if (not successful) then
-								Details:Msg("error occurred on Encounter Boss Function:", errortext)
-							end
+			if (bIsFromEncounterEnd) then
+				if (Details.encounter_table.start) then
+					Details.tabela_vigente:SetStartTime (Details.encounter_table.start)
+				end
+				Details.tabela_vigente:SetEndTime (Details.encounter_table ["end"] or GetTime())
+			end
+
+			--encounter boss function
+			local bossFunction, bossFunctionType = Details:GetBossFunction (Details.tabela_vigente.is_boss.mapid or 0, Details.tabela_vigente.is_boss.index or 0)
+			if (bossFunction) then
+				if (bitBand(bossFunctionType, 0x2) ~= 0) then --end of combat
+					if (not Details.logoff_saving_data) then
+						local successful, errortext = pcall(bossFunction, Details.tabela_vigente)
+						if (not successful) then
+							Details:Msg("error occurred on Encounter Boss Function:", errortext)
 						end
 					end
 				end
+			end
 
-				if (Details.tabela_vigente.instance_type == "raid") then
-					--schedule captures off
+			if (Details.tabela_vigente.instance_type == "raid") then
+				--schedule captures off
 
-					Details:CaptureSet (false, "damage", false, 15)
-					Details:CaptureSet (false, "energy", false, 15)
-					Details:CaptureSet (false, "aura", false, 15)
-					Details:CaptureSet (false, "energy", false, 15)
-					Details:CaptureSet (false, "spellcast", false, 15)
+				Details:CaptureSet (false, "damage", false, 15)
+				Details:CaptureSet (false, "energy", false, 15)
+				Details:CaptureSet (false, "aura", false, 15)
+				Details:CaptureSet (false, "energy", false, 15)
+				Details:CaptureSet (false, "spellcast", false, 15)
 
-					if (Details.debug) then
-						Details:Msg("(debug) freezing parser for 15 seconds.")
-					end
+				if (Details.debug) then
+					Details:Msg("(debug) freezing parser for 15 seconds.")
 				end
+			end
 
-				--schedule sync
-				Details:EqualizeActorsSchedule (Details.host_of)
-				if (Details:GetEncounterEqualize (Details.tabela_vigente.is_boss.mapid, Details.tabela_vigente.is_boss.index)) then
-					Details:ScheduleTimer("DelayedSyncAlert", 3)
-				end
-
-			--else
-			--	if (Details.debug) then
-			--		Details:EqualizeActorsSchedule (Details.host_of)
-			--	end
-			--end
+			--schedule sync
+			Details:EqualizeActorsSchedule (Details.host_of)
+			if (Details:GetEncounterEqualize (Details.tabela_vigente.is_boss.mapid, Details.tabela_vigente.is_boss.index)) then
+				Details:ScheduleTimer("DelayedSyncAlert", 3)
+			end
 		end
 
 		if (Details.solo) then
@@ -829,11 +832,17 @@
 
 		else
 			--combat denied: combat did not pass the filter and cannot be added into the segment history
+			--rewind the data set to the first slot in the segments table
 			showTutorialForDiscardedSegment()
 
 			--change the current combat to the latest combat available in the segment table
 			invalidCombat = Details.tabela_vigente
 			Details.tabela_vigente = segmentsTable[1]
+
+			--if it rewinds to an already erased combat, then create a new combat
+			if (Details.tabela_vigente.__destroyed) then
+				Details.tabela_vigente = Details.combate:NovaTabela(nil, Details.tabela_overall)
+			end
 
 			if (Details.tabela_vigente:GetStartTime() == 0) then
 				Details.tabela_vigente:SetStartTime(GetTime())
@@ -870,8 +879,6 @@
 
 		Details.in_combat = false
 		Details.leaving_combat = false
-
-		Details:OnCombatPhaseChanged() --.PhaseData is nil
 
 		Details:Destroy(Details.tabela_vigente.PhaseData.damage_section)
 		Details:Destroy(Details.tabela_vigente.PhaseData.heal_section)

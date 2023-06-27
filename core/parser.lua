@@ -4262,12 +4262,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				else
 					--no last cooldown found so just add a last cooldown used event with no spellId and time 0
 					local eventTable = {}
-					eventTable [1] = 3 --true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
-					eventTable [2] = 0 --spellId
-					eventTable [3] = 0 --amount of damage or healing but in this case is 0
-					eventTable [4] = 0 --when the event happened using unix time
-					eventTable [5] = 0 --player health when the event happened
-					eventTable [6] = targetName --source name
+					eventTable[1] = 3 --true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
+					eventTable[2] = 0 --spellId
+					eventTable[3] = 0 --amount of damage or healing but in this case is 0
+					eventTable[4] = 0 --when the event happened using unix time
+					eventTable[5] = 0 --player health when the event happened
+					eventTable[6] = targetName --source name
 					eventsBeforePlayerDeath[#eventsBeforePlayerDeath+1] = eventTable
 				end
 
@@ -4751,7 +4751,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	-- PARSER
 	--serach key: ~parser ~events ~start ~inicio
-	function Details:FlagCurrentCombat()
+	function Details:FlagNewCombat_PVPState()
 		if (Details.is_in_battleground) then
 			Details.tabela_vigente.pvp = true
 			Details.tabela_vigente.is_pvp = {name = Details.zone_name, mapid = Details.zone_id}
@@ -5292,71 +5292,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				Details.SoloTables.Plugins [Details.SoloTables.Mode].Stop()
 			end
 		end
-
-		--[=[ code maintenance: disabled deprecated code Feb 2022
-
-		--deprecated shcedules
-		do
-			if (_detalhes.schedule_add_to_overall and #_detalhes.schedule_add_to_overall > 0) then --deprecated (combat are now added immediatelly since there's no script run too long)
-				if (_detalhes.debug) then
-					_detalhes:Msg("(debug) adding ", #_detalhes.schedule_add_to_overall, "combats in queue to overall data.")
-				end
-
-				for i = #_detalhes.schedule_add_to_overall, 1, -1 do
-					local CombatToAdd = tremove(_detalhes.schedule_add_to_overall, i)
-					if (CombatToAdd) then
-						_detalhes.historico:AddToOverallData (CombatToAdd)
-					end
-				end
-			end
-
-			if (_detalhes.schedule_mythicdungeon_trash_merge) then --deprecated (combat are now added immediatelly since there's no script run too long)
-				_detalhes.schedule_mythicdungeon_trash_merge = nil
-				DetailsMythicPlusFrame.MergeTrashCleanup (true)
-			end
-
-			if (_detalhes.schedule_mythicdungeon_endtrash_merge) then --deprecated (combat are now added immediatelly since there's no script run too long)
-				_detalhes.schedule_mythicdungeon_endtrash_merge = nil
-				DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
-			end
-
-			if (_detalhes.schedule_mythicdungeon_overallrun_merge) then --deprecated (combat are now added immediatelly since there's no script run too long)
-				_detalhes.schedule_mythicdungeon_overallrun_merge = nil
-				DetailsMythicPlusFrame.MergeSegmentsOnEnd()
-			end
-
-			if (_detalhes.schedule_flag_boss_components) then --deprecated (combat are now added immediatelly since there's no script run too long)
-				_detalhes.schedule_flag_boss_components = false
-				_detalhes:FlagActorsOnBossFight()
-			end
-
-			if (_detalhes.schedule_remove_overall) then --deprecated (combat are now added immediatelly since there's no script run too long)
-				if (_detalhes.debug) then
-					_detalhes:Msg("(debug) found schedule overall data clean up.")
-				end
-				_detalhes.schedule_remove_overall = false
-				_detalhes.tabela_historico:ResetOverallData()
-			end
-
-			if (_detalhes.wipe_called and false) then --disabled
-				_detalhes.wipe_called = nil
-				_detalhes:CaptureSet (nil, "damage", true)
-				_detalhes:CaptureSet (nil, "energy", true)
-				_detalhes:CaptureSet (nil, "aura", true)
-				_detalhes:CaptureSet (nil, "energy", true)
-				_detalhes:CaptureSet (nil, "spellcast", true)
-
-				_detalhes:CaptureSet (false, "damage", false, 10)
-				_detalhes:CaptureSet (false, "energy", false, 10)
-				_detalhes:CaptureSet (false, "aura", false, 10)
-				_detalhes:CaptureSet (false, "energy", false, 10)
-				_detalhes:CaptureSet (false, "spellcast", false, 10)
-			end
-		end
-
-		--]=]
-
-
 	end
 
 	function Details.parser_functions:CHALLENGE_MODE_START(...)
@@ -6451,7 +6386,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.combat_id
 	end
 
-	--if in combat
+	---return true if in combat
+	---@return boolean bIsInCombat
 	function Details:IsInCombat()
 		return _in_combat
 	end

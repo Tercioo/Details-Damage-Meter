@@ -63,7 +63,7 @@ function classDamageSpellTable:NovaTabela(spellId, link, token)
 	}
 
 	if (token == "SPELL_PERIODIC_DAMAGE") then
-		Details:SpellIsDot(spellId)
+		Details:SetAsDotSpell(spellId)
 	end
 
 	return spellTable

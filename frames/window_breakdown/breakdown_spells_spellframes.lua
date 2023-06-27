@@ -959,7 +959,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		local r, g, b = Details:GetSpellSchoolColor(spellTable.spellschool or 1)
 		spellBar.statusBar:SetStatusBarColor(r, g, b, 0.963)
 
-		spellBar.average = value / spellTable.counter
+		if (spellTable.counter > 0) then
+			spellBar.average = value / spellTable.counter
+		else
+			spellBar.average = 0.0001
+		end
+
 		spellBar.combatTime = combatTime
 
 		---@type fontstring

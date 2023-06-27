@@ -198,7 +198,7 @@ end
 								if (actorObject) then
 									return actorObject.nome, playerGUID, actorObject.flag_original
 								end
-			
+
 								local guidCache = Details:GetParserPlayerCache() --cache exists until the next combat starts
 								local ownerName = guidCache[playerGUID]
 								if (ownerName) then
@@ -227,7 +227,7 @@ end
 										if (actorObject) then
 											return actorObject.nome, playerGUID, actorObject.flag_original
 										end
-			
+
 										local guidCache = Details:GetParserPlayerCache() --cache exists until the next combat starts
 										local ownerName = guidCache[playerGUID]
 										if (ownerName) then
@@ -277,7 +277,7 @@ end
 								--Details:Msg("(debug) pet found (2)", petName, "owner:", ownerName)
 								return ownerName, GUID, 0x514
 							end
-							
+
 							if(Details.zone_type == 'arena') then --Attempt to find enemy pet owner
 								for enemyName, enemyToken in pairs(Details.arena_enemies) do
 									if(UnitGUID(enemyToken) == ownerGUID) then
@@ -305,7 +305,7 @@ end
 						ownerName = actorName
 						ownerFlags = 0x514
 					else
-						
+
 						if (CONST_CLIENT_LANGUAGE == "ruRU") then --If russian client, then test for declensions in the string of text.
 							for playerName, _ in pairs(Details.tabela_vigente.raid_roster) do
 								local pName = playerName
@@ -455,7 +455,8 @@ end
 		end
 
 		if (not specId and Details.track_specs) then
-			Details:ScheduleTimer("GuessSpec", 3, {actorObject, nil, 1})
+			local newTimer = Details:ScheduleTimer("GuessSpec", 3, {actorObject, nil, 1})
+			Details222.GuessSpecSchedules.Schedules[#Details222.GuessSpecSchedules.Schedules+1] = newTimer
 		end
 
 		local _, engClass = UnitClass(actorName or "")
@@ -870,7 +871,7 @@ end
 		end
 	end
 
-	function Details:UpdateContainerCombatentes()
+	function Details:UpdatePetCache()
 		container_pets = Details.tabela_pets.pets
 		Details:UpdatePetsOnParser()
 	end

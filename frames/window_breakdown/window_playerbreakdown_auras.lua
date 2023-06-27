@@ -1,12 +1,12 @@
 
 local Details = Details
 local GameTooltip = GameTooltip
+local detailsFramework = DetailsFramework
 local unpack = unpack
 local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
 
-local auras_tab_create = function(tab, frame)
-    local DF = DetailsFramework
+local createAuraTabOnBreakdownWindow = function(tab, frame)
     local scroll_line_amount = 22
     local scroll_width = 410
     local scrollHeight = 445
@@ -25,192 +25,159 @@ local auras_tab_create = function(tab, frame)
         426, 630, 729, 775, 820
     }
 
-    local line_onenter = function(self)
+    local onEnterLine = function(self)
         GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-        Details:GameTooltipSetSpellByID (self.spellID)
+        Details:GameTooltipSetSpellByID(self.spellID)
         GameTooltip:Show()
         self:SetBackdropColor(1, 1, 1, .2)
     end
 
-    local line_onleave = function(self)
+    local onLeaveLine = function(self)
         GameTooltip:Hide()
         self:SetBackdropColor(unpack(self.BackgroundColor))
     end
 
-    local line_onclick = function(self)
+    local onClickLine = function(self)
 
     end
 
-    --buff scroll
-    --icon - name - applications - refreshes - uptime
-    --
-
-    --local wa_button = function(self, mouseButton, spellID, auraType)
-    --	local spellName, _, spellIcon = GetSpellInfo(spellID)
-    --	Details:OpenAuraPanel (spellID, spellName, spellIcon, nil, auraType == "BUFF" and 4 or 2, 1)
-    --end
-
-    local scroll_createline = function(self, index)
+    local createLineScroll = function(self, index)
         local line = CreateFrame("button", "$parentLine" .. index, self,"BackdropTemplate")
         line:SetPoint("topleft", self, "topleft", 1, -((index-1)*(scroll_line_height+1)))
         line:SetSize(scroll_width -2, scroll_line_height)
-        line:SetScript("OnEnter", line_onenter)
-        line:SetScript("OnLeave", line_onleave)
-        line:SetScript("OnClick", line_onclick)
+        line:SetScript("OnEnter", onEnterLine)
+        line:SetScript("OnLeave", onLeaveLine)
+        line:SetScript("OnClick", onClickLine)
 
-        line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+        line:SetBackdrop({bgFile =[[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
         line:SetBackdropColor(0, 0, 0, 0.2)
 
-        local icon = line:CreateTexture("$parentIcon", "overlay")
-        icon:SetSize(scroll_line_height -2 , scroll_line_height - 2)
-        local name = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-        local uptime = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-        local apply = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-        local refresh = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+        local iconTexture = line:CreateTexture("$parentIcon", "overlay")
+        iconTexture:SetSize(scroll_line_height -2 , scroll_line_height - 2)
+        local nameLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+        local uptimeLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+        local applyLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+        local refreshLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
 
-        --local waButton = DF:CreateButton(line, wa_button, 18, 18)
-        --waButton:SetIcon ([[Interface\AddOns\WeakAuras\Media\Textures\icon]])
+        detailsFramework:SetFontSize(nameLabel, text_size)
+        detailsFramework:SetFontSize(uptimeLabel, text_size)
+        detailsFramework:SetFontSize(applyLabel, text_size)
+        detailsFramework:SetFontSize(refreshLabel, text_size)
 
-        DF:SetFontSize(name, text_size)
-        DF:SetFontSize(uptime, text_size)
-        DF:SetFontSize(apply, text_size)
-        DF:SetFontSize(refresh, text_size)
+        iconTexture:SetPoint("left", line, "left", 2, 0)
+        nameLabel:SetPoint("left", iconTexture, "right", 2, 0)
+        uptimeLabel:SetPoint("left", line, "left", 186, 0)
+        applyLabel:SetPoint("left", line, "left", 276, 0)
+        refreshLabel:SetPoint("left", line, "left", 322, 0)
 
-        icon:SetPoint("left", line, "left", 2, 0)
-        name:SetPoint("left", icon, "right", 2, 0)
-        uptime:SetPoint("left", line, "left", 186, 0)
-        apply:SetPoint("left", line, "left", 276, 0)
-        refresh:SetPoint("left", line, "left", 322, 0)
-        --waButton:SetPoint("left", line, "left", 372, 0)
+        line.Icon = iconTexture
+        line.Name = nameLabel
+        line.Uptime = uptimeLabel
+        line.Apply = applyLabel
+        line.Refresh = refreshLabel
 
-        line.Icon = icon
-        line.Name = name
-        line.Uptime = uptime
-        line.Apply = apply
-        line.Refresh = refresh
-        --line.WaButton = waButton
+        nameLabel:SetJustifyH("left")
+        uptimeLabel:SetJustifyH("left")
 
-        name:SetJustifyH("left")
-        uptime:SetJustifyH("left")
-
-        apply:SetJustifyH("center")
-        refresh:SetJustifyH("center")
-        apply:SetWidth(26)
-        refresh:SetWidth(26)
+        applyLabel:SetJustifyH("center")
+        refreshLabel:SetJustifyH("center")
+        applyLabel:SetWidth(26)
+        refreshLabel:SetWidth(26)
 
         return line
     end
 
-    local line_bg_color = {{1, 1, 1, .1}, {1, 1, 1, 0}}
+    local lineBackgroundColor = {{1, 1, 1, .1}, {1, 1, 1, 0}}
 
-    local scroll_buff_refresh = function(self, data, offset, total_lines)
-
-        local haveWA = false --_G.WeakAuras
-
+    local scrollRefreshBuffs = function(self, data, offset, total_lines)
         for i = 1, total_lines do
             local index = i + offset
-            local aura = data [index]
+            local aura = data[index]
 
             if (aura) then
-                local line = self:GetLine (i)
+                local line = self:GetLine(i)
                 line.spellID = aura.spellID
-                line.Icon:SetTexture(aura [1])
+                line.Icon:SetTexture(aura[1])
 
                 line.Icon:SetTexCoord(.1, .9, .1, .9)
 
-                line.Name:SetText(aura [2])
-                line.Uptime:SetText(DF:IntegerToTimer(aura [3]) .. " (|cFFBBAAAA" .. math.floor(aura [6]) .. "%|r)")
-                line.Apply:SetText(aura [4])
-                line.Refresh:SetText(aura [5])
+                line.Name:SetText(aura[2])
+                line.Uptime:SetText(detailsFramework:IntegerToTimer(aura[3]) .. "(|cFFBBAAAA" .. math.floor(aura[6]) .. "%|r)")
+                line.Apply:SetText(aura[4])
+                line.Refresh:SetText(aura[5])
 
-                --if (haveWA) then
-                --	line.WaButton:SetClickFunction(wa_button, aura.spellID, line.AuraType)
-                --else
-                --	line.WaButton:Disable()
-                --end
-
-                if (i%2 == 0) then
-                    line:SetBackdropColor(unpack(line_bg_color [1]))
-                    line.BackgroundColor = line_bg_color [1]
+                if (i % 2 == 0) then
+                    line:SetBackdropColor(unpack(lineBackgroundColor[1]))
+                    line.BackgroundColor = lineBackgroundColor[1]
                 else
-                    line:SetBackdropColor(unpack(line_bg_color [2]))
-                    line.BackgroundColor = line_bg_color [2]
+                    line:SetBackdropColor(unpack(lineBackgroundColor[2]))
+                    line.BackgroundColor = lineBackgroundColor[2]
                 end
             end
         end
     end
 
-    local create_titledesc_frame = function(anchorWidget, desc)
-        local f = CreateFrame("frame", nil, frame)
-        f:SetSize(40, 20)
-        f:SetPoint("center", anchorWidget, "center")
-        f:SetScript("OnEnter", function()
-            GameTooltip:SetOwner(f, "ANCHOR_TOPRIGHT")
+    local createTitleDesc_Frame = function(anchorWidget, desc)
+        local newTitleDescFrame = CreateFrame("frame", nil, frame)
+        newTitleDescFrame:SetSize(40, 20)
+        newTitleDescFrame:SetPoint("center", anchorWidget, "center")
+
+        newTitleDescFrame:SetScript("OnEnter", function()
+            GameTooltip:SetOwner(newTitleDescFrame, "ANCHOR_TOPRIGHT")
             GameTooltip:AddLine(desc)
             GameTooltip:Show()
         end)
-        f:SetScript("OnLeave", function()
+
+        newTitleDescFrame:SetScript("OnLeave", function()
             GameTooltip:Hide()
         end)
-        return f
+
+        return newTitleDescFrame
     end
 
-
-
-    local buffLabel = DF:CreateLabel(frame, "Buff Name")
+    local buffLabel = detailsFramework:CreateLabel(frame, "Buff Name")
     buffLabel:SetPoint(headerOffsetsBuffs[1], -10)
-    local uptimeLabel = DF:CreateLabel(frame, "Uptime")
+    local uptimeLabel = detailsFramework:CreateLabel(frame, "Uptime")
     uptimeLabel:SetPoint(headerOffsetsBuffs[2], -10)
 
-    local appliedLabel = DF:CreateLabel(frame, "A")
+    local appliedLabel = detailsFramework:CreateLabel(frame, "A")
     appliedLabel:SetPoint(headerOffsetsBuffs[3], -10)
-    create_titledesc_frame (appliedLabel.widget, "applications")
+    createTitleDesc_Frame(appliedLabel.widget, "applications")
 
-    local refreshedLabel = DF:CreateLabel(frame, "R")
+    local refreshedLabel = detailsFramework:CreateLabel(frame, "R")
     refreshedLabel:SetPoint(headerOffsetsBuffs[4], -10)
-    create_titledesc_frame (refreshedLabel.widget, "refreshes")
+    createTitleDesc_Frame(refreshedLabel.widget, "refreshes")
 
-    --local waLabel = DF:CreateLabel(frame, "WA")
-    --waLabel:SetPoint(headerOffsetsBuffs[5], -10)
-    --create_titledesc_frame (waLabel.widget, "create weak aura")
-
-    local buffScroll = DF:CreateScrollBox (frame, "$parentBuffUptimeScroll", scroll_buff_refresh, {}, scroll_width, scrollHeight, scroll_line_amount, scroll_line_height)
+    local buffScroll = detailsFramework:CreateScrollBox(frame, "$parentBuffUptimeScroll", scrollRefreshBuffs, {}, scroll_width, scrollHeight, scroll_line_amount, scroll_line_height)
     buffScroll:SetPoint("topleft", frame, "topleft", 5, -30)
     for i = 1, scroll_line_amount do
-        local line = buffScroll:CreateLine (scroll_createline)
+        local line = buffScroll:CreateLine(createLineScroll)
         line.AuraType = "BUFF"
     end
-    DF:ReskinSlider(buffScroll)
+    detailsFramework:ReskinSlider(buffScroll)
     tab.BuffScroll = buffScroll
 
-    --debuff scroll
-    --icon - name - applications - refreshes - uptime
-    --
-
-    local debuffLabel = DF:CreateLabel(frame, "Debuff Name")
+    local debuffLabel = detailsFramework:CreateLabel(frame, "Debuff Name")
     debuffLabel:SetPoint(headerOffsetsDebuffs[1], -10)
-    local uptimeLabel2 = DF:CreateLabel(frame, "Uptime")
+
+    local uptimeLabel2 = detailsFramework:CreateLabel(frame, "Uptime")
     uptimeLabel2:SetPoint(headerOffsetsDebuffs[2], -10)
 
-    local appliedLabel2 = DF:CreateLabel(frame, "A")
+    local appliedLabel2 = detailsFramework:CreateLabel(frame, "A")
     appliedLabel2:SetPoint(headerOffsetsDebuffs[3], -10)
-    create_titledesc_frame (appliedLabel2.widget, "applications")
+    createTitleDesc_Frame(appliedLabel2.widget, "applications")
 
-    local refreshedLabel2 = DF:CreateLabel(frame, "R")
+    local refreshedLabel2 = detailsFramework:CreateLabel(frame, "R")
     refreshedLabel2:SetPoint(headerOffsetsDebuffs[4], -10)
-    create_titledesc_frame (refreshedLabel2.widget, "refreshes")
+    createTitleDesc_Frame(refreshedLabel2.widget, "refreshes")
 
-    --local waLabel2 = DF:CreateLabel(frame, "WA")
-    --waLabel2:SetPoint(headerOffsetsDebuffs[5], -10)
-    --create_titledesc_frame (waLabel2.widget, "create weak aura")
-
-    local debuffScroll = DF:CreateScrollBox (frame, "$parentDebuffUptimeScroll", scroll_buff_refresh, {}, scroll_width, scrollHeight, scroll_line_amount, scroll_line_height)
+    local debuffScroll = detailsFramework:CreateScrollBox(frame, "$parentDebuffUptimeScroll", scrollRefreshBuffs, {}, scroll_width, scrollHeight, scroll_line_amount, scroll_line_height)
     debuffScroll:SetPoint("topleft", frame, "topleft", debuffScrollStartX, -30)
     for i = 1, scroll_line_amount do
-        local line = debuffScroll:CreateLine (scroll_createline)
+        local line = debuffScroll:CreateLine(createLineScroll)
         line.AuraType = "DEBUFF"
     end
-    DF:ReskinSlider(debuffScroll)
+    detailsFramework:ReskinSlider(debuffScroll)
 
     tab.DebuffScroll = debuffScroll
 
@@ -220,9 +187,9 @@ local auras_tab_create = function(tab, frame)
     end
 end
 
-local auras_tab_fill = function(tab, player, combat)
+local aurasTabFillCallback = function(tab, player, combat)
     ---@type actor
-    local miscActor = combat:GetActor(4, player:name())
+    local miscActor = combat:GetActor(DETAILS_ATTRIBUTE_MISC, player:Name())
     ---@type number
     local combatTime = combat:GetCombatTime()
 
@@ -233,14 +200,11 @@ local auras_tab_fill = function(tab, player, combat)
             if (spellContainer) then
                 for spellId, spellTable in spellContainer:ListSpells() do
                     local spellName, _, spellIcon = GetSpellInfo(spellId)
-                    if (not spellTable.uptime) then
-                        --print(_GetSpellInfo(spellID))
-                        --dumpt(spellObject)
-                    end
                     local uptime = spellTable.uptime or 0
                     table.insert(newAuraTable, {spellIcon, spellName, uptime, spellTable.appliedamt, spellTable.refreshamt, uptime / combatTime * 100, spellID = spellId})
                 end
             end
+
             table.sort(newAuraTable, Details.Sort3)
             tab.BuffScroll:SetData(newAuraTable)
             tab.BuffScroll:Refresh()
@@ -255,6 +219,7 @@ local auras_tab_fill = function(tab, player, combat)
                     table.insert(newAuraTable, {spellIcon, spellName, spellTable.uptime, spellTable.appliedamt, spellTable.refreshamt, spellTable.uptime / combatTime * 100, spellID = spellId})
                 end
             end
+
             table.sort(newAuraTable, Details.Sort3)
             tab.DebuffScroll:SetData(newAuraTable)
             tab.DebuffScroll:Refresh()
@@ -284,11 +249,11 @@ function Details:InitializeAurasTab()
             return true
         end,
 
-        auras_tab_fill, --[4] fill function
+        aurasTabFillCallback, --[4] fill function
 
         nil, --[5] onclick
 
-        auras_tab_create, --[6] oncreate
+        createAuraTabOnBreakdownWindow, --[6] oncreate
         iconTableAuras --icon table
     )
 end

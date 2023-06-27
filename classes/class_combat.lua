@@ -408,7 +408,7 @@
 
 	---copy deaths from combat2 into combat1
 	---if bMythicPlus is true it'll check if the death has mythic plus death time and use it instead of the normal death time
-	---@param combat1 combat 
+	---@param combat1 combat
 	---@param combat2 combat
 	---@param bMythicPlus boolean
 	function classCombat.CopyDeathsFrom(combat1, combat2, bMythicPlus)
@@ -720,43 +720,52 @@ end
 	---@return table
 	function classCombat:CreateLastEventsTable(playerName)
 		local lastEventsTable = {}
+
 		for i = 1, Details.deadlog_events do
-			lastEventsTable [i] = {}
+			lastEventsTable[i] = {}
 		end
+
 		lastEventsTable.n = 1
 		self.player_last_events[playerName] = lastEventsTable
 		return lastEventsTable
 	end
 
-	--trava o tempo dos jogadores ap�s o t�rmino do combate.
-	function classCombat:TravarTempos()
-		if (self [1]) then
-			for _, jogador in ipairs(self [1]._ActorTable) do --damage
-				if (jogador:GetOrChangeActivityStatus()) then -- retorna se ele esta com o dps ativo
-					Details222.TimeMachine.StopTime(jogador)
-					jogador:GetOrChangeActivityStatus(false) --lock the actor timer
-				else
-					if (jogador.start_time == 0) then
-						jogador.start_time = _tempo
-					end
-					if (not jogador.end_time) then
-						jogador.end_time = _tempo
-					end
+	---pass through all actors and check if the activity time is unlocked, if it is, lock it
+	---@param self combat
+	function classCombat:LockActivityTime()
+		---@cast self combat
+		---@type actorcontainer
+		local containerDamage = self:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		---@type actorcontainer
+		local containerHeal = self:GetContainer(DETAILS_ATTRIBUTE_HEAL)
+
+		for _, actorObject in containerDamage:ListActors() do
+			if (actorObject:GetOrChangeActivityStatus()) then --check if the timer is unlocked
+				Details222.TimeMachine.StopTime(actorObject)
+				actorObject:GetOrChangeActivityStatus(false) --lock the actor timer
+			else
+				if (actorObject.start_time == 0) then
+					actorObject.start_time = _tempo
+				end
+				if (not actorObject.end_time) then
+					actorObject.end_time = _tempo
 				end
 			end
 		end
-		if (self [2]) then
-			for _, jogador in ipairs(self [2]._ActorTable) do --healing
-				if (jogador:GetOrChangeActivityStatus()) then -- retorna se ele esta com o dps ativo
-					Details222.TimeMachine.StopTime(jogador)
-					jogador:GetOrChangeActivityStatus(false) --lock the actor timer
-				else
-					if (jogador.start_time == 0) then
-						jogador.start_time = _tempo
-					end
-					if (not jogador.end_time) then
-						jogador.end_time = _tempo
-					end
+
+		for _, actorObject in containerHeal:ListActors() do
+			--check if the timer is unlocked
+			if (actorObject:GetOrChangeActivityStatus()) then
+				--lock the actor timer
+				Details222.TimeMachine.StopTime(actorObject)
+				--remove the actor from the time machine
+				actorObject:GetOrChangeActivityStatus(false)
+			else
+				if (actorObject.start_time == 0) then
+					actorObject.start_time = _tempo
+				end
+				if (not actorObject.end_time) then
+					actorObject.end_time = _tempo
 				end
 			end
 		end

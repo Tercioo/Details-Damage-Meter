@@ -84,7 +84,10 @@
 		Details222.Pets = {}
 		--auto run code
 		Details222.AutoRunCode = {}
+		--options panel
+		Details222.OptionsPanel = {}
 		Details222.Instances = {}
+		Details222.Combat = {}
 		Details222.MythicPlus = {}
 		Details222.EJCache = {}
 		Details222.Segments = {}
@@ -98,7 +101,9 @@
 		Details222.PlayerStats = {}
 		Details222.LoadSavedVariables = {}
 		Details222.SaveVariables = {}
-
+		Details222.GuessSpecSchedules = {
+			Schedules = {},
+		}
 		Details222.TimeMachine = {}
 
 		Details222.Date = {
@@ -1087,7 +1092,7 @@ do
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-				_detalhes:UpdateContainerCombatentes()
+				_detalhes:UpdatePetCache()
 
 				_detalhes_database.tabela_overall = nil
 				_detalhes_database.tabela_historico = nil

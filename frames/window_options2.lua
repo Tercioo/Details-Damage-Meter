@@ -2,12 +2,13 @@ if (true) then
     --return
 end
 
+local addonName, Details222 = ...
 local Details = _G.Details
 local detailsFramework = _G.DetailsFramework
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
 
 --options panel namespace
-Details.options = {}
+Details222.OptionsPanel = {}
 
 --local tinsert = _G.tinsert
 local unpack = _G.unpack
@@ -32,10 +33,10 @@ local section_menu_button_height = 20
 
 --build the options window
 function Details:InitializeOptionsWindow(instance)
-    return Details.options.InitializeOptionsWindow(instance)
+    return Details222.OptionsPanel.InitializeOptionsWindow(instance)
 end
 
-function Details.options.InitializeOptionsWindow(instance)
+function Details222.OptionsPanel.InitializeOptionsWindow(instance)
 	local DetailsOptionsWindow = detailsFramework:NewPanel(UIParent, _, "DetailsOptionsWindow", _, 897, 592)
     local optionsFrame = DetailsOptionsWindow.frame
 
@@ -81,7 +82,7 @@ function Details.options.InitializeOptionsWindow(instance)
             Details.CriarInstancia (_, _, instanceObject.meu_id)
         end
 
-        Details.options.SetCurrentInstanceAndRefresh(instanceObject)
+        Details222.OptionsPanel.SetCurrentInstanceAndRefresh(instanceObject)
         optionsFrame.updateMicroFrames()
     end
 
@@ -311,11 +312,11 @@ function Details.options.InitializeOptionsWindow(instance)
         maxSectionIds = maxSectionIds + 1
     end
 
-    Details.options.maxSectionIds = maxSectionIds
+    Details222.OptionsPanel.maxSectionIds = maxSectionIds
 
     local buttonYPosition = -40
 
-    function Details.options.SelectOptionsSection(sectionId)
+    function Details222.OptionsPanel.SelectOptionsSection(sectionId)
         for i = 1, maxSectionIds do
             optionsFrame.sectionFramesContainer[i]:Hide()
             if (optionsFrame.sectionFramesContainer[i].sectionButton) then
@@ -330,7 +331,7 @@ function Details.options.InitializeOptionsWindow(instance)
         optionsFrame.sectionFramesContainer[sectionId].sectionButton:SetIcon({1, 1, 0}, 4, section_menu_button_height -4, "overlay")
     end
 
-    Details.options.SetCurrentInstance(instance)
+    Details222.OptionsPanel.SetCurrentInstance(instance)
 
     --create frames for sections
     for index, sectionId in ipairs(optionsSectionsOrder) do
@@ -368,7 +369,7 @@ function Details.options.InitializeOptionsWindow(instance)
                 buildOptionSectionFunc(sectionFrame)
 
                 --create a button for the section
-                local sectionButton = detailsFramework:CreateButton(optionsFrame, function() Details.options.SelectOptionsSection(sectionId) end, section_menu_button_width, section_menu_button_height, sectionsName[sectionId], sectionId, nil, nil, nil, "$parentButtonSection" .. sectionId, nil, options_button_template, options_text_template)
+                local sectionButton = detailsFramework:CreateButton(optionsFrame, function() Details222.OptionsPanel.SelectOptionsSection(sectionId) end, section_menu_button_width, section_menu_button_height, sectionsName[sectionId], sectionId, nil, nil, nil, "$parentButtonSection" .. sectionId, nil, options_button_template, options_text_template)
                 sectionButton:SetIcon({.4, .4, .4}, 4, section_menu_button_height -4, "overlay")
                 sectionButton:SetPoint("topleft", optionsFrame, "topleft", 10, buttonYPosition)
                 buttonYPosition = buttonYPosition - (section_menu_button_height + 1)
@@ -386,7 +387,7 @@ function Details.options.InitializeOptionsWindow(instance)
         end
     end
 
-    function Details.options.GetOptionsSection(sectionId)
+    function Details222.OptionsPanel.GetOptionsSection(sectionId)
         return optionsFrame.sectionFramesContainer[sectionId]
     end
 
@@ -405,7 +406,7 @@ function Details.options.InitializeOptionsWindow(instance)
         end
     end
 
-    Details.options.SelectOptionsSection(1)
+    Details222.OptionsPanel.SelectOptionsSection(1)
 end
 
 -- ~options
@@ -426,15 +427,15 @@ function Details:OpenOptionsWindow(instance, bNoReopen, section)
 
     local window = _G.DetailsOptionsWindow
     if (not window) then
-        Details.options.InitializeOptionsWindow(instance)
+        Details222.OptionsPanel.InitializeOptionsWindow(instance)
         window = _G.DetailsOptionsWindow
     end
 
-    Details.options.SetCurrentInstanceAndRefresh(instance)
+    Details222.OptionsPanel.SetCurrentInstanceAndRefresh(instance)
     _G.DetailsPluginContainerWindow.OpenPlugin(_G.DetailsOptionsWindow)
 
     if (section) then
-        Details.options.SelectOptionsSection(section)
+        Details222.OptionsPanel.SelectOptionsSection(section)
     end
 
     window.instanceDropdown:Refresh()

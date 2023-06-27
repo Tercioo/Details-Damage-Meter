@@ -1336,7 +1336,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 
 	if (in_or_out == "DEBUFF_UPTIME_OUT") then
 		local combat = _detalhes.tabela_vigente
-		local misc_container = combat [4]._ActorTable
+		local misc_container = combat [4]._ActorTable --error attempt to index a new value
 
 		for _, actor in ipairs(misc_container) do
 			if (actor.debuff_uptime) then

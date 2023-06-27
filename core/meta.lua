@@ -700,7 +700,7 @@ local classTypeUtility = Details.atributos.misc
 		end
 
 		--cleanup backlisted pets within the handler of actor containers
-		Details:PetContainerCleanup()
+		Details222.Pets.PetContainerCleanup()
 		Details:ClearCCPetsBlackList()
 
 		--cleanup spec cache

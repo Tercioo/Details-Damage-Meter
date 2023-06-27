@@ -2525,17 +2525,22 @@ function Details:UpdateCombatObjectInUse(instance)
 	end
 end
 
-function Details:AtualizaSegmentos_AfterCombat (instancia, historico)
+function Details:AtualizaSegmentos_AfterCombat(instancia)
 	if (instancia.freezed) then
-		return --se esta congelada n�o tem o que fazer
+		return
 	end
 
 	local segmento = instancia.segmento
 
+	---@type combat[]
+	local segmentsTable = Details:GetCombatSegments()
+
 	local _fadeType, _fadeSpeed = _unpack(Details.row_fade_in)
 
+	--todo: translate comments here
+
 	if (segmento == Details.segments_amount) then --significa que o index [5] passou a ser [6] com a entrada da nova tabela
-		instancia.showing = historico.tabelas [Details.segments_amount] --ent�o ele volta a pegar o index [5] que antes era o index [4]
+		instancia.showing = segmentsTable[Details.segments_amount] --ent�o ele volta a pegar o index [5] que antes era o index [4]
 		--print("==> Changing the Segment now! - classe_instancia.lua 1942")
 		Details.FadeHandler.Fader(instancia, _fadeType, _fadeSpeed, "barras")
 		instancia.showing[instancia.atributo].need_refresh = true
@@ -2545,7 +2550,7 @@ function Details:AtualizaSegmentos_AfterCombat (instancia, historico)
 		Details:AtualizarJanela (instancia)
 
 	elseif (segmento < Details.segments_amount and segmento > 0) then
-		instancia.showing = historico.tabelas [segmento]
+		instancia.showing = segmentsTable[segmento]
 		--print("==> Changing the Segment now! - classe_instancia.lua 1952")
 
 		Details.FadeHandler.Fader(instancia, _fadeType, _fadeSpeed, "barras") --"in", nil

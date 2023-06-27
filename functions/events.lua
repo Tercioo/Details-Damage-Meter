@@ -7,6 +7,7 @@
 	--Event types:
 	Details.RegistredEvents = {
 		--instances
+			["DETAILS_STARTED"] = {},
 			["DETAILS_INSTANCE_OPEN"] = {},
 			["DETAILS_INSTANCE_CLOSE"] = {},
 			["DETAILS_INSTANCE_SIZECHANGED"] = {},
@@ -132,9 +133,9 @@ local common_events = {
 	function Details:RegisterEvent(object, event, func)
 		if (not Details.RegistredEvents[event]) then
 			if (object.Msg) then
-				object:DelayMsg("[debug] unknown event:", event, object.__name)
+				object:DelayMsg("[debug] unknown event1: " .. (event or "no-event"))
 			else
-				Details:DelayMsg("[debug] unknown event:", event, object.__name)
+				Details:DelayMsg("[debug] unknown event2:", event, object.__name)
 			end
 			return
 		end

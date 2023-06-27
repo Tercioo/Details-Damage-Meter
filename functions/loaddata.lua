@@ -137,7 +137,7 @@ function Details222.LoadSavedVariables.CombatSegments()
 		Details.tabela_overall = Details.combate:NovaTabela()
 		Details.tabela_vigente = Details.combate:NovaTabela(_, Details.tabela_overall)
 		Details.tabela_pets = Details.container_pets:NovoContainer()
-		Details:UpdateContainerCombatentes()
+		Details:UpdatePetCache()
 
 		if (currentCharacterData.tabela_pets) then
 			Details:Destroy(currentCharacterData.tabela_pets) --saved pet data
@@ -193,7 +193,7 @@ function Details222.LoadSavedVariables.CombatSegments()
 			actorContainer.need_refresh = true
 		end
 
-		Details:UpdateContainerCombatentes()
+		Details:UpdatePetCache()
 		Details:RestoreMetatables()
 	end
 end
