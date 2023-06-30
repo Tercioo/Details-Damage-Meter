@@ -46,19 +46,19 @@ do
 		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].trash_ids
 	end
 
-	function Details:GetInstanceIdFromEncounterId (encounterid)
+	function Details:GetInstanceIdFromEncounterId (encounterId)
 		for id, instanceTable in pairs(Details.EncounterInformation) do
 			--combatlog encounter id
 			local ids = instanceTable.encounter_ids2
 			if (ids) then
-				if (ids [encounterid]) then
+				if (ids[encounterId]) then
 					return id
 				end
 			end
 			--encounter journal id
 			local ids_ej = instanceTable.encounter_ids
 			if (ids) then
-				if (ids_ej [encounterid]) then
+				if (ids_ej[encounterId]) then
 					return id
 				end
 			end

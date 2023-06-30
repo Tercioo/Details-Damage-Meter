@@ -85,7 +85,7 @@
 ---@field key6 string time of death as string
 ---@field dead boolean just a boolean to indicate this is a death table
 ---@field last_cooldown {key1: unixtime, key2: spellid}
----@field dead_at number combatElapsedTime
+---@field dead_at combattime
 
 ---@class customspellinfo : {name: string, isPassive: boolean, itemId: number, icon: string|number}
 ---@class customiteminfo: {itemId: number, isPassive: boolean}

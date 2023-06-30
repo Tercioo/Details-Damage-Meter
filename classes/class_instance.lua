@@ -2603,7 +2603,7 @@ function Details:SetDisplay(segment, attribute, subAttribute, isInstanceStarup, 
 	return self:TrocaTabela(self, segment, attribute, subAttribute, isInstanceStarup, instanceMode)
 end
 
----change the data shown in the window
+---change the data shown in the window (marked as legacy on June 27 2023, soon will be deprecated for instance:SetSegment, instance:SetDisplay and instance:SetMode)
 ---@param instance instance
 ---@param segmentId number
 ---@param attributeId number
@@ -2772,7 +2772,8 @@ function Details:TrocaTabela(instance, segmentId, attributeId, subAttributeId, f
 		if (Details.instances_segments_locked and not fromInstanceStart) then
 			for _, thisInstance in ipairs(Details.tabela_instancias) do
 				if (thisInstance.meu_id ~= instance.meu_id and thisInstance.ativa and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
-					if (thisInstance:GetSegment() >= 0) then
+					--if (thisInstance:GetSegment() >= 0 and instance:GetSegment() ~= DETAILS_SEGMENTID_OVERALL) then
+					if (true) then
 						if (thisInstance.modo == 2 or thisInstance.modo == 3) then
 							--check if the instance is frozen
 							if (thisInstance.freezed) then

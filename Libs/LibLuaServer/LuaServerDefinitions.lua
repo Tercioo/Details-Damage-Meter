@@ -6,10 +6,11 @@
 --alpha: corresponds to the transparency of an object, the bigger is the value less transparent is the object, it is measure in percentage, must be between 0 and 1, zero is fully transparent and one is fully opaque.
 --controller: abstract term to define who's in control of an entity, can be the server or a player.
 --npc: an entity shown in the 3d world with a name and a health bar, can be friendly or hostile, can be interacted with, always controlled by the server.
---player: is an entity that represents a player character, the controller is always player.
+--player: is an entity that represents a player character, the controller is always player, player is always a human.
 --pet: represents a npc controlled by the server and can accept commands from the player.
 --guadians: represents a npc, the server has the possess of the controller, don't accept commands like pets, helps attacking the enemies of the npc or player.
 --role: is a string that represents the role of a unit, such as tank, healer, or damage dealer. only players can have a role.
+
 
 ---@alias role
 ---| "TANK"
@@ -114,6 +115,9 @@
 ---@alias alpha number @number(0-1.0) value representing the alpha (transparency) of a UIObject, the value must be between 0 and 1. 0 is fully transparent, 1 is fully opaque.
 ---@alias unit string string that represents a unit in the game, such as the player, a party member, or a raid member.
 ---@alias health number amount of hit points (health) of a unit. This value can be changed by taking damage or healing.
+---@alias encounterid number encounter ID number received by the event ENCOUNTER_START and ENCOUNTER_END
+---@alias encounterejid number encounter ID number used by the encounter journal
+---@alias encountername string encounter name received by the event ENCOUNTER_START and ENCOUNTER_END also used by the encounter journal
 ---@alias spellid number each spell in the game has a unique spell id, this id can be used to identify a spell.
 ---@alias actorname string name of a unit
 ---@alias petname string refers to a pet's name
