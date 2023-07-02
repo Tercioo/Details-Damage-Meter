@@ -5902,7 +5902,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		tinsert(_detalhes_global.exit_log, "9 - Saving Auto Run Code.")
 		local saveAutoRunCode = function()
 			Details222.AutoRunCode.OnLogout()
-			_detalhes_global.run_code = Details.run_code
 		end
 		xpcall(saveAutoRunCode, logSaverError)
 	end) --end of saving data
