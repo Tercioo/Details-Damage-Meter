@@ -768,8 +768,8 @@
 					(not Details.in_group and sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0)
 				)
 			) then
-				--avoid Fel Armor, Undulating Maneuvers, and "Vessel of Seared Shadows" trinket from starting a combat.
-				if ((spellId == 387846 or spellId == 352561 or spellId == 401394) and sourceName == Details.playername) then
+				--avoid Fel Armor and Undulating Maneuvers from starting a combat.
+				if ((spellId == 387846 or spellId == 352561) and sourceName == Details.playername) then
 					return
 				end
 
@@ -798,7 +798,8 @@
 					--111400 warlock's burning rush
 					--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
 					--371070 is "Iced Phial of Corrupting Rage" effect triggers randomly, even out-of-combat
-					if (spellId == 111400 or spellId == 371070 or spellId == 368637) then
+					--401394 is "Vessel of Seared Shadows" trinket
+					if (spellId == 111400 or spellId == 371070 or spellId == 368637 or spellId == 401394) then
 						return
 					end
 
