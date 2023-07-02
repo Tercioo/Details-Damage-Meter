@@ -106,6 +106,7 @@
 			ej_instance_id = t[5],
 			id = t[2],
 			bossimage = t[4],
+			unixtime = time(),
 		}
 
 		Details.tabela_vigente.is_boss = boss_table
@@ -137,6 +138,7 @@
 			diff_string = select(4, GetInstanceInfo()),
 			ej_instance_id = ejid,
 			id = encounterid,
+			unixtime = time(),
 		}
 
 		if (not Details:IsRaidRegistered(mapid) and Details.zone_type == "raid") then
@@ -317,6 +319,25 @@
 				end
 			end
 		end
+	end
+
+	---return an array of encounter Ids in order of the most recent to the oldest
+	function Details:GetEncounterIDInOrder()
+		--get the segments table
+		local segmentsTable = Details:GetCombatSegments()
+
+		--table which contains the encounter Ids in order of the most recent to the oldest
+		local resultTable = {}
+
+		--iterate over the segments table from the most recent to the oldest, check if the combatObject of the segment has is_boss and get the encounter Id from the member is_boss.id
+		for i = 1, #segmentsTable do
+			local combatObject = segmentsTable[i]
+			if (combatObject.is_boss) then
+				table.insert(resultTable, 1, combatObject.is_boss.id)
+			end
+		end
+
+		return resultTable
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -589,6 +610,7 @@
 					diff_string = DifficultyName,
 					ej_instance_id = ejid or 0,
 					id = encounterID,
+					unixtime = time()
 				}
 			end
 		end

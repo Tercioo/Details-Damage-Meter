@@ -4262,7 +4262,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				else
 					--no last cooldown found so just add a last cooldown used event with no spellId and time 0
 					local eventTable = {}
-					eventTable[1] = 3 --true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
+					eventTable[1] = 3 --event type
 					eventTable[2] = 0 --spellId
 					eventTable[3] = 0 --amount of damage or healing but in this case is 0
 					eventTable[4] = 0 --when the event happened using unix time
@@ -5920,6 +5920,21 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	local parserDebug = {}
+	function Details.OnParserEventDebug()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+
+		if (not parserDebug[token]) then
+			parserDebug[token] = true
+			print(token)
+		end
+
+		--local func = token_list[token]
+		--if (func) then
+		--	return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		--end
+	end
+
 	function Details.OnParserEventClassicEra()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 
@@ -5966,7 +5981,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		}
 		Details.parser_frame:SetScript("OnEvent", Details.OnParserEventClassicEra)
 	else
-		Details.parser_frame:SetScript("OnEvent", Details.OnParserEvent)
+		--if ("I'm debugging something") then
+		--	Details.parser_frame:SetScript("OnEvent", Details.OnParserEventDebug)
+		--else
+			Details.parser_frame:SetScript("OnEvent", Details.OnParserEvent)
+		--end
 	end
 
 	function Details:UpdateParser()
