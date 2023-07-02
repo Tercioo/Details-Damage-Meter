@@ -92,5 +92,5 @@ function Details222.AutoRunCode.StartAutoRun()
 end
 
 function Details222.AutoRunCode.OnLogout()
-    Details.run_code = Details222.AutoRunCode.CodeTable
+    _detalhes_global.run_code = Details222.AutoRunCode.CodeTable
 end
