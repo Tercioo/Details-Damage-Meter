@@ -404,7 +404,7 @@
 		[282449] = true, --akaari's soul rogue
 		[196917] = true, --light of the martyr
 		[388009] = true, --blessing of spring
-		[388012] = true, --blessing of summer		
+		[388012] = true, --blessing of summer
 	}
 
 	--damage spells to ignore
@@ -1861,7 +1861,7 @@
 	--parser.spell_empower
 	--10/30 15:32:11.515  SPELL_EMPOWER_START,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
 	--10/30 15:32:12.433  SPELL_EMPOWER_END,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
-	--10/30 15:33:45.970  SPELL_EMPOWER_INTERRUPT,Player-4184-00218B4F,"Minng-Valdrakken",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1			
+	--10/30 15:33:45.970  SPELL_EMPOWER_INTERRUPT,Player-4184-00218B4F,"Minng-Valdrakken",0x512,0x0,0000000000000000,nil,0x80000000,0x80000000,382266,"Fire Breath",0x4,1
 
 	--10/30 15:34:47.249  SPELL_EMPOWER_START,Player-4184-0048EE5B,"Nezaland-Valdrakken",0x514,0x0,Player-4184-0048EE5B,"Nezaland-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
 	--357209 damage spell is different from the spell cast
@@ -3577,7 +3577,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			sourceActor.interrupt_spells = container_habilidades:NovoContainer(container_misc)
 			sourceActor.interrompeu_oque = {}
 		end
-		
+
 	------------------------------------------------------------------------------------------------
 	--add amount
 
@@ -3765,107 +3765,115 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 
-	--serach key: ~dispell
-	function parser:dispell (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
-
-	------------------------------------------------------------------------------------------------
-	--early checks and fixes
-
-		--esta dando erro onde o nome � NIL, fazendo um fix para isso
-		if (not who_name) then
-			who_name = "[*] "..extraSpellName
+	--serach key: ~dispel
+	---@param token string
+	---@param time unixtime
+	---@param sourceSerial string
+	---@param sourceName string
+	---@param sourceFlags number
+	---@param targetSerial string
+	---@param targetName string
+	---@param targetFlags number
+	---@param targetFlags2 number
+	---@param spellId number
+	---@param spellName string
+	---@param spellType number
+	---@param extraSpellID number
+	---@param extraSpellName string
+	---@param extraSchool number
+	function parser:dispell(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool, auraType)
+		if (not sourceName) then
+			sourceName = "[*] " .. extraSpellName
 		end
-		if (not alvo_name) then
-			alvo_name = "[*] "..spellid
+		if (not targetName) then
+			targetName = "[*] " .. spellId
 		end
 
 		_current_misc_container.need_refresh = true
 
-	------------------------------------------------------------------------------------------------
-	--get actors]
-		local este_jogador, meu_dono = misc_cache [who_name]
-		if (not este_jogador) then --pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --se n�o for um pet, add no cache
-				misc_cache [who_name] = este_jogador
+		---@type actor, actor
+		local sourceActor, ownerActor = misc_cache[sourceName]
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_misc_container:PegarCombatente(sourceSerial, sourceName, sourceFlags, true)
+			if (not ownerActor) then
+				misc_cache[sourceName] = sourceActor
 			end
 		end
 
-	------------------------------------------------------------------------------------------------
-	--build containers on the fly
+		--build containers on the fly
+		if (not sourceActor.dispell) then
+			---@type number
+			sourceActor.dispell = Details:GetOrderNumber(sourceName)
 
-		if (not este_jogador.dispell) then
-			--constr�i aqui a tabela dele
-			este_jogador.dispell = Details:GetOrderNumber(who_name)
-			este_jogador.dispell_targets = {}
-			este_jogador.dispell_spells = container_habilidades:NovoContainer (container_misc)
-			este_jogador.dispell_oque = {}
+			---@type table<actorname, number>
+			sourceActor.dispell_targets = {}
+
+			---@type spellcontainer
+			sourceActor.dispell_spells = container_habilidades:NovoContainer(container_misc)
+
+			---@type table<spellid, number>
+			sourceActor.dispell_oque = {}
 		end
 
-	------------------------------------------------------------------------------------------------
-	--spell reflection
-		if (reflection_dispelid[spellid]) then
+		--spell reflection
+		if (reflection_dispelid[spellId]) then
 			--this aura could've been reflected to the caster after the dispel
 			--save data about whom was dispelled by who and what spell it was
-			reflection_dispels[alvo_serial] = reflection_dispels[alvo_serial] or {}
-			reflection_dispels[alvo_serial][extraSpellID] = {
-				who_serial = who_serial,
-				who_name = who_name,
-				who_flags = who_flags,
-				spellid = spellid,
-				spellname = spellname,
-				spelltype = spelltype,
+			reflection_dispels[targetSerial] = reflection_dispels[targetSerial] or {}
+			reflection_dispels[targetSerial][extraSpellID] = {
+				who_serial = sourceSerial,
+				who_name = sourceName,
+				who_flags = sourceFlags,
+				spellid = spellId,
+				spellname = spellName,
+				spelltype = spellType,
 			}
 		end
 
-	------------------------------------------------------------------------------------------------
-	--add amount
-
 		--last event update
-		este_jogador.last_event = _tempo
+		sourceActor.last_event = _tempo
 
 		--total dispells in combat
-		_current_total [4].dispell = _current_total [4].dispell + 1
+		_current_total[4].dispell = _current_total[4].dispell + 1
 
-		if (este_jogador.grupo) then
-			_current_gtotal [4].dispell = _current_gtotal [4].dispell + 1
+		if (sourceActor.grupo) then
+			_current_gtotal[4].dispell = _current_gtotal[4].dispell + 1
 		end
 
 		--actor dispell amount
-		este_jogador.dispell = este_jogador.dispell + 1
+		sourceActor.dispell = sourceActor.dispell + 1
 
-		--dispell what
+		--dispelled what
 		if (extraSpellID) then
-			este_jogador.dispell_oque [extraSpellID] = (este_jogador.dispell_oque [extraSpellID] or 0) + 1
+			sourceActor.dispell_oque[extraSpellID] = (sourceActor.dispell_oque[extraSpellID] or 0) + 1
 		end
 
 		--actor targets
-		este_jogador.dispell_targets [alvo_name] = (este_jogador.dispell_targets [alvo_name] or 0) + 1
+		sourceActor.dispell_targets[targetName] = (sourceActor.dispell_targets[targetName] or 0) + 1
 
 		--actor spells table
-		local spell = este_jogador.dispell_spells._ActorTable [spellid]
-		if (not spell) then
-			spell = este_jogador.dispell_spells:PegaHabilidade (spellid, true, token)
+		---@type spelltable
+		local spellTable = sourceActor.dispell_spells._ActorTable[spellId]
+		if (not spellTable) then
+			spellTable = sourceActor.dispell_spells:PegaHabilidade(spellId, true, token)
 		end
-		_spell_utility_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		_spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, token, extraSpellID, extraSpellName)
 
-		--verifica se tem dono e adiciona o interrupt para o dono
-		if (meu_dono) then
-			if (not meu_dono.dispell) then
-				meu_dono.dispell = Details:GetOrderNumber(who_name)
-				meu_dono.dispell_targets = {}
-				meu_dono.dispell_spells = container_habilidades:NovoContainer (container_misc)
-				meu_dono.dispell_oque = {}
+		--is has an owner, add the dispel to the owner as well
+		if (ownerActor) then
+			if (not ownerActor.dispell) then
+				ownerActor.dispell = Details:GetOrderNumber(sourceName)
+				ownerActor.dispell_targets = {}
+				ownerActor.dispell_spells = container_habilidades:NovoContainer(container_misc)
+				ownerActor.dispell_oque = {}
 			end
 
-			meu_dono.dispell = meu_dono.dispell + 1
-
-			meu_dono.dispell_targets [alvo_name] = (meu_dono.dispell_targets [alvo_name] or 0) + 1
-
-			meu_dono.last_event = _tempo
+			ownerActor.dispell = ownerActor.dispell + 1
+			ownerActor.dispell_targets[targetName] = (ownerActor.dispell_targets[targetName] or 0) + 1
+			ownerActor.last_event = _tempo
 
 			if (extraSpellID) then
-				meu_dono.dispell_oque [extraSpellID] = (meu_dono.dispell_oque [extraSpellID] or 0) + 1
+				ownerActor.dispell_oque[extraSpellID] = (ownerActor.dispell_oque[extraSpellID] or 0) + 1
 			end
 		end
 	end
@@ -4306,6 +4314,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 						["dead"] = true,
 						["last_cooldown"] = thisPlayer.last_cooldown,
 						["dead_at"] = combatElapsedTime,
+						["spec"] = thisPlayer.spec,
 					}
 				end
 
@@ -4393,7 +4402,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--["SPELL_CAST_FAILED"] = parser.spell_fail
 	}
 
-	--@debug@ 
+	--@debug@
 	Details.token_list = token_list
 	--@end-debug@
 
