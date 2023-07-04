@@ -76,6 +76,13 @@
 	end
 	classCombat.__call = Details.call_combate
 
+	---get the unique combat identifier
+	---@param self combat
+	---@return number
+	function classCombat:GetCombatUID()
+		return self.combat_counter
+	end
+
 	--get the start date and end date
 	function classCombat:GetDate()
 		return self.data_inicio, self.data_fim

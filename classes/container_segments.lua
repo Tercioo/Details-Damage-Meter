@@ -57,6 +57,36 @@ function Details:GetCombat(combat)
 	return nil
 end
 
+---get a unique combat id and check if exists a combat with this id
+---@param uniqueCombatId number
+---@return boolean bExistsCombat
+function Details:DoesCombatWithUIDExists(uniqueCombatId)
+	local segmentsTable = Details:GetCombatSegments()
+
+	for segmentId, combatObject in ipairs(segmentsTable) do
+		if (combatObject.combat_counter == uniqueCombatId) then
+			return true
+		end
+	end
+
+	return false
+end
+
+---get a unique combat id and return the combat object
+---@param uniqueCombatId number
+---@return combat|boolean combatObject
+function Details:GetCombatByUID(uniqueCombatId)
+	local segmentsTable = Details:GetCombatSegments()
+
+	for segmentId, combatObject in ipairs(segmentsTable) do
+		if (combatObject.combat_counter == uniqueCombatId) then
+			return combatObject
+		end
+	end
+
+	return false
+end
+
 ---remove a segment from the segments table
 ---@param segmentIndex number
 ---@return boolean, combat
