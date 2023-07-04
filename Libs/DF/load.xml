@@ -23,6 +23,7 @@
 	<Script file="charts.lua"/>
 	<Script file="scripting.lua"/>
 	<Script file="externals.lua"/>
+	<Script file="frames.lua"/>
 	
 	<Include file="tutorial_alert.xml"/>
 	<Include file="split_bar.xml"/>

@@ -1880,7 +1880,10 @@ local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 
 --with_label was making the frame stay in place while its parent moves
 --the slider was anchoring to with_label and here here were anchoring the slider again
+---@class df_scalebar : slider
+---@field thumb texture
 function detailsFramework:CreateScaleBar(frame, config) --~scale
+	---@type df_scalebar
 	local scaleBar, text = detailsFramework:CreateSlider(frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"), detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
 	scaleBar.thumb:SetWidth(24)
 	scaleBar:SetValueStep(0.1)
@@ -4372,30 +4375,31 @@ end
 -- ~title bar
 
 detailsFramework.TitleFunctions = {
-
 	SetTitle = function(self, titleText, titleColor, font, size)
-		self.TitleLabel:SetText(titleText or self.TitleLabel:GetText())
+		local titleLabel = self.TitleLabel or self.Text
+
+		titleLabel:SetText(titleText or titleLabel:GetText())
 
 		if (titleColor) then
 			local r, g, b, a = detailsFramework:ParseColors(titleColor)
-			self.TitleLabel:SetTextColor(r, g, b, a)
+			titleLabel:SetTextColor(r, g, b, a)
 		end
 
 		if (font) then
-			detailsFramework:SetFontFace (self.TitleLabel, font)
+			detailsFramework:SetFontFace (titleLabel, font)
 		end
 
 		if (size) then
-			detailsFramework:SetFontSize(self.TitleLabel, size)
+			detailsFramework:SetFontSize(titleLabel, size)
 		end
 	end
-
-
 }
 
 ---@class df_titlebar : frame
+---@field TitleBar frame
 ---@field TitleLabel fontstring
 ---@field CloseButton button
+---@field SetTitle fun(self:df_titlebar, titleText:string, titleColor:any, font:string, size:number)
 
 ---create a title bar with a font string in the center and a close button in the right side
 ---@param parent frame
@@ -4435,7 +4439,9 @@ function detailsFramework:CreateTitleBar(parent, titleText)
 	parent.TitleBar = titleBar
 	parent.CloseButton = closeButton
 	parent.TitleLabel = titleLabel
+	parent.SetTitle = titleBar.SetTitle
 
+	titleBar.TitleBar = titleBar --to fit documentation
 	titleBar.CloseButton = closeButton
 	titleBar.Text = titleLabel
 
@@ -5324,7 +5330,7 @@ function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameO
 
 		function loadConditionsFrame.Refresh (self)
 			if IS_WOW_PROJECT_MAINLINE then
-				--update the talents (might have changed if the player changed its specialization)
+				--update the talents (might have changed if the player changed its specializationid)
 				local talentList = {}
 				for _, talentTable in ipairs(detailsFramework:GetCharacterTalents()) do
 					if talentTable.ID then

@@ -647,7 +647,7 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
         --get the player specId
         local specId = openRaidLib.GetPlayerSpecId()
         if (specId) then
-            --get the cooldowns for the specialization
+            --get the cooldowns for the specializationid
             local playerCooldowns = LIB_OPEN_RAID_PLAYERCOOLDOWNS
             if (not playerCooldowns) then
                 openRaidLib.DiagnosticError("CooldownManager|GetPlayerCooldownList|LIB_OPEN_RAID_PLAYERCOOLDOWNS is nil")
