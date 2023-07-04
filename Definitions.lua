@@ -54,6 +54,7 @@
 
 ---@alias actorclass string this is the class of the actor, can be "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "DEMONHUNTER"
 ---@alias actorspec number this is the specID of the actor
+---@alias uniquecombatid number a unique ID to point to a single combat, each character has its ID counter, use with Details:DoesCombatWithUIDExists(); Details:GetCombatByUID(); retrive with combat:GetCombatUID()
 
 ---@class petinfo : table
 ---@field key1 ownername
@@ -86,6 +87,7 @@
 ---@field dead boolean just a boolean to indicate this is a death table
 ---@field last_cooldown {key1: unixtime, key2: spellid}
 ---@field dead_at combattime
+---@field spec specializationid
 
 ---@class customspellinfo : {name: string, isPassive: boolean, itemId: number, icon: string|number}
 ---@class customiteminfo: {itemId: number, isPassive: boolean}
@@ -96,9 +98,10 @@
 ---@field bIsClosed boolean if true the combat is closed (passed by the EndCombat() function)
 ---@field __destroyedBy string
 ---@field amountCasts {[string]: table<string, number>}
----@field instance_type string "raid" or "party" or "pvp" or "arena" or "none"
+---@field instance_type instancetype "raid" or "party" or "pvp" or "arena" or "none" or "scenario"
 ---@field end_time number
 ---@field start_time number
+---@field combat_counter number
 ---@field is_trash boolean while in raid this is set to true if the combat isn't raid boss, in dungeon this is set to true if the combat isn't a boss or if the dungeon isn't a mythic+
 ---@field raid_roster table<string, string> [unitName] = unitGUID
 ---@field overall_added boolean is true when the combat got added into the overall combat
@@ -114,7 +117,7 @@
 ---@field is_boss table
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
----@field GetTimeData fun(dataName: string) : table
+---@field GetTimeData fun(combat: combat, dataName: string) : table
 ---@field GetPhases fun(combat: combat) : table
 ---@field GetCombatTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat

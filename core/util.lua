@@ -329,6 +329,7 @@
 	---@return number maxHealth max health of the actor
 	---@return table deathEvents events that lead the actor to death
 	---@return {key1: unixtime, key2: spellid}
+	---@return specializationid specId
 	function Details:UnpackDeathTable(deathTable)
 		local deathevents = deathTable[1]
 		local deathtime = deathTable[2]
@@ -338,8 +339,9 @@
 		local deathtimestring = deathTable[6]
 		local lastcooldown = deathTable.last_cooldown
 		local deathcombattime = deathTable.dead_at
+		local spec = deathTable.spec
 
-		return playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown
+		return playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown, spec
 	end
 
 	---get a random fraction number

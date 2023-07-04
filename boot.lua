@@ -690,6 +690,7 @@ do
 				_detalhes.StatusBar.NameTable = {}
 
 		--constants
+
 		if(DetailsFramework.IsWotLKWow()) then
 			--[[global]] DETAILS_HEALTH_POTION_ID = 33447 -- Runic Healing Potion
 			--[[global]] DETAILS_HEALTH_POTION2_ID = 41166 -- Runic Healing Injector
