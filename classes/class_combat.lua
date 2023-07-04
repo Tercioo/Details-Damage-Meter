@@ -91,9 +91,24 @@
 		end
 	end
 
-	--return data for charts
+	---return a table representing a chart data
+	---@param name string
+	---@return number[]
 	function classCombat:GetTimeData(name)
-		return self.TimeData[name]
+		if (self.TimeData) then
+			return self.TimeData[name]
+		end
+		return {max_value = 0}
+	end
+
+	---erase a time data if exists
+	---@param name string
+	function classCombat:EraseTimeData(name)
+		if (self.TimeData[name]) then
+			self.TimeData[name] = nil
+			return true
+		end
+		return false
 	end
 
 	function classCombat:GetContainer(attribute)

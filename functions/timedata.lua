@@ -229,6 +229,7 @@
 		tickTime = 0
 
 		--return the capture table the to combat object
+		--the return value goes into combatObject.TimeData = @chartTables
 		return chartTables
 	end
 
