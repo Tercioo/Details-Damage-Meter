@@ -1,6 +1,6 @@
 
 
-local dversion = 445
+local dversion = 446
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -131,6 +131,7 @@ function DF.IsNonRetailWowWithRetailAPI()
     end
 	return false
 end
+DF.IsWotLKWowWithRetailAPI = DF.IsNonRetailWowWithRetailAPI -- this is still in use
 
 ---return true if the version of wow the player is playing is the shadowlands
 function DF.IsShadowlandsWow()
