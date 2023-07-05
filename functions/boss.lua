@@ -5,6 +5,7 @@ do
 	local addonName, Details222 = ...
 	Details.EncounterInformation = {}
 	local ipairs = ipairs --lua local
+	local detailsFramework = DetailsFramework
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --details api functions
@@ -212,7 +213,59 @@ do
 		return Details.EncounterInformation [mapid] and Details.EncounterInformation [mapid].encounters [bossindex]
 	end
 
+	---return a textureId, width, height, left, right, top, bottom coords
+	---@param encounterName string
+	---@return any
+	---@return width
+	---@return height
+	---@return number
+	---@return number
+	---@return number
+	---@return number
+	function Details:GetBossEncounterTexture(encounterName)
+		assert(type(encounterName) == "string", "bad argument #1 to 'GetBossEncounterTexture' (string expected, got " .. type(encounterName) .. ")")
+		encounterName = string.lower(encounterName)
 
+		if (Details.boss_icon_cache[encounterName]) then
+			return Details.boss_icon_cache[encounterName], 32, 20, 0, 1, 0, 0.9
+		end
+
+		local EJ_GetInstanceByIndex = EJ_GetInstanceByIndex or function(instanceIndex, bIsRaidInstance) return nil end
+		local EJ_GetEncounterInfoByIndex = EJ_GetEncounterInfoByIndex or function(index, instanceID) return nil end
+		local EJ_GetCreatureInfo = EJ_GetCreatureInfo or function(index, bossId) return nil end
+
+		---@type boolean
+		local bIsRaidInstance = true
+
+		---starts on DragonIsles world bosses > Vault of Incarnates > Aberrus, The Shadowed Crucible
+		---could go to 10 for less maintenance
+		---@type number
+		local maxInstancesInCurrentPath = 3
+		for instanceIndex = 1, maxInstancesInCurrentPath do
+			local instanceID = EJ_GetInstanceByIndex(instanceIndex, bIsRaidInstance)
+			if (instanceID) then
+				detailsFramework.EncounterJournal.EJ_SelectInstance(instanceID)
+				--we don't know how many bosses are in the instance, so we'll just loop through them all
+				for i = 1, 20 do
+					local name, description, bossID, rootSectionID, link, journalInstanceID, dungeonEncounterID, UiMapID = EJ_GetEncounterInfoByIndex(i, instanceID)
+					--print(name, bossID)
+					if (name) then
+						name = name:lower()
+						if (name == encounterName) then
+							local id, creatureName, creatureDescription, displayInfo, iconImage = EJ_GetCreatureInfo(1, bossID)
+							Details.boss_icon_cache[encounterName] = iconImage
+							return iconImage, 32, 20, 0, 1, 0, 0.9
+						end
+					else
+						--no more bosses in this instance, go to the next one
+						break
+					end
+				end
+			end
+		end
+
+		return ""
+	end
 
 	function Details:GetEncounterInfoFromEncounterName (EJID, encountername)
 		DetailsFramework.EncounterJournal.EJ_SelectInstance (EJID) --11ms per call

@@ -626,6 +626,8 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	combatObject.data_inicio = 0
 	combatObject.tempo_start = _tempo
 
+	combatObject.bossTimers = {}
+
 	---store trinket procs
 	combatObject.trinketProcs = {}
 

@@ -117,6 +117,7 @@
 ---@field is_boss table
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
+---@field GetCombatUID fun(combat: combat) : uniquecombatid
 ---@field GetTimeData fun(combat: combat, dataName: string) : table
 ---@field GetPhases fun(combat: combat) : table
 ---@field GetCombatTime fun(combat) : number

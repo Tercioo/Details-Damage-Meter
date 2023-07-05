@@ -24,6 +24,7 @@ breakdownWindowFrame.RegisteredPluginButtons = {}
 ---register a plugin button to be shown in the breakdown window
 ---@param button button
 function breakdownWindowFrame.RegisterPluginButton(button)
+	button:SetParent(DetailsBreakdownLeftMenuPluginsFrame)
 	table.insert(breakdownWindowFrame.RegisteredPluginButtons, button)
 end
 
@@ -50,6 +51,8 @@ breakdownWindowFrame.BreakdownSideMenuFrame = breakdownSideMenu
 --create a frame to hold plugin buttons
 local pluginsFrame = CreateFrame("frame", "DetailsBreakdownLeftMenuPluginsFrame", breakdownSideMenu, "BackdropTemplate")
 breakdownWindowFrame.BreakdownPluginSelectionFrame = pluginsFrame
+
+
 
 --create the frame to hold tab buttons
 local tabButtonsFrame = CreateFrame("frame", "DetailsBreakdownTabsFrame", breakdownWindowFrame, "BackdropTemplate")

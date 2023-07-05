@@ -633,9 +633,6 @@
 		end
 
 		local highlightPluginButtonOnBreakdownWindow = function(pluginAbsoluteName)
-			---@type breakdownwindow
-			local breakdownWindowFrame = Details.BreakdownWindowFrame
-
 			for index, button in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
 				---@cast button df_button
 				button:Show()

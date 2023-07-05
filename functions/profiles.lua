@@ -1377,6 +1377,9 @@ local default_global_data = {
 		played_class_time = true,
 		check_stuttering = true,
 
+		--[bossname] = texture
+		boss_icon_cache = {},
+
 	--spell category feedback
 		spell_category_savedtable = {},
 		spell_category_latest_query = 0,

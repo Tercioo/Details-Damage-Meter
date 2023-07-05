@@ -5072,6 +5072,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		local _, _, _, _, _, _, _, zoneMapID = GetInstanceInfo()
 
+		local bossIcon = Details:GetBossEncounterTexture(encounterName)
+		_current_combat.bossIcon = bossIcon
+
 		if (_in_combat) then
 			if (endStatus == 1) then
 				Details.encounter_table.kill = true
