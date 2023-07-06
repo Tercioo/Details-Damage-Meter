@@ -3842,15 +3842,14 @@ function damageClass:ToolTip_DamageTaken (instance, numero, barra, keydown)
 	local iconSize = Details.tooltip.icon_size
 	local iconBorderTexCoord = Details.tooltip.icon_border_texcoord
 
+	-- create a full list of incoming damage, before adding any lines to the tooltip, so we can sort them appropriately
+	local lines_to_add = {}
 	for i = 1, max do
 		local enemyActorObject = damageTakenSorted[i][4]
 
 		--only shows damage from enemies or from the player it self
 		--the player it self can only be placed on the list by the iteration above
 		--the iteration doesnt check friendly fire for all actors, only a few cases like Monk Stagger
-
-		--bug: on the first iteration it's grabbing all actors that inflicted damage to this player
-		--here it gets all spells from the player and display them, which won't be sorted
 
 		if (enemyActorObject:IsNeutralOrEnemy() or enemyActorObject.nome == self.nome) then
 			local all_spells = {}
@@ -3872,17 +3871,20 @@ function damageClass:ToolTip_DamageTaken (instance, numero, barra, keydown)
 
 			for _, spell in ipairs(all_spells) do
 				local spellname, _, spellicon = _GetSpellInfo(spell [1])
-				GameCooltip:AddLine(spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (_, spell [2]).." (" .. format("%.1f", (spell [2] / totalDamageTaken) * 100).."%)")
-				GameCooltip:AddIcon (spellicon, 1, 1, iconSize.W, iconSize.H, iconBorderTexCoord.L, iconBorderTexCoord.R, iconBorderTexCoord.T, iconBorderTexCoord.B)
-				Details:AddTooltipBackgroundStatusbar()
+				tinsert(lines_to_add, {
+					spell [2],
+					{spellname .. " (|cFFFFFF00" .. spell [3] .. "|r)", FormatTooltipNumber (_, spell [2]).." (" .. format("%.1f", (spell [2] / totalDamageTaken) * 100).."%)"},
+					{spellicon, 1, 1, iconSize.W, iconSize.H, iconBorderTexCoord.L, iconBorderTexCoord.R, iconBorderTexCoord.T, iconBorderTexCoord.B}
+				})
 			end
 
 		else
+			local amount, addLineArgs, addIconArgs = damageTakenSorted[i][2]
 			local aggressorName = Details:GetOnlyName(damageTakenSorted[i][1])
 			if (bIsMaximized and damageTakenSorted[i][1]:find(Details.playername)) then
-				GameCooltip:AddLine(aggressorName, FormatTooltipNumber (_, damageTakenSorted[i][2]).." ("..format("%.1f", (damageTakenSorted[i][2]/totalDamageTaken) * 100).."%)", nil, "yellow")
+				addLineArgs = { aggressorName, FormatTooltipNumber (_, damageTakenSorted[i][2]).." ("..format("%.1f", (damageTakenSorted[i][2]/totalDamageTaken) * 100).."%)", nil, "yellow" }
 			else
-				GameCooltip:AddLine(aggressorName, FormatTooltipNumber (_, damageTakenSorted[i][2]).." ("..format("%.1f", (damageTakenSorted[i][2]/totalDamageTaken) * 100).."%)")
+				addLineArgs = { aggressorName, FormatTooltipNumber (_, damageTakenSorted[i][2]).." ("..format("%.1f", (damageTakenSorted[i][2]/totalDamageTaken) * 100).."%)" }
 			end
 			local classe = damageTakenSorted[i][3]
 
@@ -3891,12 +3893,19 @@ function damageClass:ToolTip_DamageTaken (instance, numero, barra, keydown)
 			end
 
 			if (classe == "UNKNOW") then
-				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize.W, iconSize.H, .25, .5, 0, 1)
+				addIconArgs = { "Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, iconSize.W, iconSize.H, .25, .5, 0, 1 }
 			else
-				GameCooltip:AddIcon (instance.row_info.icon_file, nil, nil, iconSize.W, iconSize.H, unpack(Details.class_coords [classe]))
+				addIconArgs= { instance.row_info.icon_file, nil, nil, iconSize.W, iconSize.H, unpack(Details.class_coords [classe]) }
 			end
-			Details:AddTooltipBackgroundStatusbar()
+			tinsert(lines_to_add, { amount, addLineArgs, addIconArgs })
 		end
+	end
+
+	table.sort(lines_to_add, function(a, b) return a[1] > b[1] end)
+	for _, line in ipairs(lines_to_add) do
+		GameCooltip:AddLine(unpack(line[2]))
+		GameCooltip:AddIcon(unpack(line[3]))
+		Details:AddTooltipBackgroundStatusbar()
 	end
 
 	if (subAttribute == DETAILS_SUBATTRIBUTE_ENEMIES) then
