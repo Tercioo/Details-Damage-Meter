@@ -5935,17 +5935,90 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	local parserDebug = {}
 	function Details.OnParserEventDebug()
-		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, unknown1, unknown2, unknown3, unknown4, unknown5 = CombatLogGetCurrentEventInfo()
 
 		if (not parserDebug[token]) then
 			parserDebug[token] = true
 			print(token)
 		end
 
+		if (token == "SPELL_DAMAGE") then
+			if (A13 ~= nil or unknown1 ~= nil or unknown2 ~= nil or unknown3 ~= nil or unknown4 ~= nil or unknown5) then
+				--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)	
+			end
+			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)
+
+			if (spellName == "Fate Mirror") then
+				--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)
+			end
+		end
+
+		if (token == "SPELL_AURA_APPLIED") then
+			--print(spellName)
+		end
+
 		--local func = token_list[token]
 		--if (func) then
-		--	return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		--	return func(nil, token, time, who_serial, who_name, who_flags, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
 		--end
+
+		--[=[ getspellinfo
+			["1"] = "Spatial Paradox", buff
+			["3"] = 5199645,
+			["4"] = 0,
+			["5"] = 0,
+			["6"] = 100,
+			["7"] = 406789,
+			["8"] = 5199645,
+
+			["1"] = "Spatial Paradox", buff
+			["3"] = 5199645,
+			["4"] = 0,
+			["5"] = 0,
+			["6"] = 60,
+			["7"] = 406732,
+			["8"] = 5199645,
+
+			["1"] = "Ebon Might", --spell cast start
+			["3"] = 5061347,
+			["4"] = 1473,
+			["5"] = 0,
+			["6"] = 0,
+			["7"] = 395152,
+			["8"] = 5061347,			
+		--]=]
+
+		if (who_serial == UnitGUID("player")) then
+			GLOB = GLOB or {}
+			--table.insert(GLOB, {time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18})
+			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)	
+		end
+
+		--two spells triggering _support
+		--404908,"Fate Mirror"
+		--395152,"Ebon Might"
+
+		--SPELL_DAMAGE_SUPPORT on spellId 395152 spellname "Ebon Might", only seens to exists in the offline version of the combat log
+
+		if (spellId == 395152) then --Ebon Might "cast start" and "buff applyed"
+			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, unknown1, unknown2, unknown3, unknown4, unknown5)
+		end
+
+		if (spellName== "Ebon Might") then 
+			--print(token, spellName, spellId)
+		end
+
+		if (token == "SPELL_CAST_START") then
+			if (who_serial == UnitGUID("player")) then
+			--print(token, spellName, spellId)
+			end
+		end
+
+		--Prescience, Fate Mirror, Ebon Might, Breath of Eons, Shifting Sands
+
+		--offline cleu:
+		--6/30 14:25:28.988  SPELL_DAMAGE,Player-5764-0001609B,"Mikito-Fyrakk",0x518,0x0,Creature-0-5770-2444-8-198594-00009DF6EF,"Cleave Training Dummy",0x30a28,0x0,44425,"Arcane Barrage",0x40,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,2112,0.0000,0,18252,18251,-1,64,0,0,0,nil,nil,nil
+		--6/30 14:25:28.988  SPELL_DAMAGE_SUPPORT,Player-5764-0001609B,"Mikito-Fyrakk",0x518,0x0,Creature-0-5770-2444-8-198594-00009DF6EF,"Cleave Training Dummy",0x30a28,0x0,395152,"Ebon Might",0xc,0000000000000000,0000000000000000,0,0,0,0,0,0,-1,0,0,0,0.00,0.00,2112,0.0000,0,2572,2571,-1,64,0,0,0,nil,nil,nil,Player-5764-0001FACE
 	end
 
 	function Details.OnParserEventClassicEra()
@@ -5994,11 +6067,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		}
 		Details.parser_frame:SetScript("OnEvent", Details.OnParserEventClassicEra)
 	else
-		--if ("I'm debugging something") then
-		--	Details.parser_frame:SetScript("OnEvent", Details.OnParserEventDebug)
-		--else
+		if (false and "I'm debugging something") then
+			Details.parser_frame:SetScript("OnEvent", Details.OnParserEventDebug)
+		else
 			Details.parser_frame:SetScript("OnEvent", Details.OnParserEvent)
-		--end
+		end
 	end
 
 	function Details:UpdateParser()

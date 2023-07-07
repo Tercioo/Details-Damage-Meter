@@ -891,6 +891,7 @@ detailsFramework.DataMixin = {
 ---@field ValueConstructor fun(self: df_value)
 ---@field SetMinMaxValues fun(self: df_value, minValue: number, maxValue: number)
 ---@field GetMinMaxValues fun(self: df_value) : number, number
+---@field ResetMinMaxValues fun(self: df_value)
 ---@field GetMinValue fun(self: df_value) : number
 ---@field GetMaxValue fun(self: df_value) : number
 ---@field SetMinValue fun(self: df_value, minValue: number)
@@ -905,8 +906,7 @@ detailsFramework.ValueMixin = {
 	---initialize the value table
 	---@param self table
 	ValueConstructor = function(self)
-		self.minValue = 0
-		self.maxValue = 1
+		self:ResetMinMaxValues()
 	end,
 
 	---set the min and max values
@@ -923,6 +923,13 @@ detailsFramework.ValueMixin = {
 	---@return number, number
 	GetMinMaxValues = function(self)
 		return self.minValue, self.maxValue
+	end,
+
+	---reset the min and max values
+	---@param self table
+	ResetMinMaxValues = function(self)
+		self.minValue = 0
+		self.maxValue = 1
 	end,
 
 	---get the min value

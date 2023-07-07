@@ -149,6 +149,10 @@
 ---@alias valueamount number used to represent a value, such as a damage amount, a healing amount, or a resource amount.
 ---@alias timestring string refers to a string showing a time value, such as "1:23" or "1:23:45".
 ---@alias combattime number elapsed time of a combat or time in seconds that a unit has been in combat.
+---@alias coordleft number
+---@alias coordright number
+---@alias coordtop number
+---@alias coordbottom number
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)
