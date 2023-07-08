@@ -3040,16 +3040,10 @@ function Details:SetBarLeftText(bar, instance, enemy, arenaEnemy, arenaAlly, usi
 	setLineTextSize (bar, instance)
 end
 
---[[ exported]] function Details:SetBarColors(bar, instance, r, g, b, a)
+function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]]
 	a = a or 1
 
 	if (instance.row_info.texture_class_colors) then
-		--[[ Deprecation of right_to_left_texture in favor of StatusBar:SetReverseFill 5/2/2022 - Flamanis
-		if (instance.bars_inverted) then
-			bar.right_to_left_texture:SetVertexColor(r, g, b, a)
-		else
-			bar.textura:SetVertexColor(r, g, b, a)
-		end]]
 		bar.textura:SetVertexColor(r, g, b, a)
 	end
 
@@ -3117,6 +3111,18 @@ function Details:SetClassIcon(texture, instance, class) --[[ exported]]
 			end
 		end
 
+		local localizedClass, englishClass
+		if (self.serial ~= "") then
+			localizedClass, englishClass = GetPlayerInfoByGUID(self.serial)
+		end
+
+		if (englishClass) then
+			texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
+			texture:SetTexCoord(unpack(Details.class_coords[englishClass]))
+			texture:SetVertexColor(1, 1, 1)
+			return
+		end
+
 		if (self.enemy) then
 			if (Details.faction_against == "Horde") then
 				texture:SetTexture("Interface\\ICONS\\Achievement_Character_Troll_Male")
@@ -3144,22 +3150,20 @@ function Details:SetClassIcon(texture, instance, class) --[[ exported]]
 		texture:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 	else
-		if (self.spec == 1473) then
-			if (instance and instance.row_info.use_spec_icons) then
-				if (self.spec and Details.class_specs_coords[self.spec]) then
-					texture:SetTexture(instance.row_info.spec_file)
-					texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
-					texture:SetVertexColor(1, 1, 1)
-				else
-					texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
-					texture:SetTexCoord(unpack(Details.class_coords[class]))
-					texture:SetVertexColor(1, 1, 1)
-				end
+		if (instance and instance.row_info.use_spec_icons) then
+			if (self.spec and Details.class_specs_coords[self.spec]) then
+				texture:SetTexture(instance.row_info.spec_file)
+				texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
+				texture:SetVertexColor(1, 1, 1)
 			else
-				texture:SetTexture(instance and instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
+				texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
 				texture:SetTexCoord(unpack(Details.class_coords[class]))
 				texture:SetVertexColor(1, 1, 1)
 			end
+		else
+			texture:SetTexture(instance and instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
+			texture:SetTexCoord(unpack(Details.class_coords[class]))
+			texture:SetVertexColor(1, 1, 1)
 		end
 	end
 end
@@ -3177,6 +3181,7 @@ function Details:RefreshBarra(thisLine, instance, fromResize) --[[ exported]]
 	if (fromResize) then
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	end
+
 	--icon
 	self:SetClassIcon(thisLine.icone_classe, instance, class)
 

@@ -464,22 +464,32 @@ end
 		if (engClass) then
 			actorObject.classe = engClass
 			return
-		else
-			if (actorFlags) then
-				--check if the actor is a player
-				if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
-					actorObject.classe = "UNGROUPPLAYER"
-					return
+		end
 
-				elseif (bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
-					actorObject.classe = "PET"
+		if (actorObject.serial and actorObject.serial ~= "") then
+			local a, b = pcall(function()
+				local _, englishClass = GetPlayerInfoByGUID(actorObject.serial)
+				if (englishClass) then
+					actorObject.classe = englishClass
 					return
 				end
-			end
-
-			actorObject.classe = "UNKNOW" --it's a typo, can't be changed at this point
-			return true
+			end)
 		end
+
+		if (actorFlags) then
+			--check if the actor is a player
+			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
+				actorObject.classe = "UNGROUPPLAYER"
+				return
+
+			elseif (bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
+				actorObject.classe = "PET"
+				return
+			end
+		end
+
+		actorObject.classe = "UNKNOW" --it's a typo, can't be changed at this point
+		return true
 	end
 
 	--check if the nickname fit some minimal rules to be presented to other players
