@@ -6591,7 +6591,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 						end
 					end
 
-					gameCooltip:AddMenu(1, instance.TrocaTabela, i)
+					gameCooltip:AddMenu(1, instance.SetSegmentFromCooltip, i)
 
 					if (not segmentInfoAdded) then
 						gameCooltip:AddLine(Loc["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
@@ -6610,7 +6610,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 						Details:Msg("combat destroyed by:", thisCombat.__destroyedBy)
 					else
 						gameCooltip:AddLine(Loc["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
-						gameCooltip:AddMenu(1, instance.TrocaTabela, i)
+						gameCooltip:AddMenu(1, instance.SetSegmentFromCooltip, i)
 						gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
 						gameCooltip:AddLine(Loc["STRING_SEGMENT_EMPTY"], _, 2)
 						gameCooltip:AddIcon([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
@@ -6638,7 +6638,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 			--add the new line
 			gameCooltip:AddLine(segmentos.current_standard, _, 1, "white")
-			gameCooltip:AddMenu(1, instance.TrocaTabela, 0)
+			gameCooltip:AddMenu(1, instance.SetSegmentFromCooltip, 0)
 			gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 
 			--current segment is a dungeon mythic+?
@@ -6855,7 +6855,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 		----------- overall
 		--CoolTip:AddLine(segmentos.overall_standard, _, 1, "white") Loc["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc["STRING_REPORT_FIGHTS"]
 		gameCooltip:AddLine(Loc["STRING_SEGMENT_OVERALL"], _, 1, "white")
-		gameCooltip:AddMenu(1, instance.TrocaTabela, -1)
+		gameCooltip:AddMenu(1, instance.SetSegmentFromCooltip, -1)
 		gameCooltip:AddIcon([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 
 			local enemy_name = Details.tabela_overall.overall_enemy_name
@@ -9376,7 +9376,7 @@ local changeSegmentOnClick = function(instancia, buttontype)
 		GameCooltip:Select(1, segmentIndex)
 
 		--change the segment
-		instancia:TrocaTabela(previousSegment) --todo: use new api
+		instancia:SetSegment(previousSegment) --todo: use new api
 		segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 
 	elseif (buttontype == "RightButton") then
@@ -9392,7 +9392,7 @@ local changeSegmentOnClick = function(instancia, buttontype)
 		local segmentIndex = math.abs(targetSegment - maxSegments)
 		GameCooltip:Select(1, segmentIndex)
 
-		instancia:TrocaTabela(nextSegment)
+		instancia:SetSegment(nextSegment)
 		segmentButton_OnEnter(instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 
 	elseif (buttontype == "MiddleButton") then
@@ -9404,7 +9404,7 @@ local changeSegmentOnClick = function(instancia, buttontype)
 		local select_ = math.abs(goal - total_shown)
 		GameCooltip:Select(1, select_)
 
-		instancia:TrocaTabela(segmento_goal)
+		instancia:SetSegment(segmento_goal)
 		segmentButton_OnEnter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
 
 	end

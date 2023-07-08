@@ -420,6 +420,10 @@ local instanceMixins = {
 		Details222.Instances.OnModeChanged(instance)
 	end,
 
+	SetSegmentFromCooltip = function(_, instance, segmentId, bForceChange)
+		return instance:SetSegment(segmentId, bForceChange)
+	end,
+
 	---change the segment shown in the instance, this changes the segmentID and also refresh the combat object in the instance
 	---@param instance instance
 	---@param segmentId segmentid
