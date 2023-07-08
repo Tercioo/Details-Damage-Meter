@@ -444,31 +444,31 @@ local instanceMixins = {
 			instance:RefreshWindow(true)
 
 			if (Details.instances_segments_locked) then
-				---@param thisInstance instance
-				for _, thisInstance in ipairs(Details:GetAllInstances()) do
-					if (instance:GetId() ~= thisInstance:GetId() and thisInstance:IsEnabled() and not thisInstance._postponing_switch and not thisInstance._postponing_current) then
-						if (thisInstance:GetSegmentId() >= 0) then --not overall data
-							if (thisInstance.modo == DETAILS_MODE_GROUP or thisInstance.modo == DETAILS_MODE_ALL) then
+				---@param otherInstance instance
+				for _, otherInstance in ipairs(Details:GetAllInstances()) do
+					if (instance:GetId() ~= otherInstance:GetId() and otherInstance:IsEnabled() and not otherInstance._postponing_switch and not otherInstance._postponing_current) then
+						if (segmentId ~= -1 and otherInstance:GetSegmentId() >= 0) then --not overall data
+							if (otherInstance.modo == DETAILS_MODE_GROUP or otherInstance.modo == DETAILS_MODE_ALL) then
 								--check if the instance is frozen
-								if (thisInstance.freezed) then
-									thisInstance:UnFreeze()
+								if (otherInstance.freezed) then
+									otherInstance:UnFreeze()
 								end
 
-								thisInstance.segmento = segmentId
-								thisInstance:RefreshCombat()
+								otherInstance.segmento = segmentId
+								otherInstance:RefreshCombat()
 
-								if (not thisInstance.showing) then
-									thisInstance:Freeze()
+								if (not otherInstance.showing) then
+									otherInstance:Freeze()
 									return
 								end
 
-								thisInstance.v_barras = true
-								thisInstance.showing[thisInstance.atributo].need_refresh = true
+								otherInstance.v_barras = true
+								otherInstance.showing[otherInstance.atributo].need_refresh = true
 
-								thisInstance:ResetWindow()
-								thisInstance:RefreshWindow(true)
+								otherInstance:ResetWindow()
+								otherInstance:RefreshWindow(true)
 
-								Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, thisInstance, segmentId)
+								Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, otherInstance, segmentId)
 							end
 						end
 					end
