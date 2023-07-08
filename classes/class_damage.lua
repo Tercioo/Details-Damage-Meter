@@ -3106,6 +3106,17 @@ function Details:SetClassIcon(texture, instance, class) --[[ exported]]
 		texture:SetVertexColor(1, 1, 1)
 
 	elseif (class == "UNGROUPPLAYER") then
+		if (self.spec) then
+			if (instance and instance.row_info.use_spec_icons) then
+				if (self.spec and Details.class_specs_coords[self.spec]) then
+					texture:SetTexture(instance.row_info.spec_file)
+					texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
+					texture:SetVertexColor(1, 1, 1)
+					return
+				end
+			end
+		end
+
 		if (self.enemy) then
 			if (Details.faction_against == "Horde") then
 				texture:SetTexture("Interface\\ICONS\\Achievement_Character_Troll_Male")
@@ -3133,20 +3144,22 @@ function Details:SetClassIcon(texture, instance, class) --[[ exported]]
 		texture:SetVertexColor(actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 	else
-		if (instance and instance.row_info.use_spec_icons) then
-			if (self.spec and Details.class_specs_coords[self.spec]) then
-				texture:SetTexture(instance.row_info.spec_file)
-				texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
-				texture:SetVertexColor(1, 1, 1)
+		if (self.spec == 1473) then
+			if (instance and instance.row_info.use_spec_icons) then
+				if (self.spec and Details.class_specs_coords[self.spec]) then
+					texture:SetTexture(instance.row_info.spec_file)
+					texture:SetTexCoord(unpack(Details.class_specs_coords[self.spec]))
+					texture:SetVertexColor(1, 1, 1)
+				else
+					texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
+					texture:SetTexCoord(unpack(Details.class_coords[class]))
+					texture:SetVertexColor(1, 1, 1)
+				end
 			else
-				texture:SetTexture(instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
+				texture:SetTexture(instance and instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
 				texture:SetTexCoord(unpack(Details.class_coords[class]))
 				texture:SetVertexColor(1, 1, 1)
 			end
-		else
-			texture:SetTexture(instance and instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
-			texture:SetTexCoord(unpack(Details.class_coords[class]))
-			texture:SetVertexColor(1, 1, 1)
 		end
 	end
 end
