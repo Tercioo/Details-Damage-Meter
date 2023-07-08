@@ -13,7 +13,7 @@ do
 		--/details generatespelllist
 		_detalhes.SpecSpellList = { --~spec
 			--Evoker Augmentation
-			[409632] = 1473, --Breath of Eons
+			--[409632] = 1473, --Breath of Eons
 			[396288] = 1473, --Upheaval
 			[395160] = 1473, --Eruption
 
