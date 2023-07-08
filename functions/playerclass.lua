@@ -455,7 +455,6 @@ do
 
 		if (actorSpec) then
 			Details.cached_specs[actorObject.serial] = actorSpec
-
 			actorObject:SetSpecId(actorSpec)
 			actorObject.classe = Details.SpecIDToClass[actorSpec] or actorObject.classe
 			actorObject.guessing_spec = nil
