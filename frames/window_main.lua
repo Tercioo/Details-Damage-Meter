@@ -4055,6 +4055,12 @@ function gump:CreateNewLine(instance, index)
 	newLine.textura:SetVertTile(false)
 	newLine.statusbar:SetStatusBarTexture(newLine.textura)
 
+	newLine.extraTexture = newLine.statusbar:CreateTexture(nil, "overlay")
+
+	local evokerColor = Details.class_colors["EVOKER"]
+	newLine.extraTexture:SetColorTexture(unpack(evokerColor))
+	newLine.extraTexture:Hide()
+
 	--frame for hold the backdrop border
 	newLine.border = CreateFrame("Frame", "DetailsBarra_Border_" .. instance.meu_id .. "_" .. index, newLine.statusbar, "BackdropTemplate")
 	newLine.border:SetFrameLevel(newLine.statusbar:GetFrameLevel()+2)

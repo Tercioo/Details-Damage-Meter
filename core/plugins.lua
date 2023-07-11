@@ -632,54 +632,6 @@
 			end
 		end
 
-		local highlightPluginButtonOnBreakdownWindow = function(pluginAbsoluteName)
-			for index, button in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
-				---@cast button df_button
-				button:Show()
-
-				if (button.PluginAbsName == pluginAbsoluteName) then
-					button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE"))
-				else
-					button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
-				end
-			end
-		end
-
-		function pluginContainerFrame.OnMenuClickFromBreakdownWindow(_, _, pluginAbsoluteName, callRefresh)
-			local pluginObject = getPluginObject(pluginAbsoluteName)
-			if (not pluginObject) then
-				return
-			end
-
-			--hide other plugin windows
-			hideOtherPluginFrames(pluginObject)
-
-			---@type breakdownwindow
-			local breakdownWindowFrame = Details.BreakdownWindowFrame
-			--re set the point of the frame within the main plugin window
-			pluginContainerFrame.RefreshFrame(pluginObject.Frame, breakdownWindowFrame)
-			C_Timer.After(0, function()
-				pluginContainerFrame.RefreshFrame(pluginObject.Frame, breakdownWindowFrame)
-			end)
-
-			--show the plugin window
-			if (pluginObject.RefreshWindow and callRefresh) then
-				DetailsFramework:QuickDispatch(pluginObject.RefreshWindow)
-			end
-
-			--highlight the plugin button on the menu
-			highlightPluginButtonOnBreakdownWindow(pluginAbsoluteName)
-
-			--check if the plugin has a callback for when showing the frame
-			if (pluginObject.__OnClickFromOptionsCallback) then
-				--safe run the plugin callback
-				DetailsFramework:QuickDispatch(pluginObject.__OnClickFromOptionsCallback)
-			end
-
-			Details222.BreakdownWindow.OnShowPluginFrame(pluginObject)
-			return true
-		end
-
 		function pluginContainerFrame.OnMenuClick(_, _, pluginAbsoluteName, callRefresh)
 			local pluginObject = getPluginObject(pluginAbsoluteName)
 			if (not pluginObject) then
@@ -770,72 +722,72 @@
 				return
 			end
 
-			--create a button for this plugin
-			local pluginButton = Details:CreatePluginMenuButton(pluginObject, bIsUtility, pluginContainerFrame, pluginContainerFrame.OnMenuClick, pluginContainerFrame.MenuButtonWidth, pluginContainerFrame.MenuButtonHeight)
 			--add it to menu table
-			table.insert(pluginContainerFrame.MenuButtons, pluginButton)
+			if (bIsUtility) then
+				--create a button for this plugin
+				local pluginButton = Details:CreatePluginMenuButton(pluginObject, bIsUtility, pluginContainerFrame, pluginContainerFrame.OnMenuClick, pluginContainerFrame.MenuButtonWidth, pluginContainerFrame.MenuButtonHeight)
 
-			pluginObject.__var_Frame = frame
+				--only register button if it's a utility, plugins now are placed into the breakdown window
+				table.insert(pluginContainerFrame.MenuButtons, pluginButton)
 
-			--create a button to be hosted in the player breakdown window
-			if (not bIsUtility) then
-				local breakdownWindowFrame = Details.BreakdownWindowFrame
-				local breakdownButton = Details:CreatePluginMenuButton(pluginObject, bIsUtility, breakdownWindowFrame.BreakdownPluginSelectionFrame, pluginContainerFrame.OnMenuClickFromBreakdownWindow, pluginContainerFrame.MenuButtonWidth, pluginContainerFrame.MenuButtonHeight)
-				breakdownWindowFrame.RegisterPluginButton(breakdownButton)
-			else
-				--utility is true when the object isn't a real plugin, but instead a tool frame from the main addon being embed on this panel
+				pluginObject.__var_Frame = frame
 				pluginObject.__var_Utility = true
-			end
 
-			--sort buttons alphabetically, put utilities at the end
-			table.sort(pluginContainerFrame.MenuButtons, function(t1, t2)
-				if (t1.IsUtility and t2.IsUtility) then
-					return t1.PluginName < t2.PluginName
-				elseif (t1.IsUtility) then
-					return false
-				elseif (t2.IsUtility) then
-					return true
-				else
-					return t1.PluginName < t2.PluginName
-				end
-			end)
-
-			--reset the buttons points
-			local addingTools = false
-			for index, button in ipairs(pluginContainerFrame.MenuButtons) do
-				button:ClearAllPoints()
-				PixelUtil.SetPoint(button, "center", menuBackground, "center", 0, 0)
-
-				if (button.IsUtility) then
-					if (not addingTools) then
-						--add the header
-						addingTools = true
-						--add -20 to add a gap between plugins and utilities
-						PixelUtil.SetPoint(titleBarTools, "topleft", menuBackground, "topleft", 2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
-						PixelUtil.SetPoint(titleBarTools, "topright", menuBackground, "topright", -2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
+				--sort buttons alphabetically, put utilities at the end
+				table.sort(pluginContainerFrame.MenuButtons, function(t1, t2)
+					if (t1.IsUtility and t2.IsUtility) then
+						return t1.PluginName < t2.PluginName
+					elseif (t1.IsUtility) then
+						return false
+					elseif (t2.IsUtility) then
+						return true
+					else
+						return t1.PluginName < t2.PluginName
 					end
+				end)
 
-					PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 40)
-				else
-					PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index)
+				--reset the buttons points
+				local addingTools = false
+				for index, button in ipairs(pluginContainerFrame.MenuButtons) do
+					button:ClearAllPoints()
+					PixelUtil.SetPoint(button, "center", menuBackground, "center", 0, 0)
+
+					if (button.IsUtility) then
+						if (not addingTools) then
+							--add the header
+							addingTools = true
+							--add -20 to add a gap between plugins and utilities
+							PixelUtil.SetPoint(titleBarTools, "topleft", menuBackground, "topleft", 2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
+							PixelUtil.SetPoint(titleBarTools, "topright", menuBackground, "topright", -2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
+						end
+
+						PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 40)
+					else
+						PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index)
+					end
 				end
+
+				--format the plugin main frame
+				pluginContainerFrame.RefreshFrame(frame)
+				setupFrameFunctions(frame)
+
+				--save the callback function for when clicking in the button from the options panel
+				pluginObject.__OnClickFromOptionsCallback = callback
+
+				--add the plugin to embed table
+				table.insert(pluginContainerFrame.EmbedPlugins, pluginObject)
+				frame:SetParent(pluginContainerFrame)
+
+				pluginContainerFrame.DebugMsg("plugin added", pluginObject.__name)
 			end
-
-			--format the plugin main frame
-			pluginContainerFrame.RefreshFrame(frame)
-			setupFrameFunctions(frame)
-
-			--save the callback function for when clicking in the button from the options panel
-			pluginObject.__OnClickFromOptionsCallback = callback
-
-			--add the plugin to embed table
-			table.insert(pluginContainerFrame.EmbedPlugins, pluginObject)
-			frame:SetParent(pluginContainerFrame)
-
-			pluginContainerFrame.DebugMsg("plugin added", pluginObject.__name)
 		end
 
 		function pluginContainerFrame.OpenPlugin(pluginObject)
+			if (pluginObject.__breakdownwindow) then
+				breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject)
+				return
+			end
+
 			--simulate a click on the menu button
 			pluginContainerFrame.OnMenuClick(_, _, pluginObject.real_name)
 		end
@@ -854,7 +806,6 @@
 			Details:OpenPlugin(PLUGIN_ABSOLUTE_NAME)
 			Details:OpenPlugin(PluginObject)
 			Details:OpenPlugin("Plugin Name")
-
 			Example: /run Details:OpenPlugin("Time Line")
 		--]=]
 
@@ -868,6 +819,10 @@
 				--check if passed a plugin absolute name
 				local pluginObject = Details:GetPlugin(wildCard)
 				if (pluginObject) then
+					if (pluginObject.__breakdownwindow) then
+						breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject)
+						return
+					end
 					pluginContainerFrame.OpenPlugin(pluginObject)
 					return true
 				end
@@ -883,6 +838,10 @@
 
 					if (pluginName ==  wildCard) then
 						local pluginObject = pluginInfoTable[3]
+						if (pluginObject.__breakdownwindow) then
+							breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject)
+							return
+						end
 						pluginContainerFrame.OpenPlugin(pluginObject)
 						return true
 					end

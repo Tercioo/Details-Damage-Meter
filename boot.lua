@@ -116,6 +116,7 @@
 		Details222.ClassCache.ByName = {}
 		Details222.ClassCache.ByGUID = {}
 		Details222.UnitIdCache = {}
+		Details222.Roskash = {}
 
 		Details222.Actors = {}
 

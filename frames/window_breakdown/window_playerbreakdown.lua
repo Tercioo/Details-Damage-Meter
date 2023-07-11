@@ -20,12 +20,66 @@ local breakdownWindowFrame = Details.BreakdownWindowFrame
 
 ---@type button[]
 breakdownWindowFrame.RegisteredPluginButtons = {}
+breakdownWindowFrame.RegisteredPlugins = {}
 
 ---register a plugin button to be shown in the breakdown window
----@param button button
-function breakdownWindowFrame.RegisterPluginButton(button)
-	button:SetParent(DetailsBreakdownLeftMenuPluginsFrame)
-	table.insert(breakdownWindowFrame.RegisteredPluginButtons, button)
+---@param newPluginButton df_button
+---@param newPluginAbsoluteName string
+function breakdownWindowFrame.RegisterPluginButton(newPluginButton, newPluginObject, newPluginAbsoluteName)
+	newPluginButton:SetParent(DetailsBreakdownLeftMenuPluginsFrame)
+
+	newPluginButton.PluginObject = newPluginObject
+	newPluginButton.PluginAbsoluteName = newPluginAbsoluteName
+	newPluginButton.PluginFrame = newPluginObject.Frame
+
+	newPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+
+	newPluginObject.__breakdownwindow = true
+
+	local newClickFunction = function(UIObjectButton)
+		--GetCapsule() returns the table which encapsulates the UIButton
+		local button = UIObjectButton:GetCapsule()
+		local pluginObject = button.PluginObject
+		breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject, button)
+	end
+
+	newPluginButton:SetScript("OnClick", newClickFunction)
+
+	table.insert(breakdownWindowFrame.RegisteredPluginButtons, newPluginButton)
+	table.insert(breakdownWindowFrame.RegisteredPlugins, newPluginObject)
+end
+
+function breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject, button)
+	--hide all frames
+	for _, thisPluginObject in ipairs(breakdownWindowFrame.RegisteredPlugins) do
+		thisPluginObject.Frame:Hide()
+	end
+
+	--reset the template on all plugin buttons
+	for _, thisPluginButton in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
+		---@cast thisPluginButton df_button
+		thisPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+	end
+
+	local pluginMainFrame = pluginObject.Frame
+
+	--> sets the plugin main frame: pluginObject.Frame, as the frame to be shown in the breakdown window
+	pluginMainFrame:EnableMouse(false)
+	pluginMainFrame:SetSize(DetailsBreakdownWindow:GetSize())
+	pluginMainFrame:ClearAllPoints()
+	PixelUtil.SetPoint(pluginMainFrame, "topleft", DetailsBreakdownWindow, "topleft", 0, 0)
+	pluginMainFrame:SetParent(DetailsBreakdownWindow)
+	pluginMainFrame:Show()
+
+	--> this click is what selects the plugin tab within the plugin code
+	--may this be confused as we set OnClick right below, but the :Click() from framework buttons are different than the Blizzard ones
+	if (button) then
+		button:Click()
+		button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE"))
+	end
+
+	--> hide the current shown tab in the breakdown window
+	Details222.BreakdownWindow.OnShowPluginFrame(pluginObject)
 end
 
 local PLAYER_DETAILS_WINDOW_WIDTH = 925
@@ -51,8 +105,6 @@ breakdownWindowFrame.BreakdownSideMenuFrame = breakdownSideMenu
 --create a frame to hold plugin buttons
 local pluginsFrame = CreateFrame("frame", "DetailsBreakdownLeftMenuPluginsFrame", breakdownSideMenu, "BackdropTemplate")
 breakdownWindowFrame.BreakdownPluginSelectionFrame = pluginsFrame
-
-
 
 --create the frame to hold tab buttons
 local tabButtonsFrame = CreateFrame("frame", "DetailsBreakdownTabsFrame", breakdownWindowFrame, "BackdropTemplate")
@@ -109,6 +161,12 @@ function Details222.BreakdownWindow.HidePluginFrame()
 	breakdownWindowFrame.avatar_bg:Show()
 	breakdownWindowFrame.avatar_attribute:Show()
 	breakdownWindowFrame.avatar_nick:Show()
+
+	--reset the template on all plugin buttons
+	for _, thisPluginButton in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
+		---@cast thisPluginButton df_button
+		thisPluginButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
+	end
 end
 
 ------------------------------------------------------------------------------------------------------------------------------

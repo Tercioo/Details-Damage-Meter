@@ -1152,6 +1152,7 @@ local default_player_data = {
 			track_hunter_frenzy = false,
 			merge_gemstones_1007 = false,
 			merge_critical_heals = false,
+			evoker_calc_damage = false,
 		},
 
 		--this is used by the new data capture for charts
@@ -1412,7 +1413,7 @@ local default_global_data = {
 			},
 		},
 
---/run Details.breakdown_spell_tab.statusbar_alpha = 0.823
+--/run Details.breakdown_spell_tab.spellcontainer_height = 311 --352
 	--breakdown spell tab
 	breakdown_spell_tab = {
 		--player spells

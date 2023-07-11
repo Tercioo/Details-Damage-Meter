@@ -204,6 +204,7 @@ do
                 --localize-me
                 {value = 1, label = "Activity Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_Daily_08", iconcolor = {1, .9, .9}, texcoord = {0.078125, 0.921875, 0.078125, 0.921875}},
                 {value = 2, label = "Effective Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_08"},
+                {value = 3, label = "Real Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Ability_Evoker_TipTheScales"},
             }
             local buildTimeTypeMenu = function()
                 return timetypeOptions
@@ -7044,7 +7045,7 @@ do
             {type = "blank"},
             {type = "label", get = function() return "Class Options:" end, text_template = subSectionTitleTextTemplate},
 
-            {--damage taken everything
+            {--hunter track pet frenzy
                 type = "toggle",
                 get = function() return Details.combat_log.track_hunter_frenzy end,
                 set = function(self, fixedparam, value)
@@ -7054,6 +7055,19 @@ do
                 end,
                 name = DF:AddClassIconToText("Hunter Track Pet Frenzy", false, "HUNTER"),
                 desc = "Hunter Track Pet Frenzy",
+                boxfirst = true,
+            },
+
+            {--show evoker bar
+                type = "toggle",
+                get = function() return Details.combat_log.evoker_calc_damage end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.evoker_calc_damage = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                end,
+                name = DF:AddClassIconToText("Predict Augmentation Damage", false, "EVOKER"),
+                desc = "Predict Augmentation Damage",
                 boxfirst = true,
             },
 

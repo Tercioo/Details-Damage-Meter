@@ -952,7 +952,6 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 
 		spellBar.spellId = spellId
 		spellBar.spellIconFrame.spellId = spellId
-
 		spellBar.statusBar.backgroundTexture:SetAlpha(Details.breakdown_spell_tab.spellbar_background_alpha)
 
 		--statusbar color by school

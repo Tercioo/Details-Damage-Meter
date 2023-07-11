@@ -59,7 +59,6 @@ end
 ---@param sortKey string
 local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, headerTable, bkTargetData, totalValue, topValue, sortKey) --~target ~update ~targetbar ~updatetargetbar
 	--scrollFrame is defined as a table which is false, scrollFrame is a frame
-
 	local textIndex = 1
 
 	for headerIndex = 1, #headerTable do
@@ -93,7 +92,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 		local text = targetBar.InLineTexts[textIndex]
 		local header = headerTable[headerIndex]
 
-		if (header.name == "icon") then --ok
+		if (header.name == "icon") then
 			targetBar.Icon:Show()
 
 			if (targetActorObject) then
@@ -107,13 +106,13 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 
 			targetBar:AddFrameToHeaderAlignment(targetBar.Icon)
 
-		elseif (header.name == "rank") then --ok
+		elseif (header.name == "rank") then
 			text:SetText(index)
 			targetBar:AddFrameToHeaderAlignment(text)
 			targetBar.rank = index
 			textIndex = textIndex + 1
 
-		elseif (header.name == "name") then --ok
+		elseif (header.name == "name") then
 			local noRealmName = DF:RemoveRealmName(bkTargetData.name)
 			local noOwnerName = noRealmName:gsub((" <.*"), "")
 			text:SetText(noOwnerName)
@@ -121,12 +120,12 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 			targetBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "amount") then --ok
+		elseif (header.name == "amount") then
 			text:SetText(Details:Format(value))
 			targetBar:AddFrameToHeaderAlignment(text)
 			textIndex = textIndex + 1
 
-		elseif (header.name == "percent") then --ok
+		elseif (header.name == "percent") then
 			targetBar.percent = value / totalValue * 100 --totalValue is nil
 			---@type string
 			local percentFormatted = string.format("%.1f", targetBar.percent) .. "%"
@@ -425,8 +424,8 @@ local onEnterBreakdownTargetBar = function(targetBar)
 			---@type spellcontainer
 			local petSpellContainer = petActorObject:GetSpellContainer("spell")
 
-			---@type number, spelltable
-			for spellId, spellTable in petSpellContainer:ListActors() do
+			---@type spellid, spelltable
+			for spellId, spellTable in petSpellContainer:ListActors() do --user reported petSpellContainer is nil x1
 				for spellTargetName, amount in pairs(spellTable[targetTableName]) do
 					if (spellTargetName == targetName) then
 						local spellName, _, spellIcon = _GetSpellInfo(spellId)

@@ -19,7 +19,7 @@ local scrollbox_line_backdrop_color = {0.2, 0.2, 0.2, 0.5}
 local scrollbox_line_backdrop_color_selected = {.6, .6, .1, 0.7}
 local scrollbox_line_backdrop_color_highlight = {.9, .9, .9, 0.5}
 local player_scroll_size = {195, 288}
-local player_scroll_y = -166
+local player_scroll_y = -300
 
 function breakdownWindowPlayerList.CreatePlayerListFrame()
 	---@type breakdownwindow
@@ -35,31 +35,72 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	detailsFramework:ApplyStandardBackdrop(breakdownSideMenu)
 	breakdownSideMenu.RightEdge:Hide()
 
-	pluginsFrame:SetPoint("topleft", breakdownSideMenu, "topleft", 0, 0)
-	pluginsFrame:SetPoint("bottomright", breakdownSideMenu, "topright", 0, player_scroll_y + 26)
+	local titleHeight = 20
+	--plugins menu title bar
+	local titleBarPlugins = CreateFrame("frame", nil, breakdownSideMenu, "BackdropTemplate")
+	PixelUtil.SetPoint(titleBarPlugins, "topleft", breakdownSideMenu, "topleft", 2, -3)
+	PixelUtil.SetPoint(titleBarPlugins, "topright", breakdownSideMenu, "topright", -2, -3)
+	titleBarPlugins:SetHeight(titleHeight)
+	titleBarPlugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+	titleBarPlugins:SetBackdropColor(.5, .5, .5, 1)
+	titleBarPlugins:SetBackdropBorderColor(0, 0, 0, 1)
 
-	--pluginsFrame:SetSize(player_scroll_size[1], player_scroll_y + 26)
+	--title label
+	local titleBarPlugins_TitleLabel = detailsFramework:NewLabel(titleBarPlugins, titleBarPlugins, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "center", titleBarPlugins , "center", 0, 0)
+	PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "top", titleBarPlugins , "top", 0, -5)
 
-	detailsFramework:ApplyStandardBackdrop(pluginsFrame)
+	--plugins menu title bar
+	local titleBarPlayerSeparator = CreateFrame("frame", nil, breakdownSideMenu, "BackdropTemplate")
+	titleBarPlayerSeparator:SetHeight(titleHeight)
+	titleBarPlayerSeparator:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+	titleBarPlayerSeparator:SetBackdropColor(.5, .5, .5, 1)
+	titleBarPlayerSeparator:SetBackdropBorderColor(0, 0, 0, 1)
 
-	local refreshPluginButtons = function()
-		for i = 1, #breakdownWindowFrame.RegisteredPluginButtons do
-			---@type button
-			local pluginButton = breakdownWindowFrame.RegisteredPluginButtons[i]
-			pluginButton:Show()
-			pluginButton:Hide() --not ready yet
-			pluginButton:ClearAllPoints()
+	--title label
+	local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarPlayerSeparator, titleBarPlayerSeparator, nil, "titulo", "Players", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	PixelUtil.SetPoint(titleBarTools_TitleLabel, "center", titleBarPlayerSeparator , "center", 0, 0)
+	PixelUtil.SetPoint(titleBarTools_TitleLabel, "top", titleBarPlayerSeparator , "top", 0, -5)
 
-			if (i == 1) then
-				pluginButton:SetPoint("topleft", pluginsFrame, "topleft", 2, -2)
+	titleBarPlayerSeparator:SetPoint("topleft", pluginsFrame, "bottomleft", 0, -1)
+	titleBarPlayerSeparator:SetPoint("topright", pluginsFrame, "bottomright", 0, -1)
+
+	local highlightPluginButtonOnBreakdownWindow = function(pluginAbsoluteName)
+		for index, button in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
+			---@cast button df_button
+			button:Show()
+
+			if (button.PluginAbsName == pluginAbsoluteName) then
+				button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE"))
 			else
-				pluginButton:SetPoint("topleft", breakdownWindowFrame.RegisteredPluginButtons[i - 1], "bottomleft", 0, -2)
+				button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
 			end
 		end
 	end
 
-	refreshPluginButtons()
+	local refreshPluginButtons = function()
+		local amountPluginButtons = #breakdownWindowFrame.RegisteredPluginButtons
+		local pluginButtonHeight = 20
 
+		for i = 1, amountPluginButtons do
+			---@type button
+			local pluginButton = breakdownWindowFrame.RegisteredPluginButtons[i]
+			pluginButton:Show()
+			pluginButton:SetWidth(pluginsFrame:GetWidth() - 4)
+			pluginButton:SetHeight(pluginButtonHeight)
+			pluginButton:ClearAllPoints()
+
+			if (i == 1) then
+				pluginButton:SetPoint("topleft", pluginsFrame, "topleft", 2, -22)
+			else
+				pluginButton:SetPoint("topleft", breakdownWindowFrame.RegisteredPluginButtons[i - 1], "bottomleft", 0, -2)
+			end
+		end
+
+		pluginsFrame:SetPoint("topleft", breakdownSideMenu, "topleft", 0, 0)
+		pluginsFrame:SetWidth(breakdownSideMenu:GetWidth())
+		pluginsFrame:SetHeight(amountPluginButtons * pluginButtonHeight + 22 + (amountPluginButtons * 2))
+	end
 
 	local refreshScrollFunc = function(self, data, offset, totalLines)
 		--update the scroll
@@ -250,9 +291,9 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		upFrame:SetAllPoints()
 
 		--set its parameters
-		line:SetPoint("topleft", self, "topleft", 1, -((index) * (player_line_height+1)) - 1)
+		--line:SetPoint("topleft", self, "topleft", 1, -((index) * (player_line_height+1)) - 1)
+		line:SetPoint("topleft", breakdownWindowFrame.Header, "topleft", 1, -((index) * (player_line_height*1.02)))
 		line:SetSize(scrollbox_size[1]-2, player_line_height)
-		--line:SetSize(scrollbox_size[1]-19, player_line_height)
 		line:RegisterForClicks("LeftButtonDown", "RightButtonDown")
 
 		line:SetScript("OnEnter", lineOnEnter)
@@ -346,8 +387,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	playerScroll.ScrollBar:SetPoint("topright", playerScroll, "topright", -2, -37)
 	playerScroll.ScrollBar:SetPoint("bottomright", playerScroll, "bottomright", -2, 17)
 	playerScroll.ScrollBar:Hide()
-	playerScroll:SetPoint("topleft", breakdownSideMenu, "topleft", 0, player_scroll_y)
-	playerScroll:SetPoint("bottomright", breakdownSideMenu, "bottomright", -1, 0)
+
 	playerScroll:SetBackdrop({})
 	playerScroll:SetBackdropColor(0, 0, 0, 0)
 	playerScroll:SetBackdropBorderColor(0, 0, 0, 0)
@@ -355,15 +395,17 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 
 	--need to be created before
 	breakdownWindowFrame.Header = DetailsFramework:CreateHeader(playerScroll, headerTable, headerOptions)
-	breakdownWindowFrame.Header:SetPoint("topleft", playerScroll, "topleft", 0, -1)
-	breakdownWindowFrame.Header:SetPoint("topright", playerScroll, "topright", 0, -1)
 	breakdownWindowFrame.Header:SetAlpha(0.823)
+	breakdownWindowFrame.Header:SetPoint("topleft", titleBarPlayerSeparator, "bottomleft", 0, -2)
+	breakdownWindowFrame.Header:SetPoint("topright", titleBarPlayerSeparator, "bottomright", 0, -2)
+
+	playerScroll:SetPoint("topleft", breakdownWindowFrame.Header, "bottomleft", 0, -2)
+	playerScroll:SetPoint("topright", breakdownWindowFrame.Header, "bottomright", 0, -2)
+	playerScroll:SetPoint("bottomleft", breakdownSideMenu, "bottomleft", 0, 0)
+	playerScroll:SetPoint("bottomright", breakdownSideMenu, "bottomright", 0, 0)
 
 	detailsFramework:ApplyStandardBackdrop(breakdownWindowFrame.Header)
 	breakdownWindowFrame.Header.__background:SetColorTexture(.60, .60, .60)
-
-	local playerSelectionLabel = detailsFramework:CreateLabel(playerScroll, "Click to select a player", 14)
-	playerSelectionLabel:SetPoint("bottom", breakdownWindowFrame.Header, "top", 0, 1)
 
 	--create the scrollbox lines
 	for i = 1, scrollbox_lines do
@@ -428,8 +470,13 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	end
 
 	local updatePlayerList = function()
+		refreshPluginButtons()
+
+		playerScroll:SetNumFramesShown(math.floor(playerScroll:GetHeight() / player_line_height))
+
 		---@type actor[]
 		local playerList = breakdownWindowPlayerList.BuildPlayerList()
+
 		playerScroll:SetData(playerList)
 		playerScroll:Refresh()
 		playerScroll:Show()

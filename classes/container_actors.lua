@@ -477,18 +477,30 @@ end
 		end
 
 		if (actorFlags) then
-			--check if the actor is a player
-			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
-				actorObject.classe = "UNGROUPPLAYER"
-				return
-
-			elseif (bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
+			if (bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
 				actorObject.classe = "PET"
 				return
 			end
 		end
 
+		if (specId) then
+			local specId, specName, specDescription, specIcon, specRole, specClass = DetailsFramework.GetSpecializationInfoByID(specId)
+			if (specClass) then
+				actorObject.classe = specClass
+				return
+			end
+		end
+
+		if (actorFlags) then
+			--check if the actor is a player
+			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
+				actorObject.classe = "UNGROUPPLAYER"
+				return
+			end
+		end
+
 		actorObject.classe = "UNKNOW" --it's a typo, can't be changed at this point
+
 		return true
 	end
 
