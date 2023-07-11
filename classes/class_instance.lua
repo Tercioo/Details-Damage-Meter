@@ -440,6 +440,7 @@ local instanceMixins = {
 			instance:RefreshCombat()
 			Details:SendEvent("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmentId)
 
+			instance.v_barras = true
 			instance:ResetWindow()
 			instance:RefreshWindow(true)
 

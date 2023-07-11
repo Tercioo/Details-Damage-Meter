@@ -172,6 +172,7 @@ function Details222.LoadSavedVariables.CombatSegments()
 				Details:RestoreOverallMetatables()
 			else
 				Details.tabela_overall = Details.combate:NovaTabela()
+				Details.tabela_overall.overall_refreshed = true
 			end
 		end
 
