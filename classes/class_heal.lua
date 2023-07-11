@@ -172,7 +172,7 @@ function healingClass:ContainerRefreshHps (container, combat_time)
 
 	local total = 0
 
-	if (_detalhes.time_type == 2 or not _detalhes:CaptureGet("heal")) then
+	if (_detalhes.time_type == 2 or _detalhes.time_type == 3 or not _detalhes:CaptureGet("heal")) then
 		for _, actor in ipairs(container) do
 			if (actor.grupo) then
 				actor.last_hps = actor.total / combat_time
@@ -617,7 +617,7 @@ function healingClass:RefreshLine(instancia, barras_container, whichRowLine, lug
 		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
 	end
 
-	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet("heal") and not _detalhes:CaptureGet("aura")) or instancia.segmento == -1) then
+	if ((_detalhes.time_type == 2 and self.grupo) or _detalhes.time_type == 3 or (not _detalhes:CaptureGet("heal") and not _detalhes:CaptureGet("aura")) or instancia.segmento == -1) then
 		if (instancia.segmento == -1 and combat_time == 0) then
 			local p = _detalhes.tabela_vigente(2, self.nome)
 			if (p) then
@@ -1323,7 +1323,7 @@ function healingClass:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	local meu_tempo
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
-	elseif (_detalhes.time_type == 2) then
+	elseif (_detalhes.time_type == 2 or _detalhes.time_type == 3) then
 		meu_tempo = instancia.showing:GetCombatTime()
 	end
 
@@ -1541,7 +1541,7 @@ function healingClass:ToolTip_HealingDone (instancia, numero, barra, keydown)
 					local meu_tempo
 					if (_detalhes.time_type == 1 or not self.grupo) then
 						meu_tempo = my_self:Tempo()
-					elseif (_detalhes.time_type == 2) then
+					elseif (_detalhes.time_type == 2 or _detalhes.time_type == 3) then
 						meu_tempo = instancia.showing:GetCombatTime()
 					end
 
@@ -1992,7 +1992,7 @@ function healingClass:MontaInfoHealingDone()
 	local actorCombatTime
 	if (Details.time_type == 1 or not actorObject.grupo) then
 		actorCombatTime = actorObject:Tempo()
-	elseif (Details.time_type == 2) then
+	elseif (Details.time_type == 2 or Details.time_type == 3) then
 		actorCombatTime = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
@@ -2175,7 +2175,7 @@ function healingClass:MontaInfoHealingDone()
 	local meu_tempo
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
-	elseif (_detalhes.time_type == 2) then
+	elseif (_detalhes.time_type == 2 or _detalhes.time_type == 3) then
 		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
@@ -2371,7 +2371,7 @@ function healingClass:MontaTooltipAlvos (thisLine, index, instancia)
 	local meu_tempo
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
-	elseif (_detalhes.time_type == 2) then
+	elseif (_detalhes.time_type == 2 or _detalhes.time_type == 3) then
 		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
@@ -2528,7 +2528,7 @@ function healingClass:MontaDetalhesHealingDone (spellid, barra) --deprecated wit
 	local meu_tempo
 	if (_detalhes.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
-	elseif (_detalhes.time_type == 2) then
+	elseif (_detalhes.time_type == 2 or _detalhes.time_type == 3) then
 		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
