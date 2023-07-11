@@ -216,13 +216,13 @@ function Details:GetTimeInCombat(petOwner) --[[exported]]
 	if (petOwner) then
 		if (Details.time_type == 1 or not petOwner.grupo) then
 			return self:Tempo()
-		elseif (Details.time_type == 2) then
+		elseif (Details.time_type == 2 or Details.time_type == 3) then
 			return self:GetCombatTime()
 		end
 	else
 		if (Details.time_type == 1) then
 			return self:Tempo()
-		elseif (Details.time_type == 2) then
+		elseif (Details.time_type == 2 or Details.time_type == 3) then
 			return self:GetCombatTime()
 		end
 	end
@@ -463,10 +463,9 @@ end
 
 	-- dps (calculate dps for actors)
 	function damageClass:ContainerRefreshDps (container, combat_time)
-
 		local total = 0
 
-		if (Details.time_type == 2 or not Details:CaptureGet("damage")) then
+		if (Details.time_type == 2 or not Details:CaptureGet("damage") or Details.time_type == 3) then
 			for _, actor in ipairs(container) do
 				if (actor.grupo) then
 					actor.last_dps = actor.total / combat_time
@@ -3313,7 +3312,7 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			local meu_tempo
 			if (Details.time_type == 1 or not self.grupo) then
 				meu_tempo = self:Tempo()
-			elseif (Details.time_type == 2) then
+			elseif (Details.time_type == 2 or Details.time_type == 3) then
 				meu_tempo = instancia.showing:GetCombatTime()
 			end
 
