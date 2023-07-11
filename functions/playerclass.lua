@@ -276,7 +276,7 @@ do
 	end
 
 	local specNamesToId = {}
-	if(DF.IsDragonflightAndBeyond()) then
+	if(DetailsFramework.IsDragonflightAndBeyond()) then
 		local classSpecList = DetailsFramework.ClassSpecs
 		for _, specs in pairs(classSpecList) do
 			for specId, __ in pairs(specs) do
