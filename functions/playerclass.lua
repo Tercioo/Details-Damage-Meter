@@ -276,12 +276,14 @@ do
 	end
 
 	local specNamesToId = {}
-	local classSpecList = DetailsFramework.ClassSpecs
-	for _, specs in pairs(classSpecList) do
-		for specId, __ in pairs(specs) do
-			local id, name = GetSpecializationInfoByID(specId)
-			if (id and name) then
-				specNamesToId[name] = id;
+	if(DF.IsDragonflightAndBeyond()) then
+		local classSpecList = DetailsFramework.ClassSpecs
+		for _, specs in pairs(classSpecList) do
+			for specId, __ in pairs(specs) do
+				local id, name = GetSpecializationInfoByID(specId)
+				if (id and name) then
+					specNamesToId[name] = id;
+				end
 			end
 		end
 	end
