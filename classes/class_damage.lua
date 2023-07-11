@@ -2662,7 +2662,7 @@ function damageClass:RefreshLine(instance, lineContainer, whichRowLine, rank, to
 	local currentCombat = Details:GetCurrentCombat()
 
 	--calculate the actor dps
-	if ((Details.time_type == 2 and self.grupo) or not Details:CaptureGet("damage") or instance.segmento == -1) then
+	if ((Details.time_type == 2 and self.grupo) or not Details:CaptureGet("damage") or instance.segmento == -1 or Details.time_type == 3) then
 		if (instance.segmento == -1 and combat_time == 0) then
 			local actor = currentCombat(1, self.nome)
 			if (actor) then
