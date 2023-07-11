@@ -5455,22 +5455,27 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	function Details.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
-		--some parts of details! does call this function, check first for past expansions
-		if (detailsFramework.IsTimewalkWoW()) then
-			return
-		end
-
+	function Details:RefreshPlayerSpecialization()
 		local specIndex = detailsFramework.GetSpecialization()
 		if (specIndex) then
 			local specID = detailsFramework.GetSpecializationInfo(specIndex)
 			if (specID and specID ~= 0) then
 				local guid = UnitGUID("player")
 				if (guid) then
-					Details.cached_specs [guid] = specID
+					Details.cached_specs[guid] = specID
+					Details.playerspecid = specID
 				end
 			end
 		end
+	end
+
+	function Details.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
+		--some parts of details! does call this function, check first for past expansions
+		if (detailsFramework.IsTimewalkWoW()) then
+			return
+		end
+
+		Details:RefreshPlayerSpecialization()
 
 		if (IsInGroup() or IsInRaid()) then
 			if (Details.SendTalentTimer and not Details.SendTalentTimer:IsCancelled()) then

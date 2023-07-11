@@ -7071,6 +7071,19 @@ do
                 boxfirst = true,
             },
 
+            {--use realtime dps for evoker augmentataion
+                type = "toggle",
+                get = function() return Details.combat_log.evoker_show_realtimedps end,
+                set = function(self, fixedparam, value)
+                    Details.combat_log.evoker_show_realtimedps = value
+                    afterUpdate()
+                    Details:ClearParserCache()
+                end,
+                name = DF:AddClassIconToText("Use Real Time Dps for Aug. Evoker", false, "EVOKER"),
+                desc = "Use Real Time Dps for Augmentation Evoker",
+                boxfirst = true,
+            },
+
             {type = "blank"},
             {type = "label", get = function() return "Parser Options:" end, text_template = subSectionTitleTextTemplate},
 

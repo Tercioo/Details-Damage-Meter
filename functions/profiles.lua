@@ -1153,6 +1153,7 @@ local default_player_data = {
 			merge_gemstones_1007 = false,
 			merge_critical_heals = false,
 			evoker_calc_damage = false,
+			evoker_show_realtimedps = true,
 		},
 
 		--this is used by the new data capture for charts

@@ -2,6 +2,9 @@
 local Details = _G.Details
 local addonName, Details222 = ...
 
+--namespace
+Details.CurrentDps = {}
+
 local bIsEnabled = true
 
 ---@type combat
@@ -9,17 +12,11 @@ local currentCombatObject = nil
 
 ---@class details_currentdps_actorcache
 ---@field totalDamage number
----@field currentDps number
 ---@field latestDamageAmount number
 ---@field cache number[]
 
---namespace
-Details.CurrentDps = {
-    ---@type table<serial, details_currentdps_actorcache>
-    Dps = {},
-    ---@type table<serial, details_currentdps_actorcache>
-    Hps = {},
-}
+---@type table<serial, details_currentdps_actorcache>
+local currentDPSCache = {}
 
 ---create a new cache table
 ---@return details_currentdps_actorcache
@@ -27,7 +24,6 @@ local createDpsCacheTable = function()
     ---@type details_currentdps_actorcache
     local cache = {
         totalDamage = 0,
-        currentDps = 0,
         latestDamageAmount = 0,
         cache = {},
     }
@@ -38,10 +34,10 @@ end
 ---@param serial serial
 ---@return details_currentdps_actorcache
 local getActorDpsCache = function(serial)
-    local dpsCache = Details.CurrentDps.Dps[serial]
+    local dpsCache = currentDPSCache[serial]
     if (not dpsCache) then
         dpsCache = createDpsCacheTable()
-        Details.CurrentDps.Dps[serial] = dpsCache
+        currentDPSCache[serial] = dpsCache
     end
     return dpsCache
 end
@@ -61,9 +57,6 @@ local currentDelay = 0
 --amount of small ticks that will be stored in the cache
 local cacheSize = secondsOfData / delayTimeBetweenUpdates
 
---amount of time in seconds that the cache will hold
-local dpsTime = delayTimeBetweenUpdates * cacheSize
-
 --the index of the cache that will be removed when the cache is full
 local cacheOverflowIndex = cacheSize + 1
 
@@ -82,16 +75,19 @@ currentDpsFrame.OnUpdateFunc = function(self, deltaTime)
     for index, actorObject in damageContainer:ListActors() do
         ---@cast actorObject actor
 
-        --if (actorObject:IsPlayer()) then
+        if (actorObject:IsPlayer()) then
             ---@type details_currentdps_actorcache
             local dpsCache = getActorDpsCache(actorObject.serial)
 
             --get the damage done on this tick
             local totalDamageThisTick = actorObject.total - dpsCache.latestDamageAmount
+
             --add the damage to the cache
             table.insert(dpsCache.cache, 1, totalDamageThisTick)
+
             --set the latest damage amount
             dpsCache.latestDamageAmount = actorObject.total
+
             --sum the total damage the actor inflicted
             dpsCache.totalDamage = dpsCache.totalDamage + totalDamageThisTick
 
@@ -101,17 +97,26 @@ currentDpsFrame.OnUpdateFunc = function(self, deltaTime)
                 dpsCache.totalDamage = dpsCache.totalDamage - damageRemoved
                 dpsCache.totalDamage = math.max(0, dpsCache.totalDamage) --safe guard
             end
-        --end
+        end
     end
 
     currentDelay = 0
 end
 
+--serial = guid
+function Details.CurrentDps.GetCurrentDps(serial)
+    local dpsCache = currentDPSCache[serial]
+    if (dpsCache) then
+        local dps = dpsCache.totalDamage / secondsOfData
+        return math.floor(dps)
+    end
+end
+
+
 --start the proccess of updating the current dps and hps for each player
 function Details.CurrentDps.StartCurrentDpsTracker()
     currentCombatObject = Details:GetCurrentCombat()
-    Details:Destroy(Details.CurrentDps.Dps)
-    Details:Destroy(Details.CurrentDps.Hps)
+    Details:Destroy(currentDPSCache)
     currentDpsFrame:SetScript("OnUpdate", currentDpsFrame.OnUpdateFunc)
 end
 
@@ -120,28 +125,21 @@ function Details.CurrentDps.StopCurrentDpsTracker()
     currentDpsFrame:SetScript("OnUpdate", nil)
 end
 
---serial = guid
-function Details.CurrentDps.GetCurrentDps(serial)
-    local actorTable = Details.CurrentDps.Dps[serial]
-    if (actorTable) then
-        local currentDps = actorTable.currentDps
-        local formatToKFunc = Details:GetCurrentToKFunction()
-        --print("returning:", currentDps)
-        return formatToKFunc(nil, currentDps)
-    end
-end
-
 --handle internal details! events
 local eventListener = Details:CreateEventListener()
 
 eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
-    if (bIsEnabled) then
+    --check if can start the real time dps tracker
+    local bCanStartRealTimeDpsTracker = Details.combat_log.evoker_show_realtimedps and Details.playerspecid == 1473
+    if (not bCanStartRealTimeDpsTracker) then
+        bCanStartRealTimeDpsTracker = Details.time_type == 3
+    end
+
+    if (bCanStartRealTimeDpsTracker) then
 	    Details.CurrentDps.StartCurrentDpsTracker()
     end
 end)
 
 eventListener:RegisterEvent("COMBAT_PLAYER_LEAVE", function()
-    if (bIsEnabled) then
-	    Details.CurrentDps.StopCurrentDpsTracker()
-    end
+    Details.CurrentDps.StopCurrentDpsTracker()
 end)
