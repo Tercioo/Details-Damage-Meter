@@ -7,9 +7,9 @@ local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
 
 local createAuraTabOnBreakdownWindow = function(tab, frame)
-    local scroll_line_amount = 22
+    local scroll_line_amount = 25
     local scroll_width = 410
-    local scrollHeight = 445
+    local scrollHeight = 495
     local scroll_line_height = 19
     local text_size = 10
 
@@ -55,29 +55,34 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
         local iconTexture = line:CreateTexture("$parentIcon", "overlay")
         iconTexture:SetSize(scroll_line_height -2 , scroll_line_height - 2)
         local nameLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-        local uptimeLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-        local applyLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
-        local refreshLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
+        local uptimeLabel = line:CreateFontString("$parentUptime", "overlay", "GameFontNormal")
+        local uptimePercentLabel = line:CreateFontString("$parentPercent", "overlay", "GameFontNormal")
+        local applyLabel = line:CreateFontString("$parentApplyed", "overlay", "GameFontNormal")
+        local refreshLabel = line:CreateFontString("$parentRefreshed", "overlay", "GameFontNormal")
 
         detailsFramework:SetFontSize(nameLabel, text_size)
         detailsFramework:SetFontSize(uptimeLabel, text_size)
+        detailsFramework:SetFontSize(uptimePercentLabel, text_size)
         detailsFramework:SetFontSize(applyLabel, text_size)
         detailsFramework:SetFontSize(refreshLabel, text_size)
 
         iconTexture:SetPoint("left", line, "left", 2, 0)
         nameLabel:SetPoint("left", iconTexture, "right", 2, 0)
         uptimeLabel:SetPoint("left", line, "left", 186, 0)
+        uptimePercentLabel:SetPoint("left", line, "left", 220, 0)
         applyLabel:SetPoint("left", line, "left", 276, 0)
         refreshLabel:SetPoint("left", line, "left", 322, 0)
 
         line.Icon = iconTexture
         line.Name = nameLabel
         line.Uptime = uptimeLabel
+        line.UptimePercent = uptimePercentLabel
         line.Apply = applyLabel
         line.Refresh = refreshLabel
 
         nameLabel:SetJustifyH("left")
         uptimeLabel:SetJustifyH("left")
+        uptimePercentLabel:SetJustifyH("left")
 
         applyLabel:SetJustifyH("center")
         refreshLabel:SetJustifyH("center")
@@ -102,7 +107,8 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
                 line.Icon:SetTexCoord(.1, .9, .1, .9)
 
                 line.Name:SetText(aura[2])
-                line.Uptime:SetText(detailsFramework:IntegerToTimer(aura[3]) .. "(|cFFBBAAAA" .. math.floor(aura[6]) .. "%|r)")
+                line.Uptime:SetText(detailsFramework:IntegerToTimer(aura[3]))
+                line.UptimePercent:SetText("|cFFBBAAAA" .. math.floor(aura[6]) .. "%|r")
                 line.Apply:SetText(aura[4])
                 line.Refresh:SetText(aura[5])
 

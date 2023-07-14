@@ -119,10 +119,12 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 			local playerObject = data[index]
 			if (playerObject) then
 				local line = self:GetLine(i)
-				line.playerObject = playerObject
-				line.combatObject = combatObject
-				line.index = index
-				line:UpdateLine(topResult, encounterId, difficultyId)
+				if (line) then
+					line.playerObject = playerObject
+					line.combatObject = combatObject
+					line.index = index
+					line:UpdateLine(topResult, encounterId, difficultyId)
+				end
 			end
 		end
 	end
@@ -472,7 +474,7 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	local updatePlayerList = function()
 		refreshPluginButtons()
 
-		playerScroll:SetNumFramesShown(math.floor(playerScroll:GetHeight() / player_line_height))
+		playerScroll:SetNumFramesShown(math.floor(playerScroll:GetHeight() / player_line_height)) --looks like it is not updating the 'totalLines' at the refresh function
 
 		---@type actor[]
 		local playerList = breakdownWindowPlayerList.BuildPlayerList()

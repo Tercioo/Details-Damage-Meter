@@ -170,6 +170,24 @@
 			[406785] = true, --invigorating spore cloud
 		}
 
+		--list of buffs given by another player but should be considered as a self buff
+		local buffs_makeyourown = {
+			[395152] = true, --ebon might (evoker 10.1.5)
+			[410089] = true, --prescience (evoker 10.1.5)
+		}
+
+		---@class evokerinfo : table
+		---@field key1 serial
+		---@field key2 actorname
+		---@field key3 controlflags
+		---@field key4 valueamount
+
+		--store all information about augmentation evokers ~roskash
+		local augmentation_cache = {
+			ebon_might = {},
+			prescience = {},
+		}
+
 		local empower_cache = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1181,17 +1199,57 @@
 		end
 
 	------------------------------------------------------------------------------------------------
-	--amount add ~roskash
-		if (Details222.Roskash[sourceSerial]) then
-			local rSourceSerial, rSourceName, rSourceFlags = unpack(Details222.Roskash[sourceSerial])
-			local roskashActor = damage_cache[rSourceSerial]
+	--amount add
+		--~roskash - augmentation evoker damage buff
+		if (augmentation_cache.ebon_might[sourceSerial]) then
+			---actor buffed with ebonmight -> list of evokers whose buffed
+			---@type table<serial, evokerinfo[]>
+			local currentlyBuffedWithEbonMight = augmentation_cache.ebon_might[sourceSerial]
 
-			if (not roskashActor) then
-				roskashActor = _current_damage_container:PegarCombatente(rSourceSerial, rSourceName, rSourceFlags, true)
+			for i, evokerInfo in ipairs(currentlyBuffedWithEbonMight) do
+				---@cast evokerInfo evokerinfo
+
+				---@type serial, actorname, controlflags
+				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
+
+				---@type actor
+				local evokerActor = damage_cache[evokerSourceSerial]
+
+				if (not evokerActor) then
+					evokerActor = _current_damage_container:PegarCombatente(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
+				end
+
+				if (evokerActor) then
+					if (Details.zone_type == "raid") then
+						evokerActor.extra_bar = evokerActor.extra_bar + (amount * 0.1389541)
+					else
+						evokerActor.extra_bar = evokerActor.extra_bar + (amount * 0.1966044)
+					end
+				end
 			end
+		end
 
-			if (roskashActor) then
-				roskashActor.extra_bar = roskashActor.extra_bar + (amount * 0.14)
+		if (spellId == 404908 and augmentation_cache.prescience[sourceSerial]) then
+			---actor buffed with prescience -> list of evokers whose buffed
+			---@type table<serial, evokerinfo[]>
+			local currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
+
+			for i, evokerInfo in ipairs(currentlyBuffedWithPrescience) do
+				---@cast evokerInfo evokerinfo
+
+				---@type serial, actorname, controlflags
+				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
+
+				---@type actor
+				local evokerActor = damage_cache[evokerSourceSerial]
+
+				if (not evokerActor) then
+					evokerActor = _current_damage_container:PegarCombatente(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
+				end
+
+				if (evokerActor) then
+					evokerActor.extra_bar = evokerActor.extra_bar + amount
+				end
 			end
 		end
 
@@ -1200,11 +1258,11 @@
 			ownerActor.total = ownerActor.total + amount --e adiciona o dano ao pet
 
 			--add owner targets
-			ownerActor.targets [targetName] = (ownerActor.targets [targetName] or 0) + amount
+			ownerActor.targets[targetName] = (ownerActor.targets[targetName] or 0) + amount
 
 			ownerActor.last_event = _tempo
 
-			if (RAID_TARGET_FLAGS [targetRaidFlags]) then
+			if (RAID_TARGET_FLAGS[targetRaidFlags]) then
 				--add the amount done for the owner
 				ownerActor.raid_targets [targetRaidFlags] = (ownerActor.raid_targets [targetRaidFlags] or 0) + amount
 			end
@@ -2460,7 +2518,20 @@
 		end
 
 		if (spellId == 395152) then --~roskash
-			Details222.Roskash[targetSerial] = {sourceSerial, sourceName, sourceFlags}
+			augmentation_cache.ebon_might[targetSerial] = augmentation_cache.ebon_might[targetSerial] or {}
+			---@type evokerinfo
+			local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
+			table.insert(augmentation_cache.ebon_might[targetSerial], evokerInfo)
+
+		elseif (spellId == 410089) then
+			augmentation_cache.prescience[targetSerial] = augmentation_cache.prescience[targetSerial] or {}
+			---@type evokerinfo
+			local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
+			table.insert(augmentation_cache.prescience[targetSerial], evokerInfo)
+		end
+
+		if (buffs_makeyourown[spellId]) then
+			sourceSerial, sourceName, sourceFlags = targetSerial, targetName, targetFlags
 		end
 
 	------------------------------------------------------------------------------------------------
@@ -2716,7 +2787,7 @@
 		end
 	end
 
-	function parser:buff_refresh(token, time, sourceSerial, sourceName, sourceFlags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, spellschool, tipo, amount)
+	function parser:buff_refresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellschool, tipo, amount)
 		if (not sourceName) then
 			sourceName = names_cache[spellName]
 			if (not sourceName) then
@@ -2748,36 +2819,69 @@
 			end
 
 			if (spellid == 395152) then --~roskash
-				Details222.Roskash[alvo_serial] = {sourceSerial, sourceName, sourceFlags}
+				local bFound = false
+				augmentation_cache.ebon_might[targetSerial] = augmentation_cache.ebon_might[targetSerial] or {}
+
+				for index, evokerInfo in ipairs(augmentation_cache.ebon_might[targetSerial]) do
+					if (evokerInfo[1] == sourceSerial) then
+						evokerInfo[4] = amount
+						bFound = true
+						break
+					end
+				end
+
+				if (not bFound) then
+					table.insert(augmentation_cache.ebon_might[targetSerial], {sourceSerial, sourceName, sourceFlags, amount})
+				end
+
+			elseif (spellid == 410089) then
+				local bFound = false
+				augmentation_cache.prescience[targetSerial] = augmentation_cache.prescience[targetSerial] or {}
+
+				for index, evokerInfo in ipairs(augmentation_cache.prescience[targetSerial]) do
+					if (evokerInfo[1] == sourceSerial) then
+						evokerInfo[4] = amount
+						bFound = true
+						break
+					end
+				end
+
+				if (not bFound) then
+					table.insert(augmentation_cache.prescience[targetSerial], {sourceSerial, sourceName, sourceFlags, amount})
+				end
 			end
 
-			if (sourceName == alvo_name and raid_members_cache [sourceSerial] and _in_combat) then
-				--call record buffs uptime
-				parser:add_buff_uptime (token, time, sourceSerial, sourceName, sourceFlags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, "BUFF_UPTIME_REFRESH")
+			if (buffs_makeyourown[spellid]) then
+				sourceSerial, sourceName, sourceFlags = targetSerial, targetName, targetFlags
+			end
 
-			elseif (container_pets [sourceSerial] and container_pets [sourceSerial][2] == alvo_serial) then
+			if (sourceName == targetName and raid_members_cache [sourceSerial] and _in_combat) then
+				--call record buffs uptime
+				parser:add_buff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "BUFF_UPTIME_REFRESH")
+
+			elseif (container_pets [sourceSerial] and container_pets [sourceSerial][2] == targetSerial) then
 				--um pet colocando uma aura do dono
-				parser:add_buff_uptime (token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, "BUFF_UPTIME_REFRESH")
+				parser:add_buff_uptime (token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "BUFF_UPTIME_REFRESH")
 
 			elseif (buffs_to_other_players[spellid]) then
-				parser:add_buff_uptime(token, time, alvo_serial, alvo_name, alvo_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, "BUFF_UPTIME_REFRESH")
+				parser:add_buff_uptime(token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "BUFF_UPTIME_REFRESH")
 			end
 
 			if (_use_shield_overheal) then
 				if (shield_spellid_cache[spellid] and amount) then
-					if (shield_cache[alvo_name] and shield_cache[alvo_name][spellid] and shield_cache[alvo_name][spellid][sourceName]) then
+					if (shield_cache[targetName] and shield_cache[targetName][spellid] and shield_cache[targetName][spellid][sourceName]) then
 						if (ignored_overheal[spellid]) then
-							shield_cache[alvo_name][spellid][sourceName] = amount --refresh gives the updated amount
+							shield_cache[targetName][spellid][sourceName] = amount --refresh gives the updated amount
 							return
 						end
 
 						--get the shield overheal
-						local overhealAmount = shield_cache[alvo_name][spellid][sourceName]
+						local overhealAmount = shield_cache[targetName][spellid][sourceName]
 						--set the new shield amount
-						shield_cache[alvo_name][spellid][sourceName] = amount
+						shield_cache[targetName][spellid][sourceName] = amount
 
 						if (overhealAmount > 0) then
-							return parser:heal(token, time, sourceSerial, sourceName, sourceFlags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, nil, 0, ceil (overhealAmount), 0, nil, true)
+							return parser:heal(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, nil, 0, ceil (overhealAmount), 0, nil, true)
 						end
 					end
 				end
@@ -2790,7 +2894,7 @@
 			if (isWOTLK) then --buff refresh
 				if (spellid == 27162 and false) then --Judgement Of Light
 					--which player applied the judgement of light on this mob
-					TBC_JudgementOfLightCache[alvo_name] = {sourceSerial, sourceName, sourceFlags}
+					TBC_JudgementOfLightCache[targetName] = {sourceSerial, sourceName, sourceFlags}
 				end
 			end
 
@@ -2799,16 +2903,16 @@
 				--buff uptime
 				if (raid_members_cache [sourceSerial]) then
 					--call record debuffs uptime
-					parser:add_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, "DEBUFF_UPTIME_REFRESH")
-				elseif (raid_members_cache [alvo_serial] and not raid_members_cache [sourceSerial]) then --alvo � da raide e o caster � inimigo
-					parser:add_bad_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName, spellschool, "DEBUFF_UPTIME_REFRESH", amount)
+					parser:add_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "DEBUFF_UPTIME_REFRESH")
+				elseif (raid_members_cache [targetSerial] and not raid_members_cache [sourceSerial]) then --alvo � da raide e o caster � inimigo
+					parser:add_bad_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellschool, "DEBUFF_UPTIME_REFRESH", amount)
 				end
 			end
 		end
 	end
 
 	-- ~unbuff
-	function parser:unbuff(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, spellSchool, tipo, amount)
+	function parser:unbuff(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellSchool, tipo, amount)
 		if (not sourceName) then
 			sourceName = names_cache[spellName]
 			if (not sourceName) then
@@ -2821,7 +2925,28 @@
 
 		if (tipo == "BUFF") then
 			if (spellid == 395152) then --~roskash
-				Details222.Roskash[targetSerial] = nil
+				if (augmentation_cache.ebon_might[targetSerial]) then
+					for index, evokerInfo in ipairs(augmentation_cache.ebon_might[targetSerial]) do
+						if (evokerInfo[1] == sourceSerial) then
+							table.remove(augmentation_cache.ebon_might[targetSerial], index)
+							break
+						end
+					end
+				end
+
+			elseif (spellid == 410089) then
+				if (augmentation_cache.prescience[targetSerial]) then
+					for index, evokerInfo in ipairs(augmentation_cache.prescience[targetSerial]) do
+						if (evokerInfo[1] == sourceSerial) then
+							table.remove(augmentation_cache.prescience[targetSerial], index)
+							break
+						end
+					end
+				end
+			end
+
+			if (buffs_makeyourown[spellid]) then
+				sourceSerial, sourceName, sourceFlags = targetSerial, targetName, targetFlags
 			end
 
 			if (spellid == 272790 and cacheAnything.track_hunter_frenzy) then --hunter pet Frenzy spellid
@@ -2835,20 +2960,20 @@
 
 			if (sourceName == targetName and raid_members_cache [sourceSerial] and _in_combat) then
 				--call record buffs uptime
-				parser:add_buff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, "BUFF_UPTIME_OUT")
+				parser:add_buff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "BUFF_UPTIME_OUT")
 			elseif (container_pets [sourceSerial] and container_pets [sourceSerial][2] == targetSerial) then
 				--um pet colocando uma aura do dono
-				parser:add_buff_uptime (token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, "BUFF_UPTIME_OUT")
+				parser:add_buff_uptime (token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "BUFF_UPTIME_OUT")
 
 			elseif (buffs_to_other_players[spellid]) then
-				parser:add_buff_uptime(token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, "BUFF_UPTIME_OUT")
+				parser:add_buff_uptime(token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "BUFF_UPTIME_OUT")
 			end
 
 			if (spellid == SPELLID_MONK_GUARD) then
 				--BfA monk talent
 				if (monk_guard_talent [sourceSerial]) then
 					local damage_prevented = monk_guard_talent [sourceSerial] - (amount or 0)
-					parser:heal (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, spellSchool, damage_prevented, ceil (amount or 0), 0, 0, true)
+					parser:heal (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellSchool, damage_prevented, ceil (amount or 0), 0, 0, true)
 				end
 
 			elseif (spellid == 388007 or spellid == 388011) then --buff: bleesing of the summer
@@ -2869,7 +2994,7 @@
 							--can't use monk guard since its overheal is computed inside the unbuff
 							if (amount > 0 and spellid ~= SPELLID_MONK_GUARD) then
 								--removing the nil at the end before true for is_shield, I have no documentation change about it, not sure the reason why it was addded
-								return parser:heal (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, nil, 0, ceil (amount), 0, 0, true) --0, 0, nil, true
+								return parser:heal (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, nil, 0, ceil (amount), 0, 0, true) --0, 0, nil, true
 							else
 								return
 							end
@@ -2928,9 +3053,9 @@
 			--buff uptime
 				if (raid_members_cache [sourceSerial]) then
 					--call record debuffs uptime
-					parser:add_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, "DEBUFF_UPTIME_OUT")
+					parser:add_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, "DEBUFF_UPTIME_OUT")
 				elseif (raid_members_cache [targetSerial] and not raid_members_cache [sourceSerial]) then --alvo � da raide e o caster � inimigo
-					parser:add_bad_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, alvo_flags2, spellid, spellName, spellSchool, "DEBUFF_UPTIME_OUT")
+					parser:add_bad_debuff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellSchool, "DEBUFF_UPTIME_OUT")
 				end
 
 				if ((bitfield_debuffs[spellName] or bitfield_debuffs[spellid]) and targetSerial) then
@@ -6203,7 +6328,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
 		Details:Destroy(cacheAnything.rampage_cast_amount)
-		Details:Destroy(Details222.Roskash) --~roskash
+
+		Details:Destroy(augmentation_cache.ebon_might) --~roskash
+		Details:Destroy(augmentation_cache.prescience)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 

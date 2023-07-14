@@ -2663,19 +2663,28 @@ function damageClass:RefreshLine(instance, lineContainer, whichRowLine, rank, to
 
 	--calculate the actor dps
 	if ((Details.time_type == 2 and self.grupo) or not Details:CaptureGet("damage") or instance.segmento == -1 or Details.time_type == 3) then
-		if (instance.segmento == -1 and combat_time == 0) then
-			local actor = currentCombat(1, self.nome)
-			if (actor) then
-				local combatTime = actor:Tempo()
-				dps = damageTotal / combatTime
-				self.last_dps = dps
+		if (Details.time_type == 3 and Details.in_combat) then
+			local currentDps = Details.CurrentDps.GetCurrentDps(self.serial)
+			if (currentDps) then
+				dps = currentDps
+			end
+		end
+
+		if (not dps) then
+			if (instance.segmento == -1 and combat_time == 0) then
+				local actor = currentCombat(1, self.nome)
+				if (actor) then
+					local combatTime = actor:Tempo()
+					dps = damageTotal / combatTime
+					self.last_dps = dps
+				else
+					dps = damageTotal / combat_time
+					self.last_dps = dps
+				end
 			else
 				dps = damageTotal / combat_time
 				self.last_dps = dps
 			end
-		else
-			dps = damageTotal / combat_time
-			self.last_dps = dps
 		end
 	else
 		if (not self.on_hold) then
@@ -3500,7 +3509,7 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					local timeInCombat = 0
 					if (Details.time_type == 1 or not self.grupo) then
 						timeInCombat = petActorObject:Tempo()
-					elseif (Details.time_type == 2) then
+					elseif (Details.time_type == 2 or Details.time_type == 3) then
 						timeInCombat = petActorObject:GetCombatTime()
 					end
 
@@ -4721,7 +4730,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 	local actorCombatTime
 	if (Details.time_type == 1 or not actorObject.grupo) then
 		actorCombatTime = actorObject:Tempo()
-	elseif (Details.time_type == 2) then
+	elseif (Details.time_type == 2 or Details.time_type == 3) then
 		actorCombatTime = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
@@ -5700,7 +5709,7 @@ function damageClass:MontaDetalhesDamageDone (spellId, spellLine, instance) --th
 	if (Details.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
 
-	elseif (Details.time_type == 2) then
+	elseif (Details.time_type == 2 or Details.time_type == 3) then
 		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 
@@ -6266,7 +6275,7 @@ function damageClass:MontaTooltipAlvos (thisLine, index, instancia) --~deprecate
 	local meu_tempo
 	if (Details.time_type == 1 or not self.grupo) then
 		meu_tempo = self:Tempo()
-	elseif (Details.time_type == 2) then
+	elseif (Details.time_type == 2 or Details.time_type == 3) then
 		meu_tempo = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 

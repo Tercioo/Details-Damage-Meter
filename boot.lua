@@ -4,8 +4,6 @@
 --test if the packager will deploy to wago
 --https://github.com/LuaLS/lua-language-server/wiki/Annotations#documenting-types
 
---make an option to show death in the order of newest to oldest
-
 		_ = nil
 		_G.Details = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 
@@ -15,12 +13,12 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11023
-		Details.alpha_build_counter = 11023 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11700
+		Details.alpha_build_counter = 11700 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 153 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 154 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
 

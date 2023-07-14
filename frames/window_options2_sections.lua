@@ -7066,8 +7066,8 @@ do
                     afterUpdate()
                     Details:ClearParserCache()
                 end,
-                name = DF:AddClassIconToText("Predict Augmentation Damage", false, "EVOKER"),
-                desc = "Predict Augmentation Damage",
+                name = DF:AddClassIconToText("Predict Augmentation Buffs", false, "EVOKER"),
+                desc = "Calculate how much the Augmentation Evoker are buffing other players",
                 boxfirst = true,
             },
 
