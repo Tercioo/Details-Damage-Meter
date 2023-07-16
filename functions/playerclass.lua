@@ -392,13 +392,12 @@ do
 		--attempt to get spec from tooltip
 		if (not actorSpec and DetailsFramework:IsDragonflightAndBeyond()) then
 			local tooltipData = C_TooltipInfo.GetHyperlink("unit:".. actorObject.serial)
-			if (tooltipData and tooltipData.lines) then
-				for _, line in pairs(tooltipData.lines) do
-					if (line.leftText) then
-						for str in line.leftText:gmatch("%S+") do
-							if (specNamesToId[str]) then
-								actorSpec = specNamesToId[str]
-							end
+			if (tooltipData and tooltipData.lines and tooltipData.lines[4]) then
+				local line = tooltipData.lines[4]
+				if (line.leftText) then
+					for str in line.leftText:gmatch("%S+") do
+						if (specNamesToId[str]) then
+							actorSpec = specNamesToId[str]
 						end
 					end
 				end
