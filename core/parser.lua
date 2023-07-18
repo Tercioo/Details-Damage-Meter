@@ -527,6 +527,24 @@
 			Details.SpecialSpellActorsName[Details.NeltharusWeaponActorName] = Details.NeltharusWeaponActorSpellId
 		end
 
+		--Damage spells that trigger outside of combat, which we don't want to have start a combat.
+		--387846 Fel Armor
+		--352561 Undulating Maneuvers
+		--111400 warlock's burning rush
+		--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
+		--371070 is "Iced Phial of Corrupting Rage" effect triggers randomly, even out-of-combat
+		--401394 is "Vessel of Seared Shadows" trinket 
+		--146739 is corruption that doesn't expire
+
+		local spells_cant_start_combat = {
+			[387846] = true,
+			[352561] = true,
+			[111400] = true,
+			[371070] = true,
+			[368637] = true,
+			[401394] = true,
+			[146739] = true,
+		}
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --internal functions
 
@@ -824,8 +842,8 @@
 					(not Details.in_group and sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0)
 				)
 			) then
-				--avoid Fel Armor and Undulating Maneuvers from starting a combat.
-				if ((spellId == 387846 or spellId == 352561) and sourceName == Details.playername) then
+				
+				if (spells_cant_start_combat[spellId] and sourceName == Details.playername) then
 					return
 				end
 
@@ -850,17 +868,7 @@
 			else
 				--entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atr�s
 				if (token == "SPELL_PERIODIC_DAMAGE" and sourceName == Details.playername) then
-					--ignora burning rush se o jogador estiver fora de combate
-					--111400 warlock's burning rush
-					--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
-					--371070 is "Iced Phial of Corrupting Rage" effect triggers randomly, even out-of-combat
-					--401394 is "Vessel of Seared Shadows" trinket
-					if (spellId == 111400 or spellId == 371070 or spellId == 368637 or spellId == 401394) then
-						return
-					end
-
-					--warlock corruption dot that never expires
-					if (spellId == 146739) then
+					if (spells_cant_start_combat[spellId]) then
 						return
 					end
 
