@@ -2250,7 +2250,7 @@ local iconFrame_OnEnter = function(self)
 				end
 			end
 
-			if (actor.spec == 1473) then
+			if (actor.spec == 1473 and actor.tipo == DETAILS_ATTRIBUTE_DAMAGE) then
 				local damageDone = math.floor(actor.total + actor.extra_bar)
 				GameCooltip:AddLine("Evoker Predicted Damage:", Details:Format(damageDone) .. " (" .. Details:Format(damageDone / Details:GetCurrentCombat():GetCombatTime()) .. ")", 1, "white")
 				GameCooltip:AddIcon([[]], 1, 1, 1, 20)

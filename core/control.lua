@@ -1908,8 +1908,17 @@
 			end
 
 			if (not bForceRefresh) then --update player details window if opened
-				if (breakdownWindowFrame.ativo) then
-					return breakdownWindowFrame.jogador:MontaInfo()
+				if (Details.BreakdownWindowFrame:IsShown()) then
+					---@type actor
+					local actorObject = Details:GetActorObjectFromBreakdownWindow()
+					if (actorObject and not actorObject.__destroyed) then
+						return actorObject:MontaInfo() --MontaInfo a nil value
+					else
+						Details:Msg("Invalid actor object on breakdown window.")
+						if (actorObject.__destroyed) then
+							Details:Msg("Invalidation Reason:", actorObject.__destroyedBy)
+						end
+					end
 				end
 			end
 			return

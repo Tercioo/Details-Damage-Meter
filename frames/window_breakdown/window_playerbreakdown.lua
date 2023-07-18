@@ -205,7 +205,8 @@ function Details:GetDisplayTypeFromBreakdownWindow()
 	return breakdownWindowFrame.atributo, breakdownWindowFrame.sub_atributo
 end
 
---return the actor object in use by the breakdown window
+---return the actor object in use by the breakdown window
+---@return actor actorObject
 function Details:GetActorObjectFromBreakdownWindow()
 	return breakdownWindowFrame.jogador
 end
@@ -216,6 +217,12 @@ end
 
 function Details:IsBreakdownWindowOpen()
 	return breakdownWindowFrame.ativo
+end
+
+function Details222.BreakdownWindow.RefreshPlayerScroll()
+	if (breakdownWindowFrame.playerScrollBox) then
+		breakdownWindowFrame.playerScrollBox:Refresh()
+	end
 end
 
 ---open the breakdown window
