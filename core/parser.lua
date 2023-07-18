@@ -182,10 +182,23 @@
 		---@field key3 controlflags
 		---@field key4 valueamount
 
+		---@class evokereonsbreathinfo : table
+		---@field key1 serial
+		---@field key2 actorname
+		---@field key3 controlflags
+		---@field key4 unit
+		---@field key5 unixtime
+		---@field key6 number
+		---@field key7 number
+
 		--store all information about augmentation evokers ~roskash
 		local augmentation_cache = {
 			ebon_might = {},
 			prescience = {},
+			---@type table<serial, evokereonsbreathinfo[]>
+			breath_targets = {},
+			flyaway = {},
+			flyaway_timer = {},
 		}
 
 		local empower_cache = {}
@@ -1229,7 +1242,7 @@
 			end
 		end
 
-		if (spellId == 404908 and augmentation_cache.prescience[sourceSerial]) then
+		if (spellId == 404908 and augmentation_cache.prescience[sourceSerial]) then --fate mirror
 			---actor buffed with prescience -> list of evokers whose buffed
 			---@type table<serial, evokerinfo[]>
 			local currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
@@ -1249,6 +1262,42 @@
 
 				if (evokerActor) then
 					evokerActor.extra_bar = evokerActor.extra_bar + amount
+				end
+			end
+		end
+
+		if (spellId == 409632) then
+			local breathTargets = augmentation_cache.breath_targets
+
+			---@type evokereonsbreathinfo[]
+			local evokerWithEonsApplications = breathTargets[targetSerial]
+
+			if (evokerWithEonsApplications) then
+				--this table consists in a list of evokers who applied eon's breath on the target
+				for i = 1, #evokerWithEonsApplications do
+					---@type evokereonsbreathinfo
+					local evokerInfo = evokerWithEonsApplications[i]
+					local appliedTime = evokerInfo[5]
+					local duration = evokerInfo[6]
+
+					if (detailsFramework:IsNearlyEqual(time, appliedTime + duration, 0.05)) then
+						local evokerName = evokerInfo[2]
+						if (evokerName ~= Details.playername) then
+							local evokerSerial = evokerInfo[1]
+							local evokerFlags = evokerInfo[3]
+
+							---@type actor
+							local evokerActor = damage_cache[evokerSerial]
+
+							if (not evokerActor) then
+								evokerActor = _current_damage_container:PegarCombatente(evokerSerial, evokerName, evokerFlags, true)
+							end
+
+							if (evokerActor) then
+								evokerActor.extra_bar = evokerActor.extra_bar + amount
+							end
+						end
+					end
 				end
 			end
 		end
@@ -2528,6 +2577,24 @@
 			---@type evokerinfo
 			local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
 			table.insert(augmentation_cache.prescience[targetSerial], evokerInfo)
+
+		elseif (spellId == 409560) then
+			local unitIDAffected = Details:FindUnitIDByUnitSerial(targetSerial)
+			if (unitIDAffected) then
+				local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId)
+				if (duration) then
+					local breathTargets = augmentation_cache.breath_targets[targetSerial]
+					if (not breathTargets) then
+						augmentation_cache.breath_targets[targetSerial] = {}
+						breathTargets = augmentation_cache.breath_targets[targetSerial]
+					end
+
+					--evoker serial, evoker name, evoker flags, target unitID, unixtime, duration, expirationTime (GetTime + duration)
+					---@type evokereonsbreathinfo
+					local eonsBreathInfo = {sourceSerial, sourceName, sourceFlags, unitIDAffected, time, duration, expirationTime}
+					table.insert(breathTargets, eonsBreathInfo)
+				end
+			end
 		end
 
 		if (buffs_makeyourown[spellId]) then
@@ -3678,20 +3745,20 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--serach key: ~interrupts
 	---comment: this function is called when a spell is interrupted
 	---@param token string
-	---@param time number
-	---@param sourceSerial string
-	---@param sourceName string
-	---@param sourceFlags number
-	---@param targetSerial string
-	---@param targetName string
-	---@param targetFlags number
+	---@param time unixtime
+	---@param sourceSerial guid
+	---@param sourceName actorname
+	---@param sourceFlags controlflags
+	---@param targetSerial guid
+	---@param targetName actorname
+	---@param targetFlags controlflags
 	---@param targetFlags2 number
-	---@param spellId number
-	---@param spellName string
-	---@param spellType number
-	---@param extraSpellID number
-	---@param extraSpellName string
-	---@param extraSchool number
+	---@param spellId spellid
+	---@param spellName spellname
+	---@param spellType spellschool
+	---@param extraSpellID spellid
+	---@param extraSpellName spellname
+	---@param extraSchool spellschool
 	function parser:interrupt(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool)
 		--quake affix from mythic+
 		if (spellId == 240448) then
@@ -6093,7 +6160,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (not parserDebug[token]) then
 			parserDebug[token] = true
-			print(token)
+			--print(token)
 		end
 
 		if ( spellId == 409632 ) then
@@ -6164,10 +6231,21 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, unknown1, unknown2, unknown3, unknown4, unknown5)
 		end
 
+		if (spellId == 409560) then --temporal would
+			local spellschool, auraType, amount = A3, A4, A5
+			print(time, token, spellName, sourceName, targetName, spellschool, auraType, amount, A6, A7, A8, A9, A10)
+		end
+
 		if (spellName == "Ebon Might") then
 			--6/30 14:19:19.299  SPELL_AURA_REMOVED,Player-5764-00018FF1,"Termøhead-Iridikron",0x518,0x0,Player-5764-0001977A,"Drgndeesnutz-Fyrakk",0x518,0x0,395152,"Ebon Might",0xc,BUFF
 			local spellschool, auraType, amount = A3, A4, A5
-			print(token, spellName, sourceName, targetName, spellschool, auraType, amount, A6, A7, A8, A9, A10)
+			--print(token, spellName, sourceName, targetName, spellschool, auraType, amount, A6, A7, A8, A9, A10)
+		end
+
+		if (spellName == "Breath of Eons") then
+			--6/30 14:19:19.299  SPELL_AURA_REMOVED,Player-5764-00018FF1,"Termøhead-Iridikron",0x518,0x0,Player-5764-0001977A,"Drgndeesnutz-Fyrakk",0x518,0x0,395152,"Ebon Might",0xc,BUFF
+			local spellschool, auraType, amount = A3, A4, A5
+			print(time, token, spellName, sourceName, targetName, spellschool, auraType, amount, A6, A7, A8, A9, A10)
 		end
 
 		if (token == "SPELL_CAST_START") then
@@ -6331,6 +6409,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details:Destroy(augmentation_cache.ebon_might) --~roskash
 		Details:Destroy(augmentation_cache.prescience)
+		Details:Destroy(augmentation_cache.breath_targets)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 

@@ -358,7 +358,7 @@ do
 			[89766] = {class = "WARLOCK", specs = {266}, cooldown = 30, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 17252, type = 6, charges = 1}, --Axe Toss (pet felguard ability)
 			[351338] = {class = "EVOKER", specs = {1467, 1468}, cooldown = 40,	silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false,	charges = 1, type = 6}, --Quell (Evoker)
 
-			--paladin
+			--~paladin
 			-- 65 - Holy
 			-- 66 - Protection
 			-- 70 - Retribution
@@ -394,7 +394,7 @@ do
 			[389539] = {cooldown = 120,	duration = 20,	specs = {66},			talent = false,	charges = 1,	class = "PALADIN",	type = 2}, --Sentinel
 			[31935] = {cooldown = 13,	duration = 0,	specs = {66},			talent = false,	charges = 1,	class = "PALADIN",	type = 6}, --Avenger's Shield
 
-			--warrior
+			--~warrior
 			-- 71 - Arms
 			-- 72 - Fury
 			-- 73 - Protection
@@ -425,7 +425,7 @@ do
 			[385952] = {cooldown = 45, duration = 4, 	specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 5}, --Shield Charge
 			[1160] = {cooldown = 45, duration = 8, 		specs = {73}, 				talent = false,	charges = 1,	class = "WARRIOR",	type = 2}, --Demoralizing Shout
 
-			--warlock
+			--~warlock
 			-- 265 - Affliction
 			-- 266 - Demonology
 			-- 267 - Destruction
@@ -452,7 +452,7 @@ do
 			[6358] = {cooldown = 30,	duration = 30,	specs = {265, 266, 267},	talent = false,	charges = 1,	class = "WARLOCK",	type = 8, pet = 184600}, --Seduction
 			[261589] = {cooldown = 30,	duration = 30,	specs = {265, 266, 267},	talent = false,	charges = 1,	class = "WARLOCK",	type = 8}, --Seduction (Sacrifice)
 
-			--shaman
+			--~shaman
 			-- 262 - Elemental
 			-- 263 - Enchancment
 			-- 264 - Restoration
@@ -487,7 +487,7 @@ do
 			[305483] = {cooldown = 45,   duration = 5,   specs = {262, 263, 264},  	talent = false, charges = 1,    class = "SHAMAN",   type = 8}, --Lightning Lasso
 			[197214] = {cooldown = 40,   duration = 2,   specs = {262},  			talent = false, charges = 1,    class = "SHAMAN",   type = 8}, --Sundering
 
-			--monk
+			--~monk
 			-- 268 - Brewmaster
 			-- 269 - Windwalker
 			-- 270 - Restoration
@@ -521,7 +521,7 @@ do
 			[115078] = {cooldown = 45,	duration = 60,	specs = {268, 269, 270},	talent = false,	charges = 1,	class = "MONK",	type = 8}, --Paralysis
 
 
-			--hunter
+			--~hunter
 			-- 253 - Beast Mastery
 			-- 254 - Marksmenship
 			-- 255 - Survival
@@ -548,7 +548,7 @@ do
 			[236776] = {cooldown = 40, duration = 0, 	specs = {253, 254, 255},	talent = false, charges = 1, 	class = "HUNTER", 	type = 8}, --High Explosive Trap
 
 
-			--druid
+			--~druid
 			-- 102 - Balance
 			-- 103 - Feral
 			-- 104 - Guardian
@@ -585,7 +585,7 @@ do
 			[205636] = {cooldown = 60,	duration = 10,	specs = {102},				talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Force of Nature
 			[200851] = {cooldown = 60,	duration = 10,	specs = {104},				talent = false,	charges = 1,	class = "DRUID",	type = 2}, --Rage of the Sleeper
 
-			--death knight
+			--~death knight
 			-- 252 - Unholy
 			-- 251 - Frost
 			-- 252 - Blood
@@ -615,7 +615,7 @@ do
 			[194679] = {cooldown = 25,	duration = 4,	specs = {252},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Rune Tap
 			[194844] = {cooldown = 60,	duration = 0,	specs = {251},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 1}, --Bonestorm
 
-			--demon hunter
+			--~demon hunter
 			-- 577 - Havoc
 			-- 581 - Vengance
 			[198589] = {cooldown = 60,	duration = 10,	specs = {577},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Blur
@@ -637,7 +637,7 @@ do
 			[212084] = {cooldown = 60,	duration = 2,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Fel Devastation
 			[203720] = {cooldown = 20,	duration = 6,	specs = {581},				talent = false,	charges = 2,	class = "DEMONHUNTER",	type = 2}, --Demon Spikes
 
-			--mage
+			--~mage
 			-- 62 - Arcane
 			-- 63 - Fire
 			-- 64 - Frost
@@ -665,10 +665,13 @@ do
 			[122] = {cooldown = 30,	duration = 6,	specs = {63, 64, 62},			talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Frost Nova
 			[157980] = {cooldown = 25,	duration = 0,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Supernova
 
+			[414660] = {cooldown = 120,	duration = 60,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 4}, --Mass Barrier
+			[414664] = {cooldown = 300,	duration = 12,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Mass Invisibility (only out of combat)
+
 			-- This needs more work to actually function
 			--[342245] = {cooldown = 60,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Alter Time
 
-			--priest
+			--~priest
 			-- 256 - Discipline
 			-- 257 - Holy
 			-- 258 - Shadow
@@ -705,7 +708,7 @@ do
 			[108920] = {cooldown = 60,	duration = 20,	specs = {256, 257, 258},	talent = false,	charges = 1,	class = "PRIEST",	type = 8}, --Void Tendrils
 
 
-			--rogue
+			--~rogue
 			-- 259 - Assasination
 			-- 260 - Outlaw
 			-- 261 - Subtlety
@@ -727,7 +730,7 @@ do
 			[384631] = {cooldown = 90,	duration = 12,	specs = {261},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Flagellation
 			[277925] = {cooldown = 60,	duration = 4,	specs = {261},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Shuriken Tornado
 
-			--evoker
+			--~evoker
 			-- 1467 - Devastation
 			-- 1468 - Preservation
 			-- 1473 - Augmentation
@@ -911,6 +914,7 @@ do
 			[106898] = {106898,77764,77761},
 			[77764] = {106898,77764,77761},
 			[77761] = {106898,77764,77761},
+			[232633] = {155145, 28730, 25046, 80483, 129597, 69179, 50613, 202719, 232633}, --Arcane Torrent
 		}
 
 		LIB_OPEN_RAID_SPECID_TO_CLASSID = {
@@ -964,13 +968,13 @@ do
 
 			[1467] = 13,
 			[1468] = 13,
+			[1473] = 13,
 		}
 
 		LIB_OPEN_RAID_DATABASE_LOADED = true
 	end
 
 	--this will make sure to always have the latest data
-	--/dumpt LIB_OPEN_RAID_BLOODLUST
 	C_Timer.After(0, function()
 		if (openRaidLib.__version == LIB_OPEN_RAID_MAX_VERSION) then
 			loadLibDatabase()

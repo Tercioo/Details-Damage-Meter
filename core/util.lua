@@ -68,6 +68,56 @@
 		Details.FadeHandler.frames[frame] = nil
 	end
 
+	local predicateFunc = function(spellIdToFind, _, _, name, texture, count, debuffType, duration, expirationTime, _, _, _, spellID)
+		print(name, texture, count, debuffType, duration, expirationTime, spellID)
+		if (spellIdToFind == spellID) then
+			return true
+		end
+	end
+
+	function Details:FindDebuffDuration(unitId, spellId)
+		local name, texture, count, debuffType, duration, expirationTime = AuraUtil.FindAura(predicateFunc, unitId, "HARMFUL", spellId)
+		if (name) then
+			return duration, expirationTime
+		end
+	end
+
+	function Details:FindUnitIDByUnitSerial(unitSerial)
+		--boss
+		for i = 1, 9 do
+			local unitId = Details222.UnitIdCache.Boss[i]
+			if (UnitExists(unitId)) then
+				if (UnitGUID(unitId) == unitSerial) then
+					return unitId
+				end
+			else
+				break
+			end
+		end
+
+		--nameplate
+		for i = 1, 40 do
+			local unitId = Details222.UnitIdCache.Nameplate[i]
+			if (UnitExists(unitId)) then
+				if (UnitGUID(unitId) == unitSerial) then
+					return unitId
+				end
+			end
+		end
+
+		--arena enemies
+		for i = 1, #Details222.UnitIdCache.Arena do
+			local unitId = Details222.UnitIdCache.Arena[i]
+			if (UnitExists(unitId)) then
+				if (UnitGUID(unitId) == unitSerial) then
+					return unitId
+				end
+			else
+				break
+			end
+		end
+	end
+
 	Details.FadeHandler.OnUpdateFrame = CreateFrame("frame", "DetailsFadeFrameOnUpdate", UIParent)
 	Details.FadeHandler.OnUpdateFrame:SetScript("OnUpdate", function(self, deltaTime)
 		for frame, frameSettings in pairs(Details.FadeHandler.frames) do

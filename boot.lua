@@ -1233,6 +1233,69 @@ Details222.UnitIdCache.Party = {
 	[4] = "party4",
 }
 
+Details222.UnitIdCache.Boss = {
+	[1] = "boss1",
+	[2] = "boss2",
+	[3] = "boss3",
+	[4] = "boss4",
+	[5] = "boss5",
+	[6] = "boss6",
+	[7] = "boss7",
+	[8] = "boss8",
+	[9] = "boss9",
+}
+
+Details222.UnitIdCache.Nameplate = {
+	[1] = "nameplate1",
+	[2] = "nameplate2",
+	[3] = "nameplate3",
+	[4] = "nameplate4",
+	[5] = "nameplate5",
+	[6] = "nameplate6",
+	[7] = "nameplate7",
+	[8] = "nameplate8",
+	[9] = "nameplate9",
+	[10] = "nameplate10",
+	[11] = "nameplate11",
+	[12] = "nameplate12",
+	[13] = "nameplate13",
+	[14] = "nameplate14",
+	[15] = "nameplate15",
+	[16] = "nameplate16",
+	[17] = "nameplate17",
+	[18] = "nameplate18",
+	[19] = "nameplate19",
+	[20] = "nameplate20",
+	[21] = "nameplate21",
+	[22] = "nameplate22",
+	[23] = "nameplate23",
+	[24] = "nameplate24",
+	[25] = "nameplate25",
+	[26] = "nameplate26",
+	[27] = "nameplate27",
+	[28] = "nameplate28",
+	[29] = "nameplate29",
+	[30] = "nameplate30",
+	[31] = "nameplate31",
+	[32] = "nameplate32",
+	[33] = "nameplate33",
+	[34] = "nameplate34",
+	[35] = "nameplate35",
+	[36] = "nameplate36",
+	[37] = "nameplate37",
+	[38] = "nameplate38",
+	[39] = "nameplate39",
+	[40] = "nameplate40",
+}
+
+Details222.UnitIdCache.Arena = {
+	[1] = "arena1",
+	[2] = "arena2",
+	[3] = "arena3",
+	[4] = "arena4",
+	[5] = "arena5",
+}
+
 function Details222.Tables.MakeWeakTable(mode)
 	local newTable = {}
 	setmetatable(newTable, {__mode = mode or "v"})

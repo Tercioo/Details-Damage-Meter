@@ -2589,12 +2589,14 @@ local actor_class_color_r, actor_class_color_g, actor_class_color_b
 	percentText = percentText or ""
 
 	if ((Details.time_type == 3 or (Details.combat_log.evoker_show_realtimedps and Details.playerspecid == 1473)) and Details.in_combat) then --real time
-		local actorSerial = thisLine:GetActor().serial
-		local currentDps = Details.CurrentDps.GetCurrentDps(actorSerial)
-		if (currentDps and currentDps > 0) then
-			currentDps = Details:ToK2(currentDps)
+		if (thisLine:GetActor()) then
+			local actorSerial = thisLine:GetActor().serial
+			local currentDps = Details.CurrentDps.GetCurrentDps(actorSerial)
+			if (currentDps and currentDps > 0) then
+				currentDps = Details:ToK2(currentDps)
+			end
+			perSecondText = currentDps
 		end
-		perSecondText = currentDps
 	end
 
 	--check if the instance is showing total, dps and percent

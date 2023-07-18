@@ -23,6 +23,8 @@ BUGS:
 
 --]=]
 
+LIB_OPEN_RAID_CAN_LOAD = false
+
 local versionString, revision, launchDate, gameVersion = GetBuildInfo()
 
 local isExpansion_Dragonflight = function()
@@ -37,19 +39,15 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 105
+local CONST_LIB_VERSION = 107
 
-if (not LIB_OPEN_RAID_MAX_VERSION) then
-    LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
-else
-    LIB_OPEN_RAID_MAX_VERSION = math.max(LIB_OPEN_RAID_MAX_VERSION, CONST_LIB_VERSION)
+if (LIB_OPEN_RAID_MAX_VERSION) then
+    if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
+        return
+    end
 end
 
-LIB_OPEN_RAID_CAN_LOAD = false
-
-local unpack = table.unpack or _G.unpack
-
---declae the library within the LibStub
+--declare the library within the LibStub
     local libStub = _G.LibStub
     local openRaidLib = libStub:NewLibrary(major, CONST_LIB_VERSION)
 
@@ -58,8 +56,11 @@ local unpack = table.unpack or _G.unpack
     end
 
     openRaidLib.__version = CONST_LIB_VERSION
-
     LIB_OPEN_RAID_CAN_LOAD = true
+    LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
+
+    --locals
+    local unpack = table.unpack or _G.unpack
 
     openRaidLib.__errors = {} --/dump LibStub:GetLibrary("LibOpenRaid-1.0").__errors
 
@@ -2375,6 +2376,14 @@ end
 function openRaidLib.CooldownManager.OnReceiveUnitCooldowns(data, unitName)
     --unpack the table as a pairs table
     local unpackedTable = openRaidLib.UnpackTable(data, 1, true, true, CONST_COOLDOWN_INFO_SIZE)
+
+    --[=[ --debug for data received from Evokers
+    local _, class = UnitClass(unitName)
+    if (class == "EVOKER") then
+        print(unitName)
+        dumpt(unpackedTable)
+    end
+    --]=]
 
     --add the list of cooldowns
     openRaidLib.CooldownManager.AddUnitCooldownsList(unitName, unpackedTable)
