@@ -166,7 +166,7 @@ detailsFramework.FrameMixin = {
 
 	SetBackdropBorderColor = function(self, ...)
 		self = getFrame(self)
-		getFrame(self):SetBackdropBorderColor(...)
+		self:SetBackdropBorderColor(...)
 	end,
 }
 

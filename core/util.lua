@@ -36,7 +36,8 @@
 
 	local predicateFunc = function(spellIdToFind, casterName, _, name, icon, applications, dispelName, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, applications)
 		--print(name, texture, count, debuffType, duration, expirationTime, spellID)
-		if (spellIdToFind == spellId) then
+		--print("sourceUnit", sourceUnit)
+		if (spellIdToFind == spellId and UnitExists(sourceUnit)) then
 			if (casterName == GetUnitName(sourceUnit, true)) then
 				return true
 			end
