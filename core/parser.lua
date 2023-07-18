@@ -436,6 +436,11 @@
 		[196917] = true, --light of the martyr
 		[388009] = true, --blessing of spring
 		[388012] = true, --blessing of summer
+		[384601] = true, --Anti Magic Bomb
+		[392171] = true, --Rose of the Vale
+		[392166] = true, --Azure Stone of Might
+		[379020] = true, --Wand of Negation
+		[372824] = true, --Burning Chains
 	}
 
 	--damage spells to ignore
@@ -492,6 +497,19 @@
 
 		local AUTO_REGEN_PRECISION = 2 --todo: replace the amount of wasted resource by the amount of time the player "sitted" at max power
 
+		--Neltharus Weapons in Neltharus dungeon --Remove on 11.0
+		--these detect the weapon actor by the damage spellId
+		Details.NeltharusWeaponSpellIds = {
+			[384601] = true, --Anti Magic Bomb
+			[392171] = true, --Rose of the Vale
+			[392166] = true, --Azure Stone of Might
+			[379020] = true, --Wand of Negation
+			[372824] = true, --Burning Chains
+		}
+		
+		Details.NeltharusWeaponActorName = "Neltharus Weapons"
+		Details.NeltharusWeaponActorSpellId = 377176 --for the icon: Blazing Aegis
+
 		--sanguine affix for m+
 		Details.SanguineHealActorName = GetSpellInfo(SPELLID_SANGUINE_HEAL)
 
@@ -504,6 +522,9 @@
 			if (Details.SanguineHealActorName) then
 				Details.SpecialSpellActorsName[Details.SanguineHealActorName] = SPELLID_SANGUINE_HEAL
 			end
+
+			--add Neltharus weapons
+			Details.SpecialSpellActorsName[Details.NeltharusWeaponActorName] = Details.NeltharusWeaponActorSpellId
 		end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -775,6 +796,10 @@
 				if (blessingSource) then
 					sourceSerial, sourceName, sourceFlags = unpack(blessingSource)
 				end
+			elseif (Details.NeltharusWeaponSpellIds[spellId]) then
+				sourceName = Details.NeltharusWeaponActorName
+				sourceFlags = 0x514
+				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
 			end
 		end
 
