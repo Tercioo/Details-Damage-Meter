@@ -153,6 +153,7 @@
 ---@alias coordright number
 ---@alias coordtop number
 ---@alias coordbottom number
+---@alias auraduration number
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)

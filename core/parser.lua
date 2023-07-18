@@ -506,7 +506,7 @@
 			[379020] = true, --Wand of Negation
 			[372824] = true, --Burning Chains
 		}
-		
+
 		Details.NeltharusWeaponActorName = "Neltharus Weapons"
 		Details.NeltharusWeaponActorSpellId = 377176 --for the icon: Blazing Aegis
 
@@ -534,16 +534,7 @@
 	--DAMAGE 	serach key: ~damage											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	--function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-	--	return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, _G["MELEE"], 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-																		--spellid, spellname, spelltype
-	--end
-
-	--function parser:range       (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-	--	return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-	--end
-
-	local who_aggro = function(self)
+	local whoAggro = function(self)
 		if ((Details.LastPullMsg or 0) + 30 > time()) then
 			Details.WhoAggroTimer = nil
 			return
@@ -583,7 +574,6 @@
 		local diff = self.Diff
 
 		if (diff == 15 or diff == 16) then
-
 			local value, rank, combatTime = 0, 0, 0
 
 			if (encounterID == lastRecordFound.id and diff == lastRecordFound.diff) then
@@ -653,10 +643,12 @@
 		elseif (not sourceName) then
 			--no actor name, use spell name instead
 			sourceName = names_cache[spellName]
+
 			if (not sourceName) then
 				sourceName = "[*] " .. spellName
 				names_cache[spellName] = sourceName
 			end
+
 			sourceFlags = 0xa48
 			sourceSerial = ""
 		end
@@ -666,83 +658,81 @@
 			return
 		end
 
-		--spell reflection code by github user @m4tjz
-		if (sourceSerial == targetSerial and not reflection_ignore[spellId]) then --~reflect
-			--this spell could've been reflected, check it
-			if (reflection_events[sourceSerial] and reflection_events[sourceSerial][spellId] and time-reflection_events[sourceSerial][spellId].time > 3.5 and (not reflection_debuffs[sourceSerial] or (reflection_debuffs[sourceSerial] and not reflection_debuffs[sourceSerial][spellId]))) then
-				--here we check if we have to filter old reflection data
-				--we check for two conditions
-				--the first is to see if this is an old reflection
-				--if more than 3.5 seconds have past then we can say that it is old... but!
-				--the second condition is to see if there is an active debuff with the same spellid
-				--if there is one then we ignore the timer and skip this
-				--this should be cleared afterwards somehow... don't know how...
-				reflection_events[sourceSerial][spellId] = nil
-				if (next(reflection_events[sourceSerial]) == nil) then
-					--there should be some better way of handling this kind of filtering, any suggestion?
-					reflection_events[sourceSerial] = nil
+		--> spell reflection code by github user @m4tjz
+			if (sourceSerial == targetSerial and not reflection_ignore[spellId]) then --~reflect
+				--this spell could've been reflected, check it
+				if (reflection_events[sourceSerial] and reflection_events[sourceSerial][spellId] and time-reflection_events[sourceSerial][spellId].time > 3.5 and (not reflection_debuffs[sourceSerial] or (reflection_debuffs[sourceSerial] and not reflection_debuffs[sourceSerial][spellId]))) then
+					--here we check if we have to filter old reflection data
+					--we check for two conditions
+					--the first is to see if this is an old reflection
+					--if more than 3.5 seconds have past then we can say that it is old... but!
+					--the second condition is to see if there is an active debuff with the same spellid
+					--if there is one then we ignore the timer and skip this
+					--this should be cleared afterwards somehow... don't know how...
+					reflection_events[sourceSerial][spellId] = nil
+					if (next(reflection_events[sourceSerial]) == nil) then
+						--there should be some better way of handling this kind of filtering, any suggestion?
+						reflection_events[sourceSerial] = nil
+					end
+				end
+
+				local reflection = reflection_events[sourceSerial] and reflection_events[sourceSerial][spellId]
+				if (reflection) then
+					--if we still have the reflection data then we conclude it was reflected
+
+					--extend the duration of the timer to catch the rare channelling spells
+					reflection_events[sourceSerial][spellId].time = time
+
+					--crediting the source of the reflection aura
+					sourceSerial = reflection.who_serial
+					sourceName = reflection.who_name
+					sourceFlags = reflection.who_flags
+
+					--data of the aura that caused the reflection
+					--print("2", spellid, GetSpellInfo(spellid))
+					isreflected = spellId --which spell was reflected
+					spellId = reflection.spellid --which spell made the reflection
+					spellName = reflection.spellname
+					spellType = reflection.spelltype
+
+					return parser:spell_dmg(token,time,sourceSerial,sourceName,sourceFlags,targetSerial,targetName,targetFlags,targetRaidFlags,spellId,spellName,0x400,amount,-1,nil,nil,nil,nil,false,false,false,false, isreflected)
+				else
+					--saving information about this damage because it may occurred before a reflect event
+					reflection_damage[sourceSerial] = reflection_damage[sourceSerial] or {}
+					reflection_damage[sourceSerial][spellId] = {
+						amount = amount,
+						time = time,
+					}
 				end
 			end
 
-			local reflection = reflection_events[sourceSerial] and reflection_events[sourceSerial][spellId]
-			if (reflection) then
-				--if we still have the reflection data then we conclude it was reflected
-
-				--extend the duration of the timer to catch the rare channelling spells
-				reflection_events[sourceSerial][spellId].time = time
-
-				--crediting the source of the reflection aura
-				sourceSerial = reflection.who_serial
-				sourceName = reflection.who_name
-				sourceFlags = reflection.who_flags
-
-				--data of the aura that caused the reflection
-				--print("2", spellid, GetSpellInfo(spellid))
-				isreflected = spellId --which spell was reflected
-				spellId = reflection.spellid --which spell made the reflection
-				spellName = reflection.spellname
-				spellType = reflection.spelltype
-
-				return parser:spell_dmg(token,time,sourceSerial,sourceName,sourceFlags,targetSerial,targetName,targetFlags,targetRaidFlags,spellId,spellName,0x400,amount,-1,nil,nil,nil,nil,false,false,false,false, isreflected)
-			else
-				--saving information about this damage because it may occurred before a reflect event
-				reflection_damage[sourceSerial] = reflection_damage[sourceSerial] or {}
-				reflection_damage[sourceSerial][spellId] = {
-					amount = amount,
-					time = time,
-				}
+		--> if the parser are allowed to replace spellIDs
+			if (is_using_spellId_override) then
+				spellId = override_spellId[spellId] or spellId
 			end
-		end
 
-		--if the parser are allowed to replace spellIDs
-		if (is_using_spellId_override) then
-			spellId = override_spellId[spellId] or spellId
-		end
+		--> npcId check for ignored npcs
+		--> get the npcId from the cache, if it's not there then get it from the serial and add it to the cache
+			local npcId = npcid_cache[targetSerial] --target npc
+			if (not npcId) then
+				--this string manipulation is running on every event
+				npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
+				npcid_cache[targetSerial] = npcId
+			end
 
-		--npcId check for ignored npcs
-		local npcId = npcid_cache[targetSerial]
+			if (ignored_npcids[npcId]) then
+				return
+			end
 
-		--target
-		if (not npcId) then
-			--this string manipulation is running on every event
-			npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
-			npcid_cache[targetSerial] = npcId
-		end
+			npcId = npcid_cache[sourceSerial] --source npc
+			if (not npcId) then
+				npcId = tonumber(select(6, strsplit("-", sourceSerial)) or 0)
+				npcid_cache[sourceSerial] = npcId
+			end
 
-		if (ignored_npcids[npcId]) then
-			return
-		end
-
-		--source
-		npcId = npcid_cache[sourceSerial]
-		if (not npcId) then
-			npcId = tonumber(select(6, strsplit("-", sourceSerial)) or 0)
-			npcid_cache[sourceSerial] = npcId
-		end
-
-		if (ignored_npcids[npcId]) then
-			return
-		end
+			if (ignored_npcids[npcId]) then
+				return
+			end
 
 		if (npcId == 24207) then --army of the dead
 			--check if this is a army or apoc pet
@@ -765,7 +755,7 @@
 			end
 		end
 
-		--avoid doing spellID checks on each iteration
+		--check if the spellId has an especial treatment
 		if (special_damage_spells[spellId]) then
 			--stagger
 			if (spellId == 124255) then
@@ -796,6 +786,7 @@
 				if (blessingSource) then
 					sourceSerial, sourceName, sourceFlags = unpack(blessingSource)
 				end
+
 			elseif (Details.NeltharusWeaponSpellIds[spellId]) then
 				sourceName = Details.NeltharusWeaponActorName
 				sourceFlags = 0x514
@@ -817,9 +808,9 @@
 		if (not _in_combat) then --~startcombat ~combatstart
 			if (	token ~= "SPELL_PERIODIC_DAMAGE" and
 				(
-					(sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(sourceName) )
+					(sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(sourceName))
 					or
-					(targetFlags and bitBand(targetFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(targetName) )
+					(targetFlags and bitBand(targetFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(targetName))
 					or
 					(not Details.in_group and sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0)
 				)
@@ -841,7 +832,7 @@
 						Details.WhoAggroTimer:Cancel()
 					end
 
-					Details.WhoAggroTimer = C_Timer.NewTimer(0.1, who_aggro)
+					Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
 					Details.WhoAggroTimer.HitBy = "|cFFFFFF00First Hit|r: " .. (link or "") .. " from " .. (sourceName or "Unknown")
 					print("debug:", Details.WhoAggroTimer.HitBy)
 				end
@@ -878,7 +869,7 @@
 	------------------------------------------------------------------------------------------------
 	--get actors
 
-		--source damager
+		---@type actor, actor
 		local sourceActor, ownerActor = damage_cache[sourceSerial] or damage_cache_pets[sourceSerial] or damage_cache[sourceName], damage_cache_petsOwners[sourceSerial]
 
 		if (not sourceActor) then
@@ -901,12 +892,10 @@
 						--insert the sourceActor into the cache
 						damage_cache[sourceSerial] = sourceActor
 					else
-						if (names_cache[spellName]) then --sourceName = "[*] " .. spellName
+						if (names_cache[spellName]) then
 							damage_cache[sourceName] = sourceActor
 							local _, _, spellIcon = _GetSpellInfo(spellId or 1)
 							sourceActor.spellicon = spellIcon
-						else
-							--_detalhes:Msg("Unknown actor with unknown serial ", spellname, who_name)
 						end
 					end
 				end
@@ -928,7 +917,7 @@
 			return
 		end
 
-		--target
+		---@type actor, actor
 		local targetActor, targetOwner = damage_cache[targetSerial] or damage_cache_pets[targetSerial] or damage_cache[targetName], damage_cache_petsOwners[targetSerial]
 
 		if (not targetActor) then
@@ -1023,45 +1012,45 @@
 
 				local overall = avoidance.overall
 
-				local mob = avoidance [sourceName]
+				local mob = avoidance[sourceName]
 				if (not mob) then --if isn't in the table, build on the fly
-					mob =  Details:CreateActorAvoidanceTable (true)
-					avoidance [sourceName] = mob
+					mob =  Details:CreateActorAvoidanceTable(true)
+					avoidance[sourceName] = mob
 				end
 
-				overall ["ALL"] = overall ["ALL"] + 1  --qualtipo de hit ou absorb
-				mob ["ALL"] = mob ["ALL"] + 1  --qualtipo de hit ou absorb
+				overall["ALL"] = overall["ALL"] + 1  --qualtipo de hit ou absorb
+				mob["ALL"] = mob["ALL"] + 1  --qualtipo de hit ou absorb
 
 				if (spellId < 3) then
 					--overall
-					overall ["HITS"] = overall ["HITS"] + 1
-					mob ["HITS"] = mob ["HITS"] + 1
+					overall["HITS"] = overall["HITS"] + 1
+					mob["HITS"] = mob["HITS"] + 1
 				end
 
 				if (blocked and blocked > 0) then
-					overall ["BLOCKED_HITS"] = overall ["BLOCKED_HITS"] + 1
-					mob ["BLOCKED_HITS"] = mob ["BLOCKED_HITS"] + 1
-					overall ["BLOCKED_AMT"] = overall ["BLOCKED_AMT"] + blocked
-					mob ["BLOCKED_AMT"] = mob ["BLOCKED_AMT"] + blocked
+					overall["BLOCKED_HITS"] = overall["BLOCKED_HITS"] + 1
+					mob["BLOCKED_HITS"] = mob["BLOCKED_HITS"] + 1
+					overall["BLOCKED_AMT"] = overall["BLOCKED_AMT"] + blocked
+					mob["BLOCKED_AMT"] = mob["BLOCKED_AMT"] + blocked
 				end
 
 				--absorbs status
 				if (absorbed) then
 					--aqui pode ser apenas absorb parcial
-					overall ["ABSORB"] = overall ["ABSORB"] + 1
-					overall ["PARTIAL_ABSORBED"] = overall ["PARTIAL_ABSORBED"] + 1
-					overall ["PARTIAL_ABSORB_AMT"] = overall ["PARTIAL_ABSORB_AMT"] + absorbed
-					overall ["ABSORB_AMT"] = overall ["ABSORB_AMT"] + absorbed
-					mob ["ABSORB"] = mob ["ABSORB"] + 1
-					mob ["PARTIAL_ABSORBED"] = mob ["PARTIAL_ABSORBED"] + 1
-					mob ["PARTIAL_ABSORB_AMT"] = mob ["PARTIAL_ABSORB_AMT"] + absorbed
-					mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + absorbed
+					overall["ABSORB"] = overall["ABSORB"] + 1
+					overall["PARTIAL_ABSORBED"] = overall["PARTIAL_ABSORBED"] + 1
+					overall["PARTIAL_ABSORB_AMT"] = overall["PARTIAL_ABSORB_AMT"] + absorbed
+					overall["ABSORB_AMT"] = overall["ABSORB_AMT"] + absorbed
+					mob["ABSORB"] = mob["ABSORB"] + 1
+					mob["PARTIAL_ABSORBED"] = mob["PARTIAL_ABSORBED"] + 1
+					mob["PARTIAL_ABSORB_AMT"] = mob["PARTIAL_ABSORB_AMT"] + absorbed
+					mob["ABSORB_AMT"] = mob["ABSORB_AMT"] + absorbed
 				else
 					--add aos hits sem absorbs
-					overall ["FULL_HIT"] = overall ["FULL_HIT"] + 1
-					overall ["FULL_HIT_AMT"] = overall ["FULL_HIT_AMT"] + amount
-					mob ["FULL_HIT"] = mob ["FULL_HIT"] + 1
-					mob ["FULL_HIT_AMT"] = mob ["FULL_HIT_AMT"] + amount
+					overall["FULL_HIT"] = overall["FULL_HIT"] + 1
+					overall["FULL_HIT_AMT"] = overall["FULL_HIT_AMT"] + amount
+					mob["FULL_HIT"] = mob["FULL_HIT"] + 1
+					mob["FULL_HIT_AMT"] = mob["FULL_HIT_AMT"] + amount
 				end
 			end
 
@@ -2606,7 +2595,7 @@
 		elseif (spellId == 409560) then
 			local unitIDAffected = Details:FindUnitIDByUnitSerial(targetSerial)
 			if (unitIDAffected) then
-				local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId)
+				local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId, sourceName)
 				if (duration) then
 					local breathTargets = augmentation_cache.breath_targets[targetSerial]
 					if (not breathTargets) then
@@ -5197,7 +5186,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not Details.WhoAggroTimer and Details.announce_firsthit.enabled) then
-			Details.WhoAggroTimer = C_Timer.NewTimer(0.1, who_aggro)
+			Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
 			for i = 1, 5 do
 				local boss = UnitExists("boss" .. i)
 				if (boss) then
@@ -6196,7 +6185,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		if (token == "SPELL_DAMAGE") then
 			if (A13 ~= nil or unknown1 ~= nil or unknown2 ~= nil or unknown3 ~= nil or unknown4 ~= nil or unknown5) then
-				--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)	
+				--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)
 			end
 			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)
 
@@ -6237,13 +6226,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			["5"] = 0,
 			["6"] = 0,
 			["7"] = 395152,
-			["8"] = 5061347,			
+			["8"] = 5061347,
 		--]=]
 
 		if (sourceSerial == UnitGUID("player")) then
 			GLOB = GLOB or {}
 			--table.insert(GLOB, {time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18})
-			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)	
+			--print(time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellId, spellName, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)
 		end
 
 		--two spells triggering _support
