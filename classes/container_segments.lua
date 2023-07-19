@@ -463,6 +463,21 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	--insert the combat into the segments table
 	table.insert(segmentsTable, 1, combatToBeAdded)
 
+	--check if an instance is showing a combat which was removed
+	for instanceId, instanceObject in Details:ListInstances() do
+		---@type combat
+		local combatObject = instanceObject:GetShowingCombat()
+		if (removedCombats[combatObject]) then
+			--update the combat the instance uses
+			Details:UpdateCombatObjectInUse(instanceObject)
+			--reset the window frame
+			instanceObject:ResetWindow()
+			--refresh the window to show the new combat attributed to it
+			local bForceRefresh = true
+			instanceObject:RefreshData(bForceRefresh)
+		end
+	end
+
 	--see if can add the encounter to overall data
 	local bCanAddToOverall = Details:CanAddCombatToOverall(combatToBeAdded)
 
@@ -482,6 +497,8 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	if (bSegmentDestroyed) then
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 	end
+
+	Details:Destroy(removedCombats)
 end
 
 

@@ -654,7 +654,7 @@ function Details:GetShowingCombat()
 	return self.showing
 end
 
-function Details:GetCustomObject (object_name)
+function Details:GetCustomObject(object_name)
 	if (object_name) then
 		for _, object in ipairs(Details.custom) do
 			if (object.name == object_name) then
@@ -691,7 +691,7 @@ function Details:GetMaxInstancesAmount()
 	return Details.instances_amount
 end
 
-function Details:SetMaxInstancesAmount (amount)
+function Details:SetMaxInstancesAmount(amount)
 	if (type(amount) == "number") then
 		Details.instances_amount = amount
 	end
