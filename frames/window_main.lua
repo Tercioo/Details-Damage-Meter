@@ -4008,6 +4008,20 @@ local windowLineMixin = {
 
 Details.barras_criadas = 0
 
+local onEnterExtraStatusbar = function(self)
+	self:SetAlpha(1)
+	if (self.OnEnterCallback) then
+		local okay, errorText = pcall(self.OnEnterCallback, self)
+		if (not okay) then
+			Details:Msg("Error on extra statusbar OnEnterCallback: ", errorText)
+		end
+	end
+end
+
+local onLeaveExtraStatusbar = function(self)
+	self:SetAlpha(self.defaultAlpha)
+end
+
 --alias
 function gump:NewRow(instancia, index)
 	return gump:CreateNewLine(instancia, index)
@@ -4062,13 +4076,18 @@ function gump:CreateNewLine(instance, index)
 	newLine.statusbar:SetStatusBarTexture(newLine.textura)
 
 	newLine.extraStatusbar = CreateFrame("StatusBar", "DetailsBarra_Statusbar2_" .. instance.meu_id .. "_" .. index, newLine)
+	newLine.extraStatusbar:SetMinMaxValues(0, 100)
 	newLine.extraStatusbar.texture = newLine.extraStatusbar:CreateTexture(nil, "overlay")
 	newLine.extraStatusbar:SetStatusBarTexture(newLine.extraStatusbar.texture)
 	--by default painting the extraStatusbar with the evoker color
 	local evokerColor = Details.class_colors["EVOKER"]
 	newLine.extraStatusbar.texture:SetColorTexture(1, 1, 1, 1) --setColorTexture is very expensive, so set the color once and use vertex color to change it
 	newLine.extraStatusbar.texture:SetVertexColor(unpack(evokerColor))
+	newLine.extraStatusbar:SetAlpha(0.7)
+	newLine.extraStatusbar.defaultAlpha = 0.7
 	newLine.extraStatusbar:Hide()
+	newLine.extraStatusbar:SetScript("OnEnter", onEnterExtraStatusbar)
+	newLine.extraStatusbar:SetScript("OnLeave", onLeaveExtraStatusbar)
 
 	--frame for hold the backdrop border
 	newLine.border = CreateFrame("Frame", "DetailsBarra_Border_" .. instance.meu_id .. "_" .. index, newLine.statusbar, "BackdropTemplate")

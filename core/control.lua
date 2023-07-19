@@ -1992,9 +1992,9 @@
 		if (Details.last_instance_id ~= mapid) then
 			Details.tabela_historico:ResetOverallData()
 
-			if (Details.segments_auto_erase == 2) then
-				--ask
+			if (Details.segments_auto_erase == 2) then --ask to erase
 				Details:ScheduleTimer("AutoEraseConfirm", 1)
+
 			elseif (Details.segments_auto_erase == 3) then
 				--erase
 				Details.tabela_historico:ResetAllCombatData()

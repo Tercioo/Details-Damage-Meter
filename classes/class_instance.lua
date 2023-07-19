@@ -103,7 +103,7 @@ function Details:InstanceCallDetailsFunc(func, ...)
 	for index, instance in ipairs(Details.tabela_instancias) do
 		---@cast instance instance
 		if (instance:IsEnabled()) then
-			func(Details, instance, ...)
+			func(nil, instance, ...)
 		end
 	end
 end
@@ -113,7 +113,7 @@ end
 ---@vararg any
 function Details:InstanciaCallFunctionOffline(func, ...)
 	for index, instancia in ipairs(Details.tabela_instancias) do
-		func(Details, instancia, ...)
+		func(nil, instancia, ...)
 	end
 end
 
@@ -654,7 +654,7 @@ function Details:GetShowingCombat()
 	return self.showing
 end
 
-function Details:GetCustomObject(object_name)
+function Details:GetCustomObject (object_name)
 	if (object_name) then
 		for _, object in ipairs(Details.custom) do
 			if (object.name == object_name) then
@@ -691,7 +691,7 @@ function Details:GetMaxInstancesAmount()
 	return Details.instances_amount
 end
 
-function Details:SetMaxInstancesAmount(amount)
+function Details:SetMaxInstancesAmount (amount)
 	if (type(amount) == "number") then
 		Details.instances_amount = amount
 	end

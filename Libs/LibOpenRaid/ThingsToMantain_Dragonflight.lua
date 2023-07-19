@@ -651,6 +651,7 @@ do
 			[110959] = {cooldown = 120,	duration = 20,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Greater Invisibility | 110959
 			[11426] = {cooldown = 25,	duration = 60,	specs = {64},				talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Ice Barrier
 			[45438] = {cooldown = 240,	duration = 10,	specs = {62, 63, 64},		talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Ice Block
+			[414658] = {cooldown = 180,	duration = 6,	specs = {62, 63, 64},		talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Ice Cold
 			[12472] = {cooldown = 180,	duration = 20,	specs = {64},				talent = false,	charges = 1,	class = "MAGE",	type = 1}, --Icy Veins
 			[66] = {cooldown = 300,		duration = 20,	specs = {63, 64},			talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Invisibility
 			[383121] = {cooldown = 60,	duration = 0,	specs = {62, 63, 64},		talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Mass Polymorph
@@ -664,7 +665,6 @@ do
 			[475] = {cooldown = 8,	duration = 0,	specs = {63, 64, 62},			talent = false,	charges = 1,	class = "MAGE",	type = 7}, --Remove Curse
 			[122] = {cooldown = 30,	duration = 6,	specs = {63, 64, 62},			talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Frost Nova
 			[157980] = {cooldown = 25,	duration = 0,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Supernova
-
 			[414660] = {cooldown = 120,	duration = 60,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 4}, --Mass Barrier
 			[414664] = {cooldown = 300,	duration = 12,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Mass Invisibility (only out of combat)
 
@@ -909,6 +909,8 @@ do
 			--187827 vengeance need to test these spellIds
 			--191427 havoc
 			[370564] = 370537, -- Evoker Stasis
+			--[414658] = 45438, -- Ice Block with the talent Ice Cold
+			--[414658] = 45438, -- Ice Block with the talent IceCold
 		}
 		LIB_OPEN_RAID_MULTI_OVERRIDE_SPELLS = {
 			[106898] = {106898,77764,77761},

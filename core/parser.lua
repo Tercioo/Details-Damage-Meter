@@ -5120,7 +5120,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		else
 			local inInstance = IsInInstance()
 			if ((zoneType == "raid" or zoneType == "party") and inInstance) then
-				Details:CheckForAutoErase (zoneMapID)
+				Details:CheckForAutoErase(zoneMapID)
 
 				--if the current raid is current tier raid, pre-load the storage database
 				if (zoneType == "raid") then
