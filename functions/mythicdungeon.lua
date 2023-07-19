@@ -52,7 +52,7 @@ end
 --precisa converter um wipe em um trash segment? provavel que sim
 
 -- at the end of a mythic run, if enable on settings, merge all the segments from the mythic run into only one
-function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
+function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("Details!", "MergeSegmentsOnEnd() > starting to merge mythic segments.", "InCombatLockdown():", InCombatLockdown())
     end

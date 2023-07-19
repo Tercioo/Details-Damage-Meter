@@ -6454,6 +6454,7 @@ end
 
 		--sum total damage
 		overallActor.total = overallActor.total + actorObject.total
+		overallActor.total = overallActor.total_extra + actorObject.total_extra
 		overallActor.totalabsorbed = overallActor.totalabsorbed + actorObject.totalabsorbed
 
 		--sum total damage without pet
