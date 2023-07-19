@@ -276,13 +276,26 @@ do
 	end
 
 	local specNamesToId = {}
-	if(DetailsFramework.IsDragonflightAndBeyond()) then
-		local classSpecList = DetailsFramework.ClassSpecs
-		for _, specs in pairs(classSpecList) do
-			for specId, __ in pairs(specs) do
-				local id, name = GetSpecializationInfoByID(specId)
-				if (id and name) then
-					specNamesToId[name] = id;
+	function Details:BuildSpecsNameCache()
+		if (DetailsFramework.IsDragonflightAndBeyond()) then
+			---@type table<class, table<specializationid, boolean>>
+			local classSpecList = DetailsFramework.ClassSpecs
+			---@number
+			local numClasses = GetNumClasses()
+
+			for i = 1, numClasses do
+				local classInfo = C_CreatureInfo.GetClassInfo(i)
+				local localizedClassName = classInfo.className
+				local classTag = classInfo.classFile
+
+				local specIdsList = classSpecList[classTag]
+				if (specIdsList) then
+					for specId in pairs(specIdsList) do
+						local specId2, specName = GetSpecializationInfoByID(specId)
+						if (specId2 and specName) then
+							specNamesToId[specName .. " " .. localizedClassName] = specId2
+						end
+					end
 				end
 			end
 		end
@@ -391,19 +404,19 @@ do
 
 		--attempt to get spec from tooltip
 		if (not actorSpec and DetailsFramework:IsDragonflightAndBeyond()) then
-			local tooltipData = C_TooltipInfo.GetHyperlink("unit:".. actorObject.serial)
+			local tooltipData = C_TooltipInfo.GetHyperlink("unit:" .. actorObject.serial)
 			if (tooltipData and tooltipData.lines) then
-				for _, line in pairs(tooltipData.lines) do
-					if (line.leftText) then
-						for str in line.leftText:gmatch("%S+") do
-							if (specNamesToId[str]) then
-								actorSpec = specNamesToId[str]
-							end
+				for i = 1, #tooltipData.lines do
+					local thisLineData = tooltipData.lines[i]
+					local text = thisLineData.leftText
+					if (text and thisLineData.type == 0) then
+						local specId = specNamesToId[text]
+						if (specId and type(specId) == "number") then
+							actorSpec = specId
 						end
 					end
 				end
 			end
-			
 		end
 
 		--attempt to get from the spells the actor used in the current combat

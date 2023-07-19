@@ -619,6 +619,8 @@ function Details:StartMeUp()
 
 	pcall(Details222.ClassCache.MakeCache)
 
+	Details:BuildSpecsNameCache()
+
 	Details222.Cache.DoMaintenance()
 
 	function Details:InstallOkey()

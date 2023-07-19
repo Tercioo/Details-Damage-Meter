@@ -1732,39 +1732,48 @@
 	end
 
 	function Details:MontaTooltip(frame, whichRowLine, keydown)
-
-		self:BuildInstanceBarTooltip (frame)
+		self:BuildInstanceBarTooltip(frame)
 
 		local GameCooltip = GameCooltip
 
-		local esta_barra = self.barras [whichRowLine] --barra que o mouse passou em cima e ir� mostrar o tooltip
-		local objeto = esta_barra.minha_tabela --pega a referencia da tabela --retorna a classe_damage ou classe_heal
-		if (not objeto) then --a barra n�o possui um objeto
+		local thisLine = self.barras[whichRowLine] --hoverovered line
+		local object = thisLine.minha_tabela --the object the line is showing
+
+		--check if the object is valid
+		if (not object) then
 			return false
 		end
 
-		--verifica por tooltips especiais:
-		if (objeto.dead) then --� uma barra de dead
-			return Details:ToolTipDead (self, objeto, esta_barra, keydown) --inst�ncia, [morte], barra
-		elseif (objeto.byspell) then
-			return Details:ToolTipBySpell (self, objeto, esta_barra, keydown)
-		elseif (objeto.frags) then
-			return Details:ToolTipFrags (self, objeto, esta_barra, keydown)
-		elseif (objeto.boss_debuff) then
-			return Details:ToolTipVoidZones (self, objeto, esta_barra, keydown)
+		--check for special tooltips
+		if (object.dead) then --� uma barra de dead
+			return Details:ToolTipDead(self, object, thisLine, keydown) --inst�ncia, [morte], barra
+
+		elseif (object.byspell) then
+			return Details:ToolTipBySpell(self, object, thisLine, keydown)
+
+		elseif (object.frags) then
+			return Details:ToolTipFrags(self, object, thisLine, keydown)
+
+		elseif (object.boss_debuff) then
+			return Details:ToolTipVoidZones(self, object, thisLine, keydown)
 		end
 
-		local t = objeto:ToolTip (self, whichRowLine, esta_barra, keydown) --inst�ncia, n� barra, objeto barra, keydown
+		if (not object.ToolTip) then
+			if (object.__destroyed) then
+				Details:Msg("object:ToolTip() is invalid.", object.__destroyedBy)
+			end
+		end
 
-		if (t) then
+		local bTooltipBuilt = object:ToolTip(self, whichRowLine, thisLine, keydown) --instance, lineId, lineObject, keydown
 
-			if (objeto.serial and objeto.serial ~= "") then
-				local avatar = NickTag:GetNicknameTable (objeto.serial, true)
+		if (bTooltipBuilt) then
+			if (object.serial and object.serial ~= "") then
+				local avatar = NickTag:GetNicknameTable(object.serial, true)
 				if (avatar and not Details.ignore_nicktag) then
-					if (avatar [2] and avatar [4] and avatar [1]) then
-						GameCooltip:SetBannerImage (1, 1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --overlay [2] avatar path
-						GameCooltip:SetBannerImage (1, 2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --background
-						GameCooltip:SetBannerText (1, 1, (not Details.ignore_nicktag and avatar [1]) or objeto.nome, textPoint, avatarTextColor, 14, SharedMedia:Fetch ("font", Details.tooltip.fontface)) --text [1] nickname
+					if (avatar[2] and avatar[4] and avatar[1]) then
+						GameCooltip:SetBannerImage(1, 1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --overlay [2] avatar path
+						GameCooltip:SetBannerImage(1, 2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --background
+						GameCooltip:SetBannerText(1, 1, (not Details.ignore_nicktag and avatar[1]) or object.nome, textPoint, avatarTextColor, 14, SharedMedia:Fetch("font", Details.tooltip.fontface)) --text [1] nickname
 					end
 				end
 			end

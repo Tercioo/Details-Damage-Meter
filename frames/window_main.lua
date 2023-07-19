@@ -2251,7 +2251,7 @@ local iconFrame_OnEnter = function(self)
 			end
 
 			if (actor.spec == 1473 and actor.tipo == DETAILS_ATTRIBUTE_DAMAGE) then
-				local damageDone = math.floor(actor.total + actor.extra_bar)
+				local damageDone = math.floor(actor.total + actor.total_extra)
 				GameCooltip:AddLine("Evoker Predicted Damage:", Details:Format(damageDone) .. " (" .. Details:Format(damageDone / Details:GetCurrentCombat():GetCombatTime()) .. ")", 1, "white")
 				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 				Details:AddTooltipBackgroundStatusbar()
@@ -2264,7 +2264,6 @@ local iconFrame_OnEnter = function(self)
 			self.showing = "actor"
 		end
 	end
-
 end
 
 local iconFrame_OnLeave = function(self)
@@ -4062,11 +4061,14 @@ function gump:CreateNewLine(instance, index)
 	newLine.textura:SetVertTile(false)
 	newLine.statusbar:SetStatusBarTexture(newLine.textura)
 
-	newLine.extraTexture = newLine.statusbar:CreateTexture(nil, "overlay")
-
+	newLine.extraStatusbar = CreateFrame("StatusBar", "DetailsBarra_Statusbar2_" .. instance.meu_id .. "_" .. index, newLine)
+	newLine.extraStatusbar.texture = newLine.extraStatusbar:CreateTexture(nil, "overlay")
+	newLine.extraStatusbar:SetStatusBarTexture(newLine.extraStatusbar.texture)
+	--by default painting the extraStatusbar with the evoker color
 	local evokerColor = Details.class_colors["EVOKER"]
-	newLine.extraTexture:SetColorTexture(unpack(evokerColor))
-	newLine.extraTexture:Hide()
+	newLine.extraStatusbar.texture:SetColorTexture(1, 1, 1, 1) --setColorTexture is very expensive, so set the color once and use vertex color to change it
+	newLine.extraStatusbar.texture:SetVertexColor(unpack(evokerColor))
+	newLine.extraStatusbar:Hide()
 
 	--frame for hold the backdrop border
 	newLine.border = CreateFrame("Frame", "DetailsBarra_Border_" .. instance.meu_id .. "_" .. index, newLine.statusbar, "BackdropTemplate")

@@ -55,6 +55,24 @@ function breakdownWindowFrame.ShowPluginOnBreakdown(pluginObject, button)
 		thisPluginObject.Frame:Hide()
 	end
 
+	--check if the breakdown window is closed
+	if (not breakdownWindowFrame:IsShown()) then
+		--as the breakdown require an actor and an instance, get a random one
+		local currentCombat = Details:GetCurrentCombat()
+		local damageContainer = currentCombat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+		local actorObject = damageContainer._ActorTable[1]
+		if (actorObject) then
+			local instanceObject = Details:GetInstance(1)
+			if (instanceObject) then
+				Details:OpenBreakdownWindow(instanceObject, actorObject)
+			end
+		end
+	end
+
+	if (not breakdownWindowFrame:IsShown()) then
+		return
+	end
+
 	--reset the template on all plugin buttons
 	for _, thisPluginButton in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
 		---@cast thisPluginButton df_button

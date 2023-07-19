@@ -1247,10 +1247,11 @@
 				end
 
 				if (evokerActor) then
+					evokerActor.total_extra = evokerActor.total_extra or 0
 					if (Details.zone_type == "raid") then
-						evokerActor.extra_bar = evokerActor.extra_bar + (amount * 0.1389541)
+						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1389541)
 					else
-						evokerActor.extra_bar = evokerActor.extra_bar + (amount * 0.1966044)
+						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1966044)
 					end
 				end
 			end
@@ -1275,7 +1276,7 @@
 				end
 
 				if (evokerActor) then
-					evokerActor.extra_bar = evokerActor.extra_bar + amount
+					evokerActor.total_extra = (evokerActor.total_extra or 0) + amount
 				end
 			end
 		end
@@ -1308,7 +1309,7 @@
 							end
 
 							if (evokerActor) then
-								evokerActor.extra_bar = evokerActor.extra_bar + amount
+								evokerActor.total_extra = (evokerActor.total_extra or 0) + amount
 							end
 						end
 					end
