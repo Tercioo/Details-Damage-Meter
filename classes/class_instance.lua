@@ -99,11 +99,11 @@ end
 ---run a function on all enabled instances
 ---@param func function
 ---@vararg any
-function Details:InstanciaCallFunction(func, ...)
+function Details:InstanceCallDetailsFunc(func, ...)
 	for index, instance in ipairs(Details.tabela_instancias) do
 		---@cast instance instance
 		if (instance:IsEnabled()) then
-			func(_, instance, ...)
+			func(Details, instance, ...)
 		end
 	end
 end
@@ -113,7 +113,7 @@ end
 ---@vararg any
 function Details:InstanciaCallFunctionOffline(func, ...)
 	for index, instancia in ipairs(Details.tabela_instancias) do
-		func(_, instancia, ...)
+		func(Details, instancia, ...)
 	end
 end
 
@@ -2512,7 +2512,7 @@ end
 --handle internal details! events
 local eventListener = Details:CreateEventListener()
 eventListener:RegisterEvent("DETAILS_DATA_SEGMENTREMOVED", function()
-	Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
+	Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse)
 end)
 
 function Details:UpdateCombatObjectInUse(instance)

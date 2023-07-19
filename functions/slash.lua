@@ -1374,10 +1374,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--clear memory
 		collectgarbage()
 
-		Details:InstanciaCallFunction(Details.FadeHandler.Fader, "in", nil, "barras")
-		Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
-		Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
-		Details:InstanciaCallFunction(Details.ResetaGump)
+		Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "in", nil, "barras")
+		Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse)
+		Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset)
+		Details:InstanceCallDetailsFunc(Details.ResetaGump)
 		Details:RefreshMainWindow(-1, true)
 
 	elseif (msg == "ej") then

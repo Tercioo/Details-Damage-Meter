@@ -360,9 +360,9 @@
 		--check if there's a 'current segment in place', if not, re-create the overall data before creating the new segment
 		if (not segmentsTable[1]) then
 			Details.tabela_overall = Details.combate:NovaTabela()
-			Details:InstanciaCallFunction(Details.ResetaGump, nil, -1) --reseta scrollbar, iterators, rodap�, etc
-			Details:InstanciaCallFunction(Details.InstanciaFadeBarras, -1) --esconde todas as barras
-			Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse) --atualiza o showing
+			Details:InstanceCallDetailsFunc(Details.ResetaGump, nil, -1) --reseta scrollbar, iterators, rodap�, etc
+			Details:InstanceCallDetailsFunc(Details.InstanciaFadeBarras, -1) --esconde todas as barras
+			Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse) --atualiza o showing
 		end
 
 		--get the yet 'current' combat and lock the activity time on all actors
@@ -430,7 +430,7 @@
 
 		--if the window is showing current segment, switch it for the new combat
 		--also if the window has auto current, jump to current segment
-		Details:InstanciaCallFunction(Details.TrocaSegmentoAtual, Details.tabela_vigente.is_boss and true)
+		Details:InstanceCallDetailsFunc(Details.TrocaSegmentoAtual, Details.tabela_vigente.is_boss and true)
 
 		--clear hosts and make the cloud capture stuff
 		Details.host_of = nil
@@ -872,7 +872,7 @@
 			end
 
 			Details.tabela_vigente.resincked = true
-			Details:InstanciaCallFunction(Details.AtualizarJanela)
+			Details:InstanceCallDetailsFunc(Details.AtualizarJanela)
 
 			if (Details.solo) then --code to update "solo" plugins, there's no solo plugins for details! at the moment
 				if (Details.SoloTables.CombatID == Details:GetOrSetCombatId()) then --significa que o solo mode validou o combate, como matar um bixo muito low level com uma s� porrada

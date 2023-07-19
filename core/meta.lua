@@ -696,7 +696,7 @@ local classTypeUtility = Details.atributos.misc
 
 		--refresh nas janelas
 		if (amountActorRemoved > 0) then
-			Details:InstanciaCallFunction(Details.reset_window)
+			Details:InstanceCallDetailsFunc(Details.reset_window)
 		end
 
 		--cleanup backlisted pets within the handler of actor containers
@@ -870,7 +870,7 @@ local classTypeUtility = Details.atributos.misc
 		amountRemoved = amountRemoved + collectGarbage(overallCombatObject, overriteLastEvent)
 
 		if (amountRemoved > 0) then
-			Details:InstanciaCallFunction(Details.ScheduleUpdate)
+			Details:InstanceCallDetailsFunc(Details.ScheduleUpdate)
 			Details:RefreshMainWindow(-1)
 		end
 

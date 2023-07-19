@@ -158,10 +158,10 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd()
     Details:SairDoCombate()
 
     --update all windows
-    Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-    Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
-    Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
-    Details:InstanciaCallFunction(Details.ResetaGump)
+    Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "IN", nil, "barras")
+    Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse)
+    Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset)
+    Details:InstanceCallDetailsFunc(Details.ResetaGump)
     Details:RefreshMainWindow(-1, true)
 
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
@@ -271,10 +271,10 @@ function DetailsMythicPlusFrame.MergeTrashCleanup (isFromSchedule)
         Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
 
         --update all windows
-        Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-        Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
-        Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
-        Details:InstanciaCallFunction(Details.ResetaGump)
+        Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "IN", nil, "barras")
+        Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse)
+        Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset)
+        Details:InstanceCallDetailsFunc(Details.ResetaGump)
         Details:RefreshMainWindow(-1, true)
     else
         Details222.MythicPlus.LogStep("MergeTrashCleanup | no segments to merge.")
@@ -373,10 +373,10 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
         end
 
         --update all windows
-        Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
-        Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse)
-        Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset)
-        Details:InstanciaCallFunction(Details.ResetaGump)
+        Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "IN", nil, "barras")
+        Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse)
+        Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset)
+        Details:InstanceCallDetailsFunc(Details.ResetaGump)
         Details:RefreshMainWindow(-1, true)
     end
 

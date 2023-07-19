@@ -342,6 +342,9 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	---@type number amount of segments currently stored
 	local amountSegmentsInUse = #segmentsTable
 
+	---@type table<combat, boolean> store references of combat objects removed
+	local removedCombats = {}
+
 	---@debug check if there's a destroyed segment within the segment container
 	if (amountSegmentsInUse > 0) then
 		for i = 1, amountSegmentsInUse do
@@ -360,11 +363,11 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	if (amountSegmentsInUse < maxSegmentsAllowed) then
 		--if there's no segment stored, then this as the first segment
 		if (amountSegmentsInUse == 0) then
-			Details:InstanciaCallFunction(Details.CheckFreeze, amountSegmentsInUse + 1, combatToBeAdded)
+			Details:InstanceCallDetailsFunc(Details.CheckFreeze, amountSegmentsInUse + 1, combatToBeAdded)
 		else
 			---@type combat
 			local oldestCombatObject = segmentsTable[amountSegmentsInUse]
-			Details:InstanciaCallFunction(Details.CheckFreeze, amountSegmentsInUse + 1, oldestCombatObject)
+			Details:InstanceCallDetailsFunc(Details.CheckFreeze, amountSegmentsInUse + 1, oldestCombatObject)
 		end
 	end
 
@@ -396,7 +399,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 		end
 	end
 
-	---@type boolean user choise to remove trash combats or nor
+	---@type boolean user choise to remove trash combats or not
 	local bAutoRemoveTrashCombats = Details.trash_auto_remove
 	if (bAutoRemoveTrashCombats) then
 		---@type combat
@@ -411,9 +414,11 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 				if (bCombatIsTrash or bCombatIsWorldTrash) then
 					---@type boolean, combat|nil
 					local bSegmentRemoved, combatObjectRemoved = Details:RemoveSegmentByCombatObject(combatToCheckForTrash)
-					if (bSegmentRemoved and combatObjectRemoved == combatToCheckForTrash) then
+					if (bSegmentRemoved and combatObjectRemoved and combatObjectRemoved == combatToCheckForTrash) then
 						Details:DestroyCombat(combatObjectRemoved)
 						bSegmentDestroyed = true
+						--add the combat reference to removed combats table
+						removedCombats[combatObjectRemoved] = true
 					end
 				end
 			end
@@ -433,9 +438,11 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 
 		---@type boolean, combat|nil
 		local bSegmentRemoved, combatObjectRemoved = Details:RemoveSegmentByCombatObject(combatObjectToBeRemoved)
-		if (bSegmentRemoved and combatObjectRemoved == combatObjectToBeRemoved) then
+		if (bSegmentRemoved and combatObjectRemoved and combatObjectRemoved == combatObjectToBeRemoved) then
 			Details:DestroyCombat(combatObjectRemoved)
 			bSegmentDestroyed = true
+			--add the combat reference to removed combats table
+			removedCombats[combatObjectRemoved] = true
 		end
 	end
 
@@ -470,7 +477,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	Details:InstanceCall(function(instanceObject) instanceObject:RefreshCombat() end)
 
 	--update the combat shown on all instances
-	Details:InstanciaCallFunction(Details.AtualizaSegmentos_AfterCombat)
+	Details:InstanceCallDetailsFunc(Details.AtualizaSegmentos_AfterCombat)
 
 	if (bSegmentDestroyed) then
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
@@ -500,7 +507,7 @@ function segmentClass:AddCombat(combatObject)
 		if (not oldestCombatObject) then
 			oldestCombatObject = combatObject
 		end
-		Details:InstanciaCallFunction(Details.CheckFreeze, #segmentsTable + 1, oldestCombatObject)
+		Details:InstanceCallDetailsFunc(Details.CheckFreeze, #segmentsTable + 1, oldestCombatObject)
 	end
 
 	--add to the first index of the segment table
@@ -672,7 +679,7 @@ function segmentClass:AddCombat(combatObject)
 	Details:InstanceCall(function(instanceObject) instanceObject:RefreshCombat() end)
 
 	--update the combat shown on all instances
-	Details:InstanciaCallFunction(Details.AtualizaSegmentos_AfterCombat, self)
+	Details:InstanceCallDetailsFunc(Details.AtualizaSegmentos_AfterCombat, self)
 
 	if (bSegmentDestroyed) then
 		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
@@ -844,10 +851,10 @@ function segmentClass:ResetAllCombatData()
 		Details.schedule_hard_garbage_collect = true
 	end
 
-	Details:InstanciaCallFunction(Details.UpdateCombatObjectInUse) -- atualiza o instancia.showing para as novas tabelas criadas
-	Details:InstanciaCallFunction(Details.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
-	Details:InstanciaCallFunction(Details.ResetaGump) --_detalhes:ResetaGump("de todas as instancias")
-	Details:InstanciaCallFunction(Details.FadeHandler.Fader, "IN", nil, "barras")
+	Details:InstanceCallDetailsFunc(Details.UpdateCombatObjectInUse) -- atualiza o instancia.showing para as novas tabelas criadas
+	Details:InstanceCallDetailsFunc(Details.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
+	Details:InstanceCallDetailsFunc(Details.ResetaGump) --_detalhes:ResetaGump("de todas as instancias")
+	Details:InstanceCallDetailsFunc(Details.FadeHandler.Fader, "IN", nil, "barras")
 
 	Details:RefreshMainWindow(-1) --atualiza todas as instancias
 
