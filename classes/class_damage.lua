@@ -2902,42 +2902,54 @@ function damageClass:RefreshLine(instance, lineContainer, whichRowLine, rank, to
 
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 
-	return self:RefreshLineValue(thisLine, instance, previousData, forcar, percentNumber, whichRowLine, lineContainer, bUseAnimations)
+	return self:RefreshLineValue(thisLine, instance, previousData, forcar, percentNumber, bUseAnimations, total, instance.top)
 end
 
 ---show an extra statusbar on the line, after the main statusbar
----@param thisLine frame
+---@param thisLine table
 ---@param amount valueamount
 ---@param amountPercent number
 ---@param extraAmount valueamount
-function Details:ShowExtraStatusbar(thisLine, amount, amountPercent, extraAmount, instanceObject)
+function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, topAmount, instanceObject)
 	if (extraAmount and extraAmount > 0 and Details.combat_log.evoker_calc_damage) then
-		local bIsUsingBarStartAfterIcon = instanceObject.row_info.start_after_icon
+		local extraStatusbar = thisLine.extraStatusbar
 		local initialOffset = 0
+		local icon_offset_x, icon_offset_y = unpack(instanceObject.row_info.icon_offset)
+
+		local bIsUsingBarStartAfterIcon = instanceObject.row_info.start_after_icon
 		if (bIsUsingBarStartAfterIcon) then
-			initialOffset = thisLine.icone_classe:GetWidth()
+			initialOffset = thisLine.icone_classe:GetWidth() + icon_offset_x
 		end
 
-		local thisLineWidth = thisLine:GetWidth() + initialOffset
-		local extraStatusbar = thisLine.extraStatusbar
+		local statusBarWidth = thisLine.statusbar:GetWidth()
+		local percent = amount / topAmount
+		local fillTheGapWidth = percent * 4
 
-		local statusbarStartOffset = thisLineWidth * amountPercent / 100
-		extraStatusbar:SetPoint("left", thisLine, "left", statusbarStartOffset, 0)
+		local startExtraStatusbarOffset = percent * statusBarWidth
+		local extraStatusbarWidth = statusBarWidth * (extraAmount / topAmount)
 
-		local statusbarWidth = (extraAmount / amount) * (amountPercent / 100) * thisLineWidth
-		extraStatusbar:SetSize(statusbarWidth, thisLine:GetHeight())
+		extraStatusbar:ClearAllPoints()
+		extraStatusbar:SetHeight(thisLine:GetHeight())
 
-		extraStatusbar:SetFrameStrata("TOOLTIP")
-		extraStatusbar:SetFrameLevel(3000)
+		if (bIsUsingBarStartAfterIcon) then
+			extraStatusbar:SetPoint("topleft", thisLine.icone_classe, "topright", startExtraStatusbarOffset - fillTheGapWidth, 0)
+		else
+			extraStatusbar:SetPoint("topleft", thisLine, "topleft", (statusBarWidth * percent) - fillTheGapWidth, 0)
+		end
+
+		extraStatusbar:SetWidth(extraStatusbarWidth)
+
+		--extraStatusbar:SetFrameStrata("TOOLTIP")
+		extraStatusbar:SetFrameLevel(thisLine:GetFrameLevel() + 1)
 
 		extraStatusbar:Show()
 	end
 end
 
-function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefresh, percent, whichRowLine, lineContainer, bUseAnimations) --[[exported]]
+function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue) --[[exported]]
 	thisLine.extraStatusbar:Hide()
 
-	if (thisLine.colocacao == 1) then
+	 if (thisLine.colocacao == 1) then
 		thisLine.animacao_ignorar = true
 
 		if (not previousData or previousData ~= thisLine.minha_tabela or isForceRefresh) then
@@ -2965,7 +2977,7 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 			Details.FadeHandler.Fader(thisLine, "out")
 
 			if (self.total_extra and self.total_extra > 0) then
-				Details:ShowExtraStatusbar(thisLine, self.total, percent, self.total_extra, instance)
+				Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
 			end
 
 			return self:RefreshBarra(thisLine, instance)
@@ -2982,7 +2994,7 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 				thisLine.last_value = percent --reseta o ultimo valor da barra
 
 				if (self.total_extra and self.total_extra > 0) then
-					Details:ShowExtraStatusbar(thisLine, self.total, percent, self.total_extra, instance)
+					Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
 				end
 
 				return self:RefreshBarra(thisLine, instance)
@@ -2997,13 +3009,13 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 				thisLine.last_value = percent
 
 				if (self.total_extra and self.total_extra > 0) then
-					Details:ShowExtraStatusbar(thisLine, self.total, percent, self.total_extra, instance)
+					Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
 				end
 
 				return self:RefreshBarra(thisLine, instance)
 			else
 				if (self.total_extra and self.total_extra > 0) then
-					Details:ShowExtraStatusbar(thisLine, self.total, percent, self.total_extra, instance)
+					Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
 				end
 			end
 		end
@@ -6454,7 +6466,7 @@ end
 
 		--sum total damage
 		overallActor.total = overallActor.total + actorObject.total
-		overallActor.total = overallActor.total_extra + actorObject.total_extra
+		overallActor.total_extra = overallActor.total_extra + actorObject.total_extra
 		overallActor.totalabsorbed = overallActor.totalabsorbed + actorObject.totalabsorbed
 
 		--sum total damage without pet
