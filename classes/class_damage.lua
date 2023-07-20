@@ -1851,7 +1851,6 @@ function damageClass:RefreshWindow(instancia, combatObject, forcar, exportar, re
 		return Details:EndRefresh(instancia, total, combatObject, showing) --retorna a tabela que precisa ganhar o refresh
 
 	elseif (keyName == "damage_taken_by_spells") then
-
 		local bs_index, total = 0, 0
 		Details:Destroy(bs_index_table)
 
@@ -1993,7 +1992,6 @@ function damageClass:RefreshWindow(instancia, combatObject, forcar, exportar, re
 		return Details:EndRefresh(instancia, bs_index, combatObject, showing)
 
 	elseif (keyName == "voidzones") then
-
 		local index = 0
 		local misc_container = combatObject [4]
 		local voidzone_damage_total = 0
