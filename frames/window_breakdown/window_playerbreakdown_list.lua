@@ -1,6 +1,9 @@
 
 local Details = _G.Details
+
+---@class detailsframework
 local detailsFramework = _G.DetailsFramework
+
 local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 local addonName, Details222 = ...
 
@@ -11,6 +14,7 @@ local C_Timer = _G.C_Timer
 local tinsert = table.insert
 local CreateFrame = CreateFrame
 local GetSpecializationInfoByID = GetSpecializationInfoByID
+local PixelUtil = PixelUtil
 
 local scrollbox_size = {215, 405}
 local scrollbox_lines = 19
@@ -30,20 +34,30 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	local pluginsFrame = breakdownWindowFrame.BreakdownPluginSelectionFrame
 
 	breakdownSideMenu:SetSize(scrollbox_size[1], scrollbox_size[2])
-	breakdownSideMenu:SetPoint("topright", breakdownWindowFrame, "topleft", 0, 0)
-	breakdownSideMenu:SetPoint("bottomright", breakdownWindowFrame, "bottomleft", 0, 0)
-	detailsFramework:ApplyStandardBackdrop(breakdownSideMenu)
-	breakdownSideMenu.RightEdge:Hide()
+	PixelUtil.SetPoint(breakdownSideMenu, "topright", breakdownWindowFrame, "topleft", -2, 0)
+	PixelUtil.SetPoint(breakdownSideMenu, "bottomright", breakdownWindowFrame, "bottomleft", -2, 0)
+	--detailsFramework:ApplyStandardBackdrop(breakdownSideMenu)
+	--breakdownSideMenu.RightEdge:Hide()
+
+	detailsFramework:AddRoundedCornersToFrame(breakdownSideMenu, Details.PlayerBreakdown.RoundedCornerPreset)
 
 	local titleHeight = 20
 	--plugins menu title bar
 	local titleBarPlugins = CreateFrame("frame", nil, breakdownSideMenu, "BackdropTemplate")
-	PixelUtil.SetPoint(titleBarPlugins, "topleft", breakdownSideMenu, "topleft", 2, -3)
-	PixelUtil.SetPoint(titleBarPlugins, "topright", breakdownSideMenu, "topright", -2, -3)
+	PixelUtil.SetPoint(titleBarPlugins, "topleft", breakdownSideMenu, "topleft", 2, -0)
+	PixelUtil.SetPoint(titleBarPlugins, "topright", breakdownSideMenu, "topright", -2, -0)
 	titleBarPlugins:SetHeight(titleHeight)
-	titleBarPlugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-	titleBarPlugins:SetBackdropColor(.5, .5, .5, 1)
-	titleBarPlugins:SetBackdropBorderColor(0, 0, 0, 1)
+	--titleBarPlugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+	--titleBarPlugins:SetBackdropColor(.5, .5, .5, 1)
+	--titleBarPlugins:SetBackdropBorderColor(0, 0, 0, 1)
+
+	---@type df_roundedpanel_preset
+	--local titleBarRoundedCornerPreset = {
+	--	roundness = 5,
+	--	color = {.05, .05, .05, 1},
+	--	border_color = "transparent",
+	--}
+	--detailsFramework:AddRoundedCornersToFrame(titleBarPlugins, titleBarRoundedCornerPreset)
 
 	--title label
 	local titleBarPlugins_TitleLabel = detailsFramework:NewLabel(titleBarPlugins, titleBarPlugins, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
@@ -53,9 +67,9 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	--plugins menu title bar
 	local titleBarPlayerSeparator = CreateFrame("frame", nil, breakdownSideMenu, "BackdropTemplate")
 	titleBarPlayerSeparator:SetHeight(titleHeight)
-	titleBarPlayerSeparator:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-	titleBarPlayerSeparator:SetBackdropColor(.5, .5, .5, 1)
-	titleBarPlayerSeparator:SetBackdropBorderColor(0, 0, 0, 1)
+	--titleBarPlayerSeparator:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+	--titleBarPlayerSeparator:SetBackdropColor(.5, .5, .5, 1)
+	--titleBarPlayerSeparator:SetBackdropBorderColor(0, 0, 0, 1)
 
 	--title label
 	local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarPlayerSeparator, titleBarPlayerSeparator, nil, "titulo", "Players", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
@@ -349,12 +363,6 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		totalStatusBar:SetFrameLevel(line:GetFrameLevel()+1)
 		totalStatusBar:SetAlpha(0.5)
 
-		--setup anchors
-		--specIcon:SetPoint("topleft", line, "topleft", 0, 0)
-		--roleIcon:SetPoint("topleft", specIcon, "topright", 2, 0)
-		--playerName:SetPoint("topleft", specIcon, "topright", 2, -3)
-		--className:SetPoint("topleft", roleIcon, "bottomleft", 0, -2)
-		--rankText:SetPoint("right", line, "right", -2, 0)
 		totalStatusBar:SetPoint("bottomleft", specIcon, "bottomright", 0, 0)
 
 		line.specIcon = specIcon
@@ -388,12 +396,14 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	playerScroll.ScrollBar:ClearAllPoints()
 	playerScroll.ScrollBar:SetPoint("topright", playerScroll, "topright", -2, -37)
 	playerScroll.ScrollBar:SetPoint("bottomright", playerScroll, "bottomright", -2, 17)
+	breakdownWindowFrame.playerScrollBox = playerScroll
 	playerScroll.ScrollBar:Hide()
 
+	--remove the standard backdrop
 	playerScroll:SetBackdrop({})
 	playerScroll:SetBackdropColor(0, 0, 0, 0)
 	playerScroll:SetBackdropBorderColor(0, 0, 0, 0)
-	breakdownWindowFrame.playerScrollBox = playerScroll
+	playerScroll.__background:Hide()
 
 	--need to be created before
 	breakdownWindowFrame.Header = DetailsFramework:CreateHeader(playerScroll, headerTable, headerOptions)
@@ -500,10 +510,10 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		end
 	end)
 
-	local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
-	local gradientBelow = DetailsFramework:CreateTexture(breakdownWindowFrame.playerScrollBox,
-	{gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 90, "artwork", {0, 1, 0, 1})
-	gradientBelow:SetPoint("bottoms", 1, 1)
+	--local gradientStartColor = Details222.ColorScheme.GetColorFor("gradient-background")
+	--local gradientBelow = DetailsFramework:CreateTexture(breakdownWindowFrame.playerScrollBox,
+	--{gradient = "vertical", fromColor = gradientStartColor, toColor = "transparent"}, 1, 90, "artwork", {0, 1, 0, 1})
+	--gradientBelow:SetPoint("bottoms", 1, 1)
 end
 
 function Details.PlayerBreakdown.CreatePlayerListFrame()

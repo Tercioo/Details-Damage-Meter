@@ -166,7 +166,7 @@ detailsFramework.FrameMixin = {
 
 	SetBackdropBorderColor = function(self, ...)
 		self = getFrame(self)
-		getFrame(self):SetBackdropBorderColor(...)
+		self:SetBackdropBorderColor(...)
 	end,
 }
 
@@ -269,6 +269,11 @@ detailsFramework.SetPointMixin = {
 
 ---mixin for options
 ---@class df_optionsmixin
+---@field options table
+---@field SetOption fun(self, optionName: string, optionValue: any)
+---@field GetOption fun(self, optionName: string):any
+---@field GetAllOptions fun(self):table
+---@field BuildOptionsTable fun(self, defaultOptions: table, userOptions: table)
 detailsFramework.OptionsFunctions = {
 	SetOption = function(self, optionName, optionValue)
 		if (self.options) then
@@ -887,6 +892,7 @@ detailsFramework.DataMixin = {
 ---@field ValueConstructor fun(self: df_value)
 ---@field SetMinMaxValues fun(self: df_value, minValue: number, maxValue: number)
 ---@field GetMinMaxValues fun(self: df_value) : number, number
+---@field ResetMinMaxValues fun(self: df_value)
 ---@field GetMinValue fun(self: df_value) : number
 ---@field GetMaxValue fun(self: df_value) : number
 ---@field SetMinValue fun(self: df_value, minValue: number)
@@ -901,8 +907,7 @@ detailsFramework.ValueMixin = {
 	---initialize the value table
 	---@param self table
 	ValueConstructor = function(self)
-		self.minValue = 0
-		self.maxValue = 1
+		self:ResetMinMaxValues()
 	end,
 
 	---set the min and max values
@@ -919,6 +924,13 @@ detailsFramework.ValueMixin = {
 	---@return number, number
 	GetMinMaxValues = function(self)
 		return self.minValue, self.maxValue
+	end,
+
+	---reset the min and max values
+	---@param self table
+	ResetMinMaxValues = function(self)
+		self.minValue = 0
+		self.maxValue = 1
 	end,
 
 	---get the min value

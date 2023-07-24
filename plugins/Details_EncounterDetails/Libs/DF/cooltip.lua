@@ -1841,7 +1841,7 @@ function DF:CreateCoolTip()
 	end
 
 	--~inicio ~start ~tooltip
-	function gameCooltip:BuildTooltip()
+	function gameCooltip:BuildTooltip() --~refresh
 		--hide select bar
 		gameCooltip:HideSelectedTexture(frame1)
 

@@ -213,7 +213,7 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 	--n�o h� barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then --n�o h� barras para mostrar
 		--colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
-		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
+		return _detalhes:HideBarsNotInUse(instancia, showing), "", 0, 0
 	end
 
 	--total
@@ -309,7 +309,7 @@ function healingClass:RefreshWindow (instancia, tabela_do_combate, forcar, expor
 			end
 
 			if (#conteudo < 1) then
-				return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
+				return _detalhes:HideBarsNotInUse(instancia, showing), "", 0, 0
 			end
 
 			_detalhes:ContainerSortHeal (conteudo, nil, keyName)
@@ -1992,7 +1992,7 @@ function healingClass:MontaInfoHealingDone()
 	local actorCombatTime
 	if (Details.time_type == 1 or not actorObject.grupo) then
 		actorCombatTime = actorObject:Tempo()
-	elseif (Details.time_type == 2 or Details.time_type == 3) then
+	elseif (Details.time_type == 2 or Details.use_realtimedps) then
 		actorCombatTime = breakdownWindowFrame.instancia.showing:GetCombatTime()
 	end
 

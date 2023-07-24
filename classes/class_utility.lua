@@ -652,7 +652,7 @@ function atributo_misc:RefreshWindow(instance, combatObject, bIsForceRefresh, bI
 	local utilityActorContainer = combatObject[class_type]
 
 	if (#utilityActorContainer._ActorTable < 1) then --n�o h� barras para mostrar
-		return _detalhes:EsconderBarrasNaoUsadas (instance, utilityActorContainer), "", 0, 0
+		return _detalhes:HideBarsNotInUse(instance, utilityActorContainer), "", 0, 0
 	end
 
 	local total = 0

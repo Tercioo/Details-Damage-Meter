@@ -250,7 +250,19 @@ local buildEmoteSementsList = function()
     end
     for index, segment in ipairs(encounterDetails.charsaved.emotes) do
         local bossIcon, iconWidth, iconHeight, iconL, iconR, iconT, iconB = Details:GetBossEncounterTexture(segment.boss or "unknown")
-        table.insert(resultTable, {label = "#" .. index .. " "  ..(segment.boss or "unknown"), value = index, icon = bossIcon, iconsize = {iconWidth, iconHeight}, texcoord = {iconL, iconR, iconT, iconB}, onclick = onEmoteSegmentSelected, iconcolor = segmentIconColor})
+        bossIcon = bossIcon or ""
+        iconWidth, iconHeight = iconWidth or 16, iconHeight or 16
+        iconL, iconR, iconT, iconB = iconL or 0, iconR or 1, iconT or 0, iconB or 1
+
+        table.insert(resultTable, {
+            label = "#" .. index .. " "  ..(segment.boss or "unknown"),
+            value = index,
+            icon = bossIcon,
+            iconsize = {iconWidth, iconHeight},
+            texcoord = {iconL, iconR, iconT, iconB},
+            onclick = onEmoteSegmentSelected,
+            iconcolor = segmentIconColor
+        })
     end
     return resultTable
 end

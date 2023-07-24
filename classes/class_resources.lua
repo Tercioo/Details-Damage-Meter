@@ -283,7 +283,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local showing = tabela_do_combate [class_type]
 
 	if (#showing._ActorTable < 1) then --n�o h� barras para mostrar
-		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
+		return _detalhes:HideBarsNotInUse(instancia, showing), "", 0, 0
 	end
 	
 	local total = 0

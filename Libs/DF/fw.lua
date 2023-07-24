@@ -1,6 +1,6 @@
 
 
-local dversion = 449
+local dversion = 450
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -40,7 +40,11 @@ DF.AuthorInfo = {
 }
 
 function DF:Msg(msg, ...)
-	print("|cFFFFFFAA" .. (self.__name or "FW Msg:") .. "|r ", msg, ...)
+	print("|cFFFFFFAA" .. (self.__name or "Details!Framework:") .. "|r ", msg, ...)
+end
+
+function DF:MsgWarning(msg, ...)
+	print("|cFFFFFFAA" .. (self.__name or "Details!Framework") .. "|r |cFFFFAA00[Warning]|r", msg, ...)
 end
 
 local PixelUtil = PixelUtil or DFPixelUtil

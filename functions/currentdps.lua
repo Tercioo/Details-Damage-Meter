@@ -16,7 +16,7 @@ local currentCombatObject = nil
 ---@field cache number[]
 
 ---@type table<serial, details_currentdps_actorcache>
-local currentDPSCache = {}
+local currentDPSCache = Details222.CurrentDPS.Cache
 
 ---create a new cache table
 ---@return details_currentdps_actorcache
@@ -60,6 +60,12 @@ local cacheSize = secondsOfData / delayTimeBetweenUpdates
 --the index of the cache that will be removed when the cache is full
 local cacheOverflowIndex = cacheSize + 1
 
+---return how many seconds of data is being used to calculate the current dps
+---@return number
+function Details222.CurrentDPS.GetTimeSample()
+    return secondsOfData
+end
+
 ---on tick function
 ---@param self frame
 ---@param deltaTime number time elapsed between frames
@@ -75,7 +81,7 @@ currentDpsFrame.OnUpdateFunc = function(self, deltaTime)
     for index, actorObject in damageContainer:ListActors() do
         ---@cast actorObject actor
 
-        if (actorObject:IsPlayer()) then
+        if (actorObject.grupo) then
             ---@type details_currentdps_actorcache
             local dpsCache = getActorDpsCache(actorObject.serial)
 
@@ -103,7 +109,10 @@ currentDpsFrame.OnUpdateFunc = function(self, deltaTime)
     currentDelay = 0
 end
 
---serial = guid
+---return the value of the current dps for the given player
+---serial = guid
+---@param serial guid
+---@return number|nil
 function Details.CurrentDps.GetCurrentDps(serial)
     local dpsCache = currentDPSCache[serial]
     if (dpsCache) then
@@ -112,6 +121,19 @@ function Details.CurrentDps.GetCurrentDps(serial)
     end
 end
 
+---return if the window bars can be sorted by real time dps
+---@return boolean
+function Details.CurrentDps.CanSortByRealTimeDps()
+    if (not Details.in_combat) then
+        return false
+    end
+
+    local bOrderDpsByRealTime = Details.use_realtimedps and Details.realtimedps_order_bars
+    if (not bOrderDpsByRealTime) then
+        bOrderDpsByRealTime = Details.realtimedps_always_arena and Details.zone_type == "arena"
+    end
+    return bOrderDpsByRealTime
+end
 
 --start the proccess of updating the current dps and hps for each player
 function Details.CurrentDps.StartCurrentDpsTracker()
@@ -130,9 +152,9 @@ local eventListener = Details:CreateEventListener()
 
 eventListener:RegisterEvent("COMBAT_PLAYER_ENTER", function()
     --check if can start the real time dps tracker
-    local bCanStartRealTimeDpsTracker = Details.combat_log.evoker_show_realtimedps and Details.playerspecid == 1473
+    local bCanStartRealTimeDpsTracker = Details.use_realtimedps or (Details.combat_log.evoker_show_realtimedps and Details.playerspecid == 1473)
     if (not bCanStartRealTimeDpsTracker) then
-        bCanStartRealTimeDpsTracker = Details.time_type == 3
+        bCanStartRealTimeDpsTracker = Details.zone_type == "arena" and Details.realtimedps_always_arena
     end
 
     if (bCanStartRealTimeDpsTracker) then

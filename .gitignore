@@ -42,3 +42,5 @@ plugins/Details_TinyThreat/.github/workflows/release.yml
 plugins/Details_Vanguard/.github/workflows/release.yml
 photoshop/ten_years_skin.tga
 *.yml
+plugins/Details_EncounterDetails/Libs/LibLuaServer/LuaServerDefinitions.lua
+plugins/Details_EncounterDetails/Definitions.lua

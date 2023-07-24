@@ -244,6 +244,7 @@
 ---@field total_without_pet number
 ---@field total number
 ---@field total_extra number
+---@field last_dps_realtime number
 ---@field targets targettable
 ---@field GetSpell fun(actor: actor, spellId: number) : spelltable
 ---@field BuildSpellTargetFromBreakdownSpellData fun(actor: actor, bkSpellData: spelltableadv) : table

@@ -3273,7 +3273,7 @@ local function GetDpsHps (_thisActor, key)
 	if (_thisActor [keyname]) then
 		return _thisActor [keyname]
 	else
-		if ((Details.time_type == 2 and _thisActor.grupo) or not Details:CaptureGet("damage") or Details.time_type == 3) then
+		if ((Details.time_type == 2 and _thisActor.grupo) or not Details:CaptureGet("damage") or Details.use_realtimedps) then
 			local dps = _thisActor.total / _thisActor:GetCombatTime()
 			_thisActor [keyname] = dps
 			return dps
@@ -3788,7 +3788,7 @@ function Details:envia_relatorio (linhas, custom)
 	end
 
 	--effective ou active time
-	if (Details.time_type == 2 or Details.time_type == 3) then
+	if (Details.time_type == 2 or Details.use_realtimedps) then
 		linhas[1] = linhas[1] .. " [" .. segmentTime .. " EF]"
 	else
 		linhas[1] = linhas[1] .. " [" .. segmentTime .. " AC]"

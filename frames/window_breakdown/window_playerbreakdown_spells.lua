@@ -547,13 +547,22 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
     --spellsTab.CreateReportButtons(tabFrame)
 
 	--create a button in the breakdown window to open the options for this tab
-	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 20, "options", 14, nil, nil, nil, nil, nil, DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
-	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -5, 5)
-	optionsButton.textsize = 16
-	optionsButton.textcolor = "yellow"
+	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 18, "options", 14)
+	--optionsButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -10, -19)
+	optionsButton.textsize = 12
+	optionsButton.textcolor = "orange"
+
+	---@type df_roundedpanel_preset
+	local preset = {
+		roundness = 5,
+		color = {.2, .2, .2, 0.98},
+		border_color = {.1, .1, .1, 0.834},
+	}
+	DF:AddRoundedCornersToFrame(optionsButton, preset)
 
 	--open the breakdown window at startup for testing
-	--[=[ debug
+	--[= debug
 	C_Timer.After(1, function()
 		Details:OpenPlayerDetails(1)
 		C_Timer.After(1, function()

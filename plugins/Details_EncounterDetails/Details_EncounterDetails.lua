@@ -259,9 +259,12 @@ local function CreatePluginFrames(data)
 			return encounterDetails:CloseWindow()
 		end
 
+		DetailsPluginContainerWindow.OpenPlugin(encounterDetails)
+
 		--build all window data
 		encounterDetails.db.opened = encounterDetails.db.opened + 1
 		encounterDetails:OpenAndRefresh()
+
 		--show
 		edFrame:Show()
 		encounterDetails.open = true
@@ -282,14 +285,13 @@ local function CreatePluginFrames(data)
 			end
 		end
 
-		DetailsPluginContainerWindow.OpenPlugin(encounterDetails)
-
 		return true
 	end
 
 	function encounterDetails:CloseWindow()
 		encounterDetails.open = false
 		edFrame:Hide()
+		Details:CloseBreakdownWindow()
 		return true
 	end
 

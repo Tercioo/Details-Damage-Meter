@@ -43,7 +43,7 @@ do
 		end
 
 		local buildOptionsPanel = function()
-			local optionsFrame = encounterDetails:CreatePluginOptionsFrame("EncounterDetailsOptionsWindow", "Encounter Breakdown Options", 2)
+			local optionsFrame = encounterDetails:CreatePluginOptionsFrame("EncounterDetailsOptionsWindow", "Encounter Breakdown Options")
 			-- 1 = only when inside a raid map
 			-- 2 = only when in raid group
 			-- 3 = only after a boss encounter

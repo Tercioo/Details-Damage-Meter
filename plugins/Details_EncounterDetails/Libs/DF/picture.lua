@@ -235,10 +235,33 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
+	---@class df_image : texture
+	---@field SetGradient fun(gradientType: "vertical"|"horizontal", fromColor: table, toColor: table)
+
+	---create an object that encapsulates a texture and add additional methods to it
+	---@param parent frame
+	---@param texture texturepath|textureid
+	---@param width number
+	---@param height number
+	---@param layer drawlayer
+	---@param coords {key1: number, key2: number, key3: number, key4: number}
+	---@param member string
+	---@param name string
+	---@return table|nil
 	function detailsFramework:CreateTexture(parent, texture, width, height, layer, coords, member, name)
 		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
 
+	---create an object that encapsulates a texture and add additional methods to it
+	---@param parent frame
+	---@param texture texturepath|textureid
+	---@param width number
+	---@param height number
+	---@param layer drawlayer
+	---@param coords {key1: number, key2: number, key3: number, key4: number}
+	---@param member string
+	---@param name string
+	---@return table|nil
 	function detailsFramework:CreateImage(parent, texture, width, height, layer, coords, member, name)
 		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
@@ -300,7 +323,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 		if (texture) then
 			if (type(texture) == "table") then
 				if (texture.gradient) then
-					if (detailsFramework.IsDragonflight() or detailsFramework.IsWotLKWowWithRetailAPI()) then
+					if (detailsFramework.IsDragonflight() or detailsFramework.IsNonRetailWowWithRetailAPI()) then
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
 						local fromColor = detailsFramework:FormatColor("tablemembers", texture.fromColor)
 						local toColor = detailsFramework:FormatColor("tablemembers", texture.toColor)

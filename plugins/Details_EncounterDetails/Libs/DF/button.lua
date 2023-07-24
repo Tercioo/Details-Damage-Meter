@@ -855,6 +855,7 @@ end
 	end
 
 	---@class df_button : button
+	---@field widget button
 	---@field tooltip string
 	---@field shown boolean
 	---@field width number

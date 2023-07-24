@@ -17,6 +17,17 @@ local _
 ---@field Texture texture
 ---@field Label fontstring
 
+---@class chart_backdropindicator : frame a frame which is used to indicate a specific time frame in the chart with a colored texture
+---@field fieldTexture texture the texture which indicates the amount of time the effect was active, it is painted over the background texture
+---@field fieldLabel fontstring the label showing the name of the indicator, example: bloodlust, heroism, etc
+---@field indicatorTexture texture a small squere texture located in the top right of the chart frame, it is used to indicate the color of the indicator
+---@field indicatorLabel fontstring the label showing the name of the indicator within the indicatorTexture
+---@field bInUse boolean if the indicator is in use or not
+---@field startTime number
+---@field endTime number
+---@field labelText string
+---@field color color
+
 ---@alias x_axisdatatype
 ---| "time" when setting the text into the labels, it will be converted into a time format
 ---| "number" same as timer, but the number is not comverted to time
@@ -36,6 +47,11 @@ local _
 ---@field chartBottomOffset number the offset of the bottom side of the chart frame to the plot frame
 ---@field xAxisLabelsYOffset number default: -6, the offset of the horizontal axis labels to the horizontal axis line (y coordinate)
 ---@field smoothnessLevel number default: 0, the smoothness level of the chart lines, 0 is no smoothness
+---@field backdropIndicators chart_backdropindicator[]
+---@field nextBackdropIndicator number tell which is the next backdrop indicator to be used
+---@field CreateBackdropIndicator fun(self: df_chartmulti|df_chart, index: number) : chart_backdropindicator create a new backdrop indicator
+---@field GetBackdropIndicator fun(self: df_chartmulti|df_chart) : chart_backdropindicator get a backdrop indicator by index
+---@field ResetBackdropIndicators fun(self: df_chartmulti|df_chart) reset all backdrop indicators
 ---@field SetAxesColor fun(self: df_chartmulti, red: number|string|table|nil, green: number|nil, blue: number|nil, alpha: number|nil) : boolean set the color of both axis lines
 ---@field SetAxesThickness fun(self: df_chartmulti, thickness: number) : boolean set the thickness of both axis lines
 ---@field CreateAxesLines fun(self: df_chartmulti|df_chart, xOffset: number, yOffset: number, whichSide: "left"|"right", thickness: number, amountYLabels: number, amountXLabels: number, red: any, green: number|nil, blue: number|nil, alpha: number|nil)
@@ -56,6 +72,8 @@ local chartFrameSharedConstructor = function(self)
     self.chartBottomOffset = 0
     self.xAxisLabelsYOffset = -6
     self.smoothnessLevel = 0
+    self.backdropIndicators = {}
+    self.nextBackdropIndicator = 1
 end
 
 ---@class df_chart: frame, df_data, df_value, df_chartshared
@@ -389,6 +407,138 @@ detailsFramework.ChartFrameSharedMixin = {
     SetXAxisDataType = function(self, dataType)
         setXAxisDataType(self, dataType)
     end,
+
+    ---create a new backdrop indicator, this is called from the function GetBackdropIndicator
+    ---@param self df_chartmulti|df_chart
+    ---@return chart_backdropindicator
+    CreateBackdropIndicator = function(self, nextIndicatorIndex)
+        ---@type chart_backdropindicator
+        local newBackdropIndicator = CreateFrame("frame", "$parentBackdropIndicator" .. nextIndicatorIndex, self.plotFrame)
+        --make the backdrop indicators bebelow the plot frame
+        newBackdropIndicator:SetFrameLevel(self.plotFrame:GetFrameLevel() - 1)
+
+        newBackdropIndicator.fieldTexture = newBackdropIndicator:CreateTexture(nil, "overlay")
+        newBackdropIndicator.fieldTexture:SetAllPoints()
+
+        newBackdropIndicator.fieldLabel = newBackdropIndicator:CreateFontString(nil, "overlay", "GameFontNormal")
+        newBackdropIndicator.fieldLabel:SetTextColor(1, 1, 1, 0.3)
+        newBackdropIndicator.fieldLabel:SetJustifyH("left")
+        newBackdropIndicator.fieldLabel:SetJustifyV("top")
+        detailsFramework:SetFontSize(newBackdropIndicator.fieldLabel, 10)
+        newBackdropIndicator.fieldLabel:SetPoint("topleft", newBackdropIndicator.fieldTexture, "topleft", 2, -2)
+
+        newBackdropIndicator.indicatorTexture = newBackdropIndicator:CreateTexture(nil, "overlay")
+        newBackdropIndicator.indicatorTexture:SetSize(10, 10)
+
+        newBackdropIndicator.indicatorLabel = newBackdropIndicator:CreateFontString(nil, "overlay", "GameFontNormal")
+        newBackdropIndicator.indicatorLabel:SetTextColor(1, 1, 1, 0.837)
+        newBackdropIndicator.indicatorLabel:SetJustifyH("left")
+        newBackdropIndicator.indicatorLabel:SetPoint("left", newBackdropIndicator.indicatorTexture, "right", 2, 0)
+
+        return newBackdropIndicator
+    end,
+
+    ---reset the backdrop indicators by hidding all of them
+    ---@param self df_chartmulti|df_chart
+    ResetBackdropIndicators = function(self)
+        for i = 1, #self.backdropIndicators do
+            local thisBackdropIndicator = self.backdropIndicators[i]
+            thisBackdropIndicator:Hide()
+            thisBackdropIndicator.bInUse = false
+        end
+        self.nextBackdropIndicator = 1
+    end,
+
+    ---get a backdrop indicator, if it doesn't exist, create a new one
+    ---@param self df_chartmulti|df_chart
+    ---@return chart_backdropindicator
+    GetBackdropIndicator = function(self)
+        local nextIndicator = self.nextBackdropIndicator
+
+        if (not self.backdropIndicators[nextIndicator]) then
+            self.backdropIndicators[nextIndicator] = self:CreateBackdropIndicator(nextIndicator)
+        end
+
+        self.nextBackdropIndicator = nextIndicator + 1
+        return self.backdropIndicators[nextIndicator]
+    end,
+
+    ---add a backdrop indicator to the chart
+    ---@param self df_chartmulti|df_chart
+    ---@param label string this is a text to be displayed on the left side of the indicator and on the top right corner of the chart panel
+    ---@param timeStart number the start time of the indicator
+    ---@param timeEnd number the end time of the indicator
+    ---@param red number|nil
+    ---@param green number|nil
+    ---@param blue number|nil
+    ---@param alpha number|nil
+    AddBackdropIndicator = function(self, label, timeStart, timeEnd, red, green, blue, alpha)
+        assert(type(label) == "string", "AddBackdropIndicator: label must be a string.")
+        assert(type(timeStart) == "number", "AddBackdropIndicator: timeStart must be a number.")
+        assert(type(timeEnd) == "number", "AddBackdropIndicator: timeEnd must be a number.")
+
+        red, green, blue, alpha = detailsFramework:ParseColors(red, green, blue, alpha)
+
+        local backdropIndicator = self:GetBackdropIndicator()
+        backdropIndicator.bInUse = true
+        backdropIndicator.startTime = timeStart
+        backdropIndicator.endTime = timeEnd
+        backdropIndicator.labelText = label
+        backdropIndicator.color = {red, green, blue, alpha}
+
+        return true
+    end,
+
+    ---when Plot() is called, this function will be called to show the backdrop indicators
+    ---it gets the x_axisdatatype or if not existant defaults to "time", calculate the area in pixels using the plot area width and the plot area 'time'
+    ---then set the texture color, label texts and show the small squere indicators in the top right of the plot area
+    ---@param self df_chartmulti|df_chart
+    ShowBackdropIndicators = function(self)
+        --get the x axis data type
+        local xDataType = self.xAxisDataType or "time"
+        --get the max value of the data type
+        local dataSize = self.xAxisDataNumber or self.GetDataSize and self:GetDataSize() or 0
+        --frame width in pixels
+        local frameWidth = self.plotFrame:GetWidth()
+
+        for i = 1, self.nextBackdropIndicator-1 do
+            local thisIndicator = self.backdropIndicators[i]
+            if (not thisIndicator.bInUse) then
+                break
+            end
+
+            local startTime = thisIndicator.startTime
+            local endTime = thisIndicator.endTime
+            local labelText = thisIndicator.labelText
+            local color = thisIndicator.color
+
+            --set the point where the indicator will be placed
+            local startX = startTime / dataSize * frameWidth
+            local endX = endTime / dataSize * frameWidth
+
+            thisIndicator:SetPoint("topleft", self.plotFrame, "topleft", startX, 0)
+            thisIndicator:SetPoint("bottomright", self.plotFrame, "bottomleft", endX, 0)
+
+            thisIndicator.fieldLabel:SetText(labelText)
+            thisIndicator.fieldTexture:SetColorTexture(unpack(color))
+
+            thisIndicator.indicatorLabel:SetText(labelText)
+            thisIndicator.indicatorTexture:SetColorTexture(unpack(color))
+
+            local stringWidth = thisIndicator.indicatorLabel:GetStringWidth()
+            local squareWidth = thisIndicator.indicatorTexture:GetWidth()
+
+            if (i == 1) then
+                local space = stringWidth + squareWidth
+                thisIndicator.indicatorTexture:SetPoint("topright", self.plotFrame, "topright", -space + 2, -30)
+            else
+                local space = stringWidth + squareWidth + 10
+                thisIndicator.indicatorTexture:SetPoint("left", self.backdropIndicators[i-1].indicatorTexture, "left", -space, 0)
+            end
+
+            thisIndicator:Show()
+        end
+    end,
 }
 
 detailsFramework.ChartFrameMixin = {
@@ -481,7 +631,10 @@ detailsFramework.ChartFrameMixin = {
     ---@param self df_chart
     Reset = function(self)
         self:HideLines()
+        self:ResetMinMaxValues()
         self.nextLine = 1
+        self.xAxisDataNumber = 0
+        self:ResetBackdropIndicators()
     end,
 
     ---@param self df_chart
@@ -577,6 +730,8 @@ detailsFramework.ChartFrameMixin = {
             currentYPoint = self:CalcYAxisPointForValue(value, plotFrameHeightScaled)
             line:SetEndPoint("bottomleft", currentXPoint, currentYPoint)
         end
+
+        self:ShowBackdropIndicators()
 
         if (bUpdateLabels or bUpdateLabels == nil) then
             updateLabelValues(self)
@@ -735,7 +890,11 @@ detailsFramework.MultiChartFrameMixin = {
     ---@param self df_chartmulti
     Reset = function(self)
         self:HideCharts()
+        self:ResetMinMaxValues()
+        self:ResetBackdropIndicators()
         self.nextChartFrame = 1
+        self.biggestDataValue = 0
+        self.xAxisDataNumber = 0
     end,
 
     ---set the min and max values of all charts
@@ -835,7 +994,7 @@ detailsFramework.MultiChartFrameMixin = {
     Plot = function(multiChartFrame)
         local minValue, multiChartMaxValue = multiChartFrame:GetMinMaxValues()
         local plotAreaWidth = multiChartFrame.plotFrame:GetWidth() --if there's no axis, the plotFrame has no width
-        local maxDataSize = multiChartFrame:GetMaxDataSize()
+        local maxDataSize = multiChartFrame:GetMaxDataSize() --it's not clearing when a new boss is selected
         local eachLineWidth = plotAreaWidth / maxDataSize
         local allCharts = multiChartFrame:GetCharts()
 
@@ -857,6 +1016,7 @@ detailsFramework.MultiChartFrameMixin = {
             chartFrame:Plot(yPointScale, bUpdateLabels)
         end
 
+        multiChartFrame:ShowBackdropIndicators()
         updateLabelValues(multiChartFrame)
         multiChartFrame:UpdateChartNamesIndicator()
     end,

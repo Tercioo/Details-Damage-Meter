@@ -1178,6 +1178,8 @@ function DF:NewSlider (parent, container, name, member, width, height, minValue,
 		if (label_template) then
 			label:SetTemplate(label_template)
 		end
+
+		SliderObject.label = label
 	end
 
 	if (slider_template) then

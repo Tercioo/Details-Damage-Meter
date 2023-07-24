@@ -1,6 +1,6 @@
 
 
-local dversion = 440
+local dversion = 450
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -40,7 +40,11 @@ DF.AuthorInfo = {
 }
 
 function DF:Msg(msg, ...)
-	print("|cFFFFFFAA" .. (self.__name or "FW Msg:") .. "|r ", msg, ...)
+	print("|cFFFFFFAA" .. (self.__name or "Details!Framework:") .. "|r ", msg, ...)
+end
+
+function DF:MsgWarning(msg, ...)
+	print("|cFFFFFFAA" .. (self.__name or "Details!Framework") .. "|r |cFFFFAA00[Warning]|r", msg, ...)
 end
 
 local PixelUtil = PixelUtil or DFPixelUtil
@@ -124,13 +128,14 @@ end
 
 ---return true if the player is playing in the WotLK version of wow with the retail api
 ---@return boolean
-function DF.IsWotLKWowWithRetailAPI()
+function DF.IsNonRetailWowWithRetailAPI()
     local _, _, _, buildInfo = GetBuildInfo()
-    if (buildInfo < 40000 and buildInfo >= 30401) then
+    if (buildInfo < 40000 and buildInfo >= 30401) or (buildInfo < 20000 and buildInfo >= 11404) then
         return true
     end
 	return false
 end
+DF.IsWotLKWowWithRetailAPI = DF.IsNonRetailWowWithRetailAPI -- this is still in use
 
 ---return true if the version of wow the player is playing is the shadowlands
 function DF.IsShadowlandsWow()
@@ -263,7 +268,7 @@ function DF.UnitGroupRolesAssigned(unitId)
 	end
 end
 
----return the specialization of the player it self
+---return the specializationid of the player it self
 ---@return number|nil
 function DF.GetSpecialization()
 	if (GetSpecialization) then
@@ -272,7 +277,7 @@ function DF.GetSpecialization()
 	return nil
 end
 
----return the specialization using the specId
+---return the specializationid using the specId
 ---@param specId unknown
 function DF.GetSpecializationInfoByID(specId)
 	if (GetSpecializationInfoByID) then
@@ -835,6 +840,23 @@ end
 ---@return string, number
 function DF:RemoveRealmName(name)
 	return name:gsub(("%-.*"), "")
+end
+
+---remove the owner name of the pet or guardian
+---@param name string
+---@return string, number
+function DF:RemoveOwnerName(name)
+	return name:gsub((" <.*"), "")
+end
+
+---remove realm and owner names also remove brackets from spell actors
+---@param name string
+---@return string
+function DF:CleanUpName(name)
+	name =  DF:RemoveRealmName(name)
+	name = DF:RemoveOwnerName(name)
+	name = name:gsub("%[%*%]%s", "")
+	return name
 end
 
 ---remove the realm name from a name
@@ -3377,7 +3399,7 @@ function DF:CreateAnimation(animation, animationType, order, duration, arg1, arg
 		anim:SetToAlpha(arg2)
 
 	elseif (animationType == "SCALE") then
-		if (DF.IsDragonflight() or DF.IsWotLKWowWithRetailAPI()) then
+		if (DF.IsDragonflight() or DF.IsNonRetailWowWithRetailAPI()) then
 			anim:SetScaleFrom(arg1, arg2)
 			anim:SetScaleTo(arg3, arg4)
 		else
@@ -3703,21 +3725,36 @@ local glow_overlay_play = function(self)
 	if (not self:IsShown()) then
 		self:Show()
 	end
-	if (self.animOut:IsPlaying()) then
-		self.animOut:Stop()
-	end
-	if (not self.animIn:IsPlaying()) then
-		self.animIn:Stop()
-		self.animIn:Play()
+	if (self.animOut) then
+		if (self.animOut:IsPlaying()) then
+			self.animOut:Stop()
+		end
+		if (not self.animIn:IsPlaying()) then
+			self.animIn:Stop()
+			self.animIn:Play()
+		end
+	elseif (self.ProcStartAnim) then
+		if (not self.ProcStartAnim:IsPlaying()) then
+			self.ProcStartAnim:Play()
+		end
+		if (not self.ProcLoop:IsPlaying()) then
+			--self.ProcLoop:Play()
+		end
 	end
 end
 
 local glow_overlay_stop = function(self)
-	if (self.animOut:IsPlaying()) then
-		self.animOut:Stop()
-	end
-	if (self.animIn:IsPlaying()) then
-		self.animIn:Stop()
+	if (self.animOut) then
+		if (self.animOut:IsPlaying()) then
+			self.animOut:Stop()
+		end
+		if (self.animIn:IsPlaying()) then
+			self.animIn:Stop()
+		end
+	elseif (self.ProcStartAnim) then
+		if (self.ProcStartAnim:IsPlaying()) then
+			self.ProcStartAnim:Stop()
+		end
 	end
 	if (self:IsShown()) then
 		self:Hide()
@@ -3727,20 +3764,27 @@ end
 local glow_overlay_setcolor = function(self, antsColor, glowColor)
 	if (antsColor) then
 		local r, g, b, a = DF:ParseColors(antsColor)
-		self.ants:SetVertexColor(r, g, b, a)
-		self.AntsColor.r = r
-		self.AntsColor.g = g
-		self.AntsColor.b = b
-		self.AntsColor.a = a
+		self.AntsColor = {r, g, b, a}
+		if (self.ants) then
+			self.ants:SetVertexColor(r, g, b, a)
+		elseif (self.ProcLoopFlipbook) then
+			self.ProcLoopFlipbook:SetVertexColor(r, g, b) --no alpha because of animation
+			local anim1 = self.ProcLoop:GetAnimations()
+			anim1:SetToAlpha(a)
+		end
 	end
 
 	if (glowColor) then
 		local r, g, b, a = DF:ParseColors(glowColor)
-		self.outerGlow:SetVertexColor(r, g, b, a)
-		self.GlowColor.r = r
-		self.GlowColor.g = g
-		self.GlowColor.b = b
-		self.GlowColor.a = a
+		self.GlowColor = {r, g, b, a}
+		if (self.outerGlow) then
+			self.outerGlow:SetVertexColor(r, g, b, a)
+		elseif (self.ProcStartFlipbook) then
+			self.ProcStartFlipbook:SetVertexColor(r, g, b) --no alpha because of animation
+			local anim1, anim2, anim3 = self.ProcStartAnim:GetAnimations()
+			anim1:SetToAlpha(a)
+			anim3:SetFromAlpha(a)
+		end
 	end
 end
 
@@ -3767,6 +3811,8 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 	glowFrame.Stop = glow_overlay_stop
 	glowFrame.SetColor = glow_overlay_setcolor
 
+	glowFrame:SetColor(antsColor, glowColor)
+	
 	glowFrame:Hide()
 
 	parent.overlay = glowFrame
@@ -3779,15 +3825,17 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 	parent.overlay:SetPoint("TOPLEFT", parent, "TOPLEFT", -frameWidth * 0.32, frameHeight * 0.36)
 	parent.overlay:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", frameWidth * 0.32, -frameHeight * 0.36)
 
-	local r, g, b, a = DF:ParseColors(antsColor)
-	glowFrame.ants:SetVertexColor(r, g, b, a)
-	glowFrame.AntsColor = {r, g, b, a}
-
-	local r, g, b, a = DF:ParseColors(glowColor)
-	glowFrame.outerGlow:SetVertexColor(r, g, b, a)
-	glowFrame.GlowColor = {r, g, b, a}
-
-	glowFrame.outerGlow:SetScale(1.2)
+	if (glowFrame.outerGlow) then
+		glowFrame.outerGlow:SetScale(1.2)
+	end
+	if (glowFrame.ProcStartFlipbook) then
+		glowFrame.ProcStartAnim:Stop()
+		glowFrame.ProcStartFlipbook:ClearAllPoints()
+		--glowFrame.ProcStartFlipbook:SetAllPoints()
+		--glowFrame.ProcStartFlipbook:SetSize(frameWidth * scale, frameHeight * scale)
+		glowFrame.ProcStartFlipbook:SetPoint("TOPLEFT", glowFrame, "TOPLEFT", -frameWidth * scale, frameHeight * scale)
+		glowFrame.ProcStartFlipbook:SetPoint("BOTTOMRIGHT", glowFrame, "BOTTOMRIGHT", frameWidth * scale, -frameHeight * scale)
+	end 
 	glowFrame:EnableMouse(false)
 	return glowFrame
 end
