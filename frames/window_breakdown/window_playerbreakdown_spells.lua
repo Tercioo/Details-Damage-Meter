@@ -562,7 +562,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 	DF:AddRoundedCornersToFrame(optionsButton, preset)
 
 	--open the breakdown window at startup for testing
-	--[= debug
+	--[=[ debug
 	C_Timer.After(1, function()
 		Details:OpenPlayerDetails(1)
 		C_Timer.After(1, function()

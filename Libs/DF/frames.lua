@@ -527,6 +527,10 @@ function detailsFramework:AddRoundedCornersToFrame(frame, preset)
     frame = frame and frame.widget or frame
     assert(frame and frame.GetObjectType and frame.SetPoint, "AddRoundedCornersToFrame(frame): frame must be a frame object.")
 
+    if (frame.__rcorners) then
+        return
+    end
+
     if (frame.GetBackdropBorderColor) then
         local red, green, blue, alpha = frame:GetBackdropBorderColor()
         if (alpha and alpha > 0) then
