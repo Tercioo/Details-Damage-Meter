@@ -392,7 +392,7 @@
 ---@field RegisterForClicks fun(self: button, button1: nil|buttontype, button2: nil|buttontype, button3: nil|buttontype, button4: nil|buttontype)
 ---@field GetNormalTexture fun(self: button) : texture
 ---@field GetPushedTexture fun(self: button) : texture
----@field GetHighlightTexture fun(self: button) : texture
+---@field GetHightlightTexture fun(self: button) : texture
 ---@field GetDisabledTexture fun(self: button) : texture
 
 ---@class statusbar : frame
@@ -471,7 +471,7 @@
 
 ---@class texture : region
 ---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number|nil)
----@field SetTexture fun(self: texture, path: string, horizontalWrap: texturewrap|nil, verticalWrap: texturewrap|nil, filter: texturefilter|nil)
+---@field SetTexture fun(self: texture, path: textureid|texturepath, horizontalWrap: texturewrap|nil, verticalWrap: texturewrap|nil, filter: texturefilter|nil)
 ---@field SetAtlas fun(self: texture, atlas: string)
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)
 ---@field SetDesaturated fun(self: texture, desaturate: boolean)

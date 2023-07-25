@@ -199,6 +199,7 @@
 			breath_targets = {},
 			flyaway = {},
 			flyaway_timer = {},
+			shield = {},
 		}
 
 		local empower_cache = {}
@@ -1253,6 +1254,31 @@
 					else
 						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1966044)
 					end
+				end
+			end
+		end
+
+		if (spellId == 360828 and augmentation_cache.shield[sourceSerial]) then --shield
+			---actor buffed with the shield -> list of evokers whose buffed
+			---@type table<serial, evokerinfo[]>
+			local currentlyBuffedWithShield = augmentation_cache.shield[sourceSerial]
+
+			for i, evokerInfo in ipairs(currentlyBuffedWithShield) do
+				---@cast evokerInfo evokerinfo
+
+				---@type serial, actorname, controlflags
+				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
+
+				---@type actor
+				local evokerActor = damage_cache[evokerSourceSerial]
+
+				if (not evokerActor) then
+					evokerActor = _current_damage_container:PegarCombatente(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
+				end
+
+				if (evokerActor) then
+					local damageSplitted = amount / #currentlyBuffedWithShield
+					evokerActor.total_extra = evokerActor.total_extra + damageSplitted
 				end
 			end
 		end
@@ -2610,6 +2636,12 @@
 					table.insert(breathTargets, eonsBreathInfo)
 				end
 			end
+
+		elseif (spellId == 360827) then
+			augmentation_cache.shield[targetSerial] = augmentation_cache.shield[targetSerial] or {}
+			---@type evokerinfo
+			local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
+			table.insert(augmentation_cache.shield[targetSerial], evokerInfo)
 		end
 
 		if (buffs_makeyourown[spellId]) then
@@ -3021,6 +3053,16 @@
 					for index, evokerInfo in ipairs(augmentation_cache.prescience[targetSerial]) do
 						if (evokerInfo[1] == sourceSerial) then
 							table.remove(augmentation_cache.prescience[targetSerial], index)
+							break
+						end
+					end
+				end
+
+			elseif (spellid == 360827) then
+				if (augmentation_cache.shield[targetSerial]) then
+					for index, evokerInfo in ipairs(augmentation_cache.shield[targetSerial]) do
+						if (evokerInfo[1] == sourceSerial) then
+							table.remove(augmentation_cache.shield[targetSerial], index)
 							break
 						end
 					end
@@ -6425,6 +6467,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(augmentation_cache.ebon_might) --~roskash
 		Details:Destroy(augmentation_cache.prescience)
 		Details:Destroy(augmentation_cache.breath_targets)
+		Details:Destroy(augmentation_cache.shield)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 

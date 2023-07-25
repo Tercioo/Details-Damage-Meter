@@ -211,27 +211,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 
 	--texture
 	local smember_texture = function(object, value)
-		if (type(value) == "table") then
-			local value1, value2, value3, value4 = unpack(value)
-			if (value1) then
-				object.button:SetNormalTexture(value1)
-			end
-			if (value2) then
-				object.button:SetHighlightTexture(value2, "ADD")
-			end
-			if (value3) then
-				object.button:SetPushedTexture(value3)
-			end
-			if (value4) then
-				object.button:SetDisabledTexture(value4)
-			end
-		else
-			object.button:SetNormalTexture(value)
-			object.button:SetHighlightTexture(value, "ADD")
-			object.button:SetPushedTexture(value)
-			object.button:SetDisabledTexture(value)
-		end
-		return
+		return detailsFramework:SetButtonTexture(object, value, 0, 1, 0, 1)
 	end
 
 	--locked
@@ -1120,7 +1100,14 @@ end
 		return colorPickButton
 	end
 
-    function detailsFramework:SetRegularButtonTexture(button, texture, left, right, top, bottom)
+	---set the texture of all 4 textures of a button to the same texture
+	---@param button button
+	---@param texture textureid|texturepath
+	---@param left coordleft|table|nil
+	---@param right coordright|nil
+	---@param top coordtop|nil
+	---@param bottom coordbottom|nil
+    function detailsFramework:SetButtonTexture(button, texture, left, right, top, bottom)
         if (type(left) == "table") then
             left, right, top, bottom = unpack(left)
         end
@@ -1132,23 +1119,54 @@ end
         local atlas
         if (type(texture) == "string") then
             atlas = C_Texture.GetAtlasInfo(texture)
-        end
+		end
 
-        local normalTexture = button:GetNormalTexture()
-        local pushedTexture = button:GetPushedTexture()
-        local highlightTexture = button:GetHightlightTexture()
-        local disabledTexture = button:GetDisabledTexture()
+		local normalTexture = button:GetNormalTexture()
+		local pushedTexture = button:GetPushedTexture()
+		local highlightTexture = button:GetHightlightTexture()
+		local disabledTexture = button:GetDisabledTexture()
 
-        if (atlas) then
-            normalTexture:SetAtlas(texture)
-            pushedTexture:SetAtlas(texture)
-            highlightTexture:SetAtlas(texture)
-            disabledTexture:SetAtlas(texture)
+		if (type(texture) == "table") then
+			local normalTexturePath, pushedTexturePath, highlightTexturePath, disabledTexturePath = unpack(texture)
+			---@cast right number
+			---@cast top number
+			---@cast bottom number
+
+			if (normalTexturePath) then
+				normalTexture:SetTexture(normalTexturePath)
+				normalTexture:SetTexCoord(left, right, top, bottom)
+			end
+
+			if (pushedTexturePath) then
+				pushedTexture:SetTexture(pushedTexturePath)
+				pushedTexture:SetTexCoord(left, right, top, bottom)
+			end
+
+			if (highlightTexturePath) then
+				highlightTexture:SetTexture(highlightTexturePath)
+				highlightTexture:SetTexCoord(left, right, top, bottom)
+			end
+
+			if (disabledTexturePath) then
+				disabledTexture:SetTexture(disabledTexturePath)
+				disabledTexture:SetTexCoord(left, right, top, bottom)
+			end
+
+        elseif (atlas) then
+            normalTexture:SetAtlas(atlas)
+            pushedTexture:SetAtlas(atlas)
+            highlightTexture:SetAtlas(atlas)
+            disabledTexture:SetAtlas(atlas)
+
         else
             normalTexture:SetTexture(texture)
             pushedTexture:SetTexture(texture)
             highlightTexture:SetTexture(texture)
             disabledTexture:SetTexture(texture)
+
+			---@cast right number
+			---@cast top number
+			---@cast bottom number
             normalTexture:SetTexCoord(left, right, top, bottom)
             pushedTexture:SetTexCoord(left, right, top, bottom)
             highlightTexture:SetTexCoord(left, right, top, bottom)
@@ -1156,17 +1174,23 @@ end
         end
     end
 
-	function detailsFramework:SetRegularButtonVertexColor(button, ...)
-        local r, g, b, a = detailsFramework:ParseColor(...)
+	---set the vertex color of all 4 textures of a button to the same color
+	---@param button button
+	---@param red any
+	---@param green number|nil
+	---@param blue number|nil
+	---@param alpha number|nil
+	function detailsFramework:SetButtonVertexColor(button, red, green, blue, alpha)
+        red, green, blue, alpha = detailsFramework:ParseColor(red, green, blue, alpha)
         local normalTexture = button:GetNormalTexture()
         local pushedTexture = button:GetPushedTexture()
         local highlightTexture = button:GetHightlightTexture()
         local disabledTexture = button:GetDisabledTexture()
 
-        normalTexture:SetVertexColor(r, g, b, a)
-        pushedTexture:SetVertexColor(r, g, b, a)
-        highlightTexture:SetVertexColor(r, g, b, a)
-        disabledTexture:SetVertexColor(r, g, b, a)
+        normalTexture:SetVertexColor(red, green, blue, alpha)
+        pushedTexture:SetVertexColor(red, green, blue, alpha)
+        highlightTexture:SetVertexColor(red, green, blue, alpha)
+        disabledTexture:SetVertexColor(red, green, blue, alpha)
     end
 
 
@@ -1187,10 +1211,12 @@ end
 ---@field rightTextureSelectedName string
 ---@field middleTextureSelectedName string
 ---@field bIsSelected boolean
----@field SetText fun(self: df_tabbutton, text: string)
----@field SetSelected fun(self: df_tabbutton, selected: boolean)
----@field IsSelected fun(self: df_tabbutton): boolean
----@field Reset fun(self: df_tabbutton)
+---@field SetText fun(self: df_tabbutton, text: string) --set the tab text
+---@field SetSelected fun(self: df_tabbutton, selected: boolean) --highlight the tab textures to indicate the tab is selected
+---@field SetShowCloseButton fun(self: df_tabbutton, show: boolean) --set if the close button can be shown or not
+---@field GetFontString fun(self: df_tabbutton) : fontstring --get the fontstring used to display the tab text
+---@field IsSelected fun(self: df_tabbutton): boolean --get a boolean representing if the tab is selected
+---@field Reset fun(self: df_tabbutton) --set all textures to their default values, set the text to an empty string, set the selected state to false
 
 detailsFramework.TabButtonMixin = {
 	---set the text of the tab button
@@ -1214,6 +1240,13 @@ detailsFramework.TabButtonMixin = {
 		self.bIsSelected = selected
 	end,
 
+	---set if the close button can be shown or not
+	---@param self df_tabbutton
+	---@param show boolean
+	SetShowCloseButton = function(self, show)
+		self.CloseButton:SetShown(show)
+	end,
+
 	---get a boolean representing if the tab is selected
 	---@param self df_tabbutton
 	---@return boolean
@@ -1232,6 +1265,12 @@ detailsFramework.TabButtonMixin = {
 		self.SelectedTexture:Hide()
 	end,
 
+	---get the fontstring used to display the tab text
+	---@param self df_tabbutton
+	---@return fontstring
+	GetFontString = function(self)
+		return self.Text
+	end,
 }
 
 ---create a button which can be used as a tab button, has textures for left, right, middle and a text
@@ -1255,6 +1294,9 @@ function detailsFramework:CreateTabButton(parent, frameName)
 	tabButton.SelectedTexture:Hide()
 	tabButton.Text = tabButton:CreateFontString(nil, "overlay", "GameFontNormal")
 	tabButton.CloseButton = detailsFramework:CreateCloseButton(tabButton, "$parentCloseButton")
+	tabButton.CloseButton:SetSize(10, 10)
+	tabButton.CloseButton:SetAlpha(0.6)
+	tabButton.CloseButton:Hide()
 
 	tabButton.Text:SetPoint("center", tabButton, "center", 0, 0)
 	tabButton.CloseButton:SetPoint("topright", tabButton, "topright", 0, 0)
@@ -1294,6 +1336,38 @@ function detailsFramework:CreateTabButton(parent, frameName)
 	return tabButton
 end
 
+--[=[
+	--example:
+	local frame = CreateFrame("frame", "MyTestFrameForTabutton", UIParent)
+	frame:SetSize(650, 100)
+	frame:SetPoint("center", UIParent, "center", 0, 0)
+	DetailsFramework:ApplyStandardBackdrop(frame)
+	frame.TabButtons = {}
+
+	local tabOnClickCallback = function(self)
+		for _, tab in ipairs(frame.TabButtons) do
+			tab:SetSelected(false)
+		end
+		self:SetSelected(true)
+	end
+
+	for i = 1, 5 do
+		local tabButton = DetailsFramework:CreateTabButton(frame, "$parentTabButton" .. i)
+		tabButton:SetPoint("bottomleft", frame, "topleft", (i-1) * 130, 0)
+		tabButton:SetText("Tab " .. i)
+		tabButton:SetWidth(128)
+
+		table.insert(frame.TabButtons, tabButton)
+		tabButton:SetScript("OnClick", tabOnClickCallback)
+	end
+
+	--select a tab to be the default selected (if wanted)
+	frame.TabButtons[1]:SetSelected(true)
+
+	--set shown state of the close button (if wanted)
+	frame.TabButtons[2]:SetShowCloseButton(true)
+--]=]
+
 ------------------------------------------------------------------------------------------------------------
 --close button
 
@@ -1301,9 +1375,11 @@ detailsFramework.CloseButtonMixin = {
 	OnClick = function(self)
 		self:GetParent():Hide()
 	end,
+
 	OnEnter = function(self)
 		self:GetNormalTexture():SetVertexColor(1, 0, 0)
 	end,
+
 	OnLeave = function(self)
 		self:GetNormalTexture():SetVertexColor(1, 1, 1)
 	end,
@@ -1318,7 +1394,7 @@ detailsFramework.CloseButtonMixin = {
 ---@param parent frame
 ---@param frameName string|nil
 ---@return df_closebutton
-function detailsFramework:CreateCloseButton(parent, frameName) --make documentation
+function detailsFramework:CreateCloseButton(parent, frameName)
 	---@type df_closebutton
 	local closeButton = CreateFrame("button", frameName, parent, "UIPanelCloseButton")
 	closeButton:SetFrameLevel(parent:GetFrameLevel() + 1)

@@ -1,5 +1,0 @@
-## Interface: 100100
-## Title: Lib: LibDFramework-1.0
-## Notes: Base Framework for many Addons
-
-load.xml
