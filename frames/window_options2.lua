@@ -326,6 +326,9 @@ function Details222.OptionsPanel.InitializeOptionsWindow(instance)
         end
 
         optionsFrame.sectionFramesContainer[sectionId]:Show()
+        if(optionsFrame.sectionFramesContainer[sectionId].RefreshOptions) then
+            optionsFrame.sectionFramesContainer[sectionId]:RefreshOptions()
+        end
         --hightlight the option button
         optionsFrame.sectionFramesContainer[sectionId].sectionButton:SetTemplate(options_button_template_selected)
         optionsFrame.sectionFramesContainer[sectionId].sectionButton:SetIcon({1, 1, 0}, 4, section_menu_button_height -4, "overlay")

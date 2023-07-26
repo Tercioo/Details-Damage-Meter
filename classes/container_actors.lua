@@ -722,7 +722,7 @@ end
 
 		if (container_pets[actorSerial]) then --this is a registered pet
 			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono(actorSerial, actorName, actorFlags)
-			if (petName and ownerName) then
+			if (petName and ownerName and ownerGUID ~= actorSerial) then
 				actorName = petName
 				petOwnerObject = self:PegarCombatente(ownerGUID, ownerName, ownerFlag, true)
 			end
