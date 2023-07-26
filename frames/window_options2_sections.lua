@@ -2453,7 +2453,7 @@ do
 
             {--title bar icons position X
                 type = "range",
-                get = function() return currentInstance.menu_anchor[1] end,
+                get = function() return currentInstance.toolbar_side == 1 and currentInstance.menu_anchor[1] or currentInstance.menu_anchor_down[1] end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "MenuAnchor", value)
                     afterUpdate()
@@ -2467,7 +2467,7 @@ do
 
             {--title bar icons position Y
                 type = "range",
-                get = function() return currentInstance.menu_anchor[2] end,
+                get = function() return currentInstance.toolbar_side == 1 and currentInstance.menu_anchor[2] or currentInstance.menu_anchor_down[2] end,
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "MenuAnchor", nil, value)
                     afterUpdate()
