@@ -406,7 +406,9 @@
 
 		Details:Destroy(Details.cache_damage_group)
 		Details:Destroy(Details.cache_healing_group)
-		Details:UpdateParserGears()
+
+		local bFromCombatStart = true
+		Details:UpdateParserGears(bFromCombatStart)
 
 		--get all buff already applied before the combat start
 		Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")

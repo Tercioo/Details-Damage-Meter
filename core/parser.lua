@@ -1252,7 +1252,7 @@
 					if (Details.zone_type == "raid") then
 						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1389541)
 					else
-						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1966044)
+						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1683245)
 					end
 				end
 			end
@@ -6437,7 +6437,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.cache_healing_group
 	end
 
-	function Details:ClearParserCache() --~wipe
+	function Details:ClearParserCache(bIsFromCombatStart) --~wipe
 		Details:Destroy(damage_cache)
 		Details:Destroy(damage_cache_pets)
 		Details:Destroy(damage_cache_petsOwners)
@@ -6464,10 +6464,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(cacheAnything.paladin_vivaldi_blessings)
 		Details:Destroy(cacheAnything.rampage_cast_amount)
 
-		Details:Destroy(augmentation_cache.ebon_might) --~roskash
-		Details:Destroy(augmentation_cache.prescience)
+		if (not bIsFromCombatStart) then
+			Details:Destroy(augmentation_cache.ebon_might) --~roskash
+			Details:Destroy(augmentation_cache.prescience)
+			Details:Destroy(augmentation_cache.shield)
+		end
+
 		Details:Destroy(augmentation_cache.breath_targets)
-		Details:Destroy(augmentation_cache.shield)
 
 		cacheAnything.track_hunter_frenzy = Details.combat_log.track_hunter_frenzy
 
@@ -6695,7 +6698,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	--serach key: ~cache
-	function Details:UpdateParserGears()
+	function Details:UpdateParserGears(bIsFromCombatStart)
 		--refresh combat tables
 		_current_combat = Details.tabela_vigente
 
@@ -6775,7 +6778,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		is_using_spellId_override = Details.override_spellids
 
-		return Details:ClearParserCache()
+		return Details:ClearParserCache(bIsFromCombatStart)
 	end
 
 	function Details.DumpIgnoredNpcs()
