@@ -200,6 +200,7 @@
 			flyaway = {},
 			flyaway_timer = {},
 			shield = {},
+			ss = {},
 		}
 
 		local empower_cache = {}
@@ -1228,6 +1229,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--amount add
+
 		--~roskash - augmentation evoker damage buff
 		if (augmentation_cache.ebon_might[sourceSerial]) then
 			---actor buffed with ebonmight -> list of evokers whose buffed
@@ -1254,6 +1256,33 @@
 					else
 						evokerActor.total_extra = evokerActor.total_extra + (amount * 0.1683245)
 					end
+				end
+			end
+		end
+
+		if (augmentation_cache.ss[sourceSerial]) then --actor buffed with ss
+			--print(sourceName, "has ss buff")
+			---@type table<serial, evokerinfo[]>
+			local currentlyBuffedWithSS = augmentation_cache.ss[sourceSerial]
+			for i, evokerInfo in ipairs(currentlyBuffedWithSS) do
+				---@cast evokerInfo evokerinfo
+
+				---@type serial, actorname, controlflags
+				local evokerSourceSerial, evokerSourceName, evokerSourceFlags, versaBuff = unpack(evokerInfo)
+
+				---@type actor
+				local evokerActor = damage_cache[evokerSourceSerial]
+
+				--print(evokerActor, evokerSourceSerial, evokerSourceName, evokerSourceFlags, versaBuff, sourceName)
+
+				if (not evokerActor) then
+					evokerActor = _current_damage_container:PegarCombatente(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
+				end
+
+				if (evokerActor) then
+					versaBuff = versaBuff / 100
+					evokerActor.total_extra = evokerActor.total_extra + (amount * versaBuff)
+					--print("added to the evoker:", (amount * versaBuff), "damage")
 				end
 			end
 		end
@@ -2613,6 +2642,21 @@
 			local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
 			table.insert(augmentation_cache.ebon_might[targetSerial], evokerInfo)
 
+		elseif (spellId == 413984) then --ss
+			--print("ss de ", sourceName, "em:", targetName)
+			if (UnitExists(targetName) and not UnitIsUnit("player", targetName)) then
+				--print("ss validou!")
+				local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedBy(targetName, spellId, sourceName)
+				--dumpt({auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5})
+				local versaGained = v1
+				if (type(versaGained) == "number") then
+					--print("tem versa: ", versaGained)
+					augmentation_cache.ss[targetSerial] = augmentation_cache.ss[targetSerial] or {}
+					local ssInfo = {sourceSerial, sourceName, sourceFlags, versaGained}
+					table.insert(augmentation_cache.ss[targetSerial], ssInfo)
+				end
+			end
+
 		elseif (spellId == 410089) then
 			augmentation_cache.prescience[targetSerial] = augmentation_cache.prescience[targetSerial] or {}
 			---@type evokerinfo
@@ -2948,6 +2992,29 @@
 					table.insert(augmentation_cache.ebon_might[targetSerial], {sourceSerial, sourceName, sourceFlags, amount})
 				end
 
+			elseif (spellid == 413984) then --ss
+				if (UnitExists(targetName) and not UnitIsUnit("player", targetName)) then
+					local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedBy(targetName, spellid, sourceName)
+					local versaGained = v1
+
+					if (type(versaGained) == "number") then
+						local bFound = false
+						augmentation_cache.ss[targetSerial] = augmentation_cache.ss[targetSerial] or {}
+
+						for index, evokerInfo in ipairs(augmentation_cache.ss[targetSerial]) do
+							if (evokerInfo[1] == sourceSerial) then
+								evokerInfo[4] = versaGained
+								bFound = true
+								break
+							end
+						end
+
+						if (not bFound) then
+							table.insert(augmentation_cache.ss[targetSerial], {sourceSerial, sourceName, sourceFlags, versaGained})
+						end
+					end
+				end
+
 			elseif (spellid == 410089) then
 				local bFound = false
 				augmentation_cache.prescience[targetSerial] = augmentation_cache.prescience[targetSerial] or {}
@@ -3043,6 +3110,16 @@
 					for index, evokerInfo in ipairs(augmentation_cache.ebon_might[targetSerial]) do
 						if (evokerInfo[1] == sourceSerial) then
 							table.remove(augmentation_cache.ebon_might[targetSerial], index)
+							break
+						end
+					end
+				end
+
+			elseif (spellid == 413984) then
+				if (augmentation_cache.ss[targetSerial]) then
+					for index, evokerInfo in ipairs(augmentation_cache.ss[targetSerial]) do
+						if (evokerInfo[1] == sourceSerial) then
+							table.remove(augmentation_cache.ss[targetSerial], index)
 							break
 						end
 					end
