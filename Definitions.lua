@@ -149,6 +149,7 @@
 ---@field _ActorTable table array of actors
 ---@field _NameIndexTable table<string, number> [actorName] = actorIndex in the _ActorTable, actorcontainer:Remap() refreshes the _NameIndexTable
 ---@field GetActor fun(container: actorcontainer, actorName: string) get an actor by its name
+---@field GetOrCreateActor fun(container: actorcontainer, actorSerial: guid, actorName: actorname, actorFlags: controlflags, bShouldCreateActor: boolean) get an actor by its name, if the actor doesn't exist it will be created
 ---@field GetSpellSource fun(container: actorcontainer, spellId: number) get the first actor found which casted the spell
 ---@field GetAmount fun(container: actorcontainer, actorName: string, key: string) get the amount of actor[key]
 ---@field GetTotal fun(container: actorcontainer, key: string) get the total amount of actor[key] for all actors

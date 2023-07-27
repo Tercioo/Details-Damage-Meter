@@ -445,7 +445,6 @@ end
 		return newContainer
 	end
 
-
 	--try to get the actor class from name
 	local getActorClass = function(actorObject, actorName, actorFlags, actorSerial)
 		--get spec
@@ -706,8 +705,8 @@ end
 	---@param actorFlags number
 	---@param bShouldCreateActor boolean
 	---@return table|nil, table|nil, string|nil
-	function actorContainer:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
-		return self:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
+	function actorContainer:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
+		return self:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
 	end
 
 	---@param actorSerial string
@@ -715,7 +714,7 @@ end
 	---@param actorFlags number
 	---@param bShouldCreateActor boolean
 	---@return table|nil, table|nil, string|nil
-	function actorContainer:PegarCombatente(actorSerial, actorName, actorFlags, bShouldCreateActor)
+	function actorContainer:GetOrCreateActor(actorSerial, actorName, actorFlags, bShouldCreateActor)
 		--need to check if the actor is a pet
 		local petOwnerObject
 		actorSerial = actorSerial or "ns"
@@ -880,9 +879,7 @@ end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --core
-
-	--_detalhes:AddToNpcIdCache (novo_objeto)
-	function Details:AddToNpcIdCache (actor)
+	function Details:AddToNpcIdCache(actor) --not called anywhere
 		if (flag and serial) then
 			if (bitBand (flag, REACTION_HOSTILE) ~= 0 and bitBand (flag, OBJECT_TYPE_NPC) ~= 0 and bitBand (flag, OBJECT_TYPE_PETGUARDIAN) == 0) then
 				local npc_id = Details:GetNpcIdFromGuid (serial)
