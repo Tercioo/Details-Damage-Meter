@@ -2994,7 +2994,9 @@ end
 ---@param totalAmount valueamount
 ---@param topAmount valueamount
 ---@param instanceObject instance
-function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, topAmount, instanceObject)
+---@param onEnterFunc function|nil
+---@param onLeaveFunc function|nil
+function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, topAmount, instanceObject, onEnterFunc, onLeaveFunc)
 	if (extraAmount and extraAmount > 0 and Details.combat_log.evoker_calc_damage) then
 		local extraStatusbar = thisLine.extraStatusbar
 		local initialOffset = 0
@@ -3026,7 +3028,22 @@ function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, 
 		--extraStatusbar:SetFrameStrata("TOOLTIP")
 		extraStatusbar:SetFrameLevel(thisLine:GetFrameLevel() + 1)
 
+		extraStatusbar.OnEnterCallback = onEnterFunc
+		extraStatusbar.OnLeaveCallback = onLeaveFunc
+
 		extraStatusbar:Show()
+	end
+end
+
+--when the script detect the extrastatusbar need to be show, it will call this function
+local handleShowExtraStatusbar = function(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+	if (self.spec == 1473 and self.augmentedSpellsContainer) then
+		--prepare the extra bar to show the damage prediction to augmented evoker
+		Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance, damageClass.PredictedAugSpellsOnEnter, damageClass.PredictedAugSpellsOnLeave)
+		thisLine.extraStatusbar.augmentedSpellsContainer = self.augmentedSpellsContainer
+		thisLine.extraStatusbar.instance = instance
+	else
+		Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
 	end
 end
 
@@ -3061,7 +3078,7 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 			Details.FadeHandler.Fader(thisLine, "out")
 
 			if (self.total_extra and self.total_extra > 0) then
-				Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
+				handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
 			end
 
 			return self:RefreshBarra(thisLine, instance)
@@ -3078,7 +3095,7 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 				thisLine.last_value = percent --reseta o ultimo valor da barra
 
 				if (self.total_extra and self.total_extra > 0) then
-					Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
+					handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
 				end
 
 				return self:RefreshBarra(thisLine, instance)
@@ -3099,7 +3116,7 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 				return self:RefreshBarra(thisLine, instance)
 			else
 				if (self.total_extra and self.total_extra > 0) then
-					Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
+					handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
 				end
 			end
 		end
@@ -3361,6 +3378,51 @@ function Details:RefreshBarra(thisLine, instance, fromResize) --[[exported]]
 
 	--left text
 	self:SetBarLeftText(thisLine, instance, enemy, arenaEnemy, arenaAlly, UsingCustomLeftText)
+end
+
+
+function damageClass.PredictedAugSpellsOnEnter(self)
+	if (not Details.show_aug_predicted_spell_damage) then
+		return
+	end
+
+	---@type spellcontainer
+	local spellContainer = self.augmentedSpellsContainer
+
+	GameCooltip:Preset(2)
+	---@type instance
+	local instance = self.instance
+
+	local combatObject = instance:GetCombat()
+	for spellId, spellTable in spellContainer:ListSpells() do
+		local spellName, _, spellTexture = GetSpellInfo(spellId)
+		if (spellName) then
+			GameCooltip:AddLine(spellName, Details:Format(spellTable.total))
+			GameCooltip:AddIcon(spellTexture, 1, 1, 18, 18)
+
+			--the damage sources are added into the targets table for reciclying
+			---@type table<actorname, valueamount>
+			local sources = spellTable.targets
+			for sourceName, sourceAmount in pairs(sources) do
+				GameCooltip:AddLine(sourceName, Details:Format(sourceAmount), 1, "yellow", "yellow", 10)
+				local actorObject = combatObject:GetActor(1, sourceName)
+				if (actorObject) then
+					local actorIcon = Details:GetActorIcon(actorObject)
+					if (actorIcon) then
+						GameCooltip:AddIcon(actorIcon.texture, 1, 1, 18, 18, actorIcon.coords.left, actorIcon.coords.right, actorIcon.coords.top, actorIcon.coords.bottom)
+					else
+						GameCooltip:AddIcon([[Interface\COMMON\Indicator-Gray]], 1, 1, 18, 18)
+					end
+				end
+			end
+		end
+	end
+
+	GameCooltip:ShowCooltip(self, "tooltip")
+end
+
+function damageClass.PredictedAugSpellsOnLeave(self)
+	GameCooltip:Hide()
 end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
@@ -6948,6 +7010,9 @@ function Details.refresh:r_atributo_damage(actorObject)
 
 	--restore metatable for the spell container
 	Details.refresh:r_container_habilidades(actorObject.spells)
+	if (actorObject.augmentedSpellsContainer) then
+		Details.refresh:r_container_habilidades(actorObject.augmentedSpellsContainer)
+	end
 end
 
 function Details.clear:c_atributo_damage (este_jogador)

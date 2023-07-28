@@ -45,7 +45,6 @@ local habilidade_misc 	=	_detalhes.habilidade_misc
 	---@param containerType number @the container type to be created (1 damage 2 heal 3 resources 4 utility)
 	---@return spellcontainer
 	function spellContainerClass:NovoContainer(containerType)
-		---@type spellcontainer
 		local spellContainer = {
 			funcao_de_criacao = spellContainerClass:GetSpellTableFuncCreator(containerType),
 			tipo = containerType,
@@ -54,6 +53,10 @@ local habilidade_misc 	=	_detalhes.habilidade_misc
 
 		setmetatable(spellContainer, spellContainerClass)
 		return spellContainer
+	end
+
+	function spellContainerClass:CreateSpellContainer(containerType)
+		return self:NovoContainer(containerType)
 	end
 
 	---get the spellTable for the passed spellId
@@ -105,8 +108,8 @@ local habilidade_misc 	=	_detalhes.habilidade_misc
 		return false
 	end
 
-	function spellContainerClass:GetOrCreateSpell(spellId, bCanCreateSpellIfMissing, cleuToken)
-		return self:PegaHabilidade(spellId, bCanCreateSpellIfMissing, cleuToken)
+	function spellContainerClass:PegaHabilidade(spellId, bCanCreateSpellIfMissing, cleuToken)
+		return self:GetOrCreateSpell(spellId, bCanCreateSpellIfMissing, cleuToken)
 	end
 
 	---create a new spelltable for the passed spellId
@@ -115,7 +118,7 @@ local habilidade_misc 	=	_detalhes.habilidade_misc
 	---@param bCanCreateSpellIfMissing boolean
 	---@param cleuToken string
 	---@return spelltable|nil
-	function spellContainerClass:PegaHabilidade(spellId, bCanCreateSpellIfMissing, cleuToken)
+	function spellContainerClass:GetOrCreateSpell(spellId, bCanCreateSpellIfMissing, cleuToken)
 		---@type spelltable
 		local spellTable = self._ActorTable [spellId]
 

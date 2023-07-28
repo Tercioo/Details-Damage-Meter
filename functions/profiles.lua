@@ -1370,6 +1370,8 @@ local default_global_data = {
 		current_exp_raid_encounters = {},
 		installed_skins_cache = {},
 
+		show_aug_predicted_spell_damage = false,
+
 		show_warning_id1 = true,
 		show_warning_id1_amount = 0,
 
