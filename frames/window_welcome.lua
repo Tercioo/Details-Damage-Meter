@@ -185,8 +185,19 @@ function _detalhes:OpenWelcomeWindow()
 	local frame_alert = CreateFrame("frame", nil, window)
 	frame_alert:SetPoint("topright", window)
 	function _detalhes:StopPlayStretchAlert()
-		frame_alert.alert.animIn:Stop()
-		frame_alert.alert.animOut:Play()
+		if (frame_alert.alert.animOut) then
+			if (not frame_alert.alert.animOut:IsPlaying()) then
+				frame_alert.alert.animOut:Stop()
+				frame_alert.alert.animOut:Play()
+			end
+			if (not frame_alert.alert.animIn:IsPlaying()) then
+				frame_alert.alert.animIn:Stop()
+			end
+		elseif (frame_alert.alert.ProcStartAnim) then
+			if (not frame_alert.alert.ProcStartAnim:IsPlaying()) then
+				frame_alert.alert.ProcStartAnim:Stop()
+			end
+		end
 		_detalhes.stopwelcomealert = nil
 	end
 	frame_alert.alert = CreateFrame("frame", "DetailsWelcomeWindowAlert", UIParent, "ActionBarButtonSpellActivationAlert")
@@ -1120,9 +1131,19 @@ local window_openned_at = time()
 			instance.baseframe.button_stretch:SetAlpha(1)
 			frame_alert.alert:SetPoint("topleft", instance.baseframe.button_stretch, "topleft", -20, 6)
 			frame_alert.alert:SetPoint("bottomright", instance.baseframe.button_stretch, "bottomright", 20, -14)
-
-			frame_alert.alert.animOut:Stop()
-			frame_alert.alert.animIn:Play()
+			if (frame_alert.alert.animOut) then
+				if (frame_alert.alert.animOut:IsPlaying()) then
+					frame_alert.alert.animOut:Stop()
+				end
+				if (not frame_alert.alert.animIn:IsPlaying()) then
+					frame_alert.alert.animIn:Stop()
+					frame_alert.alert.animIn:Play()
+				end
+			elseif (frame_alert.alert.ProcStartAnim) then
+				if (not frame_alert.alert.ProcStartAnim:IsPlaying()) then
+					frame_alert.alert.ProcStartAnim:Play()
+				end
+			end
 			if (_detalhes.stopwelcomealert) then
 				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
@@ -1178,8 +1199,19 @@ local window_openned_at = time()
 			frame_alert.alert:SetPoint("topleft", instance.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
 			frame_alert.alert:SetPoint("bottomright", instance.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)
 
-			frame_alert.alert.animOut:Stop()
-			frame_alert.alert.animIn:Play()
+			if (frame_alert.alert.animOut) then
+				if (frame_alert.alert.animOut:IsPlaying()) then
+					frame_alert.alert.animOut:Stop()
+				end
+				if (not frame_alert.alert.animIn:IsPlaying()) then
+					frame_alert.alert.animIn:Stop()
+					frame_alert.alert.animIn:Play()
+				end
+			elseif (frame_alert.alert.ProcStartAnim) then
+				if (not frame_alert.alert.ProcStartAnim:IsPlaying()) then
+					frame_alert.alert.ProcStartAnim:Play()
+				end
+			end
 			if (_detalhes.stopwelcomealert) then
 				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
@@ -1412,8 +1444,19 @@ local window_openned_at = time()
 			frame_alert.alert:SetPoint("topleft", bar1, "topleft", -60, 8)
 			frame_alert.alert:SetPoint("bottomright", bar1, "bottomright", 60, -10)
 
-			frame_alert.alert.animOut:Stop()
-			frame_alert.alert.animIn:Play()
+			if (frame_alert.alert.animOut) then
+				if (frame_alert.alert.animOut:IsPlaying()) then
+					frame_alert.alert.animOut:Stop()
+				end
+				if (not frame_alert.alert.animIn:IsPlaying()) then
+					frame_alert.alert.animIn:Stop()
+					frame_alert.alert.animIn:Play()
+				end
+			elseif (frame_alert.alert.ProcStartAnim) then
+				if (not frame_alert.alert.ProcStartAnim:IsPlaying()) then
+					frame_alert.alert.ProcStartAnim:Play()
+				end
+			end
 			if (_detalhes.stopwelcomealert) then
 				_detalhes:CancelTimer(_detalhes.stopwelcomealert)
 			end
