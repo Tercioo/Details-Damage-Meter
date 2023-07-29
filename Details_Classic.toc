@@ -151,6 +151,7 @@ core\network.lua
 core\parser.lua
 #core\parser_timewalk.lua
 
+functions\spec_augmentation.lua
 functions\loaddata.lua
 
 startup.lua

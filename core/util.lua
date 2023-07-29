@@ -81,6 +81,20 @@
 	---@param unitSerial serial
 	---@return unit|nil unitId
 	function Details:FindUnitIDByUnitSerial(unitSerial)
+		--target
+		if (UnitExists("target")) then
+			if (UnitGUID("target") == unitSerial) then
+				return "target"
+			end
+		end
+
+		--focus
+		if (UnitExists("focus")) then
+			if (UnitGUID("focus") == unitSerial) then
+				return "focus"
+			end
+		end
+
 		--boss
 		for i = 1, 9 do
 			local unitId = Details222.UnitIdCache.Boss[i]

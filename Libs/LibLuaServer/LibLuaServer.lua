@@ -211,15 +211,16 @@
 ---@alias npcid number a number that identifies a specific npc in the game.
 ---@alias textureid number each texture from the game client has an id.
 ---@alias texturepath string access textures from addons.
----@alias unixtime number
 ---@alias valueamount number used to represent a value, such as a damage amount, a healing amount, or a resource amount.
+---@alias unixtime number a number that represents the number of seconds that have elapsed since 00:00:00 Coordinated Universal Time (UTC), Thursday, 1 January 1970, not counting leap seconds.
 ---@alias timestring string refers to a string showing a time value, such as "1:23" or "1:23:45".
 ---@alias combattime number elapsed time of a combat or time in seconds that a unit has been in combat.
+---@alias auraduration number
+---@alias gametime number number of seconds that have elapsed since the start of the game session.
 ---@alias coordleft number
 ---@alias coordright number
 ---@alias coordtop number
 ---@alias coordbottom number
----@alias auraduration number
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)

@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11718
-		Details.alpha_build_counter = 11718 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11770
+		Details.alpha_build_counter = 11770 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -115,6 +115,9 @@
 		Details222.ClassCache.ByGUID = {}
 		Details222.UnitIdCache = {}
 		Details222.Roskash = {}
+		Details222.SpecHelpers = {
+			[1473] = {},
+		}
 
 		Details222.Actors = {}
 

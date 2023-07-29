@@ -202,7 +202,7 @@ function Details:IsFriendlyNpc() --[[exported]]
 	return false
 end
 
-function Details:IsEnemy() --[[exported]]	
+function Details:IsEnemy() --[[exported]]
 	if (self.flag_original) then
 		if (bitBand(self.flag_original, 0x00000060) ~= 0) then
 			local npcId = Details:GetNpcIdFromGuid(self.serial)
@@ -214,7 +214,7 @@ function Details:IsEnemy() --[[exported]]
 	end
 	return false
 end
-	
+
 function Details:GetSpellList() --[[exported]]
 	return self.spells._ActorTable
 end
@@ -772,34 +772,34 @@ end
 	local DTBS_search_code = [[
 		---@type combat, table, instance
 		local combatObject, instanceContainer, instanceObject = ...
-		
+
 		--declade the values to return
 		local totalDamage, topDamage, amount = 0, 0, 0
-		
+
 		---@type {key1: actorname, key2: number, key3: actor}[]
 		local damageTakenFrom = {}
-		
+
 		local spellId = @SPELLID@
 		local spellName
 		if (spellId) then
 			spellName = select(1, GetSpellInfo(spellId))
 		end
-		
+
 		---@type actorcontainer
 		local damageContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 		---@type actorcontainer
 		local healContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_HEAL)
-		
+
 		local bIsCustomSpell = false
 		for _, customSpellObject in ipairs(Details.savedCustomSpells) do
 			if (customSpellObject[1] == spellId) then
 				bIsCustomSpell = true
 			end
 		end
-		
+
 		for index, actorObject in damageContainer:ListActors() do
 			---@cast actorObject actordamage
-		
+
 			--> handle friendly fire spell damage taken
 			if (actorObject:IsPlayer()) then
 				if (bIsCustomSpell) then --if the spell has been modified, check only by its spellId, as it can't get other spells with the same name
@@ -810,10 +810,10 @@ end
 							local damageActor = damageContainer:GetActor(playerName)
 							---@type actorheal
 							local healingActor = healContainer:GetActor(playerName)
-		
+
 							if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
 								local got
-		
+
 								for index, damageTakenTable in ipairs(damageTakenFrom) do
 									if (damageTakenTable[1] == playerName) then
 										damageTakenTable[2] = damageTakenTable[2] + friendlyFireTable.spells[spellId]
@@ -824,7 +824,7 @@ end
 										break
 									end
 								end
-		
+
 								if (not got) then
 									---@type {key1: actorname, key2: number, key3: actor}
 									local damageTakenTable = {playerName, friendlyFireTable.spells[spellId], damageActor or healingActor}
@@ -846,7 +846,7 @@ end
 								local damageActor = damageContainer:GetActor(playerName)
 								---@type actorheal
 								local healingActor = healContainer:GetActor(playerName)
-		
+
 								if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
 									local got
 									for index, damageTakenTable in ipairs(damageTakenFrom) do
@@ -859,7 +859,7 @@ end
 											break
 										end
 									end
-		
+
 									if (not got) then
 										---@type {key1: actorname, key2: number, key3: actor}
 										local damageTakenTable = {playerName, damageAmount, damageActor or healingActor}
@@ -874,20 +874,20 @@ end
 					end
 				end
 			end
-		
+
 			--> handle regular damage taken from spells
 			---@type spelltable
 			local spellTable = actorObject:GetSpell(spellId)
-		
+
 			if (spellTable) then
 				for targetName, damageAmount in pairs(spellTable.targets) do
 					local got = false
-		
+
 					---@type actordamage
 					local damageActor = damageContainer:GetActor(targetName)
 					---@type actorheal
 					local healingActor = healContainer:GetActor(targetName)
-		
+
 					if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
 						for index, damageTakenTable in ipairs(damageTakenFrom) do
 							if (damageTakenTable[1] == targetName) then
@@ -899,7 +899,7 @@ end
 								break
 							end
 						end
-		
+
 						if (not got) then
 							---@type {key1: actorname, key2: number, key3: actor}
 							local damageTakenTable = {targetName, damageAmount, damageActor or healingActor}
@@ -911,7 +911,7 @@ end
 					end
 				end
 			end
-		
+
 			if (not bIsCustomSpell) then
 				for thisSpellId, spellTable in pairs(actorObject.spells._ActorTable) do
 					if (thisSpellId ~= spellId) then --this is invalid
@@ -919,12 +919,12 @@ end
 						if (spellname == spellName) then
 							for targetName, damageAmount in pairs(spellTable.targets) do
 								local got = false
-		
+
 								---@type actordamage
 								local damageActor = damageContainer:GetActor(targetName)
 								---@type actorheal
 								local healingActor = healContainer:GetActor(targetName)
-		
+
 								if ((damageActor and damageActor:IsPlayer()) or (healingActor and healingActor:IsPlayer())) then
 									for index, damageTakenTable in ipairs(damageTakenFrom) do
 										if (damageTakenTable[1] == targetName) then
@@ -936,7 +936,7 @@ end
 											break
 										end
 									end
-		
+
 									if (not got) then
 										---@type {key1: actorname, key2: number, key3: actor}
 										local damageTakenTable = {targetName, damageAmount, damageActor or healingActor}
@@ -952,15 +952,15 @@ end
 				end
 			end
 		end
-		
+
 		table.sort(damageTakenFrom, Details.Sort2)
-		
+
 		for index, damageTakenTable in ipairs(damageTakenFrom) do
 			instanceContainer:AddValue(damageTakenTable[3], damageTakenTable[2]) --actorObject, amountDamage
 			totalDamage = totalDamage + damageTakenTable[2] --amountDamage
 			amount = amount + 1
 		end
-		
+
 		return totalDamage, topDamage, amount
 	]]
 
@@ -1116,7 +1116,7 @@ end
 			thisLine.iconHighlight:SetTexCoord(classIcon:GetTexCoord())
 			thisLine.iconHighlight:SetVertexColor(classIcon:GetVertexColor())
 		end
-		
+
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3398,20 +3398,29 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		local spellName, _, spellTexture = GetSpellInfo(spellId)
 		if (spellName) then
 			GameCooltip:AddLine(spellName, Details:Format(spellTable.total))
-			GameCooltip:AddIcon(spellTexture, 1, 1, 18, 18)
+			GameCooltip:AddIcon(spellTexture, 1, 1, 14, 14)
 
-			--the damage sources are added into the targets table for reciclying
+			local spellsAugmented = {}
+
+			--the damage sources are added into the targets table for recycling
 			---@type table<actorname, valueamount>
 			local sources = spellTable.targets
 			for sourceName, sourceAmount in pairs(sources) do
+				spellsAugmented[#spellsAugmented+1] = {sourceName, sourceAmount}
+			end
+
+			table.sort(spellsAugmented, Details.Sort2)
+
+			for i = 1, #spellsAugmented do
+				local sourceName, sourceAmount = unpack(spellsAugmented[i])
 				GameCooltip:AddLine(sourceName, Details:Format(sourceAmount), 1, "yellow", "yellow", 10)
 				local actorObject = combatObject:GetActor(1, sourceName)
 				if (actorObject) then
 					local actorIcon = Details:GetActorIcon(actorObject)
 					if (actorIcon) then
-						GameCooltip:AddIcon(actorIcon.texture, 1, 1, 18, 18, actorIcon.coords.left, actorIcon.coords.right, actorIcon.coords.top, actorIcon.coords.bottom)
+						GameCooltip:AddIcon(actorIcon.texture, 1, 1, 14, 14, actorIcon.coords.left, actorIcon.coords.right, actorIcon.coords.top, actorIcon.coords.bottom)
 					else
-						GameCooltip:AddIcon([[Interface\COMMON\Indicator-Gray]], 1, 1, 18, 18)
+						GameCooltip:AddIcon([[Interface\COMMON\Indicator-Gray]], 1, 1, 14, 14)
 					end
 				end
 			end
@@ -3640,7 +3649,7 @@ function damageClass:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				for i = 1, math.min(max_targets, #ActorTargetsSortTable) do
 					local enemyTable = ActorTargetsSortTable[i]
 					GameCooltip:AddLine(enemyTable[1], FormatTooltipNumber(_, enemyTable[2]) .." ("..format("%.1f", enemyTable[2] / ActorDamageWithPet * 100).."%)")
-					
+
 					local portraitTexture-- = Details222.Textures.GetPortraitTextureForNpcID(enemyTable[3]) --disabled atm
 					if (portraitTexture) then
 						GameCooltip:AddIcon(portraitTexture, 1, 1, icon_size.W, icon_size.H)
@@ -4842,7 +4851,7 @@ end
 
 	não passar nada e deixar o sistema aprender sozinho, como o sistema vai saber que precisa por uma arrow na linha? (para expandi-la)
 
-	
+
 --]=]
 
 ------ Damage Done & Dps
@@ -4980,7 +4989,7 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 				--output
 				breakdownSpellDataList[#breakdownSpellDataList+1] = bkSpellData
 
-				--fill here the spellTables using the actor abilities 
+				--fill here the spellTables using the actor abilities
 				--all these spells belong to the current actor in the loop
 				for spellId, spellTable in petSpellContainer:ListSpells() do
 					local spellName, _, spellIcon = GetSpellInfo(spellId)
@@ -6885,7 +6894,7 @@ damageClass.__add = function(tabela1, tabela2)
 					if (not habilidade_tabela1[key]) then
 						habilidade_tabela1[key] = {}
 					end
-					for empowermentLevel, empowermentValue in pairs(habilidade[key]) do 
+					for empowermentLevel, empowermentValue in pairs(habilidade[key]) do
 						habilidade_tabela1[key][empowermentLevel] = habilidade_tabela1[key][empowermentValue] or 0 + empowermentValue
 					end
 				end

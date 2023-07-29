@@ -204,7 +204,14 @@
 			infernobless = {},
 		}
 
+		Details222.SpecHelpers[1473].augmentation_cache = augmentation_cache
+
 		local empower_cache = {}
+
+		local scale_factors = {
+			[256] = 3.80,--disc priest
+			[254] = 9.73, --hunter mm
+		}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
@@ -1240,182 +1247,185 @@
 	--amount add
 
 		--~roskash - augmentation evoker damage buff
-		if (augmentation_cache.ebon_might[sourceSerial] and sourceName ~= Details.playername) then
+		if (augmentation_cache.ebon_might[sourceSerial]) then
 			---actor buffed with ebonmight -> list of evokers whose buffed
 			---@type table<serial, evokerinfo[]>
 			local currentlyBuffedWithEbonMight = augmentation_cache.ebon_might[sourceSerial]
 
 			for i, evokerInfo in ipairs(currentlyBuffedWithEbonMight) do
 				---@cast evokerInfo evokerinfo
-
 				---@type serial, actorname, controlflags
-				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
+				local evokerSourceSerial, evokerSourceName, evokerSourceFlags, attributedGained = unpack(evokerInfo)
 
-				---@type actor
-				local evokerActor = damage_cache[evokerSourceSerial]
-				if (not evokerActor) then
-					evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-				end
-
-				if (evokerActor) then
-					local extraSpellId = 395152
-					evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-					local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-					if (not augmentedSpell) then
-						augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+				if (evokerSourceSerial ~= sourceSerial) then
+					---@type actor
+					local evokerActor = damage_cache[evokerSourceSerial]
+					if (not evokerActor) then
+						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
 					end
 
-					evokerActor.total_extra = evokerActor.total_extra or 0
-					local predictedAmount = 0
-					if (Details.zone_type == "raid") then
-						predictedAmount = amount * 0.1389541
-					else
-						predictedAmount = amount * 0.1683245
-					end
+					if (evokerActor) then
+						local extraSpellId = 395152
+						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
+						if (not augmentedSpell) then
+							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+						end
 
-					evokerActor.total_extra = evokerActor.total_extra + predictedAmount
-					augmentedSpell.total = augmentedSpell.total + predictedAmount
-					augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
+						local predictedAmount = 0
+						if (Details.zone_type == "raid") then
+							predictedAmount = amount * 0.06947705
+						else
+							predictedAmount = amount * 0.08416225
+						end
+
+						evokerActor.total_extra = evokerActor.total_extra + predictedAmount
+						augmentedSpell.total = augmentedSpell.total + predictedAmount
+						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
+					end
 				end
 			end
 		end
 
-		if (augmentation_cache.ss[sourceSerial] and sourceName ~= Details.playername) then --actor buffed with ss
-			--print(sourceName, "has ss buff")
+		if (augmentation_cache.ss[sourceSerial]) then --actor buffed with ss
 			---@type table<serial, evokerinfo[]>
 			local currentlyBuffedWithSS = augmentation_cache.ss[sourceSerial]
 			for i, evokerInfo in ipairs(currentlyBuffedWithSS) do
 				---@cast evokerInfo evokerinfo
-
 				---@type serial, actorname, controlflags
 				local evokerSourceSerial, evokerSourceName, evokerSourceFlags, versaBuff = unpack(evokerInfo)
 
-				---@type actor
-				local evokerActor = damage_cache[evokerSourceSerial]
-				if (not evokerActor) then
-					evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-				end
-
-				if (evokerActor) then
-					local extraSpellId = 413984
-					evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-					local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-					if (not augmentedSpell) then
-						augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+				if (evokerSourceSerial ~= sourceSerial) then
+					---@type actor
+					local evokerActor = damage_cache[evokerSourceSerial]
+					if (not evokerActor) then
+						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
 					end
 
-					versaBuff = versaBuff / 100
-					local predictedAmount = amount * versaBuff
-					evokerActor.total_extra = evokerActor.total_extra + predictedAmount
+					if (evokerActor) then
+						local extraSpellId = 413984
+						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
+						if (not augmentedSpell) then
+							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+						end
 
-					augmentedSpell.total = augmentedSpell.total + predictedAmount
-					augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
+						versaBuff = versaBuff / 100
+						local predictedAmount = amount * versaBuff * 0.73548755
+						evokerActor.total_extra = evokerActor.total_extra + predictedAmount
+
+						augmentedSpell.total = augmentedSpell.total + predictedAmount
+						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
+					end
 				end
 			end
 		end
 
-		if (spellId == 360828 and augmentation_cache.shield[sourceSerial] and sourceName ~= Details.playername) then --shield
+		if (spellId == 360828 and augmentation_cache.shield[sourceSerial]) then --shield
 			---actor buffed with the shield -> list of evokers whose buffed
 			---@type table<serial, evokerinfo[]>
 			local currentlyBuffedWithShield = augmentation_cache.shield[sourceSerial]
 
 			for i, evokerInfo in ipairs(currentlyBuffedWithShield) do
 				---@cast evokerInfo evokerinfo
-
 				---@type serial, actorname, controlflags
 				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
 
-				---@type actor
-				local evokerActor = damage_cache[evokerSourceSerial]
-				if (not evokerActor) then
-					evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-				end
-
-				if (evokerActor) then
-					local extraSpellId = 360828
-					evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-					local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-					if (not augmentedSpell) then
-						augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+				if (evokerSourceSerial ~= sourceSerial) then
+					---@type actor
+					local evokerActor = damage_cache[evokerSourceSerial]
+					if (not evokerActor) then
+						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
 					end
 
-					local damageSplitted = amount / #currentlyBuffedWithShield
-					evokerActor.total_extra = evokerActor.total_extra + damageSplitted
+					if (evokerActor) then
+						local extraSpellId = 360828
+						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
+						if (not augmentedSpell) then
+							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+						end
 
-					augmentedSpell.total = augmentedSpell.total + damageSplitted
-					augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + damageSplitted
+						local damageSplitted = amount / #currentlyBuffedWithShield
+						evokerActor.total_extra = evokerActor.total_extra + damageSplitted
+
+						augmentedSpell.total = augmentedSpell.total + damageSplitted
+						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + damageSplitted
+					end
 				end
 			end
 		end
 
-		if (spellId == 404908 and augmentation_cache.prescience[sourceSerial] and sourceName ~= Details.playername) then --fate mirror
+		if (spellId == 404908 and augmentation_cache.prescience[sourceSerial]) then --fate mirror
 			---actor buffed with prescience -> list of evokers whose buffed
 			---@type table<serial, evokerinfo[]>
 			local currentlyBuffedWithPrescience = augmentation_cache.prescience[sourceSerial]
 
 			for i, evokerInfo in ipairs(currentlyBuffedWithPrescience) do
 				---@cast evokerInfo evokerinfo
-
 				---@type serial, actorname, controlflags
 				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
-
-				---@type actor
-				local evokerActor = damage_cache[evokerSourceSerial]
-				if (not evokerActor) then
-					evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-				end
-
-				if (evokerActor) then
-					local extraSpellId = 404908
-					evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-					local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-					if (not augmentedSpell) then
-						augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+				if (evokerSourceSerial ~= sourceSerial) then
+					---@type actor
+					local evokerActor = damage_cache[evokerSourceSerial]
+					if (not evokerActor) then
+						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
 					end
 
-					evokerActor.total_extra = evokerActor.total_extra + amount
+					if (evokerActor) then
+						local extraSpellId = 404908
+						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
+						if (not augmentedSpell) then
+							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+						end
 
-					augmentedSpell.total = augmentedSpell.total + amount
-					augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
+						local fateMirror_plus_Prescience = amount + amount * 0.56848040
+
+						evokerActor.total_extra = evokerActor.total_extra + fateMirror_plus_Prescience
+
+						augmentedSpell.total = augmentedSpell.total + fateMirror_plus_Prescience
+						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + fateMirror_plus_Prescience
+					end
 				end
 			end
 		end
 
-		if (spellId == 410265 and augmentation_cache.infernobless[sourceSerial] and sourceName ~= Details.playername) then
+		if (spellId == 410265 and augmentation_cache.infernobless[sourceSerial]) then
 			---@type table<serial, evokerinfo[]>
 			local currentlyBuffedWithInfernoBless = augmentation_cache.infernobless[sourceSerial]
 
 			for i, evokerInfo in ipairs(currentlyBuffedWithInfernoBless) do
 				---@cast evokerInfo evokerinfo
-
 				---@type serial, actorname, controlflags
 				local evokerSourceSerial, evokerSourceName, evokerSourceFlags = unpack(evokerInfo)
 
-				---@type actor
-				local evokerActor = damage_cache[evokerSourceSerial]
-				if (not evokerActor) then
-					evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
-				end
-
-				if (evokerActor) then
-					local extraSpellId = 410265
-					evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
-					local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
-					if (not augmentedSpell) then
-						augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+				if (evokerSourceSerial ~= sourceSerial) then
+					---@type actor
+					local evokerActor = damage_cache[evokerSourceSerial]
+					if (not evokerActor) then
+						evokerActor = _current_damage_container:GetOrCreateActor(evokerSourceSerial, evokerSourceName, evokerSourceFlags, true)
 					end
 
-					evokerActor.total_extra = evokerActor.total_extra + amount
+					if (evokerActor) then
+						local extraSpellId = 410265
+						evokerActor.augmentedSpellsContainer = evokerActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+						local augmentedSpell = evokerActor.augmentedSpellsContainer._ActorTable[extraSpellId]
+						if (not augmentedSpell) then
+							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
+						end
 
-					augmentedSpell.total = augmentedSpell.total + amount
-					augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
+						evokerActor.total_extra = evokerActor.total_extra + amount
+
+						augmentedSpell.total = augmentedSpell.total + amount
+						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
+					end
 				end
 			end
 		end
 
-		if (spellId == 409632 and sourceName ~= Details.playername) then
+		if (spellId == 409632) then
 			local breathTargets = augmentation_cache.breath_targets
-
 			---@type evokereonsbreathinfo[]
 			local evokerWithEonsApplications = breathTargets[targetSerial]
 
@@ -1424,15 +1434,11 @@
 				for i = 1, #evokerWithEonsApplications do
 					---@type evokereonsbreathinfo
 					local evokerInfo = evokerWithEonsApplications[i]
-					local appliedTime = evokerInfo[5]
-					local duration = evokerInfo[6]
+					---@type guid,         actorname,  controlflags, unit,           unixtime,    auraduration, gametime
+					local    evokerSerial, evokerName, evokerFlags,  unitIDAffected, appliedTime, duration,     expirationTime = unpack(evokerInfo)
 
-					if (detailsFramework:IsNearlyEqual(time, appliedTime + duration, 0.05)) then
-						local evokerName = evokerInfo[2]
-						if (evokerName ~= Details.playername) then
-							local evokerSerial = evokerInfo[1]
-							local evokerFlags = evokerInfo[3]
-
+					if (evokerSerial ~= sourceSerial) then
+						if (detailsFramework:IsNearlyEqual(time, appliedTime + duration, 0.12)) then
 							---@type actor
 							local evokerActor = damage_cache[evokerSerial]
 							if (not evokerActor) then
@@ -2699,63 +2705,7 @@
 		end
 
 		if (special_buffs_spells[spellId]) then
-			if (spellId == 395152) then --~roskash
-				augmentation_cache.ebon_might[targetSerial] = augmentation_cache.ebon_might[targetSerial] or {}
-				---@type evokerinfo
-				local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
-				table.insert(augmentation_cache.ebon_might[targetSerial], evokerInfo)
-
-			elseif (spellId == 413984) then --ss
-				--print("ss de ", sourceName, "em:", targetName)
-				if (UnitExists(targetName) and not UnitIsUnit("player", targetName)) then
-					--print("ss validou!")
-					local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedBy(targetName, spellId, sourceName)
-					--dumpt({auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5})
-					local versaGained = v1
-					if (type(versaGained) == "number") then
-						--print("tem versa: ", versaGained)
-						augmentation_cache.ss[targetSerial] = augmentation_cache.ss[targetSerial] or {}
-						local ssInfo = {sourceSerial, sourceName, sourceFlags, versaGained}
-						table.insert(augmentation_cache.ss[targetSerial], ssInfo)
-					end
-				end
-
-			elseif (spellId == 410089) then
-				augmentation_cache.prescience[targetSerial] = augmentation_cache.prescience[targetSerial] or {}
-				---@type evokerinfo
-				local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
-				table.insert(augmentation_cache.prescience[targetSerial], evokerInfo)
-
-			elseif (spellId == 409560) then
-				local unitIDAffected = Details:FindUnitIDByUnitSerial(targetSerial)
-				if (unitIDAffected) then
-					local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId, sourceName)
-					if (duration) then
-						local breathTargets = augmentation_cache.breath_targets[targetSerial]
-						if (not breathTargets) then
-							augmentation_cache.breath_targets[targetSerial] = {}
-							breathTargets = augmentation_cache.breath_targets[targetSerial]
-						end
-
-						--evoker serial, evoker name, evoker flags, target unitID, unixtime, duration, expirationTime (GetTime + duration)
-						---@type evokereonsbreathinfo
-						local eonsBreathInfo = {sourceSerial, sourceName, sourceFlags, unitIDAffected, time, duration, expirationTime}
-						table.insert(breathTargets, eonsBreathInfo)
-					end
-				end
-
-			elseif (spellId == 360827) then
-				augmentation_cache.shield[targetSerial] = augmentation_cache.shield[targetSerial] or {}
-				---@type evokerinfo
-				local evokerInfo = {sourceSerial, sourceName, sourceFlags, amount}
-				table.insert(augmentation_cache.shield[targetSerial], evokerInfo)
-
-			elseif (spellId == 410263) then
-				augmentation_cache.infernobless[targetSerial] = augmentation_cache.infernobless[targetSerial] or {}
-				---@type evokerinfo
-				local evokerInfo = {sourceSerial, sourceName, sourceFlags}
-				table.insert(augmentation_cache.infernobless[targetSerial], evokerInfo)
-			end
+			Details222.SpecHelpers[1473].BuffIn(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, auraType, amount)
 		end
 
 		if (buffs_makeyourown[spellId]) then
@@ -2941,80 +2891,6 @@
 		end
 	end
 
-	--~crowd control ~ccdone
-	function parser:add_cc_done(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
-		_current_misc_container.need_refresh = true
-
-		---@type actor
-		local sourceActor, ownerActor = misc_cache[sourceName]
-		if (not sourceActor) then
-			sourceActor, ownerActor, sourceName = _current_misc_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
-			if (not ownerActor) then
-				misc_cache[sourceName] = sourceActor
-			end
-		end
-
-		sourceActor.last_event = _tempo
-
-		if (not sourceActor.cc_done) then
-			sourceActor.cc_done = Details:GetOrderNumber()
-			sourceActor.cc_done_spells = spellContainerClass:CreateSpellContainer(container_misc)
-			sourceActor.cc_done_targets = {}
-		end
-
-		--add amount
-		sourceActor.cc_done = sourceActor.cc_done + 1
-		sourceActor.cc_done_targets[targetName] = (sourceActor.cc_done_targets[targetName] or 0) + 1
-
-		--actor spells table
-		local spellTable = sourceActor.cc_done_spells._ActorTable[spellId]
-		if (not spellTable) then
-			spellTable = sourceActor.cc_done_spells:GetOrCreateSpell(spellId, true)
-		end
-		spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
-		spellTable.counter = spellTable.counter + 1
-
-		--add the crowd control for the pet owner
-		if (ownerActor) then
-			if (not ownerActor.cc_done) then
-				ownerActor.cc_done = Details:GetOrderNumber()
-				ownerActor.cc_done_spells = spellContainerClass:CreateSpellContainer(container_misc)
-				ownerActor.cc_done_targets = {}
-			end
-
-			--add amount
-			ownerActor.cc_done = ownerActor.cc_done + 1
-			ownerActor.cc_done_targets[targetName] = (ownerActor.cc_done_targets[targetName] or 0) + 1
-
-			--actor spells table
-			local ownerSpellTable = ownerActor.cc_done_spells._ActorTable[spellId]
-			if (not ownerSpellTable) then
-				ownerSpellTable = ownerActor.cc_done_spells:GetOrCreateSpell(spellId, true)
-			end
-
-			ownerSpellTable.targets[targetName] = (ownerSpellTable.targets[targetName] or 0) + 1
-			ownerSpellTable.counter = ownerSpellTable.counter + 1
-		end
-
-		if (not sourceActor.classe) then
-			if (sourceFlags and bitBand(sourceFlags, OBJECT_TYPE_PLAYER) ~= 0) then
-				if (sourceActor.classe == "UNKNOW" or sourceActor.classe == "UNGROUPPLAYER") then
-					---@type actor
-					local damageActor = damage_cache [sourceSerial]
-					if (damageActor and (damageActor.classe ~= "UNKNOW" and damageActor.classe ~= "UNGROUPPLAYER")) then
-						sourceActor.classe = damageActor.classe
-					else
-						---@type actor
-						local healingActor = healing_cache[sourceSerial]
-						if (healingActor and (healingActor.classe ~= "UNKNOW" and healingActor.classe ~= "UNGROUPPLAYER")) then
-							sourceActor.classe = healingActor.classe
-						end
-					end
-				end
-			end
-		end
-	end
-
 	function parser:buff_refresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellschool, tipo, amount)
 		if (not sourceName) then
 			sourceName = names_cache[spellName]
@@ -3024,6 +2900,10 @@
 			end
 			sourceFlags = 0xa48
 			sourceSerial = ""
+		end
+
+		if (special_buffs_spells[spellid]) then
+			Details222.SpecHelpers[1473].BuffRefresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellschool, tipo, amount)
 		end
 
 		if (tipo == "BUFF") then
@@ -3044,64 +2924,6 @@
 				parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, sourceSerial, sourceName, sourceFlags, 0x0, spellid, spellName, "BUFF_UPTIME_REFRESH")
 				pet_frenzy_cache[sourceName] = time
 				return
-			end
-
-			if (special_buffs_spells[spellid]) then
-				if (spellid == 395152) then --~roskash
-					local bFound = false
-					augmentation_cache.ebon_might[targetSerial] = augmentation_cache.ebon_might[targetSerial] or {}
-
-					for index, evokerInfo in ipairs(augmentation_cache.ebon_might[targetSerial]) do
-						if (evokerInfo[1] == sourceSerial) then
-							evokerInfo[4] = amount
-							bFound = true
-							break
-						end
-					end
-
-					if (not bFound) then
-						table.insert(augmentation_cache.ebon_might[targetSerial], {sourceSerial, sourceName, sourceFlags, amount})
-					end
-
-				elseif (spellid == 413984) then --ss
-					if (UnitExists(targetName) and not UnitIsUnit("player", targetName)) then
-						local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedBy(targetName, spellid, sourceName)
-						local versaGained = v1
-
-						if (type(versaGained) == "number") then
-							local bFound = false
-							augmentation_cache.ss[targetSerial] = augmentation_cache.ss[targetSerial] or {}
-
-							for index, evokerInfo in ipairs(augmentation_cache.ss[targetSerial]) do
-								if (evokerInfo[1] == sourceSerial) then
-									evokerInfo[4] = versaGained
-									bFound = true
-									break
-								end
-							end
-
-							if (not bFound) then
-								table.insert(augmentation_cache.ss[targetSerial], {sourceSerial, sourceName, sourceFlags, versaGained})
-							end
-						end
-					end
-
-				elseif (spellid == 410089) then
-					local bFound = false
-					augmentation_cache.prescience[targetSerial] = augmentation_cache.prescience[targetSerial] or {}
-
-					for index, evokerInfo in ipairs(augmentation_cache.prescience[targetSerial]) do
-						if (evokerInfo[1] == sourceSerial) then
-							evokerInfo[4] = amount
-							bFound = true
-							break
-						end
-					end
-
-					if (not bFound) then
-						table.insert(augmentation_cache.prescience[targetSerial], {sourceSerial, sourceName, sourceFlags, amount})
-					end
-				end
 			end
 
 			if (buffs_makeyourown[spellid]) then
@@ -3176,60 +2998,11 @@
 			sourceSerial = ""
 		end
 
+		if (special_buffs_spells[spellid]) then
+			Details222.SpecHelpers[1473].BuffOut(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellid, spellName, spellSchool, tipo, amount)
+		end
+
 		if (tipo == "BUFF") then
-			if (special_buffs_spells[spellid]) then
-				if (spellid == 395152) then --~roskash
-					if (augmentation_cache.ebon_might[targetSerial]) then
-						for index, evokerInfo in ipairs(augmentation_cache.ebon_might[targetSerial]) do
-							if (evokerInfo[1] == sourceSerial) then
-								table.remove(augmentation_cache.ebon_might[targetSerial], index)
-								break
-							end
-						end
-					end
-
-				elseif (spellid == 413984) then
-					if (augmentation_cache.ss[targetSerial]) then
-						for index, evokerInfo in ipairs(augmentation_cache.ss[targetSerial]) do
-							if (evokerInfo[1] == sourceSerial) then
-								table.remove(augmentation_cache.ss[targetSerial], index)
-								break
-							end
-						end
-					end
-
-				elseif (spellid == 410089) then
-					if (augmentation_cache.prescience[targetSerial]) then
-						for index, evokerInfo in ipairs(augmentation_cache.prescience[targetSerial]) do
-							if (evokerInfo[1] == sourceSerial) then
-								table.remove(augmentation_cache.prescience[targetSerial], index)
-								break
-							end
-						end
-					end
-
-				elseif (spellid == 360827) then
-					if (augmentation_cache.shield[targetSerial]) then
-						for index, evokerInfo in ipairs(augmentation_cache.shield[targetSerial]) do
-							if (evokerInfo[1] == sourceSerial) then
-								table.remove(augmentation_cache.shield[targetSerial], index)
-								break
-							end
-						end
-					end
-
-				elseif (spellid == 410263) then
-					if (augmentation_cache.infernobless[targetSerial]) then
-						for index, evokerInfo in ipairs(augmentation_cache.infernobless[targetSerial]) do
-							if (evokerInfo[1] == sourceSerial) then
-								table.remove(augmentation_cache.infernobless[targetSerial], index)
-								break
-							end
-						end
-					end
-				end
-			end
-
 			if (buffs_makeyourown[spellid]) then
 				sourceSerial, sourceName, sourceFlags = targetSerial, targetName, targetFlags
 			end
@@ -3345,6 +3118,80 @@
 
 				if ((bitfield_debuffs[spellName] or bitfield_debuffs[spellid]) and targetSerial) then
 					bitfield_swap_cache[targetSerial] = nil
+				end
+			end
+		end
+	end
+
+	--~crowd control ~ccdone
+	function parser:add_cc_done(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
+		_current_misc_container.need_refresh = true
+
+		---@type actor
+		local sourceActor, ownerActor = misc_cache[sourceName]
+		if (not sourceActor) then
+			sourceActor, ownerActor, sourceName = _current_misc_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
+			if (not ownerActor) then
+				misc_cache[sourceName] = sourceActor
+			end
+		end
+
+		sourceActor.last_event = _tempo
+
+		if (not sourceActor.cc_done) then
+			sourceActor.cc_done = Details:GetOrderNumber()
+			sourceActor.cc_done_spells = spellContainerClass:CreateSpellContainer(container_misc)
+			sourceActor.cc_done_targets = {}
+		end
+
+		--add amount
+		sourceActor.cc_done = sourceActor.cc_done + 1
+		sourceActor.cc_done_targets[targetName] = (sourceActor.cc_done_targets[targetName] or 0) + 1
+
+		--actor spells table
+		local spellTable = sourceActor.cc_done_spells._ActorTable[spellId]
+		if (not spellTable) then
+			spellTable = sourceActor.cc_done_spells:GetOrCreateSpell(spellId, true)
+		end
+		spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
+		spellTable.counter = spellTable.counter + 1
+
+		--add the crowd control for the pet owner
+		if (ownerActor) then
+			if (not ownerActor.cc_done) then
+				ownerActor.cc_done = Details:GetOrderNumber()
+				ownerActor.cc_done_spells = spellContainerClass:CreateSpellContainer(container_misc)
+				ownerActor.cc_done_targets = {}
+			end
+
+			--add amount
+			ownerActor.cc_done = ownerActor.cc_done + 1
+			ownerActor.cc_done_targets[targetName] = (ownerActor.cc_done_targets[targetName] or 0) + 1
+
+			--actor spells table
+			local ownerSpellTable = ownerActor.cc_done_spells._ActorTable[spellId]
+			if (not ownerSpellTable) then
+				ownerSpellTable = ownerActor.cc_done_spells:GetOrCreateSpell(spellId, true)
+			end
+
+			ownerSpellTable.targets[targetName] = (ownerSpellTable.targets[targetName] or 0) + 1
+			ownerSpellTable.counter = ownerSpellTable.counter + 1
+		end
+
+		if (not sourceActor.classe) then
+			if (sourceFlags and bitBand(sourceFlags, OBJECT_TYPE_PLAYER) ~= 0) then
+				if (sourceActor.classe == "UNKNOW" or sourceActor.classe == "UNGROUPPLAYER") then
+					---@type actor
+					local damageActor = damage_cache [sourceSerial]
+					if (damageActor and (damageActor.classe ~= "UNKNOW" and damageActor.classe ~= "UNGROUPPLAYER")) then
+						sourceActor.classe = damageActor.classe
+					else
+						---@type actor
+						local healingActor = healing_cache[sourceSerial]
+						if (healingActor and (healingActor.classe ~= "UNKNOW" and healingActor.classe ~= "UNGROUPPLAYER")) then
+							sourceActor.classe = healingActor.classe
+						end
+					end
 				end
 			end
 		end

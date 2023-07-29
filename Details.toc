@@ -156,6 +156,7 @@ core\network.lua
 
 core\parser.lua
 
+functions\spec_augmentation.lua
 functions\loaddata.lua
 
 startup.lua
