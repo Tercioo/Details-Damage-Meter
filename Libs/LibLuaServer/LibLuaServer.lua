@@ -393,7 +393,7 @@
 ---@field RegisterForClicks fun(self: button, button1: nil|buttontype, button2: nil|buttontype, button3: nil|buttontype, button4: nil|buttontype)
 ---@field GetNormalTexture fun(self: button) : texture
 ---@field GetPushedTexture fun(self: button) : texture
----@field GetHightlightTexture fun(self: button) : texture
+---@field GetHighlightTexture fun(self: button) : texture
 ---@field GetDisabledTexture fun(self: button) : texture
 
 ---@class statusbar : frame

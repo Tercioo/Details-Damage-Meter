@@ -581,6 +581,10 @@ function Details:StartMeUp()
 	Details.boss_mods_timers.encounter_timers_dbm = Details.boss_mods_timers.encounter_timers_dbm or {}
 	Details.boss_mods_timers.encounter_timers_bw = Details.boss_mods_timers.encounter_timers_bw or {}
 
+	if (Details.time_type == 3) then
+		Details.time_type = 2
+	end
+
 	--clear overall data on new session
 	--if (Details.overall_clear_logout) then --this is suppose to be in the load data file
 	--	Details.tabela_overall = Details.combate:NovaTabela()

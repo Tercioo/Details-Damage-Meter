@@ -412,6 +412,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 			else
 				self.icon:SetTexture(texture)
 			end
+
 		elseif (type(texture) == "table") then
 			local r, g, b, a = detailsFramework:ParseColors(texture)
 			self.icon:SetColorTexture(r, g, b, a)
@@ -1123,7 +1124,7 @@ end
 
 		local normalTexture = button:GetNormalTexture()
 		local pushedTexture = button:GetPushedTexture()
-		local highlightTexture = button:GetHightlightTexture()
+		local highlightTexture = button:GetHighlightTexture()
 		local disabledTexture = button:GetDisabledTexture()
 
 		if (type(texture) == "table") then
@@ -1184,7 +1185,7 @@ end
         red, green, blue, alpha = detailsFramework:ParseColor(red, green, blue, alpha)
         local normalTexture = button:GetNormalTexture()
         local pushedTexture = button:GetPushedTexture()
-        local highlightTexture = button:GetHightlightTexture()
+        local highlightTexture = button:GetHighlightTexture()
         local disabledTexture = button:GetDisabledTexture()
 
         normalTexture:SetVertexColor(red, green, blue, alpha)
