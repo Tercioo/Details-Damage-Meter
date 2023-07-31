@@ -581,7 +581,7 @@ function Details:StartMeUp()
 	Details.boss_mods_timers.encounter_timers_dbm = Details.boss_mods_timers.encounter_timers_dbm or {}
 	Details.boss_mods_timers.encounter_timers_bw = Details.boss_mods_timers.encounter_timers_bw or {}
 
-	if (Details.time_type == 3) then
+	if (Details.time_type == 3 or not Details.time_type) then
 		Details.time_type = 2
 	end
 
