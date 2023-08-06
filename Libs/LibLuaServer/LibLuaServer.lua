@@ -221,6 +221,9 @@
 ---@alias coordright number
 ---@alias coordtop number
 ---@alias coordbottom number
+---@alias addonname string name of an addon, same as the name of the ToC file.
+---@alias profile table a table containing the settings of an addon, usually saved in the SavedVariables file.
+---@alias profilename string name of a profile.
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)

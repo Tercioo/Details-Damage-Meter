@@ -6,6 +6,17 @@ local unpack = unpack
 local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
 
+local buffs_to_ignore = {
+    [186401] = true, --Sign of the Skirmisher
+    [366646] = true, --Familiar Skies
+    [403265] = true, --Bronze Attunement
+    [381748] = true, --Blessing of the Bronze
+    [397734] = true, --Word of a Worthy Ally
+    [402221] = true, --Obsidian Resonance
+    --[] = true, --
+    --[] = true, --
+}
+
 local createAuraTabOnBreakdownWindow = function(tab, frame)
     local scroll_line_amount = 25
     local scroll_width = 410
@@ -14,6 +25,8 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
     local text_size = 10
 
     local debuffScrollStartX = 445
+
+    local lineBackgroundColor = {{1, 1, 1, .1}, {1, 1, 1, 0}}
 
     local headerOffsetsBuffs = {
         --buff label, uptime, applications, refreshes, wa
@@ -51,14 +64,25 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
 
         line:SetBackdrop({bgFile =[[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
         line:SetBackdropColor(0, 0, 0, 0.2)
+        line.BackgroundColor = lineBackgroundColor[1]
 
         local iconTexture = line:CreateTexture("$parentIcon", "overlay")
         iconTexture:SetSize(scroll_line_height -2 , scroll_line_height - 2)
+        iconTexture:SetAlpha(0.834)
         local nameLabel = line:CreateFontString("$parentName", "overlay", "GameFontNormal")
         local uptimeLabel = line:CreateFontString("$parentUptime", "overlay", "GameFontNormal")
         local uptimePercentLabel = line:CreateFontString("$parentPercent", "overlay", "GameFontNormal")
         local applyLabel = line:CreateFontString("$parentApplyed", "overlay", "GameFontNormal")
         local refreshLabel = line:CreateFontString("$parentRefreshed", "overlay", "GameFontNormal")
+
+        local receivedTexture = line:CreateTexture("$parentReceived", "artwork")
+        receivedTexture:SetPoint("topright", line, "topright", 0, 0)
+        receivedTexture:SetPoint("bottomright", line, "bottomright", 0, 0)
+        receivedTexture:SetWidth(line:GetWidth())
+        receivedTexture:SetTexture([[Interface\AddOns\Details\images\bar_textures\gradient_white_10percent_left]])
+        receivedTexture:SetTexCoord(0, 1, 0, 1)
+        receivedTexture:SetVertexColor(0, .8, 0, 0.7)
+        receivedTexture:Hide()
 
         detailsFramework:SetFontSize(nameLabel, text_size)
         detailsFramework:SetFontSize(uptimeLabel, text_size)
@@ -79,6 +103,7 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
         line.UptimePercent = uptimePercentLabel
         line.Apply = applyLabel
         line.Refresh = refreshLabel
+        line.ReceivedAura = receivedTexture
 
         nameLabel:SetJustifyH("left")
         uptimeLabel:SetJustifyH("left")
@@ -92,25 +117,31 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
         return line
     end
 
-    local lineBackgroundColor = {{1, 1, 1, .1}, {1, 1, 1, 0}}
-
     local scrollRefreshBuffs = function(self, data, offset, total_lines)
         for i = 1, total_lines do
             local index = i + offset
             local aura = data[index]
 
             if (aura) then
+                local spellIcon, spellName, uptime, applicationsAmount, refreshedAmount, uptimePercent = unpack(aura)
                 local line = self:GetLine(i)
+
+                if (aura.bReceived) then
+                    line.ReceivedAura:Show()
+                else
+                    line.ReceivedAura:Hide()
+                end
+
                 line.spellID = aura.spellID
-                line.Icon:SetTexture(aura[1])
+                line.Icon:SetTexture(spellIcon)
 
                 line.Icon:SetTexCoord(.1, .9, .1, .9)
 
-                line.Name:SetText(aura[2])
-                line.Uptime:SetText(detailsFramework:IntegerToTimer(aura[3]))
-                line.UptimePercent:SetText("|cFFBBAAAA" .. math.floor(aura[6]) .. "%|r")
-                line.Apply:SetText(aura[4])
-                line.Refresh:SetText(aura[5])
+                line.Name:SetText(spellName)
+                line.Uptime:SetText(detailsFramework:IntegerToTimer(uptime))
+                line.UptimePercent:SetText("|cFFBBAAAA" .. math.floor(uptimePercent) .. "%|r")
+                line.Apply:SetText(applicationsAmount)
+                line.Refresh:SetText(refreshedAmount)
 
                 if (i % 2 == 0) then
                     line:SetBackdropColor(unpack(lineBackgroundColor[1]))
@@ -205,9 +236,27 @@ local aurasTabFillCallback = function(tab, player, combat)
             local spellContainer = miscActor:GetSpellContainer("buff")
             if (spellContainer) then
                 for spellId, spellTable in spellContainer:ListSpells() do
-                    local spellName, _, spellIcon = GetSpellInfo(spellId)
+                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
                     local uptime = spellTable.uptime or 0
-                    table.insert(newAuraTable, {spellIcon, spellName, uptime, spellTable.appliedamt, spellTable.refreshamt, uptime / combatTime * 100, spellID = spellId})
+                    if (not buffs_to_ignore[spellId]) then
+                        table.insert(newAuraTable, {spellIcon, spellName, uptime, spellTable.appliedamt, spellTable.refreshamt, uptime / combatTime * 100, spellID = spellId})
+                    end
+                end
+            end
+
+            --check if this player has a augmentation buff container
+            local augmentedBuffContainer = miscActor.received_buffs_spells
+            if (augmentedBuffContainer) then
+                for sourceNameSpellId, spellTable in augmentedBuffContainer:ListSpells() do
+                    local sourceName, spellId = strsplit("@", sourceNameSpellId)
+                    spellId = tonumber(spellId)
+                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+
+                    if (spellName) then
+                        sourceName = detailsFramework:RemoveRealmName(sourceName)
+                        local uptime = spellTable.uptime or 0
+                        table.insert(newAuraTable, {spellIcon, spellName .. " [" .. sourceName .. "]", uptime, spellTable.appliedamt, spellTable.refreshamt, uptime / combatTime * 100, spellID = spellId, bReceived = true})
+                    end
                 end
             end
 
@@ -221,7 +270,7 @@ local aurasTabFillCallback = function(tab, player, combat)
             local spellContainer = miscActor:GetSpellContainer("debuff")
             if (spellContainer) then
                 for spellId, spellTable in spellContainer:ListSpells() do
-                    local spellName, _, spellIcon = GetSpellInfo(spellId)
+                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
                     table.insert(newAuraTable, {spellIcon, spellName, spellTable.uptime, spellTable.appliedamt, spellTable.refreshamt, spellTable.uptime / combatTime * 100, spellID = spellId})
                 end
             end

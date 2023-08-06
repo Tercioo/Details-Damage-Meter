@@ -1,219 +1,132 @@
 
 --stopped doing the duplicate savedTable
 
-local DF = _G ["DetailsFramework"]
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G ["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
+local _
+local CONST_DEFAULT_PROFILE_NAME = "default"
+
+local UnitGUID = UnitGUID
+
 --create namespace
-DF.SavedVars = {}
+detailsFramework.SavedVars = {}
 
-function DF.SavedVars.CreateNewSavedTable(dbTable, savedTableName)
-    local defaultVars = dbTable.defaultSavedVars
-    local newSavedTable = DF.table.deploy({}, defaultVars)
+---get the saved variables table for the addon
+---@param addonObject df_addon the addon frame created by detailsFramework:CreateNewAddOn()
+---@return table
+function detailsFramework.SavedVars.GetSavedVariables(addonObject)
+    assert(type(addonObject) == "table", "SetProfile: addonObject must be a table.")
 
-    dbTable.profiles[savedTableName] = newSavedTable
-    return newSavedTable
-end
+	if (addonObject.__savedGlobalVarsName) then
+        local savedVariables = _G[addonObject.__savedGlobalVarsName]
 
-function DF.SavedVars.GetOrCreateAddonSavedTablesPlayerList(addonFrame)
-    local addonGlobalSavedTable = _G[addonFrame.__savedVarsName]
-
-    --player list
-    local playerList = addonGlobalSavedTable.__savedVarsByGUID
-    if (not playerList) then
-        addonGlobalSavedTable.__savedVarsByGUID = {}
-    end
-
-    --saved variables table
-    if (not addonGlobalSavedTable.__savedVars) then
-        addonGlobalSavedTable.__savedVars = {}
-    end
-
-    return addonGlobalSavedTable.__savedVarsByGUID
-end
-
---addon statup
-function DF.SavedVars.LoadSavedVarsForPlayer(addonFrame)
-    local playerSerial = UnitGUID("player")
-
-    --savedTableObject is equivalent of "addon.db"
-    local dbTable = DF.SavedVars.CreateSavedVarsTable(addonFrame, addonFrame.__savedVarsDefaultTemplate)
-    addonFrame.__savedVarsDefaultTemplate = nil
-    addonFrame.db = dbTable
-
-    --load players list
-    local savedVarsName = DF.SavedVars.GetOrCreateAddonSavedTablesPlayerList(addonFrame)
-
-    local playerSavedTableName = savedVarsName[playerSerial]
-    if (not playerSavedTableName) then
-        savedVarsName[playerSerial] = "Default"
-        playerSavedTableName = savedVarsName[playerSerial]
-    end
-
-    local savedTable = addonFrame.db:GetSavedTable(playerSavedTableName)
-    if (not savedTable) then
-        --create a new saved table for this character
-        savedTable = addonFrame.db:CreateNewSavedTable(playerSavedTableName)
-    end
-
-    DF.SavedVars.SetSavedTable(dbTable, playerSavedTableName, true, true)
-    return savedTable
-end
-
-function DF.SavedVars.TableCleanUpRecursive(t, default)
-    for key, value in pairs(t) do
-        if (type(value) == "table") then
-            DF.SavedVars.TableCleanUpRecursive(value, default[key])
-        else
-            if (value == default[key]) then
-                t[key] = nil
+        --check if the saved variables table is created, if not create one
+        if (not savedVariables) then
+            if (addonObject.__savedVarsDefaultTemplate) then
+                savedVariables = {
+                    profiles = {
+                        --store profiles created from the 'savedVarsTemplate'
+                        [CONST_DEFAULT_PROFILE_NAME] = detailsFramework.table.deploy({}, addonObject.__savedVarsDefaultTemplate)
+                    },
+                    profile_ids = {} --store the profile id for each character using its GUID
+                }
+            else
+                savedVariables = {}
             end
-        end
-    end
-end
 
-function DF.SavedVars.CloseSavedTable(dbTable)
-    local currentSavedTable = dbTable:GetSavedTable(dbTable:GetCurrentSavedTableName())
-
-    local default = dbTable.defaultSavedVars
-    if (type(currentSavedTable) == "table") then
-        DF.SavedVars.TableCleanUpRecursive(currentSavedTable, default)
-
-        --save
-        local addonGlobalSavedTable = _G[dbTable.addonFrame.__savedVarsName]
-        addonGlobalSavedTable.__savedVars[dbTable:GetCurrentSavedTableName()] = currentSavedTable
-    end
-end
-
---base functions
-function DF.SavedVars.SetSavedTable(dbTable, savedTableName, createIfNonExistant, isFromInit)
-    local savedTableToBeApplied = dbTable:GetSavedTable(savedTableName)
-
-    if (savedTableToBeApplied) then
-        if (not isFromInit) then
-            --callback unload profile table
-            local currentSavedTable = dbTable:GetSavedTable(dbTable:GetCurrentSavedTableName())
-            dbTable:TriggerCallback("OnProfileUnload", currentSavedTable)
-            DF.SavedVars.CloseSavedTable(dbTable, currentSavedTable)
+            --set the table to be global savedVariables
+            _G[addonObject.__savedGlobalVarsName] = savedVariables
         end
 
-        dbTable.profile = savedTableToBeApplied
-        dbTable.currentSavedTableName = savedTableName
-
-        dbTable:TriggerCallback("OnProfileLoad", savedTableToBeApplied)
-
-    else
-        if (createIfNonExistant) then
-            local newSavedTable = dbTable:CreateNewSavedTable(savedTableName)
-
-            --callback unload profile table
-            local currentSavedTable = dbTable:GetSavedTable(dbTable:GetCurrentSavedTableName())
-            dbTable:TriggerCallback("OnProfileUnload", currentSavedTable)
-            DF.SavedVars.CloseSavedTable(dbTable, currentSavedTable)
-
-            dbTable.profile = newSavedTable
-            dbTable.currentSavedTableName = savedTableName
-            dbTable:TriggerCallback("OnProfileLoad", newSavedTable)
-        else
-            DF:Msg("profile does not exists", savedTableName)
-            return
-        end
-    end
-end
-
-function DF.SavedVars.GetSavedTables(dbTable)
-    return dbTable.profiles
-end
-
-function DF.SavedVars.GetSavedTable(dbTable, savedTableName)
-    local profiles = dbTable:GetSavedTables()
-    return profiles[savedTableName]
-end
-
-function DF.SavedVars.GetCurrentSavedTableName(dbTable)
-    return dbTable.currentSavedTableName
-end
-
---duplicate savedTable
-function DF.SavedVars.DuplicateSavedTable(dbTable, savedTableName)
-    local originalSavedTable = dbTable:GetSavedTable(savedTableName)
-    if (originalSavedTable) then
-        local newSavedTable = DF.table.copy({}, originalSavedTable)
-
-    end
-end
-
---callbacks
-function DF.SavedVars.TriggerCallback(dbTable, callbackName, savedTable)
-    local registeredCallbacksTable = dbTable.registeredCallbacks[callbackName]
-    for i = 1, #registeredCallbacksTable do
-        local callback = registeredCallbacksTable[i]
-        DF:CoreDispatch(dbTable.addonFrame.__name, callback.func, savedTable, unpack(callback.payload))
-    end
-end
-
-function DF.SavedVars.RegisterCallback(dbTable, callbackName, func, ...)
-    local registeredCallbacksTable = dbTable.registeredCallbacks[callbackName]
-    if (registeredCallbacksTable) then
-        --check for duplicates
-        for i = 1, #registeredCallbacksTable do
-            if (registeredCallbacksTable[i].func == func) then
-                return
-            end
+        if (not savedVariables.profiles) then
+            savedVariables.profiles = {
+                profiles = {
+                    --store profiles created from the 'savedVarsTemplate'
+                    [CONST_DEFAULT_PROFILE_NAME] = detailsFramework.table.deploy({}, addonObject.__savedVarsDefaultTemplate)
+                }
+            }
         end
 
-        --register
-        registeredCallbacksTable[#registeredCallbacksTable+1] = {func = func, payload = {...}}
-
-        return true
-    end
-end
-
-function DF.SavedVars.UnregisterCallback(dbTable, callbackName, func)
-    local registeredCallbacksTable = dbTable.registeredCallbacks[callbackName]
-    if (registeredCallbacksTable) then
-        for i = 1, #registeredCallbacksTable do
-            if (registeredCallbacksTable[i].func == func) then
-                tremove(registeredCallbacksTable, i)
-                return true
-            end
+        if (not savedVariables.profile_ids) then
+            savedVariables.profile_ids = {}
         end
+
+		return savedVariables
+	end
+
+    return {}
+end
+
+
+---@param addonObject df_addon the addon frame created by detailsFramework:CreateNewAddOn()
+---@param bCreateIfNotFound boolean|nil if true, create the profile if it doesn't exist
+---@param profileToCopyFrom profile|nil if bCreateIfNotFound is true, copy the profile from this profile
+function detailsFramework.SavedVars.GetProfile(addonObject, bCreateIfNotFound, profileToCopyFrom)
+    assert(type(addonObject) == "table", "GetProfile: addonObject must be a table.")
+
+    local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+    local playerProfileName = savedVariables.profile_ids[UnitGUID("player")] --get the profile name from the player guid
+    local profileTable = savedVariables.profiles[playerProfileName]
+
+    if (not profileTable and bCreateIfNotFound) then
+        profileTable = {}
+
+        if (profileToCopyFrom) then
+            --profileToCopyFrom has been cleaned at this point and only have values set by the user
+            profileTable = detailsFramework.table.deploy(profileTable, profileToCopyFrom)
+        end
+
+        --as deploy does not overwrite existing values, it won't overwrite the values set by 'profileToCopyFrom'
+        profileTable = detailsFramework.table.deploy(profileTable, addonObject.__savedVarsDefaultTemplate)
+        savedVariables.profiles[playerProfileName] = profileTable
+    end
+
+    return profileTable
+end
+
+---@param addonObject df_addon the addon frame created by detailsFramework:CreateNewAddOn()
+---@param profileName profilename the name of the profile to set
+---@param bCopyFromCurrentProfile boolean if true, copy the current profile to the new profile
+function detailsFramework.SavedVars.SetProfile(addonObject, profileName, bCopyFromCurrentProfile)
+    assert(type(addonObject) == "table", "SetProfile: addonObject must be a table.")
+    assert(type(profileName) == "string", "SetProfile: profileName must be a string.")
+
+    ---@type profile
+    local currentProfile = detailsFramework.SavedVars.GetProfile(addonObject)
+    --save the current profile
+    detailsFramework.SavedVars.SaveProfile(addonObject)
+
+    --set the new profile
+    local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+    local playerGUID = UnitGUID("player")
+    savedVariables.profile_ids[playerGUID] = profileName
+
+    local bCreateIfNotFound = true
+
+    --get the new profile creating if doesn't exist
+    ---@type profile
+    local profileTable = detailsFramework.SavedVars.GetProfile(addonObject, bCreateIfNotFound, bCopyFromCurrentProfile and currentProfile or nil)
+
+    if (addonObject.OnProfileChanged) then
+        detailsFramework:Dispatch(addonObject.OnProfileChanged, addonObject, profileTable)
     end
 end
 
-function DF.SavedVars.CreateSavedVarsTable(addonFrame, templateTable)
-    local dbTable = {
-        profiles = {},
-        defaultSavedVars = templateTable,
-        currentSavedTableName = "",
-        addonFrame = addonFrame,
+---@param addonObject df_addon the addon frame created by detailsFramework:CreateNewAddOn()
+function detailsFramework.SavedVars.SaveProfile(addonObject)
+    assert(type(addonObject) == "table", "SetProfile: addonObject must be a table.")
 
-        --methods
-        GetSavedTable = DF.SavedVars.GetSavedTable,
-        SetSavedTable = DF.SavedVars.SetSavedTable,
-        GetSavedTables = DF.SavedVars.GetSavedTables,
-        GetCurrentSavedTableName = DF.SavedVars.GetCurrentSavedTableName,
-        CreateNewSavedTable = DF.SavedVars.CreateNewSavedTable,
-        TriggerCallback = DF.SavedVars.TriggerCallback,
+    --the current profile in use
+    local profileTable = detailsFramework.SavedVars.GetProfile(addonObject)
+    --profile template or "default profile"
+    local profileTemplate = addonObject.__savedVarsDefaultTemplate
 
-        --back compatibility with ace3DB
-        GetCurrentProfile = DF.SavedVars.GetCurrentSavedTableName,
-        GetProfile = DF.SavedVars.GetSavedTable,
-        GetProfiles = DF.SavedVars.GetSavedTables,
-        SetProfile = DF.SavedVars.SetSavedTable,
-        RegisterCallback = DF.SavedVars.RegisterCallback,
-
-        registeredCallbacks = {
-            ["OnProfileLoad"]  = {},
-            ["OnProfileUnload"]  = {},
-            ["OnProfileCopied"]  = {},
-            ["OnProfileReset"]  = {},
-            ["OnDatabaseLoad"]  = {},
-            ["OnDatabaseShutdown"]  = {},
-        },
-    }
-
-    return dbTable
+    --if the addon has a default template, remove the keys which are the same as the default template
+    --these keys haven't been changed by the user, hence doesn't need to save them
+    if (profileTemplate) then
+        detailsFramework.table.removeduplicate(profileTable, addonObject.__savedVarsDefaultTemplate)
+    end
 end

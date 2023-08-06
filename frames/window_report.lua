@@ -762,6 +762,8 @@ local createDropdown = function(thisFrame)
 		Details.janela_report = window
 		Details:InstallRPSkin("defaultSkin", defaultSkin)
 
+		DetailsFramework:AddRoundedCornersToFrame(window, Details.PlayerBreakdown.RoundedCornerPreset)
+
 		--recently reported:
 		window.recently_report_buttons = {}
 

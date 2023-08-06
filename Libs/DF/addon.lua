@@ -1,41 +1,74 @@
 
-local DF = _G ["DetailsFramework"]
-local _
-
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G ["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
---runs when the addon received addon_loaded
-local addonPreLoad = function(addonFrame, event, ...)
-	--check if the saved variables table is created, if not create one
-	_G[addonFrame.__savedVarsName] = _G[addonFrame.__savedVarsName] or {}
+local _
+local CONST_DEFAULT_PROFILE_NAME = "default"
 
-	if (addonFrame.__savedVarsDefaultTemplate) then
-		--load saved vars for this character
-		DF.SavedVars.LoadSavedVarsForPlayer(addonFrame)
+---@class df_addon : table
+---@field __name string the addon toc name
+---@field __savedGlobalVarsName string the name of the global saved variables
+---@field __savedVarsDefaultTemplate table the default template for the saved variables
+---@field __frame frame a frame to use for events
+---@field OnLoaded fun(addon:df_addon, profileTable:table) runs when the addon is loaded at event "ADDON_LOADED"
+---@field OnInit fun(addon:df_addon, profileTable:table) runs when the addon is initialized at event "PLAYER_LOGIN"
+---@field OnProfileChanged fun(addon:df_addon, profileTable:table) runs when the profile is changed
+
+--runs when the addon received addon_loaded
+local addonLoaded = function(addonFrame, event, addonName)
+	if (addonName ~= addonFrame.__name) then
+		return
 	end
 
-	if (addonFrame.OnLoad) then
-		DF:Dispatch(addonFrame.OnLoad, addonFrame, ...)
+	local addonObject = addonFrame.__addonObject
+
+	if (not addonObject.__savedGlobalVarsName) then
+		if (addonObject.OnLoad) then
+			detailsFramework:Dispatch(addonObject.OnLoad, addonObject)
+		end
+		return
+	end
+
+	local playerGUID = UnitGUID("player") --the guid points to a profile name
+
+	---@type table
+	local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+
+	--check if the player has a profileId saved
+	local playerProfileId = savedVariables.profile_ids[playerGUID]
+	if (not playerProfileId) then
+		--it doesn't, set it to use the default profile
+		playerProfileId = CONST_DEFAULT_PROFILE_NAME
+		savedVariables.profile_ids[playerGUID] = playerProfileId
+	end
+
+	local profileTable = detailsFramework.SavedVars.GetProfile(addonObject)
+
+	if (addonObject.OnLoad) then
+		detailsFramework:Dispatch(addonObject.OnLoad, addonObject, profileTable)
 	end
 end
 
---runs when the addon received player_login
-local addonInit = function(addonFrame, event, ...)
-	if (addonFrame.OnInit) then
-		DF:Dispatch(addonFrame.OnInit, addonFrame, ...)
+--runs when the addon received PLAYER_LOGIN
+local addonInit = function(addonFrame)
+	local addonObject = addonFrame.__addonObject
+
+	if (addonObject.OnInit) then
+		local profileTable = detailsFramework.SavedVars.GetProfile(addonObject)
+		detailsFramework:Dispatch(addonObject.OnInit, addonObject, profileTable)
 	end
 end
 
 --when the player logout or reloadUI
-local addonUnload = function(addonFrame, event, ...)
-	--close saved tables
-	DF.SavedVars.CloseSavedTable(addonFrame.db)
+local addonUnload = function(addonFrame)
+	local addonObject = addonFrame.__addonObject
+	detailsFramework.SavedVars.SaveProfile(addonObject)
 end
 
 local addonEvents = {
-	["ADDON_LOADED"] = addonPreLoad,
+	["ADDON_LOADED"] = addonLoaded,
 	["PLAYER_LOGIN"] = addonInit,
 	["PLAYER_LOGOUT"] = addonUnload,
 }
@@ -47,36 +80,46 @@ local addonOnEvent = function(addonFrame, event, ...)
 	else
 		--might be a registered event from the user
 		if (addonFrame[event]) then
-			DF:CoreDispatch(addonFrame.__name, addonFrame[event], addonFrame, event, ...)
+			detailsFramework:CoreDispatch(addonFrame.__name, addonFrame[event], addonFrame, event, ...)
 		end
 	end
 end
 
-local getAddonName = function(addonFrame)
-	return addonFrame:GetName()
+detailsFramework.AddonMixin = {
+
+}
+
+---create an addon object
+---@param addonName addonname
+---@param globalSavedVariablesName string
+---@param savedVarsTemplate table
+---@return frame
+function detailsFramework:CreateNewAddOn(addonName, globalSavedVariablesName, savedVarsTemplate)
+	local newAddonObject = {}
+
+	---@type frame
+	local addonFrame = CreateFrame("frame")
+	newAddonObject.__name = addonName
+	newAddonObject.__savedGlobalVarsName = globalSavedVariablesName
+	newAddonObject.__savedVarsDefaultTemplate = savedVarsTemplate or {}
+	newAddonObject.__frame = addonFrame
+
+	addonFrame.__name = addonName
+	addonFrame.__savedGlobalVarsName = globalSavedVariablesName
+	addonFrame.__savedVarsDefaultTemplate = newAddonObject.__savedVarsDefaultTemplate
+	addonFrame.__addonObject = newAddonObject
+
+	addonFrame:RegisterEvent("ADDON_LOADED")
+	addonFrame:RegisterEvent("PLAYER_LOGIN")
+	addonFrame:RegisterEvent("PLAYER_LOGOUT")
+	addonFrame:SetScript("OnEvent", addonOnEvent)
+
+	return newAddonObject
 end
-
-function DF:CreateNewAddOn(addonName, globalSavedVariablesName, savedVarsTemplate)
-	local newAddon = CreateFrame("frame", addonName, UIParent)
-	newAddon.__name = addonName
-	newAddon.__savedVarsName = globalSavedVariablesName
-	newAddon.__savedVarsDefaultTemplate = savedVarsTemplate
-
-	newAddon.GetAddonName = getAddonName
-
-	newAddon:RegisterEvent("ADDON_LOADED")
-	newAddon:RegisterEvent("PLAYER_LOGIN")
-	newAddon:RegisterEvent("PLAYER_LOGOUT")
-	newAddon:SetScript("OnEvent", addonOnEvent)
-
-	return newAddon
-end
-
-
 
 
 --old create addon
-function DF:CreateAddOn (name, global_saved, global_table, options_table, broker)
+function detailsFramework:CreateAddOn(name, global_saved, global_table, options_table, broker)
 
 	local addon = LibStub("AceAddon-3.0"):NewAddon (name, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "DetailsFramework-1.0", "AceComm-3.0")
 	_G [name] = addon
@@ -86,7 +129,7 @@ function DF:CreateAddOn (name, global_saved, global_table, options_table, broker
 
 		if (global_saved) then
 			if (broker and broker.Minimap and not global_table.Minimap) then
-				DF:Msg(name, "broker.Minimap is true but no global.Minimap declared.")
+				detailsFramework:Msg(name, "broker.Minimap is true but no global.Minimap declared.")
 			end
 			self.db = LibStub("AceDB-3.0"):New (global_saved, global_table or {}, true)
 		end
@@ -124,9 +167,9 @@ function DF:CreateAddOn (name, global_saved, global_table, options_table, broker
 		if (addon.OnInit) then
 			xpcall(addon.OnInit, geterrorhandler(), addon)
 		end
-		
+
 	end
-	
+
 	return addon
-	
+
 end

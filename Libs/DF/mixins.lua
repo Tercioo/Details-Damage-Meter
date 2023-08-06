@@ -975,3 +975,207 @@ detailsFramework.ValueMixin = {
 		self.maxValue = math.max(self.maxValue, ...)
 	end,
 }
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--statusbar mixin
+
+--[=[
+	collection of functions to embed into a statusbar
+	the statusBar need to have a member called 'barTexture' for the texture set on SetStatusBarTexture
+	statusBar:GetTexture()
+	statusBar:SetTexture(texture)
+	statusBar:SetColor (unparsed color)
+	statusBar:GetColor()
+	statusBar:
+	statusBar:
+--]=]
+
+detailsFramework.StatusBarFunctions = {
+	SetTexture = function(self, texture, isTemporary)
+		self.barTexture:SetTexture(texture)
+		if (not isTemporary) then
+			self.barTexture.currentTexture = texture
+		end
+	end,
+
+	ResetTexture = function(self)
+		self.barTexture:SetTexture(self.barTexture.currentTexture)
+	end,
+
+	GetTexture = function(self)
+		return self.barTexture:GetTexture()
+	end,
+
+	SetAtlas = function(self, atlasName)
+		self.barTexture:SetAtlas(atlasName)
+	end,
+
+	GetAtlas = function(self)
+		self.barTexture:GetAtlas()
+	end,
+
+	SetTexCoord = function(self, ...)
+		return self.barTexture:SetTexCoord(...)
+	end,
+
+	GetTexCoord = function(self)
+		return self.barTexture:GetTexCoord()
+	end,
+
+	SetColor = function(self, r, g, b, a)
+		r, g, b, a = detailsFramework:ParseColors(r, g, b, a)
+		self:SetStatusBarColor(r, g, b, a)
+	end,
+
+	GetColor = function(self)
+		return self:GetStatusBarColor()
+	end,
+
+	SetMaskTexture = function(self, ...)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:SetTexture(...)
+	end,
+
+	GetMaskTexture = function(self)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:GetTexture()
+	end,
+
+	--SetMaskTexCoord = function(self, ...) --MaskTexture doesn't not support texcoord
+	--	if (not self:HasTextureMask()) then
+	--		return
+	--	end
+	--	self.barTextureMask:SetTexCoord(...)
+	--end,
+
+	--GetMaskTexCoord = function(self, ...)
+	--	if (not self:HasTextureMask()) then
+	--		return
+	--	end
+	--	self.barTextureMask:GetTexCoord()
+	--end,
+
+	SetMaskAtlas = function(self, atlasName)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:SetAtlas(atlasName)
+	end,
+
+	GetMaskAtlas = function(self)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		self.barTextureMask:GetAtlas()
+	end,
+
+	AddMaskTexture = function(self, object)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		if (object.GetObjectType and object:GetObjectType() == "Texture") then
+			object:AddMaskTexture(self.barTextureMask)
+		else
+			detailsFramework:Msg("Invalid 'Texture' to object:AddMaskTexture(Texture)", debugstack())
+		end
+	end,
+
+	CreateTextureMask = function(self)
+		local barTexture = self:GetStatusBarTexture() or self.barTexture
+		if (not barTexture) then
+			detailsFramework:Msg("Object doesn't not have a statubar texture, create one and object:SetStatusBarTexture(textureObject)", debugstack())
+			return
+		end
+
+		if (self.barTextureMask) then
+			return self.barTextureMask
+		end
+
+		--statusbar texture mask
+		self.barTextureMask = self:CreateMaskTexture(nil, "artwork")
+		self.barTextureMask:SetAllPoints()
+		self.barTextureMask:SetTexture([[Interface\CHATFRAME\CHATFRAMEBACKGROUND]])
+
+		--border texture
+		self.barBorderTextureForMask = self:CreateTexture(nil, "overlay", nil, 7)
+		self.barBorderTextureForMask:SetAllPoints()
+		--self.barBorderTextureForMask:SetPoint("topleft", self, "topleft", -1, 1)
+		--self.barBorderTextureForMask:SetPoint("bottomright", self, "bottomright", 1, -1)
+		self.barBorderTextureForMask:Hide()
+
+		barTexture:AddMaskTexture(self.barTextureMask)
+
+		return self.barTextureMask
+	end,
+
+	HasTextureMask = function(self)
+		if (not self.barTextureMask) then
+			detailsFramework:Msg("Object doesn't not have a texture mask, create one using object:CreateTextureMask()", debugstack())
+			return false
+		end
+		return true
+	end,
+
+	SetBorderTexture = function(self, texture)
+		if (not self:HasTextureMask()) then
+			return
+		end
+
+		texture = texture or ""
+
+		self.barBorderTextureForMask:SetTexture(texture)
+
+		if (texture == "") then
+			self.barBorderTextureForMask:Hide()
+		else
+			self.barBorderTextureForMask:Show()
+		end
+	end,
+
+	GetBorderTexture = function(self)
+		if (not self:HasTextureMask()) then
+			return
+		end
+		return self.barBorderTextureForMask:GetTexture()
+	end,
+
+	SetBorderColor = function(self, r, g, b, a)
+		r, g, b, a = detailsFramework:ParseColors(r, g, b, a)
+
+		if (self.barBorderTextureForMask and self.barBorderTextureForMask:IsShown()) then
+			self.barBorderTextureForMask:SetVertexColor(r, g, b, a)
+
+			--if there's a square border on the widget, remove its color
+			if (self.border and self.border.UpdateSizes and self.border.SetVertexColor) then
+				self.border:SetVertexColor(0, 0, 0, 0)
+			end
+
+			return
+		end
+
+		if (self.border and self.border.UpdateSizes and self.border.SetVertexColor) then
+			self.border:SetVertexColor(r, g, b, a)
+
+			--adjust the mask border texture ask well in case the user set the mask color texture before setting a texture on it
+			if (self.barBorderTextureForMask) then
+				self.barBorderTextureForMask:SetVertexColor(r, g, b, a)
+			end
+			return
+		end
+	end,
+
+	GetBorderColor = function(self)
+		if (self.barBorderTextureForMask and self.barBorderTextureForMask:IsShown()) then
+			return self.barBorderTextureForMask:GetVertexColor()
+		end
+
+		if (self.border and self.border.UpdateSizes and self.border.GetVertexColor) then
+			return self.border:GetVertexColor()
+		end
+	end,
+}

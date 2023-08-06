@@ -1120,6 +1120,9 @@ end
         local atlas
         if (type(texture) == "string") then
             atlas = C_Texture.GetAtlasInfo(texture)
+			if (atlas) then
+				atlas = texture
+			end
 		end
 
 		local normalTexture = button:GetNormalTexture()

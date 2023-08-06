@@ -1066,6 +1066,13 @@
 		Details.tabela_vigente.is_arena = {name = Details.zone_name, zone = Details.zone_name, mapid = Details.zone_id}
 
 		Details:SendEvent("COMBAT_ARENA_START")
+
+		local bOrderDpsByRealTime = Details.CurrentDps.CanSortByRealTimeDps()
+		if (bOrderDpsByRealTime) then
+			local bNoSave = true
+			local nTimeIntervalBetweenUpdates = 0.1
+			Details:SetWindowUpdateSpeed(nTimeIntervalBetweenUpdates, bNoSave)
+		end
 	end
 
 	--return the GetTime() of the current or latest arena match
@@ -1122,6 +1129,9 @@
 		Details:TimeDataUnregister ("Enemy Team Healing")
 
 		Details:SendEvent("COMBAT_ARENA_END")
+
+		--reset the update speed, as it could have changed when the arena started.
+		Details:SetWindowUpdateSpeed(Details.update_speed)
 	end
 
 	local validSpells = {

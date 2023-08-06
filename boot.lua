@@ -976,6 +976,7 @@ do
 		SharedMedia:Register("statusbar", "Splitbar", [[Interface\AddOns\Details\images\bar_textures\split_bar]])
 		SharedMedia:Register("statusbar", "Details2020", [[Interface\AddOns\Details\images\bar_textures\texture2020]])
 		SharedMedia:Register("statusbar", "Left White Gradient", [[Interface\AddOns\Details\images\bar_textures\gradient_white_10percent_left]])
+		SharedMedia:Register("statusbar", "Details! Slash", [[Interface\AddOns\Details\images\bar_textures\bar_of_bars.png]])
 
 		--window bg and bar order
 		SharedMedia:Register("background", "Details Ground", [[Interface\AddOns\Details\images\background]])

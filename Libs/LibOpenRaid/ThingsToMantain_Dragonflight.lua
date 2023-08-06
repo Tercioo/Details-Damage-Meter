@@ -393,6 +393,7 @@ do
 			[213644] = {cooldown = 8,	duration = 0,	specs = {66,70},			talent = false,	charges = 1,	class = "PALADIN",	type = 7}, --Cleanse Toxins
 			[389539] = {cooldown = 120,	duration = 20,	specs = {66},			talent = false,	charges = 1,	class = "PALADIN",	type = 2}, --Sentinel
 			[31935] = {cooldown = 13,	duration = 0,	specs = {66},			talent = false,	charges = 1,	class = "PALADIN",	type = 6}, --Avenger's Shield
+			[387174] = {cooldown = 60,	duration = 9,	specs = {66},			talent = false,	charges = 1,	class = "PALADIN",	type = 2}, --Eye of Tyr
 
 			--~warrior
 			-- 71 - Arms

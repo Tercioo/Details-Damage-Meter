@@ -1,6 +1,6 @@
 
 
-local dversion = 451
+local dversion = 453
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -576,6 +576,29 @@ function DF.table.copytocompress(t1, t2)
 		end
 	end
 	return t1
+end
+
+---remove from table1 the values that are also on table2
+---@param table1 table the table to have the values removed
+---@param table2 table the reference table
+function DF.table.removeduplicate(table1, table2)
+    for key, value in pairs(table2) do
+        if (type(value) == "table") then
+            if (table1[key]) then
+                DF.SavedVars.removeduplicate(value, table1[key])
+            end
+        else
+			if (type(table1[key]) == "number" and type(value) == "number") then
+				if (DF:IsNearlyEqual(table1[key], value, 0.0001)) then
+					table1[key] = nil
+				end
+			else
+            	if (table1[key] == value) then
+	                table1[key] = nil
+            	end
+			end
+        end
+    end
 end
 
 ---add the indexes of table2 into the end of the table table1

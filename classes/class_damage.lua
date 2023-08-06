@@ -46,7 +46,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants
 
-	local container_habilidades	= 	Details.container_habilidades
+	local spellContainerClass	= 	Details.container_habilidades
 	local damageClass	=	Details.atributo_damage
 	local atributo_misc		=	Details.atributo_misc
 	local container_damage	=	Details.container_type.CONTAINER_DAMAGE_CLASS
@@ -304,23 +304,23 @@ local void_zone_sort = function(t1, t2)
 end
 
 
-function Details.Sort1 (table1, table2) --[[exported]]
+function Details.Sort1(table1, table2) --[[exported]]
 	return table1[1] > table2[1]
 end
 
-function Details.Sort2 (table1, table2) --[[exported]]
+function Details.Sort2(table1, table2) --[[exported]]
 	return table1[2] > table2[2]
 end
 
-function Details.Sort3 (table1, table2) --[[exported]]
+function Details.Sort3(table1, table2) --[[exported]]
 	return table1[3] > table2[3]
 end
 
-function Details.Sort4 (table1, table2) --[[exported]]
+function Details.Sort4(table1, table2) --[[exported]]
 	return table1[4] > table2[4]
 end
 
-function Details.Sort4Reverse (table1, table2) --[[exported]]
+function Details.Sort4Reverse(table1, table2) --[[exported]]
 	if (not table2) then
 		return true
 	end
@@ -456,7 +456,7 @@ end
 			--targets: table where key is the target name (actor name) and the value is the amount of damage done to that target
 			targets = {},
 			--spells: spell container
-			spells = container_habilidades:NovoContainer(container_damage)
+			spells = spellContainerClass:NovoContainer(container_damage)
 		}
 
 		setmetatable(newDamageActor, damageClass)
@@ -469,9 +469,6 @@ end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --special cases
-
-	--todo: Details.use_realtimedps "realtimedps_order_bars" need to come from the sorter function.
-	--todo: "realtimedps_always_arena" need to come from the sorter function because it'll have "realtimedps_order_bars" always on.
 
 	---calculate real time dps for each actor within the passed table
 	---@param tableWithActors actor[]
@@ -3411,7 +3408,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 
 			table.sort(spellsAugmented, Details.Sort2)
 
-			for i = 1, #spellsAugmented do
+			for i = 1, math.min(#spellsAugmented, 5) do
 				local sourceName, sourceAmount = unpack(spellsAugmented[i])
 				GameCooltip:AddLine(sourceName, Details:Format(sourceAmount), 1, "yellow", "yellow", 10)
 				local actorObject = combatObject:GetActor(1, sourceName)
@@ -6706,6 +6703,17 @@ end
 			end
 		end
 
+		if (actorObject.augmentedSpellsContainer) then
+			local overallAugmentedSpellsContainer = overallActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+			for spellId, spellTable in pairs(actorObject.augmentedSpellsContainer._ActorTable) do --same as actorObject.augmentedSpellsContainer:GetRawSpellTable()
+				local overallSpellTable = overallAugmentedSpellsContainer:GetOrCreateSpell(spellId, true)
+				overallSpellTable.total = overallSpellTable.total + spellTable.total
+				for targetName, amount in pairs(spellTable.targets) do
+					overallSpellTable.targets[targetName] = (overallSpellTable.targets[targetName] or 0) + amount
+				end
+			end
+		end
+
 		--copy the friendly fire container
 		for targetName, friendlyFireTable in pairs(actorObject.friendlyfire) do
 			--get or create the friendly fire table in the overall data
@@ -6722,7 +6730,7 @@ end
 	end
 
 --actor 1 is who will receive the sum from actor2
-function Details.SumDamageActors(actor1, actor2, actorContainer)
+function Details.SumDamageActors(actor1, actor2, actorContainer) --not called anywhere, can be deprecated
 	--general
 	actor1.total = actor1.total + actor2.total
 	actor1.damage_taken = actor1.damage_taken + actor2.damage_taken

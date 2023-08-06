@@ -203,7 +203,7 @@ do
 			[277185] = {name = GetSpellInfo(277185) .. " (Trinket)"}, --[Dread Gladiator's Badge]
 			[278057] = {name = GetSpellInfo(278057) .. " (Trinket)"}, --[Vigilant's Bloodshaper]
 		}
-	else
+	else --retail
 		defaultSpellCustomization = {
 			[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\ICONS\INV_Sword_04]]},
 			[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\ICONS\INV_Weapon_Bow_07]]},
@@ -217,6 +217,7 @@ do
 			[108271] = {name = GetSpellInfo(108271), icon = "Interface\\Addons\\Details\\images\\icon_astral_shift"},
 			[196917] = {name = lightOfTheMartyr_Name .. " (" .. Loc ["STRING_DAMAGE"] .. ")", icon = lightOfTheMartyr_Icon},
 			[77535] = {name = GetSpellInfo(77535), icon = "Interface\\Addons\\Details\\images\\icon_blood_shield"},
+			[395296] = {name = GetSpellInfo(395296), icon = "Interface\\Addons\\Details\\images\\ebon_might"},
 		}
 
 		customItemList[394453] = {itemId = 195480, isPassive = true} --ring: Seal of Diurna's Chosen

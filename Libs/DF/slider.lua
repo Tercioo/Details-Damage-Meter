@@ -427,11 +427,10 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 	buttonPlus:SetHighlightTexture([[Interface\Buttons\UI-PlusButton-Hilight]])
 	buttonMinor:SetHighlightTexture([[Interface\Buttons\UI-PlusButton-Hilight]])
 
-	local plusNormalTexture = buttonPlus:GetNormalTexture()
-	plusNormalTexture:SetDesaturated(true)
-
-	local minorNormalTexture = buttonMinor:GetNormalTexture()
-	minorNormalTexture:SetDesaturated(true)
+	C_Timer.After(0, function()
+		DF:SetButtonTexture(buttonPlus, "AlliedRace-UnlockingFrame-ZoomIn")
+		DF:SetButtonTexture(buttonMinor, "AlliedRace-UnlockingFrame-ZoomOut")
+	end)
 
 	buttonMinor:ClearAllPoints()
 	buttonPlus:ClearAllPoints()
@@ -440,6 +439,9 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 
 	buttonPlus:SetSize(16, 16)
 	buttonMinor:SetSize(16, 16)
+
+	buttonPlus:SetAlpha(0.834)
+	buttonMinor:SetAlpha(0.834)
 
 	--increate the value on pressing the button or holding the button pressed
 	local buttonPlusOnClick = function()

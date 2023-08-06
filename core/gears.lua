@@ -504,20 +504,23 @@ function _detalhes:RefreshUpdater(suggested_interval)
 	_detalhes.atualizador = Details.Schedules.NewTicker(updateInterval, Details.RefreshMainWindow, Details, -1)
 end
 
-function _detalhes:SetWindowUpdateSpeed(interval, nosave)
+---set the amount of time between each update of all windows
+---@param interval number?
+---@param bNoSave boolean?
+function Details:SetWindowUpdateSpeed(interval, bNoSave)
 	if (not interval) then
-		interval = _detalhes.update_speed
+		interval = Details.update_speed
 	end
 
 	if (type(interval) ~= "number") then
-		interval = _detalhes.update_speed or 0.3
+		interval = Details.update_speed or 0.3
 	end
 
-	if (not nosave) then
-		_detalhes.update_speed = interval
+	if (not bNoSave) then
+		Details.update_speed = interval
 	end
 
-	_detalhes:RefreshUpdater(interval)
+	Details:RefreshUpdater(interval)
 end
 
 function _detalhes:SetUseAnimations(enabled, nosave)
@@ -2464,6 +2467,7 @@ Details.specToRole = {
 	--EVOKER
 	[1467] = "DAMAGER", --Devastation Evoker
 	[1468] = "HEALER", --Preservation Evoker
+	[1473] = "DAMAGER", --Augmentation Evoker
 }
 
 --oldschool talent tree

@@ -269,6 +269,7 @@
 ---@field damage_taken number amount of damage the actor took during the segment
 ---@field damage_from table<string, boolean> store the name of the actors which damaged the actor, format: [actorName] = true
 ---@field totalabsorbed number amount of damage dealt by the actor by got absorbed by the target, this is a "ABSORB" type of miss but still counts as damage done
+---@field augmentedSpellsContainer spellcontainer
 
 ---@class actorheal : actor
 ---@field healing_taken number amount of healing the actor took during the segment

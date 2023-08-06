@@ -2398,8 +2398,8 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 
 	--cc done
 		if (actor.cc_done) then
-			refresh_alvos (shadow.cc_done_targets, actor.cc_done_targets)
-			refresh_habilidades (shadow.cc_done_spells, actor.cc_done_spells)
+			refresh_alvos(shadow.cc_done_targets, actor.cc_done_targets)
+			refresh_habilidades(shadow.cc_done_spells, actor.cc_done_spells)
 		end
 
 	--cooldowns
@@ -2412,6 +2412,10 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 		if (actor.buff_uptime) then
 			refresh_alvos (shadow.buff_uptime_targets, actor.buff_uptime_targets)
 			refresh_habilidades (shadow.buff_uptime_spells, actor.buff_uptime_spells)
+
+			if (actor.received_buffs_spells) then
+				refresh_habilidades(shadow.received_buffs_spells, actor.received_buffs_spells)
+			end
 		end
 
 	--debuff uptime
@@ -2462,45 +2466,45 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 		end
 
 	return shadow
-
 end
 
-local somar_keys = function(habilidade, habilidade_tabela1)
+local sumKeyValues = function(habilidade, habilidade_tabela1)
 	for key, value in pairs(habilidade) do
 		if (type(value) == "number") then
 			if (key ~= "id" and key ~= "spellschool") then
-				habilidade_tabela1 [key] = (habilidade_tabela1 [key] or 0) + value
+				habilidade_tabela1[key] = (habilidade_tabela1[key] or 0) + value
 			end
 		end
 	end
 end
-local somar_alvos = function(container1, container2)
-	for target_name, amount in pairs(container2) do
-		container1 [target_name] = (container1 [target_name] or 0) + amount
-	end
-end
-local somar_habilidades = function(container1, container2)
-	for spellid, habilidade in pairs(container2._ActorTable) do
-		local habilidade_tabela1 = container1:PegaHabilidade (spellid, true, nil, false)
-		somar_alvos (habilidade_tabela1.targets, habilidade.targets)
-		somar_keys (habilidade, habilidade_tabela1)
+
+local sumTargetValues = function(container1, container2)
+	for targetName, amount in pairs(container2) do
+		container1[targetName] = (container1[targetName] or 0) + amount
 	end
 end
 
-function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
+local sumSpellTableKeyValues = function(container1, container2)
+	for spellId, spellTable in pairs(container2._ActorTable) do
+		local spellTable1 = container1:PegaHabilidade(spellId, true, nil, false)
+		sumTargetValues(spellTable1.targets, spellTable.targets)
+		sumKeyValues(spellTable, spellTable1)
+	end
+end
 
+function atributo_misc:r_connect_shadow(actor, no_refresh, combat_object)
 	local host_combat = combat_object or _detalhes.tabela_overall
 
 	--criar uma shadow desse ator se ainda n�o tiver uma
-	local overall_misc = host_combat [4]
-	local shadow = overall_misc._ActorTable [overall_misc._NameIndexTable [actor.nome]]
+	local overall_misc = host_combat[4]
+	local shadow = overall_misc._ActorTable[overall_misc._NameIndexTable[actor.nome]]
 
 	if (not actor.nome) then
 		actor.nome = "unknown"
 	end
 
 	if (not shadow) then
-		shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+		shadow = overall_misc:PegarCombatente(actor.serial, actor.nome, actor.flag_original, true)
 
 		shadow.classe = actor.classe
 		shadow:SetSpecId(actor.spec)
@@ -2510,30 +2514,29 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 		shadow.boss = actor.boss
 		shadow.boss_fight_component = actor.boss_fight_component
 		shadow.fight_component = actor.fight_component
-
 	end
 
 	--aplica a meta e indexes
 	if (not no_refresh) then
-		_detalhes.refresh:r_atributo_misc (actor, shadow)
+		_detalhes.refresh:r_atributo_misc(actor, shadow)
 	end
 
 	--pets (add unique pet names)
 	for _, petName in ipairs(actor.pets) do
-		DetailsFramework.table.addunique (shadow.pets, petName)
+		DetailsFramework.table.addunique(shadow.pets, petName)
 	end
 
 	if (actor.cc_done) then
 		if (not shadow.cc_done_targets) then
 			shadow.cc_done = _detalhes:GetOrderNumber()
 			shadow.cc_done_targets = {}
-			shadow.cc_done_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+			shadow.cc_done_spells = container_habilidades:NovoContainer(_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
 
 		shadow.cc_done = shadow.cc_done + actor.cc_done
 
-		somar_alvos (shadow.cc_done_targets, actor.cc_done_targets)
-		somar_habilidades (shadow.cc_done_spells, actor.cc_done_spells)
+		sumTargetValues(shadow.cc_done_targets, actor.cc_done_targets)
+		sumSpellTableKeyValues(shadow.cc_done_spells, actor.cc_done_spells)
 	end
 
 	if (actor.cooldowns_defensive) then
@@ -2549,8 +2552,8 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			host_combat.totals_grupo[4].cooldowns_defensive = host_combat.totals_grupo[4].cooldowns_defensive + actor.cooldowns_defensive
 		end
 
-		somar_alvos (shadow.cooldowns_defensive_targets, actor.cooldowns_defensive_targets)
-		somar_habilidades (shadow.cooldowns_defensive_spells, actor.cooldowns_defensive_spells)
+		sumTargetValues (shadow.cooldowns_defensive_targets, actor.cooldowns_defensive_targets)
+		sumSpellTableKeyValues (shadow.cooldowns_defensive_spells, actor.cooldowns_defensive_spells)
 	end
 
 	if (actor.buff_uptime) then
@@ -2560,9 +2563,16 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			shadow.buff_uptime_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
 
+		if (actor.received_buffs_spells) then
+			if (not shadow.received_buffs_spells) then
+				shadow.received_buffs_spells = container_habilidades:NovoContainer(_detalhes.container_type.CONTAINER_MISC_CLASS)
+			end
+			sumSpellTableKeyValues(shadow.received_buffs_spells, actor.received_buffs_spells)
+		end
+
 		shadow.buff_uptime = shadow.buff_uptime + actor.buff_uptime
-		somar_alvos (shadow.buff_uptime_targets, actor.buff_uptime_targets)
-		somar_habilidades (shadow.buff_uptime_spells, actor.buff_uptime_spells)
+		sumTargetValues (shadow.buff_uptime_targets, actor.buff_uptime_targets)
+		sumSpellTableKeyValues (shadow.buff_uptime_spells, actor.buff_uptime_spells)
 	end
 
 
@@ -2600,7 +2610,7 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			end
 		end
 
-		somar_habilidades (shadow.debuff_uptime_spells, actor.debuff_uptime_spells)
+		sumSpellTableKeyValues (shadow.debuff_uptime_spells, actor.debuff_uptime_spells)
 	end
 
 	--interrupt
@@ -2618,8 +2628,8 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			host_combat.totals_grupo[4].interrupt = host_combat.totals_grupo[4].interrupt + actor.interrupt
 		end
 
-		somar_alvos (shadow.interrupt_targets, actor.interrupt_targets)
-		somar_habilidades (shadow.interrupt_spells, actor.interrupt_spells)
+		sumTargetValues (shadow.interrupt_targets, actor.interrupt_targets)
+		sumSpellTableKeyValues (shadow.interrupt_spells, actor.interrupt_spells)
 
 		for spellid, habilidade in pairs(actor.interrupt_spells._ActorTable) do
 			local habilidade_shadow = shadow.interrupt_spells:PegaHabilidade (spellid, true, nil, true)
@@ -2649,8 +2659,8 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			host_combat.totals_grupo[4].ress = host_combat.totals_grupo[4].ress + actor.ress
 		end
 
-		somar_alvos (shadow.ress_targets, actor.ress_targets)
-		somar_habilidades (shadow.ress_spells, actor.ress_spells)
+		sumTargetValues (shadow.ress_targets, actor.ress_targets)
+		sumSpellTableKeyValues (shadow.ress_spells, actor.ress_spells)
 	end
 
 	--dispell
@@ -2668,8 +2678,8 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			host_combat.totals_grupo[4].dispell = host_combat.totals_grupo[4].dispell + actor.dispell
 		end
 
-		somar_alvos (shadow.dispell_targets, actor.dispell_targets)
-		somar_habilidades (shadow.dispell_spells, actor.dispell_spells)
+		sumTargetValues (shadow.dispell_targets, actor.dispell_targets)
+		sumSpellTableKeyValues (shadow.dispell_spells, actor.dispell_spells)
 
 		for spellid, habilidade in pairs(actor.dispell_spells._ActorTable) do
 			local habilidade_shadow = shadow.dispell_spells:PegaHabilidade (spellid, true, nil, true)
@@ -2698,8 +2708,8 @@ function atributo_misc:r_connect_shadow (actor, no_refresh, combat_object)
 			host_combat.totals_grupo[4].cc_break = host_combat.totals_grupo[4].cc_break + actor.cc_break
 		end
 
-		somar_alvos (shadow.cc_break_targets, actor.cc_break_targets)
-		somar_habilidades (shadow.cc_break_spells, actor.cc_break_spells)
+		sumTargetValues (shadow.cc_break_targets, actor.cc_break_targets)
+		sumSpellTableKeyValues (shadow.cc_break_spells, actor.cc_break_spells)
 
 		for spellid, habilidade in pairs(actor.cc_break_spells._ActorTable) do
 			local habilidade_shadow = shadow.cc_break_spells:PegaHabilidade (spellid, true, nil, true)
@@ -2749,9 +2759,18 @@ function _detalhes.refresh:r_atributo_misc(thisActor, shadow)
 		if (shadow and not shadow.buff_uptime_targets) then
 			shadow.buff_uptime = 0
 			shadow.buff_uptime_targets = {}
-			shadow.buff_uptime_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+			shadow.buff_uptime_spells = container_habilidades:NovoContainer(_detalhes.container_type.CONTAINER_MISC_CLASS)
+
+			if (thisActor.received_buffs_spells) then
+				shadow.received_buffs_spells = container_habilidades:NovoContainer(_detalhes.container_type.CONTAINER_MISC_CLASS)
+			end
 		end
-		_detalhes.refresh:r_container_habilidades (thisActor.buff_uptime_spells, shadow and shadow.buff_uptime_spells)
+
+		_detalhes.refresh:r_container_habilidades(thisActor.buff_uptime_spells, shadow and shadow.buff_uptime_spells)
+
+		if (thisActor.received_buffs_spells) then
+			_detalhes.refresh:r_container_habilidades(thisActor.received_buffs_spells, shadow and shadow.received_buffs_spells)
+		end
 	end
 
 	--refresh buff uptime
@@ -2834,7 +2853,11 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 	end
 
 	if (este_jogador.buff_uptime_targets) then
-		_detalhes.clear:c_container_habilidades (este_jogador.buff_uptime_spells)
+		_detalhes.clear:c_container_habilidades(este_jogador.buff_uptime_spells)
+
+		if (este_jogador.received_buffs_spells) then
+			_detalhes.clear:c_container_habilidades(este_jogador.received_buffs_spells)
+		end
 	end
 
 	if (este_jogador.debuff_uptime_targets) then
@@ -2859,55 +2882,56 @@ atributo_misc.__add = function(tabela1, tabela2)
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done + tabela2.cc_done
 
-		for target_name, amount in pairs(tabela2.cc_done_targets) do
-			tabela1.cc_done_targets [target_name] = (tabela1.cc_done_targets [target_name] or 0) + amount
+		for targetName, amount in pairs(tabela2.cc_done_targets) do
+			tabela1.cc_done_targets[targetName] = (tabela1.cc_done_targets[targetName] or 0) + amount
 		end
 
-		for spellid, habilidade in pairs(tabela2.cc_done_spells._ActorTable) do
-			local habilidade_tabela1 = tabela1.cc_done_spells:PegaHabilidade (spellid, true, nil, false)
+		for spellId, spellTable in pairs(tabela2.cc_done_spells._ActorTable) do
+			local spellTable1 = tabela1.cc_done_spells:PegaHabilidade(spellId, true, nil, false)
 
-			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+			for target_name, amount in pairs(spellTable.targets) do
+				spellTable1.targets[target_name] = (spellTable1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues(spellTable, spellTable1)
 		end
 	end
 
 	if (tabela2.interrupt) then
-
 		if (not tabela1.interrupt) then
 			tabela1.interrupt = 0
 			tabela1.interrupt_targets = {}
-			tabela1.interrupt_spells = container_habilidades:NovoContainer (container_misc)
+			tabela1.interrupt_spells = container_habilidades:NovoContainer(container_misc)
 			tabela1.interrompeu_oque = {}
 		end
 
 		--total de interrupts
 			tabela1.interrupt = tabela1.interrupt + tabela2.interrupt
+
 		--soma o interrompeu o que
 			for spellid, amount in pairs(tabela2.interrompeu_oque) do
-				tabela1.interrompeu_oque [spellid] = (tabela1.interrompeu_oque [spellid] or 0) + amount
+				tabela1.interrompeu_oque[spellid] = (tabela1.interrompeu_oque [spellid] or 0) + amount
 			end
+
 		--soma os containers de alvos
 			for target_name, amount in pairs(tabela2.interrupt_targets) do
-				tabela1.interrupt_targets [target_name] = (tabela1.interrupt_targets [target_name] or 0) + amount
+				tabela1.interrupt_targets[target_name] = (tabela1.interrupt_targets[target_name] or 0) + amount
 			end
 
 		--soma o container de habilidades
 			for spellid, habilidade in pairs(tabela2.interrupt_spells._ActorTable) do
-				local habilidade_tabela1 = tabela1.interrupt_spells:PegaHabilidade (spellid, true, nil, false)
+				local habilidade_tabela1 = tabela1.interrupt_spells:PegaHabilidade(spellid, true, nil, false)
 
 				habilidade_tabela1.interrompeu_oque = habilidade_tabela1.interrompeu_oque or {}
 				for _spellid, amount in pairs(habilidade.interrompeu_oque) do
-					habilidade_tabela1.interrompeu_oque [_spellid] = (habilidade_tabela1.interrompeu_oque [_spellid] or 0) + amount
+					habilidade_tabela1.interrompeu_oque[_spellid] = (habilidade_tabela1.interrompeu_oque[_spellid] or 0) + amount
 				end
 
 				for target_name, amount in pairs(habilidade.targets) do
-					habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+					habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 				end
 
-				somar_keys (habilidade, habilidade_tabela1)
+				sumKeyValues (habilidade, habilidade_tabela1)
 			end
 
 	end
@@ -2916,23 +2940,39 @@ atributo_misc.__add = function(tabela1, tabela2)
 		if (not tabela1.buff_uptime) then
 			tabela1.buff_uptime = 0
 			tabela1.buff_uptime_targets = {}
-			tabela1.buff_uptime_spells = container_habilidades:NovoContainer (container_misc)
+			tabela1.buff_uptime_spells = container_habilidades:NovoContainer(container_misc)
+		end
+
+		if (tabela2.received_buffs_spells) then
+			if (not tabela1.received_buffs_spells) then
+				tabela1.received_buffs_spells = container_habilidades:NovoContainer(container_misc)
+			end
+
+			for spellId, spellTable in pairs(tabela2.received_buffs_spells._ActorTable) do
+				local habilidade_tabela1 = tabela1.received_buffs_spells:PegaHabilidade(spellId, true, nil, false)
+
+				for target_name, amount in pairs(spellTable.targets) do
+					habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
+				end
+
+				sumKeyValues(spellTable, habilidade_tabela1)
+			end
 		end
 
 		tabela1.buff_uptime = tabela1.buff_uptime + tabela2.buff_uptime
 
 		for target_name, amount in pairs(tabela2.buff_uptime_targets) do
-			tabela1.buff_uptime_targets [target_name] = (tabela1.buff_uptime_targets [target_name] or 0) + amount
+			tabela1.buff_uptime_targets[target_name] = (tabela1.buff_uptime_targets[target_name] or 0) + amount
 		end
 
-		for spellid, habilidade in pairs(tabela2.buff_uptime_spells._ActorTable) do
-			local habilidade_tabela1 = tabela1.buff_uptime_spells:PegaHabilidade (spellid, true, nil, false)
+		for spellId, spellTable in pairs(tabela2.buff_uptime_spells._ActorTable) do
+			local habilidade_tabela1 = tabela1.buff_uptime_spells:PegaHabilidade(spellId, true, nil, false)
 
-			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+			for target_name, amount in pairs(spellTable.targets) do
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues(spellTable, habilidade_tabela1)
 		end
 	end
 
@@ -2956,17 +2996,17 @@ atributo_misc.__add = function(tabela1, tabela2)
 
 		for target_name, amount in pairs(tabela2.debuff_uptime_targets) do
 			if (type(amount) == "table") then --boss debuff
-				local t = tabela1.debuff_uptime_targets [target_name]
+				local t = tabela1.debuff_uptime_targets[target_name]
 				if (not t) then
-					tabela1.debuff_uptime_targets [target_name] = atributo_misc:CreateBuffTargetObject()
-					t = tabela1.debuff_uptime_targets [target_name]
+					tabela1.debuff_uptime_targets[target_name] = atributo_misc:CreateBuffTargetObject()
+					t = tabela1.debuff_uptime_targets[target_name]
 				end
 				t.uptime = t.uptime + amount.uptime
 				t.activedamt = t.activedamt + amount.activedamt
 				t.refreshamt = t.refreshamt + amount.refreshamt
 				t.appliedamt = t.appliedamt + amount.appliedamt
 			else
-				tabela1.debuff_uptime_targets [target_name] = (tabela1.debuff_uptime_targets [target_name] or 0) + amount
+				tabela1.debuff_uptime_targets[target_name] = (tabela1.debuff_uptime_targets[target_name] or 0) + amount
 			end
 		end
 
@@ -2974,10 +3014,10 @@ atributo_misc.__add = function(tabela1, tabela2)
 			local habilidade_tabela1 = tabela1.debuff_uptime_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues (habilidade, habilidade_tabela1)
 		end
 	end
 
@@ -2991,17 +3031,17 @@ atributo_misc.__add = function(tabela1, tabela2)
 		tabela1.cooldowns_defensive = tabela1.cooldowns_defensive + tabela2.cooldowns_defensive
 
 		for target_name, amount in pairs(tabela2.cooldowns_defensive_targets) do
-			tabela1.cooldowns_defensive_targets [target_name] = (tabela1.cooldowns_defensive_targets [target_name] or 0) + amount
+			tabela1.cooldowns_defensive_targets[target_name] = (tabela1.cooldowns_defensive_targets[target_name] or 0) + amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.cooldowns_defensive_spells._ActorTable) do
 			local habilidade_tabela1 = tabela1.cooldowns_defensive_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues (habilidade, habilidade_tabela1)
 		end
 	end
 
@@ -3015,17 +3055,17 @@ atributo_misc.__add = function(tabela1, tabela2)
 		tabela1.ress = tabela1.ress + tabela2.ress
 
 		for target_name, amount in pairs(tabela2.ress_targets) do
-			tabela1.ress_targets [target_name] = (tabela1.ress_targets [target_name] or 0) + amount
+			tabela1.ress_targets[target_name] = (tabela1.ress_targets[target_name] or 0) + amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.ress_spells._ActorTable) do
 			local habilidade_tabela1 = tabela1.ress_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues (habilidade, habilidade_tabela1)
 		end
 	end
 
@@ -3041,7 +3081,7 @@ atributo_misc.__add = function(tabela1, tabela2)
 		tabela1.dispell = tabela1.dispell + tabela2.dispell
 
 		for target_name, amount in pairs(tabela2.dispell_targets) do
-			tabela1.dispell_targets [target_name] = (tabela1.dispell_targets [target_name] or 0) + amount
+			tabela1.dispell_targets[target_name] = (tabela1.dispell_targets[target_name] or 0) + amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.dispell_spells._ActorTable) do
@@ -3050,24 +3090,23 @@ atributo_misc.__add = function(tabela1, tabela2)
 			habilidade_tabela1.dispell_oque = habilidade_tabela1.dispell_oque or {}
 
 			for _spellid, amount in pairs(habilidade.dispell_oque) do
-				habilidade_tabela1.dispell_oque [_spellid] = (habilidade_tabela1.dispell_oque [_spellid] or 0) + amount
+				habilidade_tabela1.dispell_oque[_spellid] = (habilidade_tabela1.dispell_oque[_spellid] or 0) + amount
 			end
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues (habilidade, habilidade_tabela1)
 		end
 
 		for spellid, amount in pairs(tabela2.dispell_oque) do
-			tabela1.dispell_oque [spellid] = (tabela1.dispell_oque [spellid] or 0) + amount
+			tabela1.dispell_oque[spellid] = (tabela1.dispell_oque[spellid] or 0) + amount
 		end
 
 	end
 
 	if (tabela2.cc_break) then
-
 		if (not tabela1.cc_break) then
 			tabela1.cc_break = 0
 			tabela1.cc_break_targets = {}
@@ -3078,7 +3117,7 @@ atributo_misc.__add = function(tabela1, tabela2)
 		tabela1.cc_break = tabela1.cc_break + tabela2.cc_break
 
 		for target_name, amount in pairs(tabela2.cc_break_targets) do
-			tabela1.cc_break_targets [target_name] = (tabela1.cc_break_targets [target_name] or 0) + amount
+			tabela1.cc_break_targets[target_name] = (tabela1.cc_break_targets[target_name] or 0) + amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.cc_break_spells._ActorTable) do
@@ -3086,29 +3125,29 @@ atributo_misc.__add = function(tabela1, tabela2)
 
 			habilidade_tabela1.cc_break_oque = habilidade_tabela1.cc_break_oque or {}
 			for _spellid, amount in pairs(habilidade.cc_break_oque) do
-				habilidade_tabela1.cc_break_oque [_spellid] = (habilidade_tabela1.cc_break_oque [_spellid] or 0) + amount
+				habilidade_tabela1.cc_break_oque[_spellid] = (habilidade_tabela1.cc_break_oque[_spellid] or 0) + amount
 			end
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) + amount
 			end
 
-			somar_keys (habilidade, habilidade_tabela1)
+			sumKeyValues (habilidade, habilidade_tabela1)
 		end
 
 		for spellid, amount in pairs(tabela2.cc_break_oque) do
-			tabela1.cc_break_oque [spellid] = (tabela1.cc_break_oque [spellid] or 0) + amount
+			tabela1.cc_break_oque[spellid] = (tabela1.cc_break_oque[spellid] or 0) + amount
 		end
 	end
 
 	return tabela1
 end
 
-local subtrair_keys = function(habilidade, habilidade_tabela1)
+local subtractKeyValues = function(habilidade, habilidade_tabela1)
 	for key, value in pairs(habilidade) do
 		if (type(value) == "number") then
 			if (key ~= "id" and key ~= "spellschool") then
-				habilidade_tabela1 [key] = (habilidade_tabela1 [key] or 0) - value
+				habilidade_tabela1[key] = (habilidade_tabela1[key] or 0) - value
 			end
 		end
 	end
@@ -3119,30 +3158,32 @@ atributo_misc.__sub = function(tabela1, tabela2)
 		tabela1.cc_done = tabela1.cc_done - tabela2.cc_done
 
 		for target_name, amount in pairs(tabela2.cc_done_targets) do
-			tabela1.cc_done_targets [target_name] = (tabela1.cc_done_targets [target_name] or 0) - amount
+			tabela1.cc_done_targets[target_name] = (tabela1.cc_done_targets[target_name] or 0) - amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.cc_done_spells._ActorTable) do
 			local habilidade_tabela1 = tabela1.cc_done_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
 		end
 	end
 
 	if (tabela2.interrupt) then
 		--total de interrupts
 			tabela1.interrupt = tabela1.interrupt - tabela2.interrupt
+
 		--soma o interrompeu o que
 			for spellid, amount in pairs(tabela2.interrompeu_oque) do
-				tabela1.interrompeu_oque [spellid] = (tabela1.interrompeu_oque [spellid] or 0) - amount
+				tabela1.interrompeu_oque[spellid] = (tabela1.interrompeu_oque[spellid] or 0) - amount
 			end
+
 		--soma os containers de alvos
 			for target_name, amount in pairs(tabela2.interrupt_targets) do
-				tabela1.interrupt_targets [target_name] = (tabela1.interrupt_targets [target_name] or 0) - amount
+				tabela1.interrupt_targets[target_name] = (tabela1.interrupt_targets[target_name] or 0) - amount
 			end
 
 		--soma o container de habilidades
@@ -3151,14 +3192,14 @@ atributo_misc.__sub = function(tabela1, tabela2)
 
 				habilidade_tabela1.interrompeu_oque = habilidade_tabela1.interrompeu_oque or {}
 				for _spellid, amount in pairs(habilidade.interrompeu_oque) do
-					habilidade_tabela1.interrompeu_oque [_spellid] = (habilidade_tabela1.interrompeu_oque [_spellid] or 0) - amount
+					habilidade_tabela1.interrompeu_oque[_spellid] = (habilidade_tabela1.interrompeu_oque[_spellid] or 0) - amount
 				end
 
 				for target_name, amount in pairs(habilidade.targets) do
-					habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+					habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 				end
 
-				subtrair_keys (habilidade, habilidade_tabela1)
+				subtractKeyValues(habilidade, habilidade_tabela1)
 			end
 	end
 
@@ -3166,17 +3207,24 @@ atributo_misc.__sub = function(tabela1, tabela2)
 		tabela1.buff_uptime = tabela1.buff_uptime - tabela2.buff_uptime
 
 		for target_name, amount in pairs(tabela2.buff_uptime_targets) do
-			tabela1.buff_uptime_targets [target_name] = (tabela1.buff_uptime_targets [target_name] or 0) - amount
+			tabela1.buff_uptime_targets[target_name] = (tabela1.buff_uptime_targets[target_name] or 0) - amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.buff_uptime_spells._ActorTable) do
-			local habilidade_tabela1 = tabela1.buff_uptime_spells:PegaHabilidade (spellid, true, nil, false)
+			local habilidade_tabela1 = tabela1.buff_uptime_spells:PegaHabilidade(spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
+		end
+
+		if (tabela2.received_buffs_spells) then
+			for spellId, spellTable in pairs(tabela2.received_buffs_spells._ActorTable) do
+				local habilidade_tabela1 = tabela1.received_buffs_spells:PegaHabilidade(spellId, true, nil, false)
+				subtractKeyValues(spellTable, habilidade_tabela1)
+			end
 		end
 	end
 
@@ -3185,17 +3233,17 @@ atributo_misc.__sub = function(tabela1, tabela2)
 
 		for target_name, amount in pairs(tabela2.debuff_uptime_targets) do
 			if (type(amount) == "table") then --boss debuff
-				local t = tabela1.debuff_uptime_targets [target_name]
+				local t = tabela1.debuff_uptime_targets[target_name]
 				if (not t) then
-					tabela1.debuff_uptime_targets [target_name] = atributo_misc:CreateBuffTargetObject()
-					t = tabela1.debuff_uptime_targets [target_name]
+					tabela1.debuff_uptime_targets[target_name] = atributo_misc:CreateBuffTargetObject()
+					t = tabela1.debuff_uptime_targets[target_name]
 				end
 				t.uptime = t.uptime - amount.uptime
 				t.activedamt = t.activedamt - amount.activedamt
 				t.refreshamt = t.refreshamt - amount.refreshamt
 				t.appliedamt = t.appliedamt - amount.appliedamt
 			else
-				tabela2.debuff_uptime_targets [target_name] = (tabela2.debuff_uptime_targets [target_name] or 0) - amount
+				tabela2.debuff_uptime_targets[target_name] = (tabela2.debuff_uptime_targets[target_name] or 0) - amount
 			end
 		end
 
@@ -3203,10 +3251,10 @@ atributo_misc.__sub = function(tabela1, tabela2)
 			local habilidade_tabela1 = tabela1.debuff_uptime_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
 		end
 	end
 
@@ -3214,17 +3262,17 @@ atributo_misc.__sub = function(tabela1, tabela2)
 		tabela1.cooldowns_defensive = tabela1.cooldowns_defensive - tabela2.cooldowns_defensive
 
 		for target_name, amount in pairs(tabela2.cooldowns_defensive_targets) do
-			tabela1.cooldowns_defensive_targets [target_name] = (tabela1.cooldowns_defensive_targets [target_name] or 0) - amount
+			tabela1.cooldowns_defensive_targets[target_name] = (tabela1.cooldowns_defensive_targets[target_name] or 0) - amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.cooldowns_defensive_spells._ActorTable) do
 			local habilidade_tabela1 = tabela1.cooldowns_defensive_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
 		end
 	end
 
@@ -3232,17 +3280,17 @@ atributo_misc.__sub = function(tabela1, tabela2)
 		tabela1.ress = tabela1.ress - tabela2.ress
 
 		for target_name, amount in pairs(tabela2.ress_targets) do
-			tabela1.ress_targets [target_name] = (tabela1.ress_targets [target_name] or 0) - amount
+			tabela1.ress_targets[target_name] = (tabela1.ress_targets[target_name] or 0) - amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.ress_spells._ActorTable) do
 			local habilidade_tabela1 = tabela1.ress_spells:PegaHabilidade (spellid, true, nil, false)
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
 		end
 	end
 
@@ -3250,7 +3298,7 @@ atributo_misc.__sub = function(tabela1, tabela2)
 		tabela1.dispell = tabela1.dispell - tabela2.dispell
 
 		for target_name, amount in pairs(tabela2.dispell_targets) do
-			tabela1.dispell_targets [target_name] = (tabela1.dispell_targets [target_name] or 0) - amount
+			tabela1.dispell_targets[target_name] = (tabela1.dispell_targets[target_name] or 0) - amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.dispell_spells._ActorTable) do
@@ -3259,27 +3307,26 @@ atributo_misc.__sub = function(tabela1, tabela2)
 			habilidade_tabela1.dispell_oque = habilidade_tabela1.dispell_oque or {}
 
 			for _spellid, amount in pairs(habilidade.dispell_oque) do
-				habilidade_tabela1.dispell_oque [_spellid] = (habilidade_tabela1.dispell_oque [_spellid] or 0) - amount
+				habilidade_tabela1.dispell_oque[_spellid] = (habilidade_tabela1.dispell_oque[_spellid] or 0) - amount
 			end
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
 		end
 
 		for spellid, amount in pairs(tabela2.dispell_oque) do
-			tabela1.dispell_oque [spellid] = (tabela1.dispell_oque [spellid] or 0) - amount
+			tabela1.dispell_oque[spellid] = (tabela1.dispell_oque[spellid] or 0) - amount
 		end
 	end
 
 	if (tabela2.cc_break) then
-
 		tabela1.cc_break = tabela1.cc_break - tabela2.cc_break
 
 		for target_name, amount in pairs(tabela2.cc_break_targets) do
-			tabela1.cc_break_targets [target_name] = (tabela1.cc_break_targets [target_name] or 0) - amount
+			tabela1.cc_break_targets[target_name] = (tabela1.cc_break_targets[target_name] or 0) - amount
 		end
 
 		for spellid, habilidade in pairs(tabela2.cc_break_spells._ActorTable) do
@@ -3287,18 +3334,18 @@ atributo_misc.__sub = function(tabela1, tabela2)
 
 			habilidade_tabela1.cc_break_oque = habilidade_tabela1.cc_break_oque or {}
 			for _spellid, amount in pairs(habilidade.cc_break_oque) do
-				habilidade_tabela1.cc_break_oque [_spellid] = (habilidade_tabela1.cc_break_oque [_spellid] or 0) - amount
+				habilidade_tabela1.cc_break_oque[_spellid] = (habilidade_tabela1.cc_break_oque[_spellid] or 0) - amount
 			end
 
 			for target_name, amount in pairs(habilidade.targets) do
-				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+				habilidade_tabela1.targets[target_name] = (habilidade_tabela1.targets[target_name] or 0) - amount
 			end
 
-			subtrair_keys (habilidade, habilidade_tabela1)
+			subtractKeyValues(habilidade, habilidade_tabela1)
 		end
 
 		for spellid, amount in pairs(tabela2.cc_break_oque) do
-			tabela1.cc_break_oque [spellid] = (tabela1.cc_break_oque [spellid] or 0) - amount
+			tabela1.cc_break_oque[spellid] = (tabela1.cc_break_oque[spellid] or 0) - amount
 		end
 	end
 

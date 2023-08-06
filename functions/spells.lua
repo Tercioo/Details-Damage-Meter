@@ -1992,6 +1992,7 @@ do
 
 		[1467] = "EVOKER", --Devastation Evoker
 		[1468] = "EVOKER", --Preservation Evoker
+		[1473] = "EVOKER", --Augmentation Evoker
 	}
 
 	_detalhes.ClassSpellList = {

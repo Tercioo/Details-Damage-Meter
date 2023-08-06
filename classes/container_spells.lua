@@ -120,7 +120,7 @@ local habilidade_misc 	=	_detalhes.habilidade_misc
 	---@return spelltable|nil
 	function spellContainerClass:GetOrCreateSpell(spellId, bCanCreateSpellIfMissing, cleuToken)
 		---@type spelltable
-		local spellTable = self._ActorTable [spellId]
+		local spellTable = self._ActorTable[spellId]
 
 		if (spellTable) then
 			return spellTable

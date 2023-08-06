@@ -39,7 +39,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 108
+local CONST_LIB_VERSION = 111
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -1363,7 +1363,8 @@ end
 --talent update (when the player changes a talent and the lib needs to notify other players in the group)
 function openRaidLib.UnitInfoManager.SendTalentUpdate()
     --talents
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo("player", true)
+    local playerName = UnitName("player")
+    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
     local talentsToSend = unitInfo.talents
     local dataToSend = "" .. CONST_COMM_PLAYERINFO_TALENTS_PREFIX .. ","
     local talentsString = openRaidLib.PackTable(talentsToSend)
@@ -1375,16 +1376,25 @@ function openRaidLib.UnitInfoManager.SendTalentUpdate()
 end
 
 function openRaidLib.UnitInfoManager.OnPlayerTalentChanged()
-    --update the local player
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo("player", true)
-    local unitName = UnitName("player")
-    openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, nil, nil, nil, openRaidLib.UnitInfoManager.GetPlayerTalents())
+    --this talent update could be a specialization change, so we need to pass the specId as well
+    local playerName = UnitName("player")
+    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
+    local specId = 0
 
-    --schedule send to the group
-    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 1), openRaidLib.UnitInfoManager.SendTalentUpdate, "UnitInfoManager", "sendTalent_Schedule")
+    if (getSpecializationVersion() == CONST_SPECIALIZATION_VERSION_MODERN) then
+        local selectedSpecialization = GetSpecialization()
+        if (selectedSpecialization) then
+            specId = GetSpecializationInfo(selectedSpecialization) or 0
+        end
+    end
+
+    openRaidLib.UnitInfoManager.SetUnitInfo(playerName, unitInfo, specId, nil, nil, openRaidLib.UnitInfoManager.GetPlayerTalents())
 
     --trigger public callback event
     openRaidLib.publicCallback.TriggerCallback("TalentUpdate", "player", unitInfo.talents, unitInfo, openRaidLib.UnitInfoManager.GetAllUnitsInfo())
+
+    --schedule send to the group
+    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 1), openRaidLib.UnitInfoManager.SendTalentUpdate, "UnitInfoManager", "sendTalent_Schedule")
 end
 openRaidLib.internalCallback.RegisterCallback("talentUpdate", openRaidLib.UnitInfoManager.OnPlayerTalentChanged)
 
@@ -1403,7 +1413,8 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_TALENTS_PREFIX, openR
 --pvp talent update (when the player changes a pvp talent and the lib needs to notify other players in the group)
 function openRaidLib.UnitInfoManager.SendPvPTalentUpdate()
     --pvp talents
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo("player", true)
+    local playerName = UnitName("player")
+    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
     local pvpTalentsToSend = unitInfo.pvpTalents
     local pvpTalentsString = openRaidLib.PackTable(pvpTalentsToSend)
 
@@ -1417,9 +1428,9 @@ end
 
 function openRaidLib.UnitInfoManager.OnPlayerPvPTalentChanged()
     --update the local player
-    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo("player", true)
-    local unitName = UnitName("player")
-    openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, nil, nil, nil, nil, nil, openRaidLib.UnitInfoManager.GetPlayerPvPTalents())
+    local playerName = UnitName("player")
+    local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(playerName, true)
+    openRaidLib.UnitInfoManager.SetUnitInfo(playerName, unitInfo, nil, nil, nil, nil, nil, openRaidLib.UnitInfoManager.GetPlayerPvPTalents())
 
     --schedule send to the group
     openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 1), openRaidLib.UnitInfoManager.SendPvPTalentUpdate, "UnitInfoManager", "sendPvPTalent_Schedule")
@@ -1584,7 +1595,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         local itemLevel = openRaidLib.GearManager.GetPlayerItemLevel()
 
         --repair status
-        local gearDurability = openRaidLib.GearManager.GetPlayerGearDurability()
+        local gearDurability, lowestItemDurability = openRaidLib.GearManager.GetPlayerGearDurability()
 
         --get weapon enchant
         local weaponEnchant, mainHandEnchantId, offHandEnchantId = openRaidLib.GearManager.GetPlayerWeaponEnchant()

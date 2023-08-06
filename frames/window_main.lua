@@ -4085,9 +4085,12 @@ function gump:CreateNewLine(instance, index)
 	newLine.extraStatusbar:SetMinMaxValues(0, 100)
 	newLine.extraStatusbar.texture = newLine.extraStatusbar:CreateTexture(nil, "overlay")
 	newLine.extraStatusbar:SetStatusBarTexture(newLine.extraStatusbar.texture)
+
 	--by default painting the extraStatusbar with the evoker color
 	local evokerColor = Details.class_colors["EVOKER"]
+	--newLine.extraStatusbar.texture:SetTexture([[Interface\AddOns\Details\images\bar_textures\bar_of_bars.png]]) --setColorTexture is very expensive, so set the color once and use vertex color to change it
 	newLine.extraStatusbar.texture:SetColorTexture(1, 1, 1, 1) --setColorTexture is very expensive, so set the color once and use vertex color to change it
+
 	newLine.extraStatusbar.texture:SetVertexColor(unpack(evokerColor))
 	newLine.extraStatusbar:SetAlpha(0.7)
 	newLine.extraStatusbar.defaultAlpha = 0.7

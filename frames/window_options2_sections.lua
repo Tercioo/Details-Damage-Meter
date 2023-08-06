@@ -690,7 +690,7 @@ do
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+20, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+40, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
     tinsert(Details.optionsSection, buildSection) --optionsSection is declared on boot.lua

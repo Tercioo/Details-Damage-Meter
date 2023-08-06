@@ -925,5 +925,6 @@ openRaidLib.specAttribute = {
     ["EVOKER"] = {
         [1467] = 1, --Devastation
         [1468] = 1, --Preservation
+        [1473] = 1, --Augmentation
     },
 }
