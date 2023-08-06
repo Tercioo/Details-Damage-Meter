@@ -842,6 +842,8 @@
 				color = actor.color,
 			}, classCustom.mt)
 
+			newActor.customColor = actor.customColor
+
 			newActor.name_complement = name_complement
 			newActor.displayName = actor.displayName or (_detalhes:GetOnlyName(newActor.nome) .. (name_complement or ""))
 
