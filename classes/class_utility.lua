@@ -2366,8 +2366,8 @@ local refresh_alvos = function(container1, container2)
 end
 local refresh_habilidades = function(container1, container2)
 	for spellid, habilidade in pairs(container2._ActorTable) do
-		local habilidade_shadow = container1:PegaHabilidade (spellid, true, nil, true)
-		refresh_alvos (habilidade_shadow.targets , habilidade.targets)
+		local habilidade_shadow = container1:PegaHabilidade(spellid, true, nil, true)
+		refresh_alvos(habilidade_shadow.targets , habilidade.targets)
 	end
 end
 
@@ -2414,6 +2414,9 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 			refresh_habilidades (shadow.buff_uptime_spells, actor.buff_uptime_spells)
 
 			if (actor.received_buffs_spells) then
+				if (not shadow.received_buffs_spells) then
+					shadow.received_buffs_spells = container_habilidades:NovoContainer(_detalhes.container_type.CONTAINER_MISC_CLASS)
+				end
 				refresh_habilidades(shadow.received_buffs_spells, actor.received_buffs_spells)
 			end
 		end

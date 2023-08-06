@@ -1026,6 +1026,48 @@ do
 					return Details:Dump(spellInfo)
 				end
 			end
+
+			--check if is an atlas texture
+			local atlas
+			if (type(value) == "string") then
+				atlas = C_Texture.GetAtlasInfo(value)
+				if (atlas) then
+					return Details:Dump(atlas)
+				end
+			end
+
+			--[=[
+			for key, tooltip in pairs(_G) do
+				if (type(tooltip) == "table" and tooltip.GetName) then
+					if (tooltip.IsShown and tooltip.HookScript and not tooltip.widget and not tooltip.MyObject) then
+						if (tooltip.GetObjectType and not getmetatable(tooltip)) then
+							print(tooltip:GetObjectType())
+							if (tooltip:GetObjectType() == "GameTooltip") then
+								if (tooltip:IsShown()) then
+									print(tooltip:GetName())
+								end
+							end
+						end
+					end
+				end
+			end
+			--]=]
+
+			if (value == nil) then
+				local allTooltips = {"GameTooltip", "EventTraceTooltip", "FrameStackTooltip", "GarrisonMissionMechanicTooltip", "GarrisonMissionMechanicFollowerCounterTooltip", "ItemSocketingDescription", "NamePlateTooltip", "PrivateAurasTooltip", "RuneforgeFrameResultTooltip", "ItemRefTooltip", "QuickKeybindTooltip", "SettingsTooltip"}
+				for i = 1, #allTooltips do
+					local tooltipName = allTooltips[i]
+					local tooltip = _G[tooltipName]
+
+					if (tooltip and tooltip.GetTooltipData) then
+						local tooltipData = tooltip:GetTooltipData()
+						if (tooltipData)then
+							return Details:Dump(tooltipData)
+						end
+					end
+				end
+			end
+
 			return Details:Dump(value)
 		end
 

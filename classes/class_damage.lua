@@ -2991,8 +2991,8 @@ end
 ---@param totalAmount valueamount
 ---@param topAmount valueamount
 ---@param instanceObject instance
----@param onEnterFunc function|nil
----@param onLeaveFunc function|nil
+---@param onEnterFunc function?
+---@param onLeaveFunc function?
 function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, topAmount, instanceObject, onEnterFunc, onLeaveFunc)
 	if (extraAmount and extraAmount > 0 and Details.combat_log.evoker_calc_damage) then
 		local extraStatusbar = thisLine.extraStatusbar
@@ -6705,6 +6705,8 @@ end
 
 		if (actorObject.augmentedSpellsContainer) then
 			local overallAugmentedSpellsContainer = overallActor.augmentedSpellsContainer or spellContainerClass:CreateSpellContainer(Details.container_type.CONTAINER_DAMAGE_CLASS)
+			overallActor.augmentedSpellsContainer = overallAugmentedSpellsContainer
+
 			for spellId, spellTable in pairs(actorObject.augmentedSpellsContainer._ActorTable) do --same as actorObject.augmentedSpellsContainer:GetRawSpellTable()
 				local overallSpellTable = overallAugmentedSpellsContainer:GetOrCreateSpell(spellId, true)
 				overallSpellTable.total = overallSpellTable.total + spellTable.total

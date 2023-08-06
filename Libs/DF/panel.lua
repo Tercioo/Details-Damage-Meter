@@ -627,6 +627,7 @@ function detailsFramework:NewPanel(parent, container, name, member, w, h, backdr
 	PanelObject.frame:SetBackdrop({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 10, tileSize = 64, tile = true})
 
 	PanelObject.widget = PanelObject.frame
+	PanelObject.frame.MyObject = PanelObject
 
 	if (not APIFrameFunctions) then
 		APIFrameFunctions = {}
@@ -643,8 +644,6 @@ function detailsFramework:NewPanel(parent, container, name, member, w, h, backdr
 
 	PanelObject.frame:SetWidth(w or 100)
 	PanelObject.frame:SetHeight(h or 100)
-
-	PanelObject.frame.MyObject = PanelObject
 
 	PanelObject.HookList = {
 		OnEnter = {},
@@ -1980,6 +1979,7 @@ local no_options = {}
 ---UseStatusBar = false, --if true, creates a status bar at the bottom of the frame (frame.StatusBar)
 ---NoCloseButton = false, --if true, won't show the close button
 ---NoTitleBar = false, --if true, don't create the title bar
+---RoundedCorners = false, --use rounded corners if true
 ---@class simplepanel
 ---@field TitleBar frame
 ---@field Title fontstring
@@ -2024,9 +2024,19 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	simplePanel:SetMovable(true)
 
 	--set the backdrop
-	simplePanel:SetBackdrop(SimplePanel_frame_backdrop)
-	simplePanel:SetBackdropColor(unpack(SimplePanel_frame_backdrop_color))
-	simplePanel:SetBackdropBorderColor(unpack(SimplePanel_frame_backdrop_border_color))
+	if (panelOptions.RoundedCorners) then
+		local tRoundedCornerPreset = {
+			roundness = 6,
+			color = {.1, .1, .1, 0.98},
+			border_color = {.05, .05, .05, 0.834},
+			use_titlebar = true,
+		}
+		detailsFramework:AddRoundedCornersToFrame(simplePanel, tRoundedCornerPreset)
+	else
+		simplePanel:SetBackdrop(SimplePanel_frame_backdrop)
+		simplePanel:SetBackdropColor(unpack(SimplePanel_frame_backdrop_color))
+		simplePanel:SetBackdropBorderColor(unpack(SimplePanel_frame_backdrop_border_color))
+	end
 
 	simplePanel.DontRightClickClose = panelOptions.DontRightClickClose
 
@@ -2034,19 +2044,27 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 		tinsert(UISpecialFrames, frameName)
 	end
 
-	if (panelOptions.UseStatusBar) then
+	if (panelOptions.UseStatusBar and not panelOptions.RoundedCorners) then
 		local statusBar = detailsFramework:CreateStatusBar(simplePanel)
 		simplePanel.StatusBar = statusBar
 	end
 
-	local titleBar = CreateFrame("frame", frameName .. "TitleBar", simplePanel,"BackdropTemplate")
-	titleBar:SetPoint("topleft", simplePanel, "topleft", 2, -3)
-	titleBar:SetPoint("topright", simplePanel, "topright", -2, -3)
-	titleBar:SetHeight(20)
-	titleBar:SetBackdrop(SimplePanel_frame_backdrop)
-	titleBar:SetBackdropColor(.2, .2, .2, 1)
-	titleBar:SetBackdropBorderColor(0, 0, 0, 1)
-	simplePanel.TitleBar = titleBar
+	local titleBar = CreateFrame("frame", frameName .. "TitleBar", simplePanel, "BackdropTemplate")
+
+	if (panelOptions.RoundedCorners) then
+		simplePanel.TitleBar:SetColor(.2, .2, .2, 0.4)
+		simplePanel.TitleBar:SetBorderCornerColor(0, 0, 0, 0)
+
+	else
+		simplePanel.TitleBar = titleBar
+		titleBar:SetPoint("topleft", simplePanel, "topleft", 2, -3)
+		titleBar:SetPoint("topright", simplePanel, "topright", -2, -3)
+		titleBar:SetHeight(20)
+		titleBar:SetBackdrop(SimplePanel_frame_backdrop)
+		titleBar:SetBackdropColor(.2, .2, .2, 1)
+		titleBar:SetBackdropBorderColor(0, 0, 0, 1)
+		simplePanel.TitleBar = titleBar
+	end
 
 	local close = CreateFrame("button", frameName and frameName .. "CloseButton", titleBar)
 	close:SetFrameLevel(detailsFramework.FRAMELEVEL_OVERLAY)
@@ -2077,7 +2095,7 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	simplePanel.Title:SetPoint("center", titleBar, "center")
 	simplePanel.Close:SetPoint("right", titleBar, "right", -2, 0)
 
-	if (panelOptions.NoCloseButton) then
+	if (panelOptions.NoCloseButton or panelOptions.RoundedCorners) then
 		simplePanel.Close:Hide()
 	end
 

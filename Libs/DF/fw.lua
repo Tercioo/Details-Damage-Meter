@@ -1,6 +1,6 @@
 
 
-local dversion = 453
+local dversion = 454
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -585,7 +585,7 @@ function DF.table.removeduplicate(table1, table2)
     for key, value in pairs(table2) do
         if (type(value) == "table") then
             if (table1[key]) then
-                DF.SavedVars.removeduplicate(value, table1[key])
+                DF.table.removeduplicate(value, table1[key])
             end
         else
 			if (type(table1[key]) == "number" and type(value) == "number") then
