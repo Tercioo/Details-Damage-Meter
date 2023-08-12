@@ -2076,7 +2076,6 @@ local iconFrame_OnEnter = function(self)
 
 
 		elseif (actor.nome) then --ensure it's an actor table
-
 			local serial = actor.serial
 			local name = actor:name()
 			local class = actor:class()
@@ -2255,6 +2254,7 @@ local iconFrame_OnEnter = function(self)
 				GameCooltip:AddLine("Evoker Predicted Damage:", Details:Format(damageDone) .. " (" .. Details:Format(damageDone / Details:GetCurrentCombat():GetCombatTime()) .. ")", 1, "white")
 				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 				Details:AddTooltipBackgroundStatusbar()
+				height = height + 19
 			end
 
 			GameCooltip:SetOption("FixedHeight", height)

@@ -13,3 +13,4 @@
 ---@field ParseColors fun(self:table, red:any, green:number?, blue:number?, alpha:number?) : red, green, blue, alpha
 ---@field Mixin fun(self:table, target:table, ...) : table
 ---@field SetButtonTexture fun(self:table, button:button|df_button, texture:atlasname|texturepath|textureid)
+---@field CreateFadeAnimation fun(self:table, UIObject:uiobject, fadeInTime:number?, fadeOutTime:number?, fadeInAlpha:number?, fadeOutAlpha:number?)

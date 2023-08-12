@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11774
-		Details.alpha_build_counter = 11774 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11855
+		Details.alpha_build_counter = 11855 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -142,6 +142,87 @@ do
 	--]=]
 
 	local news = {
+		{"v10.1.0.11022.151", "July 11th, 2023"},
+		"Added: Hovering over the Augmented Evoker icon shows the Evoker's damage, along with an estimated damage done by its buffs.",
+		"Auras tab at the Breakdown Window, now shows damage buffs received from other players (Ebon Might, Precience and Power Infusion).",
+		"Auras tab now ignores regular 'world auras' (those weekly buffs of reputation, etc).",
+		"Added individual bar for Neltharus Weapons. Weapons on final boss and the Burning Chain (Flamanis).",
+		"Update interval is set to 0.1 on arenas matches using the real-time dps feature.",
+		"Evoker's predicted damage done is now also shown in the overall data.",
+		"Removed 'Real Time DPS' from the time measure dropdown.",
+		"Added 'Show Real Time DPS' toggle to show real time dps while in combat.",
+		"Added 'Order Bars By Real Time DPS' toggle to order bars by the amount of real time dps.",
+		"Added 'Always Use Real Time in Arenas' toggle to always use real time dps in Arenas.",
+		"Fixed an issue where the Breakdown Window was not refreshing when the data was reset.",
+		"Fixed an issue where clicking on a plugin icon in the Details! title bar would not open the plugin.",
+		"Fixed bugs reported for the Encounter Details plugin.",
+		"Fixed bugs reported for the Real Time DPS.",
+		"Fixed Welcome Window sometimes not opening for new instalations (Flamanis).",
+		"*Combat start code verification cleanup (Flamanis).",
+		"*Added .last_dps_realtime to player actors, caches the latest real time dps calculated.",
+		"*Added: actordamage.total_extra for cases where there's a secondary bar for a damage actor.",
+		"*If any damage actor has 'total_extra' bigger than 0, the extra bar is shown.",
+		"*Added: Details:ShowExtraStatusbar(lineFrame, amount, extraAmount, totalAmount, topAmount, instanceObject, onEnterFunc, onLeaveFunc)",
+		"*Renamed 'InstaciaCallFunction' to 'InstanceCallDetailsFunc'.",
+		"*Renamed 'PegaHabilidade' to GetOrCreateSpell.",
+		"*Renamed 'PegarCombatente' to 'GetOrCreateActor'.",
+		"*List of spec names for spec tooltip detection now load at Startup not at lua compiling stage.",
+		"*Fixed custom displays ignoring actor.customColor.",
+		"*Details! Framework and LibOpenRaid upgrades.",
+
+		{"v10.1.0.11022.151", "July 11th, 2023"},
+		"Effective time is used when displaying tooltips information.",
+		"Wrap the specid name locatlization cache in a Details Framework check.",
+		"More fixes for real time dps.",
+		"Don't populate overall segment on load and force refresh window on segment swap.",
+		"Added: spec detection from the specialization name shown on tooltip.",
+		"Improvements to class detection by using GetPlayerInfoByGUID()",
+		"Removed Breath of Eons from spec detection for augmentation evokers.",
+		"When DBM/BW send a callback, check if the current combat in details is valid.",
+		"When the actor is considered a ungroupped player, check if that player has a spec and show the spec icon instead.",
+		"Segments locked don't swap windows to overall.",
+		"Use the new API 'SetSegment' over 'TrocaTabela' for the segment selector.",
+		"Sort damage taken tooltip on damage amount.",
+		"Added: Details:GetBossEncounterTexture(encounterName); Added combat.bossIcon; Added combat.bossTimers.",
+		"Added: Details:DoesCombatWithUIDExists(uniqueCombatId); Details:GetCombatByUID(uniqueCombatId); combat:GetCombatUID().",
+		"Added: Details:RemoveSegmentByCombatObject(combatObject).",
+		"Details:UnpackDeathTable(deathTable) now return the spec of the character as the last parameter returned.",
+		"classCombat:GetTimeData(chartName) now check if the combat has a TimeData table or return an empty table; Added classCombat:EraseTimeData(chartName).",
+		"Code for Dispel has been modernized, deathTable now includes the key .spec.",
+		"Added: key .unixtime into is_boss to know when the boss was killed.",
+		"Fixed an issue with auto run code not saving properly.",
+		"Ignore vessel periodic damage when out of combat.",
+		"More fixes for Augmentation Evoker on 10.1.5.",
+		"Another wave of code changes, modernizations and refactoring.",
+		"Combat Objects which has been discarded due to any reason will have the boolean member: __destroyed set to true. With this change, 3rd party code can see if the data cached is up to date or obsolete.",
+		"Removed several deprecated code from March 2023 and earlier.",
+		"Large amount of code cleanup and refactoring, some functions got renamed, they are listed below:",
+		"- 'TravarTempos' renamed to 'LockActivityTime'.",
+		"- 'ClearTempTables' renamed to 'ClearCacheTables'.",
+		"- 'SpellIsDot' renamed to 'SetAsDotSpell'.",
+		"- 'FlagCurrentCombat' remamed to 'FlagNewCombat_PVPState'.",
+		"- 'UpdateContainerCombatentes' renamed to 'UpdatePetCache'.",
+		"- 'segmentClass:AddCombat(combatObject)' renamed to 'Details222.Combat.AddCombat(combatToBeAdded)'.",
+		"- 'CurrentCombat.verifica_combate' timer is now obsolete.",
+		"- 'Details.last_closed_combat' is now obsolete.",
+		"- 'Details.EstaEmCombate' is now obsolete.",
+		"- 'Details.options' is now obsolete.",
+		"- Spec Guess Timers are now stored within Details222.GuessSpecSchedules.Schedules, all timers are killed at the end of the combat or at a data reset.",
+		"- Initial time delay to send the startup signal (event sent when details has started) reduced from 5 to 4 seconds.",
+		"- Fixed some division by zero on ptr 10.1.5.",
+		"- Fixed DETAILS_STARTED event not triggering in some cases due to 'event not registered'.",
+		"Fixed Auto Run Code window not closing by click on the close button.",
+		"Set up statusbar options instead of using metatable.",
+		"More code cleanup and framework updates.",
+		"TimeData code modernizations.",
+		"Implementations to show plugins in the breakdown window.",
+		"Damage Taken by Spell overhaul, now it uses modern Details API.",
+		"Time Machine overhaul.",
+		"Splitted the window_playerbreakdown_spells.lua into three more files.",
+		"Added IconTexture directive to the TOC files.",
+		"Disabled time captures for spellTables, this should be done by a plugin.",
+		"Replacing table.wipe with Details:Destroy().",
+
 		{"v10.1.0.11022.151", "May 20th, 2023"},
 		"Breakdown pet options has changed to: 'Group Pets by Their Names' or 'Group Pets by Their Spells'.",
 		"Evoker empowered level now ocupies less space on the rectangle showing the damage by empower level.",
@@ -1036,32 +1117,54 @@ do
 				end
 			end
 
-			--[=[
-			for key, tooltip in pairs(_G) do
-				if (type(tooltip) == "table" and tooltip.GetName) then
-					if (tooltip.IsShown and tooltip.HookScript and not tooltip.widget and not tooltip.MyObject) then
-						if (tooltip.GetObjectType and not getmetatable(tooltip)) then
-							print(tooltip:GetObjectType())
-							if (tooltip:GetObjectType() == "GameTooltip") then
-								if (tooltip:IsShown()) then
-									print(tooltip:GetName())
-								end
-							end
-						end
-					end
-				end
-			end
-			--]=]
-
 			if (value == nil) then
-				local allTooltips = {"GameTooltip", "EventTraceTooltip", "FrameStackTooltip", "GarrisonMissionMechanicTooltip", "GarrisonMissionMechanicFollowerCounterTooltip", "ItemSocketingDescription", "NamePlateTooltip", "PrivateAurasTooltip", "RuneforgeFrameResultTooltip", "ItemRefTooltip", "QuickKeybindTooltip", "SettingsTooltip"}
+				local allTooltips = {"GameTooltip", "GameTooltipTooltip", "EventTraceTooltip", "FrameStackTooltip", "GarrisonMissionMechanicTooltip", "GarrisonMissionMechanicFollowerCounterTooltip", "ItemSocketingDescription", "NamePlateTooltip", "PrivateAurasTooltip", "RuneforgeFrameResultTooltip", "ItemRefTooltip", "QuickKeybindTooltip", "SettingsTooltip"}
 				for i = 1, #allTooltips do
 					local tooltipName = allTooltips[i]
 					local tooltip = _G[tooltipName]
 
-					if (tooltip and tooltip.GetTooltipData) then
+					if (tooltip and tooltip.GetTooltipData and tooltip:IsVisible()) then
 						local tooltipData = tooltip:GetTooltipData()
-						if (tooltipData)then
+						if (tooltipData) then
+							if (tooltip.ItemTooltip and tooltip.ItemTooltip:IsVisible()) then
+								local icon = tooltip.ItemTooltip.Icon
+								if (icon) then
+									local texture = icon:GetTexture()
+									local atlas = icon:GetAtlas()
+									if (texture or atlas) then
+										tooltipData.IconTexture = texture
+										tooltipData.IconAtlas = atlas
+									end
+								end
+							end
+
+							if (tooltipData.hyperlink) then
+								local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
+								itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
+								expacID, setID, isCraftingReagent = GetItemInfo(tooltipData.hyperlink)
+
+								local itemInfo = {
+									itemName = itemName,
+									itemLink = itemLink,
+									itemQuality = itemQuality,
+									itemLevel = itemLevel,
+									itemMinLevel = itemMinLevel,
+									itemType = itemType,
+									itemSubType = itemSubType,
+									itemStackCount = itemStackCount,
+									itemEquipLoc = itemEquipLoc,
+									itemTexture = itemTexture,
+									sellPrice = sellPrice,
+									classID = classID,
+									subclassID = subclassID,
+									bindType = bindType,
+									expacID = expacID,
+									setID = setID,
+									isCraftingReagent = isCraftingReagent
+								}
+								DetailsFramework.table.deploy(tooltipData, itemInfo)
+							end
+
 							return Details:Dump(tooltipData)
 						end
 					end

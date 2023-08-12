@@ -506,10 +506,11 @@ end
 	--check if the nickname fit some minimal rules to be presented to other players
 	local checkValidNickname = function(nickname, playerName)
 		if (nickname and type(nickname) == "string") then
-			if (nickname == "") then
+			nickname = nickname:trim()
+			if (nickname == "" or nickname:len() < 2) then
 				return playerName
-
-			elseif (nickname:find(" ")) then
+			end
+			if (nickname:len() > 20) then
 				return playerName
 			end
 		else

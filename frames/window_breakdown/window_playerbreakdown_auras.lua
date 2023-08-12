@@ -13,7 +13,7 @@ local buffs_to_ignore = {
     [381748] = true, --Blessing of the Bronze
     [397734] = true, --Word of a Worthy Ally
     [402221] = true, --Obsidian Resonance
-    --[] = true, --
+    [225788] = true, --Sign of the Emissary
     --[] = true, --
 }
 

@@ -34,20 +34,22 @@ local addonLoaded = function(addonFrame, event, addonName)
 	local playerGUID = UnitGUID("player") --the guid points to a profile name
 
 	---@type table
-	local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+	local tSavedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
 
 	--check if the player has a profileId saved
-	local playerProfileId = savedVariables.profile_ids[playerGUID]
-	if (not playerProfileId) then
-		--it doesn't, set it to use the default profile
-		playerProfileId = CONST_DEFAULT_PROFILE_NAME
-		savedVariables.profile_ids[playerGUID] = playerProfileId
+	local profileId = tSavedVariables.profile_ids[playerGUID]
+	if (not profileId) then
+		--if it doesn't, set it to use the default profile
+		profileId = CONST_DEFAULT_PROFILE_NAME
+		tSavedVariables.profile_ids[playerGUID] = profileId
 	end
 
-	local profileTable = detailsFramework.SavedVars.GetProfile(addonObject)
+	local bCreateIfNotFound = true
+	local profileTable = detailsFramework.SavedVars.GetProfile(addonObject, bCreateIfNotFound)
+	addonObject.profile = profileTable
 
 	if (addonObject.OnLoad) then
-		detailsFramework:Dispatch(addonObject.OnLoad, addonObject, profileTable)
+		detailsFramework:Dispatch(addonObject.OnLoad, addonObject, addonObject.profile)
 	end
 end
 
@@ -56,8 +58,7 @@ local addonInit = function(addonFrame)
 	local addonObject = addonFrame.__addonObject
 
 	if (addonObject.OnInit) then
-		local profileTable = detailsFramework.SavedVars.GetProfile(addonObject)
-		detailsFramework:Dispatch(addonObject.OnInit, addonObject, profileTable)
+		detailsFramework:Dispatch(addonObject.OnInit, addonObject, addonObject.profile)
 	end
 end
 
