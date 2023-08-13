@@ -351,7 +351,13 @@ detailsFramework.PayloadMixin = {
 
 ---mixin to use with DetailsFramework:Mixin(table, detailsFramework.ScriptHookMixin)
 ---
----@class DetailsFramework.ScriptHookMixin
+---@class df_scripthookmixin
+---@field HookList table
+---@field SetHook fun(self: table, hookType: string, func: function)
+---@field HasHook fun(self: table, hookType: string, func: function)
+---@field RunHooksForWidget fun(self: table, event: string, ...)
+---@field ClearHooks fun(self: table)
+
 detailsFramework.ScriptHookMixin = {
 	RunHooksForWidget = function(self, event, ...)
 		local hooks = self.HookList[event]
@@ -991,6 +997,29 @@ detailsFramework.ValueMixin = {
 	statusBar:
 --]=]
 
+---@class df_statusbarmixin : table
+---@field SetTexture fun(self: table, texture: string, isTemporary: boolean)
+---@field ResetTexture fun(self: table)
+---@field GetTexture fun(self: table) : string
+---@field SetAtlas fun(self: table, atlasName: string)
+---@field GetAtlas fun(self: table) : string
+---@field SetTexCoord fun(self: table, ...)
+---@field GetTexCoord fun(self: table) : number, number, number, number
+---@field SetColor fun(self: table, ...)
+---@field GetColor fun(self: table) : number, number, number, number
+---@field SetMaskTexture fun(self: table, texture: string)
+---@field GetMaskTexture fun(self: table) : string
+---@field SetMaskTexCoord fun(self: table, ...)
+---@field GetMaskTexCoord fun(self: table) : number, number, number, number
+---@field SetMaskAtlas fun(self: table, atlasName: string)
+---@field GetMaskAtlas fun(self: table) : string
+---@field AddMaskTexture fun(self: table, texture: string)
+---@field SetBorderTexture fun(self: table, texture: string)
+---@field GetBorderTexture fun(self: table) : string
+---@field SetBorderColor fun(self: table, ...)
+---@field GetBorderColor fun(self: table) : number, number, number, number
+
+
 detailsFramework.StatusBarFunctions = {
 	SetTexture = function(self, texture, isTemporary)
 		self.barTexture:SetTexture(texture)
@@ -1045,20 +1074,6 @@ detailsFramework.StatusBarFunctions = {
 		end
 		self.barTextureMask:GetTexture()
 	end,
-
-	--SetMaskTexCoord = function(self, ...) --MaskTexture doesn't not support texcoord
-	--	if (not self:HasTextureMask()) then
-	--		return
-	--	end
-	--	self.barTextureMask:SetTexCoord(...)
-	--end,
-
-	--GetMaskTexCoord = function(self, ...)
-	--	if (not self:HasTextureMask()) then
-	--		return
-	--	end
-	--	self.barTextureMask:GetTexCoord()
-	--end,
 
 	SetMaskAtlas = function(self, atlasName)
 		if (not self:HasTextureMask()) then

@@ -1,6 +1,6 @@
 
 
-local dversion = 456
+local dversion = 457
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -233,14 +233,22 @@ end
 
 ---return the role of the unit, this is safe to use for all versions of wow
 ---@param unitId string
+---@param specId number
 ---@return string
-function DF.UnitGroupRolesAssigned(unitId)
+function DF.UnitGroupRolesAssigned(unitId, specId)
 	if (not DF.IsTimewalkWoW()) then --Was function exist check. TBC has function, returns NONE. -Flamanis 5/16/2022
 		local role = UnitGroupRolesAssigned(unitId)
+
+		if (specId == 1473) then
+			return "SUPPORT"
+		end
 
 		if (role == "NONE" and UnitIsUnit(unitId, "player")) then
 			local specializationIndex = GetSpecialization() or 0
 			local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
+			if (id == 1473) then
+				return "SUPPORT"
+			end
 			return id and role or "NONE"
 		end
 
