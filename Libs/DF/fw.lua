@@ -234,19 +234,20 @@ end
 ---return the role of the unit, this is safe to use for all versions of wow
 ---@param unitId string
 ---@param specId number
+---@param bUseSupport boolean
 ---@return string
-function DF.UnitGroupRolesAssigned(unitId, specId)
+function DF.UnitGroupRolesAssigned(unitId, bUseSupport, specId)
 	if (not DF.IsTimewalkWoW()) then --Was function exist check. TBC has function, returns NONE. -Flamanis 5/16/2022
 		local role = UnitGroupRolesAssigned(unitId)
 
-		if (specId == 1473) then
+		if (specId == 1473 and bUseSupport) then
 			return "SUPPORT"
 		end
 
 		if (role == "NONE" and UnitIsUnit(unitId, "player")) then
 			local specializationIndex = GetSpecialization() or 0
 			local id, name, description, icon, role, primaryStat = GetSpecializationInfo(specializationIndex)
-			if (id == 1473) then
+			if (id == 1473 and bUseSupport) then
 				return "SUPPORT"
 			end
 			return id and role or "NONE"

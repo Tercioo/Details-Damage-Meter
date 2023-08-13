@@ -195,10 +195,9 @@ local safe_load = function(func, param1, ...)
 	return okey
 end
 
-function Details:ApplyProfile (profile_name, nosave, is_copy)
-
+function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 	--get the profile
-		local profile = Details:GetProfile (profile_name, true)
+		local profile = Details:GetProfile(profileName, true)
 
 	--if the profile doesn't exist, just quit
 		if (not profile) then
@@ -209,7 +208,7 @@ function Details:ApplyProfile (profile_name, nosave, is_copy)
 		profile.ocd_tracker = nil --moved to local character saved
 
 	--always save the previous profile, except if nosave flag is up
-		if (not nosave) then
+		if (not bNoSave) then
 			--salva o profile ativo no momento
 			Details:SaveProfile()
 		end
@@ -248,13 +247,12 @@ function Details:ApplyProfile (profile_name, nosave, is_copy)
 		end
 
 	--set the current profile
-	if (not is_copy) then
-		Details.active_profile = profile_name
-		_detalhes_database.active_profile = profile_name
+	if (not bIsCopy) then
+		Details.active_profile = profileName
+		_detalhes_database.active_profile = profileName
 	end
 
 	--apply the skin
-
 		--first save the local instance configs
 		Details:SaveLocalInstanceConfig()
 
@@ -490,7 +488,12 @@ function Details:ApplyProfile (profile_name, nosave, is_copy)
 		Details.profile_loaded = true
 	end
 
-	Details:SendEvent("DETAILS_PROFILE_APPLYED", profile_name)
+	Details:SendEvent("DETAILS_PROFILE_APPLYED", profileName)
+
+	--to be removed in the future (2023-08-13)
+	if (Details.time_type == 3 or not Details.time_type) then
+		Details.time_type = 2
+	end
 
 	return true
 end
