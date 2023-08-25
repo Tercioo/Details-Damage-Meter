@@ -1,6 +1,6 @@
 
 
-local dversion = 457
+local dversion = 460
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -233,8 +233,8 @@ end
 
 ---return the role of the unit, this is safe to use for all versions of wow
 ---@param unitId string
----@param specId number
 ---@param bUseSupport boolean
+---@param specId number
 ---@return string
 function DF.UnitGroupRolesAssigned(unitId, bUseSupport, specId)
 	if (not DF.IsTimewalkWoW()) then --Was function exist check. TBC has function, returns NONE. -Flamanis 5/16/2022
@@ -525,7 +525,7 @@ function DF.table.reverse(t)
 	return new
 end
 
----copy the values from table2 to table1, ignore the metatable and UIObjects
+---copy the values from table2 to table1 overwriting existing values, ignores __index and __newindex, keys pointing to a UIObject are preserved
 ---@param t1 table
 ---@param t2 table
 ---@return table
@@ -549,7 +549,7 @@ function DF.table.duplicate(t1, t2)
 	return t1
 end
 
----copy from the table 't2' to table 't1' ignoring the metatable and overwriting values, does copy UIObjects
+---copy the values from table2 to table1 overwriting existing values, ignores __index and __newindex, threat UIObjects as regular tables
 ---@param t1 table
 ---@param t2 table
 ---@return table
@@ -640,12 +640,83 @@ function DF.table.deploy(t1, t2)
 	return t1
 end
 
+local function tableToString(t, resultString, deep, seenTables)
+    resultString = resultString or ""
+    deep = deep or 0
+    seenTables = seenTables or {}
+
+    if seenTables[t] then
+        resultString = resultString .. "--CIRCULAR REFERENCE\n"
+        return resultString
+    end
+
+    local space = string.rep("   ", deep)
+
+    seenTables[t] = true
+
+    for key, value in pairs(t) do
+		local valueType = type(value)
+
+		if (type(key) == "function") then
+			key = "#function#"
+		elseif (type(key) == "table") then
+			key = "#table#"
+		end
+
+		if (type(key) ~= "string" and type(key) ~= "number") then
+			key = "unknown?"
+		end
+
+        if (valueType == "table") then
+			local sUIObjectType = value.GetObjectType and value:GetObjectType()
+			if (sUIObjectType) then
+				if (type(key) == "number") then
+					resultString = resultString .. space .. "[" .. key .. "] = |cFFa9ffa9 " .. sUIObjectType .. " {|r\n"
+				else
+					resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9 " .. sUIObjectType .. " {|r\n"
+				end
+			else
+				if (type(key) == "number") then
+					resultString = resultString .. space .. "[" .. key .. "] = |cFFa9ffa9 {|r\n"
+				else
+					resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFa9ffa9 {|r\n"
+				end
+			end
+            resultString = resultString .. tableToString(value, nil, deep + 1, seenTables)
+            resultString = resultString .. space .. "|cFFa9ffa9},|r\n"
+
+		elseif (valueType == "string") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = \"|cFFfff1c1" .. value .. "|r\",\n"
+
+		elseif (valueType == "number") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFFffc1f4" .. value .. "|r,\n"
+
+		elseif (valueType == "function") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = function()end,\n"
+
+		elseif (valueType == "boolean") then
+			resultString = resultString .. space .. "[\"" .. key .. "\"] = |cFF99d0ff" .. (value and "true" or "false") .. "|r,\n"
+		end
+    end
+
+    return resultString
+end
+
+local function tableToStringSafe(t)
+    local seenTables = {}
+    return tableToString(t, nil, 0, seenTables)
+end
+
+
 ---get the contends of table 't' and return it as a string
 ---@param t table
 ---@param resultString string
 ---@param deep integer
 ---@return string
 function DF.table.dump(t, resultString, deep)
+
+	if true then return tableToStringSafe(t) end
+
 	resultString = resultString or ""
 	deep = deep or 0
 	local space = ""
@@ -967,7 +1038,7 @@ end
 ---@param self table
 ---@param fontString fontstring
 ---@param degrees number
-function DF:SetFontRotation(fontString, degrees)
+function DF:SetFontRotation(fontString, degrees) --deprecated, use fontString:SetRotation(degrees)
 	if (type(degrees) == "number") then
 		if (not fontString.__rotationAnimation) then
 			fontString.__rotationAnimation = DF:CreateAnimationHub(fontString)
@@ -3927,7 +3998,7 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 	glowFrame.SetColor = glow_overlay_setcolor
 
 	glowFrame:SetColor(antsColor, glowColor)
-	
+
 	glowFrame:Hide()
 
 	parent.overlay = glowFrame
@@ -3950,7 +4021,7 @@ function DF:CreateGlowOverlay (parent, antsColor, glowColor)
 		--glowFrame.ProcStartFlipbook:SetSize(frameWidth * scale, frameHeight * scale)
 		glowFrame.ProcStartFlipbook:SetPoint("TOPLEFT", glowFrame, "TOPLEFT", -frameWidth * scale, frameHeight * scale)
 		glowFrame.ProcStartFlipbook:SetPoint("BOTTOMRIGHT", glowFrame, "BOTTOMRIGHT", frameWidth * scale, -frameHeight * scale)
-	end 
+	end
 	glowFrame:EnableMouse(false)
 	return glowFrame
 end
@@ -4557,19 +4628,22 @@ end
 ---@return any
 function DF:Dispatch(func, ...)
 	if (type(func) ~= "function") then
-		return dispatch_error (_, "DF:Dispatch expect a function as parameter 1.")
+		return dispatch_error(_, "DetailsFramework:Dispatch(func) expect a function as parameter 1.")
 	end
+	return select(2, xpcall(func, geterrorhandler(), ...))
 
-	local dispatchResult = {xpcall(func, geterrorhandler(), ...)}
-	local okay = dispatchResult[1]
+	--[=[
+		local dispatchResult = {xpcall(func, geterrorhandler(), ...)}
+		local okay = dispatchResult[1]
 
-	if (not okay) then
-		return false
-	end
+		if (not okay) then
+			return false
+		end
 
-	tremove(dispatchResult, 1)
+		tremove(dispatchResult, 1)
 
-	return unpack(dispatchResult)
+		return unpack(dispatchResult)
+	--]=]
 end
 
 --[=[

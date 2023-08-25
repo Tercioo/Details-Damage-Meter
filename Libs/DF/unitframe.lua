@@ -70,12 +70,14 @@ local cleanfunction = function() end
 ---@field ShieldIndicatorTexture texturepath|textureid|atlasname
 ---@field ShieldGlowTexture texturepath|textureid|atlasname
 ---@field ShieldGlowWidth number
+---@field DontSetStatusBarTexture boolean
 ---@field Width number
 ---@field Height number
 
 ---@class df_healthbar : statusbar, df_scripthookmixin, df_statusbarmixin
 ---@field unit unit
 ---@field displayedUnit unit
+---@field oldHealth number
 ---@field currentHealth number
 ---@field currentHealthMax number
 ---@field WidgetType string
@@ -86,7 +88,7 @@ local cleanfunction = function() end
 ---@field healAbsorbIndicator texture
 ---@field shieldAbsorbGlow texture
 ---@field barTexture texture
----@field SetUnit fun(self:df_healthbar, unit:unit, displayedUnit:unit)
+---@field SetUnit fun(self:df_healthbar, unit:unit?, displayedUnit:unit)
 ---@field GetTexture fun(self:df_healthbar) : texture
 ---@field SetTexture fun(self:df_healthbar, texture:texturepath|textureid|atlasname)
 ---@field SetColor fun(self:df_healthbar, red:number, green:number, blue:number, alpha:number)
@@ -140,6 +142,7 @@ local cleanfunction = function() end
 		CanTick = false, --if true calls the method 'OnTick' every tick, the function needs to be overloaded, it receives self and deltaTime as parameters
 		ShowHealingPrediction = true, --when casting a healing pass, show the amount of health that spell will heal
 		ShowShields = true, --indicator of the amount of damage absortion the unit has
+		DontSetStatusBarTexture = false,
 
 		--appearance
 		BackgroundColor = detailsFramework:CreateColorTable (.2, .2, .2, .8),
@@ -251,6 +254,9 @@ local cleanfunction = function() end
 		self.shieldAbsorbGlow:Hide()
 
 		self:SetUnit(nil)
+
+		self.currentHealth = 1
+		self.currentHealthMax = 2
 	end
 
 	--call every tick
@@ -258,25 +264,29 @@ local cleanfunction = function() end
 
 	--when an event happen for this unit, send it to the apropriate function
 	healthBarMetaFunctions.OnEvent = function(self, event, ...)
-		local eventFunc = self [event]
+		local eventFunc = self[event]
 		if (eventFunc) then
 			--the function doesn't receive which event was, only 'self' and the parameters
-			eventFunc (self, ...)
+			eventFunc(self, ...)
 		end
 	end
 
 	--when the unit max health is changed
 	healthBarMetaFunctions.UpdateMaxHealth = function(self)
-		local maxHealth = UnitHealthMax (self.displayedUnit)
+		local maxHealth = UnitHealthMax(self.displayedUnit)
 		self:SetMinMaxValues(0, maxHealth)
 		self.currentHealthMax = maxHealth
 
-		self:RunHooksForWidget("OnHealthMaxChange", self, self.displayedUnit)
+		if (self.OnHealthMaxChange) then --direct call
+			self.OnHealthMaxChange(self, self.displayedUnit)
+		else
+			self:RunHooksForWidget("OnHealthMaxChange", self, self.displayedUnit)
+		end
 	end
 
 	healthBarMetaFunctions.UpdateHealth = function(self)
 		-- update max health regardless to avoid weird wrong values on UpdateMaxHealth sometimes
-		-- local maxHealth = UnitHealthMax (self.displayedUnit)
+		-- local maxHealth = UnitHealthMax(self.displayedUnit)
 		-- self:SetMinMaxValues(0, maxHealth)
 		-- self.currentHealthMax = maxHealth
 
@@ -285,7 +295,11 @@ local cleanfunction = function() end
 		self.currentHealth = health
 		PixelUtil.SetStatusBarValue(self, health)
 
-		self:RunHooksForWidget("OnHealthChange", self, self.displayedUnit)
+		if (self.OnHealthChange) then --direct call
+			self.OnHealthChange(self, self.displayedUnit)
+		else
+			self:RunHooksForWidget("OnHealthChange", self, self.displayedUnit)
+		end
 	end
 
 	--health and absorbs prediction
@@ -365,18 +379,18 @@ local cleanfunction = function() end
 			self:UpdateHealPrediction()
 		end
 
-		healthBarMetaFunctions.UNIT_HEALTH = function(self, ...)
+		healthBarMetaFunctions.UNIT_HEALTH = function(self, unitId)
+			self:UpdateHealth()
+			self:UpdateHealPrediction()
+		end
+
+		healthBarMetaFunctions.UNIT_MAXHEALTH = function(self, unitId)
+			self:UpdateMaxHealth()
 			self:UpdateHealth()
 			self:UpdateHealPrediction()
 		end
 
 		healthBarMetaFunctions.UNIT_HEALTH_FREQUENT = function(self, ...)
-			self:UpdateHealth()
-			self:UpdateHealPrediction()
-		end
-
-		healthBarMetaFunctions.UNIT_MAXHEALTH = function(self, ...)
-			self:UpdateMaxHealth()
 			self:UpdateHealth()
 			self:UpdateHealPrediction()
 		end
@@ -430,7 +444,6 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 			healthBar.shieldAbsorbGlow:SetDrawLayer("artwork", 7)
 			--statusbar texture
 			healthBar.barTexture = healthBar:CreateTexture(nil, "artwork")
-			healthBar:SetStatusBarTexture(healthBar.barTexture)
 		end
 
 	--mixins
@@ -446,6 +459,12 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 		detailsFramework.table.copy(settings, settingsOverride)
 	end
 	healthBar.Settings = settings
+
+	if (healthBar.Settings.DontSetStatusBarTexture) then
+		healthBar.barTexture:SetAllPoints()
+	else
+		healthBar:SetStatusBarTexture(healthBar.barTexture)
+	end
 
 	--hook list
 	healthBar.HookList = detailsFramework.table.copy({}, healthBarMetaFunctions.HookList)
@@ -488,6 +507,7 @@ end
 ---@field Settings df_powerbarsettings
 ---@field background texture
 ---@field percentText fontstring
+---@field SetUnit fun(self:df_healthbar, unit:unit?, displayedUnit:unit?)
 
 detailsFramework.PowerFrameFunctions = {
 	WidgetType = "powerBar",
@@ -617,9 +637,10 @@ detailsFramework.PowerFrameFunctions = {
 			self:Hide()
 		end
 	end,
+
 	UpdatePower = function(self)
 		self.currentPower = UnitPower(self.displayedUnit, self.powerType)
-		PixelUtil.SetStatusBarValue (self, self.currentPower)
+		PixelUtil.SetStatusBarValue(self, self.currentPower)
 
 		if (self.Settings.ShowPercentText) then
 			self.percentText:SetText(floor(self.currentPower / self.currentPowerMax * 100) .. "%")
@@ -845,7 +866,7 @@ end
 ---@field fadeOutAnimation animationgroup
 ---@field fadeInAnimation animationgroup
 ---@field flashAnimation animationgroup
----@field SetUnit fun(self:df_castbar, unit:string)
+---@field SetUnit fun(self:df_castbar, unit:string?)
 ---@field SetDefaultColor fun(self:df_castbar, colorType: caststage_color, red:any, green:number?, blue:number?, alpha:number?)
 ---@field UpdateCastColor fun(self:df_castbar) after setting a new color, call this function to update the bar color (while casting or channeling)
 ---@field GetCastColor fun(self:df_castbar) return a table with the color values for the current state of the casting process
@@ -1942,17 +1963,17 @@ end
 	end
 
 	---@class df_unitframesettings : table
-	---@field ClearUnitOnHide boolean
-	---@field ShowCastBar boolean
-	---@field ShowPowerBar boolean
-	---@field ShowUnitName boolean
-	---@field ShowBorder boolean
-	---@field CanModifyHealhBarColor boolean
-	---@field ColorByAggro boolean
-	---@field FixedHealthColor boolean
-	---@field UseFriendlyClassColor boolean
-	---@field UseEnemyClassColor boolean
-	---@field ShowTargetOverlay boolean
+	---@field ClearUnitOnHide boolean true
+	---@field ShowCastBar boolean true
+	---@field ShowPowerBar boolean true
+	---@field ShowUnitName boolean true
+	---@field ShowBorder boolean true
+	---@field CanModifyHealhBarColor boolean true
+	---@field ColorByAggro boolean false
+	---@field FixedHealthColor boolean false
+	---@field UseFriendlyClassColor boolean true
+	---@field UseEnemyClassColor boolean true
+	---@field ShowTargetOverlay boolean true
 	---@field BorderColor table
 	---@field CanTick boolean
 	---@field Width number
@@ -1964,7 +1985,7 @@ end
 	---@field WidgetType string
 	---@field Settings df_unitframesettings
 	---@field SetHealthBarColor fun(self:df_unitframe, r:number, g:number?, b:number?, a:number?)
-	---@field SetUnit fun(self:df_unitframe, unit:string) sets the unit to be shown in the unit frame
+	---@field SetUnit fun(self:df_unitframe, unit:string?) sets the unit to be shown in the unit frame
 	---@field OnTick fun(self:df_unitframe, deltaTime:number?) if CanTick is true, this function will be called every frame
 
 	detailsFramework.UnitFrameFunctions = {
@@ -1987,7 +2008,7 @@ end
 
 			--misc
 			ShowTargetOverlay = true, --shows a highlighht for the player current target
-			BorderColor = detailsFramework:CreateColorTable (0, 0, 0, 1), --border color, set to alpha zero for no border
+			BorderColor = detailsFramework:CreateColorTable(0, 0, 0, 1), --border color, set to alpha zero for no border
 			CanTick = false, --if true it'll run the OnTick event
 
 			--size
@@ -2384,8 +2405,9 @@ end
 				self:UpdateUnitFrame()
 			end
 		end,
+
 		PARTY_MEMBER_ENABLE = function(self, ...)
-			if (UnitIsConnected (self.unit)) then
+			if (UnitIsConnected(self.unit)) then
 				self:UpdateName()
 			end
 		end,

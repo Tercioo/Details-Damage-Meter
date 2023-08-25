@@ -10,6 +10,14 @@ local unpack = table.unpack or _G.unpack
 --make a namespace for schedules
 DF.Schedules = DF.Schedules or {}
 
+---@class df_schedule : table
+---@field NewTicker fun(time: number, callback: function, ...: any): timer
+---@field NewTimer fun(time: number, callback: function, ...: any): timer
+---@field Cancel fun(ticker: timer)
+---@field After fun(time: number, callback: function)
+---@field SetName fun(object: timer, name: string)
+---@field RunNextTick fun(callback: function)
+
 --run a scheduled function with its payload
 local triggerScheduledTick = function(tickerObject)
     local payload = tickerObject.payload
@@ -51,7 +59,7 @@ function DF.Schedules.NewTimer(time, callback, ...)
     return newTimer
 end
 
---cancel an ongoing ticker
+--cancel an ongoing ticker, the native call tickerObject:Cancel() also works with no problem
 function DF.Schedules.Cancel(tickerObject)
     --ignore if there's no ticker object
     if (tickerObject) then

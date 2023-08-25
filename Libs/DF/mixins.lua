@@ -1018,7 +1018,10 @@ detailsFramework.ValueMixin = {
 ---@field GetBorderTexture fun(self: table) : string
 ---@field SetBorderColor fun(self: table, ...)
 ---@field GetBorderColor fun(self: table) : number, number, number, number
-
+---@field SetDesaturated fun(self: table, bIsDesaturated: boolean)
+---@field IsDesaturated fun(self: table) : boolean
+---@field SetVertexColor fun(self: table, red: any, green: number?, blue: number?, alpha: number?)
+---@field GetVertexColor fun(self: table) : number, number, number, number
 
 detailsFramework.StatusBarFunctions = {
 	SetTexture = function(self, texture, isTemporary)
@@ -1036,6 +1039,27 @@ detailsFramework.StatusBarFunctions = {
 		return self.barTexture:GetTexture()
 	end,
 
+	SetDesaturated = function(self, bIsDesaturated)
+		self.barTexture:SetDesaturated(bIsDesaturated)
+	end,
+
+	SetDesaturation = function(self, desaturationAmount)
+		self.barTexture:SetDesaturation(desaturationAmount)
+	end,
+
+	IsDesaturated = function(self)
+		return self.barTexture:IsDesaturated()
+	end,
+
+	SetVertexColor = function(self, red, green, blue, alpha)
+		red, green, blue, alpha = detailsFramework:ParseColors(red, green, blue, alpha)
+		self.barTexture:SetVertexColor(red, green, blue, alpha)
+	end,
+
+	GetVertexColor = function(self)
+		return self.barTexture:GetVertexColor()
+	end,
+
 	SetAtlas = function(self, atlasName)
 		self.barTexture:SetAtlas(atlasName)
 	end,
@@ -1045,6 +1069,7 @@ detailsFramework.StatusBarFunctions = {
 	end,
 
 	SetTexCoord = function(self, ...)
+		local left, right, top, bottom = ...
 		return self.barTexture:SetTexCoord(...)
 	end,
 

@@ -9,25 +9,41 @@ local unpack = unpack
 local CreateFrame = CreateFrame
 local PixelUtil = PixelUtil
 
+local spellIconCache = {}
+local spellNameCache = {}
+
 detailsFramework.IconMixin = {
 	---create a new icon frame
 	---@param self frame the parent frame
 	---@param iconName string the name of the icon frame
 	---@return frame
-    CreateIcon = function(self, iconName)
-        local iconFrame = CreateFrame("frame", iconName, self, "BackdropTemplate")
+    CreateIcon = function(self, iconName, bIsSimple)
+		---@type frame
+        local iconFrame = CreateFrame("frame", iconName, self, not bIsSimple and "BackdropTemplate")
 
+		---@type texture
         iconFrame.Texture = iconFrame:CreateTexture(nil, "artwork")
         PixelUtil.SetPoint(iconFrame.Texture, "topleft", iconFrame, "topleft", 1, -1)
         PixelUtil.SetPoint(iconFrame.Texture, "bottomright", iconFrame, "bottomright", -1, 1)
 
+		---@type texture
         iconFrame.Border = iconFrame:CreateTexture(nil, "background")
         iconFrame.Border:SetAllPoints()
         iconFrame.Border:SetColorTexture(0, 0, 0)
 
-        iconFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-        iconFrame:SetBackdropBorderColor(0, 0, 0, 0)
-        iconFrame:EnableMouse(false)
+		---@type fontstring
+        iconFrame.StackText = iconFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+        iconFrame.StackText:SetPoint("bottomright", iconFrame, "bottomright", 0, 0)
+        iconFrame.StackText:Hide()
+        iconFrame.StackTextShadow = iconFrame:CreateFontString(nil, "artwork", "GameFontNormal")
+        iconFrame.StackTextShadow:SetPoint("center", iconFrame.StackText, "center", 0, 0)
+		iconFrame.StackTextShadow:SetTextColor(0, 0, 0)
+        iconFrame.StackTextShadow:Hide()
+
+		---@type fontstring
+        iconFrame.Desc = iconFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+        iconFrame.Desc:SetPoint("bottom", iconFrame, "top", 0, 2)
+        iconFrame.Desc:Hide()
 
         local cooldownFrame = CreateFrame("cooldown", "$parentCooldown", iconFrame, "CooldownFrameTemplate, BackdropTemplate")
         cooldownFrame:SetAllPoints()
@@ -35,39 +51,57 @@ detailsFramework.IconMixin = {
         cooldownFrame:SetFrameLevel(iconFrame:GetFrameLevel()+1)
         iconFrame.Cooldown = cooldownFrame
 
+		---@type fontstring
         iconFrame.CountdownText = cooldownFrame:CreateFontString(nil, "overlay", "GameFontNormal")
         iconFrame.CountdownText:SetPoint("center", iconFrame, "center", 0, 0)
         iconFrame.CountdownText:Hide()
 
-        iconFrame.StackText = iconFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-        iconFrame.StackText:SetPoint("center", iconFrame, "bottomright", 0, 0)
-        iconFrame.StackText:Hide()
-
-        iconFrame.Desc = iconFrame:CreateFontString(nil, "overlay", "GameFontNormal")
-        iconFrame.Desc:SetPoint("bottom", iconFrame, "top", 0, 2)
-        iconFrame.Desc:Hide()
-
 		return iconFrame
     end,
 
-	GetIcon = function(self)
+	GetIcon = function(self, bIsSimple)
 		local iconFrame = self.IconPool[self.NextIcon]
 
 		if (not iconFrame) then
-            local newIconFrame = self:CreateIcon("$parentIcon" .. self.NextIcon)
-            newIconFrame.parentIconRow = self
-            newIconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
-            newIconFrame.Cooldown.noCooldownCount = self.options.surpress_tulla_omni_cc
+            iconFrame = self:CreateIcon("$parentIcon" .. self.NextIcon, bIsSimple)
+            iconFrame.parentIconRow = self
 
-            newIconFrame.CountdownText:ClearAllPoints()
-            newIconFrame.CountdownText:SetPoint(self.options.text_anchor or "center", iconFrame, self.options.text_rel_anchor or "center", self.options.text_x_offset or 0, self.options.text_y_offset or 0)
-            newIconFrame.StackText:ClearAllPoints()
-            newIconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "bottomright", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
-            newIconFrame.Desc:ClearAllPoints()
-            newIconFrame.Desc:SetPoint(self.options.desc_text_anchor or "bottom", iconFrame, self.options.desc_text_rel_anchor or "top", self.options.desc_text_x_offset or 0, self.options.desc_text_y_offset or 2)
+			if (bIsSimple) then
+				iconFrame.Cooldown:Hide()
+				iconFrame.Desc:Hide()
+				iconFrame.Texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+				--newIconFrame:SetBackdropBorderColor(0, 0, 0, 0)
+				iconFrame.Border:ClearAllPoints()
+				iconFrame.Border:SetPoint("topleft", iconFrame, "topleft", -1, 1)
+				iconFrame.Border:SetPoint("bottomright", iconFrame, "bottomright", 1, -1)
+				iconFrame.Border:SetTexture(130759)
+				iconFrame.Border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
+				iconFrame.Border:SetDrawLayer("overlay", 7)
 
-			self.IconPool[self.NextIcon] = newIconFrame
-			iconFrame = newIconFrame
+				iconFrame.StackText:SetTextColor(detailsFramework:ParseColors(self.options.stack_text_color))
+				iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "center", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
+				detailsFramework:SetFontSize(iconFrame.StackText, self.options.stack_text_size)
+				detailsFramework:SetFontFace(iconFrame.StackText, self.options.stack_text_font)
+				detailsFramework:SetFontOutline(iconFrame.StackText, self.options.stack_text_outline)
+				detailsFramework:SetFontFace(iconFrame.StackTextShadow, self.options.stack_text_font)
+				detailsFramework:SetFontSize(iconFrame.StackTextShadow, self.options.stack_text_size+1)
+			else
+				iconFrame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+				iconFrame:SetBackdropBorderColor(0, 0, 0, 0)
+				iconFrame:EnableMouse(false)
+				iconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
+				iconFrame.Cooldown.noCooldownCount = self.options.surpress_tulla_omni_cc
+				iconFrame.CountdownText:ClearAllPoints()
+				iconFrame.CountdownText:SetPoint(self.options.text_anchor or "center", iconFrame, self.options.text_rel_anchor or "center", self.options.text_x_offset or 0, self.options.text_y_offset or 0)
+				iconFrame.Desc:ClearAllPoints()
+				iconFrame.Desc:SetPoint(self.options.desc_text_anchor or "bottom", iconFrame, self.options.desc_text_rel_anchor or "top", self.options.desc_text_x_offset or 0, self.options.desc_text_y_offset or 2)
+			end
+
+            iconFrame.StackText:ClearAllPoints()
+            iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "center", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
+
+			self.IconPool[self.NextIcon] = iconFrame
+			iconFrame = iconFrame
 		end
 
 		iconFrame:ClearAllPoints()
@@ -133,6 +167,8 @@ detailsFramework.IconMixin = {
 				iconFrame:SetBackdropBorderColor(0, 0, 0 ,0)
 			end
 
+			--iconFrame.Border:SetColorTexture(0, 0, 0, 1)
+
 			if (startTime) then
 				CooldownFrame_Set(iconFrame.Cooldown, startTime, duration, true, true, modRate)
 
@@ -168,11 +204,13 @@ detailsFramework.IconMixin = {
 				iconFrame.Cooldown:SetDrawSwipe(self.options.cooldown_swipe_enabled)
 				iconFrame.Cooldown:SetEdgeTexture(self.options.cooldown_edge_texture)
 				iconFrame.Cooldown:SetHideCountdownNumbers(self.options.surpress_blizzard_cd_timer)
+				iconFrame.Cooldown:Show()
 			else
 				iconFrame.timeRemaining = nil
 				iconFrame.expirationTime = nil
 				iconFrame:SetScript("OnUpdate", nil)
 				iconFrame.CountdownText:Hide()
+				iconFrame.Cooldown:Hide()
 			end
 
 			if (descText and self.options.desc_text) then
@@ -191,12 +229,95 @@ detailsFramework.IconMixin = {
 				iconFrame.StackText:Show()
 				iconFrame.StackText:SetText(count)
 				iconFrame.StackText:SetTextColor(detailsFramework:ParseColors(self.options.stack_text_color))
-				iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "bottomright", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
+				iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "center", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
 				detailsFramework:SetFontSize(iconFrame.StackText, self.options.stack_text_size)
 				detailsFramework:SetFontFace(iconFrame.StackText, self.options.stack_text_font)
 				detailsFramework:SetFontOutline(iconFrame.StackText, self.options.stack_text_outline)
 			else
 				iconFrame.StackText:Hide()
+			end
+
+			PixelUtil.SetSize(iconFrame, self.options.icon_width, self.options.icon_height)
+			iconFrame:Show()
+
+			--update the size of the frame
+			self:SetWidth((self.options.left_padding * 2) + (self.options.icon_padding * (self.NextIcon-2)) + (self.options.icon_width * (self.NextIcon - 1)))
+			self:SetHeight(self.options.icon_height + (self.options.top_padding * 2))
+
+			--make information available
+			iconFrame.spellId = spellId
+			iconFrame.startTime = startTime
+			iconFrame.duration = duration
+			iconFrame.count = count
+			iconFrame.debuffType = debuffType
+			iconFrame.caster = caster
+			iconFrame.canStealOrPurge = canStealOrPurge
+			iconFrame.isBuff = isBuff
+			iconFrame.spellName = spellName
+
+			iconFrame.identifierKey = nil -- only used for "specific" add/remove
+
+			--add the spell into the cache
+			self.AuraCache[spellId or -1] = true
+			self.AuraCache[spellName] = true
+			self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or canStealOrPurge
+			self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or debuffType == "" --yes, enrages are empty-string...
+
+			--show the frame
+			self:Show()
+
+			return iconFrame
+		end
+	end,
+
+	SetStacks = function(self, iconFrame, bIsShown, stacksAmount)
+		if (bIsShown) then
+			iconFrame.StackText:Show()
+			iconFrame.StackTextShadow:Show()
+			iconFrame.StackText:SetText(stacksAmount)
+			iconFrame.StackTextShadow:SetText(stacksAmount)
+		else
+			iconFrame.StackText:Hide()
+			iconFrame.StackTextShadow:Hide()
+		end
+	end,
+
+	SetIconSimple = function(self, spellId, borderColor, startTime, duration, iconTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate)
+		local actualSpellName, spellIcon = spellNameCache[spellId], spellIconCache[spellId]
+
+		if (not actualSpellName) then
+			actualSpellName, _, spellIcon = GetSpellInfo(spellId)
+			spellIconCache[spellId] = spellIcon
+			spellNameCache[spellId] = actualSpellName
+		end
+
+		if iconTexture then
+			spellIcon = iconTexture
+		end
+
+		if (spellIcon) then
+			spellName = spellName or actualSpellName or "unknown_aura"
+			modRate = modRate or 1
+
+			local bIsSimple = true
+			local iconFrame = self:GetIcon(bIsSimple, bIsSimple)
+
+			if (iconFrame.Texture.texture ~= spellIcon) then
+				iconFrame.Texture:SetTexture(spellIcon, "clamp", "clamp", "nearest")
+				iconFrame.Texture.texture = spellIcon
+			end
+
+			if (borderColor) then
+				iconFrame.Border:Show()
+				iconFrame.Border:SetVertexColor(unpack(borderColor))
+			else
+				iconFrame.Border:Hide()
+			end
+
+			if (count and count > 1 and self.options.stack_text) then
+				self:SetStacks(iconFrame, true, count)
+			else
+				self:SetStacks(iconFrame, false)
 			end
 
 			PixelUtil.SetSize(iconFrame, self.options.icon_width, self.options.icon_height)
@@ -413,8 +534,10 @@ detailsFramework.IconMixin = {
 	end,
 
 	OnOptionChanged = function(self, optionName)
-		self:SetBackdropColor(unpack(self.options.backdrop_color))
-		self:SetBackdropBorderColor(unpack(self.options.backdrop_border_color))
+		if (self.SetBackdropColor) then
+			self:SetBackdropColor(unpack(self.options.backdrop_color))
+			self:SetBackdropBorderColor(unpack(self.options.backdrop_border_color))
+		end
 	end,
 }
 
@@ -466,6 +589,11 @@ local default_icon_row_options = {
 	cooldown_edge_texture = "Interface\\Cooldown\\edge",
 }
 
+---comment
+---@param parent frame
+---@param name string?
+---@param options table?
+---@return frame
 function detailsFramework:CreateIconRow(parent, name, options)
 	local newIconRowFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
 	newIconRowFrame.IconPool = {}
