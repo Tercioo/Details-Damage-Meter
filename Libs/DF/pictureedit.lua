@@ -8,42 +8,23 @@ local _
 local texCoordinates
 
 local CreateImageEditorFrame = function()
-	local editorWindow = DF:NewPanel(UIParent, nil, "DetailsFrameworkImageEdit", nil, 650, 500, false)
-	editorWindow:SetPoint("center", UIParent, "center")
-	editorWindow:SetResizable(true)
-	editorWindow:SetMovable(true)
-	editorWindow:SetClampedToScreen(true)
-	tinsert(UISpecialFrames, "DetailsFrameworkImageEdit")
-	editorWindow:SetFrameStrata("TOOLTIP")
-	
-	editorWindow:SetResizeBounds(100, 100, 500, 500)
 
-	_G.DetailsFrameworkImageEditTable = editorWindow
-
-	editorWindow.hooks = {}
-
-	local background = DF:NewImage(editorWindow, nil, nil, nil, "background", nil, "background", "$parentBackground")
-	background:SetAllPoints()
-	background:SetTexture(0, 0, 0, .8)
-
-	local edit_texture = DF:NewImage(editorWindow, nil, 500, 500, "artwork", nil, "edit_texture", "$parentImage")
-	edit_texture:SetAllPoints()
-	_G.DetailsFrameworkImageEdit_EditTexture = edit_texture
-
-	local background_frame = CreateFrame("frame", "DetailsFrameworkImageEditBackground", DetailsFrameworkImageEdit, "BackdropTemplate")
-	background_frame:SetPoint("topleft", DetailsFrameworkImageEdit, "topleft", -10, 30)
+	local background_frame = CreateFrame("frame", "DetailsFrameworkImageEditBackground", UIParent, "BackdropTemplate")
+	background_frame:SetPoint("center", UIParent, "center")
 	background_frame:SetFrameStrata("TOOLTIP")
-	background_frame:SetFrameLevel(editorWindow:GetFrameLevel())
 	background_frame:SetSize(790, 560)
+	background_frame:SetClampedToScreen(true)
+	
+	tinsert(UISpecialFrames, "DetailsFrameworkImageEditBackground")
 
 	background_frame:SetResizable(true)
 	background_frame:SetMovable(true)
 
-	background_frame:SetScript("OnMouseDown", function()
-		editorWindow:StartMoving()
+	background_frame:SetScript("OnMouseDown", function(self)
+		self:StartMoving()
 	end)
-	background_frame:SetScript("OnMouseUp", function()
-		editorWindow:StopMovingOrSizing()
+	background_frame:SetScript("OnMouseUp", function(self)
+		self:StopMovingOrSizing()
 	end)
 
 	DF:CreateTitleBar (background_frame, "Image Editor")
@@ -53,6 +34,31 @@ local CreateImageEditorFrame = function()
 	background_frame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 	background_frame:SetBackdropColor(0, 0, 0, 0.9)
 	background_frame:SetBackdropBorderColor(0, 0, 0, 1)
+
+	local editorWindow = DF:NewPanel(background_frame, nil, "DetailsFrameworkImageEdit", nil, 650, 500, false)
+	editorWindow:SetPoint("topleft", background_frame, "topleft", 10, -30)
+	editorWindow:SetResizable(true)
+	--editorWindow:SetMovable(true)
+	editorWindow:Show()
+	--editorWindow:SetClampedToScreen(true)
+	editorWindow:SetFrameStrata("TOOLTIP")
+	editorWindow:SetFrameLevel(background_frame:GetFrameLevel())
+	
+	editorWindow:SetResizeBounds(100, 100, 500, 500)
+
+	_G.DetailsFrameworkImageEditTable = editorWindow
+
+	editorWindow.hooks = {}
+
+	local background = DF:NewImage(editorWindow, nil, nil, nil, "background", nil, "background", "$parentBackgroundImage")
+	background:SetAllPoints()
+	background:SetTexture(0, 0, 0, .8)
+
+	local edit_texture = DF:NewImage(editorWindow, nil, 500, 500, "artwork", nil, "edit_texture", "$parentImage")
+	edit_texture:SetAllPoints()
+	_G.DetailsFrameworkImageEdit_EditTexture = edit_texture
+
+	
 
 	local haveHFlip = false
 	local haveVFlip = false
@@ -182,12 +188,12 @@ local CreateImageEditorFrame = function()
 		rightSlider:Hide()
 
 --Edit Buttons
-	local buttonsBackground = DF:NewPanel(UIParent, nil, "DetailsFrameworkImageEditButtonsBg", nil, 115, 230)
+	local buttonsBackground = DF:NewPanel(background_frame, nil, "DetailsFrameworkImageEditButtonsBg", nil, 115, 230, false)
 	--buttonsBackground:SetPoint("topleft", window, "topright", 2, 0)
 	buttonsBackground:SetPoint("topright", background_frame, "topright", -8, -10)
-	buttonsBackground:Hide()
+	--buttonsBackground:Hide()
 	--buttonsBackground:SetMovable(true)
-	tinsert(UISpecialFrames, "DetailsFrameworkImageEditButtonsBg")
+	--tinsert(UISpecialFrames, "DetailsFrameworkImageEditButtonsBg")
 	buttonsBackground:SetFrameStrata("TOOLTIP")
 
 		local alphaFrameShown = false
@@ -363,6 +369,8 @@ local CreateImageEditorFrame = function()
 
 		resizer:SetScript("OnMouseUp", function(self, button)
 			editorWindow.widget:StopMovingOrSizing()
+			editorWindow:ClearAllPoints()
+			editorWindow:SetPoint("topleft", background_frame, "topleft", 10, -30)
 		end)
 
 		editorWindow.widget:SetScript("OnMouseDown", function()
@@ -370,6 +378,8 @@ local CreateImageEditorFrame = function()
 		end)
 		editorWindow.widget:SetScript("OnMouseUp", function()
 			editorWindow.widget:StopMovingOrSizing()
+			editorWindow:ClearAllPoints()
+			editorWindow:SetPoint("topleft", background_frame, "topleft", 10, -30)
 		end)
 
 		editorWindow.widget:SetScript("OnSizeChanged", function()
@@ -498,8 +508,7 @@ local CreateImageEditorFrame = function()
 	--accept
 	editorWindow.accept = function(self, bottom, keepEditing)
 		if (not keepEditing) then
-			buttonsBackground:Hide()
-			editorWindow:Hide()
+			background_frame:Hide()
 			alphaFrame:Hide()
 			ColorPickerFrame:Hide()
 		end
@@ -563,8 +572,7 @@ local CreateImageEditorFrame = function()
 			editorWindow.accept(nil, nil, true)
 		end
 	end
-
-	editorWindow:Hide()
+	background_frame:Hide()
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -593,11 +601,11 @@ end
 
 		DF.Schedules.NewTimer(0.2, DF.RefreshImageEditor)
 
-		window:Show()
+		window:GetParent():Show()
 		window.callback_func = callback
 		window.extra_param = extraParam
-		DetailsFrameworkImageEditButtonsBg:Show()
-		DetailsFrameworkImageEditButtonsBg:SetBackdrop(nil)
+		--DetailsFrameworkImageEditButtonsBg:Show()
+		--DetailsFrameworkImageEditButtonsBg:SetBackdrop(nil)
 
 		table.wipe(window.hooks)
 	end
