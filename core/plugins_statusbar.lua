@@ -1055,18 +1055,13 @@ do
 		for index, child in ipairs(Threat.childs) do
 			local instance = child.instance
 			if (child.enabled and instance:IsEnabled()) then
-				if (not DetailsFramework.IsClassicWow()) then
-					local isTanking, status, threatPercent, rawthreatpct, threatvalue = _UnitDetailedThreatSituation("player", "target")
-					if (threatPercent) then
-						child.text:SetText(math.floor(threatPercent).."%")
-						if (Threat.isTank) then
-							child.text:SetTextColor(math.abs(threatPercent - 100) * 0.01, threatPercent * 0.01, 0, 1)
-						else
-							child.text:SetTextColor(threatPercent * 0.01, math.abs(threatPercent - 100) * 0.01, 0, 1)
-						end
+				local isTanking, status, threatPercent, rawthreatpct, threatvalue = _UnitDetailedThreatSituation("player", "target")
+				if (threatPercent) then
+					child.text:SetText(math.floor(threatPercent).."%")
+					if (Threat.isTank) then
+						child.text:SetTextColor(math.abs(threatPercent - 100) * 0.01, threatPercent * 0.01, 0, 1)
 					else
-						child.text:SetText("0%")
-						child.text:SetTextColor(1, 1, 1, 1)
+						child.text:SetTextColor(threatPercent * 0.01, math.abs(threatPercent - 100) * 0.01, 0, 1)
 					end
 				else
 					child.text:SetText("0%")
