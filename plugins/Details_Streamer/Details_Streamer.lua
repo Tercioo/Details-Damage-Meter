@@ -2349,9 +2349,9 @@ end
 
 
 function StreamOverlay:OnEvent (_, event, ...)
-	if (DetailsFramework and DetailsFramework.IsClassicWow()) then
-		return
-	end
+	--if (DetailsFramework and DetailsFramework.IsClassicWow()) then
+	--	return
+	--end
 	if (event == "ADDON_LOADED") then
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_Streamer") then
