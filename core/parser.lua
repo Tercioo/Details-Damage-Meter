@@ -2490,46 +2490,59 @@
 
 		if (targetActor.grupo) then
 			local t = last_events_cache[targetName]
-
 			if (not t) then
 				t = _current_combat:CreateLastEventsTable(targetName)
 			end
 
 			local i = t.n
 
-			local thisEvent = t[i]
-
-			thisEvent[1] = false --true if this is a damage || false for healing
-			thisEvent[2] = spellId --spellid || false if this is a battle ress line
-			thisEvent[3] = amount --amount of damage or healing
-			thisEvent[4] = time --parser time
-
-			--current unit heal
-			if (targetActor.arena_enemy) then
-				--this is an arena enemy, get the heal with the unit Id
-				local unitId = Details.arena_enemies[targetName]
-				if (not unitId) then
-					unitId = Details:GuessArenaEnemyUnitId(targetName)
+			--consolidate if the spellId is the same and the time is the same as well
+			local previousEvent = t[i-1]
+			if (previousEvent and previousEvent[2] == spellId and floor(previousEvent[4]) == floor(time)) then
+				previousEvent[3] = previousEvent[3] + amount
+				if (absorbed) then
+					previousEvent[8] = (previousEvent[8] or 0) + absorbed
 				end
-				if (unitId) then
-					thisEvent[5] = UnitHealth(unitId)
+				previousEvent[7] = previousEvent[7] or bIsShield
+				previousEvent[1] = false --true if this is a damage || false for healing
+				previousEvent[5] = UnitHealth(targetName)
+				previousEvent[11] = (previousEvent[11] or 0) + 1
+			else
+				local thisEvent = t[i]
+
+				thisEvent[1] = false --true if this is a damage || false for healing
+				thisEvent[2] = spellId --spellid || false if this is a battle ress line
+				thisEvent[3] = amount --amount of damage or healing
+				thisEvent[4] = time --parser time
+				thisEvent[11] = nil
+
+				--current unit heal
+				if (targetActor.arena_enemy) then
+					--this is an arena enemy, get the heal with the unit Id
+					local unitId = Details.arena_enemies[targetName]
+					if (not unitId) then
+						unitId = Details:GuessArenaEnemyUnitId(targetName)
+					end
+					if (unitId) then
+						thisEvent[5] = UnitHealth(unitId)
+					else
+						thisEvent[5] = 0
+					end
 				else
-					thisEvent[5] = 0
+					thisEvent[5] = UnitHealth(targetName)
 				end
-			else
-				thisEvent[5] = UnitHealth(targetName)
-			end
 
-			thisEvent[6] = sourceName
-			thisEvent[7] = bIsShield
-			thisEvent[8] = absorbed
+				thisEvent[6] = sourceName
+				thisEvent[7] = bIsShield
+				thisEvent[8] = absorbed
 
-			i = i + 1
+				i = i + 1
 
-			if (i == _amount_of_last_events + 1) then
-				t.n = 1
-			else
-				t.n = i
+				if (i == _amount_of_last_events + 1) then
+					t.n = 1
+				else
+					t.n = i
+				end
 			end
 		end
 
