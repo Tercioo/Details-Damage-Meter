@@ -29,6 +29,8 @@ local xLocation = 2
 local yLocation = -20
 local targetBars = 9
 
+local _unpack = unpack
+
 local IconTexCoord = {5/64, 59/64, 5/64, 59/64}
 
 local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
