@@ -866,12 +866,7 @@
 				end
 
 				if (Details.encounter_table.id and Details.encounter_table["start"] >= GetTime() - 3 and Details.announce_firsthit.enabled) then
-					local link
-					if (spellId <= 10) then
-						link = _GetSpellInfo(spellId)
-					else
-						link = _GetSpellInfo(spellId)
-					end
+					local link = _GetSpellInfo(spellId) --Removed check for the id being <= 10, both branches were the same.
 
 					if (Details.WhoAggroTimer) then
 						Details.WhoAggroTimer:Cancel()
