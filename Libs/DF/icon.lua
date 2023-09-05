@@ -8,17 +8,99 @@ end
 local unpack = unpack
 local CreateFrame = CreateFrame
 local PixelUtil = PixelUtil
+local GetTime = GetTime
+
+---@class df_icon : frame
+---@field spellId number
+---@field startTime number
+---@field duration number
+---@field count number
+---@field width number
+---@field height number
+---@field debuffType string
+---@field caster string
+---@field canStealOrPurge boolean
+---@field isBuff boolean
+---@field spellName string
+---@field timeRemaining number
+---@field expirationTime number
+---@field lastUpdateCooldown number
+---@field identifierKey string
+---@field endTime number
+---@field nextUpdate number
+---@field currentCoords table
+---@field textureWidth number
+---@field textureHeight number
+---@field stacks number
+---@field Texture texture
+---@field Border texture
+---@field StackText fontstring
+---@field StackTextShadow fontstring
+---@field Desc fontstring
+---@field Cooldown cooldown
+---@field CountdownText fontstring
+---@field SimpleCooldownTexture texture
+---@field SimpleCountdownText fontstring
+---@field parentIconRow df_iconrow
+---@field cooldownLooper timer
+
+---@class df_iconrow : frame
+---@field options table
+---@field NextIcon number
+---@field IconPool df_icon[]
+---@field AuraCache table
+---@field shownAmount number
+---@field CreateIcon fun(self:df_iconrow, iconName:string?, bIsSimple:boolean?):frame
+---@field GetIcon fun(self:df_iconrow, bIsSimple:boolean?):frame
+---@field AddSpecificIcon fun(self:df_iconrow, identifierKey:string, spellId:number?, borderColor:table?, startTime:number?, duration:number?, forceTexture:string|number|nil, descText:table?, count:number?, debuffType:string?, caster:string?, canStealOrPurge:boolean?, spellName:string?, isBuff:boolean?)
+---@field AddSpecificIconSimple fun(self:df_iconrow, identifierKey:string, spellId:number?, borderColor:table?, startTime:number?, duration:number?, forceTexture:string|number|nil, descText:table?, count:number?, debuffType:string?, caster:string?, canStealOrPurge:boolean?, spellName:string?, isBuff:boolean?, modRate:number?, iconSettings:table?)
+---@field SetIcon fun(self:df_iconrow, spellId:number?, borderColor:table?, startTime:number?, duration:number?, forceTexture:string?, descText:table?, count:number?, debuffType:string?, caster:string?, canStealOrPurge:boolean?, spellName:string?, isBuff:boolean?, modRate:number?):frame
+---@field SetIconSimple fun(self:df_iconrow, spellId:number?, borderColor:table?, startTime:number?, duration:number?, iconTexture:any, descText:table?, count:number?, debuffType:string?, caster:string?, canStealOrPurge:boolean?, spellName:string?, isBuff:boolean?, modRate:number?, iconSettings:table?):frame
+---@field SetAuraIconSimpleWithIconTemplate fun(self:df_iconrow, aI:aurainfo, iconTemplateTable:df_icontemplate)
+---@field SetStacks fun(self:df_iconrow, iconFrame:table, bIsShown:boolean, stacksAmount:number?) is shown false to hide the stack text
+---@field OnIconTick fun(self:df_icon, deltaTime:number)
+---@field OnIconSimpleTick fun(self:df_icon)
+---@field FormatCooldownTime fun(thisTime:number):string
+---@field FormatCooldownTimeDecimal fun(formattedTime:number):string
+---@field RemoveSpecificIcon fun(self:df_iconrow, identifierKey:any)
+---@field ClearIcons fun(self:df_iconrow, resetBuffs:boolean?, resetDebuffs:boolean?)
+---@field AlignAuraIcons fun(self:df_iconrow)
+---@field GetIconGrowDirection fun(self:df_iconrow):number
+---@field OnOptionChanged fun(self:df_iconrow, optionName:string)
+
+---@class df_icontemplate : table
+---@field id any
+---@field texture texturepath|textureid
+---@field startTime number?
+---@field duration number?
+---@field count number?
+---@field coords table?
+---@field width number?
+---@field height number?
+---@field points table?
+---@field borderColor table?
+---@field borderTexture texturepath|textureid|nil
+---@field scale number?
+---@field alpha number?
 
 local spellIconCache = {}
 local spellNameCache = {}
+local emptyTable = {}
+local white = {1, 1, 1, 1}
+
+local iconFrameOnHideScript = function(self)
+	if (self.cooldownLooper) then
+		self.cooldownLooper:Cancel()
+	end
+end
 
 detailsFramework.IconMixin = {
 	---create a new icon frame
-	---@param self frame the parent frame
+	---@param self df_iconrow the parent frame
 	---@param iconName string the name of the icon frame
-	---@return frame
+	---@return df_icon
     CreateIcon = function(self, iconName, bIsSimple)
-		---@type frame
+		---@type df_icon
         local iconFrame = CreateFrame("frame", iconName, self, not bIsSimple and "BackdropTemplate")
 
 		---@type texture
@@ -56,13 +138,36 @@ detailsFramework.IconMixin = {
         iconFrame.CountdownText:SetPoint("center", iconFrame, "center", 0, 0)
         iconFrame.CountdownText:Hide()
 
+		if (bIsSimple) then
+			--create a overlay texture which will indicate the cooldown time
+			iconFrame.SimpleCooldownTexture = iconFrame:CreateTexture(self:GetName() .. "SimpleCooldownTexture", "overlay", nil, 7)
+			iconFrame.SimpleCooldownTexture:SetTexture([[Interface\Azerite\AzeriteTooltipBackground]], "CLAMP", "CLAMP", "NEAREST")
+			iconFrame.SimpleCooldownTexture:SetPoint("bottomleft", iconFrame.Texture, "bottomleft", 0, 0)
+			iconFrame.SimpleCooldownTexture:SetPoint("bottomright", iconFrame.Texture, "bottomright", 0, 0)
+			iconFrame.SimpleCooldownTexture:SetHeight(1)
+			iconFrame.SimpleCooldownTexture:Hide()
+
+			iconFrame.SimpleCountdownText = iconFrame:CreateFontString(self:GetName() .. "SimpleCooldownText", "overlay", "GameFontNormal")
+			iconFrame.SimpleCountdownText:SetPoint("center", iconFrame, "center", 0, 0)
+			iconFrame.SimpleCountdownText:Hide()
+		end
+
+		iconFrame.stacks = 0
+		iconFrame:SetScript("OnHide", iconFrameOnHideScript)
+
 		return iconFrame
     end,
 
+	---get an icon frame from the pool
+	---@param self df_iconrow the parent frame
+	---@param bIsSimple boolean if true, the icon will be created with a simple template
+	---@return df_icon
 	GetIcon = function(self, bIsSimple)
+		---@type df_icon
 		local iconFrame = self.IconPool[self.NextIcon]
 
 		if (not iconFrame) then
+			---@type df_icon
             iconFrame = self:CreateIcon("$parentIcon" .. self.NextIcon, bIsSimple)
             iconFrame.parentIconRow = self
 
@@ -79,7 +184,6 @@ detailsFramework.IconMixin = {
 				iconFrame.Border:SetDrawLayer("overlay", 7)
 
 				iconFrame.StackText:SetTextColor(detailsFramework:ParseColors(self.options.stack_text_color))
-				iconFrame.StackText:SetPoint(self.options.stack_text_anchor or "center", iconFrame, self.options.stack_text_rel_anchor or "center", self.options.stack_text_x_offset or 0, self.options.stack_text_y_offset or 0)
 				detailsFramework:SetFontSize(iconFrame.StackText, self.options.stack_text_size)
 				detailsFramework:SetFontFace(iconFrame.StackText, self.options.stack_text_font)
 				detailsFramework:SetFontOutline(iconFrame.StackText, self.options.stack_text_outline)
@@ -133,19 +237,24 @@ detailsFramework.IconMixin = {
 		return iconFrame
 	end,
 
-	--adds only if not existing already in the cache
-	AddSpecificIcon = function(self, identifierKey, spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff)
+	---adds only if not existing already in the cache
+	---@param self df_iconrow the parent frame
+	AddSpecificIcon = function(self, identifierKey, spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate)
 		if (not identifierKey or identifierKey == "") then
 			return
 		end
 
 		if (not self.AuraCache[identifierKey]) then
-			local icon = self:SetIcon(spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff or false)
+			---@type df_icon
+			local icon = self:SetIcon(spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff or false, modRate)
 			icon.identifierKey = identifierKey
 			self.AuraCache[identifierKey] = true
 		end
 	end,
 
+	---set an icon frame
+	---@param self df_iconrow the parent frame
+	---@return df_icon?
 	SetIcon = function(self, spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate)
 		local actualSpellName, _, spellIcon = GetSpellInfo(spellId)
 
@@ -157,6 +266,7 @@ detailsFramework.IconMixin = {
 		modRate = modRate or 1
 
 		if (spellIcon) then
+			---@type df_icon
 			local iconFrame = self:GetIcon()
 			iconFrame.Texture:SetTexture(spellIcon)
 			iconFrame.Texture:SetTexCoord(unpack(self.options.texcoord))
@@ -237,7 +347,13 @@ detailsFramework.IconMixin = {
 				iconFrame.StackText:Hide()
 			end
 
-			PixelUtil.SetSize(iconFrame, self.options.icon_width, self.options.icon_height)
+			iconFrame.stacks = count or 0
+
+			iconFrame.width = self.options.icon_width
+			iconFrame.height = self.options.icon_height
+			iconFrame.textureWidth = iconFrame.Texture:GetWidth()
+			iconFrame.textureHeight = iconFrame.Texture:GetHeight()
+			PixelUtil.SetSize(iconFrame, iconFrame.width, iconFrame.height)
 			iconFrame:Show()
 
 			--update the size of the frame
@@ -276,14 +392,100 @@ detailsFramework.IconMixin = {
 			iconFrame.StackTextShadow:Show()
 			iconFrame.StackText:SetText(stacksAmount)
 			iconFrame.StackTextShadow:SetText(stacksAmount)
+			iconFrame.stacks = stacksAmount
 		else
 			iconFrame.StackText:Hide()
 			iconFrame.StackTextShadow:Hide()
+			iconFrame.stacks = 0
 		end
 	end,
 
-	SetIconSimple = function(self, spellId, borderColor, startTime, duration, iconTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate)
+	---this function return true if an update is required to be performed, return false if the icons shown are the same as the ones received in the auraList
+	---'amount' are the amount of auras the check in the list received against the icons shown, the function which called this function know how much icons it's showing
+	---'auraList' are the list of auras which can be a simple array or an array of sub-arrays
+	---if valid, 'auraInfoIndex' is the index where the auraInfo is found on the sub-array
+	---@param self df_iconrow
+	---@param auraList table
+	---@param amount number
+	---@param auraInfoIndex number?
+	---@return boolean?
+	NeedUpdate = function(self, auraList, amount, auraInfoIndex)
+		if (not auraList or not amount) then
+			return false, "no aura list or amount"
+		end
+
+		local iconPool = self.IconPool
+		local iconPoolAmount = #iconPool
+		local currentlyShown = self.shownAmount
+		local auraListAmount = #auraList
+		local amountToShow = math.min(amount, auraListAmount)
+
+		--quick exit if the parameters already have divergences
+		if (amountToShow ~= currentlyShown) then
+			return true
+		end
+
+		--the amount of icons shown is the same as the amount of auras that are needed to show
+		--now check if it's showing the same auras
+
+		for i = 1, amount do
+			local auraInfo = auraInfoIndex and auraList[i][auraInfoIndex] or auraList[i]
+			local iconFrame = iconPool[i]
+			if (iconFrame.Texture.texture ~= auraInfo.icon) then
+				return true
+			end
+
+			local auraStartTime = auraInfo.expirationTime - auraInfo.duration
+			local iconFrameStartTime = iconFrame.startTime
+
+			--if they are more than 200 miliseconds apart, then it's a different aura
+			if (math.abs(auraStartTime - iconFrameStartTime) > 0.2) then
+				return true, "aura start has changed"
+			end
+		end
+
+		return false, "nothing changed"
+	end,
+
+	---adds only if not existing already in the cache
+	---@param self df_iconrow the parent frame
+	AddSpecificIconSimple = function(self, identifierKey, spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate, iconSettings)
+		if (not identifierKey or identifierKey == "") then
+			return
+		end
+
+		if (not self.AuraCache[identifierKey]) then
+			---@type df_icon
+			local icon = self:SetIconSimple(spellId, borderColor, startTime, duration, forceTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff or false, modRate, iconSettings)
+			icon.identifierKey = identifierKey
+			self.AuraCache[identifierKey] = true
+		end
+	end,
+
+	---set an icon frame with a simple template
+	---@param self df_iconrow the parent frame
+	---@param aI aurainfo
+	---@param iconTemplateTable df_icontemplate
+	SetAuraIconSimpleWithIconTemplate = function(self, aI, iconTemplateTable)
+		local startTime = aI.expirationTime - aI.duration
+		---@type df_icon
+		local iconFrame = self:SetIconSimple(aI.spellId, nil, startTime, aI.duration, aI.icon, nil, aI.applications, aI.dispelName, aI.sourceUnit, aI.isStealable, aI.name, aI.isHelpful, aI.timeMod, iconTemplateTable)
+		if (iconFrame) then
+			iconFrame.expirationTime = aI.expirationTime
+		end
+	end,
+
+	AddSpecificIconWithTemplate = function(self, iconTemplateTable)
+		self:AddSpecificIconSimple(iconTemplateTable.id, iconTemplateTable.id, nil, iconTemplateTable.startTime, iconTemplateTable.duration, nil, nil, iconTemplateTable.count, nil, nil, nil, nil, nil, nil, iconTemplateTable)
+	end,
+
+	---set an icon frame with a simple template
+	---@param self df_iconrow the parent frame
+	---@return df_icon?
+	SetIconSimple = function(self, spellId, borderColor, startTime, duration, iconTexture, descText, count, debuffType, caster, canStealOrPurge, spellName, isBuff, modRate, iconSettings)
 		local actualSpellName, spellIcon = spellNameCache[spellId], spellIconCache[spellId]
+
+		iconSettings = iconSettings or emptyTable
 
 		if (not actualSpellName) then
 			actualSpellName, _, spellIcon = GetSpellInfo(spellId)
@@ -295,23 +497,85 @@ detailsFramework.IconMixin = {
 			spellIcon = iconTexture
 		end
 
+		if (not spellIcon) then
+			if (iconSettings.texture) then
+				spellIcon = iconSettings.texture
+			end
+		end
+
 		if (spellIcon) then
 			spellName = spellName or actualSpellName or "unknown_aura"
 			modRate = modRate or 1
 
 			local bIsSimple = true
-			local iconFrame = self:GetIcon(bIsSimple, bIsSimple)
+			---@type df_icon
+			local iconFrame = self:GetIcon(bIsSimple)
+			self.shownAmount = self.NextIcon - 1
 
-			if (iconFrame.Texture.texture ~= spellIcon) then
-				iconFrame.Texture:SetTexture(spellIcon, "clamp", "clamp", "nearest")
+			if (iconFrame.Texture.texture ~= spellIcon or (iconSettings.coords and iconSettings.coords ~= iconFrame.currentCoords)) then
+				iconFrame.Texture:SetTexture(spellIcon, "CLAMP", "CLAMP", iconSettings.textureFilter or "LINEAR")
+
+				if (iconSettings.coords) then
+					iconFrame.Texture:SetTexCoord(unpack(iconSettings.coords))
+					iconFrame.currentCoords = iconSettings.coords
+
+				elseif (self.options.texcoord ~= iconFrame.currentCoords) then
+					iconFrame.Texture:SetTexCoord(unpack(self.options.texcoord))
+					iconFrame.currentCoords = self.options.texcoord
+				else
+					iconFrame.Texture:SetTexCoord(0, 1, 0, 1)
+				end
+
+				iconFrame.Texture:ClearAllPoints()
+				if (iconSettings.points) then
+					for i = 1, #iconSettings.points do
+						local point = iconSettings.points[i]
+						iconFrame.Texture:SetPoint(point[1], iconFrame, point[2], point[3], point[4])
+					end
+
+					if (iconSettings.width) then
+						iconFrame.Texture:SetWidth(iconSettings.width)
+					else
+						iconFrame.Texture:SetWidth(self.options.icon_width)
+					end
+
+					if (iconSettings.height) then
+						iconFrame.Texture:SetHeight(iconSettings.height)
+					else
+						iconFrame.Texture:SetHeight(self.options.icon_height)
+					end
+				else
+					if (iconSettings.width) then
+						iconFrame.Texture:SetWidth(iconSettings.width)
+						iconFrame.Texture:SetHeight(iconSettings.height or iconSettings.width)
+						PixelUtil.SetPoint(iconFrame.Texture, "center", iconFrame, "center", 0, 0)
+					else
+						PixelUtil.SetPoint(iconFrame.Texture, "topleft", iconFrame, "topleft", 1, -1)
+						PixelUtil.SetPoint(iconFrame.Texture, "bottomright", iconFrame, "bottomright", -1, 1)
+					end
+				end
+
 				iconFrame.Texture.texture = spellIcon
+			else
+				if (self.options.texcoord ~= iconFrame.currentCoords) then
+					iconFrame.Texture:SetTexCoord(unpack(self.options.texcoord))
+					iconFrame.currentCoords = self.options.texcoord
+				else
+					iconFrame.Texture:SetTexCoord(0, 1, 0, 1)
+				end
 			end
 
 			if (borderColor) then
 				iconFrame.Border:Show()
 				iconFrame.Border:SetVertexColor(unpack(borderColor))
 			else
-				iconFrame.Border:Hide()
+				if (iconSettings.borderColor) then
+					iconFrame.Border:Show()
+					iconFrame.Border:SetTexture(iconSettings.borderTexture or 130759)
+					iconFrame.Border:SetVertexColor(unpack(iconSettings.borderColor or white))
+				else
+					iconFrame.Border:Hide()
+				end
 			end
 
 			if (count and count > 1 and self.options.stack_text) then
@@ -320,8 +584,29 @@ detailsFramework.IconMixin = {
 				self:SetStacks(iconFrame, false)
 			end
 
-			PixelUtil.SetSize(iconFrame, self.options.icon_width, self.options.icon_height)
+			iconFrame.stacks = count or 0
+
+			if (iconSettings.scale) then
+				iconFrame.Texture:SetScale(iconSettings.scale)
+			else
+				iconFrame.Texture:SetScale(1)
+			end
+
+			if (iconSettings.alpha) then
+				iconFrame.Texture:SetAlpha(iconSettings.alpha)
+			else
+				iconFrame.Texture:SetAlpha(1)
+			end
+
+			--cache size
+			iconFrame.width = self.options.icon_width
+			iconFrame.height = self.options.icon_height
+
+			PixelUtil.SetSize(iconFrame, iconFrame.width, iconFrame.height)
 			iconFrame:Show()
+
+			iconFrame.textureWidth = iconFrame.Texture:GetWidth()
+			iconFrame.textureHeight = iconFrame.Texture:GetHeight()
 
 			--update the size of the frame
 			self:SetWidth((self.options.left_padding * 2) + (self.options.icon_padding * (self.NextIcon-2)) + (self.options.icon_width * (self.NextIcon - 1)))
@@ -331,12 +616,25 @@ detailsFramework.IconMixin = {
 			iconFrame.spellId = spellId
 			iconFrame.startTime = startTime
 			iconFrame.duration = duration
+			iconFrame.endTime = (startTime and duration and startTime + duration) or 0
 			iconFrame.count = count
 			iconFrame.debuffType = debuffType
 			iconFrame.caster = caster
 			iconFrame.canStealOrPurge = canStealOrPurge
 			iconFrame.isBuff = isBuff
 			iconFrame.spellName = spellName
+
+			if (startTime and duration and duration > 0) then
+				local endTime = startTime + duration
+				local now = GetTime()
+				if (endTime > now) then
+					iconFrame.SimpleCooldownTexture:Show()
+					iconFrame.SimpleCooldownTexture:SetHeight(1)
+					self:SetSimpleCooldown(iconFrame)
+				end
+			else
+				iconFrame.SimpleCooldownTexture:Hide()
+			end
 
 			iconFrame.identifierKey = nil -- only used for "specific" add/remove
 
@@ -349,10 +647,44 @@ detailsFramework.IconMixin = {
 			--show the frame
 			self:Show()
 
+			self:AlignAuraIcons()
+
 			return iconFrame
 		end
 	end,
 
+	---@param self df_iconrow the parent frame
+	---@param iconFrame df_icon
+	SetSimpleCooldown = function(self, iconFrame)
+		if (iconFrame.cooldownLooper) then
+			iconFrame.cooldownLooper:Cancel()
+		end
+
+		self.OnIconSimpleTick(iconFrame)
+
+		local amountOfLoops = math.floor(iconFrame.duration / 0.5)
+		local loopEndCallback = nil
+		local checkPointCallback = nil
+
+		local newLooper = detailsFramework.Schedules.NewLooper(0.5, self.OnIconSimpleTick, amountOfLoops, loopEndCallback, checkPointCallback, iconFrame)
+		iconFrame.cooldownLooper = newLooper
+	end,
+
+	---@param iconFrame df_icon
+	OnIconSimpleTick = function(iconFrame)
+		local now = GetTime()
+		local percent = (now - iconFrame.startTime) / iconFrame.duration
+		--percent = abs(percent - 1)
+
+		local newHeight = math.min(iconFrame.textureHeight * percent, iconFrame.textureHeight)
+		iconFrame.SimpleCooldownTexture:SetHeight(newHeight)
+
+		iconFrame.SimpleCountdownText:SetText(iconFrame.parentIconRow.FormatCooldownTime(iconFrame.duration - (now - iconFrame.startTime)))
+		--self.SimpleCountdownText:Show()
+	end,
+
+	---@param self df_icon
+	---@param deltaTime number
 	OnIconTick = function(self, deltaTime)
 		local now = GetTime()
 		if (self.lastUpdateCooldown + 0.05) <= now then
@@ -370,17 +702,17 @@ detailsFramework.IconMixin = {
 		end
 	end,
 
-	FormatCooldownTime = function(formattedTime)
-		if (formattedTime >= 3600) then
-			formattedTime = math.floor(formattedTime / 3600) .. "h"
+	FormatCooldownTime = function(thisTime)
+		if (thisTime >= 3600) then
+			thisTime = math.floor(thisTime / 3600) .. "h"
 
-		elseif (formattedTime >= 60) then
-			formattedTime = math.floor(formattedTime / 60) .. "m"
+		elseif (thisTime >= 60) then
+			thisTime = math.floor(thisTime / 60) .. "m"
 
 		else
-			formattedTime = math.floor(formattedTime)
+			thisTime = math.floor(thisTime)
 		end
-		return formattedTime
+		return thisTime
 	end,
 
 	FormatCooldownTimeDecimal = function(formattedTime)
@@ -401,16 +733,21 @@ detailsFramework.IconMixin = {
         end
 	end,
 
+	---@param self df_iconrow the parent frame
+	---@param identifierKey any
 	RemoveSpecificIcon = function(self, identifierKey)
 		if (not identifierKey or identifierKey == "") then
 			return
 		end
 
-		table.wipe(self.AuraCache)
+		if (not self.AuraCache[identifierKey]) then
+			return
+		end
+		self.AuraCache[identifierKey] = nil
 
 		local iconPool = self.IconPool
-		local countStillShown = 0
 
+		--find and hide the icon frame
 		for i = 1, self.NextIcon -1 do
 			local iconFrame = iconPool[i]
 			if (iconFrame.identifierKey and iconFrame.identifierKey == identifierKey) then
@@ -422,13 +759,13 @@ detailsFramework.IconMixin = {
 				self.AuraCache[iconFrame.spellName] = true
 				self.AuraCache.canStealOrPurge = self.AuraCache.canStealOrPurge or iconFrame.canStealOrPurge
 				self.AuraCache.hasEnrage = self.AuraCache.hasEnrage or iconFrame.debuffType == "" --yes, enrages are empty-string...
-				countStillShown = countStillShown + 1
 			end
 		end
 
 		self:AlignAuraIcons()
 	end,
 
+	---@param self df_iconrow the parent frame
 	ClearIcons = function(self, resetBuffs, resetDebuffs)
 		resetBuffs = resetBuffs ~= false
 		resetDebuffs = resetDebuffs ~= false
@@ -461,18 +798,27 @@ detailsFramework.IconMixin = {
 		self:AlignAuraIcons()
 	end,
 
+	---@param self df_iconrow the parent frame
 	AlignAuraIcons = function(self)
 		local iconPool = self.IconPool
 		local iconAmount = #iconPool
 		local countStillShown = 0
 
-		table.sort(iconPool, function(i1, i2) return i1:IsShown() and not i2:IsShown() end)
-
 		if iconAmount == 0 then
 			self:Hide()
 		else
-			--re-anchor not hidden
+			table.sort(iconPool, function(i1, i2) return i1:IsShown() and not i2:IsShown() end)
+			local shownAmount = 0
 			for i = 1, iconAmount do
+				if iconPool[i]:IsShown() then
+					shownAmount = shownAmount + 1
+				end
+			end
+
+			local width = 0
+
+			--re-anchor not hidden
+			for i = 1, shownAmount do
 				local iconFrame = iconPool[i]
 				local anchor = self.options.anchor
 				local anchorTo = i == 1 and self or self.IconPool[i - 1]
@@ -482,12 +828,14 @@ detailsFramework.IconMixin = {
 				countStillShown = countStillShown + (iconFrame:IsShown() and 1 or 0)
 
 				iconFrame:ClearAllPoints()
+
 				if (growDirection == 1) then --grow to right
 					if (i == 1) then
 						PixelUtil.SetPoint(iconFrame, "left", anchorTo, "left", xPadding, 0)
 					else
 						PixelUtil.SetPoint(iconFrame, "left", anchorTo, "right", xPadding, 0)
 					end
+
 				elseif (growDirection == 2) then --grow to left
 					if (i == 1) then
 						PixelUtil.SetPoint(iconFrame, "right", anchorTo, "right", xPadding, 0)
@@ -495,12 +843,21 @@ detailsFramework.IconMixin = {
 						PixelUtil.SetPoint(iconFrame, "right", anchorTo, "left", xPadding, 0)
 					end
 				end
+
+				width = width + (iconFrame.width * iconFrame:GetScale()) + xPadding
 			end
+
+			if (self.options.center_alignment) then
+				self:SetWidth(width)
+			end
+
+			self.shownAmount = shownAmount
 		end
 
 		self.NextIcon = countStillShown + 1
 	end,
 
+	---@param self df_iconrow the parent frame
 	GetIconGrowDirection = function(self)
 		local side = self.options.anchor.side
 
@@ -533,6 +890,7 @@ detailsFramework.IconMixin = {
 		end
 	end,
 
+	---@param self df_iconrow the parent frame
 	OnOptionChanged = function(self, optionName)
 		if (self.SetBackdropColor) then
 			self:SetBackdropColor(unpack(self.options.backdrop_color))
@@ -580,6 +938,7 @@ local default_icon_row_options = {
 	backdrop_border_color = {0, 0, 0, 1},
 	anchor = {side = 6, x = 2, y = 0},
 	grow_direction = 1, --1 = to right 2 = to left
+	center_alignment = false, --if true if will align the icons with grow_direction and then set the iconRow width to match the length used by all icons
 	surpress_blizzard_cd_timer = false,
 	surpress_tulla_omni_cc = false,
 	on_tick_cooldown_update = true,
@@ -589,16 +948,16 @@ local default_icon_row_options = {
 	cooldown_edge_texture = "Interface\\Cooldown\\edge",
 }
 
----comment
 ---@param parent frame
 ---@param name string?
 ---@param options table?
----@return frame
+---@return df_iconrow
 function detailsFramework:CreateIconRow(parent, name, options)
 	local newIconRowFrame = CreateFrame("frame", name, parent, "BackdropTemplate")
 	newIconRowFrame.IconPool = {}
 	newIconRowFrame.NextIcon = 1
 	newIconRowFrame.AuraCache = {}
+	newIconRowFrame.shownAmount = 0
 
 	detailsFramework:Mixin(newIconRowFrame, detailsFramework.IconMixin)
 	detailsFramework:Mixin(newIconRowFrame, detailsFramework.OptionsFunctions)

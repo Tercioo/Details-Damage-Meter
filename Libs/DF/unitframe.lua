@@ -80,6 +80,7 @@ local cleanfunction = function() end
 ---@field oldHealth number
 ---@field currentHealth number
 ---@field currentHealthMax number
+---@field nextShieldHook number
 ---@field WidgetType string
 ---@field Settings df_healthbarsettings
 ---@field background texture
@@ -128,6 +129,7 @@ local cleanfunction = function() end
 		OnShow = {},
 		OnHealthChange = {},
 		OnHealthMaxChange = {},
+		OnAbsorbOverflow = {},
 	}
 
 	--use the hook already existing
@@ -358,17 +360,36 @@ local cleanfunction = function() end
 
 				--if the absorb percent pass 100%, show the glow
 				if ((healthPercent + damageAbsorbPercent) > 1) then
+					self.nextShieldHook = self.nextShieldHook or 0
+
+					if (GetTime() >= self.nextShieldHook) then
+						self:RunHooksForWidget("OnAbsorbOverflow", self, self.displayedUnit, healthPercent + damageAbsorbPercent - 1)
+						self.nextShieldHook = GetTime() + 0.2
+					end
+
 					self.shieldAbsorbGlow:Show()
 				else
 					self.shieldAbsorbGlow:Hide()
+					if (self.nextShieldHook) then
+						self:RunHooksForWidget("OnAbsorbOverflow", self, self.displayedUnit, 0)
+						self.nextShieldHook = nil
+					end
 				end
 			else
 				self.shieldAbsorbIndicator:Hide()
 				self.shieldAbsorbGlow:Hide()
+				if (self.nextShieldHook) then
+					self:RunHooksForWidget("OnAbsorbOverflow", self, self.displayedUnit, 0)
+					self.nextShieldHook = nil
+				end
 			end
 		else
 			self.shieldAbsorbIndicator:Hide()
 			self.shieldAbsorbGlow:Hide()
+			if (self.nextShieldHook) then
+				self:RunHooksForWidget("OnAbsorbOverflow", self, self.displayedUnit, 0)
+				self.nextShieldHook = nil
+			end
 		end
 	end
 
@@ -431,19 +452,19 @@ function detailsFramework:CreateHealthBar(parent, name, settingsOverride)
 
 			--artwork
 			--healing incoming
-			healthBar.incomingHealIndicator = healthBar:CreateTexture(nil, "artwork")
+			healthBar.incomingHealIndicator = healthBar:CreateTexture(nil, "artwork", nil, 5)
 			healthBar.incomingHealIndicator:SetDrawLayer("artwork", 4)
 			--current shields on the unit
-			healthBar.shieldAbsorbIndicator =  healthBar:CreateTexture(nil, "artwork")
+			healthBar.shieldAbsorbIndicator =  healthBar:CreateTexture(nil, "artwork", nil, 3)
 			healthBar.shieldAbsorbIndicator:SetDrawLayer("artwork", 5)
 			--debuff absorbing heal
-			healthBar.healAbsorbIndicator = healthBar:CreateTexture(nil, "artwork")
+			healthBar.healAbsorbIndicator = healthBar:CreateTexture(nil, "artwork", nil, 4)
 			healthBar.healAbsorbIndicator:SetDrawLayer("artwork", 6)
 			--the shield fills all the bar, show that cool glow
-			healthBar.shieldAbsorbGlow = healthBar:CreateTexture(nil, "artwork")
+			healthBar.shieldAbsorbGlow = healthBar:CreateTexture(nil, "artwork", nil, 6)
 			healthBar.shieldAbsorbGlow:SetDrawLayer("artwork", 7)
 			--statusbar texture
-			healthBar.barTexture = healthBar:CreateTexture(nil, "artwork")
+			healthBar.barTexture = healthBar:CreateTexture(nil, "artwork", nil, 1)
 		end
 
 	--mixins

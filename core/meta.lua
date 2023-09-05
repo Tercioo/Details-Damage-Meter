@@ -773,11 +773,13 @@ local classTypeUtility = Details.atributos.misc
 
 					if (canCollect) then
 						amountCleaned = amountCleaned + 1
+
 						if (containerId == 1 or containerId == 2) then --damage or healing
 							Details222.TimeMachine.RemoveActor(actorObject)
 						end
+
 						--remove the actor from the container
-						Details:DestroyActor(actorObject, actorContainer, combatObject)
+						Details:DestroyActor(actorObject, actorContainer, combatObject) --a window showing 'Auras & Void Zones' did not refreshed and had an actor pointing to here
 					end
 				end
 			end

@@ -181,6 +181,13 @@
 ---| "Minimap"
 ---| "GameTooltip"
 
+---@alias audiochannels
+---| "Master"
+---| "SFX"
+---| "Music"
+---| "Ambience"
+---| "Dialog"
+
 ---@class aurainfo : table
 ---@field applications number
 ---@field auraInstanceID number
@@ -402,6 +409,38 @@
 ---@field RegisterUnitEvent fun(self: frame, event: string, unitId: unit) register for an event, trigers "OnEvent" only if the event occurred for the registered unit
 ---@field UnregisterEvent fun(self: frame, event: string) unregister for an event
 ---@field HookScript fun(self: frame, event: string, handler: function) run a function after the frame's script has been executed, carrying the same arguments
+
+---@class cooldown : frame
+---@field Clear fun(self: cooldown)
+---@field GetCooldownDuration fun(self: cooldown) : number @returns duration
+---@field GetCooldownTimes fun(self: cooldown) : number, number @returns startTime, duration
+---@field GetCooldownDisplayDuration fun(self: cooldown) : number @returns duration
+---@field GetDrawBling fun(self: cooldown) : boolean @returns drawBling
+---@field GetDrawEdge fun(self: cooldown) : boolean @returns drawEdge
+---@field GetDrawSwipe fun(self: cooldown) : boolean @returns drawSwipe
+---@field GetEdgeScale fun(self: cooldown) : number @returns scale
+---@field GetReverse fun(self: cooldown) : boolean @returns reverse
+---@field GetRotation fun(self: cooldown) : number @returns radians
+---@field IsPaused fun(self: cooldown) : boolean
+---@field Pause fun(self: cooldown)
+---@field Resume fun(self: cooldown)
+---@field SetBlingTexture fun(self: cooldown, texture: textureid|texturepath, r: red|number?, g: green|number?, b: blue|number?, a: alpha|number?)
+---@field SetCooldown fun(self: cooldown, startTime: gametime, duration: number, modRate: number?) set the cooldown to start at startTime and last for duration seconds
+---@field SetCooldownDuration fun(self: cooldown, duration: number, modRate: number?)
+---@field SetCooldownUNIX fun(self: cooldown, startTime: unixtime, duration: number, modRate: number?)
+---@field SetCountdownAbbrevThreshold fun(self: cooldown, seconds: number)
+---@field SetCountdownFont fun(self: cooldown, font: string)
+---@field SetDrawBling fun(self: cooldown, draw: boolean)
+---@field SetDrawEdge fun(self: cooldown, draw: boolean)
+---@field SetDrawSwipe fun(self: cooldown, draw: boolean)
+---@field SetEdgeScale fun(self: cooldown, scale: number)
+---@field SetEdgeTexture fun(self: cooldown, texture: textureid|texturepath, r: red|number?, g: green|number?, b: blue|number?, a: alpha|number?)
+---@field SetHideCountdownNumbers fun(self: cooldown, hide: boolean)
+---@field SetReverse fun(self: cooldown, reverse: boolean)
+---@field SetRotation fun(self: cooldown, radians: number)
+---@field SetSwipeColor fun(self: cooldown, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
+---@field SetSwipeTexture fun(self: cooldown, texture: textureid|texturepath, r: red|number?, g: green|number?, b: blue|number?, a: alpha|number?)
+---@field SetUseCircularEdge fun(self: cooldown, use: boolean)
 
 ---@class button : frame
 ---@field Click fun(self: button)
