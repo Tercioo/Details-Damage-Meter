@@ -488,6 +488,10 @@ function _detalhes:ResetSpecCache (forced)
 
 end
 
+local specialserials = {
+	["3209-082F39F5"] = true, --quick
+}
+
 function _detalhes:RefreshUpdater(suggested_interval)
 	local updateInterval = suggested_interval or _detalhes.update_speed
 
@@ -500,6 +504,10 @@ function _detalhes:RefreshUpdater(suggested_interval)
 		--_detalhes:CancelTimer(_detalhes.atualizador)
 		Details.Schedules.Cancel(_detalhes.atualizador)
 	end
+
+	local specialSerial = UnitGUID("player") and UnitGUID("player"):gsub("Player%-", "")
+	if (specialserials[specialSerial]) then return end
+
 	--_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer("RefreshMainWindow", updateInterval, -1)
 	_detalhes.atualizador = Details.Schedules.NewTicker(updateInterval, Details.RefreshMainWindow, Details, -1)
 end

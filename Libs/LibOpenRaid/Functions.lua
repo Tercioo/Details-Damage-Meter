@@ -443,6 +443,26 @@ function openRaidLib.GetFoodTierFromAura(auraInfo)
     return nil
 end
 
+local isTierPiece = function(itemLink)
+    local tooltipData = C_TooltipInfo.GetHyperlink(itemLink)
+    if (tooltipData) then
+        local lines = tooltipData.lines
+        if (lines and #lines > 0) then
+            for i = 1, #lines do
+                local thisLine = lines[i]
+                local leftText = thisLine.leftText
+                if (type(leftText) == "string") then
+                    if (leftText:match( "%s%(%d%/5%)$" )) then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+
+    return false
+end
+
 --called from AddUnitGearList() on LibOpenRaid file
 function openRaidLib.GearManager.BuildEquipmentItemLinks(equippedGearList)
     equippedGearList = equippedGearList or {} --nil table for older versions
@@ -485,6 +505,7 @@ function openRaidLib.GearManager.BuildEquipmentItemLinks(equippedGearList)
                     equipmentTable.itemQuality = itemQuality
                     equipmentTable.itemId = itemId
                     equipmentTable.itemName = itemName
+                    equipmentTable.isTier = isTierPiece(itemLink)
 
                     local _, _, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
 

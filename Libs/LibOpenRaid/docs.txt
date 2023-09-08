@@ -90,6 +90,7 @@ playerGear = {
             .itemName = string
             .enchantId = number
             .gemId = number
+            .isTier = boolean
         }
     }
 }

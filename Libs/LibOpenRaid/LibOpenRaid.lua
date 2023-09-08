@@ -39,7 +39,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 111
+local CONST_LIB_VERSION = 112
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -1637,6 +1637,16 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
 
         unitGearInfo.equippedGear = equippedGearList
 
+        local tierAmount = 0
+
+        for i = 1, #equippedGearList do
+            if (equippedGearList[i].isTier) then
+                tierAmount = tierAmount + 1
+            end
+        end
+
+        unitGearInfo.tierAmount = tierAmount
+
         openRaidLib.publicCallback.TriggerCallback("GearUpdate", openRaidLib.GetUnitID(unitName), unitGearInfo, openRaidLib.GearManager.GetAllUnitsGear())
     end
 
@@ -1666,7 +1676,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
 
         --unpack the enchant data as a ipairs table
         local noEnchantTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, noEnchantTableSize)
-        --unpack the enchant data as a ipairs table
+        --unpack the gems data as a ipairs table
         local noGemsTableUnpacked = openRaidLib.UnpackTable(data, noGemsTableIndex, false, false, noGemsTableSize)
         --unpack the full gear
         local equippedGearListUnpacked = equippedGearListIndex and openRaidLib.UnpackTable(data, equippedGearListIndex, false, true, 4) or {}

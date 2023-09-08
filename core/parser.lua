@@ -118,6 +118,9 @@
 			rampage_cast_amount = {},
 		}
 
+	--store the gear of each player
+		local gearCache = {}
+
 	--cache the data for passive trinkets procs
 		local _trinket_data_cache = {}
 
@@ -163,6 +166,7 @@
 			apoc = {},
 		}
 
+		--list of buffs that should be credited to the target of the buff
 		local buffs_to_other_players = {
 			--[10060] = true, --power infusion
 			[413426] = true, --rippling anthem (trinket 10.1)
@@ -560,7 +564,7 @@
 		--111400 warlock's burning rush
 		--368637 is buff from trinket "Scars of Fraternal Strife" which make the player bleed even out-of-combat
 		--371070 is "Iced Phial of Corrupting Rage" effect triggers randomly, even out-of-combat
-		--401394 is "Vessel of Seared Shadows" trinket 
+		--401394 is "Vessel of Seared Shadows" trinket
 		--146739 is corruption that doesn't expire
 
 		local spells_cant_start_combat = {
@@ -860,7 +864,7 @@
 					(not Details.in_group and sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0)
 				)
 			) then
-				
+
 				if (spells_cant_start_combat[spellId] and sourceName == Details.playername) then
 					return
 				end
@@ -1286,11 +1290,18 @@
 							augmentedSpell = evokerActor.augmentedSpellsContainer:GetOrCreateSpell(extraSpellId, true, token)
 						end
 
+						--> calculate tier and ilevel bonuses; this values could be cached at the start of the combat
+							local bHasFourPieces = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].tierAmount >= 4
+							local tierPieceMultiplier = bHasFourPieces and 1.08 or 1
+							local evokerItemLevel = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].ilevel or 400
+							evokerItemLevel = max(evokerItemLevel, 400)
+							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.01)
+
 						local predictedAmount = 0
 						if (Details.zone_type == "raid") then --0x410b
-							predictedAmount = amount * 0.06947705
+							predictedAmount = amount * (0.06947705 * tierPieceMultiplier * itemLevelMultiplier)
 						else
-							predictedAmount = amount * 0.08416225
+							predictedAmount = amount * (0.08416225 * tierPieceMultiplier * itemLevelMultiplier)
 						end
 
 						evokerActor.total_extra = evokerActor.total_extra + predictedAmount
@@ -5512,6 +5523,55 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.AutoRunCode.DispatchAutoRunCode("on_entercombat")
 
 		Details.tabela_vigente.CombatStartedAt = GetTime()
+
+		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
+		wipe(gearCache)
+		local bNeedPlayerGear = true
+
+		if (IsInRaid()) then
+			local unitIdCache = Details222.UnitIdCache.Raid
+			bNeedPlayerGear = false
+
+			for i = 1, 40 do
+				local unitId = unitIdCache[i]
+				local guid = UnitGUID(unitId)
+				if (guid) then
+					local unitGearInfo = openRaidLib.GetUnitGear(unitId)
+					if (unitGearInfo) then
+						gearCache[guid] = {
+							tierAmount = unitGearInfo.tierAmount or 0,
+							ilevel = unitGearInfo.ilevel or 0,
+						}
+					end
+				end
+			end
+
+		elseif (IsInGroup()) then
+			local unitIdCache = Details222.UnitIdCache.Party
+			for i = 1, 4 do
+				local unitId = unitIdCache[i]
+				local guid = UnitGUID(unitId)
+				if (guid) then
+					local unitGearInfo = openRaidLib.GetUnitGear(unitId)
+					if (unitGearInfo) then
+						gearCache[guid] = {
+							tierAmount = unitGearInfo.tierAmount or 0,
+							ilevel = unitGearInfo.ilevel or 0,
+						}
+					end
+				end
+			end
+		end
+
+		if (bNeedPlayerGear) then
+			local playerGearInfo = openRaidLib.GetUnitGear("player")
+			if (playerGearInfo) then
+				gearCache[UnitGUID("player")] = {
+					tierAmount = playerGearInfo.tierAmount or 0,
+					ilevel = playerGearInfo.ilevel or 0,
+				}
+			end
+		end
 	end
 
 	--in case the player left the raid during the encounter
