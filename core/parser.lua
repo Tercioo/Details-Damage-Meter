@@ -1050,7 +1050,7 @@
 				overall["ALL"] = overall["ALL"] + 1  --qualtipo de hit ou absorb
 				mob["ALL"] = mob["ALL"] + 1  --qualtipo de hit ou absorb
 
-				if (spellId < 3) then
+				if (not isERA and spellId < 3) then
 					--overall
 					overall["HITS"] = overall["HITS"] + 1
 					mob["HITS"] = mob["HITS"] + 1
