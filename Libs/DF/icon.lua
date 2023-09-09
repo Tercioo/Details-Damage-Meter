@@ -844,7 +844,9 @@ detailsFramework.IconMixin = {
 					end
 				end
 
-				width = width + (iconFrame.width * iconFrame:GetScale()) + xPadding
+				--icon.lua:847: attempt to perform arithmetic on field 'width'(a nil value)
+				--but .width is set on SetIconSimple and SetIcon, getting the width from the iconFrame it self instead from cache is the cache fails
+				width = width + ((iconFrame.width or iconFrame:GetWidth()) * iconFrame:GetScale()) + xPadding
 			end
 
 			if (self.options.center_alignment) then

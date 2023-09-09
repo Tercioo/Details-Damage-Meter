@@ -6,7 +6,7 @@ local unpack = unpack
 local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
 
-local buffs_to_ignore = {
+Details.BuffUptimeSpellsToIgnore = {
     [186401] = true, --Sign of the Skirmisher
     [366646] = true, --Familiar Skies
     [403265] = true, --Bronze Attunement
@@ -226,26 +226,26 @@ end
 
 local aurasTabFillCallback = function(tab, player, combat)
     ---@type actor
-    local miscActor = combat:GetActor(DETAILS_ATTRIBUTE_MISC, player:Name())
+    local utilityActor = combat:GetActor(DETAILS_ATTRIBUTE_MISC, player:Name())
     ---@type number
     local combatTime = combat:GetCombatTime()
 
-    if (miscActor) then
+    if (utilityActor) then
         do --buffs
             local newAuraTable = {}
-            local spellContainer = miscActor:GetSpellContainer("buff")
+            local spellContainer = utilityActor:GetSpellContainer("buff")
             if (spellContainer) then
                 for spellId, spellTable in spellContainer:ListSpells() do
                     local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
                     local uptime = spellTable.uptime or 0
-                    if (not buffs_to_ignore[spellId]) then
+                    if (not Details.BuffUptimeSpellsToIgnore[spellId]) then
                         table.insert(newAuraTable, {spellIcon, spellName, uptime, spellTable.appliedamt, spellTable.refreshamt, uptime / combatTime * 100, spellID = spellId})
                     end
                 end
             end
 
             --check if this player has a augmentation buff container
-            local augmentedBuffContainer = miscActor.received_buffs_spells
+            local augmentedBuffContainer = utilityActor.received_buffs_spells
             if (augmentedBuffContainer) then
                 for sourceNameSpellId, spellTable in augmentedBuffContainer:ListSpells() do
                     local sourceName, spellId = strsplit("@", sourceNameSpellId)
@@ -267,7 +267,7 @@ local aurasTabFillCallback = function(tab, player, combat)
 
         do --debuffs
             local newAuraTable = {}
-            local spellContainer = miscActor:GetSpellContainer("debuff")
+            local spellContainer = utilityActor:GetSpellContainer("debuff")
             if (spellContainer) then
                 for spellId, spellTable in spellContainer:ListSpells() do
                     local spellName, _, spellIcon = Details.GetSpellInfo(spellId)

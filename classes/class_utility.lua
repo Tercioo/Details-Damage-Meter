@@ -1,3 +1,4 @@
+
 --lua locals
 local _cstr = string.format
 local _math_floor = math.floor
@@ -7,6 +8,7 @@ local pairs = pairs
 local min = math.min
 local unpack = unpack
 local type = type
+
 --api locals
 local _GetSpellInfo = Details.getspellinfo
 local GameTooltip = GameTooltip
@@ -1706,54 +1708,86 @@ end
 function atributo_misc:ToolTipBuffUptime(instance, barFrame)
 	local owner = self.owner
 	if (owner and owner.classe) then
-		r, g, b = unpack(_detalhes.class_colors[owner.classe])
+		r, g, b = unpack(Details.class_colors[owner.classe])
 	else
-		r, g, b = unpack(_detalhes.class_colors[self.classe])
+		r, g, b = unpack(Details.class_colors[self.classe])
 	end
 
-	local actorTotal = self["buff_uptime"]
-	local actorTable = self.buff_uptime_spells._ActorTable
-
-	local buffsUsed = {}
 	local combatTime = instance.showing:GetCombatTime()
+	local buffUptimeSpells = self:GetSpellContainer("buff")
+	local buffUptimeTable = {}
 
-	for spellId, actor in pairs(actorTable) do
-		buffsUsed[#buffsUsed+1] = {spellId, actor.uptime or 0}
-	end
-	table.sort(buffsUsed, _detalhes.Sort2)
-
-	_detalhes:AddTooltipSpellHeaderText(Loc ["STRING_SPELLS"], headerColor, #buffsUsed, _detalhes.tooltip_spell_icon.file, unpack(_detalhes.tooltip_spell_icon.coords))
-	_detalhes:AddTooltipHeaderStatusbar(r, g, b, barAlha)
-
-	local iconSizeInfo = _detalhes.tooltip.icon_size
-	local iconBorderInfo = _detalhes.tooltip.icon_border_texcoord
-
-	if (#buffsUsed > 0) then
-		for i = 1, min(30, #buffsUsed) do
-			local spellTable = buffsUsed[i]
-			local percent = spellTable[2] / combatTime * 100
-
-			if (spellTable[2] > 0 and percent < 99.5) then
-				local spellName, _, spellIcon = _GetSpellInfo(spellTable[1])
-
-				local minutes, seconds = floor(spellTable[2] / 60), floor(spellTable[2] % 60)
-				if (spellTable[2] >= combatTime) then
-					--GameCooltip:AddLine(nome_magia, minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
-					--GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
-
-				elseif (minutes > 0) then
-					GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. _cstr("%.1f", percent) .. "%)")
-					_detalhes:AddTooltipBackgroundStatusbar(false, percent)
-
-				else
-					GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. _cstr("%.1f", percent) .. "%)")
-					_detalhes:AddTooltipBackgroundStatusbar(false, percent)
+	if (buffUptimeSpells) then
+		for spellId, spellTable in buffUptimeSpells:ListSpells() do
+			if (not Details.BuffUptimeSpellsToIgnore[spellId]) then
+				local uptime = spellTable.uptime or 0
+				if (uptime > 0) then
+					buffUptimeTable[#buffUptimeTable+1] = {spellId, uptime}
 				end
-
-				GameCooltip:AddIcon(spellIcon, nil, nil, iconSizeInfo.W, iconSizeInfo.H, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
 			end
 		end
+
+		--check if this player has a augmentation buff container		
+		local augmentedBuffContainer = self.received_buffs_spells
+		if (augmentedBuffContainer) then
+			for sourceNameSpellId, spellTable in augmentedBuffContainer:ListSpells() do
+				local sourceName, spellId = strsplit("@", sourceNameSpellId)
+				spellId = tonumber(spellId)
+				local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+
+				if (spellName) then
+					sourceName = detailsFramework:RemoveRealmName(sourceName)
+					local uptime = spellTable.uptime or 0
+					buffUptimeTable[#buffUptimeTable+1] = {spellId, uptime, sourceName}
+				end
+			end
+		end
+
+		table.sort(buffUptimeTable, Details.Sort2)
+
+		Details:AddTooltipSpellHeaderText(Loc ["STRING_SPELLS"], headerColor, #buffUptimeTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
+		Details:AddTooltipHeaderStatusbar(r, g, b, barAlha)
+
+		local iconSizeInfo = Details.tooltip.icon_size
+		local iconBorderInfo = Details.tooltip.icon_border_texcoord
+
+		if (#buffUptimeTable > 0) then
+			for i = 1, min(30, #buffUptimeTable) do
+				local uptimeTable = buffUptimeTable[i]
+
+				local spellId = uptimeTable[1]
+				local uptime = uptimeTable[2]
+				local sourceName = uptimeTable[3]
+
+				local uptimePercent = uptime / combatTime * 100
+
+				if (uptime > 0 and uptimePercent < 99.5) then
+					local spellName, _, spellIcon = _GetSpellInfo(spellId)
+
+					if (sourceName) then
+						spellName = spellName .. " [" .. sourceName .. "]"
+					end
+
+					if (uptime <= combatTime) then
+						local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+						if (minutes > 0) then
+							GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "green")
+						else
+							GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "green")
+						end
+
+						GameCooltip:AddIcon(spellIcon, nil, nil, iconSizeInfo.W, iconSizeInfo.H, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+					end
+				end
+			end
+		else
+			GameCooltip:AddLine(Loc ["STRING_NO_SPELL"])
+		end
 	else
+		Details:AddTooltipSpellHeaderText(Loc ["STRING_SPELLS"], headerColor, #buffUptimeTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
+		Details:AddTooltipHeaderStatusbar(r, g, b, barAlha)
 		GameCooltip:AddLine(Loc ["STRING_NO_SPELL"])
 	end
 
