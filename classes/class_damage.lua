@@ -3902,6 +3902,8 @@ function damageClass:ToolTip_Enemies (instancia, numero, barra, keydown)
 	local combat = instancia:GetShowingCombat()
 	local enemy_name = self:name()
 
+	Details:Destroy(tooltip_temp_table)
+
 	--enemy damage taken
 	local i = 1
 	local damage_taken = 0

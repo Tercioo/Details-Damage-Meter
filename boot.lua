@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11857
-		Details.alpha_build_counter = 11857 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11901
+		Details.alpha_build_counter = 11901 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -142,7 +142,57 @@ do
 	--]=]
 
 	local news = {
-		{"v10.1.0.11022.151", "July 11th, 2023"},
+		{"v10.1.0.11901.151", "September 09th, 2023"},
+		"Evoker Predicted Damage improvements.",
+		"Improved spellId check for first hit when entering a combat (Flamanis).",
+		"Replaced Classic Era deprecated functions (Flamanis).",
+		"Change DF/pictureedit frame heirarchy to allow for close button and Done button to work right (Flamanis).",
+		"Unlocked Retail Streamer plugin for Classic Era (Flamanis).",
+		"Attempt to fix death log healing spam where a spell has multiple heals in the same millisecond.",
+		"Fixed an error with the old comparison window.",
+
+		{"v10.1.5.11856.151", "August 13th, 2023"},
+		"Fixed an issue with importing a profile with a corrupted time type.",
+		"Added Elemental Shaman overload spells (WillowGryph).",
+
+		{"v10.1.5.11855.151", "August 12th, 2023"},
+		"Forcing update interval to 0.1 on arenas matches using the real-time dps feature.",
+		"More parser cleanups and code improvements.",
+		"Auras tab now ignores regular 'world auras' (those weekly buffs of reputation, etc)",
+		"Fixed the player info tooltip (hovering the spec icon) height not being updated for Evoker Predicted damage.",
+		"Framework Update.",
+		"Lib Open Raid Update.",
+		"Code cleanup and refactoring.",
+
+		{"v10.1.5.11773.151", "July 30th, 2023"},
+		"Add animIn/animOut checks for the welcome window (Flamanis)",
+		"Fixed an issue with players with the time measurement 'real time' (Flamanis).",
+
+		{"v10.1.5.11770.151", "July 29th, 2023"},
+		"Removed 'Real Time DPS' from the time measure dropdown.",
+		"Added 'Show 'Real Time' DPS' toggle to show real time dps while in combat.",
+		"Added 'Order Bars By Real Time DPS' toggle to order bars by the amount of real time dps.",
+		"Added 'Always Use Real Time in Arenas' toggle to always use real time dps in Arenas.",
+		"Added .last_dps_realtime to player actors, caches the latest real time dps calculated.",
+		"Fixed breakdown window not opening when there's player data available at the window.",
+		"Fixed Augmented Evoker buffs placed before the combat start not being counted.",
+		"Cyclical pet ownership fix (Flamanis).",
+		"Added: Details:FindBuffCastedBy(unitId, buffSpellId, casterName), return up to 19 parameters",
+		"Framework and OpenRaid upgrades.",
+
+		{"v10.1.5.11718.151", "July 20th, 2023"},
+		"Renamed damageActor.extra_bar to damageActor.total_extra",
+		"Added: Details:ShowExtraStatusbar(barLineObject, amount, amountPercent, extraAmount)",
+		"Add the evoker predicted damage to overall data.",
+		"If any damage actor has 'total_extra' bigger than 0, the extra bar is shown.",
+		"List of spec names for spec tooltip detection now load at Startup not at lua compiling.",
+		"Renamed InstaciaCallFunction to InstanceCallDetailsFunc.",
+		"Fixed things about the Real Time DPS; Open Raid Lib Update.",
+		"Fixed Details:FindDebuffDuration(unitId, spellId, casterName) which wasn't taking the casterName in consideration.",
+		"Fixes on Encounter Details plugin.",
+		"Fixed an issue of clicking in a plugin icon in the title bar of Details! but the plugin wouldn't open.",
+
+		{"v10.1.5.11718.151", "July 13th, 2023"},
 		"Added: Hovering over the Augmented Evoker icon shows the Evoker's damage, along with an estimated damage done by its buffs.",
 		"Auras tab at the Breakdown Window, now shows damage buffs received from other players (Ebon Might, Precience and Power Infusion).",
 		"Auras tab now ignores regular 'world auras' (those weekly buffs of reputation, etc).",
@@ -170,7 +220,7 @@ do
 		"*Fixed custom displays ignoring actor.customColor.",
 		"*Details! Framework and LibOpenRaid upgrades.",
 
-		{"v10.1.0.11022.151", "July 11th, 2023"},
+		{"v10.1.0.11700.151", "July 11th, 2023"},
 		"Effective time is used when displaying tooltips information.",
 		"Wrap the specid name locatlization cache in a Details Framework check.",
 		"More fixes for real time dps.",
