@@ -795,7 +795,12 @@ detailsFramework.IconMixin = {
 			end
 		end
 
-		self:AlignAuraIcons()
+		--if there's nothing to show, no need to align
+		if (not next(self.AuraCache)) then
+			self:Hide()
+		else
+			self:AlignAuraIcons()
+		end
 	end,
 
 	---@param self df_iconrow the parent frame

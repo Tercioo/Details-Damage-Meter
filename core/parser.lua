@@ -3941,7 +3941,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 		_spell_utility_func(spell, targetSerial, targetName, targetFlags, sourceName, token, extraSpellID, extraSpellName)
 
-		--verifica se tem dono e adiciona o interrupt para o dono
+		if (spellId == 19647) then
+			--spell lock (warlock pet)
+			--Details:Msg("warlock pet interrupt, owner:", (ownerActor and ownerActor.nome or "no owner"))
+		end
+
+		--if the interrupt is from a pet, then we need to add the interrupt to the owner
 		if (ownerActor) then
 			if (not ownerActor.interrupt) then
 				ownerActor.interrupt = Details:GetOrderNumber(sourceName)
@@ -3950,16 +3955,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				ownerActor.interrompeu_oque = {}
 			end
 
-			-- adiciona ao total
-			ownerActor.interrupt = ownerActor.interrupt + 1
-
-			-- adiciona aos alvos
-			ownerActor.interrupt_targets[targetName] = (ownerActor.interrupt_targets[targetName] or 0) + 1
-
-			-- update last event
 			ownerActor.last_event = _tempo
 
-			-- spells interrupted
+			--total interrupts
+			ownerActor.interrupt = ownerActor.interrupt + 1
+
+			--add to interrupt targets
+			ownerActor.interrupt_targets[targetName] = (ownerActor.interrupt_targets[targetName] or 0) + 1
+
+			--which spells this actor interrupted
 			ownerActor.interrompeu_oque[extraSpellID] = (ownerActor.interrompeu_oque[extraSpellID] or 0) + 1
 
 			--pet interrupt
@@ -5524,52 +5528,55 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		Details.tabela_vigente.CombatStartedAt = GetTime()
 
-		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
-		wipe(gearCache)
-		local bNeedPlayerGear = true
+		local bSilentOnError = true
+		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", bSilentOnError) --isWOTLK isERA
+		if (openRaidLib) then
+			wipe(gearCache)
+			local bNeedPlayerGear = true
 
-		if (IsInRaid()) then
-			local unitIdCache = Details222.UnitIdCache.Raid
-			bNeedPlayerGear = false
+			if (IsInRaid()) then
+				local unitIdCache = Details222.UnitIdCache.Raid
+				bNeedPlayerGear = false
 
-			for i = 1, 40 do
-				local unitId = unitIdCache[i]
-				local guid = UnitGUID(unitId)
-				if (guid) then
-					local unitGearInfo = openRaidLib.GetUnitGear(unitId)
-					if (unitGearInfo) then
-						gearCache[guid] = {
-							tierAmount = unitGearInfo.tierAmount or 0,
-							ilevel = unitGearInfo.ilevel or 0,
-						}
+				for i = 1, 40 do
+					local unitId = unitIdCache[i]
+					local guid = UnitGUID(unitId)
+					if (guid) then
+						local unitGearInfo = openRaidLib.GetUnitGear(unitId)
+						if (unitGearInfo) then
+							gearCache[guid] = {
+								tierAmount = unitGearInfo.tierAmount or 0,
+								ilevel = unitGearInfo.ilevel or 0,
+							}
+						end
+					end
+				end
+
+			elseif (IsInGroup()) then
+				local unitIdCache = Details222.UnitIdCache.Party
+				for i = 1, 4 do
+					local unitId = unitIdCache[i]
+					local guid = UnitGUID(unitId)
+					if (guid) then
+						local unitGearInfo = openRaidLib.GetUnitGear(unitId)
+						if (unitGearInfo) then
+							gearCache[guid] = {
+								tierAmount = unitGearInfo.tierAmount or 0,
+								ilevel = unitGearInfo.ilevel or 0,
+							}
+						end
 					end
 				end
 			end
 
-		elseif (IsInGroup()) then
-			local unitIdCache = Details222.UnitIdCache.Party
-			for i = 1, 4 do
-				local unitId = unitIdCache[i]
-				local guid = UnitGUID(unitId)
-				if (guid) then
-					local unitGearInfo = openRaidLib.GetUnitGear(unitId)
-					if (unitGearInfo) then
-						gearCache[guid] = {
-							tierAmount = unitGearInfo.tierAmount or 0,
-							ilevel = unitGearInfo.ilevel or 0,
-						}
-					end
+			if (bNeedPlayerGear) then
+				local playerGearInfo = openRaidLib.GetUnitGear("player")
+				if (playerGearInfo) then
+					gearCache[UnitGUID("player")] = {
+						tierAmount = playerGearInfo.tierAmount or 0,
+						ilevel = playerGearInfo.ilevel or 0,
+					}
 				end
-			end
-		end
-
-		if (bNeedPlayerGear) then
-			local playerGearInfo = openRaidLib.GetUnitGear("player")
-			if (playerGearInfo) then
-				gearCache[UnitGUID("player")] = {
-					tierAmount = playerGearInfo.tierAmount or 0,
-					ilevel = playerGearInfo.ilevel or 0,
-				}
 			end
 		end
 	end
