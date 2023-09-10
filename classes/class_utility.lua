@@ -1706,6 +1706,8 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 end
 
 function atributo_misc:ToolTipBuffUptime(instance, barFrame)
+	---@cast instance instance
+
 	local owner = self.owner
 	if (owner and owner.classe) then
 		r, g, b = unpack(Details.class_colors[owner.classe])
@@ -1713,7 +1715,7 @@ function atributo_misc:ToolTipBuffUptime(instance, barFrame)
 		r, g, b = unpack(Details.class_colors[self.classe])
 	end
 
-	local combatTime = instance.showing:GetCombatTime()
+	local combatTime = instance:GetCombat():GetCombatTime()
 	local buffUptimeSpells = self:GetSpellContainer("buff")
 	local buffUptimeTable = {}
 

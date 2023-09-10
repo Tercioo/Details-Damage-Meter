@@ -2994,7 +2994,7 @@ end
 ---@param onEnterFunc function?
 ---@param onLeaveFunc function?
 function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, topAmount, instanceObject, onEnterFunc, onLeaveFunc)
-	if (extraAmount and extraAmount > 0 and Details.combat_log.evoker_calc_damage) then
+	if (extraAmount and extraAmount > 0) then
 		local extraStatusbar = thisLine.extraStatusbar
 		local initialOffset = 0
 		local icon_offset_x, icon_offset_y = unpack(instanceObject.row_info.icon_offset)
@@ -3021,13 +3021,18 @@ function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, 
 		end
 
 		extraStatusbar:SetWidth(extraStatusbarWidth)
-
-		--extraStatusbar:SetFrameStrata("TOOLTIP")
 		extraStatusbar:SetFrameLevel(thisLine:GetFrameLevel() + 1)
 
 		extraStatusbar.OnEnterCallback = onEnterFunc
 		extraStatusbar.OnLeaveCallback = onLeaveFunc
 
+		if (Details.combat_log.evoker_calc_damage) then
+			extraStatusbar:SetAlpha(0.8)
+			extraStatusbar.defaultAlpha = 0.8
+		else
+			extraStatusbar:SetAlpha(0.1)
+			extraStatusbar.defaultAlpha = 0.1
+		end
 		extraStatusbar:Show()
 	end
 end
@@ -3036,9 +3041,16 @@ end
 local handleShowExtraStatusbar = function(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
 	if (self.spec == 1473 and self.augmentedSpellsContainer) then
 		--prepare the extra bar to show the damage prediction to augmented evoker
-		Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance, damageClass.PredictedAugSpellsOnEnter, damageClass.PredictedAugSpellsOnLeave)
+		local onEnterFunc = damageClass.PredictedAugSpellsOnEnter
+		local onLeaveFunc = damageClass.PredictedAugSpellsOnLeave
+
+		Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance, onEnterFunc, onLeaveFunc)
 		thisLine.extraStatusbar.augmentedSpellsContainer = self.augmentedSpellsContainer
-		thisLine.extraStatusbar.instance = instance
+
+		thisLine.extraStatusbar.actorName = self:Name()
+
+		---@cast instance instance
+		thisLine.extraStatusbar.instanceId = instance:GetId()
 	else
 		Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
 	end
@@ -3377,58 +3389,161 @@ function Details:RefreshBarra(thisLine, instance, fromResize) --[[exported]]
 	self:SetBarLeftText(thisLine, instance, enemy, arenaEnemy, arenaAlly, UsingCustomLeftText)
 end
 
-
+---comment
+---@param self table extraStatusbar frame
 function damageClass.PredictedAugSpellsOnEnter(self)
-	if (not Details.show_aug_predicted_spell_damage) then
-		return
-	end
+	if (Details.show_aug_predicted_spell_damage) then
+		---@type spellcontainer
+		local spellContainer = self.augmentedSpellsContainer
 
-	---@type spellcontainer
-	local spellContainer = self.augmentedSpellsContainer
+		GameCooltip:Preset(2)
+		---@type instance
+		local instanceObject = Details:GetInstance(self.instanceId)
+		---@type combat
+		local combatObject = instanceObject:GetCombat()
 
-	GameCooltip:Preset(2)
-	---@type instance
-	local instance = self.instance
+		for spellId, spellTable in spellContainer:ListSpells() do
+			local spellName, _, spellTexture = GetSpellInfo(spellId)
+			if (spellName) then
+				GameCooltip:AddLine(spellName, Details:Format(spellTable.total))
+				GameCooltip:AddIcon(spellTexture, 1, 1, 14, 14)
 
-	local combatObject = instance:GetCombat()
-	for spellId, spellTable in spellContainer:ListSpells() do
-		local spellName, _, spellTexture = GetSpellInfo(spellId)
-		if (spellName) then
-			GameCooltip:AddLine(spellName, Details:Format(spellTable.total))
-			GameCooltip:AddIcon(spellTexture, 1, 1, 14, 14)
+				local spellsAugmented = {}
 
-			local spellsAugmented = {}
+				--the damage sources are added into the targets table for recycling
+				---@type table<actorname, valueamount>
+				local sources = spellTable.targets
+				for sourceName, sourceAmount in pairs(sources) do
+					spellsAugmented[#spellsAugmented+1] = {sourceName, sourceAmount}
+				end
 
-			--the damage sources are added into the targets table for recycling
-			---@type table<actorname, valueamount>
-			local sources = spellTable.targets
-			for sourceName, sourceAmount in pairs(sources) do
-				spellsAugmented[#spellsAugmented+1] = {sourceName, sourceAmount}
-			end
+				table.sort(spellsAugmented, Details.Sort2)
 
-			table.sort(spellsAugmented, Details.Sort2)
-
-			for i = 1, math.min(#spellsAugmented, 5) do
-				local sourceName, sourceAmount = unpack(spellsAugmented[i])
-				GameCooltip:AddLine(sourceName, Details:Format(sourceAmount), 1, "yellow", "yellow", 10)
-				local actorObject = combatObject:GetActor(1, sourceName)
-				if (actorObject) then
-					local actorIcon = Details:GetActorIcon(actorObject)
-					if (actorIcon) then
-						GameCooltip:AddIcon(actorIcon.texture, 1, 1, 14, 14, actorIcon.coords.left, actorIcon.coords.right, actorIcon.coords.top, actorIcon.coords.bottom)
-					else
-						GameCooltip:AddIcon([[Interface\COMMON\Indicator-Gray]], 1, 1, 14, 14)
+				for i = 1, math.min(#spellsAugmented, 5) do
+					local sourceName, sourceAmount = unpack(spellsAugmented[i])
+					GameCooltip:AddLine(sourceName, Details:Format(sourceAmount), 1, "yellow", "yellow", 10)
+					local actorObject = combatObject:GetActor(1, sourceName)
+					if (actorObject) then
+						local actorIcon = Details:GetActorIcon(actorObject)
+						if (actorIcon) then
+							GameCooltip:AddIcon(actorIcon.texture, 1, 1, 14, 14, actorIcon.coords.left, actorIcon.coords.right, actorIcon.coords.top, actorIcon.coords.bottom)
+						else
+							GameCooltip:AddIcon([[Interface\COMMON\Indicator-Gray]], 1, 1, 14, 14)
+						end
 					end
 				end
 			end
 		end
+	else
+		---@type instance
+		local instanceObject = Details:GetInstance(self.instanceId)
+		---@type combat
+		local combatObject = instanceObject:GetCombat()
+
+		local combatTime = combatObject:GetCombatTime()
+
+		---@type actorname
+		local actorName = self.actorName
+
+		---@type actorcontainer
+		local utilityContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_MISC)
+
+		local buffUptimeTable = {}
+
+		--for each actor in the container
+		for _, actorObject in utilityContainer:ListActors() do
+			---@type spellcontainer
+			local receivedBuffs = actorObject.received_buffs_spells
+
+			if (receivedBuffs and actorObject:IsPlayer()) then
+				for sourceNameSpellId, spellTable in receivedBuffs:ListSpells() do
+					local sourceName, spellId = strsplit("@", sourceNameSpellId)
+					if (sourceName == actorName) then
+						spellId = tonumber(spellId)
+						local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+
+						if (spellName) then
+							sourceName = detailsFramework:RemoveRealmName(sourceName)
+							local targetName = actorObject:Name()
+							targetName = detailsFramework:RemoveRealmName(targetName)
+
+							local uptime = spellTable.uptime or 0
+							buffUptimeTable[#buffUptimeTable+1] = {spellId, uptime, sourceName, targetName, actorObject:Class()}
+						end
+					end
+				end
+			end
+		end
+
+		table.sort(buffUptimeTable, Details.Sort2)
+
+		Details:FormatCooltipForSpells()
+		Details:AddTooltipSpellHeaderText(Loc ["STRING_SPELLS"], headerColor, #buffUptimeTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
+		Details:AddTooltipHeaderStatusbar(.1, .1, .1, 0.834)
+
+		local iconSize = 22
+		local iconBorderInfo = Details.tooltip.icon_border_texcoord
+
+		local combatTimeMinutes, combatTimeSeconds = math.floor(combatTime / 60), math.floor(combatTime % 60)
+		GameCooltip:AddLine("Combat Time", combatTimeMinutes .. "m " .. combatTimeSeconds .. "s" .. " (" .. format("%.1f", 100) .. "%)")
+		GameCooltip:AddIcon([[Interface\TARGETINGFRAME\UnitFrameIcons]], nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+		Details:AddTooltipBackgroundStatusbar(false, 100, true, "green")
+
+		if (#buffUptimeTable > 0) then
+			for i = 1, min(30, #buffUptimeTable) do
+				local uptimeTable = buffUptimeTable[i]
+
+				local spellId = uptimeTable[1]
+				local uptime = uptimeTable[2]
+				local sourceName = uptimeTable[3]
+				local targetName = uptimeTable[4]
+				local targetClass = uptimeTable[5]
+
+				local uptimePercent = uptime / combatTime * 100
+
+				if (uptime > 0 and uptimePercent < 99.5) then
+					local spellName, _, spellIcon = _GetSpellInfo(spellId)
+
+					if (sourceName) then
+						targetName = detailsFramework:AddClassColorToText(targetName, targetClass)
+						targetName = detailsFramework:AddClassIconToText(targetName, targetName, targetClass)
+						spellName = spellName .. " [" .. targetName .. "]"
+					end
+
+					if (uptime <= combatTime) then
+						local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+						if (minutes > 0) then
+							GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "green")
+						else
+							GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "green")
+						end
+
+						GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+					end
+				end
+			end
+		else
+			GameCooltip:AddLine(Loc ["STRING_NO_SPELL"])
+		end
 	end
+
+	--GameCooltip:SetOption("LeftBorderSize", -5)
+	--GameCooltip:SetOption("RightBorderSize", 5)
+	--GameCooltip:SetOption("RightTextMargin", 0)
+	GameCooltip:SetOption("VerticalOffset", 0)
+	--GameCooltip:SetOption("AlignAsBlizzTooltip", true)
+	GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", 0)
+	GameCooltip:SetOption("LineHeightSizeOffset", 0)
+	GameCooltip:SetOption("VerticalPadding", 0)
 
 	GameCooltip:ShowCooltip(self, "tooltip")
 end
 
 function damageClass.PredictedAugSpellsOnLeave(self)
 	GameCooltip:Hide()
+	--extraStatusbar.defaultAlpha
 end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
@@ -3902,7 +4017,7 @@ function damageClass:ToolTip_Enemies (instancia, numero, barra, keydown)
 	local combat = instancia:GetShowingCombat()
 	local enemy_name = self:name()
 
-	Details:Destroy(tooltip_temp_table)
+	Details:Destroy(tooltip_temp_table) --fix for translit bug report, 'player' is nil
 
 	--enemy damage taken
 	local i = 1
