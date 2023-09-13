@@ -3903,6 +3903,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
+		if (not ownerActor) then
+			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono(sourceSerial, sourceName, sourceFlags)
+			if (petName) then
+				--print("pet found:", petName, ownerName, ownerGUID, ownerFlag)
+			end
+		end
+
+		--local sourceActor, ownerActor, sourceName = _current_misc_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
+
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly
 		if (not sourceActor.interrupt) then
