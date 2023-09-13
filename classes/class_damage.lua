@@ -3455,7 +3455,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 			---@type spellcontainer
 			local receivedBuffs = actorObject.received_buffs_spells
 
-			if (receivedBuffs and actorObject:IsPlayer()) then
+			if (receivedBuffs and actorObject:IsPlayer() and actorObject:IsGroupPlayer()) then
 				for sourceNameSpellId, spellTable in receivedBuffs:ListSpells() do
 					local sourceName, spellId = strsplit("@", sourceNameSpellId)
 					if (sourceName == actorName) then
@@ -3528,6 +3528,8 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 			GameCooltip:AddLine(Loc ["STRING_NO_SPELL"])
 		end
 	end
+
+	GameCooltip:AddLine("cannot disable this bar while the feature is under tests")
 
 	--GameCooltip:SetOption("LeftBorderSize", -5)
 	--GameCooltip:SetOption("RightBorderSize", 5)

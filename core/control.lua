@@ -1747,6 +1747,10 @@
 		end
 	end
 
+	---@param self instance
+	---@param frame table
+	---@param whichRowLine number
+	---@param keydown string
 	function Details:MontaTooltip(frame, whichRowLine, keydown)
 		self:BuildInstanceBarTooltip(frame)
 
@@ -1777,6 +1781,9 @@
 		if (not object.ToolTip) then
 			if (object.__destroyed) then
 				Details:Msg("object:ToolTip() is invalid.", object.__destroyedBy)
+				self:ResetWindow()
+				self:RefreshWindow(true)
+				return
 			end
 		end
 
@@ -1896,7 +1903,7 @@
 		dumpt(t)
 	end
 
-	function Details:ForceRefresh()
+	function Details:ForceRefresh() --getting deprecated soon
 		self:RefreshMainWindow(true)
 	end
 
