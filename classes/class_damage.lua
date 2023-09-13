@@ -3529,7 +3529,8 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		end
 	end
 
-	GameCooltip:AddLine("cannot disable this bar while the feature is under tests")
+	GameCooltip:AddLine("feature under test, can't disable atm")
+	GameCooltip:AddIcon([[Interface\BUTTONS\UI-GROUPLOOT-PASS-DOWN]], nil, nil, 16, 16)
 
 	--GameCooltip:SetOption("LeftBorderSize", -5)
 	--GameCooltip:SetOption("RightBorderSize", 5)

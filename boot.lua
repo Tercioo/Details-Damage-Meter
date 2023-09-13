@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11902
-		Details.alpha_build_counter = 11902 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 11914
+		Details.alpha_build_counter = 11914 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -142,6 +142,12 @@ do
 	--]=]
 
 	local news = {
+		{"v10.1.0.11914.151", "September 13th, 2023"},
+		"Added an extra bar within the evoker damage bar, this new bar when hovered over shows the buff uptime of Ebon Might and Prescience on all players.",
+		"ToC Files of all plugins got updated.",
+		"Fixed the error 'Attempt to compare string with number' on vanilla (Flamanis).",
+		"Fixed the error 'object:ToolTip() is invalid'.",
+
 		{"v10.1.0.11901.151", "September 09th, 2023"},
 		"Evoker Predicted Damage improvements.",
 		"Improved spellId check for first hit when entering a combat (Flamanis).",
