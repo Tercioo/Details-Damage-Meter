@@ -238,10 +238,16 @@ local instanceMixins = {
 		else
 			---@type combat
 			local combatObject = Details:GetCombat(segmentId)
-			if (combatObject.__destroyed) then
-				table.remove(Details:GetCombatSegments(), segmentId)
-				combatObject = combatClass:NovaTabela()
-				table.insert(Details:GetCombatSegments(), segmentId, combatObject)
+			if (not combatObject) then
+				instance:SetSegmentId(DETAILS_SEGMENTID_CURRENT)
+				instance:RefreshCombat()
+				return
+			else
+				if (combatObject.__destroyed) then
+					table.remove(Details:GetCombatSegments(), segmentId)
+					combatObject = combatClass:NovaTabela()
+					table.insert(Details:GetCombatSegments(), segmentId, combatObject)
+				end
 			end
 			instance.showing = combatObject
 		end
@@ -401,6 +407,10 @@ local instanceMixins = {
 	---@return segmentid
 	GetSegmentId = function(instance)
 		return instance.segmento
+	end,
+
+	SetSegmentId = function(instance, segmentId)
+		instance.segmento = segmentId
 	end,
 
 	---return the mais attribute id and the sub attribute
