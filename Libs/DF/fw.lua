@@ -1093,6 +1093,14 @@ function DF:AddClassColorToText(text, className)
 	return text
 end
 
+---returns the class icon texture coordinates and texture file path
+---@param class string
+---@return number, number, number, number, string
+function DF:GetClassTCoordsAndTexture(class)
+	local l, r, t, b = unpack(CLASS_ICON_TCOORDS[class])
+	return l, r, t, b, [[Interface\WORLDSTATEFRAME\Icons-Classes]]
+end
+
 ---create a string with the spell icon and the spell name using |T|t scape codes to add the icon inside the string
 ---@param self table
 ---@param spellId any
@@ -1103,14 +1111,6 @@ function DF:MakeStringFromSpellId(spellId)
 		return "|T" .. spellIcon .. ":16:16:0:0:64:64:4:60:4:60|t " .. spellName
 	end
 	return ""
-end
-
----returns the class icon texture coordinates and texture file path
----@param class string
----@return number, number, number, number, string
-function DF:GetClassTCoordsAndTexture(class)
-	local l, r, t, b = unpack(CLASS_ICON_TCOORDS[class])
-	return l, r, t, b, [[Interface\WORLDSTATEFRAME\Icons-Classes]]
 end
 
 ---wrap 'text' with the class icon of 'playerName' using |T|t scape codes
@@ -1157,6 +1157,58 @@ function DF:AddClassIconToText(text, playerName, englishClassName, useSpec, icon
 	end
 
 	return text
+end
+
+---create a table with information about a texture
+---@param texture any
+---@param textureWidth any
+---@param textureHeight any
+---@param imageWidth any
+---@param imageHeight any
+---@param left any
+---@param right any
+---@param top any
+---@param bottom any
+---@return table
+function DF:CreateTextureInfo(texture, textureWidth, textureHeight, left, right, top, bottom, imageWidth, imageHeight)
+	local textureInfo = {
+		texture = texture,
+		width = textureWidth or 16,
+		height = textureHeight or 16,
+		coords = {left or 0, right or 1, top or 0, bottom or 1},
+	}
+
+	textureInfo.imageWidth = imageWidth or textureInfo.width
+	textureInfo.imageHeight = imageHeight or textureInfo.height
+
+	return textureInfo
+end
+
+---add a texture to the start or end of a string
+---@param text string
+---@param textureInfo table
+---@param bAddSpace any
+---@param bAddAfterText any
+---@return string
+function DF:AddTextureToText(text, textureInfo, bAddSpace, bAddAfterText)
+	local texture = textureInfo.texture
+	local textureWidth = textureInfo.width
+	local textureHeight = textureInfo.height
+	local imageWidth = textureInfo.imageWidth or textureWidth
+	local imageHeight = textureInfo.imageHeight or textureHeight
+	local left, right, top, bottom = unpack(textureInfo.coords)
+	left = left or 0
+	right = right or 1
+	top = top or 0
+	bottom = bottom or 1
+
+	if (bAddAfterText) then
+		local newString = text .. (bAddSpace and " " or "") .. "|T" .. texture .. ":" .. textureWidth .. ":" .. textureHeight .. ":0:0:" .. imageWidth .. ":" .. imageHeight .. ":" .. (left * imageWidth) .. ":" .. (right * imageWidth) .. ":" .. (top * imageHeight) .. ":" .. (bottom * imageHeight) .. "|t"
+		return newString
+	else
+		local newString = "|T" .. texture .. ":" .. textureWidth .. ":" .. textureHeight .. ":0:0:" .. imageWidth .. ":" .. imageHeight .. ":" .. (left * imageWidth) .. ":" .. (right * imageWidth) .. ":" .. (top * imageHeight) .. ":" .. (bottom * imageHeight) .. "|t" .. (bAddSpace and " " or "") .. text
+		return newString
+	end
 end
 
 ---return the size of a fontstring
@@ -5632,6 +5684,8 @@ end
 function DF:DebugVisibility(UIObject)
 	local bIsShown = UIObject:IsShown()
 	print("Is Shown:", bIsShown and "|cFF00FF00true|r" or "|cFFFF0000false|r")
+
+	print("Alpha > 0:", UIObject:GetAlpha() > 0 and "|cFF00FF00true|r" or "|cFFFF0000false|r")
 
 	local bIsVisible = UIObject:IsVisible()
 	print("Is Visible:", bIsVisible and "|cFF00FF00true|r" or "|cFFFF0000false|r")

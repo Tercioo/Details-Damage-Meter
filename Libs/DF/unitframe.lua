@@ -308,11 +308,12 @@ local cleanfunction = function() end
 	healthBarMetaFunctions.UpdateHealPrediction = function(self)
 		local currentHealth = self.currentHealth
 		local currentHealthMax = self.currentHealthMax
-		local healthPercent = currentHealth / currentHealthMax
 
 		if (not currentHealthMax or currentHealthMax <= 0) then
 			return
 		end
+
+		local healthPercent = currentHealth / currentHealthMax
 
 		--order is: the health of the unit > damage absorb > heal absorb > incoming heal
 		local width = self:GetWidth()

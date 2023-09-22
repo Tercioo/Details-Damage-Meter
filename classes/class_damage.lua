@@ -5043,8 +5043,10 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 
 		---@type string
 		local spellName = _GetSpellInfo(spellId)
+
 		if (spellName) then
 			---@type number in which index the spell with the same name was stored
+
 			local index = alreadyAdded[spellName]
 			if (index and bShouldMergePlayerSpells) then
 				---@type spelltableadv

@@ -531,8 +531,21 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
-function detailsFramework:CreateTextEntry(parent, func, w, h, member, name, with_label, entry_template, label_template)
-	return detailsFramework:NewTextEntry(parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
+---@class df_textentry : table, frame
+---@field SetTemplate fun(self:df_textentry, template:table)
+
+---@param parent frame
+---@param textChangedCallback function
+---@param width number
+---@param height number
+---@param member string?
+---@param name string?
+---@param labelText string?
+---@param textentryTemplate table?
+---@param labelTemplate table?
+---@return df_textentry
+function detailsFramework:CreateTextEntry(parent, textChangedCallback, width, height, member, name, labelText, textentryTemplate, labelTemplate)
+	return detailsFramework:NewTextEntry(parent, parent, name, member, width, height, textChangedCallback, nil, nil, nil, labelText, textentryTemplate, labelTemplate)
 end
 
 function detailsFramework:NewTextEntry(parent, container, name, member, width, height, func, param1, param2, space, withLabel, entryTemplate, labelTemplate)

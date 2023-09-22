@@ -23,6 +23,10 @@ local spellNameCache = {}
 local emptyTable = {}
 local white = {1, 1, 1, 1}
 
+local sortIconByShownState = function(i1, i2)
+	return i1:IsShown() and not i2:IsShown()
+end
+
 local iconFrameOnHideScript = function(self)
 	if (self.cooldownLooper) then
 		self.cooldownLooper:Cancel()
@@ -159,6 +163,15 @@ detailsFramework.IconGenericMixin = {
 
 	AddSpecificIconWithTemplate = function(self, iconTemplateTable)
 		self:AddSpecificIcon(iconTemplateTable.id, iconTemplateTable.id, nil, iconTemplateTable.startTime, iconTemplateTable.duration, nil, nil, iconTemplateTable.count, nil, nil, nil, nil, nil, nil, iconTemplateTable)
+	end,
+
+	IsIconShown = function(self, identifierKey)
+		if (not identifierKey or identifierKey == "") then
+			return
+		end
+		if (self.AuraCache[identifierKey]) then
+			return true
+		end
 	end,
 
 	---set an icon frame with a template
@@ -551,7 +564,8 @@ detailsFramework.IconGenericMixin = {
 		if iconAmount == 0 then
 			self:Hide()
 		else
-			table.sort(iconPool, function(i1, i2) return i1:IsShown() and not i2:IsShown() end)
+			table.sort(iconPool, sortIconByShownState)
+
 			local shownAmount = 0
 			for i = 1, iconAmount do
 				if iconPool[i]:IsShown() then

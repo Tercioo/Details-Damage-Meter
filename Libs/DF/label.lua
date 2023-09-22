@@ -256,7 +256,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
----@class df_label
+---@class df_label: uiobject
 ---@field widget fontstring widget and label points to the same fontstring
 ---@field label fontstring widget and label points to the same fontstring
 ---@field align justifyh

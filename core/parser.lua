@@ -396,6 +396,35 @@
 		--377458 377459
 	end
 
+	local override_aura_spellid = {
+		[426672] = { --Pip's Emerald Friendship Badge Urctos
+			CanOverride = function(auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, ...)
+				if (duration and duration >= 1 and duration <= 60) then
+					return true
+				end
+			end,
+			NewSpellId = 426674,
+		},
+
+		[426676] = { --Pip's Emerald Friendship Badge Aerwynn
+			CanOverride = function(auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, ...)
+				if (duration and duration >= 1 and duration <= 60) then
+					return true
+				end
+			end,
+			NewSpellId = 426677,
+		},
+
+		[426647] = { --Pip's Emerald Friendship Badge Pip
+			CanOverride = function(auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, ...)
+				if (duration and duration >= 1 and duration <= 60) then
+					return true
+				end
+			end,
+			NewSpellId = 426648
+		},
+	}
+
 	local bitfield_debuffs = {}
 	for _, spellid in ipairs(Details.BitfieldSwapDebuffsIDs) do
 		local spellname = GetSpellInfo(spellid)
@@ -2774,7 +2803,23 @@
 				end
 			end
 
-			if (spellId == 388007 or spellId == 388011) then --buff: bleesing of the summer and winter
+			if (override_aura_spellid[spellId] and UnitIsUnit(sourceName, "player")) then
+				local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedBy(sourceName, spellId, sourceName)
+				if (auraName) then
+					local overrideTable = override_aura_spellid[spellId]
+					if (overrideTable.CanOverride(auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5)) then
+						--proc
+						parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, overrideTable.NewSpellId, spellName, "BUFF_UPTIME_IN")
+						local bAddToTarget, bOverrideTime = false, true
+						parser:add_buff_uptime(token, time+duration, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, overrideTable.NewSpellId, spellName, "BUFF_UPTIME_OUT", bAddToTarget, bOverrideTime)
+
+						--standard buff (not discounting the time with proc, this give the player how much time the buff was active overall)
+						parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_IN")
+						return
+					end
+				end
+
+			elseif (spellId == 388007 or spellId == 388011) then --buff: bleesing of the summer and winter
 				cacheAnything.paladin_vivaldi_blessings[targetSerial] = {sourceSerial, sourceName, sourceFlags}
 
 			elseif (spellId == 27827) then --spirit of redemption (holy ~priest) ~spirit
@@ -3430,7 +3475,7 @@
 			if (not spellTable) then
 				spellTable = sourceActor.debuff_uptime_spells:GetOrCreateSpell(spellId, true, "DEBUFF_UPTIME")
 			end
-			return _spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, sourceActor, "BUFF_OR_DEBUFF", sAuraInOrOut)
+			return _spell_utility_func(spellTable, targetName, sourceActor, "BUFF_OR_DEBUFF", sAuraInOrOut)
 		end
 	end
 
@@ -3447,8 +3492,9 @@
 	---@param spellId spellid
 	---@param spellName spellname
 	---@param sAuraInOrOut string
-	---@param bAddToTarget boolean? --augmentation evoker
-	function parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, sAuraInOrOut, bAddToTarget)
+	---@param bAddToTarget boolean? --special auras which has to be added to the caster and target
+	---@param bOverrideTime boolean?
+	function parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, sAuraInOrOut, bAddToTarget, bOverrideTime)
 		_current_misc_container.need_refresh = true
 
 		local sourceActor = misc_cache[sourceName]
@@ -3473,7 +3519,7 @@
 			if (not spellTable) then
 				spellTable = sourceActor.buff_uptime_spells:GetOrCreateSpell(spellId, true, "BUFF_UPTIME")
 			end
-			_spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, sourceActor, "BUFF_OR_DEBUFF", sAuraInOrOut)
+			_spell_utility_func(spellTable, targetName, sourceActor, "BUFF_OR_DEBUFF", sAuraInOrOut, bOverrideTime and floor(time))
 		end
 
 		if (bAddToTarget and sourceSerial ~= targetSerial) then
@@ -3506,7 +3552,7 @@
 				spellTable.id = spellId
 			end
 
-			_spell_utility_func(spellTable, sourceSerial, sourceName, sourceFlags, targetName, targetActor, "BUFF_OR_DEBUFF", sAuraInOrOut)
+			_spell_utility_func(spellTable, sourceName, targetActor, "BUFF_OR_DEBUFF", sAuraInOrOut, bOverrideTime and floor(time))
 		end
 	end
 
@@ -3857,7 +3903,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
-		return _spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, token, "BUFF_OR_DEBUFF", "COOLDOWN")
+		return _spell_utility_func(spellTable, targetName, token, "BUFF_OR_DEBUFF", "COOLDOWN")
 	end
 
 	--serach key: ~interrupt
@@ -3884,7 +3930,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not sourceName) then
-			sourceName = "[*] "..spellName
+			sourceName = "[*] " .. spellName
 
 		elseif (not targetName) then
 			return
@@ -3894,6 +3940,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	------------------------------------------------------------------------------------------------
 	--get actors
+		local petName, ownerName, ownerGUID, ownerFlags
+
 		---@type actorutility, actorutility
 		local sourceActor, ownerActor = misc_cache[sourceName], nil
 		if (not sourceActor) then
@@ -3904,9 +3952,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not ownerActor) then
-			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono(sourceSerial, sourceName, sourceFlags)
+			petName, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:PegaDono(sourceSerial, sourceName, sourceFlags)
 			if (petName) then
-				--print("pet found:", petName, ownerName, ownerGUID, ownerFlag)
+				ownerActor = _current_misc_container:GetOrCreateActor(ownerGUID, ownerName, ownerFlags, true)
+				--print("pet found:", petName, ownerName, ownerGUID, ownerFlags)
 			end
 		end
 
@@ -3948,7 +3997,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not spell) then
 			spell = sourceActor.interrupt_spells:GetOrCreateSpell(spellId, true, token)
 		end
-		_spell_utility_func(spell, targetSerial, targetName, targetFlags, sourceName, token, extraSpellID, extraSpellName)
+		_spell_utility_func(spell, targetName, token, extraSpellID, extraSpellName)
 
 		if (spellId == 19647) then
 			--spell lock (warlock pet)
@@ -4018,7 +4067,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		---@type actor, actor
 		local sourceActor, ownerActor = misc_cache[sourceSerial] or misc_cache_pets[sourceSerial] or misc_cache[sourceName], misc_cache_petsOwners[sourceSerial]
 		if (not sourceActor) then
-			sourceActor, ownerActor, sourceName = _current_misc_container:GetOrCreateActor (sourceSerial, sourceName, sourceFlags, true)
+			sourceActor, ownerActor, sourceName = _current_misc_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
 			if (ownerActor) then
 				if (sourceSerial ~= "") then
 					misc_cache_pets [sourceSerial] = sourceActor
@@ -4204,7 +4253,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not spellTable) then
 			spellTable = sourceActor.dispell_spells:GetOrCreateSpell(spellId, true, token)
 		end
-		_spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, token, extraSpellID, extraSpellName)
+		_spell_utility_func(spellTable, targetName, token, extraSpellID, extraSpellName)
 
 		--is has an owner, add the dispel to the owner as well
 		if (ownerActor) then
@@ -4305,11 +4354,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		sourceActor.ress_targets[targetName] = (sourceActor.ress_targets[targetName] or 0) + 1
 
 		--actor spells table
-		local spell = sourceActor.ress_spells._ActorTable[spellId]
-		if (not spell) then
-			spell = sourceActor.ress_spells:GetOrCreateSpell(spellId, true, token)
+		local spellTable = sourceActor.ress_spells._ActorTable[spellId]
+		if (not spellTable) then
+			spellTable = sourceActor.ress_spells:GetOrCreateSpell(spellId, true, token)
 		end
-		return _spell_utility_func(spell, targetSerial, targetName, targetFlags, sourceName, token)
+		return _spell_utility_func(spellTable, targetName, token)
 	end
 
 	--serach key: ~cc
@@ -4376,7 +4425,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not spellTable) then
 			spellTable = sourceActor.cc_break_spells:GetOrCreateSpell(extraSpellID, true, token)
 		end
-		return _spell_utility_func(spellTable, targetSerial, targetName, targetFlags, sourceName, token, spellId, spellName)
+		return _spell_utility_func(spellTable, targetName, token, spellId, spellName)
 	end
 
 	--serach key: ~dead ~death ~morte

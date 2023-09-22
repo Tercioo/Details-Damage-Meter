@@ -124,6 +124,10 @@ do
 		local itemName = C_Item.GetItemNameByID(itemId)
 
 		if (itemIcon and itemName) then
+			--limit the amount of characters of the item name
+			if (#itemName > 20) then
+				itemName = string.sub(itemName, 1, 20)
+			end
 			result = "" .. CreateTextureMarkup(itemIcon, iconSize, iconSize, iconSize, iconSize, unpack(coords)) .. " " .. itemName .. ""
 		end
 
@@ -203,7 +207,7 @@ do
 			[277185] = {name = GetSpellInfo(277185) .. " (Trinket)"}, --[Dread Gladiator's Badge]
 			[278057] = {name = GetSpellInfo(278057) .. " (Trinket)"}, --[Vigilant's Bloodshaper]
 		}
-	else --retail
+	else --retail (dragonflight)
 		defaultSpellCustomization = {
 			[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\ICONS\INV_Sword_04]]},
 			[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\ICONS\INV_Weapon_Bow_07]]},
@@ -217,7 +221,8 @@ do
 			[108271] = {name = GetSpellInfo(108271), icon = "Interface\\Addons\\Details\\images\\icon_astral_shift"},
 			[196917] = {name = lightOfTheMartyr_Name .. " (" .. Loc ["STRING_DAMAGE"] .. ")", icon = lightOfTheMartyr_Icon},
 			[77535] = {name = GetSpellInfo(77535), icon = "Interface\\Addons\\Details\\images\\icon_blood_shield"},
-			[395296] = {name = GetSpellInfo(395296), icon = "Interface\\Addons\\Details\\images\\ebon_might"},
+			[395296] = {name = GetSpellInfo(395296) .. " (on your self)", icon = "Interface\\Addons\\Details\\images\\ebon_might"},
+			[424428] = {name = GetSpellInfo(424428) .. " (4P)", icon = "Interface\\Addons\\Details\\images\\spells\\eruption_tier4.jpg", defaultName = GetSpellInfo(424428), breakdownCanStack = true},
 		}
 
 		customItemList[394453] = {itemId = 195480, isPassive = true} --ring: Seal of Diurna's Chosen
@@ -255,6 +260,27 @@ do
 		customItemList[381760] = {itemId = 193786, isPassive = true} --trinket: Mutated Magmammoth Scale (melee)
 		customItemList[389839] = {itemId = 193757, isPassive = true} --trinket: Ruby Whelp Shell
 		customItemList[401428] = {itemId = 202615, isPassive = true} --trinket: Vessel of Searing Shadow
+
+		--10.2
+		customItemList[426898] = {itemId = 207167, isPassive = false, nameExtra = "*on use*"} --trinket: Ashes of the Embersoul
+		customItemList[423611] = {itemId = 207167, isPassive = true, nameExtra = "*proc*"} --trinket: Ashes of the Embersoul (extra proc)
+
+		customItemList[426672] = {itemId = 207168, isPassive = true, nameExtra = "(vers)", icon = [[Interface\AddOns\Details\images\spells\spell_druid_bearhug_blackwhite.jpg]]} --trinket: Pip's Emerald Friendship Badge urctos
+		customItemList[426674] = {itemId = 207168, isPassive = true, nameExtra = "(*vers*)", icon = 571585} --trinket: Pip's Emerald Friendship Badge urctos
+		customItemList[426676] = {itemId = 207168, isPassive = true, nameExtra = "(crit)", icon = [[Interface\AddOns\Details\images\spells\elf_face_right.jpg]]} --trinket: Pip's Emerald Friendship Badge aerwynn
+		customItemList[426677] = {itemId = 207168, isPassive = true, nameExtra = "(*crit*)", icon = 2403539} --trinket: Pip's Emerald Friendship Badge aerwynn
+		customItemList[426647] = {itemId = 207168, isPassive = true, nameExtra = "(mast)", icon = [[Interface\AddOns\Details\images\spells\lil_dragon_left.jpg]]} --trinket: Pip's Emerald Friendship Badge pip
+		customItemList[426648] = {itemId = 207168, isPassive = true, nameExtra = "(*mast*)", icon = 5342919} --trinket: Pip's Emerald Friendship Badge pip
+
+		customItemList[422146] = {itemId = 207172, isPassive = false} --trinket: Belor'relos, the Sunstone
+		customItemList[426553] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame
+		customItemList[426564] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame (damage)
+		customItemList[427161] = {itemId = 208615, isPassive = false} --trinket: Nymue's Unraveling Spindle
+		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
+		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
+		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
+
+
 	end
 
 	if (LIB_OPEN_RAID_SPELL_CUSTOM_NAMES) then
@@ -318,15 +344,21 @@ do
 		end
 
 		--itens
-		--[381760] = {name = formatTextForItem(193786), isPassive = true, itemId = 193786},
+		--[381760] = {name = formatTextForItem(193786), isPassive = true, itemId = 193786, nameExtra = ""|nil},
 		---@type number, customiteminfo
 		for spellId, itemInfo in pairs(customItemList) do
 			local bIsPassive = itemInfo.isPassive
 			local itemId = itemInfo.itemId
+			local nameExtra = itemInfo.nameExtra
 			local spellName, _, spellIcon = GetSpellInfo(spellId)
+
+			spellIcon = itemInfo.icon or spellIcon or [[Interface\InventoryItems\WoWUnknownItem01]]
 
 			local itemName = formatTextForItem(itemId)
 			if (itemName ~= "") then
+				if (nameExtra) then
+					itemName = itemName .. " " .. nameExtra
+				end
 				Details:UserCustomSpellAdd(spellId, itemName, spellIcon or [[Interface\InventoryItems\WoWUnknownItem01]])
 			else
 				if (not Details.UpdateIconsTimer or Details.UpdateIconsTimer:IsCancelled()) then
@@ -386,6 +418,17 @@ do
 		return unpack(Details.spellcache[spellId]) --won't be nil due to the __index metatable in the spellcache table
 	end
 	Details.GetSpellInfo = Details.getspellinfo
+
+	function Details.GetCustomSpellInfo(spellId)
+		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+		local customInfo = defaultSpellCustomization[spellId]
+		if (customInfo) then
+			local defaultName, bCanStack = customInfo.defaultName, customInfo.breakdownCanStack
+			return spellName, _, spellIcon, defaultName, bCanStack
+		else
+			return spellName, _, spellIcon
+		end
+	end
 
 	--overwrite SpellInfo if the spell is a DoT, so Details.GetSpellInfo will return the name modified
 	function Details:SetAsDotSpell(spellId)

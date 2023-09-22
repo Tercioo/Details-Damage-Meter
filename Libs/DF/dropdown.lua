@@ -1083,6 +1083,27 @@ end
 ------------------------------------------------------------------------------------------------------------
 --object constructor
 
+---@class df_dropdown : table, frame
+---@field SetTemplate fun(self:df_dropdown, template:table)
+---@field BuildDropDownFontList fun(self:df_dropdown, onClick:function, icon:any, iconTexcoord:table?, iconSize:table?):table make a dropdown list with all fonts available, on select a font, call the function onClick
+---@field 
+---@field 
+---@field 
+---@field 
+---@field 
+
+
+
+---create a dropdown object
+---@param parent frame
+---@param func function
+---@param default any
+---@param width number?
+---@param height number?
+---@param member string?
+---@param name string?
+---@param template table?
+---@return df_dropdown
 function DF:CreateDropDown(parent, func, default, width, height, member, name, template)
 	return DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
 end

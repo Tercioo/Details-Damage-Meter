@@ -275,6 +275,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 --methods
 
 	---change the function which will be called when the button is pressed
+	---callback function will receive the blizzard button as first parameter, click type as second, param1 and param2 as third and fourth
 	---@param func function
 	---@param param1 any
 	---@param param2 any
@@ -887,17 +888,18 @@ end
 
 	---@return df_button
 	function detailsFramework:NewButton(parent, container, name, member, width, height, func, param1, param2, texture, text, shortMethod, buttonTemplate, textTemplate)
-		if (not name) then
-			name = "DetailsFrameworkButtonNumber" .. detailsFramework.ButtonCounter
-			detailsFramework.ButtonCounter = detailsFramework.ButtonCounter + 1
-
-		elseif (not parent) then
+		if (not parent) then
 			error("Details! FrameWork: parent not found.", 2)
 		end
 
-		if (name:find("$parent")) then
-			local parentName = detailsFramework.GetParentName(parent)
-			name = name:gsub("$parent", parentName)
+		if (not name) then
+			local parentName = parent:GetName()
+			if (parentName) then
+				name = parentName .. "Button" .. detailsFramework.ButtonCounter
+			else
+				name = "DetailsFrameworkButtonNumber" .. detailsFramework.ButtonCounter
+			end
+			detailsFramework.ButtonCounter = detailsFramework.ButtonCounter + 1
 		end
 
 		local buttonObject = {type = "button", dframework = true}
