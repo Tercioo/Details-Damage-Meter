@@ -31,125 +31,123 @@
 		return spellTable
 	end
 
-	---@param self spelltable
+	---@param spellTable spelltable
 	---@param targetName string
-	---@param targetFlags number
-	---@param sourceName string
 	---@param token string|actor
 	---@param spellId number
-	---@param spellName string
-	function classUtility:Add(targetSerial, targetName, targetFlags, sourceName, token, spellId, spellName)
+	---@param parserToken string
+	function classUtility.Add(spellTable, targetName, token, spellId, parserToken, tempoOverrided)
 		--as the passed parameters for aura are different from the reset of the abilities, this should be a different function
 		if (spellId == "BUFF_OR_DEBUFF") then
 			local actorUtilityObject = token
-			local parserToken = spellName
+			local _tempo = tempoOverrided or _detalhes._tempo
 
 			if (parserToken == "COOLDOWN") then
-				self.counter = self.counter + 1
-				self.targets[targetName] = (self.targets[targetName] or 0) + 1
+				spellTable.counter = spellTable.counter + 1
+				spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
 
 			elseif (parserToken == "BUFF_UPTIME_REFRESH") then
-				if (self.actived_at and self.actived) then
-					self.uptime = self.uptime + (_detalhes._tempo - self.actived_at)
-					self.refreshamt = self.refreshamt + 1
-					actorUtilityObject.buff_uptime = actorUtilityObject.buff_uptime + (_detalhes._tempo - self.actived_at)
+				if (spellTable.actived_at and spellTable.actived) then
+					spellTable.uptime = spellTable.uptime + (_tempo - spellTable.actived_at)
+					spellTable.refreshamt = spellTable.refreshamt + 1
+					actorUtilityObject.buff_uptime = actorUtilityObject.buff_uptime + (_tempo - spellTable.actived_at)
 				end
 
-				self.actived_at = _detalhes._tempo
-				self.actived = true
+				spellTable.actived_at = _tempo
+				spellTable.actived = true
 
 			elseif (parserToken == "BUFF_UPTIME_OUT") then
-				if (self.actived_at and self.actived) then
-					self.uptime = self.uptime + (_detalhes._tempo - self.actived_at)
-					actorUtilityObject.buff_uptime = actorUtilityObject.buff_uptime + (_detalhes._tempo - self.actived_at)
+				if (spellTable.actived_at and spellTable.actived) then
+					spellTable.uptime = spellTable.uptime + (_tempo - spellTable.actived_at)
+					actorUtilityObject.buff_uptime = actorUtilityObject.buff_uptime + (_tempo - spellTable.actived_at)
 				end
 
-				self.actived = false
-				self.actived_at = nil
+				spellTable.actived = false
+				spellTable.actived_at = nil
 
 			elseif (parserToken == "BUFF_UPTIME_IN" or parserToken == "DEBUFF_UPTIME_IN") then
 				--aura applied
-				self.actived = true
-				self.activedamt = self.activedamt + 1
-				self.appliedamt = self.appliedamt + 1
+				spellTable.actived = true
+				spellTable.activedamt = spellTable.activedamt + 1
+				spellTable.appliedamt = spellTable.appliedamt + 1
 
-				if (self.actived_at and self.actived and parserToken == "DEBUFF_UPTIME_IN") then
+				if (spellTable.actived_at and spellTable.actived and parserToken == "DEBUFF_UPTIME_IN") then
 					--ja esta ativo em outro mob e jogou num novo
-					self.uptime = self.uptime + (_detalhes._tempo - self.actived_at)
-					actorUtilityObject.debuff_uptime = actorUtilityObject.debuff_uptime + (_detalhes._tempo - self.actived_at)
+					spellTable.uptime = spellTable.uptime + (_tempo - spellTable.actived_at)
+					actorUtilityObject.debuff_uptime = actorUtilityObject.debuff_uptime + (_tempo - spellTable.actived_at)
 				end
 
-				self.actived_at = _detalhes._tempo
+				spellTable.actived_at = _tempo
 
-				if (not self.uptime) then
-					self.uptime = 0
+				if (not spellTable.uptime) then
+					spellTable.uptime = 0
 				end
 
 			elseif (parserToken == "DEBUFF_UPTIME_REFRESH") then
-				if (self.actived_at and self.actived) then
-					self.uptime = self.uptime + (_detalhes._tempo - self.actived_at)
-					self.refreshamt = self.refreshamt + 1
-					actorUtilityObject.debuff_uptime = actorUtilityObject.debuff_uptime + (_detalhes._tempo - self.actived_at)
+				if (spellTable.actived_at and spellTable.actived) then
+					spellTable.uptime = spellTable.uptime + (_tempo - spellTable.actived_at)
+					spellTable.refreshamt = spellTable.refreshamt + 1
+					actorUtilityObject.debuff_uptime = actorUtilityObject.debuff_uptime + (_tempo - spellTable.actived_at)
 				end
 
-				self.actived_at = _detalhes._tempo
-				self.actived = true
+				spellTable.actived_at = _tempo
+				spellTable.actived = true
 
 			elseif (parserToken == "DEBUFF_UPTIME_OUT") then
-				if (self.actived_at and self.actived) then
-					self.uptime = self.uptime + (_detalhes._tempo - self.actived_at)
-					actorUtilityObject.debuff_uptime = actorUtilityObject.debuff_uptime + (_detalhes._tempo - self.actived_at)
+				if (spellTable.actived_at and spellTable.actived) then
+					spellTable.uptime = spellTable.uptime + (_tempo - spellTable.actived_at)
+					actorUtilityObject.debuff_uptime = actorUtilityObject.debuff_uptime + (_tempo - spellTable.actived_at)
 				end
 
-				self.activedamt = self.activedamt - 1
+				spellTable.activedamt = spellTable.activedamt - 1
 
-				if (self.activedamt == 0) then
-					self.actived = false
-					self.actived_at = nil
+				if (spellTable.activedamt == 0) then
+					spellTable.actived = false
+					spellTable.actived_at = nil
 				else
-					self.actived_at = _detalhes._tempo
+					spellTable.actived_at = _tempo
 				end
 			end
 
 		elseif (token == "SPELL_INTERRUPT") then
-			self.counter = self.counter + 1
+			spellTable.counter = spellTable.counter + 1
 
-			if (not self.interrompeu_oque[spellId]) then
-				self.interrompeu_oque[spellId] = 1
+			if (not spellTable.interrompeu_oque[spellId]) then
+				spellTable.interrompeu_oque[spellId] = 1
 			else
-				self.interrompeu_oque[spellId] = self.interrompeu_oque[spellId] + 1
+				spellTable.interrompeu_oque[spellId] = spellTable.interrompeu_oque[spellId] + 1
 			end
 
 			--target
-			self.targets[targetName] = (self.targets[targetName] or 0) + 1
+			spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
 
 		elseif (token == "SPELL_RESURRECT") then
-			self.ress = (self.ress or 0) + 1
+			spellTable.ress = (spellTable.ress or 0) + 1
 			--target
-			self.targets[targetName] = (self.targets[targetName] or 0) + 1
+			spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
 
 		elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
-			self.dispell = (self.dispell or 0) + 1
+			spellTable.dispell = (spellTable.dispell or 0) + 1
 
-			if (not self.dispell_oque[spellId]) then
-				self.dispell_oque[spellId] = 1
+			if (not spellTable.dispell_oque[spellId]) then
+				spellTable.dispell_oque[spellId] = 1
 			else
-				self.dispell_oque[spellId] = self.dispell_oque[spellId] + 1
+				spellTable.dispell_oque[spellId] = spellTable.dispell_oque[spellId] + 1
 			end
 
 			--target
-			self.targets[targetName] = (self.targets[targetName] or 0) + 1
+			spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
 
 		elseif (token == "SPELL_AURA_BROKEN_SPELL" or token == "SPELL_AURA_BROKEN") then
-			self.cc_break = (self.cc_break or 0) + 1
+			spellTable.cc_break = (spellTable.cc_break or 0) + 1
 
-			if (not self.cc_break_oque[spellId]) then
-				self.cc_break_oque[spellId] = 1
+			if (not spellTable.cc_break_oque[spellId]) then
+				spellTable.cc_break_oque[spellId] = 1
 			else
-				self.cc_break_oque[spellId] = self.cc_break_oque[spellId] + 1
+				spellTable.cc_break_oque[spellId] = spellTable.cc_break_oque[spellId] + 1
 			end
 
 			--target
-			self.targets[targetName] = (self.targets[targetName] or 0) + 1
+			spellTable.targets[targetName] = (spellTable.targets[targetName] or 0) + 1
 		end
 	end
