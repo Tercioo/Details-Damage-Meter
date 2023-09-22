@@ -222,7 +222,7 @@ do
 			[196917] = {name = lightOfTheMartyr_Name .. " (" .. Loc ["STRING_DAMAGE"] .. ")", icon = lightOfTheMartyr_Icon},
 			[77535] = {name = GetSpellInfo(77535), icon = "Interface\\Addons\\Details\\images\\icon_blood_shield"},
 			[395296] = {name = GetSpellInfo(395296) .. " (on your self)", icon = "Interface\\Addons\\Details\\images\\ebon_might"},
-			[424428] = {name = GetSpellInfo(424428) .. " (4P)", icon = "Interface\\Addons\\Details\\images\\spells\\eruption_tier4.jpg", defaultName = GetSpellInfo(424428), breakdownCanStack = true},
+			--[424428] = {name = GetSpellInfo(424428) .. " (4P)", icon = "Interface\\Addons\\Details\\images\\spells\\eruption_tier4.jpg", defaultName = GetSpellInfo(424428), breakdownCanStack = true}, --evoker 4pc tier 10.2
 		}
 
 		customItemList[394453] = {itemId = 195480, isPassive = true} --ring: Seal of Diurna's Chosen
@@ -262,9 +262,6 @@ do
 		customItemList[401428] = {itemId = 202615, isPassive = true} --trinket: Vessel of Searing Shadow
 
 		--10.2
-		customItemList[426898] = {itemId = 207167, isPassive = false, nameExtra = "*on use*"} --trinket: Ashes of the Embersoul
-		customItemList[423611] = {itemId = 207167, isPassive = true, nameExtra = "*proc*"} --trinket: Ashes of the Embersoul (extra proc)
-
 		customItemList[426672] = {itemId = 207168, isPassive = true, nameExtra = "(vers)", icon = [[Interface\AddOns\Details\images\spells\spell_druid_bearhug_blackwhite.jpg]]} --trinket: Pip's Emerald Friendship Badge urctos
 		customItemList[426674] = {itemId = 207168, isPassive = true, nameExtra = "(*vers*)", icon = 571585} --trinket: Pip's Emerald Friendship Badge urctos
 		customItemList[426676] = {itemId = 207168, isPassive = true, nameExtra = "(crit)", icon = [[Interface\AddOns\Details\images\spells\elf_face_right.jpg]]} --trinket: Pip's Emerald Friendship Badge aerwynn
@@ -272,14 +269,25 @@ do
 		customItemList[426647] = {itemId = 207168, isPassive = true, nameExtra = "(mast)", icon = [[Interface\AddOns\Details\images\spells\lil_dragon_left.jpg]]} --trinket: Pip's Emerald Friendship Badge pip
 		customItemList[426648] = {itemId = 207168, isPassive = true, nameExtra = "(*mast*)", icon = 5342919} --trinket: Pip's Emerald Friendship Badge pip
 
-		customItemList[422146] = {itemId = 207172, isPassive = false} --trinket: Belor'relos, the Sunstone
-		customItemList[426553] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame
-		customItemList[426564] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame (damage)
-		customItemList[427161] = {itemId = 208615, isPassive = false} --trinket: Nymue's Unraveling Spindle
-		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
 		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
 		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
+		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
+		--customItemList[424324] = {itemId = 207786, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Axe STR] same as the mace
 
+		customItemList[423611] = {itemId = 207167, isPassive = true, nameExtra = "*proc*"} --trinket: Ashes of the Embersoul (extra proc)
+		customItemList[426553] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame
+		customItemList[426564] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame (damage)
+		customItemList[425154] = {itemId = 207166, isPassive = true} --trinket: Infernal Signet Brand
+		customItemList[427037] = {itemId = 207175, isPassive = true} --trinket: Coiled Serpent Idol
+		customItemList[421996] = {itemId = 207173, isPassive = true} --trinket: Gift of Ursine Vengeance
+		customItemList[421994] = {itemId = 207173, isPassive = true} --trinket: Gift of Ursine Vengeance (buff)
+		customItemList[422441] = {itemId = 207169, isPassive = true} --trinket: Branch of the Tormented Ancient (buff)
+
+		customItemList[427161] = {itemId = 208615, onUse = true, castId = 422956} --trinket: Nymue's Unraveling Spindle
+		customItemList[425701] = {itemId = 207174, onUse = true, castId = 422750} --trinket: Fyrakk's Tainted Rageheart
+		customItemList[425509] = {itemId = 207169, onUse = true, castId = 422441} --trinket: Branch of the Tormented Ancient
+		customItemList[422146] = {itemId = 207172, onUse = true, castId = 422146} --trinket: Belor'relos, the Sunstone
+		customItemList[426898] = {itemId = 207167, onUse = true, castId = 423611, nameExtra = "*on use*"} --trinket: Ashes of the Embersoul
 
 	end
 
