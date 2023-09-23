@@ -5046,7 +5046,6 @@ function damageClass:MontaInfoDamageDone() --I guess this fills the list of spel
 
 		if (spellName) then
 			---@type number in which index the spell with the same name was stored
-
 			local index = alreadyAdded[spellName]
 			if (index and bShouldMergePlayerSpells) then
 				---@type spelltableadv
@@ -5758,6 +5757,9 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 					blockLine1.leftText:SetText("Procs: " .. trinketProc.total)
 				end
 			end
+
+		elseif (Details.GetItemSpellInfo(spellId)) then
+			blockLine1.leftText:SetText("Uses: " .. totalCasts)
 		end
 
 		blockLine1.rightText:SetText(Loc ["STRING_HITS"]..": " .. totalHits) --hits and uptime

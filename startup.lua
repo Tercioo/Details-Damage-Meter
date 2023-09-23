@@ -493,6 +493,9 @@ function Details:StartMeUp()
 				}
 				trinketData[spellId] = thisTrinketData
 			end
+
+		elseif (trinketTable.onUse and trinketTable.castId) then
+			Details222.OnUseItem.Trinkets[trinketTable.castId] = spellId
 		end
 	end
 

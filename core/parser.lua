@@ -1588,7 +1588,7 @@
 			end
 		end
 
-		if (_trinket_data_cache[spellId] and _in_combat) then
+		if (_trinket_data_cache[spellId] and _in_combat) then --~trinket
 			---@type trinketdata
 			local thisData = _trinket_data_cache[spellId]
 			if (thisData.lastCombatId == _global_combat_counter) then
@@ -2140,7 +2140,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--SPELL_EMPOWER
 -----------------------------------------------------------------------------------------------------------------------------------------
-	function parser:spell_empower(token, time, sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellSchool, empowerLevel)
+	function parser:spell_empower(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellSchool, empowerLevel)
 		--empowerLevel only exists on _END and _INTERRUPT
 		if (token == "SPELL_EMPOWER_START" or token == "SPELL_EMPOWER_INTERRUPT") then
 			return
@@ -2151,7 +2151,7 @@
 		end
 
 		--early checks
-		if (not sourceGUID or not sourceName or not sourceFlags) then
+		if (not sourceSerial or not sourceName or not sourceFlags) then
 			return
 		end
 
@@ -2160,17 +2160,22 @@
 			return
 		end
 
-		local sourceObject = damage_cache[sourceGUID] or damage_cache[sourceName]
+		local sourceObject = damage_cache[sourceSerial] or damage_cache[sourceName]
 
 		if (not sourceObject) then
-			sourceObject = _current_damage_container:GetOrCreateActor(sourceGUID, sourceName, sourceFlags, true)
+			sourceObject = _current_damage_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
 		end
 
 		if (not sourceObject) then
 			return
 		end
 
-		empower_cache[sourceGUID] = empower_cache[sourceGUID] or {}
+		--add to the amount of spell casts
+		--nop, SPELL_EMPOWER_END does not trigger when Tip The Scales is enabled
+		--perhaps UNIT_SPELLCAST_SUCCEEDED checking if tip the scales buff is enabled and checking if the spell is an empowered spell
+		--parser:spellcast(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName)
+
+		empower_cache[sourceSerial] = empower_cache[sourceSerial] or {}
 		local empowerTable = {
 			spellName = spellName,
 			empowerLevel = empowerLevel,
@@ -2178,7 +2183,7 @@
 			counted_healing = false,
 			counted_damage  = false,
 		}
-		empower_cache[sourceGUID][spellName] = empowerTable
+		empower_cache[sourceSerial][spellName] = empowerTable
 	end
 	--parser.spell_empower
 	--10/30 15:32:11.515  SPELL_EMPOWER_START,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,Player-4184-00242A35,"Isodrak-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
@@ -4053,7 +4058,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@param targetRaidFlags number
 	---@param spellId number
 	---@param spellName string
-	---@param spellType number
+	---@param spellType number?
 	function parser:spellcast(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetRaidFlags, spellId, spellName, spellType)
 		--only capture if is in combat
 		if (not _in_combat) then
@@ -4082,6 +4087,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 			end
 		end
+
+	--check if this is an item usage
+	spellId = Details222.OnUseItem.Trinkets[spellId] or spellId
 
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly

@@ -912,8 +912,8 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 		---@cast spellTable spelltable
 		spellBar.spellTable = spellTable
 
-		---@type string, number, any
-		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+		---@type string, number, any, string?, boolean?
+		local spellName, _, spellIcon, defaultName, bBreakdownCanStack = Details.GetCustomSpellInfo(spellId)
 		if (not spellName) then
 			spellName = actorName
 			---@type npcid
@@ -921,8 +921,12 @@ local updateSpellBar = function(spellBar, index, actorName, combatObject, scroll
 			spellIcon = Details.NpcIdToIcon[npcId] or bkSpellData.actorIcon or ""
 		end
 
+		--if this damage was made by an item, then get the default spellName of the damaging spell
+		--the name from GetSpellInfo are probably modified by a custom spell name
+		--amount of casts does not use custom names but always the damaging spell name from combatlog
+		local defaultSpellName = Details.GetItemSpellInfo(spellId)
 		---@type number
-		local amtCasts = combatObject:GetSpellCastAmount(actorName, spellName)
+		local amtCasts = combatObject:GetSpellCastAmount(actorName, defaultSpellName or spellName)
 		spellBar.amountCasts = amtCasts
 
 		---@type number

@@ -283,11 +283,13 @@ do
 		customItemList[421994] = {itemId = 207173, isPassive = true} --trinket: Gift of Ursine Vengeance (buff)
 		customItemList[422441] = {itemId = 207169, isPassive = true} --trinket: Branch of the Tormented Ancient (buff)
 
-		customItemList[427161] = {itemId = 208615, onUse = true, castId = 422956} --trinket: Nymue's Unraveling Spindle
-		customItemList[425701] = {itemId = 207174, onUse = true, castId = 422750} --trinket: Fyrakk's Tainted Rageheart
-		customItemList[425509] = {itemId = 207169, onUse = true, castId = 422441} --trinket: Branch of the Tormented Ancient
-		customItemList[422146] = {itemId = 207172, onUse = true, castId = 422146} --trinket: Belor'relos, the Sunstone
-		customItemList[426898] = {itemId = 207167, onUse = true, castId = 423611, nameExtra = "*on use*"} --trinket: Ashes of the Embersoul
+		customItemList[427161] = {itemId = 208615, onUse = true, castId = 422956, defaultName = GetSpellInfo(422956)} --trinket: Nymue's Unraveling Spindle
+		customItemList[425701] = {itemId = 207174, onUse = true, castId = 422750, defaultName = GetSpellInfo(422750)} --trinket: Fyrakk's Tainted Rageheart
+		customItemList[425509] = {itemId = 207169, onUse = true, castId = 422441, defaultName = GetSpellInfo(422441)} --trinket: Branch of the Tormented Ancient
+		customItemList[422146] = {itemId = 207172, onUse = true, castId = 422146, defaultName = GetSpellInfo(422146)} --trinket: Belor'relos, the Sunstone
+		customItemList[427430] = {itemId = 207165, onUse = true, castId = 422146, defaultName = GetSpellInfo(422303), nameExtra = "*return*"} --trinket: Bandolier of Twisted Blades
+		customItemList[422303] = {itemId = 207165, onUse = true, castId = 422146, defaultName = GetSpellInfo(422303), nameExtra = "*throw*"} --trinket: Bandolier of Twisted Blades
+		customItemList[426898] = {itemId = 207167, onUse = true, castId = 423611, nameExtra = "*on use*", defaultName = GetSpellInfo(423611)} --trinket: Ashes of the Embersoul
 
 	end
 
@@ -429,12 +431,21 @@ do
 
 	function Details.GetCustomSpellInfo(spellId)
 		local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+
 		local customInfo = defaultSpellCustomization[spellId]
 		if (customInfo) then
 			local defaultName, bCanStack = customInfo.defaultName, customInfo.breakdownCanStack
 			return spellName, _, spellIcon, defaultName, bCanStack
-		else
-			return spellName, _, spellIcon
+		end
+
+		return spellName, _, spellIcon
+	end
+
+	function Details.GetItemSpellInfo(spellId)
+		local spellInfo = customItemList[spellId]
+		if (spellInfo) then
+			local defaultSpellName, castSpellId, itemId, bIsPassive, bOnUse, nameExtra = spellInfo.defaultName, spellInfo.castId, spellInfo.itemId, spellInfo.onUse, spellInfo.isPassive, spellInfo.nameExtra
+			return defaultSpellName, castSpellId, itemId, bIsPassive, bOnUse, nameExtra
 		end
 	end
 

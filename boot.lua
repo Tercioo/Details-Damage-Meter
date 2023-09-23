@@ -103,6 +103,7 @@
 			Schedules = {},
 		}
 		Details222.TimeMachine = {}
+		Details222.OnUseItem = {Trinkets = {}}
 
 		Details222.Date = {
 			GetDateForLogs = function()

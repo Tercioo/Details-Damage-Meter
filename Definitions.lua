@@ -465,17 +465,17 @@
 
 ---spelltableadv is similar to spelltable but allow custom members, methods and any modification isn't save to saved variables
 ---@class spelltableadv : spelltable, spelltablemixin
----@field expanded boolean if is true the show the nested spells
+---@field expanded boolean? if is true the show the nested spells
 ---@field spellTables spelltable[]
 ---@field nestedData bknesteddata[]
 ---@field bCanExpand boolean
----@field expandedIndex number
----@field bIsExpanded boolean
----@field statusBarValue number
----@field npcId npcid
----@field actorName string --when showing an actor header, this is the actor name
----@field bIsActorHeader boolean if this is true, the spellbar is an actor header, which is a bar with the actor name with the actor spells nested
----@field actorIcon textureid|texturepath
+---@field expandedIndex number?
+---@field bIsExpanded boolean?
+---@field statusBarValue number?
+---@field npcId any
+---@field actorName string? --when showing an actor header, this is the actor name
+---@field bIsActorHeader boolean? if this is true, the spellbar is an actor header, which is a bar with the actor name with the actor spells nested
+---@field actorIcon textureid|texturepath?
 
 ---@class bknesteddata : {spellId: number, spellTable: spelltable, actorName: string, value: number, bIsActorHeader: boolean} fills .nestedData table in spelltableadv, used to store the nested spells data, 'value' is set when the breakdown sort the values by the selected header
 
