@@ -1,6 +1,6 @@
 
 
-local dversion = 468
+local dversion = 470
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1432,6 +1432,118 @@ function DF:GetSpellBookSpells()
     end
 
     return spellNamesInSpellBook, spellIdsInSpellBook
+end
+
+---return a table where keys are spellIds (number) and the value is true
+---@return table<number, boolean>
+function DF:GetAvailableSpells()
+    local completeListOfSpells = {}
+
+    --this line might not be compatible with classic
+    --local specId, specName, _, specIconTexture = GetSpecializationInfo(GetSpecialization())
+    --local classNameLoc, className, classId = UnitClass("player") --not in use
+    local locPlayerRace, playerRace, playerRaceId = UnitRace("player")
+
+    --get racials from the general tab
+	local generalTabIndex = 1
+    local tabName, tabTexture, offset, numSpells, isGuild, offspecId = GetSpellTabInfo(generalTabIndex)
+    offset = offset + 1
+    local tabEnd = offset + numSpells
+    for entryOffset = offset, tabEnd - 1 do
+        local spellType, spellId = GetSpellBookItemInfo(entryOffset, "player")
+        local spellData = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
+        if (spellData) then
+            local raceId = spellData.raceid
+            if (raceId) then
+                if (type(raceId) == "table") then
+                    if (raceId[playerRaceId]) then
+                        spellId = C_SpellBook.GetOverrideSpell(spellId)
+                        local spellName = GetSpellInfo(spellId)
+                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        if (spellName and not bIsPassive) then
+                            completeListOfSpells[spellId] = true
+                        end
+                    end
+
+                elseif (type(raceId) == "number") then
+                    if (raceId == playerRaceId) then
+                        spellId = C_SpellBook.GetOverrideSpell(spellId)
+                        local spellName = GetSpellInfo(spellId)
+                        local bIsPassive = IsPassiveSpell(spellId, "player")
+                        if (spellName and not bIsPassive) then
+                            completeListOfSpells[spellId] = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+	--get spells from the Spec spellbook
+	local amountOfTabs = GetNumSpellTabs()
+    for i = 2, amountOfTabs-1 do --starting at index 2 to ignore the general tab
+        local tabName, tabTexture, offset, numSpells, isGuild, offSpecId, shouldHide, specID = GetSpellTabInfo(i)
+		local bIsOffSpec = offSpecId ~= 0
+		offset = offset + 1
+		local tabEnd = offset + numSpells
+		for entryOffset = offset, tabEnd - 1 do
+			local spellType, spellId = GetSpellBookItemInfo(entryOffset, "player")
+			if (spellId) then
+				if (spellType == "SPELL") then
+					spellId = C_SpellBook.GetOverrideSpell(spellId)
+					local spellName = GetSpellInfo(spellId)
+					local bIsPassive = IsPassiveSpell(spellId, "player")
+					if (spellName and not bIsPassive) then
+						completeListOfSpells[spellId] = bIsOffSpec == false
+					end
+				end
+			end
+		end
+    end
+
+    --get class shared spells from the spell book
+	--[=[
+    local tabName, tabTexture, offset, numSpells, isGuild, offSpecId = GetSpellTabInfo(2)
+	local bIsOffSpec = offSpecId ~= 0
+    offset = offset + 1
+    local tabEnd = offset + numSpells
+    for entryOffset = offset, tabEnd - 1 do
+        local spellType, spellId = GetSpellBookItemInfo(entryOffset, "player")
+        if (spellId) then
+            if (spellType == "SPELL") then
+                spellId = C_SpellBook.GetOverrideSpell(spellId)
+                local spellName = GetSpellInfo(spellId)
+                local bIsPassive = IsPassiveSpell(spellId, "player")
+
+				if (spellName and not bIsPassive) then
+                    completeListOfSpells[spellId] = bIsOffSpec == false
+                end
+            end
+        end
+    end
+	--]=]
+
+    local getNumPetSpells = function()
+        --'HasPetSpells' contradicts the name and return the amount of pet spells available instead of a boolean
+        return HasPetSpells()
+    end
+
+    --get pet spells from the pet spellbook 
+    local numPetSpells = getNumPetSpells()
+    if (numPetSpells) then
+        for i = 1, numPetSpells do
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i, "pet")
+            if (unmaskedSpellId) then
+                unmaskedSpellId = C_SpellBook.GetOverrideSpell(unmaskedSpellId)
+                local bIsPassive = IsPassiveSpell(unmaskedSpellId, "pet")
+                if (spellName and not bIsPassive) then
+                    completeListOfSpells[unmaskedSpellId] = true
+                end
+            end
+        end
+    end
+
+    return completeListOfSpells
 end
 
 
@@ -4730,7 +4842,7 @@ end
 
 --[=[
 	DF:CoreDispatch(func, context, ...)
-	safe call a function making a error window with what caused, the context and traceback of the error
+	safe call a function making an error window with what caused, context and traceback of the error
 	this func is only used inside the framework for sensitive calls where the func must run without errors
 	@func = the function which will be called
 	@context = what made the function be called

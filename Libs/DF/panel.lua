@@ -3687,6 +3687,22 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~scrollbox
 
+---@class df_scrollbox : scrollframe, df_sortmixin, df_scrollboxmixin
+---@field data table
+---@field Header df_headerframe?
+---@field LineAmount number
+---@field LineHeight number
+---@field IsFauxScroll boolean
+---@field HideScrollBar boolean
+---@field Frames frame[]
+---@field ReajustNumFrames number
+---@field DontHideChildrenOnPreRefresh boolean
+---@field refresh_func fun(self:df_scrollbox, data:table, offset:number, numlines:number)
+---@field CreateLineFunc fun(self:df_scrollbox, index:number) : frame
+---@field CreateLine fun(self:df_scrollbox, func:function)
+---@field 
+---@field 
+
 ---create a scrollbox with the methods :Refresh() :SetData() :CreateLine()
 ---@param parent table
 ---@param name string
@@ -3699,9 +3715,10 @@ end
 ---@param createLineFunc function|nil
 ---@param autoAmount boolean|nil
 ---@param noScroll boolean|nil
----@return table
+---@return df_scrollbox
 function detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height, lineAmount, lineHeight, createLineFunc, autoAmount, noScroll)
 	--create the scrollframe, it is the base of the scrollbox
+	---@type df_scrollbox
 	local scroll = CreateFrame("scrollframe", name, parent, "FauxScrollFrameTemplate, BackdropTemplate")
 
 	--apply the standard background color
@@ -4355,9 +4372,10 @@ end
 ---for the background it uses UI-Tooltip-Background with detailsFramework:GetDefaultBackdropColor() color
 ---for the border it uses Interface\Buttons\WHITE8X8
 ---also creates an additional texture frame.__background = texture with the same setting of the backdrop background
----@param frame table
----@param bUseSolidColor any
----@param alphaScale number
+---@param self table
+---@param frame frame
+---@param bUseSolidColor boolean?
+---@param alphaScale number?
 function detailsFramework:ApplyStandardBackdrop(frame, bUseSolidColor, alphaScale)
 	alphaScale = alphaScale or 0.95
 

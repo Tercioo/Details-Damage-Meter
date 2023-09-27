@@ -410,29 +410,6 @@ do
 		"/details auras: show a panel with your current auras, spell ids and spell payload.",
 		"/details perf: show performance issues when you get a warning about freezes due to UpdateAddOnMemoryUsage().",
 		"/details npcid: get the npc id of your target (a box is shown with the number ready to be copied).",
-
-		{"v9.2.0.10001.146", "Aug 10th, 2022"},
-		"New feature: Arena DPS Bar, can be enabled at the Broadcaster Tools section, shows a bar in 'kamehameha' style showing which team is doing more damage in the latest 3 seconds.",
-		"/keystone now has more space for the dungeon name.",
-		"Revamp on the options section for Broadcaster tools.",
-		"Added 'Icon Size Offset' under Options > Bars: General, this new option allow to adjust the size of the class/spec icon shown on each bar.",
-		"Added 'Show Faction Icon' under Options > Bars: General, with this new option, you can choose to not show the faction icon, this icon is usually shown during battlegrounds.",
-		"Added 'Faction Icon Size Offset' under Options > Bars: General, new option to adjust the size of the faction icon.",
-		"Added 'Show Arena Role Icon' under Options > Bars: General, new option to hide or show the role icon of players during an arena match.",
-		"Added 'Clear On Start PVP' overall data option (Flamanis).",
-		"Added 'Arena Role Icon Size Offset' under Options > Bars: General, new option which allow to control the size of the arena role icon.",
-		"Added 'Level' option to Wallpapers, the wallpaper can now be placed on different levels which solves issues where the wallpaper is too low of certain configuration.",
-		"Streamer! plugin got updates, now it is more clear to pick which mode to use.",
-		"WotLK classic compatibility (Flamanis, Daniel Henry).",
-		"Fixed Grimrail Depot cannon and granades damage be added to players (dios-david).",
-		"Fixed the title bar text not showing when using the Custom Title Bar feature.",
-		"Fixed an issue with Dynamic Overall Damage printing errors into the chat window (Flamanis).",
-		"Role detection in classic versions got improvements.",
-		"New API: Details:GetTop5Actors(attributeId), return the top 5 actors from the selected attribute.",
-		"New API: Details:GetActorByRank(attributeId, rankIndex), return an actor from the selected attribute and rankIndex.",
-		"Major cleanup and code improvements on dropdowns for library Details! Framework.",
-		"Cleanup on NickTag library.",
-		"Removed LibGroupInSpecT, LibItemUpgradeInfo and LibCompress. These libraries got replaced by OpenRaidLib and LibDeflate.",
 	}
 
 	local newsString = "|cFFF1F1F1"
@@ -491,7 +468,7 @@ do
 
 		--current instances of the exp (need to maintain)
 			_detalhes.InstancesToStoreData = { --mapId
-				[2522] = true, --sepulcher of the first ones
+				[2549] = true, --amirdrassil
 			}
 
 		--store shield information for absorbs

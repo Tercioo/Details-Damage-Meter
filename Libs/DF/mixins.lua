@@ -711,7 +711,8 @@ end
 
 ---mixin to use with DetailsFramework:Mixin(table, detailsFramework.SortFunctions)
 ---adds the method Sort() to a table, this method can be used to sort another table by a member, can't sort itself
----@class DetailsFramework.SortFunctions
+
+---@class df_sortmixin
 detailsFramework.SortFunctions = {
 	---sort a table by a member
 	---@param self table

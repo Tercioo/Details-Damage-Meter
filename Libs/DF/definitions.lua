@@ -11,10 +11,18 @@
 ---@field removeduplicate fun(tbl1:table, tbl2:table) remove the keys from table1 which also exists in table2 with the same value
 ---@field dump fun(tbl:table) : string dump a table to a string
 
+---@alias templatetype
+---| "font"
+---| "dropdown"
+---| "button"
+---| "switch"
+---| "slider"
+
 ---@class detailsframework
 ---@field OptionsFunctions df_optionsmixin
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
+---@field HeaderFunctions df_headerfunctions
 ---@field Math df_math
 ---@field table df_table_functions
 ---@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall
@@ -52,4 +60,11 @@
 ---@field CreateDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateTextEntry fun(self:table, parent:frame, textChangedCallback:function, width:number, height:number, member:string?, name:string?, labelText:string?, textentryTemplate:table?, labelTemplate:table?) : df_textentry
 ---@field ReskinSlider fun(self:table, slider:frame)
+---@field GetAvailableSpells fun(self:table) : table<spellid, boolean>
+---@field NewColor fun(self:table, colorName:string, red:number, green:number, blue:number, alpha:number)
+---@field CreateKeybindFrame fun(self:table, parent:frame, name:string?, options:table?, setKeybindCallback:function?, keybindData:table?) : df_keybindframe
+---@field CreateStatusBar fun(self:table, parent:frame, options:table?) : frame
+---@field CreateScrollBox fun(self:table, parent:frame, name:string, refreshFunc:function, data:table, width:number, height:number, lineAmount:number, lineHeight:number, createLineFunc:function?, autoAmount:boolean?, noScroll:boolean?) : df_scrollbox
+---@field GetTemplate fun(self:table, templateType:templatetype, templateName:string) : table
 ---@field 
+
