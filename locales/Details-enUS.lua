@@ -1495,7 +1495,7 @@ L["STRING_RESIZE_COMMON"] = [=[Resize
 ]=]
 L["STRING_RESIZE_HORIZONTAL"] = [=[Resize the width of all
  windows in the group]=]
-L["STRING_RESIZE_VERTICAL"] = [=[Resize the heigth of all
+L["STRING_RESIZE_VERTICAL"] = [=[Resize the height of all
  windows in the group]=]
 L["STRING_RIGHT"] = "right"
 L["STRING_RIGHT_TO_LEFT"] = "Right to Left"
