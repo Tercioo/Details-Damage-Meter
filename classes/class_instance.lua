@@ -290,6 +290,7 @@ local instanceMixins = {
 			thisBar.minha_tabela = nil
 			thisBar.animacao_fim = 0
 			thisBar.animacao_fim2 = 0
+			if thisBar.extraStatusbar then thisBar.extraStatusbar:Hide() end
 		end
 
 		if (instance.rolagem) then

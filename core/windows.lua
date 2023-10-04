@@ -624,6 +624,7 @@
 			esta_barra.minha_tabela = nil
 			esta_barra.animacao_fim = 0
 			esta_barra.animacao_fim2 = 0
+			if esta_barra.extraStatusbar then esta_barra.extraStatusbar:Hide() end
 		end
 
 		if (instancia.rolagem) then
