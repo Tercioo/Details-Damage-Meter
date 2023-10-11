@@ -45,7 +45,7 @@ function Details.OpenPlaterIntegrationWindow()
         local build_anchor_side_table = function(member)
             local t = {}
             for i = 1, 13 do
-                tinsert(t, {
+                table.insert(t, {
                     label = anchor_names[i],
                     value = i,
                     onclick = function(_, _, value)

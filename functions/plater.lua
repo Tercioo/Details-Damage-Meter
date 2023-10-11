@@ -39,8 +39,8 @@ plater_integration_frame.OnTickFrameFunc = function(self, deltaTime)
 			damageTable.CurrentDamageFromPlayer = damageTable.CurrentDamageFromPlayer + damageOnThisUpdateFromPlayer
 			
 			--add to the buffer the damage added
-			tinsert(damageTable.RealTimeBuffer, 1, damageOnThisUpdate)
-			tinsert(damageTable.RealTimeBufferFromPlayer, 1, damageOnThisUpdateFromPlayer)
+			table.insert(damageTable.RealTimeBuffer, 1, damageOnThisUpdate)
+			table.insert(damageTable.RealTimeBufferFromPlayer, 1, damageOnThisUpdateFromPlayer)
 			
 			--remove the damage from the buffer
 			local damageRemoved = tremove(damageTable.RealTimeBuffer, CONST_BUFFER_SIZE + 1)

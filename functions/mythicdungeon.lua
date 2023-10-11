@@ -29,7 +29,7 @@ end
 
 function Details222.MythicPlus.LogStep(log)
     local today = date("%d/%m/%y %H:%M:%S")
-    tinsert(Details.mythic_plus_log, 1, today .. "|" .. log)
+    table.insert(Details.mythic_plus_log, 1, today .. "|" .. log)
     tremove(Details.mythic_plus_log, 50)
 end
 
@@ -439,7 +439,7 @@ function DetailsMythicPlusFrame.BossDefeated(this_is_end_end, encounterID, encou
                     local mythicDungeonInfo = pastCombat:GetMythicDungeonInfo() -- .is_mythic_dungeon only boss, trash overall and run overall have it
                     if (not mythicDungeonInfo or not mythicDungeonInfo.TrashOverallSegment) then
                         --trash segment found, schedule to merge
-                        tinsert(segmentsToMerge, pastCombat)
+                        table.insert(segmentsToMerge, pastCombat)
                     end
                 end
             end
@@ -545,7 +545,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished (fromZoneLeft)
                             end
 
                             --merge this segment
-                            tinsert(segmentsToMerge, pastCombat)
+                            table.insert(segmentsToMerge, pastCombat)
 
                             if (DetailsMythicPlusFrame.DevelopmentDebug) then
                                 print("MythicDungeonFinished() > found after last boss combat")

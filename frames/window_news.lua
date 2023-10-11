@@ -70,7 +70,7 @@ function Details:CreateOrOpenNewsWindow()
 
 	if (not frame) then
 		frame = DetailsFramework:CreateSimplePanel(UIParent, 480, 560, "Details! Damage Meter " .. Details.version, "DetailsNewsWindow", panel_options, db)
-		tinsert(UISpecialFrames, "DetailsNewsWindow")
+		table.insert(UISpecialFrames, "DetailsNewsWindow")
 		frame:SetPoint("left", UIParent, "left", 10, 0)
 		frame:SetFrameStrata("FULLSCREEN")
 		frame:SetMovable(true)

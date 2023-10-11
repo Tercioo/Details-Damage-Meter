@@ -1779,7 +1779,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
         else
             new_aura.trigger.spellId = tostring(spellid)
             new_aura.trigger.name = spellname
-            tinsert(new_aura.trigger.spellIds, spellid)
+            table.insert(new_aura.trigger.spellIds, spellid)
         end
         
         --if is a regular aura without using spells ids
@@ -1902,7 +1902,7 @@ function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, n
             end
         end
         
-        tinsert(WeakAurasSaved.displays [group].controlledChildren, new_aura.id)
+        table.insert(WeakAurasSaved.displays [group].controlledChildren, new_aura.id)
     else
         new_aura.parent = nil
     end
@@ -2387,11 +2387,11 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             
             for _, sound in ipairs(sounds) do
                 if (sound.name:find("D_")) then --details sound
-                    tinsert(t, {color = "orange", label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
+                    table.insert(t, {color = "orange", label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 elseif (sound.gamesound) then --game sound
-                    tinsert(t, {color = "yellow", label = sound.name, value = {sound_path = sound.file}, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
+                    table.insert(t, {color = "yellow", label = sound.name, value = {sound_path = sound.file}, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 else
-                    tinsert(t, {label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
+                    table.insert(t, {label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
                 end
             end
             return t
@@ -2458,7 +2458,7 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
         local addon_options = function()
             local t = {}
             if (WeakAuras) then
-                tinsert(t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]]})
+                table.insert(t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]]})
             end
             return t
         end
@@ -2480,12 +2480,12 @@ function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, tr
             if (WeakAuras and WeakAurasSaved) then
                 for display_name, aura_table in pairs(WeakAurasSaved.displays) do
                     if (aura_table.regionType == "dynamicgroup" or aura_table.regionType == "group") then
-                        tinsert(t, {label = display_name, value = display_name, icon = folder_icon, texcoord = folder_texcoord, iconsize = folder_iconsize})
+                        table.insert(t, {label = display_name, value = display_name, icon = folder_icon, texcoord = folder_texcoord, iconsize = folder_iconsize})
                     end
                 end
             end
             table.sort (t, sort_func)
-            tinsert(t, 1, {label = "No Group", value = false, icon = folder_icon, texcoord = folder_texcoord, iconcolor = {0.8, 0.2, 0.2}, iconsize = folder_iconsize})
+            table.insert(t, 1, {label = "No Group", value = false, icon = folder_icon, texcoord = folder_texcoord, iconcolor = {0.8, 0.2, 0.2}, iconsize = folder_iconsize})
             return t
         end
         

@@ -121,7 +121,7 @@ function Details:OpenClassColorsConfig()
             --all colors
             local allColors = {}
             for colorName, colorTable in pairs(DF:GetDefaultColorList()) do
-                tinsert(allColors, {colorTable, colorName, hex(colorTable[1]*255) .. hex(colorTable[2]*255) .. hex(colorTable[3]*255)})
+                table.insert(allColors, {colorTable, colorName, hex(colorTable[1]*255) .. hex(colorTable[2]*255) .. hex(colorTable[3]*255)})
             end
             table.sort(allColors, sort_color)
             
@@ -130,7 +130,7 @@ function Details:OpenClassColorsConfig()
                 local colortable = colorTable[1]
                 local colorname = colorTable[2]
                 local value = colorname .. "@" .. barType
-                tinsert(result, {label = colorname, value = value, color = colortable, onclick = colorSelected})
+                table.insert(result, {label = colorname, value = value, color = colortable, onclick = colorSelected})
             end
 
             return result

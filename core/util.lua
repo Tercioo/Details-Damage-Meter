@@ -635,14 +635,14 @@
 
 		Details:Destroy(Details.ToKFunctions)
 
-		tinsert(Details.ToKFunctions, Details.NoToK)
-		tinsert(Details.ToKFunctions, Details.ToK)
-		tinsert(Details.ToKFunctions, Details.ToK2)
-		tinsert(Details.ToKFunctions, Details.ToK0)
-		tinsert(Details.ToKFunctions, Details.ToKMin)
-		tinsert(Details.ToKFunctions, Details.ToK2Min)
-		tinsert(Details.ToKFunctions, Details.ToK0Min)
-		tinsert(Details.ToKFunctions, Details.comma_value)
+		table.insert(Details.ToKFunctions, Details.NoToK)
+		table.insert(Details.ToKFunctions, Details.ToK)
+		table.insert(Details.ToKFunctions, Details.ToK2)
+		table.insert(Details.ToKFunctions, Details.ToK0)
+		table.insert(Details.ToKFunctions, Details.ToKMin)
+		table.insert(Details.ToKFunctions, Details.ToK2Min)
+		table.insert(Details.ToKFunctions, Details.ToK0Min)
+		table.insert(Details.ToKFunctions, Details.comma_value)
 
 	end
 
@@ -768,14 +768,14 @@
 
 		Details:Destroy(Details.ToKFunctions)
 
-		tinsert(Details.ToKFunctions, Details.NoToK)
-		tinsert(Details.ToKFunctions, Details.ToK)
-		tinsert(Details.ToKFunctions, Details.ToK2)
-		tinsert(Details.ToKFunctions, Details.ToK0)
-		tinsert(Details.ToKFunctions, Details.ToKMin)
-		tinsert(Details.ToKFunctions, Details.ToK2Min)
-		tinsert(Details.ToKFunctions, Details.ToK0Min)
-		tinsert(Details.ToKFunctions, Details.comma_value)
+		table.insert(Details.ToKFunctions, Details.NoToK)
+		table.insert(Details.ToKFunctions, Details.ToK)
+		table.insert(Details.ToKFunctions, Details.ToK2)
+		table.insert(Details.ToKFunctions, Details.ToK0)
+		table.insert(Details.ToKFunctions, Details.ToKMin)
+		table.insert(Details.ToKFunctions, Details.ToK2Min)
+		table.insert(Details.ToKFunctions, Details.ToK0Min)
+		table.insert(Details.ToKFunctions, Details.comma_value)
 
 		--
 	end

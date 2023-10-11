@@ -151,7 +151,7 @@ function Details:OpenForge()
         
         function f:InstallModule (module)
             if (module and type(module) == "table") then
-                tinsert(all_modules, module)
+                table.insert(all_modules, module)
             end
         end
         
@@ -479,7 +479,7 @@ function Details:OpenForge()
                         end
                         
                         if (can_add) then
-                            tinsert(t, {spellID, Details.classid_to_classstring [className] or className})
+                            table.insert(t, {spellID, Details.classid_to_classstring [className] or className})
                         end
                         
                     end
@@ -625,7 +625,7 @@ function Details:OpenForge()
                         end
                         
                         if (can_add) then
-                            tinsert(t, {spellID, encounterID, enemyName, bossDetails and bossDetails.boss or "--x--x--"})
+                            table.insert(t, {spellID, encounterID, enemyName, bossDetails and bossDetails.boss or "--x--x--"})
                         end
                     end
                 end
@@ -734,7 +734,7 @@ function Details:OpenForge()
                         end
                     end
                     if (canAdd) then
-                        tinsert(t, {npcId, npcName})
+                        table.insert(t, {npcId, npcName})
                     end
                 end
 
@@ -1136,7 +1136,7 @@ function Details:OpenForge()
             end
 
             lastButton = b
-            tinsert(buttons, b)
+            table.insert(buttons, b)
         end
 
         select_module (nil, nil, 1)

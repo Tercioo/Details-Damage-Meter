@@ -723,8 +723,8 @@ function Details:CreateCurrentDpsFrame(parent, name)
 					local yellowDamageDone = thisTickYellowDamage - f.LastYellowDamage
 
 					--add the damage to buffer
-					tinsert(f.PlayerTeamBuffer, 1, playerTeamDamageDone)
-					tinsert(f.YellowTeamBuffer, 1, yellowDamageDone)
+					table.insert(f.PlayerTeamBuffer, 1, playerTeamDamageDone)
+					table.insert(f.YellowTeamBuffer, 1, yellowDamageDone)
 					
 					--save the current damage amount
 					f.LastPlayerTeamDamage = thisTickPlayerTeamDamage
@@ -824,7 +824,7 @@ function Details:CreateCurrentDpsFrame(parent, name)
 					local groupDamageDoneOnThisTick = thisTickGroupDamage - f.LastTickGroupDamage
 					
 					--add the damage to buffer
-					tinsert(f.GroupBuffer, 1, groupDamageDoneOnThisTick)
+					table.insert(f.GroupBuffer, 1, groupDamageDoneOnThisTick)
 					
 					--save the current damage amount
 					f.LastTickGroupDamage = thisTickGroupDamage

@@ -1243,7 +1243,7 @@
 		if (not _G.DetailsUpdateDialog) then
 			local updatewindow_frame = CreateFrame("frame", "DetailsUpdateDialog", UIParent, "ButtonFrameTemplate")
 			updatewindow_frame:SetFrameStrata("LOW")
-			tinsert(UISpecialFrames, "DetailsUpdateDialog")
+			table.insert(UISpecialFrames, "DetailsUpdateDialog")
 			updatewindow_frame:SetPoint("center", UIParent, "center")
 			updatewindow_frame:SetSize(512, 200)
 			--updatewindow_frame.portrait:SetTexture([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
@@ -1623,7 +1623,7 @@ function Details.ShowCopyValueFrame(textToShow)
 		frame:SetSize(160, 20)
 		frame:SetPoint("center", UIParent, "center", 0, 0)
 		DetailsFramework:ApplyStandardBackdrop(frame)
-		tinsert(UISpecialFrames, "DetailsCopyValueFrame")
+		table.insert(UISpecialFrames, "DetailsCopyValueFrame")
 
 		frame.editBox = CreateFrame("editbox", nil, frame)
 		frame.editBox:SetPoint("topleft", frame, "topleft")

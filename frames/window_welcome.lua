@@ -406,8 +406,8 @@ local window_openned_at = time()
 			window.LatinAlphabetCheckBox.OnSwitch = onSelectAlphabet
 			window.LatinAlphabetLabel:SetPoint("left", window.LatinAlphabetCheckBox, "right", 2, 0)
 
-			tinsert(allAlphabetCheckBoxes, window.LatinAlphabetCheckBox)
-			tinsert(allAlphabetLabels, window.LatinAlphabetLabel)
+			table.insert(allAlphabetCheckBoxes, window.LatinAlphabetCheckBox)
+			table.insert(allAlphabetLabels, window.LatinAlphabetLabel)
 
 			--Russian
 			g:NewLabel(window, _, "$parentCyrillicAlphabetLabel", "CyrillicAlphabetLabel", Loc["STRING_WELCOME_75"], "GameFontHighlightLeft")
@@ -417,8 +417,8 @@ local window_openned_at = time()
 			window.CyrillicAlphabetCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.CyrillicAlphabetCheckBox.OnSwitch = onSelectAlphabet
 			window.CyrillicAlphabetLabel:SetPoint("left", window.CyrillicAlphabetCheckBox, "right", 2, 0)
-			tinsert(allAlphabetCheckBoxes, window.CyrillicAlphabetCheckBox)
-			tinsert(allAlphabetLabels, window.CyrillicAlphabetLabel)
+			table.insert(allAlphabetCheckBoxes, window.CyrillicAlphabetCheckBox)
+			table.insert(allAlphabetLabels, window.CyrillicAlphabetLabel)
 
 			--Chinese
 			g:NewLabel(window, _, "$parentChinaAlphabetLabel", "ChinaAlphabetLabel", Loc["STRING_WELCOME_76"], "GameFontHighlightLeft")
@@ -428,8 +428,8 @@ local window_openned_at = time()
 			window.ChinaCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.ChinaCheckBox.OnSwitch = onSelectAlphabet
 			window.ChinaAlphabetLabel:SetPoint("left", window.ChinaCheckBox, "right", 2, 0)
-			tinsert(allAlphabetCheckBoxes, window.ChinaCheckBox)
-			tinsert(allAlphabetLabels, window.ChinaAlphabetLabel)
+			table.insert(allAlphabetCheckBoxes, window.ChinaCheckBox)
+			table.insert(allAlphabetLabels, window.ChinaAlphabetLabel)
 
 			--Korea
 			g:NewLabel(window, _, "$parentKoreanAlphabetLabel", "KoreanAlphabetLabel", Loc["STRING_WELCOME_77"], "GameFontHighlightLeft")
@@ -439,8 +439,8 @@ local window_openned_at = time()
 			window.KoreanCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.KoreanCheckBox.OnSwitch = onSelectAlphabet
 			window.KoreanAlphabetLabel:SetPoint("left", window.KoreanCheckBox, "right", 2, 0)
-			tinsert(allAlphabetCheckBoxes, window.KoreanCheckBox)
-			tinsert(allAlphabetLabels, window.KoreanAlphabetLabel)
+			table.insert(allAlphabetCheckBoxes, window.KoreanCheckBox)
+			table.insert(allAlphabetLabels, window.KoreanAlphabetLabel)
 
 			--Taiwan
 			g:NewLabel(window, _, "$parentTaiwanAlphabetLabel", "TaiwanAlphabetLabel", Loc["STRING_WELCOME_78"], "GameFontHighlightLeft")
@@ -450,8 +450,8 @@ local window_openned_at = time()
 			window.TaiwanCheckBox:SetTemplate(g:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 			window.TaiwanCheckBox.OnSwitch = onSelectAlphabet
 			window.TaiwanAlphabetLabel:SetPoint("left", window.TaiwanCheckBox, "right", 2, 0)
-			tinsert(allAlphabetCheckBoxes, window.TaiwanCheckBox)
-			tinsert(allAlphabetLabels, window.TaiwanAlphabetLabel)
+			table.insert(allAlphabetCheckBoxes, window.TaiwanCheckBox)
+			table.insert(allAlphabetLabels, window.TaiwanAlphabetLabel)
 
 			window.LatinAlphabetCheckBox:SetPoint("topleft", texto_alphabet, "bottomleft", 0, -10)
 			window.CyrillicAlphabetCheckBox:SetPoint("topleft", window.LatinAlphabetCheckBox, "bottomleft", 0, -2)
@@ -653,10 +653,10 @@ local window_openned_at = time()
 
 		pages [#pages+1] = {skins_frame_alert, bg55, texto55, texto_alphabet, texto555, skins_image, changemind, texto_appearance, font_label, font_dropdown, skin_dropdown, skin_label, create_window_button, window_color, window.BarHeightLabel, window.BarHeightSlider, window.TextSizeLabel, window.TextSizeSlider, window.ShowPercentLabel, window.ShowPercentCheckBox}
 		for i, widget in ipairs(allAlphabetCheckBoxes) do
-			tinsert(pages [#pages], widget)
+			table.insert(pages [#pages], widget)
 		end
 		for i, widget in ipairs(allAlphabetLabels) do
-			tinsert(pages [#pages], widget)
+			table.insert(pages [#pages], widget)
 		end
 
 		for _, widget in ipairs(pages[#pages]) do

@@ -9,7 +9,7 @@ do
 	local setmetatable = setmetatable
 	local GetSpellInfo = GetSpellInfo
 	local unpack = unpack
-	local tinsert = tinsert
+	local tinsert = table.insert
 	local tremove = tremove
 	local C_Timer = C_Timer
 
