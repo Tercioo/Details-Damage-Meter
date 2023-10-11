@@ -957,6 +957,7 @@ DF.CrowdControlSpells = {
 	[15487] = "PRIEST", --Silence
 	
 	[2094] = "ROGUE", --Blind
+	[427773] = "ROGUE", --Blind (AoE)
 	[1833] = "ROGUE", --Cheap Shot
 	[408] = "ROGUE", --Kidney Shot
 	[1766] = "ROGUE", --Kick
@@ -1448,15 +1449,15 @@ function DF:GetSpellsForEncounterFromJournal (instanceEJID, encounterEJID)
 		
 		if (sectionInfo) then
 			if (sectionInfo.spellID and type(sectionInfo.spellID) == "number" and sectionInfo.spellID ~= 0) then
-				tinsert(spellIDs, sectionInfo.spellID)
+				table.insert(spellIDs, sectionInfo.spellID)
 			end
 			
 			local nextChild, nextSibling = sectionInfo.firstChildSectionID, sectionInfo.siblingSectionID
 			if (nextSibling) then
-				tinsert(nextID, nextSibling)
+				table.insert(nextID, nextSibling)
 			end
 			if (nextChild) then
-				tinsert(nextID, nextChild)
+				table.insert(nextID, nextChild)
 			end
 		else
 			break

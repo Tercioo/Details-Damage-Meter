@@ -56,6 +56,24 @@ local PanelMetaFunctions = _G[detailsFramework.GlobalWidgetControlNames["panel"]
 detailsFramework:Mixin(PanelMetaFunctions, detailsFramework.ScriptHookMixin)
 
 --default options for the frame layout
+---@class df_framelayout_options : table
+---@field amount_per_line number? 4
+---@field start_x number? 2
+---@field start_y number? -2
+---@field is_vertical boolean? true if vertical, false if horizontal
+---@field grow_right boolean? true to grow right, false to grow left
+---@field grow_down boolean? true to grow down, false to grow up
+---@field anchor_to_child boolean? true to anchor to the previous frame instead of coordinate
+---@field anchor_point df_framelayout_point? "topleft"
+---@field anchor_relative df_framelayout_point? "topleft"
+---@field offset_x number? 100
+---@field offset_y number? 20
+---@field width number? 0
+---@field min_width number? 0
+---@field height number? 0
+---@field break_if_hidden boolean? true to stop if encounters a hidden frame
+---@field use__width boolean? if true it'll use the __width from the widget as the offset_x
+
 local default_framelayout_options = {
 	amount_per_line = 4,
 	start_x = 2,
@@ -67,11 +85,24 @@ local default_framelayout_options = {
 	anchor_point = "topleft",
 	anchor_relative = "topleft",
 	offset_x = 100,
+	use__width = false, --__width from the widget
 	offset_y = 20,
 	width = 0, --if bigger than 0, it will set the value
+	min_width = 0,
 	height = 0,
 	break_if_hidden = true, --stop if encounters a hidden frame
 }
+
+---@alias df_framelayout_point
+---| "top"
+---| "bottom"
+---| "left"
+---| "right"
+
+---@class df_framelayout : table
+---@field AnchorTo fun(self:uiobject, anchor:uiobject, point:df_framelayout_point, x:number?, y:number?)
+---@field ArrangeFrames fun(self:uiobject, frameList:table<uiobject>[], options:df_framelayout_options?)
+
 
 --mixin for frame layout
 detailsFramework.LayoutFrame = {
@@ -152,10 +183,11 @@ detailsFramework.LayoutFrame = {
 
 		else
 			for i = 1, #frameList do
-				local thisFrame =  frameList [i]
+				local thisFrame =  frameList[i]
 				if (options.break_if_hidden and not thisFrame:IsShown()) then
 					break
 				end
+
 				thisFrame:ClearAllPoints()
 
 				if (options.anchor_to_child) then
@@ -186,7 +218,15 @@ detailsFramework.LayoutFrame = {
 					end
 
 					thisFrame:SetPoint(anchorPoint, self, anchorAt, currentX, currentY)
-					currentX = currentX + offsetX
+
+					if (options.use__width) then --use the childframe.__width
+						currentX = currentX + thisFrame.__width
+
+					elseif (options.min_width) then
+						currentX = currentX + math.max(options.min_width, offsetX)
+					else
+						currentX = currentX + offsetX
+					end
 				end
 			end
 		end
@@ -718,8 +758,8 @@ local add_row = function(self, t, need_update)
 	text:SetPoint("left", thisrow, "left", 2, 0)
 	text:SetText(t.name)
 
-	tinsert(self._raw_rows, t)
-	tinsert(self.rows, thisrow)
+	table.insert(self._raw_rows, t)
+	table.insert(self.rows, thisrow)
 
 	if (need_update) then
 		self:AlignRows()
@@ -752,12 +792,12 @@ local align_rows = function(self)
 					row.width = row_width
 				end
 				row:SetPoint("topleft", self, "topleft", cur_width, -1)
-				tinsert(self._anchors, cur_width)
+				table.insert(self._anchors, cur_width)
 				cur_width = cur_width + row_width + 1
 			else
 				row:SetPoint("topleft", self, "topleft", cur_width, -1)
 				row.width = self._raw_rows [index].width
-				tinsert(self._anchors, cur_width)
+				table.insert(self._anchors, cur_width)
 				cur_width = cur_width + self._raw_rows [index].width + 1
 			end
 
@@ -773,7 +813,7 @@ local align_rows = function(self)
 						self:CreateRowText (line)
 						text = tremove(line.text_available)
 					end
-					tinsert(line.text_inuse, text)
+					table.insert(line.text_inuse, text)
 					text:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
 					text:SetWidth(row.width)
 
@@ -788,7 +828,7 @@ local align_rows = function(self)
 						self:CreateRowEntry (line)
 						entry = tremove(line.entry_available)
 					end
-					tinsert(line.entry_inuse, entry)
+					table.insert(line.entry_inuse, entry)
 					entry:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
 					if (sindex == rows_shown) then
 						entry:SetWidth(row.width - 25)
@@ -817,7 +857,7 @@ local align_rows = function(self)
 						checkbox = tremove(line.checkbox_available)
 					end
 
-					tinsert(line.checkbox_inuse, checkbox)
+					table.insert(line.checkbox_inuse, checkbox)
 
 					checkbox:SetPoint("left", line, "left", self._anchors [#self._anchors] + ((row.width - 20) / 2), 0)
 					if (sindex == rows_shown) then
@@ -839,7 +879,7 @@ local align_rows = function(self)
 						self:CreateRowButton (line)
 						button = tremove(line.button_available)
 					end
-					tinsert(line.button_inuse, button)
+					table.insert(line.button_inuse, button)
 					button:SetPoint("left", line, "left", self._anchors [#self._anchors], 0)
 					if (sindex == rows_shown) then
 						button:SetWidth(row.width - 25)
@@ -885,7 +925,7 @@ local align_rows = function(self)
 						self:CreateRowIcon (line)
 						icon = tremove(line.icon_available)
 					end
-					tinsert(line.icon_inuse, icon)
+					table.insert(line.icon_inuse, icon)
 					icon:SetPoint("left", line, "left", self._anchors [#self._anchors] + ( ((row.width or 22) - 22) / 2), 0)
 					icon.func = row.func
 				end
@@ -898,7 +938,7 @@ local align_rows = function(self)
 						self:CreateRowTexture (line)
 						texture = tremove(line.texture_available)
 					end
-					tinsert(line.texture_inuse, texture)
+					table.insert(line.texture_inuse, texture)
 					texture:SetPoint("left", line, "left", self._anchors [#self._anchors] + ( ((row.width or 22) - 22) / 2), 0)
 				end
 
@@ -961,42 +1001,42 @@ local update_rows = function(self, updated_rows)
 
 	for index, row in ipairs(self.scrollframe.lines) do
 		for i = #row.text_inuse, 1, -1 do
-			tinsert(row.text_available, tremove(row.text_inuse, i))
+			table.insert(row.text_available, tremove(row.text_inuse, i))
 		end
 		for i = 1, #row.text_available do
 			row.text_available[i]:Hide()
 		end
 
 		for i = #row.entry_inuse, 1, -1 do
-			tinsert(row.entry_available, tremove(row.entry_inuse, i))
+			table.insert(row.entry_available, tremove(row.entry_inuse, i))
 		end
 		for i = 1, #row.entry_available do
 			row.entry_available[i]:Hide()
 		end
 
 		for i = #row.button_inuse, 1, -1 do
-			tinsert(row.button_available, tremove(row.button_inuse, i))
+			table.insert(row.button_available, tremove(row.button_inuse, i))
 		end
 		for i = 1, #row.button_available do
 			row.button_available[i]:Hide()
 		end
 
 		for i = #row.checkbox_inuse, 1, -1 do
-			tinsert(row.checkbox_available, tremove(row.checkbox_inuse, i))
+			table.insert(row.checkbox_available, tremove(row.checkbox_inuse, i))
 		end
 		for i = 1, #row.checkbox_available do
 			row.checkbox_available[i]:Hide()
 		end
 
 		for i = #row.icon_inuse, 1, -1 do
-			tinsert(row.icon_available, tremove(row.icon_inuse, i))
+			table.insert(row.icon_available, tremove(row.icon_inuse, i))
 		end
 		for i = 1, #row.icon_available do
 			row.icon_available[i]:Hide()
 		end
 
 		for i = #row.texture_inuse, 1, -1 do
-			tinsert(row.texture_available, tremove(row.texture_inuse, i))
+			table.insert(row.texture_available, tremove(row.texture_inuse, i))
 		end
 		for i = 1, #row.texture_available do
 			row.texture_available[i]:Hide()
@@ -1012,7 +1052,7 @@ end
 local create_panel_text = function(self, row)
 	row.text_total = row.text_total + 1
 	local text = detailsFramework:NewLabel(row, nil, self._name .. "$parentLabel" .. row.text_total, "text" .. row.text_total)
-	tinsert(row.text_available, text)
+	table.insert(row.text_available, text)
 end
 
 local create_panel_entry = function(self, row)
@@ -1043,7 +1083,7 @@ local create_panel_entry = function(self, row)
 	editbox:SetTemplate(detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 	editbox:SetBackdropColor(.2, .2, .2, 0.7)
 
-	tinsert(row.entry_available, editbox)
+	table.insert(row.entry_available, editbox)
 end
 
 local create_panel_checkbox = function(self, row)
@@ -1054,7 +1094,7 @@ local create_panel_checkbox = function(self, row)
 	switch:SetAsCheckBox()
 	switch:SetTemplate(detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE"))
 
-	tinsert(row.checkbox_available, switch)
+	table.insert(row.checkbox_available, switch)
 end
 
 local create_panel_button = function(self, row)
@@ -1071,7 +1111,7 @@ local create_panel_button = function(self, row)
 	button:SetHook("OnEnter", button_on_enter)
 	button:SetHook("OnLeave", button_on_leave)
 
-	tinsert(row.button_available, button)
+	table.insert(row.button_available, button)
 end
 
 local icon_onclick = function(texture, iconbutton)
@@ -1096,13 +1136,13 @@ local create_panel_icon = function(self, row)
 
 	icon:SetPoint("center", iconbutton, "center", 0, 0)
 
-	tinsert(row.icon_available, iconbutton)
+	table.insert(row.icon_available, iconbutton)
 end
 
 local create_panel_texture = function(self, row)
 	row.texture_total = row.texture_total + 1
 	local texture = detailsFramework:NewImage(row, nil, 20, 20, "artwork", nil, "_icon" .. row.texture_total, "$parentIcon" .. row.texture_total)
-	tinsert(row.texture_available, texture)
+	table.insert(row.texture_available, texture)
 end
 
 local set_fill_function = function(self, func)
@@ -1399,7 +1439,7 @@ function detailsFramework:NewFillPanel(parent, rows, name, member, w, h, total_l
 
 			row:SetPoint("topleft", scrollframe, "topleft", 0, (i-1) * size * -1)
 			row:SetPoint("topright", scrollframe, "topright", 0, (i-1) * size * -1)
-			tinsert(scrollframe.lines, row)
+			table.insert(scrollframe.lines, row)
 
 			row.text_available = {}
 			row.text_inuse = {}
@@ -1478,7 +1518,7 @@ function detailsFramework:IconPick (callback, close_when_select, param1, param2)
 		local string_lower = string.lower
 
 		detailsFramework.IconPickFrame = CreateFrame("frame", "DetailsFrameworkIconPickFrame", UIParent, "BackdropTemplate")
-		tinsert(UISpecialFrames, "DetailsFrameworkIconPickFrame")
+		table.insert(UISpecialFrames, "DetailsFrameworkIconPickFrame")
 		detailsFramework.IconPickFrame:SetFrameStrata("FULLSCREEN")
 
 		detailsFramework.IconPickFrame:SetPoint("center", UIParent, "center")
@@ -2041,7 +2081,7 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	simplePanel.DontRightClickClose = panelOptions.DontRightClickClose
 
 	if (not panelOptions.NoTUISpecialFrame) then
-		tinsert(UISpecialFrames, frameName)
+		table.insert(UISpecialFrames, frameName)
 	end
 
 	if (panelOptions.UseStatusBar and not panelOptions.RoundedCorners) then
@@ -2234,7 +2274,7 @@ function detailsFramework:Create1PxPanel(parent, width, height, title, name, con
 	newFrame:SetPoint("center", UIParent, "center", 0, 0)
 
 	if (name and not noSpecialFrame) then
-		tinsert(UISpecialFrames, name)
+		table.insert(UISpecialFrames, name)
 	end
 
 	newFrame:SetScript("OnMouseDown", simple_panel_mouse_down)
@@ -2443,7 +2483,7 @@ function detailsFramework:ShowTextPromptPanel(message, callback)
 		promptFrame:SetScript("OnDragStart", function() promptFrame:StartMoving() end)
 		promptFrame:SetScript("OnDragStop", function() promptFrame:StopMovingOrSizing() end)
 		promptFrame:SetScript("OnMouseDown", function(self, button) if (button == "RightButton") then promptFrame.EntryBox:ClearFocus() promptFrame:Hide() end end)
-		tinsert(UISpecialFrames, "DetailsFrameworkPrompt")
+		table.insert(UISpecialFrames, "DetailsFrameworkPrompt")
 
 		detailsFramework:CreateTitleBar (promptFrame, "Prompt!")
 		detailsFramework:ApplyStandardBackdrop(promptFrame)
@@ -2788,7 +2828,7 @@ local draw_overlay = function(self, this_overlay, overlayData, color)
 		local this_block = this_overlay [index]
 		if (not this_block) then
 			this_block = self.Graphic:CreateTexture(nil, "border")
-			tinsert(this_overlay, this_block)
+			table.insert(this_overlay, this_block)
 		end
 		this_block:SetHeight(self.Graphic:GetHeight())
 
@@ -2819,12 +2859,12 @@ local chart_panel_add_overlay = function(self, overlayData, color, name, icon)
 		local this_overlay = self.Overlays [self.OverlaysAmount]
 		if (not this_overlay) then
 			this_overlay = {}
-			tinsert(self.Overlays, this_overlay)
+			table.insert(self.Overlays, this_overlay)
 		end
 
 		draw_overlay (self, this_overlay, overlayData, color)
 
-		tinsert(self.OData, {overlayData, color or line_default_color})
+		table.insert(self.OData, {overlayData, color or line_default_color})
 		if (name and self.HeaderShowOverlays) then
 			self:AddLabel (color or line_default_color, name, "overlay", #self.OData)
 		end
@@ -2967,10 +3007,10 @@ local chart_panel_add_data = function(self, graphicData, color, name, elapsedTim
 	local content = graphicData
 
 	--smooth the start and end of the chart
-	tinsert(content, 1, 0)
-	tinsert(content, 1, 0)
-	tinsert(content, #content+1, 0)
-	tinsert(content, #content+1, 0)
+	table.insert(content, 1, 0)
+	table.insert(content, 1, 0)
+	table.insert(content, #content+1, 0)
+	table.insert(content, #content+1, 0)
 
 	local index = 3
 	local graphMaxDps = math.max(LibGraphChartFrame.max_value, maxValue)
@@ -3054,7 +3094,7 @@ local chart_panel_add_data = function(self, graphicData, color, name, elapsedTim
 		chartPanel:SetScale(maxValue)
 	end
 
-	tinsert(chartPanel.GData, {builtData, color or line_default_color, lineTexture, maxValue, elapsedTime})
+	table.insert(chartPanel.GData, {builtData, color or line_default_color, lineTexture, maxValue, elapsedTime})
 	if (name) then
 		chartPanel:AddLabel(color or line_default_color, name, "graphic", #chartPanel.GData)
 	end
@@ -3363,7 +3403,7 @@ local gframe_reset = function(self)
 	if (self.GraphLib_Lines_Used) then
 		for i = #self.GraphLib_Lines_Used, 1, -1 do
 			local line = tremove(self.GraphLib_Lines_Used)
-			tinsert(self.GraphLib_Lines, line)
+			table.insert(self.GraphLib_Lines, line)
 			line:Hide()
 		end
 	end
@@ -3532,7 +3572,7 @@ local simple_list_box_GetOrCreateWidget = function(self)
 			widget.XButton:Hide()
 		end
 
-		tinsert(self.widgets, widget)
+		table.insert(self.widgets, widget)
 	end
 	self.nextWidget = self.nextWidget + 1
 	return widget
@@ -3692,16 +3732,19 @@ end
 ---@field Header df_headerframe?
 ---@field LineAmount number
 ---@field LineHeight number
----@field IsFauxScroll boolean
----@field HideScrollBar boolean
+---@field IsFauxScroll boolean?
+---@field HideScrollBar boolean?
 ---@field Frames frame[]
----@field ReajustNumFrames number
+---@field ReajustNumFrames boolean?
 ---@field DontHideChildrenOnPreRefresh boolean
 ---@field refresh_func fun(self:df_scrollbox, data:table, offset:number, numlines:number)
----@field CreateLineFunc fun(self:df_scrollbox, index:number) : frame
+---@field Refresh fun(self:df_scrollbox, data:table, offset:number, numlines:number)
+---@field CreateLineFunc fun(self:df_scrollbox, index:number)?
 ---@field CreateLine fun(self:df_scrollbox, func:function)
----@field 
----@field 
+---@field SetData fun(self:df_scrollbox, data:table)
+---@field GetData fun(self:df_scrollbox): table
+---@field OnSetData fun(self:df_scrollbox, data:table)? if exists, this function is called after the SetData with the same parameters
+---@field
 
 ---create a scrollbox with the methods :Refresh() :SetData() :CreateLine()
 ---@param parent table
@@ -3712,17 +3755,20 @@ end
 ---@param height number
 ---@param lineAmount number
 ---@param lineHeight number
----@param createLineFunc function|nil
----@param autoAmount boolean|nil
----@param noScroll boolean|nil
+---@param createLineFunc function?
+---@param autoAmount boolean?
+---@param noScroll boolean?
+---@param noBackdrop boolean?
 ---@return df_scrollbox
-function detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height, lineAmount, lineHeight, createLineFunc, autoAmount, noScroll)
+function detailsFramework:CreateScrollBox(parent, name, refreshFunc, data, width, height, lineAmount, lineHeight, createLineFunc, autoAmount, noScroll, noBackdrop)
 	--create the scrollframe, it is the base of the scrollbox
 	---@type df_scrollbox
 	local scroll = CreateFrame("scrollframe", name, parent, "FauxScrollFrameTemplate, BackdropTemplate")
 
 	--apply the standard background color
-	detailsFramework:ApplyStandardBackdrop(scroll)
+	if (not noBackdrop) then
+		detailsFramework:ApplyStandardBackdrop(scroll)
+	end
 
 	scroll:SetSize(width, height)
 	scroll.LineAmount = lineAmount
@@ -3800,572 +3846,6 @@ function detailsFramework:CreateResizeGrips(parent, options, leftResizerName, ri
 end
 
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- ~keybind
-
-
---------------------------------
---keybind frame ~key
-
-
-local ignoredKeys = {
-	["LSHIFT"] = true,
-	["RSHIFT"] = true,
-	["LCTRL"] = true,
-	["RCTRL"] = true,
-	["LALT"] = true,
-	["RALT"] = true,
-	["UNKNOWN"] = true,
-}
-
-local mouseKeys = {
-	["LeftButton"] = "type1",
-	["RightButton"] = "type2",
-	["MiddleButton"] = "type3",
-	["Button4"] = "type4",
-	["Button5"] = "type5",
-	["Button6"] = "type6",
-	["Button7"] = "type7",
-	["Button8"] = "type8",
-	["Button9"] = "type9",
-	["Button10"] = "type10",
-	["Button11"] = "type11",
-	["Button12"] = "type12",
-	["Button13"] = "type13",
-	["Button14"] = "type14",
-	["Button15"] = "type15",
-	["Button16"] = "type16",
-}
-
-local keysToMouse = {
-	["type1"] = "LeftButton",
-	["type2"] = "RightButton",
-	["type3"] = "MiddleButton",
-	["type4"] = "Button4",
-	["type5"] = "Button5",
-	["type6"] = "Button6",
-	["type7"] = "Button7",
-	["type8"] = "Button8",
-	["type9"] = "Button9",
-	["type10"] = "Button10",
-	["type11"] = "Button11",
-	["type12"] = "Button12",
-	["type13"] = "Button13",
-	["type14"] = "Button14",
-	["type15"] = "Button15",
-	["type16"] = "Button16",
-}
-
-local keybind_set_data = function(self, new_data_table)
-	self.Data = new_data_table
-	self.keybindScroll:UpdateScroll()
-end
-
-function detailsFramework:CreateKeybindBox (parent, name, data, callback, width, height, line_amount, line_height)
-
-	local options_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
-	local options_dropdown_template = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
-	local options_switch_template = detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
-	local options_slider_template = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
-	local options_button_template = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
-
-	local SCROLL_ROLL_AMOUNT = line_amount
-
-	--keybind set frame
-	local new_keybind_frame = CreateFrame("frame", name, parent, "BackdropTemplate")
-	new_keybind_frame:SetSize(width, height)
-
-	-- keybind scrollframe
-	local keybindScroll = CreateFrame("scrollframe", "$parentScrollFrame", new_keybind_frame, "FauxScrollFrameTemplate, BackdropTemplate")
-	keybindScroll:SetSize(1019, 348)
-	keybindScroll.Frames = {}
-	new_keybind_frame.keybindScroll = keybindScroll
-
-	--waiting the player to press a key
-	new_keybind_frame.IsListening = false
-
-	--check for valid data table
-	if (type(data) ~= "table") then
-		print("error: data must be a table. DF > CreateKeybindBox()")
-		return
-	end
-
-	if (not next (data)) then
-		--build data table for the character class
-		local _, unitClass = UnitClass("player")
-		if (unitClass) then
-			local specIds = detailsFramework:GetClassSpecIDs(unitClass)
-			if (specIds) then
-				for _, specId in ipairs(specIds) do
-					data [specId] = {}
-				end
-			end
-		end
-	end
-
-	new_keybind_frame.Data = data
-	new_keybind_frame.SetData = keybind_set_data
-
-	new_keybind_frame.EditingSpec = detailsFramework:GetCurrentSpec()
-	new_keybind_frame.CurrentKeybindEditingSet = new_keybind_frame.Data [new_keybind_frame.EditingSpec]
-
-	local allSpecButtons = {}
-	local switch_spec = function(self, button, specID)
-		new_keybind_frame.EditingSpec = specID
-		new_keybind_frame.CurrentKeybindEditingSet = new_keybind_frame.Data [specID]
-
-		for _, button in ipairs(allSpecButtons) do
-			button.selectedTexture:Hide()
-		end
-		self.MyObject.selectedTexture:Show()
-
-		--feedback ao jogador uma vez que as keybinds podem ter o mesmo valor
-		C_Timer.After(.04, function() new_keybind_frame:Hide() end)
-		C_Timer.After(.06, function() new_keybind_frame:Show() end)
-
-		--atualiza a scroll
-		keybindScroll:UpdateScroll()
-	end
-
-	--choose which spec to use
-	local spec1 = detailsFramework:CreateButton(new_keybind_frame, switch_spec, 160, 20, "Spec1 Placeholder Text", 1, _, _, "SpecButton1", _, 0, options_button_template, options_text_template)
-	local spec2 = detailsFramework:CreateButton(new_keybind_frame, switch_spec, 160, 20, "Spec2 Placeholder Text", 1, _, _, "SpecButton2", _, 0, options_button_template, options_text_template)
-	local spec3 = detailsFramework:CreateButton(new_keybind_frame, switch_spec, 160, 20, "Spec3 Placeholder Text", 1, _, _, "SpecButton3", _, 0, options_button_template, options_text_template)
-	local spec4 = detailsFramework:CreateButton(new_keybind_frame, switch_spec, 160, 20, "Spec4 Placeholder Text", 1, _, _, "SpecButton4", _, 0, options_button_template, options_text_template)
-
-	--format the button label and icon with the spec information
-	local className, class = UnitClass("player")
-	local i = 1
-	local specIds = detailsFramework:GetClassSpecIDs(class)
-
-	for index, specId in ipairs(specIds) do
-		local button = new_keybind_frame ["SpecButton" .. index]
-		local spec_id, spec_name, spec_description, spec_icon, spec_background, spec_role, spec_class = DetailsFramework.GetSpecializationInfoByID (specId)
-		button.text = spec_name
-		button:SetClickFunction(switch_spec, specId)
-		button:SetIcon (spec_icon)
-		button.specID = specId
-
-		local selectedTexture = button:CreateTexture(nil, "background")
-		selectedTexture:SetAllPoints()
-		selectedTexture:SetColorTexture(1, 1, 1, 0.5)
-		if (specId ~= new_keybind_frame.EditingSpec) then
-			selectedTexture:Hide()
-		end
-		button.selectedTexture = selectedTexture
-
-		tinsert(allSpecButtons, button)
-		i = i + 1
-	end
-
-	local specsTitle = detailsFramework:CreateLabel(new_keybind_frame, "Config keys for spec:", 12, "silver")
-	specsTitle:SetPoint("topleft", new_keybind_frame, "topleft", 10, mainStartY)
-
-	keybindScroll:SetPoint("topleft", specsTitle.widget, "bottomleft", 0, -120)
-
-	spec1:SetPoint("topleft", specsTitle, "bottomleft", 0, -10)
-	spec2:SetPoint("topleft", specsTitle, "bottomleft", 0, -30)
-	spec3:SetPoint("topleft", specsTitle, "bottomleft", 0, -50)
-	if (class == "DRUID") then
-		spec4:SetPoint("topleft", specsTitle, "bottomleft", 0, -70)
-	end
-
-	local enter_the_key = CreateFrame("frame", nil, new_keybind_frame, "BackdropTemplate")
-	enter_the_key:SetFrameStrata("tooltip")
-	enter_the_key:SetSize(200, 60)
-	enter_the_key:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-	enter_the_key:SetBackdropColor(0, 0, 0, 1)
-	enter_the_key:SetBackdropBorderColor(1, 1, 1, 1)
-	enter_the_key.text = detailsFramework:CreateLabel(enter_the_key, "- Press a keyboard key to bind.\n- Click to bind a mouse button.\n- Press escape to cancel.", 11, "orange")
-	enter_the_key.text:SetPoint("center", enter_the_key, "center")
-	enter_the_key:Hide()
-
-	local registerKeybind = function(self, key)
-		if (ignoredKeys [key]) then
-			return
-		end
-		if (key == "ESCAPE") then
-			enter_the_key:Hide()
-			new_keybind_frame.IsListening = false
-			new_keybind_frame:SetScript("OnKeyDown", nil)
-			return
-		end
-
-		local bind = (IsShiftKeyDown() and "SHIFT-" or "") .. (IsControlKeyDown() and "CTRL-" or "") .. (IsAltKeyDown() and "ALT-" or "")
-		bind = bind .. key
-
-		--adiciona para a tabela de keybinds
-		local keybind = new_keybind_frame.CurrentKeybindEditingSet [self.keybindIndex]
-		keybind.key = bind
-
-		new_keybind_frame.IsListening = false
-		new_keybind_frame:SetScript("OnKeyDown", nil)
-
-		enter_the_key:Hide()
-		new_keybind_frame.keybindScroll:UpdateScroll()
-
-		detailsFramework:QuickDispatch(callback)
-	end
-
-	local set_keybind_key = function(self, button, keybindIndex)
-		if (new_keybind_frame.IsListening) then
-			key = mouseKeys [button] or button
-			return registerKeybind (new_keybind_frame, key)
-		end
-		new_keybind_frame.IsListening = true
-		new_keybind_frame.keybindIndex = keybindIndex
-		new_keybind_frame:SetScript("OnKeyDown", registerKeybind)
-
-		enter_the_key:Show()
-		enter_the_key:SetPoint("bottom", self, "top")
-	end
-
-	local new_key_bind = function(self, button, specID)
-		tinsert(new_keybind_frame.CurrentKeybindEditingSet, {key = "-none-", action = "_target", actiontext = ""})
-		FauxScrollFrame_SetOffset (new_keybind_frame.keybindScroll, max(#new_keybind_frame.CurrentKeybindEditingSet-SCROLL_ROLL_AMOUNT, 0))
-		new_keybind_frame.keybindScroll:UpdateScroll()
-	end
-
-	local set_action_text = function(keybindIndex, _, text)
-		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
-		keybind.actiontext = text
-		detailsFramework:QuickDispatch(callback)
-	end
-
-	local set_action_on_espace_press = function(textentry, capsule)
-		capsule = capsule or textentry.MyObject
-		local keybind = new_keybind_frame.CurrentKeybindEditingSet [capsule.CurIndex]
-		textentry:SetText(keybind.actiontext)
-		detailsFramework:QuickDispatch(callback)
-	end
-
-	local lock_textentry = {
-		["_target"] = true,
-		["_taunt"] = true,
-		["_interrupt"] = true,
-		["_dispel"] = true,
-		["_spell"] = false,
-		["_macro"] = false,
-	}
-
-	local change_key_action = function(self, keybindIndex, value)
-		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
-		keybind.action = value
-		new_keybind_frame.keybindScroll:UpdateScroll()
-		detailsFramework:QuickDispatch(callback)
-	end
-	local fill_action_dropdown = function()
-
-		local locClass, class = UnitClass("player")
-
-		local taunt = ""
-		local interrupt = ""
-		local dispel = ""
-
-		if (type(dispel) == "table") then
-			local dispelString = "\n"
-			for specID, spellid in pairs(dispel) do
-				local specid, specName = DetailsFramework.GetSpecializationInfoByID (specID)
-				local spellName = GetSpellInfo(spellid)
-				dispelString = dispelString .. "|cFFE5E5E5" .. (specName or "") .. "|r: |cFFFFFFFF" .. spellName .. "\n"
-			end
-			dispel = dispelString
-		else
-			dispel = ""
-		end
-
-		return {
-			--{value = "_target", label = "Target", onclick = change_key_action, desc = "Target the unit"},
-			--{value = "_taunt", label = "Taunt", onclick = change_key_action, desc = "Cast the taunt spell for your class\n\n|cFFFFFFFFSpell: " .. taunt},
-			--{value = "_interrupt", label = "Interrupt", onclick = change_key_action, desc = "Cast the interrupt spell for your class\n\n|cFFFFFFFFSpell: " .. interrupt},
-			--{value = "_dispel", label = "Dispel", onclick = change_key_action, desc = "Cast the interrupt spell for your class\n\n|cFFFFFFFFSpell: " .. dispel},
-			{value = "_spell", label = "Cast Spell", onclick = change_key_action, desc = "Type the spell name in the text box"},
-			{value = "_macro", label = "Run Macro", onclick = change_key_action, desc = "Type your macro in the text box"},
-		}
-	end
-
-	local copy_keybind = function(self, button, keybindIndex)
-		local keybind = new_keybind_frame.CurrentKeybindEditingSet [keybindIndex]
-		for specID, t in pairs(new_keybind_frame.Data) do
-			if (specID ~= new_keybind_frame.EditingSpec) then
-				local key = CopyTable (keybind)
-				local specid, specName = DetailsFramework.GetSpecializationInfoByID (specID)
-				tinsert(new_keybind_frame.Data [specID], key)
-				detailsFramework:Msg("Keybind copied to " .. (specName or ""))
-			end
-		end
-		detailsFramework:QuickDispatch(callback)
-	end
-
-	local delete_keybind = function(self, button, keybindIndex)
-		tremove(new_keybind_frame.CurrentKeybindEditingSet, keybindIndex)
-		new_keybind_frame.keybindScroll:UpdateScroll()
-		detailsFramework:QuickDispatch(callback)
-	end
-
-	local newTitle = detailsFramework:CreateLabel(new_keybind_frame, "Create a new Keybind:", 12, "silver")
-	newTitle:SetPoint("topleft", new_keybind_frame, "topleft", 200, mainStartY)
-	local createNewKeybind = detailsFramework:CreateButton(new_keybind_frame, new_key_bind, 160, 20, "New Key Bind", 1, _, _, "NewKeybindButton", _, 0, options_button_template, options_text_template)
-	createNewKeybind:SetPoint("topleft", newTitle, "bottomleft", 0, -10)
-	--createNewKeybind:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]])
-
-	local update_keybind_list = function(self)
-
-		local keybinds = new_keybind_frame.CurrentKeybindEditingSet
-		FauxScrollFrame_Update (self, #keybinds, SCROLL_ROLL_AMOUNT, 21)
-		local offset = FauxScrollFrame_GetOffset (self)
-
-		for i = 1, SCROLL_ROLL_AMOUNT do
-			local index = i + offset
-			local f = self.Frames [i]
-			local data = keybinds [index]
-
-			if (data) then
-				--index
-				f.Index.text = index
-				--keybind
-				local keyBindText = keysToMouse [data.key] or data.key
-
-				keyBindText = keyBindText:gsub("type1", "LeftButton")
-				keyBindText = keyBindText:gsub("type2", "RightButton")
-				keyBindText = keyBindText:gsub("type3", "MiddleButton")
-
-				f.KeyBind.text = keyBindText
-				f.KeyBind:SetClickFunction(set_keybind_key, index, nil, "left")
-				f.KeyBind:SetClickFunction(set_keybind_key, index, nil, "right")
-				--action
-				f.ActionDrop:SetFixedParameter(index)
-				f.ActionDrop:Select(data.action)
-				--action text
-				f.ActionText.text = data.actiontext
-				f.ActionText:SetEnterFunction (set_action_text, index)
-				f.ActionText.CurIndex = index
-
-				if (lock_textentry [data.action]) then
-					f.ActionText:Disable()
-				else
-					f.ActionText:Enable()
-				end
-
-				--copy
-				f.Copy:SetClickFunction(copy_keybind, index)
-				--delete
-				f.Delete:SetClickFunction(delete_keybind, index)
-
-				f:Show()
-			else
-				f:Hide()
-			end
-		end
-
-		self:Show()
-	end
-
-
-
-	keybindScroll:SetScript("OnVerticalScroll", function(self, offset)
-		FauxScrollFrame_OnVerticalScroll (self, offset, 21, update_keybind_list)
-	end)
-	keybindScroll.UpdateScroll = update_keybind_list
-
-	local backdropColor = {.3, .3, .3, .3}
-	local backdropColorOnEnter = {.6, .6, .6, .6}
-	local on_enter = function(self)
-		self:SetBackdropColor(unpack(backdropColorOnEnter))
-	end
-	local on_leave = function(self)
-		self:SetBackdropColor(unpack(backdropColor))
-	end
-
-	local font = "GameFontHighlightSmall"
-
-	for i = 1, SCROLL_ROLL_AMOUNT do
-		local f = CreateFrame("frame", "$KeyBindFrame" .. i, keybindScroll, "BackdropTemplate")
-		f:SetSize(1009, 20)
-		f:SetPoint("topleft", keybindScroll, "topleft", 0, -(i-1)*29)
-		f:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-		f:SetBackdropColor(unpack(backdropColor))
-		f:SetScript("OnEnter", on_enter)
-		f:SetScript("OnLeave", on_leave)
-		tinsert(keybindScroll.Frames, f)
-
-		f.Index = detailsFramework:CreateLabel(f, "1")
-		f.KeyBind = detailsFramework:CreateButton(f, set_key_bind, 100, 20, "", _, _, _, "SetNewKeybindButton", _, 0, options_button_template, options_text_template)
-		f.ActionDrop = detailsFramework:CreateDropDown (f, fill_action_dropdown, 0, 120, 20, "ActionDropdown", _, options_dropdown_template)
-		f.ActionText = detailsFramework:CreateTextEntry(f, function()end, 660, 20, "TextBox", _, _, options_dropdown_template)
-		f.Copy = detailsFramework:CreateButton(f, copy_keybind, 20, 20, "", _, _, _, "CopyKeybindButton", _, 0, options_button_template, options_text_template)
-		f.Delete = detailsFramework:CreateButton(f, delete_keybind, 16, 20, "", _, _, _, "DeleteKeybindButton", _, 2, options_button_template, options_text_template)
-
-		f.Index:SetPoint("left", f, "left", 10, 0)
-		f.KeyBind:SetPoint("left", f, "left", 43, 0)
-		f.ActionDrop:SetPoint("left", f, "left", 150, 0)
-		f.ActionText:SetPoint("left", f, "left", 276, 0)
-		f.Copy:SetPoint("left", f, "left", 950, 0)
-		f.Delete:SetPoint("left", f, "left", 990, 0)
-
-		f.Copy:SetIcon ([[Interface\Buttons\UI-GuildButton-PublicNote-Up]], nil, nil, nil, nil, nil, nil, 4)
-		f.Delete:SetIcon ([[Interface\Buttons\UI-StopButton]], nil, nil, nil, nil, nil, nil, 4)
-
-		f.Copy.tooltip = "copy this keybind to other specs"
-		f.Delete.tooltip = "erase this keybind"
-
-		--editbox
-		f.ActionText:SetJustifyH("left")
-		f.ActionText:SetHook("OnEscapePressed", set_action_on_espace_press)
-		f.ActionText:SetHook("OnEditFocusGained", function()
-			local playerSpells = {}
-			local tab, tabTex, offset, numSpells = GetSpellTabInfo (2)
-			for i = 1, numSpells do
-				local index = offset + i
-				local spellType, spellId = GetSpellBookItemInfo (index, "player")
-				if (spellType == "SPELL") then
-					local spellName = GetSpellInfo(spellId)
-					tinsert(playerSpells, spellName)
-				end
-			end
-			f.ActionText.WordList = playerSpells
-		end)
-
-		f.ActionText:SetAsAutoComplete ("WordList")
-	end
-
-	local header = CreateFrame("frame", "$parentOptionsPanelFrameHeader", keybindScroll, "BackdropTemplate")
-	header:SetPoint("bottomleft", keybindScroll, "topleft", 0, 2)
-	header:SetPoint("bottomright", keybindScroll, "topright", 0, 2)
-	header:SetHeight(16)
-
-	header.Index = detailsFramework:CreateLabel  (header, "Index", detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-	header.Key = detailsFramework:CreateLabel  (header, "Key", detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-	header.Action = detailsFramework:CreateLabel  (header, "Action", detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-	header.Macro = detailsFramework:CreateLabel  (header, "Spell Name / Macro", detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-	header.Copy = detailsFramework:CreateLabel  (header, "Copy", detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-	header.Delete = detailsFramework:CreateLabel  (header, "Delete", detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE"))
-
-	header.Index:SetPoint("left", header, "left", 10, 0)
-	header.Key:SetPoint("left", header, "left", 43, 0)
-	header.Action:SetPoint("left", header, "left", 150, 0)
-	header.Macro:SetPoint("left", header, "left", 276, 0)
-	header.Copy:SetPoint("left", header, "left", 950, 0)
-	header.Delete:SetPoint("left", header, "left", 990, 0)
-
-	new_keybind_frame:SetScript("OnShow", function()
-
-		--new_keybind_frame.EditingSpec = EnemyGrid.CurrentSpec
-		--new_keybind_frame.CurrentKeybindEditingSet = EnemyGrid.CurrentKeybindSet
-
-		for _, button in ipairs(allSpecButtons) do
-			if (new_keybind_frame.EditingSpec ~= button.specID) then
-				button.selectedTexture:Hide()
-			else
-				button.selectedTexture:Show()
-			end
-		end
-
-		keybindScroll:UpdateScroll()
-	end)
-
-	new_keybind_frame:SetScript("OnHide", function()
-		if (new_keybind_frame.IsListening) then
-			new_keybind_frame.IsListening = false
-			new_keybind_frame:SetScript("OnKeyDown", nil)
-		end
-	end)
-
-	return new_keybind_frame
-end
-
-function detailsFramework:BuildKeybindFunctions (data, prefix)
-
-	--~keybind
-	local classLoc, class = UnitClass("player")
-	local bindingList = data
-
-	local bindString = "self:ClearBindings()"
-	local bindKeyBindTypeFunc = [[local unitFrame = ...]]
-	local bindMacroTextFunc = [[local unitFrame = ...]]
-	local isMouseBinding
-
-	for i = 1, #bindingList do
-		local bind = bindingList [i]
-		local bindType
-
-		--which button to press
-		if (bind.key:find("type")) then
-			local keyNumber = tonumber(bind.key:match ("%d"))
-			bindType = keyNumber
-			isMouseBinding = true
-		else
-			bindType = prefix .. "" .. i
-			bindString = bindString .. "self:SetBindingClick (0, '" .. bind.key .. "', self:GetName(), '" .. bindType .. "')"
-			bindType = "-" .. prefix .. "" .. i
-			isMouseBinding = nil
-		end
-
-		--keybind type
-		local shift, alt, ctrl = bind.key:match ("SHIFT"), bind.key:match ("ALT"), bind.key:match ("CTRL")
-		local CommandKeys = alt and alt .. "-" or ""
-		CommandKeys = ctrl and CommandKeys .. ctrl .. "-" or CommandKeys
-		CommandKeys = shift and CommandKeys .. shift .. "-" or CommandKeys
-
-		local keyBindType
-		if (isMouseBinding) then
-			keyBindType = [[unitFrame:SetAttribute ("@COMMANDtype@BINDTYPE", "macro")]]
-		else
-			keyBindType = [[unitFrame:SetAttribute ("type@BINDTYPE", "macro")]]
-		end
-
-		keyBindType = keyBindType:gsub("@BINDTYPE", bindType)
-		keyBindType = keyBindType:gsub("@COMMAND", CommandKeys)
-		bindKeyBindTypeFunc = bindKeyBindTypeFunc .. keyBindType
-
-		--spell or macro
-		if (bind.action == "_spell") then
-			local macroTextLine
-			if (isMouseBinding) then
-				macroTextLine = [[unitFrame:SetAttribute ("@COMMANDmacrotext@BINDTYPE", "/cast [@mouseover] @SPELL")]]
-			else
-				macroTextLine = [[unitFrame:SetAttribute ("macrotext@BINDTYPE", "/cast [@mouseover] @SPELL")]]
-			end
-			macroTextLine = macroTextLine:gsub("@BINDTYPE", bindType)
-			macroTextLine = macroTextLine:gsub("@SPELL", bind.actiontext)
-			macroTextLine = macroTextLine:gsub("@COMMAND", CommandKeys)
-			bindMacroTextFunc = bindMacroTextFunc .. macroTextLine
-
-		elseif (bind.action == "_macro") then
-			local macroTextLine
-			if (isMouseBinding) then
-				macroTextLine = [[unitFrame:SetAttribute ("@COMMANDmacrotext@BINDTYPE", "@MACRO")]]
-			else
-				macroTextLine = [[unitFrame:SetAttribute ("macrotext@BINDTYPE", "@MACRO")]]
-			end
-			macroTextLine = macroTextLine:gsub("@BINDTYPE", bindType)
-			macroTextLine = macroTextLine:gsub("@MACRO", bind.actiontext)
-			macroTextLine = macroTextLine:gsub("@COMMAND", CommandKeys)
-			bindMacroTextFunc = bindMacroTextFunc .. macroTextLine
-
-		end
-	end
-
-	--~key
-	local bindTypeFuncLoaded = loadstring (bindKeyBindTypeFunc)
-	local bindMacroFuncLoaded = loadstring (bindMacroTextFunc)
-
-	if (not bindMacroFuncLoaded or not bindTypeFuncLoaded) then
-		return
-	end
-
-	return bindString, bindTypeFuncLoaded, bindMacroFuncLoaded
-end
-
-
-function detailsFramework:SetKeybindsOnProtectedFrame (frame, bind_string, bind_type_func, bind_macro_func)
-
-	bind_type_func (frame)
-	bind_macro_func (frame)
-	frame:SetAttribute ("_onenter", bind_string)
-
-end
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~standard backdrop
 ---this is the standard backdrop for detailsframework, it's a dark-ish color semi transparent with a thin opaque black border
@@ -4387,7 +3867,6 @@ function detailsFramework:ApplyStandardBackdrop(frame, bUseSolidColor, alphaScal
 	local red, green, blue, alpha = detailsFramework:GetDefaultBackdropColor()
 
 	if (bUseSolidColor) then
-		local colorDeviation = 0.05
 		frame:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Buttons\WHITE8X8]], tileSize = 32, tile = true})
 		frame:SetBackdropColor(red, green, blue, 0.872)
 		frame:SetBackdropBorderColor(0, 0, 0, 0.95)
@@ -4496,43 +3975,70 @@ local default_radiogroup_options = {
 	backdrop_color = {0, 0, 0, 0.2},
 	backdrop_border_color = {0.1, 0.1, 0.1, .2},
 	is_radio = false,
+	text_color = {1, 0.8196, 0, 1},
+	text_size = 10,
+	text_outline = "NONE",
 }
 
+---@class df_radiogroup_checkbox : df_checkbox
+---@field Label df_label
+---@field Icon texture
+---@field _optionid number
+---@field _set function
+---@field _callback function
+---@field __width number
+
+---@class df_radiogroupmixin : table
+---@field allCheckBoxes df_radiogroup_checkbox[]
+---@field SetFadeState fun(self:df_checkboxgroup, state:boolean)
+---@field Disable fun(self:df_checkboxgroup)
+---@field Enable fun(self:df_checkboxgroup)
+---@field DeselectAll fun(self:df_checkboxgroup)
+---@field Select fun(self:df_checkboxgroup, checkboxId:number)
+---@field FadeIn fun(self:df_checkboxgroup)
+---@field FadeOut fun(self:df_checkboxgroup)
+---@field GetAllCheckboxes fun(self:df_checkboxgroup):df_radiogroup_checkbox[]
+---@field GetCheckbox fun(self:df_checkboxgroup, checkboxId:number):df_radiogroup_checkbox
+---@field CreateCheckbox fun(self:df_checkboxgroup):df_radiogroup_checkbox
+---@field ResetAllCheckboxes fun(self:df_checkboxgroup)
+---@field RadioOnClick fun(checkbox:df_radiogroup_checkbox, fixedParam:any, value:boolean)
+---@field RefreshCheckbox fun(self:df_checkboxgroup, checkbox:df_radiogroup_checkbox, optionTable:table, optionId:number)
+
+---@type df_radiogroupmixin
 detailsFramework.RadioGroupCoreFunctions = {
+	allCheckBoxes = {},
+
 	Disable = function(self)
-		local frameList = self:GetAllCheckboxes()
-		for _, checkbox in ipairs(frameList) do
-			checkbox = checkbox.GetCapsule and checkbox:GetCapsule() or checkbox
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
 			checkbox:Disable()
 		end
 	end,
 
 	Enable = function(self)
-		local frameList = self:GetAllCheckboxes()
-		for _, checkbox in ipairs(frameList) do
-			checkbox = checkbox.GetCapsule and checkbox:GetCapsule() or checkbox
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
 			checkbox:Enable()
 		end
 	end,
 
 	DeselectAll = function(self)
-		local frameList = self:GetAllCheckboxes()
-		for _, checkbox in ipairs(frameList) do
-			checkbox = checkbox.GetCapsule and checkbox:GetCapsule() or checkbox
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
 			checkbox:SetValue(false)
 		end
 	end,
 
 	FadeIn = function(self)
-		local frameList = self:GetAllCheckboxes()
-		for _, checkbox in ipairs(frameList) do
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
 			checkbox:SetAlpha(1)
 		end
 	end,
 
 	FadeOut = function(self)
-		local frameList = self:GetAllCheckboxes()
-		for _, checkbox in ipairs(frameList) do
+		local checkBoxList = self:GetAllCheckboxes()
+		for _, checkbox in ipairs(checkBoxList) do
 			checkbox:SetAlpha(.7)
 		end
 	end,
@@ -4546,7 +4052,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 	end,
 
 	GetAllCheckboxes = function(self)
-		return {self:GetChildren()}
+		return self.allCheckBoxes
 	end,
 
 	GetCheckbox = function(self, checkboxId)
@@ -4559,11 +4065,12 @@ detailsFramework.RadioGroupCoreFunctions = {
 	end,
 
 	CreateCheckbox = function(self)
-		local checkbox = detailsFramework:CreateSwitch(self, function()end, false, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
+		local checkbox = detailsFramework:CreateSwitch(self, function()end, false)
+		checkbox:SetTemplate(detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		checkbox:SetAsCheckBox()
 		checkbox.Icon = detailsFramework:CreateImage(checkbox, "", 16, 16)
 		checkbox.Label = detailsFramework:CreateLabel(checkbox, "")
-
+		self.allCheckBoxes[#self.allCheckBoxes + 1] = checkbox
 		return checkbox
 	end,
 
@@ -4578,7 +4085,9 @@ detailsFramework.RadioGroupCoreFunctions = {
 	--if the list of checkboxes are a radio group
 	RadioOnClick = function(checkbox, fixedParam, value)
 		--turn off all checkboxes
-		checkbox:GetParent():DeselectAll()
+		---@type df_checkboxgroup
+		local radioGroup = checkbox:GetParent()
+		radioGroup:DeselectAll()
 
 		--turn on the clicked checkbox
 		checkbox:SetValue(true)
@@ -4591,6 +4100,10 @@ detailsFramework.RadioGroupCoreFunctions = {
 
 	RefreshCheckbox = function(self, checkbox, optionTable, optionId)
 		checkbox = checkbox.GetCapsule and checkbox:GetCapsule() or checkbox
+		---@cast checkbox df_radiogroup_checkbox
+
+		local width, height = optionTable.width or 20, optionTable.height or 20
+		checkbox:SetSize(width, height)
 
 		local setFunc = self.options.is_radio and self.RadioOnClick or optionTable.set
 		checkbox:SetSwitchFunction(setFunc)
@@ -4602,12 +4115,17 @@ detailsFramework.RadioGroupCoreFunctions = {
 		local isChecked = type(optionTable.get) == "function" and detailsFramework:Dispatch(optionTable.get) or false
 		checkbox:SetValue(isChecked)
 
-		checkbox.Label:SetText(optionTable.name)
+		checkbox.Label.text = optionTable.name
+		checkbox.Label.textsize = optionTable.text_size or self.options.text_size
+		checkbox.Label.textcolor = self.options.text_color
+		checkbox.Label.outline = self.options.text_outline
 
 		if (optionTable.texture) then
 			checkbox.Icon:SetTexture(optionTable.texture)
+			checkbox.Icon:SetSize(width, height)
 			checkbox.Icon:SetPoint("left", checkbox, "right", 2, 0)
 			checkbox.Label:SetPoint("left", checkbox.Icon, "right", 2, 0)
+			checkbox.tooltip = optionTable.tooltip
 
 			if (optionTable.texcoord) then
 				checkbox.Icon:SetTexCoord(unpack(optionTable.texcoord))
@@ -4618,22 +4136,50 @@ detailsFramework.RadioGroupCoreFunctions = {
 			checkbox.Icon:SetTexture("")
 			checkbox.Label:SetPoint("left", checkbox, "right", 2, 0)
 		end
+
+		local checkBoxLength = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + 2)) + (checkbox.Label:GetStringWidth()) + 2
+		checkbox.__width = checkBoxLength
+		checkbox.widget.__width = checkBoxLength
 	end,
 
 	Refresh = function(self)
 		self:ResetAllCheckboxes()
 		local radioOptions = self:GetOptions()
 		local radioCheckboxes = self:GetAllCheckboxes()
+		local totalWidth = 0
+		local maxHeight = 0
 
 		for optionId, optionsTable in ipairs(radioOptions) do
 			local checkbox = self:GetCheckbox(optionId)
 			checkbox.OptionID = optionId
 			checkbox:Show()
 			self:RefreshCheckbox(checkbox, optionsTable, optionId)
+			totalWidth = totalWidth + checkbox.__width
+
+			if (checkbox:GetHeight() > maxHeight) then
+				maxHeight = checkbox:GetHeight()
+			end
 		end
+
+		if (self.AnchorOptions.min_width) then
+			totalWidth = math.max(self.AnchorOptions.min_width * #radioOptions, totalWidth)
+		end
+
+		self:SetSize(totalWidth, maxHeight)
 
 		--sending false to automatically use the radio group children
 		self:ArrangeFrames(false, self.AnchorOptions)
+	end,
+
+	Select = function(self, option)
+		local allCheckBoxes = self:GetAllCheckboxes()
+		local thisCheckbox = allCheckBoxes[option]
+		if (thisCheckbox) then
+			local callbackFunc = thisCheckbox:GetSwitchFunction()
+			if (callbackFunc) then
+				detailsFramework.RadioGroupCoreFunctions.RadioOnClick(thisCheckbox, thisCheckbox:GetFixedParameter(), true)
+			end
+		end
 	end,
 
 	SetOptions = function(self, radioOptions)
@@ -4646,6 +4192,21 @@ detailsFramework.RadioGroupCoreFunctions = {
 	end,
 }
 
+---@class df_radiooptions : table
+---@field name string
+---@field get fun():any?
+---@field set fun(self:df_radiooptions, param, value)
+---@field param any?
+---@field texture string?
+---@field texcoord table?
+---@field width number?
+---@field height number?
+---@field text_size number?
+---@field callback fun()?
+---@field backdrop table?
+---@field backdrop_color table?
+---@field backdrop_border_color table?
+
 --[=[
 	radionOptions: an index table with options for the radio group {name = "", set = func (self, param, value), param = value, get = func, texture = "", texcoord = {}}
 		set function receives as self the checkbox, use :GetParent() to get the radion group frame
@@ -4654,36 +4215,48 @@ detailsFramework.RadioGroupCoreFunctions = {
 	options: override options for default_radiogroup_options table
 	anchorOptions: override options for default_framelayout_options table
 --]=]
+
+---@class df_checkboxgroup : frame, df_optionsmixin, df_radiogroupmixin, df_framelayout
+
+---@param parent frame
+---@param radioOptions table
+---@param name string?
+---@param options table?
+---@param anchorOptions table?
+---@return df_checkboxgroup
 function detailsFramework:CreateCheckboxGroup(parent, radioOptions, name, options, anchorOptions)
-	local f = CreateFrame("frame", name, parent, "BackdropTemplate")
+	local newCheckboxGroup = CreateFrame("frame", name, parent, "BackdropTemplate")
 
-	detailsFramework:Mixin(f, detailsFramework.OptionsFunctions)
-	detailsFramework:Mixin(f, detailsFramework.RadioGroupCoreFunctions)
-	detailsFramework:Mixin(f, detailsFramework.LayoutFrame)
+	detailsFramework:Mixin(newCheckboxGroup, detailsFramework.OptionsFunctions)
+	detailsFramework:Mixin(newCheckboxGroup, detailsFramework.RadioGroupCoreFunctions)
+	detailsFramework:Mixin(newCheckboxGroup, detailsFramework.LayoutFrame)
 
-	f:BuildOptionsTable (default_radiogroup_options, options)
+	newCheckboxGroup.allCheckBoxes = {}
 
-	f:SetSize(f.options.width, f.options.height)
-	f:SetBackdrop(f.options.backdrop)
-	f:SetBackdropColor(unpack(f.options.backdrop_color))
-	f:SetBackdropBorderColor(unpack(f.options.backdrop_border_color))
+	newCheckboxGroup:BuildOptionsTable(default_radiogroup_options, options)
 
-	f.AnchorOptions = anchorOptions or {}
+	newCheckboxGroup:SetBackdrop(newCheckboxGroup.options.backdrop)
+	newCheckboxGroup:SetBackdropColor(unpack(newCheckboxGroup.options.backdrop_color))
+	newCheckboxGroup:SetBackdropBorderColor(unpack(newCheckboxGroup.options.backdrop_border_color))
 
-	if (f.options.title) then
-		local titleLabel = detailsFramework:CreateLabel(f, f.options.title, detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
-		titleLabel:SetPoint("bottomleft", f, "topleft", 0, 2)
-		f.Title = titleLabel
+	newCheckboxGroup.AnchorOptions = anchorOptions or {}
+
+	if (newCheckboxGroup.options.title) then
+		local titleLabel = detailsFramework:CreateLabel(newCheckboxGroup, newCheckboxGroup.options.title, detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
+		titleLabel:SetPoint("bottomleft", newCheckboxGroup, "topleft", 0, 2)
+		newCheckboxGroup.Title = titleLabel
 	end
 
-	f:SetOptions (radioOptions)
+	newCheckboxGroup:SetOptions(radioOptions)
 
-	return f
+	return newCheckboxGroup
 end
 
 function detailsFramework:CreateRadionGroup(parent, radioOptions, name, options, anchorOptions) --alias for miss spelled old function
 	return detailsFramework:CreateRadioGroup(parent, radioOptions, name, options, anchorOptions)
 end
+
+---@class df_radiogroup : frame, df_optionsmixin, df_radiogroupmixin, df_framelayout
 
 function detailsFramework:CreateRadioGroup(parent, radioOptions, name, options, anchorOptions)
 	options = options or {}
@@ -4692,745 +4265,6 @@ function detailsFramework:CreateRadioGroup(parent, radioOptions, name, options, 
 end
 
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---load conditions panel
-
---this is the table prototype to hold load conditions settings
-local default_load_conditions = {
-	class = {},
-	spec = {},
-	race = {},
-	talent = {},
-	pvptalent = {},
-	group = {},
-	role = {},
-	affix = {},
-	encounter_ids = {},
-	map_ids = {},
-}
-
-local default_load_conditions_frame_options = {
-	title = "Details! Framework: Load Conditions",
-	name = "Object",
-}
-
-function detailsFramework:CreateLoadFilterParser (callback)
-	local f = CreateFrame("frame")
-	f:RegisterEvent("PLAYER_ENTERING_WORLD")
-	if IS_WOW_PROJECT_MAINLINE then
-		f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-		f:RegisterEvent("PLAYER_TALENT_UPDATE")
-	end
-	f:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-	f:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-	if IS_WOW_PROJECT_MAINLINE then
-		f:RegisterEvent("CHALLENGE_MODE_START")
-	end
-	f:RegisterEvent("ENCOUNTER_START")
-	f:RegisterEvent("PLAYER_REGEN_ENABLED")
-
-	f:SetScript("OnEvent", function(self, event, ...)
-		if (event == "ENCOUNTER_START") then
-			local encounterID = ...
-			f.EncounterIDCached = encounterID
-
-		elseif (event == "ENCOUNTER_END") then
-			f.EncounterIDCached = nil
-
-		elseif (event == "PLAYER_REGEN_ENABLED") then
-			--f.EncounterIDCached = nil
-			--when the player dies during an encounter, the game is triggering regen enabled
-
-		elseif (event == "PLAYER_SPECIALIZATION_CHANGED") then
-			if (DetailsFrameworkLoadConditionsPanel and DetailsFrameworkLoadConditionsPanel:IsShown()) then
-				DetailsFrameworkLoadConditionsPanel:Refresh()
-			end
-
-			local unit = ...
-			if (not unit or not UnitIsUnit("player", unit)) then
-				return
-			end
-
-		elseif (event == "PLAYER_ROLES_ASSIGNED") then
-			local assignedRole = UnitGroupRolesAssigned("player")
-			if (assignedRole == "NONE") then
-				local spec = DetailsFramework.GetSpecialization()
-				if (spec) then
-					assignedRole = DetailsFramework.GetSpecializationRole (spec)
-				end
-			end
-
-			if (detailsFramework.CurrentPlayerRole == assignedRole) then
-				return
-			end
-
-			detailsFramework.CurrentPlayerRole = assignedRole
-		end
-
-		--print("Plater Script Update:", event, ...)
-
-		detailsFramework:QuickDispatch(callback, f.EncounterIDCached)
-	end)
-end
-
-function detailsFramework:PassLoadFilters(loadTable, encounterID)
-	--class
-	local passLoadClass
-	if (loadTable.class.Enabled) then
-		local _, classFileName = UnitClass("player")
-		if (not loadTable.class[classFileName]) then
-			return false
-		else
-			passLoadClass = true
-		end
-	end
-
-	--spec
-	if (IS_WOW_PROJECT_MAINLINE and loadTable.spec.Enabled) then
-		local canCheckTalents = true
-
-		if (passLoadClass) then
-			--if is allowed to load on this class, check if the talents isn't from another class
-			local _, classFileName = UnitClass("player")
-			local specsForThisClass = detailsFramework:GetClassSpecIDs(classFileName)
-
-			canCheckTalents = false
-
-			for _, specID in ipairs(specsForThisClass) do
-				if (loadTable.spec[specID] or loadTable.spec[specID..""]) then
-					--theres a talent for this class
-					canCheckTalents = true
-					break
-				end
-			end
-		end
-
-		if (canCheckTalents) then
-			local specIndex = DetailsFramework.GetSpecialization()
-			if (specIndex) then
-				local specID = DetailsFramework.GetSpecializationInfo(specIndex)
-				if not specID or (not loadTable.spec[specID] and not loadTable.spec[specID .. ""]) then
-					return false
-				end
-			else
-				return false
-			end
-		end
-	end
-
-	--race
-	if (loadTable.race.Enabled) then
-		local raceName, raceFileName, raceID = UnitRace ("player")
-		if (not loadTable.race [raceFileName]) then
-			return false
-		end
-	end
-
-	--talents
-	if (IS_WOW_PROJECT_MAINLINE and loadTable.talent.Enabled) then
-		local talentsInUse = detailsFramework:GetCharacterTalents (false, true)
-		local hasTalent
-		for talentID, _ in pairs(talentsInUse) do
-			if talentID and (loadTable.talent [talentID] or loadTable.talent [talentID .. ""]) then
-				hasTalent =  true
-				break
-			end
-		end
-		if (not hasTalent) then
-			return false
-		end
-	end
-
-	--pvptalent
-	if (IS_WOW_PROJECT_MAINLINE and loadTable.pvptalent.Enabled) then
-		local talentsInUse = detailsFramework:GetCharacterPvPTalents (false, true)
-		local hasTalent
-		for talentID, _ in pairs(talentsInUse) do
-			if talentID and (loadTable.pvptalent [talentID] or loadTable.pvptalent [talentID .. ""]) then
-				hasTalent =  true
-				break
-			end
-		end
-		if (not hasTalent) then
-			return false
-		end
-	end
-
-	--group
-	if (loadTable.group.Enabled) then
-		local _, zoneType = GetInstanceInfo()
-		if (not loadTable.group [zoneType]) then
-			return
-		end
-	end
-
-	--role
-	if (loadTable.role.Enabled) then
-		local assignedRole = UnitGroupRolesAssigned("player")
-		if (assignedRole == "NONE") then
-			local spec = DetailsFramework.GetSpecialization()
-			if (spec) then
-				assignedRole = DetailsFramework.GetSpecializationRole (spec)
-			end
-		end
-		if (not loadTable.role [assignedRole]) then
-			return false
-		end
-	end
-
-	--affix
-	if (IS_WOW_PROJECT_MAINLINE and loadTable.affix.Enabled) then
-		local isInMythicDungeon = C_ChallengeMode.IsChallengeModeActive()
-		if (not isInMythicDungeon) then
-			return false
-		end
-
-		local level, affixes, wasEnergized = C_ChallengeMode.GetActiveKeystoneInfo()
-		local hasAffix = false
-		for _, affixID in ipairs(affixes) do
-			if affixID and (loadTable.affix [affixID] or loadTable.affix [affixID .. ""]) then
-				hasAffix = true
-				break
-			end
-		end
-
-		if (not hasAffix) then
-			return false
-		end
-	end
-
-	--encounter id
-	if (loadTable.encounter_ids.Enabled) then
-		if (not encounterID) then
-			return
-		end
-		local hasEncounter
-		for _, ID in pairs(loadTable.encounter_ids) do
-			if (ID == encounterID) then
-				hasEncounter = true
-				break
-			end
-			if (not hasEncounter) then
-				return false
-			end
-		end
-	end
-
-	--map id
-	if (loadTable.map_ids.Enabled) then
-		local _, _, _, _, _, _, _, zoneMapID = GetInstanceInfo()
-		local uiMapID = C_Map.GetBestMapForUnit ("player")
-
-		local hasMapID
-		for _, ID in pairs(loadTable.map_ids) do
-			if (ID == zoneMapID or ID == uiMapID) then
-				hasMapID = true
-				break
-			end
-			if (not hasMapID) then
-				return false
-			end
-		end
-	end
-
-	return true
-end
-
---this func will deploy the default values from the prototype into the config table
-function detailsFramework:UpdateLoadConditionsTable(configTable)
-	configTable = configTable or {}
-	detailsFramework.table.deploy(configTable, default_load_conditions)
-	return configTable
-end
-
---/run Plater.OpenOptionsPanel()PlaterOptionsPanelContainer:SelectIndex (Plater, 14)
-
-function detailsFramework:OpenLoadConditionsPanel(optionsTable, callback, frameOptions)
-	frameOptions = frameOptions or {}
-	detailsFramework.table.deploy(frameOptions, default_load_conditions_frame_options)
-
-	detailsFramework:UpdateLoadConditionsTable(optionsTable)
-
-	if (not DetailsFrameworkLoadConditionsPanel) then
-		local loadConditionsFrame = detailsFramework:CreateSimplePanel(UIParent, 970, 505, "Load Conditions", "DetailsFrameworkLoadConditionsPanel")
-		loadConditionsFrame:SetBackdropColor(0, 0, 0, 1)
-		loadConditionsFrame.AllRadioGroups = {}
-		loadConditionsFrame.AllTextEntries = {}
-		loadConditionsFrame.OptionsTable = optionsTable
-
-		detailsFramework:ApplyStandardBackdrop(loadConditionsFrame, false, 1.1)
-
-		local xStartAt = 10
-		local x2StartAt = 500
-		local anchorPositions = {
-			class = {xStartAt, -70},
-			spec = {xStartAt, -170},
-			race = {xStartAt, -210},
-			role = {xStartAt, -310},
-			talent = {xStartAt, -350},
-			pvptalent = {x2StartAt, -70},
-			group = {x2StartAt, -210},
-			affix = {x2StartAt, -270},
-			encounter_ids = {x2StartAt, -420},
-			map_ids = {x2StartAt, -460},
-		}
-
-		local editingLabel = detailsFramework:CreateLabel(loadConditionsFrame, "Load Conditions For:")
-		local editingWhatLabel = detailsFramework:CreateLabel(loadConditionsFrame, "")
-		editingLabel:SetPoint("topleft", loadConditionsFrame, "topleft", 10, -35)
-		editingWhatLabel:SetPoint("left", editingLabel, "right", 2, 0)
-
-		--this label store the name of what is being edited
-		loadConditionsFrame.EditingLabel = editingWhatLabel
-
-		--when the user click on an option, run the callback
-			loadConditionsFrame.RunCallback = function()
-				detailsFramework:Dispatch (loadConditionsFrame.CallbackFunc)
-			end
-
-		--when the user click on an option or when the panel is opened
-		--check if there's an option enabled and fadein all options, fadeout otherwise
-			loadConditionsFrame.OnRadioStateChanged = function(radioGroup, subConfigTable)
-				subConfigTable.Enabled = nil
-				subConfigTable.Enabled = next (subConfigTable) and true or nil
-				radioGroup:SetFadeState (subConfigTable.Enabled)
-			end
-
-		--create the radio group for character class
-			loadConditionsFrame.OnRadioCheckboxClick = function(self, key, value)
-				--hierarchy: DBKey ["class"] key ["HUNTER"] value TRUE
-				local DBKey = self:GetParent().DBKey
-				loadConditionsFrame.OptionsTable [DBKey] [key and key .. ""] = value and true or nil
-				if not value then -- cleanup "number" type values
-					loadConditionsFrame.OptionsTable [DBKey] [key] = nil
-				end
-				loadConditionsFrame.OnRadioStateChanged (self:GetParent(), loadConditionsFrame.OptionsTable [DBKey])
-				loadConditionsFrame.RunCallback()
-			end
-
-		--create the radio group for classes
-			local classes = {}
-			for _, classTable in pairs(detailsFramework:GetClassList()) do
-				tinsert(classes, {
-					name = classTable.Name,
-					set = loadConditionsFrame.OnRadioCheckboxClick,
-					param = classTable.FileString,
-					get = function() return loadConditionsFrame.OptionsTable.class[classTable.FileString] end,
-					texture = classTable.Texture,
-					texcoord = classTable.TexCoord,
-				})
-			end
-
-			local classGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, classes, name, {width = 200, height = 200, title = "Character Class"}, {offset_x = 130, amount_per_line = 3})
-			classGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.class[1], anchorPositions.class[2])
-			classGroup.DBKey = "class"
-			tinsert(loadConditionsFrame.AllRadioGroups, classGroup)
-
-		--create the radio group for character spec
-			if IS_WOW_PROJECT_MAINLINE then
-				local specs = {}
-				for _, specID in ipairs(detailsFramework:GetClassSpecIDs(select(2, UnitClass("player")))) do
-					local specID, specName, specDescription, specIcon, specBackground, specRole, specClass = DetailsFramework.GetSpecializationInfoByID (specID)
-					tinsert(specs, {
-						name = specName,
-						set = loadConditionsFrame.OnRadioCheckboxClick,
-						param = specID,
-						get = function() return loadConditionsFrame.OptionsTable.spec[specID] or loadConditionsFrame.OptionsTable.spec[specID..""] end,
-						texture = specIcon,
-					})
-				end
-				local specGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, specs, name, {width = 200, height = 200, title = "Character Spec"}, {offset_x = 130, amount_per_line = 4})
-				specGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.spec[1], anchorPositions.spec[2])
-				specGroup.DBKey = "spec"
-				tinsert(loadConditionsFrame.AllRadioGroups, specGroup)
-			end
-
-		--create radio group for character races
-			local raceList = {}
-			for _, raceTable in ipairs(detailsFramework:GetCharacterRaceList()) do
-				tinsert(raceList, {
-					name = raceTable.Name,
-					set = loadConditionsFrame.OnRadioCheckboxClick,
-					param = raceTable.FileString,
-					get = function() return loadConditionsFrame.OptionsTable.race [raceTable.FileString] end,
-				})
-			end
-			local raceGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, raceList, name, {width = 200, height = 200, title = "Character Race"})
-			raceGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.race [1], anchorPositions.race [2])
-			raceGroup.DBKey = "race"
-			tinsert(loadConditionsFrame.AllRadioGroups, raceGroup)
-
-		--create radio group for talents
-			if IS_WOW_PROJECT_MAINLINE then
-				local talentList = {}
-				for _, talentTable in ipairs(detailsFramework:GetCharacterTalents()) do
-					if talentTable.ID then
-						tinsert(talentList, {
-							name = talentTable.Name,
-							set = loadConditionsFrame.OnRadioCheckboxClick,
-							param = talentTable.ID,
-							get = function() return loadConditionsFrame.OptionsTable.talent [talentTable.ID] or loadConditionsFrame.OptionsTable.talent [talentTable.ID .. ""] end,
-							texture = talentTable.Texture,
-						})
-					end
-				end
-				local talentGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, talentList, name, {width = 200, height = 200, title = "Characer Talents"}, {offset_x = 150, amount_per_line = 3})
-				talentGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.talent [1], anchorPositions.talent [2])
-				talentGroup.DBKey = "talent"
-				tinsert(loadConditionsFrame.AllRadioGroups, talentGroup)
-				loadConditionsFrame.TalentGroup = talentGroup
-
-				do
-					--create a frame to show talents selected in other specs or characters
-					local otherTalents = CreateFrame("frame", nil, loadConditionsFrame, "BackdropTemplate")
-					otherTalents:SetSize(26, 26)
-					otherTalents:SetPoint("left", talentGroup.Title.widget, "right", 10, -2)
-					otherTalents.Texture = detailsFramework:CreateImage(otherTalents, [[Interface\BUTTONS\AdventureGuideMicrobuttonAlert]], 24, 24)
-					otherTalents.Texture:SetAllPoints()
-
-					local removeTalent = function(_, _, talentID)
-						loadConditionsFrame.OptionsTable.talent [talentID] = nil
-						GameCooltip2:Hide()
-						loadConditionsFrame.OnRadioStateChanged (talentGroup, loadConditionsFrame.OptionsTable [talentGroup.DBKey])
-						loadConditionsFrame.CanShowTalentWarning()
-					end
-
-					local buildTalentMenu = function()
-						local playerTalents = detailsFramework:GetCharacterTalents()
-						local indexedTalents = {}
-						for _, talentTable in ipairs(playerTalents) do
-							tinsert(indexedTalents, talentTable.ID)
-						end
-
-						--talents selected to load
-						GameCooltip2:AddLine("select a talent to remove it (added from a different spec or character)", "", 1, "orange", "orange", 9)
-						GameCooltip2:AddLine("$div", nil, nil, -1, -1)
-
-						for talentID, _ in pairs(loadConditionsFrame.OptionsTable.talent) do
-							if (type(talentID) == "number" and not detailsFramework.table.find (indexedTalents, talentID)) then
-								local talentID, name, texture, selected, available = GetTalentInfoByID (talentID)
-								if (name) then
-									GameCooltip2:AddLine(name)
-									GameCooltip2:AddIcon (texture, 1, 1, 16, 16, .1, .9, .1, .9)
-									GameCooltip2:AddMenu (1, removeTalent, talentID)
-								end
-							end
-						end
-					end
-
-					otherTalents.CoolTip = {
-						Type = "menu",
-						BuildFunc = buildTalentMenu,
-						OnEnterFunc = function(self) end,
-						OnLeaveFunc = function(self) end,
-						FixedValue = "none",
-						ShowSpeed = 0.05,
-						Options = function()
-							GameCooltip2:SetOption("TextFont", "Friz Quadrata TT")
-							GameCooltip2:SetOption("TextColor", "orange")
-							GameCooltip2:SetOption("TextSize", 12)
-							GameCooltip2:SetOption("FixedWidth", 220)
-							GameCooltip2:SetOption("ButtonsYMod", -4)
-							GameCooltip2:SetOption("YSpacingMod", -4)
-							GameCooltip2:SetOption("IgnoreButtonAutoHeight", true)
-
-							GameCooltip2:SetColor (1, 0.5, 0.5, 0.5, 0)
-
-							local preset2_backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Buttons\WHITE8X8]], tile = true, edgeSize = 1, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
-							local gray_table = {0.37, 0.37, 0.37, 0.95}
-							local black_table = {0.2, 0.2, 0.2, 1}
-							GameCooltip2:SetBackdrop(1, preset2_backdrop, gray_table, black_table)
-							GameCooltip2:SetBackdrop(2, preset2_backdrop, gray_table, black_table)
-						end,
-					}
-					GameCooltip2:CoolTipInject (otherTalents)
-
-					function loadConditionsFrame.CanShowTalentWarning()
-						local playerTalents = detailsFramework:GetCharacterTalents()
-						local indexedTalents = {}
-						for _, talentTable in ipairs(playerTalents) do
-							tinsert(indexedTalents, talentTable.ID)
-						end
-						for talentID, _ in pairs(loadConditionsFrame.OptionsTable.talent) do
-							if (type(talentID) == "number" and not detailsFramework.table.find (indexedTalents, talentID)) then
-								otherTalents:Show()
-								return
-							end
-						end
-						otherTalents:Hide()
-					end
-				end
-			end
-
-		--create radio group for pvp talents
-			if IS_WOW_PROJECT_MAINLINE then
-				local pvpTalentList = {}
-				for _, talentTable in ipairs(detailsFramework:GetCharacterPvPTalents()) do
-					tinsert(pvpTalentList, {
-						name = talentTable.Name,
-						set = loadConditionsFrame.OnRadioCheckboxClick,
-						param = talentTable.ID,
-						get = function() return loadConditionsFrame.OptionsTable.pvptalent [talentTable.ID] or loadConditionsFrame.OptionsTable.pvptalent [talentTable.ID .. ""] end,
-						texture = talentTable.Texture,
-					})
-				end
-				local pvpTalentGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, pvpTalentList, name, {width = 200, height = 200, title = "Characer PvP Talents"}, {offset_x = 150, amount_per_line = 3})
-				pvpTalentGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.pvptalent [1], anchorPositions.pvptalent [2])
-				pvpTalentGroup.DBKey = "pvptalent"
-				tinsert(loadConditionsFrame.AllRadioGroups, pvpTalentGroup)
-				loadConditionsFrame.PvPTalentGroup = pvpTalentGroup
-
-				do
-					--create a frame to show talents selected in other specs or characters
-					local otherTalents = CreateFrame("frame", nil, loadConditionsFrame, "BackdropTemplate")
-					otherTalents:SetSize(26, 26)
-					otherTalents:SetPoint("left", pvpTalentGroup.Title.widget, "right", 10, -2)
-					otherTalents.Texture = detailsFramework:CreateImage(otherTalents, [[Interface\BUTTONS\AdventureGuideMicrobuttonAlert]], 24, 24)
-					otherTalents.Texture:SetAllPoints()
-
-					local removeTalent = function(_, _, talentID)
-						loadConditionsFrame.OptionsTable.pvptalent [talentID] = nil
-						GameCooltip2:Hide()
-						loadConditionsFrame.OnRadioStateChanged (pvpTalentGroup, loadConditionsFrame.OptionsTable [pvpTalentGroup.DBKey])
-						loadConditionsFrame.CanShowPvPTalentWarning()
-					end
-
-					local buildTalentMenu = function()
-						local playerTalents = detailsFramework:GetCharacterPvPTalents()
-						local indexedTalents = {}
-						for _, talentTable in ipairs(playerTalents) do
-							tinsert(indexedTalents, talentTable.ID)
-						end
-
-						--talents selected to load
-						GameCooltip2:AddLine("select a talent to remove it (added from a different spec or character)", "", 1, "orange", "orange", 9)
-						GameCooltip2:AddLine("$div", nil, nil, -1, -1)
-
-						for talentID, _ in pairs(loadConditionsFrame.OptionsTable.pvptalent) do
-							if (type(talentID) == "number" and not detailsFramework.table.find (indexedTalents, talentID)) then
-								local _, name, texture = GetPvpTalentInfoByID (talentID)
-								if (name) then
-									GameCooltip2:AddLine(name)
-									GameCooltip2:AddIcon (texture, 1, 1, 16, 16, .1, .9, .1, .9)
-									GameCooltip2:AddMenu (1, removeTalent, talentID)
-								end
-							end
-						end
-					end
-
-					otherTalents.CoolTip = {
-						Type = "menu",
-						BuildFunc = buildTalentMenu,
-						OnEnterFunc = function(self) end,
-						OnLeaveFunc = function(self) end,
-						FixedValue = "none",
-						ShowSpeed = 0.05,
-						Options = function()
-							GameCooltip2:SetOption("TextFont", "Friz Quadrata TT")
-							GameCooltip2:SetOption("TextColor", "orange")
-							GameCooltip2:SetOption("TextSize", 12)
-							GameCooltip2:SetOption("FixedWidth", 220)
-							GameCooltip2:SetOption("ButtonsYMod", -4)
-							GameCooltip2:SetOption("YSpacingMod", -4)
-							GameCooltip2:SetOption("IgnoreButtonAutoHeight", true)
-
-							GameCooltip2:SetColor (1, 0.5, 0.5, 0.5, 0)
-
-							local preset2_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeFile = [[Interface\Buttons\WHITE8X8]], tile = true, edgeSize = 1, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
-							local gray_table = {0.37, 0.37, 0.37, 0.95}
-							local black_table = {0.2, 0.2, 0.2, 1}
-							GameCooltip2:SetBackdrop(1, preset2_backdrop, gray_table, black_table)
-							GameCooltip2:SetBackdrop(2, preset2_backdrop, gray_table, black_table)
-						end,
-					}
-					GameCooltip2:CoolTipInject (otherTalents)
-
-					function loadConditionsFrame.CanShowPvPTalentWarning()
-						local playerTalents = detailsFramework:GetCharacterPvPTalents()
-						local indexedTalents = {}
-						for _, talentTable in ipairs(playerTalents) do
-							tinsert(indexedTalents, talentTable.ID)
-						end
-						for talentID, _ in pairs(loadConditionsFrame.OptionsTable.pvptalent) do
-							if (type(talentID) == "number" and not detailsFramework.table.find (indexedTalents, talentID)) then
-								otherTalents:Show()
-								return
-							end
-						end
-						otherTalents:Hide()
-					end
-				end
-			end
-
-		--create radio for group types
-			local groupTypes = {}
-			for _, groupTable in ipairs(detailsFramework:GetGroupTypes()) do
-				tinsert(groupTypes, {
-					name = groupTable.Name,
-					set = loadConditionsFrame.OnRadioCheckboxClick,
-					param = groupTable.ID,
-					get = function() return loadConditionsFrame.OptionsTable.group [groupTable.ID] or loadConditionsFrame.OptionsTable.group [groupTable.ID .. ""] end,
-				})
-			end
-			local groupTypesGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, groupTypes, name, {width = 200, height = 200, title = "Group Types"})
-			groupTypesGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.group [1], anchorPositions.group [2])
-			groupTypesGroup.DBKey = "group"
-			tinsert(loadConditionsFrame.AllRadioGroups, groupTypesGroup)
-
-		--create radio for character roles
-			local roleTypes = {}
-			for _, roleTable in ipairs(detailsFramework:GetRoleTypes()) do
-				tinsert(roleTypes, {
-					name = roleTable.Texture .. " " .. roleTable.Name,
-					set = loadConditionsFrame.OnRadioCheckboxClick,
-					param = roleTable.ID,
-					get = function() return loadConditionsFrame.OptionsTable.role [roleTable.ID] or loadConditionsFrame.OptionsTable.role [roleTable.ID .. ""] end,
-				})
-			end
-			local roleTypesGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, roleTypes, name, {width = 200, height = 200, title = "Role Types"})
-			roleTypesGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.role [1], anchorPositions.role [2])
-			roleTypesGroup.DBKey = "role"
-			tinsert(loadConditionsFrame.AllRadioGroups, roleTypesGroup)
-
-		--create radio group for mythic+ affixes
-			if IS_WOW_PROJECT_MAINLINE then
-				local affixes = {}
-				for i = 2, 1000 do
-					local affixName, desc, texture = C_ChallengeMode.GetAffixInfo (i)
-					if (affixName) then
-						tinsert(affixes, {
-							name = affixName,
-							set = loadConditionsFrame.OnRadioCheckboxClick,
-							param = i,
-							get = function() return loadConditionsFrame.OptionsTable.affix [i] or loadConditionsFrame.OptionsTable.affix [i .. ""] end,
-							texture = texture,
-						})
-					end
-				end
-				local affixTypesGroup = detailsFramework:CreateCheckboxGroup (loadConditionsFrame, affixes, name, {width = 200, height = 200, title = "M+ Affixes"})
-				affixTypesGroup:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.affix [1], anchorPositions.affix [2])
-				affixTypesGroup.DBKey = "affix"
-				tinsert(loadConditionsFrame.AllRadioGroups, affixTypesGroup)
-			end
-
-		--text entries functions
-			local textEntryRefresh = function(self)
-				local idList = loadConditionsFrame.OptionsTable [self.DBKey]
-				self:SetText("")
-				for _, id in pairs(idList) do
-					if tonumber(id) then
-						self:SetText(self:GetText() .. " " .. id)
-					end
-				end
-				self:SetText(self:GetText():gsub("^ ", ""))
-			end
-
-			local textEntryOnEnterPressed = function(_, self)
-				wipe (loadConditionsFrame.OptionsTable [self.DBKey])
-				local text = self:GetText()
-
-				for _, ID in ipairs({strsplit(" ", text)}) do
-					ID = detailsFramework:trim (ID)
-					ID = tonumber(ID)
-					if (ID) then
-						tinsert(loadConditionsFrame.OptionsTable [self.DBKey], ID)
-						loadConditionsFrame.OptionsTable [self.DBKey].Enabled = true
-					end
-				end
-			end
-
-		--create the text entry to type the encounter ID
-			local encounterIDLabel = detailsFramework:CreateLabel(loadConditionsFrame, "Encounter ID", detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
-			local encounterIDEditbox = detailsFramework:CreateTextEntry(loadConditionsFrame, function()end, 200, 20, "EncounterEditbox", _, _, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-			encounterIDLabel:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.encounter_ids [1], anchorPositions.encounter_ids [2])
-			encounterIDEditbox:SetPoint("topleft", encounterIDLabel, "bottomleft", 0, -2)
-			encounterIDEditbox.DBKey = "encounter_ids"
-			encounterIDEditbox.Refresh = textEntryRefresh
-			encounterIDEditbox.tooltip = "Enter multiple IDs separating with a whitespace.\nExample: 35 45 95\n\nSanctum of Domination:\n"
-			for _, encounterTable in ipairs(detailsFramework:GetCLEncounterIDs()) do
-				encounterIDEditbox.tooltip = encounterIDEditbox.tooltip .. encounterTable.ID .. " - " .. encounterTable.Name .. "\n"
-			end
-			encounterIDEditbox:SetHook("OnEnterPressed", textEntryOnEnterPressed)
-			tinsert(loadConditionsFrame.AllTextEntries, encounterIDEditbox)
-
-		--create the text entry for map ID
-			local mapIDLabel = detailsFramework:CreateLabel(loadConditionsFrame, "Map ID", detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
-			local mapIDEditbox = detailsFramework:CreateTextEntry(loadConditionsFrame, function()end, 200, 20, "MapEditbox", _, _, detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-			mapIDLabel:SetPoint("topleft", loadConditionsFrame, "topleft", anchorPositions.map_ids [1], anchorPositions.map_ids [2])
-			mapIDEditbox:SetPoint("topleft", mapIDLabel, "bottomleft", 0, -2)
-			mapIDEditbox.DBKey = "map_ids"
-			mapIDEditbox.Refresh = textEntryRefresh
-			mapIDEditbox.tooltip = "Enter multiple IDs separating with a whitespace\nExample: 35 45 95"
-			mapIDEditbox:SetHook("OnEnterPressed", textEntryOnEnterPressed)
-			tinsert(loadConditionsFrame.AllTextEntries, mapIDEditbox)
-
-		function loadConditionsFrame.Refresh (self)
-			if IS_WOW_PROJECT_MAINLINE then
-				--update the talents (might have changed if the player changed its specializationid)
-				local talentList = {}
-				for _, talentTable in ipairs(detailsFramework:GetCharacterTalents()) do
-					if talentTable.ID then
-						tinsert(talentList, {
-							name = talentTable.Name,
-							set = DetailsFrameworkLoadConditionsPanel.OnRadioCheckboxClick,
-							param = talentTable.ID,
-							get = function() return DetailsFrameworkLoadConditionsPanel.OptionsTable.talent [talentTable.ID] or DetailsFrameworkLoadConditionsPanel.OptionsTable.talent [talentTable.ID .. ""] end,
-							texture = talentTable.Texture,
-						})
-					end
-				end
-				DetailsFrameworkLoadConditionsPanel.TalentGroup:SetOptions (talentList)
-			end
-
-			if IS_WOW_PROJECT_MAINLINE then
-				local pvpTalentList = {}
-				for _, talentTable in ipairs(detailsFramework:GetCharacterPvPTalents()) do
-					tinsert(pvpTalentList, {
-						name = talentTable.Name,
-						set = DetailsFrameworkLoadConditionsPanel.OnRadioCheckboxClick,
-						param = talentTable.ID,
-						get = function() return DetailsFrameworkLoadConditionsPanel.OptionsTable.pvptalent [talentTable.ID] or DetailsFrameworkLoadConditionsPanel.OptionsTable.pvptalent [talentTable.ID .. ""] end,
-						texture = talentTable.Texture,
-					})
-				end
-				DetailsFrameworkLoadConditionsPanel.PvPTalentGroup:SetOptions (pvpTalentList)
-			end
-
-			--refresh the radio group
-			for _, radioGroup in ipairs(DetailsFrameworkLoadConditionsPanel.AllRadioGroups) do
-				radioGroup:Refresh()
-				DetailsFrameworkLoadConditionsPanel.OnRadioStateChanged (radioGroup, DetailsFrameworkLoadConditionsPanel.OptionsTable [radioGroup.DBKey])
-			end
-
-			--refresh text entries
-			for _, textEntry in ipairs(DetailsFrameworkLoadConditionsPanel.AllTextEntries) do
-				textEntry:Refresh()
-			end
-
-			if IS_WOW_PROJECT_MAINLINE then
-				DetailsFrameworkLoadConditionsPanel.CanShowTalentWarning()
-				DetailsFrameworkLoadConditionsPanel.CanShowPvPTalentWarning()
-			end
-		end
-
-	end
-
-	--set the options table
-	DetailsFrameworkLoadConditionsPanel.OptionsTable = optionsTable
-
-	--set the callback func
-	DetailsFrameworkLoadConditionsPanel.CallbackFunc = callback
-	DetailsFrameworkLoadConditionsPanel.OptionsTable = optionsTable
-
-	--set title
-	DetailsFrameworkLoadConditionsPanel.EditingLabel:SetText(frameOptions.name)
-	DetailsFrameworkLoadConditionsPanel.Title:SetText(frameOptions.title)
-
-	--show the panel to the user
-	DetailsFrameworkLoadConditionsPanel:Show()
-
-	DetailsFrameworkLoadConditionsPanel:Refresh()
-end
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5444,7 +4278,7 @@ detailsFramework.DataScrollFunctions = {
 			for i = 1, #data do
 				for o = 1, #data[i] do
 					if (data[i][o]:find(filter)) then
-						tinsert(currentData, data[i])
+						table.insert(currentData, data[i])
 						break
 					end
 				end
@@ -5803,7 +4637,7 @@ function detailsFramework:CreateBorderFrame(parent, name)
 		local leftBorder = f:CreateTexture(nil, "overlay")
 		leftBorder:SetDrawLayer("overlay", 7)
 		leftBorder:SetColorTexture(1, 1, 1, 1)
-		tinsert(f.allTextures, leftBorder)
+		table.insert(f.allTextures, leftBorder)
 		f.leftBorder = leftBorder
 		PixelUtil.SetPoint(leftBorder, "topright", f, "topleft", 0, 1, 0, 1)
 		PixelUtil.SetPoint(leftBorder, "bottomright", f, "bottomleft", 0, -1, 0, -1)
@@ -5813,7 +4647,7 @@ function detailsFramework:CreateBorderFrame(parent, name)
 		local rightBorder = f:CreateTexture(nil, "overlay")
 		rightBorder:SetDrawLayer("overlay", 7)
 		rightBorder:SetColorTexture(1, 1, 1, 1)
-		tinsert(f.allTextures, rightBorder)
+		table.insert(f.allTextures, rightBorder)
 		f.rightBorder = rightBorder
 		PixelUtil.SetPoint(rightBorder, "topleft", f, "topright", 0, 1, 0, 1)
 		PixelUtil.SetPoint(rightBorder, "bottomleft", f, "bottomright", 0, -1, 0, -1)
@@ -5823,7 +4657,7 @@ function detailsFramework:CreateBorderFrame(parent, name)
 		local topBorder = f:CreateTexture(nil, "overlay")
 		topBorder:SetDrawLayer("overlay", 7)
 		topBorder:SetColorTexture(1, 1, 1, 1)
-		tinsert(f.allTextures, topBorder)
+		table.insert(f.allTextures, topBorder)
 		f.topBorder = topBorder
 		PixelUtil.SetPoint(topBorder, "bottomleft", f, "topleft", 0, 0, 0, 0)
 		PixelUtil.SetPoint(topBorder, "bottomright", f, "topright", 0, 0, 0, 0)
@@ -5833,7 +4667,7 @@ function detailsFramework:CreateBorderFrame(parent, name)
 		local bottomBorder = f:CreateTexture(nil, "overlay")
 		bottomBorder:SetDrawLayer("overlay", 7)
 		bottomBorder:SetColorTexture(1, 1, 1, 1)
-		tinsert(f.allTextures, bottomBorder)
+		table.insert(f.allTextures, bottomBorder)
 		f.bottomBorder = bottomBorder
 		PixelUtil.SetPoint(bottomBorder, "topleft", f, "bottomleft", 0, 0, 0, 0)
 		PixelUtil.SetPoint(bottomBorder, "topright", f, "bottomright", 0, 0, 0, 0)
@@ -6533,7 +5367,7 @@ function detailsFramework:ShowErrorMessage (errorMessage, titleText)
 		f:SetScript("OnDragStart", function() f:StartMoving() end)
 		f:SetScript("OnDragStop", function() f:StopMovingOrSizing() end)
 		f:SetScript("OnMouseDown", function(self, button) if (button == "RightButton") then f:Hide() end end)
-		tinsert(UISpecialFrames, "DetailsFrameworkErrorMessagePanel")
+		table.insert(UISpecialFrames, "DetailsFrameworkErrorMessagePanel")
 		detailsFramework.ErrorMessagePanel = f
 
 		detailsFramework:CreateTitleBar (f, "Details! Framework Error!")
@@ -6652,9 +5486,9 @@ detailsFramework.ListboxFunctions = {
 		local data = frameCanvas.data
 		local newEntry = {}
 		for i = 1, frameCanvas.headerLength do
-			tinsert(newEntry, "")
+			table.insert(newEntry, "")
 		end
-		tinsert(data, newEntry)
+		table.insert(data, newEntry)
 		frameCanvas.scrollBox:Refresh()
 	end,
 
@@ -6706,7 +5540,7 @@ detailsFramework.ListboxFunctions = {
 					local dataTable = textEntry.dataTable
 					dataTable[textEntry.dataTableIndex] = text
 				end)
-				tinsert(line.widgets, textEntry)
+				table.insert(line.widgets, textEntry)
 				line:AddFrameToHeaderAlignment(textEntry)
 			end
 		end
@@ -6778,8 +5612,8 @@ function detailsFramework:CreateListBox(parent, name, data, options, headerTable
 		frameCanvas.headerLength = #headerTable
 
 		--add the detele line column into the header frame
-		tinsert(headerTable, 1, {text = "#", width = 20, isIndex = true}) --isDelete signals the createScrollLine() to make the delete button for the line
-		tinsert(headerTable, {text = "Delete", width = 50, isDelete = true}) --isDelete signals the createScrollLine() to make the delete button for the line
+		table.insert(headerTable, 1, {text = "#", width = 20, isIndex = true}) --isDelete signals the createScrollLine() to make the delete button for the line
+		table.insert(headerTable, {text = "Delete", width = 50, isDelete = true}) --isDelete signals the createScrollLine() to make the delete button for the line
 
 		local header = detailsFramework:CreateHeader(frameCanvas, headerTable, headerOptions)
 		--set the header point

@@ -223,6 +223,10 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 		rawset(self, "FixedValue", value)
 	end
 
+	function DFSliderMetaFunctions:GetFixedParameter()
+		return rawget(self, "FixedValue")
+	end
+
 	--set value
 	function DFSliderMetaFunctions:SetValue(value)
 		return self(value)
@@ -799,6 +803,10 @@ local switch_set_fixparameter = function(self, value)
 	rawset(self, "FixedValue", value)
 end
 
+local switch_get_fixparameter = function(self)
+	return rawget(self, "FixedValue")
+end
+
 local switch_disable = function(self)
 	if (self.is_checkbox) then
 		self.checked_texture:Hide()
@@ -841,6 +849,10 @@ local set_switch_func = function(self, newFunction)
 	self.OnSwitch = newFunction
 end
 
+local get_switch_func = function(self)
+	return self.OnSwitch
+end
+
 local set_as_checkbok = function(self)
 	if self.is_checkbox and self.checked_texture then return end
 	local checked = self:CreateTexture(self:GetName() .. "CheckTexture", "overlay")
@@ -871,11 +883,29 @@ local set_as_checkbok = function(self)
 	end
 end
 
+---@class df_checkbox : df_button
+---@field OnSwitch fun(self:df_checkbox, fixedValue:any, value:boolean)
+---@field SetValue fun(self:df_button, value:boolean)
+---@field GetValue fun(self:df_button):boolean
+---@field SetFixedParameter fun(self:df_button, value:any)
+---@field GetFixedParameter fun(self:df_button):any
+---@field Disable fun(self:df_button)
+---@field Enable fun(self:df_button)
+---@field SetAsCheckBox fun(self:df_button)
+---@field SetTemplate fun(self:df_button, template: table)
+---@field GetSwitchFunction fun(self:df_button):function
+---@field SetSwitchFunction fun(self:df_button, newOnSwitchFunction: function)
+---@field GetCapsule fun(self:df_button):df_button capsule only exists in the actual frame of the encapsulated widget
+
+
 function DF:CreateSwitch(parent, onSwitch, defaultValue, width, height, leftText, rightText, member, name, colorInverted, switchFunc, returnFunc, withLabel, switch_template, label_template)
 	local switch, label = DF:NewSwitch(parent, parent, name, member, width or 60, height or 20, leftText, rightText, defaultValue, colorInverted, switchFunc, returnFunc, withLabel, switch_template, label_template)
 	if (onSwitch) then
 		switch.OnSwitch = onSwitch
 	end
+
+	---@cast switch df_checkbox
+	---@cast label df_label
 	return switch, label
 end
 
@@ -909,11 +939,13 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 	slider.SetValue = switch_set_value
 	slider.GetValue = switch_get_value
 	slider.SetFixedParameter = switch_set_fixparameter
+	slider.GetFixedParameter = switch_get_fixparameter
 	slider.Disable = switch_disable
 	slider.Enable = switch_enable
 	slider.SetAsCheckBox = set_as_checkbok
 	slider.SetTemplate = DFSliderMetaFunctions.SetTemplate
 	slider.SetSwitchFunction = set_switch_func
+	slider.GetSwitchFunction = get_switch_func
 
 	if (member) then
 		parent[member] = slider

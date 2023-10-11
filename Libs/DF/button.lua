@@ -382,6 +382,7 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---add an icon to the left of the button text
+	---short method truncates the text: false = do nothing, nil = increate the button width, 1 = decrease the font size, 2 = truncate the text
 	---@param texture any
 	---@param width number|nil
 	---@param height number|nil
@@ -464,6 +465,9 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 						textSize = textSize - 1
 					end
 				end
+
+			elseif (shortMethod == 2) then
+				detailsFramework:TruncateText(self.button.text, self:GetWidth() - self.icon:GetWidth() - 15)
 			end
 		end
 	end
@@ -810,8 +814,8 @@ end
 --object constructor
 	local onDisableFunc = function(self)
 		self.texture_disabled:Show()
-		self.texture_disabled:SetVertexColor(0, 0, 0)
-		self.texture_disabled:SetAlpha(.5)
+		self.texture_disabled:SetVertexColor(0.1, 0.1, 0.1)
+		self.texture_disabled:SetAlpha(.834)
 	end
 
 	local onEnableFunc = function(self)
@@ -836,7 +840,7 @@ end
 		self:SetScript("OnEnable", onEnableFunc)
 	end
 
-	---@class df_button : button
+	---@class df_button : button, df_scripthookmixin
 	---@field widget button
 	---@field tooltip string
 	---@field shown boolean
@@ -852,13 +856,14 @@ end
 	---@field textcolor any
 	---@field textfont string
 	---@field textsize number
+	---@field icon texture created after calling SetIcon()
 	---@field SetTemplate fun(self: df_button, template: table) set the button visual by a template
 	---@field RightClick fun(self: df_button) right click the button executing its right click function
 	---@field Exec fun(self: df_button) execute the button function for the left button
 	---@field Disable fun(self: df_button) disable the button
 	---@field Enable fun(self: df_button) enable the button
 	---@field IsEnabled fun(self: df_button) : boolean returns true if the button is enabled
-	---@field SetIcon fun(self: df_button,texture: string, width: number|nil, height: number|nil, layout: string|nil, texcoord: table|nil, overlay: table|nil, textDistance: number|nil, leftPadding: number|nil, textHeight: number|nil, shortMethod: any|nil)
+	---@field SetIcon fun(self: df_button,texture: string|number, width: number|nil, height: number|nil, layout: string|nil, texcoord: table|nil, overlay: table|nil, textDistance: number|nil, leftPadding: number|nil, textHeight: number|nil, shortMethod: any|nil)
 	---@field GetIconTexture fun(self: df_button) : string returns the texture path of the button icon
 	---@field SetTexture fun(self: df_button, normalTexture: string, highlightTexture: string, pressedTexture: string, disabledTexture: string) set the regular button textures
 	---@field SetFontFace fun(self: df_button, font: string) set the button font

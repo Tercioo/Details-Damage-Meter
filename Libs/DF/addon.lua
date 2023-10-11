@@ -119,7 +119,7 @@ function detailsFramework:CreateNewAddOn(addonName, globalSavedVariablesName, sa
 end
 
 
---old create addon
+--old create addon using ace3
 function detailsFramework:CreateAddOn(name, global_saved, global_table, options_table, broker)
 
 	local addon = LibStub("AceAddon-3.0"):NewAddon (name, "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "DetailsFramework-1.0", "AceComm-3.0")

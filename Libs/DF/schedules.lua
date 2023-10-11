@@ -10,6 +10,11 @@ local unpack = table.unpack or _G.unpack
 --make a namespace for schedules
 DF.Schedules = DF.Schedules or {}
 
+DF.Schedules.AfterCombatSchedules = {
+    withId = {},
+    withoutId = {},
+}
+
 ---@class df_schedule : table
 ---@field NewTicker fun(time: number, callback: function, ...: any): timer
 ---@field NewLooper fun(time: number, callback: function, loopAmount: number, loopEndCallback: function?, checkPointCallback: function?, ...: any): timer
@@ -18,6 +23,24 @@ DF.Schedules = DF.Schedules or {}
 ---@field After fun(time: number, callback: function)
 ---@field SetName fun(object: timer, name: string)
 ---@field RunNextTick fun(callback: function)
+---@field AfterCombat fun(callback:function, id:any, ...: any)
+
+local eventFrame = CreateFrame("frame")
+eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+eventFrame:SetScript("OnEvent", function(self, event)
+    if (event == "PLAYER_REGEN_ENABLED") then
+        for _, schedule in ipairs(DF.Schedules.AfterCombatSchedules.withoutId) do
+            xpcall(schedule.callback, geterrorhandler(), unpack(schedule.payload))
+        end
+
+        for _, schedule in pairs(DF.Schedules.AfterCombatSchedules.withId) do
+            xpcall(schedule.callback, geterrorhandler(), unpack(schedule.payload))
+        end
+
+        table.wipe(DF.Schedules.AfterCombatSchedules.withoutId)
+        table.wipe(DF.Schedules.AfterCombatSchedules.withId)
+    end
+end)
 
 local triggerScheduledLoop = function(tickerObject)
     if (tickerObject:IsCancelled()) then
@@ -125,6 +148,31 @@ function DF.Schedules.Cancel(tickerObject)
     --ignore if there's no ticker object
     if (tickerObject) then
         return tickerObject:Cancel()
+    end
+end
+
+--schedule a task to be executed when the player leaves combat
+function DF.Schedules.AfterCombat(callback, id, ...)
+    local bInCombatLockdown = UnitAffectingCombat("player") or InCombatLockdown()
+
+    if (not bInCombatLockdown) then
+        xpcall(callback, geterrorhandler(), ...)
+        return
+    end
+
+    local payload = {...}
+
+    if (id) then
+        DF.Schedules.AfterCombatSchedules.withId[id] = {
+            callback = callback,
+            payload = payload,
+            id = id,
+        }
+    else
+        table.insert(DF.Schedules.AfterCombatSchedules.withoutId, {
+            callback = callback,
+            payload = payload,
+        })
     end
 end
 

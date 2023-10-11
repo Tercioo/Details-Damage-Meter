@@ -638,8 +638,8 @@ local default_header_options = {
 ---each column is placed on the right side of the previous column.
 ---@param parent frame
 ---@param headerTable table
----@param options table|nil
----@param frameName string|nil
+---@param options table?
+---@param frameName string?
 ---@return df_headerframe
 function detailsFramework:CreateHeader(parent, headerTable, options, frameName)
 	---create the header frame which is returned by this function
@@ -649,6 +649,7 @@ function detailsFramework:CreateHeader(parent, headerTable, options, frameName)
 	detailsFramework:Mixin(newHeader, detailsFramework.OptionsFunctions)
 	detailsFramework:Mixin(newHeader, detailsFramework.HeaderMixin)
 
+	options = options or {}
 	newHeader:BuildOptionsTable(default_header_options, options)
 
 	--set the backdrop and backdrop color following the values in the options table

@@ -1334,7 +1334,7 @@ function DF:CreateNewDropdownFrame(parent, name)
 	child.mouseover = mouseover
 
 	scroll:SetScrollChild(child)
-	tinsert(UISpecialFrames, newDropdownFrame.dropdownborder:GetName())
+	table.insert(UISpecialFrames, newDropdownFrame.dropdownborder:GetName())
 	--tinsert(UISpecialFrames, f.dropdownframe:GetName()) --not adding this solves an issue with ConsolePort addon and stackoverflows on Hide...
 
 	return newDropdownFrame
