@@ -1,16 +1,17 @@
 
-local DF = _G["DetailsFramework"]
-if (not DF or not DetailsFrameworkCanLoad) then
+local detailsFramework = _G["DetailsFramework"]
+if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
 local C_Timer = _G.C_Timer
 local unpack = table.unpack or _G.unpack
+local GetTime = GetTime
 
 --make a namespace for schedules
-DF.Schedules = DF.Schedules or {}
+detailsFramework.Schedules = detailsFramework.Schedules or {}
 
-DF.Schedules.AfterCombatSchedules = {
+detailsFramework.Schedules.AfterCombatSchedules = {
     withId = {},
     withoutId = {},
 }
@@ -24,21 +25,36 @@ DF.Schedules.AfterCombatSchedules = {
 ---@field SetName fun(object: timer, name: string)
 ---@field RunNextTick fun(callback: function)
 ---@field AfterCombat fun(callback:function, id:any, ...: any)
+---@field CancelAfterCombat fun(id: any)
+---@field CancelAllAfterCombat fun()
+---@field IsAfterCombatScheduled fun(id: any): boolean
+---@field LazyExecute fun(callback: function, payload: table?, maxIterations: number?, onEndCallback: function?): table
+
+---@class df_looper : table
+---@field payload table
+---@field callback function
+---@field loopEndCallback function?
+---@field checkPointCallback function?
+---@field nextCheckPoint number
+---@field lastLoop number
+---@field currentLoop number
+---@field Cancel fun()
+---@field IsCancelled fun(): boolean
 
 local eventFrame = CreateFrame("frame")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:SetScript("OnEvent", function(self, event)
     if (event == "PLAYER_REGEN_ENABLED") then
-        for _, schedule in ipairs(DF.Schedules.AfterCombatSchedules.withoutId) do
+        for _, schedule in ipairs(detailsFramework.Schedules.AfterCombatSchedules.withoutId) do
             xpcall(schedule.callback, geterrorhandler(), unpack(schedule.payload))
         end
 
-        for _, schedule in pairs(DF.Schedules.AfterCombatSchedules.withId) do
+        for _, schedule in pairs(detailsFramework.Schedules.AfterCombatSchedules.withId) do
             xpcall(schedule.callback, geterrorhandler(), unpack(schedule.payload))
         end
 
-        table.wipe(DF.Schedules.AfterCombatSchedules.withoutId)
-        table.wipe(DF.Schedules.AfterCombatSchedules.withId)
+        table.wipe(detailsFramework.Schedules.AfterCombatSchedules.withoutId)
+        table.wipe(detailsFramework.Schedules.AfterCombatSchedules.withId)
     end
 end)
 
@@ -52,7 +68,7 @@ local triggerScheduledLoop = function(tickerObject)
 
     local result, errortext = pcall(callback, unpack(payload))
     if (not result) then
-        DF:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
+        detailsFramework:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
     end
 
     local checkPointCallback = tickerObject.checkPointCallback
@@ -90,8 +106,10 @@ end
 ---@param loopEndCallback function?
 ---@param checkPointCallback function?
 ---@vararg any
-function DF.Schedules.NewLooper(time, callback, loopAmount, loopEndCallback, checkPointCallback, ...)
+---@return df_looper
+function detailsFramework.Schedules.NewLooper(time, callback, loopAmount, loopEndCallback, checkPointCallback, ...)
     local payload = {...}
+    ---@type df_looper
     local newLooper = C_Timer.NewTicker(time, triggerScheduledLoop, loopAmount)
     newLooper.payload = payload
     newLooper.callback = callback
@@ -110,13 +128,13 @@ local triggerScheduledTick = function(tickerObject)
 
     local result, errortext = pcall(callback, unpack(payload))
     if (not result) then
-        DF:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
+        detailsFramework:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
     end
     return result
 end
 
 --schedule to repeat a task with an interval of @time, keep ticking until cancelled
-function DF.Schedules.NewTicker(time, callback, ...)
+function detailsFramework.Schedules.NewTicker(time, callback, ...)
     local payload = {...}
     local newTicker = C_Timer.NewTicker(time, triggerScheduledTick)
     newTicker.payload = payload
@@ -129,7 +147,7 @@ function DF.Schedules.NewTicker(time, callback, ...)
 end
 
 --schedule a task with an interval of @time
-function DF.Schedules.NewTimer(time, callback, ...)
+function detailsFramework.Schedules.NewTimer(time, callback, ...)
     local payload = {...}
     local newTimer = C_Timer.NewTimer(time, triggerScheduledTick)
     newTimer.payload = payload
@@ -144,7 +162,7 @@ function DF.Schedules.NewTimer(time, callback, ...)
 end
 
 --cancel an ongoing ticker, the native call tickerObject:Cancel() also works with no problem
-function DF.Schedules.Cancel(tickerObject)
+function detailsFramework.Schedules.Cancel(tickerObject)
     --ignore if there's no ticker object
     if (tickerObject) then
         return tickerObject:Cancel()
@@ -152,7 +170,7 @@ function DF.Schedules.Cancel(tickerObject)
 end
 
 --schedule a task to be executed when the player leaves combat
-function DF.Schedules.AfterCombat(callback, id, ...)
+function detailsFramework.Schedules.AfterCombat(callback, id, ...)
     local bInCombatLockdown = UnitAffectingCombat("player") or InCombatLockdown()
 
     if (not bInCombatLockdown) then
@@ -163,28 +181,75 @@ function DF.Schedules.AfterCombat(callback, id, ...)
     local payload = {...}
 
     if (id) then
-        DF.Schedules.AfterCombatSchedules.withId[id] = {
+        detailsFramework.Schedules.AfterCombatSchedules.withId[id] = {
             callback = callback,
             payload = payload,
             id = id,
         }
     else
-        table.insert(DF.Schedules.AfterCombatSchedules.withoutId, {
+        table.insert(detailsFramework.Schedules.AfterCombatSchedules.withoutId, {
             callback = callback,
             payload = payload,
         })
     end
 end
 
+function detailsFramework.Schedules.CancelAfterCombat(id)
+    detailsFramework.Schedules.AfterCombatSchedules.withId[id] = nil
+end
+
+function detailsFramework.Schedules.CancelAllAfterCombat()
+    table.wipe(detailsFramework.Schedules.AfterCombatSchedules.withId)
+    table.wipe(detailsFramework.Schedules.AfterCombatSchedules.withoutId)
+end
+
+function detailsFramework.Schedules.IsAfterCombatScheduled(id)
+    return detailsFramework.Schedules.AfterCombatSchedules.withId[id] ~= nil
+end
+
+---execute each frame a small portion of a big task
+---the callback function receives a payload, the current iteration index and the max iterations
+---if the callback function return true, the task is finished
+---@param callback function
+---@param payload table?
+---@param maxIterations number?
+---@param onEndCallback function?
+function detailsFramework.Schedules.LazyExecute(callback, payload, maxIterations, onEndCallback)
+    assert(type(callback) == "function", "DetailsFramework.Schedules.LazyExecute() param #1 'callback' must be a function.")
+    maxIterations = maxIterations or 100000
+    payload = payload or {}
+    local iterationIndex = 1
+
+    local function wrapFunc()
+        local bIsFinished = callback(payload, iterationIndex, maxIterations)
+        if (not bIsFinished) then
+            iterationIndex = iterationIndex + 1
+            if (iterationIndex > maxIterations) then
+                detailsFramework:QuickDispatch(onEndCallback, payload)
+                return
+            end
+            C_Timer.After(0, function() wrapFunc() end)
+        else
+            detailsFramework:QuickDispatch(onEndCallback, payload)
+            return
+        end
+    end
+
+    wrapFunc()
+
+    return payload
+end
+
+
 --schedule a task with an interval of @time without payload
-function DF.Schedules.After(time, callback)
+function detailsFramework.Schedules.After(time, callback)
     C_Timer.After(time, callback)
 end
 
-function DF.Schedules.SetName(object, name)
+function detailsFramework.Schedules.SetName(object, name)
     object.name = name
 end
 
-function DF.Schedules.RunNextTick(callback)
-    return DF.Schedules.After(0, callback)
+function detailsFramework.Schedules.RunNextTick(callback)
+    return detailsFramework.Schedules.After(0, callback)
 end

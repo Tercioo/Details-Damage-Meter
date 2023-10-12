@@ -49,7 +49,62 @@ local default_text_for_aura_frame = {
 	MANUAL_ADD_TRACKLIST_DEBUFF = "Add Debuff to Tracklist",
 }
 
+--store spell caches, they load empty and are filled when an addon require a cache with all spells
+local spellsHashMap
+local spellsIndexTable
+local spellsWithSameName
+
+local lazyLoadAllSpells = function(payload, iterationCount, maxIterations)
+	payload.nextIndex = payload.nextIndex or 0
+	local startPoint = payload.nextIndex
+	--the goal is iterate over 500000 spell ids over 200 frames
+	local endPoint = startPoint + 2500
+	payload.nextIndex = endPoint
+	local i = startPoint + 1
+
+	--make upvalues be closer
+	local toLowerCase = string.lower
+	local GetSpellInfo = GetSpellInfo
+	local hashMap = spellsHashMap
+	local indexTable = spellsIndexTable
+
+	while (i < endPoint) do
+		local spellName = GetSpellInfo(i)
+
+		if (spellName) then
+			spellName = toLowerCase(spellName)
+			hashMap[spellName] = i --[spellname] = spellId
+			indexTable[#indexTable+1] = spellName --array with all spellnames
+
+			local sameNameTable = spellsWithSameName[spellName]
+			if (not sameNameTable) then
+				sameNameTable = {}
+				spellsWithSameName[spellName] = sameNameTable
+			end
+			sameNameTable[#sameNameTable+1] = i
+		end
+
+		i = i + 1
+	end
+end
+
 function DF:LoadAllSpells(hashMap, indexTable, allSpellsSameName)
+	if (spellsHashMap) then
+		return spellsHashMap, spellsIndexTable, spellsWithSameName
+	end
+
+	assert(type(hashMap) == "table", "DetailsFramework:LoadAllSpells(): require a table on #1 parameter.")
+	assert(type(indexTable) == "table", "DetailsFramework:LoadAllSpells(): require a table on #2 parameter.")
+	assert(type(allSpellsSameName) == "table", "DetailsFramework:LoadAllSpells(): require a table on #3 parameter.")
+
+	spellsHashMap = hashMap
+	spellsIndexTable = indexTable
+	spellsWithSameName = allSpellsSameName
+
+	detailsFramework.Schedules.LazyExecute(lazyLoadAllSpells, {}, 200)
+
+	if 1 then return end
+
 	--pre checking which tables to fill to avoid checking if the table exists during the gigantic loop for performance
 	if (not DF.LoadingAuraAlertFrame) then
 		DF.LoadingAuraAlertFrame = CreateFrame("frame", "DetailsFrameworkLoadingAurasAlert", UIParent, "BackdropTemplate")

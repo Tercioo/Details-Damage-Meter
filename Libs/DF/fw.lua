@@ -1,6 +1,6 @@
 
 
-local dversion = 474
+local dversion = 475
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -4850,7 +4850,7 @@ local dispatch_error = function(context, errortext)
 	DF:Msg( (context or "<no context>") .. " |cFFFF9900error|r: " .. (errortext or "<no error given>"))
 end
 
---safe call an external func with payload and without telling who is calling
+--call a function with payload, if the callback doesn't exists, quit silently
 function DF:QuickDispatch(func, ...)
 	if (type(func) ~= "function") then
 		return
@@ -5918,15 +5918,15 @@ function DF:DebugVisibility(UIObject)
 	print("Num Points:", numPoints > 0 and "|cFF00FF00" .. numPoints .. "|r" or "|cFFFF00000|r")
 end
 
-local beenchmarkTime = 0
-local beenchmarkEnabled = false
+local benchmarkTime = 0
+local bBenchmarkEnabled = false
 function _G.__benchmark(bNotPrintResult)
-	if (not beenchmarkEnabled) then
-		beenchmarkEnabled = true
-		beenchmarkTime = debugprofilestop()
+	if (not bBenchmarkEnabled) then
+		bBenchmarkEnabled = true
+		benchmarkTime = debugprofilestop()
 	else
-		local elapsed = debugprofilestop() - beenchmarkTime
-		beenchmarkEnabled = false
+		local elapsed = debugprofilestop() - benchmarkTime
+		bBenchmarkEnabled = false
 
 		if (bNotPrintResult) then
 			return elapsed

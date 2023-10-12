@@ -15,7 +15,7 @@ local CreateImageEditorFrame = function()
 	background_frame:SetSize(790, 560)
 	background_frame:SetClampedToScreen(true)
 	
-	table.insert(UISpecialFrames, "DetailsFrameworkImageEditBackground")
+	tinsert(UISpecialFrames, "DetailsFrameworkImageEditBackground")
 
 	background_frame:SetResizable(true)
 	background_frame:SetMovable(true)

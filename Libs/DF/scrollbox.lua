@@ -414,10 +414,24 @@ function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, c
 	return scrollBox
 end
 
-
+--Need to test this and check the "same_name_spells_add(value)" on the OnEnter function
+--also need to make sure this can work with any data (global, class, spec) and aura type (buff, debuff)
 
 --aura scroll box
---default settings
+---@class df_aurascrollbox_options : table
+---@field line_height number?
+---@field line_amount number?
+---@field width number?
+---@field height number?
+---@field vertical_padding number?
+---@field show_spell_tooltip boolean
+---@field remove_icon_border boolean
+---@field no_scroll boolean
+---@field no_backdrop boolean
+---@field backdrop_onenter number[]?
+---@field backdrop_onleave number[]?
+---@field font_size number?
+
 local auraScrollDefaultSettings = {
     line_height = 18,
     line_amount = 18,
@@ -433,8 +447,15 @@ local auraScrollDefaultSettings = {
     font_size = 12,
 }
 
-function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, onAuraRemoveCallback, options)
+---@param parent frame
+---@param name string?
+---@param data table? --can be set later with :SetData()
+---@param profile table? --can be set later with :SetProfile()
+---@param onAuraRemoveCallback function?
+---@param options df_aurascrollbox_options?
+function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAuraRemoveCallback, options)
     --hack the construction of the options table here, as the scrollbox is created much later
+    options = options or {}
     local scrollOptions = {}
     detailsFramework.OptionsFunctions.BuildOptionsTable(scrollOptions, auraScrollDefaultSettings, options)
     options = scrollOptions.options
@@ -445,18 +466,18 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
             local auraTable = data[index]
             if (auraTable) then
                 local line = self:GetLine(i)
-                local spellId, spellName, spellIcon, lowerSpellName, flag = unpack(auraTable)
+                local spellId, spellName, spellIcon, lowerSpellName, bAddedBySpellName = unpack(auraTable)
 
                 line.SpellID = spellId
                 line.SpellName = spellName
                 line.SpellNameLower = lowerSpellName
                 line.SpellIcon = spellIcon
-                line.Flag = flag
+                line.Flag = bAddedBySpellName
 
-                if (flag) then
+                if (bAddedBySpellName) then
                     line.name:SetText(spellName)
                 else
-                    line.name:SetText(spellName .. "(" .. spellId .. ")")
+                    line.name:SetText(spellName .. " (" .. spellId .. ")")
                 end
 
                 line.icon:SetTexture(spellIcon)
@@ -474,7 +495,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
         GameTooltip:Hide()
     end
 
-	local onEnterAuraLine = function(line, capsule, value)
+	local onEnterAuraLine = function(line)
         if (options.show_spell_tooltip and line.SpellID and GetSpellInfo(line.SpellID)) then
             GameTooltip:SetOwner(line, "ANCHOR_CURSOR")
             GameTooltip:SetSpellByID(line.SpellID)
@@ -483,28 +504,18 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
         end
         line:SetBackdropColor(unpack(options.backdrop_onenter))
 
-		local bAddedBySpellName = line.Flag
-		value = value or line.SpellID
+        local scrollBox = line:GetParent()
 
-		if (not bAddedBySpellName) then
-			GameCooltip:Preset(2)
-			GameCooltip:SetOwner(line, "left", "right", 2, 0)
-			GameCooltip:SetOption("TextSize", 10)
+		local bAddedBySpellName = line.Flag --the user entered the spell name to track the spell (and not a spellId)
+		local spellId = line.SpellID
 
-			local spellName, _, spellIcon = GetSpellInfo(value)
+		if (bAddedBySpellName) then --the user entered the spell name to track the spell
+			local spellName = GetSpellInfo(spellId)
 			if (spellName) then
-				GameCooltip:AddLine(spellName .. " (" .. value .. ")")
-				GameCooltip:AddIcon(spellIcon, 1, 1, 14, 14, .1, .9, .1, .9)
-			end
-			GameCooltip:Show()
-
-		else
-			local spellName = GetSpellInfo(value)
-			if (spellName) then
-				local spellsWithSameName = db.aura_cache_by_name[string.lower(spellName)]
+				local spellsWithSameName = scrollBox.profile.aura_cache_by_name[string.lower(spellName)]
 				if (not spellsWithSameName) then
-					same_name_spells_add(value)
-					spellsWithSameName = db.aura_cache_by_name[string.lower(spellName)]
+					--same_name_spells_add(value)
+					--spellsWithSameName = scrollBox.profile.aura_cache_by_name[string.lower(spellName)]
 				end
 
 				if (spellsWithSameName) then
@@ -523,18 +534,30 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
 					GameCooltip:Show()
 				end
 			end
+		else --the user entered the spellId to track the spell
+			GameCooltip:Preset(2)
+			GameCooltip:SetOwner(line, "left", "right", 2, 0)
+			GameCooltip:SetOption("TextSize", 10)
 
+			local spellName, _, spellIcon = GetSpellInfo(spellId)
+			if (spellName) then
+				GameCooltip:AddLine(spellName .. " (" .. spellId .. ")")
+				GameCooltip:AddIcon(spellIcon, 1, 1, 14, 14, .1, .9, .1, .9)
+			end
+			GameCooltip:Show()
 		end
 	end
 
     local onClickAuraRemoveButton = function(self)
         local spellId = self:GetParent().SpellID
         if (spellId and type(spellId) == "number") then
-            data[spellId] = nil
-            data["" .. (spellId or "")] = nil -- cleanup...
-
             --button > line > scrollbox
-            self:GetParent():GetParent():DoRefresh()
+            local scrollBox = self:GetParent():GetParent()
+            scrollBox.data_original[spellId] = nil
+            scrollBox.data_original["" .. (spellId or "")] = nil -- cleanup...
+
+            scrollBox:TransformAuraData()
+            scrollBox:Refresh()
 
             if (onAuraRemoveCallback) then --upvalue
                 detailsFramework:QuickDispatch(onAuraRemoveCallback, spellId)
@@ -581,19 +604,28 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
     ---@class df_aurascrollbox : df_scrollbox
     ---@field RefreshMe fun(self:df_aurascrollbox)
     ---@field TransformAuraData fun(self:df_aurascrollbox)
+    ---@field SetProfile fun(self:df_aurascrollbox, profile:table)
     ---@field data_original table
+    ---@field profile table
 
     data = data or {}
+
+    if (not name) then
+        name = "DetailsFrameworkAuraScrollBox" .. math.random(1, 9999999)
+    end
 
     local auraScrollBox = detailsFramework:CreateScrollBox(parent, name, refreshAuraLines, data, options.width, options.height, options.line_amount, options.line_height)
     detailsFramework:ReskinSlider(auraScrollBox)
     ---@cast auraScrollBox df_aurascrollbox
 
+    auraScrollBox.data_original = data
+    auraScrollBox.profile = profile or {}
+
     function auraScrollBox:TransformAuraData()
         local newData = {}
         local added = {}
 
-        for spellId, bAddedBySpellName in pairs(self.data) do
+        for spellId, bAddedBySpellName in pairs(self.data_original) do
             local spellName, _, spellIcon = GetSpellInfo(spellId)
             if (spellName and not added[tonumber(spellId) or 0]) then
                 local lowerSpellName = spellName:lower()
@@ -606,7 +638,9 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
         self.data = newData
     end
 
-    auraScrollBox.data_original = data
+    function auraScrollBox.SetProfile(self, profile)
+        self.profile = profile
+    end
 
     auraScrollBox.SetData = function(self, data)
         self.data_original = data
@@ -619,4 +653,6 @@ function detailsFramework:CreateAuraScrollBox(parent, name, refreshFunc, data, o
     end
 
     auraScrollBox:SetData(data)
+
+    return auraScrollBox
 end

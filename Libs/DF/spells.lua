@@ -1449,15 +1449,15 @@ function DF:GetSpellsForEncounterFromJournal (instanceEJID, encounterEJID)
 		
 		if (sectionInfo) then
 			if (sectionInfo.spellID and type(sectionInfo.spellID) == "number" and sectionInfo.spellID ~= 0) then
-				table.insert(spellIDs, sectionInfo.spellID)
+				tinsert(spellIDs, sectionInfo.spellID)
 			end
 			
 			local nextChild, nextSibling = sectionInfo.firstChildSectionID, sectionInfo.siblingSectionID
 			if (nextSibling) then
-				table.insert(nextID, nextSibling)
+				tinsert(nextID, nextSibling)
 			end
 			if (nextChild) then
-				table.insert(nextID, nextChild)
+				tinsert(nextID, nextChild)
 			end
 		else
 			break

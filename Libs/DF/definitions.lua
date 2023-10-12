@@ -28,9 +28,9 @@
 ---@field table df_table_functions
 ---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
 ---@field DebugVisibility fun(self:table, object:uiobject) print the reason why the frame isn't shown in the screen
----@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall
+---@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall, print to chat if the function passed is invalid
 ---@field QuickDispatch fun(self:table, callback:function, ...) : any dispatch a function call without errors if the function passed is invalid
----@field CoreDispatch fun(self:table, context:string, callback:function, ...) : any deprecated at this point, use Dispatch instead
+---@field CoreDispatch fun(self:table, context:string, callback:function, ...) : any dispatch a function using xpcall, make an error if the function passed is invalid
 ---@field GetDefaultBackdropColor fun(self:table) : red, green, blue, alpha return the standard backdrop color used by blizzard on their own frames
 ---@field Msg fun(self:table, message:string, ...) show a message in the chat frame
 ---@field MsgWarning fun(self:table, message:string, ...) show a warning message in the chat frame
