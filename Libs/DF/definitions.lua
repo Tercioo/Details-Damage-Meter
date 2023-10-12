@@ -23,9 +23,14 @@
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
 ---@field HeaderFunctions df_headerfunctions
+---@field KeybindMixin df_keybindmixin
 ---@field Math df_math
 ---@field table df_table_functions
----@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall
+---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
+---@field DebugVisibility fun(self:table, object:uiobject) print the reason why the frame isn't shown in the screen
+---@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall, print to chat if the function passed is invalid
+---@field QuickDispatch fun(self:table, callback:function, ...) : any dispatch a function call without errors if the function passed is invalid
+---@field CoreDispatch fun(self:table, context:string, callback:function, ...) : any dispatch a function using xpcall, make an error if the function passed is invalid
 ---@field GetDefaultBackdropColor fun(self:table) : red, green, blue, alpha return the standard backdrop color used by blizzard on their own frames
 ---@field Msg fun(self:table, message:string, ...) show a message in the chat frame
 ---@field MsgWarning fun(self:table, message:string, ...) show a warning message in the chat frame
@@ -64,7 +69,17 @@
 ---@field NewColor fun(self:table, colorName:string, red:number, green:number, blue:number, alpha:number)
 ---@field CreateKeybindFrame fun(self:table, parent:frame, name:string?, options:table?, setKeybindCallback:function?, keybindData:table?) : df_keybindframe
 ---@field CreateStatusBar fun(self:table, parent:frame, options:table?) : frame
----@field CreateScrollBox fun(self:table, parent:frame, name:string, refreshFunc:function, data:table, width:number, height:number, lineAmount:number, lineHeight:number, createLineFunc:function?, autoAmount:boolean?, noScroll:boolean?) : df_scrollbox
+---@field CreateScrollBox fun(self:table, parent:frame, name:string, refreshFunc:function, data:table, width:number, height:number, lineAmount:number, lineHeight:number, createLineFunc:function?, autoAmount:boolean?, noScroll:boolean?, noBackdrop:boolean?) : df_scrollbox
 ---@field GetTemplate fun(self:table, templateType:templatetype, templateName:string) : table
+---@field UpdateLoadConditionsTable fun(self:table, loadConditionsTable:table)
+---@field IconPick fun(self:table, callback:function, bCloseWhenSelect:boolean?, param1:any?, param2:any?)
+---@field OpenLoadConditionsPanel fun(self:table, optionsTable:table, callback:function, frameOptions:table?)
+---@field InstallTemplate fun(self:table, widgetType:string, templateName:string, template:table, parentName:any) : table
+---@field NewSpecialLuaEditorEntry fun(self:table, parent:frame, width:number, height:number, member:string?, name:string?, nointent:boolean?, showLineNumbers:boolean?, bNoName:boolean?) : df_luaeditor
+---@field PassLoadFilters fun(self:table, loadTable:table, encounterID:number?) : boolean, string
+---@field CreateLoadFilterParser fun(self:table, callback:fun(encounterId:number?)) create a helper which will callback when encounterId, spec, talent, role, combatstate changes
+---@field CreateSwitch fun(self:table, parent:frame, onSwitch:function, defaultValue:boolean, width:number?, height:number?, leftText:string?, rightText:string?, member:string?, name:string?, colorInverted:boolean?, switchFunc:function?, returnFunc:function?, withLabel:string?, switch_template:table?, label_template:table?) : df_checkbox, df_label?
+---@field CreateCheckboxGroup fun(self:table, parent:frame, radioOptions:df_radiooptions[], name:string?, options:table?, anchorOptions:table?) : df_checkboxgroup
+---@field CreateRadioGroup fun(self:table, parent:frame, radioOptions:df_radiooptions[], name:string?, options:table?, anchorOptions:table?) : df_radiogroup
 ---@field 
-
+---@field 

@@ -1,5 +1,4 @@
 
---stopped doing the duplicate savedTable
 
 local detailsFramework = _G ["DetailsFramework"]
 if (not detailsFramework or not DetailsFrameworkCanLoad) then

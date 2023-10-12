@@ -697,7 +697,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 						Details.id_frame:SetPoint("center", UIParent, "center")
 						Details.id_frame:SetBackdrop(backdrop)
 
-						tinsert(UISpecialFrames, "DetailsID")
+						table.insert(UISpecialFrames, "DetailsID")
 
 						Details.id_frame.texto = CreateFrame("editbox", nil, Details.id_frame, "BackdropTemplate")
 						Details.id_frame.texto:SetPoint("topleft", Details.id_frame, "topleft")
@@ -753,7 +753,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 					Details.id_frame:SetPoint("center", UIParent, "center")
 					Details.id_frame:SetBackdrop(backdrop)
 
-					tinsert(UISpecialFrames, "DetailsID")
+					table.insert(UISpecialFrames, "DetailsID")
 
 					Details.id_frame.texto = CreateFrame("editbox", nil, Details.id_frame, "BackdropTemplate")
 					Details.id_frame.texto:SetPoint("topleft", Details.id_frame, "topleft")
@@ -1077,7 +1077,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 				for o = 1, DetailsFramework.EncounterJournal.EJ_GetNumLoot() do
 					local name, icon, slot, armorType, itemID, link, encounterID = DetailsFramework.EncounterJournal.EJ_GetLootInfoByIndex (o)
 					r[slot] = r[slot] or {}
-					tinsert(r[slot], {itemID, encounterID})
+					table.insert(r[slot], {itemID, encounterID})
 					total = total + 1
 				end
 			end
@@ -1183,7 +1183,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local allspecs = {}
 
 		for a, b in pairs(Details.class_specs_coords) do
-			tinsert(allspecs, a)
+			table.insert(allspecs, a)
 		end
 
 		for i = 1, 10 do
@@ -1284,7 +1284,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			for o = 1, 3 do
 				local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1)
 				if (selected) then
-					tinsert(talents, talentID)
+					table.insert(talents, talentID)
 					break
 				end
 			end
@@ -1401,18 +1401,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local sectionInfo = C_EncounterJournal.GetSectionInfo (ID)
 
 			if (sectionInfo) then
-				tinsert(result, sectionInfo)
+				table.insert(result, sectionInfo)
 
 				if (sectionInfo.spellID and type(sectionInfo.spellID) == "number" and sectionInfo.spellID ~= 0) then
-					tinsert(spellIDs, sectionInfo.spellID)
+					table.insert(spellIDs, sectionInfo.spellID)
 				end
 
 				local nextChild, nextSibling = sectionInfo.firstChildSectionID, sectionInfo.siblingSectionID
 				if (nextSibling) then
-					tinsert(nextID, nextSibling)
+					table.insert(nextID, nextSibling)
 				end
 				if (nextChild) then
-					tinsert(nextID, nextChild)
+					table.insert(nextID, nextChild)
 				end
 			else
 				break
@@ -1677,7 +1677,7 @@ function Details.RefreshUserList (ignoreIfHidden)
 			end
 
 			if (not foundPlayer) then
-				tinsert(newList, {playerName, "--", "--"})
+				table.insert(newList, {playerName, "--", "--"})
 			end
 		end
 	end
@@ -1831,7 +1831,7 @@ function Details:CreateListPanel()
 	Details.ListPanel:SetPoint("center", UIParent, "center", 300, 0)
 	Details.ListPanel.barras = {}
 
-	tinsert(UISpecialFrames, "DetailsActorsFrame")
+	table.insert(UISpecialFrames, "DetailsActorsFrame")
 	Details.ListPanel.close_with_right = true
 
 	local container_barras_window = CreateFrame("ScrollFrame", "Details_ActorsBarrasScroll", Details.ListPanel.widget)
@@ -2345,7 +2345,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							table.sort(playersInTheParty, function(t1, t2) return t1[11] > t2[11] end)
 							for i = 1, #playersInTheParty do
 								local keystoneTable = playersInTheParty[i]
-								tinsert(newData, 1, keystoneTable)
+								table.insert(newData, 1, keystoneTable)
 							end
 						end
 					end

@@ -49,7 +49,7 @@ function Details:BossModsLink()
                 local currentCombat = Details:GetCurrentCombat()
                 local combatTime = currentCombat:GetCombatTime()
                 if (combatTime > 5) then
-                    tinsert(currentCombat.PhaseData, {phase, combatTime})
+                    table.insert(currentCombat.PhaseData, {phase, combatTime})
                 end
                 Details:SendEvent("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
             end
@@ -79,7 +79,7 @@ function Details:BossModsLink()
                 local currentCombat = Details:GetCurrentCombat()
                 local combatTime = currentCombat:GetCombatTime()
                 if (combatTime > 5) then
-                    tinsert(currentCombat.PhaseData, {phase, combatTime})
+                    table.insert(currentCombat.PhaseData, {phase, combatTime})
                 end
 
                 Details:SendEvent("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)

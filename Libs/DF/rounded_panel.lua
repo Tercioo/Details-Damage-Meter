@@ -5,11 +5,15 @@ if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
 end
 
+local unpack = unpack
+
 local CreateFrame = CreateFrame
 local defaultRed, defaultGreen, defaultBlue = detailsFramework:GetDefaultBackdropColor()
---local defaultColorTable = {defaultRed, defaultGreen, defaultBlue, 1}
-local defaultColorTable = {0.98, 0.98, 0.98, 1}
-local defaultBorderColorTable = {0.1, 0.1, 0.1, 1}
+local defaultColorTable = {.98, .98, .98, 1}
+local defaultBorderColorTable = {.2, .2, .2, .5}
+local titleBarColor = {.2, .2, .2, .5}
+
+local PixelUtil = PixelUtil or DFPixelUtil
 
 ---@type edgenames[]
 local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
@@ -37,22 +41,23 @@ local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
 ---@field Left texture
 ---@field Right texture
 
----@class df_roundedpanel_preset : table
----@field border_color any
----@field color any
----@field roundness number
-
 ---@class df_roundedpanel_options : table
----@field width number
----@field height number
----@field use_titlebar boolean
----@field use_scalebar boolean
----@field title string
----@field scale number
----@field roundness number
+---@field width number?
+---@field height number?
+---@field use_titlebar boolean?
+---@field use_scalebar boolean?
+---@field title string?
+---@field scale number?
+---@field roundness number?
 ---@field color any
 ---@field border_color any
----@field corner_texture texturepath|textureid
+---@field corner_texture any
+---@field horizontal_border_size_offset number?
+
+---@class df_roundedpanel_preset : table, df_roundedpanel_options
+---@field border_color any
+---@field color any
+---@field roundness number?
 
 ---@class df_roundedcornermixin : table
 ---@field RoundedCornerConstructor fun(self:df_roundedpanel) --called from CreateRoundedPanel
@@ -102,7 +107,7 @@ local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
 ---@param bIsBorder boolean|nil
 local setCornerPoints = function(self, textures, width, height, xOffset, yOffset, bIsBorder)
     for cornerName, thisTexture in pairs(textures) do
-        thisTexture:SetSize(width or 16, height or 16)
+        PixelUtil.SetSize(thisTexture, width or 16, height or 16)
         thisTexture:SetTexture(self.options.corner_texture)
 
         --set the mask
@@ -122,30 +127,30 @@ local setCornerPoints = function(self, textures, width, height, xOffset, yOffset
 
         if (cornerName == "TopLeft") then
             thisTexture:SetTexCoord(0, 0.5, 0, 0.5)
-            thisTexture:SetPoint(cornerName, self, cornerName, -xOffset, yOffset)
+            PixelUtil.SetPoint(thisTexture, cornerName, self, cornerName, -xOffset, yOffset)
             if (thisTexture.MaskTexture) then
-                thisTexture.MaskTexture:SetPoint(cornerName, self, cornerName, -18-xOffset, 16+yOffset)
+                PixelUtil.SetPoint(thisTexture.MaskTexture, cornerName, self, cornerName, -18-xOffset, 16+yOffset)
             end
 
         elseif (cornerName == "TopRight") then
             thisTexture:SetTexCoord(0.5, 1, 0, 0.5)
-            thisTexture:SetPoint(cornerName, self, cornerName, xOffset, yOffset)
+            PixelUtil.SetPoint(thisTexture, cornerName, self, cornerName, xOffset, yOffset)
             if (thisTexture.MaskTexture) then
-                thisTexture.MaskTexture:SetPoint(cornerName, self, cornerName, -18+xOffset, 16+yOffset)
+                PixelUtil.SetPoint(thisTexture.MaskTexture, cornerName, self, cornerName, -18+xOffset, 16+yOffset)
             end
 
         elseif (cornerName == "BottomLeft") then
             thisTexture:SetTexCoord(0, 0.5, 0.5, 1)
-            thisTexture:SetPoint(cornerName, self, cornerName, -xOffset, -yOffset)
+            PixelUtil.SetPoint(thisTexture, cornerName, self, cornerName, -xOffset, -yOffset)
             if (thisTexture.MaskTexture) then
-                thisTexture.MaskTexture:SetPoint(cornerName, self, cornerName, -18-xOffset, 16-yOffset)
+                PixelUtil.SetPoint(thisTexture.MaskTexture, cornerName, self, cornerName, -18-xOffset, 16-yOffset)
             end
 
         elseif (cornerName == "BottomRight") then
             thisTexture:SetTexCoord(0.5, 1, 0.5, 1)
-            thisTexture:SetPoint(cornerName, self, cornerName, xOffset, -yOffset)
+            PixelUtil.SetPoint(thisTexture, cornerName, self, cornerName, xOffset, -yOffset)
             if (thisTexture.MaskTexture) then
-                thisTexture.MaskTexture:SetPoint(cornerName, self, cornerName, -18+xOffset, 16-yOffset)
+                PixelUtil.SetPoint(thisTexture.MaskTexture, cornerName, self, cornerName, -18+xOffset, 16-yOffset)
             end
         end
     end
@@ -157,7 +162,6 @@ detailsFramework.RoundedCornerPanelMixin = {
         self.CenterTextures = {}
         self.BorderCornerTextures = {}
         self.BorderEdgeTextures = {}
-
         self.cornerRoundness = 0
 
         for i = 1, #cornerNames do
@@ -170,28 +174,28 @@ detailsFramework.RoundedCornerPanelMixin = {
         --create the top texture which connects the top corners with a horizontal line
         ---@type texture
         local topHorizontalEdge = self:CreateTexture(nil, "border", nil, 0)
-        topHorizontalEdge:SetPoint("topleft", self.CornerTextures["TopLeft"], "topright", 0, 0)
-        topHorizontalEdge:SetPoint("bottomleft", self.CornerTextures["TopLeft"], "bottomright", 0, 0)
-        topHorizontalEdge:SetPoint("topright", self.CornerTextures["TopRight"], "topleft", 0, 0)
-        topHorizontalEdge:SetPoint("bottomright", self.CornerTextures["TopRight"], "bottomleft", 0, 0)
+        PixelUtil.SetPoint(topHorizontalEdge, "topleft", self.CornerTextures["TopLeft"], "topright", 0, 0)
+        PixelUtil.SetPoint(topHorizontalEdge, "bottomleft", self.CornerTextures["TopLeft"], "bottomright", 0, 0)
+        PixelUtil.SetPoint(topHorizontalEdge, "topright", self.CornerTextures["TopRight"], "topleft", 0, 0)
+        PixelUtil.SetPoint(topHorizontalEdge, "bottomright", self.CornerTextures["TopRight"], "bottomleft", 0, 0)
         topHorizontalEdge:SetColorTexture(unpack(defaultColorTable))
 
         --create the bottom texture which connects the bottom corners with a horizontal line
         ---@type texture
         local bottomHorizontalEdge = self:CreateTexture(nil, "border", nil, 0)
-        bottomHorizontalEdge:SetPoint("topleft", self.CornerTextures["BottomLeft"], "topright", 0, 0)
-        bottomHorizontalEdge:SetPoint("bottomleft", self.CornerTextures["BottomLeft"], "bottomright", 0, 0)
-        bottomHorizontalEdge:SetPoint("topright", self.CornerTextures["BottomRight"], "topleft", 0, 0)
-        bottomHorizontalEdge:SetPoint("bottomright", self.CornerTextures["BottomRight"], "bottomleft", 0, 0)
+        PixelUtil.SetPoint(bottomHorizontalEdge, "topleft", self.CornerTextures["BottomLeft"], "topright", 0, 0)
+        PixelUtil.SetPoint(bottomHorizontalEdge, "bottomleft", self.CornerTextures["BottomLeft"], "bottomright", 0, 0)
+        PixelUtil.SetPoint(bottomHorizontalEdge, "topright", self.CornerTextures["BottomRight"], "topleft", 0, 0)
+        PixelUtil.SetPoint(bottomHorizontalEdge, "bottomright", self.CornerTextures["BottomRight"], "bottomleft", 0, 0)
         bottomHorizontalEdge:SetColorTexture(unpack(defaultColorTable))
 
         --create the center block which connects the bottom left of the topleft corner with the top right of the bottom right corner
         ---@type texture
         local centerBlock = self:CreateTexture(nil, "border", nil, 0)
-        centerBlock:SetPoint("topleft", self.CornerTextures["TopLeft"], "bottomleft", 0, 0)
-        centerBlock:SetPoint("bottomleft", self.CornerTextures["BottomLeft"], "topleft", 0, 0)
-        centerBlock:SetPoint("topright", self.CornerTextures["BottomRight"], "topright", 0, 0)
-        centerBlock:SetPoint("bottomright", self.CornerTextures["BottomRight"], "topright", 0, 0)
+        PixelUtil.SetPoint(centerBlock, "topleft", self.CornerTextures["TopLeft"], "bottomleft", 0, 0)
+        PixelUtil.SetPoint(centerBlock, "bottomleft", self.CornerTextures["BottomLeft"], "topleft", 0, 0)
+        PixelUtil.SetPoint(centerBlock, "topright", self.CornerTextures["BottomRight"], "topright", 0, 0)
+        PixelUtil.SetPoint(centerBlock, "bottomright", self.CornerTextures["BottomRight"], "topright", 0, 0)
         centerBlock:SetColorTexture(unpack(defaultColorTable))
 
         self.CenterTextures[#self.CenterTextures+1] = topHorizontalEdge
@@ -207,7 +211,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         ---@type height
         local height = self.options.height
 
-        self:SetSize(width, height)
+        PixelUtil.SetSize(self, width, height)
 
         --fill the corner and edge textures table
         setCornerPoints(self, self.CornerTextures)
@@ -241,6 +245,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         titleBar:SetPoint("top", self, "top", 0, -4)
         titleBar:SetRoundness(5)
         titleBar:SetFrameLevel(9500)
+        titleBar:SetColor(unpack(titleBarColor))
         titleBar.bIsTitleBar = true
         self.TitleBar = titleBar
         self.bHasTitleBar = true
@@ -293,13 +298,13 @@ detailsFramework.RoundedCornerPanelMixin = {
 
             --set the new size of the corners on all corner textures
             for _, thisTexture in pairs(self.CornerTextures) do
-                thisTexture:SetSize(newCornerSize-self.cornerRoundness, newCornerSize)
+                PixelUtil.SetSize(thisTexture, newCornerSize - (self.cornerRoundness - 2), newCornerSize)
             end
 
             --check if the frame has border and set the size of the border corners as well
             if (self.bHasBorder) then
                 for _, thisTexture in pairs(self.BorderCornerTextures) do
-                    thisTexture:SetSize(newCornerSize, newCornerSize)
+                    PixelUtil.SetSize(thisTexture, newCornerSize-2, newCornerSize+2)
                 end
 
                 --hide the left and right edges as the corner textures already is enough to fill the frame
@@ -307,8 +312,8 @@ detailsFramework.RoundedCornerPanelMixin = {
                 self.BorderEdgeTextures["Right"]:Hide()
 
                 local horizontalEdgesNewSize = self:CalculateBorderEdgeSize("horizontal")
-                self.BorderEdgeTextures["Top"]:SetSize(horizontalEdgesNewSize, 1)
-                self.BorderEdgeTextures["Bottom"]:SetSize(horizontalEdgesNewSize, 1)
+                PixelUtil.SetSize(self.BorderEdgeTextures["Top"], horizontalEdgesNewSize + (self.options.horizontal_border_size_offset or 0), 1)
+                PixelUtil.SetSize(self.BorderEdgeTextures["Bottom"], horizontalEdgesNewSize + (self.options.horizontal_border_size_offset or 0), 1)
             end
 
             self.CenterBlock:Hide()
@@ -324,22 +329,22 @@ detailsFramework.RoundedCornerPanelMixin = {
             self.CenterBlock:Show()
 
             for _, thisTexture in pairs(self.CornerTextures) do
-                thisTexture:SetSize(cornerWidth-self.cornerRoundness, cornerHeight-self.cornerRoundness)
+                PixelUtil.SetSize(thisTexture, cornerWidth-self.cornerRoundness, cornerHeight-self.cornerRoundness)
             end
 
             if (self.bHasBorder) then
                 for _, thisTexture in pairs(self.BorderCornerTextures) do
-                    thisTexture:SetSize(cornerWidth-self.cornerRoundness, cornerHeight-self.cornerRoundness)
+                    PixelUtil.SetSize(thisTexture, cornerWidth-self.cornerRoundness, cornerHeight-self.cornerRoundness)
                     thisTexture.MaskTexture:SetSize(74-(self.cornerRoundness*0.75), 64-self.cornerRoundness)
                 end
 
                 local horizontalEdgesNewSize = self:CalculateBorderEdgeSize("horizontal")
-                self.BorderEdgeTextures["Top"]:SetSize(horizontalEdgesNewSize, 1)
-                self.BorderEdgeTextures["Bottom"]:SetSize(horizontalEdgesNewSize, 1)
+                PixelUtil.SetSize(self.BorderEdgeTextures["Top"], horizontalEdgesNewSize, 1)
+                PixelUtil.SetSize(self.BorderEdgeTextures["Bottom"], horizontalEdgesNewSize, 1)
 
                 local verticalEdgesNewSize = self:CalculateBorderEdgeSize("vertical")
-                self.BorderEdgeTextures["Left"]:SetSize(1, verticalEdgesNewSize)
-                self.BorderEdgeTextures["Right"]:SetSize(1, verticalEdgesNewSize)
+                PixelUtil.SetSize(self.BorderEdgeTextures["Left"], 1, verticalEdgesNewSize)
+                PixelUtil.SetSize(self.BorderEdgeTextures["Right"], 1, verticalEdgesNewSize)
             end
         end
     end,
@@ -389,22 +394,22 @@ detailsFramework.RoundedCornerPanelMixin = {
         --create the top, left, bottom and right edges, the edge has 1pixel width and connects the corners
         ---@type texture
         local topEdge = self:CreateTexture(nil, "background", nil, 0)
-        topEdge:SetPoint("bottom", self, "top", 0, 0)
+        PixelUtil.SetPoint(topEdge, "bottom", self, "top", 0, 0)
         self.BorderEdgeTextures["Top"] = topEdge
 
         ---@type texture
         local leftEdge = self:CreateTexture(nil, "background", nil, 0)
-        leftEdge:SetPoint("right", self, "left", 0, 0)
+        PixelUtil.SetPoint(leftEdge, "right", self, "left", 0, 0)
         self.BorderEdgeTextures["Left"] = leftEdge
 
         ---@type texture
         local bottomEdge = self:CreateTexture(nil, "background", nil, 0)
-        bottomEdge:SetPoint("top", self, "bottom", 0, 0)
+        PixelUtil.SetPoint(bottomEdge, "top", self, "bottom", 0, 0)
         self.BorderEdgeTextures["Bottom"] = bottomEdge
 
         ---@type texture
         local rightEdge = self:CreateTexture(nil, "background", nil, 0)
-        rightEdge:SetPoint("left", self, "right", 0, 0)
+        PixelUtil.SetPoint(rightEdge, "left", self, "right", 0, 0)
         self.BorderEdgeTextures["Right"] = rightEdge
 
         ---@type width
@@ -413,10 +418,10 @@ detailsFramework.RoundedCornerPanelMixin = {
         local verticalEdgeSize = self:CalculateBorderEdgeSize("vertical")
 
         --set the edges size
-        topEdge:SetSize(horizontalEdgeSize, 1)
-        leftEdge:SetSize(1, verticalEdgeSize)
-        bottomEdge:SetSize(horizontalEdgeSize, 1)
-        rightEdge:SetSize(1, verticalEdgeSize)
+        PixelUtil.SetSize(topEdge, horizontalEdgeSize, 1)
+        PixelUtil.SetSize(leftEdge, 1, verticalEdgeSize)
+        PixelUtil.SetSize(bottomEdge, horizontalEdgeSize, 1)
+        PixelUtil.SetSize(rightEdge, 1, verticalEdgeSize)
 
         for edgeName, thisTexture in pairs(self.BorderEdgeTextures) do
             ---@cast thisTexture texture
@@ -482,7 +487,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         end
 
         if (self.bHasBorder) then
-            if (alpha < 0.98) then
+            if (alpha < 0.979) then
                 --if using borders, the two border textures overlaps making the alpha be darker than it should
                 for _, thisTexture in pairs(self.BorderCornerTextures) do
                     thisTexture.MaskTexture:Show()
@@ -504,14 +509,14 @@ local defaultOptions = {
     title = "",
     scale = 1,
     roundness = 0,
-    color = defaultColorTable,
-    border_color = defaultColorTable,
+    color = {.1, .1, .1, 1},
+    border_color = {.2, .2, .2, .5},
     corner_texture = [[Interface\CHARACTERFRAME\TempPortraitAlphaMaskSmall]],
 }
 
 local defaultPreset = {
-    border_color = {.1, .1, .1, 0.834},
-    color = {defaultRed, defaultGreen, defaultBlue},
+    color = {.1, .1, .1, 1},
+    border_color = {.2, .2, .2, .5},
     roundness = 3,
 }
 
@@ -536,7 +541,11 @@ function detailsFramework:CreateRoundedPanel(parent, name, optionsTable)
     if (newRoundedPanel.options.use_titlebar) then
         ---@type df_roundedpanel
         local titleBar = detailsFramework:CreateRoundedPanel(newRoundedPanel, "$parentTitleBar", {height = 26})
+        titleBar:SetColor(unpack(titleBarColor))
         titleBar:SetPoint("top", newRoundedPanel, "top", 0, -7)
+
+        titleBar:SetBorderCornerColor(0, 0, 0, 0)
+
         newRoundedPanel.TitleBar = titleBar
         titleBar:SetRoundness(5)
         newRoundedPanel.bHasTitleBar = true
@@ -548,8 +557,8 @@ function detailsFramework:CreateRoundedPanel(parent, name, optionsTable)
     end
 
     newRoundedPanel:SetRoundness(newRoundedPanel.options.roundness)
-    newRoundedPanel:SetColor(newRoundedPanel.options.color)
     newRoundedPanel:SetBorderCornerColor(newRoundedPanel.options.border_color)
+    newRoundedPanel:SetColor(newRoundedPanel.options.color)
 
     return newRoundedPanel
 end
@@ -613,49 +622,10 @@ function detailsFramework:AddRoundedCornersToFrame(frame, preset)
 
     --handle preset
     if (preset and type(preset) == "table") then
+        frame.options.horizontal_border_size_offset = preset.horizontal_border_size_offset
         applyPreset(frame, preset)
     else
         applyPreset(frame, defaultPreset)
     end
 end
 
----test case:
-C_Timer.After(1, function()
-
-    if true then return end
-
-    local DF = DetailsFramework
-
-    local parent = UIParent
-    local name = "NewRoundedCornerFrame"
-    local optionsTable = {
-        use_titlebar = true,
-        use_scalebar = true,
-        title = "Test",
-        scale = 1.0,
-    }
-
-    ---@type df_roundedpanel
-    local frame = _G[name] or DF:CreateRoundedPanel(parent, name, optionsTable)
-    frame:SetSize(800, 600)
-    frame:SetPoint("center", parent, "center", 0, 0)
-
-    frame:SetColor(.1, .1, .1, 1)
-    frame:SetTitleBarColor(.2, .2, .2, .5)
-    frame:SetBorderCornerColor(.2, .2, .2, .5)
-    frame:SetRoundness(0)
-
-    local radiusSlider = DF:CreateSlider(frame, 120, 14, 0, 15, 1, frame.cornerRoundness, false, "RadiusBar", nil, nil, DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"))
-    radiusSlider:SetHook("OnValueChange", function(self, fixedValue, value)
-        value = floor(value)
-        if (frame.cornerRoundness == value) then
-            return
-        end
-        frame:SetRoundness(value)
-    end)
-
-    local radiusText = frame:CreateFontString(nil, "overlay", "GameFontNormal")
-    radiusText:SetText("Radius:")
-    radiusText:SetPoint("bottomleft", radiusSlider.widget, "topleft", 0, 0)
-    radiusSlider:SetPoint(10, -100)
-end)

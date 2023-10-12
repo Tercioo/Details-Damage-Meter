@@ -957,6 +957,7 @@ DF.CrowdControlSpells = {
 	[15487] = "PRIEST", --Silence
 	
 	[2094] = "ROGUE", --Blind
+	[427773] = "ROGUE", --Blind (AoE)
 	[1833] = "ROGUE", --Cheap Shot
 	[408] = "ROGUE", --Kidney Shot
 	[1766] = "ROGUE", --Kick

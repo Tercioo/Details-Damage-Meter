@@ -93,7 +93,7 @@ function Details:OpenBookmarkConfig()
             local label = DF:CreateLabel(set, "")
             label:SetPoint("left", icon, "right", 2, 0)
 
-            tinsert(panel.blocks, {icon = icon, label = label, bg = set.bg, button = set})
+            table.insert(panel.blocks, {icon = icon, label = label, bg = set.bg, button = set})
         end
         
         local normal_coords = {0, 1, 0, 1}

@@ -11,7 +11,7 @@ function Details:WipeConfig()
 	wipeButton:SetScript("OnClick", function() Details.wipe_full_config = true; ReloadUI(); end)
 	wipeButton:SetPoint("center", UIParent, "center", 0, 0)
 
-	tinsert(UISpecialFrames, "DetailsResetConfigButton")
+	table.insert(UISpecialFrames, "DetailsResetConfigButton")
 
 	DetailsFramework:ApplyStandardBackdrop(wipeButton)
 

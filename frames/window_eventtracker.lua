@@ -811,12 +811,12 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 
 			--defensive cooldown
 			if (token == "SPELL_CAST_SUCCESS" and (spellInfo and defensiveCDType[spellInfo.type]) and is_player (caster_flags)) then
-				tinsert(CurrentShowing, 1, {SPELLTYPE_COOLDOWN, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+				table.insert(CurrentShowing, 1, {SPELLTYPE_COOLDOWN, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 
 			--offensive cooldown
 			elseif (token == "SPELL_CAST_SUCCESS" and (spellInfo and spellInfo.type == 1 and spellInfo.cooldown and spellInfo.cooldown >= 90) and is_player (caster_flags)) then
-				tinsert(CurrentShowing, 1, {SPELLTYPE_OFFENSIVE, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+				table.insert(CurrentShowing, 1, {SPELLTYPE_OFFENSIVE, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 				added = true
 
 			--crowd control
@@ -826,14 +826,14 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 					--the target is a player
 					if (Details.event_tracker.show_crowdcontrol_pvp) then
 						if (Details.zone_type == "arena" or Details.zone_type  == "pvp" or Details.zone_type  == "none") then
-							tinsert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+							table.insert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 							added = true
 						end
 					end
 
 					if (Details.event_tracker.show_crowdcontrol_pvm) then
 						if (Details.zone_type == "party" or Details.zone_type  == "raid") then
-							tinsert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+							table.insert(CurrentShowing, 1, {SPELLTYPE_CROWDCONTROL, spellid, caster_name, target_name, time, false, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 							added = true
 						end
 					end
@@ -842,7 +842,7 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 			--spell interrupt
 			elseif (token == "SPELL_INTERRUPT") then
 				if (caster_flags and is_player (caster_flags)) then
-					tinsert(CurrentShowing, 1, {SPELLTYPE_INTERRUPT, spellid, caster_name, target_name, time, extraSpellID, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
+					table.insert(CurrentShowing, 1, {SPELLTYPE_INTERRUPT, spellid, caster_name, target_name, time, extraSpellID, GetTime(), caster_serial, is_enemy (caster_flags), target_serial})
 					added = true
 				end
 			end

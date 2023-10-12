@@ -11,6 +11,9 @@
 --guadians: represents a npc, the server has the possess of the controller, don't accept commands like pets, helps attacking the enemies of the npc or player.
 --role: is a string that represents the role of a unit, such as tank, healer, or damage dealer. only players can have a role.
 
+---@alias auratype
+---| "BUFF"
+---| "DEBUFF"
 
 ---@alias role
 ---| "TANK"
@@ -305,7 +308,7 @@
 ---@field GetScale fun(self: uiobject) : scale|number
 ---@field GetAlpha fun(self: uiobject) : alpha|number
 ---@field GetSize fun(self: uiobject) : width|number, height|number
----@field GetParent fun(self: uiobject) : frame
+---@field GetParent fun(self: uiobject) : any
 ---@field GetPoint fun(self: uiobject, index: number): string, frame, string, number, number
 ---@field GetCenter fun(self: uiobject): number, number
 ---@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
@@ -363,6 +366,7 @@
 ---@field SetThickness fun(self: line, thickness: number)
 
 ---@class frame : uiobject
+---@field __background texture
 ---@field CreateLine fun(self: frame, name: string?, drawLayer: drawlayer, templateName: string?, subLevel: number?) : line
 ---@field SetID fun(self: frame, id: number) set an ID for the frame
 ---@field SetAttribute fun(self: frame, name: string, value: any)
@@ -544,6 +548,7 @@
 
 ---@class texture : region
 ---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number?)
+---@field GetTexture fun(self: texture) : any
 ---@field SetTexture fun(self: texture, path: textureid|texturepath, horizontalWrap: texturewrap?, verticalWrap: texturewrap?, filter: texturefilter?)
 ---@field SetAtlas fun(self: texture, atlas: string)
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
@@ -583,3 +588,22 @@
 ---@field GetBlendMode fun(self: texture) : string
 ---@field GetVertexColor fun(self: texture) : number, number, number, number
 
+---@class editbox : frame
+---@field SetText fun(self: editbox, text: string)
+---@field GetText fun(self: editbox) : string
+---@field SetCursorPosition fun(self: editbox, position: number)
+---@field GetCursorPosition fun(self: editbox) : number
+---@field SetMaxLetters fun(self: editbox, maxLetters: number)
+---@field GetMaxLetters fun(self: editbox) : number
+---@field SetNumeric fun(self: editbox, numeric: boolean)
+---@field GetNumeric fun(self: editbox) : boolean
+---@field SetMultiLine fun(self: editbox, multiLine: boolean)
+---@field GetMultiLine fun(self: editbox) : boolean
+---@field SetAutoFocus fun(self: editbox, autoFocus: boolean)
+---@field GetAutoFocus fun(self: editbox) : boolean
+---@field SetFont fun(self: editbox, font: string, size: number, flags: string)
+---@field SetFontObject fun(self: editbox, fontString: fontstring)
+---@field GetFont fun(self: editbox) : string, number, string
+---@field SetTextColor fun(self: editbox, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
+---@field SetJustifyH fun(self:editbox, alignment:string)
+---@field SetTextInsets fun(self:editbox, left:number, right:number, top:number, bottom:number)

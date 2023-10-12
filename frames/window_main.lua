@@ -537,7 +537,7 @@ local update_line = function(self, target_frame)
 			ball:SetSize(16, 16)
 			ball:SetAlpha(0.3)
 			ball:SetTexCoord(410/512, 426/512, 2/512, 18/512)
-			tinsert(guide_balls, ball)
+			table.insert(guide_balls, ball)
 		end
 
 		ball:ClearAllPoints()
@@ -1165,7 +1165,7 @@ end
 local check_snap_side = function(instanceid, snap, id, container)
 	local instance = Details:GetInstance(instanceid)
 	if (instance and instance.snap [snap] and instance.snap [snap] == id) then
-		tinsert(container, instance)
+		table.insert(container, instance)
 		return true
 	end
 end
@@ -1260,7 +1260,7 @@ function Details:InstanciasVerticais(instance)
 		end
 		bottom_clamp = bottom_clamp + 20
 		bottom_clamp = bottom_clamp + this_instance.baseframe:GetHeight()
-		tinsert(on_top, this_instance)
+		table.insert(on_top, this_instance)
 	end
 
 	return on_top, bottom_clamp, top_clamp
@@ -2286,7 +2286,7 @@ function icon_frame_events:EnterCombat()
 	for anim, _ in pairs(Details.icon_animations.load.in_use) do
 		anim.anim:Stop()
 		anim:Hide()
-		tinsert(Details.icon_animations.load.available, anim)
+		table.insert(Details.icon_animations.load.available, anim)
 
 		anim.icon_frame.icon_animation = nil
 		anim.icon_frame = nil
@@ -2318,7 +2318,7 @@ function icon_frame_events:CancelAnim(anim)
 		end
 
 		Details.icon_animations.load.in_use[frame] = nil
-		tinsert(Details.icon_animations.load.available, frame)
+		table.insert(Details.icon_animations.load.available, frame)
 		frame.anim:Stop()
 		frame:Hide()
 
@@ -2335,7 +2335,7 @@ local icon_frame_inspect_callback = function(guid, unitid, iconFrame)
 
 	local inUse = Details.icon_animations.load.in_use[iconFrame.icon_animation]
 	if (inUse) then
-		tinsert(Details.icon_animations.load.available, iconFrame.icon_animation)
+		table.insert(Details.icon_animations.load.available, iconFrame.icon_animation)
 		Details.icon_animations.load.in_use[iconFrame.icon_animation] = nil
 	end
 
@@ -2363,7 +2363,7 @@ local icon_frame_create_animation = function()
 	t:SetAlpha(0.7)
 	t:SetAllPoints()
 
-	tinsert(Details.icon_animations.load.available, f)
+	table.insert(Details.icon_animations.load.available, f)
 end
 
 local icon_frame_on_click_down = function(self)
@@ -8385,7 +8385,7 @@ function Details:GetInstanceGroup (instance_id)
 				if (this_instance and this_instance:IsEnabled()) then
 					for side, id in pairs(this_instance.snap) do
 						if (id == last_id) then
-							tinsert(current_group, this_instance)
+							table.insert(current_group, this_instance)
 							got = true
 							last_id = i
 						end
@@ -8403,7 +8403,7 @@ function Details:GetInstanceGroup (instance_id)
 				if (this_instance and this_instance:IsEnabled()) then
 					for side, id in pairs(this_instance.snap) do
 						if (id == last_id) then
-							tinsert(current_group, this_instance)
+							table.insert(current_group, this_instance)
 							got = true
 							last_id = i
 						end

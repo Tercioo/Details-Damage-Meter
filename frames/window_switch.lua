@@ -244,7 +244,7 @@ do
 					allDisplaysFrame.check_text_size (button.text)
 					button.texture:SetTexture(Details.sub_atributos [attribute].icones [i] [1])
 					button.texture:SetTexCoord(unpack(Details.sub_atributos [attribute].icones [i] [2]))
-					tinsert(allDisplaysFrame.buttons [attribute], button)
+					table.insert(allDisplaysFrame.buttons [attribute], button)
 					y = y - 17
 				end
 
@@ -302,7 +302,7 @@ do
 			local button = allDisplaysFrame.buttons [custom_index] [button_index]
 			if (not button) then
 				button = create_all_switch_button (custom_index, i, allDisplaysFrame.x, allDisplaysFrame.y)
-				tinsert(allDisplaysFrame.buttons [custom_index], button)
+				table.insert(allDisplaysFrame.buttons [custom_index], button)
 				allDisplaysFrame.y = allDisplaysFrame.y - 17
 			end
 
@@ -342,7 +342,7 @@ do
 						local button = allDisplaysFrame.buttons [script_index] [button_index]
 						if (not button) then
 							button = create_all_switch_button(script_index, button_index, allDisplaysFrame.x, allDisplaysFrame.y)
-							tinsert(allDisplaysFrame.buttons [script_index], button)
+							table.insert(allDisplaysFrame.buttons [script_index], button)
 							allDisplaysFrame.y = allDisplaysFrame.y - 17
 						end
 
@@ -561,7 +561,7 @@ function Details.switch:ShowMe(instancia)
 				s.HideMe = hide_label
 				s.ShowMe = show_label
 
-				tinsert(Details.switch.segments_blocks, s)
+				table.insert(Details.switch.segments_blocks, s)
 				return s
 			end
 

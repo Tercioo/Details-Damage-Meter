@@ -1,6 +1,6 @@
 
 
-local dversion = 470
+local dversion = 475
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -19,7 +19,7 @@ local type = type
 local unpack = unpack
 local upper = string.upper
 local string_match = string.match
-local tinsert = _G.tinsert
+local tinsert = table.insert
 local abs = _G.abs
 local tremove = _G.tremove
 
@@ -1434,6 +1434,45 @@ function DF:GetSpellBookSpells()
     return spellNamesInSpellBook, spellIdsInSpellBook
 end
 
+---return a table of passive talents, format: [spellId] = true
+---@return {Name: string, ID: number, Texture: any, IsSelected: boolean}[]
+function DF:GetAllTalents()
+	local allTalents = {}
+
+	local configId = C_ClassTalents.GetActiveConfigID()
+	if (configId) then
+		local configInfo = C_Traits.GetConfigInfo(configId)
+		--get the spells from the SPEC from talents
+		for treeIndex, treeId in ipairs(configInfo.treeIDs) do
+			local treeNodes = C_Traits.GetTreeNodes(treeId)
+			for nodeIdIndex, treeNodeID in ipairs(treeNodes) do
+				local traitNodeInfo = C_Traits.GetNodeInfo(configId, treeNodeID)
+				if (traitNodeInfo) then
+					local activeEntry = traitNodeInfo.activeEntry
+					local entryIds = traitNodeInfo.entryIDs
+					for i = 1, #entryIds do
+						local entryId = entryIds[i] --number
+						local traitEntryInfo = C_Traits.GetEntryInfo(configId, entryId)
+						local borderTypes = Enum.TraitNodeEntryType
+						if (traitEntryInfo.type) then -- == borderTypes.SpendCircle
+							local definitionId = traitEntryInfo.definitionID
+							local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+							local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+							local spellName, _, spellTexture = GetSpellInfo(spellId)
+							if (spellName) then
+								local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false}
+								allTalents[#allTalents+1] = talentInfo
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return allTalents
+end
+
 ---return a table where keys are spellIds (number) and the value is true
 ---@return table<number, boolean>
 function DF:GetAvailableSpells()
@@ -1528,7 +1567,7 @@ function DF:GetAvailableSpells()
         return HasPetSpells()
     end
 
-    --get pet spells from the pet spellbook 
+    --get pet spells from the pet spellbook
     local numPetSpells = getNumPetSpells()
     if (numPetSpells) then
         for i = 1, numPetSpells do
@@ -1772,7 +1811,7 @@ end
 	--add a new color name, the color can be query using DetailsFramework:ParseColors(colorName)
 	function DF:NewColor(colorName, red, green, blue, alpha)
 		assert(type(colorName) == "string", "DetailsFramework:NewColor(): colorName must be a string.")
-		assert(not DF.alias_text_colors[colorName], "DetailsFramework:NewColor(): colorName already exists.")
+		--assert(not DF.alias_text_colors[colorName], "DetailsFramework:NewColor(): colorName already exists.")
 
 		red, green, blue, alpha = DetailsFramework:ParseColors(red, green, blue, alpha)
 		local colorTable = DetailsFramework:FormatColor("table", red, green, blue, alpha)
@@ -3475,6 +3514,12 @@ DF.button_templates["OPTIONS_BUTTON_TEMPLATE"] = {
 	backdropbordercolor = {0, 0, 0, 1},
 }
 
+DF.button_templates["OPTIONS_BUTTON_GOLDENBORDER_TEMPLATE"] = {
+	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+	backdropcolor = {1, 1, 1, .5},
+	backdropbordercolor = {1, 0.785, 0, 1},
+}
+
 --sliders
 DF.slider_templates = DF.slider_templates or {}
 DF.slider_templates["OPTIONS_SLIDER_TEMPLATE"] = {
@@ -3489,6 +3534,12 @@ DF.slider_templates["OPTIONS_SLIDER_TEMPLATE"] = {
 	thumbcolor = {0, 0, 0, 0.5},
 }
 
+---install a template
+---@param widgetType string
+---@param templateName string
+---@param template table
+---@param parentName any
+---@return table
 function DF:InstallTemplate(widgetType, templateName, template, parentName)
 	local newTemplate = {}
 
@@ -4799,7 +4850,7 @@ local dispatch_error = function(context, errortext)
 	DF:Msg( (context or "<no context>") .. " |cFFFF9900error|r: " .. (errortext or "<no error given>"))
 end
 
---safe call an external func with payload and without telling who is calling
+--call a function with payload, if the callback doesn't exists, quit silently
 function DF:QuickDispatch(func, ...)
 	if (type(func) ~= "function") then
 		return
@@ -4986,13 +5037,13 @@ function DF:GetCharacterRaceList()
 	end
 
 	for i = 1, 100 do
-		local raceInfo = C_CreatureInfo.GetRaceInfo (i)
+		local raceInfo = C_CreatureInfo.GetRaceInfo(i)
 		if (raceInfo and DF.RaceList [raceInfo.raceID]) then
 			tinsert(DF.RaceCache, {Name = raceInfo.raceName, FileString = raceInfo.clientFileString, ID = raceInfo.raceID})
 		end
 
 		if IS_WOW_PROJECT_MAINLINE then
-			local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID (i)
+			local alliedRaceInfo = C_AlliedRaces.GetRaceInfoByID(i)
 			if (alliedRaceInfo and DF.AlliedRaceList [alliedRaceInfo.raceID]) then
 				tinsert(DF.RaceCache, {Name = alliedRaceInfo.maleName, FileString = alliedRaceInfo.raceFileString, ID = alliedRaceInfo.raceID})
 			end
@@ -5005,24 +5056,72 @@ end
 --get a list of talents for the current spec the player is using
 --if onlySelected return an index table with only the talents the character has selected
 --if onlySelectedHash return a hash table with [spelID] = true
-function DF:GetCharacterTalents (onlySelected, onlySelectedHash)
+function DF:GetCharacterTalents(bOnlySelected, bOnlySelectedHash)
 	local talentList = {}
+	local version, build, date, tocversion = GetBuildInfo()
 
-	for i = 1, 7 do
-		for o = 1, 3 do
-			local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1)
-			if (onlySelectedHash) then
-				if (selected) then
-					talentList [talentID] = true
-					break
+	if (tocversion >= 70000 and tocversion <= 99999) then
+		for i = 1, 7 do
+			for o = 1, 3 do
+				local talentID, name, texture, selected, available = GetTalentInfo(i, o, 1)
+				if (bOnlySelectedHash) then
+					if (selected) then
+						talentList[talentID] = true
+						break
+					end
+				elseif (bOnlySelected) then
+					if (selected) then
+						table.insert(talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
+						break
+					end
+				else
+					table.insert(talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
 				end
-			elseif (onlySelected) then
-				if (selected) then
-					tinsert(talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
-					break
+			end
+		end
+
+	elseif (tocversion >= 100000) then
+		if (not bOnlySelected) then
+			return DF:GetAllTalents()
+		end
+
+		local configId = C_ClassTalents.GetActiveConfigID()
+		if (configId) then
+			local configInfo = C_Traits.GetConfigInfo(configId)
+			--get the spells from the SPEC from talents
+			for treeIndex, treeId in ipairs(configInfo.treeIDs) do
+				local treeNodes = C_Traits.GetTreeNodes(treeId)
+
+				for nodeIdIndex, treeNodeID in ipairs(treeNodes) do
+					local traitNodeInfo = C_Traits.GetNodeInfo(configId, treeNodeID)
+
+					if (traitNodeInfo) then
+						local activeEntry = traitNodeInfo.activeEntry
+						local entryIds = traitNodeInfo.entryIDs
+
+						for i = 1, #entryIds do
+							local entryId = entryIds[i] --number
+							local traitEntryInfo = C_Traits.GetEntryInfo(configId, entryId)
+							local borderTypes = Enum.TraitNodeEntryType
+
+							if (traitEntryInfo.type) then -- == borderTypes.SpendCircle
+								local definitionId = traitEntryInfo.definitionID
+								local traitDefinitionInfo = C_Traits.GetDefinitionInfo(definitionId)
+								local spellId = traitDefinitionInfo.overriddenSpellID or traitDefinitionInfo.spellID
+								local spellName, _, spellTexture = GetSpellInfo(spellId)
+								local bIsSelected = (activeEntry and activeEntry.rank and activeEntry.rank > 0) or false
+								if (spellName and bIsSelected) then
+									local talentInfo = {Name = spellName, ID = spellId, Texture = spellTexture, IsSelected = true}
+									if (bOnlySelectedHash) then
+										talentList[spellId] = talentInfo
+									else
+										table.insert(talentList, talentInfo)
+									end
+								end
+							end
+						end
+					end
 				end
-			else
-				tinsert(talentList, {Name = name, ID = talentID, Texture = texture, IsSelected = selected})
 			end
 		end
 	end
@@ -5030,7 +5129,7 @@ function DF:GetCharacterTalents (onlySelected, onlySelectedHash)
 	return talentList
 end
 
-function DF:GetCharacterPvPTalents (onlySelected, onlySelectedHash)
+function DF:GetCharacterPvPTalents(onlySelected, onlySelectedHash)
 	if (onlySelected or onlySelectedHash) then
 		local talentsSelected = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
 		local talentList = {}
@@ -5293,6 +5392,15 @@ DF.SpecListByClass = {
 		1473,
 	},
 }
+
+---return if the specId is a valid spec, it'll return false for specIds from the tutorial area
+---@param self table
+---@param specId number
+function DF:IsValidSpecId(specId)
+	local _, class = UnitClass("player")
+	local specs = DF.SpecListByClass[class]
+	return specs and specs[specId] and true or false
+end
 
 --given a class and a  specId, return if the specId is a spec from the class passed
 function DF:IsSpecFromClass(class, specId)
@@ -5808,4 +5916,23 @@ function DF:DebugVisibility(UIObject)
 
 	local numPoints = UIObject:GetNumPoints()
 	print("Num Points:", numPoints > 0 and "|cFF00FF00" .. numPoints .. "|r" or "|cFFFF00000|r")
+end
+
+local benchmarkTime = 0
+local bBenchmarkEnabled = false
+function _G.__benchmark(bNotPrintResult)
+	if (not bBenchmarkEnabled) then
+		bBenchmarkEnabled = true
+		benchmarkTime = debugprofilestop()
+	else
+		local elapsed = debugprofilestop() - benchmarkTime
+		bBenchmarkEnabled = false
+
+		if (bNotPrintResult) then
+			return elapsed
+		end
+
+		print("Elapsed Time:", elapsed)
+		return elapsed
+	end
 end

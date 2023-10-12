@@ -201,7 +201,7 @@ function Details.BuildDeathTableFromRecap (recapID)
 			not spellId and {spellId, spellName, texture},
 		}
 
-		tinsert(ArtificialDeathLog[1], ev)
+		table.insert(ArtificialDeathLog[1], ev)
 		ArtificialDeathLog.n = ArtificialDeathLog.n + 1
 	end
 
@@ -284,7 +284,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
             segmentButton:SetScript("OnClick", function()
                 OpenDetailsDeathRecapAtSegment (i)
             end)
-            tinsert(Details.DeathRecap.Segments, i, segmentButton)
+            table.insert(Details.DeathRecap.Segments, i, segmentButton)
         end
     end
 
@@ -393,7 +393,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
 
         local BiggestDamageHits = {}
         for i = #events, 1, -1 do
-            tinsert(BiggestDamageHits, events [i])
+            table.insert(BiggestDamageHits, events [i])
         end
         table.sort (BiggestDamageHits, function(t1, t2)
             return t1[3] > t2[3]
@@ -423,7 +423,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                 end
             end
             if (not haveHitKill) then
-                tinsert(BiggestDamageHits, 1, hitKill)
+                table.insert(BiggestDamageHits, 1, hitKill)
             end
         end
 
@@ -441,7 +441,7 @@ function Details.OpenDetailsDeathRecap (segment, RecapID, fromChat)
                         end
                     end
                     if (not alreadyHave) then
-                        tinsert(BiggestDamageHits, event)
+                        table.insert(BiggestDamageHits, event)
                         if (#BiggestDamageHits == 10) then
                             break
                         end

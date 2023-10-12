@@ -30,7 +30,7 @@
 			desc = ""
 		end
 		
-		tinsert(_detalhes.row_animation_pool, {name = name, desc = desc, func = func, options = options})
+		table.insert(_detalhes.row_animation_pool, {name = name, desc = desc, func = func, options = options})
 		return true
 		
 	end
@@ -48,7 +48,7 @@
 	function _detalhes:GetRowAnimationList()
 		local t = {}
 			for key, value in ipairs(_detalhes.row_animation_pool) do 
-				tinsert(t, value.name)
+				table.insert(t, value.name)
 			end
 		return t
 	end

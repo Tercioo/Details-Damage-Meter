@@ -1200,16 +1200,19 @@
 		local is_friendly_fire = false
 
 		if (_is_in_instance) then
-			if (bitfield_swap_cache [sourceSerial] or ownerActor and bitfield_swap_cache [ownerActor.serial]) then
-				if (targetActor.grupo or targetOwner and targetOwner.grupo) then
-					is_friendly_fire = true
-				end
-			else
-				if (bitfield_swap_cache [targetSerial] or targetOwner and bitfield_swap_cache [targetOwner.serial]) then
-				else
-					--Astral Nova explosion from Astral Bomb (Spectral Invoker - Algeth'ar Academy) should get friend zone here
-					if ((targetActor.grupo or targetOwner and targetOwner.grupo) and (sourceActor.grupo or ownerActor and ownerActor.grupo)) then
+			local npcId = npcid_cache[targetSerial]
+			if (npcId ~= 207341) then
+				if (bitfield_swap_cache [sourceSerial] or ownerActor and bitfield_swap_cache [ownerActor.serial]) then
+					if (targetActor.grupo or targetOwner and targetOwner.grupo) then
 						is_friendly_fire = true
+					end
+				else
+					if (bitfield_swap_cache [targetSerial] or targetOwner and bitfield_swap_cache [targetOwner.serial]) then
+					else
+						--Astral Nova explosion from Astral Bomb (Spectral Invoker - Algeth'ar Academy) should get friend zone here
+						if ((targetActor.grupo or targetOwner and targetOwner.grupo) and (sourceActor.grupo or ownerActor and ownerActor.grupo)) then
+							is_friendly_fire = true
+						end
 					end
 				end
 			end

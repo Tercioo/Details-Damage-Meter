@@ -121,7 +121,7 @@ local _
 			Details.copypasteframe = CreateFrame("frame", "DetailsCopyPasteFrame2", UIParent, "BackdropTemplate")
 			Details.copypasteframe:SetFrameStrata("TOOLTIP")
 			Details.copypasteframe:SetPoint("CENTER", UIParent, "CENTER", 0, 50)
-			tinsert(UISpecialFrames, "DetailsCopyPasteFrame2")
+			table.insert(UISpecialFrames, "DetailsCopyPasteFrame2")
 			Details.copypasteframe:SetSize(400, 400)
 			Details.copypasteframe:Hide()
 
@@ -686,10 +686,10 @@ local createDropdown = function(thisFrame)
 			bg1:SetHorizTile(true)
 			bg1:SetAllPoints()
 
-			tinsert(window.all_widgets, bg1)
-			tinsert(window.widgets, bg1)
-			tinsert(window.all_widgets, titlebar)
-			tinsert(window.widgets, titlebar)
+			table.insert(window.all_widgets, bg1)
+			table.insert(window.widgets, bg1)
+			table.insert(window.all_widgets, titlebar)
+			table.insert(window.widgets, titlebar)
 		end
 
 		window.title:ClearAllPoints()
@@ -747,7 +747,7 @@ local createDropdown = function(thisFrame)
 	function gump:CriaJanelaReport()
 		--window
 		local window = CreateFrame("Frame", "DetailsReportWindow", UIParent, "BackdropTemplate")
-		tinsert(UISpecialFrames, "DetailsReportWindow")
+		table.insert(UISpecialFrames, "DetailsReportWindow")
 		window:SetPoint("CENTER", UIParent, "CENTER")
 		window:SetFrameStrata("DIALOG")
 		window.skins = {}
@@ -833,7 +833,7 @@ local createDropdown = function(thisFrame)
 			button.icon = icon
 			button.text = text
 			button:SetScript("OnClick", recentlyButtonOnClick)
-			tinsert(window.recently_report_buttons, button)
+			table.insert(window.recently_report_buttons, button)
 		end
 
 		historyBlockBackground:Hide()

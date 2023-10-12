@@ -143,7 +143,7 @@ function Details:CreateAPI2Frame()
         end
         
         for apiIndex, apiDesc in ipairs(api) do
-            tinsert(apiFunctionNames, apiDesc.name)
+            table.insert(apiFunctionNames, apiDesc.name)
         end
         
         local api2ScrollMenu = DetailsFramework:CreateScrollBox (Api2Frame, "$parentApi2MenuScroll", apiMenuScrollRefresh, apiFunctionNames, scrollWidth, scrollHeight, lineAmount, lineHeight)
@@ -286,7 +286,7 @@ function Details:CreateAPI2Frame()
                 f.required:SetPoint("left", f, "left", space2, 0)
                 f.default:SetPoint("left", f, "left", space3, 0)
                 
-                tinsert(parametersLines, f)
+                table.insert(parametersLines, f)
             end
         
         --return value box
@@ -339,7 +339,7 @@ function Details:CreateAPI2Frame()
                 
                 f.desc:SetPoint("topleft", f.name, "bottomleft", 0, -5)
                 
-                tinsert(returnLines, f)
+                table.insert(returnLines, f)
             end
 
         function Api2Frame.Refresh()

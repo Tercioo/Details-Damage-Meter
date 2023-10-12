@@ -435,7 +435,7 @@ function Details.Coach.Server.AddPlayerDeath(playerName, data)
     local utilityActorObject = utilityContainer:GetOrCreateActor(playerGUID, playerName, playerFlag, true)
 
     if (utilityActorObject) then
-        tinsert(currentCombat.last_events_tables, deathLog)
+        table.insert(currentCombat.last_events_tables, deathLog)
         --tag the misc container as need refresh
         currentCombat[DETAILS_ATTRIBUTE_MISC].need_refresh = true
     end
