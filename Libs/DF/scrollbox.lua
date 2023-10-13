@@ -95,7 +95,7 @@ detailsFramework.ScrollBoxFunctions = {
 			func = self.CreateLineFunc
 		end
 
-		local okay, newLine = pcall(func, self, #self.Frames+1)
+		local okay, newLine = xpcall(func, geterrorhandler(), self, #self.Frames+1)
 		if (okay) then
 			if (not newLine) then
 				error("ScrollFrame:CreateLine() function did not returned a line, use: 'return line'")
@@ -103,9 +103,8 @@ detailsFramework.ScrollBoxFunctions = {
 			table.insert(self.Frames, newLine)
 			newLine.Index = #self.Frames
 			return newLine
-		else
-			error("ScrollFrame:CreateLine() error on creating a line: " .. newLine)
 		end
+		return newLine
 	end,
 
 	CreateLines = function(self, callback, lineAmount)
@@ -431,6 +430,7 @@ end
 ---@field backdrop_onenter number[]?
 ---@field backdrop_onleave number[]?
 ---@field font_size number?
+---@field title_text string?
 
 local auraScrollDefaultSettings = {
     line_height = 18,
@@ -442,18 +442,18 @@ local auraScrollDefaultSettings = {
     remove_icon_border = true,
 	no_scroll = false,
     no_backdrop = false,
-    backdrop_onenter = {.8, .8, .8, 0.2},
-    backdrop_onleave = {.8, .8, .8, 0.4},
+    backdrop_onenter = {.8, .8, .8, 0.4},
+    backdrop_onleave = {.8, .8, .8, 0.2},
     font_size = 12,
+	title_text = "",
 }
 
 ---@param parent frame
 ---@param name string?
 ---@param data table? --can be set later with :SetData()
----@param profile table? --can be set later with :SetProfile()
 ---@param onAuraRemoveCallback function?
 ---@param options df_aurascrollbox_options?
-function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAuraRemoveCallback, options)
+function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCallback, options)
     --hack the construction of the options table here, as the scrollbox is created much later
     options = options or {}
     local scrollOptions = {}
@@ -493,6 +493,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
     local onLeaveAuraLine = function(self)
         self:SetBackdropColor(unpack(options.backdrop_onleave))
         GameTooltip:Hide()
+        GameCooltip:Hide()
     end
 
 	local onEnterAuraLine = function(line)
@@ -504,36 +505,32 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
         end
         line:SetBackdropColor(unpack(options.backdrop_onenter))
 
-        local scrollBox = line:GetParent()
-
 		local bAddedBySpellName = line.Flag --the user entered the spell name to track the spell (and not a spellId)
 		local spellId = line.SpellID
 
 		if (bAddedBySpellName) then --the user entered the spell name to track the spell
-			local spellName = GetSpellInfo(spellId)
-			if (spellName) then
-				local spellsWithSameName = scrollBox.profile.aura_cache_by_name[string.lower(spellName)]
-				if (not spellsWithSameName) then
-					--same_name_spells_add(value)
-					--spellsWithSameName = scrollBox.profile.aura_cache_by_name[string.lower(spellName)]
-				end
+			local spellsHashMap, spellsIndexTable, spellsWithSameName = detailsFramework:GetSpellCaches()
+			if (spellsWithSameName) then
+				local spellName, _, spellIcon = GetSpellInfo(spellId)
+				if (spellName) then
+					local spellNameLower = spellName:lower()
+					local sameNameSpells = spellsWithSameName[spellNameLower]
 
-				if (spellsWithSameName) then
-					GameCooltip:Preset(2)
-					GameCooltip:SetOwner(line, "left", "right", 2, 0)
-					GameCooltip:SetOption("TextSize", 10)
+					if (sameNameSpells) then
+						GameCooltip:Preset(2)
+						GameCooltip:SetOwner(line, "left", "right", 2, 0)
+						GameCooltip:SetOption("TextSize", 10)
 
-					for i, spellId in ipairs(spellsWithSameName) do
-						local spellName, _, spellIcon = GetSpellInfo(spellId)
-						if (spellName) then
-							GameCooltip:AddLine(spellName .. "(" .. spellId .. ")")
+						for i, thisSpellId in ipairs(sameNameSpells) do
+							GameCooltip:AddLine(spellName .. " (" .. thisSpellId .. ")")
 							GameCooltip:AddIcon(spellIcon, 1, 1, 14, 14, .1, .9, .1, .9)
 						end
-					end
 
-					GameCooltip:Show()
+						GameCooltip:Show()
+					end
 				end
 			end
+
 		else --the user entered the spellId to track the spell
 			GameCooltip:Preset(2)
 			GameCooltip:SetOwner(line, "left", "right", 2, 0)
@@ -577,7 +574,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
         line:SetScript("OnLeave", onLeaveAuraLine)
 
         line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-        line:SetBackdropColor(options.backdrop_onleave)
+        line:SetBackdropColor(unpack(options.backdrop_onleave))
 
         local iconTexture = line:CreateTexture("$parentIcon", "overlay")
         iconTexture:SetSize(lineHeight - 2, lineHeight - 2)
@@ -602,11 +599,9 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
     end
 
     ---@class df_aurascrollbox : df_scrollbox
-    ---@field RefreshMe fun(self:df_aurascrollbox)
     ---@field TransformAuraData fun(self:df_aurascrollbox)
-    ---@field SetProfile fun(self:df_aurascrollbox, profile:table)
     ---@field data_original table
-    ---@field profile table
+    ---@field refresh_original function
 
     data = data or {}
 
@@ -617,9 +612,16 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
     local auraScrollBox = detailsFramework:CreateScrollBox(parent, name, refreshAuraLines, data, options.width, options.height, options.line_amount, options.line_height)
     detailsFramework:ReskinSlider(auraScrollBox)
     ---@cast auraScrollBox df_aurascrollbox
-
     auraScrollBox.data_original = data
-    auraScrollBox.profile = profile or {}
+
+	local titleLabel = detailsFramework:CreateLabel(auraScrollBox, options.title_text)
+	titleLabel.textcolor = "silver"
+	titleLabel.textsize = 10
+	titleLabel:SetPoint("bottomleft", auraScrollBox, "topleft", 0, 2)
+
+	for i = 1, options.line_amount do
+		auraScrollBox:CreateLine(createLineFunc)
+	end
 
     function auraScrollBox:TransformAuraData()
         local newData = {}
@@ -638,10 +640,6 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
         self.data = newData
     end
 
-    function auraScrollBox.SetProfile(self, profile)
-        self.profile = profile
-    end
-
     auraScrollBox.SetData = function(self, data)
         self.data_original = data
         self.data = data
@@ -651,6 +649,13 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, profile, onAur
     auraScrollBox.GetData = function(self)
         return self.data_original
     end
+
+	auraScrollBox.refresh_original = auraScrollBox.Refresh
+
+	auraScrollBox.Refresh = function()
+		auraScrollBox:TransformAuraData()
+		auraScrollBox:refresh_original()
+	end
 
     auraScrollBox:SetData(data)
 

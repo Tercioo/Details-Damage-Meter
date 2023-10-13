@@ -3738,7 +3738,7 @@ end
 ---@field ReajustNumFrames boolean?
 ---@field DontHideChildrenOnPreRefresh boolean
 ---@field refresh_func fun(self:df_scrollbox, data:table, offset:number, numlines:number)
----@field Refresh fun(self:df_scrollbox, data:table, offset:number, numlines:number)
+---@field Refresh fun(self:df_scrollbox)
 ---@field CreateLineFunc fun(self:df_scrollbox, index:number)?
 ---@field CreateLine fun(self:df_scrollbox, func:function)
 ---@field SetData fun(self:df_scrollbox, data:table)

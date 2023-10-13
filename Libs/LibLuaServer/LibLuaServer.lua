@@ -607,3 +607,6 @@
 ---@field SetTextColor fun(self: editbox, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
 ---@field SetJustifyH fun(self:editbox, alignment:string)
 ---@field SetTextInsets fun(self:editbox, left:number, right:number, top:number, bottom:number)
+---@field SetFocus fun(self:editbox, focus:boolean)
+---@field HasFocus fun(self:editbox) : boolean return true if the editbox has focus
+---@field HighlightText fun(self:editbox, start:number?, finish:number?) select a portion of the text, passing zero will select the entire text

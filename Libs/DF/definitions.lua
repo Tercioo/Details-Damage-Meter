@@ -19,13 +19,19 @@
 ---| "slider"
 
 ---@class detailsframework
+---@field dversion number
 ---@field OptionsFunctions df_optionsmixin
+---@field GlobalWidgetControlNames table
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
 ---@field HeaderFunctions df_headerfunctions
 ---@field KeybindMixin df_keybindmixin
+---@field ScriptHookMixin df_scripthookmixin
 ---@field Math df_math
 ---@field table df_table_functions
+---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
+---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
+---@field GetSpellCaches fun(self:table) : table, table, table return the tables filled with LoadSpellCache()
 ---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
 ---@field DebugVisibility fun(self:table, object:uiobject) print the reason why the frame isn't shown in the screen
 ---@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall, print to chat if the function passed is invalid
@@ -81,5 +87,5 @@
 ---@field CreateSwitch fun(self:table, parent:frame, onSwitch:function, defaultValue:boolean, width:number?, height:number?, leftText:string?, rightText:string?, member:string?, name:string?, colorInverted:boolean?, switchFunc:function?, returnFunc:function?, withLabel:string?, switch_template:table?, label_template:table?) : df_checkbox, df_label?
 ---@field CreateCheckboxGroup fun(self:table, parent:frame, radioOptions:df_radiooptions[], name:string?, options:table?, anchorOptions:table?) : df_checkboxgroup
 ---@field CreateRadioGroup fun(self:table, parent:frame, radioOptions:df_radiooptions[], name:string?, options:table?, anchorOptions:table?) : df_radiogroup
----@field 
+---@field CreateAuraScrollBox fun(self:table, parent:frame, name:string?, data:table?, onRemoveCallback:function?, options:table?) : df_aurascrollbox
 ---@field 

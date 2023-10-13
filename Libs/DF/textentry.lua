@@ -541,6 +541,7 @@ end
 ---@field text any
 ---@field multiline any
 ---@field align any
+---@field ShouldOptimizeAutoComplete boolean?
 ---@field SetTemplate fun(self:df_textentry, template:table)
 ---@field Disable fun(self:df_textentry)
 ---@field Enable fun(self:df_textentry)
@@ -555,6 +556,7 @@ end
 ---@field SetEnterFunction fun(self:df_textentry, func:function, param1:any, param2:any)
 ---@field SetHook fun(self:df_textentry, hookName:string, func:function)
 ---@field SetAsSearchBox fun(self:df_textentry)
+---@field SetAsAutoComplete fun(self:df_textentry, poolName:string, poolTable:table?, shouldOptimize:boolean?) poolName is the name of the member on textEntry that will be used to store the pool table, poolTable is an array with word to be used on the autocomplete, shouldOptimize is a boolean that will optimize the autocomplete by using a cache table, it's recommended to use it if the autocomplete array is too large.
 
 ---@param parent frame
 ---@param textChangedCallback function
