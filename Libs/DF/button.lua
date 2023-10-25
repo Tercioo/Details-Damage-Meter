@@ -877,7 +877,7 @@ end
 	---@param func function
 	---@param width number
 	---@param height number
-	---@param text string
+	---@param text any
 	---@param param1 any|nil
 	---@param param2 any|nil
 	---@param texture any|nil

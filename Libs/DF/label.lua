@@ -110,7 +110,13 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 
 	--text
 	local smember_text = function(object, value)
-		return object.label:SetText(value)
+		--check if this is a loc table
+		if (detailsFramework.Language.IsLocTable(value)) then
+			local locTable = value
+			detailsFramework.Language.RegisterObjectWithLocTable(object.widget or object, locTable)
+		else
+			return object.label:SetText(value)
+		end
 	end
 
 	--text color
@@ -233,6 +239,10 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 	function LabelMetaFunctions:SetTextColor(red, green, blue, alpha)
 		red, green, blue, alpha = detailsFramework:ParseColors(red, green, blue, alpha)
 		return self.label:SetTextColor(red, green, blue, alpha)
+	end
+
+	function LabelMetaFunctions:SetText(text)
+		return smember_text(self, text)
 	end
 
 ------------------------------------------------------------------------------------------------------------

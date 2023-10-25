@@ -1,6 +1,6 @@
 
 
-local dversion = 477
+local dversion = 479
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -10,6 +10,8 @@ if (not DF) then
 end
 
 _G["DetailsFramework"] = DF
+
+---@cast DF detailsframework
 
 DetailsFrameworkCanLoad = true
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -934,6 +936,16 @@ function DF:GroupIterator(callback, ...)
 	else
 		DF:QuickDispatch(callback, "player", ...)
 	end
+end
+
+---receives an object and a percent amount, then calculate the return value by multiplying the min value of the object width or height by the percent received
+---@param uiObject uiobject
+---@param percent number
+---@return number
+function DF:GetSizeFromPercent(uiObject, percent)
+	local width, height = uiObject:GetSize()
+	local minValue = math.min(width, height)
+	return minValue * percent
 end
 
 ---get an integer an format it as string with the time format 16:45
@@ -2097,8 +2109,47 @@ end
 		return descPhraseId or widgetTable.descPhraseId or widgetTable.desc or widgetTable.name or "-?-"
 	end
 
-	local getNamePhraseText = function(languageTable, widgetTable, useColon)
-		local namePhrase = languageTable and (languageTable[widgetTable.namePhraseId] or languageTable[widgetTable.name])
+	local getNamePhraseID = function(widgetTable, languageAddonId, languageTable, bIgnoreEmbed)
+		if (widgetTable.namePhraseId) then
+			return widgetTable.namePhraseId
+		end
+
+		if (not languageTable) then
+			return
+		end
+
+		local keyName = widgetTable.name
+
+		if (widgetTable.type == "label" and widgetTable.get) then
+			local key = widgetTable.get()
+			if (key and type(key) == "string") then
+				keyName = key
+			end
+		end
+
+		--embed key is when the phraseId is inside a string surounded by @
+    	local embedPhraseId = keyName:match("@(.-)@")
+
+		local hasValue = DF.Language.DoesPhraseIDExistsInDefaultLanguage(languageAddonId, embedPhraseId or keyName)
+		if (not hasValue) then
+			return
+		end
+
+		if (embedPhraseId and not bIgnoreEmbed) then
+			return embedPhraseId, true
+		else
+			return keyName
+		end
+	end
+
+	local getNamePhraseText = function(languageTable, widgetTable, useColon, languageAddonId)
+		local namePhraseId, bWasEmbed = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+		local namePhrase = languageTable and (languageTable[namePhraseId] or languageTable[widgetTable.namePhraseId] or languageTable[widgetTable.name])
+
+		if (bWasEmbed and widgetTable.name) then
+			namePhrase = widgetTable.name:gsub("@" .. namePhraseId .. "@", namePhrase)
+		end
+
 		return namePhrase or formatOptionNameWithColon(widgetTable.name, useColon) or widgetTable.namePhraseId or widgetTable.name or "-?-"
 	end
 
@@ -2179,7 +2230,8 @@ end
 						local label = getMenuWidgetVolative(parent, "label", widgetIndexes)
 						widgetCreated = label
 
-						local namePhrase = (languageTable and (languageTable[widgetTable.namePhraseId] or languageTable[widgetTable.name])) or (widgetTable.get and widgetTable.get()) or widgetTable.text or (widgetTable.namePhraseId) or ""
+						local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+						local namePhrase = (languageTable and (languageTable[namePhraseId] or languageTable[widgetTable.namePhraseId] or languageTable[widgetTable.name])) or (widgetTable.get and widgetTable.get()) or widgetTable.text or (widgetTable.namePhraseId) or ""
 						label.text = namePhrase
 						label.color = widgetTable.color
 
@@ -2218,7 +2270,7 @@ end
 						dropdown._get = widgetTable.get
 						dropdown.widget_type = "select"
 
-						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
+						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 						dropdown.hasLabel.text = namePhrase
 
 						dropdown.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
@@ -2281,7 +2333,7 @@ end
 							switch:SetHeight(widgetTable.height)
 						end
 
-						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
+						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 						switch.hasLabel.text = namePhrase
 						switch.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
@@ -2353,7 +2405,7 @@ end
 							end
 						end
 
-						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
+						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 						slider.hasLabel.text = namePhrase
 						slider.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
@@ -2403,7 +2455,7 @@ end
 
 						local label = colorpick.hasLabel
 
-						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
+						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 						label.text = namePhrase
 						label:SetTemplate(widgetTable.text_template or textTemplate)
 
@@ -2442,7 +2494,7 @@ end
 						button.textfont = textTemplate.font
 						button.textsize = textTemplate.size
 
-						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
+						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 						button.text = namePhrase
 
 						if (widgetTable.inline) then
@@ -2513,7 +2565,7 @@ end
 							end
 						end)
 
-						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon)
+						local namePhrase = getNamePhraseText(languageTable, widgetTable, useColon, languageAddonId)
 						textentry.hasLabel.text = namePhrase
 						textentry.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 						textentry:SetPoint("left", textentry.hasLabel, "right", 2)
@@ -2584,35 +2636,6 @@ end
 		end
 
 		return widgetTable.desc
-	end
-
-	local getNamePhraseID = function(widgetTable, languageAddonId, languageTable)
-		if (widgetTable.namePhraseId) then
-			return widgetTable.namePhraseId
-		end
-
-		if (not languageTable) then
-			return
-		end
-
-		local keyName = widgetTable.name
-
-		if (widgetTable.type == "label" and widgetTable.get) then
-			local key = widgetTable.get()
-			if (key and type(key) == "string") then
-				keyName = key
-			end
-		end
-
-		--embed key is when the phraseId is inside a string surounded by @
-    	local embedPhraseId = keyName:match("@(.-)@")
-
-		local hasValue = DF.Language.DoesPhraseIDExistsInDefaultLanguage(languageAddonId, embedPhraseId or keyName)
-		if (not hasValue) then
-			return
-		end
-
-		return keyName
 	end
 
 	function DF:BuildMenu(parent, menuOptions, xOffset, yOffset, height, useColon, textTemplate, dropdownTemplate, switchTemplate, switchIsCheckbox, sliderTemplate, buttonTemplate, valueChangeHook)
@@ -2711,7 +2734,7 @@ end
 					dropdown.widget_type = "select"
 
 					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
-					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true, true)
 					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
 
 					dropdown.addonId = languageAddonId
@@ -2786,7 +2809,7 @@ end
 
 					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
 
-					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true)
 					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
 
 					if (widgetTable.boxfirst or useBoxFirstOnAllWidgets) then
@@ -2851,7 +2874,7 @@ end
 					end
 
 					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
-					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true)
 					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
 
 					slider:SetPoint("left", label, "right", 2)
@@ -2900,7 +2923,7 @@ end
 					end
 
 					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
-					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true)
 					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
 
 					if (widgetTable.boxfirst or useBoxFirstOnAllWidgets) then
@@ -2933,7 +2956,7 @@ end
 				elseif (widgetTable.type == "execute") then
 					local button = DF:NewButton(parent, nil, "$parentWidget" .. index, nil, 120, 18, widgetTable.func, widgetTable.param1, widgetTable.param2, nil, "", nil, buttonTemplate, textTemplate)
 
-					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true)
 					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, button.widget, namePhraseId, widgetTable.name)
 
 					if (not buttonTemplate) then
@@ -3007,7 +3030,7 @@ end
 
 					local label = DF:NewLabel(parent, nil, "$parentLabel" .. index, nil, "", "GameFontNormal", widgetTable.text_template or textTemplate or 12)
 
-					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable)
+					local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true)
 					DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
 
 					textentry:SetPoint("left", label, "right", 2)
@@ -4812,12 +4835,27 @@ function DF:ReskinSlider(slider, heightOffset)
 	end
 end
 
+function DF:GetCurrentClassName()
+	local className = UnitClass("player")
+	return className
+end
+
+function DF:GetCurrentSpecName()
+	local specIndex = DF.GetSpecialization()
+	if (specIndex) then
+		local specId, specName = DF.GetSpecializationInfo(specIndex)
+		if (specId and specId ~= 0) then
+			return specName
+		end
+	end
+end
+
 function DF:GetCurrentSpec()
 	local specIndex = DF.GetSpecialization()
 	if (specIndex) then
-		local specID = DF.GetSpecializationInfo(specIndex)
-		if (specID and specID ~= 0) then
-			return specID
+		local specId = DF.GetSpecializationInfo(specIndex)
+		if (specId and specId ~= 0) then
+			return specId
 		end
 	end
 end
@@ -4842,8 +4880,12 @@ local specs_per_class = {
 	["EVOKER"] = {1467, 1468, 1473},
 }
 
-function DF:GetClassSpecIDs(class)
-	return specs_per_class [class]
+
+function DF:GetClassSpecIDs(engClass)
+	return specs_per_class[engClass]
+end
+function DF:GetClassSpecIds(engClass) --naming conventions
+	return DF:GetClassSpecIDs(engClass)
 end
 
 local dispatch_error = function(context, errortext)
@@ -4936,44 +4978,42 @@ DF.ClassIndexToFileName = {
 
 
 DF.ClassFileNameToIndex = {
-	["DEATHKNIGHT"] = 6,
 	["WARRIOR"] = 1,
-	["ROGUE"] = 4,
-	["MAGE"] = 8,
-	["PRIEST"] = 5,
-	["HUNTER"] = 3,
-	["WARLOCK"] = 9,
-	["DEMONHUNTER"] = 12,
-	["SHAMAN"] = 7,
-	["DRUID"] = 11,
-	["MONK"] = 10,
 	["PALADIN"] = 2,
+	["HUNTER"] = 3,
+	["ROGUE"] = 4,
+	["PRIEST"] = 5,
+	["DEATHKNIGHT"] = 6,
+	["SHAMAN"] = 7,
+	["MAGE"] = 8,
+	["WARLOCK"] = 9,
+	["MONK"] = 10,
+	["DRUID"] = 11,
+	["DEMONHUNTER"] = 12,
 	["EVOKER"] = 13,
 }
 DF.ClassCache = {}
 
 function DF:GetClassList()
-
 	if (next (DF.ClassCache)) then
 		return DF.ClassCache
 	end
 
 	for className, classIndex in pairs(DF.ClassFileNameToIndex) do
-		local classTable = C_CreatureInfo.GetClassInfo (classIndex)
+		local classTable = C_CreatureInfo.GetClassInfo(classIndex)
 		if classTable then
 			local t = {
 				ID = classIndex,
 				Name = classTable.className,
 				Texture = [[Interface\GLUES\CHARACTERCREATE\UI-CharacterCreate-Classes]],
-				TexCoord = CLASS_ICON_TCOORDS [className],
+				TexCoord = CLASS_ICON_TCOORDS[className],
 				FileString = className,
 			}
-			tinsert(DF.ClassCache, t)
+			table.insert(DF.ClassCache, t)
 		end
 	end
 
 	return DF.ClassCache
-
 end
 
 --hardcoded race list
@@ -5398,7 +5438,7 @@ DF.SpecListByClass = {
 ---@param specId number
 function DF:IsValidSpecId(specId)
 	local _, class = UnitClass("player")
-	local specs = DF.SpecListByClass[class]
+	local specs = DF.ClassSpecs[class]
 	return specs and specs[specId] and true or false
 end
 
@@ -5936,3 +5976,4 @@ function _G.__benchmark(bNotPrintResult)
 		return elapsed
 	end
 end
+

@@ -337,10 +337,19 @@ local grid_scrollbox_options = {
 function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, createColumnFrameFunc, options)
     options = options or {}
 
-	local width = options.width or grid_scrollbox_options.width
-	local height = options.height or grid_scrollbox_options.height
-	local lineAmount = options.line_amount or grid_scrollbox_options.line_amount
-	local lineHeight = options.line_height or grid_scrollbox_options.line_height
+	--check values passed, get defaults and cast values due to the scrollbox require some values to be numbers
+	local width = type(options.width) == "number" and options.width or grid_scrollbox_options.width
+	---@cast width number
+
+	local height = type(options.height) == "number" and options.height or grid_scrollbox_options.height
+	---@cast height number
+
+	local lineAmount = type(options.line_amount) == "number" and options.line_amount or grid_scrollbox_options.line_amount
+	---@cast lineAmount number
+
+	local lineHeight = type(options.line_height) == "number" and options.line_height or grid_scrollbox_options.line_height
+	---@cast lineHeight number
+
     local columnsPerLine = options.columns_per_line or grid_scrollbox_options.columns_per_line
 	local autoAmount = options.auto_amount
 	local noScroll = options.no_scroll
@@ -402,6 +411,10 @@ function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, c
                 end
             end
         end
+    end
+
+    if (not name) then
+        name = "DetailsFrameworkAuraScrollBox" .. math.random(1, 9999999)
     end
 
 	local scrollBox = detailsFramework:CreateScrollBox(parent, name, refreshGrid, data, width, height, lineAmount, lineHeight, createLineFunc, autoAmount, noScroll, noBackdrop)
@@ -505,10 +518,10 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
         end
         line:SetBackdropColor(unpack(options.backdrop_onenter))
 
-		local bAddedBySpellName = line.Flag --the user entered the spell name to track the spell (and not a spellId)
+		local bTrackByName = line.Flag --the user entered the spell name to track the spell (and not a spellId)
 		local spellId = line.SpellID
 
-		if (bAddedBySpellName) then --the user entered the spell name to track the spell
+		if (bTrackByName) then --the user entered the spell name to track the spell
 			local spellsHashMap, spellsIndexTable, spellsWithSameName = detailsFramework:GetSpellCaches()
 			if (spellsWithSameName) then
 				local spellName, _, spellIcon = GetSpellInfo(spellId)
@@ -546,7 +559,7 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
 	end
 
     local onClickAuraRemoveButton = function(self)
-        local spellId = self:GetParent().SpellID
+        local spellId = tonumber(self:GetParent().SpellID)
         if (spellId and type(spellId) == "number") then
             --button > line > scrollbox
             local scrollBox = self:GetParent():GetParent()
@@ -599,9 +612,11 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
     end
 
     ---@class df_aurascrollbox : df_scrollbox
-    ---@field TransformAuraData fun(self:df_aurascrollbox)
     ---@field data_original table
     ---@field refresh_original function
+	---@field TitleLabel fontstring
+    ---@field TransformAuraData fun(self:df_aurascrollbox)
+	---@field GetTitleFontString fun(self:df_aurascrollbox): fontstring
 
     data = data or {}
 
@@ -614,10 +629,15 @@ function detailsFramework:CreateAuraScrollBox(parent, name, data, onAuraRemoveCa
     ---@cast auraScrollBox df_aurascrollbox
     auraScrollBox.data_original = data
 
-	local titleLabel = detailsFramework:CreateLabel(auraScrollBox, options.title_text)
-	titleLabel.textcolor = "silver"
-	titleLabel.textsize = 10
+	local titleLabel = auraScrollBox:CreateFontString("$parentTitleLabel", "overlay", "GameFontNormal")
 	titleLabel:SetPoint("bottomleft", auraScrollBox, "topleft", 0, 2)
+	detailsFramework:SetFontColor(titleLabel, "silver")
+	detailsFramework:SetFontSize(titleLabel, 10)
+	auraScrollBox.TitleLabel = titleLabel
+
+	function auraScrollBox:GetTitleFontString()
+		return self.TitleLabel
+	end
 
 	for i = 1, options.line_amount do
 		auraScrollBox:CreateLine(createLineFunc)

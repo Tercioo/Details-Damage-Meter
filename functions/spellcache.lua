@@ -274,24 +274,46 @@ do
 		customItemList[426431] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
 		customItemList[426486] = {itemId = 210494, isPassive = true} --enchant: Incandescent Essence (aug evoker)
 		customItemList[424324] = {itemId = 207788, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Mace INT] - shadowflame corrupted?
-		--customItemList[424324] = {itemId = 207786, isPassive = true} --weapon: [[PH] Fyrakk Cantrip 1H Axe STR] same as the mace
+		customItemList[424965] = {itemId = 207784, isPassive = true} --weapon: Thorncaller Claw
+		customItemList[425181] = {itemId = 207784, isPassive = true, nameExtra = "(*aoe*)"} --weapon: Thorncaller Claw
+		customItemList[425127] = {itemId = 207783, isPassive = true} --weapon: Cruel Dreamcarver (heal)
 
 		customItemList[423611] = {itemId = 207167, isPassive = true, nameExtra = "*proc*"} --trinket: Ashes of the Embersoul (extra proc)
 		customItemList[426553] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame
 		customItemList[426564] = {itemId = 208614, isPassive = true} --trinket: Augury of the Primal Flame (damage)
-		customItemList[425154] = {itemId = 207166, isPassive = true} --trinket: Infernal Signet Brand
+		customItemList[425154] = {itemId = 207166, isPassive = true} --trinket: Cataclysmic Signet Brand
 		customItemList[427037] = {itemId = 207175, isPassive = true} --trinket: Coiled Serpent Idol
 		customItemList[421996] = {itemId = 207173, isPassive = true} --trinket: Gift of Ursine Vengeance
 		customItemList[421994] = {itemId = 207173, isPassive = true} --trinket: Gift of Ursine Vengeance (buff)
 		customItemList[422441] = {itemId = 207169, isPassive = true} --trinket: Branch of the Tormented Ancient (buff)
+		customItemList[417458] = {itemId = 207566, isPassive = true} --trinket: Accelerating Sandglass
+		customItemList[417452] = {itemId = 207566, isPassive = true} --trinket: Accelerating Sandglass (buff)
+		customItemList[214169] = {itemId = 136715, isPassive = true} --trinket: Spiked Counterweight
+		customItemList[92174] = {itemId = 133192, isPassive = true} --trinket: Porcelain Crab
+		customItemList[429262] = {itemId = 109999, isPassive = true} --trinket: Witherbark's Branch (buff)
+		customItemList[418527] = {itemId = 207581, isPassive = true} --trinket: Mirror of Fractured Tomorrows (buff)
+		customItemList[214342] = {itemId = 137312, isPassive = true} --trinket: Nightmare Egg Shell
+		customItemList[429246] = {itemId = 110004, isPassive = true} --trinket: Coagulated Genesaur Blood
+		customItemList[214350] = {itemId = 137306, isPassive = true} --trinket: Oakheart's Gnarled Root
+		customItemList[429221] = {itemId = 133201, isPassive = true} --trinket: Sea Star
+		customItemList[215270] = {itemId = 136714, isPassive = true} --trinket: Amalgam's Seventh Spine
+		customItemList[417534] = {itemId = 207579, isPassive = true} --trinket: Time-Thief's Gambit
+		customItemList[270827] = {itemId = 159610, isPassive = true} --trinket: Vessel of Skittering Shadows
+		customItemList[271671] = {itemId = 159631, isPassive = true} --trinket: Lady Waycrest's Music Box
+		customItemList[215407] = {itemId = 136716, isPassive = true} --trinket: Caged Horror
 
 		customItemList[427161] = {itemId = 208615, onUse = true, castId = 422956, defaultName = GetSpellInfo(422956)} --trinket: Nymue's Unraveling Spindle
 		customItemList[425701] = {itemId = 207174, onUse = true, castId = 422750, defaultName = GetSpellInfo(422750)} --trinket: Fyrakk's Tainted Rageheart
 		customItemList[425509] = {itemId = 207169, onUse = true, castId = 422441, defaultName = GetSpellInfo(422441)} --trinket: Branch of the Tormented Ancient
 		customItemList[422146] = {itemId = 207172, onUse = true, castId = 422146, defaultName = GetSpellInfo(422146)} --trinket: Belor'relos, the Sunstone
+		customItemList[265953] = {itemId = 158319, onUse = true, castId = 265954, defaultName = GetSpellInfo(265953)} --trinket: My'das Talisman
+		customItemList[429257] = {itemId = 109999, onUse = true, castId = 429257, defaultName = GetSpellInfo(429257)} --trinket: Witherbark's Branch (no damage)
 		customItemList[427430] = {itemId = 207165, onUse = true, castId = 422146, defaultName = GetSpellInfo(422303), nameExtra = "*return*"} --trinket: Bandolier of Twisted Blades
 		customItemList[422303] = {itemId = 207165, onUse = true, castId = 422146, defaultName = GetSpellInfo(422303), nameExtra = "*throw*"} --trinket: Bandolier of Twisted Blades
 		customItemList[426898] = {itemId = 207167, onUse = true, castId = 423611, nameExtra = "*on use*", defaultName = GetSpellInfo(423611)} --trinket: Ashes of the Embersoul
+		customItemList[429271] = {itemId = 110009, onUse = true, castId = 429271, defaultName = GetSpellInfo(429271)} --trinket: Leaf of the Ancient Protectors
+		customItemList[429272] = {itemId = 110009, onUse = true, castId = 429271, nameExtra = "(*vers*)", defaultName = GetSpellInfo(429271)} --trinket: Leaf of the Ancient Protectors
+
 
 	end
 

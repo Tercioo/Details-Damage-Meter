@@ -29,6 +29,7 @@ detailsFramework.Schedules.AfterCombatSchedules = {
 ---@field CancelAllAfterCombat fun()
 ---@field IsAfterCombatScheduled fun(id: any): boolean
 ---@field LazyExecute fun(callback: function, payload: table?, maxIterations: number?, onEndCallback: function?): table
+---@field AfterById fun(time: number, callback: function, id: any, ...: any): timer
 
 ---@class df_looper : table
 ---@field payload table
@@ -238,6 +239,22 @@ function detailsFramework.Schedules.LazyExecute(callback, payload, maxIterations
     wrapFunc()
 
     return payload
+end
+
+function detailsFramework.Schedules.AfterById(time, callback, id, ...)
+    if (not detailsFramework.Schedules.ExecuteTimerTable) then
+        detailsFramework.Schedules.ExecuteTimerTable = {}
+    end
+
+    local alreadyHaveTimer = detailsFramework.Schedules.ExecuteTimerTable[id]
+    if (alreadyHaveTimer) then
+        alreadyHaveTimer:Cancel()
+    end
+
+    local newTimer = detailsFramework.Schedules.NewTimer(time, callback, ...)
+    detailsFramework.Schedules.ExecuteTimerTable[id] = newTimer
+
+    return newTimer
 end
 
 

@@ -11,6 +11,29 @@
 ---@field removeduplicate fun(tbl1:table, tbl2:table) remove the keys from table1 which also exists in table2 with the same value
 ---@field dump fun(tbl:table) : string dump a table to a string
 
+---@class df_language : table
+---@field Register fun(addonId:any, languageId:string, gameLanguageOnly:boolean?) : table
+---@field GetLanguageTable fun(addonId:any, languageId:string?) : table
+---@field GetText fun(addonId:any, phraseId:string, silent:boolean?) : string, string
+---@field ShowOptionsHelp fun()
+---@field SetOption fun(addonId:any, optionId:string, value:any)
+---@field SetCurrentLanguage fun(addonId:any, languageId:string)
+---@field CreateLanguageSelector fun(addonId:any, parent:frame, callback:function, selectedLanguage:string?) : df_dropdown
+---@field SetFontForLanguageId fun(addonId:any, languageId:string, fontPath:string)
+---@field SetFontByAlphabetOrRegion fun(addonId:any, latin_FontPath:string, cyrillic_FontPath:string, china_FontPath:string, korean_FontPath:string, taiwan_FontPath:string)
+---@field RegisterObject fun(addonId:any, object:uiobject, phraseId:string, silent:boolean?, ...) : boolean
+---@field UpdateObjectArguments fun(addonId:any, object:uiobject, ...) : boolean
+---@field RegisterTableKey fun(addonId:any, table:table, key:any, phraseId:string, silent:boolean?, ...) : boolean
+---@field UpdateTableKeyArguments fun(addonId:any, table:table, key:any, ...) : boolean
+---@field RegisterObjectWithDefault fun(addonId:any, object:uiobject, phraseId:string, defaultText:string, ...) : boolean
+---@field RegisterTableKeyWithDefault fun(addonId:any, table:table, key:any, phraseId:string, defaultText:string, ...) : boolean
+---@field CreateLocTable fun(addonId:any, phraseId:string, shouldRegister:boolean?, ...) : table
+---@field SetTextWithLocTable fun(object:uiobject, locTable:table)
+---@field SetTextWithLocTableWithDefault fun(object:uiobject, locTable:table, defaultText:string)
+---@field SetTextIfLocTableOrDefault fun(object:uiobject, locTable:table)
+---@field RegisterTableKeyWithLocTable fun(table:table, key:any, locTable:table, silence:boolean?)
+---@field RegisterObjectWithLocTable fun(object:uiobject, locTable:table, silence:boolean?)
+
 ---@alias templatetype
 ---| "font"
 ---| "dropdown"
@@ -25,14 +48,23 @@
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
 ---@field HeaderFunctions df_headerfunctions
+---@field Language df_language
 ---@field KeybindMixin df_keybindmixin
 ---@field ScriptHookMixin df_scripthookmixin
+---@field ClassCache {ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[] only available after calling GetClassList()
 ---@field Math df_math
 ---@field table df_table_functions
+---@field ClassFileNameToIndex table<string, number> engClass -> classIndex
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
+---@field GetCurrentClassName fun(self:table) : string return the name of the class the player is playing
+---@field GetCurrentSpecName fun(self:table) : string return the name of the spec the player is playing
 ---@field GetSpellCaches fun(self:table) : table, table, table return the tables filled with LoadSpellCache()
+---@field GetCurrentSpec fun(self:table):number?
+---@field GetCurrentSpecId fun(self:table):number? return the specId of the current spec, retuns nil if the expansion the player is playing does not support specs
+---@field GetClassSpecIds fun(self:table, engClass:string):number[]
 ---@field IsValidSpecId fun(self:table, specId:number):boolean check if the passed specId is valid for the player class, also return false for tutorial specs
+---@field GetClassList fun(self:table):{ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[]
 ---@field DebugVisibility fun(self:table, object:uiobject) print the reason why the frame isn't shown in the screen
 ---@field Dispatch fun(self:table, callback:function, ...) : any dispatch a function call using xpcall, print to chat if the function passed is invalid
 ---@field QuickDispatch fun(self:table, callback:function, ...) : any dispatch a function call without errors if the function passed is invalid
@@ -40,7 +72,7 @@
 ---@field GetDefaultBackdropColor fun(self:table) : red, green, blue, alpha return the standard backdrop color used by blizzard on their own frames
 ---@field Msg fun(self:table, message:string, ...) show a message in the chat frame
 ---@field MsgWarning fun(self:table, message:string, ...) show a warning message in the chat frame
----@field CreateButton fun(self:table, parent:frame, func:function, width:number, height:number, text:string?, param1:any, param2:any, texture:atlasname|texturepath|textureid|nil, member:string?, name:string?, shortMethod:any, buttonTemplate:table?, textTemplate:table?) : df_button
+---@field CreateButton fun(self:table, parent:frame, func:function, width:number, height:number, text:any, param1:any, param2:any, texture:atlasname|texturepath|textureid|nil, member:string?, name:string?, shortMethod:any, buttonTemplate:table?, textTemplate:table?) : df_button
 ---@field CreateCloseButton fun(self:table, parent:frame, frameName:string?) : df_closebutton
 ---@field CreateTabButton fun(self:table, parent:frame, frameName:string?) : df_tabbutton
 ---@field CreateRoundedPanel fun(self:table, parent:frame, frameName:string?, optionsTable:df_roundedpanel_options?) : df_roundedpanel
@@ -75,7 +107,6 @@
 ---@field NewColor fun(self:table, colorName:string, red:number, green:number, blue:number, alpha:number)
 ---@field CreateKeybindFrame fun(self:table, parent:frame, name:string?, options:table?, setKeybindCallback:function?, keybindData:table?) : df_keybindframe
 ---@field CreateStatusBar fun(self:table, parent:frame, options:table?) : frame
----@field CreateScrollBox fun(self:table, parent:frame, name:string, refreshFunc:function, data:table, width:number, height:number, lineAmount:number, lineHeight:number, createLineFunc:function?, autoAmount:boolean?, noScroll:boolean?, noBackdrop:boolean?) : df_scrollbox
 ---@field GetTemplate fun(self:table, templateType:templatetype, templateName:string) : table
 ---@field UpdateLoadConditionsTable fun(self:table, loadConditionsTable:table)
 ---@field IconPick fun(self:table, callback:function, bCloseWhenSelect:boolean?, param1:any?, param2:any?)
@@ -87,5 +118,9 @@
 ---@field CreateSwitch fun(self:table, parent:frame, onSwitch:function, defaultValue:boolean, width:number?, height:number?, leftText:string?, rightText:string?, member:string?, name:string?, colorInverted:boolean?, switchFunc:function?, returnFunc:function?, withLabel:string?, switch_template:table?, label_template:table?) : df_checkbox, df_label?
 ---@field CreateCheckboxGroup fun(self:table, parent:frame, radioOptions:df_radiooptions[], name:string?, options:table?, anchorOptions:table?) : df_checkboxgroup
 ---@field CreateRadioGroup fun(self:table, parent:frame, radioOptions:df_radiooptions[], name:string?, options:table?, anchorOptions:table?) : df_radiogroup
+---@field CreateScrollBox fun(self:table, parent:frame, name:string, refreshFunc:function, data:table, width:number, height:number, lineAmount:number, lineHeight:number, createLineFunc:function?, autoAmount:boolean?, noScroll:boolean?, noBackdrop:boolean?) : df_scrollbox
 ---@field CreateAuraScrollBox fun(self:table, parent:frame, name:string?, data:table?, onRemoveCallback:function?, options:table?) : df_aurascrollbox
+---@field CreateGridScrollBox fun(self:table, parent:frame, name:string?, refreshFunc:function, data:table?, createColumnFrameFunc:function, options:table?) : df_gridscrollbox
+---@field GetSizeFromPercent fun(self:table, uiObject:uiobject, percent:number) : number get the min size of a uiObject and multiply it by the percent passed
+---@field 
 ---@field 

@@ -12,6 +12,11 @@ end
 ---@field CountdownText fontstring
 ---@field CooldownEdge texture
 ---@field options table
+---@field NextIcon number
+---@field IconPool table<number, df_icongeneric> table which store the icons created for this iconrow
+---@field SetAuraWithIconTemplate fun(self:df_icongeneric, aI:aurainfo, iconTemplateTable:table)
+---@field ClearIcons fun(self:df_icongeneric, resetBuffs:boolean?, resetDebuffs:boolean?)
+---@field AlignAuraIcons fun(self:df_icongeneric)
 
 local unpack = unpack
 local CreateFrame = CreateFrame

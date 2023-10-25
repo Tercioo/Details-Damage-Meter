@@ -177,7 +177,15 @@ detailsFramework.LayoutFrame = {
 					end
 
 					thisFrame:SetPoint(anchorPoint, self, anchorAt, currentX, currentY)
-					currentY = currentY - offsetY
+
+					if (options.use__height) then --use the childframe.__width
+						currentY = currentY - thisFrame.__height
+
+					elseif (options.min_height) then
+						currentY = currentY - math.max(options.min_height, offsetY)
+					else
+						currentY = currentY - offsetY
+					end
 				end
 			end
 
@@ -2026,12 +2034,12 @@ local no_options = {}
 ---@field Close button
 ---@field SetTitle fun(self: simplepanel, title: string)
 ---@param parent frame the parent frame
----@param width number|nil the width of the panel
----@param height number|nil the height of the panel
----@param title string|nil a string to show in the title bar
----@param frameName string|nil the name of the frame
----@param panelOptions table|nil a table with options described above
----@param savedVariableTable table|nil a table to save the scale of the panel
+---@param width number? the width of the panel
+---@param height number? the height of the panel
+---@param title string? a string to show in the title bar
+---@param frameName string? the name of the frame
+---@param panelOptions table? a table with options described above
+---@param savedVariableTable table? a table to save the scale of the panel
 ---@return frame
 function detailsFramework:CreateSimplePanel(parent, width, height, title, frameName, panelOptions, savedVariableTable)
 	--create a saved variable table if the savedVariableTable has been not passed within the function call
@@ -2127,9 +2135,9 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	titleText:SetText(title or "")
 	simplePanel.Title = titleText
 
-	if (panelOptions.UseScaleBar and savedVariableTable [frameName]) then
-		detailsFramework:CreateScaleBar (simplePanel, savedVariableTable [frameName])
-		simplePanel:SetScale(savedVariableTable [frameName].scale)
+	if (panelOptions.UseScaleBar and savedVariableTable and savedVariableTable[frameName]) then
+		detailsFramework:CreateScaleBar(simplePanel, savedVariableTable[frameName])
+		simplePanel:SetScale(savedVariableTable[frameName].scale)
 	end
 
 	simplePanel.Title:SetPoint("center", titleBar, "center")
@@ -3987,6 +3995,7 @@ local default_radiogroup_options = {
 ---@field _set function
 ---@field _callback function
 ---@field __width number
+---@field __height number
 
 ---@class df_radiogroupmixin : table
 ---@field allCheckBoxes df_radiogroup_checkbox[]
@@ -3995,6 +4004,7 @@ local default_radiogroup_options = {
 ---@field Enable fun(self:df_checkboxgroup)
 ---@field DeselectAll fun(self:df_checkboxgroup)
 ---@field Select fun(self:df_checkboxgroup, checkboxId:number)
+---@field GetSelected fun(self:df_checkboxgroup):number
 ---@field FadeIn fun(self:df_checkboxgroup)
 ---@field FadeOut fun(self:df_checkboxgroup)
 ---@field GetAllCheckboxes fun(self:df_checkboxgroup):df_radiogroup_checkbox[]
@@ -4137,15 +4147,16 @@ detailsFramework.RadioGroupCoreFunctions = {
 			checkbox.Label:SetPoint("left", checkbox, "right", 2, 0)
 		end
 
-		local checkBoxLength = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + 2)) + (checkbox.Label:GetStringWidth()) + 2
-		checkbox.__width = checkBoxLength
-		checkbox.widget.__width = checkBoxLength
+		checkbox.__width = width + (checkbox.Icon:IsShown() and (checkbox.Icon:GetWidth() + 2)) + (checkbox.Label:GetStringWidth()) + 2
+		checkbox.widget.__width = checkbox.__width
+
+		checkbox.__height = height + (checkbox.Icon:IsShown() and (checkbox.Icon:GetHeight() + 2))
+		checkbox.widget.__height = checkbox.__height
 	end,
 
 	Refresh = function(self)
 		self:ResetAllCheckboxes()
 		local radioOptions = self:GetOptions()
-		local radioCheckboxes = self:GetAllCheckboxes()
 		local totalWidth = 0
 		local maxHeight = 0
 
@@ -4182,6 +4193,17 @@ detailsFramework.RadioGroupCoreFunctions = {
 		end
 	end,
 
+	GetSelected = function(self)
+		local allCheckBoxes = self:GetAllCheckboxes()
+		for i = 1, #allCheckBoxes do
+			local thisCheckbox = allCheckBoxes[i]
+			if (thisCheckbox:GetValue()) then
+				return thisCheckbox._optionid, thisCheckbox:GetFixedParameter()
+			end
+		end
+		return 0
+	end,
+
 	SetOptions = function(self, radioOptions)
 		self.RadioOptionsTable = radioOptions
 		self:Refresh()
@@ -4193,7 +4215,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 }
 
 ---@class df_radiooptions : table
----@field name string
+---@field name string|table can be a regular string or a locTable
 ---@field get fun():any?
 ---@field set fun(self:df_radiooptions, param, value)
 ---@field param any?
