@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 11914
-		Details.alpha_build_counter = 11914 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12012
+		Details.alpha_build_counter = 12012 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -138,18 +138,28 @@ do
 
 	--change logs
 	--[=[
-
-
 	--]=]
 
 	local news = {
-		{"v10.1.0.11914.151", "September 13th, 2023"},
+		{"v10.1.7.12012.151", "October 27th, 2023"},
+		"Implemented [Pip's Emerald Friendship Badge] trinket buffs.",
+		"Implemented the amount of times 'On Use' trinkets are used.",
+		"10.2 trinket damage spells renamed to the item name.",
+		"Framework Upgrade",
+		"Lib OpenRaid Upgrade.",
+		"Fixed the issue 'Segment Not Found' while resetting data.",
+		"Fixed Rogue icon",
+		"Fixed an issue with the healing merge amount on death tooltips (Flamanis).",
+		"Fixed 'extraStatusbar' showing in wrong views (non-player-dmg) (Continuity).",
+		"Removed LibCompress (Flamanis).",
+
+		{"v10.1.7.11914.151", "September 13th, 2023"},
 		"Added an extra bar within the evoker damage bar, this new bar when hovered over shows the buff uptime of Ebon Might and Prescience on all players.",
 		"ToC Files of all plugins got updated.",
 		"Fixed the error 'Attempt to compare string with number' on vanilla (Flamanis).",
 		"Fixed the error 'object:ToolTip() is invalid'.",
 
-		{"v10.1.0.11901.151", "September 09th, 2023"},
+		{"v10.1.7.11901.151", "September 09th, 2023"},
 		"Evoker Predicted Damage improvements.",
 		"Improved spellId check for first hit when entering a combat (Flamanis).",
 		"Replaced Classic Era deprecated functions (Flamanis).",
@@ -158,7 +168,7 @@ do
 		"Attempt to fix death log healing spam where a spell has multiple heals in the same millisecond.",
 		"Fixed an error with the old comparison window.",
 
-		{"v10.1.5.11856.151", "August 13th, 2023"},
+		{"v10.1.7.11856.151", "August 13th, 2023"},
 		"Fixed an issue with importing a profile with a corrupted time type.",
 		"Added Elemental Shaman overload spells (WillowGryph).",
 
