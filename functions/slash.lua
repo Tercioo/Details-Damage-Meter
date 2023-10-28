@@ -372,17 +372,19 @@ function SlashCmdList.DETAILS (msg, editbox)
 		instance2.baseframe:SetPoint("bottomright", RightChatToggleButton, "topright", -1, 1)
 
 	elseif (msg == "pets") then
-		local f = Details:CreateListPanel()
+		local petFrame = Details.PetFrame
+		if (not petFrame) then
+			petFrame = Details:CreateListPanel()
+			Details.PetFrame = petFrame
+		end
 
 		local i = 1
 		for k, v in pairs(Details.tabela_pets.pets) do
-			if (v[6] == "Guardian of Ancient Kings") then
-				Details.ListPanel:add ( k.. ": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3] .. " | " .. v[6], i)
-				i = i + 1
-			end
+			petFrame:add( k .. ": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3] .. " | " .. v[6], i)
+			i = i + 1
 		end
 
-		f:Show()
+		petFrame:Show()
 
 	elseif (msg == "savepets") then
 		Details.tabela_vigente.saved_pets = {}
@@ -1826,20 +1828,23 @@ function Details:UpdateUserPanel(usersTable)
 	DetailsUserPanel:Show()
 end
 
-function Details:CreateListPanel()
-	Details.ListPanel = Details.gump:NewPanel(UIParent, nil, "DetailsActorsFrame", nil, 300, 600)
-	Details.ListPanel:SetPoint("center", UIParent, "center", 300, 0)
-	Details.ListPanel.barras = {}
+function Details:CreateListPanel(name)
+	name = name or ("DetailsListPanel" .. math.random(100000, 1000000))
+	local newListPanel = Details.gump:NewPanel(UIParent, nil, name, nil, 800, 600)
+	newListPanel:SetPoint("center", UIParent, "center", 300, 0)
+	newListPanel.lines = {}
 
-	table.insert(UISpecialFrames, "DetailsActorsFrame")
-	Details.ListPanel.close_with_right = true
+	DetailsFramework:ApplyStandardBackdrop(newListPanel.widget)
 
-	local container_barras_window = CreateFrame("ScrollFrame", "Details_ActorsBarrasScroll", Details.ListPanel.widget)
-	local container_barras = CreateFrame("Frame", "Details_ActorsBarras", container_barras_window)
-	Details.ListPanel.container = container_barras
+	table.insert(UISpecialFrames, name)
+	newListPanel.close_with_right = true
 
-	Details.ListPanel.width = 500
-	Details.ListPanel.locked = false
+	local container_barras_window = CreateFrame("ScrollFrame", "$parentActorsBarrasScroll", newListPanel.widget, "BackdropTemplate")
+	local container_barras = CreateFrame("Frame", "$parentActorsBarras", container_barras_window, "BackdropTemplate")
+	newListPanel.container = container_barras
+
+	newListPanel.width = 835
+	newListPanel.locked = false
 
 	container_barras_window:SetBackdrop({
 		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5,
@@ -1852,19 +1857,19 @@ function Details:CreateListPanel()
 	container_barras:SetBackdropColor(0, 0, 0, 0)
 
 	container_barras:SetAllPoints(container_barras_window)
-	container_barras:SetWidth(500)
-	container_barras:SetHeight(150)
+	container_barras:SetWidth(800)
+	container_barras:SetHeight(550)
 	container_barras:EnableMouse(true)
 	container_barras:SetResizable(false)
 	container_barras:SetMovable(true)
 
-	container_barras_window:SetWidth(460)
+	container_barras_window:SetWidth(800)
 	container_barras_window:SetHeight(550)
 	container_barras_window:SetScrollChild(container_barras)
-	container_barras_window:SetPoint("TOPLEFT", Details.ListPanel.widget, "TOPLEFT", 21, -10)
+	container_barras_window:SetPoint("TOPLEFT", newListPanel.widget, "TOPLEFT", 21, -10)
 
 	Details.gump:NewScrollBar (container_barras_window, container_barras, -10, -17)
-	container_barras_window.slider:Altura (560)
+	container_barras_window.slider:Altura(550)
 	container_barras_window.slider:cimaPoint (0, 1)
 	container_barras_window.slider:baixoPoint (0, -3)
 	container_barras_window.slider:SetFrameLevel(10)
@@ -1873,12 +1878,20 @@ function Details:CreateListPanel()
 
 	container_barras_window.gump = container_barras
 
-	function Details.ListPanel:add (text, index, filter)
-		local row = Details.ListPanel.barras [index]
+	DetailsFramework:ReskinSlider(container_barras_window)
+
+	function newListPanel:reset()
+		for i = 1, #newListPanel.lines do
+			newListPanel.lines[i].text:Hide()
+		end
+	end
+
+	function newListPanel:add(text, index, filter)
+		local row = newListPanel.lines[index]
 		if (not row) then
-			row = {text = Details.ListPanel.container:CreateFontString(nil, "overlay", "GameFontNormal")}
-			Details.ListPanel.barras [index] = row
-			row.text:SetPoint("topleft", Details.ListPanel.container, "topleft", 0, -index * 15)
+			row = {text = newListPanel.container:CreateFontString(nil, "overlay", "GameFontNormal")}
+			newListPanel.lines [index] = row
+			row.text:SetPoint("topleft", newListPanel.container, "topleft", 0, -index * 15)
 		end
 
 		if (filter and text:find(filter)) then
@@ -1888,9 +1901,10 @@ function Details:CreateListPanel()
 		end
 
 		row.text:SetText(text)
+		row.text:Show()
 	end
 
-	return Details.ListPanel
+	return newListPanel
 end
 
 
