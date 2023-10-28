@@ -14,6 +14,8 @@ local setmetatable = setmetatable
 local bitBand = bit.band --lua local
 local pairs = pairs
 
+local unitIDRaidCache = Details222.UnitIdCache.Raid
+
 --details locals
 local bIsIgnored = Details.pets_ignored
 
@@ -61,10 +63,10 @@ function container_pets:PegaDono(petGUID, petName, petFlags)
 	if (IsInRaid()) then
 		for i = 1, GetNumGroupMembers() do
 			if (petGUID == UnitGUID("raidpet"..i)) then
-				dono_serial = UnitGUID("raid"..i)
+				dono_serial = UnitGUID(unitIDRaidCache[i])
 				dono_flags = 0x00000417 --emulate sourceflag flag
 
-				local nome, realm = UnitName("raid"..i)
+				local nome, realm = UnitName(unitIDRaidCache[i])
 				if (realm and realm ~= "") then
 					nome = nome.."-"..realm
 				end
