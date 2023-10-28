@@ -685,8 +685,8 @@ end
 	local petOwnerFound = function(ownerName, petGUID, petName, petFlags, self, ownerGUID)
 		local ownerGuid = ownerGUID or UnitGUID(ownerName)
 		if (ownerGuid) then
-			Details.tabela_pets:Adicionar(petGUID, petName, petFlags, ownerGuid, ownerName, 0x00000417)
-			local petNameWithOwner, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:PegaDono(petGUID, petName, petFlags)
+			Details.tabela_pets:AddPet(petGUID, petName, petFlags, ownerGuid, ownerName, 0x00000417)
+			local petNameWithOwner, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:GetPetOwner(petGUID, petName, petFlags)
 
 			local petOwnerActorObject
 
@@ -721,7 +721,7 @@ end
 		actorSerial = actorSerial or "ns"
 
 		if (container_pets[actorSerial]) then --this is a registered pet
-			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:PegaDono(actorSerial, actorName, actorFlags)
+			local petName, ownerName, ownerGUID, ownerFlag = Details.tabela_pets:GetPetOwner(actorSerial, actorName, actorFlags)
 			if (petName and ownerName and ownerGUID ~= actorSerial) then
 				actorName = petName
 				petOwnerObject = self:PegarCombatente(ownerGUID, ownerName, ownerFlag, true)

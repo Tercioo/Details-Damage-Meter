@@ -2196,8 +2196,6 @@
 	--10/30 15:34:47.249  SPELL_EMPOWER_START,Player-4184-0048EE5B,"Nezaland-Valdrakken",0x514,0x0,Player-4184-0048EE5B,"Nezaland-Valdrakken",0x514,0x0,382266,"Fire Breath",0x4
 	--357209 damage spell is different from the spell cast
 
-	local playerNameWithRealm = UnitName("player") .."-".. GetRealmName()
-
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--SUMMON 	serach key: ~summon										|
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -2224,7 +2222,7 @@
 
 		if (isWOTLK) then
 			if (npcId == 15439) then
-				Details.tabela_pets:Adicionar(petSerial:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags)
+				Details.tabela_pets:AddPet(petSerial:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags)
 
 			elseif (npcId == 15438) then
 				return
@@ -2242,7 +2240,7 @@
 			sourceName, sourceSerial, sourceFlags = petTable[1], petTable[2], petTable[3]
 		end
 
-		Details.tabela_pets:Adicionar(petSerial, petName, petFlags, sourceSerial, sourceName, sourceFlags)
+		Details.tabela_pets:AddPet(petSerial, petName, petFlags, sourceSerial, sourceName, sourceFlags)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -3674,7 +3672,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	local onUnitPowerUpdate = function(self, event, unitID, powerType)
 		if (powerType == "ALTERNATE") then
-			local actorName = Details:GetCLName(unitID)
+			local actorName = Details:GetFullName(unitID)
 			if (actorName) then
 				local power = _current_combat.alternate_power[actorName]
 				if (not power) then
@@ -3961,7 +3959,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not ownerActor) then
-			petName, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:PegaDono(sourceSerial, sourceName, sourceFlags)
+			petName, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:GetPetOwner(sourceSerial, sourceName, sourceFlags)
 			if (petName) then
 				ownerActor = _current_misc_container:GetOrCreateActor(ownerGUID, ownerName, ownerFlags, true)
 				--print("pet found:", petName, ownerName, ownerGUID, ownerFlags)
@@ -5929,7 +5927,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (serial and serial ~= UnitGUID("player") and serial:find("Player")) then
 				Details.duel_candidates[serial] = GetTime()
 
-				local playerName = Details:GetCLName(unit)
+				local playerName = Details:GetFullName(unit)
 
 				--check if the player is inside the current combat and flag the objects
 				if (playerName and _current_combat) then

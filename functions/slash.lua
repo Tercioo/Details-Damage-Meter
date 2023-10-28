@@ -418,27 +418,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		print(nome, realm)
 
-	elseif (msg == "raid") then
-
-		local player, realm = "Ditador", "Azralon"
-
-		local actorName
-		if (realm ~= GetRealmName()) then
-			actorName = player.."-"..realm
-		else
-			actorName = player
-		end
-
-		print(actorName)
-
-		local guid = Details:FindGUIDFromName ("Ditador")
-		print(guid)
-
-		for i = 1, GetNumGroupMembers()-1, 1 do
-			local name, realm = UnitName ("party"..i)
-			print(name, " -- ", realm)
-		end
-
 	elseif (msg == "cacheparser") then
 		Details:PrintParserCacheIndexes()
 	elseif (msg == "parsercache") then
@@ -2221,7 +2200,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 					local guildUsers = {}
 					local totalMembers, onlineMembers, onlineAndMobileMembers = GetNumGuildMembers()
-					local realmName = GetRealmName()
+
 					--create a string to use into the gsub call when removing the realm name from the player name, by default all player names returned from GetGuildRosterInfo() has PlayerName-RealmName format
 					local realmNameGsub = "%-.*"
 					local guildName = GetGuildInfo("player")

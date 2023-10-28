@@ -101,6 +101,10 @@ do
 		CONTAINER_ENEMYDEBUFFTARGET_CLASS = 11
 	}
 
+
+	local UnitName = UnitName
+	local GetRealmName = GetRealmName
+
 	local initialSpecListOverride = {
 		[1455] = 251, --dk
 		[1456] = 577, --demon hunter
@@ -168,6 +172,21 @@ do
 			end
 			return name
 		end
+	end
+
+	function Details:GetFullName(unitId)
+		local playerName, realmName = UnitName(unitId)
+
+		if (not realmName) then
+			realmName = GetRealmName()
+		end
+
+		return playerName .. "-" .. realmName
+	end
+
+	local _, _, _, toc = GetBuildInfo() --check game version to know which version of GetFullName to use
+	if (toc < 100200) then
+		Details.GetFullName = Details.GetCLName
 	end
 
 	function Details:Class(actor)

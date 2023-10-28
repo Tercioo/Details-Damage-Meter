@@ -1975,8 +1975,8 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 			end
 
 			if (average > MIN_ILEVEL_TO_STORE) then
-				local name = _detalhes:GetCLName(unitid)
-				_detalhes.item_level_pool [guid] = {name = name, ilvl = average, time = time()}
+				local unitName = Details:GetFullName(unitid)
+				_detalhes.item_level_pool [guid] = {name = unitName, ilvl = average, time = time()}
 			end
 		end
 
@@ -2108,10 +2108,10 @@ local NotifyInspectHook = function(unitid)
 
 	if ((IsInRaid() or IsInGroup()) and (_detalhes:GetZoneType() == "raid" or _detalhes:GetZoneType() == "party")) then
 		local guid = UnitGUID(unitid)
-		local name = _detalhes:GetCLName(unitid)
+		local name = Details:GetFullName(unitid)
 		if (guid and name and not inspecting [guid]) then
 			for i = 1, GetNumGroupMembers() do
-				if (name == _detalhes:GetCLName(unit .. i)) then
+				if (name == Details:GetFullName(unit .. i)) then
 					unitid = unit .. i
 					break
 				end

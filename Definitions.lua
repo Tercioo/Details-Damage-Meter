@@ -64,7 +64,17 @@
 ---@field key5 petname
 ---@field key6 guid
 
+---@class petownerinfo : table
+---@field key1 unitname owner name
+---@field key2 guid owner guid
+---@field key3 controlflags owner flags
+---@field key4 unixtime time when the pet was created
+---@field key5 boolean true if the pet is part of the player's group
+---@field key6 petname pet name
+---@field key7 guid pet guid
+
 ---@class details
+---@field pets table<guid, petinfo> store the pet guid as the key and the petinfo as the value
 ---@field SpellTableMixin spelltablemixin
 ---@field GetInstance fun(self: details) : instance
 ---@field GetWindow fun(self: details) : instance this is an alias of GetInstance
