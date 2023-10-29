@@ -31,49 +31,96 @@
 	local UnitAffectingCombat = UnitAffectingCombat --wow api local
 	local _InCombatLockdown = InCombatLockdown --wow api local
 
+	local playerRealmName = GetRealmName()
+
 	local gump = Details.gump --details local
 
-
 	local predicateFunc = function(spellIdToFind, casterName, _, name, icon, applications, dispelName, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, applications)
-		--print(name, texture, count, debuffType, duration, expirationTime, spellID)
 		if (spellIdToFind == spellId and UnitExists(sourceUnit)) then
-			local spellname = GetSpellInfo(spellId)
-			if (casterName == GetUnitName(sourceUnit, true)) then
+			if (casterName == Details:GetFullName(sourceUnit)) then
 				return true
 			end
 		end
 	end
 
-	---find the duration of a debuff by passing the spellId and the caster name
-	---@param unitId unit
-	---@param spellId spellid
-	---@param casterName actorname
-	---@return auraduration|nil auraDuration
-	---@return number|nil expirationTime
-	function Details:FindDebuffDuration(unitId, spellId, casterName)
-		local name, texture, count, debuffType, duration, expirationTime = AuraUtil.FindAura(predicateFunc, unitId, "HARMFUL", spellId, casterName)
-		if (name) then
-			return duration, expirationTime
+	do
+		function Details:FindDebuffDurationByUnitName(targetString, spellId, casterString)
+			local targetName, targetRealm = strsplit("-", targetString)
+			if (playerRealmName ~= targetRealm) then
+				targetName = targetString
+			end
+
+			local casterName, casterRealm = strsplit("-", casterString)
+			if (playerRealmName ~= casterRealm) then
+				casterName = casterString
+			end
+
+			return Details:FindDebuffDuration(targetName, spellId, casterName)
+		end
+
+		---find the duration of a debuff by passing the spellId and the caster name
+		---@param unitId unit
+		---@param spellId spellid
+		---@param casterName actorname
+		---@return auraduration|nil auraDuration
+		---@return number|nil expirationTime
+		function Details:FindDebuffDuration(unitId, spellId, casterName)
+			local name, texture, count, debuffType, duration, expirationTime = AuraUtil.FindAura(predicateFunc, unitId, "HARMFUL", spellId, casterName)
+			if (name) then
+				return duration, expirationTime
+			end
 		end
 	end
 
-	---find the duration of a buff by passing the spellId and the caster name
-	---@param unitId unit
-	---@param spellId spellid
-	---@param casterName actorname
-	---@return auraduration|nil auraDuration
-	---@return number|nil expirationTime
-	function Details:FindBuffDuration(unitId, spellId, casterName)
-		local name, texture, count, debuffType, duration, expirationTime = AuraUtil.FindAura(predicateFunc, unitId, "HELPFUL", spellId, casterName)
-		if (name) then
-			return duration, expirationTime
+	do
+		function Details:FindBuffDurationByUnitName(targetString, spellId, casterString)
+			local targetName, targetRealm = strsplit("-", targetString)
+			if (playerRealmName ~= targetRealm) then
+				targetName = targetString
+			end
+
+			local casterName, casterRealm = strsplit("-", casterString)
+			if (playerRealmName ~= casterRealm) then
+				casterName = casterString
+			end
+
+			return Details:FindBuffDuration(targetName, spellId, casterName)
+		end
+
+		---find the duration of a buff by passing the spellId and the caster name
+		---@param unitId unit
+		---@param spellId spellid
+		---@param casterName actorname
+		---@return auraduration|nil auraDuration
+		---@return number|nil expirationTime
+		function Details:FindBuffDuration(unitId, spellId, casterName)
+			local name, texture, count, debuffType, duration, expirationTime = AuraUtil.FindAura(predicateFunc, unitId, "HELPFUL", spellId, casterName)
+			if (name) then
+				return duration, expirationTime
+			end
 		end
 	end
 
-	function Details:FindBuffCastedBy(unitId, buffSpellId, casterName)
-		local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = AuraUtil.FindAura(predicateFunc, unitId, "HELPFUL", buffSpellId, casterName)
-		if (auraName) then
-			return auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5
+	do
+		function Details:FindBuffCastedByUnitName(targetString, buffSpellId, casterString)
+			local targetName, targetRealm = strsplit("-", targetString)
+			if (playerRealmName ~= targetRealm) then
+				targetName = targetString
+			end
+
+			local casterName, casterRealm = strsplit("-", casterString)
+			if (playerRealmName ~= casterRealm) then
+				casterName = casterString
+			end
+
+			return Details:FindBuffCastedBy(targetName, buffSpellId, casterName)
+		end
+
+		function Details:FindBuffCastedBy(unitId, buffSpellId, casterName)
+			local auraName, texture, count, auraType, duration, expTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, playerOrPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = AuraUtil.FindAura(predicateFunc, unitId, "HELPFUL", buffSpellId, casterName)
+			if (auraName) then
+				return auraName, texture, count, auraType, duration, expTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, playerOrPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5
+			end
 		end
 	end
 
