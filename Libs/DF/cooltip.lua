@@ -15,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 17
+local version = 18
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -2204,6 +2204,9 @@ function DF:CreateCoolTip()
 		frame1:ClearAllPoints()
 		PixelUtil.SetPoint(frame1, gameCooltip.OptionsTable.MyAnchor, anchor, gameCooltip.OptionsTable.RelativeAnchor, 0 + moveX + gameCooltip.OptionsTable.WidthAnchorMod, 10 + gameCooltip.OptionsTable.HeightAnchorMod + moveY)
 
+		local bHadXPositionOutOfScreen = false
+		local bHadYPositionOutOfScreen = false
+
 		if (not xOffset) then
 			--check if cooltip is out of screen bounds
 			local centerX = frame1:GetCenter()
@@ -2216,13 +2219,17 @@ function DF:CreateCoolTip()
 					--out of right side
 					local moveLeftOffset = (centerX + halfScreenWidth) - screenWidth
 					gameCooltip.internal_x_mod = -moveLeftOffset
-					return gameCooltip:SetMyPoint(host, -moveLeftOffset, 0)
+					xOffset = -moveLeftOffset
+					bHadXPositionOutOfScreen = true
+					--return gameCooltip:SetMyPoint(host, -moveLeftOffset, 0)
 
 				elseif (centerX - halfScreenWidth < 0) then
 					--out of left side
 					local moveRightOffset = centerX - halfScreenWidth
 					gameCooltip.internal_x_mod = moveRightOffset * -1
-					return gameCooltip:SetMyPoint(host, moveRightOffset * -1, 0)
+					xOffset = moveRightOffset * -1
+					bHadXPositionOutOfScreen = true
+					--return gameCooltip:SetMyPoint(host, moveRightOffset * -1, 0)
 				end
 			end
 		end
@@ -2238,15 +2245,23 @@ function DF:CreateCoolTip()
 					--out of top side
 					local moveDownOffset = (centerY + helpScreenHeight) - screenHeight
 					gameCooltip.internal_y_mod = -moveDownOffset
-					return gameCooltip:SetMyPoint(host, 0, -moveDownOffset)
+					yOffset = -moveDownOffset
+					bHadYPositionOutOfScreen = true
+					--return gameCooltip:SetMyPoint(host, 0, -moveDownOffset)
 
 				elseif (centerY - helpScreenHeight < 0) then
 					--out of bottom side
 					local moveUpOffset = centerY - helpScreenHeight
 					gameCooltip.internal_y_mod = moveUpOffset * -1
-					return gameCooltip:SetMyPoint(host, 0, moveUpOffset * -1)
+					yOffset = moveUpOffset * -1
+					bHadYPositionOutOfScreen = true
+					--return gameCooltip:SetMyPoint(host, 0, moveUpOffset * -1)
 				end
 			end
+		end
+
+		if (bHadXPositionOutOfScreen or bHadYPositionOutOfScreen) then
+			return gameCooltip:SetMyPoint(host, bHadXPositionOutOfScreen and xOffset or 0, bHadYPositionOutOfScreen and yOffset or 0)
 		end
 
 		if (frame2:IsShown() and not gameCooltip.overlap_checked) then
