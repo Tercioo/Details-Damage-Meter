@@ -1182,7 +1182,7 @@ local refreshSpellsFunc = function(scrollFrame, scrollData, offset, totalLines) 
 						nameToUse = bkSpellData.actorName
 					end
 
-					---@debug both calls are equal but the traceback will be different in case of an error
+					--both calls are equal but the traceback will be different in case of an error
 					if (bIsActorHeader) then
 						updateSpellBar(spellBar, index, nameToUse, combatObject, scrollFrame, headerTable, bkSpellData, spellTableIndex, totalValue, topValue, bIsMainLine, keyToSort, spellTablesAmount)
 					else

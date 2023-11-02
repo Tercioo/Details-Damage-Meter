@@ -2546,7 +2546,7 @@
 
 			--consolidate if the spellId is the same and the time is the same as well
 			local previousEvent = t[i-1]
-			if (previousEvent and previousEvent[2] == spellId and floor(previousEvent[4]) == floor(time)) then
+			if (previousEvent and previousEvent[1] == false and previousEvent[2] == spellId and floor(previousEvent[4]) == floor(time)) then
 				previousEvent[3] = previousEvent[3] + amount
 				if (absorbed) then
 					previousEvent[8] = (previousEvent[8] or 0) + absorbed
@@ -2554,7 +2554,7 @@
 				previousEvent[7] = previousEvent[7] or bIsShield
 				previousEvent[1] = false --true if this is a damage || false for healing
 				previousEvent[5] = UnitHealth(targetName)
-				previousEvent[11] = (previousEvent[11] or 0) + 1
+				previousEvent[11] = (previousEvent[11] or 0) + 1 --attempt to perform arithmetic on a boolean value (during battlegrounds - fix 02 Nov 2023)
 			else
 				local thisEvent = t[i]
 

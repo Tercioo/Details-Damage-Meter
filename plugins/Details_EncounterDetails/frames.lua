@@ -89,7 +89,7 @@ do
 				{value = 5, label = "Auto", onclick = onShowIconCallback, desc = "The plugin decides when the icon needs to be shown."},
 			}
 
-			---@debug /dump DETAILS_PLUGIN_ENCOUNTER_DETAILS.db.show_icon
+			--/dump DETAILS_PLUGIN_ENCOUNTER_DETAILS.db.show_icon
 
 			local menu = {
 				{

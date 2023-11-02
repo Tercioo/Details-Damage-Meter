@@ -345,7 +345,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	---@type table<combat, boolean> store references of combat objects removed
 	local removedCombats = {}
 
-	---@debug check if there's a destroyed segment within the segment container
+	--check if there's a destroyed segment within the segment container
 	if (amountSegmentsInUse > 0) then
 		for i = 1, amountSegmentsInUse do
 			local thisCombatObject = segmentsTable[i]
@@ -449,7 +449,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 	--update the amount of segments in use in case a segment was removed
 	amountSegmentsInUse = #segmentsTable
 
-	---@debug check if there's a destroyed segment within the segment container
+	-- check if there's a destroyed segment within the segment container
 	if (amountSegmentsInUse > 0) then
 		for i = 1, amountSegmentsInUse do
 			local thisCombatObject = segmentsTable[i]
@@ -681,7 +681,7 @@ function segmentClass:AddCombat(combatObject)
 		end
 	end
 
-	---@debug check if there's a destroyed segment within the segment container
+	--check if there's a destroyed segment within the segment container
 	local segments = Details:GetCombatSegments()
 	if (#segments > 0) then
 		for i = 1, #segments do
@@ -691,7 +691,6 @@ function segmentClass:AddCombat(combatObject)
 			end
 		end
 	end
-	---@end-debug
 
 	Details:InstanceCall(function(instanceObject) instanceObject:RefreshCombat() end)
 
