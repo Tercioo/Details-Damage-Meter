@@ -284,6 +284,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ---@field shadow fontflags
 ---@field outline fontflags
 ---@field rotation number
+---@field SetPoint fun(self: df_label, point: any, relativeTo: any, relativePoint: any, x: any, y: any) set the label position
 ---@field SetTemplate fun(self: df_label, template: table) set the fontstring visual by a template
 ---@field SetTextColor fun(self: df_label, red: any, green: number|nil, blue: number|nil, alpha: number|nil) set the button text color
 ---@field SetTextTruncated fun(self: df_label, text: string, maxWidth: width)

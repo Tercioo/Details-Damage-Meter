@@ -107,6 +107,11 @@
 ---| "thickoutline"
 ---| "monochrome"
 
+---@alias outline
+---| "NONE"
+---| "OUTLINE"
+---| "THICKOUTLINE"
+
 ---@alias orientation
 ---| "HORIZONTAL"
 ---| "VERTICAL"

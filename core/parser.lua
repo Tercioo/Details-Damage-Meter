@@ -204,6 +204,7 @@
 			[395152] = true, --ebon might (evoker 10.1.5) 395296 = the evoker buff on it self
 			[410089] = true, --prescience (evoker 10.1.5)
 			[10060] = true, --power infusion
+			[81749] = true, --atonement uptime
 		}
 
 		--store all information about augmentation evokers ~roskash
@@ -2984,6 +2985,7 @@
 		end
 	end
 
+	--~refresh
 	function parser:buff_refresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, tipo, amount)
 		if (not sourceName) then
 			sourceName = names_cache[spellName]

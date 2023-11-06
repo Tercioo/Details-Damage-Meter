@@ -989,6 +989,10 @@ end
 function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize)
 	local fontTable = {}
 
+	if (type(iconSize) ~= "table") then
+		iconSize = {iconSize or 16, iconSize or 16}
+	end
+
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	for name, fontPath in pairs(SharedMedia:HashTable("font")) do
 		fontTable[#fontTable+1] = {value = name, label = name, onclick = onClick, icon = icon, iconsize = iconSize, texcoord = iconTexcoord, font = fontPath, descfont = "abcdefg ABCDEFG"}
@@ -1006,10 +1010,10 @@ function DropDownMetaFunctions:SetTemplate(template)
 	self.template = template
 
 	if (template.width) then
-		self:SetWidth(template.width)
+		PixelUtil.SetWidth(self.dropdown, template.width)
 	end
 	if (template.height) then
-		self:SetHeight(template.height)
+		PixelUtil.SetWidth(self.dropdown, template.height)
 	end
 
 	if (template.backdrop) then
@@ -1092,7 +1096,116 @@ end
 ---@field 
 ---@field 
 
+---return a function which when called returns a table filled with all fonts available and ready to be used on dropdowns
+---@param callback function
+---@return function
+function DF:CreateFontListGenerator(callback)
+	return function() return DF:BuildDropDownFontList(callback, [[Interface\AnimCreate\AnimCreateIcons]], {0, 32/128, 64/128, 96/128}, 16) end
+end
 
+local colorGeneratorStatusBarTexture = [[Interface\Tooltips\UI-Tooltip-Background]]
+local colorGeneratorStatusBarColor = {.1, .1, .1, .8}
+local colorGeneratorNoColor = {0, 0, 0, 0}
+
+function DF:CreateColorListGenerator(callback)
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		for colorName, colorTable in pairs(DF:GetDefaultColorList()) do
+			table.insert(dropdownOptions, {
+				label = colorName,
+				value = colorTable,
+				color = colorTable,
+				statusbar = colorGeneratorStatusBarTexture,
+				statusbarcolor = colorGeneratorStatusBarColor,
+				onclick = callback
+			})
+		end
+
+		table.insert(dropdownOptions, 1, {
+			label = "no color",
+			value = "blank",
+			color = colorGeneratorNoColor,
+			statusbar = colorGeneratorStatusBarTexture,
+			statusbarcolor = colorGeneratorStatusBarColor,
+			onclick = callback
+		})
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
+function DF:CreateOutlineListGenerator(callback)
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		for i, outlineInfo in ipairs(DF.FontOutlineFlags) do
+			local outlineName, outlineLoc = unpack(outlineInfo)
+			table.insert(dropdownOptions, {
+				label = outlineLoc,
+				value = outlineName,
+				onclick = callback
+			})
+		end
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
+function DF:CreateAnchorPointListGenerator(callback)
+	local newGenerator = function()
+		local dropdownOptions = {}
+
+		for i, pointName in pairs(DF.AnchorPoints) do
+			table.insert(dropdownOptions, {
+				label = pointName,
+				value = i,
+				onclick = callback
+			})
+		end
+
+		return dropdownOptions
+	end
+
+	return newGenerator
+end
+
+---create a dropdown object with a list of fonts
+---@param parent frame
+---@param callback function
+---@param default any
+---@param width number?
+---@param height number?
+---@param member string?
+---@param name string?
+---@param template table?
+function DF:CreateFontDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateFontListGenerator(callback)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+function DF:CreateColorDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateColorListGenerator(callback)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+function DF:CreateOutlineDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateOutlineListGenerator(callback)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
+
+function DF:CreateAnchorPointDropDown(parent, callback, default, width, height, member, name, template)
+	local func = DF:CreateAnchorPointListGenerator(callback)
+	local dropDownObject = DF:NewDropDown(parent, parent, name, member, width, height, func, default, template)
+	return dropDownObject
+end
 
 ---create a dropdown object
 ---@param parent frame
@@ -1144,8 +1257,7 @@ function DF:NewDropDown(parent, container, name, member, width, height, func, de
 	end
 
 	dropDownObject.dropdown = DF:CreateNewDropdownFrame(parent, name)
-	dropDownObject.dropdown:SetWidth(width)
-	dropDownObject.dropdown:SetHeight(height)
+	PixelUtil.SetSize(dropDownObject.dropdown, width, height)
 
 	dropDownObject.container = container
 	dropDownObject.widget = dropDownObject.dropdown

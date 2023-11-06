@@ -745,11 +745,11 @@ function ButtonMetaFunctions:SetTemplate(template)
 	end
 
 	if (template.width) then
-		self:SetWidth(template.width)
+		PixelUtil.SetWidth(self.button, template.width)
 	end
 
 	if (template.height) then
-		self:SetHeight(template.height)
+		PixelUtil.SetHeight(self.button, template.height)
 	end
 
 	if (template.backdrop) then
@@ -928,7 +928,7 @@ end
 		detailsFramework:Mixin(buttonObject.button, detailsFramework.WidgetFunctions)
 
 		createButtonWidgets(buttonObject.button)
-		buttonObject.button:SetSize(width or 100, height or 20)
+		PixelUtil.SetSize(buttonObject.button, width or 100, height or 20)
 		buttonObject.widget = buttonObject.button
 		buttonObject.button.MyObject = buttonObject
 
@@ -964,8 +964,8 @@ end
 			if (shortMethod == false) then --if is false, do not use auto resize
 				--do nothing
 			elseif (not shortMethod) then --if the value is omitted, use the default resize
-				local new_width = textWidth + 15
-				buttonObject.button:SetWidth(new_width)
+				local newWidth = textWidth + 15
+				PixelUtil.SetWidth(buttonObject.button, newWidth)
 
 			elseif (shortMethod == 1) then
 				local loop = true

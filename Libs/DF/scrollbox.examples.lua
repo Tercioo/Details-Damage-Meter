@@ -1,11 +1,11 @@
 
---documentation for scrollbox.lua
-
+--exemples for world of warcraft library "Details Framework" file: scrollbox.lua
 --a scrollbox is a frame with a scrollbar and lines, these lines can be used to show data or show more frames in the case of a grid frame
 --a grid of frames if a frame with lines and columns, each line can have multiple columns, a column is a frame
 
 --------Start of the Grid Scroll Box Example--------
 
+--in world of warcraft, UIParent is the default parent, this frame is created by the game and is the base frame for all other frames
 local parent = UIParent
 local name = "GridScrollBoxExample"
 
@@ -70,3 +70,19 @@ gridScrollBox:SetPoint("center", parent, "center", 0, 0)
 gridScrollBox:Refresh()
 
 --------End of the Grid Scroll Box Example--------
+
+
+--------Start of the Canvas Scroll Box Example--------
+
+--display frame is the frame which will be shown within the canvas, this frame can have any size and if it is bigger than the canvas, it will be scrollable
+local displayFrame = CreateFrame("frame", "CanvasScrollBoxDisplayFrameExample", nil, "BackdropTemplate")
+displayFrame:SetSize(800, 1200)
+displayFrame:SetBackdrop({bgFile = "Interface\\FrameGeneral\\UI-Background-Marble", tile = true, tileSize = 32})
+
+--signature: CreateCanvasScrollBox(parentFrame, displayFrame, frameName)
+--display frame is the frame which will be shown within the canvas
+local canvasScrollFrame = DetailsFramework:CreateCanvasScrollBox(UIParent, displayFrame, "CanvasScrollBoxExample")
+canvasScrollFrame:SetPoint("center", UIParent, "center", 0, 0)
+canvasScrollFrame:SetSize(300, 500)
+
+--------End of the Canvas Scroll Box Example--------

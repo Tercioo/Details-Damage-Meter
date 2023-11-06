@@ -985,7 +985,7 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 	if (with_label) then
 		local label = DF:CreateLabel(slider.widget, with_label, nil, nil, nil, "label", nil, "overlay")
 		label.text = with_label
-		slider.widget:SetPoint("left", label.widget, "right", 2, 0)
+		PixelUtil.SetPoint(slider.widget, "left", label.widget, "right", 2, 0)
 		with_label = label
 
 		if (label_template) then
@@ -999,10 +999,10 @@ end
 function DFSliderMetaFunctions:SetTemplate(template)
 	--slider e switch
 	if (template.width) then
-		self:SetWidth(template.width)
+		PixelUtil.SetWidth(self.widget, template.width)
 	end
 	if (template.height) then
-		self:SetHeight(template.height)
+		PixelUtil.SetHeight(self.widget, template.height)
 	end
 
 	if (template.backdrop) then
@@ -1136,8 +1136,7 @@ function DF:NewSlider (parent, container, name, member, width, height, minValue,
 	end
 
 	SliderObject.slider.MyObject = SliderObject
-	SliderObject.slider:SetWidth(width)
-	SliderObject.slider:SetHeight(height)
+	PixelUtil.SetSize(SliderObject.slider, width, height)
 	SliderObject.slider:SetOrientation("horizontal")
 	SliderObject.slider:SetMinMaxValues(minValue, maxValue)
 	SliderObject.slider:SetValue(defaultValue)
