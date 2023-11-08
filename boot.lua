@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12025
-		Details.alpha_build_counter = 12025 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12026
+		Details.alpha_build_counter = 12026 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -1358,6 +1358,21 @@ if (select(4, GetBuildInfo()) >= 100000) then
 			StaticPopup1.button2:Click()
 		end
 	end)
+end
+
+local classCacheName = Details222.ClassCache.ByName
+local classCacheGUID = Details222.ClassCache.ByGUID
+
+function Details222.ClassCache.GetClassFromCache(value)
+	return classCacheName[value] or classCacheGUID[value]
+end
+
+function Details222.ClassCache.AddClassToCache(value, whichCache)
+	if (whichCache == "name") then
+		classCacheName[value] = true
+	elseif (whichCache == "guid") then
+		classCacheGUID[value] = true
+	end
 end
 
 function Details222.ClassCache.GetClass(value)

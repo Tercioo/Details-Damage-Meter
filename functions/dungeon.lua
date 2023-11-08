@@ -157,7 +157,7 @@ local tickerCallback = function(tickerObject)
 		end
 	end
 
-	addPlayerDamage(UnitName ("player"))
+	addPlayerDamage(UnitName("player"))
 end
 
 function mythicDungeonCharts:OnBossDefeated()

@@ -103,12 +103,12 @@ do
 	---@param actorName string
 	---@return string className, number left, number right, number top, number bottom, number red, number green, number blue, number alpha
 	function Details:GetClass(actorName)
-		local _, class = UnitClass(actorName)
+		local unitClass = Details:GetUnitClass(actorName)
 
-		if (class) then
-			local left, right, top, bottom = unpack(Details.class_coords[class])
-			local r, g, b = unpack(Details.class_colors[class])
-			return class, left, right, top, bottom, r or 1, g or 1, b or 1, 1
+		if (unitClass) then
+			local left, right, top, bottom = unpack(Details.class_coords[unitClass])
+			local r, g, b = unpack(Details.class_colors[unitClass])
+			return unitClass, left, right, top, bottom, r or 1, g or 1, b or 1, 1
 		else
 			local overallCombatObject = Details:GetCombat(DETAILS_SEGMENTID_OVERALL)
 			for containerId = 1, DETAILS_COMBAT_AMOUNT_CONTAINERS do
@@ -116,12 +116,12 @@ do
 				local actorObject = actorContainer:GetActor(actorName)
 
 				if (actorObject) then
-					class = actorObject:Class()
-					if (class) then
+					unitClass = actorObject:Class()
+					if (unitClass) then
 						--found the class of the actor
-						local left, right, top, bottom = unpack(Details.class_coords[class] or CONST_UNKNOWN_CLASS_COORDS)
-						local r, g, b = unpack(Details.class_colors[class])
-						return class, left, right, top, bottom, r or 1, g or 1, b or 1, 1
+						local left, right, top, bottom = unpack(Details.class_coords[unitClass] or CONST_UNKNOWN_CLASS_COORDS)
+						local r, g, b = unpack(Details.class_colors[unitClass])
+						return unitClass, left, right, top, bottom, r or 1, g or 1, b or 1, 1
 					end
 				end
 			end

@@ -174,6 +174,28 @@ do
 		end
 	end
 
+	---return the class file name of the unit passed
+	local getFromCache = Details222.ClassCache.GetClassFromCache
+	local Ambiguate = Ambiguate
+	local UnitClass = UnitClass
+	function Details:GetUnitClass(unitId)
+		local class, classFileName = getFromCache(unitId)
+
+		if (not classFileName) then
+			unitId = Ambiguate(unitId, "none")
+			classFileName = select(2, UnitClass(unitId))
+		end
+
+		return classFileName
+	end
+
+	---return the class name, class file name and class id of the unit passed
+	function Details:GetUnitClassFull(unitId)
+		unitId = Ambiguate(unitId, "none")
+		local locClassName, classFileName, classId = UnitClass(unitId)
+		return locClassName, classFileName, classId
+	end
+
 	function Details:GetFullName(unitId)
 		--playerName, realmName = UnitFullName(unitId) --realm name already has spaces removed
 		--return playerName .. "-" .. realmName

@@ -225,9 +225,6 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		self.playerName:SetText(Details:GetOnlyName(self.playerObject.nome))
 		self.rankText:SetText(self.index) --not in use
 
-		--set the player class name
-		--self.className:SetText(string.lower(_G.UnitClass(self.playerObject.nome) or self.playerObject:Class())) --not in use
-
 		--item level
 		self.itemLevelText:SetText(self.playerObject.ilvl or (playerGear and playerGear.ilevel) or "0")
 

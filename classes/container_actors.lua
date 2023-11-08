@@ -458,7 +458,7 @@ end
 			Details222.GuessSpecSchedules.Schedules[#Details222.GuessSpecSchedules.Schedules+1] = newTimer
 		end
 
-		local _, engClass = UnitClass(actorName or "")
+		local engClass = Details:GetUnitClass(actorName or "")
 
 		if (engClass) then
 			actorObject.classe = engClass
