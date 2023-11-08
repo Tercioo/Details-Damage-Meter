@@ -33,16 +33,8 @@ local getActorObjectFromCombat = function(combatObject, containerID, actorName)
 end
 
 local getUnitName = function(unitId)
-	local unitName, serverName = UnitName (unitId)
-	if (unitName) then
-		if (serverName and serverName ~= "") then
-			return unitName .. "-" .. serverName
-		else
-			return unitName
-		end
-	else
-		return unitId
-	end
+	local unitName = Details:GetFullName(unitId) or unitId
+	return unitName
 end
 
 --return the spell object and the spellId
@@ -652,11 +644,13 @@ function Details.UnitDamage (unitId, segment)
 	end
 
 	local unitName = getUnitName (unitId)
-
 	local playerObject = getActorObjectFromCombat (combatObject, 1, unitName)
+
 	if (not playerObject) then
 		return 0
 	end
+
+	--/dump Details.UnitDamage("player")
 
 	return floor(playerObject.total or 0)
 end

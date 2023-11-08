@@ -175,6 +175,9 @@ do
 	end
 
 	function Details:GetFullName(unitId)
+		--playerName, realmName = UnitFullName(unitId) --realm name already has spaces removed
+		--return playerName .. "-" .. realmName
+
 		local playerName, realmName = UnitName(unitId)
 
 		if (not realmName) then
