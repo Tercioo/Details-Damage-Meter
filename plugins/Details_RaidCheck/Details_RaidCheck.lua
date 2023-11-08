@@ -51,6 +51,18 @@ local getUnitId = function(i)
 	return unitId
 end
 
+local gameVersion, buildNumber, releaseData, tocNumber = GetBuildInfo()
+
+local getCleuName = function(unitId)
+	if (tocNumber >= 100200) then
+		local cleuName = Details:GetFullName(unitId)
+		return cleuName
+	else
+		local cleuName = GetCLName(unitId)
+		return cleuName
+	end
+end
+
 --create the plugin object
 local DetailsRaidCheck = Details:NewPluginObject("Details_RaidCheck", DETAILSPLUGIN_ALWAYSENABLED)
 tinsert(UISpecialFrames, "Details_RaidCheck")
@@ -631,7 +643,7 @@ local CreatePluginFrames = function()
 			local unitID = groupTypeId .. i
 			local unitName = UnitName(unitID)
 			local unitNameWithRealm = GetUnitName(unitID, true)
-			local cleuName = Details:GetCLName(unitID)
+			local cleuName = getCleuName(unitID)
 			local unitSerial = UnitGUID(unitID)
 			local _, unitClass, unitClassID = UnitClass(unitID)
 			local unitRole = UnitGroupRolesAssigned(unitID)
@@ -693,7 +705,7 @@ local CreatePluginFrames = function()
 			--add the player data
 			local unitId = "player"
 			local unitName = UnitName(unitId)
-			local cleuName = Details:GetCLName(unitId)
+			local cleuName = getCleuName(unitId)
 			local unitSerial = UnitGUID(unitId)
 			local _, unitClass, unitClassID = UnitClass(unitId)
 			local unitRole = UnitGroupRolesAssigned(unitId)

@@ -511,6 +511,7 @@
 ---@field GetText fun(self: fontstring) : string
 ---@field GetFont fun(self: fontstring) : string, number, string
 ---@field GetStringWidth fun(self: fontstring) : number return the width of the string in pixels
+---@field GetStringHeight fun(self: fontstring) : number return the height of the string in pixels
 ---@field SetShadowColor fun(self: fontstring, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
 ---@field GetShadowColor fun(self: fontstring) : number, number, number, number
 ---@field SetShadowOffset fun(self: fontstring, offsetX: number, offsetY: number)
