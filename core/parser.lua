@@ -204,8 +204,10 @@
 			[395152] = true, --ebon might (evoker 10.1.5) 395296 = the evoker buff on it self
 			[410089] = true, --prescience (evoker 10.1.5)
 			[10060] = true, --power infusion
-			[81749] = true, --atonement uptime
+			[194384] = true, --atonement uptime
 		}
+
+		Details.CreditBuffToTarget = buffs_on_target
 
 		--store all information about augmentation evokers ~roskash
 		local augmentation_cache = {

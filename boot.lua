@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12020
-		Details.alpha_build_counter = 12020 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12023
+		Details.alpha_build_counter = 12023 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -141,7 +141,13 @@ do
 	--]=]
 
 	local news = {
-		{"v10.1.7.12012.151", "October 27th, 2023"},
+		{"v10.2.0.12023.155", "November 08th, 2023"},
+		"Several fixes to make the addon work with the combat log changes done on patch 10.2.0.",
+		"Added trinket data for patch 10.2.0.",
+		"Fixed an issue with death tooltips going off-screen when the window is too close to a screen border.",
+		"Fixed a spam of errors during battlegrounds when an enemy player heal with a dot spell.",
+
+		{"v10.1.7.12012.155", "October 27th, 2023"},
 		"Implemented [Pip's Emerald Friendship Badge] trinket buffs.",
 		"Implemented the amount of times 'On Use' trinkets are used.",
 		"10.2 trinket damage spells renamed to the item name.",
@@ -153,13 +159,13 @@ do
 		"Fixed 'extraStatusbar' showing in wrong views (non-player-dmg) (Continuity).",
 		"Removed LibCompress (Flamanis).",
 
-		{"v10.1.7.11914.151", "September 13th, 2023"},
+		{"v10.1.7.11914.155", "September 13th, 2023"},
 		"Added an extra bar within the evoker damage bar, this new bar when hovered over shows the buff uptime of Ebon Might and Prescience on all players.",
 		"ToC Files of all plugins got updated.",
 		"Fixed the error 'Attempt to compare string with number' on vanilla (Flamanis).",
 		"Fixed the error 'object:ToolTip() is invalid'.",
 
-		{"v10.1.7.11901.151", "September 09th, 2023"},
+		{"v10.1.7.11901.155", "September 09th, 2023"},
 		"Evoker Predicted Damage improvements.",
 		"Improved spellId check for first hit when entering a combat (Flamanis).",
 		"Replaced Classic Era deprecated functions (Flamanis).",
@@ -168,11 +174,11 @@ do
 		"Attempt to fix death log healing spam where a spell has multiple heals in the same millisecond.",
 		"Fixed an error with the old comparison window.",
 
-		{"v10.1.7.11856.151", "August 13th, 2023"},
+		{"v10.1.7.11856.155", "August 13th, 2023"},
 		"Fixed an issue with importing a profile with a corrupted time type.",
 		"Added Elemental Shaman overload spells (WillowGryph).",
 
-		{"v10.1.5.11855.151", "August 12th, 2023"},
+		{"v10.1.5.11855.155", "August 12th, 2023"},
 		"Forcing update interval to 0.1 on arenas matches using the real-time dps feature.",
 		"More parser cleanups and code improvements.",
 		"Auras tab now ignores regular 'world auras' (those weekly buffs of reputation, etc)",
