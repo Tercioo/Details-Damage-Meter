@@ -178,7 +178,7 @@ do
 		local playerName, realmName = UnitName(unitId)
 
 		if (not realmName) then
-			realmName = GetRealmName()
+			realmName = GetRealmName():gsub("%s", "")
 		end
 
 		return playerName .. "-" .. realmName
