@@ -427,7 +427,7 @@ function Details.packFunctions.PackDamage(combatObject)
     local actorsToPack = {}
 
     --get the player object from the combat > damage container
-    local playerName = UnitName("player")
+    local playerName = Details.playername
     local playerObject = combatObject:GetActor(DETAILS_ATTRIBUTE_DAMAGE, playerName)
     if (not playerObject) then
         if (isDebugging) then
@@ -677,7 +677,7 @@ function Details.packFunctions.PackHeal(combatObject)
     local actorsToPack = {}
 
     --get the player object from the combat > damage container
-    local playerName = UnitName("player")
+    local playerName = Details.playername
     local playerObject = combatObject:GetActor(DETAILS_ATTRIBUTE_HEAL, playerName)
     if (not playerObject) then
         if (isDebugging) then

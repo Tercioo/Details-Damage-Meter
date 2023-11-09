@@ -607,7 +607,7 @@ do
             {type = "label", get = function() return Loc ["STRING_OPTIONS_SOCIAL"] end, text_template = subSectionTitleTextTemplate},
             {--nickname
                 type = "textentry",
-                get = function() return Details:GetNickname(_G.UnitName("player"), _G.UnitName("player"), true) or "" end,
+                get = function() return Details:GetNickname(Details.playername, _G.UnitName("player"), true) or "" end,
                 func = function(self, _, text)
                     local accepted, errortext = Details:SetNickname(text)
                     if (not accepted) then

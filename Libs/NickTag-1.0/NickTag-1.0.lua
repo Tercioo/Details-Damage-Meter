@@ -585,7 +585,11 @@ end
 		--here we format the text to match titles, e.g converts name like "JASON NICKSHOW" into "Jason Nickshow". 
 		name = name:gsub ("(%a)([%w_']*)", titlecase)
 		
-		local playerName = UnitName ("player")
+		local playerName, realmName = UnitFullName ("player")
+
+		if(select(4, GetBuildInfo()) >= 100200) then
+			playerName = playerName .. '-' .. realmName
+		end
 		
 		--get the full nick table.
 		local nickTable = NickTag:GetNicknameTable (playerName)

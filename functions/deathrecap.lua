@@ -601,7 +601,7 @@ hooksecurefunc (_G, "DeathRecap_LoadUI", function()
 	hooksecurefunc (_G, "DeathRecapFrame_OpenRecap", function(RecapID)
         local currentCombat = Details:GetCurrentCombat()
         --get the player current death and link the death table with the death recapID
-        local playerDeaths = currentCombat:GetPlayerDeaths(UnitName("player"))
+        local playerDeaths = currentCombat:GetPlayerDeaths(Details.playername)
         if (playerDeaths) then
             local latestDeath = playerDeaths[#playerDeaths]
             if (latestDeath) then

@@ -1678,7 +1678,7 @@ function Details.Database.StoreEncounter(combat)
 			bossData.time_incombat = bossData.time_incombat + encounterElapsedTime
 
 			--player best dps
-			local player = combat(DETAILS_ATTRIBUTE_DAMAGE, UnitName("player"))
+			local player = combat(DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
 			if (player) then
 				local playerDps = player.total / encounterElapsedTime
 				if (playerDps > bossData.dps_best) then

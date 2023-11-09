@@ -1349,7 +1349,7 @@ end
 				end
 			end
 		end
-		if (UnitName ("player") == name) then
+		if (UnitName ("player") == name or Details.playername == name) then
 			return UnitGUID("player")
 		end
 		return nil

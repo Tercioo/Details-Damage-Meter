@@ -2813,7 +2813,7 @@
 				end
 			end
 
-			if (override_aura_spellid[spellId] and UnitIsUnit(sourceName, "player")) then
+			if (override_aura_spellid[spellId] and sourceName == Details.playername) then
 				local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(sourceName, spellId, sourceName)
 				if (auraName) then
 					local overrideTable = override_aura_spellid[spellId]
@@ -6822,7 +6822,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 			--player
-			local playerName = GetUnitName("player", true)
+			local playerName = Details.playername
 			local playerGUID = UnitGUID("player")
 
 			raid_members_cache[playerGUID] = playerName
@@ -6837,7 +6837,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				auto_regen_cache[playerName] = auto_regen_power_specs[Details.cached_specs[playerGUID]]
 			end
 		else
-			local playerName = GetUnitName("player", true)
+			local playerName = Details.playername
 			local playerGUID = UnitGUID("player")
 
 			raid_members_cache[playerGUID] = playerName
@@ -7089,7 +7089,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					return unitId
 				end
 			end
-			if (UnitName("player") == unitName) then
+			if (Details.playername == unitName) then
 				return "player"
 			end
 		end

@@ -784,7 +784,7 @@ end
 
 		--check ownership
 		if (petOwnerObject and Details.immersion_pets_on_solo_play) then
-			if (UnitIsUnit("player", petOwnerObject.nome)) then
+			if (Details.playername == petOwnerObject.nome) then
 				if (not Details.in_group) then
 					newActor.grupo = true
 				end
