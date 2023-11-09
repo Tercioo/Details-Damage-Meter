@@ -151,13 +151,13 @@ local tickerCallback = function(tickerObject)
 	--tick damage
 	local totalPlayers = GetNumGroupMembers()
 	for i = 1, totalPlayers-1 do
-		local unitName, unitRealm = UnitName ("party" .. i)
+		local unitName, unitRealm = UnitFullName ("party" .. i)
 		if (unitName) then
 			addPlayerDamage(unitName, unitRealm)
 		end
 	end
 
-	addPlayerDamage(UnitName("player"))
+	addPlayerDamage(UnitFullName("player"))
 end
 
 function mythicDungeonCharts:OnBossDefeated()

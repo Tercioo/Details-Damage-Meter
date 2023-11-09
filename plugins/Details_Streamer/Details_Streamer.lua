@@ -2356,7 +2356,11 @@ function StreamOverlay:OnEvent (_, event, ...)
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_Streamer") then
 			
-			playerName = UnitName ("player")
+			local interimPlayerName, playerRealm = UnitFullName ("player")
+
+			if(select(4, GetBuildInfo()) >= 100200) then
+				playerName = interimPlayerName .. '-' .. playerRealm
+			end
 
 			if (_G.Details) then
 			

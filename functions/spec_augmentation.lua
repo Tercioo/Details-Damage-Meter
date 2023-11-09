@@ -21,7 +21,7 @@ function augmentationFunctions.BuffIn(token, time, sourceSerial, sourceName, sou
         end
 
     elseif (spellId == 413984) then --ss
-        if (UnitExists(targetName) and not UnitIsUnit("player", targetName)) then
+        if (UnitExists(targetName) and targetName ~= Details.playername) then
             local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
             local versaGained = v1
             if (type(versaGained) == "number") then
@@ -92,7 +92,7 @@ function augmentationFunctions.BuffRefresh(token, time, sourceSerial, sourceName
         end
 
     elseif (spellId == 413984) then --ss
-        if (UnitExists(targetName) and not UnitIsUnit("player", targetName)) then
+        if (UnitExists(targetName) and targetName ~= Details.playername) then
             local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName (targetName, spellId, sourceName)
             local versaGained = v1
 

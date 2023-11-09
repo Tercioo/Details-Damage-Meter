@@ -590,7 +590,7 @@ function Details222.TimeCapture.StartCombatTimer(combatObject)
 	Details222.TimeCapture.CombatTimeTicker = C_Timer.NewTicker(1, combatTimeTicker)
 
 	--debug: starting only for the player
-	Details222.TimeCapture.Start(UnitName("player"), DETAILS_ATTRIBUTE_DAMAGE)
+	Details222.TimeCapture.Start(Details.playername, DETAILS_ATTRIBUTE_DAMAGE)
 end
 
 --combat ended on Details! end
