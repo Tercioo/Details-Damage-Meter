@@ -931,7 +931,7 @@ function Details.packFunctions.PackUtility(combatObject)
     local actorsToPack = {}
 
     --get the player object from the combat > utility container
-    local playerName = UnitName("player")
+    local playerName = Details.playername
     local playerObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, playerName)
     if (not playerObject) then
         if (isDebugging) then
