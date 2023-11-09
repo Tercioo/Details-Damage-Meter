@@ -1565,7 +1565,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		for buffIndex = 1, 41 do
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
 			if (name and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
-				local playerName = _UnitName ("player")
+				local playerName = Details.playername
 				local playerGUID = UnitGUID("player")
 				if (playerGUID) then
 					if (in_or_out == "BUFF_UPTIME_IN") then
@@ -1606,7 +1606,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		for buffIndex = 1, 41 do
 			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
 			if (name and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
-				local playerName = _UnitName ("player")
+				local playerName = Details.playername
 				local playerGUID = UnitGUID("player")
 
 				if (playerGUID) then
