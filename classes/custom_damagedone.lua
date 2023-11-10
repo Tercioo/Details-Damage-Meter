@@ -38,7 +38,6 @@ local IsInGroup = IsInGroup -- api local
 local GetNumGroupMembers = GetNumGroupMembers -- api local
 local _GetNumPartyMembers = GetNumPartyMembers or GetNumSubgroupMembers -- api local
 local _GetNumRaidMembers = GetNumRaidMembers or GetNumGroupMembers -- api local
-local _GetUnitName = GetUnitName -- api local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --constants

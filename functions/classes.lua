@@ -174,6 +174,8 @@ do
 		end
 	end
 
+	local _, _, _, toc = GetBuildInfo() --check game version to know which version of GetFullName to use
+
 	---return the class file name of the unit passed
 	local getFromCache = Details222.ClassCache.GetClassFromCache
 	local Ambiguate = Ambiguate
@@ -189,6 +191,13 @@ do
 		return classFileName
 	end
 
+	function Details:Ambiguate(unitName)
+		if (toc >= 100200) then
+			unitName = Ambiguate(unitName, "none")
+		end
+		return unitName
+	end
+
 	---return the class name, class file name and class id of the unit passed
 	function Details:GetUnitClassFull(unitId)
 		unitId = Ambiguate(unitId, "none")
@@ -196,20 +205,21 @@ do
 		return locClassName, classFileName, classId
 	end
 
-	function Details:GetFullName(unitId)
-		--playerName, realmName = UnitFullName(unitId) --realm name already has spaces removed
-		--return playerName .. "-" .. realmName
+	local UnitFullName = UnitFullName
+	function Details:GetFullName(unitId, ambiguateString)
+		--UnitFullName is guarantee to return the realm name of the unit queried
+		local playerName, realmName = UnitFullName(unitId)
+		realmName = realmName:gsub("%s", "")
 
-		local playerName, realmName = UnitName(unitId)
+		playerName = playerName .. "-" .. realmName
 
-		if (not realmName) then
-			realmName = GetRealmName():gsub("%s", "")
+		if (ambiguateString) then
+			playerName = Ambiguate(playerName, ambiguateString)
 		end
 
-		return playerName .. "-" .. realmName
+		return playerName
 	end
 
-	local _, _, _, toc = GetBuildInfo() --check game version to know which version of GetFullName to use
 	if (toc < 100200) then
 		Details.GetFullName = Details.GetCLName
 	end

@@ -6,7 +6,6 @@ local addonName, Details222 = ...
 
 local UnitGUID = _G.UnitGUID
 local UnitName = _G.UnitName
-local GetUnitName = _G.GetUnitName
 local IsInRaid = _G.IsInRaid
 local IsInGroup = _G.IsInGroup
 local GetNumGroupMembers = _G.GetNumGroupMembers

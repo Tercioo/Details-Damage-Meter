@@ -953,15 +953,15 @@
 		for i = 1, aliados-1 do
 			local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("party" .. i) or "DAMAGER"
 			if (role ~= "NONE" and UnitExists("party" .. i)) then
-				local name = GetUnitName("party" .. i, true)
-				Details.arena_table [name] = {role = role}
+				local unitName = Details:GetFullName("party" .. i)
+				Details.arena_table [unitName] = {role = role}
 			end
 		end
 
 		local role = UnitGroupRolesAssigned and UnitGroupRolesAssigned("player") or "DAMAGER"
 		if (role ~= "NONE") then
-			local name = GetUnitName("player", true)
-			Details.arena_table [name] = {role = role}
+			local playerName = Details:GetFullName("player")
+			Details.arena_table [playerName] = {role = role}
 		end
 
 		--enemies
@@ -969,7 +969,7 @@
 		Details:Destroy(_detalhes.arena_enemies)
 
 		for i = 1, enemiesAmount do
-			local enemyName = _G.GetUnitName("arena" .. i, true)
+			local enemyName = Details:GetFullName("arena" .. i)
 			if (enemyName) then
 				_detalhes.arena_enemies[enemyName] = "arena" .. i
 			end

@@ -7154,7 +7154,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				actor.classe = classToken or "UNKNOW"
 
 			elseif (name ~= "Unknown" and type(name) == "string" and string.len(name) > 1) then
-				local guid = UnitGUID(name)
+				local guid = UnitGUID(Details:Ambiguate(name))
 				if (guid) then
 					local flag
 					if (Details.faction_id == faction) then --is from the same faction
@@ -7184,7 +7184,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				actor.classe = classToken or "UNKNOW"
 
 			elseif (name ~= "Unknown" and type(name) == "string" and string.len(name) > 1) then
-				local guid = UnitGUID(name)
+				local guid = UnitGUID(Details:Ambiguate(name))
 				if (guid) then
 					local flag
 					if (Details.faction_id == faction) then --is from the same faction

@@ -2,7 +2,6 @@ local _detalhes = 		_G.Details
 local addonName, Details222 = ...
 local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 
-local UnitName = UnitName
 local UnitGUID = UnitGUID
 local UnitGroupRolesAssigned = DetailsFramework.UnitGroupRolesAssigned
 local select = select
@@ -465,7 +464,7 @@ function _detalhes:ResetSpecCache (forced)
 				local c_combat_dmg = _detalhes.tabela_vigente [1]
 				local c_combat_heal = _detalhes.tabela_vigente [2]
 				for i = 1, GetNumGroupMembers(), 1 do
-					local name = GetUnitName("raid" .. i, true)
+					local name = Details:GetFullName("raid" .. i)
 					local index = c_combat_dmg._NameIndexTable [name]
 					if (index) then
 						local actor = c_combat_dmg._ActorTable [index]
@@ -1753,29 +1752,23 @@ function Details.Database.StoreEncounter(combat)
 
 			if (UnitIsInMyGuild ("raid" .. i)) then
 				if (role == "DAMAGER" or role == "TANK") then
-					local player_name, player_realm = UnitName ("raid" .. i)
-					if (player_realm and player_realm ~= "") then
-						player_name = player_name .. "-" .. player_realm
-					end
-
+					local player_name = Details:GetFullName("raid" .. i)
 					local _, _, class = Details:GetUnitClassFull(player_name)
 
 					local damage_actor = damage_container_pool [damage_container_hash [player_name]]
 					if (damage_actor) then
-						local guid = UnitGUID(player_name) or UnitGUID(UnitName ("raid" .. i))
+						local guid = UnitGUID("raid" .. i)
 						this_combat_data.damage [player_name] = {floor(damage_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
 					end
+
 				elseif (role == "HEALER") then
-					local player_name, player_realm = UnitName ("raid" .. i)
-					if (player_realm and player_realm ~= "") then
-						player_name = player_name .. "-" .. player_realm
-					end
+					local player_name = Details:GetFullName("raid" .. i)
 
 					local _, _, class = Details:GetUnitClassFull(player_name)
 
 					local heal_actor = healing_container_pool [healing_container_hash [player_name]]
 					if (heal_actor) then
-						local guid = UnitGUID(player_name) or UnitGUID(UnitName ("raid" .. i))
+						local guid = UnitGUID("raid" .. i)
 						this_combat_data.healing [player_name] = {floor(heal_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
 					end
 				end
@@ -1822,7 +1815,7 @@ function Details.Database.StoreEncounter(combat)
 					my_role = "DAMAGER"
 				end
 				local raid_name = GetInstanceInfo()
-				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName} --, 2, UnitName ("player")
+				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName}
 				--local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
 				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
 
@@ -1966,7 +1959,6 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		end
 
 		local average = item_level / item_amount
-		--print(UnitName (unitid), "ILVL:", average, unitid, "items:", item_amount)
 
 		--register
 		if (average > 0) then
@@ -2006,7 +1998,6 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 			if (talents [1]) then
 				_detalhes.cached_talents [guid] = talents
 				Details:SendEvent("UNIT_TALENTS", nil, unitid, talents, guid)
-				--print(UnitName (unitid), "talents:", unpack(talents))
 			end
 		end
 --------------------------------------------------------------------------------------------------------
@@ -2103,7 +2094,7 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 	--NotifyInspect (unitid)
 end
 
-local NotifyInspectHook = function(unitid)
+local NotifyInspectHook = function(unitid) --not in use
 	local unit = unitid:gsub("%d+", "")
 
 	if ((IsInRaid() or IsInGroup()) and (_detalhes:GetZoneType() == "raid" or _detalhes:GetZoneType() == "party")) then
@@ -2144,14 +2135,14 @@ function ilvl_core:QueryInspect (unitName, callback, param1)
 
 	if (IsInRaid()) then
 		for i = 1, GetNumGroupMembers() do
-			if (GetUnitName("raid" .. i, true) == unitName) then
+			if (Details:GetFullName("raid" .. i, "none") == unitName) then
 				unitid = "raid" .. i
 				break
 			end
 		end
 	elseif (IsInGroup()) then
 		for i = 1, GetNumGroupMembers()-1 do
-			if (GetUnitName("party" .. i, true) == unitName) then
+			if (Details:GetFullName("party" .. i, "none") == unitName) then
 				unitid = "party" .. i
 				break
 			end
