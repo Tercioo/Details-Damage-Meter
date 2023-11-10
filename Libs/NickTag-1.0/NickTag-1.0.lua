@@ -6,7 +6,7 @@
 
 -- 14: added support for chinese and russian
 
-local major, minor = "NickTag-1.0", 15
+local major, minor = "NickTag-1.0", 16
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then
@@ -585,11 +585,7 @@ end
 		--here we format the text to match titles, e.g converts name like "JASON NICKSHOW" into "Jason Nickshow". 
 		name = name:gsub ("(%a)([%w_']*)", titlecase)
 		
-		local playerName, realmName = UnitFullName ("player")
-
-		if(select(4, GetBuildInfo()) >= 100200) then
-			playerName = playerName .. '-' .. realmName
-		end
+		local playerName = UnitName ("player")
 		
 		--get the full nick table.
 		local nickTable = NickTag:GetNicknameTable (playerName)

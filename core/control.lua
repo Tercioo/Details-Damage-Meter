@@ -977,10 +977,11 @@
 	end
 
 	--attempt to get the arena unitId for an actor
+	--this function is called from containerActors while reading the actor flag and parser when managing deathlog
 	function Details:GuessArenaEnemyUnitId(unitName)
 		for i = 1, 5 do
 			local unitId = "arena" .. i
-			local enemyName = _G.GetUnitName(unitId, true)
+			local enemyName = Details:GetFullName(unitId)
 			if (enemyName == unitName) then
 				_detalhes.arena_enemies[enemyName] = unitId
 				return unitId

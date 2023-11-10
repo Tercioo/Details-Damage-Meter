@@ -524,10 +524,13 @@ end
 		if (actorFlags) then
 			local _, zoneType = GetInstanceInfo()
 
+			--on retail post 100200 patch, actorName is formatted as "name-realm"
+
 			--this is player actor
 			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
 				if (not Details.ignore_nicktag) then
-					actorObject.displayName = checkValidNickname(Details:GetNickname(actorName, false, true), actorName) --defaults to player name
+					local actorNameAmbiguated = Ambiguate(actorName, "none")
+					actorObject.displayName = checkValidNickname(Details:GetNickname(actorNameAmbiguated, false, true), actorName) --defaults to player name
 					if (Details.remove_realm_from_name) then
 						actorObject.displayName = actorObject.displayName:gsub(("%-.*"), "")
 					end
@@ -606,7 +609,7 @@ end
 						local amountOpponents = GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() or 5
 						local found = false
 						for i = 1, amountOpponents do
-							local name = GetUnitName("arena" .. i, true)
+							local name = Details:GetFullName("arena" .. i)
 							if (name == actorName) then
 								local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(i)
 								if (spec) then
@@ -793,7 +796,7 @@ end
 
 		if (self.tipo == container_damage) then --containerType damage
 			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
-			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "damage")
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName)
 
 			if (petOwnerObject) then
 				AddUnique(petOwnerObject.pets, actorName)
@@ -809,7 +812,7 @@ end
 
 		elseif (self.tipo == container_heal) then --containerType healing
 			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
-			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "heal")
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName)
 
 			if (petOwnerObject) then
 				AddUnique(petOwnerObject.pets, actorName)
@@ -821,7 +824,7 @@ end
 
 		elseif (self.tipo == container_energy) then --containerType resources
 			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
-			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "energy")
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName)
 
 			if (petOwnerObject) then
 				AddUnique(petOwnerObject.pets, actorName)
@@ -829,7 +832,7 @@ end
 
 		elseif (self.tipo == container_misc) then --containerType utility
 			local shouldScanOnce = getActorClass(newActor, actorName, actorFlags, actorSerial)
-			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName, "misc")
+			readActorFlag(newActor, petOwnerObject, actorSerial, actorFlags, actorName)
 
 			if (petOwnerObject) then
 				AddUnique(petOwnerObject.pets, actorName)
