@@ -209,15 +209,17 @@ do
 	function Details:GetFullName(unitId, ambiguateString)
 		--UnitFullName is guarantee to return the realm name of the unit queried
 		local playerName, realmName = UnitFullName(unitId)
-		realmName = realmName:gsub("%s", "")
+		if (playerName) then
+			realmName = realmName:gsub("%s", "")
 
-		playerName = playerName .. "-" .. realmName
+			playerName = playerName .. "-" .. realmName
 
-		if (ambiguateString) then
-			playerName = Ambiguate(playerName, ambiguateString)
+			if (ambiguateString) then
+				playerName = Ambiguate(playerName, ambiguateString)
+			end
+
+			return playerName
 		end
-
-		return playerName
 	end
 
 	if (toc < 100200) then
