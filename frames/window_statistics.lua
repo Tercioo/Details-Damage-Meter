@@ -62,6 +62,8 @@ function Details:OpenRaidHistoryWindow(raidName, bossEncounterId, difficultyId, 
 
         --create title bar
         local titlebar = DF:CreateTitleBar(statisticsFrame, "Details! " .. Loc ["STRING_STATISTICS"])
+        titlebar.CloseButton:SetScript("OnClick", function() statisticsFrame:GetParent():Hide() end)
+
 --STRING_GUILDDAMAGERANK_TUTORIAL_DESC
 --STRING_OPTIONS_CHART_CLOSE
 
