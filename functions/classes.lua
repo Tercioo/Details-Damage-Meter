@@ -210,7 +210,10 @@ do
 		--UnitFullName is guarantee to return the realm name of the unit queried
 		local playerName, realmName = UnitFullName(unitId)
 		if (playerName) then
-			realmName = realmName:gsub("%s", "")
+			if (not realmName) then
+				realmName = GetRealmName()
+			end
+			realmName = realmName:gsub("[%s-]", "")
 
 			playerName = playerName .. "-" .. realmName
 
