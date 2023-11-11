@@ -18,6 +18,7 @@
 
 	local setmetatable = setmetatable --lua local
 	local bitBand = bit.band --lua local
+	local bitBor = bit.bor --lua local
 	local tableSort = table.sort --lua local
 	local ipairs = ipairs --lua local
 	local pairs = pairs --lua local
@@ -685,10 +686,17 @@ end
 
 	local petBlackList = {}
 
-	local petOwnerFound = function(ownerName, petGUID, petName, petFlags, self, ownerGUID)
+	local petOwnerFound = function(ownerName, petGUID, petName, petFlags, self, ownerGUID, ownerFlags)
 		local ownerGuid = ownerGUID or UnitGUID(ownerName)
 		if (ownerGuid) then
-			Details.tabela_pets:AddPet(petGUID, petName, petFlags, ownerGuid, ownerName, 0x00000417)
+
+			-- 0xA00 is the flag for NPC controlled, NPC unit. 0x500 is the flag for Player Controlled, Player Unit.
+			-- Or those together with the last 2 hex bits for reaction/affiliation to 'guess' the correct flags.
+			if not ownerFlags then
+				local npcControlled = bitBand(petFlags, 0x200) ~= 0
+				ownerFlags = bitBor( npcControlled and 0xA00 or 0x500, bitBand(petFlags, 0xFF))
+			end
+			Details.tabela_pets:AddPet(petGUID, petName, petFlags, ownerGuid, ownerName, ownerFlags)
 			local petNameWithOwner, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:GetPetOwner(petGUID, petName, petFlags)
 
 			local petOwnerActorObject
@@ -737,6 +745,7 @@ end
 			if (actorFlags and bitBand(actorFlags, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
 				local ownerName, ownerGUID, ownerFlags = Details222.Pets.GetPetOwner(actorSerial, actorName)
 				if (ownerName and ownerGUID) then
+					--Don't pass ownerFlags just in case the cached owner happens to be an enemy last combat, but ally now.
 					local newPetName, ownerObject = petOwnerFound(ownerName, actorSerial, actorName, actorFlags, self, ownerGUID)
 					if (newPetName and ownerObject) then
 						actorName, petOwnerObject = newPetName, ownerObject
