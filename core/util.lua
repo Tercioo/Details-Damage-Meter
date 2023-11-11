@@ -1333,7 +1333,7 @@ end
 		end
 	end
 
-	function Details:FindGUIDFromName (name)
+	function Details:FindGUIDFromName (name) --deprecated? couldn't find any usage at november 2023
 		if (IsInRaid()) then
 			for i = 1, GetNumGroupMembers(), 1 do
 				local this_name, _ = UnitName ("raid"..i)
