@@ -889,14 +889,13 @@
 		if (not _in_combat) then --~startcombat ~combatstart
 			if (	token ~= "SPELL_PERIODIC_DAMAGE" and
 				(
-					(sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(sourceName))
+					(sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(Details:Ambiguate(sourceName))) --error here, need to remove the realm from sourceName
 					or
-					(targetFlags and bitBand(targetFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(targetName))
+					(targetFlags and bitBand(targetFlags, AFFILIATION_GROUP) ~= 0 and UnitAffectingCombat(Details:Ambiguate(targetName)))
 					or
 					(not Details.in_group and sourceFlags and bitBand(sourceFlags, AFFILIATION_GROUP) ~= 0)
 				)
 			) then
-
 				if (spells_cant_start_combat[spellId] and sourceName == Details.playername) then
 					return
 				end
