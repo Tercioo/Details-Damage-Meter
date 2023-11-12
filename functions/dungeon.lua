@@ -6,6 +6,8 @@ local verbosemode = false --auto open the chart panel
 local _
 local addonName, Details222 = ...
 
+local detailsFramework = DetailsFramework
+
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
 
 --constants
@@ -30,17 +32,9 @@ function mythicDungeonCharts:Debug(...)
 	end
 end
 
-local addPlayerDamage = function(unitName, unitRealm)
-	--get the combatlog name
-	local CLName
-	if (unitRealm and unitRealm ~= "") then
-		CLName = unitName .. "-" .. unitRealm
-	else
-		CLName = unitName
-	end
-
+local addPlayerDamage = function(unitCleuName)
 	--get the player data
-	local playerData = mythicDungeonCharts.ChartTable.Players[CLName]
+	local playerData = mythicDungeonCharts.ChartTable.Players[unitCleuName]
 
 	--if this is the first tick for the player, ignore the damage done on this tick
 	--this is done to prevent a tick tick with all the damage the player did on the previous segment
@@ -49,9 +43,9 @@ local addPlayerDamage = function(unitName, unitRealm)
 	--check if the player data doesn't exists
 	if (not playerData) then
 		playerData = {
-			Name = unitName,
+			Name = detailsFramework:RemoveRealmName(unitCleuName),
 			ChartData = {max_value = 0},
-			Class = select(2, UnitClass(CLName)),
+			Class = select(2, UnitClass(Details:Ambiguate(unitCleuName))),
 
 			--spec zero for now, need to retrive later during combat
 			Spec = 0,
@@ -63,7 +57,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 			LastCombatID = -1,
 		}
 
-		mythicDungeonCharts.ChartTable.Players[CLName] = playerData
+		mythicDungeonCharts.ChartTable.Players[unitCleuName] = playerData
 		bIsFirstTick = true
 	end
 
@@ -86,10 +80,10 @@ local addPlayerDamage = function(unitName, unitRealm)
 				playerData.LastDamage = 0
 				playerData.LastCombatID = segmentId
 
-				--mythicDungeonCharts:Debug("Combat changed for player", CLName)
+				--mythicDungeonCharts:Debug("Combat changed for player", unitCleuName)
 			end
 
-			local actorTable = currentCombat:GetActor(DETAILS_ATTRIBUTE_DAMAGE, CLName)
+			local actorTable = currentCombat:GetActor(DETAILS_ATTRIBUTE_DAMAGE, unitCleuName)
 			if (actorTable) then
 				--update the player spec
 				playerData.Spec = actorTable.spec
@@ -108,7 +102,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 
 					--add the damage to the chart table
 					table.insert(playerData.ChartData, eDps)
-					--mythicDungeonCharts:Debug("Added dps for " , CLName, ":", eDps)
+					--mythicDungeonCharts:Debug("Added dps for " , unitCleuName, ":", eDps)
 
 					if (eDps > playerData.ChartData.max_value) then
 						playerData.ChartData.max_value = eDps
@@ -120,7 +114,7 @@ local addPlayerDamage = function(unitName, unitRealm)
 
 					--add the damage to the chart table
 					table.insert(playerData.ChartData, damageDiff)
-					--mythicDungeonCharts:Debug("Added damage for " , CLName, ":", damageDiff)
+					--mythicDungeonCharts:Debug("Added damage for " , unitCleuName, ":", damageDiff)
 
 					if (damageDiff > playerData.ChartData.max_value) then
 						playerData.ChartData.max_value = damageDiff
@@ -151,13 +145,14 @@ local tickerCallback = function(tickerObject)
 	--tick damage
 	local totalPlayers = GetNumGroupMembers()
 	for i = 1, totalPlayers-1 do
-		local unitName, unitRealm = UnitFullName ("party" .. i)
-		if (unitName) then
-			addPlayerDamage(unitName, unitRealm)
+		---@type cleuname
+		local cleuName = Details:GetFullName("party" .. i)
+		if (cleuName) then
+			addPlayerDamage(cleuName)
 		end
 	end
 
-	addPlayerDamage(UnitFullName("player"))
+	addPlayerDamage(Details:GetFullName("player"))
 end
 
 function mythicDungeonCharts:OnBossDefeated()
@@ -290,7 +285,7 @@ function mythicDungeonCharts.ShowReadyPanel()
 		readyFrame:EnableMouse(true)
 		readyFrame:SetMovable(true)
 		DetailsFramework:ApplyStandardBackdrop(readyFrame)
-		DetailsFramework:CreateTitleBar (readyFrame, "Details! Damage Graphic for M+")
+		DetailsFramework:CreateTitleBar (readyFrame, "Details! Damage Chart for M+")
 
 		readyFrame:Hide()
 
@@ -302,7 +297,7 @@ function mythicDungeonCharts.ShowReadyPanel()
 		LibWindow.SavePosition(readyFrame)
 
 		--show button
-		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, Loc ["STRING_SLASH_SHOW"])
+		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, Loc ["STRING_SLASH_SHOW"]:gsub("^%l", string.upper))
 		readyFrame.ShowButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
 		readyFrame.ShowButton:SetPoint("topright", readyFrame, "topright", -5, -30)
 

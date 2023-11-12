@@ -206,6 +206,12 @@ do
 	end
 
 	local UnitFullName = UnitFullName
+
+	---create a CLEU compatible name of the unit passed
+	---return string is in the format "playerName-realmName"
+	---the string will also be ambiguated using the ambiguateString passed
+	---@param unitId any
+	---@param ambiguateString any
 	function Details:GetFullName(unitId, ambiguateString)
 		--UnitFullName is guarantee to return the realm name of the unit queried
 		local playerName, realmName = UnitFullName(unitId)
@@ -223,6 +229,10 @@ do
 
 			return playerName
 		end
+	end
+
+	function Details:GetUnitNameForAPI(unitId)
+		return Details:GetFullName(unitId, "none")
 	end
 
 	if (toc < 100200) then

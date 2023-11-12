@@ -2555,7 +2555,7 @@
 				end
 				previousEvent[7] = previousEvent[7] or bIsShield
 				previousEvent[1] = false --true if this is a damage || false for healing
-				previousEvent[5] = UnitHealth(targetName)
+				previousEvent[5] = UnitHealth(Details:Ambiguate(targetName))
 				previousEvent[11] = (previousEvent[11] or 0) + 1 --attempt to perform arithmetic on a boolean value (during battlegrounds - fix 02 Nov 2023)
 			else
 				local thisEvent = t[i]
@@ -2579,7 +2579,7 @@
 						thisEvent[5] = 0
 					end
 				else
-					thisEvent[5] = UnitHealth(targetName)
+					thisEvent[5] = UnitHealth(Details:Ambiguate(targetName))
 				end
 
 				thisEvent[6] = sourceName
@@ -7065,6 +7065,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	function Details:GetUnitId(unitName)
 		unitName = unitName or self.nome
+		unitName = Details:Ambiguate(unitName)
+
 		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 		if (openRaidLib) then
 			local unitId = openRaidLib.GetUnitID(unitName)
@@ -7130,8 +7132,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local _player, realmName = UnitFullName("player")
 		if (not realmName) then
 			realmName = GetRealmName()
-			realmName = realmName:gsub("%s+", "")
+			realmName = realmName:gsub("[%s-]", "")
 		end
+
+		local currentCombat = Details:GetCurrentCombat()
 
 		for i = 1, players do
 			local name, killingBlows, honorableKills, deaths, honorGained, faction, race, rank, class, classToken, damageDone, healingDone, bgRating, ratingChange, preMatchMMR, mmrChange, talentSpec
@@ -7148,7 +7152,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 			--damage done
-			local actor = Details.tabela_vigente(1, name)
+			local actor = currentCombat:GetActor(DETAILS_ATTRIBUTE_DAMAGE, name)
 			if (actor) then
 				if (damageDone == 0) then
 					damageDone = damageDone + Details:GetOrderNumber()
@@ -7178,7 +7182,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 
 			--healing done
-			local actor = Details.tabela_vigente(2, name)
+			local actor = currentCombat:GetActor(DETAILS_ATTRIBUTE_HEAL, name)
 			if (actor) then
 				if (healingDone == 0) then
 					healingDone = healingDone + Details:GetOrderNumber()

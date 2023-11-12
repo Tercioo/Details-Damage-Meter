@@ -56,6 +56,8 @@
 ---@alias actorspec number this is the specID of the actor
 ---@alias uniquecombatid number a unique ID to point to a single combat, each character has its ID counter, use with Details:DoesCombatWithUIDExists(); Details:GetCombatByUID(); retrive with combat:GetCombatUID()
 
+---@alias cleuname string
+
 ---@class petinfo : table
 ---@field key1 ownername
 ---@field key2 guid
@@ -82,6 +84,7 @@
 ---@field GetSpellSchoolFormatedName fun(self: details, spellschool: spellschool) : string
 ---@field CommaValue fun(self: details, number: number) : string
 ---@field CreateEventListener fun(self: details) : table
+---@field GetFullName fun(self: details, unitId: any, ambiguateString: any) : string create a CLEU compatible name of the unit passed, return string is in the format "playerName-realmName", the string will also be ambiguated using the ambiguateString passed
 
 ---@class detailseventlistener : table
 ---@field RegisterEvent fun(self: detailseventlistener, event: detailsevent, callback: function)
