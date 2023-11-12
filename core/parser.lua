@@ -1148,7 +1148,7 @@
 
 				cacheAnything.arenaHealth[targetName] = thisEvent[5]
 			else
-				thisEvent[5] = UnitHealth(targetName)
+				thisEvent[5] = UnitHealth(Details:Ambiguate(targetName))
 			end
 
 			thisEvent[6] = sourceName --source name
@@ -1249,7 +1249,7 @@
 				thisEvent[2] = spellId --spellid || false if this is a battle ress line
 				thisEvent[3] = amount --amount of damage or healing
 				thisEvent[4] = time --parser time
-				thisEvent[5] = UnitHealth (targetName) --current unit heal
+				thisEvent[5] = UnitHealth(Details:Ambiguate(targetName)) --current unit heal
 				thisEvent[6] = sourceName --source name
 				thisEvent[7] = absorbed
 				thisEvent[8] = spellType or school
@@ -1720,7 +1720,7 @@
 		this_event [2] = spellId --spellid || false if this is a battle ress line
 		this_event [3] = amount --amount of damage or healing
 		this_event [4] = time --parser time
-		this_event [5] = UnitHealth (sourceName) --current unit heal
+		this_event [5] = UnitHealth(Details:Ambiguate(sourceName)) --current unit heal
 		this_event [6] = sourceName --source name
 		this_event [7] = absorbed
 		this_event [8] = school
@@ -1815,7 +1815,7 @@
 		this_event [2] = spellid --spellid || false if this is a battle ress line
 		this_event [3] = amount --amount of damage or healing
 		this_event [4] = time --parser time
-		this_event [5] = UnitHealth (who_name) --current unit heal
+		this_event [5] = UnitHealth(Details:Ambiguate(who_name)) --current unit heal
 		this_event [6] = who_name --source name
 		this_event [7] = absorbed
 		this_event [8] = school
@@ -1935,7 +1935,7 @@
 		this_event [2] = spellid --spellid || false if this is a battle ress line
 		this_event [3] = amount --amount of damage or healing
 		this_event [4] = time --parser time
-		this_event [5] = UnitHealth (alvo_name) --current unit heal
+		this_event [5] = UnitHealth(Details:Ambiguate(alvo_name)) --current unit heal
 		this_event [6] = who_name --source name
 		this_event [7] = absorbed
 		this_event [8] = spelltype or school
@@ -2353,7 +2353,7 @@
 
 		elseif (shieldSpellId == 110913) then
 			--dark bargain
-			local max_health = UnitHealthMax(shieldOwnerName)
+			local max_health = UnitHealthMax(Details:Ambiguate(shieldOwnerName))
 			if ((amount or 0) > (max_health or 1) * 4) then
 				return
 			end
@@ -2743,7 +2743,7 @@
 		this_event [2] = spellid --spellid || false if this is a battle ress line
 		this_event [3] = amount --amount of damage or healing
 		this_event [4] = time --parser time
-		this_event [5] = UnitHealth (alvo_name) --current unit heal
+		this_event [5] = UnitHealth(Details:Ambiguate(alvo_name)) --current unit heal
 		this_event [6] = who_name --source name
 		this_event [7] = is_shield
 		this_event [8] = absorbed
@@ -2848,7 +2848,7 @@
 				thisEvent[2] = spellId --spellid
 				thisEvent[3] = 1
 				thisEvent[4] = time --parser time
-				thisEvent[5] = UnitHealth(targetName) --current unit heal
+				thisEvent[5] = UnitHealth(Details:Ambiguate(targetName)) --current unit heal
 				thisEvent[6] = sourceName --source name
 				thisEvent[7] = false
 				thisEvent[8] = false
@@ -3369,7 +3369,7 @@
 					this_event [2] = spellid --spellid
 					this_event [3] = 1
 					this_event [4] = time --parser time
-					this_event [5] = UnitHealth (alvo_name) --current unit heal
+					this_event [5] = UnitHealth(Details:Ambiguate(alvo_name)) --current unit heal
 					this_event [6] = who_name --source name
 					this_event [7] = false
 					this_event [8] = false
@@ -3416,7 +3416,7 @@
 					this_event [2] = spellid --spellid
 					this_event [3] = stack_amount or 1
 					this_event [4] = time --parser time
-					this_event [5] = UnitHealth (alvo_name) --current unit heal
+					this_event [5] = UnitHealth(Details:Ambiguate(alvo_name)) --current unit heal
 					this_event [6] = who_name --source name
 					this_event [7] = false
 					this_event [8] = false
@@ -3877,7 +3877,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				thisEvent[2] = spellId --spellid || false if this is a battle ress line
 				thisEvent[3] = 1 --amount of damage or healing
 				thisEvent[4] = time
-				thisEvent[5] = UnitHealth(sourceName)
+				thisEvent[5] = UnitHealth(Details:Ambiguate(sourceName))
 				thisEvent[6] = sourceName
 
 				i = i + 1
@@ -4347,7 +4347,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 							spellId,
 							1,
 							time,
-							UnitHealth(targetName),
+							UnitHealth(Details:Ambiguate(targetName)),
 							sourceName
 						})
 						break
@@ -4485,7 +4485,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_current_combat.frags_need_refresh = true
 
 		--player death
-		elseif (not UnitIsFeignDeath(targetName)) then
+		elseif (not UnitIsFeignDeath(Details:Ambiguate(targetName))) then
 			if (
 				--player in your group
 				(bitBand(targetFlags, AFFILIATION_GROUP) ~= 0 or (damageActor and damageActor.grupo)) and
@@ -4690,7 +4690,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 						maxHealth = 0
 					end
 				else
-					maxHealth = UnitHealthMax(thisPlayer.nome)
+					maxHealth = UnitHealthMax(Details:Ambiguate(thisPlayer.nome))
 				end
 
 				local playerDeathTable
@@ -5811,14 +5811,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function Details.parser_functions:PLAYER_REGEN_ENABLED(...)
 		if (Details.debug) then
 			Details:Msg("(debug) |cFFFFFF00PLAYER_REGEN_ENABLED|r event triggered.")
-
-			--print("combat lockdown:", InCombatLockdown())
-			--print("affecting combat:", UnitAffectingCombat("player"))
-
-			--if (_current_encounter_id and IsInInstance()) then
-				--print("has a encounter ID")
-				--print("player is dead:", UnitHealth ("player") < 1)
-			--end
 		end
 
 		if (Details.auto_swap_to_dynamic_overall) then
