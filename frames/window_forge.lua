@@ -6,7 +6,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
 Details.weaktable = {__mode = "v"}
 
 Details:GetFramework():InstallTemplate("button", "DETAILS_FORGE_TEXTENTRY_TEMPLATE", {
-    backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}, --edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, 
+    backdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}, --edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1,
     backdropcolor = {0, 0, 0, .1},
 })
 
@@ -28,21 +28,21 @@ function Details:InitializeForge()
     DetailsForgePanel.real_name = "DETAILS_FORGE"
     DetailsForgePanel.__icon = [[Interface\MINIMAP\Vehicle-HammerGold-3]]
     DetailsPluginContainerWindow.EmbedPlugin (DetailsForgePanel, DetailsForgePanel, true)
-    
+
     function DetailsForgePanel.RefreshWindow()
         Details:OpenForge()
     end
 end
 
 function Details:OpenForge()
-    
+
     if (not DetailsForgePanel or not DetailsForgePanel.Initialized) then
-        
+
         local fw = Details:GetFramework()
         local lower = string.lower
-        
+
         DetailsForgePanel.Initialized = true
-        
+
         --main frame
         local f = DetailsForgePanel or Details.gump:CreateSimplePanel(UIParent, 960, 600, "Details! " .. L["STRING_SPELLLIST"], "DetailsForgePanel")
         f:SetPoint("center", UIParent, "center")
@@ -50,16 +50,18 @@ function Details:OpenForge()
         f:SetToplevel(true)
         f:SetMovable(true)
         f.Title:SetTextColor(1, .8, .2)
-        
+
+        f.Close:SetScript("OnClick", function() f:GetParent():Hide() end)
+
         local have_plugins_enabled
-        
+
         for id, instanceTable in pairs(Details.EncounterInformation) do
             if (Details.InstancesToStoreData [id]) then
                 have_plugins_enabled = true
                 break
             end
         end
-        
+
         if (not have_plugins_enabled and false) then
             local nopluginLabel = f:CreateFontString(nil, "overlay", "GameFontNormal")
             local nopluginIcon = f:CreateTexture(nil, "overlay")
@@ -69,7 +71,7 @@ function Details:OpenForge()
             nopluginLabel:SetPoint("left", nopluginIcon, "right", 5, 0)
             nopluginLabel:SetText(L["STRING_FORGE_ENABLEPLUGINS"])
         end
-        
+
         if (not Details:GetTutorialCVar("FORGE_TUTORIAL") and false) then
             local tutorialFrame = CreateFrame("frame", "$parentTutorialFrame", f,"BackdropTemplate")
             tutorialFrame:SetPoint("center", f, "center")
@@ -78,30 +80,30 @@ function Details:OpenForge()
             tutorialFrame:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
             insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize=1})
             tutorialFrame:SetBackdropColor(0, 0, 0, 1)
-            
+
             tutorialFrame.Title = Details.gump:CreateLabel(tutorialFrame, L["STRING_FORGE_TUTORIAL_TITLE"], 12, "orange")
             tutorialFrame.Desc = Details.gump:CreateLabel(tutorialFrame, L["STRING_FORGE_TUTORIAL_DESC"], 12)
             tutorialFrame.Desc.width = 370
             tutorialFrame.Example = Details.gump:CreateLabel(tutorialFrame, L["STRING_FORGE_TUTORIAL_VIDEO"], 12)
-            
+
             tutorialFrame.Title:SetPoint("top", tutorialFrame, "top", 0, -5)
             tutorialFrame.Desc:SetPoint("topleft", tutorialFrame, "topleft", 10, -45)
             tutorialFrame.Example:SetPoint("topleft", tutorialFrame, "topleft", 10, -110)
-            
+
             local editBox = Details.gump:CreateTextEntry(tutorialFrame, function()end, 375, 20, nil, nil, nil, entry_template, label_template)
-            editBox:SetPoint("topleft", tutorialFrame.Example, "bottomleft", 0, -10) 
+            editBox:SetPoint("topleft", tutorialFrame.Example, "bottomleft", 0, -10)
             editBox:SetText([[https://www.youtube.com/watch?v=om0k1Yj2pEw]])
             editBox:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
-            
+
             local closeButton = Details.gump:CreateButton(tutorialFrame, function() Details:SetTutorialCVar ("FORGE_TUTORIAL", true); tutorialFrame:Hide() end, 80, 20, L["STRING_OPTIONS_CHART_CLOSE"])
             closeButton:SetPoint("bottom", tutorialFrame, "bottom", 0, 10)
             closeButton:SetTemplate(Details.gump:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
         end
-        
+
         --modules
         local all_modules = {}
         local spell_already_added = {}
-        
+
         f:SetScript("OnHide", function()
             for _, module in ipairs(all_modules) do
                 if (module.data) then
@@ -110,7 +112,7 @@ function Details:OpenForge()
             end
             Details:Destroy(spell_already_added)
         end)
-        
+
         f.bg1 = f:CreateTexture(nil, "background")
         f.bg1:SetTexture([[Interface\AddOns\Details\images\background]], true)
         f.bg1:SetAlpha(0.7)
@@ -119,11 +121,11 @@ function Details:OpenForge()
         f.bg1:SetHorizTile(true)
         f.bg1:SetSize(790, 454)
         f.bg1:SetAllPoints()
-        
+
         f:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
         f:SetBackdropColor(.5, .5, .5, .5)
         f:SetBackdropBorderColor(0, 0, 0, 1)
-        
+
         --[=[
         --scroll gradient
         local blackdiv = f:CreateTexture(nil, "artwork")
@@ -133,7 +135,7 @@ function Details:OpenForge()
         blackdiv:SetPoint("topleft", f, "topleft", 170, -100)
         blackdiv:SetHeight(461)
         blackdiv:SetWidth(200)
-        
+
         --big gradient
         local blackdiv = f:CreateTexture(nil, "artwork")
         blackdiv:SetTexture([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
@@ -143,18 +145,18 @@ function Details:OpenForge()
         blackdiv:SetPoint("bottomleft", f, "bottomleft", 0, 0)
         blackdiv:SetWidth(200)
         --]=]
-        
+
         local no_func = function()end
         local nothing_to_show = {}
         local current_module
         local buttons = {}
-        
+
         function f:InstallModule (module)
             if (module and type(module) == "table") then
                 table.insert(all_modules, module)
             end
         end
-        
+
         local all_players_module = {
             name = L["STRING_FORGE_BUTTON_PLAYERS"],
             desc = L["STRING_FORGE_BUTTON_PLAYERS_DESC"],
@@ -201,7 +203,7 @@ function Details:OpenForge()
             },
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
                     return {
@@ -217,7 +219,7 @@ function Details:OpenForge()
             end,
             fill_name = "DetailsForgeAllPlayersFillPanel",
         }
-        
+
         -----------------------------------------------
         local all_pets_module = {
             name = L["STRING_FORGE_BUTTON_PETS"],
@@ -284,7 +286,7 @@ function Details:OpenForge()
             },
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
                     return {
@@ -301,11 +303,11 @@ function Details:OpenForge()
             end,
             fill_name = "DetailsForgeAllPetsFillPanel",
         }
-        
 
-        
+
+
         -----------------------------------------------
-        
+
         local all_enemies_module = {
             name = L["STRING_FORGE_BUTTON_ENEMIES"],
             desc = L["STRING_FORGE_BUTTON_ENEMIES_DESC"],
@@ -352,7 +354,7 @@ function Details:OpenForge()
             },
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
                     return {
@@ -370,7 +372,7 @@ function Details:OpenForge()
         }
 
         -----------------------------------------------
-        
+
         local spell_ignore_spell_func = function(row)
             local data = all_modules [1].data [row]
             local spellid = data[1]
@@ -388,21 +390,21 @@ function Details:OpenForge()
             local spellname, _, spellicon = GetSpellInfo(spellid)
             Details:OpenAuraPanel (spellid, spellname, spellicon, data[3])
         end
-        
+
         local spell_encounter_open_aura_creator = function(row)
             local data = all_modules [2].data [row]
             local spellID = data[1]
             local encounterID  = data [2]
             local enemyName = data [3]
             local encounterName = data [4]
-            
+
             local spellname, _, spellicon = GetSpellInfo(spellID)
-            
+
             Details:OpenAuraPanel (spellID, spellname, spellicon, encounterID)
         end
-        
+
         local EncounterSpellEvents = EncounterDetailsDB and EncounterDetailsDB.encounter_spells
-        
+
         local all_spells_module = {
             name = L["STRING_FORGE_BUTTON_ALLSPELLS"],
             desc = L["STRING_FORGE_BUTTON_ALLSPELLS_DESC"],
@@ -442,11 +444,11 @@ function Details:OpenForge()
 
                 local SpellPoll = Details.spell_pool
                 for spellID, className in pairs(SpellPoll) do
-                    
+
                     if (type(spellID) == "number" and spellID > 12) then
 
                         local can_add = true
-                        
+
                         if (lower_FilterCaster ~= "") then
                             --class name are stored as numbers for players and string for non-player characters
                             local classNameOriginal = className
@@ -456,14 +458,14 @@ function Details:OpenForge()
                             else
                                 className = lower (className)
                             end
-                            
+
                             if (not className:find(lower_FilterCaster)) then
                                 can_add = false
                             else
                                 className = classNameOriginal
                             end
                         end
-                        
+
                         if (can_add	) then
                             if (filter_name ~= "") then
                                 local spellName = GetSpellInfo(spellID)
@@ -477,14 +479,14 @@ function Details:OpenForge()
                                 end
                             end
                         end
-                        
+
                         if (can_add) then
                             table.insert(t, {spellID, Details.classid_to_classstring [className] or className})
                         end
-                        
+
                     end
                 end
-                
+
                 return t
             end,
             header = {
@@ -500,7 +502,7 @@ function Details:OpenForge()
             },
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
                     local events = ""
@@ -528,17 +530,17 @@ function Details:OpenForge()
             end,
             fill_name = "DetailsForgeAllSpellsFillPanel",
         }
-        
-        
+
+
         -----------------------------------------------
-        
-        
+
+
         local encounter_spells_module = {
             name = L["STRING_FORGE_BUTTON_ENCOUNTERSPELLS"],
             desc = L["STRING_FORGE_BUTTON_ENCOUNTERSPELLS_DESC"],
             filters_widgets = function()
                 if (not DetailsForgeEncounterBossSpellsFilterPanel) then
-                
+
                     local w = CreateFrame("frame", "DetailsForgeEncounterBossSpellsFilterPanel", f, "BackdropTemplate")
                     w:SetSize(600, 20)
                     w:SetPoint("topleft", f, "topleft", 164, -40)
@@ -573,17 +575,17 @@ function Details:OpenForge()
             end,
             search = function()
                 local t = {}
-                
+
                 local filter_name = DetailsForgeEncounterSpellsNameFilter:GetText()
                 local filter_caster = DetailsForgeEncounterSpellsCasterFilter:GetText()
                 local filter_encounter = DetailsForgeEncounterSpellsEncounterFilter:GetText()
-                
+
                 local lower_FilterCaster = lower (filter_caster)
                 local lower_FilterSpellName = lower (filter_name)
                 local lower_FilterEncounterName = lower (filter_encounter)
-                
+
                 Details:Destroy(spell_already_added)
-                
+
                 local SpellPoll = Details.encounter_spell_pool
                 for spellID, spellTable in pairs(SpellPoll) do
                     if (spellID > 12) then
@@ -591,15 +593,15 @@ function Details:OpenForge()
                         local encounterID = spellTable [1]
                         local enemyName = spellTable [2]
                         local bossDetails, bossIndex = Details:GetBossEncounterDetailsFromEncounterId (nil, encounterID)
-                        
+
                         local can_add = true
-                        
+
                         if (lower_FilterCaster ~= "") then
                             if (not lower (enemyName):find(lower_FilterCaster)) then
                                 can_add = false
                             end
                         end
-                        
+
                         if (can_add	) then
                             if (filter_name ~= "") then
                                 local spellName = GetSpellInfo(spellID)
@@ -613,7 +615,7 @@ function Details:OpenForge()
                                 end
                             end
                         end
-                        
+
                         if (can_add and bossDetails) then
                             local encounterName = bossDetails.boss
                             if (filter_encounter ~= "" and encounterName and encounterName ~= "") then
@@ -623,16 +625,16 @@ function Details:OpenForge()
                                 end
                             end
                         end
-                        
+
                         if (can_add) then
                             table.insert(t, {spellID, encounterID, enemyName, bossDetails and bossDetails.boss or "--x--x--"})
                         end
                     end
                 end
-                
+
                 return t
             end,
-            
+
             header = {
                 {name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
                 {name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
@@ -644,13 +646,13 @@ function Details:OpenForge()
                 {name = L["STRING_FORGE_HEADER_ENCOUNTERNAME"], width = 95, type = "entry", func = no_func},
                 --{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 86, type = "button", func = spell_encounter_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
             },
-            
+
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
-                
+
                     local events = ""
                     if (EncounterSpellEvents and EncounterSpellEvents [data[1]]) then
                         for token, _ in pairs(EncounterSpellEvents [data[1]].token) do
@@ -772,10 +774,10 @@ function Details:OpenForge()
         }
 
         -----------------------------------------------
-        
+
         local dbm_open_aura_creator = function(row)
             local data = all_modules [4].data [row]
-            
+
             local spellname, spellicon, _
             if (type(data [7]) == "number") then
                 spellname, _, spellicon = GetSpellInfo(data [7])
@@ -789,7 +791,7 @@ function Details:OpenForge()
                     return
                 end
             end
-            
+
             Details:OpenAuraPanel (data[2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = data[2], spellid = data[7], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
         end
 
@@ -826,12 +828,12 @@ function Details:OpenForge()
                 local t = {}
                 local filter_barname = DetailsForgeDBMBarsTextFilter:GetText()
                 local filter_encounter = DetailsForgeDBMBarsEncounterFilter:GetText()
-                
+
                 local lower_FilterBarName = lower (filter_barname)
                 local lower_FilterEncounterName = lower (filter_encounter)
-                
+
                 local source = Details.boss_mods_timers.encounter_timers_dbm or {}
-                
+
                 for key, timer in pairs(source) do
                     local can_add = true
                     if (lower_FilterBarName ~= "") then
@@ -849,7 +851,7 @@ function Details:OpenForge()
                             end
                         end
                     end
-                    
+
                     if (can_add) then
                         t [#t+1] = timer
                     end
@@ -867,10 +869,10 @@ function Details:OpenForge()
                 {name = L["STRING_FORGE_HEADER_ENCOUNTERNAME"], width = 110, type = "entry", func = no_func},
                 --{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 80, type = "button", func = dbm_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
             },
-            
+
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
                     local encounter_id = data.id
@@ -884,7 +886,7 @@ function Details:OpenForge()
                             spellName, _, spellIcon = GetSpellInfo(abilityID)
                         end
                     end
-                    
+
                     return {
                         index,
                         spellIcon,
@@ -901,16 +903,16 @@ function Details:OpenForge()
             end,
             fill_name = "DetailsForgeDBMBarsFillPanel",
         }
-        
+
         -----------------------------------------------
-        
+
         local bw_open_aura_creator = function(row)
-        
+
             local data = all_modules [5].data [row]
-            
+
             local spellname, spellicon, _
             local spellid = tonumber(data [2])
-            
+
             if (type(spellid) == "number") then
                 if (spellid < 0) then
                     local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = DetailsFramework.EncounterJournal.EJ_GetSectionInfo (abs(spellid))
@@ -919,13 +921,13 @@ function Details:OpenForge()
                     spellname, _, spellicon = GetSpellInfo(spellid)
                 end
                 Details:OpenAuraPanel (data [2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = data [2], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
-                
+
             elseif (type(data [2]) == "string") then
                 --"Xhul'horac" Imps
                 Details:OpenAuraPanel (data [2], data[3], data[5], data.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = data [2], text = "Next " .. (data[3] or "") .. " In", text_size = 72, icon = data[5]})
             end
         end
-        
+
         local bigwigs_timers_module = {
             name = L["STRING_FORGE_BUTTON_BWTIMERS"],
             desc = L["STRING_FORGE_BUTTON_BWTIMERS_DESC"],
@@ -958,14 +960,14 @@ function Details:OpenForge()
             end,
             search = function()
                 local t = {}
-                
+
                 local filter_barname = DetailsForgeBigWigsBarsTextFilter:GetText()
                 local filter_encounter = DetailsForgeBWBarsEncounterFilter:GetText()
 
                 local lower_FilterBarName = lower (filter_barname)
                 local lower_FilterEncounterName = lower (filter_encounter)
-                
-                
+
+
                 local source = Details.boss_mods_timers.encounter_timers_bw or {}
                 for key, timer in pairs(source) do
                     local can_add = true
@@ -984,7 +986,7 @@ function Details:OpenForge()
                             end
                         end
                     end
-                    
+
                     if (can_add) then
                         t [#t+1] = timer
                     end
@@ -1003,13 +1005,13 @@ function Details:OpenForge()
             },
             fill_panel = false,
             fill_gettotal = function(self) return #self.module.data end,
-            fill_fillrows = function(index, self) 
+            fill_fillrows = function(index, self)
                 local data = self.module.data [index]
                 if (data) then
                     local encounter_id = data.id
                     local bossDetails, bossIndex = Details:GetBossEncounterDetailsFromEncounterId (nil, data.id)
                     local bossName = bossDetails and bossDetails.boss or "--x--x--"
-                    
+
                     local abilityID = tonumber(data[2])
                     local spellName, _, spellIcon
                     if (abilityID) then
@@ -1033,13 +1035,13 @@ function Details:OpenForge()
             end,
             fill_name = "DetailsForgeBigWigsBarsFillPanel",
         }
-        
+
         -----------------------------------------------
-        
+
 
 
         local select_module = function(a, b, module_number)
-        
+
             if (current_module ~= module_number) then
                 local module = all_modules [current_module]
                 if (module) then
@@ -1049,38 +1051,38 @@ function Details:OpenForge()
                     fill_panel:Hide()
                 end
             end
-            
+
             for index, button in ipairs(buttons) do
                 button:SetTemplate(CONST_BUTTON_TEMPLATE)
             end
             buttons[module_number]:SetTemplate(CONST_BUTTONSELECTED_TEMPLATE)
-            
+
             local module = all_modules [module_number]
             if (module) then
                 current_module = module_number
-                
+
                 local fillpanel = module.fill_panel
                 if (not fillpanel) then
                     fillpanel = fw:NewFillPanel (f, module.header, module.fill_name, nil, 740, 481, module.fill_gettotal, module.fill_fillrows, false)
                     fillpanel:SetPoint(170, -80)
                     fillpanel.module = module
-                    
+
                     local background = fillpanel:CreateTexture(nil, "background")
                     background:SetAllPoints()
                     background:SetColorTexture(0, 0, 0, 0.2)
-                    
+
                     module.fill_panel = fillpanel
                 end
-                
+
                 local filters = module.filters_widgets()
                 filters:Show()
-                
+
                 local data = module.search()
                 module.data = data
-                
+
                 fillpanel:Show()
                 fillpanel:Refresh()
-                
+
                 for o = 1, #fillpanel.scrollframe.lines do
                     for i = 1, #fillpanel.scrollframe.lines [o].entry_inuse do
                         --text entry
@@ -1089,11 +1091,11 @@ function Details:OpenForge()
                 end
             end
         end
-        
+
         function f:refresh()
             select_module (nil, nil, current_module)
         end
-        
+
         f.SelectModule = select_module
         f.AllModules = all_modules
 
@@ -1115,16 +1117,16 @@ function Details:OpenForge()
             [6] = true
         }
         local lastButton
-        
+
         for i = 1, #all_modules do
             local module = all_modules [i]
             local b = fw:CreateButton(f, select_module, 140, 20, module.name, i)
             b.tooltip = module.desc
-            
+
             b:SetTemplate(CONST_BUTTON_TEMPLATE)
             b:SetIcon ([[Interface\BUTTONS\UI-GuildButton-PublicNote-Up]], nil, nil, nil, nil, {1, 1, 1, 0.7})
             b:SetWidth(140)
-            
+
             if (lastButton) then
                 if (brackets[i]) then
                     b:SetPoint("topleft", lastButton, "bottomleft", 0, -23)
@@ -1140,17 +1142,17 @@ function Details:OpenForge()
         end
 
         select_module (nil, nil, 1)
-        
+
     end
 
     DetailsForgePanel:Show()
-    
+
     --do a refresh on the panel
     if (DetailsForgePanel.FirstRun) then
         DetailsForgePanel:refresh()
     else
         DetailsForgePanel.FirstRun = true
     end
-    
+
     DetailsPluginContainerWindow.OpenPlugin (DetailsForgePanel)
 end

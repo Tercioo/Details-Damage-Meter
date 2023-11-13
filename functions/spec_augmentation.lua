@@ -9,9 +9,15 @@ local UnitIsUnit = UnitIsUnit
 local augmentationFunctions = Details222.SpecHelpers[1473]
 local augmentationCache = Details222.SpecHelpers[1473].augmentation_cache
 
+local playerRealmName = GetRealmName()
+
+
+
+
+
 function augmentationFunctions.BuffIn(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, auraType, amount)
     if (spellId == 395152) then --ebom might on third parties
-        local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(Ambiguate(targetName, "none"), spellId, Ambiguate(sourceName, "none"))
+        local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
         local attributeGained = v2
 
         if (type(attributeGained) == "number") then
@@ -38,8 +44,9 @@ function augmentationFunctions.BuffIn(token, time, sourceSerial, sourceName, sou
 
     elseif (spellId == 409560) then
         local unitIDAffected = Details:FindUnitIDByUnitSerial(targetSerial)
+        print(unitIDAffected)
         if (unitIDAffected) then
-            local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId, sourceName)
+            local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId, Details:Ambiguate(sourceName))
             if (duration) then
                 local breathTargets = augmentationCache.breath_targets[targetSerial]
                 if (not breathTargets) then
