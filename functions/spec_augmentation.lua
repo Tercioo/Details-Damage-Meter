@@ -44,7 +44,6 @@ function augmentationFunctions.BuffIn(token, time, sourceSerial, sourceName, sou
 
     elseif (spellId == 409560) then
         local unitIDAffected = Details:FindUnitIDByUnitSerial(targetSerial)
-        print(unitIDAffected)
         if (unitIDAffected) then
             local duration, expirationTime = Details:FindDebuffDuration(unitIDAffected, spellId, Details:Ambiguate(sourceName))
             if (duration) then
