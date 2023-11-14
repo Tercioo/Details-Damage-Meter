@@ -213,7 +213,7 @@ do
 	---the string will also be ambiguated using the ambiguateString passed
 	---@param unitId any
 	---@param ambiguateString any
-	function Details:GetFullName(unitId, ambiguateString)
+	function Details:GetFullName(unitId, ambiguateString) --not in use, get replace by Details.GetCLName a few lines below
 		--UnitFullName is guarantee to return the realm name of the unit queried
 		local playerName, realmName = UnitFullName(unitId)
 		if (playerName) then
