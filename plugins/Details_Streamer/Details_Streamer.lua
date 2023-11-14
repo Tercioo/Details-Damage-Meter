@@ -2358,9 +2358,9 @@ function StreamOverlay:OnEvent (_, event, ...)
 			
 			local interimPlayerName, playerRealm = UnitFullName ("player")
 
-			if(select(4, GetBuildInfo()) >= 100200) then
-				playerName = interimPlayerName .. '-' .. playerRealm
-			end
+			--if(select(4, GetBuildInfo()) >= 100200) then
+				playerName = interimPlayerName .. '-' .. playerRealm --playerName is an upvalue from the file header
+			--end
 
 			playerName = _G.Details:Ambiguate(playerName)
 

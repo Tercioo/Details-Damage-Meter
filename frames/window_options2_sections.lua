@@ -40,8 +40,8 @@ local unpack = _G.unpack
 local tinsert = table.insert
 
 local startX = 200
-local startY = -40
-local heightSize = 540
+local startY = -75
+local heightSize = 600
 local presetVersion = 3
 
 --templates

@@ -470,13 +470,13 @@
 		LibWindow.MakeDraggable(pluginContainerFrame)
 		LibWindow.SavePosition(pluginContainerFrame)
 
-		--menu background
-		local menuBackground = CreateFrame("frame", "$parentMenuFrame", pluginContainerFrame, "BackdropTemplate")
-		DetailsFramework:ApplyStandardBackdrop(menuBackground)
+		--left side bar menu
+		local optionsLeftSideBarMenu = CreateFrame("frame", "$parentMenuFrame", pluginContainerFrame, "BackdropTemplate")
+		DetailsFramework:ApplyStandardBackdrop(optionsLeftSideBarMenu)
 
 		--statusbar
-		local statusBar = CreateFrame("frame", nil, menuBackground, "BackdropTemplate")
-		statusBar:SetPoint("topleft", menuBackground, "bottomleft", 0, 1)
+		local statusBar = CreateFrame("frame", nil, optionsLeftSideBarMenu, "BackdropTemplate")
+		statusBar:SetPoint("topleft", optionsLeftSideBarMenu, "bottomleft", 0, 1)
 		statusBar:SetPoint("topright", pluginContainerFrame, "bottomright", 0, 1)
 		statusBar:SetHeight(20)
 		statusBar:SetAlpha(1)
@@ -492,28 +492,28 @@
 		rightClickToBackLabel:SetPoint("bottomright", statusBar, "bottomright", -1, 5)
 		rightClickToBackLabel:SetAlpha(.4)
 
-		menuBackground:SetPoint("topright", pluginContainerFrame, "topleft", -2, 0)
-		menuBackground:SetPoint("bottomright", pluginContainerFrame, "bottomleft", -2, 0)
-		menuBackground:SetWidth(pluginContainerFrame.MenuButtonWidth + 6)
+		optionsLeftSideBarMenu:SetPoint("topright", pluginContainerFrame, "topleft", -2, 0)
+		optionsLeftSideBarMenu:SetPoint("bottomright", pluginContainerFrame, "bottomleft", -2, 0)
+		optionsLeftSideBarMenu:SetWidth(pluginContainerFrame.MenuButtonWidth + 6)
 
-		local bigDogTexture = detailsFramework:NewImage(menuBackground, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+		local bigDogTexture = detailsFramework:NewImage(optionsLeftSideBarMenu, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 		bigDogTexture:SetPoint("bottomleft", custom_window, "bottomleft", 0, 1)
-		bigDogTexture:SetAlpha(0.3)
+		bigDogTexture:SetAlpha(0)
 
-		local gradientBelowTheLine = DetailsFramework:CreateTexture(menuBackground, {gradient = "vertical", fromColor = {0, 0, 0, 0.45}, toColor = "transparent"}, 1, 95, "artwork", {0, 1, 0, 1}, "dogGradient")
+		local gradientBelowTheLine = DetailsFramework:CreateTexture(optionsLeftSideBarMenu, {gradient = "vertical", fromColor = {0, 0, 0, 0.45}, toColor = "transparent"}, 1, 95, "artwork", {0, 1, 0, 1}, "dogGradient")
 		gradientBelowTheLine:SetPoint("bottoms")
 
-		local bigDogRowTexture = menuBackground:CreateTexture(nil, "artwork")
-		bigDogRowTexture:SetPoint("bottomleft", menuBackground, "bottomleft", 1, 1)
-		bigDogRowTexture:SetPoint("bottomright", menuBackground, "bottomright", -1, 1)
+		local bigDogRowTexture = optionsLeftSideBarMenu:CreateTexture(nil, "artwork")
+		bigDogRowTexture:SetPoint("bottomleft", optionsLeftSideBarMenu, "bottomleft", 1, 1)
+		bigDogRowTexture:SetPoint("bottomright", optionsLeftSideBarMenu, "bottomright", -1, 1)
 		bigDogRowTexture:SetHeight(20)
 		bigDogRowTexture:SetColorTexture(.5, .5, .5, .1)
 		bigDogRowTexture:Hide()
 
 		--plugins menu title bar
-		local titleBarPlugins = CreateFrame("frame", nil, menuBackground, "BackdropTemplate")
-		PixelUtil.SetPoint(titleBarPlugins, "topleft", menuBackground, "topleft", 2, -3)
-		PixelUtil.SetPoint(titleBarPlugins, "topright", menuBackground, "topright", -2, -3)
+		local titleBarPlugins = CreateFrame("frame", "$parentPluginsHeader", optionsLeftSideBarMenu, "BackdropTemplate")
+		PixelUtil.SetPoint(titleBarPlugins, "topleft", optionsLeftSideBarMenu, "topleft", 2, -3)
+		PixelUtil.SetPoint(titleBarPlugins, "topright", optionsLeftSideBarMenu, "topright", -2, -3)
 		titleBarPlugins:SetHeight(pluginContainerFrame.TitleHeight)
 		titleBarPlugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 		titleBarPlugins:SetBackdropColor(.5, .5, .5, 1)
@@ -524,8 +524,8 @@
 		PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "center", titleBarPlugins , "center", 0, 0)
 		PixelUtil.SetPoint(titleBarPlugins_TitleLabel, "top", titleBarPlugins , "top", 0, -5)
 
-		--plugins menu title bar
-		local titleBarTools = CreateFrame("frame", nil, menuBackground, "BackdropTemplate")
+		--tools menu title bar
+		local titleBarTools = CreateFrame("frame", "$parentToolsHeader", optionsLeftSideBarMenu, "BackdropTemplate")
 		titleBarTools:SetHeight(pluginContainerFrame.TitleHeight)
 		titleBarTools:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
 		titleBarTools:SetBackdropColor(.5, .5, .5, 1)
@@ -750,20 +750,20 @@
 				local addingTools = false
 				for index, button in ipairs(pluginContainerFrame.MenuButtons) do
 					button:ClearAllPoints()
-					PixelUtil.SetPoint(button, "center", menuBackground, "center", 0, 0)
+					PixelUtil.SetPoint(button, "center", optionsLeftSideBarMenu, "center", 0, 0)
 
 					if (button.IsUtility) then
 						if (not addingTools) then
 							--add the header
 							addingTools = true
 							--add -20 to add a gap between plugins and utilities
-							PixelUtil.SetPoint(titleBarTools, "topleft", menuBackground, "topleft", 2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
-							PixelUtil.SetPoint(titleBarTools, "topright", menuBackground, "topright", -2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
+							PixelUtil.SetPoint(titleBarTools, "topleft", optionsLeftSideBarMenu, "topleft", 2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
+							PixelUtil.SetPoint(titleBarTools, "topright", optionsLeftSideBarMenu, "topright", -2, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 20)
 						end
 
-						PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 40)
+						PixelUtil.SetPoint(button, "top", optionsLeftSideBarMenu, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index - 40)
 					else
-						PixelUtil.SetPoint(button, "top", menuBackground, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index)
+						PixelUtil.SetPoint(button, "top", optionsLeftSideBarMenu, "top", 0, pluginContainerFrame.MenuY +((index-1) * -pluginContainerFrame.MenuButtonHeight ) - index)
 					end
 				end
 
