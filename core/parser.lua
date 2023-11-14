@@ -6106,6 +6106,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details.playername = UnitName("player")
 		end
 
+		Details.playername = Details:Ambiguate(Details.playername)
+
 		--player faction and enemy faction
 		Details.faction = UnitFactionGroup("player")
 		if (Details.faction == PLAYER_FACTION_GROUP[0]) then --player is horde
@@ -6373,11 +6375,33 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		xpcall(saveAutoRunCode, logSaverError)
 	end) --end of saving data
 
-
-
 	local eraNamedSpellsToID = {}
 
 	-- ~parserstart ~startparser ~cleu ~parser
+	Details.UnitNameCache = {}
+	function Details.OnParserEventRetail() --not in use - added on 2023.11.13
+		local time, token, hidding, sourceSerial, sourceName, sourceFlags, sourceFlags2, targetSerial, targetName, targetFlags, targetFlags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
+
+		local func = token_list[token]
+		if (func) then
+			if (sourceName) then
+				if (Details.UnitNameCache[sourceName]) then
+					sourceName = Details.UnitNameCache[sourceName]
+				else
+					--detect if this is player by reading the flags
+					if (bitBand(sourceFlags, OBJECT_TYPE_PLAYER) ~= 0) then
+						sourceName = Ambiguate(sourceName, "none")
+						Details.UnitNameCache[sourceName] = sourceName
+					else
+						Details.UnitNameCache[sourceName] = sourceName
+					end
+				end
+			end
+
+			return func(nil, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)
+		end
+	end
+
 	function Details.OnParserEvent()
 		local time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 = CombatLogGetCurrentEventInfo()
 
@@ -7142,6 +7166,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 					name = name .. "-" .. realmName
 				end
 			end
+
+			name = Details:Ambiguate(name)
 
 			--damage done
 			local actor = currentCombat:GetActor(DETAILS_ATTRIBUTE_DAMAGE, name)

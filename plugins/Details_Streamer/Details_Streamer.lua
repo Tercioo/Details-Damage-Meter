@@ -2362,6 +2362,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 				playerName = interimPlayerName .. '-' .. playerRealm
 			end
 
+			playerName = _G.Details:Ambiguate(playerName)
+
 			if (_G.Details) then
 			
 				
