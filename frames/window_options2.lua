@@ -38,9 +38,9 @@ function Details:InitializeOptionsWindow(instance)
     return Details222.OptionsPanel.InitializeOptionsWindow(instance)
 end
 
-C_Timer.After(2, function()
-    Details:OpenOptionsWindow(Details:GetInstance(1), false, 1)
-end)
+--C_Timer.After(2, function()
+--    Details:OpenOptionsWindow(Details:GetInstance(1), false, 1)
+--end)
 
 function Details222.OptionsPanel.InitializeOptionsWindow(instance)
 	local DetailsOptionsWindow = detailsFramework:NewPanel(UIParent, _, "DetailsOptionsWindow", _, 897, 592)
