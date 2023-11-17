@@ -1927,7 +1927,8 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		unitid = unitid [1]
 	end
 
-	if (unitid and UnitPlayerControlled(unitid) and CheckInteractDistance(unitid, CONST_INSPECT_ACHIEVEMENT_DISTANCE) and CanInspect(unitid)) then
+	--disable due to changes to CheckInteractDistance()
+	if (not InCombatLockdown() and unitid and UnitPlayerControlled(unitid) and CheckInteractDistance(unitid, CONST_INSPECT_ACHIEVEMENT_DISTANCE) and CanInspect(unitid)) then
 
 		--16 = all itens including main and off hand
 		local item_amount = 16
@@ -1982,7 +1983,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 				Details:SendEvent("UNIT_SPEC", nil, unitid, spec, guid)
 			end
 
---------------------------------------------------------------------------------------------------------
+			--------------------------------------------------------------------------------------------------------
 
 			for i = 1, 7 do
 				for o = 1, 3 do
@@ -2000,7 +2001,8 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 				Details:SendEvent("UNIT_TALENTS", nil, unitid, talents, guid)
 			end
 		end
---------------------------------------------------------------------------------------------------------
+
+		--------------------------------------------------------------------------------------------------------
 
 		if (ilvl_core.forced_inspects [guid]) then
 			if (type(ilvl_core.forced_inspects [guid].callback) == "function") then
@@ -2012,10 +2014,11 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 			ilvl_core.forced_inspects [guid] = nil
 		end
 
---------------------------------------------------------------------------------------------------------
+		--------------------------------------------------------------------------------------------------------
 
 	end
 end
+
 _detalhes.ilevel.CalcItemLevel = ilvl_core.CalcItemLevel
 
 inspect_frame:SetScript("OnEvent", function(self, event, ...)
@@ -2075,7 +2078,7 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 		return
 	end
 
-	if (not unitid or not CanInspect(unitid) or not UnitPlayerControlled(unitid) or not CheckInteractDistance(unitid, CONST_INSPECT_ACHIEVEMENT_DISTANCE)) then
+	if (InCombatLockdown() or not unitid or not CanInspect(unitid) or not UnitPlayerControlled(unitid) or not CheckInteractDistance(unitid, CONST_INSPECT_ACHIEVEMENT_DISTANCE)) then
 		if (is_forced) then
 			try_number = try_number or 0
 			if (try_number > 18) then
