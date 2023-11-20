@@ -301,7 +301,9 @@ do
 		customItemList[270827] = {itemId = 159610, isPassive = true} --trinket: Vessel of Skittering Shadows
 		customItemList[271671] = {itemId = 159631, isPassive = true} --trinket: Lady Waycrest's Music Box
 		customItemList[215407] = {itemId = 136716, isPassive = true} --trinket: Caged Horror
+		customItemList[213786] = {itemId = 137301, isPassive = true} --trinket: Corrupted Starlight
 
+		customItemList[427209] = {itemId = 208616, onUse = true, castId = 427113, defaultName = GetSpellInfo(427113)} --weapon: Dreambinder, Loom of the Great Cycle
 		customItemList[427161] = {itemId = 208615, onUse = true, castId = 422956, defaultName = GetSpellInfo(422956)} --trinket: Nymue's Unraveling Spindle
 		customItemList[425701] = {itemId = 207174, onUse = true, castId = 422750, defaultName = GetSpellInfo(422750)} --trinket: Fyrakk's Tainted Rageheart
 		customItemList[425509] = {itemId = 207169, onUse = true, castId = 422441, defaultName = GetSpellInfo(422441)} --trinket: Branch of the Tormented Ancient
