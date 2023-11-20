@@ -316,25 +316,27 @@
 		--mythic dungeon
 		local isMythicDungeon = self.is_mythic_dungeon_segment
 		if (isMythicDungeon) then
+			local bIsMythicDungeonOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.OverallSegment
+			if (bIsMythicDungeonOverall) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+			end
+
+			local bIsMythicDungeonTrashOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.TrashOverallSegment
+			if (bIsMythicDungeonTrashOverall) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+			end
+
 			local isMythicDungeonTrash = self.is_mythic_dungeon_trash
 			if (isMythicDungeonTrash) then
 				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-			else
-				local isMythicDungeonOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.OverallSegment
-				local isMythicDungeonTrashOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.TrashOverallSegment
-				if (isMythicDungeonOverall) then
-					return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-				elseif (isMythicDungeonTrashOverall) then
-					return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-				end
-
-				local bossEncounter =  self.is_boss
-				if (bossEncounter) then
-					return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-				end
-
-				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 			end
+
+			local bossEncounter =  self.is_boss
+			if (bossEncounter) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+			end
+
+			return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 		end
 
 		--arena

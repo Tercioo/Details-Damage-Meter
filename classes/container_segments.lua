@@ -26,6 +26,10 @@ function Details:GetCurrentCombat()
 	return Details.tabela_vigente
 end
 
+function Details:SetCurrentCombat(combatObject)
+	Details.tabela_vigente = combatObject
+end
+
 function Details:GetOverallCombat()
 	return Details.tabela_overall
 end
@@ -756,6 +760,93 @@ function segmentClass:ResetOverallData()
 	Details:ClockPluginTickOnSegment()
 
 	Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+end
+
+function segmentClass:ResetDataByCombatType(combatType)
+	local bIsException = false
+
+	if (combatType == "m+overall") then
+		combatType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL
+		bIsException = true
+	elseif (combatType == "generic") then
+		combatType = DETAILS_SEGMENTTYPE_GENERIC
+	end
+
+	--if true then return end
+
+	--destroy the overall combat object
+	segmentClass:ResetOverallData()
+
+	local bSegmentDestroyed = false
+	local segmentsTable = Details:GetCombatSegments()
+	---@type table<combat, boolean> store references of combat objects removed
+	local removedCombats = {}
+
+	if (bIsException) then --include all except the combatType
+		--iterate over all segments and remove those that are not of the combatType
+		--go to a minimum of 2 because the first segment is the current segment when the player isn't in combat
+		for i = #segmentsTable, 2, -1 do
+			---@type combat
+			local thisCombatObject = segmentsTable[i]
+			if (thisCombatObject:GetCombatType() ~= combatType) then
+				---@type boolean, combat|nil
+				local combatObjectRemoved = table.remove(segmentsTable, i)
+				if (combatObjectRemoved and combatObjectRemoved == thisCombatObject) then
+					Details:DestroyCombat(combatObjectRemoved)
+					bSegmentDestroyed = true
+					--add the combat reference to removed combats table
+					removedCombats[combatObjectRemoved] = true
+				end
+			end
+		end
+	else
+		--iterate over all segments and remove those that are equal to the combatType
+		for i = #segmentsTable, 2, -1 do
+			---@type combat
+			local thisCombatObject = segmentsTable[i]
+			if (thisCombatObject:GetCombatType() == combatType) then
+				---@type boolean, combat|nil
+				local combatObjectRemoved = table.remove(segmentsTable, i)
+				if (combatObjectRemoved and combatObjectRemoved == thisCombatObject) then
+					Details:DestroyCombat(combatObjectRemoved)
+					bSegmentDestroyed = true
+				end
+			end
+		end
+	end
+
+	--safe check, if no segments saved, can cleanup all data
+	if (#segmentsTable == 0) then
+		--there's no combat left in the segments table
+		segmentClass:ResetAllCombatData()
+		return
+	end
+
+	--check if an instance is showing a combat which was removed
+	for instanceId, instanceObject in Details:ListInstances() do
+		---@type combat
+		local combatObject = instanceObject:GetShowingCombat()
+		if (combatObject and combatObject.__destroyed) then
+			--update the combat the instance uses
+			instanceObject:SetSegmentId(DETAILS_SEGMENTID_CURRENT)
+			--reset the window frame
+			instanceObject:ResetWindow()
+			--refresh the window to show the new combat attributed to it
+			local bForceRefresh = true
+			instanceObject:RefreshData(bForceRefresh)
+		end
+	end
+
+	Details:InstanceCall(function(instanceObject) instanceObject:RefreshCombat() end)
+
+	--update the combat shown on all instances
+	Details:InstanceCallDetailsFunc(Details.AtualizaSegmentos_AfterCombat)
+
+	Details:UpdateParserGears()
+
+	if (bSegmentDestroyed) then
+		Details:SendEvent("DETAILS_DATA_SEGMENTREMOVED")
+	end
 end
 
 function segmentClass:ResetAllCombatData()

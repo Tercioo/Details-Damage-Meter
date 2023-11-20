@@ -2209,7 +2209,7 @@ local iconFrame_OnEnter = function(self)
 					local previousScore = rioProfile.previousScore or 0
 					local currentScore = rioProfile.currentScore or 0
 
-					if (previousScore > currentScore) then
+					if (false and previousScore > currentScore and time() > 1700562401) then --2023.11.21 midday
 						GameCooltip:AddLine("M+ Score:", previousScore .. " (|cFFFFDD11" .. currentScore .. "|r)", 1, "white")
 						addedInfo = true
 					else
@@ -2255,6 +2255,20 @@ local iconFrame_OnEnter = function(self)
 				GameCooltip:AddIcon([[]], 1, 1, 1, 20)
 				Details:AddTooltipBackgroundStatusbar()
 				height = height + 19
+			end
+
+			if (actor.classe == "UNKNOW") then
+				local npcId = tonumber(actor.aID)
+				if (not npcId) then
+					npcId = Details:GetNpcIdFromGuid(actor.serial)
+				end
+
+				if (npcId) then
+					GameCooltip:AddLine("NpcID:", npcId)
+					GameCooltip:AddIcon([[]], 1, 1, 1, 20)
+					Details:AddTooltipBackgroundStatusbar()
+					height = height + 19
+				end
 			end
 
 			GameCooltip:SetOption("FixedHeight", height)
@@ -8989,6 +9003,16 @@ end
 		gameCooltip:SetOption("IgnoreButtonAutoHeight", false)
 
 		Details:SetTooltipMinWidth()
+
+		gameCooltip:AddLine("Remove Common Segments", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		gameCooltip:AddMenu(1, function() return Details.tabela_historico:ResetDataByCombatType("generic") end)
+
+		gameCooltip:AddLine("Reset, but keep Mythic+ Overall Segments", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		gameCooltip:AddMenu(1, function() return Details.tabela_historico:ResetDataByCombatType("m+overall") end)
+
+		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 
 		gameCooltip:AddLine(Loc["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
