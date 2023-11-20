@@ -3161,6 +3161,7 @@ end)
 
 --game freeze prevention, there are people calling UpdateAddOnMemoryUsage() making the game client on the end user to freeze, this is bad, really bad.
 --Details! replace the function call with one that do the same thing, but warns the player if the function freezes the client too many times.
+--this feature is disabled by default, to enable it, type /run Details.check_stuttering = true and reload the game
 local stutterCounter = 0
 local bigStutterCounter = 0
 local UpdateAddOnMemoryUsage_Original = _G.UpdateAddOnMemoryUsage

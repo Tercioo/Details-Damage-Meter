@@ -1387,7 +1387,7 @@ local default_global_data = {
 		merge_player_abilities = false,
 
 		played_class_time = true,
-		check_stuttering = true,
+		check_stuttering = false,
 
 		--[bossname] = texture
 		boss_icon_cache = {},
