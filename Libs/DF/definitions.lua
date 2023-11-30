@@ -45,6 +45,7 @@
 
 ---@class detailsframework
 ---@field dversion number
+---@field internalFunctions table
 ---@field OptionsFunctions df_optionsmixin
 ---@field GlobalWidgetControlNames table
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
@@ -56,7 +57,7 @@
 ---@field EditorMixin df_editormixin
 ---@field ClassCache {ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[] only available after calling GetClassList()
 ---@field Math df_math
----@field FontOutlineFlags {key1:outline, key2:string}[]
+---@field FontOutlineFlags table<outline, boolean>
 ---@field table df_table_functions
 ---@field AnchorPoints string[]
 ---@field ClassFileNameToIndex table<string, number> engClass -> classIndex
@@ -102,7 +103,7 @@
 ---@field CommaValue fun(self:table, value:number) : string convert a number to a string with commas, e.g. 1000000 -> 1,000,000
 ---@field SplitTextInLines fun(self:table, text:string) : string[] split a text into lines
 ---@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean, specId: specializationid) : string there's no self here
----@field SetAnchor fun(self:table, widget:uiobject, anchorTable:df_anchor, anchorTo:uiobject)
+---@field SetAnchor fun(self:table, widget:uiobject, anchorTable:df_anchor, anchorTo:uiobject?) only adjust the anchors of a widget, does not save values
 ---@field AddTextureToText fun(text:string, textureInfo:table, bAddSpace:boolean?, bAddAfterText:boolean) : string textureInfo is a table with .texture .width .height .coords{left, right, top, bottom}
 ---@field CreateTextureInfo fun(texture:atlasname|texturepath|textureid, width:number?, height:number?, left:number?, right:number?, top:number?, bottom:number?, imageWidthnumber?, imageHeightnumber?) : table
 ---@field ApplyStandardBackdrop fun(self:table, frame:frame, bUseSolidColor:boolean?, alphaScale:number?)
@@ -132,8 +133,10 @@
 ---@field CreateAuraScrollBox fun(self:table, parent:frame, name:string?, data:table?, onRemoveCallback:function?, options:table?) : df_aurascrollbox
 ---@field CreateGridScrollBox fun(self:table, parent:frame, name:string?, refreshFunc:function, data:table?, createColumnFrameFunc:function, options:table?) : df_gridscrollbox
 ---@field CreateCanvasScrollBox fun(self:table, parent:frame, child:frame?, name:string?, options:table?) : df_canvasscrollbox
+---@field CreateTabContainer fun(self:table, parent:frame, title:string, frameName:string, tabList:df_tabinfotable[], optionsTable:table?, hookList:table?, languageInfo:table?) : df_tabcontainer
 ---@field GetSizeFromPercent fun(self:table, uiObject:uiobject, percent:number) : number get the min size of a uiObject and multiply it by the percent passed
 ---@field BuildMenu fun(self:table, parent:frame, menuOptions:df_menu_table[], xOffset:number?, yOffset:number?, height:number?, useColon:boolean?, textTemplate:table?, dropdownTemplate:table?, switchTemplate:table?, switchIsCheckbox:boolean?, sliderTemplate:table?, buttonTemplate:table?, valueChangeHook:function?)
 ---@field BuildMenuVolatile fun(self:table, parent:frame, menuOptions:df_menu_table[], xOffset:number?, yOffset:number?, height:number?, useColon:boolean?, textTemplate:table?, dropdownTemplate:table?, switchTemplate:table?, switchIsCheckbox:boolean?, sliderTemplate:table?, buttonTemplate:table?, valueChangeHook:function?)
 ---@field 
 ---@field 
+

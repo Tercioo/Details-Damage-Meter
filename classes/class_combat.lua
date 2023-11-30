@@ -416,6 +416,10 @@
 		end
 	end
 
+	function classCombat:GetRunTime()
+		return self.run_time or self:GetCombatTime()
+	end
+
 	function classCombat:GetStartTime()
 		return self.start_time
 	end

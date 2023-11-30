@@ -986,16 +986,13 @@ function DetailsFrameworkDropDownOnHide(self)
 	object:Close()
 end
 
+local iconSizeTable = {16, 16}
 function DF:BuildDropDownFontList(onClick, icon, iconTexcoord, iconSize)
 	local fontTable = {}
 
-	if (type(iconSize) ~= "table") then
-		iconSize = {iconSize or 16, iconSize or 16}
-	end
-
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	for name, fontPath in pairs(SharedMedia:HashTable("font")) do
-		fontTable[#fontTable+1] = {value = name, label = name, onclick = onClick, icon = icon, iconsize = iconSize, texcoord = iconTexcoord, font = fontPath, descfont = "abcdefg ABCDEFG"}
+		fontTable[#fontTable+1] = {value = name, label = name, onclick = onClick, icon = icon, iconsize = iconSizeTable, texcoord = iconTexcoord, font = fontPath, descfont = "abcdefg ABCDEFG"}
 	end
 
 	table.sort(fontTable, function(t1, t2) return t1.label < t2.label end)
@@ -1141,11 +1138,12 @@ function DF:CreateOutlineListGenerator(callback)
 	local newGenerator = function()
 		local dropdownOptions = {}
 
-		for i, outlineInfo in ipairs(DF.FontOutlineFlags) do
-			local outlineName, outlineLoc = unpack(outlineInfo)
+		for index, outlineInfo in pairs(DF.FontOutlineFlags) do
+			local outlineValue = outlineInfo[1]
+			local outlineName = outlineInfo[2]
 			table.insert(dropdownOptions, {
-				label = outlineLoc,
-				value = outlineName,
+				label = outlineName,
+				value = outlineValue,
 				onclick = callback
 			})
 		end

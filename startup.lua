@@ -276,7 +276,10 @@ function Details:StartMeUp()
 			Details.listener:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 			Details.listener:RegisterEvent("PLAYER_TALENT_UPDATE")
 			Details.listener:RegisterEvent("CHALLENGE_MODE_START")
+			--Details.listener:RegisterEvent("CHALLENGE_MODE_END") --doesn't exists ingame (only at cleu)
 			Details.listener:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+			Details.listener:RegisterEvent("WORLD_STATE_TIMER_START")
+
 		end
 
 		Details.parser_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")

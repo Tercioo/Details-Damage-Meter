@@ -855,6 +855,11 @@ end
 	debuffTrackedAuraScrollBox:SetPoint("topleft", auraPanel_Auto, "topleft", 16 +(scrollWidth * 2) + xLocation, y)
 	buffTrackedAuraScrollBox:SetPoint("topleft", auraPanel_Auto, "topleft", 24 +(scrollWidth * 3) + xLocation, y)
 
+	buffTrackedAuraScrollBox:GetTitleFontString():SetText(newAuraPanel.LocTexts.BUFFS_TRACKED)
+	debuffTrackedAuraScrollBox:GetTitleFontString():SetText(newAuraPanel.LocTexts.DEBUFFS_TRACKED)
+	buffIgnoredAuraScrollBox:GetTitleFontString():SetText(newAuraPanel.LocTexts.BUFFS_IGNORED)
+	debuffIgnoredAuraScrollBox:GetTitleFontString():SetText(newAuraPanel.LocTexts.DEBUFFS_IGNORED)
+
 	newAuraPanel.buff_ignored = buffIgnoredAuraScrollBox
 	newAuraPanel.debuff_ignored = debuffIgnoredAuraScrollBox
 	newAuraPanel.buff_tracked = buffTrackedAuraScrollBox

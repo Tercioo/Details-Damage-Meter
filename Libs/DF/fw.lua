@@ -1,6 +1,6 @@
 
 
-local dversion = 482
+local dversion = 484
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -48,6 +48,8 @@ end
 function DF:MsgWarning(msg, ...)
 	print("|cFFFFFFAA" .. (self.__name or "Details!Framework") .. "|r |cFFFFAA00[Warning]|r", msg, ...)
 end
+
+DF.internalFunctions = DF.internalFunctions or {}
 
 local PixelUtil = PixelUtil or DFPixelUtil
 if (not PixelUtil) then
@@ -514,6 +516,8 @@ function DF.table.getfrompath(t, path)
 		end
 
 		return value
+	else
+		return t[path] or t[tonumber(path)]
 	end
 end
 
@@ -539,7 +543,12 @@ function DF.table.setfrompath(t, path, value)
 			lastTable[lastKey] = value
 			return true
 		end
+	else
+		t[path] = value
+		return true
 	end
+
+	return false
 end
 
 ---find the value inside the table, and it it's not found, add it
@@ -1888,7 +1897,7 @@ local anchoringFunctions = {
 ---set the anchor point using a df_anchor table
 ---@param widget uiobject
 ---@param anchorTable df_anchor
----@param anchorTo uiobject
+---@param anchorTo uiobject?
 function DF:SetAnchor(widget, anchorTable, anchorTo)
 	anchorTo = anchorTo or widget:GetParent()
 	anchoringFunctions[anchorTable.side](widget, anchorTo, anchorTable.x, anchorTable.y)
@@ -2093,67 +2102,6 @@ end
 		TutorialAlertFrame:Show()
 	end
 
-	local refresh_options = function(self)
-		for _, widget in ipairs(self.widget_list) do
-			if (widget._get) then
-				if (widget.widget_type == "label") then
-					if (widget._get() and not widget.languageAddonId) then
-						widget:SetText(widget._get())
-					end
-
-				elseif (widget.widget_type == "select") then
-					widget:Select(widget._get())
-
-				elseif (widget.widget_type == "toggle" or widget.widget_type == "range") then
-					widget:SetValue(widget._get())
-
-				elseif (widget.widget_type == "textentry") then
-					widget:SetText(widget._get())
-
-				elseif (widget.widget_type == "color") then
-					local default_value, g, b, a = widget._get()
-					if (type(default_value) == "table") then
-						widget:SetColor (unpack(default_value))
-
-					else
-						widget:SetColor (default_value, g, b, a)
-					end
-				end
-			end
-		end
-	end
-
-	local get_frame_by_id = function(self, id)
-		return self.widgetids [id]
-	end
-
-	function DF:ClearOptionsPanel(frame)
-		for i = 1, #frame.widget_list do
-			frame.widget_list[i]:Hide()
-			if (frame.widget_list[i].hasLabel) then
-				frame.widget_list[i].hasLabel:SetText("")
-			end
-		end
-
-		table.wipe(frame.widgetids)
-	end
-
-	function DF:SetAsOptionsPanel(frame)
-		frame.RefreshOptions = refresh_options
-		frame.widget_list = {}
-		frame.widget_list_by_type = {
-			["dropdown"] = {}, -- "select"
-			["switch"] = {}, -- "toggle"
-			["slider"] = {}, -- "range"
-			["color"] = {}, --
-			["button"] = {}, -- "execute"
-			["textentry"] = {}, --
-			["label"] = {}, --"text"
-		}
-		frame.widgetids = {}
-		frame.GetWidgetById = get_frame_by_id
-	end
-
 	function DF:CreateOptionsFrame(name, title, template)
 		template = template or 1
 
@@ -2162,7 +2110,7 @@ end
 			tinsert(UISpecialFrames, name)
 
 			newOptionsFrame:SetSize(500, 200)
-			newOptionsFrame.RefreshOptions = refresh_options
+			newOptionsFrame.RefreshOptions = DF.internalFunctions.RefreshOptionsPanel
 			newOptionsFrame.widget_list = {}
 
 			newOptionsFrame:SetScript("OnMouseDown", function(self, button)
@@ -2200,7 +2148,7 @@ end
 			tinsert(UISpecialFrames, name)
 
 			newOptionsFrame:SetSize(500, 200)
-			newOptionsFrame.RefreshOptions = refresh_options
+			newOptionsFrame.RefreshOptions = DF.internalFunctions.RefreshOptionsPanel
 			newOptionsFrame.widget_list = {}
 
 			newOptionsFrame:SetScript("OnMouseDown", function(self, button)
@@ -2703,6 +2651,7 @@ function DF:CreateAnimation(animation, animationType, order, duration, arg1, arg
 
 	elseif (animationType == "ROTATION") then
 		anim:SetDegrees(arg1) --degree
+		--print("SetOrigin", arg2, arg3, arg4)
 		anim:SetOrigin(arg2 or "center", arg3 or 0, arg4 or 0) --point, x, y
 
 	elseif (animationType == "TRANSLATION") then

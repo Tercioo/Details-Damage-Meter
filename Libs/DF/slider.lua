@@ -232,6 +232,11 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 		return self(value)
 	end
 
+	function DFSliderMetaFunctions:SetValueNoCallback(value)
+		self.NoCallback = true
+		self.slider:SetValue(value)
+	end
+
 	-- thumb size
 	function DFSliderMetaFunctions:SetThumbSize(width, height)
 		if (not width) then
@@ -697,6 +702,18 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 		table.insert(object.previous_value, 1, amt)
 		table.remove(object.previous_value, 4)
 
+		if (object.useDecimals) then
+			slider.amt:SetText(string.format("%.2f", amt))
+		else
+			slider.amt:SetText(math.floor(amt))
+		end
+		object.ivalue = amt
+
+		if (object.NoCallback) then
+			object.NoCallback = false
+			return
+		end
+
 		--some plugins registered OnValueChanged and others with OnValueChange
 		local kill = object:RunHooksForWidget("OnValueChanged", slider, object.FixedValue, amt, object)
 		if (kill) then
@@ -711,17 +728,6 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 		if (object.OnValueChanged) then
 			object.OnValueChanged(slider, object.FixedValue, amt)
 		end
-
-		if (amt < 10 and amt >= 1) then
-			amt = "0" .. amt
-		end
-
-		if (object.useDecimals) then
-			slider.amt:SetText(string.format("%.2f", amt))
-		else
-			slider.amt:SetText(math.floor(amt))
-		end
-		object.ivalue = amt
 	end
 
 ------------------------------------------------------------------------------------------------------------

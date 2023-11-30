@@ -112,6 +112,7 @@
 ---@field __destroyedBy string
 ---@field amountCasts {[string]: table<string, number>}
 ---@field instance_type instancetype "raid" or "party" or "pvp" or "arena" or "none" or "scenario"
+---@field run_time number
 ---@field end_time number
 ---@field start_time number
 ---@field combat_counter number
@@ -130,10 +131,12 @@
 ---@field is_boss table
 ---@field is_world_trash_combat boolean when true this combat is a regular combat done in the world, not in a dungeon, raid, battleground, arena, ...
 ---@field player_last_events table<string, table[]> record the latest events of each player, latter used to build the death log
+---@field GetCombatType fun(combat: combat) : number
 ---@field GetCombatUID fun(combat: combat) : uniquecombatid
 ---@field GetTimeData fun(combat: combat, dataName: string) : table
 ---@field GetPhases fun(combat: combat) : table
 ---@field GetCombatTime fun(combat) : number
+---@field GetRunTime fun(combat) : number
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
 ---@field GetStartTime fun(combat: combat) : number
 ---@field SetStartTime fun(combat: combat, time: number)

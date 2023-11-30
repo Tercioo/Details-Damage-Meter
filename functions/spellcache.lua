@@ -336,12 +336,15 @@ do
 		return customItemList
 	end
 
-	function Details:UserCustomSpellUpdate(index, spellName, spellIcon)
+	function Details:UserCustomSpellUpdate(index, spellName, spellIcon) --called from the options panel > rename spells
 		---@type savedspelldata
 		local savedSpellData = Details.savedCustomSpells[index]
 		if (savedSpellData) then
+			local spellId = savedSpellData[1]
 			savedSpellData[2], savedSpellData[3] = spellName or savedSpellData[2], spellIcon or savedSpellData[3]
-			return rawset(Details.spellcache, savedSpellData[1], {savedSpellData[2], 1, savedSpellData[3]})
+			rawset(Details.spellcache, spellId, {savedSpellData[2], 1, savedSpellData[3]})
+			Details.userCustomSpells[spellId] = true
+			return true
 		else
 			return false
 		end
@@ -416,7 +419,13 @@ do
 		end
 	end
 
-	function Details:UserCustomSpellAdd(spellId, spellName, spellIcon)
+	function Details:UserCustomSpellAdd(spellId, spellName, spellIcon, bAddedByUser)
+		if (Details.userCustomSpells[spellId]) then
+			if (not bAddedByUser) then
+				return
+			end
+		end
+
 		local isOverwrite = false
 		for index, savedSpellData in ipairs(Details.savedCustomSpells) do
 			if (savedSpellData[1] == spellId) then
@@ -431,7 +440,11 @@ do
 			tinsert(Details.savedCustomSpells, {spellId, spellName, spellIcon})
 		end
 
-		return rawset(Details.spellcache, spellId, {spellName, 1, spellIcon})
+		rawset(Details.spellcache, spellId, {spellName, 1, spellIcon})
+
+		if (bAddedByUser) then
+			Details.userCustomSpells[spellId] = true
+		end
 	end
 
 	function Details:UserCustomSpellRemove(index)

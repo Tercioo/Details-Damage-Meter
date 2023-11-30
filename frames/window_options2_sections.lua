@@ -6401,7 +6401,8 @@ do
 					return Details:Msg(Loc ["STRING_OPTIONS_SPELL_IDERROR"])
 				end
 				
-				Details:UserCustomSpellAdd (id, name, icon)
+                local bAddedByUser = true
+				Details:UserCustomSpellAdd (id, name, icon, bAddedByUser)
 				
 				panel:Refresh()
 				
@@ -6908,16 +6909,6 @@ do
                 end,
                 name = "Make Overall Segment",
                 desc = "When the run is done, make an overall segment.",
-            },
-
-            {--overall only with bosses
-                type = "toggle",
-                get = function() return Details.mythic_plus.make_overall_boss_only end,
-                set = function(self, fixedparam, value)
-                    Details.mythic_plus.make_overall_boss_only = value
-                end,
-                name = "Overall Segment Boss Only",
-                desc = "Only add boss segments on the overall.",
             },
 
             {--merge trash

@@ -57,22 +57,22 @@
 	local _spell_energy_func = Details.habilidade_e_energy.Add
 	local _spell_utility_func = Details.habilidade_misc.Add
 
-	--current combat and overall pointers
-		local _current_combat = Details.tabela_vigente or {} --placeholder table
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	--cache
+	--cache current combat
+	local _current_combat = Details.tabela_vigente or {} --placeholder table
 
-	--total container pointers
-		local _current_total = _current_combat.totals
-		local _current_gtotal = _current_combat.totals_grupo
+	--cache total table
+	local _current_total = _current_combat.totals
+	local _current_gtotal = _current_combat.totals_grupo
 
-	--actors container pointers
-		local _current_damage_container = _current_combat [1]
-		local _current_heal_container = _current_combat [2]
-		local _current_energy_container = _current_combat [3]
-		local _current_misc_container = _current_combat [4]
+	--cache actors containers
+	local _current_damage_container = _current_combat [1]
+	local _current_heal_container = _current_combat [2]
+	local _current_energy_container = _current_combat [3]
+	local _current_misc_container = _current_combat [4]
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---cache
-		local names_cache = {}
+	local names_cache = {}
 	--damage
 		local damage_cache = setmetatable({}, Details.weaktable)
 		local damage_cache_pets = setmetatable({}, Details.weaktable)
@@ -467,6 +467,9 @@
 
 		--Volatile Spark on razga'reth
 		[194999] = true,
+
+		--Ozumat - Throne of Tides
+		[44566] = true,
 	}
 
 	local ignored_npcids = {}
@@ -5758,19 +5761,53 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	function Details.parser_functions:CHALLENGE_MODE_END(...) --doesn't exists
+		Details:Msg("CHALLENGE_MODE_END", GetTime())
+	end
+
+	--WORLD_STATE_TIMER_START are a timer only used on scenarios
+	function Details.parser_functions:WORLD_STATE_TIMER_START(...)
+		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+		if (difficultyID == 8) then
+			if (Details222.MythicPlus.CHALLENGE_MODE_START_AT + 10 > GetTime()) then
+				if (not Details222.MythicPlus.WorldStateTimerStartAt) then
+					local payload1, payload2, payload3 = ...
+					payload1 = payload1 or ""
+					payload2 = payload2 or ""
+					payload3 = payload3 or ""
+					Details222.MythicPlus.LogStep("Event: WORLD_STATE_TIMER_START | payload1: " .. payload1 .. " | payload2: " .. payload2 .. " | payload3: " .. payload3)
+					Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
+					Details222.MythicPlus.WorldStateTimerStartAt = time()
+				end
+			end
+		end
+	end
+
 	function Details.parser_functions:CHALLENGE_MODE_START(...)
 		--send mythic dungeon start event
 		if (Details.debug) then
-			print("parser event", "CHALLENGE_MODE_START", ...)
 		end
 
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 		if (difficultyID == 8) then
-			Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
+			Details222.MythicPlus.CHALLENGE_MODE_START_AT = GetTime()
+			Details222.MythicPlus.WorldStateTimerStartAt = nil
+			Details222.MythicPlus.WorldStateTimerEndAt = nil
+			Details222.MythicPlus.LogStep("Event: CHALLENGE_MODE_START")
 		end
 	end
 
 	function Details.parser_functions:CHALLENGE_MODE_COMPLETED(...)
+		Details222.MythicPlus.WorldStateTimerEndAt = time()
+
+		local mapChallengeModeID, level, time, onTime, keystoneUpgradeLevels, practiceRun,
+		oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord,
+		PrimaryAffix, isEligibleForScore, members
+		   = C_ChallengeMode.GetCompletionInfo()
+
+		Details222.MythicPlus.time = math.floor(time / 1000)
+		Details222.MythicPlus.bOnTime = onTime
+
 		--send mythic dungeon end event
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 		if (difficultyID == 8) then
@@ -5806,6 +5843,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (not okay) then
 			Details:Msg("something went wrong (0x7878):", errorText)
 		end
+
+		Details222.MythicPlus.LogStep("===== Mythic+ Finished =====")
 	end
 
 	function Details.parser_functions:PLAYER_REGEN_ENABLED(...)

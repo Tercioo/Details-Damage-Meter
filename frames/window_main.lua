@@ -9006,11 +9006,11 @@ end
 
 		gameCooltip:AddLine("Remove Common Segments", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
-		gameCooltip:AddMenu(1, function() return Details.tabela_historico:ResetDataByCombatType("generic") end)
+		gameCooltip:AddMenu(1, function() Details.tabela_historico:ResetDataByCombatType("generic"); GameCooltip:Hide() end)
 
 		gameCooltip:AddLine("Reset, but keep Mythic+ Overall Segments", nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
-		gameCooltip:AddMenu(1, function() return Details.tabela_historico:ResetDataByCombatType("m+overall") end)
+		gameCooltip:AddMenu(1, function() Details.tabela_historico:ResetDataByCombatType("m+overall"); GameCooltip:Hide() end)
 
 		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 

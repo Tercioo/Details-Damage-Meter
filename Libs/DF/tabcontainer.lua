@@ -271,6 +271,8 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 	local buttonTextSize = optionsTable.button_text_size or 10
 	local containerWidthOffset = optionsTable.container_width_offset or 0
 
+    local bFirstTabIsCreateOnDemand = false
+
     --create the base frame
     ---@type df_tabcontainer
 	local tabContainer = CreateFrame("frame", frameName, parent["widget"] or parent, "BackdropTemplate")
@@ -318,10 +320,14 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
         if (tabInfo.createOnDemandFunc) then
             tabFrame:SetScript("OnShow", function()
                 if (tabInfo.createOnDemandFunc) then
-                    detailsFramework:Dispatch(tabInfo.createOnDemandFunc, tabFrame, parent)
+                    detailsFramework:Dispatch(tabInfo.createOnDemandFunc, tabFrame, tabContainer, parent)
                     tabInfo.createOnDemandFunc = nil
                 end
             end)
+
+            if (tabIndex == 1) then
+                bFirstTabIsCreateOnDemand = true
+            end
         end
 
 		--attempt to get the localized text from the language system using the addonId and the frameInfo.text
@@ -405,7 +411,12 @@ function detailsFramework:CreateTabContainer(parent, title, frameName, tabList, 
 	tabContainer:SetScript("OnShow", tabContainer.OnShow)
 	--select the first frame
     local defaultTab = 1
-	tabContainer:SelectTabByIndex(defaultTab)
+
+    if (bFirstTabIsCreateOnDemand) then
+        C_Timer.After(0, function() tabContainer:SelectTabByIndex(defaultTab) end)
+    else
+        tabContainer:SelectTabByIndex(defaultTab)
+    end
 
 	return tabContainer
 end

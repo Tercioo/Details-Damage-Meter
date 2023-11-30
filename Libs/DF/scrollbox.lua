@@ -706,6 +706,17 @@ local canvasScrollBoxDefaultOptions = {
 function detailsFramework:CreateCanvasScrollBox(parent, child, name, options)
 	---@type df_canvasscrollbox
 	local canvasScrollBox = CreateFrame("scrollframe", name or ("DetailsFrameworkCanvasScroll" .. math.random(50000, 10000000)), parent, "BackdropTemplate, UIPanelScrollFrameTemplate")
+	canvasScrollBox.scrollStep = 20
+
+	canvasScrollBox:SetScript("OnMouseWheel", function(self, value)
+		local scrollBar = self
+		local scrollStep = scrollBar.scrollStep or scrollBar:GetHeight() / 2
+		if ( value > 0 ) then
+			scrollBar:SetVerticalScroll(scrollBar:GetVerticalScroll() - scrollStep)
+		else
+			scrollBar:SetVerticalScroll(scrollBar:GetVerticalScroll() + scrollStep)
+		end
+	end)
 
 	detailsFramework:Mixin(canvasScrollBox, detailsFramework.CanvasScrollBoxMixin)
 	detailsFramework:Mixin(canvasScrollBox, detailsFramework.OptionsFunctions)

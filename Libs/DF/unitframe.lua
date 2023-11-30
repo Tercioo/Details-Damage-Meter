@@ -1937,6 +1937,7 @@ function detailsFramework:CreateCastBar(parent, name, settingsOverride)
 	detailsFramework:Mixin(castBar, detailsFramework.CastFrameFunctions)
 	detailsFramework:Mixin(castBar, detailsFramework.StatusBarFunctions)
 
+
 	castBar:CreateTextureMask()
 	castBar:AddMaskTexture(castBar.flashTexture)
 	castBar:AddMaskTexture(castBar.background)
