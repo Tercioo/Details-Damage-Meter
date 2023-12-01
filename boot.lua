@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12044
-		Details.alpha_build_counter = 12044 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12096
+		Details.alpha_build_counter = 12096 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -141,6 +141,21 @@ do
 	--]=]
 
 	local news = {
+		{"v10.2.0.12096.155", "December 1st, 2023"},
+		"Added Mythic+ Overall DPS calculation options: 'Use Total Combat Time' and 'Use Run Time'. These options are available in the Mythic Dungeon section of the options panel. The option 'Use Run Time', takes the player's damage and divide by the total elapsed time of the run.",
+		"Added reset options: 'Remove Common Segments' and 'Reset, but keep Mythic+ Overall Segments'.",
+		"Added trinket 'Corrupted Starlight' and 'Dreambinder, Loom of the Great Cycle' extra information.",
+		"Fixes for the API change of distance checks.",
+		"Fixed some panels in the options panel, not closing at pressing the X button.",
+		"Fixed the Pet of a Pet detection non ending loop (Flamanis).",
+		"Fixed the issue of combats having only 1 second of duration.",
+		"Fixed the Damage Graphic not showing after a Mythic+ run.",
+		"Fixed an issue while renaming a spell, the change wouldn't stick and the spell would be renamed back to the original name.",
+		"Fixed death logs now showing the green healing bar.",
+		"Fixed Augmentation Evoker not showing the extra predicted damage bar.",
+		"Fixed an issue where users were unable to see interrupts and cooldowns.",
+		"Added to Combat Class: combat:GetRunTime(). This returns the run time if available or combat:GetCombatTime() if not.",
+
 		{"v10.2.0.12023.155", "November 08th, 2023"},
 		"Several fixes to make the addon work with the combat log changes done on patch 10.2.0.",
 		"Added trinket data for patch 10.2.0.",
