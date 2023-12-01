@@ -653,7 +653,9 @@
 							Level = Details.MythicPlus.Level,
 							EJID = Details.MythicPlus.ejID,
 						}
-						Details:Msg("segment tagged as mythic+ trash.")
+						if (Details.debug) then
+							Details:Msg("segment tagged as mythic+ trash.")
+						end
 					else
 						--tag the combat as trash clean up
 						currentCombat.is_trash = true
