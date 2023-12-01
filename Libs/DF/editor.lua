@@ -519,12 +519,16 @@ detailsFramework.EditorMixin = {
     ---@param anchorSettings df_anchor
     StartObjectMovement = function(self, anchorSettings)
         local object = self:GetEditingObject()
-        local moverFrame = self:GetMoverFrame()
 
-        --self:UpdateGuideLinesAnchors()
+        local moverFrame = self:GetMoverFrame()
+        moverFrame:EnableMouse(true)
+        moverFrame:SetMovable(true)
+        moverFrame:ClearAllPoints()
+        moverFrame:Show()
 
         --update guidelines
         if (self:GetEditingOptions().use_guide_lines) then
+            --self:UpdateGuideLinesAnchors()
             --show all four guidelines
             for side, texture in pairs(self.moverGuideLines) do
                 texture:Show()
@@ -533,56 +537,43 @@ detailsFramework.EditorMixin = {
 
         local optionsFrame = self:GetOptionsFrame()
 
-        moverFrame:EnableMouse(true)
-        moverFrame:SetMovable(true)
-        moverFrame:ClearAllPoints()
-        moverFrame:Show()
-
-        --update the mover frame size to match the object size
-        if (object:GetObjectType() == "FontString") then
-            ---@cast object fontstring
-            local width = object:GetStringWidth()
-            local height = object:GetStringHeight()
-            moverFrame:SetSize(width, height)
-        else
-            local width, height = object:GetSize()
-            moverFrame:SetSize(width, height)
-        end
-
-        for i = 1, object:GetNumPoints() do
-            local point, relativeTo, relativePoint, x, y = object:GetPoint(i)
-            moverFrame:SetPoint(point, relativeTo, relativePoint, x, y)
-        end
-
+        local objectWidth, objectHeight = object:GetSize()
+        moverFrame:SetSize(objectWidth, objectHeight)
+        detailsFramework:SetAnchor(moverFrame, anchorSettings, object:GetParent())
         local currentPosX, currentPosY
 
         moverFrame:SetScript("OnMouseDown", function()
             object:ClearAllPoints()
             object:SetPoint("topleft", moverFrame, "topleft", 0, 0)
+
             currentPosX, currentPosY = moverFrame:GetCenter()
-            moverFrame:SetBackdropBorderColor(1, 1, 0, 0)
-
-            for i = 1, object:GetNumPoints() do
-                local point, relativeTo, relativePoint, x, y = object:GetPoint(i)
-                moverFrame:SetPoint(point, relativeTo, relativePoint, x, y)
-            end
-
-            moverFrame:StartMoving()
             moverFrame.bIsMoving = true
+            moverFrame:StartMoving()
         end)
 
         moverFrame:SetScript("OnMouseUp", function()
             moverFrame:StopMovingOrSizing()
             moverFrame.bIsMoving = false
 
+            local originX = anchorSettings.x
+            local originY = anchorSettings.y
+
+            local newPosX, newPosY = moverFrame:GetCenter()
+
+            local xOffset = newPosX - currentPosX
+            local yOffset = newPosY - currentPosY
+
+            anchorSettings.x = originX + xOffset
+            anchorSettings.y = originY + yOffset
+
+            local anchorXSlider = optionsFrame:GetWidgetById("anchoroffsetx")
+            anchorXSlider:SetValueNoCallback(anchorSettings.x)
+
+            local anchorYSlider = optionsFrame:GetWidgetById("anchoroffsety")
+            anchorYSlider:SetValueNoCallback(anchorSettings.y)
+
             object:ClearAllPoints()
             detailsFramework:SetAnchor(object, anchorSettings, object:GetParent())
-
-            moverFrame:ClearAllPoints()
-            for i = 1, object:GetNumPoints() do
-                local point, relativeTo, relativePoint, x, y = object:GetPoint(i)
-                moverFrame:SetPoint(point, relativeTo, relativePoint, x, y)
-            end
         end)
 
         --detailsFramework:SetAnchor(moverFrame, anchorSettings)
@@ -590,9 +581,9 @@ detailsFramework.EditorMixin = {
 
         moverFrame:SetScript("OnUpdate", function()
             --if the object isn't moving, make the mover follow the object position
-            if (moverFrame.bIsMoving) then
-                object:ClearAllPoints()
-                object:SetPoint("topleft", moverFrame, "topleft", 0, 0)
+            if (false and moverFrame.bIsMoving) then
+                --object:ClearAllPoints()
+                --object:SetPoint("topleft", moverFrame, "topleft", 0, 0)
 
                 --if the object is moving, check if the moverFrame has moved
                 local newPosX, newPosY = moverFrame:GetCenter()
@@ -668,6 +659,10 @@ detailsFramework.EditorMixin = {
 
         localizedLabel = type(localizedLabel) == "string" and localizedLabel or "invalid label"
 
+        --a button to select the widget
+        local selectButton = CreateFrame("button", "$parentSelectButton" .. id, object:GetParent())
+        selectButton:SetAllPoints(object)
+
         ---@type df_editor_objectinfo
         local objectRegistered = {
             object = object,
@@ -678,7 +673,12 @@ detailsFramework.EditorMixin = {
             extraoptions = extraOptions or {},
             callback = callback,
             options = options,
+            selectButton = selectButton,
         }
+
+        selectButton:SetScript("OnClick", function()
+            self:EditObject(objectRegistered)
+        end)
 
         registeredObjects[#registeredObjects+1] = objectRegistered
         self.registeredObjectsByID[id] = objectRegistered
@@ -862,6 +862,7 @@ local editorDefaultOptions = {
 ---@field extraoptions table
 ---@field callback function
 ---@field options df_editobjectoptions
+---@field selectButton button
 
 function detailsFramework:CreateEditor(parent, name, options)
     name = name or ("DetailsFrameworkEditor" .. math.random(100000, 10000000))
@@ -904,10 +905,9 @@ function detailsFramework:CreateEditor(parent, name, options)
     --frame that is used to move the object
     local moverFrame = CreateFrame("frame", "$parentMoverFrame", OTTFrame, "BackdropTemplate")
     moverFrame:SetClampedToScreen(true)
-    moverFrame:SetBackdrop({
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        edgeSize = 1,
-    })
+    detailsFramework:ApplyStandardBackdrop(moverFrame)
+    moverFrame:SetBackdropColor(.10, .10, .10, 0)
+    moverFrame.__background:SetAlpha(0.1)
     editorFrame.moverFrame = moverFrame
 
     editorFrame:CreateMoverGuideLines()

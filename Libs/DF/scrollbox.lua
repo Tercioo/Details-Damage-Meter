@@ -686,7 +686,23 @@ end
 
 
 detailsFramework.CanvasScrollBoxMixin = {
+	SetScrollSpeed = function(self, speed)
+		assert(type(speed) == "number", "CanvasScrollBox:SetScrollSpeed(speed): speed must be a number.")
+		self.scrollStep = speed
+	end,
 
+	GetScrollSpeed = function(self)
+		return self.scrollStep
+	end,
+
+	OnVerticalScroll = function(self, delta)
+		local scrollStep = self:GetScrollSpeed()
+		if (delta > 0) then
+			self:SetVerticalScroll(math.max(self:GetVerticalScroll() - scrollStep, 0))
+		else
+			self:SetVerticalScroll(math.min(self:GetVerticalScroll() + scrollStep, self:GetVerticalScrollRange()))
+		end
+	end,
 }
 
 local canvasScrollBoxDefaultOptions = {
@@ -707,16 +723,9 @@ function detailsFramework:CreateCanvasScrollBox(parent, child, name, options)
 	---@type df_canvasscrollbox
 	local canvasScrollBox = CreateFrame("scrollframe", name or ("DetailsFrameworkCanvasScroll" .. math.random(50000, 10000000)), parent, "BackdropTemplate, UIPanelScrollFrameTemplate")
 	canvasScrollBox.scrollStep = 20
+	canvasScrollBox.minValue = 0
 
-	canvasScrollBox:SetScript("OnMouseWheel", function(self, value)
-		local scrollBar = self
-		local scrollStep = scrollBar.scrollStep or scrollBar:GetHeight() / 2
-		if ( value > 0 ) then
-			scrollBar:SetVerticalScroll(scrollBar:GetVerticalScroll() - scrollStep)
-		else
-			scrollBar:SetVerticalScroll(scrollBar:GetVerticalScroll() + scrollStep)
-		end
-	end)
+	canvasScrollBox:SetScript("OnMouseWheel", detailsFramework.CanvasScrollBoxMixin.OnVerticalScroll)
 
 	detailsFramework:Mixin(canvasScrollBox, detailsFramework.CanvasScrollBoxMixin)
 	detailsFramework:Mixin(canvasScrollBox, detailsFramework.OptionsFunctions)

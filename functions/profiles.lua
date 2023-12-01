@@ -495,6 +495,7 @@ function Details:ApplyProfile(profileName, bNoSave, bIsCopy)
 		Details.time_type = 2
 	end
 
+	--enable all captures, this is a fix for the old performance profiles which doesn't exiss anymore
 	Details.capture_real["damage"] = true
 	Details.capture_real["heal"] = true
 	Details.capture_real["energy"] = true
@@ -1523,7 +1524,7 @@ local default_global_data = {
 			ctrl_click_close_tutorial = false,
 		},
 
-		performance_profiles = {
+		performance_profiles = { --deprecated
 			["RaidFinder"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
 			["Raid15"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
 			["Raid30"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},

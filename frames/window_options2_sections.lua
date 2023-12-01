@@ -6891,6 +6891,32 @@ do
         local sectionOptions = {
             {type = "label", get = function() return Loc["STRING_OPTIONS_GENERAL_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
 
+            {
+                type = "toggle",
+                get = function() return Details.mythic_plus.mythicrun_time_type == 1 end,
+                set = function(self, fixedparam, value)
+                    Details.mythic_plus.mythicrun_time_type = value and 1
+                    sectionFrame:GetWidgetById("mythic_time_2"):SetValue(not value)
+                end,
+                name = "Use Total Combat Time",
+                desc = "The overall segment for the Mythic+ run will use 'totalDamage / totalCombatTime' to calculate DPS.",
+                id = "mythic_time_1",
+            },
+
+            {
+                type = "toggle",
+                get = function() return Details.mythic_plus.mythicrun_time_type == 2 end,
+                set = function(self, fixedparam, value)
+                    Details.mythic_plus.mythicrun_time_type = value and 2
+                    sectionFrame:GetWidgetById("mythic_time_1"):SetValue(not value)
+                end,
+                name = "Use Run Time",
+                desc = "The overall segment for the Mythic+ run will use 'totalDamage / runTime' to calculate DPS.",
+                id = "mythic_time_2",
+            },
+
+            {type = "blank"},
+
             {--dedicated segment for bosses
                 type = "toggle",
                 get = function() return Details.mythic_plus.boss_dedicated_segment end,
