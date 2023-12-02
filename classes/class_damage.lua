@@ -2736,7 +2736,7 @@ function damageClass:RefreshLine(instanceObject, lineContainer, whichRowLine, ra
 		percentString = format("%.1f", self[keyName] / instanceObject.top * 100)
 	end
 
-	local currentCombat = Details:GetCurrentCombat()
+	local currentCombat = instanceObject:GetCombat()
 
 	if (currentCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 		if (Details.mythic_plus.mythicrun_time_type == 1) then
