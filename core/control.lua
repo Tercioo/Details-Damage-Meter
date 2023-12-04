@@ -413,7 +413,10 @@
 		Details:UpdateParserGears(bFromCombatStart)
 
 		--get all buff already applied before the combat start
-		Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
+		C_Timer.After(0.05, function()
+			--wait the initial aura wipe done by the client on certain situations
+			Details:CatchRaidBuffUptime("BUFF_UPTIME_IN")
+		end)
 		Details:CatchRaidDebuffUptime("DEBUFF_UPTIME_IN")
 		Details:UptadeRaidMembersCache()
 
