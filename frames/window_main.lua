@@ -6464,14 +6464,13 @@ local buildSegmentTooltip = function(self, deltaTime)
 							end
 
 							--sub menu
-							local decorrido = thisCombat:GetCombatTime()
-							local minutos, segundos = floor(decorrido/60), floor(decorrido%60)
+							local timeInCombat = thisCombat:GetCombatTime()
 
 							if (segmentID == "trashoverall") then
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(timeInCombat), 2, "white", "white")
 								addIconAndStatusBar()
 								local totalRealTime = endedAt - startedAt
-								local wasted = totalRealTime - decorrido
+								local wasted = totalRealTime - timeInCombat
 
 								--wasted time
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
@@ -6480,19 +6479,21 @@ local buildSegmentTooltip = function(self, deltaTime)
 								addIconAndStatusBar()
 
 							elseif (isMythicOverallSegment) then
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TIMEINCOMBAT"] .. ":",  Details.gump:IntegerToTimer(timeInCombat), 2, "white", "white")
 								addIconAndStatusBar()
-								local totalRealTime = endedAt - startedAt
-								local wasted = totalRealTime - decorrido
 
-								--wasted time
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(wasted) .. " (" .. floor(wasted / totalRealTime * 100) .. "%)|r", 2, "white", "white")
-								addIconAndStatusBar(0.15)
+								local totalRealTime = thisCombat:GetRunTimeNoDefault() or (endedAt - startedAt)
+								local notInCombatTime = totalRealTime - timeInCombat
+
 								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_TOTALTIME"] .. ":", Details.gump:IntegerToTimer(totalRealTime), 2, "white", "white")
 								addIconAndStatusBar()
 
+								--wasted time
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_WASTED_TIME"] .. ":", "|cFFFF3300" .. Details.gump:IntegerToTimer(notInCombatTime) .. " (" .. floor(notInCombatTime / totalRealTime * 100) .. "%)|r", 2, "white", "white")
+								addIconAndStatusBar(0.15)
+
 							else
-								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(decorrido), 2, "white", "white")
+								gameCooltip:AddLine(Loc["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":",  Details.gump:IntegerToTimer(timeInCombat), 2, "white", "white")
 								addIconAndStatusBar()
 							end
 
