@@ -265,8 +265,8 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
         end
     else
         if (widgetTable.boxfirst or bUseBoxFirstOnAllWidgets) then
-            widget:SetPoint("left", label, "right", 2, 0)
-            label:SetPoint("topleft", parent, "topleft", currentXOffset, currentYOffset)
+            label:SetPoint("left", widget.widget or widget, "right", 2, 0)
+            widget:SetPoint("topleft", parent, "topleft", currentXOffset, currentYOffset)
 
             local nextWidgetTable = menuOptions[index+1]
             if (nextWidgetTable) then
@@ -304,10 +304,12 @@ local setToggleProperties = function(parent, widget, widgetTable, currentXOffset
     return maxColumnWidth, maxWidgetWidth, extraPaddingY
 end
 
-local setRangeProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bIsDecimals)
+local setRangeProperties = function(parent, widget, widgetTable, currentXOffset, currentYOffset, template, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bIsDecimals, bAttachSliderButtonsToLeft)
     widget._get = widgetTable.get
     widget.widget_type = "range"
     widget:SetTemplate(template)
+
+    widget.bAttachButtonsToLeft = bAttachSliderButtonsToLeft
 
     if (bIsDecimals) then
         widget.slider:SetValueStep(0.01)
@@ -658,12 +660,13 @@ local parseOptionsTable = function(menuOptions)
     local bAlignAsPairs = menuOptions.align_as_pairs
     local nAlignAsPairsLength = menuOptions.align_as_pairs_string_space or 160
     local nAlignAsPairsSpacing = menuOptions.align_as_pairs_spacing or 20
+    local bAttachSliderButtonsToLeft = menuOptions.slider_buttons_to_left
 
     --if a scrollbox is passed, the height can be ignored
     --the scrollBox child will be used as the parent, and the height of the child will be resized to fit the widgets
     local bUseScrollFrame = menuOptions.use_scrollframe
     local languageAddonId = menuOptions.language_addonId
-    return bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId
+    return bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft
 end
 
 local parseParent = function(bUseScrollFrame, parent, height, yOffset)
@@ -915,7 +918,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
     }
 
     parseOptionsTypes(menuOptions)
-    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId = parseOptionsTable(menuOptions)
+    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft = parseOptionsTable(menuOptions)
     parent, height = parseParent(bUseScrollFrame, parent, height, yOffset)
     local languageTable = parseLanguageTable(languageAddonId)
 
@@ -1015,7 +1018,7 @@ function detailsFramework:BuildMenuVolatile(parent, menuOptions, xOffset, yOffse
                     slider.hasLabel.text = namePhrase
                     slider.hasLabel:SetTemplate(widgetTable.text_template or textTemplate)
 
-                    maxColumnWidth, maxWidgetWidth = setRangeProperties(parent, slider, widgetTable, currentXOffset, currentYOffset, sliderTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, widgetTable.usedecimals)
+                    maxColumnWidth, maxWidgetWidth = setRangeProperties(parent, slider, widgetTable, currentXOffset, currentYOffset, sliderTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, widgetTable.usedecimals, bAttachSliderButtonsToLeft)
                     amountLineWidgetAdded = amountLineWidgetAdded + 1
 
                 --color
@@ -1147,7 +1150,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
 
     --parse settings and the options table
     parseOptionsTypes(menuOptions)
-    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId = parseOptionsTable(menuOptions)
+    local bUseBoxFirstOnAllWidgets, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, nAlignAsPairsSpacing, bUseScrollFrame, languageAddonId, bAttachSliderButtonsToLeft = parseOptionsTable(menuOptions)
     parent, height = parseParent(bUseScrollFrame, parent, height, yOffset)
     local languageTable = parseLanguageTable(languageAddonId)
 
@@ -1276,8 +1279,7 @@ function detailsFramework:BuildMenu(parent, menuOptions, xOffset, yOffset, heigh
                 local namePhraseId = getNamePhraseID(widgetTable, languageAddonId, languageTable, true)
                 DetailsFramework.Language.RegisterObjectWithDefault(languageAddonId, label.widget, namePhraseId, formatOptionNameWithColon(widgetTable.name, useColon))
 
-                maxColumnWidth, maxWidgetWidth = setRangeProperties(parent, slider, widgetTable, currentXOffset, currentYOffset, sliderTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bIsDecimals)
-
+                maxColumnWidth, maxWidgetWidth = setRangeProperties(parent, slider, widgetTable, currentXOffset, currentYOffset, sliderTemplate, widgetWidth, widgetHeight, bAlignAsPairs, nAlignAsPairsLength, valueChangeHook, maxColumnWidth, maxWidgetWidth, bIsDecimals, bAttachSliderButtonsToLeft)
                 --store the widget created into the overall table and the widget by type
                 table.insert(parent.widget_list, slider)
                 table.insert(parent.widget_list_by_type.slider, slider)

@@ -94,7 +94,7 @@ function detailsFramework:LoadLCC(LibCC)
 	end
 end
 
-if IS_WOW_PROJECT_CLASSIC_ERA then
+if IS_WOW_PROJECT_CLASSIC_ERA and false then --disable this for now, as it appears to be working now through API changes...
 	local LibCC = LibStub("LibClassicCasterino", true)
 	if (LibCC and not _G.DetailsFrameworkLCCLoaded) then
 		detailsFramework:LoadLCC(LibCC)

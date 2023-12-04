@@ -319,7 +319,7 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 			return
 		end
 
-		DetailsFrameworkSliderButtons1:ShowMe(slider)
+		DetailsFrameworkSliderButtons1:ShowMe(slider, object.bAttachButtonsToLeft)
 
 		local kill = object:RunHooksForWidget("OnEnter", slider, object)
 		if (kill) then
@@ -363,6 +363,14 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 	local sliderButtonsParentFrame = DetailsFrameworkSliderButtons1 or CreateFrame("frame", "DetailsFrameworkSliderButtons1", UIParent, "BackdropTemplate")
 	sliderButtonsParentFrame:Hide()
 	sliderButtonsParentFrame:SetHeight(18) --width is set by setpoint
+
+	C_Timer.After(0, function()
+		if (not sliderButtonsParentFrame.__background) then
+			DetailsFramework:ApplyStandardBackdrop(sliderButtonsParentFrame) --ApplyStandardBackdrop loads after this file
+		end
+		sliderButtonsParentFrame:SetBackdropBorderColor(0, 0, 0, 0)
+		sliderButtonsParentFrame:SetBackdropColor(.05, .05, .05, .9)
+	end)
 	sliderButtonsParentFrame.isGoingToHide = false
 
 	local timeToHide = 0
@@ -375,11 +383,27 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 		end
 	end
 
-	function sliderButtonsParentFrame:ShowMe(sliderFrame)
+	function sliderButtonsParentFrame:ShowMe(sliderFrame, bAnchorToLeft)
+		sliderButtonsParentFrame.bAnchorToLeft = bAnchorToLeft
 		sliderButtonsParentFrame:SetParent(sliderFrame)
 		sliderButtonsParentFrame:ClearAllPoints()
-		sliderButtonsParentFrame:SetPoint("bottomleft", sliderFrame, "topleft", -5, -5)
-		sliderButtonsParentFrame:SetPoint("bottomright", sliderFrame, "topright", 5, -5)
+
+		sliderButtonsParentFrame.buttonMinor:ClearAllPoints()
+		sliderButtonsParentFrame.buttonPlus:ClearAllPoints()
+
+		sliderButtonsParentFrame:SetWidth(35)
+
+		if (sliderButtonsParentFrame.bAnchorToLeft) then
+			sliderButtonsParentFrame:SetPoint("topright", sliderFrame, "topleft", 0, 0)
+			sliderButtonsParentFrame:SetPoint("bottomright", sliderFrame, "bottomleft", 0, 0)
+			sliderButtonsParentFrame.buttonPlus:SetPoint("right", sliderButtonsParentFrame, "right", -2, 0)
+			sliderButtonsParentFrame.buttonMinor:SetPoint("right", sliderButtonsParentFrame.buttonPlus, "left", 0, 0)
+		else
+			sliderButtonsParentFrame:SetPoint("topleft", sliderFrame, "topright", 2, 0)
+			sliderButtonsParentFrame:SetPoint("bottomleft", sliderFrame, "bottomright", 2, 0)
+			sliderButtonsParentFrame.buttonMinor:SetPoint("left", sliderButtonsParentFrame, "left", 2, 0)
+			sliderButtonsParentFrame.buttonPlus:SetPoint("left", sliderButtonsParentFrame.buttonMinor, "right", 0, 0)
+		end
 
 		sliderButtonsParentFrame:SetFrameStrata("FULLSCREEN")
 		sliderButtonsParentFrame:SetFrameLevel(sliderFrame:GetFrameLevel() + 1000)
@@ -399,10 +423,12 @@ DF:Mixin(DFSliderMetaFunctions, DF.ScriptHookMixin)
 		sliderButtonsParentFrame:SetScript("OnUpdate", onUpdateTimeToHide)
 	end
 
-	local buttonPlus = CreateFrame("button", "DetailsFrameworkSliderButtonsPlusButton", sliderButtonsParentFrame, "BackdropTemplate")
-	local buttonMinor = CreateFrame("button", "DetailsFrameworkSliderButtonsMinorButton", sliderButtonsParentFrame, "BackdropTemplate")
+	local buttonPlus = DetailsFrameworkSliderButtonsPlusButton or CreateFrame("button", "DetailsFrameworkSliderButtonsPlusButton", sliderButtonsParentFrame, "BackdropTemplate")
+	local buttonMinor = DetailsFrameworkSliderButtonsMinorButton or CreateFrame("button", "DetailsFrameworkSliderButtonsMinorButton", sliderButtonsParentFrame, "BackdropTemplate")
 	buttonPlus:SetFrameStrata(sliderButtonsParentFrame:GetFrameStrata())
 	buttonMinor:SetFrameStrata(sliderButtonsParentFrame:GetFrameStrata())
+	sliderButtonsParentFrame.buttonPlus = buttonPlus
+	sliderButtonsParentFrame.buttonMinor = buttonMinor
 
 	buttonPlus:SetScript("OnEnter", function(self)
 		if (sliderButtonsParentFrame.isGoingToHide) then

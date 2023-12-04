@@ -135,8 +135,9 @@
 ---@field GetCombatUID fun(combat: combat) : uniquecombatid
 ---@field GetTimeData fun(combat: combat, dataName: string) : table
 ---@field GetPhases fun(combat: combat) : table
----@field GetCombatTime fun(combat) : number
----@field GetRunTime fun(combat) : number
+---@field GetCombatTime fun(comba: combat) : number
+---@field GetRunTime fun(combat: combat) : number return the elapsed time of a mythic+ dungeon run, if not exists, return the combat time
+---@field GetRunTimeNoDefault fun(combat: combat) : number return the elapsed time of a mythic+ dungeon run, nil if not exists
 ---@field GetDeaths fun(combat) : table --get the table which contains the deaths of the combat
 ---@field GetStartTime fun(combat: combat) : number
 ---@field SetStartTime fun(combat: combat, time: number)
