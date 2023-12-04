@@ -420,6 +420,10 @@
 		return self.run_time or self:GetCombatTime()
 	end
 
+	function classCombat:GetRunTimeNoDefault()
+		return self.run_time
+	end
+
 	function classCombat:GetStartTime()
 		return self.start_time
 	end
