@@ -371,6 +371,8 @@
 			[280720] = 282449, --rogue Secret Technique
 			[280719] = 282449, --rogue Secret Technique
 			[27576] = 5374, --rogue mutilate
+			[385897] = 8676, --rogue Ambush
+			[430023] = 8676, --rogue Ambush
 
 			[233496] = 233490, --warlock Unstable Affliction
 			[233497] = 233490, --warlock Unstable Affliction
