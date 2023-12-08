@@ -331,7 +331,7 @@
 		}
 
 	else --retail
-		override_spellId = {
+		override_spellId = { --~merge
 			[184707] = 218617, --warrior rampage
 			[184709] = 218617, --warrior rampage
 			[201364] = 218617, --warrior rampage
@@ -394,6 +394,10 @@
 			[228361] = 228360, --shadow priest void erruption
 
 			[401422] = 401428, --vessel of searing shadow (trinket)
+
+			[417134] = 414532, --rage of Fyr'alath
+			[413584] = 414532,
+			[424094] = 414532,
 		}
 
 		--all totem
