@@ -6576,7 +6576,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	if(isERA) then
+	if(false and isERA) then
 		eraNamedSpellsToID = {
 		["SPELL_PERIODIC_DAMAGE"] = true,
 		["SPELL_DAMAGE"] = true,
