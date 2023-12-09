@@ -731,6 +731,11 @@ end
 local build_options_panel = function()
 
 	local options_frame = ThreatMeter:CreatePluginOptionsFrame ("ThreatMeterOptionsWindow", "Tiny Threat Options", 1)
+	local options_text_template = DetailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = DetailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = DetailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
+	local options_button_template = DetailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 
 	local menu = {
 		{
@@ -814,7 +819,7 @@ local build_options_panel = function()
 
 	}
 
-	Details.gump:BuildMenu (options_frame, menu, 15, -35, 160)
+	Details.gump:BuildMenu (options_frame, menu, 15, -35, 160, nil, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 	options_frame:SetHeight(160)
 
 end
