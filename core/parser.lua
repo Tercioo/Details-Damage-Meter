@@ -190,9 +190,9 @@
 		---@field key7 number
 
 		local augmentation_aura_list = {
-			[395152] = true,
+			[395152] = true,--ebon might (evoker 10.1.5) 395296 = the evoker buff on it self
 			[413984] = true,
-			[410089] = true,
+			[410089] = true,--prescience (evoker 10.1.5)
 			[409560] = true,
 			[360827] = true,
 			[410263] = true,
@@ -221,6 +221,8 @@
 			ss = {},
 			infernobless = {},
 		}
+
+		Details.augmentation_cache = augmentation_cache
 
 		Details222.SpecHelpers[1473].augmentation_cache = augmentation_cache
 
@@ -1334,8 +1336,8 @@
 						end
 
 						--> calculate tier and ilevel bonuses; this values could be cached at the start of the combat
-							local bHasFourPieces = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].tierAmount >= 4
-							local tierPieceMultiplier = bHasFourPieces and 1.08 or 1
+							--local bHasFourPieces = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].tierAmount >= 4
+							local tierPieceMultiplier = 1 --bHasFourPieces and 1.08 or 1
 							local evokerItemLevel = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].ilevel or 400
 							evokerItemLevel = max(evokerItemLevel, 400)
 							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.01)
@@ -1344,9 +1346,11 @@
 						if (Details.zone_type == "raid") then --0x410b
 							predictedAmount = amount * (0.06947705 * tierPieceMultiplier * itemLevelMultiplier)
 						else
-							predictedAmount = amount * (0.08416225 * tierPieceMultiplier * itemLevelMultiplier)
+							predictedAmount = amount * (0.07590444 * tierPieceMultiplier * itemLevelMultiplier)
 						end
 
+						--local damageSpellName = GetSpellInfo(spellId)
+						--print("EbonMight Cache:", Details.augmentation_cache, evokerSourceSerial, floor(amount), floor(predictedAmount), floor(predictedAmount/amount*100) .. "%", damageSpellName)
 						evokerActor.total_extra = evokerActor.total_extra + predictedAmount
 						augmentedSpell.total = augmentedSpell.total + predictedAmount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount

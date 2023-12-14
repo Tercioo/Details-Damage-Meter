@@ -100,19 +100,18 @@ local default_load_conditions_frame_options = {
 
 function detailsFramework:CreateLoadFilterParser(callback)
 	local filterFrame = CreateFrame("frame")
-	filterFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-
+	
 	if IS_WOW_PROJECT_MAINLINE then
 		filterFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+		filterFrame:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED")
+		filterFrame:RegisterEvent("CHALLENGE_MODE_START")
+	else
+		filterFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 		filterFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 	end
 
 	filterFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 	filterFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-
-	if IS_WOW_PROJECT_MAINLINE then
-		filterFrame:RegisterEvent("CHALLENGE_MODE_START")
-	end
 
 	filterFrame:RegisterEvent("ENCOUNTER_START")
 	filterFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
