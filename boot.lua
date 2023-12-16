@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12097
-		Details.alpha_build_counter = 12097 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12109
+		Details.alpha_build_counter = 12109 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -125,6 +125,8 @@
 		Details222.CurrentDPS = {
 			Cache = {}
 		}
+		--store all data from the encounter journal
+		Details222.EncounterJournalDump = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -141,6 +143,14 @@ do
 	--]=]
 
 	local news = {
+		{"v10.2.0.12109.155", "December 14th, 2023"},
+		"Classic now uses the same combat log reader as retail (Flamanis).",
+		"Merged Rage of Fyr'alath spells (equara)",
+		"Added Rogue Ambushes to merged spells (WillowGryph).",
+		"The Remove Common Segments option now also removes segments trash between raid bosses.",
+		"Fixed an issue where auras applied before combat start, such as Power Infusion and Prescience, which are counted towards the target, were not being accounted for.",
+		"Added to Combat Class: classCombat:GetRunTimeNoDefault(). This returns the run time of the Mythic+ if available, nil otherwise.",
+
 		{"v10.2.0.12096.155", "December 1st, 2023"},
 		"Added Mythic+ Overall DPS calculation options: 'Use Total Combat Time' and 'Use Run Time'. These options are available in the Mythic Dungeon section of the options panel. The option 'Use Run Time', takes the player's damage and divide by the total elapsed time of the run.",
 		"Added reset options: 'Remove Common Segments' and 'Reset, but keep Mythic+ Overall Segments'.",

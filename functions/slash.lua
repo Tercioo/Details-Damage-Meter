@@ -577,11 +577,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 		end
 
-	elseif (msg == "teste") then
-
-		local a, b = Details:GetEncounterEnd (1098, 3)
-		print(a, unpack(b))
-
 	elseif (msg == "yesno") then
 		--_detalhes:Show()
 
@@ -1042,33 +1037,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			1 --school =
 		)
 
-	elseif (msg == "ejloot") then
-		DetailsFramework.EncounterJournal.EJ_SelectInstance (669) -- hellfire citadel
-		DetailsFramework.EncounterJournal.EJ_SetDifficulty (16)
-
-		local r = {}
-		local total = 0
-
-		for i = 1, 100 do
-			local name, description, encounterID, rootSectionID, link = DetailsFramework.EncounterJournal.EJ_GetEncounterInfoByIndex (i, 669)
-			if (name) then
-				DetailsFramework.EncounterJournal.EJ_SelectEncounter (encounterID)
-				print(name, encounterID, DetailsFramework.EncounterJournal.EJ_GetNumLoot())
-
-				for o = 1, DetailsFramework.EncounterJournal.EJ_GetNumLoot() do
-					local name, icon, slot, armorType, itemID, link, encounterID = DetailsFramework.EncounterJournal.EJ_GetLootInfoByIndex (o)
-					r[slot] = r[slot] or {}
-					table.insert(r[slot], {itemID, encounterID})
-					total = total + 1
-				end
-			end
-		end
-
-		print("total loot", total)
-		_detalhes_global.ALOOT  = r
-
 	elseif (msg == "ilvl" or msg == "itemlevel" or msg == "ilevel") then
-
 		local item_amount = 16
 		local item_level = 0
 		local failed = 0

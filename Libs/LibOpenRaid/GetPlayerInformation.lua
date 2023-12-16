@@ -711,9 +711,10 @@ local bIsNewUnitAuraAvailable = C_UnitAuras and C_UnitAuras.GetAuraDataBySlot an
 
 local auraSpellID
 local auraDurationTime
+local auraUnitId
 
 local handleBuffAura = function(aura)
-    local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", aura.auraInstanceID)
+    local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID(auraUnitId, aura.auraInstanceID)
     if (auraInfo) then
         local spellId = auraInfo.spellId
         if (auraSpellID == spellId) then
@@ -724,7 +725,7 @@ local handleBuffAura = function(aura)
     end
 end
 
-local getAuraDuration = function(spellId)
+local getAuraDuration = function(spellId, unitId)
     --some auras does not have the same spellId of the cast as the spell for its aura duration
     --in these cases, it's necessary to declare the buff spellId which tells the duration of the effect by adding 'durationSpellId = spellId' within the cooldown data
     if (not LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId]) then
@@ -740,8 +741,9 @@ local getAuraDuration = function(spellId)
         local bUsePackedAura = true
         auraSpellID = customBuffDuration or spellId
         auraDurationTime = 0 --reset duration
+        auraUnitId = unitId or "player"
 
-        AuraUtil.ForEachAura("player", "HELPFUL", bBatchCount, handleBuffAura, bUsePackedAura) --check auras to find a buff for the spellId
+        AuraUtil.ForEachAura(auraUnitId, "HELPFUL", bBatchCount, handleBuffAura, bUsePackedAura) --check auras to find a buff for the spellId
 
         if (auraDurationTime == 0) then --if the buff wasn't found, attempt to get the duration from the file
             return LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId].duration or 0
@@ -754,9 +756,10 @@ end
 
 ---get the duration of a buff placed by a spell
 ---@param spellId number
+---@param unitId string?
 ---@return number duration
-function openRaidLib.CooldownManager.GetSpellBuffDuration(spellId)
-    return getAuraDuration(spellId)
+function openRaidLib.CooldownManager.GetSpellBuffDuration(spellId, unitId)
+    return getAuraDuration(spellId, unitId)
 end
 
 ---check if a player cooldown is ready or if is in cooldown
@@ -852,6 +855,51 @@ do
         --print("aura removed:", unitId, spellId, spellName)
     end
     openRaidLib.internalCallback.RegisterCallback("unitAuraRemoved", debugModule.AuraRemoved)
+
+end
+
+
+do
+	local getUnitName = function(unitId)
+		local unitName, realmName = UnitName(unitId)
+		if (unitName) then
+			if (realmName and realmName ~= "") then
+				unitName = unitName .. "-" .. realmName
+			end
+			return unitName
+		end
+	end
+
+    local predicateFunc = function(spellIdToFind, casterName, _, name, icon, applications, dispelName, duration, expirationTime, sourceUnitId, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, applications)
+		if (spellIdToFind == spellId and UnitExists(sourceUnitId)) then
+			if (casterName == getUnitName(sourceUnitId)) then
+				return true
+			end
+		end
+	end
+
+    ---find the duration of a debuff by passing the spellId and the caster name
+    ---@param unitId unit
+    ---@param spellId spellid
+    ---@param casterName actorname
+    ---@return auraduration|nil auraDuration
+    ---@return number|nil expirationTime
+    function openRaidLib.AuraTracker.FindBuffDuration(unitId, casterName, spellId)
+        local name, texture, count, buffType, duration, expirationTime = AuraUtil.FindAura(predicateFunc, unitId, "HELPFUL", spellId, casterName)
+        if (name) then
+            return duration, expirationTime
+        end
+    end
+
+    ---find the duration of a buff placed by a unit
+    ---@param targetString string
+    ---@param casterString string
+    ---@param spellId number
+    function openRaidLib.AuraTracker.FindBuffDurationByUnitName(targetString, casterString, spellId)
+        local targetName = Ambiguate(targetString, "none")
+        local casterName = Ambiguate(casterString, "none")
+        return openRaidLib.AuraTracker.FindBuffDuration(targetName, casterName, spellId)
+    end
 
 end
 

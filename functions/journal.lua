@@ -25,7 +25,7 @@ end
 ---@param tag any tag isn't used
 ---@param journalTypeString string
 ---@param idString string
-function Details222.EJCache.OnClickEncounterJournalLink(tag, journalTypeString, idString)
+function Details222.EJCache.OnClickEncounterJournalLink(tag, journalTypeString, idString) --not in use
     local journalType = tonumber(journalTypeString)
     local id = tonumber(idString)
 
