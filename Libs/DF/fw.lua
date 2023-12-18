@@ -1,6 +1,6 @@
 
 
-local dversion = 491
+local dversion = 492
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -526,10 +526,12 @@ end
 ---get a value from a table using a path, e.g. getfrompath(tbl, "a.b.c") is the same as tbl.a.b.c
 ---@param t table
 ---@param path string
+---@param subOffset number?
 ---@return any
-function DF.table.getfrompath(t, path)
+function DF.table.getfrompath(t, path, subOffset)
 	if (path:match("%.") or path:match("%[")) then
 		local value
+		local offset = 0
 
 		for key in path:gmatch("[%w_]+") do
 			value = t[key] or t[tonumber(key)]
@@ -541,6 +543,11 @@ function DF.table.getfrompath(t, path)
 
 			--update t for the next iteration
 			t = value
+			offset = offset + 1
+
+			if (subOffset == offset) then
+				return value
+			end
 		end
 
 		return value

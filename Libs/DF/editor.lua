@@ -381,7 +381,7 @@ detailsFramework.EditorMixin = {
 
         local anchorSettings
 
-        --table to use on DF:BuildMenu()
+        --table to use on DF:BuildMenuVolatile()
         local menuOptions = {}
         for i = 1, #attributeList do
             local option = attributeList[i]
@@ -418,11 +418,7 @@ detailsFramework.EditorMixin = {
                     maxValue = object:GetParent():GetHeight()/2
                 end
 
-                if (option.name == "classcolor") then print("", value) end
-
                 if (bHasValue) then
-                    if (option.name == "classcolor") then print("HERE", value) end
-
                     local parentTable = getParentTable(profileTable, profileKey)
 
                     if (option.name == "anchor" or option.name == "anchoroffsetx" or option.name == "anchoroffsety") then
@@ -435,7 +431,12 @@ detailsFramework.EditorMixin = {
                         get = function() return value end,
                         set = function(widget, fixedValue, newValue, ...)
                             --color is a table with 4 indexes for each color plus alpha
-                            if (option.widget == "color") then
+                            if (option.widget == "range" or option.widget == "slider") then
+                                if (not option.usedecimals) then
+                                    newValue = math.floor(newValue)
+                                end
+
+                            elseif (option.widget == "color") then
                                 --calor callback sends the red color in the fixedParameter slot
                                 local r, g, b, alpha = fixedValue, newValue, ...
                                 --need to use the same table from the profile table
@@ -488,6 +489,7 @@ detailsFramework.EditorMixin = {
         menuOptions.align_as_pairs = true
         menuOptions.align_as_pairs_length = 150
         menuOptions.widget_width = 180
+        menuOptions.slider_buttons_to_left = true
 
         local optionsFrame = self:GetOptionsFrame()
         local canvasScrollBox = self:GetCanvasScrollBox()
@@ -814,11 +816,16 @@ detailsFramework.EditorMixin = {
 
         return selectObjectScrollBox
     end,
+
+    OnHide = function(self)
+        self:StopObjectMovement()
+    end,
 }
 
 ---@class df_editor_defaultoptions : table
 ---@field width number
 ---@field height number
+---@field options_width number
 ---@field create_object_list boolean
 ---@field object_list_width number
 ---@field object_list_height number
@@ -828,7 +835,8 @@ detailsFramework.EditorMixin = {
 ---@class df_editor_defaultoptions
 local editorDefaultOptions = {
     width = 400,
-    height = 600,
+    height = 548,
+    options_width = 340,
     create_object_list = true,
     object_list_width = 200,
     object_list_height = 420,
@@ -871,12 +879,25 @@ function detailsFramework:CreateEditor(parent, name, options)
     detailsFramework:Mixin(editorFrame, detailsFramework.EditorMixin)
     detailsFramework:Mixin(editorFrame, detailsFramework.OptionsFunctions)
 
+    editorFrame:SetScript("OnHide", editorFrame.OnHide)
+
     editorFrame.registeredObjects = {}
     editorFrame.registeredObjectsByID = {}
 
     editorFrame:BuildOptionsTable(editorDefaultOptions, options)
 
     editorFrame:SetSize(editorFrame.options.width, editorFrame.options.height)
+
+    --The options frame holds the options for the object being edited. It is used as the parent frame for the BuildMenuVolatile() function.
+    local optionsFrame = CreateFrame("frame", name .. "OptionsFrame", editorFrame, "BackdropTemplate")
+    optionsFrame:SetSize(editorFrame.options.options_width, 5000)
+
+    local canvasScrollBoxOptions = {
+        width = editorFrame.options.options_width,
+        height = 400,
+        reskin_slider = true,
+    }
+    local canvasFrame = detailsFramework:CreateCanvasScrollBox(editorFrame, optionsFrame, name .. "CanvasScrollBox", canvasScrollBoxOptions)
 
     if (editorFrame.options.create_object_list) then
         local scrollWidth = editorFrame.options.object_list_width
@@ -885,17 +906,18 @@ function detailsFramework:CreateEditor(parent, name, options)
         local scrollLineHeight = editorFrame.options.object_list_line_height
 
         local objectSelector = editorFrame:CreateObjectSelectionList(scrollWidth, scrollHeight, scrollLinesAmount, scrollLineHeight)
-        objectSelector:SetPoint("topleft", editorFrame, "topright", 2, 0)
+        objectSelector:SetPoint("topleft", editorFrame, "topleft", 0, -2)
+        objectSelector:SetBackdropBorderColor(0, 0, 0, 0)
         editorFrame.objectSelector = objectSelector
         objectSelector:RefreshMe()
+
+        local nScrollBarWidth = 30
+        canvasFrame:SetPoint("topleft", objectSelector, "topright", nScrollBarWidth, 0)
+        canvasFrame:SetPoint("bottomleft", objectSelector, "bottomright", -nScrollBarWidth, 0)
+    else
+        canvasFrame:SetPoint("topleft", editorFrame, "topleft", 2, -2)
+        canvasFrame:SetPoint("bottomleft", editorFrame, "bottomleft", 2, 0)
     end
-
-    --options frame is the frame that holds the options for the editing object, it is used as the parent frame for BuildMenuVolatile()
-    local optionsFrame = CreateFrame("frame", name .. "OptionsFrame", editorFrame, "BackdropTemplate")
-    optionsFrame:SetSize(editorFrame.options.width, 5000)
-
-    local canvasFrame = detailsFramework:CreateCanvasScrollBox(editorFrame, optionsFrame, name .. "CanvasScrollBox")
-    canvasFrame:SetAllPoints()
 
     --over the top frame is a frame that is always on top of everything else
     local OTTFrame = CreateFrame("frame", "$parentOTTFrame", UIParent)

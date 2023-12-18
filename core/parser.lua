@@ -5796,7 +5796,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	function Details.parser_functions:CHALLENGE_MODE_START(...)
+	function Details.parser_functions:CHALLENGE_MODE_START(...) --~challenge ~mythic ~m+
 		--send mythic dungeon start event
 		if (Details.debug) then
 		end

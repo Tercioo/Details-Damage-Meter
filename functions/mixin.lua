@@ -44,6 +44,18 @@ Details222.Mixins.ActorMixin = {
 		elseif (containerType == "dispel") then
 			---@cast actor actorutility
 			return actor.dispell_spells
+
+		elseif (containerType == "interrupt") then
+			---@cast actor actorutility
+			return actor.interrupt_spells
+
+		elseif (containerType == "interruptwhat") then
+			---@cast actor actorutility
+			return actor.interrompeu_oque --is intended to be in portuguese
+
+		elseif (containerType == "interrupttargets") then
+			---@cast actor actorutility
+			return actor.interrupt_targets
 		end
 	end,
 

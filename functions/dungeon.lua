@@ -279,13 +279,33 @@ function mythicDungeonCharts.ShowReadyPanel()
 		mythicDungeonCharts.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
 		local readyFrame = mythicDungeonCharts.ReadyFrame
 
-		readyFrame:SetSize(255, 80)
+		local textColor = {1, 0.8196, 0, 1}
+		local textSize = 11
+
+		local roundedCornerTemplate = {
+			roundness = 6,
+			color = {.1, .1, .1, 0.98},
+			border_color = {.05, .05, .05, 0.834},
+		}
+
+		detailsFramework:AddRoundedCornersToFrame(readyFrame, roundedCornerTemplate)
+
+		local titleLabel = DetailsFramework:CreateLabel(readyFrame, "Details! Mythic Run Completed!", 12, "yellow")
+		titleLabel:SetPoint("top", readyFrame, "top", 0, -7)
+		titleLabel.textcolor = textColor
+
+		local closeButton = detailsFramework:CreateCloseButton(readyFrame, "$parentCloseButton")
+		closeButton:SetPoint("topright", readyFrame, "topright", -2, -2)
+		closeButton:SetScale(1.4)
+		closeButton:SetAlpha(0.823)
+
+		readyFrame:SetSize(255, 120)
 		readyFrame:SetPoint("center", UIParent, "center", 300, 0)
 		readyFrame:SetFrameStrata("LOW")
 		readyFrame:EnableMouse(true)
 		readyFrame:SetMovable(true)
-		DetailsFramework:ApplyStandardBackdrop(readyFrame)
-		DetailsFramework:CreateTitleBar (readyFrame, "Details! Damage Chart for M+")
+		--DetailsFramework:ApplyStandardBackdrop(readyFrame)
+		--DetailsFramework:CreateTitleBar (readyFrame, "Details! Mythic Run Completed!")
 
 		readyFrame:Hide()
 
@@ -297,14 +317,17 @@ function mythicDungeonCharts.ShowReadyPanel()
 		LibWindow.SavePosition(readyFrame)
 
 		--show button
-		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, Loc ["STRING_SLASH_SHOW"]:gsub("^%l", string.upper))
+		---@type df_button
+		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, "Show Damage Graphic")
 		readyFrame.ShowButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-		readyFrame.ShowButton:SetPoint("topright", readyFrame, "topright", -5, -30)
+		readyFrame.ShowButton:SetPoint("topleft", readyFrame, "topleft", 5, -30)
+		readyFrame.ShowButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
+		readyFrame.ShowButton.textcolor = textColor
 
 		--discart button
-		readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, function() readyFrame:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
-		readyFrame.DiscartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-		readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowButton, "left", -5, 0)
+		--readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, function() readyFrame:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
+		--readyFrame.DiscartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+		--readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowButton, "left", -5, 0)
 
 		--disable feature check box (dont show this again)
 		local on_switch_enable = function(self, _, value)
@@ -316,9 +339,36 @@ function mythicDungeonCharts.ShowReadyPanel()
 		notAgainLabel:SetPoint("left", notAgainSwitch, "right", 2, 0)
 		notAgainSwitch:SetPoint("bottomleft", readyFrame, "bottomleft", 5, 5)
 		notAgainSwitch:SetAsCheckBox()
+		notAgainLabel.textSize = textSize
+
+		
+
+		local timeNotInCombatLabel = DetailsFramework:CreateLabel(readyFrame, "Time not in combat:", textSize, "orangered")
+		timeNotInCombatLabel:SetPoint("bottomleft", notAgainSwitch, "topleft", 0, 7)
+		local timeNotInCombatAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, "orangered")
+		timeNotInCombatAmount:SetPoint("left", timeNotInCombatLabel, "left", 130, 0)
+
+		local elapsedTimeLabel = DetailsFramework:CreateLabel(readyFrame, "Run Time:", textSize, textColor)
+		elapsedTimeLabel:SetPoint("bottomleft", timeNotInCombatLabel, "topleft", 0, 5)
+		local elapsedTimeAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, textColor)
+		elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
+
+		readyFrame.TimeNotInCombatAmountLabel = timeNotInCombatAmount
+		readyFrame.ElapsedTimeAmountLabel = elapsedTimeAmount
 	end
 
 	mythicDungeonCharts.ReadyFrame:Show()
+
+	--update the run time and time not in combat
+	local elapsedTime = Details222.MythicPlus.time or 1507
+	mythicDungeonCharts.ReadyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
+
+	local overallMythicDungeonCombat = Details:GetCurrentCombat()
+	if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+		local combatTime = overallMythicDungeonCombat:GetCombatTime()
+		local notInCombat = elapsedTime - combatTime
+		mythicDungeonCharts.ReadyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+	end
 end
 
 function mythicDungeonCharts.ShowChart()
