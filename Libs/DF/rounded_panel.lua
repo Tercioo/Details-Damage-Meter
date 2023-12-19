@@ -543,7 +543,10 @@ function detailsFramework:CreateRoundedPanel(parent, name, optionsTable)
 
     if (newRoundedPanel.options.use_titlebar) then
         ---@type df_roundedpanel
-        local titleBar = detailsFramework:CreateRoundedPanel(newRoundedPanel, "$parentTitleBar", {height = newRoundedPanel.options.titlebar_height})
+        local titleBar = newRoundedPanel:CreateTitleBar(newRoundedPanel.options)
+
+        --[=[
+        local titleBar = detailsFramework:CreateRoundedPanel(newRoundedPanel, "$parentTitleBar", {height = newRoundedPanel.options.titlebar_height, title = newRoundedPanel.options.title})
         titleBar:SetColor(unpack(titleBarColor))
         titleBar:SetPoint("top", newRoundedPanel, "top", 0, -7)
 
@@ -552,6 +555,7 @@ function detailsFramework:CreateRoundedPanel(parent, name, optionsTable)
         newRoundedPanel.TitleBar = titleBar
         titleBar:SetRoundness(5)
         newRoundedPanel.bHasTitleBar = true
+        --]=]
     end
 
     if (newRoundedPanel.options.use_scalebar) then

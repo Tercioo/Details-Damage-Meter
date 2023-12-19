@@ -1340,7 +1340,7 @@
 							local tierPieceMultiplier = 1 --bHasFourPieces and 1.08 or 1
 							local evokerItemLevel = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].ilevel or 400
 							evokerItemLevel = max(evokerItemLevel, 400)
-							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.01)
+							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.006)
 
 						local predictedAmount = 0
 						if (Details.zone_type == "raid") then --0x410b
@@ -7284,3 +7284,5 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 	end
+
+
