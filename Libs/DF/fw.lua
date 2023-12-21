@@ -1,6 +1,6 @@
 
 
-local dversion = 493
+local dversion = 495
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -521,6 +521,60 @@ function DF.table.find(t, value)
 			return i
 		end
 	end
+end
+
+function DF:GetParentKeyPath(object)
+	local parentKey = object:GetParentKey()
+	if (not parentKey) then
+		return ""
+	end
+
+	local path = "" .. parentKey
+	local parent = object:GetParent()
+
+	while (parent) do
+		parentKey = parent:GetParentKey()
+
+		if (parentKey) then
+			path = parentKey .. "." .. path
+		else
+			return path
+		end
+
+		parent = parent:GetParent()
+	end
+
+	return path
+end
+
+function DF:GetParentNamePath(object)
+	local parent = object
+	local path = ""
+	while (parent) do
+		local parentName = parent:GetName()
+
+		if (not parentName) then
+			local parentOfParent = parent:GetParent()
+			if (parentOfParent) then
+				local parentKey = parentOfParent:GetParentKey()
+				if (parentKey) then
+					parentName = parentKey
+				else
+					return path:gsub("%.$", "")
+				end
+			end
+		end
+
+		if (parentName) then
+			path = parentName .. "." .. path
+		else
+			return path:gsub("%.$", "")
+		end
+
+		parent = parent:GetParent()
+	end
+
+	return path:gsub("%.$", "")
 end
 
 ---get a value from a table using a path, e.g. getfrompath(tbl, "a.b.c") is the same as tbl.a.b.c

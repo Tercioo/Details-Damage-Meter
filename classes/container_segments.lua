@@ -768,13 +768,15 @@ function segmentClass:ResetDataByCombatType(combatType)
 
 	if (combatType == "m+overall") then
 		combatType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL
-		bIsException = true
+		bIsException = true --remove all, except mythic+ overall
+
 	elseif (combatType == "generic") then
 		combatTypesInclusion[DETAILS_SEGMENTTYPE_GENERIC] = true
 		combatTypesInclusion[DETAILS_SEGMENTTYPE_RAID_TRASH] = true
-	end
 
-	--if true then return end
+	elseif (combatType == "battleground") then
+		combatTypesInclusion[DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND] = true
+	end
 
 	--destroy the overall combat object
 	segmentClass:ResetOverallData()

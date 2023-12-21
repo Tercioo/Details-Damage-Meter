@@ -508,15 +508,22 @@ end
 	local checkValidNickname = function(nickname, playerName)
 		if (nickname and type(nickname) == "string") then
 			nickname = nickname:trim()
+
 			if (nickname == "" or nickname:len() < 2) then
 				return playerName
 			end
+
 			if (nickname:len() > 20) then
+				return playerName
+			end
+
+			if (not UnitIsInMyGuild(playerName)) then
 				return playerName
 			end
 		else
 			return playerName
 		end
+
 		return nickname
 	end
 
@@ -524,6 +531,8 @@ end
 	local readActorFlag = function(actorObject, ownerActorObject, actorSerial, actorFlags, actorName)
 		if (actorFlags) then
 			local _, zoneType = GetInstanceInfo()
+
+			--UnitIsInMyGuild
 
 			--on retail post 100200 patch, actorName is formatted as "name-realm"
 
@@ -867,6 +876,12 @@ end
 		end
 
 		--enemy player
+		if (Details.zone_type == "pvp") then
+			if (bitBand(actorFlags, REACTION_HOSTILE) ~= 0) then --is hostile
+				newActor.enemy = true
+			end
+		end
+
 		if (newActor.classe == "UNGROUPPLAYER") then --is a player
 			if (bitBand(actorFlags, REACTION_HOSTILE) ~= 0) then --is hostile
 				newActor.enemy = true

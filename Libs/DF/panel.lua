@@ -2074,10 +2074,11 @@ function detailsFramework:CreateSimplePanel(parent, width, height, title, frameN
 	--set the backdrop
 	if (panelOptions.RoundedCorners) then
 		local tRoundedCornerPreset = {
-			roundness = 6,
+			roundness = 3,
 			color = {.1, .1, .1, 0.98},
 			border_color = {.05, .05, .05, 0.834},
 			use_titlebar = true,
+			titlebar_height = 26,
 		}
 		detailsFramework:AddRoundedCornersToFrame(simplePanel, tRoundedCornerPreset)
 	else

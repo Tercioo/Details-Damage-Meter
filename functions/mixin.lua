@@ -45,6 +45,10 @@ Details222.Mixins.ActorMixin = {
 			---@cast actor actorutility
 			return actor.dispell_spells
 
+		elseif (containerType == "dispelwhat") then
+			---@cast actor actorutility
+			return actor.dispell_oque
+
 		elseif (containerType == "interrupt") then
 			---@cast actor actorutility
 			return actor.interrupt_spells

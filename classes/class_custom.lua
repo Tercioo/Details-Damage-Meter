@@ -363,19 +363,19 @@
 
 	function classCustom:Refresh (instance, instance_container, combat, force, total, top, custom_object)
 		local whichRowLine = 1
-		local barras_container = instance.barras
-		local percentage_type = instance.row_info.percent_type
+		local barContainer = instance.barras
+		local percentageType = instance.row_info.percent_type
 
-		local combat_time = combat:GetCombatTime()
+		local combatElapsedTime = combat:GetCombatTime()
 		UsingCustomLeftText = instance.row_info.textL_enable_custom_text
 		UsingCustomRightText = instance.row_info.textR_enable_custom_text
 
 		--total bar
-		local use_total_bar = false
+		local bUseTotalbar = false
 		if (instance.total_bar.enabled) then
-			use_total_bar = true
+			bUseTotalbar = true
 			if (instance.total_bar.only_in_group and (not IsInGroup() and not IsInRaid())) then
-				use_total_bar = false
+				bUseTotalbar = false
 			end
 		end
 
@@ -388,7 +388,7 @@
 
 		if (instance.bars_sort_direction == 1) then --top to bottom
 
-			if (use_total_bar and instance.barraS[1] == 1) then
+			if (bUseTotalbar and instance.barraS[1] == 1) then
 
 				whichRowLine = 2
 				local iter_last = instance.barraS[2]
@@ -396,10 +396,10 @@
 					iter_last = iter_last - 1
 				end
 
-				local row1 = barras_container [1]
+				local row1 = barContainer [1]
 				row1.minha_tabela = nil
 				row1.lineText1:SetText(Loc ["STRING_TOTAL"])
-				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
+				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combatElapsedTime) .. ")")
 
 				row1:SetValue(100)
 				local r, g, b = unpack(instance.total_bar.color)
@@ -411,20 +411,20 @@
 				Details.FadeHandler.Fader(row1, "out")
 
 				for i = instance.barraS[1], iter_last, 1 do
-					instance_container._ActorTable[i]:UpdateBar (barras_container, whichRowLine, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
+					instance_container._ActorTable[i]:UpdateBar (barContainer, whichRowLine, percentageType, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					whichRowLine = whichRowLine+1
 				end
 
 			else
 				for i = instance.barraS[1], instance.barraS[2], 1 do
-					instance_container._ActorTable[i]:UpdateBar (barras_container, whichRowLine, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
+					instance_container._ActorTable[i]:UpdateBar (barContainer, whichRowLine, percentageType, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					whichRowLine = whichRowLine+1
 				end
 			end
 
 		elseif (instance.bars_sort_direction == 2) then --bottom to top
 
-			if (use_total_bar and instance.barraS[1] == 1) then
+			if (bUseTotalbar and instance.barraS[1] == 1) then
 
 				whichRowLine = 2
 				local iter_last = instance.barraS[2]
@@ -432,10 +432,10 @@
 					iter_last = iter_last - 1
 				end
 
-				local row1 = barras_container [1]
+				local row1 = barContainer [1]
 				row1.minha_tabela = nil
 				row1.lineText1:SetText(Loc ["STRING_TOTAL"])
-				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
+				row1.lineText4:SetText(_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combatElapsedTime) .. ")")
 
 				row1:SetValue(100)
 				local r, g, b = unpack(instance.total_bar.color)
@@ -447,13 +447,13 @@
 				Details.FadeHandler.Fader(row1, "out")
 
 				for i = iter_last, instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
-					instance_container._ActorTable[i]:UpdateBar (barras_container, whichRowLine, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
+					instance_container._ActorTable[i]:UpdateBar (barContainer, whichRowLine, percentageType, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					whichRowLine = whichRowLine+1
 				end
 
 			else
 				for i = instance.barraS[2], instance.barraS[1], -1 do --vai atualizar s� o range que esta sendo mostrado
-					instance_container._ActorTable[i]:UpdateBar (barras_container, whichRowLine, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
+					instance_container._ActorTable[i]:UpdateBar (barContainer, whichRowLine, percentageType, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					whichRowLine = whichRowLine+1
 				end
 			end
@@ -467,6 +467,8 @@
 				end
 			end
 		end
+
+		instance:AutoAlignInLineFontStrings()
 
 	end
 
@@ -531,14 +533,14 @@
 					row.lineText2:SetText("")
 				end
 			else
-				local formated_value = SelectedToKFunction (_, self.value)
-				local rightText = formated_value .. bars_brackets[1] .. percent .. bars_brackets[2]
+				local formatedValue = SelectedToKFunction(_, self.value)
+				local rightText = formatedValue .. bars_brackets[1] .. percent .. bars_brackets[2]
 
 				if (UsingCustomRightText) then
-					row.lineText4:SetText(stringReplace (instance.row_info.textR_custom_text, formated_value, "", percent, self, combat, instance, rightText))
+					row.lineText4:SetText(stringReplace(instance.row_info.textR_custom_text, formatedValue, "", percent, self, combat, instance, rightText))
 				else
 					if (instance.use_multi_fontstrings) then
-						instance:SetInLineTexts(row, "", formated_value, percent)
+						instance:SetInLineTexts(row, "", formatedValue, percent)
 					else
 						row.lineText4:SetText(rightText)
 						row.lineText3:SetText("")

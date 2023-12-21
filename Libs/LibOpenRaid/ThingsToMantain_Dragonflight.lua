@@ -217,6 +217,7 @@ do
 		}
 
 		LIB_OPEN_RAID_ALL_POTIONS = {
+			[415569] = 1, --Dreamwalker's Healing Potion
 			[370511] = 1, --Refreshing Healing Potion
 			[371039] = 1, --Potion of Withering Vitality
 			[370607] = 1, --Aerated Mana Potion
@@ -229,6 +230,7 @@ do
 
 		--spellId of healing from potions
 		LIB_OPEN_RAID_HEALING_POTIONS = {
+			[415569] = 1, --Dreamwalker's Healing Potion
 			[370511] = 1, --Refreshing Healing Potion
 			[371039] = 1, --Potion of Withering Vitality
 			[6262] = 1, --Warlock's Healthstone
