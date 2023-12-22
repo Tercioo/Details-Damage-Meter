@@ -1298,7 +1298,7 @@ function eventFrame:RegisterMyEvents()
 	eventFrame:RegisterEvent ("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	eventFrame:RegisterEvent ("UNIT_SPELLCAST_STOP")
 
-	if (not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
+	if (not DetailsFramework.IsClassicWow() and not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
 		eventFrame:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTIBLE")
 		eventFrame:RegisterEvent ("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 	end
@@ -1317,7 +1317,7 @@ function eventFrame:UnregisterMyEvents()
 	eventFrame:UnregisterEvent ("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	eventFrame:UnregisterEvent ("UNIT_SPELLCAST_STOP")
 
-	if (not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
+	if (not DetailsFramework.IsClassicWow() and not DetailsFramework.IsTBCWow() and not DetailsFramework.IsWotLKWow()) then
 		eventFrame:UnregisterEvent ("UNIT_SPELLCAST_INTERRUPTIBLE")
 		eventFrame:UnregisterEvent ("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 	end

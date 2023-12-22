@@ -323,9 +323,9 @@ detailsFramework.FrameContainerMixin = {
         frameContainer:CheckResizeLockedState()
         frameContainer:CheckMovableLockedState()
 
-
-        frameContainer:SetResizeBounds(50, 50, 1000, 1000) --new versions has this method
-
+        if frameContainer.SetResizeBounds then
+            frameContainer:SetResizeBounds(50, 50, 1000, 1000) --new versions has this method
+        end
     end,
 
     ---run when the container has its size changed

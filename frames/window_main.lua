@@ -3598,8 +3598,9 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe:SetPoint("center", UIParent)
 		baseframe:EnableMouseWheel(false)
 		baseframe:EnableMouse(true)
-
-	    baseframe:SetResizeBounds(150, 7, _detalhes.max_window_size.width, _detalhes.max_window_size.height)
+		if baseframe.SetResizeBounds then
+			baseframe:SetResizeBounds(150, 7, _detalhes.max_window_size.width, _detalhes.max_window_size.height)
+		end
 
 		baseframe:SetBackdrop(defaultBackdropSt)
 		baseframe:SetBackdropColor(instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
