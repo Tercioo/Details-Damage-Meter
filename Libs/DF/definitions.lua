@@ -137,6 +137,11 @@
 ---@field GetSizeFromPercent fun(self:table, uiObject:uiobject, percent:number) : number get the min size of a uiObject and multiply it by the percent passed
 ---@field BuildMenu fun(self:table, parent:frame, menuOptions:df_menu_table[], xOffset:number?, yOffset:number?, height:number?, useColon:boolean?, textTemplate:table?, dropdownTemplate:table?, switchTemplate:table?, switchIsCheckbox:boolean?, sliderTemplate:table?, buttonTemplate:table?, valueChangeHook:function?)
 ---@field BuildMenuVolatile fun(self:table, parent:frame, menuOptions:df_menu_table[], xOffset:number?, yOffset:number?, height:number?, useColon:boolean?, textTemplate:table?, dropdownTemplate:table?, switchTemplate:table?, switchIsCheckbox:boolean?, sliderTemplate:table?, buttonTemplate:table?, valueChangeHook:function?)
+---@field GetColorBrightness fun(self:table, r:number, g:number, b:number) : number return the brightness of a color from zero to one
+---@field GetColorHue fun(self:table, r:number, g:number, b:number) : number return the hue of a color from red to blue to green to  yellow and back to red
+---@field IsHtmlColor fun(self:table, colorName:any) : unknown return true if DF.alias_text_colors has the colorName as a key
+---@field CreateColorTable fun(self:table, r:number, g:number, b:number, a:number) : table return a table with {r, g, b, a}
+---@field FormatColor fun(self:table, newFormat:string, r:number|string, g:number?, b:number?, a:number?, decimalsAmount:number?) : string|table|number|nil, number|nil, number|nil, number|nil takes in a color in one format and converts it to another specified format.
 ---@field 
 ---@field 
 

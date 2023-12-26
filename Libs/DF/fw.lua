@@ -1,6 +1,6 @@
 
 
-local dversion = 495
+local dversion = 496
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -2025,7 +2025,16 @@ end
 		IsColorTable = true,
 	}
 
-	---convert a any format of color to any other format of color
+	--takes in a color in one format and converts it to another specified format.
+	--here are the parameters it accepts:
+	--newFormat (string): The format to convert the color to. It can be one of the following: "commastring", "tablestring", "table", "tablemembers", "numbers", "hex".
+	--r (number|string): The red component of the color or a string representing the color.
+	--g (number|nil): The green component of the color. This is optional if r is a string.
+	--b (number|nil): The blue component of the color. This is optional if r is a string.
+	--a (number|nil): The alpha component of the color. This is optional and defaults to 1 if not provided.
+	--decimalsAmount (number|nil): The number of decimal places to round the color components to. This is optional and defaults to 4 if not provided.
+	--The function returns the color in the new format. The return type depends on the newFormat parameter. It can be a string, a table, or four separate number values (for the "numbers" format). 
+	--For the "hex" format, it returns a string representing the color in hexadecimal format.	
 	---@param newFormat string
 	---@param r number|string
 	---@param g number|nil
@@ -2083,6 +2092,40 @@ end
 	---@return unknown
 	function DF:IsHtmlColor(colorName)
 		return DF.alias_text_colors[colorName]
+	end
+
+	---return the brightness of a color from zero to one
+	---@param r number
+	---@param g number
+	---@param b number
+	---@return number
+	function DF:GetColorBrightness(r, g, b)
+		r, g, b = DF:ParseColors(r, g, b)
+		return 0.2134 * r + 0.7152 * g + 0.0721 * b
+	end
+
+	---return the hue of a color from red to blue to green to  yellow and back to red
+	---@param r number
+	---@param g number
+	---@param b number
+	---@return number
+	function DF:GetColorHue(r, g, b)
+		r, g, b = DF:ParseColors(r, g, b)
+
+		local minValue, maxValue = math.min(r, g, b), math.max(r, g, b)
+
+		if (maxValue == minValue) then
+			return 0
+
+		elseif (maxValue == r) then
+			return (g - b) / (maxValue - minValue) % 6
+
+		elseif (maxValue == g) then
+			return (b - r) / (maxValue - minValue) + 2
+
+		else
+			return (r - g) / (maxValue - minValue) + 4
+		end
 	end
 
 	---get the values passed and return r g b a color values

@@ -43,7 +43,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 117
+local CONST_LIB_VERSION = 118
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -508,7 +508,7 @@ end
         LIB_OPEN_RAID_COMM_SCHEDULER = newTickerHandle
     end
 
-    function openRaidLib.commHandler.SendCommData(data, flags)
+    function openRaidLib.commHandler.SendCommData(data, flags, bIgnoreQueue)
         local LibDeflate = LibStub:GetLibrary("LibDeflate")
         local dataCompressed = LibDeflate:CompressDeflate(data, {level = 9})
         local dataEncoded = LibDeflate:EncodeForWoWAddonChannel(dataCompressed)
@@ -2665,7 +2665,8 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
 
     function openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
         local dataToSend = getKeystoneInfoToComm()
-        openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_PARTY)
+        local bIgnoreQueue = true
+        openRaidLib.commHandler.SendCommData(dataToSend, CONST_COMM_SENDTO_PARTY, bIgnoreQueue)
         diagnosticComm("SendPlayerKeystoneInfoToParty| " .. dataToSend) --debug
     end
 
@@ -2686,8 +2687,9 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         local keystoneInfo = openRaidLib.KeystoneInfoManager.GetKeystoneInfo(UnitName("player"), true)
         openRaidLib.KeystoneInfoManager.UpdatePlayerKeystoneInfo(keystoneInfo)
 
-        if (IsInGroup() and not IsInRaid()) then
-            openRaidLib.Schedules.NewUniqueTimer(0.1, openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
+        local _, instanceType = GetInstanceInfo()
+        if (instanceType == "party") then
+            openRaidLib.Schedules.NewUniqueTimer(0.01, openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty, "KeystoneInfoManager", "sendKeystoneInfoToParty_Schedule")
         end
 
         if (IsInGuild()) then

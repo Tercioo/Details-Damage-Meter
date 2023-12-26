@@ -241,6 +241,8 @@ function detailsFramework.Schedules.LazyExecute(callback, payload, maxIterations
     return payload
 end
 
+--Schedules a callback function to be executed after a specified time delay.
+--It uniquely identifies each scheduled task by an ID, cancel and replace any existing schedules with the same ID.
 function detailsFramework.Schedules.AfterById(time, callback, id, ...)
     if (not detailsFramework.Schedules.ExecuteTimerTable) then
         detailsFramework.Schedules.ExecuteTimerTable = {}
