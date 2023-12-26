@@ -1380,6 +1380,7 @@ local default_global_data = {
 			["14"] = false,
 		},
 		current_exp_raid_encounters = {},
+		encounter_journal_cache = {}, --store a dump of the encounter journal
 		installed_skins_cache = {},
 
 		show_aug_predicted_spell_damage = false,

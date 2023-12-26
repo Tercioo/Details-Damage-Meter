@@ -288,7 +288,7 @@ end
                 classId = select(3, UnitClass(unitInfo.nameFull))
             end
 
-            if (unitInfo and classId) then
+            if (unitInfo and classId and cooldownsOrganized[classId]) then
                 local allCooldownFrames = Details222.CooldownTracking.GetAllCooldownFrames()
 
                 for spellId, cooldownInfo in pairs(unitCooldowns) do

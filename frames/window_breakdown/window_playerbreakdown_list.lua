@@ -36,8 +36,6 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	breakdownSideMenu:SetSize(scrollbox_size[1], scrollbox_size[2])
 	PixelUtil.SetPoint(breakdownSideMenu, "topright", breakdownWindowFrame, "topleft", -2, 0)
 	PixelUtil.SetPoint(breakdownSideMenu, "bottomright", breakdownWindowFrame, "bottomleft", -2, 0)
-	--detailsFramework:ApplyStandardBackdrop(breakdownSideMenu)
-	--breakdownSideMenu.RightEdge:Hide()
 
 	detailsFramework:AddRoundedCornersToFrame(breakdownSideMenu, Details.PlayerBreakdown.RoundedCornerPreset)
 
@@ -47,17 +45,8 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	PixelUtil.SetPoint(titleBarPlugins, "topleft", breakdownSideMenu, "topleft", 2, -0)
 	PixelUtil.SetPoint(titleBarPlugins, "topright", breakdownSideMenu, "topright", -2, -0)
 	titleBarPlugins:SetHeight(titleHeight)
-	--titleBarPlugins:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-	--titleBarPlugins:SetBackdropColor(.5, .5, .5, 1)
-	--titleBarPlugins:SetBackdropBorderColor(0, 0, 0, 1)
 
 	---@type df_roundedpanel_preset
-	--local titleBarRoundedCornerPreset = {
-	--	roundness = 5,
-	--	color = {.05, .05, .05, 1},
-	--	border_color = "transparent",
-	--}
-	--detailsFramework:AddRoundedCornersToFrame(titleBarPlugins, titleBarRoundedCornerPreset)
 
 	--title label
 	local titleBarPlugins_TitleLabel = detailsFramework:NewLabel(titleBarPlugins, titleBarPlugins, nil, "titulo", "Plugins", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
@@ -67,9 +56,6 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 	--plugins menu title bar
 	local titleBarPlayerSeparator = CreateFrame("frame", nil, breakdownSideMenu, "BackdropTemplate")
 	titleBarPlayerSeparator:SetHeight(titleHeight)
-	--titleBarPlayerSeparator:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-	--titleBarPlayerSeparator:SetBackdropColor(.5, .5, .5, 1)
-	--titleBarPlayerSeparator:SetBackdropBorderColor(0, 0, 0, 1)
 
 	--title label
 	local titleBarTools_TitleLabel = detailsFramework:NewLabel(titleBarPlayerSeparator, titleBarPlayerSeparator, nil, "titulo", "Players", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
@@ -78,19 +64,6 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 
 	titleBarPlayerSeparator:SetPoint("topleft", pluginsFrame, "bottomleft", 0, -1)
 	titleBarPlayerSeparator:SetPoint("topright", pluginsFrame, "bottomright", 0, -1)
-
-	local highlightPluginButtonOnBreakdownWindow = function(pluginAbsoluteName)
-		for index, button in ipairs(breakdownWindowFrame.RegisteredPluginButtons) do
-			---@cast button df_button
-			button:Show()
-
-			if (button.PluginAbsName == pluginAbsoluteName) then
-				button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE"))
-			else
-				button:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE"))
-			end
-		end
-	end
 
 	local refreshPluginButtons = function()
 		local amountPluginButtons = #breakdownWindowFrame.RegisteredPluginButtons
@@ -226,7 +199,8 @@ function breakdownWindowPlayerList.CreatePlayerListFrame()
 		self.rankText:SetText(self.index) --not in use
 
 		--item level
-		self.itemLevelText:SetText(self.playerObject.ilvl or (playerGear and playerGear.ilevel) or "0")
+		local itemLevel = Details.ilevel:GetIlvl(self.playerObject.serial)
+		self.itemLevelText:SetText((itemLevel and itemLevel.ilvl and math.floor(itemLevel.ilvl)) or (self.playerObject.ilvl) or (playerGear and playerGear.ilevel) or "0")
 
 		local actorSpecId = self.playerObject.spec
 		local actorTotal = self.playerObject.total

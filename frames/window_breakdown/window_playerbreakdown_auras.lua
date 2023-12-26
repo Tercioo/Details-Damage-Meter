@@ -39,10 +39,12 @@ local createAuraTabOnBreakdownWindow = function(tab, frame)
     }
 
     local onEnterLine = function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-        Details:GameTooltipSetSpellByID(self.spellID)
-        GameTooltip:Show()
-        self:SetBackdropColor(1, 1, 1, .2)
+        if (self.spellID) then
+            GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
+            Details:GameTooltipSetSpellByID(self.spellID)
+            GameTooltip:Show()
+            self:SetBackdropColor(1, 1, 1, .2)
+        end
     end
 
     local onLeaveLine = function(self)

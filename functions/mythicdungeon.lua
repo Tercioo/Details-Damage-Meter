@@ -103,9 +103,24 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
         RunID = Details.mythic_dungeon_id,
         OverallSegment = true,
         ZoneName = Details.MythicPlus.DungeonName,
-        MapID = instanceMapID,
-        Level = Details.MythicPlus.Level,
         EJID = Details.MythicPlus.ejID,
+		MapID = Details222.MythicPlus.MapID,
+		Level = Details222.MythicPlus.Level,
+		OnTime = Details222.MythicPlus.OnTime,
+		KeystoneUpgradeLevels = Details222.MythicPlus.KeystoneUpgradeLevels,
+		PracticeRun = Details222.MythicPlus.PracticeRun,
+		OldDungeonScore = Details222.MythicPlus.OldDungeonScore,
+		NewDungeonScore = Details222.MythicPlus.NewDungeonScore,
+		IsAffixRecord = Details222.MythicPlus.IsAffixRecord,
+		IsMapRecord = Details222.MythicPlus.IsMapRecord,
+		PrimaryAffix = Details222.MythicPlus.PrimaryAffix,
+		IsEligibleForScore = Details222.MythicPlus.IsEligibleForScore,
+		UpgradeMembers = Details222.MythicPlus.UpgradeMembers,
+		TimeLimit = Details222.MythicPlus.TimeLimit,
+		DungeonName = Details222.MythicPlus.DungeonName,
+		DungeonID = Details222.MythicPlus.DungeonID,
+		DungeonTexture = Details222.MythicPlus.Texture,
+		DungeonBackgroundTexture = Details222.MythicPlus.BackgroundTexture,
     }
 
     --add all boss segments from this run to this new segment
@@ -528,6 +543,7 @@ function DetailsMythicPlusFrame.MythicDungeonFinished (fromZoneLeft)
         --check if there is trash segments after the last boss. need to merge these segments with the trash segment of the last boss
         local bCanMergeBossTrash = Details.mythic_plus.merge_boss_trash
         Details222.MythicPlus.LogStep("MythicDungeonFinished() | merge_boss_trash = " .. (bCanMergeBossTrash and "true" or "false"))
+
         if (bCanMergeBossTrash and not Details.MythicPlus.IsRestoredState and not fromZoneLeft) then
             --is the current combat not a boss fight?
             --this mean a combat was opened after the last boss of the dungeon was killed
@@ -672,12 +688,13 @@ function DetailsMythicPlusFrame.MythicDungeonStarted()
         return
     end
 
-    local ejID = DF.EncounterJournal.EJ_GetInstanceForMap(mapID)
+    local ejID = Details:GetInstanceEJID(mapID)
 
     --setup the mythic run info
     Details.MythicPlus.Started = true
     Details.MythicPlus.DungeonName = zoneName
     Details.MythicPlus.DungeonID = currentZoneID
+    Details:Msg("(debug) mythic dungeon start time: ", time()+9.7, "time now:", time(), "diff:", time()+9.7-time())
     Details.MythicPlus.StartedAt = time()+9.7 --there's the countdown timer of 10 seconds
     Details.MythicPlus.EndedAt = nil --reset
     Details.MythicPlus.SegmentID = 1

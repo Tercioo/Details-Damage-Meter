@@ -79,7 +79,6 @@ local addPlayerDamage = function(unitCleuName)
 			if (segmentId ~= playerData.LastCombatID) then
 				playerData.LastDamage = 0
 				playerData.LastCombatID = segmentId
-
 				--mythicDungeonCharts:Debug("Combat changed for player", unitCleuName)
 			end
 
@@ -245,9 +244,13 @@ function mythicDungeonCharts:OnEndMythicDungeon()
 
 		mythicDungeonCharts:Debug("Dungeon ended successfully, chart data capture stopped, scheduling to open the window.")
 
+		C_Timer.After(0.1, function()
+			
+		end)
+
 		--the run is valid, schedule to open the chart window
-		Details.mythic_plus.delay_to_show_graphic = 5
-		C_Timer.After(Details.mythic_plus.delay_to_show_graphic or 5, mythicDungeonCharts.ShowReadyPanel)
+		Details.mythic_plus.delay_to_show_graphic = 1
+		C_Timer.After(Details.mythic_plus.delay_to_show_graphic, mythicDungeonCharts.ShowReadyPanel)
 
 		if (verbosemode) then
 			mythicDungeonCharts:Debug("OnEndMythicDungeon() success!")
@@ -264,13 +267,212 @@ mythicDungeonCharts:RegisterEvent("COMBAT_MYTHICDUNGEON_START", "OnStartMythicDu
 mythicDungeonCharts:RegisterEvent("COMBAT_MYTHICDUNGEON_END", "OnEndMythicDungeon")
 mythicDungeonCharts:RegisterEvent("COMBAT_BOSS_DEFEATED", "OnBossDefeated")
 
+local createPlayerBanner = function(parent, name)
+    local template = "ChallengeModeBannerPartyMemberTemplate"
+    local playerFrame = CreateFrame("frame", name, parent, template)
+	playerFrame:SetAlpha(1)
+	playerFrame:EnableMouse(true)
+	playerFrame:SetFrameLevel(parent:GetFrameLevel()+2)
+
+    local playerNameFontString = playerFrame:CreateFontString("$parentPlayerNameText", "overlay", "GameFontNormal")
+    playerNameFontString:SetTextColor(1, 1, 1)
+    playerNameFontString:SetPoint("top", playerFrame, "bottom", -1, -7)
+    DetailsFramework:SetFontSize(playerNameFontString, 12)
+	playerFrame.PlayerNameFontString = playerNameFontString
+
+	local playerNameBackgroundTexture = playerFrame:CreateTexture("$parentPlayerNameBackgroundTexture", "overlay", nil, 6)
+	playerNameBackgroundTexture:SetTexture([[Interface\Cooldown\LoC-ShadowBG]])
+	playerNameBackgroundTexture:SetSize(60, 12)
+	playerNameBackgroundTexture:SetPoint("center", playerNameFontString, "center", 0, 0)
+
+    local backgroundBannerTexture = playerFrame:CreateTexture("$parentBannerTexture", "background", nil, 0)
+    backgroundBannerTexture:SetTexture([[Interface\ACHIEVEMENTFRAME\GuildTabard]])
+    backgroundBannerTexture:SetDrawLayer("background", 0)
+    backgroundBannerTexture:SetSize(63, 129)
+    backgroundBannerTexture:SetTexCoord(5/128, 68/128, 123/256, 252/256)
+    backgroundBannerTexture:SetPoint("topleft", playerFrame, "bottomleft", -5, playerFrame:GetHeight()/2)
+    backgroundBannerTexture:SetPoint("topright", playerFrame, "bottomright", 4, playerFrame:GetHeight()/2)
+    backgroundBannerTexture:SetVertexColor(.1, .1, .1)
+	playerFrame.BackgroundBannerTexture = backgroundBannerTexture
+
+	local backgroundBannerBorderTexture = playerFrame:CreateTexture("$parentBannerBorderTexture", "highlight", nil, -1)
+	backgroundBannerBorderTexture:SetAtlas("UI-Achievement-Guild-Flag-Outline")
+	backgroundBannerBorderTexture:SetSize(63, 129)
+	backgroundBannerBorderTexture:SetPoint("topleft", playerFrame, "bottomleft", -5, playerFrame:GetHeight()/2)
+	backgroundBannerBorderTexture:SetPoint("topright", playerFrame, "bottomright", 4, playerFrame:GetHeight()/2)
+
+    local dungeonTexture = playerFrame:CreateTexture("$parentDungeonTexture", "artwork")
+    dungeonTexture:SetTexCoord(25/512, 360/512, 50/512, 290/512)
+    dungeonTexture:SetSize(50, 39)
+    dungeonTexture:SetPoint("top", playerFrame,"bottom", 0, -16)
+    dungeonTexture:SetAlpha(0.9934)
+	playerFrame.DungeonTexture = dungeonTexture
+
+    local dungeonBorderTexture = playerFrame:CreateTexture("$parentDungeonBorder", "border")
+    dungeonBorderTexture:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
+    dungeonBorderTexture:SetDrawLayer("border", 0)
+    dungeonBorderTexture:ClearAllPoints()
+    dungeonBorderTexture:SetPoint("topleft", dungeonTexture,"topleft", -17, 15)
+    dungeonBorderTexture:SetPoint("bottomright", dungeonTexture,"bottomright", 18, -15)
+    dungeonBorderTexture:SetAlpha(1)
+	playerFrame.DungeonBorderTexture = dungeonBorderTexture
+
+    local levelFontString = playerFrame:CreateFontString("$parentLVLText", "artwork", "GameFontNormal")
+    levelFontString:SetTextColor(1, 1, 1)
+    levelFontString:SetPoint("top", dungeonTexture, "bottom", -1, -7)
+    DetailsFramework:SetFontSize(levelFontString, 20)
+	playerFrame.LevelFontString = levelFontString
+
+	local lootSquare = CreateFrame("frame", name, parent)
+	lootSquare:SetSize(46, 46)
+	lootSquare:SetPoint("top", playerFrame, "bottom", 0, -90)
+	lootSquare:SetFrameLevel(parent:GetFrameLevel()+1)
+	playerFrame.LootSquare = lootSquare
+	lootSquare:Hide()
+
+	lootSquare:SetScript("OnEnter", function(self)
+		if (self.itemLink) then
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetHyperlink(lootSquare.itemLink)
+			GameTooltip:Show()
+		end
+	end)
+
+	lootSquare:SetScript("OnLeave", function(self)
+		GameTooltip:Hide()
+	end)
+
+	local lootIcon = lootSquare:CreateTexture("$parentLootIcon", "artwork")
+	lootIcon:SetSize(46, 46)
+	lootIcon:SetPoint("center", lootSquare, "center", 0, 0)
+	lootIcon:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+	lootSquare.LootIcon = lootIcon
+
+	local lootIconBorder = lootSquare:CreateTexture("$parentLootSquareBorder", "overlay")
+	lootIconBorder:SetTexture([[Interface\COMMON\WhiteIconFrame]])
+	lootIconBorder:SetTexCoord(0, 1, 0, 1)
+	lootIconBorder:SetSize(46, 46)
+	lootIconBorder:SetPoint("center", lootIcon, "center", 0, 0)
+	lootSquare.LootIconBorder = lootIconBorder
+
+	local lootItemLevel = lootSquare:CreateFontString("$parentLootItemLevel", "overlay", "GameFontNormal")
+	lootItemLevel:SetPoint("top", lootSquare, "bottom", 0, -2)
+	lootItemLevel:SetTextColor(1, 1, 1)
+	DetailsFramework:SetFontSize(lootItemLevel, 12)
+	lootSquare.LootItemLevel = lootItemLevel
+
+	return playerFrame
+end
+
 -- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
 -- /run _G.DetailsMythicDungeonChartHandler.ShowReadyPanel()
 
 --show a small panel telling the chart is ready to show
-function mythicDungeonCharts.ShowReadyPanel()
+function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 	--check if is enabled
 	if (not Details.mythic_plus.show_damage_graphic) then
+		return
+	end
+
+	if (bIsDebug) then
+		Details222.MythicPlus.Level = Details222.MythicPlus.Level or 2
+	end
+
+	if (Details222.MythicPlus.Level < 28 and UnitGUID("player") ~= "Player-3209-0B98EC46") then
+		--create the panel
+		if (not mythicDungeonCharts.ReadyFrame) then
+			mythicDungeonCharts.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
+			local readyFrame = mythicDungeonCharts.ReadyFrame
+
+			local textColor = {1, 0.8196, 0, 1}
+			local textSize = 11
+
+			local roundedCornerTemplate = {
+				roundness = 6,
+				color = {.1, .1, .1, 0.98},
+				border_color = {.05, .05, .05, 0.834},
+			}
+
+			detailsFramework:AddRoundedCornersToFrame(readyFrame, roundedCornerTemplate)
+
+			local titleLabel = DetailsFramework:CreateLabel(readyFrame, "Details! Mythic Run Completed!", 12, "yellow")
+			titleLabel:SetPoint("top", readyFrame, "top", 0, -7)
+			titleLabel.textcolor = textColor
+
+			local closeButton = detailsFramework:CreateCloseButton(readyFrame, "$parentCloseButton")
+			closeButton:SetPoint("topright", readyFrame, "topright", -2, -2)
+			closeButton:SetScale(1.4)
+			closeButton:SetAlpha(0.823)
+
+			readyFrame:SetSize(255, 120)
+			readyFrame:SetPoint("center", UIParent, "center", 300, 0)
+			readyFrame:SetFrameStrata("LOW")
+			readyFrame:EnableMouse(true)
+			readyFrame:SetMovable(true)
+			--DetailsFramework:ApplyStandardBackdrop(readyFrame)
+			--DetailsFramework:CreateTitleBar (readyFrame, "Details! Mythic Run Completed!")
+
+			readyFrame:Hide()
+
+			--register to libwindow
+			local LibWindow = LibStub("LibWindow-1.1")
+			LibWindow.RegisterConfig(readyFrame, Details.mythic_plus.mythicrun_chart_frame_ready)
+			LibWindow.RestorePosition(readyFrame)
+			LibWindow.MakeDraggable(readyFrame)
+			LibWindow.SavePosition(readyFrame)
+
+			--show button
+			---@type df_button
+			readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, "Show Damage Graphic")
+			readyFrame.ShowButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+			readyFrame.ShowButton:SetPoint("topleft", readyFrame, "topleft", 5, -30)
+			readyFrame.ShowButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
+			readyFrame.ShowButton.textcolor = textColor
+
+			--discart button
+			--readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, function() readyFrame:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
+			--readyFrame.DiscartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+			--readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowButton, "left", -5, 0)
+
+			--disable feature check box (dont show this again)
+			local on_switch_enable = function(self, _, value)
+				Details.mythic_plus.show_damage_graphic = not value
+			end
+
+			local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch(readyFrame, on_switch_enable, not Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
+			notAgainSwitch:ClearAllPoints()
+			notAgainLabel:SetPoint("left", notAgainSwitch, "right", 2, 0)
+			notAgainSwitch:SetPoint("bottomleft", readyFrame, "bottomleft", 5, 5)
+			notAgainSwitch:SetAsCheckBox()
+			notAgainLabel.textSize = textSize
+
+			local timeNotInCombatLabel = DetailsFramework:CreateLabel(readyFrame, "Time not in combat:", textSize, "orangered")
+			timeNotInCombatLabel:SetPoint("bottomleft", notAgainSwitch, "topleft", 0, 7)
+			local timeNotInCombatAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, "orangered")
+			timeNotInCombatAmount:SetPoint("left", timeNotInCombatLabel, "left", 130, 0)
+
+			local elapsedTimeLabel = DetailsFramework:CreateLabel(readyFrame, "Run Time:", textSize, textColor)
+			elapsedTimeLabel:SetPoint("bottomleft", timeNotInCombatLabel, "topleft", 0, 5)
+			local elapsedTimeAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, textColor)
+			elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
+
+			readyFrame.TimeNotInCombatAmountLabel = timeNotInCombatAmount
+			readyFrame.ElapsedTimeAmountLabel = elapsedTimeAmount
+		end
+
+		mythicDungeonCharts.ReadyFrame:Show()
+
+		--update the run time and time not in combat
+		local elapsedTime = Details222.MythicPlus.time or 1507
+		mythicDungeonCharts.ReadyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
+
+		local overallMythicDungeonCombat = Details:GetCurrentCombat()
+		if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+			local combatTime = overallMythicDungeonCombat:GetCombatTime()
+			local notInCombat = elapsedTime - combatTime
+			mythicDungeonCharts.ReadyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+		end
+
 		return
 	end
 
@@ -278,6 +480,7 @@ function mythicDungeonCharts.ShowReadyPanel()
 	if (not mythicDungeonCharts.ReadyFrame) then
 		mythicDungeonCharts.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
 		local readyFrame = mythicDungeonCharts.ReadyFrame
+		readyFrame.playerCacheByName = {}
 
 		local textColor = {1, 0.8196, 0, 1}
 		local textSize = 11
@@ -299,14 +502,11 @@ function mythicDungeonCharts.ShowReadyPanel()
 		closeButton:SetScale(1.4)
 		closeButton:SetAlpha(0.823)
 
-		readyFrame:SetSize(255, 120)
+		readyFrame:SetSize(355, 390)
 		readyFrame:SetPoint("center", UIParent, "center", 300, 0)
 		readyFrame:SetFrameStrata("LOW")
 		readyFrame:EnableMouse(true)
 		readyFrame:SetMovable(true)
-		--DetailsFramework:ApplyStandardBackdrop(readyFrame)
-		--DetailsFramework:CreateTitleBar (readyFrame, "Details! Mythic Run Completed!")
-
 		readyFrame:Hide()
 
 		--register to libwindow
@@ -316,6 +516,10 @@ function mythicDungeonCharts.ShowReadyPanel()
 		LibWindow.MakeDraggable(readyFrame)
 		LibWindow.SavePosition(readyFrame)
 
+		--warning footer
+		local warningFooter = DetailsFramework:CreateLabel(readyFrame, "You are seeing this because it's a 28 or above. Under development.", 9, "yellow")
+		warningFooter:SetPoint("bottom", readyFrame, "bottom", 0, 20)
+
 		--show button
 		---@type df_button
 		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, "Show Damage Graphic")
@@ -324,52 +528,280 @@ function mythicDungeonCharts.ShowReadyPanel()
 		readyFrame.ShowButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
 		readyFrame.ShowButton.textcolor = textColor
 
-		--discart button
-		--readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, function() readyFrame:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
-		--readyFrame.DiscartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-		--readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowButton, "left", -5, 0)
-
 		--disable feature check box (dont show this again)
 		local on_switch_enable = function(self, _, value)
 			Details.mythic_plus.show_damage_graphic = not value
 		end
+
+		local elapsedTimeLabel = DetailsFramework:CreateLabel(readyFrame, "Run Time:", textSize, textColor)
+		elapsedTimeLabel:SetPoint("topleft", readyFrame.ShowButton, "bottomleft", 0, -8)
+		local elapsedTimeAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, textColor)
+		elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
+
+		local timeNotInCombatLabel = DetailsFramework:CreateLabel(readyFrame, "Time not in combat:", textSize, "orangered")
+		timeNotInCombatLabel:SetPoint("topleft", elapsedTimeLabel, "bottomleft", 0, -5)
+		local timeNotInCombatAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, "orangered")
+		timeNotInCombatAmount:SetPoint("left", timeNotInCombatLabel, "left", 130, 0)
+
+		local youBeatTheTimerLabel = DetailsFramework:CreateLabel(readyFrame, "", textSize, "white")
+		youBeatTheTimerLabel:SetPoint("topleft", timeNotInCombatLabel, "bottomleft", 0, -5)
+
+		--local keystoneUpgradeLabel = DetailsFramework:CreateLabel(readyFrame, "Keystone Upgrade:", textSize, "white")
+		--keystoneUpgradeLabel:SetPoint("topleft", youBeatTheTimerLabel, "bottomleft", 0, -5)
+
+		local rantingLabel = DetailsFramework:CreateLabel(readyFrame, "", textSize, textColor)
+		--rantingLabel:SetPoint("topleft", keystoneUpgradeLabel, "bottomleft", 0, -5)
+		rantingLabel:SetPoint("topleft", youBeatTheTimerLabel, "bottomleft", 0, -5)
+
+		readyFrame.PlayerBanners = {}
+		for i = 1, 5 do
+			local playerBanner = createPlayerBanner(readyFrame, "$parentPlayerBanner" .. i)
+			readyFrame.PlayerBanners[#readyFrame.PlayerBanners+1] = playerBanner
+			if (i == 1) then
+				playerBanner:SetPoint("topleft", rantingLabel.widget, "bottomleft", 0, -22)
+			else
+				playerBanner:SetPoint("topleft", readyFrame.PlayerBanners[i-1], "topright", 10, 0)
+			end
+		end
+
+		--frame to handle loot events
+		local lootFrame = CreateFrame("frame", "$parentLootFrame", readyFrame)
+		lootFrame:RegisterEvent("BOSS_KILL");
+		lootFrame:RegisterEvent("ENCOUNTER_LOOT_RECEIVED")
+
+		local bossKillEncounterId
+
+		lootFrame:SetScript("OnEvent", function(self, event, ...)
+			if (event == "BOSS_KILL") then
+				local encounterID, name = ...;
+				bossKillEncounterId = encounterID
+				--print("BOSS_KILL", GetTime(), bossKillEncounterId)
+
+			elseif (event == "ENCOUNTER_LOOT_RECEIVED") then
+				local lootEncounterId, itemID, itemLink, quantity, playerName, className = ...
+				--print("ENCOUNTER_LOOT_RECEIVED", GetTime(), lootEncounterId, bossKillEncounterId)
+
+				--print("no ambig:", playerName, "with ambig:", Ambiguate(playerName, "none")) --debug
+				playerName = Ambiguate(playerName, "none")
+				local unitBanner = readyFrame.playerCacheByName[playerName]
+
+				if (not unitBanner) then
+					--print("no unitBanner for player", playerName, "aborting.")
+					return
+				end
+
+				local _, instanceType = GetInstanceInfo()
+				--print("Is encounter the same:", lootEncounterId == bossKillEncounterId)
+				if (instanceType == "party") then -- or instanceType == "raid" --lootEncounterId == bossKillEncounterId and 
+					--print("all good showing loot for player", playerName)
+					local lootSquare = unitBanner.LootSquare
+					lootSquare.itemLink = itemLink
+
+					local effectiveILvl = GetDetailedItemLevelInfo(itemLink)
+
+					local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
+					itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
+					expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
+
+					local rarityColor = ITEM_QUALITY_COLORS[itemQuality]
+					lootSquare.LootIconBorder:SetVertexColor(rarityColor.r, rarityColor.g, rarityColor.b, 1)
+
+					lootSquare.LootIcon:SetTexture(GetItemIcon(itemID))
+					lootSquare.LootItemLevel:SetText(effectiveILvl or "0")
+
+					--print("loot info:", itemLink, effectiveILvl, itemQuality)
+					lootSquare:Show()
+				end
+			end
+		end)
+
+		--[=[
+		Details222.MythicPlus.MapID = mapID
+		Details222.MythicPlus.Level = level --level of the key just finished
+		Details222.MythicPlus.OnTime = onTime
+		Details222.MythicPlus.KeystoneUpgradeLevels = keystoneUpgradeLevels
+		Details222.MythicPlus.PracticeRun = practiceRun
+		Details222.MythicPlus.OldDungeonScore = oldDungeonScore
+		Details222.MythicPlus.NewDungeonScore = newDungeonScore
+		Details222.MythicPlus.IsAffixRecord = isAffixRecord
+		Details222.MythicPlus.IsMapRecord = isMapRecord
+		Details222.MythicPlus.PrimaryAffix = primaryAffix
+		Details222.MythicPlus.IsEligibleForScore = isEligibleForScore
+		Details222.MythicPlus.UpgradeMembers = upgradeMembers
+		Details222.MythicPlus.DungeonName = dungeonName
+		Details222.MythicPlus.DungeonID = id
+		Details222.MythicPlus.TimeLimit = timeLimit
+		Details222.MythicPlus.Texture = texture
+		Details222.MythicPlus.BackgroundTexture = backgroundTexture
+		--]=]
 
 		local notAgainSwitch, notAgainLabel = DetailsFramework:CreateSwitch(readyFrame, on_switch_enable, not Details.mythic_plus.show_damage_graphic, _, _, _, _, _, _, _, _, _, Loc ["STRING_MINITUTORIAL_BOOKMARK4"], DetailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"), "GameFontHighlightLeft")
 		notAgainSwitch:ClearAllPoints()
 		notAgainLabel:SetPoint("left", notAgainSwitch, "right", 2, 0)
 		notAgainSwitch:SetPoint("bottomleft", readyFrame, "bottomleft", 5, 5)
 		notAgainSwitch:SetAsCheckBox()
-		notAgainLabel.textSize = textSize
-
-		
-
-		local timeNotInCombatLabel = DetailsFramework:CreateLabel(readyFrame, "Time not in combat:", textSize, "orangered")
-		timeNotInCombatLabel:SetPoint("bottomleft", notAgainSwitch, "topleft", 0, 7)
-		local timeNotInCombatAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, "orangered")
-		timeNotInCombatAmount:SetPoint("left", timeNotInCombatLabel, "left", 130, 0)
-
-		local elapsedTimeLabel = DetailsFramework:CreateLabel(readyFrame, "Run Time:", textSize, textColor)
-		elapsedTimeLabel:SetPoint("bottomleft", timeNotInCombatLabel, "topleft", 0, 5)
-		local elapsedTimeAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, textColor)
-		elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
+		notAgainSwitch:SetSize(12, 12)
+		notAgainLabel.textsize = 9
 
 		readyFrame.TimeNotInCombatAmountLabel = timeNotInCombatAmount
 		readyFrame.ElapsedTimeAmountLabel = elapsedTimeAmount
+		readyFrame.YouBeatTheTimerLabel = youBeatTheTimerLabel
+		readyFrame.KeystoneUpgradeLabel = keystoneUpgradeLabel
+		readyFrame.RantingLabel = rantingLabel
 	end
 
-	mythicDungeonCharts.ReadyFrame:Show()
+	local readyFrame = mythicDungeonCharts.ReadyFrame
+	readyFrame:Show()
+
+	for i = 1, #readyFrame.PlayerBanners do
+		--hide the lootSquare
+		readyFrame.PlayerBanners[i].LootSquare:Hide()
+	end
+
+	wipe(readyFrame.playerCacheByName)
 
 	--update the run time and time not in combat
 	local elapsedTime = Details222.MythicPlus.time or 1507
-	mythicDungeonCharts.ReadyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
+	readyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
 
 	local overallMythicDungeonCombat = Details:GetCurrentCombat()
 	if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 		local combatTime = overallMythicDungeonCombat:GetCombatTime()
 		local notInCombat = elapsedTime - combatTime
-		mythicDungeonCharts.ReadyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+		readyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
 	end
+
+	if (Details222.MythicPlus.OnTime) then
+		readyFrame.YouBeatTheTimerLabel:SetFormattedText(CHALLENGE_MODE_COMPLETE_BEAT_TIMER .. " | " .. CHALLENGE_MODE_COMPLETE_KEYSTONE_UPGRADED, Details222.MythicPlus.KeystoneUpgradeLevels) --"You beat the timer!"
+		readyFrame.YouBeatTheTimerLabel.textcolor = "limegreen"
+		--readyFrame.KeystoneUpgradeLabel:SetFormattedText(CHALLENGE_MODE_COMPLETE_KEYSTONE_UPGRADED, Details222.MythicPlus.KeystoneUpgradeLevels)
+	else
+		readyFrame.YouBeatTheTimerLabel.textcolor = "white"
+		readyFrame.YouBeatTheTimerLabel.text = CHALLENGE_MODE_COMPLETE_TIME_EXPIRED --"Time expired!"
+		--readyFrame.KeystoneUpgradeLabel.text = CHALLENGE_MODE_COMPLETE_TRY_AGAIN --"Try again! Beat the timer to upgrade your keystone!"
+	end
+
+	if (Details222.MythicPlus.NewDungeonScore and Details222.MythicPlus.OldDungeonScore) then
+		local gainedScore = Details222.MythicPlus.NewDungeonScore - Details222.MythicPlus.OldDungeonScore
+		local color = C_ChallengeMode.GetDungeonScoreRarityColor(Details222.MythicPlus.NewDungeonScore)
+		if (not color) then
+			color = HIGHLIGHT_FONT_COLOR
+		end
+		readyFrame.RantingLabel.text = CHALLENGE_COMPLETE_DUNGEON_SCORE:format(color:WrapTextInColorCode(CHALLENGE_COMPLETE_DUNGEON_SCORE_FORMAT_TEXT:format(Details222.MythicPlus.NewDungeonScore, gainedScore)))
+		readyFrame.RantingLabel.textcolor = "limegreen"
+	else
+		readyFrame.RantingLabel.text = ""
+	end
+
+	for i = 1, #readyFrame.PlayerBanners do
+		readyFrame.PlayerBanners[i]:Hide()
+	end
+
+	local playerName = UnitName("player")
+	local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
+	local bCreateIfNotFound = true
+	local playerKeystoneInfo = libOpenRaid.KeystoneInfoManager.GetKeystoneInfo(playerName, bCreateIfNotFound)
+
+	---@type details_instanceinfo
+	local instanceInfo = Details:GetInstanceInfo(playerKeystoneInfo.mapID)
+
+	local playerBanner = readyFrame.PlayerBanners[1]
+	readyFrame.playerCacheByName[Ambiguate(playerName, "none")] = playerBanner
+	playerBanner:Show()
+
+	SetPortraitTexture(playerBanner.Portrait, "player")
+
+	playerBanner.PlayerNameFontString:SetText(playerName)
+
+	local role = UnitGroupRolesAssigned("player")
+	if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
+		playerBanner.RoleIcon:SetAtlas(GetMicroIconForRole(role), TextureKitConstants.IgnoreAtlasSize)
+		playerBanner.RoleIcon:Show()
+	end
+
+	playerBanner.LevelFontString:SetText(playerKeystoneInfo.level or "")
+
+	if (instanceInfo) then
+		playerBanner.DungeonTexture:SetTexture(instanceInfo.iconLore)
+	else
+		playerBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+	end
+
+	local updateKeysStoneLevel = function()
+		for i = 1, #readyFrame.PlayerBanners do
+			local unitId = i == 1 and "player" or "party"..i
+			if (UnitExists(unitId)) then
+				local unitKeystoneInfo = libOpenRaid.KeystoneInfoManager.GetKeystoneInfo(Details:GetFullName(unitId))
+				local unitBanner = readyFrame.PlayerBanners[i]
+				if (unitKeystoneInfo) then
+					if (instanceInfo) then
+						---@type details_instanceinfo
+						local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
+						unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
+					end
+					unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
+					print("keystone level updated for", Details:GetFullName(unitId), unitKeystoneInfo.level)
+				else
+					unitBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+					unitBanner.LevelFontString:SetText("")
+				end
+			end
+		end
+	end
+
+	local playersFound = 1
+	for i = 2, #readyFrame.PlayerBanners do
+		local unitId = "party" .. (i-1)
+		if (UnitExists(unitId)) then
+			local unitName = Details:GetFullName(unitId)
+			local unitBanner = readyFrame.PlayerBanners[i]
+			unitBanner:Show()
+
+			SetPortraitTexture(unitBanner.Portrait, unitId)
+			unitBanner.PlayerNameFontString:SetText(DetailsFramework:RemoveRealmName(unitName))
+			readyFrame.playerCacheByName[Ambiguate(unitName, "none")] = unitBanner
+
+			local role = UnitGroupRolesAssigned(unitId)
+			if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
+				unitBanner.RoleIcon:SetAtlas(GetMicroIconForRole(role), TextureKitConstants.IgnoreAtlasSize)
+				unitBanner.RoleIcon:Show()
+			else
+				unitBanner.RoleIcon:Hide()
+			end
+
+			unitBanner:SetAlpha(0)
+			unitBanner:Show()
+			unitBanner.AnimIn:Play()
+
+			local unitKeystoneInfo = libOpenRaid.KeystoneInfoManager.GetKeystoneInfo(Details:GetFullName(unitId))
+			if (unitKeystoneInfo) then
+				if (instanceInfo) then
+					---@type details_instanceinfo
+					local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
+					unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
+				end
+				unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
+			else
+				unitBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+				unitBanner.LevelFontString:SetText("")
+			end
+		end
+
+		playersFound = playersFound + 1
+	end
+
+	for i = playersFound+1, #readyFrame.PlayerBanners do
+		readyFrame.PlayerBanners[i]:Hide()
+	end
+
+	C_Timer.After(0.5, updateKeysStoneLevel)
+	C_Timer.After(1, updateKeysStoneLevel)
+	C_Timer.After(1.5, updateKeysStoneLevel)
+	C_Timer.After(2, updateKeysStoneLevel)
+	C_Timer.After(2.5, updateKeysStoneLevel)
 end
+
+-- /run _G.DetailsMythicDungeonChartHandler.ShowReadyPanel()
 
 function mythicDungeonCharts.ShowChart()
 	if (not mythicDungeonCharts.Frame) then

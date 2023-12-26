@@ -112,22 +112,11 @@
 
 	local foundEncounterInfo = function(index, name, zone, mapId, diff, encounterid)
 		local mapID = C_Map.GetBestMapForUnit("player")
-		local ejid
-
-		if true then return end --@@@disabled for science
-
-		if (mapID) then
-			ejid = DetailsFramework.EncounterJournal.EJ_GetInstanceForMap(mapID) --using the framework to prevent errors on classic versions of the game
-		end
-
-
 		if (not mapID) then
 			return
 		end
 
-		if (ejid == 0) then
-			ejid = Details:GetInstanceEJID()
-		end
+		local encounterJournalId = Details:GetInstanceEJID(mapID, name, encounterid)
 
 		local bossTable = {
 			index = index,
@@ -137,36 +126,21 @@
 			mapid = mapId,
 			diff = diff,
 			diff_string = select(4, GetInstanceInfo()),
-			ej_instance_id = ejid,
+			ej_instance_id = encounterJournalId,
 			id = encounterid,
 			unixtime = time(),
 		}
 
-		local currentCombat = Details:GetCurrentCombat()
-
-		if (not Details:IsRaidRegistered(mapId) and Details.zone_type == "raid") then
-			--[=[
-			local bossList = Details:GetCurrentDungeonBossListFromEJ() --function name miss match, filtering raid only, calling dungeon only function
-			if (bossList) then
-				local actorContainer = currentCombat[attributeDamage]._ActorTable
-				if (actorContainer) then
-					for index, actorObject in ipairs(actorContainer) do
-						if (not actorObject.grupo) then
-							if (bossList[actorObject.nome]) then
-								actorObject.boss = true
-								bossTable.bossimage = bossList[actorObject.nome][4]
-								break
-							end
-						end
-					end
-				end
-			end
-			--]=]
+		---@type details_encounterinfo
+		local encounterInfo = Details:GetEncounterInfo(name)
+		if (encounterInfo) then
+			bossTable.bossimage = encounterInfo.creatureIcon
 		end
 
+		local currentCombat = Details:GetCurrentCombat()
 		currentCombat.is_boss = bossTable
 
-		--we the boss was found during the combat table creation, we must postpone the event trigger
+		--if the boss wasn't found during the combat creation, send the event
 		if (not currentCombat.IsBeingCreated) then
 			Details:SendEvent("COMBAT_BOSS_FOUND", nil, index, name)
 			Details:CheckFor_SuppressedWindowsOnEncounterFound()
@@ -183,8 +157,20 @@
 		end
 
 		if (Details.encounter_table.name) then
-			local encounter_table = Details.encounter_table
-			return foundEncounterInfo(encounter_table.index, encounter_table.name, encounter_table.zone, encounter_table.mapid, encounter_table.diff, encounter_table.id)
+
+		--store the encounter time inside the encounter table for the encounter plugin
+		Details.encounter_table.start = GetTime()
+		Details.encounter_table ["end"] = nil
+--		local encounterID = Details.encounter_table.id
+		Details.encounter_table.id = encounterID
+		Details.encounter_table.name = encounterName
+		Details.encounter_table.diff = difficultyID
+		Details.encounter_table.size = raidSize
+		Details.encounter_table.zone = zoneName
+		Details.encounter_table.mapid = zoneMapID
+
+			local encounterTable = Details.encounter_table
+			return foundEncounterInfo(encounterTable.index, encounterTable.name, encounterTable.zone, encounterTable.mapid, encounterTable.diff, encounterTable.id)
 		end
 
 		for index = 1, 5 do
@@ -559,10 +545,10 @@
 					mapID = 0
 				end
 
-				--local ejid = DetailsFramework.EncounterJournal.EJ_GetInstanceForMap(mapID) --@@@disabled for science
-				--if (ejid == 0) then
-				--	ejid = Details:GetInstanceEJID()
-				--end
+				local ejid = DetailsFramework.EncounterJournal.EJ_GetInstanceForMap(mapID)
+				if (ejid == 0) then
+					ejid = Details:GetInstanceEJID()
+				end
 
 				local _, boss_index = Details:GetBossEncounterDetailsFromEncounterId(ZoneMapID, encounterID)
 
@@ -1774,12 +1760,14 @@
 				if (Details.BreakdownWindowFrame:IsShown()) then
 					---@type actor
 					local actorObject = Details:GetActorObjectFromBreakdownWindow()
-					if (actorObject and not actorObject.__destroyed) then
-						return actorObject:MontaInfo() --MontaInfo a nil value
-					else
-						Details:Msg("Invalid actor object on breakdown window.")
-						if (actorObject.__destroyed) then
-							Details:Msg("Invalidation Reason:", actorObject.__destroyedBy)
+					if (actorObject) then
+						if (actorObject and not actorObject.__destroyed) then
+							return actorObject:MontaInfo() --MontaInfo a nil value
+						else
+							Details:Msg("Invalid actor object on breakdown window.")
+							if (actorObject.__destroyed) then
+								Details:Msg("Invalidation Reason:", actorObject.__destroyedBy)
+							end
 						end
 					end
 				end

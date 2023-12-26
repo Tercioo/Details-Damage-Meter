@@ -68,6 +68,9 @@ function Details:StartMeUp()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialize
 
+	--make an encounter journal cache
+	C_Timer.After(1, Details222.EJCache.CreateEncounterJournalDump)
+
 	--plugin container
 	Details:CreatePluginWindowContainer()
 	Details:InitializeForge() --to install into the container plugin
@@ -625,8 +628,6 @@ function Details:StartMeUp()
 	end
 
 	Details.InitializeSpellBreakdownTab()
-
-	pcall(Details222.EJCache.MakeCache)
 
 	pcall(Details222.ClassCache.MakeCache)
 
