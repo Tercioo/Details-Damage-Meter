@@ -98,6 +98,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
         EndedAt = Details.MythicPlus.EndedAt, --the end of the run
         WorldStateTimerStart = Details222.MythicPlus.WorldStateTimerStartAt,
         WorldStateTimerEnd = Details222.MythicPlus.WorldStateTimerEndAt,
+        RunTime = Details222.MythicPlus.time,
         TimeInCombat = timeInCombat,
         SegmentID = "overall", --segment number within the dungeon
         RunID = Details.mythic_dungeon_id,

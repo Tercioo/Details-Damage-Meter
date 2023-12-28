@@ -1383,6 +1383,8 @@ local default_global_data = {
 		encounter_journal_cache = {}, --store a dump of the encounter journal
 		installed_skins_cache = {},
 
+		user_is_patreon_supporter = false,
+
 		show_aug_predicted_spell_damage = false,
 
 		show_warning_id1 = true,

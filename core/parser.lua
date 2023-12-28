@@ -5348,7 +5348,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		local encounterID, encounterName, difficultyID, raidSize = select(1, ...)
-		local zoneName, _, _, _, _, _, _, zoneMapID = GetInstanceInfo()
+		local zoneName, zoneType, _, _, _, _, _, zoneMapID = GetInstanceInfo()
+
+		if (zoneType == "party") then
+			local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
+			if (openRaidLib) then
+				print("sent my keystone to party")
+				openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
+			end
+		end
 
 		if (Details.InstancesToStoreData[zoneMapID]) then
 			Details.current_exp_raid_encounters[encounterID] = true
@@ -5759,8 +5767,46 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	function Details.parser_functions:CHALLENGE_MODE_COMPLETED(...)
+	local keystoneLevels = {}
+	Details.KeystoneLevels = keystoneLevels
+	--save the keystone level for each of the 5 party members
+	local saveGroupMembersKeystoneLevel = function()
+		wipe(keystoneLevels)
+		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
+
+		--print("saveGroupMembersKeystoneLevel() called", libOpenRaid, GetNumGroupMembers()-1)
+
+		for i = 1, GetNumGroupMembers()-1 do
+			local unitId = "party" .. i
+			if (UnitExists(unitId)) then
+				local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
+				--print("unitExists", unitId, unitKeystoneInfo)
+				if (unitKeystoneInfo) then
+					local unitName = Details:GetFullName(unitId)
+					keystoneLevels[unitName] = unitKeystoneInfo.level
+					--print("saved keystone level for", unitName, unitKeystoneInfo.level)
+				end
+			else
+				--print("unit does not exist", unitId)
+			end
+		end
+
+		local unitId = "player"
+		if (UnitExists(unitId)) then
+			local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
+			if (unitKeystoneInfo) then
+				local unitName = Details:GetFullName(unitId)
+				keystoneLevels[unitName] = unitKeystoneInfo.level
+				--print("saved keystone level for", unitName, unitKeystoneInfo.level)
+			end
+		end
+	end
+
+	function Details.parser_functions:CHALLENGE_MODE_COMPLETED(...) --~complete ~finish ~mythic ~m+
 		Details222.MythicPlus.WorldStateTimerEndAt = time()
+
+		--wait until the keystone is updated and send it to the party
+		saveGroupMembersKeystoneLevel()
 
 		---@type number mapID
 		---@type number level
@@ -5805,7 +5851,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details222.MythicPlus.time = 0.1
 		end
 
-		if (level >= 28 or UnitGUID("player") == "Player-3209-0B98EC46") then --debug
+		if (level >= 28 or Details.user_is_patreon_supporter) then --debug
 			C_Timer.After(0, function()
 				if (ChallengeModeCompleteBanner) then
 					ChallengeModeCompleteBanner.timeToHold = 0.1
@@ -5815,14 +5861,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				end
 			end)
 		end
-
-		--wait until the keystone is updated and send it to the party
-		C_Timer.After(0.1, function()
-			local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
-			if (openRaidLib) then
-				openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
-			end
-		end)
 
 		--send mythic dungeon end event
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()

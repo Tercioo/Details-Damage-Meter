@@ -32,6 +32,7 @@ function mythicDungeonCharts:Debug(...)
 	end
 end
 
+
 local addPlayerDamage = function(unitCleuName)
 	--get the player data
 	local playerData = mythicDungeonCharts.ChartTable.Players[unitCleuName]
@@ -282,7 +283,7 @@ local createPlayerBanner = function(parent, name)
 
 	local playerNameBackgroundTexture = playerFrame:CreateTexture("$parentPlayerNameBackgroundTexture", "overlay", nil, 6)
 	playerNameBackgroundTexture:SetTexture([[Interface\Cooldown\LoC-ShadowBG]])
-	playerNameBackgroundTexture:SetSize(60, 12)
+	playerNameBackgroundTexture:SetSize(68, 12)
 	playerNameBackgroundTexture:SetPoint("center", playerNameFontString, "center", 0, 0)
 
     local backgroundBannerTexture = playerFrame:CreateTexture("$parentBannerTexture", "background", nil, 0)
@@ -322,6 +323,17 @@ local createPlayerBanner = function(parent, name)
     levelFontString:SetPoint("top", dungeonTexture, "bottom", -1, -7)
     DetailsFramework:SetFontSize(levelFontString, 20)
 	playerFrame.LevelFontString = levelFontString
+
+	local flashTexture = playerFrame:CreateTexture("$parentFlashTexture", "overlay", nil, 6)
+	flashTexture:SetAtlas("UI-Achievement-Guild-Flag-Outline")
+	flashTexture:SetSize(63, 129)
+	flashTexture:SetPoint("topleft", playerFrame, "bottomleft", -5, playerFrame:GetHeight()/2)
+	flashTexture:SetPoint("topright", playerFrame, "bottomright", 4, playerFrame:GetHeight()/2)
+	flashTexture:Hide()
+	playerFrame.flashTexture = flashTexture
+
+	detailsFramework:CreateFlashAnimation(flashTexture)
+	--flashTexture:Flash(0.1, 0.5, 0.01)
 
 	local lootSquare = CreateFrame("frame", name, parent)
 	lootSquare:SetSize(46, 46)
@@ -364,6 +376,97 @@ local createPlayerBanner = function(parent, name)
 	return playerFrame
 end
 
+
+local updatPlayerBanner = function(unitId, bannerIndex)
+	if (UnitExists(unitId)) then
+		local readyFrame = DetailsMythicDungeonReadyFrame
+		local unitName = Details:GetFullName(unitId)
+		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
+
+		local playerBanner = readyFrame.PlayerBanners[bannerIndex]
+		readyFrame.playerCacheByName[unitName] = playerBanner
+		playerBanner.unitId = unitId
+		playerBanner.unitName = unitName
+		playerBanner:Show()
+
+		SetPortraitTexture(playerBanner.Portrait, unitId)
+
+		unitName = detailsFramework:RemoveRealmName(unitName)
+		playerBanner.PlayerNameFontString:SetText(unitName)
+		detailsFramework:TruncateText(playerBanner.PlayerNameFontString, 60)
+
+		local role = UnitGroupRolesAssigned(unitId)
+		if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
+			playerBanner.RoleIcon:SetAtlas(GetMicroIconForRole(role), TextureKitConstants.IgnoreAtlasSize)
+			playerBanner.RoleIcon:Show()
+		else
+			playerBanner.RoleIcon:Hide()
+		end
+
+		local playerKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
+		if (playerKeystoneInfo) then
+			---@type details_instanceinfo
+			local instanceInfo = Details:GetInstanceInfo(playerKeystoneInfo.mapID)
+
+			playerBanner.LevelFontString:SetText(playerKeystoneInfo.level or "")
+
+			if (instanceInfo) then
+				playerBanner.DungeonTexture:SetTexture(instanceInfo.iconLore)
+			else
+				playerBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+			end
+		else
+			playerBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+			playerBanner.LevelFontString:SetText("")
+		end
+
+		return true
+	end
+end
+
+
+local updateKeysStoneLevel = function()
+	--update the player banners
+	local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
+	local readyFrame = DetailsMythicDungeonReadyFrame
+
+	for bannerIndex = 1, #readyFrame.PlayerBanners do
+		local unitBanner = readyFrame.PlayerBanners[bannerIndex]
+		if (unitBanner) then
+			local unitId = unitBanner.unitId
+			if (UnitExists(unitId)) then
+				local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
+				--print("Unit Exists:", unitBanner.unitName, unitId, "updating keystone level", unitKeystoneInfo)
+				if (unitKeystoneInfo) then
+					if (instanceInfo) then
+						---@type details_instanceinfo
+						local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
+						unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
+					end
+
+					unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
+					--print("setting player", unitBanner.unitName, "keystone level to", unitKeystoneInfo.level)
+
+					local oldKeystoneLevel = Details.KeystoneLevels[Details:GetFullName(unitId)]
+					if (oldKeystoneLevel and oldKeystoneLevel >= 2) then
+						if (unitKeystoneInfo.level > oldKeystoneLevel) then
+							--this character had its keystone upgraded
+							--unitBanner.flashTexture:Flash()
+							--print("keystone upgraded for", Details:GetFullName(unitId), unitKeystoneInfo.level, "old was:", oldKeystoneLevel)
+							--C_Timer.After(0.1, function() unitBanner.flashTexture:Stop() end)
+						end
+					end
+
+					--print("keystone level updated for", Details:GetFullName(unitId), unitKeystoneInfo.level)
+				else
+					unitBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+					unitBanner.LevelFontString:SetText("")
+				end
+			end
+		end
+	end
+end
+
 -- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
 -- /run _G.DetailsMythicDungeonChartHandler.ShowReadyPanel()
 
@@ -378,7 +481,8 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 		Details222.MythicPlus.Level = Details222.MythicPlus.Level or 2
 	end
 
-	if (Details222.MythicPlus.Level < 28 and UnitGUID("player") ~= "Player-3209-0B98EC46") then
+	--feature under development
+	if (Details222.MythicPlus.Level < 28 and not Details.user_is_patreon_supporter) then
 		--create the panel
 		if (not mythicDungeonCharts.ReadyFrame) then
 			mythicDungeonCharts.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
@@ -603,14 +707,19 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 					itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
 					expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
 
-					local rarityColor = ITEM_QUALITY_COLORS[itemQuality]
-					lootSquare.LootIconBorder:SetVertexColor(rarityColor.r, rarityColor.g, rarityColor.b, 1)
+					--print("equip loc:", itemEquipLoc)
 
-					lootSquare.LootIcon:SetTexture(GetItemIcon(itemID))
-					lootSquare.LootItemLevel:SetText(effectiveILvl or "0")
+					if (effectiveILvl > 300) then --avoid showing loot that isn't items
 
-					--print("loot info:", itemLink, effectiveILvl, itemQuality)
-					lootSquare:Show()
+						local rarityColor = ITEM_QUALITY_COLORS[itemQuality]
+						lootSquare.LootIconBorder:SetVertexColor(rarityColor.r, rarityColor.g, rarityColor.b, 1)
+
+						lootSquare.LootIcon:SetTexture(GetItemIcon(itemID))
+						lootSquare.LootItemLevel:SetText(effectiveILvl or "0")
+
+						--print("loot info:", itemLink, effectiveILvl, itemQuality)
+						lootSquare:Show()
+					end
 				end
 			end
 		end)
@@ -664,12 +773,17 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 	local elapsedTime = Details222.MythicPlus.time or 1507
 	readyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
 
-	local overallMythicDungeonCombat = Details:GetCurrentCombat()
-	if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
-		local combatTime = overallMythicDungeonCombat:GetCombatTime()
-		local notInCombat = elapsedTime - combatTime
-		readyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
-	end
+	C_Timer.After(1.5, function()
+		local overallMythicDungeonCombat = Details:GetCurrentCombat()
+		--print("overall combat type:", overallMythicDungeonCombat:GetCombatType(), overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL)
+		if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+			local combatTime = overallMythicDungeonCombat:GetCombatTime()
+			local notInCombat = elapsedTime - combatTime
+			readyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+		else
+			readyFrame.TimeNotInCombatAmountLabel.text = "Unknown for this run"
+		end
+	end)
 
 	if (Details222.MythicPlus.OnTime) then
 		readyFrame.YouBeatTheTimerLabel:SetFormattedText(CHALLENGE_MODE_COMPLETE_BEAT_TIMER .. " | " .. CHALLENGE_MODE_COMPLETE_KEYSTONE_UPGRADED, Details222.MythicPlus.KeystoneUpgradeLevels) --"You beat the timer!"
@@ -697,107 +811,26 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 		readyFrame.PlayerBanners[i]:Hide()
 	end
 
-	local playerName = UnitName("player")
-	local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
-	local bCreateIfNotFound = true
-	local playerKeystoneInfo = libOpenRaid.KeystoneInfoManager.GetKeystoneInfo(playerName, bCreateIfNotFound)
-
-	---@type details_instanceinfo
-	local instanceInfo = Details:GetInstanceInfo(playerKeystoneInfo.mapID)
-
-	local playerBanner = readyFrame.PlayerBanners[1]
-	readyFrame.playerCacheByName[Ambiguate(playerName, "none")] = playerBanner
-	playerBanner:Show()
-
-	SetPortraitTexture(playerBanner.Portrait, "player")
-
-	playerBanner.PlayerNameFontString:SetText(playerName)
-
-	local role = UnitGroupRolesAssigned("player")
-	if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
-		playerBanner.RoleIcon:SetAtlas(GetMicroIconForRole(role), TextureKitConstants.IgnoreAtlasSize)
-		playerBanner.RoleIcon:Show()
-	end
-
-	playerBanner.LevelFontString:SetText(playerKeystoneInfo.level or "")
-
-	if (instanceInfo) then
-		playerBanner.DungeonTexture:SetTexture(instanceInfo.iconLore)
-	else
-		playerBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
-	end
-
-	local updateKeysStoneLevel = function()
-		for i = 1, #readyFrame.PlayerBanners do
-			local unitId = i == 1 and "player" or "party"..i
-			if (UnitExists(unitId)) then
-				local unitKeystoneInfo = libOpenRaid.KeystoneInfoManager.GetKeystoneInfo(Details:GetFullName(unitId))
-				local unitBanner = readyFrame.PlayerBanners[i]
-				if (unitKeystoneInfo) then
-					if (instanceInfo) then
-						---@type details_instanceinfo
-						local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
-						unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
-					end
-					unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
-					print("keystone level updated for", Details:GetFullName(unitId), unitKeystoneInfo.level)
-				else
-					unitBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
-					unitBanner.LevelFontString:SetText("")
-				end
-			end
+	local playersFound = 0
+	local playerBannerIndex = 1
+	do --update the player banner
+		if (updatPlayerBanner("player", playerBannerIndex)) then
+			playersFound = playersFound + 1
 		end
 	end
 
-	local playersFound = 1
-	for i = 2, #readyFrame.PlayerBanners do
-		local unitId = "party" .. (i-1)
-		if (UnitExists(unitId)) then
-			local unitName = Details:GetFullName(unitId)
-			local unitBanner = readyFrame.PlayerBanners[i]
-			unitBanner:Show()
-
-			SetPortraitTexture(unitBanner.Portrait, unitId)
-			unitBanner.PlayerNameFontString:SetText(DetailsFramework:RemoveRealmName(unitName))
-			readyFrame.playerCacheByName[Ambiguate(unitName, "none")] = unitBanner
-
-			local role = UnitGroupRolesAssigned(unitId)
-			if (role == "TANK" or role == "HEALER" or role == "DAMAGER") then
-				unitBanner.RoleIcon:SetAtlas(GetMicroIconForRole(role), TextureKitConstants.IgnoreAtlasSize)
-				unitBanner.RoleIcon:Show()
-			else
-				unitBanner.RoleIcon:Hide()
-			end
-
-			unitBanner:SetAlpha(0)
-			unitBanner:Show()
-			unitBanner.AnimIn:Play()
-
-			local unitKeystoneInfo = libOpenRaid.KeystoneInfoManager.GetKeystoneInfo(Details:GetFullName(unitId))
-			if (unitKeystoneInfo) then
-				if (instanceInfo) then
-					---@type details_instanceinfo
-					local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
-					unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
-				end
-				unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
-			else
-				unitBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
-				unitBanner.LevelFontString:SetText("")
-			end
+	local unitCount = 1
+	for bannerIndex = 2, #readyFrame.PlayerBanners do
+		if (updatPlayerBanner("party"..unitCount, bannerIndex)) then
+			playersFound = playersFound + 1
 		end
-
-		playersFound = playersFound + 1
+		unitCount = unitCount + 1
 	end
 
 	for i = playersFound+1, #readyFrame.PlayerBanners do
 		readyFrame.PlayerBanners[i]:Hide()
 	end
 
-	C_Timer.After(0.5, updateKeysStoneLevel)
-	C_Timer.After(1, updateKeysStoneLevel)
-	C_Timer.After(1.5, updateKeysStoneLevel)
-	C_Timer.After(2, updateKeysStoneLevel)
 	C_Timer.After(2.5, updateKeysStoneLevel)
 end
 
