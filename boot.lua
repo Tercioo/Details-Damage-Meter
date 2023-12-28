@@ -13,8 +13,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12111
-		Details.alpha_build_counter = 12111 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12188
+		Details.alpha_build_counter = 12188 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -143,6 +143,20 @@ do
 	--]=]
 
 	local news = {
+		{"v10.2.0.12188.155", "December 28th, 2023"},
+		"Dreamwalker's Healing Potion now shows in the Healing Potion & Stone custom display.",
+		"Added the 'Remove Battleground Segments' option to the menu that opens when hovering over the erase button.",
+		"Attempt to fix Battleground faction icons, shown on enemy players damage bars.",
+		"API: Actor:GetSpellContainer(containerName) now also accepts dispelwhat, interrupt, interruptwhat, interrupttargets.",
+		"Fixed custom scripts showing the damage text too close to the dps text.",
+		"Fixed Dynamic Overall Data, showing overlapped texts for damage and dps.",
+		"Fixed an error when hovering over some spells in the Auras panel on the Player Breakdown window.",
+		"Fixed the character item level, which was not showing for players that left the party group on the Player Breakdown window.",
+		"Fixed boss images not showing at the segments selection menu.",
+		"Other updates related to encounter journal and mythic+, both under development.",
+		"Update Details! Framework for bug fixes.",
+		"Update lib Open Raid (more cooldowns added).",
+
 		{"v10.2.0.12109.155", "December 14th, 2023"},
 		"Classic now uses the same combat log reader as retail (Flamanis).",
 		"Merged Rage of Fyr'alath spells (equara)",
