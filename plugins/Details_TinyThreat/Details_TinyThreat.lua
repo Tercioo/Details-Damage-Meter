@@ -1,5 +1,6 @@
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ("Details_Threat")
+local detailsFramework = _G.DetailsFramework
 
 local _GetNumSubgroupMembers = GetNumSubgroupMembers --> wow api
 local _GetNumGroupMembers = GetNumGroupMembers --> wow api
@@ -33,7 +34,7 @@ local _
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation
 local _UnitDetailedThreatSituation
 
-if (DetailsFramework.IsTimewalkWoW()) then
+if (detailsFramework.IsTimewalkWoW()) then
 	_UnitDetailedThreatSituation = function(source, target)
 		local isTanking, status, threatpct, rawthreatpct, threatvalue = UnitDetailedThreatSituation(source, target)
 
@@ -733,6 +734,7 @@ local build_options_panel = function()
 	local options_frame = ThreatMeter:CreatePluginOptionsFrame ("ThreatMeterOptionsWindow", "Tiny Threat Options", 1)
 
 	local menu = {
+		--[=[]]
 		{
 			type = "range",
 			get = function() return ThreatMeter.saveddata.updatespeed end,
@@ -744,6 +746,7 @@ local build_options_panel = function()
 			name = "Update Speed",
 			usedecimals = true,
 		},
+		--]=]
 		{
 			type = "toggle",
 			get = function() return ThreatMeter.saveddata.useplayercolor end,
@@ -814,7 +817,14 @@ local build_options_panel = function()
 
 	}
 
-	Details.gump:BuildMenu (options_frame, menu, 15, -35, 160)
+	local options_text_template = detailsFramework:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = detailsFramework:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = detailsFramework:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = detailsFramework:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
+	local options_button_template = detailsFramework:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	menu.always_boxfirst = true
+
+	detailsFramework:BuildMenu (options_frame, menu, 15, -35, 160, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 	options_frame:SetHeight(160)
 
 end

@@ -674,8 +674,9 @@ local CreatePluginFrames = function()
 					local mythicPlusProfile = rioProfile.mythicKeystoneProfile
 					local previousScore = mythicPlusProfile.previousScore or 0
 					local currentScore = mythicPlusProfile.currentScore or 0
-					mythicPlusScore = previousScore and previousScore > currentScore and previousScore or currentScore
-					mythicPlusScore = mythicPlusScore or currentScore
+					--mythicPlusScore = previousScore and previousScore > currentScore and previousScore or currentScore
+					--mythicPlusScore = mythicPlusScore or currentScore
+					mythicPlusScore = currentScore
 				end
 			end
 

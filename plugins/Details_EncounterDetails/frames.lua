@@ -463,34 +463,35 @@ do
 		end
 
 		--segment selection
-		local buildSegmentosMenu = function(self)
-			local segmentList = Details:GetCombatSegments()
-			local resultTable = {}
+		C_Timer.After(1, function()
+			local buildSegmentosMenu = function(self)
+				local segmentList = Details:GetCombatSegments()
+				local resultTable = {}
 
-			for index, combate in ipairs(segmentList) do
-				if (combate.is_boss and combate.is_boss.index) then
-					--local l, r, t, b, icon = Details:GetBossIcon(combate.is_boss.mapid, combate.is_boss.index)
-					local bossIcon = Details:GetBossEncounterTexture(combate.is_boss.name)
-					resultTable[#resultTable+1] = {value = index, label = "#" .. index .. " " .. combate.is_boss.name, icon = bossIcon, iconsize = {32, 20}, texcoord = {0, 1, 0, 0.9}, onclick = encounterDetails.OpenAndRefresh}
+				for index, combate in ipairs(segmentList) do
+					if (combate.is_boss and combate.is_boss.index) then
+						--local l, r, t, b, icon = Details:GetBossIcon(combate.is_boss.mapid, combate.is_boss.index)
+						local bossIcon = Details:GetBossEncounterTexture(combate.is_boss.name)
+						resultTable[#resultTable+1] = {value = index, label = "#" .. index .. " " .. combate.is_boss.name, icon = bossIcon, iconsize = {32, 20}, texcoord = {0, 1, 0, 0.9}, onclick = encounterDetails.OpenAndRefresh}
+					end
 				end
+
+				return resultTable
 			end
 
-			return resultTable
-		end
+			--space between the 4 tab buttons and the segments and macro frames
+			local xSpacement = 20
+			--~dropdown
+			local segmentDropdown = detailsFramework:NewDropDown(edFrame, _, "$parentSegmentsDropdown", "segmentsDropdown", 218, 20, buildSegmentosMenu, nil)
+			segmentDropdown:SetPoint("left", edFrame.buttonSwitchPhases, "right", xSpacement, 0)
+			segmentDropdown:SetTemplate(detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 
-		--space between the 4 tab buttons and the segments and macro frames
-		local xSpacement = 20
-
-		--~dropdown
-		local segmentDropdown = detailsFramework:NewDropDown(edFrame, _, "$parentSegmentsDropdown", "segmentsDropdown", 218, 20, buildSegmentosMenu, nil)
-		segmentDropdown:SetPoint("left", edFrame.buttonSwitchPhases, "right", xSpacement, 0)
-		segmentDropdown:SetTemplate(detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-
-		--options button
-		local optionsButton = detailsFramework:NewButton(edFrame, nil, "$parentOptionsButton", "OptionsButton", 120, 20, encounterDetails.OpenOptionsPanel, nil, nil, nil, "Options")
-		optionsButton:SetPoint("left", segmentDropdown, "right", 10, 0)
-		optionsButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-		optionsButton:SetIcon([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
+			--options button
+			local optionsButton = detailsFramework:NewButton(edFrame, nil, "$parentOptionsButton", "OptionsButton", 120, 20, encounterDetails.OpenOptionsPanel, nil, nil, nil, "Options")
+			optionsButton:SetPoint("left", segmentDropdown, "right", 10, 0)
+			optionsButton:SetTemplate(detailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+			optionsButton:SetIcon([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
+		end)
 
 		--macro box
 		edFrame.MacroEditBox = detailsFramework:CreateTextEntry(edFrame, function()end, 300, 20)

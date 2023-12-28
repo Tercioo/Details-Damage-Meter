@@ -272,9 +272,7 @@ local refresh_bossmods_timers = function(self)
                     if (spell > 40000) then
                         local spellname, _, spellicon = _GetSpellInfo(spell)
                         table.insert(timersToAdd, {label = spellname, value = {timerTable[2], spellname, spellIcon or spellicon, timerTable.id, timerTable[7]}, icon = spellIcon or spellicon})
-
                     else
-                        --local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = C_EncounterJournal.GetSectionInfo(spell)
                         local sectionInfo = C_EncounterJournal.GetSectionInfo(spell)
                         table.insert(timersToAdd, {label = sectionInfo.title, value = {timerTable[2], sectionInfo.title, spellIcon or sectionInfo.abilityIcon, timerTable.id, timerTable[7]}, icon = spellIcon or sectionInfo.abilityIcon})
                     end
