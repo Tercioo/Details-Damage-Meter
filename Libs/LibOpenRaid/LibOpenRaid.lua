@@ -43,7 +43,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 118
+local CONST_LIB_VERSION = 119
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -563,8 +563,8 @@ end
         ["sendPvPTalent_Schedule"] = 14,
         ["leaveCombat_Schedule"] = 18,
         ["encounterEndCooldownsCheck_Schedule"] = 24,
-        ["sendKeystoneInfoToParty_Schedule"] = 7,
-        ["sendKeystoneInfoToGuild_Schedule"] = 7,
+        ["sendKeystoneInfoToParty_Schedule"] = 2,
+        ["sendKeystoneInfoToGuild_Schedule"] = 2,
     }
 
     openRaidLib.Schedules = {

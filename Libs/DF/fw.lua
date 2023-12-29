@@ -1,6 +1,6 @@
 
 
-local dversion = 496
+local dversion = 497
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -522,6 +522,21 @@ function DF.table.find(t, value)
 		end
 	end
 end
+
+---find a value inside a sub table
+---@param index number
+---@param value any
+---@return integer|nil
+function DF.table.findsubtable(t, index, value)
+	for i = 1, #t do
+		if (type(t[i]) == "table") then
+			if (t[i][index] == value) then
+				return i
+			end
+		end
+	end
+end
+
 
 function DF:GetParentKeyPath(object)
 	local parentKey = object:GetParentKey()

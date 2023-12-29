@@ -1267,6 +1267,19 @@ function DF:CreateCoolTip()
 		if (height > frame.hHeight) then
 			frame.hHeight = height
 		end
+
+		--override the text width if this line has a custom width
+		if (type(leftTextSettings[9]) == "number") then
+			menuButton.leftText:SetWidth(leftTextSettings[9])
+			--print("width", leftTextSettings[9])
+			--/dump GameCooltipSecButton2_StatusBar_LeftText:GetSize()
+		end
+
+		--override the text height if this line has a custom height
+		if (type(leftTextSettings[10]) == "number") then
+			menuButton.leftText:SetHeight(leftTextSettings[10])
+			--print("height", leftTextSettings[10])
+		end
 	end
 
 	function gameCooltip:RefreshSpark(menuButton)
@@ -1840,6 +1853,81 @@ function DF:CreateCoolTip()
 					frame2:ClearAllPoints()
 					frame2:SetPoint("bottomright", frame1, "bottomleft", -4, 0)
 				end
+			end
+		end
+	end
+
+	function gameCooltip:SetSpellByID(spellId, bShowDescriptionOnly) --~spell
+		if (type(spellId) == "number") then
+			spellId = C_SpellBook.GetOverrideSpell(spellId)
+			local spellName, spellRank, spellIcon, castTime, minRange, maxRange = GetSpellInfo(spellId)
+			if (spellName) then
+				local spellDescription = GetSpellDescription(spellId)
+				local cooldownTime, globalCooldown = GetSpellBaseCooldown(spellId)
+				--local cooldown = cooldownTime / 1000
+				local bIsPassive = IsPassiveSpell(spellId, "player")
+				local chargesAvailable, maxCharges, chargeCooldownStart, rechargeTime, chargeModRate = GetSpellCharges(spellId)
+				local tResourceCost = GetSpellPowerCost(spellId)
+
+				--[=[
+					hasRequiredAura=false,
+					type=0,
+					name="MANA",
+					cost=7000,
+					minCost=7000,
+					requiredAuraID=0,
+					costPercent=3,
+					costPerSec=0
+				  }
+				--]=]
+
+				gameCooltip:Preset(2)
+				gameCooltip:SetOption("FixedWidth", 250)
+
+				gameCooltip:AddLine(spellName, nil, 1, 1, 1, 1, nil, 12)
+				gameCooltip:AddIcon(spellIcon, 1, 1, 20, 20, .1, .9, .1, .9)
+
+				if (not bShowDescriptionOnly) then
+					if (tResourceCost.cost and tResourceCost.cost > 0) then
+						if (maxRange and maxRange > 0) then
+							gameCooltip:AddLine(tResourceCost.cost .. " " .. (_G[tResourceCost.name] or tResourceCost.name), string.format(_G.SPELL_RANGE, math.floor(maxRange)), 1, 1, 1, 1, nil, 12)
+						else
+							gameCooltip:AddLine(tResourceCost.cost .. " " .. (_G[tResourceCost.name] or tResourceCost.name), nil, 1, 1, 1, 1, nil, 12)
+						end
+					else
+						if (maxRange and maxRange > 0) then
+							gameCooltip:AddLine(string.format(_G.SPELL_RANGE, math.floor(maxRange)), nil, 1, 1, 1, 1, nil, 12)
+						end
+					end
+
+					--SPELL_CAST_CHANNELED
+
+					if (castTime and castTime > 0) then
+						castTime = castTime / 1000
+						--recharge or cooldown time
+						if (cooldownTime and cooldownTime > 0) then
+							gameCooltip:AddLine(string.format(_G.SPELL_CAST_TIME_SEC, castTime), string.format(_G.SPELL_RECAST_TIME_SEC, cooldownTime), 1, 1, 1, 1, nil, 12)
+						elseif (rechargeTime and rechargeTime > 0) then
+							gameCooltip:AddLine(string.format(_G.SPELL_CAST_TIME_SEC, castTime), string.format(_G.SPELL_RECAST_TIME_CHARGES_SEC, rechargeTime), 1, 1, 1, 1, nil, 12)
+						else
+							gameCooltip:AddLine(string.format(_G.SPELL_CAST_TIME_SEC, castTime), nil, 1, 1, 1, 1, nil, 12)
+						end
+
+					elseif (castTime == 0) then --spell is instant (has no cast time)
+						if (cooldownTime and cooldownTime > 0) then
+							gameCooltip:AddLine(_G.SPELL_CAST_TIME_INSTANT, string.format(_G.SPELL_RECAST_TIME_SEC, cooldownTime/1000), 1, 1, 1, 1, nil, 12)
+						elseif (rechargeTime and rechargeTime > 0) then
+							gameCooltip:AddLine(_G.SPELL_CAST_TIME_INSTANT, string.format(_G.SPELL_RECAST_TIME_CHARGES_SEC, rechargeTime), 1, 1, 1, 1, nil, 12)
+						else
+							gameCooltip:AddLine(_G.SPELL_CAST_TIME_INSTANT, nil, 1, 1, 1, 1, nil, 12)
+						end
+					end
+				end
+
+				gameCooltip:AddLine(spellDescription, nil, 1, 1, 1, 1, nil, 12)
+
+				--mana    range
+				--instant    cooldown
 			end
 		end
 	end
@@ -3134,13 +3222,13 @@ function DF:CreateCoolTip()
 	--adds a line.
 	--only works with cooltip type1 and 2 (tooltip and tooltip with bars)
 	--parameters: left text, right text[, L color R, L color G, L color B, L color A[, R color R, R color G, R color B, R color A[, wrap]]] 
-	function gameCooltip:AddDoubleLine (leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
-		return gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+	function gameCooltip:AddDoubleLine (leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight) --ãddline ~addline
+		return gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight)
 	end
 
 	--adds a line for tooltips
 	--AddLine creates a new line on the tooltip
-	function gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+	function gameCooltip:AddLine(leftText, rightText, menuType, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight)
 		--check data integrity
 		local leftTextType = type(leftText)
 		if (leftTextType ~= "string") then
@@ -3161,7 +3249,7 @@ function DF:CreateCoolTip()
 		end
 
 		if (type(ColorR1) ~= "number") then
-			ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag = ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2
+			ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag, textWidth, textHeight = ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace
 			if (type(ColorR1) == "boolean" or not ColorR1) then
 				ColorR1, ColorG1, ColorB1, ColorA1 = 0, 0, 0, 0
 			else
@@ -3170,7 +3258,7 @@ function DF:CreateCoolTip()
 		end
 
 		if (type(ColorR2) ~= "number") then
-			fontSize, fontFace, fontFlag = ColorG2, ColorB2, ColorA2
+			fontSize, fontFace, fontFlag, textWidth, textHeight = ColorG2, ColorB2, ColorA2, fontSize, fontFace
 			if (type(ColorR2) == "boolean" or not ColorR2) then
 				ColorR2, ColorG2, ColorB2, ColorA2 = 0, 0, 0, 0
 			else
@@ -3269,6 +3357,8 @@ function DF:CreateCoolTip()
 		lineTable_Left[6] = fontSize
 		lineTable_Left[7] = fontFace
 		lineTable_Left[8] = fontFlag
+		lineTable_Left[9] = textWidth
+		lineTable_Left[10] = textHeight
 
 		lineTable_Right[1] = rightText
 		lineTable_Right[2] = ColorR2
@@ -3278,6 +3368,8 @@ function DF:CreateCoolTip()
 		lineTable_Right[6] = fontSize
 		lineTable_Right[7] = fontFace
 		lineTable_Right[8] = fontFlag
+		lineTable_Right[9] = textWidth
+		lineTable_Right[10] = textHeight
 	end
 
 	function gameCooltip:AddSpecial(widgetType, index, subIndex, ...)

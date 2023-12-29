@@ -197,7 +197,8 @@ do
 		---@type details_encounterinfo
 		local encounterInfo = Details:GetEncounterInfo(encounterName)
 		if (not encounterInfo) then
-			Details:Msg("did not find encounter info for: " .. (encounterName or "no-name") .. ".")
+			--Details:Msg("did not find encounter info for: " .. (encounterName or "no-name") .. ".")
+			--print(debugstack())
 			return "", 32, 20, 0, 1, 0, 1
 		end
 		return encounterInfo.creatureIcon, 32, 20, 0, 1, 0, 0.9
