@@ -455,9 +455,6 @@
 	--tbc spell caches
 	local TBC_PrayerOfMendingCache = {}
 	local TBC_EarthShieldCache = {}
-	local TBC_JudgementOfLightCache = {
-		_damageCache = {}
-	}
 
 	--expose the override spells table to external scripts
 	Details.OverridedSpellIds = override_spellId
@@ -883,15 +880,6 @@
 				sourceName = Details.NeltharusWeaponActorName
 				sourceFlags = 0x514
 				sourceSerial = "Creature-0-3134-2289-28065-" .. spellId .. "-000164C698"
-			end
-		end
-
-		--wrath of the lich king
-		if (isWOTLK) then
-			--is the target an enemy with judgement of light?
-			if (TBC_JudgementOfLightCache[targetName] and false) then
-				--store the player name which just landed a damage
-				TBC_JudgementOfLightCache._damageCache[sourceName] = {time, targetName}
 			end
 		end
 
@@ -2466,24 +2454,9 @@
 					TBC_PrayerOfMendingCache[sourceName] = nil
 				end
 
-			elseif (spellId == 27163 and false) then --Judgement of Light (paladin) --disabled on 25 September 2022
-				--check if the hit was landed in the same cleu tick
-
-				local hitCache = TBC_JudgementOfLightCache._damageCache[sourceName]
-				if (hitCache) then
-					local timeLanded = hitCache[1]
-					local targetHit = hitCache[2]
-
-					if (timeLanded and timeLanded == time) then
-						local sourceData = TBC_JudgementOfLightCache[targetHit]
-						if (sourceData) then
-							--change the source of the healing
-							sourceSerial, sourceName, sourceFlags = unpack(sourceData)
-							--erase the hit time information
-							TBC_JudgementOfLightCache._damageCache[sourceName] = nil
-						end
-					end
-				end
+			elseif (spellId == 27163) then --Judgement of Light (paladin), reattribute healing to the person getting healed. Stops 'sniping' the JoL to parse
+				--Removed old version 10/27/23 Flamanis
+				sourceSerial, sourceName, sourceFlags = targetSerial, targetName, targetFlags
 			end
 		end
 
@@ -2917,9 +2890,6 @@
 
 				elseif (spellId == SPELLID_PRIEST_POM_BUFF) then
 					TBC_PrayerOfMendingCache [targetName] = {sourceSerial, sourceName, sourceFlags}
-
-				elseif (spellId == 27163 and false) then --Judgement Of Light
-					TBC_JudgementOfLightCache[targetName] = {sourceSerial, sourceName, sourceFlags}
 				end
 			end
 
@@ -2961,12 +2931,6 @@
 	--recording debuffs applied by player
 
 		elseif (auraType == "DEBUFF") then
-			if (isWOTLK) then --buff applied
-				if (spellId == 27162 and false) then --Judgement Of Light
-					--which player applied the judgement of light on this mob
-					TBC_JudgementOfLightCache[targetName] = {sourceSerial, sourceName, sourceFlags}
-				end
-			end
 
 		------------------------------------------------------------------------------------------------
 		--spell reflection
@@ -3074,12 +3038,6 @@
 	--recording debuffs applied by player
 
 		elseif (tipo == "DEBUFF") then
-			if (isWOTLK) then --buff refresh
-				if (spellId == 27162 and false) then --Judgement Of Light
-					--which player applied the judgement of light on this mob
-					TBC_JudgementOfLightCache[targetName] = {sourceSerial, sourceName, sourceFlags}
-				end
-			end
 
 			if (_in_combat) then
 				------------------------------------------------------------------------------------------------
@@ -3173,11 +3131,6 @@
 	------------------------------------------------------------------------------------------------
 	--recording debuffs applied by player
 		elseif (tipo == "DEBUFF") then
-			if (isWOTLK) then --buff removed
-				if (spellId == 27162 and false) then --Judgement Of Light
-					TBC_JudgementOfLightCache[targetName] = nil
-				end
-			end
 
 		------------------------------------------------------------------------------------------------
 		--spell reflection
@@ -5669,9 +5622,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			Details:Msg("(debug) running scheduled events after combat end.")
 		end
 
-		TBC_JudgementOfLightCache = {
-			_damageCache = {}
-		}
 
 		--when the user requested data from the storage but is in combat lockdown
 		if (Details.schedule_storage_load) then
