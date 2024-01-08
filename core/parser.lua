@@ -7283,7 +7283,40 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+--[=[
+local detailsParserDebugFrame = CreateFrame("frame", "DetailsParserDebugFrame", UIParent)
+detailsParserDebugFrame:SetSize(100, 200)
+DetailsFramework:ApplyStandardBackdrop(detailsParserDebugFrame)
+detailsParserDebugFrame:SetPoint("left", UIParent, "left", 2, 350)
+detailsParserDebugFrame.AllIcons = {}
+--detailsParserDebugFrame:Hide()
+local iconSize = 40
 
+local spellIcon1 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
+spellIcon1:SetSize(iconSize, iconSize)
+spellIcon1:SetPoint("topleft", detailsParserDebugFrame, "topleft", 2, -5)
+
+local spellIcon2 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
+spellIcon2:SetSize(iconSize, iconSize)
+spellIcon2:SetPoint("topleft", spellIcon1, "bottomleft", 0, -2)
+
+local spellIcon3 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
+spellIcon3:SetSize(iconSize, iconSize)
+spellIcon3:SetPoint("topleft", spellIcon2, "bottomleft", 0, -2)
+
+local spellIcon4 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
+spellIcon4:SetSize(iconSize, iconSize)
+spellIcon4:SetPoint("topleft", spellIcon3, "bottomleft", 0, -2)
+
+local spellIcon5 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
+spellIcon5:SetSize(iconSize, iconSize)
+spellIcon5:SetPoint("topleft", spellIcon4, "bottomleft", 0, -2)
+
+tinsert(detailsParserDebugFrame.AllIcons, spellIcon1)
+tinsert(detailsParserDebugFrame.AllIcons, spellIcon2)
+tinsert(detailsParserDebugFrame.AllIcons, spellIcon3)
+tinsert(detailsParserDebugFrame.AllIcons, spellIcon4)
+tinsert(detailsParserDebugFrame.AllIcons, spellIcon5)
 
 function detailsParserDebugFrame:BlinkIcon(spellId, iconId)
 	local spellName, _, spellIcon = GetSpellInfo(spellId)
@@ -7297,3 +7330,6 @@ function detailsParserDebugFrame:BlinkIcon(spellId, iconId)
 		end)
 	end
 end
+--]=]
+
+--end
