@@ -1861,14 +1861,15 @@ function DF:CreateCoolTip()
 		if (type(spellId) == "number") then
 			spellId = C_SpellBook.GetOverrideSpell(spellId)
 			local spellName, spellRank, spellIcon, castTime, minRange, maxRange = GetSpellInfo(spellId)
+			--castTime zero represents an instant cast or a channeled cast
 			if (spellName) then
 				local spellDescription = GetSpellDescription(spellId)
 				local cooldownTime, globalCooldown = GetSpellBaseCooldown(spellId)
 				--local cooldown = cooldownTime / 1000
 				local bIsPassive = IsPassiveSpell(spellId, "player")
 				local chargesAvailable, maxCharges, chargeCooldownStart, rechargeTime, chargeModRate = GetSpellCharges(spellId)
-				local tResourceCost = GetSpellPowerCost(spellId)
 
+				local tResourceCost = GetSpellPowerCost(spellId)
 				--[=[
 					hasRequiredAura=false,
 					type=0,

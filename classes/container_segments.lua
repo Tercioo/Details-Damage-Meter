@@ -153,7 +153,7 @@ function segmentClass:AddToOverallData(combatObject)
 		if (combatObject.instance_type == "raid" and combatObject.is_boss) then
 			if (Details.last_encounter ~= Details.last_encounter2) then
 				if (Details.debug) then
-					Details:Msg("(debug) new boss detected 'overall_clear_newboss' is true, cleaning overall data.")
+					--Details:Msg("(debug) new boss detected 'overall_clear_newboss' is true, cleaning overall data.")
 				end
 
 				for index, combat in ipairs(Details:GetCombatSegments()) do
@@ -198,7 +198,7 @@ function segmentClass:AddToOverallData(combatObject)
 	end
 
 	if (Details.debug) then
-		Details:Msg("(debug) adding the segment to overall data: " .. (combatObject:GetCombatName(true) or "no name") .. " with time of: " .. (combatObject:GetCombatTime() or "no time"))
+		--Details:Msg("(debug) adding the segment to overall data: " .. (combatObject:GetCombatName(true) or "no name") .. " with time of: " .. (combatObject:GetCombatTime() or "no time"))
 	end
 
 	Details.tabela_overall = Details.tabela_overall + combatObject
@@ -487,7 +487,7 @@ function Details222.Combat.AddCombat(combatToBeAdded)
 
 	if (bCanAddToOverall) then
 		if (Details.debug) then
-			Details:Msg("(debug) overall data flag match addind the combat to overall data.")
+			--Details:Msg("(debug) overall data flag match addind the combat to overall data.")
 		end
 		--add to overall data
 		segmentClass:AddToOverallData(combatToBeAdded)
@@ -566,7 +566,7 @@ function segmentClass:AddCombat(combatObject)
 	local canAddToOverall = Details:CanAddCombatToOverall(combatObject)
 	if (canAddToOverall) then
 		if (Details.debug) then
-			Details:Msg("(debug) overall data flag match addind the combat to overall data.")
+			--Details:Msg("(debug) overall data flag match addind the combat to overall data.")
 		end
 		segmentClass:AddToOverallData(combatObject)
 	end

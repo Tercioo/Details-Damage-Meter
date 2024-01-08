@@ -10,6 +10,11 @@
 		--add the original name to the global namespace
 		_detalhes = _G.Details --[[GLOBAL]]
 
+		__details_debug = __details_debug or {}
+		if (__details_debug.prescience_timeline) then
+			wipe(__details_debug.prescience_timeline)
+		end
+
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
@@ -74,6 +79,12 @@
 			return Details222.ColorScheme[colorScheme]
 		end
 
+		function Details222.DebugMsg(...)
+			if (Details.debug) then
+				print("|cFFCCAAAADetails! Debug:|r", ...)
+			end
+		end
+
 		--namespace for damage spells (spellTable)
 		Details222.DamageSpells = {}
 		--namespace for texture
@@ -127,6 +138,8 @@
 		}
 		--store all data from the encounter journal
 		Details222.EncounterJournalDump = {}
+		--aura scanner
+		Details222.AuraScan = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --initialization stuff
@@ -1489,6 +1502,8 @@ Details222.UnitIdCache.Party = {
 	[3] = "party3",
 	[4] = "party4",
 }
+
+Details222.UnitIdCache.PartyIds = {"player", "party1", "party2", "party3", "party4"}
 
 Details222.UnitIdCache.Boss = {
 	[1] = "boss1",

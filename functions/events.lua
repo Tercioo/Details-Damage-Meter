@@ -36,6 +36,7 @@
 			["COMBAT_ENCOUNTER_END"] = {},
 			["COMBAT_PLAYER_ENTER"] = {},
 			["COMBAT_PLAYER_LEAVE"] = {},
+			["COMBAT_PLAYER_LEAVING"] = {},
 			["COMBAT_PLAYER_TIMESTARTED"] = {},
 			["COMBAT_BOSS_WIPE"] = {},
 			["COMBAT_BOSS_DEFEATED"] = {},
@@ -49,6 +50,7 @@
 			["COMBAT_ARENA_END"] = {},
 			["COMBAT_MYTHICDUNGEON_START"] = {},
 			["COMBAT_MYTHICDUNGEON_END"] = {},
+			["COMBAT_MYTHICPLUS_OVERALL_READY"] = {},
 
 		--area
 			["ZONE_TYPE_CHANGED"] = {},
@@ -100,6 +102,7 @@ local common_events = {
 	["COMBAT_ENCOUNTER_END"] = true,
 	["COMBAT_PLAYER_ENTER"] = true,
 	["COMBAT_PLAYER_LEAVE"] = true,
+	["COMBAT_PLAYER_LEAVING"] = true,
 	["COMBAT_PLAYER_TIMESTARTED"] = true,
 	["COMBAT_BOSS_WIPE"] = true,
 	["COMBAT_BOSS_DEFEATED"] = true,
@@ -113,6 +116,7 @@ local common_events = {
 	["COMBAT_ARENA_END"] = true,
 	["COMBAT_MYTHICDUNGEON_START"] = true,
 	["COMBAT_MYTHICDUNGEON_END"] = true,
+	["COMBAT_MYTHICPLUS_OVERALL_READY"] = true,
 	["GROUP_ONENTER"] = true,
 	["GROUP_ONLEAVE"] = true,
 	["ZONE_TYPE_CHANGED"] = true,

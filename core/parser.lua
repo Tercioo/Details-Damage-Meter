@@ -190,12 +190,12 @@
 		---@field key7 number
 
 		local augmentation_aura_list = {
-			[395152] = true,--ebon might (evoker 10.1.5) 395296 = the evoker buff on it self
-			[413984] = true,
-			[410089] = true,--prescience (evoker 10.1.5)
-			[409560] = true,
-			[360827] = true,
-			[410263] = true,
+			[395152] = true, --ebon might (evoker 10.1.5) 395296 = the evoker buff on it self
+			[413984] = true, --Shifting Sands
+			[410089] = true, --prescience (evoker 10.1.5)
+			[409560] = true, --Temporal Wound
+			[360827] = true, --Blistering Scales
+			[410263] = true, --Inferno's Blessing
 		}
 
 		--list of buffs given by another player but should also be credited to the which received it
@@ -213,6 +213,7 @@
 		local augmentation_cache = {
 			ebon_might = {},
 			prescience = {},
+			prescience_stacks = {},
 			---@type table<serial, evokereonsbreathinfo[]>
 			breath_targets = {},
 			flyaway = {},
@@ -778,7 +779,6 @@
 					sourceFlags = reflection.who_flags
 
 					--data of the aura that caused the reflection
-					--print("2", spellid, GetSpellInfo(spellid))
 					isreflected = spellId --which spell was reflected
 					spellId = reflection.spellid --which spell made the reflection
 					spellName = reflection.spellname
@@ -908,7 +908,7 @@
 
 					Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
 					Details.WhoAggroTimer.HitBy = "|cFFFFFF00First Hit|r: " .. (link or "") .. " from " .. (sourceName or "Unknown")
-					print("debug:", Details.WhoAggroTimer.HitBy)
+					Details:Msg("(debug):", Details.WhoAggroTimer.HitBy)
 				end
 
 				Details:EntrarEmCombate(sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
@@ -1714,7 +1714,7 @@
 		local this_event = t[i]
 
 		if (not this_event) then
-			return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+			return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
 		end
 
 		this_event [1] = true --true if this is a damage || false for healing
@@ -1809,7 +1809,7 @@
 		local this_event = t [i]
 
 		if (not this_event) then
-			return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+			return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
 		end
 
 		this_event [1] = true --true if this is a damage || false for healing
@@ -1929,7 +1929,7 @@
 		local this_event = t [i]
 
 		if (not this_event) then
-			return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+			return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
 		end
 
 		this_event [1] = true --true if this is a damage || false for healing
@@ -2827,7 +2827,7 @@
 				local thisEvent = deathLog[i]
 
 				if (not thisEvent) then
-					return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+					return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
 				end
 
 				thisEvent[1] = 5 --5 = buff aplication
@@ -3328,7 +3328,7 @@
 					local this_event = t [i]
 
 					if (not this_event) then
-						return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+						return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
 					end
 
 					this_event [1] = 4 --4 = debuff aplication
@@ -3375,7 +3375,7 @@
 					local this_event = t [i]
 
 					if (not this_event) then
-						return print("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
+						return Details:Msg("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _amount_of_last_events)
 					end
 
 					this_event [1] = 4 --4 = debuff aplication
@@ -3931,7 +3931,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			petName, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:GetPetOwner(sourceSerial, sourceName, sourceFlags)
 			if (petName) then
 				ownerActor = _current_misc_container:GetOrCreateActor(ownerGUID, ownerName, ownerFlags, true)
-				--print("pet found:", petName, ownerName, ownerGUID, ownerFlags)
 			end
 		end
 
@@ -4083,10 +4082,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		local amountOfCasts = _current_combat.amountCasts[sourceName][spellName] or 0
 		amountOfCasts = amountOfCasts + 1
 		_current_combat.amountCasts[sourceName][spellName] = amountOfCasts
-
-		--if (sourceSerial == UnitGUID("player")) then
-		--	print(sourceName, spellName, amountOfCasts)
-		--end
 
 	------------------------------------------------------------------------------------------------
 	--record cooldowns cast which can't track with buff applyed
@@ -4609,7 +4604,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 								newEventTable[4] = enemyCastTime --when the event happened using unix time
 								newEventTable[5] = 0 --player health when the event happened
 								newEventTable[6] = enemyName --source name
-								--print("addin enemy cast event", alvo_name, i, enemyCastTime+0.1, ">", eventTime)
 								tinsert(eventsBeforePlayerDeath, i, newEventTable)
 								currentEnemyCastIndex = enemyCastEventIndex + 1
 								break
@@ -5137,6 +5131,29 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.zone_type
 	end
 
+	local gotAggro = false
+	function Details.parser_functions:UNIT_FLAGS(...)
+		if (gotAggro) then
+			return
+		end
+
+		if (Details:GetZoneType() ~= "raid" and Details:GetZoneType() ~= "party") then
+			return
+		end
+
+		local unitId = ...
+
+		if (UnitExists(unitId)) then
+			if (UnitAffectingCombat(unitId) and not UnitAffectingCombat("player")) then
+				Details.LastAggro = UnitName(unitId)
+				gotAggro = true
+				C_Timer.After(1, function()
+					gotAggro = false
+				end)
+			end
+		end
+	end
+
 	function Details.parser_functions:ZONE_CHANGED_NEW_AREA(...)
 		return Details.Schedules.After(1, Details.Check_ZONE_CHANGED_NEW_AREA)
 	end
@@ -5152,6 +5169,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_in_resting_zone = IsResting()
 
 		parser:WipeSourceCache()
+		Details.listener:UnregisterEvent("UNIT_FLAGS")
 
 		_is_in_instance = false
 
@@ -5173,10 +5191,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		Details.time_type = Details.time_type_original
-
-		if (Details.debug) then
-			Details:Msg("(debug) zone change:", Details.zone_name, "is a", Details.zone_type, "zone.")
-		end
 
 		if (Details.is_in_arena and zoneType ~= "arena") then
 			Details:LeftArena()
@@ -5260,6 +5274,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 						Details.ScheduleLoadStorage()
 					end
 				end
+
+				Details.listener:RegisterEvent("UNIT_FLAGS")
 			end
 
 			if (Details:IsInInstance()) then
@@ -5306,7 +5322,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (zoneType == "party") then
 			local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 			if (openRaidLib) then
-				print("sent my keystone to party")
 				openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToParty()
 			end
 		end
@@ -5314,6 +5329,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (Details.InstancesToStoreData[zoneMapID]) then
 			Details.current_exp_raid_encounters[encounterID] = true
 		end
+
+		Details222.DebugMsg("|cFFFFFF00Who Aggro by UNIT_FLAGS:", Details.LastAggro)
 
 		if (not Details.WhoAggroTimer and Details.announce_firsthit.enabled) then
 			Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
@@ -5382,8 +5399,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			return
 		end
 
-		Details222.Cache.ClearAugmentationCache()
-
 		Details.latest_ENCOUNTER_END = Details.latest_ENCOUNTER_END or 0
 		if (Details.latest_ENCOUNTER_END + 15 > GetTime()) then
 			return
@@ -5431,6 +5446,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		Details:SendEvent("COMBAT_ENCOUNTER_END", nil, ...)
+
+		Details222.Cache.ClearAugmentationCache()
 
 		Details:Destroy(Details.encounter_table)
 		Details:Destroy(dk_pets_cache.army)
@@ -5619,7 +5636,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	--can also run when the player leaves combat state (regen enabled)
 	function Details:RunScheduledEventsAfterCombat(OnRegenEnabled)
 		if (Details.debug) then
-			Details:Msg("(debug) running scheduled events after combat end.")
+			--Details:Msg("(debug) running scheduled events after combat end.")
 		end
 
 
@@ -5724,20 +5741,14 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(keystoneLevels)
 		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
 
-		--print("saveGroupMembersKeystoneLevel() called", libOpenRaid, GetNumGroupMembers()-1)
-
 		for i = 1, GetNumGroupMembers()-1 do
 			local unitId = "party" .. i
 			if (UnitExists(unitId)) then
 				local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
-				--print("unitExists", unitId, unitKeystoneInfo)
 				if (unitKeystoneInfo) then
 					local unitName = Details:GetFullName(unitId)
 					keystoneLevels[unitName] = unitKeystoneInfo.level
-					--print("saved keystone level for", unitName, unitKeystoneInfo.level)
 				end
-			else
-				--print("unit does not exist", unitId)
 			end
 		end
 
@@ -5747,7 +5758,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (unitKeystoneInfo) then
 				local unitName = Details:GetFullName(unitId)
 				keystoneLevels[unitName] = unitKeystoneInfo.level
-				--print("saved keystone level for", unitName, unitKeystoneInfo.level)
 			end
 		end
 	end
@@ -5805,9 +5815,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			C_Timer.After(0, function()
 				if (ChallengeModeCompleteBanner) then
 					ChallengeModeCompleteBanner.timeToHold = 0.1
-					--print("ChallengeModeCompleteBanner.timeToHold Existed!")
-				else
-					--print("ChallengeModeCompleteBanner.timeToHold DID NOT Existed!")
 				end
 			end)
 		end
@@ -5852,10 +5859,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details.parser_functions:PLAYER_REGEN_ENABLED(...)
-		if (Details.debug) then
-			Details:Msg("(debug) |cFFFFFF00PLAYER_REGEN_ENABLED|r event triggered.")
-		end
-
 		if (Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, false)
 		end
@@ -5949,6 +5952,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	--[=[
 	--this is mostly triggered when the player enters in a dual against another player
 	function Details.parser_functions:UNIT_FACTION(unit)
 		if (true) then
@@ -6001,6 +6005,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 	end
+	--]=]
 
 	function Details.parser_functions:ROLE_CHANGED_INFORM(...)
 		if (Details.last_assigned_role ~= _UnitGroupRolesAssigned("player")) then
@@ -6637,39 +6642,39 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		for n, nn in pairs(damage_cache) do
 			amount = amount + 1
 		end
-		print("parser damage_cache", amount)
+		Details:Msg("parser damage_cache", amount)
 
 		amount = 0
 		for n, nn in pairs(damage_cache_pets) do
 			amount = amount + 1
 		end
-		print("parser damage_cache_pets", amount)
+		Details:Msg("parser damage_cache_pets", amount)
 
 		amount = 0
 		for n, nn in pairs(damage_cache_petsOwners) do
 			amount = amount + 1
 		end
-		print("parser damage_cache_petsOwners", amount)
+		Details:Msg("parser damage_cache_petsOwners", amount)
 
 		amount = 0
 		for n, nn in pairs(healing_cache) do
 			amount = amount + 1
 		end
-		print("parser healing_cache", amount)
+		Details:Msg("parser healing_cache", amount)
 
 		amount = 0
 		for n, nn in pairs(energy_cache) do
 			amount = amount + 1
 		end
-		print("parser energy_cache", amount)
+		Details:Msg("parser energy_cache", amount)
 
 		amount = 0
 		for n, nn in pairs(misc_cache) do
 			amount = amount + 1
 		end
-		print("parser misc_cache", amount)
-		print("group damage", #Details.cache_damage_group)
-		print("group damage", #Details.cache_healing_group)
+		Details:Msg("parser misc_cache", amount)
+		Details:Msg("group damage", #Details.cache_damage_group)
+		Details:Msg("group damage", #Details.cache_healing_group)
 	end
 
 	function Details:GetActorsOnDamageCache()
@@ -6680,14 +6685,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return Details.cache_healing_group
 	end
 
+	--called when the zone type changes and ENCOUNTER_END event
 	function Details222.Cache.ClearAugmentationCache()
 		Details:Destroy(augmentation_cache.ebon_might) --~roskash
 		Details:Destroy(augmentation_cache.prescience)
 		Details:Destroy(augmentation_cache.shield)
 		Details:Destroy(augmentation_cache.infernobless)
 		Details:Destroy(augmentation_cache.breath_targets)
+		Details:Destroy(augmentation_cache.prescience_stacks)
 	end
 
+	--called when restaring the garbage collector, on some options change, at the end of a combat (before COMBAT_PLAYER_LEAVE and after COMBAT_PLAYER_LEAVING)
 	function Details:ClearParserCache(bIsFromCombatStart) --~wipe
 		Details:Destroy(damage_cache)
 		Details:Destroy(damage_cache_pets)
@@ -6720,6 +6728,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (Details.zone_type ~= "party") then
 				Details:Destroy(augmentation_cache.ebon_might) --~roskash
 				Details:Destroy(augmentation_cache.prescience)
+				Details:Destroy(augmentation_cache.prescience_stacks)
 				Details:Destroy(augmentation_cache.shield)
 				Details:Destroy(augmentation_cache.infernobless)
 			end
@@ -7033,7 +7042,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 		is_using_spellId_override = Details.override_spellids
 
-		return Details:ClearParserCache(bIsFromCombatStart)
+		Details:ClearParserCache(bIsFromCombatStart)
 	end
 
 	function Details.DumpIgnoredNpcs()
@@ -7275,3 +7284,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 
+
+function detailsParserDebugFrame:BlinkIcon(spellId, iconId)
+	local spellName, _, spellIcon = GetSpellInfo(spellId)
+	local icon = self.AllIcons[iconId]
+
+	if (spellIcon) then
+		icon:SetTexture(spellIcon)
+		icon:Show()
+		C_Timer.After(1, function()
+			icon:Hide()
+		end)
+	end
+end

@@ -64,6 +64,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     local newCombat = Details:GetCurrentCombat()
     local segmentsTable = Details:GetCombatSegments()
 
+    newCombat.is_challenge = true
+
     local timeInCombat = 0
     local startDate, endDate = "", ""
     local lastSegment
@@ -209,6 +211,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
             instance:InstanceAlert ("Showing Mythic+ Run Segment", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 6, func, true)
         end
     end
+
+    Details:SendEvent("COMBAT_MYTHICPLUS_OVERALL_READY")
 end
 
 --after each boss fight, if enalbed on settings, create an extra segment with all trash segments from the boss just killed

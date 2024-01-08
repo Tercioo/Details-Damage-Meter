@@ -686,6 +686,8 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 		combatObject.end_time = nil
 	end
 
+	combatObject.is_challenge = Details:IsInMythicPlus()
+
 	-- o container ir� armazenar as classes de dano -- cria um novo container de indexes de seriais de jogadores --par�metro 1 classe armazenada no container, par�metro 2 = flag da classe
 	combatObject[1].need_refresh = true
 	combatObject[2].need_refresh = true

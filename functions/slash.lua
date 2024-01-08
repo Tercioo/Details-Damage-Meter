@@ -1933,9 +1933,11 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0")
 		if (openRaidLib) then
 			if (not DetailsKeystoneInfoFrame) then
+				---@type detailsframework
+				local detailsFramework = DetailsFramework
 
 				local CONST_WINDOW_WIDTH = 614
-				local CONST_WINDOW_HEIGHT = 700
+				local CONST_WINDOW_HEIGHT = 720
 				local CONST_SCROLL_LINE_HEIGHT = 20
 				local CONST_SCROLL_LINE_AMOUNT = 30
 
@@ -1948,7 +1950,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				local backdrop_color_inguild = {.5, .8, .5, 0.2}
 				local backdrop_color_on_enter_inguild = {.5, 1, .5, 0.4}
 
-				local f = DetailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones (/key)", "DetailsKeystoneInfoFrame")
+				local f = detailsFramework:CreateSimplePanel(UIParent, CONST_WINDOW_WIDTH, CONST_WINDOW_HEIGHT, "M+ Keystones (/key)", "DetailsKeystoneInfoFrame")
 				f:SetPoint("center", UIParent, "center", 0, 0)
 
 				f:SetScript("OnMouseDown", nil) --disable framework native moving scripts
@@ -1959,15 +1961,43 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				LibWindow.MakeDraggable(f)
 				LibWindow.RestorePosition(f)
 
-				local scaleBar = DetailsFramework:CreateScaleBar(f, Details.keystone_frame)
+				f:SetScript("OnEvent", function(self, event, ...)
+					if (f:IsShown()) then
+						if (event == "GUILD_ROSTER_UPDATE") then
+							local bUpdateOkay = ...
+							if (bUpdateOkay) then
+								self:RefreshData()
+							end
+						end
+					end
+				end)
+
+				local scaleBar = detailsFramework:CreateScaleBar(f, Details.keystone_frame)
 				f:SetScale(Details.keystone_frame.scale)
 
-				local statusBar = DetailsFramework:CreateStatusBar(f)
+				local statusBar = detailsFramework:CreateStatusBar(f)
 				statusBar.text = statusBar:CreateFontString(nil, "overlay", "GameFontNormal")
 				statusBar.text:SetPoint("left", statusBar, "left", 5, 0)
-				statusBar.text:SetText("By Terciob | From Details! Damage Meter|Built with Details! Framework | Data from Open Raid Library")
-				DetailsFramework:SetFontSize(statusBar.text, 11)
-				DetailsFramework:SetFontColor(statusBar.text, "gray")
+				statusBar.text:SetText("By Terciob | From Details! Damage Meter")
+				detailsFramework:SetFontSize(statusBar.text, 12)
+				detailsFramework:SetFontColor(statusBar.text, "gray")
+
+				local requestFromGuildButton = detailsFramework:CreateButton(f, function()
+					local guildName = GetGuildInfo("player")
+					if (guildName) then
+						f:RegisterEvent("GUILD_ROSTER_UPDATE")
+						C_Timer.After(30, function()
+							f:UnregisterEvent("GUILD_ROSTER_UPDATE")
+						end)
+						C_GuildInfo.GuildRoster()
+						openRaidLib.RequestKeystoneDataFromGuild()
+					end
+				end, 100, 20, "Request from Guild")
+				requestFromGuildButton:SetPoint("bottomleft", statusBar, "topleft", 2, 2)
+				requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
+				requestFromGuildButton:SetIcon("UI-RefreshButton", 20, 20, "overlay", {0, 1, 0, 1}, "lawngreen")
+				requestFromGuildButton:SetFrameLevel(f:GetFrameLevel()+5)
+				f.RequestFromGuildButton = requestFromGuildButton
 
 				--header
 				local headerTable = {
@@ -1995,8 +2025,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					header_click_callback = headerOnClickCallback,
 				}
 
-				f.Header = DetailsFramework:CreateHeader(f, headerTable, headerOptions, "DetailsKeystoneInfoFrameHeader")
-				f.Header:SetPoint("topleft", f, "topleft", 5, -25)
+				f.Header = detailsFramework:CreateHeader(f, headerTable, headerOptions, "DetailsKeystoneInfoFrameHeader")
+				f.Header:SetPoint("topleft", f, "topleft", 3, -25)
 
 				--scroll
 				local refreshScrollLines = function(self, data, offset, totalLines)
@@ -2033,13 +2063,13 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 							line.icon:SetTexCoord(L+0.02, R-0.02, T+0.02, B-0.02)
 
 							--remove the realm name from the player name (if any)
-							local unitNameNoRealm = DetailsFramework:RemoveRealmName(unitName)
+							local unitNameNoRealm = detailsFramework:RemoveRealmName(unitName)
 							line.playerNameText.text = unitNameNoRealm
 							line.keystoneLevelText.text = level
 							line.dungeonNameText.text = mapName
-							DetailsFramework:TruncateText(line.dungeonNameText, 240)
+							detailsFramework:TruncateText(line.dungeonNameText, 240)
 							line.classicDungeonNameText.text = "" --mapNameChallenge
-							DetailsFramework:TruncateText(line.classicDungeonNameText, 120)
+							detailsFramework:TruncateText(line.classicDungeonNameText, 120)
 							line.inMyParty = inMyParty > 0
 							line.inMyGuild = isGuildMember
 
@@ -2083,8 +2113,8 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					end
 				end
 
-				local scrollFrame = DetailsFramework:CreateScrollBox(f, "$parentScroll", refreshScrollLines, {}, CONST_WINDOW_WIDTH-10, CONST_WINDOW_HEIGHT-70, CONST_SCROLL_LINE_AMOUNT, CONST_SCROLL_LINE_HEIGHT)
-				DetailsFramework:ReskinSlider(scrollFrame)
+				local scrollFrame = detailsFramework:CreateScrollBox(f, "$parentScroll", refreshScrollLines, {}, CONST_WINDOW_WIDTH-10, CONST_WINDOW_HEIGHT-90, CONST_SCROLL_LINE_AMOUNT, CONST_SCROLL_LINE_HEIGHT)
+				detailsFramework:ReskinSlider(scrollFrame)
 				scrollFrame:SetPoint("topleft", f.Header, "bottomleft", -1, -1)
 				scrollFrame:SetPoint("topright", f.Header, "bottomright", 0, -1)
 
@@ -2115,7 +2145,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					line:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 					line:SetBackdropColor(unpack(backdrop_color))
 
-					DetailsFramework:Mixin(line, DetailsFramework.HeaderFunctions)
+					detailsFramework:Mixin(line, detailsFramework.HeaderFunctions)
 
 					line:SetScript("OnEnter", lineOnEnter)
 					line:SetScript("OnLeave", lineOnLeave)
@@ -2125,19 +2155,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					icon:SetSize(CONST_SCROLL_LINE_HEIGHT - 2, CONST_SCROLL_LINE_HEIGHT - 2)
 
 					--player name
-					local playerNameText = DetailsFramework:CreateLabel(line)
+					local playerNameText = detailsFramework:CreateLabel(line, "")
 
 					--keystone level
-					local keystoneLevelText = DetailsFramework:CreateLabel(line)
+					local keystoneLevelText = detailsFramework:CreateLabel(line, "")
 
 					--dungeon name
-					local dungeonNameText = DetailsFramework:CreateLabel(line)
+					local dungeonNameText = detailsFramework:CreateLabel(line, "")
 
 					--classic dungeon name
-					local classicDungeonNameText = DetailsFramework:CreateLabel(line)
+					local classicDungeonNameText = detailsFramework:CreateLabel(line, "")
 
 					--player rating
-					local ratingText = DetailsFramework:CreateLabel(line)
+					local ratingText = detailsFramework:CreateLabel(line, "")
 
 					line.icon = icon
 					line.playerNameText = playerNameText
@@ -2169,6 +2199,16 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 
 					local guildUsers = {}
 					local totalMembers, onlineMembers, onlineAndMobileMembers = GetNumGuildMembers()
+
+					--[=[
+					local unitsInMyGroup = {
+						[Details:GetFullName("player")] = true,
+					}
+					for i = 1, GetNumGroupMembers() do
+						local unitName = Details:GetFullName("party" .. i)
+						unitsInMyGroup[unitName] = true
+					end
+					--]=]
 
 					--create a string to use into the gsub call when removing the realm name from the player name, by default all player names returned from GetGuildRosterInfo() has PlayerName-RealmName format
 					local realmNameGsub = "%-.*"
@@ -2258,18 +2298,23 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					--sort by player class
 					if (columnIndex == 1) then
 						sortByIndex = 5
+
 					--sort by player name
 					elseif (columnIndex == 2) then
 						sortByIndex = 1
+
 					--sort by keystone level
 					elseif (columnIndex == 3) then
 						sortByIndex = 2
+
 					--sort by dungeon name
 					elseif (columnIndex == 4) then
 						sortByIndex = 3
+
 					--sort by classic dungeon name
 					--elseif (columnIndex == 5) then
 					--	sortByIndex = 4
+
 					--sort by mythic+ ranting
 					elseif (columnIndex == 5) then
 						sortByIndex = 6
@@ -2290,7 +2335,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 						end
 					end
 
-					newData.offlineGuildPlayers = DetailsFramework.table.reverse(newData.offlineGuildPlayers)
+					newData.offlineGuildPlayers = detailsFramework.table.reverse(newData.offlineGuildPlayers)
 
 					--put players in the group at the top of the list
 					if (IsInGroup() and not IsInRaid()) then
@@ -2334,25 +2379,29 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				end)
 			end
 
-			--call an update on the guild roster
-			if (C_GuildInfo and C_GuildInfo.GuildRoster) then
-				C_GuildInfo.GuildRoster()
-			end
-
 			--show the frame
 			DetailsKeystoneInfoFrame:Show()
 
 			openRaidLib.RegisterCallback(DetailsKeystoneInfoFrame, "KeystoneUpdate", "OnKeystoneUpdate")
 
-			openRaidLib.WipeKeystoneData()
+			local guildName = GetGuildInfo("player")
+			if (guildName) then
+				--call an update on the guild roster
+				if (C_GuildInfo and C_GuildInfo.GuildRoster) then
+					C_GuildInfo.GuildRoster()
+				end
+				DetailsKeystoneInfoFrame.RequestFromGuildButton:Enable()
+			else
+				DetailsKeystoneInfoFrame.RequestFromGuildButton:Disable()
+			end
+
+			--openRaidLib.WipeKeystoneData()
 
 			if (IsInRaid()) then
 				openRaidLib.RequestKeystoneDataFromRaid()
 			elseif (IsInGroup()) then
 				openRaidLib.RequestKeystoneDataFromParty()
 			end
-
-			openRaidLib.RequestKeystoneDataFromGuild()
 
 			DetailsKeystoneInfoFrame.RefreshData()
 		end

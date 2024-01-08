@@ -67,6 +67,7 @@ functions\testbars.lua
 functions\warcraftlogs.lua
 functions\textures.lua
 
+core\aura_scan.lua
 core\timemachine.lua
 
 frames\anime.lua

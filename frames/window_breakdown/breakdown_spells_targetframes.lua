@@ -85,6 +85,24 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 
 		--statusbar color
 		targetBar.statusBar:SetStatusBarColor(1, 1, 1, 1)
+
+		local platerNameplates = _G.Plater
+		if (platerNameplates) then
+			local npcId = tonumber(targetActorObject.aID)
+			if (npcId) then
+				local platerProfile = platerNameplates.db.profile
+				local npcColors = platerProfile.npc_colors
+				local platerNpcColorTable = npcColors[npcId]
+				if (platerNpcColorTable) then
+					if (platerNpcColorTable[1] == true) then
+						local color = platerNpcColorTable[3]
+						local r, g, b, a = DF:ParseColors(color)
+						targetBar.statusBar:SetStatusBarColor(r, g, b, a)
+					end
+				end
+			end
+		end
+
 		targetBar.combatTime = combatTime
 		targetBar.actorName = bkTargetData.name
 

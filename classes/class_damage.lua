@@ -3463,12 +3463,25 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		---@type actorcontainer
 		local utilityContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_MISC)
 
+		---@type table<spellid, table<spellid, number, actorname, actorname, class, boolean>>
 		local buffUptimeTable = {}
 
-		--for each actor in the container
+		local CONST_SPELLID_EBONMIGHT = 395152
+		local CONST_SPELLID_PRESCIENCE = 410089
+		local CONST_SPELLID_BLACKATTUNEMENT = 403264
+
+		---@type actor[]
+		local augmentationEvokers = {}
+
+		--prescience and ebon might updatime on each actor
 		for _, actorObject in utilityContainer:ListActors() do
 			---@type spellcontainer
 			local receivedBuffs = actorObject.received_buffs_spells
+
+			--check if the actor is an augmentation evoker
+			if (actorObject.spec == 1473) then
+				augmentationEvokers[#augmentationEvokers+1] = actorObject
+			end
 
 			if (receivedBuffs and actorObject:IsPlayer() and actorObject:IsGroupPlayer()) then
 				for sourceNameSpellId, spellTable in receivedBuffs:ListSpells() do
@@ -3477,20 +3490,28 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 						spellId = tonumber(spellId)
 						local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
 
-						if (spellName) then
+						if (spellName and spellId) then
 							sourceName = detailsFramework:RemoveRealmName(sourceName)
 							local targetName = actorObject:Name()
 							targetName = detailsFramework:RemoveRealmName(targetName)
 
 							local uptime = spellTable.uptime or 0
-							buffUptimeTable[#buffUptimeTable+1] = {spellId, uptime, sourceName, targetName, actorObject:Class()}
+							local bCanShowOnTooltip = true
+							buffUptimeTable[spellId] = buffUptimeTable[spellId] or {}
+							table.insert(buffUptimeTable[spellId], {spellId, uptime, sourceName, targetName, actorObject:Class(), bCanShowOnTooltip})
 						end
 					end
 				end
 			end
 		end
 
-		table.sort(buffUptimeTable, Details.Sort2)
+		for spellId, buffTable in pairs(buffUptimeTable) do
+			local totalUptime = 0
+			for i = 1, #buffTable do
+				totalUptime = totalUptime + buffTable[i][2]
+			end
+			table.sort(buffTable, Details.Sort2)
+		end
 
 		Details:FormatCooltipForSpells()
 		Details:AddTooltipSpellHeaderText(Loc ["STRING_SPELLS"], headerColor, #buffUptimeTable, Details.tooltip_spell_icon.file, unpack(Details.tooltip_spell_icon.coords))
@@ -3499,24 +3520,86 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		local iconSize = 22
 		local iconBorderInfo = Details.tooltip.icon_border_texcoord
 
+		--add the total combat time into the tooltip
 		local combatTimeMinutes, combatTimeSeconds = math.floor(combatTime / 60), math.floor(combatTime % 60)
 		GameCooltip:AddLine("Combat Time", combatTimeMinutes .. "m " .. combatTimeSeconds .. "s" .. " (" .. format("%.1f", 100) .. "%)")
 		GameCooltip:AddIcon([[Interface\TARGETINGFRAME\UnitFrameIcons]], nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
-		Details:AddTooltipBackgroundStatusbar(false, 100, true, "green")
+		Details:AddTooltipBackgroundStatusbar(false, 100, true, "limegreen")
 
-		if (#buffUptimeTable > 0) then
-			for i = 1, min(30, #buffUptimeTable) do
-				local uptimeTable = buffUptimeTable[i]
+		GameCooltip:AddLine("", "")
+		GameCooltip:AddIcon("", nil, nil, 1, 1)
+
+		local ebonMightTable = buffUptimeTable[CONST_SPELLID_EBONMIGHT][1]
+		if (ebonMightTable) then
+			local uptime = ebonMightTable[2]
+			local spellName, _, spellIcon = _GetSpellInfo(CONST_SPELLID_EBONMIGHT)
+			local uptimePercent = uptime / combatTime * 100
+			local sourceName = ebonMightTable[3]
+
+			if (uptime <= combatTime) then
+				local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+				if (minutes > 0) then
+					GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
+				else
+					GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
+				end
+
+				GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+			end
+		end
+
+		GameCooltip:AddLine("", "")
+		GameCooltip:AddIcon("", nil, nil, 1, 1)
+
+		for i = 1, #augmentationEvokers do
+			local actorObject = augmentationEvokers[i]
+			if (actorObject:Name() == actorName) then
+				local buffUptimeSpellContainer = actorObject:GetSpellContainer("buff")
+				if (buffUptimeSpellContainer) then
+					local spellTable = buffUptimeSpellContainer:GetSpell(403264)
+					if (spellTable) then
+						local uptime = spellTable.uptime
+						local spellName, _, spellIcon = _GetSpellInfo(CONST_SPELLID_BLACKATTUNEMENT)
+						local uptimePercent = uptime / combatTime * 100
+
+						if (uptime <= combatTime) then
+							local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+							if (minutes > 0) then
+								GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+							else
+								GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+							end
+
+							GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+						end
+					end
+				end
+			end
+		end
+
+		GameCooltip:AddLine("", "")
+		GameCooltip:AddIcon("", nil, nil, 1, 1)
+
+		--add the buff uptime into the tooltip
+		local allPrescienceTargets = buffUptimeTable[CONST_SPELLID_PRESCIENCE]
+		if (#allPrescienceTargets > 0) then
+			for i = 1, math.min(30, #allPrescienceTargets) do
+				local uptimeTable = allPrescienceTargets[i]
 
 				local spellId = uptimeTable[1]
 				local uptime = uptimeTable[2]
 				local sourceName = uptimeTable[3]
 				local targetName = uptimeTable[4]
 				local targetClass = uptimeTable[5]
+				local bCanShow = uptimeTable[6]
 
 				local uptimePercent = uptime / combatTime * 100
 
-				if (uptime > 0 and uptimePercent < 99.5) then
+				if (uptime > 0 and uptimePercent < 99.5 and bCanShow) then
 					local spellName, _, spellIcon = _GetSpellInfo(spellId)
 
 					if (sourceName) then
@@ -3529,10 +3612,10 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 						local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
 						if (minutes > 0) then
 							GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "green")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
 						else
 							GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "green")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
 						end
 
 						GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
@@ -3541,6 +3624,36 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 			end
 		else
 			GameCooltip:AddLine(Loc ["STRING_NO_SPELL"])
+		end
+
+		local evokerObject = combatObject:GetActor(DETAILS_ATTRIBUTE_MISC, actorName)
+
+		GameCooltip:AddLine(" ")
+		GameCooltip:AddIcon(" ", 1, 1, 10, 10)
+
+		if (evokerObject) then
+			GameCooltip:AddLine("Prescience Uptime by Amount of Applications")
+			local prescienceData = evokerObject.cleu_prescience_time --real time
+
+			if (prescienceData) then
+				prescienceData = prescienceData.stackTime
+				local totalTimeWithPrescienceUp = 0
+
+				for amountOfPrescienceApplied, time in ipairs(prescienceData) do
+					totalTimeWithPrescienceUp = totalTimeWithPrescienceUp + time
+				end
+
+				for amountOfPrescienceApplied, time in ipairs(prescienceData) do
+					if (time > 0) then
+						local uptimePercent = time / combatTime * 100
+						local timeString = detailsFramework:IntegerToTimer(time)
+						GameCooltip:AddLine("Presciece Applied: " .. amountOfPrescienceApplied, timeString .. " (" .. format("%.1f", uptimePercent) .. "%)")
+						--5199639 prescience icon
+						GameCooltip:AddIcon([[Interface\AddOns\Details\images\spells\prescience_time]], nil, nil, iconSize, iconSize)
+						Details:AddTooltipBackgroundStatusbar(false, time/totalTimeWithPrescienceUp*100, true, "green")
+					end
+				end
+			end
 		end
 	end
 

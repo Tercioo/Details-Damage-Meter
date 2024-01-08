@@ -1335,115 +1335,93 @@ function _detalhes:CloseEnemyDebuffsUptime()
 	return
 end
 
-function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
+function _detalhes:CatchRaidDebuffUptime(sOperationType) -- "DEBUFF_UPTIME_IN"
+	if (sOperationType == "DEBUFF_UPTIME_OUT") then
+		local combatObject = Details:GetCurrentCombat()
+		local utilityContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_MISC)
 
-	if (in_or_out == "DEBUFF_UPTIME_OUT") then
-		local combat = _detalhes.tabela_vigente
-		local misc_container = combat [4]._ActorTable --error attempt to index a new value
-
-		for _, actor in ipairs(misc_container) do
-			if (actor.debuff_uptime) then
-				for spellid, spell in pairs(actor.debuff_uptime_spells._ActorTable) do
-					if (spell.actived and spell.actived_at) then
-						spell.uptime = spell.uptime + _detalhes._tempo - spell.actived_at
-						actor.debuff_uptime = actor.debuff_uptime + _detalhes._tempo - spell.actived_at
-						spell.actived = false
-						spell.actived_at = nil
+		for _, actorObject in utilityContainer:ListActors() do
+			if (actorObject.debuff_uptime) then
+				for spellId, spellTable in pairs(actorObject.debuff_uptime_spells._ActorTable) do
+					if (spellTable.actived and spellTable.actived_at) then
+						spellTable.uptime = spellTable.uptime + _detalhes._tempo - spellTable.actived_at
+						actorObject.debuff_uptime = actorObject.debuff_uptime + _detalhes._tempo - spellTable.actived_at
+						spellTable.actived = false
+						spellTable.actived_at = nil
 					end
 				end
 			end
 		end
-
 		return
-	end
 
-	local cacheGetTime = GetTime()
+	elseif (sOperationType == "DEBUFF_UPTIME_IN") then
+		local cacheGetTime = GetTime()
 
-	if (IsInRaid()) then
+		if (IsInRaid()) then
 
-		local checked = {}
+			local checked = {}
 
-		for raidIndex = 1, GetNumGroupMembers() do
+			for raidIndex = 1, GetNumGroupMembers() do
 
-			local target = "raid"..raidIndex.."target"
-			local his_target = UnitGUID(target)
+				local target = "raid"..raidIndex.."target"
+				local his_target = UnitGUID(target)
 
-			if (his_target and not checked [his_target]) then
-				local rect = UnitReaction (target, "player")
-				if (rect and rect <= 4) then
+				if (his_target and not checked [his_target]) then
+					local rect = UnitReaction (target, "player")
+					if (rect and rect <= 4) then
+
+						checked [his_target] = true
+
+						for debuffIndex = 1, 41 do
+							local name, _, _, _, _, _, _, unitCaster, _, _, spellid = UnitDebuff (target, debuffIndex)
+							if (name and unitCaster) then
+								local playerGUID = UnitGUID(unitCaster)
+								if (playerGUID) then
+
+									local playerName, realmName = _UnitName (unitCaster)
+									if (realmName and realmName ~= "") then
+										playerName = playerName .. "-" .. realmName
+									end
+
+									_detalhes.parser:add_debuff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000417, his_target, _UnitName (target), 0x842, nil, spellid, name, sOperationType)
+								end
+							end
+						end
+					end
+				end
+			end
+
+		elseif (IsInGroup()) then
+
+			local checked = {}
+
+			for raidIndex = 1, GetNumGroupMembers()-1 do
+				local his_target = UnitGUID("party"..raidIndex.."target")
+				local rect = UnitReaction ("party"..raidIndex.."target", "player")
+				if (his_target and not checked [his_target] and rect and rect <= 4) then
 
 					checked [his_target] = true
 
-					for debuffIndex = 1, 41 do
-						local name, _, _, _, _, _, _, unitCaster, _, _, spellid = UnitDebuff (target, debuffIndex)
+					for debuffIndex = 1, 40 do
+						local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("party"..raidIndex.."target", debuffIndex)
 						if (name and unitCaster) then
+							local playerName, realmName = _UnitName (unitCaster)
 							local playerGUID = UnitGUID(unitCaster)
 							if (playerGUID) then
-
-								local playerName, realmName = _UnitName (unitCaster)
 								if (realmName and realmName ~= "") then
 									playerName = playerName .. "-" .. realmName
 								end
 
-								_detalhes.parser:add_debuff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000417, his_target, _UnitName (target), 0x842, nil, spellid, name, in_or_out)
+								_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("party"..raidIndex.."target"), 0x842, nil, spellid, name, sOperationType)
 							end
 						end
 					end
 				end
 			end
-		end
 
-	elseif (IsInGroup()) then
-
-		local checked = {}
-
-		for raidIndex = 1, GetNumGroupMembers()-1 do
-			local his_target = UnitGUID("party"..raidIndex.."target")
-			local rect = UnitReaction ("party"..raidIndex.."target", "player")
+			local his_target = UnitGUID("playertarget")
+			local rect = UnitReaction ("playertarget", "player")
 			if (his_target and not checked [his_target] and rect and rect <= 4) then
-
-				checked [his_target] = true
-
-				for debuffIndex = 1, 40 do
-					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("party"..raidIndex.."target", debuffIndex)
-					if (name and unitCaster) then
-						local playerName, realmName = _UnitName (unitCaster)
-						local playerGUID = UnitGUID(unitCaster)
-						if (playerGUID) then
-							if (realmName and realmName ~= "") then
-								playerName = playerName .. "-" .. realmName
-							end
-
-							_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("party"..raidIndex.."target"), 0x842, nil, spellid, name, in_or_out)
-						end
-					end
-				end
-			end
-		end
-
-		local his_target = UnitGUID("playertarget")
-		local rect = UnitReaction ("playertarget", "player")
-		if (his_target and not checked [his_target] and rect and rect <= 4) then
-			for debuffIndex = 1, 40 do
-				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
-				if (name and unitCaster) then
-					local playerName, realmName = _UnitName (unitCaster)
-					local playerGUID = UnitGUID(unitCaster)
-					if (playerGUID) then
-						if (realmName and realmName ~= "") then
-							playerName = playerName .. "-" .. realmName
-						end
-						_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, nil, spellid, name, in_or_out)
-					end
-				end
-			end
-		end
-
-	else
-		local his_target = UnitGUID("playertarget")
-		if (his_target) then
-			local reaction = UnitReaction ("playertarget", "player")
-			if (reaction and reaction <= 4) then
 				for debuffIndex = 1, 40 do
 					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
 					if (name and unitCaster) then
@@ -1453,7 +1431,28 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 							if (realmName and realmName ~= "") then
 								playerName = playerName .. "-" .. realmName
 							end
-							_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, nil, spellid, name, in_or_out)
+							_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, nil, spellid, name, sOperationType)
+						end
+					end
+				end
+			end
+
+		else
+			local his_target = UnitGUID("playertarget")
+			if (his_target) then
+				local reaction = UnitReaction ("playertarget", "player")
+				if (reaction and reaction <= 4) then
+					for debuffIndex = 1, 40 do
+						local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
+						if (name and unitCaster) then
+							local playerName, realmName = _UnitName (unitCaster)
+							local playerGUID = UnitGUID(unitCaster)
+							if (playerGUID) then
+								if (realmName and realmName ~= "") then
+									playerName = playerName .. "-" .. realmName
+								end
+								_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, nil, spellid, name, sOperationType)
+							end
 						end
 					end
 				end
@@ -1671,6 +1670,10 @@ function _detalhes:CatchRaidBuffUptime(sOperationType)
 		--]]
 		-- _detalhes:Msg(string_output)
 
+	end
+
+	if (sOperationType == "BUFF_UPTIME_OUT") then
+		
 	end
 end
 
@@ -2595,6 +2598,17 @@ function atributo_misc:r_connect_shadow(actor, no_refresh, combat_object)
 		DetailsFramework.table.addunique(shadow.pets, petName)
 	end
 
+	if (actor.cleu_prescience_time) then
+		local shadowPrescienceStackData = shadow.cleu_prescience_time
+		if (not shadowPrescienceStackData) then
+			shadow.cleu_prescience_time = detailsFramework.table.copy({}, actor.cleu_prescience_time)
+		else
+			for amountOfPrescienceApplied, time in pairs(actor.cleu_prescience_time.stackTime) do
+				shadow.cleu_prescience_time.stackTime[amountOfPrescienceApplied] = shadow.cleu_prescience_time.stackTime[amountOfPrescienceApplied] + time
+			end
+		end
+	end
+
 	if (actor.cc_done) then
 		if (not shadow.cc_done_targets) then
 			shadow.cc_done = _detalhes:GetOrderNumber()
@@ -2948,6 +2962,17 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 end
 
 atributo_misc.__add = function(tabela1, tabela2)
+	if (tabela2.cleu_prescience_time) then --timeline
+		local shadowPrescienceStackData = tabela1.cleu_prescience_time
+		if (not shadowPrescienceStackData) then
+			tabela1.cleu_prescience_time = detailsFramework.table.copy({}, tabela2.cleu_prescience_time)
+		else
+			for amountOfPrescienceApplied, time in pairs(tabela2.cleu_prescience_time.stackTime) do
+				tabela1.cleu_prescience_time.stackTime[amountOfPrescienceApplied] = tabela1.cleu_prescience_time.stackTime[amountOfPrescienceApplied] + time
+			end
+		end
+	end
+
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done + tabela2.cc_done
 
@@ -3223,6 +3248,15 @@ local subtractKeyValues = function(habilidade, habilidade_tabela1)
 end
 
 atributo_misc.__sub = function(tabela1, tabela2)
+	if (tabela2.cleu_prescience_time) then --timeline
+		local shadowPrescienceStackData = tabela1.cleu_prescience_time
+		if (shadowPrescienceStackData) then
+			for amountOfPrescienceApplied, time in pairs(tabela2.cleu_prescience_time.stackTime) do
+				tabela1.cleu_prescience_time.stackTime[amountOfPrescienceApplied] = tabela1.cleu_prescience_time.stackTime[amountOfPrescienceApplied] - time
+			end
+		end
+	end
+
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done - tabela2.cc_done
 

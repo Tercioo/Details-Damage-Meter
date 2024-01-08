@@ -683,9 +683,9 @@ local classTypeUtility = Details.atributos.misc
 
 		if (Details.debug) then
 			if (bShouldForceCollect) then
-				Details:Msg("(debug) collecting garbage with forced state:", bShouldForceCollect)
+				--Details:Msg("(debug) collecting garbage with forced state:", bShouldForceCollect)
 			else
-				Details:Msg("(debug) collecting garbage.")
+				--Details:Msg("(debug) collecting garbage.")
 			end
 		end
 
@@ -730,8 +730,8 @@ local classTypeUtility = Details.atributos.misc
 		Details222.GarbageCollector.lastCollectTime = Details._tempo
 
 		if (Details.debug) then
-			Details:Msg("(debug) executing: collectgarbage().")
-			collectgarbage()
+			--Details:Msg("(debug) executing: collectgarbage().")
+			--collectgarbage()
 		end
 	end
 

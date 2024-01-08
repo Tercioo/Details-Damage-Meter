@@ -35,6 +35,10 @@
 
 	local gump = Details.gump --details local
 
+	function Details:IsInMythicPlus()
+		return C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive and C_ChallengeMode.IsChallengeModeActive()
+	end
+
 	local predicateFunc = function(spellIdToFind, casterName, _, name, icon, applications, dispelName, duration, expirationTime, sourceUnitId, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, applications)
 		if (spellIdToFind == spellId and UnitExists(sourceUnitId)) then
 			if (casterName == Details:GetUnitNameForAPI(sourceUnitId)) then
@@ -1287,7 +1291,7 @@ end
 		--coach feature
 		if (not Details.Coach.Server.IsEnabled()) then
 			if (Details.debug) then
-				Details:Msg("coach is disabled, the combat is now over!")
+				--Details:Msg("coach is disabled, the combat is now over!")
 			end
 		end
 
