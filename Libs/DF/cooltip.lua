@@ -15,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 18
+local version = 19
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -227,10 +227,23 @@ function DF:CreateCoolTip()
 
 	gameCooltip.defaultFont = DF:GetBestFontForLanguage()
 
+	gameCooltip.RoundedFramePreset = {
+		color = {.075, .075, .075, 1},
+		border_color = {.2, .2, .2, 1},
+		roundness = 8,
+	}
+
 	--create frames, self is frame1 or frame2
 	local createTooltipFrames = function(self)
 		self:SetSize(500, 500)
 		self:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+
+		if (not self.HaveRoundedCorners) then
+			DF:AddRoundedCornersToFrame(self, gameCooltip.RoundedFramePreset)
+			self:DisableRoundedCorners()
+			self.HaveRoundedCorners = true
+		end
+
 		self:SetBackdrop(defaultBackdrop)
 		self:SetBackdropColor(DF:ParseColors(defaultBackdropColor))
 		self:SetBackdropBorderColor(DF:ParseColors(defaultBackdropBorderColor))
@@ -347,6 +360,33 @@ function DF:CreateCoolTip()
 		if (not frame2.FlashAnimation) then
 			DF:CreateFlashAnimation(frame2)
 		end
+
+	function GameCooltip:ShowRoundedCorner()
+		if (not frame1.HaveRoundedCorners) then
+			return
+		end
+
+		frame1:EnableRoundedCorners()
+		frame2:EnableRoundedCorners()
+
+		frame1:SetBackdrop(nil)
+		frame2:SetBackdrop(nil)
+
+		frame1.frameBackgroundTexture:Hide()
+		frame2.frameBackgroundTexture:Hide()
+	end
+
+	function GameCooltip:HideRoundedCorner()
+		if (not frame1.HaveRoundedCorners) then
+			return
+		end
+
+		frame1:DisableRoundedCorners()
+		frame2:DisableRoundedCorners()
+
+		frame1.frameBackgroundTexture:Show()
+		frame2.frameBackgroundTexture:Show()
+	end
 
 	gameCooltip.frame1 = frame1
 	gameCooltip.frame2 = frame2
@@ -1929,6 +1969,8 @@ function DF:CreateCoolTip()
 
 				--mana    range
 				--instant    cooldown
+
+				gameCooltip:ShowRoundedCorner()
 			end
 		end
 	end
@@ -2628,6 +2670,10 @@ function DF:CreateCoolTip()
 		gameCooltip:HideSelectedTexture(frame1)
 		gameCooltip:HideSelectedTexture(frame2)
 
+		gameCooltip:HideRoundedCorner()
+		GameCooltip.frame1:SetBorderCornerColor(unpack(gameCooltip.RoundedFramePreset.border_color))
+		GameCooltip.frame2:SetBorderCornerColor(unpack(gameCooltip.RoundedFramePreset.border_color))
+
 		gameCooltip.FixedValue = nil
 		gameCooltip.HaveSubMenu = false
 		gameCooltip.SelectedIndexMain = nil
@@ -2704,6 +2750,8 @@ function DF:CreateCoolTip()
 		if (not fromPreset) then
 			gameCooltip:Preset(3, true)
 		end
+
+		GameCooltip:SetType("tooltip")
 	end
 
 ----------------------------------------------------------------------
@@ -2711,6 +2759,8 @@ function DF:CreateCoolTip()
 	local defaultWhiteColor = {1, 1, 1}
 	function gameCooltip:AddMenu(menuType, func, param1, param2, param3, leftText, leftIcon, indexUp)
 		menuType = gameCooltip:ParseMenuType(menuType)
+
+		gameCooltip:SetType("menu")
 
 		if (leftText and indexUp and (menuType == CONST_MENU_TYPE_MAINMENU)) then
 			gameCooltip.Indexes = gameCooltip.Indexes + 1

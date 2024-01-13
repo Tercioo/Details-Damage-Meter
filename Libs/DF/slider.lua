@@ -885,6 +885,15 @@ local get_switch_func = function(self)
 	return self.OnSwitch
 end
 
+local setCheckedTexture = function(self, texture, xOffSet, yOffSet)
+	self.checked_texture:SetTexture(texture)
+	if (xOffSet or yOffSet) then
+		self.checked_texture:SetPoint("center", self.button, "center", xOffSet or -1, yOffSet or -1)
+	else
+		self.checked_texture:SetPoint("center", self.button, "center", -1, -1)
+	end
+end
+
 local set_as_checkbok = function(self)
 	if self.is_checkbox and self.checked_texture then return end
 	local checked = self:CreateTexture(self:GetName() .. "CheckTexture", "overlay")
@@ -893,6 +902,8 @@ local set_as_checkbok = function(self)
 	local size_pct = self:GetWidth()/32
 	checked:SetSize(32 * size_pct, 32 * size_pct)
 	self.checked_texture = checked
+
+	self.SetCheckedTexture = setCheckedTexture
 
 	self._thumb:Hide()
 	self._text:Hide()
@@ -928,6 +939,7 @@ end
 ---@field GetSwitchFunction fun(self:df_button):function
 ---@field SetSwitchFunction fun(self:df_button, newOnSwitchFunction: function)
 ---@field GetCapsule fun(self:df_button):df_button capsule only exists in the actual frame of the encapsulated widget
+---@field SetCheckedTexture fun(self:df_button, texture:string)
 
 
 function DF:CreateSwitch(parent, onSwitch, defaultValue, width, height, leftText, rightText, member, name, colorInverted, switchFunc, returnFunc, withLabel, switch_template, label_template)

@@ -1342,6 +1342,8 @@
 						evokerActor.total_extra = evokerActor.total_extra + predictedAmount
 						augmentedSpell.total = augmentedSpell.total + predictedAmount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
+
+						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 1)
 					end
 				end
 			end
@@ -1380,6 +1382,8 @@
 
 						augmentedSpell.total = augmentedSpell.total + predictedAmount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
+
+						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 2)
 					end
 				end
 			end
@@ -1415,6 +1419,8 @@
 
 						augmentedSpell.total = augmentedSpell.total + damageSplitted
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + damageSplitted
+
+						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 3)
 					end
 				end
 			end
@@ -1450,6 +1456,8 @@
 
 						augmentedSpell.total = augmentedSpell.total + fateMirror_plus_Prescience
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + fateMirror_plus_Prescience
+
+						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 4)
 					end
 				end
 			end
@@ -1483,6 +1491,8 @@
 
 						augmentedSpell.total = augmentedSpell.total + amount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
+
+						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 5)
 					end
 				end
 			end

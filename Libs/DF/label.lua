@@ -291,7 +291,7 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 
 ---create a new label object
 ---@param parent frame
----@param text string
+---@param text string|table for used for localization, expects a locTable from the language system
 ---@param size number|nil
 ---@param color any|nil
 ---@param font string|nil

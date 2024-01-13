@@ -5,7 +5,7 @@ local debugmode = false --print debug lines
 local verbosemode = false --auto open the chart panel
 local _
 local addonName, Details222 = ...
-
+local mPlus = Details222.MythicPlusBreakdown
 local detailsFramework = DetailsFramework
 
 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale( "Details" )
@@ -318,11 +318,99 @@ local createPlayerBanner = function(parent, name)
     dungeonBorderTexture:SetAlpha(1)
 	playerFrame.DungeonBorderTexture = dungeonBorderTexture
 
-    local levelFontString = playerFrame:CreateFontString("$parentLVLText", "artwork", "GameFontNormal")
+	--load this addon, required to have access to the garrison templates
+	if (not C_AddOns.IsAddOnLoaded("Blizzard_GarrisonTemplates")) then
+		C_AddOns.LoadAddOn("Blizzard_GarrisonTemplates")
+	end
+
+	--animation for the key leveling up
+	local levelUpFrame = CreateFrame("frame", "$LevelUpFrame", playerFrame, "GarrisonFollowerLevelUpTemplate")
+	levelUpFrame:SetPoint("top", dungeonTexture, "bottom", 0, 44)
+	levelUpFrame:SetScale(0.9)
+	levelUpFrame.Text:SetText("")
+	playerFrame.LevelUpFrame = levelUpFrame
+	levelUpFrame:SetFrameLevel(playerFrame:GetFrameLevel()+1)
+
+	local levelUpTextFrame = CreateFrame("frame", "$LevelUpTextFrame", playerFrame)
+	levelUpTextFrame:SetPoint("top", dungeonTexture, "bottom", -1, -14)
+	levelUpTextFrame:SetFrameLevel(playerFrame:GetFrameLevel()+2)
+	levelUpTextFrame:SetSize(1, 1)
+	playerFrame.LevelUpTextFrame = levelUpTextFrame
+																										--scaleX, scaleY, fadeInTime, fadeOutTime
+	local shakeAnimation = detailsFramework:CreateFrameShake(levelUpTextFrame, 0.8, 2, 200, false, false, 0, 1, 0.5, 0.15)
+	local shakeAnimation2 = detailsFramework:CreateFrameShake(levelUpTextFrame, 0.5, 1, 200, false, false, 0, 1, 0, 0)
+
+    local levelFontString = levelUpTextFrame:CreateFontString("$parentLVLText", "artwork", "GameFontNormal")
     levelFontString:SetTextColor(1, 1, 1)
-    levelFontString:SetPoint("top", dungeonTexture, "bottom", -1, -7)
+    levelFontString:SetPoint("center", levelUpTextFrame, "center", 0, 0)
     DetailsFramework:SetFontSize(levelFontString, 20)
+	levelFontString:SetText("")
 	playerFrame.LevelFontString = levelFontString
+
+	--> animations for levelFontString
+	local animationGroup = levelFontString:CreateAnimationGroup("DetailsMythicLevelTextAnimationGroup")
+	animationGroup:SetLooping("NONE")
+	levelFontString.AnimationGroup = animationGroup
+
+	do
+		levelFontString.translation = animationGroup:CreateAnimation("TRANSLATION")
+		levelFontString.translation:SetTarget(levelFontString)
+		levelFontString.translation:SetOrder(1)
+		levelFontString.translation:SetDuration(0.096000000834465)
+		levelFontString.translation:SetOffset(0, -4)
+		levelFontString.translation = animationGroup:CreateAnimation("TRANSLATION")
+		levelFontString.translation:SetTarget(levelFontString)
+		levelFontString.translation:SetOrder(2)
+		levelFontString.translation:SetDuration(0.11599999666214)
+		levelFontString.translation:SetOffset(0, 16)
+		levelFontString.rotation = animationGroup:CreateAnimation("ROTATION")
+		levelFontString.rotation:SetTarget(levelFontString)
+		levelFontString.rotation:SetOrder(3)
+		levelFontString.rotation:SetDuration(0.096000000834465)
+		levelFontString.rotation:SetDegrees(20)
+		levelFontString.rotation:SetOrigin("center", 0, 0)
+		levelFontString.rotation = animationGroup:CreateAnimation("ROTATION")
+		levelFontString.rotation:SetTarget(levelFontString)
+		levelFontString.rotation:SetOrder(4)
+		levelFontString.rotation:SetDuration(0.096000000834465)
+		levelFontString.rotation:SetDegrees(-20)
+		levelFontString.rotation:SetOrigin("center", 0, 0)
+		levelFontString.rotation = animationGroup:CreateAnimation("ROTATION")
+		levelFontString.rotation:SetTarget(levelFontString)
+		levelFontString.rotation:SetOrder(5)
+		levelFontString.rotation:SetDuration(0.195999994874)
+		levelFontString.rotation:SetDegrees(360)
+		levelFontString.rotation:SetOrigin("center", 0, 0)
+		levelFontString.translation = animationGroup:CreateAnimation("TRANSLATION")
+		levelFontString.translation:SetTarget(levelFontString)
+		levelFontString.translation:SetOrder(6)
+		levelFontString.translation:SetDuration(0.21599999070168)
+		levelFontString.translation:SetOffset(0, 9)
+		levelFontString.translation = animationGroup:CreateAnimation("TRANSLATION")
+		levelFontString.translation:SetTarget(levelFontString)
+		levelFontString.translation:SetOrder(7)
+		levelFontString.translation:SetDuration(0.046000000089407)
+		levelFontString.translation:SetOffset(0, -24)
+	end
+
+	function levelUpTextFrame.PlayAnimations(newLevel)
+		levelUpTextFrame:PlayFrameShake(shakeAnimation)
+
+		C_Timer.After(0.7, function()
+			playerFrame.LevelUpFrame:Show()
+			playerFrame.LevelUpFrame:SetAlpha(1)
+			playerFrame.LevelUpFrame.Anim:Play()
+			animationGroup:Play()
+		end)
+
+		C_Timer.After(0.7 + 0.5, function()
+			levelFontString:SetText(newLevel or "")
+		end)
+
+		C_Timer.After(1.65, function()
+			levelUpTextFrame:PlayFrameShake(shakeAnimation2)
+		end)
+	end
 
 	local flashTexture = playerFrame:CreateTexture("$parentFlashTexture", "overlay", nil, 6)
 	flashTexture:SetAtlas("UI-Achievement-Guild-Flag-Outline")
@@ -419,7 +507,6 @@ local updatPlayerBanner = function(unitId, bannerIndex)
 			playerBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
 			playerBanner.LevelFontString:SetText("")
 		end
-
 		return true
 	end
 end
@@ -444,12 +531,20 @@ local updateKeysStoneLevel = function()
 						unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
 					end
 
-					unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
+					--unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
 					--print("setting player", unitBanner.unitName, "keystone level to", unitKeystoneInfo.level)
 
 					local oldKeystoneLevel = Details.KeystoneLevels[Details:GetFullName(unitId)]
 					if (oldKeystoneLevel and oldKeystoneLevel >= 2) then
 						if (unitKeystoneInfo.level > oldKeystoneLevel) then
+							--unitBanner.LevelUpFrame.Text:SetText("")
+							--unitBanner.LevelUpFrame:SetAlpha(1)
+							--unitBanner.LevelUpFrame.Anim:Play()
+
+							C_Timer.After(0.5, function()
+								unitBanner.LevelUpTextFrame.PlayAnimations(unitKeystoneInfo.level)
+							end)
+
 							--this character had its keystone upgraded
 							--unitBanner.flashTexture:Flash()
 							--print("keystone upgraded for", Details:GetFullName(unitId), unitKeystoneInfo.level, "old was:", oldKeystoneLevel)
@@ -467,6 +562,7 @@ local updateKeysStoneLevel = function()
 	end
 end
 
+--SetPortraitTexture(texture, unitId)
 -- /run _G.DetailsMythicDungeonChartHandler.ShowChart(); DetailsMythicDungeonChartFrame.ShowChartFrame()
 -- /run _G.DetailsMythicDungeonChartHandler.ShowReadyPanel()
 
@@ -482,7 +578,7 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 	end
 
 	--feature under development
-	if (Details222.MythicPlus.Level < 28 and not Details.user_is_patreon_supporter) then
+	if (Details222.MythicPlus.Level and Details222.MythicPlus.Level < 28 and not Details.user_is_patreon_supporter) then
 		--create the panel
 		if (not mythicDungeonCharts.ReadyFrame) then
 			mythicDungeonCharts.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
@@ -527,16 +623,16 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 
 			--show button
 			---@type df_button
-			readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, "Show Damage Graphic")
-			readyFrame.ShowButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-			readyFrame.ShowButton:SetPoint("topleft", readyFrame, "topleft", 5, -30)
-			readyFrame.ShowButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
-			readyFrame.ShowButton.textcolor = textColor
+			readyFrame.ShowChartButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, "Show Damage Graphic")
+			readyFrame.ShowChartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
+			readyFrame.ShowChartButton:SetPoint("topleft", readyFrame, "topleft", 5, -30)
+			readyFrame.ShowChartButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
+			readyFrame.ShowChartButton.textcolor = textColor
 
 			--discart button
 			--readyFrame.DiscartButton = DetailsFramework:CreateButton(readyFrame, function() readyFrame:Hide() end, 80, 20, Loc ["STRING_DISCARD"])
 			--readyFrame.DiscartButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-			--readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowButton, "left", -5, 0)
+			--readyFrame.DiscartButton:SetPoint("right", readyFrame.ShowChartButton, "left", -5, 0)
 
 			--disable feature check box (dont show this again)
 			local on_switch_enable = function(self, _, value)
@@ -624,13 +720,43 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 		local warningFooter = DetailsFramework:CreateLabel(readyFrame, "You are seeing this because it's a 28 or above. Under development.", 9, "yellow")
 		warningFooter:SetPoint("bottom", readyFrame, "bottom", 0, 20)
 
-		--show button
+        local roundedCornerPreset = {
+            color = {.075, .075, .075, 1},
+            border_color = {.2, .2, .2, 1},
+            roundness = 8,
+        }
+
+		local leftAnchor
+
+		--show m+ run breakdown
+		local showBreakdownFunc = function()
+			mPlus.ShowSummary()
+		end
 		---@type df_button
-		readyFrame.ShowButton = DetailsFramework:CreateButton(readyFrame, function() mythicDungeonCharts.ShowChart(); readyFrame:Hide() end, 80, 20, "Show Damage Graphic")
-		readyFrame.ShowButton:SetTemplate(DetailsFramework:GetTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE"))
-		readyFrame.ShowButton:SetPoint("topleft", readyFrame, "topleft", 5, -30)
-		readyFrame.ShowButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
-		readyFrame.ShowButton.textcolor = textColor
+		readyFrame.ShowBreakdownButton = DetailsFramework:CreateButton(readyFrame, showBreakdownFunc, 145, 30, "Show Breakdown")
+		PixelUtil.SetPoint(readyFrame.ShowBreakdownButton, "topleft", readyFrame, "topleft", 5, -30)
+		PixelUtil.SetSize(readyFrame.ShowBreakdownButton, 145, 32)
+		readyFrame.ShowBreakdownButton:SetBackdrop(nil)
+		readyFrame.ShowBreakdownButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {84/512, 120/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
+		readyFrame.ShowBreakdownButton.textcolor = textColor
+        detailsFramework:AddRoundedCornersToFrame(readyFrame.ShowBreakdownButton.widget, roundedCornerPreset)
+		leftAnchor = readyFrame.ShowBreakdownButton
+		readyFrame.ShowBreakdownButton:Disable()
+
+		--show graphic button
+		local showChartFunc = function(self)
+			mythicDungeonCharts.ShowChart()
+			readyFrame:Hide()
+		end
+		---@type df_button
+		readyFrame.ShowChartButton = DetailsFramework:CreateButton(readyFrame, showChartFunc, 145, 30, "Show Damage Graphic")
+		PixelUtil.SetPoint(readyFrame.ShowChartButton, "left", readyFrame.ShowBreakdownButton, "right", 5, 0)
+		PixelUtil.SetSize(readyFrame.ShowChartButton, 145, 32)
+		readyFrame.ShowChartButton:SetBackdrop(nil)
+		readyFrame.ShowChartButton:SetIcon([[Interface\AddOns\Details\images\icons2.png]], 16, 16, "overlay", {42/512, 75/512, 153/512, 187/512}, {.7, .7, .7, 1}, nil, 0, 0)
+		readyFrame.ShowChartButton.textcolor = textColor
+        detailsFramework:AddRoundedCornersToFrame(readyFrame.ShowChartButton.widget, roundedCornerPreset)
+
 
 		--disable feature check box (dont show this again)
 		local on_switch_enable = function(self, _, value)
@@ -638,7 +764,7 @@ function mythicDungeonCharts.ShowReadyPanel(bIsDebug)
 		end
 
 		local elapsedTimeLabel = DetailsFramework:CreateLabel(readyFrame, "Run Time:", textSize, textColor)
-		elapsedTimeLabel:SetPoint("topleft", readyFrame.ShowButton, "bottomleft", 0, -8)
+		elapsedTimeLabel:SetPoint("topleft", leftAnchor, "bottomleft", 0, -8)
 		local elapsedTimeAmount = DetailsFramework:CreateLabel(readyFrame, "00:00", textSize, textColor)
 		elapsedTimeAmount:SetPoint("left", elapsedTimeLabel, "left", 130, 0)
 

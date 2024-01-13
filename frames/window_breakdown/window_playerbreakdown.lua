@@ -105,6 +105,9 @@ local PLAYER_DETAILS_WINDOW_HEIGHT = 620
 local PLAYER_DETAILS_STATUSBAR_HEIGHT = 20
 local PLAYER_DETAILS_STATUSBAR_ALPHA = 1
 
+Details222.BreakdownWindow.width = PLAYER_DETAILS_WINDOW_WIDTH
+Details222.BreakdownWindow.height = PLAYER_DETAILS_WINDOW_HEIGHT
+
 ---@type button[]
 Details.player_details_tabs = {}
 ---@type button[]

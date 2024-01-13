@@ -462,12 +462,14 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		magnifyingGlassTexture:SetPoint("left", self.widget, "left", 4, 0)
 		magnifyingGlassTexture:SetSize(self:GetHeight()-10, self:GetHeight()-10)
 		magnifyingGlassTexture:SetAlpha(0.5)
+		self.MagnifyingGlassTexture = magnifyingGlassTexture
 
 		local searchFontString = self:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		searchFontString:SetText("search")
 		searchFontString:SetAlpha(0.3)
 		searchFontString:SetPoint("left", magnifyingGlassTexture, "right", 2, 0)
 		detailsFramework:SetFontSize(searchFontString, 10)
+		self.SearchFontString = searchFontString
 
 		local clearSearchButton = CreateFrame("button", nil, self.widget, "UIPanelCloseButton")
 		clearSearchButton:SetPoint("right", self.widget, "right", -3, 0)
@@ -477,6 +479,7 @@ detailsFramework.TextEntryCounter = detailsFramework.TextEntryCounter or 1
 		clearSearchButton:GetHighlightTexture():SetAtlas("common-search-clearbutton")
 		clearSearchButton:GetPushedTexture():SetAtlas("common-search-clearbutton")
 		clearSearchButton:Hide()
+		self.ClearSearchButton = clearSearchButton
 
 		clearSearchButton:SetScript("OnClick", function()
 			self:SetText("")
@@ -767,6 +770,9 @@ local AutoComplete_OnTextChanged = function(editboxWidget, byUser, capsule)
 		editboxWidget.ignore_textchange = nil
 	end
 	capsule.characters_count = chars_now
+
+	--call the other hooks for the widget
+	capsule:RunHooksForWidget("OnTextChanged", editboxWidget, byUser, capsule)
 end
 
 local AutoComplete_OnSpacePressed = function(editboxWidget, capsule)

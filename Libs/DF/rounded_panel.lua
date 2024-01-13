@@ -74,6 +74,7 @@ local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
 ---@field GetMaxFrameLevel fun(self:df_roundedpanel) : number --return the max frame level of the frame and its children
 
 ---@class df_roundedpanel : frame, df_roundedcornermixin, df_optionsmixin, df_titlebar
+---@field disabled boolean
 ---@field bHasBorder boolean
 ---@field bHasTitleBar boolean
 ---@field options df_roundedpanel_options
@@ -286,6 +287,10 @@ detailsFramework.RoundedCornerPanelMixin = {
     ---adjust the size of the corner textures and the border edge textures
     ---@param self df_roundedpanel
     OnSizeChanged = function(self)
+        if (self.disabled) then
+            return
+        end
+
         --if the frame has a titlebar, need to adjust the size of the titlebar
         if (self.bHasTitleBar) then
             self.TitleBar:SetWidth(self:GetWidth() - 14)
@@ -349,6 +354,44 @@ detailsFramework.RoundedCornerPanelMixin = {
                 PixelUtil.SetSize(self.BorderEdgeTextures["Right"], 1, verticalEdgesNewSize)
             end
         end
+    end,
+
+    DisableRoundedCorners = function(self)
+		self.TopLeft:Hide()
+		self.TopRight:Hide()
+		self.BottomLeft:Hide()
+		self.BottomRight:Hide()
+		self.CenterBlock:Hide()
+		self.TopEdgeBorder:Hide()
+		self.BottomEdgeBorder:Hide()
+		self.LeftEdgeBorder:Hide()
+		self.RightEdgeBorder:Hide()
+		self.TopLeftBorder:Hide()
+		self.TopRightBorder:Hide()
+		self.BottomLeftBorder:Hide()
+		self.BottomRightBorder:Hide()
+		self.TopHorizontalEdge:Hide()
+		self.BottomHorizontalEdge:Hide()
+        self.disabled = true
+    end,
+
+    EnableRoundedCorners = function(self)
+		self.TopLeft:Show()
+		self.TopRight:Show()
+		self.BottomLeft:Show()
+		self.BottomRight:Show()
+		self.CenterBlock:Show()
+		self.TopEdgeBorder:Show()
+		self.BottomEdgeBorder:Show()
+		self.LeftEdgeBorder:Show()
+		self.RightEdgeBorder:Show()
+		self.TopLeftBorder:Show()
+		self.TopRightBorder:Show()
+		self.BottomLeftBorder:Show()
+		self.BottomRightBorder:Show()
+		self.TopHorizontalEdge:Show()
+		self.BottomHorizontalEdge:Show()
+        self.disabled = false
     end,
 
     ---get the size of the edge texture

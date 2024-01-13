@@ -1,4 +1,4 @@
-## Interface: 11404
+## Interface: 11500
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## SavedVariables: _detalhes_global, __details_backup
@@ -91,6 +91,7 @@ frames\window_breakdown\breakdown_spells_genericframes.lua
 frames\window_breakdown\breakdown_spells_spellframes.lua
 frames\window_breakdown\breakdown_spells_targetframes.lua
 frames\window_breakdown\breakdown_spells_phaseframes.lua
+frames\window_mythicplus\window_mythic_breakdown.lua
 frames\window_report.lua
 frames\window_main.lua
 frames\window_custom.lua

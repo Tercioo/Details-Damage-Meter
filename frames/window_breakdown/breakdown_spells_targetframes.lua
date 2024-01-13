@@ -87,7 +87,7 @@ local updateTargetBar = function(targetBar, index, combatObject, scrollFrame, he
 		targetBar.statusBar:SetStatusBarColor(1, 1, 1, 1)
 
 		local platerNameplates = _G.Plater
-		if (platerNameplates) then
+		if (platerNameplates and targetActorObject) then
 			local npcId = tonumber(targetActorObject.aID)
 			if (npcId) then
 				local platerProfile = platerNameplates.db.profile

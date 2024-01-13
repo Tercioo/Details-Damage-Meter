@@ -91,6 +91,7 @@ frames\window_breakdown\breakdown_spells_genericframes.lua
 frames\window_breakdown\breakdown_spells_spellframes.lua
 frames\window_breakdown\breakdown_spells_targetframes.lua
 frames\window_breakdown\breakdown_spells_phaseframes.lua
+frames\window_mythicplus\window_mythic_breakdown.lua
 frames\window_report.lua
 frames\window_main.lua
 frames\window_custom.lua
