@@ -1483,40 +1483,94 @@ end
 
 
 ------------color pick
-local color_pick_func = function()
-	local r, g, b = ColorPickerFrame:GetColorRGB()
-	local a = OpacitySliderFrame:GetValue()
-	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+local _, _, _, toc = GetBuildInfo()
+if (toc >= 100205) then
+	local color_pick_func = function(...)
+		local r, g, b = ColorPickerFrame:GetColorRGB()
+		local a = ColorPickerFrame:GetColorAlpha()
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+
+	local color_pick_func_cancel = function()
+		local r, g, b, a = ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b, ColorPickerFrame.previousValues.a
+		ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b)
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+
+	function detailsFramework:ColorPick(frame, r, g, b, alpha, callback)
+
+		ColorPickerFrame:ClearAllPoints()
+		ColorPickerFrame:SetPoint("bottomleft", frame, "topright", 0, 0)
+
+		ColorPickerFrame.dcallback = callback
+		ColorPickerFrame.dframe = frame
+
+		ColorPickerFrame.func = color_pick_func
+		ColorPickerFrame.opacityFunc = color_pick_func
+		ColorPickerFrame.cancelFunc = color_pick_func_cancel
+
+		ColorPickerFrame.opacity = alpha
+		ColorPickerFrame.hasOpacity = alpha and true
+
+		ColorPickerFrame.previousValues = {r, g, b}
+		ColorPickerFrame.previousAlpha = alpha
+		ColorPickerFrame:SetParent(UIParent)
+		ColorPickerFrame:SetFrameStrata("tooltip")
+
+		local info = {
+			swatchFunc = color_pick_func,
+			hasOpacity = alpha and true,
+			opacityFunc = color_pick_func,
+			opacity = alpha,
+			previousValues = {r = r, g = g, b = b, a = alpha},
+			cancelFunc = color_pick_func_cancel,
+			r = r,
+			g = g,
+			b = b,
+		}
+		--OpenColorPicker(info)
+		ColorPickerFrame:SetupColorPickerAndShow(info)
+
+	end
+else
+	local color_pick_func = function()
+		local r, g, b = ColorPickerFrame:GetColorRGB()
+		local a = OpacitySliderFrame:GetValue()
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+	local color_pick_func_cancel = function()
+		ColorPickerFrame:SetColorRGB (unpack(ColorPickerFrame.previousValues))
+		local r, g, b = ColorPickerFrame:GetColorRGB()
+		local a = OpacitySliderFrame:GetValue()
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+
+	function detailsFramework:ColorPick (frame, r, g, b, alpha, callback)
+
+		ColorPickerFrame:ClearAllPoints()
+		ColorPickerFrame:SetPoint("bottomleft", frame, "topright", 0, 0)
+
+		ColorPickerFrame.dcallback = callback
+		ColorPickerFrame.dframe = frame
+
+		ColorPickerFrame.func = color_pick_func
+		ColorPickerFrame.opacityFunc = color_pick_func
+		ColorPickerFrame.cancelFunc = color_pick_func_cancel
+
+		ColorPickerFrame.opacity = alpha
+		ColorPickerFrame.hasOpacity = alpha and true
+
+		ColorPickerFrame.previousValues = {r, g, b}
+		ColorPickerFrame:SetParent(UIParent)
+		ColorPickerFrame:SetFrameStrata("tooltip")
+		ColorPickerFrame:SetColorRGB (r, g, b)
+		ColorPickerFrame:Show()
+	end
 end
-local color_pick_func_cancel = function()
-	ColorPickerFrame:SetColorRGB (unpack(ColorPickerFrame.previousValues))
-	local r, g, b = ColorPickerFrame:GetColorRGB()
-	local a = OpacitySliderFrame:GetValue()
-	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
-end
 
-function detailsFramework:ColorPick (frame, r, g, b, alpha, callback)
 
-	ColorPickerFrame:ClearAllPoints()
-	ColorPickerFrame:SetPoint("bottomleft", frame, "topright", 0, 0)
 
-	ColorPickerFrame.dcallback = callback
-	ColorPickerFrame.dframe = frame
 
-	ColorPickerFrame.func = color_pick_func
-	ColorPickerFrame.opacityFunc = color_pick_func
-	ColorPickerFrame.cancelFunc = color_pick_func_cancel
-
-	ColorPickerFrame.opacity = alpha
-	ColorPickerFrame.hasOpacity = alpha and true
-
-	ColorPickerFrame.previousValues = {r, g, b}
-	ColorPickerFrame:SetParent(UIParent)
-	ColorPickerFrame:SetFrameStrata("tooltip")
-	ColorPickerFrame:SetColorRGB (r, g, b)
-	ColorPickerFrame:Show()
-
-end
 
 ------------icon pick
 function detailsFramework:IconPick (callback, close_when_select, param1, param2)
