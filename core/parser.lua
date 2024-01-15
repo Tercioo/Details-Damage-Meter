@@ -476,6 +476,9 @@
 
 		--Ozumat - Throne of Tides
 		[44566] = true,
+
+		--Smoldering Seedling trinket
+		[212590] = true,
 	}
 
 	local ignored_npcids = {}
@@ -2411,6 +2414,19 @@
 
 		--check for banned spells
 		if (banned_healing_spells[spellId]) then
+			return
+		end
+
+		--> npcId check for ignored npcs
+		--> get the npcId from the cache, if it's not there then get it from the serial and add it to the cache
+		local npcId = npcid_cache[targetSerial] --target npc
+		if (not npcId) then
+			--this string manipulation is running on every event
+			npcId = tonumber(select(6, strsplit("-", targetSerial)) or 0)
+			npcid_cache[targetSerial] = npcId
+		end
+
+		if (ignored_npcids[npcId]) then
 			return
 		end
 
