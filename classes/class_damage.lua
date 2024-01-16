@@ -3033,6 +3033,14 @@ function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, 
 			extraStatusbar:SetPoint("topleft", thisLine, "topleft", (statusBarWidth * percent) - fillTheGapWidth, 0)
 		end
 
+		--check if the extra bar will be bigger than the window
+		local windowWidth = instanceObject:GetSize()
+		local lineWidth = thisLine:GetWidth()
+		local maxExtraBarWidth = windowWidth - lineWidth - initialOffset
+		if (extraStatusbarWidth > maxExtraBarWidth) then
+			extraStatusbarWidth = maxExtraBarWidth
+		end
+
 		extraStatusbar:SetWidth(extraStatusbarWidth)
 		extraStatusbar:SetFrameLevel(thisLine:GetFrameLevel() + 1)
 

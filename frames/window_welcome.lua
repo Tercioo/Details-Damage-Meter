@@ -467,10 +467,12 @@ local window_openned_at = time()
 			local new_window = function(self)
 				if (#_detalhes.tabela_instancias == 1) then
 					local newwindow = _detalhes:CreateInstance (true)
-					newwindow.baseframe:SetPoint("topleft", _detalhes.tabela_instancias[1].baseframe, "topright", 50, 0)
-					newwindow.baseframe:SetPoint("bottomleft", _detalhes.tabela_instancias[1].baseframe, "bottomright", 50, 0)
-					newwindow:SaveMainWindowPosition()
-					newwindow:RestoreMainWindowPosition()
+					if (newwindow) then
+						newwindow.baseframe:SetPoint("topleft", _detalhes.tabela_instancias[1].baseframe, "topright", 50, 0)
+						newwindow.baseframe:SetPoint("bottomleft", _detalhes.tabela_instancias[1].baseframe, "bottomright", 50, 0)
+						newwindow:SaveMainWindowPosition()
+						newwindow:RestoreMainWindowPosition()
+					end
 				end
 				self.MyObject:Disable()
 			end

@@ -416,7 +416,7 @@ end
 
 function augmentationFunctions.BuffOut(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellSchool, tipo, amount)
     if (not Details.in_combat) then --when the player enter and leave combat, it tracks which players had buffs applied
-        return
+        --return
     end
 
     if (spellId == 395152) then --ebon might

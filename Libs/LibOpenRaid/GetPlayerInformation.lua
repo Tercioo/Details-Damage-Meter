@@ -737,13 +737,12 @@ local getAuraDuration = function(spellId, unitId)
     --spellId = customBuffDuration or spellId --can't replace the spellId by customBuffDurationSpellId has it wount be found in LIB_OPEN_RAID_PLAYERCOOLDOWNS
 
     if (bIsNewUnitAuraAvailable) then
-        local bBatchCount = false
         local bUsePackedAura = true
         auraSpellID = customBuffDuration or spellId
         auraDurationTime = 0 --reset duration
         auraUnitId = unitId or "player"
 
-        AuraUtil.ForEachAura(auraUnitId, "HELPFUL", bBatchCount, handleBuffAura, bUsePackedAura) --check auras to find a buff for the spellId
+        AuraUtil.ForEachAura(auraUnitId, "HELPFUL", nil, handleBuffAura, bUsePackedAura) --check auras to find a buff for the spellId
 
         if (auraDurationTime == 0) then --if the buff wasn't found, attempt to get the duration from the file
             return LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId].duration or 0
