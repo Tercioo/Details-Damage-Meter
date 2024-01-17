@@ -23,7 +23,7 @@ function mPlus.CreateMainFrame()
     PixelUtil.SetPoint(mPlusFrame, "center", UIParent, "center", 0, 0)
     PixelUtil.SetSize(mPlusFrame, Details222.BreakdownWindow.width, Details222.BreakdownWindow.height)
 
-
+    
 end
 
 

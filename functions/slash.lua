@@ -1964,10 +1964,7 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 				f:SetScript("OnEvent", function(self, event, ...)
 					if (f:IsShown()) then
 						if (event == "GUILD_ROSTER_UPDATE") then
-							local bUpdateOkay = ...
-							if (bUpdateOkay) then
-								self:RefreshData()
-							end
+							self:RefreshData()
 						end
 					end
 				end)
@@ -1986,13 +1983,19 @@ if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 					local guildName = GetGuildInfo("player")
 					if (guildName) then
 						f:RegisterEvent("GUILD_ROSTER_UPDATE")
+
+						C_Timer.NewTicker(1, function()
+							f:RefreshData()
+						end, 30)
+
 						C_Timer.After(30, function()
 							f:UnregisterEvent("GUILD_ROSTER_UPDATE")
 						end)
 						C_GuildInfo.GuildRoster()
+
 						openRaidLib.RequestKeystoneDataFromGuild()
 					end
-				end, 100, 20, "Request from Guild")
+				end, 100, 22, "Request from Guild")
 				requestFromGuildButton:SetPoint("bottomleft", statusBar, "topleft", 2, 2)
 				requestFromGuildButton:SetTemplate(detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 				requestFromGuildButton:SetIcon("UI-RefreshButton", 20, 20, "overlay", {0, 1, 0, 1}, "lawngreen")

@@ -288,7 +288,7 @@ function AuraScan.OnEvent(frame, eventName, unitId, updateInfo)
         for auraIndex = 1, #updateInfo.addedAuras do
             ---@type aurainfo
             local auraInfo = updateInfo.addedAuras[auraIndex]
-            print(unitId, targetName, auraInfo.name)
+            --print(unitId, targetName, auraInfo.name)
             fAddAura(auraInfo)
         end
     end

@@ -3035,8 +3035,9 @@ function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, 
 
 		--check if the extra bar will be bigger than the window
 		local windowWidth = instanceObject:GetSize()
-		local lineWidth = thisLine:GetWidth()
+		local lineWidth = thisLine:GetWidth() * (amount/topAmount)
 		local maxExtraBarWidth = windowWidth - lineWidth - initialOffset
+
 		if (extraStatusbarWidth > maxExtraBarWidth) then
 			extraStatusbarWidth = maxExtraBarWidth
 		end
@@ -3455,6 +3456,9 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 						end
 					end
 				end
+
+				GameCooltip:AddLine(" ")
+				GameCooltip:AddIcon("", 1, 1, 5, 5)
 			end
 		end
 	else
