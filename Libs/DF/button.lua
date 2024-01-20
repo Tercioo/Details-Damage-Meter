@@ -1037,7 +1037,7 @@ end
 ------------------------------------------------------------------------------------------------------------
 --color picker button
 	local pickcolorCallback = function(self, red, green, blue, alpha, button)
-		alpha = math.abs(alpha - 1)
+		alpha = math.max(0, math.min(1, alpha))
 		button.MyObject.color_texture:SetVertexColor(red, green, blue, alpha)
 
 		--safecall
@@ -1047,7 +1047,7 @@ end
 
 	local pickcolor = function(self)
 		local red, green, blue, alpha = self.MyObject.color_texture:GetVertexColor()
-		alpha = math.abs(alpha - 1)
+		alpha = math.max(0, math.min(1, alpha))
 		detailsFramework:ColorPick(self, red, green, blue, alpha, pickcolorCallback)
 	end
 

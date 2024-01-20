@@ -1,6 +1,6 @@
 
 
-local dversion = 504
+local dversion = 507
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -3867,7 +3867,7 @@ local specs_per_class = {
 	["ROGUE"] = {259, 260, 261},
 	["DRUID"] = {102, 103, 104, 105},
 	["HUNTER"] = {253, 254, 255},
-	["SHAMAN"] = {262, 263, 254},
+	["SHAMAN"] = {262, 263, 264},
 	["PRIEST"] = {256, 257, 258},
 	["WARLOCK"] = {265, 266, 267},
 	["PALADIN"] = {65, 66, 70},

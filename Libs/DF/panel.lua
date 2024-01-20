@@ -87,9 +87,9 @@ local default_framelayout_options = {
 	offset_x = 100,
 	use__width = false, --__width from the widget
 	offset_y = 20,
-	width = 0, --if bigger than 0, it will set the value
+	width = 1,
 	min_width = 0,
-	height = 0,
+	height = 1,
 	break_if_hidden = true, --stop if encounters a hidden frame
 }
 
@@ -1484,7 +1484,7 @@ end
 
 ------------color pick
 local _, _, _, toc = GetBuildInfo()
-if (toc >= 100205) then
+if ((ColorPickerFrame and ColorPickerFrame.SetupColorPickerAndShow) or toc >= 100205) then -- maybe fallback to only check CPF in the future
 	local color_pick_func = function(...)
 		local r, g, b = ColorPickerFrame:GetColorRGB()
 		local a = ColorPickerFrame:GetColorAlpha()
@@ -1536,12 +1536,14 @@ else
 	local color_pick_func = function()
 		local r, g, b = ColorPickerFrame:GetColorRGB()
 		local a = OpacitySliderFrame:GetValue()
+		a = math.abs(a - 1)
 		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 	end
 	local color_pick_func_cancel = function()
 		ColorPickerFrame:SetColorRGB (unpack(ColorPickerFrame.previousValues))
 		local r, g, b = ColorPickerFrame:GetColorRGB()
 		local a = OpacitySliderFrame:GetValue()
+		a = math.abs(a - 1)
 		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 	end
 
@@ -1557,6 +1559,7 @@ else
 		ColorPickerFrame.opacityFunc = color_pick_func
 		ColorPickerFrame.cancelFunc = color_pick_func_cancel
 
+		alpha = math.abs(alpha - 1)
 		ColorPickerFrame.opacity = alpha
 		ColorPickerFrame.hasOpacity = alpha and true
 
@@ -4221,7 +4224,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 			if (optionTable.mask) then
 				checkbox.Icon:SetMask(optionTable.mask)
 			else
-				checkbox.Icon:SetMask(nil)
+				checkbox.Icon:SetMask("")
 			end
 		else
 			checkbox.Icon:SetTexture("")
