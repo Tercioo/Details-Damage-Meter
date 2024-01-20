@@ -297,6 +297,7 @@
 			Details:Msg("(debug) |cFFFFFF00started a new combat|r|cFFFF7700", Details.encounter_table and Details.encounter_table.name or "")
 			--local from = debugstack(2, 1, 0)
 			--print("from:", from)
+			DetailsParserDebugFrame:Show()
 		end
 
 		local segmentsTable = Details:GetCombatSegments()
@@ -474,6 +475,8 @@
 	function Details:SairDoCombate(bossKilled, bIsFromEncounterEnd)
 		if (Details.debug) then
 			Details:Msg("(debug) |cFFFFFF00ended a combat|r|cFFFF7700", Details.encounter_table and Details.encounter_table.name or "")
+		else
+			DetailsParserDebugFrame:Hide()
 		end
 
 		---@type combat

@@ -47,6 +47,91 @@ eventListener:RegisterEvent("COMBAT_PLAYER_LEAVING", function(eventName, combatO
     --close the time on the current amount of prescience stacks the evoker have
     ---@type combat
     local combat = Details:GetCurrentCombat()
+
+    local amountOfAugEvokers = 0
+
+    ---@type actorcontainer
+    local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
+    ---@type actor[]
+    local players = {}
+    ---@type actor
+    local augEvokerObject
+
+    for index, actorObject in damageContainer:ListActors() do
+        --check the specId to know if the actor has the augmentation specId
+        if (actorObject.spec == 1473) then
+            amountOfAugEvokers = amountOfAugEvokers + 1
+            players[#players+1] = actorObject
+            augEvokerObject = actorObject
+
+        elseif (actorObject:IsPlayer()) then
+            players[#players+1] = actorObject
+        end
+    end
+
+    --print("players", #players, "amountOfAugEvokers:", amountOfAugEvokers, augEvokerObject and augEvokerObject:Name() or "nil")
+
+    if (amountOfAugEvokers == 1 and augEvokerObject) then
+        local breathOfEonsDamage = 0
+        local infernoBlessingDamage = 0
+        local fateMirrorDamage = 0
+        local blisteringScalesDamage = 0
+
+        for i = 1, #players do
+            ---@actor
+            local playerObject = players[i]
+            local spellContainer = playerObject:GetSpellContainer("spell")
+
+            local breathOfEons = spellContainer:GetSpell(CONST_SPELLID_EONS_BREATH)
+            local infornoBlessing = spellContainer:GetSpell(CONST_SPELLID_INFERNOBLESS)
+            local blisteringScales = spellContainer:GetSpell(CONST_SPELLID_TANK_SHIELD)
+            local fateMirror = spellContainer:GetSpell(CONST_SPELLID_SS)
+
+            if (breathOfEons and breathOfEons.total >= 1) then
+                breathOfEonsDamage = breathOfEonsDamage + breathOfEons.total
+            end
+
+            if (infornoBlessing and infornoBlessing.total >= 1) then
+                infernoBlessingDamage = infernoBlessingDamage + infornoBlessing.total
+            end
+
+            if (blisteringScales and blisteringScales.total >= 1) then
+                blisteringScalesDamage = blisteringScalesDamage + blisteringScales.total
+            end
+
+            if (fateMirror and fateMirror.total >= 1) then
+                fateMirrorDamage = fateMirrorDamage + fateMirror.total
+            end
+        end
+
+        local augmentedSpellContainer = augEvokerObject.augmentedSpellsContainer
+
+        if (breathOfEonsDamage > 0) then
+            local bCanCreateSpellIfMissing = true
+            local breathOfEonsSpell = augmentedSpellContainer:GetOrCreateSpell(CONST_SPELLID_EONS_BREATH, bCanCreateSpellIfMissing, "SPELL_DAMAGE")
+            breathOfEonsSpell.total = breathOfEonsDamage
+        end
+
+        if (infernoBlessingDamage > 0) then
+            local bCanCreateSpellIfMissing = true
+            local infernoBlessingSpell = augmentedSpellContainer:GetOrCreateSpell(CONST_SPELLID_INFERNOBLESS, bCanCreateSpellIfMissing, "SPELL_DAMAGE")
+            infernoBlessingSpell.total = infernoBlessingDamage
+        end
+
+        if (blisteringScalesDamage > 0) then
+            local bCanCreateSpellIfMissing = true
+            local blisteringScalesSpell = augmentedSpellContainer:GetOrCreateSpell(CONST_SPELLID_TANK_SHIELD, bCanCreateSpellIfMissing, "SPELL_DAMAGE")
+            blisteringScalesSpell.total = blisteringScalesDamage
+        end
+
+        if (fateMirrorDamage > 0) then
+            local bCanCreateSpellIfMissing = true
+            local fateMirrorSpell = augmentedSpellContainer:GetOrCreateSpell(CONST_SPELLID_SS, bCanCreateSpellIfMissing, "SPELL_DAMAGE")
+            fateMirrorSpell.total = fateMirrorDamage
+        end
+    end
+
+    --[=[
     ---@type actorcontainer
     local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_MISC)
     --print(1, "COMBAT_PLAYER_LEAVING", next(augmentationCache.prescience_stacks))
@@ -65,6 +150,7 @@ eventListener:RegisterEvent("COMBAT_PLAYER_LEAVING", function(eventName, combatO
 
         actorObject.prescience_stack_data_by_timeline = DetailsFramework.table.copy({}, stackInfo.stackTime)
     end
+    --]=]
 end)
 
 ---@class details_evoker_presciencetimeline : table
@@ -156,6 +242,7 @@ function augmentationFunctions.OnAugmentationBuffUpdate(eventName, ...)
     elseif (eventName == "TIMELINE_READY") then --not in use
         --if true then return end
         --timelineTable is an indexed table with all the timeline events
+        --[=[
         ---@type details_auratimeline[]
         local timelineTable = ...
 
@@ -247,6 +334,7 @@ function augmentationFunctions.OnAugmentationBuffUpdate(eventName, ...)
                 evokerUtilityObject.prescience_stack_data_by_timeline = DetailsFramework.table.copy({}, evokerPrescienceStackInfo.stackTime)
             end
         end
+        --]=]
     end
 end
 
@@ -256,14 +344,23 @@ function augmentationFunctions.BuffIn(token, time, sourceSerial, sourceName, sou
     end
 
     if (spellId == 395152) then --ebom might on third parties
-        local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
+        local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, _, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
         local attributeGained = v2
 
+        --unit already have the buff from this evoker
         if (type(attributeGained) == "number") then
+            if (augmentationCache.ebon_might[targetSerial]) then
+                for index, evokerInfo in ipairs(augmentationCache.ebon_might[targetSerial]) do
+                    if (evokerInfo[1] == sourceSerial) then
+                        evokerInfo[4] = attributeGained
+                        return
+                    end
+                end
+            end
+
             augmentationCache.ebon_might[targetSerial] = augmentationCache.ebon_might[targetSerial] or {}
             local evokerInfo = {sourceSerial, sourceName, sourceFlags, attributeGained}
             table.insert(augmentationCache.ebon_might[targetSerial], evokerInfo)
-            --print("ebom might added, cache:", Details.augmentation_cache, #augmentationCache.ebon_might[targetSerial])
         end
 
     elseif (spellId == 413984) then --ss
@@ -347,26 +444,30 @@ end
 
 function augmentationFunctions.BuffRefresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, tipo, amount)
     if (spellId == 395152) then
-        local bFound = false
-        augmentationCache.ebon_might[targetSerial] = augmentationCache.ebon_might[targetSerial] or {}
+        if (augmentationCache.ebon_might[targetSerial]) then
+            for index, evokerInfo in ipairs(augmentationCache.ebon_might[targetSerial]) do
+                if (evokerInfo[1] == sourceSerial) then
+                    local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, auraSpellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
+                    local attributeGained = v2
 
-        for index, evokerInfo in ipairs(augmentationCache.ebon_might[targetSerial]) do
-            if (evokerInfo[1] == sourceSerial) then
-                local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, auraSpellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
-                local attributeGained = v2
-
-                if (type(attributeGained) == "number") then
-                    evokerInfo[4] = attributeGained
-                    bFound = true
-                    break
+                    if (type(attributeGained) == "number") then
+                        evokerInfo[4] = attributeGained
+                        return
+                    end
                 end
             end
-        end
 
-        if (not bFound) then
             local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, auraSpellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
             local attributeGained = v2
             if (type(attributeGained) == "number") then
+                Details222.DebugMsg("Ebon Might Refreshed!, but the evoker was not found in the cache (1), adding:", sourceName, sourceSerial, targetName, targetSerial)
+                table.insert(augmentationCache.ebon_might[targetSerial], {sourceSerial, sourceName, sourceFlags, attributeGained})
+            end
+        else
+            local auraName, texture, count, auraType, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, auraSpellId, canApplyAura, isBossAura, isFromPlayerOrPlayerPet, nameplateShowAll, timeMod, v1, v2, v3, v4, v5 = Details:FindBuffCastedByUnitName(targetName, spellId, sourceName)
+            local attributeGained = v2
+            if (type(attributeGained) == "number") then
+                Details222.DebugMsg("Ebon Might Refreshed!, but the evoker was not found in the cache (2), adding:", sourceName, sourceSerial, targetName, targetSerial)
                 table.insert(augmentationCache.ebon_might[targetSerial], {sourceSerial, sourceName, sourceFlags, attributeGained})
             end
         end
@@ -421,12 +522,9 @@ function augmentationFunctions.BuffOut(token, time, sourceSerial, sourceName, so
 
     if (spellId == 395152) then --ebon might
         if (augmentationCache.ebon_might[targetSerial]) then
-            --print("tinha buff", targetName, targetSerial)
             for index, evokerInfo in ipairs(augmentationCache.ebon_might[targetSerial]) do
                 if (evokerInfo[1] == sourceSerial) then
-                    --print("ebom might finished, removing from cache:", Details.augmentation_cache, #augmentationCache.ebon_might[targetSerial])
                     table.remove(augmentationCache.ebon_might[targetSerial], index)
-                    --print("ebom might finished, removing from cache:", Details.augmentation_cache, #augmentationCache.ebon_might[targetSerial])
                     break
                 end
             end

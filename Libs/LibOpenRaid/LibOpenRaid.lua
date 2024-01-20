@@ -43,7 +43,8 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 122
+
+local CONST_LIB_VERSION = 124
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -131,6 +132,9 @@ end
     local CONST_COOLDOWN_INFO_SIZE = 6
 
     local CONST_USE_DEFAULT_SCHEDULE_TIME = true
+
+    -- Real throttle is 10 messages per 1 second, but we want to be safe due to fact we dont know when it actually resets
+    local CONST_COMM_BURST_BUFFER_COUNT = 9
 
     local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
     local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
@@ -485,25 +489,33 @@ end
     ---@field channel string
 
     ---@type {}[]
-    local commScheduler = {}
+    local commScheduler = {};
 
+    local commBurstBufferCount = CONST_COMM_BURST_BUFFER_COUNT;
+    local commServerTimeLastThrottleUpdate = GetServerTime();
+    
     do
         --if there's an old version that already registered the comm ticker, cancel it
         if (LIB_OPEN_RAID_COMM_SCHEDULER) then
-            LIB_OPEN_RAID_COMM_SCHEDULER:Cancel()
+            LIB_OPEN_RAID_COMM_SCHEDULER:Cancel();
         end
 
-        --make the lib throttle the comms to one per second
-        local newTickerHandle = C_Timer.NewTicker(1, function()
-            for i = #commScheduler, 1, -1 do
-                local commData = commScheduler[i]
-                if (commData) then
-                    sendData(commData.data, commData.channel)
-                    table.remove(commScheduler, i)
-                    return
-                end
+        local newTickerHandle = C_Timer.NewTicker(0.05, function()
+            local serverTime = GetServerTime();
+
+            -- Replenish the counter if last server time is not the same as the last throttle update
+            -- Clamp it to CONST_COMM_BURST_BUFFER_COUNT
+            commBurstBufferCount = math.min((serverTime ~= commServerTimeLastThrottleUpdate) and commBurstBufferCount + 1 or commBurstBufferCount, CONST_COMM_BURST_BUFFER_COUNT);
+            commServerTimeLastThrottleUpdate = serverTime;
+
+            -- while (anything in queue) and (throttle allows it)
+            while(#commScheduler > 0 and commBurstBufferCount > 0) do
+                -- FIFO queue
+                local commData = table.remove(commScheduler, 1);
+                sendData(commData.data, commData.channel);
+                commBurstBufferCount = commBurstBufferCount - 1;
             end
-        end)
+        end);
 
         LIB_OPEN_RAID_COMM_SCHEDULER = newTickerHandle
     end
@@ -531,8 +543,8 @@ end
 
             if (bit.band(flags, CONST_COMM_SENDTO_GUILD)) then --send to guild
                 if (IsInGuild()) then
-                    local commData = {data = dataEncoded, channel = "GUILD"}
-                    table.insert(commScheduler, commData)
+                    --Guild has no 10 msg restriction so send it directly
+                    sendData(dataEncoded, "GUILD");
                 end
             end
         else
@@ -588,9 +600,9 @@ end
         end
 
         local result, errortext = xpcall(callback, geterrorhandler(), unpack(payload))
-        if (not result) then
-            sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
-        end
+        --if (not result) then
+        --    sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
+        --end
 
         return result
     end
@@ -601,7 +613,7 @@ end
         local newTimer = C_Timer.NewTimer(time, triggerScheduledTick)
         newTimer.payload = payload
         newTimer.callback = callback
-        newTimer.stack = debugstack()
+        --newTimer.stack = debugstack()
         return newTimer
     end
 
@@ -621,7 +633,7 @@ end
         local newTimer = openRaidLib.Schedules.NewTimer(time, callback, ...)
         newTimer.namespace = namespace
         newTimer.scheduleName = scheduleName
-        newTimer.stack = debugstack()
+        --newTimer.stack = debugstack()
         newTimer.isUnique = true
 
         local registeredUniqueTimers = openRaidLib.Schedules.registeredUniqueTimers

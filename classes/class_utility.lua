@@ -1535,8 +1535,9 @@ function _detalhes:CatchRaidBuffUptime(sOperationType)
 					if (auraName) then
 						if (UnitExists(unitCaster)) then
 							local bBuffIsPlacedOnTarget = Details.CreditBuffToTarget[spellId]
-							if (UnitIsUnit(unitCaster, unitId) or bBuffIsPlacedOnTarget) then
-								if (bBuffIsPlacedOnTarget and not UnitIsUnit(unitCaster, unitId)) then
+							local bUnitIsTheCaster = UnitIsUnit(unitCaster, unitId)
+							if (bUnitIsTheCaster or bBuffIsPlacedOnTarget) then
+								if (bBuffIsPlacedOnTarget and not bUnitIsTheCaster) then
 									--could be prescince, ebom might or power infusion; casted on a target instead of the caster
 									local sourceSerial = UnitGUID(unitCaster)
 									local sourceName = Details:GetFullName(unitCaster)
@@ -1546,9 +1547,9 @@ function _detalhes:CatchRaidBuffUptime(sOperationType)
 									local targetFlags = 0x514
 									local targetFlags2 = 0x0
 									local spellName = auraName
-									--print(targetName, "already had", spellName, "at first of a combat")
 									Details.parser:buff("SPELL_AURA_APPLIED", time(), sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, 0x4, "BUFF", 0)
-								else
+
+								elseif (bUnitIsTheCaster) then
 									local playerGUID = UnitGUID(unitId)
 									if (playerGUID) then
 										local playerName = Details:GetFullName(unitId)

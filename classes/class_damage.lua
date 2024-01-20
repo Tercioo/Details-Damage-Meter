@@ -3481,6 +3481,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		local CONST_SPELLID_EBONMIGHT = 395152
 		local CONST_SPELLID_PRESCIENCE = 410089
 		local CONST_SPELLID_BLACKATTUNEMENT = 403264
+		local CONST_SPELLID_BLISTERING_SCALES = 360827
 
 		---@type actor[]
 		local augmentationEvokers = {}
@@ -3565,7 +3566,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		GameCooltip:AddLine("", "")
 		GameCooltip:AddIcon("", nil, nil, 1, 1)
 
-		for i = 1, #augmentationEvokers do
+		for i = 1, #augmentationEvokers do --black attunement
 			local actorObject = augmentationEvokers[i]
 			if (actorObject:Name() == actorName) then
 				local buffUptimeSpellContainer = actorObject:GetSpellContainer("buff")
@@ -3574,6 +3575,26 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 					if (spellTable) then
 						local uptime = spellTable.uptime
 						local spellName, _, spellIcon = _GetSpellInfo(CONST_SPELLID_BLACKATTUNEMENT)
+						local uptimePercent = uptime / combatTime * 100
+
+						if (uptime <= combatTime) then
+							local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
+							if (minutes > 0) then
+								GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+							else
+								GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+							end
+
+							GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+						end
+					end
+
+					local spellTable = buffUptimeSpellContainer:GetSpell(CONST_SPELLID_BLISTERING_SCALES)
+					if (spellTable) then
+						local uptime = spellTable.uptime
+						local spellName, _, spellIcon = _GetSpellInfo(CONST_SPELLID_BLISTERING_SCALES)
 						local uptimePercent = uptime / combatTime * 100
 
 						if (uptime <= combatTime) then
@@ -3645,7 +3666,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 
 		if (evokerObject) then
 			GameCooltip:AddLine("Prescience Uptime by Amount of Applications")
-			local prescienceData = evokerObject.cleu_prescience_time --real time
+			local prescienceData = evokerObject.cleu_prescience_time
 
 			if (prescienceData) then
 				prescienceData = prescienceData.stackTime
@@ -3664,6 +3685,51 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 						GameCooltip:AddIcon([[Interface\AddOns\Details\images\spells\prescience_time]], nil, nil, iconSize, iconSize)
 						Details:AddTooltipBackgroundStatusbar(false, time/totalTimeWithPrescienceUp*100, true, "green")
 					end
+				end
+			end
+		end
+
+		--iterate among all the actors and find which one are healers, then get the amount of mana the evoker restored for that healer
+		---@type actorcontainer
+		local resourcesContainer = combatObject:GetContainer(DETAILS_ATTRIBUTE_ENERGY)
+		local manaRestoredToHealers = {}
+
+		for index, actorObject in resourcesContainer:ListActors() do
+			if (actorObject.spec == 1473) then --this is an aug evoker
+				local spellContainer = actorObject:GetSpellContainer("spell")
+				--local spellContainer = actorObject.spells
+				if (spellContainer) then
+					local sourceOfMagic = spellContainer:GetSpell(372571)
+					if (sourceOfMagic) then
+						for targetName, restoredAmount in pairs(sourceOfMagic.targets) do
+							manaRestoredToHealers[#manaRestoredToHealers+1] = {targetName, restoredAmount}
+						end
+					end
+				end
+			end
+		end
+
+		if (#manaRestoredToHealers > 0) then
+			GameCooltip:AddLine(" ")
+			GameCooltip:AddIcon(" ", 1, 1, 10, 10)
+			GameCooltip:AddLine("Mana Restored to Healers:")
+
+			table.sort(manaRestoredToHealers, Details.Sort2)
+
+			for i = 1, math.min(10, #manaRestoredToHealers) do
+				local targetName, restoredAmount = unpack(manaRestoredToHealers[i])
+				local targetActorObject = combatObject(DETAILS_ATTRIBUTE_ENERGY, targetName)
+
+				if (targetActorObject) then
+					local targetClass = targetActorObject:GetActorClass()
+					local targetName = detailsFramework:AddClassColorToText(targetName, targetClass)
+					targetName = detailsFramework:AddClassIconToText(targetName, targetName, targetClass)
+
+					GameCooltip:AddLine(targetName, Details:Format(restoredAmount))
+
+					local spellIcon = GetSpellTexture(372571)
+					GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
+					Details:AddTooltipBackgroundStatusbar(false, 100, true, "dodgerblue")
 				end
 			end
 		end

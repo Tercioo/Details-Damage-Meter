@@ -802,50 +802,52 @@ do
     --make new namespace
     openRaidLib.AuraTracker = {}
 
-    function openRaidLib.AuraTracker.ScanCallback(aura)
-        local unitId = openRaidLib.AuraTracker.CurrentUnitId
-        local thisUnitAuras = openRaidLib.AuraTracker.CurrentAuras[unitId]
-
-        local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID(unitId, aura.auraInstanceID)
-        if (auraInfo) then
-            local spellId = auraInfo.spellId
-            if (spellId) then
-                thisUnitAuras[spellId] = true
-                openRaidLib.AuraTracker.AurasFoundOnScan[spellId] = true
+    do if (false) then --do not load this section as it isn't in use
+        function openRaidLib.AuraTracker.ScanCallback(auraInfo)
+            if (auraInfo) then
+                local spellId = auraInfo.spellId
+                if (spellId) then
+                    local unitId = openRaidLib.AuraTracker.CurrentUnitId
+                    local thisUnitAuras = openRaidLib.AuraTracker.CurrentAuras[unitId]
+                    thisUnitAuras[spellId] = true
+                    openRaidLib.AuraTracker.AurasFoundOnScan[spellId] = true
+                end
             end
         end
-    end
 
-	function openRaidLib.AuraTracker.ScanUnitAuras(unitId)
-		local batchCount = nil
-		local usePackedAura = true
-        openRaidLib.AuraTracker.CurrentUnitId = unitId
+        function openRaidLib.AuraTracker.ScanUnitAuras(unitId)
+            local maxCount = nil
+            local bUsePackedAura = true
+            openRaidLib.AuraTracker.CurrentUnitId = unitId
 
-        openRaidLib.AuraTracker.AurasFoundOnScan = {}
-		AuraUtil.ForEachAura(unitId, "HELPFUL", batchCount, openRaidLib.AuraTracker.ScanCallback, usePackedAura)
+            openRaidLib.AuraTracker.AurasFoundOnScan = {}
 
-        local thisUnitAuras = openRaidLib.AuraTracker.CurrentAuras[unitId]
-        for spellId in pairs(thisUnitAuras) do
-            if (not openRaidLib.AuraTracker.AurasFoundOnScan[spellId]) then
-                --aura removed
-                openRaidLib.internalCallback.TriggerEvent("unitAuraRemoved", unitId, spellId)
+            --code of 'ForEachAura' has been updated to use the latest API available
+            AuraUtil.ForEachAura(unitId, "HELPFUL", maxCount, openRaidLib.AuraTracker.ScanCallback, bUsePackedAura)
+
+            local thisUnitAuras = openRaidLib.AuraTracker.CurrentAuras[unitId]
+            for spellId in pairs(thisUnitAuras) do
+                if (not openRaidLib.AuraTracker.AurasFoundOnScan[spellId]) then
+                    --aura removed
+                    openRaidLib.internalCallback.TriggerEvent("unitAuraRemoved", unitId, spellId)
+                end
             end
         end
-	end
 
-    --run when the open raid lib loads
-    function openRaidLib.AuraTracker.StartScanUnitAuras(unitId)
-        openRaidLib.AuraTracker.CurrentAuras = {
-            [unitId] = {}
-        }
+        --run when the open raid lib loads
+        function openRaidLib.AuraTracker.StartScanUnitAuras(unitId) --this function isn't getting called (was called from Entering World event)
+            openRaidLib.AuraTracker.CurrentAuras = {
+                [unitId] = {} --storing using the unitId as key, won't work for any other unit other than the "player"
+            }
 
-        local auraFrameEvent = CreateFrame("frame")
-        auraFrameEvent:RegisterUnitEvent("UNIT_AURA", unitId)
+            local auraFrameEvent = CreateFrame("frame")
+            auraFrameEvent:RegisterUnitEvent("UNIT_AURA", unitId)
 
-        auraFrameEvent:SetScript("OnEvent", function()
-            openRaidLib.AuraTracker.ScanUnitAuras(unitId)
-        end)
-    end
+            auraFrameEvent:SetScript("OnEvent", function()
+                openRaidLib.AuraTracker.ScanUnitAuras(unitId)
+            end)
+        end
+    end end
 
     --test case:
     local debugModule = {}
@@ -854,7 +856,6 @@ do
         --print("aura removed:", unitId, spellId, spellName)
     end
     openRaidLib.internalCallback.RegisterCallback("unitAuraRemoved", debugModule.AuraRemoved)
-
 end
 
 
@@ -899,7 +900,6 @@ do
         local casterName = Ambiguate(casterString, "none")
         return openRaidLib.AuraTracker.FindBuffDuration(targetName, casterName, spellId)
     end
-
 end
 
 

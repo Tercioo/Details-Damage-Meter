@@ -525,25 +525,31 @@ local updateKeysStoneLevel = function()
 				local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
 				--print("Unit Exists:", unitBanner.unitName, unitId, "updating keystone level", unitKeystoneInfo)
 				if (unitKeystoneInfo) then
-					if (instanceInfo) then
-						---@type details_instanceinfo
-						local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
-						unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
-					end
+					--if (instanceInfo) then
+					--	---@type details_instanceinfo
+					--	local thisInstanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
+					--	unitBanner.DungeonTexture:SetTexture(thisInstanceInfo.iconLore)
+					--end
 
 					--unitBanner.LevelFontString:SetText(unitKeystoneInfo.level)
 					--print("setting player", unitBanner.unitName, "keystone level to", unitKeystoneInfo.level)
 
 					local oldKeystoneLevel = Details.KeystoneLevels[Details:GetFullName(unitId)]
+
 					if (oldKeystoneLevel and oldKeystoneLevel >= 2) then
 						if (unitKeystoneInfo.level > oldKeystoneLevel) then
-							--unitBanner.LevelUpFrame.Text:SetText("")
-							--unitBanner.LevelUpFrame:SetAlpha(1)
-							--unitBanner.LevelUpFrame.Anim:Play()
-
 							C_Timer.After(0.5, function()
 								unitBanner.LevelUpTextFrame.PlayAnimations(unitKeystoneInfo.level)
 							end)
+
+							---@type details_instanceinfo
+							local instanceInfo = Details:GetInstanceInfo(unitKeystoneInfo.mapID)
+
+							if (instanceInfo) then
+								unitBanner.DungeonTexture:SetTexture(instanceInfo.iconLore)
+							else
+								unitBanner.DungeonTexture:SetTexture([[Interface\ICONS\INV_Misc_QuestionMark]])
+							end
 
 							--this character had its keystone upgraded
 							--unitBanner.flashTexture:Flash()

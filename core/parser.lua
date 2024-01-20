@@ -1300,13 +1300,13 @@
 		--~roskash - augmentation evoker damage buff
 		if (augmentation_cache.ebon_might[sourceSerial] or (ownerActor and augmentation_cache.ebon_might[ownerActor.serial])) then
 			--get the serial number of the player who did the damage, in case of a pet or minion use the owner serial
-			local thisSourceSerial = augmentation_cache.ebon_might[sourceSerial] and sourceSerial or ownerActor.serial
+			local thisSourceSerial = (augmentation_cache.ebon_might[sourceSerial] and sourceSerial) or ownerActor.serial
 
 			---actor buffed with ebonmight -> list of evokers whose buffed
 			---@type table<serial, evokerinfo[]>
-			local currentlyBuffedWithEbonMight = augmentation_cache.ebon_might[thisSourceSerial]
+			local evokersWhoBuffedThisPlayer = augmentation_cache.ebon_might[thisSourceSerial]
 
-			for i, evokerInfo in ipairs(currentlyBuffedWithEbonMight) do
+			for i, evokerInfo in ipairs(evokersWhoBuffedThisPlayer) do
 				---@cast evokerInfo evokerinfo
 				---@type serial, actorname, controlflags
 				local evokerSourceSerial, evokerSourceName, evokerSourceFlags, attributedGained = unpack(evokerInfo)
@@ -1331,7 +1331,7 @@
 							local tierPieceMultiplier = 1 --bHasFourPieces and 1.08 or 1
 							local evokerItemLevel = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].ilevel or 400
 							evokerItemLevel = max(evokerItemLevel, 400)
-							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.006)
+							local itemLevelMultiplier = 1 -- + ((evokerItemLevel - 400) * 0.006)
 
 						local predictedAmount = 0
 						if (Details.zone_type == "raid") then --0x410b
@@ -1346,7 +1346,10 @@
 						augmentedSpell.total = augmentedSpell.total + predictedAmount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
 
-						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 1)
+						if (Details.debug) then
+							DetailsParserDebugFrame:BlinkIcon(extraSpellId, 1)
+							DetailsParserDebugFrame.AllTexts[1]:SetText("Evokers Buffed: " .. #evokersWhoBuffedThisPlayer .. "  (" .. floor(predictedAmount / amount * 100) .. "%)")
+						end
 					end
 				end
 			end
@@ -1386,7 +1389,9 @@
 						augmentedSpell.total = augmentedSpell.total + predictedAmount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
 
-						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 2)
+						if (Details.debug) then
+							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 2)
+						end
 					end
 				end
 			end
@@ -1423,7 +1428,9 @@
 						augmentedSpell.total = augmentedSpell.total + damageSplitted
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + damageSplitted
 
-						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 3)
+						if (Details.debug) then
+							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 3)
+						end
 					end
 				end
 			end
@@ -1460,7 +1467,9 @@
 						augmentedSpell.total = augmentedSpell.total + fateMirror_plus_Prescience
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + fateMirror_plus_Prescience
 
-						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 4)
+						if (Details.debug) then
+							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 4)
+						end
 					end
 				end
 			end
@@ -1495,7 +1504,9 @@
 						augmentedSpell.total = augmentedSpell.total + amount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + amount
 
-						--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 5)
+						if (Details.debug) then
+							--DetailsParserDebugFrame:BlinkIcon(extraSpellId, 5)
+						end
 					end
 				end
 			end
@@ -5406,6 +5417,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		Details:SendEvent("COMBAT_ENCOUNTER_START", nil, ...)
+
+		Details222.CacheKeystoneForAllGroupMembers()
 	end
 
 	--ENCOUNRTER_END
@@ -5763,6 +5776,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	local keystoneLevels = {}
 	Details.KeystoneLevels = keystoneLevels
 	--save the keystone level for each of the 5 party members
+
 	local saveGroupMembersKeystoneLevel = function()
 		wipe(keystoneLevels)
 		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
@@ -5785,6 +5799,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				local unitName = Details:GetFullName(unitId)
 				keystoneLevels[unitName] = unitKeystoneInfo.level
 			end
+		end
+	end
+
+	function Details222.CacheKeystoneForAllGroupMembers()
+		local _, instanceType, difficultyID = GetInstanceInfo()
+		if (instanceType == "party") then
+			saveGroupMembersKeystoneLevel()
 		end
 	end
 
@@ -7309,40 +7330,58 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
---[=[
+--[=
 local detailsParserDebugFrame = CreateFrame("frame", "DetailsParserDebugFrame", UIParent)
 detailsParserDebugFrame:SetSize(100, 200)
 DetailsFramework:ApplyStandardBackdrop(detailsParserDebugFrame)
 detailsParserDebugFrame:SetPoint("left", UIParent, "left", 2, 350)
 detailsParserDebugFrame.AllIcons = {}
---detailsParserDebugFrame:Hide()
+detailsParserDebugFrame.AllTexts = {}
 local iconSize = 40
+
+detailsParserDebugFrame:Hide()
 
 local spellIcon1 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
 spellIcon1:SetSize(iconSize, iconSize)
 spellIcon1:SetPoint("topleft", detailsParserDebugFrame, "topleft", 2, -5)
+local text1 = detailsParserDebugFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+text1:SetPoint("left", spellIcon1, "right", 2, 0)
 
 local spellIcon2 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
 spellIcon2:SetSize(iconSize, iconSize)
 spellIcon2:SetPoint("topleft", spellIcon1, "bottomleft", 0, -2)
+local text2 = detailsParserDebugFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+text2:SetPoint("left", spellIcon2, "right", 2, 0)
 
 local spellIcon3 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
 spellIcon3:SetSize(iconSize, iconSize)
 spellIcon3:SetPoint("topleft", spellIcon2, "bottomleft", 0, -2)
+local text3 = detailsParserDebugFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+text3:SetPoint("left", spellIcon3, "right", 2, 0)
 
 local spellIcon4 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
 spellIcon4:SetSize(iconSize, iconSize)
 spellIcon4:SetPoint("topleft", spellIcon3, "bottomleft", 0, -2)
+local text4 = detailsParserDebugFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+text4:SetPoint("left", spellIcon4, "right", 2, 0)
 
 local spellIcon5 = detailsParserDebugFrame:CreateTexture(nil, "overlay")
 spellIcon5:SetSize(iconSize, iconSize)
 spellIcon5:SetPoint("topleft", spellIcon4, "bottomleft", 0, -2)
+local text5 = detailsParserDebugFrame:CreateFontString(nil, "overlay", "GameFontNormal")
+text5:SetPoint("left", spellIcon5, "right", 2, 0)
 
 tinsert(detailsParserDebugFrame.AllIcons, spellIcon1)
 tinsert(detailsParserDebugFrame.AllIcons, spellIcon2)
 tinsert(detailsParserDebugFrame.AllIcons, spellIcon3)
 tinsert(detailsParserDebugFrame.AllIcons, spellIcon4)
 tinsert(detailsParserDebugFrame.AllIcons, spellIcon5)
+
+tinsert(detailsParserDebugFrame.AllTexts, text1)
+tinsert(detailsParserDebugFrame.AllTexts, text2)
+tinsert(detailsParserDebugFrame.AllTexts, text3)
+tinsert(detailsParserDebugFrame.AllTexts, text4)
+tinsert(detailsParserDebugFrame.AllTexts, text5)
 
 function detailsParserDebugFrame:BlinkIcon(spellId, iconId)
 	local spellName, _, spellIcon = GetSpellInfo(spellId)
