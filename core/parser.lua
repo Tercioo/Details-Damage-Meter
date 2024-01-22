@@ -5781,23 +5781,25 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		wipe(keystoneLevels)
 		local libOpenRaid = LibStub("LibOpenRaid-1.0", true)
 
-		for i = 1, GetNumGroupMembers()-1 do
-			local unitId = "party" .. i
+		if (libOpenRaid) then
+			for i = 1, GetNumGroupMembers()-1 do
+				local unitId = "party" .. i
+				if (UnitExists(unitId)) then
+					local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
+					if (unitKeystoneInfo) then
+						local unitName = Details:GetFullName(unitId)
+						keystoneLevels[unitName] = unitKeystoneInfo.level
+					end
+				end
+			end
+
+			local unitId = "player"
 			if (UnitExists(unitId)) then
 				local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
 				if (unitKeystoneInfo) then
 					local unitName = Details:GetFullName(unitId)
 					keystoneLevels[unitName] = unitKeystoneInfo.level
 				end
-			end
-		end
-
-		local unitId = "player"
-		if (UnitExists(unitId)) then
-			local unitKeystoneInfo = libOpenRaid.GetKeystoneInfo(unitId)
-			if (unitKeystoneInfo) then
-				local unitName = Details:GetFullName(unitId)
-				keystoneLevels[unitName] = unitKeystoneInfo.level
 			end
 		end
 	end
