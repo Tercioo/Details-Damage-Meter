@@ -799,7 +799,7 @@ function Details:CreateBreakdownWindow()
 
 	function breakdownWindowFrame:SetStatusbarText(text, fontSize, fontColor)
 		if (not text) then
-			breakdownWindowFrame:SetStatusbarText("Details! Damage Meter | Use '/details stats' for statistics", 10, "gray")
+			breakdownWindowFrame:SetStatusbarText("Details! Damage Meter | Click 'Options' button for settings.", 10, "gray")
 			return
 		end
 		statusBar.Text.text = text

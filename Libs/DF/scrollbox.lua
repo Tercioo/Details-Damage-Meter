@@ -26,10 +26,12 @@ detailsFramework.ScrollBoxFunctions = {
 	Refresh = function(self)
 		--hide all frames and tag as not in use
 		self._LinesInUse = 0
+		--self.Frames has a list of frames used by the scrollbox
 		for index, frame in ipairs(self.Frames) do
 			if (not self.DontHideChildrenOnPreRefresh) then
 				frame:Hide()
 			end
+			--set the frame as not in use
 			frame._InUse = nil
 		end
 
@@ -39,6 +41,7 @@ detailsFramework.ScrollBoxFunctions = {
 			offset = self:GetOffsetFaux()
 		end
 
+		--before starting the refresh, check if there's a pre refresh function and call it
 		if (self.pre_refresh_func) then
 			detailsFramework:Dispatch(self.pre_refresh_func, self, self.data, offset, self.LineAmount)
 		end
@@ -426,6 +429,24 @@ function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, c
     onSetData(scrollBox, data)
 
 	return scrollBox
+end
+
+function detailsFramework.CreateRoundedOptionsScrollBox(parent, name, onRefreshButton, onSelectOption, tbdData, createSelectorButton, gridScrollBoxOptions)
+	---when the scroll is refreshing the line, the line will call this function for each selection button on it
+    ---@param button df_button
+    ---@param data table
+    local refreshAuraSelectorFrame = function(button, data)
+        button.data = data
+
+		if (data.tooltip) then
+			button.tooltip = data.tooltip
+		end
+
+		xpcall(onRefreshButton, geterrorhandler(), button, data)
+
+        --set what happen when the user clicks the button
+        button:SetClickFunction(onSelectOption, button, data)
+    end
 end
 
 --Need to test this and check the "same_name_spells_add(value)" on the OnEnter function

@@ -1201,6 +1201,7 @@ local default_player_data = {
 		ocd_tracker = {
 			enabled = false,
 			cooldowns = {},
+			ignored_cooldowns = {},
 			frames = {
 				["defensive-raid"] = {},
 				["defensive-target"] = {},

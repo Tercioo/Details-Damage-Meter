@@ -1430,13 +1430,16 @@ end
 		end
 	end
 
-	local textStyle = {
-		{value = 1, label = Loc ["STRING_PLUGINOPTIONS_ABBREVIATE"] .. "(105.5K)", onclick = onSelectTextStyle},
-		{value = 2, label = Loc ["STRING_PLUGINOPTIONS_COMMA"] .. "(105.500)", onclick = onSelectTextStyle},
-		{value = 3, label = Loc ["STRING_PLUGINOPTIONS_NOFORMAT"] .. "(105500)", onclick = onSelectTextStyle}
-	}
+	local textStyleDropdownFunc = function()
+		local textStyle = {
+			{value = 1, label = Loc ["STRING_PLUGINOPTIONS_ABBREVIATE"] .. "(105.5K)", onclick = onSelectTextStyle},
+			{value = 2, label = Loc ["STRING_PLUGINOPTIONS_COMMA"] .. "(105.500)", onclick = onSelectTextStyle},
+			{value = 3, label = Loc ["STRING_PLUGINOPTIONS_NOFORMAT"] .. "(105500)", onclick = onSelectTextStyle}
+		}
+		return textStyle
+	end
 
-	detailsFramework:NewDropDown(window, _, "$parentTextStyleDropdown", "textstyleDropdown", 200, 20, function() return textStyle end, 1) --func, default
+	detailsFramework:NewDropDown(window, _, "$parentTextStyleDropdown", "textstyleDropdown", 200, 20, textStyleDropdownFunc, 1) --func, default
 	window.textstyleDropdown:SetPoint("left", window.textstyle, "right", 2)
 
 --text color

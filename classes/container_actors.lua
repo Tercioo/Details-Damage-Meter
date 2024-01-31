@@ -527,14 +527,12 @@ end
 		return nickname
 	end
 
+	local dungeonFollowersNpcs = {}
+
 	--read the actor flag
 	local readActorFlag = function(actorObject, ownerActorObject, actorSerial, actorFlags, actorName)
 		if (actorFlags) then
-			local _, zoneType = GetInstanceInfo()
-
-			--UnitIsInMyGuild
-
-			--on retail post 100200 patch, actorName is formatted as "name-realm"
+			local _, zoneType, difficultyId = GetInstanceInfo()
 
 			--this is player actor
 			if (bitBand(actorFlags, OBJECT_TYPE_PLAYER) ~= 0) then
@@ -568,6 +566,12 @@ end
 				--check if this actor can be flagged as a unit in the player's group
 				if ((bitBand(actorFlags, IS_GROUP_OBJECT) ~= 0 and actorObject.classe ~= "UNKNOW" and actorObject.classe ~= "UNGROUPPLAYER") or Details:IsInCache(actorSerial)) then
 					actorObject.grupo = true
+
+					if (difficultyId == 205) then
+						dungeonFollowersNpcs[actorName] = true
+					end
+
+					--/dump Details:GetCurrentCombat():GetActor(1, "Captain Garrick").grupo
 					--check if this actor is a tank (player)
 					if (Details:IsATank(actorSerial)) then
 						actorObject.isTank = true
@@ -688,6 +692,12 @@ end
 							Details.npcid_pool [npcID] = actorName
 						end
 					end
+				end
+			end
+
+			if (difficultyId == 205) then
+				if (dungeonFollowersNpcs[actorName]) then
+					actorObject.grupo = true
 				end
 			end
 		end

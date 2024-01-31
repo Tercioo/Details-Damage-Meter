@@ -374,21 +374,24 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
                 end
 
             --gems
-                local itemStatsTable = {}
+                --local itemStatsTable = {}
                 --fill the table above with information about the item
-                GetItemStats(itemLink, itemStatsTable)
+                --GetItemStats(itemLink, itemStatsTable) --deprecated in 10.2.5
+                local itemStatsTable = C_Item.GetItemStats(itemLink)
 
                 --check if the item has a socket
-                if (itemStatsTable.EMPTY_SOCKET_PRISMATIC) then
-                    --check if the socket is empty
-                    for i = 1, itemStatsTable.EMPTY_SOCKET_PRISMATIC do
-                        local gemId = tonumber(gemsIds[i])
-                        if (not gemId or gemId == 0) then
-                            slotsWithoutGems[#slotsWithoutGems+1] = equipmentSlotId
+                if (itemStatsTable) then
+                    if (itemStatsTable.EMPTY_SOCKET_PRISMATIC) then
+                        --check if the socket is empty
+                        for i = 1, itemStatsTable.EMPTY_SOCKET_PRISMATIC do
+                            local gemId = tonumber(gemsIds[i])
+                            if (not gemId or gemId == 0) then
+                                slotsWithoutGems[#slotsWithoutGems+1] = equipmentSlotId
 
-                        --check if the gem is not a valid gem (deprecated gem)
-                        elseif (gemId < 180000) then
-                            slotsWithoutGems[#slotsWithoutGems+1] = equipmentSlotId
+                            --check if the gem is not a valid gem (deprecated gem)
+                            elseif (gemId < 180000) then
+                                slotsWithoutGems[#slotsWithoutGems+1] = equipmentSlotId
+                            end
                         end
                     end
                 end
@@ -404,7 +407,7 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
     for equipmentSlotId = 1, 17 do
         local itemLink = GetInventoryItemLink("player", equipmentSlotId)
         if (itemLink) then
-            local itemStatsTable = {}
+            --local itemStatsTable = {}
             local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(2, strsplit(":", itemLink))
             itemID = tonumber(itemID)
 
@@ -415,7 +418,8 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
                 openRaidLib.__errors[#openRaidLib.__errors+1] = "Fail to get Item Level: " .. (itemID or "invalid itemID") .. " " .. (itemLink and itemLink:gsub("|H", "") or "invalid itemLink")
             end
 
-            GetItemStats(itemLink, itemStatsTable)
+            local itemStatsTable = C_Item.GetItemStats(itemLink)
+            --GetItemStats(itemLink, itemStatsTable)
             local gemSlotsAvailable = itemStatsTable and itemStatsTable.EMPTY_SOCKET_PRISMATIC or 0
 
             local noPrefixItemLink = itemLink : gsub("^|c%x%x%x%x%x%x%x%x|Hitem", "")

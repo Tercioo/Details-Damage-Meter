@@ -2085,7 +2085,7 @@ local no_options = {}
 ---NoCloseButton = false, --if true, won't show the close button
 ---NoTitleBar = false, --if true, don't create the title bar
 ---RoundedCorners = false, --use rounded corners if true
----@class simplepanel
+---@class simplepanel : frame
 ---@field TitleBar frame
 ---@field Title fontstring
 ---@field Close button

@@ -397,7 +397,7 @@ function DropDownMetaFunctions:Select(optionName, byOptionNumber, bOnlyShown, ru
 		return false
 	end
 
-	local optionsTable = DF:Dispatch(self.func, self) --399
+	local runOkay, optionsTable = xpcall(self.func, geterrorhandler(), self)
 
 	if (#optionsTable == 0) then
 		self:NoOption(true)
@@ -561,6 +561,11 @@ function DropDownMetaFunctions:Selected(thisOption)
 		end
 	else
 		self.statusbar:SetTexture([[Interface\Tooltips\CHATBUBBLE-BACKGROUND]])
+	end
+
+	if (self.widget.__rcorners) then
+		self.statusbar:SetPoint("topleft", self.widget, "topleft", 2, -2)
+		self.statusbar:SetPoint("bottomright", self.widget, "bottomright", -2, 2)
 	end
 
 	if (thisOption.color) then

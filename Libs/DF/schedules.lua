@@ -8,6 +8,8 @@ local C_Timer = _G.C_Timer
 local unpack = table.unpack or _G.unpack
 local GetTime = GetTime
 
+local CONST_DEBUG_ENABLED = false
+
 --make a namespace for schedules
 detailsFramework.Schedules = detailsFramework.Schedules or {}
 
@@ -67,10 +69,11 @@ local triggerScheduledLoop = function(tickerObject)
     local payload = tickerObject.payload
     local callback = tickerObject.callback
 
-    local result, errortext = pcall(callback, unpack(payload))
-    if (not result) then
-        detailsFramework:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
-    end
+    --local result, errortext = pcall(callback, unpack(payload))
+    local runOkay, result = xpcall(callback, geterrorhandler(), unpack(payload))
+    --if (not result) then
+    --    detailsFramework:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
+    --end
 
     local checkPointCallback = tickerObject.checkPointCallback
     if (checkPointCallback) then
@@ -127,10 +130,11 @@ local triggerScheduledTick = function(tickerObject)
     local payload = tickerObject.payload
     local callback = tickerObject.callback
 
-    local result, errortext = pcall(callback, unpack(payload))
-    if (not result) then
-        detailsFramework:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
-    end
+    local runOkay, result = xpcall(callback, geterrorhandler(), unpack(payload))
+    --local result, errortext = pcall(callback, unpack(payload))
+    --if (not result) then
+    --    detailsFramework:Msg("error on scheduler: ",tickerObject.path , tickerObject.name, errortext)
+    --end
     return result
 end
 
@@ -142,8 +146,8 @@ function detailsFramework.Schedules.NewTicker(time, callback, ...)
     newTicker.callback = callback
 
     --debug
-    newTicker.path = debugstack()
-    --
+    newTicker.path = CONST_DEBUG_ENABLED and debugstack() or ""
+
     return newTicker
 end
 
@@ -156,8 +160,7 @@ function detailsFramework.Schedules.NewTimer(time, callback, ...)
     newTimer.expireAt = GetTime() + time
 
     --debug
-    newTimer.path = debugstack()
-    --
+    newTimer.path = CONST_DEBUG_ENABLED and debugstack() or ""
 
     return newTimer
 end

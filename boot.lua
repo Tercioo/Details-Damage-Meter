@@ -97,7 +97,11 @@
 		Details222.OptionsPanel = {}
 		Details222.Instances = {}
 		Details222.Combat = {}
-		Details222.MythicPlus = {}
+		Details222.MythicPlus = {
+			Charts = {},
+			Frames = {},
+		}
+
 		Details222.MythicPlusBreakdown = {}
 		Details222.EJCache = {}
 		Details222.Segments = {}

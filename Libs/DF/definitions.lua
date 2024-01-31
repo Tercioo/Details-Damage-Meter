@@ -48,6 +48,7 @@
 ---@field internalFunctions table
 ---@field OptionsFunctions df_optionsmixin
 ---@field GlobalWidgetControlNames table
+---@field DefaultRoundedCornerPreset table
 ---@field RoundedCornerPanelMixin df_roundedcornermixin
 ---@field Schedules df_schedule
 ---@field HeaderFunctions df_headerfunctions
@@ -142,6 +143,8 @@
 ---@field IsHtmlColor fun(self:table, colorName:any) : unknown return true if DF.alias_text_colors has the colorName as a key
 ---@field CreateColorTable fun(self:table, r:number, g:number, b:number, a:number) : table return a table with {r, g, b, a}
 ---@field FormatColor fun(self:table, newFormat:string, r:number|string, g:number?, b:number?, a:number?, decimalsAmount:number?) : string|table|number|nil, number|nil, number|nil, number|nil takes in a color in one format and converts it to another specified format.
----@field 
+---@field CreateEditor fun(self:table, parent:frame, name:string?, options:df_editor_defaultoptions?) : df_editor
+---@field RandomBool fun(self:table, odds: number?) : boolean return a random boolean
+---@field CreateHighlightTexture fun(self:table, parent:frame, parentKey:string?, alpha:number?, name:string?) : texture
 ---@field 
 

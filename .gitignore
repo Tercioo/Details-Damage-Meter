@@ -45,3 +45,4 @@ photoshop/ten_years_skin.tga
 plugins/Details_EncounterDetails/Libs/LibLuaServer/LuaServerDefinitions.lua
 plugins/Details_EncounterDetails/Definitions.lua
 *.afphoto~lock~
+annotations.txt

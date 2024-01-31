@@ -17,6 +17,10 @@ Details222.CooldownTracking = {
     cooldownPanels = {},
 }
 
+function Details222.CooldownTracking.IsCooldownIgnored(spellId)
+    return Details.ocd_tracker.ignored_cooldowns[spellId]
+end
+
 --return a hash table with all cooldown panels created
 function Details222.CooldownTracking.GetAllCooldownFrames()
     return Details222.CooldownTracking.cooldownPanels
@@ -130,6 +134,10 @@ end
         --I dont known which panel will be used
         --need to get the filter name which that spell belong
         --and then check if that filter is enabled
+
+        if (Details222.CooldownTracking.IsCooldownIgnored(spellId)) then
+            return
+        end
 
         local gotUpdate = false
 
@@ -292,27 +300,29 @@ end
                 local allCooldownFrames = Details222.CooldownTracking.GetAllCooldownFrames()
 
                 for spellId, cooldownInfo in pairs(unitCooldowns) do
-                    --get a cooldownLine
-                    local cooldownLine = Details222.CooldownTracking.GetOrCreateNewCooldownLine(cooldownFrame, cooldownFrame.nextLineId)
-                    cooldownLine.cooldownInfo = cooldownInfo
-                    --local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
+                    if (not Details222.CooldownTracking.IsCooldownIgnored(spellId)) then
+                        --get a cooldownLine
+                        local cooldownLine = Details222.CooldownTracking.GetOrCreateNewCooldownLine(cooldownFrame, cooldownFrame.nextLineId)
+                        cooldownLine.cooldownInfo = cooldownInfo
+                        --local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, currentValue = openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
 
-                    cooldownLine.spellId = spellId
-                    cooldownLine.class = unitInfo.class
-                    cooldownLine.unitName = unitInfo.nameFull
+                        cooldownLine.spellId = spellId
+                        cooldownLine.class = unitInfo.class
+                        cooldownLine.unitName = unitInfo.nameFull
 
-                    --setup the cooldown in the line
-                    Details222.CooldownTracking.SetupCooldownLine(cooldownLine)
+                        --setup the cooldown in the line
+                        Details222.CooldownTracking.SetupCooldownLine(cooldownLine)
 
-                    --add the cooldown into the organized by class table
-                    table.insert(cooldownsOrganized[classId], cooldownLine)
+                        --add the cooldown into the organized by class table
+                        table.insert(cooldownsOrganized[classId], cooldownLine)
 
-                    --iterate to the next cooldown line
-                    cooldownFrame.nextLineId = cooldownFrame.nextLineId + 1
+                        --iterate to the next cooldown line
+                        cooldownFrame.nextLineId = cooldownFrame.nextLineId + 1
 
-                    --store the cooldown line into a cache to get the cooldown line quicker when a cooldown receives updates
-                    cooldownFrame.playerCache[unitInfo.nameFull] = cooldownFrame.playerCache[unitInfo.nameFull] or {}
-                    cooldownFrame.playerCache[unitInfo.nameFull][spellId] = cooldownLine
+                        --store the cooldown line into a cache to get the cooldown line quicker when a cooldown receives updates
+                        cooldownFrame.playerCache[unitInfo.nameFull] = cooldownFrame.playerCache[unitInfo.nameFull] or {}
+                        cooldownFrame.playerCache[unitInfo.nameFull][spellId] = cooldownLine
+                    end
                 end
             end
         end
@@ -775,24 +785,113 @@ end
             cooldownSelectionFrame:SetPoint("bottomright", f, "bottomright", 0, 10)
             DF:ApplyStandardBackdrop(cooldownSelectionFrame)
 
-            --lib test test warning texts
-            local warning1 = cooldownSelectionFrame:CreateFontString(nil, "overlay", "GameFontNormal", 5)
-            warning1:SetPoint("center", f, "center", 0, 0)
-            warning1:SetText("A cooldown tracker on Details!?\nWhat's next, a Caw counter for Elwynn Forest?")
-            DF:SetFontColor(warning1, "silver")
-            DF:SetFontSize(warning1, 14)
-            local animationHub = DF:CreateAnimationHub(warning1)
-            local anim1 = DF:CreateAnimation(animationHub, "rotation", 1, 0, 35)
-            anim1:SetEndDelay(10000000)
-            anim1:SetSmoothProgress(1)
-            animationHub:Play()
-            animationHub:Pause()
-
             local warning2 = cooldownSelectionFrame:CreateFontString(nil, "overlay", "GameFontNormal", 5)
             warning2:SetJustifyH("left")
             warning2:SetPoint("topleft", f, "topleft", 5, -160)
             DF:SetFontColor(warning2, "lime")
-            warning2:SetText("This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua")
+            --warning2:SetText("This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua")
+
+            cooldownSelectionFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+            cooldownSelectionFrame:RegisterEvent("PLAYER_STARTED_MOVING")
+
+            local maxClasses = 13
+
+            cooldownSelectionFrame.ClassCDsAnchorFrames = {}
+
+            for i = 1, maxClasses do
+                local anchorFrame = CreateFrame("frame", "$parentAnchorFrame"..i, cooldownSelectionFrame, "BackdropTemplate")
+                anchorFrame:SetSize(1, 1)
+                if (i == 1) then
+                    anchorFrame:SetPoint("topleft", cooldownSelectionFrame, "topleft", 5, -5)
+                else
+                    anchorFrame:SetPoint("topleft", cooldownSelectionFrame.ClassCDsAnchorFrames[i-1], "topright", 310, 0)
+                end
+
+                cooldownSelectionFrame.ClassCDsAnchorFrames[i] = anchorFrame
+            end
+
+            function cooldownSelectionFrame.ClearAllCDsAnchorFrames()
+                for i = 1, maxClasses do
+                    cooldownSelectionFrame.ClassCDsAnchorFrames[i]:Hide()
+                end
+            end
+
+            cooldownSelectionFrame:SetScript("OnEvent", function(self, event)
+                --show a list of players in the group, 1 player per column
+                --below the player name, show a list in vertical with checkboxes to enable/disable cooldowns for that class
+                --use DetailsFramework:BuildMenuVolatile() to build the each list
+
+                local amountOfUnits = GetNumGroupMembers()
+
+                if (amountOfUnits == 0) then
+                    return
+                end
+
+                local allClasses = {}
+                if (IsInGroup() and not IsInRaid()) then
+                    for i = 1, amountOfUnits - 1 do
+                        local unitId = "party"..i
+                        local _, class = UnitClass(unitId)
+                        if (class) then
+                            allClasses[class] = {}
+                        end
+                    end
+
+                    local unitId = "player"
+                    local _, class = UnitClass(unitId)
+                    allClasses[class] = {}
+
+                elseif (IsInRaid()) then
+                    for i = 1, amountOfUnits do
+                        local unitId = "raid"..i
+                        local _, class = UnitClass(unitId)
+                        if (class) then
+                            allClasses[class] = {}
+                        end
+                    end
+                end
+
+                local index = 1
+                cooldownSelectionFrame.ClearAllCDsAnchorFrames()
+
+                for className, allClassCDs in pairs(allClasses) do
+                    --menu to build with DetailsFramework:BuildMenuVolatile()
+                    local menuOptions = {}
+
+                    for spellId, spellInfo in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
+                        if (spellInfo.class == className) then
+                            local spellName, _, spellIcon = GetSpellInfo(spellId)
+
+                            if (spellName) then
+                                local smallSpellName = string.sub(spellName, 1, 12)
+                                spellName = "|T" .. spellIcon .. ":" .. 20 .. ":" .. 20 .. ":0:0:" .. 64 .. ":" .. 64 .. "|t " .. smallSpellName
+
+                                if (spellName) then
+                                    menuOptions[#menuOptions+1] = {
+                                        type = "toggle",
+                                        get = function() return Details.ocd_tracker.ignored_cooldowns[spellId] end,
+                                        set = function(self, fixedparam, value)
+                                            Details.ocd_tracker.ignored_cooldowns[spellId] = value
+                                            Details222.CooldownTracking.RefreshAllCooldownFrames()
+                                        end,
+                                        name = spellName,
+                                        desc = spellName,
+                                    }
+                                end
+                            end
+                        end
+                    end
+
+                    local anchorFrame = cooldownSelectionFrame.ClassCDsAnchorFrames[index]
+                    anchorFrame:Show()
+
+                    menuOptions.always_boxfirst = true
+
+                    DF:BuildMenuVolatile(anchorFrame, menuOptions, 5, -5, 400, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+
+                    index = index + 1
+                end
+            end)
         end
 
         _G.DetailsPluginContainerWindow.OpenPlugin(_G.DetailsCDTrackerWindow)

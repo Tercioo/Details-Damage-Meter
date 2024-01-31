@@ -15,6 +15,16 @@ local UnitGUID = UnitGUID
 --create namespace
 detailsFramework.SavedVars = {}
 
+function detailsFramework.SavedVars.GetCurrentProfileName(addonObject)
+    assert(type(addonObject) == "table", "GetCurrentProfileName: addonObject must be a table.")
+
+    local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+    local playerGUID = UnitGUID("player")
+    local profileId = savedVariables.profile_ids[playerGUID] --get the profile name from the player guid
+
+    return profileId
+end
+
 ---get the saved variables table for the addon
 ---@param addonObject df_addon the addon object created by detailsFramework:CreateNewAddOn()
 ---@return table
@@ -83,7 +93,7 @@ end
 
 ---@param addonObject df_addon the addon object created by detailsFramework:CreateNewAddOn()
 ---@param profileName profilename the name of the profile to set
----@param bCopyFromCurrentProfile boolean if true, copy the current profile to the new profile
+---@param bCopyFromCurrentProfile boolean? if true, copy the current profile to the new profile
 function detailsFramework.SavedVars.SetProfile(addonObject, profileName, bCopyFromCurrentProfile)
     assert(type(addonObject) == "table", "SetProfile: addonObject must be a table.")
     assert(type(profileName) == "string", "SetProfile: profileName must be a string.")
@@ -137,4 +147,147 @@ function detailsFramework.SavedVars.SaveProfile(addonObject)
             savedVariables.profiles[playerProfileId] = profileTable
         end
     end
+end
+
+---@class df_profilepanel : frame
+---@field AddonObject df_addon
+---@field ProfileNameValueLabel fontstring
+---@field ProfileSelectionDropdown df_dropdown
+---@field ProfileNameTextEntry df_textentry
+---@field OnClickCreateNewProfile function
+---@field RefreshSelectProfileDropdown function
+
+---@param profilePanel df_profilepanel
+function detailsFramework.SavedVars.RefreshProfilePanel(profilePanel)
+    local addonObject = profilePanel.AddonObject
+
+    --update the current profile name
+    ---@type string
+    local profileName = detailsFramework.SavedVars.GetCurrentProfileName(addonObject)
+    profilePanel.ProfileNameValueLabel:SetText(profileName)
+
+    --update the options of the dropdown to select a profile
+    profilePanel:RefreshSelectProfileDropdown()
+
+    --clear the text entry for the new profile name
+    profilePanel.ProfileNameTextEntry:SetText("")
+end
+
+local profilePanelMixin = {
+    ---@param self df_profilepanel
+    RefreshSelectProfileDropdown = function(self)
+        local addonObject = self.AddonObject
+        local savedVariables = detailsFramework.SavedVars.GetSavedVariables(addonObject)
+        local profiles = savedVariables.profiles
+
+        local callback = function(self, fixedValue, profileSelected)
+            detailsFramework.SavedVars.SetProfile(addonObject, profileSelected)
+            detailsFramework.SavedVars.RefreshProfilePanel(self:GetParent())
+        end
+
+        local dropdownOptions = {}
+        for profileId in pairs(profiles) do
+            table.insert(dropdownOptions, {value = profileId, label = profileId, onclick = callback, icon = [[Interface\CHATFRAME\UI-ChatIcon-BlizzardArcadeCollection]], iconsize = {16, 16}})
+        end
+
+        self.ProfileSelectionDropdown.Options = dropdownOptions
+        self.ProfileSelectionDropdown:Refresh()
+        self.ProfileSelectionDropdown:Select(detailsFramework.SavedVars.GetCurrentProfileName(addonObject))
+    end,
+
+    ---@param self df_profilepanel
+    OnClickCreateNewProfile = function(self)
+        local addonObject = self.AddonObject
+        local profileName = self.ProfileNameTextEntry:GetText()
+        detailsFramework.SavedVars.SetProfile(addonObject, profileName)
+        detailsFramework.SavedVars.RefreshProfilePanel(self)
+    end
+
+}
+
+local defaultProfilePanelOptions = {
+    width = 600,
+    height = 400,
+    title = "Profile Management"
+}
+
+function detailsFramework.SavedVars.CreateProfilePanel(addonObject, frameName, parentFrame, options)
+    options = options or detailsFramework.table.copy({}, defaultProfilePanelOptions)
+    detailsFramework.table.deploy(options, defaultProfilePanelOptions)
+
+    local textentryTemplate, labelTemplate = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
+    local buttonTemplate = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
+    local dropdownTemplate = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+
+    --create a simple frame
+    local panelOptions = {}
+    ---@type df_profilepanel
+    local frame = CreateFrame("frame", frameName, parentFrame)
+    frame:SetSize(options.width, options.height)
+    frame.AddonObject = addonObject
+
+    detailsFramework:Mixin(frame, profilePanelMixin)
+    detailsFramework:AddRoundedCornersToFrame(frame, Details.PlayerBreakdown.RoundedCornerPreset)
+
+    --create a label with the name of the profile (two labels, one for the name "Profile Name" and one for the value)
+    ---@type fontstring
+    local profileNameLabel = frame:CreateFontString(nil, "overlay", "GameFontNormal")
+    profileNameLabel:SetPoint("topleft", frame, "topleft", 10, -10)
+    profileNameLabel:SetText("Current Profile:")
+
+    ---@type fontstring
+    local profileNameValueLabel = frame:CreateFontString(nil, "overlay", "GameFontNormal")
+    profileNameValueLabel:SetPoint("left", profileNameLabel, "right", 5, 0)
+    profileNameValueLabel:SetText("")
+    frame.ProfileNameValueLabel = profileNameValueLabel
+
+    ---@type fontstring
+    local selectProfileLabel = frame:CreateFontString(nil, "overlay", "GameFontNormal")
+    selectProfileLabel:SetPoint("topleft", profileNameLabel, "bottomleft", 0, -15)
+    selectProfileLabel:SetText("Select:")
+
+    --create a dropdown to select the profile
+    local onSelectProfileCallback = function()
+        return frame.ProfileSelectionDropdown.Options or {}
+    end
+
+    local defaultValue = 1 -- set default to 1, latter when refreshing the entire panel, set the default to the current profile
+    ---@type df_dropdown
+    local profileSelectionDropdown = detailsFramework:CreateDropDown(frame, onSelectProfileCallback, defaultValue, 180, 32, "ProfileSelectionDropdown", "$parentProfileSelectionDropdown", dropdownTemplate)
+    profileSelectionDropdown:SetPoint("topleft", selectProfileLabel, "bottomleft", 0, -5)
+    profileSelectionDropdown:SetBackdrop(nil)
+    detailsFramework:AddRoundedCornersToFrame(profileSelectionDropdown, Details.PlayerBreakdown.RoundedCornerPreset)
+    frame.ProfileSelectionDropdown = profileSelectionDropdown
+
+    ---@type fontstring
+    local createNewProfileLabel = frame:CreateFontString(nil, "overlay", "GameFontNormal")
+    createNewProfileLabel:SetPoint("topleft", profileSelectionDropdown.widget, "bottomleft", 0, -10)
+    createNewProfileLabel:SetText("Create New:")
+
+    --create a textentry to enter the name of the profile to be created and create a button to create the new profile
+    local onPressEnterCallback = function()
+
+    end
+
+    ---@type df_textentry
+    local profileNameTextEntry = detailsFramework:CreateTextEntry(frame, onPressEnterCallback, 180, 32, "ProfileNameEntry", "$parentProfileNameTextEntry", "Profile Name")
+    profileNameTextEntry:SetPoint("topleft", createNewProfileLabel, "bottomleft", 0, -5)
+    profileNameTextEntry:SetBackdrop(nil)
+    profileNameTextEntry:SetJustifyH("left")
+    profileNameTextEntry.fontsize = 12
+    detailsFramework:AddRoundedCornersToFrame(profileNameTextEntry, Details.PlayerBreakdown.RoundedCornerPreset)
+    frame.ProfileNameTextEntry = profileNameTextEntry
+
+    ---@type df_button
+    local createProfileButton = detailsFramework:CreateButton(frame, function() frame.OnClickCreateNewProfile(frame) end, 100, 32, "Create", false, false, false, "ProfileCreateButton", "$parentCreateProfileButton", buttonTemplate, labelTemplate)
+    createProfileButton:SetPoint("left", profileNameTextEntry, "right", 5, 0)
+    detailsFramework:AddRoundedCornersToFrame(createProfileButton, Details.PlayerBreakdown.RoundedCornerPreset)
+
+    frame:SetScript("OnShow", function()
+        detailsFramework.SavedVars.RefreshProfilePanel(frame)
+    end)
+
+    frame:Hide()
+
+    return frame
 end

@@ -100,7 +100,7 @@ local default_load_conditions_frame_options = {
 
 function detailsFramework:CreateLoadFilterParser(callback)
 	local filterFrame = CreateFrame("frame")
-	
+
 	if IS_WOW_PROJECT_MAINLINE then
 		filterFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 		filterFrame:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED")
@@ -117,10 +117,46 @@ function detailsFramework:CreateLoadFilterParser(callback)
 	filterFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	filterFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 
+	filterFrame:RegisterEvent("CHAT_MSG_LOOT")
+
 	filterFrame:SetScript("OnEvent", function(self, event, ...)
 		if (event == "ENCOUNTER_START") then --triggers before regen_disabled
 			local encounterID = ...
 			filterFrame.EncounterIDCached = encounterID
+
+		elseif (event == "CHAT_MSG_LOOT") then
+			local message = ...
+			local itemId = message:match("|Hitem:(%d+):")
+			itemId = tonumber(itemId)
+
+			if (itemId == 191140) then
+				xpcall(callback, geterrorhandler(), "RACE_START")
+				--monitor the player backpack each second to know when the item is removed from the bag
+
+				C_Timer.After(5, function()
+					filterFrame.FindBackpackItem = C_Timer.NewTicker(1, function()
+						local bFoundItem = false
+						for bagId = 0, 4 do
+							for slotId = 1, 32 do
+								local bagItemID = C_Container.GetContainerItemID(bagId, slotId)
+								if (bagItemID) then
+									if (bagItemID == itemId) then
+										--bronze timepiece is on the player backpack
+										return
+									end
+								end
+							end
+						end
+
+						if (not bFoundItem) then
+							filterFrame.FindBackpackItem:Cancel()
+							xpcall(callback, geterrorhandler(), "RACE_STOP")
+							return
+						end
+					end)
+				end)
+			end
+			return
 
 		elseif (event == "PLAYER_REGEN_DISABLED") then
 
@@ -157,7 +193,8 @@ function detailsFramework:CreateLoadFilterParser(callback)
 			detailsFramework.CurrentPlayerRole = assignedRole
 		end
 
-		detailsFramework:QuickDispatch(callback, filterFrame.EncounterIDCached)
+		--problem: this xpcall won't tell where the error happened in the callback code
+		xpcall(callback, geterrorhandler(), filterFrame.EncounterIDCached)
 	end)
 end
 
