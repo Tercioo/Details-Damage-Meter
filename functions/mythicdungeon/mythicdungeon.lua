@@ -140,7 +140,9 @@ function DetailsMythicPlusFrame.MythicDungeonStarted()
     Details.MythicPlus.Started = true
     Details.MythicPlus.DungeonName = zoneName
     Details.MythicPlus.DungeonID = currentZoneID
-    Details:Msg("(debug) mythic dungeon start time: ", time()+9.7, "time now:", time(), "diff:", time()+9.7-time())
+
+    --Details:Msg("(debug) mythic dungeon start time: ", time()+9.7, "time now:", time(), "diff:", time()+9.7-time())
+
     Details.MythicPlus.StartedAt = time()+9.7 --there's the countdown timer of 10 seconds
     Details.MythicPlus.EndedAt = nil --reset
     Details.MythicPlus.SegmentID = 1

@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12237
-		Details.alpha_build_counter = 12237 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12255
+		Details.alpha_build_counter = 12255 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -161,7 +161,12 @@ do
 	--]=]
 
 	local news = {
-		{"v10.2.0.12236.155", "January 20th, 2024"},
+		{"v10.2.5.12255.155", "February 04th, 2024"},
+		"Dungeon followers now correctly show into the damage done section.",
+		"Fixed an error while statusbar plugin options.",
+		"Backend code maintenance.",
+
+		{"v10.2.5.12236.155", "January 20th, 2024"},
 		"Added Blistering Scales and Mana Restored to the Evoker Predicted Damage bar.",
 		"Fixed an issue which was making the Evoker Predicted Damage bar to show beyond the window width.",
 		"Fixed the key level up animation at the new End of Mythic+ Run panel.",
