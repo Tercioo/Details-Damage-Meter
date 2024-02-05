@@ -771,11 +771,6 @@ function Details:CreateEventTrackerFrame(parentObject, name)
 		scrollframe:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16})
 		scrollframe:SetBackdropColor(0, 0, 0, 0)
 
-		--get tables used inside the combat parser
-		local cooldownListFromFramework = DetailsFramework.CooldownsAllDeffensive
-		local attackCooldownsFromFramework = DetailsFramework.CooldownsAttack
-		local crowdControlFromFramework = DetailsFramework.CrowdControlSpells
-
 		local combatLog = CreateFrame("frame")
 		combatLog:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		local OBJECT_TYPE_PLAYER = 0x00000400

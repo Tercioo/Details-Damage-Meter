@@ -35,7 +35,7 @@
 	local shield_cache = Details.ShieldCache --details local
 	local parser = Details.parser --details local
 
-	local cc_spell_list = detailsFramework.CrowdControlSpells
+	local crowdControlSpells = LIB_OPEN_RAID_CROWDCONTROL
 	local spellContainerClass = Details.container_habilidades --details local
 
 	--localize the cooldown table from the framework
@@ -2981,7 +2981,7 @@
 			if (_in_combat) then
 				------------------------------------------------------------------------------------------------
 				--buff uptime
-				if (cc_spell_list [spellId]) then
+				if (crowdControlSpells[spellId]) then
 					parser:add_cc_done (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName)
 				end
 
@@ -4374,7 +4374,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	--serach key: ~cc
 	function parser:break_cc(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellType, extraSpellID, extraSpellName, extraSchool, auraType)
-		if (not cc_spell_list[spellId]) then
+		if (not crowdControlSpells[spellId]) then
 			return
 
 		elseif (bitBand(sourceFlags, AFFILIATION_GROUP) == 0) then

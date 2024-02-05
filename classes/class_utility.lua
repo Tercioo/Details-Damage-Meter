@@ -1176,7 +1176,9 @@ function atributo_misc:ToolTipDispell(instancia, numero, barra)
 		if (spellTable.dispell) then
 			spellsUsedToDispel[#spellsUsedToDispel+1] = {spellId, math.floor(spellTable.dispell)}
 		else
-			Details:Msg("D! table.dispell is invalid. spellId:", spellId)
+			--happens when druid uses shapeshift to break root
+			--Details:Msg("D! table.dispell is invalid. spellId:", spellId)
+			spellsUsedToDispel[#spellsUsedToDispel+1] = {spellId, math.floor(-1)}
 		end
 	end
 	table.sort (spellsUsedToDispel, _detalhes.Sort2)
@@ -1193,7 +1195,13 @@ function atributo_misc:ToolTipDispell(instancia, numero, barra)
 			local spellId = spellInfo[1]
 			local amountDispels = spellInfo[2]
 			local spellName, _, spellicon = _GetSpellInfo(spellId)
-			GameCooltip:AddLine(spellName, amountDispels .. " (" .. string.format("%.1f", amountDispels / totalDispels * 100) .. "%)")
+			local amountOfDispelsStr = "" .. amountDispels
+
+			if (amountDispels == -1) then
+				amountOfDispelsStr = _G["UNKNOWN"]
+			end
+
+			GameCooltip:AddLine(spellName, amountOfDispelsStr .. " (" .. string.format("%.1f", amountDispels / totalDispels * 100) .. "%)")
 			GameCooltip:AddIcon(spellicon, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
