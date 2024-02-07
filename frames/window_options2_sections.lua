@@ -6955,8 +6955,8 @@ do
                 set = function(self, fixedparam, value)
                     Details.mythic_plus.show_damage_graphic = value
                 end,
-                name = "Show Damage Charts",
-                desc = "Show Damage Charts",
+                name = "Show End of M+ Panel",
+                desc = "Show End of M+ Panel",
             },
 
 
