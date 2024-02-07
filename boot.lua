@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12256
-		Details.alpha_build_counter = 12256 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12281
+		Details.alpha_build_counter = 12281 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -161,6 +161,12 @@ do
 	--]=]
 
 	local news = {
+		{"v10.2.5.12281.155", "February 07th, 2024"},
+		"Released the new panel for the Mythic+ Run Completion.",
+		"The list of Crowd Control spells is now sourced from the Lib Open Raid.",
+		"Fixed an issue where the Player Color feature wouldn't work properly if not using class colors.",
+		"Fixed an error with Vanilla, where it was trying to access talent data from Retail.",
+
 		{"v10.2.5.12255.155", "February 04th, 2024"},
 		"Dungeon followers now correctly show into the damage done section.",
 		"Fixed an error while statusbar plugin options.",

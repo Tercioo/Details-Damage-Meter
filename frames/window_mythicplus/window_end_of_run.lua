@@ -337,7 +337,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel(bIsDebug)
 	end
 
 	--feature under development
-	if (Details222.MythicPlus.Level and Details222.MythicPlus.Level < 28 and not Details.user_is_patreon_supporter) then
+	if (false and Details222.MythicPlus.Level and Details222.MythicPlus.Level < 28 and not Details.user_is_patreon_supporter) then
 		--create the panel
 		if (not mythicDungeonFrames.ReadyFrame) then
 			mythicDungeonFrames.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
@@ -471,7 +471,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel(bIsDebug)
 		LibWindow.SavePosition(readyFrame)
 
 		--warning footer
-		local warningFooter = DetailsFramework:CreateLabel(readyFrame, "You are seeing this because it's a 28 or above. Under development.", 9, "yellow")
+		local warningFooter = DetailsFramework:CreateLabel(readyFrame, "Under development.", 9, "yellow")
 		warningFooter:SetPoint("bottom", readyFrame, "bottom", 0, 20)
 
         local roundedCornerPreset = {
