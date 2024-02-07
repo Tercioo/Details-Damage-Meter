@@ -3249,7 +3249,12 @@ end
 function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]] --~colors
 	a = a or 1
 
-	if (instance.row_info.texture_class_colors) then
+	local bUseClassColor = instance.row_info.texture_class_colors
+
+	if (self.customColor) then
+		bar.textura:SetVertexColor(r, g, b, a)
+
+	elseif (bUseClassColor) then
 		if (self.classe == "UNGROUPPLAYER") then
 			if (self.spec) then
 				local specId, specName, specDescription, specIcon, specRole, specClass = DetailsFramework.GetSpecializationInfoByID(self.spec)
@@ -3258,6 +3263,9 @@ function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]] --~color
 				end
 			end
 		end
+		bar.textura:SetVertexColor(r, g, b, a)
+	else
+		r, g, b = unpack(instance.row_info.fixed_texture_color)
 		bar.textura:SetVertexColor(r, g, b, a)
 	end
 

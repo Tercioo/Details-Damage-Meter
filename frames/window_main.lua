@@ -4762,9 +4762,9 @@ function Details:InstanceRefreshRows(instance)
 	local textR_outline_small_color = self.row_info.textR_outline_small_color
 
 	--texture color values
-	local texture_class_color = self.row_info.texture_class_colors
+	local bUseClassColor = self.row_info.texture_class_colors
 	local texture_r, texture_g, texture_b
-	if (not texture_class_color) then
+	if (not bUseClassColor) then
 		texture_r, texture_g, texture_b = unpack(self.row_info.fixed_texture_color)
 	end
 
@@ -4963,7 +4963,7 @@ function Details:InstanceRefreshRows(instance)
 		end
 
 		--texture class color: if true color changes on the fly through class refresh
-		if (not texture_class_color) then
+		if (not bUseClassColor) then
 			row.textura:SetVertexColor(texture_r, texture_g, texture_b, alpha)
 		else
 			--automatically color the bar by the actor class
