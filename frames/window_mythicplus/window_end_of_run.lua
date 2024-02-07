@@ -414,26 +414,26 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel(bIsDebug)
 			readyFrame.ElapsedTimeAmountLabel = elapsedTimeAmount
 		end
 
-		mythicDungeonCharts.ReadyFrame:Show()
+		mythicDungeonFrames.ReadyFrame:Show()
 
 		--update the run time and time not in combat
 		local elapsedTime = Details222.MythicPlus.time or 1507
-		mythicDungeonCharts.ReadyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
+		mythicDungeonFrames.ReadyFrame.ElapsedTimeAmountLabel.text = DetailsFramework:IntegerToTimer(elapsedTime)
 
 		local overallMythicDungeonCombat = Details:GetCurrentCombat()
 		if (overallMythicDungeonCombat:GetCombatType() == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
 			local combatTime = overallMythicDungeonCombat:GetCombatTime()
 			local notInCombat = elapsedTime - combatTime
-			mythicDungeonCharts.ReadyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
+			mythicDungeonFrames.ReadyFrame.TimeNotInCombatAmountLabel.text = DetailsFramework:IntegerToTimer(notInCombat) .. " (" .. math.floor(notInCombat / elapsedTime * 100) .. "%)"
 		end
 
 		return
 	end
 
 	--create the panel
-	if (not mythicDungeonCharts.ReadyFrame) then
-		mythicDungeonCharts.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
-		local readyFrame = mythicDungeonCharts.ReadyFrame
+	if (not mythicDungeonFrames.ReadyFrame) then
+		mythicDungeonFrames.ReadyFrame = CreateFrame("frame", "DetailsMythicDungeonReadyFrame", UIParent, "BackdropTemplate")
+		local readyFrame = mythicDungeonFrames.ReadyFrame
 		readyFrame.playerCacheByName = {}
 
 		local textColor = {1, 0.8196, 0, 1}
@@ -639,7 +639,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel(bIsDebug)
 		readyFrame.RantingLabel = rantingLabel
 	end
 
-	local readyFrame = mythicDungeonCharts.ReadyFrame
+	local readyFrame = mythicDungeonFrames.ReadyFrame
 	readyFrame:Show()
 
 	for i = 1, #readyFrame.PlayerBanners do
