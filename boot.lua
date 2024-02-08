@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12281
-		Details.alpha_build_counter = 12281 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12294
+		Details.alpha_build_counter = 12294 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -161,6 +161,11 @@ do
 	--]=]
 
 	local news = {
+		{"v10.2.5.12294.155", "February 08th, 2024"},
+		"General fixes applied to the Mythic+ Panel.",
+		"The Mythic+ section in the options panel can now be translated.",
+		"More fixes for text color.",
+
 		{"v10.2.5.12281.155", "February 07th, 2024"},
 		"Released the new panel for the Mythic+ Run Completion.",
 		"The list of Crowd Control spells is now sourced from the Lib Open Raid.",

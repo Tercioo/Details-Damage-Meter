@@ -792,7 +792,7 @@ end
             --warning2:SetText("This is a concept of a cooldown tracker using the new library 'Open Raid' which uses comms to update cooldown timers.\nThe code to implement is so small that can fit inside a weakaura\nIf you're a coder, the implementation is on Details/frames/window_cdtracker.lua")
 
             cooldownSelectionFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-            cooldownSelectionFrame:RegisterEvent("PLAYER_STARTED_MOVING")
+            --cooldownSelectionFrame:RegisterEvent("PLAYER_STARTED_MOVING") --debug
 
             local maxClasses = 13
 
@@ -820,6 +820,10 @@ end
                 --show a list of players in the group, 1 player per column
                 --below the player name, show a list in vertical with checkboxes to enable/disable cooldowns for that class
                 --use DetailsFramework:BuildMenuVolatile() to build the each list
+
+                if (not cooldownSelectionFrame:IsShown()) then
+                    return
+                end
 
                 local amountOfUnits = GetNumGroupMembers()
 
@@ -891,6 +895,12 @@ end
 
                     index = index + 1
                 end
+            end)
+
+            cooldownSelectionFrame:GetScript("OnEvent")(cooldownSelectionFrame, "GROUP_ROSTER_UPDATE")
+
+            cooldownSelectionFrame:SetScript("OnShow", function()
+                cooldownSelectionFrame:GetScript("OnEvent")(cooldownSelectionFrame, "GROUP_ROSTER_UPDATE")
             end)
         end
 
