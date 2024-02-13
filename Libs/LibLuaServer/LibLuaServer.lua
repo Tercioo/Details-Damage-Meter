@@ -266,6 +266,7 @@
 ---@alias addonname string name of an addon, same as the name of the ToC file.
 ---@alias profile table a table containing the settings of an addon, usually saved in the SavedVariables file.
 ---@alias profilename string name of a profile.
+---@alias anchorid number a number that represents an anchor point, such as topleft, topright, bottomleft, bottomright, top, bottom, left, right, center.
 
 ---@class _G
 ---@field RegisterAttributeDriver fun(statedriver: frame, attribute: string, conditional: string)
@@ -319,6 +320,7 @@
 ---@field SetPoint fun(self: uiobject, point: anchorpoint, relativeFrame: uiobject, relativePoint: anchorpoint, xOffset: number, yOffset: number)
 ---@field ClearAllPoints fun(self: uiobject)
 ---@field CreateAnimationGroup fun(self: uiobject, name: string|nil, templateName: string|nil) : animationgroup
+---@field SetIgnoreParentAlpha fun(self: region, ignore: boolean)
 
 ---@class animationgroup : uiobject
 ---@field CreateAnimation fun(self: animationgroup, animationType: string, name: string|nil, inheritsFrom: string|nil) : animation
@@ -617,1272 +619,4574 @@
 ---@field HasFocus fun(self:editbox) : boolean return true if the editbox has focus
 ---@field HighlightText fun(self:editbox, start:number?, finish:number?) select a portion of the text, passing zero will select the entire text
 
+---@class slider : statusbar
+---@field Enable fun(self: slider)
+---@field Disable fun(self: slider)
+---@field SetEnabled fun(self: slider, enable: boolean)
+---@field IsEnabled fun(self: slider) : boolean
+---@field GetObeyStepOnDrag fun(self: slider) : boolean
+---@field GetStepsPerPage fun(self: slider) : number
+---@field GetThumbTexture fun(self: slider) : texture
+---@field IsDraggingThumb fun(self: slider) : boolean
+---@field SetObeyStepOnDrag fun(self: slider, obeyStep: boolean)
+---@field SetThumbTexture fun(self: slider, texture: textureid|texturepath)
+---@field SetStepsPerPage fun(self: slider, steps: number)
+
+INVSLOT_FIRST_EQUIPPED = true
+INVSLOT_LAST_EQUIPPED = true
+LE_PARTY_CATEGORY_INSTANCE = true
 
 --functions
 C_ChatInfo = true
-unpack = true
-abs = true
-IsInGroup = true
-Ambiguate = true
-IsInRaid = true
-LE_PARTY_CATEGORY_INSTANCE = true
-C_Timer = true
-ceil = true
-strsplit = true
-INVSLOT_FIRST_EQUIPPED = true
-INVSLOT_LAST_EQUIPPED = true
-floor = true
-tremove = true
-GetSpellCharges = function(spellId) end
-AddTrackedAchievement = true
-CanShowAchievementUI = true
-ClearAchievementComparisonUnit = true
-GetAchievementCategory = true
-GetAchievementComparisonInfo = true
-GetAchievementCriteriaInfo = true
-GetAchievementInfo = true
-GetAchievementInfoFromCriteria = true
-GetAchievementLink = true
-GetAchievementNumCriteria = true
-GetSpecializationInfo = true
-GetAchievementNumRewards = true
-GetCategoryInfo = true
-GetCategoryList = true
-GetSpecialization = true
-GetCategoryNumAchievements = true
-GetComparisonAchievementPoints = true
-GetComparisonCategoryNumAchievements = true
-GetComparisonStatistic = true
-GetLatestCompletedAchievements = true
-GetLatestCompletedComparisonAchievements = true
-GetLatestUpdatedComparisonStatsGetLatestUpdatedStats = true
-GetNextAchievement = true
-GetNumComparisonCompletedAchievements = true
-GetNumCompletedAchievements = true
-GetPreviousAchievement = true
-GetStatistic = true
-GetStatisticsCategoryList = true
-GetTotalAchievementPoints = true
-GetTrackedAchievements = true
-GetNumTrackedAchievements = true
-RemoveTrackedAchievement = true
-SetAchievementComparisonUnit = true
-ActionButtonDown = true
-ActionButtonUp = true
-ActionHasRange = true
-CameraOrSelectOrMoveStart = true
-CameraOrSelectOrMoveStop = true
-ChangeActionBarPage = true
-GetActionBarPage = true
-GetActionBarToggles = true
-GetActionCooldown = true
-GetActionCount = true
-GetActionInfo = true
-GetActionText = true
-GetActionTexture = true
-GetBonusBarOffset = true
-GetMouseButtonClicked = true
-GetMultiCastBarOffset = true
-GetPossessInfo = true
-HasAction = true
-IsActionInRange = true
-IsAttackAction = true
-IsAutoRepeatAction = true
-IsCurrentAction = true
-IsConsumableAction = true
-IsEquippedAction = true
-IsUsableAction = true
-PetHasActionBar = true
-PickupAction = true
-PickupPetAction = true
-PlaceAction = true
-SetActionBarToggles = true
-StopAttack = true
-TurnOrActionStart = true
-TurnOrActionStop = true
-UseAction = true
-AcceptDuel = true
-AttackTarget = true
-CancelDuel = true
-CancelLogout = true
-ClearTutorials = true
-CancelSummon = true
-ConfirmSummon = true
-DescendStop = true
-Dismount = true
-FlagTutorial = true
-ForceQuit = true
-GetPVPTimer = true
-GetSummonConfirmAreaName = true
-GetSummonConfirmSummoner = true
-GetSummonConfirmTimeLeft = true
-RandomRoll = true
-SetPVP = true
-StartDuel = true
-TogglePVP = true
-ToggleSheath = true
-UseSoulstone = true
-CanSolveArtifact = true
-UIParent = true
-GetArtifactInfoByRace = true
-GetArtifactProgress = true
-GetNumArtifactsByRace = true
-GetSelectedArtifactInfo = true
-IsArtifactCompletionHistoryAvailable = true
-ItemAddedToArtifact = true
-RemoveItemFromArtifact = true
-RequestArtifactCompletionHistory = true
-SocketItemToArtifact = true
-AcceptArenaTeam = true
-ArenaTeamInviteByName = true
-ArenaTeamSetLeaderByName = true
-ArenaTeamLeave = true
-ArenaTeamRoster = true
-ArenaTeamUninviteByName = true
-ArenaTeamDisband = true
-DeclineArenaTeam = true
-GetArenaTeam = true
-GetArenaTeamGdfInf = true
-oGetArenaTeamRosterInfo = true
-GetBattlefieldTeamInfo = true
-GetCurrentArenaSeason = true
-GetInspectArenaTeamData = true
-GetNumArenaTeamMembers = true
-GetPreviousArenaSeason = true
-IsActiveBattlefieldArena = true
-IsArenaTeamCaptain = true
-IsInArenaTeam = true
-CalculateAuctionDeposit = true
-CanCancelAuction = true
-CancelSell = true
-CanSendAuctionQuery = true
-CancelAuction = true
-ClickAuctionSellItemButton = true
-CloseAuctionHouse = true
-GetAuctionHouseDepositRate = true
-GetAuctionInvTypes = true
-GetAuctionItemClasses = true
-GetAuctionItemInfo = true
-GetAuctionItemLink = true
-GetAuctionItemSubClasses = true
-GetAuctionItemTimeLeft = true
-GetAuctionSellItemInfo = true
-GetBidderAuctionItems = true
-GetNumAuctionItems = true
-GetOwnerAuctionItems = true
-GetSelectedAuctionItem = true
-IsAuctionSortReversed = true
-PlaceAuctionBid = true
-QueryAuctionItems = true
-SetAuctionsTabShowing = true
-SetSelectedAuctionItem = true
-SortAuctionItems = true
-StartAuction = true
-BankButtonIDToInvSlotID = true
-CloseBankFrame = true
-GetBankSlotCost = true
-GetNumBankSlots = true
-PurchaseSlot = true
-AcceptAreaSpiritHeal = true
-AcceptBattlefieldPort = true
-CancelAreaSpiritHeal = true
-CanJoinBattlefieldAsGroup = true
-CheckSpiritHealerDist = true
-GetAreaSpiritHealerTime = true
-GetBattlefieldEstimatedWaitTime = true
-GetBattlefieldFlagPosition = true
-GetBattlefieldInstanceExpiration = true
-GetBattlefieldInstanceRunTime = true
-GetBattlefieldMapIconScale = true
-GetBattlefieldPortExpiration = true
-GetBattlefieldPosition = true
-GetBattlefieldScore = true
-GetBattlefieldStatData = true
-GetBattlefieldStatInfo = true
-GetBattlefieldStatus = true
-GetBattlefieldTimeWaited = true
-GetBattlefieldWinner = true
-GetBattlegroundInfo = true
-GetNumBattlefieldFlagPositions = true
-GetNumBattlefieldPositions = true
-GetNumBattlefieldScores = true
-GetNumBattlefieldStats = true
-GetNumWorldStateUI = true
-GetWintergraspWaitTime = true
-GetWorldStateUIInfo = true
-IsPVPTimerRunning = true
-JoinBattlefield = true
-LeaveBattlefield = true
-ReportPlayerIsPVPAFK = true
-RequestBattlefieldPositions = true
-RequestBattlefieldScoreData = true
-RequestBattlegroundInstanceInfo = true
-SetBattlefieldScoreFaction = true
-GetBinding = true
-GetBindingAction = true
-GetBindingKey = true
-GetBindingText = true
-GetCurrentBindingSet = true
-GetNumBindings = true
-LoadBindings = true
-RunBinding = true
-SaveBindings = true
-SetBinding = true
-SetBindingSpell = true
-SetBindingClick = true
-SetBindingItem = true
-SetBindingMacro = true
-SetConsoleKey = true
-SetOverrideBinding = true
-SetOverrideBindingSpell = true
-SetOverrideBindingClick = true
-SetOverrideBindingItem = true
-SetOverrideBindingMacro = true
-ClearOverrideBindings = true
-SetMouselookOverrideBinding = true
-IsModifierKeyDown = true
-IsModifiedClick = true
-IsMouseButtonDown = true
-CancelUnitBuff = true
-CancelShapeshiftForm = true
-CancelItemTempEnchantment = true
-GetWeaponEnchantInfo = true
-UnitAura = true
-UnitBuff = true
-UnitDebuff = true
-AddChatWindowChannel = true
-ChannelBan = true
-ChannelInvite = true
-ChannelKick = true
-ChannelModerator = true
-ChannelMute = true
-ChannelToggleAnnouncements = true
-ChannelUnban = true
-ChannelUnmoderator = true
-ChannelUnmute = true
-DisplayChannelOwner = true
-DeclineInvite = true
-EnumerateServerChannels = true
-GetChannelList = true
-GetChannelName = true
-GetChatWindowChannels = true
-JoinChannelByName = true
-LeaveChannelByName = true
-ListChannelByName = true
-ListChannels = true
-RemoveChatWindowChannel = true
-SendChatMessage = true
-SetChannelOwner = true
-SetChannelPassword = true
-AcceptResurrect = true
-AcceptXPLoss = true
-CheckBinderDist = true
-ConfirmBinder = true
-DeclineResurrect = true
-DestroyTotem = true
-GetBindLocation = true
-GetComboPoints = true
-GetCorpseRecoveryDelay = true
-GetCurrentTitle = true
-GetMirrorTimerInfo = true
-GetMirrorTimerProgress = true
-GetMoney = true
-GetNumTitles = true
-GetPlayerFacing = true
-GetPVPDesired = true
-GetReleaseTimeRemaining = true
-GetResSicknessDuration = true
-GetRestState = true
-GetRuneCooldown = true
-GetRuneCount = true
-GetRuneType = true
-GetTimeToWellRested = true
-GetTitleName = true
-GetUnitPitch = true
-GetXPExhaustion = true
-HasFullControl = true
-HasSoulstone = true
-IsFalling = true
-IsFlying = true
-IsFlyableArea = true
-IsIndoors = true
-IsMounted = true
-IsOutdoors = true
-IsOutOfBounds = true
-IsResting = true
-IsStealthed = true
-IsSwimming = true
-IsTitleKnown = true
-IsXPUserDisabled = true
-NotWhileDeadError = true
-ResurrectHasSickness = true
-ResurrectHasTimer = true
-ResurrectGetOfferer = true
-RetrieveCorpse = true
-SetCurrentTitle = true
-TargetTotem = true
-GetArmorPenetration = true
-GetAttackPowerForStat = true
-GetAverageItemLevel = true
-GetBlockChance = true
-GetCombatRating = true
-GetCombatRatingBonus = true
-GetCritChance = true
-GetCritChanceFromAgility = true
-GetDodgeChance = true
-GetExpertise = true
-GetExpertisePercent = true
-GetManaRegen = true
-GetMaxCombatRatingBonus = true
-GetParryChance = true
-GetPetSpellBonusDamage = true
-GetPowerRegen = true
-GetSpellBonusDamage = true
-GetRangedCritChance = true
-GetSpellBonusHealing = true
-GetSpellCritChance = true
-GetShieldBlock = true
-GetSpellCritChanceFromIntellect = true
-GetSpellPenetration = true
-AddChatWindowChannel = true
-ChangeChatColor = true
-ChatFrame_AddChannel = true
-ChatFrame_AddMessageEventFilter = true
-ChatFrame_GetMessageEventFilters = true
-ChatFrame_OnHyperlinkShow = true
-ChatFrame_RemoveMessageEventFilter = true
-GetAutoCompleteResults = true
-GetChatTypeIndex = true
-GetChatWindowChannels = true
-GetChatWindowInfo = true
-GetChatWindowMessages = true
-JoinChannelByName = true
-LoggingChat = true
-LoggingCombat = true
-RemoveChatWindowChannel = true
-RemoveChatWindowMessages = true
-SetChatWindowAlpha = true
-SetChatWindowColor = true
-SetChatWindowDocked = true
-SetChatWindowLocked = true
-SetChatWindowName = true
-SetChatWindowShown = true
-SetChatWindowSize = true
-SetChatWindowUninteractable = true
-DoEmote = true
-GetDefaultLanguage = true
-GetLanguageByIndex = true
-GetNumLanguages = true
-GetRegisteredAddonMessagePrefixes = true
-IsAddonMessagePrefixRegistered = true
-RegisterAddonMessagePrefix = true
-SendAddonMessage = true
-SendChatMessage = true
-CallCompanion = true
-DismissCompanion = true
-GetCompanionInfo = true
-GetNumCompanions = true
-GetCompanionCooldown = true
-PickupCompanion = true
-SummonRandomCritter = true
-ContainerIDToInventoryID = true
-GetBagName = true
-GetContainerItemCooldown = true
-GetContainerItemDurability = true
-GetContainerItemGems = true
-GetContainerItemID = true
-GetContainerItemInfo = true
-GetContainerItemLink = true
-GetContainerNumSlots = true
-GetContainerItemQuestInfo = true
-GetContainerNumFreeSlots = true
-OpenAllBags = true
-CloseAllBags = true
-PickupBagFromSlot = true
-PickupContainerItem = true
-PutItemInBackpack = true
-PutItemInBag = true
-PutKeyInKeyRing = true
-SplitContainerItem = true
-ToggleBackpack = true
-ToggleBag = true
-GetCoinText = true
-GetCoinTextureString = true
-GetCurrencyInfo = true
-GetCurrencyListSize = true
-GetCurrencyListInfo = true
-ExpandCurrencyList = true
-SetCurrencyUnused = true
-GetNumWatchedTokens = true
-GetBackpackCurrencyInfo = true
-SetCurrencyBackpack = true
-AutoEquipCursorItem = true
-ClearCursor = true
-CursorCanGoInSlot = true
-CursorHasItem = true
-CursorHasMoney = true
-CursorHasSpell = true
-DeleteCursorItem = true
-DropCursorMoney = true
-DropItemOnUnit = true
-EquipCursorItem = true
-GetCursorInfo = true
-GetCursorPosition = true
-HideRepairCursor = true
-InRepairMode = true
-PickupAction = true
-PickupBagFromSlot = true
-PickupContainerItem = true
-PickupInventoryItem = true
-PickupItem = true
-PickupMacro = true
-PickupMerchantItem = true
-PickupPetAction = true
-PickupSpell = true
-PickupStablePet = true
-PickupTradeMoney = true
-PlaceAction = true
-PutItemInBackpack = true
-PutItemInBag = true
-ResetCursor = true
-SetCursor = true
-ShowContainerSellCursor = true
-ShowInspectCursor = true
-ShowInventorySellCursor = true
-ShowMerchantSellCursor = true
-ShowRepairCursor = true
-SplitContainerItem = true
-GetWeaponEnchantInfo = true
-ReplaceEnchant = true
-ReplaceTradeEnchant = true
-BindEnchant = true
-CollapseFactionHeader = true
-CollapseAllFactionHeaders = true
-ExpandFactionHeader = true
-ExpandAllFactionHeaders = true
-FactionToggleAtWar = true
-GetFactionInfo = true
-GetNumFactions = true
-GetSelectedFaction = true
-GetWatchedFactionInfo = true
-IsFactionInactive = true
-SetFactionActive = true
-SetFactionInactive = true
-SetSelectedFaction = true
-SetWatchedFactionIndex = true
-UnitFactionGroup = true
-CreateFrame = true
-CreateFont = true
-GetFramesRegisteredForEvent = true
-GetNumFrames = true
-EnumerateFrames = true
-GetMouseFocus = true
-ToggleDropDownMenu = true
-UIFrameFadeIn = true
-UIFrameFadeOut = true
-UIFrameFlash = true
-EasyMenu = true
-AddFriend = true
-AddOrRemoveFriend = true
-GetFriendInfo = true
-SetFriendNotes = true
-GetNumFriends = true
-GetSelectedFriend = true
-RemoveFriend = true
-SetSelectedFriend = true
-ShowFriends = true
-ToggleFriendsFrame = true
-GetNumGlyphSockets = true
-GetGlyphSocketInfo = true
-GetGlyphLink = true
-GlyphMatchesSocket = true
-PlaceGlyphInSocket = true
-RemoveGlyphFromSocket = true
-SpellCanTargetGlyph = true
-CanComplainChat = true
-CanComplainInboxItem = true
-ComplainChat = true
-ComplainInboxItem = true
-CloseGossip = true
-ForceGossip = true
-GetGossipActiveQuests = true
-GetGossipAvailableQuests = true
-GetGossipOptions = true
-GetGossipText = true
-GetNumGossipActiveQuests = true
-GetNumGossipAvailableQuests = true
-GetNumGossipOptions = true
-SelectGossipActiveQuest = true
-SelectGossipAvailableQuest = true
-SelectGossipOption = true
-AcceptGroup = true
-ConfirmReadyCheck = true
-ConvertToRaid = true
-DeclineGroup = true
-DoReadyCheck = true
-GetLootMethod = true
-GetLootThreshold = true
-GetMasterLootCandidate = true
-GetNumPartyMembers = true
-GetRealNumPartyMembers = true
-GetPartyLeaderIndex = true
-GetPartyMember = true
-InviteUnit = true
-IsPartyLeader = true
-LeaveParty = true
-PromoteToLeader = true
-SetLootMethod = true
-SetLootThreshold = true
-UninviteUnit = true
-UnitInParty = true
-UnitIsPartyLeader = true
-AcceptGuild = true
-BuyGuildCharter = true
-CanEditGuildEvent = true
-CanEditGuildInfo = true
-CanEditMOTD = true
-CanEditOfficerNote = true
-CanEditPublicNote = true
-CanGuildDemote = true
-CanGuildInvite = true
-CanGuildPromote = true
-CanGuildRemove = true
-CanViewOfficerNote = true
-CloseGuildRegistrar = true
-CloseGuildRoster = true
-CloseTabardCreation = true
-DeclineGuild = true
-GetGuildCharterCost = true
-GetGuildEventInfo = true
-GetGuildInfo = true
-GetGuildInfoText = true
-GetGuildRosterInfo = true
-GetGuildRosterLastOnline = true
-GetGuildRosterMOTD = true
-GetGuildRosterSelection = true
-GetGuildRosterShowOffline = true
-GetNumGuildEvents = true
-GetNumGuildMembers = true
-GetTabardCreationCost = true
-GetTabardInfo = true
-GuildControlAddRank = true
-GuildControlDelRank = true
-GuildControlGetNumRanks = true
-GuildControlGetRankFlags = true
-GuildControlGetRankName = true
-GuildControlSaveRank = true
-GuildControlSetRank = true
-GuildControlSetRankFlag = true
-GuildDemote = true
-GuildDisband = true
-GuildInfo = true
-GuildInvite = true
-GuildLeave = true
-GuildPromote = true
-GuildRoster = true
-GuildRosterSetOfficerNote = true
-GuildRosterSetPublicNote = true
-GuildSetMOTD = true
-GuildSetLeader = true
-GuildUninvite = true
-IsGuildLeader = true
-IsInGuild = true
-QueryGuildEventLog = true
-SetGuildInfoText = true
-SetGuildRosterSelection = true
-SetGuildRosterShowOffline = true
-SortGuildRoster = true
-UnitGetGuildXP = true
-AutoStoreGuildBankItem = true
-BuyGuildBankTab = true
-CanGuildBankRepair = true
-CanWithdrawGuildBankMoney = true
-CloseGuildBankFrame = true
-DepositGuildBankMoney = true
-GetCurrentGuildBankTab = true
-GetGuildBankItemInfo = true
-GetGuildBankItemLink = true
-GetGuildBankMoney = true
-GetGuildBankMoneyTransaction = true
-GetGuildBankTabCost = true
-GetGuildBankTabInfo = true
-GetGuildBankTabPermissions = true
-GetGuildBankText = true
-GetGuildBankTransaction = true
-GetGuildTabardFileNames = true
-GetNumGuildBankMoneyTransactions = true
-GetNumGuildBankTabs = true
-GetNumGuildBankTransactions = true
-PickupGuildBankItem = true
-PickupGuildBankMoney = true
-QueryGuildBankLog = true
-QueryGuildBankTab = true
-SetCurrentGuildBankTab = true
-SetGuildBankTabInfo = true
-SetGuildBankTabPermissions = true
-SplitGuildBankItem = true
-WithdrawGuildBankMoney = true
-GetHolidayBGHonorCurrencyBonuses = true
-GetInspectHonorData = true
-GetPVPLifetimeStats = true
-GetPVPRankInfo = true
-GetPVPRankProgress = true
-GetPVPSessionStats = true
-GetPVPYesterdayStats = true
-GetRandomBGHonorCurrencyBonuses = true
-HasInspectHonorData = true
-RequestInspectHonorData = true
-UnitPVPName = true
-UnitPVPRank = true
-AddIgnore = true
-AddOrDelIgnore = true
-DelIgnore = true
-GetIgnoreName = true
-GetNumIgnores = true
-GetSelectedIgnore = true
-SetSelectedIgnore = true
-CanInspect = true
-CheckInteractDistance = true
-ClearInspectPlayer = true
-GetInspectArenaTeamData = true
-HasInspectHonorData = true
-RequestInspectHonorData = true
-GetInspectHonorData = true
-NotifyInspect = true
-InspectUnit = true
-CanShowResetInstances = true
-GetBattlefieldInstanceExpiration = true
-GetBattlefieldInstanceInfo = true
-GetBattlefieldInstanceRunTime = true
-GetInstanceBootTimeRemaining = true
-GetInstanceInfo = true
-GetNumSavedInstances = true
-GetSavedInstanceInfo = true
-IsInInstance = true
-ResetInstances = true
-GetDungeonDifficulty = true
-SetDungeonDifficulty = true
-GetInstanceDifficulty = true
-GetInstanceLockTimeRemaining = true
-GetInstanceLockTimeRemainingEncounter = true
-AutoEquipCursorItem = true
-BankButtonIDToInvSlotID = true
-CancelPendingEquip = true
-ConfirmBindOnUse = true
-ContainerIDToInventoryID = true
-CursorCanGoInSlot = true
-EquipCursorItem = true
-EquipPendingItem = true
-GetInventoryAlertStatus = true
-GetInventoryItemBroken = true
-GetInventoryItemCooldown = true
-GetInventoryItemCount = true
-GetInventoryItemDurability = true
-GetInventoryItemGems = true
-GetInventoryItemID = true
-GetInventoryItemLink = true
-GetInventoryItemQuality = true
-GetInventoryItemTexture = true
-GetInventorySlotInfo = true
-GetWeaponEnchantInfo = true
-HasWandEquipped = true
-IsInventoryItemLocked = true
-KeyRingButtonIDToInvSlotID = true
-PickupBagFromSlot = true
-PickupInventoryItem = true
-UpdateInventoryAlertStatus = true
-UseInventoryItem = true
-EquipItemByName = true
-GetAuctionItemLink = true
-GetContainerItemLink = true
-GetItemCooldown = true
-GetItemCount = true
-GetItemFamily = true
-GetItemIcon = true
-GetItemInfo = true
-GetItemQualityColor = true
-GetItemSpell = true
-GetItemStats = true
-GetMerchantItemLink = true
-GetQuestItemLink = true
-GetQuestLogItemLink = true
-GetTradePlayerItemLink = true
-GetTradeSkillItemLink = true
-GetTradeSkillReagentItemLink = true
-GetTradeTargetItemLink = true
-IsUsableItem = true
-IsConsumableItem = true
-IsCurrentItem = true
-IsEquippedItem = true
-IsEquippableItem = true
-IsEquippedItemType = true
-IsItemInRange = true
-ItemHasRange = true
-OffhandHasWeapon = true
-SplitContainerItem = true
-SetItemRef = true
-AcceptSockets = true
-ClickSocketButton = true
-CloseSocketInfo = true
-GetSocketItemInfo = true
-GetSocketItemRefundable = true
-GetSocketItemBoundTradeable = true
-GetNumSockets = true
-GetSocketTypes = true
-GetExistingSocketInfo = true
-GetExistingSocketLink = true
-GetNewSocketInfo = true
-GetNewSocketLink = true
-SocketInventoryItem = true
-SocketContainerItem = true
-CloseItemText = true
-ItemTextGetCreator = true
-ItemTextGetItem = true
-ItemTextGetMaterial = true
-ItemTextGetPage = true
-ItemTextGetText = true
-ItemTextHasNextPage = true
-ItemTextNextPage = true
-ItemTextPrevPage = true
-GetMinimapZoneText = true
-GetRealZoneText = true
-GetSubZoneText = true
-GetZonePVPInfo = true
-GetZoneText = true
-CompleteLFGRoleCheck = true
-GetLFGDeserterExpiration = true
-GetLFGRandomCooldownExpiration = true
-GetLFGBootProposal = true
-GetLFGMode = true
-GetLFGQueueStats = true
-GetLFGRoles = true
-GetLFGRoleUpdate = true
-GetLFGRoleUpdateSlot = true
-SetLFGBootVote = true
-SetLFGComment = true
-SetLFGRoles = true
-UninviteUnit = true
-UnitGroupRolesAssigned = true
-UnitHasLFGDeserter = true
-UnitHasLFGRandomCooldown = true
-CloseLoot = true
-ConfirmBindOnUse = true
-ConfirmLootRoll = true
-ConfirmLootSlot = true
-GetLootMethod = true
-GetLootRollItemInfo = true
-GetLootRollItemLink = true
-GetLootRollTimeLeft = true
-GetLootSlotInfo = true
-GetLootSlotLink = true
-GetLootThreshold = true
-GetMasterLootCandidate = true
-GetNumLootItems = true
-GetOptOutOfLoot = true
-GiveMasterLoot = true
-IsFishingLoot = true
-LootSlot = true
-LootSlotIsCoin = true
-LootSlotIsCurrency = true
-LootSlotIsItem = true
-RollOnLoot = true
-SetLootMethod = true
-SetLootPortrait = true
-SetLootThreshold = true
-SetOptOutOfLoot = true
-CursorHasMacro = true
-DeleteMacro = true
-GetMacroBody = true
-GetMacroIconInfo = true
-GetMacroItemIconInfo = true
-GetMacroIndexByName = true
-GetMacroInfo = true
-GetNumMacroIcons = true
-GetNumMacroItemIcons = true
-GetNumMacros = true
-PickupMacro = true
-RunMacro = true
-RunMacroText = true
-SecureCmdOptionParse = true
-StopMacro = true
-AutoLootMailItem = true
-CheckInbox = true
-ClearSendMail = true
-ClickSendMailItemButton = true
-CloseMail = true
-DeleteInboxItem = true
-GetCoinIcon = true
-GetInboxHeaderInfo = true
-GetInboxItem = true
-GetInboxItemLink = true
-GetInboxNumItems = true
-GetInboxText = true
-GetInboxInvoiceInfo = true
-GetNumPackages = true
-GetNumStationeries = true
-GetPackageInfo = true
-GetSelectedStationeryTexture = true
-GetSendMailCOD = true
-GetSendMailItem = true
-GetSendMailItemLink = true
-GetSendMailMoney = true
-GetSendMailPrice = true
-GetStationeryInfo = true
-HasNewMail = true
-InboxItemCanDelete = true
-ReturnInboxItem = true
-SelectPackage = true
-SelectStationery = true
-SendMail = true
-SetSendMailCOD = true
-SetSendMailMoney = true
-TakeInboxItem = true
-TakeInboxMoney = true
-TakeInboxTextItem = true
-ClickLandmark = true
-GetCorpseMapPosition = true
-GetCurrentMapContinent = true
-GetCurrentMapDungeonLevel = true
-GetNumDungeonMapLevels = true
-GetCurrentMapAreaID = true
-GetCurrentMapZone = true
-GetMapContinents = true
-GetMapDebugObjectInfo = true
-GetMapInfo = true
-GetMapLandmarkInfo = true
-GetMapOverlayInfo = true
-GetMapZones = true
-GetNumMapDebugObjects = true
-GetNumMapLandmarks = true
-GetNumMapOverlays = true
-GetPlayerMapPosition = true
-ProcessMapClick = true
-RequestBattlefieldPositions = true
-SetDungeonMapLevel = true
-SetMapByID = true
-SetMapToCurrentZone = true
-SetMapZoom = true
-SetupFullscreenScale = true
-UpdateMapHighlight = true
-CreateWorldMapArrowFrame = true
-UpdateWorldMapArrowFrames = true
-ShowWorldMapArrowFrame = true
-PositionWorldMapArrowFrame = true
-ZoomOut = true
-BuyMerchantItem = true
-BuybackItem = true
-CanMerchantRepair = true
-CloseMerchant = true
-GetBuybackItemInfo = true
-GetBuybackItemLink = true
-GetMerchantItemCostInfo = true
-GetMerchantItemCostItem = true
-GetMerchantItemInfo = true
-GetMerchantItemLink = true
-GetMerchantItemMaxStack = true
-GetMerchantNumItems = true
-GetRepairAllCost = true
-HideRepairCursor = true
-InRepairMode = true
-PickupMerchantItem = true
-RepairAllItems = true
-ShowMerchantSellCursor = true
-ShowRepairCursor = true
-GetNumBuybackItems = true
-CastPetAction = true
-ClosePetStables = true
-DropItemOnUnit = true
-GetPetActionCooldown = true
-GetPetActionInfo = true
-GetPetActionSlotUsable = true
-GetPetActionsUsable = true
-GetPetExperience = true
-GetPetFoodTypes = true
-GetPetHappiness = true
-GetPetIcon = true
-GetPetTimeRemaining = true
-GetStablePetFoodTypes = true
-GetStablePetInfo = true
-HasPetSpells = true
-HasPetUI = true
-PetAbandon = true
-PetAggressiveMode = true
-PetAttack = true
-IsPetAttackActive = true
-PetStopAttack = true
-PetCanBeAbandoned = true
-PetCanBeDismissed = true
-PetCanBeRenamed = true
-PetDefensiveMode = true
-PetDismiss = true
-PetFollow = true
-PetHasActionBar = true
-PetPassiveMode = true
-PetRename = true
-PetWait = true
-PickupPetAction = true
-PickupStablePet = true
-SetPetStablePaperdoll = true
-TogglePetAutocast = true
-ToggleSpellAutocast = true
-GetSpellAutocast = true
-AddQuestWatch = true
-GetActiveLevel = true
-GetActiveTitle = true
-GetAvailableLevel = true
-GetAvailableTitle = true
-GetAvailableQuestInfo = true
-GetGreetingText = true
-GetNumQuestLeaderBoards = true
-GetNumQuestWatches = true
-GetObjectiveText = true
-GetProgressText = true
-GetQuestGreenRange = true
-GetQuestIndexForWatch = true
-GetQuestLink = true
-GetQuestLogGroupNum = true
-GetQuestLogLeaderBoard = true
-GetQuestLogTitle = true
-GetQuestReward = true
-GetRewardArenaPoints = true
-GetRewardHonor = true
-GetRewardMoney = true
-GetRewardSpell = true
-GetRewardTalents = true
-GetRewardText = true
-GetRewardTitle = true
-GetRewardXP = true
-IsQuestWatched = true
-IsUnitOnQuest = true
-QuestFlagsPVP = true
-QuestGetAutoAccept = true
-RemoveQuestWatch = true
-ShiftQuestWatches = true
-SortQuestWatches = true
-QueryQuestsCompleted = true
-GetQuestsCompleted = true
-QuestIsDaily = true
-QuestIsWeekly = true
-ClearRaidMarker = true
-ConvertToRaid = true
-ConvertToParty = true
-DemoteAssistant = true
-GetAllowLowLevelRaid = true
-GetNumRaidMembers = true
-GetRealNumRaidMembers = true
-GetPartyAssignment = true
-GetPartyAssignment = true
-GetRaidRosterInfo = true
-GetRaidTargetIndex = true
-GetReadyCheckStatus = true
-InitiateRolePoll = true
-IsRaidLeader = true
-IsRaidOfficer = true
-PlaceRaidMarker = true
-PromoteToAssistant = true
-RequestRaidInfo = true
-SetPartyAssignment = true
-SetAllowLowLevelRaid = true
-SetRaidRosterSelection = true
-SetRaidSubgroup = true
-SwapRaidSubgroup = true
-SetRaidTarget = true
-UnitInRaid = true
-LFGGetDungeonInfoByID = true
-GetInstanceLockTimeRemainingEncounter = true
-RefreshLFGList = true
-SearchLFGGetEncounterResults = true
-SearchLFGGetJoinedID = true
-SearchLFGGetNumResults = true
-SearchLFGGetPartyResults = true
-SearchLFGGetResults = true
-SearchLFGJoin = true
-SearchLFGLeave = true
-SearchLFGSort = true
-SetLFGComment = true
-ClearAllLFGDungeons = true
-JoinLFG = true
-LeaveLFG = true
-RequestLFDPartyLockInfo = true
-RequestLFDPlayerLockInfo = true
-SetLFGDungeon = true
-SetLFGDungeonEnabled = true
-SetLFGHeaderCollapsed = true
-GetAddOnCPUUsage = true
-GetAddOnMemoryUsage = true
-GetEventCPUUsage = true
-GetFrameCPUUsage = true
-GetFunctionCPUUsage = true
-GetScriptCPUUsage = true
-ResetCPUUsage = true
-UpdateAddOnCPUUsage = true
-UpdateAddOnMemoryUsage = true
-issecure = true
-forceinsecure = true
-issecurevariable = true
-securecall = true
-hooksecurefunc = true
-InCombatLockdown = true
-CombatTextSetActiveUnit = true
-DownloadSettings = true
-GetCVar = true
-GetCVarDefault = true
-GetCVarBool = true
-GetCVarInfo = true
-GetCurrentMultisampleFormat = true
-GetCurrentResolution = true
-GetGamma = true
-GetMultisampleFormats = true
-GetRefreshRates = true
-GetScreenResolutions = true
-GetVideoCaps = true
-IsThreatWarningEnabled = true
-RegisterCVar = true
-ResetPerformanceValues = true
-ResetTutorials = true
-SetCVar = true
-SetEuropeanNumbers = true
-SetGamma = true
-SetLayoutMode = true
-SetMultisampleFormat = true
-SetScreenResolution = true
-ShowCloak = true
-ShowHelm = true
-ShowNumericThreat = true
-ShowingCloak = true
-ShowingHelm = true
-UploadSettings = true
-AbandonSkill = true
-CastShapeshiftForm = true
-CastSpell = true
-CastSpellByName = true
-GetMultiCastTotemSpells = true
-GetNumShapeshiftForms = true
-GetNumSpellTabs = true
-GetShapeshiftForm = true
-GetShapeshiftFormCooldown = true
-GetShapeshiftFormInfo = true
-GetSpellAutocast = true
-GetSpellBookItemInfo = true
-GetSpellBookItemName = true
-GetSpellCooldown = true
-GetSpellDescription = true
-GetSpellInfo = true
-GetSpellLink = true
-GetSpellTabInfo = true
-GetSpellTexture = true
-GetTotemInfo = true
-IsAttackSpell = true
-IsAutoRepeatSpell = true
-IsPassiveSpell = true
-IsSpellInRange = true
-IsUsableSpell = true
-PickupSpell = true
-QueryCastSequence = true
-SetMultiCastSpell = true
-SpellCanTargetUnit = true
-SpellHasRange = true
-SpellIsTargeting = true
-SpellStopCasting = true
-SpellStopTargeting = true
-SpellTargetUnit = true
-ToggleSpellAutocast = true
-UnitCastingInfo = true
-UnitChannelInfo = true
-ConsoleExec = true
-DetectWowMouse = true
-GetBuildInfo = true
-geterrorhandler = true
-GetCurrentKeyBoardFocus = true
-GetExistingLocales = true
-GetFramerate = true
-GetGameTime = true
-GetLocale = true
-GetCursorPosition = true
-GetNetStats = true
-GetRealmName = true
-GetScreenHeight = true
-GetScreenWidth = true
-GetText = true
-GetTime = true
-IsAltKeyDown = true
-InCinematic = true
-IsControlKeyDown = true
-IsDebugBuild = true
-IsDesaturateSupported = true
-IsLeftAltKeyDown = true
-IsLeftControlKeyDown = true
-IsLeftShiftKeyDown = true
-IsLinuxClient = true
-IsLoggedIn = true
-IsMacClient = true
-IsRightAltKeyDown = true
-IsRightControlKeyDown = true
-IsRightShiftKeyDown = true
-IsShiftKeyDown = true
-IsStereoVideoAvailable = true
-IsWindowsClient = true
-OpeningCinematic = true
-PlayMusic = true
-PlaySound = true
-PlaySoundFile = true
-ReloadUI = true
-RepopMe = true
-RequestTimePlayed = true
-RestartGx = true
-RunScript = true
-Screenshot = true
-SetAutoDeclineGuildInvites = true
-seterrorhandler = true
-StopCinematic = true
-StopMusic = true
-UIParentLoadAddOn = true
-TakeScreenshot = true
-BuyTrainerService = true
-CheckTalentMasterDist = true
-ConfirmTalentWipe = true
-GetActiveTalentGroup = true
-GetNumTalentTabs = true
-GetNumTalents = true
-GetTalentInfo = true
-GetTalentLink = true
-GetTalentPrereqs = true
-GetTalentTabInfo = true
-LearnTalent = true
-SetActiveTalentGroup = true
-GetNumTalentGroups = true
-GetActiveTalentGroup = true
-AddPreviewTalentPoints = true
-GetGroupPreviewTalentPointsSpent = true
-GetPreviewTalentPointsSpent = true
-GetUnspentTalentPoints = true
-LearnPreviewTalents = true
-ResetGroupPreviewTalentPoints = true
-ResetPreviewTalentPoints = true
-AssistUnit = true
-AttackTarget = true
-ClearTarget = true
-ClickTargetTradeButton = true
-TargetLastEnemy = true
-TargetLastTarget = true
-TargetNearestEnemy = true
-TargetNearestEnemyPlayer = true
-TargetNearestFriend = true
-TargetNearestFriendPlayer = true
-TargetNearestPartyMember = true
-TargetNearestRaidMember = true
-TargetUnit = true
-ToggleBackpack = true
-ToggleBag = true
-ToggleCharacter = true
-ToggleFriendsFrame = true
-ToggleSpellBook = true
-TradeSkill = true
-CloseTradeSkill = true
-CollapseTradeSkillSubClass = true
-PickupPlayerMoney = true
-PickupTradeMoney = true
-SetTradeMoney = true
-ReplaceTradeEnchant = true
-AssistUnit = true
-CheckInteractDistance = true
-DropItemOnUnit = true
-FollowUnit = true
-FocusUnit = true
-ClearFocus = true
-GetUnitName = true
-GetUnitPitch = true
-GetUnitSpeed = true
-InviteUnit = true
-IsUnitOnQuest = true
-SpellCanTargetUnit = true
-SpellTargetUnit = true
-TargetUnit = true
-UnitAffectingCombat = true
-UnitArmor = true
-UnitAttackBothHands = true
-UnitAttackPower = true
-UnitAttackSpeed = true
-UnitAura = true
-UnitBuff = true
-UnitCanAssist = true
-UnitCanAttack = true
-UnitCanCooperate = true
-UnitClass = true
-UnitClassification = true
-UnitCreatureFamily = true
-UnitCreatureType = true
-UnitDamage = true
-UnitDebuff = true
-UnitDefense = true
-UnitDetailedThreatSituation = true
-UnitExists = true
-UnitFactionGroup = true
-UnitGroupRolesAssigned = true
-UnitGUID = true
-GetPlayerInfoByGUID = true
-UnitHasLFGDeserter = true
-UnitHasLFGRandomCooldown = true
-UnitHasRelicSlot = true
-UnitHealth = true
-UnitHealthMax = true
-UnitInParty = true
-UnitInRaid = true
-UnitInBattleground = true
-UnitIsInMyGuild = true
-UnitInRange = true
-UnitIsAFK = true
-UnitIsCharmed = true
-UnitIsConnected = true
-UnitIsCorpse = true
-UnitIsDead = true
-UnitIsDeadOrGhost = true
-UnitIsDND = true
-UnitIsEnemy = true
-UnitIsFeignDeath = true
-UnitIsFriend = true
-UnitIsGhost = true
-UnitIsPVP = true
-UnitIsPVPFreeForAll = true
-UnitIsPVPSanctuary = true
-UnitIsPartyLeader = true
-UnitIsPlayer = true
-UnitIsPossessed = true
-UnitIsRaidOfficer = true
-UnitIsSameServer = true
-UnitIsTapped = true
-UnitIsTappedByPlayer = true
-UnitIsTappedByAllThreatList = true
-UnitIsTrivial = true
-UnitIsUnit = true
-UnitIsVisible = true
-UnitLevel = true
-UnitMana = true
-UnitManaMax = true
-UnitName = true
-UnitOnTaxi = true
-UnitPlayerControlled = true
-UnitPlayerOrPetInParty = true
-UnitPlayerOrPetInRaid = true
-UnitPVPName = true
-UnitPVPRank = true
-UnitPower = true
-UnitPowerMax = true
-UnitPowerType = true
-UnitRace = true
-UnitRangedAttack = true
-UnitRangedAttackPower = true
-UnitRangedDamage = true
-UnitReaction = true
-UnitResistance = true
-UnitSelectionColor = true
-UnitSex = true
-UnitStat = true
-UnitThreatSituation = true
-UnitUsingVehicle = true
-GetThreatStatusColor = true
-UnitXP = true
-UnitXPMax = true
-SetPortraitTexture = true
-SetPortraitToTexture = true
-tinsert = true
+
+
+---linearly interpolates between two values. Example: Lerp(1, 2, 0.5) return 1.5
+---@param startValue number The starting value.
+---@param endValue number The ending value.
+---@param amount number The interpolation amount (between 0 and 1).
+---@return number amount The interpolated value.
+function Lerp(startValue, endValue, amount) return 0 end
+
+---clamps a value between a minimum and maximum range. Example: Clamp(17, 13, 15) return 15
+---@param value number The value to clamp.
+---@param min number The minimum value of the range.
+---@param max number The maximum value of the range.
+---@return number value The clamped value.
+function Clamp(value, min, max) return 0 end
+
+--lock a value to be between 0 and 1. Example: Saturate(1.324) return 1, Saturate(-0.324) return 0
+---@param value number The value to saturate.
+---@return number value The saturated value.
+function Saturate(value) return 0 end
+
+---wraps a value within a specified range. Example: Wrap(17, 13) return 4
+---@param value number The value to wrap.
+---@param max number The maximum value of the range.
+---@return number value The wrapped value.
+function Wrap(value, max) return 0 end
+
+---wraps a value within a specified range using modular arithmetic. Example: ClampMod(11, 3) return 2 (11 % 3 = 2)
+---@param value number The value to be wrapped.
+---@param mod number The modulus defining the range. The value will be wrapped within the range from 0 to mod - 1.
+---@return number value The wrapped value within the specified range.
+function ClampMod(value, mod) return 0 end
+
+---clamps an angle value within the range of 0 to 359 degrees.
+---@param value number The angle value to be clamped.
+---@return number value The clamped angle value within the range of 0 to 359 degrees.
+function ClampDegrees(value) return 0 end
+
+---negates a value if a condition is true, otherwise returns the original value.
+---@param value number The value to be negated or returned.
+---@param condition boolean The condition determining whether to negate the value.
+---@return number value The negated value if the condition is true, otherwise the original value.
+function NegateIf(value, condition) return 0 end
+
+---Returns a formatted version of its variable number of arguments following the description given in its first argument.
+---@param s string|number
+---@param ... any
+---@return string
+---@nodiscard
+function format(s, ...) return "" end
+
+table.wipe = true
+wipe = true
+
+---returns the maximum value among the given numbers.
+---@param ... number The numbers to compare.
+---@return number The maximum value.
+max = function(...) return 0 end
+
+---returns the minimum value among the given numbers.
+---@param ... number The numbers to compare.
+---@return number The minimum value.
+min = function(...) return 0 end
+
+C_ChallengeMode = {}
+---return true if the player is in a challenge mode dungeon.
+---@return boolean bIsActive Whether the player is in a challenge mode dungeon.
+function C_ChallengeMode.IsChallengeModeActive() return true end
+
+PixelUtil = {}
+
+---@param object statusbar
+---@param value number
+PixelUtil.SetStatusBarValue = function(object, value) end
+
+---@param object uiobject
+---@param width number
+PixelUtil.SetWidth = function(object, width) end
+
+---@param object uiobject
+---@param height number
+PixelUtil.SetHeight = function(object, height) end
+
+---@param object uiobject
+---@param width number
+---@param height number
+PixelUtil.SetSize = function(object, width, height) end
+
+---@param object uiobject
+---@param point string
+---@param relativeTo uiobject
+---@param relativePoint string
+---@param offsetX number
+---@param offsetY number
+PixelUtil.SetPoint = function(object, point, relativeTo, relativePoint, offsetX, offsetY) end
+
+---@param desiredPixels number
+---@param layoutScale number
+---@return number
+PixelUtil.ConvertPixelsToUI = function(desiredPixels, layoutScale) return 0 end
+
+---@param uiUnitSize number
+---@param layoutScale number
+---@param minPixels number
+---@return number
+PixelUtil.GetNearestPixelSize = function(uiUnitSize, layoutScale, minPixels) return 0 end
+
+---@return number
+PixelUtil.GetPixelToUIUnitFactor = function() return 0 end
+
+---@param desiredPixels number
+---@param region region
+---@return number
+PixelUtil.ConvertPixelsToUIForRegion = function(desiredPixels, region) return 0 end
+
+---@class aurautil
+AuraUtil = {}
+
+---a table containing filter flags for aura filtering.
+AuraUtil.AuraFilters = {
+    Cancelable = "CANCELABLE",                 -- Filter for cancelable auras.
+    IncludeNameplateOnly = "INCLUDE_NAME_PLATE_ONLY", -- Filter for including nameplate-only auras.
+    Harmful = "HARMFUL",                       -- Filter for harmful auras.
+    Raid = "RAID",                             -- Filter for raid auras.
+    NotCancelable = "NOT_CANCELABLE",          -- Filter for non-cancelable auras.
+    Helpful = "HELPFUL",                       -- Filter for helpful auras.
+    Player = "PLAYER",                         -- Filter for player auras.
+    Maw = "MAW",                               -- Filter for Maw-related auras.
+}
+
+---a function that determines if an aura is a priority debuff.
+---@param spellId string The name of the aura to check.
+---@return boolean bIsPriorityDebuff Whether the aura is a priority debuff.
+AuraUtil.IsPriorityDebuff = function(spellId) return true end
+
+---a function that determines if a buff should be displayed.
+---@param unit string The unit ID to check.
+---@param spellId string The name of the aura to check.
+---@return boolean bShouldDisplayBuff Whether the buff should be displayed.
+AuraUtil.ShouldDisplayBuff = function(unit, spellId) return true end
+
+---a function that creates a filter string based on the provided filters.
+---@param filters table A table containing aura filters.
+---@return string filterString The generated filter string.
+AuraUtil.CreateFilterString = function(filters) return "" end
+
+---a function that determines if a debuff should be displayed.
+---@param unit string The unit ID to check.
+---@param spellId string The name of the aura to check.
+---@return boolean bShouldDisplayDebuff Whether the debuff should be displayed.
+AuraUtil.ShouldDisplayDebuff = function(unit, spellId) return true end
+
+---a function that processes aura data.
+---@param auraInfo aurainfo The aura data to process.
+---@param displayOnlyDispellableDebuffs boolean Whether to display only dispellable debuffs.
+---@param ignoreBuffs boolean Whether to ignore buffs.
+---@param ignoreDebuffs boolean Whether to ignore debuffs.
+---@param ignoreDispelDebuffs boolean Whether to ignore dispellable debuffs.
+---@return number auraType The processed aura data.
+AuraUtil.ProcessAura = function(auraInfo, displayOnlyDispellableDebuffs, ignoreBuffs, ignoreDebuffs, ignoreDispelDebuffs) return 0 end
+
+---a function that finds an aura with the specified criteria.
+---@param predicate function The predicate function.
+---@param unit string The unit ID to search.
+---@param filter string|nil Optional filter for the type of aura to find.
+---@param predicateArg1 any Optional first argument to pass to the predicate function.
+---@param predicateArg2 any Optional second argument to pass to the predicate function.
+---@param predicateArg3 any Optional third argument to pass to the predicate function.
+AuraUtil.FindAura = function(predicate, unit, filter, predicateArg1, predicateArg2, predicateArg3) end
+
+---a function that finds an aura by its name.
+---@param unit string The unit ID to search.
+---@param auraName string The name of the aura to find.
+---@param filter string|nil Optional filter for the type of aura to find.
+---@return table auraData The found aura data.
+AuraUtil.FindAuraByName = function(unit, auraName, filter) return table end
+
+---a function that provides a default comparison function for auras.
+---@param auraA table The first aura to compare.
+---@param auraB table The second aura to compare.
+---@return boolean isEqual Whether the two auras are equal.
+AuraUtil.DefaultAuraCompare = function(auraA, auraB) return true end
+
+---a table that updates the changed type of an aura.
+AuraUtil.AuraUpdateChangedType = {
+    Dispel = 4,                                -- Updated type for dispel auras.
+    Debuff = 2,                                -- Updated type for debuff auras.
+    Buff = 3,                                  -- Updated type for buff auras.
+    None = 1,                                  -- Updated type for no change.
+}
+
+---a table containing types for unit frame debuffs.
+AuraUtil.UnitFrameDebuffType = {
+    NonBossDebuff = 5,                         -- Type for non-boss debuffs.
+    NonBossRaidDebuff = 4,                     -- Type for non-boss raid debuffs.
+    BossBuff = 2,                              -- Type for boss buffs.
+    PriorityDebuff = 3,                        -- Type for priority debuffs.
+    BossDebuff = 1,                            -- Type for boss debuffs.
+}
+
+---a function that compares unit frame debuffs.
+---@param auraInfo1 aurainfo
+---@param auraInfo2 aurainfo
+---@return table
+AuraUtil.UnitFrameDebuffComparator = function(auraInfo1, auraInfo2) return table end
+
+---a function that unpacks aura data.
+---@param auraInfo aurainfo
+---@return ... Unpacked aura data.
+AuraUtil.UnpackAuraData = function(auraInfo) end
+
+---a table containing types of dispellable debuffs.
+AuraUtil.DispellableDebuffTypes = {
+    Poison = true,                             -- Type for poison debuffs.
+    Curse = true,                              -- Type for curse debuffs.
+    Magic = true,                              -- Type for magic debuffs.
+    Disease = true,                            -- Type for disease debuffs.
+}
+
+---a function that iterates over each aura.
+---@param unit string The unit ID to iterate over.
+---@param filter string|nil Optional filter for the type of aura to iterate over.
+---@param maxCount number|nil Optional maximum number of auras to iterate over.
+---@param func function The function to call for each aura.
+---@param usePackedAura boolean Whether to use packed aura data.
+---@return any
+AuraUtil.ForEachAura = function(unit, filter, maxCount, func, usePackedAura) end
+
+
+C_Timer = {}
+---@param delay number
+---@param callback function
+---@return table timerHandle
+function C_Timer.NewTimer(delay, callback) return {} end
+
+---@param delay number
+---@param callback function
+function C_Timer.After(delay, callback) end
+
+---@param timerHandle table
+function C_Timer.CancelTimer(timerHandle) end
+
+---@param delay number
+---@param callback function
+---@param repetitions number?
+---@return table timerHandle
+function C_Timer.NewTicker(delay, callback, repetitions) return {} end
+
+---@param list table
+---@param i number?
+---@param j number?
+---@return ...
+function unpack(list, i, j) end
+
+---@param x number
+---@return number
+function abs(x) return 0 end
+
+---@param unit string
+---@return boolean
+function IsInGroup(unit) return true end
+
+---@param name string
+---@param server string|nil
+---@return string
+function Ambiguate(name, server) return "" end
+
+---@return boolean
+function IsInRaid() return true end
+
+---@param x number
+---@return number
+function ceil(x) return 0 end
+
+---@param str string
+---@param separator string
+---@param limit number|nil
+---@return ...
+function strsplit(str, separator, limit) return "" end
+
+---@param x number
+---@return number
+function floor(x) return 0 end
+
+---@param table table
+---@param index number
+---@return any
+function tremove(table, index) return nil end
+
+--loads a string and output a function in lua.
+---@param code string The Lua code string to be executed.
+---@return function func A function to be executed.
+function loadstring(code) return function()end end
+
+---returns the number of members in the current group.
+---@return number
+GetNumGroupMembers = function() return 0 end
+
+---@param spellId number
+---@return number, number, number
+GetSpellCharges = function(spellId) return 0, 0, 0 end
+
+---@param achievementId number
+AddTrackedAchievement = function(achievementId) end
+
+---@return boolean
+CanShowAchievementUI = function() return true end
+ClearAchievementComparisonUnit = function() end
+
+---@param achievementID number
+---@return number
+GetAchievementCategory = function(achievementID) return 0 end
+
+---@param achievementID number
+---@return string, number, number, number, number, number, number, string, string, string, boolean, boolean, boolean, boolean, number
+GetAchievementComparisonInfo = function(achievementID) return "", 0, 0, 0, 0, 0, 0, "", "", "", true, true, true, true, 0 end
+
+---@param achievementID number
+---@param criteriaIndex number
+---@return string, number, boolean, boolean, number, number, string, number, number, string
+GetAchievementCriteriaInfo = function(achievementID, criteriaIndex) return "", 0, true, true, 0, 0, "", 0, 0, "" end
+
+---@param achievementID number
+---@return string, number, number, number, number, number, number, string, string, string, boolean, boolean, boolean, boolean, number
+GetAchievementInfo = function(achievementID) return "", 0, 0, 0, 0, 0, 0, "", "", "", true, true, true, true, 0 end
+
+---@param criteriaID number
+---@return number
+GetAchievementInfoFromCriteria = function(criteriaID) return 0 end
+
+---@param achievementID number
+---@return string
+GetAchievementLink = function(achievementID) return "" end
+
+---@param achievementID number
+---@return number
+GetAchievementNumCriteria = function(achievementID) return 0 end
+
+---@param specIndex number
+---@param isInspect boolean
+---@param isPet boolean
+---@param sex number
+---@param level number
+---@return number, string, string, string, number, string
+GetSpecializationInfo = function(specIndex, isInspect, isPet, sex, level) return 0, "", "", "", 0, "" end
+
+---@param achievementID number
+---@return number
+GetAchievementNumRewards = function(achievementID) return 0 end
+
+---@param categoryID number
+---@return string, string, number
+GetCategoryInfo = function(categoryID) return "", "", 0 end
+
+---@return table
+GetCategoryList = function() return {} end
+
+---@param isInspect boolean
+---@param isPet boolean
+---@return number
+GetSpecialization = function(isInspect, isPet) return 0 end
+
+---@param categoryID number
+---@return number
+GetCategoryNumAchievements = function(categoryID) return 0 end
+
+---@return number
+GetComparisonAchievementPoints = function() return 0 end
+
+---@param categoryID number
+---@return number
+GetComparisonCategoryNumAchievements = function(categoryID) return 0 end
+
+---@param statisticID number
+---@return string
+GetComparisonStatistic = function(statisticID) return "" end
+
+---@return table
+GetLatestCompletedAchievements = function() return {} end
+
+---@return table
+GetLatestCompletedComparisonAchievements = function() return {} end
+
+---@return table
+GetLatestUpdatedComparisonStatsGetLatestUpdatedStats = function() return {} end
+---@return number
+GetNextAchievement = function() return 0 end
+
+---@return number
+GetNumComparisonCompletedAchievements = function() return 0 end
+
+---@return number
+GetNumCompletedAchievements = function() return 0 end
+
+---@return number
+GetPreviousAchievement = function() return 0 end
+
+---@param categoryID number
+---@return string
+GetStatistic = function(categoryID) return "" end
+
+---@return table
+GetStatisticsCategoryList = function() return {} end
+
+---@return number
+GetTotalAchievementPoints = function() return 0 end
+
+---@return table
+GetTrackedAchievements = function() return {} end
+
+---@return number
+GetNumTrackedAchievements = function() return 0 end
+
+---@param achievementID number
+RemoveTrackedAchievement = function(achievementID) end
+
+---@param unit string
+SetAchievementComparisonUnit = function(unit) end
+
+---@param slot number
+ActionButtonDown = function(slot) end
+
+---@param slot number
+ActionButtonUp = function(slot) end
+
+---@param slot number
+---@return boolean
+ActionHasRange = function(slot) return true end
+
+CameraOrSelectOrMoveStart = function() end
+
+CameraOrSelectOrMoveStop = function() end
+
+---@param page number
+ChangeActionBarPage = function(page) end
+
+---@return number
+GetActionBarPage = function() return 0 end
+
+---@return boolean, boolean, boolean
+GetActionBarToggles = function() return true, true, true end
+
+---@param slot number
+---@return number, number
+GetActionCooldown = function(slot) return 0, 0 end
+
+---@param slot number
+---@return number
+GetActionCount = function(slot) return 0 end
+
+---@param slot number
+---@return string, string, string, boolean, boolean, boolean, boolean
+GetActionInfo = function(slot) return "", "", "", true, true, true, true end
+
+---@param slot number
+---@return string
+GetActionText = function(slot) return "" end
+
+---@param slot number
+---@return string
+GetActionTexture = function(slot) return "" end
+
+---@return number
+GetBonusBarOffset = function() return 0 end
+
+---@return string
+GetMouseButtonClicked = function() return "" end
+
+---@return number
+GetMultiCastBarOffset = function() return 0 end
+
+---@param slot number
+---@return boolean, string
+GetPossessInfo = function(slot) return true, "" end
+
+---@param slot number
+---@return boolean
+HasAction = function(slot) return true end
+
+---@param slot number
+---@return number
+IsActionInRange = function(slot) return 0 end
+
+---@param slot number
+---@return boolean
+IsAttackAction = function(slot) return true end
+
+---@param slot number
+---@return boolean
+IsAutoRepeatAction = function(slot) return true end
+
+---@param slot number
+---@return boolean
+IsCurrentAction = function(slot) return true end
+
+---@param slot number
+---@return boolean
+IsConsumableAction = function(slot) return true end
+
+---@param slot number
+---@return boolean
+IsEquippedAction = function(slot) return true end
+
+---@param slot number
+---@return boolean, boolean
+IsUsableAction = function(slot) return true, true end
+
+---@return boolean
+PetHasActionBar = function() return true end
+
+---@param slot number
+PickupAction = function(slot) end
+
+---@param slot number
+PickupPetAction = function(slot) end
+
+---@param slot number
+PlaceAction = function(slot) end
+
+---@param bottomLeftState number
+---@param bottomRightState number
+---@param sideRightState number
+---@param sideRight2State number
+---@param alwaysShow number
+SetActionBarToggles = function(bottomLeftState, bottomRightState, sideRightState, sideRight2State, alwaysShow) end
+
+StopAttack = function() end
+
+TurnOrActionStart = function() end
+
+TurnOrActionStop = function() end
+
+---@param slot number
+---@param checkCursor boolean
+UseAction = function(slot, checkCursor) end
+
+AcceptDuel = function() end
+
+AttackTarget = function() end
+
+CancelDuel = function() end
+
+CancelLogout = function() end
+
+ClearTutorials = function() end
+
+CancelSummon = function() end
+
+ConfirmSummon = function() end
+
+DescendStop = function() end
+
+Dismount = function() end
+
+---@param tutorial number
+FlagTutorial = function(tutorial) end
+
+ForceQuit = function() end
+
+---@return number
+GetPVPTimer = function() return 0 end
+
+---@return string
+GetSummonConfirmAreaName = function() return "" end
+
+---@return string
+GetSummonConfirmSummoner = function() return "" end
+
+---@return number
+GetSummonConfirmTimeLeft = function() return 0 end
+---@param min number
+---@param max number
+RandomRoll = function(min, max) end
+
+---@param enable boolean
+SetPVP = function(enable) end
+
+---@param unit string
+StartDuel = function(unit) end
+
+TogglePVP = function() end
+
+ToggleSheath = function() end
+
+---@param type string
+UseSoulstone = function(type) end
+
+---@return boolean
+CanSolveArtifact = function() return true end
+
+UIParent = {}
+
+---@param raceIndex number
+---@return number, string, string, number, number, number, number, number
+GetArtifactInfoByRace = function(raceIndex) return 0, "", "", 0, 0, 0, 0, 0 end
+
+---@return number, number
+GetArtifactProgress = function() return 0, 0 end
+
+---@param raceIndex number
+---@return number
+GetNumArtifactsByRace = function(raceIndex) return 0 end
+
+---@return number, string, string, number, number, number, number, number
+GetSelectedArtifactInfo = function() return 0, "", "", 0, 0, 0, 0, 0 end
+
+---@return boolean
+IsArtifactCompletionHistoryAvailable = function() return true end
+
+---@param itemID number
+---@return boolean
+ItemAddedToArtifact = function(itemID) return true end
+
+---@param itemID number
+RemoveItemFromArtifact = function(itemID) end
+
+RequestArtifactCompletionHistory = function() end
+
+---@param itemID number
+SocketItemToArtifact = function(itemID) end
+
+---@param teamIndex number
+AcceptArenaTeam = function(teamIndex) end
+
+---@param playerName string
+ArenaTeamInviteByName = function(playerName) end
+
+---@param playerName string
+ArenaTeamSetLeaderByName = function(playerName) end
+
+---@param teamIndex number
+ArenaTeamLeave = function(teamIndex) end
+
+ArenaTeamRoster = function() end
+
+---@param playerName string
+ArenaTeamUninviteByName = function(playerName) end
+
+ArenaTeamDisband = function() end
+
+DeclineArenaTeam = function() end
+
+---@param index number
+---@return string, string, number, number, number, number, number, number, number
+GetArenaTeam = function(index) return "", "", 0, 0, 0, 0, 0, 0, 0 end
+
+GetArenaTeamGdfInf = function() end
+
+---@param index number
+---@param member number
+---@return string, string, number, number, number, number, number, number, number
+GetArenaTeamRosterInfo = function(index, member) return "", "", 0, 0, 0, 0, 0, 0, 0 end
+
+---@param index number
+---@return number, number, number, number, number, number, number, number
+GetBattlefieldTeamInfo = function(index) return 0, 0, 0, 0, 0, 0, 0, 0 end
+
+GetCurrentArenaSeason = function() end
+
+---@param unit string
+---@return string, string, number, number, number, number, number, number, number
+GetInspectArenaTeamData = function(unit) return "", "", 0, 0, 0, 0, 0, 0, 0 end
+
+---@param index number
+---@return number
+GetNumArenaTeamMembers = function(index) return 0 end
+
+GetPreviousArenaSeason = function() end
+
+IsActiveBattlefieldArena = function() end
+
+IsArenaTeamCaptain = function() end
+
+IsInArenaTeam = function() end
+
+---@param duration number
+---@param itemCount number
+---@param stackSize number
+---@return number
+CalculateAuctionDeposit = function(duration, itemCount, stackSize) return 0 end
+
+CanCancelAuction = function() end
+
+CancelSell = function() end
+
+CanSendAuctionQuery = function() end
+
+---@param index number
+CancelAuction = function(index) end
+
+ClickAuctionSellItemButton = function() end
+
+CloseAuctionHouse = function() end
+
+---@return number
+GetAuctionHouseDepositRate = function() return 0 end
+
+GetAuctionInvTypes = function() end
+
+GetAuctionItemClasses = function() end
+
+---@param list number
+---@param index number
+---@return string, string, number, number, number, number, number, number, number, number, number
+GetAuctionItemInfo = function(list, index) return "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@param list number
+---@param index number
+---@return string
+GetAuctionItemLink = function(list, index) return "" end
+
+GetAuctionItemSubClasses = function() end
+
+---@param list number
+---@param index number
+---@return number
+GetAuctionItemTimeLeft = function(list, index) return 0 end
+
+---@return string, string, number, number, number, number, number, number, number, number, number
+GetAuctionSellItemInfo = function() return "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@param index number
+---@return string, string, number, number, number, number, number, number, number, number, number
+GetBidderAuctionItems = function(index) return "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@param list number
+---@return number
+GetNumAuctionItems = function(list) return 0 end
+
+---@param index number
+---@return string, string, number, number, number, number, number, number, number, number, number
+GetOwnerAuctionItems = function(index) return "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@param list number
+---@return number
+GetSelectedAuctionItem = function(list) return 0 end
+
+---@return boolean
+IsAuctionSortReversed = function() return true end
+
+---@param list number
+---@param index number
+---@param bid number
+PlaceAuctionBid = function(list, index, bid) end
+
+---@param name string
+---@param minLevel number
+---@param maxLevel number
+---@param page number
+---@param isUsable boolean
+---@param qualityIndex number
+---@param getAll boolean
+---@param exactMatch boolean
+QueryAuctionItems = function(name, minLevel, maxLevel, page, isUsable, qualityIndex, getAll, exactMatch) end
+
+---@param show boolean
+SetAuctionsTabShowing = function(show) end
+---@param list number
+---@param index number
+SetSelectedAuctionItem = function(list, index) end
+
+---@param list string
+---@param sort string
+SortAuctionItems = function(list, sort) end
+
+---@param minBid number
+---@param buyoutPrice number
+---@param runTime number
+StartAuction = function(minBid, buyoutPrice, runTime) end
+
+---@param buttonID number
+---@return number
+BankButtonIDToInvSlotID = function(buttonID) return 0 end
+
+CloseBankFrame = function() end
+
+---@return number
+GetBankSlotCost = function() return 0 end
+
+---@return number
+GetNumBankSlots = function() return 0 end
+
+---@param numSlots number
+PurchaseSlot = function(numSlots) end
+
+AcceptAreaSpiritHeal = function() end
+
+---@param accept boolean
+AcceptBattlefieldPort = function(accept) end
+
+CancelAreaSpiritHeal = function() end
+
+---@return boolean
+CanJoinBattlefieldAsGroup = function() return true end
+
+---@return boolean
+CheckSpiritHealerDist = function() return true end
+
+---@return number
+GetAreaSpiritHealerTime = function() return 0 end
+
+---@return number
+GetBattlefieldEstimatedWaitTime = function() return 0 end
+
+---@return number, number
+GetBattlefieldFlagPosition = function() return 0, 0 end
+
+---@return number
+GetBattlefieldInstanceExpiration = function() return 0 end
+
+---@return number
+GetBattlefieldInstanceRunTime = function() return 0 end
+
+---@return number
+GetBattlefieldMapIconScale = function() return 0 end
+
+---@return number
+GetBattlefieldPortExpiration = function() return 0 end
+
+---@return number, number
+GetBattlefieldPosition = function() return 0, 0 end
+
+---@return number, number, number, number, number, number, number, number, number, number, number
+GetBattlefieldScore = function() return 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@return number, number, number
+GetBattlefieldStatData = function() return 0, 0, 0 end
+
+---@return string, string
+GetBattlefieldStatInfo = function() return "", "" end
+
+---@return number, string, number, number, number, number, number, number, number, number, number
+GetBattlefieldStatus = function() return 0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@return number
+GetBattlefieldTimeWaited = function() return 0 end
+
+---@return number
+GetBattlefieldWinner = function() return 0 end
+
+---@return string, string, number, number, number, number, number, number, number, number, number
+GetBattlegroundInfo = function() return "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@return number
+GetNumBattlefieldFlagPositions = function() return 0 end
+
+---@return number
+GetNumBattlefieldPositions = function() return 0 end
+
+---@return number
+GetNumBattlefieldScores = function() return 0 end
+
+GetNumBattlefieldStats = function() end
+
+GetNumWorldStateUI = function() end
+
+GetWintergraspWaitTime = function() end
+
+---@param index number
+GetWorldStateUIInfo = function(index) end
+
+IsPVPTimerRunning = function() end
+
+---@param index number
+---@param asGroup boolean
+JoinBattlefield = function(index, asGroup) end
+
+LeaveBattlefield = function() end
+
+---@param player string
+ReportPlayerIsPVPAFK = function(player) end
+
+RequestBattlefieldPositions = function() end
+
+RequestBattlefieldScoreData = function() end
+
+RequestBattlegroundInstanceInfo = function() end
+
+---@param faction number
+SetBattlefieldScoreFaction = function(faction) end
+
+---@param index number
+---@return string, string, string
+GetBinding = function(index) return "", "", "" end
+
+---@param action string
+---@return string
+GetBindingAction = function(action) return "" end
+
+---@param binding string
+---@return string
+GetBindingKey = function(binding) return "" end
+
+---@param binding string
+---@return string
+GetBindingText = function(binding) return "" end
+
+---@return number, number
+GetCurrentBindingSet = function() return 0, 0 end
+
+GetNumBindings = function() return 0 end
+
+---@param which number
+LoadBindings = function(which) end
+
+---@param binding string
+RunBinding = function(binding) end
+
+---@param which number
+SaveBindings = function(which) end
+
+---@param key string
+---@param command string
+SetBinding = function(key, command) end
+
+---@param key string
+---@param spell string
+SetBindingSpell = function(key, spell) end
+
+---@param key string
+---@param button string
+SetBindingClick = function(key, button) end
+
+---@param key string
+---@param item string
+SetBindingItem = function(key, item) end
+
+---@param key string
+---@param macro string
+SetBindingMacro = function(key, macro) end
+
+---@param key string
+SetConsoleKey = function(key) end
+
+---@param key string
+---@param command string
+SetOverrideBinding = function(key, command) end
+
+---@param key string
+---@param spell string
+SetOverrideBindingSpell = function(key, spell) end
+
+---@param key string
+---@param button string
+SetOverrideBindingClick = function(key, button) end
+
+---@param key string
+---@param item string
+SetOverrideBindingItem = function(key, item) end
+
+---@param key string
+---@param macro string
+SetOverrideBindingMacro = function(key, macro) end
+
+ClearOverrideBindings = function() end
+
+---@param key string
+SetMouselookOverrideBinding = function(key) end
+
+---@return boolean
+IsModifierKeyDown = function() return true end
+---@param action string
+---@return boolean
+IsModifiedClick = function(action) return true end
+
+---@param button string
+---@return boolean
+IsMouseButtonDown = function(button) return true end
+
+---@param unit string
+---@param index number
+CancelUnitBuff = function(unit, index) end
+
+CancelShapeshiftForm = function() end
+
+---@param slot number
+CancelItemTempEnchantment = function(slot) end
+
+---@return boolean, number, number, number, number
+GetWeaponEnchantInfo = function() return true, 0, 0, 0, 0 end
+
+---@param unit string
+---@param index number
+---@return string, string, string, number, number, number, string, number, string
+UnitAura = function(unit, index) return "", "", "", 0, 0, 0, "", 0, "" end
+
+---@param unit string
+---@param index number
+---@return string, string, string, number, number, number, string, number, string
+UnitBuff = function(unit, index) return "", "", "", 0, 0, 0, "", 0, "" end
+
+---@param unit string
+---@param index number
+---@return string, string, string, number, number, number, string, number, string
+UnitDebuff = function(unit, index) return "", "", "", 0, 0, 0, "", 0, "" end
+
+---@param index number
+---@param name string
+AddChatWindowChannel = function(index, name) end
+---@param channel string
+---@param player string
+ChannelBan = function(channel, player) end
+
+---@param channel string
+---@param player string
+ChannelInvite = function(channel, player) end
+
+---@param channel string
+---@param player string
+ChannelKick = function(channel, player) end
+
+---@param channel string
+---@param player string
+ChannelModerator = function(channel, player) end
+
+---@param channel string
+---@param player string
+ChannelMute = function(channel, player) end
+
+---@param channel string
+ChannelToggleAnnouncements = function(channel) end
+
+---@param channel string
+---@param player string
+ChannelUnban = function(channel, player) end
+
+---@param channel string
+---@param player string
+ChannelUnmoderator = function(channel, player) end
+
+---@param channel string
+---@param player string
+ChannelUnmute = function(channel, player) end
+
+---@param channel string
+DisplayChannelOwner = function(channel) end
+
+DeclineInvite = function() end
+
+---@return table
+EnumerateServerChannels = function() return {} end
+
+---@return table
+GetChannelList = function() return {} end
+
+---@param channel string
+---@return string
+GetChannelName = function(channel) return "" end
+
+---@return table
+GetChatWindowChannels = function() return {} end
+
+---@param channel string
+JoinChannelByName = function(channel) end
+
+---@param channel string
+LeaveChannelByName = function(channel) end
+
+---@param channel string
+---@return table
+ListChannelByName = function(channel) return {} end
+
+---@return table
+ListChannels = function() return {} end
+
+---@param index number
+RemoveChatWindowChannel = function(index) end
+
+---@param msg string
+---@param chatType string
+---@param languageId number
+---@param channel string
+SendChatMessage = function(msg, chatType, languageId, channel) end
+
+---@param channel string
+---@param newOwner string
+SetChannelOwner = function(channel, newOwner) end
+
+---@param channel string
+---@param password string
+SetChannelPassword = function(channel, password) end
+
+AcceptResurrect = function() end
+
+AcceptXPLoss = function() end
+
+CheckBinderDist = function() end
+
+ConfirmBinder = function() end
+
+DeclineResurrect = function() end
+
+---@param totemType number
+DestroyTotem = function(totemType) end
+
+---@return string
+GetBindLocation = function() return "" end
+
+---@param unit string
+---@return number
+GetComboPoints = function(unit) return 0 end
+
+---@return number
+GetCorpseRecoveryDelay = function() return 0 end
+
+---@return number
+GetCurrentTitle = function() return 0 end
+
+---@param timerIndex number
+---@return string, number, number, boolean
+GetMirrorTimerInfo = function(timerIndex) return "", 0, 0, true end
+
+---@param timerIndex number
+---@return number
+GetMirrorTimerProgress = function(timerIndex) return 0 end
+
+---@return number
+GetMoney = function() return 0 end
+
+---@return number
+GetNumTitles = function() return 0 end
+
+---@return number
+GetPlayerFacing = function() return 0 end
+
+---@return boolean
+GetPVPDesired = function() return true end
+
+---@return number
+GetReleaseTimeRemaining = function() return 0 end
+
+---@return number
+GetResSicknessDuration = function() return 0 end
+
+---@return number, string, boolean
+GetRestState = function() return 0, "", true end
+
+---@param runeIndex number
+---@return number, number
+GetRuneCooldown = function(runeIndex) return 0, 0 end
+
+---@param runeIndex number
+---@return number
+GetRuneCount = function(runeIndex) return 0 end
+
+---@param runeIndex number
+---@return number
+GetRuneType = function(runeIndex) return 0 end
+
+---@return number
+GetTimeToWellRested = function() return 0 end
+
+---@param titleId number
+---@return string
+GetTitleName = function(titleId) return "" end
+
+---@param unit string
+---@return number
+GetUnitPitch = function(unit) return 0 end
+
+---@return number
+GetXPExhaustion = function() return 0 end
+
+---@return boolean
+HasFullControl = function() return true end
+
+---@return string
+HasSoulstone = function() return "" end
+
+---@return boolean
+IsFalling = function() return true end
+
+---@return boolean
+IsFlying = function() return true end
+
+---@return boolean
+IsFlyableArea = function() return true end
+
+---@return boolean
+IsIndoors = function() return true end
+
+---@return boolean
+IsMounted = function() return true end
+
+---@return boolean
+IsOutdoors = function() return true end
+
+---@return boolean
+IsOutOfBounds = function() return true end
+
+---@return boolean
+IsResting = function() return true end
+
+---@return boolean
+IsStealthed = function() return true end
+
+---@return boolean
+IsSwimming = function() return true end
+
+---@param titleId number
+---@return boolean
+IsTitleKnown = function(titleId) return true end
+
+---@return boolean
+IsXPUserDisabled = function() return true end
+
+NotWhileDeadError = function() end
+
+---@return boolean
+ResurrectHasSickness = function() return true end
+
+---@return boolean
+ResurrectHasTimer = function() return true end
+
+---@return string
+ResurrectGetOfferer = function() return "" end
+
+RetrieveCorpse = function() end
+
+SetCurrentTitle = function() end
+
+TargetTotem = function() end
+
+---@return number
+GetArmorPenetration = function() return 0 end
+
+---@param statId number
+---@return number
+GetAttackPowerForStat = function(statId) return 0 end
+
+---@return number
+GetAverageItemLevel = function() return 0 end
+
+---@return number
+GetBlockChance = function() return 0 end
+
+---@param combatRatingIdentifier number
+---@return number
+GetCombatRating = function(combatRatingIdentifier) return 0 end
+
+---@return number
+GetCombatRatingBonus = function() return 0 end
+
+---@return number
+GetCritChance = function() return 0 end
+
+---@param unitId string
+---@return number
+GetCritChanceFromAgility = function(unitId) return 0 end
+
+---@return number
+GetDodgeChance = function() return 0 end
+
+---@return number
+GetExpertise = function() return 0 end
+
+---@return number
+GetExpertisePercent = function() return 0 end
+
+---@return number
+GetManaRegen = function() return 0 end
+
+---@return number
+GetMaxCombatRatingBonus = function() return 0 end
+
+---@return number
+GetParryChance = function() return 0 end
+
+---@return number
+GetPetSpellBonusDamage = function() return 0 end
+
+---@return number
+GetPowerRegen = function() return 0 end
+
+---@param school number
+---@return number
+GetSpellBonusDamage = function(school) return 0 end
+
+---@return number
+GetRangedCritChance = function() return 0 end
+
+---@return number
+GetSpellBonusHealing = function() return 0 end
+
+---@return number
+GetSpellCritChance = function() return 0 end
+
+---@return number
+GetShieldBlock = function() return 0 end
+
+---@return number
+GetSpellCritChanceFromIntellect = function() return 0 end
+
+---@return number
+GetSpellPenetration = function() return 0 end
+
+---@param index number
+---@param channelName string
+AddChatWindowChannel = function(index, channelName) end
+
+---@param type string
+---@param red number
+---@param green number
+---@param blue number
+ChangeChatColor = function(type, red, green, blue) end
+
+---@param frame string
+---@param channelName string
+ChatFrame_AddChannel = function(frame, channelName) end
+
+---@param event string
+---@param filterFunc function
+ChatFrame_AddMessageEventFilter = function(event, filterFunc) end
+
+---@return table
+ChatFrame_GetMessageEventFilters = function() return {} end
+
+---@param frame string
+---@param link string
+---@param text string
+---@param button string
+ChatFrame_OnHyperlinkShow = function(frame, link, text, button) end
+
+---@param event string
+---@param filterFunc function
+ChatFrame_RemoveMessageEventFilter = function(event, filterFunc) end
+
+---@return table
+GetAutoCompleteResults = function() return {} end
+
+---@param chatType string
+---@return number
+GetChatTypeIndex = function(chatType) return 0 end
+
+---@param windowId number
+---@return table
+GetChatWindowChannels = function(windowId) return {} end
+
+---@param windowId number
+---@return string
+GetChatWindowInfo = function(windowId) return "" end
+
+---@param windowId number
+---@return table
+GetChatWindowMessages = function(windowId) return {} end
+
+---@param channelName string
+JoinChannelByName = function(channelName) end
+
+LoggingChat = function() end
+
+LoggingCombat = function() end
+
+---@param index number
+---@return boolean
+RemoveChatWindowChannel = function(index) return true end
+
+---@param index number
+---@param message string
+---@return boolean
+RemoveChatWindowMessages = function(index, message) return true end
+
+---@param index number
+---@param alpha number
+---@return boolean
+SetChatWindowAlpha = function(index, alpha) return true end
+
+---@param index number
+---@param red number
+---@param green number
+---@param blue number
+---@return boolean
+SetChatWindowColor = function(index, red, green, blue) return true end
+
+---@param index number
+---@param docked boolean
+---@return boolean
+SetChatWindowDocked = function(index, docked) return true end
+
+---@param index number
+---@param locked boolean
+---@return boolean
+SetChatWindowLocked = function(index, locked) return true end
+
+---@param index number
+---@param name string
+---@return boolean
+SetChatWindowName = function(index, name) return true end
+
+---@param index number
+---@param shown boolean
+---@return boolean
+SetChatWindowShown = function(index, shown) return true end
+
+---@param index number
+---@param size number
+---@return boolean
+SetChatWindowSize = function(index, size) return true end
+
+---@param index number
+---@param uninteractable boolean
+---@return boolean
+SetChatWindowUninteractable = function(index, uninteractable) return true end
+
+---@param token string
+---@param unit string?
+---@param hold boolean?
+DoEmote = function(token, unit, hold) end
+
+---@return string
+GetDefaultLanguage = function() return "" end
+
+---@param index number
+---@return string
+GetLanguageByIndex = function(index) return "" end
+
+---@return number
+GetNumLanguages = function() return 0 end
+
+---@return table
+GetRegisteredAddonMessagePrefixes = function() return {} end
+
+---@param prefix string
+---@return boolean
+IsAddonMessagePrefixRegistered = function(prefix) return true end
+
+---@param prefix string
+RegisterAddonMessagePrefix = function(prefix) end
+
+---@param prefix string
+---@param message string
+---@param channel string
+---@param target string
+---@param priority string
+---@return boolean
+SendAddonMessage = function(prefix, message, channel, target, priority) return true end
+
+---@param message string
+---@param chatType string
+---@param language string
+---@param target string
+---@param target2 string
+---@param channel number
+---@param target3 string
+---@param unknown1 number
+---@param unknown2 number
+---@param unknown3 number
+---@return boolean
+SendChatMessage = function(message, chatType, language, target, target2, channel, target3, unknown1, unknown2, unknown3) return true end
+
+---@param index number
+CallCompanion = function(index) end
+
+---@param index number
+DismissCompanion = function(index) end
+
+---@param index number
+---@return string, string, string, number, boolean
+GetCompanionInfo = function(index) return "", "", "", 0, true end
+
+---@return number
+GetNumCompanions = function() return 0 end
+
+---@param index number
+---@return number, number, number, number
+GetCompanionCooldown = function(index) return 0, 0, 0, 0 end
+
+---@param index number
+PickupCompanion = function(index) end
+
+---@return boolean
+SummonRandomCritter = function() return true end
+
+---@param bagID number
+---@param slot number
+---@return number
+ContainerIDToInventoryID = function(bagID, slot) return 0 end
+
+---@param bagID number
+---@return string
+GetBagName = function(bagID) return "" end
+
+---@param bagID number
+---@param slot number
+---@return number, number
+GetContainerItemCooldown = function(bagID, slot) return 0, 0 end
+
+---@param bagID number
+---@param slot number
+---@return number, number, number, number
+GetContainerItemDurability = function(bagID, slot) return 0, 0, 0, 0 end
+
+---@param bagID number
+---@param slot number
+---@return table
+GetContainerItemGems = function(bagID, slot) return {} end
+
+---@param bagID number
+---@param slot number
+---@return number
+GetContainerItemID = function(bagID, slot) return 0 end
+
+---@param bagID number
+---@param slot number
+---@return string, string, number, number, boolean, boolean
+GetContainerItemInfo = function(bagID, slot) return "", "", 0, 0, true, true end
+
+---@param bagID number
+---@param slot number
+---@return string
+GetContainerItemLink = function(bagID, slot) return "" end
+
+---@param bagID number
+---@return number
+GetContainerNumSlots = function(bagID) return 0 end
+
+---@param bagID number
+---@param slot number
+---@return string, boolean
+GetContainerItemQuestInfo = function(bagID, slot) return "", true end
+
+---@param bagID number
+---@return number
+GetContainerNumFreeSlots = function(bagID) return 0 end
+
+OpenAllBags = function() end
+
+CloseAllBags = function() end
+
+---@param slot number
+PickupBagFromSlot = function(slot) end
+
+---@param bagID number
+---@param slot number
+PickupContainerItem = function(bagID, slot) end
+
+PutItemInBackpack = function() end
+
+---@param bagID number
+PutItemInBag = function(bagID) end
+
+PutKeyInKeyRing = function() end
+
+---@param bagID number
+---@param slot number
+---@param split number
+SplitContainerItem = function(bagID, slot, split) end
+
+ToggleBackpack = function() end
+
+---@param bagID number
+ToggleBag = function(bagID) end
+
+---@param money number
+---@param separator string
+---@return string
+GetCoinText = function(money, separator) return "" end
+
+---@param money number
+---@param highlight boolean
+---@return string
+GetCoinTextureString = function(money, highlight) return "" end
+
+---@param index number
+---@return string, number, boolean, boolean, boolean, boolean, boolean
+GetCurrencyInfo = function(index) return "", 0, true, true, true, true, true end
+
+---@return number
+GetCurrencyListSize = function() return 0 end
+
+---@param index number
+---@return string, number, number, boolean
+GetCurrencyListInfo = function(index) return "", 0, 0, true end
+
+ExpandCurrencyList = function() end
+
+SetCurrencyUnused = function(index) end
+
+---@return number
+GetNumWatchedTokens = function() return 0 end
+
+---@param currencyType number
+---@return string, number, number, number, number, number
+GetBackpackCurrencyInfo = function(currencyType) return "", 0, 0, 0, 0, 0 end
+
+---@param currencyType number
+---@param backpack boolean
+SetCurrencyBackpack = function(currencyType, backpack) end
+
+AutoEquipCursorItem = function() end
+
+ClearCursor = function() end
+
+---@param bag number
+---@param slot number
+---@return boolean
+CursorCanGoInSlot = function(bag, slot) return true end
+
+---@return boolean
+CursorHasItem = function() return true end
+
+---@return boolean
+CursorHasMoney = function() return true end
+
+---@return boolean
+CursorHasSpell = function() return true end
+DeleteCursorItem = function() end
+
+---@param amount number
+DropCursorMoney = function(amount) end
+
+---@param unit string
+DropItemOnUnit = function(unit) end
+
+EquipCursorItem = function() end
+
+---@return string, string, number
+GetCursorInfo = function() return "", "", 0 end
+
+---@return number, number
+GetCursorPosition = function() return 0, 0 end
+
+HideRepairCursor = function() end
+
+---@return boolean
+InRepairMode = function() return true end
+
+---@param slot number
+PickupAction = function(slot) end
+
+---@param slot number
+PickupBagFromSlot = function(slot) end
+
+---@param bagID number
+---@param slot number
+PickupContainerItem = function(bagID, slot) end
+
+---@param unit string
+---@param slot number
+PickupInventoryItem = function(unit, slot) end
+
+---@param itemName string
+PickupItem = function(itemName) end
+
+---@param macroIndex number
+PickupMacro = function(macroIndex) end
+
+---@param index number
+PickupMerchantItem = function(index) end
+
+---@param slot number
+PickupPetAction = function(slot) end
+
+---@param spellSlot number
+PickupSpell = function(spellSlot) end
+
+---@param index number
+PickupStablePet = function(index) end
+
+PickupTradeMoney = function() end
+
+---@param slotID number
+PlaceAction = function(slotID) end
+
+PutItemInBackpack = function() end
+
+---@param bagID number
+PutItemInBag = function(bagID) end
+
+ResetCursor = function() end
+
+---@param itemID number
+SetCursor = function(itemID) end
+
+ShowContainerSellCursor = function() end
+
+ShowInspectCursor = function() end
+
+ShowInventorySellCursor = function() end
+
+ShowMerchantSellCursor = function() end
+
+ShowRepairCursor = function() end
+
+---@param bagID number
+---@param slot number
+---@param split number
+SplitContainerItem = function(bagID, slot, split) end
+
+---@param weaponHand number
+---@return string, string, number, string
+GetWeaponEnchantInfo = function(weaponHand) return "", "", 0, "" end
+
+---@param index number
+ReplaceEnchant = function(index) end
+
+---@param index number
+ReplaceTradeEnchant = function(index) end
+
+---@param index number
+BindEnchant = function(index) end
+
+---@param factionIndex number
+CollapseFactionHeader = function(factionIndex) end
+
+CollapseAllFactionHeaders = function() end
+
+---@param factionIndex number
+ExpandFactionHeader = function(factionIndex) end
+
+ExpandAllFactionHeaders = function() end
+
+---@param factionIndex number
+FactionToggleAtWar = function(factionIndex) end
+
+---@param index number
+---@return string, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number
+GetFactionInfo = function(index) return "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@return number
+GetNumFactions = function() return 0 end
+
+---@return number
+GetSelectedFaction = function() return 0 end
+
+---@return string, number, number, number, number, boolean, boolean
+GetWatchedFactionInfo = function() return "", 0, 0, 0, 0, true, true end
+
+---@param factionIndex number
+---@return boolean
+IsFactionInactive = function(factionIndex) return true end
+
+---@param factionIndex number
+SetFactionActive = function(factionIndex) end
+
+---@param factionIndex number
+SetFactionInactive = function(factionIndex) end
+
+---@param factionIndex number
+SetSelectedFaction = function(factionIndex) end
+
+---@param factionIndex number
+SetWatchedFactionIndex = function(factionIndex) end
+
+---@param unit string
+---@return string, number
+UnitFactionGroup = function(unit) return "", 0 end
+
+---@param frameType string
+---@param name string | nil
+---@param parent table | nil
+---@param template string | nil
+---@return table
+CreateFrame = function(frameType, name, parent, template) return {} end
+
+---@param fontName string
+---@param fontHeight number
+---@param fontFlags string | nil
+---@return table
+CreateFont = function(fontName, fontHeight, fontFlags) return {} end
+
+---@param eventName string
+---@return table
+GetFramesRegisteredForEvent = function(eventName) return {} end
+
+---@return number
+GetNumFrames = function() return 0 end
+
+---@return table
+EnumerateFrames = function() return {} end
+
+---@return table
+GetMouseFocus = function() return {} end
+
+---@param level number
+---@param menuFrame table
+---@param anchor table
+---@param x number
+---@param y number
+---@param displayMode string | nil
+---@param autoHideDelay number | nil
+ToggleDropDownMenu = function(level, menuFrame, anchor, x, y, displayMode, autoHideDelay) end
+
+---@param frame table
+---@param fadeInTime number
+---@param startAlpha number
+---@param endAlpha number
+UIFrameFadeIn = function(frame, fadeInTime, startAlpha, endAlpha) end
+
+---@param frame table
+---@param fadeOutTime number
+---@param startAlpha number
+---@param endAlpha number
+UIFrameFadeOut = function(frame, fadeOutTime, startAlpha, endAlpha) end
+
+---@param frame table
+---@param fadeInTime number
+---@param fadeOutTime number
+---@param flashDuration number
+---@param showWhenDone boolean
+---@param flashInHoldTime number | nil
+---@param flashOutHoldTime number | nil
+UIFrameFlash = function(frame, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime) end
+
+---@param menuList table
+---@param menuFrame table | nil
+---@param anchor table | nil
+---@param x number | nil
+---@param y number | nil
+---@param displayMode string | nil
+---@param autoHideDelay number | nil
+EasyMenu = function(menuList, menuFrame, anchor, x, y, displayMode, autoHideDelay) end
+
+---@param name string
+AddFriend = function(name) end
+
+---@param name string
+AddOrRemoveFriend = function(name) end
+
+---@param index number
+---@return string, string, number, number, boolean, boolean, boolean
+GetFriendInfo = function(index) return "", "", 0, 0, true, true, true end
+
+---@param friendName string
+---@param notes string
+SetFriendNotes = function(friendName, notes) end
+
+---@return number
+GetNumFriends = function() return 0 end
+
+---@return number
+GetSelectedFriend = function() return 0 end
+
+---@param name string
+RemoveFriend = function(name) end
+
+---@param index number
+SetSelectedFriend = function(index) end
+
+ShowFriends = function() end
+
+ToggleFriendsFrame = function() end
+
+---@param index number
+---@return number
+GetNumGlyphSockets = function(index) return 0 end
+
+---@param index number
+---@return string, string, number
+GetGlyphSocketInfo = function(index) return "", "", 0 end
+
+---@param index number
+---@return string
+GetGlyphLink = function(index) return "" end
+
+---@param glyphID number
+---@param socketID number
+---@return boolean
+GlyphMatchesSocket = function(glyphID, socketID) return true end
+
+---@param glyphID number
+---@param socketID number
+PlaceGlyphInSocket = function(glyphID, socketID) end
+---@param socketID number
+RemoveGlyphFromSocket = function(socketID) end
+
+---@param spellID number
+---@return boolean
+SpellCanTargetGlyph = function(spellID) return true end
+
+CanComplainChat = function() end
+
+---@param index number
+---@return boolean
+CanComplainInboxItem = function(index) return true end
+
+---@param chatID number
+ComplainChat = function(chatID) end
+
+---@param mailID number
+ComplainInboxItem = function(mailID) end
+
+CloseGossip = function() end
+
+---@param npcID number
+ForceGossip = function(npcID) end
+
+---@return table
+GetGossipActiveQuests = function() return {} end
+
+---@return table
+GetGossipAvailableQuests = function() return {} end
+
+---@return table
+GetGossipOptions = function() return {} end
+
+---@return string
+GetGossipText = function() return "" end
+
+---@return number
+GetNumGossipActiveQuests = function() return 0 end
+
+---@return number
+GetNumGossipAvailableQuests = function() return 0 end
+
+---@return number
+GetNumGossipOptions = function() return 0 end
+
+---@param questIndex number
+SelectGossipActiveQuest = function(questIndex) end
+
+---@param questIndex number
+SelectGossipAvailableQuest = function(questIndex) end
+
+---@param optionIndex number
+SelectGossipOption = function(optionIndex) end
+
+AcceptGroup = function() end
+
+ConfirmReadyCheck = function() end
+
+ConvertToRaid = function() end
+
+DeclineGroup = function() end
+
+DoReadyCheck = function() end
+
+---@return string, string
+GetLootMethod = function() return "", "" end
+
+---@return number
+GetLootThreshold = function() return 0 end
+
+---@param index number
+---@return string, string
+GetMasterLootCandidate = function(index) return "", "" end
+
+---@return number
+GetNumPartyMembers = function() return 0 end
+
+---@return number
+GetRealNumPartyMembers = function() return 0 end
+
+---@return number
+GetPartyLeaderIndex = function() return 0 end
+
+---@param unit string
+---@return string, string, string, string, number, number
+GetPartyMember = function(unit) return "", "", "", "", 0, 0 end
+
+---@param unit string
+InviteUnit = function(unit) end
+
+---@param unit string
+---@return boolean
+IsPartyLeader = function(unit) return true end
+
+LeaveParty = function() end
+
+---@param unit string
+PromoteToLeader = function(unit) end
+
+---@param method string
+---@param masterUnit string | nil
+SetLootMethod = function(method, masterUnit) end
+
+---@param threshold string
+SetLootThreshold = function(threshold) end
+
+---@param unit string
+UninviteUnit = function(unit) end
+
+---@param unit string
+---@return boolean
+UnitInParty = function(unit) return true end
+
+---@param unit string
+---@return boolean
+UnitIsPartyLeader = function(unit) return true end
+
+AcceptGuild = function() end
+
+BuyGuildCharter = function() end
+
+---@return boolean
+CanEditGuildEvent = function() return true end
+
+---@return boolean
+CanEditGuildInfo = function() return true end
+
+---@return boolean
+CanEditMOTD = function() return true end
+
+---@return boolean
+CanEditOfficerNote = function() return true end
+
+---@return boolean
+CanEditPublicNote = function() return true end
+
+---@param unit string
+---@return boolean
+CanGuildDemote = function(unit) return true end
+
+---@param unit string
+---@return boolean
+CanGuildInvite = function(unit) return true end
+
+---@param unit string
+---@return boolean
+CanGuildPromote = function(unit) return true end
+
+---@param unit string
+---@return boolean
+CanGuildRemove = function(unit) return true end
+
+---@return boolean
+CanViewOfficerNote = function() return true end
+
+CloseGuildRegistrar = function() end
+
+CloseGuildRoster = function() end
+
+CloseTabardCreation = function() end
+
+DeclineGuild = function() end
+
+---@return number
+GetGuildCharterCost = function() return 0 end
+
+---@param index number
+---@return string, string, number, number, number, boolean, boolean, string, string
+GetGuildEventInfo = function(index) return "", "", 0, 0, 0, true, true, "", "" end
+
+---@return string, string, number, number, number, number, string, string, number, string
+GetGuildInfo = function() return "", "", 0, 0, 0, 0, "", "", 0, "" end
+
+---@return string
+GetGuildInfoText = function() return "" end
+
+---@param index number
+---@return string, string, string, number, number, string, string, string, string, boolean, string, number, boolean, boolean
+GetGuildRosterInfo = function(index) return "", "", "", 0, 0, "", "", "", "", true, "", 0, true, true end
+
+---@param index number
+---@return number
+GetGuildRosterLastOnline = function(index) return 0 end
+
+---@return string
+GetGuildRosterMOTD = function() return "" end
+
+---@return number
+GetGuildRosterSelection = function() return 0 end
+
+---@return boolean
+GetGuildRosterShowOffline = function() return true end
+
+---@return number
+GetNumGuildEvents = function() return 0 end
+
+---@return number
+GetNumGuildMembers = function() return 0 end
+
+---@return number
+GetTabardCreationCost = function() return 0 end
+
+---@return string, string, number, number
+GetTabardInfo = function() return "", "", 0, 0 end
+
+---@param rankName string
+GuildControlAddRank = function(rankName) end
+
+---@param rankOrder number
+GuildControlDelRank = function(rankOrder) end
+
+---@return number
+GuildControlGetNumRanks = function() return 0 end
+
+---@param rankOrder number
+---@return boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean
+GuildControlGetRankFlags = function(rankOrder) return true, true, true, true, true, true, true, true end
+
+---@param rankOrder number
+---@return string
+GuildControlGetRankName = function(rankOrder) return "" end
+
+GuildControlSaveRank = function() end
+
+---@param rankOrder number
+---@param rankName string
+GuildControlSetRank = function(rankOrder, rankName) end
+
+---@param rankOrder number
+---@param enabled boolean
+---@param allow boolean
+---@param memberNote boolean
+---@param officerNote boolean
+---@param viewOfficerNote boolean
+---@param editOfficerNote boolean
+---@param invite boolean
+---@param remove boolean
+---@param promote boolean
+---@param demote boolean
+---@param speakInGuildChat boolean
+---@param inviteRecruit boolean
+GuildControlSetRankFlag = function(rankOrder, enabled, allow, memberNote, officerNote, viewOfficerNote, editOfficerNote, invite, remove, promote, demote, speakInGuildChat, inviteRecruit) end
+
+---@param unit string
+---@param rankOrder number
+GuildDemote = function(unit, rankOrder) end
+
+GuildDisband = function() end
+
+---@param unit string
+GuildInfo = function(unit) end
+
+---@param unit string
+GuildInvite = function(unit) end
+
+GuildLeave = function() end
+
+---@param unit string
+GuildPromote = function(unit) end
+
+GuildRoster = function() end
+
+---@param unit string
+---@param officerNote string
+GuildRosterSetOfficerNote = function(unit, officerNote) end
+
+---@param unit string
+---@param publicNote string
+GuildRosterSetPublicNote = function(unit, publicNote) end
+
+---@param motd string
+GuildSetMOTD = function(motd) end
+
+---@param unit string
+GuildSetLeader = function(unit) end
+
+---@param unit string
+GuildUninvite = function(unit) end
+
+---@param unit string
+---@return boolean
+IsGuildLeader = function(unit) return true end
+
+---@param unit string
+---@return boolean
+IsInGuild = function(unit) return true end
+
+---@param eventIndex number
+QueryGuildEventLog = function(eventIndex) end
+
+---@param text string
+SetGuildInfoText = function(text) end
+
+---@param index number
+SetGuildRosterSelection = function(index) end
+
+---@param showOffline boolean
+SetGuildRosterShowOffline = function(showOffline) end
+
+SortGuildRoster = function() end
+
+---@param unit string
+---@return number
+UnitGetGuildXP = function(unit) return 0 end
+
+---@param tab number
+---@param index number
+AutoStoreGuildBankItem = function(tab, index) end
+
+BuyGuildBankTab = function() end
+
+---@return boolean
+CanGuildBankRepair = function() return true end
+
+---@return boolean
+CanWithdrawGuildBankMoney = function() return true end
+
+CloseGuildBankFrame = function() end
+
+---@param amount number
+DepositGuildBankMoney = function(amount) end
+
+---@return number
+GetCurrentGuildBankTab = function() return 0 end
+
+---@param tab number
+---@param slot number
+---@return string, string, number, number
+GetGuildBankItemInfo = function(tab, slot) return "", "", 0, 0 end
+
+---@param tab number
+---@param slot number
+---@return string
+GetGuildBankItemLink = function(tab, slot) return "" end
+
+---@return number
+GetGuildBankMoney = function() return 0 end
+
+---@param transactionIndex number
+---@return number, string, number
+GetGuildBankMoneyTransaction = function(transactionIndex) return 0, "", 0 end
+
+---@return number
+GetGuildBankTabCost = function() return 0 end
+
+---@param tab number
+---@return number, string, string, number, number
+GetGuildBankTabInfo = function(tab) return 0, "", "", 0, 0 end
+
+---@param tab number
+---@param index number
+---@return boolean, boolean
+GetGuildBankTabPermissions = function(tab, index) return true, true end
+
+---@return string
+GetGuildBankText = function() return "" end
+
+---@param transactionIndex number
+---@return string, string, string, number, number, number
+GetGuildBankTransaction = function(transactionIndex) return "", "", "", 0, 0, 0 end
+
+---@return string, string
+GetGuildTabardFileNames = function() return "", "" end
+
+---@return number
+GetNumGuildBankMoneyTransactions = function() return 0 end
+
+---@return number
+GetNumGuildBankTabs = function() return 0 end
+
+---@return number
+GetNumGuildBankTransactions = function() return 0 end
+
+---@param tab number
+---@param slot number
+PickupGuildBankItem = function(tab, slot) end
+
+---@param amount number
+PickupGuildBankMoney = function(amount) end
+
+---@param logIndex number
+QueryGuildBankLog = function(logIndex) end
+
+---@param tab number
+QueryGuildBankTab = function(tab) end
+
+---@param tab number
+SetCurrentGuildBankTab = function(tab) end
+
+---@param tab number
+---@param name string
+---@param icon string
+---@param isViewable boolean
+---@param canDeposit boolean
+SetGuildBankTabInfo = function(tab, name, icon, isViewable, canDeposit) end
+
+---@param tab number
+---@param index number
+---@param viewable boolean
+---@param depositable boolean
+SetGuildBankTabPermissions = function(tab, index, viewable, depositable) end
+
+---@param itemID number
+---@param quantity number
+SplitGuildBankItem = function(itemID, quantity) end
+
+---@param amount number
+WithdrawGuildBankMoney = function(amount) end
+
+---@return number, number, number
+GetHolidayBGHonorCurrencyBonuses = function() return 0, 0, 0 end
+
+---@param unit string
+---@return number, number, number, number
+GetInspectHonorData = function(unit) return 0, 0, 0, 0 end
+
+---@return number, number, number, number, number
+GetPVPLifetimeStats = function() return 0, 0, 0, 0, 0 end
+
+---@param factionIndex number
+---@return string, string, number, number, number
+GetPVPRankInfo = function(factionIndex) return "", "", 0, 0, 0 end
+
+---@return number, number, number
+GetPVPRankProgress = function() return 0, 0, 0 end
+
+---@return number, number, number
+GetPVPSessionStats = function() return 0, 0, 0 end
+
+---@return number, number, number
+GetPVPYesterdayStats = function() return 0, 0, 0 end
+
+---@return number, number, number
+GetRandomBGHonorCurrencyBonuses = function() return 0, 0, 0 end
+
+---@param unit string
+---@return boolean
+HasInspectHonorData = function(unit) return true end
+
+---@param unit string
+RequestInspectHonorData = function(unit) end
+
+---@param unit string
+---@param name string
+---@return string
+UnitPVPName = function(unit, name) return "" end
+
+---@param unit string
+---@return number
+UnitPVPRank = function(unit) return 0 end
+
+---@param name string
+AddIgnore = function(name) end
+
+---@param name string
+---@param add boolean
+AddOrDelIgnore = function(name, add) end
+
+---@param name string
+DelIgnore = function(name) end
+
+---@param index number
+---@return string
+GetIgnoreName = function(index) return "" end
+
+---@return number
+GetNumIgnores = function() return 0 end
+
+---@return number
+GetSelectedIgnore = function() return 0 end
+
+---@param index number
+SetSelectedIgnore = function(index) end
+
+---@param unit string
+---@return boolean
+CanInspect = function(unit) return true end
+
+---@param unit string
+---@param distIndex number
+---@return boolean
+CheckInteractDistance = function(unit, distIndex) return true end
+
+ClearInspectPlayer = function() end
+
+---@return string, number, number
+GetInspectArenaTeamData = function() return "", 0, 0 end
+
+---@param unit string
+---@return boolean
+HasInspectHonorData = function(unit) return true end
+
+---@param unit string
+RequestInspectHonorData = function(unit) end
+
+---@param unit string
+---@return number, number, number, number
+GetInspectHonorData = function(unit) return 0, 0, 0, 0 end
+
+---@param unit string
+NotifyInspect = function(unit) end
+
+---@param unit string
+InspectUnit = function(unit) end
+
+CanShowResetInstances = function() end
+
+---@param talentId number
+---@param specGroupIndex number?
+---@param isInspect  boolean?
+---@param inspectUnit string?
+---@return number talentID
+---@return string talentName
+---@return number icon
+---@return boolean selected
+---@return boolean available
+---@return number spellID
+---@return boolean unlocked
+---@return number row
+---@return number column
+---@return boolean known
+---@return boolean grantedByAura
+GetPvpTalentInfoByID = function(talentId, specGroupIndex, isInspect, inspectUnit) return 0, "", 0, true, true, 0, true, 0, 0, true, true end
+
+---@param index number
+---@return number
+GetBattlefieldInstanceExpiration = function(index) return 0 end
+
+---@param index number
+---@return string, string, number, number, number, number, boolean, boolean, boolean, boolean, boolean
+GetBattlefieldInstanceInfo = function(index) return "", "", 0, 0, 0, 0, true, true, true, true, true end
+
+---@return number, number
+GetBattlefieldInstanceRunTime = function() return 0, 0 end
+
+---@return number
+GetInstanceBootTimeRemaining = function() return 0 end
+
+---@return boolean, string, number, number, number, number, boolean, boolean
+GetInstanceInfo = function() return true, "", 0, 0, 0, 0, true, true end
+
+---@return number
+GetNumSavedInstances = function() return 0 end
+
+---@param index number
+---@return string, string, number, boolean, boolean, boolean, boolean, number, boolean
+GetSavedInstanceInfo = function(index) return "", "", 0, true, true, true, true, 0, true end
+
+---@return boolean bInsideInstance
+---@return string instancetype
+IsInInstance = function() return true, "" end
+
+ResetInstances = function() end
+
+---@return number, number
+GetDungeonDifficulty = function() return 0, 0 end
+
+---@param difficulty number
+SetDungeonDifficulty = function(difficulty) end
+
+---@return number
+GetInstanceDifficulty = function() return 0 end
+
+---@return number
+GetInstanceLockTimeRemaining = function() return 0 end
+
+---@return number
+GetInstanceLockTimeRemainingEncounter = function() return 0 end
+
+AutoEquipCursorItem = function() end
+
+---@param bankButtonID number
+---@return number
+BankButtonIDToInvSlotID = function(bankButtonID) return 0 end
+
+CancelPendingEquip = function() end
+
+ConfirmBindOnUse = function() end
+
+---@param containerID number
+---@param slot number
+---@return number
+ContainerIDToInventoryID = function(containerID, slot) return 0 end
+
+---@param slotID number
+---@param bagID number
+---@return boolean
+CursorCanGoInSlot = function(slotID, bagID) return true end
+
+EquipCursorItem = function() end
+
+EquipPendingItem = function() end
+
+---@return boolean
+GetInventoryAlertStatus = function() return true end
+
+---@param slotID number
+---@return boolean
+GetInventoryItemBroken = function(slotID) return true end
+
+---@param slotID number
+---@return number, number
+GetInventoryItemCooldown = function(slotID) return 0, 0 end
+
+---@param slotID number
+---@return number
+GetInventoryItemCount = function(slotID) return 0 end
+
+---@param slotID number
+---@return number, number
+GetInventoryItemDurability = function(slotID) return 0, 0 end
+
+---@param slotID number
+---@return table
+GetInventoryItemGems = function(slotID) return {} end
+
+---@param slotID number
+---@return number
+GetInventoryItemID = function(slotID) return 0 end
+
+---@param slotID number
+---@return string
+GetInventoryItemLink = function(slotID) return "" end
+
+---@param slotID number
+---@return number
+GetInventoryItemQuality = function(slotID) return 0 end
+
+---@param slotID number
+---@return string
+GetInventoryItemTexture = function(slotID) return "" end
+
+---@param slotName string
+---@return string, string, number
+GetInventorySlotInfo = function(slotName) return "", "", 0 end
+
+---@return boolean
+GetWeaponEnchantInfo = function() return true end
+
+---@return boolean
+HasWandEquipped = function() return true end
+
+---@param slotID number
+---@return boolean
+IsInventoryItemLocked = function(slotID) return true end
+
+---@param keyRingButtonID number
+---@return number
+KeyRingButtonIDToInvSlotID = function(keyRingButtonID) return 0 end
+
+---@param slotID number
+PickupBagFromSlot = function(slotID) end
+
+---@param slotID number
+PickupInventoryItem = function(slotID) end
+
+UpdateInventoryAlertStatus = function() end
+
+---@param slotID number
+UseInventoryItem = function(slotID) end
+
+---@param itemName string
+EquipItemByName = function(itemName) end
+
+---@param index number
+---@return string
+GetAuctionItemLink = function(index) return "" end
+
+---@param bagID number
+---@param slot number
+---@return string
+GetContainerItemLink = function(bagID, slot) return "" end
+
+---@param slotID number
+---@return number, number
+GetItemCooldown = function(slotID) return 0, 0 end
+
+---@param itemID number
+---@return number
+GetItemCount = function(itemID) return 0 end
+
+---@param itemID number
+---@return number
+GetItemFamily = function(itemID) return 0 end
+
+---@param itemID number
+---@return string
+GetItemIcon = function(itemID) return "" end
+
+---@param itemID number
+---@return string, string, string, number
+GetItemInfo = function(itemID) return "", "", "", 0 end
+
+---@param quality number
+---@return table
+GetItemQualityColor = function(quality) return {} end
+
+---@param itemID number
+---@return string
+GetItemSpell = function(itemID) return "" end
+
+---@param itemID number
+---@return table
+GetItemStats = function(itemID) return {} end
+
+---@param index number
+---@return string
+GetMerchantItemLink = function(index) return "" end
+
+---@param questID number
+---@return string
+GetQuestItemLink = function(questID) return "" end
+
+---@param questLogIndex number
+---@return string
+GetQuestLogItemLink = function(questLogIndex) return "" end
+
+---@param index number
+---@return string
+GetTradePlayerItemLink = function(index) return "" end
+
+---@param index number
+---@return string
+GetTradeSkillItemLink = function(index) return "" end
+
+---@param tradeSkillID number
+---@param reagentIndex number
+---@return string
+GetTradeSkillReagentItemLink = function(tradeSkillID, reagentIndex) return "" end
+
+---@param index number
+---@return string
+GetTradeTargetItemLink = function(index) return "" end
+
+---@param itemNameOrItemID string|number
+---@return boolean
+IsUsableItem = function(itemNameOrItemID) return true end
+
+---@param itemNameOrItemID string|number
+---@return boolean
+IsConsumableItem = function(itemNameOrItemID) return true end
+
+---@return boolean
+IsCurrentItem = function() return true end
+
+---@param itemNameOrItemID string|number
+---@return boolean
+IsEquippedItem = function(itemNameOrItemID) return true end
+
+---@param itemNameOrItemID string|number
+---@return boolean
+IsEquippableItem = function(itemNameOrItemID) return true end
+
+---@param itemID number
+---@return boolean
+IsEquippedItemType = function(itemID) return true end
+
+---@param unit string
+---@param itemID number
+---@return boolean
+IsItemInRange = function(unit, itemID) return true end
+
+---@param itemNameOrItemID string|number
+---@return boolean
+ItemHasRange = function(itemNameOrItemID) return true end
+
+---@return boolean
+OffhandHasWeapon = function() return true end
+
+---@param bagID number
+---@param slot number
+---@param quantity number
+SplitContainerItem = function(bagID, slot, quantity) end
+
+---@param link string
+SetItemRef = function(link) end
+
+AcceptSockets = function() end
+
+---@param socketIndex number
+ClickSocketButton = function(socketIndex) end
+
+CloseSocketInfo = function() end
+
+---@param socketIndex number
+---@return string, number
+GetSocketItemInfo = function(socketIndex) return "", 0 end
+
+---@param socketIndex number
+---@return boolean
+GetSocketItemRefundable = function(socketIndex) return true end
+
+---@param socketIndex number
+---@return boolean
+GetSocketItemBoundTradeable = function(socketIndex) return true end
+
+---@return number
+GetNumSockets = function() return 0 end
+
+---@return table
+GetSocketTypes = function() return {} end
+
+---@param socketIndex number
+---@return string, string, number
+GetExistingSocketInfo = function(socketIndex) return "", "", 0 end
+
+---@param socketIndex number
+---@return string
+GetExistingSocketLink = function(socketIndex) return "" end
+
+---@param socketIndex number
+---@return string, string, number
+GetNewSocketInfo = function(socketIndex) return "", "", 0 end
+
+---@param socketIndex number
+---@return string
+GetNewSocketLink = function(socketIndex) return "" end
+
+---@param slot number
+SocketInventoryItem = function(slot) end
+
+---@param bagID number
+---@param slot number
+SocketContainerItem = function(bagID, slot) end
+
+CloseItemText = function() end
+
+---@return string
+ItemTextGetCreator = function() return "" end
+
+---@return string
+ItemTextGetItem = function() return "" end
+
+---@return string
+ItemTextGetMaterial = function() return "" end
+
+---@param page number
+---@return string
+ItemTextGetPage = function(page) return "" end
+
+---@return string
+ItemTextGetText = function() return "" end
+
+---@return boolean
+ItemTextHasNextPage = function() return true end
+
+ItemTextNextPage = function() end
+
+ItemTextPrevPage = function() end
+
+---@return string
+GetMinimapZoneText = function() return "" end
+
+---@return string
+GetRealZoneText = function() return "" end
+
+---@return string
+GetSubZoneText = function() return "" end
+
+---@return string, boolean, boolean
+GetZonePVPInfo = function() return "", true, true end
+
+---@return string
+GetZoneText = function() return "" end
+
+CompleteLFGRoleCheck = function() end
+
+---@return number
+GetLFGDeserterExpiration = function() return 0 end
+
+---@return number
+GetLFGRandomCooldownExpiration = function() return 0 end
+
+---@return number
+GetLFGBootProposal = function() return 0 end
+
+---@return string
+GetLFGMode = function() return "" end
+
+---@return number, number, number, number, number
+GetLFGQueueStats = function() return 0, 0, 0, 0, 0 end
+
+---@return boolean, boolean, boolean, boolean
+GetLFGRoles = function() return true, true, true, true end
+
+GetLFGRoleUpdate = function() end
+
+---@param slot number
+---@return number
+GetLFGRoleUpdateSlot = function(slot) return 0 end
+
+---@param vote number
+---@param slot number
+SetLFGBootVote = function(vote, slot) end
+
+---@param comment string
+SetLFGComment = function(comment) end
+
+---@param tank boolean
+---@param healer boolean
+---@param dps boolean
+SetLFGRoles = function(tank, healer, dps) end
+
+---@param unit string
+UninviteUnit = function(unit) end
+
+---@param unit string
+---@return string
+UnitGroupRolesAssigned = function(unit) return "" end
+
+---@param unit string
+---@return boolean
+UnitHasLFGDeserter = function(unit) return true end
+
+---@param unit string
+---@return boolean
+UnitHasLFGRandomCooldown = function(unit) return true end
+
+CloseLoot = function() end
+
+ConfirmBindOnUse = function() end
+
+---@param rollID number
+---@param roll number
+ConfirmLootRoll = function(rollID, roll) end
+
+---@param slot number
+ConfirmLootSlot = function(slot) end
+
+---@return string
+GetLootMethod = function() return "" end
+
+---@param index number
+---@return string, string, number
+GetLootRollItemInfo = function(index) return "", "", 0 end
+
+---@param index number
+---@return string
+GetLootRollItemLink = function(index) return "" end
+
+---@param index number
+---@return number
+GetLootRollTimeLeft = function(index) return 0 end
+
+---@param index number
+---@return string, string, number
+GetLootSlotInfo = function(index) return "", "", 0 end
+
+---@param index number
+---@return string
+GetLootSlotLink = function(index) return "" end
+
+---@return number
+GetLootThreshold = function() return 0 end
+
+---@param index number
+---@return string
+GetMasterLootCandidate = function(index) return "" end
+
+---@return number
+GetNumLootItems = function() return 0 end
+
+---@return boolean
+GetOptOutOfLoot = function() return true end
+
+---@param candidate string
+---@param index number
+GiveMasterLoot = function(candidate, index) end
+
+---@return boolean
+IsFishingLoot = function() return true end
+
+---@param slot number
+LootSlot = function(slot) end
+
+---@param slot number
+---@return boolean
+LootSlotIsCoin = function(slot) return true end
+
+---@param slot number
+---@return boolean
+LootSlotIsCurrency = function(slot) return true end
+
+---@param slot number
+---@return boolean
+LootSlotIsItem = function(slot) return true end
+
+---@param index number
+---@param roll number
+RollOnLoot = function(index, roll) end
+
+---@param method string
+---@param masterPlayer string
+SetLootMethod = function(method, masterPlayer) end
+
+---@param texture string
+SetLootPortrait = function(texture) end
+
+---@param threshold number
+SetLootThreshold = function(threshold) end
+
+---@param optOut boolean
+SetOptOutOfLoot = function(optOut) end
+
+---@return boolean
+CursorHasMacro = function() return true end
+
+---@param index number
+DeleteMacro = function(index) end
+
+---@param index number
+---@return string
+GetMacroBody = function(index) return "" end
+
+---@param index number
+---@return string, number, number
+GetMacroIconInfo = function(index) return "", 0, 0 end
+
+---@param index number
+---@return string, number, number
+GetMacroItemIconInfo = function(index) return "", 0, 0 end
+
+---@param name string
+---@return number
+GetMacroIndexByName = function(name) return 0 end
+
+---@param index number
+---@return string, string, string
+GetMacroInfo = function(index) return "", "", "" end
+
+---@return number
+GetNumMacroIcons = function() return 0 end
+
+---@return number
+GetNumMacroItemIcons = function() return 0 end
+
+---@return number
+GetNumMacros = function() return 0 end
+
+---@param index number
+PickupMacro = function(index) end
+
+---@param index number
+RunMacro = function(index) end
+
+---@param index number
+RunMacroText = function(index) end
+
+---@param option string
+---@return string
+SecureCmdOptionParse = function(option) return "" end
+
+StopMacro = function() end
+
+---@param index number
+AutoLootMailItem = function(index) end
+
+CheckInbox = function() end
+
+ClearSendMail = function() end
+
+ClickSendMailItemButton = function() end
+
+CloseMail = function() end
+
+---@param index number
+DeleteInboxItem = function(index) end
+
+---@param currencyIndex number
+---@return string
+GetCoinIcon = function(currencyIndex) return "" end
+
+---@param index number
+---@return string, boolean, boolean, boolean, boolean, boolean, boolean, number, number
+GetInboxHeaderInfo = function(index) return "", true, true, true, true, true, true, 0, 0 end
+
+---@param index number
+---@param itemIndex number
+---@return string, number, number, string, number
+GetInboxItem = function(index, itemIndex) return "", 0, 0, "", 0 end
+
+---@param index number
+---@param itemIndex number
+---@return string
+GetInboxItemLink = function(index, itemIndex) return "" end
+
+---@return number
+GetInboxNumItems = function() return 0 end
+
+---@param index number
+---@return string
+GetInboxText = function(index) return "" end
+
+---@param index number
+---@return string, string, number
+GetInboxInvoiceInfo = function(index) return "", "", 0 end
+
+---@return number
+GetNumPackages = function() return 0 end
+
+---@return number
+GetNumStationeries = function() return 0 end
+
+---@param index number
+---@return string, boolean
+GetPackageInfo = function(index) return "", true end
+
+---@return string
+GetSelectedStationeryTexture = function() return "" end
+
+---@return number
+GetSendMailCOD = function() return 0 end
+
+---@param index number
+---@return string, number, number, string, number
+GetSendMailItem = function(index) return "", 0, 0, "", 0 end
+
+---@param index number
+---@return string
+GetSendMailItemLink = function(index) return "" end
+
+---@return number
+GetSendMailMoney = function() return 0 end
+
+---@return number
+GetSendMailPrice = function() return 0 end
+
+---@param index number
+---@return string, number
+GetStationeryInfo = function(index) return "", 0 end
+
+---@return boolean
+HasNewMail = function() return true end
+
+---@param index number
+---@return boolean
+InboxItemCanDelete = function(index) return true end
+
+---@param index number
+ReturnInboxItem = function(index) end
+
+---@param index number
+SelectPackage = function(index) end
+
+---@param index number
+SelectStationery = function(index) end
+
+---@param subject string
+---@param body string
+SendMail = function(subject, body) end
+
+---@param codAmount number
+SetSendMailCOD = function(codAmount) end
+
+---@param money number
+SetSendMailMoney = function(money) end
+
+---@param index number
+TakeInboxItem = function(index) end
+
+---@return number
+TakeInboxMoney = function() return 0 end
+
+---@param index number
+TakeInboxTextItem = function(index) end
+
+ClickLandmark = function() end
+
+---@return number, number
+GetCorpseMapPosition = function() return 0, 0 end
+
+---@return number
+GetCurrentMapContinent = function() return 0 end
+
+---@return number
+GetCurrentMapDungeonLevel = function() return 0 end
+
+---@return number
+GetNumDungeonMapLevels = function() return 0 end
+
+---@return number
+GetCurrentMapAreaID = function() return 0 end
+
+---@return string
+GetCurrentMapZone = function() return "" end
+
+---@return table
+GetMapContinents = function() return {} end
+
+---@param index number
+---@return string, string, number, number, number, number, number, number
+GetMapDebugObjectInfo = function(index) return "", "", 0, 0, 0, 0, 0, 0 end
+
+---@param mapID number
+---@return string, string, number, number, number, number, number, number
+GetMapInfo = function(mapID) return "", "", 0, 0, 0, 0, 0, 0 end
+
+---@param index number
+---@return string, number, number, number
+GetMapLandmarkInfo = function(index) return "", 0, 0, 0 end
+
+---@param index number
+---@return string, number, number, number, number
+GetMapOverlayInfo = function(index) return "", 0, 0, 0, 0 end
+
+---@param continentID number
+---@return table
+GetMapZones = function(continentID) return {} end
+
+---@return number
+GetNumMapDebugObjects = function() return 0 end
+
+---@return number
+GetNumMapLandmarks = function() return 0 end
+
+---@return number
+GetNumMapOverlays = function() return 0 end
+
+---@return number, number
+GetPlayerMapPosition = function() return 0, 0 end
+
+---@param cursorType string
+ProcessMapClick = function(cursorType) end
+
+RequestBattlefieldPositions = function() end
+
+---@param dungeonLevel number
+SetDungeonMapLevel = function(dungeonLevel) end
+
+---@param mapID number
+SetMapByID = function(mapID) end
+
+SetMapToCurrentZone = function() end
+
+---@param zoomLevel number
+SetMapZoom = function(zoomLevel) end
+
+---@param mapFrame table
+PositionWorldMapArrowFrame = function(mapFrame) end
+
+---@param index number
+---@param quantity number
+BuyMerchantItem = function(index, quantity) end
+
+---@param index number
+BuybackItem = function(index) end
+
+---@return boolean
+CanMerchantRepair = function() return true end
+
+CloseMerchant = function() end
+
+---@param index number
+---@return string, string, number, number
+GetBuybackItemInfo = function(index) return "", "", 0, 0 end
+
+---@param index number
+---@return string
+GetBuybackItemLink = function(index) return "" end
+
+---@param index number
+---@return number, string, number, number, number
+GetMerchantItemCostInfo = function(index) return 0, "", 0, 0, 0 end
+
+---@param index number
+---@return string, number
+GetMerchantItemCostItem = function(index) return "", 0 end
+
+---@param index number
+---@return string, string, number, number, number, number, number, number, number
+GetMerchantItemInfo = function(index) return "", "", 0, 0, 0, 0, 0, 0, 0 end
+
+---@param index number
+---@return string
+GetMerchantItemLink = function(index) return "" end
+
+---@param index number
+---@return number
+GetMerchantItemMaxStack = function(index) return 0 end
+
+---@return number
+GetMerchantNumItems = function() return 0 end
+
+---@return number
+GetRepairAllCost = function() return 0 end
+
+HideRepairCursor = function() end
+
+---@return boolean
+InRepairMode = function() return true end
+
+---@param index number
+PickupMerchantItem = function(index) end
+
+RepairAllItems = function() end
+
+ShowMerchantSellCursor = function() end
+
+ShowRepairCursor = function() end
+
+---@return number
+GetNumBuybackItems = function() return 0 end
+
+---@param index number
+CastPetAction = function(index) end
+
+ClosePetStables = function() end
+
+---@param unit string
+---@param bagID number
+---@param slot number
+DropItemOnUnit = function(unit, bagID, slot) end
+
+---@param slotID number
+---@return number, number, boolean
+GetPetActionCooldown = function(slotID) return 0, 0, true end
+
+---@param slotID number
+---@return string, string, boolean, boolean
+GetPetActionInfo = function(slotID) return "", "", true, true end
+
+---@param slotID number
+---@return boolean
+GetPetActionSlotUsable = function(slotID) return true end
+
+---@return boolean
+GetPetActionsUsable = function() return true end
+
+---@return number, number, number
+GetPetExperience = function() return 0, 0, 0 end
+
+---@return table
+GetPetFoodTypes = function() return {} end
+
+---@return number
+GetPetHappiness = function() return 0 end
+
+---@return string
+GetPetIcon = function() return "" end
+
+---@return number
+GetPetTimeRemaining = function() return 0 end
+
+---@return table
+GetStablePetFoodTypes = function() return {} end
+
+---@param index number
+---@return string, number, number, string, string, boolean, boolean
+GetStablePetInfo = function(index) return "", 0, 0, "", "", true, true end
+
+---@return boolean
+HasPetSpells = function() return true end
+
+---@return boolean
+HasPetUI = function() return true end
+
+PetAbandon = function() end
+
+PetAggressiveMode = function() end
+
+PetAttack = function() end
+
+---@return boolean
+IsPetAttackActive = function() return true end
+
+PetStopAttack = function() end
+
+---@return boolean
+PetCanBeAbandoned = function() return true end
+
+---@return boolean
+PetCanBeDismissed = function() return true end
+
+---@return boolean
+PetCanBeRenamed = function() return true end
+
+PetDefensiveMode = function() end
+
+PetDismiss = function() end
+
+PetFollow = function() end
+
+---@return boolean
+PetHasActionBar = function() return true end
+
+PetPassiveMode = function() end
+
+---@param name string
+PetRename = function(name) end
+
+PetWait = function() end
+
+---@param slotID number
+PickupPetAction = function(slotID) end
+
+PickupStablePet = function() end
+
+SetPetStablePaperdoll = function() end
+
+---@param slotID number
+---@param enabled boolean
+TogglePetAutocast = function(slotID, enabled) end
+
+---@param index number
+---@param enabled boolean
+ToggleSpellAutocast = function(index, enabled) end
+
+---@param index number
+---@return boolean
+GetSpellAutocast = function(index) return true end
+
+AddQuestWatch = function() end
+
+---@return number
+GetActiveLevel = function() return 0 end
+
+---@return string
+GetActiveTitle = function() return "" end
+
+---@param questID number
+---@return number
+GetAvailableLevel = function(questID) return 0 end
+
+---@param questID number
+---@return string
+GetAvailableTitle = function(questID) return "" end
+
+---@param questIndex number
+---@return string, boolean, boolean
+GetAvailableQuestInfo = function(questIndex) return "", true, true end
+
+---@param npcID number
+---@return string
+GetGreetingText = function(npcID) return "" end
+
+---@return number
+GetNumQuestLeaderBoards = function() return 0 end
+
+---@return number
+GetNumQuestWatches = function() return 0 end
+
+---@param questIndex number
+---@param objectiveIndex number
+---@return string
+GetObjectiveText = function(questIndex, objectiveIndex) return "" end
+
+---@param questIndex number
+---@param progressIndex number
+---@return string
+GetProgressText = function(questIndex, progressIndex) return "" end
+
+---@param questLevel number
+---@return boolean
+GetQuestGreenRange = function(questLevel) return true end
+
+---@param questID number
+---@return number
+GetQuestIndexForWatch = function(questID) return 0 end
+
+---@param questID number
+---@return string
+GetQuestLink = function(questID) return "" end
+
+---@param index number
+---@return number
+GetQuestLogGroupNum = function(index) return 0 end
+
+---@param questIndex number
+---@param objectiveIndex number
+---@return string, string, boolean, number, number, boolean
+GetQuestLogLeaderBoard = function(questIndex, objectiveIndex) return "", "", true, 0, 0, true end
+
+---@param index number
+---@return string, number, number, number, number, boolean, boolean
+GetQuestLogTitle = function(index) return "", 0, 0, 0, 0, true, true end
+
+---@return number, string, number, number
+GetQuestReward = function() return 0, "", 0, 0 end
+
+---@return number
+GetRewardArenaPoints = function() return 0 end
+
+---@return number
+GetRewardHonor = function() return 0 end
+
+---@return number
+GetRewardMoney = function() return 0 end
+
+---@return number
+GetRewardSpell = function() return 0 end
+
+---@return number
+GetRewardTalents = function() return 0 end
+
+---@return string
+GetRewardText = function() return "" end
+
+---@return string
+GetRewardTitle = function() return "" end
+
+---@return number
+GetRewardXP = function() return 0 end
+
+---@param questID number
+---@return boolean
+IsQuestWatched = function(questID) return true end
+
+---@param unit string
+---@param questID number
+---@return boolean
+IsUnitOnQuest = function(unit, questID) return true end
+
+QuestFlagsPVP = function() end
+
+---@return boolean
+QuestGetAutoAccept = function() return true end
+
+---@param questIndex number
+RemoveQuestWatch = function(questIndex) end
+
+---@param questIndex number
+---@param offset number
+ShiftQuestWatches = function(questIndex, offset) end
+
+SortQuestWatches = function() end
+
+---@param questID number
+---@return boolean
+QueryQuestsCompleted = function(questID) return true end
+
+---@return table
+GetQuestsCompleted = function() return {} end
+
+---@param questID number
+---@return boolean
+QuestIsDaily = function(questID) return true end
+
+---@param unit string
+DemoteAssistant = function(unit) end
+
+---@return boolean
+GetAllowLowLevelRaid = function() return true end
+
+---@return number
+GetNumRaidMembers = function() return 0 end
+
+---@return number
+GetRealNumRaidMembers = function() return 0 end
+
+---@param unit string
+---@return string, string
+GetPartyAssignment = function(unit) return "", "" end
+
+---@param raidID number
+---@return string, string
+GetRaidRosterInfo = function(raidID) return "", "" end
+
+---@param unit string
+---@return number
+GetRaidTargetIndex = function(unit) return 0 end
+
+---@return boolean, boolean, boolean
+GetReadyCheckStatus = function() return true, true, true end
+
+InitiateRolePoll = function() end
+
+---@return boolean
+IsRaidLeader = function() return true end
+
+---@param unit string
+---@return boolean
+IsRaidOfficer = function(unit) return true end
+
+---@param raidTargetIndex number
+PlaceRaidMarker = function(raidTargetIndex) end
+
+---@param unit string
+PromoteToAssistant = function(unit) end
+
+RequestRaidInfo = function() end
+
+---@param unit string
+---@param role string
+SetPartyAssignment = function(unit, role) end
+
+---@param enabled boolean
+SetAllowLowLevelRaid = function(enabled) end
+
+---@param index number
+SetRaidRosterSelection = function(index) end
+
+---@param unit string
+---@param subgroup number
+SetRaidSubgroup = function(unit, subgroup) end
+
+---@param unit1 string
+---@param unit2 string
+SwapRaidSubgroup = function(unit1, unit2) end
+
+---@param unit string
+---@param raidTargetIndex number
+SetRaidTarget = function(unit, raidTargetIndex) end
+
+---@param unit string
+---@return boolean
+UnitInRaid = function(unit) return true end
+
+GetInstanceLockTimeRemainingEncounter = function() end
+
+---@param dungeonID number
+SearchLFGGetEncounterResults = function(dungeonID) end
+
+---@return number
+SearchLFGGetJoinedID = function() return 0 end
+
+---@return number
+SearchLFGGetNumResults = function() return 0 end
+
+---@return number
+SearchLFGGetPartyResults = function() return 0 end
+
+---@return number
+SearchLFGGetResults = function() return 0 end
+
+---@param resultID number
+SearchLFGJoin = function(resultID) end
+
+SearchLFGLeave = function() end
+
+---@param sortOrder string
+SearchLFGSort = function(sortOrder) end
+
+---@param comment string
+SetLFGComment = function(comment) end
+
+ClearAllLFGDungeons = function() end
+
+---@param dungeonID number
+JoinLFG = function(dungeonID) end
+
+---@param dungeonID number
+RequestLFDPlayerLockInfo = function(dungeonID) end
+
+---@param dungeonID number
+SetLFGDungeon = function(dungeonID) end
+
+---@param dungeonID number
+---@param enabled boolean
+SetLFGDungeonEnabled = function(dungeonID, enabled) end
+
+---@param categoryID number
+---@param collapsed boolean
+SetLFGHeaderCollapsed = function(categoryID, collapsed) end
+
+---@param func function
+---@return number
+GetFunctionCPUUsage = function(func) return 0 end
+
+---@param varName string
+---@return boolean
+issecure = function(varName) return true end
+
+---@param func function
+forceinsecure = function(func) end
+
+---@param varName string
+---@return boolean
+issecurevariable = function(varName) return true end
+
+---@param func function
+---@vararg ...
+---@return any
+securecall = function(func, ...) return nil end
+
+---@param origFunc function
+---@param hookFunc function
+hooksecurefunc = function(origFunc, hookFunc) end
+
+InCombatLockdown = function() end
+
+---@param unit string
+CombatTextSetActiveUnit = function(unit) end
+
+---@param cvarName string
+---@return string
+GetCVar = function(cvarName) return "" end
+
+---@param cvarName string
+---@return string
+GetCVarDefault = function(cvarName) return "" end
+
+---@param cvarName string
+---@return boolean
+GetCVarBool = function(cvarName) return true end
+
+---@param cvarName string
+---@return table
+GetCVarInfo = function(cvarName) return {} end
+
+---@return boolean
+DownloadSettings = function() return true end
+
+---@return number
+GetCurrentMultisampleFormat = function() return 0 end
+
+---@return number
+GetCurrentResolution = function() return 0 end
+
+---@return number
+GetScriptCPUUsage = function() return 0 end
+
+---@return boolean
+ResetCPUUsage = function() return true end
+
+---@return boolean
+UpdateAddOnCPUUsage = function() return true end
+
+---@return boolean
+UpdateAddOnMemoryUsage = function() return true end
+
+---@return number, number, number
+GetGamma = function() return 0, 0, 0 end
+
+---@return table
+GetMultisampleFormats = function() return {} end
+
+---@param formatIndex number
+---@return table
+GetRefreshRates = function(formatIndex) return {} end
+
+---@return table
+GetScreenResolutions = function() return {} end
+
+---@param category string
+---@return boolean
+GetVideoCaps = function(category) return true end
+
+---@return boolean
+IsThreatWarningEnabled = function() return true end
+
+---@return boolean
+ResetPerformanceValues = function() return true end
+
+---@return boolean
+ResetTutorials = function() return true end
+
+---@param cvarName string
+---@param value any
+RegisterCVar = function(cvarName, value) end
+
+---@param cvarName string
+---@param value any
+SetCVar = function(cvarName, value) end
+
+SetEuropeanNumbers = function() end
+
+---@param gamma number
+SetGamma = function(gamma) end
+
+---@param enabled boolean
+SetLayoutMode = function(enabled) end
+
+---@param formatIndex number
+SetMultisampleFormat = function(formatIndex) end
+
+---@param resolutionIndex number
+SetScreenResolution = function(resolutionIndex) end
+
+---@param show boolean
+ShowCloak = function(show) return true end
+
+---@param show boolean
+ShowHelm = function(show) return true end
+
+---@param show boolean
+ShowNumericThreat = function(show) return true end
+
+---@return boolean
+ShowingCloak = function() return true end
+
+---@return boolean
+ShowingHelm = function() return true end
+
+---@param settings table
+UploadSettings = function(settings) 
+    return true
+end
+
+---@param skillIndex number
+AbandonSkill = function(skillIndex) end
+
+---@param formIndex number
+CastShapeshiftForm = function(formIndex) end
+
+---@param spellName string
+---@param target string
+CastSpell = function(spellName, target) end
+
+---@param spellName string
+---@param target string
+CastSpellByName = function(spellName, target) end
+
+---@param totemIndex number
+---@return table
+GetMultiCastTotemSpells = function(totemIndex) return {} end
+
+---@return number
+GetNumShapeshiftForms = function() return 0 end
+
+---@return number
+GetNumSpellTabs = function() return 0 end
+
+---@return number
+GetShapeshiftForm = function() return 0 end
+
+---@param formIndex number
+---@return number, number, number
+GetShapeshiftFormCooldown = function(formIndex) return 0, 0, 0 end
+
+---@param formIndex number
+---@return string, boolean, boolean, number
+GetShapeshiftFormInfo = function(formIndex) return "", false, false, 0 end
+
+---@param spellID number
+---@return boolean
+GetSpellAutocast = function(spellID) return true end
+
+---@param spellSlot number
+---@param bookType string
+---@return string, string
+GetSpellBookItemInfo = function(spellSlot, bookType) return "", "" end
+
+---@param spellSlot number
+---@param bookType string
+---@return string
+GetSpellBookItemName = function(spellSlot, bookType) return "" end
+
+---@param spellID number
+---@return number, number
+GetSpellCooldown = function(spellID) return 0, 0 end
+
+---@param spellName string
+---@return string
+GetSpellDescription = function(spellName) return "" end
+
+---@param spellNameOrID string|number
+---@return string, number, number, number, number, number, number, number
+GetSpellInfo = function(spellNameOrID) return "", 0, 0, 0, 0, 0, 0, 0 end
+
+---@param spellID number
+---@return string
+GetSpellLink = function(spellID) return "" end
+
+---@param tabIndex number
+---@param isFlyout boolean
+---@return string, string, number, number
+GetSpellTabInfo = function(tabIndex, isFlyout) return "", "", 0, 0 end
+
+---@param spellName string
+---@return string
+GetSpellTexture = function(spellName) return "" end
+
+---@param totemIndex number
+---@return string, number, number, number, number, number, number, number, number
+GetTotemInfo = function(totemIndex) return "", 0, 0, 0, 0, 0, 0, 0, 0 end
+
+---@param spellId number
+---@return boolean
+IsAttackSpell = function(spellId) return true end
+
+---@param spellId number
+---@return boolean
+IsAutoRepeatSpell = function(spellId) return true end
+
+---@param spellId number
+---@return boolean
+IsPassiveSpell = function(spellId) return true end
+
+---@param spellName string
+---@param target string
+---@return boolean
+IsSpellInRange = function(spellName, target) return true end
+
+---@param spellName string
+---@return boolean
+IsUsableSpell = function(spellName) return true end
+
+---@param spellName string
+PickupSpell = function(spellName) end
+
+---@param sequenceName string
+---@return string
+QueryCastSequence = function(sequenceName) return "" end
+
+---@param spellName string
+---@param totemIndex number
+SetMultiCastSpell = function(spellName, totemIndex) end
+
+---@param unit string
+---@param spellName string
+---@return boolean
+SpellCanTargetUnit = function(unit, spellName) return true end
+
+---@param spellName string
+---@return boolean
+SpellHasRange = function(spellName) return true end
+
+---@return boolean
+SpellIsTargeting = function() return true end
+
+---@return boolean
+SpellStopCasting = function() return true end
+
+---@return boolean
+SpellStopTargeting = function() return true end
+
+---@param unit string
+SpellTargetUnit = function(unit) end
+
+ToggleSpellAutocast = function() end
+
+---@return string, string, number, number, boolean, string
+UnitCastingInfo = function() return "", "", 0, 0, false, "" end
+
+---@return string, string, number, number, boolean, string
+UnitChannelInfo = function() return "", "", 0, 0, false, "" end
+
+---@param command string
+ConsoleExec = function(command) end
+
+---@return string, string, string, string
+GetBuildInfo = function() return "", "", "", "" end
+
+---@return number
+GetFramerate = function() return 0 end
+
+---@return number, number
+GetGameTime = function() return 0, 0 end
+
+---@return string
+GetLocale = function() return "" end
+
+---@return number, number
+GetCursorPosition = function() return 0, 0 end
+
+---@return number, number, number, number
+GetNetStats = function() return 0, 0, 0, 0 end
+
+---@return string
+GetRealmName = function() return "" end
+
+---@return number
+GetScreenHeight = function() return 0 end
+
+---@return number
+GetScreenWidth = function() return 0 end
+
+---@param frame string
+---@return string
+GetText = function(frame) return "" end
+
+---@return number
+GetTime = function() return 0 end
+
+---@return boolean
+IsAltKeyDown = function() return true end
+
+---@return boolean
+InCinematic = function() return true end
+
+---@return boolean
+IsControlKeyDown = function() return true end
+
+---@return boolean
+DetectWowMouse = function() return true end
+
+---@return function
+geterrorhandler = function() return function() end end
+
+---@return number
+GetAddOnCPUUsage = function() return 0 end
+
+LeaveLFG = function() end
+
+RequestLFDPartyLockInfo = function() end
+
+---@return number
+GetAddOnMemoryUsage = function() return 0 end
+
+---@return number
+GetEventCPUUsage = function() return 0 end
+
+---@return number
+GetFrameCPUUsage = function() return 0 end
+
+---@param dungeonID number
+LFGGetDungeonInfoByID = function(dungeonID) end
+
+RefreshLFGList = function() end
+
+---@param questID number
+---@return boolean
+QuestIsWeekly = function(questID) return true end
+
+---@param unit string
+ClearRaidMarker = function(unit) end
+
+ConvertToRaid = function() end
+
+ConvertToParty = function() end
+
+---@return table
+GetCurrentKeyBoardFocus = function() return {} end
+
+---@return table
+GetExistingLocales = function() return {} end
+
+---@return boolean
+IsDebugBuild = function() return true end
+
+---@return boolean
+IsDesaturateSupported = function() return true end
+
+---@return boolean
+IsLeftAltKeyDown = function() return true end
+
+---@return boolean
+IsLeftControlKeyDown = function() return true end
+
+---@return boolean
+IsLeftShiftKeyDown = function() return true end
+
+---@return boolean
+IsLinuxClient = function() return true end
+
+---@return boolean
+function ZoomOut() return true end
+
+---@param scale number
+function SetupFullscreenScale(scale) end
+
+---@param highlightType string
+---@param texturePath string
+---@param textureX number
+---@param textureY number
+---@param pulseTexturePath string
+---@param pulseTextureX number
+---@param pulseTextureY number
+function UpdateMapHighlight(highlightType, texturePath, textureX, textureY, pulseTexturePath, pulseTextureX, pulseTextureY) end
+
+---@return table
+function CreateWorldMapArrowFrame() return {} end
+
+---@param arrowFrame table
+---@param playerX number
+---@param playerY number
+function UpdateWorldMapArrowFrames(arrowFrame, playerX, playerY) end
+
+---@param arrowFrame table
+function ShowWorldMapArrowFrame(arrowFrame) end
+
+---@return boolean
+function IsLoggedIn() return true end
+
+---@return boolean
+function IsMacClient() return true end
+
+---@return boolean
+function IsRightAltKeyDown() return true end
+
+---@return boolean
+function IsRightControlKeyDown() return true end
+
+---@return boolean
+function IsRightShiftKeyDown() return true end
+
+---@return boolean
+function IsShiftKeyDown() return true end
+
+---@return boolean
+function IsStereoVideoAvailable() return true end
+
+---@return boolean
+function IsWindowsClient() return true end
+
+---@param cinematicIndex number
+function OpeningCinematic(cinematicIndex) end
+
+---@param musicFile string
+function PlayMusic(musicFile) end
+
+---fire SOUNDKIT_FINISHED if runFinishCallback is true
+---@param soundFile string
+---@param channel string?
+---@param forceNoDuplicates boolean?
+---@param runFinishCallback boolean?
+---@return boolean bWillPlay
+---@return number soundHandle
+function PlaySound(soundFile, channel, forceNoDuplicates, runFinishCallback) return true, 0 end
+
+---@param soundFile string
+---@param channel string?
+---@return boolean bWillPlay
+---@return number soundHandle
+function PlaySoundFile(soundFile, channel) return true, 0 end
+
+---@param soundHandle number
+---@param fadeOutTime number?
+function StopSound(soundHandle, fadeOutTime) end
+
+---@param soundId string|number
+function MuteSoundFile(soundId) end
+
+---@param soundId string|number
+function UnmuteSoundFile(soundId) end
+
+function ReloadUI() end
+
+function RepopMe() end
+
+---@return number, number, number, number
+function RequestTimePlayed() return 0, 0, 0, 0 end
+
+function RestartGx() end
+
+---@param script string
+function RunScript(script) end
+
+function Screenshot() end
+
+---@param autoDecline boolean
+function SetAutoDeclineGuildInvites(autoDecline) end
+
+---@param errorHandler function
+function seterrorhandler(errorHandler) end
+
+function StopCinematic() end
+
+function StopMusic() end
+
+---@param addonName string
+function UIParentLoadAddOn(addonName) end
+
+---@param delay number
+function TakeScreenshot(delay) end
+
+---@param trainerIndex number
+---@param talentIndex number
+function BuyTrainerService(trainerIndex, talentIndex) end
+
+---@return number, number
+function CheckTalentMasterDist() return 0, 0 end
+
+function ConfirmTalentWipe() end
+
+---@return number
+function GetActiveTalentGroup() return 0 end
+
+---@return number
+function GetNumTalentTabs() return 0 end
+
+---@param tabIndex number
+---@return number
+function GetNumTalents(tabIndex) return 0 end
+
+---@param tabIndex number
+---@param talentIndex number
+---@param isInspect boolean
+---@return string, string, string, number, number, boolean
+function GetTalentInfo(tabIndex, talentIndex, isInspect) return "", "", "", 0, 0, true end
+
+---@param tabIndex number
+---@param talentIndex number
+---@param isInspect boolean
+---@return string
+function GetTalentLink(tabIndex, talentIndex, isInspect) return "" end
+
+---@param tabIndex number
+---@param talentIndex number
+---@param isInspect boolean
+---@return number
+function GetTalentPrereqs(tabIndex, talentIndex, isInspect) return 0 end
+
+---@param tabIndex number
+---@return string, string, number, number, number, number
+function GetTalentTabInfo(tabIndex) return "", "", 0, 0, 0, 0 end
+
+---@param tabIndex number
+---@param talentIndex number
+function LearnTalent(tabIndex, talentIndex) end
+
+---@param talentGroup number
+function SetActiveTalentGroup(talentGroup) end
+
+---@return number
+function GetNumTalentGroups() return 0 end
+
+---@return number
+function GetActiveTalentGroup() return 0 end
+
+---@param amount number
+function AddPreviewTalentPoints(amount) end
+
+---@param talentGroup number
+---@return number
+function GetGroupPreviewTalentPointsSpent(talentGroup) return 0 end
+
+---@return number
+function GetPreviewTalentPointsSpent() return 0 end
+
+---@return number
+function GetUnspentTalentPoints() return 0 end
+
+function LearnPreviewTalents() end
+
+---@param talentGroup number
+function ResetGroupPreviewTalentPoints(talentGroup) end
+
+function ResetPreviewTalentPoints() end
+
+---@param unit string
+function AssistUnit(unit) end
+
+function AttackTarget() end
+
+function ClearTarget() end
+
+function ClickTargetTradeButton() end
+
+function TargetLastEnemy() end
+
+function TargetLastTarget() end
+
+function TargetNearestEnemy() end
+
+function TargetNearestEnemyPlayer() end
+
+function TargetNearestFriend() end
+
+function TargetNearestFriendPlayer() end
+
+function TargetNearestPartyMember() end
+
+function TargetNearestRaidMember() end
+
+---@param unit string
+function TargetUnit(unit) end
+
+function ToggleBackpack() end
+
+function ToggleBag() end
+
+function ToggleCharacter() end
+
+function ToggleFriendsFrame() end
+
+function ToggleSpellBook() end
+
+function TradeSkill() end
+
+function CloseTradeSkill() end
+
+---@param index number
+function CollapseTradeSkillSubClass(index) end
+
+---@param amount number
+function PickupPlayerMoney(amount) end
+
+---@param amount number
+function PickupTradeMoney(amount) end
+
+---@param money number
+function SetTradeMoney(money) end
+
+---@param slotId number
+function ReplaceTradeEnchant(slotId) end
+
+---@param unit string
+function AssistUnit(unit) end
+
+---@param unit string
+---@param maxDistance number
+---@return boolean
+function CheckInteractDistance(unit, maxDistance) return true end
+
+---@param itemName string
+---@param unit string
+function DropItemOnUnit(itemName, unit) end
+
+---@param unit string
+function FollowUnit(unit) end
+
+---@param unit string
+function FocusUnit(unit) end
+
+function ClearFocus() end
+
+---@param unit string
+---@return string
+function GetUnitName(unit) return "" end
+
+---@param unit string
+---@return number
+function GetUnitPitch(unit) return 0 end
+
+---@param unit string
+---@return number
+function GetUnitSpeed(unit) return 0 end
+
+---@param unit string
+function InviteUnit(unit) end
+
+---@param unit string
+---@param questID number
+---@return boolean
+function IsUnitOnQuest(unit, questID) return true end
+
+---@param spellNameOrID string|number
+---@param unit string
+---@return boolean
+function SpellCanTargetUnit(spellNameOrID, unit) return true end
+
+---@param unit string
+function SpellTargetUnit(unit) end
+
+---@param unit string
+function TargetUnit(unit) end
+
+---@param unit string
+---@return boolean
+function UnitAffectingCombat(unit) return true end
+
+---@param unit string
+---@return number
+function UnitArmor(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitAttackBothHands(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitAttackPower(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitAttackSpeed(unit) return 0 end
+
+---@param unit string
+---@param index number
+---@param filter string|nil
+---@return string, number, string, number, number, string
+function UnitAura(unit, index, filter) return "", 0, "", 0, 0, "" end
+
+---@param unit string
+---@param index number
+---@param filter string|nil
+---@return string, number, string, number, number, string
+function UnitBuff(unit, index, filter) return "", 0, "", 0, 0, "" end
+
+---@param unit string
+---@return boolean
+function UnitCanAssist(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitCanAttack(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitCanCooperate(unit) return true end
+
+---@param unit string
+---@return string, string
+function UnitClass(unit) return "", "" end
+
+---@param unit string
+---@return string
+function UnitClassification(unit) return "" end
+
+---@param unit string
+---@return string
+function UnitCreatureFamily(unit) return "" end
+
+---@param unit string
+---@return string
+function UnitCreatureType(unit) return "" end
+
+---@param unit string
+---@return number, number, number, number
+function UnitDamage(unit) return 0, 0, 0, 0 end
+
+---@param unit string
+---@param index number
+---@param filter string|nil
+---@return string, number, string, number, number, string
+function UnitDebuff(unit, index, filter) return "", 0, "", 0, 0, "" end
+
+---@param unit string
+---@return number
+function UnitDefense(unit) return 0 end
+
+---@param unit string
+---@param mobUnit string
+---@return number, string, number, number, number
+function UnitDetailedThreatSituation(unit, mobUnit) return 0, "", 0, 0, 0 end
+
+---@param unit string
+---@return boolean
+function UnitExists(unit) return true end
+
+---@param unit string
+---@return string
+function UnitFactionGroup(unit) return "" end
+
+---@param unit string
+---@return string
+function UnitGUID(unit) return "" end
+
+---@param guid string
+---@return string, string, string, string
+function GetPlayerInfoByGUID(guid) return "", "", "", "" end
+
+---@param unit string
+---@return boolean
+function UnitHasLFGDeserter(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitHasLFGRandomCooldown(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitHasRelicSlot(unit) return true end
+
+---@param unit string
+---@return number
+function UnitHealth(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitHealthMax(unit) return 0 end
+
+---@param unit string
+---@return boolean
+function UnitInParty(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitInRaid(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitInBattleground(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsInMyGuild(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitInRange(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsAFK(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsCharmed(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsConnected(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsCorpse(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsDead(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsDeadOrGhost(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsDND(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsEnemy(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsFeignDeath(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsFriend(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsGhost(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsPVP(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsPVPFreeForAll(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsPVPSanctuary(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsPartyLeader(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsPlayer(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsPossessed(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsRaidOfficer(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsSameServer(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsTapped(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsTappedByPlayer(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsTappedByAllThreatList(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsTrivial(unit) return true end
+
+---@param unit1 string
+---@param unit2 string
+---@return boolean
+function UnitIsUnit(unit1, unit2) return true end
+
+---@param unit string
+---@return boolean
+function UnitIsVisible(unit) return true end
+
+---@param unit string
+---@return number
+function UnitLevel(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitMana(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitManaMax(unit) return 0 end
+
+---@param unit string
+---@return string
+function UnitName(unit) return "" end
+
+---@param unit string
+---@return boolean
+function UnitOnTaxi(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitPlayerControlled(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitPlayerOrPetInParty(unit) return true end
+
+---@param unit string
+---@return boolean
+function UnitPlayerOrPetInRaid(unit) return true end
+
+---@param unit string
+---@return string
+function UnitPVPName(unit) return "" end
+
+---@param unit string
+---@return number
+function UnitPVPRank(unit) return 0 end
+
+---@param unit string
+---@param powerType number
+---@return number
+function UnitPower(unit, powerType) return 0 end
+
+---@param unit string
+---@param powerType number
+---@return number
+function UnitPowerMax(unit, powerType) return 0 end
+
+---@param unit string
+---@param powerType number
+---@return number
+function UnitPowerType(unit, powerType) return 0 end
+
+---@param unit string
+---@return string
+function UnitRace(unit) return "" end
+
+---@param unit string
+function UnitRangedAttack(unit) end
+
+---@param unit string
+---@return number
+function UnitRangedAttackPower(unit) return 0 end
+
+---@param unit string
+---@return number, number
+function UnitRangedDamage(unit) return 0, 0 end
+
+---@param unit string
+---@param otherUnit string
+---@return number
+function UnitReaction(unit, otherUnit) return 0 end
+
+---@param unit string
+---@param school number
+---@return number
+function UnitResistance(unit, school) return 0 end
+
+---@param unit string
+---@return number, number, number, number
+function UnitSelectionColor(unit) return 0, 0, 0, 0 end
+
+---@param unit string
+---@return number
+function UnitSex(unit) return 0 end
+
+---@param unit string
+---@param index number
+---@return number
+function UnitStat(unit, index) return 0 end
+
+---@param unit string
+---@param mobUnit string
+---@return number, string, number, number, number
+function UnitThreatSituation(unit, mobUnit) return 0, "", 0, 0, 0 end
+
+---@param unit string
+---@return boolean
+function UnitUsingVehicle(unit) return true end
+
+---@param status number
+---@return number, number, number
+function GetThreatStatusColor(status) return 0, 0, 0 end
+
+---@param unit string
+---@return number
+function UnitXP(unit) return 0 end
+
+---@param unit string
+---@return number
+function UnitXPMax(unit) return 0 end
+
+---@param frame table
+---@param texture string
+function SetPortraitTexture(frame, texture) end
+
+---@param frame table
+---@param texture string
+function SetPortraitToTexture(frame, texture) end
+
+---@param table table
+---@param value any
+function tinsert(table, value) end

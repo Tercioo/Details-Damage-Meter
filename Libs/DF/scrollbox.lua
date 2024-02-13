@@ -334,11 +334,11 @@ local grid_scrollbox_options = {
 ---create a scrollbox with a grid layout
 ---@param parent frame
 ---@param name string
----@param refreshFunc function
+---@param refreshFunc fun(button:frame, data:table)
 ---@param data table
----@param createColumnFrameFunc function
+---@param createColumnFrameFunc fun(line:frame, lineIndex:number, columnIndex:number)
 ---@param options df_gridscrollbox_options?
----@return unknown
+---@return df_gridscrollbox
 function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, createColumnFrameFunc, options)
     options = options or {}
 
@@ -428,25 +428,117 @@ function detailsFramework:CreateGridScrollBox(parent, name, refreshFunc, data, c
     scrollBox.OnSetData = onSetData
     onSetData(scrollBox, data)
 
+	---@cast scrollBox df_gridscrollbox
 	return scrollBox
 end
 
-function detailsFramework.CreateRoundedOptionsScrollBox(parent, name, onRefreshButton, onSelectOption, tbdData, createSelectorButton, gridScrollBoxOptions)
+---create a scrollbox with a grid layout to be used as a menu
+---@param parent frame
+---@param name string?
+---@param refreshMeFunc fun(gridScrollBox:df_gridscrollbox, searchText:string)
+---@param refreshButtonFunc fun(button:button, data:table)
+---@param clickFunc fun(button:button, data:table)
+---@param onCreateButton fun(button:button, lineIndex:number, columnIndex:number)
+---@param gridScrollBoxOptions df_gridscrollbox_options
+---@return df_gridscrollbox
+function detailsFramework:CreateMenuWithGridScrollBox(parent, name, refreshMeFunc, refreshButtonFunc, clickFunc, onCreateButton, gridScrollBoxOptions)
+	local dataSelected = nil
+	local gridScrollBox
+
+	local onClickButtonSelectorButton = function(blizzButton, buttonDown, dfButton, data)
+		dataSelected = data
+		gridScrollBox:Refresh()
+		xpcall(clickFunc, geterrorhandler(), dfButton, data)
+	end
+
+    --create a search bar to filter the auras
+    local searchText = ""
+    local onSearchTextChangedCallback = function(self, ...)
+        local text = self:GetText()
+        searchText = string.lower(text)
+        dataSelected = nil
+        gridScrollBox:RefreshMe()
+    end
+
+	local searchBox = detailsFramework:CreateSearchBox(parent, onSearchTextChangedCallback)
+
 	---when the scroll is refreshing the line, the line will call this function for each selection button on it
     ---@param button df_button
     ---@param data table
-    local refreshAuraSelectorFrame = function(button, data)
+    local refreshLine = function(button, data)
         button.data = data
 
 		if (data.tooltip) then
 			button.tooltip = data.tooltip
 		end
 
-		xpcall(onRefreshButton, geterrorhandler(), button, data)
-
         --set what happen when the user clicks the button
-        button:SetClickFunction(onSelectOption, button, data)
+        button:SetClickFunction(onClickButtonSelectorButton, button, data)
+
+		if (button.data == dataSelected) then
+			button.widget:SetBorderCornerColor(.9, .9, .9)
+		else
+			button.widget:SetBorderCornerColor(unpack(gridScrollBoxOptions.roundedFramePreset.border_color))
+		end
+
+		xpcall(refreshButtonFunc, geterrorhandler(), button, data)
     end
+
+	--create a line
+    local createButton = function(line, lineIndex, columnIndex)
+        local width = gridScrollBoxOptions.width / gridScrollBoxOptions.columns_per_line - 5
+        local height = gridScrollBoxOptions.line_height
+        if (not height) then
+            height = 30
+        end
+
+        local button = detailsFramework:CreateButton(line, onClickButtonSelectorButton, width, height)
+        detailsFramework:AddRoundedCornersToFrame(button.widget, gridScrollBoxOptions.roundedFramePreset)
+        button.textsize = 11
+
+        button:SetHook("OnEnter", function(self)
+            local dfButton = self:GetObject()
+            GameCooltip:Reset()
+			if (dfButton.spellId) then
+            	GameCooltip:SetSpellByID(dfButton.spellId)
+				GameCooltip:SetOwner(self)
+				GameCooltip:Show()
+			end
+            self:SetBorderCornerColor(.9, .9, .9)
+        end)
+
+        button:SetHook("OnLeave", function(self)
+            GameCooltip:Hide()
+            local dfButton = self:GetObject()
+			if (dfButton.data == dataSelected) then
+				self:SetBorderCornerColor(.9, .9, .9)
+			else
+            	self:SetBorderCornerColor(unpack(gridScrollBoxOptions.roundedFramePreset.border_color))
+			end
+        end)
+
+		xpcall(onCreateButton, geterrorhandler(), button, lineIndex, columnIndex)
+
+        return button
+    end
+
+    gridScrollBox = detailsFramework:CreateGridScrollBox(parent, name, refreshLine, {}, createButton, gridScrollBoxOptions)
+    gridScrollBox:SetBackdrop({})
+    gridScrollBox:SetBackdropColor(0, 0, 0, 0)
+    gridScrollBox:SetBackdropBorderColor(0, 0, 0, 0)
+    gridScrollBox.__background:Hide()
+    gridScrollBox:Show()
+
+	gridScrollBox.searchBox = searchBox
+
+	searchBox:SetPoint("bottomleft", gridScrollBox, "topleft", 0, 2)
+	searchBox:SetWidth(gridScrollBoxOptions.width)
+
+	function gridScrollBox:RefreshMe()
+		xpcall(refreshMeFunc, geterrorhandler(), gridScrollBox, searchBox:GetText())
+	end
+
+	return gridScrollBox
 end
 
 --Need to test this and check the "same_name_spells_add(value)" on the OnEnter function

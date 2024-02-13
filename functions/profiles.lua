@@ -1606,7 +1606,7 @@ local default_global_data = {
 			last_mythicrun_chart = {},
 			mythicrun_chart_frame = {},
 			mythicrun_chart_frame_minimized = {},
-			mythicrun_chart_frame_ready = {},
+			finished_run_frame = {}, --end of mythic+ panel
 
 			mythicrun_time_type = 1, --1: combat time (the amount of time the player is in combat) 2: run time (the amount of time it took to finish the mythic+ run)
 		}, --implementar esse time_type quando estiver dando refresh na janela
@@ -2003,7 +2003,7 @@ function Details:ImportProfile (profileString, newProfileName, bImportAutoRunCod
 		mythicPlusSettings.last_mythicrun_chart = {}
 		mythicPlusSettings.mythicrun_chart_frame = {}
 		mythicPlusSettings.mythicrun_chart_frame_minimized = {}
-		mythicPlusSettings.mythicrun_chart_frame_ready = {}
+		mythicPlusSettings.finished_run_frame = {}
 
 		--make the max amount of segments be 30
 		Details.segments_amount = 40

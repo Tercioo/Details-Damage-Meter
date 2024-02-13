@@ -458,17 +458,17 @@
 	---@return {key1: unixtime, key2: spellid}
 	---@return specializationid specId
 	function Details:UnpackDeathTable(deathTable)
-		local deathevents = deathTable[1]
-		local deathtime = deathTable[2]
-		local playername = deathTable[3]
-		local playerclass = deathTable[4]
-		local playermaxhealth = deathTable[5]
-		local deathtimestring = deathTable[6]
-		local lastcooldown = deathTable.last_cooldown
-		local deathcombattime = deathTable.dead_at
+		local deathEvents = deathTable[1]
+		local deathTime = deathTable[2]
+		local playerName = deathTable[3]
+		local playerClass = deathTable[4]
+		local playerMaxHealth = deathTable[5]
+		local deathTimeString = deathTable[6]
+		local lastCooldown = deathTable.last_cooldown
+		local deathCombatTime = deathTable.dead_at
 		local spec = deathTable.spec
 
-		return playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown, spec
+		return playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec
 	end
 
 	---get a random fraction number

@@ -327,8 +327,18 @@ function Details.Sort4Reverse(table1, table2) --[[exported]]
 	return table1[4] < table2[4]
 end
 
-function Details:GetTextColor(instanceObject, actorObject)
-	if (instanceObject.row_info.textL_class_colors) then
+function Details:GetTextColor(instanceObject, textSide)
+	local actorObject = self
+	textSide = textSide or "left"
+
+	local bUseClassColor = false
+	if (textSide == "left") then
+		bUseClassColor = instanceObject.row_info.textL_class_colors
+	elseif (textSide == "right") then
+		bUseClassColor = instanceObject.row_info.textR_class_colors
+	end
+
+	if (bUseClassColor) then
 		return unpack(Details.class_colors[actorObject.classe or "UNKNOW"])
 	else
 		return unpack(instanceObject.row_info.fixed_text_color)
@@ -3179,9 +3189,12 @@ function Details:SetBarLeftText(bar, instance, enemy, arenaEnemy, arenaAlly, usi
 		barNumber = bar.colocacao .. ". "
 	end
 
-	--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
 	if (instance.row_info.textL_translit_text) then
-		self.displayName = Translit:Transliterate(self.displayName, "!")
+		if (not self.transliteratedName) then
+			--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
+			self.transliteratedName = Translit:Transliterate(self.displayName, "!")
+		end
+		self.displayName = self.transliteratedName or self.displayName
 	end
 
 	if (enemy) then
@@ -3282,12 +3295,12 @@ function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]] --~color
 	end
 
 	if (instance.row_info.textL_class_colors) then
-		local textColor_Red, textColor_Green, textColor_Blue = Details:GetTextColor(instance, self)
+		local textColor_Red, textColor_Green, textColor_Blue = self:GetTextColor(instance, "left")
 		bar.lineText1:SetTextColor(textColor_Red, textColor_Green, textColor_Blue) --the r, g, b color passed are the color used on the bar, so if the bar is not using class color, the text is painted with the fixed color for the bar
 	end
 
 	if (instance.row_info.textR_class_colors) then
-		local textColor_Red, textColor_Green, textColor_Blue = Details:GetTextColor(instance, self)
+		local textColor_Red, textColor_Green, textColor_Blue = self:GetTextColor(instance, "right")
 		bar.lineText2:SetTextColor(textColor_Red, textColor_Green, textColor_Blue)
 		bar.lineText3:SetTextColor(textColor_Red, textColor_Green, textColor_Blue)
 		bar.lineText4:SetTextColor(textColor_Red, textColor_Green, textColor_Blue)

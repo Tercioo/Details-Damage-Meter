@@ -574,55 +574,85 @@ function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instance)
 	return _detalhes:Reportar (report_table, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
+---index[1] is the death log
+---index[2] is the death time
+---index[3] is the name of the player
+---index[4] is the class of the player
+---index[5] is the max health
+---index[6] is the time of the fight as string
+---@field death boolean
+---@field last_cooldown table
+---@field dead_at number --combat time when the player died
+---@field spec number
+
 ---update a row in an instance (window) showing death logs
----@param morte table
+---@param deathTable table
 ---@param whichRowLine number
 ---@param rankPosition number
----@param instance table
-function atributo_misc:UpdateDeathRow(morte, whichRowLine, rankPosition, instance) --todo: change this function name
-	morte["dead"] = true
-	local thisRow = instance.barras[whichRowLine]
+---@param instanceObject table
+function atributo_misc:UpdateDeathRow(deathTable, whichRowLine, rankPosition, instanceObject) --todo: change this function name
+	local playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec = Details:UnpackDeathTable(deathTable)
+
+	deathTable["dead"] = true
+	local thisRow = instanceObject.barras[whichRowLine]
 
 	if (not thisRow) then
 		print("DEBUG: problema com <instancia.esta_barra> "..whichRowLine.." "..rankPosition)
 		return
 	end
 
-	thisRow.minha_tabela = morte
+	thisRow.minha_tabela = deathTable
 
-	morte.nome = morte[3] --void an issue while resizing the window
-	morte.minha_barra = whichRowLine
+	deathTable.nome = playerName
+	deathTable.minha_barra = whichRowLine
 	thisRow.colocacao = rankPosition
 
-	if (not getmetatable(morte)) then
-		setmetatable(morte, {__call = RefreshBarraMorte})
-		morte._custom = true
+	if (not getmetatable(deathTable)) then
+		setmetatable(deathTable, {__call = RefreshBarraMorte})
+		deathTable._custom = true
 	end
 
-	thisRow.lineText1:SetText(rankPosition .. ". " .. morte[3]:gsub(("%-.*"), ""))
+	local bUseCustomLeftText = instanceObject.row_info.textL_enable_custom_text
+
+	local actorObject = instanceObject:GetCombat():GetContainer(DETAILS_ATTRIBUTE_MISC):GetActor(playerName)
+	if (actorObject) then
+		actorObject:SetBarLeftText(thisRow, instanceObject, false, false, false, bUseCustomLeftText)
+	else
+		Details:SetBarLeftText(thisRow, instanceObject, false, false, false, bUseCustomLeftText)
+	end
+
+	if (instanceObject.row_info.textL_class_colors) then
+		local textColor_Red, textColor_Green, textColor_Blue = actorObject:GetTextColor(instanceObject, "left")
+		thisRow.lineText1:SetTextColor(textColor_Red, textColor_Green, textColor_Blue) --the r, g, b color passed are the color used on the bar, so if the bar is not using class color, the text is painted with the fixed color for the bar
+	end
+
+	if (instanceObject.row_info.textR_class_colors) then
+		local textColor_Red, textColor_Green, textColor_Blue = actorObject:GetTextColor(instanceObject, "right")
+		thisRow.lineText4:SetTextColor(textColor_Red, textColor_Green, textColor_Blue) --the r, g, b color passed are the color used on the bar, so if the bar is not using class color, the text is painted with the fixed color for the bar
+	end
+
 	thisRow.lineText2:SetText("")
 	thisRow.lineText3:SetText("")
-	thisRow.lineText4:SetText(morte[6])
+	thisRow.lineText4:SetText(deathTimeString)
+
+	local r, g, b, a = actorObject:GetBarColor()
+	actorObject:SetBarColors(thisRow, instanceObject, r, g, b, a)
 
 	thisRow:SetValue(100)
 	if (thisRow.hidden or thisRow.fading_in or thisRow.faded) then
 		Details.FadeHandler.Fader(thisRow, "out")
 	end
 
-	--seta a cor da barra e a cor do texto caso eles esteja mostrando com a cor da classe
-	local r, g, b, a = unpack(_detalhes.class_colors[morte[4]])
-	_detalhes:SetBarColors(thisRow, instance, r, g, b, a)
-
-	if (instance.row_info.use_spec_icons) then
-		local nome = morte[3]
-		local spec = instance.showing (1, nome) and instance.showing (1, nome).spec or (instance.showing (2, nome) and instance.showing (2, nome).spec)
+	if (instanceObject.row_info.use_spec_icons) then
+		local nome = deathTable[3]
+		local spec = instanceObject.showing (1, nome) and instanceObject.showing (1, nome).spec or (instanceObject.showing (2, nome) and instanceObject.showing (2, nome).spec)
 		if (spec and spec ~= 0) then
-			thisRow.icone_classe:SetTexture(instance.row_info.spec_file)
+			thisRow.icone_classe:SetTexture(instanceObject.row_info.spec_file)
 			thisRow.icone_classe:SetTexCoord(unpack(_detalhes.class_specs_coords[spec]))
 		else
-			if (CLASS_ICON_TCOORDS [morte[4]]) then
-				thisRow.icone_classe:SetTexture(instance.row_info.icon_file)
-				thisRow.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
+			if (CLASS_ICON_TCOORDS [deathTable[4]]) then
+				thisRow.icone_classe:SetTexture(instanceObject.row_info.icon_file)
+				thisRow.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [deathTable[4]]))
 			else
 				local texture, l, r, t, b = Details:GetUnknownClassIcon()
 				thisRow.icone_classe:SetTexture(texture)
@@ -630,9 +660,9 @@ function atributo_misc:UpdateDeathRow(morte, whichRowLine, rankPosition, instanc
 			end
 		end
 	else
-		if (CLASS_ICON_TCOORDS [morte[4]]) then
-			thisRow.icone_classe:SetTexture(instance.row_info.icon_file)
-			thisRow.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [morte[4]]))
+		if (CLASS_ICON_TCOORDS [deathTable[4]]) then
+			thisRow.icone_classe:SetTexture(instanceObject.row_info.icon_file)
+			thisRow.icone_classe:SetTexCoord(unpack(CLASS_ICON_TCOORDS [deathTable[4]]))
 		else
 			local texture, l, r, t, b = Details:GetUnknownClassIcon()
 			thisRow.icone_classe:SetTexture(texture)
@@ -642,8 +672,8 @@ function atributo_misc:UpdateDeathRow(morte, whichRowLine, rankPosition, instanc
 
 	thisRow.icone_classe:SetVertexColor(1, 1, 1)
 
-	if (thisRow.mouse_over and not instance.baseframe.isMoving) then --precisa atualizar o tooltip
-		gump:UpdateTooltip (whichRowLine, thisRow, instance)
+	if (thisRow.mouse_over and not instanceObject.baseframe.isMoving) then --precisa atualizar o tooltip
+		gump:UpdateTooltip (whichRowLine, thisRow, instanceObject)
 	end
 
 	thisRow.lineText1:SetSize(thisRow:GetWidth() - thisRow.lineText4:GetStringWidth() - 20, 15)

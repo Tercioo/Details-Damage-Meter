@@ -1372,15 +1372,14 @@ function healingClass:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 	--TOP Curados
 	ActorSkillsContainer = self.targets
-	for target_name, amount in pairs(ActorSkillsContainer) do
+	for targetName, amount in pairs(ActorSkillsContainer) do
 		if (amount > 0) then
-
 			--translate cyrillic alphabet to western alphabet by Vardex (https://github.com/Vardex May 22, 2019)
 			if (instancia.row_info.textL_translit_text) then
-				target_name = Translit:Transliterate(target_name, "!")
+				targetName = Translit:Transliterate(targetName, "!")
 			end
 
-			tinsert(ActorHealingTargets, {target_name, amount, amount / ActorTotal * 100})
+			tinsert(ActorHealingTargets, {targetName, amount, amount / ActorTotal * 100})
 		end
 	end
 	_table_sort (ActorHealingTargets, _detalhes.Sort2)

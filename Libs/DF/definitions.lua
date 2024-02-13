@@ -103,7 +103,7 @@
 ---@field GroupIterator fun(self:table, callback:function, ...) iterate over the group, calling the callback function for each group member
 ---@field CommaValue fun(self:table, value:number) : string convert a number to a string with commas, e.g. 1000000 -> 1,000,000
 ---@field SplitTextInLines fun(self:table, text:string) : string[] split a text into lines
----@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean, specId: specializationid) : string there's no self here
+---@field UnitGroupRolesAssigned fun(unitId: unit, bUseSupport:boolean?, specId: specializationid?) : string there's no self here
 ---@field SetAnchor fun(self:table, widget:uiobject, anchorTable:df_anchor, anchorTo:uiobject?) only adjust the anchors of a widget, does not save values
 ---@field AddTextureToText fun(text:string, textureInfo:table, bAddSpace:boolean?, bAddAfterText:boolean) : string textureInfo is a table with .texture .width .height .coords{left, right, top, bottom}
 ---@field CreateTextureInfo fun(texture:atlasname|texturepath|textureid, width:number?, height:number?, left:number?, right:number?, top:number?, bottom:number?, imageWidthnumber?, imageHeightnumber?) : table
@@ -112,6 +112,8 @@
 ---@field CreateDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateFontDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateColorDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
+---@field CreateOutlineDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
+---@field CreateAnchorPointDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateFontListGenerator fun(self:table, callback:function) : function return a function which when called returns a table filled with all fonts available and ready to be used on dropdowns
 ---@field CreateTextEntry fun(self:table, parent:frame, textChangedCallback:function, width:number, height:number, member:string?, name:string?, labelText:string?, textentryTemplate:table?, labelTemplate:table?) : df_textentry
 ---@field ReskinSlider fun(self:table, slider:frame)
@@ -146,5 +148,9 @@
 ---@field CreateEditor fun(self:table, parent:frame, name:string?, options:df_editor_defaultoptions?) : df_editor
 ---@field RandomBool fun(self:table, odds: number?) : boolean return a random boolean
 ---@field CreateHighlightTexture fun(self:table, parent:frame, parentKey:string?, alpha:number?, name:string?) : texture
+---@field CreateIconRowGeneric fun(self:table, parent:frame, name:string?, options:table?)
+---@field CreateColorPickButton fun(self:table, parent:frame, name:string?, member:string?, callback:function, alpha:number?, buttonTemplate:table?) : df_button
+---@field CreateSlider fun(self:table, parent:frame, width:number?, height:number?, minValue:number?, maxValue:number?, step:number?, defaultv:number?, isDecemal:boolean?, member:string?, name:string?, label:string?, sliderTemplate:string|table?, labelTemplate:string|table?) : df_slider, df_label?
 ---@field 
-
+---@field 
+---@field 

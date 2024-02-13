@@ -722,6 +722,51 @@ function detailsFramework:NewTextEntry(parent, container, name, member, width, h
 	return newTextEntryObject, withLabel
 end
 
+---create a search box with no backdrop, a magnifying glass icon and a clear search button
+---@param parent frame
+---@param callback any
+---@return df_textentry
+function detailsFramework:CreateSearchBox(parent, callback)
+    local onSearchPressEnterCallback = function(_, _, text, self)
+        callback(self)
+    end
+
+    local searchBox = detailsFramework:CreateTextEntry(parent, onSearchPressEnterCallback, 220, 26)
+    searchBox:SetAsSearchBox()
+    searchBox:SetTextInsets(25, 5, 0, 0)
+    searchBox:SetBackdrop(nil)
+    searchBox:SetHook("OnTextChanged", callback)
+
+    local file, size, flags = searchBox:GetFont()
+    searchBox:SetFont(file, 12, flags)
+    searchBox.ClearSearchButton:SetAlpha(0)
+
+    searchBox.BottomLineTexture = searchBox:CreateTexture(nil, "border")
+    searchBox.BottomLineTexture:SetPoint("bottomleft", searchBox.widget, "bottomleft", -15, 0)
+    searchBox.BottomLineTexture:SetPoint("bottomright", searchBox.widget, "bottomright", 0, 0)
+	local bUseAtlasSize = false
+    searchBox.BottomLineTexture:SetAtlas("common-slider-track")
+    searchBox.BottomLineTexture:SetHeight(8)
+
+	--create the button to clear the search box
+	searchBox.ClearSearchButton = CreateFrame("button", nil, searchBox.widget, "UIPanelCloseButton")
+	searchBox.ClearSearchButton:SetPoint("right", searchBox.widget, "right", -3, 0)
+	searchBox.ClearSearchButton:SetSize(10, 10)
+	searchBox.ClearSearchButton:SetAlpha(0.3)
+	searchBox.ClearSearchButton:GetNormalTexture():SetAtlas("common-search-clearbutton")
+	searchBox.ClearSearchButton:GetHighlightTexture():SetAtlas("common-search-clearbutton")
+	searchBox.ClearSearchButton:GetPushedTexture():SetAtlas("common-search-clearbutton")
+
+	searchBox.ClearSearchButton:SetScript("OnClick", function()
+		searchBox:SetText("")
+		searchBox:PressEnter()
+		searchBox:ClearFocus()
+	end)
+
+    return searchBox
+end
+
+
 function detailsFramework:NewSpellEntry(parent, func, width, height, param1, param2, member, name)
 	local editbox = detailsFramework:NewTextEntry(parent, parent, name, member, width, height, func, param1, param2)
 	return editbox

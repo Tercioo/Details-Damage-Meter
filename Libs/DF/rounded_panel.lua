@@ -111,14 +111,14 @@ local cornerNames = {"TopLeft", "TopRight", "BottomLeft", "BottomRight"}
 local setCornerPoints = function(self, textures, width, height, xOffset, yOffset, bIsBorder)
     for cornerName, thisTexture in pairs(textures) do
         PixelUtil.SetSize(thisTexture, width or 16, height or 16)
-        thisTexture:SetTexture(self.options.corner_texture)
+        thisTexture:SetTexture(self.options.corner_texture, "CLAMP", "CLAMP", "TRILINEAR")
 
         --set the mask
         if (not thisTexture.MaskTexture and bIsBorder) then
             thisTexture.MaskTexture = self:CreateMaskTexture(nil, "background")
             thisTexture.MaskTexture:SetSize(74, 64)
             thisTexture:AddMaskTexture(thisTexture.MaskTexture)
-            thisTexture.MaskTexture:SetTexture([[Interface\Azerite\AzeriteGoldRingRank2]]) --1940690
+            thisTexture.MaskTexture:SetTexture([[Interface\Azerite\AzeriteGoldRingRank2]], "CLAMP", "CLAMP", "TRILINEAR") --1940690
             --thisTexture.MaskTexture:Hide()
         end
 
@@ -300,7 +300,7 @@ detailsFramework.RoundedCornerPanelMixin = {
         ---@type height
         local frameHeight = self:GetHeight()
 
-        if (frameHeight < 32) then
+        if (false and frameHeight < 32) then
             local newCornerSize = frameHeight / 2
 
             --set the new size of the corners on all corner textures
@@ -419,6 +419,11 @@ detailsFramework.RoundedCornerPanelMixin = {
             return self:GetHeight() - (borderTexture:GetHeight() * 2) + 2
 
         elseif (alignment == "horizontal") then
+            if (self.tabSide) then
+                if (self.tabSide == "left" or self.tabSide == "right") then
+                    return self:GetWidth() - (borderTexture:GetHeight() * 2) + 2 - borderTexture:GetHeight()
+                end
+            end
             return self:GetWidth() - (borderTexture:GetHeight() * 2) + 2
         end
 
