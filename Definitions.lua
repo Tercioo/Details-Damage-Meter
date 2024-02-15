@@ -85,6 +85,7 @@
 ---@field CommaValue fun(self: details, number: number) : string
 ---@field CreateEventListener fun(self: details) : table
 ---@field GetFullName fun(self: details, unitId: any, ambiguateString: any) : string create a CLEU compatible name of the unit passed, return string is in the format "playerName-realmName", the string will also be ambiguated using the ambiguateString passed
+---@field GetTextColor fun(self:actor, instanceObject: instance, textSide: string) : number, number, number, number
 
 ---@class detailseventlistener : table
 ---@field RegisterEvent fun(self: detailseventlistener, event: detailsevent, callback: function)

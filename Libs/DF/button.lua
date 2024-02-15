@@ -896,8 +896,8 @@ end
 	---@field SetClickFunction fun(self: df_button, func: function, param1: any, param2: any, clickType: "left"|"right"|nil)
 
 	---create a Details Framework button
-	---@param parent table
-	---@param func function
+	---@param parent frame
+	---@param callback function
 	---@param width number
 	---@param height number
 	---@param text any
@@ -910,8 +910,8 @@ end
 	---@param buttonTemplate table|nil
 	---@param textTemplate table|nil
 	---@return df_button
-	function detailsFramework:CreateButton(parent, func, width, height, text, param1, param2, texture, member, name, shortMethod, buttonTemplate, textTemplate)
-		return detailsFramework:NewButton(parent, parent, name, member, width, height, func, param1, param2, texture, text, shortMethod, buttonTemplate, textTemplate)
+	function detailsFramework:CreateButton(parent, callback, width, height, text, param1, param2, texture, member, name, shortMethod, buttonTemplate, textTemplate)
+		return detailsFramework:NewButton(parent, parent, name, member, width, height, callback, param1, param2, texture, text, shortMethod, buttonTemplate, textTemplate)
 	end
 
 	---@return df_button

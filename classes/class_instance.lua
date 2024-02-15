@@ -3796,15 +3796,20 @@ function Details:envia_relatorio (linhas, custom)
 	if (combatObject) then
 		local combatTime = combatObject:GetCombatTime()
 		segmentTime = Details.gump:IntegerToTimer(combatTime or 0)
+	else
+		combatObject = self:GetCombat()
+		local combatTime = combatObject:GetCombatTime()
+		segmentTime = Details.gump:IntegerToTimer(combatTime or 0)
 	end
 
 	--effective ou active time
-	if (Details.time_type == 2 or Details.use_realtimedps) then
-		linhas[1] = linhas[1] .. " [" .. segmentTime .. " EF]"
-	else
-		linhas[1] = linhas[1] .. " [" .. segmentTime .. " AC]"
+	if (not custom) then
+		if (Details.time_type == 2 or Details.use_realtimedps) then
+			linhas[1] = linhas[1] .. " [" .. segmentTime .. " EF]"
+		else
+			linhas[1] = linhas[1] .. " [" .. segmentTime .. " AC]"
+		end
 	end
-
 
 	local editbox = Details.janela_report.editbox
 	if (editbox.focus) then --n�o precionou enter antes de clicar no okey

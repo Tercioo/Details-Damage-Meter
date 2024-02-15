@@ -11,8 +11,10 @@ local GetSpellInfo = GetSpellInfo
 local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
-local DF = DetailsFramework
 local tinsert = table.insert
+
+---@type detailsframework
+local DF = DetailsFramework
 
 local spellsTab = DetailsSpellBreakdownTab
 
@@ -1297,7 +1299,6 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	--amount of lines which will be created for the scrollframe
 	local defaultAmountOfLines = 50
 
-    --replace this with a framework scrollframe
 	---@type breakdownspellscrollframe
 	local scrollFrame = DF:CreateScrollBox(container, "$parentSpellScroll", refreshSpellsFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(scrollFrame)

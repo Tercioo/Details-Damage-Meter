@@ -339,7 +339,12 @@ function Details:GetTextColor(instanceObject, textSide)
 	end
 
 	if (bUseClassColor) then
-		return unpack(Details.class_colors[actorObject.classe or "UNKNOW"])
+		local actorClass = actorObject.classe or "UNKNOW"
+		if (actorClass == "UNKNOW") then
+			return unpack(instanceObject.row_info.fixed_text_color)
+		else
+			return unpack(Details.class_colors[actorClass])
+		end
 	else
 		return unpack(instanceObject.row_info.fixed_text_color)
 	end
@@ -3286,7 +3291,7 @@ function Details:SetBarColors(bar, instance, r, g, b, a) --[[exported]] --~color
 		end
 		bar.textura:SetVertexColor(r, g, b, a)
 	else
-		r, g, b = unpack(instance.row_info.fixed_texture_color)
+		r, g, b, a = unpack(instance.row_info.fixed_texture_color)
 		bar.textura:SetVertexColor(r, g, b, a)
 	end
 
@@ -3653,7 +3658,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 
 		--add the buff uptime into the tooltip
 		local allPrescienceTargets = buffUptimeTable[CONST_SPELLID_PRESCIENCE]
-		if (#allPrescienceTargets > 0) then
+		if (allPrescienceTargets and #allPrescienceTargets > 0) then
 			for i = 1, math.min(30, #allPrescienceTargets) do
 				local uptimeTable = allPrescienceTargets[i]
 

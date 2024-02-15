@@ -151,6 +151,8 @@
 ---@field CreateIconRowGeneric fun(self:table, parent:frame, name:string?, options:table?)
 ---@field CreateColorPickButton fun(self:table, parent:frame, name:string?, member:string?, callback:function, alpha:number?, buttonTemplate:table?) : df_button
 ---@field CreateSlider fun(self:table, parent:frame, width:number?, height:number?, minValue:number?, maxValue:number?, step:number?, defaultv:number?, isDecemal:boolean?, member:string?, name:string?, label:string?, sliderTemplate:string|table?, labelTemplate:string|table?) : df_slider, df_label?
+---@field CreateFrameContainer fun(self:table, parent:frame, options:table?, frameName:string?) : df_framecontainer create a frame container, which is a frame that envelops another frame, and can be moved, resized, etc.
 ---@field 
 ---@field 
----@field 
+
+

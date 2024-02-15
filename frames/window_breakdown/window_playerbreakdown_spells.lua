@@ -547,7 +547,7 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
     --spellsTab.CreateReportButtons(tabFrame)
 
 	--create a button in the breakdown window to open the options for this tab
-	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 18, "options", 14)
+	local optionsButton = DF:CreateButton(tabFrame, Details.OpenSpellBreakdownOptions, 130, 18, Loc["STRING_OPTIONS_PLUGINS_OPTIONS"], 14)
 	--optionsButton:SetTemplate(DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE"))
 	optionsButton:SetPoint("bottomright", tabFrame, "bottomright", -10, -19)
 	optionsButton.textsize = 12
@@ -560,6 +560,53 @@ function spellsTab.OnCreateTabCallback(tabButton, tabFrame) --~init
 		border_color = {.1, .1, .1, 0.834},
 	}
 	DF:AddRoundedCornersToFrame(optionsButton, preset)
+
+	--create a report button
+	local onClickReportButton = function(blizButton, buttonType, param1, param2)
+		--get what is shown in the breakdown window
+		local instance = spellsTab.GetInstance()
+		local actor = spellsTab.GetActor()
+		local combat = spellsTab.GetCombat()
+
+		local displayId, subDisplayId = instance:GetDisplay()
+
+		local spellScroll = spellsTab.GetSpellScrollFrame()
+		local getNumLines = spellScroll:GetNumFramesShown()
+
+		local dataToReport = {}
+
+		for i = 1, getNumLines do
+			---@type breakdownspellbar
+			local thisLine = spellScroll:GetLine(i)
+
+			--get the spell id
+			local spellId = thisLine.spellId
+			local spellName = GetSpellInfo(spellId)
+
+			--get the amount
+			local bkSpellData = thisLine.bkSpellData
+
+			if (bkSpellData) then
+				--dumpt(bkSpellData)
+				if (displayId == DETAILS_ATTRIBUTE_DAMAGE) then
+					if (subDisplayId == DETAILS_ATTRIBUTE_DAMAGE) then
+						dataToReport[#dataToReport+1] = spellName .. " .. " .. bkSpellData.total --, {bkSpellData.total, spellName, spellId}
+					end
+				end
+			end
+		end
+
+		if (#dataToReport > 0) then
+			instance:Reportar(dataToReport, {}, nil, nil)
+		end
+
+	end
+
+	local reportButton = DF:CreateButton(tabFrame, onClickReportButton, 130, 18, Loc["STRING_REPORT_TEXT"], 1, 2) --will have a text?
+	reportButton:SetPoint("right", optionsButton, "left", -5, 0)
+	reportButton.textsize = 12
+	reportButton.textcolor = "orange"
+	DF:AddRoundedCornersToFrame(reportButton, preset)
 
 	--open the breakdown window at startup for testing
 	--[=[ debug

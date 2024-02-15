@@ -200,7 +200,11 @@ local _
 		Details.janela_report.slider.amt:Show()
 
 		if (options) then
-			Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2, options._custom) end)
+			--dumpt(param2) = {damage, spellName, spellId}
+			--print(param2, options._custom) options._custom = nil
+			--print("meu id:", self.meu_id)
+			local bIsCustom = true
+			Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2, bIsCustom) end)
 		else
 			Details.janela_report.enviar:SetScript("OnClick", function() self:monta_relatorio(param2) end)
 		end
@@ -663,9 +667,9 @@ local createDropdown = function(thisFrame)
 
 		window:SetWidth(342/2 + 5)
 		window:SetHeight(195)
-		window:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
-		window:SetBackdropColor(1, 1, 1, 1)
-		window:SetBackdropBorderColor(0, 0, 0, 1)
+		--window:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+		--window:SetBackdropColor(1, 1, 1, 1)
+		--window:SetBackdropBorderColor(0, 0, 0, 1)
 
 		if (not window.widgets) then
 			window.widgets = {}
@@ -674,20 +678,10 @@ local createDropdown = function(thisFrame)
 			titlebar:SetPoint("topleft", window, "topleft", 2, -3)
 			titlebar:SetPoint("topright", window, "topright", -2, -3)
 			titlebar:SetHeight(20)
-			titlebar:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-			titlebar:SetBackdropColor(.5, .5, .5, 1)
-			titlebar:SetBackdropBorderColor(0, 0, 0, 1)
+			--titlebar:SetBackdrop({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			--titlebar:SetBackdropColor(.5, .5, .5, 1)
+			--titlebar:SetBackdropBorderColor(0, 0, 0, 1)
 
-			local bg1 = window:CreateTexture(nil, "background")
-			bg1:SetTexture([[Interface\AddOns\Details\images\background]], true)
-			bg1:SetAlpha(0.7)
-			bg1:SetVertexColor(0.27, 0.27, 0.27)
-			bg1:SetVertTile(true)
-			bg1:SetHorizTile(true)
-			bg1:SetAllPoints()
-
-			table.insert(window.all_widgets, bg1)
-			table.insert(window.widgets, bg1)
 			table.insert(window.all_widgets, titlebar)
 			table.insert(window.widgets, titlebar)
 		end

@@ -4175,9 +4175,10 @@ issecurevariable = function(varName) return true end
 ---@return any
 securecall = function(func, ...) return nil end
 
----@param origFunc function
----@param hookFunc function
-hooksecurefunc = function(origFunc, hookFunc) end
+---@param tbl table|string the table where the function is located, if nil, the function is a global function
+---@param origFunc string|function
+---@param hookFunc function?
+hooksecurefunc = function(tbl, origFunc, hookFunc) end
 
 InCombatLockdown = function() end
 
