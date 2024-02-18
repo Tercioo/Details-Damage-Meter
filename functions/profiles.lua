@@ -1429,6 +1429,12 @@ local default_global_data = {
 			position = {},
 		},
 
+	--ask to erase data frame
+		ask_to_erase_frame = {
+			scale = 1,
+			position = {},
+		},
+
 	--aura tracker panel
 		aura_tracker_frame = {
 			position = {}, --for libwindow

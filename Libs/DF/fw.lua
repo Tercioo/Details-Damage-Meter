@@ -1,6 +1,6 @@
 
 
-local dversion = 512
+local dversion = 513
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -520,6 +520,10 @@ function DF:RandomBool(odds)
 	else
 		return math.random(1, 2) == 1
 	end
+end
+
+function DF:SetTexCoordFromAtlasInfo(texture, atlasInfo)
+	texture:SetTexCoord(atlasInfo.leftTexCoord, atlasInfo.rightTexCoord, atlasInfo.topTexCoord, atlasInfo.bottomTexCoord)
 end
 
 ------------------------------------------------------------------------------------------------------------
@@ -2061,16 +2065,16 @@ end
 		IsColorTable = true,
 	}
 
-	--takes in a color in one format and converts it to another specified format.
-	--here are the parameters it accepts:
-	--newFormat (string): The format to convert the color to. It can be one of the following: "commastring", "tablestring", "table", "tablemembers", "numbers", "hex".
-	--r (number|string): The red component of the color or a string representing the color.
-	--g (number|nil): The green component of the color. This is optional if r is a string.
-	--b (number|nil): The blue component of the color. This is optional if r is a string.
-	--a (number|nil): The alpha component of the color. This is optional and defaults to 1 if not provided.
-	--decimalsAmount (number|nil): The number of decimal places to round the color components to. This is optional and defaults to 4 if not provided.
-	--The function returns the color in the new format. The return type depends on the newFormat parameter. It can be a string, a table, or four separate number values (for the "numbers" format). 
-	--For the "hex" format, it returns a string representing the color in hexadecimal format.	
+	---* takes in a color in one format and converts it to another specified format.
+	---* here are the parameters it accepts:
+	---* newFormat (string): The format to convert the color to. It can be one of the following: "commastring", "tablestring", "table", "tablemembers", "numbers", "hex".
+	---* r (number|string): The red component of the color or a string representing the color.
+	---* g (number|nil): The green component of the color. This is optional if r is a string.
+	---* b (number|nil): The blue component of the color. This is optional if r is a string.
+	---* a (number|nil): The alpha component of the color. This is optional and defaults to 1 if not provided.
+	---* decimalsAmount (number|nil): The number of decimal places to round the color components to. This is optional and defaults to 4 if not provided.
+	---* The function returns the color in the new format. The return type depends on the newFormat parameter. It can be a string, a table, or four separate number values (for the "numbers" format). 
+	---* For the "hex" format, it returns a string representing the color in hexadecimal format.	
 	---@param newFormat string
 	---@param r number|string
 	---@param g number|nil
@@ -2844,9 +2848,30 @@ function DF:CreateAnimationHub(parent, onPlay, onFinished)
 	return newAnimation
 end
 
-function DF:CreateAnimation(animation, animationType, order, duration, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-	local anim = animation:CreateAnimation(animationType)
-	anim:SetOrder(order or animation.NextAnimation)
+---* Create a new animation for an animation hub or group.
+---* Alpha: CreateAnimation(animGroup, "Alpha", order, duration, fromAlpha, toAlpha).
+---* Scale: CreateAnimation(animGroup, "Scale", order, duration, fromScaleX, fromScaleY, toScaleX, toScaleY, originPoint, x, y).
+---* Translation: CreateAnimation(animGroup, "Translation", order, duration, xOffset, yOffset).
+---* Rotation: CreateAnimation(animGroup, "Rotation", order, duration, degrees, originPoint, x, y).
+---* Path: CreateAnimation(animGroup, "Path", order, duration, xOffset, yOffset, curveType).
+---* VertexColor: CreateAnimation(animGroup, "VertexColor", order, duration, r1, g1, b1, a1, r2, g2, b2, a2).
+---@param animationGroup animationgroup
+---@param animationType animationtype
+---@param order number
+---@param duration number
+---@param arg1 any
+---@param arg2 any
+---@param arg3 any
+---@param arg4 any
+---@param arg5 any
+---@param arg6 any
+---@param arg7 any
+---@param arg8 any
+---@return animation
+function DF:CreateAnimation(animationGroup, animationType, order, duration, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+	---@type animation
+	local anim = animationGroup:CreateAnimation(animationType)
+	anim:SetOrder(order or animationGroup.NextAnimation)
 	anim:SetDuration(duration)
 
 	animationType = string.upper(animationType)
@@ -2871,9 +2896,33 @@ function DF:CreateAnimation(animation, animationType, order, duration, arg1, arg
 
 	elseif (animationType == "TRANSLATION") then
 		anim:SetOffset(arg1, arg2)
+
+	elseif (animationType == "PATH") then
+		local newControlPoint = anim:CreateControlPoint()
+		anim:SetCurveType(arg4 or "SMOOTH")
+		newControlPoint:SetOffset(arg2, arg3)
+		newControlPoint:SetOrder(#anim:GetControlPoints())
+
+	elseif (animationType == "VERTEXCOLOR" or animationType == "COLOR") then
+		local r1, g1, b1, a1 = arg1, arg2, arg3, arg4
+		local r2, g2, b2, a2 = arg5, arg6, arg7, arg8
+
+		if ((type(r1) == "table" or type(r1) == "string") and (type(g1) == "table" or type(g1) == "string")) then
+			r2, g2, b2, a2 = DF:ParseColors(g1)
+			r1, g1, b1, a1 = DF:ParseColors(r1)
+
+		elseif ((type(r1) == "table" or type(r1) == "string")) then
+			r1, g1, b1, a1 = DF:ParseColors(r1)
+
+		elseif ((type(r2) == "table" or type(r2) == "string")) then
+			r2, g2, b2, a2 = DF:ParseColors(r2)
+		end
+
+		anim:SetStartColor(CreateColor(r1, g1, b1, a1))
+		anim:SetEndColor(CreateColor(r2, g2, b2, a2))
 	end
 
-	animation.NextAnimation = animation.NextAnimation + 1
+	animationGroup.NextAnimation = animationGroup.NextAnimation + 1
 	return anim
 end
 
@@ -3117,7 +3166,7 @@ local frameshake_play = function(parent, shakeObject, scaleDirection, scaleAmpli
 		--update the amount of shake running on this frame
 		parent.__frameshakes.enabled = parent.__frameshakes.enabled + 1
 
-		if (not parent:GetScript("OnUpdate")) then
+		if (parent:HasScript("OnUpdate")) then
 			parent:SetScript("OnUpdate", function()end)
 		end
 	end
@@ -3151,7 +3200,7 @@ local frameshake_SetConfig = function(parent, shakeObject, duration, amplitude, 
 	shakeObject.OriginalDuration = shakeObject.Duration
 end
 
----@class frameshake : table
+---@class df_frameshake : table
 ---@field Amplitude number
 ---@field Frequency number
 ---@field Duration number
@@ -3168,9 +3217,9 @@ end
 ---@field OriginalFrequency number
 ---@field OriginalAmplitude number
 ---@field OriginalDuration number
----@field PlayFrameShake fun(parent:uiobject, shakeObject:frameshake, scaleDirection:number?, scaleAmplitude:number?, scaleFrequency:number?, scaleDuration:number?)
----@field StopFrameShake fun(parent:uiobject, shakeObject:frameshake)
----@field SetFrameShakeSettings fun(parent:uiobject, shakeObject:frameshake, duration:number?, amplitude:number?, frequency:number?, absoluteSineX:boolean?, absoluteSineY:boolean?, scaleX:number?, scaleY:number?, fadeInTime:number?, fadeOutTime:number?)
+---@field PlayFrameShake fun(parent:uiobject, shakeObject:df_frameshake, scaleDirection:number?, scaleAmplitude:number?, scaleFrequency:number?, scaleDuration:number?)
+---@field StopFrameShake fun(parent:uiobject, shakeObject:df_frameshake)
+---@field SetFrameShakeSettings fun(parent:uiobject, shakeObject:df_frameshake, duration:number?, amplitude:number?, frequency:number?, absoluteSineX:boolean?, absoluteSineY:boolean?, scaleX:number?, scaleY:number?, fadeInTime:number?, fadeOutTime:number?)
 
 ---create a frame shake object
 ---@param parent uiobject
@@ -3184,7 +3233,7 @@ end
 ---@param fadeInTime number?
 ---@param fadeOutTime number?
 ---@param anchorPoints table?
----@return frameshake
+---@return df_frameshake
 function DF:CreateFrameShake(parent, duration, amplitude, frequency, absoluteSineX, absoluteSineY, scaleX, scaleY, fadeInTime, fadeOutTime, anchorPoints)
 	--create the shake table
 	local frameShake = {

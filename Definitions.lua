@@ -50,6 +50,36 @@
 ---| "PLAYER_TARGET"
 ---| "DETAILS_PROFILE_APPLYED"
 
+---@class mythicdungeoninfo
+---@field StartedAt number
+---@field EndedAt number
+---@field WorldStateTimerStart number
+---@field WorldStateTimerEnd number
+---@field RunTime number
+---@field TimeInCombat number
+---@field SegmentID string
+---@field RunID number
+---@field OverallSegment boolean
+---@field ZoneName string
+---@field EJID number
+---@field MapID number
+---@field Level number
+---@field OnTime boolean
+---@field KeystoneUpgradeLevels number
+---@field PracticeRun boolean
+---@field OldDungeonScore number
+---@field NewDungeonScore number
+---@field IsAffixRecord boolean
+---@field IsMapRecord boolean
+---@field PrimaryAffix number
+---@field IsEligibleForScore boolean
+---@field UpgradeMembers table
+---@field TimeLimit number
+---@field DungeonName string
+---@field DungeonID number
+---@field DungeonTexture string
+---@field DungeonBackgroundTexture string|number
+
 ---@alias containertype number this container type is the number used to identify the actorcontainer type when using combat:GetContainer(containertype), can be 1, 2, 3, or 4.
 
 ---@alias actorclass string this is the class of the actor, can be "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "DEMONHUNTER"
@@ -86,6 +116,7 @@
 ---@field CreateEventListener fun(self: details) : table
 ---@field GetFullName fun(self: details, unitId: any, ambiguateString: any) : string create a CLEU compatible name of the unit passed, return string is in the format "playerName-realmName", the string will also be ambiguated using the ambiguateString passed
 ---@field GetTextColor fun(self:actor, instanceObject: instance, textSide: string) : number, number, number, number
+---@field GetCombatSegments fun(self: details) : combat[] return a table with all the combat segments
 
 ---@class detailseventlistener : table
 ---@field RegisterEvent fun(self: detailseventlistener, event: detailsevent, callback: function)

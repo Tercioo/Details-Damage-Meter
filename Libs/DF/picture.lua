@@ -226,9 +226,16 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 		end
 	end
 
-	function ImageMetaFunctions:SetGradient(gradientType, fromColor, toColor)
+	function ImageMetaFunctions:SetGradient(gradientType, fromColor, toColor, bInvert)
 		fromColor = detailsFramework:FormatColor("tablemembers", fromColor)
 		toColor = detailsFramework:FormatColor("tablemembers", toColor)
+
+		if (bInvert) then
+			local temp = fromColor
+			fromColor = toColor
+			toColor = temp
+		end
+
 		self.image:SetGradient(gradientType, fromColor, toColor)
 	end
 
@@ -238,34 +245,50 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 	---@class df_image : texture
 	---@field SetGradient fun(gradientType: "vertical"|"horizontal", fromColor: table, toColor: table)
 
+	---@class df_gradienttable : table
+	---@field gradient "vertical"|"horizontal"
+	---@field fromColor table|string
+	---@field toColor table|string
+	---@field invert boolean?
+
 	---create an object that encapsulates a texture and add additional methods to it
 	---@param parent frame
-	---@param texture texturepath|textureid
-	---@param width number
-	---@param height number
-	---@param layer drawlayer
-	---@param coords {key1: number, key2: number, key3: number, key4: number}
-	---@param member string
-	---@param name string
-	---@return table|nil
+	---@param texture texturepath|textureid|df_gradienttable|nil
+	---@param width number?
+	---@param height number?
+	---@param layer drawlayer?
+	---@param coords {key1: number, key2: number, key3: number, key4: number}?
+	---@param member string?
+	---@param name string?
+	---@return df_image
 	function detailsFramework:CreateTexture(parent, texture, width, height, layer, coords, member, name)
 		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
 
 	---create an object that encapsulates a texture and add additional methods to it
 	---@param parent frame
-	---@param texture texturepath|textureid
-	---@param width number
-	---@param height number
-	---@param layer drawlayer
-	---@param coords {key1: number, key2: number, key3: number, key4: number}
-	---@param member string
-	---@param name string
-	---@return table|nil
+	---@param texture texturepath|textureid|df_gradienttable|nil
+	---@param width number?
+	---@param height number?
+	---@param layer drawlayer?
+	---@param coords {key1: number, key2: number, key3: number, key4: number}?
+	---@param member string?
+	---@param name string?
+	---@return df_image
 	function detailsFramework:CreateImage(parent, texture, width, height, layer, coords, member, name)
 		return detailsFramework:NewImage(parent, texture, width, height, layer, coords, member, name)
 	end
 
+	---create an object that encapsulates a texture and add additional methods to it
+	---@param parent frame
+	---@param texture texturepath|textureid|df_gradienttable|nil
+	---@param width number?
+	---@param height number?
+	---@param layer drawlayer?
+	---@param texCoord {key1: number, key2: number, key3: number, key4: number}?
+	---@param member string?
+	---@param name string?
+	---@return df_image
 	function detailsFramework:NewImage(parent, texture, width, height, layer, texCoord, member, name)
 		if (not parent) then
 			return error("DetailsFrameWork: NewImage() parent not found.", 2)
@@ -313,26 +336,45 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 
 		ImageObject.image.MyObject = ImageObject
 
-		if (width) then
-			ImageObject.image:SetWidth(width)
-		end
-		if (height) then
-			ImageObject.image:SetHeight(height)
-		end
-
 		if (texture) then
 			if (type(texture) == "table") then
 				if (texture.gradient) then
+					---@type df_gradienttable
+					local gradientTable = texture
+
 					if (detailsFramework.IsDragonflight() or detailsFramework.IsNonRetailWowWithRetailAPI()) then
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
-						local fromColor = detailsFramework:FormatColor("tablemembers", texture.fromColor)
-						local toColor = detailsFramework:FormatColor("tablemembers", texture.toColor)
-						ImageObject.image:SetGradient(texture.gradient, fromColor, toColor)
+						local fromColor = detailsFramework:FormatColor("tablemembers", gradientTable.fromColor)
+						local toColor = detailsFramework:FormatColor("tablemembers", gradientTable.toColor)
+
+						if (gradientTable.invert) then
+							local temp = fromColor
+							fromColor = toColor
+							toColor = temp
+						end
+
+						ImageObject.image:SetGradient(gradientTable.gradient, fromColor, toColor)
 					else
-						local fromR, fromG, fromB, fromA = detailsFramework:ParseColors(texture.fromColor)
-						local toR, toG, toB, toA = detailsFramework:ParseColors(texture.toColor)
+						local fromR, fromG, fromB, fromA = detailsFramework:ParseColors(gradientTable.fromColor)
+						local toR, toG, toB, toA = detailsFramework:ParseColors(gradientTable.toColor)
+
+						if (gradientTable.invert) then
+							local temp = fromR
+							fromR = toR
+							toR = temp
+							temp = fromG
+							fromG = toG
+							toG = temp
+							temp = fromB
+							fromB = toB
+							toB = temp
+							temp = fromA
+							fromA = toA
+							toA = temp
+						end
+
 						ImageObject.image:SetColorTexture(1, 1, 1, 1)
-						ImageObject.image:SetGradientAlpha(texture.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
+						ImageObject.image:SetGradientAlpha(gradientTable.gradient, fromR, fromG, fromB, fromA, toR, toG, toB, toA)
 					end
 				else
 					local r, g, b, a = detailsFramework:ParseColors(texture)
@@ -352,12 +394,22 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 					end
 				end
 			else
-				ImageObject.image:SetTexture(texture)
+				local textureType = type(texture)
+				if (textureType == "string" or textureType == "number") then
+					ImageObject.image:SetTexture(texture)
+				end
 			end
 		end
 
 		if (texCoord and type(texCoord) == "table" and texCoord[4]) then
 			ImageObject.image:SetTexCoord(unpack(texCoord))
+		end
+
+		if (width) then
+			ImageObject.image:SetWidth(width)
+		end
+		if (height) then
+			ImageObject.image:SetHeight(height)
 		end
 
 		ImageObject.HookList = {

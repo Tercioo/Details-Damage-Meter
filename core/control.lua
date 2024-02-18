@@ -1817,12 +1817,18 @@
 		if (not panel) then
 			panel = CreateFrame("frame", "DetailsEraseDataConfirmation", UIParent, "BackdropTemplate")
 			panel:SetSize(400, 85)
-			panel:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
-			edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12})
+			--panel:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+			--edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12})
+			--panel:SetBackdropColor(0, 0, 0, 0.4)
 			panel:SetPoint("center", UIParent)
-			panel:SetBackdropColor(0, 0, 0, 0.4)
 
-			DetailsFramework:ApplyStandardBackdrop(panel)
+			--DetailsFramework:ApplyStandardBackdrop(panel)
+			DetailsFramework:AddRoundedCornersToFrame(panel, Details.PlayerBreakdown.RoundedCornerPreset)
+
+			local LibWindow = LibStub("LibWindow-1.1")
+			LibWindow.RegisterConfig(panel, Details.ask_to_erase_frame)
+			LibWindow.MakeDraggable(panel)
+			LibWindow.RestorePosition(panel)
 
 			panel:SetScript("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
@@ -1862,7 +1868,9 @@
 
 			elseif (Details.segments_auto_erase == 3) then
 				--erase
-				Details.tabela_historico:ResetAllCombatData()
+				C_Timer.After(2, function()
+					Details.tabela_historico:ResetAllCombatData()
+				end)
 			end
 		else
 			if (_tempo > Details.last_instance_time + 21600) then --6 hours

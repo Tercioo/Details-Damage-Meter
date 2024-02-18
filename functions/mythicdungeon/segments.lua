@@ -212,6 +212,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 
     --tag the segment as mythic overall segment
+    ---@type mythicdungeoninfo
     newCombat.is_mythic_dungeon = {
         StartedAt = Details.MythicPlus.StartedAt, --the start of the run
         EndedAt = Details.MythicPlus.EndedAt, --the end of the run

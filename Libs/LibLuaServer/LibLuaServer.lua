@@ -11,6 +11,15 @@
 --guadians: represents a npc, the server has the possess of the controller, don't accept commands like pets, helps attacking the enemies of the npc or player.
 --role: is a string that represents the role of a unit, such as tank, healer, or damage dealer. only players can have a role.
 
+---@alias animationtype
+---| "Alpha"
+---| "Rotation"
+---| "Scale"
+---| "Translation"
+---| "Path"
+---| "VertexColor"
+
+
 ---@alias auratype
 ---| "BUFF"
 ---| "DEBUFF"
@@ -196,6 +205,17 @@
 ---| "Ambience"
 ---| "Dialog"
 
+---@alias animloopmode
+---| "NONE"
+---| "REPEAT"
+---| "BOUNCE"
+
+---@alias animsmoothing
+---| "IN"
+---| "OUT"
+---| "IN_OUT"
+---| "NONE"
+
 ---@class aurainfo : table
 ---@field applications number
 ---@field auraInstanceID number
@@ -218,6 +238,18 @@
 ---@field timeMod number
 ---@field name string aura name
 ---@field sourceUnit string unitid
+
+---@class atlasinfo : table
+---@field file string|number
+---@field leftTexCoord number
+---@field rightTexCoord number
+---@field topTexCoord number
+---@field bottomTexCoord number
+---@field width number
+---@field height number
+---@field tilesHorizontally boolean
+---@field tilesVertically boolean
+
 
 ---@alias width number property that represents the horizontal size of a UI element, such as a frame or a texture. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'height' is used.
 ---@alias height number property that represents the vertical size of a UI element, such as a frame or a texture. Gotten from the first result of GetHeight() or from the second result of GetSize(). It is expected a GetHeight() or GetSize() when the type 'height' is used.
@@ -323,7 +355,7 @@
 ---@field SetIgnoreParentAlpha fun(self: region, ignore: boolean)
 
 ---@class animationgroup : uiobject
----@field CreateAnimation fun(self: animationgroup, animationType: string, name: string|nil, inheritsFrom: string|nil) : animation
+---@field CreateAnimation fun(self: animationgroup, animationType: animationtype, name: string|nil, inheritsFrom: string|nil) : animation
 ---@field GetAnimation fun(self: animationgroup, name: string) : animation
 ---@field GetAnimations fun(self: animationgroup) : table
 ---@field GetDuration fun(self: animationgroup) : number
@@ -339,9 +371,9 @@
 ---@field Resume fun(self: animationgroup)
 ---@field SetDuration fun(self: animationgroup, duration: number)
 ---@field SetEndDelay fun(self: animationgroup, delay: number)
----@field SetLooping fun(self: animationgroup, loop: boolean)
+---@field SetLooping fun(self: animationgroup, loop: animloopmode)
 ---@field SetScript fun(self: animationgroup, event: string, handler: function|nil) "OnEvent"|"OnShow"
----@field SetSmoothProgress fun(self: animationgroup, smooth: boolean)
+---@field SetSmoothProgress fun(self: animationgroup, smooth: animsmoothing)
 ---@field Stop fun(self: animationgroup)
 
 ---@class animation : uiobject
@@ -357,11 +389,40 @@
 ---@field Play fun(self: animation)
 ---@field Resume fun(self: animation)
 ---@field SetDuration fun(self: animation, duration: number)
+---@field SetStartDelay fun(self: animation, delay: number)
 ---@field SetEndDelay fun(self: animation, delay: number)
 ---@field SetOrder fun(self: animation, order: number)
 ---@field SetScript fun(self: animation, event: string, handler: function?)
 ---@field SetSmoothing fun(self: animation, smoothing: string)
 ---@field Stop fun(self: animation)
+---@field CreateControlPoint fun(self: animation) : pathcontrolpoint
+---@field SetCurveType fun(self: animation, curveType:pathanimationtype)
+---@field GetCurveType fun(self: animation) : pathanimationtype
+---@field GetControlPoints fun(self: animation) : pathcontrolpoint[]
+---@field GetMaxControlPointOrder fun(self: animation) : number
+---@field SetFromAlpha fun(self: animation, alpha: number)
+---@field SetToAlpha fun(self: animation, alpha: number)
+---@field SetScaleFrom fun(self: animation, x: number, y: number)
+---@field SetScaleTo fun(self: animation, x: number, y: number)
+---@field SetFromScale fun(self: animation, x: number, y: number)
+---@field SetToScale fun(self: animation, x: number, y: number)
+---@field SetOrigin fun(self: animation, point: anchorpoint, x: number, y: number)
+---@field SetDegrees fun(self: animation, degrees: number)
+---@field SetOffset fun(self: animation, x: number, y: number)
+---@field SetStartColor fun(self: animation, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)
+---@field SetEndColor fun(self: animation, r: red|number, g: green|number, b: blue|number, a: alpha|number|nil)
+
+---@alias pathanimationtype
+---| "LINEAR"
+---| "SMOOTH"
+
+---@class pathcontrolpoint : animation
+---@field SetOffset fun(self: pathcontrolpoint, offsetX: number, offsetY: number)
+---@field GetOffset fun(self: pathcontrolpoint) : number, number
+---@field SetOrder fun(self: pathcontrolpoint, order: number)
+---@field GetOrder fun(self: pathcontrolpoint) : number
+---@field SetParent fun(self: pathcontrolpoint, parent: uiobject, order: number?)
+
 
 ---@class line : uiobject
 ---@field GetEndPoint fun(self: line) : relativePoint: anchorpoint, relativeTo: anchorpoint, offsetX: number, offsetY: number
@@ -681,6 +742,13 @@ function ClampDegrees(value) return 0 end
 ---@param condition boolean The condition determining whether to negate the value.
 ---@return number value The negated value if the condition is true, otherwise the original value.
 function NegateIf(value, condition) return 0 end
+
+
+---Generates a random floating-point number within a specified range.
+---@param minValue number - The minimum value of the range.
+---@param maxValue number - The maximum value of the range.
+---@return number float - A random floating-point number within the specified range.
+function RandomFloatInRange(minValue, maxValue) return 0 end
 
 ---Returns a formatted version of its variable number of arguments following the description given in its first argument.
 ---@param s string|number

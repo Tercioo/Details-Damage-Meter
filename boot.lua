@@ -18,8 +18,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tocversion = GetBuildInfo()
 
-		Details.build_counter = 12325
-		Details.alpha_build_counter = 12325 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12329
+		Details.alpha_build_counter = 12329 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -158,10 +158,16 @@ do
 
 	--change logs
 	--[=[
-
+		12329
+		"Frame for 'Ask to Erase Data' can now be moved.",
+		"Small bug fixes and continued development on End of Mythic+ Panel.",
 	--]=]
 
 	local news = {
+		{"v10.2.5.12329.155", "February 18th, 2024"},
+		"Frame for 'Ask to Erase Data' can now be moved.",
+		"Small bug fixes and continued development on End of Mythic+ Panel.",
+
 		{"v10.2.5.12307.155", "February 13th, 2024"},
 		"Fixed the deaths display, where the windows wasn't usig custom text scripts.",
 		"Fixed an issue with custom displays, where it was unable to use class colors in their texts.",
