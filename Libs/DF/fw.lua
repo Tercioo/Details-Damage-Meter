@@ -1,6 +1,6 @@
 
 
-local dversion = 513
+local dversion = 515
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -3166,7 +3166,7 @@ local frameshake_play = function(parent, shakeObject, scaleDirection, scaleAmpli
 		--update the amount of shake running on this frame
 		parent.__frameshakes.enabled = parent.__frameshakes.enabled + 1
 
-		if (parent:HasScript("OnUpdate")) then
+		if (parent:HasScript("OnUpdate") and not parent:GetScript("OnUpdate")) then
 			parent:SetScript("OnUpdate", function()end)
 		end
 	end
