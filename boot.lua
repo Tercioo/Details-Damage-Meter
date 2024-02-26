@@ -618,6 +618,10 @@ do
 			return "orange"
 		end
 
+		function Details:GetTextureAtlasTable()
+			return Details.TextureAtlas
+		end
+
 		--armazena as fun��es para inicializa��o dos dados - Metatable functions
 			_detalhes.refresh = {}
 		--armazena as fun��es para limpar e guardas os dados - Metatable functions
@@ -828,9 +832,10 @@ do
 
 		--plugin templates
 
-		_detalhes.gump:NewColor("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
+		DetailsFramework:NewColor("DETAILS_PLUGIN_BUTTONTEXT_COLOR", 0.9999, 0.8196, 0, 1)
+		DetailsFramework:NewColor("DETAILS_HEADER_YELLOW", 227/255, 186/255, 4/255)
 
-		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE",
+		DetailsFramework:InstallTemplate("button", "DETAILS_PLUGINPANEL_BUTTON_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {0, 0, 0, .5},
@@ -838,7 +843,7 @@ do
 				onentercolor = {0.3, 0.3, 0.3, .5},
 			}
 		)
-		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE",
+		DetailsFramework:InstallTemplate("button", "DETAILS_PLUGINPANEL_BUTTONSELECTED_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {0, 0, 0, .5},
@@ -847,7 +852,7 @@ do
 			}
 		)
 
-		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE",
+		DetailsFramework:InstallTemplate("button", "DETAILS_PLUGIN_BUTTON_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {1, 1, 1, .5},
@@ -859,7 +864,7 @@ do
 				height = 20,
 			}
 		)
-		_detalhes.gump:InstallTemplate("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE",
+		DetailsFramework:InstallTemplate("button", "DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE",
 			{
 				backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 				backdropcolor = {1, 1, 1, .5},
@@ -872,14 +877,14 @@ do
 			}
 		)
 
-		_detalhes.gump:InstallTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE",
+		DetailsFramework:InstallTemplate("button", "DETAILS_TAB_BUTTON_TEMPLATE",
 			{
 				width = 100,
 				height = 20,
 			},
 			"DETAILS_PLUGIN_BUTTON_TEMPLATE"
 		)
-		_detalhes.gump:InstallTemplate("button","DETAILS_TAB_BUTTONSELECTED_TEMPLATE",
+		DetailsFramework:InstallTemplate("button","DETAILS_TAB_BUTTONSELECTED_TEMPLATE",
 			{
 				width = 100,
 				height = 20,
@@ -887,57 +892,57 @@ do
 			"DETAILS_PLUGIN_BUTTONSELECTED_TEMPLATE"
 		)
 
-		_detalhes.PluginsGlobalNames = {}
-		_detalhes.PluginsLocalizedNames = {}
+		Details.PluginsGlobalNames = {}
+		Details.PluginsLocalizedNames = {}
 
 		--raid -------------------------------------------------------------------
 			--general function for raid mode plugins
-				_detalhes.RaidTables = {}
+				Details.RaidTables = {}
 			--menu for raid modes
-				_detalhes.RaidTables.Menu = {}
+				Details.RaidTables.Menu = {}
 			--plugin objects for raid mode
-				_detalhes.RaidTables.Plugins = {}
+				Details.RaidTables.Plugins = {}
 			--name to plugin object
-				_detalhes.RaidTables.NameTable = {}
+				Details.RaidTables.NameTable = {}
 			--using by
-				_detalhes.RaidTables.InstancesInUse = {}
-				_detalhes.RaidTables.PluginsInUse = {}
+				Details.RaidTables.InstancesInUse = {}
+				Details.RaidTables.PluginsInUse = {}
 
 		--solo -------------------------------------------------------------------
 			--general functions for solo mode plugins
-				_detalhes.SoloTables = {}
+				Details.SoloTables = {}
 			--maintain plugin menu
-				_detalhes.SoloTables.Menu = {}
+				Details.SoloTables.Menu = {}
 			--plugins objects for solo mode
-				_detalhes.SoloTables.Plugins = {}
+				Details.SoloTables.Plugins = {}
 			--name to plugin object
-				_detalhes.SoloTables.NameTable = {}
+				Details.SoloTables.NameTable = {}
 
 		--toolbar -------------------------------------------------------------------
 			--plugins container
-				_detalhes.ToolBar = {}
+				Details.ToolBar = {}
 			--current showing icons
-				_detalhes.ToolBar.Shown = {}
-				_detalhes.ToolBar.AllButtons = {}
+				Details.ToolBar.Shown = {}
+				Details.ToolBar.AllButtons = {}
 			--plugin objects
-				_detalhes.ToolBar.Plugins = {}
+				Details.ToolBar.Plugins = {}
 			--name to plugin object
-				_detalhes.ToolBar.NameTable = {}
-				_detalhes.ToolBar.Menu = {}
+				Details.ToolBar.NameTable = {}
+				Details.ToolBar.Menu = {}
 
 		--statusbar -------------------------------------------------------------------
 			--plugins container
-				_detalhes.StatusBar = {}
+				Details.StatusBar = {}
 			--maintain plugin menu
-				_detalhes.StatusBar.Menu = {}
+				Details.StatusBar.Menu = {}
 			--plugins object
-				_detalhes.StatusBar.Plugins = {}
+				Details.StatusBar.Plugins = {}
 			--name to plugin object
-				_detalhes.StatusBar.NameTable = {}
+				Details.StatusBar.NameTable = {}
 
 		--constants
 
-		if(DetailsFramework.IsWotLKWow()) then
+		if (DetailsFramework.IsWotLKWow()) then
 			--[[global]] DETAILS_HEALTH_POTION_ID = 33447 -- Runic Healing Potion
 			--[[global]] DETAILS_HEALTH_POTION2_ID = 41166 -- Runic Healing Injector
 			--[[global]] DETAILS_REJU_POTION_ID = 40087 -- Powerful Rejuvenation Potion
@@ -990,7 +995,7 @@ do
 		--[[global]] DETAILS_MODE_GROUP = 2
 		--[[global]] DETAILS_MODE_ALL = 3
 
-		_detalhes._detalhes_props = {
+		Details._detalhes_props = {
 			DATA_TYPE_START = 1,	--Something on start
 			DATA_TYPE_END = 2,	--Something on end
 
@@ -999,34 +1004,34 @@ do
 			MODO_ALL = 3,		--Everything
 			MODO_RAID = 4,	--Raid
 		}
-		_detalhes.modos = {
+		Details.modos = {
 			alone = 1, --Solo
 			group = 2,	--Group
 			all = 3,	--Everything
 			raid = 4	--Raid
 		}
 
-		_detalhes.divisores = {
+		Details.divisores = {
 			abre = "(",	--open
 			fecha = ")",	--close
 			colocacao = ". " --dot
 		}
 
-		_detalhes.role_texcoord = {
+		Details.role_texcoord = {
 			DAMAGER = "72:130:69:127",
 			HEALER = "72:130:2:60",
 			TANK = "5:63:69:127",
 			NONE = "139:196:69:127",
 		}
 
-		_detalhes.role_texcoord_normalized = {
+		Details.role_texcoord_normalized = {
 			DAMAGER = {72/256, 130/256, 69/256, 127/256},
 			HEALER = {72/256, 130/256, 2/256, 60/256},
 			TANK = {5/256, 63/256, 69/256, 127/256},
 			NONE = {139/256, 196/256, 69/256, 127/256},
 		}
 
-		_detalhes.player_class = {
+		Details.player_class = {
 			["HUNTER"] = true,
 			["WARRIOR"] = true,
 			["PALADIN"] = true,
@@ -1040,7 +1045,7 @@ do
 			["DEATHKNIGHT"] = true,
 			["DEMONHUNTER"] = true,
 		}
-		_detalhes.classstring_to_classid = {
+		Details.classstring_to_classid = {
 			["WARRIOR"] = 1,
 			["PALADIN"] = 2,
 			["HUNTER"] = 3,
@@ -1054,7 +1059,7 @@ do
 			["DRUID"] = 11,
 			["DEMONHUNTER"] = 12,
 		}
-		_detalhes.classid_to_classstring = {
+		Details.classid_to_classstring = {
 			[1] = "WARRIOR",
 			[2] = "PALADIN",
 			[3] = "HUNTER",
@@ -1071,7 +1076,7 @@ do
 
 		local Loc = LibStub("AceLocale-3.0"):GetLocale ("Details")
 
-		_detalhes.segmentos = {
+		Details.segmentos = {
 			label = Loc ["STRING_SEGMENT"]..": ",
 			overall = Loc ["STRING_TOTAL"],
 			overall_standard = Loc ["STRING_OVERALL"],
@@ -1080,7 +1085,7 @@ do
 			past = Loc ["STRING_FIGHTNUMBER"]
 		}
 
-		_detalhes._detalhes_props["modo_nome"] = {
+		Details._detalhes_props["modo_nome"] = {
 				[_detalhes._detalhes_props["MODO_ALONE"]] = Loc ["STRING_MODE_SELF"],
 				[_detalhes._detalhes_props["MODO_GROUP"]] = Loc ["STRING_MODE_GROUP"],
 				[_detalhes._detalhes_props["MODO_ALL"]] = Loc ["STRING_MODE_ALL"],
@@ -1092,7 +1097,7 @@ do
 		--[[global]] DETAILS_MODE_GROUP = 2
 		--[[global]] DETAILS_MODE_ALL = 3
 
-		_detalhes.icones = {
+		Details.icones = {
 			--report window
 			report = {
 					up = "Interface\\FriendsFrame\\UI-Toast-FriendOnlineIcon",
@@ -1102,7 +1107,7 @@ do
 				}
 		}
 
-		_detalhes.missTypes = {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"} --do not localize-me
+		Details.missTypes = {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"} --do not localize-me
 
 
 	function Details.SendHighFive()

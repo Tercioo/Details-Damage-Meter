@@ -1,3 +1,28 @@
+---Contents for the blizzard_documentation field "Arguments".
+---@class blizzard_documentation_arguments : table
+---@field Name string the name of the argument
+---@field Type string the type of the argument: if is not a primitive type, just use the type name as string
+---@field Nilable boolean whether the argument can be nil
+---@field Mixin string? the mixin of the argument
+
+---Contents for the blizzard_documentation field "Returns".
+---@class blizzard_documentation_returns : table
+---@field Name string the name of the return
+---@field Type string the type of the return: if is not a primitive type, just use the type name as string
+---@field Nilable boolean whether the return can be nil
+
+---This table contains documentation for functions inside C_ChallengeMode.
+---@class blizzard_documentation : table
+---@field Name string the name of the field, can be 
+---@field Type string most of the time the type is "Function"
+---@field Arguments blizzard_documentation_arguments[]? a table containing the arguments of the function
+---@field Returns blizzard_documentation_returns[]? a table containing the returns of the function, the the type is table, it may have "InnerType" which is the type of the elements inside the table
+
+---@class LibStub : table
+LibStub = {}
+function LibStub:NewLibrary(major, minor)end
+function LibStub:GetLibrary(major, silent)end
+function LibStub:IterateLibraries()end
 
 --uiobject: is an object that represents a UI element, such as a frame, a texture, or a button. UIObjects are the base class for all UI elements in the WoW API.
 --3D World: is an object which is placed behind|below all UI elements, cannot be parent of any object, in the 3D World object is where the game world is rendered
@@ -10,6 +35,15 @@
 --pet: represents a npc controlled by the server and can accept commands from the player.
 --guadians: represents a npc, the server has the possess of the controller, don't accept commands like pets, helps attacking the enemies of the npc or player.
 --role: is a string that represents the role of a unit, such as tank, healer, or damage dealer. only players can have a role.
+
+--escape sequences: are used to represent characters that are not printable, such as new lines, tabs, and other control characters.
+--in wow they are used to add colors, textures, and other special characters to a string.
+--they always start with a pipe character (|) followed by a letter, and can have a value after the letter, and end with a pipe character (|) followed by another leter.
+--color: myTextWithColor = "|cFF00FF00This is a green text|r". |c open the color, FF00FF00 is the color, |r close the color. Color is represented by the hexadecimal value of the color, the first two characters are the alpha, the next two are the red, the next two are the green, and the last two are the blue.
+--texture: open with |T and close with |t, the first value is the texture, second and third height and width, offsetX and offsetY, textureWidth and textureHeight, texture coordinates in pixels for leftCoord, rightCoord, topCoord, and bottomCoord, the last three values are: redVertexColor, greenVertexColor, and blueVertexColor in 0 to 255.
+--texture: myTextWithTexture = "|TInterface\\Icons\\INV_Misc_QuestionMark:0|tThis is a text with a question mark texture"
+--texture: myTextWithTexture = "|TInterface\\Icons\\INV_Misc_QuestionMark:32:32:1:-1:64:64:4:60:4:60:0:0:255|tThis is a text with a question mark texture of size 32x32, with cropped to remove the border of the icon and with a blue color"
+--atlas: open with |A and close with |a, the first value is the atlas, second and third height and width, offsetX and offsetY, and redVertexColor, greenVertexColor, and blueVertexColor in 0 to 255.
 
 ---@alias animationtype
 ---| "Alpha"
@@ -240,15 +274,16 @@
 ---@field sourceUnit string unitid
 
 ---@class atlasinfo : table
----@field file string|number
----@field leftTexCoord number
----@field rightTexCoord number
----@field topTexCoord number
----@field bottomTexCoord number
----@field width number
----@field height number
----@field tilesHorizontally boolean
----@field tilesVertically boolean
+---@field filename any?
+---@field file any?
+---@field leftTexCoord number?
+---@field rightTexCoord number?
+---@field topTexCoord number?
+---@field bottomTexCoord number?
+---@field width number?
+---@field height number?
+---@field tilesHorizontally boolean?
+---@field tilesVertically boolean?
 
 
 ---@alias width number property that represents the horizontal size of a UI element, such as a frame or a texture. Gotten from the first result of GetWidth() or from the first result of GetSize(). It is expected a GetWidth() or GetSize() when the type 'height' is used.
@@ -260,9 +295,11 @@
 ---@alias alpha number @number(0-1.0) value representing the alpha (transparency) of a UIObject, the value must be between 0 and 1. 0 is fully transparent, 1 is fully opaque.
 ---@alias unit string string that represents a unit in the game, such as the player, a party member, or a raid member.
 ---@alias health number amount of hit points (health) of a unit. This value can be changed by taking damage or healing.
+---@alias healthmax number max amount of hit points (health) of a unit.
 ---@alias encounterid number encounter ID number received by the event ENCOUNTER_START and ENCOUNTER_END
 ---@alias encounterejid number encounter ID number used by the encounter journal
 ---@alias encountername string encounter name received by the event ENCOUNTER_START and ENCOUNTER_END also used by the encounter journal
+---@alias instancename string localized name of an instance (e.g. "The Nighthold")
 ---@alias spellid number each spell in the game has a unique spell id, this id can be used to identify a spell.
 ---@alias unitname string name of a unit
 ---@alias unitguid string unique id of a unit (GUID)
@@ -274,6 +311,7 @@
 ---@alias actorid string unique id of a unit (GUID)
 ---@alias serial string unique id of a unit (GUID)
 ---@alias guid string unique id of a unit (GUID)
+---@alias mapid nmber each map in the game has a unique map id, this id can be used to identify a map.
 ---@alias specializationid number the ID of a class specialization
 ---@alias controlflags number flags telling what unit type the is (player, npc, pet, etc); it's relatiotionship to the player (friendly, hostile, etc); who controls the unit (controlled by the player, controlled by the server, etc)
 ---@alias color table @table(r: red|number, g: green|number, b: blue|number, a: alpha|number) @table(number, number, number, number) @string(color name) @hex (000000-ffffff) value representing a color, the value must be a table with the following fields: r, g, b, a. r, g, b are numbers between 0 and 1, a is a number between 0 and 1. To retrieve a color from a string or table use: local red, green, blue, alpha = DetailsFramework:ParseColors(color)
@@ -316,9 +354,6 @@
 ---@field After fun(delay: number, func: function)
 ---@field NewTimer fun(delay: number, func: function): timer
 ---@field NewTicker fun(interval: number, func: function, iterations: number|nil): timer
-
----@class C_ChallengeMode : table
----@field GetActiveKeystoneInfo fun(): number, number[], boolean @returns keystoneLevel, affixIDs, wasActive
 
 ---@class tablesize : {H: number, W: number}
 ---@class tablecoords : {L: number, R: number, T: number, B: number}
@@ -619,7 +654,7 @@
 ---@field SetDrawLayer fun(self: texture, layer: drawlayer, subLayer: number?)
 ---@field GetTexture fun(self: texture) : any
 ---@field SetTexture fun(self: texture, path: textureid|texturepath, horizontalWrap: texturewrap?, verticalWrap: texturewrap?, filter: texturefilter?)
----@field SetAtlas fun(self: texture, atlas: string)
+---@field SetAtlas fun(self: texture, atlas: string, useAtlasSize: boolean?, filterMode: texturefilter?, resetTexCoords: boolean?)
 ---@field SetColorTexture fun(self: texture, r: red|number, g: green|number, b: blue|number, a: alpha|number?)
 ---@field SetDesaturated fun(self: texture, desaturate: boolean)
 ---@field SetDesaturation fun(self: texture, desaturation: number)
@@ -656,6 +691,8 @@
 ---@field GetGradientColors fun(self: texture) : number, number, number, number, number, number, number, number, number, number, number, number
 ---@field GetBlendMode fun(self: texture) : string
 ---@field GetVertexColor fun(self: texture) : number, number, number, number
+---@field SetHorizTile fun(self: texture, tile: boolean) set the texture to be tiled horizontally
+---@field SetVertTile fun(self: texture, tile: boolean) set the texture to be tiled vertically
 
 ---@class editbox : frame
 ---@field SetText fun(self: editbox, text: string)
@@ -750,12 +787,123 @@ function NegateIf(value, condition) return 0 end
 ---@return number float - A random floating-point number within the specified range.
 function RandomFloatInRange(minValue, maxValue) return 0 end
 
+---Calculates the percentage between two values.
+---@param value number The value to calculate the percentage for.
+---@param startValue number The starting value.
+---@param endValue number The ending value.
+---@return number percentage between the startValue and endValue.
+function PercentageBetween(value, startValue, endValue) return 0 end
+
+---Calculates the clamped percentage between two values.
+---The result is clamped between 0 and 1.
+---@param value number The value to calculate the clamped percentage for.
+---@param startValue number The starting value.
+---@param endValue number The ending value.
+---@return number clampedPercentage between the startValue and endValue.
+function ClampedPercentageBetween(value, startValue, endValue) return 0 end
+
+---Returns the time in seconds since the last frame was drawn.
+---@return number timeSec The time in seconds since the last frame was drawn.
+function GetTickTime() return 0 end
+
+---Linearly interpolates between two values.
+---@param startValue number The starting value.
+---@param endValue number The ending value.
+---@param amount number The interpolation amount (between 0 and 1).
+---@param timeSec number The time in seconds.
+---@return number The interpolated value.
+function DeltaLerp(startValue, endValue, amount, timeSec) return 0 end
+
+---@param amount number The interpolation amount (between 0 and 1).
+---@return number The interpolated value.
+function FrameDeltaLerp(startValue, endValue, amount) return 0 end
+
+---Rounds a value to a specified number of significant digits.
+---@param value number The value to round.
+---@param numDigits number The number of significant digits.
+---@return number The rounded value.
+function RoundToSignificantDigits(value, numDigits) return 0 end
+
+---Squares a value.
+---@param value number The value to square.
+---@return number The squared value.
+function Square(value) return 0 end
+
+---Returns the sign of a value.
+---@param value number The value to check the sign of.
+---@return number The sign of the value (-1, 0, or 1).
+function Sign(value) return 0 end
+
+---Checks if a value is within a specified range (inclusive).
+---@param value number The value to check.
+---@param min number The minimum value of the range.
+---@param max number The maximum value of the range.
+---@return boolean Whether the value is within the range.
+function WithinRange(value, min, max) return true end
+
+---Checks if a value is within a specified range (exclusive).
+---@param value number The value to check.
+---@param min number The minimum value of the range.
+---@param max number The maximum value of the range.
+---@return boolean Whether the value is within the range.
+function WithinRangeExclusive(value, min, max) return true end
+
+---Checks if two values are approximately equal within a specified epsilon.
+---@param v1 number The first value to compare.
+---@param v2 number The second value to compare.
+---@param epsilon number (optional) The epsilon value for comparison.
+---@return boolean Whether the values are approximately equal.
+function ApproximatelyEqual(v1, v2, epsilon) return true end
+
+---Calculates the squared distance between two points.
+---@param x1 number The x-coordinate of the first point.
+---@param y1 number The y-coordinate of the first point.
+---@param x2 number The x-coordinate of the second point.
+---@param y2 number The y-coordinate of the second point.
+---@return number The squared distance between the points.
+function CalculateDistanceSq(x1, y1, x2, y2) return 0 end
+
+---Calculates the distance between two points.
+---@param x1 number The x-coordinate of the first point.
+---@param y1 number The y-coordinate of the first point.
+---@param x2 number The x-coordinate of the second point.
+---@param y2 number The y-coordinate of the second point.
+---@return number The distance between the points.
+function CalculateDistance(x1, y1, x2, y2) return 0 end
+
+---Calculates the angle between two points.
+---@param x1 number The x-coordinate of the first point.
+---@param y1 number The y-coordinate of the first point.
+---@param x2 number The x-coordinate of the second point.
+---@param y2 number The y-coordinate of the second point.
+---@return number The angle between the points.
+function CalculateAngleBetween(x1, y1, x2, y2) return 0 end
+
 ---Returns a formatted version of its variable number of arguments following the description given in its first argument.
 ---@param s string|number
 ---@param ... any
 ---@return string
 ---@nodiscard
 function format(s, ...) return "" end
+
+---Returns the length of a string.
+---@param s string
+---@return number
+function strlen(s) return 0 end
+
+---Returns a substring of a given string.
+---@param s string The input string.
+---@param start number The starting index of the substring.
+---@param finish number (optional) The ending index of the substring. If not provided, the substring will include all characters from the starting index to the end of the string.
+---@return string return The resulting substring.
+function strsub(s, start, finish) return "" end
+
+---Rounds a given value to the nearest integer.
+---If the value is negative, it rounds up.
+---If the value is positive, it rounds down.
+---@param value number The value to be rounded.
+---@return number roundedValue
+function Round(value) return 0 end
 
 table.wipe = true
 wipe = true
@@ -770,10 +918,250 @@ max = function(...) return 0 end
 ---@return number The minimum value.
 min = function(...) return 0 end
 
+--- ColorMixin is a mixin that provides functionality for working with colors.
+---@class ColorMixin : table
+ColorMixin = {}
+
+---@class colorRGB : table, ColorMixin
+---@field r number
+---@field g number
+---@field b number
+
+---Sets the RGBA values of the color.
+---@param r number The red component of the color (0-1).
+---@param g number The green component of the color (0-1).
+---@param b number The blue component of the color (0-1).
+---@param a? number The alpha component of the color (0-1).
+function ColorMixin:SetRGBA(r, g, b, a) end
+
+---Sets the RGB values of the color.
+---@param r number The red component of the color (0-1).
+---@param g number The green component of the color (0-1).
+---@param b number The blue component of the color (0-1).
+function ColorMixin:SetRGB(r, g, b) end
+
+---Returns the RGB values of the color.
+---@return number r
+---@return number g
+---@return number b
+function ColorMixin:GetRGB() return 0, 0, 0 end
+
+---Returns the RGB values of the color as bytes (0-255).
+---@return number red
+---@return number green
+---@return number blue
+function ColorMixin:GetRGBAsBytes() return 0, 0, 0 end
+
+---Returns the RGBA values of the color.
+---@return number red
+---@return number green
+---@return number blue
+---@return number alpha
+function ColorMixin:GetRGBA() return 0, 0, 0, 0 end
+
+---Returns the RGBA values of the color as bytes (0-255).
+---@return number red
+---@return number green
+---@return number blue
+---@return number alpha
+function ColorMixin:GetRGBAAsBytes() return 0, 0, 0, 0 end
+
+---Checks if the RGB values of this color are equal to another color.
+---@param otherColor table The other color to compare with.
+---@return boolean bIsEqual if the RGB values are equal, false otherwise.
+function ColorMixin:IsRGBEqualTo(otherColor) return true end
+
+---Checks if this color is equal to another color.
+---@param otherColor table The other color to compare with.
+---@return boolean True if the RGB and alpha values are equal, false otherwise.
+function ColorMixin:IsEqualTo(otherColor) return true end
+
+---Generates a hexadecimal color string with alpha.
+---@return string hexadecimal color string with alpha.
+function ColorMixin:GenerateHexColor() return "" end
+
+---Generates a hexadecimal color string without alpha.
+---@return string hexadecimal color string without alpha.
+function ColorMixin:GenerateHexColorNoAlpha() return "" end
+
+---Generates a hexadecimal color markup string.
+---@return string hexadecimal color markup string.
+function ColorMixin:GenerateHexColorMarkup() return "" end
+
+---Wraps the given text in a color code using this color.
+---@param text string The text to wrap.
+---@return string The wrapped text with the color code.
+function ColorMixin:WrapTextInColorCode(text) return "" end
+
+---name space for challenge mode functions.
+---@documentation: /Blizzard_APIDocumentationGenerated/ChallengeModeInfoDocumentation.lua
 C_ChallengeMode = {}
+
+---@class ChallengeModeCompletionMemberInfo
+---@field memberGUID string
+---@field name string
+
+---@class ChallengeModeGuildAttemptMember
+---@field name string
+---@field classFileName string
+
+---@class ChallengeModeGuildTopAttempt
+---@field name string
+---@field classFileName string
+---@field keystoneLevel number
+---@field mapChallengeModeID number
+---@field isYou boolean
+---@field members table<ChallengeModeGuildAttemptMember>
+
+---@class MythicPlusRatingLinkInfo : table
+---@field mapChallengeModeID number
+---@field level number
+---@field completedInTime number
+---@field dungeonScore number
+---@field name string
+
+---@class MythicPlusAffixScoreInfo : table
+---@field name string
+---@field score number
+---@field level number
+---@field durationSec number
+---@field overTime boolean
+
 ---return true if the player is in a challenge mode dungeon.
 ---@return boolean bIsActive Whether the player is in a challenge mode dungeon.
 function C_ChallengeMode.IsChallengeModeActive() return true end
+
+---return the current challenge mode map id.
+---@return number mapID The map id of the current challenge mode.
+function C_ChallengeMode.GetActiveChallengeMapID() return 0 end
+
+---return the current challenge mode keystone level.
+---@return number level The keystone level of the current challenge mode.
+---@return number[] affixIDs The affix ids of the current challenge mode.
+---@return boolean wasActive Whether the keystone was active.
+function C_ChallengeMode.GetActiveKeystoneInfo() return 0, {}, true end
+
+---return the completion information for the current challenge mode.
+---@return number mapChallengeModeID The map id of the challenge mode.
+---@return number level The keystone level of the challenge mode.
+---@return number time The time taken to complete the challenge mode.
+---@return boolean onTime Whether the challenge mode was completed within the time limit.
+---@return number keystoneUpgradeLevels The number of keystone upgrade levels.
+---@return boolean practiceRun Whether the challenge mode was a practice run.
+---@return number oldOverallDungeonScore The old overall dungeon score.
+---@return number newOverallDungeonScore The new overall dungeon score.
+---@return boolean isMapRecord Whether the completion is a map record.
+---@return boolean isAffixRecord Whether the completion is an affix record.
+---@return number primaryAffix The primary affix id.
+---@return boolean isEligibleForScore Whether the completion is eligible for a score.
+---@return ChallengeModeCompletionMemberInfo[] members The members of the group.
+function C_ChallengeMode.GetCompletionInfo() return 0, 0, 0, true, 0, true, 0, 0, true, true, 0, true, {} end
+
+---return the death count for the current challenge mode.
+---@return number numDeaths The number of deaths.
+---@return number timeLost The time lost due to deaths.
+function C_ChallengeMode.GetDeathCount() return 0, 0 end
+
+---return the color value for the overall season M+ rating.
+---@param dungeonScore number The overall season M+ rating.
+---@return colorRGB scoreColor The color value for the overall season M+ rating.
+function C_ChallengeMode.GetDungeonScoreRarityColor(dungeonScore) return {} end
+
+---return the top guild attempts for the current challenge mode.
+---@return ChallengeModeGuildTopAttempt[] topAttempt The top guild attempts for the current challenge mode.
+function C_ChallengeMode.GetGuildLeaders() return {} end
+
+---return the color value for the keystone level.
+---@param level number The keystone level.
+---@return colorRGB levelScore The color value for the keystone level.
+function C_ChallengeMode.GetKeystoneLevelRarityColor(level) return {} end
+
+---return the display scores for the current challenge mode map.
+---@return MythicPlusRatingLinkInfo[] displayScores The display scores for the current challenge mode map.
+function C_ChallengeMode.GetMapScoreInfo() return {} end
+
+---return the map ids for the challenge mode.
+---@return number[] mapChallengeModeIDs The map ids for the challenge mode.
+function C_ChallengeMode.GetMapTable() return {} end
+
+---return the UI information for the challenge mode map.
+---@param mapChallengeModeID number The map id for the challenge mode.
+---@return string name The name of the challenge mode map.
+---@return number id The id of the challenge mode map.
+function C_ChallengeMode.GetMapUIInfo(mapChallengeModeID) return "", 0 end
+
+---return the affix information for the challenge mode.
+---@param affixID number The affix id for the challenge mode.
+---@return string name The name of the affix.
+---@return string description The description of the affix.
+---@return number filedataid The file data id for the affix.
+function C_ChallengeMode.GetAffixInfo(affixID) return "", "", 0 end
+
+---return true if the player can use the keystone in the current map.
+---@param itemLocation ItemLocationMixin The item location of the keystone.
+---@return boolean canUse Whether the player can use the keystone in the current map.
+function C_ChallengeMode.CanUseKeystoneInCurrentMap(itemLocation) return true end
+
+---clear the keystone.
+function C_ChallengeMode.ClearKeystone() end
+
+---close the keystone frame.
+function C_ChallengeMode.CloseKeystoneFrame() end
+
+---return true if the player has a slotted keystone.
+---@return boolean hasSlottedKeystone Whether the player has a slotted keystone.
+function C_ChallengeMode.HasSlottedKeystone() return true end
+
+---remove the keystone.
+---@return boolean removalSuccessful Whether the keystone was removed.
+function C_ChallengeMode.RemoveKeystone() return true end
+
+---request the leaders for the challenge mode map.
+---@param mapChallengeModeID number The map id for the challenge mode.
+function C_ChallengeMode.RequestLeaders(mapChallengeModeID) end
+
+---reset the challenge mode.
+function C_ChallengeMode.Reset() end
+
+---slot the keystone.
+function C_ChallengeMode.SlotKeystone() end
+
+---start the challenge mode.
+---@return boolean success Whether the challenge mode was started.
+function C_ChallengeMode.StartChallengeMode() return true end
+
+---return the power level damage and health modifiers for the challenge mode.
+---@param powerLevel number The power level for the challenge mode.
+---@return number damageMod The damage modifier for the challenge mode.
+---@return number healthMod The health modifier for the challenge mode.
+function C_ChallengeMode.GetPowerLevelDamageHealthMod(powerLevel) return 0, 0 end
+
+---return the overall season M+ rating for the player.
+---@return number overallDungeonScore The overall season M+ rating for the player.
+function C_ChallengeMode.GetOverallDungeonScore() return 0 end
+
+---return the slotted keystone information.
+---@return number mapChallengeModeID The map id for the challenge mode.
+---@return number[] affixIDs The affix ids for the challenge mode.
+---@return number keystoneLevel The keystone level for the challenge mode.
+function C_ChallengeMode.GetSlottedKeystoneInfo() return 0, {}, 0 end
+
+---return the color value for the specific dungeon overall score.
+---@param specificDungeonOverallScore number The specific dungeon overall score.
+---@return colorRGB specificDungeonOverallScoreColor The color value for the specific dungeon overall score.
+function C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(specificDungeonOverallScore) return {} end
+
+---return the color value for the specific dungeon score.
+---@param specificDungeonScore number The specific dungeon score.
+---@return colorRGB specificDungeonScoreColor The color value for the specific dungeon score.
+function C_ChallengeMode.GetSpecificDungeonScoreRarityColor(specificDungeonScore) return {} end
+
+---return the color value for the overall season M+ rating.
+---@param overallDungeonScore number The overall season M+ rating.
+---@return colorRGB overallDungeonScoreColor The color value for the overall season M+ rating.
+function C_ChallengeMode.GetOverallDungeonScoreRarityColor(overallDungeonScore) return {} end
+
+
 
 PixelUtil = {}
 
@@ -934,6 +1322,67 @@ AuraUtil.DispellableDebuffTypes = {
 ---@return any
 AuraUtil.ForEachAura = function(unit, filter, maxCount, func, usePackedAura) end
 
+---@class bit : table
+---@field band fun(x: number, y: number) : number
+---@field bor fun(x: number, y: number) : number
+---@field bxor fun(x: number, y: number) : number
+---@field bnot fun(x: number) : number
+---@field lshift fun(x: number, y: number) : number
+---@field rshift fun(x: number, y: number) : number
+---@field rol fun(x: number, y: number) : number
+---@field ror fun(x: number, y: number) : number
+
+---@class bit
+bit = {}
+
+---returns the bitwise AND of two numbers.
+---@param x number The first number.
+---@param y number The second number.
+---@return number The bitwise AND of the two numbers.
+function bit.band(x, y) return 0 end
+
+---returns the bitwise OR of two numbers.
+---@param x number The first number.
+---@param y number The second number.
+---@return number The bitwise OR of the two numbers.
+function bit.bor(x, y) return 0 end
+
+---returns the bitwise XOR of two numbers.
+---@param x number The first number.
+---@param y number The second number.
+---@return number The bitwise XOR of the two numbers.
+function bit.bxor(x, y) return 0 end
+
+---returns the bitwise NOT of a number.
+---@param x number The number to invert.
+---@return number The bitwise NOT of the number.
+function bit.bnot(x) return 0 end
+
+---returns the bitwise shift left of a number.
+---@param x number The number to shift.
+---@param y number The number of bits to shift.
+---@return number The bitwise shift left of the number.
+function bit.lshift(x, y) return 0 end
+
+---returns the bitwise shift right of a number.
+---@param x number The number to shift.
+---@param y number The number of bits to shift.
+---@return number The bitwise shift right of the number.
+function bit.rshift(x, y) return 0 end
+
+---returns the bitwise rotate left of a number.
+---@param x number The number to rotate.
+---@param y number The number of bits to rotate.
+---@return number The bitwise rotate left of the number.
+function bit.rol(x, y) return 0 end
+
+---returns the bitwise rotate right of a number.
+---@param x number The number to rotate.
+---@param y number The number of bits to rotate.
+---@return number The bitwise rotate right of the number.
+function bit.ror(x, y) return 0 end
+
+
 
 C_Timer = {}
 ---@param delay number
@@ -964,9 +1413,13 @@ function unpack(list, i, j) end
 ---@return number
 function abs(x) return 0 end
 
----@param unit string
+LE_PARTY_CATEGORY_HOME = 1
+LE_PARTY_CATEGORY_INSTANCE = 2
+
+---retur true if the player is in a group
+---@param partyCategory number?
 ---@return boolean
-function IsInGroup(unit) return true end
+function IsInGroup(partyCategory) return true end
 
 ---@param name string
 ---@param server string|nil
@@ -999,6 +1452,12 @@ function tremove(table, index) return nil end
 ---@param code string The Lua code string to be executed.
 ---@return function func A function to be executed.
 function loadstring(code) return function()end end
+
+---lua os.date() function
+---@param format string?
+---@param time number?
+---@return string
+function date(format, time) return "" end
 
 ---returns the number of members in the current group.
 ---@return number
@@ -1051,6 +1510,45 @@ GetAchievementNumCriteria = function(achievementID) return 0 end
 ---@param level number
 ---@return number, string, string, string, number, string
 GetSpecializationInfo = function(specIndex, isInspect, isPet, sex, level) return 0, "", "", "", 0, "" end
+
+---@param specID number
+---@param isInspect boolean?
+---@param isPet boolean?
+---@param inspectTarget string?
+---@return number specId
+---@return string name
+---@return string description
+---@return string icon
+---@return number role
+---@return ...
+GetSpecializationInfoByID = function(specID, isInspect, isPet, inspectTarget) return 0, "", "", "", 0, "" end
+
+---Retrieves specialization information for a given class ID and the specialization index (1 to 3 or 4 on Druids).
+---@param classID number The ID of the class.
+---@param index number The index of the specialization.
+---@return number specializationID The ID of the specialization.
+---@return string specName The name of the specialization.
+---@return string specDescription The description of the specialization.
+---@return string icon The icon of the specialization.
+---@return number role The role of the specialization.
+---@return boolean recommended Whether the specialization is recommended.
+---@return boolean allowedForBoost Whether the specialization is allowed for boost.
+---@return number masterySpell1 The ID of the first mastery spell.
+---@return number masterySpell2 The ID of the second mastery spell.
+GetSpecializationInfoForClassID = function(classID, index) return 0, "", "", "", 0, true, true, 0, 0 end
+
+--make here the documentation for the function GetSpecializationInfoForSpecID() following the same pattern as the other functions
+---@param specID number
+---@return number specializationID The ID of the specialization.
+---@return string specName The name of the specialization.
+---@return string specDescription The description of the specialization.
+---@return string icon The icon of the specialization.
+---@return number role The role of the specialization.
+---@return boolean recommended Whether the specialization is recommended.
+---@return boolean allowedForBoost Whether the specialization is allowed for boost.
+---@return number masterySpell1 The ID of the first mastery spell.
+---@return number masterySpell2 The ID of the second mastery spell.
+GetSpecializationInfoForSpecID = function(specID) return 0, "", "", "", 0, true, true, 0, 0 end
 
 ---@param achievementID number
 ---@return number
@@ -3107,8 +3605,18 @@ GetBattlefieldInstanceRunTime = function() return 0, 0 end
 ---@return number
 GetInstanceBootTimeRemaining = function() return 0 end
 
----@return boolean, string, number, number, number, number, boolean, boolean
-GetInstanceInfo = function() return true, "", 0, 0, 0, 0, true, true end
+---retrive information about the zone the player is in
+---@return string name
+---@return string instanceType
+---@return number difficultyID
+---@return string difficultyName
+---@return number maxPlayers
+---@return number dynamicDifficulty
+---@return boolean isDynamic
+---@return number instanceID
+---@return number instanceGroupSize
+---@return number LfgDungeonID
+GetInstanceInfo = function() return "", "", 0, "", 0, 0, true, 0, 0, 0 end
 
 ---@return number
 GetNumSavedInstances = function() return 0 end
@@ -5240,22 +5748,27 @@ function UnitUsingVehicle(unit) return true end
 ---@return number, number, number
 function GetThreatStatusColor(status) return 0, 0, 0 end
 
+---Retrieves the current experience points of a unit.
 ---@param unit string
 ---@return number
 function UnitXP(unit) return 0 end
 
+---Retrieves the maximum experience points of a unit.
 ---@param unit string
 ---@return number
 function UnitXPMax(unit) return 0 end
 
+---Sets the portrait texture of a frame.
 ---@param frame table
 ---@param texture string
 function SetPortraitTexture(frame, texture) end
 
+---Sets the portrait texture of a frame to a specific texture.
 ---@param frame table
 ---@param texture string
 function SetPortraitToTexture(frame, texture) end
 
+---Inserts a value into a table.
 ---@param table table
 ---@param value any
 function tinsert(table, value) end

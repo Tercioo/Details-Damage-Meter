@@ -1,4 +1,6 @@
-
+otherplugins/
+Blizzard_APIDocumentationGenerated/
+.tmp.driveupload/
 core/parser - FF.lua
 core/parser_original.lua
 core/windows - Copy.lua

@@ -769,7 +769,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 					local lootSquare = unitBanner.LootSquare
 					lootSquare.itemLink = itemLink
 
-					local effectiveILvl = GetDetailedItemLevelInfo(itemLink)
+					local effectiveILvl, nop, baseItemLevel = GetDetailedItemLevelInfo(itemLink)
 
 					local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
 					itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
@@ -777,7 +777,7 @@ function mythicDungeonFrames.ShowEndOfMythicPlusPanel()
 
 					--print("equip loc:", itemEquipLoc)
 
-					if (effectiveILvl > 300) then --avoid showing loot that isn't items
+					if (effectiveILvl > 300 and baseItemLevel > 5) then --avoid showing loot that isn't items
 						local rarityColor = ITEM_QUALITY_COLORS[itemQuality]
 						lootSquare.LootIconBorder:SetVertexColor(rarityColor.r, rarityColor.g, rarityColor.b, 1)
 

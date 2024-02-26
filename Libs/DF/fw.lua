@@ -1,6 +1,6 @@
 
 
-local dversion = 515
+local dversion = 516
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1166,6 +1166,8 @@ function DF:CleanUpName(name)
 	name =  DF:RemoveRealmName(name)
 	name = DF:RemoveOwnerName(name)
 	name = name:gsub("%[%*%]%s", "")
+	--remove texture escape sequence
+	name = name:gsub("|T.-|t", "")
 	return name
 end
 
@@ -1599,7 +1601,9 @@ function DF.SortOrder3R(t1, t2)
 	return t1[3] < t2[3]
 end
 
---return a list of spells from the player spellbook
+---return a list of spells from the player spellbook
+---@return table<string, boolean> spellNamesInSpellBook
+---@return spellid[] spellIdsInSpellBook
 function DF:GetSpellBookSpells()
     local spellNamesInSpellBook = {}
 	local spellIdsInSpellBook = {}
@@ -2036,10 +2040,15 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --colors
 
-	--add a new color name, the color can be query using DetailsFramework:ParseColors(colorName)
+	---add a new color name, the color can be query using DetailsFramework:ParseColors(colorName)
+	---@param colorName string
+	---@param red number
+	---@param green number
+	---@param blue number
+	---@param alpha number?
+	---@return table
 	function DF:NewColor(colorName, red, green, blue, alpha)
 		assert(type(colorName) == "string", "DetailsFramework:NewColor(): colorName must be a string.")
-		--assert(not DF.alias_text_colors[colorName], "DetailsFramework:NewColor(): colorName already exists.")
 
 		red, green, blue, alpha = DetailsFramework:ParseColors(red, green, blue, alpha)
 		local colorTable = DetailsFramework:FormatColor("table", red, green, blue, alpha)
@@ -5075,3 +5084,24 @@ function _G.__benchmark(bNotPrintResult)
 	end
 end
 
+function DF:PreviewTexture(texture, left, right, top, bottom)
+	local preview = DetailsFrameworkTexturePreview or CreateFrame("frame", "DetailsFrameworkTexturePreview", UIParent)
+	preview:SetSize(200, 200)
+	preview:SetPoint("center")
+	preview.texture = DetailsFrameworkTexturePreviewTexture or preview:CreateTexture("DetailsFrameworkTexturePreviewTexture", "artwork")
+	preview.texture:SetAllPoints()
+
+	--check if the texture passed is an atlas
+	if (type(texture) == "string" and C_Texture.GetAtlasInfo(texture)) then
+		preview.texture:SetAtlas(texture)
+
+	elseif (type(texture) == "table") then
+		preview.texture:SetTexture(texture.file or texture.filename)
+		preview.texture:SetTexCoord(texture.leftTexCoord, texture.rightTexCoord, texture.topTexCoord, texture.bottomTexCoord)
+	else
+		preview.texture:SetTexture(texture)
+		preview.texture:SetTexCoord(left or 0, right or 1, top or 0, bottom or 1)
+	end
+
+	preview:Show()
+end

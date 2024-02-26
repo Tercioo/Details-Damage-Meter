@@ -353,7 +353,7 @@
 				custom = custom:gsub("{target}", alvo_name or "")
 				_detalhes:SendMsgToChannel (custom, "PRINT")
 			else
-				local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
+				local minute, second = _detalhes:GetCombat():GetMSTime()
 
 				local class = Details:GetUnitClass(who_name)
 				local class_color = "|cFFFF3333"
@@ -455,7 +455,7 @@
 			end
 
 			local msg
-			local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
+			local minute, second = _detalhes:GetCombat():GetMSTime()
 
 			local class = Details:GetUnitClass(who_name)
 			local class_color = "|cFFFFFFFF"
@@ -592,7 +592,7 @@
 			msg = msg .. " " .. spells
 
 			if (where == 4) then --observer
-				local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
+				local minute, second = _detalhes:GetCombat():GetMSTime()
 				if (second < 10) then
 					second = "0" .. second
 				end

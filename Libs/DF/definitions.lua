@@ -36,6 +36,15 @@
 ---@field RegisterTableKeyWithLocTable fun(table:table, key:any, locTable:table, silence:boolean?)
 ---@field RegisterObjectWithLocTable fun(object:uiobject, locTable:table, silence:boolean?)
 
+---@class df_atlasinfo : atlasinfo
+---@field vertexRed number?
+---@field vertexGreen number?
+---@field vertexBlue number?
+---@field vertexAlpha number?
+---@field colorName string?
+---@field nativeWidth number?
+---@field nativeHeight number?
+
 ---@alias templatetype
 ---| "font"
 ---| "dropdown"
@@ -56,11 +65,13 @@
 ---@field KeybindMixin df_keybindmixin
 ---@field ScriptHookMixin df_scripthookmixin
 ---@field EditorMixin df_editormixin
+---@field ScrollBoxFunctions df_scrollboxmixin
 ---@field ClassCache {ID:number, Name:string, FileString:string, Texture:string, TexCoord:number[]}[] only available after calling GetClassList()
 ---@field Math df_math
 ---@field FontOutlineFlags table<outline, boolean>
 ---@field table df_table_functions
 ---@field AnchorPoints string[]
+---@field alias_text_colors table<string, number[]>
 ---@field ClassFileNameToIndex table<string, number> engClass -> classIndex
 ---@field LoadSpellCache fun(self:table, hashMap:table, indexTable:table, allSpellsSameName:table) : hashMap:table, indexTable:table, allSpellsSameName:table load all spells in the game and add them into the passed tables
 ---@field UnloadSpellCache fun(self:table) wipe the table contents filled with LoadSpellCache()
@@ -108,7 +119,8 @@
 ---@field AddTextureToText fun(text:string, textureInfo:table, bAddSpace:boolean?, bAddAfterText:boolean) : string textureInfo is a table with .texture .width .height .coords{left, right, top, bottom}
 ---@field CreateTextureInfo fun(texture:atlasname|texturepath|textureid, width:number?, height:number?, left:number?, right:number?, top:number?, bottom:number?, imageWidthnumber?, imageHeightnumber?) : table
 ---@field ApplyStandardBackdrop fun(self:table, frame:frame, bUseSolidColor:boolean?, alphaScale:number?)
----@field CreateLabel fun(self:table, parent:frame, text:string, size:number?, color:any?, font:string?, member:string?, name:string?, layer:drawlayer?) : df_label
+---@field NewLabel fun(self:table, parent:frame, container:frame, name:string?, member:string?, text:string|table, font:string?, size:any?, color:any?, layer:drawlayer?) : df_label
+---@field CreateLabel fun(self:table, parent:frame, text:string, size:any?, color:any?, font:string?, member:string?, name:string?, layer:drawlayer?) : df_label
 ---@field CreateDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateFontDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
 ---@field CreateColorDropDown fun(self:table, parent:frame, func:function, default:any, width:number?, height:number?, member:string?, name:string?, template:table?) : df_dropdown
@@ -118,7 +130,7 @@
 ---@field CreateTextEntry fun(self:table, parent:frame, textChangedCallback:function, width:number, height:number, member:string?, name:string?, labelText:string?, textentryTemplate:table?, labelTemplate:table?) : df_textentry
 ---@field ReskinSlider fun(self:table, slider:frame)
 ---@field GetAvailableSpells fun(self:table) : table<spellid, boolean>
----@field NewColor fun(self:table, colorName:string, red:number, green:number, blue:number, alpha:number)
+---@field NewColor fun(self:table, colorName:string, red:number, green:number, blue:number, alpha:number?) : table
 ---@field CreateKeybindFrame fun(self:table, parent:frame, name:string?, options:table?, setKeybindCallback:function?, keybindData:table?) : df_keybindframe
 ---@field CreateStatusBar fun(self:table, parent:frame, options:table?) : frame
 ---@field GetTemplate fun(self:table, templateType:templatetype, templateName:string) : table
@@ -153,9 +165,49 @@
 ---@field CreateSlider fun(self:table, parent:frame, width:number?, height:number?, minValue:number?, maxValue:number?, step:number?, defaultv:number?, isDecemal:boolean?, member:string?, name:string?, label:string?, sliderTemplate:string|table?, labelTemplate:string|table?) : df_slider, df_label?
 ---@field CreateFrameContainer fun(self:table, parent:frame, options:table?, frameName:string?) : df_framecontainer create a frame container, which is a frame that envelops another frame, and can be moved, resized, etc.
 ---@field CreateAnimation fun(self:table, animationGroup:animationgroup, animationType:animationtype, order:number, duration:number, arg1:any, arg2:any, arg3:any, arg4:any, arg5:any, arg6:any, arg7:any, arg8:any) : animation
+---@field NewImage fun(self:table, parent:frame, texture:atlasname|texturepath|textureid|df_gradienttable|nil, width:number?, height:number?, layer:drawlayer?, texCoord:table?, member:string?, name:string?) : df_image
 ---@field CreateTexture fun(self:table, parent:frame, texture:atlasname|texturepath|textureid|nil, width:number?, height:number?, layer:drawlayer?, coords:table?, member:string?, name:string?) : df_image
+---@field CreateImage fun(self:table, parent:frame, texture:atlasname|texturepath|textureid|nil, width:number?, height:number?, layer:drawlayer?, coords:table?, member:string?, name:string?) : df_image
 ---@field CreateFrameShake fun(self:table, parent:uiobject, duration:number?, amplitude:number?, frequency:number?, absoluteSineX:boolean?, absoluteSineY:boolean?, scaleX:number?, scaleY:number?, fadeInTime:number?, fadeOutTime:number?, anchorPoints:table?) : df_frameshake
 ---@field SetTexCoordFromAtlasInfo fun(self:table, texture:texture, atlasInfo:atlasinfo) : nil
----@field 
+---@field TruncateNumber fun(self:table, number:number, fractionDigits:number) : number
+---@field GetNpcIdFromGuid fun(self:table, GUID:string) : number
+---@field SortOrder1 fun(t1:table, t2:table) : boolean
+---@field SortOrder2 fun(t1:table, t2:table) : boolean
+---@field SortOrder3 fun(t1:table, t2:table) : boolean
+---@field SortOrder1R fun(t1:table, t2:table) : boolean
+---@field SortOrder2R fun(t1:table, t2:table) : boolean
+---@field SortOrder3R fun(t1:table, t2:table) : boolean
+---@field Trim fun(self:table, string:string) : string
+---@field trim fun(self:table, string:string) : string
+---@field TruncateTextSafe fun(self:table, fontString:fontstring, maxWidth:number) : nil
+---@field TruncateText fun(self:table, fontString:fontstring, maxWidth:number) : nil
+---@field CleanTruncateUTF8String fun(self:table, text:string) : string
+---@field GetSpellBookSpells fun(self:table) : table<string, boolean>, spellid[] return a list of spells from the player spellbook
+---@field PreviewTexture fun(self:table, texture:atlasname|texturepath|textureid, left:number?, right:number?, top:number?, bottom:number?) : nil
+---@field SetAtlas fun(self:table, textureObject:texture, atlas:atlasinfo|atlasname, useAtlasSize:boolean?, filterMode:texturefilter?, resetTexCoords:boolean?) : nil
+---@field CreateAtlas fun(self:table, file:texturepath|textureid, width:number?, height:number?, leftTexCoord:number?, rightTexCoord:number?, topTexCoord:number?, bottomTexCoord:number?, tilesHorizontally:boolean?, tilesVertically:boolean?, vertexRed:any, vertexGreen:number?, vertexBlue:number?, vertexAlpha:number?) : atlasinfo
+---@field ParseTexture fun(self:table, texture:texturepath|textureid|atlasname|atlasinfo, width: number?, height: number?, leftTexCoord: number?, rightTexCoord: number?, topTexCoord: number?, bottomTexCoord: number?, vertexRed:number|string?, vertexGreenvertexRed:number?, vertexBluevertexRed:number?, vertexAlphavertexRed:number?) : any, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?, number?
+---@field IsTexture fun(self:table, texture:any, bCheckTextureObject: boolean?) : boolean
+---@field CreateAtlasString fun(self:table, atlas:atlasinfo|atlasname, textureHeight:number?, textureWidth:number?) : string
+---@field
 
+--[=[
+    Wrapped objects: when using the following functions, the object will be wrapped in a table, e.g. detailsFramework:CreateButton() will return a table with the button, the button will be accessible through the "button" key.
+    The wrapper table will have the same metatable as the wrapped object, so you can call methods on the wrapper table as if it was the wrapped object.
+    Example: local myButton = detailsFramework:CreateButton(); myButton:SetSize(100, 100) => will call SetSize(100, 100) on the button wrapped.
+    The wrapped object will be accessible through the "widget" key, e.g. local myButton = detailsFramework:CreateButton(); local actualButtonUIObject = myButton.widget.
+    Wrapped objects can give errors when used in some situations, like when passing them to the game API, in this case, you can use the "widget" key to access the actual object. This is very common on SetPoint calls where the game API expects a frame, not a table. Error exammple with SetPoints: "SetPoint(): Wrong object type for function".
 
+    The following functions will return a wrapped object:
+    - CreateButton, NewButton
+    - CreateColorPickButton
+    - CreateTexture, CreateImage, NewImage
+    - CreateSearchBox, NewSpellEntry, NewTextEntry, CreateTextEntry
+    - NewDropDown, CreateDropDown, CreateFontDropDown, CreateColorDropDown, CreateOutlineDropDown, CreateAnchorPointDropDown
+    - NewPanel, CreatePanel
+    - CreateSwitch, NewSwitch, NewSlider, CreateSlider
+    - NewLabel, CreateLabel
+    - NewSplitBar, CreateSplitBar
+    - CreateTimeBar
+--]=]

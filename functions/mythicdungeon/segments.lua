@@ -132,7 +132,8 @@ function Details222.MythicPlus.OnBossDefeated(encounterID, encounterName)
 
         --iterate among segments
         for i = 1, 25 do --from the newer combat to the oldest
-            local pastCombat = segmentsTable [i]
+            ---@type combat
+            local pastCombat = segmentsTable[i]
             --does the combat exists
             if (pastCombat and not pastCombat._trashoverallalreadyadded and pastCombat.is_mythic_dungeon_trash) then
                 --is the combat a mythic segment from this run?
@@ -334,7 +335,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
 end
 
 --after each boss fight, if enalbed on settings, create an extra segment with all trash segments from the boss just killed
-function DetailsMythicPlusFrame.MergeTrashCleanup (isFromSchedule)
+function DetailsMythicPlusFrame.MergeTrashCleanup()
     if (DetailsMythicPlusFrame.DevelopmentDebug) then
         print("Details!", "MergeTrashCleanup() > running", DetailsMythicPlusFrame.TrashMergeScheduled and #DetailsMythicPlusFrame.TrashMergeScheduled)
     end
@@ -399,10 +400,10 @@ function DetailsMythicPlusFrame.MergeTrashCleanup (isFromSchedule)
         newCombat.is_mythic_dungeon_run_id = Details.mythic_dungeon_id
 
         --set the segment time / using a sum of combat times, this combat time is reliable
-        newCombat:SetStartTime (GetTime() - totalTime)
-        newCombat:SetEndTime (GetTime())
+        newCombat:SetStartTime(GetTime() - totalTime)
+        newCombat:SetEndTime(GetTime())
         --set the segment date
-        newCombat:SetDate (startDate, endDate)
+        newCombat:SetDate(startDate, endDate)
 
         if (DetailsMythicPlusFrame.DevelopmentDebug) then
             print("Details!", "MergeTrashCleanup() > finished merging trash segments.", Details.tabela_vigente, Details.tabela_vigente.is_boss)
@@ -522,7 +523,7 @@ function DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
 
         if (not Details.tabela_vigente) then
             --assuming there's no segment from the dungeon run
-            Details:EntrarEmCombate()
+            Details:StartCombat()
             Details:SairDoCombate()
         end
 

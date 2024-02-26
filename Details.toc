@@ -34,6 +34,7 @@ indent.lua
 core\util.lua
 functions\mixin.lua
 API.lua
+textures.lua
 
 functions\ej_cache.lua
 functions\events.lua

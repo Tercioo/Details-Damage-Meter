@@ -199,6 +199,7 @@ local _
 		Details.janela_report.slider.lockTexture:Hide()
 		Details.janela_report.slider.amt:Show()
 
+		--print("report is custom:", bIsCustom)
 		if (options) then
 			--dumpt(param2) = {damage, spellName, spellId}
 			--print(param2, options._custom) options._custom = nil

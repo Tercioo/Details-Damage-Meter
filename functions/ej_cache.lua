@@ -60,6 +60,7 @@ function Details:GetEncounterInfo(id)
     end
 end
 
+---@param id instanceid|instancename|mapid
 ---@return details_instanceinfo?
 function Details:GetInstanceInfo(id)
     ---@type details_encounterinfo

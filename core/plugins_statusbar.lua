@@ -722,7 +722,7 @@ do
 					if (child.options.segmentType == 1) then
 						child.text:SetText(Loc ["STRING_CURRENT"])
 					else
-						local combatName = Details.tabela_vigente:GetCombatName(true)
+						local combatName = Details.tabela_vigente:GetCombatName(false, true)
 
 						if (combatName and combatName ~= Loc ["STRING_UNKNOW"]) then
 							if (child.options.segmentType == 2) then
@@ -746,7 +746,7 @@ do
 						child.text:SetText(Loc ["STRING_FIGHTNUMBER"] .. child.instance:GetSegmentId())
 
 					else
-						local combatName = child.instance.showing:GetCombatName(true)
+						local combatName = child.instance.showing:GetCombatName(false, true)
 						if (combatName ~= Loc ["STRING_UNKNOW"]) then
 							if (child.options.segmentType == 2) then
 								child.text:SetText(combatName)

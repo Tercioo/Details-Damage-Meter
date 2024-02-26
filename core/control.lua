@@ -329,7 +329,8 @@
 		--flag Details! as 'in combat'
 		Details.in_combat = true
 
-		newCombatObject:seta_data(Details._detalhes_props.DATA_TYPE_START) --seta na tabela do combate a data do inicio do combate -- setup time data
+		local bSetStartTime = true
+		newCombatObject:SetDateToNow(bSetStartTime)
 
 		--set the combat id on the combat object
 		newCombatObject.combat_id = combatCounter
@@ -548,7 +549,9 @@
 		end
 
 		--salva hora, minuto, segundo do fim da luta
-		currentCombat:seta_data(Details._detalhes_props.DATA_TYPE_END)
+		local bSetStartTime = false
+		local bSetEndTime = true
+		currentCombat:SetDateToNow(bSetStartTime, bSetEndTime)
 		currentCombat:seta_tempo_decorrido()
 
 		--drop last events table to garbage collector
@@ -617,12 +620,16 @@
 					if (currentCombat.is_mythic_dungeon_segment) then --setted just above
 						--is inside a mythic+ dungeon and this is not a boss segment, so tag it as a dungeon mythic+ trash segment
 						local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-						currentCombat.is_mythic_dungeon_trash = {
+
+						---@type mythicdungeontrashinfo
+						local mythicPlusTrashInfo = {
 							ZoneName = zoneName,
 							MapID = instanceMapID,
 							Level = Details.MythicPlus.Level,
 							EJID = Details.MythicPlus.ejID,
 						}
+						currentCombat.is_mythic_dungeon_trash = mythicPlusTrashInfo
+
 						if (Details.debug) then
 							Details:Msg("segment tagged as mythic+ trash.")
 						end

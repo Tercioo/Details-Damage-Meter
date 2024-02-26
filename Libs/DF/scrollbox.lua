@@ -86,6 +86,9 @@ detailsFramework.ScrollBoxFunctions = {
 		return self.Frames
 	end,
 
+	---@param self df_scrollbox
+	---@param offset number
+	---@return boolean
 	OnVerticalScroll = function(self, offset)
 		self:OnVerticalScrollFaux(offset, self.LineHeight, self.Refresh)
 		return true
@@ -112,12 +115,20 @@ detailsFramework.ScrollBoxFunctions = {
 		return newLine
 	end,
 
+	---Creates multiple lines in the scroll box.
+	---@param self df_scrollbox The DF_ScrollBox object.
+	---@param callback function The callback function to be called for each line.
+	---@param lineAmount number The number of lines to create.
 	CreateLines = function(self, callback, lineAmount)
 		for i = 1, lineAmount do
 			self:CreateLine(callback)
 		end
 	end,
 
+	---Retrieves a specific line from the scroll box.
+	---@param self df_scrollbox The DF_ScrollBox object.
+	---@param lineIndex number The index of the line to retrieve.
+	---@return frame line The line object at the specified index.
 	GetLine = function(self, lineIndex)
 		local line = self.Frames[lineIndex]
 		if (line) then
@@ -128,6 +139,8 @@ detailsFramework.ScrollBoxFunctions = {
 		return line
 	end,
 
+	---Sets the data for the scroll box.
+	---@param data table The data to be set.
 	SetData = function(self, data)
 		self.data = data
 		if (self.OnSetData) then
@@ -135,26 +148,45 @@ detailsFramework.ScrollBoxFunctions = {
 		end
 	end,
 
+	---Retrieves the data associated with the scrollbox.
+	---@param self df_scrollbox
+	---@return table The data associated with the scrollbox.
 	GetData = function(self)
 		return self.data
 	end,
 
+	---Retrieves the frames contained within the scrollbox.
+	---@param self df_scrollbox
+	---@return table The frames contained within the scrollbox.
 	GetFrames = function(self)
 		return self.Frames
 	end,
 
-	GetLines = function(self) --alias of GetFrames
+	---Retrieves the lines contained within the scrollbox.
+	---This is an alias of GetFrames.
+	---@param self df_scrollbox
+	---@return table The lines contained within the scrollbox.
+	GetLines = function(self)
 		return self.Frames
 	end,
 
+	---Retrieves the number of frames created within the scrollbox.
+	---@param self df_scrollbox
+	---@return number The number of frames created within the scrollbox.
 	GetNumFramesCreated = function(self)
 		return #self.Frames
 	end,
 
+	---get the amount of lines the scroll is currently showing
+	---@param self df_scrollbox
+	---@return number amountOfLines
 	GetNumFramesShown = function(self)
 		return self.LineAmount
 	end,
 
+	---set the max amount of lines the scroll can show
+	---@param self df_scrollbox
+	---@param newAmount number
 	SetNumFramesShown = function(self, newAmount)
 		--hide frames which won't be used
 		if (newAmount < #self.Frames) then

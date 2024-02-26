@@ -1986,11 +1986,11 @@ local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 --the slider was anchoring to with_label and here here were anchoring the slider again
 ---@class df_scalebar : slider
 ---@field thumb texture
-function detailsFramework:CreateScaleBar(frame, config) --~scale
+function detailsFramework:CreateScaleBar(frame, config, bNoRightClick) --~scale
 	---@type df_scalebar
 	local scaleBar, text = detailsFramework:CreateSlider(frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE"), detailsFramework:GetTemplate("font", "ORANGE_FONT_TEMPLATE"))
 	scaleBar.thumb:SetWidth(24)
-	scaleBar:SetValueStep(0.1)
+	scaleBar:SetValueStep(0.05)
 	scaleBar:SetObeyStepOnDrag(true)
 	scaleBar.mouseDown = false
 	rawset(scaleBar, "lockdown", true)
@@ -2023,26 +2023,32 @@ function detailsFramework:CreateScaleBar(frame, config) --~scale
 	end)
 
 	editbox:SetScript("OnEscapePressed", function()
+		if (bNoRightClick) then
+			return
+		end
 		editbox:ClearFocus()
 		editbox:Hide()
 		editbox:SetText(editbox.defaultValue)
 	end)
 
 	scaleBar:SetScript("OnMouseDown", function(_, mouseButton)
-		if (mouseButton == "RightButton") then
+		if (mouseButton == "LeftButton" or (mouseButton == "RightButton" and bNoRightClick)) then
+			scaleBar.mouseDown  = true
+
+		elseif (mouseButton == "RightButton") then
+			if (bNoRightClick) then
+				return
+			end
 			editbox:Show()
 			editbox:SetAllPoints()
 			editbox:SetText(config.scale)
 			editbox:SetFocus(true)
 			editbox.defaultValue = config.scale
-
-		elseif (mouseButton == "LeftButton") then
-			scaleBar.mouseDown  = true
 		end
 	end)
 
 	scaleBar:SetScript("OnMouseUp", function(_, mouseButton)
-		if (mouseButton == "LeftButton") then
+		if (mouseButton == "LeftButton" or (mouseButton == "RightButton" and bNoRightClick)) then
 			scaleBar.mouseDown  = false
 			frame:SetScale(config.scale)
 			editbox.defaultValue = config.scale
@@ -3810,6 +3816,7 @@ end
 ---@field SetData fun(self:df_scrollbox, data:table)
 ---@field GetData fun(self:df_scrollbox): table
 ---@field OnSetData fun(self:df_scrollbox, data:table)? if exists, this function is called after the SetData with the same parameters
+---@field ScrollBar statusbar
 ---@field
 
 ---create a scrollbox with the methods :Refresh() :SetData() :CreateLine()

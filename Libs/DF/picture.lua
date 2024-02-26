@@ -1,4 +1,5 @@
 
+---@type detailsframework
 local detailsFramework = _G["DetailsFramework"]
 if (not detailsFramework or not DetailsFrameworkCanLoad) then
 	return
@@ -252,6 +253,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 	---@field invert boolean?
 
 	---create an object that encapsulates a texture and add additional methods to it
+	---this function is an alias of NewImage() with a different name and parameters in different order
 	---@param parent frame
 	---@param texture texturepath|textureid|df_gradienttable|nil
 	---@param width number?
@@ -266,6 +268,7 @@ detailsFramework:Mixin(ImageMetaFunctions, detailsFramework.ScriptHookMixin)
 	end
 
 	---create an object that encapsulates a texture and add additional methods to it
+	---this function is an alias of NewImage() with a different name and parameters in different order
 	---@param parent frame
 	---@param texture texturepath|textureid|df_gradienttable|nil
 	---@param width number?
@@ -437,4 +440,223 @@ function detailsFramework:CreateHighlightTexture(parent, parentKey, alpha, name)
 	end
 
 	return highlightTexture
+end
+
+---Set an atlas to a texture object
+---Accpets a string (atlasname) or a table (atlasinfo)
+---@param self table
+---@param textureObject texture
+---@param atlas atlasinfo|atlasname
+---@param useAtlasSize boolean?
+---@param filterMode texturefilter?
+---@param resetTexCoords boolean?
+function detailsFramework:SetAtlas(textureObject, atlas, useAtlasSize, filterMode, resetTexCoords)
+	local isAtlas = C_Texture.GetAtlasInfo(type(atlas) == "string" and atlas or "--")
+
+	if (isAtlas and type(atlas) == "string") then
+		textureObject:SetAtlas(atlas, useAtlasSize, filterMode, resetTexCoords)
+		return
+	end
+
+	if (type(atlas) == "table") then
+		---@cast atlas df_atlasinfo
+		local atlasInfo = atlas
+
+		if (useAtlasSize) then
+			if (atlasInfo.width) then
+				textureObject:SetWidth(atlasInfo.width)
+			end
+			if (atlasInfo.height) then
+				textureObject:SetHeight(atlasInfo.height)
+			end
+		end
+
+		textureObject:SetHorizTile(atlasInfo.tilesHorizontally or false)
+		textureObject:SetVertTile(atlasInfo.tilesVertically or false)
+
+		textureObject:SetTexture(atlasInfo.file, atlasInfo.tilesHorizontally and "REPEAT" or "CLAMP", atlasInfo.tilesVertically and "REPEAT" or "CLAMP", filterMode or "LINEAR")
+		textureObject:SetTexCoord(atlasInfo.leftTexCoord or 0, atlasInfo.rightTexCoord or 1, atlasInfo.topTexCoord or 0, atlasInfo.bottomTexCoord or 1)
+
+		if (atlasInfo.colorName) then
+			textureObject:SetVertexColor(detailsFramework:ParseColors(atlasInfo.colorName))
+		else
+			if (atlasInfo.vertexRed or atlasInfo.vertexGreen or atlasInfo.vertexBlue or atlasInfo.vertexAlpha) then
+				textureObject:SetVertexColor(atlasInfo.vertexRed or 1, atlasInfo.vertexGreen or 1, atlasInfo.vertexBlue or 1, atlasInfo.vertexAlpha or 1)
+			end
+		end
+	end
+end
+
+---get the passed atlas, convert it to string with a texture escape sequence, and return it
+---textureHeight overrides the height of the atlas
+---textureWidth overrides the width of the atlas
+---@param self table
+---@param atlas atlasinfo|atlasname
+---@param textureHeight number?
+---@param textureWidth number?
+---@return string
+function detailsFramework:CreateAtlasString(atlas, textureHeight, textureWidth)
+	local file, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, r, g, b, nativeWidth, nativeHeight = detailsFramework:ParseTexture(atlas)
+
+	if (not height) then
+		return "|T" .. file .. "|t"
+	elseif (not width) then
+		return "|T" .. file .. ":" .. height .. "|t"
+	elseif (not leftTexCoord) then
+		return "|T" .. file .. ":" .. height .. ":" .. width .. "|t"
+	elseif (not r) then
+		--the two zeros are the x and y offset
+		--texCoords are multiplied by the heigh and width to get the actual pixel position
+		return "|T" .. file .. ":" .. (textureHeight or height) .. ":" .. (textureWidth or width) .. ":0:0:" .. (nativeWidth or width) .. ":" .. (nativeHeight or height) .. ":" .. leftTexCoord*(nativeWidth or width) .. ":" .. rightTexCoord*(nativeWidth or width) .. ":" .. topTexCoord*(nativeHeight or height) .. ":" .. bottomTexCoord*(nativeHeight or height) .. "|t"
+	else
+		return "|T" .. file .. ":" .. (textureHeight or height) .. ":" .. (textureWidth or width) .. ":0:0:" .. (nativeWidth or width) .. ":" .. (nativeHeight or height) .. ":" .. leftTexCoord*(nativeWidth or width) .. ":" .. rightTexCoord*(nativeWidth or width) .. ":" .. topTexCoord*(nativeHeight or height) .. ":" .. bottomTexCoord*(nativeHeight or height) .. ":" .. r .. ":" .. g .. ":" .. b .. "|t"
+	end
+end
+
+---Receives a texturepath or a textureid or an atlasname or an atlasinfo.
+---Parse the data received and return the texture path or id, width, height and texcoords, what is available.
+---nativeWidth and nativeHeight are the dimentions of the texture file in pixels.
+---@param self table
+---@param texture texturepath|textureid|atlasname|atlasinfo
+---@param width number?
+---@param height number?
+---@param leftTexCoord number?
+---@param rightTexCoord number?
+---@param topTexCoord number?
+---@param bottomTexCoord number?
+---@param vertexRed number?
+---@param vertexGreen number?
+---@param vertexBlue number?
+---@param vertexAlpha number?
+---@return any texture
+---@return number? width
+---@return number? height
+---@return number? leftTexCoord
+---@return number? rightTexCoord
+---@return number? topTexCoord
+---@return number? bottomTexCoord
+---@return number? red
+---@return number? green
+---@return number? blue
+---@return number? alpha
+---@return number? nativeWidth
+---@return number? nativeHeight
+function detailsFramework:ParseTexture(texture, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, vertexRed, vertexGreen, vertexBlue, vertexAlpha)
+	local isAtlas
+	if (type(texture) == "string") then
+		isAtlas = C_Texture.GetAtlasInfo(texture)
+	end
+
+	if (isAtlas) then
+		---@type atlasinfo
+		local atlasInfo = isAtlas
+		local textureId = atlasInfo.file
+		local texturePath = atlasInfo.filename
+		return textureId or texturePath, width or atlasInfo.width, height or atlasInfo.height, atlasInfo.leftTexCoord, atlasInfo.rightTexCoord, atlasInfo.topTexCoord, atlasInfo.bottomTexCoord
+	end
+
+	if (type(texture) == "table") then
+		---@type df_atlasinfo
+		local atlasInfo = texture
+
+		local r, g, b, a
+		if (type(atlasInfo.colorName) == "string") then
+			r, g, b, a = detailsFramework:ParseColors(atlasInfo.colorName)
+		else
+			r, g, b, a = atlasInfo.vertexRed or vertexRed, atlasInfo.vertexGreen or vertexGreen, atlasInfo.vertexBlue or vertexBlue, atlasInfo.vertexAlpha or vertexAlpha
+		end
+
+		local nativeWidth, nativeHeight = atlasInfo.nativeWidth, atlasInfo.nativeHeight
+		return atlasInfo.file or atlasInfo.filename, width or atlasInfo.width, height or atlasInfo.height, atlasInfo.leftTexCoord, atlasInfo.rightTexCoord, atlasInfo.topTexCoord, atlasInfo.bottomTexCoord, r, g, b, a, nativeWidth, nativeHeight
+	end
+
+	if (type(vertexRed) == "string" or type(vertexRed) == "table") then
+		--the color passed is a colorName or a colorTable
+		vertexRed, vertexGreen, vertexBlue, vertexAlpha = detailsFramework:ParseColors(vertexRed)
+	end
+
+	return texture, width, height, leftTexCoord or 0, rightTexCoord or 1, topTexCoord or 0, bottomTexCoord or 1, vertexRed, vertexGreen, vertexBlue, vertexAlpha
+end
+
+---Use the passed arguments to create a table imitate an atlasinfo
+---@param self table
+---@param file any
+---@param width number? width of the texture
+---@param height number? height of the texture
+---@param leftTexCoord number? left texture coordinate to use with SetTexCoord as firt parameter
+---@param rightTexCoord number? right texture coordinate to use with SetTexCoord as second parameter
+---@param topTexCoord number? top texture coordinate to use with SetTexCoord as third parameter
+---@param bottomTexCoord number? bottom texture coordinate to use with SetTexCoord as fourth parameter
+---@param tilesHorizontally boolean? if the texture should tile horizontally, used with texture:SetHorizTile(value)
+---@param tilesVertically boolean? if the texture should tile vertically, used with texture:SetVertTile(value)
+---@param vertexRed number|string? red color to use with SetVertexColor or a color name to be parsed with ParseColors
+---@param vertexGreen number? green color to use with SetVertexColor
+---@param vertexBlue number? blue color to use with SetVertexColor
+---@param vertexAlpha number? alpha color to use with SetVertexColor
+---@return df_atlasinfo
+function detailsFramework:CreateAtlas(file, width, height, leftTexCoord, rightTexCoord, topTexCoord, bottomTexCoord, tilesHorizontally, tilesVertically, vertexRed, vertexGreen, vertexBlue, vertexAlpha)
+	---@type df_atlasinfo
+	local atlasInfo = {
+		file = file,
+		width = width or 64,
+		height = height or 64,
+		leftTexCoord = leftTexCoord or 0,
+		rightTexCoord = rightTexCoord or 1,
+		topTexCoord = topTexCoord or 0,
+		bottomTexCoord = bottomTexCoord or 1,
+		tilesHorizontally = tilesHorizontally or false,
+		tilesVertically = tilesVertically or false,
+	}
+
+	--parse the colors passed
+	if (vertexRed) then
+		if (type(vertexRed) == "string") then
+			atlasInfo.colorName = vertexRed
+		else
+			atlasInfo.vertexRed = vertexRed
+			atlasInfo.vertexGreen = vertexGreen
+			atlasInfo.vertexBlue = vertexBlue
+			atlasInfo.vertexAlpha = vertexAlpha
+		end
+	end
+
+	return atlasInfo
+end
+
+---Return the texture passed can be parsed as a texture
+---@param self table
+---@param texture any
+---@param bCheckTextureObject boolean?
+---@return boolean
+function detailsFramework:IsTexture(texture, bCheckTextureObject)
+	--if is a string, can be a path or an atlasname, so can be parsed
+	if (type(texture) == "string") then
+		return true
+	end
+
+	--if is a number, can be parsed
+	if (type(texture) == "number") then
+		return true
+	end
+
+	if (type(texture) == "table") then
+		--gradient texture
+		if (texture.gradient) then
+			return true
+		end
+
+		--part of an atlasinfo
+		if (texture.file or texture.filename) then
+			return true
+		end
+
+		if (bCheckTextureObject) then
+			--check if is a texture object
+			if (texture.GetTexture and texture.GetObjectType and texture:GetObjectType() == "Texture") then
+				return true
+			end
+		end
+	end
+
+	return false
 end

@@ -198,7 +198,7 @@ table members: name, mapid, zone@
 time = combat:GetCombatTime()
 @COMMENTreturns the length of the combat in seconds, if the combat is in progress, returns the current elapsed time.@
 
-minutes, seconds = GetFormatedCombatTime()
+minutes, seconds = GetMSTime()
 @COMMENTreturns the combat time formated with minutes and seconds.@
 
 startDate, endDate = combat:GetDate()

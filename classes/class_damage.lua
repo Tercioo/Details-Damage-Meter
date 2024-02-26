@@ -5994,8 +5994,10 @@ function damageClass:BuildSpellDetails(spellBar, spellBlockContainer, blockIndex
 		local totalCasts = spellBar.amountCasts > 0 and spellBar.amountCasts or "(?)"
 		blockLine1.leftText:SetText(Loc ["STRING_CAST"] .. ": " .. totalCasts) --total amount of casts
 
-		if (trinketData[spellId] and combatObject.trinketProcs) then
-			local trinketProcData = combatObject.trinketProcs[actorName]
+		local trinketProcs = combatObject:GetTrinketProcsForPlayer(actorName)
+
+		if (trinketData[spellId] and trinketProcs) then
+			local trinketProcData = trinketProcs[actorName]
 			if (trinketProcData) then
 				local trinketProc = trinketProcData[spellId]
 				if (trinketProc) then

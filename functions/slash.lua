@@ -122,6 +122,17 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 		dumpt(returnTable)
 
+	elseif (command == "mythic+") then
+		local statName = "mythicdungeoncompletedDF2"
+		local mythicDungeonRuns = Details222.PlayerStats:GetStat(statName)
+
+		dumpt(mythicDungeonRuns)
+
+		for mapChallengeModeID, mapChallengeModeData in pairs(mythicDungeonRuns) do
+			local mapName = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID)
+			print(mapName, mapChallengeModeData.level, mapChallengeModeData.completed, mapChallengeModeData.time)
+		end
+
 	elseif (command == "mergepetspells") then --deprecated
 		Details.merge_pet_abilities = not Details.merge_pet_abilities
 		Details:Msg("Merging pet spells:", Details.merge_pet_abilities or "false")
@@ -1301,11 +1312,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--]]
 
 		--set some data
-		newCombat:SetStartTime (GetTime() - totalTime)
-		newCombat:SetEndTime (GetTime())
+		newCombat:SetStartTime(GetTime() - totalTime)
+		newCombat:SetEndTime(GetTime())
 
-		newCombat.data_inicio = startDate
-		newCombat.data_fim = endDate
+		newCombat:SetDate(startDate, endDate)
 
 		--immediatly finishes the segment just started
 		Details:SairDoCombate()

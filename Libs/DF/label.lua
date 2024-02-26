@@ -289,10 +289,19 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ---@field SetTextColor fun(self: df_label, red: any, green: number|nil, blue: number|nil, alpha: number|nil) set the button text color
 ---@field SetTextTruncated fun(self: df_label, text: string, maxWidth: width)
 
+--there are two calls to create a label: detailsFramework:CreateLabel and detailsFramework:NewLabel
+--NewLabel is the original function, CreateLabel is an alias with different parameters order to make it easier to use
+--When converting the NewLabel() call with CreateLabel() do this:
+--rename NewLabel to CreateLabel;
+--change the order of the parameters: parent, container, name, member, text, font, size, color, layer => parent, text, size, color, font, member, name, layer
+--container is gone from the parameters pm CreateLabel
+--detailsFramework:CreateLabel(parent, text, size, color, font, member, name, layer)
+--detailsFramework:NewLabel(parent, container, name, member, text, font, size, color, layer)
+
 ---create a new label object
 ---@param parent frame
 ---@param text string|table for used for localization, expects a locTable from the language system
----@param size number|nil
+---@param size any?
 ---@param color any|nil
 ---@param font string|nil
 ---@param member string|nil
@@ -300,9 +309,19 @@ detailsFramework:Mixin(LabelMetaFunctions, detailsFramework.ScriptHookMixin)
 ---@param layer drawlayer|nil
 ---@return df_label|nil
 function detailsFramework:CreateLabel(parent, text, size, color, font, member, name, layer)
-	return detailsFramework:NewLabel(parent, nil, name, member, text, font, size, color, layer)
+	return detailsFramework:NewLabel(parent, parent, name, member, text, font, size, color, layer)
 end
 
+---create a new label object
+---@param parent frame
+---@param container frame
+---@param name string?
+---@param member string?
+---@param text string|table regular text or a locTable from the language system
+---@param font string?
+---@param size any?
+---@param color any?
+---@param layer drawlayer?
 function detailsFramework:NewLabel(parent, container, name, member, text, font, size, color, layer)
 	if (not parent) then
 		return error("Details! Framework: parent not found.", 2)
@@ -340,7 +359,7 @@ function detailsFramework:NewLabel(parent, container, name, member, text, font, 
 		font = "GameFontNormal"
 	end
 
-	labelObject.label = parent:CreateFontString(name, layer or "OVERLAY", font)
+	labelObject.label = parent:CreateFontString(name, layer or "overlay", font)
 	labelObject.widget = labelObject.label
 	labelObject.label.MyObject = labelObject
 
@@ -363,7 +382,7 @@ function detailsFramework:NewLabel(parent, container, name, member, text, font, 
 		if (detailsFramework.Language.IsLocTable(locTable)) then
 			detailsFramework.Language.SetTextWithLocTable(labelObject.widget, locTable)
 		else
-			labelObject.label:SetText(text)
+			labelObject.label:SetText("type(text) is a table, but locTable isn't registered.")
 		end
 	else
 		labelObject.label:SetText(text)

@@ -4,6 +4,8 @@ if (not DF or not DetailsFrameworkCanLoad) then
 	return
 end
 
+local detailsFramework = DF
+
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local _
 
@@ -15,7 +17,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 20
+local version = 21
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -3178,9 +3180,19 @@ function DF:CreateCoolTip()
 		if (gameCooltip.Indexes == 0) then
 			return gameCooltip:PrintDebug("AddIcon() requires an already added line (Cooltip:AddLine()).")
 		end
+
 		--check data integrity
-		if ((type(iconTexture) ~= "string" and type(iconTexture) ~= "number") and (type(iconTexture) ~= "table" or not iconTexture.GetObjectType or iconTexture:GetObjectType() ~= "Texture")) then
-			return gameCooltip:PrintDebug("AddIcon() invalid parameters.")
+		local bCheckTextureObject = true
+		if (not detailsFramework:IsTexture(iconTexture, bCheckTextureObject)) then
+			return gameCooltip:PrintDebug("AddIcon() invalid texture.")
+		end
+
+		--parse the texure
+		local red, green, blue, alpha
+		iconTexture, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, red, green, blue, alpha = detailsFramework:ParseTexture(iconTexture, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor)
+
+		if (not overlayColor and red) then
+			overlayColor = {red, green, blue, alpha}
 		end
 
 		side = side or 1

@@ -1646,8 +1646,11 @@
 			end
 
 			if (_current_combat.trinketProcs) then
+				---@type table <actorname, trinketprocdata>
 				local playerTrinketData = _current_combat.trinketProcs[sourceName] or {}
 				_current_combat.trinketProcs[sourceName] = playerTrinketData
+
+				---@type trinketprocdata
 				local trinketData = playerTrinketData[spellId] or {cooldown = 0, total = 0}
 				playerTrinketData[spellId] = trinketData
 
@@ -4755,6 +4758,12 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
+	--local WA_OnPlayerDeath = function(isFakeDeath, token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, deathLog, lastCooldown, combatElapsedTime, maxHealth, mythicPlusElapsedTime)
+		--check auras with details! death log enabled
+		--run a script in the aura which receives interesting data from the WA_OnPlayerDeath()
+	--end
+	--Details:InstallHook("HOOK_DEATH", WA_OnPlayerDeath)
+
 	function parser:environment(token, time, sourceSerial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, env_type, amount)
 		local spelId
 
@@ -6901,7 +6910,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details:Destroy(bitfield_swap_cache)
 		Details:Destroy(empower_cache)
 
-		local groupRoster = Details.tabela_vigente.raid_roster
+		local currentCombat = Details:GetCurrentCombat()
+
+		local groupRoster = currentCombat.raid_roster
 
 		if (IsInRaid()) then
 			local unitIdCache = Details222.UnitIdCache.Raid
@@ -6987,15 +6998,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				auto_regen_cache[playerName] = auto_regen_power_specs[Details.cached_specs[playerGUID]]
 			end
 		end
-
-		local orderNames = {}
-		for playerName in pairs(groupRoster) do
-			orderNames[#orderNames+1] = playerName
-		end
-		table.sort(orderNames, function(name1, name2)
-			return string.len(name1) > string.len(name2)
-		end)
-		Details.tabela_vigente.raid_roster_indexed = orderNames
 
 		if (Details.iam_a_tank) then
 			tanks_members_cache[UnitGUID("player")] = true

@@ -1,93 +1,110 @@
 --[[ Declare all Details classes and container indexes ]]
 
 do
-	local _detalhes = 	_G.Details
+	---@type details
+	local Details = 	_G.Details
 	local addonName, Details222 = ...
 	local setmetatable = setmetatable
 	-------- container que armazena o cache de pets
-		_detalhes.container_pets = {}
-		_detalhes.container_pets.__index = _detalhes.container_pets
-		setmetatable(_detalhes.container_pets, _detalhes)
+		Details.container_pets = {}
+		Details.container_pets.__index = Details.container_pets
+		setmetatable(Details.container_pets, Details)
 
 	-------- time machine controla o tempo em combate dos jogadores
-		_detalhes.timeMachine = {}
-		_detalhes.timeMachine.__index = _detalhes.timeMachine
-		setmetatable(_detalhes.timeMachine, _detalhes)
+		Details.timeMachine = {}
+		Details.timeMachine.__index = Details.timeMachine
+		setmetatable(Details.timeMachine, Details)
 
 	-------- classe da tabela que armazenar� todos os combates efetuados
-		_detalhes.historico = {}
-		_detalhes.historico.__index = _detalhes.historico
-		setmetatable(_detalhes.historico, _detalhes)
+		Details.historico = {}
+		Details.historico.__index = Details.historico
+		setmetatable(Details.historico, Details)
 
 	---------------- classe da tabela onde ser�o armazenados cada combate efetuado
-			_detalhes.combate = {}
-			_detalhes.combate.__index = _detalhes.combate
-			setmetatable(_detalhes.combate, _detalhes.historico)
+			Details.combate = {}
+			Details.combate.__index = Details.combate
+			setmetatable(Details.combate, Details.historico)
 
 	------------------------ armazenas classes de jogadores ou outros derivados
-				_detalhes.container_combatentes = {}
-				_detalhes.container_combatentes.__index = _detalhes.container_combatentes
-				setmetatable(_detalhes.container_combatentes, _detalhes.combate)
+				Details.container_combatentes = {}
+				Details.container_combatentes.__index = Details.container_combatentes
+				setmetatable(Details.container_combatentes, Details.combate)
 
 	-------------------------------- dano das habilidades.
-					_detalhes.atributo_damage = {}
-					_detalhes.atributo_damage.__index = _detalhes.atributo_damage
-					setmetatable(_detalhes.atributo_damage, _detalhes.container_combatentes)
+					Details.atributo_damage = {}
+					Details.atributo_damage.__index = Details.atributo_damage
+					setmetatable(Details.atributo_damage, Details.container_combatentes)
 
 	-------------------------------- cura das habilidades.
-					_detalhes.atributo_heal = {}
-					_detalhes.atributo_heal.__index = _detalhes.atributo_heal
-					setmetatable(_detalhes.atributo_heal, _detalhes.container_combatentes)
+					Details.atributo_heal = {}
+					Details.atributo_heal.__index = Details.atributo_heal
+					setmetatable(Details.atributo_heal, Details.container_combatentes)
 
 	-------------------------------- e_energy ganha
-					_detalhes.atributo_energy = {}
-					_detalhes.atributo_energy.__index = _detalhes.atributo_energy
-					setmetatable(_detalhes.atributo_energy, _detalhes.container_combatentes)
+					Details.atributo_energy = {}
+					Details.atributo_energy.__index = Details.atributo_energy
+					setmetatable(Details.atributo_energy, Details.container_combatentes)
 
 	-------------------------------- outros atributos
-					_detalhes.atributo_misc = {}
-					_detalhes.atributo_misc.__index = _detalhes.atributo_misc
-					setmetatable(_detalhes.atributo_misc, _detalhes.container_combatentes)
+					Details.atributo_misc = {}
+					Details.atributo_misc.__index = Details.atributo_misc
+					setmetatable(Details.atributo_misc, Details.container_combatentes)
 
 	-------------------------------- atributos customizados
-					_detalhes.atributo_custom = {}
-					_detalhes.atributo_custom.__index = _detalhes.atributo_custom
-					setmetatable(_detalhes.atributo_custom, _detalhes.container_combatentes)
+					Details.atributo_custom = {}
+					Details.atributo_custom.__index = Details.atributo_custom
+					setmetatable(Details.atributo_custom, Details.container_combatentes)
 
 	-------------------------------- armazena as classes de habilidades usadas pelo combatente
-					_detalhes.container_habilidades = {}
-					_detalhes.container_habilidades.__index = _detalhes.container_habilidades
-					setmetatable(_detalhes.container_habilidades, _detalhes.combate)
+					Details.container_habilidades = {}
+					Details.container_habilidades.__index = Details.container_habilidades
+					setmetatable(Details.container_habilidades, Details.combate)
 
 	---------------------------------------- classe das habilidades que d�o cura
-						_detalhes.habilidade_cura = {}
-						_detalhes.habilidade_cura.__index = _detalhes.habilidade_cura
-						setmetatable(_detalhes.habilidade_cura, _detalhes.container_habilidades)
+						Details.habilidade_cura = {}
+						Details.habilidade_cura.__index = Details.habilidade_cura
+						setmetatable(Details.habilidade_cura, Details.container_habilidades)
 
 	---------------------------------------- classe das habilidades que d�o danos
-						_detalhes.habilidade_dano = {}
-						_detalhes.habilidade_dano.__index = _detalhes.habilidade_dano
-						setmetatable(_detalhes.habilidade_dano, _detalhes.container_habilidades)
+						Details.habilidade_dano = {}
+						Details.habilidade_dano.__index = Details.habilidade_dano
+						setmetatable(Details.habilidade_dano, Details.container_habilidades)
 
 	---------------------------------------- classe das habilidades que d�o e_energy
-						_detalhes.habilidade_e_energy = {}
-						_detalhes.habilidade_e_energy.__index = _detalhes.habilidade_e_energy
-						setmetatable(_detalhes.habilidade_e_energy, _detalhes.container_habilidades)
+						Details.habilidade_e_energy = {}
+						Details.habilidade_e_energy.__index = Details.habilidade_e_energy
+						setmetatable(Details.habilidade_e_energy, Details.container_habilidades)
 
 	---------------------------------------- classe das habilidades variadas
-						_detalhes.habilidade_misc = {}
-						_detalhes.habilidade_misc.__index = _detalhes.habilidade_misc
-						setmetatable(_detalhes.habilidade_misc, _detalhes.container_habilidades)
+						Details.habilidade_misc = {}
+						Details.habilidade_misc.__index = Details.habilidade_misc
+						setmetatable(Details.habilidade_misc, Details.container_habilidades)
 
 		---------------------------------------- classe dos alvos das habilidads
-							_detalhes.alvo_da_habilidade = {}
-							_detalhes.alvo_da_habilidade.__index = _detalhes.alvo_da_habilidade
-							setmetatable(_detalhes.alvo_da_habilidade, _detalhes.container_combatentes)
+							Details.alvo_da_habilidade = {}
+							Details.alvo_da_habilidade.__index = Details.alvo_da_habilidade
+							setmetatable(Details.alvo_da_habilidade, Details.container_combatentes)
 
-
+	---return the class object for the given displayId (attributeId)
+	---@param displayId attributeid
+	---@return table
+	function Details:GetDisplayClassByDisplayId(displayId)
+		if (displayId == DETAILS_ATTRIBUTE_DAMAGE) then
+			return Details.atributo_damage
+		elseif (displayId == DETAILS_ATTRIBUTE_HEAL) then
+			return Details.atributo_heal
+		elseif (displayId == DETAILS_ATTRIBUTE_ENERGY) then
+			return Details.atributo_energy
+		elseif (displayId == DETAILS_ATTRIBUTE_MISC) then
+			return Details.atributo_misc
+		elseif (displayId == DETAILS_ATTRIBUTE_CUSTOM) then
+			return Details.atributo_custom
+		end
+		return {}
+	end
 
 	--[[ Armazena os diferentes tipos de containers ]] --[[ Container Types ]]
-	_detalhes.container_type = {
+	Details.container_type = {
 		CONTAINER_PLAYERNPC = 1,
 		CONTAINER_DAMAGE_CLASS = 2,
 		CONTAINER_HEAL_CLASS = 3,
@@ -121,50 +138,72 @@ do
 		[1446] = 71, --warrior
 	}
 
+	---@param self actor
+	---@param specId number
 	function Details:SetSpecId(specId)
 		self.spec = initialSpecListOverride[specId] or specId
 	end
 
-	function _detalhes:Name(actor)
+	---@param self details|actor
+	---@param actor actor?
+	function Details:Name(actor)
 		return self.nome or actor and actor.nome
 	end
-	function _detalhes:GetName(actor)
+	---Retrieves the name of the actor.
+	---If the name is not available in the current object (self), it checks the provided actor object.
+	---@param actor (optional) The actor object to retrieve the name from.
+	---@return The name of the actor.
+	function Details:GetName(actor)
 		return self.nome or actor and actor.nome
 	end
 
-	function _detalhes:GetNameNoRealm(actor)
+	---Retrieves the name of the actor without the realm information.
+	---If the name is not available in the current object (self), it checks the provided actor object.
+	---@param actor (optional) The actor object to retrieve the name from.
+	---@return The name of the actor without the realm information.
+	function Details:GetNameNoRealm(actor)
 		local name = self.nome or actor and actor.nome
 		return Details:GetOnlyName(name)
 	end
 
-	function _detalhes:GetDisplayName(actor)
+	---Retrieves the display name of the actor.
+	---If the display name is not available in the current object (self), it checks the provided actor object.
+	---@param actor actor The actor object to retrieve the display name from.
+	---@return string displayName display name of the actor.
+	function Details:GetDisplayName(actor)
 		return self.displayName or actor and actor.displayName
 	end
 
+	---Sets the display name of the actor.
+	---If the new display name is not provided, it sets the display name of the current object (self) to the provided actor object.
+	---@param actor actor The actor object to set the display name for.
+	---@param newDisplayName string The new display name to set.
 	function Details:SetDisplayName(actor, newDisplayName)
 		if (not newDisplayName) then
-			newDisplayName = actor
-			self.displayName = newDisplayName
+			local thisActor = self
+			---@cast thisActor actor
+			local displayName = tostring(actor)
+			thisActor.displayName = displayName
 		else
 			actor.displayName = newDisplayName
 		end
 	end
 
-	function _detalhes:GetOnlyName(string)
+	function Details:GetOnlyName(string)
 		if (string) then
 			return string:gsub(("%-.*"), "")
 		end
 		return self.nome:gsub(("%-.*"), "")
 	end
 
-	function _detalhes:RemoveOwnerName(string)
+	function Details:RemoveOwnerName(string)
 		if (string) then
 			return string:gsub((" <.*"), "")
 		end
 		return self.nome:gsub((" <.*"), "")
 	end
 
-	function _detalhes:GetCLName(id)
+	function Details:GetCLName(id)
 		local name, realm = UnitName(id)
 		if (name) then
 			if (realm and realm ~= "") then
@@ -368,9 +407,9 @@ do
 	end
 
 	--inherits to all actors without placing it on _detalhes namespace.
-	_detalhes.container_combatentes.guid = _detalhes.GetGUID
-	_detalhes.container_combatentes.name = _detalhes.GetName
-	_detalhes.container_combatentes.class = _detalhes.GetActorClass
-	_detalhes.container_combatentes.flag = _detalhes.GetFlag
+	Details.container_combatentes.guid = Details.GetGUID
+	Details.container_combatentes.name = Details.GetName
+	Details.container_combatentes.class = Details.GetActorClass
+	Details.container_combatentes.flag = Details.GetFlag
 
 end
