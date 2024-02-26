@@ -748,24 +748,48 @@ function Details:GetNumLinesShown() --alis of _detalhes:GetNumRows()
 	return self.rows_fit_in_window
 end
 
---@attributeId: DETAILS_ATTRIBUTE_DAMAGE, DETAILS_ATTRIBUTE_HEAL
-function Details:GetTop5Actors(attributeId)
+---comment
+---@param displayId number
+---@return actor
+---@return actor
+---@return actor
+---@return actor
+---@return actor
+function Details:GetTop5Actors(displayId)
 	local combatObject = self.showing
-	if (combatObject) then
-		local container = combatObject:GetContainer(attributeId)
-		if (container) then
-            local actorTable = container._ActorTable
-			return actorTable[1], actorTable[2], actorTable[3], actorTable[4], actorTable[5]
-		end
-	end
+	local container = combatObject:GetContainer(displayId)
+	local actorTable = container._ActorTable
+	return actorTable[1], actorTable[2], actorTable[3], actorTable[4], actorTable[5]
+end
+
+---get the combat object which the instance is showing, get the display and subDisplay, then refresh the window in report mode and get the rankIndex actor
+---@param self instance
+---@param displayId attributeid
+---@param subDisplayId attributeid
+---@param rankIndex number
+---@return actor
+function Details:GetActorBySubDisplayAndRank(displayId, subDisplayId, rankIndex)
+	local classObject = Details:GetDisplayClassByDisplayId(displayId)
+	local combatObject = self:GetCombat()
+	local bIsForceRefresh = false
+	local bIsExport = true
+	local totalDone, subDisplayName, firstPlaceTotal, actorAmount = classObject:RefreshWindow(self, combatObject, bIsForceRefresh, bIsExport)
+
+	local actorContainer = combatObject:GetContainer(displayId)
+	local actorTable = actorContainer:GetActorTable()
+
+	return actorTable[rankIndex]
 end
 
 --@attributeId: DETAILS_ATTRIBUTE_DAMAGE, DETAILS_ATTRIBUTE_HEAL
 --@rankIndex: the rank id of the actor shown in the window
-function Details:GetActorByRank(attributeId, rankIndex)
-	local combatObject = self.showing
+---@param self instance
+---@param displayId attributeid
+---@param rankIndex number
+function Details:GetActorByRank(displayId, rankIndex)
+	local combatObject = self:GetCombat()
 	if (combatObject) then
-		local container = combatObject:GetContainer(attributeId)
+		local container = combatObject:GetContainer(displayId)
 		if (container) then
 			return container._ActorTable[rankIndex]
 		end
@@ -3409,7 +3433,7 @@ function Details:monta_relatorio (este_relatorio, custom)
 		--shrink
 		local report_lines = {}
 		for i = 1, Details.report_lines+1, 1 do  --#este_relatorio -- o +1 � pq ele conta o cabe�alho como uma linha
-			report_lines [#report_lines+1] = este_relatorio[i]
+			report_lines [#report_lines+1] = este_relatorio[i] --este_relatorio is a nil value | bug report tells custom is true
 		end
 
 		return self:envia_relatorio (report_lines, true)
