@@ -1,8 +1,11 @@
 
-	local Details = 		_G.Details
-	local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
-	local _
-	local addonName, Details222 = ...
+local Details = 		_G.Details
+local Loc = LibStub("AceLocale-3.0"):GetLocale ( "Details" )
+local _
+local addonName, Details222 = ...
+
+---@type detailsframework
+local detailsFramework = DetailsFramework
 
 --[[global]] DETAILS_TOTALS_ONLYGROUP = true
 --[[global]] DETAILS_SEGMENTID_OVERALL = -1
@@ -25,11 +28,30 @@
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC = 10
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH = 11
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL = 12
---[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL = 13
+--[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL = 13 --not in use at the moment
 --[[global]] DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS = 14
 
 --[[global]] DETAILS_SEGMENTTYPE_PVP_ARENA = 20
 --[[global]] DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = 21
+
+--[[global]] DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY = 30
+
+local segmentTypeToString = {
+	[DETAILS_SEGMENTTYPE_GENERIC] = "Generic",
+	[DETAILS_SEGMENTTYPE_OVERALL] = "Overall",
+	[DETAILS_SEGMENTTYPE_DUNGEON_TRASH] = "DungeonTrash",
+	[DETAILS_SEGMENTTYPE_DUNGEON_BOSS] = "DungeonBoss",
+	[DETAILS_SEGMENTTYPE_RAID_TRASH] = "RaidTrash",
+	[DETAILS_SEGMENTTYPE_RAID_BOSS] = "RaidBoss",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON] = "Category MythicDungeon",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC] = "MythicDungeonGeneric",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH] = "MythicDungeonTrash",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL] = "MythicDungeonOverall",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL] = "MythicDungeonTrashOverall",
+	[DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS] = "MythicDungeonBoss",
+	[DETAILS_SEGMENTTYPE_PVP_ARENA] = "PvPArena",
+	[DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND] = "PvPBattleground",
+}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --local pointers
@@ -39,7 +61,7 @@
 	local date = date -- lua local
 	local tremove = table.remove -- lua local
 	local rawget = rawget
-	local _math_max = math.max
+	local max = math.max
 	local floor = math.floor
 	local GetTime = GetTime
 
@@ -88,13 +110,27 @@
 		return self.data_inicio, self.data_fim
 	end
 
-	--set the combat date
+	---set the combat date
+	---@param started string?
+	---@param ended string?
 	function classCombat:SetDate(started, ended)
 		if (started and type(started) == "string") then
 			self.data_inicio = started
 		end
 		if (ended and type(ended) == "string") then
 			self.data_fim = ended
+		end
+	end
+
+	---Sets the date to the current time.
+	---@param bSetStartDate boolean? Whether to set the start date.
+	---@param bSetEndDate boolean? Whether to set the end date.
+	function classCombat:SetDateToNow(bSetStartDate, bSetEndDate)
+		if (bSetStartDate) then
+			self.data_inicio = date("%H:%M:%S")
+		end
+		if (bSetEndDate) then
+			self.data_fim = date("%H:%M:%S")
 		end
 	end
 
@@ -126,7 +162,7 @@
 		return self.raid_roster
 	end
 
-	function classCombat:InstanceType()
+	function classCombat:GetInstanceType()
 		return rawget(self, "instance_type")
 	end
 
@@ -142,6 +178,8 @@
 		return self.is_boss and self.is_boss.id
 	end
 
+	---@param self combat
+	---@return bossinfo bossInfo
 	function classCombat:GetBossInfo()
 		return self.is_boss
 	end
@@ -196,6 +234,29 @@
 		end
 
 		return deaths
+	end
+
+	---Return the encounter name if any
+	---@param self combat
+	---@return string|number
+	function classCombat:GetEncounterName()
+		return self.EncounterName or (self.is_boss and self.is_boss.name)
+	end
+
+	function classCombat:GetBossImage()
+		---@type details_encounterinfo
+		local encounterInfo = Details:GetEncounterInfo(self:GetEncounterName())
+		if (encounterInfo) then
+			return encounterInfo.creatureIcon
+		end
+
+		---@type bossinfo
+		local bossInfo = self:GetBossInfo()
+		if (bossInfo) then
+			return bossInfo.bossimage
+		end
+
+		return self.bossIcon or ""
 	end
 
 	function classCombat:GetCombatId()
@@ -287,49 +348,203 @@
 		return 0
 	end
 
-	--return the name of the encounter or enemy
-	function classCombat:GetCombatName(try_find)
-		if (self.is_pvp) then
-			return self.is_pvp.name
-
-		elseif (self.is_boss) then
-			return self.is_boss.encounter
-
-		elseif (self.is_mythic_dungeon_trash) then
-			return self.is_mythic_dungeon_trash.ZoneName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")"
-
-		elseif (rawget(self, "is_trash")) then
-			return Loc ["STRING_SEGMENT_TRASH"]
-
-		else
-			if (self.enemy) then
-				return self.enemy
-			end
-			if (try_find) then
-				return Details:FindEnemy()
+	---Retrieves the slot ID of the current combat segment within the combat segments table.
+	---@return number The slot ID of the current combat segment.
+	function classCombat:GetSegmentSlotId()
+		local segmentsTable = Details:GetCombatSegments()
+		for i = 1, #segmentsTable do
+			if (segmentsTable[i] == self) then
+				return i
 			end
 		end
-		return Loc ["STRING_UNKNOW"]
+
+		if (Details:GetCurrentCombat() == self) then
+			return DETAILS_SEGMENTID_CURRENT
+		else
+			return DETAILS_SEGMENTID_OVERALL
+		end
+	end
+
+	---return the atlasinfo for the combat icon
+	---@param self combat
+	---@return df_atlasinfo
+	function classCombat:GetCombatIcon()
+		local textureAtlas = Details:GetTextureAtlasTable()
+
+		if (not self) then
+			return textureAtlas["segment-icon-regular"]
+		end
+
+		local combatType = self:GetCombatType()
+
+		if (combatType == DETAILS_SEGMENTTYPE_OVERALL) then
+			return textureAtlas["segment-icon-overall"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON) then
+			return textureAtlas["segment-icon-mythicplus"]
+
+		--elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL) then
+		--	return textureAtlas["segment-icon-mythicplus"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
+			return textureAtlas["segment-icon-mythicplus"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
+			return textureAtlas["segment-icon-mythicplus"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC) then
+			return textureAtlas["segment-icon-mythicplus"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_PVP_ARENA) then
+			return textureAtlas["segment-icon-arena"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND) then
+			return textureAtlas["segment-icon-arena"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_RAID_TRASH) then
+			return textureAtlas["segment-icon-broom"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_RAID_BOSS) then
+			return textureAtlas["segment-icon-skull"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY) then
+			return textureAtlas["segment-icon-love-is-in-the-air"]
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_BOSS) then
+			return textureAtlas["segment-icon-skull"]
+		end
+
+		return textureAtlas["segment-icon-regular"]
+	end
+
+	local partyColor = {170/255, 167/255, 255/255}
+	local loveIsInTheAirColor = {1, 0.411765, 0.705882, 1}
+	local bossKillColor = "lime"
+	local bossWipeColor = "red"
+	local mythicDungeonBossColor = {170/255, 167/255, 255/255, 1}
+	local mythicDungeonBossColor2 = {210/255, 200/255, 255/255, 1}
+
+	function classCombat:GetCombatName(bOnlyName, bTryFind)
+		if (not self) then
+			return Loc["STRING_UNKNOW"]
+		end
+
+		local r, g, b
+		local combatType, categoryType = self:GetCombatType()
+
+		if (combatType == DETAILS_SEGMENTTYPE_OVERALL) then
+			return Loc["STRING_SEGMENT_OVERALL"]
+		end
+
+		if (categoryType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON) then
+			local mythicDungeonInfo = self:GetMythicDungeonInfo()
+			local isMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
+
+			--print("mythic combat type", combatType, self.combat_id)
+
+			if (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL) then
+				local overallIconString = detailsFramework:CreateAtlasString(Details.TextureAtlas["segment-icon-mythicplus-overall"])
+				local combatName = zoneName .. " +" .. mythicLevel
+				if (bOnlyName) then
+					return combatName, unpack(partyColor)
+				else
+					return overallIconString .. zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENTS_LIST_OVERALL"] .. ")", unpack(partyColor)
+				end
+
+			--elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL) then
+			--	local trashIconString = detailsFramework:CreateAtlasString(Details.TextureAtlas["segment-icon-broom"])
+			--	return trashIconString .. zoneName .. " +" .. mythicLevel .. " (" .. Loc["STRING_SEGMENT_TRASH"] .. ")"
+
+			elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
+				return (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(Loc["STRING_SEGMENTS_LIST_TRASH"]) .. ")"
+
+			elseif (combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
+				return (encounterName or Loc["STRING_UNKNOW"]) .. " (" .. string.lower(_G["BOSS"]) .. ")", detailsFramework:ParseColors(mythicDungeonBossColor)
+			end
+		end
+
+		if (combatType == DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND) then
+			return self.is_pvp.name
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_PVP_ARENA) then
+			return self.is_arena.name
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY) then
+			local bossInfo = self:GetBossInfo()
+			r, g, b = detailsFramework:ParseColors(loveIsInTheAirColor)
+			return bossInfo.name, r, g, b, 1
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_DUNGEON_BOSS) then
+			local bossInfo = self:GetBossInfo()
+			local bIsKill = bossInfo.killed
+			if (bOnlyName) then
+				return bossInfo.name, detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+			else
+				local segmentId = self:GetSegmentSlotId()
+				return bossInfo.name .." (#" .. segmentId .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+			end
+
+		elseif (combatType == DETAILS_SEGMENTTYPE_RAID_BOSS) then
+			local bossInfo = self:GetBossInfo()
+			if (bossInfo and bossInfo.name) then
+				--bossKillColor
+				local bIsKill = bossInfo.killed
+				local formattedTime = self:GetFormattedCombatTime()
+				local tryNumber = self:GetTryNumber()
+				if (tryNumber) then
+					return bossInfo.name .." (#" .. tryNumber .. " " .. formattedTime .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+				else
+					local segmentId = self:GetSegmentSlotId()
+					return bossInfo.name .." (#" .. segmentId .. ")", detailsFramework:ParseColors(bIsKill and bossKillColor or bossWipeColor)
+				end
+			end
+		end
+
+		local bossInfo = self:GetBossInfo()
+		if (bossInfo and (bossInfo.encounter or bossInfo.name)) then
+			return bossInfo.encounter or bossInfo.name
+		end
+
+		if (rawget(self, "is_trash")) then
+			return Loc ["STRING_SEGMENT_TRASH"]
+		end
+
+		if (self.enemy) then
+			return self.enemy
+		end
+
+		if (bTryFind) then
+			local newName = Details:FindEnemy()
+			if (newName) then
+				self.enemy = newName
+				return newName
+			end
+		end
+
+		local segmentId = self:GetSegmentSlotId()
+		return Loc["STRING_FIGHTNUMBER"] .. segmentId
 	end
 
 	function classCombat:GetCombatType()
 		--mythic dungeon
-		local isMythicDungeon = self.is_mythic_dungeon_segment
-		if (isMythicDungeon) then
-			local bIsMythicDungeonOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.OverallSegment
-			if (bIsMythicDungeonOverall) then
+		local bIsMythicDungeon = self:IsMythicDungeon()
+		if (bIsMythicDungeon) then
+			local mythicDungeonInfo = self:GetMythicDungeonInfo()
+			local bIsMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
+
+			if (bIsMythicOverallSegment) then
 				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 			end
 
-			local bIsMythicDungeonTrashOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.TrashOverallSegment
-			if (bIsMythicDungeonTrashOverall) then
-				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
-			end
-
+			--self.is_mythic_dungeon_trash only exists if the segment isn't a boss trash overall
 			local isMythicDungeonTrash = self.is_mythic_dungeon_trash
-			if (isMythicDungeonTrash) then
+			if (segmentID == "trashoverall" and encounterName) then
 				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
 			end
+
+			--if (segmentID == "trashoverall") then --overall trash for the whole dungeon doesn't exists anymore
+			--	return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+			--end
 
 			local bossEncounter =  self.is_boss
 			if (bossEncounter) then
@@ -337,6 +552,10 @@
 			end
 
 			return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+		else
+			--local mythicDungeonInfo = self:GetMythicDungeonInfo()
+			--local bIsMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
+			--segmentID == "trashoverall"
 		end
 
 		--arena
@@ -355,9 +574,14 @@
 		local instanceType = self.instance_type
 
 		if (instanceType == "party") then
-			local bossEncounter =  self.is_boss
-			if (bossEncounter) then
-				return DETAILS_SEGMENTTYPE_DUNGEON_BOSS
+			local bossInfo =  self:GetBossInfo()
+
+			if (bossInfo) then
+				if (bossInfo.mapid == 33 and bossInfo.diff_string == "Event" and bossInfo.id == 2879) then --Shadowfang Keep | The Crown Chemical Co.
+					return DETAILS_SEGMENTTYPE_EVENT_VALENTINEDAY
+				else
+					return DETAILS_SEGMENTTYPE_DUNGEON_BOSS
+				end
 			else
 				return DETAILS_SEGMENTTYPE_DUNGEON_TRASH
 			end
@@ -379,8 +603,12 @@
 		return DETAILS_SEGMENTTYPE_GENERIC
 	end
 
+	function Details:UnpackMythicDungeonInfo(t)
+		return t.OverallSegment, t.SegmentID, t.Level, t.EJID, t.MapID, t.ZoneName, t.EncounterID, t.EncounterName, t.StartedAt, t.EndedAt, t.RunID
+	end
+
 	--return a numeric table with all actors on the specific containter
-	function classCombat:GetActorList (container)
+	function classCombat:GetActorList(container)
 		return self [container]._ActorTable
 	end
 
@@ -396,9 +624,38 @@
 		return nil
 	end
 
-	---return the combat time in seconds
+	---Return a key|value table containing the spellId as key and a table with information about the trinket as value
+	---@param self combat
+	---@param playerName string
+	---@return table<spellid, trinketprocdata>
+	function classCombat:GetTrinketProcsForPlayer(playerName)
+		local trinketProcs = self.trinketProcs
+		return trinketProcs[playerName] or {}
+	end
+
+	---return a string with minute and seconds of the combat time separated by a colon
+	---@return string
+	function classCombat:GetFormattedCombatTime()
+		local combatTime = self:GetCombatTime()
+		local minute, second = floor(combatTime / 60), floor(combatTime % 60)
+
+		local minuteString = tostring(minute)
+		local secondString = tostring(second)
+
+		if (minute < 10) then
+			minuteString = "0" .. minuteString
+		end
+
+		if (second < 10) then
+			secondString = "0" .. secondString
+		end
+
+		return minuteString .. ":" .. secondString
+	end
+
+	---return two values, one for minute and another for seconds
 	---@return number, number
-	function classCombat:GetFormatedCombatTime()
+	function classCombat:GetMSTime()
 		local combatTime = self:GetCombatTime()
 		local minute, second = floor(combatTime / 60), floor(combatTime % 60)
 		return minute, second
@@ -408,34 +665,68 @@
 	---@return number
 	function classCombat:GetCombatTime()
 		if (self.end_time) then
-			return _math_max (self.end_time - self.start_time, 0.1)
+			return max(self.end_time - self.start_time, 0.1)
 		elseif (self.start_time and Details.in_combat and self ~= Details.tabela_overall) then
-			return _math_max (GetTime() - self.start_time, 0.1)
+			return max(GetTime() - self.start_time, 0.1)
 		else
 			return 0.1
 		end
 	end
 
+	---return the amount of time a mythic plus run has elapsed, if there's no information about the run time, it'll return the combat time
+	---@param self combat
+	---@return number
 	function classCombat:GetRunTime()
 		return self.run_time or self:GetCombatTime()
 	end
 
+	---return the amount of time a mythic plus run has elapsed, if there's no information about the run time, return nil
+	---@param self combat
+	---@return number?
 	function classCombat:GetRunTimeNoDefault()
 		return self.run_time
 	end
 
+	---Return the gametime when the combat started
+	---Game Time is the result value from the function GetTime()
+	---@param self combat
+	---@return gametime
 	function classCombat:GetStartTime()
 		return self.start_time
 	end
+
+	---Set the gametime when the combat started
+	---Game Time is the result value from the function GetTime()
+	---@param self combat
+	---@param thisTime gametime
 	function classCombat:SetStartTime(thisTime)
 		self.start_time = thisTime
 	end
 
+	---Return the gametime when the combat ended
+	---Game Time is the result value from the function GetTime()
+	---@param self combat
+	---@return gametime
 	function classCombat:GetEndTime()
 		return self.end_time
 	end
+
+	---Set the gametime when the combat ended
+	---Game Time is the result value from the function GetTime()
+	---@param self combat
+	---@param thisTime gametime
 	function classCombat:SetEndTime(thisTime)
 		self.end_time = thisTime
+	end
+
+	---Return how many attempts were made for this boss
+	---@return number|nil
+	function classCombat:GetTryNumber()
+		---@type bossinfo
+		local bossInfo = self:GetBossInfo()
+		if (bossInfo) then
+			return bossInfo.try_number
+		end
 	end
 
 	---copy deaths from combat2 into combat1
@@ -614,16 +905,16 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	combatObject.combat_counter = Details.combat_counter
 
 	--try discover if is a pvp combat
-	local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...
-	if (who_serial) then --aqui ir� identificar o boss ou o oponente
-		if (alvo_name and bitBand (alvo_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
-			combatObject.contra = alvo_name
-			if (bitBand (alvo_flags, CONTROL_PLAYER) ~= 0) then
+	local sourceGUID, sourceName, sourceFlags, targetGUID, targetName, targetFlags = ...
+	if (sourceGUID) then --aqui ir� identificar o boss ou o oponente
+		if (targetName and bitBand (targetFlags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo alvo
+			combatObject.contra = targetName
+			if (bitBand (targetFlags, CONTROL_PLAYER) ~= 0) then
 				combatObject.pvp = true --o alvo � da fac��o oposta ou foi dado mind control
 			end
-		elseif (who_name and bitBand (who_flags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
-			combatObject.contra = who_name
-			if (bitBand (who_flags, CONTROL_PLAYER) ~= 0) then
+		elseif (sourceName and bitBand (sourceFlags, REACTION_HOSTILE) ~= 0) then --tentando pegar o inimigo pelo who caso o mob � quem deu o primeiro hit
+			combatObject.contra = sourceName
+			if (bitBand (sourceFlags, CONTROL_PLAYER) ~= 0) then
 				combatObject.pvp = true --o who � da fac��o oposta ou foi dado mind control
 			end
 		else
@@ -653,7 +944,6 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 
 	--players in the raid
 	combatObject.raid_roster = {}
-	combatObject.raid_roster_indexed = {}
 
 	--frags
 	combatObject.frags = {}
@@ -675,6 +965,10 @@ function classCombat:NovaTabela(bTimeStarted, overallCombatObject, combatId, ...
 	combatObject.cleu_events = {
 		n = 1 --event counter
 	}
+
+	local zoneName, _, _, _, _, _, _, zoneMapID = GetInstanceInfo()
+	combatObject.zoneName = zoneName
+	combatObject.mapId = zoneMapID
 
 	--a tabela sem o tempo de inicio � a tabela descartavel do inicio do addon
 	if (bTimeStarted) then
@@ -804,14 +1098,6 @@ end
 					actorObject.end_time = _tempo
 				end
 			end
-		end
-	end
-
-	function classCombat:seta_data(tipo)
-		if (tipo == Details._detalhes_props.DATA_TYPE_START) then
-			self.data_inicio = date("%H:%M:%S")
-		elseif (tipo == Details._detalhes_props.DATA_TYPE_END) then
-			self.data_fim = date("%H:%M:%S")
 		end
 	end
 
