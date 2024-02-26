@@ -4,6 +4,8 @@
 	local PixelUtil = PixelUtil or DFPixelUtil
 	local addonName, Details222 = ...
 	local CreateFrame = CreateFrame
+
+	---@type detailsframework
 	local detailsFramework = DetailsFramework
 	local UIParent = UIParent
 	local UISpecialFrames = UISpecialFrames
@@ -349,10 +351,70 @@
 		return newPluginObject
 	end
 
-	function Details:CreatePluginOptionsFrame(name, title, template)
-		template = template or 1
+	---create a window for plugin options
+	---@param name string
+	---@param title string
+	---@param template number? @1 = standard backdrop, @2 = buttonframe, @3 = rounded corners
+	---@param pluginIcon string?
+	---@param pluginIconCoords table?
+	function Details:CreatePluginOptionsFrame(name, title, template,  pluginIcon, pluginIconCoords)
+		template = template or 3
 
-		if (template == 2) then
+		if (template == 3) then
+			local optionsFrame = CreateFrame("frame", name, UIParent)
+			table.insert(UISpecialFrames, name)
+			optionsFrame:SetSize(500, 200)
+			optionsFrame:SetMovable(true)
+			optionsFrame:EnableMouse(true)
+			optionsFrame:SetFrameStrata("DIALOG")
+			optionsFrame:SetToplevel(true)
+			optionsFrame:SetPoint("center", UIParent, "center")
+			optionsFrame:Hide()
+
+			detailsFramework:AddRoundedCornersToFrame(optionsFrame, Details.PlayerBreakdown.RoundedCornerPreset)
+
+			--create a an icon to display the pluginIcon
+			local pluginIconTexture = detailsFramework:CreateTexture(optionsFrame, pluginIcon, 20, 20, "artwork", pluginIconCoords or {0, 1, 0, 1}, "pluginIconTexture", "$parentPluginIconTexture")
+			pluginIconTexture:SetPoint("topleft", optionsFrame, "topleft", 5, -5)
+			if (not pluginIcon) then
+				pluginIconTexture:SetSize(1, 20)
+			end
+
+			--create a font string in the topleft corner for plugin name
+			local pluginNameLabel = detailsFramework:CreateLabel(optionsFrame, title, 20, "yellow")
+			pluginNameLabel:SetPoint("left", pluginIconTexture, "right", 2, 0)
+
+			--create a close button at the right top corner
+			local closeButton = detailsFramework:CreateCloseButton(optionsFrame)
+			closeButton:SetPoint("topright", optionsFrame, "topright", -5, -5)
+
+			local bigDogTexture = detailsFramework:CreateTexture(optionsFrame, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 110, 120, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+			bigDogTexture:SetPoint("bottomright", optionsFrame, "bottomright", -3, 0)
+			bigDogTexture:SetAlpha(.25)
+
+			optionsFrame:SetScript("OnMouseDown", function(self, button)
+				if (button == "RightButton") then
+					if (self.moving) then
+						self.moving = false
+						self:StopMovingOrSizing()
+					end
+					return optionsFrame:Hide()
+				elseif (button == "LeftButton" and not self.moving) then
+					self.moving = true
+					self:StartMoving()
+				end
+			end)
+
+			optionsFrame:SetScript("OnMouseUp", function(self)
+				if (self.moving) then
+					self.moving = false
+					self:StopMovingOrSizing()
+				end
+			end)
+
+			return optionsFrame
+
+		elseif (template == 2) then
 			local optionsFrame = CreateFrame("frame", name, UIParent, "ButtonFrameTemplate, BackdropTemplate")
 			table.insert(UISpecialFrames, name)
 			optionsFrame:SetSize(500, 200)
@@ -442,10 +504,6 @@
 		pluginContainerFrame:SetBackdropBorderColor(0, 0, 0, 1)
 		table.insert(UISpecialFrames, "DetailsPluginContainerWindow")
 
-		local scaleBar = DetailsFramework:CreateScaleBar(pluginContainerFrame, Details.options_window)
-		scaleBar:SetFrameStrata("fullscreen")
-		pluginContainerFrame:SetScale(Details.options_window.scale)
-
 		pluginContainerFrame:Hide()
 
 		--members
@@ -469,6 +527,10 @@
 		LibWindow.RestorePosition(pluginContainerFrame)
 		LibWindow.MakeDraggable(pluginContainerFrame)
 		LibWindow.SavePosition(pluginContainerFrame)
+
+		local scaleBar = DetailsFramework:CreateScaleBar(pluginContainerFrame, Details.options_window, true)
+		scaleBar:SetFrameStrata("fullscreen")
+		pluginContainerFrame:SetScale(Details.options_window.scale)
 
 		--left side bar menu
 		local optionsLeftSideBarMenu = CreateFrame("frame", "$parentMenuFrame", pluginContainerFrame, "BackdropTemplate")
