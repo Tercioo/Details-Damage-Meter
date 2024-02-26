@@ -12,6 +12,7 @@ local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
 local DF = DetailsFramework
+local detailsFramework = DetailsFramework
 local tinsert = table.insert
 
 local spellsTab = DetailsSpellBreakdownTab
@@ -245,6 +246,34 @@ function spellsTab.CreatePhasesContainer(tabFrame) --~phase ~createphasecontaine
 	---@type breakdownphasescrollframe not sure is this is correct
 	local phaseScrollFrame = DF:CreateScrollBox(container, "$parentPhaseScroll", refreshPhaseFunc, {}, width, height, defaultAmountOfLines, CONST_SPELLSCROLL_LINEHEIGHT)
 	DF:ReskinSlider(phaseScrollFrame)
+
+	---@param self breakdownphasescrollframe
+	---@return breakdownreporttable
+	function phaseScrollFrame:GetReportData()
+		local instance = spellsTab.GetInstance()
+		local data = phaseScrollFrame:GetData()
+		local formatFunc = Details:GetCurrentToKFunction()
+		local actorObject = spellsTab.GetActor()
+		local displayId, subDisplayId = instance:GetDisplay()
+		local subDisplayName = Details:GetSubAttributeName(displayId, subDisplayId)
+		local combatName = instance:GetCombat():GetCombatName()
+
+		---@type breakdownreporttable
+		local reportData = {
+			title = "Phases for " .. detailsFramework:RemoveRealmName(actorObject:Name()) .. " | " .. subDisplayName .. " | " .. combatName
+		}
+
+		for i = 1, #data do
+			local dataTable = data[i]
+			reportData[#reportData+1] = {
+				name = "Phase:" .. dataTable.phaseName,
+				amount = formatFunc(nil, dataTable.amountDone),
+				percent = string.format("%.1f", dataTable.percentDone) .. "%",
+			}
+		end
+
+		return reportData
+	end
 
 	phaseScrollFrame:SetBackdrop({})
 	phaseScrollFrame:SetAllPoints()

@@ -15,6 +15,8 @@ local tinsert = table.insert
 
 ---@type detailsframework
 local DF = DetailsFramework
+---@type detailsframework
+local detailsFramework = DetailsFramework
 
 local spellsTab = DetailsSpellBreakdownTab
 
@@ -191,7 +193,7 @@ local onEnterSpellBar = function(spellBar, motion) --parei aqui: precisa por nom
 	local elapsedTime = spellBar.combatTime --this should be actorObject:Tempo()
 
 	---@type string
-	local actorName = spellsTab.GetActor():Name() --attempt to index a nil value
+	local actorName = spellsTab.GetActor():Name() --attempt to index a nil value x2
 
 	---@type spelltable
 	local spellTable = spellBar.spellTable
@@ -511,7 +513,7 @@ local spellBlockMixin = {
 function spellsTab.CreateSpellBlock(spellBlockContainer, index) --~breakdownspellblock ~create ~spellblocks
 	---@type breakdownspellblock
 	local spellBlock = CreateFrame("statusbar", "$parentBlock" .. index, spellBlockContainer, "BackdropTemplate")
-	DetailsFramework:Mixin(spellBlock, spellBlockMixin)
+	detailsFramework:Mixin(spellBlock, spellBlockMixin)
 
 	local statusBarTexture = spellBlock:CreateTexture("$parentTexture", "artwork")
 	statusBarTexture:SetColorTexture(unpack(CONST_SPELLBLOCK_DEFAULT_COLOR))
@@ -570,7 +572,7 @@ function spellsTab.CreateSpellBlock(spellBlockContainer, index) --~breakdownspel
 	spellBlock.sparkTexture:SetTexture("Interface\\AddOns\\Details\\images\\bar_detalhes2_end")
 	spellBlock.sparkTexture:SetBlendMode("ADD")
 
-    local gradientDown = DetailsFramework:CreateTexture(spellBlock, {gradient = "vertical", fromColor = {0, 0, 0, 0.1}, toColor = "transparent"}, 1, spellBlock:GetHeight(), "background", {0, 1, 0, 1})
+    local gradientDown = detailsFramework:CreateTexture(spellBlock, {gradient = "vertical", fromColor = {0, 0, 0, 0.1}, toColor = "transparent"}, 1, spellBlock:GetHeight(), "background", {0, 1, 0, 1})
     gradientDown:SetPoint("bottoms")
 	spellBlock.gradientTexture = gradientDown
 	spellBlock.gradientTexture:Hide()
@@ -776,7 +778,7 @@ function spellsTab.CreateSpellBlockContainer(tabFrame) --~create ~createblock ~s
 	spellBlockFrame:SetResizable(false)
 	spellBlockFrame:SetMovable(false)
 	spellBlockFrame:SetAllPoints()
-	DetailsFramework:Mixin(spellBlockFrame, spellBlockContainerMixin)
+	detailsFramework:Mixin(spellBlockFrame, spellBlockContainerMixin)
 
 	tabFrame.SpellBlockFrame = spellBlockFrame
 	spellsTab.SpellBlockFrame = spellBlockFrame
@@ -1312,6 +1314,52 @@ function spellsTab.CreateSpellScrollContainer(tabFrame) --~scroll ~create ~spell
 	spellsTab.SpellScrollFrame = scrollFrame
 
 	spellsTab.ApplyStandardBackdrop(container, scrollFrame)
+
+	---@param self breakdownphasescrollframe
+	---@return breakdownreporttable
+	function scrollFrame:GetReportData()
+		local instance = spellsTab.GetInstance()
+
+		---@type breakdownspelldatalist
+		local data = self:GetData()
+
+		local formatFunc = Details:GetCurrentToKFunction()
+		local actorObject = spellsTab.GetActor()
+		local displayId, subDisplayId = instance:GetDisplay()
+		local subDisplayName = Details:GetSubAttributeName(displayId, subDisplayId)
+		local combatName = instance:GetCombat():GetCombatName()
+
+		---@type breakdownreporttable
+		local reportData = {
+			title = subDisplayName .. " for " .. detailsFramework:RemoveRealmName(actorObject:Name()) .. " | " .. combatName
+		}
+
+		local topValue = data[1] and data[1].total or 0
+
+		for i = 1, #data do
+			---@type spelltableadv
+			local bkSpellData = data[i]
+			local spellId = bkSpellData.id
+			local spellName = Details.GetSpellInfo(spellId)
+
+			if (not spellName) then
+				--dumpt(bkSpellData)
+				if (bkSpellData.npcId) then
+					spellName = detailsFramework:CleanUpName(bkSpellData.actorName)
+				end
+			else
+				spellName = detailsFramework:CleanUpName(spellName)
+			end
+
+			reportData[#reportData+1] = {
+				name = spellName,
+				amount = formatFunc(nil, bkSpellData.total),
+				percent = string.format("%.1f", bkSpellData.total/topValue*100) .. "%",
+			}
+		end
+
+		return reportData
+	end
 
 	--~header
 	local headerOptions = {

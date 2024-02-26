@@ -11,8 +11,12 @@ local GetSpellInfo = GetSpellInfo
 local _GetSpellInfo = Details.GetSpellInfo
 local GameTooltip = GameTooltip
 local IsShiftKeyDown = IsShiftKeyDown
-local DF = DetailsFramework
 local tinsert = table.insert
+
+---@type detailsframework
+local DF = DetailsFramework
+---@type detailsframework
+local detailsFramework = DetailsFramework
 
 local spellsTab = DetailsSpellBreakdownTab
 local headerContainerType = spellsTab.headerContainerType
@@ -279,6 +283,38 @@ function spellsTab.CreateTargetContainer(tabFrame) --~create ~target ~createtarg
 	DF:ReskinSlider(targetScrollFrame)
 	targetScrollFrame:SetBackdrop({})
 	targetScrollFrame:SetAllPoints()
+
+	---@param self breakdownphasescrollframe
+	---@return breakdownreporttable
+	function targetScrollFrame:GetReportData()
+		local instance = spellsTab.GetInstance()
+		local data = targetScrollFrame:GetData()
+		local formatFunc = Details:GetCurrentToKFunction()
+		local actorObject = spellsTab.GetActor()
+		local displayId, subDisplayId = instance:GetDisplay()
+		local subDisplayName = Details:GetSubAttributeName(displayId, subDisplayId)
+		local combatName = instance:GetCombat():GetCombatName()
+
+		---@type breakdownreporttable
+		local reportData = {
+			title = "Target of " .. detailsFramework:RemoveRealmName(actorObject:Name()) .. " | " .. subDisplayName .. " | " .. combatName
+		}
+
+		local topValue = data[1] and data[1].total or 0
+
+		for i = 1, #data do
+			---@type breakdowntargettable
+			local dataTable = data[i]
+
+			reportData[#reportData+1] = {
+				name = dataTable.name,
+				amount = formatFunc(nil, dataTable.total),
+				percent = string.format("%.1f", dataTable.total / topValue * 100) .. "%",
+			}
+		end
+
+		return reportData
+	end
 
 	container:RegisterChildForDrag(targetScrollFrame)
 
