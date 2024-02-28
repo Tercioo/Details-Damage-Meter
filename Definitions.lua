@@ -411,6 +411,10 @@
 ---@field GetPets fun(actor: actor) : table<number, string> get a table with all pet names that belong to the player
 ---@field GetSpellList fun(actor: actor) : table<number, spelltable>
 ---@field GetSpellContainerNames fun(container: actorcontainer) : string[] get the table which contains the names of the spell containers
+---@field GetDisplayName fun(actor: actor) : string Get the display name of the actor. Display name is often the player name without the realm name.
+---@field GetActorSpells fun(actor: actor) : spellcontainer get the spell container of the actor
+---@field Pets fun(actor: actor) : petname[] get the pets of the actor
+---@field 
 
 ---@class actordamage : actor
 ---@field friendlyfire_total number

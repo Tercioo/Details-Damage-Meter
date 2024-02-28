@@ -6543,7 +6543,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 						if (combatInstanceType == "party") then
 							local combatName, r, g, b = thisCombat:GetCombatName()
-							gameCooltip:AddLine(combatName, _, 1, r or dungeonColor, b, g, 1)
+							gameCooltip:AddLine(combatName, _, 1, dungeonColor)
 
 						elseif (bossInfo.killed) then
 							gameCooltip:AddLine(thisCombat:GetCombatName(), _, 1, "lime")

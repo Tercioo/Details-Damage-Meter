@@ -48,3 +48,6 @@ plugins/Details_EncounterDetails/Libs/LibLuaServer/LuaServerDefinitions.lua
 plugins/Details_EncounterDetails/Definitions.lua
 *.afphoto~lock~
 annotations.txt
+plugins/Details_Compare2/Definitions.lua
+plugins/Details_Compare2/DF/
+plugins/Details_Compare2/LibLuaServer/
