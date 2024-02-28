@@ -7111,13 +7111,14 @@ do
 
             {--show evoker bar
                 type = "toggle",
-                get = function() return Details.combat_log.evoker_calc_damage end,
+                get = function() return Details.combat_log.calc_evoker_damage end,
                 set = function(self, fixedparam, value)
-                    Details.combat_log.evoker_calc_damage = value
+                    Details.combat_log.calc_evoker_damage = value
                     afterUpdate()
                     Details:ClearParserCache()
+                    currentInstance:InstanceReset()
                 end,
-                name = DF:AddClassIconToText("Predict Augmentation Damage", false, "EVOKER"),
+                name = DF:AddClassIconToText("Show Augmentation Extra Bar", false, "EVOKER"),
                 desc = "Calculate how much the Augmentation Evoker are buffing other players",
                 boxfirst = true,
             },

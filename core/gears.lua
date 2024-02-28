@@ -714,21 +714,24 @@ end
 
 _detalhes.background_tasks_loop = _detalhes:ScheduleRepeatingTimer ("DoBackgroundTasks", 120)
 
-
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --storage stuff ~storage
+
+local CONST_ADDONNAME_DATASTORAGE = "Details_DataStorage"
 
 --global database
 _detalhes.storage = {}
 
 function _detalhes.storage:OpenRaidStorage()
 	--check if the storage is already loaded
-	if (not IsAddOnLoaded ("Details_DataStorage")) then
-		local loaded, reason = LoadAddOn ("Details_DataStorage")
+	if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
+		local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
 		if (not loaded) then
 			return
 		end
 	end
+
+	do return end
 
 	--get the storage table
 	local db = DetailsDataStorage
@@ -745,7 +748,7 @@ function _detalhes.storage:OpenRaidStorage()
 	return db
 end
 
-function _detalhes.storage:HaveDataForEncounter (diff, encounter_id, guild_name)
+function _detalhes.storage:HaveDataForEncounter(diff, encounter_id, guild_name)
 	local db = _detalhes.storage:OpenRaidStorage()
 
 	if (not db) then
@@ -753,7 +756,7 @@ function _detalhes.storage:HaveDataForEncounter (diff, encounter_id, guild_name)
 	end
 
 	if (guild_name and type(guild_name) == "boolean") then
-		guild_name = GetGuildInfo ("player")
+		guild_name = GetGuildInfo("player")
 	end
 
 	local table = db [diff]
@@ -1416,6 +1419,8 @@ local createStorageTables = function()
 end
 
 function _detalhes.ScheduleLoadStorage()
+	do return end
+
 	if (InCombatLockdown() or UnitAffectingCombat("player")) then
 		if (_detalhes.debug) then
 			print("|cFFFFFF00Details! storage scheduled to load (player in combat).")
@@ -1423,8 +1428,8 @@ function _detalhes.ScheduleLoadStorage()
 		_detalhes.schedule_storage_load = true
 		return
 	else
-		if (not IsAddOnLoaded("Details_DataStorage")) then
-			local loaded, reason = LoadAddOn("Details_DataStorage")
+		if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
+			local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
 			if (not loaded) then
 				if (_detalhes.debug) then
 					print("|cFFFFFF00Details! Storage|r: can't load storage, may be the addon is disabled.")
@@ -1436,7 +1441,7 @@ function _detalhes.ScheduleLoadStorage()
 		end
 	end
 
-	if (IsAddOnLoaded("Details_DataStorage")) then
+	if (C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 		_detalhes.schedule_storage_load = nil
 		_detalhes.StorageLoaded = true
 		if (_detalhes.debug) then
@@ -1454,11 +1459,14 @@ function _detalhes.GetStorage()
 	return DetailsDataStorage
 end
 
+--this function is used on the breakdown window to show ranking and on the main window when hovering over the spec icon
 function _detalhes.OpenStorage()
 	--if the player is in combat, this function return false, if failed to load by other reason it returns nil
 
+	do return end
+
 	--check if the storage is already loaded
-	if (not IsAddOnLoaded("Details_DataStorage")) then
+	if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 		--can't open it during combat
 		if (InCombatLockdown() or UnitAffectingCombat("player")) then
 			if (_detalhes.debug) then
@@ -1467,7 +1475,7 @@ function _detalhes.OpenStorage()
 			return false
 		end
 
-		local loaded, reason = LoadAddOn("Details_DataStorage")
+		local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
 		if (not loaded) then
 			if (_detalhes.debug) then
 				print("|cFFFFFF00Details! Storage|r: can't load storage, may be the addon is disabled.")
@@ -1477,7 +1485,7 @@ function _detalhes.OpenStorage()
 
 		local db = createStorageTables()
 
-		if (db and IsAddOnLoaded("Details_DataStorage")) then
+		if (db and C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
 			_detalhes.StorageLoaded = true
 		end
 
@@ -1489,10 +1497,13 @@ end
 
 Details.Database = {}
 
+--this function is called on storewipe and storeencounter
 function Details.Database.LoadDB()
+	do return end
+
 	--check if the storage is already loaded
-	if (not IsAddOnLoaded("Details_DataStorage")) then
-		local loaded, reason = LoadAddOn("Details_DataStorage")
+	if (not C_AddOns.IsAddOnLoaded(CONST_ADDONNAME_DATASTORAGE)) then
+		local loaded, reason = C_AddOns.LoadAddOn(CONST_ADDONNAME_DATASTORAGE)
 		if (not loaded) then
 			if (_detalhes.debug) then
 				print("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")

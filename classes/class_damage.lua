@@ -3071,12 +3071,12 @@ function Details:ShowExtraStatusbar(thisLine, amount, extraAmount, totalAmount, 
 		extraStatusbar.OnEnterCallback = onEnterFunc
 		extraStatusbar.OnLeaveCallback = onLeaveFunc
 
-		if (Details.combat_log.evoker_calc_damage) then
-			extraStatusbar:SetAlpha(0.8)
-			extraStatusbar.defaultAlpha = 0.8
+		if (Details.combat_log.calc_evoker_damage) then
+			extraStatusbar:SetAlpha(0.2)
+			extraStatusbar.defaultAlpha = 0.2
 		else
-			extraStatusbar:SetAlpha(0.1)
-			extraStatusbar.defaultAlpha = 0.1
+			extraStatusbar:SetAlpha(0.7)
+			extraStatusbar.defaultAlpha = 0.7
 		end
 		extraStatusbar:Show()
 	else
@@ -3134,7 +3134,13 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 			Details.FadeHandler.Fader(thisLine, "out")
 
 			if (self.total_extra and self.total_extra > 0) then
-				handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+				if (self.spec == 1473) then
+					if (Details.combat_log.calc_evoker_damage) then
+						handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+					end
+				else
+					handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+				end
 			end
 
 			return self:RefreshBarra(thisLine, instance)
@@ -3151,12 +3157,18 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 				thisLine.last_value = percent --reseta o ultimo valor da barra
 
 				if (self.total_extra and self.total_extra > 0) then
-					handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+					if (self.spec == 1473) then
+						if (Details.combat_log.calc_evoker_damage) then
+							handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+						end
+					else
+						handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+					end
 				end
 
 				return self:RefreshBarra(thisLine, instance)
 
-			elseif (percent ~= thisLine.last_value) then --continua mostrando a mesma tabela ent�o compara a porcentagem
+			elseif (percent ~= thisLine.last_value) then
 				--apenas atualizar
 				if (bUseAnimations and self.spec ~= 1473) then
 					thisLine.animacao_fim = percent
@@ -3166,13 +3178,25 @@ function Details:RefreshLineValue(thisLine, instance, previousData, isForceRefre
 				thisLine.last_value = percent
 
 				if (self.total_extra and self.total_extra > 0) then
-					Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
+					if (self.spec == 1473) then
+						if (Details.combat_log.calc_evoker_damage) then
+							handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+						end
+					else
+						Details:ShowExtraStatusbar(thisLine, self.total, self.total_extra, totalValue, topValue, instance)
+					end
 				end
 
 				return self:RefreshBarra(thisLine, instance)
 			else
 				if (self.total_extra and self.total_extra > 0) then
-					handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+					if (self.spec == 1473) then
+						if (Details.combat_log.calc_evoker_damage) then
+							handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+						end
+					else
+						handleShowExtraStatusbar(thisLine, self, instance, previousData, isForceRefresh, percent, bUseAnimations, totalValue, topValue)
+					end
 				end
 			end
 		end

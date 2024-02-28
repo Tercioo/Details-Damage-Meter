@@ -1,7 +1,7 @@
 
-DETAILS_STORAGE_VERSION = 5
+DETAILS_STORAGE_VERSION = 6
 
-function _detalhes:CreateStorageDB()
+function Details:CreateStorageDB()
 	DetailsDataStorage = {
 		VERSION = DETAILS_STORAGE_VERSION,
 		[14] = {}, --normal mode (raid)
@@ -13,26 +13,29 @@ function _detalhes:CreateStorageDB()
 	return DetailsDataStorage
 end
 
-local f = CreateFrame ("frame", nil, UIParent)
+local f = CreateFrame("frame", nil, UIParent)
 f:Hide()
-f:RegisterEvent ("ADDON_LOADED")
+f:RegisterEvent("ADDON_LOADED")
 
-f:SetScript ("OnEvent", function (self, event, addonName)
+f:SetScript("OnEvent", function(self, event, addonName)
 	if (addonName == "Details_DataStorage") then
-		DetailsDataStorage = DetailsDataStorage or _detalhes:CreateStorageDB()
+		DetailsDataStorage = DetailsDataStorage or Details:CreateStorageDB()
 		DetailsDataStorage.Data = {}
-
+print("loaded...")
 		if (DetailsDataStorage.VERSION < DETAILS_STORAGE_VERSION) then
+			print("is outdated")
 			--> do revisions
-			if (DetailsDataStorage.VERSION < 5) then
-				table.wipe (DetailsDataStorage)
-				DetailsDataStorage = _detalhes:CreateStorageDB()
+			if (DetailsDataStorage.VERSION < 6) then
+				print("outdated two, data wiped!")
+				table.wipe(DetailsDataStorage)
+				DetailsDataStorage = Details:CreateStorageDB()
 			end
 		end
 
-		if (_detalhes and _detalhes.debug) then
-			print ("|cFFFFFF00Details! Storage|r: loaded!")
+		if (Details and Details.debug) then
+			print("|cFFFFFF00Details! Storage|r: loaded!")
 		end
+
 		DETAILS_STORAGE_LOADED = true
 	end
 end)

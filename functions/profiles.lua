@@ -1168,7 +1168,7 @@ local default_player_data = {
 			track_hunter_frenzy = false,
 			merge_gemstones_1007 = false,
 			merge_critical_heals = false,
-			evoker_calc_damage = false,
+			calc_evoker_damage = true,
 			evoker_show_realtimedps = false,
 		},
 

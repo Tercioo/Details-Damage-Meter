@@ -1500,14 +1500,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print("profile name:", Details.always_use_profile_name)
 		print("version:", Details.build_counter >= Details.alpha_build_counter and Details.build_counter or Details.alpha_build_counter)
 
-	elseif (msg == "record") then
-
-
-			Details.ScheduleLoadStorage()
-			Details.TellDamageRecord = C_Timer.NewTimer(0.6, Details.PrintEncounterRecord)
-			Details.TellDamageRecord.Boss = 2032
-			Details.TellDamageRecord.Diff = 16
-
 	elseif (msg == "recordtest") then
 
 		local f = DetailsRecordFrameAnimation

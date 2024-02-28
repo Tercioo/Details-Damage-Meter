@@ -5327,8 +5327,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 				--if the current raid is current tier raid, pre-load the storage database
 				if (zoneType == "raid") then
-					if (Details.InstancesToStoreData [zoneMapID]) then
-						Details.ScheduleLoadStorage()
+					if (Details.InstancesToStoreData[zoneMapID]) then
+						--Details.ScheduleLoadStorage()
 					end
 				end
 
@@ -5702,7 +5702,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--when the user requested data from the storage but is in combat lockdown
 		if (Details.schedule_storage_load) then
 			Details.schedule_storage_load = nil
-			Details.ScheduleLoadStorage()
+			--Details.ScheduleLoadStorage()
 		end
 
 		--store a boss encounter when out of combat since it might need to load the storage
