@@ -1297,20 +1297,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 		newCombat.is_trash = false
 		Details:Msg("done merging, segments: " .. segmentsAdded .. ", total time: " .. DetailsFramework:IntegerToTimer(totalTime))
 
-		--[[ --mythic+ debug
-		--tag the segment as mythic overall segment
-		newCombat.is_mythic_dungeon = {
-			MapID = _detalhes.MythicPlus.Dungeon,
-			StartedAt = _detalhes.MythicPlus.StartedAt, --the start of the run
-			EndedAt = _detalhes.MythicPlus.EndedAt, --the end of the run
-			SegmentID = "overall", --segment number within the dungeon
-			--EncounterID = encounterID,
-			--EncounterName = encounterName,
-			RunID = _detalhes.MythicPlus.RunID,
-			OverallSegment = true,
-		}
-		--]]
-
 		--set some data
 		newCombat:SetStartTime(GetTime() - totalTime)
 		newCombat:SetEndTime(GetTime())

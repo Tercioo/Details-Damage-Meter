@@ -221,11 +221,11 @@ function DetailsMythicPlusFrame.EventListener.OnDetailsEvent(contextObject, even
                     local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
 
                     --just in case the combat get tagged as boss fight
-                    Details.tabela_vigente.is_boss = nil
+                    Details:GetCurrentCombat().is_boss = nil
 
                     --tag the combat as mythic dungeon trash
                     local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-                    Details.tabela_vigente.is_mythic_dungeon_trash = {
+                    Details:GetCurrentCombat().is_mythic_dungeon_trash = {
                         ZoneName = zoneName,
                         MapID = instanceMapID,
                         Level = Details.MythicPlus.Level,

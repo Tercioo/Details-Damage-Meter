@@ -529,6 +529,12 @@ local segmentTypeToString = {
 		--mythic dungeon
 		local bIsMythicDungeon = self:IsMythicDungeon()
 		if (bIsMythicDungeon) then
+			--check for for regular trash mythic plus segment for a quick exit
+			local mythicDungeonTrachInfo = self:GetMythicDungeonTrashInfo()
+			if (mythicDungeonTrachInfo) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH, DETAILS_SEGMENTTYPE_MYTHICDUNGEON
+			end
+
 			local mythicDungeonInfo = self:GetMythicDungeonInfo()
 			local bIsMythicOverallSegment, segmentID, mythicLevel, EJID, mapID, zoneName, encounterID, encounterName, startedAt, endedAt, runID = Details:UnpackMythicDungeonInfo(mythicDungeonInfo)
 
